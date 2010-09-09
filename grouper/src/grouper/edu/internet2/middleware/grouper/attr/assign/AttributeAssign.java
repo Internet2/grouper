@@ -32,6 +32,7 @@ import edu.internet2.middleware.grouper.annotations.GrouperIgnoreDbVersion;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreFieldConstant;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
+import edu.internet2.middleware.grouper.attr.AttributeDefType;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValueDelegate;
@@ -58,6 +59,9 @@ import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperHasContext;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
+import edu.internet2.middleware.grouper.rules.RuleCheckType;
+import edu.internet2.middleware.grouper.rules.RuleEngine;
+import edu.internet2.middleware.grouper.rules.beans.RulesPermissionBean;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.xml.export.XmlExportAttributeAssign;
 import edu.internet2.middleware.grouper.xml.export.XmlImportableMultiple;
@@ -462,7 +466,10 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
     final AttributeAssignable attributeAssignable = AttributeAssign.this.retrieveAttributeAssignable();
     
     //make sure subject is allowed to do this
-    attributeAssignable.getAttributeDelegate().assertCanUpdateAttributeDefName(this.getAttributeDefName());
+    final AttributeDefName ATTRIBUTE_DEF_NAME = this.getAttributeDefName();
+    final AttributeAssignAction ATTRIBUTE_ASSIGN_ACTION = AttributeAssign.this.getAttributeAssignAction();
+
+    attributeAssignable.getAttributeDelegate().assertCanUpdateAttributeDefName(ATTRIBUTE_DEF_NAME);
     
     HibernateSession.callbackHibernateSession(
         GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT,
@@ -481,7 +488,25 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
               }
               
               GrouperDAOFactory.getFactory().getAttributeAssign().saveOrUpdate(AttributeAssign.this);
+              
+              //if enabled permission
+              if (AttributeAssign.this.isEnabled() && AttributeDefType.perm == theAttributeDef.getAttributeDefType()
+                  && AttributeAssign.this.getAttributeAssignType() == AttributeAssignType.any_mem) {
                 
+                //fire rule
+                RulesPermissionBean rulesPermissionBean = new RulesPermissionBean(
+                    AttributeAssign.this, 
+                    AttributeAssign.this.getOwnerGroup(),
+                    AttributeAssign.this.getOwnerMember(),
+                    ATTRIBUTE_DEF_NAME,
+                    theAttributeDef,
+                    ATTRIBUTE_ASSIGN_ACTION.getName());
+
+                //fire rules directly connected to this permission add
+                RuleEngine.fireRule(RuleCheckType.permissionAssignToSubject, rulesPermissionBean);
+
+              }
+              
               if (!hibernateHandlerBean.isCallerWillCreateAudit()) {
                 AuditEntry auditEntry = new AuditEntry();
                 
@@ -498,9 +523,9 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
                 }
 
                 auditEntry.assignStringValue(auditEntry.getAuditType(), "id", AttributeAssign.this.getId());
-                auditEntry.assignStringValue(auditEntry.getAuditType(), "attributeDefNameName", AttributeAssign.this.getAttributeDefName().getName());
+                auditEntry.assignStringValue(auditEntry.getAuditType(), "attributeDefNameName", ATTRIBUTE_DEF_NAME.getName());
                 auditEntry.assignStringValue(auditEntry.getAuditType(), "attributeDefNameId", AttributeAssign.this.getAttributeDefNameId());
-                auditEntry.assignStringValue(auditEntry.getAuditType(), "action", AttributeAssign.this.getAttributeAssignAction().getName());
+                auditEntry.assignStringValue(auditEntry.getAuditType(), "action", ATTRIBUTE_ASSIGN_ACTION.getName());
                 auditEntry.assignStringValue(auditEntry.getAuditType(), "attributeDefId", theAttributeDef.getId());
 
                 auditEntry.saveOrUpdate(true);

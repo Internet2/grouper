@@ -18,13 +18,16 @@ import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
+import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.permissions.role.Role;
 import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.rules.beans.RulesAttributeDefBean;
 import edu.internet2.middleware.grouper.rules.beans.RulesBean;
 import edu.internet2.middleware.grouper.rules.beans.RulesGroupBean;
 import edu.internet2.middleware.grouper.rules.beans.RulesMembershipBean;
+import edu.internet2.middleware.grouper.rules.beans.RulesPermissionBean;
 import edu.internet2.middleware.grouper.rules.beans.RulesStemBean;
 import edu.internet2.middleware.grouper.subj.SafeSubject;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -123,7 +126,7 @@ public enum RuleCheckType {
      */
     @Override
     public String validate(RuleDefinition ruleDefinition, RuleCheck ruleCheck) {
-      return this.validate(ruleDefinition, ruleCheck, false, true, false);
+      return this.validate(ruleDefinition, ruleCheck, false, true, false, false);
     }
 
     
@@ -179,7 +182,7 @@ public enum RuleCheckType {
      */
     @Override
     public String validate(RuleDefinition ruleDefinition, RuleCheck ruleCheck) {
-      return this.validate(ruleDefinition, ruleCheck, false, true, false);
+      return this.validate(ruleDefinition, ruleCheck, false, true, false, false);
     }
 
     /**
@@ -275,7 +278,7 @@ public enum RuleCheckType {
      * @return the error or null if valid
      */
     public String validate(RuleDefinition ruleDefinition, RuleCheck ruleCheck) {
-      return validate(ruleDefinition, ruleCheck, true, false, true);
+      return validate(ruleDefinition, ruleCheck, true, false, true, false);
     }
 
     /**
@@ -332,7 +335,7 @@ public enum RuleCheckType {
      * @return the error or null if valid
      */
     public String validate(RuleDefinition ruleDefinition, RuleCheck ruleCheck) {
-      return validate(ruleDefinition, ruleCheck, true, false, true);
+      return validate(ruleDefinition, ruleCheck, true, false, true, false);
     }
 
     /**
@@ -427,7 +430,7 @@ public enum RuleCheckType {
      * @return the error or null if valid
      */
     public String validate(RuleDefinition ruleDefinition, RuleCheck ruleCheck) {
-      return validate(ruleDefinition, ruleCheck, true, false, true);
+      return validate(ruleDefinition, ruleCheck, true, false, true, false);
     }
 
     /**
@@ -537,7 +540,7 @@ public enum RuleCheckType {
 
   }, 
   
-  /** if there is a membership add in transaction of remove */
+  /** if there is a membership add in transaction */
   membershipAdd{
   
     /**
@@ -587,7 +590,7 @@ public enum RuleCheckType {
      */
     @Override
     public String validate(RuleDefinition ruleDefinition, RuleCheck ruleCheck) {
-      return this.validate(ruleDefinition, ruleCheck, false, true, false);
+      return this.validate(ruleDefinition, ruleCheck, false, true, false, false);
     }
 
   }, 
@@ -642,7 +645,7 @@ public enum RuleCheckType {
      */
     @Override
     public String validate(RuleDefinition ruleDefinition, RuleCheck ruleCheck) {
-      return this.validate(ruleDefinition, ruleCheck, false, true, false);
+      return this.validate(ruleDefinition, ruleCheck, false, true, false, false);
     }
 
   }, 
@@ -657,7 +660,7 @@ public enum RuleCheckType {
      * @return the error or null if valid
      */
     public String validate(RuleDefinition ruleDefinition, RuleCheck ruleCheck) {
-      return validate(ruleDefinition, ruleCheck, true, false, true);
+      return validate(ruleDefinition, ruleCheck, true, false, true, false);
     }
   
     /**
@@ -714,7 +717,7 @@ public enum RuleCheckType {
      * @return the error or null if valid
      */
     public String validate(RuleDefinition ruleDefinition, RuleCheck ruleCheck) {
-      return validate(ruleDefinition, ruleCheck, true, false, true);
+      return validate(ruleDefinition, ruleCheck, true, false, true, false);
     }
   
     /**
@@ -801,6 +804,104 @@ public enum RuleCheckType {
       }
       
     }
+  }, 
+  
+  /** if there is a permission assign in transaction to a subject, not to a role */
+  permissionAssignToSubject {
+  
+    /**
+     * @see RuleCheckType#checkKey(RuleDefinition)
+     */
+    @Override
+    public RuleCheck checkKey(RuleDefinition ruleDefinition) {
+      RuleCheck ruleCheck = ruleDefinition.getCheck();
+      if (StringUtils.isBlank(ruleCheck.getCheckOwnerId()) && StringUtils.isBlank(ruleCheck.getCheckOwnerName())) {
+
+        //if this is assigned to an attributeDef
+        if (!StringUtils.isBlank(ruleDefinition.getAttributeAssignType().getOwnerAttributeDefId())) {
+  
+          //clone so we dont edit the object
+          ruleCheck = ruleCheck.clone();
+          //set the owner to this group
+          ruleCheck.setCheckOwnerId(ruleDefinition.getAttributeAssignType().getOwnerAttributeDefId());
+        } else {
+          LOG.error("Not sure why no check owner if not assigned to attributeDef");
+        }
+      }
+      return ruleCheck;
+    }
+  
+    /**
+     * 
+     * @see edu.internet2.middleware.grouper.rules.RuleCheckType#ruleDefinitions(edu.internet2.middleware.grouper.rules.RuleEngine, edu.internet2.middleware.grouper.rules.beans.RulesBean)
+     */
+    @Override
+    public Set<RuleDefinition> ruleDefinitions(RuleEngine ruleEngine, RulesBean rulesBean) {
+      
+      return ruleDefinitionsPermission(this, ruleEngine, rulesBean);
+      
+    }
+  
+    /**
+     * 
+     */
+    @Override
+    public void addElVariables(RuleDefinition ruleDefinition, Map<String, Object> variableMap, 
+        RulesBean rulesBean, boolean hasAccessToElApi) {
+      RulesPermissionBean rulesPermissionBean = (RulesPermissionBean)rulesBean;
+      if (rulesPermissionBean != null) {
+        Role role = rulesPermissionBean.getRole();
+        variableMap.put("roleId", role.getId());
+        variableMap.put("roleName", role.getName());
+        variableMap.put("roleDisplayName", role.getDisplayName());
+        variableMap.put("roleExtension", role.getExtension());
+        variableMap.put("roleDisplayExtension", role.getDisplayExtension());
+        variableMap.put("roleDescription", role.getDescription());
+        if (hasAccessToElApi) {
+          variableMap.put("role", role);
+        }
+      }
+      if (!StringUtils.isBlank(rulesPermissionBean.getMemberId())) {
+        variableMap.put("memberId", rulesPermissionBean.getMemberId());
+        if (hasAccessToElApi) {
+          Member member = rulesPermissionBean.getMember();
+          if (member != null) {
+            variableMap.put("member", member);
+          }
+        }
+      }
+      String action = rulesPermissionBean.getAction();
+      if (!StringUtils.isBlank(action)) {
+        variableMap.put("action", rulesPermissionBean.getAction());
+      }
+      AttributeDef attributeDef = rulesPermissionBean.getAttributeDef();
+      if (attributeDef != null) {
+        variableMap.put("nameOfAttributeDef", attributeDef.getName());
+        variableMap.put("attributeDefId", attributeDef.getId());
+        if (hasAccessToElApi) {
+          variableMap.put("attributeDef", attributeDef);
+        }
+      }
+      AttributeDefName attributeDefName = rulesPermissionBean.getAttributeDefName();
+      if (attributeDefName != null) {
+        variableMap.put("attributeDefNameName", attributeDefName.getName());
+        variableMap.put("attributeDefNameId", attributeDefName.getId());
+        if (hasAccessToElApi) {
+          variableMap.put("attributeDefName", attributeDefName);
+        }
+      }
+      
+    }
+  
+    /**
+     * 
+     * @see edu.internet2.middleware.grouper.rules.RuleCheckType#validate(RuleDefinition, edu.internet2.middleware.grouper.rules.RuleCheck)
+     */
+    @Override
+    public String validate(RuleDefinition ruleDefinition, RuleCheck ruleCheck) {
+      return this.validate(ruleDefinition, ruleCheck, false, false, false, true);
+    }
+  
   };
 
   /**
@@ -846,9 +947,12 @@ public enum RuleCheckType {
    * @param requireStemScope true to require, false to require blank
    * @param ownerIsGroup 
    * @param ownerIsStem 
+   * @param ownerIsAttributeDef 
    * @return the error or null if valid
    */
-  public String validate(RuleDefinition ruleDefinition, RuleCheck ruleCheck, boolean requireStemScope, boolean ownerIsGroup, boolean ownerIsStem) {
+  public String validate(RuleDefinition ruleDefinition, RuleCheck ruleCheck, 
+      boolean requireStemScope, boolean ownerIsGroup, boolean ownerIsStem, boolean ownerIsAttributeDef) {
+    
     if (!StringUtils.isBlank(ruleCheck.getCheckOwnerId()) && !StringUtils.isBlank(ruleCheck.getCheckOwnerName())) {
       return "Enter one and only one of checkOwnerId and checkOwnerName!";
     }
@@ -876,6 +980,13 @@ public enum RuleCheckType {
     
     if (ownerIsStem) {
       String result = ruleCheck.validateOwnerStem(ruleDefinition);
+      if (!StringUtils.isBlank(result)) {
+        return result;
+      }
+    }
+    
+    if (ownerIsAttributeDef) {
+      String result = ruleCheck.validateOwnerAttributeDef(ruleDefinition);
       if (!StringUtils.isBlank(result)) {
         return result;
       }
@@ -948,6 +1059,28 @@ public enum RuleCheckType {
    */
   public void runDaemon(RuleDefinition ruleDefinition) {
     throw new RuntimeException("Not implemented daemon: " + ruleDefinition);
+  }
+
+  /**
+   * for a permission assign, get the rules
+   * @param ruleCheckType 
+   * @param ruleEngine 
+   * @param rulesBean 
+   * @return rule definitions
+   */
+  private static Set<RuleDefinition> ruleDefinitionsPermission(RuleCheckType ruleCheckType, RuleEngine ruleEngine, RulesBean rulesBean) {
+    
+    RulesPermissionBean rulesPermissionBean = (RulesPermissionBean)rulesBean;
+    
+    Set<RuleDefinition> ruleDefinitions = new HashSet<RuleDefinition>();
+    
+    //by id
+    RuleCheck ruleCheck = new RuleCheck(ruleCheckType.name(), 
+        rulesPermissionBean.getAttributeDef().getId(), rulesPermissionBean.getAttributeDef().getName(), null);
+  
+    ruleDefinitions.addAll(GrouperUtil.nonNull(ruleEngine.ruleCheckIndexDefinitionsByNameOrId(ruleCheck)));
+    
+    return ruleDefinitions;
   }
 
   /** logger */

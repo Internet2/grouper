@@ -697,7 +697,7 @@ public enum GrouperLoaderType {
               Group newGroup = new GroupSave(grouperSession).assignSaveMode(SaveMode.INSERT)
                 .assignCreateParentStemsIfNotExist(true)
                 .assignName(groupName).assignDisplayName(groupDisplayName)
-                .assignDescription(groupDescription).saveUnchecked();
+                .assignDescription(groupDescription).save();
               
               for (GroupType groupType : groupTypes) {
                 try {
@@ -1025,7 +1025,7 @@ public enum GrouperLoaderType {
             Group group = new GroupSave(grouperSession).assignName(subjectIdOrIdentifier)
               .assignCreateParentStemsIfNotExist(true)  
               .assignGroupNameToEdit(subjectIdOrIdentifier)
-              .assignSaveMode(SaveMode.INSERT_OR_UPDATE).saveUnchecked();
+              .assignSaveMode(SaveMode.INSERT_OR_UPDATE).save();
             subject = group.toSubject();
           }
         }

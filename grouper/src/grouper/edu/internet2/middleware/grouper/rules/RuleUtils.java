@@ -836,6 +836,46 @@ public class RuleUtils {
   
   /**
    * 
+   * @param attributeDefId
+   * @param attributeDefName
+   * @param alternateAttributeDefId
+   * @param useRootSession if we should use root or static session
+   * @param throwExceptionIfNotFound
+   * @return attributeDef or null
+   */
+  public static AttributeDef attributeDef(final String attributeDefId, final String attributeDefName, 
+      final String alternateAttributeDefId, final boolean useRootSession, final boolean throwExceptionIfNotFound) {
+    GrouperSession grouperSession = useRootSession ? GrouperSession.startRootSession(false) : GrouperSession.staticGrouperSession();
+    try {
+      return (AttributeDef)GrouperSession.callbackGrouperSession(grouperSession, new GrouperSessionHandler() {
+        
+        public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+          AttributeDef attributeDef = null;
+          if (!StringUtils.isBlank(attributeDefId)) {
+            attributeDef = AttributeDefFinder.findById(attributeDefId, false);
+          } else if (!StringUtils.isBlank(attributeDefName)) {
+            attributeDef = AttributeDefFinder.findByName(attributeDefName, false);
+          } else if (!StringUtils.isBlank(alternateAttributeDefId)) {
+            attributeDef = AttributeDefFinder.findById( alternateAttributeDefId, false);
+          }
+          
+          if (throwExceptionIfNotFound && attributeDef == null) {
+            throw new RuntimeException("Cant find attributeDef: " + attributeDefId + ", " + attributeDefName + ", " + alternateAttributeDefId);
+          }
+          
+          return attributeDef;
+        }
+      });
+     } finally {
+       if (useRootSession) {
+         GrouperSession.stopQuietly(grouperSession);
+       }
+    }
+    
+  }
+  
+  /**
+   * 
    * @param groupId
    * @param groupName
    * @param alternateGroupId
@@ -862,6 +902,23 @@ public class RuleUtils {
     
     try {
       stem(stemId, stemName, alternateStemId, true, true);
+    } catch (Exception e) {
+      return e.getMessage();
+    }
+    return null;
+  }
+  
+  /**
+   * 
+   * @param attributeDefId
+   * @param attributeDefName
+   * @param alternateAttributeDefId 
+   * @return the error message or null if ok
+   */
+  public static String validateAttributeDef(String attributeDefId, String attributeDefName, String alternateAttributeDefId) {
+    
+    try {
+      attributeDef(attributeDefId, attributeDefName, alternateAttributeDefId, true, true);
     } catch (Exception e) {
       return e.getMessage();
     }

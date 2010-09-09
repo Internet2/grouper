@@ -338,5 +338,22 @@ public class RuleCheck {
     return RuleUtils.validateStem(this.checkOwnerId, this.checkOwnerName, attributeAssignType.getOwnerStemId());
   }
   
+  /**
+   * see if the owner is an attributeDef (note, owner requiredness not checked)
+   * @param ruleDefinition
+   * @return the error message
+   */
+  public String validateOwnerAttributeDef(RuleDefinition ruleDefinition) {
+
+    //if this is on a stem, then can be blank
+    AttributeAssign attributeAssignType = ruleDefinition.getAttributeAssignType();
+    if (attributeAssignType != null && !StringUtils.isBlank(attributeAssignType.getOwnerAttributeDefId())) {
+      if (StringUtils.isBlank(this.checkOwnerId) && StringUtils.isBlank(this.checkOwnerName)) {
+        return null;
+      }
+    }
+    return RuleUtils.validateAttributeDef(this.checkOwnerId, this.checkOwnerName, attributeAssignType.getOwnerAttributeDefId());
+  }
+  
 
 }

@@ -675,4 +675,51 @@ public class RuleApi {
     
   }
   
+  /**
+   * veto a direct permission assignment if not in group
+   * @param actAs
+   * @param permissionDef 
+   * @param ruleGroup
+   * @param mustBeInGroup
+   * @param vetoKey
+   * @param vetoMessage
+   */
+  public static void vetoPermissionIfNotInGroup(Subject actAs, AttributeDef permissionDef, Group mustBeInGroup, String vetoKey, String vetoMessage) {
+    //add a rule on stem:a saying if not in stem:b, then dont allow add to stem:a
+    AttributeAssign attributeAssign = permissionDef
+      .getAttributeDelegate().addAttribute(RuleUtils.ruleAttributeDefName()).getAttributeAssign();
+    
+    AttributeValueDelegate attributeValueDelegate = attributeAssign.getAttributeValueDelegate();
+  
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleActAsSubjectSourceIdName(), actAs.getSourceId());
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleActAsSubjectIdName(), actAs.getId());
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleCheckTypeName(), RuleCheckType.permissionAssignToSubject.name());
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleIfConditionEnumName(), RuleIfConditionEnum.groupHasNoImmediateEnabledMembership.name());
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleIfOwnerIdName(), mustBeInGroup.getId());
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleThenEnumName(), RuleThenEnum.veto.name());
+    
+    //key which would be used in UI messages file if applicable
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleThenEnumArg0Name(), vetoKey);
+    
+    //error message (if key in UI messages file not there)
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleThenEnumArg1Name(), vetoMessage);
+  
+    //should be valid
+    String isValidString = attributeValueDelegate.retrieveValueString(
+        RuleUtils.ruleValidName());
+  
+    if (!StringUtils.equals("T", isValidString)) {
+      throw new RuntimeException(isValidString);
+    }
+
+  }
+  
 }

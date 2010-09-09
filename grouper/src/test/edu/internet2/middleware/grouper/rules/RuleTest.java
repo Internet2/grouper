@@ -78,7 +78,7 @@ public class RuleTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new RuleTest("testRuleLonghandValidations"));
+    TestRunner.run(new RuleTest("testRuleLonghandVetoPermissions"));
     //TestRunner.run(RuleTest.class);
   }
 
@@ -3174,6 +3174,108 @@ public class RuleTest extends GrouperTest {
 
     assertTrue(ruleGroup.hasMember(subject0));
 
+    // GrouperSession.startRootSession();
+    // addMember("stem:a", "test.subject.0");
+    // addMember("stem:b", "test.subject.0");
+    // delMember("stem:b", "test.subject.0");
+    // hasMember("stem:a", "test.subject.0");
+    
+  }
+
+  /**
+   * 
+   */
+  public void testRuleLonghandVetoPermissions() {
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    AttributeDef permissionDef = new AttributeDefSave(grouperSession)
+      .assignName("stem:permissionDef").assignCreateParentStemsIfNotExist(true)
+      .assignAttributeDefType(AttributeDefType.perm)
+      .save();
+    
+    permissionDef.setAssignToEffMembership(true);
+    permissionDef.setAssignToGroup(true);
+    permissionDef.store();
+    
+    Group groupEmployee = new GroupSave(grouperSession).assignName("stem:employee").assignCreateParentStemsIfNotExist(true).save();
+
+    //make a role
+    Role payrollUser = new GroupSave(grouperSession).assignName("apps:payroll:roles:payrollUser").assignTypeOfGroup(TypeOfGroup.role).assignCreateParentStemsIfNotExist(true).save();
+
+    Subject subject0 = SubjectFinder.findByIdAndSource("test.subject.0", "jdbc", true);
+    
+    //assign a user to a role
+    payrollUser.addMember(subject0, false);
+    
+    //create a permission, assign to role
+    AttributeDefName canLogin = new AttributeDefNameSave(grouperSession, permissionDef).assignName("apps:payroll:permissions:canLogin").assignCreateParentStemsIfNotExist(true).save();
+       
+    //add a rule on stem:a saying if not in stem:b, then dont allow add to stem:a
+    AttributeAssign attributeAssign = permissionDef
+      .getAttributeDelegate().addAttribute(RuleUtils.ruleAttributeDefName()).getAttributeAssign();
+    
+    AttributeValueDelegate attributeValueDelegate = attributeAssign.getAttributeValueDelegate();
+  
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleActAsSubjectSourceIdName(), "g:isa");
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleActAsSubjectIdName(), "GrouperSystem");
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleCheckTypeName(), RuleCheckType.permissionAssignToSubject.name());
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleIfConditionEnumName(), RuleIfConditionEnum.groupHasNoImmediateEnabledMembership.name());
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleIfOwnerNameName(), "stem:employee");
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleThenEnumName(), RuleThenEnum.veto.name());
+    
+    //key which would be used in UI messages file if applicable
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleThenEnumArg0Name(), "rule.entity.must.be.an.employee");
+    
+    //error message (if key in UI messages file not there)
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleThenEnumArg1Name(), "Entity cannot be assigned these permissions unless they are an employee");
+  
+    //should be valid
+    String isValidString = attributeValueDelegate.retrieveValueString(
+        RuleUtils.ruleValidName());
+  
+    if (!StringUtils.equals("T", isValidString)) {
+      throw new RuntimeException(isValidString);
+    }
+
+    //count rule firings
+    long initialFirings = RuleEngine.ruleFirings;
+    
+
+    try {
+      //assign the permission to another user directly, not due to a role
+      payrollUser.getPermissionRoleDelegate().assignSubjectRolePermission(canLogin, subject0);
+    } catch (RuleVeto rve) {
+      //this is good
+      String stack = ExceptionUtils.getFullStackTrace(rve);
+      assertTrue(stack, stack.contains("Entity cannot be assigned these permissions unless they are an employee"));
+    }
+
+    assertEquals(initialFirings+1, RuleEngine.ruleFirings);
+
+    //see that not have the permission
+    Member member0 = MemberFinder.findBySubject(grouperSession, subject0, false);
+    
+    Set<PermissionEntry> permissions = GrouperDAOFactory.getFactory().getPermissionEntry().findByMemberId(member0.getUuid());
+    assertEquals(0, permissions.size());
+    
+    groupEmployee.addMember(subject0);
+    
+    payrollUser.getPermissionRoleDelegate().assignSubjectRolePermission(canLogin, subject0);
+
+    assertEquals("Didnt fire since is a member", initialFirings+1, RuleEngine.ruleFirings);
+
+    permissions = GrouperDAOFactory.getFactory().getPermissionEntry().findByMemberId(member0.getUuid());
+    assertEquals(1, permissions.size());
+    assertEquals("apps:payroll:permissions:canLogin", permissions.iterator().next().getAttributeDefNameName());
+    
     // GrouperSession.startRootSession();
     // addMember("stem:a", "test.subject.0");
     // addMember("stem:b", "test.subject.0");
