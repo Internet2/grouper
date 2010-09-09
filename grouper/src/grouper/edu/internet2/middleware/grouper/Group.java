@@ -886,9 +886,9 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
                 //if we are in the default list, then fire a rule
                 if (StringUtils.equals(f.getUuid(), Group.getDefaultList().getUuid())) {
                   RulesMembershipBean rulesMembershipBean = new RulesMembershipBean(membership, Group.this, subj);
-                  //fire rules directly connected to this membership remove
+                  //fire rules directly connected to this membership add
                   RuleEngine.fireRule(RuleCheckType.membershipAdd, rulesMembershipBean);
-                  //fire rules related to remove in stem
+                  //fire rules related to add in stem
                   RuleEngine.fireRule(RuleCheckType.membershipAddInFolder, rulesMembershipBean);
 
                 }

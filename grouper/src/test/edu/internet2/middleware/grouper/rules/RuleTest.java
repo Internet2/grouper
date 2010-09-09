@@ -78,7 +78,7 @@ public class RuleTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new RuleTest("testRuleLonghandVetoPermissions"));
+    TestRunner.run(new RuleTest("testRuleLonghandEmailFlattenedRemove"));
     //TestRunner.run(RuleTest.class);
   }
 
@@ -3284,5 +3284,74 @@ public class RuleTest extends GrouperTest {
     
   }
   
+  /**
+   * 
+   */
+  public void testRuleLonghandEmailFlattenedRemove() {
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    Group groupEmployee = new GroupSave(grouperSession).assignName("stem:employee").assignCreateParentStemsIfNotExist(true).save();
+    Group groupProgrammer = new GroupSave(grouperSession).assignName("stem:programmer").assignCreateParentStemsIfNotExist(true).save();
+    Group groupResearcher = new GroupSave(grouperSession).assignName("stem:researcher").assignCreateParentStemsIfNotExist(true).save();
+
+    groupEmployee.addMember(groupProgrammer.toSubject());
+    groupEmployee.addMember(groupResearcher.toSubject());
+
+    Subject subject0 = SubjectFinder.findByIdAndSource("test.subject.0", "jdbc", true);
+    
+    //subject0 is an employee by two paths
+    groupProgrammer.addMember(subject0, false);
+    groupResearcher.addMember(subject0, false);
+    
+    //add a rule on stem:a saying if you are out of stem:b, then remove from stem:a
+    AttributeAssign attributeAssign = groupEmployee
+      .getAttributeDelegate().addAttribute(RuleUtils.ruleAttributeDefName()).getAttributeAssign();
+    
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleActAsSubjectSourceIdName(), "g:isa");
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleActAsSubjectIdName(), "GrouperSystem");
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleCheckTypeName(), 
+        RuleCheckType.flattenedMembershipRemove.name());
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleThenEnumName(), RuleThenEnum.sendEmail.name());
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleThenEnumArg0Name(), "mchyzer@isc.upenn.edu, ${safeSubject.emailAddress}");
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleThenEnumArg1Name(), "You will be removed from group: ${groupDisplayExtension}");
+    
+    //the to, subject, or body could be text with EL variables, or could be a template.  If template, it is
+    //read from the classpath from package: grouperRulesEmailTemplates/theTemplateName.txt
+    //or you could configure grouper.properties to keep them in an external folder, not in the classpath
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleThenEnumArg2Name(), "template: testEmailGroupBodyFlattenedRemove");
+    
+    //should be valid
+    String isValidString = attributeAssign.getAttributeValueDelegate().retrieveValueString(
+        RuleUtils.ruleValidName());
+    assertEquals("T", isValidString);
+    
+    //count rule firings
+    long initialFirings = RuleEngine.ruleFirings;
+    
+    //doesnt do anything
+    groupProgrammer.deleteMember(subject0);
   
+    GrouperLoader.runOnceByJobName(grouperSession, GrouperLoaderType.GROUPER_CHANGE_LOG_TEMP_TO_CHANGE_LOG);
+    GrouperLoader.runOnceByJobName(grouperSession, GrouperLoaderType.GROUPER_CHANGE_LOG_CONSUMER_PREFIX + "grouperRules");
+
+    assertEquals(initialFirings, RuleEngine.ruleFirings);
+  
+    groupResearcher.deleteMember(subject0);
+
+    //run the change log to change log temp and rules consumer
+    GrouperLoader.runOnceByJobName(grouperSession, GrouperLoaderType.GROUPER_CHANGE_LOG_TEMP_TO_CHANGE_LOG);
+    GrouperLoader.runOnceByJobName(grouperSession, GrouperLoaderType.GROUPER_CHANGE_LOG_CONSUMER_PREFIX + "grouperRules");
+
+    assertEquals(initialFirings+1, RuleEngine.ruleFirings);
+    
+    //should send an email...
+    
+  }
+
 }
