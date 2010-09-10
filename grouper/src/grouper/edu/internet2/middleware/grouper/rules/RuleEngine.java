@@ -187,13 +187,13 @@ public class RuleEngine {
     
     for (RuleDefinition ruleDefinition : GrouperUtil.nonNull(this.ruleDefinitions)) {
       
-      Set<RuleDefinition> checkRuleDefinitions = this.ruleCheckIndex.get(ruleDefinition.getCheck());
+      RuleCheck ruleCheck = ruleDefinition.getCheck();
+      ruleCheck = ruleCheck.checkTypeEnum().checkKey(ruleDefinition);
+      Set<RuleDefinition> checkRuleDefinitions = this.ruleCheckIndex.get(ruleCheck);
       
       //if this list isnt there, then make one
       if (checkRuleDefinitions == null) {
         checkRuleDefinitions = new HashSet<RuleDefinition>();
-        RuleCheck ruleCheck = ruleDefinition.getCheck();
-        ruleCheck = ruleCheck.checkTypeEnum().checkKey(ruleDefinition);
         this.ruleCheckIndex.put(ruleCheck, checkRuleDefinitions);
       }
       

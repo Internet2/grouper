@@ -22,6 +22,8 @@ import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.StemSave;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.Stem.Scope;
+import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
+import edu.internet2.middleware.grouper.app.loader.GrouperLoaderType;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.AttributeDefNameSave;
@@ -38,6 +40,7 @@ import edu.internet2.middleware.grouper.permissions.PermissionEntry;
 import edu.internet2.middleware.grouper.permissions.role.Role;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.Privilege;
+import edu.internet2.middleware.grouper.util.GrouperEmail;
 import edu.internet2.middleware.subject.Subject;
 
 
@@ -59,7 +62,7 @@ public class RuleApiTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new RuleApiTest("testRuleVetoPermissions"));
+    TestRunner.run(new RuleApiTest("testRuleEmailFlattenedAddFromStem"));
   }
 
   /**
@@ -145,7 +148,7 @@ public class RuleApiTest extends GrouperTest {
     attributeAssign.getAttributeValueDelegate().assignValue(
         RuleUtils.ruleThenEnumName(), RuleThenEnum.sendEmail.name());
     attributeAssign.getAttributeValueDelegate().assignValue(
-        RuleUtils.ruleThenEnumArg0Name(), "mchyzer@isc.upenn.edu, ${safeSubject.emailAddress}"); // ${subjectEmail}
+        RuleUtils.ruleThenEnumArg0Name(), "a@b.c, ${safeSubject.emailAddress}"); // ${subjectEmail}
     attributeAssign.getAttributeValueDelegate().assignValue(
         RuleUtils.ruleThenEnumArg1Name(), "template: testTemplateSubject"); //${groupId}
     attributeAssign.getAttributeValueDelegate().assignValue(
@@ -930,6 +933,111 @@ public class RuleApiTest extends GrouperTest {
     // addMember("stem:b", "test.subject.0");
     // delMember("stem:b", "test.subject.0");
     // hasMember("stem:a", "test.subject.0");
+    
+  }
+
+  /**
+   * 
+   */
+  public void testRuleEmailFlattenedRemove() {
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    Group groupEmployee = new GroupSave(grouperSession).assignName("stem:employee").assignCreateParentStemsIfNotExist(true).save();
+    Group groupProgrammer = new GroupSave(grouperSession).assignName("stem:programmer").assignCreateParentStemsIfNotExist(true).save();
+    Group groupResearcher = new GroupSave(grouperSession).assignName("stem:researcher").assignCreateParentStemsIfNotExist(true).save();
+
+    groupEmployee.addMember(groupProgrammer.toSubject());
+    groupEmployee.addMember(groupResearcher.toSubject());
+
+    Subject subject0 = SubjectFinder.findByIdAndSource("test.subject.0", "jdbc", true);
+    
+    //subject0 is an employee by two paths
+    groupProgrammer.addMember(subject0, false);
+    groupResearcher.addMember(subject0, false);
+
+    RuleApi.emailOnFlattenedMembershipRemove(SubjectFinder.findRootSubject(), groupEmployee, "a@b.c, ${safeSubject.emailAddress}", "You will be removed from group: ${groupDisplayExtension}", "template: testEmailGroupBodyFlattenedRemove");
+    
+    //count rule firings
+    long initialFirings = RuleEngine.ruleFirings;
+    long initialEmailCount = GrouperEmail.testingEmailCount;
+    
+    //doesnt do anything, still in the group by another path
+    groupProgrammer.deleteMember(subject0);
+  
+    GrouperLoader.runOnceByJobName(grouperSession, "CHANGE_LOG_changeLogTempToChangeLog");
+    GrouperLoader.runOnceByJobName(grouperSession, "CHANGE_LOG_consumer_grouperRules");
+
+    assertEquals(initialFirings, RuleEngine.ruleFirings);
+    assertEquals(initialEmailCount, GrouperEmail.testingEmailCount);
+  
+    groupResearcher.deleteMember(subject0);
+
+    //run the change log to change log temp and rules consumer
+    GrouperLoader.runOnceByJobName(grouperSession, GrouperLoaderType.GROUPER_CHANGE_LOG_TEMP_TO_CHANGE_LOG);
+    GrouperLoader.runOnceByJobName(grouperSession, GrouperLoaderType.GROUPER_CHANGE_LOG_CONSUMER_PREFIX + "grouperRules");
+
+    assertEquals(initialFirings+1, RuleEngine.ruleFirings);
+    assertEquals(initialEmailCount+1, GrouperEmail.testingEmailCount);
+    
+    //should send an email...
+    
+  }
+
+  /**
+   * 
+   */
+  public void testRuleEmailFlattenedAddFromStem() {
+    
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    
+    Group groupEmployee = new GroupSave(grouperSession).assignName("stem:employee").assignCreateParentStemsIfNotExist(true).save();
+    Group groupProgrammer = new GroupSave(grouperSession).assignName("stem:programmer").assignCreateParentStemsIfNotExist(true).save();
+    Group groupResearcher = new GroupSave(grouperSession).assignName("stem:researcher").assignCreateParentStemsIfNotExist(true).save();
+  
+    groupEmployee.addMember(groupProgrammer.toSubject());
+    groupEmployee.addMember(groupResearcher.toSubject());
+  
+    Stem stem = StemFinder.findByName(grouperSession, "stem", true);
+    
+    Subject subject0 = SubjectFinder.findByIdAndSource("test.subject.0", "jdbc", true);
+    
+    RuleApi.emailOnFlattenedMembershipAddFromStem(SubjectFinder.findRootSubject(), stem, Stem.Scope.SUB, "a@b.c, ${safeSubject.emailAddress}", "template: testEmailGroupSubjectFlattenedAddInFolder", "Hello ${safeSubject.name},\n\nJust letting you know you were removed from group ${groupDisplayExtension} in the central Groups management system.  Please do not respond to this email.\n\nRegards.");
+    
+    //run at first so the consumer is initted
+    GrouperLoader.runOnceByJobName(grouperSession, "CHANGE_LOG_changeLogTempToChangeLog");
+    GrouperLoader.runOnceByJobName(grouperSession, "CHANGE_LOG_consumer_grouperRules");
+
+    //count rule firings
+    long initialFirings = RuleEngine.ruleFirings;
+    
+    long initialEmailCount = GrouperEmail.testingEmailCount;
+    
+    //subject0 is an employee by two paths
+    groupProgrammer.addMember(subject0, false);
+    
+    GrouperLoader.runOnceByJobName(grouperSession, GrouperLoaderType.GROUPER_CHANGE_LOG_TEMP_TO_CHANGE_LOG);
+    GrouperLoader.runOnceByJobName(grouperSession, GrouperLoaderType.GROUPER_CHANGE_LOG_CONSUMER_PREFIX + "grouperRules");
+  
+    assertEquals(initialFirings+2, RuleEngine.ruleFirings);
+    assertEquals(initialEmailCount+2, GrouperEmail.testingEmailCount);
+
+    groupResearcher.addMember(subject0, false);
+
+    GrouperLoader.runOnceByJobName(grouperSession, GrouperLoaderType.GROUPER_CHANGE_LOG_TEMP_TO_CHANGE_LOG);
+    GrouperLoader.runOnceByJobName(grouperSession, GrouperLoaderType.GROUPER_CHANGE_LOG_CONSUMER_PREFIX + "grouperRules");
+  
+    assertEquals(initialFirings+3, RuleEngine.ruleFirings);
+    assertEquals(initialEmailCount+3, GrouperEmail.testingEmailCount);
+    
+    groupEmployee.addMember(subject0);
+  
+    //run the change log to change log temp and rules consumer
+    GrouperLoader.runOnceByJobName(grouperSession, GrouperLoaderType.GROUPER_CHANGE_LOG_TEMP_TO_CHANGE_LOG);
+    GrouperLoader.runOnceByJobName(grouperSession, GrouperLoaderType.GROUPER_CHANGE_LOG_CONSUMER_PREFIX + "grouperRules");
+  
+    //should not send an email...
+    assertEquals(initialFirings+3, RuleEngine.ruleFirings);
+    assertEquals(initialEmailCount+3, GrouperEmail.testingEmailCount);
+  
     
   }
 

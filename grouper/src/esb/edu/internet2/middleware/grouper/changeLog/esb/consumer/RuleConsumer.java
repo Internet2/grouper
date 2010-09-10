@@ -102,6 +102,56 @@ public class RuleConsumer extends ChangeLogConsumerBase {
           //fire rules directly connected to this membership flat delete
           RuleEngine.fireRule(RuleCheckType.flattenedMembershipRemove, rulesMembershipBean);
 
+          //fire rules related to add in stem
+          RuleEngine.fireRule(RuleCheckType.flattenedMembershipRemoveInFolder, rulesMembershipBean);
+
+        } else if (changeLogType.equalsCategoryAndAction(ChangeLogTypeBuiltin.MEMBERSHIP_ADD)) {
+            
+            String fieldId = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.fieldId);
+            
+            //lets only do members list for now
+            if (!StringUtils.equals(fieldId, Group.getDefaultList().getUuid())) {
+              continue;
+            }
+
+            //must be flattened
+            String membershipType = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.membershipType);
+            
+            if (!StringUtils.equals("flattened", membershipType)) {
+              continue;
+            }
+            
+            GrouperSession grouperSession = GrouperSession.startRootSession(false);
+            
+            RulesMembershipBean rulesMembershipBean = null;
+            
+            try {
+              rulesMembershipBean = (RulesMembershipBean)GrouperSession.callbackGrouperSession(grouperSession, new GrouperSessionHandler() {
+                
+                public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+
+                  String memberId = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.memberId);
+                  Member member = MemberFinder.findByUuid(grouperSession, memberId, true);
+                  Subject subject = member.getSubject();
+                  String groupId = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.groupId);
+                  Group group = GroupFinder.findByUuid(grouperSession, groupId, true);
+                  
+                  RulesMembershipBean rulesMembershipBean = new RulesMembershipBean(member, group, subject);
+
+                  return rulesMembershipBean;
+                }
+              });
+            } finally {
+              GrouperSession.stopQuietly(grouperSession);
+            }
+            
+            //fire rules directly connected to this membership flat delete
+            RuleEngine.fireRule(RuleCheckType.flattenedMembershipAdd, rulesMembershipBean);
+
+            //fire rules related to add in stem
+            RuleEngine.fireRule(RuleCheckType.flattenedMembershipAddInFolder, rulesMembershipBean);
+
+
 
         } else {
           if (LOG.isDebugEnabled()) {

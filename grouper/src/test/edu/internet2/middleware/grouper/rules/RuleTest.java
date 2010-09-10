@@ -49,6 +49,7 @@ import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.subj.SafeSubject;
+import edu.internet2.middleware.grouper.util.GrouperEmail;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
@@ -78,7 +79,7 @@ public class RuleTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new RuleTest("testRuleLonghandEmailFlattenedRemove"));
+    TestRunner.run(new RuleTest("testRuleLonghandEmailFlattenedAddFromStem"));
     //TestRunner.run(RuleTest.class);
   }
 
@@ -2711,7 +2712,7 @@ public class RuleTest extends GrouperTest {
     attributeAssign.getAttributeValueDelegate().assignValue(
         RuleUtils.ruleThenEnumName(), RuleThenEnum.sendEmail.name());
     attributeAssign.getAttributeValueDelegate().assignValue(
-        RuleUtils.ruleThenEnumArg0Name(), "mchyzer@isc.upenn.edu, ${safeSubject.emailAddress}"); // ${subjectEmail}
+        RuleUtils.ruleThenEnumArg0Name(), "a@b.c, ${safeSubject.emailAddress}"); // ${subjectEmail}
     attributeAssign.getAttributeValueDelegate().assignValue(
         RuleUtils.ruleThenEnumArg1Name(), "You will be removed from group: ${groupDisplayExtension}"); //${groupId}
     attributeAssign.getAttributeValueDelegate().assignValue(
@@ -2773,7 +2774,7 @@ public class RuleTest extends GrouperTest {
     attributeAssign.getAttributeValueDelegate().assignValue(
         RuleUtils.ruleThenEnumName(), RuleThenEnum.sendEmail.name());
     attributeAssign.getAttributeValueDelegate().assignValue(
-        RuleUtils.ruleThenEnumArg0Name(), "mchyzer@isc.upenn.edu, ${safeSubject.emailAddress}"); // ${subjectEmail}
+        RuleUtils.ruleThenEnumArg0Name(), "a@b.c, ${safeSubject.emailAddress}"); // ${subjectEmail}
     attributeAssign.getAttributeValueDelegate().assignValue(
         RuleUtils.ruleThenEnumArg1Name(), "template: testTemplateSubject"); //${groupId}
     attributeAssign.getAttributeValueDelegate().assignValue(
@@ -3289,6 +3290,11 @@ public class RuleTest extends GrouperTest {
    */
   public void testRuleLonghandEmailFlattenedRemove() {
     GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    //run at first so the consumer is initted
+    GrouperLoader.runOnceByJobName(grouperSession, GrouperLoaderType.GROUPER_CHANGE_LOG_TEMP_TO_CHANGE_LOG);
+    GrouperLoader.runOnceByJobName(grouperSession, GrouperLoaderType.GROUPER_CHANGE_LOG_CONSUMER_PREFIX + "grouperRules");
+
     Group groupEmployee = new GroupSave(grouperSession).assignName("stem:employee").assignCreateParentStemsIfNotExist(true).save();
     Group groupProgrammer = new GroupSave(grouperSession).assignName("stem:programmer").assignCreateParentStemsIfNotExist(true).save();
     Group groupResearcher = new GroupSave(grouperSession).assignName("stem:researcher").assignCreateParentStemsIfNotExist(true).save();
@@ -3302,7 +3308,7 @@ public class RuleTest extends GrouperTest {
     groupProgrammer.addMember(subject0, false);
     groupResearcher.addMember(subject0, false);
     
-    //add a rule on stem:a saying if you are out of stem:b, then remove from stem:a
+    //add a rule on stem:a saying if you are out of the group by all paths (flattened), then send an email
     AttributeAssign attributeAssign = groupEmployee
       .getAttributeDelegate().addAttribute(RuleUtils.ruleAttributeDefName()).getAttributeAssign();
     
@@ -3316,7 +3322,7 @@ public class RuleTest extends GrouperTest {
     attributeAssign.getAttributeValueDelegate().assignValue(
         RuleUtils.ruleThenEnumName(), RuleThenEnum.sendEmail.name());
     attributeAssign.getAttributeValueDelegate().assignValue(
-        RuleUtils.ruleThenEnumArg0Name(), "mchyzer@isc.upenn.edu, ${safeSubject.emailAddress}");
+        RuleUtils.ruleThenEnumArg0Name(), "a@b.c, ${safeSubject.emailAddress}");
     attributeAssign.getAttributeValueDelegate().assignValue(
         RuleUtils.ruleThenEnumArg1Name(), "You will be removed from group: ${groupDisplayExtension}");
     
@@ -3334,14 +3340,17 @@ public class RuleTest extends GrouperTest {
     //count rule firings
     long initialFirings = RuleEngine.ruleFirings;
     
-    //doesnt do anything
+    long initialEmailCount = GrouperEmail.testingEmailCount;
+    
+    //doesnt do anything, still in the group by another path
     groupProgrammer.deleteMember(subject0);
   
     GrouperLoader.runOnceByJobName(grouperSession, GrouperLoaderType.GROUPER_CHANGE_LOG_TEMP_TO_CHANGE_LOG);
     GrouperLoader.runOnceByJobName(grouperSession, GrouperLoaderType.GROUPER_CHANGE_LOG_CONSUMER_PREFIX + "grouperRules");
 
     assertEquals(initialFirings, RuleEngine.ruleFirings);
-  
+    assertEquals(initialEmailCount, GrouperEmail.testingEmailCount);
+
     groupResearcher.deleteMember(subject0);
 
     //run the change log to change log temp and rules consumer
@@ -3349,8 +3358,99 @@ public class RuleTest extends GrouperTest {
     GrouperLoader.runOnceByJobName(grouperSession, GrouperLoaderType.GROUPER_CHANGE_LOG_CONSUMER_PREFIX + "grouperRules");
 
     assertEquals(initialFirings+1, RuleEngine.ruleFirings);
-    
+    assertEquals(initialEmailCount+1, GrouperEmail.testingEmailCount);
+
     //should send an email...
+    
+  }
+
+  /**
+   * 
+   */
+  public void testRuleLonghandEmailFlattenedAddFromStem() {
+    
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    
+    Group groupEmployee = new GroupSave(grouperSession).assignName("stem:employee").assignCreateParentStemsIfNotExist(true).save();
+    Group groupProgrammer = new GroupSave(grouperSession).assignName("stem:programmer").assignCreateParentStemsIfNotExist(true).save();
+    Group groupResearcher = new GroupSave(grouperSession).assignName("stem:researcher").assignCreateParentStemsIfNotExist(true).save();
+  
+    groupEmployee.addMember(groupProgrammer.toSubject());
+    groupEmployee.addMember(groupResearcher.toSubject());
+  
+    Stem stem = StemFinder.findByName(grouperSession, "stem", true);
+    
+    Subject subject0 = SubjectFinder.findByIdAndSource("test.subject.0", "jdbc", true);
+    
+    //add a rule on stem:a saying if you are added to a group in the stem by a new paths (flattened), then send an email
+    AttributeAssign attributeAssign = stem
+      .getAttributeDelegate().addAttribute(RuleUtils.ruleAttributeDefName()).getAttributeAssign();
+    
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleActAsSubjectSourceIdName(), "g:isa");
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleActAsSubjectIdName(), "GrouperSystem");
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleCheckTypeName(), 
+        RuleCheckType.flattenedMembershipAddInFolder.name());
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleCheckStemScopeName(),
+        Stem.Scope.SUB.name());
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleThenEnumName(), RuleThenEnum.sendEmail.name());
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleThenEnumArg0Name(), "a@b.c, ${safeSubject.emailAddress}");
+
+    //the to, subject, or body could be text with EL variables, or could be a template.  If template, it is
+    //read from the classpath from package: grouperRulesEmailTemplates/theTemplateName.txt
+    //or you could configure grouper.properties to keep them in an external folder, not in the classpath
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleThenEnumArg1Name(), "template: testEmailGroupSubjectFlattenedAddInFolder");
+    
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleThenEnumArg2Name(), "Hello ${safeSubject.name},\n\nJust letting you know you were removed from group ${groupDisplayExtension} in the central Groups management system.  Please do not respond to this email.\n\nRegards.");
+    
+    //should be valid
+    String isValidString = attributeAssign.getAttributeValueDelegate().retrieveValueString(
+        RuleUtils.ruleValidName());
+    assertEquals("T", isValidString);
+
+    //run at first so the consumer is initted
+    GrouperLoader.runOnceByJobName(grouperSession, GrouperLoaderType.GROUPER_CHANGE_LOG_TEMP_TO_CHANGE_LOG);
+    GrouperLoader.runOnceByJobName(grouperSession, GrouperLoaderType.GROUPER_CHANGE_LOG_CONSUMER_PREFIX + "grouperRules");
+
+    //count rule firings
+    long initialFirings = RuleEngine.ruleFirings;
+    
+    long initialEmailCount = GrouperEmail.testingEmailCount;
+    
+    //subject0 is an employee by two paths
+    groupProgrammer.addMember(subject0, false);
+    
+    GrouperLoader.runOnceByJobName(grouperSession, GrouperLoaderType.GROUPER_CHANGE_LOG_TEMP_TO_CHANGE_LOG);
+    GrouperLoader.runOnceByJobName(grouperSession, GrouperLoaderType.GROUPER_CHANGE_LOG_CONSUMER_PREFIX + "grouperRules");
+  
+    assertEquals(initialFirings+2, RuleEngine.ruleFirings);
+    assertEquals(initialEmailCount+2, GrouperEmail.testingEmailCount);
+
+    groupResearcher.addMember(subject0, false);
+
+    GrouperLoader.runOnceByJobName(grouperSession, GrouperLoaderType.GROUPER_CHANGE_LOG_TEMP_TO_CHANGE_LOG);
+    GrouperLoader.runOnceByJobName(grouperSession, GrouperLoaderType.GROUPER_CHANGE_LOG_CONSUMER_PREFIX + "grouperRules");
+  
+    assertEquals(initialFirings+3, RuleEngine.ruleFirings);
+    assertEquals(initialEmailCount+3, GrouperEmail.testingEmailCount);
+    
+    groupEmployee.addMember(subject0);
+  
+    //run the change log to change log temp and rules consumer
+    GrouperLoader.runOnceByJobName(grouperSession, GrouperLoaderType.GROUPER_CHANGE_LOG_TEMP_TO_CHANGE_LOG);
+    GrouperLoader.runOnceByJobName(grouperSession, GrouperLoaderType.GROUPER_CHANGE_LOG_CONSUMER_PREFIX + "grouperRules");
+  
+    //should not send an email...
+    assertEquals(initialFirings+3, RuleEngine.ruleFirings);
+    assertEquals(initialEmailCount+3, GrouperEmail.testingEmailCount);
+  
     
   }
 

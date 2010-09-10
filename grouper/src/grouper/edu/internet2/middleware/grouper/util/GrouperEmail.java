@@ -27,6 +27,9 @@ import edu.internet2.middleware.morphString.Morph;
  */
 public class GrouperEmail {
 
+  /** keep count for testing */
+  public static long testingEmailCount = 0;
+  
   /** who this email is going to (comma separated) */
   private String to;
   
@@ -95,7 +98,7 @@ public class GrouperEmail {
    * @param args
    */
   public static void main(String[] args) {
-    new GrouperEmail().setBody("hey").setSubject("subject").setTo("mchyzer@yahoo.com,mchyzer@isc.upenn.edu").send();
+    new GrouperEmail().setBody("hey").setSubject("subject").setTo("a@b.c,d@e.f").send();
   }
   
   /**
@@ -174,7 +177,15 @@ public class GrouperEmail {
       message.setSubject(theSubject);
       
       message.setContent(this.body, "text/plain");
-      Transport.send(message);
+      
+      testingEmailCount++;
+      
+      //if you dont have a server, but want to test, then set this
+      if (!StringUtils.equals("testing", smtpServer)) {
+        Transport.send(message);
+      } else {
+        LOG.error("Not sending email since smtp server is 'testing'");
+      }
     } catch (Exception e) {
       throw new RuntimeException(e);
     }

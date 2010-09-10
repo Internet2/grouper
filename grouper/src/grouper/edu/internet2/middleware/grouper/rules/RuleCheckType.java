@@ -40,6 +40,92 @@ import edu.internet2.middleware.subject.Subject;
  */
 public enum RuleCheckType {
 
+  /** if there is a membership(flattened) add of a group in a stem */
+  flattenedMembershipAddInFolder{
+  
+    /**
+     * @see RuleCheckType#checkKey(RuleDefinition)
+     */
+    @Override
+    public RuleCheck checkKey(RuleDefinition ruleDefinition) {
+      return checkKeyForStem(ruleDefinition);
+    }
+
+
+    /**
+     * validate this check type
+     * @param ruleDefinition
+     * @param ruleCheck 
+     * @return the error or null if valid
+     */
+    public String validate(RuleDefinition ruleDefinition, RuleCheck ruleCheck) {
+      return validate(ruleDefinition, ruleCheck, true, false, true, false);
+    }
+  
+    /**
+     * 
+     * @see edu.internet2.middleware.grouper.rules.RuleCheckType#ruleDefinitions(edu.internet2.middleware.grouper.rules.RuleEngine, edu.internet2.middleware.grouper.rules.beans.RulesBean)
+     */
+    @Override
+    public Set<RuleDefinition> ruleDefinitions(RuleEngine ruleEngine, RulesBean rulesBean) {
+      
+      return ruleDefinitionsMembershipInFolder(this, ruleEngine, rulesBean);
+      
+    }
+  
+    /**
+     * 
+     */
+    @Override
+    public void addElVariables(RuleDefinition ruleDefinition, Map<String, Object> variableMap, 
+        RulesBean rulesBean, boolean hasAccessToElApi) {
+      flattenedMembershipRemove.addElVariables(ruleDefinition, variableMap, rulesBean, hasAccessToElApi);
+    }
+  }, 
+
+  /** if there is a membership(flattened) remove of a group in a stem */
+  flattenedMembershipRemoveInFolder{
+  
+    /**
+     * @see RuleCheckType#checkKey(RuleDefinition)
+     */
+    @Override
+    public RuleCheck checkKey(RuleDefinition ruleDefinition) {
+      return checkKeyForStem(ruleDefinition);
+    }
+
+
+    /**
+     * validate this check type
+     * @param ruleDefinition
+     * @param ruleCheck 
+     * @return the error or null if valid
+     */
+    public String validate(RuleDefinition ruleDefinition, RuleCheck ruleCheck) {
+      return validate(ruleDefinition, ruleCheck, true, false, true, false);
+    }
+  
+    /**
+     * 
+     * @see edu.internet2.middleware.grouper.rules.RuleCheckType#ruleDefinitions(edu.internet2.middleware.grouper.rules.RuleEngine, edu.internet2.middleware.grouper.rules.beans.RulesBean)
+     */
+    @Override
+    public Set<RuleDefinition> ruleDefinitions(RuleEngine ruleEngine, RulesBean rulesBean) {
+      
+      return ruleDefinitionsMembershipInFolder(this, ruleEngine, rulesBean);
+      
+    }
+  
+    /**
+     * 
+     */
+    @Override
+    public void addElVariables(RuleDefinition ruleDefinition, Map<String, Object> variableMap, 
+        RulesBean rulesBean, boolean hasAccessToElApi) {
+      flattenedMembershipRemove.addElVariables(ruleDefinition, variableMap, rulesBean, hasAccessToElApi);
+    }
+  }, 
+
   /** if there is a membership remove flattened */
   flattenedMembershipRemove {
 
@@ -257,19 +343,7 @@ public enum RuleCheckType {
      */
     @Override
     public RuleCheck checkKey(RuleDefinition ruleDefinition) {
-      RuleCheck ruleCheck = ruleDefinition.getCheck();
-      if (StringUtils.isBlank(ruleCheck.getCheckOwnerId()) && StringUtils.isBlank(ruleCheck.getCheckOwnerName())) {
-        //if this is assigned to a stem
-        if (!StringUtils.isBlank(ruleDefinition.getAttributeAssignType().getOwnerStemId())) {
-
-          //clone so we dont edit the object
-          ruleCheck = ruleCheck.clone();
-          ruleCheck.setCheckOwnerId(ruleDefinition.getAttributeAssignType().getOwnerStemId());
-        } else {
-          LOG.error("Not sure why no check owner if not assigned to stem");
-        }
-      }
-      return ruleCheck;
+      return checkKeyForStem(ruleDefinition);
     }
 
     /**
@@ -311,21 +385,7 @@ public enum RuleCheckType {
      */
     @Override
     public RuleCheck checkKey(RuleDefinition ruleDefinition) {
-      RuleCheck ruleCheck = ruleDefinition.getCheck();
-      if (StringUtils.isBlank(ruleCheck.getCheckOwnerId()) && StringUtils.isBlank(ruleCheck.getCheckOwnerName())) {
-        //if this is assigned to a stem
-        if (!StringUtils.isBlank(ruleDefinition.getAttributeAssignType().getOwnerStemId())) {
-
-          //clone so we dont edit the object
-          ruleCheck = ruleCheck.clone();
-          //set the owner to this stem
-          Stem stem = StemFinder.findByUuid(GrouperSession.staticGrouperSession(), ruleDefinition.getAttributeAssignType().getOwnerStemId(), true);
-          ruleCheck.setCheckOwnerName(stem.getName());
-        } else {
-          LOG.error("Not sure why no check owner if not assigned to stem");
-        }
-      }
-      return ruleCheck;
+      return checkKeyForStem(ruleDefinition);
     }
 
     /**
@@ -457,21 +517,7 @@ public enum RuleCheckType {
      */
     @Override
     public RuleCheck checkKey(RuleDefinition ruleDefinition) {
-      RuleCheck ruleCheck = ruleDefinition.getCheck();
-      if (StringUtils.isBlank(ruleCheck.getCheckOwnerId()) && StringUtils.isBlank(ruleCheck.getCheckOwnerName())) {
-        //if this is assigned to a stem
-        if (!StringUtils.isBlank(ruleDefinition.getAttributeAssignType().getOwnerStemId())) {
-
-          //clone so we dont edit the object
-          ruleCheck = ruleCheck.clone();
-          //set the owner to this stem
-          Stem stem = StemFinder.findByUuid(GrouperSession.staticGrouperSession(), ruleDefinition.getAttributeAssignType().getOwnerStemId(), true);
-          ruleCheck.setCheckOwnerName(stem.getName());
-        } else {
-          LOG.error("Not sure why no check owner if not assigned to stem");
-        }
-      }
-      return ruleCheck;
+      return checkKeyForStem(ruleDefinition);
     }
 
     /**
@@ -653,6 +699,14 @@ public enum RuleCheckType {
   /** if there is a membership remove in transaction of remove of a group in a stem */
   membershipAddInFolder{
   
+    /**
+     * @see RuleCheckType#checkKey(RuleDefinition)
+     */
+    @Override
+    public RuleCheck checkKey(RuleDefinition ruleDefinition) {
+      return checkKeyForStem(ruleDefinition);
+    }
+
     /**
      * validate this check type
      * @param ruleDefinition
@@ -957,7 +1011,7 @@ public enum RuleCheckType {
       return "Enter one and only one of checkOwnerId and checkOwnerName!";
     }
     if (requireStemScope) {
-      if (StringUtils.isBlank(ruleCheck.getCheckStemScope())) {
+      if (StringUtils.isBlank(ruleCheck.getCheckStemScope()) && StringUtils.isBlank(ruleDefinition.getAttributeAssignType().getOwnerStemId())) {
         return "Enter the checkStemScope of ALL or SUB for the folder based rule!";
       }
       try {
@@ -1086,4 +1140,42 @@ public enum RuleCheckType {
   /** logger */
   private static final Log LOG = GrouperUtil.getLog(RuleCheckType.class);
 
+  /**
+   * 
+   * @param ruleDefinition
+   * @return rule check
+   */
+  public static RuleCheck checkKeyForStem(RuleDefinition ruleDefinition) {
+    
+    RuleCheck ruleCheck = ruleDefinition.getCheck();
+    
+    if (!StringUtils.isBlank(ruleCheck.getCheckOwnerName())) {
+      return ruleCheck;
+    }
+
+    //clone so we dont edit the object
+    ruleCheck = ruleCheck.clone();
+
+    if (StringUtils.isBlank(ruleCheck.getCheckOwnerId()) && StringUtils.isBlank(ruleCheck.getCheckOwnerName())) {
+      //if this is assigned to a stem
+      if (!StringUtils.isBlank(ruleDefinition.getAttributeAssignType().getOwnerStemId())) {
+        
+        ruleCheck.setCheckOwnerId(ruleDefinition.getAttributeAssignType().getOwnerStemId());
+      } else {
+        LOG.error("Not sure why no check owner if not assigned to stem");
+        return ruleCheck;
+      }
+    }
+    
+    //we need it by name so we can do stem matches...
+    String stemId = ruleCheck.getCheckOwnerId();
+    ruleCheck.setCheckOwnerId(null);
+    //set the owner to this stem
+    Stem stem = StemFinder.findByUuid(GrouperSession.staticGrouperSession(), stemId, true);
+    ruleCheck.setCheckOwnerName(stem.getName());
+    
+    return ruleCheck;
+
+  }
+  
 }

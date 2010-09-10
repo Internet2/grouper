@@ -722,4 +722,192 @@ public class RuleApi {
 
   }
   
+  /**
+   * @param ruleGroup
+   * @param actAsSubject
+   * @param emailToValue e.g. "a@b.c, ${safeSubject.emailAddress}"
+   * @param emailSubjectValue e.g. "You will be removed from group: ${groupDisplayExtension}"
+   * @param emailBodyValue e.g. "template: testEmailGroupBodyFlattenedRemove"
+   */
+  public static void emailOnFlattenedMembershipRemove(Subject actAsSubject, Group ruleGroup, 
+      String emailToValue, String emailSubjectValue, String emailBodyValue) {
+
+    //add a rule on stem:a saying if you are out of the group by all paths (flattened), then send an email
+    AttributeAssign attributeAssign = ruleGroup
+      .getAttributeDelegate().addAttribute(RuleUtils.ruleAttributeDefName()).getAttributeAssign();
+    
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleActAsSubjectSourceIdName(), actAsSubject.getSourceId());
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleActAsSubjectIdName(), actAsSubject.getId());
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleCheckTypeName(), 
+        RuleCheckType.flattenedMembershipRemove.name());
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleThenEnumName(), RuleThenEnum.sendEmail.name());
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleThenEnumArg0Name(), emailToValue);
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleThenEnumArg1Name(), emailSubjectValue);
+    
+    //the to, subject, or body could be text with EL variables, or could be a template.  If template, it is
+    //read from the classpath from package: grouperRulesEmailTemplates/theTemplateName.txt
+    //or you could configure grouper.properties to keep them in an external folder, not in the classpath
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleThenEnumArg2Name(), emailBodyValue);
+    
+    //should be valid
+    String isValidString = attributeAssign.getAttributeValueDelegate().retrieveValueString(
+        RuleUtils.ruleValidName());
+
+    if (!StringUtils.equals("T", isValidString)) {
+      throw new RuntimeException(isValidString);
+    }
+ 
+  }
+  
+  /**
+   * 
+   * @param actAsSubject
+   * @param ruleStem
+   * @param stemScope
+   * @param emailToValue
+   * @param emailSubjectValue
+   * @param emailBodyValue
+   */
+  public static void emailOnFlattenedMembershipAddFromStem(Subject actAsSubject, Stem ruleStem,
+      Stem.Scope stemScope, String emailToValue, String emailSubjectValue, String emailBodyValue) {
+    
+    //add a rule on stem:a saying if you are added to a group in the stem by a new paths (flattened), then send an email
+    AttributeAssign attributeAssign = ruleStem
+      .getAttributeDelegate().addAttribute(RuleUtils.ruleAttributeDefName()).getAttributeAssign();
+    
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleActAsSubjectSourceIdName(),actAsSubject.getSourceId());
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleActAsSubjectIdName(), actAsSubject.getId());
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleCheckTypeName(), 
+        RuleCheckType.flattenedMembershipAddInFolder.name());
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleCheckStemScopeName(),
+        Stem.Scope.SUB.name());
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleThenEnumName(), RuleThenEnum.sendEmail.name());
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleThenEnumArg0Name(), emailToValue);
+
+    //the to, subject, or body could be text with EL variables, or could be a template.  If template, it is
+    //read from the classpath from package: grouperRulesEmailTemplates/theTemplateName.txt
+    //or you could configure grouper.properties to keep them in an external folder, not in the classpath
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleThenEnumArg1Name(), emailSubjectValue);
+    
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleThenEnumArg2Name(), emailBodyValue);
+    
+    //should be valid
+    String isValidString = attributeAssign.getAttributeValueDelegate().retrieveValueString(
+        RuleUtils.ruleValidName());
+
+    if (!StringUtils.equals("T", isValidString)) {
+      throw new RuntimeException(isValidString);
+    }
+
+  }
+
+  /**
+   * 
+   * @param actAsSubject
+   * @param ruleStem
+   * @param stemScope
+   * @param emailToValue
+   * @param emailSubjectValue
+   * @param emailBodyValue
+   */
+  public static void emailOnFlattenedMembershipRemoveFromStem(Subject actAsSubject, Stem ruleStem,
+      Stem.Scope stemScope, String emailToValue, String emailSubjectValue, String emailBodyValue) {
+    
+    //add a rule on stem:a saying if you are removed from a group in the stem by all paths (flattened), then send an email
+    AttributeAssign attributeAssign = ruleStem
+      .getAttributeDelegate().addAttribute(RuleUtils.ruleAttributeDefName()).getAttributeAssign();
+    
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleActAsSubjectSourceIdName(),actAsSubject.getSourceId());
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleActAsSubjectIdName(), actAsSubject.getId());
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleCheckTypeName(), 
+        RuleCheckType.flattenedMembershipRemoveInFolder.name());
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleCheckStemScopeName(),
+        Stem.Scope.SUB.name());
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleThenEnumName(), RuleThenEnum.sendEmail.name());
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleThenEnumArg0Name(), emailToValue);
+  
+    //the to, subject, or body could be text with EL variables, or could be a template.  If template, it is
+    //read from the classpath from package: grouperRulesEmailTemplates/theTemplateName.txt
+    //or you could configure grouper.properties to keep them in an external folder, not in the classpath
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleThenEnumArg1Name(), emailSubjectValue);
+    
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleThenEnumArg2Name(), emailBodyValue);
+    
+    //should be valid
+    String isValidString = attributeAssign.getAttributeValueDelegate().retrieveValueString(
+        RuleUtils.ruleValidName());
+  
+    if (!StringUtils.equals("T", isValidString)) {
+      throw new RuntimeException(isValidString);
+    }
+  
+  }
+
+  /**
+   * @param ruleGroup
+   * @param actAsSubject
+   * @param emailToValue e.g. "a@b.c, ${safeSubject.emailAddress}"
+   * @param emailSubjectValue e.g. "You were added to group: ${groupDisplayExtension}"
+   * @param emailBodyValue e.g. "template: testEmailGroupBodyFlattenedAdd"
+   */
+  public static void emailOnFlattenedMembershipAdd(Subject actAsSubject, Group ruleGroup, 
+      String emailToValue, String emailSubjectValue, String emailBodyValue) {
+  
+    //add a rule on stem:a saying if you are in a group by a paths (flattened), then send an email
+    AttributeAssign attributeAssign = ruleGroup
+      .getAttributeDelegate().addAttribute(RuleUtils.ruleAttributeDefName()).getAttributeAssign();
+    
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleActAsSubjectSourceIdName(), actAsSubject.getSourceId());
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleActAsSubjectIdName(), actAsSubject.getId());
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleCheckTypeName(), 
+        RuleCheckType.flattenedMembershipAdd.name());
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleThenEnumName(), RuleThenEnum.sendEmail.name());
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleThenEnumArg0Name(), emailToValue);
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleThenEnumArg1Name(), emailSubjectValue);
+    
+    //the to, subject, or body could be text with EL variables, or could be a template.  If template, it is
+    //read from the classpath from package: grouperRulesEmailTemplates/theTemplateName.txt
+    //or you could configure grouper.properties to keep them in an external folder, not in the classpath
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleThenEnumArg2Name(), emailBodyValue);
+    
+    //should be valid
+    String isValidString = attributeAssign.getAttributeValueDelegate().retrieveValueString(
+        RuleUtils.ruleValidName());
+  
+    if (!StringUtils.equals("T", isValidString)) {
+      throw new RuntimeException(isValidString);
+    }
+  
+  }
+  
 }
