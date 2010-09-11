@@ -32,8 +32,9 @@ public class RuleApi {
    * @param stemScope 
    * @param vetoKey
    * @param vetoMessage
+   * @return the assignment in case there are edits
    */
-  public static void vetoMembershipIfNotInGroupInFolder(Subject actAs, Group ruleGroup, 
+  public static AttributeAssign vetoMembershipIfNotInGroupInFolder(Subject actAs, Group ruleGroup, 
       Stem mustBeInGroupInFolder, Stem.Scope stemScope, String vetoKey, String vetoMessage) {
     
     //add a rule on stem:a saying if not in a folder in stem:b, then dont allow add to stem:a
@@ -77,7 +78,7 @@ public class RuleApi {
       throw new RuntimeException(isValidString);
     }
     
-
+    return attributeAssign;
     
   }
   
@@ -88,8 +89,10 @@ public class RuleApi {
    * @param mustBeInGroup
    * @param vetoKey
    * @param vetoMessage
+   * @return the assignment in case there are edits
    */
-  public static void vetoMembershipIfNotInGroup(Subject actAs, Group ruleGroup, Group mustBeInGroup, String vetoKey, String vetoMessage) {
+  public static AttributeAssign vetoMembershipIfNotInGroup(Subject actAs, 
+      Group ruleGroup, Group mustBeInGroup, String vetoKey, String vetoMessage) {
     //add a rule on stem:a saying if not in stem:b, then dont allow add to stem:a
     AttributeAssign attributeAssign = ruleGroup
       .getAttributeDelegate().addAttribute(RuleUtils.ruleAttributeDefName()).getAttributeAssign();
@@ -124,6 +127,8 @@ public class RuleApi {
     if (!StringUtils.equals("T", isValidString)) {
       throw new RuntimeException(isValidString);
     }
+    
+    return attributeAssign;
 
   }
 
@@ -134,8 +139,9 @@ public class RuleApi {
    * @param stemScope ONE or SUB
    * @param subjectToAssign
    * @param privileges can use Privilege.getInstances() to convert from string
+   * @return the assignment in case there are edits
    */
-  public static void inheritAttributeDefPrivileges(Subject actAs, Stem stem, Scope stemScope, 
+  public static AttributeAssign inheritAttributeDefPrivileges(Subject actAs, Stem stem, Scope stemScope, 
       Subject subjectToAssign, Set<Privilege> privileges) {
     
 
@@ -178,6 +184,8 @@ public class RuleApi {
     if (!StringUtils.equals("T", isValidString)) {
       throw new RuntimeException(isValidString);
     }
+    
+    return attributeAssign;
   }
   
   /**
@@ -187,8 +195,9 @@ public class RuleApi {
    * @param stemScope ONE or SUB
    * @param subjectToAssign
    * @param privileges can use Privilege.getInstances() to convert from string
+   * @return the assignment in case there are edits
    */
-  public static void inheritFolderPrivileges(Subject actAs, Stem stem, Scope stemScope, 
+  public static AttributeAssign inheritFolderPrivileges(Subject actAs, Stem stem, Scope stemScope, 
       Subject subjectToAssign, Set<Privilege> privileges) {
     
     //add a rule on stem2 saying if you create a group underneath, then assign a reader group
@@ -230,6 +239,8 @@ public class RuleApi {
     if (!StringUtils.equals("T", isValidString)) {
       throw new RuntimeException(isValidString);
     }
+    
+    return attributeAssign;
   }
 
   
@@ -240,8 +251,9 @@ public class RuleApi {
    * @param stemScope ONE or SUB
    * @param subjectToAssign
    * @param privileges can use Privilege.getInstances() to convert from string
+   * @return the assignment in case there are edits
    */
-  public static void inheritGroupPrivileges(Subject actAs, Stem stem, Scope stemScope, 
+  public static AttributeAssign inheritGroupPrivileges(Subject actAs, Stem stem, Scope stemScope, 
       Subject subjectToAssign, Set<Privilege> privileges) {
     
     //add a rule on stem2 saying if you create a group underneath, then assign a reader and updater group
@@ -283,6 +295,8 @@ public class RuleApi {
     if (!StringUtils.equals("T", isValidString)) {
       throw new RuntimeException(isValidString);
     }
+    
+    return attributeAssign;
 
   }
 
@@ -293,8 +307,10 @@ public class RuleApi {
    * @param ruleGroup
    * @param folder
    * @param stemScope
+   * @return the assignment in case there are edits
    */
-  public static void groupIntersectionWithFolder(Subject actAs, Group ruleGroup, Stem folder, Stem.Scope stemScope) {
+  public static AttributeAssign groupIntersectionWithFolder(Subject actAs, 
+      Group ruleGroup, Stem folder, Stem.Scope stemScope) {
     //add a rule on stem:a saying if you are out of stem:b, then remove from stem:a
     AttributeAssign attributeAssign = ruleGroup
       .getAttributeDelegate().addAttribute(RuleUtils.ruleAttributeDefName()).getAttributeAssign();
@@ -333,6 +349,8 @@ public class RuleApi {
     if (!StringUtils.equals("T", isValidString)) {
       throw new RuntimeException(isValidString);
     }
+    
+    return attributeAssign;
 
   }
   
@@ -342,8 +360,9 @@ public class RuleApi {
    * @param actAs
    * @param ruleGroup
    * @param mustBeInGroup
+   * @return the assignment in case there are edits
    */
-  public static void groupIntersection(Subject actAs, Group ruleGroup, Group mustBeInGroup) {
+  public static AttributeAssign groupIntersection(Subject actAs, Group ruleGroup, Group mustBeInGroup) {
     AttributeAssign attributeAssign = ruleGroup
       .getAttributeDelegate().addAttribute(RuleUtils.ruleAttributeDefName()).getAttributeAssign();
 
@@ -375,6 +394,7 @@ public class RuleApi {
       throw new RuntimeException(isValidString);
     }
     
+    return attributeAssign;
     
   }
   
@@ -385,8 +405,10 @@ public class RuleApi {
    * @param ruleGroup
    * @param mustBeInGroup
    * @param daysInFutureForDisabledDate
+   * @return the assignment in case there are edits
    */
-  public static void groupIntersection(Subject actAs, Group ruleGroup, Group mustBeInGroup, int daysInFutureForDisabledDate) {
+  public static AttributeAssign groupIntersection(Subject actAs, Group ruleGroup, Group mustBeInGroup, 
+      int daysInFutureForDisabledDate) {
 
     AttributeAssign attributeAssign = ruleGroup
       .getAttributeDelegate().addAttribute(RuleUtils.ruleAttributeDefName()).getAttributeAssign();
@@ -412,7 +434,7 @@ public class RuleApi {
     
     //number of days in future that disabled date should be set
     attributeValueDelegate.assignValue(
-        RuleUtils.ruleThenEnumArg0Name(), "7");
+        RuleUtils.ruleThenEnumArg0Name(), Integer.toString(daysInFutureForDisabledDate));
     
     //if the membership in owner group doesnt exist, should it be added?  T|F
     attributeValueDelegate.assignValue(
@@ -425,6 +447,8 @@ public class RuleApi {
     if (!StringUtils.equals("T", isValidString)) {
       throw new RuntimeException(isValidString);
     }
+    
+    return attributeAssign;
 
   }
 
@@ -457,7 +481,8 @@ public class RuleApi {
    */
   public static String rulesToString(AttributeAssignable attributeAssignable) {
     
-    Set<AttributeAssign> attributeAssigns = attributeAssignable.getAttributeDelegate().retrieveAssignments(RuleUtils.ruleAttributeDefName());
+    Set<AttributeAssign> attributeAssigns = attributeAssignable.getAttributeDelegate()
+      .retrieveAssignments(RuleUtils.ruleAttributeDefName());
 
     //remove disabled
     Iterator<AttributeAssign> iterator = GrouperUtil.nonNull(attributeAssigns).iterator();
@@ -502,7 +527,8 @@ public class RuleApi {
    */
   public static int runRulesForOwner(AttributeAssignable attributeAssignable) {
 
-    Set<AttributeAssign> attributeAssigns = attributeAssignable.getAttributeDelegate().retrieveAssignments(RuleUtils.ruleAttributeDefName());
+    Set<AttributeAssign> attributeAssigns = attributeAssignable.getAttributeDelegate()
+      .retrieveAssignments(RuleUtils.ruleAttributeDefName());
 
     //remove disabled
     Iterator<AttributeAssign> iterator = GrouperUtil.nonNull(attributeAssigns).iterator();
@@ -545,8 +571,10 @@ public class RuleApi {
    * @param permissionToAssignRule
    * @param mustBeInGroup
    * @param daysInFutureToDisable
+   * @return the assignment in case there are edits
    */
-  public static void permissionGroupIntersection(Subject actAs, AttributeDef permissionToAssignRule, Group mustBeInGroup, int daysInFutureToDisable) {
+  public static AttributeAssign permissionGroupIntersection(Subject actAs, 
+      AttributeDef permissionToAssignRule, Group mustBeInGroup, int daysInFutureToDisable) {
 
     //add a rule on stem:permission saying if you are out of stem:employee, 
     //then put disabled date on assignments to permission, or from roles which have the permission
@@ -570,7 +598,7 @@ public class RuleApi {
         RuleUtils.ruleThenEnumName(), 
         RuleThenEnum.assignDisabledDaysToOwnerPermissionDefAssignments.name());
     attributeValueDelegate.assignValue(
-        RuleUtils.ruleThenEnumArg0Name(), "7");
+        RuleUtils.ruleThenEnumArg0Name(), Integer.toString(daysInFutureToDisable));
   
     //should be valid
     String isValidString = attributeValueDelegate.retrieveValueString(
@@ -579,6 +607,8 @@ public class RuleApi {
     if (!StringUtils.equals("T", isValidString)) {
       throw new RuntimeException(isValidString);
     }
+    
+    return attributeAssign;
   }
   
   /**
@@ -587,8 +617,10 @@ public class RuleApi {
    * @param actAs
    * @param permissionToAssignRule
    * @param mustBeInGroup
+   * @return the assignment in case there are edits
    */
-  public static void permissionGroupIntersection(Subject actAs, AttributeDef permissionToAssignRule, Group mustBeInGroup) {
+  public static AttributeAssign permissionGroupIntersection(Subject actAs, 
+      AttributeDef permissionToAssignRule, Group mustBeInGroup) {
 
     //add a rule on stem:permission saying if you are out of stem:employee, 
     //then remove assignments to permission, or from roles which have the permission
@@ -619,6 +651,8 @@ public class RuleApi {
     if (!StringUtils.equals("T", isValidString)) {
       throw new RuntimeException(isValidString);
     }
+    
+    return attributeAssign;
   }
   
   /**
@@ -627,8 +661,9 @@ public class RuleApi {
    * @param permissionToAssignRule
    * @param mustBeInGroupInFolder
    * @param stemScope
+   * @return the assignment in case there are edits
    */
-  public static void permissionFolderIntersection(Subject actAs, AttributeDef permissionToAssignRule, 
+  public static AttributeAssign permissionFolderIntersection(Subject actAs, AttributeDef permissionToAssignRule, 
       Stem mustBeInGroupInFolder, Stem.Scope stemScope) {
     
     //add a rule on stem:permission saying if you are out of stem:employee, 
@@ -671,7 +706,8 @@ public class RuleApi {
     if (!StringUtils.equals("T", isValidString)) {
       throw new RuntimeException(isValidString);
     }
-
+    
+    return attributeAssign;
     
   }
   
@@ -679,12 +715,13 @@ public class RuleApi {
    * veto a direct permission assignment if not in group
    * @param actAs
    * @param permissionDef 
-   * @param ruleGroup
    * @param mustBeInGroup
    * @param vetoKey
    * @param vetoMessage
+   * @return the assignment in case there are edits
    */
-  public static void vetoPermissionIfNotInGroup(Subject actAs, AttributeDef permissionDef, Group mustBeInGroup, String vetoKey, String vetoMessage) {
+  public static AttributeAssign vetoPermissionIfNotInGroup(Subject actAs, 
+      AttributeDef permissionDef, Group mustBeInGroup, String vetoKey, String vetoMessage) {
     //add a rule on stem:a saying if not in stem:b, then dont allow add to stem:a
     AttributeAssign attributeAssign = permissionDef
       .getAttributeDelegate().addAttribute(RuleUtils.ruleAttributeDefName()).getAttributeAssign();
@@ -719,6 +756,8 @@ public class RuleApi {
     if (!StringUtils.equals("T", isValidString)) {
       throw new RuntimeException(isValidString);
     }
+    
+    return attributeAssign;
 
   }
   
@@ -728,8 +767,9 @@ public class RuleApi {
    * @param emailToValue e.g. "a@b.c, ${safeSubject.emailAddress}"
    * @param emailSubjectValue e.g. "You will be removed from group: ${groupDisplayExtension}"
    * @param emailBodyValue e.g. "template: testEmailGroupBodyFlattenedRemove"
+   * @return the assignment in case there are edits
    */
-  public static void emailOnFlattenedMembershipRemove(Subject actAsSubject, Group ruleGroup, 
+  public static AttributeAssign emailOnFlattenedMembershipRemove(Subject actAsSubject, Group ruleGroup, 
       String emailToValue, String emailSubjectValue, String emailBodyValue) {
 
     //add a rule on stem:a saying if you are out of the group by all paths (flattened), then send an email
@@ -763,6 +803,8 @@ public class RuleApi {
     if (!StringUtils.equals("T", isValidString)) {
       throw new RuntimeException(isValidString);
     }
+    
+    return attributeAssign;
  
   }
   
@@ -774,8 +816,9 @@ public class RuleApi {
    * @param emailToValue
    * @param emailSubjectValue
    * @param emailBodyValue
+   * @return the assignment in case there are edits
    */
-  public static void emailOnFlattenedMembershipAddFromStem(Subject actAsSubject, Stem ruleStem,
+  public static AttributeAssign emailOnFlattenedMembershipAddFromStem(Subject actAsSubject, Stem ruleStem,
       Stem.Scope stemScope, String emailToValue, String emailSubjectValue, String emailBodyValue) {
     
     //add a rule on stem:a saying if you are added to a group in the stem by a new paths (flattened), then send an email
@@ -791,7 +834,7 @@ public class RuleApi {
         RuleCheckType.flattenedMembershipAddInFolder.name());
     attributeAssign.getAttributeValueDelegate().assignValue(
         RuleUtils.ruleCheckStemScopeName(),
-        Stem.Scope.SUB.name());
+        stemScope.name());
     attributeAssign.getAttributeValueDelegate().assignValue(
         RuleUtils.ruleThenEnumName(), RuleThenEnum.sendEmail.name());
     attributeAssign.getAttributeValueDelegate().assignValue(
@@ -813,6 +856,8 @@ public class RuleApi {
     if (!StringUtils.equals("T", isValidString)) {
       throw new RuntimeException(isValidString);
     }
+    
+    return attributeAssign;
 
   }
 
@@ -824,8 +869,9 @@ public class RuleApi {
    * @param emailToValue
    * @param emailSubjectValue
    * @param emailBodyValue
+   * @return the assignment to tweak it
    */
-  public static void emailOnFlattenedMembershipRemoveFromStem(Subject actAsSubject, Stem ruleStem,
+  public static AttributeAssign emailOnFlattenedMembershipRemoveFromStem(Subject actAsSubject, Stem ruleStem,
       Stem.Scope stemScope, String emailToValue, String emailSubjectValue, String emailBodyValue) {
     
     //add a rule on stem:a saying if you are removed from a group in the stem by all paths (flattened), then send an email
@@ -841,7 +887,7 @@ public class RuleApi {
         RuleCheckType.flattenedMembershipRemoveInFolder.name());
     attributeAssign.getAttributeValueDelegate().assignValue(
         RuleUtils.ruleCheckStemScopeName(),
-        Stem.Scope.SUB.name());
+        stemScope.name());
     attributeAssign.getAttributeValueDelegate().assignValue(
         RuleUtils.ruleThenEnumName(), RuleThenEnum.sendEmail.name());
     attributeAssign.getAttributeValueDelegate().assignValue(
@@ -863,6 +909,8 @@ public class RuleApi {
     if (!StringUtils.equals("T", isValidString)) {
       throw new RuntimeException(isValidString);
     }
+    
+    return attributeAssign;
   
   }
 
@@ -872,8 +920,9 @@ public class RuleApi {
    * @param emailToValue e.g. "a@b.c, ${safeSubject.emailAddress}"
    * @param emailSubjectValue e.g. "You were added to group: ${groupDisplayExtension}"
    * @param emailBodyValue e.g. "template: testEmailGroupBodyFlattenedAdd"
+   * @return the assignment to tweak it
    */
-  public static void emailOnFlattenedMembershipAdd(Subject actAsSubject, Group ruleGroup, 
+  public static AttributeAssign emailOnFlattenedMembershipAdd(Subject actAsSubject, Group ruleGroup, 
       String emailToValue, String emailSubjectValue, String emailBodyValue) {
   
     //add a rule on stem:a saying if you are in a group by a paths (flattened), then send an email
@@ -907,7 +956,69 @@ public class RuleApi {
     if (!StringUtils.equals("T", isValidString)) {
       throw new RuntimeException(isValidString);
     }
+    
+    return attributeAssign;
   
   }
   
+  /**
+   * send emails via daemon on impending disabled memberships
+   * @param actAsSubject 
+   * @param ruleGroup 
+   * @param daysInFutureDisabledDateMin 
+   * @param daysInFutureDisabledDateMax 
+   * @param emailToValue 
+   * @param emailSubjectValue 
+   * @param emailBodyValue 
+   * @return the attribute assign for customizing
+   */
+  public static AttributeAssign emailOnFlattenedDisabledDate(Subject actAsSubject, 
+      Group ruleGroup, Integer daysInFutureDisabledDateMin, 
+      Integer daysInFutureDisabledDateMax, 
+      String emailToValue, String emailSubjectValue, String emailBodyValue) {
+    
+    //add a rule on stem:a saying if you are about to be out of the group by all paths (flattened), then send an email
+    AttributeAssign attributeAssign = ruleGroup
+      .getAttributeDelegate().addAttribute(RuleUtils.ruleAttributeDefName()).getAttributeAssign();
+    
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleActAsSubjectSourceIdName(), actAsSubject.getSourceId());
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleActAsSubjectIdName(), actAsSubject.getId());
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleCheckTypeName(), 
+        RuleCheckType.membershipDisabledDate.name());
+    
+    //will find memberships with a disabled date at least 6 days from now.  blank means no min
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleCheckArg0Name(), daysInFutureDisabledDateMin == null ? null : daysInFutureDisabledDateMin.toString());
+
+    //will find memberships with a disabled date at most 8 days from now.  blank means no max
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleCheckArg1Name(), daysInFutureDisabledDateMax == null ? null : daysInFutureDisabledDateMax.toString());
+
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleThenEnumName(), RuleThenEnum.sendEmail.name());
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleThenEnumArg0Name(), emailToValue);
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleThenEnumArg1Name(), emailSubjectValue);
+ 
+    //the to, subject, or body could be text with EL variables, or could be a template.  If template, it is
+    //read from the classpath from package: grouperRulesEmailTemplates/theTemplateName.txt
+    //or you could configure grouper.properties to keep them in an external folder, not in the classpath
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleThenEnumArg2Name(), emailBodyValue);
+    
+    //should be valid
+    String isValidString = attributeAssign.getAttributeValueDelegate().retrieveValueString(
+        RuleUtils.ruleValidName());
+
+    if (!StringUtils.equals("T", isValidString)) {
+      throw new RuntimeException(isValidString);
+    }
+    
+    return attributeAssign;
+
+  }
 }

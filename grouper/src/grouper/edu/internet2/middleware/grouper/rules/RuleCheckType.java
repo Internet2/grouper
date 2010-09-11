@@ -1,5 +1,6 @@
 package edu.internet2.middleware.grouper.rules;
 
+import java.sql.Timestamp;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -40,6 +41,133 @@ import edu.internet2.middleware.subject.Subject;
  */
 public enum RuleCheckType {
 
+  /** query daily for memberships that are enabled, but have a disabled date coming up */
+  membershipDisabledDate {
+
+    /**
+     * @see edu.internet2.middleware.grouper.rules.RuleCheckType#checkKey(edu.internet2.middleware.grouper.rules.RuleDefinition)
+     */
+    @Override
+    public RuleCheck checkKey(RuleDefinition ruleDefinition) {
+      RuleCheck ruleCheck = ruleDefinition.getCheck();
+      if (StringUtils.isBlank(ruleCheck.getCheckOwnerId()) && StringUtils.isBlank(ruleCheck.getCheckOwnerName())) {
+        //if this is assigned to a group
+        if (!StringUtils.isBlank(ruleDefinition.getAttributeAssignType().getOwnerGroupId())) {
+
+          //clone so we dont edit the object
+          ruleCheck = ruleCheck.clone();
+          //set the owner to this group
+          ruleCheck.setCheckOwnerId(ruleDefinition.getAttributeAssignType().getOwnerGroupId());
+        } else {
+          LOG.error("Not sure why no check owner if not assigned to group");
+        }
+      }
+      return ruleCheck;
+    }
+
+    /**
+     * 
+     * @see edu.internet2.middleware.grouper.rules.RuleCheckType#addElVariables(edu.internet2.middleware.grouper.rules.RuleDefinition, java.util.Map, edu.internet2.middleware.grouper.rules.beans.RulesBean, boolean)
+     */
+    @Override
+    public void addElVariables(RuleDefinition ruleDefinition,
+        Map<String, Object> variableMap, RulesBean rulesBean, boolean hasAccessToElApi) {
+      flattenedMembershipRemove.addElVariables(ruleDefinition, variableMap, rulesBean, hasAccessToElApi);
+    }
+
+    /**
+     * @see edu.internet2.middleware.grouper.rules.RuleCheckType#ruleDefinitions(edu.internet2.middleware.grouper.rules.RuleEngine, edu.internet2.middleware.grouper.rules.beans.RulesBean)
+     */
+    @Override
+    public Set<RuleDefinition> ruleDefinitions(RuleEngine ruleEngine, RulesBean rulesBean) {
+
+      //this should never fire normally, we will use it from a daemon
+      return null;
+    }
+
+    /**
+     * @see edu.internet2.middleware.grouper.rules.RuleCheckType#validate(edu.internet2.middleware.grouper.rules.RuleDefinition, edu.internet2.middleware.grouper.rules.RuleCheck)
+     */
+    @Override
+    public String validate(RuleDefinition ruleDefinition, RuleCheck ruleCheck) {
+
+      int timestampFrom = -1;
+      try {
+        timestampFrom = GrouperUtil.intValue(ruleCheck.getCheckArg0(), -1);      
+      } catch (Exception e) {
+        return "checkArg0 timestampFrom problem " + e.getMessage();
+      }
+      
+      int timestampTo = -1;
+      try {
+        timestampTo = GrouperUtil.intValue(ruleCheck.getCheckArg1(), -1);      
+      } catch (Exception e) {
+        return "checkArg1 timestampTo problem " + e.getMessage();
+      }
+      
+      if (timestampTo < 0 && timestampFrom < 0) {
+        return "Enter checkArg0 or checkArg1 or most likely both, " +
+        		"this is the days in future lower bound and upper bound";
+      }
+      
+      return this.validate(true, ruleDefinition, ruleCheck, false, true, false, false);
+
+    }
+
+    /**
+     * @see edu.internet2.middleware.grouper.rules.RuleCheckType#runDaemon(edu.internet2.middleware.grouper.rules.RuleDefinition)
+     */
+    @Override
+    public void runDaemon(RuleDefinition ruleDefinition) {
+      
+      boolean shouldLogThisDefinition = LOG.isDebugEnabled() || ruleDefinition.shouldLog();
+      final StringBuilder logDataForThisDefinition = shouldLogThisDefinition 
+        ? new StringBuilder() : null;
+
+      try {
+        Group group = RuleUtils.group(ruleDefinition.getCheck().getCheckOwnerId(),
+            ruleDefinition.getCheck().getCheckOwnerName(), 
+            ruleDefinition.getAttributeAssignType().getOwnerGroupId(), false, true);
+        
+        int daysFrom = GrouperUtil.intValue(ruleDefinition.getCheck().getCheckArg0(), -1); 
+        int daysTo = GrouperUtil.intValue(ruleDefinition.getCheck().getCheckArg1(), -1); 
+        
+        Timestamp disabledFrom = daysFrom < 0 ? null : 
+          new Timestamp(System.currentTimeMillis() + daysFrom * 24 * 60 * 60 * 1000);
+        Timestamp disabledTo = daysTo < 0 ? null : 
+          new Timestamp(System.currentTimeMillis() + daysTo * 24 * 60 * 60 * 1000);
+        
+        //lets get the memberships that are of issue.  Note, if someone has
+        //two memberships which are both eligible, there will be both returned...
+        //probably rare but should fix at some point
+        Set<Membership> memberships = GrouperDAOFactory.getFactory()
+          .getMembership().findAllMembershipsByGroupOwnerFieldDisabledRange(
+              group.getId(), Group.getDefaultList(), disabledFrom, disabledTo);
+        
+        RuleEngine ruleEngine = RuleEngine.ruleEngine();
+        
+        for (Membership membership : GrouperUtil.nonNull(memberships)) {
+          
+          RulesMembershipBean rulesMembershipBean = new RulesMembershipBean(membership, 
+              membership.getGroup(), membership.getMember().getSubject());
+          
+          ruleDefinition.getThen().fireRule(ruleDefinition, ruleEngine, 
+              rulesMembershipBean, logDataForThisDefinition);
+          
+        }
+      } finally {
+        if (shouldLogThisDefinition) {
+          if (LOG.isDebugEnabled()) {
+            LOG.debug(logDataForThisDefinition.toString());
+          } else if (LOG.isInfoEnabled()) {
+            LOG.info(logDataForThisDefinition.toString());
+          }
+        }
+      }
+    }
+    
+  },
+  
   /** if there is a membership(flattened) add of a group in a stem */
   flattenedMembershipAddInFolder{
   
@@ -59,7 +187,7 @@ public enum RuleCheckType {
      * @return the error or null if valid
      */
     public String validate(RuleDefinition ruleDefinition, RuleCheck ruleCheck) {
-      return validate(ruleDefinition, ruleCheck, true, false, true, false);
+      return validate(false, ruleDefinition, ruleCheck, true, false, true, false);
     }
   
     /**
@@ -102,7 +230,7 @@ public enum RuleCheckType {
      * @return the error or null if valid
      */
     public String validate(RuleDefinition ruleDefinition, RuleCheck ruleCheck) {
-      return validate(ruleDefinition, ruleCheck, true, false, true, false);
+      return validate(false, ruleDefinition, ruleCheck, true, false, true, false);
     }
   
     /**
@@ -196,6 +324,12 @@ public enum RuleCheckType {
           variableMap.put("membership", membership);
         }
         variableMap.put("membershipId", membership.getUuid());
+        if (membership.getDisabledTime() != null) {
+          variableMap.put("membershipDisabledTimestamp", membership.getDisabledTime());
+        }
+        if (membership.getEnabledTime() != null) {
+          variableMap.put("membershipEnabledTimestamp", membership.getEnabledTime());
+        }
       }
       Subject subject = rulesMembershipBean.getSubject();
       if (subject != null) {
@@ -212,7 +346,7 @@ public enum RuleCheckType {
      */
     @Override
     public String validate(RuleDefinition ruleDefinition, RuleCheck ruleCheck) {
-      return this.validate(ruleDefinition, ruleCheck, false, true, false, false);
+      return this.validate(false, ruleDefinition, ruleCheck, false, true, false, false);
     }
 
     
@@ -268,7 +402,7 @@ public enum RuleCheckType {
      */
     @Override
     public String validate(RuleDefinition ruleDefinition, RuleCheck ruleCheck) {
-      return this.validate(ruleDefinition, ruleCheck, false, true, false, false);
+      return this.validate(false, ruleDefinition, ruleCheck, false, true, false, false);
     }
 
     /**
@@ -352,7 +486,7 @@ public enum RuleCheckType {
      * @return the error or null if valid
      */
     public String validate(RuleDefinition ruleDefinition, RuleCheck ruleCheck) {
-      return validate(ruleDefinition, ruleCheck, true, false, true, false);
+      return validate(false, ruleDefinition, ruleCheck, true, false, true, false);
     }
 
     /**
@@ -395,7 +529,7 @@ public enum RuleCheckType {
      * @return the error or null if valid
      */
     public String validate(RuleDefinition ruleDefinition, RuleCheck ruleCheck) {
-      return validate(ruleDefinition, ruleCheck, true, false, true, false);
+      return validate(false, ruleDefinition, ruleCheck, true, false, true, false);
     }
 
     /**
@@ -457,7 +591,7 @@ public enum RuleCheckType {
       
       //by id
       RuleCheck ruleCheck = new RuleCheck(this.name(), 
-          rulesGroupBean.getGroup().getId(), rulesGroupBean.getGroup().getName(), null);
+          rulesGroupBean.getGroup().getId(), rulesGroupBean.getGroup().getName(), null, null, null);
     
       ruleDefinitions.addAll(GrouperUtil.nonNull(ruleEngine.ruleCheckIndexDefinitionsByNameOrIdInFolder(ruleCheck)));
       
@@ -490,7 +624,7 @@ public enum RuleCheckType {
      * @return the error or null if valid
      */
     public String validate(RuleDefinition ruleDefinition, RuleCheck ruleCheck) {
-      return validate(ruleDefinition, ruleCheck, true, false, true, false);
+      return validate(false, ruleDefinition, ruleCheck, true, false, true, false);
     }
 
     /**
@@ -505,7 +639,7 @@ public enum RuleCheckType {
       
       //by id
       RuleCheck ruleCheck = new RuleCheck(this.name(), 
-          rulesStemBean.getStem().getUuid(), rulesStemBean.getStem().getName(), null);
+          rulesStemBean.getStem().getUuid(), rulesStemBean.getStem().getName(), null, null, null);
     
       ruleDefinitions.addAll(GrouperUtil.nonNull(ruleEngine.ruleCheckIndexDefinitionsByNameOrIdInFolder(ruleCheck)));
       
@@ -636,7 +770,7 @@ public enum RuleCheckType {
      */
     @Override
     public String validate(RuleDefinition ruleDefinition, RuleCheck ruleCheck) {
-      return this.validate(ruleDefinition, ruleCheck, false, true, false, false);
+      return this.validate(false, ruleDefinition, ruleCheck, false, true, false, false);
     }
 
   }, 
@@ -691,7 +825,7 @@ public enum RuleCheckType {
      */
     @Override
     public String validate(RuleDefinition ruleDefinition, RuleCheck ruleCheck) {
-      return this.validate(ruleDefinition, ruleCheck, false, true, false, false);
+      return this.validate(false, ruleDefinition, ruleCheck, false, true, false, false);
     }
 
   }, 
@@ -714,7 +848,7 @@ public enum RuleCheckType {
      * @return the error or null if valid
      */
     public String validate(RuleDefinition ruleDefinition, RuleCheck ruleCheck) {
-      return validate(ruleDefinition, ruleCheck, true, false, true, false);
+      return validate(false, ruleDefinition, ruleCheck, true, false, true, false);
     }
   
     /**
@@ -771,7 +905,7 @@ public enum RuleCheckType {
      * @return the error or null if valid
      */
     public String validate(RuleDefinition ruleDefinition, RuleCheck ruleCheck) {
-      return validate(ruleDefinition, ruleCheck, true, false, true, false);
+      return validate(false, ruleDefinition, ruleCheck, true, false, true, false);
     }
   
     /**
@@ -786,7 +920,7 @@ public enum RuleCheckType {
       
       //by id
       RuleCheck ruleCheck = new RuleCheck(this.name(), 
-          rulesAttributeDefBean.getAttributeDef().getId(), rulesAttributeDefBean.getAttributeDef().getName(), null);
+          rulesAttributeDefBean.getAttributeDef().getId(), rulesAttributeDefBean.getAttributeDef().getName(), null, null, null);
     
       ruleDefinitions.addAll(GrouperUtil.nonNull(ruleEngine.ruleCheckIndexDefinitionsByNameOrIdInFolder(ruleCheck)));
       
@@ -953,7 +1087,7 @@ public enum RuleCheckType {
      */
     @Override
     public String validate(RuleDefinition ruleDefinition, RuleCheck ruleCheck) {
-      return this.validate(ruleDefinition, ruleCheck, false, false, false, true);
+      return this.validate(false, ruleDefinition, ruleCheck, false, false, false, true);
     }
   
   };
@@ -996,6 +1130,7 @@ public enum RuleCheckType {
   
   /**
    * validate this check type
+   * @param allowArgs 
    * @param ruleDefinition
    * @param ruleCheck 
    * @param requireStemScope true to require, false to require blank
@@ -1004,7 +1139,7 @@ public enum RuleCheckType {
    * @param ownerIsAttributeDef 
    * @return the error or null if valid
    */
-  public String validate(RuleDefinition ruleDefinition, RuleCheck ruleCheck, 
+  public String validate(boolean allowArgs, RuleDefinition ruleDefinition, RuleCheck ruleCheck, 
       boolean requireStemScope, boolean ownerIsGroup, boolean ownerIsStem, boolean ownerIsAttributeDef) {
     
     if (!StringUtils.isBlank(ruleCheck.getCheckOwnerId()) && !StringUtils.isBlank(ruleCheck.getCheckOwnerName())) {
@@ -1046,6 +1181,13 @@ public enum RuleCheckType {
       }
     }
     
+    if (!allowArgs) {
+      if (!StringUtils.isBlank(ruleDefinition.getCheck().getCheckArg0()) 
+          || !StringUtils.isBlank(ruleDefinition.getCheck().getCheckArg1())) {
+        return "Should not use checkArg0 or checkArg1";
+      }
+    }
+    
     //if there is a stem scope, then owner is stem
     return null;
   }
@@ -1065,7 +1207,7 @@ public enum RuleCheckType {
     
     //by id
     RuleCheck ruleCheck = new RuleCheck(ruleCheckType.name(), 
-        rulesMembershipBean.getGroup().getId(), rulesMembershipBean.getGroup().getName(), null);
+        rulesMembershipBean.getGroup().getId(), rulesMembershipBean.getGroup().getName(), null, null, null);
   
     ruleDefinitions.addAll(GrouperUtil.nonNull(ruleEngine.ruleCheckIndexDefinitionsByNameOrId(ruleCheck)));
     
@@ -1100,7 +1242,7 @@ public enum RuleCheckType {
     
     //by id
     RuleCheck ruleCheck = new RuleCheck(ruleCheckType.name(), 
-        rulesMembershipBean.getGroup().getId(), rulesMembershipBean.getGroup().getName(), null);
+        rulesMembershipBean.getGroup().getId(), rulesMembershipBean.getGroup().getName(), null, null, null);
 
     ruleDefinitions.addAll(GrouperUtil.nonNull(ruleEngine.ruleCheckIndexDefinitionsByNameOrIdInFolder(ruleCheck)));
     
@@ -1130,7 +1272,7 @@ public enum RuleCheckType {
     
     //by id
     RuleCheck ruleCheck = new RuleCheck(ruleCheckType.name(), 
-        rulesPermissionBean.getAttributeDef().getId(), rulesPermissionBean.getAttributeDef().getName(), null);
+        rulesPermissionBean.getAttributeDef().getId(), rulesPermissionBean.getAttributeDef().getName(), null, null, null);
   
     ruleDefinitions.addAll(GrouperUtil.nonNull(ruleEngine.ruleCheckIndexDefinitionsByNameOrId(ruleCheck)));
     

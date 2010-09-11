@@ -2904,6 +2904,11 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
    */
   public Membership getImmediateMembership(Field f, Member member, boolean enabledOnly, boolean exceptionIfNotFound) 
       throws  SchemaException, MembershipNotFoundException {
+    
+    if (member == null) {
+      throw new RuntimeException("You need to pass a member here");
+    }
+    
     Set<Membership> memberships = this.getImmediateMemberships(f, GrouperUtil.toSet(member), enabledOnly);
     if (memberships.size() == 0) {
       if (exceptionIfNotFound) {

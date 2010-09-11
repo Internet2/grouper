@@ -37,6 +37,7 @@ import edu.internet2.middleware.grouper.attr.value.AttributeAssignValueContainer
 import edu.internet2.middleware.grouper.attr.value.AttributeValueDelegate;
 import edu.internet2.middleware.grouper.cache.GrouperCacheUtils;
 import edu.internet2.middleware.grouper.cfg.ApiConfig;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.group.TypeOfGroup;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
@@ -79,7 +80,7 @@ public class RuleTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new RuleTest("testRuleLonghandEmailFlattenedAddFromStem"));
+    TestRunner.run(new RuleTest("testRuleLonghandEmailDisabledDate"));
     //TestRunner.run(RuleTest.class);
   }
 
@@ -3454,4 +3455,107 @@ public class RuleTest extends GrouperTest {
     
   }
 
+  /**
+   * 
+   */
+  public void testRuleLonghandEmailDisabledDate() {
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    Group groupEmployee = new GroupSave(grouperSession).assignName("stem:employee").assignCreateParentStemsIfNotExist(true).save();
+    Group groupProgrammer = new GroupSave(grouperSession).assignName("stem:programmer").assignCreateParentStemsIfNotExist(true).save();
+  
+    groupEmployee.addMember(groupProgrammer.toSubject());
+
+    Subject subject0 = SubjectFinder.findByIdAndSource("test.subject.0", "jdbc", true);
+    
+    //add a rule on stem:a saying if you are about to be out of the group by all paths (flattened), then send an email
+    AttributeAssign attributeAssign = groupEmployee
+      .getAttributeDelegate().addAttribute(RuleUtils.ruleAttributeDefName()).getAttributeAssign();
+    
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleActAsSubjectSourceIdName(), "g:isa");
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleActAsSubjectIdName(), "GrouperSystem");
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleCheckTypeName(), 
+        RuleCheckType.membershipDisabledDate.name());
+    
+    //will find memberships with a disabled date at least 6 days from now.  blank means no min
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleCheckArg0Name(), "6");
+
+    //will find memberships with a disabled date at most 8 days from now.  blank means no max
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleCheckArg1Name(), "8");
+
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleThenEnumName(), RuleThenEnum.sendEmail.name());
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleThenEnumArg0Name(), GrouperConfig.getProperty("mail.test.address") + ", ${safeSubject.emailAddress}");
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleThenEnumArg1Name(), "You will be removed from group: ${groupDisplayExtension} on ${ruleElUtils.formatDate(membershipDisabledTimestamp, 'yyyy/MM/dd')}");
+ 
+    //the to, subject, or body could be text with EL variables, or could be a template.  If template, it is
+    //read from the classpath from package: grouperRulesEmailTemplates/theTemplateName.txt
+    //or you could configure grouper.properties to keep them in an external folder, not in the classpath
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleThenEnumArg2Name(), "Hello ${safeSubject.name},\n\nJust letting you know you will be removed from group ${groupDisplayExtension} on ${ruleElUtils.formatDate(membershipDisabledTimestamp, 'yyyy/MM/dd')} in the central Groups management system.  Please do not respond to this email.\n\nRegards.");
+    
+    //should be valid
+    String isValidString = attributeAssign.getAttributeValueDelegate().retrieveValueString(
+        RuleUtils.ruleValidName());
+    assertEquals("T", isValidString);
+    
+    //count rule firings
+    long initialEmailCount = GrouperEmail.testingEmailCount;
+    
+    groupEmployee.addMember(subject0, false);
+    
+    GrouperLoader.runOnceByJobName(grouperSession, "MAINTENANCE__rules");
+
+    Member member0 = MemberFinder.findBySubject(grouperSession, subject0, false);
+    
+    Membership membership = groupEmployee.getImmediateMembership(Group.getDefaultList(), member0, true, true);
+    
+    //set disabled 7 days in the future
+    membership.setDisabledTime(new Timestamp(System.currentTimeMillis() + (7 * 24 * 60 * 60 * 1000)));
+    membership.update();
+    
+    GrouperLoader.runOnceByJobName(grouperSession, "MAINTENANCE__rules");
+    
+    //should fire
+    assertEquals(initialEmailCount + 1, GrouperEmail.testingEmailCount);
+
+    membership.setDisabledTime(new Timestamp(System.currentTimeMillis() + (5 * 24 * 60 * 60 * 1000)));
+    membership.update();
+    
+    GrouperLoader.runOnceByJobName(grouperSession, "MAINTENANCE__rules");
+    
+    //should not fire
+    assertEquals(initialEmailCount + 1, GrouperEmail.testingEmailCount);
+
+    membership.setDisabledTime(new Timestamp(System.currentTimeMillis() + (9 * 24 * 60 * 60 * 1000)));
+    membership.update();
+    
+    GrouperLoader.runOnceByJobName(grouperSession, "MAINTENANCE__rules");
+    
+    //should not fire
+    assertEquals(initialEmailCount + 1, GrouperEmail.testingEmailCount);
+
+    membership.setDisabledTime(new Timestamp(System.currentTimeMillis() + (7 * 24 * 60 * 60 * 1000)));
+    membership.update();
+    
+    GrouperLoader.runOnceByJobName(grouperSession, "MAINTENANCE__rules");
+    
+    //should fire
+    assertEquals(initialEmailCount + 2, GrouperEmail.testingEmailCount);
+
+    groupProgrammer.addMember(subject0);
+
+    GrouperLoader.runOnceByJobName(grouperSession, "MAINTENANCE__rules");
+    
+    //should not fire
+    assertEquals(initialEmailCount + 2, GrouperEmail.testingEmailCount);
+
+  }
 }

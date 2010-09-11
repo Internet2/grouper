@@ -639,6 +639,49 @@ public class RuleUtils {
   /**
    * 
    */
+  public static final String RULE_CHECK_ARG0 = "ruleCheckArg0";
+
+  /**
+   * ruleCheckArg0Name
+   */
+  private static String ruleCheckArg0Name = null;
+
+  /**
+   * full ruleCheckArg0Name
+   * @return name
+   */
+  public static String ruleCheckArg0Name() {
+    if (ruleCheckArg0Name == null) {
+      ruleCheckArg0Name = RuleUtils.attributeRuleStemName() + ":" + RULE_CHECK_ARG0;
+    }
+    return ruleCheckArg0Name;
+  }
+  
+  /**
+   * 
+   */
+  public static final String RULE_CHECK_ARG1 = "ruleCheckArg1";
+
+  /**
+   * ruleCheckArg1Name
+   */
+  private static String ruleCheckArg1Name = null;
+
+  /**
+   * full ruleCheckArg1Name
+   * @return name
+   */
+  public static String ruleCheckArg1Name() {
+    if (ruleCheckArg1Name == null) {
+      ruleCheckArg1Name = RuleUtils.attributeRuleStemName() + ":" + RULE_CHECK_ARG1;
+    }
+    return ruleCheckArg1Name;
+  }
+  
+
+  /**
+   * 
+   */
   public static final String RULE_IF_OWNER_ID = "ruleIfOwnerId";
 
   /**

@@ -86,6 +86,10 @@ public class RuleDefinition {
       .attributeValueString(attributeAssignValueContainers, RuleUtils.ruleCheckOwnerIdName());
     String checkOwnerName = AttributeAssignValueContainer
       .attributeValueString(attributeAssignValueContainers, RuleUtils.ruleCheckOwnerNameName());
+    String checkArg0 = AttributeAssignValueContainer
+      .attributeValueString(attributeAssignValueContainers, RuleUtils.ruleCheckArg0Name());
+    String checkArg1 = AttributeAssignValueContainer
+      .attributeValueString(attributeAssignValueContainers, RuleUtils.ruleCheckArg1Name());
     String checkStemScope = AttributeAssignValueContainer
       .attributeValueString(attributeAssignValueContainers, RuleUtils.ruleCheckStemScopeName());
     String ifConditionEl = AttributeAssignValueContainer
@@ -116,7 +120,7 @@ public class RuleDefinition {
         actAsSubjectId, actAsSubjectSourceId, actAsSubjectIdentifier);
     
     RuleCheck ruleCheck = new RuleCheck(checkTypeString, checkOwnerId, 
-        checkOwnerName, checkStemScope);
+        checkOwnerName, checkStemScope, checkArg0, checkArg1);
     
     RuleIfCondition ruleIfCondition = new RuleIfCondition(ifConditionEl, ifConditionEnum, 
         ifOwnerId, ifOwnerName, ifStemScope);

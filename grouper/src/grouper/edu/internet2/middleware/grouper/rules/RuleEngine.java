@@ -101,7 +101,7 @@ public class RuleEngine {
     //direct parent
     String parentStemName = GrouperUtil.parentStemNameFromName(ownerName);
     
-    RuleCheck tempRuleCheck = new RuleCheck(ruleCheck.getCheckType(), null, parentStemName, Stem.Scope.ONE.name());
+    RuleCheck tempRuleCheck = new RuleCheck(ruleCheck.getCheckType(), null, parentStemName, Stem.Scope.ONE.name(), null, null);
     ruleDefinitions.addAll(GrouperUtil.nonNull(this.getRuleCheckIndex().get(tempRuleCheck)));
     
     //direct parent or ancestor
@@ -109,7 +109,7 @@ public class RuleEngine {
     
     for (String ancestorStemName : parentStemNames) {
       
-      tempRuleCheck = new RuleCheck(ruleCheck.getCheckType(), null, ancestorStemName, Stem.Scope.SUB.name());
+      tempRuleCheck = new RuleCheck(ruleCheck.getCheckType(), null, ancestorStemName, Stem.Scope.SUB.name(), null, null);
       ruleDefinitions.addAll(GrouperUtil.nonNull(this.getRuleCheckIndex().get(tempRuleCheck)));
       
     }
@@ -376,8 +376,6 @@ public class RuleEngine {
 
   /**
    * multikey is sourceId and subjectId , default is 2.5 minutes
-   * @param subject
-   * @return the cache
    */
   private static GrouperCache<MultiKey, Boolean> subjectHasAccessToApi = 
     new GrouperCache<MultiKey, Boolean>("RuleEngine.hasAccessToElApi", 1000, false, 150, 150, false);

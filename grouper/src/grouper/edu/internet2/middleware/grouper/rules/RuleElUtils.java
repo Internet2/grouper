@@ -1,6 +1,8 @@
 package edu.internet2.middleware.grouper.rules;
 
 import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -153,7 +155,6 @@ public class RuleElUtils {
    * @param attributeDefId
    * @param memberId
    * @param daysInFuture
-   * @param addIfNotThere 
    * @return false if assignments werent there, true if it was
    */
   public static boolean assignPermissionDisabledDaysForAttributeDefId(String attributeDefId, String memberId, int daysInFuture) {
@@ -364,6 +365,21 @@ public class RuleElUtils {
     
     return result;
     
+  }
+  
+  /**
+   * format a date, default to yyy/MM/dd.  Docs in the Java SimpleDateFormat class.
+   * @see SimpleDateFormat
+   * @param date
+   * @param format
+   * @return the formatted date
+   */
+  public static String formatDate(Date date, String format) {
+    if (date == null) {
+      return null;
+    }
+    SimpleDateFormat dateFormat = new SimpleDateFormat(StringUtils.isBlank(format) ? "yyyy/MM/dd" : format);
+    return dateFormat.format(date);
   }
   
 }

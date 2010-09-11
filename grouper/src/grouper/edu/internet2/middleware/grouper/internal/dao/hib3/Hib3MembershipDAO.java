@@ -16,6 +16,7 @@
 */
 
 package edu.internet2.middleware.grouper.internal.dao.hib3;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -2176,7 +2177,7 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
    */
   public Set<Member> findAllMembersInOneGroupNotOtherAndType(String ownerInGroupId,
       String ownerNotInGroupId, String typeIn, String typeNotIn,
-      QueryOptions queryOptions, Boolean enabledOnly) throws GrouperDAOException {
+      QueryOptions queryOptions, Boolean enabled) throws GrouperDAOException {
     
     MembershipType typeInEnum = MembershipType.valueOfIgnoreCase(typeIn, false);
     MembershipType typeNotInEnum = MembershipType.valueOfIgnoreCase(typeNotIn, false);
@@ -2187,8 +2188,8 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
     if (typeInEnum != null) {
       sql.append(" and  inMembershipEntry.type  " + typeInEnum.queryClause());
     }
-    if (enabledOnly != null) {
-      if (enabledOnly) {
+    if (enabled != null) {
+      if (enabled) {
         sql.append(" and inMembershipEntry.enabledDb = 'T' ");
       } else {
         sql.append(" and inMembershipEntry.enabledDb = 'F' ");
@@ -2200,8 +2201,8 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
     if (typeNotInEnum != null) {
       sql.append(" and notInMembershipEntry.type  " + typeNotInEnum.queryClause() );
     }
-    if (enabledOnly != null) {
-      if (enabledOnly) {
+    if (enabled != null) {
+      if (enabled) {
         sql.append(" and notInMembershipEntry.enabledDb = 'T' ");
       } else {
         sql.append(" and notInMembershipEntry.enabledDb = 'F' ");
@@ -2221,6 +2222,71 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
     return members;
 
     
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.MembershipDAO#findAllMembershipsByGroupOwnerFieldDisabledRange(java.lang.String, edu.internet2.middleware.grouper.Field, java.sql.Timestamp, java.sql.Timestamp)
+   */
+  public Set<Membership> findAllMembershipsByGroupOwnerFieldDisabledRange (
+      String ownerGroupId, Field f, Timestamp disabledDateFrom,
+      Timestamp disabledDateTo) {
+
+    if (disabledDateFrom == null && disabledDateTo == null) {
+      throw new RuntimeException("Need to pass in disabledFrom or disabledTo");
+    }
+    
+    //if they got it backwards, then fix it for them
+    if (disabledDateFrom != null && disabledDateTo != null 
+        && disabledDateFrom.getTime() > disabledDateTo.getTime()) {
+      
+      Timestamp temp = disabledDateFrom;
+      disabledDateFrom = disabledDateTo;
+      disabledDateTo = temp;
+      
+    }
+    
+    ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
+
+    StringBuilder sql = new StringBuilder(
+        "select theMembershipEntry from MembershipEntry as theMembershipEntry where  "
+        + " theMembershipEntry.ownerGroupId   = :ownerInGroupId            "
+        + " and  theMembershipEntry.fieldId = :theFieldId and theMembershipEntry.enabledDb = 'T' ");
+    
+    if (disabledDateFrom != null) {
+      sql.append(" and theMembershipEntry.disabledTimeDb >= :disabledDateFrom ");
+      byHqlStatic.setLong( "disabledDateFrom" , disabledDateFrom.getTime() );
+    }
+    if (disabledDateTo != null) {
+      sql.append(" and theMembershipEntry.disabledTimeDb <= :disabledDateTo ");
+      byHqlStatic.setLong( "disabledDateTo" , disabledDateTo.getTime() );
+    }
+
+    sql.append(
+        " and not exists ( select validMembershipEntry.uuid from MembershipEntry as validMembershipEntry " +
+    		" where validMembershipEntry.ownerGroupId = theMembershipEntry.ownerGroupId " +
+    		" and validMembershipEntry.fieldId = theMembershipEntry.fieldId " +
+    		" and validMembershipEntry.memberUuid = theMembershipEntry.memberUuid " +
+    		" and validMembershipEntry.enabledDb = 'T' and ( validMembershipEntry.disabledTimeDb is null ");
+
+    if (disabledDateTo != null) {
+      sql.append(" or validMembershipEntry.disabledTimeDb > :disabledDateTo ");
+    } else if (disabledDateFrom != null) {
+      sql.append(" or validMembershipEntry.disabledTimeDb < :disabledDateFrom ");
+    }
+    
+    
+    sql.append(") )");
+    
+    Set<Membership> memberships = byHqlStatic
+      .createQuery(sql.toString())
+      .setCacheable(false)
+      .setCacheRegion(KLASS + ".FindAllMembershipsByGroupOwnerFieldDisabledRange")
+      .setString( "ownerInGroupId" , ownerGroupId )
+      .setString( "theFieldId" , Group.getDefaultList().getUuid() )
+      .listSet(Membership.class);
+
+    return memberships;
+
   }
 
 }

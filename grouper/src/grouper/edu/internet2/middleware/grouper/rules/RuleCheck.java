@@ -8,9 +8,7 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.logging.Log;
 
-import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
-import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.rules.beans.RulesBean;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -30,6 +28,12 @@ public class RuleCheck {
 
   //*****  START GENERATED WITH GenerateFieldConstants.java *****//
 
+  /** constant for field name for: checkArg0 */
+  public static final String FIELD_CHECK_ARG0 = "checkArg0";
+
+  /** constant for field name for: checkArg1 */
+  public static final String FIELD_CHECK_ARG1 = "checkArg1";
+
   /** constant for field name for: checkOwnerId */
   public static final String FIELD_CHECK_OWNER_ID = "checkOwnerId";
 
@@ -45,15 +49,16 @@ public class RuleCheck {
   /**
    * fields which are included in db version
    */
-  @SuppressWarnings("unused")
   private static final Set<String> DB_VERSION_FIELDS = GrouperUtil.toSet(
-      FIELD_CHECK_OWNER_ID, FIELD_CHECK_OWNER_NAME, FIELD_CHECK_STEM_SCOPE, FIELD_CHECK_TYPE);
+      FIELD_CHECK_ARG0, FIELD_CHECK_ARG1, FIELD_CHECK_OWNER_ID, FIELD_CHECK_OWNER_NAME, 
+      FIELD_CHECK_STEM_SCOPE, FIELD_CHECK_TYPE);
 
   /**
    * fields which are included in clone method
    */
   private static final Set<String> CLONE_FIELDS = GrouperUtil.toSet(
-      FIELD_CHECK_OWNER_ID, FIELD_CHECK_OWNER_NAME, FIELD_CHECK_STEM_SCOPE, FIELD_CHECK_TYPE);
+      FIELD_CHECK_ARG0, FIELD_CHECK_ARG1, FIELD_CHECK_OWNER_ID, FIELD_CHECK_OWNER_NAME, 
+      FIELD_CHECK_STEM_SCOPE, FIELD_CHECK_TYPE);
 
   //*****  END GENERATED WITH GenerateFieldConstants.java *****//
 
@@ -83,6 +88,8 @@ public class RuleCheck {
     }
     RuleCheck ruleCheck = (RuleCheck)obj;
     return new EqualsBuilder()
+      .append(this.checkArg0, ruleCheck.checkArg0)
+      .append(this.checkArg1, ruleCheck.checkArg1)
       .append(this.checkOwnerId, ruleCheck.checkOwnerId)
       .append(this.checkStemScope, ruleCheck.checkStemScope)
       .append(this.checkOwnerName, ruleCheck.checkOwnerName)
@@ -96,6 +103,8 @@ public class RuleCheck {
   @Override
   public int hashCode() {
     return new HashCodeBuilder()
+      .append(this.checkArg0)
+      .append(this.checkArg1)
       .append(this.checkOwnerId)
       .append(this.checkOwnerName)
       .append(this.checkStemScope)
@@ -108,29 +117,21 @@ public class RuleCheck {
    * @param ownerId
    * @param ownerName
    * @param theCheckStemScope
+   * @param theCheckArg0 
+   * @param theCheckArg1 
    */
   public RuleCheck(String type, String ownerId, 
-      String ownerName, String theCheckStemScope) {
+      String ownerName, String theCheckStemScope,
+      String theCheckArg0, String theCheckArg1) {
     super();
     this.checkType = type;
     this.checkStemScope = theCheckStemScope;
     
-    //now, if the stem scope is set, then we need the name in the owner, so we can compare...
-    if (!StringUtils.isBlank(this.checkStemScope) 
-        && !StringUtils.isBlank(ownerId) && StringUtils.isBlank(ownerName)) {
-      
-      GrouperSession grouperSession = GrouperSession.startRootSession(false);
-      Stem stem = StemFinder.findByUuid(grouperSession, ownerId, false);
-      if (stem == null) {
-        LOG.error("Cant find stem in rule: " + ownerId);
-      } else {
-        ownerName = stem.getName();
-        ownerId = null;
-      }
-    }
-    
     this.checkOwnerId = ownerId;
     this.checkOwnerName = ownerName;
+    
+    this.checkArg0 = theCheckArg0;
+    this.checkArg1 = theCheckArg1;
   }
 
   /** type of check */
@@ -138,6 +139,12 @@ public class RuleCheck {
   
   /** group/stem/etc which fires the rule */
   private String checkOwnerId;
+  
+  /** arg0 */
+  private String checkArg0;
+  
+  /** arg1 */
+  private String checkArg1;
   
   /** group/stem/etc which fires the rule */
   private String checkOwnerName;
@@ -149,6 +156,36 @@ public class RuleCheck {
   private static final Log LOG = GrouperUtil.getLog(RuleCheck.class);
   
   
+  
+  /**
+   * @return the checkArg0
+   */
+  public String getCheckArg0() {
+    return this.checkArg0;
+  }
+
+  /**
+   * @param _checkArg0 the checkArg0 to set
+   */
+  public void setCheckArg0(String _checkArg0) {
+    this.checkArg0 = _checkArg0;
+  }
+
+  /**
+   * @return the checkArg1
+   */
+  public String getCheckArg1() {
+    return this.checkArg1;
+  }
+
+  /**
+   * @param _checkArg1 the checkArg1 to set
+   */
+  public void setCheckArg1(String _checkArg1) {
+    this.checkArg1 = _checkArg1;
+  }
+
+
   /**
    * ALL or SUB
    * @return the checkStemScope
@@ -257,6 +294,12 @@ public class RuleCheck {
     }
     if (!StringUtils.isBlank(this.checkType)) {
       result.append("checkType: ").append(this.checkType).append(", ");
+    }
+    if (!StringUtils.isBlank(this.checkArg0)) {
+      result.append("checkArg0: ").append(this.checkArg0).append(", ");
+    }
+    if (!StringUtils.isBlank(this.checkArg1)) {
+      result.append("checkArg1: ").append(this.checkArg1).append(", ");
     }
   }
 

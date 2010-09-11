@@ -16,6 +16,7 @@
 */
 
 package edu.internet2.middleware.grouper.membership;
+import java.sql.Timestamp;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -65,7 +66,7 @@ public class TestMembership extends TestCase {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new TestMembership("testXmlDifferentUpdateProperties"));
+    TestRunner.run(new TestMembership("testDisabledDateRange"));
   }
   
   // Private Class Constants
@@ -810,6 +811,146 @@ public class TestMembership extends TestCase {
     }
   }
 
+  /**
+   * 
+   */
+  public void testDisabledDateRange() {
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    Group groupEmployee = new GroupSave(grouperSession).assignName("stem:employee").assignCreateParentStemsIfNotExist(true).save();
+    Group groupProgrammer = new GroupSave(grouperSession).assignName("stem:programmer").assignCreateParentStemsIfNotExist(true).save();
+  
+    groupEmployee.addMember(groupProgrammer.toSubject());
+
+    Subject subject0 = SubjectFinder.findByIdAndSource("test.subject.0", "jdbc", true);
+
+    //subject 1,2 is just more data in the mix
+    Subject subject1 = SubjectFinder.findByIdAndSource("test.subject.1", "jdbc", true);
+    Subject subject2 = SubjectFinder.findByIdAndSource("test.subject.2", "jdbc", true);
+    
+    groupEmployee.addMember(subject1, false);
+    groupEmployee.addMember(subject2, false);
+
+    try {
+      GrouperDAOFactory.getFactory().getMembership().findAllMembershipsByGroupOwnerFieldDisabledRange(
+          groupEmployee.getUuid(), Group.getDefaultList(), null, null);
+
+      fail("should need either disabled from or two");
+    } catch (Exception e) {
+      //good
+    }
+
+    groupEmployee.addMember(subject0, false);
+
+    Timestamp timestamp5daysForward = new Timestamp(System.currentTimeMillis() + (5 * 24 * 60 * 60 * 1000));
+    Timestamp timestamp6daysForward = new Timestamp(System.currentTimeMillis() + (6 * 24 * 60 * 60 * 1000));
+    Timestamp timestamp7daysForward = new Timestamp(System.currentTimeMillis() + (7 * 24 * 60 * 60 * 1000));
+    Timestamp timestamp8daysForward = new Timestamp(System.currentTimeMillis() + (8 * 24 * 60 * 60 * 1000));
+    Timestamp timestamp9daysForward = new Timestamp(System.currentTimeMillis() + (9 * 24 * 60 * 60 * 1000));
+    
+    Set<Membership> memberships = GrouperDAOFactory.getFactory().getMembership()
+      .findAllMembershipsByGroupOwnerFieldDisabledRange(groupEmployee.getUuid(), 
+          Group.getDefaultList(), timestamp6daysForward, timestamp8daysForward);
+
+    assertEquals(0, memberships.size());
+    
+    Member member0 = MemberFinder.findBySubject(grouperSession, subject0, true);
+    
+    Membership membership = groupEmployee.getImmediateMembership(Group.getDefaultList(), member0, true, true);
+    
+    //############### set disabled 7 days in the future
+    membership.setDisabledTime(timestamp7daysForward);
+    membership.update();
+    
+    memberships = GrouperDAOFactory.getFactory().getMembership()
+    .findAllMembershipsByGroupOwnerFieldDisabledRange(groupEmployee.getUuid(), 
+        Group.getDefaultList(), timestamp6daysForward, timestamp8daysForward);
+
+    assertEquals(1, memberships.size());
+
+    groupProgrammer.addMember(subject0, false);
+
+    memberships = GrouperDAOFactory.getFactory().getMembership()
+      .findAllMembershipsByGroupOwnerFieldDisabledRange(groupEmployee.getUuid(), 
+        Group.getDefaultList(), timestamp6daysForward, timestamp8daysForward);
+
+    assertEquals("there is a membership in another path, not going to expire", 0, memberships.size());
+    
+    //################# BACK TO ONE RECORD
+    groupProgrammer.deleteMember(subject0, false);
+    
+    memberships = GrouperDAOFactory.getFactory().getMembership()
+    .findAllMembershipsByGroupOwnerFieldDisabledRange(groupEmployee.getUuid(), 
+        Group.getDefaultList(), timestamp6daysForward, timestamp8daysForward);
+
+    assertEquals(1, memberships.size());
+
+    //################# BACK TO ONE RECORD, MIXED UP ORDER
+    groupProgrammer.deleteMember(subject0, false);
+    
+    memberships = GrouperDAOFactory.getFactory().getMembership()
+    .findAllMembershipsByGroupOwnerFieldDisabledRange(groupEmployee.getUuid(), 
+        Group.getDefaultList(), timestamp8daysForward, timestamp6daysForward);
+
+    assertEquals(1, memberships.size());
+
+    //################# SET TO 5 DAYS
+    membership.setDisabledTime(timestamp5daysForward);
+    membership.update();
+    
+    memberships = GrouperDAOFactory.getFactory().getMembership()
+      .findAllMembershipsByGroupOwnerFieldDisabledRange(groupEmployee.getUuid(), 
+          Group.getDefaultList(), timestamp6daysForward, timestamp8daysForward);
+
+    assertEquals("out of range", 0, memberships.size());
+
+    //################# SET TO 9 DAYS
+    membership.setDisabledTime(timestamp9daysForward);
+    membership.update();
+    
+    memberships = GrouperDAOFactory.getFactory().getMembership()
+      .findAllMembershipsByGroupOwnerFieldDisabledRange(groupEmployee.getUuid(), 
+          Group.getDefaultList(), timestamp6daysForward, timestamp8daysForward);
+
+    assertEquals("out of range", 0, memberships.size());
+
+    //################ TRY ONLY FROM
+    membership.setDisabledTime(timestamp7daysForward);
+    membership.update();
+    
+    memberships = GrouperDAOFactory.getFactory().getMembership()
+      .findAllMembershipsByGroupOwnerFieldDisabledRange(groupEmployee.getUuid(), 
+          Group.getDefaultList(), timestamp6daysForward, null);
+
+    assertEquals("in range", 1, memberships.size());
+
+    //################ TRY ONLY FROM
+    
+    memberships = GrouperDAOFactory.getFactory().getMembership()
+      .findAllMembershipsByGroupOwnerFieldDisabledRange(groupEmployee.getUuid(), 
+          Group.getDefaultList(), timestamp8daysForward, null);
+
+    assertEquals("not in range", 0, memberships.size());
+
+    //################ TRY ONLY TO
+    
+    memberships = GrouperDAOFactory.getFactory().getMembership()
+      .findAllMembershipsByGroupOwnerFieldDisabledRange(groupEmployee.getUuid(), 
+          Group.getDefaultList(), null, timestamp8daysForward);
+
+    assertEquals("in range", 1, memberships.size());
+
+    //################ TRY ONLY TO
+    
+    memberships = GrouperDAOFactory.getFactory().getMembership()
+      .findAllMembershipsByGroupOwnerFieldDisabledRange(groupEmployee.getUuid(), 
+          Group.getDefaultList(), null, timestamp6daysForward);
+
+    assertEquals("not in range", 0, memberships.size());
+
+    
+  }
   
 }
 

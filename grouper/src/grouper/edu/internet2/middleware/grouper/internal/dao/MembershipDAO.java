@@ -16,6 +16,7 @@
 */
 
 package edu.internet2.middleware.grouper.internal.dao;
+import java.sql.Timestamp;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -240,13 +241,13 @@ TODO update for 1.5
    * @param typeIn
    * @param typeNotIn
    * @param queryOptions 
-   * @param enabledOnly 
+   * @param enabled T for enabled, F for disabled, null for all
    * @return set
    * @throws GrouperDAOException
    */
   public Set<Member> findAllMembersInOneGroupNotOtherAndType(String ownerInGroupId,
       String ownerNotInGroupId,
-      String typeIn, String typeNotIn, QueryOptions queryOptions, Boolean enabledOnly) throws GrouperDAOException;
+      String typeIn, String typeNotIn, QueryOptions queryOptions, Boolean enabled) throws GrouperDAOException;
   
   /**
    * @param ownerGroupId
@@ -297,6 +298,17 @@ TODO update for 1.5
    */
   Set<Member> findAllMembersByGroupOwnerAndField(String ownerGroupId, Field f, boolean enabledOnly)
     throws  GrouperDAOException;
+
+  /**
+   * Find all memberships based on group, field, enabled, and a range of disabled dates
+   * @param ownerGroupId 
+   * @param f 
+   * @param disabledDateFrom null if dont consider
+   * @param disabledDateTo null if dont consider
+   * @return  Members from memberships.
+   */
+  Set<Membership> findAllMembershipsByGroupOwnerFieldDisabledRange(String ownerGroupId, 
+      Field f, Timestamp disabledDateFrom, Timestamp disabledDateTo);
 
   /**
    * 
