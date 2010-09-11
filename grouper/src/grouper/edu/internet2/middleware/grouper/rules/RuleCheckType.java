@@ -20,8 +20,12 @@ import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
+import edu.internet2.middleware.grouper.attr.finder.AttributeAssignFinder;
+import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.permissions.PermissionEntry;
 import edu.internet2.middleware.grouper.permissions.role.Role;
 import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.rules.beans.RulesAttributeDefBean;
@@ -41,6 +45,149 @@ import edu.internet2.middleware.subject.Subject;
  */
 public enum RuleCheckType {
 
+  /** query daily for permissions that are enabled, but have a disabled date coming up */
+  permissionDisabledDate {
+
+    /**
+     * @see edu.internet2.middleware.grouper.rules.RuleCheckType#checkKey(edu.internet2.middleware.grouper.rules.RuleDefinition)
+     */
+    @Override
+    public RuleCheck checkKey(RuleDefinition ruleDefinition) {
+      RuleCheck ruleCheck = ruleDefinition.getCheck();
+      if (StringUtils.isBlank(ruleCheck.getCheckOwnerId()) && StringUtils.isBlank(ruleCheck.getCheckOwnerName())) {
+        //if this is assigned to a group
+        if (!StringUtils.isBlank(ruleDefinition.getAttributeAssignType().getOwnerGroupId())) {
+
+          //clone so we dont edit the object
+          ruleCheck = ruleCheck.clone();
+          //set the owner to this group
+          ruleCheck.setCheckOwnerId(ruleDefinition.getAttributeAssignType().getOwnerAttributeDefId());
+        } else {
+          LOG.error("Not sure why no check owner if not assigned to attribute def");
+        }
+      }
+      return ruleCheck;
+    }
+
+    /**
+     * 
+     * @see edu.internet2.middleware.grouper.rules.RuleCheckType#addElVariables(edu.internet2.middleware.grouper.rules.RuleDefinition, java.util.Map, edu.internet2.middleware.grouper.rules.beans.RulesBean, boolean)
+     */
+    @Override
+    public void addElVariables(RuleDefinition ruleDefinition,
+        Map<String, Object> variableMap, RulesBean rulesBean, boolean hasAccessToElApi) {
+      permissionAssignToSubject.addElVariables(ruleDefinition, variableMap, rulesBean, hasAccessToElApi);
+    }
+
+    /**
+     * @see edu.internet2.middleware.grouper.rules.RuleCheckType#ruleDefinitions(edu.internet2.middleware.grouper.rules.RuleEngine, edu.internet2.middleware.grouper.rules.beans.RulesBean)
+     */
+    @Override
+    public Set<RuleDefinition> ruleDefinitions(RuleEngine ruleEngine, RulesBean rulesBean) {
+
+      //this should never fire normally, we will use it from a daemon
+      return null;
+    }
+
+    /**
+     * @see edu.internet2.middleware.grouper.rules.RuleCheckType#validate(edu.internet2.middleware.grouper.rules.RuleDefinition, edu.internet2.middleware.grouper.rules.RuleCheck)
+     */
+    @Override
+    public String validate(RuleDefinition ruleDefinition, RuleCheck ruleCheck) {
+
+      int timestampFrom = -1;
+      try {
+        timestampFrom = GrouperUtil.intValue(ruleCheck.getCheckArg0(), -1);      
+      } catch (Exception e) {
+        return "checkArg0 timestampFrom problem " + e.getMessage();
+      }
+      
+      int timestampTo = -1;
+      try {
+        timestampTo = GrouperUtil.intValue(ruleCheck.getCheckArg1(), -1);      
+      } catch (Exception e) {
+        return "checkArg1 timestampTo problem " + e.getMessage();
+      }
+      
+      if (timestampTo < 0 && timestampFrom < 0) {
+        return "Enter checkArg0 or checkArg1 or most likely both, " +
+            "this is the days in future lower bound and upper bound";
+      }
+      
+      return this.validate(true, ruleDefinition, ruleCheck, false, false, false, true);
+
+    }
+
+    /**
+     * @see edu.internet2.middleware.grouper.rules.RuleCheckType#runDaemon(edu.internet2.middleware.grouper.rules.RuleDefinition)
+     */
+    @Override
+    public void runDaemon(RuleDefinition ruleDefinition) {
+      
+      boolean shouldLogThisDefinition = LOG.isDebugEnabled() || ruleDefinition.shouldLog();
+      final StringBuilder logDataForThisDefinition = shouldLogThisDefinition 
+        ? new StringBuilder() : null;
+
+      try {
+        AttributeDef permissionDef = RuleUtils.attributeDef(ruleDefinition.getCheck().getCheckOwnerId(),
+            ruleDefinition.getCheck().getCheckOwnerName(), 
+            ruleDefinition.getAttributeAssignType().getOwnerAttributeDefId(), false, true);
+        
+        int daysFrom = GrouperUtil.intValue(ruleDefinition.getCheck().getCheckArg0(), -1); 
+        int daysTo = GrouperUtil.intValue(ruleDefinition.getCheck().getCheckArg1(), -1); 
+        
+        Timestamp disabledFrom = daysFrom < 0 ? null : 
+          new Timestamp(System.currentTimeMillis() + daysFrom * 24 * 60 * 60 * 1000);
+        Timestamp disabledTo = daysTo < 0 ? null : 
+          new Timestamp(System.currentTimeMillis() + daysTo * 24 * 60 * 60 * 1000);
+        
+        //lets get the memberships that are of issue.  Note, if someone has
+        //two memberships which are both eligible, there will be both returned...
+        //probably rare but should fix at some point
+        Set<PermissionEntry> permissionEntries = GrouperDAOFactory.getFactory().getPermissionEntry()
+        .findPermissionsByAttributeDefDisabledRange(permissionDef.getId(), 
+            disabledFrom, disabledTo);
+        
+        RuleEngine ruleEngine = RuleEngine.ruleEngine();
+        
+        GrouperSession grouperSession = GrouperSession.staticGrouperSession();
+        
+        for (PermissionEntry permissionEntry : GrouperUtil.nonNull(permissionEntries)) {
+          
+          AttributeAssign attributeAssign = AttributeAssignFinder.findById(permissionEntry.getAttributeAssignId(), false);
+          
+          Role role = GroupFinder.findByUuid(grouperSession, permissionEntry.getRoleId(), false);
+
+          Member member = MemberFinder.findByUuid(grouperSession, permissionEntry.getMemberId(), true);
+          
+          AttributeDefName attributeDefName = AttributeDefNameFinder.findById(permissionEntry.getAttributeDefNameId(), false);
+          
+          AttributeDef attributeDef = attributeDefName.getAttributeDef();
+          
+          String action = permissionEntry.getAction();
+          
+          RulesPermissionBean rulesPermissionBean = new RulesPermissionBean(attributeAssign, 
+              role, member, attributeDefName, attributeDef, action);
+          
+          ruleDefinition.getThen().fireRule(ruleDefinition, ruleEngine, 
+              rulesPermissionBean, logDataForThisDefinition);
+          
+        }
+      } finally {
+        if (shouldLogThisDefinition) {
+          String logMessage = logDataForThisDefinition.toString();
+          if (StringUtils.isNotBlank(logMessage)) {
+            if (LOG.isDebugEnabled()) {
+              LOG.debug(logMessage);
+            } else if (LOG.isInfoEnabled()) {
+              LOG.info(logMessage);
+            }
+          }
+        }
+      }
+    }
+  },
+  
   /** query daily for memberships that are enabled, but have a disabled date coming up */
   membershipDisabledDate {
 
@@ -993,6 +1140,70 @@ public enum RuleCheckType {
       
     }
   }, 
+
+  /**
+   * if a permission is assigned to a subject
+   */
+  flattenedPermissionAssignToSubject {
+
+    /**
+     * @see RuleCheckType#addElVariables(RuleDefinition, Map, RulesBean, boolean)
+     */
+    @Override
+    public void addElVariables(RuleDefinition ruleDefinition,
+        Map<String, Object> variableMap, RulesBean rulesBean, boolean hasAccessToElApi) {
+      permissionAssignToSubject.addElVariables(ruleDefinition, variableMap, rulesBean, hasAccessToElApi);
+    }
+
+    /**
+     * @see RuleCheckType#ruleDefinitions(RuleEngine, RulesBean)
+     */
+    @Override
+    public Set<RuleDefinition> ruleDefinitions(RuleEngine ruleEngine, RulesBean rulesBean) {
+      return ruleDefinitionsPermission(this, ruleEngine, rulesBean);
+    }
+
+    /**
+     * @see RuleCheckType#validate(RuleDefinition, RuleCheck)
+     */
+    @Override
+    public String validate(RuleDefinition ruleDefinition, RuleCheck ruleCheck) {
+      return this.validate(false, ruleDefinition, ruleCheck, false, false, false, true);
+    }
+    
+  },
+  
+  /**
+   * if a permission is assigned to a subject
+   */
+  flattenedPermissionRemoveFromSubject {
+
+    /**
+     * @see RuleCheckType#addElVariables(RuleDefinition, Map, RulesBean, boolean)
+     */
+    @Override
+    public void addElVariables(RuleDefinition ruleDefinition,
+        Map<String, Object> variableMap, RulesBean rulesBean, boolean hasAccessToElApi) {
+      permissionAssignToSubject.addElVariables(ruleDefinition, variableMap, rulesBean, hasAccessToElApi);
+    }
+
+    /**
+     * @see RuleCheckType#ruleDefinitions(RuleEngine, RulesBean)
+     */
+    @Override
+    public Set<RuleDefinition> ruleDefinitions(RuleEngine ruleEngine, RulesBean rulesBean) {
+      return ruleDefinitionsPermission(this, ruleEngine, rulesBean);
+    }
+
+    /**
+     * @see RuleCheckType#validate(RuleDefinition, RuleCheck)
+     */
+    @Override
+    public String validate(RuleDefinition ruleDefinition, RuleCheck ruleCheck) {
+      return this.validate(false, ruleDefinition, ruleCheck, false, false, false, true);
+    }
+    
+  },
   
   /** if there is a permission assign in transaction to a subject, not to a role */
   permissionAssignToSubject {
@@ -1051,12 +1262,22 @@ public enum RuleCheckType {
       }
       if (!StringUtils.isBlank(rulesPermissionBean.getMemberId())) {
         variableMap.put("memberId", rulesPermissionBean.getMemberId());
-        if (hasAccessToElApi) {
-          Member member = rulesPermissionBean.getMember();
-          if (member != null) {
+        Member member = rulesPermissionBean.getMember();
+        if (member != null) {
+          if (hasAccessToElApi) {
             variableMap.put("member", member);
           }
+          Subject subject = member.getSubject();
+          if (subject != null) {
+            if (hasAccessToElApi) {
+              variableMap.put("subject", subject);
+            }
+            variableMap.put("safeSubject", new SafeSubject(subject));
+          }
         }
+        
+
+        
       }
       String action = rulesPermissionBean.getAction();
       if (!StringUtils.isBlank(action)) {
@@ -1065,6 +1286,7 @@ public enum RuleCheckType {
       AttributeDef attributeDef = rulesPermissionBean.getAttributeDef();
       if (attributeDef != null) {
         variableMap.put("nameOfAttributeDef", attributeDef.getName());
+        variableMap.put("attributeDefExtension", attributeDef.getExtension());
         variableMap.put("attributeDefId", attributeDef.getId());
         if (hasAccessToElApi) {
           variableMap.put("attributeDef", attributeDef);
@@ -1074,8 +1296,26 @@ public enum RuleCheckType {
       if (attributeDefName != null) {
         variableMap.put("attributeDefNameName", attributeDefName.getName());
         variableMap.put("attributeDefNameId", attributeDefName.getId());
+        variableMap.put("attributeDefNameExtension", attributeDefName.getExtension());
+        variableMap.put("attributeDefNameDisplayName", attributeDefName.getDisplayName());
+        variableMap.put("attributeDefNameDescription", attributeDefName.getDescription());
+        variableMap.put("attributeDefNameDisplayExtension", attributeDefName.getDisplayExtension());
         if (hasAccessToElApi) {
           variableMap.put("attributeDefName", attributeDefName);
+        }
+      }
+      AttributeAssign attributeAssign = rulesPermissionBean.getAttributeAssign();
+      if (attributeAssign != null) {
+        variableMap.put("attributeAssignId", attributeAssign.getId());
+        if (attributeAssign.getDisabledTime() != null) {
+          variableMap.put("permissionDisabledTimestamp", attributeAssign.getDisabledTime());
+        }
+        if (attributeAssign.getEnabledTime() != null) {
+          variableMap.put("permissionEnabledTimestamp", attributeAssign.getEnabledTime());
+        }
+
+        if (hasAccessToElApi) {
+          variableMap.put("attributeAssign", attributeAssign);
         }
       }
       

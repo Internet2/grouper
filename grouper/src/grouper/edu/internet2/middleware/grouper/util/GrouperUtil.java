@@ -7009,6 +7009,23 @@ public class GrouperUtil {
    */
   public static <E extends Enum<?>> E enumValueOfIgnoreCase(Class<E> theEnumClass, String string, 
       boolean exceptionOnNotFound) throws RuntimeException {
+    return enumValueOfIgnoreCase(theEnumClass, string, exceptionOnNotFound, true);
+  }
+    
+
+  /**
+   * do a case-insensitive matching
+   * @param theEnumClass class of the enum
+   * @param <E> generic type
+   * 
+   * @param string
+   * @param exceptionOnNotFound true if exception should be thrown on not found
+   * @param exceptionIfInvalid if there is a string, but it is invalid, if should throw exception
+   * @return the enum or null or exception if not found
+   * @throws RuntimeException if there is a problem
+   */
+  public static <E extends Enum<?>> E enumValueOfIgnoreCase(Class<E> theEnumClass, String string, 
+      boolean exceptionOnNotFound, boolean exceptionIfInvalid) throws RuntimeException {
     
     if (!exceptionOnNotFound && isBlank(string)) {
       return null;
@@ -7017,6 +7034,9 @@ public class GrouperUtil {
       if (equalsIgnoreCase(string, e.name())) {
         return e;
       }
+    }
+    if (!exceptionIfInvalid) {
+      return null;
     }
     StringBuilder error = new StringBuilder(
         "Cant find " + theEnumClass.getSimpleName() + " from string: '").append(string);

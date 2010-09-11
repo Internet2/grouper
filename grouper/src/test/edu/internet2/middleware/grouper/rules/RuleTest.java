@@ -80,7 +80,7 @@ public class RuleTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new RuleTest("testRuleLonghandEmailDisabledDate"));
+    TestRunner.run(new RuleTest("testRuleLonghandEmailPermissionsDisabledDate"));
     //TestRunner.run(RuleTest.class);
   }
 
@@ -996,7 +996,7 @@ public class RuleTest extends GrouperTest {
     attributeAssignValueContainers 
       = RuleEngine.allRulesAttributeAssignValueContainers(new QueryOptions().secondLevelCache(false));
 
-    //rule should be there
+    //rule should not be there
     assertEquals(0, attributeAssignValueContainers.size());
 
     // GrouperSession.startRootSession();
@@ -1452,7 +1452,7 @@ public class RuleTest extends GrouperTest {
         RuleUtils.ruleThenElName(), 
         "${ruleElUtils.removeMemberFromGroupId(ownerGroupId, memberId)}");
     
-    //subj 0 should be taken out
+    //subj 0 should be taken out after daemon
     groupA.addMember(SubjectTestHelper.SUBJ0);
     
     //subj 1 should be left alone
@@ -3557,5 +3557,256 @@ public class RuleTest extends GrouperTest {
     //should not fire
     assertEquals(initialEmailCount + 2, GrouperEmail.testingEmailCount);
 
+  }
+
+  /**
+   * note, this doesnt work until permissions change log notifications are working (and wired up correctly,
+   * currently assumptions are made about what exists)
+   */
+  public void testRuleLonghandEmailFlattenedPermissionAssign() {
+  
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+  
+    //run at first so the consumer is initted
+    GrouperLoader.runOnceByJobName(grouperSession, GrouperLoaderType.GROUPER_CHANGE_LOG_TEMP_TO_CHANGE_LOG);
+    GrouperLoader.runOnceByJobName(grouperSession, GrouperLoaderType.GROUPER_CHANGE_LOG_CONSUMER_PREFIX + "grouperRules");
+    
+    AttributeDef permissionDef = new AttributeDefSave(grouperSession)
+      .assignName("stem:permissionDef").assignCreateParentStemsIfNotExist(true)
+      .assignAttributeDefType(AttributeDefType.perm)
+      .save();
+    
+    permissionDef.setAssignToEffMembership(true);
+    permissionDef.setAssignToGroup(true);
+    permissionDef.store();
+    
+    //make a role
+    Role payrollUser = new GroupSave(grouperSession).assignName("apps:payroll:roles:payrollUser").assignTypeOfGroup(TypeOfGroup.role).assignCreateParentStemsIfNotExist(true).save();
+    Role payrollGuest = new GroupSave(grouperSession).assignName("apps:payroll:roles:payrollGuest").assignTypeOfGroup(TypeOfGroup.role).assignCreateParentStemsIfNotExist(true).save();
+  
+    payrollGuest.addMember(SubjectTestHelper.SUBJ0, false);
+    payrollGuest.addMember(SubjectTestHelper.SUBJ1, false);
+    
+    //create a permission, assign to role
+    AttributeDefName canLogin = new AttributeDefNameSave(grouperSession, permissionDef).assignName("apps:payroll:permissions:canLogin").assignCreateParentStemsIfNotExist(true).save();
+    
+    payrollUser.getPermissionRoleDelegate().assignRolePermission(canLogin);
+    
+    //add a rule on stem:permission saying that if a permission is flat added, then send an email out
+    AttributeAssign attributeAssign = permissionDef
+      .getAttributeDelegate().addAttribute(RuleUtils.ruleAttributeDefName()).getAttributeAssign();
+    
+    AttributeValueDelegate attributeValueDelegate = attributeAssign.getAttributeValueDelegate();
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleActAsSubjectSourceIdName(), "g:isa");
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleActAsSubjectIdName(), "GrouperSystem");
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleCheckTypeName(), 
+        RuleCheckType.flattenedPermissionAssignToSubject.name());
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleThenEnumName(), RuleThenEnum.sendEmail.name());
+    
+    //send an email to a hardcoded address, and to the user being assigned
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleThenEnumArg0Name(), "a@b.c, ${safeSubject.emailAddress}");
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleThenEnumArg1Name(), "You were assigned permission: ${attributeDefNameDisplayExtension} in role ${roleDisplayExtension}");
+    
+    //the to, subject, or body could be text with EL variables, or could be a template.  If template, it is
+    //read from the classpath from package: grouperRulesEmailTemplates/theTemplateName.txt
+    //or you could configure grouper.properties to keep them in an external folder, not in the classpath
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleThenEnumArg2Name(), "Hello ${safeSubject.name},\n\nJust letting you know you were assigned permission ${attributeDefNameDisplayExtension} in role ${roleDisplayExtension} in the central Groups/Permissions management system.  Please do not respond to this email.\n\nRegards.");
+    
+    //should be valid
+    String isValidString = attributeValueDelegate.retrieveValueString(
+        RuleUtils.ruleValidName());
+  
+    if (!StringUtils.equals("T", isValidString)) {
+      throw new RuntimeException(isValidString);
+    }
+  
+    //count rule firings
+    long initialFirings = RuleEngine.ruleFirings;
+    long initialEmailCount = GrouperEmail.testingEmailCount;
+
+    //assign a permission
+    payrollUser.addMember(SubjectTestHelper.SUBJ0, false);
+
+    //should fire and send email
+    GrouperLoader.runOnceByJobName(grouperSession, GrouperLoaderType.GROUPER_CHANGE_LOG_TEMP_TO_CHANGE_LOG);
+    GrouperLoader.runOnceByJobName(grouperSession, GrouperLoaderType.GROUPER_CHANGE_LOG_CONSUMER_PREFIX + "grouperRules");
+
+    assertEquals(initialFirings+1, RuleEngine.ruleFirings);
+    assertEquals(initialEmailCount+1, GrouperEmail.testingEmailCount);
+
+    //assign by a different path
+    payrollGuest.getPermissionRoleDelegate().assignSubjectRolePermission(canLogin, SubjectTestHelper.SUBJ0);
+    
+    //shouldnt fire or send email
+    GrouperLoader.runOnceByJobName(grouperSession, GrouperLoaderType.GROUPER_CHANGE_LOG_TEMP_TO_CHANGE_LOG);
+    GrouperLoader.runOnceByJobName(grouperSession, GrouperLoaderType.GROUPER_CHANGE_LOG_CONSUMER_PREFIX + "grouperRules");
+
+    assertEquals(initialFirings+1, RuleEngine.ruleFirings);
+    assertEquals(initialEmailCount+1, GrouperEmail.testingEmailCount);
+
+    //assign a new user directly
+    payrollGuest.getPermissionRoleDelegate().assignSubjectRolePermission(canLogin, SubjectTestHelper.SUBJ1);
+    
+    //should fire and send email
+    GrouperLoader.runOnceByJobName(grouperSession, GrouperLoaderType.GROUPER_CHANGE_LOG_TEMP_TO_CHANGE_LOG);
+    GrouperLoader.runOnceByJobName(grouperSession, GrouperLoaderType.GROUPER_CHANGE_LOG_CONSUMER_PREFIX + "grouperRules");
+
+    assertEquals(initialFirings+2, RuleEngine.ruleFirings);
+    assertEquals(initialEmailCount+2, GrouperEmail.testingEmailCount);
+
+    //assign by a different path
+    payrollUser.addMember(SubjectTestHelper.SUBJ1, false);
+
+    //shouldnt fire or send email
+    GrouperLoader.runOnceByJobName(grouperSession, GrouperLoaderType.GROUPER_CHANGE_LOG_TEMP_TO_CHANGE_LOG);
+    GrouperLoader.runOnceByJobName(grouperSession, GrouperLoaderType.GROUPER_CHANGE_LOG_CONSUMER_PREFIX + "grouperRules");
+
+    assertEquals(initialFirings+2, RuleEngine.ruleFirings);
+    assertEquals(initialEmailCount+2, GrouperEmail.testingEmailCount);
+    
+  }
+
+  /**
+   * 
+   */
+  public void testRuleLonghandEmailPermissionsDisabledDate() {
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    AttributeDef permissionDef = new AttributeDefSave(grouperSession)
+      .assignName("stem:permissionDef").assignCreateParentStemsIfNotExist(true)
+      .assignAttributeDefType(AttributeDefType.perm)
+      .save();
+    
+    permissionDef.setAssignToEffMembership(true);
+    permissionDef.setAssignToGroup(true);
+    permissionDef.store();
+    
+    //add a rule on the permission definition saying if you are about to lose a permission by all paths (flattened), then send an email
+    AttributeAssign attributeAssign = permissionDef
+      .getAttributeDelegate().addAttribute(RuleUtils.ruleAttributeDefName()).getAttributeAssign();
+    
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleActAsSubjectSourceIdName(), "g:isa");
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleActAsSubjectIdName(), "GrouperSystem");
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleCheckTypeName(), 
+        RuleCheckType.permissionDisabledDate.name());
+    
+    //will find permissions with a disabled date at least 6 days from now.  blank means no min
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleCheckArg0Name(), "6");
+  
+    //will find permissions with a disabled date at most 8 days from now.  blank means no max
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleCheckArg1Name(), "8");
+  
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleThenEnumName(), RuleThenEnum.sendEmail.name());
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleThenEnumArg0Name(), GrouperConfig.getProperty("mail.test.address") + ", ${safeSubject.emailAddress}");
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleThenEnumArg1Name(), "You will have this permission unassigned: ${attributeDefNameDisplayExtension} in role ${roleDisplayExtension}, removed on ${ruleElUtils.formatDate(permissionDisabledTimestamp, 'yyyy/MM/dd')}");
+  
+    //the to, subject, or body could be text with EL variables, or could be a template.  If template, it is
+    //read from the classpath from package: grouperRulesEmailTemplates/theTemplateName.txt
+    //or you could configure grouper.properties to keep them in an external folder, not in the classpath
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleThenEnumArg2Name(), "Hello ${safeSubject.name},\n\nJust letting you know you will have this permission removed ${attributeDefNameDisplayExtension} in role ${roleDisplayExtension}, removed on ${ruleElUtils.formatDate(permissionDisabledTimestamp, 'yyyy/MM/dd')} in the central Groups / Permissions management system.  Please do not respond to this email.\n\nRegards.");
+    
+    //should be valid
+    String isValidString = attributeAssign.getAttributeValueDelegate().retrieveValueString(
+        RuleUtils.ruleValidName());
+    assertEquals("T", isValidString);
+    
+    //count rule firings
+    long initialEmailCount = GrouperEmail.testingEmailCount;
+
+    //make a role
+    Role payrollUser = new GroupSave(grouperSession).assignName("apps:payroll:roles:payrollUser").assignTypeOfGroup(TypeOfGroup.role).assignCreateParentStemsIfNotExist(true).save();
+    Role payrollGuest = new GroupSave(grouperSession).assignName("apps:payroll:roles:payrollGuest").assignTypeOfGroup(TypeOfGroup.role).assignCreateParentStemsIfNotExist(true).save();
+
+    Subject subject0 = SubjectFinder.findByIdAndSource("test.subject.0", "jdbc", true);
+
+    //subject 1,2 is just more data in the mix
+    Subject subject1 = SubjectFinder.findByIdAndSource("test.subject.1", "jdbc", true);
+    Subject subject2 = SubjectFinder.findByIdAndSource("test.subject.2", "jdbc", true);
+    
+
+    payrollUser.addMember(subject1, false);
+    payrollGuest.addMember(subject0, false);
+    payrollGuest.addMember(subject2, false);
+    
+    //create a permission, assign to role
+    AttributeDefName canLogin = new AttributeDefNameSave(grouperSession, permissionDef).assignName("apps:payroll:permissions:canLogin").assignCreateParentStemsIfNotExist(true).save();
+    
+    payrollUser.getPermissionRoleDelegate().assignRolePermission(canLogin);
+
+    payrollGuest.getPermissionRoleDelegate().assignSubjectRolePermission(canLogin, subject2);
+
+    try {
+      GrouperDAOFactory.getFactory().getPermissionEntry().findPermissionsByAttributeDefDisabledRange(permissionDef.getId(),
+          null, null);
+
+      fail("should need either disabled from or to");
+    } catch (Exception e) {
+      //good
+    }
+
+    attributeAssign = payrollGuest.getPermissionRoleDelegate().assignSubjectRolePermission(canLogin, subject0).getAttributeAssign();
+
+    GrouperLoader.runOnceByJobName(grouperSession, "MAINTENANCE__rules");
+    
+    //should not fire
+    assertEquals(initialEmailCount, GrouperEmail.testingEmailCount);
+
+    //set disabled 7 days in the future
+    attributeAssign.setDisabledTime(new Timestamp(System.currentTimeMillis() + (7 * 24 * 60 * 60 * 1000)));
+    attributeAssign.saveOrUpdate();
+    
+    GrouperLoader.runOnceByJobName(grouperSession, "MAINTENANCE__rules");
+    
+    //should fire
+    assertEquals(initialEmailCount + 1, GrouperEmail.testingEmailCount);
+  
+    attributeAssign.setDisabledTime(new Timestamp(System.currentTimeMillis() + (5 * 24 * 60 * 60 * 1000)));
+    attributeAssign.saveOrUpdate();
+    
+    GrouperLoader.runOnceByJobName(grouperSession, "MAINTENANCE__rules");
+    
+    //should not fire
+    assertEquals(initialEmailCount + 1, GrouperEmail.testingEmailCount);
+  
+    attributeAssign.setDisabledTime(new Timestamp(System.currentTimeMillis() + (9 * 24 * 60 * 60 * 1000)));
+    attributeAssign.saveOrUpdate();
+    
+    GrouperLoader.runOnceByJobName(grouperSession, "MAINTENANCE__rules");
+    
+    //should not fire
+    assertEquals(initialEmailCount + 1, GrouperEmail.testingEmailCount);
+  
+    attributeAssign.setDisabledTime(new Timestamp(System.currentTimeMillis() + (7 * 24 * 60 * 60 * 1000)));
+    attributeAssign.saveOrUpdate();
+    
+    GrouperLoader.runOnceByJobName(grouperSession, "MAINTENANCE__rules");
+    
+    //should fire
+    assertEquals(initialEmailCount + 2, GrouperEmail.testingEmailCount);
+  
+    payrollUser.addMember(subject0, false);
+  
+    GrouperLoader.runOnceByJobName(grouperSession, "MAINTENANCE__rules");
+    
+    //should not fire
+    assertEquals(initialEmailCount + 2, GrouperEmail.testingEmailCount);
+  
   }
 }

@@ -13,25 +13,220 @@ import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
+import edu.internet2.middleware.grouper.attr.AttributeDef;
+import edu.internet2.middleware.grouper.attr.AttributeDefName;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
+import edu.internet2.middleware.grouper.attr.finder.AttributeAssignFinder;
+import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogConsumerBase;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogEntry;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogLabels;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogProcessorMetadata;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogType;
-import edu.internet2.middleware.grouper.changeLog.ChangeLogTypeBuiltin;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
+import edu.internet2.middleware.grouper.permissions.role.Role;
 import edu.internet2.middleware.grouper.rules.RuleCheckType;
 import edu.internet2.middleware.grouper.rules.RuleEngine;
+import edu.internet2.middleware.grouper.rules.beans.RulesBean;
 import edu.internet2.middleware.grouper.rules.beans.RulesMembershipBean;
+import edu.internet2.middleware.grouper.rules.beans.RulesPermissionBean;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
 /**
  * Class to dispatch individual events for rules
+ * @author mchyzer
  */
 public class RuleConsumer extends ChangeLogConsumerBase {
 
+  /**
+   * process events based on event type.  This is the category__action
+   *
+   */
+  private static enum RuleEventType {
+
+    /** add membership event */
+    membership__addMembership {
+
+      /**
+       * @see RuleEventType#processEvent(ChangeLogType, ChangeLogEntry, RulesBean)
+       */
+      @Override
+      public void processEvent(ChangeLogType changeLogType,
+          ChangeLogEntry changeLogEntry, RulesBean rulesBean) {
+        
+        //fire rules directly connected to this membership flat delete
+        RuleEngine.fireRule(RuleCheckType.flattenedMembershipAdd, rulesBean);
+
+        //fire rules related to add in stem
+        RuleEngine.fireRule(RuleCheckType.flattenedMembershipAddInFolder, rulesBean);
+
+      }
+
+      /**
+       * @see RuleEventType#setupRulesBean(ChangeLogType, ChangeLogEntry, GrouperSession)
+       */
+      @Override
+      public RulesBean setupRulesBean(ChangeLogType changeLogType,
+          ChangeLogEntry changeLogEntry, GrouperSession grouperSession) {
+        return setupRulesBeanMembership(changeLogType, changeLogEntry, grouperSession);
+      }
+
+      /**
+       * @see RuleEventType#shouldProcess(ChangeLogType, ChangeLogEntry)
+       */
+      @Override
+      public boolean shouldProcess(ChangeLogType changeLogType,
+          ChangeLogEntry changeLogEntry) {
+        return shouldProcessMembership(changeLogType, changeLogEntry);
+      }
+    },
+    
+    /** delete membership event */
+    membership__deleteMembership {
+
+      /**
+       * @see RuleEventType#processEvent(ChangeLogType, ChangeLogEntry, RulesBean)
+       */
+      @Override
+      public void processEvent(ChangeLogType changeLogType,
+          ChangeLogEntry changeLogEntry, RulesBean rulesBean) {
+        
+        //fire rules directly connected to this membership flat delete
+        RuleEngine.fireRule(RuleCheckType.flattenedMembershipRemove, rulesBean);
+
+        //fire rules related to membership flat delete in folder
+        RuleEngine.fireRule(RuleCheckType.flattenedMembershipRemoveInFolder, rulesBean);
+        
+      }
+
+      /**
+       * @see RuleEventType#setupRulesBean(ChangeLogType, ChangeLogEntry, GrouperSession)
+       */
+      @Override
+      public RulesBean setupRulesBean(ChangeLogType changeLogType,
+          ChangeLogEntry changeLogEntry, GrouperSession grouperSession) {
+        return setupRulesBeanMembership(changeLogType, changeLogEntry, grouperSession);
+      }
+
+      /**
+       * @see RuleEventType#shouldProcess(ChangeLogType, ChangeLogEntry)
+       */
+      @Override
+      public boolean shouldProcess(ChangeLogType changeLogType,
+          ChangeLogEntry changeLogEntry) {
+        return shouldProcessMembership(changeLogType, changeLogEntry);
+      }
+    },
+    /** add permission event */
+    permission__addPermission {
+
+      /**
+       * @see RuleEventType#processEvent(ChangeLogType, ChangeLogEntry, RulesBean)
+       */
+      @Override
+      public void processEvent(ChangeLogType changeLogType,
+          ChangeLogEntry changeLogEntry, RulesBean rulesBean) {
+        
+        //fire rules directly connected to this permission flat delete
+        RuleEngine.fireRule(RuleCheckType.flattenedPermissionAssignToSubject, rulesBean);
+
+      }
+
+      /**
+       * @see RuleEventType#setupRulesBean(ChangeLogType, ChangeLogEntry, GrouperSession)
+       */
+      @Override
+      public RulesBean setupRulesBean(ChangeLogType changeLogType,
+          ChangeLogEntry changeLogEntry, GrouperSession grouperSession) {
+        return setupRulesBeanPermission(changeLogType, changeLogEntry, grouperSession);
+      }
+
+      /**
+       * @see RuleEventType#shouldProcess(ChangeLogType, ChangeLogEntry)
+       */
+      @Override
+      public boolean shouldProcess(ChangeLogType changeLogType,
+          ChangeLogEntry changeLogEntry) {
+        return shouldProcessPermission(changeLogType, changeLogEntry);
+      }
+    },
+
+    /** delete permission event */
+    permission__deletePermission {
+
+      /**
+       * @see RuleEventType#processEvent(ChangeLogType, ChangeLogEntry, RulesBean)
+       */
+      @Override
+      public void processEvent(ChangeLogType changeLogType,
+          ChangeLogEntry changeLogEntry, RulesBean rulesBean) {
+        
+        //fire rules directly connected to this permission flat delete
+        RuleEngine.fireRule(RuleCheckType.flattenedPermissionRemoveFromSubject, rulesBean);
+
+      }
+
+      /**
+       * @see RuleEventType#setupRulesBean(ChangeLogType, ChangeLogEntry, GrouperSession)
+       */
+      @Override
+      public RulesBean setupRulesBean(ChangeLogType changeLogType,
+          ChangeLogEntry changeLogEntry, GrouperSession grouperSession) {
+        return setupRulesBeanPermission(changeLogType, changeLogEntry, grouperSession);
+      }
+
+      /**
+       * @see RuleEventType#shouldProcess(ChangeLogType, ChangeLogEntry)
+       */
+      @Override
+      public boolean shouldProcess(ChangeLogType changeLogType,
+          ChangeLogEntry changeLogEntry) {
+        return shouldProcessPermission(changeLogType, changeLogEntry);
+      }
+    };
+
+
+    /** 
+     * if this record should be processed
+     * @param changeLogType
+     * @param changeLogEntry
+     * @return true if the record should be processed
+     */
+    public abstract boolean shouldProcess(ChangeLogType changeLogType, ChangeLogEntry changeLogEntry);
+    
+    /**
+     * setup a rules bean, this will be called in the context of a root session
+     * @param changeLogType
+     * @param changeLogEntry
+     * @param grouperSession
+     * @return the rules bean
+     */
+    public abstract RulesBean setupRulesBean(ChangeLogType changeLogType, ChangeLogEntry changeLogEntry, GrouperSession grouperSession);
+    
+    /**
+     * process an event which matches the category and type
+     * @param changeLogType
+     * @param changeLogEntry
+     * @param rulesBean 
+     */
+    public abstract void processEvent(ChangeLogType changeLogType, ChangeLogEntry changeLogEntry, RulesBean rulesBean);
+    
+    /**
+     * do a case-insensitive matching
+     * 
+     * @param string
+     * @param exceptionOnNull will not allow null or blank entries
+     * @param exceptionIfInvalid true if there should be an exception if invalid
+     * @return the enum or null or exception if not found
+     */
+    public static RuleConsumer.RuleEventType valueOfIgnoreCase(String string, boolean exceptionOnNull, boolean exceptionIfInvalid) {
+      return GrouperUtil.enumValueOfIgnoreCase(RuleConsumer.RuleEventType.class, 
+          string, exceptionOnNull, exceptionIfInvalid);
+    }
+  };
+  
   /** */
   private static final Log LOG = GrouperUtil.getLog(RuleConsumer.class);
 
@@ -49,7 +244,7 @@ public class RuleConsumer extends ChangeLogConsumerBase {
     try {
       for (final ChangeLogEntry changeLogEntry : changeLogEntryList) {
 
-        ChangeLogType changeLogType = changeLogEntry.getChangeLogType();
+        final ChangeLogType changeLogType = changeLogEntry.getChangeLogType();
 
         currentId = changeLogEntry.getSequenceNumber();
         
@@ -57,109 +252,44 @@ public class RuleConsumer extends ChangeLogConsumerBase {
           LOG.debug("Processing event number " + currentId + ", " 
               + changeLogType.getChangeLogCategory() + ", " + changeLogType.getActionName());
         }
+
+        String enumKey = changeLogType.getChangeLogCategory() + "__" + changeLogType.getActionName();
+
+        final RuleEventType ruleEventType = RuleEventType.valueOfIgnoreCase(enumKey, false, false);
         
-        //if this is a group type add action and category
-        if (changeLogType.equalsCategoryAndAction(ChangeLogTypeBuiltin.MEMBERSHIP_DELETE)) {
+        if (ruleEventType != null) {
           
-          String fieldId = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.fieldId);
-          
-          //lets only do members list for now
-          if (!StringUtils.equals(fieldId, Group.getDefaultList().getUuid())) {
+          if (!ruleEventType.shouldProcess(changeLogType, changeLogEntry)) {
             continue;
           }
 
-          //must be flattened
-          String membershipType = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.membershipType);
+          GrouperSession theGrouperSession = GrouperSession.startRootSession(false);
           
-          if (!StringUtils.equals("flattened", membershipType)) {
-            continue;
-          }
-          
-          GrouperSession grouperSession = GrouperSession.startRootSession(false);
-          
-          RulesMembershipBean rulesMembershipBean = null;
+          RulesBean rulesBean = null;
           
           try {
-            rulesMembershipBean = (RulesMembershipBean)GrouperSession.callbackGrouperSession(grouperSession, new GrouperSessionHandler() {
+            rulesBean = (RulesBean)GrouperSession.callbackGrouperSession(theGrouperSession, new GrouperSessionHandler() {
               
               public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
-
-                String memberId = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.memberId);
-                Member member = MemberFinder.findByUuid(grouperSession, memberId, true);
-                Subject subject = member.getSubject();
-                String groupId = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.groupId);
-                Group group = GroupFinder.findByUuid(grouperSession, groupId, true);
-                
-                RulesMembershipBean rulesMembershipBean = new RulesMembershipBean(member, group, subject);
-
-                return rulesMembershipBean;
+                return ruleEventType.setupRulesBean(changeLogType, changeLogEntry, grouperSession);
               }
             });
           } finally {
-            GrouperSession.stopQuietly(grouperSession);
+            GrouperSession.stopQuietly(theGrouperSession);
           }
-          
-          //fire rules directly connected to this membership flat delete
-          RuleEngine.fireRule(RuleCheckType.flattenedMembershipRemove, rulesMembershipBean);
 
-          //fire rules related to add in stem
-          RuleEngine.fireRule(RuleCheckType.flattenedMembershipRemoveInFolder, rulesMembershipBean);
-
-        } else if (changeLogType.equalsCategoryAndAction(ChangeLogTypeBuiltin.MEMBERSHIP_ADD)) {
-            
-            String fieldId = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.fieldId);
-            
-            //lets only do members list for now
-            if (!StringUtils.equals(fieldId, Group.getDefaultList().getUuid())) {
-              continue;
-            }
-
-            //must be flattened
-            String membershipType = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.membershipType);
-            
-            if (!StringUtils.equals("flattened", membershipType)) {
-              continue;
-            }
-            
-            GrouperSession grouperSession = GrouperSession.startRootSession(false);
-            
-            RulesMembershipBean rulesMembershipBean = null;
-            
-            try {
-              rulesMembershipBean = (RulesMembershipBean)GrouperSession.callbackGrouperSession(grouperSession, new GrouperSessionHandler() {
-                
-                public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
-
-                  String memberId = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.memberId);
-                  Member member = MemberFinder.findByUuid(grouperSession, memberId, true);
-                  Subject subject = member.getSubject();
-                  String groupId = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.groupId);
-                  Group group = GroupFinder.findByUuid(grouperSession, groupId, true);
-                  
-                  RulesMembershipBean rulesMembershipBean = new RulesMembershipBean(member, group, subject);
-
-                  return rulesMembershipBean;
-                }
-              });
-            } finally {
-              GrouperSession.stopQuietly(grouperSession);
-            }
-            
-            //fire rules directly connected to this membership flat delete
-            RuleEngine.fireRule(RuleCheckType.flattenedMembershipAdd, rulesMembershipBean);
-
-            //fire rules related to add in stem
-            RuleEngine.fireRule(RuleCheckType.flattenedMembershipAddInFolder, rulesMembershipBean);
-
-
-
+          if (rulesBean != null) {
+            ruleEventType.processEvent(changeLogType, changeLogEntry, rulesBean);
+          }
         } else {
+          
           if (LOG.isDebugEnabled()) {
             LOG.debug("Unsupported event " + changeLogType.getChangeLogCategory() + ", " 
                 + changeLogType.getActionName() + ", " + changeLogEntry.getSequenceNumber());
           }
-        }
 
+        }
+        
       }
       //we successfully processed this record
 
@@ -175,4 +305,133 @@ public class RuleConsumer extends ChangeLogConsumerBase {
     return currentId;
   }
 
+  /**
+   * 
+   * @param changeLogType
+   * @param changeLogEntry
+   * @return true if should process, false if not
+   */
+  private static boolean shouldProcessMembership(ChangeLogType changeLogType, ChangeLogEntry changeLogEntry) {
+    String fieldId = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.fieldId);
+    
+    //lets only do members list for now
+    if (!StringUtils.equals(fieldId, Group.getDefaultList().getUuid())) {
+      return false;
+    }
+
+    //must be flattened
+    String membershipType = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.membershipType);
+    
+    if (!StringUtils.equals("flattened", membershipType)) {
+      return false;
+    }
+    
+    return true;
+  }
+  
+  /**
+   * 
+   * @param changeLogType
+   * @param changeLogEntry
+   * @return true if should process, false if not
+   */
+  private static boolean shouldProcessPermission(ChangeLogType changeLogType, ChangeLogEntry changeLogEntry) {
+    
+    //must be flattened
+    String permissionType = changeLogEntry.retrieveValueForLabel("permissionType");
+    
+    if (!StringUtils.equals("flattened", permissionType)) {
+      return false;
+    }
+    
+    String memberId = changeLogEntry.retrieveValueForLabel("memberId");
+    
+    //if this is assigned to a role, and not a user, skip it
+    if (StringUtils.isBlank(memberId)) {
+      return false;
+    }
+    
+    return true;
+  }
+  
+  /**
+   * 
+   * @param changeLogType
+   * @param changeLogEntry
+   * @param grouperSession
+   * @return the rules bean
+   */
+  private static RulesBean setupRulesBeanMembership(ChangeLogType changeLogType, ChangeLogEntry changeLogEntry, GrouperSession grouperSession) {
+    
+    String memberId = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.memberId);
+    Member member = MemberFinder.findByUuid(grouperSession, memberId, true);
+
+    if (member == null) {
+      return null;
+    }
+    
+    Subject subject = member.getSubject();
+    String groupId = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.groupId);
+    Group group = GroupFinder.findByUuid(grouperSession, groupId, false);
+    
+    if (group == null) {
+      return null;
+    }
+    
+    RulesMembershipBean rulesMembershipBean = new RulesMembershipBean(member, group, subject);
+
+    return rulesMembershipBean;
+
+  }
+  
+  /**
+   * 
+   * @param changeLogType
+   * @param changeLogEntry
+   * @param grouperSession
+   * @return the rules bean
+   */
+  private static RulesBean setupRulesBeanPermission(ChangeLogType changeLogType, ChangeLogEntry changeLogEntry, GrouperSession grouperSession) {
+    
+    String attributeAssignId = changeLogEntry.retrieveValueForLabel("attributeAssignId");
+
+    AttributeAssign attributeAssign = AttributeAssignFinder.findById(attributeAssignId, false);
+    if (attributeAssign == null) {
+      return null;
+    }
+
+    String memberId = changeLogEntry.retrieveValueForLabel("memberId");
+
+    Member member = MemberFinder.findByUuid(grouperSession, memberId, false);
+    
+    if (member == null) {
+      return null;
+    }
+    
+    String roleId = changeLogEntry.retrieveValueForLabel("roleId");
+
+    Role role = GroupFinder.findByUuid(grouperSession, roleId, false);
+    
+    if (role == null) {
+      return null;
+    }
+    
+    String attributeDefNameId = changeLogEntry.retrieveValueForLabel("attributeDefNameId");
+
+    AttributeDefName attributeDefName = AttributeDefNameFinder.findById(attributeDefNameId, false);
+    
+    if (attributeDefName == null) {
+      return null;
+    }
+
+    AttributeDef attributeDef = attributeDefName.getAttributeDef();
+
+    String action = changeLogEntry.retrieveValueForLabel("action");
+
+    RulesPermissionBean rulesPermissionBean = new RulesPermissionBean(attributeAssign, role, member, attributeDefName, attributeDef, action);
+
+    return rulesPermissionBean;
+
+  }
+  
 }

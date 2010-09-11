@@ -300,15 +300,15 @@ TODO update for 1.5
     throws  GrouperDAOException;
 
   /**
-   * Find all memberships based on group, field, enabled, and a range of disabled dates
-   * @param ownerGroupId 
-   * @param f 
+   * Find all memberships based on group, field, and a range of disabled dates
+   * @param ownerGroupId memberships in this owner 
+   * @param field 
    * @param disabledDateFrom null if dont consider
    * @param disabledDateTo null if dont consider
-   * @return  Members from memberships.
+   * @return memberships.
    */
   Set<Membership> findAllMembershipsByGroupOwnerFieldDisabledRange(String ownerGroupId, 
-      Field f, Timestamp disabledDateFrom, Timestamp disabledDateTo);
+      Field field, Timestamp disabledDateFrom, Timestamp disabledDateTo);
 
   /**
    * 

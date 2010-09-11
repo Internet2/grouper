@@ -16,12 +16,15 @@
 */
 
 package edu.internet2.middleware.grouper.internal.dao.hib3;
+import java.sql.Timestamp;
 import java.util.Collection;
 import java.util.Set;
 
 import org.apache.commons.logging.Log;
 
+import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.hibernate.ByHqlStatic;
 import edu.internet2.middleware.grouper.hibernate.HibUtils;
@@ -224,6 +227,75 @@ public class Hib3PermissionEntryDAO extends Hib3DAO implements PermissionEntryDA
     //we should be down to the secure list
     return results;
       
+    
+  }
+
+  /**
+   * @see PermissionEntryDAO#findPermissionsByAttributeDefDisabledRange(String, Timestamp, Timestamp)
+   * find permissions by attribute definition which are about to expire
+   */
+  public Set<PermissionEntry> findPermissionsByAttributeDefDisabledRange(
+      String attributeDefId, Timestamp disabledDateFrom, Timestamp disabledDateTo) {
+    
+    if (disabledDateFrom == null && disabledDateTo == null) {
+      throw new RuntimeException("Need to pass in disabledFrom or disabledTo");
+    }
+    
+    //if they got it backwards, then fix it for them
+    if (disabledDateFrom != null && disabledDateTo != null 
+        && disabledDateFrom.getTime() > disabledDateTo.getTime()) {
+      
+      Timestamp temp = disabledDateFrom;
+      disabledDateFrom = disabledDateTo;
+      disabledDateTo = temp;
+      
+    }
+    
+    ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
+
+    StringBuilder sql = new StringBuilder(
+        "select thePermissionEntry from PermissionEntryAll as thePermissionEntry, AttributeDefName theAttributeDefName where  "
+        + " thePermissionEntry.attributeDefNameId = theAttributeDefName.id "
+        + " and theAttributeDefName.attributeDefId   = :theAttributeDefId "
+        + " and thePermissionEntry.memberId is not null "
+        + " and thePermissionEntry.enabledDb = 'T' ");
+    
+    if (disabledDateFrom != null) {
+      sql.append(" and thePermissionEntry.disabledTimeDb >= :disabledDateFrom ");
+      byHqlStatic.setLong( "disabledDateFrom" , disabledDateFrom.getTime() );
+    }
+    if (disabledDateTo != null) {
+      sql.append(" and thePermissionEntry.disabledTimeDb <= :disabledDateTo ");
+      byHqlStatic.setLong( "disabledDateTo" , disabledDateTo.getTime() );
+    }
+
+    sql.append(
+        " and not exists ( select validPermissionEntry.attributeAssignId from PermissionEntryAll as validPermissionEntry " +
+        " where validPermissionEntry.attributeDefNameId = thePermissionEntry.attributeDefNameId " +
+        " and validPermissionEntry.actionId = thePermissionEntry.actionId " +
+        //note, who cares which role it is, if the user has the permission...  (not exactly right if not flattening permissions, but thats ok)
+        //" and validPermissionEntry.roleId = thePermissionEntry.roleId " +
+        " and validPermissionEntry.memberId = thePermissionEntry.memberId " +
+        " and validPermissionEntry.enabledDb = 'T' and ( validPermissionEntry.disabledTimeDb is null ");
+
+    if (disabledDateTo != null) {
+      sql.append(" or validPermissionEntry.disabledTimeDb > :disabledDateTo ");
+    } else if (disabledDateFrom != null) {
+      sql.append(" or validPermissionEntry.disabledTimeDb < :disabledDateFrom ");
+    }
+    
+    
+    sql.append(") )");
+    
+    Set<PermissionEntry> permissionEntries = byHqlStatic
+      .createQuery(sql.toString())
+      .setCacheable(false)
+      .setCacheRegion(KLASS + ".FindPermissionsByAttributeDefDisabledRange")
+      .setString( "theAttributeDefId" , attributeDefId )
+      .listSet(PermissionEntry.class);
+
+    return permissionEntries;
+
     
   }
 

@@ -365,6 +365,7 @@ private static boolean handleSpecialCase(String[] args) {
       this.interpreter.eval(  "import edu.internet2.middleware.grouper.attr.value.*;");
       this.interpreter.eval(  "import edu.internet2.middleware.grouper.audit.*;");
       this.interpreter.eval(  "import edu.internet2.middleware.grouper.group.*;");
+      this.interpreter.eval(  "import edu.internet2.middleware.grouper.app.loader.*;");
       this.interpreter.eval(  "import edu.internet2.middleware.grouper.xml.*;");
       this.interpreter.eval(  "import edu.internet2.middleware.grouper.registry.*;");
       this.interpreter.eval(  "import edu.internet2.middleware.grouper.app.usdu.*;");

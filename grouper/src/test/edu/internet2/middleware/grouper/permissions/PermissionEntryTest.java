@@ -4,6 +4,7 @@
  */
 package edu.internet2.middleware.grouper.permissions;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -11,6 +12,7 @@ import java.util.Set;
 
 import junit.textui.TestRunner;
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
@@ -19,9 +21,13 @@ import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
+import edu.internet2.middleware.grouper.attr.AttributeDefNameSave;
+import edu.internet2.middleware.grouper.attr.AttributeDefSave;
 import edu.internet2.middleware.grouper.attr.AttributeDefType;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignAction;
 import edu.internet2.middleware.grouper.cfg.ApiConfig;
+import edu.internet2.middleware.grouper.group.TypeOfGroup;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
@@ -29,6 +35,7 @@ import edu.internet2.middleware.grouper.permissions.role.Role;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.subject.Subject;
 
 
 /**
@@ -40,7 +47,7 @@ public class PermissionEntryTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new PermissionEntryTest("testHierarchies"));
+    TestRunner.run(new PermissionEntryTest("testDisabledDateRange"));
   }
 
   /**
@@ -496,4 +503,156 @@ public class PermissionEntryTest extends GrouperTest {
     assertEquals(permissionEntryString, attrDefDepth, permissionEntry.getAttributeDefNameSetDepth());
   }
   
+  /**
+   * 
+   */
+  public void testDisabledDateRange() {
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    AttributeDef permissionDef = new AttributeDefSave(grouperSession)
+      .assignName("stem:permissionDef").assignCreateParentStemsIfNotExist(true)
+      .assignAttributeDefType(AttributeDefType.perm)
+      .save();
+    
+    permissionDef.setAssignToEffMembership(true);
+    permissionDef.setAssignToGroup(true);
+    permissionDef.store();
+    
+    //make a role
+    Role payrollUser = new GroupSave(grouperSession).assignName("apps:payroll:roles:payrollUser").assignTypeOfGroup(TypeOfGroup.role).assignCreateParentStemsIfNotExist(true).save();
+    Role payrollGuest = new GroupSave(grouperSession).assignName("apps:payroll:roles:payrollGuest").assignTypeOfGroup(TypeOfGroup.role).assignCreateParentStemsIfNotExist(true).save();
+
+    Subject subject0 = SubjectFinder.findByIdAndSource("test.subject.0", "jdbc", true);
+
+    //subject 1,2 is just more data in the mix
+    Subject subject1 = SubjectFinder.findByIdAndSource("test.subject.1", "jdbc", true);
+    Subject subject2 = SubjectFinder.findByIdAndSource("test.subject.2", "jdbc", true);
+    
+
+    payrollUser.addMember(subject1, false);
+    payrollGuest.addMember(subject0, false);
+    payrollGuest.addMember(subject2, false);
+    
+    //create a permission, assign to role
+    AttributeDefName canLogin = new AttributeDefNameSave(grouperSession, permissionDef).assignName("apps:payroll:permissions:canLogin").assignCreateParentStemsIfNotExist(true).save();
+    
+    payrollUser.getPermissionRoleDelegate().assignRolePermission(canLogin);
+
+    payrollGuest.getPermissionRoleDelegate().assignSubjectRolePermission(canLogin, subject2);
+
+
+    try {
+      GrouperDAOFactory.getFactory().getPermissionEntry().findPermissionsByAttributeDefDisabledRange(permissionDef.getId(),
+          null, null);
+
+      fail("should need either disabled from or to");
+    } catch (Exception e) {
+      //good
+    }
+
+    AttributeAssign attributeAssign = payrollGuest.getPermissionRoleDelegate().assignSubjectRolePermission(canLogin, subject0).getAttributeAssign();
+
+    Timestamp timestamp5daysForward = new Timestamp(System.currentTimeMillis() + (5 * 24 * 60 * 60 * 1000));
+    Timestamp timestamp6daysForward = new Timestamp(System.currentTimeMillis() + (6 * 24 * 60 * 60 * 1000));
+    Timestamp timestamp7daysForward = new Timestamp(System.currentTimeMillis() + (7 * 24 * 60 * 60 * 1000));
+    Timestamp timestamp8daysForward = new Timestamp(System.currentTimeMillis() + (8 * 24 * 60 * 60 * 1000));
+    Timestamp timestamp9daysForward = new Timestamp(System.currentTimeMillis() + (9 * 24 * 60 * 60 * 1000));
+    
+    Set<PermissionEntry> permissions = GrouperDAOFactory.getFactory().getPermissionEntry()
+      .findPermissionsByAttributeDefDisabledRange(permissionDef.getId(), 
+          timestamp6daysForward, timestamp8daysForward);
+
+    assertEquals(0, permissions.size());
+    
+    //############### set disabled 7 days in the future
+    attributeAssign.setDisabledTime(timestamp7daysForward);
+    attributeAssign.saveOrUpdate();
+    
+    permissions = GrouperDAOFactory.getFactory().getPermissionEntry()
+      .findPermissionsByAttributeDefDisabledRange(permissionDef.getId(), 
+        timestamp6daysForward, timestamp8daysForward);
+
+    assertEquals(1, permissions.size());
+
+    payrollUser.addMember(subject0, false);
+
+    permissions = GrouperDAOFactory.getFactory().getPermissionEntry()
+    .findPermissionsByAttributeDefDisabledRange(permissionDef.getId(), 
+      timestamp6daysForward, timestamp8daysForward);
+
+    assertEquals("there is a membership in another path, not going to expire", 0, permissions.size());
+    
+    //################# BACK TO ONE RECORD
+    payrollUser.deleteMember(subject0, false);
+    
+    permissions = GrouperDAOFactory.getFactory().getPermissionEntry()
+    .findPermissionsByAttributeDefDisabledRange(permissionDef.getId(), 
+      timestamp6daysForward, timestamp8daysForward);
+
+    assertEquals(1, permissions.size());
+
+    //################# BACK TO ONE RECORD, MIXED UP ORDER
+    
+    permissions = GrouperDAOFactory.getFactory().getPermissionEntry()
+    .findPermissionsByAttributeDefDisabledRange(permissionDef.getId(), 
+      timestamp8daysForward, timestamp6daysForward);
+
+    assertEquals(1, permissions.size());
+
+    //################# SET TO 5 DAYS
+    attributeAssign.setDisabledTime(timestamp5daysForward);
+    attributeAssign.saveOrUpdate();
+    
+    permissions = GrouperDAOFactory.getFactory().getPermissionEntry()
+    .findPermissionsByAttributeDefDisabledRange(permissionDef.getId(), 
+      timestamp6daysForward, timestamp8daysForward);
+
+    assertEquals("out of range", 0, permissions.size());
+
+    //################# SET TO 9 DAYS
+    attributeAssign.setDisabledTime(timestamp9daysForward);
+    attributeAssign.saveOrUpdate();
+    
+    permissions = GrouperDAOFactory.getFactory().getPermissionEntry()
+    .findPermissionsByAttributeDefDisabledRange(permissionDef.getId(), 
+      timestamp6daysForward, timestamp8daysForward);
+
+    assertEquals("out of range", 0, permissions.size());
+
+    //################ TRY ONLY FROM
+    attributeAssign.setDisabledTime(timestamp7daysForward);
+    attributeAssign.saveOrUpdate();
+    
+    permissions = GrouperDAOFactory.getFactory().getPermissionEntry()
+    .findPermissionsByAttributeDefDisabledRange(permissionDef.getId(), 
+      timestamp6daysForward, null);
+
+    assertEquals("in range", 1, permissions.size());
+
+    //################ TRY ONLY FROM
+    
+    permissions = GrouperDAOFactory.getFactory().getPermissionEntry()
+    .findPermissionsByAttributeDefDisabledRange(permissionDef.getId(), 
+      timestamp8daysForward, null);
+
+    assertEquals("not in range", 0, permissions.size());
+
+    //################ TRY ONLY TO
+    
+    permissions = GrouperDAOFactory.getFactory().getPermissionEntry()
+    .findPermissionsByAttributeDefDisabledRange(permissionDef.getId(), 
+      null, timestamp8daysForward);
+
+    assertEquals("in range", 1, permissions.size());
+
+    //################ TRY ONLY TO
+    
+    permissions = GrouperDAOFactory.getFactory().getPermissionEntry()
+    .findPermissionsByAttributeDefDisabledRange(permissionDef.getId(), 
+      null, timestamp6daysForward);
+
+    assertEquals("not in range", 0, permissions.size());
+  }
+
 }

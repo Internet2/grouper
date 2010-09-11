@@ -63,7 +63,7 @@ public class RuleApiTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new RuleApiTest("testRuleEmailDisabledDate"));
+    TestRunner.run(new RuleApiTest("testGroupIntersection"));
   }
 
   /**
@@ -82,6 +82,10 @@ public class RuleApiTest extends GrouperTest {
    */
   public void testGroupIntersection() {
     GrouperSession grouperSession = GrouperSession.startRootSession();
+    
+    Subject subject0 = SubjectFinder.findById("test.subject.0", true);
+    Subject subject1 = SubjectFinder.findById("test.subject.1", true);
+    
     Group groupA = new GroupSave(grouperSession).assignSaveMode(SaveMode.INSERT_OR_UPDATE).assignName("stem:a").assignCreateParentStemsIfNotExist(true).save();
     groupA.grantPriv(SubjectTestHelper.SUBJ9, AccessPrivilege.ADMIN, false);
 
@@ -90,28 +94,39 @@ public class RuleApiTest extends GrouperTest {
     
     RuleApi.groupIntersection(SubjectTestHelper.SUBJ9, groupA, groupB);
     
-    groupB.addMember(SubjectTestHelper.SUBJ0);
+    groupB.addMember(subject0);
 
     //count rule firings
     long initialFirings = RuleEngine.ruleFirings;
     
     //doesnt do anything
-    groupB.deleteMember(SubjectTestHelper.SUBJ0);
+    groupB.deleteMember(subject0);
 
     assertEquals(initialFirings, RuleEngine.ruleFirings);
 
-    groupB.addMember(SubjectTestHelper.SUBJ0);
-    groupA.addMember(SubjectTestHelper.SUBJ0);
+    groupB.addMember(subject0);
+    groupA.addMember(subject0);
     
     //count rule firings
     
-    groupB.deleteMember(SubjectTestHelper.SUBJ0);
+    groupB.deleteMember(subject0);
     
     assertEquals(initialFirings+1, RuleEngine.ruleFirings);
 
     //should come out of groupA
-    assertFalse(groupA.hasMember(SubjectTestHelper.SUBJ0));
+    assertFalse(groupA.hasMember(subject0));
 
+    //lets someone to A
+    groupA.addMember(subject1);
+    
+    //run the daemon
+    String status = GrouperLoader.runOnceByJobName(grouperSession, GrouperLoaderType.GROUPER_RULES);
+
+    assertTrue(status, status.toLowerCase().contains("success"));
+
+    //should not be in A anymore
+    assertFalse(groupA.hasMember(subject1));
+    
     
     // grouperSession = GrouperSession.startRootSession();
     // groupA = new GroupSave(grouperSession).assignName("stem:a").assignCreateParentStemsIfNotExist(true).save();
@@ -187,36 +202,40 @@ public class RuleApiTest extends GrouperTest {
   public void testGroupIntersectionDate() {
     GrouperSession grouperSession = GrouperSession.startRootSession();
     Group groupA = new GroupSave(grouperSession).assignSaveMode(SaveMode.INSERT_OR_UPDATE).assignName("stem:a").assignCreateParentStemsIfNotExist(true).save();
-    groupA.grantPriv(SubjectTestHelper.SUBJ9, AccessPrivilege.ADMIN, false);
+    Subject subject9 = SubjectTestHelper.SUBJ9;
+    groupA.grantPriv(subject9, AccessPrivilege.ADMIN, false);
   
     Group groupB = new GroupSave(grouperSession).assignSaveMode(SaveMode.INSERT_OR_UPDATE).assignName("stem:b").assignCreateParentStemsIfNotExist(true).save();
-    groupB.grantPriv(SubjectTestHelper.SUBJ9, AccessPrivilege.READ, false);
+    groupB.grantPriv(subject9, AccessPrivilege.READ, false);
     
-    RuleApi.groupIntersection(SubjectTestHelper.SUBJ9, groupA, groupB, 5);
+    RuleApi.groupIntersection(subject9, groupA, groupB, 5);
     
-    groupB.addMember(SubjectTestHelper.SUBJ0);
+    Subject subject0 = SubjectTestHelper.SUBJ0;
+    Subject subject1 = SubjectTestHelper.SUBJ1;
+    groupB.addMember(subject0);
   
     //count rule firings
     long initialFirings = RuleEngine.ruleFirings;
     
     //doesnt do anything
-    groupB.deleteMember(SubjectTestHelper.SUBJ0);
+    groupB.deleteMember(subject0);
   
     assertEquals(initialFirings, RuleEngine.ruleFirings);
   
-    groupB.addMember(SubjectTestHelper.SUBJ0);
-    groupA.addMember(SubjectTestHelper.SUBJ0);
+    groupB.addMember(subject0);
+    groupA.addMember(subject0);
     
     //count rule firings
     
-    groupB.deleteMember(SubjectTestHelper.SUBJ0);
+    groupB.deleteMember(subject0);
     
     assertEquals(initialFirings+1, RuleEngine.ruleFirings);
   
     //should have a disabled date in group A
-    assertTrue(groupA.hasMember(SubjectTestHelper.SUBJ0));
+    assertTrue(groupA.hasMember(subject0));
 
-    Member member0 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ0, false);
+    Member member0 = MemberFinder.findBySubject(grouperSession, subject0, false);
+    Member member1 = MemberFinder.findBySubject(grouperSession, subject1, false);
     
     Membership membership = groupA.getImmediateMembership(Group.getDefaultList(), member0, true, true);
     
@@ -226,7 +245,25 @@ public class RuleApiTest extends GrouperTest {
     assertTrue("More than 6 days: " + new Date(disabledTime), disabledTime > System.currentTimeMillis() + (6 * 24 * 60 * 60 * 1000));
     assertTrue("Less than 8 days: " + new Date(disabledTime), disabledTime < System.currentTimeMillis() + (8 * 24 * 60 * 60 * 1000));
 
+    groupA.addMember(subject1);
+
+    membership = groupA.getImmediateMembership(Group.getDefaultList(), member1, true, true);
+
+    assertNull(membership.getDisabledTime());
+
+    //run the daemon
+    String status = GrouperLoader.runOnceByJobName(grouperSession, GrouperLoaderType.GROUPER_RULES);
+
+    assertTrue(status, status.toLowerCase().contains("success"));
+
+    membership = groupA.getImmediateMembership(Group.getDefaultList(), member1, true, true);
+
+    assertNotNull(membership.getDisabledTime());
+    disabledTime = membership.getDisabledTime().getTime();
     
+    assertTrue("More than 6 days: " + new Date(disabledTime), disabledTime > System.currentTimeMillis() + (6 * 24 * 60 * 60 * 1000));
+    assertTrue("Less than 8 days: " + new Date(disabledTime), disabledTime < System.currentTimeMillis() + (8 * 24 * 60 * 60 * 1000));
+
     // grouperSession = GrouperSession.startRootSession();
     // groupA = new GroupSave(grouperSession).assignName("stem:a").assignCreateParentStemsIfNotExist(true).save();
     // actAsSubject = SubjectFinder.findById("test.subject.9", true);
@@ -1110,5 +1147,182 @@ public class RuleApiTest extends GrouperTest {
 
   }
 
+  /**
+   * 
+   */
+  public void testRuleEmailFlattenedPermissionAssign() {
   
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+  
+    //run at first so the consumer is initted
+    GrouperLoader.runOnceByJobName(grouperSession, GrouperLoaderType.GROUPER_CHANGE_LOG_TEMP_TO_CHANGE_LOG);
+    GrouperLoader.runOnceByJobName(grouperSession, GrouperLoaderType.GROUPER_CHANGE_LOG_CONSUMER_PREFIX + "grouperRules");
+    
+    AttributeDef permissionDef = new AttributeDefSave(grouperSession).assignName("stem:permissionDef").assignCreateParentStemsIfNotExist(true).assignAttributeDefType(AttributeDefType.perm).save();
+    
+    permissionDef.setAssignToEffMembership(true);
+    permissionDef.setAssignToGroup(true);
+    permissionDef.store();
+    
+    //make a role
+    Role payrollUser = new GroupSave(grouperSession).assignName("apps:payroll:roles:payrollUser").assignTypeOfGroup(TypeOfGroup.role).assignCreateParentStemsIfNotExist(true).save();
+    Role payrollGuest = new GroupSave(grouperSession).assignName("apps:payroll:roles:payrollGuest").assignTypeOfGroup(TypeOfGroup.role).assignCreateParentStemsIfNotExist(true).save();
+  
+    Subject subject0 = SubjectFinder.findByIdAndSource("test.subject.0", "jdbc", true);
+    Subject subject1 = SubjectFinder.findByIdAndSource("test.subject.1", "jdbc", true);
+    
+    payrollGuest.addMember(subject0, false);
+    payrollGuest.addMember(subject1, false);
+    
+    //create a permission, assign to role
+    AttributeDefName canLogin = new AttributeDefNameSave(grouperSession, permissionDef).assignName("apps:payroll:permissions:canLogin").assignCreateParentStemsIfNotExist(true).save();
+    
+    payrollUser.getPermissionRoleDelegate().assignRolePermission(canLogin);
+    
+    RuleApi.emailOnFlattenedPermissionAssign(SubjectFinder.findRootSubject(), permissionDef, "a@b.c, ${safeSubject.emailAddress}", "You were assigned permission: ${attributeDefNameDisplayExtension} in role ${roleDisplayExtension}", "Hello ${safeSubject.name},\n\nJust letting you know you were assigned permission ${attributeDefNameDisplayExtension} in role ${roleDisplayExtension} in the central Groups/Permissions management system.  Please do not respond to this email.\n\nRegards.");
+      
+    //count rule firings
+    long initialFirings = RuleEngine.ruleFirings;
+    long initialEmailCount = GrouperEmail.testingEmailCount;
+
+    //assign a permission
+    payrollUser.addMember(subject0, false);
+
+    //should fire and send email
+    GrouperLoader.runOnceByJobName(grouperSession, GrouperLoaderType.GROUPER_CHANGE_LOG_TEMP_TO_CHANGE_LOG);
+    GrouperLoader.runOnceByJobName(grouperSession, GrouperLoaderType.GROUPER_CHANGE_LOG_CONSUMER_PREFIX + "grouperRules");
+
+    assertEquals(initialFirings+1, RuleEngine.ruleFirings);
+    assertEquals(initialEmailCount+1, GrouperEmail.testingEmailCount);
+
+    //assign by a different path
+    payrollGuest.getPermissionRoleDelegate().assignSubjectRolePermission(canLogin, subject0);
+    
+    //shouldnt fire or send email
+    GrouperLoader.runOnceByJobName(grouperSession, GrouperLoaderType.GROUPER_CHANGE_LOG_TEMP_TO_CHANGE_LOG);
+    GrouperLoader.runOnceByJobName(grouperSession, GrouperLoaderType.GROUPER_CHANGE_LOG_CONSUMER_PREFIX + "grouperRules");
+
+    assertEquals(initialFirings+1, RuleEngine.ruleFirings);
+    assertEquals(initialEmailCount+1, GrouperEmail.testingEmailCount);
+
+    //assign a new user directly
+    payrollGuest.getPermissionRoleDelegate().assignSubjectRolePermission(canLogin, subject1);
+    
+    //should fire and send email
+    GrouperLoader.runOnceByJobName(grouperSession, GrouperLoaderType.GROUPER_CHANGE_LOG_TEMP_TO_CHANGE_LOG);
+    GrouperLoader.runOnceByJobName(grouperSession, GrouperLoaderType.GROUPER_CHANGE_LOG_CONSUMER_PREFIX + "grouperRules");
+
+    assertEquals(initialFirings+2, RuleEngine.ruleFirings);
+    assertEquals(initialEmailCount+2, GrouperEmail.testingEmailCount);
+
+    //assign by a different path
+    payrollUser.addMember(subject1, false);
+
+    //shouldnt fire or send email
+    GrouperLoader.runOnceByJobName(grouperSession, GrouperLoaderType.GROUPER_CHANGE_LOG_TEMP_TO_CHANGE_LOG);
+    GrouperLoader.runOnceByJobName(grouperSession, GrouperLoaderType.GROUPER_CHANGE_LOG_CONSUMER_PREFIX + "grouperRules");
+
+    assertEquals(initialFirings+2, RuleEngine.ruleFirings);
+    assertEquals(initialEmailCount+2, GrouperEmail.testingEmailCount);
+    
+  }
+  
+  /**
+   * 
+   */
+  public void testRuleEmailPermissionsDisabledDate() {
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    AttributeDef permissionDef = new AttributeDefSave(grouperSession).assignName("stem:permissionDef").assignCreateParentStemsIfNotExist(true).assignAttributeDefType(AttributeDefType.perm).save();
+    
+    permissionDef.setAssignToEffMembership(true);
+    permissionDef.setAssignToGroup(true);
+    permissionDef.store();
+    
+    RuleApi.emailOnFlattenedPermissionDisabledDate(SubjectFinder.findRootSubject(), permissionDef, 6, 8, GrouperConfig.getProperty("mail.test.address") + ", ${safeSubject.emailAddress}", "You will have this permission unassigned: ${attributeDefNameDisplayExtension} in role ${roleDisplayExtension}, removed on ${ruleElUtils.formatDate(permissionDisabledTimestamp, 'yyyy/MM/dd')}", "Hello ${safeSubject.name},\n\nJust letting you know you will have this permission removed ${attributeDefNameDisplayExtension} in role ${roleDisplayExtension}, removed on ${ruleElUtils.formatDate(permissionDisabledTimestamp, 'yyyy/MM/dd')} in the central Groups / Permissions management system.  Please do not respond to this email.\n\nRegards.");
+
+    //count rule firings
+    long initialEmailCount = GrouperEmail.testingEmailCount;
+
+    //make a role
+    Role payrollUser = new GroupSave(grouperSession).assignName("apps:payroll:roles:payrollUser").assignTypeOfGroup(TypeOfGroup.role).assignCreateParentStemsIfNotExist(true).save();
+    Role payrollGuest = new GroupSave(grouperSession).assignName("apps:payroll:roles:payrollGuest").assignTypeOfGroup(TypeOfGroup.role).assignCreateParentStemsIfNotExist(true).save();
+
+    Subject subject0 = SubjectFinder.findByIdAndSource("test.subject.0", "jdbc", true);
+
+    //subject 1,2 is just more data in the mix
+    Subject subject1 = SubjectFinder.findByIdAndSource("test.subject.1", "jdbc", true);
+    Subject subject2 = SubjectFinder.findByIdAndSource("test.subject.2", "jdbc", true);
+    
+
+    payrollUser.addMember(subject1, false);
+    payrollGuest.addMember(subject0, false);
+    payrollGuest.addMember(subject2, false);
+    
+    //create a permission, assign to role
+    AttributeDefName canLogin = new AttributeDefNameSave(grouperSession, permissionDef).assignName("apps:payroll:permissions:canLogin").assignCreateParentStemsIfNotExist(true).save();
+    
+    payrollUser.getPermissionRoleDelegate().assignRolePermission(canLogin);
+
+    payrollGuest.getPermissionRoleDelegate().assignSubjectRolePermission(canLogin, subject2);
+
+    try {
+      GrouperDAOFactory.getFactory().getPermissionEntry().findPermissionsByAttributeDefDisabledRange(permissionDef.getId(),
+          null, null);
+
+      fail("should need either disabled from or to");
+    } catch (Exception e) {
+      //good
+    }
+
+    AttributeAssign attributeAssign = payrollGuest.getPermissionRoleDelegate().assignSubjectRolePermission(canLogin, subject0).getAttributeAssign();
+
+    GrouperLoader.runOnceByJobName(grouperSession, GrouperLoaderType.GROUPER_RULES);
+    
+    //should not fire
+    assertEquals(initialEmailCount, GrouperEmail.testingEmailCount);
+
+    //set disabled 7 days in the future
+    attributeAssign.setDisabledTime(new java.sql.Timestamp(System.currentTimeMillis() + (7 * 24 * 60 * 60 * 1000)));
+    attributeAssign.saveOrUpdate();
+    
+    GrouperLoader.runOnceByJobName(grouperSession, GrouperLoaderType.GROUPER_RULES);
+    
+    //should fire
+    assertEquals(initialEmailCount + 1, GrouperEmail.testingEmailCount);
+  
+    attributeAssign.setDisabledTime(new java.sql.Timestamp(System.currentTimeMillis() + (5 * 24 * 60 * 60 * 1000)));
+    attributeAssign.saveOrUpdate();
+    
+    GrouperLoader.runOnceByJobName(grouperSession, GrouperLoaderType.GROUPER_RULES);
+    
+    //should not fire
+    assertEquals(initialEmailCount + 1, GrouperEmail.testingEmailCount);
+  
+    attributeAssign.setDisabledTime(new java.sql.Timestamp(System.currentTimeMillis() + (9 * 24 * 60 * 60 * 1000)));
+    attributeAssign.saveOrUpdate();
+    
+    GrouperLoader.runOnceByJobName(grouperSession, GrouperLoaderType.GROUPER_RULES);
+    
+    //should not fire
+    assertEquals(initialEmailCount + 1, GrouperEmail.testingEmailCount);
+  
+    attributeAssign.setDisabledTime(new java.sql.Timestamp(System.currentTimeMillis() + (7 * 24 * 60 * 60 * 1000)));
+    attributeAssign.saveOrUpdate();
+    
+    GrouperLoader.runOnceByJobName(grouperSession, GrouperLoaderType.GROUPER_RULES);
+    
+    //should fire
+    assertEquals(initialEmailCount + 2, GrouperEmail.testingEmailCount);
+  
+    payrollUser.addMember(subject0, false);
+  
+    GrouperLoader.runOnceByJobName(grouperSession, GrouperLoaderType.GROUPER_RULES);
+    
+    //should not fire
+    assertEquals(initialEmailCount + 2, GrouperEmail.testingEmailCount);
+  
+  }
+
 }

@@ -17,6 +17,7 @@
 
 package edu.internet2.middleware.grouper.internal.dao;
 
+import java.sql.Timestamp;
 import java.util.Collection;
 import java.util.Set;
 
@@ -75,6 +76,16 @@ public interface PermissionEntryDAO extends GrouperDAO {
       Boolean enabled,
       Collection<String> memberIds);
 
-  
+  /**
+   * Find all permissions based on attributeDefinition, and a range of disabled dates
+   * @param attributeDefId 
+   * @param disabledDateFrom null if dont consider
+   * @param disabledDateTo null if dont consider
+   * @return the permission records
+   */
+  public Set<PermissionEntry> findPermissionsByAttributeDefDisabledRange(String attributeDefId, 
+      Timestamp disabledDateFrom, Timestamp disabledDateTo);
+
+
 } 
 

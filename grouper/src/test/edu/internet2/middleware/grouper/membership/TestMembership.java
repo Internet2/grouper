@@ -836,7 +836,7 @@ public class TestMembership extends TestCase {
       GrouperDAOFactory.getFactory().getMembership().findAllMembershipsByGroupOwnerFieldDisabledRange(
           groupEmployee.getUuid(), Group.getDefaultList(), null, null);
 
-      fail("should need either disabled from or two");
+      fail("should need either disabled from or to");
     } catch (Exception e) {
       //good
     }
@@ -887,8 +887,6 @@ public class TestMembership extends TestCase {
     assertEquals(1, memberships.size());
 
     //################# BACK TO ONE RECORD, MIXED UP ORDER
-    groupProgrammer.deleteMember(subject0, false);
-    
     memberships = GrouperDAOFactory.getFactory().getMembership()
     .findAllMembershipsByGroupOwnerFieldDisabledRange(groupEmployee.getUuid(), 
         Group.getDefaultList(), timestamp8daysForward, timestamp6daysForward);
