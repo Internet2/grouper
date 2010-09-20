@@ -25,6 +25,7 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.cache.GrouperCacheUtils;
+import edu.internet2.middleware.grouper.changeLog.ChangeLogTempToEntity;
 import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
@@ -68,6 +69,11 @@ public class RegistryInstall {
           try {
             changed = changed | _installFieldsAndTypes(grouperSession);
             changed = changed | _installGroupsAndStems(grouperSession);
+
+            if (changed) {
+              ChangeLogTempToEntity.convertRecords();
+            }
+
             if (changed && LOG.isWarnEnabled()) {
               LOG.warn("Registry was initted (default fields, types, stem, etc inserted)");
             }
