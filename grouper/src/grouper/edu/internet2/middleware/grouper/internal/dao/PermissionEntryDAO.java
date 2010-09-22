@@ -21,6 +21,8 @@ import java.sql.Timestamp;
 import java.util.Collection;
 import java.util.Set;
 
+import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.permissions.PermissionEntry;
 
 /** 
@@ -86,6 +88,18 @@ public interface PermissionEntryDAO extends GrouperDAO {
   public Set<PermissionEntry> findPermissionsByAttributeDefDisabledRange(String attributeDefId, 
       Timestamp disabledDateFrom, Timestamp disabledDateTo);
 
+
+  /**
+   * find subjects who are not in a group but who have permissions
+   * @param attributeDefId
+   * @param groupId
+   * @param typeIn
+   * @param queryOptions
+   * @param enabled
+   * @return the set of members
+   */
+  public Set<PermissionEntry> findAllPermissionsNotInGroupAndType(String attributeDefId, String groupId, 
+      MembershipType typeIn, QueryOptions queryOptions, Boolean enabled);
 
 } 
 

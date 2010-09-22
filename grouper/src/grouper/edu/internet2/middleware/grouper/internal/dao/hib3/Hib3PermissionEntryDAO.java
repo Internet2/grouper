@@ -24,12 +24,15 @@ import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.hibernate.ByHqlStatic;
 import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.PermissionEntryDAO;
+import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
+import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.permissions.PermissionEntry;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
@@ -297,6 +300,53 @@ public class Hib3PermissionEntryDAO extends Hib3DAO implements PermissionEntryDA
     return permissionEntries;
 
     
+  }
+
+  /**
+   * @see PermissionEntryDAO#findAllPermissionsNotInGroupAndType(String, String, MembershipType, QueryOptions, Boolean)
+   */
+  public Set<PermissionEntry> findAllPermissionsNotInGroupAndType(String attributeDefId,
+      String groupId, MembershipType typeIn, QueryOptions queryOptions,
+      Boolean enabled) {
+
+    StringBuilder sql = new StringBuilder(
+        "select thePermissionEntry from PermissionEntryAll as thePermissionEntry, AttributeDefName theAttributeDefName where  "
+        + " thePermissionEntry.attributeDefNameId = theAttributeDefName.id "
+        + " and theAttributeDefName.attributeDefId   = :theAttributeDefId "
+        + " and thePermissionEntry.memberId is not null ");
+    
+    if (enabled != null) {
+      sql.append(" and thePermissionEntry.enabledDb = 'T' ");
+    }
+
+    sql.append(" and  thePermissionEntry.memberId not in ( select notInMembershipEntry.memberUuid from MembershipEntry as notInMembershipEntry " +
+        " where notInMembershipEntry.ownerGroupId = :ownerGroupId "
+        + " and notInMembershipEntry.fieldId = '" + Group.getDefaultList().getUuid() + "' ");
+    if (typeIn != null) {
+      sql.append(" and notInMembershipEntry.type  " + typeIn.queryClause() );
+    }
+    if (enabled != null) {
+      if (enabled) {
+        sql.append(" and notInMembershipEntry.enabledDb = 'T' ");
+      } else {
+        sql.append(" and notInMembershipEntry.enabledDb = 'F' ");
+      }
+    }
+    sql.append(" ) ");
+    
+    ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
+
+    Set<PermissionEntry> permissionEntries = byHqlStatic
+      .createQuery(sql.toString())
+      .setCacheable(false)
+      .setCacheRegion(KLASS + ".FindAllPermissionsNotInGroupAndType")
+      .setString( "theAttributeDefId" , attributeDefId )
+      .setString( "ownerGroupId" , groupId )
+      .listSet(PermissionEntry.class);
+
+    return permissionEntries;
+
+  
   }
 
 

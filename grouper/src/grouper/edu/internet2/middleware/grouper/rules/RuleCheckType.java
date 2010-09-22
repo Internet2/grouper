@@ -563,6 +563,8 @@ public enum RuleCheckType {
       //lets get the if enum
       RuleIfConditionEnum ruleIfConditionEnum = ruleDefinition.getIfCondition().ifConditionEnum();
       
+      GrouperSession rootSession = null;
+      
       switch (ruleIfConditionEnum) {
         
         case thisGroupHasImmediateEnabledMembership:
@@ -570,7 +572,7 @@ public enum RuleCheckType {
           //so basically, for the memberships in this group, where there is none in the other group, process them
           String thisGroupId = ruleDefinition.getAttributeAssignType().getOwnerGroupId();
           
-          GrouperSession rootSession = GrouperSession.startRootSession(false);
+          rootSession = GrouperSession.startRootSession(false);
           try {
             
             Group group = null;
@@ -596,6 +598,68 @@ public enum RuleCheckType {
               RuleEngine.ruleFirings++;
               
               ruleDefinition.getThen().fireRule(ruleDefinition, ruleEngine, rulesMembershipBean, null);
+              
+            }
+            
+          } finally {
+            GrouperSession.stopQuietly(rootSession);
+          }
+
+          break;
+        case thisPermissionDefHasAssignment:
+
+          //so basically, for the assignments for this attribute def, where there is none in the other group, process them
+          String thisAttributeDefId = ruleDefinition.getAttributeAssignType().getOwnerAttributeDefId();
+          
+          rootSession = GrouperSession.startRootSession(false);
+          try {
+            
+            Group group = null;
+            if (!StringUtils.isBlank(ruleDefinition.getCheck().getCheckOwnerId())) {
+              group = GroupFinder.findByUuid(rootSession, ruleDefinition.getCheck().getCheckOwnerId(), false);
+            } else if (!StringUtils.isBlank(ruleDefinition.getCheck().getCheckOwnerName())) {
+              group = GroupFinder.findByName(rootSession, ruleDefinition.getCheck().getCheckOwnerName(), false);
+            }
+
+            if (group == null) {
+              throw new RuntimeException("Group doesnt exist in rule! " + ruleDefinition);
+            }
+
+            //find the members which apply
+            Set<PermissionEntry> permissionEntries = GrouperDAOFactory.getFactory().getPermissionEntry().findAllPermissionsNotInGroupAndType(thisAttributeDefId, group.getUuid(), 
+                null, null, true);
+
+            for (PermissionEntry permissionEntry : GrouperUtil.nonNull(permissionEntries)) {
+ 
+              //must me immediate so it can be unassigned
+              if (permissionEntry.isImmediateMembership() || permissionEntry.isImmediatePermission()) {
+                
+                AttributeAssign attributeAssign = AttributeAssignFinder.findById(permissionEntry.getAttributeAssignId(), false);
+                
+                if (attributeAssign == null) {
+                  return;
+                }
+                
+                Role role = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), permissionEntry.getRoleId(), false);
+                if (role == null) {
+                  return;
+                }
+                Member member = MemberFinder.findByUuid(GrouperSession.staticGrouperSession(), permissionEntry.getMemberId(), false);
+                if (member == null) {
+                  return;
+                }
+                AttributeDefName attributeDefName = GrouperDAOFactory.getFactory().getAttributeDefName().findByIdSecure(permissionEntry.getAttributeDefNameId(), false);
+                if (attributeDefName == null) {
+                  return;
+                }
+                RulesPermissionBean rulesPermissionBean = new RulesPermissionBean(attributeAssign, role, member, attributeDefName, attributeDefName.getAttributeDef(), permissionEntry.getAction());
+                
+                //fire the rule then clause
+                RuleEngine.ruleFirings++;
+                
+                ruleDefinition.getThen().fireRule(ruleDefinition, ruleEngine, rulesPermissionBean, null);
+              }
+              
               
             }
             
