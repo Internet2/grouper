@@ -38,6 +38,9 @@ import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValueDelegate;
 import edu.internet2.middleware.grouper.attr.value.AttributeValueDelegate;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
+import edu.internet2.middleware.grouper.changeLog.ChangeLogEntry;
+import edu.internet2.middleware.grouper.changeLog.ChangeLogLabels;
+import edu.internet2.middleware.grouper.changeLog.ChangeLogTypeBuiltin;
 import edu.internet2.middleware.grouper.exception.AttributeAssignNotAllowed;
 import edu.internet2.middleware.grouper.exception.AttributeDefNameAddException;
 import edu.internet2.middleware.grouper.group.GroupMember;
@@ -1747,6 +1750,40 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
     GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.ATTRIBUTE_ASSIGN, 
         AttributeAssignHooks.METHOD_ATTRIBUTE_ASSIGN_PRE_DELETE, HooksAttributeAssignBean.class, 
         this, AttributeAssign.class, VetoTypeGrouper.ATTRIBUTE_ASSIGN_PRE_DELETE, false, false);
+    
+    String ownerId1 = null;
+    String ownerId2 = null;
+    
+    AttributeAssignType ownerType = this.getAttributeAssignType();
+    if (AttributeAssignType.group == ownerType) {
+      ownerId1 = this.getOwnerGroupId();
+    } else if (AttributeAssignType.stem == ownerType) {
+      ownerId1 = this.getOwnerStemId();
+    } else if (AttributeAssignType.member == ownerType) {
+      ownerId1 = this.getOwnerMemberId();
+    } else if (AttributeAssignType.attr_def == ownerType) {
+      ownerId1 = this.getOwnerAttributeDefId();
+    } else if (AttributeAssignType.any_mem == ownerType) {
+      ownerId1 = this.getOwnerGroupId();
+      ownerId2 = this.getOwnerMemberId();
+    } else if (AttributeAssignType.imm_mem == ownerType) {
+      ownerId1 = this.getOwnerMembershipId();
+    } else if (this.getOwnerAttributeAssignId() != null) {
+      ownerId1 = this.getOwnerAttributeAssignId();
+    } else {
+      throw new RuntimeException("Unexpected ownerType: " + ownerType);
+    }
+    
+    if (this.dbVersion().isEnabled()) {
+      //change log into temp table
+      new ChangeLogEntry(true, ChangeLogTypeBuiltin.ATTRIBUTE_ASSIGN_DELETE, 
+          ChangeLogLabels.ATTRIBUTE_ASSIGN_DELETE.id.name(), this.getId(), 
+          ChangeLogLabels.ATTRIBUTE_ASSIGN_DELETE.attributeDefNameId.name(), this.getAttributeDefNameId(), 
+          ChangeLogLabels.ATTRIBUTE_ASSIGN_DELETE.attributeAssignActionId.name(), this.getAttributeAssignActionId(), 
+          ChangeLogLabels.ATTRIBUTE_ASSIGN_DELETE.assignType.name(), this.getAttributeAssignTypeDb(), 
+          ChangeLogLabels.ATTRIBUTE_ASSIGN_DELETE.ownerId1.name(), ownerId1,
+          ChangeLogLabels.ATTRIBUTE_ASSIGN_DELETE.ownerId2.name(), ownerId2).save();
+    }
   }
 
   /**
@@ -1764,6 +1801,39 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
         AttributeAssignHooks.METHOD_ATTRIBUTE_ASSIGN_PRE_INSERT, HooksAttributeAssignBean.class, 
         this, AttributeAssign.class, VetoTypeGrouper.ATTRIBUTE_ASSIGN_PRE_INSERT, false, false);
     
+    String ownerId1 = null;
+    String ownerId2 = null;
+    
+    AttributeAssignType ownerType = this.getAttributeAssignType();
+    if (AttributeAssignType.group == ownerType) {
+      ownerId1 = this.getOwnerGroupId();
+    } else if (AttributeAssignType.stem == ownerType) {
+      ownerId1 = this.getOwnerStemId();
+    } else if (AttributeAssignType.member == ownerType) {
+      ownerId1 = this.getOwnerMemberId();
+    } else if (AttributeAssignType.attr_def == ownerType) {
+      ownerId1 = this.getOwnerAttributeDefId();
+    } else if (AttributeAssignType.any_mem == ownerType) {
+      ownerId1 = this.getOwnerGroupId();
+      ownerId2 = this.getOwnerMemberId();
+    } else if (AttributeAssignType.imm_mem == ownerType) {
+      ownerId1 = this.getOwnerMembershipId();
+    } else if (this.getOwnerAttributeAssignId() != null) {
+      ownerId1 = this.getOwnerAttributeAssignId();
+    } else {
+      throw new RuntimeException("Unexpected ownerType: " + ownerType);
+    }
+    
+    if (this.isEnabled()) {
+      //change log into temp table
+      new ChangeLogEntry(true, ChangeLogTypeBuiltin.ATTRIBUTE_ASSIGN_ADD, 
+          ChangeLogLabels.ATTRIBUTE_ASSIGN_ADD.id.name(), this.getId(), 
+          ChangeLogLabels.ATTRIBUTE_ASSIGN_ADD.attributeDefNameId.name(), this.getAttributeDefNameId(), 
+          ChangeLogLabels.ATTRIBUTE_ASSIGN_ADD.attributeAssignActionId.name(), this.getAttributeAssignActionId(), 
+          ChangeLogLabels.ATTRIBUTE_ASSIGN_ADD.assignType.name(), this.getAttributeAssignTypeDb(), 
+          ChangeLogLabels.ATTRIBUTE_ASSIGN_ADD.ownerId1.name(), ownerId1,
+          ChangeLogLabels.ATTRIBUTE_ASSIGN_ADD.ownerId2.name(), ownerId2).save();
+    }
   }
 
   /**
@@ -1779,6 +1849,81 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
         AttributeAssignHooks.METHOD_ATTRIBUTE_ASSIGN_PRE_UPDATE, HooksAttributeAssignBean.class, 
         this, AttributeAssign.class, VetoTypeGrouper.ATTRIBUTE_ASSIGN_PRE_UPDATE, false, false);
   
+    String ownerId1 = null;
+    String ownerId2 = null;
+    
+    AttributeAssignType ownerType = this.getAttributeAssignType();
+    if (AttributeAssignType.group == ownerType) {
+      ownerId1 = this.getOwnerGroupId();
+    } else if (AttributeAssignType.stem == ownerType) {
+      ownerId1 = this.getOwnerStemId();
+    } else if (AttributeAssignType.member == ownerType) {
+      ownerId1 = this.getOwnerMemberId();
+    } else if (AttributeAssignType.attr_def == ownerType) {
+      ownerId1 = this.getOwnerAttributeDefId();
+    } else if (AttributeAssignType.any_mem == ownerType) {
+      ownerId1 = this.getOwnerGroupId();
+      ownerId2 = this.getOwnerMemberId();
+    } else if (AttributeAssignType.imm_mem == ownerType) {
+      ownerId1 = this.getOwnerMembershipId();
+    } else if (this.getOwnerAttributeAssignId() != null) {
+      ownerId1 = this.getOwnerAttributeAssignId();
+    } else {
+      throw new RuntimeException("Unexpected ownerType: " + ownerType);
+    }
+    
+    
+    if (this.isEnabled() && !this.dbVersion().isEnabled()) {
+      // this is an add
+      new ChangeLogEntry(true, ChangeLogTypeBuiltin.ATTRIBUTE_ASSIGN_ADD, 
+          ChangeLogLabels.ATTRIBUTE_ASSIGN_ADD.id.name(), this.getId(), 
+          ChangeLogLabels.ATTRIBUTE_ASSIGN_ADD.attributeDefNameId.name(), this.getAttributeDefNameId(), 
+          ChangeLogLabels.ATTRIBUTE_ASSIGN_ADD.attributeAssignActionId.name(), this.getAttributeAssignActionId(), 
+          ChangeLogLabels.ATTRIBUTE_ASSIGN_ADD.assignType.name(), this.getAttributeAssignTypeDb(), 
+          ChangeLogLabels.ATTRIBUTE_ASSIGN_ADD.ownerId1.name(), ownerId1,
+          ChangeLogLabels.ATTRIBUTE_ASSIGN_ADD.ownerId2.name(), ownerId2).save();
+    } else if (!this.isEnabled() && this.dbVersion().isEnabled()) {
+      // this is a delete
+      new ChangeLogEntry(true, ChangeLogTypeBuiltin.ATTRIBUTE_ASSIGN_DELETE, 
+          ChangeLogLabels.ATTRIBUTE_ASSIGN_DELETE.id.name(), this.getId(), 
+          ChangeLogLabels.ATTRIBUTE_ASSIGN_DELETE.attributeDefNameId.name(), this.getAttributeDefNameId(), 
+          ChangeLogLabels.ATTRIBUTE_ASSIGN_DELETE.attributeAssignActionId.name(), this.getAttributeAssignActionId(), 
+          ChangeLogLabels.ATTRIBUTE_ASSIGN_DELETE.assignType.name(), this.getAttributeAssignTypeDb(), 
+          ChangeLogLabels.ATTRIBUTE_ASSIGN_DELETE.ownerId1.name(), ownerId1,
+          ChangeLogLabels.ATTRIBUTE_ASSIGN_DELETE.ownerId2.name(), ownerId2).save();
+    }
   }
 
+  /**
+   * save the state when retrieving from DB
+   * @return the dbVersion
+   */
+  @Override
+  public AttributeAssign dbVersion() {
+    return (AttributeAssign)this.dbVersion;
+  }
+  
+  /**
+   * take a snapshot of the data since this is what is in the db
+   */
+  @Override
+  public void dbVersionReset() {
+    //lets get the state from the db so we know what has changed
+    this.dbVersion = GrouperUtil.clone(this, DB_VERSION_FIELDS);
+  }
+
+
+  /**
+   * @see edu.internet2.middleware.grouper.GrouperAPI#dbVersionDifferentFields()
+   */
+  @Override
+  public Set<String> dbVersionDifferentFields() {
+    if (this.dbVersion == null) {
+      throw new RuntimeException("State was never stored from db");
+    }
+    //easier to unit test if everything is ordered
+    Set<String> result = GrouperUtil.compareObjectFields(this, this.dbVersion,
+        DB_VERSION_FIELDS, null);
+    return result;
+  }
 }

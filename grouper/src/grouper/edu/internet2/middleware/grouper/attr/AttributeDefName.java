@@ -27,6 +27,9 @@ import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.audit.AuditTypeBuiltin;
+import edu.internet2.middleware.grouper.changeLog.ChangeLogEntry;
+import edu.internet2.middleware.grouper.changeLog.ChangeLogLabels;
+import edu.internet2.middleware.grouper.changeLog.ChangeLogTypeBuiltin;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.grouperSet.GrouperSetElement;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
@@ -133,7 +136,6 @@ public class AttributeDefName extends GrouperAPI
   /**
    * fields which are included in db version
    */
-  @SuppressWarnings("unused")
   private static final Set<String> DB_VERSION_FIELDS = GrouperUtil.toSet(
       FIELD_ATTRIBUTE_DEF_ID, FIELD_CONTEXT_ID, FIELD_CREATED_ON_DB, FIELD_DESCRIPTION, 
       FIELD_DISPLAY_EXTENSION, FIELD_DISPLAY_NAME, FIELD_EXTENSION, FIELD_ID, 
@@ -922,6 +924,14 @@ public class AttributeDefName extends GrouperAPI
     GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.ATTRIBUTE_DEF_NAME, 
         AttributeDefNameHooks.METHOD_ATTRIBUTE_DEF_NAME_PRE_DELETE, HooksAttributeDefNameBean.class, 
         this, AttributeDefName.class, VetoTypeGrouper.ATTRIBUTE_DEF_NAME_PRE_DELETE, false, false);
+    
+    //change log into temp table
+    new ChangeLogEntry(true, ChangeLogTypeBuiltin.ATTRIBUTE_DEF_NAME_DELETE, 
+        ChangeLogLabels.ATTRIBUTE_DEF_NAME_DELETE.id.name(), this.getId(), 
+        ChangeLogLabels.ATTRIBUTE_DEF_NAME_DELETE.name.name(), this.getName(), 
+        ChangeLogLabels.ATTRIBUTE_DEF_NAME_DELETE.stemId.name(), this.getStemId(), 
+        ChangeLogLabels.ATTRIBUTE_DEF_NAME_DELETE.description.name(), this.getDescription(), 
+        ChangeLogLabels.ATTRIBUTE_DEF_NAME_DELETE.attributeDefId.name(), this.getAttributeDefId()).save();
   }
 
   /**
@@ -941,6 +951,14 @@ public class AttributeDefName extends GrouperAPI
         AttributeDefNameHooks.METHOD_ATTRIBUTE_DEF_NAME_PRE_INSERT, HooksAttributeDefNameBean.class, 
         this, AttributeDefName.class, VetoTypeGrouper.ATTRIBUTE_DEF_NAME_PRE_INSERT, false, false);
     
+    //change log into temp table
+    new ChangeLogEntry(true, ChangeLogTypeBuiltin.ATTRIBUTE_DEF_NAME_ADD, 
+        ChangeLogLabels.ATTRIBUTE_DEF_NAME_ADD.id.name(), this.getId(), 
+        ChangeLogLabels.ATTRIBUTE_DEF_NAME_ADD.name.name(), this.getName(), 
+        ChangeLogLabels.ATTRIBUTE_DEF_NAME_ADD.stemId.name(), this.getStemId(), 
+        ChangeLogLabels.ATTRIBUTE_DEF_NAME_ADD.description.name(), this.getDescription(), 
+        ChangeLogLabels.ATTRIBUTE_DEF_NAME_ADD.attributeDefId.name(), this.getAttributeDefId()).save();
+    
   }
 
   /**
@@ -955,8 +973,54 @@ public class AttributeDefName extends GrouperAPI
         AttributeDefNameHooks.METHOD_ATTRIBUTE_DEF_NAME_PRE_UPDATE, HooksAttributeDefNameBean.class, 
         this, AttributeDefName.class, VetoTypeGrouper.ATTRIBUTE_DEF_NAME_PRE_UPDATE, false, false);
   
+    //change log into temp table
+    ChangeLogEntry.saveTempUpdates(ChangeLogTypeBuiltin.ATTRIBUTE_DEF_NAME_UPDATE, 
+        this, this.dbVersion(),
+        GrouperUtil.toList(
+            ChangeLogLabels.ATTRIBUTE_DEF_NAME_UPDATE.id.name(), this.getId(), 
+            ChangeLogLabels.ATTRIBUTE_DEF_NAME_UPDATE.name.name(), this.getName(), 
+            ChangeLogLabels.ATTRIBUTE_DEF_NAME_UPDATE.stemId.name(), this.getStemId(), 
+            ChangeLogLabels.ATTRIBUTE_DEF_NAME_UPDATE.description.name(), this.getDescription(), 
+            ChangeLogLabels.ATTRIBUTE_DEF_NAME_UPDATE.attributeDefId.name(), this.getAttributeDefId()),
+        GrouperUtil.toList("name", "description", "stemId", "attributeDefId"),
+        GrouperUtil.toList(
+            ChangeLogLabels.ATTRIBUTE_DEF_NAME_UPDATE.name.name(),
+            ChangeLogLabels.ATTRIBUTE_DEF_NAME_UPDATE.description.name(),
+            ChangeLogLabels.ATTRIBUTE_DEF_NAME_UPDATE.stemId.name(),
+            ChangeLogLabels.ATTRIBUTE_DEF_NAME_UPDATE.attributeDefId.name())); 
+  }
+
+  /**
+   * save the state when retrieving from DB
+   * @return the dbVersion
+   */
+  @Override
+  public AttributeDefName dbVersion() {
+    return (AttributeDefName)this.dbVersion;
+  }
+  
+  /**
+   * take a snapshot of the data since this is what is in the db
+   */
+  @Override
+  public void dbVersionReset() {
+    //lets get the state from the db so we know what has changed
+    this.dbVersion = GrouperUtil.clone(this, DB_VERSION_FIELDS);
   }
 
 
+  /**
+   * @see edu.internet2.middleware.grouper.GrouperAPI#dbVersionDifferentFields()
+   */
+  @Override
+  public Set<String> dbVersionDifferentFields() {
+    if (this.dbVersion == null) {
+      throw new RuntimeException("State was never stored from db");
+    }
+    //easier to unit test if everything is ordered
+    Set<String> result = GrouperUtil.compareObjectFields(this, this.dbVersion,
+        DB_VERSION_FIELDS, null);
+    return result;
+  }
   
 }

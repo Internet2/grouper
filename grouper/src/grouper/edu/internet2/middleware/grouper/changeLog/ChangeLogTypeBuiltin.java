@@ -318,8 +318,159 @@ public enum ChangeLogTypeBuiltin implements ChangeLogTypeIdentifier {
    * move a stem to another stem
    */
   STEM_MOVE(new ChangeLogType("stem", "move", "stemId", "oldStemName", "newStemName", "newParentStemId", 
-      "assignAlternateName"));
+      "assignAlternateName")),
   
+  /**
+   * attribute assign action add
+   */
+  ATTRIBUTE_ASSIGN_ACTION_ADD(new ChangeLogType("attributeAssignAction", "addAttributeAssignAction",
+      ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_ADD.id,
+      ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_ADD.name,
+      ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_ADD.attributeDefId)),
+  
+  /**
+   * attribute assign action update
+   */
+  ATTRIBUTE_ASSIGN_ACTION_UPDATE(new ChangeLogType("attributeAssignAction", "updateAttributeAssignAction",
+      ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_UPDATE.id,
+      ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_UPDATE.name,
+      ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_UPDATE.attributeDefId,
+      ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_UPDATE.propertyChanged,
+      ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_UPDATE.propertyOldValue,
+      ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_UPDATE.propertyNewValue)),
+      
+  /**
+   * attribute assign action delete
+   */
+  ATTRIBUTE_ASSIGN_ACTION_DELETE(new ChangeLogType("attributeAssignAction", "deleteAttributeAssignAction",
+      ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_DELETE.id,
+      ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_DELETE.name,
+      ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_DELETE.attributeDefId)),
+  
+  /**
+   * attribute assign action set add
+   */
+  ATTRIBUTE_ASSIGN_ACTION_SET_ADD(new ChangeLogType("attributeAssignActionSet", "addAttributeAssignActionSet",
+      ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_SET_ADD.id,
+      ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_SET_ADD.type,
+      ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_SET_ADD.ifHasAttrAssnActionId,
+      ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_SET_ADD.thenHasAttrAssnActionId)),
+      
+  /**
+   * attribute assign action set delete
+   */
+  ATTRIBUTE_ASSIGN_ACTION_SET_DELETE(new ChangeLogType("attributeAssignActionSet", "deleteAttributeAssignActionSet",
+      ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_SET_DELETE.id,
+      ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_SET_DELETE.type,
+      ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_SET_DELETE.ifHasAttrAssnActionId,
+      ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_SET_DELETE.thenHasAttrAssnActionId)),
+      
+  /**
+   * attribute def name set add
+   */
+  ATTRIBUTE_DEF_NAME_SET_ADD(new ChangeLogType("attributeDefNameSet", "addAttributeDefNameSet",
+      ChangeLogLabels.ATTRIBUTE_DEF_NAME_SET_ADD.id,
+      ChangeLogLabels.ATTRIBUTE_DEF_NAME_SET_ADD.type,
+      ChangeLogLabels.ATTRIBUTE_DEF_NAME_SET_ADD.ifHasAttributeDefNameId,
+      ChangeLogLabels.ATTRIBUTE_DEF_NAME_SET_ADD.thenHasAttributeDefNameId)),
+  
+  /**
+   * attribute def name set delete
+   */
+  ATTRIBUTE_DEF_NAME_SET_DELETE(new ChangeLogType("attributeDefNameSet", "deleteAttributeDefNameSet",
+      ChangeLogLabels.ATTRIBUTE_DEF_NAME_SET_DELETE.id,
+      ChangeLogLabels.ATTRIBUTE_DEF_NAME_SET_DELETE.type,
+      ChangeLogLabels.ATTRIBUTE_DEF_NAME_SET_DELETE.ifHasAttributeDefNameId,
+      ChangeLogLabels.ATTRIBUTE_DEF_NAME_SET_DELETE.thenHasAttributeDefNameId)),
+  
+  /**
+   * role set add
+   */
+  ROLE_SET_ADD(new ChangeLogType("roleSet", "addRoleSet",
+      ChangeLogLabels.ROLE_SET_ADD.id,
+      ChangeLogLabels.ROLE_SET_ADD.type,
+      ChangeLogLabels.ROLE_SET_ADD.ifHasRoleId,
+      ChangeLogLabels.ROLE_SET_ADD.thenHasRoleId)),
+
+  /**
+   * role set delete
+   */
+  ROLE_SET_DELETE(new ChangeLogType("roleSet", "deleteRoleSet",
+      ChangeLogLabels.ROLE_SET_DELETE.id,
+      ChangeLogLabels.ROLE_SET_DELETE.type,
+      ChangeLogLabels.ROLE_SET_DELETE.ifHasRoleId,
+      ChangeLogLabels.ROLE_SET_DELETE.thenHasRoleId)),
+  
+  /**
+   * attribute def name add
+   */
+  ATTRIBUTE_DEF_NAME_ADD(new ChangeLogType("attributeDefName", "addAttributeDefName",
+      ChangeLogLabels.ATTRIBUTE_DEF_NAME_ADD.id,
+      ChangeLogLabels.ATTRIBUTE_DEF_NAME_ADD.attributeDefId,
+      ChangeLogLabels.ATTRIBUTE_DEF_NAME_ADD.name,
+      ChangeLogLabels.ATTRIBUTE_DEF_NAME_ADD.stemId,
+      ChangeLogLabels.ATTRIBUTE_DEF_NAME_ADD.description)),
+
+  /**
+   * attribute def name update
+   */
+  ATTRIBUTE_DEF_NAME_UPDATE(new ChangeLogType("attributeDefName", "updateAttributeDefName",
+      ChangeLogLabels.ATTRIBUTE_DEF_NAME_UPDATE.id,
+      ChangeLogLabels.ATTRIBUTE_DEF_NAME_UPDATE.attributeDefId,
+      ChangeLogLabels.ATTRIBUTE_DEF_NAME_UPDATE.name,
+      ChangeLogLabels.ATTRIBUTE_DEF_NAME_UPDATE.stemId,
+      ChangeLogLabels.ATTRIBUTE_DEF_NAME_UPDATE.description,
+      ChangeLogLabels.ATTRIBUTE_DEF_NAME_UPDATE.propertyChanged,
+      ChangeLogLabels.ATTRIBUTE_DEF_NAME_UPDATE.propertyOldValue,
+      ChangeLogLabels.ATTRIBUTE_DEF_NAME_UPDATE.propertyNewValue)),
+      
+  /**
+   * attribute def name delete
+   */
+  ATTRIBUTE_DEF_NAME_DELETE(new ChangeLogType("attributeDefName", "deleteAttributeDefName",
+      ChangeLogLabels.ATTRIBUTE_DEF_NAME_DELETE.id,
+      ChangeLogLabels.ATTRIBUTE_DEF_NAME_DELETE.attributeDefId,
+      ChangeLogLabels.ATTRIBUTE_DEF_NAME_DELETE.name,
+      ChangeLogLabels.ATTRIBUTE_DEF_NAME_DELETE.stemId,
+      ChangeLogLabels.ATTRIBUTE_DEF_NAME_DELETE.description)),
+  
+  /**
+   * attribute assign add
+   */
+  ATTRIBUTE_ASSIGN_ADD(new ChangeLogType("attributeAssign", "addAttributeAssign",
+      ChangeLogLabels.ATTRIBUTE_ASSIGN_ADD.id,
+      ChangeLogLabels.ATTRIBUTE_ASSIGN_ADD.attributeDefNameId,
+      ChangeLogLabels.ATTRIBUTE_ASSIGN_ADD.attributeAssignActionId,
+      ChangeLogLabels.ATTRIBUTE_ASSIGN_ADD.assignType,
+      ChangeLogLabels.ATTRIBUTE_ASSIGN_ADD.ownerId1,
+      ChangeLogLabels.ATTRIBUTE_ASSIGN_ADD.ownerId2)),
+  
+  /**
+   * attribute assign update
+   */
+  ATTRIBUTE_ASSIGN_UPDATE(new ChangeLogType("attributeAssign", "updateAttributeAssign",
+      ChangeLogLabels.ATTRIBUTE_ASSIGN_UPDATE.id,
+      ChangeLogLabels.ATTRIBUTE_ASSIGN_UPDATE.attributeDefNameId,
+      ChangeLogLabels.ATTRIBUTE_ASSIGN_UPDATE.attributeAssignActionId,
+      ChangeLogLabels.ATTRIBUTE_ASSIGN_UPDATE.assignType,
+      ChangeLogLabels.ATTRIBUTE_ASSIGN_UPDATE.ownerId1,
+      ChangeLogLabels.ATTRIBUTE_ASSIGN_UPDATE.ownerId2,
+      ChangeLogLabels.ATTRIBUTE_ASSIGN_UPDATE.propertyChanged,
+      ChangeLogLabels.ATTRIBUTE_ASSIGN_UPDATE.propertyOldValue,
+      ChangeLogLabels.ATTRIBUTE_ASSIGN_UPDATE.propertyNewValue)),
+      
+  /**
+   * attribute assign delete
+   */
+  ATTRIBUTE_ASSIGN_DELETE(new ChangeLogType("attributeAssign", "deleteAttributeAssign",
+      ChangeLogLabels.ATTRIBUTE_ASSIGN_DELETE.id,
+      ChangeLogLabels.ATTRIBUTE_ASSIGN_DELETE.attributeDefNameId,
+      ChangeLogLabels.ATTRIBUTE_ASSIGN_DELETE.attributeAssignActionId,
+      ChangeLogLabels.ATTRIBUTE_ASSIGN_DELETE.assignType,
+      ChangeLogLabels.ATTRIBUTE_ASSIGN_DELETE.ownerId1,
+      ChangeLogLabels.ATTRIBUTE_ASSIGN_DELETE.ownerId2));
+      
+      
   /**
    * defaults for audit type, though doesnt hold the id
    */

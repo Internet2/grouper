@@ -22,11 +22,15 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Membership;
+import edu.internet2.middleware.grouper.MembershipFinder;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
+import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.AttributeDefType;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssignAction;
 import edu.internet2.middleware.grouper.cfg.ApiConfig;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SessionHelper;
@@ -40,6 +44,7 @@ import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.misc.CompositeType;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.permissions.role.Role;
 import edu.internet2.middleware.grouper.pit.PITAttributeDef;
 import edu.internet2.middleware.grouper.pit.PITField;
 import edu.internet2.middleware.grouper.pit.PITGroup;
@@ -69,7 +74,7 @@ public class ChangeLogTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new ChangeLogTest("testAttributeDefs"));
+    TestRunner.run(new ChangeLogTest("testAttributeAssign"));
   }
   
   /**
@@ -96,6 +101,1152 @@ public class ChangeLogTest extends GrouperTest {
 
   }
   
+  /**
+   * @throws Exception
+   */
+  public void testAttributeAssign() throws Exception {
+    
+    // initialize some data
+    Group group = edu.addChildGroup("testGroup", "testGroup");
+    Member newMember1 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ1, true);
+    group.addMember(newMember1.getSubject());
+    
+    AttributeDef attributeDef = edu.addChildAttributeDef("attributeDef", AttributeDefType.attr);
+    attributeDef.setAssignToStem(true);
+    attributeDef.setAssignToImmMembership(true);
+    attributeDef.setAssignToImmMembershipAssn(true);
+    attributeDef.setAssignToEffMembership(true);
+    attributeDef.store();
+    AttributeDefName attributeDefName = edu.addChildAttributeDefName(attributeDef, "testAttribute", "testAttribute");
+    ChangeLogTempToEntity.convertRecords();
+
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryTemp").executeUpdate();
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryEntity").executeUpdate();
+    
+    // assign attribute to stem
+    AttributeAssign attributeAssign = edu.getAttributeDelegate().assignAttribute(attributeDefName).getAttributeAssign();
+
+    int newChangeLogTempCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_change_log_entry_temp");
+    int newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_change_log_entry");
+  
+    assertEquals("Should have added exactly one change log temp", 1, newChangeLogTempCount);
+    assertEquals("Should be the same", 0, newChangeLogCount);
+
+    ChangeLogEntry changeLogEntry = HibernateSession.byHqlStatic()
+      .createQuery("from ChangeLogEntryTemp where changeLogTypeId = :theChangeLogType")
+      .setString("theChangeLogType", ChangeLogTypeBuiltin.ATTRIBUTE_ASSIGN_ADD.getChangeLogType().getId())
+      .uniqueResult(ChangeLogEntry.class);
+  
+    assertTrue(!StringUtils.isBlank(changeLogEntry.getContextId()));
+  
+    //make sure some time has passed
+    GrouperUtil.sleep(100);
+  
+    assertNotNull("createdOn should exist", changeLogEntry.getCreatedOn());
+  
+    assertTrue("This should have happened in the last 5 seconds", 
+        System.currentTimeMillis() - changeLogEntry.getCreatedOn().getTime()  < 5000);
+    assertTrue("This should have happened in the last 5 seconds: + " + changeLogEntry.getCreatedOn(), 
+        System.currentTimeMillis() - changeLogEntry.getCreatedOn().getTime() > 0);
+  
+    assertTrue("This should have happened in the last 5 seconds", 
+        System.currentTimeMillis() - (changeLogEntry.getCreatedOnDb() / 1000) < 5000);
+    assertTrue("This should have happened in the last 5 seconds", 
+        System.currentTimeMillis() - (changeLogEntry.getCreatedOnDb() / 1000) > 0);
+  
+    assertNull(changeLogEntry.getSequenceNumber());
+    
+    assertEquals("Context id's should match", changeLogEntry.getContextId(), attributeAssign.getContextId());
+  
+    assertEquals(attributeAssign.getId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_ASSIGN_ADD.id));
+    assertEquals(attributeAssign.getAttributeDefNameId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_ASSIGN_ADD.attributeDefNameId));
+    assertEquals(attributeAssign.getAttributeAssignActionId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_ASSIGN_ADD.attributeAssignActionId));
+    assertEquals(attributeAssign.getAttributeAssignTypeDb(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_ASSIGN_ADD.assignType));
+    assertEquals(edu.getUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_ASSIGN_ADD.ownerId1));
+    assertEquals("", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_ASSIGN_ADD.ownerId2));
+
+    //move the temp objects to the regular change log table
+    ChangeLogTempToEntity.convertRecords();
+
+    //#########################
+    // Check the change log table, and temp table, see the record moved over.
+ 
+    newChangeLogTempCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_change_log_entry_temp");
+    newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_change_log_entry");
+  
+    assertEquals("Should have nothing in temp table", 0, newChangeLogTempCount);
+    assertEquals("Should have one record in the change log table", 1, newChangeLogCount);
+  
+    changeLogEntry = HibernateSession.byHqlStatic()
+      .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType")
+      .setString("theChangeLogType", ChangeLogTypeBuiltin.ATTRIBUTE_ASSIGN_ADD.getChangeLogType().getId())
+      .uniqueResult(ChangeLogEntry.class);
+    
+    assertTrue(!StringUtils.isBlank(changeLogEntry.getContextId()));
+    
+    assertNotNull("createdOn should exist", changeLogEntry.getCreatedOn());
+    assertNotNull(changeLogEntry.getSequenceNumber());
+    
+    assertEquals("Context id's should match", changeLogEntry.getContextId(), attributeAssign.getContextId());
+    
+    //##################################
+    // try disabling
+
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryEntity").executeUpdate();
+
+    attributeAssign.setEnabled(false);
+    attributeAssign.setEnabledTime(new Timestamp(new Date().getTime() + 100000));
+    attributeAssign.saveOrUpdate();
+
+    newChangeLogTempCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_change_log_entry_temp");
+    newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_change_log_entry");
+  
+    assertEquals("Should have one in temp table", 1, newChangeLogTempCount);
+    assertEquals("Should have zero records in the change log table", 0, newChangeLogCount);
+  
+    ChangeLogTempToEntity.convertRecords();
+    
+    ChangeLogEntry changeLogEntry2 = HibernateSession.byHqlStatic()
+      .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType")
+      .setString("theChangeLogType", ChangeLogTypeBuiltin.ATTRIBUTE_ASSIGN_DELETE.getChangeLogType().getId())
+      .uniqueResult(ChangeLogEntry.class);
+  
+    assertTrue("contextId should exist", StringUtils.isNotBlank(changeLogEntry2.getContextId()));
+  
+    assertTrue("contextIds should be different", !StringUtils.equals(changeLogEntry.getContextId(), 
+        changeLogEntry2.getContextId()));
+    
+    assertEquals(attributeAssign.getId(), changeLogEntry2.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_ASSIGN_DELETE.id));
+    assertEquals(attributeAssign.getAttributeDefNameId(), changeLogEntry2.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_ASSIGN_DELETE.attributeDefNameId));
+    assertEquals(attributeAssign.getAttributeAssignActionId(), changeLogEntry2.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_ASSIGN_DELETE.attributeAssignActionId));
+    assertEquals(attributeAssign.getAttributeAssignTypeDb(), changeLogEntry2.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_ASSIGN_DELETE.assignType));
+    assertEquals(edu.getUuid(), changeLogEntry2.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_ASSIGN_DELETE.ownerId1));
+    assertEquals(null, changeLogEntry2.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_ASSIGN_DELETE.ownerId2));
+
+
+    //##################################
+    // try enabling
+
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryEntity").executeUpdate();
+
+    attributeAssign.setEnabled(true);
+    attributeAssign.setEnabledTime(new Timestamp(new Date().getTime() - 100000));
+    attributeAssign.saveOrUpdate();
+
+    newChangeLogTempCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_change_log_entry_temp");
+    newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_change_log_entry");
+  
+    assertEquals("Should have one in temp table", 1, newChangeLogTempCount);
+    assertEquals("Should have zero records in the change log table", 0, newChangeLogCount);
+  
+    ChangeLogTempToEntity.convertRecords();
+    
+    ChangeLogEntry changeLogEntry3 = HibernateSession.byHqlStatic()
+      .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType")
+      .setString("theChangeLogType", ChangeLogTypeBuiltin.ATTRIBUTE_ASSIGN_ADD.getChangeLogType().getId())
+      .uniqueResult(ChangeLogEntry.class);
+  
+    assertTrue("contextId should exist", StringUtils.isNotBlank(changeLogEntry3.getContextId()));
+  
+    assertTrue("contextIds should be different", !StringUtils.equals(changeLogEntry2.getContextId(), 
+        changeLogEntry3.getContextId()));
+    
+    assertEquals(attributeAssign.getId(), changeLogEntry3.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_ASSIGN_ADD.id));
+    assertEquals(attributeAssign.getAttributeDefNameId(), changeLogEntry3.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_ASSIGN_ADD.attributeDefNameId));
+    assertEquals(attributeAssign.getAttributeAssignActionId(), changeLogEntry3.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_ASSIGN_ADD.attributeAssignActionId));
+    assertEquals(attributeAssign.getAttributeAssignTypeDb(), changeLogEntry3.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_ASSIGN_ADD.assignType));
+    assertEquals(edu.getUuid(), changeLogEntry3.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_ASSIGN_ADD.ownerId1));
+    assertEquals(null, changeLogEntry3.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_ASSIGN_ADD.ownerId2));
+
+    
+    //##################################
+    // try deleting now
+    
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryEntity").executeUpdate();
+
+    attributeAssign.delete();
+    
+    newChangeLogTempCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_change_log_entry_temp");
+    newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_change_log_entry");
+  
+    assertEquals("Should have one in temp table", 1, newChangeLogTempCount);
+    assertEquals("Should have zero records in the change log table", 0, newChangeLogCount);
+
+    ChangeLogTempToEntity.convertRecords();
+    
+    ChangeLogEntry changeLogEntry4 = HibernateSession.byHqlStatic()
+      .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType")
+      .setString("theChangeLogType", ChangeLogTypeBuiltin.ATTRIBUTE_ASSIGN_DELETE.getChangeLogType().getId())
+      .uniqueResult(ChangeLogEntry.class);
+    
+
+    assertEquals(attributeAssign.getId(), changeLogEntry4.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_ASSIGN_DELETE.id));
+    assertEquals(attributeAssign.getAttributeDefNameId(), changeLogEntry4.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_ASSIGN_DELETE.attributeDefNameId));
+    assertEquals(attributeAssign.getAttributeAssignActionId(), changeLogEntry4.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_ASSIGN_DELETE.attributeAssignActionId));
+    assertEquals(attributeAssign.getAttributeAssignTypeDb(), changeLogEntry4.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_ASSIGN_DELETE.assignType));
+    assertEquals(edu.getUuid(), changeLogEntry4.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_ASSIGN_DELETE.ownerId1));
+    assertEquals(null, changeLogEntry4.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_ASSIGN_DELETE.ownerId2));
+
+    assertTrue("contextId should exist", StringUtils.isNotBlank(changeLogEntry4.getContextId()));
+    assertTrue("contextIds should be different", !StringUtils.equals(changeLogEntry3.getContextId(), 
+        changeLogEntry4.getContextId()));
+    
+    //##################################
+    // try adding an attribute to an immediate membership now...
+
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryEntity").executeUpdate();
+    
+    // assign attribute immediate membership
+    Membership immediateMembership = MembershipFinder.findImmediateMembership(grouperSession, group, newMember1.getSubject(), Group.getDefaultList(), true);
+    AttributeAssign attributeAssign2 = immediateMembership.getAttributeDelegate().assignAttribute(attributeDefName).getAttributeAssign();
+
+    newChangeLogTempCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_change_log_entry_temp");
+    newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_change_log_entry");
+  
+    assertEquals("Should have one in temp table", 1, newChangeLogTempCount);
+    assertEquals("Should have zero records in the change log table", 0, newChangeLogCount);
+
+    ChangeLogTempToEntity.convertRecords();
+  
+    ChangeLogEntry changeLogEntry5 = HibernateSession.byHqlStatic()
+      .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType")
+      .setString("theChangeLogType", ChangeLogTypeBuiltin.ATTRIBUTE_ASSIGN_ADD.getChangeLogType().getId())
+      .uniqueResult(ChangeLogEntry.class);
+  
+    assertEquals(attributeAssign2.getId(), changeLogEntry5.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_ASSIGN_ADD.id));
+    assertEquals(attributeAssign2.getAttributeDefNameId(), changeLogEntry5.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_ASSIGN_ADD.attributeDefNameId));
+    assertEquals(attributeAssign2.getAttributeAssignActionId(), changeLogEntry5.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_ASSIGN_ADD.attributeAssignActionId));
+    assertEquals(attributeAssign2.getAttributeAssignTypeDb(), changeLogEntry5.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_ASSIGN_ADD.assignType));
+    assertEquals(immediateMembership.getImmediateMembershipId(), changeLogEntry5.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_ASSIGN_ADD.ownerId1));
+    assertEquals(null, changeLogEntry5.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_ASSIGN_ADD.ownerId2));
+  
+
+    //##################################
+    // try adding an attribute to an immediate membership assignment now
+
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryEntity").executeUpdate();
+    
+    // assign attribute immediate membership assign
+    AttributeAssign attributeAssign3 = attributeAssign2.getAttributeDelegate().assignAttribute(attributeDefName).getAttributeAssign();
+
+    newChangeLogTempCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_change_log_entry_temp");
+    newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_change_log_entry");
+  
+    assertEquals("Should have one in temp table", 1, newChangeLogTempCount);
+    assertEquals("Should have zero records in the change log table", 0, newChangeLogCount);
+
+    ChangeLogTempToEntity.convertRecords();
+  
+    ChangeLogEntry changeLogEntry6 = HibernateSession.byHqlStatic()
+      .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType")
+      .setString("theChangeLogType", ChangeLogTypeBuiltin.ATTRIBUTE_ASSIGN_ADD.getChangeLogType().getId())
+      .uniqueResult(ChangeLogEntry.class);
+  
+    assertEquals(attributeAssign3.getId(), changeLogEntry6.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_ASSIGN_ADD.id));
+    assertEquals(attributeAssign3.getAttributeDefNameId(), changeLogEntry6.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_ASSIGN_ADD.attributeDefNameId));
+    assertEquals(attributeAssign3.getAttributeAssignActionId(), changeLogEntry6.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_ASSIGN_ADD.attributeAssignActionId));
+    assertEquals(attributeAssign3.getAttributeAssignTypeDb(), changeLogEntry6.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_ASSIGN_ADD.assignType));
+    assertEquals(attributeAssign2.getId(), changeLogEntry6.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_ASSIGN_ADD.ownerId1));
+    assertEquals(null, changeLogEntry6.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_ASSIGN_ADD.ownerId2));
+  
+    
+    //##################################
+    // try adding an attribute to an effective membership now
+
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryEntity").executeUpdate();
+    
+    // assign attribute immediate membership assign
+    AttributeAssign attributeAssign4 = immediateMembership.getAttributeDelegateEffMship().assignAttribute(attributeDefName).getAttributeAssign();
+
+    newChangeLogTempCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_change_log_entry_temp");
+    newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_change_log_entry");
+  
+    assertEquals("Should have one in temp table", 1, newChangeLogTempCount);
+    assertEquals("Should have zero records in the change log table", 0, newChangeLogCount);
+
+    ChangeLogTempToEntity.convertRecords();
+  
+    ChangeLogEntry changeLogEntry7 = HibernateSession.byHqlStatic()
+      .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType")
+      .setString("theChangeLogType", ChangeLogTypeBuiltin.ATTRIBUTE_ASSIGN_ADD.getChangeLogType().getId())
+      .uniqueResult(ChangeLogEntry.class);
+  
+    assertEquals(attributeAssign4.getId(), changeLogEntry7.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_ASSIGN_ADD.id));
+    assertEquals(attributeAssign4.getAttributeDefNameId(), changeLogEntry7.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_ASSIGN_ADD.attributeDefNameId));
+    assertEquals(attributeAssign4.getAttributeAssignActionId(), changeLogEntry7.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_ASSIGN_ADD.attributeAssignActionId));
+    assertEquals(attributeAssign4.getAttributeAssignTypeDb(), changeLogEntry7.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_ASSIGN_ADD.assignType));
+    assertEquals(group.getId(), changeLogEntry7.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_ASSIGN_ADD.ownerId1));
+    assertEquals(newMember1.getUuid(), changeLogEntry7.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_ASSIGN_ADD.ownerId2));
+  
+  }
+  
+  /**
+   * @throws Exception
+   */
+  public void testAttributeDefName() throws Exception {
+    
+    // initialize some data
+    AttributeDef permissionDef = edu.addChildAttributeDef("permissionDef", AttributeDefType.perm);
+    ChangeLogTempToEntity.convertRecords();
+
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryTemp").executeUpdate();
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryEntity").executeUpdate();
+    
+    // add attribute
+    AttributeDefName attributeDefName = edu.addChildAttributeDefName(permissionDef, "testAttribute", "testAttribute");
+    
+    int newChangeLogTempCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_change_log_entry_temp");
+    int newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_change_log_entry");
+  
+    assertEquals("Should have added exactly two change log temp", 2, newChangeLogTempCount);
+    assertEquals("Should be the same", 0, newChangeLogCount);
+
+    ChangeLogEntry changeLogEntry = HibernateSession.byHqlStatic()
+      .createQuery("from ChangeLogEntryTemp where changeLogTypeId = :theChangeLogType")
+      .setString("theChangeLogType", ChangeLogTypeBuiltin.ATTRIBUTE_DEF_NAME_ADD.getChangeLogType().getId())
+      .uniqueResult(ChangeLogEntry.class);
+  
+    assertTrue(!StringUtils.isBlank(changeLogEntry.getContextId()));
+  
+    //make sure some time has passed
+    GrouperUtil.sleep(100);
+  
+    assertNotNull("createdOn should exist", changeLogEntry.getCreatedOn());
+  
+    assertTrue("This should have happened in the last 5 seconds", 
+        System.currentTimeMillis() - changeLogEntry.getCreatedOn().getTime()  < 5000);
+    assertTrue("This should have happened in the last 5 seconds: + " + changeLogEntry.getCreatedOn(), 
+        System.currentTimeMillis() - changeLogEntry.getCreatedOn().getTime() > 0);
+  
+    assertTrue("This should have happened in the last 5 seconds", 
+        System.currentTimeMillis() - (changeLogEntry.getCreatedOnDb() / 1000) < 5000);
+    assertTrue("This should have happened in the last 5 seconds", 
+        System.currentTimeMillis() - (changeLogEntry.getCreatedOnDb() / 1000) > 0);
+  
+    assertNull(changeLogEntry.getSequenceNumber());
+
+    assertEquals("Context id's should match", changeLogEntry.getContextId(), attributeDefName.getContextId());
+  
+    assertEquals(attributeDefName.getId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_DEF_NAME_ADD.id));
+    assertEquals(attributeDefName.getStemId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_DEF_NAME_ADD.stemId));
+    assertEquals("", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_DEF_NAME_ADD.description));
+    assertEquals(attributeDefName.getName(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_DEF_NAME_ADD.name));
+    assertEquals(attributeDefName.getAttributeDefId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_DEF_NAME_ADD.attributeDefId));
+
+    //move the temp objects to the regular change log table
+    ChangeLogTempToEntity.convertRecords();
+
+    //#########################
+    // Check the change log table, and temp table, see the record moved over.
+    
+    newChangeLogTempCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_change_log_entry_temp");
+    newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_change_log_entry");
+  
+    assertEquals("Should have nothing in temp table", 0, newChangeLogTempCount);
+    assertEquals("Should have two records in the change log table", 2, newChangeLogCount);
+  
+    changeLogEntry = HibernateSession.byHqlStatic()
+      .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType")
+      .setString("theChangeLogType", ChangeLogTypeBuiltin.ATTRIBUTE_DEF_NAME_ADD.getChangeLogType().getId())
+      .uniqueResult(ChangeLogEntry.class);
+    
+    assertTrue(!StringUtils.isBlank(changeLogEntry.getContextId()));
+    
+    assertNotNull("createdOn should exist", changeLogEntry.getCreatedOn());
+    assertNotNull(changeLogEntry.getSequenceNumber());
+    
+    assertEquals("Context id's should match", changeLogEntry.getContextId(), attributeDefName.getContextId());
+    
+    //##################################
+    // try an update
+    
+
+    attributeDefName.setDescription("test description");
+    attributeDefName.store();
+    
+    newChangeLogTempCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_change_log_entry_temp");
+    newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_change_log_entry");
+  
+    assertEquals("Should have one in temp table", 1, newChangeLogTempCount);
+    assertEquals("Should have two records in the change log table", 2, newChangeLogCount);
+  
+    ChangeLogTempToEntity.convertRecords();
+    
+    ChangeLogEntry changeLogEntry2 = HibernateSession.byHqlStatic()
+      .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType")
+      .setString("theChangeLogType", ChangeLogTypeBuiltin.ATTRIBUTE_DEF_NAME_UPDATE.getChangeLogType().getId())
+      .uniqueResult(ChangeLogEntry.class);
+  
+    assertTrue("contextId should exist", StringUtils.isNotBlank(changeLogEntry2.getContextId()));
+
+    assertTrue("contextIds should be different", !StringUtils.equals(changeLogEntry.getContextId(), 
+        changeLogEntry2.getContextId()));
+    
+    assertEquals(attributeDefName.getId(), changeLogEntry2.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_DEF_NAME_UPDATE.id));
+    assertEquals(attributeDefName.getStemId(), changeLogEntry2.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_DEF_NAME_UPDATE.stemId));
+    assertEquals(attributeDefName.getDescription(), changeLogEntry2.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_DEF_NAME_UPDATE.description));
+    assertEquals(attributeDefName.getName(), changeLogEntry2.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_DEF_NAME_UPDATE.name));
+    assertEquals(attributeDefName.getAttributeDefId(), changeLogEntry2.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_DEF_NAME_UPDATE.attributeDefId));
+    assertEquals("description", changeLogEntry2.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_DEF_NAME_UPDATE.propertyChanged));
+    assertEquals(null, changeLogEntry2.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_DEF_NAME_UPDATE.propertyOldValue));
+    assertEquals("test description", changeLogEntry2.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_DEF_NAME_UPDATE.propertyNewValue));
+    
+    
+    //##################################
+    // try a delete
+    
+    attributeDefName.delete();
+    
+    newChangeLogTempCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_change_log_entry_temp");
+    newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_change_log_entry");
+  
+    assertEquals("Should have two in temp table", 2, newChangeLogTempCount);
+    assertEquals("Should have three records in the change log table", 3, newChangeLogCount);
+
+    ChangeLogTempToEntity.convertRecords();
+    
+    ChangeLogEntry changeLogEntry3 = HibernateSession.byHqlStatic()
+      .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType")
+      .setString("theChangeLogType", ChangeLogTypeBuiltin.ATTRIBUTE_DEF_NAME_DELETE.getChangeLogType().getId())
+      .uniqueResult(ChangeLogEntry.class);
+    
+    assertEquals(attributeDefName.getId(), changeLogEntry3.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_DEF_NAME_DELETE.id));
+    assertEquals(attributeDefName.getStemId(), changeLogEntry3.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_DEF_NAME_DELETE.stemId));
+    assertEquals(attributeDefName.getDescription(), changeLogEntry3.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_DEF_NAME_DELETE.description));
+    assertEquals(attributeDefName.getName(), changeLogEntry3.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_DEF_NAME_DELETE.name));
+    assertEquals(attributeDefName.getAttributeDefId(), changeLogEntry3.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_DEF_NAME_DELETE.attributeDefId));
+
+    assertTrue("contextId should exist", StringUtils.isNotBlank(changeLogEntry3.getContextId()));
+    assertTrue("contextIds should be different", !StringUtils.equals(changeLogEntry2.getContextId(), 
+        changeLogEntry3.getContextId()));
+  }
+
+  /**
+   * @throws Exception
+   */
+  public void testAttributeDefNameSet() throws Exception {
+    
+    // initialize some data
+    AttributeDef permissionDef = edu.addChildAttributeDef("permissionDef", AttributeDefType.perm);
+    AttributeDefName attributeDefName1 = edu.addChildAttributeDefName(permissionDef, "testAttribute1", "testAttribute1");
+    ChangeLogTempToEntity.convertRecords();
+
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryTemp").executeUpdate();
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryEntity").executeUpdate();
+    
+    // add another attribute def name
+    AttributeDefName attributeDefName2 = edu.addChildAttributeDefName(permissionDef, "testAttribute2", "testAttribute2");
+
+    int newChangeLogTempCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_change_log_entry_temp");
+    int newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_change_log_entry");
+  
+    assertEquals("Should have added exactly two change log temp", 2, newChangeLogTempCount);
+    assertEquals("Should be the same", 0, newChangeLogCount);
+
+    ChangeLogEntry changeLogEntry = HibernateSession.byHqlStatic()
+      .createQuery("from ChangeLogEntryTemp where changeLogTypeId = :theChangeLogType")
+      .setString("theChangeLogType", ChangeLogTypeBuiltin.ATTRIBUTE_DEF_NAME_SET_ADD.getChangeLogType().getId())
+      .uniqueResult(ChangeLogEntry.class);
+  
+    assertTrue(!StringUtils.isBlank(changeLogEntry.getContextId()));
+  
+    //make sure some time has passed
+    GrouperUtil.sleep(100);
+  
+    assertNotNull("createdOn should exist", changeLogEntry.getCreatedOn());
+  
+    assertTrue("This should have happened in the last 5 seconds", 
+        System.currentTimeMillis() - changeLogEntry.getCreatedOn().getTime()  < 5000);
+    assertTrue("This should have happened in the last 5 seconds: + " + changeLogEntry.getCreatedOn(), 
+        System.currentTimeMillis() - changeLogEntry.getCreatedOn().getTime() > 0);
+  
+    assertTrue("This should have happened in the last 5 seconds", 
+        System.currentTimeMillis() - (changeLogEntry.getCreatedOnDb() / 1000) < 5000);
+    assertTrue("This should have happened in the last 5 seconds", 
+        System.currentTimeMillis() - (changeLogEntry.getCreatedOnDb() / 1000) > 0);
+  
+    assertNull(changeLogEntry.getSequenceNumber());
+    
+    assertEquals("Context id's should match", changeLogEntry.getContextId(), attributeDefName2.getContextId());
+  
+    assertTrue(StringUtils.isNotBlank(changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_DEF_NAME_SET_ADD.id)));
+    assertEquals(attributeDefName2.getId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_DEF_NAME_SET_ADD.ifHasAttributeDefNameId));
+    assertEquals(attributeDefName2.getId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_DEF_NAME_SET_ADD.thenHasAttributeDefNameId));
+    assertEquals("self", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_DEF_NAME_SET_ADD.type));
+
+    //move the temp objects to the regular change log table
+    ChangeLogTempToEntity.convertRecords();
+
+    //#########################
+    // Check the change log table, and temp table, see the record moved over.
+    
+    newChangeLogTempCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_change_log_entry_temp");
+    newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_change_log_entry");
+  
+    assertEquals("Should have nothing in temp table", 0, newChangeLogTempCount);
+    assertEquals("Should have two records in the change log table", 2, newChangeLogCount);
+  
+    changeLogEntry = HibernateSession.byHqlStatic()
+      .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType")
+      .setString("theChangeLogType", ChangeLogTypeBuiltin.ATTRIBUTE_DEF_NAME_SET_ADD.getChangeLogType().getId())
+      .uniqueResult(ChangeLogEntry.class);
+    
+    assertTrue(!StringUtils.isBlank(changeLogEntry.getContextId()));
+    
+    assertNotNull("createdOn should exist", changeLogEntry.getCreatedOn());
+    assertNotNull(changeLogEntry.getSequenceNumber());
+    
+    assertEquals("Context id's should match", changeLogEntry.getContextId(), attributeDefName2.getContextId());
+    
+    //##################################
+    // try adding attribute def name set
+
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryEntity").executeUpdate();
+    
+    final AttributeDefName ATTRIBUTEDEFNAME1a = attributeDefName1;
+    final AttributeDefName ATTRIBUTEDEFNAME2a = attributeDefName2;
+    
+    HibernateSession.callbackHibernateSession(
+        GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT, new HibernateHandler() {
+  
+      public Object callback(HibernateHandlerBean hibernateHandlerBean)
+          throws GrouperDAOException {
+  
+        ATTRIBUTEDEFNAME1a.getAttributeDefNameSetDelegate().addToAttributeDefNameSet(ATTRIBUTEDEFNAME2a);
+        return null;
+      }
+    });
+
+    newChangeLogTempCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_change_log_entry_temp");
+    newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_change_log_entry");
+  
+    assertEquals("Should have one in temp table", 1, newChangeLogTempCount);
+    assertEquals("Should have zero records in the change log table", 0, newChangeLogCount);
+  
+    ChangeLogTempToEntity.convertRecords();
+    
+    ChangeLogEntry changeLogEntry2 = HibernateSession.byHqlStatic()
+      .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType")
+      .setString("theChangeLogType", ChangeLogTypeBuiltin.ATTRIBUTE_DEF_NAME_SET_ADD.getChangeLogType().getId())
+      .uniqueResult(ChangeLogEntry.class);
+  
+    assertTrue("contextId should exist", StringUtils.isNotBlank(changeLogEntry2.getContextId()));
+  
+    assertTrue("contextIds should be different", !StringUtils.equals(changeLogEntry.getContextId(), 
+        changeLogEntry2.getContextId()));
+    
+    assertTrue(StringUtils.isNotBlank(changeLogEntry2.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_DEF_NAME_SET_ADD.id)));
+    assertEquals(attributeDefName1.getId(), changeLogEntry2.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_DEF_NAME_SET_ADD.ifHasAttributeDefNameId));
+    assertEquals(attributeDefName2.getId(), changeLogEntry2.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_DEF_NAME_SET_ADD.thenHasAttributeDefNameId));
+    assertEquals("immediate", changeLogEntry2.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_DEF_NAME_SET_ADD.type));
+
+
+    //##################################
+    // try deleting attribute def name set
+
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryEntity").executeUpdate();
+
+    final AttributeDefName ATTRIBUTEDEFNAME1b = attributeDefName1;
+    final AttributeDefName ATTRIBUTEDEFNAME2b = attributeDefName2;
+    
+    HibernateSession.callbackHibernateSession(
+        GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT, new HibernateHandler() {
+  
+      public Object callback(HibernateHandlerBean hibernateHandlerBean)
+          throws GrouperDAOException {
+  
+        ATTRIBUTEDEFNAME1b.getAttributeDefNameSetDelegate().removeFromAttributeDefNameSet(ATTRIBUTEDEFNAME2b);
+        return null;
+      }
+    });
+
+    newChangeLogTempCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_change_log_entry_temp");
+    newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_change_log_entry");
+  
+    assertEquals("Should have one in temp table", 1, newChangeLogTempCount);
+    assertEquals("Should have zero records in the change log table", 0, newChangeLogCount);
+  
+    ChangeLogTempToEntity.convertRecords();
+    
+    ChangeLogEntry changeLogEntry3 = HibernateSession.byHqlStatic()
+      .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType")
+      .setString("theChangeLogType", ChangeLogTypeBuiltin.ATTRIBUTE_DEF_NAME_SET_DELETE.getChangeLogType().getId())
+      .uniqueResult(ChangeLogEntry.class);
+  
+    assertTrue("contextId should exist", StringUtils.isNotBlank(changeLogEntry3.getContextId()));
+  
+    assertTrue("contextIds should be different", !StringUtils.equals(changeLogEntry2.getContextId(), 
+        changeLogEntry3.getContextId()));
+    
+    assertTrue(StringUtils.isNotBlank(changeLogEntry3.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_DEF_NAME_SET_DELETE.id)));
+    assertEquals(attributeDefName1.getId(), changeLogEntry3.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_DEF_NAME_SET_DELETE.ifHasAttributeDefNameId));
+    assertEquals(attributeDefName2.getId(), changeLogEntry3.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_DEF_NAME_SET_DELETE.thenHasAttributeDefNameId));
+    assertEquals("immediate", changeLogEntry3.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_DEF_NAME_SET_DELETE.type));
+
+    
+    //##################################
+    // try deleting attribute def name now
+    
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryEntity").executeUpdate();
+
+    attributeDefName2.delete();
+    
+    newChangeLogTempCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_change_log_entry_temp");
+    newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_change_log_entry");
+  
+    assertEquals("Should have two in temp table", 2, newChangeLogTempCount);
+    assertEquals("Should have zero records in the change log table", 0, newChangeLogCount);
+
+    ChangeLogTempToEntity.convertRecords();
+    
+    ChangeLogEntry changeLogEntry4 = HibernateSession.byHqlStatic()
+      .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType")
+      .setString("theChangeLogType", ChangeLogTypeBuiltin.ATTRIBUTE_DEF_NAME_SET_DELETE.getChangeLogType().getId())
+      .uniqueResult(ChangeLogEntry.class);
+    
+
+    assertTrue(StringUtils.isNotBlank(changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_DEF_NAME_SET_DELETE.id)));
+    assertEquals(attributeDefName2.getId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_DEF_NAME_SET_DELETE.ifHasAttributeDefNameId));
+    assertEquals(attributeDefName2.getId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_DEF_NAME_SET_DELETE.thenHasAttributeDefNameId));
+    assertEquals("self", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_DEF_NAME_SET_DELETE.type));
+
+    assertTrue("contextId should exist", StringUtils.isNotBlank(changeLogEntry4.getContextId()));
+    assertTrue("contextIds should be different", !StringUtils.equals(changeLogEntry3.getContextId(), 
+        changeLogEntry4.getContextId()));
+
+  }
+  
+  /**
+   * @throws Exception
+   */
+  public void testRoleSet() throws Exception {
+    
+    // initialize some data
+    final Role role1 = edu.addChildRole("testRole1", "testRole1");
+    final Role role2 = edu.addChildRole("testRole2", "testRole2");
+    ChangeLogTempToEntity.convertRecords();
+
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryTemp").executeUpdate();
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryEntity").executeUpdate();
+    
+    
+    //##################################
+    // try adding role set
+    
+    HibernateSession.callbackHibernateSession(
+        GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT, new HibernateHandler() {
+  
+      public Object callback(HibernateHandlerBean hibernateHandlerBean)
+          throws GrouperDAOException {
+  
+        role1.getRoleInheritanceDelegate().addRoleToInheritFromThis(role2);
+        return null;
+      }
+    });
+
+    int newChangeLogTempCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_change_log_entry_temp");
+    int newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_change_log_entry");
+  
+    assertEquals("Should have one in temp table", 1, newChangeLogTempCount);
+    assertEquals("Should have zero records in the change log table", 0, newChangeLogCount);
+  
+    ChangeLogTempToEntity.convertRecords();
+    
+    ChangeLogEntry changeLogEntry = HibernateSession.byHqlStatic()
+      .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType")
+      .setString("theChangeLogType", ChangeLogTypeBuiltin.ROLE_SET_ADD.getChangeLogType().getId())
+      .uniqueResult(ChangeLogEntry.class);
+  
+    assertTrue("contextId should exist", StringUtils.isNotBlank(changeLogEntry.getContextId()));
+    
+    assertTrue(StringUtils.isNotBlank(changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ROLE_SET_ADD.id)));
+    assertEquals(role1.getId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ROLE_SET_ADD.ifHasRoleId));
+    assertEquals(role2.getId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ROLE_SET_ADD.thenHasRoleId));
+    assertEquals("immediate", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ROLE_SET_ADD.type));
+
+
+    //##################################
+    // try deleting role set
+
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryEntity").executeUpdate();
+
+    HibernateSession.callbackHibernateSession(
+        GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT, new HibernateHandler() {
+  
+      public Object callback(HibernateHandlerBean hibernateHandlerBean)
+          throws GrouperDAOException {
+  
+        role1.getRoleInheritanceDelegate().removeRoleFromInheritFromThis(role2);
+        return null;
+      }
+    });
+
+    newChangeLogTempCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_change_log_entry_temp");
+    newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_change_log_entry");
+  
+    assertEquals("Should have one in temp table", 1, newChangeLogTempCount);
+    assertEquals("Should have zero records in the change log table", 0, newChangeLogCount);
+  
+    ChangeLogTempToEntity.convertRecords();
+    
+    ChangeLogEntry changeLogEntry2 = HibernateSession.byHqlStatic()
+      .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType")
+      .setString("theChangeLogType", ChangeLogTypeBuiltin.ROLE_SET_DELETE.getChangeLogType().getId())
+      .uniqueResult(ChangeLogEntry.class);
+  
+    assertTrue("contextId should exist", StringUtils.isNotBlank(changeLogEntry2.getContextId()));
+  
+    assertTrue("contextIds should be different", !StringUtils.equals(changeLogEntry.getContextId(), 
+        changeLogEntry2.getContextId()));
+    
+    assertTrue(StringUtils.isNotBlank(changeLogEntry2.retrieveValueForLabel(ChangeLogLabels.ROLE_SET_DELETE.id)));
+    assertEquals(role1.getId(), changeLogEntry2.retrieveValueForLabel(ChangeLogLabels.ROLE_SET_DELETE.ifHasRoleId));
+    assertEquals(role2.getId(), changeLogEntry2.retrieveValueForLabel(ChangeLogLabels.ROLE_SET_DELETE.thenHasRoleId));
+    assertEquals("immediate", changeLogEntry2.retrieveValueForLabel(ChangeLogLabels.ROLE_SET_DELETE.type));
+
+  }
+  
+  /**
+   * @throws Exception
+   */
+  public void testAttributeAssignActionSet() throws Exception {
+    
+    // initialize some data
+    final AttributeDef permissionDef = edu.addChildAttributeDef("permissionDef", AttributeDefType.perm);
+    AttributeAssignAction action2 = permissionDef.getAttributeDefActionDelegate().addAction("testAction2");
+    ChangeLogTempToEntity.convertRecords();
+
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryTemp").executeUpdate();
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryEntity").executeUpdate();
+    
+    // add action
+    HibernateSession.callbackHibernateSession(
+        GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT, new HibernateHandler() {
+  
+      public Object callback(HibernateHandlerBean hibernateHandlerBean)
+          throws GrouperDAOException {
+  
+        permissionDef.getAttributeDefActionDelegate().addAction("testAction");
+        return null;
+      }
+    });
+    
+    AttributeAssignAction action = permissionDef.getAttributeDefActionDelegate().findAction("testAction", true);
+
+    int newChangeLogTempCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_change_log_entry_temp");
+    int newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_change_log_entry");
+  
+    assertEquals("Should have added exactly two change log temp", 2, newChangeLogTempCount);
+    assertEquals("Should be the same", 0, newChangeLogCount);
+
+    ChangeLogEntry changeLogEntry = HibernateSession.byHqlStatic()
+      .createQuery("from ChangeLogEntryTemp where changeLogTypeId = :theChangeLogType")
+      .setString("theChangeLogType", ChangeLogTypeBuiltin.ATTRIBUTE_ASSIGN_ACTION_SET_ADD.getChangeLogType().getId())
+      .uniqueResult(ChangeLogEntry.class);
+  
+    assertTrue(!StringUtils.isBlank(changeLogEntry.getContextId()));
+  
+    //make sure some time has passed
+    GrouperUtil.sleep(100);
+  
+    assertNotNull("createdOn should exist", changeLogEntry.getCreatedOn());
+  
+    assertTrue("This should have happened in the last 5 seconds", 
+        System.currentTimeMillis() - changeLogEntry.getCreatedOn().getTime()  < 5000);
+    assertTrue("This should have happened in the last 5 seconds: + " + changeLogEntry.getCreatedOn(), 
+        System.currentTimeMillis() - changeLogEntry.getCreatedOn().getTime() > 0);
+  
+    assertTrue("This should have happened in the last 5 seconds", 
+        System.currentTimeMillis() - (changeLogEntry.getCreatedOnDb() / 1000) < 5000);
+    assertTrue("This should have happened in the last 5 seconds", 
+        System.currentTimeMillis() - (changeLogEntry.getCreatedOnDb() / 1000) > 0);
+  
+    assertNull(changeLogEntry.getSequenceNumber());
+
+    assertEquals("Context id's should match", changeLogEntry.getContextId(), action.getContextId());
+  
+    assertTrue(StringUtils.isNotBlank(changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_SET_ADD.id)));
+    assertEquals(action.getId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_SET_ADD.ifHasAttrAssnActionId));
+    assertEquals(action.getId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_SET_ADD.thenHasAttrAssnActionId));
+    assertEquals("self", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_SET_ADD.type));
+
+    //move the temp objects to the regular change log table
+    ChangeLogTempToEntity.convertRecords();
+
+    //#########################
+    // Check the change log table, and temp table, see the record moved over.
+    
+    newChangeLogTempCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_change_log_entry_temp");
+    newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_change_log_entry");
+  
+    assertEquals("Should have nothing in temp table", 0, newChangeLogTempCount);
+    assertEquals("Should have two records in the change log table", 2, newChangeLogCount);
+  
+    changeLogEntry = HibernateSession.byHqlStatic()
+      .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType")
+      .setString("theChangeLogType", ChangeLogTypeBuiltin.ATTRIBUTE_ASSIGN_ACTION_SET_ADD.getChangeLogType().getId())
+      .uniqueResult(ChangeLogEntry.class);
+    
+    assertTrue(!StringUtils.isBlank(changeLogEntry.getContextId()));
+    
+    assertNotNull("createdOn should exist", changeLogEntry.getCreatedOn());
+    assertNotNull(changeLogEntry.getSequenceNumber());
+    
+    assertEquals("Context id's should match", changeLogEntry.getContextId(), action.getContextId());
+    
+    //##################################
+    // try adding action set
+
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryEntity").executeUpdate();
+
+    final AttributeAssignAction ACTION1a = action;
+    final AttributeAssignAction ACTION2a = action2;
+    
+    HibernateSession.callbackHibernateSession(
+        GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT, new HibernateHandler() {
+  
+      public Object callback(HibernateHandlerBean hibernateHandlerBean)
+          throws GrouperDAOException {
+  
+        ACTION1a.getAttributeAssignActionSetDelegate().addToAttributeAssignActionSet(ACTION2a);
+        return null;
+      }
+    });
+
+    newChangeLogTempCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_change_log_entry_temp");
+    newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_change_log_entry");
+  
+    assertEquals("Should have one in temp table", 1, newChangeLogTempCount);
+    assertEquals("Should have zero records in the change log table", 0, newChangeLogCount);
+  
+    ChangeLogTempToEntity.convertRecords();
+    
+    ChangeLogEntry changeLogEntry2 = HibernateSession.byHqlStatic()
+      .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType")
+      .setString("theChangeLogType", ChangeLogTypeBuiltin.ATTRIBUTE_ASSIGN_ACTION_SET_ADD.getChangeLogType().getId())
+      .uniqueResult(ChangeLogEntry.class);
+  
+    assertTrue("contextId should exist", StringUtils.isNotBlank(changeLogEntry2.getContextId()));
+  
+    assertTrue("contextIds should be different", !StringUtils.equals(changeLogEntry.getContextId(), 
+        changeLogEntry2.getContextId()));
+    
+    assertTrue(StringUtils.isNotBlank(changeLogEntry2.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_SET_ADD.id)));
+    assertEquals(action.getId(), changeLogEntry2.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_SET_ADD.ifHasAttrAssnActionId));
+    assertEquals(action2.getId(), changeLogEntry2.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_SET_ADD.thenHasAttrAssnActionId));
+    assertEquals("immediate", changeLogEntry2.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_SET_ADD.type));
+
+
+    //##################################
+    // try deleting action set
+
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryEntity").executeUpdate();
+
+    final AttributeAssignAction ACTION1b = action;
+    final AttributeAssignAction ACTION2b = action2;
+    
+    HibernateSession.callbackHibernateSession(
+        GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT, new HibernateHandler() {
+  
+      public Object callback(HibernateHandlerBean hibernateHandlerBean)
+          throws GrouperDAOException {
+  
+        ACTION1b.getAttributeAssignActionSetDelegate().removeFromAttributeAssignActionSet(ACTION2b);
+        return null;
+      }
+    });
+
+    newChangeLogTempCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_change_log_entry_temp");
+    newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_change_log_entry");
+  
+    assertEquals("Should have one in temp table", 1, newChangeLogTempCount);
+    assertEquals("Should have zero records in the change log table", 0, newChangeLogCount);
+  
+    ChangeLogTempToEntity.convertRecords();
+    
+    ChangeLogEntry changeLogEntry3 = HibernateSession.byHqlStatic()
+      .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType")
+      .setString("theChangeLogType", ChangeLogTypeBuiltin.ATTRIBUTE_ASSIGN_ACTION_SET_DELETE.getChangeLogType().getId())
+      .uniqueResult(ChangeLogEntry.class);
+  
+    assertTrue("contextId should exist", StringUtils.isNotBlank(changeLogEntry3.getContextId()));
+  
+    assertTrue("contextIds should be different", !StringUtils.equals(changeLogEntry2.getContextId(), 
+        changeLogEntry3.getContextId()));
+    
+    assertTrue(StringUtils.isNotBlank(changeLogEntry3.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_SET_DELETE.id)));
+    assertEquals(action.getId(), changeLogEntry3.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_SET_DELETE.ifHasAttrAssnActionId));
+    assertEquals(action2.getId(), changeLogEntry3.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_SET_DELETE.thenHasAttrAssnActionId));
+    assertEquals("immediate", changeLogEntry3.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_SET_DELETE.type));
+
+    
+    //##################################
+    // try deleting action now
+    
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryEntity").executeUpdate();
+
+    final AttributeAssignAction ACTION1c = action;
+  
+    HibernateSession.callbackHibernateSession(
+        GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT, new HibernateHandler() {
+  
+      public Object callback(HibernateHandlerBean hibernateHandlerBean)
+          throws GrouperDAOException {
+  
+        ACTION1c.delete();
+        return null;
+      }
+    });
+    
+    newChangeLogTempCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_change_log_entry_temp");
+    newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_change_log_entry");
+  
+    assertEquals("Should have two in temp table", 2, newChangeLogTempCount);
+    assertEquals("Should have zero records in the change log table", 0, newChangeLogCount);
+
+    ChangeLogTempToEntity.convertRecords();
+    
+    ChangeLogEntry changeLogEntry4 = HibernateSession.byHqlStatic()
+      .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType")
+      .setString("theChangeLogType", ChangeLogTypeBuiltin.ATTRIBUTE_ASSIGN_ACTION_SET_DELETE.getChangeLogType().getId())
+      .uniqueResult(ChangeLogEntry.class);
+    
+
+    assertTrue(StringUtils.isNotBlank(changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_SET_DELETE.id)));
+    assertEquals(action.getId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_SET_DELETE.ifHasAttrAssnActionId));
+    assertEquals(action.getId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_SET_DELETE.thenHasAttrAssnActionId));
+    assertEquals("self", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_SET_DELETE.type));
+
+    assertTrue("contextId should exist", StringUtils.isNotBlank(changeLogEntry4.getContextId()));
+    assertTrue("contextIds should be different", !StringUtils.equals(changeLogEntry3.getContextId(), 
+        changeLogEntry4.getContextId()));
+
+  }
+  
+  /**
+   * @throws Exception
+   */
+  public void testAttributeAssignAction() throws Exception {
+    
+    // initialize some data
+    final AttributeDef permissionDef = edu.addChildAttributeDef("permissionDef", AttributeDefType.perm);
+    ChangeLogTempToEntity.convertRecords();
+
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryTemp").executeUpdate();
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryEntity").executeUpdate();
+    
+    // add action
+    HibernateSession.callbackHibernateSession(
+        GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT, new HibernateHandler() {
+  
+      public Object callback(HibernateHandlerBean hibernateHandlerBean)
+          throws GrouperDAOException {
+  
+        permissionDef.getAttributeDefActionDelegate().addAction("testAction");
+        return null;
+      }
+    });
+    
+    AttributeAssignAction action = permissionDef.getAttributeDefActionDelegate().findAction("testAction", true);
+
+    int newChangeLogTempCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_change_log_entry_temp");
+    int newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_change_log_entry");
+  
+    assertEquals("Should have added exactly two change log temp", 2, newChangeLogTempCount);
+    assertEquals("Should be the same", 0, newChangeLogCount);
+
+    ChangeLogEntry changeLogEntry = HibernateSession.byHqlStatic()
+      .createQuery("from ChangeLogEntryTemp where changeLogTypeId = :theChangeLogType")
+      .setString("theChangeLogType", ChangeLogTypeBuiltin.ATTRIBUTE_ASSIGN_ACTION_ADD.getChangeLogType().getId())
+      .uniqueResult(ChangeLogEntry.class);
+  
+    assertTrue(!StringUtils.isBlank(changeLogEntry.getContextId()));
+  
+    //make sure some time has passed
+    GrouperUtil.sleep(100);
+  
+    assertNotNull("createdOn should exist", changeLogEntry.getCreatedOn());
+  
+    assertTrue("This should have happened in the last 5 seconds", 
+        System.currentTimeMillis() - changeLogEntry.getCreatedOn().getTime()  < 5000);
+    assertTrue("This should have happened in the last 5 seconds: + " + changeLogEntry.getCreatedOn(), 
+        System.currentTimeMillis() - changeLogEntry.getCreatedOn().getTime() > 0);
+  
+    assertTrue("This should have happened in the last 5 seconds", 
+        System.currentTimeMillis() - (changeLogEntry.getCreatedOnDb() / 1000) < 5000);
+    assertTrue("This should have happened in the last 5 seconds", 
+        System.currentTimeMillis() - (changeLogEntry.getCreatedOnDb() / 1000) > 0);
+  
+    assertNull(changeLogEntry.getSequenceNumber());
+
+    assertEquals("Context id's should match", changeLogEntry.getContextId(), action.getContextId());
+  
+    assertEquals(action.getId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_ADD.id));
+    assertEquals(action.getName(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_ADD.name));
+    assertEquals(action.getAttributeDefId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_ADD.attributeDefId));
+
+    //move the temp objects to the regular change log table
+    ChangeLogTempToEntity.convertRecords();
+
+    //#########################
+    // Check the change log table, and temp table, see the record moved over.
+    
+    newChangeLogTempCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_change_log_entry_temp");
+    newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_change_log_entry");
+  
+    assertEquals("Should have nothing in temp table", 0, newChangeLogTempCount);
+    assertEquals("Should have two records in the change log table", 2, newChangeLogCount);
+  
+    changeLogEntry = HibernateSession.byHqlStatic()
+      .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType")
+      .setString("theChangeLogType", ChangeLogTypeBuiltin.ATTRIBUTE_ASSIGN_ACTION_ADD.getChangeLogType().getId())
+      .uniqueResult(ChangeLogEntry.class);
+    
+    assertTrue(!StringUtils.isBlank(changeLogEntry.getContextId()));
+    
+    assertNotNull("createdOn should exist", changeLogEntry.getCreatedOn());
+    assertNotNull(changeLogEntry.getSequenceNumber());
+    
+    assertEquals("Context id's should match", changeLogEntry.getContextId(), action.getContextId());
+    
+    //##################################
+    // try an update
+    
+
+    action.setNameDb("testAction2");
+
+    final AttributeAssignAction ACTION = action;
+  
+    HibernateSession.callbackHibernateSession(
+        GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT, new HibernateHandler() {
+  
+      public Object callback(HibernateHandlerBean hibernateHandlerBean)
+          throws GrouperDAOException {
+  
+        ACTION.update();
+        return null;
+      }
+    });
+
+    newChangeLogTempCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_change_log_entry_temp");
+    newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_change_log_entry");
+  
+    assertEquals("Should have one in temp table", 1, newChangeLogTempCount);
+    assertEquals("Should have two records in the change log table", 2, newChangeLogCount);
+  
+    ChangeLogTempToEntity.convertRecords();
+    
+    ChangeLogEntry changeLogEntry2 = HibernateSession.byHqlStatic()
+      .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType")
+      .setString("theChangeLogType", ChangeLogTypeBuiltin.ATTRIBUTE_ASSIGN_ACTION_UPDATE.getChangeLogType().getId())
+      .uniqueResult(ChangeLogEntry.class);
+  
+    assertTrue("contextId should exist", StringUtils.isNotBlank(changeLogEntry2.getContextId()));
+
+    assertTrue("contextIds should be different", !StringUtils.equals(changeLogEntry.getContextId(), 
+        changeLogEntry2.getContextId()));
+    
+    assertEquals(action.getId(), changeLogEntry2.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_UPDATE.id));
+    assertEquals(action.getName(), changeLogEntry2.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_UPDATE.name));
+    assertEquals(action.getAttributeDefId(), changeLogEntry2.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_UPDATE.attributeDefId));
+    assertEquals("name", changeLogEntry2.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_UPDATE.propertyChanged));
+    assertEquals("testAction", changeLogEntry2.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_UPDATE.propertyOldValue));
+    assertEquals("testAction2", changeLogEntry2.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_UPDATE.propertyNewValue));
+    
+    
+    //##################################
+    // try a delete
+    
+    final AttributeAssignAction ACTION2 = action;
+  
+    HibernateSession.callbackHibernateSession(
+        GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT, new HibernateHandler() {
+  
+      public Object callback(HibernateHandlerBean hibernateHandlerBean)
+          throws GrouperDAOException {
+  
+        ACTION2.delete();
+        return null;
+      }
+    });
+    
+    newChangeLogTempCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_change_log_entry_temp");
+    newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_change_log_entry");
+  
+    assertEquals("Should have two in temp table", 2, newChangeLogTempCount);
+    assertEquals("Should have three records in the change log table", 3, newChangeLogCount);
+
+    ChangeLogTempToEntity.convertRecords();
+    
+    ChangeLogEntry changeLogEntry3 = HibernateSession.byHqlStatic()
+      .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType")
+      .setString("theChangeLogType", ChangeLogTypeBuiltin.ATTRIBUTE_ASSIGN_ACTION_DELETE.getChangeLogType().getId())
+      .uniqueResult(ChangeLogEntry.class);
+    
+    assertEquals(action.getId(), changeLogEntry3.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_DELETE.id));
+    assertEquals(action.getName(), changeLogEntry3.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_DELETE.name));
+    assertEquals(action.getAttributeDefId(), changeLogEntry3.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_DELETE.attributeDefId));
+
+    assertTrue("contextId should exist", StringUtils.isNotBlank(changeLogEntry3.getContextId()));
+    assertTrue("contextIds should be different", !StringUtils.equals(changeLogEntry2.getContextId(), 
+        changeLogEntry3.getContextId()));
+  }
 
   /**
    * @throws Exception
@@ -454,7 +1605,8 @@ public class ChangeLogTest extends GrouperTest {
     int newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, 
       "select count(1) from grouper_change_log_entry");
   
-    assertEquals("Should have added exactly two change log temp", 2, newChangeLogTempCount);
+    // 4 temp change log changes - attributeDef, action, actionSet, privilege
+    assertEquals("Should have added exactly four change log temp", 4, newChangeLogTempCount);
     assertEquals("Should be the same", 0, newChangeLogCount);
 
     ChangeLogEntry changeLogEntry = HibernateSession.byHqlStatic()
@@ -499,7 +1651,7 @@ public class ChangeLogTest extends GrouperTest {
       "select count(1) from grouper_change_log_entry");
   
     assertEquals("Should have nothing in temp table", 0, newChangeLogTempCount);
-    assertEquals("Should have two records in the change log table", 2, newChangeLogCount);
+    assertEquals("Should have four records in the change log table", 4, newChangeLogCount);
   
     changeLogEntry = HibernateSession.byHqlStatic()
       .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType")
@@ -559,7 +1711,7 @@ public class ChangeLogTest extends GrouperTest {
       "select count(1) from grouper_change_log_entry");
   
     assertEquals("Should have one in temp table", 1, newChangeLogTempCount);
-    assertEquals("Should have two records in the change log table", 2, newChangeLogCount);
+    assertEquals("Should have four records in the change log table", 4, newChangeLogCount);
   
     ChangeLogTempToEntity.convertRecords();
     
@@ -600,8 +1752,8 @@ public class ChangeLogTest extends GrouperTest {
     newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, 
       "select count(1) from grouper_change_log_entry");
   
-    assertEquals("Should have two in temp table", 2, newChangeLogTempCount);
-    assertEquals("Should have three records in the change log table", 3, newChangeLogCount);
+    assertEquals("Should have four in temp table", 4, newChangeLogTempCount);
+    assertEquals("Should have five records in the change log table", 5, newChangeLogCount);
 
     ChangeLogTempToEntity.convertRecords();
     

@@ -656,4 +656,319 @@ public class ChangeLogLabels {
     /** typeName */
     typeName;
   };
+  
+  /**
+   * label for attribute assign action add
+   */
+  public static enum ATTRIBUTE_ASSIGN_ACTION_ADD implements ChangeLogLabel {
+  
+    /** id */
+    id, 
+    
+    /** name */
+    name,
+    
+    /** attribute def id */
+    attributeDefId;
+  }
+  
+  /**
+   * label for attribute assign action update
+   */
+  public static enum ATTRIBUTE_ASSIGN_ACTION_UPDATE implements ChangeLogLabel {
+  
+    /** id */
+    id, 
+    
+    /** name */
+    name,
+    
+    /** attribute def id */
+    attributeDefId,
+    
+    /** property which changed */
+    propertyChanged, 
+    
+    /** old value of the property */
+    propertyOldValue,
+    
+    /** new value of the property */
+    propertyNewValue;
+  }
+  
+  /**
+   * label for attribute assign action delete
+   */
+  public static enum ATTRIBUTE_ASSIGN_ACTION_DELETE implements ChangeLogLabel {
+  
+    /** id */
+    id, 
+    
+    /** name */
+    name,
+    
+    /** attribute def id */
+    attributeDefId;
+  }
+  
+  /**
+   * label for attribute assign action set add
+   */
+  public static enum ATTRIBUTE_ASSIGN_ACTION_SET_ADD implements ChangeLogLabel {
+  
+    /** id */
+    id, 
+    
+    /** type */
+    type,
+    
+    /** ifHasAttrAssnActionId */
+    ifHasAttrAssnActionId,
+    
+    /** thenHasAttrAssnActionId */
+    thenHasAttrAssnActionId;
+  }
+  
+  /**
+   * label for attribute assign action set delete
+   */
+  public static enum ATTRIBUTE_ASSIGN_ACTION_SET_DELETE implements ChangeLogLabel {
+  
+    /** id */
+    id, 
+    
+    /** type */
+    type,
+    
+    /** ifHasAttrAssnActionId */
+    ifHasAttrAssnActionId,
+    
+    /** thenHasAttrAssnActionId */
+    thenHasAttrAssnActionId;
+  }
+  
+  /**
+   * label for attribute def name set add
+   */
+  public static enum ATTRIBUTE_DEF_NAME_SET_ADD implements ChangeLogLabel {
+  
+    /** id */
+    id, 
+    
+    /** type */
+    type,
+    
+    /** ifHasAttributeDefNameId */
+    ifHasAttributeDefNameId,
+    
+    /** thenHasAttributeDefNameId */
+    thenHasAttributeDefNameId;
+  }
+  
+  /**
+   * label for attribute def name set delete
+   */
+  public static enum ATTRIBUTE_DEF_NAME_SET_DELETE implements ChangeLogLabel {
+  
+    /** id */
+    id, 
+    
+    /** type */
+    type,
+    
+    /** ifHasAttributeDefNameId */
+    ifHasAttributeDefNameId,
+    
+    /** thenHasAttributeDefNameId */
+    thenHasAttributeDefNameId;
+  }
+  
+  /**
+   * label for role set add
+   */
+  public static enum ROLE_SET_ADD implements ChangeLogLabel {
+  
+    /** id */
+    id, 
+    
+    /** type */
+    type,
+    
+    /** ifHasRoleId */
+    ifHasRoleId,
+    
+    /** thenHasRoleId */
+    thenHasRoleId;
+  }
+  
+  /**
+   * label for role set delete
+   */
+  public static enum ROLE_SET_DELETE implements ChangeLogLabel {
+  
+    /** id */
+    id, 
+    
+    /** type */
+    type,
+    
+    /** ifHasRoleId */
+    ifHasRoleId,
+    
+    /** thenHasRoleId */
+    thenHasRoleId;
+  }
+  
+  /**
+   * label for attribute def name add
+   */
+  public static enum ATTRIBUTE_DEF_NAME_ADD implements ChangeLogLabel {
+  
+    /** id */
+    id, 
+    
+    /** attributeDefId */
+    attributeDefId,
+    
+    /** name */
+    name,
+    
+    /** stemId */
+    stemId,
+    
+    /** description */
+    description;
+  }
+  
+  /**
+   * label for attribute def name update
+   */
+  public static enum ATTRIBUTE_DEF_NAME_UPDATE implements ChangeLogLabel {
+  
+    /** id */
+    id, 
+    
+    /** attributeDefId */
+    attributeDefId,
+    
+    /** name */
+    name,
+    
+    /** stemId */
+    stemId,
+    
+    /** description */
+    description,
+    
+    /** property which changed */
+    propertyChanged, 
+    
+    /** old value of the property */
+    propertyOldValue,
+    
+    /** new value of the property */
+    propertyNewValue;
+  }
+  
+  /**
+   * label for attribute def name delete
+   */
+  public static enum ATTRIBUTE_DEF_NAME_DELETE implements ChangeLogLabel {
+  
+    /** id */
+    id, 
+    
+    /** attributeDefId */
+    attributeDefId,
+    
+    /** name */
+    name,
+    
+    /** stemId */
+    stemId,
+    
+    /** description */
+    description;
+  }
+  
+  /**
+   * label for attribute assign add
+   */
+  public static enum ATTRIBUTE_ASSIGN_ADD implements ChangeLogLabel {
+  
+    /** id */
+    id, 
+    
+    /** attributeDefNameId */
+    attributeDefNameId,
+    
+    /** attributeAssignActionId */
+    attributeAssignActionId,
+    
+    /** assignType */
+    assignType,
+    
+    /** ownerId1 */
+    ownerId1,
+    
+    /** ownerId2 - if the assignType is any_mem, then ownerId1 is the groupId and ownerId2 is the memberId */
+    ownerId2;
+  }
+  
+  /**
+   * label for attribute assign delete
+   */
+  public static enum ATTRIBUTE_ASSIGN_DELETE implements ChangeLogLabel {
+  
+    /** id */
+    id, 
+    
+    /** attributeDefNameId */
+    attributeDefNameId,
+    
+    /** attributeAssignActionId */
+    attributeAssignActionId,
+    
+    /** assignType */
+    assignType,
+    
+    /** ownerId1 */
+    ownerId1,
+    
+    /** ownerId2 - if the assignType is any_mem, then ownerId1 is the groupId and ownerId2 is the memberId */
+    ownerId2;
+  }
+  
+  /**
+   * label for attribute assign update
+   */
+  public static enum ATTRIBUTE_ASSIGN_UPDATE implements ChangeLogLabel {
+  
+    /** id */
+    id, 
+    
+    /** attributeDefNameId */
+    attributeDefNameId,
+    
+    /** attributeAssignActionId */
+    attributeAssignActionId,
+    
+    /** assignType */
+    assignType,
+    
+    /** ownerId1 */
+    ownerId1,
+    
+    /** ownerId2 - if the assignType is any_mem, then ownerId1 is the groupId and ownerId2 is the memberId */
+    ownerId2,
+    
+    /** property which changed */
+    propertyChanged, 
+    
+    /** old value of the property */
+    propertyOldValue,
+    
+    /** new value of the property */
+    propertyNewValue;
+  }
 }

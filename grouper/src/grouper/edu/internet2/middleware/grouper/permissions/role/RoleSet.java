@@ -11,6 +11,9 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.GrouperAPI;
+import edu.internet2.middleware.grouper.changeLog.ChangeLogEntry;
+import edu.internet2.middleware.grouper.changeLog.ChangeLogLabels;
+import edu.internet2.middleware.grouper.changeLog.ChangeLogTypeBuiltin;
 import edu.internet2.middleware.grouper.grouperSet.GrouperSet;
 import edu.internet2.middleware.grouper.grouperSet.GrouperSetElement;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
@@ -38,6 +41,28 @@ public class RoleSet extends GrouperAPI
     if (this.createdOnDb == null) {
       this.createdOnDb = System.currentTimeMillis();
     }
+    
+    //change log into temp table
+    new ChangeLogEntry(true, ChangeLogTypeBuiltin.ROLE_SET_ADD, 
+        ChangeLogLabels.ROLE_SET_ADD.id.name(), this.getId(), 
+        ChangeLogLabels.ROLE_SET_ADD.type.name(), this.getTypeDb(),
+        ChangeLogLabels.ROLE_SET_ADD.ifHasRoleId.name(), this.getIfHasRoleId(), 
+        ChangeLogLabels.ROLE_SET_ADD.thenHasRoleId.name(), this.getThenHasRoleId()).save();
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.GrouperAPI#onPreDelete(edu.internet2.middleware.grouper.hibernate.HibernateSession)
+   */
+  @Override
+  public void onPreDelete(HibernateSession hibernateSession) {
+    super.onPreDelete(hibernateSession);
+    
+    //change log into temp table
+    new ChangeLogEntry(true, ChangeLogTypeBuiltin.ROLE_SET_DELETE, 
+        ChangeLogLabels.ROLE_SET_DELETE.id.name(), this.getId(), 
+        ChangeLogLabels.ROLE_SET_DELETE.type.name(), this.getTypeDb(),
+        ChangeLogLabels.ROLE_SET_DELETE.ifHasRoleId.name(), this.getIfHasRoleId(), 
+        ChangeLogLabels.ROLE_SET_DELETE.thenHasRoleId.name(), this.getThenHasRoleId()).save();
   }
 
   /**

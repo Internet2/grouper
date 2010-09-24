@@ -23,6 +23,9 @@ import edu.internet2.middleware.grouper.annotations.GrouperIgnoreFieldConstant;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
+import edu.internet2.middleware.grouper.changeLog.ChangeLogEntry;
+import edu.internet2.middleware.grouper.changeLog.ChangeLogLabels;
+import edu.internet2.middleware.grouper.changeLog.ChangeLogTypeBuiltin;
 import edu.internet2.middleware.grouper.grouperSet.GrouperSetElement;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
@@ -57,6 +60,26 @@ public class AttributeAssignAction extends GrouperAPI
       this.createdOnDb = System.currentTimeMillis();
     }
     this.lastUpdatedDb = System.currentTimeMillis();
+       
+    //change log into temp table
+    new ChangeLogEntry(true, ChangeLogTypeBuiltin.ATTRIBUTE_ASSIGN_ACTION_ADD, 
+        ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_ADD.id.name(), this.getId(), 
+        ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_ADD.name.name(), this.getName(), 
+        ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_ADD.attributeDefId.name(), this.getAttributeDefId()).save();
+  }
+  
+  /**
+   * @see GrouperAPI#onPreDelete(HibernateSession)
+   */
+  @Override
+  public void onPreDelete(HibernateSession hibernateSession) {
+    super.onPreDelete(hibernateSession);
+
+    //change log into temp table
+    new ChangeLogEntry(true, ChangeLogTypeBuiltin.ATTRIBUTE_ASSIGN_ACTION_DELETE, 
+        ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_DELETE.id.name(), this.getId(), 
+        ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_DELETE.name.name(), this.getName(), 
+        ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_DELETE.attributeDefId.name(), this.getAttributeDefId()).save();
   }
 
   /**
@@ -66,6 +89,18 @@ public class AttributeAssignAction extends GrouperAPI
   public void onPreUpdate(HibernateSession hibernateSession) {
     super.onPreUpdate(hibernateSession);
     this.lastUpdatedDb = System.currentTimeMillis();
+    
+    //change log into temp table
+    ChangeLogEntry.saveTempUpdates(ChangeLogTypeBuiltin.ATTRIBUTE_ASSIGN_ACTION_UPDATE, 
+        this, this.dbVersion(),
+        GrouperUtil.toList(
+            ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_UPDATE.id.name(), this.getId(), 
+            ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_UPDATE.name.name(), this.getName(), 
+            ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_UPDATE.attributeDefId.name(), this.getAttributeDefId()),
+        GrouperUtil.toList("name", "attributeDefId"),
+        GrouperUtil.toList(
+            ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_UPDATE.name.name(),
+            ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_UPDATE.attributeDefId.name())); 
   }
 
   /** column */
@@ -103,10 +138,9 @@ public class AttributeAssignAction extends GrouperAPI
   /**
    * fields which are included in db version
    */
-  @SuppressWarnings("unused")
   private static final Set<String> DB_VERSION_FIELDS = GrouperUtil.toSet(
       FIELD_CONTEXT_ID, FIELD_CREATED_ON_DB, FIELD_ID, 
-      FIELD_LAST_UPDATED_DB, FIELD_NAME);
+      FIELD_LAST_UPDATED_DB, FIELD_NAME, FIELD_ATTRIBUTE_DEF_ID);
 
   /** logger */
   @SuppressWarnings("unused")
@@ -596,5 +630,37 @@ public class AttributeAssignAction extends GrouperAPI
     
   }
 
+  /**
+   * save the state when retrieving from DB
+   * @return the dbVersion
+   */
+  @Override
+  public AttributeAssignAction dbVersion() {
+    return (AttributeAssignAction)this.dbVersion;
+  }
+  
+  /**
+   * take a snapshot of the data since this is what is in the db
+   */
+  @Override
+  public void dbVersionReset() {
+    //lets get the state from the db so we know what has changed
+    this.dbVersion = GrouperUtil.clone(this, DB_VERSION_FIELDS);
+  }
+
+
+  /**
+   * @see edu.internet2.middleware.grouper.GrouperAPI#dbVersionDifferentFields()
+   */
+  @Override
+  public Set<String> dbVersionDifferentFields() {
+    if (this.dbVersion == null) {
+      throw new RuntimeException("State was never stored from db");
+    }
+    //easier to unit test if everything is ordered
+    Set<String> result = GrouperUtil.compareObjectFields(this, this.dbVersion,
+        DB_VERSION_FIELDS, null);
+    return result;
+  }
 
 }
