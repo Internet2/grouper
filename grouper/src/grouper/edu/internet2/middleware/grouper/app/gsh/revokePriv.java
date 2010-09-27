@@ -14,6 +14,8 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.attr.AttributeDef;
+import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.RevokePrivilegeException;
@@ -58,13 +60,15 @@ public class revokePriv {
       Subject         subj  = SubjectFinder.findByIdOrIdentifier(subjId, true);
       if (Privilege.isAccess(priv)) {
         Group   g     = GroupFinder.findByName(s, name, true);
-        g.revokePriv(subj, priv);
-        return true;
-      } 
-      else {
+        return g.revokePriv(subj, priv, false);
+      } else if (Privilege.isNaming(priv)) {
         Stem    ns    = StemFinder.findByName(s, name, true);
-        ns.revokePriv(subj, priv);
-        return true;
+        return ns.revokePriv(subj, priv, false);
+      } else if (Privilege.isAttributeDef(priv)) {
+        AttributeDef attributeDef = AttributeDefFinder.findByName(name, true);
+        return attributeDef.getPrivilegeDelegate().revokePriv(subj, priv, false);
+      } else {
+        throw new RuntimeException("Invalid privilege type: " + priv);
       }
     }
     catch (GroupNotFoundException eGNF)         {

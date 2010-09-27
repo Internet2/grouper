@@ -80,8 +80,7 @@ public class hasPriv {
         } else {
           throw new RuntimeException("Not expecting privilege: " + priv);
         }
-      }
-      else if (Privilege.isNaming(priv)) {
+      } else if (Privilege.isNaming(priv)) {
         Stem ns = StemFinder.findByName(s, name, true);
         if      (priv.equals( NamingPrivilege.CREATE )) {
           return ns.hasCreate(subj);

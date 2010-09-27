@@ -1561,10 +1561,7 @@ public class RuleApiTest extends GrouperTest {
   public void testPermissionAssignmentDaemon() {
   
     GrouperSession grouperSession = GrouperSession.startRootSession();
-    AttributeDef permissionDef = new AttributeDefSave(grouperSession)
-      .assignName("stem:permissionDef").assignCreateParentStemsIfNotExist(true)
-      .assignAttributeDefType(AttributeDefType.perm)
-      .save();
+    AttributeDef permissionDef = new AttributeDefSave(grouperSession).assignName("stem:permissionDef").assignCreateParentStemsIfNotExist(true).assignAttributeDefType(AttributeDefType.perm).save();
     
     permissionDef.setAssignToEffMembership(true);
     permissionDef.setAssignToGroup(true);
@@ -1658,10 +1655,7 @@ public class RuleApiTest extends GrouperTest {
   public void testPermissionAssignmentDisabledDateDaemon() {
   
     GrouperSession grouperSession = GrouperSession.startRootSession();
-    AttributeDef permissionDef = new AttributeDefSave(grouperSession)
-      .assignName("stem:permissionDef").assignCreateParentStemsIfNotExist(true)
-      .assignAttributeDefType(AttributeDefType.perm)
-      .save();
+    AttributeDef permissionDef = new AttributeDefSave(grouperSession).assignName("stem:permissionDef").assignCreateParentStemsIfNotExist(true).assignAttributeDefType(AttributeDefType.perm).save();
     
     permissionDef.setAssignToEffMembership(true);
     permissionDef.setAssignToGroup(true);
