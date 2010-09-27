@@ -5061,7 +5061,9 @@ public enum GrouperDdl implements DdlVersionable {
             "membership_id",
             "attribute_assign_id",
             "permission_type",
-            "assignment_notes"
+            "assignment_notes",
+            "immediate_mship_enabled_time",
+            "immediate_mship_disabled_time"
             ),
         GrouperUtil.toSet("role_name: name of the role that the user is in and that has the permission",
             "subject_source_id: source id of the subject which is in the role and thus has the permission",
@@ -5086,7 +5088,9 @@ public enum GrouperDdl implements DdlVersionable {
             "membership_id: id of the underlying membership",
             "attribute_assign_id: id of the underlying attribute assign",
             "permission_type: role or role_subject for assignment to role or to role subject pair",
-            "assignment_notes: notes on this assignment"
+            "assignment_notes: notes on this assignment",
+            "immediate_mship_enabled_time: time this membership was enabled",
+            "immediate_mship_disabled_time: time this membership will be disabled"
         ),
         "select distinct gr.name as role_name,  "
         + "gm.subject_source as subject_source_id,  "
@@ -5111,7 +5115,9 @@ public enum GrouperDdl implements DdlVersionable {
         + "gmav.membership_id as membership_id, " 
         + "gaa.id AS attribute_assign_id, "
         + "'role' as permission_type, "
-        + "gaa.notes as assignment_notes "
+        + "gaa.notes as assignment_notes, "
+        + "gmav.immediate_mship_enabled_time, "
+        + "gmav.immediate_mship_disabled_time "
         + "from grouper_groups gr,  "
         + "grouper_memberships_all_v gmav,  "
         + "grouper_members gm,  "
@@ -5166,7 +5172,9 @@ public enum GrouperDdl implements DdlVersionable {
             "membership_id",
             "attribute_assign_id",
             "permission_type",
-            "assignment_notes"
+            "assignment_notes",
+            "immediate_mship_enabled_time",
+            "immediate_mship_disabled_time"
             ),
         GrouperUtil.toSet("role_name: name of the role that the user is in and that has the permission",
             "subject_source_id: source id of the subject which is in the role and thus has the permission",
@@ -5191,7 +5199,9 @@ public enum GrouperDdl implements DdlVersionable {
             "membership_id: id of the underlying membership",
             "attribute_assign_id: id of the underlying attribute assign",
             "permission_type: role or role_subject for assignment to role or to role subject pair",
-            "assignment_notes: notes on this assignment"
+            "assignment_notes: notes on this assignment",
+            "immediate_mship_enabled_time: time this membership was enabled",
+            "immediate_mship_disabled_time: time this membership will be disabled"
         ),
         "SELECT DISTINCT gr.name AS role_name,   " +
         "gm.subject_source AS subject_source_id,   " +
@@ -5216,7 +5226,9 @@ public enum GrouperDdl implements DdlVersionable {
         "gmav.membership_id as membership_id, " +
         "gaa.id as attribute_assign_id, " +
         "'role_subject' as permission_type, " +
-        "gaa.notes as assignment_notes " +
+        "gaa.notes as assignment_notes, " +
+        "gmav.immediate_mship_enabled_time, " +
+        "gmav.immediate_mship_disabled_time " +
         "FROM grouper_groups gr,   " +
         "grouper_memberships_all_v gmav,   " +
         "grouper_members gm,   " +
@@ -5267,7 +5279,9 @@ public enum GrouperDdl implements DdlVersionable {
             "membership_id",
             "attribute_assign_id",
             "permission_type",
-            "assignment_notes"
+            "assignment_notes",
+            "immediate_mship_enabled_time",
+            "immediate_mship_disabled_time"
             ),
         GrouperUtil.toSet("role_name: name of the role that the user is in and that has the permission",
             "subject_source_id: source id of the subject which is in the role and thus has the permission",
@@ -5292,7 +5306,9 @@ public enum GrouperDdl implements DdlVersionable {
             "membership_id: id of the underlying membership",
             "attribute_assign_id: id of the underlying attribute assign",
             "permission_type: role or role_subject for assignment to role or to role subject pair",
-            "assignment_notes: notes on this assignment"
+            "assignment_notes: notes on this assignment",
+            "immediate_mship_enabled_time: time this membership was enabled",
+            "immediate_mship_disabled_time: time this membership will be disabled"
         ),
         "select role_name,  "
         + "subject_source_id,  "
@@ -5317,7 +5333,9 @@ public enum GrouperDdl implements DdlVersionable {
         + "membership_id, "
         + "attribute_assign_id, "
         + "permission_type, "
-        + "assignment_notes "
+        + "assignment_notes, "
+        + "immediate_mship_enabled_time, "
+        + "immediate_mship_disabled_time "
         + "from grouper_perms_role_v  "
         + "union  "
         + "select role_name,  "
@@ -5343,7 +5361,9 @@ public enum GrouperDdl implements DdlVersionable {
         + "membership_id, "
         + "attribute_assign_id, "
         + "permission_type, "
-        + "assignment_notes "
+        + "assignment_notes, "
+        + "immediate_mship_enabled_time, "
+        + "immediate_mship_disabled_time "
         + "from grouper_perms_role_subject_v  ");
 
   }

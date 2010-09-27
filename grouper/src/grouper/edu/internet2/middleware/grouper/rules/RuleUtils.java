@@ -159,13 +159,15 @@ public class RuleUtils {
    * 
    * @param attributeDefId
    * @param rulesBean
+   * @param noEndDate 
    * @return the set of permissions entries
    */
-  public static Set<PermissionEntry> permissionsForUser(final String attributeDefId, final RulesBean rulesBean) {
+  public static Set<PermissionEntry> permissionsForUser(final String attributeDefId, final RulesBean rulesBean, final boolean noEndDate) {
     GrouperSession rootSession = GrouperSession.startRootSession(false);
     
+    String memberId = null;
     try {
-      String memberId = (String)GrouperSession.callbackGrouperSession(rootSession, new GrouperSessionHandler() {
+      memberId = (String)GrouperSession.callbackGrouperSession(rootSession, new GrouperSessionHandler() {
         
         public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
 
@@ -186,11 +188,11 @@ public class RuleUtils {
         }
       });
 
-      return permissionsForUser(attributeDefId, memberId);
-    
     } finally {
       GrouperSession.stopQuietly(rootSession);
     }
+    return permissionsForUser(attributeDefId, memberId, noEndDate);
+    
 
   }
 
@@ -200,9 +202,10 @@ public class RuleUtils {
    * @param attributeDefId
    * @param rulesBean
    * @param memberId
+   * @param noEndDate
    * @return the set of permissions entries
    */
-  public static Set<PermissionEntry> permissionsForUser(final String attributeDefId, final String memberId) {
+  public static Set<PermissionEntry> permissionsForUser(final String attributeDefId, final String memberId, final boolean noEndDate) {
     GrouperSession rootSession = GrouperSession.startRootSession(false);
     
     try {
@@ -219,7 +222,7 @@ public class RuleUtils {
           }
 
           Set<PermissionEntry> permissionEntries = GrouperDAOFactory.getFactory().getPermissionEntry()
-            .findPermissions(GrouperUtil.toSet(attributeDefId), null, null, null, true, GrouperUtil.toSet(memberId));
+            .findPermissions(GrouperUtil.toSet(attributeDefId), null, null, null, true, GrouperUtil.toSet(memberId), noEndDate);
         
           return permissionEntries;
         }

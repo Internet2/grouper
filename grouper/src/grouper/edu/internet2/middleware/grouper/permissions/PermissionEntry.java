@@ -119,8 +119,82 @@ public class PermissionEntry extends GrouperAPI implements Comparable<Permission
    */
   private String actionId;
   
+  /**
+   * when the underlying membership was enabled
+   */
+  private Long immediateMshipEnabledTimeDb;
+  
+  /**
+   * when the underlying membership will be disabled
+   */
+  private Long immediateMshipDisabledTimeDb;
   
   
+  
+  /**
+   * when the underlying membership was enabled
+   * @return time
+   */
+  public Long getImmediateMshipEnabledTimeDb() {
+    return this.immediateMshipEnabledTimeDb;
+  }
+
+  /**
+   * when the underlying membership was enabled
+   * @return time
+   */
+  public Timestamp getImmediateMshipEnabledTime() {
+    return this.immediateMshipEnabledTimeDb == null ? null : new Timestamp(this.immediateMshipEnabledTimeDb);
+  }
+
+  /**
+   * when the underlying membership was enabled
+   * @param immediateMshipEnabledTimeDb1
+   */
+  public void setImmediateMshipEnabledTimeDb(Long immediateMshipEnabledTimeDb1) {
+    this.immediateMshipEnabledTimeDb = immediateMshipEnabledTimeDb1;
+  }
+
+  /**
+   * when the underlying membership was enabled
+   * @param immediateMshipEnabledTimeDb1
+   */
+  public void setImmediateMshipEnabledTime(Timestamp immediateMshipEnabledTimeDb1) {
+    this.immediateMshipEnabledTimeDb = immediateMshipEnabledTimeDb1 == null ? null : immediateMshipEnabledTimeDb1.getTime();
+  }
+
+  /**
+   * when the underlying membership will be disabled
+   * @return time
+   */
+  public Long getImmediateMshipDisabledTimeDb() {
+    return this.immediateMshipDisabledTimeDb;
+  }
+
+  /**
+   * when the underlying membership was enabled
+   * @param immediateMshipDisabledTimeDb1
+   */
+  public void setImmediateMshipDisabledTimeDb(Long immediateMshipDisabledTimeDb1) {
+    this.immediateMshipDisabledTimeDb = immediateMshipDisabledTimeDb1;
+  }
+
+  /**
+   * when the underlying membership will be disabled
+   * @return time
+   */
+  public Timestamp getImmediateMshipDisabledTime() {
+    return this.immediateMshipDisabledTimeDb == null ? null : new Timestamp(this.immediateMshipDisabledTimeDb);
+  }
+
+  /**
+   * when the underlying membership was enabled
+   * @param immediateMshipDisabledTimeDb1
+   */
+  public void setImmediateMshipDisabledTimeDb(Timestamp immediateMshipDisabledTimeDb1) {
+    this.immediateMshipDisabledTimeDb = immediateMshipDisabledTimeDb1 == null ? null : immediateMshipDisabledTimeDb1.getTime();
+  }
+
   /**
    * action on the perimssion (e.g. read, write, assign (default), etc
    * @return action
@@ -478,6 +552,8 @@ public class PermissionEntry extends GrouperAPI implements Comparable<Permission
       .append( "action_depth", this.attributeAssignActionSetDepth )
       .append( "attrDef_depth", this.attributeDefNameSetDepth )
       .append( "perm_type", this.getPermissionTypeDb() )
+      .append( "imm_mship_enabled", this.getImmediateMshipEnabledTime() )
+      .append( "imm_mship_disabled", this.getImmediateMshipDisabledTime() )
       .toString();
   }
 
@@ -654,6 +730,8 @@ public class PermissionEntry extends GrouperAPI implements Comparable<Permission
       .append(this.action, other.action)
       .append(this.attributeDefNameId, other.attributeDefNameId)
       .append(this.enabled, other.enabled)
+      .append(this.immediateMshipDisabledTimeDb, other.immediateMshipDisabledTimeDb)
+      .append(this.immediateMshipEnabledTimeDb, other.immediateMshipEnabledTimeDb)
       .append(this.attributeAssignDelegatable, other.attributeAssignDelegatable)
       .append(this.permissionType, other.permissionType)
       .isEquals();
@@ -672,6 +750,8 @@ public class PermissionEntry extends GrouperAPI implements Comparable<Permission
       .append(this.attributeDefNameId)
       .append(this.enabled)
       .append(this.attributeAssignDelegatable)
+      .append(this.immediateMshipDisabledTimeDb)
+      .append(this.immediateMshipEnabledTimeDb)
       .append(this.permissionType)
       .toHashCode();
   }
@@ -855,6 +935,14 @@ public class PermissionEntry extends GrouperAPI implements Comparable<Permission
       return compare;
     }
     compare = GrouperUtil.compare(this.membershipId, o2.membershipId);
+    if (compare != 0) {
+      return compare;
+    }
+    compare = GrouperUtil.compare(this.immediateMshipDisabledTimeDb, o2.immediateMshipDisabledTimeDb);
+    if (compare != 0) {
+      return compare;
+    }
+    compare = GrouperUtil.compare(this.immediateMshipEnabledTimeDb, o2.immediateMshipEnabledTimeDb);
     if (compare != 0) {
       return compare;
     }

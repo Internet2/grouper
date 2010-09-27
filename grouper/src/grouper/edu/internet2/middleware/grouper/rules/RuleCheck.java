@@ -317,11 +317,12 @@ public class RuleCheck {
     } catch (Exception e) {
       return e.getMessage();
     }
-    
-    if (!StringUtils.isBlank(this.checkStemScope) 
-        && !StringUtils.isBlank(this.checkOwnerId) && StringUtils.isBlank(checkOwnerName)) {
+
+    //if not on a stem, but there is a stem scope, then need to specify the stem on the owner id or name
+    if (!StringUtils.isBlank(this.checkStemScope) && StringUtils.isBlank(ruleDefinition.getAttributeAssignType().getOwnerStemId())
+        && StringUtils.isBlank(this.checkOwnerId) && StringUtils.isBlank(this.checkOwnerName)) {
       
-      return "If you have a checkStemScope, then you need to provide the checkOwnerName, instead of checkOwnerId: " + this.checkOwnerId;
+      return "If you have a checkStemScope, then you need to provide the checkOwnerName or checkOwnerId";
       
     }
     

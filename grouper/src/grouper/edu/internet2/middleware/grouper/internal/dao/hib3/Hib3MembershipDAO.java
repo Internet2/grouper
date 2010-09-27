@@ -2172,19 +2172,27 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
 
   }
 
+  
+  
   /**
-   * @see MembershipDAO#findAllMembersInOneGroupNotOtherAndType(String, String, String, String, QueryOptions, Boolean)
+   * @see MembershipDAO#findAllMembersInOneGroupNotOtherAndType(String, String, String, String, QueryOptions, Boolean, boolean)
    */
   public Set<Member> findAllMembersInOneGroupNotOtherAndType(String ownerInGroupId,
       String ownerNotInGroupId, String typeIn, String typeNotIn,
-      QueryOptions queryOptions, Boolean enabled) throws GrouperDAOException {
+      QueryOptions queryOptions, Boolean enabled, boolean disabledOwnerNull) throws GrouperDAOException {
     
     MembershipType typeInEnum = MembershipType.valueOfIgnoreCase(typeIn, false);
     MembershipType typeNotInEnum = MembershipType.valueOfIgnoreCase(typeNotIn, false);
     StringBuilder sql = new StringBuilder("select theMember from MembershipEntry as inMembershipEntry, Member as theMember where  "
-        + " inMembershipEntry.ownerGroupId   = :ownerInGroupId            "
-        + " and inMembershipEntry.memberUuid   = theMember.uuid            "
+        + " inMembershipEntry.ownerGroupId   = :ownerInGroupId            ");
+    
+    if (disabledOwnerNull) {
+      sql.append(" and inMembershipEntry.disabledTimeDb is null ");
+    }
+    
+    sql.append(" and inMembershipEntry.memberUuid   = theMember.uuid            "
         + " and  inMembershipEntry.fieldId = '" + Group.getDefaultList().getUuid() + "' ");
+
     if (typeInEnum != null) {
       sql.append(" and  inMembershipEntry.type  " + typeInEnum.queryClause());
     }
@@ -2286,6 +2294,61 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
       .listSet(Membership.class);
 
     return memberships;
+
+  }
+
+  /**
+   * @see MembershipDAO#findAllMembersInOneGroupNotStem(String, Stem, Scope, String, QueryOptions)
+   */
+  public Set<Member> findAllMembersInOneGroupNotStem(String ownerInGroupId,
+      Stem ownerNotInStem, Stem.Scope stemScope, String typeIn, QueryOptions queryOptions) {
+
+    MembershipType typeInEnum = MembershipType.valueOfIgnoreCase(typeIn, false);
+
+    ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
+
+    StringBuilder sql = new StringBuilder("select theMember from MembershipEntry as inMembershipEntry, Member as theMember where  "
+        + " inMembershipEntry.ownerGroupId   = :ownerInGroupId            "
+        + " and inMembershipEntry.memberUuid   = theMember.uuid            "
+        + " and  inMembershipEntry.fieldId = '" + Group.getDefaultList().getUuid() + "' ");
+    if (typeInEnum != null) {
+      sql.append(" and  inMembershipEntry.type  " + typeInEnum.queryClause());
+    }
+
+    sql.append(" and  not exists ( select notInMembershipEntry.memberUuid " +
+    		" from MembershipEntry as notInMembershipEntry, Group as theStemGroup " +
+            " where notInMembershipEntry.ownerGroupId = theStemGroup.uuid "
+    		    + " and notInMembershipEntry.memberUuid = theMember.uuid "
+            + " and notInMembershipEntry.fieldId = '" + Group.getDefaultList().getUuid() + "' ");
+    
+    switch (stemScope) {
+      case ONE:
+        
+        sql.append(" and theStemGroup.parentUuid = :stemId ");
+        byHqlStatic.setString("stemId", ownerNotInStem.getUuid());
+        break;
+
+      case SUB:
+        
+        sql.append(" and theStemGroup.nameDb like :stemSub ");
+        byHqlStatic.setString("stemSub", ownerNotInStem.getName() + ":%");
+        
+        break;
+      default:
+        throw new RuntimeException("Not expecting scope: " + stemScope);
+    }
+    
+    sql.append(" ) ");
+            
+    
+    Set<Member> members = byHqlStatic
+      .createQuery(sql.toString())
+      .setCacheable(false)
+      .setCacheRegion(KLASS + ".findAllMembersInOneGroupNotStem")
+      .setString( "ownerInGroupId" , ownerInGroupId                 )
+      .listSet(Member.class);
+
+    return members;
 
   }
 

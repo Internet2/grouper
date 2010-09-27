@@ -428,7 +428,7 @@ public class RuleApi {
         RuleCheckType.membershipRemove.name());
     attributeValueDelegate.assignValue(
         RuleUtils.ruleIfConditionEnumName(),
-        RuleIfConditionEnum.thisGroupHasImmediateEnabledMembership.name());
+        RuleIfConditionEnum.thisGroupHasImmediateEnabledNoEndDateMembership.name());
     attributeValueDelegate.assignValue(
         RuleUtils.ruleThenEnumName(), RuleThenEnum.assignMembershipDisabledDaysForOwnerGroupId.name());
     
@@ -593,7 +593,7 @@ public class RuleApi {
         RuleCheckType.membershipRemove.name());
     attributeValueDelegate.assignValue(
         RuleUtils.ruleIfConditionEnumName(), 
-        RuleIfConditionEnum.thisPermissionDefHasAssignment.name());
+        RuleIfConditionEnum.thisPermissionDefHasNoEndDateAssignment.name());
     attributeValueDelegate.assignValue(
         RuleUtils.ruleThenEnumName(), 
         RuleThenEnum.assignDisabledDaysToOwnerPermissionDefAssignments.name());

@@ -190,7 +190,7 @@ public enum RuleThenEnum {
         RulesBean rulesBean, StringBuilder logDataForThisDefinition) {
       
       Set<PermissionEntry> permissionEntries = RuleUtils.permissionsForUser(ruleDefinition
-          .getAttributeAssignType().getOwnerAttributeDefId(), rulesBean);
+          .getAttributeAssignType().getOwnerAttributeDefId(), rulesBean, false);
       
       RuntimeException runtimeException = null;
       

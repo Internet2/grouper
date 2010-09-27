@@ -156,7 +156,7 @@ public enum RuleIfConditionEnum {
       }
 
       Set<PermissionEntry> permissionEntries = RuleUtils.permissionsForUser(ruleDefinition
-          .getAttributeAssignType().getOwnerAttributeDefId(), rulesBean);
+          .getAttributeAssignType().getOwnerAttributeDefId(), rulesBean, false);
       
       if (GrouperUtil.length(permissionEntries) == 0) {
         return false;
@@ -311,6 +311,72 @@ public enum RuleIfConditionEnum {
     }
 
   },
+  
+  /** if on group which has membership with no end date */
+  thisGroupHasImmediateEnabledNoEndDateMembership {
+
+    /**
+     * 
+     */
+    @Override
+    public String validate(RuleDefinition ruleDefinition) {
+      return RuleUtils.validateGroup(ruleDefinition.getIfCondition().getIfOwnerId(), 
+          ruleDefinition.getIfCondition().getIfOwnerName(), 
+          ruleDefinition.getAttributeAssignType().getOwnerGroupId());
+
+    }
+
+    /**
+     * 
+     * @see edu.internet2.middleware.grouper.rules.RuleIfConditionEnum#shouldFire(edu.internet2.middleware.grouper.rules.RuleDefinition, edu.internet2.middleware.grouper.rules.RuleEngine, edu.internet2.middleware.grouper.rules.beans.RulesBean)
+     */
+    @Override
+    public boolean shouldFire(RuleDefinition ruleDefinition, RuleEngine ruleEngine,
+        RulesBean rulesBean) {
+      
+      String memberId = null;
+      try {
+        memberId = rulesBean.getMemberId();
+      } catch (Exception e) {
+        //ignore
+      }
+      
+      GrouperSession rootSession = GrouperSession.startRootSession(false);
+      try {
+        
+        if (StringUtils.isBlank(memberId)) {
+          
+          Member member = MemberFinder.findBySubject(rootSession, rulesBean.getSubject(), false);
+          memberId = member == null ? null : member.getUuid();
+
+          if (StringUtils.isBlank(memberId )) {
+            return false;
+          }
+        }
+        
+        Group group = RuleUtils.group(ruleDefinition.getIfCondition().getIfOwnerId(), 
+            ruleDefinition.getIfCondition().getIfOwnerName(), ruleDefinition.getAttributeAssignType().getOwnerGroupId(), false, true);
+        String groupId = group.getId();
+        
+        Set<Membership> memberships = GrouperDAOFactory.getFactory().getMembership()
+          .findAllByGroupOwnerAndFieldAndMemberIdsAndType(
+              groupId, Group.getDefaultList(), 
+              GrouperUtil.toSet(memberId), "immediate", true);
+
+        
+        for (Membership membership : memberships) {
+          if (membership.getDisabledTime() == null) {
+            return true;
+          }
+        }
+        
+        return false;
+      } finally {
+        GrouperSession.stopQuietly(rootSession);
+      }
+    }
+
+  },
   /** if permission def has assignment */
   thisPermissionDefHasAssignment {
 
@@ -323,7 +389,25 @@ public enum RuleIfConditionEnum {
         final RulesBean rulesBean) {
       
       Set<PermissionEntry> permissionEntries = RuleUtils.permissionsForUser(ruleDefinition
-          .getAttributeAssignType().getOwnerAttributeDefId(), rulesBean);
+          .getAttributeAssignType().getOwnerAttributeDefId(), rulesBean, false);
+      
+      return GrouperUtil.length(permissionEntries) > 0;
+      
+    }
+  },
+  /** if permission def has assignment with no end date */
+  thisPermissionDefHasNoEndDateAssignment {
+
+    /**
+     * 
+     * @see edu.internet2.middleware.grouper.rules.RuleIfConditionEnum#shouldFire(edu.internet2.middleware.grouper.rules.RuleDefinition, edu.internet2.middleware.grouper.rules.RuleEngine, edu.internet2.middleware.grouper.rules.beans.RulesBean)
+     */
+    @Override
+    public boolean shouldFire(final RuleDefinition ruleDefinition, final RuleEngine ruleEngine,
+        final RulesBean rulesBean) {
+      
+      Set<PermissionEntry> permissionEntries = RuleUtils.permissionsForUser(ruleDefinition
+          .getAttributeAssignType().getOwnerAttributeDefId(), rulesBean, true);
       
       return GrouperUtil.length(permissionEntries) > 0;
       

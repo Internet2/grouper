@@ -242,12 +242,28 @@ TODO update for 1.5
    * @param typeNotIn
    * @param queryOptions 
    * @param enabled T for enabled, F for disabled, null for all
+   * @param disabledOwnerNull if true, the owner must have disabled date of null
    * @return set
    * @throws GrouperDAOException
    */
   public Set<Member> findAllMembersInOneGroupNotOtherAndType(String ownerInGroupId,
       String ownerNotInGroupId,
-      String typeIn, String typeNotIn, QueryOptions queryOptions, Boolean enabled) throws GrouperDAOException;
+      String typeIn, String typeNotIn, QueryOptions queryOptions, Boolean enabled, boolean disabledOwnerNull) throws GrouperDAOException;
+  
+  /**
+   * find members in a group who are not members in any group under a stem
+   * @param ownerInGroupId
+   * @param ownerNotInStem
+   * @param stemScope
+   * @param typeIn
+   * @param queryOptions 
+   * @return set
+   * @throws GrouperDAOException
+   */
+  public Set<Member> findAllMembersInOneGroupNotStem(String ownerInGroupId,
+      Stem ownerNotInStem, Stem.Scope stemScope,
+      String typeIn, QueryOptions queryOptions);
+  
   
   /**
    * @param ownerGroupId

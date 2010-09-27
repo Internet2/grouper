@@ -54,6 +54,8 @@
     <property name="attributeAssignActionSetDepth" column="attr_assign_action_set_depth"/>
     <property name="permissionTypeDb" column="permission_type"/>
     <property name="assignmentNotes" column="assignment_notes"/>
+    <property name="immediateMshipEnabledTimeDb" column="immediate_mship_enabled_time"/>
+    <property name="immediateMshipDisabledTimeDb" column="immediate_mship_disabled_time"/>
 
   </class>
 </hibernate-mapping>

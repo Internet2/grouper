@@ -24,15 +24,13 @@ import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
-import edu.internet2.middleware.grouper.Member;
-import edu.internet2.middleware.grouper.Membership;
+import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.hibernate.ByHqlStatic;
 import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.PermissionEntryDAO;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
-import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.permissions.PermissionEntry;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
@@ -51,7 +49,6 @@ public class Hib3PermissionEntryDAO extends Hib3DAO implements PermissionEntryDA
   private static final Log LOG = GrouperUtil.getLog(Hib3PermissionEntryDAO.class);
 
   /** */
-  @SuppressWarnings("unused")
   private static final String KLASS = Hib3PermissionEntryDAO.class.getName();
 
   /**
@@ -109,6 +106,15 @@ public class Hib3PermissionEntryDAO extends Hib3DAO implements PermissionEntryDA
   public Set<PermissionEntry> findPermissions(Collection<String> attributeDefIds,
       Collection<String> attributeDefNameIds, Collection<String> roleIds,
       Collection<String> actions, Boolean enabled, Collection<String> memberIds) {
+    return findPermissions(attributeDefIds, attributeDefNameIds, roleIds, actions, enabled, memberIds, false);
+  }
+    
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.PermissionEntryDAO#findPermissions(java.util.Collection, java.util.Collection, java.util.Collection, java.util.Collection, java.lang.Boolean, java.util.Collection, boolean)
+   */
+  public Set<PermissionEntry> findPermissions(Collection<String> attributeDefIds,
+      Collection<String> attributeDefNameIds, Collection<String> roleIds,
+      Collection<String> actions, Boolean enabled, Collection<String> memberIds, boolean noEndDate) {
     
     int memberIdsSize = GrouperUtil.length(memberIds);
     int roleIdsSize = GrouperUtil.length(roleIds);
@@ -167,6 +173,12 @@ public class Hib3PermissionEntryDAO extends Hib3DAO implements PermissionEntryDA
     if (enabled != null && !enabled) {
       sql.append(" and pea.enabledDb = 'F' ");
     }
+    
+    if (noEndDate) {
+      sql.append(" and pea.immediateMshipDisabledTimeDb is null ");
+      sql.append(" and pea.disabledTimeDb is null ");
+    }
+    
     if (actionsSize > 0) {
       sql.append(" and pea.action in (");
       sql.append(HibUtils.convertToInClause(actions, byHqlStatic));
@@ -303,11 +315,11 @@ public class Hib3PermissionEntryDAO extends Hib3DAO implements PermissionEntryDA
   }
 
   /**
-   * @see PermissionEntryDAO#findAllPermissionsNotInGroupAndType(String, String, MembershipType, QueryOptions, Boolean)
+   * @see PermissionEntryDAO#findAllPermissionsNotInGroupAndType(String, String, boolean, QueryOptions, Boolean, boolean)
    */
   public Set<PermissionEntry> findAllPermissionsNotInGroupAndType(String attributeDefId,
-      String groupId, MembershipType typeIn, QueryOptions queryOptions,
-      Boolean enabled) {
+      String groupId, boolean immediateRoleMembershipsOrRoleSubject, QueryOptions queryOptions,
+      Boolean enabled, boolean hasNoEndDate) {
 
     StringBuilder sql = new StringBuilder(
         "select thePermissionEntry from PermissionEntryAll as thePermissionEntry, AttributeDefName theAttributeDefName where  "
@@ -319,12 +331,20 @@ public class Hib3PermissionEntryDAO extends Hib3DAO implements PermissionEntryDA
       sql.append(" and thePermissionEntry.enabledDb = 'T' ");
     }
 
+    if (immediateRoleMembershipsOrRoleSubject) {
+      //either t
+      sql.append(" and (thePermissionEntry.membershipDepth = 0 " );
+      sql.append(" or thePermissionEntry.permissionTypeDb != 'role' ) " );
+    }
+
+    if (hasNoEndDate) {
+      sql.append(" and thePermissionEntry.disabledTimeDb is null ");
+      sql.append(" and thePermissionEntry.immediateMshipDisabledTimeDb is null ");
+    }
+
     sql.append(" and  thePermissionEntry.memberId not in ( select notInMembershipEntry.memberUuid from MembershipEntry as notInMembershipEntry " +
         " where notInMembershipEntry.ownerGroupId = :ownerGroupId "
         + " and notInMembershipEntry.fieldId = '" + Group.getDefaultList().getUuid() + "' ");
-    if (typeIn != null) {
-      sql.append(" and notInMembershipEntry.type  " + typeIn.queryClause() );
-    }
     if (enabled != null) {
       if (enabled) {
         sql.append(" and notInMembershipEntry.enabledDb = 'T' ");
@@ -347,6 +367,73 @@ public class Hib3PermissionEntryDAO extends Hib3DAO implements PermissionEntryDA
     return permissionEntries;
 
   
+  }
+
+  /**
+   * @see PermissionEntryDAO#findAllPermissionsNotInStem(String, Stem, Stem.Scope, boolean, QueryOptions, Boolean, boolean)
+   */
+  public Set<PermissionEntry> findAllPermissionsNotInStem(String attributeDefId,
+      Stem ownerNotInStem, Stem.Scope stemScope,  boolean immediateRoleMembershipsOrRoleSubject,
+      QueryOptions queryOptions, Boolean enabled, boolean hasNoEndDate) {
+
+    StringBuilder sql = new StringBuilder(
+        "select thePermissionEntry from PermissionEntryAll as thePermissionEntry, AttributeDefName theAttributeDefName where  "
+        + " thePermissionEntry.attributeDefNameId = theAttributeDefName.id "
+        + " and theAttributeDefName.attributeDefId   = :theAttributeDefId "
+        + " and thePermissionEntry.memberId is not null ");
+    
+    if (enabled != null) {
+      sql.append(" and thePermissionEntry.enabledDb = 'T' ");
+    }
+
+    if (immediateRoleMembershipsOrRoleSubject) {
+      //either t
+      sql.append(" and (thePermissionEntry.membershipDepth = 0 " );
+      sql.append(" or thePermissionEntry.permissionTypeDb != 'role' ) " );
+    }
+
+    if (hasNoEndDate) {
+      sql.append(" and thePermissionEntry.disabledTimeDb is null ");
+      sql.append(" and thePermissionEntry.immediateMshipDisabledTimeDb is null ");
+    }
+
+    sql.append(" and  not exists ( select notInMembershipEntry.memberUuid " +
+        " from MembershipEntry as notInMembershipEntry, Group as theStemGroup " +
+            " where notInMembershipEntry.ownerGroupId = theStemGroup.uuid "
+            + " and notInMembershipEntry.memberUuid = thePermissionEntry.memberId "
+            + " and notInMembershipEntry.fieldId = '" + Group.getDefaultList().getUuid() + "' ");
+
+    ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
+
+    switch (stemScope) {
+      case ONE:
+        
+        sql.append(" and theStemGroup.parentUuid = :stemId ");
+        byHqlStatic.setString("stemId", ownerNotInStem.getUuid());
+        break;
+
+      case SUB:
+        
+        sql.append(" and theStemGroup.nameDb like :stemSub ");
+        byHqlStatic.setString("stemSub", ownerNotInStem.getName() + ":%");
+        
+        break;
+      default:
+        throw new RuntimeException("Not expecting scope: " + stemScope);
+    }
+    
+    sql.append(" ) ");
+            
+    
+    Set<PermissionEntry> permissionEntries = byHqlStatic
+      .createQuery(sql.toString())
+      .setCacheable(false)
+      .setCacheRegion(KLASS + ".FindAllPermissionsNotInStem")
+      .setString( "theAttributeDefId" , attributeDefId )
+      .listSet(PermissionEntry.class);
+
+    return permissionEntries;
+
   }
 
 

@@ -23,8 +23,10 @@ import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.finder.AttributeAssignFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.permissions.PermissionEntry;
 import edu.internet2.middleware.grouper.permissions.role.Role;
 import edu.internet2.middleware.grouper.privs.Privilege;
@@ -556,116 +558,35 @@ public enum RuleCheckType {
      * 
      */
     @Override
-    public void runDaemon(RuleDefinition ruleDefinition) {
+    public void runDaemon(final RuleDefinition ruleDefinition) {
       
-      RuleEngine ruleEngine = RuleEngine.ruleEngine();
+      final RuleEngine ruleEngine = RuleEngine.ruleEngine();
       
       //lets get the if enum
       RuleIfConditionEnum ruleIfConditionEnum = ruleDefinition.getIfCondition().ifConditionEnum();
-      
-      GrouperSession rootSession = null;
       
       switch (ruleIfConditionEnum) {
         
         case thisGroupHasImmediateEnabledMembership:
           
-          //so basically, for the memberships in this group, where there is none in the other group, process them
-          String thisGroupId = ruleDefinition.getAttributeAssignType().getOwnerGroupId();
+          membershipRemoveThisGroupHasMembership(ruleDefinition, ruleEngine, false);
+
+          break;
+        case thisGroupHasImmediateEnabledNoEndDateMembership:
           
-          rootSession = GrouperSession.startRootSession(false);
-          try {
-            
-            Group group = null;
-            if (!StringUtils.isBlank(ruleDefinition.getCheck().getCheckOwnerId())) {
-              group = GroupFinder.findByUuid(rootSession, ruleDefinition.getCheck().getCheckOwnerId(), false);
-            } else if (!StringUtils.isBlank(ruleDefinition.getCheck().getCheckOwnerName())) {
-              group = GroupFinder.findByName(rootSession, ruleDefinition.getCheck().getCheckOwnerName(), false);
-            }
-
-            if (group == null) {
-              throw new RuntimeException("Group doesnt exist in rule! " + ruleDefinition);
-            }
-
-            //find the members which apply
-            Set<Member> memberOrphans = GrouperDAOFactory.getFactory().getMembership().findAllMembersInOneGroupNotOtherAndType(thisGroupId, group.getUuid(), 
-                MembershipType.IMMEDIATE.name(), null, null, true);
-
-            for (Member member : GrouperUtil.nonNull(memberOrphans)) {
-
-              RulesMembershipBean rulesMembershipBean = new RulesMembershipBean(member, group, member.getSubject());
-              
-              //fire the rule then clause
-              RuleEngine.ruleFirings++;
-              
-              ruleDefinition.getThen().fireRule(ruleDefinition, ruleEngine, rulesMembershipBean, null);
-              
-            }
-            
-          } finally {
-            GrouperSession.stopQuietly(rootSession);
-          }
+          membershipRemoveThisGroupHasMembership(ruleDefinition, ruleEngine, true);
 
           break;
         case thisPermissionDefHasAssignment:
 
-          //so basically, for the assignments for this attribute def, where there is none in the other group, process them
-          String thisAttributeDefId = ruleDefinition.getAttributeAssignType().getOwnerAttributeDefId();
+          membershipRemoveThisPermissionDefHasAssignment(ruleDefinition, ruleEngine, false);
           
-          rootSession = GrouperSession.startRootSession(false);
-          try {
-            
-            Group group = null;
-            if (!StringUtils.isBlank(ruleDefinition.getCheck().getCheckOwnerId())) {
-              group = GroupFinder.findByUuid(rootSession, ruleDefinition.getCheck().getCheckOwnerId(), false);
-            } else if (!StringUtils.isBlank(ruleDefinition.getCheck().getCheckOwnerName())) {
-              group = GroupFinder.findByName(rootSession, ruleDefinition.getCheck().getCheckOwnerName(), false);
-            }
 
-            if (group == null) {
-              throw new RuntimeException("Group doesnt exist in rule! " + ruleDefinition);
-            }
+          break;
+        case thisPermissionDefHasNoEndDateAssignment:
 
-            //find the members which apply
-            Set<PermissionEntry> permissionEntries = GrouperDAOFactory.getFactory().getPermissionEntry().findAllPermissionsNotInGroupAndType(thisAttributeDefId, group.getUuid(), 
-                null, null, true);
-
-            for (PermissionEntry permissionEntry : GrouperUtil.nonNull(permissionEntries)) {
- 
-              //must me immediate so it can be unassigned
-              if (permissionEntry.isImmediateMembership() || permissionEntry.isImmediatePermission()) {
-                
-                AttributeAssign attributeAssign = AttributeAssignFinder.findById(permissionEntry.getAttributeAssignId(), false);
-                
-                if (attributeAssign == null) {
-                  return;
-                }
-                
-                Role role = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), permissionEntry.getRoleId(), false);
-                if (role == null) {
-                  return;
-                }
-                Member member = MemberFinder.findByUuid(GrouperSession.staticGrouperSession(), permissionEntry.getMemberId(), false);
-                if (member == null) {
-                  return;
-                }
-                AttributeDefName attributeDefName = GrouperDAOFactory.getFactory().getAttributeDefName().findByIdSecure(permissionEntry.getAttributeDefNameId(), false);
-                if (attributeDefName == null) {
-                  return;
-                }
-                RulesPermissionBean rulesPermissionBean = new RulesPermissionBean(attributeAssign, role, member, attributeDefName, attributeDefName.getAttributeDef(), permissionEntry.getAction());
-                
-                //fire the rule then clause
-                RuleEngine.ruleFirings++;
-                
-                ruleDefinition.getThen().fireRule(ruleDefinition, ruleEngine, rulesPermissionBean, null);
-              }
-              
-              
-            }
-            
-          } finally {
-            GrouperSession.stopQuietly(rootSession);
-          }
+          membershipRemoveThisPermissionDefHasAssignment(ruleDefinition, ruleEngine, true);
+          
 
           break;
         default:
@@ -682,6 +603,155 @@ public enum RuleCheckType {
   
   /** if there is a membership remove in transaction of remove of a group in a stem */
   membershipRemoveInFolder {
+
+    /**
+     * 
+     */
+    @Override
+    public void runDaemon(final RuleDefinition ruleDefinition) {
+      
+      final RuleEngine ruleEngine = RuleEngine.ruleEngine();
+      
+      //lets get the if enum
+      RuleIfConditionEnum ruleIfConditionEnum = ruleDefinition.getIfCondition().ifConditionEnum();
+      
+      switch (ruleIfConditionEnum) {
+        
+        case thisPermissionDefHasAssignmentAndNotFolder:
+          
+          Set<RulesPermissionBean> rulesPermissionBeans = (Set<RulesPermissionBean>)GrouperSession.callbackGrouperSession(
+            GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+              
+              public Object callback(GrouperSession rootSession) throws GrouperSessionException {
+                
+                Set<RulesPermissionBean> theRulesPermissionBeans = new HashSet<RulesPermissionBean>();
+                
+                //so basically, for the memberships in this group, where there is none in the other folder, process them
+                String thisAttributeDefId = ruleDefinition.getAttributeAssignType().getOwnerAttributeDefId();
+                
+                Stem stem = null;
+                if (!StringUtils.isBlank(ruleDefinition.getCheck().getCheckOwnerId())) {
+                  stem = StemFinder.findByUuid(rootSession, ruleDefinition.getCheck().getCheckOwnerId(), false);
+                } else if (!StringUtils.isBlank(ruleDefinition.getCheck().getCheckOwnerName())) {
+                  stem = StemFinder.findByName(rootSession, ruleDefinition.getCheck().getCheckOwnerName(), false);
+                }
+
+                if (stem == null) {
+                  throw new RuntimeException("Stem doesnt exist in rule! " + ruleDefinition);
+                }
+
+                Stem.Scope stemScope = Stem.Scope.valueOfIgnoreCase(ruleDefinition.getCheck().getCheckStemScope(), true);
+                
+                //find the members which apply
+                Set<PermissionEntry> permissionEntries = GrouperDAOFactory.getFactory().getPermissionEntry().findAllPermissionsNotInStem(thisAttributeDefId, stem,
+                    stemScope, true, null, true, false);
+
+                for (PermissionEntry permissionEntry : GrouperUtil.nonNull(permissionEntries)) {
+
+                  
+                  //must be immediate so it can be unassigned
+                  if (permissionEntry.isImmediateMembership() || permissionEntry.isImmediatePermission()) {
+                    
+                    AttributeAssign attributeAssign = AttributeAssignFinder.findById(permissionEntry.getAttributeAssignId(), false);
+                    
+                    if (attributeAssign == null) {
+                      continue;
+                    }
+                    
+                    Role role = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), permissionEntry.getRoleId(), false);
+                    if (role == null) {
+                      continue;
+                    }
+                    Member member = MemberFinder.findByUuid(GrouperSession.staticGrouperSession(), permissionEntry.getMemberId(), false);
+                    if (member == null) {
+                      continue;
+                    }
+                    AttributeDefName attributeDefName = GrouperDAOFactory.getFactory().getAttributeDefName().findByIdSecure(permissionEntry.getAttributeDefNameId(), false);
+                    if (attributeDefName == null) {
+                      continue;
+                    }
+                    RulesPermissionBean rulesPermissionBean = new RulesPermissionBean(attributeAssign, role, member, attributeDefName, attributeDefName.getAttributeDef(), permissionEntry.getAction());
+                    theRulesPermissionBeans.add(rulesPermissionBean);
+                  }
+
+                }
+              
+                
+                return theRulesPermissionBeans;
+                
+              }
+            });
+
+          for (RulesPermissionBean rulesPermissionBean : rulesPermissionBeans) {
+            
+            //fire the rule then clause
+            RuleEngine.ruleFirings++;
+            
+            ruleDefinition.getThen().fireRule(ruleDefinition, ruleEngine, rulesPermissionBean, null);
+
+          }
+
+          break;
+        case thisGroupAndNotFolderHasImmediateEnabledMembership:
+          
+          Set<RulesMembershipBean> rulesMembershipBeans = (Set<RulesMembershipBean>)GrouperSession.callbackGrouperSession(
+            GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+              
+              public Object callback(GrouperSession rootSession) throws GrouperSessionException {
+                
+                Set<RulesMembershipBean> theRulesMembershipBeans = new HashSet<RulesMembershipBean>();
+                
+                //so basically, for the memberships in this group, where there is none in the other folder, process them
+                String thisGroupId = ruleDefinition.getAttributeAssignType().getOwnerGroupId();
+                
+                Stem stem = null;
+                if (!StringUtils.isBlank(ruleDefinition.getCheck().getCheckOwnerId())) {
+                  stem = StemFinder.findByUuid(rootSession, ruleDefinition.getCheck().getCheckOwnerId(), false);
+                } else if (!StringUtils.isBlank(ruleDefinition.getCheck().getCheckOwnerName())) {
+                  stem = StemFinder.findByName(rootSession, ruleDefinition.getCheck().getCheckOwnerName(), false);
+                }
+
+                if (stem == null) {
+                  throw new RuntimeException("Stem doesnt exist in rule! " + ruleDefinition);
+                }
+
+                Stem.Scope stemScope = Stem.Scope.valueOfIgnoreCase(ruleDefinition.getCheck().getCheckStemScope(), true);
+                
+                //find the members which apply
+                Set<Member> memberOrphans = GrouperDAOFactory.getFactory().getMembership().findAllMembersInOneGroupNotStem(thisGroupId, stem,
+                    stemScope,
+                    MembershipType.IMMEDIATE.name(), null);
+
+                for (Member member : GrouperUtil.nonNull(memberOrphans)) {
+
+                  RulesMembershipBean rulesMembershipBean = new RulesMembershipBean(member, null, member.getSubject());
+                  theRulesMembershipBeans.add(rulesMembershipBean);
+                  
+                }
+              
+                
+                return theRulesMembershipBeans;
+                
+              }
+            });
+
+          for (RulesMembershipBean rulesMembershipBean : rulesMembershipBeans) {
+            
+            //fire the rule then clause
+            RuleEngine.ruleFirings++;
+            
+            ruleDefinition.getThen().fireRule(ruleDefinition, ruleEngine, rulesMembershipBean, null);
+
+          }
+          break;
+        default:
+          if (!StringUtils.isBlank(ruleDefinition.getRunDaemon()) && ruleDefinition.isRunDaemonBoolean()) {
+            throw new RuntimeException("This rule is explicitly set to run a daemon, but it is not implemented");
+          }
+      }
+      
+      
+    }
 
     /**
      * @see RuleCheckType#checkKey(RuleDefinition)
@@ -751,8 +821,14 @@ public enum RuleCheckType {
       
       RuleThenEnum ruleThenEnum = ruleDefinition.getThen().thenEnum();
       
-      if (ruleThenEnum != RuleThenEnum.assignGroupPrivilegeToGroupId) {
-        throw new RuntimeException("RuleThenEnum needs to be " + RuleThenEnum.assignGroupPrivilegeToGroupId);
+      if (ruleThenEnum != RuleThenEnum.assignGroupPrivilegeToGroupId 
+          || ruleDefinition.getIfCondition().ifConditionEnum() != null
+          || !StringUtils.isBlank(ruleDefinition.getIfCondition().getIfConditionEl())) {
+        if (StringUtils.isNotBlank(ruleDefinition.getRunDaemon()) && ruleDefinition.isRunDaemonBoolean() ) {
+          throw new RuntimeException("RuleThenEnum needs to be " + RuleThenEnum.assignGroupPrivilegeToGroupId);
+        }
+        //return, nothing to do
+        return;
       }
       
       String subjectString = ruleDefinition.getThen().getThenEnumArg0();
@@ -778,6 +854,8 @@ public enum RuleCheckType {
             stemId, scope, subject, privilege, false);
         
         for (Group group : GrouperUtil.nonNull(groupsWhichNeedPrivs)) {
+          
+          RuleEngine.ruleFirings++;
           
           if (LOG.isDebugEnabled()) {
             LOG.debug("Daemon granting privilege: " + privilege + " to subject: " + GrouperUtil.subjectToString(subject) + " to group: " + group);
@@ -890,9 +968,16 @@ public enum RuleCheckType {
       
       RuleThenEnum ruleThenEnum = ruleDefinition.getThen().thenEnum();
       
-      if (ruleThenEnum != RuleThenEnum.assignStemPrivilegeToStemId) {
-        throw new RuntimeException("RuleThenEnum needs to be " + RuleThenEnum.assignStemPrivilegeToStemId);
+      if (ruleThenEnum != RuleThenEnum.assignStemPrivilegeToStemId 
+          || ruleDefinition.getIfCondition().ifConditionEnum() != null
+          || !StringUtils.isBlank(ruleDefinition.getIfCondition().getIfConditionEl())) {
+        if (StringUtils.isNotBlank(ruleDefinition.getRunDaemon()) && ruleDefinition.isRunDaemonBoolean() ) {
+          throw new RuntimeException("RuleThenEnum needs to be " + RuleThenEnum.assignStemPrivilegeToStemId);
+        }
+        //return, nothing to do
+        return;
       }
+
       
       String subjectString = ruleDefinition.getThen().getThenEnumArg0();
       Subject subject = SubjectFinder.findByPackedSubjectString(subjectString, true);
@@ -918,6 +1003,8 @@ public enum RuleCheckType {
         
         for (Stem stem : GrouperUtil.nonNull(stemsWhichNeedPrivs)) {
           
+          RuleEngine.ruleFirings++;
+
           if (LOG.isDebugEnabled()) {
             LOG.debug("Daemon granting privilege: " + privilege + " to subject: " + GrouperUtil.subjectToString(subject) + " to stem: " + stem);
           }
@@ -933,7 +1020,67 @@ public enum RuleCheckType {
   
   /** if there is a membership add in transaction */
   membershipAdd{
-  
+
+    /**
+     * 
+     */
+    @Override
+    public void runDaemon(final RuleDefinition ruleDefinition) {
+      
+      final RuleEngine ruleEngine = RuleEngine.ruleEngine();
+      
+      //lets get the if enum
+      RuleIfConditionEnum ruleIfConditionEnum = ruleDefinition.getIfCondition().ifConditionEnum();
+      RuleThenEnum ruleThenEnum = ruleDefinition.getThen().thenEnum();
+      
+      switch (ruleIfConditionEnum) {
+        
+        case groupHasNoImmediateEnabledMembership:
+          
+          switch (ruleThenEnum) {
+            
+            case veto:
+
+              //if added, but needs to be in another group, else veto (remove)...
+              membershipAddDaemonVetoThisGroupHasMembership(ruleDefinition, ruleEngine);
+              break;
+            
+            default:
+              if (!StringUtils.isBlank(ruleDefinition.getRunDaemon()) && ruleDefinition.isRunDaemonBoolean()) {
+                throw new RuntimeException("This rule is explicitly set to run a daemon, but it is not implemented");
+              }
+          }
+          
+          break;
+          
+        case noGroupInFolderHasImmediateEnabledMembership:
+          
+          switch (ruleThenEnum) {
+            
+            case veto:
+
+              //if added, but needs to be in another stem, else veto (remove)...
+              membershipAddDaemonVetoThisStemHasMembership(ruleDefinition, ruleEngine);
+              break;
+            
+            default:
+              if (!StringUtils.isBlank(ruleDefinition.getRunDaemon()) && ruleDefinition.isRunDaemonBoolean()) {
+                throw new RuntimeException("This rule is explicitly set to run a daemon, but it is not implemented");
+              }
+          }
+          
+          break;
+          
+        default:
+          if (!StringUtils.isBlank(ruleDefinition.getRunDaemon()) && ruleDefinition.isRunDaemonBoolean()) {
+            throw new RuntimeException("This rule is explicitly set to run a daemon, but it is not implemented");
+          }
+      }
+      
+      
+    }
+
+    
     /**
      * @see RuleCheckType#checkKey(RuleDefinition)
      */
@@ -1163,8 +1310,14 @@ public enum RuleCheckType {
       
       RuleThenEnum ruleThenEnum = ruleDefinition.getThen().thenEnum();
       
-      if (ruleThenEnum != RuleThenEnum.assignAttributeDefPrivilegeToAttributeDefId) {
-        throw new RuntimeException("RuleThenEnum needs to be " + RuleThenEnum.assignAttributeDefPrivilegeToAttributeDefId);
+      if (ruleThenEnum != RuleThenEnum.assignAttributeDefPrivilegeToAttributeDefId 
+          || ruleDefinition.getIfCondition().ifConditionEnum() != null
+          || !StringUtils.isBlank(ruleDefinition.getIfCondition().getIfConditionEl())) {
+        if (StringUtils.isNotBlank(ruleDefinition.getRunDaemon()) && ruleDefinition.isRunDaemonBoolean() ) {
+          throw new RuntimeException("RuleThenEnum needs to be " + RuleThenEnum.assignAttributeDefPrivilegeToAttributeDefId);
+        }
+        //return, nothing to do
+        return;
       }
       
       String subjectString = ruleDefinition.getThen().getThenEnumArg0();
@@ -1192,6 +1345,8 @@ public enum RuleCheckType {
         
         for (AttributeDef attributeDef : GrouperUtil.nonNull(attributeDefsWhichNeedPrivs)) {
           
+          RuleEngine.ruleFirings++;
+
           if (LOG.isDebugEnabled()) {
             LOG.debug("Daemon granting privilege: " + privilege 
                 + " to subject: " + GrouperUtil.subjectToString(subject) + " to attributeDef: " + attributeDef);
@@ -1271,7 +1426,48 @@ public enum RuleCheckType {
   
   /** if there is a permission assign in transaction to a subject, not to a role */
   permissionAssignToSubject {
-  
+
+    /**
+     * 
+     */
+    @Override
+    public void runDaemon(final RuleDefinition ruleDefinition) {
+      
+      final RuleEngine ruleEngine = RuleEngine.ruleEngine();
+      
+      //lets get the if enum
+      RuleIfConditionEnum ruleIfConditionEnum = ruleDefinition.getIfCondition().ifConditionEnum();
+      RuleThenEnum ruleThenEnum = ruleDefinition.getThen().thenEnum();
+      
+      switch (ruleIfConditionEnum) {
+        
+        case groupHasNoImmediateEnabledMembership:
+          
+          switch (ruleThenEnum) {
+            
+            case veto:
+
+              //if added, but needs to be in another group, else veto (remove)...
+              permissionAddDaemonVetoThisGroupHasMembership(ruleDefinition, ruleEngine);
+              break;
+            
+            default:
+              if (!StringUtils.isBlank(ruleDefinition.getRunDaemon()) && ruleDefinition.isRunDaemonBoolean()) {
+                throw new RuntimeException("This rule is explicitly set to run a daemon, but it is not implemented");
+              }
+          }
+          
+          break;
+          
+        default:
+          if (!StringUtils.isBlank(ruleDefinition.getRunDaemon()) && ruleDefinition.isRunDaemonBoolean()) {
+            throw new RuntimeException("This rule is explicitly set to run a daemon, but it is not implemented");
+          }
+      }
+      
+      
+    }
+
     /**
      * @see RuleCheckType#checkKey(RuleDefinition)
      */
@@ -1559,6 +1755,325 @@ public enum RuleCheckType {
    */
   public void runDaemon(RuleDefinition ruleDefinition) {
     throw new RuntimeException("Not implemented daemon: " + ruleDefinition);
+  }
+
+  /**
+   * 
+   * @param ruleDefinition
+   * @param ruleEngine
+   * @param thisGroupHasEndDateNull
+   */
+  private static void membershipAddDaemonVetoThisGroupHasMembership(final RuleDefinition ruleDefinition,
+      final RuleEngine ruleEngine) {
+    
+    Set<RulesMembershipBean> ruleMembershipBeans = (Set<RulesMembershipBean>)GrouperSession.callbackGrouperSession(
+        GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+      
+      public Object callback(GrouperSession rootSession) throws GrouperSessionException {
+        
+        //so basically, for the memberships in this group, where there is none in the other group, process them
+        String thisGroupId = ruleDefinition.getAttributeAssignType().getOwnerGroupId();
+  
+        Set<RulesMembershipBean> theRulesMembershipBeans = new HashSet<RulesMembershipBean>();
+        
+        Group group = null;
+        if (!StringUtils.isBlank(ruleDefinition.getIfCondition().getIfOwnerId())) {
+          group = GroupFinder.findByUuid(rootSession, ruleDefinition.getIfCondition().getIfOwnerId(), false);
+        } else if (!StringUtils.isBlank(ruleDefinition.getIfCondition().getIfOwnerName())) {
+          group = GroupFinder.findByName(rootSession, ruleDefinition.getIfCondition().getIfOwnerName(), false);
+        }
+  
+        if (group == null) {
+          throw new RuntimeException("Group doesnt exist in rule! " + ruleDefinition);
+        }
+  
+        //find the members which apply
+        Set<Member> memberOrphans = GrouperDAOFactory.getFactory().getMembership().findAllMembersInOneGroupNotOtherAndType(thisGroupId, group.getUuid(), 
+            MembershipType.IMMEDIATE.name(), null, null, true, false);
+  
+        for (Member member : GrouperUtil.nonNull(memberOrphans)) {
+  
+          RulesMembershipBean rulesMembershipBean = new RulesMembershipBean(member, group, member.getSubject());
+          theRulesMembershipBeans.add(rulesMembershipBean);
+          
+        }
+        return theRulesMembershipBeans;
+      }
+    });
+  
+    //do this here so it is in the right grouper session (act as)
+    for (RulesMembershipBean rulesMembershipBean : ruleMembershipBeans) {
+  
+      //fire the rule then clause
+      RuleEngine.ruleFirings++;
+      
+      RuleThenEnum.removeMemberFromOwnerGroup.fireRule(ruleDefinition, ruleEngine, rulesMembershipBean, null);
+  
+    }
+  }
+
+  /**
+   * 
+   * @param ruleDefinition
+   * @param ruleEngine
+   * @param thisGroupHasEndDateNull
+   */
+  private static void permissionAddDaemonVetoThisGroupHasMembership(final RuleDefinition ruleDefinition,
+      final RuleEngine ruleEngine) {
+    
+    Set<RulesPermissionBean> rulePermissionBeans = (Set<RulesPermissionBean>)GrouperSession.callbackGrouperSession(
+        GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+      
+      public Object callback(GrouperSession rootSession) throws GrouperSessionException {
+        
+        //so basically, for the memberships in this group, where there is none in the other group, process them
+        String thisAttributeDefId = ruleDefinition.getAttributeAssignType().getOwnerAttributeDefId();
+  
+        Set<RulesPermissionBean> theRulesPermissionBeans = new HashSet<RulesPermissionBean>();
+        
+        Group group = null;
+        if (!StringUtils.isBlank(ruleDefinition.getIfCondition().getIfOwnerId())) {
+          group = GroupFinder.findByUuid(rootSession, ruleDefinition.getIfCondition().getIfOwnerId(), false);
+        } else if (!StringUtils.isBlank(ruleDefinition.getIfCondition().getIfOwnerName())) {
+          group = GroupFinder.findByName(rootSession, ruleDefinition.getIfCondition().getIfOwnerName(), false);
+        }
+  
+        if (group == null) {
+          throw new RuntimeException("Group doesnt exist in rule! " + ruleDefinition);
+        }
+  
+        //find the members which apply
+        Set<PermissionEntry> permissionEntries = GrouperDAOFactory.getFactory().getPermissionEntry().findAllPermissionsNotInGroupAndType(thisAttributeDefId, group.getUuid(), 
+            true, null, true, false);
+  
+        for (PermissionEntry permissionEntry : GrouperUtil.nonNull(permissionEntries)) {
+  
+          //must be immediate so it can be unassigned
+          if (permissionEntry.isImmediateMembership() || permissionEntry.isImmediatePermission()) {
+            
+            AttributeAssign attributeAssign = AttributeAssignFinder.findById(permissionEntry.getAttributeAssignId(), false);
+            
+            if (attributeAssign == null) {
+              continue;
+            }
+            
+            Role role = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), permissionEntry.getRoleId(), false);
+            if (role == null) {
+              continue;
+            }
+            Member member = MemberFinder.findByUuid(GrouperSession.staticGrouperSession(), permissionEntry.getMemberId(), false);
+            if (member == null) {
+              continue;
+            }
+            AttributeDefName attributeDefName = GrouperDAOFactory.getFactory().getAttributeDefName().findByIdSecure(permissionEntry.getAttributeDefNameId(), false);
+            if (attributeDefName == null) {
+              continue;
+            }
+            RulesPermissionBean rulesPermissionBean = new RulesPermissionBean(attributeAssign, role, member, attributeDefName, attributeDefName.getAttributeDef(), permissionEntry.getAction());
+            theRulesPermissionBeans.add(rulesPermissionBean);
+          }
+          
+        }
+        return theRulesPermissionBeans;
+      }
+    });
+  
+    //do this here so it is in the right grouper session (act as)
+    for (RulesPermissionBean rulesPermissionBean : rulePermissionBeans) {
+  
+      //fire the rule then clause
+      RuleEngine.ruleFirings++;
+      
+      RuleThenEnum.removeMemberFromOwnerPermissionDefAssignments.fireRule(ruleDefinition, ruleEngine, rulesPermissionBean, null);
+  
+    }
+  }
+
+  /**
+   * 
+   * @param ruleDefinition
+   * @param ruleEngine
+   * @param hasNoEndDate 
+   */
+  private static void membershipRemoveThisPermissionDefHasAssignment(
+      final RuleDefinition ruleDefinition, final RuleEngine ruleEngine, final boolean hasNoEndDate) {
+    Set<RulesPermissionBean> rulesPermissionBeans = (Set<RulesPermissionBean>)GrouperSession.callbackGrouperSession(
+        GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+          
+          public Object callback(GrouperSession rootSession) throws GrouperSessionException {
+            
+            Set<RulesPermissionBean> theRulesPermissionBeans = new HashSet<RulesPermissionBean>();
+            
+            //so basically, for the assignments for this attribute def, where there is none in the other group, process them
+            String thisAttributeDefId = ruleDefinition.getAttributeAssignType().getOwnerAttributeDefId();
+            
+            Group group = null;
+            if (!StringUtils.isBlank(ruleDefinition.getCheck().getCheckOwnerId())) {
+              group = GroupFinder.findByUuid(rootSession, ruleDefinition.getCheck().getCheckOwnerId(), false);
+            } else if (!StringUtils.isBlank(ruleDefinition.getCheck().getCheckOwnerName())) {
+              group = GroupFinder.findByName(rootSession, ruleDefinition.getCheck().getCheckOwnerName(), false);
+            }
+
+            if (group == null) {
+              throw new RuntimeException("Group doesnt exist in rule! " + ruleDefinition);
+            }
+
+            //find the members which apply
+            Set<PermissionEntry> permissionEntries = GrouperDAOFactory
+              .getFactory().getPermissionEntry().findAllPermissionsNotInGroupAndType(thisAttributeDefId, group.getUuid(), 
+                true, null, true, hasNoEndDate);
+
+            for (PermissionEntry permissionEntry : GrouperUtil.nonNull(permissionEntries)) {
+     
+              //must be immediate so it can be unassigned
+              if (permissionEntry.isImmediateMembership() || permissionEntry.isImmediatePermission()) {
+                
+                AttributeAssign attributeAssign = AttributeAssignFinder.findById(permissionEntry.getAttributeAssignId(), false);
+                
+                if (attributeAssign == null) {
+                  continue;
+                }
+                
+                Role role = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), permissionEntry.getRoleId(), false);
+                if (role == null) {
+                  continue;
+                }
+                Member member = MemberFinder.findByUuid(GrouperSession.staticGrouperSession(), permissionEntry.getMemberId(), false);
+                if (member == null) {
+                  continue;
+                }
+                AttributeDefName attributeDefName = GrouperDAOFactory.getFactory().getAttributeDefName().findByIdSecure(permissionEntry.getAttributeDefNameId(), false);
+                if (attributeDefName == null) {
+                  continue;
+                }
+                RulesPermissionBean rulesPermissionBean = new RulesPermissionBean(attributeAssign, role, member, attributeDefName, attributeDefName.getAttributeDef(), permissionEntry.getAction());
+                theRulesPermissionBeans.add(rulesPermissionBean);
+              }
+            }
+            return theRulesPermissionBeans;
+          }
+        });
+
+    for (RulesPermissionBean rulesPermissionBean : rulesPermissionBeans) {
+      
+      //fire the rule then clause
+      RuleEngine.ruleFirings++;
+      
+      ruleDefinition.getThen().fireRule(ruleDefinition, ruleEngine, rulesPermissionBean, null);
+
+    }
+  }
+
+  /**
+   * 
+   * @param ruleDefinition
+   * @param ruleEngine
+   * @param thisGroupHasEndDateNull
+   */
+  private static void membershipRemoveThisGroupHasMembership(final RuleDefinition ruleDefinition,
+      final RuleEngine ruleEngine, final boolean thisGroupHasEndDateNull) {
+    
+    Set<RulesMembershipBean> ruleMembershipBeans = (Set<RulesMembershipBean>)GrouperSession.callbackGrouperSession(
+        GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+      
+      public Object callback(GrouperSession rootSession) throws GrouperSessionException {
+        
+        //so basically, for the memberships in this group, where there is none in the other group, process them
+        String thisGroupId = ruleDefinition.getAttributeAssignType().getOwnerGroupId();
+
+        Set<RulesMembershipBean> theRulesMembershipBeans = new HashSet<RulesMembershipBean>();
+        
+        Group group = null;
+        if (!StringUtils.isBlank(ruleDefinition.getCheck().getCheckOwnerId())) {
+          group = GroupFinder.findByUuid(rootSession, ruleDefinition.getCheck().getCheckOwnerId(), false);
+        } else if (!StringUtils.isBlank(ruleDefinition.getCheck().getCheckOwnerName())) {
+          group = GroupFinder.findByName(rootSession, ruleDefinition.getCheck().getCheckOwnerName(), false);
+        }
+
+        if (group == null) {
+          throw new RuntimeException("Group doesnt exist in rule! " + ruleDefinition);
+        }
+
+        //find the members which apply
+        Set<Member> memberOrphans = GrouperDAOFactory.getFactory().getMembership().findAllMembersInOneGroupNotOtherAndType(thisGroupId, group.getUuid(), 
+            MembershipType.IMMEDIATE.name(), null, null, true, thisGroupHasEndDateNull);
+
+        for (Member member : GrouperUtil.nonNull(memberOrphans)) {
+
+          RulesMembershipBean rulesMembershipBean = new RulesMembershipBean(member, group, member.getSubject());
+          theRulesMembershipBeans.add(rulesMembershipBean);
+          
+        }
+        return theRulesMembershipBeans;
+      }
+    });
+
+    //do this here so it is in the right grouper session (act as)
+    for (RulesMembershipBean rulesMembershipBean : ruleMembershipBeans) {
+
+      //fire the rule then clause
+      RuleEngine.ruleFirings++;
+      
+      ruleDefinition.getThen().fireRule(ruleDefinition, ruleEngine, rulesMembershipBean, null);
+
+    }
+  }
+
+  /**
+   * 
+   * @param ruleDefinition
+   * @param ruleEngine
+   * @param thisGroupHasEndDateNull
+   */
+  private static void membershipAddDaemonVetoThisStemHasMembership(final RuleDefinition ruleDefinition,
+      final RuleEngine ruleEngine) {
+    
+    Set<RulesMembershipBean> ruleMembershipBeans = (Set<RulesMembershipBean>)GrouperSession.callbackGrouperSession(
+        GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+      
+      public Object callback(GrouperSession rootSession) throws GrouperSessionException {
+        
+        //so basically, for the memberships in this group, where there is none in the other group, process them
+        String thisGroupId = ruleDefinition.getAttributeAssignType().getOwnerGroupId();
+
+        Set<RulesMembershipBean> theRulesMembershipBeans = new HashSet<RulesMembershipBean>();
+        
+        Stem stem = null;
+        if (!StringUtils.isBlank(ruleDefinition.getIfCondition().getIfOwnerId())) {
+          stem = StemFinder.findByUuid(rootSession, ruleDefinition.getIfCondition().getIfOwnerId(), false);
+        } else if (!StringUtils.isBlank(ruleDefinition.getIfCondition().getIfOwnerName())) {
+          stem = StemFinder.findByName(rootSession, ruleDefinition.getIfCondition().getIfOwnerName(), false);
+        }
+
+        if (stem == null) {
+          throw new RuntimeException("Stem doesnt exist in rule! " + ruleDefinition);
+        }
+
+        Stem.Scope stemScope = Stem.Scope.valueOfIgnoreCase(ruleDefinition.getIfCondition().getIfStemScope(), true);
+        
+        //find the members which apply
+        Set<Member> memberOrphans = GrouperDAOFactory.getFactory().getMembership().findAllMembersInOneGroupNotStem(thisGroupId, stem, stemScope, 
+            MembershipType.IMMEDIATE.name(), null);
+
+        for (Member member : GrouperUtil.nonNull(memberOrphans)) {
+
+          RulesMembershipBean rulesMembershipBean = new RulesMembershipBean(member, null, member.getSubject());
+          theRulesMembershipBeans.add(rulesMembershipBean);
+          
+        }
+        return theRulesMembershipBeans;
+      }
+    });
+
+    //do this here so it is in the right grouper session (act as)
+    for (RulesMembershipBean rulesMembershipBean : ruleMembershipBeans) {
+
+      //fire the rule then clause
+      RuleEngine.ruleFirings++;
+      
+      RuleThenEnum.removeMemberFromOwnerGroup.fireRule(ruleDefinition, ruleEngine, rulesMembershipBean, null);
+
+    }
   }
 
   /**

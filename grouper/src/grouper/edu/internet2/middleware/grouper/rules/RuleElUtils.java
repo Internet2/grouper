@@ -169,7 +169,7 @@ public class RuleElUtils {
 
     Member member = MemberFinder.findByUuid(GrouperSession.startRootSession(), memberId, true);
     
-    Set<PermissionEntry> permissionEntries = RuleUtils.permissionsForUser(attributeDefId, memberId);
+    Set<PermissionEntry> permissionEntries = RuleUtils.permissionsForUser(attributeDefId, memberId, true);
 
     RuntimeException runtimeException = null;
     

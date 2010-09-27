@@ -21,8 +21,7 @@ import java.sql.Timestamp;
 import java.util.Collection;
 import java.util.Set;
 
-import edu.internet2.middleware.grouper.Member;
-import edu.internet2.middleware.grouper.membership.MembershipType;
+import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.permissions.PermissionEntry;
 
 /** 
@@ -68,6 +67,27 @@ public interface PermissionEntryDAO extends GrouperDAO {
    * @param actions (null means all actions)
    * @param enabled (null means all, true means enabled, false means disabled)
    * @param memberIds
+   * @param noEndDate true if no end date on memberships
+   * @return the permissions
+   */
+  public Set<PermissionEntry> findPermissions(
+      Collection<String> attributeDefIds, 
+      Collection<String> attributeDefNameIds,
+      Collection<String> roleIds, 
+      Collection<String> actions, 
+      Boolean enabled,
+      Collection<String> memberIds,
+      boolean noEndDate);
+
+  /**
+   * securely search for assignments.  need to pass in either the assign ids, def ids, def name ids, or group ids
+   * cannot have more than 100 bind variables
+   * @param attributeDefIds optional
+   * @param attributeDefNameIds mutually exclusive with attributeDefIds
+   * @param roleIds optional
+   * @param actions (null means all actions)
+   * @param enabled (null means all, true means enabled, false means disabled)
+   * @param memberIds
    * @return the permissions
    */
   public Set<PermissionEntry> findPermissions(
@@ -93,13 +113,28 @@ public interface PermissionEntryDAO extends GrouperDAO {
    * find subjects who are not in a group but who have permissions
    * @param attributeDefId
    * @param groupId
-   * @param typeIn
+   * @param immediateRoleMembershipsOrRoleSubject
    * @param queryOptions
    * @param enabled
+   * @param hasNoEndDate
    * @return the set of members
    */
   public Set<PermissionEntry> findAllPermissionsNotInGroupAndType(String attributeDefId, String groupId, 
-      MembershipType typeIn, QueryOptions queryOptions, Boolean enabled);
+      boolean immediateRoleMembershipsOrRoleSubject, QueryOptions queryOptions, Boolean enabled, boolean hasNoEndDate);
+
+  /**
+   * find subjects who are not in a group but who have permissions
+   * @param attributeDefId
+   * @param stem
+   * @param stemScope
+   * @param immediateRoleMembershipsOrRoleSubject
+   * @param queryOptions
+   * @param enabled
+   * @param hasNoEndDate
+   * @return the set of members
+   */
+  public Set<PermissionEntry> findAllPermissionsNotInStem(String attributeDefId, Stem stem, Stem.Scope stemScope,
+      boolean immediateRoleMembershipsOrRoleSubject, QueryOptions queryOptions, Boolean enabled, boolean hasNoEndDate);
 
 } 
 
