@@ -45,13 +45,19 @@ import edu.internet2.middleware.grouper.internal.dao.GroupTypeDAO;
 import edu.internet2.middleware.grouper.internal.dao.GroupTypeTupleDAO;
 import edu.internet2.middleware.grouper.internal.dao.MemberDAO;
 import edu.internet2.middleware.grouper.internal.dao.MembershipDAO;
+import edu.internet2.middleware.grouper.internal.dao.PITAttributeAssignActionDAO;
+import edu.internet2.middleware.grouper.internal.dao.PITAttributeAssignActionSetDAO;
+import edu.internet2.middleware.grouper.internal.dao.PITAttributeAssignDAO;
 import edu.internet2.middleware.grouper.internal.dao.PITAttributeDefDAO;
+import edu.internet2.middleware.grouper.internal.dao.PITAttributeDefNameDAO;
+import edu.internet2.middleware.grouper.internal.dao.PITAttributeDefNameSetDAO;
 import edu.internet2.middleware.grouper.internal.dao.PITFieldDAO;
 import edu.internet2.middleware.grouper.internal.dao.PITGroupDAO;
 import edu.internet2.middleware.grouper.internal.dao.PITGroupSetDAO;
 import edu.internet2.middleware.grouper.internal.dao.PITMemberDAO;
 import edu.internet2.middleware.grouper.internal.dao.PITMembershipDAO;
 import edu.internet2.middleware.grouper.internal.dao.PITMembershipViewDAO;
+import edu.internet2.middleware.grouper.internal.dao.PITRoleSetDAO;
 import edu.internet2.middleware.grouper.internal.dao.PITStemDAO;
 import edu.internet2.middleware.grouper.internal.dao.PermissionEntryDAO;
 import edu.internet2.middleware.grouper.internal.dao.RegistryDAO;
@@ -361,5 +367,34 @@ public abstract class GrouperDAOFactory {
    */
   public abstract PITGroupSetDAO getPITGroupSet();
 
+  /**
+   * @return pit attribute assign dao
+   */
+  public abstract PITAttributeAssignDAO getPITAttributeAssign();
+  
+  /**
+   * @return pit attribute assign action dao
+   */
+  public abstract PITAttributeAssignActionDAO getPITAttributeAssignAction();
+  
+  /**
+   * @return pit attribute assign action set dao
+   */
+  public abstract PITAttributeAssignActionSetDAO getPITAttributeAssignActionSet();
+  
+  /**
+   * @return pit role set dao
+   */
+  public abstract PITRoleSetDAO getPITRoleSet();
+  
+  /**
+   * @return pit attribute def name dao
+   */
+  public abstract PITAttributeDefNameDAO getPITAttributeDefName();
+  
+  /**
+   * @return pit attribute def name set dao
+   */
+  public abstract PITAttributeDefNameSetDAO getPITAttributeDefNameSet();
 } 
 

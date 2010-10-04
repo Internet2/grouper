@@ -1844,6 +1844,27 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
     super.onPreUpdate(hibernateSession);
     
     this.setLastUpdatedDb(System.currentTimeMillis());
+    
+    if (this.dbVersionDifferentFields().contains(FIELD_ATTRIBUTE_ASSIGN_ACTION_ID)) {
+      throw new RuntimeException("cannot update attributeAssignActionId");
+    }
+    
+    if (this.dbVersionDifferentFields().contains(FIELD_ATTRIBUTE_DEF_NAME_ID)) {
+      throw new RuntimeException("cannot update attributeDefNameId");
+    }
+    
+    if (this.dbVersionDifferentFields().contains(FIELD_ATTRIBUTE_ASSIGN_TYPE)) {
+      throw new RuntimeException("cannot update attributeAssignType");
+    }
+    
+    if (this.dbVersionDifferentFields().contains(FIELD_OWNER_STEM_ID) ||
+        this.dbVersionDifferentFields().contains(FIELD_OWNER_GROUP_ID) ||
+        this.dbVersionDifferentFields().contains(FIELD_OWNER_ATTRIBUTE_DEF_ID) ||
+        this.dbVersionDifferentFields().contains(FIELD_OWNER_ATTRIBUTE_ASSIGN_ID) ||
+        this.dbVersionDifferentFields().contains(FIELD_OWNER_MEMBER_ID) ||
+        this.dbVersionDifferentFields().contains(FIELD_OWNER_MEMBERSHIP_ID)) {
+      throw new RuntimeException("cannot update owner columns");
+    }
 
     GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.ATTRIBUTE_ASSIGN, 
         AttributeAssignHooks.METHOD_ATTRIBUTE_ASSIGN_PRE_UPDATE, HooksAttributeAssignBean.class, 

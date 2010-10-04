@@ -354,7 +354,9 @@ public enum ChangeLogTypeBuiltin implements ChangeLogTypeIdentifier {
       ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_SET_ADD.id,
       ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_SET_ADD.type,
       ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_SET_ADD.ifHasAttrAssnActionId,
-      ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_SET_ADD.thenHasAttrAssnActionId)),
+      ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_SET_ADD.thenHasAttrAssnActionId,
+      ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_SET_ADD.parentAttrAssignActionSetId,
+      ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_SET_ADD.depth)),
       
   /**
    * attribute assign action set delete
@@ -363,7 +365,9 @@ public enum ChangeLogTypeBuiltin implements ChangeLogTypeIdentifier {
       ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_SET_DELETE.id,
       ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_SET_DELETE.type,
       ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_SET_DELETE.ifHasAttrAssnActionId,
-      ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_SET_DELETE.thenHasAttrAssnActionId)),
+      ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_SET_DELETE.thenHasAttrAssnActionId,
+      ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_SET_DELETE.parentAttrAssignActionSetId,
+      ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_SET_DELETE.depth)),
       
   /**
    * attribute def name set add
@@ -372,7 +376,9 @@ public enum ChangeLogTypeBuiltin implements ChangeLogTypeIdentifier {
       ChangeLogLabels.ATTRIBUTE_DEF_NAME_SET_ADD.id,
       ChangeLogLabels.ATTRIBUTE_DEF_NAME_SET_ADD.type,
       ChangeLogLabels.ATTRIBUTE_DEF_NAME_SET_ADD.ifHasAttributeDefNameId,
-      ChangeLogLabels.ATTRIBUTE_DEF_NAME_SET_ADD.thenHasAttributeDefNameId)),
+      ChangeLogLabels.ATTRIBUTE_DEF_NAME_SET_ADD.thenHasAttributeDefNameId,
+      ChangeLogLabels.ATTRIBUTE_DEF_NAME_SET_ADD.parentAttrDefNameSetId,
+      ChangeLogLabels.ATTRIBUTE_DEF_NAME_SET_ADD.depth)),
   
   /**
    * attribute def name set delete
@@ -381,7 +387,9 @@ public enum ChangeLogTypeBuiltin implements ChangeLogTypeIdentifier {
       ChangeLogLabels.ATTRIBUTE_DEF_NAME_SET_DELETE.id,
       ChangeLogLabels.ATTRIBUTE_DEF_NAME_SET_DELETE.type,
       ChangeLogLabels.ATTRIBUTE_DEF_NAME_SET_DELETE.ifHasAttributeDefNameId,
-      ChangeLogLabels.ATTRIBUTE_DEF_NAME_SET_DELETE.thenHasAttributeDefNameId)),
+      ChangeLogLabels.ATTRIBUTE_DEF_NAME_SET_DELETE.thenHasAttributeDefNameId,
+      ChangeLogLabels.ATTRIBUTE_DEF_NAME_SET_DELETE.parentAttrDefNameSetId,
+      ChangeLogLabels.ATTRIBUTE_DEF_NAME_SET_DELETE.depth)),
   
   /**
    * role set add
@@ -390,7 +398,9 @@ public enum ChangeLogTypeBuiltin implements ChangeLogTypeIdentifier {
       ChangeLogLabels.ROLE_SET_ADD.id,
       ChangeLogLabels.ROLE_SET_ADD.type,
       ChangeLogLabels.ROLE_SET_ADD.ifHasRoleId,
-      ChangeLogLabels.ROLE_SET_ADD.thenHasRoleId)),
+      ChangeLogLabels.ROLE_SET_ADD.thenHasRoleId,
+      ChangeLogLabels.ROLE_SET_ADD.parentRoleSetId,
+      ChangeLogLabels.ROLE_SET_ADD.depth)),
 
   /**
    * role set delete
@@ -399,7 +409,9 @@ public enum ChangeLogTypeBuiltin implements ChangeLogTypeIdentifier {
       ChangeLogLabels.ROLE_SET_DELETE.id,
       ChangeLogLabels.ROLE_SET_DELETE.type,
       ChangeLogLabels.ROLE_SET_DELETE.ifHasRoleId,
-      ChangeLogLabels.ROLE_SET_DELETE.thenHasRoleId)),
+      ChangeLogLabels.ROLE_SET_DELETE.thenHasRoleId,
+      ChangeLogLabels.ROLE_SET_DELETE.parentRoleSetId,
+      ChangeLogLabels.ROLE_SET_DELETE.depth)),
   
   /**
    * attribute def name add
@@ -444,20 +456,6 @@ public enum ChangeLogTypeBuiltin implements ChangeLogTypeIdentifier {
       ChangeLogLabels.ATTRIBUTE_ASSIGN_ADD.assignType,
       ChangeLogLabels.ATTRIBUTE_ASSIGN_ADD.ownerId1,
       ChangeLogLabels.ATTRIBUTE_ASSIGN_ADD.ownerId2)),
-  
-  /**
-   * attribute assign update
-   */
-  ATTRIBUTE_ASSIGN_UPDATE(new ChangeLogType("attributeAssign", "updateAttributeAssign",
-      ChangeLogLabels.ATTRIBUTE_ASSIGN_UPDATE.id,
-      ChangeLogLabels.ATTRIBUTE_ASSIGN_UPDATE.attributeDefNameId,
-      ChangeLogLabels.ATTRIBUTE_ASSIGN_UPDATE.attributeAssignActionId,
-      ChangeLogLabels.ATTRIBUTE_ASSIGN_UPDATE.assignType,
-      ChangeLogLabels.ATTRIBUTE_ASSIGN_UPDATE.ownerId1,
-      ChangeLogLabels.ATTRIBUTE_ASSIGN_UPDATE.ownerId2,
-      ChangeLogLabels.ATTRIBUTE_ASSIGN_UPDATE.propertyChanged,
-      ChangeLogLabels.ATTRIBUTE_ASSIGN_UPDATE.propertyOldValue,
-      ChangeLogLabels.ATTRIBUTE_ASSIGN_UPDATE.propertyNewValue)),
       
   /**
    * attribute assign delete

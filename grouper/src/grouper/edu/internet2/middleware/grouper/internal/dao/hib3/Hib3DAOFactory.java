@@ -43,13 +43,19 @@ import edu.internet2.middleware.grouper.internal.dao.GroupTypeDAO;
 import edu.internet2.middleware.grouper.internal.dao.GroupTypeTupleDAO;
 import edu.internet2.middleware.grouper.internal.dao.MemberDAO;
 import edu.internet2.middleware.grouper.internal.dao.MembershipDAO;
+import edu.internet2.middleware.grouper.internal.dao.PITAttributeAssignActionDAO;
+import edu.internet2.middleware.grouper.internal.dao.PITAttributeAssignActionSetDAO;
+import edu.internet2.middleware.grouper.internal.dao.PITAttributeAssignDAO;
 import edu.internet2.middleware.grouper.internal.dao.PITAttributeDefDAO;
+import edu.internet2.middleware.grouper.internal.dao.PITAttributeDefNameDAO;
+import edu.internet2.middleware.grouper.internal.dao.PITAttributeDefNameSetDAO;
 import edu.internet2.middleware.grouper.internal.dao.PITFieldDAO;
 import edu.internet2.middleware.grouper.internal.dao.PITGroupDAO;
 import edu.internet2.middleware.grouper.internal.dao.PITGroupSetDAO;
 import edu.internet2.middleware.grouper.internal.dao.PITMemberDAO;
 import edu.internet2.middleware.grouper.internal.dao.PITMembershipDAO;
 import edu.internet2.middleware.grouper.internal.dao.PITMembershipViewDAO;
+import edu.internet2.middleware.grouper.internal.dao.PITRoleSetDAO;
 import edu.internet2.middleware.grouper.internal.dao.PITStemDAO;
 import edu.internet2.middleware.grouper.internal.dao.PermissionEntryDAO;
 import edu.internet2.middleware.grouper.internal.dao.RegistryDAO;
@@ -409,6 +415,54 @@ public class Hib3DAOFactory extends GrouperDAOFactory {
   @Override
   public PITStemDAO getPITStem() {
     return new Hib3PITStemDAO();
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.misc.GrouperDAOFactory#getPITAttributeAssign()
+   */
+  @Override
+  public PITAttributeAssignDAO getPITAttributeAssign() {
+    return new Hib3PITAttributeAssignDAO();
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.misc.GrouperDAOFactory#getPITAttributeAssignAction()
+   */
+  @Override
+  public PITAttributeAssignActionDAO getPITAttributeAssignAction() {
+    return new Hib3PITAttributeAssignActionDAO();
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.misc.GrouperDAOFactory#getPITAttributeAssignActionSet()
+   */
+  @Override
+  public PITAttributeAssignActionSetDAO getPITAttributeAssignActionSet() {
+    return new Hib3PITAttributeAssignActionSetDAO();
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.misc.GrouperDAOFactory#getPITAttributeDefName()
+   */
+  @Override
+  public PITAttributeDefNameDAO getPITAttributeDefName() {
+    return new Hib3PITAttributeDefNameDAO();
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.misc.GrouperDAOFactory#getPITAttributeDefNameSet()
+   */
+  @Override
+  public PITAttributeDefNameSetDAO getPITAttributeDefNameSet() {
+    return new Hib3PITAttributeDefNameSetDAO();
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.misc.GrouperDAOFactory#getPITRoleSet()
+   */
+  @Override
+  public PITRoleSetDAO getPITRoleSet() {
+    return new Hib3PITRoleSetDAO();
   }
 } 
 

@@ -1,6 +1,5 @@
 package edu.internet2.middleware.grouper.pit;
 
-import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -29,7 +28,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * $Id$
  */
 @SuppressWarnings("serial")
-public class PITGroupSet extends GrouperAPI implements Hib3GrouperVersioned {
+public class PITGroupSet extends GrouperPIT implements Hib3GrouperVersioned {
 
   /** db id for this row */
   public static final String COLUMN_ID = "id";
@@ -73,18 +72,6 @@ public class PITGroupSet extends GrouperAPI implements Hib3GrouperVersioned {
   /** parent_id */
   public static final String COLUMN_PARENT_ID = "parent_id";
   
-  /** active */
-  public static final String COLUMN_ACTIVE = "active";
-  
-  /** start_time */
-  public static final String COLUMN_START_TIME = "start_time";
-  
-  /** end_time */
-  public static final String COLUMN_END_TIME = "end_time";
-  
-  /** hibernate version */
-  public static final String COLUMN_HIBERNATE_VERSION_NUMBER = "hibernate_version_number";
-
   
   /** constant for field name for: contextId */
   public static final String FIELD_CONTEXT_ID = "contextId";
@@ -127,15 +114,6 @@ public class PITGroupSet extends GrouperAPI implements Hib3GrouperVersioned {
   
   /** constant for field name for: parentId */
   public static final String FIELD_PARENT_ID = "parentId";
-  
-  /** constant for field name for: activeDb */
-  public static final String FIELD_ACTIVE_DB = "activeDb";
-  
-  /** constant for field name for: startTimeDb */
-  public static final String FIELD_START_TIME_DB = "startTimeDb";
-  
-  /** constant for field name for: endTimeDb */
-  public static final String FIELD_END_TIME_DB = "endTimeDb";
   
 
   /**
@@ -197,15 +175,6 @@ public class PITGroupSet extends GrouperAPI implements Hib3GrouperVersioned {
   
   /** parentId */
   private String parentId;
-
-  /** activeDb */
-  private String activeDb;
-  
-  /** startTimeDb */
-  private Long startTimeDb;
-  
-  /** endTimeDb */
-  private Long endTimeDb;
   
   /** whether there will flat notifications when this object is saved or updated */ 
   private boolean flatNotificationsOnSaveOrUpdate = false;
@@ -367,85 +336,6 @@ public class PITGroupSet extends GrouperAPI implements Hib3GrouperVersioned {
    */
   public void setFieldId(String fieldId) {
     this.fieldId = fieldId;
-  }
-
-  /**
-   * @return activeDb
-   */
-  public String getActiveDb() {
-    return activeDb;
-  }
-
-  /**
-   * @param activeDb
-   */
-  public void setActiveDb(String activeDb) {
-    this.activeDb = activeDb;
-  }
-
-  /**
-   * @return startTimeDb
-   */
-  public Long getStartTimeDb() {
-    return startTimeDb;
-  }
-
-  /**
-   * @param startTimeDb
-   */
-  public void setStartTimeDb(Long startTimeDb) {
-    this.startTimeDb = startTimeDb;
-  }
-
-  /**
-   * @return endTimeDb
-   */
-  public Long getEndTimeDb() {
-    return endTimeDb;
-  }
-
-  /**
-   * @param endTimeDb
-   */
-  public void setEndTimeDb(Long endTimeDb) {
-    this.endTimeDb = endTimeDb;
-  }
-
-  /**
-   * @return true if active
-   */
-  public boolean isActive() {
-    if (activeDb == null) {
-      throw new RuntimeException("activeDb should not be null.");
-    }
-    
-    if (activeDb.equals("T")) {
-      return true;
-    }
-    
-    return false;
-  }
-  
-  /**
-   * @return start time
-   */
-  public Timestamp getStartTime() {
-    if (startTimeDb == null) {
-      throw new RuntimeException("startTimeDb should not be null.");
-    }
-    
-    return new Timestamp(startTimeDb / 1000);
-  }
-  
-  /**
-   * @return end time
-   */
-  public Timestamp getEndTime() {
-    if (endTimeDb != null) {
-      return new Timestamp(endTimeDb / 1000);
-    }
-    
-    return null;
   }
   
   /**

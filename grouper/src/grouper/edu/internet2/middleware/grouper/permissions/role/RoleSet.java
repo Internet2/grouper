@@ -47,7 +47,9 @@ public class RoleSet extends GrouperAPI
         ChangeLogLabels.ROLE_SET_ADD.id.name(), this.getId(), 
         ChangeLogLabels.ROLE_SET_ADD.type.name(), this.getTypeDb(),
         ChangeLogLabels.ROLE_SET_ADD.ifHasRoleId.name(), this.getIfHasRoleId(), 
-        ChangeLogLabels.ROLE_SET_ADD.thenHasRoleId.name(), this.getThenHasRoleId()).save();
+        ChangeLogLabels.ROLE_SET_ADD.thenHasRoleId.name(), this.getThenHasRoleId(),
+        ChangeLogLabels.ROLE_SET_ADD.parentRoleSetId.name(), this.getParentRoleSetId(), 
+        ChangeLogLabels.ROLE_SET_ADD.depth.name(), "" + this.getDepth()).save();
   }
   
   /**
@@ -62,7 +64,9 @@ public class RoleSet extends GrouperAPI
         ChangeLogLabels.ROLE_SET_DELETE.id.name(), this.getId(), 
         ChangeLogLabels.ROLE_SET_DELETE.type.name(), this.getTypeDb(),
         ChangeLogLabels.ROLE_SET_DELETE.ifHasRoleId.name(), this.getIfHasRoleId(), 
-        ChangeLogLabels.ROLE_SET_DELETE.thenHasRoleId.name(), this.getThenHasRoleId()).save();
+        ChangeLogLabels.ROLE_SET_DELETE.thenHasRoleId.name(), this.getThenHasRoleId(),
+        ChangeLogLabels.ROLE_SET_DELETE.parentRoleSetId.name(), this.getParentRoleSetId(), 
+        ChangeLogLabels.ROLE_SET_DELETE.depth.name(), "" + this.getDepth()).save();
   }
 
   /**
@@ -71,6 +75,22 @@ public class RoleSet extends GrouperAPI
   @Override
   public void onPreUpdate(HibernateSession hibernateSession) {
     this.lastUpdatedDb = System.currentTimeMillis();
+    
+    if (this.dbVersionDifferentFields().contains(FIELD_DEPTH)) {
+      throw new RuntimeException("cannot update depth");
+    }
+    
+    if (this.dbVersionDifferentFields().contains(FIELD_IF_HAS_ROLE_ID)) {
+      throw new RuntimeException("cannot update ifHasRoleId");
+    }
+    
+    if (this.dbVersionDifferentFields().contains(FIELD_THEN_HAS_ROLE_ID)) {
+      throw new RuntimeException("cannot update thenHasRoleId");
+    }
+    
+    if (this.dbVersionDifferentFields().contains(FIELD_PARENT_ROLE_SET_ID) && parentRoleSetId != null) {
+      throw new RuntimeException("cannot update parentRoleSetId");
+    }
   }
 
   /** logger */
@@ -124,13 +144,16 @@ public class RoleSet extends GrouperAPI
   public static final String FIELD_ID = "id";
 
   /** constant for field name for: ifHasRoleId */
-  public static final String FIELD_IF_HAS_ATTRIBUTE_DEF_NAME_ID = "ifHasRoleId";
+  public static final String FIELD_IF_HAS_ROLE_ID = "ifHasRoleId";
 
   /** constant for field name for: lastUpdatedDb */
   public static final String FIELD_LAST_UPDATED_DB = "lastUpdatedDb";
 
   /** constant for field name for: thenHasRoleId */
-  public static final String FIELD_THEN_HAS_ATTRIBUTE_DEF_NAME_ID = "thenHasRoleId";
+  public static final String FIELD_THEN_HAS_ROLE_ID = "thenHasRoleId";
+  
+  /** constant for field name for: parentRoleSetId */
+  public static final String FIELD_PARENT_ROLE_SET_ID = "parentRoleSetId";
 
   /** constant for field name for: type */
   public static final String FIELD_TYPE = "type";
@@ -138,19 +161,18 @@ public class RoleSet extends GrouperAPI
   /**
    * fields which are included in db version
    */
-  @SuppressWarnings("unused")
   private static final Set<String> DB_VERSION_FIELDS = GrouperUtil.toSet(
       FIELD_CONTEXT_ID, FIELD_CREATED_ON_DB, FIELD_DEPTH,  
-      FIELD_ID, FIELD_IF_HAS_ATTRIBUTE_DEF_NAME_ID,  FIELD_LAST_UPDATED_DB, 
-      FIELD_THEN_HAS_ATTRIBUTE_DEF_NAME_ID, FIELD_TYPE);
+      FIELD_ID, FIELD_IF_HAS_ROLE_ID,  FIELD_LAST_UPDATED_DB, 
+      FIELD_THEN_HAS_ROLE_ID, FIELD_TYPE, FIELD_PARENT_ROLE_SET_ID);
 
   /**
    * fields which are included in clone method
    */
   private static final Set<String> CLONE_FIELDS = GrouperUtil.toSet(
       FIELD_CONTEXT_ID, FIELD_CREATED_ON_DB, FIELD_DEPTH,  
-      FIELD_HIBERNATE_VERSION_NUMBER, FIELD_ID, FIELD_IF_HAS_ATTRIBUTE_DEF_NAME_ID,  
-      FIELD_LAST_UPDATED_DB, FIELD_THEN_HAS_ATTRIBUTE_DEF_NAME_ID, FIELD_TYPE);
+      FIELD_HIBERNATE_VERSION_NUMBER, FIELD_ID, FIELD_IF_HAS_ROLE_ID,  
+      FIELD_LAST_UPDATED_DB, FIELD_THEN_HAS_ROLE_ID, FIELD_TYPE);
 
   //*****  END GENERATED WITH GenerateFieldConstants.java *****//
 
@@ -717,4 +739,36 @@ public class RoleSet extends GrouperAPI
     
   }
 
+  /**
+   * save the state when retrieving from DB
+   * @return the dbVersion
+   */
+  @Override
+  public RoleSet dbVersion() {
+    return (RoleSet)this.dbVersion;
+  }
+  
+  /**
+   * take a snapshot of the data since this is what is in the db
+   */
+  @Override
+  public void dbVersionReset() {
+    //lets get the state from the db so we know what has changed
+    this.dbVersion = GrouperUtil.clone(this, DB_VERSION_FIELDS);
+  }
+
+
+  /**
+   * @see edu.internet2.middleware.grouper.GrouperAPI#dbVersionDifferentFields()
+   */
+  @Override
+  public Set<String> dbVersionDifferentFields() {
+    if (this.dbVersion == null) {
+      throw new RuntimeException("State was never stored from db");
+    }
+    //easier to unit test if everything is ordered
+    Set<String> result = GrouperUtil.compareObjectFields(this, this.dbVersion,
+        DB_VERSION_FIELDS, null);
+    return result;
+  }
 }

@@ -969,6 +969,14 @@ public class AttributeDefName extends GrouperAPI
     super.onPreUpdate(hibernateSession);
     this.lastUpdatedDb = System.currentTimeMillis();
 
+    if (this.dbVersionDifferentFields().contains(FIELD_ATTRIBUTE_DEF_ID)) {
+      throw new RuntimeException("cannot update attributeDefId");
+    }
+    
+    if (this.dbVersionDifferentFields().contains(FIELD_STEM_ID)) {
+      throw new RuntimeException("cannot update stemId");
+    }
+    
     GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.ATTRIBUTE_DEF_NAME, 
         AttributeDefNameHooks.METHOD_ATTRIBUTE_DEF_NAME_PRE_UPDATE, HooksAttributeDefNameBean.class, 
         this, AttributeDefName.class, VetoTypeGrouper.ATTRIBUTE_DEF_NAME_PRE_UPDATE, false, false);
@@ -982,12 +990,10 @@ public class AttributeDefName extends GrouperAPI
             ChangeLogLabels.ATTRIBUTE_DEF_NAME_UPDATE.stemId.name(), this.getStemId(), 
             ChangeLogLabels.ATTRIBUTE_DEF_NAME_UPDATE.description.name(), this.getDescription(), 
             ChangeLogLabels.ATTRIBUTE_DEF_NAME_UPDATE.attributeDefId.name(), this.getAttributeDefId()),
-        GrouperUtil.toList("name", "description", "stemId", "attributeDefId"),
+        GrouperUtil.toList("name", "description"),
         GrouperUtil.toList(
             ChangeLogLabels.ATTRIBUTE_DEF_NAME_UPDATE.name.name(),
-            ChangeLogLabels.ATTRIBUTE_DEF_NAME_UPDATE.description.name(),
-            ChangeLogLabels.ATTRIBUTE_DEF_NAME_UPDATE.stemId.name(),
-            ChangeLogLabels.ATTRIBUTE_DEF_NAME_UPDATE.attributeDefId.name())); 
+            ChangeLogLabels.ATTRIBUTE_DEF_NAME_UPDATE.description.name())); 
   }
 
   /**

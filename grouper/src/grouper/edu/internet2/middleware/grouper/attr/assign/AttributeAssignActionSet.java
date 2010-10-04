@@ -145,7 +145,7 @@ public class AttributeAssignActionSet extends GrouperAPI
   public static final String FIELD_ID = "id";
 
   /** constant for field name for: ifHasAttributeAssignActionId */
-  public static final String FIELD_IF_HAS_ATTR_ASSN_ACTION_ID = "ifHasAttrAssnActionId";
+  public static final String FIELD_IF_HAS_ATTR_ASSIGN_ACTION_ID = "ifHasAttrAssignActionId";
 
   /** constant for field name for: lastUpdatedDb */
   public static final String FIELD_LAST_UPDATED_DB = "lastUpdatedDb";
@@ -154,7 +154,7 @@ public class AttributeAssignActionSet extends GrouperAPI
   public static final String FIELD_PARENT_ATTR_ASSIGN_ACTION_SET_ID = "parentAttrAssignActionSetId";
 
   /** constant for field name for: thenHasAttributeAssignActionId */
-  public static final String FIELD_THEN_HAS_ATTR_ASSN_ACTION_ID = "thenHasAttrAssnActionId";
+  public static final String FIELD_THEN_HAS_ATTR_ASSIGN_ACTION_ID = "thenHasAttrAssignActionId";
 
   /** constant for field name for: type */
   public static final String FIELD_TYPE = "type";
@@ -162,19 +162,18 @@ public class AttributeAssignActionSet extends GrouperAPI
   /**
    * fields which are included in db version
    */
-  @SuppressWarnings("unused")
   private static final Set<String> DB_VERSION_FIELDS = GrouperUtil.toSet(
       FIELD_CONTEXT_ID, FIELD_CREATED_ON_DB, FIELD_DEPTH,  
-      FIELD_ID, FIELD_IF_HAS_ATTR_ASSN_ACTION_ID,  FIELD_LAST_UPDATED_DB, 
-      FIELD_THEN_HAS_ATTR_ASSN_ACTION_ID, FIELD_TYPE);
+      FIELD_ID, FIELD_IF_HAS_ATTR_ASSIGN_ACTION_ID,  FIELD_LAST_UPDATED_DB, 
+      FIELD_THEN_HAS_ATTR_ASSIGN_ACTION_ID, FIELD_TYPE, FIELD_PARENT_ATTR_ASSIGN_ACTION_SET_ID);
 
   /**
    * fields which are included in clone method
    */
   private static final Set<String> CLONE_FIELDS = GrouperUtil.toSet(
       FIELD_CONTEXT_ID, FIELD_CREATED_ON_DB, FIELD_DEPTH,  
-      FIELD_HIBERNATE_VERSION_NUMBER, FIELD_ID, FIELD_IF_HAS_ATTR_ASSN_ACTION_ID,  
-      FIELD_LAST_UPDATED_DB, FIELD_THEN_HAS_ATTR_ASSN_ACTION_ID, FIELD_TYPE);
+      FIELD_HIBERNATE_VERSION_NUMBER, FIELD_ID, FIELD_IF_HAS_ATTR_ASSIGN_ACTION_ID,  
+      FIELD_LAST_UPDATED_DB, FIELD_THEN_HAS_ATTR_ASSIGN_ACTION_ID, FIELD_TYPE);
 
   //*****  END GENERATED WITH GenerateFieldConstants.java *****//
 
@@ -756,7 +755,9 @@ public class AttributeAssignActionSet extends GrouperAPI
         ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_SET_ADD.id.name(), this.getId(), 
         ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_SET_ADD.type.name(), this.getTypeDb(),
         ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_SET_ADD.ifHasAttrAssnActionId.name(), this.getIfHasAttrAssignActionId(), 
-        ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_SET_ADD.thenHasAttrAssnActionId.name(), this.getThenHasAttrAssignActionId()).save();
+        ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_SET_ADD.thenHasAttrAssnActionId.name(), this.getThenHasAttrAssignActionId(),
+        ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_SET_ADD.parentAttrAssignActionSetId.name(), this.getParentAttrAssignActionSetId(), 
+        ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_SET_ADD.depth.name(), "" + this.getDepth()).save();
   }
   
   /**
@@ -771,7 +772,9 @@ public class AttributeAssignActionSet extends GrouperAPI
         ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_SET_DELETE.id.name(), this.getId(), 
         ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_SET_DELETE.type.name(), this.getTypeDb(),
         ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_SET_DELETE.ifHasAttrAssnActionId.name(), this.getIfHasAttrAssignActionId(), 
-        ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_SET_DELETE.thenHasAttrAssnActionId.name(), this.getThenHasAttrAssignActionId()).save();
+        ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_SET_DELETE.thenHasAttrAssnActionId.name(), this.getThenHasAttrAssignActionId(),
+        ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_SET_DELETE.parentAttrAssignActionSetId.name(), this.getParentAttrAssignActionSetId(), 
+        ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_SET_DELETE.depth.name(), "" + this.getDepth()).save();
   }
 
   /**
@@ -781,6 +784,54 @@ public class AttributeAssignActionSet extends GrouperAPI
   public void onPreUpdate(HibernateSession hibernateSession) {
     super.onPreUpdate(hibernateSession);
     this.lastUpdatedDb = System.currentTimeMillis();
+    
+    if (this.dbVersionDifferentFields().contains(FIELD_DEPTH)) {
+      throw new RuntimeException("cannot update depth");
+    }
+    
+    if (this.dbVersionDifferentFields().contains(FIELD_IF_HAS_ATTR_ASSIGN_ACTION_ID)) {
+      throw new RuntimeException("cannot update ifHasAttrAssignActionId");
+    }
+    
+    if (this.dbVersionDifferentFields().contains(FIELD_THEN_HAS_ATTR_ASSIGN_ACTION_ID)) {
+      throw new RuntimeException("cannot update thenHasAttrAssignActionId");
+    }
+    
+    if (this.dbVersionDifferentFields().contains(FIELD_PARENT_ATTR_ASSIGN_ACTION_SET_ID) && parentAttrAssignActionSetId != null) {
+      throw new RuntimeException("cannot update parentAttrAssignActionSetId");
+    }
   }
 
+  /**
+   * save the state when retrieving from DB
+   * @return the dbVersion
+   */
+  @Override
+  public AttributeAssignActionSet dbVersion() {
+    return (AttributeAssignActionSet)this.dbVersion;
+  }
+  
+  /**
+   * take a snapshot of the data since this is what is in the db
+   */
+  @Override
+  public void dbVersionReset() {
+    //lets get the state from the db so we know what has changed
+    this.dbVersion = GrouperUtil.clone(this, DB_VERSION_FIELDS);
+  }
+
+
+  /**
+   * @see edu.internet2.middleware.grouper.GrouperAPI#dbVersionDifferentFields()
+   */
+  @Override
+  public Set<String> dbVersionDifferentFields() {
+    if (this.dbVersion == null) {
+      throw new RuntimeException("State was never stored from db");
+    }
+    //easier to unit test if everything is ordered
+    Set<String> result = GrouperUtil.compareObjectFields(this, this.dbVersion,
+        DB_VERSION_FIELDS, null);
+    return result;
+  }
 }

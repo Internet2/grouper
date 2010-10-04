@@ -726,7 +726,13 @@ public class ChangeLogLabels {
     ifHasAttrAssnActionId,
     
     /** thenHasAttrAssnActionId */
-    thenHasAttrAssnActionId;
+    thenHasAttrAssnActionId,
+    
+    /** parentAttrAssignActionSetId */
+    parentAttrAssignActionSetId,
+    
+    /** depth */
+    depth;
   }
   
   /**
@@ -744,7 +750,13 @@ public class ChangeLogLabels {
     ifHasAttrAssnActionId,
     
     /** thenHasAttrAssnActionId */
-    thenHasAttrAssnActionId;
+    thenHasAttrAssnActionId,
+    
+    /** parentAttrAssignActionSetId */
+    parentAttrAssignActionSetId,
+    
+    /** depth */
+    depth;
   }
   
   /**
@@ -762,7 +774,13 @@ public class ChangeLogLabels {
     ifHasAttributeDefNameId,
     
     /** thenHasAttributeDefNameId */
-    thenHasAttributeDefNameId;
+    thenHasAttributeDefNameId,
+    
+    /** parentAttrDefNameSetId */
+    parentAttrDefNameSetId,
+    
+    /** depth */
+    depth;
   }
   
   /**
@@ -780,7 +798,13 @@ public class ChangeLogLabels {
     ifHasAttributeDefNameId,
     
     /** thenHasAttributeDefNameId */
-    thenHasAttributeDefNameId;
+    thenHasAttributeDefNameId,
+    
+    /** parentAttrDefNameSetId */
+    parentAttrDefNameSetId,
+    
+    /** depth */
+    depth;
   }
   
   /**
@@ -798,7 +822,13 @@ public class ChangeLogLabels {
     ifHasRoleId,
     
     /** thenHasRoleId */
-    thenHasRoleId;
+    thenHasRoleId,
+    
+    /** parentRoleSetId */
+    parentRoleSetId,
+    
+    /** depth */
+    depth;
   }
   
   /**
@@ -816,7 +846,13 @@ public class ChangeLogLabels {
     ifHasRoleId,
     
     /** thenHasRoleId */
-    thenHasRoleId;
+    thenHasRoleId,
+    
+    /** parentRoleSetId */
+    parentRoleSetId,
+    
+    /** depth */
+    depth;
   }
   
   /**
@@ -937,38 +973,5 @@ public class ChangeLogLabels {
     
     /** ownerId2 - if the assignType is any_mem, then ownerId1 is the groupId and ownerId2 is the memberId */
     ownerId2;
-  }
-  
-  /**
-   * label for attribute assign update
-   */
-  public static enum ATTRIBUTE_ASSIGN_UPDATE implements ChangeLogLabel {
-  
-    /** id */
-    id, 
-    
-    /** attributeDefNameId */
-    attributeDefNameId,
-    
-    /** attributeAssignActionId */
-    attributeAssignActionId,
-    
-    /** assignType */
-    assignType,
-    
-    /** ownerId1 */
-    ownerId1,
-    
-    /** ownerId2 - if the assignType is any_mem, then ownerId1 is the groupId and ownerId2 is the memberId */
-    ownerId2,
-    
-    /** property which changed */
-    propertyChanged, 
-    
-    /** old value of the property */
-    propertyOldValue,
-    
-    /** new value of the property */
-    propertyNewValue;
   }
 }

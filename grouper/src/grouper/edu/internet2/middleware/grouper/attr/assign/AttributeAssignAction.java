@@ -90,6 +90,10 @@ public class AttributeAssignAction extends GrouperAPI
     super.onPreUpdate(hibernateSession);
     this.lastUpdatedDb = System.currentTimeMillis();
     
+    if (this.dbVersionDifferentFields().contains(FIELD_ATTRIBUTE_DEF_ID)) {
+      throw new RuntimeException("cannot update attributeDefId");
+    }
+    
     //change log into temp table
     ChangeLogEntry.saveTempUpdates(ChangeLogTypeBuiltin.ATTRIBUTE_ASSIGN_ACTION_UPDATE, 
         this, this.dbVersion(),
@@ -97,10 +101,9 @@ public class AttributeAssignAction extends GrouperAPI
             ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_UPDATE.id.name(), this.getId(), 
             ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_UPDATE.name.name(), this.getName(), 
             ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_UPDATE.attributeDefId.name(), this.getAttributeDefId()),
-        GrouperUtil.toList("name", "attributeDefId"),
+        GrouperUtil.toList("name"),
         GrouperUtil.toList(
-            ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_UPDATE.name.name(),
-            ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_UPDATE.attributeDefId.name())); 
+            ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_UPDATE.name.name())); 
   }
 
   /** column */

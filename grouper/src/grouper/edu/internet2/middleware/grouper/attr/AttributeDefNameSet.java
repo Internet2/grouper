@@ -59,7 +59,9 @@ public class AttributeDefNameSet extends GrouperAPI
         ChangeLogLabels.ATTRIBUTE_DEF_NAME_SET_ADD.id.name(), this.getId(), 
         ChangeLogLabels.ATTRIBUTE_DEF_NAME_SET_ADD.type.name(), this.getTypeDb(),
         ChangeLogLabels.ATTRIBUTE_DEF_NAME_SET_ADD.ifHasAttributeDefNameId.name(), this.getIfHasAttributeDefNameId(), 
-        ChangeLogLabels.ATTRIBUTE_DEF_NAME_SET_ADD.thenHasAttributeDefNameId.name(), this.getThenHasAttributeDefNameId()).save();
+        ChangeLogLabels.ATTRIBUTE_DEF_NAME_SET_ADD.thenHasAttributeDefNameId.name(), this.getThenHasAttributeDefNameId(),
+        ChangeLogLabels.ATTRIBUTE_DEF_NAME_SET_ADD.parentAttrDefNameSetId.name(), this.getParentAttrDefNameSetId(), 
+        ChangeLogLabels.ATTRIBUTE_DEF_NAME_SET_ADD.depth.name(), "" + this.getDepth()).save();
   }
 
   /**
@@ -70,6 +72,22 @@ public class AttributeDefNameSet extends GrouperAPI
     super.onPreUpdate(hibernateSession);
 
     this.lastUpdatedDb = System.currentTimeMillis();
+    
+    if (this.dbVersionDifferentFields().contains(FIELD_DEPTH)) {
+      throw new RuntimeException("cannot update depth");
+    }
+    
+    if (this.dbVersionDifferentFields().contains(FIELD_IF_HAS_ATTRIBUTE_DEF_NAME_ID)) {
+      throw new RuntimeException("cannot update ifHasAttributeDefNameId");
+    }
+    
+    if (this.dbVersionDifferentFields().contains(FIELD_THEN_HAS_ATTRIBUTE_DEF_NAME_ID)) {
+      throw new RuntimeException("cannot update thenHasAttributeDefNameId");
+    }
+    
+    if (this.dbVersionDifferentFields().contains(FIELD_PARENT_ATTR_DEF_NAME_SET_ID) && parentAttrDefNameSetId != null) {
+      throw new RuntimeException("cannot update parentAttrDefNameSetId");
+    }
 }
  
   /**
@@ -83,7 +101,9 @@ public class AttributeDefNameSet extends GrouperAPI
         ChangeLogLabels.ATTRIBUTE_DEF_NAME_SET_DELETE.id.name(), this.getId(), 
         ChangeLogLabels.ATTRIBUTE_DEF_NAME_SET_DELETE.type.name(), this.getTypeDb(),
         ChangeLogLabels.ATTRIBUTE_DEF_NAME_SET_DELETE.ifHasAttributeDefNameId.name(), this.getIfHasAttributeDefNameId(), 
-        ChangeLogLabels.ATTRIBUTE_DEF_NAME_SET_DELETE.thenHasAttributeDefNameId.name(), this.getThenHasAttributeDefNameId()).save();
+        ChangeLogLabels.ATTRIBUTE_DEF_NAME_SET_DELETE.thenHasAttributeDefNameId.name(), this.getThenHasAttributeDefNameId(),
+        ChangeLogLabels.ATTRIBUTE_DEF_NAME_SET_DELETE.parentAttrDefNameSetId.name(), this.getParentAttrDefNameSetId(), 
+        ChangeLogLabels.ATTRIBUTE_DEF_NAME_SET_DELETE.depth.name(), "" + this.getDepth()).save();
   }
 
   /** logger */
@@ -144,6 +164,9 @@ public class AttributeDefNameSet extends GrouperAPI
 
   /** constant for field name for: thenHasAttributeDefNameId */
   public static final String FIELD_THEN_HAS_ATTRIBUTE_DEF_NAME_ID = "thenHasAttributeDefNameId";
+  
+  /** constant for field name for: parentAttrDefNameSetId */
+  public static final String FIELD_PARENT_ATTR_DEF_NAME_SET_ID = "parentAttrDefNameSetId";
 
   /** constant for field name for: type */
   public static final String FIELD_TYPE = "type";
@@ -151,11 +174,10 @@ public class AttributeDefNameSet extends GrouperAPI
   /**
    * fields which are included in db version
    */
-  @SuppressWarnings("unused")
   private static final Set<String> DB_VERSION_FIELDS = GrouperUtil.toSet(
       FIELD_CONTEXT_ID, FIELD_CREATED_ON_DB, FIELD_DEPTH,  
       FIELD_ID, FIELD_IF_HAS_ATTRIBUTE_DEF_NAME_ID,  FIELD_LAST_UPDATED_DB, 
-      FIELD_THEN_HAS_ATTRIBUTE_DEF_NAME_ID, FIELD_TYPE);
+      FIELD_THEN_HAS_ATTRIBUTE_DEF_NAME_ID, FIELD_TYPE, FIELD_PARENT_ATTR_DEF_NAME_SET_ID);
 
   /**
    * fields which are included in clone method
@@ -733,6 +755,39 @@ public class AttributeDefNameSet extends GrouperAPI
     
     return stringWriter.toString();
     
+  }
+  
+  /**
+   * save the state when retrieving from DB
+   * @return the dbVersion
+   */
+  @Override
+  public AttributeDefNameSet dbVersion() {
+    return (AttributeDefNameSet)this.dbVersion;
+  }
+  
+  /**
+   * take a snapshot of the data since this is what is in the db
+   */
+  @Override
+  public void dbVersionReset() {
+    //lets get the state from the db so we know what has changed
+    this.dbVersion = GrouperUtil.clone(this, DB_VERSION_FIELDS);
+  }
+
+
+  /**
+   * @see edu.internet2.middleware.grouper.GrouperAPI#dbVersionDifferentFields()
+   */
+  @Override
+  public Set<String> dbVersionDifferentFields() {
+    if (this.dbVersion == null) {
+      throw new RuntimeException("State was never stored from db");
+    }
+    //easier to unit test if everything is ordered
+    Set<String> result = GrouperUtil.compareObjectFields(this, this.dbVersion,
+        DB_VERSION_FIELDS, null);
+    return result;
   }
 
 }
