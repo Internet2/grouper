@@ -12,6 +12,7 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -28,8 +29,10 @@ import org.apache.commons.logging.LogFactory;
 import au.com.bytecode.opencsv.CSVReader;
 import au.com.bytecode.opencsv.CSVWriter;
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGroup;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiHideShow;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
@@ -37,6 +40,7 @@ import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
 import edu.internet2.middleware.grouper.grouperUi.beans.simpleMembershipUpdate.ImportSubjectWrapper;
 import edu.internet2.middleware.grouper.grouperUi.beans.simpleMembershipUpdate.SimpleMembershipUpdateContainer;
 import edu.internet2.middleware.grouper.j2ee.GrouperRequestWrapper;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.exceptions.ControllerDone;
@@ -411,11 +415,48 @@ public class SimpleMembershipUpdateImportExport {
       List<String> subjectErrors = new ArrayList<String>();
       List<Subject> importedSubjectWrappers = parseCsvImportFile(
           reader, fileName, subjectErrors);
-  
+
+      final List<String> addErrors = new ArrayList<String>();
+
+      //filter out the require group
+      final String requireGroup = simpleMembershipUpdateContainer.configValue(
+          "simpleMembershipUpdate.subjectSearchRequireGroup", false);
+      
+      if (!StringUtils.isBlank(requireGroup)) {
+
+        final List<Subject> SUBJECTS = importedSubjectWrappers;
+        
+        GrouperSession.callbackGrouperSession(
+            grouperSession.internal_getRootSession(), new GrouperSessionHandler() {
+          
+          @Override
+          public Object callback(GrouperSession rootGrouperSession) throws GrouperSessionException {
+            
+            Group groupFilter = GroupFinder.findByName(rootGrouperSession, requireGroup, true);
+            
+            Iterator<Subject> iterator = SUBJECTS.iterator();
+            
+            while (iterator.hasNext()) {
+              
+              Subject subject = iterator.next();
+              
+              if (!groupFilter.hasMember(subject)) {
+                iterator.remove();
+                String error = "Subject " + ((ImportSubjectWrapper)subject).errorLabelForError() 
+                  + " not in required group " + groupFilter.getName();
+                addErrors.add(error);
+              }
+              
+              
+            }
+            return null;
+          }
+        });
+      }
+      
       GrouperUiUtils.removeOverlappingSubjects(existingMembers, importedSubjectWrappers);
       
       int addedCount = 0;
-      List<String> addErrors = new ArrayList<String>();
       
       //first lets add some members
       for (int i=0;i<importedSubjectWrappers.size();i++) {

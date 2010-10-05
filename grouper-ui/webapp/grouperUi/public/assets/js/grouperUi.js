@@ -231,6 +231,10 @@ function guiDecorateUrl(theUrl) {
     theUrl += theUrl.indexOf("?") == -1 ? "?" : "&";
     theUrl += "groupName=" +  urlArgObjectMap.groupName;
   }
+  if (typeof urlArgObjectMap.membershipLiteName != 'undefined') {
+    theUrl += theUrl.indexOf("?") == -1 ? "?" : "&";
+    theUrl += "membershipLiteName=" +  urlArgObjectMap.membershipLiteName;
+  }
   return theUrl;
 }
 
