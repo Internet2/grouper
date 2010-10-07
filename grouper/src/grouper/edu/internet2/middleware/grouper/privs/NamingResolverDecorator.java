@@ -204,11 +204,12 @@ public abstract class NamingResolverDecorator implements NamingResolver {
   }
 
   /**
-   * @see NamingResolver#getStemsWhereSubjectDoesntHavePrivilege(String, Scope, Subject, Privilege, boolean)
+   * @see NamingResolver#getStemsWhereSubjectDoesntHavePrivilege(String, Scope, Subject, Privilege, boolean, String)
    */
   public Set<Stem> getStemsWhereSubjectDoesntHavePrivilege(
-      String stemId, Scope scope, Subject subject, Privilege privilege, boolean considerAllSubject) {
-    return this.getDecoratedResolver().getStemsWhereSubjectDoesntHavePrivilege(stemId, scope, subject, privilege, considerAllSubject);
+      String stemId, Scope scope, Subject subject, Privilege privilege, boolean considerAllSubject, 
+      String sqlLikeString) {
+    return this.getDecoratedResolver().getStemsWhereSubjectDoesntHavePrivilege(stemId, scope, subject, privilege, considerAllSubject, sqlLikeString);
   }
 
   /**

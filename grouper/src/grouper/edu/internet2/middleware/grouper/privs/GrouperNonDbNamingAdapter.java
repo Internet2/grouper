@@ -60,11 +60,13 @@ public class GrouperNonDbNamingAdapter extends BaseNamingAdapter {
    * @param subject 
    * @param privilege 
    * @param considerAllSubject
+   * @param sqlLikeString
    * @return stems
    */
   public Set<Stem> getStemsWhereSubjectDoesntHavePrivilege(
       GrouperSession grouperSession, String stemId, Scope scope, Subject subject,
-      Privilege privilege, boolean considerAllSubject) {
+      Privilege privilege, boolean considerAllSubject, 
+      String sqlLikeString) {
 
     //note, no need for GrouperSession inverse of control
     GrouperSession.validate(grouperSession);
@@ -73,7 +75,7 @@ public class GrouperNonDbNamingAdapter extends BaseNamingAdapter {
     // This subject
     stems.addAll( 
       GrouperPrivilegeAdapter.internal_getStemsWhereSubjectDoesntHavePriv( grouperSession, 
-          stemId, scope, subject, privilege, considerAllSubject) 
+          stemId, scope, subject, privilege, considerAllSubject, sqlLikeString) 
     );
     return stems;
   

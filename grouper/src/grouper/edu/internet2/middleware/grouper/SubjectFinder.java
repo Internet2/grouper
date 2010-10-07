@@ -849,7 +849,7 @@ public class SubjectFinder {
    * sourceId::::::subjectIdentifier
    * ::::::subjectIdentifier
    * sourceId::::::::subjectIdOrIdentifier
-   * ::::::::subjectIdentifier
+   * ::::::::subjectIdOrIdentifier
    * </pre>
    * @param subjectString
    * @param exceptionIfNotFound

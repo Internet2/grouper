@@ -94,10 +94,12 @@ public interface AccessAdapter {
    * @param subject
    * @param privilege
    * @param considerAllSubject
+   * @param sqlLikeString 
    * @return the groups
    */
   Set<Group> getGroupsWhereSubjectDoesntHavePrivilege(GrouperSession grouperSession,
-      String stemId, Scope scope, Subject subject, Privilege privilege, boolean considerAllSubject);
+      String stemId, Scope scope, Subject subject, Privilege privilege, boolean considerAllSubject, 
+      String sqlLikeString);
   
   /**
    * get stems where a group exists where the subject has privilege

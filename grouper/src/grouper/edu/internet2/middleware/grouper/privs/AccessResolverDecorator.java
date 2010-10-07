@@ -100,11 +100,14 @@ public abstract class AccessResolverDecorator implements AccessResolver {
   }
 
   /**
-   * @see AccessResolver#getGroupsWhereSubjectDoesntHavePrivilege(String, Scope, Subject, Privilege, boolean)
+   * @see AccessResolver#getGroupsWhereSubjectDoesntHavePrivilege(String, Scope, Subject, Privilege, boolean, String)
    */
   public Set<Group> getGroupsWhereSubjectDoesntHavePrivilege(
-      String stemId, Scope scope, Subject subject, Privilege privilege, boolean considerAllSubject) {
-    return this.getDecoratedResolver().getGroupsWhereSubjectDoesntHavePrivilege(stemId, scope, subject, privilege, considerAllSubject);
+      String stemId, Scope scope, Subject subject, Privilege privilege, boolean considerAllSubject, 
+      String sqlLikeString) {
+    return this.getDecoratedResolver().getGroupsWhereSubjectDoesntHavePrivilege(stemId, 
+        scope, subject, privilege, considerAllSubject, 
+        sqlLikeString);
   }
 
 

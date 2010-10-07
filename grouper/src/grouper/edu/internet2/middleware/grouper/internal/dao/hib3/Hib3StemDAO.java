@@ -1409,10 +1409,12 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
   }
 
   /**
-   * @see StemDAO#findStemsInStemWithoutPrivilege(GrouperSession, String, Scope, Subject, Privilege, QueryOptions, boolean)
+   * @see StemDAO#findStemsInStemWithoutPrivilege(GrouperSession, String, Scope, Subject, Privilege, QueryOptions, boolean, String)
    */
   public Set<Stem> findStemsInStemWithoutPrivilege(GrouperSession grouperSession,
-      String stemId, Scope scope, Subject subject, Privilege privilege, QueryOptions queryOptions, boolean considerAllSubject) {
+      String stemId, Scope scope, Subject subject, 
+      Privilege privilege, QueryOptions queryOptions, boolean considerAllSubject, 
+      String sqlLikeString) {
     
     if (queryOptions == null) {
       queryOptions = new QueryOptions();
@@ -1432,6 +1434,12 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
 
     boolean changedQueryNotWithPriv = grouperSession.getNamingResolver().hqlFilterStemsNotWithPrivWhereClause(subject, byHqlStatic, 
         sql, "theStem.uuid", privilege, considerAllSubject);
+
+    if (!StringUtils.isBlank(sqlLikeString)) {
+      sql.append(" and theStem.nameDb like :sqlLikeString ");
+      byHqlStatic.setString("sqlLikeString", sqlLikeString);
+    }
+    
 
     switch (scope) {
       case ONE:

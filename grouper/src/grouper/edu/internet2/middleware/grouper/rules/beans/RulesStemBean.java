@@ -20,6 +20,14 @@ public class RulesStemBean extends RulesBean {
   }
   
   /**
+   * @see RulesBean#hasStem()
+   */
+  @Override
+  public boolean hasStem() {
+    return true;
+  }
+
+  /**
    * 
    * @param stem1
    */

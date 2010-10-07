@@ -42,6 +42,14 @@ public class RulesAttributeDefBean extends RulesBean {
   }
 
   /**
+   * @see RulesBean#hasAttributeDef()
+   */
+  @Override
+  public boolean hasAttributeDef() {
+    return true;
+  }
+
+  /**
    * attributeDef
    * @param attributeDef1
    */

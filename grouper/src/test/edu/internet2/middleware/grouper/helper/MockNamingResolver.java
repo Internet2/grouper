@@ -215,7 +215,8 @@ public class MockNamingResolver implements NamingResolver {
   }
 
   public Set<Stem> getStemsWhereSubjectDoesntHavePrivilege(String stemId, Scope scope,
-      Subject subject, Privilege privilege, boolean considerAllSubject) {
+      Subject subject, Privilege privilege, boolean considerAllSubject, 
+      String sqlLikeString) {
     throw E;
   }
 

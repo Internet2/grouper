@@ -1910,10 +1910,12 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
   }
   
   /**
-   * @see GroupDAO#findGroupsInStemWithoutPrivilege(GrouperSession, String, Scope, Subject, Privilege, QueryOptions, boolean)
+   * @see GroupDAO#findGroupsInStemWithoutPrivilege(GrouperSession, String, Scope, Subject, Privilege, QueryOptions, boolean, String)
    */
   public Set<Group> findGroupsInStemWithoutPrivilege(GrouperSession grouperSession,
-      String stemId, Scope scope, Subject subject, Privilege privilege, QueryOptions queryOptions, boolean considerAllSubject) {
+      String stemId, Scope scope, Subject subject, Privilege privilege, 
+      QueryOptions queryOptions, boolean considerAllSubject, 
+      String sqlLikeString) {
     
     if (queryOptions == null) {
       queryOptions = new QueryOptions();
@@ -1934,6 +1936,11 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
     boolean changedQueryNotWithPriv = grouperSession.getAccessResolver().hqlFilterGroupsNotWithPrivWhereClause(subject, byHqlStatic, 
         sql, "theGroup.uuid", privilege, considerAllSubject);
 
+    if (!StringUtils.isBlank(sqlLikeString)) {
+      sql.append(" and theGroup.nameDb like :sqlLikeString ");
+      byHqlStatic.setString("sqlLikeString", sqlLikeString);
+    }
+    
     switch (scope) {
       case ONE:
         

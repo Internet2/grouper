@@ -296,11 +296,14 @@ public class AttributeDefWrapper implements AttributeDefResolver {
 
 
   /**
-   * @see AttributeDefResolver#getGroupsWhereSubjectDoesntHavePrivilege(String, Scope, Subject, Privilege, boolean)
+   * @see AttributeDefResolver#getAttributeDefsWhereSubjectDoesntHavePrivilege(String, Scope, Subject, Privilege, boolean, String)
    */
   public Set<AttributeDef> getAttributeDefsWhereSubjectDoesntHavePrivilege(
-      String stemId, Scope scope, Subject subject, Privilege privilege, boolean considerAllSubject) {
-    return this.attributeDefAdapter.getAttributeDefsWhereSubjectDoesntHavePrivilege(this.grouperSession, stemId, scope, subject, privilege, considerAllSubject);
+      String stemId, Scope scope, Subject subject, Privilege privilege, boolean considerAllSubject, 
+      String sqlLikeString) {
+    return this.attributeDefAdapter.getAttributeDefsWhereSubjectDoesntHavePrivilege(
+        this.grouperSession, stemId, scope, subject, privilege, considerAllSubject, 
+        sqlLikeString);
   }
 
   /**

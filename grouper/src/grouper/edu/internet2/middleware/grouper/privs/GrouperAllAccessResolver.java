@@ -77,12 +77,13 @@ public class GrouperAllAccessResolver extends AccessResolverDecorator {
   }
 
   /**
-   * @see AccessResolver#getGroupsWhereSubjectDoesntHavePrivilege(String, Scope, Subject, Privilege, boolean)
+   * @see AccessResolver#getGroupsWhereSubjectDoesntHavePrivilege(String, Scope, Subject, Privilege, boolean, String)
    */
   public Set<Group> getGroupsWhereSubjectDoesntHavePrivilege(
-      String stemId, Scope scope, Subject subject, Privilege privilege, boolean considerAllSubject) {
+      String stemId, Scope scope, Subject subject, Privilege privilege, boolean considerAllSubject, 
+      String sqlLikeString) {
     Set<Group> groups = super.getDecoratedResolver().getGroupsWhereSubjectDoesntHavePrivilege(
-        stemId, scope, subject, privilege, considerAllSubject);
+        stemId, scope, subject, privilege, considerAllSubject, sqlLikeString);
     return groups;
   }
 

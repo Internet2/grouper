@@ -66,13 +66,15 @@ public class ValidatingAccessResolver extends AccessResolverDecorator {
   }
 
   /**
-   * @see     AccessResolver#getGroupsWhereSubjectDoesntHavePrivilege(String, Scope, Subject, Privilege, boolean)
+   * @see     AccessResolver#getGroupsWhereSubjectDoesntHavePrivilege(String, Scope, Subject, Privilege, boolean, String)
    */
   public Set<Group> getGroupsWhereSubjectDoesntHavePrivilege(String stemId, Scope scope, 
-      Subject subject, Privilege privilege, boolean considerAllSubject)
+      Subject subject, Privilege privilege, boolean considerAllSubject, 
+      String sqlLikeString)
       throws IllegalArgumentException {
     this.param.notNullSubject(subject).notNullPrivilege(privilege);
-    return super.getDecoratedResolver().getGroupsWhereSubjectDoesntHavePrivilege(stemId, scope, subject, privilege, considerAllSubject);
+    return super.getDecoratedResolver().getGroupsWhereSubjectDoesntHavePrivilege(
+        stemId, scope, subject, privilege, considerAllSubject, sqlLikeString);
   }
 
   /**

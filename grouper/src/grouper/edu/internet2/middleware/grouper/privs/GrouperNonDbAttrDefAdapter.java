@@ -423,11 +423,13 @@ public class GrouperNonDbAttrDefAdapter extends BaseAttrDefAdapter implements
    * @param subject 
    * @param privilege 
    * @param considerAllSubject
+   * @param sqlLikeString
    * @return attributedefs
    */
   public Set<AttributeDef> getAttributeDefsWhereSubjectDoesntHavePrivilege(
       GrouperSession grouperSession, String stemId, Scope scope, Subject subject,
-      Privilege privilege, boolean considerAllSubject) {
+      Privilege privilege, boolean considerAllSubject, 
+      String sqlLikeString) {
 
     //note, no need for GrouperSession inverse of control
     GrouperSession.validate(grouperSession);
@@ -436,7 +438,7 @@ public class GrouperNonDbAttrDefAdapter extends BaseAttrDefAdapter implements
     // This subject
     attributeDefs.addAll( 
       GrouperPrivilegeAdapter.internal_getAttributeDefsWhereSubjectDoesntHavePriv( grouperSession, 
-          stemId, scope, subject, privilege, considerAllSubject) 
+          stemId, scope, subject, privilege, considerAllSubject, sqlLikeString) 
     );
     return attributeDefs;
   

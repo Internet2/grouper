@@ -232,10 +232,12 @@ public interface AttributeDefResolver {
    * @param subject
    * @param privilege
    * @param considerAllSubject 
+   * @param sqlLikeString
    * @return the attributeDefs
    */
   Set<AttributeDef> getAttributeDefsWhereSubjectDoesntHavePrivilege(
-      String stemId, Scope scope, Subject subject, Privilege privilege, boolean considerAllSubject);
+      String stemId, Scope scope, Subject subject, Privilege privilege, boolean considerAllSubject, 
+      String sqlLikeString);
   
   /**
    * for an attribute def query, check to make sure the subject cant see the records

@@ -75,6 +75,56 @@ public enum RuleIfConditionEnum {
     
   },
   /**
+   * make sure the name of the object matches this sql like string (with percent signs and underscores), 
+   * e.g. school:folder:whatever:%groupSuffix
+   */
+  nameMatchesSqlLikeString {
+
+    /**
+     * 
+     */
+    @Override
+    public boolean shouldFire(RuleDefinition ruleDefinition, RuleEngine ruleEngine,
+        RulesBean rulesBean) {
+
+      String sqlLikeString = ruleDefinition.getIfCondition().getIfConditionEnumArg0();
+      
+      if (StringUtils.isBlank(sqlLikeString)) {
+        throw new RuntimeException("The like string should be in the if arg0!");
+      }
+
+      String name = null;
+      if (rulesBean.hasAttributeDefName()) {
+        name = rulesBean.getAttributeDefName().getName();
+      } else if (rulesBean.hasAttributeDef()) {
+        name = rulesBean.getAttributeDef().getName();
+      } else if (rulesBean.hasGroup()) {
+        name = rulesBean.getGroup().getName();
+      } else if (rulesBean.hasStem()) {
+        name = rulesBean.getStem().getName();
+      }
+      
+      boolean matches = GrouperUtil.matchSqlString(sqlLikeString, name);
+      
+      return matches;
+      
+    }
+
+    /**
+     * 
+     */
+    @Override
+    public String validate(RuleDefinition ruleDefinition) {
+            
+      if (StringUtils.isBlank(ruleDefinition.getIfCondition().getIfConditionEnumArg0())) {
+        return "ifArg0 is required and is the sql like string e.g. school:folder:%suffix";
+      }
+      
+      return null;
+    }
+    
+  },
+  /**
    * make sure this group and not the folder has membership
    */
   thisGroupAndNotFolderHasImmediateEnabledMembership {
@@ -446,10 +496,32 @@ public enum RuleIfConditionEnum {
    * @return error message or null if ok
    */
   public String validate(RuleDefinition ruleDefinition) {
+    
+    if (!StringUtils.isBlank(ruleDefinition.getIfCondition().getIfConditionEnumArg0())
+        || !StringUtils.isBlank(ruleDefinition.getIfCondition().getIfConditionEnumArg1())) {
+      return "This if condition enum does not take args: " + this.name() + ", " 
+        + ruleDefinition.getIfCondition().getIfConditionEnumArg0()
+        + ", " + ruleDefinition.getIfCondition().getIfConditionEnumArg1();
+    }
+    
     RuleIfCondition ruleIfCondition = ruleDefinition.getIfCondition();
     if (!StringUtils.isBlank(ruleIfCondition.getIfOwnerId()) || !StringUtils.isBlank(ruleIfCondition.getIfOwnerName())) {
       return "This ifConditionEnum " + this.name() + " requires no ifOwnerId or ifOwnerName";
     }
     return null;
   }
+  
+  /**
+   * make sure there are no params
+   * @param ruleDefinition
+   * @return error message if there are params
+   */
+  public static String validateNoParams(RuleDefinition ruleDefinition) {
+    //if (!StringUtils.isBlank(ruleDefinition.getIfCondition().get))
+    //TODO
+    return null;
+  }
+  
+
+  
 }

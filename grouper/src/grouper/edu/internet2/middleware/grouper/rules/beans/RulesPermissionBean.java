@@ -121,6 +121,22 @@ public class RulesPermissionBean extends RulesBean {
   }
 
   /**
+   * @see RulesBean#hasAttributeDefName()
+   */
+  @Override
+  public boolean hasAttributeDefName() {
+    return true;
+  }
+
+  /**
+   * @see RulesBean#hasAttributeDef()
+   */
+  @Override
+  public boolean hasAttributeDef() {
+    return true;
+  }
+
+  /**
    * attributeDefName
    * @param attributeDefName1
    */

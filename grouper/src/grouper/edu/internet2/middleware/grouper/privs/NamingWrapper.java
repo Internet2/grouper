@@ -45,11 +45,12 @@ import edu.internet2.middleware.subject.Subject;
 public class NamingWrapper implements NamingResolver {
 
   /**
-   * @see NamingResolver#getStemsWhereSubjectDoesntHavePrivilege(String, Scope, Subject, Privilege, boolean)
+   * @see NamingResolver#getStemsWhereSubjectDoesntHavePrivilege(String, Scope, Subject, Privilege, boolean, String)
    */
   public Set<Stem> getStemsWhereSubjectDoesntHavePrivilege(
-      String stemId, Scope scope, Subject subject, Privilege privilege, boolean considerAllSubject) {
-    return this.naming.getStemsWhereSubjectDoesntHavePrivilege(this.s, stemId, scope, subject, privilege, considerAllSubject);
+      String stemId, Scope scope, Subject subject, Privilege privilege, boolean considerAllSubject, 
+      String sqlLikeString) {
+    return this.naming.getStemsWhereSubjectDoesntHavePrivilege(this.s, stemId, scope, subject, privilege, considerAllSubject, sqlLikeString);
   }
 
   /**

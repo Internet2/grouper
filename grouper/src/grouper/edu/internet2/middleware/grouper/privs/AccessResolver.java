@@ -71,10 +71,12 @@ public interface AccessResolver {
    * @param subject
    * @param privilege
    * @param considerAllSubject 
+   * @param sqlLikeString
    * @return the groups
    */
   Set<Group> getGroupsWhereSubjectDoesntHavePrivilege(
-      String stemId, Scope scope, Subject subject, Privilege privilege, boolean considerAllSubject);
+      String stemId, Scope scope, Subject subject, Privilege privilege, boolean considerAllSubject, 
+      String sqlLikeString);
   
   /**
    * Get all stems which have groups where <i>subject</i> has <i>privilege</i>.

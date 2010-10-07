@@ -40,10 +40,12 @@ public interface NamingResolver {
    * @param subject
    * @param privilege
    * @param considerAllSubject 
+   * @param sqlLikeString
    * @return the stems
    */
   Set<Stem> getStemsWhereSubjectDoesntHavePrivilege(
-      String stemId, Scope scope, Subject subject, Privilege privilege, boolean considerAllSubject);
+      String stemId, Scope scope, Subject subject, Privilege privilege, boolean considerAllSubject, 
+      String sqlLikeString);
   
 
   /**

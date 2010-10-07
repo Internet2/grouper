@@ -297,10 +297,12 @@ public interface AttributeDefAdapter {
    * @param subject
    * @param privilege
    * @param considerAllSubject
+   * @param sqlLikeString
    * @return the attributeDefs
    */
   Set<AttributeDef> getAttributeDefsWhereSubjectDoesntHavePrivilege(GrouperSession grouperSession,
-      String stemId, Scope scope, Subject subject, Privilege privilege, boolean considerAllSubject);
+      String stemId, Scope scope, Subject subject, Privilege privilege, boolean considerAllSubject, 
+      String sqlLikeString);
 
   /**
    * for an attributeDef query, check to make sure the subject cant see the records (if filtering HQL, you can do 

@@ -1559,7 +1559,11 @@ public class GrouperCheckConfig {
         checkAttribute(rulesStem, ruleAttrType, RuleUtils.RULE_IF_CONDITION_EL, 
             "expression language to run to see if the rule should run, or blank if should run always", wasInCheckConfig);
         checkAttribute(rulesStem, ruleAttrType, RuleUtils.RULE_IF_CONDITION_ENUM, 
-            "RuleConditionEnum that sees if rule should fire, or blank if should run always", wasInCheckConfig);
+            "RuleIfConditionEnum that sees if rule should fire, or exclude if should run always", wasInCheckConfig);
+        checkAttribute(rulesStem, ruleAttrType, RuleUtils.RULE_IF_CONDITION_ENUM_ARG0, 
+            "RuleIfConditionEnumArg0 if the if condition takes an argument, this is the first one", wasInCheckConfig);
+        checkAttribute(rulesStem, ruleAttrType, RuleUtils.RULE_IF_CONDITION_ENUM_ARG1, 
+            "RuleIfConditionEnumArg1 if the if condition takes an argument, this is the second param", wasInCheckConfig);
         checkAttribute(rulesStem, ruleAttrType, RuleUtils.RULE_IF_STEM_SCOPE, 
             "when the if part is a stem, this is the scope of SUB or ONE", wasInCheckConfig);
         checkAttribute(rulesStem, ruleAttrType, RuleUtils.RULE_THEN_EL, 

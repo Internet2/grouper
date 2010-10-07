@@ -565,10 +565,13 @@ public interface GroupDAO extends GrouperDAO {
    * @param privilege
    * @param queryOptions
    * @param considerAllSubject
+   * @param sqlLikeString
    * @return the groups
    */
   public Set<Group> findGroupsInStemWithoutPrivilege(GrouperSession grouperSession,
-      String stemId, Scope scope, Subject subject, Privilege privilege, QueryOptions queryOptions, boolean considerAllSubject);
+      String stemId, Scope scope, Subject subject, Privilege privilege, 
+      QueryOptions queryOptions, boolean considerAllSubject, 
+      String sqlLikeString);
 
 } 
 

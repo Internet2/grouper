@@ -322,10 +322,11 @@ public class Hib3AttributeDefDAO extends Hib3DAO implements AttributeDefDAO {
   }
   
   /**
-   * @see AttributeDefDAO#findAttributeDefsInStemWithoutPrivilege(GrouperSession, String, Scope, Subject, Privilege, QueryOptions, boolean)
+   * @see AttributeDefDAO#findAttributeDefsInStemWithoutPrivilege(GrouperSession, String, Scope, Subject, Privilege, QueryOptions, boolean, String)
    */
   public Set<AttributeDef> findAttributeDefsInStemWithoutPrivilege(GrouperSession grouperSession,
-      String stemId, Scope scope, Subject subject, Privilege privilege, QueryOptions queryOptions, boolean considerAllSubject) {
+      String stemId, Scope scope, Subject subject, Privilege privilege, QueryOptions queryOptions, boolean considerAllSubject, 
+      String sqlLikeString) {
     
     if (queryOptions == null) {
       queryOptions = new QueryOptions();
@@ -367,6 +368,15 @@ public class Hib3AttributeDefDAO extends Hib3DAO implements AttributeDefDAO {
 
     grouperSession.getAttributeDefResolver().hqlFilterAttrDefsWhereClause(grouperSession.getSubject(), byHqlStatic, 
         sqlTables, sqlWhereClause, "theAttributeDef.id", adminSet);
+
+    if (!StringUtils.isBlank(sqlLikeString)) {
+      if (sqlWhereClause.length() > 0) {
+        sqlWhereClause.append(" and ");
+      }
+      sqlWhereClause.append(" theAttributeDef.nameDb like :sqlLikeString ");
+      byHqlStatic.setString("sqlLikeString", sqlLikeString);
+    }
+    
 
     StringBuilder sql = sqlTables.append(" where ").append(sqlWhereClause);
 

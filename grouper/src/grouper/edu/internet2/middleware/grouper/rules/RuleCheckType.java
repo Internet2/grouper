@@ -822,7 +822,7 @@ public enum RuleCheckType {
       RuleThenEnum ruleThenEnum = ruleDefinition.getThen().thenEnum();
       
       if (ruleThenEnum != RuleThenEnum.assignGroupPrivilegeToGroupId 
-          || ruleDefinition.getIfCondition().ifConditionEnum() != null
+          || ruleDefinition.getIfCondition().ifConditionEnum() != RuleIfConditionEnum.nameMatchesSqlLikeString
           || !StringUtils.isBlank(ruleDefinition.getIfCondition().getIfConditionEl())) {
         if (StringUtils.isNotBlank(ruleDefinition.getRunDaemon()) && ruleDefinition.isRunDaemonBoolean() ) {
           throw new RuntimeException("RuleThenEnum needs to be " + RuleThenEnum.assignGroupPrivilegeToGroupId);
@@ -830,6 +830,13 @@ public enum RuleCheckType {
         //return, nothing to do
         return;
       }
+
+      String sqlLikeString = null;
+      
+      if (ruleDefinition.getIfCondition().ifConditionEnum() == RuleIfConditionEnum.nameMatchesSqlLikeString) {
+        sqlLikeString = ruleDefinition.getIfCondition().getIfConditionEnumArg0();
+      }
+      
       
       String subjectString = ruleDefinition.getThen().getThenEnumArg0();
       Subject subject = SubjectFinder.findByPackedSubjectString(subjectString, true);
@@ -851,7 +858,7 @@ public enum RuleCheckType {
       for (Privilege privilege : privilegeSet) {
       
         Set<Group> groupsWhichNeedPrivs = GrouperSession.staticGrouperSession().getAccessResolver().getGroupsWhereSubjectDoesntHavePrivilege(
-            stemId, scope, subject, privilege, false);
+            stemId, scope, subject, privilege, false, sqlLikeString);
         
         for (Group group : GrouperUtil.nonNull(groupsWhichNeedPrivs)) {
           
@@ -969,7 +976,7 @@ public enum RuleCheckType {
       RuleThenEnum ruleThenEnum = ruleDefinition.getThen().thenEnum();
       
       if (ruleThenEnum != RuleThenEnum.assignStemPrivilegeToStemId 
-          || ruleDefinition.getIfCondition().ifConditionEnum() != null
+          || ruleDefinition.getIfCondition().ifConditionEnum() != RuleIfConditionEnum.nameMatchesSqlLikeString
           || !StringUtils.isBlank(ruleDefinition.getIfCondition().getIfConditionEl())) {
         if (StringUtils.isNotBlank(ruleDefinition.getRunDaemon()) && ruleDefinition.isRunDaemonBoolean() ) {
           throw new RuntimeException("RuleThenEnum needs to be " + RuleThenEnum.assignStemPrivilegeToStemId);
@@ -978,6 +985,12 @@ public enum RuleCheckType {
         return;
       }
 
+      String sqlLikeString = null;
+      
+      if (ruleDefinition.getIfCondition().ifConditionEnum() == RuleIfConditionEnum.nameMatchesSqlLikeString) {
+        sqlLikeString = ruleDefinition.getIfCondition().getIfConditionEnumArg0();
+      }
+      
       
       String subjectString = ruleDefinition.getThen().getThenEnumArg0();
       Subject subject = SubjectFinder.findByPackedSubjectString(subjectString, true);
@@ -999,7 +1012,7 @@ public enum RuleCheckType {
       for (Privilege privilege : privilegeSet) {
       
         Set<Stem> stemsWhichNeedPrivs = GrouperSession.staticGrouperSession().getNamingResolver().getStemsWhereSubjectDoesntHavePrivilege(
-            stemId, scope, subject, privilege, false);
+            stemId, scope, subject, privilege, false, sqlLikeString);
         
         for (Stem stem : GrouperUtil.nonNull(stemsWhichNeedPrivs)) {
           
@@ -1311,7 +1324,7 @@ public enum RuleCheckType {
       RuleThenEnum ruleThenEnum = ruleDefinition.getThen().thenEnum();
       
       if (ruleThenEnum != RuleThenEnum.assignAttributeDefPrivilegeToAttributeDefId 
-          || ruleDefinition.getIfCondition().ifConditionEnum() != null
+          || ruleDefinition.getIfCondition().ifConditionEnum() != RuleIfConditionEnum.nameMatchesSqlLikeString
           || !StringUtils.isBlank(ruleDefinition.getIfCondition().getIfConditionEl())) {
         if (StringUtils.isNotBlank(ruleDefinition.getRunDaemon()) && ruleDefinition.isRunDaemonBoolean() ) {
           throw new RuntimeException("RuleThenEnum needs to be " + RuleThenEnum.assignAttributeDefPrivilegeToAttributeDefId);
@@ -1320,6 +1333,12 @@ public enum RuleCheckType {
         return;
       }
       
+      String sqlLikeString = null;
+      
+      if (ruleDefinition.getIfCondition().ifConditionEnum() == RuleIfConditionEnum.nameMatchesSqlLikeString) {
+        sqlLikeString = ruleDefinition.getIfCondition().getIfConditionEnumArg0();
+      }
+
       String subjectString = ruleDefinition.getThen().getThenEnumArg0();
       Subject subject = SubjectFinder.findByPackedSubjectString(subjectString, true);
       String privilegesString = ruleDefinition.getThen().getThenEnumArg1();
@@ -1341,7 +1360,7 @@ public enum RuleCheckType {
       
         Set<AttributeDef> attributeDefsWhichNeedPrivs = GrouperSession.staticGrouperSession().getAttributeDefResolver()
           .getAttributeDefsWhereSubjectDoesntHavePrivilege(
-            stemId, scope, subject, privilege, false);
+            stemId, scope, subject, privilege, false, sqlLikeString);
         
         for (AttributeDef attributeDef : GrouperUtil.nonNull(attributeDefsWhichNeedPrivs)) {
           

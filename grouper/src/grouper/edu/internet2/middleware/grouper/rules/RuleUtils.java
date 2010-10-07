@@ -537,6 +537,48 @@ public class RuleUtils {
   /**
    * 
    */
+  public static final String RULE_IF_CONDITION_ENUM_ARG0 = "ruleIfConditionEnumArg0";
+  
+  /**
+   * rule if condition enum arg0
+   */
+  private static String ruleIfConditionEnumArg0Name = null;
+
+  /**
+   * full rule if condition enum arg0 name
+   * @return name
+   */
+  public static String ruleIfConditionEnumArg0Name() {
+    if (ruleIfConditionEnumArg0Name == null) {
+      ruleIfConditionEnumArg0Name = RuleUtils.attributeRuleStemName() + ":" + RULE_IF_CONDITION_ENUM_ARG0;
+    }
+    return ruleIfConditionEnumArg0Name;
+  }
+  
+  /**
+   * 
+   */
+  public static final String RULE_IF_CONDITION_ENUM_ARG1 = "ruleIfConditionEnumArg1";
+  
+  /**
+   * rule if condition enum arg1
+   */
+  private static String ruleIfConditionEnumArg1Name = null;
+
+  /**
+   * full rule if condition enum arg1 name
+   * @return name
+   */
+  public static String ruleIfConditionEnumArg1Name() {
+    if (ruleIfConditionEnumArg1Name == null) {
+      ruleIfConditionEnumArg1Name = RuleUtils.attributeRuleStemName() + ":" + RULE_IF_CONDITION_ENUM_ARG1;
+    }
+    return ruleIfConditionEnumArg1Name;
+  }
+  
+  /**
+   * 
+   */
   public static final String RULE_IF_CONDITION_EL = "ruleIfConditionEl";
   
   /**

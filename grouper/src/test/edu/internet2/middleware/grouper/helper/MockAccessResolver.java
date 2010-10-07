@@ -250,10 +250,11 @@ public class MockAccessResolver implements AccessResolver {
 
 
   /**
-   * @see AccessResolver#getGroupsWhereSubjectDoesntHavePrivilege(String, Scope, Subject, Privilege, boolean)
+   * @see AccessResolver#getGroupsWhereSubjectDoesntHavePrivilege(String, Scope, Subject, Privilege, boolean, String)
    */
   public Set<Group> getGroupsWhereSubjectDoesntHavePrivilege(String stemId, Scope scope,
-      Subject subject, Privilege privilege, boolean considerAllSubject) {
+      Subject subject, Privilege privilege, boolean considerAllSubject, 
+      String sqlLikeString) {
     throw E;
   }
 

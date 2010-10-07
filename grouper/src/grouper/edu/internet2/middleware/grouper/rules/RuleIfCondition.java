@@ -30,12 +30,17 @@ public class RuleIfCondition {
    * @param theIfOwnerId 
    * @param theIfOwnerName 
    * @param theStemScope 
+   * @param theIfConditionEnumArg0 
+   * @param theIfConditionEnumArg1 
    */
   public RuleIfCondition(String ifConditionEl1, String ifConditionEnum1,
-      String theIfOwnerId, String theIfOwnerName, String theStemScope) {
+      String theIfOwnerId, String theIfOwnerName, String theStemScope, String theIfConditionEnumArg0,
+      String theIfConditionEnumArg1) {
     super();
     this.ifConditionEl = ifConditionEl1;
     this.ifConditionEnum = ifConditionEnum1;
+    this.ifConditionEnumArg0 = theIfConditionEnumArg0;
+    this.ifConditionEnumArg1 = theIfConditionEnumArg1;
     this.ifOwnerId = theIfOwnerId;
     this.ifOwnerName = theIfOwnerName;
     this.ifStemScope = theStemScope;
@@ -48,6 +53,12 @@ public class RuleIfCondition {
   /** if it is an enum, put that here */
   private String ifConditionEnum;
 
+  /** if it is an enum, this is the first arg if applicable */
+  private String ifConditionEnumArg0;
+
+  /** if it is an enum, this is second arg if applicable */
+  private String ifConditionEnumArg1;
+
   /** if the enum needs an owner, this is the name */
   private String ifOwnerName;
   
@@ -57,6 +68,38 @@ public class RuleIfCondition {
   /** if a stem, this is the scope of ONE or SUB */
   private String ifStemScope;
   
+  /**
+   * if it is an enum, this is the first arg if applicable
+   * @return the first arg
+   */
+  public String getIfConditionEnumArg0() {
+    return this.ifConditionEnumArg0;
+  }
+
+  /**
+   * if it is an enum, this is the first arg if applicable
+   * @param ifConditionEnumArg0_
+   */
+  public void setIfConditionEnumArg0(String ifConditionEnumArg0_) {
+    this.ifConditionEnumArg0 = ifConditionEnumArg0_;
+  }
+
+  /**
+   * if it is an enum, this is the second arg if applicable
+   * @return arg1
+   */
+  public String getIfConditionEnumArg1() {
+    return this.ifConditionEnumArg1;
+  }
+
+  /**
+   * if it is an enum, this is the first arg if applicable
+   * @param ifConditionEnumArg1_
+   */
+  public void setIfConditionEnumArg1(String ifConditionEnumArg1_) {
+    this.ifConditionEnumArg1 = ifConditionEnumArg1_;
+  }
+
   /**
    * if a stem, this is the scope of ONE or SUB
    * @return null or ONE or SUB
@@ -167,6 +210,12 @@ public class RuleIfCondition {
     }
     if (!StringUtils.isBlank(this.ifConditionEnum)) {
       result.append("ifConditionEnum: ").append(this.ifConditionEnum).append(", ");
+    }
+    if (!StringUtils.isBlank(this.ifConditionEnumArg0)) {
+      result.append("ifConditionEnumArg0: ").append(this.ifConditionEnumArg0).append(", ");
+    }
+    if (!StringUtils.isBlank(this.ifConditionEnumArg1)) {
+      result.append("ifConditionEnumArg1: ").append(this.ifConditionEnumArg1).append(", ");
     }
     if (!StringUtils.isBlank(this.ifOwnerId)) {
       result.append("ifOwnerId: ").append(this.ifOwnerId).append(", ");

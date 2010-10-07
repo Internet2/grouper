@@ -90,11 +90,14 @@ public class AccessWrapper implements AccessResolver {
   }
 
   /**
-   * @see AccessResolver#getGroupsWhereSubjectDoesntHavePrivilege(String, Scope, Subject, Privilege, boolean)
+   * @see AccessResolver#getGroupsWhereSubjectDoesntHavePrivilege(String, Scope, Subject, Privilege, boolean, String)
    */
   public Set<Group> getGroupsWhereSubjectDoesntHavePrivilege(
-      String stemId, Scope scope, Subject subject, Privilege privilege, boolean considerAllSubject) {
-    return this.access.getGroupsWhereSubjectDoesntHavePrivilege(this.s, stemId, scope, subject, privilege, considerAllSubject);
+      String stemId, Scope scope, Subject subject, Privilege privilege, boolean considerAllSubject, 
+      String sqlLikeString) {
+    return this.access.getGroupsWhereSubjectDoesntHavePrivilege(
+        this.s, stemId, scope, subject, privilege, considerAllSubject, 
+        sqlLikeString);
   }
 
   

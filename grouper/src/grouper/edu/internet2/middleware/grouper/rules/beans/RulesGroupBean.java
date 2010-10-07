@@ -20,6 +20,14 @@ public class RulesGroupBean extends RulesBean {
   }
   
   /**
+   * @see RulesBean#hasGroup()
+   */
+  @Override
+  public boolean hasGroup() {
+    return true;
+  }
+
+  /**
    * 
    * @param group
    */

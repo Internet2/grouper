@@ -423,10 +423,13 @@ public interface StemDAO extends GrouperDAO {
    * @param privilege
    * @param queryOptions
    * @param considerAllSubject
+   * @param sqlLikeString
    * @return the stems
    */
   public Set<Stem> findStemsInStemWithoutPrivilege(GrouperSession grouperSession,
-      String stemId, Scope scope, Subject subject, Privilege privilege, QueryOptions queryOptions, boolean considerAllSubject);
+      String stemId, Scope scope, Subject subject, Privilege privilege, 
+      QueryOptions queryOptions, boolean considerAllSubject, 
+      String sqlLikeString);
 
 
 } 

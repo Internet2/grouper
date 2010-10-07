@@ -96,6 +96,10 @@ public class RuleDefinition {
       .attributeValueString(attributeAssignValueContainers, RuleUtils.ruleIfConditionElName());
     String ifConditionEnum = AttributeAssignValueContainer
       .attributeValueString(attributeAssignValueContainers, RuleUtils.ruleIfConditionEnumName());
+    String ifConditionEnumArg0 = AttributeAssignValueContainer
+      .attributeValueString(attributeAssignValueContainers, RuleUtils.ruleIfConditionEnumArg0Name());
+    String ifConditionEnumArg1 = AttributeAssignValueContainer
+      .attributeValueString(attributeAssignValueContainers, RuleUtils.ruleIfConditionEnumArg1Name());
     String ifOwnerId = AttributeAssignValueContainer
       .attributeValueString(attributeAssignValueContainers, RuleUtils.ruleIfOwnerIdName());
     String ifOwnerName = AttributeAssignValueContainer
@@ -123,7 +127,7 @@ public class RuleDefinition {
         checkOwnerName, checkStemScope, checkArg0, checkArg1);
     
     RuleIfCondition ruleIfCondition = new RuleIfCondition(ifConditionEl, ifConditionEnum, 
-        ifOwnerId, ifOwnerName, ifStemScope);
+        ifOwnerId, ifOwnerName, ifStemScope, ifConditionEnumArg0, ifConditionEnumArg1);
     
     RuleThen ruleThen = new RuleThen(thenEl, thenEnum, thenEnumArg0, thenEnumArg1, thenEnumArg2);
 

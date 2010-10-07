@@ -32,12 +32,13 @@ import edu.internet2.middleware.subject.Subject;
 public class GrouperAllNamingResolver extends NamingResolverDecorator {
 
   /**
-   * @see NamingResolver#getStemsWhereSubjectDoesntHavePrivilege(String, Scope, Subject, Privilege, boolean)
+   * @see NamingResolver#getStemsWhereSubjectDoesntHavePrivilege(String, Scope, Subject, Privilege, boolean, String)
    */
   public Set<Stem> getStemsWhereSubjectDoesntHavePrivilege(
-      String stemId, Scope scope, Subject subject, Privilege privilege, boolean considerAllSubject) {
+      String stemId, Scope scope, Subject subject, Privilege privilege, boolean considerAllSubject, 
+      String sqlLikeString) {
     Set<Stem> stems = super.getDecoratedResolver().getStemsWhereSubjectDoesntHavePrivilege(
-        stemId, scope, subject, privilege, considerAllSubject);
+        stemId, scope, subject, privilege, considerAllSubject, sqlLikeString);
     return stems;
   }
 

@@ -65,7 +65,7 @@ public class RuleApiTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new RuleApiTest("testRuleVetoPermissionsDaemon"));
+    TestRunner.run(new RuleApiTest("testInheritGroupPrivilegesPatternDaemon"));
   }
 
   /**
@@ -2093,6 +2093,133 @@ public class RuleApiTest extends GrouperTest {
     assertFalse(payrollUser.hasMember(subject0));
     assertTrue(payrollGuest.hasMember(subject1));
 
+  }
+
+  /**
+   * 
+   */
+  public void testInheritGroupPrivilegesPattern() {
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    Stem stem2 = new StemSave(grouperSession).assignName("stem2").assignCreateParentStemsIfNotExist(true).save();
+  
+    Group groupA = new GroupSave(grouperSession).assignName("stem1:admins").assignCreateParentStemsIfNotExist(true).save();
+  
+    Subject subject0 = SubjectFinder.findByIdAndSource("test.subject.0", "jdbc", true);
+    groupA.addMember(subject0);
+    
+    RuleApi.inheritGroupPrivileges(SubjectFinder.findRootSubject(), stem2, Scope.SUB, groupA.toSubject(), Privilege.getInstances("read, update"), "stem2:%someGroup");
+  
+    long initialFirings = RuleEngine.ruleFirings;
+    
+    Group groupB = new GroupSave(grouperSession).assignName("stem2:b").assignCreateParentStemsIfNotExist(true).save();
+  
+    //count rule firings
+    assertEquals(initialFirings, RuleEngine.ruleFirings);
+  
+    //make sure not allowed
+    assertFalse(groupB.hasUpdate(subject0));
+    assertFalse(groupB.hasRead(subject0));
+    
+    //allowed
+    Group someGroup = new GroupSave(grouperSession).assignName("stem2:b:w_someGroup").assignCreateParentStemsIfNotExist(true).save();
+    
+    //count rule firings
+    assertEquals(initialFirings+1, RuleEngine.ruleFirings);
+  
+    //make sure allowed
+    assertTrue(someGroup.hasUpdate(subject0));
+    assertTrue(someGroup.hasRead(subject0));
+    
+    
+    Group groupD = new GroupSave(grouperSession).assignName("stem3:d").assignCreateParentStemsIfNotExist(true).save();
+  
+    assertEquals(initialFirings+1, RuleEngine.ruleFirings);
+    
+    assertFalse(groupD.hasUpdate(subject0));
+    assertFalse(groupD.hasRead(subject0));
+    
+    
+    Group groupC = new GroupSave(grouperSession).assignName("stem2:sub:c").assignCreateParentStemsIfNotExist(true).save();
+  
+    assertEquals(initialFirings+1, RuleEngine.ruleFirings);
+  
+    assertFalse(groupC.hasRead(subject0));
+    assertFalse(groupC.hasUpdate(subject0));
+  
+  }
+
+  /**
+   * 
+   */
+  public void testInheritGroupPrivilegesPatternDaemon() {
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    Stem stem2 = new StemSave(grouperSession).assignName("stem2").assignCreateParentStemsIfNotExist(true).save();
+  
+    Group groupA = new GroupSave(grouperSession).assignName("stem1:admins").assignCreateParentStemsIfNotExist(true).save();
+  
+    Subject subject0 = SubjectFinder.findByIdAndSource("test.subject.0", "jdbc", true);
+    groupA.addMember(subject0);
+    
+    Group groupB = new GroupSave(grouperSession).assignName("stem2:b").assignCreateParentStemsIfNotExist(true).save();
+    //allowed
+    Group someGroup = new GroupSave(grouperSession).assignName("stem2:b:w_someGroup").assignCreateParentStemsIfNotExist(true).save();
+    
+    Group groupD = new GroupSave(grouperSession).assignName("stem3:d").assignCreateParentStemsIfNotExist(true).save();
+    
+    assertFalse(someGroup.hasUpdate(subject0));
+    assertFalse(someGroup.hasRead(subject0));
+  
+    Group groupC = new GroupSave(grouperSession).assignName("stem2:sub:c").assignCreateParentStemsIfNotExist(true).save();
+    
+
+    RuleApi.inheritGroupPrivileges(SubjectFinder.findRootSubject(), stem2, Scope.SUB, groupA.toSubject(), Privilege.getInstances("read, update"), "stem2:%someGroup");
+    
+    long initialFirings = RuleEngine.ruleFirings;
+    
+    //run the daemon
+    String status = GrouperLoader.runOnceByJobName(grouperSession, GrouperLoaderType.GROUPER_RULES);
+
+    assertTrue(status.toLowerCase().contains("success"));
+    
+    //count rule firings, one for the one group for two privs
+    assertEquals(initialFirings+2, RuleEngine.ruleFirings);
+
+    //make sure not allowed
+    assertFalse(groupB.hasUpdate(subject0));
+    assertFalse(groupB.hasRead(subject0));
+  
+    //make sure allowed
+    assertTrue(someGroup.hasUpdate(subject0));
+    assertTrue(someGroup.hasRead(subject0));
+    
+    assertFalse(groupD.hasUpdate(subject0));
+    assertFalse(groupD.hasRead(subject0));
+  
+    assertFalse(groupC.hasRead(subject0));
+    assertFalse(groupC.hasUpdate(subject0));
+  
+    //run the daemon
+    status = GrouperLoader.runOnceByJobName(grouperSession, GrouperLoaderType.GROUPER_RULES);
+
+    assertTrue(status.toLowerCase().contains("success"));
+    
+    //not much changed
+    assertEquals(initialFirings+2, RuleEngine.ruleFirings);
+
+    //make sure not allowed
+    assertFalse(groupB.hasUpdate(subject0));
+    assertFalse(groupB.hasRead(subject0));
+  
+    //make sure allowed
+    assertTrue(someGroup.hasUpdate(subject0));
+    assertTrue(someGroup.hasRead(subject0));
+    
+    assertFalse(groupD.hasUpdate(subject0));
+    assertFalse(groupD.hasRead(subject0));
+  
+    assertFalse(groupC.hasRead(subject0));
+    assertFalse(groupC.hasUpdate(subject0));
+  
   }
 
 }

@@ -34,13 +34,15 @@ import edu.internet2.middleware.subject.Subject;
 public class ValidatingNamingResolver extends NamingResolverDecorator {
 
   /**
-   * @see    NamingResolver#getStemsWhereSubjectDoesntHavePrivilege(String, Scope, Subject, Privilege, boolean)
+   * @see    NamingResolver#getStemsWhereSubjectDoesntHavePrivilege(String, Scope, Subject, Privilege, boolean, String)
    */
   public Set<Stem> getStemsWhereSubjectDoesntHavePrivilege(String stemId, Scope scope, 
-      Subject subject, Privilege privilege, boolean considerAllSubject)
+      Subject subject, Privilege privilege, boolean considerAllSubject, 
+      String sqlLikeString)
       throws IllegalArgumentException {
     this.param.notNullSubject(subject).notNullPrivilege(privilege);
-    return super.getDecoratedResolver().getStemsWhereSubjectDoesntHavePrivilege(stemId, scope, subject, privilege, considerAllSubject);
+    return super.getDecoratedResolver().getStemsWhereSubjectDoesntHavePrivilege(stemId, scope, 
+        subject, privilege, considerAllSubject, sqlLikeString);
   }
 
   /**

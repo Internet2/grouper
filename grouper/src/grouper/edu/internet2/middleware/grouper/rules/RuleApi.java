@@ -255,6 +255,21 @@ public class RuleApi {
    */
   public static AttributeAssign inheritGroupPrivileges(Subject actAs, Stem stem, Scope stemScope, 
       Subject subjectToAssign, Set<Privilege> privileges) {
+    return inheritGroupPrivileges(actAs, stem, stemScope, subjectToAssign, privileges, null);
+  }
+    
+  /**
+   * make sure group privileges are inherited in a stem
+   * @param actAs
+   * @param stem
+   * @param stemScope ONE or SUB
+   * @param subjectToAssign
+   * @param privileges can use Privilege.getInstances() to convert from string
+   * @param sqlLikeString 
+   * @return the assignment in case there are edits
+   */
+  public static AttributeAssign inheritGroupPrivileges(Subject actAs, Stem stem, Scope stemScope, 
+      Subject subjectToAssign, Set<Privilege> privileges, String sqlLikeString) {
     
     //add a rule on stem2 saying if you create a group underneath, then assign a reader and updater group
     AttributeAssign attributeAssign = stem
@@ -272,6 +287,15 @@ public class RuleApi {
     //can be SUB or ONE for if in this folder, or in this and all subfolders
     attributeValueDelegate.assignValue(
         RuleUtils.ruleCheckStemScopeName(), stemScope.name());
+
+    //see if pattern to further restrict
+    if (!StringUtils.isBlank(sqlLikeString)) {
+      attributeValueDelegate.assignValue(
+          RuleUtils.ruleIfConditionEnumName(), RuleIfConditionEnum.nameMatchesSqlLikeString.name());
+      attributeValueDelegate.assignValue(
+          RuleUtils.ruleIfConditionEnumArg0Name(), sqlLikeString);
+    }
+    
     attributeValueDelegate.assignValue(
         RuleUtils.ruleThenEnumName(), RuleThenEnum.assignGroupPrivilegeToGroupId.name());
     

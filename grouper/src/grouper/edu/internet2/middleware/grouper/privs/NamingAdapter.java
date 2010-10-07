@@ -51,10 +51,12 @@ public interface NamingAdapter {
    * @param subject
    * @param privilege
    * @param considerAllSubject
+   * @param sqlLikeString
    * @return the stems
    */
   Set<Stem> getStemsWhereSubjectDoesntHavePrivilege(GrouperSession grouperSession,
-      String stemId, Scope scope, Subject subject, Privilege privilege, boolean considerAllSubject);
+      String stemId, Scope scope, Subject subject, Privilege privilege, boolean considerAllSubject, 
+      String sqlLikeString);
   
 
   // Public Instance Methods

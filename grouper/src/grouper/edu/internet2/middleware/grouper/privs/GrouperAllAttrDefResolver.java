@@ -133,12 +133,13 @@ public class GrouperAllAttrDefResolver extends AttributeDefResolverDecorator {
   }
 
   /**
-   * @see AttributeDefResolver#getAttributeDefsWhereSubjectDoesntHavePrivilege(String, Scope, Subject, Privilege, boolean)
+   * @see AttributeDefResolver#getAttributeDefsWhereSubjectDoesntHavePrivilege(String, Scope, Subject, Privilege, boolean, String)
    */
   public Set<AttributeDef> getAttributeDefsWhereSubjectDoesntHavePrivilege(
-      String stemId, Scope scope, Subject subject, Privilege privilege, boolean considerAllSubject) {
+      String stemId, Scope scope, Subject subject, Privilege privilege, boolean considerAllSubject, 
+      String sqlLikeString) {
     Set<AttributeDef> attributeDefs = super.getDecoratedResolver().getAttributeDefsWhereSubjectDoesntHavePrivilege(
-        stemId, scope, subject, privilege, considerAllSubject);
+        stemId, scope, subject, privilege, considerAllSubject, sqlLikeString);
     return attributeDefs;
   }
 
