@@ -1,4 +1,4 @@
-Grouper web service sample of service: assignAttributes, WsSampleAssignAttributesRestLite, manually written lite/rest, format: http_xhtml, for version: 1.6.1
+Grouper web service sample of service: assignAttributesWithValue, WsSampleAssignAttributesWithValueRestLite, manually written lite/rest, format: xhtml, for version: 1.6.1
 
 
 #########################################
@@ -14,9 +14,61 @@ Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.0
 Host: localhost:8092
-Content-Length: 243
+Content-Length: 1810
+Content-Type: application/xhtml+xml; charset=UTF-8
 
-wsLiteObjectType=WsRestAssignAttributesLiteRequest&attributeAssignType=group&attributeAssignOperation=assign_attr&actAsSubjectId=GrouperSystem&wsAttributeDefNameName=test%3AtestAttributeAssignDefName&wsOwnerGroupName=test%3AgroupTestAttrAssign
+<?xml version='1.0' encoding='iso-8859-1'?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <title>WsRestAssignAttributesLiteRequest</title>
+  </head>
+  <body>
+    <div title="WsRestAssignAttributesLiteRequest">
+      <p class="attributeAssignType">group</p>
+      <p class="action" />
+      <p class="attributeAssignId" />
+      <p class="assignmentNotes" />
+      <p class="clientVersion" />
+      <p class="attributeAssignOperation">assign_attr</p>
+      <p class="assignmentEnabledTime" />
+      <p class="assignmentDisabledTime" />
+      <p class="delegatable" />
+      <p class="attributeAssignValueOperation">add_value</p>
+      <p class="includeSubjectDetail" />
+      <p class="subjectAttributeNames" />
+      <p class="includeGroupDetail" />
+      <p class="valueFormatted" />
+      <p class="valueSystem">54</p>
+      <p class="actAsSubjectId">GrouperSystem</p>
+      <p class="actAsSubjectSourceId" />
+      <p class="actAsSubjectIdentifier" />
+      <p class="paramName0" />
+      <p class="paramValue0" />
+      <p class="paramName1" />
+      <p class="paramValue1" />
+      <p class="wsAttributeDefNameName">test:testAttributeAssignDefName</p>
+      <p class="wsAttributeDefNameId" />
+      <p class="valueId" />
+      <p class="wsOwnerGroupName">test:groupTestAttrAssign</p>
+      <p class="wsOwnerGroupId" />
+      <p class="wsOwnerStemName" />
+      <p class="wsOwnerStemId" />
+      <p class="wsOwnerSubjectId" />
+      <p class="wsOwnerSubjectSourceId" />
+      <p class="wsOwnerSubjectIdentifier" />
+      <p class="wsOwnerMembershipId" />
+      <p class="wsOwnerMembershipAnyGroupName" />
+      <p class="wsOwnerMembershipAnyGroupId" />
+      <p class="wsOwnerMembershipAnySubjectId" />
+      <p class="wsOwnerMembershipAnySubjectSourceId" />
+      <p class="wsOwnerMembershipAnySubjectIdentifier" />
+      <p class="wsOwnerAttributeDefName" />
+      <p class="wsOwnerAttributeDefId" />
+      <p class="wsOwnerAttributeAssignId" />
+    </div>
+  </body>
+</html>
 
 
 #########################################
@@ -34,7 +86,7 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml;charset=UTF-8
-Date: Mon, 11 Oct 2010 16:51:35 GMT
+Date: Mon, 11 Oct 2010 17:09:21 GMT
 Connection: close
 
 <?xml version='1.0' encoding='iso-8859-1'?>
@@ -53,7 +105,7 @@ Connection: close
       </div>
       <div class="wsSubject" title="WsSubject" />
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">172</p>
+        <p class="millis">250</p>
         <p class="serverVersion">1.6.1</p>
         <p class="resultWarnings" />
       </div>
@@ -64,14 +116,14 @@ Connection: close
         <p class="extension">groupTestAttrAssign</p>
         <p class="displayExtension">groupTestAttrAssign</p>
         <div class="detail" title="WsGroupDetail" />
-        <p class="uuid">865ed8f383ad4b1da49a7cb0a1860629</p>
+        <p class="uuid">606ebc4c822b494c856b938a2015cf96</p>
       </div>
       <ul class="wsAttributeDefs">
         <li title="WsAttributeDef">
           <p class="name">test:testAttributeAssignDefNameDef</p>
           <p class="description" />
           <p class="extension">testAttributeAssignDefNameDef</p>
-          <p class="uuid">8505068fac714007906695ce44f5593a</p>
+          <p class="uuid">a425a1797b774b5d9c55e012fffd3a9e</p>
           <p class="attributeDefType">attr</p>
           <p class="valueType">integer</p>
           <p class="multiAssignable">F</p>
@@ -84,46 +136,51 @@ Connection: close
         <p class="description" />
         <p class="extension">testAttributeAssignDefName</p>
         <p class="displayExtension">testAttributeAssignDefName</p>
-        <p class="uuid">95f9fd4661494ac890ae6c80eaf06dd7</p>
+        <p class="uuid">4df90e946bfb4445a91c32b53c681f9a</p>
         <p class="attributeDefName">test:testAttributeAssignDefNameDef</p>
-        <p class="attributeDefId">8505068fac714007906695ce44f5593a</p>
+        <p class="attributeDefId">a425a1797b774b5d9c55e012fffd3a9e</p>
       </div>
       <div class="wsAttributeAssignResult" title="WsAssignAttributeResult">
         <ul class="wsAttributeAssigns">
           <li title="WsAttributeAssign">
-            <p class="id">9d23760dd5ab4beba02040ccdf3ba3bf</p>
+            <p class="id">97007631460543eb910c0ee17fea103f</p>
             <p class="notes" />
-            <p class="lastUpdated">2010/10/11 12:51:33.149</p>
+            <p class="lastUpdated">2010/10/11 13:09:19.300</p>
             <p class="attributeDefName">test:testAttributeAssignDefNameDef</p>
             <p class="attributeAssignType">group</p>
             <p class="ownerAttributeAssignId" />
             <p class="attributeAssignDelegatable">FALSE</p>
-            <p class="attributeAssignActionId">bfee8f2b638640f096ead35ef906a556</p>
-            <p class="createdOn">2010/10/11 12:51:33.149</p>
-            <p class="attributeDefNameId">95f9fd4661494ac890ae6c80eaf06dd7</p>
+            <p class="attributeAssignActionId">935bf40b07c5478288768db174b82060</p>
+            <p class="createdOn">2010/10/11 13:09:19.300</p>
+            <p class="attributeDefNameId">4df90e946bfb4445a91c32b53c681f9a</p>
             <p class="ownerAttributeDefId" />
-            <p class="ownerGroupId">865ed8f383ad4b1da49a7cb0a1860629</p>
+            <p class="ownerGroupId">606ebc4c822b494c856b938a2015cf96</p>
             <p class="ownerMemberId" />
             <p class="ownerMembershipId" />
             <p class="ownerStemId" />
             <p class="enabledTime" />
             <p class="disabledTime" />
-            <p class="attributeDefId">8505068fac714007906695ce44f5593a</p>
+            <p class="attributeDefId">a425a1797b774b5d9c55e012fffd3a9e</p>
             <p class="attributeDefNameName">test:testAttributeAssignDefName</p>
             <ul class="wsAttributeAssignValues">
               <li title="WsAttributeAssignValue">
-                <p class="id">5fcdffc5f31f4343b05579533c750faa</p>
+                <p class="id">80656d12eb02444cb62ab8bdfa2ed2ae</p>
                 <p class="valueSystem">15</p>
                 <p class="valueFormatted" />
               </li>
               <li title="WsAttributeAssignValue">
-                <p class="id">10e34837acc94d4ca08163e21308f179</p>
+                <p class="id">89e0fcb40f6447c9a0b86474f902f248</p>
                 <p class="valueSystem">5</p>
                 <p class="valueFormatted" />
               </li>
               <li title="WsAttributeAssignValue">
-                <p class="id">66555f64dfe24ab3bf753e6d5654411b</p>
+                <p class="id">94d9f54634eb40f98d5d1539c652988e</p>
                 <p class="valueSystem">5</p>
+                <p class="valueFormatted" />
+              </li>
+              <li title="WsAttributeAssignValue">
+                <p class="id">9a1f7067c6fe4e469ad8270a258f9f44</p>
+                <p class="valueSystem">54</p>
                 <p class="valueFormatted" />
               </li>
             </ul>
@@ -138,7 +195,18 @@ Connection: close
           </li>
         </ul>
         <p class="changed">F</p>
-        <p class="valuesChanged">F</p>
+        <p class="valuesChanged">T</p>
+        <ul class="wsAttributeAssignValueResults">
+          <li title="WsAttributeAssignValueResult">
+            <p class="changed">T</p>
+            <div class="wsAttributeAssignValue" title="WsAttributeAssignValue">
+              <p class="id">9a1f7067c6fe4e469ad8270a258f9f44</p>
+              <p class="valueSystem">54</p>
+              <p class="valueFormatted" />
+            </div>
+            <p class="deleted">F</p>
+          </li>
+        </ul>
         <p class="deleted">F</p>
       </div>
       <div class="wsStem" title="WsStem" />
@@ -181,14 +249,14 @@ import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
 /**
  * @author mchyzer
  */
-public class WsSampleAssignAttributesRestLite implements WsSampleRest {
+public class WsSampleAssignAttributesWithValueRestLite implements WsSampleRest {
 
   /**
    * get attribute assignments lite web service with REST
    * @param wsSampleRestType is the type of rest (xml, xhtml, etc)
    */
   @SuppressWarnings("deprecation")
-  public static void assignAttributesLite(WsSampleRestType wsSampleRestType) {
+  public static void assignAttributesWithValueLite(WsSampleRestType wsSampleRestType) {
 
     try {
       HttpClient httpClient = new HttpClient();
@@ -225,6 +293,8 @@ public class WsSampleAssignAttributesRestLite implements WsSampleRest {
       wsRestAssignAttributesLiteRequest.setWsAttributeDefNameName("test:testAttributeAssignDefName");
       wsRestAssignAttributesLiteRequest.setWsOwnerGroupName("test:groupTestAttrAssign");
       wsRestAssignAttributesLiteRequest.setAttributeAssignOperation("assign_attr");
+      wsRestAssignAttributesLiteRequest.setAttributeAssignValueOperation("add_value");
+      wsRestAssignAttributesLiteRequest.setValueSystem("54");
       
       //get the xml / json / xhtml / paramString
       String requestDocument = wsSampleRestType.getWsLiteRequestContentType().writeString(wsRestAssignAttributesLiteRequest);
@@ -276,14 +346,14 @@ public class WsSampleAssignAttributesRestLite implements WsSampleRest {
    */
   @SuppressWarnings("unchecked")
   public static void main(String[] args) {
-    assignAttributesLite(WsSampleRestType.xml);
+    assignAttributesWithValueLite(WsSampleRestType.xml);
   }
 
   /**
    * @see edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest#executeSample(edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType)
    */
   public void executeSample(WsSampleRestType wsSampleRestType) {
-    assignAttributesLite(wsSampleRestType);
+    assignAttributesWithValueLite(wsSampleRestType);
   }
 
   /**

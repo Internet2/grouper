@@ -97,7 +97,7 @@ groupDeleteWs web service usage:
 
 stemDeleteWs web service usage:
   java -jar grouperClient.jar --operation=stemDeleteWs --stemNames=a:b,a:c [--txType=GcTransactionType] [--actAsSubjectId=subjId] [--actAsSubjectIdentifier=subjIdent] [--actAsSubjectSource=source] [--saveResultsToFile=fileName] [--outputTemplate=somePattern] [--paramName0=name0] [--paramValue0=value1] [--paramNameX=xthParamName] [--paramValueX=xthParamValue] [--debug=true] [--clientVersion=someVersion]
-  e.g.: java -jar grouperClient.jar --operation=stemDeleteWs --groupNames=aStem:aStem0,aStem:aStem1
+  e.g.: java -jar grouperClient.jar --operation=stemDeleteWs --stemNames=aStem:aStem0,aStem:aStem1
   output line: Index 0: success: T: code: SUCCESS: aStem:aStem0
 
 getGrouperPrivilegesLiteWs web service usage
@@ -139,7 +139,7 @@ findStemsWs web service usage
 
 memberChangeSubjectWs web service usage (note: you need to be in the sysAdminGroup or actAs someone who is)
   java -jar grouperClient.jar --operation=memberChangeSubjectWs [--oldSubjectId=oldId] [--oldSubjectIdentifier=oldIdent] [--oldSubjectSource=oldSourceId] [--newSubjectId=newId] [--newSubjectIdentifier=newIdent] [--newSubjectSource=newSourceId] [--deleteOldMember=false] [--actAsSubjectId=subjId] [--actAsSubjectIdentifier=subjIdent] [--actAsSubjectSource=source] [--outputTemplate=somePattern] [--paramName0=name0] [--paramValue0=value1] [--paramNameX=xthParamName] [--paramValueX=xthParamValue] [--debug=true] [--clientVersion=someVersion]
-  e.g.: --operation=memberChangeSubjectWs --oldSubjectId=test.subject.0 --newSubjectId=test.subject.1 --actAsSubjectId=GrouperSystem
+  e.g.: java -jar grouperClient.jar --operation=memberChangeSubjectWs --oldSubjectId=test.subject.0 --newSubjectId=test.subject.1 --actAsSubjectId=GrouperSystem
   output: Success: T: code: SUCCESS: oldSubject: test.subject.0, newSubject: test.subject.1
 
 getMembershipsWs web service usage:
@@ -150,7 +150,7 @@ getMembershipsWs web service usage:
 
 getSubjectsWs web service usage:
   java -jar grouperClient.jar --operation=getSubjectsWs [--searchString=someone] [--subjectIds=subjId0,subjId1] [--subjectIdentifiers=subjIdent0,subjIdent1] [--subjectSources=source0,source1] [--fieldName=fieldNameToAdd] [--memberFilter=All|Immediate|NonImmediate|Effective|Composite] [--sourceIds=sourceId1,sourceId2] [--includeGroupDetail=true|false] [--includeSubjectDetail=true|false] [--subjectAttributeNames=name0,name1] [--actAsSubjectId=subjId] [--actAsSubjectIdentifier=subjIdent] [--actAsSubjectSource=source] [--groupName=a:b:c] [--groupUuid=1234] [--saveResultsToFile=fileName] [--outputTemplate=somePattern] [--paramName0=name0] [--paramValue0=value1] [--paramNameX=xthParamName] [--paramValueX=xthParamValue] [--debug=true] [--clientVersion=someVersion]
-  e.g.: java -jar grouperClient.jar --operation=getMembershipsWs --groupNames=aStem:aGroup,aStem:aGroup2
+  e.g.: java -jar grouperClient.jar --operation=getSubjectsWs --subjectIds=subjId0,subjId1
   output line: Index 0: success: T, code: SUCCESS, subject: 12345 
   Note: subjectSources are the sources for the subjects specified.  sourceIds are if you arent specifying subjectIds, and you want to filter the searchString
 

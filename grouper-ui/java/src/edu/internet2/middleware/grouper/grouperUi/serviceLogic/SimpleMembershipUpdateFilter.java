@@ -15,9 +15,11 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiPaging;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
@@ -26,6 +28,7 @@ import edu.internet2.middleware.grouper.grouperUi.beans.simpleMembershipUpdate.S
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.internal.dao.QueryPaging;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.exceptions.ControllerDone;
@@ -217,6 +220,7 @@ public class SimpleMembershipUpdateFilter {
    * @param httpServletRequest
    * @param httpServletResponse
    */
+  @SuppressWarnings("unchecked")
   public void filterUsers(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
     
     final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
@@ -243,7 +247,31 @@ public class SimpleMembershipUpdateFilter {
             simpleMembershipUpdateContainer.getText().getErrorNotEnoughSubjectChars(), null);
       } else {
         try {
-          subjects = SubjectFinder.findAll(searchTerm);
+          
+          final String requireGroup = simpleMembershipUpdateContainer.configValue(
+              "simpleMembershipUpdate.subjectSearchRequireGroup", false);
+          
+          subjects = SubjectFinder.findAll(searchTerm);            
+          
+          if (!StringUtils.isBlank(requireGroup)) {
+
+            final Set<Subject> SUBJECTS = subjects;
+            
+            subjects = (Set<Subject>)GrouperSession.callbackGrouperSession(
+                grouperSession.internal_getRootSession(), new GrouperSessionHandler() {
+              
+              @Override
+              public Object callback(GrouperSession rootGrouperSession) throws GrouperSessionException {
+                
+                Group groupFilter = GroupFinder.findByName(rootGrouperSession, requireGroup, true);
+                
+                return SubjectFinder.findBySubjectsInGroup(rootGrouperSession, SUBJECTS, groupFilter, Group.getDefaultList(), null);
+              }
+            });
+            
+
+          }
+
           
           String maxSubjectsDropDownString = TagUtils.mediaResourceString("simpleMembershipUpdate.subjectComboboxResultSize");
           int maxSubjectsDropDown = GrouperUtil.intValue(maxSubjectsDropDownString, 50);
