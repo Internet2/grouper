@@ -44,10 +44,10 @@ import edu.internet2.middleware.grouper.webservicesClient.WsSampleAddMember;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleAddMemberLite;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleAssignAttributes;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleAssignAttributesLite;
+import edu.internet2.middleware.grouper.webservicesClient.WsSampleAssignAttributesWithValue;
+import edu.internet2.middleware.grouper.webservicesClient.WsSampleAssignAttributesWithValueLite;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleAssignGrouperPrivileges;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleAssignGrouperPrivilegesLite;
-import edu.internet2.middleware.grouper.webservicesClient.WsSampleAssignPermissions;
-import edu.internet2.middleware.grouper.webservicesClient.WsSampleAssignPermissionsLite;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleDeleteMember;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleDeleteMemberLite;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleFindGroups;
@@ -85,6 +85,8 @@ import edu.internet2.middleware.grouper.webservicesClient.WsSampleStemSaveLite;
 import edu.internet2.middleware.grouper.ws.GrouperWsConfig;
 import edu.internet2.middleware.grouper.ws.samples.rest.attribute.WsSampleAssignAttributesRest;
 import edu.internet2.middleware.grouper.ws.samples.rest.attribute.WsSampleAssignAttributesRestLite;
+import edu.internet2.middleware.grouper.ws.samples.rest.attribute.WsSampleAssignAttributesWithValueRest;
+import edu.internet2.middleware.grouper.ws.samples.rest.attribute.WsSampleAssignAttributesWithValueRestLite;
 import edu.internet2.middleware.grouper.ws.samples.rest.attribute.WsSampleGetAttributeAssignmentsRest;
 import edu.internet2.middleware.grouper.ws.samples.rest.attribute.WsSampleGetAttributeAssignmentsRestLite;
 import edu.internet2.middleware.grouper.ws.samples.rest.group.WsSampleFindGroupsRest;
@@ -121,7 +123,6 @@ import edu.internet2.middleware.grouper.ws.samples.rest.member.WsSampleMemberCha
 import edu.internet2.middleware.grouper.ws.samples.rest.membership.WsSampleGetMembershipsRest;
 import edu.internet2.middleware.grouper.ws.samples.rest.membership.WsSampleGetMembershipsRestLite;
 import edu.internet2.middleware.grouper.ws.samples.rest.membership.WsSampleGetMembershipsRestLite2;
-import edu.internet2.middleware.grouper.ws.samples.rest.permission.WsSampleAssignPermissionsRest;
 import edu.internet2.middleware.grouper.ws.samples.rest.permission.WsSampleAssignPermissionsRestLite;
 import edu.internet2.middleware.grouper.ws.samples.rest.permission.WsSampleGetPermissionAssignmentsRest;
 import edu.internet2.middleware.grouper.ws.samples.rest.permission.WsSampleGetPermissionAssignmentsRestLite;
@@ -163,14 +164,16 @@ public class SampleCapture {
     
     setupData();
     
+    captureAssignAttributesWithValue();
     //
-    captureAssignPermissions();
     
 //  captureRampart();
 //    captureSample(WsSampleClientType.REST_BEANS,  
 //        WsSampleMemberChangeSubjectRest.class, "memberChangeSubject", null);
 
     /*
+    captureAssignAttributes();
+    captureAssignPermissions();
     captureGetAttributeAssignments();
     captureGetGrouperPrivileges();
     captureGetPermissionAssignments();
@@ -880,6 +883,21 @@ public class SampleCapture {
 //        WsSampleAssignPermissionsRest.class, "assignPermissions", null);
     captureSample(WsSampleClientType.REST_BEANS,  
         WsSampleAssignPermissionsRestLite.class, "assignPermissions", null);
+    
+  }
+
+  /**
+   * assign attributes captures
+   */
+  public static void captureAssignAttributesWithValue() {
+    captureSample(WsSampleClientType.GENERATED_SOAP,  
+        WsSampleAssignAttributesWithValue.class, "assignAttributesWithValue", (String)null);
+    captureSample(WsSampleClientType.GENERATED_SOAP,  
+        WsSampleAssignAttributesWithValueLite.class, "assignAttributesWithValue", null);
+    captureSample(WsSampleClientType.REST_BEANS,  
+        WsSampleAssignAttributesWithValueRest.class, "assignAttributesWithValue", null);
+    captureSample(WsSampleClientType.REST_BEANS,  
+        WsSampleAssignAttributesWithValueRestLite.class, "assignAttributesWithValue", null);
     
   }
   

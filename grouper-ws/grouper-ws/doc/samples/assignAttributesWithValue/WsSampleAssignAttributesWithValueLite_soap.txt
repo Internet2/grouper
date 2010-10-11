@@ -1,4 +1,4 @@
-Grouper web service sample of service: assignAttributes, WsSampleAssignAttributesLite, code generated classes, format: soap, for version: 1.6.1
+Grouper web service sample of service: assignAttributesWithValue, WsSampleAssignAttributesWithValueLite, code generated classes, format: soap, for version: 1.6.1
 
 
 #########################################
@@ -16,7 +16,7 @@ Authorization: Basic xxxxxxxxxxxxxxxxx==
 Host: localhost:8092
 Transfer-Encoding: chunked
 
-970
+97b
 <?xml version='1.0' encoding='UTF-8'?>
 <soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
   <soapenv:Body>
@@ -27,13 +27,13 @@ Transfer-Encoding: chunked
       <ns1:wsAttributeDefNameId></ns1:wsAttributeDefNameId>
       <ns1:attributeAssignOperation>assign_attr</ns1:attributeAssignOperation>
       <ns1:valueId></ns1:valueId>
-      <ns1:valueSystem></ns1:valueSystem>
+      <ns1:valueSystem>34</ns1:valueSystem>
       <ns1:valueFormatted></ns1:valueFormatted>
       <ns1:assignmentNotes></ns1:assignmentNotes>
       <ns1:assignmentEnabledTime></ns1:assignmentEnabledTime>
       <ns1:assignmentDisabledTime></ns1:assignmentDisabledTime>
       <ns1:delegatable></ns1:delegatable>
-      <ns1:attributeAssignValueOperation></ns1:attributeAssignValueOperation>
+      <ns1:attributeAssignValueOperation>add_value</ns1:attributeAssignValueOperation>
       <ns1:wsAttributeAssignId></ns1:wsAttributeAssignId>
       <ns1:wsOwnerGroupName>test:groupTestAttrAssign</ns1:wsOwnerGroupName>
       <ns1:wsOwnerGroupId></ns1:wsOwnerGroupId>
@@ -84,16 +84,16 @@ X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/soap+xml; action="urn:assignAttributesLiteResponse";charset=UTF-8
 Transfer-Encoding: chunked
-Date: Mon, 11 Oct 2010 16:50:45 GMT
+Date: Mon, 11 Oct 2010 17:08:52 GMT
 
-1964
+1c17
 <?xml version='1.0' encoding='UTF-8'?>
 <soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
   <soapenv:Body>
     <ns:assignAttributesLiteResponse xmlns:ns="http://soap.ws.grouper.middleware.internet2.edu/xsd">
       <ns:return type="edu.internet2.middleware.grouper.ws.soap.WsAssignAttributesLiteResults">
         <ns:responseMetadata type="edu.internet2.middleware.grouper.ws.soap.WsResponseMeta">
-          <ns:millis>172</ns:millis>
+          <ns:millis>219</ns:millis>
           <ns:resultWarnings xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
           <ns:serverVersion>1.6.1</ns:serverVersion>
         </ns:responseMetadata>
@@ -108,29 +108,37 @@ Date: Mon, 11 Oct 2010 16:50:45 GMT
         <ns:wsAttributeAssignResult type="edu.internet2.middleware.grouper.ws.soap.WsAssignAttributeResult">
           <ns:changed>F</ns:changed>
           <ns:deleted>F</ns:deleted>
-          <ns:valuesChanged>F</ns:valuesChanged>
-          <ns:wsAttributeAssignValueResults xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
+          <ns:valuesChanged>T</ns:valuesChanged>
+          <ns:wsAttributeAssignValueResults type="edu.internet2.middleware.grouper.ws.soap.WsAttributeAssignValueResult">
+            <ns:changed>T</ns:changed>
+            <ns:deleted>F</ns:deleted>
+            <ns:wsAttributeAssignValue type="edu.internet2.middleware.grouper.ws.soap.WsAttributeAssignValue">
+              <ns:id>9b55d79074ea486ebdeaccf7f96594b1</ns:id>
+              <ns:valueFormatted xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
+              <ns:valueSystem>34</ns:valueSystem>
+            </ns:wsAttributeAssignValue>
+          </ns:wsAttributeAssignValueResults>
           <ns:wsAttributeAssigns type="edu.internet2.middleware.grouper.ws.soap.WsAttributeAssign">
-            <ns:attributeAssignActionId>01f94d18f2404c3098db5f5426986c93</ns:attributeAssignActionId>
+            <ns:attributeAssignActionId>644ea454c35f4998a4e95998217addac</ns:attributeAssignActionId>
             <ns:attributeAssignActionName>assign</ns:attributeAssignActionName>
             <ns:attributeAssignActionType>immediate</ns:attributeAssignActionType>
             <ns:attributeAssignDelegatable>FALSE</ns:attributeAssignDelegatable>
             <ns:attributeAssignType>group</ns:attributeAssignType>
-            <ns:attributeDefId>f5e06097a36c4d86af64ae2e0e43b81d</ns:attributeDefId>
+            <ns:attributeDefId>07a2c147b2d14c05b06026a02372e2ee</ns:attributeDefId>
             <ns:attributeDefName>test:testAttributeAssignDefNameDef</ns:attributeDefName>
-            <ns:attributeDefNameId>e5a442a810ba46abb41cbffd2f1bcd19</ns:attributeDefNameId>
+            <ns:attributeDefNameId>a78b5da7a77d437d85b56cdeb1e06eaa</ns:attributeDefNameId>
             <ns:attributeDefNameName>test:testAttributeAssignDefName</ns:attributeDefNameName>
-            <ns:createdOn>2010/10/11 12:50:42.960</ns:createdOn>
+            <ns:createdOn>2010/10/11 13:08:50.142</ns:createdOn>
             <ns:disabledTime xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
             <ns:enabled>T</ns:enabled>
             <ns:enabledTime xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
-            <ns:id>4865db0e565541b6839cb21dc7678f25</ns:id>
-            <ns:lastUpdated>2010/10/11 12:50:42.960</ns:lastUpdated>
+            <ns:id>3d19b264d782488c9fa98e9773cad5c8</ns:id>
+            <ns:lastUpdated>2010/10/11 13:08:50.142</ns:lastUpdated>
             <ns:notes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
             <ns:ownerAttributeAssignId xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
             <ns:ownerAttributeDefId xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
             <ns:ownerAttributeDefName xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
-            <ns:ownerGroupId>687c59c49c084f249f7069cbf75568a9</ns:ownerGroupId>
+            <ns:ownerGroupId>a04e4feeac7348cca836453c0567507b</ns:ownerGroupId>
             <ns:ownerGroupName>test:groupTestAttrAssign</ns:ownerGroupName>
             <ns:ownerMemberId xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
             <ns:ownerMemberSourceId xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
@@ -139,31 +147,36 @@ Date: Mon, 11 Oct 2010 16:50:45 GMT
             <ns:ownerStemId xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
             <ns:ownerStemName xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
             <ns:wsAttributeAssignValues type="edu.internet2.middleware.grouper.ws.soap.WsAttributeAssignValue">
-              <ns:id>ec359f577890435d82319ab7dbd1de62</ns:id>
+              <ns:id>3d29711c427d40409c5ead37b815eb8e</ns:id>
               <ns:valueFormatted xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
               <ns:valueSystem>15</ns:valueSystem>
             </ns:wsAttributeAssignValues>
             <ns:wsAttributeAssignValues type="edu.internet2.middleware.grouper.ws.soap.WsAttributeAssignValue">
-              <ns:id>881b12cdbd5a4d3cb71e405c977995ba</ns:id>
+              <ns:id>9b55d79074ea486ebdeaccf7f96594b1</ns:id>
+              <ns:valueFormatted xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
+              <ns:valueSystem>34</ns:valueSystem>
+            </ns:wsAttributeAssignValues>
+            <ns:wsAttributeAssignValues type="edu.internet2.middleware.grouper.ws.soap.WsAttributeAssignValue">
+              <ns:id>23a092f49d9841f5811fab9adc565f98</ns:id>
               <ns:valueFormatted xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
               <ns:valueSystem>5</ns:valueSystem>
             </ns:wsAttributeAssignValues>
             <ns:wsAttributeAssignValues type="edu.internet2.middleware.grouper.ws.soap.WsAttributeAssignValue">
-              <ns:id>9b44ae1379e1457fab5fc344c6afb7d8</ns:id>
+              <ns:id>965ecef8a3d9447596d7fafaeb674f2f</ns:id>
               <ns:valueFormatted xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
               <ns:valueSystem>5</ns:valueSystem>
             </ns:wsAttributeAssignValues>
           </ns:wsAttributeAssigns>
         </ns:wsAttributeAssignResult>
         <ns:wsAttributeDefName type="edu.internet2.middleware.grouper.ws.soap.WsAttributeDefName">
-          <ns:attributeDefId>f5e06097a36c4d86af64ae2e0e43b81d</ns:attributeDefId>
+          <ns:attributeDefId>07a2c147b2d14c05b06026a02372e2ee</ns:attributeDefId>
           <ns:attributeDefName>test:testAttributeAssignDefNameDef</ns:attributeDefName>
           <ns:description xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
           <ns:displayExtension>testAttributeAssignDefName</ns:displayExtension>
           <ns:displayName>test:testAttributeAssignDefName</ns:displayName>
           <ns:extension>testAttributeAssignDefName</ns:extension>
           <ns:name>test:testAttributeAssignDefName</ns:name>
-          <ns:uuid>e5a442a810ba46abb41cbffd2f1bcd19</ns:uuid>
+          <ns:uuid>a78b5da7a77d437d85b56cdeb1e06eaa</ns:uuid>
         </ns:wsAttributeDefName>
         <ns:wsAttributeDefs type="edu.internet2.middleware.grouper.ws.soap.WsAttributeDef">
           <ns:assignableTos xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
@@ -173,7 +186,7 @@ Date: Mon, 11 Oct 2010 16:50:45 GMT
           <ns:multiAssignable>F</ns:multiAssignable>
           <ns:multiValued>T</ns:multiValued>
           <ns:name>test:testAttributeAssignDefNameDef</ns:name>
-          <ns:uuid>f5e06097a36c4d86af64ae2e0e43b81d</ns:uuid>
+          <ns:uuid>07a2c147b2d14c05b06026a02372e2ee</ns:uuid>
           <ns:valueType>integer</ns:valueType>
         </ns:wsAttributeDefs>
         <ns:wsGroup type="edu.internet2.middleware.grouper.ws.soap.WsGroup">
@@ -183,7 +196,7 @@ Date: Mon, 11 Oct 2010 16:50:45 GMT
           <ns:displayName>test:groupTestAttrAssign</ns:displayName>
           <ns:extension>groupTestAttrAssign</ns:extension>
           <ns:name>test:groupTestAttrAssign</ns:name>
-          <ns:uuid>687c59c49c084f249f7069cbf75568a9</ns:uuid>
+          <ns:uuid>a04e4feeac7348cca836453c0567507b</ns:uuid>
         </ns:wsGroup>
         <ns:wsMembership xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
         <ns:wsStem xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
@@ -230,18 +243,18 @@ import edu.internet2.middleware.grouper.ws.soap.xsd.WsGroup;
  * @author mchyzer
  *
  */
-public class WsSampleAssignAttributesLite implements WsSampleGenerated {
+public class WsSampleAssignAttributesWithValueLite implements WsSampleGenerated {
     /**
      * @see edu.internet2.middleware.grouper.ws.samples.types.WsSampleGenerated#executeSample(edu.internet2.middleware.grouper.ws.samples.types.WsSampleGeneratedType)
      */
     public void executeSample(WsSampleGeneratedType wsSampleGeneratedType) {
-        assignAttributesLite(wsSampleGeneratedType);
+        assignAttributesWithValueLite(wsSampleGeneratedType);
     }
 
     /**
      * @param wsSampleGeneratedType can run as soap or xml/http
      */
-    public static void assignAttributesLite(
+    public static void assignAttributesWithValueLite(
         WsSampleGeneratedType wsSampleGeneratedType) {
       try {
           //URL, e.g. http://localhost:8091/grouper-ws/services/GrouperService
@@ -272,7 +285,7 @@ public class WsSampleAssignAttributesLite implements WsSampleGenerated {
           assignAttributesLite.setAttributeAssignOperation("assign_attr");
           assignAttributesLite.setWsAttributeAssignId("");
           assignAttributesLite.setAttributeAssignType("group");
-          assignAttributesLite.setAttributeAssignValueOperation("");
+          assignAttributesLite.setAttributeAssignValueOperation("add_value");
           
           //version, e.g. v1_3_000
           assignAttributesLite.setClientVersion(GeneratedClientSettings.VERSION);
@@ -287,7 +300,7 @@ public class WsSampleAssignAttributesLite implements WsSampleGenerated {
 
           assignAttributesLite.setSubjectAttributeNames("");
           assignAttributesLite.setValueId("");
-          assignAttributesLite.setValueSystem("");
+          assignAttributesLite.setValueSystem("34");
           assignAttributesLite.setValueFormatted("");
 
           assignAttributesLite.setWsAttributeDefNameId("");
@@ -336,7 +349,7 @@ public class WsSampleAssignAttributesLite implements WsSampleGenerated {
      * @param args
      */
     public static void main(String[] args) {
-        assignAttributesLite(WsSampleGeneratedType.soap);
+        assignAttributesWithValueLite(WsSampleGeneratedType.soap);
     }
 }
 
@@ -349,13 +362,13 @@ public class WsSampleAssignAttributesLite implements WsSampleGenerated {
 
 
 WsAssignAttributesLiteResults[
-  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap.xsd.WsResponseMeta@5dbc82,localResponseMetadataTracker=true,
-  localResultMetadata=edu.internet2.middleware.grouper.ws.soap.xsd.WsResultMeta@30e7b,localResultMetadataTracker=true,
+  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap.xsd.WsResponseMeta@3b8d23,localResponseMetadataTracker=true,
+  localResultMetadata=edu.internet2.middleware.grouper.ws.soap.xsd.WsResultMeta@1aefd28,localResultMetadataTracker=true,
   localSubjectAttributeNames={<null>},localSubjectAttributeNamesTracker=true,
-  localWsAttributeAssignResult=edu.internet2.middleware.grouper.ws.soap.xsd.WsAssignAttributeResult@77d66,localWsAttributeAssignResultTracker=true,
-  localWsAttributeDefName=edu.internet2.middleware.grouper.ws.soap.xsd.WsAttributeDefName@1b9c2f0,localWsAttributeDefNameTracker=true,
-  localWsAttributeDefs={edu.internet2.middleware.grouper.ws.soap.xsd.WsAttributeDef@13488c4},localWsAttributeDefsTracker=true,
-  localWsGroup=edu.internet2.middleware.grouper.ws.soap.xsd.WsGroup@1ff3900,localWsGroupTracker=true,localWsMembershipTracker=true,localWsStemTracker=true,localWsSubjectTracker=true]
-WsAttributeAssign[localAttributeAssignActionId=01f94d18f2404c3098db5f5426986c93,localAttributeAssignActionIdTracker=true,localAttributeAssignActionName=assign,localAttributeAssignActionNameTracker=true,localAttributeAssignActionType=immediate,localAttributeAssignActionTypeTracker=true,localAttributeAssignDelegatable=FALSE,localAttributeAssignDelegatableTracker=true,localAttributeAssignType=group,localAttributeAssignTypeTracker=true,localAttributeDefId=f5e06097a36c4d86af64ae2e0e43b81d,localAttributeDefIdTracker=true,localAttributeDefName=test:testAttributeAssignDefNameDef,localAttributeDefNameTracker=true,localAttributeDefNameId=e5a442a810ba46abb41cbffd2f1bcd19,localAttributeDefNameIdTracker=true,localAttributeDefNameName=test:testAttributeAssignDefName,localAttributeDefNameNameTracker=true,localCreatedOn=2010/10/11 12:50:42.960,localCreatedOnTracker=true,localDisabledTimeTracker=false,localEnabled=T,localEnabledTracker=true,localEnabledTimeTracker=false,localId=4865db0e565541b6839cb21dc7678f25,localIdTracker=true,localLastUpdated=2010/10/11 12:50:42.960,localLastUpdatedTracker=true,localNotesTracker=false,localOwnerAttributeAssignIdTracker=false,localOwnerAttributeDefIdTracker=false,localOwnerAttributeDefNameTracker=false,localOwnerGroupId=687c59c49c084f249f7069cbf75568a9,localOwnerGroupIdTracker=true,localOwnerGroupName=test:groupTestAttrAssign,localOwnerGroupNameTracker=true,localOwnerMemberIdTracker=false,localOwnerMemberSourceIdTracker=false,localOwnerMemberSubjectIdTracker=false,localOwnerMembershipIdTracker=false,localOwnerStemIdTracker=false,localOwnerStemNameTracker=false,
-  localWsAttributeAssignValues={edu.internet2.middleware.grouper.ws.soap.xsd.WsAttributeAssignValue@177c533,edu.internet2.middleware.grouper.ws.soap.xsd.WsAttributeAssignValue@33a141,edu.internet2.middleware.grouper.ws.soap.xsd.WsAttributeAssignValue@19fc0de},localWsAttributeAssignValuesTracker=true]
-WsGroup[localDescription=description,localDescriptionTracker=true,localDetailTracker=true,localDisplayExtension=groupTestAttrAssign,localDisplayExtensionTracker=true,localDisplayName=test:groupTestAttrAssign,localDisplayNameTracker=true,localExtension=groupTestAttrAssign,localExtensionTracker=true,localName=test:groupTestAttrAssign,localNameTracker=true,localUuid=687c59c49c084f249f7069cbf75568a9,localUuidTracker=true]
+  localWsAttributeAssignResult=edu.internet2.middleware.grouper.ws.soap.xsd.WsAssignAttributeResult@1971b94,localWsAttributeAssignResultTracker=true,
+  localWsAttributeDefName=edu.internet2.middleware.grouper.ws.soap.xsd.WsAttributeDefName@193bd72,localWsAttributeDefNameTracker=true,
+  localWsAttributeDefs={edu.internet2.middleware.grouper.ws.soap.xsd.WsAttributeDef@115f6c1},localWsAttributeDefsTracker=true,
+  localWsGroup=edu.internet2.middleware.grouper.ws.soap.xsd.WsGroup@fafe96,localWsGroupTracker=true,localWsMembershipTracker=true,localWsStemTracker=true,localWsSubjectTracker=true]
+WsAttributeAssign[localAttributeAssignActionId=644ea454c35f4998a4e95998217addac,localAttributeAssignActionIdTracker=true,localAttributeAssignActionName=assign,localAttributeAssignActionNameTracker=true,localAttributeAssignActionType=immediate,localAttributeAssignActionTypeTracker=true,localAttributeAssignDelegatable=FALSE,localAttributeAssignDelegatableTracker=true,localAttributeAssignType=group,localAttributeAssignTypeTracker=true,localAttributeDefId=07a2c147b2d14c05b06026a02372e2ee,localAttributeDefIdTracker=true,localAttributeDefName=test:testAttributeAssignDefNameDef,localAttributeDefNameTracker=true,localAttributeDefNameId=a78b5da7a77d437d85b56cdeb1e06eaa,localAttributeDefNameIdTracker=true,localAttributeDefNameName=test:testAttributeAssignDefName,localAttributeDefNameNameTracker=true,localCreatedOn=2010/10/11 13:08:50.142,localCreatedOnTracker=true,localDisabledTimeTracker=false,localEnabled=T,localEnabledTracker=true,localEnabledTimeTracker=false,localId=3d19b264d782488c9fa98e9773cad5c8,localIdTracker=true,localLastUpdated=2010/10/11 13:08:50.142,localLastUpdatedTracker=true,localNotesTracker=false,localOwnerAttributeAssignIdTracker=false,localOwnerAttributeDefIdTracker=false,localOwnerAttributeDefNameTracker=false,localOwnerGroupId=a04e4feeac7348cca836453c0567507b,localOwnerGroupIdTracker=true,localOwnerGroupName=test:groupTestAttrAssign,localOwnerGroupNameTracker=true,localOwnerMemberIdTracker=false,localOwnerMemberSourceIdTracker=false,localOwnerMemberSubjectIdTracker=false,localOwnerMembershipIdTracker=false,localOwnerStemIdTracker=false,localOwnerStemNameTracker=false,
+  localWsAttributeAssignValues={edu.internet2.middleware.grouper.ws.soap.xsd.WsAttributeAssignValue@1643e65,edu.internet2.middleware.grouper.ws.soap.xsd.WsAttributeAssignValue@3c86bc,edu.internet2.middleware.grouper.ws.soap.xsd.WsAttributeAssignValue@1b1c3a3,edu.internet2.middleware.grouper.ws.soap.xsd.WsAttributeAssignValue@1a33470},localWsAttributeAssignValuesTracker=true]
+WsGroup[localDescription=description,localDescriptionTracker=true,localDetailTracker=true,localDisplayExtension=groupTestAttrAssign,localDisplayExtensionTracker=true,localDisplayName=test:groupTestAttrAssign,localDisplayNameTracker=true,localExtension=groupTestAttrAssign,localExtensionTracker=true,localName=test:groupTestAttrAssign,localNameTracker=true,localUuid=a04e4feeac7348cca836453c0567507b,localUuidTracker=true]

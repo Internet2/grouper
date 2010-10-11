@@ -1,145 +1,3 @@
-Grouper web service sample of service: assignAttributes, WsSampleAssignAttributesRestLite, manually written lite/rest, format: json, for version: 1.6.1
-
-
-#########################################
-##
-## HTTP request sample (could be formatted for view by
-## indenting or changing dates or other data)
-##
-#########################################
-
-
-POST /grouperWs/servicesRest/json/v1_6_001/attributeAssignments HTTP/1.1
-Connection: close
-Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.0
-Host: localhost:8092
-Content-Length: 248
-Content-Type: text/x-json; charset=UTF-8
-
-{
-  "WsRestAssignAttributesLiteRequest":{
-    "actAsSubjectId":"GrouperSystem",
-    "attributeAssignOperation":"assign_attr",
-    "attributeAssignType":"group",
-    "wsAttributeDefNameName":"test:testAttributeAssignDefName",
-    "wsOwnerGroupName":"test:groupTestAttrAssign"
-  }
-}
-
-
-#########################################
-##
-## HTTP response sample (could be formatted for view by
-## indenting or changing dates or other data)
-##
-#########################################
-
-
-HTTP/1.1 200 OK
-Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
-X-Grouper-resultCode: SUCCESS
-X-Grouper-success: T
-X-Grouper-resultCode2: NONE
-Content-Type: text/x-json;charset=UTF-8
-Content-Length: 1973
-Date: Mon, 11 Oct 2010 16:51:28 GMT
-Connection: close
-
-{
-  "WsAssignAttributesLiteResults":{
-    "responseMetadata":{
-      "millis":"156",
-      "serverVersion":"1.6.1"
-    },
-    "resultMetadata":{
-      "resultCode":"SUCCESS",
-      "resultMessage":", Found 1 results.",
-      "success":"T"
-    },
-    "wsAttributeAssignResult":{
-      "changed":"F",
-      "deleted":"F",
-      "valuesChanged":"F",
-      "wsAttributeAssigns":[
-        {
-          "attributeAssignActionId":"e3388f093a56444bb7c85586f48e566d",
-          "attributeAssignActionName":"assign",
-          "attributeAssignActionType":"immediate",
-          "attributeAssignDelegatable":"FALSE",
-          "attributeAssignType":"group",
-          "attributeDefId":"3ac32c1fd10d4762ba316d0af6f149ce",
-          "attributeDefName":"test:testAttributeAssignDefNameDef",
-          "attributeDefNameId":"16ecedf45ee54f788542453d5ea8ebf1",
-          "attributeDefNameName":"test:testAttributeAssignDefName",
-          "createdOn":"2010/10/11 12:51:26.165",
-          "enabled":"T",
-          "id":"b751a80583574d69a266b0bbd98098b3",
-          "lastUpdated":"2010/10/11 12:51:26.165",
-          "ownerGroupId":"2e03c4b79faf45e08441c5d9acea2007",
-          "ownerGroupName":"test:groupTestAttrAssign",
-          "wsAttributeAssignValues":[
-            {
-              "id":"c5f5cd112b234052abf6b3852b65a031",
-              "valueSystem":"15"
-            },
-            {
-              "id":"eb14eb1e449d4680ab934a8c7fa0d67d",
-              "valueSystem":"5"
-            },
-            {
-              "id":"fcbc05c684384d78b4acc04cfe3af4ca",
-              "valueSystem":"5"
-            }
-          ]
-        }
-      ]
-      
-    },
-    "wsAttributeDefName":{
-      "attributeDefId":"3ac32c1fd10d4762ba316d0af6f149ce",
-      "attributeDefName":"test:testAttributeAssignDefNameDef",
-      "displayExtension":"testAttributeAssignDefName",
-      "displayName":"test:testAttributeAssignDefName",
-      "extension":"testAttributeAssignDefName",
-      "name":"test:testAttributeAssignDefName",
-      "uuid":"16ecedf45ee54f788542453d5ea8ebf1"
-    },
-    "wsAttributeDefs":[
-      {
-        "attributeDefType":"attr",
-        "extension":"testAttributeAssignDefNameDef",
-        "multiAssignable":"F",
-        "multiValued":"T",
-        "name":"test:testAttributeAssignDefNameDef",
-        "uuid":"3ac32c1fd10d4762ba316d0af6f149ce",
-        "valueType":"integer"
-      }
-    ]
-    ,
-    "wsGroup":{
-      "description":"description",
-      "displayExtension":"groupTestAttrAssign",
-      "displayName":"test:groupTestAttrAssign",
-      "extension":"groupTestAttrAssign",
-      "name":"test:groupTestAttrAssign",
-      "uuid":"2e03c4b79faf45e08441c5d9acea2007"
-    }
-  }
-}
-
-
-#########################################
-##
-## Java source code (note, any programming language / objects
-## can use used to generate the above request/response.  Nothing
-## is Java specific.  Also, if you are using Java, the client libraries
-## are available
-##
-#########################################
-
-
 package edu.internet2.middleware.grouper.ws.samples.rest.attribute;
 
 import org.apache.commons.httpclient.Credentials;
@@ -163,14 +21,14 @@ import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
 /**
  * @author mchyzer
  */
-public class WsSampleAssignAttributesRestLite implements WsSampleRest {
+public class WsSampleAssignAttributesWithValueRestLite implements WsSampleRest {
 
   /**
    * get attribute assignments lite web service with REST
    * @param wsSampleRestType is the type of rest (xml, xhtml, etc)
    */
   @SuppressWarnings("deprecation")
-  public static void assignAttributesLite(WsSampleRestType wsSampleRestType) {
+  public static void assignAttributesWithValueLite(WsSampleRestType wsSampleRestType) {
 
     try {
       HttpClient httpClient = new HttpClient();
@@ -207,6 +65,8 @@ public class WsSampleAssignAttributesRestLite implements WsSampleRest {
       wsRestAssignAttributesLiteRequest.setWsAttributeDefNameName("test:testAttributeAssignDefName");
       wsRestAssignAttributesLiteRequest.setWsOwnerGroupName("test:groupTestAttrAssign");
       wsRestAssignAttributesLiteRequest.setAttributeAssignOperation("assign_attr");
+      wsRestAssignAttributesLiteRequest.setAttributeAssignValueOperation("add_value");
+      wsRestAssignAttributesLiteRequest.setValueSystem("54");
       
       //get the xml / json / xhtml / paramString
       String requestDocument = wsSampleRestType.getWsLiteRequestContentType().writeString(wsRestAssignAttributesLiteRequest);
@@ -258,14 +118,14 @@ public class WsSampleAssignAttributesRestLite implements WsSampleRest {
    */
   @SuppressWarnings("unchecked")
   public static void main(String[] args) {
-    assignAttributesLite(WsSampleRestType.xml);
+    assignAttributesWithValueLite(WsSampleRestType.xml);
   }
 
   /**
    * @see edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest#executeSample(edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType)
    */
   public void executeSample(WsSampleRestType wsSampleRestType) {
-    assignAttributesLite(wsSampleRestType);
+    assignAttributesWithValueLite(wsSampleRestType);
   }
 
   /**
@@ -275,13 +135,3 @@ public class WsSampleAssignAttributesRestLite implements WsSampleRest {
     return true;
   }
 }
-
-
-#########################################
-##
-## Stdout
-##
-#########################################
-
-
-Server version: 1.6.1, result code: SUCCESS, result message: , Found 1 results.

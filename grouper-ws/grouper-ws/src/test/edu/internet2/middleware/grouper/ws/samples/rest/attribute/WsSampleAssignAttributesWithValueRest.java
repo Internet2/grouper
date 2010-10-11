@@ -1,156 +1,3 @@
-Grouper web service sample of service: assignAttributes, WsSampleAssignAttributesRest, manually written lite/rest, format: xml, for version: 1.6.1
-
-
-#########################################
-##
-## HTTP request sample (could be formatted for view by
-## indenting or changing dates or other data)
-##
-#########################################
-
-
-POST /grouperWs/servicesRest/v1_6_001/attributeAssignments HTTP/1.1
-Connection: close
-Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.0
-Host: localhost:8092
-Content-Length: 461
-Content-Type: text/xml; charset=UTF-8
-
-<WsRestAssignAttributesRequest>
-  <attributeAssignOperation>assign_attr</attributeAssignOperation>
-  <attributeAssignType>group</attributeAssignType>
-  <wsAttributeDefNameLookups>
-    <WsAttributeDefNameLookup>
-      <uuid></uuid>
-      <name>test:testAttributeAssignDefName</name>
-    </WsAttributeDefNameLookup>
-  </wsAttributeDefNameLookups>
-  <wsOwnerGroupLookups>
-    <WsGroupLookup>
-      <groupName>test:groupTestAttrAssign</groupName>
-    </WsGroupLookup>
-  </wsOwnerGroupLookups>
-</WsRestAssignAttributesRequest>
-
-
-#########################################
-##
-## HTTP response sample (could be formatted for view by
-## indenting or changing dates or other data)
-##
-#########################################
-
-
-HTTP/1.1 200 OK
-Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
-X-Grouper-resultCode: SUCCESS
-X-Grouper-success: T
-X-Grouper-resultCode2: NONE
-Content-Type: text/xml;charset=UTF-8
-Date: Mon, 11 Oct 2010 16:51:13 GMT
-Connection: close
-
-<WsAssignAttributesResults>
-  <wsAttributeDefs>
-    <WsAttributeDef>
-      <extension>testAttributeAssignDefNameDef</extension>
-      <name>test:testAttributeAssignDefNameDef</name>
-      <uuid>4e05b17c46374f989bfd29a92833ddfd</uuid>
-      <attributeDefType>attr</attributeDefType>
-      <multiAssignable>F</multiAssignable>
-      <multiValued>T</multiValued>
-      <valueType>integer</valueType>
-    </WsAttributeDef>
-  </wsAttributeDefs>
-  <wsAttributeDefNames>
-    <WsAttributeDefName>
-      <extension>testAttributeAssignDefName</extension>
-      <displayExtension>testAttributeAssignDefName</displayExtension>
-      <displayName>test:testAttributeAssignDefName</displayName>
-      <name>test:testAttributeAssignDefName</name>
-      <uuid>9027bc43d76b4acea43d8dd25904d03d</uuid>
-      <attributeDefId>4e05b17c46374f989bfd29a92833ddfd</attributeDefId>
-      <attributeDefName>test:testAttributeAssignDefNameDef</attributeDefName>
-    </WsAttributeDefName>
-  </wsAttributeDefNames>
-  <wsAttributeAssignResults>
-    <WsAssignAttributeResult>
-      <wsAttributeAssigns>
-        <WsAttributeAssign>
-          <attributeAssignActionType>immediate</attributeAssignActionType>
-          <attributeAssignDelegatable>FALSE</attributeAssignDelegatable>
-          <attributeAssignActionId>16d550443caa44a2b3599cd2ce58b85b</attributeAssignActionId>
-          <attributeAssignActionName>assign</attributeAssignActionName>
-          <attributeAssignType>group</attributeAssignType>
-          <attributeDefNameId>9027bc43d76b4acea43d8dd25904d03d</attributeDefNameId>
-          <attributeDefNameName>test:testAttributeAssignDefName</attributeDefNameName>
-          <attributeDefId>4e05b17c46374f989bfd29a92833ddfd</attributeDefId>
-          <attributeDefName>test:testAttributeAssignDefNameDef</attributeDefName>
-          <wsAttributeAssignValues>
-            <WsAttributeAssignValue>
-              <id>ada13391bd634facb0ee243639265365</id>
-              <valueSystem>15</valueSystem>
-            </WsAttributeAssignValue>
-            <WsAttributeAssignValue>
-              <id>12de7f43adac4474bb5fb0aacd29565e</id>
-              <valueSystem>5</valueSystem>
-            </WsAttributeAssignValue>
-            <WsAttributeAssignValue>
-              <id>1400b528eb4d405d81be753b92510f39</id>
-              <valueSystem>5</valueSystem>
-            </WsAttributeAssignValue>
-          </wsAttributeAssignValues>
-          <createdOn>2010/10/11 12:51:10.555</createdOn>
-          <enabled>T</enabled>
-          <id>568ac4267dfd4ca88872bc2d20dd2570</id>
-          <lastUpdated>2010/10/11 12:51:10.555</lastUpdated>
-          <ownerGroupId>51e72ca5221b4ea2a86a0aa41f0e48ba</ownerGroupId>
-          <ownerGroupName>test:groupTestAttrAssign</ownerGroupName>
-        </WsAttributeAssign>
-      </wsAttributeAssigns>
-      <changed>F</changed>
-      <valuesChanged>F</valuesChanged>
-      <deleted>F</deleted>
-    </WsAssignAttributeResult>
-  </wsAttributeAssignResults>
-  <resultMetadata>
-    <resultCode>SUCCESS</resultCode>
-    <resultMessage>, Found 1 results.  </resultMessage>
-    <success>T</success>
-  </resultMetadata>
-  <responseMetadata>
-    <resultWarnings></resultWarnings>
-    <millis>484</millis>
-    <serverVersion>1.6.1</serverVersion>
-  </responseMetadata>
-  <wsGroups>
-    <WsGroup>
-      <extension>groupTestAttrAssign</extension>
-      <displayExtension>groupTestAttrAssign</displayExtension>
-      <description>description</description>
-      <displayName>test:groupTestAttrAssign</displayName>
-      <name>test:groupTestAttrAssign</name>
-      <uuid>51e72ca5221b4ea2a86a0aa41f0e48ba</uuid>
-    </WsGroup>
-  </wsGroups>
-  <wsStems/>
-  <wsMemberships/>
-  <wsSubjects/>
-</WsAssignAttributesResults>
-
-
-#########################################
-##
-## Java source code (note, any programming language / objects
-## can use used to generate the above request/response.  Nothing
-## is Java specific.  Also, if you are using Java, the client libraries
-## are available
-##
-#########################################
-
-
 package edu.internet2.middleware.grouper.ws.samples.rest.attribute;
 
 import org.apache.commons.httpclient.Credentials;
@@ -170,6 +17,7 @@ import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestAssignAttributes
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType;
 import edu.internet2.middleware.grouper.ws.soap.WsAssignAttributesResults;
+import edu.internet2.middleware.grouper.ws.soap.WsAttributeAssignValue;
 import edu.internet2.middleware.grouper.ws.soap.WsAttributeDefNameLookup;
 import edu.internet2.middleware.grouper.ws.soap.WsGroupLookup;
 import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
@@ -177,13 +25,13 @@ import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
 /**
  * @author mchyzer
  */
-public class WsSampleAssignAttributesRest implements WsSampleRest {
+public class WsSampleAssignAttributesWithValueRest implements WsSampleRest {
 
   /**
    * attribute assignments lite web service with REST
    * @param wsSampleRestType is the type of rest (xml, xhtml, etc)
    */
-  public static void assignAttributes(WsSampleRestType wsSampleRestType) {
+  public static void assignAttributesWithValue(WsSampleRestType wsSampleRestType) {
 
     try {
       HttpClient httpClient = new HttpClient();
@@ -218,6 +66,10 @@ public class WsSampleAssignAttributesRest implements WsSampleRest {
       WsGroupLookup wsGroupLookup = new WsGroupLookup("test:groupTestAttrAssign", null);
       assignAttributes.setWsOwnerGroupLookups(new WsGroupLookup[]{wsGroupLookup});
       assignAttributes.setAttributeAssignOperation("assign_attr");
+      assignAttributes.setAttributeAssignValueOperation("add_value");
+      WsAttributeAssignValue wsAttributeAssignValue = new WsAttributeAssignValue();
+      wsAttributeAssignValue.setValueSystem("63");
+      assignAttributes.setValues(new WsAttributeAssignValue[]{wsAttributeAssignValue});
 
       WsAttributeDefNameLookup wsAttributeDefNameLookup = new WsAttributeDefNameLookup();
       wsAttributeDefNameLookup.setUuid("");
@@ -278,14 +130,14 @@ public class WsSampleAssignAttributesRest implements WsSampleRest {
    * @param args
    */
   public static void main(String[] args) {
-    assignAttributes(WsSampleRestType.xml);
+    assignAttributesWithValue(WsSampleRestType.xml);
   }
 
   /**
    * @see edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest#executeSample(edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType)
    */
   public void executeSample(WsSampleRestType wsSampleRestType) {
-    assignAttributes(wsSampleRestType);
+    assignAttributesWithValue(wsSampleRestType);
   }
 
   /**
@@ -296,13 +148,3 @@ public class WsSampleAssignAttributesRest implements WsSampleRest {
     return !WsSampleRestType.http_xhtml.equals(wsSampleRestType);
   }
 }
-
-
-#########################################
-##
-## Stdout
-##
-#########################################
-
-
-Server version: 1.6.1, result code: SUCCESS, result message: , Found 1 results.
