@@ -36,6 +36,8 @@ import edu.internet2.middleware.grouper.internal.dao.ChangeLogConsumerDAO;
 import edu.internet2.middleware.grouper.internal.dao.ChangeLogEntryDAO;
 import edu.internet2.middleware.grouper.internal.dao.ChangeLogTypeDAO;
 import edu.internet2.middleware.grouper.internal.dao.CompositeDAO;
+import edu.internet2.middleware.grouper.internal.dao.ExternalSubjectAttributeDAO;
+import edu.internet2.middleware.grouper.internal.dao.ExternalSubjectDAO;
 import edu.internet2.middleware.grouper.internal.dao.FieldDAO;
 import edu.internet2.middleware.grouper.internal.dao.GroupDAO;
 import edu.internet2.middleware.grouper.internal.dao.GroupSetDAO;
@@ -463,6 +465,22 @@ public class Hib3DAOFactory extends GrouperDAOFactory {
   @Override
   public PITRoleSetDAO getPITRoleSet() {
     return new Hib3PITRoleSetDAO();
+  }
+
+  /**
+   * @see GrouperDAOFactory#getExternalSubject()
+   */
+  @Override
+  public ExternalSubjectDAO getExternalSubject() {
+    return new Hib3ExternalSubjectDAO();
+  }
+
+  /**
+   * @see GrouperDAOFactory#getExternalSubjectAttribute()
+   */
+  @Override
+  public ExternalSubjectAttributeDAO getExternalSubjectAttribute() {
+    return new Hib3ExternalSubjectAttributeDAO();
   }
 } 
 

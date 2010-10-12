@@ -1,0 +1,92 @@
+/*
+  Copyright (C) 2004-2007 University Corporation for Advanced Internet Development, Inc.
+  Copyright (C) 2004-2007 The University Of Chicago
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+*/
+
+package edu.internet2.middleware.grouper.internal.dao.hib3;
+
+import java.util.List;
+
+import edu.internet2.middleware.grouper.externalSubjects.ExternalSubject;
+import edu.internet2.middleware.grouper.externalSubjects.ExternalSubjectAttribute;
+import edu.internet2.middleware.grouper.hibernate.AuditControl;
+import edu.internet2.middleware.grouper.hibernate.ByHql;
+import edu.internet2.middleware.grouper.hibernate.ByObject;
+import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
+import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
+import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
+import edu.internet2.middleware.grouper.hibernate.HibernateSession;
+import edu.internet2.middleware.grouper.internal.dao.ExternalSubjectDAO;
+import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
+
+
+/**
+ * Basic Hibernate <code>Group</code> DAO interface.
+ */
+public class Hib3ExternalSubjectDAO extends Hib3DAO implements ExternalSubjectDAO {
+
+  /**
+   * @see ExternalSubjectDAO#delete(ExternalSubject)
+   */
+  public void delete(final ExternalSubject externalSubject) {
+
+    HibernateSession.callbackHibernateSession(
+        GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT,
+        new HibernateHandler() {
+
+          public Object callback(HibernateHandlerBean hibernateHandlerBean)
+              throws GrouperDAOException {
+
+            HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
+            hibernateSession.setCachingEnabled(false);
+
+            ByObject byObject = hibernateSession.byObject();
+            
+            // delete attributes
+            ByHql byHql = hibernateSession.byHql();
+            byHql.createQuery("select theExternalSubjectAttribute " +
+            		"from ExternalSubjectAttribute as theExternalSubjectAttribute where subject_uuid = :theSubjectUuid");
+            byHql.setString("theSubjectUuid", externalSubject.getUuid() );
+            List<ExternalSubjectAttribute> externalSubjectAttributes = byHql.list(ExternalSubjectAttribute.class);
+            
+            for (ExternalSubjectAttribute externalSubjectAttribute : GrouperUtil.nonNull(externalSubjectAttributes)) {
+              GrouperDAOFactory.getFactory().getExternalSubjectAttribute().delete(externalSubjectAttribute);
+            }
+            
+            // delete external subject
+            byObject.delete(externalSubject);
+            return null;
+          }
+    });
+    
+  }
+
+  /**
+   * save or update this to the DB.
+   */
+  public void saveOrUpdate(ExternalSubject externalSubject) {
+    
+    //TODO update the description and lower search string
+    
+    HibernateSession.byObjectStatic().saveOrUpdate(externalSubject);
+    
+  }
+  
+  
+
+} 
+

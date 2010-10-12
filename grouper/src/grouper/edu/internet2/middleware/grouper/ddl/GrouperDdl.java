@@ -8,6 +8,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Types;
+import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -40,6 +41,11 @@ import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogConsumer;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogEntry;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogType;
+import edu.internet2.middleware.grouper.externalSubjects.ExternalSubject;
+import edu.internet2.middleware.grouper.externalSubjects.ExternalSubjectAttribute;
+import edu.internet2.middleware.grouper.externalSubjects.ExternalSubjectConfig;
+import edu.internet2.middleware.grouper.externalSubjects.ExternalSubjectConfig.ExternalSubjectAttributeConfigBean;
+import edu.internet2.middleware.grouper.externalSubjects.ExternalSubjectConfig.ExternalSubjectConfigBean;
 import edu.internet2.middleware.grouper.group.GroupSet;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
@@ -663,6 +669,9 @@ public enum GrouperDdl implements DdlVersionable {
       GrouperDdlUtils.ddlutilsDropIndexes(grouperGroupSet, "owner_group_id_null");
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, grouperGroupSet.getName(), 
           "group_set_uniq_idx", true, "member_id", "field_id", "owner_id", "parent_id", "mship_type");
+      
+      addExternalSubjectTables(ddlVersionBean, database);
+      
     }
   },
   
@@ -1835,6 +1844,9 @@ public enum GrouperDdl implements DdlVersionable {
       addPrivilegeManagement(ddlVersionBean, database, groupsTableNew);
             
       addPITTables(ddlVersionBean, database);
+      
+      addExternalSubjectTables(ddlVersionBean, database);
+
     }
 
   }, 
@@ -2172,6 +2184,9 @@ public enum GrouperDdl implements DdlVersionable {
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_audit_entry_v");
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_change_log_entry_v");
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_composites_v");
+
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_ext_subj_v");
+
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_groups_types_v");
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_groups_v");
     
@@ -2454,6 +2469,75 @@ public enum GrouperDdl implements DdlVersionable {
     GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Composite.TABLE_GROUPER_COMPOSITES, 
         COLUMN_CONTEXT_ID, "Context id links together multiple operations into one high level action");
 
+    
+    GrouperDdlUtils.ddlutilsTableComment(ddlVersionBean, ExternalSubject.TABLE_GROUPER_EXT_SUBJ, "external subjects stored in grouper");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, ExternalSubject.TABLE_GROUPER_EXT_SUBJ,  ExternalSubject.COLUMN_CONTEXT_ID, 
+      "context id links back to an auditing record");
+    
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, ExternalSubject.TABLE_GROUPER_EXT_SUBJ,  ExternalSubject.COLUMN_CREATE_TIME, 
+      "when this record was created in millis from 1970");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, ExternalSubject.TABLE_GROUPER_EXT_SUBJ,  ExternalSubject.COLUMN_CREATOR_MEMBER_ID, 
+      "member id of who created this record");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, ExternalSubject.TABLE_GROUPER_EXT_SUBJ,  ExternalSubject.COLUMN_DESCRIPTION, 
+      "description field of the subject object");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, ExternalSubject.TABLE_GROUPER_EXT_SUBJ,  ExternalSubject.COLUMN_EMAIL, 
+      "email address of subject (optional)");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, ExternalSubject.TABLE_GROUPER_EXT_SUBJ,  ExternalSubject.COLUMN_IDENTIFIER, 
+      "identifier of subject, e.g. the eppn.");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, ExternalSubject.TABLE_GROUPER_EXT_SUBJ,  ExternalSubject.COLUMN_INSTITUTION, 
+      "institution name where the subject is from");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, ExternalSubject.TABLE_GROUPER_EXT_SUBJ,  ExternalSubject.COLUMN_MODIFIER_MEMBER_ID, 
+      "member id of who last edited the record");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, ExternalSubject.TABLE_GROUPER_EXT_SUBJ,  ExternalSubject.COLUMN_MODIFY_TIME, 
+      "when the record was last modified");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, ExternalSubject.TABLE_GROUPER_EXT_SUBJ,  ExternalSubject.COLUMN_NAME, 
+      "name field of the subject object");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, ExternalSubject.TABLE_GROUPER_EXT_SUBJ,  ExternalSubject.COLUMN_SEARCH_STRING_LOWER, 
+      "subject searches will use this field, it should contain most of the other fields, lower case");
+    
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, ExternalSubject.TABLE_GROUPER_EXT_SUBJ,  ExternalSubject.COLUMN_UUID, 
+      "unique identifier for row");
+      
+    GrouperDdlUtils.ddlutilsTableComment(ddlVersionBean, ExternalSubjectAttribute.TABLE_GROUPER_EXT_SUBJ_ATTR, "external subjects stored in grouper");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, ExternalSubjectAttribute.TABLE_GROUPER_EXT_SUBJ_ATTR,  ExternalSubjectAttribute.COLUMN_ATTRIBUTE_SYSTEM_NAME, 
+      "system name of the attribute, should not change, used as column name in view");
+  
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, ExternalSubjectAttribute.TABLE_GROUPER_EXT_SUBJ_ATTR,  ExternalSubjectAttribute.COLUMN_ATTRIBUTE_VALUE, 
+      "value of the attribute");
+  
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, ExternalSubjectAttribute.TABLE_GROUPER_EXT_SUBJ_ATTR,  ExternalSubjectAttribute.COLUMN_CONTEXT_ID, 
+      "context id links back to an auditing record");
+    
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, ExternalSubjectAttribute.TABLE_GROUPER_EXT_SUBJ_ATTR,  ExternalSubjectAttribute.COLUMN_CREATE_TIME, 
+      "when this record was created in millis from 1970");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, ExternalSubjectAttribute.TABLE_GROUPER_EXT_SUBJ_ATTR,  ExternalSubjectAttribute.COLUMN_CREATOR_MEMBER_ID, 
+      "member id of who created this record");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, ExternalSubjectAttribute.TABLE_GROUPER_EXT_SUBJ_ATTR,  ExternalSubjectAttribute.COLUMN_MODIFIER_MEMBER_ID, 
+      "member id of who last edited the record");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, ExternalSubjectAttribute.TABLE_GROUPER_EXT_SUBJ_ATTR,  ExternalSubjectAttribute.COLUMN_MODIFY_TIME, 
+      "when the record was last modified");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, ExternalSubjectAttribute.TABLE_GROUPER_EXT_SUBJ_ATTR,  ExternalSubjectAttribute.COLUMN_SUBJECT_UUID, 
+      "foreign key back to external subject");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, ExternalSubjectAttribute.TABLE_GROUPER_EXT_SUBJ_ATTR,  ExternalSubjectAttribute.COLUMN_UUID, 
+      "unique identifier for row");
+      
+    
     
     GrouperDdlUtils.ddlutilsTableComment(ddlVersionBean, Field.TABLE_GROUPER_FIELDS, "describes fields related to types");
 
@@ -2970,6 +3054,10 @@ public enum GrouperDdl implements DdlVersionable {
     GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, Composite.TABLE_GROUPER_COMPOSITES, 
         "fk_composites_creator_id", Member.TABLE_GROUPER_MEMBERS, "creator_id", memberIdCol);
     
+    GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, ExternalSubjectAttribute.TABLE_GROUPER_EXT_SUBJ_ATTR, 
+        "fk_ext_subj_attr_subj_uuid", ExternalSubject.TABLE_GROUPER_EXT_SUBJ, 
+        ExternalSubjectAttribute.COLUMN_SUBJECT_UUID, ExternalSubject.COLUMN_UUID);
+
     GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, Field.TABLE_GROUPER_FIELDS, 
         "fk_fields_grouptype_uuid", "grouper_types", "grouptype_uuid", typeIdCol);
 
@@ -3378,6 +3466,78 @@ public enum GrouperDdl implements DdlVersionable {
         + "gc.HIBERNATE_VERSION_NUMBER, gc.context_id "
         + "from grouper_composites gc  "
       );
+
+    {
+      //you can turn this off in the config if it doesnt compile or whatnot
+      if (GrouperConfig.getPropertyBoolean("externalSubjects.createView", true)) {
+
+        Set<String> columnNames = GrouperUtil.toSet("uuid", "name", 
+            "identifier", "description");
+
+        Set<String> columnComments = GrouperUtil.toSet(
+            "uuid: universally unique id of subject", 
+            "name: name field of the subject object", 
+            "identifier: identifier of subject, e.g. the eppn", 
+            "description: description field of the subject object");
+        
+        ExternalSubjectConfigBean externalSubjectConfigBean = ExternalSubjectConfig.externalSubjectConfigBean();
+
+        StringBuilder query = new StringBuilder();
+
+        //    SELECT ges.uuid, ges.name, ges.identifier, ges.description,
+        //    ges.institution, ges.email, ges.search_string_lower, 
+        //    (SELECT gesa.attribute_value FROM grouper_ext_subj_attr gesa 
+        //    WHERE gesa.subject_uuid = ges.uuid AND gesa.attribute_system_name = 'jabber_id' ) AS jabber_id
+        //    FROM grouper_ext_subj ges
+        //    WHERE ges.enabled = 'T'
+
+        query.append("SELECT ges.uuid, ges.name, ges.identifier, ges.description ");
+
+        if (externalSubjectConfigBean.isInstitutionEnabled()) {
+          columnNames.add("institution");
+          columnComments.add("institution: where the subject comes from");
+          query.append(", ges.institution ");
+        }
+        
+        if (externalSubjectConfigBean.isEmailEnabled()) {
+          columnNames.add("email");
+          columnComments.add("email: email address of the subject");
+          query.append(", ges.email ");
+        }
+        columnNames.add("search_string_lower");
+        columnComments.add("search_string_lower: lower case list of strings that the search will return results for subject");
+        query.append(", ges.search_string_lower ");
+        
+        for (ExternalSubjectAttributeConfigBean externalSubjectAttributeConfigBean : 
+          GrouperUtil.nonNull(externalSubjectConfigBean.getExternalSubjectAttributeConfigBeans())) {
+          
+          String systemName = externalSubjectAttributeConfigBean.getSystemName();
+          columnNames.add(systemName);
+
+          String comment = StringUtils.defaultString(externalSubjectAttributeConfigBean.getComment(), 
+              systemName);
+          
+          columnComments.add(comment);
+          
+          query.append(", (SELECT gesa.attribute_value FROM grouper_ext_subj_attr gesa WHERE gesa.subject_uuid = ges.uuid AND gesa.attribute_system_name = '" + systemName + "' ) AS " + systemName);
+          
+        }
+        
+        query.append(" FROM grouper_ext_subj ges WHERE ges.enabled = 'T'");
+
+        //the grouper_ext_subj_v is dynamic based on which subject attributes we are supporting
+        GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_ext_subj_v", 
+            "grouper_ext_subj_v is a view of external subjects, and they attributes",
+            columnNames,
+            columnComments,
+            query.toString()
+          );
+        
+      }
+
+    }
+    
+    
     GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_groups_types_v", 
         "A group can have one or many types associated.  This is a view of those relationships with friendly names",
         GrouperUtil.toSet("GROUP_NAME", 
@@ -5458,6 +5618,475 @@ public enum GrouperDdl implements DdlVersionable {
   }
   
   /**
+   * Add PIT tables
+   * @param ddlVersionBean 
+   * @param database
+   */
+  private static void addPITTables(DdlVersionBean ddlVersionBean, Database database) {
+    
+    {
+      Table pitMembersTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database,
+          PITMember.TABLE_GROUPER_PIT_MEMBERS);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitMembersTable, PITMember.COLUMN_ID, 
+          Types.VARCHAR, "40", true, true);
+  
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitMembersTable, PITMember.COLUMN_SUBJECT_ID, 
+          Types.VARCHAR, "255", false, true);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitMembersTable, PITMember.COLUMN_SUBJECT_SOURCE, 
+          Types.VARCHAR, "255", false, true);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitMembersTable, PITMember.COLUMN_SUBJECT_TYPE, 
+          Types.VARCHAR, "255", false, true);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitMembersTable, PITMember.COLUMN_CONTEXT_ID, 
+          Types.VARCHAR, "40", false, false);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitMembersTable, PITMember.COLUMN_HIBERNATE_VERSION_NUMBER, 
+          Types.BIGINT, null, false, false);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitMembersTable.getName(), 
+          "pit_member_subject_id_idx", false, PITMember.COLUMN_SUBJECT_ID);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitMembersTable.getName(), 
+          "pit_member_context_idx", false, PITMember.COLUMN_CONTEXT_ID);
+    }
+    
+    {
+      Table pitFieldsTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database,
+          PITField.TABLE_GROUPER_PIT_FIELDS);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitFieldsTable, PITField.COLUMN_ID, 
+          Types.VARCHAR, "40", true, true);
+  
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitFieldsTable, PITField.COLUMN_NAME, 
+          Types.VARCHAR, "32", false, true);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitFieldsTable, PITField.COLUMN_TYPE, 
+          Types.VARCHAR, "32", false, true);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitFieldsTable, PITField.COLUMN_CONTEXT_ID, 
+          Types.VARCHAR, "40", false, false);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitFieldsTable, PITField.COLUMN_HIBERNATE_VERSION_NUMBER, 
+          Types.BIGINT, null, false, false);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitFieldsTable.getName(), 
+          "pit_field_name_idx", false, PITField.COLUMN_NAME);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitFieldsTable.getName(), 
+          "pit_field_context_idx", false, PITField.COLUMN_CONTEXT_ID);
+    }
+    
+    {
+      Table pitGroupsTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database,
+          PITGroup.TABLE_GROUPER_PIT_GROUPS);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitGroupsTable, PITGroup.COLUMN_ID, 
+          Types.VARCHAR, "40", true, true);
+  
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitGroupsTable, PITGroup.COLUMN_NAME, 
+          Types.VARCHAR, ddlVersionBean.isSqlServer() ? "900" : "1024", false, true);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitGroupsTable, PITGroup.COLUMN_CONTEXT_ID, 
+          Types.VARCHAR, "40", false, false);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitGroupsTable, PITGroup.COLUMN_HIBERNATE_VERSION_NUMBER, 
+          Types.BIGINT, null, false, false);
+      
+      String scriptOverride = ddlVersionBean.isSmallIndexes() ? "\nCREATE INDEX pit_group_name_idx " +
+          "ON grouper_pit_groups (name(255));\n" : null;
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, ddlVersionBean, pitGroupsTable.getName(), 
+          "pit_group_name_idx", scriptOverride, false, PITGroup.COLUMN_NAME);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitGroupsTable.getName(), 
+          "pit_group_context_idx", false, PITGroup.COLUMN_CONTEXT_ID);
+    }
+    
+    {
+      Table pitStemsTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database,
+          PITStem.TABLE_GROUPER_PIT_STEMS);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitStemsTable, PITStem.COLUMN_ID, 
+          Types.VARCHAR, "40", true, true);
+  
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitStemsTable, PITStem.COLUMN_NAME, 
+          Types.VARCHAR, ddlVersionBean.isSqlServer() ? "900" : "1024", false, true);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitStemsTable, PITStem.COLUMN_CONTEXT_ID, 
+          Types.VARCHAR, "40", false, false);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitStemsTable, PITStem.COLUMN_HIBERNATE_VERSION_NUMBER, 
+          Types.BIGINT, null, false, false);
+      
+      String scriptOverride = ddlVersionBean.isSmallIndexes() ? "\nCREATE INDEX pit_stem_name_idx " +
+          "ON grouper_pit_stems (name(255));\n" : null;
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, ddlVersionBean, pitStemsTable.getName(), 
+          "pit_stem_name_idx", scriptOverride, false, PITStem.COLUMN_NAME);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitStemsTable.getName(), 
+          "pit_stem_context_idx", false, PITStem.COLUMN_CONTEXT_ID);
+    }
+    
+    {
+      Table pitAttributeDefTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database,
+          PITAttributeDef.TABLE_GROUPER_PIT_ATTRIBUTE_DEF);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeDefTable, PITAttributeDef.COLUMN_ID, 
+          Types.VARCHAR, "40", true, true);
+  
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeDefTable, PITAttributeDef.COLUMN_NAME, 
+          Types.VARCHAR, ddlVersionBean.isSqlServer() ? "900" : "1024", false, true);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeDefTable, PITAttributeDef.COLUMN_CONTEXT_ID, 
+          Types.VARCHAR, "40", false, false);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeDefTable, PITAttributeDef.COLUMN_HIBERNATE_VERSION_NUMBER, 
+          Types.BIGINT, null, false, false);
+      
+      String scriptOverride = ddlVersionBean.isSmallIndexes() ? "\nCREATE INDEX pit_attribute_def_name_idx " +
+          "ON grouper_pit_attribute_def (name(255));\n" : null;
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, ddlVersionBean, pitAttributeDefTable.getName(), 
+          "pit_attribute_def_name_idx", scriptOverride, false, PITAttributeDef.COLUMN_NAME);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitAttributeDefTable.getName(), 
+          "pit_attribute_def_context_idx", false, PITAttributeDef.COLUMN_CONTEXT_ID);
+    }
+    
+    {
+      Table pitMembershipTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database,
+          PITMembership.TABLE_GROUPER_PIT_MEMBERSHIPS);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitMembershipTable, PITMembership.COLUMN_ID, 
+          Types.VARCHAR, "40", true, true);
+  
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitMembershipTable, PITMembership.COLUMN_OWNER_ID,
+          Types.VARCHAR, "40", false, true);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitMembershipTable, PITMembership.COLUMN_OWNER_ATTR_DEF_ID,
+          Types.VARCHAR, "40", false, false);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitMembershipTable, PITMembership.COLUMN_OWNER_GROUP_ID,
+          Types.VARCHAR, "40", false, false);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitMembershipTable, PITMembership.COLUMN_OWNER_STEM_ID,
+          Types.VARCHAR, "40", false, false);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitMembershipTable, PITMembership.COLUMN_MEMBER_ID,
+          Types.VARCHAR, "40", false, true);
+  
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitMembershipTable, PITMembership.COLUMN_FIELD_ID,
+          Types.VARCHAR, "40", false, true);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitMembershipTable, PITMembership.COLUMN_ACTIVE,
+          Types.VARCHAR, "1", false, true);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitMembershipTable, PITMembership.COLUMN_START_TIME,
+          Types.BIGINT, "20", false, true);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitMembershipTable, PITMembership.COLUMN_END_TIME,
+          Types.BIGINT, "20", false, false);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitMembershipTable, PITMembership.COLUMN_CONTEXT_ID, 
+          Types.VARCHAR, "40", false, false);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitMembershipTable, PITMembership.COLUMN_HIBERNATE_VERSION_NUMBER, 
+          Types.BIGINT, null, false, false);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitMembershipTable.getName(), 
+          "pit_ms_context_idx", false, PITMembership.COLUMN_CONTEXT_ID);
+    }
+    
+    {
+      Table pitGroupSetTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database,
+          PITGroupSet.TABLE_GROUPER_PIT_GROUP_SET);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitGroupSetTable, PITGroupSet.COLUMN_ID, 
+          Types.VARCHAR, "40", true, true);
+  
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitGroupSetTable, PITGroupSet.COLUMN_OWNER_ID,
+          Types.VARCHAR, "40", false, true);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitGroupSetTable, PITGroupSet.COLUMN_OWNER_ATTR_DEF_ID,
+          Types.VARCHAR, "40", false, false);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitGroupSetTable, PITGroupSet.COLUMN_OWNER_GROUP_ID,
+          Types.VARCHAR, "40", false, false);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitGroupSetTable, PITGroupSet.COLUMN_OWNER_STEM_ID,
+          Types.VARCHAR, "40", false, false);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitGroupSetTable, PITGroupSet.COLUMN_MEMBER_ID,
+          Types.VARCHAR, "40", false, true);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitGroupSetTable, PITGroupSet.COLUMN_MEMBER_ATTR_DEF_ID,
+          Types.VARCHAR, "40", false, false);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitGroupSetTable, PITGroupSet.COLUMN_MEMBER_GROUP_ID,
+          Types.VARCHAR, "40", false, false);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitGroupSetTable, PITGroupSet.COLUMN_MEMBER_STEM_ID,
+          Types.VARCHAR, "40", false, false);
+  
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitGroupSetTable, PITGroupSet.COLUMN_FIELD_ID,
+          Types.VARCHAR, "40", false, true);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitGroupSetTable, PITGroupSet.COLUMN_MEMBER_FIELD_ID,
+          Types.VARCHAR, "40", false, true);
+  
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitGroupSetTable, PITGroupSet.COLUMN_DEPTH,
+          Types.INTEGER, "11", false, true);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitGroupSetTable, PITGroupSet.COLUMN_PARENT_ID,
+          Types.VARCHAR, "40", false, false);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitGroupSetTable, PITGroupSet.COLUMN_ACTIVE,
+          Types.VARCHAR, "1", false, true);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitGroupSetTable, PITGroupSet.COLUMN_START_TIME,
+          Types.BIGINT, "20", false, true);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitGroupSetTable, PITGroupSet.COLUMN_END_TIME,
+          Types.BIGINT, "20", false, false);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitGroupSetTable, PITGroupSet.COLUMN_CONTEXT_ID, 
+          Types.VARCHAR, "40", false, false);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitGroupSetTable, PITGroupSet.COLUMN_HIBERNATE_VERSION_NUMBER, 
+          Types.BIGINT, null, false, false);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitGroupSetTable.getName(), 
+          "pit_gs_context_idx", false, PITGroupSet.COLUMN_CONTEXT_ID);
+    }
+    
+    {
+      Table pitAttributeAssignTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database,
+          PITAttributeAssign.TABLE_GROUPER_PIT_ATTRIBUTE_ASSIGN);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeAssignTable, PITAttributeAssign.COLUMN_ID, 
+          Types.VARCHAR, "40", true, true);
+  
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeAssignTable, PITAttributeAssign.COLUMN_ATTRIBUTE_DEF_NAME_ID, 
+          Types.VARCHAR, "40", false, true);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeAssignTable, PITAttributeAssign.COLUMN_ATTRIBUTE_ASSIGN_ACTION_ID, 
+          Types.VARCHAR, "40", false, true);
+  
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeAssignTable, PITAttributeAssign.COLUMN_ATTRIBUTE_ASSIGN_TYPE, 
+          Types.VARCHAR, "15", false, true);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeAssignTable, PITAttributeAssign.COLUMN_OWNER_ATTRIBUTE_ASSIGN_ID, 
+          Types.VARCHAR, "40", false, false);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeAssignTable, PITAttributeAssign.COLUMN_OWNER_ATTRIBUTE_DEF_ID, 
+          Types.VARCHAR, "40", false, false);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeAssignTable, PITAttributeAssign.COLUMN_OWNER_GROUP_ID, 
+          Types.VARCHAR, "40", false, false);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeAssignTable, PITAttributeAssign.COLUMN_OWNER_MEMBER_ID, 
+          Types.VARCHAR, "40", false, false);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeAssignTable, PITAttributeAssign.COLUMN_OWNER_MEMBERSHIP_ID, 
+          Types.VARCHAR, "40", false, false);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeAssignTable, PITAttributeAssign.COLUMN_OWNER_STEM_ID, 
+          Types.VARCHAR, "40", false, false);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeAssignTable, PITAttributeAssign.COLUMN_ACTIVE,
+          Types.VARCHAR, "1", false, true);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeAssignTable, PITAttributeAssign.COLUMN_START_TIME,
+          Types.BIGINT, "20", false, true);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeAssignTable, PITAttributeAssign.COLUMN_END_TIME,
+          Types.BIGINT, "20", false, false);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeAssignTable, PITAttributeAssign.COLUMN_CONTEXT_ID, 
+          Types.VARCHAR, "40", false, false);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeAssignTable, PITAttributeAssign.COLUMN_HIBERNATE_VERSION_NUMBER, 
+          Types.BIGINT, null, false, false);
+    }
+    
+    {
+      Table pitAttributeAssignActionTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database,
+          PITAttributeAssignAction.TABLE_GROUPER_PIT_ATTR_ASSIGN_ACTION);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeAssignActionTable, PITAttributeAssignAction.COLUMN_ID, 
+          Types.VARCHAR, "40", true, true);
+  
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeAssignActionTable, PITAttributeAssignAction.COLUMN_ATTRIBUTE_DEF_ID, 
+          Types.VARCHAR, "40", false, true);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeAssignActionTable, PITAttributeAssignAction.COLUMN_NAME, 
+          Types.VARCHAR, "40", false, false);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeAssignActionTable, PITAttributeAssignAction.COLUMN_ACTIVE,
+          Types.VARCHAR, "1", false, true);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeAssignActionTable, PITAttributeAssignAction.COLUMN_START_TIME,
+          Types.BIGINT, "20", false, true);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeAssignActionTable, PITAttributeAssignAction.COLUMN_END_TIME,
+          Types.BIGINT, "20", false, false);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeAssignActionTable, PITAttributeAssignAction.COLUMN_CONTEXT_ID, 
+          Types.VARCHAR, "40", false, false);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeAssignActionTable, PITAttributeAssignAction.COLUMN_HIBERNATE_VERSION_NUMBER, 
+          Types.BIGINT, null, false, false);
+    }
+    
+    {
+      Table pitAttributeDefNameTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database,
+          PITAttributeDefName.TABLE_GROUPER_PIT_ATTRIBUTE_DEF_NAME);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeDefNameTable, PITAttributeDefName.COLUMN_ID, 
+          Types.VARCHAR, "40", true, true);
+  
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeDefNameTable, PITAttributeDefName.COLUMN_STEM_ID, 
+          Types.VARCHAR, "40", false, true);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeDefNameTable, PITAttributeDefName.COLUMN_ATTRIBUTE_DEF_ID, 
+          Types.VARCHAR, "40", false, true);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeDefNameTable,
+          PITAttributeDefName.COLUMN_NAME, Types.VARCHAR, ddlVersionBean.isSqlServer() ? "900" : "1024", false, true);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeDefNameTable, PITAttributeDefName.COLUMN_ACTIVE,
+          Types.VARCHAR, "1", false, true);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeDefNameTable, PITAttributeDefName.COLUMN_START_TIME,
+          Types.BIGINT, "20", false, true);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeDefNameTable, PITAttributeDefName.COLUMN_END_TIME,
+          Types.BIGINT, "20", false, false);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeDefNameTable, PITAttributeDefName.COLUMN_CONTEXT_ID, 
+          Types.VARCHAR, "40", false, false);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeDefNameTable, PITAttributeDefName.COLUMN_HIBERNATE_VERSION_NUMBER, 
+          Types.BIGINT, null, false, false);
+      
+      String scriptOverride = ddlVersionBean.isSmallIndexes() ? "\nCREATE INDEX pit_attr_def_name_name_idx " +
+          "ON grouper_pit_attr_def_name (name(255));\n" : null;
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, ddlVersionBean, pitAttributeDefNameTable.getName(), 
+          "pit_attr_def_name_name_idx", scriptOverride, false, PITAttributeDefName.COLUMN_NAME);      
+    }
+    
+    {
+      Table pitAttributeDefNameSet = GrouperDdlUtils.ddlutilsFindOrCreateTable(database,
+          PITAttributeDefNameSet.TABLE_GROUPER_PIT_ATTRIBUTE_DEF_NAME_SET);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeDefNameSet, PITAttributeDefNameSet.COLUMN_ID, 
+          Types.VARCHAR, "40", true, true);
+  
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeDefNameSet, PITAttributeDefNameSet.COLUMN_DEPTH, 
+          Types.BIGINT, "10", false, true);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeDefNameSet, PITAttributeDefNameSet.COLUMN_IF_HAS_ATTRIBUTE_DEF_NAME_ID, 
+          Types.VARCHAR, "40", false, true);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeDefNameSet, PITAttributeDefNameSet.COLUMN_THEN_HAS_ATTRIBUTE_DEF_NAME_ID, 
+          Types.VARCHAR, "40", false, true);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeDefNameSet, PITAttributeDefNameSet.COLUMN_PARENT_ATTR_DEF_NAME_SET_ID, 
+          Types.VARCHAR, "40", false, false);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeDefNameSet, PITAttributeDefNameSet.COLUMN_ACTIVE,
+          Types.VARCHAR, "1", false, true);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeDefNameSet, PITAttributeDefNameSet.COLUMN_START_TIME,
+          Types.BIGINT, "20", false, true);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeDefNameSet, PITAttributeDefNameSet.COLUMN_END_TIME,
+          Types.BIGINT, "20", false, false);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeDefNameSet, PITAttributeDefNameSet.COLUMN_CONTEXT_ID, 
+          Types.VARCHAR, "40", false, false);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeDefNameSet, PITAttributeDefNameSet.COLUMN_HIBERNATE_VERSION_NUMBER, 
+          Types.BIGINT, null, false, false);
+    }
+    
+    {
+      Table pitAttributeAssignActionSet = GrouperDdlUtils.ddlutilsFindOrCreateTable(database,
+          PITAttributeAssignActionSet.TABLE_GROUPER_PIT_ATTR_ASSIGN_ACTION_SET);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeAssignActionSet, PITAttributeAssignActionSet.COLUMN_ID, 
+          Types.VARCHAR, "40", true, true);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeAssignActionSet, PITAttributeAssignActionSet.COLUMN_DEPTH, 
+          Types.BIGINT, "10", false, true);
+  
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeAssignActionSet, PITAttributeAssignActionSet.COLUMN_IF_HAS_ATTR_ASSN_ACTION_ID, 
+          Types.VARCHAR, "40", false, true);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeAssignActionSet, PITAttributeAssignActionSet.COLUMN_THEN_HAS_ATTR_ASSN_ACTION_ID, 
+          Types.VARCHAR, "40", false, true);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeAssignActionSet, PITAttributeAssignActionSet.COLUMN_PARENT_ATTR_ASSN_ACTION_ID, 
+          Types.VARCHAR, "40", false, false);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeAssignActionSet, PITAttributeAssignActionSet.COLUMN_ACTIVE,
+          Types.VARCHAR, "1", false, true);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeAssignActionSet, PITAttributeAssignActionSet.COLUMN_START_TIME,
+          Types.BIGINT, "20", false, true);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeAssignActionSet, PITAttributeAssignActionSet.COLUMN_END_TIME,
+          Types.BIGINT, "20", false, false);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeAssignActionSet, PITAttributeAssignActionSet.COLUMN_CONTEXT_ID, 
+          Types.VARCHAR, "40", false, false);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeAssignActionSet, PITAttributeAssignActionSet.COLUMN_HIBERNATE_VERSION_NUMBER, 
+          Types.BIGINT, null, false, false);
+    }
+    
+    {
+      Table pitRoleSet = GrouperDdlUtils.ddlutilsFindOrCreateTable(database,
+          PITRoleSet.TABLE_GROUPER_PIT_ROLE_SET);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitRoleSet, PITRoleSet.COLUMN_ID, 
+          Types.VARCHAR, "40", true, true);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitRoleSet, PITRoleSet.COLUMN_DEPTH, 
+          Types.BIGINT, "10", false, true);
+  
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitRoleSet, PITRoleSet.COLUMN_IF_HAS_ROLE_ID, 
+          Types.VARCHAR, "40", false, true);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitRoleSet, PITRoleSet.COLUMN_THEN_HAS_ROLE_ID, 
+          Types.VARCHAR, "40", false, true);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitRoleSet, PITRoleSet.COLUMN_PARENT_ROLE_SET_ID, 
+          Types.VARCHAR, "40", false, false);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitRoleSet, PITRoleSet.COLUMN_ACTIVE,
+          Types.VARCHAR, "1", false, true);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitRoleSet, PITRoleSet.COLUMN_START_TIME,
+          Types.BIGINT, "20", false, true);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitRoleSet, PITRoleSet.COLUMN_END_TIME,
+          Types.BIGINT, "20", false, false);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitRoleSet, PITRoleSet.COLUMN_CONTEXT_ID, 
+          Types.VARCHAR, "40", false, false);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitRoleSet, PITRoleSet.COLUMN_HIBERNATE_VERSION_NUMBER, 
+          Types.BIGINT, null, false, false);
+    }
+  }
+
+  /**
    * @param database
    * @param ddlVersionBean
    */
@@ -6313,471 +6942,119 @@ public enum GrouperDdl implements DdlVersionable {
 
 
   /**
-   * Add PIT tables
+   * Add external subject tables
+   * @param ddlVersionBean 
    * @param database
    */
-  private static void addPITTables(DdlVersionBean ddlVersionBean, Database database) {
+  private static void addExternalSubjectTables(DdlVersionBean ddlVersionBean, Database database) {
     
     {
-      Table pitMembersTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database,
-          PITMember.TABLE_GROUPER_PIT_MEMBERS);
+      Table externalSubjectTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database,
+          ExternalSubject.TABLE_GROUPER_EXT_SUBJ);
       
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitMembersTable, PITMember.COLUMN_ID, 
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(externalSubjectTable, ExternalSubject.COLUMN_UUID, 
           Types.VARCHAR, "40", true, true);
   
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitMembersTable, PITMember.COLUMN_SUBJECT_ID, 
-          Types.VARCHAR, "255", false, true);
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitMembersTable, PITMember.COLUMN_SUBJECT_SOURCE, 
-          Types.VARCHAR, "255", false, true);
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitMembersTable, PITMember.COLUMN_SUBJECT_TYPE, 
-          Types.VARCHAR, "255", false, true);
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitMembersTable, PITMember.COLUMN_CONTEXT_ID, 
-          Types.VARCHAR, "40", false, false);
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitMembersTable, PITMember.COLUMN_HIBERNATE_VERSION_NUMBER, 
-          Types.BIGINT, null, false, false);
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitMembersTable.getName(), 
-          "pit_member_subject_id_idx", false, PITMember.COLUMN_SUBJECT_ID);
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitMembersTable.getName(), 
-          "pit_member_context_idx", false, PITMember.COLUMN_CONTEXT_ID);
-    }
-    
-    {
-      Table pitFieldsTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database,
-          PITField.TABLE_GROUPER_PIT_FIELDS);
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitFieldsTable, PITField.COLUMN_ID, 
-          Types.VARCHAR, "40", true, true);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(externalSubjectTable, ExternalSubject.COLUMN_NAME, 
+          Types.VARCHAR, "200", false, false);
   
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitFieldsTable, PITField.COLUMN_NAME, 
-          Types.VARCHAR, "32", false, true);
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitFieldsTable, PITField.COLUMN_TYPE, 
-          Types.VARCHAR, "32", false, true);
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitFieldsTable, PITField.COLUMN_CONTEXT_ID, 
-          Types.VARCHAR, "40", false, false);
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitFieldsTable, PITField.COLUMN_HIBERNATE_VERSION_NUMBER, 
-          Types.BIGINT, null, false, false);
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitFieldsTable.getName(), 
-          "pit_field_name_idx", false, PITField.COLUMN_NAME);
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitFieldsTable.getName(), 
-          "pit_field_context_idx", false, PITField.COLUMN_CONTEXT_ID);
-    }
-    
-    {
-      Table pitGroupsTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database,
-          PITGroup.TABLE_GROUPER_PIT_GROUPS);
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitGroupsTable, PITGroup.COLUMN_ID, 
-          Types.VARCHAR, "40", true, true);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(externalSubjectTable, ExternalSubject.COLUMN_IDENTIFIER, 
+          Types.VARCHAR, "200", false, false);
   
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitGroupsTable, PITGroup.COLUMN_NAME, 
-          Types.VARCHAR, ddlVersionBean.isSqlServer() ? "900" : "1024", false, true);
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitGroupsTable, PITGroup.COLUMN_CONTEXT_ID, 
-          Types.VARCHAR, "40", false, false);
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitGroupsTable, PITGroup.COLUMN_HIBERNATE_VERSION_NUMBER, 
-          Types.BIGINT, null, false, false);
-      
-      String scriptOverride = ddlVersionBean.isSmallIndexes() ? "\nCREATE INDEX pit_group_name_idx " +
-          "ON grouper_pit_groups (name(255));\n" : null;
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, ddlVersionBean, pitGroupsTable.getName(), 
-          "pit_group_name_idx", scriptOverride, false, PITGroup.COLUMN_NAME);
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitGroupsTable.getName(), 
-          "pit_group_context_idx", false, PITGroup.COLUMN_CONTEXT_ID);
-    }
-    
-    {
-      Table pitStemsTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database,
-          PITStem.TABLE_GROUPER_PIT_STEMS);
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitStemsTable, PITStem.COLUMN_ID, 
-          Types.VARCHAR, "40", true, true);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(externalSubjectTable, ExternalSubject.COLUMN_DESCRIPTION, 
+          Types.VARCHAR, "500", false, false);
   
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitStemsTable, PITStem.COLUMN_NAME, 
-          Types.VARCHAR, ddlVersionBean.isSqlServer() ? "900" : "1024", false, true);
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitStemsTable, PITStem.COLUMN_CONTEXT_ID, 
-          Types.VARCHAR, "40", false, false);
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitStemsTable, PITStem.COLUMN_HIBERNATE_VERSION_NUMBER, 
-          Types.BIGINT, null, false, false);
-      
-      String scriptOverride = ddlVersionBean.isSmallIndexes() ? "\nCREATE INDEX pit_stem_name_idx " +
-          "ON grouper_pit_stems (name(255));\n" : null;
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, ddlVersionBean, pitStemsTable.getName(), 
-          "pit_stem_name_idx", scriptOverride, false, PITStem.COLUMN_NAME);
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitStemsTable.getName(), 
-          "pit_stem_context_idx", false, PITStem.COLUMN_CONTEXT_ID);
-    }
-    
-    {
-      Table pitAttributeDefTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database,
-          PITAttributeDef.TABLE_GROUPER_PIT_ATTRIBUTE_DEF);
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeDefTable, PITAttributeDef.COLUMN_ID, 
-          Types.VARCHAR, "40", true, true);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(externalSubjectTable, ExternalSubject.COLUMN_INSTITUTION, 
+          Types.VARCHAR, "200", false, false);
   
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeDefTable, PITAttributeDef.COLUMN_NAME, 
-          Types.VARCHAR, ddlVersionBean.isSqlServer() ? "900" : "1024", false, true);
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeDefTable, PITAttributeDef.COLUMN_CONTEXT_ID, 
-          Types.VARCHAR, "40", false, false);
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeDefTable, PITAttributeDef.COLUMN_HIBERNATE_VERSION_NUMBER, 
-          Types.BIGINT, null, false, false);
-      
-      String scriptOverride = ddlVersionBean.isSmallIndexes() ? "\nCREATE INDEX pit_attribute_def_name_idx " +
-          "ON grouper_pit_attribute_def (name(255));\n" : null;
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, ddlVersionBean, pitAttributeDefTable.getName(), 
-          "pit_attribute_def_name_idx", scriptOverride, false, PITAttributeDef.COLUMN_NAME);
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitAttributeDefTable.getName(), 
-          "pit_attribute_def_context_idx", false, PITAttributeDef.COLUMN_CONTEXT_ID);
-    }
-    
-    {
-      Table pitMembershipTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database,
-          PITMembership.TABLE_GROUPER_PIT_MEMBERSHIPS);
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitMembershipTable, PITMembership.COLUMN_ID, 
-          Types.VARCHAR, "40", true, true);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(externalSubjectTable, ExternalSubject.COLUMN_EMAIL, 
+          Types.VARCHAR, "100", false, false);
 
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitMembershipTable, PITMembership.COLUMN_OWNER_ID,
-          Types.VARCHAR, "40", false, true);
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitMembershipTable, PITMembership.COLUMN_OWNER_ATTR_DEF_ID,
-          Types.VARCHAR, "40", false, false);
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitMembershipTable, PITMembership.COLUMN_OWNER_GROUP_ID,
-          Types.VARCHAR, "40", false, false);
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitMembershipTable, PITMembership.COLUMN_OWNER_STEM_ID,
-          Types.VARCHAR, "40", false, false);
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitMembershipTable, PITMembership.COLUMN_MEMBER_ID,
-          Types.VARCHAR, "40", false, true);
-  
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitMembershipTable, PITMembership.COLUMN_FIELD_ID,
-          Types.VARCHAR, "40", false, true);
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitMembershipTable, PITMembership.COLUMN_ACTIVE,
-          Types.VARCHAR, "1", false, true);
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitMembershipTable, PITMembership.COLUMN_START_TIME,
-          Types.BIGINT, "20", false, true);
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitMembershipTable, PITMembership.COLUMN_END_TIME,
-          Types.BIGINT, "20", false, false);
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitMembershipTable, PITMembership.COLUMN_CONTEXT_ID, 
-          Types.VARCHAR, "40", false, false);
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitMembershipTable, PITMembership.COLUMN_HIBERNATE_VERSION_NUMBER, 
-          Types.BIGINT, null, false, false);
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitMembershipTable.getName(), 
-          "pit_ms_context_idx", false, PITMembership.COLUMN_CONTEXT_ID);
-    }
-    
-    {
-      Table pitGroupSetTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database,
-          PITGroupSet.TABLE_GROUPER_PIT_GROUP_SET);
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitGroupSetTable, PITGroupSet.COLUMN_ID, 
-          Types.VARCHAR, "40", true, true);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(externalSubjectTable, ExternalSubject.COLUMN_SEARCH_STRING_LOWER, 
+          Types.VARCHAR, "4000", false, false);
 
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitGroupSetTable, PITGroupSet.COLUMN_OWNER_ID,
-          Types.VARCHAR, "40", false, true);
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitGroupSetTable, PITGroupSet.COLUMN_OWNER_ATTR_DEF_ID,
-          Types.VARCHAR, "40", false, false);
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitGroupSetTable, PITGroupSet.COLUMN_OWNER_GROUP_ID,
-          Types.VARCHAR, "40", false, false);
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitGroupSetTable, PITGroupSet.COLUMN_OWNER_STEM_ID,
-          Types.VARCHAR, "40", false, false);
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitGroupSetTable, PITGroupSet.COLUMN_MEMBER_ID,
-          Types.VARCHAR, "40", false, true);
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitGroupSetTable, PITGroupSet.COLUMN_MEMBER_ATTR_DEF_ID,
-          Types.VARCHAR, "40", false, false);
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitGroupSetTable, PITGroupSet.COLUMN_MEMBER_GROUP_ID,
-          Types.VARCHAR, "40", false, false);
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitGroupSetTable, PITGroupSet.COLUMN_MEMBER_STEM_ID,
-          Types.VARCHAR, "40", false, false);
-  
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitGroupSetTable, PITGroupSet.COLUMN_FIELD_ID,
-          Types.VARCHAR, "40", false, true);
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitGroupSetTable, PITGroupSet.COLUMN_MEMBER_FIELD_ID,
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(externalSubjectTable, ExternalSubject.COLUMN_CREATE_TIME, 
+          Types.BIGINT, null, false, true);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(externalSubjectTable, ExternalSubject.COLUMN_CREATOR_MEMBER_ID, 
           Types.VARCHAR, "40", false, true);
 
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitGroupSetTable, PITGroupSet.COLUMN_DEPTH,
-          Types.INTEGER, "11", false, true);
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitGroupSetTable, PITGroupSet.COLUMN_PARENT_ID,
-          Types.VARCHAR, "40", false, false);
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitGroupSetTable, PITGroupSet.COLUMN_ACTIVE,
-          Types.VARCHAR, "1", false, true);
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitGroupSetTable, PITGroupSet.COLUMN_START_TIME,
-          Types.BIGINT, "20", false, true);
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitGroupSetTable, PITGroupSet.COLUMN_END_TIME,
-          Types.BIGINT, "20", false, false);
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitGroupSetTable, PITGroupSet.COLUMN_CONTEXT_ID, 
-          Types.VARCHAR, "40", false, false);
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitGroupSetTable, PITGroupSet.COLUMN_HIBERNATE_VERSION_NUMBER, 
-          Types.BIGINT, null, false, false);
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitGroupSetTable.getName(), 
-          "pit_gs_context_idx", false, PITGroupSet.COLUMN_CONTEXT_ID);
-    }
-    
-    {
-      Table pitAttributeAssignTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database,
-          PITAttributeAssign.TABLE_GROUPER_PIT_ATTRIBUTE_ASSIGN);
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeAssignTable, PITAttributeAssign.COLUMN_ID, 
-          Types.VARCHAR, "40", true, true);
-  
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeAssignTable, PITAttributeAssign.COLUMN_ATTRIBUTE_DEF_NAME_ID, 
-          Types.VARCHAR, "40", false, true);
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeAssignTable, PITAttributeAssign.COLUMN_ATTRIBUTE_ASSIGN_ACTION_ID, 
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(externalSubjectTable, ExternalSubject.COLUMN_MODIFY_TIME, 
+          Types.BIGINT, null, false, true);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(externalSubjectTable, ExternalSubject.COLUMN_MODIFIER_MEMBER_ID, 
           Types.VARCHAR, "40", false, true);
 
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeAssignTable, PITAttributeAssign.COLUMN_ATTRIBUTE_ASSIGN_TYPE, 
-          Types.VARCHAR, "15", false, true);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(externalSubjectTable, ExternalSubject.COLUMN_CONTEXT_ID, 
+          Types.VARCHAR, "40", false, true);
       
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeAssignTable, PITAttributeAssign.COLUMN_OWNER_ATTRIBUTE_ASSIGN_ID, 
-          Types.VARCHAR, "40", false, false);
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeAssignTable, PITAttributeAssign.COLUMN_OWNER_ATTRIBUTE_DEF_ID, 
-          Types.VARCHAR, "40", false, false);
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeAssignTable, PITAttributeAssign.COLUMN_OWNER_GROUP_ID, 
-          Types.VARCHAR, "40", false, false);
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeAssignTable, PITAttributeAssign.COLUMN_OWNER_MEMBER_ID, 
-          Types.VARCHAR, "40", false, false);
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeAssignTable, PITAttributeAssign.COLUMN_OWNER_MEMBERSHIP_ID, 
-          Types.VARCHAR, "40", false, false);
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeAssignTable, PITAttributeAssign.COLUMN_OWNER_STEM_ID, 
-          Types.VARCHAR, "40", false, false);
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeAssignTable, PITAttributeAssign.COLUMN_ACTIVE,
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(externalSubjectTable, ExternalSubject.COLUMN_ENABLED, 
           Types.VARCHAR, "1", false, true);
       
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeAssignTable, PITAttributeAssign.COLUMN_START_TIME,
-          Types.BIGINT, "20", false, true);
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeAssignTable, PITAttributeAssign.COLUMN_END_TIME,
-          Types.BIGINT, "20", false, false);
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeAssignTable, PITAttributeAssign.COLUMN_CONTEXT_ID, 
-          Types.VARCHAR, "40", false, false);
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeAssignTable, PITAttributeAssign.COLUMN_HIBERNATE_VERSION_NUMBER, 
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(externalSubjectTable, ExternalSubject.COLUMN_DISABLED_TIME, 
           Types.BIGINT, null, false, false);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(externalSubjectTable, ExternalSubject.COLUMN_HIBERNATE_VERSION_NUMBER, 
+          Types.BIGINT, null, false, true);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, externalSubjectTable.getName(), 
+          "grouper_ext_subj_cxt_id_idx", false, ExternalSubject.COLUMN_CONTEXT_ID);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, externalSubjectTable.getName(), 
+          "grouper_ext_subj_idfr_idx", false, ExternalSubject.COLUMN_IDENTIFIER);
+      
     }
     
     {
-      Table pitAttributeAssignActionTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database,
-          PITAttributeAssignAction.TABLE_GROUPER_PIT_ATTR_ASSIGN_ACTION);
+      Table externalSubjectAttributeTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database,
+          ExternalSubjectAttribute.TABLE_GROUPER_EXT_SUBJ_ATTR);
       
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeAssignActionTable, PITAttributeAssignAction.COLUMN_ID, 
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(externalSubjectAttributeTable, ExternalSubjectAttribute.COLUMN_UUID, 
           Types.VARCHAR, "40", true, true);
   
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeAssignActionTable, PITAttributeAssignAction.COLUMN_ATTRIBUTE_DEF_ID, 
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(externalSubjectAttributeTable, ExternalSubjectAttribute.COLUMN_ATTRIBUTE_SYSTEM_NAME, 
+          Types.VARCHAR, "200", false, false);
+  
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(externalSubjectAttributeTable, ExternalSubjectAttribute.COLUMN_ATTRIBUTE_VALUE, 
+          Types.VARCHAR, "600", false, false);
+  
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(externalSubjectAttributeTable, ExternalSubjectAttribute.COLUMN_SUBJECT_UUID, 
+          Types.VARCHAR, "40", false, false);
+  
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(externalSubjectAttributeTable, ExternalSubjectAttribute.COLUMN_CREATE_TIME, 
+          Types.BIGINT, null, false, true);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(externalSubjectAttributeTable, ExternalSubjectAttribute.COLUMN_CREATOR_MEMBER_ID, 
+          Types.VARCHAR, "40", false, true);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(externalSubjectAttributeTable, ExternalSubjectAttribute.COLUMN_MODIFY_TIME, 
+          Types.BIGINT, null, false, true);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(externalSubjectAttributeTable, ExternalSubjectAttribute.COLUMN_MODIFIER_MEMBER_ID, 
+          Types.VARCHAR, "40", false, true);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(externalSubjectAttributeTable, ExternalSubjectAttribute.COLUMN_CONTEXT_ID, 
           Types.VARCHAR, "40", false, true);
       
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeAssignActionTable, PITAttributeAssignAction.COLUMN_NAME, 
-          Types.VARCHAR, "40", false, false);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(externalSubjectAttributeTable, ExternalSubjectAttribute.COLUMN_HIBERNATE_VERSION_NUMBER, 
+          Types.BIGINT, null, false, true);
       
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeAssignActionTable, PITAttributeAssignAction.COLUMN_ACTIVE,
-          Types.VARCHAR, "1", false, true);
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, externalSubjectAttributeTable.getName(), 
+          "grouper_extsubjattr_cxtid_idx", false, ExternalSubjectAttribute.COLUMN_CONTEXT_ID);
       
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeAssignActionTable, PITAttributeAssignAction.COLUMN_START_TIME,
-          Types.BIGINT, "20", false, true);
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, externalSubjectAttributeTable.getName(), 
+          "grouper_extsubjattr_subj_idx", false, ExternalSubjectAttribute.COLUMN_SUBJECT_UUID, ExternalSubjectAttribute.COLUMN_ATTRIBUTE_SYSTEM_NAME);
       
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeAssignActionTable, PITAttributeAssignAction.COLUMN_END_TIME,
-          Types.BIGINT, "20", false, false);
+      //see if we have a custom script here, do this since some versions of mysql cant handle indexes on columns that large
+      String scriptOverride = ddlVersionBean.isSmallIndexes() ? "\nCREATE INDEX grouper_extsubjattr_subj_idx " +
+          "ON grouper_ext_subj_attr(attribute_value(255));\n" : null;
       
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeAssignActionTable, PITAttributeAssignAction.COLUMN_CONTEXT_ID, 
-          Types.VARCHAR, "40", false, false);
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, ddlVersionBean, externalSubjectAttributeTable.getName(), 
+          "grouper_extsubjattr_subj_idx", scriptOverride, false, ExternalSubjectAttribute.COLUMN_ATTRIBUTE_VALUE);
+
       
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeAssignActionTable, PITAttributeAssignAction.COLUMN_HIBERNATE_VERSION_NUMBER, 
-          Types.BIGINT, null, false, false);
     }
     
-    {
-      Table pitAttributeDefNameTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database,
-          PITAttributeDefName.TABLE_GROUPER_PIT_ATTRIBUTE_DEF_NAME);
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeDefNameTable, PITAttributeDefName.COLUMN_ID, 
-          Types.VARCHAR, "40", true, true);
-  
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeDefNameTable, PITAttributeDefName.COLUMN_STEM_ID, 
-          Types.VARCHAR, "40", false, true);
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeDefNameTable, PITAttributeDefName.COLUMN_ATTRIBUTE_DEF_ID, 
-          Types.VARCHAR, "40", false, true);
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeDefNameTable,
-          PITAttributeDefName.COLUMN_NAME, Types.VARCHAR, ddlVersionBean.isSqlServer() ? "900" : "1024", false, true);
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeDefNameTable, PITAttributeDefName.COLUMN_ACTIVE,
-          Types.VARCHAR, "1", false, true);
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeDefNameTable, PITAttributeDefName.COLUMN_START_TIME,
-          Types.BIGINT, "20", false, true);
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeDefNameTable, PITAttributeDefName.COLUMN_END_TIME,
-          Types.BIGINT, "20", false, false);
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeDefNameTable, PITAttributeDefName.COLUMN_CONTEXT_ID, 
-          Types.VARCHAR, "40", false, false);
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeDefNameTable, PITAttributeDefName.COLUMN_HIBERNATE_VERSION_NUMBER, 
-          Types.BIGINT, null, false, false);
-      
-      String scriptOverride = ddlVersionBean.isSmallIndexes() ? "\nCREATE INDEX pit_attr_def_name_name_idx " +
-          "ON grouper_pit_attr_def_name (name(255));\n" : null;
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, ddlVersionBean, pitAttributeDefNameTable.getName(), 
-          "pit_attr_def_name_name_idx", scriptOverride, false, PITAttributeDefName.COLUMN_NAME);      
-    }
-    
-    {
-      Table pitAttributeDefNameSet = GrouperDdlUtils.ddlutilsFindOrCreateTable(database,
-          PITAttributeDefNameSet.TABLE_GROUPER_PIT_ATTRIBUTE_DEF_NAME_SET);
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeDefNameSet, PITAttributeDefNameSet.COLUMN_ID, 
-          Types.VARCHAR, "40", true, true);
-  
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeDefNameSet, PITAttributeDefNameSet.COLUMN_DEPTH, 
-          Types.BIGINT, "10", false, true);
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeDefNameSet, PITAttributeDefNameSet.COLUMN_IF_HAS_ATTRIBUTE_DEF_NAME_ID, 
-          Types.VARCHAR, "40", false, true);
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeDefNameSet, PITAttributeDefNameSet.COLUMN_THEN_HAS_ATTRIBUTE_DEF_NAME_ID, 
-          Types.VARCHAR, "40", false, true);
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeDefNameSet, PITAttributeDefNameSet.COLUMN_PARENT_ATTR_DEF_NAME_SET_ID, 
-          Types.VARCHAR, "40", false, false);
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeDefNameSet, PITAttributeDefNameSet.COLUMN_ACTIVE,
-          Types.VARCHAR, "1", false, true);
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeDefNameSet, PITAttributeDefNameSet.COLUMN_START_TIME,
-          Types.BIGINT, "20", false, true);
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeDefNameSet, PITAttributeDefNameSet.COLUMN_END_TIME,
-          Types.BIGINT, "20", false, false);
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeDefNameSet, PITAttributeDefNameSet.COLUMN_CONTEXT_ID, 
-          Types.VARCHAR, "40", false, false);
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeDefNameSet, PITAttributeDefNameSet.COLUMN_HIBERNATE_VERSION_NUMBER, 
-          Types.BIGINT, null, false, false);
-    }
-    
-    {
-      Table pitAttributeAssignActionSet = GrouperDdlUtils.ddlutilsFindOrCreateTable(database,
-          PITAttributeAssignActionSet.TABLE_GROUPER_PIT_ATTR_ASSIGN_ACTION_SET);
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeAssignActionSet, PITAttributeAssignActionSet.COLUMN_ID, 
-          Types.VARCHAR, "40", true, true);
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeAssignActionSet, PITAttributeAssignActionSet.COLUMN_DEPTH, 
-          Types.BIGINT, "10", false, true);
-  
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeAssignActionSet, PITAttributeAssignActionSet.COLUMN_IF_HAS_ATTR_ASSN_ACTION_ID, 
-          Types.VARCHAR, "40", false, true);
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeAssignActionSet, PITAttributeAssignActionSet.COLUMN_THEN_HAS_ATTR_ASSN_ACTION_ID, 
-          Types.VARCHAR, "40", false, true);
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeAssignActionSet, PITAttributeAssignActionSet.COLUMN_PARENT_ATTR_ASSN_ACTION_ID, 
-          Types.VARCHAR, "40", false, false);
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeAssignActionSet, PITAttributeAssignActionSet.COLUMN_ACTIVE,
-          Types.VARCHAR, "1", false, true);
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeAssignActionSet, PITAttributeAssignActionSet.COLUMN_START_TIME,
-          Types.BIGINT, "20", false, true);
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeAssignActionSet, PITAttributeAssignActionSet.COLUMN_END_TIME,
-          Types.BIGINT, "20", false, false);
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeAssignActionSet, PITAttributeAssignActionSet.COLUMN_CONTEXT_ID, 
-          Types.VARCHAR, "40", false, false);
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeAssignActionSet, PITAttributeAssignActionSet.COLUMN_HIBERNATE_VERSION_NUMBER, 
-          Types.BIGINT, null, false, false);
-    }
-    
-    {
-      Table pitRoleSet = GrouperDdlUtils.ddlutilsFindOrCreateTable(database,
-          PITRoleSet.TABLE_GROUPER_PIT_ROLE_SET);
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitRoleSet, PITRoleSet.COLUMN_ID, 
-          Types.VARCHAR, "40", true, true);
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitRoleSet, PITRoleSet.COLUMN_DEPTH, 
-          Types.BIGINT, "10", false, true);
-  
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitRoleSet, PITRoleSet.COLUMN_IF_HAS_ROLE_ID, 
-          Types.VARCHAR, "40", false, true);
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitRoleSet, PITRoleSet.COLUMN_THEN_HAS_ROLE_ID, 
-          Types.VARCHAR, "40", false, true);
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitRoleSet, PITRoleSet.COLUMN_PARENT_ROLE_SET_ID, 
-          Types.VARCHAR, "40", false, false);
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitRoleSet, PITRoleSet.COLUMN_ACTIVE,
-          Types.VARCHAR, "1", false, true);
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitRoleSet, PITRoleSet.COLUMN_START_TIME,
-          Types.BIGINT, "20", false, true);
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitRoleSet, PITRoleSet.COLUMN_END_TIME,
-          Types.BIGINT, "20", false, false);
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitRoleSet, PITRoleSet.COLUMN_CONTEXT_ID, 
-          Types.VARCHAR, "40", false, false);
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitRoleSet, PITRoleSet.COLUMN_HIBERNATE_VERSION_NUMBER, 
-          Types.BIGINT, null, false, false);
-    }
   }
   
   

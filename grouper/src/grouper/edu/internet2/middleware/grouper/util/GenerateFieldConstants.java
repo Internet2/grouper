@@ -12,6 +12,8 @@ import java.util.Set;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreClone;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreDbVersion;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreFieldConstant;
+import edu.internet2.middleware.grouper.externalSubjects.ExternalSubject;
+import edu.internet2.middleware.grouper.externalSubjects.ExternalSubjectAttribute;
 import edu.internet2.middleware.grouper.rules.RuleCheck;
 
 
@@ -24,7 +26,7 @@ public class GenerateFieldConstants {
    * @param args
    */
   public static void main(String[] args) {
-    generateConstants(RuleCheck.class);
+    generateConstants(ExternalSubjectAttribute.class);
   }
   
   /**

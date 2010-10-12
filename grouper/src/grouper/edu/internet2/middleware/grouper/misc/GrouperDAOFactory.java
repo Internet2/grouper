@@ -38,6 +38,8 @@ import edu.internet2.middleware.grouper.internal.dao.ChangeLogConsumerDAO;
 import edu.internet2.middleware.grouper.internal.dao.ChangeLogEntryDAO;
 import edu.internet2.middleware.grouper.internal.dao.ChangeLogTypeDAO;
 import edu.internet2.middleware.grouper.internal.dao.CompositeDAO;
+import edu.internet2.middleware.grouper.internal.dao.ExternalSubjectAttributeDAO;
+import edu.internet2.middleware.grouper.internal.dao.ExternalSubjectDAO;
 import edu.internet2.middleware.grouper.internal.dao.FieldDAO;
 import edu.internet2.middleware.grouper.internal.dao.GroupDAO;
 import edu.internet2.middleware.grouper.internal.dao.GroupSetDAO;
@@ -396,5 +398,16 @@ public abstract class GrouperDAOFactory {
    * @return pit attribute def name set dao
    */
   public abstract PITAttributeDefNameSetDAO getPITAttributeDefNameSet();
+
+  /**
+   * @return external subject 
+   */
+  public abstract ExternalSubjectDAO getExternalSubject();
+
+  /**
+   * @return external subject attribute
+   */
+  public abstract ExternalSubjectAttributeDAO getExternalSubjectAttribute();
+
 } 
 
