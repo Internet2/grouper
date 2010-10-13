@@ -14,15 +14,15 @@
 
 package edu.internet2.middleware.ldappc.spml;
 
-import java.io.File;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.io.IOException;
-import java.io.PrintStream;
+import java.io.OutputStreamWriter;
 import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
 
 import org.apache.commons.cli.ParseException;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.time.StopWatch;
 import org.opensaml.util.resource.ResourceException;
 import org.openspml.v2.msg.spml.Request;
@@ -48,7 +48,10 @@ public class PSPCLI extends TimerTask {
   private Timer timer;
 
   /** Where output is written to. */
-  private PrintStream printStream;
+  private BufferedWriter writer;
+
+  /** The lastModifyTime. */
+  private Date lastModifyTime;
 
   /**
    * Run this application.
@@ -103,9 +106,9 @@ public class PSPCLI extends TimerTask {
     psp = PSP.getPSP(options);
 
     if (GrouperUtil.isBlank(psp.getPspOptions().getOutputFile())) {
-      printStream = System.out;
+      writer = new BufferedWriter(new OutputStreamWriter(System.out));
     } else {
-      printStream = new PrintStream(FileUtils.openOutputStream(new File(psp.getPspOptions().getOutputFile())));
+      writer = new BufferedWriter(new FileWriter(psp.getPspOptions().getOutputFile(), true));
     }
   }
 
@@ -115,42 +118,46 @@ public class PSPCLI extends TimerTask {
    * {@inheritDoc}
    */
   public void run() {
-    LOG.info("Starting {}", PSPOptions.NAME);
-    LOG.debug("Starting {} with options {}", PSPOptions.NAME, psp.getPspOptions());
+    try {
+      LOG.info("Starting {}", PSPOptions.NAME);
+      LOG.debug("Starting {} with options {}", PSPOptions.NAME, psp.getPspOptions());
 
-    Date now = new Date();
+      Date now = new Date();
 
-    StopWatch sw = new StopWatch();
-    sw.start();
+      StopWatch sw = new StopWatch();
+      sw.start();
 
-    for (Request request : psp.getPspOptions().getRequests()) {
-      // set updated since for bulk requests
-      if (request instanceof BulkProvisioningRequest && psp.getPspOptions().getLastModifyTime() != null) {
-        ((BulkProvisioningRequest) request).setUpdatedSince(psp.getPspOptions().getLastModifyTime());
+      // initialize lastModifyTime if supplied as option
+      if (lastModifyTime == null && psp.getPspOptions().getLastModifyTime() != null) {
+        lastModifyTime = psp.getPspOptions().getLastModifyTime();
       }
-      // print requests if so configured
-      if (psp.getPspOptions().isPrintRequests()) {
-        printStream.print(psp.toXML(request));
-      }
-      // execute request
-      Response response = psp.execute(request);
-      // print response
-      printStream.print(psp.toXML(response));
-    }
 
-    printStream.flush();
-
-    sw.stop();
-    LOG.info("End of {} execution : {} ms", PSPOptions.NAME, sw.getTime());
-
-    // update last modified time
-    for (Request request : psp.getPspOptions().getRequests()) {
-      if (request instanceof BulkProvisioningRequest) {
-        if (psp.getPspOptions().getLastModifyTime() != null) {
-          psp.getPspOptions().setLastModifyTime(now);
-          break;
+      for (Request request : psp.getPspOptions().getRequests()) {
+        // set updated since for bulk requests
+        if (request instanceof BulkProvisioningRequest && lastModifyTime != null) {
+          ((BulkProvisioningRequest) request).setUpdatedSince(lastModifyTime);
         }
+        // print requests if so configured
+        if (psp.getPspOptions().isPrintRequests()) {
+          writer.write(psp.toXML(request));
+        }
+        // execute request
+        Response response = psp.execute(request);
+        // print response
+        writer.write(psp.toXML(response));
       }
+
+      writer.flush();
+
+      sw.stop();
+      LOG.info("End of {} execution : {} ms", PSPOptions.NAME, sw.getTime());
+
+      // update last modified time
+      lastModifyTime = now;
+
+    } catch (IOException e) {
+      LOG.error("Unable to write SPML.", e);
+      timer.cancel();
     }
   }
 
@@ -160,6 +167,15 @@ public class PSPCLI extends TimerTask {
   public void schedule() {
     timer = new Timer();
     timer.schedule(this, 0, 1000 * psp.getPspOptions().getInterval());
+  }
+
+  /**
+   * Return the {@link PSP}.
+   * 
+   * @return the {@link PSP}.
+   */
+  public PSP getPSP() {
+    return psp;
   }
 
   /**
