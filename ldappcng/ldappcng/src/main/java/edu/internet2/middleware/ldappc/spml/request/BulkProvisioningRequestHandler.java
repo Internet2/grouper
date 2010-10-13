@@ -62,7 +62,14 @@ public class BulkProvisioningRequestHandler {
   }
 
   public Set<String> getAllIdentifiers() throws LdappcException {
+    return getAllIdentifiers(false);
+  }
+
+  public Set<String> getAllIdentifiers(boolean updatedSince) throws LdappcException {
     String msg = "get all identifers";
+    if (updatedSince) {
+      msg += " updated since " + request.getUpdatedSince();
+    }
     LOG.debug(msg);
 
     Set<String> identifiers = new LinkedHashSet<String>();
@@ -78,7 +85,11 @@ public class BulkProvisioningRequestHandler {
     }
 
     for (SourceDataConnector sourceDataConnector : dataConnectors.values()) {
-      identifiers.addAll(sourceDataConnector.getAllIdentifiers(request.getUpdatedSinceAsDate()));
+      if (updatedSince && request.getUpdatedSinceAsDate() != null) {
+        identifiers.addAll(sourceDataConnector.getAllIdentifiers(request.getUpdatedSinceAsDate()));
+      } else {
+        identifiers.addAll(sourceDataConnector.getAllIdentifiers());
+      }
     }
 
     LOG.debug("{} found {} identifiers", msg, identifiers.size());

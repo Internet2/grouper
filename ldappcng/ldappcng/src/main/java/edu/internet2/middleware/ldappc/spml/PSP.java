@@ -563,15 +563,11 @@ public class PSP extends BaseSpmlProvider {
       return bulkDiffResponse;
     }
 
-    // PSOIdentifiers that should exist
-    Set<PSOIdentifier> correctPsoIds = new LinkedHashSet<PSOIdentifier>();
-
     // get all identifiers
     BulkProvisioningRequestHandler handler = new BulkProvisioningRequestHandler(this, bulkDiffRequest);
-    Set<String> identifiers = handler.getAllIdentifiers();
 
-    // new DiffRequest for each identifier
-    for (String identifier : identifiers) {
+    // new DiffRequest for each identifier, only for identifiers updated since time specified in request
+    for (String identifier : handler.getAllIdentifiers(true)) {
       DiffRequest diffRequest = new DiffRequest();
       diffRequest.setId(identifier);
       diffRequest.setRequestID(this.generateRequestID());
@@ -591,9 +587,37 @@ public class PSP extends BaseSpmlProvider {
           return bulkDiffResponse;
         }
       }
+    }
 
-      if (diffResponse.getStatus().equals(StatusCode.SUCCESS)) {
-        correctPsoIds.addAll(diffResponse.getPsoIds());
+    // reconciliation
+
+    // PSOIdentifiers that should exist
+    Set<PSOIdentifier> correctPsoIds = new LinkedHashSet<PSOIdentifier>();
+
+    for (String identifier : handler.getAllIdentifiers()) {
+      CalcRequest calcRequest = new CalcRequest();
+      calcRequest.setId(identifier);
+      calcRequest.setRequestID(this.generateRequestID());
+      calcRequest.setReturnData(ReturnData.IDENTIFIER);
+      calcRequest.setSchemaEntities(bulkDiffRequest.getSchemaEntities());
+
+      CalcResponse calcResponse = this.execute(calcRequest);
+
+      // first failure encountered, stop processing if OnError.EXIT
+      if (calcResponse.getStatus() != StatusCode.SUCCESS && bulkDiffResponse.getStatus() != StatusCode.FAILURE) {
+        bulkDiffResponse.setStatus(StatusCode.FAILURE);
+        if (bulkDiffRequest.getOnError().equals(OnError.EXIT)) {
+          LOG.error("{}", bulkDiffResponse);
+          if (pspOptions.isLogSpml()) LOG.info("\n{}", this.toXML(bulkDiffResponse));
+          mdc.stop();
+          return bulkDiffResponse;
+        }
+      }
+
+      if (calcResponse.getStatus().equals(StatusCode.SUCCESS)) {
+        for (PSO pso : calcResponse.getPSOs()) {
+          correctPsoIds.add(pso.getPsoID());
+        }
       }
     }
 
@@ -746,7 +770,7 @@ public class PSP extends BaseSpmlProvider {
   }
 
   public PSPContext getProvisioningContext(ProvisioningRequest provisioningRequest) throws AttributeRequestException,
-            Spml2Exception, LdappcException {
+      Spml2Exception, LdappcException {
     // provisioning context
     PSPContext provContext = new PSPContext();
     provContext.setProvisioningServiceProvider(this);
@@ -892,8 +916,7 @@ public class PSP extends BaseSpmlProvider {
     return dsmlAttrs;
   }
 
-  public static Map<String, List<Reference>> getReferences(CapabilityData[] capabilityDataArray)
-            throws LdappcException {
+  public static Map<String, List<Reference>> getReferences(CapabilityData[] capabilityDataArray) throws LdappcException {
 
     Map<String, List<Reference>> references = new LinkedHashMap<String, List<Reference>>();
 
@@ -912,8 +935,8 @@ public class PSP extends BaseSpmlProvider {
       } else {
         LOG.warn("Encountered unhandled capability data '{}'", capabilityData.getCapabilityURI());
         if (capabilityData.isMustUnderstand()) {
-          LOG.error("Encountered unhandled capability data '{}' which must be understood.", capabilityData
-                            .getCapabilityURI());
+          LOG.error("Encountered unhandled capability data '{}' which must be understood.",
+              capabilityData.getCapabilityURI());
           throw new LdappcException("Encountered unhandled capability data which must be understood.");
         }
       }
@@ -1046,7 +1069,7 @@ public class PSP extends BaseSpmlProvider {
       fail(provisioningResponse, ErrorCode.NO_SUCH_IDENTIFIER, e.getMessage());
       return false;
     }
-  
+
     return true;
   }
 
@@ -1093,7 +1116,7 @@ public class PSP extends BaseSpmlProvider {
 
     return true;
   }
-  
+
   public boolean isValid(PSOIdentifier psoID, Response response) {
 
     if (GrouperUtil.isBlank(psoID) || GrouperUtil.isBlank(psoID.getID())) {
@@ -1122,8 +1145,8 @@ public class PSP extends BaseSpmlProvider {
       return false;
     }
 
-    if (!(response.getStatus().equals(StatusCode.SUCCESS)
-        || response.getStatus().equals(StatusCode.FAILURE) || response.getStatus().equals(StatusCode.PENDING))) {
+    if (!(response.getStatus().equals(StatusCode.SUCCESS) || response.getStatus().equals(StatusCode.FAILURE) || response
+        .getStatus().equals(StatusCode.PENDING))) {
       fail(response, ErrorCode.MALFORMED_REQUEST, PSPConstants.ERROR_UNSUPPORTED_STATUS);
       return false;
     }
