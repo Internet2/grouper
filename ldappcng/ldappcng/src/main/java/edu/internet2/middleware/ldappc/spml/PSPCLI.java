@@ -47,6 +47,9 @@ public class PSPCLI extends TimerTask {
   /** The timer for scheduling runs, Quartz would be nice too. */
   private Timer timer;
 
+  /** Where output is written to. */
+  private PrintStream printStream;
+
   /**
    * Run this application.
    * 
@@ -80,6 +83,9 @@ public class PSPCLI extends TimerTask {
     } catch (ResourceException e) {
       System.err.println(e.getMessage());
       e.printStackTrace();
+    } catch (IOException e) {
+      System.err.println(e.getMessage());
+      e.printStackTrace();
     }
   }
 
@@ -90,9 +96,17 @@ public class PSPCLI extends TimerTask {
    *          the <code>PSPOptions</code>
    * @throws ResourceException
    *           if the <code>PSP</code> could not be instantiated
+   * @throws IOException
+   *           if output cannot be written
    */
-  public PSPCLI(PSPOptions options) throws ResourceException {
+  public PSPCLI(PSPOptions options) throws ResourceException, IOException {
     psp = PSP.getPSP(options);
+
+    if (GrouperUtil.isBlank(psp.getPspOptions().getOutputFile())) {
+      printStream = System.out;
+    } else {
+      printStream = new PrintStream(FileUtils.openOutputStream(new File(psp.getPspOptions().getOutputFile())));
+    }
   }
 
   /**
@@ -101,58 +115,42 @@ public class PSPCLI extends TimerTask {
    * {@inheritDoc}
    */
   public void run() {
-    try {
-      LOG.info("Starting {}", PSPOptions.NAME);
-      LOG.debug("Starting {} with options {}", PSPOptions.NAME, psp.getPspOptions());
+    LOG.info("Starting {}", PSPOptions.NAME);
+    LOG.debug("Starting {} with options {}", PSPOptions.NAME, psp.getPspOptions());
 
-      PrintStream printStream = null;
-      if (GrouperUtil.isBlank(psp.getPspOptions().getOutputFile())) {
-        printStream = System.out;
-      } else {
-        printStream = new PrintStream(FileUtils.openOutputStream(new File(psp.getPspOptions().getOutputFile())));
+    Date now = new Date();
+
+    StopWatch sw = new StopWatch();
+    sw.start();
+
+    for (Request request : psp.getPspOptions().getRequests()) {
+      // set updated since for bulk requests
+      if (request instanceof BulkProvisioningRequest && psp.getPspOptions().getLastModifyTime() != null) {
+        ((BulkProvisioningRequest) request).setUpdatedSince(psp.getPspOptions().getLastModifyTime());
       }
-
-      Date now = new Date();
-
-      StopWatch sw = new StopWatch();
-      sw.start();
-
-      for (Request request : psp.getPspOptions().getRequests()) {
-        // set updated since for bulk requests
-        if (request instanceof BulkProvisioningRequest && psp.getPspOptions().getLastModifyTime() != null) {
-          ((BulkProvisioningRequest) request).setUpdatedSince(psp.getPspOptions().getLastModifyTime());
-        }
-        // print requests if so configured
-        if (psp.getPspOptions().isPrintRequests()) {
-          printStream.print(psp.toXML(request));
-        }
-        // execute request
-        Response response = psp.execute(request);
-        // print response
-        printStream.print(psp.toXML(response));
+      // print requests if so configured
+      if (psp.getPspOptions().isPrintRequests()) {
+        printStream.print(psp.toXML(request));
       }
-      
-      printStream.flush();
-      if (!printStream.equals(System.out)) {
-        printStream.close();
-      }
+      // execute request
+      Response response = psp.execute(request);
+      // print response
+      printStream.print(psp.toXML(response));
+    }
 
-      sw.stop();
-      LOG.info("End of {} execution : {} ms", PSPOptions.NAME, sw.getTime());
+    printStream.flush();
 
-      // update last modified time
-      for (Request request : psp.getPspOptions().getRequests()) {
-        if (request instanceof BulkProvisioningRequest) {
-          if (psp.getPspOptions().getLastModifyTime() != null) {
-            psp.getPspOptions().setLastModifyTime(now);
-            break;
-          }
+    sw.stop();
+    LOG.info("End of {} execution : {} ms", PSPOptions.NAME, sw.getTime());
+
+    // update last modified time
+    for (Request request : psp.getPspOptions().getRequests()) {
+      if (request instanceof BulkProvisioningRequest) {
+        if (psp.getPspOptions().getLastModifyTime() != null) {
+          psp.getPspOptions().setLastModifyTime(now);
+          break;
         }
       }
-
-    } catch (IOException e) {
-      LOG.error("Unable to write SPML.", e);
-      cancel();
     }
   }
 
