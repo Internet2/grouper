@@ -10,6 +10,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.builder.HashCodeBuilder;
 
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
@@ -45,6 +46,18 @@ public class GrouperVersion {
     return true;
   }
 
+  
+  
+  /**
+   * @see java.lang.Object#hashCode()
+   */
+  @Override
+  public int hashCode() {
+    return new HashCodeBuilder().append(this.build).append(this.major).append(this.minor).append(this.rc).hashCode();
+  }
+
+
+
   /**
    * 
    * @see java.lang.Object#toString()
@@ -66,7 +79,7 @@ public class GrouperVersion {
    * e.g. 1.5.0
    * DEV NOTE: this cant be read from version file since in dev there is no grouper jar so I dont know the version
    */
-  public static final String GROUPER_VERSION = "1.6.1";
+  public static final String GROUPER_VERSION = "1.6.2";
   
   /**
    * se we dont have to keep constructing this
