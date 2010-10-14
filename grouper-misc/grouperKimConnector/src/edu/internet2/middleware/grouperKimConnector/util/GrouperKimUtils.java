@@ -5,6 +5,7 @@
 package edu.internet2.middleware.grouperKimConnector.util;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -13,6 +14,11 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
+import org.kuali.rice.kew.doctype.bo.DocumentType;
+import org.kuali.rice.kew.doctype.service.DocumentTypeService;
+import org.kuali.rice.kew.service.KEWServiceLocator;
+import org.kuali.rice.kew.web.session.UserSession;
+import org.kuali.rice.kim.bo.Person;
 import org.kuali.rice.kim.bo.entity.dto.KimEntityDefaultInfo;
 import org.kuali.rice.kim.bo.entity.dto.KimEntityEntityTypeDefaultInfo;
 import org.kuali.rice.kim.bo.entity.dto.KimEntityEntityTypeInfo;
@@ -46,6 +52,13 @@ import edu.internet2.middleware.grouperKimConnector.identity.GrouperKimIdentityS
  */
 public class GrouperKimUtils {
 
+  /**
+   * current date time for xslt
+   * @return string of date time
+   */
+  public static String currentDateTime() {
+    return new Date().toString();
+  }
 
   /**
    * @param operation e.g. AttributeDefNamePicker.index
@@ -87,6 +100,36 @@ public class GrouperKimUtils {
     
   }
   
+  /**
+   * get the doc type label for a doc type name
+   * @param doctypeName
+   * @return the label
+   */
+  public static String xslDoctypeLabel(String doctypeName) {
+    DocumentTypeService documentTypeService = KEWServiceLocator.getDocumentTypeService();
+    DocumentType doctype = documentTypeService.findByName(doctypeName);
+    return doctype.getLabel();
+  }
+  
+  /**
+   * get the xsl principal id
+   * @return the principal id
+   */
+  public static String xslPrincipalId() {
+    UserSession userSession=UserSession.getAuthenticatedUser();
+    Person user = userSession.getPerson();
+    return user.getPrincipalId();
+  }
+  
+  /**
+   * get the xsl principal name
+   * @return the principal name
+   */
+  public static String xslPrincipalName() {
+    UserSession userSession=UserSession.getAuthenticatedUser();
+    Person user = userSession.getPerson();
+    return user.getPrincipalName();
+  }
   
   /**
    * get the first name from the name.  If the name has a space, do stuff before first space
@@ -510,8 +553,6 @@ public class GrouperKimUtils {
     kimEntityInfo.setAffiliations(kimEntityDefaultInfo.getAffiliations());
     kimEntityInfo.setBioDemographics(null);
     kimEntityInfo.setCitizenships(null);
-    kimEntityInfo.setDefaultAffiliation(kimEntityDefaultInfo.getDefaultAffiliation());
-    kimEntityInfo.setDefaultName(kimEntityDefaultInfo.getDefaultName());
     kimEntityInfo.setEmploymentInformation(null);
     kimEntityInfo.setEntityId(kimEntityDefaultInfo.getEntityId());
     
@@ -547,7 +588,6 @@ public class GrouperKimUtils {
     kimEntityInfo.setEthnicities(null);
     kimEntityInfo.setExternalIdentifiers(kimEntityDefaultInfo.getExternalIdentifiers());
     kimEntityInfo.setNames(GrouperClientUtils.toList(kimEntityDefaultInfo.getDefaultName()));
-    kimEntityInfo.setPrimaryEmployment(kimEntityDefaultInfo.getPrimaryEmployment());
     kimEntityInfo.setPrincipals(kimEntityDefaultInfo.getPrincipals());
     kimEntityInfo.setPrivacyPreferences(kimEntityDefaultInfo.getPrivacyPreferences());
     kimEntityInfo.setResidencies(null);

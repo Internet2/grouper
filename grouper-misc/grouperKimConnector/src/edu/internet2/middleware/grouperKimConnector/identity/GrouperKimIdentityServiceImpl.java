@@ -158,8 +158,10 @@ public class GrouperKimIdentityServiceImpl implements IdentityService {
 
       index = 0;
       for (String entityId : entityIds) {
-        
-        WsSubject wsSubject = wsSubjectMap.get(entityId);
+
+        String translatedEntityId = GrouperKimUtils.translatePrincipalId(entityId);
+
+        WsSubject wsSubject = wsSubjectMap.get(translatedEntityId);
         
         String subjectId = wsSubject == null ? null : wsSubject.getId();
 
@@ -171,6 +173,7 @@ public class GrouperKimIdentityServiceImpl implements IdentityService {
           
           KimEntityNameInfo kimEntityNameInfo = GrouperKimUtils.convertWsSubjectToEntityNameInfo(wsSubject, wsGetSubjectsResults.getSubjectAttributeNames());
           
+          //use the original id so the caller can find it
           result.put(entityId, kimEntityNameInfo);
         } else {
           if (index < 20) {
@@ -266,7 +269,9 @@ public class GrouperKimIdentityServiceImpl implements IdentityService {
       index = 0;
       for (String principalId : principalIds) {
         
-        WsSubject wsSubject = wsSubjectMap.get(principalId);
+        String translatedPrincipalId = GrouperKimUtils.translatePrincipalId(principalId);
+
+        WsSubject wsSubject = wsSubjectMap.get(translatedPrincipalId);
         
         String subjectIdentifier = wsSubject == null ? null : wsSubject.getIdentifierLookup();
 
@@ -279,9 +284,11 @@ public class GrouperKimIdentityServiceImpl implements IdentityService {
           KimEntityNamePrincipalNameInfo kimEntityNamePrincipalNameInfo = GrouperKimUtils.convertWsSubjectToPrincipalNameInfo(
               wsSubject, wsGetSubjectsResults.getSubjectAttributeNames());
           
-          if (!GrouperClientUtils.equals(principalId, subjectIdentifier)) {
+          if (!GrouperClientUtils.equals(translatedPrincipalId, subjectIdentifier)) {
             throw new RuntimeException("Why is principalId: " + principalId + " not equal to " + subjectIdentifier);
           }
+          
+          //put back in with the original principal id
           result.put(principalId, kimEntityNamePrincipalNameInfo);
         } else {
           if (index < 20) {
