@@ -34,6 +34,7 @@ import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValueDelegate;
 import edu.internet2.middleware.grouper.attr.value.AttributeValueDelegate;
 import edu.internet2.middleware.grouper.exception.AttributeAssignNotAllowed;
+import edu.internet2.middleware.grouper.group.GroupMember;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
@@ -1429,34 +1430,34 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
    */
   public AttributeAssignable retrieveAttributeAssignable() {
     AttributeDef theAttributeDef = this.getAttributeDef();
-    if (theAttributeDef.isAssignToGroup()) {
-      Group group = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), this.ownerGroupId, true);
-      return group;
-    }
-    if (theAttributeDef.isAssignToStem()) {
+    if (theAttributeDef.isAssignToStem() && !StringUtils.isBlank(this.ownerStemId)) {
       Stem stem = StemFinder.findByUuid(GrouperSession.staticGrouperSession(), this.ownerStemId, true);
       return stem;
     }
-    if (theAttributeDef.isAssignToMember()) {
-      Member member = MemberFinder.findByUuid(GrouperSession.staticGrouperSession(), this.ownerMemberId, true);
-      return member;
-    }
-    if (theAttributeDef.isAssignToAttributeDef()) {
+    if (theAttributeDef.isAssignToAttributeDef() && !StringUtils.isBlank(this.ownerAttributeDefId)) {
       AttributeDef attributeDefOwner = AttributeDefFinder.findById(this.ownerAttributeDefId, true);
       return attributeDefOwner;
     }
-    if (theAttributeDef.isAssignToEffMembership()) {
+    if (theAttributeDef.isAssignToEffMembership() && !StringUtils.isBlank(this.ownerMemberId) && !StringUtils.isBlank(this.ownerGroupId)) {
       Group group = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), this.ownerGroupId, true);
       Member member = MemberFinder.findByUuid(GrouperSession.staticGrouperSession(), this.ownerMemberId, true);
-      return new EffectiveMembershipWrapper(group, member);
+      return new GroupMember(group, member);
     }
-    if (theAttributeDef.isAssignToImmMembership()) {
+    if (theAttributeDef.isAssignToGroup() && !StringUtils.isBlank(this.ownerGroupId)) {
+      Group group = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), this.ownerGroupId, true);
+      return group;
+    }
+    if (theAttributeDef.isAssignToMember() && !StringUtils.isBlank(this.ownerMemberId)) {
+      Member member = MemberFinder.findByUuid(GrouperSession.staticGrouperSession(), this.ownerMemberId, true);
+      return member;
+    }
+    if (theAttributeDef.isAssignToImmMembership() && !StringUtils.isBlank(this.ownerMembershipId)) {
       Membership membership = GrouperDAOFactory.getFactory().getMembership().findByUuid(this.ownerMembershipId, true, false);
       return membership;
     }
-    if (theAttributeDef.isAssignToAttributeDefAssn() || theAttributeDef.isAssignToEffMembershipAssn() 
+    if ((theAttributeDef.isAssignToAttributeDefAssn() || theAttributeDef.isAssignToEffMembershipAssn() 
         || theAttributeDef.isAssignToGroupAssn() || theAttributeDef.isAssignToImmMembershipAssn()
-        || theAttributeDef.isAssignToMemberAssn() || theAttributeDef.isAssignToStemAssn()) {
+        || theAttributeDef.isAssignToMemberAssn() || theAttributeDef.isAssignToStemAssn()) && !StringUtils.isBlank(this.ownerAttributeAssignId)) {
       AttributeAssign attributeAssign = GrouperDAOFactory.getFactory().getAttributeAssign()
         .findById(this.ownerAttributeAssignId, true);
       return attributeAssign;
