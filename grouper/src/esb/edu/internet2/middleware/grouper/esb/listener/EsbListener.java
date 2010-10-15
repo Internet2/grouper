@@ -32,7 +32,7 @@ public class EsbListener {
 	public String processEvent(String jsonString, GrouperSession grouperSession) {
 		this.grouperSession = grouperSession;
 		String returnMessage="";
-		EsbListenerEvents events = (EsbListenerEvents) GrouperUtil.jsonConvertFrom(jsonString, EsbListenerEvent.class);
+		EsbListenerEvents events = (EsbListenerEvents) GrouperUtil.jsonConvertFrom(jsonString, EsbListenerEvents.class);
 		for(int i=0;i<events.getEsbListenerEvent().length;i++) {
 			EsbListenerEvent event = events.getEsbListenerEvent()[i];
 		
