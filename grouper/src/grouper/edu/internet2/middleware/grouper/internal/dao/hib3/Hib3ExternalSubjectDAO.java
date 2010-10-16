@@ -23,6 +23,7 @@ import edu.internet2.middleware.grouper.externalSubjects.ExternalSubject;
 import edu.internet2.middleware.grouper.externalSubjects.ExternalSubjectAttribute;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.ByHql;
+import edu.internet2.middleware.grouper.hibernate.ByHqlStatic;
 import edu.internet2.middleware.grouper.hibernate.ByObject;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
@@ -30,6 +31,7 @@ import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.ExternalSubjectDAO;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
+import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
@@ -38,6 +40,15 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * Basic Hibernate <code>Group</code> DAO interface.
  */
 public class Hib3ExternalSubjectDAO extends Hib3DAO implements ExternalSubjectDAO {
+
+  /**
+   * 
+   * @param hibernateSession
+   */
+  public static void reset(HibernateSession hibernateSession) {
+    hibernateSession.byHql().createQuery("delete from ExternalSubject as theExternalSubject")
+      .executeUpdate();
+  }
 
   /**
    * @see ExternalSubjectDAO#delete(ExternalSubject)
@@ -76,6 +87,7 @@ public class Hib3ExternalSubjectDAO extends Hib3DAO implements ExternalSubjectDA
   }
 
   /**
+   * @see ExternalSubjectDAO#saveOrUpdate(ExternalSubject)
    * save or update this to the DB.
    */
   public void saveOrUpdate(ExternalSubject externalSubject) {
@@ -84,6 +96,28 @@ public class Hib3ExternalSubjectDAO extends Hib3DAO implements ExternalSubjectDA
     
     HibernateSession.byObjectStatic().saveOrUpdate(externalSubject);
     
+  }
+
+  /** */
+  private static final String KLASS = Hib3ExternalSubjectDAO.class.getName();
+
+
+  /**
+   * @see ExternalSubjectDAO#findByIdentifier(String, boolean, QueryOptions)
+   */
+  public ExternalSubject findByIdentifier(String identifier, boolean exceptionIfNotFound, QueryOptions queryOptions) {
+    ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic()
+      .createQuery("select theExternalSubject from ExternalSubject as theExternalSubject where theExternalSubject.identifier = :theIdentifier")
+      .setCacheable(true).setCacheRegion(KLASS + ".findByIdentifier").options(queryOptions);
+
+    ExternalSubject externalSubject = byHqlStatic.setString("theIdentifier", identifier).uniqueResult(ExternalSubject.class);
+
+    //handle exceptions out of data access method...
+    if (externalSubject == null && exceptionIfNotFound) {
+      throw new RuntimeException("Cannot find externalSubject with identifier: '" + identifier + "'");
+    }
+    return externalSubject;
+
   }
   
   

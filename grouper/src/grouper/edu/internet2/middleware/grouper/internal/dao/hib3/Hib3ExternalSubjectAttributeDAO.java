@@ -17,9 +17,13 @@
 
 package edu.internet2.middleware.grouper.internal.dao.hib3;
 
+import java.util.Set;
+
 import edu.internet2.middleware.grouper.externalSubjects.ExternalSubjectAttribute;
+import edu.internet2.middleware.grouper.hibernate.ByHqlStatic;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.ExternalSubjectAttributeDAO;
+import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 
 
 /**
@@ -36,8 +40,70 @@ public class Hib3ExternalSubjectAttributeDAO extends Hib3DAO implements External
     HibernateSession.byObjectStatic().delete(externalSubjectAttribute);
     
   }
+
+  /**
+   * 
+   * @param hibernateSession
+   */
+  public static void reset(HibernateSession hibernateSession) {
+    hibernateSession.byHql().createQuery("delete from ExternalSubjectAttribute as theExternalSubjectAttribute")
+      .executeUpdate();
+  }
+
+  /**
+   * @see ExternalSubjectAttributeDAO#saveOrUpdate(ExternalSubjectAttribute)
+   * save or update this to the DB.
+   */
+  public void saveOrUpdate(ExternalSubjectAttribute externalSubjectAttribute) {
+    
+    HibernateSession.byObjectStatic().saveOrUpdate(externalSubjectAttribute);
+    
+  }
+
+  /** */
+  private static final String KLASS = Hib3ExternalSubjectAttributeDAO.class.getName();
+
+
+  /**
+   * @see ExternalSubjectAttributeDAO#findByUuid(String, boolean, QueryOptions)
+   */
+  public ExternalSubjectAttribute findByUuid(String uuid,
+      boolean exceptionIfNotFound, QueryOptions queryOptions) {
+    ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic()
+      .createQuery("select theExternalSubjectAttribute from ExternalSubjectAttribute as theExternalSubjectAttribute where theExternalSubjectAttribute.uuid = :theUuid")
+      .setCacheable(true).setCacheRegion(KLASS + ".findByUuid").options(queryOptions);
   
+    ExternalSubjectAttribute externalSubjectAttribute = byHqlStatic.setString("theUuid", uuid).uniqueResult(ExternalSubjectAttribute.class);
   
+    //handle exceptions out of data access method...
+    if (externalSubjectAttribute == null && exceptionIfNotFound) {
+      throw new RuntimeException("Cannot find externalSubjectAttribute with uuid: '" + uuid + "'");
+    }
+    return externalSubjectAttribute;
+  }
+  
+  /**
+   * @see ExternalSubjectAttributeDAO#findBySubject(String, QueryOptions)
+   */
+  public Set<ExternalSubjectAttribute> findBySubject(String subjectUuid,
+      QueryOptions queryOptions) {
+    
+    if (queryOptions == null) {
+      queryOptions = new QueryOptions();
+    }
+    if (queryOptions.getQuerySort() == null) {
+      queryOptions.sortAsc(ExternalSubjectAttribute.FIELD_ATTRIBUTE_SYSTEM_NAME);
+    }
+    
+    ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic()
+      .createQuery("select theExternalSubjectAttribute from ExternalSubjectAttribute as theExternalSubjectAttribute where theExternalSubjectAttribute.subjectUuid = :theSubjectUuid")
+      .setCacheable(true).setCacheRegion(KLASS + ".findBySubject").options(queryOptions);
+  
+    Set<ExternalSubjectAttribute> externalSubjectAttributes = byHqlStatic.setString("theSubjectUuid", subjectUuid).listSet(ExternalSubjectAttribute.class);
+  
+    return externalSubjectAttributes;
+  }
+
 
 } 
 

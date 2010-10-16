@@ -24,6 +24,15 @@ import edu.internet2.middleware.grouper.externalSubjects.ExternalSubject;
 public interface ExternalSubjectDAO extends GrouperDAO {
 
   /**
+   * find an external subject by identifier
+   * @param identifier
+   * @param exceptionIfNotFound
+   * @param queryOptions 
+   * @return the external subject or null or exception
+   */
+  ExternalSubject findByIdentifier(String identifier, boolean exceptionIfNotFound, QueryOptions queryOptions);
+  
+  /**
    * delete an external subject and all its attributes
    * @param externalSubject 
    */

@@ -3,8 +3,22 @@ package edu.internet2.middleware.grouper.externalSubjects;
 import java.util.Date;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
+
 import edu.internet2.middleware.grouper.GrouperAPI;
+import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.audit.AuditEntry;
+import edu.internet2.middleware.grouper.audit.AuditTypeBuiltin;
+import edu.internet2.middleware.grouper.hibernate.AuditControl;
+import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
+import edu.internet2.middleware.grouper.hibernate.HibUtilsMapping;
+import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
+import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
+import edu.internet2.middleware.grouper.hibernate.HibernateSession;
+import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
+import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperHasContext;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
@@ -211,13 +225,13 @@ public class ExternalSubjectAttribute extends GrouperAPI implements GrouperHasCo
    * @return  {@link Date} that this subject was created.
    */
   public Date getCreateTime() {
-    return new Date(this.getCreateTimeLong());
+    return new Date(this.getCreateTimeDb());
   }
 
   /**
    * @return create time
    */
-  public long getCreateTimeLong() {
+  public long getCreateTimeDb() {
     return this.createTime;
   }
 
@@ -241,13 +255,13 @@ public class ExternalSubjectAttribute extends GrouperAPI implements GrouperHasCo
    * @return  {@link Date} that this subject was created.
    */
   public Date getModifyTime() {
-    return new Date(this.getModifyTimeLong());
+    return new Date(this.getModifyTimeDb());
   }
 
   /**
    * @return modify time
    */
-  public long getModifyTimeLong() {
+  public long getModifyTimeDb() {
     return this.modifyTime;
   }
 
@@ -255,7 +269,7 @@ public class ExternalSubjectAttribute extends GrouperAPI implements GrouperHasCo
    * create time
    * @param createTime1 
    */
-  public void setCreateTimeLong(long createTime1) {
+  public void setCreateTimeDb(long createTime1) {
     this.createTime = createTime1;
   
   }
@@ -282,9 +296,138 @@ public class ExternalSubjectAttribute extends GrouperAPI implements GrouperHasCo
    * last time modified
    * @param modifyTime1 
    */
-  public void setModifyTimeLong(long modifyTime1) {
+  public void setModifyTimeDb(long modifyTime1) {
     this.modifyTime = modifyTime1;
   
+  }
+
+  /**
+   * delete this object from the DB.
+   * @param externalSubject 
+   */
+  void delete(final ExternalSubject externalSubject) {    
+    
+    HibernateSession.callbackHibernateSession(
+      GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT,
+      new HibernateHandler() {
+  
+        public Object callback(HibernateHandlerBean hibernateHandlerBean)
+            throws GrouperDAOException {
+  
+          hibernateHandlerBean.getHibernateSession().setCachingEnabled(false);
+  
+          GrouperDAOFactory.getFactory().getExternalSubjectAttribute().delete( ExternalSubjectAttribute.this );
+            
+          if (!hibernateHandlerBean.isCallerWillCreateAudit()) {
+            AuditEntry auditEntry = null;
+            
+            auditEntry = new AuditEntry(AuditTypeBuiltin.EXTERNAL_SUBJ_ATTR_DELETE, "id", 
+                ExternalSubjectAttribute.this.getUuid(), "name", ExternalSubjectAttribute.this.getAttributeSystemName(), 
+                "identifier", externalSubject.getIdentifier(), "value", ExternalSubjectAttribute.this.getAttributeValue());
+            auditEntry.setDescription("Deleted external subject attribute: " + ExternalSubjectAttribute.this.getAttributeSystemName());
+            auditEntry.saveOrUpdate(true);
+          }
+  
+          return null;
+        }
+      });
+    
+  }
+
+  /**
+   * @see GrouperAPI#onPreSave(HibernateSession)
+   */
+  @Override
+  public void onPreSave(HibernateSession hibernateSession) {
+    super.onPreSave(hibernateSession);
+    
+    if (StringUtils.isBlank(this.getUuid())) {
+      this.setUuid(GrouperUuid.getUuid());
+    }
+    
+    this.setModifierMemberId( GrouperSession.staticGrouperSession().getMember().getUuid() );
+    this.setModifyTimeDb( System.currentTimeMillis() );
+  
+    this.setCreatorMemberId( GrouperSession.staticGrouperSession().getMember().getUuid() );
+    this.setCreateTimeDb( System.currentTimeMillis() );
+  }
+
+  /**
+   * @see GrouperAPI#onPreUpdate(HibernateSession)
+   */
+  @Override
+  public void onPreUpdate(HibernateSession hibernateSession) {
+    this.setModifierMemberId( GrouperSession.staticGrouperSession().getMember().getUuid() );
+    this.setModifyTimeDb( System.currentTimeMillis() );
+  
+  }
+
+  /**
+   * store this object to the DB.
+   * @param externalSubject reference back to owner
+   */
+  public void store(final ExternalSubject externalSubject) {    
+    
+    HibernateSession.callbackHibernateSession(
+      GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT,
+      new HibernateHandler() {
+  
+        public Object callback(HibernateHandlerBean hibernateHandlerBean)
+            throws GrouperDAOException {
+  
+          hibernateHandlerBean.getHibernateSession().setCachingEnabled(false);
+  
+          boolean isInsert = HibUtilsMapping.isInsert(ExternalSubjectAttribute.this);
+          
+          GrouperDAOFactory.getFactory().getExternalSubjectAttribute().saveOrUpdate( ExternalSubjectAttribute.this );
+            
+          if (!hibernateHandlerBean.isCallerWillCreateAudit()) {
+            AuditEntry auditEntry = null;
+            
+            if (isInsert) {
+              auditEntry = new AuditEntry(AuditTypeBuiltin.EXTERNAL_SUBJ_ATTR_ADD, "id", 
+                  ExternalSubjectAttribute.this.getUuid(), "name", ExternalSubjectAttribute.this.getAttributeSystemName(), "identifier", externalSubject.getIdentifier(),
+                  "value", ExternalSubjectAttribute.this.getAttributeValue());
+              auditEntry.setDescription("Added external subject attr: " + externalSubject.getIdentifier() + ", attr: " + ExternalSubjectAttribute.this.getAttributeSystemName());
+            } else {
+              auditEntry = new AuditEntry(AuditTypeBuiltin.EXTERNAL_SUBJ_ATTR_UPDATE, "id", 
+                  ExternalSubjectAttribute.this.getUuid(), "name", ExternalSubjectAttribute.this.getAttributeSystemName(), "identifier", externalSubject.getIdentifier(),
+                  "value", ExternalSubjectAttribute.this.getAttributeValue());
+              auditEntry.setDescription("Updated external subject attr: " + externalSubject.getIdentifier() + ", attr: " + ExternalSubjectAttribute.this.getAttributeSystemName());
+              
+            }
+            auditEntry.saveOrUpdate(true);
+          }
+  
+          return null;
+        }
+      });
+    
+  }
+
+  /**
+   * @see java.lang.Object#toString()
+   */
+  @Override
+  public String toString() {
+    StringBuilder result = new StringBuilder();
+    try {
+      if (this.attributeSystemName != null) {
+        result.append("attributeSystemName: ").append(this.attributeSystemName).append(", ");
+      }
+      if (this.attributeValue != null) {
+        result.append("attributeValue: ").append(this.attributeValue).append(", ");
+      }
+      if (this.uuid != null) {
+        result.append("uuid: ").append(this.uuid).append(", ");
+      }
+      if (this.subjectUuid != null) {
+        result.append("subjectUuid: ").append(this.subjectUuid).append(", ");
+      }
+    } catch (Exception e) {
+      //ignore, we did the best we could
+    }
+    return result.toString();
   }
   
 }

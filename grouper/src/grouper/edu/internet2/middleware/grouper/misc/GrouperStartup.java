@@ -20,6 +20,7 @@ import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.exception.SessionException;
+import edu.internet2.middleware.grouper.externalSubjects.ExternalSubjectAutoSourceAdapter;
 import edu.internet2.middleware.grouper.hooks.examples.GroupTypeTupleIncludeExcludeHook;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHooksUtils;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3DAO;
@@ -68,6 +69,12 @@ public class GrouperStartup {
       //add in custom sources
       SourceManager.getInstance().loadSource(SubjectFinder.internal_getGSA());
       SourceManager.getInstance().loadSource(InternalSourceAdapter.instance());
+      
+      if (GrouperConfig.getPropertyBoolean("externalSubjects.autoCreateSource", true)) {
+        
+        SourceManager.getInstance().loadSource(ExternalSubjectAutoSourceAdapter.instance());
+        
+      }
       
       //dont print big classname, dont print nulls
       ToStringBuilder.setDefaultStyle(new GrouperToStringStyle());

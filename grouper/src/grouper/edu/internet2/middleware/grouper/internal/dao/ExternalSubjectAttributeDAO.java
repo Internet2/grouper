@@ -16,6 +16,8 @@
 */
 
 package edu.internet2.middleware.grouper.internal.dao;
+import java.util.Set;
+
 import edu.internet2.middleware.grouper.externalSubjects.ExternalSubjectAttribute;
 
 /** 
@@ -28,6 +30,29 @@ public interface ExternalSubjectAttributeDAO extends GrouperDAO {
    * @param externalSubjectAttribute 
    */
   void delete(ExternalSubjectAttribute externalSubjectAttribute);
+
+  /**
+   * insert or update an external subject attribute to the DB
+   * @param externalSubjectAttribute
+   */
+  void saveOrUpdate( ExternalSubjectAttribute externalSubjectAttribute );
+
+  /**
+   * find an external subject attribute by identifier
+   * @param uuid
+   * @param exceptionIfNotFound
+   * @param queryOptions 
+   * @return the external subject or null or exception
+   */
+  ExternalSubjectAttribute findByUuid(String uuid, boolean exceptionIfNotFound, QueryOptions queryOptions);
+
+  /**
+   * find attributes by subject, order by system name
+   * @param subjectUuid
+   * @param queryOptions 
+   * @return the external subject or null or exception
+   */
+  Set<ExternalSubjectAttribute> findBySubject(String subjectUuid, QueryOptions queryOptions);
 
 } 
 

@@ -46,10 +46,9 @@
     <property name="createTimeDb" column="create_time" />
     <property name="creatorMemberId" column="creator_member_id" />
     <property name="modifierMemberId" column="modifier_member_id" />
-    <property name="modifyTimeDb" column="modify_time" />
+    <property name="modifyTimeDb" column="modify_time" /> 
     <property name="attributeSystemName" column="attribute_system_name" />
     <property name="attributeValue" column="attribute_value" />
-    <property name="modifyTimeDb" column="modify_time" />
     <property name="subjectUuid" column="subject_uuid" />
 
   </class>

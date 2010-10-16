@@ -7001,7 +7001,7 @@ public enum GrouperDdl implements DdlVersionable {
           "grouper_ext_subj_cxt_id_idx", false, ExternalSubject.COLUMN_CONTEXT_ID);
       
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, externalSubjectTable.getName(), 
-          "grouper_ext_subj_idfr_idx", false, ExternalSubject.COLUMN_IDENTIFIER);
+          "grouper_ext_subj_idfr_idx", true, ExternalSubject.COLUMN_IDENTIFIER);
       
     }
     
@@ -7043,14 +7043,14 @@ public enum GrouperDdl implements DdlVersionable {
           "grouper_extsubjattr_cxtid_idx", false, ExternalSubjectAttribute.COLUMN_CONTEXT_ID);
       
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, externalSubjectAttributeTable.getName(), 
-          "grouper_extsubjattr_subj_idx", false, ExternalSubjectAttribute.COLUMN_SUBJECT_UUID, ExternalSubjectAttribute.COLUMN_ATTRIBUTE_SYSTEM_NAME);
+          "grouper_extsubjattr_subj_idx", true, ExternalSubjectAttribute.COLUMN_SUBJECT_UUID, ExternalSubjectAttribute.COLUMN_ATTRIBUTE_SYSTEM_NAME);
       
       //see if we have a custom script here, do this since some versions of mysql cant handle indexes on columns that large
-      String scriptOverride = ddlVersionBean.isSmallIndexes() ? "\nCREATE INDEX grouper_extsubjattr_subj_idx " +
+      String scriptOverride = ddlVersionBean.isSmallIndexes() ? "\nCREATE INDEX grouper_extsubjattr_value_idx " +
           "ON grouper_ext_subj_attr(attribute_value(255));\n" : null;
       
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, ddlVersionBean, externalSubjectAttributeTable.getName(), 
-          "grouper_extsubjattr_subj_idx", scriptOverride, false, ExternalSubjectAttribute.COLUMN_ATTRIBUTE_VALUE);
+          "grouper_extsubjattr_value_idx", scriptOverride, false, ExternalSubjectAttribute.COLUMN_ATTRIBUTE_VALUE);
 
       
     }

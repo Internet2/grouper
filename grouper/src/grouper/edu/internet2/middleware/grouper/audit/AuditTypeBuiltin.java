@@ -329,6 +329,39 @@ public enum AuditTypeBuiltin implements AuditTypeIdentifier {
       "id", "ownerAttributeAssignId", "attributeDefNameName", "attributeDefNameId", "action", "attributeDefId")),
 
   /**
+   * externalSubject add
+   */
+  EXTERNAL_SUBJECT_ADD(new AuditType("externalSubject", "addExternalSubject", null, "id", "name", "identifier")),
+  
+  /**
+   * externalSubject update
+   */
+  EXTERNAL_SUBJECT_UPDATE(new AuditType("externalSubject", "updateExternalSubject", null, "id", "name", "identifier")),
+  
+  /**
+   * externalSubject delete
+   */
+  EXTERNAL_SUBJECT_DELETE(new AuditType("externalSubject", "deleteExternalSubject", null, "id", "name", "identifier")),
+  
+      
+  /**
+   * externalSubjectAttribute add
+   */
+  EXTERNAL_SUBJ_ATTR_ADD(new AuditType("externalSubjectAttribute", "addExternalSubjAttr", null, "id", "identifier", "name", "value")),
+  
+  /**
+   * externalSubjectAttribute update
+   */
+  EXTERNAL_SUBJ_ATTR_UPDATE(new AuditType("externalSubjectAttribute", "updateExternalSubjAttr", null, "id", "identifier", "name", "value")),
+  
+  /**
+   * externalSubjectAttribute delete
+   */
+  EXTERNAL_SUBJ_ATTR_DELETE(new AuditType("externalSubjectAttribute", "deleteExternalSubjAttr", null, "id", "identifier", "name", "value")),
+  
+      
+      
+  /**
    * add group
    */
   GROUP_ADD(new AuditType("group", "addGroup", null, "id", "name", "parentStemId", 

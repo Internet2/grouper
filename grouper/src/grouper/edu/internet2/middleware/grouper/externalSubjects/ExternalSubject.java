@@ -10,11 +10,14 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperAPI;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.audit.AuditEntry;
+import edu.internet2.middleware.grouper.audit.AuditTypeBuiltin;
 import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
+import edu.internet2.middleware.grouper.hibernate.HibUtilsMapping;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
@@ -575,14 +578,10 @@ public class ExternalSubject extends GrouperAPI implements GrouperHasContext,
    */
   public void store() {    
     
-    Subject currentSubject = GrouperSession.staticGrouperSession().getSubject();
-    
-    if (!subjectCanEditExternalUser(currentSubject)) {
-      throw new RuntimeException("Subject cannot edit external users (per grouper.properties): " + GrouperUtil.subjectToString(currentSubject));
-    }
+    assertCurrentUserCanEditExternalUsers();
     
     HibernateSession.callbackHibernateSession(
-      GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT,
+      GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT,
       new HibernateHandler() {
 
         public Object callback(HibernateHandlerBean hibernateHandlerBean)
@@ -590,12 +589,180 @@ public class ExternalSubject extends GrouperAPI implements GrouperHasContext,
   
           hibernateHandlerBean.getHibernateSession().setCachingEnabled(false);
 
+          boolean isInsert = HibUtilsMapping.isInsert(ExternalSubject.this);
+          
           GrouperDAOFactory.getFactory().getExternalSubject().saveOrUpdate( ExternalSubject.this );
             
+          if (!hibernateHandlerBean.isCallerWillCreateAudit()) {
+            AuditEntry auditEntry = null;
+            
+            if (isInsert) {
+              auditEntry = new AuditEntry(AuditTypeBuiltin.EXTERNAL_SUBJECT_ADD, "id", 
+                  ExternalSubject.this.getUuid(), "name", ExternalSubject.this.getName(), "identifier", ExternalSubject.this.getIdentifier());
+              auditEntry.setDescription("Added external subject: " + ExternalSubject.this.getDescription());
+            } else {
+              auditEntry = new AuditEntry(AuditTypeBuiltin.EXTERNAL_SUBJECT_UPDATE, "id", 
+                  ExternalSubject.this.getUuid(), "name", ExternalSubject.this.getName(), "identifier", ExternalSubject.this.getIdentifier());
+              auditEntry.setDescription("Updated external subject: " + ExternalSubject.this.getDescription());
+              
+            }
+            auditEntry.saveOrUpdate(true);
+          }
+
           return null;
         }
       });
     
   }
 
+
+  /**
+   * delete this object from the DB.
+   */
+  public void delete() {    
+    
+    assertCurrentUserCanEditExternalUsers();
+    
+    HibernateSession.callbackHibernateSession(
+      GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT,
+      new HibernateHandler() {
+  
+        public Object callback(HibernateHandlerBean hibernateHandlerBean)
+            throws GrouperDAOException {
+  
+          hibernateHandlerBean.getHibernateSession().setCachingEnabled(false);
+  
+          GrouperDAOFactory.getFactory().getExternalSubject().delete( ExternalSubject.this );
+            
+          if (!hibernateHandlerBean.isCallerWillCreateAudit()) {
+            AuditEntry auditEntry = null;
+            
+            auditEntry = new AuditEntry(AuditTypeBuiltin.EXTERNAL_SUBJECT_DELETE, "id", 
+                ExternalSubject.this.getUuid(), "name", ExternalSubject.this.getName(), "identifier", ExternalSubject.this.getIdentifier());
+            auditEntry.setDescription("Deleted external subject: " + ExternalSubject.this.getDescription());
+            auditEntry.saveOrUpdate(true);
+          }
+  
+          return null;
+        }
+      });
+    
+  }
+
+  /**
+   * assign an attribute to this subject, change value if already exists, add if not
+   * @param attributeName
+   * @param attributeValue
+   * @return true if changed anything, false if not
+   */
+  public boolean assignAttribute(String attributeName, String attributeValue) {
+    assertCurrentUserCanEditExternalUsers();
+    
+    //TODO make sure valid attribute name
+    
+    ExternalSubjectAttribute externalSubjectAttribute = this.retrieveAttribute(attributeName, false);
+    if (externalSubjectAttribute == null) {
+      externalSubjectAttribute = new ExternalSubjectAttribute();
+      externalSubjectAttribute.setAttributeSystemName(attributeName);
+      externalSubjectAttribute.setAttributeValue(attributeValue);
+      externalSubjectAttribute.setSubjectUuid(this.getUuid());
+      externalSubjectAttribute.store(this);
+      return true;
+    }
+
+    if (!StringUtils.equals(externalSubjectAttribute.getAttributeValue(), attributeValue)) {
+      externalSubjectAttribute.setAttributeValue(attributeValue);
+      externalSubjectAttribute.store(this);
+      return true;
+    }
+    
+    //didnt change
+    return false;
+  }
+  
+  /**
+   * get all attributes for this subject
+   * @return the attributes
+   */
+  public Set<ExternalSubjectAttribute> retrieveAttributes() {
+    return GrouperDAOFactory.getFactory().getExternalSubjectAttribute().findBySubject(this.getUuid(), null);
+  }
+  
+  /**
+   * get an attributes for this subject
+   * @param attributeName
+   * @param exceptionIfNotFound 
+   * @return the attributes
+   */
+  public ExternalSubjectAttribute retrieveAttribute(String attributeName, boolean exceptionIfNotFound) {
+    
+    assertCurrentUserCanEditExternalUsers();
+    
+    Set<ExternalSubjectAttribute> externalSubjectAttributes = this.retrieveAttributes();
+    for (ExternalSubjectAttribute externalSubjectAttribute : GrouperUtil.nonNull(externalSubjectAttributes)) {
+      if (StringUtils.equals(attributeName, externalSubjectAttribute.getAttributeSystemName())) {
+        return externalSubjectAttribute;
+      }
+    }
+    if (exceptionIfNotFound) {
+      throw new RuntimeException("Cant find attribute: " + attributeName + " for subject: " + this);
+    }
+    return null;
+  }
+  
+  /**
+   * @see java.lang.Object#toString()
+   */
+  @Override
+  public String toString() {
+    StringBuilder result = new StringBuilder();
+    try {
+      if (this.uuid != null) {
+        result.append("uuid: ").append(this.uuid).append(", ");
+      }
+      if (this.identifier != null) {
+        result.append("identifier: ").append(this.identifier).append(", ");
+      }
+      if (this.name != null) {
+        result.append("name: ").append(this.name).append(", ");
+      }
+      if (this.description != null) {
+        result.append("description: ").append(this.description).append(", ");
+      }
+    } catch (Exception e) {
+      //ignore, we did the best we could
+    }
+    return result.toString();
+  }
+
+  
+  /**
+   * remove an attribute
+   * @param attributeName
+   * @return true if did anything
+   */
+  public boolean removeAttribute(String attributeName) {
+    
+    assertCurrentUserCanEditExternalUsers();
+
+    ExternalSubjectAttribute externalSubjectAttribute = this.retrieveAttribute(attributeName, false);
+    if (externalSubjectAttribute == null) {
+      return false;
+    }
+    externalSubjectAttribute.delete(this);
+    return true;
+  }
+
+
+  /**
+   * make sure security is ok
+   */
+  private void assertCurrentUserCanEditExternalUsers() {
+    Subject currentSubject = GrouperSession.staticGrouperSession().getSubject();
+
+    if (!subjectCanEditExternalUser(currentSubject)) {
+      throw new RuntimeException("Subject cannot edit external users (per grouper.properties): " + GrouperUtil.subjectToString(currentSubject));
+    }
+  }
+  
 }
