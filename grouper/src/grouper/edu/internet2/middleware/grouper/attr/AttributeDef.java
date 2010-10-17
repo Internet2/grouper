@@ -1754,7 +1754,8 @@ public class AttributeDef extends GrouperAPI implements GrouperHasContext,
         ChangeLogLabels.ATTRIBUTE_DEF_DELETE.id.name(), this.getUuid(), 
         ChangeLogLabels.ATTRIBUTE_DEF_DELETE.name.name(), this.getName(), 
         ChangeLogLabels.ATTRIBUTE_DEF_DELETE.stemId.name(), this.getStemId(),
-        ChangeLogLabels.ATTRIBUTE_DEF_DELETE.description.name(), this.getDescription()).save();
+        ChangeLogLabels.ATTRIBUTE_DEF_DELETE.description.name(), this.getDescription(),
+        ChangeLogLabels.ATTRIBUTE_DEF_DELETE.attributeDefType.name(), this.getAttributeDefTypeDb()).save();
 
     GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.ATTRIBUTE_DEF, 
         AttributeDefHooks.METHOD_ATTRIBUTE_DEF_PRE_DELETE, HooksAttributeDefBean.class, 
@@ -1781,7 +1782,8 @@ public class AttributeDef extends GrouperAPI implements GrouperHasContext,
         ChangeLogLabels.ATTRIBUTE_DEF_ADD.id.name(), this.getUuid(), 
         ChangeLogLabels.ATTRIBUTE_DEF_ADD.name.name(), this.getName(), 
         ChangeLogLabels.ATTRIBUTE_DEF_ADD.stemId.name(), this.getStemId(),
-        ChangeLogLabels.ATTRIBUTE_DEF_ADD.description.name(), this.getDescription()).save();
+        ChangeLogLabels.ATTRIBUTE_DEF_ADD.description.name(), this.getDescription(),
+        ChangeLogLabels.ATTRIBUTE_DEF_ADD.attributeDefType.name(), this.getAttributeDefTypeDb()).save();
 
     GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.ATTRIBUTE_DEF, 
         AttributeDefHooks.METHOD_ATTRIBUTE_DEF_PRE_INSERT, HooksAttributeDefBean.class, 
@@ -1796,6 +1798,15 @@ public class AttributeDef extends GrouperAPI implements GrouperHasContext,
   public void onPreUpdate(HibernateSession hibernateSession) {
     super.onPreUpdate(hibernateSession);
     this.lastUpdatedDb = System.currentTimeMillis();
+    
+    if (this.dbVersionDifferentFields().contains(FIELD_STEM_ID)) {
+      throw new RuntimeException("cannot update stemId");
+    }
+    
+    if (this.dbVersionDifferentFields().contains(FIELD_ATTRIBUTE_DEF_TYPE)) {
+      throw new RuntimeException("cannot update attributeDefType");
+    }
+    
     //change log into temp table
     ChangeLogEntry.saveTempUpdates(ChangeLogTypeBuiltin.ATTRIBUTE_DEF_UPDATE, 
         this, this.dbVersion(),
@@ -1803,12 +1814,12 @@ public class AttributeDef extends GrouperAPI implements GrouperHasContext,
             ChangeLogLabels.ATTRIBUTE_DEF_UPDATE.id.name(),this.getUuid(), 
             ChangeLogLabels.ATTRIBUTE_DEF_UPDATE.name.name(), this.getName(),
             ChangeLogLabels.ATTRIBUTE_DEF_UPDATE.stemId.name(), this.getStemId(),
-            ChangeLogLabels.ATTRIBUTE_DEF_UPDATE.description.name(), this.getDescription()),
-        GrouperUtil.toList(FIELD_NAME, FIELD_DESCRIPTION, FIELD_STEM_ID),
+            ChangeLogLabels.ATTRIBUTE_DEF_UPDATE.description.name(), this.getDescription(),
+            ChangeLogLabels.ATTRIBUTE_DEF_UPDATE.attributeDefType.name(), this.getAttributeDefTypeDb()),
+        GrouperUtil.toList(FIELD_NAME, FIELD_DESCRIPTION),
         GrouperUtil.toList(
             ChangeLogLabels.ATTRIBUTE_DEF_UPDATE.name.name(),
-            ChangeLogLabels.ATTRIBUTE_DEF_UPDATE.description.name(),
-            ChangeLogLabels.ATTRIBUTE_DEF_UPDATE.stemId.name()));   
+            ChangeLogLabels.ATTRIBUTE_DEF_UPDATE.description.name()));   
 
     GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.ATTRIBUTE_DEF, 
         AttributeDefHooks.METHOD_ATTRIBUTE_DEF_PRE_UPDATE, HooksAttributeDefBean.class, 

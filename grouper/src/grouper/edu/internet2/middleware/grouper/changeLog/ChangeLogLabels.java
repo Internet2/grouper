@@ -221,7 +221,10 @@ public class ChangeLogLabels {
     stemId,
     
     /** description */
-    description;
+    description,
+    
+    /** attributeDefType */
+    attributeDefType;
   }
 
   /** labels for a attribute def update */
@@ -238,6 +241,9 @@ public class ChangeLogLabels {
     
     /** description */
     description,
+    
+    /** attributeDefType */
+    attributeDefType,
     
     /** property which changed */
     propertyChanged, 
@@ -264,7 +270,10 @@ public class ChangeLogLabels {
     stemId,
     
     /** description */
-    description;
+    description,
+    
+    /** attributeDefType */
+    attributeDefType;
   };
   
   /**
@@ -973,5 +982,59 @@ public class ChangeLogLabels {
     
     /** ownerId2 - if the assignType is any_mem, then ownerId1 is the groupId and ownerId2 is the memberId */
     ownerId2;
+  }
+  
+  /**
+   * label for permission add
+   */
+  public static enum PERMISSION_ADD implements ChangeLogLabel {
+  
+    /** attributeDefNameName */
+    attributeDefNameName,
+    
+    /** attributeDefNameId */
+    attributeDefNameId,
+    
+    /** action */
+    action,
+    
+    /** actionId */    
+    actionId,
+    
+    /** subjectId */
+    subjectId,
+    
+    /** subjectSourceId */
+    subjectSourceId,
+    
+    /** memberId */
+    memberId;
+  }
+  
+  /**
+   * label for permission delete
+   */
+  public static enum PERMISSION_DELETE implements ChangeLogLabel {
+  
+    /** attributeDefNameName */
+    attributeDefNameName,
+    
+    /** attributeDefNameId */
+    attributeDefNameId,
+    
+    /** action */
+    action,
+    
+    /** actionId */    
+    actionId,
+    
+    /** subjectId */
+    subjectId,
+    
+    /** subjectSourceId */
+    subjectSourceId,
+    
+    /** memberId */
+    memberId;
   }
 }

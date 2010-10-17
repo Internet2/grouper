@@ -2193,6 +2193,10 @@ public enum GrouperDdl implements DdlVersionable {
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_perms_all_v");
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_perms_role_v");
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_perms_role_subject_v");
+
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_pit_perms_all_v");
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_pit_perms_role_v");
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_pit_perms_role_subj_v");
     
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_roles_v");
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_memberships_v");
@@ -5362,19 +5366,21 @@ public enum GrouperDdl implements DdlVersionable {
         + "grouper_members gm,  "
         + "grouper_fields gf,  "
         + "grouper_role_set grs,  "
+        + "grouper_attribute_def gad,  "
         + "grouper_attribute_assign gaa,  "
         + "grouper_attribute_def_name gadn,  "
         + "grouper_attribute_def_name_set gadns, "
         + "grouper_attr_assign_action gaaa, "
         + "grouper_attr_assign_action_set gaaas "
-        + "where gr.type_of_group = 'role'  "
-        + "and gmav.owner_group_id = gr.id  "
+        + "where gmav.owner_group_id = gr.id  "
         + "and gmav.field_id = gf.id  "
         + "and gf.type = 'list'  "
         + "and gf.name = 'members'  "
         + "and gmav.immediate_mship_enabled = 'T'  "
         + "and gmav.member_id = gm.id  "
         + "and grs.if_has_role_id = gr.id  "
+        + "and gadn.attribute_def_id = gad.id  "
+        + "and gad.attribute_def_type = 'perm'  "
         + "and gaa.owner_group_id = grs.then_has_role_id  "
         + "and gaa.attribute_def_name_id = gadns.if_has_attribute_def_name_id  "
         + "and gadn.id = gadns.then_has_attribute_def_name_id  "
@@ -5472,13 +5478,13 @@ public enum GrouperDdl implements DdlVersionable {
         "grouper_memberships_all_v gmav,   " +
         "grouper_members gm,   " +
         "grouper_fields gf,   " +
+        "grouper_attribute_def gad,  " +
         "grouper_attribute_assign gaa,   " +
         "grouper_attribute_def_name gadn,   " +
         "grouper_attribute_def_name_set gadns,   " +
         "grouper_attr_assign_action gaaa,  " +
         "grouper_attr_assign_action_set gaaas  " +
-        "WHERE gr.type_of_group = 'role'   " +
-        "and gmav.owner_group_id = gr.id  " +
+        "WHERE gmav.owner_group_id = gr.id  " +
         "and gmav.field_id = gf.id  " +
         "and gmav.owner_group_id = gaa.owner_group_id  " +
         "AND gmav.member_id = gaa.owner_member_id   " +
@@ -5486,6 +5492,8 @@ public enum GrouperDdl implements DdlVersionable {
         "AND gf.name = 'members'   " +
         "AND gmav.immediate_mship_enabled = 'T'   " +
         "AND gmav.member_id = gm.id   " +
+        "AND gadn.attribute_def_id = gad.id  " + 
+        "AND gad.attribute_def_type = 'perm'  " + 
         "AND gaa.attribute_assign_type = 'any_mem'  " +
         "AND gaa.attribute_def_name_id = gadns.if_has_attribute_def_name_id   " +
         "AND gadn.id = gadns.then_has_attribute_def_name_id  " +
@@ -5605,6 +5613,472 @@ public enum GrouperDdl implements DdlVersionable {
         + "immediate_mship_disabled_time "
         + "from grouper_perms_role_subject_v  ");
 
+
+    
+    GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_pit_perms_role_v", 
+        "grouper_pit_perms_role_v: shows all permissions assigned to users due to the users being in a role, and the role being assigned the permission",
+        GrouperUtil.toSet("role_name", 
+            "subject_source_id", 
+            "subject_id",
+            "action", 
+            "attribute_def_name_name",
+            "role_id",
+            "attribute_def_id",
+            "member_id", 
+            "attribute_def_name_id",
+            "action_id",
+            "membership_depth",
+            "role_set_depth",
+            "attr_def_name_set_depth",
+            "attr_assign_action_set_depth",
+            "membership_id",
+            "group_set_id", 
+            "role_set_id",
+            "attribute_def_name_set_id",
+            "action_set_id",
+            "attribute_assign_id",
+            "permission_type",
+            "group_set_active", 
+            "group_set_start_time", 
+            "group_set_end_time", 
+            "membership_active", 
+            "membership_start_time", 
+            "membership_end_time",
+            "role_set_active",
+            "role_set_start_time",
+            "role_set_end_time",
+            "action_set_active",
+            "action_set_start_time",
+            "action_set_end_time",
+            "attr_def_name_set_active",
+            "attr_def_name_set_start_time",
+            "attr_def_name_set_end_time",
+            "attribute_assign_active",
+            "attribute_assign_start_time",
+            "attribute_assign_end_time"
+            ),
+        GrouperUtil.toSet("role_name: name of the role that the user is in and that has the permission",
+            "subject_source_id: source id of the subject which is in the role and thus has the permission",
+            "subject_id: subject id of the subject which is in the role and thus has the permission",
+            "action: the action associated with the attribute assignment (default is assign)",
+            "attribute_def_name_name: name of the attribute definition name which is assigned to the group",
+            "role_id: id of role the subject is in, and that the permissions are assigned to",
+            "attribute_def_id: id of the attribute definition",
+            "member_id: id of the subject in the members table",
+            "attribute_def_name_id: id of the attribute definition name",
+            "action_id: id of the attribute assign action",
+            "membership_depth: depth of membership, 0 is immediate",
+            "role_set_depth: depth of role hierarchy, 0 is immediate",
+            "attr_def_name_set_depth: depth of attribute def name set hierarchy, 0 is immediate",
+            "attr_assign_action_set_depth: depth of action hierarchy, 0 is immediate",
+            "membership_id: id of the immediate or composite membership in grouper_pit_memberships", 
+            "group_set_id: id of the group set", 
+            "role_set_id: id of the role set",
+            "attribute_def_name_set_id: id of the attribute def name set",
+            "action_set_id: id of the action set",
+            "attribute_assign_id: id of the underlying attribute assign",
+            "permission_type: role or role_subject for assignment to role or to role subject pair",
+            "group_set_active: whether the group set is currently active", 
+            "group_set_start_time: start time of group set", 
+            "group_set_end_time: end time of group set", 
+            "membership_active: whether the membership is currently active", 
+            "membership_start_time: start time of membership", 
+            "membership_end_time: end time of membership",
+            "role_set_active: whether the role set is currently active",
+            "role_set_start_time: start time of role set",
+            "role_set_end_time: end time of role set",
+            "action_set_active: whether the action set is currently active",
+            "action_set_start_time: start time of action set",
+            "action_set_end_time: end time of action set",
+            "attr_def_name_set_active: whether the attribute def name set is currently active",
+            "attr_def_name_set_start_time: start time of attribute def name set",
+            "attr_def_name_set_end_time: end time of attribute def name set",
+            "attribute_assign_active: whether the attribute assign is currently active",
+            "attribute_assign_start_time: start time of attribute assign",
+            "attribute_assign_end_time: end time of attribute assign"
+        ),
+        "select distinct gr.name as role_name,  "
+        + "gm.subject_source as subject_source_id,  "
+        + "gm.subject_id,  "
+        + "gaaa.name as action, "
+        + "gadn.name as attribute_def_name_name,  "
+        + "gr.id as role_id,  "
+        + "gadn.attribute_def_id,  "
+        + "gm.id as member_id,  "
+        + "gadn.id as attribute_def_name_id,  "
+        + "gaaa.id as action_id, "
+        + "gmav.depth AS membership_depth, "
+        + "grs.depth AS role_set_depth, "
+        + "gadns.depth AS attr_def_name_set_depth, "
+        + "gaaas.depth AS attr_assign_action_set_depth, "
+        + "gmav.membership_id as membership_id, " 
+        + "gmav.group_set_id as group_set_id, "
+        + "grs.id as role_set_id, "
+        + "gadns.id as attribute_def_name_set_id, "
+        + "gaaas.id as action_set_id, "
+        + "gaa.id AS attribute_assign_id, "
+        + "'role' as permission_type, "        
+        + "gmav.group_set_active, "
+        + "gmav.group_set_start_time, "
+        + "gmav.group_set_end_time, "
+        + "gmav.membership_active, "
+        + "gmav.membership_start_time, "
+        + "gmav.membership_end_time, "        
+        + "grs.active as role_set_active, "
+        + "grs.start_time as role_set_start_time, "
+        + "grs.end_time as role_set_end_time, "
+        + "gaaas.active as action_set_active, "
+        + "gaaas.start_time as action_set_start_time, "
+        + "gaaas.end_time as action_set_end_time, "
+        + "gadns.active as attr_def_name_set_active, "
+        + "gadns.start_time as attr_def_name_set_start_time, "
+        + "gadns.end_time as attr_def_name_set_end_time, "
+        + "gaa.active as attribute_assign_active, "
+        + "gaa.start_time as attribute_assign_start_time, "
+        + "gaa.end_time as attribute_assign_end_time "
+        + "from grouper_pit_groups gr,  "
+        + "grouper_pit_memberships_all_v gmav,  "
+        + "grouper_pit_members gm,  "
+        + "grouper_pit_fields gf,  "
+        + "grouper_pit_role_set grs,  "
+        + "grouper_pit_attribute_def gad,  "
+        + "grouper_pit_attribute_assign gaa,  "
+        + "grouper_pit_attr_def_name gadn,  "
+        + "grouper_pit_attr_def_name_set gadns, "
+        + "grouper_pit_attr_assn_actn gaaa, "
+        + "grouper_pit_attr_assn_actn_set gaaas "
+        + "where gmav.owner_group_id = gr.id  "
+        + "and gmav.field_id = gf.id  "
+        + "and gf.type = 'list'  "
+        + "and gf.name = 'members'  "
+        + "and gmav.member_id = gm.id  "
+        + "and grs.if_has_role_id = gr.id  "
+        + "and gadn.attribute_def_id = gad.id  "
+        + "and gad.attribute_def_type = 'perm'  "
+        + "and gaa.owner_group_id = grs.then_has_role_id  "
+        + "and gaa.attribute_def_name_id = gadns.if_has_attribute_def_name_id  "
+        + "and gadn.id = gadns.then_has_attribute_def_name_id  "
+        + "and gaa.attribute_assign_type = 'group' "
+        + "and gaa.attribute_assign_action_id = gaaas.if_has_attr_assn_action_id "
+        + "and gaaa.id = gaaas.then_has_attr_assn_action_id ");
+
+    
+
+    
+
+    GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_pit_perms_role_subj_v", 
+        "grouper_pit_perms_role_subj_v: shows all permissions assigned to users directly while in a role",
+        GrouperUtil.toSet("role_name", 
+            "subject_source_id", 
+            "subject_id",
+            "action", 
+            "attribute_def_name_name",
+            "role_id",
+            "attribute_def_id",
+            "member_id", 
+            "attribute_def_name_id",
+            "action_id",
+            "membership_depth",
+            "role_set_depth",
+            "attr_def_name_set_depth",
+            "attr_assign_action_set_depth",
+            "membership_id",
+            "group_set_id", 
+            "role_set_id",
+            "attribute_def_name_set_id",
+            "action_set_id",
+            "attribute_assign_id",
+            "permission_type",
+            "group_set_active", 
+            "group_set_start_time", 
+            "group_set_end_time", 
+            "membership_active", 
+            "membership_start_time", 
+            "membership_end_time",
+            "role_set_active",
+            "role_set_start_time",
+            "role_set_end_time",
+            "action_set_active",
+            "action_set_start_time",
+            "action_set_end_time",
+            "attr_def_name_set_active",
+            "attr_def_name_set_start_time",
+            "attr_def_name_set_end_time",
+            "attribute_assign_active",
+            "attribute_assign_start_time",
+            "attribute_assign_end_time"
+            ),
+        GrouperUtil.toSet("role_name: name of the role that the user is in and that has the permission",
+            "subject_source_id: source id of the subject which is in the role and thus has the permission",
+            "subject_id: subject id of the subject which is in the role and thus has the permission",
+            "action: the action associated with the attribute assignment (default is assign)",
+            "attribute_def_name_name: name of the attribute definition name which is assigned to the group",
+            "role_id: id of role the subject is in, and that the permissions are assigned to",
+            "attribute_def_id: id of the attribute definition",
+            "member_id: id of the subject in the members table",
+            "attribute_def_name_id: id of the attribute definition name",
+            "action_id: id of the attribute assign action",
+            "membership_depth: depth of membership, 0 is immediate",
+            "role_set_depth: depth of role hierarchy, 0 is immediate",
+            "attr_def_name_set_depth: depth of attribute def name set hierarchy, 0 is immediate",
+            "attr_assign_action_set_depth: depth of action hierarchy, 0 is immediate",
+            "membership_id: id of the immediate or composite membership in grouper_pit_memberships", 
+            "group_set_id: id of the group set", 
+            "role_set_id: id of the role set",
+            "attribute_def_name_set_id: id of the attribute def name set",
+            "action_set_id: id of the action set",
+            "attribute_assign_id: id of the underlying attribute assign",
+            "permission_type: role or role_subject for assignment to role or to role subject pair",
+            "group_set_active: whether the group set is currently active", 
+            "group_set_start_time: start time of group set", 
+            "group_set_end_time: end time of group set", 
+            "membership_active: whether the membership is currently active", 
+            "membership_start_time: start time of membership", 
+            "membership_end_time: end time of membership",
+            "role_set_active: whether the role set is currently active",
+            "role_set_start_time: start time of role set",
+            "role_set_end_time: end time of role set",
+            "action_set_active: whether the action set is currently active",
+            "action_set_start_time: start time of action set",
+            "action_set_end_time: end time of action set",
+            "attr_def_name_set_active: whether the attribute def name set is currently active",
+            "attr_def_name_set_start_time: start time of attribute def name set",
+            "attr_def_name_set_end_time: end time of attribute def name set",
+            "attribute_assign_active: whether the attribute assign is currently active",
+            "attribute_assign_start_time: start time of attribute assign",
+            "attribute_assign_end_time: end time of attribute assign"
+        ),
+        "SELECT DISTINCT gr.name AS role_name,   " +
+        "gm.subject_source AS subject_source_id,   " +
+        "gm.subject_id,   " +
+        "gaaa.name AS ACTION,  " +
+        "gadn.name AS attribute_def_name_name,   " +
+        "gr.id AS role_id,   " +
+        "gadn.attribute_def_id,   " +
+        "gm.id AS member_id,   " +
+        "gadn.id AS attribute_def_name_id,   " +
+        "gaaa.id AS action_id, " +
+        "gmav.depth AS membership_depth, " +
+        "-1 AS role_set_depth, " +
+        "gadns.depth AS attr_def_name_set_depth, " +
+        "gaaas.depth AS attr_assign_action_set_depth, " +
+        "gmav.membership_id as membership_id, " +
+        "gmav.group_set_id as group_set_id, " +
+        "grs.id as role_set_id, " +
+        "gadns.id as attribute_def_name_set_id, " +
+        "gaaas.id as action_set_id, " +
+        "gaa.id as attribute_assign_id, " +
+        "'role_subject' as permission_type, " +
+        "gmav.group_set_active, " +
+        "gmav.group_set_start_time, " +
+        "gmav.group_set_end_time, " +
+        "gmav.membership_active, " +
+        "gmav.membership_start_time, " +
+        "gmav.membership_end_time, " +    
+        "grs.active as role_set_active, " +
+        "grs.start_time as role_set_start_time, " +
+        "grs.end_time as role_set_end_time, " +
+        "gaaas.active as action_set_active, " +
+        "gaaas.start_time as action_set_start_time, " +
+        "gaaas.end_time as action_set_end_time, " +
+        "gadns.active as attr_def_name_set_active, " +
+        "gadns.start_time as attr_def_name_set_start_time, " +
+        "gadns.end_time as attr_def_name_set_end_time, " +
+        "gaa.active as attribute_assign_active, " +
+        "gaa.start_time as attribute_assign_start_time, " +
+        "gaa.end_time as attribute_assign_end_time " +
+        "FROM grouper_pit_groups gr,   " +
+        "grouper_pit_memberships_all_v gmav,   " +
+        "grouper_pit_members gm,   " +
+        "grouper_pit_fields gf,   " +
+        "grouper_pit_role_set grs,  " +
+        "grouper_pit_attribute_def gad,  " +
+        "grouper_pit_attribute_assign gaa,   " +
+        "grouper_pit_attr_def_name gadn,   " +
+        "grouper_pit_attr_def_name_set gadns,   " +
+        "grouper_pit_attr_assn_actn gaaa,  " +
+        "grouper_pit_attr_assn_actn_set gaaas  " +
+        "WHERE gmav.owner_group_id = gr.id  " +
+        "and gmav.field_id = gf.id  " +
+        "and gmav.owner_group_id = gaa.owner_group_id  " +
+        "AND gmav.member_id = gaa.owner_member_id   " +
+        "AND gf.type = 'list'   " +
+        "AND gf.name = 'members'   " +
+        "AND gmav.member_id = gm.id   " +
+        "AND gadn.attribute_def_id = gad.id  " + 
+        "AND gad.attribute_def_type = 'perm'  " + 
+        "AND gaa.attribute_assign_type = 'any_mem'  " +
+        "AND gaa.attribute_def_name_id = gadns.if_has_attribute_def_name_id   " +
+        "AND gadn.id = gadns.then_has_attribute_def_name_id  " +
+        "AND gaa.attribute_assign_action_id = gaaas.if_has_attr_assn_action_id  " +
+        "AND gaaa.id = gaaas.then_has_attr_assn_action_id  " +
+        "AND grs.if_has_role_id = gr.id and grs.depth='0'  ");
+
+    
+    GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_pit_perms_all_v", 
+        "grouper_pit_perms_all_v: shows all permissions assigned to users directly while in a role, or assigned to roles (and users in the role)",
+        GrouperUtil.toSet("role_name", 
+            "subject_source_id", 
+            "subject_id",
+            "action", 
+            "attribute_def_name_name",
+            "role_id",
+            "attribute_def_id",
+            "member_id", 
+            "attribute_def_name_id",
+            "action_id",
+            "membership_depth",
+            "role_set_depth",
+            "attr_def_name_set_depth",
+            "attr_assign_action_set_depth",
+            "membership_id",
+            "group_set_id", 
+            "role_set_id",
+            "attribute_def_name_set_id",
+            "action_set_id",
+            "attribute_assign_id",
+            "permission_type",
+            "group_set_active", 
+            "group_set_start_time", 
+            "group_set_end_time", 
+            "membership_active", 
+            "membership_start_time", 
+            "membership_end_time",
+            "role_set_active",
+            "role_set_start_time",
+            "role_set_end_time",
+            "action_set_active",
+            "action_set_start_time",
+            "action_set_end_time",
+            "attr_def_name_set_active",
+            "attr_def_name_set_start_time",
+            "attr_def_name_set_end_time",
+            "attribute_assign_active",
+            "attribute_assign_start_time",
+            "attribute_assign_end_time"
+            ),
+        GrouperUtil.toSet("role_name: name of the role that the user is in and that has the permission",
+            "subject_source_id: source id of the subject which is in the role and thus has the permission",
+            "subject_id: subject id of the subject which is in the role and thus has the permission",
+            "action: the action associated with the attribute assignment (default is assign)",
+            "attribute_def_name_name: name of the attribute definition name which is assigned to the group",
+            "role_id: id of role the subject is in, and that the permissions are assigned to",
+            "attribute_def_id: id of the attribute definition",
+            "member_id: id of the subject in the members table",
+            "attribute_def_name_id: id of the attribute definition name",
+            "action_id: id of the attribute assign action",
+            "membership_depth: depth of membership, 0 is immediate",
+            "role_set_depth: depth of role hierarchy, 0 is immediate",
+            "attr_def_name_set_depth: depth of attribute def name set hierarchy, 0 is immediate",
+            "attr_assign_action_set_depth: depth of action hierarchy, 0 is immediate",
+            "membership_id: id of the immediate or composite membership in grouper_pit_memberships", 
+            "group_set_id: id of the group set", 
+            "role_set_id: id of the role set",
+            "attribute_def_name_set_id: id of the attribute def name set",
+            "action_set_id: id of the action set",
+            "attribute_assign_id: id of the underlying attribute assign",
+            "permission_type: role or role_subject for assignment to role or to role subject pair",
+            "group_set_active: whether the group set is currently active", 
+            "group_set_start_time: start time of group set", 
+            "group_set_end_time: end time of group set", 
+            "membership_active: whether the membership is currently active", 
+            "membership_start_time: start time of membership", 
+            "membership_end_time: end time of membership",
+            "role_set_active: whether the role set is currently active",
+            "role_set_start_time: start time of role set",
+            "role_set_end_time: end time of role set",
+            "action_set_active: whether the action set is currently active",
+            "action_set_start_time: start time of action set",
+            "action_set_end_time: end time of action set",
+            "attr_def_name_set_active: whether the attribute def name set is currently active",
+            "attr_def_name_set_start_time: start time of attribute def name set",
+            "attr_def_name_set_end_time: end time of attribute def name set",
+            "attribute_assign_active: whether the attribute assign is currently active",
+            "attribute_assign_start_time: start time of attribute assign",
+            "attribute_assign_end_time: end time of attribute assign"
+        ),
+        "select role_name,  "
+        + "subject_source_id,  "
+        + "subject_id,  "
+        + "action,  "
+        + "attribute_def_name_name,  "
+        + "role_id,  "
+        + "attribute_def_id,  "
+        + "member_id,  "
+        + "attribute_def_name_id,  "
+        + "action_id, "
+        + "membership_depth, "
+        + "role_set_depth, "
+        + "attr_def_name_set_depth, "
+        + "attr_assign_action_set_depth, "
+        + "membership_id, "
+        + "group_set_id, "
+        + "role_set_id, "
+        + "attribute_def_name_set_id, "
+        + "action_set_id, "
+        + "attribute_assign_id, "
+        + "permission_type, "
+        + "group_set_active, "
+        + "group_set_start_time, "
+        + "group_set_end_time, "
+        + "membership_active, "
+        + "membership_start_time, "
+        + "membership_end_time, "
+        + "role_set_active, "
+        + "role_set_start_time, "
+        + "role_set_end_time, "
+        + "action_set_active, "
+        + "action_set_start_time, "
+        + "action_set_end_time, "
+        + "attr_def_name_set_active, "
+        + "attr_def_name_set_start_time, "
+        + "attr_def_name_set_end_time, "
+        + "attribute_assign_active, "
+        + "attribute_assign_start_time, "
+        + "attribute_assign_end_time "
+        + "from grouper_pit_perms_role_v  "
+        + "union  "
+        + "select role_name,  "
+        + "subject_source_id,  "
+        + "subject_id,  "
+        + "action,  "
+        + "attribute_def_name_name,  "
+        + "role_id,  "
+        + "attribute_def_id,  "
+        + "member_id,  "
+        + "attribute_def_name_id,  "
+        + "action_id, "
+        + "membership_depth, "
+        + "role_set_depth, "
+        + "attr_def_name_set_depth, "
+        + "attr_assign_action_set_depth, "
+        + "membership_id, "
+        + "group_set_id, "
+        + "role_set_id, "
+        + "attribute_def_name_set_id, "
+        + "action_set_id, "
+        + "attribute_assign_id, "
+        + "permission_type, "
+        + "group_set_active, "
+        + "group_set_start_time, "
+        + "group_set_end_time, "
+        + "membership_active, "
+        + "membership_start_time, "
+        + "membership_end_time, "
+        + "role_set_active, "
+        + "role_set_start_time, "
+        + "role_set_end_time, "
+        + "action_set_active, "
+        + "action_set_start_time, "
+        + "action_set_end_time, "
+        + "attr_def_name_set_active, "
+        + "attr_def_name_set_start_time, "
+        + "attr_def_name_set_end_time, "
+        + "attribute_assign_active, "
+        + "attribute_assign_start_time, "
+        + "attribute_assign_end_time "
+        + "from grouper_pit_perms_role_subj_v  ");
+    
   }
 
   /**
@@ -5740,6 +6214,9 @@ public enum GrouperDdl implements DdlVersionable {
   
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeDefTable, PITAttributeDef.COLUMN_NAME, 
           Types.VARCHAR, ddlVersionBean.isSqlServer() ? "900" : "1024", false, true);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeDefTable, PITAttributeDef.COLUMN_ATTRIBUTE_DEF_TYPE,
+          Types.VARCHAR, "32", false, true);
       
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeDefTable, PITAttributeDef.COLUMN_CONTEXT_ID, 
           Types.VARCHAR, "40", false, false);

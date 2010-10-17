@@ -3,6 +3,7 @@ package edu.internet2.middleware.grouper.pit;
 import java.sql.Timestamp;
 
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * @author shilen
@@ -430,11 +431,9 @@ public class PITMembershipView {
       throw new RuntimeException("membershipStartTimeDb and groupSetStartTimeDb should not be null.");
     }
     
-    if (membershipStartTimeDb > groupSetStartTimeDb) {
-      return new Timestamp(membershipStartTimeDb / 1000);
-    }
+    Long startTime = GrouperUtil.getMaxLongValue(membershipStartTimeDb, groupSetStartTimeDb);
     
-    return new Timestamp(groupSetStartTimeDb / 1000);
+    return new Timestamp(startTime / 1000);
   }
   
   /**
@@ -445,18 +444,8 @@ public class PITMembershipView {
       return null;
     }
     
-    if (membershipEndTimeDb == null) {
-      return new Timestamp(groupSetEndTimeDb / 1000);
-    }
-    
-    if (groupSetEndTimeDb == null) {
-      return new Timestamp(membershipEndTimeDb / 1000);
-    }
-    
-    if (membershipEndTimeDb > groupSetEndTimeDb) {
-      return new Timestamp(groupSetEndTimeDb / 1000);
-    }
-    
-    return new Timestamp (membershipEndTimeDb / 1000);
+    Long endTime = GrouperUtil.getMinLongValue(membershipEndTimeDb, groupSetEndTimeDb);
+
+    return new Timestamp(endTime / 1000);
   }
 }

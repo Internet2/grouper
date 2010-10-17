@@ -59,6 +59,7 @@ import edu.internet2.middleware.grouper.internal.dao.PITGroupSetDAO;
 import edu.internet2.middleware.grouper.internal.dao.PITMemberDAO;
 import edu.internet2.middleware.grouper.internal.dao.PITMembershipDAO;
 import edu.internet2.middleware.grouper.internal.dao.PITMembershipViewDAO;
+import edu.internet2.middleware.grouper.internal.dao.PITPermissionAllViewDAO;
 import edu.internet2.middleware.grouper.internal.dao.PITRoleSetDAO;
 import edu.internet2.middleware.grouper.internal.dao.PITStemDAO;
 import edu.internet2.middleware.grouper.internal.dao.PermissionEntryDAO;
@@ -398,6 +399,11 @@ public abstract class GrouperDAOFactory {
    * @return pit attribute def name set dao
    */
   public abstract PITAttributeDefNameSetDAO getPITAttributeDefNameSet();
+  
+  /**
+   * @return pit permission all view dao
+   */
+  public abstract PITPermissionAllViewDAO getPITPermissionAllView();
 
   /**
    * @return external subject 

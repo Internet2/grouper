@@ -10440,4 +10440,45 @@ public class GrouperUtil {
     }
   }
 
+  /**
+   * @param values
+   * @return the max long in the list of args
+   */
+  public static Long getMaxLongValue(Long... values) {
+    if (values == null || values.length == 0) {
+      return null;
+    }
+    
+    Long maxValue = null;
+    for (int i = 0; i < values.length; i++) {
+      if (values[i] != null) {
+        if (maxValue == null || maxValue.compareTo(values[i]) < 0) {
+          maxValue = new Long(values[i]);
+        }
+      }
+    }
+    
+    return maxValue;
+  }
+
+  /**
+   * @param values
+   * @return the min long in the list of args
+   */
+  public static Long getMinLongValue(Long... values) {
+    if (values == null || values.length == 0) {
+      return null;
+    }
+    
+    Long minValue = null;
+    for (int i = 0; i < values.length; i++) {
+      if (values[i] != null) {
+        if (minValue == null || minValue.compareTo(values[i]) > 0) {
+          minValue = new Long(values[i]);
+        }
+      }
+    }
+    
+    return minValue;
+  }
 }

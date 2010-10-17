@@ -220,7 +220,8 @@ public enum ChangeLogTypeBuiltin implements ChangeLogTypeIdentifier {
    */
   ATTRIBUTE_DEF_ADD(new ChangeLogType("attributeDef", "addAttributeDef", 
       ChangeLogLabels.ATTRIBUTE_DEF_ADD.id, ChangeLogLabels.ATTRIBUTE_DEF_ADD.name, 
-      ChangeLogLabels.ATTRIBUTE_DEF_ADD.stemId, ChangeLogLabels.ATTRIBUTE_DEF_ADD.description)),
+      ChangeLogLabels.ATTRIBUTE_DEF_ADD.stemId, ChangeLogLabels.ATTRIBUTE_DEF_ADD.description,
+      ChangeLogLabels.ATTRIBUTE_DEF_ADD.attributeDefType)),
 
   /**
    * attribute def update
@@ -228,6 +229,7 @@ public enum ChangeLogTypeBuiltin implements ChangeLogTypeIdentifier {
   ATTRIBUTE_DEF_UPDATE(new ChangeLogType("attributeDef", "updateAttributeDef", 
       ChangeLogLabels.ATTRIBUTE_DEF_UPDATE.id, ChangeLogLabels.ATTRIBUTE_DEF_UPDATE.name, 
       ChangeLogLabels.ATTRIBUTE_DEF_UPDATE.stemId, ChangeLogLabels.ATTRIBUTE_DEF_UPDATE.description, 
+      ChangeLogLabels.ATTRIBUTE_DEF_UPDATE.attributeDefType, 
       ChangeLogLabels.ATTRIBUTE_DEF_UPDATE.propertyChanged, ChangeLogLabels.ATTRIBUTE_DEF_UPDATE.propertyOldValue, 
       ChangeLogLabels.ATTRIBUTE_DEF_UPDATE.propertyNewValue)),
   
@@ -236,7 +238,8 @@ public enum ChangeLogTypeBuiltin implements ChangeLogTypeIdentifier {
    */
   ATTRIBUTE_DEF_DELETE(new ChangeLogType("attributeDef", "deleteAttributeDef", 
       ChangeLogLabels.ATTRIBUTE_DEF_DELETE.id, ChangeLogLabels.ATTRIBUTE_DEF_DELETE.name, 
-      ChangeLogLabels.ATTRIBUTE_DEF_DELETE.stemId, ChangeLogLabels.ATTRIBUTE_DEF_DELETE.description)),
+      ChangeLogLabels.ATTRIBUTE_DEF_DELETE.stemId, ChangeLogLabels.ATTRIBUTE_DEF_DELETE.description,
+      ChangeLogLabels.ATTRIBUTE_DEF_DELETE.attributeDefType)),
 
   /**
    * stem add
@@ -466,8 +469,31 @@ public enum ChangeLogTypeBuiltin implements ChangeLogTypeIdentifier {
       ChangeLogLabels.ATTRIBUTE_ASSIGN_DELETE.attributeAssignActionId,
       ChangeLogLabels.ATTRIBUTE_ASSIGN_DELETE.assignType,
       ChangeLogLabels.ATTRIBUTE_ASSIGN_DELETE.ownerId1,
-      ChangeLogLabels.ATTRIBUTE_ASSIGN_DELETE.ownerId2));
+      ChangeLogLabels.ATTRIBUTE_ASSIGN_DELETE.ownerId2)),
       
+  /**
+   * permission add
+   */
+  PERMISSION_ADD(new ChangeLogType("permission", "addPermission",
+      ChangeLogLabels.PERMISSION_ADD.attributeDefNameName,
+      ChangeLogLabels.PERMISSION_ADD.attributeDefNameId,
+      ChangeLogLabels.PERMISSION_ADD.action,
+      ChangeLogLabels.PERMISSION_ADD.actionId,
+      ChangeLogLabels.PERMISSION_ADD.subjectId,
+      ChangeLogLabels.PERMISSION_ADD.subjectSourceId,
+      ChangeLogLabels.PERMISSION_ADD.memberId)),
+  
+  /**
+   * permission delete
+   */
+  PERMISSION_DELETE(new ChangeLogType("permission", "deletePermission",
+      ChangeLogLabels.PERMISSION_DELETE.attributeDefNameName,
+      ChangeLogLabels.PERMISSION_DELETE.attributeDefNameId,
+      ChangeLogLabels.PERMISSION_DELETE.action,
+      ChangeLogLabels.PERMISSION_DELETE.actionId,
+      ChangeLogLabels.PERMISSION_DELETE.subjectId,
+      ChangeLogLabels.PERMISSION_DELETE.subjectSourceId,
+      ChangeLogLabels.PERMISSION_DELETE.memberId));   
       
   /**
    * defaults for audit type, though doesnt hold the id

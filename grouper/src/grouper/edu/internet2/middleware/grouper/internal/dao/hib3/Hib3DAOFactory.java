@@ -57,6 +57,7 @@ import edu.internet2.middleware.grouper.internal.dao.PITGroupSetDAO;
 import edu.internet2.middleware.grouper.internal.dao.PITMemberDAO;
 import edu.internet2.middleware.grouper.internal.dao.PITMembershipDAO;
 import edu.internet2.middleware.grouper.internal.dao.PITMembershipViewDAO;
+import edu.internet2.middleware.grouper.internal.dao.PITPermissionAllViewDAO;
 import edu.internet2.middleware.grouper.internal.dao.PITRoleSetDAO;
 import edu.internet2.middleware.grouper.internal.dao.PITStemDAO;
 import edu.internet2.middleware.grouper.internal.dao.PermissionEntryDAO;
@@ -465,6 +466,14 @@ public class Hib3DAOFactory extends GrouperDAOFactory {
   @Override
   public PITRoleSetDAO getPITRoleSet() {
     return new Hib3PITRoleSetDAO();
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.misc.GrouperDAOFactory#getPITPermissionAllView()
+   */
+  @Override
+  public PITPermissionAllViewDAO getPITPermissionAllView() {
+    return new Hib3PITPermissionAllViewDAO();
   }
 
   /**
