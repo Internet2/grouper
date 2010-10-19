@@ -171,6 +171,13 @@ public class ExternalSubjectConfig {
       ExternalSubjectConfig.class.getName() + ".configCache", 50, false, 300, 300, false);
 
   /**
+   * clear the config cache (e.g. for testing)
+   */
+  public static void clearCache() {
+    configCache.clear();
+  }
+  
+  /**
    * get the bean from cache or configure a new one
    * @return the config bean
    */

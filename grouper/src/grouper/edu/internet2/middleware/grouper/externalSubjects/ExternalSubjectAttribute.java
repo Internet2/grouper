@@ -9,6 +9,7 @@ import edu.internet2.middleware.grouper.GrouperAPI;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.audit.AuditTypeBuiltin;
+import edu.internet2.middleware.grouper.externalSubjects.ExternalSubjectConfig.ExternalSubjectAttributeConfigBean;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.hibernate.HibUtilsMapping;
@@ -367,7 +368,23 @@ public class ExternalSubjectAttribute extends GrouperAPI implements GrouperHasCo
    * @param externalSubject reference back to owner
    */
   public void store(final ExternalSubject externalSubject) {    
-    
+
+    if (StringUtils.isBlank(this.getAttributeSystemName())) {
+      throw new RuntimeException("Attribute system name cannot be blank: " + this);
+    }
+
+    //make sure attribute name is ok
+    boolean foundAttribute = false;
+    for (ExternalSubjectAttributeConfigBean externalSubjectAttributeConfigBean : 
+        GrouperUtil.nonNull(ExternalSubjectConfig.externalSubjectConfigBean().getExternalSubjectAttributeConfigBeans())) {
+      if (StringUtils.equals(this.getAttributeSystemName(), externalSubjectAttributeConfigBean.getSystemName())) {
+        foundAttribute = true;
+        break;
+      }
+    }
+    if (!foundAttribute) {
+      throw new RuntimeException("Invalid attribute name: " + this.getAttributeSystemName() + ", not found in grouper.properties: " + this);
+    }
     HibernateSession.callbackHibernateSession(
       GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT,
       new HibernateHandler() {

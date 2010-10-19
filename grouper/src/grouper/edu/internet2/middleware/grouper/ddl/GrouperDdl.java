@@ -2193,7 +2193,7 @@ public enum GrouperDdl implements DdlVersionable {
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_perms_all_v");
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_perms_role_v");
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_perms_role_subject_v");
-
+    
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_pit_perms_all_v");
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_pit_perms_role_v");
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_pit_perms_role_subj_v");
@@ -5614,7 +5614,7 @@ public enum GrouperDdl implements DdlVersionable {
         + "from grouper_perms_role_subject_v  ");
 
 
-    
+  
     GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_pit_perms_role_v", 
         "grouper_pit_perms_role_v: shows all permissions assigned to users due to the users being in a role, and the role being assigned the permission",
         GrouperUtil.toSet("role_name", 
@@ -6078,7 +6078,7 @@ public enum GrouperDdl implements DdlVersionable {
         + "attribute_assign_start_time, "
         + "attribute_assign_end_time "
         + "from grouper_pit_perms_role_subj_v  ");
-    
+      
   }
 
   /**
@@ -6214,7 +6214,7 @@ public enum GrouperDdl implements DdlVersionable {
   
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeDefTable, PITAttributeDef.COLUMN_NAME, 
           Types.VARCHAR, ddlVersionBean.isSqlServer() ? "900" : "1024", false, true);
-
+      
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeDefTable, PITAttributeDef.COLUMN_ATTRIBUTE_DEF_TYPE,
           Types.VARCHAR, "32", false, true);
       
@@ -7490,13 +7490,13 @@ public enum GrouperDdl implements DdlVersionable {
           Types.VARCHAR, "40", true, true);
   
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(externalSubjectAttributeTable, ExternalSubjectAttribute.COLUMN_ATTRIBUTE_SYSTEM_NAME, 
-          Types.VARCHAR, "200", false, false);
+          Types.VARCHAR, "200", false, true);
   
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(externalSubjectAttributeTable, ExternalSubjectAttribute.COLUMN_ATTRIBUTE_VALUE, 
           Types.VARCHAR, "600", false, false);
   
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(externalSubjectAttributeTable, ExternalSubjectAttribute.COLUMN_SUBJECT_UUID, 
-          Types.VARCHAR, "40", false, false);
+          Types.VARCHAR, "40", false, true);
   
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(externalSubjectAttributeTable, ExternalSubjectAttribute.COLUMN_CREATE_TIME, 
           Types.BIGINT, null, false, true);

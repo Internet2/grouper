@@ -57,6 +57,7 @@ import edu.internet2.middleware.grouper.changeLog.ChangeLogConsumerBase;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogEntry;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogProcessorMetadata;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogTempToEntity;
+import edu.internet2.middleware.grouper.externalSubjects.ExternalSubject;
 import edu.internet2.middleware.grouper.hibernate.ByHqlStatic;
 import edu.internet2.middleware.grouper.hibernate.GrouperCommitType;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransaction;
@@ -246,6 +247,8 @@ public enum GrouperLoaderType {
         } else if (StringUtils.equals(GROUPER_ENABLED_DISABLED, hib3GrouploaderLog.getJobName())) {
 
           int records = Membership.internal_fixEnabledDisabled();
+          records += ExternalSubject.internal_fixDisabled();
+
           hib3GrouploaderLog.setUpdateCount(records);
 
           hib3GrouploaderLog.setJobMessage("Ran enabled/disabled daemon, changed " + records + " records");

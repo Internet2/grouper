@@ -18,6 +18,7 @@
 package edu.internet2.middleware.grouper.internal.dao.hib3;
 
 import java.util.List;
+import java.util.Set;
 
 import edu.internet2.middleware.grouper.externalSubjects.ExternalSubject;
 import edu.internet2.middleware.grouper.externalSubjects.ExternalSubjectAttribute;
@@ -40,6 +41,29 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * Basic Hibernate <code>Group</code> DAO interface.
  */
 public class Hib3ExternalSubjectDAO extends Hib3DAO implements ExternalSubjectDAO {
+
+  /**
+   * @see ExternalSubjectDAO#findAllDisabledMismatch()
+   */
+  public Set<ExternalSubject> findAllDisabledMismatch() {
+    long now = System.currentTimeMillis();
+
+    StringBuilder sql = new StringBuilder(
+        "select es from ExternalSubject as es where  "
+          + " (es.enabledDb = 'F' and es.disabledTimeDb is null) "
+          + " or (es.enabledDb = 'F' and es.disabledTimeDb > :now) "
+          + " or (es.enabledDb = 'T' and es.disabledTimeDb < :now) "
+          + " or (es.enabledDb <> 'T' and es.enabledDb <> 'F') "
+          + " or (es.enabledDb is null) "
+     );
+
+    Set<ExternalSubject> externalSubjects = HibernateSession.byHqlStatic()
+      .createQuery(sql.toString())
+      .setCacheable(false)
+      .setLong( "now",  now )
+      .listSet(ExternalSubject.class);
+    return externalSubjects;
+  }
 
   /**
    * 

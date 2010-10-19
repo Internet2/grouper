@@ -16,12 +16,20 @@
 */
 
 package edu.internet2.middleware.grouper.internal.dao;
+import java.util.Set;
+
 import edu.internet2.middleware.grouper.externalSubjects.ExternalSubject;
 
 /** 
  * Basic <code>ExternalSubject</code> DAO interface.
  */
 public interface ExternalSubjectDAO extends GrouperDAO {
+
+  /**
+   * find all external subjects which have a disabled date which are not disabled
+   * @return the set of subjects
+   */
+  public Set<ExternalSubject> findAllDisabledMismatch();
 
   /**
    * find an external subject by identifier

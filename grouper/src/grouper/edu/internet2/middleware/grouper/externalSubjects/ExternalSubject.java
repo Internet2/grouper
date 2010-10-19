@@ -15,6 +15,8 @@ import edu.internet2.middleware.grouper.audit.AuditTypeBuiltin;
 import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
+import edu.internet2.middleware.grouper.externalSubjects.ExternalSubjectConfig.ExternalSubjectAttributeConfigBean;
+import edu.internet2.middleware.grouper.externalSubjects.ExternalSubjectConfig.ExternalSubjectConfigBean;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.hibernate.HibUtilsMapping;
@@ -22,6 +24,7 @@ import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
+import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
@@ -572,13 +575,85 @@ public class ExternalSubject extends GrouperAPI implements GrouperHasContext,
 
   }
 
+  /**
+   * make sure if a field is required it is there
+   * @param externalSubjectAttributes
+   */
+  private void assertRequiredFieldsAreThere(Set<ExternalSubjectAttribute> externalSubjectAttributes) {
+    ExternalSubjectConfigBean externalSubjectConfigBean = ExternalSubjectConfig.externalSubjectConfigBean();
+    
+    //check name
+    if (externalSubjectConfigBean.isNameRequired()) {
+      if (StringUtils.isBlank(this.getName())) {
+        throw new RuntimeException("Name is a required field.  If unsure what it should be, use the identifier or something: " + this);
+      }
+    }
+    //check email
+    if (externalSubjectConfigBean.isEmailRequired()) {
+      if (StringUtils.isBlank(this.getEmail())) {
+        throw new RuntimeException("Email is a required field: " + this);
+      }
+    }
+    //check institution
+    if (externalSubjectConfigBean.isInstitutionRequired()) {
+      if (StringUtils.isBlank(this.getInstitution())) {
+        throw new RuntimeException("Institution is a required field: " + this);
+      }
+    }
+    
+    //check attributes
+    for (ExternalSubjectAttributeConfigBean externalSubjectAttributeConfigBean : 
+        externalSubjectConfigBean.getExternalSubjectAttributeConfigBeans()) {
+      
+      if (externalSubjectAttributeConfigBean.isRequired()) {
+        
+        ExternalSubjectAttribute externalSubjectAttribute = null;
+        //first check to see if we sent in attributes...
+        if (externalSubjectAttributes != null) {
+          
+          for (ExternalSubjectAttribute current : externalSubjectAttributes) {
+            
+            if (StringUtils.equals(current.getAttributeSystemName(), 
+                externalSubjectAttributeConfigBean.getSystemName())) {
+              externalSubjectAttribute = current;
+              break;
+            }
+            
+          }
+          
+        } else {
+          //else see if already in the database
+          externalSubjectAttribute = this.retrieveAttribute(externalSubjectAttributeConfigBean.getSystemName(), false);
+        }
+
+        //at this point, make sure there is a value
+        if (externalSubjectAttribute == null || StringUtils.isBlank(externalSubjectAttribute.getAttributeValue())) {
+          throw new RuntimeException("External subject attribute: " 
+              + externalSubjectAttributeConfigBean.getSystemName() + " is a required field");
+        }
+        
+      }
+      
+    }
+  }
 
   /**
    * store this object to the DB.
    */
   public void store() {    
+    this.store(null);
+  }
+  
+  /**
+   * store this object to the DB.
+   * @param externalSubjectAttributes null to not worry, not null to affect the external subject attributes too
+   */
+  public void store(Set<ExternalSubjectAttribute> externalSubjectAttributes) {    
     
     assertCurrentUserCanEditExternalUsers();
+    assertRequiredFieldsAreThere(externalSubjectAttributes);
+    
+    this.calculateDisabledFlag();
     
     HibernateSession.callbackHibernateSession(
       GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT,
@@ -592,10 +667,10 @@ public class ExternalSubject extends GrouperAPI implements GrouperHasContext,
           boolean isInsert = HibUtilsMapping.isInsert(ExternalSubject.this);
           
           GrouperDAOFactory.getFactory().getExternalSubject().saveOrUpdate( ExternalSubject.this );
-            
+
           if (!hibernateHandlerBean.isCallerWillCreateAudit()) {
             AuditEntry auditEntry = null;
-            
+
             if (isInsert) {
               auditEntry = new AuditEntry(AuditTypeBuiltin.EXTERNAL_SUBJECT_ADD, "id", 
                   ExternalSubject.this.getUuid(), "name", ExternalSubject.this.getName(), "identifier", ExternalSubject.this.getIdentifier());
@@ -604,7 +679,7 @@ public class ExternalSubject extends GrouperAPI implements GrouperHasContext,
               auditEntry = new AuditEntry(AuditTypeBuiltin.EXTERNAL_SUBJECT_UPDATE, "id", 
                   ExternalSubject.this.getUuid(), "name", ExternalSubject.this.getName(), "identifier", ExternalSubject.this.getIdentifier());
               auditEntry.setDescription("Updated external subject: " + ExternalSubject.this.getDescription());
-              
+
             }
             auditEntry.saveOrUpdate(true);
           }
@@ -612,7 +687,7 @@ public class ExternalSubject extends GrouperAPI implements GrouperHasContext,
           return null;
         }
       });
-    
+
   }
 
 
@@ -650,6 +725,32 @@ public class ExternalSubject extends GrouperAPI implements GrouperHasContext,
   }
 
   /**
+   * calculate the disabled flag on this record
+   */
+  private void calculateDisabledFlag() {
+    
+    this.enabled = this.disabledTime == null || this.disabledTime > System.currentTimeMillis();
+    
+  }
+  
+  /** keep this reference for testing */
+  static int lastDisabledFixCount = -1;
+  
+  /**
+   * fix enabled and disabled memberships, and return the count of how many were fixed
+   * @return the number of records affected
+   */
+  public static int internal_fixDisabled() {
+    Set<ExternalSubject> externalSubjects = GrouperDAOFactory.getFactory().getExternalSubject().findAllDisabledMismatch();
+    for (ExternalSubject externalSubject : externalSubjects) {
+      //store will fix the disabled flag
+      externalSubject.store();
+    }
+    lastDisabledFixCount = externalSubjects.size();
+    return externalSubjects.size();
+  }
+
+  /**
    * assign an attribute to this subject, change value if already exists, add if not
    * @param attributeName
    * @param attributeValue
@@ -658,7 +759,9 @@ public class ExternalSubject extends GrouperAPI implements GrouperHasContext,
   public boolean assignAttribute(String attributeName, String attributeValue) {
     assertCurrentUserCanEditExternalUsers();
     
-    //TODO make sure valid attribute name
+    if (StringUtils.isBlank(this.getUuid())) {
+      throw new RuntimeException("uuid cannot be null! " + this);
+    }
     
     ExternalSubjectAttribute externalSubjectAttribute = this.retrieveAttribute(attributeName, false);
     if (externalSubjectAttribute == null) {
@@ -685,7 +788,7 @@ public class ExternalSubject extends GrouperAPI implements GrouperHasContext,
    * @return the attributes
    */
   public Set<ExternalSubjectAttribute> retrieveAttributes() {
-    return GrouperDAOFactory.getFactory().getExternalSubjectAttribute().findBySubject(this.getUuid(), null);
+    return GrouperDAOFactory.getFactory().getExternalSubjectAttribute().findBySubject(this.getUuid(), new QueryOptions().secondLevelCache(false));
   }
   
   /**
