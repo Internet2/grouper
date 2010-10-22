@@ -36,6 +36,9 @@
       <key-property name="membershipId" column="membership_id"/>
       <key-property name="groupSetId" column="group_set_id"/>
       <key-property name="attributeAssignId" column="attribute_assign_id"/>
+      <key-property name="actionSetId" column="action_set_id"/>
+      <key-property name="roleSetId" column="role_set_id"/>
+      <key-property name="attributeDefNameSetId" column="attribute_def_name_set_id"/>
     </composite-id>
     <property name="action" column="action"/>
     <property name="subjectSourceId" column="subject_source_id"/>
@@ -48,9 +51,6 @@
     <property name="attributeDefNameSetDepth" column="attr_def_name_set_depth"/>
     <property name="attributeAssignActionSetDepth" column="attr_assign_action_set_depth"/>
     <property name="permissionTypeDb" column="permission_type"/>
-    <property name="actionSetId" column="action_set_id"/>
-    <property name="roleSetId" column="role_set_id"/>
-    <property name="attributeDefNameSetId" column="attribute_def_name_set_id"/>
 
     <property name="groupSetActiveDb" column="group_set_active" />
     <property name="groupSetStartTimeDb" column="group_set_start_time" />
