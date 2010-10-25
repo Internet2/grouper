@@ -1,6 +1,8 @@
 package edu.internet2.middleware.grouper.externalSubjects;
 
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.collections.keyvalue.MultiKey;
@@ -578,8 +580,9 @@ public class ExternalSubject extends GrouperAPI implements GrouperHasContext,
   /**
    * make sure if a field is required it is there
    * @param externalSubjectAttributes
+   * @param attributeToDelete 
    */
-  private void assertRequiredFieldsAreThere(Set<ExternalSubjectAttribute> externalSubjectAttributes) {
+  private void assertRequiredFieldsAreThere(Set<ExternalSubjectAttribute> externalSubjectAttributes, String attributeToDelete) {
     ExternalSubjectConfigBean externalSubjectConfigBean = ExternalSubjectConfig.externalSubjectConfigBean();
     
     //check name
@@ -627,13 +630,13 @@ public class ExternalSubject extends GrouperAPI implements GrouperHasContext,
         }
 
         //at this point, make sure there is a value
-        if (externalSubjectAttribute == null || StringUtils.isBlank(externalSubjectAttribute.getAttributeValue())) {
+        if (externalSubjectAttribute == null || StringUtils.isBlank(externalSubjectAttribute.getAttributeValue())
+            || (!StringUtils.isBlank(attributeToDelete) 
+                && StringUtils.equals(attributeToDelete, externalSubjectAttributeConfigBean.getSystemName()))) {
           throw new RuntimeException("External subject attribute: " 
               + externalSubjectAttributeConfigBean.getSystemName() + " is a required field");
         }
-        
       }
-      
     }
   }
 
@@ -643,6 +646,99 @@ public class ExternalSubject extends GrouperAPI implements GrouperHasContext,
   public void store() {    
     this.store(null);
   }
+
+  /**
+   * 
+   * @param substituteMap
+   * @return the substitute map
+   */
+  static Map<String, Object> substitutionMap() {
+
+    Map<String, Object> substituteMap = new HashMap<String, Object>();
+    substituteMap.put("grouperUtil", new GrouperUtil());
+
+    //middleware.grouper.rules.MyRuleUtils
+    String customElClasses = GrouperConfig.getProperty("externalSubjects.customElClasses");
+
+    if (!StringUtils.isBlank(customElClasses)) {
+      String[] customElClassesArray = GrouperUtil.splitTrim(customElClasses, ",");
+      for (String customElClass : customElClassesArray) {
+        Class<?> customClassClass = GrouperUtil.forName(customElClass);
+        String simpleName = StringUtils.uncapitalize(customClassClass.getSimpleName());
+        substituteMap.put(simpleName, GrouperUtil.newInstance(customClassClass));
+      }
+    }
+    
+    return substituteMap;
+  }
+  
+  /**
+   * if there are dynamically configured fields, edit that here
+   */
+  void changeDynamicFields() {
+    
+    boolean manualDescription = GrouperConfig.getPropertyBoolean("externalSubjects.desc.manual", false);
+    if (!manualDescription) {
+      //description
+      String el = GrouperConfig.getProperty("externalSubjects.desc.el");
+      if (StringUtils.isBlank(el)) {
+        throw new RuntimeException("externalSubjects.desc.el is required in the grouper.properties");
+      }
+      Map<String, Object> substitutionMap = substitutionMap();
+      substitutionMap.put("externalSubject", this);
+      String description = GrouperUtil.substituteExpressionLanguage(el, substitutionMap);
+      this.setDescription(description);
+    }
+    
+    //lower search string, take the fieldOrAttribute list,
+    String searchFields = GrouperConfig.getProperty("externalSubjects.searchStringFields");
+    if (StringUtils.isBlank(searchFields)) {
+      throw new RuntimeException("externalSubjects.searchStringFields is required in the grouper.properties");
+    }
+    Set<String> searchFieldSet = GrouperUtil.splitTrimToSet(searchFields, ",");
+    StringBuilder lowerSearchString = new StringBuilder();
+    for (String searchField : searchFieldSet) {
+      String fieldValue = this.retrieveFieldValue(searchField);
+      fieldValue = StringUtils.trimToEmpty(fieldValue);
+      if (!StringUtils.isBlank(fieldValue)) {
+        if (lowerSearchString.length() > 0) {
+          lowerSearchString.append(", ");
+        }
+        lowerSearchString.append(fieldValue.toLowerCase());
+      }
+      
+    }
+    
+    this.setSearchStringLower(lowerSearchString.toString());
+    
+  }
+  
+  /**
+   * get the value by field name or attribute
+   * @param fieldOrAttributeName
+   * @return the value
+   */
+  public String retrieveFieldValue(String fieldOrAttributeName) {
+    String fieldValue = null;
+    if (StringUtils.equalsIgnoreCase("name", fieldOrAttributeName)) {
+      fieldValue = this.getName();
+    } else if (StringUtils.equalsIgnoreCase("uuid", fieldOrAttributeName)) {
+      fieldValue = this.getUuid();
+    } else if (StringUtils.equalsIgnoreCase("email", fieldOrAttributeName)) {
+      fieldValue = this.getEmail();
+    } else if (StringUtils.equalsIgnoreCase("identifier", fieldOrAttributeName)) {
+      fieldValue = this.getIdentifier();
+    } else if (StringUtils.equalsIgnoreCase("description", fieldOrAttributeName)) {
+      fieldValue = this.getDescription();
+    } else if (StringUtils.equalsIgnoreCase("institution", fieldOrAttributeName)) {
+      fieldValue = this.getInstitution();
+    } else {
+      //must be an attribute
+      ExternalSubjectAttribute externalSubjectAttribute = this.retrieveAttribute(fieldOrAttributeName, false);
+      fieldValue = externalSubjectAttribute == null ? null : externalSubjectAttribute.getAttributeValue();
+    }
+    return fieldValue;
+  }
   
   /**
    * store this object to the DB.
@@ -650,8 +746,11 @@ public class ExternalSubject extends GrouperAPI implements GrouperHasContext,
    */
   public void store(Set<ExternalSubjectAttribute> externalSubjectAttributes) {    
     
-    assertCurrentUserCanEditExternalUsers();
-    assertRequiredFieldsAreThere(externalSubjectAttributes);
+    this.assertCurrentUserCanEditExternalUsers();
+    
+    this.changeDynamicFields();
+    
+    this.assertRequiredFieldsAreThere(externalSubjectAttributes, null);
     
     this.calculateDisabledFlag();
     
@@ -750,6 +849,36 @@ public class ExternalSubject extends GrouperAPI implements GrouperHasContext,
     return externalSubjects.size();
   }
 
+  
+  /**
+   * fix enabled and disabled memberships, and return the count of how many were fixed
+   * @return the number of records affected
+   */
+  public static int internal_daemonCalcFields() {
+    
+    Set<ExternalSubject> externalSubjects = GrouperDAOFactory.getFactory().getExternalSubject().findAll();
+    
+    for (ExternalSubject externalSubject : externalSubjects) {
+
+      String description = externalSubject.getDescription();
+      String searchStringLower = externalSubject.getSearchStringLower();
+      
+      externalSubject.changeDynamicFields();
+      
+      //see if something changed
+      if (!StringUtils.equals(description, externalSubject.getDescription())
+          || !StringUtils.equals(searchStringLower, externalSubject.getSearchStringLower())) {
+        externalSubject.store();
+      }
+      
+      //store will fix the disabled flag
+      externalSubject.store();
+    }
+    lastDisabledFixCount = externalSubjects.size();
+    return externalSubjects.size();
+  }
+
+  
   /**
    * assign an attribute to this subject, change value if already exists, add if not
    * @param attributeName
@@ -770,12 +899,16 @@ public class ExternalSubject extends GrouperAPI implements GrouperHasContext,
       externalSubjectAttribute.setAttributeValue(attributeValue);
       externalSubjectAttribute.setSubjectUuid(this.getUuid());
       externalSubjectAttribute.store(this);
+      //recalculate dynamic fields in the store() method
+      this.store();
       return true;
     }
 
     if (!StringUtils.equals(externalSubjectAttribute.getAttributeValue(), attributeValue)) {
       externalSubjectAttribute.setAttributeValue(attributeValue);
       externalSubjectAttribute.store(this);
+      //recalculate dynamic fields in the store() method
+      this.store();
       return true;
     }
     
@@ -801,14 +934,18 @@ public class ExternalSubject extends GrouperAPI implements GrouperHasContext,
     
     assertCurrentUserCanEditExternalUsers();
     
+    //if this attribute is invalid, then throw exception
+    ExternalSubjectAttribute.assertValidAttribute(attributeName);
+
     Set<ExternalSubjectAttribute> externalSubjectAttributes = this.retrieveAttributes();
     for (ExternalSubjectAttribute externalSubjectAttribute : GrouperUtil.nonNull(externalSubjectAttributes)) {
       if (StringUtils.equals(attributeName, externalSubjectAttribute.getAttributeSystemName())) {
         return externalSubjectAttribute;
       }
     }
+    
     if (exceptionIfNotFound) {
-      throw new RuntimeException("Cant find attribute: " + attributeName + " for subject: " + this);
+      throw new RuntimeException("Cant find attribute assignment: " + attributeName + " for subject: " + this);
     }
     return null;
   }
@@ -848,11 +985,15 @@ public class ExternalSubject extends GrouperAPI implements GrouperHasContext,
     
     assertCurrentUserCanEditExternalUsers();
 
+    assertRequiredFieldsAreThere(null, attributeName);
+    
     ExternalSubjectAttribute externalSubjectAttribute = this.retrieveAttribute(attributeName, false);
     if (externalSubjectAttribute == null) {
       return false;
     }
     externalSubjectAttribute.delete(this);
+    //recalculate dynamic fields in the store() method
+    this.store();
     return true;
   }
 

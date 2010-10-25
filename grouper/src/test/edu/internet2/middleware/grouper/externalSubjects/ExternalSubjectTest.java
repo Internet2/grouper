@@ -3,6 +3,7 @@
  */
 package edu.internet2.middleware.grouper.externalSubjects;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import junit.textui.TestRunner;
@@ -44,7 +45,7 @@ public class ExternalSubjectTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new ExternalSubjectTest("testRequiredFieldsAttributesJabber"));
+    TestRunner.run(new ExternalSubjectTest("testDynamicFieldsDaemon"));
   }
 
   /**
@@ -58,7 +59,9 @@ public class ExternalSubjectTest extends GrouperTest {
       fail("You need the external subject attribute jabber set in grouper.properties");
     }
     
-    ApiConfig.testConfig.put("externalSubjects.desc.el", "${subject.name} - ${subject.institution}");
+    ApiConfig.testConfig.put("externalSubjects.desc.el", 
+        "${grouperUtil.appendIfNotBlankString(externalSubject.name, ' - ', externalSubject.institution)}");
+    
     ApiConfig.testConfig.put("externalSubjects.name.required", "false");
     ApiConfig.testConfig.put("externalSubjects.email.required", "false");
     ApiConfig.testConfig.put("externalSubjects.email.enabled", "true");
@@ -498,14 +501,21 @@ public class ExternalSubjectTest extends GrouperTest {
     externalSubject.assignAttribute("jabber", "a@b.c");
     //should work now
     externalSubject.store();
-
+    
+    try {
+      externalSubject.removeAttribute("jabber");
+      fail("Jabber is a required");
+    } catch (Exception e) {
+      assertTrue(e.getMessage(), ExceptionUtils
+          .getFullStackTrace(e).toLowerCase().contains("jabber is a required"));
+    }
 
     //institution is required
     externalSubject = new ExternalSubject();
     externalSubject.setName("my name");
     externalSubject.setIdentifier("f");
     try {
-      externalSubject.store((Set<ExternalSubjectAttribute>)(Object)GrouperUtil.toSet(null));
+      externalSubject.store(new HashSet<ExternalSubjectAttribute>());
       fail("Jabber is a required");
     } catch (Exception e) {
       assertTrue(e.getMessage(), ExceptionUtils
@@ -517,7 +527,159 @@ public class ExternalSubjectTest extends GrouperTest {
     
   
   }
+
+  /**
+   * test dynamic description
+   */
+  public void testDynamicDescription() {
+
+    //externalSubjects.desc.el = ${grouperUtil.appendIfNotBlankString(externalSubject.name, ' - ', externalSubject.institution)}
+    ApiConfig.testConfig.put("externalSubjects.desc.el", 
+        "${grouperUtil.appendIfNotBlankString(externalSubject.name, ' - ', externalSubject.institution)}");
+    ExternalSubjectConfig.clearCache();
+
+    ExternalSubject externalSubject = new ExternalSubject();
+    externalSubject.setIdentifier("a");
+    externalSubject.setInstitution("My Institution");
+    externalSubject.setName("My Name");
+    externalSubject.store();
+
+    assertEquals("My Name - My Institution", externalSubject.getDescription());
+
+    externalSubject = new ExternalSubject();
+    externalSubject.setIdentifier("b");
+    externalSubject.setName("My Name");
+    externalSubject.store();
+
+    assertEquals("My Name", externalSubject.getDescription());
+
+    externalSubject = new ExternalSubject();
+    externalSubject.setIdentifier("c");
+    externalSubject.setInstitution("My Institution");
+    externalSubject.store();
+
+    assertEquals("My Institution", externalSubject.getDescription());
+
+    ApiConfig.testConfig.remove("externalSubjects.desc.el");
+    ExternalSubjectConfig.clearCache();
+
+  }
   
+  /**
+   * test dynamic searchString
+   */
+  public void testDynamicSearchString() {
+
+    //externalSubjects.searchStringFields = name, institution, identifier, uuid, email, jabber, description
+    ApiConfig.testConfig.put("externalSubjects.searchStringFields", 
+        "name, institution, identifier, uuid, email, jabber, description");
+    ApiConfig.testConfig.put("externalSubjects.desc.el", 
+      "${grouperUtil.appendIfNotBlankString(externalSubject.name, ' - ', externalSubject.institution)}");
+    ExternalSubjectConfig.clearCache();
+
+    ExternalSubject externalSubject = new ExternalSubject();
+    externalSubject.setIdentifier("a");
+    externalSubject.setInstitution("My Institution");
+    externalSubject.setName("My Name");
+    externalSubject.store();
+
+    externalSubject.setEmail("a@b.c");
+    externalSubject.store();
+    externalSubject.assignAttribute("jabber", "e@r.t");
+    
+    externalSubject = GrouperDAOFactory.getFactory().getExternalSubject().findByIdentifier("a", true, null);
+    
+    assertEquals("my name, my institution, a, " + externalSubject.getUuid() + ", a@b.c, e@r.t, my name - my institution", externalSubject.getSearchStringLower());
+
+    //make sure searches work
+    Set<Subject> subjects = SubjectFinder.findAll("e@r instit");
+    assertEquals(1, GrouperUtil.length(subjects));
+    assertEquals("My Name", subjects.iterator().next().getName());
+    
+    subjects = SubjectFinder.findAll(externalSubject.getUuid());
+    assertEquals(1, GrouperUtil.length(subjects));
+    assertEquals("My Name", subjects.iterator().next().getName());
+    
+    subjects = SubjectFinder.findAll("name - my");
+    assertEquals(1, GrouperUtil.length(subjects));
+    assertEquals("My Name", subjects.iterator().next().getName());
+    
+    ApiConfig.testConfig.remove("externalSubjects.searchStringFields");
+    ApiConfig.testConfig.remove("externalSubjects.desc.el");
+    ExternalSubjectConfig.clearCache();
+
+  }
+  
+  /**
+   * test dynamic description
+   */
+  public void testNonDynamicDescription() {
+
+    //externalSubjects.desc.manual = true
+    ApiConfig.testConfig.put("externalSubjects.desc.manual", "true");
+    ExternalSubjectConfig.clearCache();
+
+    ExternalSubject externalSubject = new ExternalSubject();
+    externalSubject.setIdentifier("a");
+    externalSubject.setInstitution("My Institution");
+    externalSubject.setName("My Name");
+    externalSubject.setDescription("My Description");
+    externalSubject.store();
+
+    assertEquals("My Description", externalSubject.getDescription());
+
+    ApiConfig.testConfig.remove("externalSubjects.desc.manual");
+    ExternalSubjectConfig.clearCache();
+
+  }
+
+  
+  /**
+   * test dynamic description, updated by daemon
+   */
+  public void testDynamicFieldsDaemon() {
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    
+    //externalSubjects.desc.el = ${grouperUtil.appendIfNotBlankString(externalSubject.name, ' - ', externalSubject.institution)}
+    ApiConfig.testConfig.put("externalSubjects.searchStringFields", 
+      "name, institution, identifier, uuid, email, jabber, description");
+    ApiConfig.testConfig.put("externalSubjects.desc.el", 
+      "${grouperUtil.appendIfNotBlankString(externalSubject.name, ' - ', externalSubject.institution)}");
+    ExternalSubjectConfig.clearCache();
+
+    ExternalSubject externalSubject = new ExternalSubject();
+    externalSubject.setIdentifier("a");
+    externalSubject.setInstitution("My Institution");
+    externalSubject.setName("My Name");
+    externalSubject.setEmail("a@b.c");
+    externalSubject.store();
+    externalSubject.assignAttribute("jabber", "e@r.t");
+
+    HibernateSession.bySqlStatic().executeSql("update grouper_ext_subj set description = 'a', search_string_lower = 'b' where identifier = 'a'");
+
+    externalSubject = GrouperDAOFactory.getFactory().getExternalSubject().findByIdentifier("a", true, null);
+
+    assertEquals("a", externalSubject.getDescription());
+    assertEquals("b", externalSubject.getSearchStringLower());
+    
+    //run the daemon
+    String status = GrouperLoader.runOnceByJobName(grouperSession, GrouperLoaderType.GROUPER_EXTERNAL_SUBJ_CALC_FIELDS);
+    assertTrue(status.toLowerCase().contains("success"));
+
+    externalSubject = GrouperDAOFactory.getFactory().getExternalSubject().findByIdentifier("a", true, null);
+
+    assertEquals("My Name - My Institution", externalSubject.getDescription());
+    assertEquals("my name, my institution, a, " + externalSubject.getUuid() + ", a@b.c, e@r.t, my name - my institution", externalSubject.getSearchStringLower());
+
+
+    ApiConfig.testConfig.remove("externalSubjects.searchStringFields");
+    ApiConfig.testConfig.remove("externalSubjects.desc.el");
+    ExternalSubjectConfig.clearCache();
+
+  }
+  
+
 }
 
 

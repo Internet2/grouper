@@ -32,6 +32,12 @@ public interface ExternalSubjectDAO extends GrouperDAO {
   public Set<ExternalSubject> findAllDisabledMismatch();
 
   /**
+   * find all external subjects
+   * @return the set of subjects
+   */
+  public Set<ExternalSubject> findAll();
+
+  /**
    * find an external subject by identifier
    * @param identifier
    * @param exceptionIfNotFound

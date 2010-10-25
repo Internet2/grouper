@@ -43,6 +43,13 @@ public class GrouperUtilTest extends TestCase {
   /** logger */
   private static final Log LOG = GrouperUtil.getLog(GrouperUtilTest.class);
 
+  /**
+   * 
+   */
+  public void testAppendIfNotBlankString() {
+    
+  }
+
 
   /**
    * test log next exception

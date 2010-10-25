@@ -10157,6 +10157,39 @@ public class GrouperUtil {
   }
 
   /**
+   * <pre>
+   * append a string to another string if both not blank, with separator.  trim to empty everything
+   * </pre>
+   * @param string
+   * @param separator
+   * @param suffix
+   * @return the resulting string or blank if nothing
+   */
+  public static String appendIfNotBlankString(String string, String separator, String suffix) {
+    
+    string = StringUtils.trimToEmpty(string);
+    suffix = StringUtils.trimToEmpty(suffix);
+    
+    boolean stringIsBlank = StringUtils.isBlank(string);
+    boolean suffixIsBlank = StringUtils.isBlank(suffix);
+
+    if (stringIsBlank && suffixIsBlank) {
+      return "";
+    }
+
+    if (stringIsBlank) {
+      return suffix;
+    }
+    
+    if (suffixIsBlank) {
+      return string;
+    }
+
+    return string + separator + suffix;
+    
+  }
+  
+  /**
    * if theString is not Blank, apppend it to the result, and if appending,
    * add a prefix (if not null)
    * @param result to append to

@@ -254,6 +254,15 @@ public enum GrouperLoaderType {
           hib3GrouploaderLog.setJobMessage("Ran enabled/disabled daemon, changed " + records + " records");
           
           hib3GrouploaderLog.setStatus(GrouperLoaderStatus.SUCCESS.name());
+        } else if (StringUtils.equals(GROUPER_EXTERNAL_SUBJ_CALC_FIELDS, hib3GrouploaderLog.getJobName())) {
+
+          int records = ExternalSubject.internal_daemonCalcFields();
+
+          hib3GrouploaderLog.setUpdateCount(records);
+
+          hib3GrouploaderLog.setJobMessage("Ran ext subj calc fields daemon, changed " + records + " records");
+          
+          hib3GrouploaderLog.setStatus(GrouperLoaderStatus.SUCCESS.name());
         } else if (StringUtils.equals(GROUPER_RULES, hib3GrouploaderLog.getJobName())) {
 
           int records = RuleEngine.daemon();
@@ -954,6 +963,11 @@ public enum GrouperLoaderType {
    */
   public static final String GROUPER_ENABLED_DISABLED = "MAINTENANCE__enabledDisabled";
 
+  /**
+   * maintenance, calculate enabled/disabled fields
+   */
+  public static final String GROUPER_EXTERNAL_SUBJ_CALC_FIELDS = "MAINTENANCE_externalSubjCalcFields";
+  
   /**
    * maintenance rules name
    */

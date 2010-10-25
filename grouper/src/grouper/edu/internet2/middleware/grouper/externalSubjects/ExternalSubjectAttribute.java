@@ -308,6 +308,8 @@ public class ExternalSubjectAttribute extends GrouperAPI implements GrouperHasCo
    */
   void delete(final ExternalSubject externalSubject) {    
     
+    assertValidAttribute(this.getAttributeSystemName());
+
     HibernateSession.callbackHibernateSession(
       GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT,
       new HibernateHandler() {
@@ -364,6 +366,27 @@ public class ExternalSubjectAttribute extends GrouperAPI implements GrouperHasCo
   }
 
   /**
+   * assert that the attribute name is valid
+   * @param attributeName
+   */
+  public static void assertValidAttribute(String attributeName) {
+    //make sure attribute name is ok
+    boolean foundAttribute = false;
+    for (ExternalSubjectAttributeConfigBean externalSubjectAttributeConfigBean : 
+        GrouperUtil.nonNull(ExternalSubjectConfig.externalSubjectConfigBean().getExternalSubjectAttributeConfigBeans())) {
+      if (StringUtils.equals(attributeName, externalSubjectAttributeConfigBean.getSystemName())) {
+        foundAttribute = true;
+        break;
+      }
+    }
+    if (!foundAttribute) {
+      throw new RuntimeException("Invalid attribute name: " + attributeName 
+          + ", not found in grouper.properties");
+    }
+
+  }
+  
+  /**
    * store this object to the DB.
    * @param externalSubject reference back to owner
    */
@@ -372,19 +395,9 @@ public class ExternalSubjectAttribute extends GrouperAPI implements GrouperHasCo
     if (StringUtils.isBlank(this.getAttributeSystemName())) {
       throw new RuntimeException("Attribute system name cannot be blank: " + this);
     }
+    
+    assertValidAttribute(this.getAttributeSystemName());
 
-    //make sure attribute name is ok
-    boolean foundAttribute = false;
-    for (ExternalSubjectAttributeConfigBean externalSubjectAttributeConfigBean : 
-        GrouperUtil.nonNull(ExternalSubjectConfig.externalSubjectConfigBean().getExternalSubjectAttributeConfigBeans())) {
-      if (StringUtils.equals(this.getAttributeSystemName(), externalSubjectAttributeConfigBean.getSystemName())) {
-        foundAttribute = true;
-        break;
-      }
-    }
-    if (!foundAttribute) {
-      throw new RuntimeException("Invalid attribute name: " + this.getAttributeSystemName() + ", not found in grouper.properties: " + this);
-    }
     HibernateSession.callbackHibernateSession(
       GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT,
       new HibernateHandler() {

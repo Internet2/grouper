@@ -143,6 +143,21 @@ public class Hib3ExternalSubjectDAO extends Hib3DAO implements ExternalSubjectDA
     return externalSubject;
 
   }
+
+  /**
+   * @see ExternalSubjectDAO#findAll()
+   */
+  public Set<ExternalSubject> findAll() {
+    StringBuilder sql = new StringBuilder(
+        "select es from ExternalSubject as es "
+     );
+
+    Set<ExternalSubject> externalSubjects = HibernateSession.byHqlStatic()
+      .createQuery(sql.toString())
+      .setCacheable(false)
+      .listSet(ExternalSubject.class);
+    return externalSubjects;
+  }
   
   
 
