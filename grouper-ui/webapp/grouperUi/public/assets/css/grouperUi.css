@@ -114,6 +114,10 @@ td {
   width: 238px;
   color: #015782;
 }
+.requiredIndicator {
+  font-weight: bold;
+  color: #931100;
+}
 
 .formTable .formTableRight {
   width: 390px;

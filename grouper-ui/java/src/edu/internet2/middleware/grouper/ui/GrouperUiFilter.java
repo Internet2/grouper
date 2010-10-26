@@ -18,6 +18,7 @@ limitations under the License.
 package edu.internet2.middleware.grouper.ui;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.security.Principal;
 import java.util.Enumeration;
 import java.util.LinkedHashSet;
@@ -61,6 +62,7 @@ import edu.internet2.middleware.grouper.grouperUi.beans.RequestContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.SessionContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
+import edu.internet2.middleware.grouper.grouperUi.serviceLogic.ExternalSubjectSelfRegister;
 import edu.internet2.middleware.grouper.hibernate.GrouperContext;
 import edu.internet2.middleware.grouper.hooks.beans.GrouperContextTypeBuiltIn;
 import edu.internet2.middleware.grouper.hooks.beans.HooksContext;
@@ -188,9 +190,10 @@ public class GrouperUiFilter implements Filter {
   /**
    * retrieve the user principal (who is authenticated) from the (threadlocal)
    * request object
-   * 
+   * @deprecated this is not used, use GrouperUiFilter.remoteUser(request) instead
    * @return the user principal name
    */
+  @Deprecated
   public static String retrieveUserPrincipalNameFromRequest() {
 
     HttpServletRequest httpServletRequest = retrieveHttpServletRequest();
@@ -208,7 +211,6 @@ public class GrouperUiFilter implements Filter {
    * 
    * @return the subject
    */
-  @SuppressWarnings({ "unchecked" })
   public static Subject retrieveSubjectLoggedIn() {
     
     GrouperSession grouperSession = SessionInitialiser.getGrouperSession(retrieveHttpServletRequest().getSession());
@@ -232,7 +234,7 @@ public class GrouperUiFilter implements Filter {
     //currently assumes user is in getUserPrincipal
     String userIdLoggedIn = remoteUser(request);
 
-    if (StringUtils.isBlank(userIdLoggedIn) && UiSection.ANONYMOUS == uiSectionForRequest) {
+    if (StringUtils.isBlank(userIdLoggedIn) && uiSectionForRequest.isAnonymous()) {
       return null;
     }
 
@@ -242,9 +244,10 @@ public class GrouperUiFilter implements Filter {
 
     try {
       subjectLoggedIn = SubjectFinder.findByIdOrIdentifier(userIdLoggedIn, true);
-    } catch (Exception e) {
+    } catch (RuntimeException re) {
       //this is probably a system error...  not a user error
-      throw new RuntimeException("Cant find subject from login id: " + userIdLoggedIn, e);
+      GrouperUtil.injectInException(re, "Cant find subject from login id: " + userIdLoggedIn);
+      throw re;
     }
     
     ensureUserAllowedInSection(uiSectionForRequest, subjectLoggedIn);
@@ -355,10 +358,33 @@ public class GrouperUiFilter implements Filter {
   /**
    * which UI section we are in
    */
-  public static enum UiSection {
+  public static enum UiSection implements Serializable {
     
     /** doesnt require login yet */
-    ANONYMOUS(null, null),
+    ANONYMOUS(null, null) {
+
+      /**
+       * @see UiSection#isAnonymous()
+       */
+      @Override
+      public boolean isAnonymous() {
+        return true;
+      }
+      
+    },
+
+    /** doesnt require login yet */
+    EXTERNAL(null, null) {
+
+      /**
+       * @see UiSection#isAnonymous()
+       */
+      @Override
+      public boolean isAnonymous() {
+        return true;
+      }
+      
+    },
 
     /** normal admin ui */
     ADMIN_UI("require.group.for.logins", null),
@@ -375,6 +401,14 @@ public class GrouperUiFilter implements Filter {
     /** set of sections that allow this section */
     private Set<UiSection> uiSectionsThatAllowThisSection;
 
+    /**
+     * if anonymous or requires login
+     * @return anonymous
+     */
+    public boolean isAnonymous() {
+      return false;
+    }
+    
     /**
      * get sections that if allowed in there, you are allowed in here.  includes "this"
      * @return the sections
@@ -434,6 +468,9 @@ public class GrouperUiFilter implements Filter {
       HttpSession session = httpServletRequest.getSession(false);
       remoteUser = (String)(session == null ? null : session.getAttribute("authUser"));
     }
+    
+    httpServletRequest.getSession().setAttribute("grouperLoginId", remoteUser);
+    
     return remoteUser;
   }
   
@@ -443,7 +480,25 @@ public class GrouperUiFilter implements Filter {
    * @param httpServletRequest
    * @return true if allowed anonymous
    */
-  private static UiSection uiSectionForRequest(HttpServletRequest httpServletRequest) {
+  public static UiSection uiSectionForRequest(HttpServletRequest httpServletRequest) {
+    
+    UiSection uiSection = (UiSection)httpServletRequest.getAttribute("uiSectionForRequest");
+    if (uiSection == null) {
+      uiSection = uiSectionForRequestHelper(httpServletRequest);
+      httpServletRequest.setAttribute("uiSectionForRequest", uiSection);
+    }
+    
+    return uiSection;
+    
+  }
+  
+  /**
+   * get the ui section we are in
+   * @param httpServletRequest
+   * @return true if allowed anonymous
+   */
+  private static UiSection uiSectionForRequestHelper(HttpServletRequest httpServletRequest) {
+    
     String uri = httpServletRequest.getRequestURI();
     
     //TODO might want to check the servlet param name from web.xml: ignore
@@ -462,29 +517,57 @@ public class GrouperUiFilter implements Filter {
     if (uri.matches("^/[^/]+/logout\\.do$")) {
       return UiSection.ANONYMOUS;
     }
+    if (uri.matches("^/[^/]+/grouperExternal[/]?.*/$")) {
+      return UiSection.ANONYMOUS;
+    }
+    if (uri.matches("^/[^/]+/grouperExternal[/]?.*/index.html$")) {
+      return UiSection.ANONYMOUS;
+    }
     
+    boolean externalServlet = uri.matches("^/[^/]+/grouperExternal/appHtml/grouper\\.html$")
+        || uri.matches("^/[^/]+/grouperExternal/app/[^/]+$");
+
     String operation = null;
-    
-   if (uri.matches("^/[^/]+/grouperUi/appHtml/grouper\\.html$")) {
-      
+
+    if (uri.matches("^/[^/]+/grouper(Ui|External)/appHtml/grouper\\.html$")) {
+
       //must be in simple membership update or subject picker
       operation = httpServletRequest.getParameter("operation");
-      
-      if (StringUtils.isBlank(operation)) {
-        
+
+      if (StringUtils.isBlank(operation) && !externalServlet) {
+
         return UiSection.SIMPLE_MEMBERSHIP_UPDATE;
       }
-      
-    } else if (uri.matches("^/[^/]+/grouperUi/app/[^/]+$")) {
+
+    } else if (uri.matches("^/[^/]+/grouper(Ui|External)/app/[^/]+$")) {
       
       //must be in simple membership update or subject picker
       int lastLastIndex = uri.lastIndexOf('/');
       operation = uri.substring(lastLastIndex+1);
     }
 
+    String theClass = null;
+    
     if (!StringUtils.isBlank(operation)) {
       
-      String theClass = GrouperUtil.prefixOrSuffix(operation, ".", true);
+      theClass = GrouperUtil.prefixOrSuffix(operation, ".", true);
+    }
+    
+    if (externalServlet) {
+      
+      if (!StringUtils.isBlank(theClass)) {
+        if (theClass.startsWith(ExternalSubjectSelfRegister.class.getSimpleName())) {
+          return UiSection.EXTERNAL;
+        }
+      } else {
+        //this means we arent quite to the operation yet
+        return UiSection.ANONYMOUS;
+      }
+      throw new RuntimeException("Cannot use the external servlet for non external operations! '" + uri + "', '" + theClass + "'");
+    }
+    
+    if (!StringUtils.isBlank(operation)) {
+      
       if (theClass.equals("Misc") || theClass.startsWith("SimpleMembershipUpdate")) {
         return UiSection.SIMPLE_MEMBERSHIP_UPDATE;
       }
@@ -536,7 +619,7 @@ public class GrouperUiFilter implements Filter {
   
       String uri = httpServletRequest.getRequestURI();
       
-      if (uri.matches("^/[^/]+/grouperUi/app/[^/]+$")) {
+      if (uri.matches("^/[^/]+/grouper(Ui|External)/app/[^/]+$")) {
         RequestContainer.retrieveFromRequest().setAjaxRequest(true);
       }
   
@@ -556,6 +639,8 @@ public class GrouperUiFilter implements Filter {
         subject = grouperSession.getSubject();
       }
       
+      UiSection uiSection = uiSectionForRequest(httpServletRequest);
+      
       if (subject == null && !StringUtils.isBlank(remoteUser)) {
         GrouperSession rootSession = null;
         try {
@@ -574,10 +659,12 @@ public class GrouperUiFilter implements Filter {
             }
           });
         } catch (Exception e) {
-          //this is not really ok, but cant do much about it
-          String error = "Cant find login subject: " + remoteUser;
-          LOG.error(error, e);
-          throw new RuntimeException(error);
+          if (!uiSection.isAnonymous()) {
+            //this is not really ok, but cant do much about it
+            String error = "Cant find login subject: " + remoteUser + ", " + uiSection;
+            LOG.error(error, e);
+            throw new RuntimeException(error);
+          }
         } finally {
           GrouperSession.stopQuietly(rootSession);
   

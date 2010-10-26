@@ -13,6 +13,15 @@
     <url-pattern>/grouperUi/appHtml/*</url-pattern>
   </filter-mapping>
 
+  <filter-mapping>
+    <filter-name>GrouperUi</filter-name>
+    <url-pattern>/grouperExternal/app/*</url-pattern>
+  </filter-mapping>
+    <filter-mapping>
+    <filter-name>GrouperUi</filter-name>
+    <url-pattern>/grouperExternal/appHtml/*</url-pattern>
+  </filter-mapping>
+
 
 
 
@@ -26,6 +35,10 @@
   <servlet-mapping>
     <servlet-name>UiServlet</servlet-name>
     <url-pattern>/grouperUi/app/*</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>UiServlet</servlet-name>
+    <url-pattern>/grouperExternal/app/*</url-pattern>
   </servlet-mapping>
 
 
@@ -43,6 +56,26 @@
     <web-resource-collection>
       <web-resource-name>UI</web-resource-name>
       <url-pattern>/grouperUi/appHtml/*</url-pattern>
+    </web-resource-collection>
+    <auth-constraint>
+      <role-name>*</role-name>
+    </auth-constraint>
+  </security-constraint>
+
+  <security-constraint>
+    <web-resource-collection>
+      <web-resource-name>UI</web-resource-name>
+      <url-pattern>/grouperExternal/app/*</url-pattern>
+    </web-resource-collection>
+    <auth-constraint>
+      <role-name>*</role-name>
+    </auth-constraint>
+  </security-constraint>
+
+  <security-constraint>
+    <web-resource-collection>
+      <web-resource-name>UI</web-resource-name>
+      <url-pattern>/grouperExternal/appHtml/*</url-pattern>
     </web-resource-collection>
     <auth-constraint>
       <role-name>*</role-name>

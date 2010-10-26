@@ -25,8 +25,14 @@ $(document).ready(function(){
   processUrl();  
   var urlArgObjectMap = allObjects.appState.urlArgObjectMap();
   if (typeof urlArgObjectMap.operation == 'undefined') {
-    //alert('going back to index');
-    location.href = "grouper.html?operation=Misc.index";
+    //alert('going back to index: ' + location.href);
+	
+	//if the url is an external URL, then go to the external index page
+    if (!guiIsEmpty(location.href) && location.href.indexOf("/grouperExternal/appHtml/grouper.html") != -1) {
+      location.href = "grouper.html?operation=ExternalSubjectSelfRegister.index";
+    } else {
+      location.href = "grouper.html?operation=Misc.index";
+    }
     return;
   }
 });

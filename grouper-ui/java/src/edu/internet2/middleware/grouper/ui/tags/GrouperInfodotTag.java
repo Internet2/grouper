@@ -101,7 +101,7 @@ public class GrouperInfodotTag extends BodyTagSupport {
     String infodotPath = "grouper/images/infodot.gif";
     
     //this handles the html requests and the ajax requests (more important)
-    if (GrouperUiFilter.retrieveHttpServletRequest().getRequestURI().matches("^/[^/]+/grouperUi/.*$")) {
+    if (GrouperUiFilter.retrieveHttpServletRequest().getRequestURI().matches("^/[^/]+/grouper(Ui|External)/.*$")) {
       infodotPath = "../../" + infodotPath;
     }
     

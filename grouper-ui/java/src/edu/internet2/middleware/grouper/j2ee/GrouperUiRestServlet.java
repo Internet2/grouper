@@ -28,11 +28,13 @@ import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiSettings;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
+import edu.internet2.middleware.grouper.ui.GrouperUiFilter.UiSection;
 import edu.internet2.middleware.grouper.ui.exceptions.ControllerDone;
 import edu.internet2.middleware.grouper.ui.exceptions.NoSessionException;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
+import edu.internet2.middleware.subject.SubjectNotFoundException;
 
 /**
  * servlet for rest ui web services
@@ -68,7 +70,6 @@ public class GrouperUiRestServlet extends HttpServlet {
   /**
    * @see javax.servlet.http.HttpServlet#service(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
    */
-  @SuppressWarnings({ "unchecked" })
   @Override
   protected void doPost(HttpServletRequest request, HttpServletResponse response)
       throws ServletException, IOException {
@@ -210,8 +211,18 @@ public class GrouperUiRestServlet extends HttpServlet {
     
     guiSettings.setAuthnKey(GrouperUuid.getUuid());
     
-    Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
-    guiSettings.setLoggedInSubject(new GuiSubject(loggedInSubject));
+    Subject loggedInSubject = null;
+    
+    try {
+      loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+      guiSettings.setLoggedInSubject(new GuiSubject(loggedInSubject));
+    } catch (SubjectNotFoundException snfe) {
+      UiSection uiSection = GrouperUiFilter.uiSectionForRequest(GrouperUiFilter.retrieveHttpServletRequest());
+      //if its anonymous, then there might not be a subject logged in
+      if (!uiSection.isAnonymous()) {
+        throw snfe;
+      }
+    }
     
     // lets see where the templates are: assume grouperUiText.properties is in WEB-INF/classes,
     // and templates are WEB-INF/templates
