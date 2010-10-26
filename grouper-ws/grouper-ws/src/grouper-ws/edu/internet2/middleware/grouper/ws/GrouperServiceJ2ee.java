@@ -284,7 +284,7 @@ public class GrouperServiceJ2ee implements Filter {
    */
   private static int actAsCacheMinutes() {
     int actAsTimeoutMinutes = GrouperWsConfig.getPropertyInt(
-        GrouperWsConfig.WS_ACT_AS_CACHE_MINUTES, 30);
+        GrouperWsConfig.WS_ACT_AS_CACHE_MINUTES, 5);
     return actAsTimeoutMinutes;
   }
 
@@ -295,7 +295,7 @@ public class GrouperServiceJ2ee implements Filter {
   private static GrouperCache<MultiKey, Boolean> subjectAllowedCache() {
     if (subjectAllowedCache == null) {
       int subjectAllowedTimeoutMinutes = GrouperWsConfig.getPropertyInt(
-          GrouperWsConfig.WS_CLIENT_USER_GROUP_CACHE_MINUTES, 30);
+          GrouperWsConfig.WS_CLIENT_USER_GROUP_CACHE_MINUTES, 5);
       subjectAllowedCache = new GrouperCache<MultiKey, Boolean>(GrouperServiceJ2ee.class.getName() + "grouperWsAllowedCache", 10000, false, 60*60*24, subjectAllowedTimeoutMinutes*60, false);
 
     }
