@@ -29,7 +29,6 @@ import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
-import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperHasContext;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
@@ -765,8 +764,9 @@ public class ExternalSubject extends GrouperAPI implements GrouperHasContext,
 
           boolean isInsert = HibUtilsMapping.isInsert(ExternalSubject.this);
           
-          GrouperDAOFactory.getFactory().getExternalSubject().saveOrUpdate( ExternalSubject.this );
-
+          //GrouperDAOFactory.getFactory().getExternalSubject().saveOrUpdate( ExternalSubject.this );
+          ExternalSubjectStorageController.saveOrUpdate(ExternalSubject.this);
+          
           if (!hibernateHandlerBean.isCallerWillCreateAudit()) {
             AuditEntry auditEntry = null;
 
@@ -806,8 +806,9 @@ public class ExternalSubject extends GrouperAPI implements GrouperHasContext,
   
           hibernateHandlerBean.getHibernateSession().setCachingEnabled(false);
   
-          GrouperDAOFactory.getFactory().getExternalSubject().delete( ExternalSubject.this );
-            
+          //GrouperDAOFactory.getFactory().getExternalSubject().delete( ExternalSubject.this );
+          ExternalSubjectStorageController.delete(ExternalSubject.this);  
+          
           if (!hibernateHandlerBean.isCallerWillCreateAudit()) {
             AuditEntry auditEntry = null;
             
@@ -840,7 +841,10 @@ public class ExternalSubject extends GrouperAPI implements GrouperHasContext,
    * @return the number of records affected
    */
   public static int internal_fixDisabled() {
-    Set<ExternalSubject> externalSubjects = GrouperDAOFactory.getFactory().getExternalSubject().findAllDisabledMismatch();
+    
+    //Set<ExternalSubject> externalSubjects = GrouperDAOFactory.getFactory().getExternalSubject().findAllDisabledMismatch();
+    Set<ExternalSubject> externalSubjects = ExternalSubjectStorageController.findAllDisabledMismatch();
+    
     for (ExternalSubject externalSubject : externalSubjects) {
       //store will fix the disabled flag
       externalSubject.store();
@@ -856,7 +860,8 @@ public class ExternalSubject extends GrouperAPI implements GrouperHasContext,
    */
   public static int internal_daemonCalcFields() {
     
-    Set<ExternalSubject> externalSubjects = GrouperDAOFactory.getFactory().getExternalSubject().findAll();
+    //Set<ExternalSubject> externalSubjects = GrouperDAOFactory.getFactory().getExternalSubject().findAll();
+    Set<ExternalSubject> externalSubjects = ExternalSubjectStorageController.findAll();
     
     for (ExternalSubject externalSubject : externalSubjects) {
 
@@ -921,7 +926,7 @@ public class ExternalSubject extends GrouperAPI implements GrouperHasContext,
    * @return the attributes
    */
   public Set<ExternalSubjectAttribute> retrieveAttributes() {
-    return GrouperDAOFactory.getFactory().getExternalSubjectAttribute().findBySubject(this.getUuid(), new QueryOptions().secondLevelCache(false));
+    return ExternalSubjectAttributeStorageController.findBySubject(this.getUuid(), new QueryOptions().secondLevelCache(false));
   }
   
   /**

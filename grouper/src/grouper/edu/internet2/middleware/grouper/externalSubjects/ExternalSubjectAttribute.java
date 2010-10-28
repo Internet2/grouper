@@ -19,7 +19,6 @@ import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
-import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperHasContext;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
@@ -319,7 +318,7 @@ public class ExternalSubjectAttribute extends GrouperAPI implements GrouperHasCo
   
           hibernateHandlerBean.getHibernateSession().setCachingEnabled(false);
   
-          GrouperDAOFactory.getFactory().getExternalSubjectAttribute().delete( ExternalSubjectAttribute.this );
+          ExternalSubjectAttributeStorageController.delete( ExternalSubjectAttribute.this );
             
           if (!hibernateHandlerBean.isCallerWillCreateAudit()) {
             AuditEntry auditEntry = null;
@@ -409,7 +408,7 @@ public class ExternalSubjectAttribute extends GrouperAPI implements GrouperHasCo
   
           boolean isInsert = HibUtilsMapping.isInsert(ExternalSubjectAttribute.this);
           
-          GrouperDAOFactory.getFactory().getExternalSubjectAttribute().saveOrUpdate( ExternalSubjectAttribute.this );
+          ExternalSubjectAttributeStorageController.saveOrUpdate( ExternalSubjectAttribute.this );
             
           if (!hibernateHandlerBean.isCallerWillCreateAudit()) {
             AuditEntry auditEntry = null;

@@ -22,7 +22,6 @@ import edu.internet2.middleware.grouper.cfg.ApiConfig;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
-import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
@@ -99,7 +98,7 @@ public class ExternalSubjectTest extends GrouperTest {
     assertEquals(uuid, subject.getId());
     
     //lets find subject by hib api
-    externalSubject = GrouperDAOFactory.getFactory().getExternalSubject().findByIdentifier("a@id.b.c", true, null);
+    externalSubject = ExternalSubjectStorageController.findByIdentifier("a@id.b.c", true, null);
     
     assertEquals("My Name", externalSubject.getName());
     assertEquals("My Description", externalSubject.getDescription());
@@ -112,14 +111,14 @@ public class ExternalSubjectTest extends GrouperTest {
     externalSubject.setName("New Name");
     externalSubject.store();
 
-    externalSubject = GrouperDAOFactory.getFactory().getExternalSubject().findByIdentifier("a@id.b.c", true, null);
+    externalSubject = ExternalSubjectStorageController.findByIdentifier("a@id.b.c", true, null);
     
     assertEquals("New Name", externalSubject.getName());
     
     //lets delete it
     externalSubject.delete();
 
-    externalSubject = GrouperDAOFactory.getFactory().getExternalSubject().findByIdentifier("a@id.b.c", false, null);
+    externalSubject = ExternalSubjectStorageController.findByIdentifier("a@id.b.c", false, null);
 
     assertNull(externalSubject);
     
@@ -187,27 +186,27 @@ public class ExternalSubjectTest extends GrouperTest {
     assertEquals(3, ExternalSubject.lastDisabledFixCount);
 
     //lets find subject by hib api and check it out
-    externalSubject = GrouperDAOFactory.getFactory().getExternalSubject().findByIdentifier("a", true, null);
+    externalSubject = ExternalSubjectStorageController.findByIdentifier("a", true, null);
     assertTrue(externalSubject.getModifyTimeDb() < daemonTime);
     assertTrue(externalSubject.isEnabled());
 
-    externalSubject = GrouperDAOFactory.getFactory().getExternalSubject().findByIdentifier("b", true, null);
+    externalSubject = ExternalSubjectStorageController.findByIdentifier("b", true, null);
     assertTrue(externalSubject.getModifyTimeDb() < daemonTime);
     assertTrue(externalSubject.isEnabled());
 
-    externalSubject = GrouperDAOFactory.getFactory().getExternalSubject().findByIdentifier("c", true, null);
+    externalSubject = ExternalSubjectStorageController.findByIdentifier("c", true, null);
     assertTrue(externalSubject.getModifyTimeDb() < daemonTime);
     assertFalse(externalSubject.isEnabled());
   
-    externalSubject = GrouperDAOFactory.getFactory().getExternalSubject().findByIdentifier("d", true, null);
+    externalSubject = ExternalSubjectStorageController.findByIdentifier("d", true, null);
     assertTrue(externalSubject.getModifyTimeDb() > daemonTime);
     assertTrue(externalSubject.isEnabled());
   
-    externalSubject = GrouperDAOFactory.getFactory().getExternalSubject().findByIdentifier("e", true, null);
+    externalSubject = ExternalSubjectStorageController.findByIdentifier("e", true, null);
     assertTrue(externalSubject.getModifyTimeDb() > daemonTime);
     assertFalse(externalSubject.isEnabled());
   
-    externalSubject = GrouperDAOFactory.getFactory().getExternalSubject().findByIdentifier("f", true, null);
+    externalSubject = ExternalSubjectStorageController.findByIdentifier("f", true, null);
     assertTrue(externalSubject.getModifyTimeDb() > daemonTime);
     assertTrue(externalSubject.isEnabled());
   
@@ -587,7 +586,7 @@ public class ExternalSubjectTest extends GrouperTest {
     externalSubject.store();
     externalSubject.assignAttribute("jabber", "e@r.t");
     
-    externalSubject = GrouperDAOFactory.getFactory().getExternalSubject().findByIdentifier("a", true, null);
+    externalSubject = ExternalSubjectStorageController.findByIdentifier("a", true, null);
     
     assertEquals("my name, my institution, a, " + externalSubject.getUuid() + ", a@b.c, e@r.t, my name - my institution", externalSubject.getSearchStringLower());
 
@@ -658,8 +657,9 @@ public class ExternalSubjectTest extends GrouperTest {
 
     HibernateSession.bySqlStatic().executeSql("update grouper_ext_subj set description = 'a', search_string_lower = 'b' where identifier = 'a'");
 
-    externalSubject = GrouperDAOFactory.getFactory().getExternalSubject().findByIdentifier("a", true, null);
-
+    //externalSubject = ExternalSubjectStorageController.findByIdentifier("a", true, null);
+    externalSubject = ExternalSubjectStorageController.findByIdentifier("a", true, null);
+    
     assertEquals("a", externalSubject.getDescription());
     assertEquals("b", externalSubject.getSearchStringLower());
     
@@ -667,7 +667,7 @@ public class ExternalSubjectTest extends GrouperTest {
     String status = GrouperLoader.runOnceByJobName(grouperSession, GrouperLoaderType.GROUPER_EXTERNAL_SUBJ_CALC_FIELDS);
     assertTrue(status.toLowerCase().contains("success"));
 
-    externalSubject = GrouperDAOFactory.getFactory().getExternalSubject().findByIdentifier("a", true, null);
+    externalSubject = ExternalSubjectStorageController.findByIdentifier("a", true, null);
 
     assertEquals("My Name - My Institution", externalSubject.getDescription());
     assertEquals("my name, my institution, a, " + externalSubject.getUuid() + ", a@b.c, e@r.t, my name - my institution", externalSubject.getSearchStringLower());

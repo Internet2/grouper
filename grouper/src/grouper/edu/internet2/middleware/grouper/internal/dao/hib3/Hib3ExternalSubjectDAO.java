@@ -22,6 +22,7 @@ import java.util.Set;
 
 import edu.internet2.middleware.grouper.externalSubjects.ExternalSubject;
 import edu.internet2.middleware.grouper.externalSubjects.ExternalSubjectAttribute;
+import edu.internet2.middleware.grouper.externalSubjects.ExternalSubjectAttributeStorageController;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.ByHql;
 import edu.internet2.middleware.grouper.hibernate.ByHqlStatic;
@@ -99,7 +100,7 @@ public class Hib3ExternalSubjectDAO extends Hib3DAO implements ExternalSubjectDA
             List<ExternalSubjectAttribute> externalSubjectAttributes = byHql.list(ExternalSubjectAttribute.class);
             
             for (ExternalSubjectAttribute externalSubjectAttribute : GrouperUtil.nonNull(externalSubjectAttributes)) {
-              GrouperDAOFactory.getFactory().getExternalSubjectAttribute().delete(externalSubjectAttribute);
+              ExternalSubjectAttributeStorageController.delete(externalSubjectAttribute);
             }
             
             // delete external subject
