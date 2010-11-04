@@ -118,9 +118,6 @@ public class ExternalSubjectConfig {
    */
   public static class ExternalSubjectAttributeConfigBean {
 
-    /** friendly name can be shown on screen */
-    private String friendlyName;
-
     /** system name is the column name of view, and can also be the subject attribute name */
     private String systemName;
 
@@ -136,14 +133,6 @@ public class ExternalSubjectConfig {
      */
     public String getComment() {
       return this.comment;
-    }
-
-    /**
-     * friendly name can be shown on screen
-     * @return friendly name
-     */
-    public String getFriendlyName() {
-      return this.friendlyName;
     }
 
     /**
@@ -211,8 +200,6 @@ public class ExternalSubjectConfig {
               externalSubjectConfigBean.externalSubjectAttributeConfigBeans.add(externalSubjectAttributeConfigBean);
               
               externalSubjectAttributeConfigBean.systemName = GrouperConfig.getProperty(propertyName);
-              externalSubjectAttributeConfigBean.friendlyName = GrouperConfig.getProperty(
-                  "externalSubjects.attributes." + attributeConfigName + ".friendlyName");
 
               externalSubjectAttributeConfigBean.comment = GrouperConfig.getProperty(
                   "externalSubjects.attributes." + attributeConfigName + ".comment");

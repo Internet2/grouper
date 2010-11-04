@@ -62,6 +62,7 @@ public class GrouperUiRestServlet extends HttpServlet {
 
   /** uris that it is ok to get (e.g. auto complete and other ajax components */
   private static Set<String> operationsOkGet = GrouperUtil.toSet(
+      "InviteExternalSubjects.groupToAssignFilter",
       "SimpleMembershipUpdateFilter.filterUsers", "SimpleMembershipUpdateFilter.filterGroups",
       "SimpleMembershipUpdateMenu.advancedMenuStructure", "SimpleMembershipUpdateImportExport.exportSubjectIdsCsv",
       "SimpleMembershipUpdateImportExport.exportAllCsv", "SimpleMembershipUpdateMenu.memberMenuStructure",
@@ -166,7 +167,16 @@ public class GrouperUiRestServlet extends HttpServlet {
         guiResponseJs = new GuiResponseJs();
         guiResponseJs.addAction(GuiScreenAction.newCloseModal());
         guiResponseJs.setAddTextAreaTag(addTextArea);
-        guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simpleMembershipUpdate.startOver")));
+        
+        UiSection uiSection = GrouperUiFilter.uiSectionForRequest();
+        
+        String startOverKey = "simpleMembershipUpdate.startOver";
+        
+        if (uiSection == UiSection.EXTERNAL) {
+          startOverKey = "externalSubjectSelfRegister.startOver";
+        }
+          
+        guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message(startOverKey)));
 
       } catch (ControllerDone cd) {
         printToScreen = cd.isPrintGuiReponseJs();
@@ -217,7 +227,7 @@ public class GrouperUiRestServlet extends HttpServlet {
       loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
       guiSettings.setLoggedInSubject(new GuiSubject(loggedInSubject));
     } catch (SubjectNotFoundException snfe) {
-      UiSection uiSection = GrouperUiFilter.uiSectionForRequest(GrouperUiFilter.retrieveHttpServletRequest());
+      UiSection uiSection = GrouperUiFilter.uiSectionForRequest();
       //if its anonymous, then there might not be a subject logged in
       if (!uiSection.isAnonymous()) {
         throw snfe;

@@ -359,6 +359,7 @@ public class ExternalSubjectAttribute extends GrouperAPI implements GrouperHasCo
    */
   @Override
   public void onPreUpdate(HibernateSession hibernateSession) {
+    super.onPreUpdate(hibernateSession);
     this.setModifierMemberId( GrouperSession.staticGrouperSession().getMember().getUuid() );
     this.setModifyTimeDb( System.currentTimeMillis() );
   
@@ -406,6 +407,8 @@ public class ExternalSubjectAttribute extends GrouperAPI implements GrouperHasCo
   
           hibernateHandlerBean.getHibernateSession().setCachingEnabled(false);
   
+          ExternalSubjectAttribute.this.setSubjectUuid(externalSubject.getUuid());
+          
           boolean isInsert = HibUtilsMapping.isInsert(ExternalSubjectAttribute.this);
           
           ExternalSubjectAttributeStorageController.saveOrUpdate( ExternalSubjectAttribute.this );

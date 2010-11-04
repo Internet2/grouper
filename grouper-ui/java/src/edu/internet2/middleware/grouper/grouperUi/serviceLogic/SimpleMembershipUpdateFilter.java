@@ -46,7 +46,6 @@ import edu.internet2.middleware.subject.SubjectTooManyResults;
 public class SimpleMembershipUpdateFilter {
 
   /** logger */
-  @SuppressWarnings("unused")
   private static final Log LOG = LogFactory.getLog(SimpleMembershipUpdateFilter.class);
 
   /**
@@ -335,7 +334,6 @@ public class SimpleMembershipUpdateFilter {
    * @return the set of members
    * @throws SchemaException
    */
-  @SuppressWarnings("unchecked")
   Set<Member> retrieveMembersFilter(GuiPaging guiPaging, Group group, String filterString, boolean[] tooManyResultsArray)
       throws SchemaException {
     Set<Member> members = new LinkedHashSet<Member>();
@@ -448,7 +446,6 @@ public class SimpleMembershipUpdateFilter {
    * @param request
    * @param response
    */
-  @SuppressWarnings("unchecked")
   public void retrieveMembersFilterButton(HttpServletRequest request, HttpServletResponse response) {
     final SimpleMembershipUpdateContainer simpleMembershipUpdateContainer = 
       SimpleMembershipUpdateContainer.retrieveFromSession();

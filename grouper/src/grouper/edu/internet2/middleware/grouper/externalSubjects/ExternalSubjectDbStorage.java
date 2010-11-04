@@ -49,8 +49,7 @@ public class ExternalSubjectDbStorage implements ExternalSubjectStorable {
    * @see edu.internet2.middleware.grouper.externalSubjects.ExternalSubjectStorable#saveOrUpdate(edu.internet2.middleware.grouper.externalSubjects.ExternalSubject)
    */
   public void saveOrUpdate(ExternalSubject externalSubject) {
-    
-    GrouperDAOFactory.getFactory().getExternalSubject().saveOrUpdate(externalSubject);
+    GrouperDAOFactory.getFactory().getExternalSubject().saveOrUpdate( externalSubject );
   }
 
 }

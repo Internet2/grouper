@@ -63,6 +63,7 @@ import edu.internet2.middleware.grouper.grouperUi.beans.SessionContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
 import edu.internet2.middleware.grouper.grouperUi.serviceLogic.ExternalSubjectSelfRegister;
+import edu.internet2.middleware.grouper.grouperUi.serviceLogic.InviteExternalSubjects;
 import edu.internet2.middleware.grouper.hibernate.GrouperContext;
 import edu.internet2.middleware.grouper.hooks.beans.GrouperContextTypeBuiltIn;
 import edu.internet2.middleware.grouper.hooks.beans.HooksContext;
@@ -224,7 +225,7 @@ public class GrouperUiFilter implements Filter {
     
     HttpServletRequest request = retrieveHttpServletRequest();
 
-    UiSection uiSectionForRequest = uiSectionForRequest(request);
+    UiSection uiSectionForRequest = uiSectionForRequest();
 
     if (subjectLoggedIn != null) {
       return subjectLoggedIn;
@@ -390,6 +391,9 @@ public class GrouperUiFilter implements Filter {
     ADMIN_UI("require.group.for.logins", null),
 
     /** simple membership update */
+    INVITE_EXTERNAL_SUBJECTS("require.group.for.inviteExternalSubjects.logins", null),
+    
+    /** simple membership update */
     SIMPLE_MEMBERSHIP_UPDATE("require.group.for.membershipUpdateLite.logins", GrouperUtil.toSet(ADMIN_UI)),
     
     /** subject picker */
@@ -480,8 +484,9 @@ public class GrouperUiFilter implements Filter {
    * @param httpServletRequest
    * @return true if allowed anonymous
    */
-  public static UiSection uiSectionForRequest(HttpServletRequest httpServletRequest) {
+  public static UiSection uiSectionForRequest() {
     
+    HttpServletRequest httpServletRequest = retrieveHttpServletRequest();
     UiSection uiSection = (UiSection)httpServletRequest.getAttribute("uiSectionForRequest");
     if (uiSection == null) {
       uiSection = uiSectionForRequestHelper(httpServletRequest);
@@ -574,6 +579,9 @@ public class GrouperUiFilter implements Filter {
       if (theClass.startsWith("SubjectPicker") || theClass.startsWith("AttributeDefNamePicker")) {
         return UiSection.SUBJECT_PICKER;
       }
+      if (theClass.startsWith(InviteExternalSubjects.class.getSimpleName())) {
+        return UiSection.INVITE_EXTERNAL_SUBJECTS;
+      }
     }
 
     //must be admin UI
@@ -639,7 +647,7 @@ public class GrouperUiFilter implements Filter {
         subject = grouperSession.getSubject();
       }
       
-      UiSection uiSection = uiSectionForRequest(httpServletRequest);
+      UiSection uiSection = uiSectionForRequest();
       
       if (subject == null && !StringUtils.isBlank(remoteUser)) {
         GrouperSession rootSession = null;
@@ -741,6 +749,7 @@ public class GrouperUiFilter implements Filter {
     } catch (ControllerDone cd) {
       //ignore
     } catch (Throwable t) {      
+      
       GrouperUiUtils.appendErrorToRequest(ExceptionUtils.getFullStackTrace(t));
       LOG.error("UI error", t);
 

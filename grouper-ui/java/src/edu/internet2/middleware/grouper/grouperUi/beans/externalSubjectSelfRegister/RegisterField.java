@@ -26,6 +26,25 @@ public class RegisterField {
   /** value of field */
   private String value;
   
+  /** param name in request */
+  private String paramName;
+  
+  /**
+   * param name in request
+   * @return param name
+   */
+  public String getParamName() {
+    return this.paramName;
+  }
+
+  /**
+   * param name in request
+   * @param paramName1
+   */
+  public void setParamName(String paramName1) {
+    this.paramName = paramName1;
+  }
+
   /**
    * value of field
    * @return value

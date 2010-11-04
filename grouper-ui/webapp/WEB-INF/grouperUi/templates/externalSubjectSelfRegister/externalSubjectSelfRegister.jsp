@@ -9,50 +9,54 @@
 <div class="section" style="margin-top: 0px; width:800px">
   <grouper:subtitle key="externalSubjectSelfRegister.registerSectionHeader" />
   <div class="sectionBody">
-    <%-- shows the group information --%>
-    <table class="formTable " cellspacing="2" style="margin-bottom: 0">
-      <tbody>
-        <c:forEach items="${externalRegisterContainer.registerFields}" var="registerField">
-      
-          <tr class="formTableRow">
-          <%-- c:if test="${!simpleMembershipUpdateContainer.showNameRowByDefault}" --%>
-            <td class="formTableLeft">
-            <grouper:message value="${registerField.label}"
-        valueTooltip="${registerField.tooltip}" />
-		         <c:if test="${registerField.required}">
-		           <span class="requiredIndicator">*</span>
-		         </c:if>
-            </td>
-            <td class="formTableRight">
-              <c:choose>
-                <c:when test="${registerField.readonly}">
-                  <c:out value="${registerField.value}"></c:out>
-                </c:when>
-                <c:otherwise>
-                  <input type="text"  />
-                </c:otherwise>
-              </c:choose>
-            </td>
-          </tr>
-        </c:forEach>
-        <tr>
-          <td colspan="2" style="text-align: right">
-            <div class="buttonRow">
-					    <input class="redButton" type="submit" 
-					      onclick="ajax('SimpleMembershipUpdate.deleteMultiple', {formIds: 'simpleMembershipUpdateDeleteMultipleForm'}); return false;" 
-					      value="Delete record" 
-					      onmouseover="Tip('${grouper:escapeJavascript(simpleMembershipUpdateContainer.text.deleteMultipleTooltip)}')" 
-					      onmouseout="UnTip()" />
-					    &nbsp;
-					    <input class="blueButton" type="submit" 
-					      onclick="ajax('SimpleMembershipUpdate.deleteAll'); return false;" 
-					      value="Submit" 
-					      onmouseover="Tip('${grouper:escapeJavascript(simpleMembershipUpdateContainer.text.deleteAllTooltip)}')" 
-					      onmouseout="UnTip()" />    
-					  </div>
-				  </td>
-        </tr>
-      </tbody>
-    </table>
+    <form action="whatever" id="selfRegisterFormId" name="selfRegisterFormName">
+	    <%-- shows the self register table --%>
+	    <table class="formTable " cellspacing="2" style="margin-bottom: 0">
+	      <tbody>
+	        <c:forEach items="${externalRegisterContainer.registerFields}" var="registerField">
+	      
+	          <tr class="formTableRow">
+	          <%-- c:if test="${!simpleMembershipUpdateContainer.showNameRowByDefault}" --%>
+	            <td class="formTableLeft">
+	            <grouper:message value="${registerField.label}"
+	        valueTooltip="${registerField.tooltip}" />
+			         <c:if test="${registerField.required}">
+			           <span class="requiredIndicator">*</span>
+			         </c:if>
+	            </td>
+	            <td class="formTableRight">
+	              <c:choose>
+	                <c:when test="${registerField.readonly}">
+	                  <c:out value="${registerField.value}"></c:out>
+	                </c:when>
+	                <c:otherwise>
+	                  <input type="text" name="${registerField.paramName}" value="${registerField.value}" />
+	                </c:otherwise>
+	              </c:choose>
+	            </td>
+	          </tr>
+	        </c:forEach>
+	        <tr>
+	          <td colspan="2" style="text-align: right">
+	            <div class="buttonRow">
+	              <c:if test="${!externalRegisterContainer.insert}">
+	                <input class="redButton" type="submit" 
+	                  onclick="if(confirm('${grouper:escapeJavascript(navMap['inviteExternalSubjects.confirmDelete'])}')) {ajax('ExternalSubjectSelfRegister.delete', {formIds: 'selfRegisterFormId'});} return false;" 
+	                  value="${navMap['externalSubjectSelfRegister.deleteRecordButtonText']}" 
+	                  onmouseover="Tip('${grouper:escapeJavascript(navMap['externalSubjectSelfRegister.deleteRecordButtonTooltip'])}')" 
+	                  onmouseout="UnTip()" />
+	                &nbsp;
+	              </c:if>
+						    <input class="blueButton" type="submit" 
+						      onclick="ajax('ExternalSubjectSelfRegister.submit', {formIds: 'selfRegisterFormId'}); return false;" 
+						      value="${navMap['externalSubjectSelfRegister.submitButtonText']}" 
+						      onmouseover="Tip('${grouper:escapeJavascript(navMap['externalSubjectSelfRegister.submitButtonTooltip'])}')" 
+						      onmouseout="UnTip()" />    
+						  </div>
+					  </td>
+	        </tr>
+	      </tbody>
+	    </table>
+	  </form>
   </div>
 </div>

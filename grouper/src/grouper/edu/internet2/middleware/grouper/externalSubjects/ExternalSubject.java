@@ -40,7 +40,7 @@ import edu.internet2.middleware.subject.Subject;
  * @author mchyzer
  *
  */
-@SuppressWarnings("serial")
+@SuppressWarnings({ "serial", "unchecked" })
 public class ExternalSubject extends GrouperAPI implements GrouperHasContext, 
    Hib3GrouperVersioned {
 
@@ -571,6 +571,9 @@ public class ExternalSubject extends GrouperAPI implements GrouperHasContext,
    */
   @Override
   public void onPreUpdate(HibernateSession hibernateSession) {
+    
+    super.onPreUpdate(hibernateSession);
+    
     this.setModifierMemberId( GrouperSession.staticGrouperSession().getMember().getUuid() );
     this.setModifyTimeDb( System.currentTimeMillis() );
 
@@ -743,7 +746,7 @@ public class ExternalSubject extends GrouperAPI implements GrouperHasContext,
    * store this object to the DB.
    * @param externalSubjectAttributes null to not worry, not null to affect the external subject attributes too
    */
-  public void store(Set<ExternalSubjectAttribute> externalSubjectAttributes) {    
+  public void store(final Set<ExternalSubjectAttribute> externalSubjectAttributes) {    
     
     this.assertCurrentUserCanEditExternalUsers();
     
@@ -754,38 +757,59 @@ public class ExternalSubject extends GrouperAPI implements GrouperHasContext,
     this.calculateDisabledFlag();
     
     HibernateSession.callbackHibernateSession(
-      GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT,
-      new HibernateHandler() {
+        GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT,
+        new HibernateHandler() {
 
-        public Object callback(HibernateHandlerBean hibernateHandlerBean)
-            throws GrouperDAOException {
-  
-          hibernateHandlerBean.getHibernateSession().setCachingEnabled(false);
+          /**
+           * 
+           */
+          public Object callback(HibernateHandlerBean hibernateHandlerBean)
+              throws GrouperDAOException {
 
-          boolean isInsert = HibUtilsMapping.isInsert(ExternalSubject.this);
-          
-          //GrouperDAOFactory.getFactory().getExternalSubject().saveOrUpdate( ExternalSubject.this );
-          ExternalSubjectStorageController.saveOrUpdate(ExternalSubject.this);
-          
-          if (!hibernateHandlerBean.isCallerWillCreateAudit()) {
-            AuditEntry auditEntry = null;
+            HibernateSession.callbackHibernateSession(
+                GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT,
+                new HibernateHandler() {
 
-            if (isInsert) {
-              auditEntry = new AuditEntry(AuditTypeBuiltin.EXTERNAL_SUBJECT_ADD, "id", 
-                  ExternalSubject.this.getUuid(), "name", ExternalSubject.this.getName(), "identifier", ExternalSubject.this.getIdentifier());
-              auditEntry.setDescription("Added external subject: " + ExternalSubject.this.getDescription());
-            } else {
-              auditEntry = new AuditEntry(AuditTypeBuiltin.EXTERNAL_SUBJECT_UPDATE, "id", 
-                  ExternalSubject.this.getUuid(), "name", ExternalSubject.this.getName(), "identifier", ExternalSubject.this.getIdentifier());
-              auditEntry.setDescription("Updated external subject: " + ExternalSubject.this.getDescription());
+                  public Object callback(HibernateHandlerBean hibernateHandlerBean)
+                      throws GrouperDAOException {
+            
+                    hibernateHandlerBean.getHibernateSession().setCachingEnabled(false);
 
+                    boolean isInsert = HibUtilsMapping.isInsert(ExternalSubject.this);
+                    
+                    //GrouperDAOFactory.getFactory().getExternalSubject().saveOrUpdate( ExternalSubject.this );
+                    ExternalSubjectStorageController.saveOrUpdate(ExternalSubject.this);
+                    
+                    if (!hibernateHandlerBean.isCallerWillCreateAudit()) {
+                      AuditEntry auditEntry = null;
+
+                      if (isInsert) {
+                        auditEntry = new AuditEntry(AuditTypeBuiltin.EXTERNAL_SUBJECT_ADD, "id", 
+                            ExternalSubject.this.getUuid(), "name", ExternalSubject.this.getName(), "identifier", ExternalSubject.this.getIdentifier());
+                        auditEntry.setDescription("Added external subject: " + ExternalSubject.this.getDescription());
+                      } else {
+                        auditEntry = new AuditEntry(AuditTypeBuiltin.EXTERNAL_SUBJECT_UPDATE, "id", 
+                            ExternalSubject.this.getUuid(), "name", ExternalSubject.this.getName(), "identifier", ExternalSubject.this.getIdentifier());
+                        auditEntry.setDescription("Updated external subject: " + ExternalSubject.this.getDescription());
+
+                      }
+                      auditEntry.saveOrUpdate(true);
+                    }
+
+                    return null;
+                  }
+                });
+
+            for (ExternalSubjectAttribute externalSubjectAttribute : GrouperUtil.nonNull(externalSubjectAttributes)) {
+              
+              externalSubjectAttribute.store(ExternalSubject.this);
+              
             }
-            auditEntry.saveOrUpdate(true);
+            
+            return null;
           }
-
-          return null;
-        }
-      });
+          
+        });
 
   }
 

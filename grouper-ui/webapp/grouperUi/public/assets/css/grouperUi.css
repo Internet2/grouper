@@ -375,3 +375,6 @@ div#simpleMembershipFilterMemberDiv img.dhx_combo_img {
 div#simpleMembershipUpdatePickGroupDiv img.dhx_combo_img {
   display: none;
 } 
+div.inviteExternalSubjectsDiv img.dhx_combo_img {
+  display: none;
+} 
