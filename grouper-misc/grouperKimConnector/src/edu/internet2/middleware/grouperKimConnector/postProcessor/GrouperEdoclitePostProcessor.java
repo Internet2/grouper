@@ -12,15 +12,20 @@ import java.util.Set;
 
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathException;
+import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
 import org.kuali.rice.kew.edl.EDocLitePostProcessor;
+import org.kuali.rice.kew.postprocessor.ActionTakenEvent;
 import org.kuali.rice.kew.postprocessor.DocumentRouteStatusChange;
 import org.kuali.rice.kew.postprocessor.ProcessDocReport;
 import org.kuali.rice.kew.routeheader.DocumentRouteHeaderValue;
 import org.kuali.rice.kew.service.KEWServiceLocator;
 import org.kuali.rice.kew.util.KEWConstants;
+import org.kuali.rice.kew.util.XmlHelper;
 import org.kuali.rice.kim.bo.Person;
+import org.kuali.rice.kim.bo.entity.dto.KimEntityInfo;
+import org.kuali.rice.kim.service.IdentityService;
 import org.kuali.rice.kim.service.KIMServiceLocator;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -56,6 +61,18 @@ public class GrouperEdoclitePostProcessor extends EDocLitePostProcessor {
   private static final Log LOG = GrouperClientUtils.retrieveLog(GrouperEdoclitePostProcessor.class);
 
   /**
+   * @see org.kuali.rice.kew.edl.EDLDatabasePostProcessor#doActionTaken(org.kuali.rice.kew.postprocessor.ActionTakenEvent)
+   */
+  @Override
+  public ProcessDocReport doActionTaken(ActionTakenEvent actionTakenEvent) throws Exception {
+    ProcessDocReport processDocReport = super.doActionTaken(actionTakenEvent);
+    
+    syncOnBehalfOf(actionTakenEvent);
+    
+    return processDocReport;
+  }
+
+  /**
    * when the document goes to final, provision the group
    * @see org.kuali.rice.kew.edl.EDocLitePostProcessor#doRouteStatusChange(org.kuali.rice.kew.postprocessor.DocumentRouteStatusChange)
    */
@@ -68,6 +85,64 @@ public class GrouperEdoclitePostProcessor extends EDocLitePostProcessor {
     
     return processDocReport;
   }
+
+  /**
+   * @param actionTakenEvent
+   * @throws Exception
+   * @throws XPathExpressionException
+   */
+  public static void syncOnBehalfOf(ActionTakenEvent actionTakenEvent) throws Exception,
+      XPathExpressionException {
+    DocumentRouteHeaderValue documentRouteHeaderValue = KEWServiceLocator.getRouteHeaderService().getRouteHeader(actionTakenEvent.getRouteHeaderId());
+    Document document = getEDLContent(documentRouteHeaderValue);
+    Element root = document.getDocumentElement();
+    if (GrouperEdocliteDatabasePostProcessor.LOG.isDebugEnabled()) {
+      GrouperEdocliteDatabasePostProcessor.LOG.debug("Submitting doc: " + XmlHelper.jotNode(document));
+    }
+    
+    //<documentContent>
+    //  <applicationContent>
+    //    <data edlName="salaryManagementAccessForm">
+    //      <version current="false" date="Thu Nov 04 16:56:34 EDT 2010" version="0" />
+    //      <version current="true" date="Thu Nov 04 16:57:09 EDT 2010" version="1">
+    //        <field name="onBehalfOfPennId">
+    //          <value>10021368</value>
+    //        </field>
+  
+    
+    String xpathExpression = "//data/version[@current = \"true\"]" 
+      + "/field[@name = \"onBehalfOfPennId\"]/value";
+    
+    XPath newXPath = XPathFactory.newInstance().newXPath();
+    String initiatorIdFromForm = newXPath.evaluate(xpathExpression, root);
+    
+    if (!GrouperClientUtils.isBlank(initiatorIdFromForm)) {
+      
+      IdentityService identityService = KIMServiceLocator.getIdentityService();
+      KimEntityInfo kimEntityInfoFromForm = identityService.getEntityInfo(initiatorIdFromForm);
+      
+      String entityIdFromForm = kimEntityInfoFromForm.getEntityId();
+      
+      String initiatorWorkflowIdFromTable = documentRouteHeaderValue.getInitiatorWorkflowId();
+  
+      //note the entity id might not be the principal id, but in the grouper service it is
+      if (GrouperEdocliteDatabasePostProcessor.LOG.isDebugEnabled()) {
+        GrouperEdocliteDatabasePostProcessor.LOG.debug("entityId: " + entityIdFromForm + ", initiatorId: " + initiatorWorkflowIdFromTable);
+      }
+      
+      if (!GrouperClientUtils.equals(entityIdFromForm, initiatorWorkflowIdFromTable)) {
+        
+        //update the initiator workflow id in the database
+        documentRouteHeaderValue.setInitiatorWorkflowId(entityIdFromForm);
+        if (GrouperEdocliteDatabasePostProcessor.LOG.isDebugEnabled()) {
+          GrouperEdocliteDatabasePostProcessor.LOG.debug("update document route header value: " + documentRouteHeaderValue.getObjectId() + ", initiator id to: " + entityIdFromForm);
+        }
+        KEWServiceLocator.getRouteHeaderService().saveRouteHeader(documentRouteHeaderValue);
+      }
+    }
+  }
+
+
 
   /**
    * @param grouperKimSaveMembershipProperties
