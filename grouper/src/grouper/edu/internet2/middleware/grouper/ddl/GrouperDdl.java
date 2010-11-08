@@ -7569,7 +7569,7 @@ public enum GrouperDdl implements DdlVersionable {
           Types.VARCHAR, "200", false, false);
   
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(externalSubjectTable, ExternalSubject.COLUMN_IDENTIFIER, 
-          Types.VARCHAR, "200", false, false);
+          Types.VARCHAR, "300", false, false);
   
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(externalSubjectTable, ExternalSubject.COLUMN_DESCRIPTION, 
           Types.VARCHAR, "500", false, false);
@@ -7578,7 +7578,7 @@ public enum GrouperDdl implements DdlVersionable {
           Types.VARCHAR, "200", false, false);
   
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(externalSubjectTable, ExternalSubject.COLUMN_EMAIL, 
-          Types.VARCHAR, "100", false, false);
+          Types.VARCHAR, "200", false, false);
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(externalSubjectTable, ExternalSubject.COLUMN_SEARCH_STRING_LOWER, 
           Types.VARCHAR, "4000", false, false);
