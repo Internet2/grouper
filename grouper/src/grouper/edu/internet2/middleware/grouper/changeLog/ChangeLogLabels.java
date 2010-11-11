@@ -957,7 +957,13 @@ public class ChangeLogLabels {
     ownerId1,
     
     /** ownerId2 - if the assignType is any_mem, then ownerId1 is the groupId and ownerId2 is the memberId */
-    ownerId2;
+    ownerId2,
+    
+    /** attributeDefNameName */
+    attributeDefNameName, 
+    
+    /** action */
+    action;
   }
   
   /**
@@ -981,7 +987,61 @@ public class ChangeLogLabels {
     ownerId1,
     
     /** ownerId2 - if the assignType is any_mem, then ownerId1 is the groupId and ownerId2 is the memberId */
-    ownerId2;
+    ownerId2,
+    
+    /** attributeDefNameName */
+    attributeDefNameName, 
+    
+    /** action */
+    action;
+  }
+  
+  /**
+   * label for attribute assign value add
+   */
+  public static enum ATTRIBUTE_ASSIGN_VALUE_ADD implements ChangeLogLabel {
+  
+    /** id */
+    id, 
+    
+    /** attributeAssignId */
+    attributeAssignId,
+    
+    /** attributeDefNameId */
+    attributeDefNameId,
+    
+    /** attributeDefNameName */
+    attributeDefNameName,
+    
+    /** value */
+    value,
+    
+    /** valueType */
+    valueType;
+  }
+  
+  /**
+   * label for attribute assign value delete
+   */
+  public static enum ATTRIBUTE_ASSIGN_VALUE_DELETE implements ChangeLogLabel {
+  
+    /** id */
+    id, 
+    
+    /** attributeAssignId */
+    attributeAssignId,
+    
+    /** attributeDefNameId */
+    attributeDefNameId,
+    
+    /** attributeDefNameName */
+    attributeDefNameName,
+    
+    /** value */
+    value,
+    
+    /** valueType */
+    valueType;
   }
   
   /**

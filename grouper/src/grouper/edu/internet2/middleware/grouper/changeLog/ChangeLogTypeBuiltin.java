@@ -458,7 +458,9 @@ public enum ChangeLogTypeBuiltin implements ChangeLogTypeIdentifier {
       ChangeLogLabels.ATTRIBUTE_ASSIGN_ADD.attributeAssignActionId,
       ChangeLogLabels.ATTRIBUTE_ASSIGN_ADD.assignType,
       ChangeLogLabels.ATTRIBUTE_ASSIGN_ADD.ownerId1,
-      ChangeLogLabels.ATTRIBUTE_ASSIGN_ADD.ownerId2)),
+      ChangeLogLabels.ATTRIBUTE_ASSIGN_ADD.ownerId2,
+      ChangeLogLabels.ATTRIBUTE_ASSIGN_ADD.attributeDefNameName,
+      ChangeLogLabels.ATTRIBUTE_ASSIGN_ADD.action)),
       
   /**
    * attribute assign delete
@@ -469,7 +471,31 @@ public enum ChangeLogTypeBuiltin implements ChangeLogTypeIdentifier {
       ChangeLogLabels.ATTRIBUTE_ASSIGN_DELETE.attributeAssignActionId,
       ChangeLogLabels.ATTRIBUTE_ASSIGN_DELETE.assignType,
       ChangeLogLabels.ATTRIBUTE_ASSIGN_DELETE.ownerId1,
-      ChangeLogLabels.ATTRIBUTE_ASSIGN_DELETE.ownerId2)),
+      ChangeLogLabels.ATTRIBUTE_ASSIGN_DELETE.ownerId2,
+      ChangeLogLabels.ATTRIBUTE_ASSIGN_DELETE.attributeDefNameName,
+      ChangeLogLabels.ATTRIBUTE_ASSIGN_DELETE.action)),
+  
+  /**
+   * attribute assign value add
+   */
+  ATTRIBUTE_ASSIGN_VALUE_ADD(new ChangeLogType("attributeAssignValue", "addAttributeAssignValue",
+      ChangeLogLabels.ATTRIBUTE_ASSIGN_VALUE_ADD.id,
+      ChangeLogLabels.ATTRIBUTE_ASSIGN_VALUE_ADD.attributeAssignId,
+      ChangeLogLabels.ATTRIBUTE_ASSIGN_VALUE_ADD.attributeDefNameId,
+      ChangeLogLabels.ATTRIBUTE_ASSIGN_VALUE_ADD.attributeDefNameName,
+      ChangeLogLabels.ATTRIBUTE_ASSIGN_VALUE_ADD.value,
+      ChangeLogLabels.ATTRIBUTE_ASSIGN_VALUE_ADD.valueType)),
+  
+  /**
+   * attribute assign value delete
+   */
+  ATTRIBUTE_ASSIGN_VALUE_DELETE(new ChangeLogType("attributeAssignValue", "deleteAttributeAssignValue",
+      ChangeLogLabels.ATTRIBUTE_ASSIGN_VALUE_DELETE.id,
+      ChangeLogLabels.ATTRIBUTE_ASSIGN_VALUE_DELETE.attributeAssignId,
+      ChangeLogLabels.ATTRIBUTE_ASSIGN_VALUE_DELETE.attributeDefNameId,
+      ChangeLogLabels.ATTRIBUTE_ASSIGN_VALUE_DELETE.attributeDefNameName,
+      ChangeLogLabels.ATTRIBUTE_ASSIGN_VALUE_DELETE.value,
+      ChangeLogLabels.ATTRIBUTE_ASSIGN_VALUE_DELETE.valueType)),      
       
   /**
    * permission add

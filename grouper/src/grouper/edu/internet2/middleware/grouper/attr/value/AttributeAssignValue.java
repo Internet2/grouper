@@ -22,6 +22,9 @@ import edu.internet2.middleware.grouper.attr.AttributeDefValueType;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.audit.AuditTypeBuiltin;
+import edu.internet2.middleware.grouper.changeLog.ChangeLogEntry;
+import edu.internet2.middleware.grouper.changeLog.ChangeLogLabels;
+import edu.internet2.middleware.grouper.changeLog.ChangeLogTypeBuiltin;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
@@ -118,10 +121,10 @@ public class AttributeAssignValue extends GrouperAPI implements GrouperHasContex
   /**
    * fields which are included in db version
    */
-  @SuppressWarnings("unused")
   private static final Set<String> DB_VERSION_FIELDS = GrouperUtil.toSet(
       FIELD_ATTRIBUTE_ASSIGN_ID, FIELD_CONTEXT_ID, FIELD_CREATED_ON_DB, FIELD_ID, 
-      FIELD_LAST_UPDATED_DB, FIELD_VALUE_INTEGER, FIELD_VALUE_MEMBER_ID, FIELD_VALUE_STRING);
+      FIELD_LAST_UPDATED_DB, FIELD_VALUE_INTEGER, FIELD_VALUE_MEMBER_ID, FIELD_VALUE_STRING,
+      FIELD_VALUE_FLOATING);
 
   /**
    * fields which are included in clone method
@@ -372,6 +375,21 @@ public class AttributeAssignValue extends GrouperAPI implements GrouperHasContex
             if (!hibernateHandlerBean.isCallerWillCreateAudit() && !isInsert) {
               differences = GrouperUtil.dbVersionDescribeDifferences(AttributeAssignValue.this.dbVersion(), 
                   AttributeAssignValue.this, AttributeAssignValue.this.dbVersion() != null ? AttributeAssignValue.this.dbVersionDifferentFields() : AttributeAssignValue.CLONE_FIELDS);
+            }
+            
+            if (!isInsert) {
+              // delete and re-add the row if values change
+              if (AttributeAssignValue.this.dbVersionDifferentFields().contains(FIELD_VALUE_INTEGER) ||
+                  AttributeAssignValue.this.dbVersionDifferentFields().contains(FIELD_VALUE_FLOATING) ||
+                  AttributeAssignValue.this.dbVersionDifferentFields().contains(FIELD_VALUE_STRING) ||
+                  AttributeAssignValue.this.dbVersionDifferentFields().contains(FIELD_VALUE_MEMBER_ID)) {
+               
+                GrouperDAOFactory.getFactory().getAttributeAssignValue().delete(AttributeAssignValue.this);
+                AttributeAssignValue.this.id = GrouperUuid.getUuid();
+                AttributeAssignValue.this.createdOnDb = null;
+                AttributeAssignValue.this.lastUpdatedDb = null;
+                AttributeAssignValue.this.setHibernateVersionNumber(-1L);
+              }
             }
     
             GrouperDAOFactory.getFactory().getAttributeAssignValue().saveOrUpdate(AttributeAssignValue.this);
@@ -986,6 +1004,14 @@ public class AttributeAssignValue extends GrouperAPI implements GrouperHasContex
   public void onPreDelete(HibernateSession hibernateSession) {
     super.onPreDelete(hibernateSession);
   
+    new ChangeLogEntry(true, ChangeLogTypeBuiltin.ATTRIBUTE_ASSIGN_VALUE_DELETE, 
+        ChangeLogLabels.ATTRIBUTE_ASSIGN_VALUE_DELETE.id.name(), this.getId(), 
+        ChangeLogLabels.ATTRIBUTE_ASSIGN_VALUE_DELETE.attributeAssignId.name(), this.getAttributeAssignId(), 
+        ChangeLogLabels.ATTRIBUTE_ASSIGN_VALUE_DELETE.attributeDefNameId.name(), this.getAttributeAssign().getAttributeDefNameId(), 
+        ChangeLogLabels.ATTRIBUTE_ASSIGN_VALUE_DELETE.attributeDefNameName.name(), this.getAttributeAssign().getAttributeDefName().getName(),
+        ChangeLogLabels.ATTRIBUTE_ASSIGN_VALUE_DELETE.value.name(), this.dbVersion().valueString(),
+        ChangeLogLabels.ATTRIBUTE_ASSIGN_VALUE_DELETE.valueType.name(), this.getAttributeAssign().getAttributeDef().getValueType().name()).save();
+    
     GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.ATTRIBUTE_ASSIGN_VALUE, 
         AttributeAssignValueHooks.METHOD_ATTRIBUTE_ASSIGN_VALUE_PRE_DELETE, HooksAttributeAssignValueBean.class, 
         this, AttributeAssignValue.class, VetoTypeGrouper.ATTRIBUTE_ASSIGN_VALUE_PRE_DELETE, false, false);
@@ -1004,6 +1030,14 @@ public class AttributeAssignValue extends GrouperAPI implements GrouperHasContex
     }
     this.setLastUpdatedDb(now);
     
+    new ChangeLogEntry(true, ChangeLogTypeBuiltin.ATTRIBUTE_ASSIGN_VALUE_ADD, 
+        ChangeLogLabels.ATTRIBUTE_ASSIGN_VALUE_ADD.id.name(), this.getId(), 
+        ChangeLogLabels.ATTRIBUTE_ASSIGN_VALUE_ADD.attributeAssignId.name(), this.getAttributeAssignId(), 
+        ChangeLogLabels.ATTRIBUTE_ASSIGN_VALUE_ADD.attributeDefNameId.name(), this.getAttributeAssign().getAttributeDefNameId(), 
+        ChangeLogLabels.ATTRIBUTE_ASSIGN_VALUE_ADD.attributeDefNameName.name(), this.getAttributeAssign().getAttributeDefName().getName(),
+        ChangeLogLabels.ATTRIBUTE_ASSIGN_VALUE_ADD.value.name(), this.valueString(),
+        ChangeLogLabels.ATTRIBUTE_ASSIGN_VALUE_ADD.valueType.name(), this.getAttributeAssign().getAttributeDef().getValueType().name()).save();
+    
     GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.ATTRIBUTE_ASSIGN_VALUE, 
         AttributeAssignValueHooks.METHOD_ATTRIBUTE_ASSIGN_VALUE_PRE_INSERT, HooksAttributeAssignValueBean.class, 
         this, AttributeAssignValue.class, VetoTypeGrouper.ATTRIBUTE_ASSIGN_VALUE_PRE_INSERT, false, false);
@@ -1018,6 +1052,17 @@ public class AttributeAssignValue extends GrouperAPI implements GrouperHasContex
     super.onPreUpdate(hibernateSession);
     
     this.setLastUpdatedDb(System.currentTimeMillis());
+    
+    if (AttributeAssignValue.this.dbVersionDifferentFields().contains(FIELD_VALUE_INTEGER) ||
+        AttributeAssignValue.this.dbVersionDifferentFields().contains(FIELD_VALUE_FLOATING) ||
+        AttributeAssignValue.this.dbVersionDifferentFields().contains(FIELD_VALUE_STRING) ||
+        AttributeAssignValue.this.dbVersionDifferentFields().contains(FIELD_VALUE_MEMBER_ID)) {
+      throw new RuntimeException("Cannot update values.  Must delete and re-add db rows.");
+    }
+    
+    if (this.dbVersionDifferentFields().contains(FIELD_ATTRIBUTE_ASSIGN_ID)) {
+      throw new RuntimeException("cannot update attributeAssignId");
+    }
 
     GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.ATTRIBUTE_ASSIGN_VALUE, 
         AttributeAssignValueHooks.METHOD_ATTRIBUTE_ASSIGN_VALUE_PRE_UPDATE, HooksAttributeAssignValueBean.class, 
@@ -1025,5 +1070,37 @@ public class AttributeAssignValue extends GrouperAPI implements GrouperHasContex
   
   }
 
+  /**
+   * save the state when retrieving from DB
+   * @return the dbVersion
+   */
+  @Override
+  public AttributeAssignValue dbVersion() {
+    return (AttributeAssignValue)this.dbVersion;
+  }
+  
+  /**
+   * take a snapshot of the data since this is what is in the db
+   */
+  @Override
+  public void dbVersionReset() {
+    //lets get the state from the db so we know what has changed
+    this.dbVersion = GrouperUtil.clone(this, DB_VERSION_FIELDS);
+  }
+
+
+  /**
+   * @see edu.internet2.middleware.grouper.GrouperAPI#dbVersionDifferentFields()
+   */
+  @Override
+  public Set<String> dbVersionDifferentFields() {
+    if (this.dbVersion == null) {
+      throw new RuntimeException("State was never stored from db");
+    }
+    //easier to unit test if everything is ordered
+    Set<String> result = GrouperUtil.compareObjectFields(this, this.dbVersion,
+        DB_VERSION_FIELDS, null);
+    return result;
+  }
   
 }

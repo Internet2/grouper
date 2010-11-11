@@ -1782,7 +1782,9 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
           ChangeLogLabels.ATTRIBUTE_ASSIGN_DELETE.attributeAssignActionId.name(), this.getAttributeAssignActionId(), 
           ChangeLogLabels.ATTRIBUTE_ASSIGN_DELETE.assignType.name(), this.getAttributeAssignTypeDb(), 
           ChangeLogLabels.ATTRIBUTE_ASSIGN_DELETE.ownerId1.name(), ownerId1,
-          ChangeLogLabels.ATTRIBUTE_ASSIGN_DELETE.ownerId2.name(), ownerId2).save();
+          ChangeLogLabels.ATTRIBUTE_ASSIGN_DELETE.ownerId2.name(), ownerId2,
+          ChangeLogLabels.ATTRIBUTE_ASSIGN_DELETE.attributeDefNameName.name(), this.getAttributeDefName().getName(),
+          ChangeLogLabels.ATTRIBUTE_ASSIGN_DELETE.action.name(), this.getAttributeAssignAction().getName()).save();
     }
   }
 
@@ -1832,7 +1834,9 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
           ChangeLogLabels.ATTRIBUTE_ASSIGN_ADD.attributeAssignActionId.name(), this.getAttributeAssignActionId(), 
           ChangeLogLabels.ATTRIBUTE_ASSIGN_ADD.assignType.name(), this.getAttributeAssignTypeDb(), 
           ChangeLogLabels.ATTRIBUTE_ASSIGN_ADD.ownerId1.name(), ownerId1,
-          ChangeLogLabels.ATTRIBUTE_ASSIGN_ADD.ownerId2.name(), ownerId2).save();
+          ChangeLogLabels.ATTRIBUTE_ASSIGN_ADD.ownerId2.name(), ownerId2,
+          ChangeLogLabels.ATTRIBUTE_ASSIGN_ADD.attributeDefNameName.name(), this.getAttributeDefName().getName(),
+          ChangeLogLabels.ATTRIBUTE_ASSIGN_ADD.action.name(), this.getAttributeAssignAction().getName()).save();
     }
   }
 
@@ -1902,7 +1906,9 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
           ChangeLogLabels.ATTRIBUTE_ASSIGN_ADD.attributeAssignActionId.name(), this.getAttributeAssignActionId(), 
           ChangeLogLabels.ATTRIBUTE_ASSIGN_ADD.assignType.name(), this.getAttributeAssignTypeDb(), 
           ChangeLogLabels.ATTRIBUTE_ASSIGN_ADD.ownerId1.name(), ownerId1,
-          ChangeLogLabels.ATTRIBUTE_ASSIGN_ADD.ownerId2.name(), ownerId2).save();
+          ChangeLogLabels.ATTRIBUTE_ASSIGN_ADD.ownerId2.name(), ownerId2,
+          ChangeLogLabels.ATTRIBUTE_ASSIGN_ADD.attributeDefNameName.name(), this.getAttributeDefName().getName(),
+          ChangeLogLabels.ATTRIBUTE_ASSIGN_ADD.action.name(), this.getAttributeAssignAction().getName()).save();
     } else if (!this.isEnabled() && this.dbVersion().isEnabled()) {
       // this is a delete
       new ChangeLogEntry(true, ChangeLogTypeBuiltin.ATTRIBUTE_ASSIGN_DELETE, 
@@ -1911,7 +1917,9 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
           ChangeLogLabels.ATTRIBUTE_ASSIGN_DELETE.attributeAssignActionId.name(), this.getAttributeAssignActionId(), 
           ChangeLogLabels.ATTRIBUTE_ASSIGN_DELETE.assignType.name(), this.getAttributeAssignTypeDb(), 
           ChangeLogLabels.ATTRIBUTE_ASSIGN_DELETE.ownerId1.name(), ownerId1,
-          ChangeLogLabels.ATTRIBUTE_ASSIGN_DELETE.ownerId2.name(), ownerId2).save();
+          ChangeLogLabels.ATTRIBUTE_ASSIGN_DELETE.ownerId2.name(), ownerId2,
+          ChangeLogLabels.ATTRIBUTE_ASSIGN_DELETE.attributeDefNameName.name(), this.getAttributeDefName().getName(),
+          ChangeLogLabels.ATTRIBUTE_ASSIGN_DELETE.action.name(), this.getAttributeAssignAction().getName()).save();
     }
   }
 
