@@ -73,5 +73,4 @@ public interface AttributeAssignValueDAO extends GrouperDAO {
       String id, String attributeAssignId, boolean exceptionIfNull, 
       Long valueInteger, String valueMemberId, String valueString) throws GrouperDAOException;
 
-  
 }

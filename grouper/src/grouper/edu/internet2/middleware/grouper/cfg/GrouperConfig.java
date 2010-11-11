@@ -280,4 +280,24 @@ public class GrouperConfig {
     }
     return GrouperUtil.intValue(value, defaultValue);
   }
+  
+  /**
+   * get the UI url with a slash on the end
+   * @param exceptionIfNull
+   * @return the UI URL
+   */
+  public static String getGrouperUiUrl(boolean exceptionIfNull) {
+    String url = getProperty("grouper.ui.url");
+    if (StringUtils.isBlank(url)) {
+      if (exceptionIfNull) {
+        throw new RuntimeException("grouper.ui.url is null in grouper.properties");
+      }
+      return null;
+    }
+    if (url.endsWith("/")) {
+      return url;
+    }
+    return url + "/";
+  }
+  
 } 

@@ -178,6 +178,8 @@ public class ExternalSubjectSelfRegister {
 
       final ExternalSubject EXTERNAL_SUBJECT = externalSubject;
       
+      final String externalSubjectInviteName = request.getParameter("externalSubjectInviteName");
+      
       //all validation is done, lets store the info
       HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
 
@@ -219,7 +221,7 @@ public class ExternalSubjectSelfRegister {
             }
           }
 
-          EXTERNAL_SUBJECT.store(externalSubjectAttributes);
+          EXTERNAL_SUBJECT.store(externalSubjectAttributes, externalSubjectInviteName);
           
           return null;
         }
@@ -227,6 +229,13 @@ public class ExternalSubjectSelfRegister {
       
       String message = TagUtils.navResourceString("externalSubjectSelfRegister.successEdited");
       
+      //get a new container
+      ExternalRegisterContainer externalRegisterContainer2 = new ExternalRegisterContainer();
+      externalRegisterContainer2.storeToRequest();
+      
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#bodyDiv", 
+        "/WEB-INF/grouperUi/templates/externalSubjectSelfRegister/externalSubjectSelfRegister.jsp"));
+
       //note, there is a java way to do this... hmmm
       message = StringUtils.replace(message, "{0}", identifier);
       guiResponseJs.addAction(GuiScreenAction.newAlert(message));

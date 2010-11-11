@@ -4,6 +4,8 @@
  */
 package edu.internet2.middleware.grouper.util;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 
 import javax.mail.Authenticator;
@@ -27,6 +29,19 @@ import edu.internet2.middleware.morphString.Morph;
  */
 public class GrouperEmail {
 
+  /**
+   * keep list emails (max 100) if testing...
+   */
+  private static List<GrouperEmail> testingEmails = new ArrayList();
+  
+  /**
+   * 
+   * @return the list of emails
+   */
+  public static List<GrouperEmail> testingEmails() {
+    return testingEmails;
+  }
+  
   /** keep count for testing */
   public static long testingEmailCount = 0;
   
@@ -42,6 +57,38 @@ public class GrouperEmail {
   /** body of email (currently HTML is not supported, only plain text) */
   private String body;
   
+  /**
+   * who this email is going to (comma separated)
+   * @return to
+   */
+  public String getTo() {
+    return this.to;
+  }
+
+  /**
+   * subject of email
+   * @return subject
+   */
+  public String getSubject() {
+    return this.subject;
+  }
+
+  /**
+   * email address this is from
+   * @return from
+   */
+  public String getFrom() {
+    return this.from;
+  }
+
+  /**
+   * body of email (currently HTML is not supported, only plain text)
+   * @return body
+   */
+  public String getBody() {
+    return this.body;
+  }
+
   /**
    * 
    */
@@ -184,7 +231,15 @@ public class GrouperEmail {
       if (!StringUtils.equals("testing", smtpServer)) {
         Transport.send(message);
       } else {
-        LOG.error("Not sending email since smtp server is 'testing'");
+        LOG.error("Not sending email since smtp server is 'testing'. \nTO: " + this.to + "\nFROM: " + theFrom + "\nSUBJECT: " + theSubject + "\nBODY: " + this.body + "\n");
+        synchronized (GrouperEmail.class) {
+          
+          testingEmails.add(this);
+          while (testingEmails.size() > 100) {
+            testingEmails.remove(0);
+          }
+          
+        }
       }
     } catch (Exception e) {
       throw new RuntimeException(e);

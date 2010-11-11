@@ -11,6 +11,9 @@ package edu.internet2.middleware.grouper.hooks.logic;
  */
 public enum VetoTypeGrouper implements VetoType {
 
+  /** veto of external subject insert/update */
+  EXTERNAL_SUBJECT_POST_EDIT,
+  
   /** veto of attribute */
   ATTRIBUTE_PRE_INSERT,
   

@@ -1,5 +1,6 @@
 package edu.internet2.middleware.grouper.externalSubjects;
 
+import java.sql.Timestamp;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -7,17 +8,21 @@ import java.util.Set;
 
 import org.apache.commons.collections.keyvalue.MultiKey;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperAPI;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Membership;
+import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.audit.AuditTypeBuiltin;
 import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.externalSubjects.ExternalSubjectConfig.ExternalSubjectAttributeConfigBean;
+import edu.internet2.middleware.grouper.externalSubjects.ExternalSubjectConfig.ExternalSubjectAutoaddBean;
 import edu.internet2.middleware.grouper.externalSubjects.ExternalSubjectConfig.ExternalSubjectConfigBean;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
@@ -25,6 +30,11 @@ import edu.internet2.middleware.grouper.hibernate.HibUtilsMapping;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
+import edu.internet2.middleware.grouper.hooks.ExternalSubjectHooks;
+import edu.internet2.middleware.grouper.hooks.beans.HooksExternalSubjectBean;
+import edu.internet2.middleware.grouper.hooks.logic.GrouperHookType;
+import edu.internet2.middleware.grouper.hooks.logic.GrouperHooksUtils;
+import edu.internet2.middleware.grouper.hooks.logic.VetoTypeGrouper;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
@@ -646,7 +656,7 @@ public class ExternalSubject extends GrouperAPI implements GrouperHasContext,
    * store this object to the DB.
    */
   public void store() {    
-    this.store(null);
+    this.store(null, null);
   }
 
   /**
@@ -745,8 +755,10 @@ public class ExternalSubject extends GrouperAPI implements GrouperHasContext,
   /**
    * store this object to the DB.
    * @param externalSubjectAttributes null to not worry, not null to affect the external subject attributes too
+   * @param externalSubjectInviteName is a variable you could put in the URL to pass to the hook so you can
+   * add the users to custom groups or whatnot
    */
-  public void store(final Set<ExternalSubjectAttribute> externalSubjectAttributes) {    
+  public void store(final Set<ExternalSubjectAttribute> externalSubjectAttributes, final String externalSubjectInviteName) {    
     
     this.assertCurrentUserCanEditExternalUsers();
     
@@ -766,7 +778,7 @@ public class ExternalSubject extends GrouperAPI implements GrouperHasContext,
           public Object callback(HibernateHandlerBean hibernateHandlerBean)
               throws GrouperDAOException {
 
-            HibernateSession.callbackHibernateSession(
+            boolean isInsert = (Boolean)HibernateSession.callbackHibernateSession(
                 GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT,
                 new HibernateHandler() {
 
@@ -776,10 +788,10 @@ public class ExternalSubject extends GrouperAPI implements GrouperHasContext,
                     hibernateHandlerBean.getHibernateSession().setCachingEnabled(false);
 
                     boolean isInsert = HibUtilsMapping.isInsert(ExternalSubject.this);
-                    
+
                     //GrouperDAOFactory.getFactory().getExternalSubject().saveOrUpdate( ExternalSubject.this );
                     ExternalSubjectStorageController.saveOrUpdate(ExternalSubject.this);
-                    
+
                     if (!hibernateHandlerBean.isCallerWillCreateAudit()) {
                       AuditEntry auditEntry = null;
 
@@ -796,7 +808,7 @@ public class ExternalSubject extends GrouperAPI implements GrouperHasContext,
                       auditEntry.saveOrUpdate(true);
                     }
 
-                    return null;
+                    return isInsert;
                   }
                 });
 
@@ -806,14 +818,136 @@ public class ExternalSubject extends GrouperAPI implements GrouperHasContext,
               
             }
             
+            //#put some group names comma separated for groups to auto add subjects to
+            //externalSubjects.autoaddGroups=
+            //#should be insert, update, or insert,update
+            //externalSubjects.autoaddGroupActions=insert,update
+            //#if a number is here, expire the group assignment after a certain number of days
+            //externalSubjects.autoaddGroupExpireAfterDays=
+            String actions = GrouperConfig.getProperty("externalSubjects.autoaddGroupActions");
+            String groups = GrouperConfig.getProperty("externalSubjects.autoaddGroups");
+            int expireAfterDays = GrouperConfig.getPropertyInt("externalSubjects.autoaddGroupExpireAfterDays", -1);
+
+            assignGroups(groups, actions, isInsert, expireAfterDays);
+
+            //
+            //#add multiple group assignment actions by URL param: externalSubjectInviteName
+            //externalSubject.autoadd.testingLibrary.externalSubjectInviteName=library
+            //#comma separated groups to add for this type of invite
+            //externalSubject.autoadd.testingLibrary.groups=
+            //#should be insert, update, or insert,update
+            //externalSubject.autoadd.testingLibrary.actions=insert,update
+            //#should be insert, update, or insert,update
+            //externalSubject.autoadd.testingLibrary.expireAfterDays=
+
+            if (!StringUtils.isBlank(externalSubjectInviteName)) {
+              
+              ExternalSubjectAutoaddBean externalSubjectAutoaddBean = 
+                ExternalSubjectConfig.externalSubjectAutoaddConfigBean().get(externalSubjectInviteName);
+              
+              if (externalSubjectAutoaddBean != null) {
+                assignGroups(externalSubjectAutoaddBean.getGroups(), externalSubjectAutoaddBean.getActions(), isInsert, externalSubjectAutoaddBean.getExpireAfterDays());
+              }
+              
+            }
+
+            // high level external subject hook
+            GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.EXTERNAL_SUBJECT, 
+                ExternalSubjectHooks.METHOD_POST_EDIT_EXTERNAL_SUBJECT,
+                HooksExternalSubjectBean.class, new Object[]{ExternalSubject.this, isInsert, !isInsert, externalSubjectAttributes, externalSubjectInviteName}, 
+                new Class[]{ExternalSubject.class, boolean.class, boolean.class, Set.class, String.class}, 
+                VetoTypeGrouper.EXTERNAL_SUBJECT_POST_EDIT);
+
+
+
             return null;
           }
-          
+
         });
 
   }
 
+  /** logger */
+  private static final Log LOG = GrouperUtil.getLog(ExternalSubject.class);
 
+  /**
+   * assign groups to this subject
+   * @param groups
+   * @param actions insert, update, or insert,update
+   * @param isInsert 
+   * @param expireAfterDays
+   */
+  private void assignGroups(String groups, String actions, boolean isInsert, final int expireAfterDays) {
+    
+    boolean addGroups = true;
+    if (!StringUtils.isBlank(actions)) {
+      if (isInsert && !actions.contains("insert")) {
+        addGroups = false;
+      }
+      if (!isInsert && !actions.contains("update")) {
+        addGroups = false;
+      }
+    }
+    
+    if (StringUtils.isBlank(groups)) {
+      addGroups = false;
+    }
+    
+    if (!addGroups) {
+      return;
+    }
+
+    final Subject subject = SubjectFinder.findByIdAndSource(this.getUuid(), sourceName(), true);
+    final Set<String> groupNameSet = GrouperUtil.splitTrimToSet(groups, ",");
+    GrouperSession grouperSession = GrouperSession.staticGrouperSession();
+    boolean startedGrouperSession = false;
+    if (grouperSession == null) {
+      grouperSession = GrouperSession.startRootSession(false);
+      startedGrouperSession = true;
+    }
+    if (!PrivilegeHelper.isWheelOrRoot(grouperSession.getSubject())) {
+      grouperSession = grouperSession.internal_getRootSession();
+    }
+    try {
+      GrouperSession.callbackGrouperSession(grouperSession, new GrouperSessionHandler() {
+        
+        public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+          
+          for (String groupName : groupNameSet) {
+            if (LOG.isDebugEnabled()) {
+              LOG.debug("Assigning external subject to group: " + groupName + ", and expireAfterDays: " + expireAfterDays);
+            }
+            Group group = GroupFinder.findByName(grouperSession, groupName, true);
+            group.addMember(subject, false);
+            if (expireAfterDays > 0) {
+              Membership membership = group.getImmediateMembership(Group.getDefaultList(), subject, true, true);
+              membership.setEnabledTime(new Timestamp(System.currentTimeMillis() + (expireAfterDays*24*60*60*1000)));
+              membership.update();
+            }
+          }
+
+          return null;
+        }
+      });
+    } finally {
+      if (startedGrouperSession) {
+        GrouperSession.stopQuietly(grouperSession);
+      }
+    }
+  }
+
+  /**
+   * source name for external subjects
+   * @return name
+   */
+  public static String sourceName() {
+    String sourceName = GrouperConfig.getProperty("externalSubject.sourceName");
+    if (StringUtils.isBlank(sourceName)) {
+      return "grouperExternal";
+    }
+    return sourceName;
+  }
+  
   /**
    * delete this object from the DB.
    */

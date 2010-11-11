@@ -95,6 +95,14 @@ function processUrl() {
       ajaxUrl += ajaxUrl.indexOf("?") == -1 ? "?" : "&";
       ajaxUrl += "attributeDefNamePickerElementName=" +  urlArgObjectMap.attributeDefNamePickerElementName;
     }
+    if (typeof urlArgObjectMap.externalSubjectInviteId != 'undefined') {
+      ajaxUrl += ajaxUrl.indexOf("?") == -1 ? "?" : "&";
+      ajaxUrl += "externalSubjectInviteId=" +  urlArgObjectMap.externalSubjectInviteId;
+    }
+    if (typeof urlArgObjectMap.externalSubjectInviteName != 'undefined') {
+      ajaxUrl += ajaxUrl.indexOf("?") == -1 ? "?" : "&";
+      ajaxUrl += "externalSubjectInviteName=" +  urlArgObjectMap.externalSubjectInviteName;
+    }
     ajax(ajaxUrl);
   }
 }

@@ -10,7 +10,7 @@ import edu.internet2.middleware.grouper.hooks.beans.HooksLoaderBean;
 
 /**
  * Extend this class and configure in grouper.properties for hooks on 
- * group related actions
+ * loader related actions
  */
 public abstract class LoaderHooks {
 

@@ -21,6 +21,7 @@ import edu.internet2.middleware.grouper.hooks.AttributeDefHooks;
 import edu.internet2.middleware.grouper.hooks.AttributeDefNameHooks;
 import edu.internet2.middleware.grouper.hooks.AttributeHooks;
 import edu.internet2.middleware.grouper.hooks.CompositeHooks;
+import edu.internet2.middleware.grouper.hooks.ExternalSubjectHooks;
 import edu.internet2.middleware.grouper.hooks.FieldHooks;
 import edu.internet2.middleware.grouper.hooks.GroupHooks;
 import edu.internet2.middleware.grouper.hooks.GroupTypeHooks;
@@ -40,6 +41,11 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  */
 public enum GrouperHookType implements GrouperHookTypeInterface {
 
+  /**
+   * external subject hooks
+   */
+  EXTERNAL_SUBJECT("hooks.externalSubject.class", ExternalSubjectHooks.class),
+  
   /**
    * loader hooks
    */

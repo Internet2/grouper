@@ -48,6 +48,7 @@ import edu.internet2.middleware.grouper.changeLog.ChangeLogConsumerBase;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.MemberAddException;
 import edu.internet2.middleware.grouper.exception.SessionException;
+import edu.internet2.middleware.grouper.externalSubjects.ExternalSubjectAttrFramework;
 import edu.internet2.middleware.grouper.hooks.CompositeHooks;
 import edu.internet2.middleware.grouper.hooks.FieldHooks;
 import edu.internet2.middleware.grouper.hooks.GroupHooks;
@@ -1474,10 +1475,6 @@ public class GrouperCheckConfig {
       inCheckConfig = true;
     }
 
-    String rulesRootStemName = RuleUtils.attributeRuleStemName();
-    
-    String loaderRootStemName = attributeLoaderStemName();
-    
     GrouperSession grouperSession = null;
     boolean startedGrouperSession = false;
     try {
@@ -1488,21 +1485,76 @@ public class GrouperCheckConfig {
         startedGrouperSession = true;
       }
       
-      Stem rulesStem = StemFinder.findByName(grouperSession, rulesRootStemName, false);
-      if (rulesStem == null) {
-        rulesStem = new StemSave(grouperSession).assignCreateParentStemsIfNotExist(true)
-          .assignDescription("folder for built in Grouper rules attributes").assignName(rulesRootStemName)
-          .save();
-      }
-
-      Stem loaderStem = StemFinder.findByName(grouperSession, loaderRootStemName, false);
-      if (loaderStem == null) {
-        loaderStem = new StemSave(grouperSession).assignCreateParentStemsIfNotExist(true)
-          .assignDescription("folder for built in Grouper loader attributes").assignName(loaderRootStemName)
-          .save();
-      }
-
       {
+        String externalSubjectStemName = ExternalSubjectAttrFramework.attributeExternalSubjectInviteStemName();
+        
+        Stem externalSubjectStem = StemFinder.findByName(grouperSession, externalSubjectStemName, false);
+        if (externalSubjectStem == null) {
+          externalSubjectStem = new StemSave(grouperSession).assignCreateParentStemsIfNotExist(true)
+            .assignDescription("folder for built in external subject invite attributes, and holds the data via attributes for invites.  Dont delete this folder")
+            .assignName(externalSubjectStemName).save();
+        }
+
+
+        //see if attributeDef is there
+        String externalSubjectInviteDefName = externalSubjectStemName + ":externalSubjectInviteDef";
+        AttributeDef externalSubjectInviteType = AttributeDefFinder.findByName(externalSubjectInviteDefName, false);
+        if (externalSubjectInviteType == null) {
+          externalSubjectInviteType = externalSubjectStem.addChildAttributeDef("externalSubjectInviteDef", AttributeDefType.type);
+          externalSubjectInviteType.setAssignToStem(true);
+          externalSubjectInviteType.setMultiAssignable(true);
+          externalSubjectInviteType.store();
+        }
+        
+        //add a name
+        AttributeDefName externalSubjectInvite = checkAttribute(externalSubjectStem, externalSubjectInviteType, "externalSubjectInvite", "is an invite", wasInCheckConfig);
+        
+        //lets add some rule attributes
+        String externalSubjectInviteAttrDefName = externalSubjectStemName + ":externalSubjectInviteAttrDef";
+        AttributeDef externalSubjectInviteAttrType = AttributeDefFinder.findByName(externalSubjectInviteAttrDefName, false);
+        if (externalSubjectInviteAttrType == null) {
+          externalSubjectInviteAttrType = externalSubjectStem.addChildAttributeDef("externalSubjectInviteAttrDef", AttributeDefType.attr);
+          externalSubjectInviteAttrType.setAssignToStemAssn(true);
+          externalSubjectInviteAttrType.setValueType(AttributeDefValueType.string);
+          externalSubjectInviteAttrType.store();
+        }
+
+        //the attributes can only be assigned to the type def
+        // try an attribute def dependent on an attribute def name
+        externalSubjectInviteAttrType.getAttributeDefScopeDelegate().assignOwnerNameEquals(externalSubjectInvite.getName());
+
+        //add some names
+        checkAttribute(externalSubjectStem, externalSubjectInviteAttrType, ExternalSubjectAttrFramework.EXTERNAL_SUBJECT_INVITE_EXPIRE_DATE, 
+            "number of millis since 1970 when this invite expires", wasInCheckConfig);
+        checkAttribute(externalSubjectStem, externalSubjectInviteAttrType, ExternalSubjectAttrFramework.EXTERNAL_SUBJECT_INVITE_DATE, 
+            "number of millis since 1970 that this invite was issued", wasInCheckConfig);
+        checkAttribute(externalSubjectStem, externalSubjectInviteAttrType, ExternalSubjectAttrFramework.EXTERNAL_SUBJECT_EMAIL_ADDRESS, 
+            "email address this invite was sent to", wasInCheckConfig);
+        checkAttribute(externalSubjectStem, externalSubjectInviteAttrType, ExternalSubjectAttrFramework.EXTERNAL_SUBJECT_INVITE_GROUP_UUIDS, 
+            "comma separated group ids to assign this user to", wasInCheckConfig);
+        checkAttribute(externalSubjectStem, externalSubjectInviteAttrType, ExternalSubjectAttrFramework.EXTERNAL_SUBJECT_INVITE_MEMBER_ID, 
+            "member id who invited this user", wasInCheckConfig);
+        checkAttribute(externalSubjectStem, externalSubjectInviteAttrType, ExternalSubjectAttrFramework.EXTERNAL_SUBJECT_INVITE_UUID, 
+            "unique id in the email sent to the user", wasInCheckConfig);
+        checkAttribute(externalSubjectStem, externalSubjectInviteAttrType, ExternalSubjectAttrFramework.EXTERNAL_SUBJECT_INVITE_EMAIL_WHEN_REGISTERED, 
+            "email addresses to notify when the user registers", wasInCheckConfig);
+        checkAttribute(externalSubjectStem, externalSubjectInviteAttrType, ExternalSubjectAttrFramework.EXTERNAL_SUBJECT_INVITE_EMAIL, 
+            "email sent to user as invite", wasInCheckConfig);
+        
+      }      
+      
+
+      
+      {
+        String rulesRootStemName = RuleUtils.attributeRuleStemName();
+        
+        Stem rulesStem = StemFinder.findByName(grouperSession, rulesRootStemName, false);
+        if (rulesStem == null) {
+          rulesStem = new StemSave(grouperSession).assignCreateParentStemsIfNotExist(true)
+            .assignDescription("folder for built in Grouper rules attributes").assignName(rulesRootStemName)
+            .save();
+        }
+
         //see if attributeDef is there
         String ruleTypeDefName = rulesRootStemName + ":rulesTypeDef";
         AttributeDef ruleType = AttributeDefFinder.findByName(ruleTypeDefName, false);
@@ -1586,6 +1638,15 @@ public class GrouperCheckConfig {
       AttributeDefName attributeLoaderTypeName = null;
       
       {
+        String loaderRootStemName = attributeLoaderStemName();
+        
+        Stem loaderStem = StemFinder.findByName(grouperSession, loaderRootStemName, false);
+        if (loaderStem == null) {
+          loaderStem = new StemSave(grouperSession).assignCreateParentStemsIfNotExist(true)
+            .assignDescription("folder for built in Grouper loader attributes").assignName(loaderRootStemName)
+            .save();
+        }
+
         //see if attributeDef is there
         String attributeDefLoaderTypeDefName = loaderRootStemName + ":attributeDefLoaderTypeDef";
         AttributeDef attributeDefType = AttributeDefFinder.findByName(attributeDefLoaderTypeDefName, false);
@@ -1599,9 +1660,6 @@ public class GrouperCheckConfig {
         attributeLoaderTypeName = checkAttribute(loaderStem, attributeDefType, "attributeLoader", 
             "is a loader based attribute def, the loader attributes will be available to be assigned", wasInCheckConfig);
         
-      }      
-      
-      {
         //see if attributeDef is there
         String attributeDefLoaderDefName = loaderRootStemName + ":attributeDefLoaderDef";
         AttributeDef attributeDef = AttributeDefFinder.findByName(attributeDefLoaderDefName, false);

@@ -23,7 +23,6 @@ public class Hib3AttributeAssignValueDAO extends Hib3DAO implements AttributeAss
   /**
    * 
    */
-  @SuppressWarnings("unused")
   private static final String KLASS = Hib3AttributeAssignValueDAO.class.getName();
 
   /**

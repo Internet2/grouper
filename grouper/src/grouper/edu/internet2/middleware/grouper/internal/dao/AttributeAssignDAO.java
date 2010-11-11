@@ -552,5 +552,15 @@ public interface AttributeAssignDAO extends GrouperDAO {
       Collection<String> attributeDefAssignToIds, Collection<String> actions, 
       Boolean enabled);
 
+  /**
+   * find by attribute name and value
+   * @param attributeDefNameId
+   * @param value
+   * @param queryOptions
+   * @return the attribute assigns that match
+   */
+  public Set<AttributeAssign> findByAttributeDefNameAndValueString(String attributeDefNameId, String value, QueryOptions queryOptions);
+  
+
   
 }

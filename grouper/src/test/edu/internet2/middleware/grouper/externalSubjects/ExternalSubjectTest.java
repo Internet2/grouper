@@ -474,55 +474,58 @@ public class ExternalSubjectTest extends GrouperTest {
     //###########################################
     //externalSubjects.institution.required = true
     ApiConfig.testConfig.put("externalSubjects.attributes.jabber.required", "true");
-    ExternalSubjectConfig.clearCache();
-  
-    //institution is required
-    ExternalSubject externalSubject = new ExternalSubject();
-    externalSubject.setName("my name");
-    externalSubject.setIdentifier("d");
     try {
-      externalSubject.store();
-      fail("Jabber is a required");
-    } catch (Exception e) {
-      assertTrue(e.getMessage(), ExceptionUtils
-          .getFullStackTrace(e).toLowerCase().contains("jabber is a required"));
-    }
-
-    //institution is required
-    externalSubject = new ExternalSubject();
-    externalSubject.setName("my name");
-    externalSubject.setIdentifier("e");
-    ExternalSubjectAttribute externalSubjectAttribute = new ExternalSubjectAttribute();
-    externalSubjectAttribute.setAttributeSystemName("jabber");
-    externalSubjectAttribute.setAttributeValue("w@e.r");
-    externalSubject.store(GrouperUtil.toSet(externalSubjectAttribute));
-
-    externalSubject.assignAttribute("jabber", "a@b.c");
-    //should work now
-    externalSubject.store();
+      ExternalSubjectConfig.clearCache();
     
-    try {
-      externalSubject.removeAttribute("jabber");
-      fail("Jabber is a required");
-    } catch (Exception e) {
-      assertTrue(e.getMessage(), ExceptionUtils
-          .getFullStackTrace(e).toLowerCase().contains("jabber is a required"));
+      //institution is required
+      ExternalSubject externalSubject = new ExternalSubject();
+      externalSubject.setName("my name");
+      externalSubject.setIdentifier("d");
+      try {
+        externalSubject.store();
+        fail("Jabber is a required");
+      } catch (Exception e) {
+        assertTrue(e.getMessage(), ExceptionUtils
+            .getFullStackTrace(e).toLowerCase().contains("jabber is a required"));
+      }
+  
+      //institution is required
+      externalSubject = new ExternalSubject();
+      externalSubject.setName("my name");
+      externalSubject.setIdentifier("e");
+      ExternalSubjectAttribute externalSubjectAttribute = new ExternalSubjectAttribute();
+      externalSubjectAttribute.setAttributeSystemName("jabber");
+      externalSubjectAttribute.setAttributeValue("w@e.r");
+      externalSubject.store(GrouperUtil.toSet(externalSubjectAttribute), null);
+  
+      externalSubject.assignAttribute("jabber", "a@b.c");
+      //should work now
+      externalSubject.store();
+      
+      try {
+        externalSubject.removeAttribute("jabber");
+        fail("Jabber is a required");
+      } catch (Exception e) {
+        assertTrue(e.getMessage(), ExceptionUtils
+            .getFullStackTrace(e).toLowerCase().contains("jabber is a required"));
+      }
+  
+      //institution is required
+      externalSubject = new ExternalSubject();
+      externalSubject.setName("my name");
+      externalSubject.setIdentifier("f");
+      try {
+        externalSubject.store(new HashSet<ExternalSubjectAttribute>(), null);
+        fail("Jabber is a required");
+      } catch (Exception e) {
+        assertTrue(e.getMessage(), ExceptionUtils
+            .getFullStackTrace(e).toLowerCase().contains("jabber is a required"));
+      }
+    } finally {
+      ApiConfig.testConfig.remove("externalSubjects.attributes.jabber.required");
+      ExternalSubjectConfig.clearCache();
+      
     }
-
-    //institution is required
-    externalSubject = new ExternalSubject();
-    externalSubject.setName("my name");
-    externalSubject.setIdentifier("f");
-    try {
-      externalSubject.store(new HashSet<ExternalSubjectAttribute>());
-      fail("Jabber is a required");
-    } catch (Exception e) {
-      assertTrue(e.getMessage(), ExceptionUtils
-          .getFullStackTrace(e).toLowerCase().contains("jabber is a required"));
-    }
-
-    ApiConfig.testConfig.remove("externalSubjects.attributes.jabber.required");
-    ExternalSubjectConfig.clearCache();
     
   
   }

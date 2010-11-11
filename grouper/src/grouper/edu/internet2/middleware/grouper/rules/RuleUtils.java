@@ -324,7 +324,7 @@ public class RuleUtils {
   public static AttributeDefName ruleAttributeDefName() {
     return AttributeDefNameFinder.findByName(attributeRuleStemName() + ":rule", true);
   }
-
+  
   /**
    * return the rule attribute def name, assign this to an object to attach a rule.
    * this throws exception if cant find

@@ -2471,6 +2471,37 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
       
   }
   
+  /**
+   * @see AttributeAssignDAO#findByAttributeDefNameAndValueString(String, String, QueryOptions)
+   */
+  public Set<AttributeAssign> findByAttributeDefNameAndValueString(
+      String attributeDefNameId, String value, QueryOptions queryOptions) {
+    
+    try {
+      Set<AttributeAssign> attributeAssigns = HibernateSession.byHqlStatic()
+        .createQuery("select distinct theAttributeAssign from AttributeAssign as theAttributeAssign, " +
+        		" AttributeAssignValue as theAttributeAssignValue where " +
+            " theAttributeAssignValue.attributeAssignId = theAttributeAssign.id and " +
+            " theAttributeAssignValue.valueString = :theValue and theAttributeAssign.enabledDb='T' " +
+            " and theAttributeAssign.attributeDefNameId = :theAttributeDefNameId ")
+        .options(queryOptions)
+        .setCacheable(true)
+        .setCacheRegion(KLASS + ".FindByAttributeDefNameAndValueString")
+        .setString("theValue", value)
+        .setString("theAttributeDefNameId", attributeDefNameId)
+        .listSet(AttributeAssign.class);
+      
+      //return result
+      return attributeAssigns;
+    } catch (GrouperDAOException e) {
+      String error = "Problem find by value '" + value 
+             + "', " + e.getMessage();
+      throw new GrouperDAOException( error, e );
+    }
+    
+  }
+
+
 } 
 
 

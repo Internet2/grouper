@@ -2556,7 +2556,7 @@ public class GrouperUtil {
     if (object.getClass().isArray()) {
       int length = Array.getLength(object);
       for (int i=0;i<length;i++) {
-        result.append(((Class)object).getSimpleName());
+        result.append(((Class)Array.get(object, i)).getSimpleName());
         if (i < length-1) {
           result.append(", ");
         }
@@ -7283,6 +7283,15 @@ public class GrouperUtil {
         //ignore
       }
     }
+  }
+
+  /**
+   * string length
+   * @param string
+   * @return string length
+   */
+  public static int stringLength(String string) {
+    return string == null ? 0 : string.length();
   }
 
   /**

@@ -7610,9 +7610,13 @@ public enum GrouperDdl implements DdlVersionable {
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, externalSubjectTable.getName(), 
           "grouper_ext_subj_cxt_id_idx", false, ExternalSubject.COLUMN_CONTEXT_ID);
       
-      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, externalSubjectTable.getName(), 
-          "grouper_ext_subj_idfr_idx", true, ExternalSubject.COLUMN_IDENTIFIER);
+      //see if we have a custom script here, do this since some versions of mysql cant handle indexes on columns that large
+      String scriptOverride = ddlVersionBean.isSmallIndexes() ? "\nCREATE INDEX grouper_ext_subj_idfr_idx " +
+          "ON grouper_ext_subj(identifier(255));\n" : null;
       
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, ddlVersionBean, externalSubjectTable.getName(), 
+          "grouper_ext_subj_idfr_idx", scriptOverride, true, ExternalSubject.COLUMN_IDENTIFIER);
+
     }
     
     {
