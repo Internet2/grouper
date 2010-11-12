@@ -146,6 +146,7 @@ public abstract class Hib3DAO {
       addClass(CFG, Hib3PITMembershipDAO.class);
       addClass(CFG, Hib3PITGroupSetDAO.class);
       addClass(CFG, Hib3PITMembershipViewDAO.class);
+      addClass(CFG, Hib3PITAttributeAssignValueDAO.class);
       addClass(CFG, Hib3PITAttributeAssignDAO.class);
       addClass(CFG, Hib3PITAttributeAssignActionDAO.class);
       addClass(CFG, Hib3PITAttributeAssignActionSetDAO.class);

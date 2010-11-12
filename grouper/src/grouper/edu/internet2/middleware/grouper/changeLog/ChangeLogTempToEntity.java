@@ -10,6 +10,7 @@ import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
+import edu.internet2.middleware.grouper.attr.AttributeDefValueType;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignType;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
@@ -22,6 +23,7 @@ import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.pit.PITAttributeAssign;
 import edu.internet2.middleware.grouper.pit.PITAttributeAssignAction;
 import edu.internet2.middleware.grouper.pit.PITAttributeAssignActionSet;
+import edu.internet2.middleware.grouper.pit.PITAttributeAssignValue;
 import edu.internet2.middleware.grouper.pit.PITAttributeDef;
 import edu.internet2.middleware.grouper.pit.PITAttributeDefName;
 import edu.internet2.middleware.grouper.pit.PITAttributeDefNameSet;
@@ -144,7 +146,10 @@ public class ChangeLogTempToEntity {
                 ChangeLogTempToEntity.processRoleSetAdd(CHANGE_LOG_ENTRY);
               } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.ROLE_SET_DELETE)) {
                 ChangeLogTempToEntity.processRoleSetDelete(CHANGE_LOG_ENTRY);
-
+              } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.ATTRIBUTE_ASSIGN_VALUE_ADD)) {
+                ChangeLogTempToEntity.processAttributeAssignValueAdd(CHANGE_LOG_ENTRY);
+              } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.ATTRIBUTE_ASSIGN_VALUE_DELETE)) {
+                ChangeLogTempToEntity.processAttributeAssignValueDelete(CHANGE_LOG_ENTRY);
               }
               
               if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.MEMBERSHIP_ADD) ||
@@ -681,6 +686,58 @@ public class ChangeLogTempToEntity {
     pitAttributeAssign.setFlatPermissionNotificationsOnSaveOrUpdate(includeFlattenedPermissions);
     
     pitAttributeAssign.update();
+  }
+  
+  /**
+   * If an attribute assign value gets added, insert into pit table.
+   * @param changeLogEntry
+   */
+  private static void processAttributeAssignValueAdd(ChangeLogEntry changeLogEntry) {
+    String id = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_ASSIGN_VALUE_ADD.id);
+    String attributeAssignId = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_ASSIGN_VALUE_ADD.attributeAssignId);
+    String value = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_ASSIGN_VALUE_ADD.value);
+    String valueType = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_ASSIGN_VALUE_ADD.valueType);
+  
+    Long time = changeLogEntry.getCreatedOnDb();
+    String contextId = GrouperUtil.isEmpty(changeLogEntry.getContextId()) ? null : changeLogEntry.getContextId();
+    
+    PITAttributeAssignValue pitAttributeAssignValue = new PITAttributeAssignValue();
+    pitAttributeAssignValue.setId(id);
+    pitAttributeAssignValue.setAttributeAssignId(attributeAssignId);
+    pitAttributeAssignValue.setActiveDb("T");
+    pitAttributeAssignValue.setStartTimeDb(time);
+    pitAttributeAssignValue.setContextId(contextId);
+    
+    if (AttributeDefValueType.string.name().equals(valueType)) {
+      pitAttributeAssignValue.setValueString(value);
+    } else if (AttributeDefValueType.integer.name().equals(valueType)) {
+      pitAttributeAssignValue.setValueInteger(GrouperUtil.longValue(value));
+    } else if (AttributeDefValueType.memberId.name().equals(valueType)) {
+      pitAttributeAssignValue.setValueMemberId(value);
+    } else if (AttributeDefValueType.floating.name().equals(valueType)) {
+      pitAttributeAssignValue.setValueFloating(GrouperUtil.doubleValue(value));
+    } else {
+      throw new RuntimeException("unexpected valueType: " + valueType);
+    }
+
+    pitAttributeAssignValue.save();
+  }
+  
+  /**
+   * If an attribute assign value gets deleted, add end time to pit row.
+   * @param changeLogEntry
+   */
+  private static void processAttributeAssignValueDelete(ChangeLogEntry changeLogEntry) {
+    String id = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_ASSIGN_VALUE_DELETE.id);
+    Long time = changeLogEntry.getCreatedOnDb();
+    String contextId = GrouperUtil.isEmpty(changeLogEntry.getContextId()) ? null : changeLogEntry.getContextId();
+
+    PITAttributeAssignValue pitAttributeAssignValue = GrouperDAOFactory.getFactory().getPITAttributeAssignValue().findById(id);
+    pitAttributeAssignValue.setEndTimeDb(time);
+    pitAttributeAssignValue.setActiveDb("F");
+    pitAttributeAssignValue.setContextId(contextId);
+    
+    pitAttributeAssignValue.update();
   }
   
   /**

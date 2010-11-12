@@ -50,6 +50,7 @@ import edu.internet2.middleware.grouper.internal.dao.MembershipDAO;
 import edu.internet2.middleware.grouper.internal.dao.PITAttributeAssignActionDAO;
 import edu.internet2.middleware.grouper.internal.dao.PITAttributeAssignActionSetDAO;
 import edu.internet2.middleware.grouper.internal.dao.PITAttributeAssignDAO;
+import edu.internet2.middleware.grouper.internal.dao.PITAttributeAssignValueDAO;
 import edu.internet2.middleware.grouper.internal.dao.PITAttributeDefDAO;
 import edu.internet2.middleware.grouper.internal.dao.PITAttributeDefNameDAO;
 import edu.internet2.middleware.grouper.internal.dao.PITAttributeDefNameSetDAO;
@@ -374,6 +375,11 @@ public abstract class GrouperDAOFactory {
    * @return pit attribute assign dao
    */
   public abstract PITAttributeAssignDAO getPITAttributeAssign();
+  
+  /**
+   * @return pit attribute assign value dao
+   */
+  public abstract PITAttributeAssignValueDAO getPITAttributeAssignValue();
   
   /**
    * @return pit attribute assign action dao

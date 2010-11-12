@@ -57,6 +57,7 @@ import edu.internet2.middleware.grouper.permissions.role.RoleSet;
 import edu.internet2.middleware.grouper.pit.PITAttributeAssign;
 import edu.internet2.middleware.grouper.pit.PITAttributeAssignAction;
 import edu.internet2.middleware.grouper.pit.PITAttributeAssignActionSet;
+import edu.internet2.middleware.grouper.pit.PITAttributeAssignValue;
 import edu.internet2.middleware.grouper.pit.PITAttributeDef;
 import edu.internet2.middleware.grouper.pit.PITAttributeDefName;
 import edu.internet2.middleware.grouper.pit.PITAttributeDefNameSet;
@@ -3206,6 +3207,9 @@ public enum GrouperDdl implements DdlVersionable {
         "fk_pit_attr_assn_attr_def_id", PITAttributeDef.TABLE_GROUPER_PIT_ATTRIBUTE_DEF, 
         PITAttributeAssignAction.COLUMN_ATTRIBUTE_DEF_ID, PITAttributeDef.COLUMN_ID);
     
+    GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, PITAttributeAssignValue.TABLE_GROUPER_PIT_ATTRIBUTE_ASSIGN_VALUE, 
+        "fk_pit_attr_assn_value_assn_id", PITAttributeAssign.TABLE_GROUPER_PIT_ATTRIBUTE_ASSIGN, 
+        PITAttributeAssignValue.COLUMN_ATTRIBUTE_ASSIGN_ID, PITAttributeAssign.COLUMN_ID);
     
     GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, PITRoleSet.TABLE_GROUPER_PIT_ROLE_SET, 
         "fk_pit_role_set_parent", PITRoleSet.TABLE_GROUPER_PIT_ROLE_SET, 
@@ -6485,6 +6489,64 @@ public enum GrouperDdl implements DdlVersionable {
 
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitAttributeAssignTable.getName(), 
           "pit_attr_assn_own_stem_idx", false, PITAttributeAssign.COLUMN_OWNER_STEM_ID, PITAttributeAssign.COLUMN_ATTRIBUTE_ASSIGN_ACTION_ID);
+    }
+    
+    {
+      Table pitAttributeAssignValueTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database,
+          PITAttributeAssignValue.TABLE_GROUPER_PIT_ATTRIBUTE_ASSIGN_VALUE);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeAssignValueTable, PITAttributeAssignValue.COLUMN_ID, 
+          Types.VARCHAR, "40", true, true);
+  
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeAssignValueTable, PITAttributeAssignValue.COLUMN_ATTRIBUTE_ASSIGN_ID, 
+          Types.VARCHAR, "40", false, true);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeAssignValueTable, PITAttributeAssignValue.COLUMN_VALUE_INTEGER, 
+          Types.BIGINT, "20", false, false);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeAssignValueTable, PITAttributeAssignValue.COLUMN_VALUE_FLOATING, 
+          Types.FLOAT, "20,5", false, false);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeAssignValueTable, PITAttributeAssignValue.COLUMN_VALUE_STRING, 
+          Types.VARCHAR, "4000", false, false);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeAssignValueTable, PITAttributeAssignValue.COLUMN_VALUE_MEMBER_ID, 
+          Types.VARCHAR, "40", false, false);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeAssignValueTable, PITAttributeAssignValue.COLUMN_ACTIVE,
+          Types.VARCHAR, "1", false, true);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeAssignValueTable, PITAttributeAssignValue.COLUMN_START_TIME,
+          Types.BIGINT, "20", false, true);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeAssignValueTable, PITAttributeAssignValue.COLUMN_END_TIME,
+          Types.BIGINT, "20", false, false);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeAssignValueTable, PITAttributeAssignValue.COLUMN_CONTEXT_ID, 
+          Types.VARCHAR, "40", false, false);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeAssignValueTable, PITAttributeAssignValue.COLUMN_HIBERNATE_VERSION_NUMBER, 
+          Types.BIGINT, null, false, false);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitAttributeAssignValueTable.getName(),
+          "pit_attr_val_assign_idx", false, PITAttributeAssignValue.COLUMN_ATTRIBUTE_ASSIGN_ID);
+
+      if (!ddlVersionBean.isSqlServer()) {
+        String scriptOverrideName = ddlVersionBean.isSmallIndexes() ? "\nCREATE INDEX pit_attr_val_string_idx " +
+            "ON grouper_pit_attr_assn_value (value_string(255));\n" : null;
+        
+        GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, ddlVersionBean, pitAttributeAssignValueTable.getName(),
+            "pit_attr_val_string_idx", scriptOverrideName, false, PITAttributeAssignValue.COLUMN_VALUE_STRING);
+      }
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitAttributeAssignValueTable.getName(), 
+          "pit_attr_val_integer_idx", false,  PITAttributeAssignValue.COLUMN_VALUE_INTEGER);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitAttributeAssignValueTable.getName(), 
+          "pit_attr_val_floating_idx", false,  PITAttributeAssignValue.COLUMN_VALUE_FLOATING);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitAttributeAssignValueTable.getName(),
+          "pit_attr_val_member_id_idx", false, PITAttributeAssignValue.COLUMN_VALUE_MEMBER_ID);
     }
     
     {
