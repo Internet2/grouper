@@ -10,18 +10,14 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 
-import org.apache.commons.lang.StringUtils;
 import org.kuali.rice.core.exception.RiceRuntimeException;
-import org.kuali.rice.core.util.XmlJotter;
 import org.kuali.rice.kew.engine.RouteContext;
 import org.kuali.rice.kew.engine.RouteHelper;
 import org.kuali.rice.kew.engine.node.RouteNode;
 import org.kuali.rice.kew.engine.node.RouteNodeInstance;
-import org.kuali.rice.kew.engine.node.RouteNodeUtils;
 import org.kuali.rice.kew.engine.node.SplitNode;
 import org.kuali.rice.kew.engine.node.SplitResult;
 import org.kuali.rice.kew.routeheader.DocumentContent;
-import org.kuali.rice.kew.rule.xmlrouting.XPathHelper;
 import org.kuali.rice.kew.util.XmlHelper;
 import org.kuali.rice.kns.workflow.WorkflowUtils;
 import org.w3c.dom.Document;
@@ -37,20 +33,30 @@ import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
  * document content for that xpath expression.
  * <pre>
  *       &lt;split name="routeOnBehalfSplit"&gt;
-          &lt;activationType&gt;P&lt;/activationType&gt;
-          &lt;mandatoryRoute&gt;false&lt;/mandatoryRoute&gt;
-          &lt;finalApproval&gt;false&lt;/finalApproval&gt;
-          &lt;expression&gt;
-            &lt;expressionXpath&gt;/documentContent/applicationContent/data/version[@current = "true"]/field[@name = "privilegeChange"]/value&lt;/expressionXpath&gt;
-            &lt;expressionValue&gt;delete&lt;/expressionValue&gt;
-            &lt;routeNode&gt;leftBranch&lt;/routeNode&gt;
-          &lt;/expression&gt;
-          &lt;expressionElse&gt;
-            &lt;routeNode&gt;rightBranch&lt;/routeNode&gt;          
-          &lt;/expressionElse&gt;
-          &lt;type&gt;edu.internet2.middleware.grouperKimConnector.node.XPathSplitNode&lt;/type&gt;
-        &lt;/split&gt;
-
+ *        &lt;activationType&gt;P&lt;/activationType&gt;
+ *        &lt;mandatoryRoute&gt;false&lt;/mandatoryRoute&gt;
+ *        &lt;finalApproval&gt;false&lt;/finalApproval&gt;
+ *        
+ *        $lt;!-- can be true or false, if true, then will select first matching branch, default to false --&gt;
+ *        &lt;pickOneResult&gt;true&lt;/pickOneResult&gt;
+ *        &lt;expression&gt;
+ *          &lt;expressionXpath&gt;/documentContent/applicationContent/data/version[@current = "true"]/field[@name = "privilegeChange"]/value&lt;/expressionXpath&gt;
+ *          
+ *          &lt!-- defaults to 'true' --&gt;
+ *          &lt;expressionValue&gt;delete&lt;/expressionValue&gt;
+ *          &lt;routeNode&gt;leftBranch&lt;/routeNode&gt;
+ *        &lt;/expression&gt;
+ *        &lt;expression&gt;
+ *          &lt;expressionXpath&gt;/documentContent/applicationContent/data/version[@current = "true"]/field[@name = "privilegeChange"]/value&lt;/expressionXpath&gt;
+ *          &lt;expressionValue&gt;add&lt;/expressionValue&gt;
+ *          &lt;routeNode&gt;addBranch&lt;/routeNode&gt;
+ *        &lt;/expression&gt;
+ *        &lt;expressionElse&gt;
+ *          &lt;routeNode&gt;rightBranch&lt;/routeNode&gt;          
+ *        &lt;/expressionElse&gt;
+ *        &lt;type&gt;edu.internet2.middleware.grouperKimConnector.node.XPathSplitNode&lt;/type&gt;
+ *      &lt;/split&gt;
+ *      
  * </pre>
  */
 public class XPathSplitNode implements SplitNode {
@@ -70,86 +76,113 @@ public class XPathSplitNode implements SplitNode {
     RouteNodeInstance routeNodeInstance = context == null ? null : context.getNodeInstance();
     RouteNode routeNode = routeNodeInstance == null ? null : routeNodeInstance.getRouteNode();
     
-    DocumentContent documentContent = context.getDocumentContent();
-    Document document = documentContent == null ? null : documentContent.getDocument();
-    XPath xpath = WorkflowUtils.getXPath(document);
     DocumentBuilder db = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-    //XmlHelper.writeNode(node)
-    RouteNodeUtils.getValueOfCustomProperty(routeNode, "expression");
+
+    String routeNodeXml = routeNode == null ? null : routeNode.getContentFragment();
     
-    NodeList expressions = (NodeList) xpath.evaluate("//expression", document, XPathConstants.NODESET);
-    String expressionElseRouteNode = xpath.evaluate("//expressionElse/routeNode", document);
-    
-    String routeNodeContentFragment = routeNode.getContentFragment();
-    if (!StringUtils.isBlank(routeNodeContentFragment)) {
-        Document routeNodeContentDocument = db.parse(new InputSource(new StringReader(routeNodeContentFragment))); 
-        if (expressions != null) {
-          for (int i=0;i<expressions.getLength();i++) {
-            Node node = expressions.item(i);
-            String expressionXpath = null;
-            try {
-              expressionXpath = GrouperClientUtils.trimToEmpty(XPathHelper.newXPath().evaluate("//expressionXpath", routeNodeContentDocument));
-            } catch (Exception e) {
-              throw new RiceRuntimeException("Error when attempting to parse Document Type content fragment for property name: expressionXpath", e);
-            }
-            String expectedValueFromDoctype = null;
-            try {
-              expectedValueFromDoctype = GrouperClientUtils.trimToEmpty(XPathHelper.newXPath().evaluate("//expressionValue", routeNodeContentDocument));
-            } catch (Exception e) {
-              throw new RiceRuntimeException("Error when attempting to parse Document Type content fragment for property name: expressionValue", e);
-            }
-            
-            String routeNodeName = null;
-            try {
-              routeNodeName = GrouperClientUtils.trimToEmpty(XPathHelper.newXPath().evaluate("//routeNodeName", routeNodeContentDocument));
-            } catch (Exception e) {
-              throw new RiceRuntimeException("Error when attempting to parse Document Type content fragment for property name: routeNodeName", e);
-            }
-            
-            //see what the xpath is
-            String evaluatedValue = evaluateXPathExpression(document, expressionXpath);
-            
-            if (GrouperClientUtils.equals(expectedValueFromDoctype, evaluatedValue)) {
-              if (LOG.isDebugEnabled()) {
-                LOG.debug("Found match in XPathSplitNode for " + expressionXpath + ", expected and got: '" 
-                    + expectedValueFromDoctype + "', returning branch: '" + routeNodeName + "'");
-              }
-              return toSplitResult(routeNode, routeNodeName);
-            }
-            
+    try {
+      Document routeNodeDocument = GrouperClientUtils.isBlank(routeNodeXml) ? null : db.parse(new InputSource(new StringReader(routeNodeXml))); 
+      DocumentContent documentContent = context == null ? null : context.getDocumentContent();
+      Document document = documentContent == null ? null : documentContent.getDocument();
+      XPath xpath = document == null ? null : WorkflowUtils.getXPath(document);
+  
+      NodeList expressions = routeNodeDocument == null ? null : (NodeList) xpath.evaluate("//expression", routeNodeDocument, XPathConstants.NODESET);
+      String expressionElseRouteNode = routeNodeDocument == null ? null : evaluateXPathExpression(routeNodeDocument, "//expressionElse/routeNode");
+      String pickOneResult = routeNodeDocument == null ? null : evaluateXPathExpression(routeNodeDocument, "//pickOneResult");
+      boolean pickOneResultBoolean = false;
+      if (!GrouperClientUtils.isBlank(pickOneResult)) {
+        
+        if ("true".equalsIgnoreCase(pickOneResult) || "t".equalsIgnoreCase(pickOneResult) 
+            || "y".equalsIgnoreCase(pickOneResult) || "yes".equalsIgnoreCase(pickOneResult)) {
+          pickOneResultBoolean = true;
+        } else if ("false".equalsIgnoreCase(pickOneResult) || "f".equalsIgnoreCase(pickOneResult) 
+            || "n".equalsIgnoreCase(pickOneResult) || "no".equalsIgnoreCase(pickOneResult)) {
+          pickOneResultBoolean = true;
+        } else {
+          //invalid value
+          throw new RuntimeException("Invalid pickOneResult: '" + pickOneResult + "'");
+        }
+      }
+      
+      List<String> branchNamesToFollow = new ArrayList<String>();
+      
+      if (expressions != null) {
+        for (int i=0;i<expressions.getLength();i++) {
+          Node expressionNode = expressions.item(i);
+          String expressionXml = XmlHelper.writeNode(expressionNode);
+          Document expressionDocument = db.parse(new InputSource(new StringReader(expressionXml))); 
+  
+          String expressionXpath = evaluateXPathExpression(expressionDocument, "//expressionXpath");
+          String expectedValueFromDoctype = evaluateXPathExpression(expressionDocument, "//expressionValue");
+          String routeNodeName = evaluateXPathExpression(expressionDocument, "//routeNode");
+          
+          //see what the xpath is
+          String evaluatedValue = evaluateXPathExpression(document, expressionXpath);
+          
+          if (GrouperClientUtils.equals(expectedValueFromDoctype, evaluatedValue)) {
             if (LOG.isDebugEnabled()) {
-              LOG.debug("Did not find match in XPathSplitNode for " + expressionXpath + ", expected: '" 
-                  + expectedValueFromDoctype + "', but got: '" + evaluatedValue + "'");
+              LOG.debug("Found match in XPathSplitNode for " + expressionXpath + ", expected and got: '" 
+                  + expectedValueFromDoctype + "', returning branch: '" + routeNodeName + "'");
             }
+            branchNamesToFollow.add(routeNodeName);
+          } else {
+            if (LOG.isDebugEnabled()) {
+              LOG.debug("Did not match in XPathSplitNode for " + expressionXpath + ", expected '" + expectedValueFromDoctype + "' but got: '" 
+                  + evaluatedValue + "', not returning branch: '" + routeNodeName + "'");
+            }
+            
           }
+          
         }
         
-        if (!GrouperClientUtils.isBlank(expressionElseRouteNode)) {
-          if (LOG.isDebugEnabled()) {
-            LOG.debug("Returning else value in XPathSplitNode: " + expressionElseRouteNode);
-          }
-          return toSplitResult(routeNode, expressionElseRouteNode);
+      }
+      if (!GrouperClientUtils.isBlank(expressionElseRouteNode) && branchNamesToFollow.size() == 0) {
+        if (LOG.isDebugEnabled()) {
+          LOG.debug("Returning else value in XPathSplitNode: " + expressionElseRouteNode);
         }
-    }
-
+        
+        branchNamesToFollow.add(expressionElseRouteNode);
+      }
+      if (branchNamesToFollow.size() > 0) {
+        
+        //are we supposed to only have one?
+        if (pickOneResultBoolean && branchNamesToFollow.size() > 1) {
+          if (LOG.isDebugEnabled()) {
+            LOG.debug("Picking the first result out of " + branchNamesToFollow.size());
+          }
+          String firstOne = branchNamesToFollow.get(0);
+          branchNamesToFollow.clear();
+          branchNamesToFollow.add(firstOne);
+        }
+        return new SplitResult(branchNamesToFollow);
+      }
+    } catch (RuntimeException re) {
+      LOG.warn("Problem with routeNode: " + routeNodeXml, re);
+      throw re;
+    }      
     
-    
-    LOG.error("Could not find a result for splitnode, and does not contain an expressionElse: " + XmlJotter.jotNode(document, true));
+    LOG.error("Could not find a result for splitnode, and does not contain an expressionElse: " + routeNodeXml);
     throw new RuntimeException("Could not find a result for splitnode, and does not contain an expressionElse");
   }
 
-  protected SplitResult toSplitResult(RouteNode routeNode, String branchName) {
-    List<String> branches = new ArrayList<String>();
-    branches.add(branchName);
-    return new SplitResult(branches);
-  }
-  
+  /**
+   * evaluate a string xpath expression with an explicit error message
+   * @param document
+   * @param expression
+   * @return the string
+   * @throws XPathExpressionException
+   */
   protected String evaluateXPathExpression(Document document, String expression) throws XPathExpressionException {
-    String xstreamSafeXPath = WorkflowUtils.xstreamSafeXPath(expression);
-    //NodeList recipientIds = (NodeList) xpath.evaluate("//notification/recipients/recipient/recipientId", root, XPathConstants.NODESET);
 
-    return (String) WorkflowUtils.getXPath(document).evaluate(xstreamSafeXPath, document, XPathConstants.STRING);
+    try {
+      String xstreamSafeXPath = WorkflowUtils.xstreamSafeXPath(expression);
+
+      return GrouperClientUtils.trim((String) WorkflowUtils.getXPath(document).evaluate(xstreamSafeXPath, document, XPathConstants.STRING));
+    } catch (RuntimeException re) {
+      throw new RiceRuntimeException("Error when attempting to parse Document Type content fragment for property name: " + expression, re);
+    }
   }
+
 
 }
 
