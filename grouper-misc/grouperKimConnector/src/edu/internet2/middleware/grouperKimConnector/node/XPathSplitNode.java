@@ -37,22 +37,22 @@ import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
  *        &lt;mandatoryRoute&gt;false&lt;/mandatoryRoute&gt;
  *        &lt;finalApproval&gt;false&lt;/finalApproval&gt;
  *        
- *        $lt;!-- can be true or false, if true, then will select first matching branch, default to false --&gt;
+ *        &lt;!-- can be true or false, if true, then will select first matching branch, default to false --&gt;
  *        &lt;pickOneResult&gt;true&lt;/pickOneResult&gt;
  *        &lt;expression&gt;
  *          &lt;expressionXpath&gt;/documentContent/applicationContent/data/version[@current = "true"]/field[@name = "privilegeChange"]/value&lt;/expressionXpath&gt;
  *          
  *          &lt!-- defaults to 'true' --&gt;
  *          &lt;expressionValue&gt;delete&lt;/expressionValue&gt;
- *          &lt;routeNode&gt;leftBranch&lt;/routeNode&gt;
+ *          &lt;branchName&gt;leftBranch&lt;/branchName&gt;
  *        &lt;/expression&gt;
  *        &lt;expression&gt;
  *          &lt;expressionXpath&gt;/documentContent/applicationContent/data/version[@current = "true"]/field[@name = "privilegeChange"]/value&lt;/expressionXpath&gt;
  *          &lt;expressionValue&gt;add&lt;/expressionValue&gt;
- *          &lt;routeNode&gt;addBranch&lt;/routeNode&gt;
+ *          &lt;branchName&gt;addBranch&lt;/branchName&gt;
  *        &lt;/expression&gt;
  *        &lt;expressionElse&gt;
- *          &lt;routeNode&gt;rightBranch&lt;/routeNode&gt;          
+ *          &lt;branchName&gt;rightBranch&lt;/branchName&gt;          
  *        &lt;/expressionElse&gt;
  *        &lt;type&gt;edu.internet2.middleware.grouperKimConnector.node.XPathSplitNode&lt;/type&gt;
  *      &lt;/split&gt;
@@ -87,7 +87,7 @@ public class XPathSplitNode implements SplitNode {
       XPath xpath = document == null ? null : WorkflowUtils.getXPath(document);
   
       NodeList expressions = routeNodeDocument == null ? null : (NodeList) xpath.evaluate("//expression", routeNodeDocument, XPathConstants.NODESET);
-      String expressionElseRouteNode = routeNodeDocument == null ? null : evaluateXPathExpression(routeNodeDocument, "//expressionElse/routeNode");
+      String expressionElseBranchName = routeNodeDocument == null ? null : evaluateXPathExpression(routeNodeDocument, "//expressionElse/branchName");
       String pickOneResult = routeNodeDocument == null ? null : evaluateXPathExpression(routeNodeDocument, "//pickOneResult");
       boolean pickOneResultBoolean = false;
       if (!GrouperClientUtils.isBlank(pickOneResult)) {
@@ -114,7 +114,7 @@ public class XPathSplitNode implements SplitNode {
   
           String expressionXpath = evaluateXPathExpression(expressionDocument, "//expressionXpath");
           String expectedValueFromDoctype = evaluateXPathExpression(expressionDocument, "//expressionValue");
-          String routeNodeName = evaluateXPathExpression(expressionDocument, "//routeNode");
+          String branchName = evaluateXPathExpression(expressionDocument, "//branchName");
           
           //see what the xpath is
           String evaluatedValue = evaluateXPathExpression(document, expressionXpath);
@@ -122,13 +122,13 @@ public class XPathSplitNode implements SplitNode {
           if (GrouperClientUtils.equals(expectedValueFromDoctype, evaluatedValue)) {
             if (LOG.isDebugEnabled()) {
               LOG.debug("Found match in XPathSplitNode for " + expressionXpath + ", expected and got: '" 
-                  + expectedValueFromDoctype + "', returning branch: '" + routeNodeName + "'");
+                  + expectedValueFromDoctype + "', returning branch: '" + branchName + "'");
             }
-            branchNamesToFollow.add(routeNodeName);
+            branchNamesToFollow.add(branchName);
           } else {
             if (LOG.isDebugEnabled()) {
               LOG.debug("Did not match in XPathSplitNode for " + expressionXpath + ", expected '" + expectedValueFromDoctype + "' but got: '" 
-                  + evaluatedValue + "', not returning branch: '" + routeNodeName + "'");
+                  + evaluatedValue + "', not returning branch: '" + branchName + "'");
             }
             
           }
@@ -136,12 +136,12 @@ public class XPathSplitNode implements SplitNode {
         }
         
       }
-      if (!GrouperClientUtils.isBlank(expressionElseRouteNode) && branchNamesToFollow.size() == 0) {
+      if (!GrouperClientUtils.isBlank(expressionElseBranchName) && branchNamesToFollow.size() == 0) {
         if (LOG.isDebugEnabled()) {
-          LOG.debug("Returning else value in XPathSplitNode: " + expressionElseRouteNode);
+          LOG.debug("Returning else value in XPathSplitNode: " + expressionElseBranchName);
         }
         
-        branchNamesToFollow.add(expressionElseRouteNode);
+        branchNamesToFollow.add(expressionElseBranchName);
       }
       if (branchNamesToFollow.size() > 0) {
         
