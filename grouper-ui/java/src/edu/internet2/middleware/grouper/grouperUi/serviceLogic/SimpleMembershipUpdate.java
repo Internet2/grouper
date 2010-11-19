@@ -44,6 +44,7 @@ import edu.internet2.middleware.grouper.ui.exceptions.NoSessionException;
 import edu.internet2.middleware.grouper.ui.tags.TagUtils;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.SourceUnavailableException;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
@@ -529,6 +530,58 @@ public class SimpleMembershipUpdate {
       groupName = group.getName();
       
       subject = GrouperUiUtils.findSubject(comboValue);
+      
+      final String requireGroup = simpleMembershipUpdateContainer.configValue(
+          "simpleMembershipUpdate.subjectSearchRequireGroup", false);
+      
+      final String requireSources = simpleMembershipUpdateContainer.configValue(
+          "simpleMembershipUpdate.subjectSearchRequireSources", false);
+      
+      if (!StringUtils.isBlank(requireSources)) {
+        Set<Source> sources = GrouperUtil.convertSources(requireSources);
+        String subjectSourceId = subject.getSourceId();
+        boolean containsSource = false;
+        for (Source source : sources) {
+          if (StringUtils.equals(source.getId(), subjectSourceId)) {
+            
+            containsSource = true;
+            
+          }
+        }
+        if (!containsSource) {
+          guiResponseJs.addAction(
+              
+              GuiScreenAction.newAlert(simpleMembershipUpdateContainer.getText().getErrorSubjectNotFound(subjectLabel)));
+        }
+      }
+
+      //this would only happen if they didnt select one from the drop down...
+      if (!StringUtils.isBlank(requireGroup)) {
+
+        final Subject SUBJECT = subject;
+        
+        boolean hasMember = (Boolean)GrouperSession.callbackGrouperSession(
+            grouperSession.internal_getRootSession(), new GrouperSessionHandler() {
+          
+          @Override
+          public Object callback(GrouperSession rootGrouperSession) throws GrouperSessionException {
+            
+            Group groupFilter = GroupFinder.findByName(rootGrouperSession, requireGroup, true);
+            return groupFilter.hasMember(SUBJECT);
+          }});
+        
+        if (!hasMember) {
+
+          guiResponseJs.addAction(
+              
+              GuiScreenAction.newAlert(simpleMembershipUpdateContainer.getText().getErrorSubjectNotFound(subjectLabel)));
+
+          return;
+          
+        }
+      }
+      
+      
       subjectLabel = GrouperUiUtils.convertSubjectToLabel(subject);
       Membership membership = MembershipFinder.findImmediateMembership(GrouperSession.staticGrouperSession(), group, subject, Group.getDefaultList(), false);
       if (membership != null) {

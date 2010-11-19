@@ -36,6 +36,7 @@ import edu.internet2.middleware.grouper.ui.tags.TagUtils;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
 import edu.internet2.middleware.grouper.ui.util.HttpContentType;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectTooManyResults;
 
@@ -251,7 +252,16 @@ public class SimpleMembershipUpdateFilter {
           final String requireGroup = simpleMembershipUpdateContainer.configValue(
               "simpleMembershipUpdate.subjectSearchRequireGroup", false);
           
-          subjects = SubjectFinder.findAll(searchTerm);            
+          final String requireSources = simpleMembershipUpdateContainer.configValue(
+              "simpleMembershipUpdate.subjectSearchRequireSources", false);
+          
+          if (!StringUtils.isBlank(requireSources)) {
+            Set<Source> sources = GrouperUtil.convertSources(requireSources);
+            subjects = SubjectFinder.findAll(searchTerm, sources);
+          } else {
+            subjects = SubjectFinder.findAll(searchTerm);
+          }
+          
           
           if (!StringUtils.isBlank(requireGroup)) {
 

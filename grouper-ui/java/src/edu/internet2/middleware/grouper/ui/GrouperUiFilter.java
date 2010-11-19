@@ -513,18 +513,17 @@ public class GrouperUiFilter implements Filter {
 
   /**
    * init request part 1
-   * @param servletRequest
+   * @param httpServletRequest 
    * @param response
    * @return the request wrapper
    */
-  public static GrouperRequestWrapper initRequest(ServletRequest servletRequest, ServletResponse response) {
+  public static GrouperRequestWrapper initRequest(GrouperRequestWrapper httpServletRequest, ServletResponse response) {
     
     boolean alreadyInInit = threadLocalInInit.get() != null && threadLocalInInit.get();
     
     threadLocalInInit.set(true);
     
     try {
-      GrouperRequestWrapper httpServletRequest = new GrouperRequestWrapper((HttpServletRequest) servletRequest);
   
       //servlet will set this...
       threadLocalServlet.remove();
@@ -646,7 +645,9 @@ public class GrouperUiFilter implements Filter {
     
     try {
       
-      httpServletRequest = initRequest(servletRequest, response);
+      httpServletRequest = new GrouperRequestWrapper((HttpServletRequest) servletRequest);
+      
+      httpServletRequest = initRequest(httpServletRequest, response);
   
 
       filterChain.doFilter(httpServletRequest, response);
