@@ -29,6 +29,7 @@ import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 
+import edu.internet2.middleware.grouper.j2ee.GrouperRequestWrapper;
 import edu.internet2.middleware.grouper.ui.ErrorFilter;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.Message;
@@ -66,7 +67,8 @@ public class PopulateErrorAction extends org.apache.struts.action.Action {
 	  if (needsThreadLocalInit) {
       //try catch since we dont want looping errors
       try {
-        request = GrouperUiFilter.initRequest(request, response);
+        request = new GrouperRequestWrapper(request);
+        GrouperUiFilter.initRequest((GrouperRequestWrapper)request, response);
       } catch (Exception e) {
         LOG.error("Problem initting", e);
       }

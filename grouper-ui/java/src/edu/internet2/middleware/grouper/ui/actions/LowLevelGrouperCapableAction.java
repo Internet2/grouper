@@ -59,6 +59,7 @@ import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.StemNotFoundException;
+import edu.internet2.middleware.grouper.j2ee.GrouperRequestWrapper;
 import edu.internet2.middleware.grouper.ui.GroupOrStem;
 import edu.internet2.middleware.grouper.ui.GrouperComparator;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
@@ -109,7 +110,8 @@ public abstract class LowLevelGrouperCapableAction
 	  
 	   boolean needsThreadLocalInit = GrouperUiFilter.retrieveHttpServletRequest() == null;
 	    if (needsThreadLocalInit) {
-        request = GrouperUiFilter.initRequest(request, response);
+	      request = new GrouperRequestWrapper(request);
+        GrouperUiFilter.initRequest((GrouperRequestWrapper)request, response);
 	    }
 	    try {
 	  

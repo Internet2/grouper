@@ -94,65 +94,81 @@ public class ImportSubjectWrapper implements Subject {
     }
 
     //if we have both, we are all good
-    if (hasSourceId && hasSubjectId) {
-      return;
-    }
+    if (!hasSourceId || !hasSubjectId) {
     
-    Subject subject = null;
-    
-    //if not, we have to do more
-    if (!hasSourceId && hasSubjectId) {
-      subject = SubjectFinder.findById(this.subjectId, true);
-      this.sourceId = subject.getSource().getId();
-      return;
-    }
-    
-    //ok, we arent done, look at all columns
-    boolean hasSubjectIdentifier = !StringUtils.isBlank(subjectIdentifier);
-    boolean hasSubjectIdOrIdentifier = !StringUtils.isBlank(subjectIdOrIdentifier);
-    
-    if (!hasSubjectId && !hasSubjectIdentifier && !hasSubjectIdOrIdentifier) {
-      throw new RuntimeException(simpleMembershipUpdateContainer.getText().getImportErrorNoId());
-    }
-    
-    //ok, we have an id
-    if (hasSourceId) {
+      Subject subject = null;
       
-      //try by identifier (e.g. loginid)
-      if (hasSubjectIdentifier) {
-        subject = SourceManager.getInstance().getSource(this.sourceId).getSubjectByIdentifier(subjectIdentifier, true);
-      } else if (hasSubjectIdOrIdentifier) {
-        //if not, first try by id, e.g. 12345
-        try {
-          subject = SourceManager.getInstance().getSource(this.sourceId).getSubject(subjectIdOrIdentifier, true);
-        } catch (SubjectNotFoundException snfe) {
-          //and if not found, then 
-          subject = SourceManager.getInstance().getSource(this.sourceId).getSubjectByIdentifier(subjectIdOrIdentifier, true);
-        }
+      //if not, we have to do more
+      if (!hasSourceId && hasSubjectId) {
+        subject = SubjectFinder.findById(this.subjectId, true);
+        this.sourceId = subject.getSource().getId();
         
       } else {
-        throw new RuntimeException("Shouldnt get here");
-      }
       
-    } else {
-      //we have no sourceId
-      if (hasSourceId) {
-        subject = SubjectFinder.findById(this.subjectId, true);
-      } else if (hasSubjectIdentifier) {
-        subject = SubjectFinder.findByIdentifier(subjectIdentifier, true);
-      } else if (hasSubjectIdOrIdentifier) {
-        subject = SubjectFinder.findByIdOrIdentifier(subjectIdOrIdentifier, true);
-      } else {
-        throw new RuntimeException("Should not get here either");
+        //ok, we arent done, look at all columns
+        boolean hasSubjectIdentifier = !StringUtils.isBlank(subjectIdentifier);
+        boolean hasSubjectIdOrIdentifier = !StringUtils.isBlank(subjectIdOrIdentifier);
+        
+        if (!hasSubjectId && !hasSubjectIdentifier && !hasSubjectIdOrIdentifier) {
+          throw new RuntimeException(simpleMembershipUpdateContainer.getText().getImportErrorNoId());
+        }
+        
+        //ok, we have an id
+        if (hasSourceId) {
+          
+          //try by identifier (e.g. loginid)
+          if (hasSubjectIdentifier) {
+            subject = SourceManager.getInstance().getSource(this.sourceId).getSubjectByIdentifier(subjectIdentifier, true);
+          } else if (hasSubjectIdOrIdentifier) {
+            //if not, first try by id, e.g. 12345
+            try {
+              subject = SourceManager.getInstance().getSource(this.sourceId).getSubject(subjectIdOrIdentifier, true);
+            } catch (SubjectNotFoundException snfe) {
+              //and if not found, then 
+              subject = SourceManager.getInstance().getSource(this.sourceId).getSubjectByIdentifier(subjectIdOrIdentifier, true);
+            }
+            
+          } else {
+            throw new RuntimeException("Shouldnt get here");
+          }
+          
+        } else {
+          //we have no sourceId
+          if (hasSourceId) {
+            subject = SubjectFinder.findById(this.subjectId, true);
+          } else if (hasSubjectIdentifier) {
+            subject = SubjectFinder.findByIdentifier(subjectIdentifier, true);
+          } else if (hasSubjectIdOrIdentifier) {
+            subject = SubjectFinder.findByIdOrIdentifier(subjectIdOrIdentifier, true);
+          } else {
+            throw new RuntimeException("Should not get here either");
+          }
+          
+        }
+        if (subject != null) {
+          this.sourceId = subject.getSource().getId();
+          this.subjectId = subject.getId();
+        } else {
+          throw new RuntimeException("Not sure why we are here... " + hasSourceId + ", " + hasSubjectId + ", " + hasSubjectIdentifier + ", " + hasSubjectIdOrIdentifier );
+        }
       }
-      
     }
-    if (subject != null) {
-      this.sourceId = subject.getSource().getId();
-      this.subjectId = subject.getId();
-    } else {
-      throw new RuntimeException("Not sure why we are here... " + hasSourceId + ", " + hasSubjectId + ", " + hasSubjectIdentifier + ", " + hasSubjectIdOrIdentifier );
+    
+    //filter out the require sources
+    String requireSources = simpleMembershipUpdateContainer.configValue(
+        "simpleMembershipUpdate.subjectSearchRequireSources", false);
+    
+    if (!StringUtils.isBlank(requireSources)) {
+      Set<String> sourceIds = GrouperUtil.splitTrimToSet(requireSources, ",");
+      if (!sourceIds.contains(this.sourceId)) {
+        String sourceId2 = this.sourceId;
+        String subjectId2 = this.subjectId;
+        this.sourceId = null;
+        this.subjectId = null;
+        throw new RuntimeException("Source not allowed: " + sourceId2 + ", for subject: " + subjectId2);
+      }
     }
+    
   }
   
   /**

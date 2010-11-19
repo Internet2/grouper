@@ -10,6 +10,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.builder.HashCodeBuilder;
 
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
@@ -44,6 +45,18 @@ public class GrouperVersion {
     }
     return true;
   }
+
+  
+  
+  /**
+   * @see java.lang.Object#hashCode()
+   */
+  @Override
+  public int hashCode() {
+    return new HashCodeBuilder().append(this.build).append(this.major).append(this.minor).append(this.rc).hashCode();
+  }
+
+
 
   /**
    * 

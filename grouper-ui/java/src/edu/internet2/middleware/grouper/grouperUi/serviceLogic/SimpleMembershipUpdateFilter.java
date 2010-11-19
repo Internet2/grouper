@@ -36,6 +36,7 @@ import edu.internet2.middleware.grouper.ui.tags.TagUtils;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
 import edu.internet2.middleware.grouper.ui.util.HttpContentType;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectTooManyResults;
 
@@ -46,6 +47,7 @@ import edu.internet2.middleware.subject.SubjectTooManyResults;
 public class SimpleMembershipUpdateFilter {
 
   /** logger */
+  @SuppressWarnings("unused")
   private static final Log LOG = LogFactory.getLog(SimpleMembershipUpdateFilter.class);
 
   /**
@@ -250,7 +252,16 @@ public class SimpleMembershipUpdateFilter {
           final String requireGroup = simpleMembershipUpdateContainer.configValue(
               "simpleMembershipUpdate.subjectSearchRequireGroup", false);
           
+          final String requireSources = simpleMembershipUpdateContainer.configValue(
+              "simpleMembershipUpdate.subjectSearchRequireSources", false);
+          
+          if (!StringUtils.isBlank(requireSources)) {
+            Set<Source> sources = GrouperUtil.convertSources(requireSources);
+            subjects = SubjectFinder.findAll(searchTerm, sources);
+          } else {
           subjects = SubjectFinder.findAll(searchTerm);            
+          }
+          
           
           if (!StringUtils.isBlank(requireGroup)) {
 
@@ -334,6 +345,7 @@ public class SimpleMembershipUpdateFilter {
    * @return the set of members
    * @throws SchemaException
    */
+  @SuppressWarnings("unchecked")
   Set<Member> retrieveMembersFilter(GuiPaging guiPaging, Group group, String filterString, boolean[] tooManyResultsArray)
       throws SchemaException {
     Set<Member> members = new LinkedHashSet<Member>();
@@ -446,6 +458,7 @@ public class SimpleMembershipUpdateFilter {
    * @param request
    * @param response
    */
+  @SuppressWarnings("unchecked")
   public void retrieveMembersFilterButton(HttpServletRequest request, HttpServletResponse response) {
     final SimpleMembershipUpdateContainer simpleMembershipUpdateContainer = 
       SimpleMembershipUpdateContainer.retrieveFromSession();

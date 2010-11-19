@@ -111,6 +111,37 @@ import edu.internet2.middleware.subject.provider.SourceManager;
 public class GrouperUtil {
 
   /**
+   * take email addresses from a textarea and turn them into semi separated
+   * @param emailAddresses can be whitespace, comma, or semi separated
+   * @return the email addresses semi separated
+   */
+  public static String normalizeEmailAddresses(String emailAddresses) {
+    emailAddresses = StringUtils.replace(emailAddresses, ",", " ");
+    emailAddresses = StringUtils.replace(emailAddresses, ";", " ");
+    emailAddresses = StringUtils.replace(emailAddresses, "\n", " ");
+    emailAddresses = StringUtils.replace(emailAddresses, "\t", " ");
+    emailAddresses = StringUtils.replace(emailAddresses, "\r", " ");
+    emailAddresses = GrouperUtil.join(GrouperUtil.splitTrim(emailAddresses, " "), ";");
+    return emailAddresses;
+  }
+  
+  /** 
+   * pattern as simple validation for email.  need text, @ sign, then text, dot, and text.
+   * granted this could be better, but this is a first step
+   */
+  private static Pattern emailPattern = Pattern.compile("^[^@]+@[^.]+\\..+$");
+  
+  /**
+   * 
+   * @param email
+   * @return true if valid, false if not
+   */
+  public static boolean validEmail(String email) {
+    Matcher matcher = emailPattern.matcher(email);
+    return matcher.matches();
+  }
+  
+  /**
    * see if a subject has an attribute
    * @param subject
    * @param attributeName

@@ -46,6 +46,7 @@ import org.apache.taglibs.standard.tag.common.fmt.SetLocaleSupport;
 import org.apache.taglibs.standard.tag.el.fmt.MessageTag;
 
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.j2ee.GrouperRequestWrapper;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
 import edu.internet2.middleware.grouper.ui.util.MapBundleWrapper;
@@ -641,7 +642,8 @@ public class GrouperMessageTag extends MessageTag {
     
     boolean needsThreadLocalInit = GrouperUiFilter.retrieveHttpServletRequest() == null;
     if (needsThreadLocalInit) {
-      GrouperUiFilter.initRequest(this.pageContext.getRequest(), this.pageContext.getResponse());
+      GrouperRequestWrapper grouperRequestWrapper = new GrouperRequestWrapper((HttpServletRequest) this.pageContext.getRequest());
+      GrouperUiFilter.initRequest(grouperRequestWrapper, this.pageContext.getResponse());
     }
 
     //set default bundle to "${nav}"
