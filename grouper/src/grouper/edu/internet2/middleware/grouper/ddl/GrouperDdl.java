@@ -2191,6 +2191,7 @@ public enum GrouperDdl implements DdlVersionable {
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_composites_v");
 
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_ext_subj_v");
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_ext_subj_invite_v");
 
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_groups_types_v");
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_groups_v");
@@ -3548,7 +3549,6 @@ public enum GrouperDdl implements DdlVersionable {
       }
 
     }
-    
     
     GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_groups_types_v", 
         "A group can have one or many types associated.  This is a view of those relationships with friendly names",
@@ -6087,6 +6087,137 @@ public enum GrouperDdl implements DdlVersionable {
         + "attribute_assign_end_time "
         + "from grouper_pit_perms_role_subj_v  ");
       
+    {
+      
+      String attributeRootStem = GrouperConfig.getProperty("grouper.attribute.rootStem");
+
+      if (StringUtils.isBlank(attributeRootStem)) {
+        attributeRootStem = "etc:attribute";
+      }
+      
+      //SELECT 
+      //(SELECT gaav.value_string
+      // FROM grouper_attr_asn_asn_stem_v gaaasv, grouper_attribute_assign_value gaav
+      // WHERE gaaasv.attribute_def_name_name2 = 'etc:attribute:attrExternalSubjectInvite:externalSubjectInviteUuid'
+      // AND gaav.attribute_assign_id = gaaasv.attribute_assign_id2) AS invite_id,
+      //(SELECT gaav.value_string
+      // FROM grouper_attr_asn_asn_stem_v gaaasv, grouper_attribute_assign_value gaav
+      // WHERE gaaasv.attribute_def_name_name2 = 'etc:attribute:attrExternalSubjectInvite:externalSubjectInviteMemberId'
+      // AND gaav.attribute_assign_id = gaaasv.attribute_assign_id2) AS invite_member_id,
+      //(SELECT gaav.value_string
+      // FROM grouper_attr_asn_asn_stem_v gaaasv, grouper_attribute_assign_value gaav
+      // WHERE gaaasv.attribute_def_name_name2 = 'etc:attribute:attrExternalSubjectInvite:externalSubjectInviteDate'
+      // AND gaav.attribute_assign_id = gaaasv.attribute_assign_id2) AS invite_date,
+      //(SELECT gaav.value_string
+      // FROM grouper_attr_asn_asn_stem_v gaaasv, grouper_attribute_assign_value gaav
+      // WHERE gaaasv.attribute_def_name_name2 = 'etc:attribute:attrExternalSubjectInvite:externalSubjectEmailAddress'
+      // AND gaav.attribute_assign_id = gaaasv.attribute_assign_id2) AS email_address,
+      //(SELECT gaav.value_string
+      // FROM grouper_attr_asn_asn_stem_v gaaasv, grouper_attribute_assign_value gaav
+      // WHERE gaaasv.attribute_def_name_name2 = 'etc:attribute:attrExternalSubjectInvite:externalSubjectInviteEmailWhenRegistered'
+      // AND gaav.attribute_assign_id = gaaasv.attribute_assign_id2) AS invite_email_when_registered,
+      //(SELECT gaav.value_string
+      // FROM grouper_attr_asn_asn_stem_v gaaasv, grouper_attribute_assign_value gaav
+      // WHERE gaaasv.attribute_def_name_name2 = 'etc:attribute:attrExternalSubjectInvite:externalSubjectInviteGroupUuids'
+      // AND gaav.attribute_assign_id = gaaasv.attribute_assign_id2) AS invite_group_uuids,
+      //(SELECT gaav.value_string
+      // FROM grouper_attr_asn_asn_stem_v gaaasv, grouper_attribute_assign_value gaav
+      // WHERE gaaasv.attribute_def_name_name2 = 'etc:attribute:attrExternalSubjectInvite:externalSubjectInviteExpireDate'
+      // AND gaav.attribute_assign_id = gaaasv.attribute_assign_id2) AS invite_expire_date,
+      //(SELECT gaav.value_string
+      // FROM grouper_attr_asn_asn_stem_v gaaasv, grouper_attribute_assign_value gaav
+      // WHERE gaaasv.attribute_def_name_name2 = 'etc:attribute:attrExternalSubjectInvite:externalSubjectInviteEmail'
+      // AND gaav.attribute_assign_id = gaaasv.attribute_assign_id2) AS email_body,
+      //(SELECT gaaasv.disabled_time2
+      // FROM grouper_attr_asn_asn_stem_v gaaasv
+      // WHERE gaaasv.attribute_def_name_name2 = 'etc:attribute:attrExternalSubjectInvite:externalSubjectInviteExpireDate') AS expire_attr_expire_date,
+      //(SELECT gaaasv.enabled2
+      // FROM grouper_attr_asn_asn_stem_v gaaasv
+      // WHERE gaaasv.attribute_def_name_name2 = 'etc:attribute:attrExternalSubjectInvite:externalSubjectInviteExpireDate') AS expire_attr_enabled,
+      //gaasv.disabled_time AS assignment_expire_date,
+      //gaasv.enabled AS assignment_enabled,
+      //gaasv.attribute_assign_id
+      //FROM grouper_attr_asn_stem_v gaasv 
+      //WHERE gaasv.attribute_def_name_name = 'etc:attribute:attrExternalSubjectInvite:externalSubjectInvite'
+      
+      GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_ext_subj_invite_v", 
+          "External subject invites pending, waiting for someone to respond",
+          GrouperUtil.toSet("invite_id", 
+              "invite_member_id", 
+              "invite_date", 
+              "email_address", 
+              "invite_email_when_registered", 
+              "invite_group_uuids", 
+              "invite_expire_date",
+              "email_body",
+              "expire_attr_expire_date",
+              "expire_attr_enabled",
+              "assignment_expire_date",
+              "assignment_enabled",
+              "attribute_assign_id"),
+          GrouperUtil.toSet("invite_id: id of the invite, in the url of the link", 
+              "invite_member_id: member id of who invited the user", 
+              "invite_date: date of the invite", 
+              "email_address: email address where the invite went", 
+              "invite_email_when_registered: email sent to this address when person registered", 
+              "invite_group_uuids: group uuids that the user should be provisioned to when accepting the invite", 
+              "invite_expire_date: when the invite expires, attribute value",
+              "email_body: email body sent to user, might be truncated if too long",
+              "expire_attr_expire_date: expire date of the expire attribute assignment",
+              "expire_attr_enabled: if the expire attribute is enabled",
+              "assignment_expire_date: expire date of the attribute assignment on the stem",
+              "assignment_enabled: if the attribute assignment on the stem is enabled",
+              "attribute_assign_id: attribute assign id of the attribute assignment on the stem"),
+              "SELECT "
+              + "(SELECT gaav.value_string "
+              + " FROM grouper_attr_asn_asn_stem_v gaaasv, grouper_attribute_assign_value gaav "
+              + " WHERE gaaasv.attribute_def_name_name2 = '" + attributeRootStem + ":attrExternalSubjectInvite:externalSubjectInviteUuid' "
+              + " AND gaav.attribute_assign_id = gaaasv.attribute_assign_id2) AS invite_id, "
+              + "(SELECT gaav.value_string "
+              + " FROM grouper_attr_asn_asn_stem_v gaaasv, grouper_attribute_assign_value gaav "
+              + " WHERE gaaasv.attribute_def_name_name2 = '" + attributeRootStem + ":attrExternalSubjectInvite:externalSubjectInviteMemberId' "
+              + " AND gaav.attribute_assign_id = gaaasv.attribute_assign_id2) AS invite_member_id, "
+              + " (SELECT gaav.value_string "
+              + " FROM grouper_attr_asn_asn_stem_v gaaasv, grouper_attribute_assign_value gaav "
+              + " WHERE gaaasv.attribute_def_name_name2 = '" + attributeRootStem + ":attrExternalSubjectInvite:externalSubjectInviteDate' "
+              + " AND gaav.attribute_assign_id = gaaasv.attribute_assign_id2) AS invite_date, "
+              + " (SELECT gaav.value_string "
+              + " FROM grouper_attr_asn_asn_stem_v gaaasv, grouper_attribute_assign_value gaav "
+              + " WHERE gaaasv.attribute_def_name_name2 = '" + attributeRootStem + ":attrExternalSubjectInvite:externalSubjectEmailAddress' "
+              + " AND gaav.attribute_assign_id = gaaasv.attribute_assign_id2) AS email_address, "
+              + "(SELECT gaav.value_string "
+              + " FROM grouper_attr_asn_asn_stem_v gaaasv, grouper_attribute_assign_value gaav "
+              + " WHERE gaaasv.attribute_def_name_name2 = '" + attributeRootStem + ":attrExternalSubjectInvite:externalSubjectInviteEmailWhenRegistered' "
+              + " AND gaav.attribute_assign_id = gaaasv.attribute_assign_id2) AS invite_email_when_registered, "
+              + " (SELECT gaav.value_string "
+              + " FROM grouper_attr_asn_asn_stem_v gaaasv, grouper_attribute_assign_value gaav "
+              + " WHERE gaaasv.attribute_def_name_name2 = '" + attributeRootStem + ":attrExternalSubjectInvite:externalSubjectInviteGroupUuids' "
+              + " AND gaav.attribute_assign_id = gaaasv.attribute_assign_id2) AS invite_group_uuids, "
+              + " (SELECT gaav.value_string "
+              + " FROM grouper_attr_asn_asn_stem_v gaaasv, grouper_attribute_assign_value gaav "
+              + " WHERE gaaasv.attribute_def_name_name2 = '" + attributeRootStem + ":attrExternalSubjectInvite:externalSubjectInviteExpireDate' "
+              + " AND gaav.attribute_assign_id = gaaasv.attribute_assign_id2) AS invite_expire_date, "
+              + " (SELECT gaav.value_string "
+              + " FROM grouper_attr_asn_asn_stem_v gaaasv, grouper_attribute_assign_value gaav "
+              + " WHERE gaaasv.attribute_def_name_name2 = '" + attributeRootStem + ":attrExternalSubjectInvite:externalSubjectInviteEmail' "
+              + " AND gaav.attribute_assign_id = gaaasv.attribute_assign_id2) AS email_body, "
+              + " (SELECT gaaasv.disabled_time2 "
+              + " FROM grouper_attr_asn_asn_stem_v gaaasv "
+              + " WHERE gaaasv.attribute_def_name_name2 = '" + attributeRootStem + ":attrExternalSubjectInvite:externalSubjectInviteExpireDate') AS expire_attr_expire_date, "
+              + " (SELECT gaaasv.enabled2 "
+              + " FROM grouper_attr_asn_asn_stem_v gaaasv "
+              + " WHERE gaaasv.attribute_def_name_name2 = '" + attributeRootStem + ":attrExternalSubjectInvite:externalSubjectInviteExpireDate') AS expire_attr_enabled, "
+              + " gaasv.disabled_time AS assignment_expire_date, "
+              + " gaasv.enabled AS assignment_enabled, "
+              + " gaasv.attribute_assign_id "
+              + " FROM grouper_attr_asn_stem_v gaasv "
+              + " WHERE gaasv.attribute_def_name_name = '" + attributeRootStem + ":attrExternalSubjectInvite:externalSubjectInvite'"      
+      );
+      
+    }
+    
+
+    
   }
 
   /**
@@ -7669,6 +7800,9 @@ public enum GrouperDdl implements DdlVersionable {
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(externalSubjectTable, ExternalSubject.COLUMN_HIBERNATE_VERSION_NUMBER, 
           Types.BIGINT, null, false, true);
       
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(externalSubjectTable, ExternalSubject.COLUMN_VETTED_EMAIL_ADDRESSES, 
+          Types.VARCHAR, "4000", false, false);
+
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, externalSubjectTable.getName(), 
           "grouper_ext_subj_cxt_id_idx", false, ExternalSubject.COLUMN_CONTEXT_ID);
       

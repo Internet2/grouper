@@ -34,7 +34,11 @@ cd $buildDir
 
 #/usr/bin/cvs export -r $1 grouper-ui
 
-/usr/bin/svn export https://svn.internet2.edu/svn/i2mi/tags/$1/grouper-ui/
+if [ $1 == 'trunk' ]; then
+  /usr/bin/svn export https://svn.internet2.edu/svn/i2mi/trunk/grouper-ui/
+else
+  /usr/bin/svn export https://svn.internet2.edu/svn/i2mi/tags/$1/grouper-ui/
+fi
 
 cd $buildDir/grouper-ui/misc
 

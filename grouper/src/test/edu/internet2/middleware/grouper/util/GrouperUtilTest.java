@@ -14,14 +14,15 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
-import org.apache.commons.logging.Log;
-
 import junit.framework.TestCase;
 import junit.textui.TestRunner;
+
+import org.apache.commons.logging.Log;
+
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.AttributeNotFoundException;
 import edu.internet2.middleware.grouper.helper.SessionHelper;
-import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 
 
 /**
@@ -35,7 +36,7 @@ public class GrouperUtilTest extends TestCase {
    * @throws Exception
    */
   public static void main(String[] args) throws Exception {
-    TestRunner.run(new GrouperUtilTest("splitTrim"));
+    TestRunner.run(new GrouperUtilTest("testMail"));
     //TestRunner.run(TestGroup0.class);
     //runPerfProblem();
   }
@@ -50,6 +51,16 @@ public class GrouperUtilTest extends TestCase {
     
   }
 
+  /**
+   * 
+   */
+  public void testMail() {
+    
+    String testEmailAddress = GrouperConfig.getProperty("mail.test.address");
+    
+    new GrouperEmail().setBody("test body").setSubject("test subject").setTo(testEmailAddress).send();
+    
+  }
 
   /**
    * test log next exception

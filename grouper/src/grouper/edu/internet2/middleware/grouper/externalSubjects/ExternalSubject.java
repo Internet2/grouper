@@ -54,6 +54,13 @@ import edu.internet2.middleware.subject.Subject;
 public class ExternalSubject extends GrouperAPI implements GrouperHasContext, 
    Hib3GrouperVersioned {
 
+  /**
+   * 
+   */
+  public ExternalSubject() {
+    super();
+  }
+
   /** uuid for row */
   private String uuid;
   
@@ -87,6 +94,9 @@ public class ExternalSubject extends GrouperAPI implements GrouperHasContext,
   /** who last modified this */
   private String modifierMemberId;
 
+  /** comma separated vetted email addresses */
+  private String vettedEmailAddresses;
+  
   /** when last modified */
   private long modifyTime = System.currentTimeMillis(); 
 
@@ -97,13 +107,28 @@ public class ExternalSubject extends GrouperAPI implements GrouperHasContext,
   private boolean enabled = true;
   
   /**
+   * comma separated vetted email addresses
+   * @return comma separated vetted email addresses
+   */
+  public String getVettedEmailAddresses() {
+    return this.vettedEmailAddresses;
+  }
+
+  /**
+   * comma separated vetted email addresses
+   * @param vettedEmailAddresses1
+   */
+  public void setVettedEmailAddresses(String vettedEmailAddresses1) {
+    this.vettedEmailAddresses = vettedEmailAddresses1;
+  }
+
+  /**
    * when this was disabled, or when it will be disabled
    * @return the millis from 1970
    */
   public Long getDisabledTimeDb() {
     return this.disabledTime;
   }
-
 
   /**
    * when this was disabled, or when it will be disabled
@@ -191,6 +216,9 @@ public class ExternalSubject extends GrouperAPI implements GrouperHasContext,
   /** column name for searchStringLower */
   public static final String COLUMN_SEARCH_STRING_LOWER = "search_string_lower";
   
+  /** column name for vettedEmailAddresses */
+  public static final String COLUMN_VETTED_EMAIL_ADDRESSES = "vetted_email_addresses";
+  
   /** column name for uuid */
   public static final String COLUMN_UUID = "uuid";
   
@@ -247,6 +275,10 @@ public class ExternalSubject extends GrouperAPI implements GrouperHasContext,
   /** constant for field name for: searchStringLower */
   public static final String FIELD_SEARCH_STRING_LOWER = "searchStringLower";
 
+  /** constant for field name for: vettedEmailAddresses */
+  public static final String FIELD_VETTED_EMAIL_ADDRESSES = "vettedEmailAddresses";
+
+  
   /** constant for field name for: uuid */
   public static final String FIELD_UUID = "uuid";
 
@@ -258,7 +290,7 @@ public class ExternalSubject extends GrouperAPI implements GrouperHasContext,
       FIELD_CONTEXT_ID, FIELD_CREATE_TIME, FIELD_CREATOR_MEMBER_ID, FIELD_DESCRIPTION, 
       FIELD_DISABLED_TIME, FIELD_EMAIL, FIELD_ENABLED, FIELD_IDENTIFIER, 
       FIELD_INSTITUTION, FIELD_MODIFIER_MEMBER_ID, FIELD_MODIFY_TIME, FIELD_NAME, 
-      FIELD_SEARCH_STRING_LOWER, FIELD_UUID);
+      FIELD_SEARCH_STRING_LOWER, FIELD_VETTED_EMAIL_ADDRESSES, FIELD_UUID);
 
   /**
    * fields which are included in clone method
@@ -267,7 +299,7 @@ public class ExternalSubject extends GrouperAPI implements GrouperHasContext,
       FIELD_CONTEXT_ID, FIELD_CREATE_TIME, FIELD_CREATOR_MEMBER_ID, FIELD_DESCRIPTION, 
       FIELD_DISABLED_TIME, FIELD_EMAIL, FIELD_ENABLED, FIELD_HIBERNATE_VERSION_NUMBER, 
       FIELD_IDENTIFIER, FIELD_INSTITUTION, FIELD_MODIFIER_MEMBER_ID, FIELD_MODIFY_TIME, 
-      FIELD_NAME, FIELD_SEARCH_STRING_LOWER, FIELD_UUID);
+      FIELD_NAME, FIELD_SEARCH_STRING_LOWER, FIELD_VETTED_EMAIL_ADDRESSES, FIELD_UUID);
 
   //*****  END GENERATED WITH GenerateFieldConstants.java *****//
   

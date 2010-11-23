@@ -55,6 +55,7 @@
     <property name="modifyTimeDb" column="modify_time" />
     <property name="name" column="name" />
     <property name="searchStringLower" column="search_string_lower" />
+    <property name="vettedEmailAddresses" column="vetted_email_addresses" />
 
   </class>
 </hibernate-mapping>

@@ -3,9 +3,9 @@
 if [ $# -ne "1" ]
 then
   echo
-  echo "Give the version to build as the command line argument!"
-  echo "e.g. HEAD, GROUPER_1_3_1, etc"
-  echo "e.g. buildGrouper.sh HEAD"
+  echo "Give the branch to build as the command line argument!"
+  echo "e.g. trunk, GROUPER_1_6_BRANCH, etc"
+  echo "e.g. buildGrouper.sh GROUPER_1_6_BRANCH"
   echo
   exit 1
 fi  
@@ -34,7 +34,11 @@ cd $buildDir
 
 #/usr/bin/cvs export -r $1 grouper
 
-/usr/bin/svn export https://svn.internet2.edu/svn/i2mi/tags/$1/grouper/
+if [ $1 == 'trunk' ]; then
+  /usr/bin/svn export https://svn.internet2.edu/svn/i2mi/trunk/grouper/
+else
+  /usr/bin/svn export https://svn.internet2.edu/svn/i2mi/tags/$1/grouper/
+fi
 
 cd $buildDir/grouper
 

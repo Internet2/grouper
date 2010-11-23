@@ -1,5 +1,6 @@
 package edu.internet2.middleware.grouper.externalSubjects;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -324,7 +325,8 @@ public class ExternalSubjectInviteBean {
 
       attributeAssign.getAttributeValueDelegate().assignValue(
           ExternalSubjectAttrFramework.externalSubjectInviteExpireDateName(), Long.toString(this.getExpireDate()));
-
+      attributeAssign.setDisabledTime(new Timestamp(this.getExpireDate()));
+      attributeAssign.saveOrUpdate();
     }
     
     attributeAssign.getAttributeValueDelegate().assignValue(

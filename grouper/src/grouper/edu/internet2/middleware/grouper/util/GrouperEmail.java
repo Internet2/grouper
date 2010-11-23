@@ -193,6 +193,28 @@ public class GrouperEmail {
         };
       }
       
+      boolean useSsl = GrouperConfig.getPropertyBoolean("mail.smtp.ssl", false);
+      if (useSsl) {
+        
+        properties.put("mail.smtp.starttls.enable","true");
+        properties.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
+        properties.put("mail.smtp.socketFactory.fallback", "false");
+        
+      }
+
+      //props.put("mail.smtp.debug", "true");
+      
+      //leave blank for default (probably 25), if ssl is true, default is 465, else specify
+      String port = GrouperConfig.getProperty("mail.smtp.port");
+      if (!StringUtils.isBlank(port)) {
+        properties.put("mail.smtp.socketFactory.port", port);
+      } else {
+        if (useSsl) {
+          properties.put("mail.smtp.socketFactory.port", "465");
+        }
+      }
+
+      
       Session session = Session.getInstance(properties, authenticator);
       Message message = new MimeMessage(session);
       

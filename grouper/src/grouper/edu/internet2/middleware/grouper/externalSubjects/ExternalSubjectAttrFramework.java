@@ -97,7 +97,7 @@ public class ExternalSubjectAttrFramework {
         
         String uuid = GrouperUuid.getUuid();
         
-        String theUrl = uiUrl + "grouperExternal/appHtml/grouper.html?operation=ExternalSubjectSelfRegister.index&externalSubjectInviteId=" + uuid;
+        String theUrl = uiUrl + "grouperExternal/appHtml/grouper.html?operation=ExternalSubjectSelfRegister.externalSubjectSelfRegister&externalSubjectInviteId=" + uuid;
         
         currentExternalSubjectInviteBean.setUuid(uuid);
   
