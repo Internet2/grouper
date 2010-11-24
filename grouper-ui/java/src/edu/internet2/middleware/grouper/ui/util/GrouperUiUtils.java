@@ -1002,7 +1002,7 @@ public class GrouperUiUtils {
     //only append image if there is one
     if (!StringUtils.isBlank(imageUrl)) {
       if (!imageUrl.contains("/")) {
-        imageUrl = "../public/assets/images/" + imageUrl;
+        imageUrl = "../../grouperExternal/public/assets/images/" + imageUrl;
       }
   
       result.append(" img_src=\"" + escapeHtml(imageUrl, true) + "\"");
@@ -1160,7 +1160,7 @@ public class GrouperUiUtils {
     }
     String imageName = subjectImageMap.get(sourceId);
     if (!StringUtils.isBlank(imageName)) {
-      imageName = "../public/assets/images/" + imageName;
+      imageName = "../../grouperExternal/public/assets/images/" + imageName;
     }
     return imageName;
   }

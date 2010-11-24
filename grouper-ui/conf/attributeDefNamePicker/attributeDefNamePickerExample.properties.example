@@ -3,8 +3,8 @@
 ## http://localhost:8090/grouper/grouperUi/appHtml/grouper.html?operation=AttributeDefNamePicker.index&attributeDefNamePickerName=attributeDefNamePickerExample&attributeDefNamePickerElementName=subject1
 
 #comma separated css urls (relative or absolute) for skinning this attributeDefName picker
-extraCss = ../public/assets/css/attributeDefNamePickerExample.css
-#extraCss = http://localhost:8091/grouper/grouperUi/public/assets/css/subbjectPickerExample.css
+extraCss = ../../grouperExternal/public/assets/css/attributeDefNamePickerExample.css
+#extraCss = http://localhost:8091/grouper/grouperExternal/public/assets/css/subbjectPickerExample.css
 
 # put attributeDefNames to search in
 searchInAttributeDefNames = test:testAttributeDefName1Def, test:testAttributeDefName2Def

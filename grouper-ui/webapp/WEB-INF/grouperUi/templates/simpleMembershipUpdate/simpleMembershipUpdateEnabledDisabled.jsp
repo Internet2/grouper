@@ -49,7 +49,7 @@
             <td class="formTableRight"><input type="text" name="enabledDate"  id="enabledDate"
             value="${simpleMembershipUpdateContainer.enabledDisabledMember.enabledDate}" style="width: 8em" />
             <%-- a href="#" onclick="return guiCalendarImageClick('enabledDate');"
-              ><img src="../public/assets/images/calendar.gif" border="0" /></a --%>
+              ><img src="../../grouperExternal/public/assets/images/calendar.gif" border="0" /></a --%>
             <span class="simpleMembershipUpdateDisabled"
               ><grouper:message value="${simpleMembershipUpdateContainer.text.enabledDisableDateMask}" /></span>
               <%-- script>guiCalendarInit("enabledDate");</script --%>
@@ -62,7 +62,7 @@
             <td class="formTableRight"><input type="text" name="disabledDate"  id="disabledDate"
             value="${simpleMembershipUpdateContainer.enabledDisabledMember.disabledDate}" style="width: 8em" />
             <%--  a href="#" onclick="return guiCalendarImageClick('disabledDate');"
-              ><img src="../public/assets/images/calendar.gif" border="0" /></a --%>
+              ><img src="../../grouperExternal/public/assets/images/calendar.gif" border="0" /></a --%>
             <span class="simpleMembershipUpdateDisabled"
               ><grouper:message value="${simpleMembershipUpdateContainer.text.enabledDisableDateMask}" /></span>
               <%-- script>guiCalendarInit("disabledDate");</script --%>

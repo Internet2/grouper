@@ -5,7 +5,7 @@ change definition for this --%>
 	<tiles:importAttribute ignore="true"/>
 	<body>
 	<%-- note, the tooltips require the javascript to be put there, right below body tag --%>
-  <script type="text/javascript" src="grouperUi/public/assets/js/wz_tooltip.js"></script> 
+  <script type="text/javascript" src="grouperExternal/public/assets/js/wz_tooltip.js"></script> 
    		<!--ContentSpace-->
         <div id="ContentSpace">
             <div id="TitleBox">

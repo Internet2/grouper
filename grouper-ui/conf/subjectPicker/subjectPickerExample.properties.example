@@ -7,8 +7,8 @@
 sendSubjectJsonToCallback = true
 
 #comma separated css urls (relative or absolute) for skinning this subject picker
-extraCss = ../public/assets/css/subjectPickerExample.css
-#extraCss = http://localhost:8091/grouper/grouperUi/public/assets/css/subbjectPickerExample.css
+extraCss = ../../grouperExternal/public/assets/css/subjectPickerExample.css
+#extraCss = http://localhost:8091/grouper/grouperExternal/public/assets/css/subbjectPickerExample.css
 
 # when the subject object is sent in Javascript to the caller, which fields or attributes should be sent
 subjectObject.include.subjectId = true

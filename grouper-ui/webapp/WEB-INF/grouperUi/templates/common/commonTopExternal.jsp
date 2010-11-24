@@ -9,7 +9,7 @@
      <grouper:message key="simpleMembershipUpdate.screenWelcome"/> ${grouperLoginId} 
      &nbsp; &nbsp; 
      <a href="#" onclick="if (confirm('${grouper:message('simpleMembershipUpdate.confirmLogout', true, true) }')) {location.href = 'grouper.html?operation=ExternalSubjectSelfRegister.logout'; } return false;"
-     ><img src="../../grouperUi/public/assets/images/logout.gif" border="0" id="logoutImage" 
+     ><img src="../../grouperExternal/public/assets/images/logout.gif" border="0" id="logoutImage" 
      alt="${grouper:message('simpleMembershipUpdate.logoutImageAlt', true, true) }" /></a>
      
      <a href="#" 

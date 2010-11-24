@@ -81,7 +81,7 @@
         <span class="hides_simpleMembershipUpdateDeleteMultiple" 
             style="${grouper:hideShowStyle('simpleMembershipUpdateDeleteMultiple', false)}">
           <a href="#" onclick="if (confirm('${simpleMembershipUpdateContainer.text.deleteConfirm}')) {ajax('SimpleMembershipUpdate.deleteSingle?memberId=${guiMember.member.uuid}');} return false;" 
-          ><img src="../public/assets/images/page_cross.gif" height="14px" border="0" 
+          ><img src="../../grouperExternal/public/assets/images/page_cross.gif" height="14px" border="0" 
           alt="${simpleMembershipUpdateContainer.text.deleteImageAlt }"/></a>
         </span>
         &nbsp;
@@ -95,7 +95,7 @@
         </span>
         <%-- show the triangle next to the member for more operations --%>
         <a class="memberMenuButton" href="#"
-            ><img src="../public/assets/images/bullet_arrow_down.png" border="0" id="memberMenuButton_${guiMember.member.uuid}"
+            ><img src="../../grouperExternal/public/assets/images/bullet_arrow_down.png" border="0" id="memberMenuButton_${guiMember.member.uuid}"
             alt="${simpleMembershipUpdateContainer.text.memberMenuAlt}"/></a>
       </div> 
   
