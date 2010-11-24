@@ -33,7 +33,7 @@ import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
  * Generates something like this:
  * 
  * &lt;a href="#" onclick="return grouperHideShow(event, 'firstHideShow');"&gt;&lt;img
- *  src="grouper/images/infodot.gif" border="0" alt="More Information" class="infodotImage"
+ *  src="grouperExternal/public/assets/images/infodot.gif" border="0" alt="More Information" class="infodotImage"
  *  height="16" width="16" /&gt;&lt;/a&gt;
  * </pre>
  * @author mchyzer
@@ -98,7 +98,7 @@ public class GrouperInfodotTag extends BodyTagSupport {
 
     String altText = StringUtils.trim(TagUtils.navResourceString("groups.infodot.alt"));
 
-    String infodotPath = "grouper/images/infodot.gif";
+    String infodotPath = "grouperExternal/public/assets/images/infodot.gif";
     
     //this handles the html requests and the ajax requests (more important)
     if (GrouperUiFilter.retrieveHttpServletRequest().getRequestURI().matches("^/[^/]+/grouper(Ui|External)/.*$")) {

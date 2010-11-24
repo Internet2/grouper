@@ -164,7 +164,7 @@ public class GrouperTitleTag extends BodyTagSupport {
       //
       // 
       //  &nbsp;<a href="#" class="infodotLink" onclick="return grouperHideShow(event, 'titleHideShow_infodot.title.groups.my');"><img 
-      //src="grouper/images/infodot.gif" border="0" alt="More" 
+      //src="grouperExternal/public/assets/images/infodot.gif" border="0" alt="More" 
       //class="infodotImage" /></a>
       //</h1>
       //
