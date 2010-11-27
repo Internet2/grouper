@@ -7,7 +7,14 @@
   <span class="requiredIndicator">*</span> indicates a required field
 </div>
 <div class="section" style="margin-top: 0px; width:800px">
-  <grouper:subtitle key="externalSubjectSelfRegister.registerSectionHeader" />
+  <c:choose>
+    <c:when test="${externalRegisterContainer.insert}">
+      <grouper:subtitle key="externalSubjectSelfRegister.registerSectionHeader" />
+    </c:when>
+    <c:otherwise>
+      <grouper:subtitle key="externalSubjectSelfRegister.registerSectionHeaderEdit" />
+    </c:otherwise>
+  </c:choose>
   <div class="sectionBody">
     <form action="whatever" id="selfRegisterFormId" name="selfRegisterFormName">
 	    <%-- shows the self register table --%>

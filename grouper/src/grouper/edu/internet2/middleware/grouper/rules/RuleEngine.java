@@ -137,24 +137,32 @@ public class RuleEngine {
       synchronized (RuleEngine.class) {
         ruleEngine = ruleEngineCache.get(Boolean.TRUE);
         if (ruleEngine == null) {
-          Map<AttributeAssign, Set<AttributeAssignValueContainer>> attributeAssignValueContainers 
-            = allRulesAttributeAssignValueContainers(null);
           
-          RuleEngine newEngine = new RuleEngine();
-          Set<RuleDefinition> newDefinitions = newEngine.getRuleDefinitions();
-          
-          for (Set<AttributeAssignValueContainer> attributeAssignValueContainersSet : 
-              GrouperUtil.nonNull(attributeAssignValueContainers).values()) {
-            RuleDefinition ruleDefinition = new RuleDefinition(attributeAssignValueContainersSet);
+          GrouperSession grouperSession = GrouperSession.staticGrouperSession().internal_getRootSession();
+          ruleEngine = (RuleEngine)GrouperSession.callbackGrouperSession(grouperSession, new GrouperSessionHandler() {
             
-            //dont validate, already validated
-            newDefinitions.add(ruleDefinition);
+            public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+              Map<AttributeAssign, Set<AttributeAssignValueContainer>> attributeAssignValueContainers 
+                = allRulesAttributeAssignValueContainers(null);
             
-          }
+              RuleEngine newEngine = new RuleEngine();
+              Set<RuleDefinition> newDefinitions = newEngine.getRuleDefinitions();
+              
+              for (Set<AttributeAssignValueContainer> attributeAssignValueContainersSet : 
+                  GrouperUtil.nonNull(attributeAssignValueContainers).values()) {
+                RuleDefinition ruleDefinition = new RuleDefinition(attributeAssignValueContainersSet);
+                
+                //dont validate, already validated
+                newDefinitions.add(ruleDefinition);
+                
+              }
+              
+              newEngine.indexData();
+              ruleEngineCache.put(Boolean.TRUE, newEngine);
+              return newEngine;
+            }
+          });
           
-          newEngine.indexData();
-          ruleEngine = newEngine;
-          ruleEngineCache.put(Boolean.TRUE, ruleEngine);
         }
       }
       
