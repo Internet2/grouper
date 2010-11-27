@@ -3,7 +3,6 @@
  */
 package edu.internet2.middleware.grouper.externalSubjects;
 
-import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -113,26 +112,26 @@ public class ExternalSubjectAttrFrameworkTest extends GrouperTest {
       assertEquals("a@b.c", GrouperEmail.testingEmails().get(0).getTo());
       
       //lets make sure the invite is there
-      List<ExternalSubjectInviteBean> externalSubjectInviteBeans = ExternalSubjectInviteBean.findByUuid(uuid);
+      externalSubjectInviteBean = ExternalSubjectInviteBean.findByUuid(uuid);
       
-      assertEquals(1, GrouperUtil.length(externalSubjectInviteBeans));
+      assertNotNull(externalSubjectInviteBean);
       
-      assertEquals("a@b.c", externalSubjectInviteBeans.get(0).getEmailAddress());
-      assertEquals(uuid, externalSubjectInviteBeans.get(0).getUuid());
-      assertEquals(member1.getUuid(), externalSubjectInviteBeans.get(0).getMemberId());
-      assertEquals(body, externalSubjectInviteBeans.get(0).getEmail());
-      long nearNow = Math.abs(System.currentTimeMillis() - externalSubjectInviteBeans.get(0).getInviteDate());
-      assertTrue(System.currentTimeMillis() + ", " + externalSubjectInviteBeans.get(0).getInviteDate() + ", " + nearNow, nearNow < 5000 );
-      assertEquals(0, GrouperUtil.length(externalSubjectInviteBeans.get(0).getEmailsWhenRegistered()));
-      assertEquals(0, GrouperUtil.length(externalSubjectInviteBeans.get(0).getGroupIds()));
-      assertNull(externalSubjectInviteBeans.get(0).getExpireDate());
+      assertEquals("a@b.c", externalSubjectInviteBean.getEmailAddress());
+      assertEquals(uuid, externalSubjectInviteBean.getUuid());
+      assertEquals(member1.getUuid(), externalSubjectInviteBean.getMemberId());
+      assertEquals(body, externalSubjectInviteBean.getEmail());
+      long nearNow = Math.abs(System.currentTimeMillis() - externalSubjectInviteBean.getInviteDate());
+      assertTrue(System.currentTimeMillis() + ", " + externalSubjectInviteBean.getInviteDate() + ", " + nearNow, nearNow < 5000 );
+      assertEquals(0, GrouperUtil.length(externalSubjectInviteBean.getEmailsWhenRegistered()));
+      assertEquals(0, GrouperUtil.length(externalSubjectInviteBean.getGroupIds()));
+      assertNull(externalSubjectInviteBean.getExpireDate());
       
       //lets delete the invite...
-      assertTrue(externalSubjectInviteBeans.get(0).deleteFromDb());
-      assertFalse(externalSubjectInviteBeans.get(0).deleteFromDb());
+      assertTrue(externalSubjectInviteBean.deleteFromDb());
+      assertFalse(externalSubjectInviteBean.deleteFromDb());
       
-      externalSubjectInviteBeans = ExternalSubjectInviteBean.findByUuid(uuid);
-      assertEquals(0, GrouperUtil.length(externalSubjectInviteBeans));
+      externalSubjectInviteBean = ExternalSubjectInviteBean.findByUuid(uuid);
+      assertNull(externalSubjectInviteBean);
     } finally {
       ApiConfig.testConfig.remove("externalSubjectsInviteExpireAfterDays");
 
@@ -182,20 +181,20 @@ public class ExternalSubjectAttrFrameworkTest extends GrouperTest {
       assertEquals("a@b.c", GrouperEmail.testingEmails().get(0).getTo());
       
       //lets make sure the invite is there
-      List<ExternalSubjectInviteBean> externalSubjectInviteBeans = ExternalSubjectInviteBean.findByUuid(uuid);
+      externalSubjectInviteBean = ExternalSubjectInviteBean.findByUuid(uuid);
       
-      assertEquals(1, GrouperUtil.length(externalSubjectInviteBeans));
+      assertNotNull(externalSubjectInviteBean);
       
-      assertEquals("a@b.c", externalSubjectInviteBeans.get(0).getEmailAddress());
-      assertEquals(uuid, externalSubjectInviteBeans.get(0).getUuid());
-      assertEquals(member1.getUuid(), externalSubjectInviteBeans.get(0).getMemberId());
-      assertEquals(body, externalSubjectInviteBeans.get(0).getEmail());
-      long nearNow = Math.abs(System.currentTimeMillis() - externalSubjectInviteBeans.get(0).getInviteDate());
-      assertTrue(System.currentTimeMillis() + ", " + externalSubjectInviteBeans.get(0).getInviteDate() + ", " + nearNow, nearNow < 5000 );
-      assertEquals(0, GrouperUtil.length(externalSubjectInviteBeans.get(0).getEmailsWhenRegistered()));
-      assertEquals(0, GrouperUtil.length(externalSubjectInviteBeans.get(0).getGroupIds()));
+      assertEquals("a@b.c", externalSubjectInviteBean.getEmailAddress());
+      assertEquals(uuid, externalSubjectInviteBean.getUuid());
+      assertEquals(member1.getUuid(), externalSubjectInviteBean.getMemberId());
+      assertEquals(body, externalSubjectInviteBean.getEmail());
+      long nearNow = Math.abs(System.currentTimeMillis() - externalSubjectInviteBean.getInviteDate());
+      assertTrue(System.currentTimeMillis() + ", " + externalSubjectInviteBean.getInviteDate() + ", " + nearNow, nearNow < 5000 );
+      assertEquals(0, GrouperUtil.length(externalSubjectInviteBean.getEmailsWhenRegistered()));
+      assertEquals(0, GrouperUtil.length(externalSubjectInviteBean.getGroupIds()));
       
-      long expireDate = externalSubjectInviteBeans.get(0).getExpireDate();
+      long expireDate = externalSubjectInviteBean.getExpireDate();
       nearNow = Math.abs((System.currentTimeMillis() + (1000 * 60 * 60 * 24) ) - expireDate);
       assertTrue(System.currentTimeMillis() + ", " + expireDate + ", " + nearNow, nearNow < 5000 );
       
@@ -206,11 +205,11 @@ public class ExternalSubjectAttrFrameworkTest extends GrouperTest {
       assertEquals(expireDate, (long)attributeAssign.getDisabledTimeDb());
       
       //lets delete the invite...
-      assertTrue(externalSubjectInviteBeans.get(0).deleteFromDb());
-      assertFalse(externalSubjectInviteBeans.get(0).deleteFromDb());
+      assertTrue(externalSubjectInviteBean.deleteFromDb());
+      assertFalse(externalSubjectInviteBean.deleteFromDb());
       
-      externalSubjectInviteBeans = ExternalSubjectInviteBean.findByUuid(uuid);
-      assertEquals(0, GrouperUtil.length(externalSubjectInviteBeans));
+      externalSubjectInviteBean = ExternalSubjectInviteBean.findByUuid(uuid);
+      assertNull(externalSubjectInviteBean);
     } finally {
       ApiConfig.testConfig.remove("externalSubjectsInviteExpireAfterDays");
     }

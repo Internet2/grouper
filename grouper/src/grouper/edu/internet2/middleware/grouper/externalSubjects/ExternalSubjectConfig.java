@@ -343,11 +343,11 @@ public class ExternalSubjectConfig {
               externalSubjectAutoaddBean.externalSubjectInviteName = GrouperConfig.getProperty(propertyName);
               
               externalSubjectAutoaddBean.actions = GrouperConfig.getProperty(
-                  "externalSubject.autoadd." + inviteConfigName + ".actions");
+                  "externalSubjects.autoadd." + inviteConfigName + ".actions");
               externalSubjectAutoaddBean.groups = GrouperConfig.getProperty(
-                  "externalSubject.autoadd." + inviteConfigName + ".groups");
+                  "externalSubjects.autoadd." + inviteConfigName + ".groups");
               externalSubjectAutoaddBean.expireAfterDays = GrouperConfig.getPropertyInt(
-                  "externalSubject.autoadd." + inviteConfigName + ".expireAfterDays", -1);
+                  "externalSubjects.autoadd." + inviteConfigName + ".expireAfterDays", -1);
 
               autoaddMap.put(externalSubjectAutoaddBean.externalSubjectInviteName, externalSubjectAutoaddBean);
 

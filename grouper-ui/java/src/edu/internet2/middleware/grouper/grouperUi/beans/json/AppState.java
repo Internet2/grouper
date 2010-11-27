@@ -8,6 +8,9 @@ import javax.servlet.http.HttpServletRequest;
 
 import net.sf.ezmorph.bean.BeanMorpher;
 import net.sf.json.util.JSONUtils;
+
+import org.apache.commons.lang.StringUtils;
+
 import edu.internet2.middleware.grouper.grouperUi.beans.SessionContainer;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 
@@ -19,6 +22,26 @@ public class AppState implements Serializable {
 
   /** if simple membership update is initted */
   private boolean inittedSimpleMembershipUpdate;
+  
+  /**
+   * get an app state object or param
+   * @param name
+   * @return the value
+   */
+  public String getUrlArgObjectOrParam(String name) {
+    HttpServletRequest request = GrouperUiFilter.retrieveHttpServletRequest();
+
+    String result = null;
+    
+    if (this.getUrlArgObjects() != null) {
+      result = this.getUrlArgObjects().get(name);
+    }
+    if (StringUtils.isBlank(result)) {
+      result = request.getParameter(name);
+    }
+    return result;
+    
+  }
   
   /**
    * if simple membership update is initted

@@ -309,12 +309,16 @@ function ajax(theUrl, options) {
     }
   }
   
+  //for(var requestParam in options.requestParams) {
+  //  alert(requestParam + ", " + options.requestParams[requestParam]);
+  //}
+  
   //send over form data
   
   var appState = allObjects.appState;
   
   options.requestParams.appState = JSON.stringify(appState);
-  
+
   //if modal up, it wont block, so close modal before ajax
   //$.modal.close(); 
   $.blockUI();  

@@ -6,7 +6,7 @@
 <div style="margin-left: 20px; margin-top: 20px; width: 800px; text-align: right">
   <span class="requiredIndicator">*</span> indicates a required field
 </div>
-<div class="section inviteExternalSubjectsDiv" style="margin-top: 0px; width:1000px">
+<div class="section inviteExternalSubjectsDiv" style="margin-top: 0px; width:1200px">
   <grouper:subtitle key="inviteExternalSubjects.inviteSectionHeader" />
   <div class="sectionBody">
     <form action="whatever" id="inviteExternalsFormId" name="inviteExternalsFormName">
@@ -42,7 +42,7 @@
             </td>
           </tr>
           <tr class="formTableRow">
-            <td class="formTableLeft">
+            <td class="formTableLeft" style="white-space: nowrap;">
               <grouper:message key="inviteExternalSubjects.ccEmailAddressLabel" tooltipRef="inviteExternalSubjects.ccEmailAddressTooltip"  />
             </td>
             <td class="formTableRight">

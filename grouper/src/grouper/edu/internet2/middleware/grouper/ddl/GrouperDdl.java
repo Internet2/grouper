@@ -2167,13 +2167,15 @@ public enum GrouperDdl implements DdlVersionable {
   public void dropAllViews(DdlVersionBean ddlVersionBean) {
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_attributes_v");
 
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_ext_subj_v");
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_ext_subj_invite_v");
+
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_attr_asn_group_v");
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_attr_asn_efmship_v");
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_attr_asn_stem_v");
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_attr_asn_member_v");
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_attr_asn_mship_v");
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_attr_asn_attrdef_v");
-    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_attr_asn_assn_v");
 
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_attr_asn_asn_group_v");
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_attr_asn_asn_stem_v");
@@ -2182,16 +2184,28 @@ public enum GrouperDdl implements DdlVersionable {
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_attr_asn_asn_efmship_v");
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_attr_asn_asn_attrdef_v");
     
+    
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_aval_asn_group_v");
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_aval_asn_efmship_v");
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_aval_asn_stem_v");
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_aval_asn_member_v");
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_aval_asn_mship_v");
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_aval_asn_attrdef_v");
 
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_aval_asn_asn_group_v");
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_aval_asn_asn_stem_v");
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_aval_asn_asn_member_v");
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_aval_asn_asn_mship_v");
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_aval_asn_asn_efmship_v");
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_aval_asn_asn_attrdef_v");
+    
+    
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_attr_def_name_set_v");
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_attr_assn_action_set_v");
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_attr_def_priv_v");
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_audit_entry_v");
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_change_log_entry_v");
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_composites_v");
-
-    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_ext_subj_v");
-    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_ext_subj_invite_v");
 
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_groups_types_v");
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_groups_v");
@@ -5244,6 +5258,1149 @@ public enum GrouperDdl implements DdlVersionable {
           + "and gad.id = gaa1.owner_attribute_def_id "
           + "and gaa1.attribute_assign_action_id = gaaa1.id and gaa2.attribute_assign_action_id = gaaa2.id ");
 
+
+    {
+      
+      
+      
+      GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_aval_asn_group_v", 
+          "grouper_aval_asn_group_v: attribute assigned to a group with related columns and values (multiple rows if multiple values, no rows if no values)",
+          GrouperUtil.toSet("group_name",
+            "action",
+            "attribute_def_name_name",
+            "value_string",
+            "value_integer",
+            "value_floating",
+            "value_member_id",
+            "group_display_name",
+            "attribute_def_name_disp_name",
+            "name_of_attribute_def",
+            "attribute_assign_notes",
+            "attribute_assign_delegatable",
+            "enabled",
+            "enabled_time",
+            "disabled_time",
+            "group_id",
+            "attribute_assign_id",
+            "attribute_def_name_id",
+            "attribute_def_id",
+            "action_id",
+            "attribute_assign_value_id"
+          ),
+          GrouperUtil.toSet("group_name: name of group assigned the attribute",
+              "action: the action associated with the attribute assignment (default is assign)",
+              "attribute_def_name_name: name of the attribute definition name which is assigned to the group",
+              "value_string: if this is a string attributeDef, then this is the string",
+              "value_integer: if this is an integer attributeDef, then this is the integer",
+              "value_floating: if this is a floating attributeDef, then this is the value",
+              "value_member_id: if this is a memberId attributeDef, then this is the value",
+              "group_display_name: display name of the group assigned an attribute",
+              "attribute_def_name_disp_name: display name of the attribute definition name assigned to the attribute",
+              "name_of_attribute_def: name of the attribute definition associated with the attribute definition name assigned to the group",
+              "attribute_assign_notes: notes related to the attribute assignment",
+              "attribute_assign_delegatable: if this assignment is delegatable or grantable: TRUE, FALSE, GRANT",
+              "enabled: if this assignment is enabled: T, F",
+              "enabled_time: the time (seconds since 1970) that this assignment will be enabled",
+              "disabled_time: the time (seconds since 1970) that this assignment will be disabled",
+              "group_id: group id of the group assigned the attribute",
+              "attribute_assign_id: id of the attribute assignment",
+              "attribute_def_name_id: id of the attribute definition name",
+              "attribute_def_id: id of the attribute definition",
+              "action_id: id of the attribute assign action",
+              "attribute_assign_value_id: the id of the value"
+          ),
+          "select gg.name as group_name, " +
+          "gaaa.name as action, " +
+          "gadn.name as attribute_def_name_name, "
+          + " gaav.value_string AS value_string, "          
+          + " gaav.value_integer AS value_integer, "
+          + " gaav.value_floating AS value_floating, "
+          + " gaav.value_member_id AS value_member_id, "
+          + "gg.display_name as group_display_name, "
+          + "gadn.display_name as attribute_def_name_disp_name, "
+          + "gad.name as name_of_attribute_def, "
+          + "gaa.notes as attribute_assign_notes, "
+          + "gaa.attribute_assign_delegatable, "
+          + "gaa.enabled, "
+          + "gaa.enabled_time, "
+          + "gaa.disabled_time, "
+          + "gg.id as group_id, "
+          + "gaa.id as attribute_assign_id, "
+          + "gadn.id as attribute_def_name_id, "
+          + "gad.id as attribute_def_id, "
+          + "gaaa.id as action_id, "
+          + " gaav.id AS attribute_assign_value_id "
+          + "from grouper_attribute_assign gaa, grouper_groups gg, "
+          + "grouper_attribute_def_name gadn, grouper_attribute_def gad, grouper_attr_assign_action gaaa, grouper_attribute_assign_value gaav  "
+          + " where gaav.attribute_assign_id = gaa.id "
+          + " and gaa.owner_group_id = gg.id "
+          + "and gaa.attribute_def_name_id = gadn.id "
+          + "and gadn.attribute_def_id = gad.id "
+          + "and gaa.owner_member_id is null "
+          + "and gaa.attribute_assign_action_id = gaaa.id ");
+
+
+      GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_aval_asn_efmship_v", 
+          "grouper_aval_asn_efmship_v: attribute assigned to an effective membership and values (multiple rows if multiple values, no rows if no values)",
+          GrouperUtil.toSet("group_name",
+            "subject_source_id",
+            "subject_id",
+            "action",
+            "attribute_def_name_name",
+            "value_string",
+            "value_integer",
+            "value_floating",
+            "value_member_id",
+            "group_display_name",
+            "attribute_def_name_disp_name",
+            "name_of_attribute_def",
+            "attribute_assign_notes",
+            "list_name",
+            "attribute_assign_delegatable",
+            "enabled",
+            "enabled_time",
+            "disabled_time",
+            "group_id",
+            "attribute_assign_id",
+            "attribute_def_name_id",
+            "attribute_def_id",
+            "member_id",
+            "action_id",
+            "attribute_assign_value_id"
+          ),
+          GrouperUtil.toSet("group_name: name of group assigned the attribute",
+              "subject_source_id: source id of the subject being assigned",
+              "subject_id: subject id of the subject being assigned",
+              "action: the action associated with the attribute assignment (default is assign)",
+              "attribute_def_name_name: name of the attribute definition name which is assigned to the group",
+              "value_string: if this is a string attributeDef, then this is the string",
+              "value_integer: if this is an integer attributeDef, then this is the integer",
+              "value_floating: if this is a floating attributeDef, then this is the value",
+              "value_member_id: if this is a memberId attributeDef, then this is the value",
+              "group_display_name: display name of the group assigned an attribute",
+              "attribute_def_name_disp_name: display name of the attribute definition name assigned to the attribute",
+              "name_of_attribute_def: name of the attribute definition associated with the attribute definition name assigned to the group",
+              "attribute_assign_notes: notes related to the attribute assignment",
+              "list_name: name of the membership list for this effective membership",
+              "attribute_assign_delegatable: if this assignment is delegatable or grantable: TRUE, FALSE, GRANT",
+              "enabled: if this assignment is enabled: T, F",
+              "enabled_time: the time (seconds since 1970) that this assignment will be enabled",
+              "disabled_time: the time (seconds since 1970) that this assignment will be disabled",
+              "group_id: group id of the group assigned the attribute",
+              "attribute_assign_id: id of the attribute assignment",
+              "attribute_def_name_id: id of the attribute definition name",
+              "attribute_def_id: id of the attribute definition",
+              "member_id: id of the member assigned the attribute",
+              "action_id: attribute assign action id",
+              "attribute_assign_value_id: the id of the value"
+          ),
+          "select distinct gg.name as group_name, "
+          + "gm.subject_source as subject_source_id, "
+          + "gm.subject_id, "
+          + "gaaa.name as action, "
+          + "gadn.name as attribute_def_name_name, "
+          + " gaav.value_string AS value_string, "          
+          + " gaav.value_integer AS value_integer, "
+          + " gaav.value_floating AS value_floating, "
+          + " gaav.value_member_id AS value_member_id, "
+          + "gg.display_name as group_display_name, "
+          + "gadn.display_name as attribute_def_name_disp_name, "
+          + "gad.name as name_of_attribute_def, "
+          + "gaa.notes as attribute_assign_notes, "
+          + "gf.name as list_name, "
+          + "gaa.attribute_assign_delegatable, "
+          + "gaa.enabled, "
+          + "gaa.enabled_time, "
+          + "gaa.disabled_time, "
+          + "gg.id as group_id, "
+          + "gaa.id as attribute_assign_id, "
+          + "gadn.id as attribute_def_name_id, "
+          + "gad.id as attribute_def_id, "
+          + "gm.id as member_id, "
+          + "gaaa.id as action_id, "
+          + " gaav.id AS attribute_assign_value_id "
+          + "from grouper_attribute_assign gaa, grouper_memberships_all_v gmav, "
+          + "grouper_attribute_def_name gadn, grouper_attribute_def gad, "
+          + "grouper_groups gg, grouper_fields gf, grouper_members gm, grouper_attr_assign_action gaaa, grouper_attribute_assign_value gaav  "
+          + "where gaav.attribute_assign_id = gaa.id "
+          + " and gaa.owner_group_id = gmav.owner_group_id "
+          + "and gaa.owner_member_id = gmav.member_id "
+          + "and gaa.attribute_def_name_id = gadn.id "
+          + "and gadn.attribute_def_id = gad.id "
+          + "and gmav.immediate_mship_enabled = 'T' "
+          + "and gmav.owner_group_id = gg.id "
+          + "and gmav.field_id = gf.id "
+          + "and gf.type = 'list' "
+          + "and gmav.member_id = gm.id "
+          + "and gaa.owner_member_id is not null "
+          + "and gaa.owner_group_id is null "
+          + "and gaa.attribute_assign_action_id = gaaa.id ");
+
+      
+
+      
+
+      
+
+      
+      GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_aval_asn_stem_v", 
+          "grouper_aval_asn_stem_v: attribute assigned to a stem and related cols and values (multiple rows if multiple values, no rows if no values)",
+          GrouperUtil.toSet("stem_name",
+              "action",
+              "attribute_def_name_name",
+              "value_string",
+              "value_integer",
+              "value_floating",
+              "value_member_id",
+              "stem_display_name",
+              "attribute_def_name_disp_name",
+              "name_of_attribute_def",
+              "attribute_assign_notes",
+              "enabled",
+              "enabled_time",
+              "disabled_time",
+              "stem_id",
+              "attribute_assign_id",
+              "attribute_def_name_id",
+              "attribute_def_id",
+              "action_id",
+              "attribute_assign_value_id"
+          ),
+          GrouperUtil.toSet("stem_name: name of stem assigned the attribute",
+              "action: the action associated with the attribute assignment (default is assign)",
+              "attribute_def_name_name: name of the attribute definition name which is assigned to the group",
+              "value_string: if this is a string attributeDef, then this is the string",
+              "value_integer: if this is an integer attributeDef, then this is the integer",
+              "value_floating: if this is a floating attributeDef, then this is the value",
+              "value_member_id: if this is a memberId attributeDef, then this is the value",
+              "stem_display_name: display name of the stem assigned an attribute",
+              "attribute_def_name_disp_name: display name of the attribute definition name assigned to the attribute",
+              "name_of_attribute_def: name of the attribute definition associated with the attribute definition name assigned to the group",
+              "attribute_assign_notes: notes related to the attribute assignment",
+              "enabled: if this assignment is enabled: T, F",
+              "enabled_time: the time (seconds since 1970) that this assignment will be enabled",
+              "disabled_time: the time (seconds since 1970) that this assignment will be disabled",
+              "stem_id: stem id of the stem assigned the attribute",
+              "attribute_assign_id: id of the attribute assignment",
+              "attribute_def_name_id: id of the attribute definition name",
+              "attribute_def_id: id of the attribute definition",
+              "action_id: id of the attribute assign action",
+              "attribute_assign_value_id: the id of the value"
+          ),
+          "select gs.name as stem_name, " +
+          "gaaa.name as action, " +
+          "gadn.name as attribute_def_name_name, "
+          + " gaav.value_string AS value_string, "          
+          + " gaav.value_integer AS value_integer, "
+          + " gaav.value_floating AS value_floating, "
+          + " gaav.value_member_id AS value_member_id, "
+          + "gs.display_name as stem_display_name, "
+          + "gadn.display_name as attribute_def_name_disp_name, "
+          + "gad.name as name_of_attribute_def, "
+          + "gaa.notes as attribute_assign_notes, "
+          + "gaa.enabled, "
+          + "gaa.enabled_time, "
+          + "gaa.disabled_time, "
+          + "gs.id as stem_id, "
+          + "gaa.id as attribute_assign_id, "
+          + "gadn.id as attribute_def_name_id, "
+          + "gad.id as attribute_def_id, "
+          + "gaaa.id as action_id, "
+          + " gaav.id AS attribute_assign_value_id "
+          + "from grouper_attribute_assign gaa, grouper_stems gs, "
+          + "grouper_attribute_def_name gadn, grouper_attribute_def gad, grouper_attr_assign_action gaaa, grouper_attribute_assign_value gaav  "
+          + "where gaav.attribute_assign_id = gaa.id "
+          + " and gaa.owner_stem_id = gs.id "
+          + "and gaa.attribute_def_name_id = gadn.id "
+          + "and gadn.attribute_def_id = gad.id "
+          + "and gaa.attribute_assign_action_id = gaaa.id ");
+
+      
+      GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_aval_asn_member_v", 
+          "grouper_aval_asn_member_v: attribute assigned to a member and related cols and values (multiple rows if multiple values, no rows if no values)",
+          GrouperUtil.toSet("source_id", "subject_id",
+              "action",
+              "attribute_def_name_name",
+              "value_string",
+              "value_integer",
+              "value_floating",
+              "value_member_id",
+              "attribute_def_name_disp_name",
+              "name_of_attribute_def",
+              "attribute_assign_notes",
+              "attribute_assign_delegatable",
+              "enabled",
+              "enabled_time",
+              "disabled_time",
+              "member_id",
+              "attribute_assign_id",
+              "attribute_def_name_id",
+              "attribute_def_id",
+              "action_id",
+              "attribute_assign_value_id"
+          ),
+          GrouperUtil.toSet("source_id: source of the subject that belongs to the member",
+              "subject_id: subject_id of the subject that belongs to the member",
+              "action: the action associated with the attribute assignment (default is assign)",
+              "attribute_def_name_name: name of the attribute definition name which is assigned to the group",
+              "value_string: if this is a string attributeDef, then this is the string",
+              "value_integer: if this is an integer attributeDef, then this is the integer",
+              "value_floating: if this is a floating attributeDef, then this is the value",
+              "value_member_id: if this is a memberId attributeDef, then this is the value",
+              "attribute_def_name_disp_name: display name of the attribute definition name assigned to the attribute",
+              "name_of_attribute_def: name of the attribute definition associated with the attribute definition name assigned to the group",
+              "attribute_assign_notes: notes related to the attribute assignment",
+              "attribute_assign_delegatable: if this assignment is delegatable or grantable: TRUE, FALSE, GRANT",
+              "enabled: if this assignment is enabled: T, F",
+              "enabled_time: the time (seconds since 1970) that this assignment will be enabled",
+              "disabled_time: the time (seconds since 1970) that this assignment will be disabled",
+              "member_id: member id of the member assigned the attribute (this is an internal grouper uuid)",
+              "attribute_assign_id: id of the attribute assignment",
+              "attribute_def_name_id: id of the attribute definition name",
+              "attribute_def_id: id of the attribute definition",
+              "action_id: id of the attribute assign action",
+              "attribute_assign_value_id: the id of the value"
+          ),
+          "select gm.subject_source as source_id, gm.subject_id, " +
+          "gaaa.name as action, " +
+          "gadn.name as attribute_def_name_name, "
+          + " gaav.value_string AS value_string, "          
+          + " gaav.value_integer AS value_integer, "
+          + " gaav.value_floating AS value_floating, "
+          + " gaav.value_member_id AS value_member_id, "
+          + "gadn.display_name as attribute_def_name_disp_name, "
+          + "gad.name as name_of_attribute_def, "
+          + "gaa.notes as attribute_assign_notes, "
+          + "gaa.attribute_assign_delegatable, "
+          + "gaa.enabled, "
+          + "gaa.enabled_time, "
+          + "gaa.disabled_time, "
+          + "gm.id as member_id, "
+          + "gaa.id as attribute_assign_id, "
+          + "gadn.id as attribute_def_name_id, "
+          + "gad.id as attribute_def_id, "
+          + "gaaa.id as action_id, "
+          + " gaav.id AS attribute_assign_value_id "
+          + "from grouper_attribute_assign gaa, grouper_members gm, "
+          + "grouper_attribute_def_name gadn, grouper_attribute_def gad, "
+          + "grouper_attr_assign_action gaaa, grouper_attribute_assign_value gaav " 
+          + "where gaav.attribute_assign_id = gaa.id "
+          + " and gaa.owner_member_id = gm.id "
+          + "and gaa.attribute_def_name_id = gadn.id "
+          + "and gadn.attribute_def_id = gad.id "
+          + "and gaa.owner_group_id is null " 
+          + " and gaa.attribute_assign_action_id = gaaa.id");
+
+      GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_aval_asn_mship_v", 
+          "grouper_aval_asn_mship_v: attribute assigned to an immediate memberships, and related cols and values (multiple rows if multiple values, no rows if no values)",
+          GrouperUtil.toSet("group_name",
+              "source_id",
+              "subject_id",
+              "action",
+              "attribute_def_name_name",
+              "value_string",
+              "value_integer",
+              "value_floating",
+              "value_member_id",
+              "attribute_def_name_disp_name",
+              "list_name",
+              "name_of_attribute_def",
+              "attribute_assign_notes",
+              "attribute_assign_delegatable",
+              "enabled",
+              "enabled_time",
+              "disabled_time",
+              "group_id",
+              "membership_id",
+              "member_id",
+              "attribute_assign_id",
+              "attribute_def_name_id",
+              "attribute_def_id",
+              "action_id",
+              "attribute_assign_value_id"
+            ),
+            GrouperUtil.toSet("group_name: name of group in membership assigned the attribute",
+                "source_id: source of the subject that belongs to the member",
+                "subject_id: subject_id of the subject that belongs to the member",
+                "action: the action associated with the attribute assignment (default is assign)",
+                "attribute_def_name_name: name of the attribute definition name which is assigned to the group",
+                "value_string: if this is a string attributeDef, then this is the string",
+                "value_integer: if this is an integer attributeDef, then this is the integer",
+                "value_floating: if this is a floating attributeDef, then this is the value",
+                "value_member_id: if this is a memberId attributeDef, then this is the value",
+                "attribute_def_name_disp_name: display name of the attribute definition name assigned to the attribute",
+                "list_name: name of list in membership assigned the attribute",
+                "name_of_attribute_def: name of the attribute definition associated with the attribute definition name assigned to the group",
+                "attribute_assign_notes: notes related to the attribute assignment",
+                "attribute_assign_delegatable: if this assignment is delegatable or grantable: TRUE, FALSE, GRANT",
+                "enabled: if this assignment is enabled: T, F",
+                "enabled_time: the time (seconds since 1970) that this assignment will be enabled",
+                "disabled_time: the time (seconds since 1970) that this assignment will be disabled",
+                "group_id: group id of the membership assigned the attribute",
+                "membership_id: membership id assigned the attribute",
+                "member_id: internal grouper member uuid of the membership assigned the attribute",
+                "attribute_assign_id: id of the attribute assignment",
+                "attribute_def_name_id: id of the attribute definition name",
+                "attribute_def_id: id of the attribute definition",
+                "action_id: id of the attribute assign action",
+                "attribute_assign_value_id: the id of the value"
+            ),
+            "select gg.name as group_name, " +
+            "gm.subject_source as source_id, " +
+            "gm.subject_id, " +
+            "gaaa.name as action, " +
+            "gadn.name as attribute_def_name_name, "
+            + " gaav.value_string AS value_string, "          
+            + " gaav.value_integer AS value_integer, "
+            + " gaav.value_floating AS value_floating, "
+            + " gaav.value_member_id AS value_member_id, "
+            + "gadn.display_name as attribute_def_name_disp_name, "
+            + "gf.name as list_name, "
+            + "gad.name as name_of_attribute_def, "
+            + "gaa.notes as attribute_assign_notes, "
+            + "gaa.attribute_assign_delegatable, "
+            + "gaa.enabled, "
+            + "gaa.enabled_time, "
+            + "gaa.disabled_time, "
+            + "gg.id as group_id, "
+            + "gms.id as membership_id, "
+            + "gm.id as member_id, "
+            + "gaa.id as attribute_assign_id, "
+            + "gadn.id as attribute_def_name_id, "
+            + "gad.id as attribute_def_id, "
+            + "gaaa.id as action_id, "
+            + " gaav.id AS attribute_assign_value_id "
+            + "from grouper_attribute_assign gaa, grouper_groups gg, grouper_memberships gms, "
+            + "grouper_attribute_def_name gadn, grouper_attribute_def gad, grouper_members gm, grouper_fields gf, "
+            + "grouper_attr_assign_action gaaa, grouper_attribute_assign_value gaav  "
+            + "where gaav.attribute_assign_id = gaa.id "
+            + " and gaa.owner_membership_id = gms.id "
+            + "and gaa.attribute_def_name_id = gadn.id "
+            + "and gadn.attribute_def_id = gad.id "
+            + " and gms.field_id = gf.id and gms.member_id = gm.id and gms.owner_group_id = gg.id "
+            + " and gf.type = 'list' and gaa.attribute_assign_action_id = gaaa.id ");
+
+      GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_aval_asn_attrdef_v", 
+          "grouper_aval_asn_attrdef_v: attribute assigned to an attribute definition, and related columns and values (multiple rows if multiple values, no rows if no values)",
+          GrouperUtil.toSet("name_of_attr_def_assigned_to",
+              "action",
+              "attribute_def_name_name",
+              "value_string",
+              "value_integer",
+              "value_floating",
+              "value_member_id",
+              "attribute_def_name_disp_name",
+              "name_of_attribute_def_assigned",
+              "attribute_assign_notes",
+              "enabled",
+              "enabled_time",
+              "disabled_time",
+              "id_of_attr_def_assigned_to",
+              "attribute_assign_id",
+              "attribute_def_name_id",
+              "attribute_def_id",
+              "action_id",
+              "attribute_assign_value_id"
+            ),
+            GrouperUtil.toSet("name_of_attr_def_assigned_to: name of attribute def assigned the attribute",
+                "action: the action associated with the attribute assignment (default is assign)",
+                "attribute_def_name_name: name of the attribute definition name which is assigned to the group",
+                "value_string: if this is a string attributeDef, then this is the string",
+                "value_integer: if this is an integer attributeDef, then this is the integer",
+                "value_floating: if this is a floating attributeDef, then this is the value",
+                "value_member_id: if this is a memberId attributeDef, then this is the value",
+                "attribute_def_name_disp_name: display name of the attribute definition name assigned to the attribute",
+                "name_of_attribute_def: name of the attribute definition associated with the attribute definition name assigned to the group",
+                "attribute_assign_notes: notes related to the attribute assignment",
+                "enabled: if this assignment is enabled: T, F",
+                "enabled_time: the time (seconds since 1970) that this assignment will be enabled",
+                "disabled_time: the time (seconds since 1970) that this assignment will be disabled",
+                "id_of_attr_def_assigned_to: attrDef id of the attributeDef assigned the attribute",
+                "attribute_assign_id: id of the attribute assignment",
+                "attribute_def_name_id: id of the attribute definition name",
+                "attribute_def_id: id of the attribute definition",
+                "action_id: id of the attribute assign action",
+                "attribute_assign_value_id: the id of the value"
+            ),
+            "select gad_assigned_to.name as name_of_attr_def_assigned_to, " +
+            "gaaa.name as action, " +
+            "gadn.name as attribute_def_name_name, "
+            + " gaav.value_string AS value_string, "          
+            + " gaav.value_integer AS value_integer, "
+            + " gaav.value_floating AS value_floating, "
+            + " gaav.value_member_id AS value_member_id, "
+            + "gadn.display_name as attribute_def_name_disp_name, "
+            + "gad.name as name_of_attribute_def, "
+            + "gaa.notes as attribute_assign_notes, "
+            + "gaa.enabled, "
+            + "gaa.enabled_time, "
+            + "gaa.disabled_time, "
+            + "gad_assigned_to.id as id_of_attr_def_assigned_to, "
+            + "gaa.id as attribute_assign_id, "
+            + "gadn.id as attribute_def_name_id, "
+            + "gad.id as attribute_def_id, "
+            + "gaaa.id as action_id, "
+            + " gaav.id AS attribute_assign_value_id "
+            + "from grouper_attribute_assign gaa, grouper_attribute_def gad_assigned_to, "
+            + "grouper_attribute_def_name gadn, grouper_attribute_def gad, grouper_attr_assign_action gaaa, grouper_attribute_assign_value gaav  "
+            + "where gaav.attribute_assign_id = gaa.id "
+            + " and gaa.owner_attribute_def_id = gad_assigned_to.id "
+            + "and gaa.attribute_def_name_id = gadn.id "
+            + "and gadn.attribute_def_id = gad.id "
+            + "and gaa.attribute_assign_action_id = gaaa.id ");
+
+      GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_aval_asn_asn_group_v", 
+          "grouper_aval_asn_asn_group_v: attribute assigned to an assignment of attribute to a group, and related cols and values (multiple rows if multiple values, no rows if no values)",
+          GrouperUtil.toSet("group_name",
+              "action1",
+              "action2",
+              "attribute_def_name_name1",
+              "attribute_def_name_name2",
+              "value_string",
+              "value_integer",
+              "value_floating",
+              "value_member_id",
+              "group_display_name",
+              "attribute_def_name_disp_name1",
+              "attribute_def_name_disp_name2",
+              "name_of_attribute_def1",
+              "name_of_attribute_def2",
+              "attribute_assign_notes1",
+              "attribute_assign_notes2",
+              "enabled2",
+              "enabled_time2",
+              "disabled_time2",
+              "group_id",
+              "attribute_assign_id1",
+              "attribute_assign_id2",
+              "attribute_def_name_id1",
+              "attribute_def_name_id2",
+              "attribute_def_id1",
+              "attribute_def_id2",
+              "action_id1",
+              "action_id2",
+              "attribute_assign_value_id"
+            ),
+            GrouperUtil.toSet("group_name: name of group assigned the attribute",
+                "action1: the action associated with the original attribute assignment (default is assign)",
+                "action2: the action associated with this attribute assignment (default is assign)",
+                "attribute_def_name_name1: name of the original attribute definition name which is assigned to the group",
+                "attribute_def_name_name2: name of the current attribute definition name which is assigned to the assignment",
+                "value_string: if this is a string attributeDef, then this is the string",
+                "value_integer: if this is an integer attributeDef, then this is the integer",
+                "value_floating: if this is a floating attributeDef, then this is the value",
+                "value_member_id: if this is a memberId attributeDef, then this is the value",
+                "group_display_name: display name of the group assigned an attribute",
+                "attribute_def_name_disp_name1: display name of the attribute definition name assigned to the original attribute",
+                "attribute_def_name_disp_name2: display name of the attribute definition name assigned to the new attribute",
+                "name_of_attribute_def1: name of the attribute definition associated with the original attribute definition name assigned to the group",
+                "name_of_attribute_def2: name of the attribute definition associated with the new attribute definition name assigned to the assignment",
+                "attribute_assign_notes1: notes related to the original attribute assignment to the group",
+                "attribute_assign_notes2: notes related to the new attribute assignment to the assignment",
+                "enabled2: if this assignment is enabled: T, F",
+                "enabled_time2: the time (seconds since 1970) that this assignment will be enabled",
+                "disabled_time2: the time (seconds since 1970) that this assignment will be disabled",
+                "group_id: group id of the group assigned the attribute",
+                "attribute_assign_id1: id of the original attribute assignment to the group",
+                "attribute_assign_id2: id of the new attribute assignment to the assignment",
+                "attribute_def_name_id1: id of the original attribute definition name assigned to the group",
+                "attribute_def_name_id2: id of the new attribute definition name assigned to the assignment",
+                "attribute_def_id1: id of the original attribute definition assigned to the group",
+                "attribute_def_id2: id of the new attribute definition assigned to the attribute",
+                "action_id1: id of the attribute assign action of the original assignment",
+                "action_id2: id of the attribute assign action assigned to the group",
+                "attribute_assign_value_id: the id of the value"
+            ),
+            "select gg.name as group_name, " +
+            "gaaa1.name as action1, gaaa2.name as action2,  " +
+            "gadn1.name as attribute_def_name_name1, " +
+            "gadn2.name as attribute_def_name_name2, "
+            + " gaav.value_string AS value_string, "          
+            + " gaav.value_integer AS value_integer, "
+            + " gaav.value_floating AS value_floating, "
+            + " gaav.value_member_id AS value_member_id, "
+            + "gg.display_name as group_display_name, "
+            + "gadn1.display_name as attribute_def_name_disp_name1, "
+            + "gadn2.display_name as attribute_def_name_disp_name2, "
+            + "gad1.name as name_of_attribute_def1, "
+            + "gad2.name as name_of_attribute_def2, "
+            + "gaa1.notes as attribute_assign_notes1, "
+            + "gaa2.notes as attribute_assign_notes2, "
+            + "gaa2.enabled as enabled2, "
+            + "gaa2.enabled_time as enabled_time2, "
+            + "gaa2.disabled_time as disabled_time2, "
+            + "gg.id as group_id, "
+            + "gaa1.id as attribute_assign_id1, "
+            + "gaa2.id as attribute_assign_id2, "
+            + "gadn1.id as attribute_def_name_id1, "
+            + "gadn2.id as attribute_def_name_id2, "
+            + "gad1.id as attribute_def_id1, "
+            + "gad2.id as attribute_def_id2, "
+            + "gaaa1.id as action_id1, "
+            + "gaaa2.id as action_id2, "
+            + " gaav.id AS attribute_assign_value_id "
+            + "from grouper_attribute_assign gaa1, grouper_attribute_assign gaa2, grouper_groups gg, "
+            + "grouper_attribute_def_name gadn1, grouper_attribute_def_name gadn2, grouper_attribute_def gad1, "
+            + "grouper_attribute_def gad2, grouper_attr_assign_action gaaa1, grouper_attr_assign_action gaaa2, grouper_attribute_assign_value gaav   "
+            + "where gaav.attribute_assign_id = gaa2.id "
+            + " and gaa1.id = gaa2.owner_attribute_assign_id "
+            + "and gaa1.attribute_def_name_id = gadn1.id "
+            + "and gaa2.attribute_def_name_id = gadn2.id "
+            + "and gadn1.attribute_def_id = gad1.id "
+            + "and gadn2.attribute_def_id = gad2.id "
+            + "and gaa1.enabled = 'T' " 
+            + "and gg.id = gaa1.owner_group_id "
+            + "and gaa1.owner_member_id is null "
+            + "and gaa1.attribute_assign_action_id = gaaa1.id and gaa2.attribute_assign_action_id = gaaa2.id");
+
+
+      GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_aval_asn_asn_efmship_v", 
+          "grouper_aval_asn_asn_efmship_v: attribute assigned to an assignment of an attribute to an effective membership, and related cols and values (multiple rows if multiple values, no rows if no values)",
+          GrouperUtil.toSet("group_name",
+              "source_id",
+              "subject_id",
+              "action1",
+              "action2",
+              "attribute_def_name_name1",
+              "attribute_def_name_name2",
+              "value_string",
+              "value_integer",
+              "value_floating",
+              "value_member_id",
+              "attribute_def_name_disp_name1",
+              "attribute_def_name_disp_name2",
+              "list_name",
+              "name_of_attribute_def1",
+              "name_of_attribute_def2",
+              "attribute_assign_notes1",
+              "attribute_assign_notes2",
+              "enabled2",
+              "enabled_time2",
+              "disabled_time2",
+              "group_id",
+              "member_id",
+              "attribute_assign_id1",
+              "attribute_assign_id2",
+              "attribute_def_name_id1",
+              "attribute_def_name_id2",
+              "attribute_def_id1",
+              "attribute_def_id2",
+              "action_id1",
+              "action_id2",
+              "attribute_assign_value_id"
+            ),
+            GrouperUtil.toSet("group_name: name of group in membership assigned the attribute",
+                "source_id: source of the subject that belongs to the member",
+                "subject_id: subject_id of the subject that belongs to the member",
+                "action1: the action associated with the original attribute assignment (default is assign)",
+                "action2: the action associated with this attribute assignment (default is assign)",
+                "attribute_def_name_name1: name of the original attribute definition name which is assigned to the group",
+                "attribute_def_name_name2: name of the new attribute definition name which is assigned to the group",
+                "value_string: if this is a string attributeDef, then this is the string",
+                "value_integer: if this is an integer attributeDef, then this is the integer",
+                "value_floating: if this is a floating attributeDef, then this is the value",
+                "value_member_id: if this is a memberId attributeDef, then this is the value",
+                "attribute_def_name_disp_name1: display name of the original attribute definition name assigned to the attribute",
+                "attribute_def_name_disp_name2: display name of the new attribute definition name assigned to the attribute",
+                "list_name: name of list in membership assigned the attribute",
+                "name_of_attribute_def1: name of the original attribute definition associated with the attribute definition name assigned to the group",
+                "name_of_attribute_def2: name of the new attribute definition associated with the attribute definition name assigned to the group",
+                "attribute_assign_notes1: notes related to the original attribute assignment",
+                "attribute_assign_notes2: notes related to the new attribute assignment",
+                "enabled2: if this assignment is enabled: T, F",
+                "enabled_time2: the time (seconds since 1970) that this assignment will be enabled",
+                "disabled_time2: the time (seconds since 1970) that this assignment will be disabled",
+                "group_id: group id of the membership assigned the attribute",
+                "member_id: internal grouper member uuid of the membership assigned the attribute",
+                "attribute_assign_id1: id of the original attribute assignment",
+                "attribute_assign_id2: id of the new attribute assignment",
+                "attribute_def_name_id1: id of the original attribute definition name",
+                "attribute_def_name_id2: id of the new attribute definition name",
+                "attribute_def_id1: id of the original attribute definition",
+                "attribute_def_id2: id of the new attribute definition",
+                "action_id1: id of the attribute assign action of the original assignment",
+                "action_id2: id of the attribute assign action assigned to the group",
+                "attribute_assign_value_id: the id of the value"
+            ),
+            "select distinct gg.name as group_name, " +
+            "gm.subject_source as source_id, " +
+            "gm.subject_id, " +
+            "gaaa1.name as action1, gaaa2.name as action2,  " +
+            "gadn1.name as attribute_def_name_name1, gadn2.name as attribute_def_name_name2, "
+            + " gaav.value_string AS value_string, "          
+            + " gaav.value_integer AS value_integer, "
+            + " gaav.value_floating AS value_floating, "
+            + " gaav.value_member_id AS value_member_id, "
+            + "gadn1.display_name as attribute_def_name_disp_name1, gadn2.display_name as attribute_def_name_disp_name2, "
+            + "gf.name as list_name, "
+            + "gad1.name as name_of_attribute_def1, "
+            + "gad2.name as name_of_attribute_def2, "
+            + "gaa1.notes as attribute_assign_notes1, "
+            + "gaa2.notes as attribute_assign_notes2, "
+            + "gaa2.enabled as enabled2, "
+            + "gaa2.enabled_time as enabled_time2, "
+            + "gaa2.disabled_time as disabled_time2, "
+            + "gg.id as group_id, "
+            + "gm.id as member_id, "
+            + "gaa1.id as attribute_assign_id1, "
+            + "gaa2.id as attribute_assign_id2, "
+            + "gadn1.id as attribute_def_name_id1, "
+            + "gadn2.id as attribute_def_name_id2, "
+            + "gad1.id as attribute_def_id1, "
+            + "gad2.id as attribute_def_id2, "
+            + "gaaa1.id as action_id1, "
+            + "gaaa2.id as action_id2, "
+            + " gaav.id AS attribute_assign_value_id "
+            + "from grouper_attribute_assign gaa1, grouper_attribute_assign gaa2, " +
+                "grouper_groups gg, grouper_memberships_all_v gmav, "
+            + "grouper_attribute_def_name gadn1, grouper_attribute_def_name gadn2, " +
+                "grouper_attribute_def gad1, grouper_attribute_def gad2, grouper_members gm, grouper_fields gf, "
+            + "grouper_attr_assign_action gaaa1, grouper_attr_assign_action gaaa2, grouper_attribute_assign_value gaav "
+            + "where gaav.attribute_assign_id = gaa2.id "
+            + " and gaa1.owner_member_id = gmav.member_id and gaa1.owner_group_id = gmav.owner_group_id" +
+                " and gaa2.owner_attribute_assign_id = gaa1.id  "
+            + "and gaa1.attribute_def_name_id = gadn1.id and gaa2.attribute_def_name_id = gadn2.id "
+            + "and gadn1.attribute_def_id = gad1.id and gadn2.attribute_def_id = gad2.id "
+            + "and gaa1.enabled = 'T' and gmav.immediate_mship_enabled = 'T'" +
+                " and gmav.field_id = gf.id and gmav.member_id = gm.id and gmav.owner_group_id = gg.id" +
+                " and gf.type = 'list'"
+            + " and gaa1.owner_member_id is not null "
+            + " and gaa1.owner_group_id is not null "
+            + "and gaa1.attribute_assign_action_id = gaaa1.id and gaa2.attribute_assign_action_id = gaaa2.id ");
+
+
+      GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_aval_asn_asn_stem_v", 
+          "grouper_aval_asn_asn_stem_v: attribute assigned to an assignment of attribute to a stem, and related cols and values (multiple rows if multiple values, no rows if no values)",
+          GrouperUtil.toSet("stem_name",
+              "action1",
+              "action2",
+              "attribute_def_name_name1",
+              "attribute_def_name_name2",
+              "value_string",
+              "value_integer",
+              "value_floating",
+              "value_member_id",
+              "stem_display_name",
+              "attribute_def_name_disp_name1",
+              "attribute_def_name_disp_name2",
+              "name_of_attribute_def1",
+              "name_of_attribute_def2",
+              "attribute_assign_notes1",
+              "attribute_assign_notes2",
+              "enabled2",
+              "enabled_time2",
+              "disabled_time2",
+              "stem_id",
+              "attribute_assign_id1",
+              "attribute_assign_id2",
+              "attribute_def_name_id1",
+              "attribute_def_name_id2",
+              "attribute_def_id1",
+              "attribute_def_id2",
+              "action_id1",
+              "action_id2",
+              "attribute_assign_value_id"
+            ),
+            GrouperUtil.toSet("stem_name: name of stem assigned the attribute",
+                "action1: the action associated with the original attribute assignment (default is assign)",
+                "action2: the action associated with this attribute assignment (default is assign)",
+                "attribute_def_name_name1: name of the original attribute definition name which is assigned to the group",
+                "attribute_def_name_name2: name of the current attribute definition name which is assigned to the assignment",
+                "value_string: if this is a string attributeDef, then this is the string",
+                "value_integer: if this is an integer attributeDef, then this is the integer",
+                "value_floating: if this is a floating attributeDef, then this is the value",
+                "value_member_id: if this is a memberId attributeDef, then this is the value",
+                "stem_display_name: display name of the stem assigned an attribute",
+                "attribute_def_name_disp_name1: display name of the attribute definition name assigned to the original attribute",
+                "attribute_def_name_disp_name2: display name of the attribute definition name assigned to the new attribute",
+                "name_of_attribute_def1: name of the attribute definition associated with the original attribute definition name assigned to the group",
+                "name_of_attribute_def2: name of the attribute definition associated with the new attribute definition name assigned to the assignment",
+                "attribute_assign_notes1: notes related to the original attribute assignment to the group",
+                "attribute_assign_notes2: notes related to the new attribute assignment to the assignment",
+                "enabled2: if this assignment is enabled: T, F",
+                "enabled_time2: the time (seconds since 1970) that this assignment will be enabled",
+                "disabled_time2: the time (seconds since 1970) that this assignment will be disabled",
+                "stem_id: stem id of the stem assigned the attribute",
+                "attribute_assign_id1: id of the original attribute assignment to the group",
+                "attribute_assign_id2: id of the new attribute assignment to the assignment",
+                "attribute_def_name_id1: id of the original attribute definition name assigned to the group",
+                "attribute_def_name_id2: id of the new attribute definition name assigned to the assignment",
+                "attribute_def_id1: id of the original attribute definition assigned to the group",
+                "attribute_def_id2: id of the new attribute definition assigned to the attribute",
+                "action_id1: id of the attribute assign action of the original assignment",
+                "action_id2: id of the attribute assign action assigned to the group",
+                "attribute_assign_value_id: the id of the value"
+            ),
+            "select gs.name as stem_name, " +
+            "gaaa1.name as action1, gaaa2.name as action2,  " +
+            "gadn1.name as attribute_def_name_name1, " +
+            "gadn2.name as attribute_def_name_name2, "
+            + " gaav.value_string AS value_string, "          
+            + " gaav.value_integer AS value_integer, "
+            + " gaav.value_floating AS value_floating, "
+            + " gaav.value_member_id AS value_member_id, "
+            + "gs.display_name as stem_display_name, "
+            + "gadn1.display_name as attribute_def_name_disp_name1, "
+            + "gadn2.display_name as attribute_def_name_disp_name2, "
+            + "gad1.name as name_of_attribute_def1, "
+            + "gad2.name as name_of_attribute_def2, "
+            + "gaa1.notes as attribute_assign_notes1, "
+            + "gaa2.notes as attribute_assign_notes2, "
+            + "gaa2.enabled as enabled2, "
+            + "gaa2.enabled_time as enabled_time2, "
+            + "gaa2.disabled_time as disabled_time2, "
+            + "gs.id as stem_id, "
+            + "gaa1.id as attribute_assign_id1, "
+            + "gaa2.id as attribute_assign_id2, "
+            + "gadn1.id as attribute_def_name_id1, "
+            + "gadn2.id as attribute_def_name_id2, "
+            + "gad1.id as attribute_def_id1, "
+            + "gad2.id as attribute_def_id2, "
+            + "gaaa1.id as action_id1, "
+            + "gaaa2.id as action_id2, "
+            + " gaav.id AS attribute_assign_value_id "
+            + "from grouper_attribute_assign gaa1, grouper_attribute_assign gaa2, grouper_stems gs, "
+            + "grouper_attribute_def_name gadn1, grouper_attribute_def_name gadn2, grouper_attribute_def gad1, "
+            + "grouper_attribute_def gad2, grouper_attr_assign_action gaaa1, grouper_attr_assign_action gaaa2, grouper_attribute_assign_value gaav "
+            + "where gaav.attribute_assign_id = gaa2.id "
+            + " and gaa1.id = gaa2.owner_attribute_assign_id "
+            + "and gaa1.attribute_def_name_id = gadn1.id "
+            + "and gaa2.attribute_def_name_id = gadn2.id "
+            + "and gadn1.attribute_def_id = gad1.id "
+            + "and gadn2.attribute_def_id = gad2.id "
+            + "and gaa1.enabled = 'T' " +
+                "and gs.id = gaa1.owner_stem_id "
+            + "and gaa1.attribute_assign_action_id = gaaa1.id and gaa2.attribute_assign_action_id = gaaa2.id ");
+
+      
+      GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_aval_asn_asn_member_v", 
+          "grouper_aval_asn_asn_member_v: attribute assigned to an assignment of an attribute to a member, and related cols and values (multiple rows if multiple values, no rows if no values)",
+          GrouperUtil.toSet("source_id", "subject_id", 
+              "action1",
+              "action2",
+              "attribute_def_name_name1",
+              "attribute_def_name_name2",
+              "value_string",
+              "value_integer",
+              "value_floating",
+              "value_member_id",
+              "attribute_def_name_disp_name1",
+              "attribute_def_name_disp_name2",
+              "name_of_attribute_def1",
+              "name_of_attribute_def2",
+              "attribute_assign_notes1",
+              "attribute_assign_notes2",
+              "enabled2",
+              "enabled_time2",
+              "disabled_time2",
+              "member_id",
+              "attribute_assign_id1",
+              "attribute_assign_id2",
+              "attribute_def_name_id1",
+              "attribute_def_name_id2",
+              "attribute_def_id1",
+              "attribute_def_id2",
+              "action_id1",
+              "action_id2",
+              "attribute_assign_value_id"
+            ),
+            GrouperUtil.toSet("source_id: source id of the member assigned the original attribute",
+                "subject_id: subject id of the member assigned the original attribute",
+                "action1: the action associated with the original attribute assignment (default is assign)",
+                "action2: the action associated with this attribute assignment (default is assign)",
+                "attribute_def_name_name1: name of the original attribute definition name which is assigned to the group",
+                "attribute_def_name_name2: name of the current attribute definition name which is assigned to the assignment",
+                "value_string: if this is a string attributeDef, then this is the string",
+                "value_integer: if this is an integer attributeDef, then this is the integer",
+                "value_floating: if this is a floating attributeDef, then this is the value",
+                "value_member_id: if this is a memberId attributeDef, then this is the value",
+                "attribute_def_name_disp_name1: display name of the attribute definition name assigned to the original attribute",
+                "attribute_def_name_disp_name2: display name of the attribute definition name assigned to the new attribute",
+                "name_of_attribute_def1: name of the attribute definition associated with the original attribute definition name assigned to the group",
+                "name_of_attribute_def2: name of the attribute definition associated with the new attribute definition name assigned to the assignment",
+                "attribute_assign_notes1: notes related to the original attribute assignment to the group",
+                "attribute_assign_notes2: notes related to the new attribute assignment to the assignment",
+                "enabled2: if this assignment is enabled: T, F",
+                "enabled_time2: the time (seconds since 1970) that this assignment will be enabled",
+                "disabled_time2: the time (seconds since 1970) that this assignment will be disabled",
+                "member_id: member id of the member assigned the original attribute",
+                "attribute_assign_id1: id of the original attribute assignment to the group",
+                "attribute_assign_id2: id of the new attribute assignment to the assignment",
+                "attribute_def_name_id1: id of the original attribute definition name assigned to the group",
+                "attribute_def_name_id2: id of the new attribute definition name assigned to the assignment",
+                "attribute_def_id1: id of the original attribute definition assigned to the group",
+                "attribute_def_id2: id of the new attribute definition assigned to the attribute",
+                "action_id1: id of the attribute assign action of the original assignment",
+                "action_id2: id of the attribute assign action assigned to the group",
+                "attribute_assign_value_id: the id of the value"
+            ),
+            "select gm.subject_source as source_id, gm.subject_id, " +
+            "gaaa1.name as action1, gaaa2.name as action2,  " +
+            "gadn1.name as attribute_def_name_name1, " +
+            "gadn2.name as attribute_def_name_name2, "
+            + " gaav.value_string AS value_string, "          
+            + " gaav.value_integer AS value_integer, "
+            + " gaav.value_floating AS value_floating, "
+            + " gaav.value_member_id AS value_member_id, "
+            + "gadn1.display_name as attribute_def_name_disp_name1, "
+            + "gadn2.display_name as attribute_def_name_disp_name2, "
+            + "gad1.name as name_of_attribute_def1, "
+            + "gad2.name as name_of_attribute_def2, "
+            + "gaa1.notes as attribute_assign_notes1, "
+            + "gaa2.notes as attribute_assign_notes2, "
+            + "gaa2.enabled as enabled2, "
+            + "gaa2.enabled_time as enabled_time2, "
+            + "gaa2.disabled_time as disabled_time2, "
+            + "gm.id as member_id, "
+            + "gaa1.id as attribute_assign_id1, "
+            + "gaa2.id as attribute_assign_id2, "
+            + "gadn1.id as attribute_def_name_id1, "
+            + "gadn2.id as attribute_def_name_id2, "
+            + "gad1.id as attribute_def_id1, "
+            + "gad2.id as attribute_def_id2, "
+            + "gaaa1.id as action_id1, "
+            + "gaaa2.id as action_id2, "
+            + " gaav.id AS attribute_assign_value_id "
+            + "from grouper_attribute_assign gaa1, grouper_attribute_assign gaa2, grouper_members gm, "
+            + "grouper_attribute_def_name gadn1, grouper_attribute_def_name gadn2, grouper_attribute_def gad1, "
+            + "grouper_attribute_def gad2, grouper_attr_assign_action gaaa1, grouper_attr_assign_action gaaa2, grouper_attribute_assign_value gaav "
+            + "where gaav.attribute_assign_id = gaa2.id "
+            + " and gaa1.id = gaa2.owner_attribute_assign_id "
+            + "and gaa1.attribute_def_name_id = gadn1.id "
+            + "and gaa2.attribute_def_name_id = gadn2.id "
+            + "and gadn1.attribute_def_id = gad1.id "
+            + "and gadn2.attribute_def_id = gad2.id "
+            + "and gaa1.enabled = 'T' " +
+                "and gm.id = gaa1.owner_member_id "
+            + "and gaa1.owner_group_id is null "
+            + "and gaa1.attribute_assign_action_id = gaaa1.id and gaa2.attribute_assign_action_id = gaaa2.id ");
+
+
+      
+      GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_aval_asn_asn_mship_v", 
+          "grouper_aval_asn_asn_mship_v: attribute assigned to an assignment of an attribute to a membership, and related cols and values (multiple rows if multiple values, no rows if no values)",
+          GrouperUtil.toSet("group_name",
+              "source_id",
+              "subject_id",
+              "action1",
+              "action2",
+              "attribute_def_name_name1",
+              "attribute_def_name_name2",
+              "value_string",
+              "value_integer",
+              "value_floating",
+              "value_member_id",
+              "attribute_def_name_disp_name1",
+              "attribute_def_name_disp_name2",
+              "list_name",
+              "name_of_attribute_def1",
+              "name_of_attribute_def2",
+              "attribute_assign_notes1",
+              "attribute_assign_notes2",
+              "enabled2",
+              "enabled_time2",
+              "disabled_time2",
+              "group_id",
+              "membership_id",
+              "member_id",
+              "attribute_assign_id1",
+              "attribute_assign_id2",
+              "attribute_def_name_id1",
+              "attribute_def_name_id2",
+              "attribute_def_id1",
+              "attribute_def_id2",
+              "action_id1",
+              "action_id2",
+              "attribute_assign_value_id"
+            ),
+            GrouperUtil.toSet("group_name: name of group in membership assigned the attribute",
+                "source_id: source of the subject that belongs to the member",
+                "subject_id: subject_id of the subject that belongs to the member",
+                "action1: the action associated with the original attribute assignment (default is assign)",
+                "action2: the action associated with this attribute assignment (default is assign)",
+                "attribute_def_name_name1: name of the original attribute definition name which is assigned to the group",
+                "attribute_def_name_name2: name of the new attribute definition name which is assigned to the group",
+                "value_string: if this is a string attributeDef, then this is the string",
+                "value_integer: if this is an integer attributeDef, then this is the integer",
+                "value_floating: if this is a floating attributeDef, then this is the value",
+                "value_member_id: if this is a memberId attributeDef, then this is the value",
+                "attribute_def_name_disp_name1: display name of the original attribute definition name assigned to the attribute",
+                "attribute_def_name_disp_name2: display name of the new attribute definition name assigned to the attribute",
+                "list_name: name of list in membership assigned the attribute",
+                "name_of_attribute_def1: name of the original attribute definition associated with the attribute definition name assigned to the group",
+                "name_of_attribute_def2: name of the new attribute definition associated with the attribute definition name assigned to the group",
+                "attribute_assign_notes1: notes related to the original attribute assignment",
+                "attribute_assign_notes2: notes related to the new attribute assignment",
+                "enabled2: if this assignment is enabled: T, F",
+                "enabled_time2: the time (seconds since 1970) that this assignment will be enabled",
+                "disabled_time2: the time (seconds since 1970) that this assignment will be disabled",
+                "group_id: group id of the membership assigned the attribute",
+                "membership_id: membership id assigned the attribute",
+                "member_id: internal grouper member uuid of the membership assigned the attribute",
+                "attribute_assign_id1: id of the original attribute assignment",
+                "attribute_assign_id2: id of the new attribute assignment",
+                "attribute_def_name_id1: id of the original attribute definition name",
+                "attribute_def_name_id2: id of the new attribute definition name",
+                "attribute_def_id1: id of the original attribute definition",
+                "attribute_def_id2: id of the new attribute definition",
+                "action_id1: id of the attribute assign action of the original assignment",
+                "action_id2: id of the attribute assign action assigned to the group",
+                "attribute_assign_value_id: the id of the value"
+            ),
+            "select gg.name as group_name, " +
+            "gm.subject_source as source_id, " +
+            "gm.subject_id, " +
+            "gaaa1.name as action1, gaaa2.name as action2,  " 
+            + "gadn1.name as attribute_def_name_name1, gadn2.name as attribute_def_name_name2, "
+            + " gaav.value_string AS value_string, "          
+            + " gaav.value_integer AS value_integer, "
+            + " gaav.value_floating AS value_floating, "
+            + " gaav.value_member_id AS value_member_id, "
+            + "gadn1.display_name as attribute_def_name_disp_name1, gadn2.display_name as attribute_def_name_disp_name2, "
+            + "gf.name as list_name, "
+            + "gad1.name as name_of_attribute_def1, "
+            + "gad2.name as name_of_attribute_def2, "
+            + "gaa1.notes as attribute_assign_notes1, "
+            + "gaa2.notes as attribute_assign_notes2, "
+            + "gaa2.enabled as enabled2, "
+            + "gaa2.enabled_time as enabled_time2, "
+            + "gaa2.disabled_time as disabled_time2, "
+            + "gg.id as group_id, "
+            + "gms.id as membership_id, "
+            + "gm.id as member_id, "
+            + "gaa1.id as attribute_assign_id1, "
+            + "gaa2.id as attribute_assign_id2, "
+            + "gadn1.id as attribute_def_name_id1, "
+            + "gadn2.id as attribute_def_name_id2, "
+            + "gad1.id as attribute_def_id1, "
+            + "gad2.id as attribute_def_id2, "
+            + "gaaa1.id as action_id1, "
+            + "gaaa2.id as action_id2, "
+            + " gaav.id AS attribute_assign_value_id "
+            + "from grouper_attribute_assign gaa1, grouper_attribute_assign gaa2, " +
+                "grouper_groups gg, grouper_memberships gms, "
+            + "grouper_attribute_def_name gadn1, grouper_attribute_def_name gadn2, " +
+                "grouper_attribute_def gad1, grouper_attribute_def gad2, grouper_members gm, grouper_fields gf, "
+            + "grouper_attr_assign_action gaaa1, grouper_attr_assign_action gaaa2, grouper_attribute_assign_value gaav "
+            + "where gaav.attribute_assign_id = gaa2.id "
+            + " and gaa1.owner_membership_id = gms.id and gaa2.owner_attribute_assign_id = gaa1.id  "
+            + "and gaa1.attribute_def_name_id = gadn1.id and gaa2.attribute_def_name_id = gadn2.id "
+            + "and gadn1.attribute_def_id = gad1.id and gadn2.attribute_def_id = gad2.id "
+            + "and gaa1.enabled = 'T' " 
+            + " and gms.field_id = gf.id and gms.member_id = gm.id and gms.owner_group_id = gg.id" 
+            + " and gf.type = 'list' "
+            + "and gaa1.attribute_assign_action_id = gaaa1.id and gaa2.attribute_assign_action_id = gaaa2.id ");
+
+
+      
+      GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_aval_asn_asn_attrdef_v", 
+          "grouper_aval_asn_asn_attrdef_v: attribute assigned to an assignment of an attribute to an attribute definition, and related cols and values (multiple rows if multiple values, no rows if no values)",
+          GrouperUtil.toSet("name_of_attr_def_assigned_to",
+              "action1",
+              "action2",
+              "attribute_def_name_name1",
+              "attribute_def_name_name2",
+              "value_string",
+              "value_integer",
+              "value_floating",
+              "value_member_id",
+              "attribute_def_name_disp_name1",
+              "attribute_def_name_disp_name2",
+              "name_of_attribute_def1",
+              "name_of_attribute_def2",
+              "attribute_assign_notes1",
+              "attribute_assign_notes2",
+              "enabled2",
+              "enabled_time2",
+              "disabled_time2",
+              "id_of_attr_def_assigned_to",
+              "attribute_assign_id1",
+              "attribute_assign_id2",
+              "attribute_def_name_id1",
+              "attribute_def_name_id2",
+              "attribute_def_id1",
+              "attribute_def_id2",
+              "action_id1",
+              "action_id2",
+              "attribute_assign_value_id"
+            ),
+            GrouperUtil.toSet("name_of_attr_def_assigned_to: name of attribute_def originally assigned the attribute",
+                "action1: the action associated with the original attribute assignment (default is assign)",
+                "action2: the action associated with this attribute assignment (default is assign)",
+                "attribute_def_name_name1: name of the original attribute definition name which is assigned to the group",
+                "attribute_def_name_name2: name of the current attribute definition name which is assigned to the assignment",
+                "value_string: if this is a string attributeDef, then this is the string",
+                "value_integer: if this is an integer attributeDef, then this is the integer",
+                "value_floating: if this is a floating attributeDef, then this is the value",
+                "value_member_id: if this is a memberId attributeDef, then this is the value",
+                "attribute_def_name_disp_name1: display name of the attribute definition name assigned to the original attribute",
+                "attribute_def_name_disp_name2: display name of the attribute definition name assigned to the new attribute",
+                "name_of_attribute_def1: name of the attribute definition associated with the original attribute definition name assigned to the group",
+                "name_of_attribute_def2: name of the attribute definition associated with the new attribute definition name assigned to the assignment",
+                "attribute_assign_notes1: notes related to the original attribute assignment to the group",
+                "attribute_assign_notes2: notes related to the new attribute assignment to the assignment",
+                "enabled2: if this assignment is enabled: T, F",
+                "enabled_time2: the time (seconds since 1970) that this assignment will be enabled",
+                "disabled_time2: the time (seconds since 1970) that this assignment will be disabled",
+                "id_of_attr_def_assigned_to: id of the attribute def assigned the attribute",
+                "attribute_assign_id1: id of the original attribute assignment to the group",
+                "attribute_assign_id2: id of the new attribute assignment to the assignment",
+                "attribute_def_name_id1: id of the original attribute definition name assigned to the group",
+                "attribute_def_name_id2: id of the new attribute definition name assigned to the assignment",
+                "attribute_def_id1: id of the original attribute definition assigned to the group",
+                "attribute_def_id2: id of the new attribute definition assigned to the attribute",
+                "action_id1: id of the attribute assign action of the original assignment",
+                "action_id2: id of the attribute assign action assigned to the group",
+                "attribute_assign_value_id: the id of the value"
+            ),
+            "select gad.name as name_of_attr_def_assigned_to, " +
+            "gaaa1.name as action1, gaaa2.name as action2,  " +
+            "gadn1.name as attribute_def_name_name1, " +
+            "gadn2.name as attribute_def_name_name2, "
+            + " gaav.value_string AS value_string, "          
+            + " gaav.value_integer AS value_integer, "
+            + " gaav.value_floating AS value_floating, "
+            + " gaav.value_member_id AS value_member_id, "
+            + "gadn1.display_name as attribute_def_name_disp_name1, "
+            + "gadn2.display_name as attribute_def_name_disp_name2, "
+            + "gad1.name as name_of_attribute_def1, "
+            + "gad2.name as name_of_attribute_def2, "
+            + "gaa1.notes as attribute_assign_notes1, "
+            + "gaa2.notes as attribute_assign_notes2, "
+            + "gaa2.enabled as enabled2, "
+            + "gaa2.enabled_time as enabled_time2, "
+            + "gaa2.disabled_time as disabled_time2, "
+            + "gad.id as id_of_attr_def_assigned_to, "
+            + "gaa1.id as attribute_assign_id1, "
+            + "gaa2.id as attribute_assign_id2, "
+            + "gadn1.id as attribute_def_name_id1, "
+            + "gadn2.id as attribute_def_name_id2, "
+            + "gad1.id as attribute_def_id1, "
+            + "gad2.id as attribute_def_id2, "
+            + "gaaa1.id as action_id1, "
+            + "gaaa2.id as action_id2, "
+            + " gaav.id AS attribute_assign_value_id "
+            + "from grouper_attribute_assign gaa1, grouper_attribute_assign gaa2, grouper_attribute_def gad, "
+            + "grouper_attribute_def_name gadn1, grouper_attribute_def_name gadn2, grouper_attribute_def gad1, "
+            + "grouper_attribute_def gad2, "
+            + "grouper_attr_assign_action gaaa1, grouper_attr_assign_action gaaa2, grouper_attribute_assign_value gaav "
+            + "where gaav.attribute_assign_id = gaa2.id "
+            + " and gaa1.id = gaa2.owner_attribute_assign_id "
+            + "and gaa1.attribute_def_name_id = gadn1.id "
+            + "and gaa2.attribute_def_name_id = gadn2.id "
+            + "and gadn1.attribute_def_id = gad1.id "
+            + "and gadn2.attribute_def_id = gad2.id "
+            + "and gaa1.enabled = 'T' " 
+            + "and gad.id = gaa1.owner_attribute_def_id "
+            + "and gaa1.attribute_assign_action_id = gaaa1.id and gaa2.attribute_assign_action_id = gaaa2.id ");
+
+
+      
+      
+      
+      
+      
+    }
     
     GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_attr_def_priv_v", 
         "grouper_attr_def_priv_v: shows all privileges internal to grouper of attribute defs",
@@ -6099,41 +7256,51 @@ public enum GrouperDdl implements DdlVersionable {
       //(SELECT gaav.value_string
       // FROM grouper_attr_asn_asn_stem_v gaaasv, grouper_attribute_assign_value gaav
       // WHERE gaaasv.attribute_def_name_name2 = 'etc:attribute:attrExternalSubjectInvite:externalSubjectInviteUuid'
-      // AND gaav.attribute_assign_id = gaaasv.attribute_assign_id2) AS invite_id,
+      // AND gaav.attribute_assign_id = gaaasv.attribute_assign_id2
+      // AND gaaasv.attribute_assign_id1 = gaasv.attribute_assign_id) AS invite_id,
       //(SELECT gaav.value_string
       // FROM grouper_attr_asn_asn_stem_v gaaasv, grouper_attribute_assign_value gaav
       // WHERE gaaasv.attribute_def_name_name2 = 'etc:attribute:attrExternalSubjectInvite:externalSubjectInviteMemberId'
-      // AND gaav.attribute_assign_id = gaaasv.attribute_assign_id2) AS invite_member_id,
+      // AND gaav.attribute_assign_id = gaaasv.attribute_assign_id2
+      // AND gaaasv.attribute_assign_id1 = gaasv.attribute_assign_id) AS invite_member_id,
       //(SELECT gaav.value_string
       // FROM grouper_attr_asn_asn_stem_v gaaasv, grouper_attribute_assign_value gaav
       // WHERE gaaasv.attribute_def_name_name2 = 'etc:attribute:attrExternalSubjectInvite:externalSubjectInviteDate'
-      // AND gaav.attribute_assign_id = gaaasv.attribute_assign_id2) AS invite_date,
+      // AND gaav.attribute_assign_id = gaaasv.attribute_assign_id2
+      // AND gaaasv.attribute_assign_id1 = gaasv.attribute_assign_id) AS invite_date,
       //(SELECT gaav.value_string
       // FROM grouper_attr_asn_asn_stem_v gaaasv, grouper_attribute_assign_value gaav
       // WHERE gaaasv.attribute_def_name_name2 = 'etc:attribute:attrExternalSubjectInvite:externalSubjectEmailAddress'
-      // AND gaav.attribute_assign_id = gaaasv.attribute_assign_id2) AS email_address,
+      // AND gaav.attribute_assign_id = gaaasv.attribute_assign_id2
+      // AND gaaasv.attribute_assign_id1 = gaasv.attribute_assign_id) AS email_address,
       //(SELECT gaav.value_string
       // FROM grouper_attr_asn_asn_stem_v gaaasv, grouper_attribute_assign_value gaav
       // WHERE gaaasv.attribute_def_name_name2 = 'etc:attribute:attrExternalSubjectInvite:externalSubjectInviteEmailWhenRegistered'
-      // AND gaav.attribute_assign_id = gaaasv.attribute_assign_id2) AS invite_email_when_registered,
+      // AND gaav.attribute_assign_id = gaaasv.attribute_assign_id2
+      // AND gaaasv.attribute_assign_id1 = gaasv.attribute_assign_id) AS invite_email_when_registered,
       //(SELECT gaav.value_string
       // FROM grouper_attr_asn_asn_stem_v gaaasv, grouper_attribute_assign_value gaav
       // WHERE gaaasv.attribute_def_name_name2 = 'etc:attribute:attrExternalSubjectInvite:externalSubjectInviteGroupUuids'
-      // AND gaav.attribute_assign_id = gaaasv.attribute_assign_id2) AS invite_group_uuids,
+      // AND gaav.attribute_assign_id = gaaasv.attribute_assign_id2
+      // AND gaaasv.attribute_assign_id1 = gaasv.attribute_assign_id) AS invite_group_uuids,
       //(SELECT gaav.value_string
       // FROM grouper_attr_asn_asn_stem_v gaaasv, grouper_attribute_assign_value gaav
       // WHERE gaaasv.attribute_def_name_name2 = 'etc:attribute:attrExternalSubjectInvite:externalSubjectInviteExpireDate'
-      // AND gaav.attribute_assign_id = gaaasv.attribute_assign_id2) AS invite_expire_date,
+      // AND gaav.attribute_assign_id = gaaasv.attribute_assign_id2
+      // AND gaaasv.attribute_assign_id1 = gaasv.attribute_assign_id) AS invite_expire_date,
       //(SELECT gaav.value_string
       // FROM grouper_attr_asn_asn_stem_v gaaasv, grouper_attribute_assign_value gaav
       // WHERE gaaasv.attribute_def_name_name2 = 'etc:attribute:attrExternalSubjectInvite:externalSubjectInviteEmail'
-      // AND gaav.attribute_assign_id = gaaasv.attribute_assign_id2) AS email_body,
+      // AND gaav.attribute_assign_id = gaaasv.attribute_assign_id2
+      // AND gaaasv.attribute_assign_id1 = gaasv.attribute_assign_id) AS email_body,
       //(SELECT gaaasv.disabled_time2
       // FROM grouper_attr_asn_asn_stem_v gaaasv
-      // WHERE gaaasv.attribute_def_name_name2 = 'etc:attribute:attrExternalSubjectInvite:externalSubjectInviteExpireDate') AS expire_attr_expire_date,
+      // WHERE gaaasv.attribute_def_name_name2 = 'etc:attribute:attrExternalSubjectInvite:externalSubjectInviteExpireDate'
+      // AND gaaasv.attribute_assign_id1 = gaasv.attribute_assign_id) AS expire_attr_expire_date,
       //(SELECT gaaasv.enabled2
       // FROM grouper_attr_asn_asn_stem_v gaaasv
-      // WHERE gaaasv.attribute_def_name_name2 = 'etc:attribute:attrExternalSubjectInvite:externalSubjectInviteExpireDate') AS expire_attr_enabled,
+      // WHERE gaaasv.attribute_def_name_name2 = 'etc:attribute:attrExternalSubjectInvite:externalSubjectInviteExpireDate'
+      // AND gaaasv.attribute_assign_id1 = gaasv.attribute_assign_id) AS expire_attr_enabled,
       //gaasv.disabled_time AS assignment_expire_date,
       //gaasv.enabled AS assignment_enabled,
       //gaasv.attribute_assign_id
@@ -6172,41 +7339,51 @@ public enum GrouperDdl implements DdlVersionable {
               + "(SELECT gaav.value_string "
               + " FROM grouper_attr_asn_asn_stem_v gaaasv, grouper_attribute_assign_value gaav "
               + " WHERE gaaasv.attribute_def_name_name2 = '" + attributeRootStem + ":attrExternalSubjectInvite:externalSubjectInviteUuid' "
-              + " AND gaav.attribute_assign_id = gaaasv.attribute_assign_id2) AS invite_id, "
+              + " AND gaav.attribute_assign_id = gaaasv.attribute_assign_id2 "
+              + " AND gaaasv.attribute_assign_id1 = gaasv.attribute_assign_id) AS invite_id, "
               + "(SELECT gaav.value_string "
               + " FROM grouper_attr_asn_asn_stem_v gaaasv, grouper_attribute_assign_value gaav "
               + " WHERE gaaasv.attribute_def_name_name2 = '" + attributeRootStem + ":attrExternalSubjectInvite:externalSubjectInviteMemberId' "
-              + " AND gaav.attribute_assign_id = gaaasv.attribute_assign_id2) AS invite_member_id, "
+              + " AND gaav.attribute_assign_id = gaaasv.attribute_assign_id2 "
+              +	" AND gaaasv.attribute_assign_id1 = gaasv.attribute_assign_id) AS invite_member_id, "
               + " (SELECT gaav.value_string "
               + " FROM grouper_attr_asn_asn_stem_v gaaasv, grouper_attribute_assign_value gaav "
               + " WHERE gaaasv.attribute_def_name_name2 = '" + attributeRootStem + ":attrExternalSubjectInvite:externalSubjectInviteDate' "
-              + " AND gaav.attribute_assign_id = gaaasv.attribute_assign_id2) AS invite_date, "
+              + " AND gaav.attribute_assign_id = gaaasv.attribute_assign_id2 "
+              + " AND gaaasv.attribute_assign_id1 = gaasv.attribute_assign_id) AS invite_date, "
               + " (SELECT gaav.value_string "
               + " FROM grouper_attr_asn_asn_stem_v gaaasv, grouper_attribute_assign_value gaav "
               + " WHERE gaaasv.attribute_def_name_name2 = '" + attributeRootStem + ":attrExternalSubjectInvite:externalSubjectEmailAddress' "
-              + " AND gaav.attribute_assign_id = gaaasv.attribute_assign_id2) AS email_address, "
+              + " AND gaav.attribute_assign_id = gaaasv.attribute_assign_id2 "
+              + " AND gaaasv.attribute_assign_id1 = gaasv.attribute_assign_id) AS email_address, "
               + "(SELECT gaav.value_string "
               + " FROM grouper_attr_asn_asn_stem_v gaaasv, grouper_attribute_assign_value gaav "
               + " WHERE gaaasv.attribute_def_name_name2 = '" + attributeRootStem + ":attrExternalSubjectInvite:externalSubjectInviteEmailWhenRegistered' "
-              + " AND gaav.attribute_assign_id = gaaasv.attribute_assign_id2) AS invite_email_when_registered, "
+              + " AND gaav.attribute_assign_id = gaaasv.attribute_assign_id2 "
+              + " AND gaaasv.attribute_assign_id1 = gaasv.attribute_assign_id) AS invite_email_when_registered, "
               + " (SELECT gaav.value_string "
               + " FROM grouper_attr_asn_asn_stem_v gaaasv, grouper_attribute_assign_value gaav "
               + " WHERE gaaasv.attribute_def_name_name2 = '" + attributeRootStem + ":attrExternalSubjectInvite:externalSubjectInviteGroupUuids' "
-              + " AND gaav.attribute_assign_id = gaaasv.attribute_assign_id2) AS invite_group_uuids, "
+              + " AND gaav.attribute_assign_id = gaaasv.attribute_assign_id2 "
+              + " AND gaaasv.attribute_assign_id1 = gaasv.attribute_assign_id) AS invite_group_uuids, "
               + " (SELECT gaav.value_string "
               + " FROM grouper_attr_asn_asn_stem_v gaaasv, grouper_attribute_assign_value gaav "
               + " WHERE gaaasv.attribute_def_name_name2 = '" + attributeRootStem + ":attrExternalSubjectInvite:externalSubjectInviteExpireDate' "
-              + " AND gaav.attribute_assign_id = gaaasv.attribute_assign_id2) AS invite_expire_date, "
+              + " AND gaav.attribute_assign_id = gaaasv.attribute_assign_id2 "
+              + " AND gaaasv.attribute_assign_id1 = gaasv.attribute_assign_id) AS invite_expire_date, "
               + " (SELECT gaav.value_string "
               + " FROM grouper_attr_asn_asn_stem_v gaaasv, grouper_attribute_assign_value gaav "
               + " WHERE gaaasv.attribute_def_name_name2 = '" + attributeRootStem + ":attrExternalSubjectInvite:externalSubjectInviteEmail' "
-              + " AND gaav.attribute_assign_id = gaaasv.attribute_assign_id2) AS email_body, "
+              + " AND gaav.attribute_assign_id = gaaasv.attribute_assign_id2 "
+              + " AND gaaasv.attribute_assign_id1 = gaasv.attribute_assign_id) AS email_body, "
               + " (SELECT gaaasv.disabled_time2 "
               + " FROM grouper_attr_asn_asn_stem_v gaaasv "
-              + " WHERE gaaasv.attribute_def_name_name2 = '" + attributeRootStem + ":attrExternalSubjectInvite:externalSubjectInviteExpireDate') AS expire_attr_expire_date, "
+              + " WHERE gaaasv.attribute_def_name_name2 = '" + attributeRootStem + ":attrExternalSubjectInvite:externalSubjectInviteExpireDate' "
+              + " AND gaaasv.attribute_assign_id1 = gaasv.attribute_assign_id) AS expire_attr_expire_date, "
               + " (SELECT gaaasv.enabled2 "
               + " FROM grouper_attr_asn_asn_stem_v gaaasv "
-              + " WHERE gaaasv.attribute_def_name_name2 = '" + attributeRootStem + ":attrExternalSubjectInvite:externalSubjectInviteExpireDate') AS expire_attr_enabled, "
+              + " WHERE gaaasv.attribute_def_name_name2 = '" + attributeRootStem + ":attrExternalSubjectInvite:externalSubjectInviteExpireDate' "
+              + " AND gaaasv.attribute_assign_id1 = gaasv.attribute_assign_id) AS expire_attr_enabled, "
               + " gaasv.disabled_time AS assignment_expire_date, "
               + " gaasv.enabled AS assignment_enabled, "
               + " gaasv.attribute_assign_id "

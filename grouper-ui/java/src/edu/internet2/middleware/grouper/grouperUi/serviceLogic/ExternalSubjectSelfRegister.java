@@ -12,11 +12,14 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.externalSubjects.ExternalSubject;
 import edu.internet2.middleware.grouper.externalSubjects.ExternalSubjectAttribute;
+import edu.internet2.middleware.grouper.externalSubjects.ExternalSubjectInviteBean;
 import edu.internet2.middleware.grouper.externalSubjects.ExternalSubjectStorageController;
 import edu.internet2.middleware.grouper.grouperUi.beans.externalSubjectSelfRegister.ExternalRegisterContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.externalSubjectSelfRegister.RegisterField;
+import edu.internet2.middleware.grouper.grouperUi.beans.json.AppState;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
@@ -45,6 +48,10 @@ public class ExternalSubjectSelfRegister {
     //setup the container
     final ExternalRegisterContainer externalRegisterContainer = new ExternalRegisterContainer();
     externalRegisterContainer.storeToRequest();
+
+    if (!this.allowedToRegister(false)) {
+      return;
+    }
 
     final String identifier = externalRegisterContainer.getUserLoggedInIdentifier();
     
@@ -117,11 +124,119 @@ public class ExternalSubjectSelfRegister {
     guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#topDiv", 
         "/WEB-INF/grouperUi/templates/common/commonTopExternal.jsp"));
 
+    if (!this.allowedToRegister(true)) {
+      return;
+    }
+    
     guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#bodyDiv", 
         "/WEB-INF/grouperUi/templates/externalSubjectSelfRegister/externalSubjectSelfRegister.jsp"));
 
   }
 
+  /**
+   * see if the user is allowed to register
+   * @param displayErrorIfNotProblem if we should display an error (i.e. the first screen, not the second if editing)
+   * @return true if ok, false if not, also might have a side effect of an error message
+   */
+  private boolean allowedToRegister(boolean displayErrorIfNotProblem) {
+    
+    final ExternalRegisterContainer externalRegisterContainer = ExternalRegisterContainer.retrieveFromRequest();
+
+    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+    
+    boolean allGoodWithInvite = false;
+
+    AppState appState = AppState.retrieveFromRequest();
+
+    //lets see if there is an invite id
+    String id = appState.getUrlArgObjectOrParam("externalSubjectInviteId");
+    
+    boolean hasInvite = !StringUtils.isBlank(id);
+    
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    ExternalSubject externalSubject = null;
+    ExternalSubjectInviteBean externalSubjectInviteBean = null;
+    try {
+
+      if (hasInvite) {
+        
+        //see if this is a valid invite
+        externalSubjectInviteBean = ExternalSubjectInviteBean.findByUuid(id);
+        if (externalSubjectInviteBean != null && !externalSubjectInviteBean.isExpired()) {
+          allGoodWithInvite = true;
+        }
+      }
+      
+      //see if add or edit, if found external subject then edit, else add
+      String identifier = externalRegisterContainer.getUserLoggedInIdentifier();
+
+
+      externalSubject = ExternalSubjectStorageController.findByIdentifier(identifier, false, null);
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+
+    //if no invite or problem with invite
+    if (!allGoodWithInvite) {
+      
+      if (GrouperConfig.getPropertyBoolean("externalSubjects.registerRequiresInvite", false)) {
+        
+        String navKey = null;
+        
+        //if one was passed, then that is a problem
+        if (hasInvite) {
+          //if they already exist, they can edit, but 
+          navKey = "externalSubjectSelfRegister.cantFindInviteAndCannotRegister";
+        } else {
+          //if its not null then it must be an edit which is allowed
+          if (externalSubject == null) {
+            //=Error: you cannot register without an invitation.
+            navKey = "externalSubjectSelfRegister.cannotRegisterWithoutInvite";
+          }
+        }
+        if (!StringUtils.isBlank(navKey)) {
+         
+          //if it is an edit, then they are allowed through, tell them they have a problem with the invite
+          if (externalSubject != null) {
+
+            //=Error: your invitation cannot be found or is expired.  You are not allowed to register without 
+            //a valid invitation.  Contact the person who invited you to issue another invitation.
+            String message = TagUtils.navResourceString("externalSubjectSelfRegister.cantFindInviteButCanRegister");
+            if (displayErrorIfNotProblem) {
+              guiResponseJs.addAction(GuiScreenAction.newAlert(message));
+            }        
+            
+          } else {
+            //if an insert, and required to have a token, then do not continue
+            String message = TagUtils.navResourceString(navKey);
+            
+            guiResponseJs.addAction(GuiScreenAction.newAlert(message));
+            return false;
+          }
+        }
+      } else {
+
+        if (hasInvite) {
+          //if invite is not required, and there was an invite, and there was a problem, tell the user
+          //=Error: your invitation cannot be found or is expired.  You can still register, though you may 
+          //not have the correct role memberships.  Register and contact the person who invited you to 
+          //grant role memberships if applicable.
+          String message = TagUtils.navResourceString("externalSubjectSelfRegister.cantFindInviteButCanRegister");
+          
+          if (displayErrorIfNotProblem) {
+            guiResponseJs.addAction(GuiScreenAction.newAlert(message));
+          }
+          
+          //note, we arent required to have an id, so dont sweat it...
+        }
+      }
+      
+    }
+
+    return true;
+    
+  }
+  
   /**
    * submit a form request
    * @param request
@@ -135,6 +250,10 @@ public class ExternalSubjectSelfRegister {
     final ExternalRegisterContainer externalRegisterContainer = new ExternalRegisterContainer();
     externalRegisterContainer.storeToRequest();
 
+    if (!this.allowedToRegister(false)) {
+      return;
+    }
+    
     final String identifier = externalRegisterContainer.getUserLoggedInIdentifier();
     
     GrouperSession grouperSession = GrouperSession.startRootSession();
@@ -148,8 +267,8 @@ public class ExternalSubjectSelfRegister {
       }
 
 
-//      ExternalSubjectConfigBean externalSubjectConfigBean = ExternalSubjectConfig.externalSubjectConfigBean();
-//      externalSubjectConfigBean.isNameRequired()
+      //ExternalSubjectConfigBean externalSubjectConfigBean = ExternalSubjectConfig.externalSubjectConfigBean();
+      //externalSubjectConfigBean.isNameRequired()
 
       final List<RegisterField> registerFieldsFromScreen = new ArrayList<RegisterField>();
       
@@ -177,8 +296,10 @@ public class ExternalSubjectSelfRegister {
       }
 
       final ExternalSubject EXTERNAL_SUBJECT = externalSubject;
-      
-      final String externalSubjectInviteName = request.getParameter("externalSubjectInviteName");
+
+      AppState appState = AppState.retrieveFromRequest();
+
+      final String externalSubjectInviteName = appState.getUrlArgObjectOrParam("externalSubjectInviteName");
       
       //all validation is done, lets store the info
       HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {

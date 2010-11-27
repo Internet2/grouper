@@ -82,6 +82,14 @@ public class ExternalSubjectInviteBean {
     this.uuid = attributeDefNameToValueMap.get(ExternalSubjectAttrFramework.externalSubjectInviteUuidName());
     
   }
+
+  /**
+   * if this invite expired
+   * @return true if expired
+   */
+  public boolean isExpired() {
+    return this.getExpireDate() != null && this.getExpireDate() < System.currentTimeMillis();
+  }
   
   /**
    * clone this object
@@ -363,17 +371,18 @@ public class ExternalSubjectInviteBean {
 
   
   /**
-   * 
+   * find an external subject invite bean by uuid
    * @param uuid
    * @return the beans
    */
-  public static List<ExternalSubjectInviteBean> findByUuid(String uuid) {
+  public static ExternalSubjectInviteBean findByUuid(String uuid) {
     
     AttributeDefName attributeDefName = ExternalSubjectAttrFramework
       .externalSubjectInviteUuidAttributeDefName();
 
-    return findByField(attributeDefName, uuid);
+    List<ExternalSubjectInviteBean> externalSubjectInviteBeans = findByField(attributeDefName, uuid);
     
+    return GrouperUtil.listPopOne(externalSubjectInviteBeans);    
   }
   
   /**
@@ -397,22 +406,18 @@ public class ExternalSubjectInviteBean {
    */
   public static List<ExternalSubjectInviteBean> findByEmailAddressViaUuid(String uuid) {
     
-    List<ExternalSubjectInviteBean> externalSubjectInviteBeans = findByUuid(uuid);
+    ExternalSubjectInviteBean externalSubjectInviteBean = findByUuid(uuid);
     
-    if (GrouperUtil.length(externalSubjectInviteBeans) == 0) {
-      return externalSubjectInviteBeans;
+    if (externalSubjectInviteBean == null) {
+      return null;
     }
         
-    if (externalSubjectInviteBeans.size() > 1) {
-      throw new RuntimeException("Why is there more than 1 invite by uuid??? " + uuid);
-    }
-    
-    String emailAddress = externalSubjectInviteBeans.get(0).getEmailAddress();
+    String emailAddress = externalSubjectInviteBean.getEmailAddress();
     if (StringUtils.isBlank(emailAddress)) {
       throw new RuntimeException("Why is there no email address??? " + uuid);
     }
     
-    externalSubjectInviteBeans = findByEmailAddress(emailAddress);
+    List<ExternalSubjectInviteBean> externalSubjectInviteBeans = findByEmailAddress(emailAddress);
 
     if (GrouperUtil.length(externalSubjectInviteBeans) < 1) {
       throw new RuntimeException("Why did it find by uuid but not email address??? " + uuid + ", " + emailAddress);

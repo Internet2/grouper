@@ -15,10 +15,8 @@ import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
-import edu.internet2.middleware.grouper.externalSubjects.ExternalSubject;
 import edu.internet2.middleware.grouper.externalSubjects.ExternalSubjectAttrFramework;
 import edu.internet2.middleware.grouper.externalSubjects.ExternalSubjectInviteBean;
-import edu.internet2.middleware.grouper.externalSubjects.ExternalSubjectConfig.ExternalSubjectAutoaddBean;
 import edu.internet2.middleware.grouper.grouperUi.beans.externalSubjectSelfRegister.ExternalRegisterContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
@@ -255,6 +253,9 @@ public class InviteExternalSubjects {
 
       String errorMessage = TagUtils.navResourceString("inviteExternalSubjects.successInvitingUsers");
       guiResponseJs.addAction(GuiScreenAction.newAlert(errorMessage));
+
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#bodyDiv", 
+        "/WEB-INF/grouperUi/templates/inviteExternalSubjects/inviteExternalSubjects.jsp"));
 
     } finally {
       GrouperSession.stopQuietly(grouperSession); 
