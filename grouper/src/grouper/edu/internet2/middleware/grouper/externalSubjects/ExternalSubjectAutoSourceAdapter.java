@@ -5,6 +5,7 @@ package edu.internet2.middleware.grouper.externalSubjects;
 
 import edu.internet2.middleware.grouper.externalSubjects.ExternalSubjectConfig.ExternalSubjectAttributeConfigBean;
 import edu.internet2.middleware.grouper.externalSubjects.ExternalSubjectConfig.ExternalSubjectConfigBean;
+import edu.internet2.middleware.grouper.subj.GrouperJdbcConnectionProvider;
 import edu.internet2.middleware.grouper.subj.GrouperJdbcSourceAdapter2;
 
 
@@ -26,10 +27,10 @@ public class ExternalSubjectAutoSourceAdapter extends GrouperJdbcSourceAdapter2 
       synchronized (ExternalSubjectAutoSourceAdapter.class) {
         if (instance == null) {
           ExternalSubjectAutoSourceAdapter newInstance = new ExternalSubjectAutoSourceAdapter();
-          newInstance.setId("grouperExternal");
-          newInstance.setName("Grouper external subjects");
+          newInstance.setId(ExternalSubject.sourceId());
+          newInstance.setName(ExternalSubject.sourceId());
           newInstance.addSubjectType("person");
-          newInstance.addInitParam("jdbcConnectionProvider", "edu.internet2.middleware.grouper.subj.GrouperJdbcConnectionProvider");
+          newInstance.addInitParam("jdbcConnectionProvider", GrouperJdbcConnectionProvider.class.getName());
           newInstance.addInitParam("dbTableOrView", "grouper_ext_subj_v");
 
           newInstance.addInitParam("subjectIdCol", "uuid");

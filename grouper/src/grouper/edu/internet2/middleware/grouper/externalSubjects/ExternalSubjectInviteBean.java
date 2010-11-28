@@ -463,4 +463,38 @@ public class ExternalSubjectInviteBean {
 
   }
   
+  /**
+   * @see Object#toString()
+   */
+  @Override
+  public String toString() {
+    StringBuilder result = new StringBuilder();
+    
+    if (!StringUtils.isBlank(this.emailAddress)) {
+      result.append("emailAddress: ").append(this.emailAddress).append(", ");
+    }
+    if (!StringUtils.isBlank(this.uuid)) {
+      result.append("uuid: ").append(this.uuid).append(", ");
+    }
+    if (GrouperUtil.length(this.groupIds) > 0) {
+      result.append("groupIds: ").append(GrouperUtil.join(this.groupIds.iterator(), ',')).append(", ");
+    }
+    if (GrouperUtil.length(this.emailsWhenRegistered) > 0) {
+      result.append("emailsWhenRegistered: ").append(GrouperUtil.join(this.emailsWhenRegistered.iterator(), ',')).append(", ");
+    }
+    if (this.inviteDate > 0) {
+      result.append("inviteDate: ").append(new Timestamp(this.inviteDate).toString()).append(", ");
+    }
+    if (!StringUtils.isBlank(this.memberId)) {
+      result.append("inviterMemberId: ").append(this.memberId).append(", ");
+    }
+    if (this.expireDate != null && this.expireDate > 0) {
+      result.append("expireDate: ").append(new Timestamp(this.expireDate).toString()).append(", ");
+    }
+    if (!StringUtils.isBlank(this.email)) {
+      result.append("email: ").append(StringUtils.abbreviate(this.email, 200)).append(", ");
+    }
+    return result.toString();
+  }
+  
 }

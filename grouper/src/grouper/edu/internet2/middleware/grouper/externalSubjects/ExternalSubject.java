@@ -123,6 +123,25 @@ public class ExternalSubject extends GrouperAPI implements GrouperHasContext,
   }
 
   /**
+   * add a vetted email address and store this object if necessary
+   * @param vettedEmailAddress
+   */
+  public void addVettedEmailAddress(String vettedEmailAddress) {
+    if (!StringUtils.isBlank(this.vettedEmailAddresses)) {
+      Set<String> vettedEmailAddresses = GrouperUtil.splitTrimToSet(this.vettedEmailAddresses, ",");
+      //see if it is already there, then dont worry about it
+      if (vettedEmailAddresses.contains(vettedEmailAddress)) {
+        return;
+      }
+      //there are some there
+      this.vettedEmailAddresses = this.vettedEmailAddresses + ", " + vettedEmailAddress;
+    } else {
+      this.vettedEmailAddresses = vettedEmailAddress;
+    }
+    this.store();
+  }
+  
+  /**
    * when this was disabled, or when it will be disabled
    * @return the millis from 1970
    */
@@ -929,7 +948,7 @@ public class ExternalSubject extends GrouperAPI implements GrouperHasContext,
       return;
     }
 
-    final Subject subject = SubjectFinder.findByIdAndSource(this.getUuid(), sourceName(), true);
+    final Subject subject = SubjectFinder.findByIdAndSource(this.getUuid(), sourceId(), true);
     final Set<String> groupNameSet = GrouperUtil.splitTrimToSet(groups, ",");
     GrouperSession grouperSession = GrouperSession.staticGrouperSession();
     boolean startedGrouperSession = false;
@@ -975,9 +994,21 @@ public class ExternalSubject extends GrouperAPI implements GrouperHasContext,
   public static String sourceName() {
     String sourceName = GrouperConfig.getProperty("externalSubject.sourceName");
     if (StringUtils.isBlank(sourceName)) {
-      return "grouperExternal";
+      return "External Users";
     }
     return sourceName;
+  }
+  
+  /**
+   * source id for external subjects
+   * @return id
+   */
+  public static String sourceId() {
+    String sourceId = GrouperConfig.getProperty("externalSubject.sourceId");
+    if (StringUtils.isBlank(sourceId)) {
+      return "grouperExternal";
+    }
+    return sourceId;
   }
   
   /**
