@@ -182,7 +182,7 @@ var allComboboxes = new Object();
  * @param useImages true or false, if images are in the combobox
  * @param filterUrl
  */
-function guiRegisterDhtmlxCombo(divId, comboName, width, useImages, filterUrl ) {
+function guiRegisterDhtmlxCombo(divId, comboName, width, useImages, filterUrl, comboDefaultText, comboDefaultValue ) {
   /* long hand...
    var simpleMembershipUpdateAddMemberSelect=new dhtmlXCombo(
       "simpleMembershipUpdateAddMemberDiv","simpleMembershipUpdateAddMember",200, 'image');
@@ -194,6 +194,16 @@ function guiRegisterDhtmlxCombo(divId, comboName, width, useImages, filterUrl ) 
   filterUrl = guiDecorateUrl(filterUrl);
   
   theCombo.enableFilteringMode(true,filterUrl,false);
+  
+  //note, for some reason the default value has to be above the default text...
+  if (!guiIsEmpty(comboDefaultValue)) {
+    theCombo.setComboValue(comboDefaultValue);
+  }
+  if (!guiIsEmpty(comboDefaultText)) {
+    theCombo.setComboText(comboDefaultText);
+  
+  }
+
   //keep this so we can control it later
   allComboboxes[comboName] = theCombo;
 }
@@ -364,9 +374,36 @@ function guiProcessJsonResponse(guiResponseJs) {
     }
   }
   
+  var foundAlert = false;
+  
   for (var i=0; i<guiArrayLength(guiResponseJs.actions); i++ ) {
     
     var action = guiResponseJs.actions[i];
+    
+    if (!guiIsEmpty(action.alert)) {
+     
+      if (foundAlert) {
+        continue; 
+      }
+      
+      foundAlert=true;
+      
+      //lets get all the alerts since we cant popup multiple alerts, but not this one
+      for (var j=0; j<guiArrayLength(guiResponseJs.actions); j++ ) {
+        //skip if this one
+        if (j==i) {
+          continue; 
+        }
+        var action2 = guiResponseJs.actions[j];
+        if (!guiIsEmpty(action2.alert)) {
+          //append with newlines
+          action.alert += "<br /><br />" + action2.alert;
+          action2.alert = null;
+        }
+      
+      }      
+    }
+    
     guiProcessAction(action);
     
   }

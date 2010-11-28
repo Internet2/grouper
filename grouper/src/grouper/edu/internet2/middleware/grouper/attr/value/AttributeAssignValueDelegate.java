@@ -62,7 +62,7 @@ public class AttributeAssignValueDelegate {
    * @return the values
    */
   public Set<AttributeAssignValue> internal_retrieveValues(boolean checkSecurity, boolean filterInvalidTypes) {
-    return internal_retrieveValues(checkSecurity, filterInvalidTypes, true);
+    return internal_retrieveValues(checkSecurity, filterInvalidTypes, false);
   }
   
   /**

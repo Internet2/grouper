@@ -56,7 +56,8 @@
             <td class="formTableRight">
               <%-- 5 combos of groups to assign --%>
               <span class="combohint" ><grouper:message key="inviteExternalSubjects.groupsToAssignHelp"  /></span>
-		          <grouper:combobox filterOperation="InviteExternalSubjects.groupToAssignFilter" id="groupToAssign0" width="700"/><br />
+		          <grouper:combobox filterOperation="InviteExternalSubjects.groupToAssignFilter" id="groupToAssign0" width="700" 
+		              comboDefaultText="${externalRegisterContainer.firstComboDefaultText}"  comboDefaultValue="${externalRegisterContainer.firstComboDefaultValue}" /><br />
               <span class="combohint" ><grouper:message key="inviteExternalSubjects.groupsToAssignHelp"  /></span>
               <grouper:combobox filterOperation="InviteExternalSubjects.groupToAssignFilter" id="groupToAssign1" width="700"/><br />
               <span class="combohint" ><grouper:message key="inviteExternalSubjects.groupsToAssignHelp"  /></span>

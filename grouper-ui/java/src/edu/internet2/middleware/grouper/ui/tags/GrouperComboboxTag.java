@@ -21,6 +21,9 @@ import javax.servlet.jsp.tagext.SimpleTagSupport;
 
 import org.apache.commons.lang.StringUtils;
 
+import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
+
 /**
  * <pre>
  * This will generate a combobox
@@ -39,10 +42,26 @@ public class GrouperComboboxTag extends SimpleTagSupport {
   /** the operation to call when filtering */
   private String filterOperation;
 
+  /** the default text which should appear in the combo box when drawn */
+  private String comboDefaultText;
+  
+  /** the default value (will be submitted) which should appear in the combo box when drawn */
+  private String comboDefaultValue;
+  
   /**
-   * init fields on construct
+   * the default text which should appear in the combo box when drawn
+   * @param comboDefaultText1
    */
-  public GrouperComboboxTag() {
+  public void setComboDefaultText(String comboDefaultText1) {
+    this.comboDefaultText = comboDefaultText1;
+  }
+
+  /**
+   * the default value (will be submitted) which should appear in the combo box when drawn
+   * @param comboDefaultValue1
+   */
+  public void setComboDefaultValue(String comboDefaultValue1) {
+    this.comboDefaultValue = comboDefaultValue1;
   }
 
   /**
@@ -58,7 +77,7 @@ public class GrouperComboboxTag extends SimpleTagSupport {
     //<script> 
     //    guiRegisterDhtmlxCombo('simpleMembershipUpdatePickGroupDiv', 
     //       'simpleMembershipUpdatePickGroup', 400, 
-    //        true, "../app/SimpleMembershipUpdate.filterGroups" );    
+    //        true, "../app/SimpleMembershipUpdate.filterGroups", 'defaultText', 'defaultValue' );    
     //</script> 
     
     //if it was shorthand, prefix with the full path
@@ -76,7 +95,21 @@ public class GrouperComboboxTag extends SimpleTagSupport {
     result.append("guiRegisterDhtmlxCombo('").append(this.id).append("Div', '")
        .append(this.id).append("', ")
       .append(this.width == -1 ? null : this.width).append(", true, \"");
-    result.append(this.filterOperation).append("\" );\n");
+    result.append(this.filterOperation).append("\", ");
+    if (StringUtils.isBlank(this.comboDefaultText)) {
+      result.append("null");
+    } else {
+      result.append("'").append(GrouperUiUtils.escapeJavascript(this.comboDefaultText, true)).append("'");
+    }
+    result.append(", ");
+    if (StringUtils.isBlank(this.comboDefaultValue)) {
+      result.append("null");
+    } else {
+      result.append("'").append(GrouperUiUtils.escapeJavascript(this.comboDefaultValue, true)).append("'");
+    }
+    result.append(");\n");
+    
+    
     result.append("</script>\n");
 
     this.getJspContext().getOut().print(result.toString());

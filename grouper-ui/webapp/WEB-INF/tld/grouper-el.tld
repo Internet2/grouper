@@ -41,6 +41,22 @@
       <required>true</required>
       <rtexprvalue>true</rtexprvalue>
     </attribute>
+    <attribute>
+      <description>
+        the default text which should appear in the combo box when drawn
+        </description>
+      <name>comboDefaultText</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+      <description>
+        the default value (will be submitted) which should appear in the combo box when drawn
+        </description>
+      <name>comboDefaultValue</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
   </tag>
   
   <tag>

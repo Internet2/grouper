@@ -473,6 +473,8 @@ public class GrouperUiFilter implements Filter {
       remoteUser = (String)(session == null ? null : session.getAttribute("authUser"));
     }
     
+    remoteUser = StringUtils.trim(remoteUser);
+    
     httpServletRequest.getSession().setAttribute("grouperLoginId", remoteUser);
     
     return remoteUser;

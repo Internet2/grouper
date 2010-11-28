@@ -192,15 +192,17 @@ public class InviteExternalSubjects {
       }
       //lets normalize the email addresses
       ccEmailAddress = GrouperUtil.normalizeEmailAddresses(ccEmailAddress);
-      for (String emailAddress : GrouperUtil.splitTrim(ccEmailAddress, ";")) {
-        
-        if (!GrouperUtil.validEmail(emailAddress)) {
+      if (!StringUtils.isBlank(ccEmailAddress)) {
+        for (String emailAddress : GrouperUtil.splitTrim(ccEmailAddress, ";")) {
           
-          String errorMessage = TagUtils.navResourceString("inviteExternalSubjects.emailAddressInvalid");
-          errorMessage = StringUtils.replace(errorMessage, "{0}", GrouperUiUtils.escapeHtml(emailAddress, true));
-          guiResponseJs.addAction(GuiScreenAction.newAlert(errorMessage));
-          return;
-
+          if (!GrouperUtil.validEmail(emailAddress)) {
+            
+            String errorMessage = TagUtils.navResourceString("inviteExternalSubjects.emailAddressInvalid");
+            errorMessage = StringUtils.replace(errorMessage, "{0}", GrouperUiUtils.escapeHtml(emailAddress, true));
+            guiResponseJs.addAction(GuiScreenAction.newAlert(errorMessage));
+            return;
+  
+          }
         }
       }
       

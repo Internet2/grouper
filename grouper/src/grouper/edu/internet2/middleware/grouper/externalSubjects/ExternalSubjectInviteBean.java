@@ -16,6 +16,7 @@ import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignType;
+import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -436,7 +437,7 @@ public class ExternalSubjectInviteBean {
   private static List<ExternalSubjectInviteBean> findByField(AttributeDefName attributeDefName, String value) {
     
     Set<AttributeAssign> attributeAssigns = GrouperDAOFactory.getFactory().getAttributeAssign()
-      .findByAttributeDefNameAndValueString(attributeDefName.getId(), value, null);
+      .findByAttributeDefNameAndValueString(attributeDefName.getId(), value, new QueryOptions().secondLevelCache(false));
     
     List<ExternalSubjectInviteBean> externalSubjectInviteBeans 
       = new ArrayList<ExternalSubjectInviteBean>();

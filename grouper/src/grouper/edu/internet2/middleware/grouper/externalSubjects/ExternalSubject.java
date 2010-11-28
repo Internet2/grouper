@@ -5,6 +5,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.collections.keyvalue.MultiKey;
 import org.apache.commons.lang.StringUtils;
@@ -42,6 +44,7 @@ import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.misc.GrouperHasContext;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
+import edu.internet2.middleware.grouper.util.GrouperEmail;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
@@ -121,6 +124,42 @@ public class ExternalSubject extends GrouperAPI implements GrouperHasContext,
   public void setVettedEmailAddresses(String vettedEmailAddresses1) {
     this.vettedEmailAddresses = vettedEmailAddresses1;
   }
+
+  /**
+   * notify watcher about a registration.  If there is a problem, just log the exception
+   * @param identifier
+   * @param emailAddressToNotify
+   * @param emailAddressOfInvitee
+   */
+  public static void notifyWatcherAboutRegistration(final String identifier,
+      String emailAddressToNotify, String emailAddressOfInvitee) {
+    try {
+      
+      String theEmail = GrouperConfig.getProperty("externalSubjectsNotifyInviterEmail");
+      if (StringUtils.isBlank(theEmail)) {
+        theEmail = "Hello,$newline$$newline$This is a notification that user $inviteeIdentifier$ from email address " +
+            "$inviteeEmailAddress$ has registered with the identity management service.  They can now use applications " +
+            "at this institution.$newline$$newline$Regards.";               
+      }
+      String theSubject = GrouperConfig.getProperty("externalSubjectsNotifyInviterSubject");
+      if (StringUtils.isBlank(theSubject)) {
+        theSubject = "$inviteeIdentifier$ has registered";
+      }
+      //$newline$, $inviteeIdentifier$, $inviteeEmailAddress$
+      theEmail = StringUtils.replace(theEmail, "$newline$", "\n");
+      theEmail = StringUtils.replace(theEmail, "$inviteeIdentifier$", identifier);
+      theEmail = StringUtils.replace(theEmail, "$inviteeEmailAddress$", emailAddressOfInvitee);
+      theSubject = StringUtils.replace(theSubject, "$inviteeIdentifier$", identifier);
+      theSubject = StringUtils.replace(theSubject, "$inviteeEmailAddress$", emailAddressOfInvitee);
+
+      new GrouperEmail().setTo(emailAddressToNotify).setSubject(theSubject).setBody(theEmail).send();
+      
+    } catch (Exception e) {
+      //maybe they typed in a bad email address or something...
+      LOG.error("Problem sending notification of registration to: '" + emailAddressToNotify + "' for external subject invite for: " + identifier, e);
+    }
+  }
+  
 
   /**
    * add a vetted email address and store this object if necessary
@@ -819,6 +858,8 @@ public class ExternalSubject extends GrouperAPI implements GrouperHasContext,
     
     this.calculateDisabledFlag();
     
+    this.validateIdentifier();
+    
     HibernateSession.callbackHibernateSession(
         GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT,
         new HibernateHandler() {
@@ -916,6 +957,34 @@ public class ExternalSubject extends GrouperAPI implements GrouperHasContext,
 
         });
 
+  }
+
+  /**
+   * validate that the identifier is ok, based on grouper.properties
+   */
+  public void validateIdentifier() {
+    
+    if (StringUtils.isBlank(this.identifier)) {
+      throw new RuntimeException("Identifier cannot be blank");
+    }
+    
+    if (GrouperConfig.getPropertyBoolean("externalSubjects.validateIndentiferLikeEmail", true)) {
+      if (!GrouperUtil.validEmail(this.identifier)) {
+        throw new RuntimeException("Not allowed to register this identifier, should be something like a@b.c: '" + this.identifier + "'");
+      }
+    }
+     
+    for (int i=0;i<100;i++) {
+      String regex = GrouperConfig.getProperty("externalSubjects.regexForInvalidIdentifier." + i);
+      if (StringUtils.isBlank(regex)) {
+        break;
+      }
+      Pattern pattern = Pattern.compile(regex);
+      Matcher matcher = pattern.matcher(this.identifier);
+      if (matcher.matches()) {
+        throw new RuntimeException("Identifier '" + this.identifier + "' cannot match regex: " + regex);
+      }
+    }
   }
 
   /** logger */
