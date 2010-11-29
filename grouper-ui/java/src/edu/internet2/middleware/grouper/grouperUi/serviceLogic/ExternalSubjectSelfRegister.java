@@ -157,6 +157,16 @@ public class ExternalSubjectSelfRegister {
 
     GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
     
+    if (!TagUtils.mediaResourceBoolean("externalMembers.enabledRegistration", false)) {
+      //=Error: your invitation cannot be found or is expired.  You are not allowed to register without 
+      //a valid invitation.  Contact the person who invited you to issue another invitation.
+      String message = TagUtils.navResourceString("externalSubjectSelfRegister.notAllowed");
+      if (displayErrorIfNotProblem) {
+        guiResponseJs.addAction(GuiScreenAction.newAlert(message));
+      }        
+      return false;
+    }
+    
     boolean allGoodWithInvite = false;
 
     AppState appState = AppState.retrieveFromRequest();

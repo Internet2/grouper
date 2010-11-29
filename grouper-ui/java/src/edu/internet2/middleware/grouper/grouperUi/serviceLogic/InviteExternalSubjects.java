@@ -50,6 +50,10 @@ public class InviteExternalSubjects {
    */
   public void inviteExternalSubject(HttpServletRequest request, HttpServletResponse response) {
 
+    if (!this.allowedToInvite()) {
+      return;
+    }
+    
     GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
 
     //setup the container
@@ -71,6 +75,10 @@ public class InviteExternalSubjects {
    */
   public void groupToAssignFilter(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
 
+    if (!this.allowedToInvite()) {
+      return;
+    }
+    
     final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
     
     
@@ -167,11 +175,31 @@ public class InviteExternalSubjects {
   }
   
   /**
+   * see if the user is allowed to register
+   * @param displayErrorIfNotProblem if we should display an error (i.e. the first screen, not the second if editing)
+   * @return true if ok, false if not, also might have a side effect of an error message
+   */
+  private boolean allowedToInvite() {
+    
+    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+    
+    if (!TagUtils.mediaResourceBoolean("inviteExternalMembers.enableInvitation", false)) {
+      String message = TagUtils.navResourceString("inviteExternalSubjects.notAllowed");
+      guiResponseJs.addAction(GuiScreenAction.newAlert(message));
+      return false;
+    }
+    return true;
+  }
+  /**
    * filter groups to pick one to assign
    * @param httpServletRequest
    * @param httpServletResponse
    */
   public void submit(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
+
+    if (!this.allowedToInvite()) {
+      return;
+    }
 
     GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
 
