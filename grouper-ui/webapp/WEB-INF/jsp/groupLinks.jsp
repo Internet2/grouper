@@ -64,6 +64,14 @@
 		
 		</c:if>
 		
+    <c:if test="${!isCompositeGroup && groupPrivResolver.canInviteExternalPeople && mediaMap['inviteExternalPeople.link-from-admin-ui'] == 'true'}">
+    
+      <html:link page="/grouperUi/appHtml/grouper.html?operation=InviteExternalSubjects.inviteExternalSubject&groupId=${group.id}" >
+        <grouper:message key="ui-lite.invite-link"/>
+      </html:link>
+    
+    </c:if>
+    
 		<c:if test="${isFactor}">
 			<html:link page="/populateGroupAsFactor.do"  name="factorParams">
 				<grouper:message key="groups.action.as-factor"/>

@@ -19,12 +19,21 @@ package edu.internet2.middleware.grouper.ui;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+
+import org.apache.commons.lang.StringUtils;
+
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GrouperHelper;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
+import edu.internet2.middleware.grouper.grouperUi.serviceLogic.InviteExternalSubjects;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
+import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
+import edu.internet2.middleware.grouper.ui.tags.TagUtils;
 import edu.internet2.middleware.subject.Subject;
 
 /**
@@ -190,6 +199,7 @@ public class DefaultUIGroupPrivilegeResolver implements
 	 */
 	public Map asMap() {
 		Map map = new HashMap();
+    map.put("canInviteExternalPeople", canInviteExternalPeople());
 		map.put("canEditGroup", canEditGroup());
 		map.put("canManageMembers", canManageMembers());
 		map.put("canManagePrivileges", canManagePrivileges());
@@ -215,4 +225,51 @@ public class DefaultUIGroupPrivilegeResolver implements
 		}
 		return map;
 	}
+
+	/**
+	 * @see UIGroupPrivilegeResolver#canInviteExternalPeople()
+	 */
+  @Override
+  public boolean canInviteExternalPeople() {
+    
+    //if it is altogether enabled
+    if (!TagUtils.mediaResourceBoolean("inviteExternalMembers.enableInvitation", false)) {
+      return false;
+    }
+    
+    //if this is the wheel group, and not allowed to invite wheel, then no
+    if (this.group == null || InviteExternalSubjects.filterGroup(this.group)) {
+      return false;
+    }
+    
+    if (!this.canManageMembers()) {
+      return false;
+    }
+    
+    final String requireGroupName = TagUtils.mediaResourceString("require.group.for.inviteExternalSubjects.logins");
+    if (!StringUtils.isBlank(requireGroupName)) {
+      GrouperSession grouperSession = this.s;
+      final Subject currentUser = this.s.getSubject();
+      if (!PrivilegeHelper.isWheelOrRoot(this.s.getSubject())) {
+        grouperSession = this.s.internal_getRootSession();
+      }
+      boolean allowed = (Boolean)GrouperSession.callbackGrouperSession(grouperSession, new GrouperSessionHandler() {
+        
+        /**
+         * 
+         */
+        @Override
+        public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+          Group requireGroup = GroupFinder.findByName(grouperSession, requireGroupName, true);
+          return requireGroup.hasMember(currentUser);
+        }
+      });
+      if (!allowed) {
+        return false;
+      }
+    }
+    
+    
+    return true;
+  }
 }

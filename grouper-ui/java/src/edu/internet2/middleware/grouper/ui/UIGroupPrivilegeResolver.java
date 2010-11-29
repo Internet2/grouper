@@ -61,6 +61,12 @@ public interface UIGroupPrivilegeResolver {
 	public boolean canManagePrivileges();
 	
 	/**
+	 * if allowed to invite external people to this group
+	 * @return true if allowed to invite external people
+	 */
+	public boolean canInviteExternalPeople();
+	
+	/**
 	 * Is the subject allowed to edit core attributes
 	 * or delete the group?
 	 * @return if the Subject can edit group

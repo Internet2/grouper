@@ -162,7 +162,7 @@ public class InviteExternalSubjects {
    * @param group
    * @return true if filter, false if not
    */
-  private static boolean filterGroup(Group group) {
+  public static boolean filterGroup(Group group) {
     boolean allowWheel = TagUtils.mediaResourceBoolean("inviteExternalMembers.allowWheelInInvite", false);
     boolean useWheel = GrouperConfig.getPropertyBoolean("groups.wheel.use", false);
     String wheelName = GrouperConfig.getProperty("groups.wheel.group");
