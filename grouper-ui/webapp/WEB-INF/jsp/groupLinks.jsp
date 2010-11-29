@@ -58,7 +58,7 @@
 		
 		<c:if test="${!isCompositeGroup && groupPrivResolver.canManageMembers && mediaMap['ui-lite.link-from-admin-ui'] == 'true'}">
 		
-			<html:link page="${mediaMap['ui.lite.group-link']}${group.id}&fromAdminUi=true&returnTo=group" >
+			<html:link page="${mediaMap['ui.lite.group-link']}${group.id}" >
 				<grouper:message key="ui-lite.group-link"/>
 			</html:link>
 		

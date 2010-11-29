@@ -353,6 +353,14 @@ public class ExternalRegisterContainer implements Serializable {
   }
   
   /**
+   * if we should show links to the UI
+   * @return
+   */
+  public boolean isShowLinksToUi() {
+    return this.getDefaultGroup() != null;
+  }
+  
+  /**
    * if there is a group passed in via URL, set it on the screen
    * @return the group text
    */

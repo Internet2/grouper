@@ -58,6 +58,25 @@ public class DhtmlxMenuItem {
   /** if enabled */
   private Boolean enabled;
   
+  /** if this button is an href */
+  private String href;
+  
+  /**
+   * if this button is an href
+   * @return href link
+   */
+  public String getHref() {
+    return this.href;
+  }
+
+  /**
+   * if this button is an href
+   * @param href1
+   */
+  public void setHref(String href1) {
+    this.href = href1;
+  }
+
   /**
    * if enabled
    * @return the enabled
@@ -279,13 +298,24 @@ public class DhtmlxMenuItem {
       //end hotkey
       xmlStreamWriter.writeEndElement();
     }
+
+    if (!StringUtils.isBlank(this.href)) {
+      xmlStreamWriter.writeStartElement("href");
+      
+      xmlStreamWriter.writeCData(this.href);
+      
+      //end href
+      xmlStreamWriter.writeEndElement();
+      
+    }
     
+
     if (!StringUtils.isBlank(this.tooltip)) {
       xmlStreamWriter.writeStartElement("tooltip");
       
       xmlStreamWriter.writeCharacters(this.tooltip);
       
-      //end hotkey
+      //end tooltip
       xmlStreamWriter.writeEndElement();
     }
     

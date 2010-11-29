@@ -25,6 +25,8 @@ import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
 import edu.internet2.middleware.grouper.grouperUi.beans.simpleMembershipUpdate.SimpleMembershipUpdateContainer;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
+import edu.internet2.middleware.grouper.ui.UIGroupPrivilegeResolver;
+import edu.internet2.middleware.grouper.ui.UIGroupPrivilegeResolverFactory;
 import edu.internet2.middleware.grouper.ui.exceptions.ControllerDone;
 import edu.internet2.middleware.grouper.ui.exceptions.NoSessionException;
 import edu.internet2.middleware.grouper.ui.tags.TagUtils;
@@ -85,7 +87,13 @@ public class SimpleMembershipUpdateMenu {
   //        + ", menuRadioGroup: " 
   //        + menuRadioGroup + ", menuCheckboxChecked: " + menuCheckboxChecked));
       
-      if (StringUtils.equals(menuItemId, "showGroupDetails")) {
+        
+
+      if (StringUtils.equals(menuItemId, "inviteLink")) {
+        guiResponseJs.addAction(GuiScreenAction.newScript(
+            "window.location = 'grouper.html?operation=InviteExternalSubjects.inviteExternalSubject&groupId=" 
+            + group.getUuid() + "'"));
+      } else if (StringUtils.equals(menuItemId, "showGroupDetails")) {
         if (!isOnClick) {
           if (GrouperUtil.booleanValue(menuCheckboxChecked)) {
             guiResponseJs.addAction(GuiScreenAction.newHideShowNameToShow("simpleMembershipUpdateGroupDetails"));
@@ -145,6 +153,26 @@ public class SimpleMembershipUpdateMenu {
     
     DhtmlxMenu dhtmlxMenu = new DhtmlxMenu();
 
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    Group group = null;
+    GrouperSession grouperSession = null;
+    boolean canInviteOthers = false;
+    try {
+
+      grouperSession = GrouperSession.start(loggedInSubject);
+  
+      group = new SimpleMembershipUpdate().retrieveGroup(grouperSession);
+
+      UIGroupPrivilegeResolver resolver = 
+        UIGroupPrivilegeResolverFactory.getInstance(grouperSession, 
+            GrouperUiFilter.retrieveSessionMediaResourceBundle(), 
+                                                group, grouperSession.getSubject());
+      canInviteOthers = resolver.canInviteExternalPeople();
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+
     {
       DhtmlxMenuItem multiDeleteMenuItem = new DhtmlxMenuItem();
       multiDeleteMenuItem.setId("multiDelete");
@@ -157,6 +185,19 @@ public class SimpleMembershipUpdateMenu {
       dhtmlxMenu.addDhtmlxItem(multiDeleteMenuItem);
     }    
     
+    {
+      //see if we can invite
+      if (canInviteOthers && TagUtils.mediaResourceBoolean("inviteExternalPeople.link-from-lite-ui", false)) {
+        DhtmlxMenuItem memberInviteMenuItem = new DhtmlxMenuItem();
+        memberInviteMenuItem.setId("inviteLink");
+        memberInviteMenuItem.setText(TagUtils.navResourceString("ui-lite.invite-menu"));
+        memberInviteMenuItem.setTooltip(TagUtils.navResourceString("ui-lite.invite-menuTooltip"));
+        //memberInviteMenuItem.setHref("grouper.html?operation=InviteExternalSubjects.inviteExternalSubject&groupId=" + group.getUuid());
+        //memberInviteMenuItem.setHref("http://localhost:8091/grouper/grouperUi/appHtml/grouper.html?operation=InviteExternalSubjects.inviteExternalSubject&groupId=0e0262d9be924774914052c12f0e7fd2");
+        dhtmlxMenu.addDhtmlxItem(memberInviteMenuItem);
+      }
+    }    
+
     {
       DhtmlxMenuItem groupDetailsMenuItem = new DhtmlxMenuItem();
       groupDetailsMenuItem.setId("showGroupDetails");

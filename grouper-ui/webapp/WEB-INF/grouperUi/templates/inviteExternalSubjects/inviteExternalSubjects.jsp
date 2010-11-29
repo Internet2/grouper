@@ -1,13 +1,28 @@
 <%@ include file="../common/commonTaglib.jsp"%>
 <!-- externalSubjectSelfRegister/externalSubjectSelfRegister.jsp: main page -->
 
-<grouper:title key="inviteExternalSubjects.inviteTitle" />
+<table cellpadding="0" cellspacing="0" width="800">
+  <tr>
+    <td><grouper:title key="inviteExternalSubjects.inviteTitle" /></td>
+    <td>
+      <c:if test="${externalRegisterContainer.showLinksToUi}">
+        <html:link page="/grouperUi/appHtml/grouper.html?operation=SimpleMembershipUpdate.init&groupId=${externalRegisterContainer.defaultGroup.id}" >
+          <grouper:message key="ui-lite.fromInvite-link"/>
+        </html:link>
+        &nbsp; &nbsp;
+        <html:link page="/populateGroupSummary.do?groupId=${externalRegisterContainer.defaultGroup.id}" >
+          <grouper:message key="ui-lite.fromInvite-admin-link"/>
+        </html:link>
+      </c:if>
+    </td>
+   </tr>
+</table>
 
 <div style="margin-left: 20px; margin-top: 20px; width: 800px; text-align: right">
   <span class="requiredIndicator">*</span> indicates a required field
 </div>
 <div class="section inviteExternalSubjectsDiv" style="margin-top: 0px; width:1200px">
-  <grouper:subtitle key="inviteExternalSubjects.inviteSectionHeader" />
+  <grouper:subtitle key="inviteExternalSubjects.inviteSectionHeader" />  
   <div class="sectionBody">
     <form action="whatever" id="inviteExternalsFormId" name="inviteExternalsFormName">
 
