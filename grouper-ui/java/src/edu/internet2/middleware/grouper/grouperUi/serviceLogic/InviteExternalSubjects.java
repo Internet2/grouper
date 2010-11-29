@@ -1,6 +1,7 @@
 package edu.internet2.middleware.grouper.grouperUi.serviceLogic;
 
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
@@ -15,6 +16,7 @@ import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.externalSubjects.ExternalSubjectAttrFramework;
 import edu.internet2.middleware.grouper.externalSubjects.ExternalSubjectInviteBean;
 import edu.internet2.middleware.grouper.grouperUi.beans.externalSubjectSelfRegister.ExternalRegisterContainer;
@@ -93,6 +95,15 @@ public class InviteExternalSubjects {
         groups = GrouperDAOFactory.getFactory().getGroup().getAllGroupsSecure("%" + searchTerm + "%", grouperSession, loggedInSubject, 
             GrouperUtil.toSet(AccessPrivilege.ADMIN, AccessPrivilege.UPDATE), queryOptions);
         
+        //remove filtered groups
+        Iterator<Group> iterator = GrouperUtil.nonNull(groups).iterator();
+        while (iterator.hasNext()) {
+          Group currentGroup = iterator.next();
+          if (filterGroup(currentGroup)) {
+            iterator.remove();
+          }
+        }
+        
         if (GrouperUtil.length(groups) == 0) {
           GrouperUiUtils.dhtmlxOptionAppend(xmlBuilder, "", 
               GrouperUiUtils.message("inviteExternalSubjects.errorNoGroupsFound", false), "bullet_error.png");
@@ -138,6 +149,23 @@ public class InviteExternalSubjects {
   
   }
 
+  /**
+   * if we should filter this group
+   * @param group
+   * @return true if filter, false if not
+   */
+  private static boolean filterGroup(Group group) {
+    boolean allowWheel = TagUtils.mediaResourceBoolean("inviteExternalMembers.allowWheelInInvite", false);
+    boolean useWheel = GrouperConfig.getPropertyBoolean("groups.wheel.use", false);
+    String wheelName = GrouperConfig.getProperty("groups.wheel.group");
+    
+    if (!allowWheel && useWheel && !StringUtils.isBlank(wheelName) && StringUtils.equals(wheelName, group.getName())) {
+      return true;
+    }
+
+    return false;
+  }
+  
   /**
    * filter groups to pick one to assign
    * @param httpServletRequest
@@ -215,7 +243,7 @@ public class InviteExternalSubjects {
         }
         
         Group group = GroupFinder.findByUuid(grouperSession, groupToAssignUuid, false);
-        if (group == null) {
+        if (group == null || filterGroup(group)) {
           String errorMessage = TagUtils.navResourceString("inviteExternalSubjects.invalidGroupUuid");
           errorMessage = StringUtils.replace(errorMessage, "{0}", GrouperUiUtils.escapeHtml(groupToAssignUuid, true));
           guiResponseJs.addAction(GuiScreenAction.newAlert(errorMessage));
