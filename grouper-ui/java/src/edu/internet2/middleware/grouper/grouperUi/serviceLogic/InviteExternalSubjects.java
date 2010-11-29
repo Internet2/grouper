@@ -1,5 +1,6 @@
 package edu.internet2.middleware.grouper.grouperUi.serviceLogic;
 
+import java.sql.Timestamp;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -30,6 +31,7 @@ import edu.internet2.middleware.grouper.ui.exceptions.ControllerDone;
 import edu.internet2.middleware.grouper.ui.tags.TagUtils;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
 import edu.internet2.middleware.grouper.ui.util.HttpContentType;
+import edu.internet2.middleware.grouper.util.GrouperEmail;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
@@ -176,7 +178,6 @@ public class InviteExternalSubjects {
   
   /**
    * see if the user is allowed to register
-   * @param displayErrorIfNotProblem if we should display an error (i.e. the first screen, not the second if editing)
    * @return true if ok, false if not, also might have a side effect of an error message
    */
   private boolean allowedToInvite() {
@@ -264,6 +265,9 @@ public class InviteExternalSubjects {
       
       Set<String> groupsToAssign = GrouperUtil.toSet(groupToAssign0, groupToAssign1, groupToAssign2, groupToAssign3, groupToAssign4);
       Set<String> groupsToAssignFinal = new HashSet<String>();
+      StringBuilder groupIdsToAssign = new StringBuilder();
+      StringBuilder groupNamesToAssign = new StringBuilder();
+      
       for (String groupToAssignUuid : groupsToAssign) {
         
         if (StringUtils.isBlank(groupToAssignUuid)) {
@@ -286,6 +290,17 @@ public class InviteExternalSubjects {
           return;
         }
         groupsToAssignFinal.add(group.getUuid());
+        if (groupIdsToAssign.length() > 0) {
+          groupIdsToAssign.append(", ");
+        }
+        groupIdsToAssign.append(group.getUuid());
+        
+        if (groupNamesToAssign.length() > 0) {
+          groupNamesToAssign.append(", ");
+        }
+        groupNamesToAssign.append(group.getName());
+        
+        
       }
 
       ExternalSubjectInviteBean externalSubjectInviteBean = new ExternalSubjectInviteBean();
@@ -308,9 +323,50 @@ public class InviteExternalSubjects {
         return;
         
       }
-
-      String errorMessage = TagUtils.navResourceString("inviteExternalSubjects.successInvitingUsers");
-      guiResponseJs.addAction(GuiScreenAction.newAlert(errorMessage));
+      
+      //send an audit to admins perhaps
+      {
+        String emailAddressesForAdmins = TagUtils.mediaResourceString("inviteExternalMembers.emailAdminsAddressesAfterActions");
+        if (!StringUtils.isBlank(emailAddressesForAdmins)) {
+          StringBuilder emailBody  = new StringBuilder();
+          String loggedInSubjectDescription = loggedInSubject.getDescription();
+          if (StringUtils.isBlank(loggedInSubjectDescription)) {
+            loggedInSubjectDescription = loggedInSubject.getName();
+          }
+          emailBody
+            .append("Hey,\n\nThe Grouper external subject invite screen was used by ")
+            .append(GrouperUtil.subjectToString(loggedInSubject)).append(" - ")
+            .append(loggedInSubjectDescription).append("\n\n");
+          if (!StringUtils.isBlank(emailAddressesToInvite)) {
+            emailBody.append("Email addresses to invite: ").append(emailAddressesToInvite).append("\n");
+          }
+          if (!StringUtils.isBlank(ccEmailAddress)) {
+            emailBody.append("Email addresses to notify once registered: ").append(ccEmailAddress).append("\n");
+          }
+          if (!StringUtils.isBlank(emailSubject)) {
+            emailBody.append("Email subject: ").append(emailSubject).append("\n");
+          }
+          if (!StringUtils.isBlank(messageToUsers)) {
+            emailBody.append("Message to users: ").append(messageToUsers).append("\n");
+          }
+          if (groupNamesToAssign.length() > 0) {
+            emailBody.append("Group Names (ID Path) to assign: ").append(groupNamesToAssign).append("\n");
+          }
+          if (groupIdsToAssign.length() > 0) {
+            emailBody.append("Group UUIDs to assign: ").append(groupIdsToAssign).append("\n");
+          }
+          long expireMillis = ExternalSubjectAttrFramework.expireMillisAfter1970();
+          if (expireMillis > 0) {
+            emailBody.append("Invitation expires on: ").append(new Timestamp(expireMillis).toString()).append("\n");
+          }
+          emailBody.append("\nRegards.");
+          new GrouperEmail().setBody(emailBody.toString())
+            .setSubject("Grouper external person invitation").setTo(emailAddressesForAdmins).send();
+        }
+      }
+      
+      String message = TagUtils.navResourceString("inviteExternalSubjects.successInvitingUsers");
+      guiResponseJs.addAction(GuiScreenAction.newAlert(message));
 
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#bodyDiv", 
         "/WEB-INF/grouperUi/templates/inviteExternalSubjects/inviteExternalSubjects.jsp"));

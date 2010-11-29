@@ -38,6 +38,16 @@
   	<filter-class>edu.internet2.middleware.grouper.ui.CallerPageFilter</filter-class>
     </filter>
 
+  <filter-mapping>
+    <filter-name>GrouperUi</filter-name>
+    <url-pattern>/grouperExternal/app/*</url-pattern>
+  </filter-mapping>
+
+  <filter-mapping>
+    <filter-name>GrouperUi</filter-name>
+    <url-pattern>/grouperExternal/appHtml/*</url-pattern>
+  </filter-mapping>
+
   <!-- Map the filter to a Servlet or URL -->
   <filter-mapping>
     <filter-name>GrouperUi</filter-name>
@@ -169,7 +179,25 @@
     </auth-constraint>
   </security-constraint>
 
+  <security-constraint>
+    <web-resource-collection>
+      <web-resource-name>UI</web-resource-name>
+      <url-pattern>/grouperExternal/app/*</url-pattern>
+    </web-resource-collection>
+    <auth-constraint>
+      <role-name>*</role-name>
+    </auth-constraint>
+  </security-constraint>
 
+  <security-constraint>
+    <web-resource-collection>
+      <web-resource-name>UI</web-resource-name>
+      <url-pattern>/grouperExternal/appHtml/*</url-pattern>
+    </web-resource-collection>
+    <auth-constraint>
+      <role-name>*</role-name>
+    </auth-constraint>
+  </security-constraint>
 
 <login-config>
     <auth-method>BASIC</auth-method>

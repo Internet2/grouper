@@ -47,13 +47,7 @@ public class ExternalSubjectAttrFramework {
       throw new RuntimeException("Cant pass in more than 50 groups to assign");
     }
 
-    long expireMillisAfter1970 = GrouperConfig.getPropertyInt("externalSubjectsInviteExpireAfterDays", 7);
-
-    if (expireMillisAfter1970 > 0) {
-      
-      expireMillisAfter1970 = System.currentTimeMillis() + (expireMillisAfter1970 * 1000 * 60 * 60 * 24);
-      
-    }
+    long expireMillisAfter1970 = expireMillisAfter1970();
     
     String emailTemplate = email;
     if (StringUtils.isBlank(emailTemplate)) {
@@ -130,6 +124,20 @@ public class ExternalSubjectAttrFramework {
 
     return errors.toString();
     
+  }
+
+  /**
+   * @return millis that this will expire
+   */
+  public static long expireMillisAfter1970() {
+    long expireMillisAfter1970 = GrouperConfig.getPropertyInt("externalSubjectsInviteExpireAfterDays", 7);
+
+    if (expireMillisAfter1970 > 0) {
+      
+      expireMillisAfter1970 = System.currentTimeMillis() + (expireMillisAfter1970 * 1000 * 60 * 60 * 24);
+      
+    }
+    return expireMillisAfter1970;
   }
   
   /**

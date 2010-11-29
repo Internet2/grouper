@@ -39,6 +39,7 @@ import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.ui.tags.TagUtils;
+import edu.internet2.middleware.grouper.util.GrouperEmail;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
@@ -92,6 +93,29 @@ public class ExternalSubjectSelfRegister {
       //note, there is a java way to do this... hmmm
       message = StringUtils.replace(message, "{0}", identifier);
       guiResponseJs.addAction(GuiScreenAction.newAlert(message));
+      
+      //send an audit to admins perhaps
+      {
+        String emailAddressesForAdmins = TagUtils.mediaResourceString("externalMembers.emailAdminsAddressesAfterActions");
+        if (!StringUtils.isBlank(emailAddressesForAdmins)) {
+          StringBuilder emailBody  = new StringBuilder();
+          emailBody
+            .append("Hey,\n\nThe Grouper external person registration screen was used by ")
+            .append(identifier).append("\n\n");
+          
+          emailBody.append("User: ").append(externalSubject).append("\n");
+          emailBody.append("Edit type: ").append("delete").append("\n");
+          
+          if (!StringUtils.isBlank(message)) {
+            emailBody.append("Message to user on screen: ").append(message).append("\n");
+          }
+          emailBody.append("\nRegards.");
+          new GrouperEmail().setBody(emailBody.toString())
+            .setSubject("Grouper external person registration").setTo(emailAddressesForAdmins).send();
+        }
+      }
+
+
       
       //get a new container
       ExternalRegisterContainer externalRegisterContainer2 = new ExternalRegisterContainer();
@@ -284,6 +308,7 @@ public class ExternalSubjectSelfRegister {
     final String identifier = externalRegisterContainer.getUserLoggedInIdentifier();
     
     GrouperSession grouperSession = GrouperSession.startRootSession();
+    boolean isInsert = false;
     try {
     
       ExternalSubject externalSubject = ExternalSubjectStorageController.findByIdentifier(identifier, false, null);
@@ -291,6 +316,7 @@ public class ExternalSubjectSelfRegister {
       if (externalSubject == null) {
         externalSubject = new ExternalSubject();
         externalSubject.setIdentifier(identifier);
+        isInsert = true;
       }
 
       boolean invalidIdentifier = false;
@@ -469,13 +495,14 @@ public class ExternalSubjectSelfRegister {
                 //lets assign to the groups...
                 String errorMessage = null;
                 final Subject SUBJECT_WHO_REGISTERED = subjectWhoRegistered;
+                final String NAME_WHO_INVITED = nameWhoInvited;
                 
                 GrouperSession grouperSessionInviter = GrouperSession.start(memberWhoInvited.getSubject(), false);
                 try {
                   errorMessage = (String)GrouperSession.callbackGrouperSession(grouperSessionInviter, new GrouperSessionHandler() {
                     
                     @Override
-                    public Object callback(GrouperSession grouperSessionInviter) throws GrouperSessionException {
+                    public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
 
                       StringBuilder errorMessageBuilder = new StringBuilder();
                       
@@ -486,7 +513,7 @@ public class ExternalSubjectSelfRegister {
                         Group group = null;
                         String groupNameForLog = groupId;
                         try {
-                          group = GroupFinder.findByUuid(grouperSessionInviter, groupId, true);
+                          group = GroupFinder.findByUuid(theGrouperSession, groupId, true);
                           groupNameForLog = group.getName();
                           group.addMember(SUBJECT_WHO_REGISTERED, false);
                           if (allRoles.length() > 0) {
@@ -499,11 +526,11 @@ public class ExternalSubjectSelfRegister {
                         }
                       }
                       
-                      String message = TagUtils.navResourceString("externalSubjectSelfRegister.inviteSuccess");
+                      String theMessage = TagUtils.navResourceString("externalSubjectSelfRegister.inviteSuccess");
                       //note, there is a java way to do this... hmmm
-                      message = StringUtils.replace(message, "{0}", identifier);
-                      message = StringUtils.replace(message, "{1}", allRoles.toString());
-                      messageBuilder.append(message).append("<br /><br />");
+                      theMessage = StringUtils.replace(theMessage, "{0}", NAME_WHO_INVITED);
+                      theMessage = StringUtils.replace(theMessage, "{1}", allRoles.toString());
+                      messageBuilder.append(theMessage).append("<br /><br />");
 
                       return errorMessageBuilder.toString();
                     }
@@ -547,6 +574,30 @@ public class ExternalSubjectSelfRegister {
         }
       }
 
+      //send an audit to admins perhaps
+      {
+        String emailAddressesForAdmins = TagUtils.mediaResourceString("externalMembers.emailAdminsAddressesAfterActions");
+        if (!StringUtils.isBlank(emailAddressesForAdmins)) {
+          StringBuilder emailBody  = new StringBuilder();
+          emailBody
+            .append("Hey,\n\nThe Grouper external person registration screen was used by ")
+            .append(identifier).append("\n\n");
+          
+          emailBody.append("User: ").append(externalSubject).append("\n");
+          emailBody.append("From invite? ").append(hasInvite).append("\n");
+          emailBody.append("Edit type: ").append(isInsert ? "insert" : "update").append("\n");
+          emailBody.append("Valid identifier: ").append(!invalidIdentifier).append("\n");
+          
+          if (!StringUtils.isBlank(message)) {
+            emailBody.append("Message to user on screen: ").append(message).append("\n");
+          }
+          emailBody.append("\nRegards.");
+          new GrouperEmail().setBody(emailBody.toString())
+            .setSubject("Grouper external person registration").setTo(emailAddressesForAdmins).send();
+        }
+      }
+
+      
       //get a new container so the new data shows on screen...
       ExternalRegisterContainer externalRegisterContainer2 = new ExternalRegisterContainer();
       externalRegisterContainer2.storeToRequest();
