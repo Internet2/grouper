@@ -21,6 +21,12 @@ import edu.internet2.middleware.grouper.attr.value.AttributeAssignValueContainer
  */
 public interface AttributeAssignDAO extends GrouperDAO {
   
+  /**
+   * find records which are disabled which shouldnt be, and enabled which shouldnt be
+   * @return the attribute assignments
+   */
+  public Set<AttributeAssign> findAllEnabledDisabledMismatch();
+
   /** 
    * insert or update an attribute assign object 
    * @param attributeAssign 

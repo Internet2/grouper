@@ -47,6 +47,7 @@ import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.AttributeDefNameSave;
 import edu.internet2.middleware.grouper.attr.AttributeDefNameSet;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignAction;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignActionSet;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
@@ -247,6 +248,7 @@ public enum GrouperLoaderType {
         } else if (StringUtils.equals(GROUPER_ENABLED_DISABLED, hib3GrouploaderLog.getJobName())) {
 
           int records = Membership.internal_fixEnabledDisabled();
+          records += AttributeAssign.internal_fixEnabledDisabled();
           records += ExternalSubject.internal_fixDisabled();
 
           hib3GrouploaderLog.setUpdateCount(records);

@@ -55,6 +55,7 @@ import edu.internet2.middleware.grouper.hooks.logic.GrouperHookType;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHooksUtils;
 import edu.internet2.middleware.grouper.hooks.logic.HookVeto;
 import edu.internet2.middleware.grouper.hooks.logic.VetoTypeGrouper;
+import edu.internet2.middleware.grouper.internal.dao.GrouperDAO;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
@@ -1924,6 +1925,41 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
   }
 
   /**
+   * e.g. if enabled or disabled is switching, delete this attribute assignment (and child objects)
+   * and recommit it (which will not have the child objects or will have this time)
+   */
+  public void deleteAndStore() {
+    //TODO add auditing, maybe try to maintain context id, or create a new one
+    HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, 
+        AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
+          
+          public Object callback(HibernateHandlerBean hibernateHandlerBean)
+              throws GrouperDAOException {
+            
+            //make sure it is still there, it could be gone since deleted from a parent...
+            AttributeAssign attributeAssign = GrouperDAOFactory.getFactory().getAttributeAssign()
+              .findById(AttributeAssign.this.getId(), false);
+            
+            if (attributeAssign != null) {
+              hibernateHandlerBean.getHibernateSession().setCachingEnabled(false);
+              //set enabled temporarily to clean out what is there
+              AttributeAssign.this.enabled = true;
+              
+              AttributeAssign.this.delete();
+              //recalculate
+              AttributeAssign.this.enabled = AttributeAssign.this.isEnabled();
+              //insert this again
+              AttributeAssign.this.setHibernateVersionNumber(GrouperAPI.INITIAL_VERSION_NUMBER);
+              GrouperDAOFactory.getFactory().getAttributeAssign().saveOrUpdate(AttributeAssign.this);
+              AttributeAssign.this.dbVersionReset();            
+            }
+            return null;
+          }
+        });
+  }
+  
+
+  /**
    * save the state when retrieving from DB
    * @return the dbVersion
    */
@@ -1941,7 +1977,6 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
     this.dbVersion = GrouperUtil.clone(this, DB_VERSION_FIELDS);
   }
 
-
   /**
    * @see edu.internet2.middleware.grouper.GrouperAPI#dbVersionDifferentFields()
    */
@@ -1955,4 +1990,18 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
         DB_VERSION_FIELDS, null);
     return result;
   }
+
+  /**
+   * fix enabled and disabled memberships, and return the count of how many were fixed
+   * @return the number of records affected
+   */
+  public static int internal_fixEnabledDisabled() {
+    Set<AttributeAssign> attributeAssigns = GrouperDAOFactory.getFactory()
+      .getAttributeAssign().findAllEnabledDisabledMismatch();
+    for (AttributeAssign attributeAssign : attributeAssigns) {
+      attributeAssign.deleteAndStore();
+    }
+    return attributeAssigns.size();
+  }
+
 }

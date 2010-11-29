@@ -59,6 +59,32 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
   }
 
   /**
+   * @see edu.internet2.middleware.grouper.internal.dao.AttributeAssignDAO#findAllEnabledDisabledMismatch()
+   */
+  public Set<AttributeAssign> findAllEnabledDisabledMismatch() {
+    long now = System.currentTimeMillis();
+
+    StringBuilder sql = new StringBuilder(
+        "select ats from AttributeAssign as ats where  "
+          + "(ats.enabledDb = 'F' and ats.enabledTimeDb is null and ats.disabledTimeDb is null) "  
+          + " or (ats.enabledDb = 'F' and ats.enabledTimeDb is null and ats.disabledTimeDb > :now) "
+          + " or (ats.enabledDb = 'F' and ats.enabledTimeDb < :now and ats.disabledTimeDb is null) "
+          + " or (ats.enabledDb = 'F' and ats.enabledTimeDb < :now and ats.disabledTimeDb > :now) "
+          + " or (ats.enabledDb = 'T' and ats.disabledTimeDb < :now) "
+          + " or (ats.enabledDb = 'T' and ats.enabledTimeDb > :now) "
+          + " or (ats.enabledDb <> 'T' and ats.enabledDb <> 'F') "
+          + " or (ats.enabledDb is null) "
+     );
+
+    Set<AttributeAssign> attributeAssigns = HibernateSession.byHqlStatic()
+      .createQuery(sql.toString())
+      .setCacheable(false)
+      .setLong( "now",  now )
+      .listSet(AttributeAssign.class);
+    return attributeAssigns;
+  }
+
+  /**
    * retrieve by id
    * @param id 
    * @param exceptionIfNotFound 
