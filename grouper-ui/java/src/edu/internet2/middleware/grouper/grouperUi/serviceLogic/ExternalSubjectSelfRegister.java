@@ -20,6 +20,8 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.audit.AuditEntry;
+import edu.internet2.middleware.grouper.audit.AuditTypeBuiltin;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.externalSubjects.ExternalSubject;
@@ -66,68 +68,92 @@ public class ExternalSubjectSelfRegister {
     if (!this.allowedToRegister(false)) {
       return;
     }
+    
+    
+    HibernateSession.callbackHibernateSession(
+        GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT,
+        new HibernateHandler() {
 
-    final String identifier = externalRegisterContainer.getUserLoggedInIdentifier();
-    
-    GrouperSession grouperSession = GrouperSession.startRootSession();
-    try {
-    
-      final ExternalSubject externalSubject = ExternalSubjectStorageController.findByIdentifier(identifier, false, null);
-  
-      final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
-      
-      String key = null;
-      if (externalSubject == null) {
-  
-        key = "inviteExternalSubjects.deleteNotFound";
+          public Object callback(HibernateHandlerBean hibernateHandlerBean)
+              throws GrouperDAOException {
+
+            final String identifier = externalRegisterContainer.getUserLoggedInIdentifier();
+            
+            ExternalSubject externalSubject = null;
+            
+            GrouperSession grouperSession = GrouperSession.startRootSession();
+
+            String message = null;
+            try {
+              
+              externalSubject = ExternalSubjectStorageController.findByIdentifier(identifier, false, null);
+          
+              final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+              
+              String key = null;
+              if (externalSubject == null) {
+          
+                key = "inviteExternalSubjects.deleteNotFound";
+                
+              } else {
         
-      } else {
+                ExternalSubjectStorageController.delete(externalSubject);
+                key = "inviteExternalSubjects.deleteSuccess";
+        
+              }
+        
+              message = TagUtils.navResourceString(key);
+              
+              //note, there is a java way to do this... hmmm
+              message = StringUtils.replace(message, "{0}", identifier);
+              guiResponseJs.addAction(GuiScreenAction.newAlert(message));
+              String auditDescription = null;
+              StringBuilder emailBody  = new StringBuilder();
+              
+              emailBody.append("User: ").append(externalSubject).append("\n");
+              emailBody.append("Edit type: ").append("delete").append("\n");
+              
+              if (!StringUtils.isBlank(message)) {
+                emailBody.append("Message to user on screen: ").append(StringUtils.replace(message, "<br />", "\n")).append("\n");
+              }
+              auditDescription = emailBody.toString();
+              {
+                //send an audit to admins perhaps
+                String emailAddressesForAdmins = TagUtils.mediaResourceString("externalMembers.emailAdminsAddressesAfterActions");
+                if (!StringUtils.isBlank(emailAddressesForAdmins)) {
+                  emailBody
+                    .insert(0,"Hey,\n\nThe Grouper external person registration screen was used by " + identifier + "\n\n");
+                  emailBody.append("\nRegards.");
+                  new GrouperEmail().setBody(emailBody.toString())
+                    .setSubject("Grouper external person registration").setTo(emailAddressesForAdmins).send();
+                }
+              }        
+              
+              //get a new container
+              ExternalRegisterContainer externalRegisterContainer2 = new ExternalRegisterContainer();
+              externalRegisterContainer2.storeToRequest();
+              
+              guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#bodyDiv", 
+                "/WEB-INF/grouperUi/templates/externalSubjectSelfRegister/externalSubjectSelfRegister.jsp"));
 
-        ExternalSubjectStorageController.delete(externalSubject);
-        key = "inviteExternalSubjects.deleteSuccess";
+              if (!hibernateHandlerBean.isCallerWillCreateAudit()) {
+                
+                //"extSubjRegister", "deleteExtSubj", null, "identifier", 
+                //"subjectId", "comments"
+                AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.EXTERNAL_SUBJECT_REGISTER_DELETE, "identifier", 
+                    identifier, "subjectId", externalSubject == null ? null : externalSubject.getUuid());
+                auditEntry.setDescription(auditDescription);
+                auditEntry.saveOrUpdate(true);
+              }
 
-      }
-
-      String message = TagUtils.navResourceString(key);
-      
-      //note, there is a java way to do this... hmmm
-      message = StringUtils.replace(message, "{0}", identifier);
-      guiResponseJs.addAction(GuiScreenAction.newAlert(message));
-      
-      //send an audit to admins perhaps
-      {
-        String emailAddressesForAdmins = TagUtils.mediaResourceString("externalMembers.emailAdminsAddressesAfterActions");
-        if (!StringUtils.isBlank(emailAddressesForAdmins)) {
-          StringBuilder emailBody  = new StringBuilder();
-          emailBody
-            .append("Hey,\n\nThe Grouper external person registration screen was used by ")
-            .append(identifier).append("\n\n");
-          
-          emailBody.append("User: ").append(externalSubject).append("\n");
-          emailBody.append("Edit type: ").append("delete").append("\n");
-          
-          if (!StringUtils.isBlank(message)) {
-            emailBody.append("Message to user on screen: ").append(message).append("\n");
+            } finally {
+              GrouperSession.stopQuietly(grouperSession);
+            }
+            
+            
+            return null;
           }
-          emailBody.append("\nRegards.");
-          new GrouperEmail().setBody(emailBody.toString())
-            .setSubject("Grouper external person registration").setTo(emailAddressesForAdmins).send();
-        }
-      }
-
-
-      
-      //get a new container
-      ExternalRegisterContainer externalRegisterContainer2 = new ExternalRegisterContainer();
-      externalRegisterContainer2.storeToRequest();
-      
-      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#bodyDiv", 
-        "/WEB-INF/grouperUi/templates/externalSubjectSelfRegister/externalSubjectSelfRegister.jsp"));
-
-    } finally {
-      GrouperSession.stopQuietly(grouperSession);
-    }
-
+        });
   }
   
   /**
@@ -293,9 +319,9 @@ public class ExternalSubjectSelfRegister {
    * @param request
    * @param response
    */
-  public void submit(HttpServletRequest request, HttpServletResponse response) {
+  public void submit(final HttpServletRequest request, HttpServletResponse response) {
     
-    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+    final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
     
     //setup the container
     final ExternalRegisterContainer externalRegisterContainer = new ExternalRegisterContainer();
@@ -305,311 +331,353 @@ public class ExternalSubjectSelfRegister {
       return;
     }
     
-    final String identifier = externalRegisterContainer.getUserLoggedInIdentifier();
-    
-    GrouperSession grouperSession = GrouperSession.startRootSession();
-    boolean isInsert = false;
-    try {
-    
-      ExternalSubject externalSubject = ExternalSubjectStorageController.findByIdentifier(identifier, false, null);
+    HibernateSession.callbackHibernateSession(
+        GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT,
+        new HibernateHandler() {
 
-      if (externalSubject == null) {
-        externalSubject = new ExternalSubject();
-        externalSubject.setIdentifier(identifier);
-        isInsert = true;
-      }
-
-      boolean invalidIdentifier = false;
-      
-      Subject subjectWhoRegistered = null;
-      String message = null;
-      
-      try {
-        externalSubject.validateIdentifier();
-      } catch (Exception e) {
-        
-        LOG.warn("Invalid identifier: " + identifier, e);
-        
-        message = TagUtils.navResourceString("externalSubjectSelfRegister.invalidIdentifier");
-        
-        //note there is a java way to do this... hmmmm...
-        message = StringUtils.replace(message, "{0}", identifier);
-        guiResponseJs.addAction(GuiScreenAction.newAlert(message));
-        message = null;
-        invalidIdentifier = true;
-        //lets see if that subject exists not as an external subject...
-        try {
-          subjectWhoRegistered = SubjectFinder.findByIdOrIdentifier(identifier, false);
-        } catch (Exception e2) {
-          LOG.warn("Problem looking for subject: " + identifier, e2);
-        }
-        if (subjectWhoRegistered == null) {
-          return;
-        }
-      }
-
-      AppState appState = AppState.retrieveFromRequest();
-
-      if (!invalidIdentifier) {
-        //ExternalSubjectConfigBean externalSubjectConfigBean = ExternalSubjectConfig.externalSubjectConfigBean();
-        //externalSubjectConfigBean.isNameRequired()
-  
-        final List<RegisterField> registerFieldsFromScreen = new ArrayList<RegisterField>();
-        
-        for (RegisterField registerField : externalRegisterContainer.getRegisterFields()) {
-          
-          String paramName = registerField.getParamName();
-          String paramValue = StringUtils.trimToNull(request.getParameter(paramName));
-          
-          //skip readonly fields
-          if  (registerField.isReadonly()) {
-            continue;
-          }
-          
-          if (registerField.isRequired() && StringUtils.isBlank(paramValue)) {
-            String theMessage = TagUtils.navResourceString("externalSubjectSelfRegister.fieldRequiredError");
-            
-            //note there is a java way to do this... hmmmm...
-            theMessage = StringUtils.replace(theMessage, "{0}", registerField.getLabel());
-            guiResponseJs.addAction(GuiScreenAction.newAlert(theMessage));
-            return;
-          }
-          
-          registerField.setValue(paramValue);
-          registerFieldsFromScreen.add(registerField);
-        }
-        
-        final ExternalSubject EXTERNAL_SUBJECT = externalSubject;
-  
-        final String externalSubjectInviteName = appState.getUrlArgObjectOrParam("externalSubjectInviteName");
-        
-        //all validation is done, lets store the info
-        HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
-  
-          /**
-           * 
-           */
-          @Override
           public Object callback(HibernateHandlerBean hibernateHandlerBean)
               throws GrouperDAOException {
-  
-            Set<ExternalSubjectAttribute> externalSubjectAttributes = EXTERNAL_SUBJECT.retrieveAttributes();
+
+
+    
+            final String identifier = externalRegisterContainer.getUserLoggedInIdentifier();
             
-            //make a map for lookups
-            Map<String, ExternalSubjectAttribute> externalSubjectAttributeMap = new HashMap<String, ExternalSubjectAttribute>();
+            GrouperSession grouperSession = GrouperSession.startRootSession();
+            boolean isInsert = false;
+            try {
             
-            for (ExternalSubjectAttribute externalSubjectAttribute : externalSubjectAttributes) {
-              externalSubjectAttributeMap.put(externalSubjectAttribute.getAttributeSystemName(), externalSubjectAttribute);
-            }
-                      
-            for (RegisterField registerField : registerFieldsFromScreen) {
-  
-              if (registerField.isFieldNotAttribute()) {
-  
-                //reflection-like API
-                GrouperUtil.assignSetter(EXTERNAL_SUBJECT, registerField.getSystemName(), registerField.getValue(), false);
-                
-              } else {
-                
-                //see if attribute is already there
-                ExternalSubjectAttribute externalSubjectAttribute = externalSubjectAttributeMap.get(registerField.getSystemName());
-                
-                if (externalSubjectAttribute == null) {
-                  externalSubjectAttribute = new ExternalSubjectAttribute();
-                  externalSubjectAttribute.setAttributeSystemName(registerField.getSystemName());
-                  externalSubjectAttributes.add(externalSubjectAttribute);
-                }
-  
-                externalSubjectAttribute.setAttributeValue(registerField.getValue());
+              ExternalSubject externalSubject = ExternalSubjectStorageController.findByIdentifier(identifier, false, null);
+        
+              if (externalSubject == null) {
+                externalSubject = new ExternalSubject();
+                externalSubject.setIdentifier(identifier);
+                isInsert = true;
               }
+        
+              boolean invalidIdentifier = false;
+              
+              Subject subjectWhoRegistered = null;
+              String message = null;
+              
+              try {
+                externalSubject.validateIdentifier();
+              } catch (Exception e) {
+                
+                LOG.warn("Invalid identifier: " + identifier, e);
+                
+                message = TagUtils.navResourceString("externalSubjectSelfRegister.invalidIdentifier");
+                
+                //note there is a java way to do this... hmmmm...
+                message = StringUtils.replace(message, "{0}", identifier);
+                guiResponseJs.addAction(GuiScreenAction.newAlert(message));
+                message = null;
+                invalidIdentifier = true;
+                //lets see if that subject exists not as an external subject...
+                try {
+                  subjectWhoRegistered = SubjectFinder.findByIdOrIdentifier(identifier, false);
+                } catch (Exception e2) {
+                  LOG.warn("Problem looking for subject: " + identifier, e2);
+                }
+                if (subjectWhoRegistered == null) {
+                  return null;
+                }
+              }
+        
+              AppState appState = AppState.retrieveFromRequest();
+        
+              if (!invalidIdentifier) {
+                //ExternalSubjectConfigBean externalSubjectConfigBean = ExternalSubjectConfig.externalSubjectConfigBean();
+                //externalSubjectConfigBean.isNameRequired()
+          
+                final List<RegisterField> registerFieldsFromScreen = new ArrayList<RegisterField>();
+                
+                for (RegisterField registerField : externalRegisterContainer.getRegisterFields()) {
+                  
+                  String paramName = registerField.getParamName();
+                  String paramValue = StringUtils.trimToNull(request.getParameter(paramName));
+                  
+                  //skip readonly fields
+                  if  (registerField.isReadonly()) {
+                    continue;
+                  }
+                  
+                  if (registerField.isRequired() && StringUtils.isBlank(paramValue)) {
+                    String theMessage = TagUtils.navResourceString("externalSubjectSelfRegister.fieldRequiredError");
+                    
+                    //note there is a java way to do this... hmmmm...
+                    theMessage = StringUtils.replace(theMessage, "{0}", registerField.getLabel());
+                    guiResponseJs.addAction(GuiScreenAction.newAlert(theMessage));
+                    return null;
+                  }
+                  
+                  registerField.setValue(paramValue);
+                  registerFieldsFromScreen.add(registerField);
+                }
+                
+                final ExternalSubject EXTERNAL_SUBJECT = externalSubject;
+          
+                final String externalSubjectInviteName = appState.getUrlArgObjectOrParam("externalSubjectInviteName");
+                
+                //all validation is done, lets store the info
+                HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
+          
+                  /**
+                   * 
+                   */
+                  @Override
+                  public Object callback(HibernateHandlerBean theHibernateHandlerBean)
+                      throws GrouperDAOException {
+          
+                    Set<ExternalSubjectAttribute> externalSubjectAttributes = EXTERNAL_SUBJECT.retrieveAttributes();
+                    
+                    //make a map for lookups
+                    Map<String, ExternalSubjectAttribute> externalSubjectAttributeMap = new HashMap<String, ExternalSubjectAttribute>();
+                    
+                    for (ExternalSubjectAttribute externalSubjectAttribute : externalSubjectAttributes) {
+                      externalSubjectAttributeMap.put(externalSubjectAttribute.getAttributeSystemName(), externalSubjectAttribute);
+                    }
+                              
+                    for (RegisterField registerField : registerFieldsFromScreen) {
+          
+                      if (registerField.isFieldNotAttribute()) {
+          
+                        //reflection-like API
+                        GrouperUtil.assignSetter(EXTERNAL_SUBJECT, registerField.getSystemName(), registerField.getValue(), false);
+                        
+                      } else {
+                        
+                        //see if attribute is already there
+                        ExternalSubjectAttribute externalSubjectAttribute = externalSubjectAttributeMap.get(registerField.getSystemName());
+                        
+                        if (externalSubjectAttribute == null) {
+                          externalSubjectAttribute = new ExternalSubjectAttribute();
+                          externalSubjectAttribute.setAttributeSystemName(registerField.getSystemName());
+                          externalSubjectAttributes.add(externalSubjectAttribute);
+                        }
+          
+                        externalSubjectAttribute.setAttributeValue(registerField.getValue());
+                      }
+                    }
+          
+                    EXTERNAL_SUBJECT.store(externalSubjectAttributes, externalSubjectInviteName);
+                    
+                    return null;
+                  }
+                });
+          
+                //get the subject
+                subjectWhoRegistered = SubjectFinder.findByIdAndSource(externalSubject.getUuid(), ExternalSubject.sourceId(), true);
+                
+                message = TagUtils.navResourceString("externalSubjectSelfRegister.successEdited");
+          
+                //note, there is a java way to do this... hmmm
+                message = StringUtils.replace(message, "{0}", identifier);
+              }
+              
+              //lets process any invites
+              //lets see if there is an invite id
+              String id = appState.getUrlArgObjectOrParam("externalSubjectInviteId");
+              
+              boolean hasInvite = !StringUtils.isBlank(id);
+              int inviteCount = 0;
+              
+              final StringBuilder groupIds = new StringBuilder();
+              final StringBuilder groupNames = new StringBuilder();
+              
+              ExternalSubjectInviteBean externalSubjectInviteBean = null;
+              
+              if (hasInvite) {
+        
+                externalSubjectInviteBean = ExternalSubjectInviteBean.findByUuid(id);
+                //see if this is a valid invite
+                
+                if (externalSubjectInviteBean == null) {
+                  
+                  message = TagUtils.navResourceString("externalSubjectSelfRegister.cantFindInvite");
+                  
+                } else {
+                  
+                  if (!invalidIdentifier) {
+                    //add vetted email address
+                    externalSubject.addVettedEmailAddress(externalSubjectInviteBean.getEmailAddress());
+                  }
+                   
+                  //we found the invite
+                  List<ExternalSubjectInviteBean> externalSubjectInviteBeans = ExternalSubjectInviteBean.findByEmailAddress(externalSubjectInviteBean.getEmailAddress());
+                  inviteCount = GrouperUtil.length(externalSubjectInviteBeans);
+                  //see if any are invalid
+                  final StringBuilder messageBuilder = new StringBuilder();
+                  Set<String> emailAddressesToNotify = new HashSet<String>();
+                  
+                  
+                  
+                  for (final ExternalSubjectInviteBean thisExternalSubjectInviteBean : externalSubjectInviteBeans) {
+                    
+                    String memberIdWhoInvited = null;
+                    Member memberWhoInvited = null;
+                    String nameWhoInvited = null;
+                    try {
+                      //lets process it
+                      memberIdWhoInvited = thisExternalSubjectInviteBean.getMemberId();
+                      memberWhoInvited = MemberFinder.findByUuid(grouperSession, memberIdWhoInvited, true);
+                      nameWhoInvited = memberWhoInvited.getSubject().getName();
+        
+                      if (GrouperUtil.length(thisExternalSubjectInviteBean.getEmailsWhenRegistered()) > 0) {
+                        emailAddressesToNotify.addAll(thisExternalSubjectInviteBean.getEmailsWhenRegistered());
+                      }
+        
+                      if (GrouperUtil.length(thisExternalSubjectInviteBean.getGroupIds()) > 0) {
+                        if (thisExternalSubjectInviteBean.isExpired()) {
+                          //if there are groups, that is bad, if not, then dont worry...
+                          String currentMessage = TagUtils.navResourceString("externalSubjectSelfRegister.invalidInvite");
+                          currentMessage = StringUtils.replace(currentMessage, "{0}", nameWhoInvited);
+                          messageBuilder.append(currentMessage + "<br /><br />");
+                          continue;
+                        }
+                        
+                        //lets assign to the groups...
+                        String errorMessage = null;
+                        final Subject SUBJECT_WHO_REGISTERED = subjectWhoRegistered;
+                        final String NAME_WHO_INVITED = nameWhoInvited;
+                        
+                        GrouperSession grouperSessionInviter = GrouperSession.start(memberWhoInvited.getSubject(), false);
+                        try {
+                          errorMessage = (String)GrouperSession.callbackGrouperSession(grouperSessionInviter, new GrouperSessionHandler() {
+                            
+                            @Override
+                            public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
+        
+                              StringBuilder errorMessageBuilder = new StringBuilder();
+                              
+                              StringBuilder allRoles = new StringBuilder();
+                              for (String groupId : thisExternalSubjectInviteBean.getGroupIds()) {
+        
+                                //dont crash on each one, do as many as we can...
+                                Group group = null;
+                                String groupNameForLog = groupId;
+                                try {
+                                  group = GroupFinder.findByUuid(theGrouperSession, groupId, true);
+                                  groupNameForLog = group.getName();
+                                  group.addMember(SUBJECT_WHO_REGISTERED, false);
+                                  if (allRoles.length() > 0) {
+                                    allRoles.append(", ");
+                                    groupIds.append(", ");
+                                    groupNames.append(", ");
+                                  }
+                                  allRoles.append(group.getDisplayExtension());
+                                  
+                                  groupIds.append(group.getId());
+                                  
+                                  groupNames.append(group.getName());
+                                  
+                                } catch (Exception e) {
+                                  errorMessageBuilder.append("Cant add member to group: " + groupNameForLog + ", " + e.getMessage());
+                                  LOG.error("Cant add member to group: " + groupNameForLog, e);
+                                }
+                              }
+                              
+                              String theMessage = TagUtils.navResourceString("externalSubjectSelfRegister.inviteSuccess");
+                              //note, there is a java way to do this... hmmm
+                              theMessage = StringUtils.replace(theMessage, "{0}", NAME_WHO_INVITED);
+                              theMessage = StringUtils.replace(theMessage, "{1}", allRoles.toString());
+                              messageBuilder.append(theMessage).append("<br /><br />");
+        
+                              return errorMessageBuilder.toString();
+                            }
+                          });
+                        } finally {
+                          GrouperSession.stopQuietly(grouperSessionInviter);
+                        }
+                        if (!StringUtils.isBlank(errorMessage)) {
+                          throw new RuntimeException(errorMessage);
+                        }
+                        
+                      }
+                    } catch (Exception e) {
+                      LOG.error("Problem with external subject invite for: " + identifier + ", " + thisExternalSubjectInviteBean, e);
+                      String currentMessage = TagUtils.navResourceString("externalSubjectSelfRegister.invalidInvite");
+                      currentMessage = StringUtils.replace(currentMessage, "{0}", nameWhoInvited);
+                      messageBuilder.append(currentMessage + "<br /><br />");
+                    }
+                    try {
+                      thisExternalSubjectInviteBean.deleteFromDb();
+                    } catch (Exception e) {
+                      LOG.error("Problem with deleting invitation: " + identifier + ", " + thisExternalSubjectInviteBean, e);
+                    }
+                  }
+                  
+                  if (GrouperUtil.length(emailAddressesToNotify) > 0) {
+                    for (String emailAddressToNotify : emailAddressesToNotify) {
+                      String emailAddressOfInvitee = externalSubjectInviteBean.getEmailAddress();
+                      ExternalSubject.notifyWatcherAboutRegistration(identifier, emailAddressToNotify,
+                          emailAddressOfInvitee);
+                    }
+                  }
+                  
+                  if (messageBuilder.length() > 0) {
+                    message = messageBuilder.toString();
+                  } else {
+                    message = TagUtils.navResourceString("externalSubjectSelfRegister.inviteSuccess");
+                    //note, there is a java way to do this... hmmm
+                    message = StringUtils.replace(message, "{0}", identifier);
+                  }
+                }
+              }
+
+              //send an audit to admins perhaps
+              StringBuilder emailBody  = new StringBuilder();
+              emailBody.append("User: ").append(externalSubject).append("\n");
+              emailBody.append("From invite? ").append(hasInvite).append("\n");
+              emailBody.append("Edit type: ").append(isInsert ? "insert" : "update").append("\n");
+              emailBody.append("Valid identifier: ").append(!invalidIdentifier).append("\n");
+
+              if (!StringUtils.isBlank(message)) {
+                emailBody.append("Message to user on screen: ").append(message).append("\n");
+              }
+
+              if (!hibernateHandlerBean.isCallerWillCreateAudit()) {
+
+                //"numberOfInvites", "identifier", "sourceId", 
+                //"subjectId", "inviterMemberId", "inviteEmailSentTo", "groupIdsAssigned", "groupNamesAssigned"
+                AuditEntry auditEntry = new AuditEntry(isInsert ? AuditTypeBuiltin.EXTERNAL_SUBJECT_REGISTER_ADD : AuditTypeBuiltin.EXTERNAL_SUBJECT_REGISTER_UPDATE, 
+                    "identifier", 
+                    identifier, "sourceId", subjectWhoRegistered == null ? null : subjectWhoRegistered.getSourceId(),  
+                        "subjectId", subjectWhoRegistered == null ? null : subjectWhoRegistered.getId(), 
+                            "inviteEmailSentTo", externalSubjectInviteBean == null ? null : externalSubjectInviteBean.getEmailAddress(),
+                            "groupIdsAssigned", groupIds.length() == 0 ? null : groupIds.toString(),
+                            "groupNamesAssigned", groupNames.length() == 0 ? null : groupNames.toString());
+                auditEntry.assignIntValue(auditEntry.getAuditType(), "numberOfInvites", Long.valueOf(inviteCount));
+                auditEntry.setDescription(emailBody.toString());
+                auditEntry.saveOrUpdate(true);
+              }
+
+              {
+                String emailAddressesForAdmins = TagUtils.mediaResourceString("externalMembers.emailAdminsAddressesAfterActions");
+                if (!StringUtils.isBlank(emailAddressesForAdmins)) {
+                  emailBody.insert(0, "Hey,\n\nThe Grouper external person registration screen was used by " + identifier + "\n\n");
+                  
+                  emailBody.append("\nRegards.");
+                  new GrouperEmail().setBody(emailBody.toString())
+                    .setSubject("Grouper external person registration").setTo(emailAddressesForAdmins).send();
+                }
+              }
+        
+              
+              //get a new container so the new data shows on screen...
+              ExternalRegisterContainer externalRegisterContainer2 = new ExternalRegisterContainer();
+              externalRegisterContainer2.storeToRequest();
+              
+              guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#bodyDiv", 
+                "/WEB-INF/grouperUi/templates/externalSubjectSelfRegister/externalSubjectSelfRegister.jsp"));
+        
+              guiResponseJs.addAction(GuiScreenAction.newAlert(message));
+              
+            } finally {
+              GrouperSession.stopQuietly(grouperSession);
             }
-  
-            EXTERNAL_SUBJECT.store(externalSubjectAttributes, externalSubjectInviteName);
-            
             return null;
           }
         });
-  
-        //get the subject
-        subjectWhoRegistered = SubjectFinder.findByIdAndSource(externalSubject.getUuid(), ExternalSubject.sourceId(), true);
-        
-        message = TagUtils.navResourceString("externalSubjectSelfRegister.successEdited");
-  
-        //note, there is a java way to do this... hmmm
-        message = StringUtils.replace(message, "{0}", identifier);
-      }
-      
-      //lets process any invites
-      //lets see if there is an invite id
-      String id = appState.getUrlArgObjectOrParam("externalSubjectInviteId");
-      
-      boolean hasInvite = !StringUtils.isBlank(id);
-
-      if (hasInvite) {
-
-        ExternalSubjectInviteBean externalSubjectInviteBean = ExternalSubjectInviteBean.findByUuid(id);
-        //see if this is a valid invite
-        
-        if (externalSubjectInviteBean == null) {
-          
-          message = TagUtils.navResourceString("externalSubjectSelfRegister.cantFindInvite");
-          
-        } else {
-          
-          if (!invalidIdentifier) {
-            //add vetted email address
-            externalSubject.addVettedEmailAddress(externalSubjectInviteBean.getEmailAddress());
-          }
-           
-          //we found the invite
-          List<ExternalSubjectInviteBean> externalSubjectInviteBeans = ExternalSubjectInviteBean.findByEmailAddress(externalSubjectInviteBean.getEmailAddress());
-          
-          //see if any are invalid
-          final StringBuilder messageBuilder = new StringBuilder();
-          Set<String> emailAddressesToNotify = new HashSet<String>();
-          
-          for (final ExternalSubjectInviteBean thisExternalSubjectInviteBean : externalSubjectInviteBeans) {
-            
-            String memberIdWhoInvited = null;
-            Member memberWhoInvited = null;
-            String nameWhoInvited = null;
-            try {
-              //lets process it
-              memberIdWhoInvited = thisExternalSubjectInviteBean.getMemberId();
-              memberWhoInvited = MemberFinder.findByUuid(grouperSession, memberIdWhoInvited, true);
-              nameWhoInvited = memberWhoInvited.getSubject().getName();
-
-              if (GrouperUtil.length(thisExternalSubjectInviteBean.getEmailsWhenRegistered()) > 0) {
-                emailAddressesToNotify.addAll(thisExternalSubjectInviteBean.getEmailsWhenRegistered());
-              }
-
-              if (GrouperUtil.length(thisExternalSubjectInviteBean.getGroupIds()) > 0) {
-                if (thisExternalSubjectInviteBean.isExpired()) {
-                  //if there are groups, that is bad, if not, then dont worry...
-                  String currentMessage = TagUtils.navResourceString("externalSubjectSelfRegister.invalidInvite");
-                  currentMessage = StringUtils.replace(currentMessage, "{0}", nameWhoInvited);
-                  messageBuilder.append(currentMessage + "<br /><br />");
-                  continue;
-                }
-                
-                //lets assign to the groups...
-                String errorMessage = null;
-                final Subject SUBJECT_WHO_REGISTERED = subjectWhoRegistered;
-                final String NAME_WHO_INVITED = nameWhoInvited;
-                
-                GrouperSession grouperSessionInviter = GrouperSession.start(memberWhoInvited.getSubject(), false);
-                try {
-                  errorMessage = (String)GrouperSession.callbackGrouperSession(grouperSessionInviter, new GrouperSessionHandler() {
-                    
-                    @Override
-                    public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
-
-                      StringBuilder errorMessageBuilder = new StringBuilder();
-                      
-                      StringBuilder allRoles = new StringBuilder();
-                      for (String groupId : thisExternalSubjectInviteBean.getGroupIds()) {
-
-                        //dont crash on each one, do as many as we can...
-                        Group group = null;
-                        String groupNameForLog = groupId;
-                        try {
-                          group = GroupFinder.findByUuid(theGrouperSession, groupId, true);
-                          groupNameForLog = group.getName();
-                          group.addMember(SUBJECT_WHO_REGISTERED, false);
-                          if (allRoles.length() > 0) {
-                            allRoles.append(", ");
-                          }
-                          allRoles.append(group.getDisplayExtension());
-                        } catch (Exception e) {
-                          errorMessageBuilder.append("Cant add member to group: " + groupNameForLog + ", " + e.getMessage());
-                          LOG.error("Cant add member to group: " + groupNameForLog, e);
-                        }
-                      }
-                      
-                      String theMessage = TagUtils.navResourceString("externalSubjectSelfRegister.inviteSuccess");
-                      //note, there is a java way to do this... hmmm
-                      theMessage = StringUtils.replace(theMessage, "{0}", NAME_WHO_INVITED);
-                      theMessage = StringUtils.replace(theMessage, "{1}", allRoles.toString());
-                      messageBuilder.append(theMessage).append("<br /><br />");
-
-                      return errorMessageBuilder.toString();
-                    }
-                  });
-                } finally {
-                  GrouperSession.stopQuietly(grouperSessionInviter);
-                }
-                if (!StringUtils.isBlank(errorMessage)) {
-                  throw new RuntimeException(errorMessage);
-                }
-                
-              }
-            } catch (Exception e) {
-              LOG.error("Problem with external subject invite for: " + identifier + ", " + thisExternalSubjectInviteBean, e);
-              String currentMessage = TagUtils.navResourceString("externalSubjectSelfRegister.invalidInvite");
-              currentMessage = StringUtils.replace(currentMessage, "{0}", nameWhoInvited);
-              messageBuilder.append(currentMessage + "<br /><br />");
-            }
-            try {
-              thisExternalSubjectInviteBean.deleteFromDb();
-            } catch (Exception e) {
-              LOG.error("Problem with deleting invitation: " + identifier + ", " + thisExternalSubjectInviteBean, e);
-            }
-          }
-          
-          if (GrouperUtil.length(emailAddressesToNotify) > 0) {
-            for (String emailAddressToNotify : emailAddressesToNotify) {
-              String emailAddressOfInvitee = externalSubjectInviteBean.getEmailAddress();
-              ExternalSubject.notifyWatcherAboutRegistration(identifier, emailAddressToNotify,
-                  emailAddressOfInvitee);
-            }
-          }
-          
-          if (messageBuilder.length() > 0) {
-            message = messageBuilder.toString();
-          } else {
-            message = TagUtils.navResourceString("externalSubjectSelfRegister.inviteSuccess");
-            //note, there is a java way to do this... hmmm
-            message = StringUtils.replace(message, "{0}", identifier);
-          }
-        }
-      }
-
-      //send an audit to admins perhaps
-      {
-        String emailAddressesForAdmins = TagUtils.mediaResourceString("externalMembers.emailAdminsAddressesAfterActions");
-        if (!StringUtils.isBlank(emailAddressesForAdmins)) {
-          StringBuilder emailBody  = new StringBuilder();
-          emailBody
-            .append("Hey,\n\nThe Grouper external person registration screen was used by ")
-            .append(identifier).append("\n\n");
-          
-          emailBody.append("User: ").append(externalSubject).append("\n");
-          emailBody.append("From invite? ").append(hasInvite).append("\n");
-          emailBody.append("Edit type: ").append(isInsert ? "insert" : "update").append("\n");
-          emailBody.append("Valid identifier: ").append(!invalidIdentifier).append("\n");
-          
-          if (!StringUtils.isBlank(message)) {
-            emailBody.append("Message to user on screen: ").append(message).append("\n");
-          }
-          emailBody.append("\nRegards.");
-          new GrouperEmail().setBody(emailBody.toString())
-            .setSubject("Grouper external person registration").setTo(emailAddressesForAdmins).send();
-        }
-      }
-
-      
-      //get a new container so the new data shows on screen...
-      ExternalRegisterContainer externalRegisterContainer2 = new ExternalRegisterContainer();
-      externalRegisterContainer2.storeToRequest();
-      
-      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#bodyDiv", 
-        "/WEB-INF/grouperUi/templates/externalSubjectSelfRegister/externalSubjectSelfRegister.jsp"));
-
-      guiResponseJs.addAction(GuiScreenAction.newAlert(message));
-      
-    } finally {
-      GrouperSession.stopQuietly(grouperSession);
-    }
     
   }
 

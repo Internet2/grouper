@@ -430,7 +430,37 @@ public enum AuditTypeBuiltin implements AuditTypeIdentifier {
    * move a stem to another stem
    */
   STEM_MOVE(new AuditType("stem", "move", null, "stemId", "oldStemName", "newStemName", "newParentStemId", 
-      "assignAlternateName"));
+      "assignAlternateName")),
+  
+  /**
+   * register or edit an external subject
+   */
+  EXTERNAL_SUBJECT_REGISTER_ADD(new AuditType("externalSubjectRegister", "addExternalSubject", "numberOfInvites", "identifier", "sourceId", 
+      "subjectId", "inviteEmailSentTo", "groupIdsAssigned", "groupNamesAssigned")),
+  
+  /**
+   * delete an external subject
+   */
+  EXTERNAL_SUBJECT_REGISTER_DELETE(new AuditType("externalSubjectRegister", "deleteExternalSubject", null, "identifier", 
+      "subjectId")),
+  
+  /**
+   * register or edit an external subject
+   */
+  EXTERNAL_SUBJECT_REGISTER_UPDATE(new AuditType("externalSubjectRegister", "updateExternalSubject", "numberOfInvites", "identifier", "sourceId", 
+      "subjectId", "inviteEmailSentTo", "groupIdsAssigned", "groupNamesAssigned")),
+  
+  /**
+   * register or edit an external subject
+   */
+  EXTERNAL_SUBJECT_INVITE_EMAIL(new AuditType("externalSubjectInvite", "createInviteByEmail", null, "emailsSentTo", "inviterMemberId", 
+      "groupIdsAssigned", "groupNamesAssigned")),
+  
+  /**
+   * register or edit an external subject
+   */
+  EXTERNAL_SUBJECT_INVITE_IDENTIFIER(new AuditType("externalSubjectInvite", "createInviteByIdentifier", null, "identifiers", "inviterMemberId", 
+      "groupIdsAssigned", "groupNamesAssigned"));
   
   /**
    * defaults for audit type, though doesnt hold the id

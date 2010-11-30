@@ -25,6 +25,7 @@ import edu.internet2.middleware.grouper.externalSubjects.ExternalSubjectConfig.E
 import edu.internet2.middleware.grouper.grouperUi.beans.json.AppState;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
+import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.exceptions.NoSessionException;
@@ -68,18 +69,18 @@ public class ExternalRegisterContainer implements Serializable {
         externalSubject = (ExternalSubject)GrouperSession.callbackGrouperSession(grouperSession, new GrouperSessionHandler() {
           
           @Override
-          public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+          public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
             return ExternalSubjectStorageController.findByIdentifier(identifier, false, null);
           }
         });
-        
-        //if its null then it is an insert
+            
+            //if its null then it is an insert
         this.insert = externalSubject == null;
 
       } finally {
-        GrouperSession.stopQuietly(grouperSession);
+          GrouperSession.stopQuietly(grouperSession);
+        }
       }
-    }
     return this.insert;
   }
   
@@ -89,14 +90,14 @@ public class ExternalRegisterContainer implements Serializable {
   private void initFields() {
     
     GrouperSession grouperSession = GrouperSession.startRootSession(false);
-    try {
+    try { 
       GrouperSession.callbackGrouperSession(grouperSession, new GrouperSessionHandler() {
   
         /**
          * 
          */
         @Override
-        public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
           
           ExternalRegisterContainer.this.registerFields = new ArrayList<RegisterField>();
           RegisterField registerField = null;
@@ -124,7 +125,7 @@ public class ExternalRegisterContainer implements Serializable {
             ExternalRegisterContainer.this.registerFields.add(registerField);
   
             //get the current subject so we can prepopulate data, if it exists
-            externalSubject = ExternalSubjectStorageController.findByIdentifier(identifier, false, null);
+            externalSubject = ExternalSubjectStorageController.findByIdentifier(identifier, false, new QueryOptions().secondLevelCache(false));
             
           }
           
@@ -237,10 +238,10 @@ public class ExternalRegisterContainer implements Serializable {
           return null;
         }
       });
-    } finally { 
-      GrouperSession.stopQuietly(grouperSession);
+    } finally {      
+        GrouperSession.stopQuietly(grouperSession);
+      }
     }
-  }
 
   /**
    * get the identifier of the user logged in
@@ -317,17 +318,18 @@ public class ExternalRegisterContainer implements Serializable {
       GrouperSession grouperSession = null;
     
       Group group = null;
+      
       try {
         grouperSession = GrouperSession.start(loggedInSubject, false);
         group = (Group)GrouperSession.callbackGrouperSession(grouperSession, new GrouperSessionHandler() {
-          
+        
           @Override
           public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
             Group theGroup = null;
-            if (!StringUtils.isBlank(groupId)) {
+        if (!StringUtils.isBlank(groupId)) {
               theGroup = GroupFinder.findByUuid(theGrouperSession, groupId, false);
-            }
-            if (!StringUtils.isBlank(groupName)) {
+        }
+        if (!StringUtils.isBlank(groupName)) {
               theGroup = GroupFinder.findByName(theGrouperSession, groupName, false);
             }
             return theGroup;
@@ -336,22 +338,22 @@ public class ExternalRegisterContainer implements Serializable {
   
       } finally {
         GrouperSession.stopQuietly(grouperSession); 
-      }
-      if (group == null) {
-        String errorMessage = TagUtils.navResourceString("inviteExternalSubjects.invalidGroupUuid");
-        errorMessage = StringUtils.replace(errorMessage, "{0}", GrouperUiUtils.escapeHtml(StringUtils.defaultString(groupId, groupName), true));
-        guiResponseJs.addAction(GuiScreenAction.newAlert(errorMessage));
-        return null;
-        
-      }
-      
+        }
+        if (group == null) {
+          String errorMessage = TagUtils.navResourceString("inviteExternalSubjects.invalidGroupUuid");
+          errorMessage = StringUtils.replace(errorMessage, "{0}", GrouperUiUtils.escapeHtml(StringUtils.defaultString(groupId, groupName), true));
+          guiResponseJs.addAction(GuiScreenAction.newAlert(errorMessage));
+          return null;
+          
+        }
+  
       grouperSession = GrouperSession.startRootSession(false);
       try {
         final Group GROUP = group;
         boolean canEdit = (Boolean)GrouperSession.callbackGrouperSession(grouperSession, new GrouperSessionHandler() {
-          
+        
           @Override
-          public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+          public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
             return GROUP.hasUpdate(loggedInSubject) || GROUP.hasAdmin(loggedInSubject);
           }
         });
@@ -362,6 +364,7 @@ public class ExternalRegisterContainer implements Serializable {
           return null;
         }
         this.defaultGroup = group;
+
         
       } finally {
         GrouperSession.stopQuietly(grouperSession);
@@ -374,7 +377,7 @@ public class ExternalRegisterContainer implements Serializable {
   
   /**
    * if we should show links to the UI
-   * @return
+   * @return if show links
    */
   public boolean isShowLinksToUi() {
     return this.getDefaultGroup() != null;

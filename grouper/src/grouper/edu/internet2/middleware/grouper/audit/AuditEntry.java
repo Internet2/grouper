@@ -370,6 +370,27 @@ public class AuditEntry extends GrouperAPI implements Hib3GrouperVersioned, XmlI
     }
   }
   
+  /**
+   * @param auditType
+   * @param label
+   * @param value
+   */
+  public void assignIntValue(AuditType auditType, String label, Long value) {
+    if (StringUtils.equals(label, auditType.getLabelInt01())) {
+      this.int01 = value;
+    } else if (StringUtils.equals(label, auditType.getLabelInt02())) {
+      this.int02 = value;
+    } else if (StringUtils.equals(label, auditType.getLabelInt03())) {
+      this.int03 = value;
+    } else if (StringUtils.equals(label, auditType.getLabelInt04())) {
+      this.int04 = value;
+    } else if (StringUtils.equals(label, auditType.getLabelInt05())) {
+      this.int05 = value;
+      throw new RuntimeException("Cant find int label: '" + label 
+          + "' in audit type: " + auditType.getAuditCategory() + " - " + auditType.getActionName());
+    }
+  }
+  
   /** name of the grouper audit entry table in the db */
   public static final String TABLE_GROUPER_AUDIT_ENTRY = "grouper_audit_entry";
 
