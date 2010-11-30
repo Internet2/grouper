@@ -62,9 +62,16 @@ public class ExternalRegisterContainer implements Serializable {
     
       final String identifier = this.getUserLoggedInIdentifier();
       
-      GrouperSession grouperSession = GrouperSession.startRootSession();
+      GrouperSession grouperSession = GrouperSession.startRootSession(false);
+      ExternalSubject externalSubject = null;
       try {
-        ExternalSubject externalSubject = ExternalSubjectStorageController.findByIdentifier(identifier, false, null);
+        externalSubject = (ExternalSubject)GrouperSession.callbackGrouperSession(grouperSession, new GrouperSessionHandler() {
+          
+          @Override
+          public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+            return ExternalSubjectStorageController.findByIdentifier(identifier, false, null);
+          }
+        });
         
         //if its null then it is an insert
         this.insert = externalSubject == null;
@@ -82,155 +89,157 @@ public class ExternalRegisterContainer implements Serializable {
   private void initFields() {
     
     GrouperSession grouperSession = GrouperSession.startRootSession(false);
-
-    GrouperSession.callbackGrouperSession(grouperSession, new GrouperSessionHandler() {
-
-      /**
-       * 
-       */
-      @Override
-      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
-        
-        ExternalRegisterContainer.this.registerFields = new ArrayList<RegisterField>();
-        RegisterField registerField = null;
-
-        ExternalSubject externalSubject = null;
-        
-        {
-          registerField = new RegisterField();
-          registerField.setSystemName("identifier");
-          registerField.setParamName("param_identifier");
-          String identifierLabel = GrouperUiUtils.message("externalSubjectSelfRegister.register.field.identifier.label");
-          registerField.setLabel(identifierLabel);
+    try {
+      GrouperSession.callbackGrouperSession(grouperSession, new GrouperSessionHandler() {
+  
+        /**
+         * 
+         */
+        @Override
+        public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
           
-          registerField.setFieldNotAttribute(true);
-          registerField.setReadonly(true);
-          registerField.setRequired(false);
+          ExternalRegisterContainer.this.registerFields = new ArrayList<RegisterField>();
+          RegisterField registerField = null;
+  
+          ExternalSubject externalSubject = null;
           
-          String identifierTooltip = GrouperUiUtils.message("externalSubjectSelfRegister.register.field.identifier.tooltip", true);
-          
-          registerField.setTooltip(identifierTooltip);
-          
-          String identifier = getUserLoggedInIdentifier();
-          
-          registerField.setValue(identifier);
-          ExternalRegisterContainer.this.registerFields.add(registerField);
-
-          //get the current subject so we can prepopulate data, if it exists
-          externalSubject = ExternalSubjectStorageController.findByIdentifier(identifier, false, null);
-          
-        }
-        
-        ExternalSubjectConfigBean externalSubjectConfigBean = ExternalSubjectConfig.externalSubjectConfigBean();
-        
-        
-        {
-          registerField = new RegisterField();
-          registerField.setSystemName("name");
-          
-          if (externalSubjectConfigBean.isNameRequired()) {
-            registerField.setRequired(true);
-          }
-          registerField.setFieldNotAttribute(true);
-          registerField.setParamName("param_name");
-
-          String label = GrouperUiUtils.message("externalSubjectSelfRegister.register.field.name.label", true);
-          String tooltip = GrouperUiUtils.message("externalSubjectSelfRegister.register.field.name.tooltip", true);
-          
-          registerField.setLabel(label);
-          registerField.setTooltip(tooltip);
-          
-          if (externalSubject != null) {
-            registerField.setValue(externalSubject.getName());
-          }
-          
-          ExternalRegisterContainer.this.registerFields.add(registerField);
-          
-        }
-        
-        {
-
-          if (externalSubjectConfigBean.isInstitutionEnabled()) {
+          {
             registerField = new RegisterField();
-            registerField.setSystemName("institution");
-            if (externalSubjectConfigBean.isInstitutionRequired()) {
+            registerField.setSystemName("identifier");
+            registerField.setParamName("param_identifier");
+            String identifierLabel = GrouperUiUtils.message("externalSubjectSelfRegister.register.field.identifier.label");
+            registerField.setLabel(identifierLabel);
+            
+            registerField.setFieldNotAttribute(true);
+            registerField.setReadonly(true);
+            registerField.setRequired(false);
+            
+            String identifierTooltip = GrouperUiUtils.message("externalSubjectSelfRegister.register.field.identifier.tooltip", true);
+            
+            registerField.setTooltip(identifierTooltip);
+            
+            String identifier = getUserLoggedInIdentifier();
+            
+            registerField.setValue(identifier);
+            ExternalRegisterContainer.this.registerFields.add(registerField);
+  
+            //get the current subject so we can prepopulate data, if it exists
+            externalSubject = ExternalSubjectStorageController.findByIdentifier(identifier, false, null);
+            
+          }
+          
+          ExternalSubjectConfigBean externalSubjectConfigBean = ExternalSubjectConfig.externalSubjectConfigBean();
+          
+          
+          {
+            registerField = new RegisterField();
+            registerField.setSystemName("name");
+            
+            if (externalSubjectConfigBean.isNameRequired()) {
               registerField.setRequired(true);
             }
             registerField.setFieldNotAttribute(true);
-
-            String label = GrouperUiUtils.message("externalSubjectSelfRegister.register.field.institution.label", true);
-            String tooltip = GrouperUiUtils.message("externalSubjectSelfRegister.register.field.institution.tooltip", true);
+            registerField.setParamName("param_name");
+  
+            String label = GrouperUiUtils.message("externalSubjectSelfRegister.register.field.name.label", true);
+            String tooltip = GrouperUiUtils.message("externalSubjectSelfRegister.register.field.name.tooltip", true);
             
             registerField.setLabel(label);
             registerField.setTooltip(tooltip);
-
-            registerField.setParamName("param_institution");
-
+            
             if (externalSubject != null) {
-              registerField.setValue(externalSubject.getInstitution());
+              registerField.setValue(externalSubject.getName());
             }
-
+            
             ExternalRegisterContainer.this.registerFields.add(registerField);
+            
           }
-        }
-
-
-        {
-          if (externalSubjectConfigBean.isEmailEnabled()) {
+          
+          {
+  
+            if (externalSubjectConfigBean.isInstitutionEnabled()) {
+              registerField = new RegisterField();
+              registerField.setSystemName("institution");
+              if (externalSubjectConfigBean.isInstitutionRequired()) {
+                registerField.setRequired(true);
+              }
+              registerField.setFieldNotAttribute(true);
+  
+              String label = GrouperUiUtils.message("externalSubjectSelfRegister.register.field.institution.label", true);
+              String tooltip = GrouperUiUtils.message("externalSubjectSelfRegister.register.field.institution.tooltip", true);
+              
+              registerField.setLabel(label);
+              registerField.setTooltip(tooltip);
+  
+              registerField.setParamName("param_institution");
+  
+              if (externalSubject != null) {
+                registerField.setValue(externalSubject.getInstitution());
+              }
+  
+              ExternalRegisterContainer.this.registerFields.add(registerField);
+            }
+          }
+  
+  
+          {
+            if (externalSubjectConfigBean.isEmailEnabled()) {
+              registerField = new RegisterField();
+              registerField.setSystemName("email");
+  
+              if (externalSubjectConfigBean.isEmailRequired()) {
+                registerField.setRequired(true);
+              }
+  
+              registerField.setFieldNotAttribute(true);
+  
+              String label = GrouperUiUtils.message("externalSubjectSelfRegister.register.field.email.label", true);
+              String tooltip = GrouperUiUtils.message("externalSubjectSelfRegister.register.field.email.tooltip", true);
+              
+              registerField.setLabel(label);
+              registerField.setTooltip(tooltip);
+              registerField.setParamName("param_email");
+  
+              if (externalSubject != null) {
+                registerField.setValue(externalSubject.getEmail());
+              }
+  
+              ExternalRegisterContainer.this.registerFields.add(registerField);
+            }
+          }
+  
+          for (ExternalSubjectAttributeConfigBean externalSubjectAttributeConfigBean 
+              : externalSubjectConfigBean.getExternalSubjectAttributeConfigBeans()) {
+  
             registerField = new RegisterField();
-            registerField.setSystemName("email");
-
-            if (externalSubjectConfigBean.isEmailRequired()) {
-              registerField.setRequired(true);
-            }
-
-            registerField.setFieldNotAttribute(true);
-
-            String label = GrouperUiUtils.message("externalSubjectSelfRegister.register.field.email.label", true);
-            String tooltip = GrouperUiUtils.message("externalSubjectSelfRegister.register.field.email.tooltip", true);
-            
+            registerField.setSystemName(externalSubjectAttributeConfigBean.getSystemName());
+            registerField.setRequired(externalSubjectAttributeConfigBean.isRequired());
+            registerField.setFieldNotAttribute(false);
+  
+            String label = GrouperUiUtils.message("externalSubjectSelfRegister.register.field." + registerField.getSystemName() + ".label", true);
+            String tooltip = GrouperUiUtils.message("externalSubjectSelfRegister.register.field." + registerField.getSystemName() + ".tooltip", true);
+  
             registerField.setLabel(label);
             registerField.setTooltip(tooltip);
-            registerField.setParamName("param_email");
-
+  
             if (externalSubject != null) {
-              registerField.setValue(externalSubject.getEmail());
+              ExternalSubjectAttribute externalSubjectAttribute = externalSubject.retrieveAttribute(externalSubjectAttributeConfigBean.getSystemName(), false);
+              if (externalSubjectAttribute != null) {
+                registerField.setValue(externalSubjectAttribute.getAttributeValue());
+              }
             }
-
+  
+            registerField.setParamName("param_" + registerField.getSystemName());
             ExternalRegisterContainer.this.registerFields.add(registerField);
+  
           }
+  
+          return null;
         }
-
-        for (ExternalSubjectAttributeConfigBean externalSubjectAttributeConfigBean 
-            : externalSubjectConfigBean.getExternalSubjectAttributeConfigBeans()) {
-
-          registerField = new RegisterField();
-          registerField.setSystemName(externalSubjectAttributeConfigBean.getSystemName());
-          registerField.setRequired(externalSubjectAttributeConfigBean.isRequired());
-          registerField.setFieldNotAttribute(false);
-
-          String label = GrouperUiUtils.message("externalSubjectSelfRegister.register.field." + registerField.getSystemName() + ".label", true);
-          String tooltip = GrouperUiUtils.message("externalSubjectSelfRegister.register.field." + registerField.getSystemName() + ".tooltip", true);
-
-          registerField.setLabel(label);
-          registerField.setTooltip(tooltip);
-
-          if (externalSubject != null) {
-            ExternalSubjectAttribute externalSubjectAttribute = externalSubject.retrieveAttribute(externalSubjectAttributeConfigBean.getSystemName(), false);
-            if (externalSubjectAttribute != null) {
-              registerField.setValue(externalSubjectAttribute.getAttributeValue());
-            }
-          }
-
-          registerField.setParamName("param_" + registerField.getSystemName());
-          ExternalRegisterContainer.this.registerFields.add(registerField);
-
-        }
-
-        return null;
-      }
-    });
-    GrouperSession.stopQuietly(grouperSession);
+      });
+    } finally { 
+      GrouperSession.stopQuietly(grouperSession);
+    }
   }
 
   /**
@@ -308,40 +317,51 @@ public class ExternalRegisterContainer implements Serializable {
       GrouperSession grouperSession = null;
     
       Group group = null;
-      
       try {
-        grouperSession = GrouperSession.start(loggedInSubject);
-        
-        if (!StringUtils.isBlank(groupId)) {
-          group = GroupFinder.findByUuid(grouperSession, groupId, false);
-        }
-        if (!StringUtils.isBlank(groupName)) {
-          group = GroupFinder.findByName(grouperSession, groupName, false);
-        }
-        if (group == null) {
-          String errorMessage = TagUtils.navResourceString("inviteExternalSubjects.invalidGroupUuid");
-          errorMessage = StringUtils.replace(errorMessage, "{0}", GrouperUiUtils.escapeHtml(StringUtils.defaultString(groupId, groupName), true));
-          guiResponseJs.addAction(GuiScreenAction.newAlert(errorMessage));
-          return null;
+        grouperSession = GrouperSession.start(loggedInSubject, false);
+        group = (Group)GrouperSession.callbackGrouperSession(grouperSession, new GrouperSessionHandler() {
           
-        }
+          @Override
+          public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
+            Group theGroup = null;
+            if (!StringUtils.isBlank(groupId)) {
+              theGroup = GroupFinder.findByUuid(theGrouperSession, groupId, false);
+            }
+            if (!StringUtils.isBlank(groupName)) {
+              theGroup = GroupFinder.findByName(theGrouperSession, groupName, false);
+            }
+            return theGroup;
+          }
+        });
   
       } finally {
         GrouperSession.stopQuietly(grouperSession); 
       }
-      
-      grouperSession = GrouperSession.startRootSession();
-      try {
+      if (group == null) {
+        String errorMessage = TagUtils.navResourceString("inviteExternalSubjects.invalidGroupUuid");
+        errorMessage = StringUtils.replace(errorMessage, "{0}", GrouperUiUtils.escapeHtml(StringUtils.defaultString(groupId, groupName), true));
+        guiResponseJs.addAction(GuiScreenAction.newAlert(errorMessage));
+        return null;
         
-        if (!group.hasUpdate(loggedInSubject) && !group.hasAdmin(loggedInSubject)) {
+      }
+      
+      grouperSession = GrouperSession.startRootSession(false);
+      try {
+        final Group GROUP = group;
+        boolean canEdit = (Boolean)GrouperSession.callbackGrouperSession(grouperSession, new GrouperSessionHandler() {
           
+          @Override
+          public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+            return GROUP.hasUpdate(loggedInSubject) || GROUP.hasAdmin(loggedInSubject);
+          }
+        });
+        if (!canEdit) {
           String errorMessage = TagUtils.navResourceString("inviteExternalSubjects.invalidGroupPrivileges");
           errorMessage = StringUtils.replace(errorMessage, "{0}", GrouperUiUtils.escapeHtml(group.getDisplayName(), true));
           guiResponseJs.addAction(GuiScreenAction.newAlert(errorMessage));
           return null;
         }
         this.defaultGroup = group;
-
         
       } finally {
         GrouperSession.stopQuietly(grouperSession);
