@@ -746,12 +746,11 @@ public class ExternalSubject extends GrouperAPI implements GrouperHasContext,
    * store this object to the DB.
    */
   public void store() {    
-    this.store(null, null);
+    this.store(null, null, true);
   }
 
   /**
    * 
-   * @param substituteMap
    * @return the substitute map
    */
   static Map<String, Object> substitutionMap() {
@@ -847,14 +846,18 @@ public class ExternalSubject extends GrouperAPI implements GrouperHasContext,
    * @param externalSubjectAttributes null to not worry, not null to affect the external subject attributes too
    * @param externalSubjectInviteName is a variable you could put in the URL to pass to the hook so you can
    * add the users to custom groups or whatnot
+   * @param validateAttributes if required attributes should be validated
    */
-  public void store(final Set<ExternalSubjectAttribute> externalSubjectAttributes, final String externalSubjectInviteName) {    
+  public void store(final Set<ExternalSubjectAttribute> externalSubjectAttributes, 
+      final String externalSubjectInviteName, final boolean validateAttributes) {    
     
     this.assertCurrentUserCanEditExternalUsers();
     
     this.changeDynamicFields();
     
-    this.assertRequiredFieldsAreThere(externalSubjectAttributes, null);
+    if (validateAttributes) {
+      this.assertRequiredFieldsAreThere(externalSubjectAttributes, null);
+    }
     
     this.calculateDisabledFlag();
     

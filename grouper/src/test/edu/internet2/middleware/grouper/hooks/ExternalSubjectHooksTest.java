@@ -71,7 +71,7 @@ public class ExternalSubjectHooksTest extends GrouperTest {
     ExternalSubjectAttribute externalSubjectAttribute = new ExternalSubjectAttribute();
     externalSubjectAttribute.setAttributeSystemName("jabber");
     externalSubjectAttribute.setAttributeValue("w@e.r");
-    externalSubject.store(GrouperUtil.toSet(externalSubjectAttribute), null);
+    externalSubject.store(GrouperUtil.toSet(externalSubjectAttribute), null, true);
 
     //should work now
     externalSubject.store();
@@ -90,7 +90,7 @@ public class ExternalSubjectHooksTest extends GrouperTest {
 
     try {
       //should notwork now
-      externalSubject.store(GrouperUtil.toSet(externalSubjectAttribute), null);
+      externalSubject.store(GrouperUtil.toSet(externalSubjectAttribute), null, true);
     } catch (HookVeto hv) {
       assertEquals("hook.veto.external.subject.cant.be.vetome", hv.getReasonKey());
       assertEquals("name cannot be vetome", hv.getReason());

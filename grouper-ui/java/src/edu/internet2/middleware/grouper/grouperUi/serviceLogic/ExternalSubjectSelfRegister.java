@@ -459,7 +459,7 @@ public class ExternalSubjectSelfRegister {
                       }
                     }
           
-                    EXTERNAL_SUBJECT.store(externalSubjectAttributes, externalSubjectInviteName);
+                    EXTERNAL_SUBJECT.store(externalSubjectAttributes, externalSubjectInviteName, true);
                     
                     return null;
                   }
@@ -632,7 +632,9 @@ public class ExternalSubjectSelfRegister {
               emailBody.append("Valid identifier: ").append(!invalidIdentifier).append("\n");
 
               if (!StringUtils.isBlank(message)) {
-                emailBody.append("Message to user on screen: ").append(message).append("\n");
+                String messageString = StringUtils.replace(message, "<br />" ,"\n");
+                messageString = StringUtils.replace(messageString, "\n\n" ,"\n");
+                emailBody.append("Message to user on screen: ").append(messageString).append("\n");
               }
 
               if (!hibernateHandlerBean.isCallerWillCreateAudit()) {

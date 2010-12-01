@@ -496,7 +496,7 @@ public class ExternalSubjectTest extends GrouperTest {
       ExternalSubjectAttribute externalSubjectAttribute = new ExternalSubjectAttribute();
       externalSubjectAttribute.setAttributeSystemName("jabber");
       externalSubjectAttribute.setAttributeValue("w@e.r");
-      externalSubject.store(GrouperUtil.toSet(externalSubjectAttribute), null);
+      externalSubject.store(GrouperUtil.toSet(externalSubjectAttribute), null, true);
   
       externalSubject.assignAttribute("jabber", "a@b.c");
       //should work now
@@ -515,7 +515,7 @@ public class ExternalSubjectTest extends GrouperTest {
       externalSubject.setName("my name");
       externalSubject.setIdentifier("f");
       try {
-        externalSubject.store(new HashSet<ExternalSubjectAttribute>(), null);
+        externalSubject.store(new HashSet<ExternalSubjectAttribute>(), null, true);
         fail("Jabber is a required");
       } catch (Exception e) {
         assertTrue(e.getMessage(), ExceptionUtils

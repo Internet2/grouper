@@ -3,6 +3,7 @@ package edu.internet2.middleware.grouper.grouperUi.serviceLogic;
 import java.sql.Timestamp;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
@@ -17,12 +18,23 @@ import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
+import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.audit.AuditEntry;
+import edu.internet2.middleware.grouper.audit.AuditTypeBuiltin;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.externalSubjects.ExternalSubject;
 import edu.internet2.middleware.grouper.externalSubjects.ExternalSubjectAttrFramework;
 import edu.internet2.middleware.grouper.externalSubjects.ExternalSubjectInviteBean;
-import edu.internet2.middleware.grouper.grouperUi.beans.externalSubjectSelfRegister.ExternalRegisterContainer;
+import edu.internet2.middleware.grouper.grouperUi.beans.inviteExternalSubjects.InviteExternalSubjectsContainer;
+import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiHideShow;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
+import edu.internet2.middleware.grouper.hibernate.AuditControl;
+import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
+import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
+import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
+import edu.internet2.middleware.grouper.hibernate.HibernateSession;
+import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
@@ -56,11 +68,13 @@ public class InviteExternalSubjects {
       return;
     }
     
+    GuiHideShow.init("inviteExternalSubjectEmails", true, null, null, false);
+
     GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
 
     //setup the container
-    final ExternalRegisterContainer externalRegisterContainer = new ExternalRegisterContainer();
-    externalRegisterContainer.storeToRequest();
+    final InviteExternalSubjectsContainer inviteExternalSubjectsContainer = new InviteExternalSubjectsContainer();
+    inviteExternalSubjectsContainer.storeToRequest();
 
     guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#topDiv", 
         "/WEB-INF/grouperUi/templates/common/commonTop.jsp"));
@@ -196,183 +210,383 @@ public class InviteExternalSubjects {
    * @param httpServletRequest
    * @param httpServletResponse
    */
-  public void submit(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
+  public void submit(final HttpServletRequest httpServletRequest, final HttpServletResponse httpServletResponse) {
 
     if (!this.allowedToInvite()) {
       return;
     }
-
-    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
-
-    //marshal data
-    String emailAddressesToInvite = StringUtils.trimToNull(httpServletRequest.getParameter("emailAddressesToInvite"));
-
-    String emailSubject = StringUtils.trimToNull(httpServletRequest.getParameter("emailSubject"));
     
-    String messageToUsers = StringUtils.trimToNull(httpServletRequest.getParameter("messageToUsers"));
-    
-    String ccEmailAddress = StringUtils.trimToNull(httpServletRequest.getParameter("ccEmailAddress"));
-    
-    String groupToAssign0 = StringUtils.trimToNull(httpServletRequest.getParameter("groupToAssign0"));
-    String groupToAssign1 = StringUtils.trimToNull(httpServletRequest.getParameter("groupToAssign1"));
-    String groupToAssign2 = StringUtils.trimToNull(httpServletRequest.getParameter("groupToAssign2"));
-    String groupToAssign3 = StringUtils.trimToNull(httpServletRequest.getParameter("groupToAssign3"));
-    String groupToAssign4 = StringUtils.trimToNull(httpServletRequest.getParameter("groupToAssign4"));
-
     //validate
     final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+
+    //setup the container
+    final InviteExternalSubjectsContainer inviteExternalSubjectsContainer = new InviteExternalSubjectsContainer();
+    inviteExternalSubjectsContainer.storeToRequest();
     
-    
-    GrouperSession grouperSession = null;
-  
-    try {
-      grouperSession = GrouperSession.start(loggedInSubject);
-      
-      Subject subject = grouperSession.getSubject();
-      
-      if (StringUtils.isBlank(emailAddressesToInvite)) {
-        guiResponseJs.addAction(GuiScreenAction.newAlert(TagUtils.navResourceString("inviteExternalSubjects.emailAddressRequired")));
-        return;
-      }
-      
-      //lets normalize the email addresses
-      emailAddressesToInvite = GrouperUtil.normalizeEmailAddresses(emailAddressesToInvite);
-      for (String emailAddress : GrouperUtil.splitTrim(emailAddressesToInvite, ";")) {
-        
-        if (!GrouperUtil.validEmail(emailAddress)) {
-          
-          String errorMessage = TagUtils.navResourceString("inviteExternalSubjects.emailAddressInvalid");
-          errorMessage = StringUtils.replace(errorMessage, "{0}", GrouperUiUtils.escapeHtml(emailAddress, true));
-          guiResponseJs.addAction(GuiScreenAction.newAlert(errorMessage));
-          return;
-        }
-      }
-      //lets normalize the email addresses
-      ccEmailAddress = GrouperUtil.normalizeEmailAddresses(ccEmailAddress);
-      if (!StringUtils.isBlank(ccEmailAddress)) {
-        for (String emailAddress : GrouperUtil.splitTrim(ccEmailAddress, ";")) {
-          
-          if (!GrouperUtil.validEmail(emailAddress)) {
+    HibernateSession.callbackHibernateSession(
+        GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT,
+        new HibernateHandler() {
+
+          public Object callback(HibernateHandlerBean hibernateHandlerBean)
+              throws GrouperDAOException {
+
+            final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+
+            //marshal data
+            String emailAddressesToInvite = StringUtils.trimToNull(httpServletRequest.getParameter("emailAddressesToInvite"));
+
+            String emailSubject = StringUtils.trimToNull(httpServletRequest.getParameter("emailSubject"));
             
-            String errorMessage = TagUtils.navResourceString("inviteExternalSubjects.emailAddressInvalid");
-            errorMessage = StringUtils.replace(errorMessage, "{0}", GrouperUiUtils.escapeHtml(emailAddress, true));
-            guiResponseJs.addAction(GuiScreenAction.newAlert(errorMessage));
-            return;
+            String messageToUsers = StringUtils.trimToNull(httpServletRequest.getParameter("messageToUsers"));
+            
+            String ccEmailAddress = StringUtils.trimToNull(httpServletRequest.getParameter("ccEmailAddress"));
+            
+            String groupToAssign0 = StringUtils.trimToNull(httpServletRequest.getParameter("groupToAssign0"));
+            String groupToAssign1 = StringUtils.trimToNull(httpServletRequest.getParameter("groupToAssign1"));
+            String groupToAssign2 = StringUtils.trimToNull(httpServletRequest.getParameter("groupToAssign2"));
+            String groupToAssign3 = StringUtils.trimToNull(httpServletRequest.getParameter("groupToAssign3"));
+            String groupToAssign4 = StringUtils.trimToNull(httpServletRequest.getParameter("groupToAssign4"));
+
+            String inviteBy = StringUtils.trimToNull(httpServletRequest.getParameter("inviteBy"));
+            String loginIdsToInvite = StringUtils.trimToNull(httpServletRequest.getParameter("loginIdsToInvite"));
+            
+            boolean inviteByEmailBoolean = StringUtils.isBlank(inviteBy) || StringUtils.equals(inviteBy, "emailAddress");
+            
+            if (!inviteByEmailBoolean && !StringUtils.equals(inviteBy, "identifier")) {
+              throw new RuntimeException("Invalid inviteBy: " + inviteBy);
+            }
+            
+            if (!inviteByEmailBoolean && !inviteExternalSubjectsContainer.isAllowInviteByIdentifier()) {
+              guiResponseJs.addAction(GuiScreenAction.newAlert(TagUtils.navResourceString("inviteExternalSubjects.errorNotAllowedToInviteByIdentifer")));
+              return null;
+            }
+            
+            GrouperSession grouperSession = null;
+          
+            try {
+              grouperSession = GrouperSession.start(loggedInSubject);
+              
+              Subject subject = grouperSession.getSubject();
+              
+              if (inviteByEmailBoolean && StringUtils.isBlank(emailAddressesToInvite)) {
+                guiResponseJs.addAction(GuiScreenAction.newAlert(TagUtils.navResourceString("inviteExternalSubjects.emailAddressRequired")));
+                return null;
+              }
+              
+              if (inviteByEmailBoolean) {
+                //lets normalize the email addresses
+                emailAddressesToInvite = GrouperUtil.normalizeEmailAddresses(emailAddressesToInvite);
+                for (String emailAddress : GrouperUtil.splitTrim(emailAddressesToInvite, ";")) {
+                  
+                  if (!GrouperUtil.validEmail(emailAddress)) {
+                    
+                    String errorMessage = TagUtils.navResourceString("inviteExternalSubjects.emailAddressInvalid");
+                    errorMessage = StringUtils.replace(errorMessage, "{0}", GrouperUiUtils.escapeHtml(emailAddress, true));
+                    guiResponseJs.addAction(GuiScreenAction.newAlert(errorMessage));
+                    return null;
+                  }
+                }
+
+                //lets normalize the email addresses
+                ccEmailAddress = GrouperUtil.normalizeEmailAddresses(ccEmailAddress);
+                if (!StringUtils.isBlank(ccEmailAddress)) {
+                  for (String emailAddress : GrouperUtil.splitTrim(ccEmailAddress, ";")) {
+                    
+                    if (!GrouperUtil.validEmail(emailAddress)) {
+                      
+                      String errorMessage = TagUtils.navResourceString("inviteExternalSubjects.emailAddressInvalid");
+                      errorMessage = StringUtils.replace(errorMessage, "{0}", GrouperUiUtils.escapeHtml(emailAddress, true));
+                      guiResponseJs.addAction(GuiScreenAction.newAlert(errorMessage));
+                      return null;
+            
+                    }
+                  }
+                }
+                
+              }
+              
+              //lets normalize the loginIds
+              loginIdsToInvite = GrouperUtil.normalizeEmailAddresses(loginIdsToInvite);
+
+              Set<Group> groupObjectsToAssignFinal = new LinkedHashSet<Group>();
+              Set<String> groupsToAssign = GrouperUtil.toSet(groupToAssign0, groupToAssign1, groupToAssign2, groupToAssign3, groupToAssign4);
+              Set<String> groupsToAssignFinal = new HashSet<String>();
+              StringBuilder groupIdsToAssign = new StringBuilder();
+              StringBuilder groupNamesToAssign = new StringBuilder();
+              
+              for (String groupToAssignUuid : groupsToAssign) {
+                
+                if (StringUtils.isBlank(groupToAssignUuid)) {
+                  continue;
+                }
+                
+                Group group = GroupFinder.findByUuid(grouperSession, groupToAssignUuid, false);
+                if (group == null || filterGroup(group)) {
+                  String errorMessage = TagUtils.navResourceString("inviteExternalSubjects.invalidGroupUuid");
+                  errorMessage = StringUtils.replace(errorMessage, "{0}", GrouperUiUtils.escapeHtml(groupToAssignUuid, true));
+                  guiResponseJs.addAction(GuiScreenAction.newAlert(errorMessage));
+                  return null;
+                  
+                }
+                if (!group.hasUpdate(subject) && !group.hasAdmin(subject)) {
+                  
+                  String errorMessage = TagUtils.navResourceString("inviteExternalSubjects.invalidGroupPrivileges");
+                  errorMessage = StringUtils.replace(errorMessage, "{0}", GrouperUiUtils.escapeHtml(group.getDisplayName(), true));
+                  guiResponseJs.addAction(GuiScreenAction.newAlert(errorMessage));
+                  return null;
+                }
+                groupsToAssignFinal.add(group.getUuid());
+                if (groupIdsToAssign.length() > 0) {
+                  groupIdsToAssign.append(", ");
+                }
+                groupIdsToAssign.append(group.getUuid());
+                
+                if (groupNamesToAssign.length() > 0) {
+                  groupNamesToAssign.append(", ");
+                }
+                groupNamesToAssign.append(group.getName());
+                groupObjectsToAssignFinal.add(group);
+                
+              }
+        
+              Member member = MemberFinder.findBySubject(grouperSession, subject, true);
+              StringBuilder subjectsToStringToInvite = new StringBuilder();
+              StringBuilder messagesToScreen = new StringBuilder();
+
+              if (inviteByEmailBoolean) {
+                ExternalSubjectInviteBean externalSubjectInviteBean = new ExternalSubjectInviteBean();
+                if (!StringUtils.isBlank(ccEmailAddress)) {
+                  externalSubjectInviteBean.setEmailsWhenRegistered(GrouperUtil.splitTrimToSet(ccEmailAddress, ";"));
+                }
+                externalSubjectInviteBean.setMemberId(member.getUuid());
+                
+                externalSubjectInviteBean.setGroupIds(groupsToAssignFinal);
+                
+                //send the invite
+                String error = ExternalSubjectAttrFramework.inviteExternalUsers(GrouperUtil.splitTrimToSet(emailAddressesToInvite, ";"), 
+                    externalSubjectInviteBean, emailSubject, messageToUsers);      
+                
+                if (!StringUtils.isBlank(error)) {
+                  String errorMessage = TagUtils.navResourceString("inviteExternalSubjects.errorInvitingUsers");
+                  errorMessage = StringUtils.replace(errorMessage, "{0}", GrouperUiUtils.escapeHtml(error, true));
+                  guiResponseJs.addAction(GuiScreenAction.newAlert(errorMessage));
+                  return null;
+                  
+                }
+              } else {
+                
+                //invite by identifier
+                Set<Subject> subjectsToInvite = new HashSet<Subject>();
+                
+                //these have already been normalized by semicolon
+                for (String loginId : GrouperUtil.splitTrim(loginIdsToInvite, ";")) {
+                  
+                  //lets see if this is already a subject
+                  //is it an externalSubject?
+                  Subject subjectToAssign = SubjectFinder.findByIdOrIdentifierAndSource(loginId, ExternalSubject.sourceId(), false);
+                  if (subjectToAssign == null) {
+                    subjectToAssign = SubjectFinder.findByIdOrIdentifier(loginId, false);
+                  }
+                  if (subjectToAssign == null) {
+                    //if it is still null, then it doesnt exist... lets validate it
+                    ExternalSubject externalSubject = new ExternalSubject();
+                    externalSubject.setIdentifier(loginId);
+                    try {
+                      externalSubject.validateIdentifier();
+                    } catch (Exception e) {
+                      
+                      LOG.warn("Invalid identifier: " + loginId, e);
   
-          }
-        }
-      }
-      
-      Set<String> groupsToAssign = GrouperUtil.toSet(groupToAssign0, groupToAssign1, groupToAssign2, groupToAssign3, groupToAssign4);
-      Set<String> groupsToAssignFinal = new HashSet<String>();
-      StringBuilder groupIdsToAssign = new StringBuilder();
-      StringBuilder groupNamesToAssign = new StringBuilder();
-      
-      for (String groupToAssignUuid : groupsToAssign) {
-        
-        if (StringUtils.isBlank(groupToAssignUuid)) {
-          continue;
-        }
-        
-        Group group = GroupFinder.findByUuid(grouperSession, groupToAssignUuid, false);
-        if (group == null || filterGroup(group)) {
-          String errorMessage = TagUtils.navResourceString("inviteExternalSubjects.invalidGroupUuid");
-          errorMessage = StringUtils.replace(errorMessage, "{0}", GrouperUiUtils.escapeHtml(groupToAssignUuid, true));
-          guiResponseJs.addAction(GuiScreenAction.newAlert(errorMessage));
-          return;
-          
-        }
-        if (!group.hasUpdate(subject) && !group.hasAdmin(subject)) {
-          
-          String errorMessage = TagUtils.navResourceString("inviteExternalSubjects.invalidGroupPrivileges");
-          errorMessage = StringUtils.replace(errorMessage, "{0}", GrouperUiUtils.escapeHtml(group.getDisplayName(), true));
-          guiResponseJs.addAction(GuiScreenAction.newAlert(errorMessage));
-          return;
-        }
-        groupsToAssignFinal.add(group.getUuid());
-        if (groupIdsToAssign.length() > 0) {
-          groupIdsToAssign.append(", ");
-        }
-        groupIdsToAssign.append(group.getUuid());
-        
-        if (groupNamesToAssign.length() > 0) {
-          groupNamesToAssign.append(", ");
-        }
-        groupNamesToAssign.append(group.getName());
-        
-        
-      }
+                      String message = TagUtils.navResourceString("externalSubjectSelfRegister.invalidIdentifierInvite");
+                      
+                      //note there is a java way to do this... hmmmm...
+                      message = StringUtils.replace(message, "{0}", loginId);
 
-      ExternalSubjectInviteBean externalSubjectInviteBean = new ExternalSubjectInviteBean();
-      if (!StringUtils.isBlank(ccEmailAddress)) {
-        externalSubjectInviteBean.setEmailsWhenRegistered(GrouperUtil.splitTrimToSet(ccEmailAddress, ";"));
-      }
-      Member member = MemberFinder.findBySubject(grouperSession, subject, true);
-      externalSubjectInviteBean.setMemberId(member.getUuid());
-      
-      externalSubjectInviteBean.setGroupIds(groupsToAssignFinal);
-      
-      //send the invite
-      String error = ExternalSubjectAttrFramework.inviteExternalUsers(GrouperUtil.splitTrimToSet(emailAddressesToInvite, ";"), 
-          externalSubjectInviteBean, emailSubject, messageToUsers);      
-      
-      if (!StringUtils.isBlank(error)) {
-        String errorMessage = TagUtils.navResourceString("inviteExternalSubjects.errorInvitingUsers");
-        errorMessage = StringUtils.replace(errorMessage, "{0}", GrouperUiUtils.escapeHtml(error, true));
-        guiResponseJs.addAction(GuiScreenAction.newAlert(errorMessage));
-        return;
+                      if (messagesToScreen.length() > 0) {
+                        messagesToScreen.append("<br /><br />");
+                      }
+                      messagesToScreen.append(message);
+                      
+                      continue;
+                    }
+                    
+                    //lets store this, without validation...
+                    externalSubject.store(null, null, false);
+                    
+                    String message = TagUtils.navResourceString("inviteExternalSubjects.successCreatedExternalSubject");
+                    
+                    message = StringUtils.replace(message, "{0}", loginId);
+
+                    if (messagesToScreen.length() > 0) {
+                      messagesToScreen.append("<br /><br />");
+                    }
+                    messagesToScreen.append(message);
+                    
+                    subjectToAssign = SubjectFinder.findByIdAndSource(externalSubject.getUuid(), ExternalSubject.sourceId(), true);
+
+                  } else {
+                    String message = TagUtils.navResourceString("inviteExternalSubjects.successExistedExternalSubject");
+                    
+                    message = StringUtils.replace(message, "{0}", loginId);
+
+                    if (messagesToScreen.length() > 0) {
+                      messagesToScreen.append("<br /><br />");
+                    }
+                    messagesToScreen.append(message);
+                    
+                    
+                  }
+                  
+                  //now we have the subject
+                  subjectsToStringToInvite.append(GrouperUtil.subjectToString(subjectToAssign));
+
+                  subjectsToInvite.add(subjectToAssign);
+                  
+                  //lets assign to groups
+                  for (Group group : groupObjectsToAssignFinal) {
+                    
+                    try {
+                      boolean added = group.addMember(subjectToAssign, false);
+                      
+                      String navKey = null;
+
+                      if (added) {
+                        //inviteExternalSubjects.successAssignedSubjectToGroup=Success: entity {0} was assigned to group {1}
+                        navKey = "inviteExternalSubjects.successAssignedSubjectToGroup";
+                      } else {
+                        //inviteExternalSubjects.noteSubjectAlreadyInGroup=Note: entity {0} was already a member of group {1}
+                        navKey = "inviteExternalSubjects.noteSubjectAlreadyInGroup";
+                      }
+                      String message = TagUtils.navResourceString(navKey);
+                      
+                      message = StringUtils.replace(message, "{0}", loginId);
+                      message = StringUtils.replace(message, "{1}", group.getDisplayName());
+
+                      if (messagesToScreen.length() > 0) {
+                        messagesToScreen.append("<br /><br />");
+                      }
+                      messagesToScreen.append(message);
+                      
+                    } catch (Exception e) {
+                      LOG.error("Cant add subject to group: " + loginId + ", " + GrouperUtil.subjectToString(subjectToAssign) + ", " + group.getName(), e);
+                      
+                      // Error: could not assign entity: {0} to group: {1}. {2}
+                      String message = TagUtils.navResourceString("inviteExternalSubjects.errorAssigningGroup");
+                      
+                      //note there is a java way to do this... hmmmm...
+                      message = StringUtils.replace(message, "{0}", loginId);
+                      message = StringUtils.replace(message, "{1}", group.getDisplayName());
+                      message = StringUtils.replace(message, "{2}", e.getMessage());
+
+                      if (messagesToScreen.length() > 0) {
+                        messagesToScreen.append("<br /><br />");
+                      }
+
+                      messagesToScreen.append(message);
+                      continue;
+                      
+                    }
+                  }
+                  
+
+                }
+              }
+              
+              if (messagesToScreen.length() == 0) {
+                messagesToScreen.append(TagUtils.navResourceString("inviteExternalSubjects.successInvitingUsers"));
+              }
+              
+              StringBuilder emailBody  = new StringBuilder();
+              
+              if (inviteByEmailBoolean) {
+                if (!StringUtils.isBlank(emailAddressesToInvite)) {
+                  emailBody.append("Email addresses to invite: ").append(emailAddressesToInvite).append("\n");
+                }
+                if (!StringUtils.isBlank(ccEmailAddress)) {
+                  emailBody.append("Email addresses to notify once registered: ").append(ccEmailAddress).append("\n");
+                }
+                if (!StringUtils.isBlank(emailSubject)) {
+                  emailBody.append("Email subject: ").append(emailSubject).append("\n");
+                }
+                if (!StringUtils.isBlank(messageToUsers)) {
+                  emailBody.append("Message to users: ").append(messageToUsers).append("\n");
+                }
+                long expireMillis = ExternalSubjectAttrFramework.expireMillisAfter1970();
+                if (expireMillis > 0) {
+                  emailBody.append("Invitation expires on: ").append(new Timestamp(expireMillis).toString()).append("\n");
+                }
+                
+              } else {
+                
+                if (!StringUtils.isBlank(loginIdsToInvite)) {
+                  emailBody.append("Login IDs to invite: ").append(loginIdsToInvite).append("\n");
+                }
+                
+              }
+              if (groupNamesToAssign.length() > 0) {
+                emailBody.append("Group Names (ID Path) to assign: ").append(groupNamesToAssign).append("\n");
+              }
+              if (groupIdsToAssign.length() > 0) {
+                emailBody.append("Group UUIDs to assign: ").append(groupIdsToAssign).append("\n");
+              }
+              String stringMessageToScreen = messagesToScreen.toString();
+              stringMessageToScreen = StringUtils.replace(stringMessageToScreen, "<br />", "\n");
+              stringMessageToScreen = StringUtils.replace(stringMessageToScreen, "\n\n", "\n");
+              emailBody.append("Message to screen: ").append(stringMessageToScreen);
+
+              if (!hibernateHandlerBean.isCallerWillCreateAudit()) {
+
+                if (inviteByEmailBoolean) {
+                  //EXTERNAL_SUBJECT_INVITE_EMAIL: "emailsSentTo", "inviterMemberId", "groupIdsAssigned", "groupNamesAssigned")),
+
+                  AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.EXTERNAL_SUBJECT_INVITE_EMAIL, 
+                      "emailsSentTo", emailAddressesToInvite,
+                      "inviterMemberId", member.getUuid(),
+                      "groupIdsAssigned", groupIdsToAssign.length() == 0 ? null : groupIdsToAssign.toString(),
+                      "groupNamesAssigned", groupNamesToAssign.length() == 0 ? null : groupNamesToAssign.toString());
+                  auditEntry.setDescription(emailBody.toString());
+                  auditEntry.saveOrUpdate(true);
+                  
+                } else {
+                  //EXTERNAL_SUBJECT_INVITE_IDENTIFIER: "identifiers", "inviterMemberId", "groupIdsAssigned", "groupNamesAssigned"));
+                  
+                  AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.EXTERNAL_SUBJECT_INVITE_IDENTIFIER, 
+                      "identifiers", loginIdsToInvite,
+                      "inviterMemberId", member.getUuid(),
+                      "groupIdsAssigned", groupIdsToAssign.length() == 0 ? null : groupIdsToAssign.toString(),
+                      "groupNamesAssigned", groupNamesToAssign.length() == 0 ? null : groupNamesToAssign.toString());
+                  auditEntry.setDescription(emailBody.toString());
+                  auditEntry.saveOrUpdate(true);
+                  
+                }
+              }
+              
+              //send an audit to admins perhaps
+              {
+                String emailAddressesForAdmins = TagUtils.mediaResourceString("inviteExternalMembers.emailAdminsAddressesAfterActions");
+                if (!StringUtils.isBlank(emailAddressesForAdmins)) {
+                  String loggedInSubjectDescription = loggedInSubject.getDescription();
+                  if (StringUtils.isBlank(loggedInSubjectDescription)) {
+                    loggedInSubjectDescription = loggedInSubject.getName();
+                  }
+                  emailBody.insert(0,"Hey,\n\nThe Grouper external subject invite screen was used by "
+                      + GrouperUtil.subjectToString(loggedInSubject) + " - " + loggedInSubjectDescription + "\n\n");
+                  emailBody.append("\nRegards.");
+                  new GrouperEmail().setBody(emailBody.toString())
+                    .setSubject("Grouper external person invitation").setTo(emailAddressesForAdmins).send();
+                }
+              }
+              
+              guiResponseJs.addAction(GuiScreenAction.newAlert(messagesToScreen.toString()));
+
+              guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#bodyDiv", 
+                "/WEB-INF/grouperUi/templates/inviteExternalSubjects/inviteExternalSubjects.jsp"));
         
-      }
-      
-      //send an audit to admins perhaps
-      {
-        String emailAddressesForAdmins = TagUtils.mediaResourceString("inviteExternalMembers.emailAdminsAddressesAfterActions");
-        if (!StringUtils.isBlank(emailAddressesForAdmins)) {
-          StringBuilder emailBody  = new StringBuilder();
-          String loggedInSubjectDescription = loggedInSubject.getDescription();
-          if (StringUtils.isBlank(loggedInSubjectDescription)) {
-            loggedInSubjectDescription = loggedInSubject.getName();
+            } finally {
+              GrouperSession.stopQuietly(grouperSession); 
+            }
+            return null;
           }
-          emailBody
-            .append("Hey,\n\nThe Grouper external subject invite screen was used by ")
-            .append(GrouperUtil.subjectToString(loggedInSubject)).append(" - ")
-            .append(loggedInSubjectDescription).append("\n\n");
-          if (!StringUtils.isBlank(emailAddressesToInvite)) {
-            emailBody.append("Email addresses to invite: ").append(emailAddressesToInvite).append("\n");
-          }
-          if (!StringUtils.isBlank(ccEmailAddress)) {
-            emailBody.append("Email addresses to notify once registered: ").append(ccEmailAddress).append("\n");
-          }
-          if (!StringUtils.isBlank(emailSubject)) {
-            emailBody.append("Email subject: ").append(emailSubject).append("\n");
-          }
-          if (!StringUtils.isBlank(messageToUsers)) {
-            emailBody.append("Message to users: ").append(messageToUsers).append("\n");
-          }
-          if (groupNamesToAssign.length() > 0) {
-            emailBody.append("Group Names (ID Path) to assign: ").append(groupNamesToAssign).append("\n");
-          }
-          if (groupIdsToAssign.length() > 0) {
-            emailBody.append("Group UUIDs to assign: ").append(groupIdsToAssign).append("\n");
-          }
-          long expireMillis = ExternalSubjectAttrFramework.expireMillisAfter1970();
-          if (expireMillis > 0) {
-            emailBody.append("Invitation expires on: ").append(new Timestamp(expireMillis).toString()).append("\n");
-          }
-          emailBody.append("\nRegards.");
-          new GrouperEmail().setBody(emailBody.toString())
-            .setSubject("Grouper external person invitation").setTo(emailAddressesForAdmins).send();
-        }
-      }
-      
-      String message = TagUtils.navResourceString("inviteExternalSubjects.successInvitingUsers");
-      guiResponseJs.addAction(GuiScreenAction.newAlert(message));
-
-      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#bodyDiv", 
-        "/WEB-INF/grouperUi/templates/inviteExternalSubjects/inviteExternalSubjects.jsp"));
-
-    } finally {
-      GrouperSession.stopQuietly(grouperSession); 
-    }
+        });
   }
 }
