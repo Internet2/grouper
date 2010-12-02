@@ -22,6 +22,7 @@ import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.audit.AuditTypeBuiltin;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.externalSubjects.ExternalSubject;
 import edu.internet2.middleware.grouper.externalSubjects.ExternalSubjectAttrFramework;
 import edu.internet2.middleware.grouper.externalSubjects.ExternalSubjectInviteBean;
@@ -37,6 +38,7 @@ import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.exceptions.ControllerDone;
@@ -233,13 +235,16 @@ public class InviteExternalSubjects {
             final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
 
             //marshal data
-            String emailAddressesToInvite = StringUtils.trimToNull(httpServletRequest.getParameter("emailAddressesToInvite"));
+            //lets normalize the email addresses
+            final String emailAddressesToInvite = GrouperUtil.normalizeEmailAddresses(
+                StringUtils.trimToNull(httpServletRequest.getParameter("emailAddressesToInvite")));
 
-            String emailSubject = StringUtils.trimToNull(httpServletRequest.getParameter("emailSubject"));
+            final String emailSubject = StringUtils.trimToNull(httpServletRequest.getParameter("emailSubject"));
             
-            String messageToUsers = StringUtils.trimToNull(httpServletRequest.getParameter("messageToUsers"));
+            final String messageToUsers = StringUtils.trimToNull(httpServletRequest.getParameter("messageToUsers"));
             
-            String ccEmailAddress = StringUtils.trimToNull(httpServletRequest.getParameter("ccEmailAddress"));
+            final String ccEmailAddress = GrouperUtil.normalizeEmailAddresses(
+                StringUtils.trimToNull(httpServletRequest.getParameter("ccEmailAddress")));
             
             String groupToAssign0 = StringUtils.trimToNull(httpServletRequest.getParameter("groupToAssign0"));
             String groupToAssign1 = StringUtils.trimToNull(httpServletRequest.getParameter("groupToAssign1"));
@@ -248,7 +253,8 @@ public class InviteExternalSubjects {
             String groupToAssign4 = StringUtils.trimToNull(httpServletRequest.getParameter("groupToAssign4"));
 
             String inviteBy = StringUtils.trimToNull(httpServletRequest.getParameter("inviteBy"));
-            String loginIdsToInvite = StringUtils.trimToNull(httpServletRequest.getParameter("loginIdsToInvite"));
+            final String loginIdsToInvite = GrouperUtil.normalizeEmailAddresses(
+                StringUtils.trimToNull(httpServletRequest.getParameter("loginIdsToInvite")));
             
             boolean inviteByEmailBoolean = StringUtils.isBlank(inviteBy) || StringUtils.equals(inviteBy, "emailAddress");
             
@@ -274,8 +280,6 @@ public class InviteExternalSubjects {
               }
               
               if (inviteByEmailBoolean) {
-                //lets normalize the email addresses
-                emailAddressesToInvite = GrouperUtil.normalizeEmailAddresses(emailAddressesToInvite);
                 for (String emailAddress : GrouperUtil.splitTrim(emailAddressesToInvite, ";")) {
                   
                   if (!GrouperUtil.validEmail(emailAddress)) {
@@ -287,8 +291,6 @@ public class InviteExternalSubjects {
                   }
                 }
 
-                //lets normalize the email addresses
-                ccEmailAddress = GrouperUtil.normalizeEmailAddresses(ccEmailAddress);
                 if (!StringUtils.isBlank(ccEmailAddress)) {
                   for (String emailAddress : GrouperUtil.splitTrim(ccEmailAddress, ";")) {
                     
@@ -305,9 +307,6 @@ public class InviteExternalSubjects {
                 
               }
               
-              //lets normalize the loginIds
-              loginIdsToInvite = GrouperUtil.normalizeEmailAddresses(loginIdsToInvite);
-
               Set<Group> groupObjectsToAssignFinal = new LinkedHashSet<Group>();
               Set<String> groupsToAssign = GrouperUtil.toSet(groupToAssign0, groupToAssign1, groupToAssign2, groupToAssign3, groupToAssign4);
               Set<String> groupsToAssignFinal = new HashSet<String>();
@@ -354,7 +353,7 @@ public class InviteExternalSubjects {
               StringBuilder messagesToScreen = new StringBuilder();
 
               if (inviteByEmailBoolean) {
-                ExternalSubjectInviteBean externalSubjectInviteBean = new ExternalSubjectInviteBean();
+                final ExternalSubjectInviteBean externalSubjectInviteBean = new ExternalSubjectInviteBean();
                 if (!StringUtils.isBlank(ccEmailAddress)) {
                   externalSubjectInviteBean.setEmailsWhenRegistered(GrouperUtil.splitTrimToSet(ccEmailAddress, ";"));
                 }
@@ -362,9 +361,18 @@ public class InviteExternalSubjects {
                 
                 externalSubjectInviteBean.setGroupIds(groupsToAssignFinal);
                 
-                //send the invite
-                String error = ExternalSubjectAttrFramework.inviteExternalUsers(GrouperUtil.splitTrimToSet(emailAddressesToInvite, ";"), 
-                    externalSubjectInviteBean, emailSubject, messageToUsers);      
+                //send the invite as root
+                String error = (String)GrouperSession.callbackGrouperSession(grouperSession.internal_getRootSession(), new GrouperSessionHandler() {
+                  
+                  @Override
+                  public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
+                    return ExternalSubjectAttrFramework.inviteExternalUsers(GrouperUtil.splitTrimToSet(emailAddressesToInvite, ";"), 
+                        externalSubjectInviteBean, emailSubject, messageToUsers);      
+
+                  }
+                });
+                  
+                  
                 
                 if (!StringUtils.isBlank(error)) {
                   String errorMessage = TagUtils.navResourceString("inviteExternalSubjects.errorInvitingUsers");
@@ -389,7 +397,7 @@ public class InviteExternalSubjects {
                   }
                   if (subjectToAssign == null) {
                     //if it is still null, then it doesnt exist... lets validate it
-                    ExternalSubject externalSubject = new ExternalSubject();
+                    final ExternalSubject externalSubject = new ExternalSubject();
                     externalSubject.setIdentifier(loginId);
                     try {
                       externalSubject.validateIdentifier();
@@ -410,8 +418,16 @@ public class InviteExternalSubjects {
                       continue;
                     }
                     
-                    //lets store this, without validation...
-                    externalSubject.store(null, null, false);
+                    //lets store this, without validation... as root
+                    //send the invite as root
+                    GrouperSession.callbackGrouperSession(grouperSession.internal_getRootSession(), new GrouperSessionHandler() {
+                      
+                      @Override
+                      public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
+                        externalSubject.store(null, null, false);
+                        return null;
+                      }
+                    });
                     
                     String message = TagUtils.navResourceString("inviteExternalSubjects.successCreatedExternalSubject");
                     

@@ -116,6 +116,9 @@ public class GrouperUtil {
    * @return the email addresses semi separated
    */
   public static String normalizeEmailAddresses(String emailAddresses) {
+    if (emailAddresses == null) {
+      return null;
+    }
     emailAddresses = StringUtils.replace(emailAddresses, ",", " ");
     emailAddresses = StringUtils.replace(emailAddresses, ";", " ");
     emailAddresses = StringUtils.replace(emailAddresses, "\n", " ");
