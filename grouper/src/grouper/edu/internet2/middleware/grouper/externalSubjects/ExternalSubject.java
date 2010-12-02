@@ -1161,7 +1161,7 @@ public class ExternalSubject extends GrouperAPI implements GrouperHasContext,
     
     //Set<ExternalSubject> externalSubjects = GrouperDAOFactory.getFactory().getExternalSubject().findAll();
     Set<ExternalSubject> externalSubjects = ExternalSubjectStorageController.findAll();
-    
+    int countChanged = 0;
     for (ExternalSubject externalSubject : externalSubjects) {
 
       String description = externalSubject.getDescription();
@@ -1176,11 +1176,12 @@ public class ExternalSubject extends GrouperAPI implements GrouperHasContext,
           || !StringUtils.equals(searchStringLower, externalSubject.getSearchStringLower())
           || enabled != externalSubject.isEnabled()) {
         externalSubject.store(null, null, false, false, true);
+        countChanged++;
       }
       
     }
-    lastDisabledFixCount = externalSubjects.size();
-    return externalSubjects.size();
+    lastDisabledFixCount = countChanged;
+    return countChanged;
   }
 
   
