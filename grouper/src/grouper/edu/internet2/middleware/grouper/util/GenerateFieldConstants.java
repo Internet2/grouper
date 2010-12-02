@@ -12,10 +12,7 @@ import java.util.Set;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreClone;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreDbVersion;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreFieldConstant;
-import edu.internet2.middleware.grouper.externalSubjects.ExternalSubject;
-import edu.internet2.middleware.grouper.externalSubjects.ExternalSubjectAttribute;
 import edu.internet2.middleware.grouper.hooks.beans.HooksExternalSubjectBean;
-import edu.internet2.middleware.grouper.rules.RuleCheck;
 
 
 /**

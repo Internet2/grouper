@@ -19,6 +19,9 @@ public class HooksExternalSubjectBean extends HooksBean {
 
   //*****  START GENERATED WITH GenerateFieldConstants.java *****//
 
+  /** constant for field name for: autoaddGroups */
+  public static final String FIELD_AUTOADD_GROUPS = "autoaddGroups";
+
   /** constant for field name for: externalSubject */
   public static final String FIELD_EXTERNAL_SUBJECT = "externalSubject";
 
@@ -27,6 +30,9 @@ public class HooksExternalSubjectBean extends HooksBean {
 
   /** constant for field name for: externalSubjectInviteName */
   public static final String FIELD_EXTERNAL_SUBJECT_INVITE_NAME = "externalSubjectInviteName";
+
+  /** constant for field name for: fromRecalcDaemon */
+  public static final String FIELD_FROM_RECALC_DAEMON = "fromRecalcDaemon";
 
   /** constant for field name for: insert */
   public static final String FIELD_INSERT = "insert";
@@ -38,8 +44,8 @@ public class HooksExternalSubjectBean extends HooksBean {
    * fields which are included in clone method
    */
   private static final Set<String> CLONE_FIELDS = GrouperUtil.toSet(
-      FIELD_EXTERNAL_SUBJECT, FIELD_EXTERNAL_SUBJECT_ATTRIBUTES, FIELD_EXTERNAL_SUBJECT_INVITE_NAME, FIELD_INSERT, 
-      FIELD_UPDATE);
+      FIELD_AUTOADD_GROUPS, FIELD_EXTERNAL_SUBJECT, FIELD_EXTERNAL_SUBJECT_ATTRIBUTES, FIELD_EXTERNAL_SUBJECT_INVITE_NAME, 
+      FIELD_FROM_RECALC_DAEMON, FIELD_INSERT, FIELD_UPDATE);
 
   //*****  END GENERATED WITH GenerateFieldConstants.java *****//
 
@@ -58,8 +64,48 @@ public class HooksExternalSubjectBean extends HooksBean {
   /** external subject invite name, in url to have different hooks */
   private String externalSubjectInviteName = null;
 
+  /** if should autoadd groups */
+  private boolean autoaddGroups = false;
+  
+  /** if from daemon */
+  private boolean fromRecalcDaemon = false;
   
   
+  /**
+   * if should autoadd groups
+   * @return the autoaddGroups
+   */
+  public boolean isAutoaddGroups() {
+    return this.autoaddGroups;
+  }
+
+  
+  /**
+   * if should autoadd groups
+   * @param autoaddGroups1 the autoaddGroups to set
+   */
+  public void setAutoaddGroups(boolean autoaddGroups1) {
+    this.autoaddGroups = autoaddGroups1;
+  }
+
+  
+  /**
+   * if from daemon
+   * @return the fromDaemon
+   */
+  public boolean isFromRecalcDaemon() {
+    return this.fromRecalcDaemon;
+  }
+
+  
+  /**
+   * if from daemon
+   * @param fromDaemon1 the fromDaemon to set
+   */
+  public void setFromRecalcDaemon(boolean fromDaemon1) {
+    this.fromRecalcDaemon = fromDaemon1;
+  }
+
   /**
    * object being affected
    * @return external subject
@@ -155,15 +201,19 @@ public class HooksExternalSubjectBean extends HooksBean {
    * @param isUpdate 
    * @param theExternalSubjectAttributes 
    * @param theExternalSubjectInviteName 
-   * @param theAttribute 
+   * @param theAutoAddGroups 
+   * @param theFromDaemon 
    */
   public HooksExternalSubjectBean(ExternalSubject theExternalSubject, boolean isInsert, boolean isUpdate, 
-      Set<ExternalSubjectAttribute> theExternalSubjectAttributes, String theExternalSubjectInviteName) {
+      Set<ExternalSubjectAttribute> theExternalSubjectAttributes, String theExternalSubjectInviteName,
+      boolean theAutoAddGroups, boolean theFromDaemon) {
     this.externalSubject = theExternalSubject;
     this.insert = isInsert;
     this.update = isUpdate;
     this.externalSubjectAttributes = theExternalSubjectAttributes;
     this.externalSubjectInviteName = theExternalSubjectInviteName;
+    this.autoaddGroups = theAutoAddGroups;
+    this.fromRecalcDaemon = theFromDaemon;
   }
   
   /**

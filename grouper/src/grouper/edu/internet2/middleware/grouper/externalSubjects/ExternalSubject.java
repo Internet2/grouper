@@ -746,7 +746,7 @@ public class ExternalSubject extends GrouperAPI implements GrouperHasContext,
    * store this object to the DB.
    */
   public void store() {    
-    this.store(null, null, true);
+    this.store(null, null, true, true, false);
   }
 
   /**
@@ -787,7 +787,9 @@ public class ExternalSubject extends GrouperAPI implements GrouperHasContext,
       }
       Map<String, Object> substitutionMap = substitutionMap();
       substitutionMap.put("externalSubject", this);
-      String description = GrouperUtil.substituteExpressionLanguage(el, substitutionMap);
+      
+      //do silent since there are warnings on null...
+      String description = GrouperUtil.substituteExpressionLanguage(el, substitutionMap, false, true);
       this.setDescription(description);
     }
     
@@ -847,9 +849,13 @@ public class ExternalSubject extends GrouperAPI implements GrouperHasContext,
    * @param externalSubjectInviteName is a variable you could put in the URL to pass to the hook so you can
    * add the users to custom groups or whatnot
    * @param validateAttributes if required attributes should be validated
+   * @param autoaddGroups if groups should be auto-added (e.g. not from daemon)
+   * @param fromRecalcDaemon if the recalc daemon is doing the storing
    */
   public void store(final Set<ExternalSubjectAttribute> externalSubjectAttributes, 
-      final String externalSubjectInviteName, final boolean validateAttributes) {    
+      final String externalSubjectInviteName, final boolean validateAttributes, 
+      final boolean autoaddGroups,
+      final boolean fromRecalcDaemon) {    
     
     this.assertCurrentUserCanEditExternalUsers();
     
@@ -913,47 +919,47 @@ public class ExternalSubject extends GrouperAPI implements GrouperHasContext,
               
             }
             
-            //#put some group names comma separated for groups to auto add subjects to
-            //externalSubjects.autoaddGroups=
-            //#should be insert, update, or insert,update
-            //externalSubjects.autoaddGroupActions=insert,update
-            //#if a number is here, expire the group assignment after a certain number of days
-            //externalSubjects.autoaddGroupExpireAfterDays=
-            String actions = GrouperConfig.getProperty("externalSubjects.autoaddGroupActions");
-            String groups = GrouperConfig.getProperty("externalSubjects.autoaddGroups");
-            int expireAfterDays = GrouperConfig.getPropertyInt("externalSubjects.autoaddGroupExpireAfterDays", -1);
-
-            assignGroups(groups, actions, isInsert, expireAfterDays);
-
-            //
-            //#add multiple group assignment actions by URL param: externalSubjectInviteName
-            //externalSubject.autoadd.testingLibrary.externalSubjectInviteName=library
-            //#comma separated groups to add for this type of invite
-            //externalSubject.autoadd.testingLibrary.groups=
-            //#should be insert, update, or insert,update
-            //externalSubject.autoadd.testingLibrary.actions=insert,update
-            //#should be insert, update, or insert,update
-            //externalSubject.autoadd.testingLibrary.expireAfterDays=
-
-            if (!StringUtils.isBlank(externalSubjectInviteName)) {
-              
-              ExternalSubjectAutoaddBean externalSubjectAutoaddBean = 
-                ExternalSubjectConfig.externalSubjectAutoaddConfigBean().get(externalSubjectInviteName);
-              
-              if (externalSubjectAutoaddBean != null) {
-                assignGroups(externalSubjectAutoaddBean.getGroups(), externalSubjectAutoaddBean.getActions(), isInsert, externalSubjectAutoaddBean.getExpireAfterDays());
+            if (autoaddGroups && ExternalSubject.this.isEnabled()) {
+              //#put some group names comma separated for groups to auto add subjects to
+              //externalSubjects.autoaddGroups=
+              //#should be insert, update, or insert,update
+              //externalSubjects.autoaddGroupActions=insert,update
+              //#if a number is here, expire the group assignment after a certain number of days
+              //externalSubjects.autoaddGroupExpireAfterDays=
+              String actions = GrouperConfig.getProperty("externalSubjects.autoaddGroupActions");
+              String groups = GrouperConfig.getProperty("externalSubjects.autoaddGroups");
+              int expireAfterDays = GrouperConfig.getPropertyInt("externalSubjects.autoaddGroupExpireAfterDays", -1);
+  
+              assignGroups(groups, actions, isInsert, expireAfterDays);
+  
+              //
+              //#add multiple group assignment actions by URL param: externalSubjectInviteName
+              //externalSubject.autoadd.testingLibrary.externalSubjectInviteName=library
+              //#comma separated groups to add for this type of invite
+              //externalSubject.autoadd.testingLibrary.groups=
+              //#should be insert, update, or insert,update
+              //externalSubject.autoadd.testingLibrary.actions=insert,update
+              //#should be insert, update, or insert,update
+              //externalSubject.autoadd.testingLibrary.expireAfterDays=
+  
+              if (!StringUtils.isBlank(externalSubjectInviteName)) {
+                
+                ExternalSubjectAutoaddBean externalSubjectAutoaddBean = 
+                  ExternalSubjectConfig.externalSubjectAutoaddConfigBean().get(externalSubjectInviteName);
+                
+                if (externalSubjectAutoaddBean != null) {
+                  assignGroups(externalSubjectAutoaddBean.getGroups(), externalSubjectAutoaddBean.getActions(), isInsert, externalSubjectAutoaddBean.getExpireAfterDays());
+                }
+                
               }
-              
             }
-
+            
             // high level external subject hook
             GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.EXTERNAL_SUBJECT, 
                 ExternalSubjectHooks.METHOD_POST_EDIT_EXTERNAL_SUBJECT,
-                HooksExternalSubjectBean.class, new Object[]{ExternalSubject.this, isInsert, !isInsert, externalSubjectAttributes, externalSubjectInviteName}, 
-                new Class[]{ExternalSubject.class, boolean.class, boolean.class, Set.class, String.class}, 
+                HooksExternalSubjectBean.class, new Object[]{ExternalSubject.this, isInsert, !isInsert, externalSubjectAttributes, externalSubjectInviteName, autoaddGroups, fromRecalcDaemon}, 
+                new Class[]{ExternalSubject.class, boolean.class, boolean.class, Set.class, String.class, boolean.class, boolean.class}, 
                 VetoTypeGrouper.EXTERNAL_SUBJECT_POST_EDIT);
-
-
 
             return null;
           }
@@ -1160,17 +1166,18 @@ public class ExternalSubject extends GrouperAPI implements GrouperHasContext,
 
       String description = externalSubject.getDescription();
       String searchStringLower = externalSubject.getSearchStringLower();
+      boolean enabled = externalSubject.isEnabled();
       
       externalSubject.changeDynamicFields();
+      externalSubject.calculateDisabledFlag();
       
       //see if something changed
       if (!StringUtils.equals(description, externalSubject.getDescription())
-          || !StringUtils.equals(searchStringLower, externalSubject.getSearchStringLower())) {
-        externalSubject.store();
+          || !StringUtils.equals(searchStringLower, externalSubject.getSearchStringLower())
+          || enabled != externalSubject.isEnabled()) {
+        externalSubject.store(null, null, false, false, true);
       }
       
-      //store will fix the disabled flag
-      externalSubject.store();
     }
     lastDisabledFixCount = externalSubjects.size();
     return externalSubjects.size();

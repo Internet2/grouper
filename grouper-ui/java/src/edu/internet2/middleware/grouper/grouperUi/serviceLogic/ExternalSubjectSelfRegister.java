@@ -459,7 +459,7 @@ public class ExternalSubjectSelfRegister {
                       }
                     }
           
-                    EXTERNAL_SUBJECT.store(externalSubjectAttributes, externalSubjectInviteName, true);
+                    EXTERNAL_SUBJECT.store(externalSubjectAttributes, externalSubjectInviteName, true, true, false);
                     
                     return null;
                   }

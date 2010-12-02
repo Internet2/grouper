@@ -424,7 +424,7 @@ public class InviteExternalSubjects {
                       
                       @Override
                       public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
-                        externalSubject.store(null, null, false);
+                        externalSubject.store(null, null, false, true, false);
                         return null;
                       }
                     });

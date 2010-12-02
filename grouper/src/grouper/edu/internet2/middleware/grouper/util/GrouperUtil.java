@@ -8636,10 +8636,10 @@ public class GrouperUtil {
   @SuppressWarnings("unchecked")
   public static String substituteExpressionLanguage(String stringToParse, Map<String, Object> variableMap) {
     //by default dont allow static classes
-    return substituteExpressionLanguage(stringToParse, variableMap, false);
+    return substituteExpressionLanguage(stringToParse, variableMap, false, false);
 
   }
-  
+
   /**
    * substitute an EL for objects
    * @param stringToParse
@@ -8648,13 +8648,31 @@ public class GrouperUtil {
    * @return the string
    */
   @SuppressWarnings("unchecked")
-  public static String substituteExpressionLanguage(String stringToParse, Map<String, Object> variableMap, boolean allowStaticClasses) {
+  @Deprecated
+  public static String substituteExpressionLanguage(String stringToParse, 
+      Map<String, Object> variableMap, boolean allowStaticClasses) {
+    return substituteExpressionLanguage(stringToParse, variableMap, allowStaticClasses, false);
+  }
+
+  /**
+   * substitute an EL for objects
+   * @param stringToParse
+   * @param variableMap
+   * @param allowStaticClasses if true allow static classes not registered with context
+   * @param silent if silent mode, swallow exceptions (warn), and dont warn when variable not found
+   * @return the string
+   */
+  @SuppressWarnings("unchecked")
+  public static String substituteExpressionLanguage(String stringToParse, 
+      Map<String, Object> variableMap, boolean allowStaticClasses, boolean silent) {
     if (GrouperUtil.isBlank(stringToParse)) {
       return stringToParse;
     }
     try {
       JexlContext jc = allowStaticClasses ? new GrouperMapContext() : new MapContext();
         
+      
+      
       int index = 0;
       
       for (String key: variableMap.keySet()) {
@@ -8701,8 +8719,10 @@ public class GrouperUtil {
         }
         
         
-        Expression e = new JexlEngine().createExpression(script);
-  
+        JexlEngine jexlEngine = new JexlEngine();
+        jexlEngine.setSilent(silent);
+        Expression e = jexlEngine.createExpression(script);
+
         //this is the result of the evaluation
         Object o = e.evaluate(jc);
   
