@@ -7117,7 +7117,7 @@ public class GrouperUtil {
   public static String propertiesValue(Properties properties, String key) {
     return propertiesValue(properties, null, key);
   }
-  
+
   /**
    * get a value (trimmed to e) from a property file
    * @param properties
@@ -7126,7 +7126,22 @@ public class GrouperUtil {
    * @return the property value
    */
   public static String propertiesValue(Properties properties, Map<String, String> overrideMap, String key) {
+    return propertiesValue(properties, overrideMap, null, key);
+  }
+
+  /**
+   * get a value (trimmed to e) from a property file
+   * @param properties
+   * @param overrideMap for testing or threadlocal, to override some properties values
+   * @param overrideMap2 for testing, to provide some properties values
+   * @param key
+   * @return the property value
+   */
+  public static String propertiesValue(Properties properties, Map<String, String> overrideMap, Map<String, String> overrideMap2, String key) {
     String value = overrideMap == null ? null : overrideMap.get(key);
+    if (isBlank(value)) {
+      value = overrideMap2 == null ? null : overrideMap2.get(key);
+    }
     if (isBlank(value)) {
       value = properties.getProperty(key);
     }
@@ -7155,9 +7170,23 @@ public class GrouperUtil {
    */
   public static boolean propertiesValueBoolean(Properties properties, 
       Map<String, String> overrideMap, String propertyName, boolean defaultValue) {
+    return propertiesValueBoolean(properties, overrideMap, null, propertyName, defaultValue);
+  }
+
+  /**
+   * get a boolean property, or the default if cant find
+   * @param properties
+   * @param overrideMap for testing or threadlocal to override properties
+   * @param overrideMap2 for testing or threadlocal to override properties
+   * @param propertyName
+   * @param defaultValue 
+   * @return the boolean
+   */
+  public static boolean propertiesValueBoolean(Properties properties, 
+      Map<String, String> overrideMap, Map<String, String> overrideMap2, String propertyName, boolean defaultValue) {
     
       
-    String value = propertiesValue(properties, overrideMap, propertyName);
+    String value = propertiesValue(properties, overrideMap, overrideMap2, propertyName);
     if (isBlank(value)) {
       return defaultValue;
     }
@@ -10577,4 +10606,28 @@ public class GrouperUtil {
     
     return minValue;
   }
+
+  /** override map for properties in thread local to be used in a web server or the like */
+  private static ThreadLocal<Map<String, Map<String, String>>> propertiesThreadLocalOverrideMap = new ThreadLocal<Map<String, Map<String, String>>>();
+  
+  /**
+   * override map for properties in thread local to be used in a web server or the like, based on property file name
+   * @param propertiesFileName 
+   * @return the override map
+   */
+  public static Map<String, String> propertiesThreadLocalOverrideMap(String propertiesFileName) {
+    Map<String, Map<String, String>> overrideMap = propertiesThreadLocalOverrideMap.get();
+    if (overrideMap == null) {
+      overrideMap = new HashMap<String, Map<String, String>>();
+      propertiesThreadLocalOverrideMap.set(overrideMap);
+    }
+    Map<String, String> propertiesOverrideMap = overrideMap.get(propertiesFileName);
+    if (propertiesOverrideMap == null) {
+      propertiesOverrideMap = new HashMap<String, String>();
+      overrideMap.put(propertiesFileName, propertiesOverrideMap);
+    }
+    return propertiesOverrideMap;
+  }
+  
+  
 }

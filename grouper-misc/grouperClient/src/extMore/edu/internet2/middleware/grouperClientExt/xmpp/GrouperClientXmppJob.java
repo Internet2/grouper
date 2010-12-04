@@ -89,6 +89,7 @@ public class GrouperClientXmppJob {
       
       Pattern pattern = Pattern.compile("^grouperClient\\.xmpp\\.job\\.(.+)\\.handlerClass$");
       
+      //note, the overrides arent included here...
       Properties properties = GrouperClientUtils.grouperClientProperties();
       for (Object keyObject : properties.keySet()) {
         String key = (String)keyObject;

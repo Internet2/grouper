@@ -5393,13 +5393,26 @@ public class GrouperClientCommonUtils  {
    * @return the property value
    */
   public static String propertiesValue(Properties properties, Map<String, String> overrideMap, String key) {
+    return propertiesValue(properties, overrideMap, null, key);
+  }
+
+  /**
+   * get a value (trimmed to e) from a property file
+   * @param properties
+   * @param overrideMap for testing or threadlocal, to override some properties values
+   * @param overrideMap2 for testing, to provide some properties values
+   * @param key
+   * @return the property value
+   */
+  public static String propertiesValue(Properties properties, Map<String, String> overrideMap, Map<String, String> overrideMap2, String key) {
     String value = overrideMap == null ? null : overrideMap.get(key);
+    if (isBlank(value)) {
+      value = overrideMap2 == null ? null : overrideMap2.get(key);
+    }
     if (isBlank(value)) {
       value = properties.getProperty(key);
     }
-    value = trim(value);
-    value = substituteCommonVars(value);
-    return value;
+    return trim(value);
   }
   
   /**
@@ -5448,7 +5461,10 @@ public class GrouperClientCommonUtils  {
   public static boolean propertiesValueBoolean(String resourceName, Properties properties, 
       Map<String, String> overrideMap, String propertyName, boolean defaultValue, boolean required) {
     propertyValidateValueBoolean(resourceName, properties, overrideMap, propertyName, required, true);
-    return propertiesValueBoolean(properties, overrideMap, propertyName, defaultValue);
+
+    Map<String, String> threadLocalMap = propertiesThreadLocalOverrideMap(resourceName);
+    
+    return propertiesValueBoolean(properties, threadLocalMap, overrideMap, propertyName, defaultValue);
   }
   
   /**
@@ -5463,15 +5479,19 @@ public class GrouperClientCommonUtils  {
    */
   public static int propertiesValueInt(String resourceName, Properties properties, 
       Map<String, String> overrideMap, String propertyName, int defaultValue, boolean required) {
+    
     propertyValidateValueInt(resourceName, properties, overrideMap, propertyName, required, true);
-    return propertiesValueInt(properties, overrideMap, propertyName, defaultValue);
+
+    Map<String, String> threadLocalMap = propertiesThreadLocalOverrideMap(resourceName);
+
+    return propertiesValueInt(properties, threadLocalMap, overrideMap, propertyName, defaultValue);
   }
-  
+
   /**
    * get a boolean property, or the default if cant find.  Validate also with a descriptive exception if problem
    * @param resourceName 
    * @param properties
-   * @param overrideMap for testing to override properties
+   * @param overrideMap for threadlocal or testing to override properties
    * @param propertyName
    * @param required 
    * @return the string
@@ -5482,9 +5502,11 @@ public class GrouperClientCommonUtils  {
     if (required) {
       propertyValidateValueRequired(resourceName, properties, overrideMap, propertyName, true);
     }
-    return propertiesValue(properties, overrideMap, propertyName);
+    Map<String, String> threadLocalMap = propertiesThreadLocalOverrideMap(resourceName);
+
+    return propertiesValue(properties, threadLocalMap, overrideMap, propertyName);
   }
-  
+
   /**
    * get a int property, or the default if cant find
    * @param properties
@@ -5495,8 +5517,23 @@ public class GrouperClientCommonUtils  {
    */
   public static int propertiesValueInt(Properties properties, 
       Map<String, String> overrideMap, String propertyName, int defaultValue) {
+    return propertiesValueInt(properties, overrideMap, null, propertyName, defaultValue);
+  }
 
-    String value = propertiesValue(properties, overrideMap, propertyName);
+
+  /**
+   * get a int property, or the default if cant find
+   * @param properties
+   * @param overrideMap for testing to override properties
+   * @param overrideMap2 
+   * @param propertyName
+   * @param defaultValue 
+   * @return the int
+   */
+  public static int propertiesValueInt(Properties properties, 
+      Map<String, String> overrideMap, Map<String, String> overrideMap2, String propertyName, int defaultValue) {
+
+    String value = propertiesValue(properties, overrideMap, overrideMap2, propertyName);
     if (isBlank(value)) {
       return defaultValue;
     }
@@ -5519,9 +5556,23 @@ public class GrouperClientCommonUtils  {
    */
   public static boolean propertiesValueBoolean(Properties properties, 
       Map<String, String> overrideMap, String propertyName, boolean defaultValue) {
+    return propertiesValueBoolean(properties, overrideMap, null, propertyName, defaultValue);
+  }
+
+  /**
+   * get a boolean property, or the default if cant find
+   * @param properties
+   * @param overrideMap for testing or threadlocal to override properties
+   * @param overrideMap2 for testing or threadlocal to override properties
+   * @param propertyName
+   * @param defaultValue 
+   * @return the boolean
+   */
+  public static boolean propertiesValueBoolean(Properties properties, 
+      Map<String, String> overrideMap, Map<String, String> overrideMap2, String propertyName, boolean defaultValue) {
     
       
-    String value = propertiesValue(properties, overrideMap, propertyName);
+    String value = propertiesValue(properties, overrideMap, overrideMap2, propertyName);
     if (isBlank(value)) {
       return defaultValue;
     }
@@ -5538,7 +5589,7 @@ public class GrouperClientCommonUtils  {
     if ("f".equalsIgnoreCase(value)) {
       return false;
     }
-    throw new RuntimeException("Invalid boolean value: '" + value + "' for property: " + propertyName + " in grouper.properties");
+    throw new RuntimeException("Invalid value: '" + value + "' for property: " + propertyName + " in grouper.properties");
 
   }
   
@@ -7538,7 +7589,11 @@ public class GrouperClientCommonUtils  {
    */
   public static boolean propertyValidateValueRequired(String resourceName, Properties properties, 
       Map<String, String> overrideMap, String key, boolean exceptionOnError) {
-    String value = propertiesValue(properties, overrideMap, key);
+    
+    Map<String, String> threadLocalMap = propertiesThreadLocalOverrideMap(resourceName);
+
+    String value = propertiesValue(properties, threadLocalMap, overrideMap, key);
+
     if (!GrouperClientUtils.isBlank(value)) {
       return true;
     }
@@ -7572,7 +7627,9 @@ public class GrouperClientCommonUtils  {
       return false;
     }
   
-    String value = propertiesValue(properties, overrideMap, key);
+    Map<String, String> threadLocalMap = propertiesThreadLocalOverrideMap(resourceName);
+
+    String value = propertiesValue(properties, threadLocalMap, overrideMap, key);
     //maybe ok not there
     if (!required && GrouperClientUtils.isBlank(value)) {
       return true;
@@ -7592,6 +7649,7 @@ public class GrouperClientCommonUtils  {
     return false;
   }
 
+  
   /**
    * make sure a value is int in properties
    * @param resourceName
@@ -7611,7 +7669,9 @@ public class GrouperClientCommonUtils  {
       return false;
     }
   
-    String value = propertiesValue(properties, overrideMap, key);
+    Map<String, String> threadLocalMap = propertiesThreadLocalOverrideMap(resourceName);
+    
+    String value = propertiesValue(properties, threadLocalMap, overrideMap, key);
     //maybe ok not there
     if (!required && GrouperClientUtils.isBlank(value)) {
       return true;
@@ -8646,6 +8706,28 @@ public class GrouperClientCommonUtils  {
     }
     
     throw new RuntimeException("Invalid month: " + mon);
+  }
+
+  /** override map for properties in thread local to be used in a web server or the like */
+  private static ThreadLocal<Map<String, Map<String, String>>> propertiesThreadLocalOverrideMap = new ThreadLocal<Map<String, Map<String, String>>>();
+
+  /**
+   * override map for properties in thread local to be used in a web server or the like, based on property file name
+   * @param propertiesFileName 
+   * @return the override map
+   */
+  public static Map<String, String> propertiesThreadLocalOverrideMap(String propertiesFileName) {
+    Map<String, Map<String, String>> overrideMap = propertiesThreadLocalOverrideMap.get();
+    if (overrideMap == null) {
+      overrideMap = new HashMap<String, Map<String, String>>();
+      propertiesThreadLocalOverrideMap.set(overrideMap);
+    }
+    Map<String, String> propertiesOverrideMap = overrideMap.get(propertiesFileName);
+    if (propertiesOverrideMap == null) {
+      propertiesOverrideMap = new HashMap<String, String>();
+      overrideMap.put(propertiesFileName, propertiesOverrideMap);
+    }
+    return propertiesOverrideMap;
   }
 
 }

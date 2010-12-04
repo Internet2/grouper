@@ -57,10 +57,11 @@
 	<classpathentry exported="true" kind="lib" path="lib/grouper/commons-jexl.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper/smack.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper/commons-codec.jar"/>
-	<classpathentry kind="lib" path="lib/jetty/jetty-util.jar"/>
-	<classpathentry kind="lib" path="lib/jetty/jetty.jar"/>
-	<classpathentry kind="lib" path="lib/jetty/servlet-api.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jetty/jetty-util.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jetty/jetty.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jetty/servlet-api.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper/commons-httpclient.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper/ddlUtils.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/grouper/grouperClient.jar"/>
 	<classpathentry kind="output" path="build"/>
 </classpath>
