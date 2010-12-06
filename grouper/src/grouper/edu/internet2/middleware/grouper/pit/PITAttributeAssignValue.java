@@ -2,7 +2,6 @@ package edu.internet2.middleware.grouper.pit;
 
 import java.util.Set;
 
-import edu.internet2.middleware.grouper.GrouperAPI;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -91,6 +90,9 @@ public class PITAttributeAssignValue extends GrouperPIT implements Hib3GrouperVe
 
   /** attribute assignment in this value assignment */
   private String attributeAssignId;
+  
+  /** attribute assignment object */
+  private PITAttributeAssign attributeAssign = null;
 
   /** string value */
   private String valueString;
@@ -217,10 +219,28 @@ public class PITAttributeAssignValue extends GrouperPIT implements Hib3GrouperVe
   }
 
   /**
+   * @return the attributeAssign
+   */
+  public PITAttributeAssign getAttributeAssign() {
+    if (this.attributeAssign == null) {
+      this.attributeAssign = GrouperDAOFactory.getFactory().getPITAttributeAssign().findById(this.attributeAssignId);
+    }
+    
+    return attributeAssign;
+  }
+  
+  /**
+   * @param attributeAssign the attributeAssign to set
+   */
+  public void setAttributeAssign(PITAttributeAssign attributeAssign) {
+    this.attributeAssign = attributeAssign;
+  }
+
+  /**
    * @see edu.internet2.middleware.grouper.GrouperAPI#clone()
    */
   @Override
-  public GrouperAPI clone() {
+  public PITAttributeAssignValue clone() {
     return GrouperUtil.clone(this, CLONE_FIELDS);
   }
 

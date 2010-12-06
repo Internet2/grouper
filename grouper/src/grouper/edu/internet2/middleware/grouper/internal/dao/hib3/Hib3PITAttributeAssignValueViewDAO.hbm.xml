@@ -26,23 +26,34 @@
 
   <!-- note: optimistic-lock defaults to version, but will be dynamically replaced
     based on the grouper.properties, so dont remove that attribute  -->
-  <class name="PITStem" table="grouper_pit_stems" optimistic-lock="version">
+  <class name="PITAttributeAssignValueView" table="grouper_pit_attr_asn_value_v" optimistic-lock="version">
 
     <!-- id -->
-    <id name="id" column="id" type="string" unsaved-value="none" length="40">
+    <id name="attributeAssignValueId" column="attribute_assign_value_id" type="string" unsaved-value="none" length="40">
       <generator class="assigned" />
     </id>
     <!-- id -->
-
-    <!-- version helps hibernate know when insert/update, and makes sure optimistic locking -->
-    <version name="hibernateVersionNumber" column="hibernate_version_number" type="long"/>
-    <property name="contextId" column="context_id"/>
-
-    <property name="nameDb" column="name" />
     
+    <property name="attributeAssignId" column="attribute_assign_id"/>
+
+    <property name="attributeAssignActionId" column="attribute_assign_action_id" />
+    <property name="attributeDefNameId" column="attribute_def_name_id" />
+    <property name="attributeAssignTypeDb" column="attribute_assign_type" />
+    
+    <property name="ownerMemberId" column="owner_member_id" />
+    <property name="ownerMembershipId" column="owner_membership_id" />
+    <property name="ownerAttributeAssignId" column="owner_attribute_assign_id" />
+    <property name="ownerAttributeDefId" column="owner_attribute_def_id" />
+    <property name="ownerGroupId" column="owner_group_id" />
+    <property name="ownerStemId" column="owner_stem_id" />
+
+    <property name="valueString" column="value_string"/>
+    <property name="valueFloating" column="value_floating"/>
+    <property name="valueInteger" column="value_integer"/>
+    <property name="valueMemberId" column="value_member_id"/>
+
     <property name="activeDb" column="active" />
     <property name="startTimeDb" column="start_time" />
     <property name="endTimeDb" column="end_time" />
   </class>
 </hibernate-mapping>
-

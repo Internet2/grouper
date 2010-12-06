@@ -40,6 +40,10 @@
 
     <property name="nameDb" column="name" />
     <property name="attributeDefTypeDb" column="attribute_def_type"/>
+    
+    <property name="activeDb" column="active" />
+    <property name="startTimeDb" column="start_time" />
+    <property name="endTimeDb" column="end_time" />
   </class>
 </hibernate-mapping>
 

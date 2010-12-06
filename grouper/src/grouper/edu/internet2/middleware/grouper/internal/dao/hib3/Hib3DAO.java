@@ -154,6 +154,7 @@ public abstract class Hib3DAO {
       addClass(CFG, Hib3PITAttributeDefNameDAO.class);
       addClass(CFG, Hib3PITAttributeDefNameSetDAO.class);
       addClass(CFG, Hib3PITPermissionAllViewDAO.class);
+      addClass(CFG, Hib3PITAttributeAssignValueViewDAO.class);
       CFG.setInterceptor(new Hib3SessionInterceptor());
       
       //if we are testing, map these classes to the table (which may or may not exist)

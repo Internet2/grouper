@@ -1,5 +1,7 @@
 package edu.internet2.middleware.grouper.internal.dao.hib3;
 
+import java.sql.Timestamp;
+
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.PITAttributeAssignActionSetDAO;
 import edu.internet2.middleware.grouper.pit.PITAttributeAssignActionSet;
@@ -52,5 +54,22 @@ public class Hib3PITAttributeAssignActionSetDAO extends Hib3DAO implements PITAt
       .uniqueResult(PITAttributeAssignActionSet.class);
     
     return pitAttributeAssignActionSet;
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.PITAttributeAssignActionSetDAO#deleteInactiveRecords(java.sql.Timestamp)
+   */
+  public void deleteInactiveRecords(Timestamp time) {
+    
+    //do this since mysql cant handle self-referential foreign keys
+    HibernateSession.byHqlStatic()
+      .createQuery("update PITAttributeAssignActionSet set parentAttrAssignActionSetId = null where endTimeDb is not null and endTimeDb < :time and parentAttrAssignActionSetId is not null")
+      .setLong("time", time.getTime() * 1000)
+      .executeUpdate();
+    
+    HibernateSession.byHqlStatic()
+      .createQuery("delete from PITAttributeAssignActionSet where endTimeDb is not null and endTimeDb < :time and parentAttrAssignActionSetId is null")
+      .setLong("time", time.getTime() * 1000)
+      .executeUpdate();
   }
 }

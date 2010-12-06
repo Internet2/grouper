@@ -23,7 +23,6 @@ public class Hib3AttributeDefNameSetDAO extends Hib3DAO implements AttributeDefN
   /**
    * 
    */
-  @SuppressWarnings("unused")
   private static final String KLASS = Hib3AttributeDefNameSetDAO.class.getName();
 
   /**
@@ -162,19 +161,18 @@ public class Hib3AttributeDefNameSetDAO extends Hib3DAO implements AttributeDefN
               throws GrouperDAOException {
             
             hibernateHandlerBean.getHibernateSession().setCachingEnabled(false);
-
-            if (GrouperDdlUtils.isMysql() || GrouperDdlUtils.isHsql()) {
-              //do this since mysql cant handle self-referential foreign keys
-              hibernateHandlerBean.getHibernateSession().byHql().createQuery(
-                "update AttributeDefNameSet set parentAttrDefNameSetId = null where ifHasAttributeDefNameId = :id")
-                .setString("id", attributeDefName.getId())
-                .executeUpdate();    
-            }
             
-            hibernateHandlerBean.getHibernateSession().byHql().createQuery(
-              "delete from AttributeDefNameSet where ifHasAttributeDefNameId = :id")
-              .setString("id", attributeDefName.getId())
-              .executeUpdate();    
+            Set<AttributeDefNameSet> attributeDefNameSets = findByIfHasAttributeDefNameId(attributeDefName.getId());
+            for (AttributeDefNameSet attributeDefNameSet : attributeDefNameSets) {
+              if (GrouperDdlUtils.isMysql() || GrouperDdlUtils.isHsql()) {
+                //do this since mysql cant handle self-referential foreign keys
+                attributeDefNameSet.setParentAttrDefNameSetId(null);
+                attributeDefNameSet.saveOrUpdate();
+              }
+              
+              hibernateHandlerBean.getHibernateSession().byObject().delete(attributeDefNameSet);
+            }
+              
             return null;
           }
         });

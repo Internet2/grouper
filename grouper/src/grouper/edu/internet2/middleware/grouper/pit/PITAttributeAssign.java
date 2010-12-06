@@ -7,7 +7,6 @@ import java.util.Set;
 
 import org.apache.commons.collections.keyvalue.MultiKey;
 
-import edu.internet2.middleware.grouper.GrouperAPI;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogEntry;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogLabels;
@@ -172,7 +171,7 @@ public class PITAttributeAssign extends GrouperPIT implements Hib3GrouperVersion
    * @see edu.internet2.middleware.grouper.GrouperAPI#clone()
    */
   @Override
-  public GrouperAPI clone() {
+  public PITAttributeAssign clone() {
     return GrouperUtil.clone(this, CLONE_FIELDS);
   }
 
@@ -338,8 +337,88 @@ public class PITAttributeAssign extends GrouperPIT implements Hib3GrouperVersion
   public void save() {
     // if the id already exists for an inactive attribute assign, let's rename the id to avoid a conflict.
     PITAttributeAssign existing = GrouperDAOFactory.getFactory().getPITAttributeAssign().findById(this.getId());
-    if (existing != null && !existing.isActive()) {
-      GrouperDAOFactory.getFactory().getPITAttributeAssign().updateId(existing.getId(), GrouperUuid.getUuid());
+    if (existing != null && !existing.isActive() && this.isActive()) {
+      
+      // first make a copy of the attribute assignment with a new id
+      PITAttributeAssign existingCopy = existing.clone();
+      existingCopy.setId(GrouperUuid.getUuid());
+      existingCopy.setHibernateVersionNumber(-1L);
+      existingCopy.save();
+      
+      // next update the assignment id for attribute values and other attribute assignments where this is the owner
+      GrouperDAOFactory.getFactory().getPITAttributeAssignValue().updateAttributeAssignId(existing.getId(), existingCopy.getId());
+      GrouperDAOFactory.getFactory().getPITAttributeAssign().updateOwnerAttributeAssignId(existing.getId(), existingCopy.getId());
+      
+      // delete the old assignment and add the new one now...
+      existing.delete();
+      GrouperDAOFactory.getFactory().getPITAttributeAssign().saveOrUpdate(this);
+
+      {
+        // next add values for the assignment being saved and add end dates to existing values.
+        Set<PITAttributeAssignValue> values = GrouperDAOFactory.getFactory().getPITAttributeAssignValue().findActiveByAttributeAssignId(existingCopy.getId());
+        Iterator<PITAttributeAssignValue> valueIter = values.iterator();
+        while (valueIter.hasNext()) {
+          PITAttributeAssignValue value = valueIter.next();
+          PITAttributeAssignValue valueCopy = value.clone();
+          
+          valueCopy.setId(GrouperUuid.getUuid());
+          valueCopy.setEndTimeDb(this.getStartTimeDb());
+          valueCopy.setActiveDb("F");
+          valueCopy.setContextId(this.getContextId());
+          valueCopy.setHibernateVersionNumber(-1L);
+          valueCopy.save();
+          
+          value.setAttributeAssignId(this.getId());
+          value.setStartTimeDb(this.getStartTimeDb());
+          value.setContextId(this.getContextId());
+          value.update();
+        }
+      }
+      
+      {
+        // do the same for other attribute assignments where this is the owner
+        Set<PITAttributeAssign> assignments = GrouperDAOFactory.getFactory().getPITAttributeAssign().findActiveByOwnerAttributeAssignId(existingCopy.getId());
+        Iterator<PITAttributeAssign> assignmentIter = assignments.iterator();
+        while (assignmentIter.hasNext()) {
+          PITAttributeAssign assignment = assignmentIter.next();
+          PITAttributeAssign assignmentCopy = assignment.clone();
+          
+          assignmentCopy.setId(GrouperUuid.getUuid());
+          assignmentCopy.setEndTimeDb(this.getStartTimeDb());
+          assignmentCopy.setActiveDb("F");
+          assignmentCopy.setContextId(this.getContextId());
+          assignmentCopy.setHibernateVersionNumber(-1L);
+          assignmentCopy.save();
+          
+          assignment.setOwnerAttributeAssignId(this.getId());
+          assignment.setStartTimeDb(this.getStartTimeDb());
+          assignment.setContextId(this.getContextId());
+          assignment.update();
+          
+          // well this assignment might have values too...
+          GrouperDAOFactory.getFactory().getPITAttributeAssignValue().updateAttributeAssignId(assignment.getId(), assignmentCopy.getId());
+          Set<PITAttributeAssignValue> values = GrouperDAOFactory.getFactory().getPITAttributeAssignValue().findActiveByAttributeAssignId(assignmentCopy.getId());
+          Iterator<PITAttributeAssignValue> valueIter = values.iterator();
+          while (valueIter.hasNext()) {
+            PITAttributeAssignValue value = valueIter.next();
+            PITAttributeAssignValue valueCopy = value.clone();
+            
+            valueCopy.setId(GrouperUuid.getUuid());
+            valueCopy.setEndTimeDb(this.getStartTimeDb());
+            valueCopy.setActiveDb("F");
+            valueCopy.setContextId(this.getContextId());
+            valueCopy.setHibernateVersionNumber(-1L);
+            valueCopy.save();
+            
+            value.setAttributeAssignId(assignment.getId());
+            value.setStartTimeDb(this.getStartTimeDb());
+            value.setContextId(this.getContextId());
+            value.update();
+          }
+        }
+      }
+      
+      return;
     }
     
     GrouperDAOFactory.getFactory().getPITAttributeAssign().saveOrUpdate(this);

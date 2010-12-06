@@ -15,7 +15,10 @@ public class AllPITTests {
   public static Test suite() {
     TestSuite suite = new TestSuite("Test for edu.internet2.middleware.grouper.pit");
     suite.addTestSuite(PITMembershipTests.class);
+    suite.addTestSuite(PITAttributeAssignTests.class);
+    suite.addTestSuite(PITAttributeAssignValueTests.class);
     suite.addTestSuite(PITPermissionTests.class);
+    suite.addTestSuite(PITUtilsTests.class);
     return suite;
   }
 }

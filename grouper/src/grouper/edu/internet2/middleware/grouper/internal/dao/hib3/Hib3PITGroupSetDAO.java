@@ -1,5 +1,6 @@
 package edu.internet2.middleware.grouper.internal.dao.hib3;
 
+import java.sql.Timestamp;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -276,6 +277,23 @@ public class Hib3PITGroupSetDAO extends Hib3DAO implements PITGroupSetDAO {
       .setString("memberId", memberGroupId)
       .setInteger("depth", depth)
       .uniqueResult(PITGroupSet.class);
-  }  
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.PITGroupSetDAO#deleteInactiveRecords(java.sql.Timestamp)
+   */
+  public void deleteInactiveRecords(Timestamp time) {
+    
+    //do this since mysql cant handle self-referential foreign keys
+    HibernateSession.byHqlStatic()
+      .createQuery("update PITGroupSet set parentId = null where endTimeDb is not null and endTimeDb < :time and parentId is not null")
+      .setLong("time", time.getTime() * 1000)
+      .executeUpdate();
+    
+    HibernateSession.byHqlStatic()
+      .createQuery("delete from PITGroupSet where endTimeDb is not null and endTimeDb < :time and parentId is null")
+      .setLong("time", time.getTime() * 1000)
+      .executeUpdate();
+  }
 }
 

@@ -110,6 +110,8 @@ public class ChangeLogTempToEntity {
                 ChangeLogTempToEntity.processMemberAdd(CHANGE_LOG_ENTRY);
               } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.MEMBER_UPDATE)) {
                 ChangeLogTempToEntity.processMemberUpdate(CHANGE_LOG_ENTRY);
+              } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.MEMBER_DELETE)) {
+                ChangeLogTempToEntity.processMemberDelete(CHANGE_LOG_ENTRY);
               } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.MEMBERSHIP_ADD)) {
                 ChangeLogTempToEntity.processMembershipAdd(CHANGE_LOG_ENTRY);
               } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.MEMBERSHIP_DELETE)) {
@@ -206,11 +208,14 @@ public class ChangeLogTempToEntity {
     
     String id = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.GROUP_ADD.id);
     String contextId = GrouperUtil.isEmpty(changeLogEntry.getContextId()) ? null : changeLogEntry.getContextId();
-    
+    Long time = changeLogEntry.getCreatedOnDb();
+
     PITGroup pitGroup = new PITGroup();
     pitGroup.setId(id);
     pitGroup.setNameDb(changeLogEntry.retrieveValueForLabel(ChangeLogLabels.GROUP_ADD.name));    
     pitGroup.setContextId(contextId);
+    pitGroup.setActiveDb("T");
+    pitGroup.setStartTimeDb(time);
     
     pitGroup.saveOrUpdate();
     
@@ -236,7 +241,7 @@ public class ChangeLogTempToEntity {
   }
   
   /**
-   * Need to update groupSets
+   * Need to update end time of group and also end time of groupSets
    * @param changeLogEntry
    */
   private static void processGroupDelete(ChangeLogEntry changeLogEntry) {
@@ -245,6 +250,12 @@ public class ChangeLogTempToEntity {
     Long endTime = changeLogEntry.getCreatedOnDb();
     
     GrouperDAOFactory.getFactory().getPITGroupSet().updateEndTimeByOwner(id, endTime, contextId);
+    
+    PITGroup pitGroup = GrouperDAOFactory.getFactory().getPITGroup().findById(id);
+    pitGroup.setEndTimeDb(endTime);
+    pitGroup.setActiveDb("F");
+    pitGroup.setContextId(contextId);
+    pitGroup.saveOrUpdate();
   }
   
   /**
@@ -257,6 +268,7 @@ public class ChangeLogTempToEntity {
     String id = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.STEM_ADD.id);
     String name = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.STEM_ADD.name);
     String contextId = GrouperUtil.isEmpty(changeLogEntry.getContextId()) ? null : changeLogEntry.getContextId();
+    Long time = changeLogEntry.getCreatedOnDb();
 
     if (GrouperUtil.isEmpty(name)) {
       // is this the root stem??
@@ -270,6 +282,8 @@ public class ChangeLogTempToEntity {
     pitStem.setId(id);
     pitStem.setNameDb(name);
     pitStem.setContextId(contextId);
+    pitStem.setActiveDb("T");
+    pitStem.setStartTimeDb(time);
     
     pitStem.saveOrUpdate();
     
@@ -304,6 +318,12 @@ public class ChangeLogTempToEntity {
     Long endTime = changeLogEntry.getCreatedOnDb();
     
     GrouperDAOFactory.getFactory().getPITGroupSet().updateEndTimeByOwner(id, endTime, contextId);
+    
+    PITStem pitStem = GrouperDAOFactory.getFactory().getPITStem().findById(id);
+    pitStem.setEndTimeDb(endTime);
+    pitStem.setActiveDb("F");
+    pitStem.setContextId(contextId);
+    pitStem.saveOrUpdate();
   }
   
   /**
@@ -314,12 +334,15 @@ public class ChangeLogTempToEntity {
     
     String id = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_DEF_ADD.id);
     String contextId = GrouperUtil.isEmpty(changeLogEntry.getContextId()) ? null : changeLogEntry.getContextId();
+    Long time = changeLogEntry.getCreatedOnDb();
 
     PITAttributeDef pitAttributeDef = new PITAttributeDef();
     pitAttributeDef.setId(id);
     pitAttributeDef.setNameDb(changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_DEF_ADD.name));
     pitAttributeDef.setAttributeDefTypeDb(changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_DEF_ADD.attributeDefType));
     pitAttributeDef.setContextId(contextId);
+    pitAttributeDef.setActiveDb("T");
+    pitAttributeDef.setStartTimeDb(time);
 
     pitAttributeDef.saveOrUpdate();
     
@@ -345,7 +368,7 @@ public class ChangeLogTempToEntity {
   }
   
   /**
-   * Need to update groupSets
+   * Need to update end time of attribute def and also groupSets
    * @param changeLogEntry
    */
   private static void processAttributeDefDelete(ChangeLogEntry changeLogEntry) {
@@ -354,6 +377,12 @@ public class ChangeLogTempToEntity {
     Long endTime = changeLogEntry.getCreatedOnDb();
     
     GrouperDAOFactory.getFactory().getPITGroupSet().updateEndTimeByOwner(id, endTime, contextId);
+    
+    PITAttributeDef pitAttributeDef = GrouperDAOFactory.getFactory().getPITAttributeDef().findById(id);
+    pitAttributeDef.setEndTimeDb(endTime);
+    pitAttributeDef.setActiveDb("F");
+    pitAttributeDef.setContextId(contextId);
+    pitAttributeDef.saveOrUpdate();
   }
   
   /**
@@ -367,11 +396,14 @@ public class ChangeLogTempToEntity {
     String name = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.GROUP_FIELD_ADD.name);
     String type = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.GROUP_FIELD_ADD.type);
     String contextId = GrouperUtil.isEmpty(changeLogEntry.getContextId()) ? null : changeLogEntry.getContextId();
+    Long time = changeLogEntry.getCreatedOnDb();
 
     pitField.setId(id);
     pitField.setNameDb(name);
     pitField.setTypeDb(type);
     pitField.setContextId(contextId);
+    pitField.setActiveDb("T");
+    pitField.setStartTimeDb(time);
     
     pitField.saveOrUpdate();
     
@@ -389,6 +421,12 @@ public class ChangeLogTempToEntity {
     Long endTime = changeLogEntry.getCreatedOnDb();
     
     GrouperDAOFactory.getFactory().getPITGroupSet().updateEndTimeByField(id, endTime, contextId);
+    
+    PITField pitField = GrouperDAOFactory.getFactory().getPITField().findById(id);
+    pitField.setEndTimeDb(endTime);
+    pitField.setActiveDb("F");
+    pitField.setContextId(contextId);
+    pitField.saveOrUpdate();
   }
   
   /**
@@ -454,11 +492,14 @@ public class ChangeLogTempToEntity {
     String subjectId = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_ADD.subjectId);
     String subjectSourceId = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_ADD.subjectSourceId);
     String subjectTypeId = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_ADD.subjectTypeId);
-    
+    Long time = changeLogEntry.getCreatedOnDb();
+
     pitMember.setId(id);
     pitMember.setSubjectId(subjectId);
     pitMember.setSubjectSourceId(subjectSourceId);
     pitMember.setSubjectTypeId(subjectTypeId);
+    pitMember.setActiveDb("T");
+    pitMember.setStartTimeDb(time);
 
     if (!GrouperUtil.isEmpty(changeLogEntry.getContextId())) {
       pitMember.setContextId(changeLogEntry.getContextId());
@@ -486,6 +527,19 @@ public class ChangeLogTempToEntity {
       pitMember.setContextId(contextId);
       pitMember.saveOrUpdate();
     }
+  }
+  
+  private static void processMemberDelete(ChangeLogEntry changeLogEntry) {
+    
+    String id = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_DELETE.id);
+    String contextId = GrouperUtil.isEmpty(changeLogEntry.getContextId()) ? null : changeLogEntry.getContextId();
+    Long endTime = changeLogEntry.getCreatedOnDb();
+        
+    PITMember pitMember = GrouperDAOFactory.getFactory().getPITMember().findById(id);
+    pitMember.setEndTimeDb(endTime);
+    pitMember.setActiveDb("F");
+    pitMember.setContextId(contextId);
+    pitMember.saveOrUpdate();
   }
  
   /**
@@ -710,7 +764,7 @@ public class ChangeLogTempToEntity {
     
     if (AttributeDefValueType.string.name().equals(valueType)) {
       pitAttributeAssignValue.setValueString(value);
-    } else if (AttributeDefValueType.integer.name().equals(valueType)) {
+    } else if (AttributeDefValueType.integer.name().equals(valueType) || AttributeDefValueType.timestamp.name().equals(valueType)) {
       pitAttributeAssignValue.setValueInteger(GrouperUtil.longValue(value));
     } else if (AttributeDefValueType.memberId.name().equals(valueType)) {
       pitAttributeAssignValue.setValueMemberId(value);

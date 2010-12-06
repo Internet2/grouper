@@ -11,7 +11,6 @@ import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.FieldType;
 import edu.internet2.middleware.grouper.Group;
-import edu.internet2.middleware.grouper.GrouperAPI;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogEntry;
@@ -189,7 +188,7 @@ public class PITMembership extends GrouperPIT implements Hib3GrouperVersioned {
    * @see edu.internet2.middleware.grouper.GrouperAPI#clone()
    */
   @Override
-  public GrouperAPI clone() {
+  public PITMembership clone() {
     return GrouperUtil.clone(this, CLONE_FIELDS);
   }
 
@@ -229,8 +228,105 @@ public class PITMembership extends GrouperPIT implements Hib3GrouperVersioned {
   public void save() {
     // if the id already exists for an inactive membership, let's rename the id to avoid a conflict.
     PITMembership existing = GrouperDAOFactory.getFactory().getPITMembership().findById(this.getId());
-    if (existing != null && !existing.isActive()) {
-      GrouperDAOFactory.getFactory().getPITMembership().updateId(existing.getId(), GrouperUuid.getUuid());
+    if (existing != null && !existing.isActive() && this.isActive()) {
+      
+      // first make a copy of the membership with a new id
+      PITMembership existingCopy = existing.clone();
+      existingCopy.setId(GrouperUuid.getUuid());
+      existingCopy.setHibernateVersionNumber(-1L);
+      existingCopy.save();
+      
+      // next update attribute assignments where this is the owner
+      GrouperDAOFactory.getFactory().getPITAttributeAssign().updateOwnerMembershipId(existing.getId(), existingCopy.getId());
+      
+      // delete the old membership now and add the new one
+      existing.delete();
+      GrouperDAOFactory.getFactory().getPITMembership().saveOrUpdate(this);
+      
+      // next add new assignments and end dates to existing ones.
+      Set<PITAttributeAssign> assignments = GrouperDAOFactory.getFactory().getPITAttributeAssign().findActiveByOwnerMembershipId(existingCopy.getId());
+      Iterator<PITAttributeAssign> assignmentIter = assignments.iterator();
+      while (assignmentIter.hasNext()) {
+        PITAttributeAssign assignment = assignmentIter.next();
+        PITAttributeAssign assignmentCopy = assignment.clone();
+        
+        assignmentCopy.setId(GrouperUuid.getUuid());
+        assignmentCopy.setEndTimeDb(this.getStartTimeDb());
+        assignmentCopy.setActiveDb("F");
+        assignmentCopy.setContextId(this.getContextId());
+        assignmentCopy.setHibernateVersionNumber(-1L);
+        assignmentCopy.save();
+        
+        assignment.setOwnerMembershipId(this.getId());
+        assignment.setStartTimeDb(this.getStartTimeDb());
+        assignment.setContextId(this.getContextId());
+        assignment.update();
+        
+        // well this assignment might have values too...
+        GrouperDAOFactory.getFactory().getPITAttributeAssignValue().updateAttributeAssignId(assignment.getId(), assignmentCopy.getId());
+        Set<PITAttributeAssignValue> values = GrouperDAOFactory.getFactory().getPITAttributeAssignValue().findActiveByAttributeAssignId(assignmentCopy.getId());
+        Iterator<PITAttributeAssignValue> valueIter = values.iterator();
+        while (valueIter.hasNext()) {
+          PITAttributeAssignValue value = valueIter.next();
+          PITAttributeAssignValue valueCopy = value.clone();
+          
+          valueCopy.setId(GrouperUuid.getUuid());
+          valueCopy.setEndTimeDb(this.getStartTimeDb());
+          valueCopy.setActiveDb("F");
+          valueCopy.setContextId(this.getContextId());
+          valueCopy.setHibernateVersionNumber(-1L);
+          valueCopy.save();
+          
+          value.setAttributeAssignId(assignment.getId());
+          value.setStartTimeDb(this.getStartTimeDb());
+          value.setContextId(this.getContextId());
+          value.update();
+        }
+        
+        // to complicate things a bit more, this attribute assignment might be the owner of another attribute assignment
+        GrouperDAOFactory.getFactory().getPITAttributeAssign().updateOwnerAttributeAssignId(assignment.getId(), assignmentCopy.getId());
+        Set<PITAttributeAssign> assignments2 = GrouperDAOFactory.getFactory().getPITAttributeAssign().findActiveByOwnerAttributeAssignId(assignmentCopy.getId());
+        Iterator<PITAttributeAssign> assignmentIter2 = assignments2.iterator();
+        while (assignmentIter2.hasNext()) {
+          PITAttributeAssign assignment2 = assignmentIter2.next();
+          PITAttributeAssign assignmentCopy2 = assignment2.clone();
+          
+          assignmentCopy2.setId(GrouperUuid.getUuid());
+          assignmentCopy2.setEndTimeDb(this.getStartTimeDb());
+          assignmentCopy2.setActiveDb("F");
+          assignmentCopy2.setContextId(this.getContextId());
+          assignmentCopy2.setHibernateVersionNumber(-1L);
+          assignmentCopy2.save();
+          
+          assignment2.setOwnerAttributeAssignId(assignment.getId());
+          assignment2.setStartTimeDb(this.getStartTimeDb());
+          assignment2.setContextId(this.getContextId());
+          assignment2.update();
+          
+          // well this assignment might have values too...
+          GrouperDAOFactory.getFactory().getPITAttributeAssignValue().updateAttributeAssignId(assignment2.getId(), assignmentCopy2.getId());
+          Set<PITAttributeAssignValue> values2 = GrouperDAOFactory.getFactory().getPITAttributeAssignValue().findActiveByAttributeAssignId(assignmentCopy2.getId());
+          Iterator<PITAttributeAssignValue> valueIter2 = values2.iterator();
+          while (valueIter2.hasNext()) {
+            PITAttributeAssignValue value2 = valueIter2.next();
+            PITAttributeAssignValue valueCopy2 = value2.clone();
+            
+            valueCopy2.setId(GrouperUuid.getUuid());
+            valueCopy2.setEndTimeDb(this.getStartTimeDb());
+            valueCopy2.setActiveDb("F");
+            valueCopy2.setContextId(this.getContextId());
+            valueCopy2.setHibernateVersionNumber(-1L);
+            valueCopy2.save();
+            
+            value2.setAttributeAssignId(assignment2.getId());
+            value2.setStartTimeDb(this.getStartTimeDb());
+            value2.setContextId(this.getContextId());
+            value2.update();
+          }
+        }
+      }
+      
+      return;
     }
     
     GrouperDAOFactory.getFactory().getPITMembership().saveOrUpdate(this);
@@ -664,7 +760,7 @@ public class PITMembership extends GrouperPIT implements Hib3GrouperVersioned {
     }
     
     // if the member is a group, add the PIT immediate group set.
-    if (this.getMember().getSubjectTypeId().equals("group")) {
+    if (this.isActive() && this.getMember().getSubjectTypeId().equals("group")) {
       Field field = FieldFinder.findById(this.getFieldId(), false);
       if (field == null) {
         // if the field was deleted, then there's nothing to do

@@ -2214,6 +2214,7 @@ public enum GrouperDdl implements DdlVersionable {
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_perms_role_v");
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_perms_role_subject_v");
     
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_pit_attr_asn_value_v");
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_pit_perms_all_v");
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_pit_perms_role_v");
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_pit_perms_role_subj_v");
@@ -3822,24 +3823,24 @@ public enum GrouperDdl implements DdlVersionable {
             "MEMBERSHIP_END_TIME", 
             "DEPTH", 
             "GROUP_SET_PARENT_ID"),
-        GrouperUtil.toSet("ID:", 
-            "MEMBERSHIP_ID:", 
-            "GROUP_SET_ID:", 
-            "MEMBER_ID:", 
-            "FIELD_ID:", 
-            "MEMBERSHIP_FIELD_ID:", 
-            "OWNER_ID:", 
-            "OWNER_ATTR_DEF_ID:", 
-            "OWNER_GROUP_ID:", 
-            "OWNER_STEM_ID:", 
-            "GROUP_SET_ACTIVE:", 
-            "GROUP_SET_START_TIME:", 
-            "GROUP_SET_END_TIME:", 
-            "MEMBERSHIP_ACTIVE:", 
-            "MEMBERSHIP_START_TIME:", 
-            "MEMBERSHIP_END_TIME:", 
-            "DEPTH:", 
-            "GROUP_SET_PARENT_ID:"),
+        GrouperUtil.toSet("ID: id of this membership", 
+            "MEMBERSHIP_ID: id of the immediate (or composite) membership that causes this membership", 
+            "GROUP_SET_ID: id of the group set that causes this membership", 
+            "MEMBER_ID: member id", 
+            "FIELD_ID: field id", 
+            "MEMBERSHIP_FIELD_ID: field id of the immediate (or composite) membership that causes this membership", 
+            "OWNER_ID: owner id", 
+            "OWNER_ATTR_DEF_ID: owner attribute def id if applicable", 
+            "OWNER_GROUP_ID: owner group id if applicable", 
+            "OWNER_STEM_ID: owner stem id if applicable", 
+            "GROUP_SET_ACTIVE: whether the group set is active", 
+            "GROUP_SET_START_TIME: start time of the group set", 
+            "GROUP_SET_END_TIME: end time of the group set", 
+            "MEMBERSHIP_ACTIVE: whether the immediate (or composite) membership is active", 
+            "MEMBERSHIP_START_TIME: start time of the immediate (or composite) membership", 
+            "MEMBERSHIP_END_TIME: end time of the immediate (or composite) membership", 
+            "DEPTH: depth of this membership", 
+            "GROUP_SET_PARENT_ID: parent group set"),
             "select "
             + GrouperDdlUtils.sqlConcatenation("ms.id", "gs.id", Membership.membershipIdSeparator) + " as membership_id, "
             + "ms.id as immediate_membership_id, "
@@ -7244,6 +7245,67 @@ public enum GrouperDdl implements DdlVersionable {
         + "attribute_assign_end_time "
         + "from grouper_pit_perms_role_subj_v  ");
       
+    GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_pit_attr_asn_value_v", 
+        "grouper_pit_attr_asn_value_v: joins attribute values with their assignments",
+        GrouperUtil.toSet("attribute_assign_value_id", 
+            "attribute_assign_id", 
+            "attribute_def_name_id",
+            "attribute_assign_action_id", 
+            "attribute_assign_type",
+            "owner_attribute_assign_id",
+            "owner_attribute_def_id",
+            "owner_group_id", 
+            "owner_member_id",
+            "owner_membership_id",
+            "owner_stem_id",
+            "value_integer",
+            "value_floating",
+            "value_string",
+            "value_member_id",
+            "active", 
+            "start_time",
+            "end_time"
+            ),
+        GrouperUtil.toSet("attribute_assign_value_id: id of the attribute assign value",
+            "attribute_assign_id: id of the attribute assignment",
+            "attribute_def_name_id: id of the attribute definition name",
+            "attribute_assign_action_id: id of the attribute assign action", 
+            "attribute_assign_type: type of assignment",
+            "owner_attribute_assign_id: owner id of the attribute assignment if applicable",
+            "owner_attribute_def_id: owner id of the attribute definition if applicable",
+            "owner_group_id: owner id of the group if applicable", 
+            "owner_member_id: owner id of the member if applicable",
+            "owner_membership_id: owner id of the membership if applicable",
+            "owner_stem_id: owner id of the stem if applicable",
+            "value_integer: integer value if applicable",
+            "value_floating: floating point value if applicable",
+            "value_string: string value if applicable",
+            "value_member_id: member id value if applicable",
+            "active: whether the value is currently active", 
+            "start_time: start time of value",
+            "end_time: end time of value"
+        ),
+        "select gpaav.id as attribute_assign_value_id,  "
+        + "gpaa.id as attribute_assign_id,  "
+        + "gpaa.attribute_def_name_id,  "
+        + "gpaa.attribute_assign_action_id,  "
+        + "gpaa.attribute_assign_type,  "
+        + "gpaa.owner_attribute_assign_id,  "
+        + "gpaa.owner_attribute_def_id,  "
+        + "gpaa.owner_group_id,  "
+        + "gpaa.owner_member_id,  "
+        + "gpaa.owner_membership_id, "
+        + "gpaa.owner_stem_id, "
+        + "gpaav.value_integer, "
+        + "gpaav.value_floating, "
+        + "gpaav.value_string, "
+        + "gpaav.value_member_id, "
+        + "gpaav.active, "
+        + "gpaav.start_time, "
+        + "gpaav.end_time "
+        + "from grouper_pit_attribute_assign gpaa, grouper_pit_attr_assn_value gpaav " 
+        + "where gpaa.id = gpaav.attribute_assign_id");
+    
     {
       
       String attributeRootStem = GrouperConfig.getProperty("grouper.attribute.rootStem");
@@ -7430,6 +7492,15 @@ public enum GrouperDdl implements DdlVersionable {
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitMembersTable, PITMember.COLUMN_SUBJECT_TYPE, 
           Types.VARCHAR, "255", false, true);
       
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitMembersTable, PITMember.COLUMN_ACTIVE,
+          Types.VARCHAR, "1", false, true);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitMembersTable, PITMember.COLUMN_START_TIME,
+          Types.BIGINT, "20", false, true);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitMembersTable, PITMember.COLUMN_END_TIME,
+          Types.BIGINT, "20", false, false);
+      
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitMembersTable, PITMember.COLUMN_CONTEXT_ID, 
           Types.VARCHAR, "40", false, false);
       
@@ -7441,6 +7512,12 @@ public enum GrouperDdl implements DdlVersionable {
       
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitMembersTable.getName(), 
           "pit_member_context_idx", false, PITMember.COLUMN_CONTEXT_ID);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitMembersTable.getName(), 
+          "pit_member_start_idx", false, PITMember.COLUMN_START_TIME, PITMember.COLUMN_END_TIME);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitMembersTable.getName(), 
+          "pit_member_end_idx", false, PITMember.COLUMN_END_TIME);
     }
     
     {
@@ -7456,6 +7533,15 @@ public enum GrouperDdl implements DdlVersionable {
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitFieldsTable, PITField.COLUMN_TYPE, 
           Types.VARCHAR, "32", false, true);
       
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitFieldsTable, PITField.COLUMN_ACTIVE,
+          Types.VARCHAR, "1", false, true);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitFieldsTable, PITField.COLUMN_START_TIME,
+          Types.BIGINT, "20", false, true);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitFieldsTable, PITField.COLUMN_END_TIME,
+          Types.BIGINT, "20", false, false);
+      
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitFieldsTable, PITField.COLUMN_CONTEXT_ID, 
           Types.VARCHAR, "40", false, false);
       
@@ -7467,6 +7553,12 @@ public enum GrouperDdl implements DdlVersionable {
       
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitFieldsTable.getName(), 
           "pit_field_context_idx", false, PITField.COLUMN_CONTEXT_ID);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitFieldsTable.getName(), 
+          "pit_field_start_idx", false, PITField.COLUMN_START_TIME, PITField.COLUMN_END_TIME);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitFieldsTable.getName(), 
+          "pit_field_end_idx", false, PITField.COLUMN_END_TIME);
     }
     
     {
@@ -7478,6 +7570,15 @@ public enum GrouperDdl implements DdlVersionable {
   
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitGroupsTable, PITGroup.COLUMN_NAME, 
           Types.VARCHAR, ddlVersionBean.isSqlServer() ? "900" : "1024", false, true);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitGroupsTable, PITGroup.COLUMN_ACTIVE,
+          Types.VARCHAR, "1", false, true);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitGroupsTable, PITGroup.COLUMN_START_TIME,
+          Types.BIGINT, "20", false, true);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitGroupsTable, PITGroup.COLUMN_END_TIME,
+          Types.BIGINT, "20", false, false);
       
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitGroupsTable, PITGroup.COLUMN_CONTEXT_ID, 
           Types.VARCHAR, "40", false, false);
@@ -7493,6 +7594,12 @@ public enum GrouperDdl implements DdlVersionable {
       
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitGroupsTable.getName(), 
           "pit_group_context_idx", false, PITGroup.COLUMN_CONTEXT_ID);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitGroupsTable.getName(), 
+          "pit_group_start_idx", false, PITGroup.COLUMN_START_TIME, PITGroup.COLUMN_END_TIME);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitGroupsTable.getName(), 
+          "pit_group_end_idx", false, PITGroup.COLUMN_END_TIME);
     }
     
     {
@@ -7504,6 +7611,15 @@ public enum GrouperDdl implements DdlVersionable {
   
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitStemsTable, PITStem.COLUMN_NAME, 
           Types.VARCHAR, ddlVersionBean.isSqlServer() ? "900" : "1024", false, true);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitStemsTable, PITStem.COLUMN_ACTIVE,
+          Types.VARCHAR, "1", false, true);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitStemsTable, PITStem.COLUMN_START_TIME,
+          Types.BIGINT, "20", false, true);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitStemsTable, PITStem.COLUMN_END_TIME,
+          Types.BIGINT, "20", false, false);
       
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitStemsTable, PITStem.COLUMN_CONTEXT_ID, 
           Types.VARCHAR, "40", false, false);
@@ -7519,6 +7635,12 @@ public enum GrouperDdl implements DdlVersionable {
       
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitStemsTable.getName(), 
           "pit_stem_context_idx", false, PITStem.COLUMN_CONTEXT_ID);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitStemsTable.getName(), 
+          "pit_stem_start_idx", false, PITStem.COLUMN_START_TIME, PITStem.COLUMN_END_TIME);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitStemsTable.getName(), 
+          "pit_stem_end_idx", false, PITStem.COLUMN_END_TIME);
     }
     
     {
@@ -7533,6 +7655,15 @@ public enum GrouperDdl implements DdlVersionable {
       
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeDefTable, PITAttributeDef.COLUMN_ATTRIBUTE_DEF_TYPE,
           Types.VARCHAR, "32", false, true);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeDefTable, PITAttributeDef.COLUMN_ACTIVE,
+          Types.VARCHAR, "1", false, true);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeDefTable, PITAttributeDef.COLUMN_START_TIME,
+          Types.BIGINT, "20", false, true);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeDefTable, PITAttributeDef.COLUMN_END_TIME,
+          Types.BIGINT, "20", false, false);
       
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeDefTable, PITAttributeDef.COLUMN_CONTEXT_ID, 
           Types.VARCHAR, "40", false, false);
@@ -7551,6 +7682,12 @@ public enum GrouperDdl implements DdlVersionable {
       
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitAttributeDefTable.getName(), 
           "pit_attribute_def_type_idx", false, PITAttributeDef.COLUMN_ATTRIBUTE_DEF_TYPE);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitAttributeDefTable.getName(), 
+          "pit_attribute_def_start_idx", false, PITAttributeDef.COLUMN_START_TIME, PITAttributeDef.COLUMN_END_TIME);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitAttributeDefTable.getName(), 
+          "pit_attribute_def_end_idx", false, PITAttributeDef.COLUMN_END_TIME);
     }
     
     {
@@ -7616,6 +7753,12 @@ public enum GrouperDdl implements DdlVersionable {
       
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitMembershipTable.getName(), 
           "pit_ms_owner_member_field_idx", false, PITMembership.COLUMN_OWNER_ID, PITMembership.COLUMN_MEMBER_ID, PITMembership.COLUMN_FIELD_ID);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitMembershipTable.getName(), 
+          "pit_ms_start_idx", false, PITMembership.COLUMN_START_TIME, PITMembership.COLUMN_END_TIME);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitMembershipTable.getName(), 
+          "pit_ms_end_idx", false, PITMembership.COLUMN_END_TIME);
     }
     
     {
@@ -7720,6 +7863,12 @@ public enum GrouperDdl implements DdlVersionable {
       
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitGroupSetTable.getName(), 
           "pit_gs_owner_member_field_idx", false, PITGroupSet.COLUMN_OWNER_ID, PITGroupSet.COLUMN_MEMBER_ID, PITGroupSet.COLUMN_FIELD_ID);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitGroupSetTable.getName(), 
+          "pit_gs_start_idx", false, PITGroupSet.COLUMN_START_TIME, PITGroupSet.COLUMN_END_TIME);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitGroupSetTable.getName(), 
+          "pit_gs_end_idx", false, PITGroupSet.COLUMN_END_TIME);
     }
     
     {
@@ -7797,6 +7946,12 @@ public enum GrouperDdl implements DdlVersionable {
 
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitAttributeAssignTable.getName(), 
           "pit_attr_assn_own_stem_idx", false, PITAttributeAssign.COLUMN_OWNER_STEM_ID, PITAttributeAssign.COLUMN_ATTRIBUTE_ASSIGN_ACTION_ID);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitAttributeAssignTable.getName(), 
+          "pit_attr_assn_start_idx", false, PITAttributeAssign.COLUMN_START_TIME, PITAttributeAssign.COLUMN_END_TIME);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitAttributeAssignTable.getName(), 
+          "pit_attr_assn_end_idx", false, PITAttributeAssign.COLUMN_END_TIME);
     }
     
     {
@@ -7855,6 +8010,12 @@ public enum GrouperDdl implements DdlVersionable {
 
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitAttributeAssignValueTable.getName(),
           "pit_attr_val_member_id_idx", false, PITAttributeAssignValue.COLUMN_VALUE_MEMBER_ID);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitAttributeAssignValueTable.getName(), 
+          "pit_attr_val_start_idx", false, PITAttributeAssignValue.COLUMN_START_TIME, PITAttributeAssignValue.COLUMN_END_TIME);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitAttributeAssignValueTable.getName(), 
+          "pit_attr_val_end_idx", false, PITAttributeAssignValue.COLUMN_END_TIME);
     }
     
     {
@@ -7887,6 +8048,12 @@ public enum GrouperDdl implements DdlVersionable {
       
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitAttributeAssignActionTable.getName(), 
           "pit_attr_assn_act_def_id_idx", false, PITAttributeAssignAction.COLUMN_ATTRIBUTE_DEF_ID);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitAttributeAssignActionTable.getName(), 
+          "pit_attr_assn_act_start_idx", false, PITAttributeAssignAction.COLUMN_START_TIME, PITAttributeAssignAction.COLUMN_END_TIME);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitAttributeAssignActionTable.getName(), 
+          "pit_attr_assn_act_end_idx", false, PITAttributeAssignAction.COLUMN_END_TIME);
     }
     
     {
@@ -7931,6 +8098,12 @@ public enum GrouperDdl implements DdlVersionable {
       
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitAttributeDefNameTable.getName(), 
           "pit_attr_def_name_def_idx", false, PITAttributeDefName.COLUMN_ATTRIBUTE_DEF_ID);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitAttributeDefNameTable.getName(), 
+          "pit_attr_def_name_start_idx", false, PITAttributeDefName.COLUMN_START_TIME, PITAttributeDefName.COLUMN_END_TIME);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitAttributeDefNameTable.getName(), 
+          "pit_attr_def_name_end_idx", false, PITAttributeDefName.COLUMN_END_TIME);
     }
     
     {
@@ -7975,6 +8148,12 @@ public enum GrouperDdl implements DdlVersionable {
       
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitAttributeDefNameSet.getName(), 
           "pit_attr_def_name_set_prnt_idx", false, PITAttributeDefNameSet.COLUMN_PARENT_ATTR_DEF_NAME_SET_ID);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitAttributeDefNameSet.getName(), 
+          "pit_attr_def_name_set_strt_idx", false, PITAttributeDefNameSet.COLUMN_START_TIME, PITAttributeDefNameSet.COLUMN_END_TIME);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitAttributeDefNameSet.getName(), 
+          "pit_attr_def_name_set_end_idx", false, PITAttributeDefNameSet.COLUMN_END_TIME);
     }
     
     {
@@ -8019,6 +8198,12 @@ public enum GrouperDdl implements DdlVersionable {
       
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitAttributeAssignActionSet.getName(), 
           "pit_action_set_parent_idx", false, PITAttributeAssignActionSet.COLUMN_PARENT_ATTR_ASSN_ACTION_ID);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitAttributeAssignActionSet.getName(), 
+          "pit_action_set_start_idx", false, PITAttributeAssignActionSet.COLUMN_START_TIME, PITAttributeAssignActionSet.COLUMN_END_TIME);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitAttributeAssignActionSet.getName(), 
+          "pit_action_set_end_idx", false, PITAttributeAssignActionSet.COLUMN_END_TIME);
     }
     
     {
@@ -8063,6 +8248,12 @@ public enum GrouperDdl implements DdlVersionable {
       
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitRoleSet.getName(), 
           "pit_rs_parent_idx", false, PITRoleSet.COLUMN_PARENT_ROLE_SET_ID);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitRoleSet.getName(), 
+          "pit_rs_start_idx", false, PITRoleSet.COLUMN_START_TIME, PITRoleSet.COLUMN_END_TIME);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitRoleSet.getName(), 
+          "pit_rs_end_idx", false, PITRoleSet.COLUMN_END_TIME);
     }
   }
 

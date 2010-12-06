@@ -1,5 +1,6 @@
 package edu.internet2.middleware.grouper.internal.dao.hib3;
 
+import java.sql.Timestamp;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
@@ -58,6 +59,16 @@ public class Hib3PITGroupDAO extends Hib3DAO implements PITGroupDAO {
       .uniqueResult(PITGroup.class);
     
     return pitGroup;
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.PITGroupDAO#deleteInactiveRecords(java.sql.Timestamp)
+   */
+  public void deleteInactiveRecords(Timestamp time) {
+    HibernateSession.byHqlStatic()
+      .createQuery("delete from PITGroup where endTimeDb is not null and endTimeDb < :time")
+      .setLong("time", time.getTime() * 1000)
+      .executeUpdate();
   }
 }
 

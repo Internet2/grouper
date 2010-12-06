@@ -12,7 +12,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * $Id$
  */
 @SuppressWarnings("serial")
-public class PITGroup extends GrouperAPI implements Hib3GrouperVersioned {
+public class PITGroup extends GrouperPIT implements Hib3GrouperVersioned {
 
   /** db id for this row */
   public static final String COLUMN_ID = "id";

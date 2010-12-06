@@ -4,6 +4,7 @@
  */
 package edu.internet2.middleware.grouper.internal.dao;
 
+import java.sql.Timestamp;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.Field;
@@ -110,4 +111,10 @@ public interface PITGroupSetDAO extends GrouperDAO {
    * @return pit group set
    */
   public PITGroupSet findActiveImmediateChildByParentAndMemberGroup(PITGroupSet parentPITGroupSet, String memberGroupId);
+  
+  /**
+   * Delete records that ended before the given date.
+   * @param time
+   */
+  public void deleteInactiveRecords(Timestamp time);
 }

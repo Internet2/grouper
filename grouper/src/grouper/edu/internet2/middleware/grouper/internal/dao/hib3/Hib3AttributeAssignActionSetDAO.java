@@ -24,7 +24,6 @@ public class Hib3AttributeAssignActionSetDAO extends Hib3DAO implements Attribut
   /**
    * 
    */
-  @SuppressWarnings("unused")
   private static final String KLASS = Hib3AttributeAssignActionSetDAO.class.getName();
 
   /**
@@ -166,18 +165,17 @@ public class Hib3AttributeAssignActionSetDAO extends Hib3DAO implements Attribut
             
             hibernateHandlerBean.getHibernateSession().setCachingEnabled(false);
 
-            if (GrouperDdlUtils.isMysql() || GrouperDdlUtils.isHsql()) {
-              //do this since mysql cant handle self-referential foreign keys
-              hibernateHandlerBean.getHibernateSession().byHql().createQuery(
-                "update AttributeAssignActionSet set parentAttrAssignActionSetId = null where ifHasAttrAssignActionId = :id")
-                .setString("id", attributeAssignAction.getId())
-                .executeUpdate();    
+            Set<AttributeAssignActionSet> actionSets = findByIfHasAttributeAssignActionId(attributeAssignAction.getId());
+            for (AttributeAssignActionSet actionSet : actionSets) {
+              if (GrouperDdlUtils.isMysql() || GrouperDdlUtils.isHsql()) {
+                //do this since mysql cant handle self-referential foreign keys
+                actionSet.setParentAttrAssignActionSetId(null);
+                actionSet.saveOrUpdate();
+              }
+              
+              hibernateHandlerBean.getHibernateSession().byObject().delete(actionSet);
             }
             
-            hibernateHandlerBean.getHibernateSession().byHql().createQuery(
-              "delete from AttributeAssignActionSet where ifHasAttrAssignActionId = :id")
-              .setString("id", attributeAssignAction.getId())
-              .executeUpdate();    
             return null;
           }
         });

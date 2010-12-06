@@ -25,7 +25,6 @@ public class Hib3RoleSetDAO extends Hib3DAO implements RoleSetDAO {
   /**
    * 
    */
-  @SuppressWarnings("unused")
   private static final String KLASS = Hib3RoleSetDAO.class.getName();
 
   /**
@@ -189,19 +188,18 @@ public class Hib3RoleSetDAO extends Hib3DAO implements RoleSetDAO {
           
           public Object callback(HibernateHandlerBean hibernateHandlerBean)
               throws GrouperDAOException {
-            
-            if (GrouperDdlUtils.isMysql() || GrouperDdlUtils.isHsql()) {
-              //do this since mysql cant handle self-referential foreign keys
-              hibernateHandlerBean.getHibernateSession().byHql().createQuery(
-                "update RoleSet set parentRoleSetId = null where ifHasRoleId = :id")
-                .setString("id", role.getId())
-                .executeUpdate();    
+                        
+            Set<RoleSet> roleSets = findByIfHasRoleId(role.getId());
+            for (RoleSet roleSet : roleSets) {
+              if (GrouperDdlUtils.isMysql() || GrouperDdlUtils.isHsql()) {
+                //do this since mysql cant handle self-referential foreign keys
+                roleSet.setParentRoleSetId(null);
+                roleSet.saveOrUpdate();
+              }
+              
+              hibernateHandlerBean.getHibernateSession().byObject().delete(roleSet);
             }
-            
-            hibernateHandlerBean.getHibernateSession().byHql().createQuery(
-              "delete from RoleSet where ifHasRoleId = :id")
-              .setString("id", role.getId())
-              .executeUpdate();    
+ 
             return null;
           }
         });

@@ -39,6 +39,10 @@
     <property name="contextId" column="context_id"/>
 
     <property name="nameDb" column="name" />
+    
+    <property name="activeDb" column="active" />
+    <property name="startTimeDb" column="start_time" />
+    <property name="endTimeDb" column="end_time" />
   </class>
 </hibernate-mapping>
 

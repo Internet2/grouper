@@ -4,6 +4,8 @@
  */
 package edu.internet2.middleware.grouper.internal.dao;
 
+import java.sql.Timestamp;
+
 import edu.internet2.middleware.grouper.pit.PITAttributeDefNameSet;
 
 /**
@@ -28,4 +30,10 @@ public interface PITAttributeDefNameSetDAO extends GrouperDAO {
    * @return PITAttributeDefNameSet
    */
   public PITAttributeDefNameSet findById(String id);
+  
+  /**
+   * Delete records that ended before the given date.
+   * @param time
+   */
+  public void deleteInactiveRecords(Timestamp time);
 }

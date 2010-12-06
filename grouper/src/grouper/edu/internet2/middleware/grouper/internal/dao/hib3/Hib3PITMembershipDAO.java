@@ -1,5 +1,7 @@
 package edu.internet2.middleware.grouper.internal.dao.hib3;
 
+import java.sql.Timestamp;
+
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.PITMembershipDAO;
 import edu.internet2.middleware.grouper.pit.PITMembership;
@@ -60,6 +62,17 @@ public class Hib3PITMembershipDAO extends Hib3DAO implements PITMembershipDAO {
       .createQuery("update PITMembership set id = :newId where id = :oldId")
       .setString("oldId", oldId)
       .setString("newId", newId)
+      .executeUpdate();
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.PITMembershipDAO#deleteInactiveRecords(java.sql.Timestamp)
+   */
+  public void deleteInactiveRecords(Timestamp time) {
+    HibernateSession.byHqlStatic()
+      .createQuery("delete from PITMembership m where m.endTimeDb is not null and m.endTimeDb < :time " +
+      		"and not exists (select 1 from PITAttributeAssign a where a.ownerMembershipId = m.id)")
+      .setLong("time", time.getTime() * 1000)
       .executeUpdate();
   }
 }
