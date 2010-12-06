@@ -2,7 +2,9 @@ package edu.internet2.middleware.grouper.ws.util;
 
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.ws.rest.GrouperRestServlet;
+import edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup;
 import edu.internet2.middleware.grouper.ws.soap.WsAddMemberResult.WsAddMemberResultCode;
+import edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup.SubjectFindResult;
 
 /**
  * WS grouper version utils
@@ -14,11 +16,17 @@ public class GrouperWsVersionUtils {
   /**
    * result code changed in 1.4 to include a response for if the membership already existed
    * @param didntAlreadyExist
+   * @param subjectFindResult 
    * @return the code success or if it already existed
    */
-  public static WsAddMemberResultCode addMemberSuccessResultCode(boolean didntAlreadyExist) {
+  public static WsAddMemberResultCode addMemberSuccessResultCode(boolean didntAlreadyExist, WsSubjectLookup.SubjectFindResult subjectFindResult) {
     
     if (retrieveCurrentClientVersion().greaterOrEqualToArg(GrouperVersion.valueOfIgnoreCase("v1_4_000"))) {
+
+      if (subjectFindResult == SubjectFindResult.SUCCESS_CREATED) {
+        return WsAddMemberResultCode.SUCCESS_CREATED;
+      }
+      
       //now we have two codes
       return didntAlreadyExist ? WsAddMemberResultCode.SUCCESS : WsAddMemberResultCode.SUCCESS_ALREADY_EXISTED;
     }

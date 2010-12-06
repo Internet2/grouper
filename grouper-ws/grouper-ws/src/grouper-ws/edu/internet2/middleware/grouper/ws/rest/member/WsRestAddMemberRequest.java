@@ -58,6 +58,32 @@ public class WsRestAddMemberRequest implements WsRequestBean {
   private String enabledTime;
   
   /**
+   * T or F, if this is a search by id or identifier, with no source, or the external source,
+   * and the subject is not found, then add an external subject (if the user is allowed
+   */
+  private String addExternalSubjectIfNotFound;
+  
+  /**
+   * T or F, if this is a search by id or identifier, with no source, or the external source,
+   * and the subject is not found, then add an external subject (if the user is allowed
+   * @return T or F or blank
+   */
+  public String getAddExternalSubjectIfNotFound() {
+    return this.addExternalSubjectIfNotFound;
+  }
+
+
+  /**
+   * T or F, if this is a search by id or identifier, with no source, or the external source,
+   * and the subject is not found, then add an external subject (if the user is allowed
+   * @param addExternalSubjectIfNotFound1
+   */
+  public void setAddExternalSubjectIfNotFound(String addExternalSubjectIfNotFound1) {
+    this.addExternalSubjectIfNotFound = addExternalSubjectIfNotFound1;
+  }
+
+
+  /**
    * date this membership will be disabled, yyyy/MM/dd HH:mm:ss.SSS
    * @return disabled time
    */

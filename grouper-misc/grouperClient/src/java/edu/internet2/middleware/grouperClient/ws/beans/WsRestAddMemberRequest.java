@@ -48,6 +48,12 @@ public class WsRestAddMemberRequest implements WsRequestBean {
   
   /**  date this membership will be enabled, yyyy/MM/dd HH:mm:ss.SSS */
   private String enabledTime;
+
+  /**
+   * T or F, if this is a search by identifier, with no source, or the external source,
+   * and the subject is not found, then add an external subject (if the user is allowed
+   */
+  private String addExternalSubjectIfNotFound;
   
   /**
    * date this membership will be disabled, yyyy/MM/dd HH:mm:ss.SSS
@@ -261,6 +267,26 @@ public class WsRestAddMemberRequest implements WsRequestBean {
    */
   public void setParams(WsParam[] params1) {
     this.params = params1;
+  }
+
+
+  /**
+   * T or F, if this is a search by identifier, with no source, or the external source,
+   * and the subject is not found, then add an external subject (if the user is allowed
+   * @return T or F or blank
+   */
+  public String getAddExternalSubjectIfNotFound() {
+    return this.addExternalSubjectIfNotFound;
+  }
+
+
+  /**
+   * T or F, if this is a search by identifier, with no source, or the external source,
+   * and the subject is not found, then add an external subject (if the user is allowed
+   * @param addExternalSubjectIfNotFound1
+   */
+  public void setAddExternalSubjectIfNotFound(String addExternalSubjectIfNotFound1) {
+    this.addExternalSubjectIfNotFound = addExternalSubjectIfNotFound1;
   }
 
 }

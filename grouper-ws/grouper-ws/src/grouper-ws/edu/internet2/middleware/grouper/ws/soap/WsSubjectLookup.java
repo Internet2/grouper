@@ -17,9 +17,12 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.exception.MemberNotFoundException;
 import edu.internet2.middleware.grouper.exception.MemberNotUniqueException;
+import edu.internet2.middleware.grouper.externalSubjects.ExternalSubject;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 import edu.internet2.middleware.grouper.ws.soap.WsHasMemberResult.WsHasMemberResultCode;
@@ -32,6 +35,8 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
 /**
  * <pre>
  * template to lookup a subject.
+ * 
+ * note if subjectId and subjectIdentifier are filled in with the same value, it will find by subject id or identifier.
  * 
  * to lookup a group as a subject, use the group uuid (e.g. fa2dd790-d3f9-4cf4-ac41-bb82e63bff66) in the 
  * subject id of the subject lookup.  Optionally you can use g:gsa as
@@ -76,6 +81,19 @@ public class WsSubjectLookup {
       public WsHasMemberResultCode convertToHasMemberResultCode() {
         //shouldnt be converting success
         throw new RuntimeException("Shouldnt be converting success...");
+      }
+    },
+
+    /** if the subject was not found, but created e.g. as an external subject */
+    SUCCESS_CREATED {
+
+      /** convert to has member result 
+       * @return the has member code
+       */
+      @Override
+      public WsHasMemberResultCode convertToHasMemberResultCode() {
+        //shouldnt be converting success
+        throw new RuntimeException("Shouldnt be converting success_created...");
       }
     },
 
@@ -137,7 +155,7 @@ public class WsSubjectLookup {
      * @return true if success
      */
     public boolean isSuccess() {
-      return this == SUCCESS;
+      return this.name().contains("SUCCESS");
     }
 
   }
@@ -232,10 +250,13 @@ public class WsSubjectLookup {
 
   /**
    * 
+   * @param addExternalSubjectIfNotFound if this is a search by id or identifier, with no source, or the external source,
+   * and the subject is not found, then add an external subject (if the user is allowed
    */
-  private void retrieveSubjectIfNeeded() {
-    //see if we already retrieved
-    if (this.subjectFindResult != null) {
+  private void retrieveSubjectIfNeeded(boolean addExternalSubjectIfNotFound) {
+
+    //see if we already retrieved... though if we did, and it was subject not found, and adding external, then do it again...
+    if (this.subjectFindResult != null && (!addExternalSubjectIfNotFound || this.subjectFindResult != SubjectFindResult.SUBJECT_NOT_FOUND)) {
       return;
     }
     try {
@@ -246,6 +267,8 @@ public class WsSubjectLookup {
       boolean hasSubjectIdentifier = !StringUtils.isBlank(this.subjectIdentifier);
       boolean hasSubjectSource = !StringUtils.isBlank(this.subjectSourceId);
   
+      boolean lookByIdOrIdentifier = StringUtils.equals(this.subjectId, this.subjectIdentifier);
+      
       //must have an id
       if (!hasSubjectId && !hasSubjectIdentifier) {
         this.subjectFindResult = SubjectFindResult.INVALID_QUERY;
@@ -254,12 +277,20 @@ public class WsSubjectLookup {
       }
   
       //note this doesnt test if both id and identifier are passed in.  if one, assumes it is valid
-      if (hasSubjectId) {
+      if (lookByIdOrIdentifier) {
+        if (hasSubjectSource) {
+          
+          this.subject = SubjectFinder.findByIdOrIdentifierAndSource(this.subjectId, this.subjectSourceId, true);
+          return;
+        }
+        this.subject = SubjectFinder.findByIdOrIdentifier(this.subjectId, true);
+
+      } else if (hasSubjectId) {
   
         //cant have source without type
         if (hasSubjectSource) {
           this.subject = SubjectFinder.getSource(this.subjectSourceId).getSubject(
-              this.subjectId, true);
+            this.subjectId, true);
           return;
         } 
         this.subject = SubjectFinder.findById(this.subjectId, true);
@@ -286,6 +317,53 @@ public class WsSubjectLookup {
       this.subjectFindResult = SubjectFindResult.SUBJECT_DUPLICATE;
       this.cause = snue;
     } catch (SubjectNotFoundException snfe) {
+  
+      //dont add external if the source is specified as something else
+      if (addExternalSubjectIfNotFound && (StringUtils.isBlank(this.subjectSourceId) 
+          || StringUtils.equals(ExternalSubject.sourceId(), this.subjectSourceId))) {
+        
+        //get the identifier or id
+        String loginId = StringUtils.isBlank(this.subjectIdentifier) ? this.subjectId : this.subjectIdentifier;
+        
+        this.subject = SubjectFinder.findByIdOrIdentifierAndSource(loginId, ExternalSubject.sourceId(), false);
+        if (this.subject == null) {
+          this.subject = SubjectFinder.findByIdOrIdentifier(loginId, false);
+        }
+        if (this.subject == null) {
+          //if it is still null, then it doesnt exist... lets validate it
+          final ExternalSubject externalSubject = new ExternalSubject();
+          externalSubject.setIdentifier(loginId);
+          try {
+            externalSubject.validateIdentifier();
+          } catch (Exception e) {
+            
+            LOG.warn("Invalid identifier: " + loginId, e);
+            this.subjectFindResult = SubjectFindResult.INVALID_QUERY;
+            this.cause = e;
+            return;
+          }
+          
+          //lets store this, without validation... as root
+          //send the invite as root
+          GrouperSession.callbackGrouperSession(GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+            
+            public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
+              externalSubject.store(null, null, false, true, false);
+              return null;
+            }
+          });
+          
+          this.subject = SubjectFinder.findByIdAndSource(externalSubject.getUuid(), ExternalSubject.sourceId(), false);
+          if (this.subject == null) {
+            this.subjectFindResult = SubjectFindResult.SUBJECT_NOT_FOUND;
+            this.cause = new RuntimeException("This should not be null, it was just created: " + externalSubject.getUuid() + ", " + loginId);
+          }
+        }
+        this.subjectFindResult = SubjectFindResult.SUCCESS_CREATED;
+        //success
+        return;
+      }
+      
       LOG.warn(this, snfe);
       this.subjectFindResult = SubjectFindResult.SUBJECT_NOT_FOUND;
       this.cause = snfe;
@@ -377,7 +455,20 @@ public class WsSubjectLookup {
    * @return the subject
    */
   public Subject retrieveSubject() {
-    this.retrieveSubjectIfNeeded();
+    return this.retrieveSubject(false);
+  }
+  
+  /**
+   * <pre>
+   * 
+   * Note: this is not a javabean property because we dont want it in the web service
+   * </pre>
+   * @param addExternalSubjectIfNotFound if this is a search by id or identifier, with no source, or the external source,
+   * and the subject is not found, then add an external subject (if the user is allowed
+   * @return the subject
+   */
+  public Subject retrieveSubject(boolean addExternalSubjectIfNotFound) {
+    this.retrieveSubjectIfNeeded(addExternalSubjectIfNotFound);
     return this.subject;
   }
 
@@ -440,7 +531,7 @@ public class WsSubjectLookup {
    * @return the subjectFindResult, this is never null
    */
   public SubjectFindResult retrieveSubjectFindResult() {
-    this.retrieveSubjectIfNeeded();
+    this.retrieveSubjectIfNeeded(false);
     return this.subjectFindResult;
   }
 

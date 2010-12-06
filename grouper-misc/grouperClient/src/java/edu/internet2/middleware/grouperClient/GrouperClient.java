@@ -404,7 +404,7 @@ public class GrouperClient {
   /**
    * @param argMapNotUsed
    */
-  private static void failOnArgsNotUsed(Map<String, String> argMapNotUsed) {
+  public static void failOnArgsNotUsed(Map<String, String> argMapNotUsed) {
     if (argMapNotUsed.size() > 0) {
       boolean failOnExtraParams = GrouperClientUtils.propertiesValueBoolean(
           "grouperClient.failOnExtraCommandLineArgs", true, true);
@@ -519,6 +519,8 @@ public class GrouperClient {
       
       Boolean includeSubjectDetail = GrouperClientUtils.argMapBoolean(argMap, argMapNotUsed, "includeSubjectDetail");
   
+      Boolean addExternalSubjectIfNotFound = GrouperClientUtils.argMapBoolean(argMap, argMapNotUsed, "addExternalSubjectIfNotFound");
+      
       Set<String> subjectAttributeNames = GrouperClientUtils.argMapSet(argMap, argMapNotUsed, "subjectAttributeNames", false);
   
       List<WsParam> params = retrieveParamsFromArgs(argMap, argMapNotUsed);
@@ -559,6 +561,8 @@ public class GrouperClient {
       gcAddMember.assignReplaceAllExisting(replaceAllExisting);
       gcAddMember.assignIncludeGroupDetail(includeGroupDetail);
       gcAddMember.assignIncludeSubjectDetail(includeSubjectDetail);
+      
+      gcAddMember.assignAddExternalSubjectIfNotFound(addExternalSubjectIfNotFound);
       
       gcAddMember.assignFieldName(fieldName);
       gcAddMember.assignTxType(GcTransactionType.valueOfIgnoreCase(txType));

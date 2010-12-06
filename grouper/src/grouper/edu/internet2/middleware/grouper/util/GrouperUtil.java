@@ -110,6 +110,9 @@ import edu.internet2.middleware.subject.provider.SourceManager;
  */
 public class GrouperUtil {
 
+  /** override map for properties in thread local to be used in a web server or the like */
+  private static ThreadLocal<Map<String, Map<String, String>>> propertiesThreadLocalOverrideMap = new ThreadLocal<Map<String, Map<String, String>>>();
+
   /**
    * take email addresses from a textarea and turn them into semi separated
    * @param emailAddresses can be whitespace, comma, or semi separated
@@ -7203,7 +7206,7 @@ public class GrouperUtil {
     if ("f".equalsIgnoreCase(value)) {
       return false;
     }
-    throw new RuntimeException("Invalid value: '" + value + "' for property: " + propertyName + " in grouper.properties");
+    throw new RuntimeException("Invalid boolean value: '" + value + "' for property: " + propertyName + " in properties file");
 
   }
   
@@ -10607,9 +10610,6 @@ public class GrouperUtil {
     return minValue;
   }
 
-  /** override map for properties in thread local to be used in a web server or the like */
-  private static ThreadLocal<Map<String, Map<String, String>>> propertiesThreadLocalOverrideMap = new ThreadLocal<Map<String, Map<String, String>>>();
-  
   /**
    * override map for properties in thread local to be used in a web server or the like, based on property file name
    * @param propertiesFileName 

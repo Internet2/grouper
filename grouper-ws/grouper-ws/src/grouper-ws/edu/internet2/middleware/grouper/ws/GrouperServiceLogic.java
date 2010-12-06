@@ -210,6 +210,8 @@ public class GrouperServiceLogic {
    * If blank, whatever is configured in the grouper-ws.properties will be sent
    * @param disabledTime date this membership will be disabled, yyyy/MM/dd HH:mm:ss.SSS
    * @param enabledTime date this membership will be enabled (for future provisioning), yyyy/MM/dd HH:mm:ss.SSS
+   * @param addExternalSubjectIfNotFound T or F, if this is a search by id or identifier, with no source, or the external source,
+   * and the subject is not found, then add an external subject (if the user is allowed
    * @return the results.  return the subject lookup only if there are problems retrieving the subject.
    * @see GrouperVersion
    */
@@ -220,7 +222,7 @@ public class GrouperServiceLogic {
       Field fieldName, GrouperTransactionType txType,
       final boolean includeGroupDetail, final boolean includeSubjectDetail,
       final String[] subjectAttributeNames, final WsParam[] params, final Timestamp disabledTime, 
-      final Timestamp enabledTime  ) {
+      final Timestamp enabledTime, final boolean addExternalSubjectIfNotFound  ) {
     final WsAddMemberResults wsAddMemberResults = new WsAddMemberResults();
 
     GrouperSession session = null;
@@ -299,12 +301,12 @@ public class GrouperServiceLogic {
                 }
               }
 
-              for (WsSubjectLookup wsSubjectLookup : GrouperUtil.nonNull(subjectLookups, WsSubjectLookup.class)) {
+              for (final WsSubjectLookup wsSubjectLookup : GrouperUtil.nonNull(subjectLookups, WsSubjectLookup.class)) {
                 final WsAddMemberResult wsAddMemberResult = new WsAddMemberResult();
                 wsAddMemberResults.getResults()[resultIndex++] = wsAddMemberResult;
                 try {
 
-                  final Subject subject = wsSubjectLookup.retrieveSubject();
+                  final Subject subject = wsSubjectLookup.retrieveSubject(addExternalSubjectIfNotFound);
 
                   wsAddMemberResult.processSubject(wsSubjectLookup,
                       subjectAttributeNamesToRetrieve);
@@ -345,7 +347,7 @@ public class GrouperServiceLogic {
                           }
                         }
 
-                        wsAddMemberResult.assignResultCode(GrouperWsVersionUtils.addMemberSuccessResultCode(didntAlreadyExist));
+                        wsAddMemberResult.assignResultCode(GrouperWsVersionUtils.addMemberSuccessResultCode(didntAlreadyExist, wsSubjectLookup.retrieveSubjectFindResult()));
 
                       } catch (InsufficientPrivilegeException ipe) {
                         wsAddMemberResult
@@ -444,6 +446,8 @@ public class GrouperServiceLogic {
    *            reserved for future use
    * @param disabledTime date this membership will be disabled, yyyy/MM/dd HH:mm:ss.SSS
    * @param enabledTime date this membership will be enabled (for future provisioning), yyyy/MM/dd HH:mm:ss.SSS
+   * @param addExternalSubjectIfNotFound T or F, if this is a search by id or identifier, with no source, or the external source,
+   * and the subject is not found, then add an external subject (if the user is allowed
    * @return the result of one member add
    */
   public static WsAddMemberLiteResult addMemberLite(
@@ -453,7 +457,7 @@ public class GrouperServiceLogic {
       Field fieldName, boolean includeGroupDetail, boolean includeSubjectDetail,
       String subjectAttributeNames, String paramName0, String paramValue0,
       String paramName1, String paramValue1, final Timestamp disabledTime, 
-      final Timestamp enabledTime) {
+      final Timestamp enabledTime, final boolean addExternalSubjectIfNotFound) {
 
     // setup the group lookup
     WsGroupLookup wsGroupLookup = new WsGroupLookup(groupName, groupUuid);
@@ -471,7 +475,8 @@ public class GrouperServiceLogic {
 
     WsAddMemberResults wsAddMemberResults = addMember(clientVersion, wsGroupLookup,
         subjectLookups, false, actAsSubjectLookup, fieldName, null, includeGroupDetail,
-        includeSubjectDetail, subjectAttributeArray, params, disabledTime, enabledTime);
+        includeSubjectDetail, subjectAttributeArray, params, disabledTime, enabledTime, 
+        addExternalSubjectIfNotFound);
 
     WsAddMemberLiteResult wsAddMemberLiteResult = new WsAddMemberLiteResult(
         wsAddMemberResults);

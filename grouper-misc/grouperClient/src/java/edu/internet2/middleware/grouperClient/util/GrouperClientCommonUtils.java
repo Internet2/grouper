@@ -69,6 +69,9 @@ import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
 @SuppressWarnings({ "serial", "unchecked" })
 public class GrouperClientCommonUtils  {
 
+  /** override map for properties in thread local to be used in a web server or the like */
+  private static ThreadLocal<Map<String, Map<String, String>>> propertiesThreadLocalOverrideMap = new ThreadLocal<Map<String, Map<String, String>>>();
+
   /**
    * return the arg after the argBefore, or null if not there, or exception
    * if argBefore is not found
@@ -5412,7 +5415,9 @@ public class GrouperClientCommonUtils  {
     if (isBlank(value)) {
       value = properties.getProperty(key);
     }
-    return trim(value);
+    value = trim(value);
+    value = substituteCommonVars(value);
+    return value;
   }
   
   /**
@@ -5589,7 +5594,7 @@ public class GrouperClientCommonUtils  {
     if ("f".equalsIgnoreCase(value)) {
       return false;
     }
-    throw new RuntimeException("Invalid value: '" + value + "' for property: " + propertyName + " in grouper.properties");
+    throw new RuntimeException("Invalid boolean value: '" + value + "' for property: " + propertyName + " in properties file");
 
   }
   
@@ -8707,9 +8712,6 @@ public class GrouperClientCommonUtils  {
     
     throw new RuntimeException("Invalid month: " + mon);
   }
-
-  /** override map for properties in thread local to be used in a web server or the like */
-  private static ThreadLocal<Map<String, Map<String, String>>> propertiesThreadLocalOverrideMap = new ThreadLocal<Map<String, Map<String, String>>>();
 
   /**
    * override map for properties in thread local to be used in a web server or the like, based on property file name

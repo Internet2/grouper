@@ -93,6 +93,20 @@ public class WsAddMemberResult implements ResultMetadataHolder {
 
     },
 
+    /** successful addition (success: T) */
+    SUCCESS_CREATED {
+
+      /** 
+       * if there is one result, convert to the results code
+       * @return WsAddMemberResultsCode
+       */
+      @Override
+      public WsAddMemberLiteResultCode convertToLiteCode() {
+        return WsAddMemberLiteResultCode.SUCCESS_CREATED;
+      }
+
+    },
+
     /** successful addition if already a member (success: T) */
     SUCCESS_ALREADY_EXISTED {
 
@@ -249,6 +263,7 @@ public class WsAddMemberResult implements ResultMetadataHolder {
       case SUBJECT_NOT_FOUND:
         this.assignResultCode(WsAddMemberResultCode.SUBJECT_NOT_FOUND);
         break;
+      case SUCCESS_CREATED:
       case SUCCESS:
         return;
     }

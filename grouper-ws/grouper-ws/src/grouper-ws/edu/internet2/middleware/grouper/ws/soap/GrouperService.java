@@ -1344,6 +1344,8 @@ public class GrouperService {
      * @param params optional: reserved for future use
      * @param disabledTime date this membership will be disabled, yyyy/MM/dd HH:mm:ss.SSS
      * @param enabledTime date this membership will be enabled (for future provisioning), yyyy/MM/dd HH:mm:ss.SSS
+     * @param addExternalSubjectIfNotFound T or F, if this is a search by id or identifier, with no source, or the external source,
+     * and the subject is not found, then add an external subject (if the user is allowed
      * @return the results
      * @see GrouperVersion
      */
@@ -1354,7 +1356,7 @@ public class GrouperService {
         final String fieldName, final String txType, final String includeGroupDetail,
         final String includeSubjectDetail, final String[] subjectAttributeNames,
         final WsParam[] params, final String disabledTime, 
-        final String enabledTime) {
+        final String enabledTime, String addExternalSubjectIfNotFound) {
   
       WsAddMemberResults wsAddMemberResults = new WsAddMemberResults();
   
@@ -1373,6 +1375,9 @@ public class GrouperService {
         boolean replaceAllExistingBoolean = GrouperServiceUtils.booleanValue(
             replaceAllExisting, false, "replaceAllExisting");
   
+        boolean addExternalSubjectIfNotFoundBoolean = GrouperServiceUtils.booleanValue(
+            addExternalSubjectIfNotFound, false, "addExternalSubjectIfNotFound");
+        
         //get the field or null or invalid query exception
         Field field = GrouperServiceUtils.retrieveField(fieldName);
   
@@ -1386,7 +1391,7 @@ public class GrouperService {
         wsAddMemberResults = GrouperServiceLogic.addMember(grouperWsVersion, wsGroupLookup,
             subjectLookups, replaceAllExistingBoolean, actAsSubjectLookup, field,
             grouperTransactionType, includeGroupDetailBoolean, includeSubjectDetailBoolean,
-            subjectAttributeNames, params, disabledTimestamp, enabledTimestamp);
+            subjectAttributeNames, params, disabledTimestamp, enabledTimestamp, addExternalSubjectIfNotFoundBoolean);
       } catch (Exception e) {
         wsAddMemberResults.assignResultCodeException(null, null, e);
       }
@@ -1610,6 +1615,8 @@ public class GrouperService {
    *            reserved for future use
    * @param disabledTime date this membership will be disabled: yyyy/MM/dd HH:mm:ss.SSS
    * @param enabledTime date this membership will be enabled (for future provisioning): yyyy/MM/dd HH:mm:ss.SSS
+   * @param addExternalSubjectIfNotFound T or F, if this is a search by id or identifier, with no source, or the external source,
+   * and the subject is not found, then add an external subject (if the user is allowed
    * @return the result of one member add
    */
   public WsAddMemberLiteResult addMemberLite(final String clientVersion,
@@ -1618,7 +1625,7 @@ public class GrouperService {
       String actAsSubjectIdentifier, String fieldName, String includeGroupDetail,
       String includeSubjectDetail, String subjectAttributeNames, String paramName0,
       String paramValue0, String paramName1, String paramValue1, final String disabledTime, 
-      final String enabledTime) {
+      final String enabledTime, String addExternalSubjectIfNotFound) {
     
     LOG.debug("entering addMemberLite");
     
@@ -1631,6 +1638,9 @@ public class GrouperService {
 
       boolean includeSubjectDetailBoolean = GrouperServiceUtils.booleanValue(
           includeSubjectDetail, false, "includeSubjectDetail");
+
+      boolean addExternalSubjectIfNotFoundBoolean = GrouperServiceUtils.booleanValue(
+          addExternalSubjectIfNotFound, false, "addExternalSubjectIfNotFound");
 
       //get the field or null or invalid query exception
       Field field = GrouperServiceUtils.retrieveField(fieldName);
@@ -1645,7 +1655,7 @@ public class GrouperService {
           groupUuid, subjectId, subjectSourceId, subjectIdentifier, actAsSubjectId, 
           actAsSubjectSourceId, actAsSubjectIdentifier, field, includeGroupDetailBoolean, 
           includeSubjectDetailBoolean, subjectAttributeNames, paramName0, paramValue0, 
-          paramName1, paramValue1, disabledTimestamp, enabledTimestamp);
+          paramName1, paramValue1, disabledTimestamp, enabledTimestamp, addExternalSubjectIfNotFoundBoolean);
 
     } catch (Exception e) {
       wsAddMemberLiteResult.assignResultCodeException(null, null, e);

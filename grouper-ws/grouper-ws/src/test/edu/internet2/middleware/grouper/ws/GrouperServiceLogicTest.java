@@ -56,6 +56,7 @@ import edu.internet2.middleware.grouper.permissions.role.Role;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouper.ws.soap.WsAddMemberResults;
 import edu.internet2.middleware.grouper.ws.soap.WsAssignAttributeResult;
 import edu.internet2.middleware.grouper.ws.soap.WsAssignAttributesResults;
 import edu.internet2.middleware.grouper.ws.soap.WsAssignPermissionsResults;
@@ -77,10 +78,13 @@ import edu.internet2.middleware.grouper.ws.soap.WsMembershipLookup;
 import edu.internet2.middleware.grouper.ws.soap.WsPermissionAssign;
 import edu.internet2.middleware.grouper.ws.soap.WsStemLookup;
 import edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup;
+import edu.internet2.middleware.grouper.ws.soap.WsAddMemberResult.WsAddMemberResultCode;
+import edu.internet2.middleware.grouper.ws.soap.WsAddMemberResults.WsAddMemberResultsCode;
 import edu.internet2.middleware.grouper.ws.soap.WsGetAttributeAssignmentsResults.WsGetAttributeAssignmentsResultsCode;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
 import edu.internet2.middleware.grouper.ws.util.GrouperWsVersionUtils;
 import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
+import edu.internet2.middleware.subject.Subject;
 
 
 /**
@@ -107,7 +111,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
    */
   public static void main(String[] args) {
     //TestRunner.run(GrouperServiceLogicTest.class);
-    TestRunner.run(new GrouperServiceLogicTest("testAssignPermissions"));
+    TestRunner.run(new GrouperServiceLogicTest("testAddExternalMember"));
   }
 
   /**
@@ -3343,6 +3347,61 @@ public class GrouperServiceLogicTest extends GrouperTest {
     assertEquals("b", attributeAssign.getAttributeAssignAction().getName());
     
     
+  }
+
+  /**
+   * test add external member
+   */
+  public void testAddExternalMember() {
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+    
+    Subject subject = SubjectFinder.findByIdentifier("a@b.c", false);
+    
+    assertNull(subject);
+    
+    Group group = new GroupSave(GrouperSession.staticGrouperSession()).assignSaveMode(SaveMode.INSERT_OR_UPDATE)
+      .assignName("test:groupAddExternal").assignCreateParentStemsIfNotExist(true)
+      .assignDescription("description").save();
+  
+    //Error case attribute assign type
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+    GrouperVersion grouperVersion = GrouperVersion.valueOfIgnoreCase("v2_0_000");
+    WsGroupLookup wsGroupLookup = new WsGroupLookup(group.getName(), null);
+    WsSubjectLookup[] subjectLookups = new WsSubjectLookup[]{new WsSubjectLookup(null, null, "a@b.c")};
+    WsAddMemberResults wsAddMemberResults = GrouperServiceLogic.addMember(
+        grouperVersion, wsGroupLookup, subjectLookups, false,
+        null, null, null, false, false, null, null, null, null, false);
+
+    assertEquals("Should not be success: " + wsAddMemberResults.getResultMetadata().getResultMessage() , 
+        WsAddMemberResultsCode.PROBLEM_WITH_ASSIGNMENT.name(), 
+        wsAddMemberResults.getResultMetadata().getResultCode());
+
+    subject = SubjectFinder.findByIdentifier("a@b.c", false);
+    assertNull(subject);
+    
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+    wsGroupLookup = new WsGroupLookup(group.getName(), null);
+    subjectLookups = new WsSubjectLookup[]{new WsSubjectLookup(null, null, "a@b.c")};
+    
+    //try again with param
+    wsAddMemberResults = GrouperServiceLogic.addMember(
+        grouperVersion, wsGroupLookup, subjectLookups, false,
+        null, null, null, false, false, null, null, null, null, true);
+    
+    assertEquals("Should be success: " + wsAddMemberResults.getResultMetadata().getResultMessage() , 
+        WsAddMemberResultsCode.SUCCESS.name(), 
+        wsAddMemberResults.getResultMetadata().getResultCode());
+  
+    assertEquals("Should be success-created: " + wsAddMemberResults.getResults()[0].getResultMetadata().getResultMessage() , 
+        WsAddMemberResultCode.SUCCESS_CREATED.name(), 
+        wsAddMemberResults.getResults()[0].getResultMetadata().getResultCode());
+  
+    //make sure the external member is a member
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+    
+    subject = SubjectFinder.findByIdentifier("a@b.c", true);
+    
+    assertTrue(group.hasMember(subject));
   }
 
   

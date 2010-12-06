@@ -75,7 +75,7 @@ public class GrouperClientWsTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new GrouperClientWsTest("testFindGroups"));
+    TestRunner.run(new GrouperClientWsTest("testAddMember"));
     //TestRunner.run(new GrouperClientWsTest("testGroupSaveLookupNameSame"));
     //TestRunner.run(new GrouperClientWsTest("testGroupSaveNoLookup"));
   }
@@ -277,9 +277,9 @@ public class GrouperClientWsTest extends GrouperTest {
 
       assertTrue(outputLines[0], matcher.matches());
 
-      assertEquals("0", matcher.group(1));
-      assertEquals("SUCCESS", matcher.group(2));
-      assertEquals("test.subject.0", matcher.group(3));
+      assertEquals(outputLines[0], "0", matcher.group(1));
+      assertEquals(outputLines[0], "SUCCESS", matcher.group(2));
+      assertEquals(outputLines[0], "test.subject.0", matcher.group(3));
 
       matcher = pattern.matcher(outputLines[1]);
 
@@ -740,6 +740,36 @@ public class GrouperClientWsTest extends GrouperTest {
 
         assertTrue(GrouperClientWs.mostRecentRequest.contains("whatever")
             && GrouperClientWs.mostRecentRequest.contains("someValue"));
+
+        // #####################################################
+        // run again, with addExternalSubjectIfNotFound
+        baos = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(baos));
+
+        GrouperClient
+            .main(GrouperClientUtils
+                .splitTrim(
+                    "--operation=addMemberWs --groupName=aStem:aGroup --subjectIdentifiers=a@b.c --addExternalSubjectIfNotFound=true",
+                    " "));
+        System.out.flush();
+        output = new String(baos.toByteArray());
+
+        System.setOut(systemOut);
+
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
+        assertEquals(1, outputLines.length);
+
+        matcher = pattern.matcher(outputLines[0]);
+
+        assertTrue(outputLines[0], matcher.matches());
+
+        assertEquals("0", matcher.group(1));
+        assertEquals("SUCCESS_CREATED", matcher.group(2));
+        //cant do that since not the id... its the identifier
+        //assertEquals("a@b.c", matcher.group(3));
+
+        assertTrue(GrouperClientWs.mostRecentRequest
+            .contains("addExternalSubjectIfNotFound"));
 
         // #####################################################
         // run again, with replaceAllExisting

@@ -131,6 +131,9 @@ public class WsAddMemberLiteResult implements WsResponseBean {
     /** added member (rest http status code 201) (success: T) */
     SUCCESS(201),
 
+    /** created subject, and added member (rest http status code 201) (success: T) */
+    SUCCESS_CREATED(201),
+
     /** found the subject (rest http status code 500) (success: F) */
     EXCEPTION(500),
 

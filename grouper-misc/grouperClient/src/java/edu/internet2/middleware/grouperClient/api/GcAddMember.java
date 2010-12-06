@@ -229,6 +229,23 @@ public class GcAddMember {
   }
   
   /**
+   * addExternalSubjectIfNotFound T or F, if this is a search by id or identifier, with no source, or the external source,
+   * and the subject is not found, then add an external subject (if the user is allowed
+   */
+  private Boolean addExternalSubjectIfNotFound;
+  
+  /**
+   * addExternalSubjectIfNotFound T or F, if this is a search by id or identifier, with no source, or the external source,
+   * and the subject is not found, then add an external subject (if the user is allowed
+   * @param theAssignAddExternalSubjectIfNotFound
+   * @return this for chaining
+   */
+  public GcAddMember assignAddExternalSubjectIfNotFound(Boolean theAssignAddExternalSubjectIfNotFound) {
+    this.addExternalSubjectIfNotFound = theAssignAddExternalSubjectIfNotFound;
+    return this;
+  }
+  
+  /**
    * if should include subject detail
    * @param theIncludeSubjectDetail
    * @return this for chaining
@@ -281,6 +298,10 @@ public class GcAddMember {
 
       if (this.includeSubjectDetail != null) {
         addMember.setIncludeSubjectDetail(this.includeSubjectDetail ? "T" : "F");
+      }
+      
+      if (this.addExternalSubjectIfNotFound != null) {
+        addMember.setAddExternalSubjectIfNotFound(this.addExternalSubjectIfNotFound ? "T" : "F");
       }
       
       WsGroupLookup wsGroupLookup = new WsGroupLookup();
