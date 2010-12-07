@@ -201,9 +201,38 @@ function guiRegisterDhtmlxCombo(divId, comboName, width, useImages, filterUrl, c
   }
   if (!guiIsEmpty(comboDefaultText)) {
     theCombo.setComboText(comboDefaultText);
-  
+
   }
 
+  //add hidden throbber
+  var textfield = $('div#' + divId + ' :text');
+  var textfieldDropdownImage = $('div#' + divId +   ' .dhx_combo_img');
+
+  textfieldDropdownImage.after(
+      "<img style='position:absolute;top:2px;display:none' alt='busy...' " +
+      "src='../../grouperExternal/public/assets/images/busy.gif' id='comboThrobberId_"
+      + divId + "' class='comboThrobber'  />");
+
+
+  //add a throbbber
+  theCombo.attachEvent("onXLS",function(){
+    var textfieldDropdownImage = $('div#' + divId +   ' .dhx_combo_img');
+
+    var leftOffset = textfieldDropdownImage.css('display') == 'none' ? 0 : (-1 * textfieldDropdownImage.width());
+
+    var textfieldDiv = $('div#' + divId + ' .dhx_combo_box');
+    var throbber = $('#comboThrobberId_' + divId);
+
+    leftOffset = ((textfieldDiv.width() - (throbber.width() + 3)) + leftOffset);
+    throbber.css("left", leftOffset + "px");
+    throbber.show();
+  });
+
+  //remove throbber
+  theCombo.attachEvent("onXLE",function(){
+    $('#comboThrobberId_' + divId).hide();
+  });
+  
   //keep this so we can control it later
   allComboboxes[comboName] = theCombo;
 }
