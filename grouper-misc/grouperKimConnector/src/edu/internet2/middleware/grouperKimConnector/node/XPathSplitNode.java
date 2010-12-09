@@ -90,6 +90,7 @@ public class XPathSplitNode implements SplitNode {
       String expressionElseBranchName = routeNodeDocument == null ? null : evaluateXPathExpression(routeNodeDocument, "//expressionElse/branchName");
       String pickOneResult = routeNodeDocument == null ? null : evaluateXPathExpression(routeNodeDocument, "//pickOneResult");
       boolean pickOneResultBoolean = false;
+
       if (!GrouperClientUtils.isBlank(pickOneResult)) {
         
         if ("true".equalsIgnoreCase(pickOneResult) || "t".equalsIgnoreCase(pickOneResult) 
@@ -97,13 +98,17 @@ public class XPathSplitNode implements SplitNode {
           pickOneResultBoolean = true;
         } else if ("false".equalsIgnoreCase(pickOneResult) || "f".equalsIgnoreCase(pickOneResult) 
             || "n".equalsIgnoreCase(pickOneResult) || "no".equalsIgnoreCase(pickOneResult)) {
-          pickOneResultBoolean = true;
+          pickOneResultBoolean = false;
         } else {
           //invalid value
           throw new RuntimeException("Invalid pickOneResult: '" + pickOneResult + "'");
         }
       }
-      
+
+      if (LOG.isDebugEnabled()) {
+        LOG.debug("pickOneResult is: '" + pickOneResult + "', pickOneResultBoolean is: '" + pickOneResultBoolean + "'");
+      }
+
       List<String> branchNamesToFollow = new ArrayList<String>();
       
       if (expressions != null) {
