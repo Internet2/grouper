@@ -8,6 +8,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Types;
+import java.util.Date;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
@@ -677,6 +678,8 @@ public enum GrouperDdl implements DdlVersionable {
       Table attributeDefTable = GrouperDdlUtils.ddlutilsFindTable(database, AttributeDef.TABLE_GROUPER_ATTRIBUTE_DEF);
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, attributeDefTable.getName(), 
           "attribute_def_type_idx", false, AttributeDef.COLUMN_ATTRIBUTE_DEF_TYPE);
+      
+      populatePITTables(database, ddlVersionBean);
     }
   },
   
@@ -8254,6 +8257,144 @@ public enum GrouperDdl implements DdlVersionable {
       
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitRoleSet.getName(), 
           "pit_rs_end_idx", false, PITRoleSet.COLUMN_END_TIME);
+    }
+  }
+  
+  private static void populatePITTables(Database database, DdlVersionBean ddlVersionBean) {
+    long startTime = new Date().getTime() * 1000;
+    String orderByDepth = "";
+
+    if (ddlVersionBean.isMysql() || ddlVersionBean.isHsql()) {
+      orderByDepth = " order by depth";
+    }
+    
+    int count = GrouperDdlUtils.getTableCount(database, "grouper_pit_fields", false);
+    if (count == 0) {
+      count = GrouperDdlUtils.getTableCount(database, "grouper_fields", false);
+      if (count != 0) {
+        ddlVersionBean.appendAdditionalScriptUnique("\ninsert into grouper_pit_fields (id, name, type, active, start_time, context_id, hibernate_version_number) " +
+            "select id, name, type, 'T', '" + startTime + "', context_id, '0' from grouper_fields;\ncommit;\n\n");
+      }
+    }
+    
+    count = GrouperDdlUtils.getTableCount(database, "grouper_pit_attribute_def", false);
+    if (count == 0) {
+      count = GrouperDdlUtils.getTableCount(database, "grouper_attribute_def", false);
+      if (count != 0) {
+        ddlVersionBean.appendAdditionalScriptUnique("\ninsert into grouper_pit_attribute_def (id, name, attribute_def_type, active, start_time, context_id, hibernate_version_number) " +
+            "select id, name, attribute_def_type, 'T', '" + startTime + "', context_id, '0' from grouper_attribute_def;\ncommit;\n\n");
+      }
+    }
+    
+    count = GrouperDdlUtils.getTableCount(database, "grouper_pit_groups", false);
+    if (count == 0) {
+      count = GrouperDdlUtils.getTableCount(database, "grouper_groups", false);
+      if (count != 0) {
+        ddlVersionBean.appendAdditionalScriptUnique("\ninsert into grouper_pit_groups (id, name, active, start_time, context_id, hibernate_version_number) " +
+            "select id, name, 'T', '" + startTime + "', context_id, '0' from grouper_groups;\ncommit;\n\n");
+      }
+    }
+    
+    count = GrouperDdlUtils.getTableCount(database, "grouper_pit_stems", false);
+    if (count == 0) {
+      count = GrouperDdlUtils.getTableCount(database, "grouper_stems", false);
+      if (count != 0) {
+        ddlVersionBean.appendAdditionalScriptUnique("\ninsert into grouper_pit_stems (id, name, active, start_time, context_id, hibernate_version_number) " +
+            "select id, name, 'T', '" + startTime + "', context_id, '0' from grouper_stems;\ncommit;\n\n");
+      }
+    }
+    
+    count = GrouperDdlUtils.getTableCount(database, "grouper_pit_members", false);
+    if (count == 0) {
+      count = GrouperDdlUtils.getTableCount(database, "grouper_members", false);
+      if (count != 0) {
+        ddlVersionBean.appendAdditionalScriptUnique("\ninsert into grouper_pit_members (id, subject_id, subject_source, subject_type, active, start_time, context_id, hibernate_version_number) " +
+            "select id, subject_id, subject_source, subject_type, 'T', '" + startTime + "', context_id, '0' from grouper_members;\ncommit;\n\n");
+      }
+    }
+    
+    count = GrouperDdlUtils.getTableCount(database, "grouper_pit_attr_def_name", false);
+    if (count == 0) {
+      count = GrouperDdlUtils.getTableCount(database, "grouper_attribute_def_name", false);
+      if (count != 0) {
+        ddlVersionBean.appendAdditionalScriptUnique("\ninsert into grouper_pit_attr_def_name (id, stem_id, attribute_def_id, name, active, start_time, context_id, hibernate_version_number) " +
+            "select id, stem_id, attribute_def_id, name, 'T', '" + startTime + "', context_id, '0' from grouper_attribute_def_name;\ncommit;\n\n");
+      }
+    }
+    
+    count = GrouperDdlUtils.getTableCount(database, "grouper_pit_attr_def_name_set", false);
+    if (count == 0) {
+      count = GrouperDdlUtils.getTableCount(database, "grouper_attribute_def_name_set", false);
+      if (count != 0) {
+        ddlVersionBean.appendAdditionalScriptUnique("\ninsert into grouper_pit_attr_def_name_set (id, depth, if_has_attribute_def_name_id, then_has_attribute_def_name_id, parent_attr_def_name_set_id, active, start_time, context_id, hibernate_version_number) " +
+            "select id, depth, if_has_attribute_def_name_id, then_has_attribute_def_name_id, parent_attr_def_name_set_id, 'T', '" + startTime + "', context_id, '0' from grouper_attribute_def_name_set" + orderByDepth + ";\ncommit;\n\n");
+      }
+    }
+        
+    count = GrouperDdlUtils.getTableCount(database, "grouper_pit_attr_assn_actn", false);
+    if (count == 0) {
+      count = GrouperDdlUtils.getTableCount(database, "grouper_attr_assign_action", false);
+      if (count != 0) {
+        ddlVersionBean.appendAdditionalScriptUnique("\ninsert into grouper_pit_attr_assn_actn (id, attribute_def_id, name, active, start_time, context_id, hibernate_version_number) " +
+            "select id, attribute_def_id, name, 'T', '" + startTime + "', context_id, '0' from grouper_attr_assign_action;\ncommit;\n\n");
+      }
+    }
+    
+    count = GrouperDdlUtils.getTableCount(database, "grouper_pit_attr_assn_actn_set", false);
+    if (count == 0) {
+      count = GrouperDdlUtils.getTableCount(database, "grouper_attr_assign_action_set", false);
+      if (count != 0) {
+        ddlVersionBean.appendAdditionalScriptUnique("\ninsert into grouper_pit_attr_assn_actn_set (id, depth, if_has_attr_assn_action_id, then_has_attr_assn_action_id, parent_attr_assn_action_id, active, start_time, context_id, hibernate_version_number) " +
+            "select id, depth, if_has_attr_assn_action_id, then_has_attr_assn_action_id, parent_attr_assn_action_id, 'T', '" + startTime + "', context_id, '0' from grouper_attr_assign_action_set" + orderByDepth + ";\ncommit;\n\n");
+      }
+    }    
+    
+    count = GrouperDdlUtils.getTableCount(database, "grouper_pit_group_set", false);
+    if (count == 0) {
+      count = GrouperDdlUtils.getTableCount(database, "grouper_group_set", false);
+      if (count != 0) {
+        ddlVersionBean.appendAdditionalScriptUnique("\ninsert into grouper_pit_group_set (id, owner_id, owner_attr_def_id, owner_group_id, owner_stem_id, member_id, member_attr_def_id, member_group_id, member_stem_id, field_id, member_field_id, depth, parent_id, active, start_time, context_id, hibernate_version_number) " +
+        		"select id, owner_id, owner_attr_def_id, owner_group_id, owner_stem_id, member_id, member_attr_def_id, member_group_id, member_stem_id, field_id, member_field_id, depth, parent_id, 'T', '" + startTime + "', context_id, '0' from grouper_group_set" + orderByDepth + ";\ncommit;\n\n");
+      }
+    }
+    
+    count = GrouperDdlUtils.getTableCount(database, "grouper_pit_memberships", false);
+    if (count == 0) {
+      count = GrouperDdlUtils.getTableCount(database, "grouper_memberships", false);
+      if (count != 0) {
+        ddlVersionBean.appendAdditionalScriptUnique("\ninsert into grouper_pit_memberships (id, owner_id, owner_attr_def_id, owner_group_id, owner_stem_id, member_id, field_id, active, start_time, context_id, hibernate_version_number) " +
+            "select id, owner_id, owner_attr_def_id, owner_group_id, owner_stem_id, member_id, field_id, 'T', '" + startTime + "', context_id, '0' from grouper_memberships where enabled='T';\ncommit;\n\n");
+      }
+    }
+    
+    count = GrouperDdlUtils.getTableCount(database, "grouper_pit_role_set", false);
+    if (count == 0) {
+      count = GrouperDdlUtils.getTableCount(database, "grouper_role_set", false);
+      if (count != 0) {
+        ddlVersionBean.appendAdditionalScriptUnique("\ninsert into grouper_pit_role_set (id, depth, if_has_role_id, then_has_role_id, parent_role_set_id, active, start_time, context_id, hibernate_version_number) " +
+            "select id, depth, if_has_role_id, then_has_role_id, parent_role_set_id, 'T', '" + startTime + "', context_id, '0' from grouper_role_set" + orderByDepth + ";\ncommit;\n\n");
+      }
+    }
+    
+    count = GrouperDdlUtils.getTableCount(database, "grouper_pit_attribute_assign", false);
+    if (count == 0) {
+      count = GrouperDdlUtils.getTableCount(database, "grouper_attribute_assign", false);
+      if (count != 0) {
+        ddlVersionBean.appendAdditionalScriptUnique("\ninsert into grouper_pit_attribute_assign (id, attribute_def_name_id, attribute_assign_action_id, attribute_assign_type, owner_attribute_assign_id, owner_attribute_def_id, owner_group_id, owner_member_id, owner_membership_id, owner_stem_id, active, start_time, context_id, hibernate_version_number) " +
+            "select id, attribute_def_name_id, attribute_assign_action_id, attribute_assign_type, owner_attribute_assign_id, owner_attribute_def_id, owner_group_id, owner_member_id, owner_membership_id, owner_stem_id, 'T', '" + startTime + "', context_id, '0' from grouper_attribute_assign where enabled='T' and owner_attribute_assign_id is null;\n");
+        
+        ddlVersionBean.appendAdditionalScriptUnique("\ninsert into grouper_pit_attribute_assign (id, attribute_def_name_id, attribute_assign_action_id, attribute_assign_type, owner_attribute_assign_id, owner_attribute_def_id, owner_group_id, owner_member_id, owner_membership_id, owner_stem_id, active, start_time, context_id, hibernate_version_number) " +
+            "select id, attribute_def_name_id, attribute_assign_action_id, attribute_assign_type, owner_attribute_assign_id, owner_attribute_def_id, owner_group_id, owner_member_id, owner_membership_id, owner_stem_id, 'T', '" + startTime + "', context_id, '0' from grouper_attribute_assign where enabled='T' and owner_attribute_assign_id is not null;\ncommit;\n\n");
+      }
+    }
+    
+    count = GrouperDdlUtils.getTableCount(database, "grouper_pit_attr_assn_value", false);
+    if (count == 0) {
+      count = GrouperDdlUtils.getTableCount(database, "grouper_attribute_assign_value", false);
+      if (count != 0) {
+        ddlVersionBean.appendAdditionalScriptUnique("\ninsert into grouper_pit_attr_assn_value (id, attribute_assign_id, value_integer, value_floating, value_string, value_member_id, active, start_time, context_id, hibernate_version_number) " +
+            "select id, attribute_assign_id, value_integer, value_floating, value_string, value_member_id, 'T', '" + startTime + "', context_id, '0' from grouper_attribute_assign_value;\ncommit;\n\n");
+      }
     }
   }
 

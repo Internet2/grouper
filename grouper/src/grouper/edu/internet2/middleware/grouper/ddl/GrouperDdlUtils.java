@@ -2466,4 +2466,22 @@ public class GrouperDdlUtils {
     }
   }
 
+  /**
+   * Get the number of records in a table
+   * @param database
+   * @param tableName
+   * @param exceptionIfTableDoesNotExist
+   * @return count
+   */
+  public static int getTableCount(Database database, String tableName, boolean exceptionIfTableDoesNotExist) {
+    try {
+      return HibernateSession.bySqlStatic().select(int.class, "select count(*) from " + tableName);
+    } catch (RuntimeException e) {
+      if (exceptionIfTableDoesNotExist) {
+        throw e;
+      }
+      
+      return 0;
+    }
+  }
 }
