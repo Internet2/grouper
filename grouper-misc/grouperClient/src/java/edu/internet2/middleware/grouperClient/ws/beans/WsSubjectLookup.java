@@ -97,9 +97,11 @@ public class WsSubjectLookup {
    * validate the subject lookup
    */
   public void validate() {
-    if (!GrouperClientUtils.isBlank(this.subjectId) && !GrouperClientUtils.isBlank(this.subjectIdentifier)) {
+    //CH 20101213: You can set both if searching by one or the other if they are equal
+    if (!GrouperClientUtils.isBlank(this.subjectId) && !GrouperClientUtils.isBlank(this.subjectIdentifier)
+        && !GrouperClientUtils.equals(this.subjectId, this.subjectIdentifier)) {
       throw new RuntimeException("You must only specify the subjectId '" + this.subjectId 
-          + "' or subjectIdentifer '" + this.subjectIdentifier + "', but not both");
+          + "' or subjectIdentifer '" + this.subjectIdentifier + "', but not both (unless they are equal and searching by idOrIdentifier)");
     }
   }
   

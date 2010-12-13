@@ -14,7 +14,7 @@ import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
  * extend this class to customize how authentication works
  * generally these methods will set threadlocal propreties to simulate a config file...
  */
-public abstract class ClientCustomizer {
+public class ClientCustomizer {
 
   /** context of this customizer instance */
   private ClientCustomizerContext clientCustomizerContext;
@@ -50,7 +50,7 @@ public abstract class ClientCustomizer {
         
         //e.g. grouperClient.localhost.properties.grouperClient.webService.url
         //get the part after the prefix
-        String clientPropertyName = propertyName.substring(grouperPropertiesPrefix.length()+1, grouperPropertiesPrefix.length());
+        String clientPropertyName = propertyName.substring(grouperPropertiesPrefix.length()+1, propertyName.length());
         
         overrideMap.put(clientPropertyName, value);
         

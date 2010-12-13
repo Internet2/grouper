@@ -50,6 +50,10 @@
     <then><copy file="${conf.dir}/grouper.example.properties" 
       tofile="${conf.dir}/grouper.properties" /></then>
   </if> 
+  <if><not><available file="${conf.dir}/grouper.client.properties" /></not>
+    <then><copy file="${conf.dir}/grouper.client.example.properties" 
+      tofile="${conf.dir}/grouper.client.properties" /></then>
+  </if> 
   <if><not><available file="${conf.dir}/grouper.hibernate.properties" /></not>
     <then><copy file="${conf.dir}/grouper.hibernate.example.properties" 
       tofile="${conf.dir}/grouper.hibernate.properties" /></then>
