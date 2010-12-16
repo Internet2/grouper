@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="source"/>
+	<classpathentry kind="src" path="conf"/>
+	<classpathentry kind="src" path="test"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="lib/grouperClient.jar"/>
+	<classpathentry kind="lib" path="libJira/atlassian-osuser-1.1.1.jar"/>
+	<classpathentry kind="lib" path="libTest/junit.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
