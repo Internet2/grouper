@@ -65,6 +65,15 @@ public class GrouperAccessProvider implements AccessProvider {
   private static Log LOG = GrouperClientUtils.retrieveLog(GrouperAccessProvider.class);
 
   /**
+   * count the cache hits for testing
+   */
+  static long cacheHits = 0;
+  /**
+   * count the cache misses for unit testing
+   */
+  static long cacheMisses = 0;
+  
+  /**
    * @see com.opensymphony.user.provider.AccessProvider#addToGroup(java.lang.String, java.lang.String)
    */
   @Override
@@ -79,6 +88,8 @@ public class GrouperAccessProvider implements AccessProvider {
 
     try {
 
+      cacheMisses++;
+      
       GcAddMember gcAddMember = new GcAddMember();
       String grouperGroupName = GrouperAtlassianUtils.grouperGroupName(groupname, debugMap);
 
@@ -110,12 +121,14 @@ public class GrouperAccessProvider implements AccessProvider {
     } catch(RuntimeException re) {
 
       if (re instanceof GcWebServiceError) {
-        WsAddMemberResults wsAddMemberResults = (WsAddMemberResults)((GcWebServiceError)re).getContainerResponseObject();
-        if (wsAddMemberResults != null && GrouperClientUtils.length(wsAddMemberResults.getResults()) > 0) {
-          WsAddMemberResult wsAddMemberResult = wsAddMemberResults.getResults()[0];
-          if (wsAddMemberResult != null) {
-            GrouperAtlassianUtils.addToDebugMap(wsAddMemberResult.getResultMetadata(), 
-                debugMap, true);
+        if (((GcWebServiceError)re).getContainerResponseObject() instanceof WsAddMemberResults) {
+          WsAddMemberResults wsAddMemberResults = (WsAddMemberResults)((GcWebServiceError)re).getContainerResponseObject();
+          if (wsAddMemberResults != null && GrouperClientUtils.length(wsAddMemberResults.getResults()) > 0) {
+            WsAddMemberResult wsAddMemberResult = wsAddMemberResults.getResults()[0];
+            if (wsAddMemberResult != null) {
+              GrouperAtlassianUtils.addToDebugMap(wsAddMemberResult.getResultMetadata(), 
+                  debugMap, true);
+            }
           }
         }
       }
@@ -188,6 +201,7 @@ public class GrouperAccessProvider implements AccessProvider {
         result = true;
       
         debugMap.put("overrideFromConfig", true);
+
       } else {
 
         //check cache
@@ -208,12 +222,16 @@ public class GrouperAccessProvider implements AccessProvider {
           } else {
             throw new RuntimeException("Why are we here?");
           }
+          cacheHits++;
+
         } else {
           if (GrouperAtlassianConfig.grouperAtlassianConfig()
               .getWsUsersToIgnore().contains(username)) {
             result = false;
             debugMap.put("wsUserIsIgnoredViaConfig", true);
           } else {
+            cacheMisses++;
+
             GcHasMember gcHasMember = new GcHasMember();
             String grouperGroupName = GrouperAtlassianUtils.grouperGroupName(groupname, debugMap);
       
@@ -255,12 +273,14 @@ public class GrouperAccessProvider implements AccessProvider {
     } catch(RuntimeException re) {
 
       if (re instanceof GcWebServiceError) {
-        WsHasMemberResults wsHasMemberResults = (WsHasMemberResults)((GcWebServiceError)re).getContainerResponseObject();
-        if (wsHasMemberResults != null && GrouperClientUtils.length(wsHasMemberResults.getResults()) > 0) {
-          WsHasMemberResult wsHasMemberResult = wsHasMemberResults.getResults()[0];
-          if (wsHasMemberResult != null) {
-            GrouperAtlassianUtils.addToDebugMap(wsHasMemberResult.getResultMetadata(), 
-                debugMap, true);
+        if (((GcWebServiceError)re).getContainerResponseObject() instanceof WsHasMemberResults) {
+          WsHasMemberResults wsHasMemberResults = (WsHasMemberResults)((GcWebServiceError)re).getContainerResponseObject();
+          if (wsHasMemberResults != null && GrouperClientUtils.length(wsHasMemberResults.getResults()) > 0) {
+            WsHasMemberResult wsHasMemberResult = wsHasMemberResults.getResults()[0];
+            if (wsHasMemberResult != null) {
+              GrouperAtlassianUtils.addToDebugMap(wsHasMemberResult.getResultMetadata(), 
+                  debugMap, true);
+            }
           }
         }
       }
@@ -316,6 +336,8 @@ public class GrouperAccessProvider implements AccessProvider {
       if (groups != null) {
         debugMap.put("retrievedFromGroupCache", true);
         resultList.addAll(groups);
+        cacheHits++;
+
       } else {
 
         Set<String> resultSet = new LinkedHashSet<String>();
@@ -332,6 +354,8 @@ public class GrouperAccessProvider implements AccessProvider {
             .getWsUsersToIgnore().contains(username)) {
           debugMap.put("wsUserIsIgnoredViaConfig", true);
         } else {
+          cacheMisses++;
+
           GcGetGroups gcGetGroups = new GcGetGroups();
     
           WsSubjectLookup wsSubjectLookup = GrouperAtlassianUtils.wsSubjectLookup(username, debugMap);
@@ -369,12 +393,14 @@ public class GrouperAccessProvider implements AccessProvider {
     } catch(RuntimeException re) {
 
       if (re instanceof GcWebServiceError) {
-        WsGetGroupsResults wsGetGroupsResults = (WsGetGroupsResults)((GcWebServiceError)re).getContainerResponseObject();
-        if (wsGetGroupsResults != null && GrouperClientUtils.length(wsGetGroupsResults.getResults()) > 0) {
-          WsGetGroupsResult wsGetGroupsResult = wsGetGroupsResults.getResults()[0];
-          if (wsGetGroupsResult != null) {
-            GrouperAtlassianUtils.addToDebugMap(wsGetGroupsResult.getResultMetadata(), 
-                debugMap, true);
+        if (((GcWebServiceError)re).getContainerResponseObject() instanceof WsGetGroupsResults) {
+          WsGetGroupsResults wsGetGroupsResults = (WsGetGroupsResults)((GcWebServiceError)re).getContainerResponseObject();
+          if (wsGetGroupsResults != null && GrouperClientUtils.length(wsGetGroupsResults.getResults()) > 0) {
+            WsGetGroupsResult wsGetGroupsResult = wsGetGroupsResults.getResults()[0];
+            if (wsGetGroupsResult != null) {
+              GrouperAtlassianUtils.addToDebugMap(wsGetGroupsResult.getResultMetadata(), 
+                  debugMap, true);
+            }
           }
         }
       }
@@ -402,6 +428,8 @@ public class GrouperAccessProvider implements AccessProvider {
       if (users != null) {
         debugMap.put("retrievedFromGroupCache", true);
         resultList.addAll(users);
+        cacheHits++;
+
       } else {
 
         Set<String> resultSet = new LinkedHashSet<String>();
@@ -414,6 +442,8 @@ public class GrouperAccessProvider implements AccessProvider {
             debugMap.put("overrideFromConfigSize", true);
           }
         }
+        cacheMisses++;
+
         GcGetMembers gcGetMembers = new GcGetMembers();
           
         String grouperGroupName = GrouperAtlassianUtils.grouperGroupName(groupname, debugMap);
@@ -457,12 +487,14 @@ public class GrouperAccessProvider implements AccessProvider {
     } catch(RuntimeException re) {
 
       if (re instanceof GcWebServiceError) {
-        WsGetMembersResults wsGetMembersResults = (WsGetMembersResults)((GcWebServiceError)re).getContainerResponseObject();
-        if (wsGetMembersResults != null && GrouperClientUtils.length(wsGetMembersResults.getResults()) > 0) {
-          WsGetMembersResult wsGetMembersResult = wsGetMembersResults.getResults()[0];
-          if (wsGetMembersResult != null) {
-            GrouperAtlassianUtils.addToDebugMap(wsGetMembersResult.getResultMetadata(), 
-                debugMap, true);
+        if (((GcWebServiceError)re).getContainerResponseObject() instanceof WsGetMembersResults) {
+          WsGetMembersResults wsGetMembersResults = (WsGetMembersResults)((GcWebServiceError)re).getContainerResponseObject();
+          if (wsGetMembersResults != null && GrouperClientUtils.length(wsGetMembersResults.getResults()) > 0) {
+            WsGetMembersResult wsGetMembersResult = wsGetMembersResults.getResults()[0];
+            if (wsGetMembersResult != null) {
+              GrouperAtlassianUtils.addToDebugMap(wsGetMembersResult.getResultMetadata(), 
+                  debugMap, true);
+            }
           }
         }
       }
@@ -485,6 +517,8 @@ public class GrouperAccessProvider implements AccessProvider {
     Boolean result = null;
 
     try {
+
+      cacheMisses++;
 
       GcDeleteMember gcDeleteMember = new GcDeleteMember();
       String grouperGroupName = GrouperAtlassianUtils.grouperGroupName(groupname, debugMap);
@@ -518,12 +552,14 @@ public class GrouperAccessProvider implements AccessProvider {
     } catch(RuntimeException re) {
 
       if (re instanceof GcWebServiceError) {
-        WsDeleteMemberResults wsDeleteMemberResults = (WsDeleteMemberResults)((GcWebServiceError)re).getContainerResponseObject();
-        if (wsDeleteMemberResults != null && GrouperClientUtils.length(wsDeleteMemberResults.getResults()) > 0) {
-          WsDeleteMemberResult wsDeleteMemberResult = wsDeleteMemberResults.getResults()[0];
-          if (wsDeleteMemberResult != null) {
-            GrouperAtlassianUtils.addToDebugMap(wsDeleteMemberResult.getResultMetadata(), 
-                debugMap, true);
+        if (((GcWebServiceError)re).getContainerResponseObject() instanceof WsDeleteMemberResults) {
+          WsDeleteMemberResults wsDeleteMemberResults = (WsDeleteMemberResults)((GcWebServiceError)re).getContainerResponseObject();
+          if (wsDeleteMemberResults != null && GrouperClientUtils.length(wsDeleteMemberResults.getResults()) > 0) {
+            WsDeleteMemberResult wsDeleteMemberResult = wsDeleteMemberResults.getResults()[0];
+            if (wsDeleteMemberResult != null) {
+              GrouperAtlassianUtils.addToDebugMap(wsDeleteMemberResult.getResultMetadata(), 
+                  debugMap, true);
+            }
           }
         }
       }
@@ -550,8 +586,12 @@ public class GrouperAccessProvider implements AccessProvider {
       if (loadHelper(groupname, false)) {
         debugMap.put("groupExists", "true");
         result = false;
+        cacheHits++;
+
       } else {
       
+        cacheMisses++;
+
         GcGroupSave gcGroupSave = new GcGroupSave();
         String grouperGroupName = GrouperAtlassianUtils.grouperGroupName(groupname, debugMap);
         
@@ -563,6 +603,7 @@ public class GrouperAccessProvider implements AccessProvider {
         wsGroupToSave.setWsGroupLookup(new WsGroupLookup(grouperGroupName, null));
         WsGroup wsGroup = new WsGroup();
         wsGroupToSave.setWsGroup(wsGroup);
+        wsGroup.setName(grouperGroupName);
         wsGroup.setExtension(groupname);
         wsGroup.setDisplayExtension(groupname);
         wsGroup.setDescription("Automatically created group from Atlassian");
@@ -575,26 +616,28 @@ public class GrouperAccessProvider implements AccessProvider {
         
         result = true;
         
-        debugMap.put("result", result);
-        
-        if (LOG.isDebugEnabled()) {
-          LOG.debug(GrouperAtlassianUtils.mapForLog(debugMap));
-        }
-
         //lets clear some caches (since not in group list)
         flushCaches();
+      }
+
+      debugMap.put("result", result);
+      
+      if (LOG.isDebugEnabled()) {
+        LOG.debug(GrouperAtlassianUtils.mapForLog(debugMap));
       }
 
       return result;
     } catch(RuntimeException re) {
 
       if (re instanceof GcWebServiceError) {
-        WsGroupSaveResults wsGroupSaveResults = (WsGroupSaveResults)((GcWebServiceError)re).getContainerResponseObject();
-        if (wsGroupSaveResults != null && GrouperClientUtils.length(wsGroupSaveResults.getResults()) > 0) {
-          WsGroupSaveResult wsGroupSaveResult = wsGroupSaveResults.getResults()[0];
-          if (wsGroupSaveResult != null) {
-            GrouperAtlassianUtils.addToDebugMap(wsGroupSaveResult.getResultMetadata(), 
-                debugMap, true);
+        if (((GcWebServiceError)re).getContainerResponseObject() instanceof WsGroupSaveResults) {
+          WsGroupSaveResults wsGroupSaveResults = (WsGroupSaveResults)((GcWebServiceError)re).getContainerResponseObject();
+          if (wsGroupSaveResults != null && GrouperClientUtils.length(wsGroupSaveResults.getResults()) > 0) {
+            WsGroupSaveResult wsGroupSaveResult = wsGroupSaveResults.getResults()[0];
+            if (wsGroupSaveResult != null) {
+              GrouperAtlassianUtils.addToDebugMap(wsGroupSaveResult.getResultMetadata(), 
+                  debugMap, true);
+            }
           }
         }
       }
@@ -610,14 +653,14 @@ public class GrouperAccessProvider implements AccessProvider {
   @Override
   public void flushCaches() {
     if (LOG.isDebugEnabled()) {
-      LOG.debug("flush caches, sizes: " + inGroupCache.size(true) + ", " 
-          + listGroupsContainingUserCache.size(true) + ", " + listUsersInGroupCache.size(true));
+      LOG.debug("flush caches, sizes: " + inGroupCache().size(true) + ", " 
+          + listGroupsContainingUserCache().size(true) + ", " + listUsersInGroupCache().size(true));
     }
-    inGroupCache.clear();
-    listGroupsContainingUserCache.clear();
-    listUsersInGroupCache.clear();
-    loadGroupCache.clear();
-    listGroupsCache.clear();
+    inGroupCache().clear();
+    listGroupsContainingUserCache().clear();
+    listUsersInGroupCache().clear();
+    loadGroupCache().clear();
+    listGroupsCache().clear();
   }
 
   /**
@@ -673,7 +716,11 @@ public class GrouperAccessProvider implements AccessProvider {
       if (listGroups != null) {
         debugMap.put("retrievedFromGroupCache", true);
         resultList.addAll(listGroups);
+        cacheHits++;
+
       } else {
+
+        cacheMisses++;
 
         GcFindGroups gcFindGroups = new GcFindGroups();
         
@@ -682,6 +729,8 @@ public class GrouperAccessProvider implements AccessProvider {
         WsQueryFilter wsQueryFilter = new WsQueryFilter();
         wsQueryFilter.setStemName(folderName);
         wsQueryFilter.setStemNameScope("ALL_IN_SUBTREE");
+        
+        wsQueryFilter.setQueryFilterType("FIND_BY_STEM_NAME");
         
         gcFindGroups.assignQueryFilter(wsQueryFilter);
         
@@ -714,10 +763,12 @@ public class GrouperAccessProvider implements AccessProvider {
     } catch(RuntimeException re) {
 
       if (re instanceof GcWebServiceError) {
-        WsFindGroupsResults wsFindGroupsResults = (WsFindGroupsResults)((GcWebServiceError)re).getContainerResponseObject();
-        if (wsFindGroupsResults != null) {
-          GrouperAtlassianUtils.addToDebugMap(wsFindGroupsResults.getResultMetadata(), 
-              debugMap, true);
+        if (((GcWebServiceError)re).getContainerResponseObject() instanceof WsFindGroupsResults) {
+          WsFindGroupsResults wsFindGroupsResults = (WsFindGroupsResults)((GcWebServiceError)re).getContainerResponseObject();
+          if (wsFindGroupsResults != null) {
+            GrouperAtlassianUtils.addToDebugMap(wsFindGroupsResults.getResultMetadata(), 
+                debugMap, true);
+          }
         }
       }
 
@@ -754,15 +805,21 @@ public class GrouperAccessProvider implements AccessProvider {
         Boolean loadGroupBoolean = loadGroupCache().get(groupname);
         if (loadGroupBoolean != null) {
           result = loadGroupBoolean;
+          cacheHits++;
+
         } else {
           List<String> groupList = listGroupsCache().get(Boolean.TRUE);
           if (groupList != null) {
+            cacheHits++;
+
             result = groupList.contains(groupname);
           }
         }
       }
       if (result == null) {
         
+        cacheMisses++;
+
         GcFindGroups gcFindGroups = new GcFindGroups();
         
         String grouperGroupName = GrouperAtlassianUtils.grouperGroupName(groupname, debugMap);
@@ -797,10 +854,12 @@ public class GrouperAccessProvider implements AccessProvider {
     } catch(RuntimeException re) {
 
       if (re instanceof GcWebServiceError) {
-        WsFindGroupsResults wsFindGroupsResults = (WsFindGroupsResults)((GcWebServiceError)re).getContainerResponseObject();
-        if (wsFindGroupsResults != null) {
-          GrouperAtlassianUtils.addToDebugMap(wsFindGroupsResults.getResultMetadata(), 
-              debugMap, true);
+        if (((GcWebServiceError)re).getContainerResponseObject() instanceof WsFindGroupsResults) {
+          WsFindGroupsResults wsFindGroupsResults = (WsFindGroupsResults)((GcWebServiceError)re).getContainerResponseObject();
+          if (wsFindGroupsResults != null) {
+            GrouperAtlassianUtils.addToDebugMap(wsFindGroupsResults.getResultMetadata(), 
+                debugMap, true);
+          }
         }
       }
 
@@ -827,8 +886,12 @@ public class GrouperAccessProvider implements AccessProvider {
       if (!loadHelper(groupname, false)) {
         debugMap.put("groupExists", "false");
         result = false;
+        cacheHits++;
+
       } else {
       
+        cacheMisses++;
+
         GcGroupDelete gcGroupDelete = new GcGroupDelete();
         String grouperGroupName = GrouperAtlassianUtils.grouperGroupName(groupname, debugMap);
         
@@ -842,26 +905,28 @@ public class GrouperAccessProvider implements AccessProvider {
         
         result = true;
 
-        debugMap.put("result", result);
-        
-        if (LOG.isDebugEnabled()) {
-          LOG.debug(GrouperAtlassianUtils.mapForLog(debugMap));
-        }
-
         //lets clear some caches (since not in group list)
         flushCaches();
+      }
+
+      debugMap.put("result", result);
+      
+      if (LOG.isDebugEnabled()) {
+        LOG.debug(GrouperAtlassianUtils.mapForLog(debugMap));
       }
 
       return result;
     } catch(RuntimeException re) {
 
       if (re instanceof GcWebServiceError) {
-        WsGroupDeleteResults wsGroupDeleteResults = (WsGroupDeleteResults)((GcWebServiceError)re).getContainerResponseObject();
-        if (wsGroupDeleteResults != null && GrouperClientUtils.length(wsGroupDeleteResults.getResults()) > 0) {
-          WsGroupDeleteResult wsGroupDeleteResult = wsGroupDeleteResults.getResults()[0];
-          if (wsGroupDeleteResult != null) {
-            GrouperAtlassianUtils.addToDebugMap(wsGroupDeleteResult.getResultMetadata(), 
-                debugMap, true);
+        if (((GcWebServiceError)re).getContainerResponseObject() instanceof WsGroupDeleteResults) {
+          WsGroupDeleteResults wsGroupDeleteResults = (WsGroupDeleteResults)((GcWebServiceError)re).getContainerResponseObject();
+          if (wsGroupDeleteResults != null && GrouperClientUtils.length(wsGroupDeleteResults.getResults()) > 0) {
+            WsGroupDeleteResult wsGroupDeleteResult = wsGroupDeleteResults.getResults()[0];
+            if (wsGroupDeleteResult != null) {
+              GrouperAtlassianUtils.addToDebugMap(wsGroupDeleteResult.getResultMetadata(), 
+                  debugMap, true);
+            }
           }
         }
       }
