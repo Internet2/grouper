@@ -7,5 +7,9 @@
 	<classpathentry kind="lib" path="lib/grouperClient.jar"/>
 	<classpathentry kind="lib" path="libJira/atlassian-osuser-1.1.1.jar"/>
 	<classpathentry kind="lib" path="libTest/junit.jar"/>
+	<classpathentry kind="lib" path="lib/ant/ant-contrib.jar"/>
+	<classpathentry kind="lib" path="lib/connector/grouperClient.jar"/>
+	<classpathentry kind="lib" path="lib/test/junit.jar"/>
+	<classpathentry kind="lib" path="lib/atlassian/atlassian-osuser-1.1.1.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
