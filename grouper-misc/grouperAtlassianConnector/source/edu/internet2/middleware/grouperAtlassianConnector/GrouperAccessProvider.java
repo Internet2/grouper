@@ -18,10 +18,12 @@ import com.opensymphony.user.provider.AccessProvider;
 
 import edu.internet2.middleware.grouperAtlassianConnector.GrouperAtlassianConfig.GrouperAtlassianAutoaddConfig;
 import edu.internet2.middleware.grouperClient.api.GcAddMember;
+import edu.internet2.middleware.grouperClient.api.GcAssignGrouperPrivileges;
 import edu.internet2.middleware.grouperClient.api.GcDeleteMember;
 import edu.internet2.middleware.grouperClient.api.GcFindGroups;
 import edu.internet2.middleware.grouperClient.api.GcGetGroups;
 import edu.internet2.middleware.grouperClient.api.GcGetMembers;
+import edu.internet2.middleware.grouperClient.api.GcGetSubjects;
 import edu.internet2.middleware.grouperClient.api.GcGroupDelete;
 import edu.internet2.middleware.grouperClient.api.GcGroupSave;
 import edu.internet2.middleware.grouperClient.api.GcHasMember;
@@ -39,6 +41,7 @@ import edu.internet2.middleware.grouperClient.ws.beans.WsGetGroupsResult;
 import edu.internet2.middleware.grouperClient.ws.beans.WsGetGroupsResults;
 import edu.internet2.middleware.grouperClient.ws.beans.WsGetMembersResult;
 import edu.internet2.middleware.grouperClient.ws.beans.WsGetMembersResults;
+import edu.internet2.middleware.grouperClient.ws.beans.WsGetSubjectsResults;
 import edu.internet2.middleware.grouperClient.ws.beans.WsGroup;
 import edu.internet2.middleware.grouperClient.ws.beans.WsGroupDeleteResult;
 import edu.internet2.middleware.grouperClient.ws.beans.WsGroupDeleteResults;
@@ -50,6 +53,7 @@ import edu.internet2.middleware.grouperClient.ws.beans.WsHasMemberResult;
 import edu.internet2.middleware.grouperClient.ws.beans.WsHasMemberResults;
 import edu.internet2.middleware.grouperClient.ws.beans.WsQueryFilter;
 import edu.internet2.middleware.grouperClient.ws.beans.WsStemLookup;
+import edu.internet2.middleware.grouperClient.ws.beans.WsSubject;
 import edu.internet2.middleware.grouperClient.ws.beans.WsSubjectLookup;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
 
@@ -178,6 +182,20 @@ public class GrouperAccessProvider implements AccessProvider {
       loadGroupCache = new ExpirableCache<String, Boolean>(GrouperAtlassianConfig.grouperAtlassianConfig().getCacheMinutes());
     }
     return loadGroupCache;
+  }
+  
+  /** cache for handles group/subject, by atlassian group name or subject name */
+  private static ExpirableCache<String, Boolean> handlesCache = null;
+  
+  /**
+   * 
+   * @return the cache
+   */
+  private static ExpirableCache<String, Boolean> handlesCache() {
+    if (handlesCache == null) {
+      handlesCache = new ExpirableCache<String, Boolean>(GrouperAtlassianConfig.grouperAtlassianConfig().getCacheMinutes());
+    }
+    return handlesCache;
   }
   
   /**
@@ -600,7 +618,8 @@ public class GrouperAccessProvider implements AccessProvider {
         
         wsGroupToSave.setSaveMode("INSERT");
         
-        wsGroupToSave.setWsGroupLookup(new WsGroupLookup(grouperGroupName, null));
+        WsGroupLookup wsGroupLookup = new WsGroupLookup(grouperGroupName, null);
+        wsGroupToSave.setWsGroupLookup(wsGroupLookup);
         WsGroup wsGroup = new WsGroup();
         wsGroupToSave.setWsGroup(wsGroup);
         wsGroup.setName(grouperGroupName);
@@ -616,8 +635,25 @@ public class GrouperAccessProvider implements AccessProvider {
         
         result = true;
         
+        {
+          List<String> admins = GrouperAtlassianConfig.grouperAtlassianConfig().getAutoAddPrivilegeAdmins();
+          String privilegeName = "ADMIN";
+          assignPrivilegeToGroup(debugMap, wsGroupLookup, admins, privilegeName);
+        }        
+        {
+          List<String> readers = GrouperAtlassianConfig.grouperAtlassianConfig().getAutoAddPrivilegeReaders();
+          String privilegeName = "READ";
+          assignPrivilegeToGroup(debugMap, wsGroupLookup, readers, privilegeName);
+        }        
+        {
+          List<String> updaters = GrouperAtlassianConfig.grouperAtlassianConfig().getAutoAddPrivilegeUpdaters();
+          String privilegeName = "UPDATE";
+          assignPrivilegeToGroup(debugMap, wsGroupLookup, updaters, privilegeName);
+        }        
+
         //lets clear some caches (since not in group list)
         flushCaches();
+        
       }
 
       debugMap.put("result", result);
@@ -648,6 +684,27 @@ public class GrouperAccessProvider implements AccessProvider {
   }
 
   /**
+   * @param debugMap
+   * @param wsGroupLookup
+   * @param admins
+   * @param privilegeName
+   */
+  private void assignPrivilegeToGroup(Map<String, Object> debugMap,
+      WsGroupLookup wsGroupLookup, List<String> admins, String privilegeName) {
+    if (GrouperClientUtils.length(admins) > 0) {
+      GcAssignGrouperPrivileges gcAssignGrouperPrivileges = new GcAssignGrouperPrivileges()
+        .assignGroupLookup(wsGroupLookup).addPrivilegeName(privilegeName);
+      for (String admin : admins) {
+        gcAssignGrouperPrivileges.addSubjectLookup(new WsSubjectLookup(null, "g:gsa", admin));
+      }
+      GrouperAtlassianUtils.addToDebugMap(debugMap, admins, "privilegeAdd_" + privilegeName);
+      gcAssignGrouperPrivileges.assignAllowed(true);
+
+      gcAssignGrouperPrivileges.execute();
+    }
+  }
+
+  /**
    * @see com.opensymphony.user.provider.UserProvider#flushCaches()
    */
   @Override
@@ -661,18 +718,110 @@ public class GrouperAccessProvider implements AccessProvider {
     listUsersInGroupCache().clear();
     loadGroupCache().clear();
     listGroupsCache().clear();
+    handlesCache().clear();
   }
 
   /**
+   * this should return true if group/user exists, false if not
    * @see com.opensymphony.user.provider.UserProvider#handles(java.lang.String)
    */
   @Override
   public boolean handles(String name) {
-    //lets handle all
-    if (LOG.isDebugEnabled()) {
-      LOG.debug("handles " + name + ", true");
+    
+    Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
+    debugMap.put("operation", "handles");
+
+    Boolean result = null;
+
+    try {
+
+      Boolean handlesBoolean = handlesCache().get(name);
+      if (handlesBoolean != null) {
+        result = handlesBoolean;
+        debugMap.put("fromCache", "true");
+        cacheHits++;
+      }
+      //check if it is in the group cache...
+      if (result == null) {
+        //try to load a group
+        if (loadHelper(name, true)) {
+          debugMap.put("foundGroup", "true");
+          result = true;
+        }
+      }
+      
+      //see if this is hardcoded in the config
+      if(result == null && GrouperAtlassianConfig.grouperAtlassianConfig().getAutoaddConfigUserToGroups().keySet().contains(name)) {
+        debugMap.put("fromAutoAddUsers", "true");
+        result = true;
+      }
+      //see if this is hardcoded in the config
+      if(result == null && GrouperAtlassianConfig.grouperAtlassianConfig().getWsUsersToIgnore().contains(name)) {
+        debugMap.put("fromWsUsersToIgnore", "true");
+        result = true;
+      }
+      
+      if (result == null) {
+        
+        cacheMisses++;
+
+        GcGetSubjects gcGetSubjects = new GcGetSubjects();
+        
+        for (String sourceId : GrouperAtlassianUtils.sourceIdsToSearch()) {
+          gcGetSubjects.addSourceId(sourceId);
+        }
+        
+        WsSubjectLookup wsSubjectLookup = GrouperAtlassianUtils.wsSubjectLookup(name, debugMap);
+
+        gcGetSubjects.addWsSubjectLookup(wsSubjectLookup);
+        
+        for (String subjectAttributeName : GrouperAtlassianUtils.subjectAttributeNames()) {
+          gcGetSubjects.addSubjectAttributeName(subjectAttributeName);
+        }
+        
+        WsGetSubjectsResults wsGetSubjectsResults = gcGetSubjects.execute();
+        
+        WsSubject[] wsSubjects = wsGetSubjectsResults.getWsSubjects();
+        
+        GrouperAtlassianUtils.addToDebugMap(wsGetSubjectsResults.getResultMetadata(), debugMap, false);
+        
+        debugMap.put("listSizeReturnedFromGrouper", GrouperClientUtils.length(wsSubjects));
+        
+        String[] subjectAttributeNames = wsGetSubjectsResults.getSubjectAttributeNames();
+        
+        List<String> atlassianUsers = GrouperAtlassianUtils.convertToAtlassianUsers(subjectAttributeNames, wsSubjects);
+        
+        debugMap.put("listSizeAfterSourceFiltering", GrouperClientUtils.length(atlassianUsers));
+        
+        result = atlassianUsers.contains(name);
+        
+        //lets add to cache
+        handlesCache().put(name, result);
+      }
+      
+      debugMap.put("result", result);
+      
+      if (LOG.isDebugEnabled()) {
+        LOG.debug(GrouperAtlassianUtils.mapForLog(debugMap));
+      }
+      
+      return result;
+    } catch(RuntimeException re) {
+
+      if (re instanceof GcWebServiceError) {
+        if (((GcWebServiceError)re).getContainerResponseObject() instanceof WsFindGroupsResults) {
+          WsFindGroupsResults wsFindGroupsResults = (WsFindGroupsResults)((GcWebServiceError)re).getContainerResponseObject();
+          if (wsFindGroupsResults != null) {
+            GrouperAtlassianUtils.addToDebugMap(wsFindGroupsResults.getResultMetadata(), 
+                debugMap, true);
+          }
+        }
+      }
+
+      LOG.error("Error: " + GrouperAtlassianUtils.mapForLog(debugMap), re);
+      throw re;
     }
-    return true;
+
   }
 
   /**
@@ -794,7 +943,8 @@ public class GrouperAccessProvider implements AccessProvider {
   private boolean loadHelper(String groupname, boolean useCache) {
     
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
-    debugMap.put("operation", "list");
+    debugMap.put("operation", "loadHelper");
+    debugMap.put("groupname", groupname);
 
     Boolean result = null;
 
@@ -806,12 +956,13 @@ public class GrouperAccessProvider implements AccessProvider {
         if (loadGroupBoolean != null) {
           result = loadGroupBoolean;
           cacheHits++;
+          debugMap.put("loadGroupCacheHit", loadGroupBoolean);
 
         } else {
           List<String> groupList = listGroupsCache().get(Boolean.TRUE);
           if (groupList != null) {
             cacheHits++;
-
+            debugMap.put("listGroupsCacheHit", loadGroupBoolean);
             result = groupList.contains(groupname);
           }
         }

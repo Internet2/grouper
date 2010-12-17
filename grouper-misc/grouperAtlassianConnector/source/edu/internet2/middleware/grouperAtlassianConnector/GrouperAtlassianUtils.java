@@ -34,7 +34,8 @@ public class GrouperAtlassianUtils {
   public static String subjectAttributeValue(WsSubject wsSubject, String[] attributeNames, String attributeName) {
     for (int i=0;i<GrouperClientUtils.length(attributeNames);i++) {
       
-      if (GrouperClientUtils.equalsIgnoreCase(attributeName, attributeNames[i])) {
+      if (GrouperClientUtils.equalsIgnoreCase(attributeName, attributeNames[i])
+          && GrouperClientUtils.length(wsSubject.getAttributeValues()) > i) {
         //got it
         return wsSubject.getAttributeValue(i);
       }
@@ -55,24 +56,28 @@ public class GrouperAtlassianUtils {
     
     for (WsSubject wsSubject : GrouperClientUtils.nonNull(wsSubjects, WsSubject.class)) {
       
-      GrouperAtlassianSourceConfig grouperAtlassianSourceConfig = sourceConfigMap.get(wsSubject.getSourceId());
-      //we dont have a config for this source
-      if (grouperAtlassianSourceConfig == null) {
-        continue;
+      if (GrouperClientUtils.equalsIgnoreCase(wsSubject.getSuccess(), "T")){
+        
+        GrouperAtlassianSourceConfig grouperAtlassianSourceConfig = sourceConfigMap.get(wsSubject.getSourceId());
+        //we dont have a config for this source
+        if (grouperAtlassianSourceConfig == null) {
+          continue;
+        }
+        
+        String subjectIdName = grouperAtlassianSourceConfig.getIdOrAttribute();
+        String atlassianId = null;
+        if (GrouperClientUtils.equalsIgnoreCase("id", subjectIdName)) {
+          atlassianId = wsSubject.getId();
+        } else {
+          atlassianId = subjectAttributeValue(wsSubject, subjectAttributeNames, subjectIdName);
+        }
+        //if it didnt have that attribute, then skip
+        if (GrouperClientUtils.isBlank(atlassianId)) {
+          continue;
+        }
+        result.add(atlassianId);
+
       }
-      
-      String subjectIdName = grouperAtlassianSourceConfig.getIdOrAttribute();
-      String atlassianId = null;
-      if (GrouperClientUtils.equalsIgnoreCase("id", subjectIdName)) {
-        atlassianId = wsSubject.getId();
-      } else {
-        atlassianId = subjectAttributeValue(wsSubject, subjectAttributeNames, subjectIdName);
-      }
-      //if it didnt have that attribute, then skip
-      if (GrouperClientUtils.isBlank(atlassianId)) {
-        continue;
-      }
-      result.add(atlassianId);
       
     }
     

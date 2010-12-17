@@ -4,6 +4,8 @@
  */
 package edu.internet2.middleware.grouperAtlassianConnector;
 
+import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
+import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
 import junit.framework.TestCase;
 import junit.textui.TestRunner;
 
@@ -14,9 +16,24 @@ import junit.textui.TestRunner;
 public class GrouperAccessProviderTest extends TestCase {
 
   /**
+   * logger
+   */
+  private static Log LOG = GrouperClientUtils.retrieveLog(GrouperAccessProviderTest.class);
+
+  /**
    * 
    */
-  private static final String TEST_USERNAME = "mchyzer";
+  private static final String TEST_USERNAME;
+  
+  static {
+    try {
+      TEST_USERNAME = GrouperClientUtils.propertiesValue("atlassian.test.subjectIdOrIdentifier", true);
+    } catch (RuntimeException re) {
+      LOG.error("Error getting subject, config param: atlassian.test.subjectIdOrIdentifier in grouper.client.properties", re);
+      throw re;
+    }
+  }
+  
   /**
    * 
    */
@@ -43,7 +60,7 @@ public class GrouperAccessProviderTest extends TestCase {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new GrouperAccessProviderTest("testLoad"));
+    TestRunner.run(new GrouperAccessProviderTest("testCreateRemove"));
   }
 
   /** access provider */
@@ -53,11 +70,58 @@ public class GrouperAccessProviderTest extends TestCase {
    * 
    */
   public void testHandles() {
+
+    this.grouperAccessProvider.flushCaches();
     
+    long cacheHits = GrouperAccessProvider.cacheHits;
+    long cacheMisses = GrouperAccessProvider.cacheMisses;
+    
+    assertFalse(this.grouperAccessProvider.handles(JUNIT_TEST_GROUP));
+
+    //this goes up to 2 since it is cache miss for user/group
+    assertEquals(cacheMisses + 2, GrouperAccessProvider.cacheMisses);
+    assertEquals(cacheHits, GrouperAccessProvider.cacheHits);
+
+    assertFalse(this.grouperAccessProvider.handles(JUNIT_TEST_GROUP));
+
+    assertEquals(cacheMisses + 2, GrouperAccessProvider.cacheMisses);
+    assertEquals(cacheHits + 1, GrouperAccessProvider.cacheHits);
+
     assertTrue(this.grouperAccessProvider.create(JUNIT_TEST_GROUP));
-    assertTrue(this.grouperAccessProvider.handles("whataslkfdjasldkfj"));
+
+    cacheHits = GrouperAccessProvider.cacheHits;
+    cacheMisses = GrouperAccessProvider.cacheMisses;
+
+    assertFalse(this.grouperAccessProvider.handles("whataslkfdjasldkfj"));
+
+    assertEquals(cacheMisses + 2, GrouperAccessProvider.cacheMisses);
+    assertEquals(cacheHits, GrouperAccessProvider.cacheHits);
+
+    assertFalse(this.grouperAccessProvider.handles("whataslkfdjasldkfj"));
+
+    assertEquals(cacheMisses + 2, GrouperAccessProvider.cacheMisses);
+    assertEquals(cacheHits + 1, GrouperAccessProvider.cacheHits);
+
     assertTrue(this.grouperAccessProvider.handles(JUNIT_TEST_GROUP));
-    
+
+    assertEquals(cacheMisses + 3, GrouperAccessProvider.cacheMisses);
+    assertEquals(cacheHits + 1, GrouperAccessProvider.cacheHits);
+
+    assertTrue(this.grouperAccessProvider.handles(JUNIT_TEST_GROUP));
+
+    assertEquals(cacheMisses + 3, GrouperAccessProvider.cacheMisses);
+    assertEquals(cacheHits + 2, GrouperAccessProvider.cacheHits);
+
+    assertTrue(this.grouperAccessProvider.handles(TEST_USERNAME));
+
+    assertEquals(cacheMisses + 5, GrouperAccessProvider.cacheMisses);
+    assertEquals(cacheHits + 2, GrouperAccessProvider.cacheHits);
+
+    assertTrue(this.grouperAccessProvider.handles(TEST_USERNAME));
+
+    assertEquals(cacheMisses + 5, GrouperAccessProvider.cacheMisses);
+    assertEquals(cacheHits + 3, GrouperAccessProvider.cacheHits);
+
   }
   
   /**
