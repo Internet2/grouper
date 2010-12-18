@@ -23,6 +23,36 @@ import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 public class GrouperAtlassianConfig {
   
   /**
+   * <pre>
+   * atlassian name of group which has all users in it
+   * atlassian.usersGroup, e.g. jira-users
+   * </pre>
+   */
+  private String atlassianUsersGroupName;
+  
+  /**
+   * <pre>
+   * atlassian name of group which has all users in it
+   * atlassian.usersGroup, e.g. jira-users
+   * </pre>
+   * @return the atlassianUsersGroupName
+   */
+  public String getAtlassianUsersGroupName() {
+    return this.atlassianUsersGroupName;
+  }
+  
+  /**
+   * <pre>
+   * atlassian name of group which has all users in it
+   * atlassian.usersGroup, e.g. jira-users
+   * </pre>
+   * @param atlassianUsersGroupName1 the atlassianUsersGroupName to set
+   */
+  public void setAtlassianUsersGroupName(String atlassianUsersGroupName1) {
+    this.atlassianUsersGroupName = atlassianUsersGroupName1;
+  }
+
+  /**
    * map of sourceId to source config
    */
   private Map<String, GrouperAtlassianSourceConfig> sourceConfigs = new HashMap<String, GrouperAtlassianSourceConfig>();
@@ -53,6 +83,71 @@ public class GrouperAtlassianConfig {
    */
   public static class GrouperAtlassianSourceConfig {
    
+    
+    /**
+     * <pre>
+     * # email attribute for this source (needed if using the ProfileProvider)
+     * atlassian.source.jdbc.emailAttribute = EMAIL
+     * </pre>
+     */
+    private String emailAttribute;
+    
+    /**
+     * <pre>
+     * # should be "name" or "description" or an attribute name to get the name for atlassian (needed if using the ProfileProvider)
+     * atlassian.source.jdbc.nameAttribute = name
+     * </pre>
+     */
+    private String nameAttribute;
+    
+    
+    /**
+     * <pre>
+     * # email attribute for this source (needed if using the ProfileProvider)
+     * atlassian.source.jdbc.emailAttribute = EMAIL
+     * </pre>
+     * @return the emailAttribute
+     */
+    public String getEmailAttribute() {
+      return this.emailAttribute;
+    }
+
+    
+    /**
+     * <pre>
+     * # email attribute for this source (needed if using the ProfileProvider)
+     * atlassian.source.jdbc.emailAttribute = EMAIL
+     * </pre>
+     * @param emailAttribute1 the emailAttribute to set
+     */
+    public void setEmailAttribute(String emailAttribute1) {
+      this.emailAttribute = emailAttribute1;
+    }
+
+    
+    /**
+     * <pre>
+     * # should be "name" or "description" or an attribute name to get the name for atlassian (needed if using the ProfileProvider)
+     * atlassian.source.jdbc.nameAttribute = name
+     * </pre>
+     * @return the nameAttribute
+     */
+    public String getNameAttribute() {
+      return this.nameAttribute;
+    }
+
+    
+    /**
+     * <pre>
+     * # should be "name" or "description" or an attribute name to get the name for atlassian (needed if using the ProfileProvider)
+     * atlassian.source.jdbc.nameAttribute = name
+     * </pre>
+     * @param nameAttribute1 the nameAttribute to set
+     */
+    public void setNameAttribute(String nameAttribute1) {
+      this.nameAttribute = nameAttribute1;
+    }
+
     /**
      * <pre>
      * # list all sources here, and how to get the atlassian id
@@ -137,6 +232,20 @@ public class GrouperAtlassianConfig {
     return this.autoaddConfigGroupToUsers;
   }
 
+  /**
+   * map of autoadd user id to user
+   */
+  private Map<String, GrouperAtlassianAutoaddUserConfig> autoaddConfigUsers = new HashMap<String, GrouperAtlassianAutoaddUserConfig>();
+
+  
+  /**
+   * map of autoadd user id to user
+   * @return the autoaddConfigGroupToUsers
+   */
+  public Map<String, GrouperAtlassianAutoaddUserConfig> getAutoaddConfigUsers() {
+    return this.autoaddConfigUsers;
+  }
+
   
   /**
    * map of group names to users to autoadd
@@ -166,6 +275,108 @@ public class GrouperAtlassianConfig {
     this.autoaddConfigUserToGroups = autoaddConfigUserToGroups1;
   }
 
+  /**
+   * <pre>
+   * # pretend these memberships exist (e.g. to bootstrap or for users not in grouper)
+   * atlassian.autoadd.admin.user.id = admin
+   * atlassian.autoadd.admin.user.name = Atlassian ADMIN
+   * atlassian.autoadd.admin.user.email = you@yourschool.edu
+   * </pre>
+   */
+  public static class GrouperAtlassianAutoaddUserConfig {
+    
+    /**
+     * <pre>
+     * atlassian.autoadd.admin.user.id = admin
+     * </pre>
+     */
+    private String userId;
+    
+    /**
+     * <pre>
+     * atlassian.autoadd.admin.user.name = Atlassian ADMIN
+     * </pre>
+     */
+    private String userName;
+
+    /**
+     * <pre>
+     * atlassian.autoadd.admin.user.email = you@yourschool.edu
+     * </pre>
+     */
+    private String email;
+
+    
+    /**
+     * <pre>
+     * atlassian.autoadd.admin.user.id = admin
+     * </pre>
+     * @return the userId
+     */
+    public String getUserId() {
+      return this.userId;
+    }
+
+    
+    /**
+     * <pre>
+     * atlassian.autoadd.admin.user.id = admin
+     * </pre>
+     * @param userId1 the userId to set
+     */
+    public void setUserId(String userId1) {
+      this.userId = userId1;
+    }
+
+    
+    /**
+     * <pre>
+     * atlassian.autoadd.admin.user.name = Atlassian ADMIN
+     * </pre>
+     * @return the userName
+     */
+    public String getUserName() {
+      return this.userName;
+    }
+
+    
+    /**
+     * <pre>
+     * atlassian.autoadd.admin.user.name = Atlassian ADMIN
+     * </pre>
+     * @param userName1 the userName to set
+     */
+    public void setUserName(String userName1) {
+      this.userName = userName1;
+    }
+
+    
+    /**
+     * <pre>
+     * atlassian.autoadd.admin.user.email = you@yourschool.edu
+     * </pre>
+     * @return the email
+     */
+    public String getEmail() {
+      return this.email;
+    }
+
+    
+    /**
+     * <pre>
+     * atlassian.autoadd.admin.user.email = you@yourschool.edu
+     * </pre>
+     * @param email1 the email to set
+     */
+    public void setEmail(String email1) {
+      this.email = email1;
+    }
+
+    
+  }
+  
+  
+  
   /**
    * <pre>
    * # pretend these memberships exist (e.g. to bootstrap or for users not in grouper)
@@ -521,6 +732,10 @@ public class GrouperAtlassianConfig {
           //atlassian.root = 
           tempConfig.setRootFolder(GrouperClientUtils.propertiesValue("atlassian.root", true));
           
+          //atlassian name of group which has all users in it
+          //atlassian.usersGroup, e.g. jira-users
+          tempConfig.setAtlassianUsersGroupName(GrouperClientUtils.propertiesValue("atlassian.usersGroup", false));
+
           //# atlassian source to use (leave blank for all sources)
           //atlassian.subject.search.sourceId = 
           tempConfig.setSubjectSearchSourceId(GrouperClientUtils.propertiesValue("atlassian.subject.search.sourceId", false));
@@ -551,6 +766,10 @@ public class GrouperAtlassianConfig {
               grouperAtlassianSourceConfig.setSourceId(GrouperClientUtils.propertiesValue(key, true));
               grouperAtlassianSourceConfig.setIdOrAttribute(GrouperClientUtils.propertiesValue(
                   "atlassian.source." + sourceName + ".idOrAttribute", true));
+              grouperAtlassianSourceConfig.setEmailAttribute(GrouperClientUtils.propertiesValue(
+                  "atlassian.source." + sourceName + ".emailAttribute", true));
+              grouperAtlassianSourceConfig.setNameAttribute(GrouperClientUtils.propertiesValue(
+                  "atlassian.source." + sourceName + ".nameAttribute", true));
               tempConfig.getSourceConfigs().put(grouperAtlassianSourceConfig.getSourceId(), grouperAtlassianSourceConfig);
             }
           }
@@ -613,6 +832,30 @@ public class GrouperAtlassianConfig {
                 groups.add(groupname);
 
               }
+
+            }
+          }
+
+          //# users not in idm, this is needed if using the profile provider
+          //atlassian.autoadd.admin.user.id = admin
+          //atlassian.autoadd.admin.user.name = Atlassian ADMIN
+          //atlassian.autoadd.admin.user.email = you@yourschool.edu
+          pattern = Pattern.compile("^atlassian\\.autoadd\\.(.+)\\.user.id$");
+          
+          for (String key : (Set<String>)((Object)properties.keySet())) {
+            
+            Matcher matcher = pattern.matcher(key);
+            if (matcher.matches()) {
+              String userNameKey = matcher.group(1);
+              GrouperAtlassianAutoaddUserConfig grouperAtlassianAutoaddUserConfig = new GrouperAtlassianAutoaddUserConfig();
+              String userId = GrouperClientUtils.propertiesValue(key, true);
+              grouperAtlassianAutoaddUserConfig.setUserId(userId);
+              grouperAtlassianAutoaddUserConfig.setUserName(GrouperClientUtils.propertiesValue(
+                  "atlassian.autoadd." + userNameKey + ".user.name", true));
+              grouperAtlassianAutoaddUserConfig.setEmail(GrouperClientUtils.propertiesValue(
+                  "atlassian.autoadd." + userNameKey + ".user.email", true));
+              tempConfig.getAutoaddConfigUsers().put(
+                  userId, grouperAtlassianAutoaddUserConfig);
 
             }
           }

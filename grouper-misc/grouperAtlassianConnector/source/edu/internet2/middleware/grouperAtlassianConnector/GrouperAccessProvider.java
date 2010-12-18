@@ -468,7 +468,7 @@ public class GrouperAccessProvider implements AccessProvider {
         
         gcGetMembers.addGroupName(grouperGroupName);
         
-        for (String subjectAttributeName : GrouperAtlassianUtils.subjectAttributeNames()) {
+        for (String subjectAttributeName : GrouperAtlassianUtils.subjectAttributeNames(false)) {
           gcGetMembers.addSubjectAttributeName(subjectAttributeName);
         }
         
@@ -775,7 +775,7 @@ public class GrouperAccessProvider implements AccessProvider {
 
         gcGetSubjects.addWsSubjectLookup(wsSubjectLookup);
         
-        for (String subjectAttributeName : GrouperAtlassianUtils.subjectAttributeNames()) {
+        for (String subjectAttributeName : GrouperAtlassianUtils.subjectAttributeNames(false)) {
           gcGetSubjects.addSubjectAttributeName(subjectAttributeName);
         }
         

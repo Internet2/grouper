@@ -86,9 +86,10 @@ public class GrouperAtlassianUtils {
   
   /**
    * get subject attribute names per config, or empty list if none
+   * @param retrieveProfileAttributes 
    * @return subject attribute names
    */
-  public static List<String> subjectAttributeNames() {
+  public static List<String> subjectAttributeNames(boolean retrieveProfileAttributes) {
     
     Set<String> result = new LinkedHashSet<String>();
     
@@ -99,6 +100,25 @@ public class GrouperAtlassianUtils {
       //if it is id, then that means use subjectId
       if (!GrouperClientUtils.equalsIgnoreCase("id", idOrAttribute)) {
         result.add(idOrAttribute);
+      }
+      
+      if (retrieveProfileAttributes) {
+        {
+          String emailAttribute = grouperAtlassianSourceConfig.getEmailAttribute();
+          if (!GrouperClientUtils.isBlank(emailAttribute)) {
+            result.add(emailAttribute);
+          }
+        }
+        {
+          String nameAttribute = grouperAtlassianSourceConfig.getNameAttribute();
+          if (!GrouperClientUtils.isBlank(nameAttribute)) {
+            if (!GrouperClientUtils.equalsIgnoreCase("name", nameAttribute) && 
+                !GrouperClientUtils.equalsIgnoreCase("id", nameAttribute) &&
+                !GrouperClientUtils.equalsIgnoreCase("description", nameAttribute)) {
+              result.add(nameAttribute);
+            }
+          }
+        }
       }
       
     }
