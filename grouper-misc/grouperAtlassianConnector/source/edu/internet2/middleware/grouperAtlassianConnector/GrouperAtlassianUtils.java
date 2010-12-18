@@ -6,10 +6,14 @@ package edu.internet2.middleware.grouperAtlassianConnector;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import com.opensymphony.module.propertyset.PropertySet;
+import com.opensymphony.module.propertyset.map.MapPropertySet;
 
 import edu.internet2.middleware.grouperAtlassianConnector.GrouperAtlassianConfig.GrouperAtlassianSourceConfig;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
@@ -24,6 +28,17 @@ import edu.internet2.middleware.grouperClient.ws.beans.WsSubjectLookup;
  */
 public class GrouperAtlassianUtils {
 
+  /**
+   * assign how long this method took in nanos
+   * @param debugMap
+   * @param startNanos
+   */
+  public static void assignTimingGate(Map<String, Object> debugMap, long startNanos) {
+    long totalNanos = System.nanoTime() - startNanos;
+    long totalMillis = totalNanos / 1000000;
+    debugMap.put("timeMillis", totalMillis);
+  }
+  
   /**
    * get the attribute value of an attribute name of a subject
    * @param wsSubject subject
@@ -55,15 +70,33 @@ public class GrouperAtlassianUtils {
     List<String> result = new ArrayList<String>();  
     
     for (WsSubject wsSubject : GrouperClientUtils.nonNull(wsSubjects, WsSubject.class)) {
+
+      String atlassianId = convertToAtlassianUser(subjectAttributeNames, wsSubject, sourceConfigMap);
+      if (!GrouperClientUtils.isBlank(atlassianId)) {
+        result.add(atlassianId);
+      }
       
-      if (GrouperClientUtils.equalsIgnoreCase(wsSubject.getSuccess(), "T")){
-        
-        GrouperAtlassianSourceConfig grouperAtlassianSourceConfig = sourceConfigMap.get(wsSubject.getSourceId());
-        //we dont have a config for this source
-        if (grouperAtlassianSourceConfig == null) {
-          continue;
-        }
-        
+    }
+    
+    return result;
+  }
+  
+  /**
+   * convert WS user to atlassian user
+   * @param subjectAttributeNames
+   * @param wsSubject
+   * @param sourceConfigMap e.g. GrouperAtlassianConfig.grouperAtlassianConfig().getSourceConfigs()
+   * @return the user string or null if not found
+   */
+  public static String convertToAtlassianUser(String[] subjectAttributeNames, WsSubject wsSubject, Map<String, GrouperAtlassianSourceConfig> sourceConfigMap) {
+
+    String result = null;  
+
+    if (GrouperClientUtils.equalsIgnoreCase(wsSubject.getSuccess(), "T")){
+      
+      GrouperAtlassianSourceConfig grouperAtlassianSourceConfig = sourceConfigMap.get(wsSubject.getSourceId());
+      //we dont have a config for this source
+      if (grouperAtlassianSourceConfig != null) {
         String subjectIdName = grouperAtlassianSourceConfig.getIdOrAttribute();
         String atlassianId = null;
         if (GrouperClientUtils.equalsIgnoreCase("id", subjectIdName)) {
@@ -72,16 +105,93 @@ public class GrouperAtlassianUtils {
           atlassianId = subjectAttributeValue(wsSubject, subjectAttributeNames, subjectIdName);
         }
         //if it didnt have that attribute, then skip
-        if (GrouperClientUtils.isBlank(atlassianId)) {
-          continue;
+        if (!GrouperClientUtils.isBlank(atlassianId)) {
+          result = atlassianId;
         }
-        result.add(atlassianId);
-
       }
+    }
+    return result;
+  }
+  
+  /**
+   * convert WS users to atlassian propertySets
+   * @param subjectAttributeNames 
+   * @param wsSubjects 
+   * @return the list of users, by user id
+   */
+  public static Map<String,PropertySet> convertToAtlassianPropertySets(String[] subjectAttributeNames, WsSubject[] wsSubjects) {
+    Map<String, GrouperAtlassianSourceConfig> sourceConfigMap = GrouperAtlassianConfig.grouperAtlassianConfig().getSourceConfigs();
+    
+    Map<String,PropertySet> propertySetMap = new HashMap<String, PropertySet>();
+    
+    for (WsSubject wsSubject : GrouperClientUtils.nonNull(wsSubjects, WsSubject.class)) {
       
+      String userId = convertToAtlassianUser(subjectAttributeNames, wsSubject, sourceConfigMap);
+      if (GrouperClientUtils.isBlank(userId)) {
+        continue;
+      }
+      PropertySet propertySet = convertToAtlassianPropertySet(userId, subjectAttributeNames, wsSubject, sourceConfigMap);
+      if (propertySet == null) {
+        propertySet = NULL_PROPERTY_SET;
+      }
+      propertySetMap.put(userId, propertySet);
     }
     
-    return result;
+    return propertySetMap;
+  }
+  
+  /** this instance means null since expirable cache doesnt have null values */
+  public static final PropertySet NULL_PROPERTY_SET = new MapPropertySet();
+  
+  /**
+   * convert WS user to atlassian propertySet
+   * @param userId
+   * @param subjectAttributeNames 
+   * @param wsSubject
+   * @param sourceConfigMap e.g. GrouperAtlassianConfig.grouperAtlassianConfig().getSourceConfigs()
+   * @return the propertySet or null if not found or a problem
+   */
+  public static PropertySet convertToAtlassianPropertySet(String userId, String[] subjectAttributeNames, WsSubject wsSubject, Map<String, GrouperAtlassianSourceConfig> sourceConfigMap) {
+
+    String name = null;
+    String email = null;
+    
+    if (GrouperClientUtils.equalsIgnoreCase(wsSubject.getSuccess(), "T")){
+      
+      GrouperAtlassianSourceConfig grouperAtlassianSourceConfig = sourceConfigMap.get(wsSubject.getSourceId());
+      //we dont have a config for this source
+      if (grouperAtlassianSourceConfig == null) {
+        return null;
+      }
+      
+      {
+        String nameAttribute = grouperAtlassianSourceConfig.getNameAttribute();
+        if (GrouperClientUtils.equalsIgnoreCase("id", nameAttribute)) {
+          name = wsSubject.getId();
+        } else if (GrouperClientUtils.equalsIgnoreCase("name", nameAttribute)) {
+          name = wsSubject.getName();
+        } else {
+          //note: description is not in the API
+          name = subjectAttributeValue(wsSubject, subjectAttributeNames, nameAttribute);
+        }
+      }
+      
+      {
+        String emailAttribute = grouperAtlassianSourceConfig.getEmailAttribute();
+        if (GrouperClientUtils.equalsIgnoreCase("id", emailAttribute)) {
+          email = wsSubject.getId();
+        } else {
+          //note: description is not in the API
+          email = subjectAttributeValue(wsSubject, subjectAttributeNames, emailAttribute);
+        }
+      }
+      
+
+    } else {
+      return null;
+    }
+    
+    return propertySet(userId, name, email);
   }
   
   /**
@@ -286,6 +396,20 @@ public class GrouperAtlassianUtils {
     debugMap.put("grouperGroupName", grouperGroupName);
     return grouperGroupName;
     
+  }
+
+  /**
+   * property set of name and email
+   * @param userId 
+   * @param name
+   * @param email
+   * @return property set
+   */
+  public static PropertySet propertySet(String userId, String name, String email) {
+    PropertySet propertySet = new MapPropertySet();
+    propertySet.setString("email", email);
+    propertySet.setString("name", GrouperClientUtils.defaultIfBlank(name, userId));
+    return propertySet;
   }
   
 }

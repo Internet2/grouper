@@ -23,7 +23,7 @@ public class GrouperAccessProviderTest extends TestCase {
   /**
    * 
    */
-  private static final String TEST_USERNAME;
+  static final String TEST_USERNAME;
   
   static {
     try {

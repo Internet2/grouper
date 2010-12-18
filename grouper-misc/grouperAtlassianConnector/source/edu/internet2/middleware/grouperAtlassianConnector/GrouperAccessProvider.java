@@ -61,6 +61,7 @@ import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
 /**
  * implement the opensymphony interface that Atlassian uses for products like jira/confluence
  */
+@SuppressWarnings("serial")
 public class GrouperAccessProvider implements AccessProvider {
 
   /**
@@ -83,11 +84,13 @@ public class GrouperAccessProvider implements AccessProvider {
   @Override
   public boolean addToGroup(String username, String groupname) {
 
+    long startNanos = System.nanoTime();
+
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
     debugMap.put("operation", "addToGroup");
     debugMap.put("username", username);
     debugMap.put("groupname", groupname);
-
+    
     Boolean result = null;
 
     try {
@@ -115,6 +118,7 @@ public class GrouperAccessProvider implements AccessProvider {
       debugMap.put("result", result);
       
       if (LOG.isDebugEnabled()) {
+        GrouperAtlassianUtils.assignTimingGate(debugMap, startNanos);
         LOG.debug(GrouperAtlassianUtils.mapForLog(debugMap));
       }
       
@@ -137,6 +141,7 @@ public class GrouperAccessProvider implements AccessProvider {
         }
       }
 
+      GrouperAtlassianUtils.assignTimingGate(debugMap, startNanos);
       LOG.error("Error: " + GrouperAtlassianUtils.mapForLog(debugMap), re);
       throw re;
     }
@@ -203,6 +208,8 @@ public class GrouperAccessProvider implements AccessProvider {
    */
   @Override
   public boolean inGroup(String username, String groupname) {
+
+    long startNanos = System.nanoTime();
 
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
     debugMap.put("operation", "inGroup");
@@ -284,6 +291,7 @@ public class GrouperAccessProvider implements AccessProvider {
       debugMap.put("result", result);
       
       if (LOG.isDebugEnabled()) {
+        GrouperAtlassianUtils.assignTimingGate(debugMap, startNanos);
         LOG.debug(GrouperAtlassianUtils.mapForLog(debugMap));
       }
       
@@ -303,6 +311,7 @@ public class GrouperAccessProvider implements AccessProvider {
         }
       }
 
+      GrouperAtlassianUtils.assignTimingGate(debugMap, startNanos);
       LOG.error("Error: " + GrouperAtlassianUtils.mapForLog(debugMap), re);
       throw re;
     }
@@ -341,6 +350,9 @@ public class GrouperAccessProvider implements AccessProvider {
    */
   @Override
   public List<String> listGroupsContainingUser(String username) {
+    
+    long startNanos = System.nanoTime();
+
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
     debugMap.put("operation", "listGroupsContainingUser");
     debugMap.put("username", username);
@@ -404,6 +416,7 @@ public class GrouperAccessProvider implements AccessProvider {
       GrouperAtlassianUtils.addToDebugMap(debugMap, resultList, "resultList");
       
       if (LOG.isDebugEnabled()) {
+        GrouperAtlassianUtils.assignTimingGate(debugMap, startNanos);
         LOG.debug(GrouperAtlassianUtils.mapForLog(debugMap));
       }
       
@@ -423,6 +436,7 @@ public class GrouperAccessProvider implements AccessProvider {
         }
       }
 
+      GrouperAtlassianUtils.assignTimingGate(debugMap, startNanos);
       LOG.error("Error: " + GrouperAtlassianUtils.mapForLog(debugMap), re);
       throw re;
     }
@@ -433,6 +447,9 @@ public class GrouperAccessProvider implements AccessProvider {
    */
   @Override
   public List<String> listUsersInGroup(String groupname) {
+    
+    long startNanos = System.nanoTime();
+
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
     debugMap.put("operation", "listUsersInGroup");
     debugMap.put("groupname", groupname);
@@ -498,6 +515,7 @@ public class GrouperAccessProvider implements AccessProvider {
       GrouperAtlassianUtils.addToDebugMap(debugMap, resultList, "resultList");
       
       if (LOG.isDebugEnabled()) {
+        GrouperAtlassianUtils.assignTimingGate(debugMap, startNanos);
         LOG.debug(GrouperAtlassianUtils.mapForLog(debugMap));
       }
       
@@ -517,6 +535,7 @@ public class GrouperAccessProvider implements AccessProvider {
         }
       }
 
+      GrouperAtlassianUtils.assignTimingGate(debugMap, startNanos);
       LOG.error("Error: " + GrouperAtlassianUtils.mapForLog(debugMap), re);
       throw re;
     }
@@ -527,6 +546,9 @@ public class GrouperAccessProvider implements AccessProvider {
    */
   @Override
   public boolean removeFromGroup(String username, String groupname) {
+    
+    long startNanos = System.nanoTime();
+
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
     debugMap.put("operation", "removeFromGroup");
     debugMap.put("username", username);
@@ -560,6 +582,7 @@ public class GrouperAccessProvider implements AccessProvider {
       debugMap.put("result", result);
       
       if (LOG.isDebugEnabled()) {
+        GrouperAtlassianUtils.assignTimingGate(debugMap, startNanos);
         LOG.debug(GrouperAtlassianUtils.mapForLog(debugMap));
       }
       
@@ -582,6 +605,7 @@ public class GrouperAccessProvider implements AccessProvider {
         }
       }
 
+      GrouperAtlassianUtils.assignTimingGate(debugMap, startNanos);
       LOG.error("Error: " + GrouperAtlassianUtils.mapForLog(debugMap), re);
       throw re;
     }
@@ -592,6 +616,9 @@ public class GrouperAccessProvider implements AccessProvider {
    */
   @Override
   public boolean create(String groupname) {
+    
+    long startNanos = System.nanoTime();
+
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
     debugMap.put("operation", "create");
     debugMap.put("groupname", groupname);
@@ -659,6 +686,7 @@ public class GrouperAccessProvider implements AccessProvider {
       debugMap.put("result", result);
       
       if (LOG.isDebugEnabled()) {
+        GrouperAtlassianUtils.assignTimingGate(debugMap, startNanos);
         LOG.debug(GrouperAtlassianUtils.mapForLog(debugMap));
       }
 
@@ -678,6 +706,7 @@ public class GrouperAccessProvider implements AccessProvider {
         }
       }
 
+      GrouperAtlassianUtils.assignTimingGate(debugMap, startNanos);
       LOG.error("Error: " + GrouperAtlassianUtils.mapForLog(debugMap), re);
       throw re;
     }
@@ -709,16 +738,30 @@ public class GrouperAccessProvider implements AccessProvider {
    */
   @Override
   public void flushCaches() {
-    if (LOG.isDebugEnabled()) {
-      LOG.debug("flush caches, sizes: " + inGroupCache().size(true) + ", " 
-          + listGroupsContainingUserCache().size(true) + ", " + listUsersInGroupCache().size(true));
-    }
+
+    long startNanos = System.nanoTime();
+
+    Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
+    debugMap.put("operation", "flushCaches");
+    debugMap.put("inGroupCacheSize", inGroupCache().size(true));
+    debugMap.put("listGroupsContainingUserCacheSize", listGroupsContainingUserCache().size(true));
+    debugMap.put("listUsersInGroupCacheSize", listUsersInGroupCache().size(true));
+    debugMap.put("listGroupsCacheSize", listGroupsCache().size(true));
+    debugMap.put("loadGroupCacheSize", loadGroupCache().size(true));
+    debugMap.put("handlesCacheSize", handlesCache().size(true));
+
     inGroupCache().clear();
     listGroupsContainingUserCache().clear();
     listUsersInGroupCache().clear();
     loadGroupCache().clear();
     listGroupsCache().clear();
     handlesCache().clear();
+
+    if (LOG.isDebugEnabled()) {
+      GrouperAtlassianUtils.assignTimingGate(debugMap, startNanos);
+      LOG.debug(GrouperAtlassianUtils.mapForLog(debugMap));
+    }
+
   }
 
   /**
@@ -728,6 +771,8 @@ public class GrouperAccessProvider implements AccessProvider {
   @Override
   public boolean handles(String name) {
     
+    long startNanos = System.nanoTime();
+
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
     debugMap.put("operation", "handles");
 
@@ -802,6 +847,7 @@ public class GrouperAccessProvider implements AccessProvider {
       debugMap.put("result", result);
       
       if (LOG.isDebugEnabled()) {
+        GrouperAtlassianUtils.assignTimingGate(debugMap, startNanos);
         LOG.debug(GrouperAtlassianUtils.mapForLog(debugMap));
       }
       
@@ -809,15 +855,16 @@ public class GrouperAccessProvider implements AccessProvider {
     } catch(RuntimeException re) {
 
       if (re instanceof GcWebServiceError) {
-        if (((GcWebServiceError)re).getContainerResponseObject() instanceof WsFindGroupsResults) {
-          WsFindGroupsResults wsFindGroupsResults = (WsFindGroupsResults)((GcWebServiceError)re).getContainerResponseObject();
-          if (wsFindGroupsResults != null) {
-            GrouperAtlassianUtils.addToDebugMap(wsFindGroupsResults.getResultMetadata(), 
+        if (((GcWebServiceError)re).getContainerResponseObject() instanceof WsGetSubjectsResults) {
+          WsGetSubjectsResults wsGetSubjectsResults = (WsGetSubjectsResults)((GcWebServiceError)re).getContainerResponseObject();
+          if (wsGetSubjectsResults != null) {
+            GrouperAtlassianUtils.addToDebugMap(wsGetSubjectsResults.getResultMetadata(), 
                 debugMap, true);
           }
         }
       }
 
+      GrouperAtlassianUtils.assignTimingGate(debugMap, startNanos);
       LOG.error("Error: " + GrouperAtlassianUtils.mapForLog(debugMap), re);
       throw re;
     }
@@ -830,7 +877,8 @@ public class GrouperAccessProvider implements AccessProvider {
   @SuppressWarnings("unchecked")
   @Override
   public boolean init(Properties properties) {
-    //nothing to do here
+
+        //nothing to do here
     Boolean result = true;
     if (LOG.isDebugEnabled()) {
       StringBuilder logMessage = new StringBuilder("init, properties: ");
@@ -852,6 +900,8 @@ public class GrouperAccessProvider implements AccessProvider {
    */
   @Override
   public List<String> list() {
+
+    long startNanos = System.nanoTime();
 
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
     debugMap.put("operation", "list");
@@ -905,6 +955,7 @@ public class GrouperAccessProvider implements AccessProvider {
       GrouperAtlassianUtils.addToDebugMap(debugMap, resultList, "resultList");
       
       if (LOG.isDebugEnabled()) {
+        GrouperAtlassianUtils.assignTimingGate(debugMap, startNanos);
         LOG.debug(GrouperAtlassianUtils.mapForLog(debugMap));
       }
       
@@ -921,6 +972,7 @@ public class GrouperAccessProvider implements AccessProvider {
         }
       }
 
+      GrouperAtlassianUtils.assignTimingGate(debugMap, startNanos);
       LOG.error("Error: " + GrouperAtlassianUtils.mapForLog(debugMap), re);
       throw re;
     }
@@ -942,6 +994,8 @@ public class GrouperAccessProvider implements AccessProvider {
    */
   private boolean loadHelper(String groupname, boolean useCache) {
     
+    long startNanos = System.nanoTime();
+
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
     debugMap.put("operation", "loadHelper");
     debugMap.put("groupname", groupname);
@@ -998,6 +1052,7 @@ public class GrouperAccessProvider implements AccessProvider {
       debugMap.put("result", result);
       
       if (LOG.isDebugEnabled()) {
+        GrouperAtlassianUtils.assignTimingGate(debugMap, startNanos);
         LOG.debug(GrouperAtlassianUtils.mapForLog(debugMap));
       }
       
@@ -1014,6 +1069,7 @@ public class GrouperAccessProvider implements AccessProvider {
         }
       }
 
+      GrouperAtlassianUtils.assignTimingGate(debugMap, startNanos);
       LOG.error("Error: " + GrouperAtlassianUtils.mapForLog(debugMap), re);
       throw re;
     }
@@ -1025,6 +1081,9 @@ public class GrouperAccessProvider implements AccessProvider {
    */
   @Override
   public boolean remove(String groupname) {
+    
+    long startNanos = System.nanoTime();
+
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
     debugMap.put("operation", "remove");
     debugMap.put("groupname", groupname);
@@ -1063,6 +1122,7 @@ public class GrouperAccessProvider implements AccessProvider {
       debugMap.put("result", result);
       
       if (LOG.isDebugEnabled()) {
+        GrouperAtlassianUtils.assignTimingGate(debugMap, startNanos);
         LOG.debug(GrouperAtlassianUtils.mapForLog(debugMap));
       }
 
@@ -1082,6 +1142,7 @@ public class GrouperAccessProvider implements AccessProvider {
         }
       }
 
+      GrouperAtlassianUtils.assignTimingGate(debugMap, startNanos);
       LOG.error("Error: " + GrouperAtlassianUtils.mapForLog(debugMap), re);
       throw re;
     }

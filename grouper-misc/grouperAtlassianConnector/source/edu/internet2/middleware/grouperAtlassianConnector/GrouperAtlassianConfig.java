@@ -24,6 +24,81 @@ public class GrouperAtlassianConfig {
   
   /**
    * <pre>
+   * # if all users must be in atlassian.grouperAllUsersGroup, 
+   * # or if lookups of old users can be done without having to be in this group
+   * atlassian.requireGrouperAllUsersGroupForLookups = false
+   * </pre>
+   */
+  private boolean requireGrouperAllUsersGroupForLookups;
+  
+  /**
+   * <pre>
+   * # if all users must be in atlassian.grouperAllUsersGroup, 
+   * # or if lookups of old users can be done without having to be in this group
+   * atlassian.requireGrouperAllUsersGroupForLookups = false
+   * </pre>
+   * @return true if required
+   */
+  public boolean isRequireGrouperAllUsersGroupForLookups() {
+    return requireGrouperAllUsersGroupForLookups;
+  }
+
+  /**
+   * <pre>
+   * # if all users must be in atlassian.grouperAllUsersGroup, 
+   * # or if lookups of old users can be done without having to be in this group
+   * atlassian.requireGrouperAllUsersGroupForLookups = false
+   * </pre>
+   * @param requireGrouperAllUsersGroupForLookups1
+   */
+  public void setRequireGrouperAllUsersGroupForLookups(
+      boolean requireGrouperAllUsersGroupForLookups1) {
+    this.requireGrouperAllUsersGroupForLookups = requireGrouperAllUsersGroupForLookups1;
+  }
+
+  /**
+   * <pre>
+   * #grouper name of all users that have ever been in atlassian (profile service has access to these), or blank for all
+   * atlassian.grouperAllUsersGroup = 
+   * </pre>
+   */
+  private String grouperAllUsersGroup;
+
+  
+  
+  /**
+   * <pre>
+   * #grouper name of all users that have ever been in atlassian (profile service has access to these), or blank for all
+   * atlassian.grouperAllUsersGroup = 
+   * </pre>
+   * @return group name
+   */
+  public String getGrouperAllUsersGroup() {
+    return this.grouperAllUsersGroup;
+  }
+
+  /**
+   * <pre>
+   * #grouper name of all users that have ever been in atlassian (profile service has access to these), or blank for all
+   * atlassian.grouperAllUsersGroup = 
+   * </pre>
+   * @param grouperAllUsersGroup1
+   */
+  public void setGrouperAllUsersGroup(String grouperAllUsersGroup1) {
+    this.grouperAllUsersGroup = grouperAllUsersGroup1;
+  }
+
+  /**
+   * map of autoadd user id to user
+   * @param autoaddConfigUsers1
+   */
+  public void setAutoaddConfigUsers(
+      Map<String, GrouperAtlassianAutoaddUserConfig> autoaddConfigUsers1) {
+    this.autoaddConfigUsers = autoaddConfigUsers1;
+  }
+
+  /**
+   * <pre>
    * atlassian name of group which has all users in it
    * atlassian.usersGroup, e.g. jira-users
    * </pre>
@@ -732,10 +807,20 @@ public class GrouperAtlassianConfig {
           //atlassian.root = 
           tempConfig.setRootFolder(GrouperClientUtils.propertiesValue("atlassian.root", true));
           
+          //# if all users must be in atlassian.grouperAllUsersGroup, 
+          //# or if lookups of old users can be done without having to be in this group
+          //atlassian.requireGrouperAllUsersGroupForLookups = false
+          tempConfig.setRequireGrouperAllUsersGroupForLookups(
+              GrouperClientUtils.propertiesValueBoolean("atlassian.requireGrouperAllUsersGroupForLookups", false, false));
+          
           //atlassian name of group which has all users in it
           //atlassian.usersGroup, e.g. jira-users
-          tempConfig.setAtlassianUsersGroupName(GrouperClientUtils.propertiesValue("atlassian.usersGroup", false));
+          tempConfig.setAtlassianUsersGroupName(GrouperClientUtils.propertiesValue("atlassian.usersGroup", true));
 
+          // #grouper name of all users that have ever been in atlassian (profile service has access to these), or blank for all
+          // atlassian.grouperAllUsersGroup = 
+          tempConfig.setGrouperAllUsersGroup(GrouperClientUtils.propertiesValue("atlassian.grouperAllUsersGroup", false));
+          
           //# atlassian source to use (leave blank for all sources)
           //atlassian.subject.search.sourceId = 
           tempConfig.setSubjectSearchSourceId(GrouperClientUtils.propertiesValue("atlassian.subject.search.sourceId", false));
