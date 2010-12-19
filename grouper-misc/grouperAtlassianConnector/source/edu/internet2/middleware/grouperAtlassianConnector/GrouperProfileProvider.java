@@ -86,8 +86,8 @@ public class GrouperProfileProvider implements ProfileProvider {
    * @see com.opensymphony.user.provider.UserProvider#create(java.lang.String)
    */
   @Override
-  public boolean create(String groupname) {
-    LOG.error("You cannot create here, information is read from the source system via Grouper");
+  public boolean create(String name) {
+    LOG.error("You cannot create here, information is read from the source system via Grouper: " + name);
     throw new RuntimeException("You cannot create here, information is read from the source system via Grouper");
   }
 
@@ -209,7 +209,11 @@ public class GrouperProfileProvider implements ProfileProvider {
 
             GcGetMembers gcGetMembers = new GcGetMembers();
               
-            String grouperGroupName = GrouperAtlassianConfig.grouperAtlassianConfig().getGrouperAllUsersGroup();
+            String grouperGroupName = grouperAtlassianConfig.getGrouperAllUsersGroup();
+            if (GrouperClientUtils.isBlank(grouperGroupName)) {
+              grouperGroupName = grouperAtlassianConfig.getRootFolder() 
+                + ":"+ grouperAtlassianConfig.getAtlassianUsersGroupName();
+            }
             
             gcGetMembers.addGroupName(grouperGroupName);
             
@@ -292,8 +296,8 @@ public class GrouperProfileProvider implements ProfileProvider {
    * @see com.opensymphony.user.provider.UserProvider#remove(java.lang.String)
    */
   @Override
-  public boolean remove(String groupname) {
-    LOG.error("You cannot remove here, information is read from the source system via Grouper");
+  public boolean remove(String name) {
+    LOG.error("You cannot remove here, information is read from the source system via Grouper: " + name);
     throw new RuntimeException("You cannot remove here, information is read from the source system via Grouper");
   }
 
@@ -304,7 +308,7 @@ public class GrouperProfileProvider implements ProfileProvider {
   public boolean store(String name, Accessor accessor) {
 
     LOG.error("You cannot store here, information is read from the source system via Grouper");
-    throw new RuntimeException("You cannot store here, information is read from the source system via Grouper");
+    throw new RuntimeException("You cannot store here, information is read from the source system via Grouper: " + name);
 
   }
 
@@ -409,7 +413,7 @@ public class GrouperProfileProvider implements ProfileProvider {
         debugMap.put("propertySetIsNull", true);
         propertySet = null;
       } else {
-        debugMap.put("name", propertySet.getString("name"));
+        debugMap.put("fullName", propertySet.getString("fullName"));
         debugMap.put("email", propertySet.getString("email"));
       }
       if (LOG.isDebugEnabled()) {

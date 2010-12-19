@@ -10,5 +10,9 @@
 	<classpathentry kind="lib" path="lib/atlassian/atlassian-osuser-1.1.1.jar"/>
 	<classpathentry kind="lib" path="lib/atlassian/jiraClasses-4.2.1.jar"/>
 	<classpathentry kind="lib" path="lib/atlassian/propertyset-1.3.jar"/>
+	<classpathentry kind="lib" path="lib/atlassian/jcl-over-slf4j-1.5.8.jar"/>
+	<classpathentry kind="lib" path="lib/atlassian/slf4j-api-1.5.8.jar"/>
+	<classpathentry kind="lib" path="lib/atlassian/slf4j-log4j12-1.5.8.jar"/>
+	<classpathentry kind="lib" path="lib/atlassian/log4j-1.2.8.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

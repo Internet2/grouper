@@ -406,9 +406,10 @@ public class GrouperAtlassianUtils {
    * @return property set
    */
   public static PropertySet propertySet(String userId, String name, String email) {
-    PropertySet propertySet = new MapPropertySet();
+    MapPropertySet propertySet = new MapPropertySet();
+    propertySet.setMap(new HashMap<String, String>());
     propertySet.setString("email", email);
-    propertySet.setString("name", GrouperClientUtils.defaultIfBlank(name, userId));
+    propertySet.setString("fullName", GrouperClientUtils.defaultIfBlank(name, userId));
     return propertySet;
   }
   
