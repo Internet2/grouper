@@ -58,6 +58,7 @@ import edu.internet2.middleware.grouper.changeLog.ChangeLogConsumerBase;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogEntry;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogProcessorMetadata;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogTempToEntity;
+import edu.internet2.middleware.grouper.client.GroupSyncDaemon;
 import edu.internet2.middleware.grouper.externalSubjects.ExternalSubject;
 import edu.internet2.middleware.grouper.hibernate.ByHqlStatic;
 import edu.internet2.middleware.grouper.hibernate.GrouperCommitType;
@@ -271,6 +272,16 @@ public enum GrouperLoaderType {
           hib3GrouploaderLog.setUpdateCount(records);
 
           hib3GrouploaderLog.setJobMessage("Ran rules daemon, changed " + records + " records");
+          
+          hib3GrouploaderLog.setStatus(GrouperLoaderStatus.SUCCESS.name());
+        } else if (hib3GrouploaderLog.getJobName().startsWith(GrouperLoaderType.GROUPER_GROUP_SYNC)) {
+
+          //strip off the beginning
+          String configName = hib3GrouploaderLog.getJobName().substring(GrouperLoaderType.GROUPER_GROUP_SYNC.length()+2);
+          int records = GroupSyncDaemon.syncGroup(configName);
+          hib3GrouploaderLog.setUpdateCount(records);
+
+          hib3GrouploaderLog.setJobMessage("Ran group sync daemon, changed " + records + " records");
           
           hib3GrouploaderLog.setStatus(GrouperLoaderStatus.SUCCESS.name());
         } else {
@@ -974,6 +985,11 @@ public enum GrouperLoaderType {
    * maintenance rules name
    */
   public static final String GROUPER_RULES = "MAINTENANCE__rules";
+
+  /**
+   * group sync job name
+   */
+  public static final String GROUPER_GROUP_SYNC = "MAINTENANCE__groupSync";
 
   /**
    * change log temp to change log
