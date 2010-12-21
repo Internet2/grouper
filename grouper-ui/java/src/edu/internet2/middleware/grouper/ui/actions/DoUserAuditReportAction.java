@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
@@ -47,6 +48,7 @@ import edu.internet2.middleware.grouper.audit.UserAuditQuery;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.internal.dao.QueryPaging;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
+import edu.internet2.middleware.grouper.ui.GroupOrStem;
 import edu.internet2.middleware.grouper.ui.util.AuditEntryAsMap;
 import edu.internet2.middleware.grouper.ui.util.CollectionPager;
 import edu.internet2.middleware.grouper.ui.util.ObjectAsMap;
@@ -237,6 +239,9 @@ public class DoUserAuditReportAction extends GrouperCapableAction {
 			HttpSession session, GrouperSession grouperSession)
 			throws Exception {
 
+          boolean isRoot = grouperSession.getSubject().equals(SubjectFinder.findRootSubject())
+            || Boolean.TRUE.equals(request.getSession().getAttribute("activeWheelGroupMember"));
+
 		request.setAttribute("title", "audit.query.title");
     session.setAttribute("subtitle","");
 		
@@ -367,6 +372,13 @@ public class DoUserAuditReportAction extends GrouperCapableAction {
         String entity = null;
         query.setQueryOptions(options);
         List<AuditEntry> results = null;
+        Map privs = null;
+        if (!isEmpty(groupId)) {
+          privs = GrouperHelper.hasAsMap(grouperSession, GroupOrStem.findByGroup(grouperSession, GroupFinder.findByUuid(grouperSession, groupId)));
+        } else if (!isEmpty(stemId)) {
+          privs = GrouperHelper.hasAsMap(grouperSession, GroupOrStem.findByStem(grouperSession, StemFinder.findByUuid(grouperSession, stemId)));
+        }
+
         if(schemaOnly) {
 			query=query.addAuditTypeCategory("groupType").addAuditTypeCategory("groupField");
 			if(!isEmpty(groupTypeId)) {
@@ -374,17 +386,17 @@ public class DoUserAuditReportAction extends GrouperCapableAction {
 			}
 			infoKey ="audit.query.info.schema";
 			entity = "";
-		}else if(!isEmpty(groupId)) {
+		}else if(!isEmpty(groupId) && privs.containsKey("ADMIN")) {
 			query=query.addAuditTypeFieldValue("groupId", groupId);
 			infoKey ="audit.query.info.actions-on";
 			Group group = GroupFinder.findByUuid(grouperSession, groupId,true);
 			entity = group.getDisplayExtension();
-		}else if(!isEmpty(stemId)) {
+		}else if(!isEmpty(stemId) && (privs.containsKey("CREATE") || privs.containsKey("STEM"))) {
 			query=query.addAuditTypeFieldValue("stemId", stemId);
 			infoKey ="audit.query.info.actions-on";
 			Stem stem = StemFinder.findByUuid(grouperSession, stemId,true);
 			entity = stem.getDisplayExtension();
-		}else if(!isEmpty(memberId)) {
+		}else if(!isEmpty(memberId) && isRoot) {
 			Member member=MemberFinder.findByUuid(grouperSession, memberId,false);
 			if(filterType.equals("memberships")) {
 			    query=query.addAuditTypeCategory("membership").addAuditTypeFieldValue("memberId", memberId);
@@ -398,7 +410,9 @@ public class DoUserAuditReportAction extends GrouperCapableAction {
 			    infoKey="audit.query.info.privilege";
 			}
 			entity = GrouperHelper.getMemberDisplayValue(member, GrouperUiFilter.retrieveSessionMediaResourceBundle());
-		}
+		} else {
+                  throw new RuntimeException("Unexpected.  Invalid URL for user audit logs or insufficient privileges.");
+                }
 		
 		request.setAttribute("auditInfoKey",infoKey);
 		request.setAttribute("auditInfoEntity", entity);
