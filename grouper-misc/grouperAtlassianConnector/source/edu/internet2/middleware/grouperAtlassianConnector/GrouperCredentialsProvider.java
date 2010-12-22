@@ -1,6 +1,6 @@
 /**
  * @author mchyzer
- * $Id: GrouperAccessProvider.java 7084 2010-12-18 13:17:59Z mchyzer $
+ * $Id$
  */
 package edu.internet2.middleware.grouperAtlassianConnector;
 
@@ -36,12 +36,12 @@ import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
  * implement the opensymphony interface that Atlassian uses for products like jira/confluence
  */
 @SuppressWarnings("serial")
-public class GrouperProfileProvider implements ProfileProvider {
+public class GrouperCredentialsProvider implements ProfileProvider {
 
   /**
    * logger
    */
-  private static Log LOG = GrouperClientUtils.retrieveLog(GrouperProfileProvider.class);
+  private static Log LOG = GrouperClientUtils.retrieveLog(GrouperCredentialsProvider.class);
 
   /**
    * count the cache hits for testing
@@ -171,7 +171,7 @@ public class GrouperProfileProvider implements ProfileProvider {
       } else {
 
         //lets synchronize so we dont have a lot of people doing this at once...
-        synchronized(GrouperProfileProvider.class) {
+        synchronized(GrouperCredentialsProvider.class) {
           
           //maybe someone has done this in the meantime...
           listUsers = listUsersCache().get(Boolean.TRUE);

@@ -262,17 +262,26 @@ public class GrouperAtlassianUtils {
    */
   public static List<String> convertToAtlassianGroups(WsGroup[] wsGroups) {
     List<String> atlassianGroups = new ArrayList<String>();
-    String folderRoot = GrouperAtlassianConfig.grouperAtlassianConfig().getRootFolder();
     for (WsGroup wsGroup : GrouperClientUtils.nonNull(wsGroups, WsGroup.class)) {
       String groupName = wsGroup.getName();
-      if (!groupName.startsWith(folderRoot)) {
-        throw new RuntimeException("Why does group name: " + groupName + " not start with folderRoot? " + folderRoot);
-      }
-      //add one for a colon...
-      String atlassianName = groupName.substring(folderRoot.length()+1);
+      String atlassianName = atlassianGroupName(groupName);
       atlassianGroups.add(atlassianName);
     }
     return atlassianGroups;
+  }
+  
+  /**
+   * 
+   * @param grouperGroupName
+   * @return atlassian group name
+   */
+  public static String atlassianGroupName(String grouperGroupName) {
+    String folderRoot = GrouperAtlassianConfig.grouperAtlassianConfig().getRootFolder();
+    if (!grouperGroupName.startsWith(folderRoot)) {
+      throw new RuntimeException("Why does group name: " + grouperGroupName + " not start with folderRoot? " + folderRoot);
+    }
+    String atlassianName = grouperGroupName.substring(folderRoot.length()+1);
+    return atlassianName;
   }
   
   /**

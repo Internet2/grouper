@@ -832,7 +832,7 @@ public class GrouperAtlassianConfig {
           //# number of minutes to cache reads (-1 for none, though this isnt recommended since 
           //# atlassian makes a LOT of calls to the group service)
           //atlassian.cache.minutes = 
-          tempConfig.setCacheMinutes(GrouperClientUtils.propertiesValueInt("atlassian.cache.minutes", 2, true));
+          tempConfig.setCacheMinutes(GrouperClientUtils.propertiesValueInt("atlassian.cache.minutes", 5, true));
           
           //# list all sources here, and how to get the atlassian id
           //atlassian.source.jdbc.sourceId = jdbc

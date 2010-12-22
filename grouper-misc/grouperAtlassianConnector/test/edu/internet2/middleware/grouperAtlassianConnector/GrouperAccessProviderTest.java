@@ -60,7 +60,7 @@ public class GrouperAccessProviderTest extends TestCase {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new GrouperAccessProviderTest("testCreateRemove"));
+    TestRunner.run(new GrouperAccessProviderTest("testInGroup"));
   }
 
   /** access provider */
@@ -78,14 +78,14 @@ public class GrouperAccessProviderTest extends TestCase {
     
     assertFalse(this.grouperAccessProvider.handles(JUNIT_TEST_GROUP));
 
-    //this goes up to 2 since it is cache miss for user/group
-    assertEquals(cacheMisses + 2, GrouperAccessProvider.cacheMisses);
-    assertEquals(cacheHits, GrouperAccessProvider.cacheHits);
+    //they both go up
+    assertEquals(cacheMisses + 1, GrouperAccessProvider.cacheMisses);
+    assertEquals(cacheHits + 1, GrouperAccessProvider.cacheHits);
 
     assertFalse(this.grouperAccessProvider.handles(JUNIT_TEST_GROUP));
 
-    assertEquals(cacheMisses + 2, GrouperAccessProvider.cacheMisses);
-    assertEquals(cacheHits + 1, GrouperAccessProvider.cacheHits);
+    assertEquals(cacheMisses + 1, GrouperAccessProvider.cacheMisses);
+    assertEquals(cacheHits + 3, GrouperAccessProvider.cacheHits);
 
     assertTrue(this.grouperAccessProvider.create(JUNIT_TEST_GROUP));
 
@@ -94,33 +94,33 @@ public class GrouperAccessProviderTest extends TestCase {
 
     assertFalse(this.grouperAccessProvider.handles("whataslkfdjasldkfj"));
 
-    assertEquals(cacheMisses + 2, GrouperAccessProvider.cacheMisses);
-    assertEquals(cacheHits, GrouperAccessProvider.cacheHits);
+    assertEquals(cacheMisses + 1, GrouperAccessProvider.cacheMisses);
+    assertEquals(cacheHits + 1, GrouperAccessProvider.cacheHits);
 
     assertFalse(this.grouperAccessProvider.handles("whataslkfdjasldkfj"));
 
-    assertEquals(cacheMisses + 2, GrouperAccessProvider.cacheMisses);
-    assertEquals(cacheHits + 1, GrouperAccessProvider.cacheHits);
-
-    assertTrue(this.grouperAccessProvider.handles(JUNIT_TEST_GROUP));
-
-    assertEquals(cacheMisses + 3, GrouperAccessProvider.cacheMisses);
-    assertEquals(cacheHits + 1, GrouperAccessProvider.cacheHits);
-
-    assertTrue(this.grouperAccessProvider.handles(JUNIT_TEST_GROUP));
-
-    assertEquals(cacheMisses + 3, GrouperAccessProvider.cacheMisses);
-    assertEquals(cacheHits + 2, GrouperAccessProvider.cacheHits);
-
-    assertTrue(this.grouperAccessProvider.handles(TEST_USERNAME));
-
-    assertEquals(cacheMisses + 5, GrouperAccessProvider.cacheMisses);
-    assertEquals(cacheHits + 2, GrouperAccessProvider.cacheHits);
-
-    assertTrue(this.grouperAccessProvider.handles(TEST_USERNAME));
-
-    assertEquals(cacheMisses + 5, GrouperAccessProvider.cacheMisses);
+    assertEquals(cacheMisses + 1, GrouperAccessProvider.cacheMisses);
     assertEquals(cacheHits + 3, GrouperAccessProvider.cacheHits);
+
+    assertTrue(this.grouperAccessProvider.handles(JUNIT_TEST_GROUP));
+
+    assertEquals(cacheMisses + 1, GrouperAccessProvider.cacheMisses);
+    assertEquals(cacheHits + 4, GrouperAccessProvider.cacheHits);
+
+    assertTrue(this.grouperAccessProvider.handles(JUNIT_TEST_GROUP));
+
+    assertEquals(cacheMisses + 1, GrouperAccessProvider.cacheMisses);
+    assertEquals(cacheHits + 5, GrouperAccessProvider.cacheHits);
+
+    assertTrue(this.grouperAccessProvider.handles(TEST_USERNAME));
+
+    assertEquals(cacheMisses + 1, GrouperAccessProvider.cacheMisses);
+    assertEquals(cacheHits + 7, GrouperAccessProvider.cacheHits);
+
+    assertTrue(this.grouperAccessProvider.handles(TEST_USERNAME));
+
+    assertEquals(cacheMisses + 1, GrouperAccessProvider.cacheMisses);
+    assertEquals(cacheHits + 9, GrouperAccessProvider.cacheHits);
 
   }
   
@@ -167,8 +167,6 @@ public class GrouperAccessProviderTest extends TestCase {
     
     assertTrue(this.grouperAccessProvider.create(JUNIT_TEST_GROUP));
 
-    this.grouperAccessProvider.flushCaches();
-    
     long cacheHits = GrouperAccessProvider.cacheHits;
     long cacheMisses = GrouperAccessProvider.cacheMisses;
     
@@ -182,7 +180,6 @@ public class GrouperAccessProviderTest extends TestCase {
 
     this.grouperAccessProvider.addToGroup(TEST_USERNAME, JUNIT_TEST_GROUP);
     
-    this.grouperAccessProvider.flushCaches();
     cacheHits = GrouperAccessProvider.cacheHits;
     cacheMisses = GrouperAccessProvider.cacheMisses;
 
