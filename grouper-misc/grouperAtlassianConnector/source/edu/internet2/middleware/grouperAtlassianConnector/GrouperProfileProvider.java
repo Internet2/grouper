@@ -6,18 +6,20 @@ package edu.internet2.middleware.grouperAtlassianConnector;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.TreeSet;
 
 import com.opensymphony.module.propertyset.PropertySet;
 import com.opensymphony.user.Entity.Accessor;
 import com.opensymphony.user.provider.ProfileProvider;
 
 import edu.internet2.middleware.grouperAtlassianConnector.GrouperAtlassianConfig.GrouperAtlassianAutoaddUserConfig;
+import edu.internet2.middleware.grouperAtlassianConnector.xmpp.GrouperAtlassianXmppHandler;
 import edu.internet2.middleware.grouperClient.api.GcGetMembers;
 import edu.internet2.middleware.grouperClient.api.GcGetSubjects;
 import edu.internet2.middleware.grouperClient.util.ExpirableCache;
@@ -37,6 +39,14 @@ import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
  */
 @SuppressWarnings("serial")
 public class GrouperProfileProvider implements ProfileProvider {
+
+  /**
+   * if we should fail on grouper for failsafe cache
+   */
+  static boolean failOnGrouperForTestingFailsafeCache = false;
+
+  /** users that were created by atlassian since they are referenced in the DB, but not in the IdM */
+  private static Set<String> createdUsers = new HashSet<String>();
 
   /**
    * logger
@@ -61,7 +71,7 @@ public class GrouperProfileProvider implements ProfileProvider {
    */
   private static ExpirableCache<Boolean, List<String>> listUsersCache() {
     if (listUsersCache == null) {
-      listUsersCache = new ExpirableCache<Boolean, List<String>>(GrouperAtlassianConfig.grouperAtlassianConfig().getCacheMinutes());
+      listUsersCache = new ExpirableCache<Boolean, List<String>>(GrouperAtlassianConfig.grouperAtlassianConfig().getCacheProfileMinutes());
     }
     return listUsersCache;
   }
@@ -77,18 +87,77 @@ public class GrouperProfileProvider implements ProfileProvider {
    */
   private static ExpirableCache<String, PropertySet> propertySetCache() {
     if (propertySetCache == null) {
-      propertySetCache = new ExpirableCache<String, PropertySet>(GrouperAtlassianConfig.grouperAtlassianConfig().getCacheMinutes());
+      propertySetCache = new ExpirableCache<String, PropertySet>(GrouperAtlassianConfig.grouperAtlassianConfig().getCacheProfileMinutes());
     }
     return propertySetCache;
   }
-  
+
+  /** cache for list users, key is TRUE */
+  private static ExpirableCache<Boolean, List<String>> listUsersFailsafeCache = null;
+
+  /** 
+   * cache for list users, key is atlassian username, value is the map property set of name and email 
+   */
+  private static ExpirableCache<String, PropertySet> propertySetFailsafeCache = null;
+
+  /**
+   * count the failsafe cache hits for testing
+   */
+  static long cacheFailsafeHits = 0;
+
   /**
    * @see com.opensymphony.user.provider.UserProvider#create(java.lang.String)
    */
   @Override
   public boolean create(String name) {
-    LOG.error("You cannot create here '" + name + "', information is read from the source system via Grouper: " + name);
-    throw new RuntimeException("You cannot create here, information is read from the source system via Grouper");
+    
+    long startNanos = System.nanoTime();
+
+    Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
+    debugMap.put("operation", "create");
+    debugMap.put("name", name);
+
+    Boolean result = null;
+
+    try {
+      //lets see if it exists...
+      if (!this.handles(name)) {
+        
+        //add it to the created users map and the createdUsers cache
+        createdUsers.add(name);
+        
+        PropertySet propertySet = GrouperAtlassianUtils.propertySet(name, name, null);
+        
+        propertySetCache().put(name, propertySet);
+        propertySetFailsafeCache().put(name, propertySet);
+        
+        List<String> list = new ArrayList<String>(list());
+        list.add(name);
+        list = Collections.unmodifiableList(list);
+        listUsersCache().put(Boolean.TRUE, list);
+        listUsersFailsafeCache().put(Boolean.TRUE, list);
+        flushCaches();
+        result = true;
+      } else {
+        debugMap.put("foundInHandlesNoNeedToCreate", "true");
+        
+        result = false;
+      }
+      
+      debugMap.put("result", result);
+      
+      if (LOG.isDebugEnabled()) {
+        GrouperAtlassianUtils.assignTimingGate(debugMap, startNanos);
+        LOG.debug(GrouperAtlassianUtils.mapForLog(debugMap));
+      }
+    
+      return result;
+    } catch(RuntimeException re) {
+
+      GrouperAtlassianUtils.assignTimingGate(debugMap, startNanos);
+      LOG.error("Error: " + GrouperAtlassianUtils.mapForLog(debugMap), re);
+      throw re;
+    }
   }
 
   /**
@@ -101,11 +170,12 @@ public class GrouperProfileProvider implements ProfileProvider {
 
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
     debugMap.put("operation", "flushCaches");
-    debugMap.put("propertySetCache", propertySetCache().size(true));
+    debugMap.put("propertySetCacheSize", propertySetCache().size(true));
+    debugMap.put("listUsersCacheSize", listUsersCache().size(true));
 
     propertySetCache().clear();
     listUsersCache().clear();
-
+    
     if (LOG.isDebugEnabled()) {
       GrouperAtlassianUtils.assignTimingGate(debugMap, startNanos);
       LOG.debug(GrouperAtlassianUtils.mapForLog(debugMap));
@@ -119,7 +189,7 @@ public class GrouperProfileProvider implements ProfileProvider {
   @Override
   public boolean handles(String username) {
     
-    return getPropertySetHelper(username, "handles") != null;
+    return getPropertySetHelper(username, "handles") != null ;
 
   }
 
@@ -158,8 +228,12 @@ public class GrouperProfileProvider implements ProfileProvider {
     debugMap.put("operation", "list");
 
     List<String> resultList = new ArrayList<String>();
+    Set<String> resultSet = new TreeSet<String>(createdUsers);
 
     try {
+
+      //register xmpp if needed
+      GrouperAtlassianXmppHandler.registerXmppListenerIfNeeded();
 
       //check cache
       List<String> listUsers = listUsersCache().get(Boolean.TRUE);
@@ -183,11 +257,10 @@ public class GrouperProfileProvider implements ProfileProvider {
           } else {
             cacheMisses++;
 
-            Set<String> resultSet = new LinkedHashSet<String>();
-            
             //lets check the overrides
             GrouperAtlassianConfig grouperAtlassianConfig = GrouperAtlassianConfig.grouperAtlassianConfig();
             ExpirableCache<String, PropertySet> thePropertySetCache = propertySetCache();
+            ExpirableCache<String, PropertySet> thePropertySetFailsafeCache = propertySetFailsafeCache();
             {
               Set<String> autoaddUsers = grouperAtlassianConfig.getAutoaddConfigUsers().keySet();
               resultSet.addAll(autoaddUsers);
@@ -202,55 +275,94 @@ public class GrouperProfileProvider implements ProfileProvider {
                 PropertySet propertySet = GrouperAtlassianUtils.propertySet(autoaddUserId, name, email);
                 
                 thePropertySetCache.put(autoaddUserId, propertySet);
-                
+                thePropertySetFailsafeCache.put(autoaddUserId, propertySet);
               }
               
             }
 
-            GcGetMembers gcGetMembers = new GcGetMembers();
+            try {
+              GcGetMembers gcGetMembers = new GcGetMembers();
+                
+              String grouperGroupName = grouperAtlassianConfig.getGrouperAllUsersGroup();
+              if (GrouperClientUtils.isBlank(grouperGroupName)) {
+                grouperGroupName = grouperAtlassianConfig.getRootFolder() 
+                  + ":"+ grouperAtlassianConfig.getAtlassianUsersGroupName();
+              }
               
-            String grouperGroupName = grouperAtlassianConfig.getGrouperAllUsersGroup();
-            if (GrouperClientUtils.isBlank(grouperGroupName)) {
-              grouperGroupName = grouperAtlassianConfig.getRootFolder() 
-                + ":"+ grouperAtlassianConfig.getAtlassianUsersGroupName();
-            }
-            
-            gcGetMembers.addGroupName(grouperGroupName);
-            
-            for (String subjectAttributeName : GrouperAtlassianUtils.subjectAttributeNames(true)) {
-              gcGetMembers.addSubjectAttributeName(subjectAttributeName);
-            }
-            
-            for (String sourceId : GrouperAtlassianUtils.sourceIdsToSearch()) {
-              gcGetMembers.addSourceId(sourceId);
-            }
-            
-            WsGetMembersResults wsGetMembersResults = gcGetMembers.execute();
-            
-            WsGetMembersResult wsGetMembersResult = wsGetMembersResults.getResults()[0];
-      
-            GrouperAtlassianUtils.addToDebugMap(wsGetMembersResult.getResultMetadata(), debugMap, false);
-            
-            WsSubject[] wsSubjects = wsGetMembersResult.getWsSubjects();
-            debugMap.put("listSizeReturnedFromGrouper", GrouperClientUtils.length(wsSubjects));
-            
-            String[] subjectAttributeNames = wsGetMembersResults.getSubjectAttributeNames();
-            List<String> returnedUsers = GrouperAtlassianUtils.convertToAtlassianUsers(subjectAttributeNames, wsSubjects);
+              gcGetMembers.addGroupName(grouperGroupName);
+              
+              for (String subjectAttributeName : GrouperAtlassianUtils.subjectAttributeNames(true)) {
+                gcGetMembers.addSubjectAttributeName(subjectAttributeName);
+              }
+              
+              for (String sourceId : GrouperAtlassianUtils.sourceIdsToSearch()) {
+                gcGetMembers.addSourceId(sourceId);
+              }
 
-            debugMap.put("listSizeAfterSourceFiltering", GrouperClientUtils.length(returnedUsers));
+              if (failOnGrouperForTestingFailsafeCache) {
+                throw new RuntimeException("failOnGrouperForTestingFailsafeCache");
+              }
 
-            resultSet.addAll(returnedUsers);
-            resultList.addAll(resultSet);
-            
+              WsGetMembersResults wsGetMembersResults = gcGetMembers.execute();
+              
+              WsGetMembersResult wsGetMembersResult = wsGetMembersResults.getResults()[0];
+        
+              GrouperAtlassianUtils.addToDebugMap(wsGetMembersResult.getResultMetadata(), debugMap, false);
+              
+              WsSubject[] wsSubjects = wsGetMembersResult.getWsSubjects();
+              debugMap.put("listSizeReturnedFromGrouper", GrouperClientUtils.length(wsSubjects));
+              
+              String[] subjectAttributeNames = wsGetMembersResults.getSubjectAttributeNames();
+              List<String> returnedUsers = GrouperAtlassianUtils.convertToAtlassianUsers(subjectAttributeNames, wsSubjects);
+  
+              debugMap.put("listSizeAfterSourceFiltering", GrouperClientUtils.length(returnedUsers));
+  
+              resultSet.addAll(returnedUsers);
+              resultList.addAll(resultSet);
+              
+              resultList = Collections.unmodifiableList(resultList);
+
+              //lets add to cache
+              listUsersFailsafeCache().put(Boolean.TRUE, resultList);
+              
+              Map<String, PropertySet> propertySetMap = GrouperAtlassianUtils.convertToAtlassianPropertySets(subjectAttributeNames, wsSubjects);
+              
+              //add that to cache too
+              for (String userId: propertySetMap.keySet()) {
+                thePropertySetCache.put(userId, propertySetMap.get(userId));
+                thePropertySetFailsafeCache.put(userId, propertySetMap.get(userId));
+              }
+
+              
+            } catch (RuntimeException re) {
+              
+              resultList = listUsersFailsafeCache().get(Boolean.TRUE);
+              if (resultList == null) {
+                throw re;
+              }
+              LOG.error("Error from grouper", re);
+              cacheFailsafeHits++;
+
+            }
             //lets add to cache
-            listUsersCache().put(Boolean.TRUE, Collections.unmodifiableList(resultList));
+            listUsersCache().put(Boolean.TRUE, resultList);
 
-            Map<String, PropertySet> propertySetMap = GrouperAtlassianUtils.convertToAtlassianPropertySets(subjectAttributeNames, wsSubjects);
-            
-            //add that to cache too
-            for (String userId: propertySetMap.keySet()) {
-              thePropertySetCache.put(userId, propertySetMap.get(userId));
+
+            {
+              //add created people
+              for (String principalName : createdUsers) {
+                PropertySet propertySet = GrouperAtlassianUtils.propertySet(principalName, principalName, null);
+                
+                if (thePropertySetCache.get(principalName) == null) {
+                  thePropertySetCache.put(principalName, propertySet);
+                }
+                if (thePropertySetFailsafeCache.get(principalName) == null) {
+                  thePropertySetFailsafeCache.put(principalName, propertySet);
+                }
+              }
             }
+            
+
           }
         }
       }
@@ -297,8 +409,8 @@ public class GrouperProfileProvider implements ProfileProvider {
    */
   @Override
   public boolean remove(String name) {
-    LOG.error("You cannot remove here: '" + name + "', information is read from the source system via Grouper: " + name);
-    throw new RuntimeException("You cannot remove here, information is read from the source system via Grouper");
+    LOG.error("You cannot remove here: '" + name + "', information is read from the source system via Grouper.");
+    throw new RuntimeException("You cannot remove here '" + name + "', information is read from the source system via Grouper");
   }
 
   /**
@@ -308,7 +420,7 @@ public class GrouperProfileProvider implements ProfileProvider {
   public boolean store(String name, Accessor accessor) {
 
     LOG.error("You cannot store here: '" + name + "', information is read from the source system via Grouper");
-    throw new RuntimeException("You cannot store here, information is read from the source system via Grouper: " + name);
+    throw new RuntimeException("You cannot store here '" + name + "', information is read from the source system via Grouper.");
 
   }
 
@@ -337,7 +449,7 @@ public class GrouperProfileProvider implements ProfileProvider {
     this.list();
     
     PropertySet propertySet = propertySetCache().get(username);
-
+    boolean fromFailsafeCache = false;
     try {
       
       //check if null, but not the null property set
@@ -347,65 +459,84 @@ public class GrouperProfileProvider implements ProfileProvider {
         cacheHits++;
   
       } else {
-  
+
         cacheMisses++;
         
         GrouperAtlassianConfig grouperAtlassianConfig = GrouperAtlassianConfig.grouperAtlassianConfig();
         GrouperAtlassianAutoaddUserConfig grouperAtlassianAutoaddUserConfig = grouperAtlassianConfig
           .getAutoaddConfigUsers().get(username);
+        
         if (grouperAtlassianAutoaddUserConfig != null) {
           String name = grouperAtlassianAutoaddUserConfig.getUserName();
           String email = grouperAtlassianAutoaddUserConfig.getEmail();
           propertySet = GrouperAtlassianUtils.propertySet(username, name, email);
         } else {
           
-          GcGetSubjects gcGetSubjects = new GcGetSubjects();
-          
-          for (String sourceId : GrouperAtlassianUtils.sourceIdsToSearch()) {
-            gcGetSubjects.addSourceId(sourceId);
-          }
-          
-          WsSubjectLookup wsSubjectLookup = GrouperAtlassianUtils.wsSubjectLookup(username, debugMap);
-  
-          gcGetSubjects.addWsSubjectLookup(wsSubjectLookup);
-          
-          for (String subjectAttributeName : GrouperAtlassianUtils.subjectAttributeNames(true)) {
-            gcGetSubjects.addSubjectAttributeName(subjectAttributeName);
-          }
-
-          //see if we are restricting by group name
-          if (grouperAtlassianConfig.isRequireGrouperAllUsersGroupForLookups()) {
-            String groupName = grouperAtlassianConfig.getGrouperAllUsersGroup();
-            if (GrouperClientUtils.isBlank(groupName)) {
-              groupName = grouperAtlassianConfig.getRootFolder() 
-                + ":"+ grouperAtlassianConfig.getAtlassianUsersGroupName();
+          try {
+            GcGetSubjects gcGetSubjects = new GcGetSubjects();
+            
+            for (String sourceId : GrouperAtlassianUtils.sourceIdsToSearch()) {
+              gcGetSubjects.addSourceId(sourceId);
             }
-            gcGetSubjects.assignGroupLookup(new WsGroupLookup(groupName, null));
+            
+            WsSubjectLookup wsSubjectLookup = GrouperAtlassianUtils.wsSubjectLookup(username, debugMap);
+    
+            gcGetSubjects.addWsSubjectLookup(wsSubjectLookup);
+            
+            for (String subjectAttributeName : GrouperAtlassianUtils.subjectAttributeNames(true)) {
+              gcGetSubjects.addSubjectAttributeName(subjectAttributeName);
+            }
+  
+            //see if we are restricting by group name
+            if (grouperAtlassianConfig.isRequireGrouperAllUsersGroupForLookups()) {
+              String groupName = grouperAtlassianConfig.getGrouperAllUsersGroup();
+              if (GrouperClientUtils.isBlank(groupName)) {
+                groupName = grouperAtlassianConfig.getRootFolder() 
+                  + ":"+ grouperAtlassianConfig.getAtlassianUsersGroupName();
+              }
+              gcGetSubjects.assignGroupLookup(new WsGroupLookup(groupName, null));
+            }
+            
+            if (failOnGrouperForTestingFailsafeCache) {
+              throw new RuntimeException("failOnGrouperForTestingFailsafeCache");
+            }
+            
+            WsGetSubjectsResults wsGetSubjectsResults = gcGetSubjects.execute();
+            
+            WsSubject[] wsSubjects = wsGetSubjectsResults.getWsSubjects();
+            
+            GrouperAtlassianUtils.addToDebugMap(wsGetSubjectsResults.getResultMetadata(), debugMap, false);
+            
+            debugMap.put("listSizeReturnedFromGrouper", GrouperClientUtils.length(wsSubjects));
+            
+            String[] subjectAttributeNames = wsGetSubjectsResults.getSubjectAttributeNames();
+            
+            if (GrouperClientUtils.length(wsGetSubjectsResults.getWsSubjects()) == 1) {
+              propertySet = GrouperAtlassianUtils.convertToAtlassianPropertySet(username, subjectAttributeNames, 
+                  wsGetSubjectsResults.getWsSubjects()[0], GrouperAtlassianConfig.grouperAtlassianConfig().getSourceConfigs());
+            } else if (createdUsers.contains(username)) {
+              //remember we dont have to keep looking for a while
+              propertySet = GrouperAtlassianUtils.propertySet(username, username, null);
+              
+            }
+          } catch (RuntimeException re) {
+            propertySet = propertySetFailsafeCache().get(username);
+            if (propertySet == null) {
+              throw re;
+            }
+            fromFailsafeCache = true;
+            LOG.error("Error from grouper", re);
+            cacheFailsafeHits++;
+
           }
-          
-          
-          WsGetSubjectsResults wsGetSubjectsResults = gcGetSubjects.execute();
-          
-          WsSubject[] wsSubjects = wsGetSubjectsResults.getWsSubjects();
-          
-          GrouperAtlassianUtils.addToDebugMap(wsGetSubjectsResults.getResultMetadata(), debugMap, false);
-          
-          debugMap.put("listSizeReturnedFromGrouper", GrouperClientUtils.length(wsSubjects));
-          
-          String[] subjectAttributeNames = wsGetSubjectsResults.getSubjectAttributeNames();
-          
-          if (GrouperClientUtils.length(wsGetSubjectsResults.getWsSubjects()) == 1) {
-            propertySet = GrouperAtlassianUtils.convertToAtlassianPropertySet(username, subjectAttributeNames, 
-                wsGetSubjectsResults.getWsSubjects()[0], GrouperAtlassianConfig.grouperAtlassianConfig().getSourceConfigs());
-          }
-          
         }
         
         //add to cache, but with special value if null so we dont have to keep looking...
         PropertySet cachePropertySet = GrouperClientUtils.defaultIfNull(propertySet, GrouperAtlassianUtils.NULL_PROPERTY_SET);
         propertySetCache().put(username, cachePropertySet);
-        
-        
+        if (!fromFailsafeCache) {
+          propertySetFailsafeCache().put(username, cachePropertySet);
+        }
       }
       
       //if it is null, then it does not exist, I wonder if we should return a null one... hmmm
@@ -439,6 +570,30 @@ public class GrouperProfileProvider implements ProfileProvider {
       LOG.error("Error: " + GrouperAtlassianUtils.mapForLog(debugMap), re);
       throw re;
     }
+  }
+
+  /**
+   * 
+   * @return the cache
+   */
+  private static ExpirableCache<Boolean, List<String>> listUsersFailsafeCache() {
+    if (listUsersFailsafeCache == null) {
+      listUsersFailsafeCache = new ExpirableCache<Boolean, List<String>>(
+          GrouperAtlassianConfig.grouperAtlassianConfig().getCacheFailsafeMinutes());
+    }
+    return listUsersFailsafeCache;
+  }
+
+  /**
+   * cache for list users, key is atlassian username, value is the map property set of name and email 
+   * @return the cache
+   */
+  private static ExpirableCache<String, PropertySet> propertySetFailsafeCache() {
+    if (propertySetFailsafeCache == null) {
+      propertySetFailsafeCache = new ExpirableCache<String, PropertySet>(
+          GrouperAtlassianConfig.grouperAtlassianConfig().getCacheFailsafeMinutes());
+    }
+    return propertySetFailsafeCache;
   }
 
 }

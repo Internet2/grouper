@@ -417,7 +417,9 @@ public class GrouperAtlassianUtils {
   public static PropertySet propertySet(String userId, String name, String email) {
     MapPropertySet propertySet = new MapPropertySet();
     propertySet.setMap(new HashMap<String, String>());
-    propertySet.setString("email", email);
+    if (!GrouperClientUtils.isBlank(email)) {
+      propertySet.setString("email", email);
+    }
     propertySet.setString("fullName", GrouperClientUtils.defaultIfBlank(name, userId));
     return propertySet;
   }

@@ -20,6 +20,7 @@ public class AllGrouperAtlassianConnectorTests {
     TestSuite suite = new TestSuite(
         "Test for edu.internet2.middleware.grouperAtlassianConnector");
     //$JUnit-BEGIN$
+    suite.addTestSuite(GrouperCredentialsProviderTest.class);
     suite.addTestSuite(GrouperAccessProviderTest.class);
     suite.addTestSuite(GrouperProfileProviderTest.class);
     //$JUnit-END$
