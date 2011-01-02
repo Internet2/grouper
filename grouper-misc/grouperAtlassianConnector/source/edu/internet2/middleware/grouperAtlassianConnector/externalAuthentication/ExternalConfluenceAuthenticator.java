@@ -15,7 +15,7 @@ import com.atlassian.confluence.user.ConfluenceAuthenticator;
   * custom authenticator for jira
   */
 @SuppressWarnings("serial")
-public class ExternalConfluenceAuthenticator extends ConfluenceAuthenticator {
+public class ExternalConfluenceAuthenticator extends ConfluenceAuthenticator implements AtlassianGetUserable {
 
   /**
    * @see com.atlassian.seraph.auth.DefaultAuthenticator#getUser(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
@@ -23,8 +23,15 @@ public class ExternalConfluenceAuthenticator extends ConfluenceAuthenticator {
   @Override
   public Principal getUser(HttpServletRequest request, HttpServletResponse response) {
 
-    return ExternalAuthenticator.getUser(request, response, "confluence",
+    return ExternalAuthenticator.getUser(this, request, response, "confluence",
         "seraph_defaultauthenticator_user", "seraph_defaultauthenticator_logged_out_user");
   }
   
+  /**
+   * @see AtlassianGetUserable#getUser(String)
+   */
+  public Principal getUser(String username) {
+    return super.getUser(username);
+  }
+
 }

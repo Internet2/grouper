@@ -6,6 +6,7 @@ package edu.internet2.middleware.grouperAtlassianConnector.externalAuthenticatio
 
 import java.security.Principal;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -23,7 +24,7 @@ import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
  * custom authenticator for jira
  */
 @SuppressWarnings("serial")
-public class ExternalAuthenticator extends DefaultAuthenticator {
+public class ExternalAuthenticator extends DefaultAuthenticator implements AtlassianGetUserable {
 
   /**
    * logger
@@ -35,13 +36,14 @@ public class ExternalAuthenticator extends DefaultAuthenticator {
    */
   @Override
   public Principal getUser(HttpServletRequest request, HttpServletResponse response) {
-    return getUser(request, response, "jira", DefaultAuthenticator.LOGGED_IN_KEY, null);
+    return getUser(this, request, response, "jira", DefaultAuthenticator.LOGGED_IN_KEY, null);
   }
 
   /**
    * @see com.atlassian.seraph.auth.DefaultAuthenticator#getUser(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
    */
-  public static Principal getUser(HttpServletRequest request, HttpServletResponse response, 
+  public static Principal getUser(AtlassianGetUserable atlassianGetUserable, 
+      HttpServletRequest request, HttpServletResponse response, 
       String authenticatorType, String userAttributeName, String logoutAttributeName) {
 
     long startNanos = System.nanoTime();
@@ -51,108 +53,130 @@ public class ExternalAuthenticator extends DefaultAuthenticator {
     debugMap.put("operation", "getUser");
     debugMap.put("authenticatorType", authenticatorType);
 
-    Principal user = null;
-
-    String remoteUser = null;
+    try {
     
-    HttpSession session = request.getSession();
-    
-    String backdoorRequestParam = GrouperClientUtils.propertiesValue("atlassian.authentication.backdoorRequestParameterName", false);
-    if (!GrouperClientUtils.isBlank(backdoorRequestParam)) {
+      Principal user = null;
+  
+      String remoteUser = null;
       
-      debugMap.put("backdoorRequestParam", backdoorRequestParam);
-
-      remoteUser = request.getParameter(backdoorRequestParam);
-      if (!GrouperClientUtils.isBlank(remoteUser)) {
-        debugMap.put("retrievedFromBackdoorRequestParam_" + backdoorRequestParam, true);
-      }
-    }
-    
-    boolean cacheUserToken = GrouperClientUtils.propertiesValueBoolean(
-        "atlassian.authentication.cacheUserToken", false, true);
-
-    debugMap.put("cacheUserTokenInSession", cacheUserToken);
-
-    if (cacheUserToken && session != null
-        && session.getAttribute(userAttributeName) != null) {
-
-      user = (Principal) session.getAttribute(
-          userAttributeName);
-
-      debugMap.put("retrievedFromSession", true);
-
-    } else {
-
-      remoteUser = request.getRemoteUser();
-
-      if (GrouperClientUtils.isBlank(remoteUser)) {
-        user = request.getUserPrincipal();
-        remoteUser = user != null ? user
-            .getName() : null;
-
-        if (user != null) {
-          debugMap.put("retrievedFromRequestDotGetUserPrincipal", true);
+      HttpSession session = request.getSession();
+      
+      boolean cacheUserToken = GrouperClientUtils.propertiesValueBoolean(
+          "atlassian.authentication.cacheUserToken", false, true);
+  
+      debugMap.put("cacheUserTokenInSession", cacheUserToken);
+  
+      if (cacheUserToken && session != null
+          && session.getAttribute(userAttributeName) != null) {
+  
+        user = (Principal) session.getAttribute(
+            userAttributeName);
+  
+        debugMap.put("retrievedFromSession", true);
+  
+      } else {
+  
+        remoteUser = request.getRemoteUser();
+  
+        if (GrouperClientUtils.isBlank(remoteUser)) {
+          user = request.getUserPrincipal();
+          remoteUser = user != null ? user
+              .getName() : null;
+  
+          if (user != null) {
+            debugMap.put("retrievedFromRequestDotGetUserPrincipal", true);
+          }
         }
-      }
-
-      if (GrouperClientUtils.isBlank(remoteUser)) {
-        remoteUser = (String) request.getAttribute("REMOTE_USER");
-        if (!GrouperClientUtils.isBlank(remoteUser)) {
-          debugMap.put("retrievedFromRequestGetAttributeRemoteUser", true);
-        }
-      }
-
-      if (GrouperClientUtils.isBlank(remoteUser)) {
-        String attributeName = GrouperClientUtils.propertiesValue(
-            "atlassian.authentication.requestPrincipalAttributeName", false);
-
-        debugMap.put("requestAttributeName", attributeName);
-        
-        if (!GrouperClientUtils.isBlank(attributeName)) {
-          remoteUser = (String) request.getAttribute(attributeName);
+  
+        if (GrouperClientUtils.isBlank(remoteUser)) {
+          remoteUser = (String) request.getAttribute("REMOTE_USER");
           if (!GrouperClientUtils.isBlank(remoteUser)) {
-            debugMap.put("retrievedFromRequestGetAttribute_" + attributeName, true);
+            debugMap.put("retrievedFromRequestGetAttributeRemoteUser", true);
           }
+        }
+  
+        if (GrouperClientUtils.isBlank(remoteUser)) {
+          String attributeName = GrouperClientUtils.propertiesValue(
+              "atlassian.authentication.requestPrincipalAttributeName", false);
+  
+          debugMap.put("requestAttributeName", attributeName);
+          
+          if (!GrouperClientUtils.isBlank(attributeName)) {
+            remoteUser = (String) request.getAttribute(attributeName);
+            if (!GrouperClientUtils.isBlank(remoteUser)) {
+              debugMap.put("retrievedFromRequestGetAttribute_" + attributeName, true);
+            }
+          }
+        }
+        
+        if (user == null && !GrouperClientUtils.isBlank(remoteUser)) {
+          
+          //kick in the backdoor
+          String allowedBackdoorUsers = GrouperClientUtils.propertiesValue("atlassian.authentication.backdoorAllowedUsers", false);
+          
+          String backdoorRequestParam = GrouperClientUtils.propertiesValue("atlassian.authentication.backdoorRequestParameterName", false);
+  
+          if (!GrouperClientUtils.isBlank(backdoorRequestParam)) {
+            
+            debugMap.put("backdoorRequestParam", backdoorRequestParam);
+  
+            String newRemoteUser = request.getParameter(backdoorRequestParam);
+            if (!GrouperClientUtils.isBlank(newRemoteUser)) {
+              debugMap.put("retrievedFromBackdoorRequestParam_" + backdoorRequestParam, true);
+              debugMap.put("retrievedFromBackdoorRequestParam_" + backdoorRequestParam + "_value", newRemoteUser);
+              
+              List<String> usersAllowedToBackdoorList = GrouperClientUtils.splitTrimToList(allowedBackdoorUsers, ",");
+              if (usersAllowedToBackdoorList != null
+                  && usersAllowedToBackdoorList.contains(remoteUser)) {
+                debugMap.put("atlassian.authentication.backdoorAllowedUsers", "contains " + remoteUser);
+                remoteUser = newRemoteUser;
+                //if getting from param, then cache the user token since it wont be there each time
+                cacheUserToken = true;
+              } else {
+                //might as well throw an exception so the user knows whats going on
+                debugMap.put("atlassian.authentication.backdoorAllowedUsers", "doesnt contain " + remoteUser);
+                throw new RuntimeException("grouper.client.properties atlassian.authentication.backdoorAllowedUsers doesnt contain " + remoteUser);
+              }
+            }
+          }
+          
+          
+          
+          user = atlassianGetUserable.getUser(remoteUser);
         }
       }
       
-      if (user == null && !GrouperClientUtils.isBlank(remoteUser)) {
-        final String REMOTE_USER = remoteUser;
-        
-        user = new Principal() {
-          
-          /**
-           * get name of principal
-           */
-          @Override
-          public String getName() {
-            
-            return REMOTE_USER;
-          }
-        };
+      if (user == null || GrouperClientUtils.isBlank(user.getName())) {
+        debugMap.put("userIsNull", true);
+      } else {
+        debugMap.put("principalName", user.getName());
       }
+  
+      if (LOG.isDebugEnabled()) {
+        GrouperAtlassianUtils.assignTimingGate(debugMap, startNanos);
+        LOG.debug(GrouperAtlassianUtils.mapForLog(debugMap));
+      }
+      
+      //put it back in cache
+      if (cacheUserToken && !GrouperClientUtils.isBlank(userAttributeName)) {
+        session.setAttribute(userAttributeName, user);
+      }
+      if (user != null && !GrouperClientUtils.isBlank(user.getName()) && !GrouperClientUtils.isBlank(logoutAttributeName)) {
+        session.setAttribute(logoutAttributeName, null);
+      }
+      
+      return user;
+    } catch (RuntimeException re) {
+      LOG.error("Error authenticating: " + GrouperAtlassianUtils.mapForLog(debugMap), re);
+      throw re;
     }
-    
-    if (user == null || GrouperClientUtils.isBlank(user.getName())) {
-      debugMap.put("userIsNull", true);
-    } else {
-      debugMap.put("principalName", user.getName());
-    }
-
-    if (LOG.isDebugEnabled()) {
-      GrouperAtlassianUtils.assignTimingGate(debugMap, startNanos);
-      LOG.debug(GrouperAtlassianUtils.mapForLog(debugMap));
-    }
-    
-    //put it back in cache
-    if (cacheUserToken && !GrouperClientUtils.isBlank(userAttributeName)) {
-      session.setAttribute(userAttributeName, user);
-    }
-    if (user != null && !GrouperClientUtils.isBlank(user.getName()) && !GrouperClientUtils.isBlank(logoutAttributeName)) {
-      session.setAttribute(logoutAttributeName, null);
-    }    
-    
-    return user;
   }
 
+  /**
+   * @see AtlassianGetUserable#getUser(String)
+   */
+  public Principal getUser(String username) {
+    return super.getUser(username);
+  }
+  
 }

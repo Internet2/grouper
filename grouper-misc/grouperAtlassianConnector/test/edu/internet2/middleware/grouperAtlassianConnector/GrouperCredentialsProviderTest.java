@@ -27,7 +27,7 @@ public class GrouperCredentialsProviderTest extends TestCase {
   public static void main(String[] args) {
     TestRunner.run(new GrouperCredentialsProviderTest("testList"));
   }
-
+  
   /**
    * make sure these throw exceptions
    */
