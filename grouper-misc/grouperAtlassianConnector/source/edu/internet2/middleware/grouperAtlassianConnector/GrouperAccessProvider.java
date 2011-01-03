@@ -17,6 +17,7 @@ import com.opensymphony.user.Entity.Accessor;
 import com.opensymphony.user.provider.AccessProvider;
 
 import edu.internet2.middleware.grouperAtlassianConnector.GrouperAtlassianConfig.GrouperAtlassianAutoaddConfig;
+import edu.internet2.middleware.grouperAtlassianConnector.xmpp.GrouperAtlassianXmppHandler;
 import edu.internet2.middleware.grouperClient.api.GcAddMember;
 import edu.internet2.middleware.grouperClient.api.GcAssignGrouperPrivileges;
 import edu.internet2.middleware.grouperClient.api.GcDeleteMember;
@@ -52,6 +53,52 @@ import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
 @SuppressWarnings("serial")
 public class GrouperAccessProvider implements AccessProvider {
 
+  /**
+   * last time the cache was refreshed
+   */
+  static long lastCacheRefreshMillis = -1;
+  
+  /**
+   * when in the future we should update the cache (XMPP schedules it 1 minute in the future)
+   */
+  static long scheduleNextCacheRefreshMillis = -1;
+
+  /**
+   * to schedule a refresh in the future, set this to when it should occur
+   * @param flushCacheMillisSince1970
+   */
+  public static void flushCaches(long flushCacheMillisSince1970) {
+    
+    //if we are scheduled after the last one, then dont reschedule
+    if (cacheWillBeClearedInFuture()) {
+      return;
+    }
+    //schedule this cache flush
+    scheduleNextCacheRefreshMillis = flushCacheMillisSince1970;
+    
+  }
+
+  /**
+   * see if there is a request for cache to be cleared in future
+   * @return true if it will be cleared in future
+   */
+  static boolean cacheWillBeClearedInFuture() {
+    return scheduleNextCacheRefreshMillis > lastCacheRefreshMillis;
+  }
+
+  /**
+   * see if we should clear the cache now
+   * @return true if should clear the cache now
+   */
+  static boolean cacheShouldBeClearedNow() {
+    return cacheWillBeClearedInFuture() && scheduleNextCacheRefreshMillis < System.currentTimeMillis();
+  }
+  
+  /**
+   * if we should fail on grouper for failsafe cache
+   */
+  static boolean failOnGrouperForTestingFailsafeCache = false;
+  
   /**
    * bean which holds stuff to cache
    *
@@ -126,9 +173,16 @@ public class GrouperAccessProvider implements AccessProvider {
    */
   static long cacheHits = 0;
   /**
+   * count the failsafe cache hits for testing
+   */
+  static long cacheFailsafeHits = 0;
+  /**
    * count the cache misses for unit testing
    */
   static long cacheMisses = 0;
+
+  /** cache for list groups, key is TRUE */
+  private static ExpirableCache<Boolean, GrouperAccessCacheBean> grouperAccessCacheBeanCache = null;
   
   /**
    * @see com.opensymphony.user.provider.AccessProvider#addToGroup(java.lang.String, java.lang.String)
@@ -158,6 +212,9 @@ public class GrouperAccessProvider implements AccessProvider {
       
       gcAddMember.addSubjectLookup(wsSubjectLookup);
 
+      if (failOnGrouperForTestingFailsafeCache) {
+        throw new RuntimeException("failOnGrouperForTestingFailsafeCache");
+      }
       WsAddMemberResults wsAddMemberResults = gcAddMember.execute();
       
       WsAddMemberResult wsAddMemberResult = wsAddMemberResults.getResults()[0];
@@ -176,6 +233,8 @@ public class GrouperAccessProvider implements AccessProvider {
       
       //lets clear some caches
       flushCaches();
+      //reload
+      grouperAccessCacheBean();
       
       return result;
     } catch(RuntimeException re) {
@@ -200,17 +259,18 @@ public class GrouperAccessProvider implements AccessProvider {
   }
 
   /** cache for list groups, key is TRUE */
-  private static ExpirableCache<Boolean, GrouperAccessCacheBean> grouperAccessCacheBeanCache = null;
+  private static ExpirableCache<Boolean, GrouperAccessCacheBean> grouperAccessCacheBeanFailsafeCache = null;
   
   /**
    * 
    * @return the cache
    */
-  private static ExpirableCache<Boolean, GrouperAccessCacheBean> grouperAccessCacheBeanCache() {
-    if (grouperAccessCacheBeanCache == null) {
-      grouperAccessCacheBeanCache = new ExpirableCache<Boolean, GrouperAccessCacheBean>(GrouperAtlassianConfig.grouperAtlassianConfig().getCacheMinutes());
+  private static ExpirableCache<Boolean, GrouperAccessCacheBean> grouperAccessCacheBeanFailsafeCache() {
+    if (grouperAccessCacheBeanFailsafeCache == null) {
+      grouperAccessCacheBeanFailsafeCache = new ExpirableCache<Boolean, GrouperAccessCacheBean>(
+          GrouperAtlassianConfig.grouperAtlassianConfig().getCacheFailsafeMinutes());
     }
-    return grouperAccessCacheBeanCache;
+    return grouperAccessCacheBeanFailsafeCache;
   }
   
   /**
@@ -218,10 +278,20 @@ public class GrouperAccessProvider implements AccessProvider {
    * @return the cache
    */
   private static GrouperAccessCacheBean grouperAccessCacheBean() {
+    
+    GrouperAtlassianXmppHandler.registerXmppListenerIfNeeded();
+    
+    if (cacheShouldBeClearedNow()) {
+      new GrouperAccessProvider().flushCaches();
+    }
+
     GrouperAccessCacheBean grouperAccessCacheBean = grouperAccessCacheBeanCache().get(Boolean.TRUE);
+        
     if (grouperAccessCacheBean == null) {
      
       synchronized(GrouperAccessProvider.class) {
+        
+        long now = System.currentTimeMillis();
         
         //try again to see if another thread did this in the meantime
         grouperAccessCacheBean = grouperAccessCacheBeanCache().get(Boolean.TRUE);
@@ -231,14 +301,29 @@ public class GrouperAccessProvider implements AccessProvider {
           
           GrouperAccessCacheBean tempGrouperAccessCacheBean = new GrouperAccessCacheBean();
 
-          List<String> groupNames = listGroupsFromGrouper();
-          tempGrouperAccessCacheBean.setGroupNames(groupNames);
-          
-          Map<String, List<String>> listUsersInGroupFromGrouper = listUsersInGroupFromGrouper(groupNames);
-          tempGrouperAccessCacheBean.setListUsersInGroup(listUsersInGroupFromGrouper);
-          tempGrouperAccessCacheBean.setListGroupsContainingUser(listGroupsContainingUser(listUsersInGroupFromGrouper));
-          
+          try {
+            List<String> groupNames = listGroupsFromGrouper();
+            tempGrouperAccessCacheBean.setGroupNames(groupNames);
+            
+            Map<String, List<String>> listUsersInGroupFromGrouper = listUsersInGroupFromGrouper(groupNames);
+            tempGrouperAccessCacheBean.setListUsersInGroup(listUsersInGroupFromGrouper);
+            tempGrouperAccessCacheBean.setListGroupsContainingUser(listGroupsContainingUser(listUsersInGroupFromGrouper));
+            
+            //got it successfully, keep in failsafe cache
+            grouperAccessCacheBeanFailsafeCache().put(Boolean.TRUE, tempGrouperAccessCacheBean);
+            
+          } catch (RuntimeException re) {
+            
+            //see if we can get this from the failsafe cache
+            tempGrouperAccessCacheBean = grouperAccessCacheBeanFailsafeCache().get(Boolean.TRUE);
+            if (tempGrouperAccessCacheBean == null) {
+              throw re;
+            }
+            LOG.error("Error from grouper", re);
+            cacheFailsafeHits++;
+          }
           grouperAccessCacheBean = tempGrouperAccessCacheBean;
+          lastCacheRefreshMillis = now;
           //add to cache
           grouperAccessCacheBeanCache().put(Boolean.TRUE, grouperAccessCacheBean);
           
@@ -279,6 +364,9 @@ public class GrouperAccessProvider implements AccessProvider {
       
       gcFindGroups.assignQueryFilter(wsQueryFilter);
       
+      if (failOnGrouperForTestingFailsafeCache) {
+        throw new RuntimeException("failOnGrouperForTestingFailsafeCache");
+      }
       WsFindGroupsResults wsFindGroupsResults = gcFindGroups.execute();
       
       WsGroup[] wsGroups = wsFindGroupsResults.getGroupResults();
@@ -394,6 +482,9 @@ public class GrouperAccessProvider implements AccessProvider {
         gcGetMembers.addSourceId(sourceId);
       }
       
+      if (failOnGrouperForTestingFailsafeCache) {
+        throw new RuntimeException("failOnGrouperForTestingFailsafeCache");
+      }
       WsGetMembersResults wsGetMembersResults = gcGetMembers.execute();
       
       GrouperAtlassianUtils.addToDebugMap(wsGetMembersResults.getResultMetadata(), debugMap, false);
@@ -597,6 +688,9 @@ public class GrouperAccessProvider implements AccessProvider {
       
       gcDeleteMember.addSubjectLookup(wsSubjectLookup);
 
+      if (failOnGrouperForTestingFailsafeCache) {
+        throw new RuntimeException("failOnGrouperForTestingFailsafeCache");
+      }
       WsDeleteMemberResults wsDeleteMemberResults = gcDeleteMember.execute();
       
       WsDeleteMemberResult wsDeleteMemberResult = wsDeleteMemberResults.getResults()[0];
@@ -616,6 +710,8 @@ public class GrouperAccessProvider implements AccessProvider {
       
       //lets clear some caches
       flushCaches();
+      //reload
+      grouperAccessCacheBean();
 
       return result;
     } catch(RuntimeException re) {
@@ -682,6 +778,9 @@ public class GrouperAccessProvider implements AccessProvider {
         wsGroup.setDisplayExtension(groupname);
         wsGroup.setDescription("Automatically created group from Atlassian");
         
+        if (failOnGrouperForTestingFailsafeCache) {
+          throw new RuntimeException("failOnGrouperForTestingFailsafeCache");
+        }
         WsGroupSaveResults wsGroupSaveResults = gcGroupSave.execute();
         
         WsGroupSaveResult wsGroupSaveResult = wsGroupSaveResults.getResults()[0];
@@ -708,6 +807,8 @@ public class GrouperAccessProvider implements AccessProvider {
 
         //lets clear some caches (since not in group list)
         flushCaches();
+        //reload
+        grouperAccessCacheBean();
         
       }
 
@@ -757,6 +858,9 @@ public class GrouperAccessProvider implements AccessProvider {
       GrouperAtlassianUtils.addToDebugMap(debugMap, groupNames, "privilegeAdd_" + privilegeName);
       gcAssignGrouperPrivileges.assignAllowed(true);
 
+      if (failOnGrouperForTestingFailsafeCache) {
+        throw new RuntimeException("failOnGrouperForTestingFailsafeCache");
+      }
       gcAssignGrouperPrivileges.execute();
     }
   }
@@ -772,6 +876,7 @@ public class GrouperAccessProvider implements AccessProvider {
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
     debugMap.put("operation", "flushCaches");
     debugMap.put("grouperAccessCacheBeanCacheSize", grouperAccessCacheBeanCache().size(true));
+    debugMap.put("grouperAccessCacheBeanFailsafeCacheSize", grouperAccessCacheBeanFailsafeCache().size(true));
 
     grouperAccessCacheBeanCache().clear();
 
@@ -779,6 +884,8 @@ public class GrouperAccessProvider implements AccessProvider {
       GrouperAtlassianUtils.assignTimingGate(debugMap, startNanos);
       LOG.debug(GrouperAtlassianUtils.mapForLog(debugMap));
     }
+
+    lastCacheRefreshMillis = System.currentTimeMillis();
 
   }
 
@@ -934,6 +1041,9 @@ public class GrouperAccessProvider implements AccessProvider {
         
         gcGroupDelete.addGroupLookup(new WsGroupLookup(grouperGroupName, null));
         
+        if (failOnGrouperForTestingFailsafeCache) {
+          throw new RuntimeException("failOnGrouperForTestingFailsafeCache");
+        }
         WsGroupDeleteResults wsGroupDeleteResults = gcGroupDelete.execute();
         
         WsGroupDeleteResult wsGroupDeleteResult = wsGroupDeleteResults.getResults()[0];
@@ -944,6 +1054,8 @@ public class GrouperAccessProvider implements AccessProvider {
 
         //lets clear some caches (since not in group list)
         flushCaches();
+        //reload
+        grouperAccessCacheBean();
       }
 
       debugMap.put("result", result);
@@ -985,6 +1097,17 @@ public class GrouperAccessProvider implements AccessProvider {
       LOG.debug("Operation is 'store' '" + name + "' which is a no-op");
     }
     return true;
+  }
+
+  /**
+   * 
+   * @return the cache
+   */
+  private static ExpirableCache<Boolean, GrouperAccessCacheBean> grouperAccessCacheBeanCache() {
+    if (grouperAccessCacheBeanCache == null) {
+      grouperAccessCacheBeanCache = new ExpirableCache<Boolean, GrouperAccessCacheBean>(GrouperAtlassianConfig.grouperAtlassianConfig().getCacheMinutes());
+    }
+    return grouperAccessCacheBeanCache;
   }
 
 }

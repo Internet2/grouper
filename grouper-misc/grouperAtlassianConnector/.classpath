@@ -14,5 +14,16 @@
 	<classpathentry kind="lib" path="lib/atlassian/slf4j-api-1.5.8.jar"/>
 	<classpathentry kind="lib" path="lib/atlassian/slf4j-log4j12-1.5.8.jar"/>
 	<classpathentry kind="lib" path="lib/atlassian/log4j-1.2.8.jar"/>
+	<classpathentry kind="lib" path="lib/atlassian/j2ee.jar"/>
+	<classpathentry kind="lib" path="lib/atlassian/atlassian-user-2.2.1.jar"/>
+	<classpathentry kind="lib" path="lib/atlassian/atlassian-seraph-2.3.1.jar"/>
+	<classpathentry kind="lib" path="lib/atlassian/confluence-3.4.5.jar"/>
+	<classpathentry kind="lib" path="lib/connector/smack.jar"/>
+	<classpathentry kind="lib" path="lib/atlassian/commons-collections.jar"/>
+	<classpathentry kind="lib" path="lib/connector/ezmorph.jar"/>
+	<classpathentry kind="lib" path="lib/connector/json-lib.jar"/>
+	<classpathentry kind="lib" path="lib/atlassian/commons-lang.jar"/>
+	<classpathentry kind="lib" path="lib/atlassian/commons-beanutils.jar"/>
+	<classpathentry kind="lib" path="lib/atlassian/quartz-1.4.5.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

@@ -568,6 +568,66 @@ public class GrouperAtlassianConfig {
 
   /**
    * <pre>
+   * # number of minutes to profile cache reads (-1 for none, though this isnt recommended since 
+   * # atlassian makes a LOT of calls to the profile service)
+   * # defaults to 10
+   * </pre>
+   */
+  private int cacheProfileMinutes = -1;
+  
+  /**
+   * # each cache has a failsafe cache, so that if grouper is down, and the data has been loaded, 
+   * # since atlassian has been started, the stale verison of the data can be retrieved
+   * atlassian.cache.failsafe.hours = 48
+   */
+  private int cacheFailsafeMinutes = -1;
+  
+  /**
+   * # each cache has a failsafe cache, so that if grouper is down, and the data has been loaded, 
+   * # since atlassian has been started, the stale verison of the data can be retrieved
+   * atlassian.cache.failsafe.hours = 48
+   * @return cache failsafe minutes
+   */
+  public int getCacheFailsafeMinutes() {
+    return this.cacheFailsafeMinutes;
+  }
+
+  /**
+   * # each cache has a failsafe cache, so that if grouper is down, and the data has been loaded, 
+   * # since atlassian has been started, the stale verison of the data can be retrieved
+   * atlassian.cache.failsafe.hours = 48
+   * @param cacheFailsafeMinutes1
+   */
+  public void setCacheFailsafeMinutes(int cacheFailsafeMinutes1) {
+    this.cacheFailsafeMinutes = cacheFailsafeMinutes1;
+  }
+
+  /**
+   * <pre>
+   * # number of minutes to profile cache reads (-1 for none, though this isnt recommended since 
+   * # atlassian makes a LOT of calls to the profile service)
+   * # defaults to 10
+   * </pre>
+   * @return minutes
+   */
+  public int getCacheProfileMinutes() {
+    return this.cacheProfileMinutes;
+  }
+
+  /**
+   * <pre>
+   * # number of minutes to profile cache reads (-1 for none, though this isnt recommended since 
+   * # atlassian makes a LOT of calls to the profile service)
+   * # defaults to 10
+   * </pre>
+   * @param cacheProfileMinutes1
+   */
+  public void setCacheProfileMinutes(int cacheProfileMinutes1) {
+    this.cacheProfileMinutes = cacheProfileMinutes1;
+  }
+
+  /**
+   * <pre>
    * # groups which should be assigned to various privileges for new groups created in confluence
    * atlassian.updaters =
    * </pre>
@@ -832,7 +892,24 @@ public class GrouperAtlassianConfig {
           //# number of minutes to cache reads (-1 for none, though this isnt recommended since 
           //# atlassian makes a LOT of calls to the group service)
           //atlassian.cache.minutes = 
-          tempConfig.setCacheMinutes(GrouperClientUtils.propertiesValueInt("atlassian.cache.minutes", 5, true));
+          tempConfig.setCacheMinutes(GrouperClientUtils.propertiesValueInt("atlassian.cache.minutes", 10, true));
+          
+          // # number of minutes to profile cache reads (-1 for none, though this isnt recommended since 
+          // # atlassian makes a LOT of calls to the profile service)
+          // # defaults to 10
+          tempConfig.setCacheProfileMinutes(GrouperClientUtils.propertiesValueInt("atlassian.cache.profile.minutes", 10, true));
+          
+          {
+            // * # each cache has a failsafe cache, so that if grouper is down, and the data has been loaded, 
+            // * # since atlassian has been started, the stale verison of the data can be retrieved
+            // * atlassian.cache.failsafe.hours = 48
+            int failSafeCache = GrouperClientUtils.propertiesValueInt("atlassian.cache.failsafe.hours", 48, true);
+            if (failSafeCache != -1) {
+              //adjust for minutes instead of hours
+              failSafeCache = 60 * failSafeCache;
+            }
+            tempConfig.setCacheFailsafeMinutes(failSafeCache);
+          }
           
           //# list all sources here, and how to get the atlassian id
           //atlassian.source.jdbc.sourceId = jdbc

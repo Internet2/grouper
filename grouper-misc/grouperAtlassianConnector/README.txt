@@ -9,6 +9,15 @@ log4j.logger.edu.internet2.middleware.grouperAtlassianConnector.GrouperLoggingPr
 
 Change osuser.xml (put in edit-webapp)
 
+CredentialsProvider
+        <!-- provider class="com.atlassian.jira.user.osuser.JiraOFBizCredentialsProvider">
+                <property name="exclusive-access">true</property>
+        </provider -->
+
+        <provider class="edu.internet2.middleware.grouperAtlassianConnector.GrouperCredentialsProvider">
+                <property name="exclusive-access">true</property>
+        </provider>
+
 AccessProvider
         <!-- provider class="com.atlassian.jira.user.osuser.JiraOFBizAccessProvider">
                 <property name="exclusive-access">true</property>

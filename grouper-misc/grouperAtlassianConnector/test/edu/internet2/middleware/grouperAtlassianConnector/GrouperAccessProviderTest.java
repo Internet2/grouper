@@ -4,10 +4,9 @@
  */
 package edu.internet2.middleware.grouperAtlassianConnector;
 
+import junit.framework.TestCase;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
-import junit.framework.TestCase;
-import junit.textui.TestRunner;
 
 
 /**
@@ -56,15 +55,26 @@ public class GrouperAccessProviderTest extends TestCase {
   }
 
   /**
-   * 
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new GrouperAccessProviderTest("testInGroup"));
+    //TestRunner.run(new GrouperAccessProviderTest("testLoadClearCacheInFuture"));
+    runXmpp();
   }
 
   /** access provider */
   private GrouperAccessProvider grouperAccessProvider = new GrouperAccessProvider();
+  
+  /**
+   * run XMPP to manually test
+   */
+  private static void runXmpp() {
+    new GrouperAccessProvider().list();
+    
+    //sleep for two hours while waiting for grouper updates and XMPP stuff
+    GrouperClientUtils.sleep(1000 * 60 * 60 * 2);
+    
+  }
   
   /**
    * 
@@ -91,37 +101,146 @@ public class GrouperAccessProviderTest extends TestCase {
 
     cacheHits = GrouperAccessProvider.cacheHits;
     cacheMisses = GrouperAccessProvider.cacheMisses;
+    this.grouperAccessProvider.flushCaches();
 
     assertFalse(this.grouperAccessProvider.handles("whataslkfdjasldkfj"));
 
-    assertEquals(cacheMisses + 1, GrouperAccessProvider.cacheMisses);
-    assertEquals(cacheHits + 1, GrouperAccessProvider.cacheHits);
+    assertTrue(cacheMisses < GrouperAccessProvider.cacheMisses);
+    assertTrue(cacheHits < GrouperAccessProvider.cacheHits);
+
+    cacheHits = GrouperAccessProvider.cacheHits;
+    cacheMisses = GrouperAccessProvider.cacheMisses;
 
     assertFalse(this.grouperAccessProvider.handles("whataslkfdjasldkfj"));
 
-    assertEquals(cacheMisses + 1, GrouperAccessProvider.cacheMisses);
-    assertEquals(cacheHits + 3, GrouperAccessProvider.cacheHits);
+    assertEquals(cacheMisses, GrouperAccessProvider.cacheMisses);
+    assertTrue(cacheHits < GrouperAccessProvider.cacheHits);
+
+    cacheHits = GrouperAccessProvider.cacheHits;
+    cacheMisses = GrouperAccessProvider.cacheMisses;
 
     assertTrue(this.grouperAccessProvider.handles(JUNIT_TEST_GROUP));
 
-    assertEquals(cacheMisses + 1, GrouperAccessProvider.cacheMisses);
-    assertEquals(cacheHits + 4, GrouperAccessProvider.cacheHits);
+    assertEquals(cacheMisses, GrouperAccessProvider.cacheMisses);
+    assertTrue(cacheHits < GrouperAccessProvider.cacheHits);
+
+    cacheHits = GrouperAccessProvider.cacheHits;
+    cacheMisses = GrouperAccessProvider.cacheMisses;
 
     assertTrue(this.grouperAccessProvider.handles(JUNIT_TEST_GROUP));
 
-    assertEquals(cacheMisses + 1, GrouperAccessProvider.cacheMisses);
-    assertEquals(cacheHits + 5, GrouperAccessProvider.cacheHits);
+    assertEquals(cacheMisses, GrouperAccessProvider.cacheMisses);
+    assertTrue(cacheHits < GrouperAccessProvider.cacheHits);
+    cacheHits = GrouperAccessProvider.cacheHits;
+    cacheMisses = GrouperAccessProvider.cacheMisses;
 
     assertTrue(this.grouperAccessProvider.handles(TEST_USERNAME));
 
-    assertEquals(cacheMisses + 1, GrouperAccessProvider.cacheMisses);
-    assertEquals(cacheHits + 7, GrouperAccessProvider.cacheHits);
+    assertEquals(cacheMisses, GrouperAccessProvider.cacheMisses);
+    assertTrue(cacheHits < GrouperAccessProvider.cacheHits);
+    cacheHits = GrouperAccessProvider.cacheHits;
+    cacheMisses = GrouperAccessProvider.cacheMisses;
 
     assertTrue(this.grouperAccessProvider.handles(TEST_USERNAME));
 
-    assertEquals(cacheMisses + 1, GrouperAccessProvider.cacheMisses);
-    assertEquals(cacheHits + 9, GrouperAccessProvider.cacheHits);
+    assertEquals(cacheMisses, GrouperAccessProvider.cacheMisses);
+    assertTrue(cacheHits < GrouperAccessProvider.cacheHits);
 
+    //lets make some exceptions happen
+    long cacheFailsafeHits = GrouperAccessProvider.cacheFailsafeHits;
+    GrouperAccessProvider.failOnGrouperForTestingFailsafeCache = true;
+    new GrouperAccessProvider().flushCaches();
+    
+    assertTrue(this.grouperAccessProvider.handles(TEST_USERNAME));
+    assertTrue(GrouperAccessProvider.cacheFailsafeHits > cacheFailsafeHits);
+    
+    cacheMisses = GrouperAccessProvider.cacheMisses;
+    cacheHits = GrouperAccessProvider.cacheHits;
+    cacheFailsafeHits = GrouperAccessProvider.cacheFailsafeHits;
+    
+    assertTrue(this.grouperAccessProvider.handles(TEST_USERNAME));
+    
+    assertTrue(GrouperAccessProvider.cacheHits > cacheHits);
+    assertEquals(cacheMisses, GrouperAccessProvider.cacheMisses);
+    assertEquals(cacheFailsafeHits, GrouperAccessProvider.cacheFailsafeHits);
+    
+  }
+  
+  /**
+   * 
+   */
+  public void testLoadClearCacheInFuture() {
+    
+    this.grouperAccessProvider.flushCaches();
+    
+    long cacheHits = GrouperAccessProvider.cacheHits;
+    long cacheMisses = GrouperAccessProvider.cacheMisses;
+    
+    assertFalse(this.grouperAccessProvider.load(JUNIT_TEST_GROUP, null));
+    assertTrue(cacheMisses < GrouperAccessProvider.cacheMisses);
+    assertEquals(cacheHits, GrouperAccessProvider.cacheHits);
+
+    cacheHits = GrouperAccessProvider.cacheHits;
+    cacheMisses = GrouperAccessProvider.cacheMisses;
+    
+    assertFalse(this.grouperAccessProvider.load(JUNIT_TEST_GROUP, null));
+    assertEquals(cacheMisses, GrouperAccessProvider.cacheMisses);
+    assertTrue(cacheHits < GrouperAccessProvider.cacheHits);
+
+    GrouperAccessProvider.scheduleNextCacheRefreshMillis = -1;
+    
+    long flushCacheMillis = System.currentTimeMillis() + (3 * 1000);
+    
+    assertFalse(GrouperAccessProvider.cacheShouldBeClearedNow());
+    assertFalse(GrouperAccessProvider.cacheWillBeClearedInFuture());
+    
+    //10 seconds in the future
+    GrouperAccessProvider.flushCaches(flushCacheMillis);
+
+    assertFalse(GrouperAccessProvider.cacheShouldBeClearedNow());
+    assertTrue(GrouperAccessProvider.cacheWillBeClearedInFuture());
+
+    long lastCacheRefreshMillis = GrouperAccessProvider.lastCacheRefreshMillis;
+    
+    assertEquals(flushCacheMillis, GrouperAccessProvider.scheduleNextCacheRefreshMillis);
+    
+    GrouperAccessProvider.flushCaches(flushCacheMillis + 10);
+    
+    //should ignore this
+    assertEquals(flushCacheMillis, GrouperAccessProvider.scheduleNextCacheRefreshMillis);
+
+    cacheHits = GrouperAccessProvider.cacheHits;
+    cacheMisses = GrouperAccessProvider.cacheMisses;
+
+    //run a query, should be cached
+    assertFalse(this.grouperAccessProvider.load(JUNIT_TEST_GROUP, null));
+    assertEquals(cacheMisses, GrouperAccessProvider.cacheMisses);
+    assertTrue(cacheHits < GrouperAccessProvider.cacheHits);
+
+    //should not have refreshed
+    assertEquals(lastCacheRefreshMillis, GrouperAccessProvider.lastCacheRefreshMillis);
+    
+    //wait 5 seconds
+    GrouperClientUtils.sleep(5000);
+    
+    assertTrue(GrouperAccessProvider.cacheShouldBeClearedNow());
+    assertTrue(GrouperAccessProvider.cacheWillBeClearedInFuture());
+    
+    //now should clear the cache
+    cacheHits = GrouperAccessProvider.cacheHits;
+    cacheMisses = GrouperAccessProvider.cacheMisses;
+    
+    //run a query, should be cached
+    assertFalse(this.grouperAccessProvider.load(JUNIT_TEST_GROUP, null));
+    assertTrue(cacheMisses < GrouperAccessProvider.cacheMisses);
+    assertEquals(cacheHits, GrouperAccessProvider.cacheHits);
+    
+    //should be refreshed
+    assertTrue(lastCacheRefreshMillis < GrouperAccessProvider.lastCacheRefreshMillis);
+
+    assertFalse(GrouperAccessProvider.cacheShouldBeClearedNow());
+    assertFalse(GrouperAccessProvider.cacheWillBeClearedInFuture());
+    
   }
   
   /**
@@ -135,12 +254,15 @@ public class GrouperAccessProviderTest extends TestCase {
     long cacheMisses = GrouperAccessProvider.cacheMisses;
     
     assertFalse(this.grouperAccessProvider.load(JUNIT_TEST_GROUP, null));
-    assertEquals(cacheMisses + 1, GrouperAccessProvider.cacheMisses);
+    assertTrue(cacheMisses < GrouperAccessProvider.cacheMisses);
     assertEquals(cacheHits, GrouperAccessProvider.cacheHits);
 
+    cacheHits = GrouperAccessProvider.cacheHits;
+    cacheMisses = GrouperAccessProvider.cacheMisses;
+    
     assertFalse(this.grouperAccessProvider.load(JUNIT_TEST_GROUP, null));
-    assertEquals(cacheMisses + 1, GrouperAccessProvider.cacheMisses);
-    assertEquals(cacheHits + 1, GrouperAccessProvider.cacheHits);
+    assertEquals(cacheMisses, GrouperAccessProvider.cacheMisses);
+    assertTrue(cacheHits > GrouperAccessProvider.cacheHits);
 
     assertTrue(this.grouperAccessProvider.create(JUNIT_TEST_GROUP));
 
@@ -149,12 +271,33 @@ public class GrouperAccessProviderTest extends TestCase {
     cacheMisses = GrouperAccessProvider.cacheMisses;
 
     assertTrue(this.grouperAccessProvider.load(JUNIT_TEST_GROUP, null));
-    assertEquals(cacheMisses + 1, GrouperAccessProvider.cacheMisses);
+    assertTrue(cacheMisses < GrouperAccessProvider.cacheMisses);
     assertEquals(cacheHits, GrouperAccessProvider.cacheHits);
 
+    cacheHits = GrouperAccessProvider.cacheHits;
+    cacheMisses = GrouperAccessProvider.cacheMisses;
+
     assertTrue(this.grouperAccessProvider.load(JUNIT_TEST_GROUP, null));
-    assertEquals(cacheMisses + 1, GrouperAccessProvider.cacheMisses);
-    assertEquals(cacheHits + 1, GrouperAccessProvider.cacheHits);
+    assertEquals(cacheMisses, GrouperAccessProvider.cacheMisses);
+    assertTrue(cacheHits < GrouperAccessProvider.cacheHits);
+
+    //lets make some exceptions happen
+    long cacheFailsafeHits = GrouperAccessProvider.cacheFailsafeHits;
+    GrouperAccessProvider.failOnGrouperForTestingFailsafeCache = true;
+    new GrouperAccessProvider().flushCaches();
+    
+    assertTrue(this.grouperAccessProvider.load(JUNIT_TEST_GROUP, null));
+    assertTrue(GrouperAccessProvider.cacheFailsafeHits > cacheFailsafeHits);
+    
+    cacheMisses = GrouperAccessProvider.cacheMisses;
+    cacheHits = GrouperAccessProvider.cacheHits;
+    cacheFailsafeHits = GrouperAccessProvider.cacheFailsafeHits;
+    
+    assertTrue(this.grouperAccessProvider.load(JUNIT_TEST_GROUP, null));
+    
+    assertTrue(GrouperAccessProvider.cacheHits > cacheHits);
+    assertEquals(cacheMisses, GrouperAccessProvider.cacheMisses);
+    assertEquals(cacheFailsafeHits, GrouperAccessProvider.cacheFailsafeHits);
 
     
   }
@@ -167,31 +310,53 @@ public class GrouperAccessProviderTest extends TestCase {
     
     assertTrue(this.grouperAccessProvider.create(JUNIT_TEST_GROUP));
 
+    new GrouperAccessProvider().flushCaches();
     long cacheHits = GrouperAccessProvider.cacheHits;
     long cacheMisses = GrouperAccessProvider.cacheMisses;
     
     assertFalse(this.grouperAccessProvider.listUsersInGroup(JUNIT_TEST_GROUP).contains(TEST_USERNAME));
-    assertEquals(cacheMisses + 1, GrouperAccessProvider.cacheMisses);
+    assertTrue(cacheMisses < GrouperAccessProvider.cacheMisses);
     assertEquals(cacheHits, GrouperAccessProvider.cacheHits);
 
+    cacheHits = GrouperAccessProvider.cacheHits;
+    cacheMisses = GrouperAccessProvider.cacheMisses;
+
     assertFalse(this.grouperAccessProvider.listUsersInGroup(JUNIT_TEST_GROUP).contains(TEST_USERNAME));
-    assertEquals(cacheMisses + 1, GrouperAccessProvider.cacheMisses);
-    assertEquals(cacheHits + 1, GrouperAccessProvider.cacheHits);
+    assertEquals(cacheMisses, GrouperAccessProvider.cacheMisses);
+    assertTrue(cacheHits < GrouperAccessProvider.cacheHits);
 
     this.grouperAccessProvider.addToGroup(TEST_USERNAME, JUNIT_TEST_GROUP);
     
     cacheHits = GrouperAccessProvider.cacheHits;
     cacheMisses = GrouperAccessProvider.cacheMisses;
+    new GrouperAccessProvider().flushCaches();
 
     assertTrue(this.grouperAccessProvider.listUsersInGroup(JUNIT_TEST_GROUP).contains(TEST_USERNAME));
-    assertEquals(cacheMisses + 1, GrouperAccessProvider.cacheMisses);
+    assertTrue(cacheMisses < GrouperAccessProvider.cacheMisses);
     assertEquals(cacheHits, GrouperAccessProvider.cacheHits);
 
     assertTrue(this.grouperAccessProvider.listUsersInGroup(JUNIT_TEST_GROUP).contains(TEST_USERNAME));
     assertEquals(cacheMisses + 1, GrouperAccessProvider.cacheMisses);
     assertEquals(cacheHits + 1, GrouperAccessProvider.cacheHits);
 
+    //lets make some exceptions happen
+    long cacheFailsafeHits = GrouperAccessProvider.cacheFailsafeHits;
+    GrouperAccessProvider.failOnGrouperForTestingFailsafeCache = true;
+    new GrouperAccessProvider().flushCaches();
     
+    assertTrue(this.grouperAccessProvider.listUsersInGroup(JUNIT_TEST_GROUP).contains(TEST_USERNAME));
+    assertTrue(GrouperAccessProvider.cacheFailsafeHits > cacheFailsafeHits);
+    
+    cacheMisses = GrouperAccessProvider.cacheMisses;
+    cacheHits = GrouperAccessProvider.cacheHits;
+    cacheFailsafeHits = GrouperAccessProvider.cacheFailsafeHits;
+    
+    assertTrue(this.grouperAccessProvider.listUsersInGroup(JUNIT_TEST_GROUP).contains(TEST_USERNAME));
+    
+    assertTrue(GrouperAccessProvider.cacheHits > cacheHits);
+    assertEquals(cacheMisses, GrouperAccessProvider.cacheMisses);
+    assertEquals(cacheFailsafeHits, GrouperAccessProvider.cacheFailsafeHits);
+
   }
   
   /**
@@ -227,6 +392,24 @@ public class GrouperAccessProviderTest extends TestCase {
     assertTrue(this.grouperAccessProvider.listGroupsContainingUser(TEST_USERNAME).contains(JUNIT_TEST_GROUP));
     assertEquals(cacheMisses + 1, GrouperAccessProvider.cacheMisses);
     assertEquals(cacheHits + 1, GrouperAccessProvider.cacheHits);
+
+    //lets make some exceptions happen
+    long cacheFailsafeHits = GrouperAccessProvider.cacheFailsafeHits;
+    GrouperAccessProvider.failOnGrouperForTestingFailsafeCache = true;
+    new GrouperAccessProvider().flushCaches();
+    
+    assertTrue(this.grouperAccessProvider.listGroupsContainingUser(TEST_USERNAME).contains(JUNIT_TEST_GROUP));
+    assertTrue(GrouperAccessProvider.cacheFailsafeHits > cacheFailsafeHits);
+    
+    cacheMisses = GrouperAccessProvider.cacheMisses;
+    cacheHits = GrouperAccessProvider.cacheHits;
+    cacheFailsafeHits = GrouperAccessProvider.cacheFailsafeHits;
+    
+    assertTrue(this.grouperAccessProvider.listGroupsContainingUser(TEST_USERNAME).contains(JUNIT_TEST_GROUP));
+    
+    assertTrue(GrouperAccessProvider.cacheHits > cacheHits);
+    assertEquals(cacheMisses, GrouperAccessProvider.cacheMisses);
+    assertEquals(cacheFailsafeHits, GrouperAccessProvider.cacheFailsafeHits);
 
     
   }
@@ -267,7 +450,24 @@ public class GrouperAccessProviderTest extends TestCase {
     assertEquals(cacheHits + 1, GrouperAccessProvider.cacheHits);
 
     
+    //lets make some exceptions happen
+    long cacheFailsafeHits = GrouperAccessProvider.cacheFailsafeHits;
+    GrouperAccessProvider.failOnGrouperForTestingFailsafeCache = true;
+    new GrouperAccessProvider().flushCaches();
     
+    assertTrue(this.grouperAccessProvider.inGroup(TEST_USERNAME, JUNIT_TEST_GROUP));
+    assertTrue(GrouperAccessProvider.cacheFailsafeHits > cacheFailsafeHits);
+    
+    cacheMisses = GrouperAccessProvider.cacheMisses;
+    cacheHits = GrouperAccessProvider.cacheHits;
+    cacheFailsafeHits = GrouperAccessProvider.cacheFailsafeHits;
+    
+    assertTrue(this.grouperAccessProvider.inGroup(TEST_USERNAME, JUNIT_TEST_GROUP));
+    
+    assertTrue(GrouperAccessProvider.cacheHits > cacheHits);
+    assertEquals(cacheMisses, GrouperAccessProvider.cacheMisses);
+    assertEquals(cacheFailsafeHits, GrouperAccessProvider.cacheFailsafeHits);
+
     
   }
   
@@ -307,7 +507,25 @@ public class GrouperAccessProviderTest extends TestCase {
     assertEquals(cacheHits + 1, GrouperAccessProvider.cacheHits);
     
     
+    //lets make some exceptions happen
+    long cacheFailsafeHits = GrouperAccessProvider.cacheFailsafeHits;
+    GrouperAccessProvider.failOnGrouperForTestingFailsafeCache = true;
+    new GrouperAccessProvider().flushCaches();
     
+    assertTrue(this.grouperAccessProvider.list().contains(JUNIT_TEST_GROUP));
+    assertTrue(GrouperAccessProvider.cacheFailsafeHits > cacheFailsafeHits);
+    
+    cacheMisses = GrouperAccessProvider.cacheMisses;
+    cacheHits = GrouperAccessProvider.cacheHits;
+    cacheFailsafeHits = GrouperAccessProvider.cacheFailsafeHits;
+    
+    assertTrue(this.grouperAccessProvider.list().contains(JUNIT_TEST_GROUP));
+    
+    assertTrue(GrouperAccessProvider.cacheHits > cacheHits);
+    assertEquals(cacheMisses, GrouperAccessProvider.cacheMisses);
+    assertEquals(cacheFailsafeHits, GrouperAccessProvider.cacheFailsafeHits);
+
+
   }
   
   /**
@@ -320,6 +538,27 @@ public class GrouperAccessProviderTest extends TestCase {
     
     assertTrue(this.grouperAccessProvider.remove(JUNIT_TEST_GROUP));
     assertFalse(this.grouperAccessProvider.remove(JUNIT_TEST_GROUP));
+    
+    assertTrue(this.grouperAccessProvider.create(JUNIT_TEST_GROUP));
+    GrouperAccessProvider.failOnGrouperForTestingFailsafeCache = true;
+    
+    try {
+      this.grouperAccessProvider.remove(JUNIT_TEST_GROUP);
+      fail("Shouldnt get here");
+    } catch (Exception e) {
+      //good
+    }
+    
+    GrouperAccessProvider.failOnGrouperForTestingFailsafeCache = false;
+    assertTrue(this.grouperAccessProvider.remove(JUNIT_TEST_GROUP));
+    GrouperAccessProvider.failOnGrouperForTestingFailsafeCache = true;
+    
+    try {
+      this.grouperAccessProvider.create(JUNIT_TEST_GROUP);
+      fail("Shouldnt get here");
+    } catch (Exception e) {
+      //good
+    }
   }
   
   /**
@@ -328,7 +567,9 @@ public class GrouperAccessProviderTest extends TestCase {
   @Override
   protected void tearDown() throws Exception {
     super.tearDown();
+    GrouperAccessProvider.failOnGrouperForTestingFailsafeCache = false;
     this.grouperAccessProvider.remove(JUNIT_TEST_GROUP);
+    GrouperAccessProvider.failOnGrouperForTestingFailsafeCache = false;
   }
 
   /**
@@ -353,6 +594,7 @@ public class GrouperAccessProviderTest extends TestCase {
   @Override
   protected void setUp() throws Exception {
     super.setUp();
+    GrouperAccessProvider.failOnGrouperForTestingFailsafeCache = false;
     this.grouperAccessProvider.remove(JUNIT_TEST_GROUP);
     
   }
