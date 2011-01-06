@@ -21,6 +21,26 @@ import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
  */
 public class GrouperClientXmppJob {
   
+  /** if we should allow incremental not in group names list */
+  private boolean allowIncrementalNotInGroupNamesList = false;
+  
+  /**
+   * if we should allow incremental not in group names list
+   * @return if we should allow incremental not in group names list
+   */
+  public boolean isAllowIncrementalNotInGroupNamesList() {
+    return this.allowIncrementalNotInGroupNamesList;
+  }
+
+  /**
+   * if we should allow incremental not in group names list
+   * @param allowIncrementalNotInGroupNamesList1
+   */
+  public void setAllowIncrementalNotInGroupNamesList(
+      boolean allowIncrementalNotInGroupNamesList1) {
+    this.allowIncrementalNotInGroupNamesList = allowIncrementalNotInGroupNamesList1;
+  }
+
   /** cached xmpp jobs */
   private static List<GrouperClientXmppJob> xmppJobs = null;
   
@@ -101,6 +121,10 @@ public class GrouperClientXmppJob {
             String handlerClass = (String)properties.get(key);
             xmppJob.setHandlerClass(handlerClass);
           }
+          
+          xmppJob.setAllowIncrementalNotInGroupNamesList(GrouperClientUtils.propertiesValueBoolean(properties, 
+              "grouperClient.xmpp.job." + jobName + ".allowIncrementalNotInGroupNamesList", false));
+          
           {
             String groupNamesString = (String)properties.get("grouperClient.xmpp.job." + jobName + ".groupNames");
             if (!GrouperClientUtils.isBlank(groupNamesString)) {

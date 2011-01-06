@@ -157,18 +157,31 @@ public class GrouperAtlassianXmppHandler implements GrouperClientXmppHandler {
       long flushCacheMillisSince1970 = System.currentTimeMillis() + (1000 * secondsInFuture);
       
       //give it an extra 100 millis
-      GrouperAccessProvider.flushCaches(flushCacheMillisSince1970 + 100 );
+      GrouperAccessProvider.flushCaches(flushCacheMillisSince1970);
+
       //lets make a timer
       new Timer().schedule(new TimerTask() {
         
         @Override
         public void run() {
+          
+          boolean cacheWillBeClearedInFuture = GrouperAccessProvider.cacheWillBeClearedInFuture();
+          
+          boolean cacheShouldBeClearedNow = GrouperAccessProvider.cacheShouldBeClearedNow();
+          
           new GrouperAccessProvider().list();
           new GrouperProfileProvider().flushCaches();
           new GrouperProfileProvider().list();
           
+          if (LOG.isDebugEnabled()) {
+            LOG.debug("Refreshing cache in separate thread from xmpp incremental message, " +
+            		"oldCacheWillBeClearedInFuture: " + cacheWillBeClearedInFuture 
+            		+ ", oldCacheShouldBeClearedNow: " + cacheShouldBeClearedNow
+            		+ ", cacheWillBeClearedInFuture: " + GrouperAccessProvider.cacheWillBeClearedInFuture()
+            		+ ", cacheShouldBeClearedNow: " + GrouperAccessProvider.cacheShouldBeClearedNow());
+          }
         }
-      }, new Date(flushCacheMillisSince1970));
+      }, new Date(flushCacheMillisSince1970 + 1000));
     }
 
     

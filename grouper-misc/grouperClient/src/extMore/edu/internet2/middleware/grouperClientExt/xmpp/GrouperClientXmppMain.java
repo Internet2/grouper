@@ -221,17 +221,24 @@ public class GrouperClientXmppMain {
                 }
 
               }
-              
-              if (GrouperClientUtils.nonNull(grouperClientXmppJob.getGroupNames()).size() > 0) {
-                if (grouperClientXmppJob.getGroupNames().contains(esbEvent.getGroupName())) {
-                  if (matches == null) {
-                    matches = true;
+              if (XmppJobEventAction.incremental == grouperClientXmppJob.getEventAction()
+                  && grouperClientXmppJob.isAllowIncrementalNotInGroupNamesList()) {
+                if (log.isDebugEnabled()) {
+                  log.debug("including since incremental and allowIncrementalNotInGroupNamesList is true: " + grouperClientXmppJob.getJobName());
+                }
+                matches = true;
+              } else {
+                if (GrouperClientUtils.nonNull(grouperClientXmppJob.getGroupNames()).size() > 0) {
+                  if (grouperClientXmppJob.getGroupNames().contains(esbEvent.getGroupName())) {
+                    if (matches == null) {
+                      matches = true;
+                    }
+                  } else {
+                    if (log.isDebugEnabled()) {
+                      log.debug("skipping event to not match group name list, sequence: " + (esbEvent == null ? null : esbEvent.getSequenceNumber()) + ", " + grouperClientXmppJob.getJobName());
+                    }
+                    matches = false;
                   }
-                } else {
-                  if (log.isDebugEnabled()) {
-                    log.debug("skipping event to not match group name list, sequence: " + (esbEvent == null ? null : esbEvent.getSequenceNumber()) + ", " + grouperClientXmppJob.getJobName());
-                  }
-                  matches = false;
                 }
               }
               if (matches != null && !matches) {

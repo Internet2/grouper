@@ -82,7 +82,7 @@ public class GrouperAccessProvider implements AccessProvider {
    * see if there is a request for cache to be cleared in future
    * @return true if it will be cleared in future
    */
-  static boolean cacheWillBeClearedInFuture() {
+  public static boolean cacheWillBeClearedInFuture() {
     return scheduleNextCacheRefreshMillis > lastCacheRefreshMillis;
   }
 
@@ -90,7 +90,7 @@ public class GrouperAccessProvider implements AccessProvider {
    * see if we should clear the cache now
    * @return true if should clear the cache now
    */
-  static boolean cacheShouldBeClearedNow() {
+  public static boolean cacheShouldBeClearedNow() {
     return cacheWillBeClearedInFuture() && scheduleNextCacheRefreshMillis < System.currentTimeMillis();
   }
   
@@ -879,7 +879,8 @@ public class GrouperAccessProvider implements AccessProvider {
     debugMap.put("grouperAccessCacheBeanFailsafeCacheSize", grouperAccessCacheBeanFailsafeCache().size(true));
 
     grouperAccessCacheBeanCache().clear();
-
+    scheduleNextCacheRefreshMillis = -1;
+    
     if (LOG.isDebugEnabled()) {
       GrouperAtlassianUtils.assignTimingGate(debugMap, startNanos);
       LOG.debug(GrouperAtlassianUtils.mapForLog(debugMap));
