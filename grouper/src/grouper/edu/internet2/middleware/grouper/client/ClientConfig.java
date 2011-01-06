@@ -723,7 +723,8 @@ public class ClientConfig {
         if (!StringUtils.isBlank(theAddExternalSubjectIfNotFound)) {
           clientConnectionSourceConfigBean.setAddExternalSubjectIfNotFound(GrouperUtil.booleanValue(theAddExternalSubjectIfNotFound));
         }
-        
+
+        //we are going by source id (local)
         result.put(localSourceId, clientConnectionSourceConfigBean);
       }
     }

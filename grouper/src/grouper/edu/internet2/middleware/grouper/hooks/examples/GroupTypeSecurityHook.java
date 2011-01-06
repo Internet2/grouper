@@ -184,7 +184,7 @@ public class GroupTypeSecurityHook extends GroupTypeTupleHooks {
           //wasnt configured to check, just return
           LOG.debug("Allowing since cant find rule for groupType: " + groupTypeName + ", " + descriptionForLog 
               + ", on group: " + groupNameUuidEdited + " only have rules for wheel: " 
-              + GrouperUtil.setToString(groupTypeWheelOnly) + ", and groups: " + GrouperUtil.MapToString(groupTypeToGroupMap));
+              + GrouperUtil.setToString(groupTypeWheelOnly) + ", and groups: " + GrouperUtil.mapToString(groupTypeToGroupMap));
         }
         return;
       }

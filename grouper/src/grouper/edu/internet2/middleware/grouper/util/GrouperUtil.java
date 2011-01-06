@@ -1769,8 +1769,19 @@ public class GrouperUtil {
    * convert a set to a string (comma separate)
    * @param map
    * @return the String
+   * @deprecated use mapToString(map)
    */
+  @Deprecated
   public static String MapToString(Map map) {
+    return mapToString(map);
+  }
+
+  /**
+   * convert a set to a string (comma separate)
+   * @param map
+   * @return the String
+   */
+  public static String mapToString(Map map) {
     if (map == null) {
       return "null";
     }
