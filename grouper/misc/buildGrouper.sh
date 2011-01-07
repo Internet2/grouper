@@ -5,7 +5,7 @@ then
   echo
   echo "Give the branch to build as the command line argument!"
   echo "e.g. trunk, GROUPER_1_6_BRANCH, etc"
-  echo "e.g. buildGrouper.sh GROUPER_1_6_BRANCH"
+  echo "e.g. buildGrouper.sh GROUPER_1_6_0"
   echo
   exit 1
 fi  
