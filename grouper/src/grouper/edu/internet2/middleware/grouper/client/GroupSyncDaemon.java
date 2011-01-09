@@ -1,5 +1,6 @@
 package edu.internet2.middleware.grouper.client;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -19,10 +20,15 @@ import edu.internet2.middleware.grouper.client.ClientConfig.ClientConnectionSour
 import edu.internet2.middleware.grouper.client.ClientConfig.ClientGroupConfigBean;
 import edu.internet2.middleware.grouper.client.ClientConfig.GroupSyncWriteIdentifier;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
+import edu.internet2.middleware.grouper.externalSubjects.ExternalSubject;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.api.GcAddMember;
+import edu.internet2.middleware.grouperClient.api.GcGetMembers;
+import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.grouperClient.ws.beans.WsAddMemberResults;
+import edu.internet2.middleware.grouperClient.ws.beans.WsGetMembersResults;
+import edu.internet2.middleware.grouperClient.ws.beans.WsSubject;
 import edu.internet2.middleware.grouperClient.ws.beans.WsSubjectLookup;
 import edu.internet2.middleware.subject.Subject;
 
@@ -43,9 +49,9 @@ public class GroupSyncDaemon {
    */
   public static int syncGroup(final String configName) {
 
-    final Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
+    final Map<String, Object> infoMap = new LinkedHashMap<String, Object>();
     
-    debugMap.put("configName", configName);
+    infoMap.put("configName", configName);
     
     final ClientGroupConfigBean clientGroupConfigBean = ClientConfig.clientGroupConfigBeanCache().get(configName);
 
@@ -56,7 +62,7 @@ public class GroupSyncDaemon {
     //get the connection and the grouper session
     String connectionName = clientGroupConfigBean.getConnectionName();
 
-    debugMap.put("connectionName", connectionName);
+    infoMap.put("connectionName", connectionName);
 
     final ClientConnectionConfigBean clientConnectionConfigBean = ClientConfig.clientConnectionConfigBeanCache().get(connectionName);
     
@@ -64,7 +70,7 @@ public class GroupSyncDaemon {
       throw new RuntimeException("Cant find clientConnectionBean by config id: '"       
           + configName + "', connectionId: '" + connectionName + "'");      
     }
-    
+
     String actAsSubjectString = clientConnectionConfigBean.getLocalActAsSubject();
 
     Subject actAsSubject = null;
@@ -74,7 +80,7 @@ public class GroupSyncDaemon {
       actAsSubject = SubjectFinder.findByPackedSubjectString(actAsSubjectString, true);
     }    
 
-    debugMap.put("actAsSubject", GrouperUtil.subjectToString(actAsSubject));
+    infoMap.put("actAsSubject", GrouperUtil.subjectToString(actAsSubject));
 
     GrouperSession grouperSession = GrouperSession.start(actAsSubject, false);
     
@@ -84,11 +90,11 @@ public class GroupSyncDaemon {
         public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
           //process the rest
           GroupSyncType groupSyncType = clientGroupConfigBean.getGroupSyncType();
-          
+          infoMap.put("groupSyncType", groupSyncType);
           if (groupSyncType == GroupSyncType.pull) {    
-            return syncGroupPull(clientGroupConfigBean, clientConnectionConfigBean, theGrouperSession, debugMap);
+            return syncGroupPull(clientGroupConfigBean, clientConnectionConfigBean, theGrouperSession, infoMap);
           } else if (groupSyncType == GroupSyncType.incremental_push || groupSyncType == GroupSyncType.push) {    
-            return syncGroupPush(clientGroupConfigBean, clientConnectionConfigBean, theGrouperSession, debugMap);
+            return syncGroupPush(clientGroupConfigBean, clientConnectionConfigBean, theGrouperSession, infoMap);
           } else {    
             throw new RuntimeException("Not expecting configName: " + configName + ", groupSyncType: " + groupSyncType);
           }   
@@ -96,12 +102,12 @@ public class GroupSyncDaemon {
       });
 
       if (LOG.isDebugEnabled()) {
-        LOG.debug(GrouperUtil.mapToString(debugMap));
+        LOG.debug(GrouperUtil.mapToString(infoMap));
       }
       return result;
     } catch (RuntimeException re) {
       
-      LOG.error(GrouperUtil.mapToString(debugMap));
+      LOG.error(GrouperUtil.mapToString(infoMap));
       GrouperUtil.injectInException(re, "Error in configName: " + configName);
       throw re;
 
@@ -116,72 +122,251 @@ public class GroupSyncDaemon {
    * @param clientGroupConfigBean
    * @param clientConnectionConfigBean 
    * @param grouperSession 
+   * @param infoMap
    * @return the number of records changed
    */
   private static int syncGroupPull(ClientGroupConfigBean clientGroupConfigBean,     
       ClientConnectionConfigBean clientConnectionConfigBean, GrouperSession grouperSession,
-      Map<String, Object> debugMap) {
-    return -1;
-//    GcAddMember gcAddMember = new GcAddMember();
-//    Subject subject = groupSyncConsumerBean.getSubject();
-//    String localGroupName = clientGroupConfigBean.getLocalGroupName();
-//    
-//    ClientConnectionConfigBean clientConnectionConfigBean = ClientConfig.clientConnectionConfigBeanCache().get(clientGroupConfigBean.getConnectionName());
-//    
-//    ClientConnectionSourceConfigBean clientConnectionSourceConfigBean = clientConnectionConfigBean.getClientConnectionSourceConfigBeans().get(subject.getSourceId());
-//
-//    WsSubjectLookup wsSubjectLookup = new WsSubjectLookup();
-//    
-//    if (!StringUtils.isBlank(clientConnectionSourceConfigBean.getRemoteSourceId())) {
-//      wsSubjectLookup.setSubjectSourceId(clientConnectionSourceConfigBean.getRemoteSourceId());
-//    }
-//    
-//    String localReadSubjectId = clientConnectionSourceConfigBean.getLocalReadSubjectId();
-//    String subjectIdentifier = null;
-//    if (StringUtils.equals("id", localReadSubjectId)) {
-//      subjectIdentifier = subject.getId();
-//    } else {
-//      subjectIdentifier = subject.getAttributeValue(localReadSubjectId);
-//    }
-//    
-//    GroupSyncWriteIdentifier groupSyncWriteIdentifier = (GroupSyncWriteIdentifier)ObjectUtils.defaultIfNull(
-//        clientConnectionSourceConfigBean.getRemoteWriteSubjectId(), GroupSyncWriteIdentifier.idOrIdentifier);
-//    
-//    groupSyncWriteIdentifier.assignIdentifier(wsSubjectLookup, subjectIdentifier);
-//    
-//    gcAddMember.addSubjectLookup(wsSubjectLookup);
-//    
-//    gcAddMember.assignAddExternalSubjectIfNotFound(clientConnectionSourceConfigBean.getAddExternalSubjectIfNotFound());
-//    
-//    gcAddMember.assignGroupName(clientGroupConfigBean.getRemoteGroupName());
-//
-//    StringBuilder logMessage = new StringBuilder();
-//    if (LOG.isDebugEnabled()) {
-//      logMessage.append("Sending add member " + GrouperUtil.subjectToString(subject) + ", " 
-//          + subjectIdentifier + ", to remote grouper: " + clientConnectionConfigBean.getConnectionId()
-//          + ", from local group: " + localGroupName + ", to remote group: " + clientGroupConfigBean.getRemoteGroupName() );
-//    }
-//    WsAddMemberResults wsAddMemberResults = null;
-//    boolean success = false;
-//    try {
-//      
-//      wsAddMemberResults = gcAddMember.execute();
-//      if (LOG.isDebugEnabled()) {
-//        logMessage.append(", resultCode: " + wsAddMemberResults.getResultMetadata().getResultCode() 
-//            + ", success: " + wsAddMemberResults.getResultMetadata().getSuccess());
-//      }
-//      success = GrouperUtil.booleanValue(wsAddMemberResults.getResultMetadata().getSuccess(), false);
-//      
-//    } finally {
-//      if (success && LOG.isDebugEnabled()) {
-//        LOG.debug(logMessage);
-//      }
-//      if (!success) {
-//        LOG.error("Error sending add member to remote group: " + logMessage);
-//      }
-//    }
+      Map<String, Object> infoMap) {
 
+    GcGetMembers gcGetMembers = new GcGetMembers();
+
+    String localGroupName = clientGroupConfigBean.getLocalGroupName();
     
+    WsGetMembersResults wsGetMembersResults = null;
+    Boolean success = false;
+    Exception exception = null;
+    try {
+      
+      Group localGroup = GroupFinder.findByName(grouperSession, localGroupName, true);
+        
+      //get remote members
+      gcGetMembers.addGroupName(clientGroupConfigBean.getRemoteGroupName());
+
+      Set<ClientConnectionSourceConfigBean> clientConnectionSourceConfigBeans = 
+        new HashSet<ClientConnectionSourceConfigBean>(clientConnectionConfigBean.getClientConnectionSourceConfigBeans().values());
+      
+      if (GrouperUtil.length(clientConnectionSourceConfigBeans) == 0) {
+        throw new RuntimeException("Why are no sources configured for this feed? " + clientConnectionConfigBean.getConnectionId());
+      }
+
+      //map by remote source id to the config
+      Map<String, ClientConnectionSourceConfigBean> remoteSourceMap = new HashMap<String, ClientConnectionSourceConfigBean>();
+      
+      //add all the sources to search in
+      for (ClientConnectionSourceConfigBean clientConnectionSourceConfigBean : clientConnectionSourceConfigBeans) {
+        String remoteSourceId = clientConnectionSourceConfigBean.getRemoteSourceId();
+        if (GrouperUtil.isBlank(remoteSourceId)) {
+          throw new RuntimeException("Why is the remote source id blank for this feed? " 
+              + clientConnectionSourceConfigBean.getConfigId() + ", " + clientConnectionConfigBean.getConnectionId());
+        }
+        infoMap.put("filterByRemoteSourceId_" + remoteSourceId, true);
+        gcGetMembers.addSourceId(remoteSourceId);
+        
+        remoteSourceMap.put(remoteSourceId, clientConnectionSourceConfigBean);
+        
+        //lets also retrieve this attribute
+        String remoteReadSubjectId = clientConnectionSourceConfigBean.getRemoteReadSubjectId();
+
+        if (GrouperUtil.isBlank(remoteReadSubjectId)) {
+          throw new RuntimeException("Why is the remote read subject id blank for this feed? " 
+              + clientConnectionSourceConfigBean.getConfigId() + ", " + clientConnectionConfigBean.getConnectionId());
+        }
+
+        infoMap.put("subjectIdForSourceId_" + remoteSourceId, remoteReadSubjectId);
+
+        if (!StringUtils.equals("id", remoteReadSubjectId)) {
+          gcGetMembers.addSubjectAttributeName(remoteReadSubjectId);
+          infoMap.put("requestingAttribute_" + remoteReadSubjectId, true);
+        }
+      }
+
+      
+      //see if we need to add external members
+      
+      wsGetMembersResults = gcGetMembers.execute();
+      success = GrouperUtil.booleanValue(wsGetMembersResults.getResultMetadata().getSuccess(), false);
+      
+      if (success) {
+        success = null;
+        //lets get the subjects from remote
+        WsSubject[] wsSubjects = wsGetMembersResults.getResults()[0].getWsSubjects();
+        
+        int subjectIndex = -1;
+        
+        Set<Subject> subjectsToReplace = new HashSet<Subject>();
+        
+        for (WsSubject wsSubject : wsSubjects) {
+          
+          subjectIndex++;
+          
+          Map<String, Object> debugMap = LOG.isDebugEnabled() ? new LinkedHashMap<String, Object>() : null;
+  
+          //lets get the remote source
+          String remoteSourceId = wsSubject.getSourceId();
+  
+          if (LOG.isDebugEnabled()) {
+            debugMap.put("remoteSourceId", remoteSourceId);
+            debugMap.put("localGroup", localGroup.getName());
+            debugMap.put("connection", clientConnectionConfigBean.getConnectionId());
+            debugMap.put("remoteGroup", clientGroupConfigBean.getRemoteGroupName());
+            debugMap.put("subjectIndex", subjectIndex);
+          }
+          
+          //get the config bean
+          ClientConnectionSourceConfigBean clientConnectionSourceConfigBean = remoteSourceMap.get(remoteSourceId);
+          
+          String remoteReadSubjectId = clientConnectionSourceConfigBean.getRemoteReadSubjectId();
+  
+          if (LOG.isDebugEnabled()) {
+            debugMap.put("remoteReadSubjectId", remoteReadSubjectId);
+          }
+  
+          String localSubjectIdOrIdentifier = null;
+          if (StringUtils.equals("id", remoteReadSubjectId)) {
+            localSubjectIdOrIdentifier = wsSubject.getId();
+          } else {
+            
+            //lets get the subject attribute
+            localSubjectIdOrIdentifier = GrouperClientUtils.subjectAttributeValue(wsSubject, wsGetMembersResults.getSubjectAttributeNames(), remoteReadSubjectId);
+            
+          }
+          
+          String localSourceId = clientConnectionSourceConfigBean.getLocalSourceId();
+  
+          //find the subject or create
+          GroupSyncWriteIdentifier localLookupType = clientConnectionSourceConfigBean.getLocalWriteSubjectId();
+          
+          if (LOG.isDebugEnabled()) {
+            debugMap.put("localSourceId", localSourceId);
+            debugMap.put("localSubjectIdOrIdentifier", localSubjectIdOrIdentifier);
+            debugMap.put("localLookupType", localLookupType == null ? null : localLookupType.name());
+          }        
+          
+          Subject subject = null;
+          
+          try {
+            subject = localLookupType.findSubject(localSourceId, localSubjectIdOrIdentifier);
+            
+          } catch (RuntimeException re) {
+            debugMap.put("problem getting subject", re.getMessage());
+            LOG.error(GrouperUtil.mapToString(debugMap), re);
+            continue;
+            
+          }
+  
+          //create if not there
+          if (subject == null) {
+            
+            debugMap.put("subjectIdNull", true);
+            
+            if (clientGroupConfigBean.getAddExternalSubjectIfNotFound() == null || !clientGroupConfigBean.getAddExternalSubjectIfNotFound()) {
+              
+              if (LOG.isDebugEnabled()) {
+                //if not creating, then we need to skip...
+                debugMap.put("addExternalSubjectIfNotFound", false);
+                
+                LOG.debug(GrouperUtil.mapToString(debugMap));
+              }
+              
+              continue;
+            }
+            if (LOG.isDebugEnabled()) {
+              //if not creating, then we need to skip...
+              debugMap.put("addExternalSubjectIfNotFound", true);
+            }
+            
+            //lets check the sourceId
+            if (!StringUtils.isBlank(localSourceId) && !StringUtils.equals(localSourceId, ExternalSubject.sourceId())) {
+              if (LOG.isDebugEnabled()) {
+                //local source is specified and not equal to the external subject source id
+                debugMap.put("localSourceDoesntEqualExternalSourceSoSkipping", true);
+                debugMap.put("localExternalSourceId", ExternalSubject.sourceId());
+                LOG.debug(GrouperUtil.mapToString(debugMap));
+              }            
+              continue;
+            }
+            
+            //create external subject
+            //if it is still null, then it doesnt exist... lets validate it
+            final ExternalSubject externalSubject = new ExternalSubject();
+            externalSubject.setIdentifier(localSubjectIdOrIdentifier);
+            try {
+              externalSubject.validateIdentifier();
+            } catch (Exception e) {
+              
+              if (LOG.isDebugEnabled()) {
+                debugMap.put("invalidExternalIdentifier", localSubjectIdOrIdentifier);
+                LOG.debug(GrouperUtil.mapToString(debugMap));
+              }
+              continue;
+            }
+            
+            //lets store this, without validation... as root
+            //send the invite as root
+            GrouperSession.callbackGrouperSession(GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+              
+              public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
+                externalSubject.store(null, null, false, true, false);
+                return null;
+              }
+            });
+            
+            subject = SubjectFinder.findByIdAndSource(externalSubject.getUuid(), ExternalSubject.sourceId(), false);
+            if (subject == null) {
+              LOG.error("This should not be null, it was just created: " + externalSubject.getUuid() + ", " + GrouperUtil.mapToString(debugMap));
+              continue;
+            }
+          }
+          
+          //add to set of subjects to add
+          subjectsToReplace.add(subject);
+          
+          //log an entry for each subject
+          if (LOG.isDebugEnabled()) {
+            LOG.debug(GrouperUtil.mapToString(debugMap));
+          }
+          
+        }
+        
+        infoMap.put("filteredMemberSize", GrouperUtil.length(subjectsToReplace));
+        
+        //only do this for info since causes a query
+        if (LOG.isInfoEnabled()) {
+          infoMap.put("originalGroupMemberSize", localGroup.getMembers().size());
+        }
+        
+        int changedRecords = localGroup.replaceMembers(subjectsToReplace);
+        infoMap.put("changedRecords", changedRecords);
+        success = true;
+        return changedRecords;
+      }
+      success = false;
+      throw new RuntimeException("Error");
+    } catch (RuntimeException re) {
+      infoMap.put("error", re.getMessage());
+      exception = re;
+      throw re;
+    } finally {
+      if (wsGetMembersResults != null && wsGetMembersResults.getResultMetadata() != null) {
+        infoMap.put("resultCode", wsGetMembersResults.getResultMetadata().getResultCode());
+        infoMap.put("resultCode2", wsGetMembersResults.getResultMetadata().getResultCode2());
+        infoMap.put("success", wsGetMembersResults.getResultMetadata().getSuccess());
+        infoMap.put("resultMessage", wsGetMembersResults.getResultMetadata().getResultMessage());
+      }
+      if (wsGetMembersResults != null && wsGetMembersResults.getResponseMetadata() != null) {
+        infoMap.put("millis", wsGetMembersResults.getResponseMetadata().getMillis());
+        infoMap.put("resultWarnings", wsGetMembersResults.getResponseMetadata().getResultWarnings());
+        infoMap.put("serverVersion", wsGetMembersResults.getResponseMetadata().getServerVersion());
+      }
+      if (success != null && success && LOG.isInfoEnabled()) {
+        LOG.info(GrouperUtil.mapToString(infoMap));
+      }
+      if (success == null || !success) {
+        LOG.error(GrouperUtil.mapToString(infoMap), exception);
+      }
+    }
+
   }
 
   /**
@@ -189,98 +374,148 @@ public class GroupSyncDaemon {
    * @param clientGroupConfigBean
    * @param clientConnectionConfigBean 
    * @param grouperSession 
-   * @param debugMap 
+   * @param infoMap 
    * @return the number of records changed
    */
   private static int syncGroupPush(ClientGroupConfigBean clientGroupConfigBean,     
       ClientConnectionConfigBean clientConnectionConfigBean, GrouperSession grouperSession,
-      Map<String, Object> debugMap) {
+      Map<String, Object> infoMap) {
 
     GcAddMember gcAddMember = new GcAddMember();
 
     String localGroupName = clientGroupConfigBean.getLocalGroupName();
 
-    Group localGroup = GroupFinder.findByName(grouperSession, localGroupName, true);
-    
-    Set<Member> members = localGroup.getMembers();
-    return -1;
-////    Set<String> unmappedSourceIds = new HashSet()<String>();
-//    
-//    for (Member member : members) {
-//      
-//      WsSubjectLookup wsSubjectLookup = new WsSubjectLookup();
-//      String localSourceId = member.getSubjectSourceId();
-//      ClientConnectionSourceConfigBean clientConnectionSourceConfigBean = clientConnectionConfigBean
-//        .getClientConnectionSourceConfigBeans().get(localSourceId);
-//      
-//      if (clientConnectionSourceConfigBean == null) {
-//        
-//        if (!unmappedSourceIds.contains(localSourceId)) {
-//          //keep track of which ones logged
-//          unmappedSourceIds.add(localSourceId);
-//          debugMap.put("unmapped_sourceId_" + localSourceId, true);
-//        }
-//        
-//        continue;
-//        
-//      }
-//      
-//      if (!StringUtils.isBlank(clientConnectionSourceConfigBean.getLocalSourceId())) {
-//        wsSubjectLookup.setSubjectSourceId(clientConnectionSourceConfigBean.getRemoteSourceId());
-//      }
-//      
-//      String localReadSubjectId = clientConnectionSourceConfigBean.getLocalReadSubjectId();
-//      String subjectIdentifier = null;
-//      if (StringUtils.equals("id", localReadSubjectId)) {
-//        subjectIdentifier = subject.getId();
-//      } else {
-//        subjectIdentifier = subject.getAttributeValue(localReadSubjectId);
-//      }
-//      
-//      
-//    }
-//    
-//    ClientConnectionConfigBean clientConnectionConfigBean = ClientConfig.clientConnectionConfigBeanCache().get(clientGroupConfigBean.getConnectionName());
-//    
-//    ClientConnectionSourceConfigBean clientConnectionSourceConfigBean = clientConnectionConfigBean.getClientConnectionSourceConfigBeans().get(subject.getSourceId());
-//
-//    
-//    GroupSyncWriteIdentifier groupSyncWriteIdentifier = (GroupSyncWriteIdentifier)ObjectUtils.defaultIfNull(
-//        clientConnectionSourceConfigBean.getRemoteWriteSubjectId(), GroupSyncWriteIdentifier.idOrIdentifier);
-//    
-//    groupSyncWriteIdentifier.assignIdentifier(wsSubjectLookup, subjectIdentifier);
-//    
-//    gcAddMember.addSubjectLookup(wsSubjectLookup);
-//    
-//    gcAddMember.assignAddExternalSubjectIfNotFound(clientConnectionSourceConfigBean.getAddExternalSubjectIfNotFound());
-//    
-//    gcAddMember.assignGroupName(clientGroupConfigBean.getRemoteGroupName());
-//
-//    StringBuilder logMessage = new StringBuilder();
-//    if (LOG.isDebugEnabled()) {
-//      logMessage.append("Sending add member " + GrouperUtil.subjectToString(subject) + ", " 
-//          + subjectIdentifier + ", to remote grouper: " + clientConnectionConfigBean.getConnectionId()
-//          + ", from local group: " + localGroupName + ", to remote group: " + clientGroupConfigBean.getRemoteGroupName() );
-//    }
-//    WsAddMemberResults wsAddMemberResults = null;
-//    boolean success = false;
-//    try {
-//      
-//      wsAddMemberResults = gcAddMember.execute();
-//      if (LOG.isDebugEnabled()) {
-//        logMessage.append(", resultCode: " + wsAddMemberResults.getResultMetadata().getResultCode() 
-//            + ", success: " + wsAddMemberResults.getResultMetadata().getSuccess());
-//      }
-//      success = GrouperUtil.booleanValue(wsAddMemberResults.getResultMetadata().getSuccess(), false);
-//      
-//    } finally {
-//      if (success && LOG.isDebugEnabled()) {
-//        LOG.debug(logMessage);
-//      }
-//      if (!success) {
-//        LOG.error("Error sending add member to remote group: " + logMessage);
-//      }
-//    }
+    WsAddMemberResults wsAddMemberResults = null;
+    boolean success = false;
+    try {
+      
+      Group localGroup = GroupFinder.findByName(grouperSession, localGroupName, true);
+  
+      Set<Member> members = localGroup.getMembers();
+  
+      Set<String> unmappedSourceIds = new HashSet<String>();
+  
+      infoMap.put("originalMemberSize", GrouperUtil.length(members));
+      
+      int filteredMemberSize = 0;
+      
+      int subjectIndex = -1;
+      
+      for (Member member : members) {
+        
+        subjectIndex++;
+        
+        Map<String, Object> debugMap = LOG.isDebugEnabled() ? new LinkedHashMap<String, Object>() : null;
+  
+        String localSourceId = member.getSubjectSourceId();
+        
+        if (LOG.isDebugEnabled()) {
+          debugMap.put("localGroup", localGroup.getName());
+          debugMap.put("connection", clientConnectionConfigBean.getConnectionId());
+          debugMap.put("remoteGroup", clientGroupConfigBean.getRemoteGroupName());
+          debugMap.put("subjectIndex", subjectIndex);
+          debugMap.put("localSubjectId", member.getSubjectId());
+          debugMap.put("localSourceId", localSourceId);
+        }
+        
+        //see if we should skip
+        if (unmappedSourceIds.contains(localSourceId)) {
+          
+          if (LOG.isDebugEnabled()) {
+            debugMap.put("unmappedSourceId", true);
+            LOG.debug(GrouperUtil.mapToString(debugMap));
+          }
+          
+          continue;
+          
+        }
+        
+        ClientConnectionSourceConfigBean clientConnectionSourceConfigBean = clientConnectionConfigBean
+          .getClientConnectionSourceConfigBeans().get(localSourceId);
+        
+        if (clientConnectionSourceConfigBean == null) {
+          
+          if (LOG.isDebugEnabled()) {
+            debugMap.put("unmappedSourceId", true);
+            LOG.debug(GrouperUtil.mapToString(debugMap));
+          }
+  
+          //keep track of which ones logged
+          unmappedSourceIds.add(localSourceId);
+          infoMap.put("unmapped_sourceId_" + localSourceId, true);
+  
+          continue;
+  
+        }
+  
+        WsSubjectLookup wsSubjectLookup = new WsSubjectLookup();
+  
+        String remoteSourceId = clientConnectionSourceConfigBean.getRemoteSourceId();
+        if (!StringUtils.isBlank(remoteSourceId)) {
+          wsSubjectLookup.setSubjectSourceId(remoteSourceId);
+        }
+        
+        String localReadSubjectId = clientConnectionSourceConfigBean.getLocalReadSubjectId();
+        String subjectIdentifier = null;
+        if (StringUtils.equals("id", localReadSubjectId)) {
+          subjectIdentifier = member.getSubjectId();
+        } else {
+          subjectIdentifier = member.getSubject().getAttributeValue(localReadSubjectId);
+        }
+  
+        GroupSyncWriteIdentifier groupSyncWriteIdentifier = (GroupSyncWriteIdentifier)ObjectUtils.defaultIfNull(
+            clientConnectionSourceConfigBean.getRemoteWriteSubjectId(), GroupSyncWriteIdentifier.idOrIdentifier);
+        
+        groupSyncWriteIdentifier.assignIdentifier(wsSubjectLookup, subjectIdentifier);
+        
+        //log an entry for each subject
+        if (LOG.isDebugEnabled()) {
+          debugMap.put("remoteSourceId", remoteSourceId);
+          debugMap.put("localReadSubjectId", localReadSubjectId);
+          debugMap.put("subjectIdentifier", subjectIdentifier);
+          LOG.debug(GrouperUtil.mapToString(debugMap));
+        }
+  
+        gcAddMember.addSubjectLookup(wsSubjectLookup);
+        filteredMemberSize++;
+  
+      }
+  
+      infoMap.put("filteredMemberSize", filteredMemberSize);
+  
+      gcAddMember.assignAddExternalSubjectIfNotFound(clientGroupConfigBean.getAddExternalSubjectIfNotFound());
+      
+      //replace what was there...
+      gcAddMember.assignReplaceAllExisting(true);
+      gcAddMember.assignGroupName(clientGroupConfigBean.getRemoteGroupName());
+
+      wsAddMemberResults = gcAddMember.execute();
+      success = GrouperUtil.booleanValue(wsAddMemberResults.getResultMetadata().getSuccess(), false);
+
+      //not sure how many changed... hmm, return all I guess...
+      return filteredMemberSize;
+    } catch (RuntimeException re) {
+      infoMap.put("error", re.getMessage());
+      throw re;
+    } finally {
+      if (wsAddMemberResults != null && wsAddMemberResults.getResultMetadata() != null) {
+        infoMap.put("resultCode", wsAddMemberResults.getResultMetadata().getResultCode());
+        infoMap.put("resultCode2", wsAddMemberResults.getResultMetadata().getResultCode2());
+        infoMap.put("success", wsAddMemberResults.getResultMetadata().getSuccess());
+        infoMap.put("resultMessage", wsAddMemberResults.getResultMetadata().getResultMessage());
+      }
+      if (wsAddMemberResults != null && wsAddMemberResults.getResponseMetadata() != null) {
+        infoMap.put("millis", wsAddMemberResults.getResponseMetadata().getMillis());
+        infoMap.put("resultWarnings", wsAddMemberResults.getResponseMetadata().getResultWarnings());
+        infoMap.put("serverVersion", wsAddMemberResults.getResponseMetadata().getServerVersion());
+      }
+      if (success && LOG.isInfoEnabled()) {
+        LOG.info(GrouperUtil.mapToString(infoMap));
+      }
+      if (!success) {
+        LOG.error(GrouperUtil.mapToString(infoMap));
+      }
+    }
     
   }
 }

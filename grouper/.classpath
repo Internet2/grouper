@@ -45,7 +45,7 @@
 	<classpathentry exported="true" kind="lib" path="lib/jdbcSamples/postgresql.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/test/junit.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/ant/ant-contrib.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/grouper/commons-discovery.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/grouper/commons-discovery.jar" sourcepath="C:/Users/TEMP.mchyzer-PC.011/.m2/repository/commons-discovery/commons-discovery/0.4/commons-discovery-0.4-sources.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper/jamon.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper/ant.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper/commons-io.jar"/>

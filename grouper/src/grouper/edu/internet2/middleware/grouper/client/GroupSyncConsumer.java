@@ -122,7 +122,7 @@ public class GroupSyncConsumer extends ChangeLogConsumerBase {
         
         gcAddMember.addSubjectLookup(wsSubjectLookup);
         
-        gcAddMember.assignAddExternalSubjectIfNotFound(clientConnectionSourceConfigBean.getAddExternalSubjectIfNotFound());
+        gcAddMember.assignAddExternalSubjectIfNotFound(clientGroupConfigBean.getAddExternalSubjectIfNotFound());
         
         gcAddMember.assignGroupName(clientGroupConfigBean.getRemoteGroupName());
 

@@ -13,6 +13,7 @@ import java.util.logging.SimpleFormatter;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import edu.internet2.middleware.grouperClient.ws.beans.WsSubject;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.jexl.Expression;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.jexl.ExpressionFactory;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.jexl.JexlContext;
@@ -244,6 +245,25 @@ public class GrouperClientUtils extends GrouperClientCommonUtils {
     } catch (Exception e) {
       throw new RuntimeException("Error substituting string: '" + stringToParse + "'", e);
     }
+  }
+
+  /**
+   * get the attribute value of an attribute name of a subject
+   * @param wsSubject subject
+   * @param attributeNames list of attribute names in the subject
+   * @param attributeName to query
+   * @return the value or null
+   */
+  public static String subjectAttributeValue(WsSubject wsSubject, String[] attributeNames, String attributeName) {
+    for (int i=0;i<GrouperClientUtils.length(attributeNames);i++) {
+      
+      if (GrouperClientUtils.equalsIgnoreCase(attributeName, attributeNames[i])
+          && GrouperClientUtils.length(wsSubject.getAttributeValues()) > i) {
+        //got it
+        return wsSubject.getAttributeValue(i);
+      }
+    }
+    return null;
   }
 
 

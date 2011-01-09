@@ -8,12 +8,14 @@ import java.util.regex.Pattern;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
+import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.externalSubjects.ExternalSubjectConfig;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.ws.beans.WsSubject;
 import edu.internet2.middleware.grouperClient.ws.beans.WsSubjectLookup;
+import edu.internet2.middleware.subject.Subject;
 
 /**
  * connection config information cached from grouper.properties
@@ -38,6 +40,18 @@ public class ClientConfig {
       public void assignIdentifier(WsSubjectLookup wsSubjectLookup, String identifier) {
         wsSubjectLookup.setSubjectId(identifier);
       }
+
+      /**
+       * @see GroupSyncWriteIdentifier#findSubject(String, String)
+       */
+      @Override
+      public Subject findSubject(String sourceId, String identifier) {
+        
+        if (StringUtils.isBlank(sourceId)) {
+          return SubjectFinder.findById(identifier, false);
+        }
+        return SubjectFinder.findByIdAndSource(identifier, sourceId, false);
+      }
     },
     
     /** write with identifier */
@@ -50,6 +64,18 @@ public class ClientConfig {
       public void assignIdentifier(WsSubjectLookup wsSubjectLookup, String identifier) {
         wsSubjectLookup.setSubjectIdentifier(identifier);
         
+      }
+
+      /**
+       * @see GroupSyncWriteIdentifier#findSubject(String, String)
+       */
+      @Override
+      public Subject findSubject(String sourceId, String identifier) {
+        
+        if (StringUtils.isBlank(sourceId)) {
+          return SubjectFinder.findByIdentifier(identifier, false);
+        }
+        return SubjectFinder.findByIdentifierAndSource(identifier, sourceId, false);
       }
     },
     
@@ -65,6 +91,18 @@ public class ClientConfig {
         wsSubjectLookup.setSubjectIdentifier(identifier);
         
       }
+
+      /**
+       * @see GroupSyncWriteIdentifier#findSubject(String, String)
+       */
+      @Override
+      public Subject findSubject(String sourceId, String identifier) {
+        
+        if (StringUtils.isBlank(sourceId)) {
+          return SubjectFinder.findByIdOrIdentifier(identifier, false);
+        }
+        return SubjectFinder.findByIdOrIdentifierAndSource(identifier, sourceId, false);
+      }
     };
 
     /**
@@ -73,6 +111,14 @@ public class ClientConfig {
      * @param identifier
      */
     public abstract void assignIdentifier(WsSubjectLookup wsSubjectLookup, String identifier);
+    
+    /**
+     * assign the identifier
+     * @param sourceId
+     * @param identifier
+     * @return the subject
+     */
+    public abstract Subject findSubject(String sourceId, String identifier);
     
     /**
      * do a case-insensitive matching
@@ -90,10 +136,30 @@ public class ClientConfig {
   
   /**
    * holds the state of one connection in the
-   *
    */
   public static class ClientConnectionSourceConfigBean {
     
+    /**
+     * id of this connection source config
+     */
+    private String configId;
+    
+    /**
+     * id of this connection source config
+     * @return the id
+     */
+    public String getConfigId() {
+      return this.configId;
+    }
+
+    /**
+     * id of this connection source config
+     * @param id1
+     */
+    public void setConfigId(String id1) {
+      this.configId = id1;
+    }
+
     /**
      * sourceId can be blank if you dont want to specify
      */
@@ -124,11 +190,6 @@ public class ClientConfig {
      * this is the identifier to lookup to add a subject, should be "id" or "identifier" or "idOrIdentifier"
      */
     private GroupSyncWriteIdentifier remoteWriteSubjectId;
-    
-    /**
-     * if subjects are external and should be created if not exist
-     */
-    private Boolean addExternalSubjectIfNotFound;
     
     /**
      * sourceId can be blank if you dont want to specify
@@ -226,22 +287,6 @@ public class ClientConfig {
       this.remoteWriteSubjectId = remoteWriteSubjectId1;
     }
 
-    /**
-     * if subjects are external and should be created if not exist
-     * @return if add
-     */
-    public Boolean getAddExternalSubjectIfNotFound() {
-      return this.addExternalSubjectIfNotFound;
-    }
-
-    /**
-     * if subjects are external and should be created if not exist
-     * @param addExternalSubjectIfNotFound1
-     */
-    public void setAddExternalSubjectIfNotFound(Boolean addExternalSubjectIfNotFound1) {
-      this.addExternalSubjectIfNotFound = addExternalSubjectIfNotFound1;
-    }
-
   }
 
   /**
@@ -309,6 +354,11 @@ public class ClientConfig {
      * </pre>
      */
     private String remoteGroupName;
+
+    /**
+     * if subjects are external and should be created if not exist
+     */
+    private Boolean addExternalSubjectIfNotFound;
 
     /**
      * <pre>
@@ -420,6 +470,22 @@ public class ClientConfig {
       this.remoteGroupName = remoteGroupName1;
     }
 
+    /**
+     * if subjects are external and should be created if not exist
+     * @return if add
+     */
+    public Boolean getAddExternalSubjectIfNotFound() {
+      return this.addExternalSubjectIfNotFound;
+    }
+
+    /**
+     * if subjects are external and should be created if not exist
+     * @param addExternalSubjectIfNotFound1
+     */
+    public void setAddExternalSubjectIfNotFound(Boolean addExternalSubjectIfNotFound1) {
+      this.addExternalSubjectIfNotFound = addExternalSubjectIfNotFound1;
+    }
+
   }
   
   /**
@@ -479,7 +545,6 @@ public class ClientConfig {
      * sourceId::::::::subjectIdOrIdentifier  or  ::::::::subjectIdOrIdentifier
      */
     private String localActAsSubject;
-
     /**
      * this is the subject to act as local, if blank, act as GrouperSystem, specify with SubjectFinder packed string, e.g.
      * subjectIdOrIdentifier  or  sourceId::::subjectId  or  ::::subjectId  or  sourceId::::::subjectIdentifier  or  ::::::subjectIdentifier
@@ -643,6 +708,15 @@ public class ClientConfig {
               //#syncAnotherGrouper.testGroup0.remote.groupName = test2:testGroup2
               clientGroupConfigBean.setRemoteGroupName(GrouperConfig.getProperty("syncAnotherGrouper." + groupConfigName + ".remote.groupName"));
               
+              
+              //# if subjects are external and should be created if not exist
+              //#syncAnotherGrouper.testGroup0.addExternalSubjectIfNotFound = true
+              String theAddExternalSubjectIfNotFound = GrouperConfig.getProperty(
+                  "syncAnotherGrouper." + groupConfigName + ".addExternalSubjectIfNotFound");
+              if (!StringUtils.isBlank(theAddExternalSubjectIfNotFound)) {
+                clientGroupConfigBean.setAddExternalSubjectIfNotFound(GrouperUtil.booleanValue(theAddExternalSubjectIfNotFound));
+              }
+
               theClientGroupConfigBeanCache.put(localGroupName, clientGroupConfigBean);
 
             }
@@ -671,10 +745,16 @@ public class ClientConfig {
       Matcher sourceMatcher = pattern.matcher(sourcePropertyName);
       if (sourceMatcher.matches()) {
 
+        //id of the config
+        String configId = GrouperConfig.getProperty(sourcePropertyName);
+        
+        
         //this is the ID
         String sourceConfigKey = sourceMatcher.group(1);
         
         ClientConnectionSourceConfigBean clientConnectionSourceConfigBean = new ClientConnectionSourceConfigBean();
+        
+        clientConnectionSourceConfigBean.setConfigId(configId);
         
         //note, doesnt really matter what the id is... but it is a mandatory config so we can get started
 
@@ -715,14 +795,6 @@ public class ClientConfig {
             "grouperClient." + connectionId + ".source." + sourceConfigKey + ".remote.write.subjectId");
         clientConnectionSourceConfigBean.setRemoteWriteSubjectId(
             GroupSyncWriteIdentifier.valueOfIgnoreCase(remoteWriteSubjectId, false));
-
-        //# if subjects are external and should be created if not exist
-        //grouperClient.localhost.source.jdbc.addExternalSubjectIfNotFound = true
-        String theAddExternalSubjectIfNotFound = GrouperConfig.getProperty(
-            "grouperClient." + connectionId + ".source." + sourceConfigKey + ".addExternalSubjectIfNotFound");
-        if (!StringUtils.isBlank(theAddExternalSubjectIfNotFound)) {
-          clientConnectionSourceConfigBean.setAddExternalSubjectIfNotFound(GrouperUtil.booleanValue(theAddExternalSubjectIfNotFound));
-        }
 
         //we are going by source id (local)
         result.put(localSourceId, clientConnectionSourceConfigBean);

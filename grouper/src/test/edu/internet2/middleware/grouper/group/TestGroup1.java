@@ -58,6 +58,7 @@ import edu.internet2.middleware.grouper.filter.GrouperQuery;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.R;
 import edu.internet2.middleware.grouper.helper.SessionHelper;
+import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.helper.T;
 import edu.internet2.middleware.grouper.hibernate.GrouperRollbackType;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransaction;
@@ -86,7 +87,7 @@ public class TestGroup1 extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new TestGroup1("testStaticSaveGroupTransactions"));
+    TestRunner.run(new TestGroup1("testReplaceMembers"));
   }
   
   private static final Log LOG = GrouperUtil.getLog(TestGroup1.class);
@@ -95,6 +96,44 @@ public class TestGroup1 extends GrouperTest {
     super(name);
   }
 
+  /**
+   * 
+   */
+  public void testReplaceMembers() {
+    LOG.info("testReplaceMembers");
+    try {
+      R registry = R.populateRegistry(1, 1, 0);
+      Group group = registry.getGroup("a", "a");
+
+      //group has no members, lets replace with some
+      Set<Subject> subjects = GrouperUtil.toSet(SubjectTestHelper.SUBJ0, SubjectTestHelper.SUBJ1);
+      
+      assertEquals(2, group.replaceMembers(subjects));
+      assertEquals(2, group.getMembers().size());
+      
+      assertTrue(group.hasMember(SubjectTestHelper.SUBJ0));
+      assertTrue(group.hasMember(SubjectTestHelper.SUBJ1));
+      
+      subjects = GrouperUtil.toSet(SubjectTestHelper.SUBJ1, SubjectTestHelper.SUBJ2);
+      
+      assertEquals(2, group.replaceMembers(subjects));
+      assertEquals(2, group.getMembers().size());
+      
+      assertTrue(group.hasMember(SubjectTestHelper.SUBJ1));
+      assertTrue(group.hasMember(SubjectTestHelper.SUBJ2));
+      
+      //lets blank it out
+      assertEquals(2, group.replaceMembers(null));
+      assertEquals(0, group.getMembers().size());
+      
+      registry.rs.stop();
+    }
+    catch (Exception e) {
+      T.e(e);
+    }
+  } // public void testReplaceMembers()
+
+  
   public void testDeleteGroupMemberWithNonGroupMember() {
     LOG.info("testDeleteGroupMemberWithNonGroupMember");
     try {
