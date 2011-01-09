@@ -19,6 +19,8 @@ public class AllPITTests {
     suite.addTestSuite(PITAttributeAssignValueTests.class);
     suite.addTestSuite(PITPermissionTests.class);
     suite.addTestSuite(PITUtilsTests.class);
+    suite.addTestSuite(PITGroupFinderTests.class);
+    suite.addTestSuite(PITGroupTests.class);
     return suite;
   }
 }

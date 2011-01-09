@@ -1,11 +1,22 @@
 package edu.internet2.middleware.grouper.pit;
 
+import java.sql.Timestamp;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
+import edu.internet2.middleware.grouper.Field;
+import edu.internet2.middleware.grouper.FieldFinder;
+import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperAPI;
+import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
+import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.subject.Source;
 
 /**
  * @author shilen
@@ -131,5 +142,50 @@ public class PITGroup extends GrouperPIT implements Hib3GrouperVersioned {
    */
   public void delete() {
     GrouperDAOFactory.getFactory().getPITGroup().delete(this);
+  }
+  
+  /**
+   * Get members of the group using point in time and the specified field.
+   * If the group currently exists, you must have read access to it.  If it has been deleted, you must be wheel or root.
+   * You must also be wheel or root if the field has been deleted.
+   * An empty set is returned if you do not have appropriate privileges.
+   * @param pitFieldId specifies the field id.  This is required.
+   * @param pointInTimeFrom the start of the range of the point in time query.  This is optional.
+   * @param pointInTimeTo the end of the range of the point in time query.  This is optional.  If this is the same as pointInTimeFrom, then the query will be done at a single point in time rather than a range.
+   * @param sources optionally filter on subject source ids.
+   * @param queryOptions optional query options.
+   * @return set of pit members
+   */
+  public Set<Member> getMembers(String pitFieldId, Timestamp pointInTimeFrom, Timestamp pointInTimeTo, Set<Source> sources, QueryOptions queryOptions) {
+    
+    if (pitFieldId == null) {
+      throw new IllegalArgumentException("pitFieldId required.");
+    }
+    
+    Set<Member> members = new LinkedHashSet<Member>();
+    try {
+      GrouperSession session = GrouperSession.staticGrouperSession();
+      if (!this.isActive() && !PrivilegeHelper.isWheelOrRoot(session.getSubject())) {
+        return members;
+      }
+      
+      Field field = FieldFinder.findById(pitFieldId, false);
+      if (field == null && !PrivilegeHelper.isWheelOrRoot(session.getSubject())) {
+        return members;
+      }
+
+      if (this.isActive() && field != null) {
+        Group group = GrouperDAOFactory.getFactory().getGroup().findByUuid(this.getId(), true);
+        PrivilegeHelper.dispatch(session, group, session.getSubject(), field.getReadPriv());
+      }
+      
+      members = GrouperDAOFactory.getFactory().getPITMembership().findAllMembersByGroupOwnerAndField( 
+          this.getId(), pitFieldId, pointInTimeFrom, pointInTimeTo, sources, queryOptions);
+    }
+    catch (InsufficientPrivilegeException e) {
+      // ignore -- this is what Group.getMembers() does too...  
+    }
+    
+    return members;
   }
 }

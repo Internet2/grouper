@@ -39,6 +39,12 @@ public interface PITGroupDAO extends GrouperDAO {
   public PITGroup findById(String pitGroupId);
   
   /**
+   * @param groupName
+   * @return set of pit groups
+   */
+  public Set<PITGroup> findByName(String groupName);
+  
+  /**
    * Delete records that ended before the given date.
    * @param time
    */

@@ -62,6 +62,20 @@ public class Hib3PITGroupDAO extends Hib3DAO implements PITGroupDAO {
   }
   
   /**
+   * @see edu.internet2.middleware.grouper.internal.dao.PITGroupDAO#findByName(java.lang.String)
+   */
+  public Set<PITGroup> findByName(String groupName) {
+    Set<PITGroup> pitGroups = HibernateSession
+      .byHqlStatic()
+      .createQuery("select pitGroup from PITGroup as pitGroup where pitGroup.nameDb = :name")
+      .setCacheable(false).setCacheRegion(KLASS + ".FindByName")
+      .setString("name", groupName)
+      .listSet(PITGroup.class);
+    
+    return pitGroups;
+  }
+  
+  /**
    * @see edu.internet2.middleware.grouper.internal.dao.PITGroupDAO#deleteInactiveRecords(java.sql.Timestamp)
    */
   public void deleteInactiveRecords(Timestamp time) {
