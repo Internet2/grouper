@@ -20,7 +20,7 @@ case "$1" in
     if [ "$UID" -ne "0" ]; then
       $TOMCAT_HOME/bin/startup.sh
     else
-      sudo -u $TOMCAT_USER $TOMCAT_HOME/bin/startup.sh
+      su -c "$TOMCAT_HOME/bin/startup.sh" $TOMCAT_USER
     fi
     echo
     ;;
@@ -30,7 +30,7 @@ case "$1" in
     if [ "$UID" -ne "0" ]; then
       $TOMCAT_HOME/bin/shutdown.sh
     else
-      sudo -u $TOMCAT_USER $TOMCAT_HOME/bin/shutdown.sh
+      su -c "$TOMCAT_HOME/bin/shutdown.sh" $TOMCAT_USER
     fi
 
     #loop until the program is dead
@@ -65,7 +65,7 @@ case "$1" in
         if [ "$UID" -ne "0" ]; then
           kill -9 $processId
         else
-          sudo -u $TOMCAT_USER kill -9 $processId
+          su -c "kill -9 $processId" $TOMCAT_USER
         fi
 
         sleep 1
