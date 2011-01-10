@@ -142,13 +142,13 @@ public class GrouperAtlassianXmppHandler implements GrouperClientXmppHandler {
 
     int secondsInFuture = GrouperClientUtils.propertiesValueInt("atlassian.xmppIncrementalClearCacheSecondsInFuture", 60, true);
     
-    if (LOG.isDebugEnabled()) {
-      LOG.debug("Received XMPP message: " + grouperClientXmppJob.getEventAction() 
-          + ", groups: " + GrouperClientUtils.setToString(grouperClientXmppJob.getGroupNames()) + ", subject: " 
-              + (changeSubject == null ? "null" : changeSubject.getSubjectId() ) + ", clearing cache " + secondsInFuture + " in future" );
-    }
-    
     if (secondsInFuture == 0) {
+      if (LOG.isDebugEnabled()) {
+        LOG.debug("Received XMPP message: " + grouperClientXmppJob.getEventAction() 
+            + ", groups: " + GrouperClientUtils.setToString(grouperClientXmppJob.getGroupNames()) + ", subject: " 
+                + (changeSubject == null ? "null" : changeSubject.getSubjectId() ) + ", clearing cache " + secondsInFuture + " in future" );
+      }
+      
       new GrouperAccessProvider().flushCaches();
       //kick it off
       new GrouperAccessProvider().list();
@@ -157,31 +157,44 @@ public class GrouperAtlassianXmppHandler implements GrouperClientXmppHandler {
       long flushCacheMillisSince1970 = System.currentTimeMillis() + (1000 * secondsInFuture);
       
       //give it an extra 100 millis
-      GrouperAccessProvider.flushCaches(flushCacheMillisSince1970);
+      if (GrouperAccessProvider.flushCaches(flushCacheMillisSince1970)) {
 
-      //lets make a timer
-      new Timer().schedule(new TimerTask() {
-        
-        @Override
-        public void run() {
-          
-          boolean cacheWillBeClearedInFuture = GrouperAccessProvider.cacheWillBeClearedInFuture();
-          
-          boolean cacheShouldBeClearedNow = GrouperAccessProvider.cacheShouldBeClearedNow();
-          
-          new GrouperAccessProvider().list();
-          new GrouperProfileProvider().flushCaches();
-          new GrouperProfileProvider().list();
-          
-          if (LOG.isDebugEnabled()) {
-            LOG.debug("Refreshing cache in separate thread from xmpp incremental message, " +
-            		"oldCacheWillBeClearedInFuture: " + cacheWillBeClearedInFuture 
-            		+ ", oldCacheShouldBeClearedNow: " + cacheShouldBeClearedNow
-            		+ ", cacheWillBeClearedInFuture: " + GrouperAccessProvider.cacheWillBeClearedInFuture()
-            		+ ", cacheShouldBeClearedNow: " + GrouperAccessProvider.cacheShouldBeClearedNow());
-          }
+        if (LOG.isDebugEnabled()) {
+          LOG.debug("Received XMPP message: " + grouperClientXmppJob.getEventAction() 
+              + ", groups: " + GrouperClientUtils.setToString(grouperClientXmppJob.getGroupNames()) + ", subject: " 
+                  + (changeSubject == null ? "null" : changeSubject.getSubjectId() ) + ", clearing cache " + secondsInFuture + " in future" );
         }
-      }, new Date(flushCacheMillisSince1970 + 1000));
+        
+        //lets make a timer
+        new Timer().schedule(new TimerTask() {
+          
+          @Override
+          public void run() {
+            
+            boolean cacheWillBeClearedInFuture = GrouperAccessProvider.cacheWillBeClearedInFuture();
+            
+            boolean cacheShouldBeClearedNow = GrouperAccessProvider.cacheShouldBeClearedNow();
+            
+            new GrouperAccessProvider().list();
+            new GrouperProfileProvider().flushCaches();
+            new GrouperProfileProvider().list();
+            
+            if (LOG.isDebugEnabled()) {
+              LOG.debug("Refreshing cache in separate thread from xmpp incremental message, " +
+              		"oldCacheWillBeClearedInFuture: " + cacheWillBeClearedInFuture 
+              		+ ", oldCacheShouldBeClearedNow: " + cacheShouldBeClearedNow
+              		+ ", cacheWillBeClearedInFuture: " + GrouperAccessProvider.cacheWillBeClearedInFuture()
+              		+ ", cacheShouldBeClearedNow: " + GrouperAccessProvider.cacheShouldBeClearedNow());
+            }
+          }
+        }, new Date(flushCacheMillisSince1970 + 1000));
+      } else {
+        if (LOG.isDebugEnabled()) {
+          LOG.debug("Not refreshing cache in separate thread from xmpp incremental message since already scheduled"
+              + ", cacheWillBeClearedInFuture: " + GrouperAccessProvider.cacheWillBeClearedInFuture()
+              + ", cacheShouldBeClearedNow: " + GrouperAccessProvider.cacheShouldBeClearedNow());
+        }
+      }
     }
 
     

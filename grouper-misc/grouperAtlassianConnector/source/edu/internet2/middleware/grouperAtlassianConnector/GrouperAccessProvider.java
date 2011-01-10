@@ -66,16 +66,17 @@ public class GrouperAccessProvider implements AccessProvider {
   /**
    * to schedule a refresh in the future, set this to when it should occur
    * @param flushCacheMillisSince1970
+   * @return if this did anything or if it was already scheduled...
    */
-  public static void flushCaches(long flushCacheMillisSince1970) {
+  public static boolean flushCaches(long flushCacheMillisSince1970) {
     
     //if we are scheduled after the last one, then dont reschedule
     if (cacheWillBeClearedInFuture()) {
-      return;
+      return false;
     }
     //schedule this cache flush
     scheduleNextCacheRefreshMillis = flushCacheMillisSince1970;
-    
+    return true;
   }
 
   /**
