@@ -9,6 +9,7 @@ import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.cfg.ApiConfig;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogTempToEntity;
+import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SessionHelper;
 import edu.internet2.middleware.grouper.helper.StemHelper;
@@ -88,14 +89,22 @@ public class PITGroupFinderTests extends GrouperTest {
     // now verify what subj1 can see
     GrouperSession s = GrouperSession.start(member1.getSubject());
     
-    pitGroup1 = PITGroupFinder.findById(group1.getId(), true);
-    assertNull(pitGroup1);
+    try {
+      pitGroup1 = PITGroupFinder.findById(group1.getId(), true);
+      fail("Expected GroupNotFoundException.");
+    } catch (GroupNotFoundException e) {
+      // good
+    }
     
     pitGroup2 = PITGroupFinder.findById(group2.getId(), true);
     assertNotNull(pitGroup2);
     
-    pitGroup3 = PITGroupFinder.findById(group3.getId(), true);
-    assertNull(pitGroup3);
+    try {
+      pitGroup3 = PITGroupFinder.findById(group3.getId(), true);
+      fail("Expected GroupNotFoundException.");
+    } catch (GroupNotFoundException e) {
+      // good
+    }
     
     s.stop();
   }
@@ -158,11 +167,20 @@ public class PITGroupFinderTests extends GrouperTest {
     
     // subj1 can't see anything now
     s = GrouperSession.start(member1.getSubject());
-    pitGroups = PITGroupFinder.findByName("edu:test", true);
-    assertEquals(0, pitGroups.size());
+    try {
+      pitGroups = PITGroupFinder.findByName("edu:test", true);
+      fail("Expected GroupNotFoundException.");
+    } catch (GroupNotFoundException e) {
+      // good
+    }
     
-    pitGroup = PITGroupFinder.findMostRecentByName("edu:test", true);
-    assertNull(pitGroup);
+    try {
+      pitGroup = PITGroupFinder.findMostRecentByName("edu:test", true);
+      fail("Expected GroupNotFoundException.");
+    } catch (GroupNotFoundException e) {
+      // good
+    }
+    
     s.stop();
     
     // delete group3
@@ -180,11 +198,20 @@ public class PITGroupFinderTests extends GrouperTest {
     
     // subj1 can't see anything still
     s = GrouperSession.start(member1.getSubject());
-    pitGroups = PITGroupFinder.findByName("edu:test", true);
-    assertEquals(0, pitGroups.size());
+    try {
+      pitGroups = PITGroupFinder.findByName("edu:test", true);
+      fail("Expected GroupNotFoundException.");
+    } catch (GroupNotFoundException e) {
+      // good
+    }
     
-    pitGroup = PITGroupFinder.findMostRecentByName("edu:test", true);
-    assertNull(pitGroup);
+    try {
+      pitGroup = PITGroupFinder.findMostRecentByName("edu:test", true);
+      fail("Expected GroupNotFoundException.");
+    } catch (GroupNotFoundException e) {
+      // good
+    }
+    
     s.stop();    
   }
 }

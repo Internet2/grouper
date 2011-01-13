@@ -39,6 +39,10 @@ public class PITGroupFinder {
     }
     
     if (!pitGroup.isActive() && !PrivilegeHelper.isWheelOrRoot(session.getSubject())) {
+      if (exceptionIfNotFound) {
+        throw new GroupNotFoundException("Point in time group with id " + id + " does not exist.");
+      }
+
       return null;
     }
     
@@ -46,6 +50,10 @@ public class PITGroupFinder {
       Group group = GrouperDAOFactory.getFactory().getGroup().findByUuid(id, true);
       
       if (!PrivilegeHelper.canView(session.internal_getRootSession(), group, session.getSubject())) {
+        if (exceptionIfNotFound) {
+          throw new GroupNotFoundException("Point in time group with id " + id + " does not exist.");
+        }
+
         return null;
       }
     }
@@ -67,14 +75,6 @@ public class PITGroupFinder {
     GrouperSession session = GrouperSession.staticGrouperSession();
     Set<PITGroup> pitGroups = GrouperDAOFactory.getFactory().getPITGroup().findByName(name);
     
-    if (pitGroups.size() == 0) {
-      if (exceptionIfNotFound) {
-        throw new GroupNotFoundException("Point in time group with name " + name + " does not exist.");
-      }
-      
-      return pitGroupsSecure;
-    }
-        
     for (PITGroup pitGroup : pitGroups) {
       if (!pitGroup.isActive() && !PrivilegeHelper.isWheelOrRoot(session.getSubject())) {
         continue;
@@ -91,6 +91,12 @@ public class PITGroupFinder {
       pitGroupsSecure.add(pitGroup);
     }
     
+    if (pitGroupsSecure.size() == 0) {
+      if (exceptionIfNotFound) {
+        throw new GroupNotFoundException("Point in time group with name " + name + " does not exist.");
+      }
+    }
+        
     return pitGroupsSecure;
   }
   
