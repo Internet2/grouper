@@ -52,6 +52,9 @@ public abstract class BaseGrouperDataConnector extends BaseDataConnector impleme
   /** logger */
   private static final Logger LOG = LoggerFactory.getLogger(BaseGrouperDataConnector.class);
 
+  /** the name of the attribute whose values are {@link GroupType}s */
+  public static final String GROUP_TYPE_ATTR = "groupType";
+  
   /** the name of the attribute whose value is the name of the parent stem */
   public static final String PARENT_STEM_NAME_ATTR = "parentStemName";
 

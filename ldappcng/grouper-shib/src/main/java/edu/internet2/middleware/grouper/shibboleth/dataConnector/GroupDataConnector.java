@@ -28,6 +28,7 @@ import org.slf4j.LoggerFactory;
 import edu.internet2.middleware.grouper.Attribute;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
+import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
@@ -154,6 +155,11 @@ public class GroupDataConnector extends BaseGrouperDataConnector {
             BasicAttribute<String> stem = new BasicAttribute<String>(PARENT_STEM_NAME_ATTR);
             stem.setValues(Arrays.asList(new String[] { group.getParentStemName() }));
             attributes.put(stem.getId(), stem);
+            
+            // groupType
+            BasicAttribute<GroupType> groupTypes = new BasicAttribute<GroupType>(GROUP_TYPE_ATTR);
+            groupTypes.setValues(group.getTypes());    
+            attributes.put(groupTypes.getId(), groupTypes);
 
             if (LOG.isDebugEnabled()) {
               LOG.debug("resolve {} attributes {}", msg, attributes.size());
