@@ -277,8 +277,8 @@ public enum GrouperLoaderType {
         } else if (hib3GrouploaderLog.getJobName().startsWith(GrouperLoaderType.GROUPER_GROUP_SYNC)) {
 
           //strip off the beginning
-          String configName = hib3GrouploaderLog.getJobName().substring(GrouperLoaderType.GROUPER_GROUP_SYNC.length()+2);
-          int records = GroupSyncDaemon.syncGroup(configName);
+          String localGroupName = hib3GrouploaderLog.getJobName().substring(GrouperLoaderType.GROUPER_GROUP_SYNC.length()+2);
+          int records = GroupSyncDaemon.syncGroup(localGroupName);
           hib3GrouploaderLog.setUpdateCount(records);
 
           hib3GrouploaderLog.setJobMessage("Ran group sync daemon, changed " + records + " records");

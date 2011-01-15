@@ -44,19 +44,19 @@ public class GroupSyncDaemon {
 
   /**
    * sync a group by config name from the cron daemon
-   * @param configName
+   * @param localGroupName
    * @return the number of records changed
    */
-  public static int syncGroup(final String configName) {
+  public static int syncGroup(final String localGroupName) {
 
     final Map<String, Object> infoMap = new LinkedHashMap<String, Object>();
     
-    infoMap.put("configName", configName);
+    infoMap.put("configName", localGroupName);
     
-    final ClientGroupConfigBean clientGroupConfigBean = ClientConfig.clientGroupConfigBeanCache().get(configName);
+    final ClientGroupConfigBean clientGroupConfigBean = ClientConfig.clientGroupConfigBeanCache().get(localGroupName);
 
     if (clientGroupConfigBean == null) {
-      throw new RuntimeException("Cant find clientGroupConfigBean by config id: '" + configName + "'");
+      throw new RuntimeException("Cant find clientGroupConfigBean by config id: '" + localGroupName + "'");
     }
     
     //get the connection and the grouper session
@@ -68,7 +68,7 @@ public class GroupSyncDaemon {
     
     if (clientConnectionConfigBean == null) {
       throw new RuntimeException("Cant find clientConnectionBean by config id: '"       
-          + configName + "', connectionId: '" + connectionName + "'");      
+          + localGroupName + "', connectionId: '" + connectionName + "'");      
     }
 
     String actAsSubjectString = clientConnectionConfigBean.getLocalActAsSubject();
@@ -96,7 +96,7 @@ public class GroupSyncDaemon {
           } else if (groupSyncType == GroupSyncType.incremental_push || groupSyncType == GroupSyncType.push) {    
             return syncGroupPush(clientGroupConfigBean, clientConnectionConfigBean, theGrouperSession, infoMap);
           } else {    
-            throw new RuntimeException("Not expecting configName: " + configName + ", groupSyncType: " + groupSyncType);
+            throw new RuntimeException("Not expecting configName: " + localGroupName + ", groupSyncType: " + groupSyncType);
           }   
         }
       });
@@ -108,7 +108,7 @@ public class GroupSyncDaemon {
     } catch (RuntimeException re) {
       
       LOG.error(GrouperUtil.mapToString(infoMap));
-      GrouperUtil.injectInException(re, "Error in configName: " + configName);
+      GrouperUtil.injectInException(re, "Error in configName: " + localGroupName);
       throw re;
 
     } finally {     

@@ -1040,7 +1040,11 @@ public class GrouperLoader {
       
       ClientGroupConfigBean clientGroupConfigBean = clientGroupConfigBeanCache.get(localGroupName);
       
-      String jobName = GrouperLoaderType.GROUPER_GROUP_SYNC + "___" + clientGroupConfigBean.getConfigId();
+      if (StringUtils.isBlank(clientGroupConfigBean.getLocalGroupName())) {
+        LOG.error("Why is local group name blank? " + clientGroupConfigBean.getConfigId());
+      }
+      
+      String jobName = GrouperLoaderType.GROUPER_GROUP_SYNC + "__" + clientGroupConfigBean.getLocalGroupName();
       
       //schedule the job
       try {

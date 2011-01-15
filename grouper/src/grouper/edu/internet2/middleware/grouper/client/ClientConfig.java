@@ -13,7 +13,6 @@ import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.externalSubjects.ExternalSubjectConfig;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.grouperClient.ws.beans.WsSubject;
 import edu.internet2.middleware.grouperClient.ws.beans.WsSubjectLookup;
 import edu.internet2.middleware.subject.Subject;
 
@@ -34,7 +33,7 @@ public class ClientConfig {
     id {
 
       /**
-       * @see GroupSyncWriteIdentifier#assignIdentifier(WsSubject, String)
+       * @see GroupSyncWriteIdentifier#assignIdentifier(WsSubjectLookup, String)
        */
       @Override
       public void assignIdentifier(WsSubjectLookup wsSubjectLookup, String identifier) {
@@ -58,7 +57,7 @@ public class ClientConfig {
     identifier {
 
       /**
-       * @see GroupSyncWriteIdentifier#assignIdentifier(WsSubject, String)
+       * @see GroupSyncWriteIdentifier#assignIdentifier(WsSubjectLookup, String)
        */
       @Override
       public void assignIdentifier(WsSubjectLookup wsSubjectLookup, String identifier) {
