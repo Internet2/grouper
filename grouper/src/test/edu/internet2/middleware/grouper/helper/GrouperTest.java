@@ -56,7 +56,6 @@ import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
-import edu.internet2.middleware.subject.SubjectUtils;
 
 /**
  * Grouper-specific JUnit assertions.
@@ -88,6 +87,10 @@ public class GrouperTest extends TestCase {
   public GrouperTest() {
     super();
     testing = true;
+    
+    //I believe this needs to be here before Grouper starts up
+    ApiConfig.testConfig.put("externalSubjects.autoCreateSource", "true");
+    ApiConfig.testConfig.put("externalSubjects.autoCreateSource", "grouperExternal");
 
     //let the database release...
     GrouperStartup.startup();
