@@ -1971,6 +1971,9 @@ public class GrouperClient {
   
     String sourceIds = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "sourceIds", false);
     
+    Timestamp pointInTimeFrom = GrouperClientUtils.argMapTimestamp(argMap, argMapNotUsed, "pointInTimeFrom");
+    Timestamp pointInTimeTo = GrouperClientUtils.argMapTimestamp(argMap, argMapNotUsed, "pointInTimeTo");
+    
     GcGetMembers gcGetMembers = new GcGetMembers();        
   
     String clientVersion = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "clientVersion", false);
@@ -2016,6 +2019,9 @@ public class GrouperClient {
         gcGetMembers.addSourceId(sourceId);
       }
     }
+    
+    gcGetMembers.assignPointInTimeFrom(pointInTimeFrom);
+    gcGetMembers.assignPointInTimeTo(pointInTimeTo);
     
     //register that we will use this
     GrouperClientUtils.argMapString(argMap, argMapNotUsed, "outputTemplate", false);
