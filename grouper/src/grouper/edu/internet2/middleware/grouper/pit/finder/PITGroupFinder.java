@@ -66,14 +66,15 @@ public class PITGroupFinder {
    * If the group currently exists, you must have view access to it.  If it has been deleted, you must be wheel or root.
    * @param name
    * @param exceptionIfNotFound
+   * @param orderByStartTime
    * @return set of pit group
    */
-  public static Set<PITGroup> findByName(String name, boolean exceptionIfNotFound) {
+  public static Set<PITGroup> findByName(String name, boolean exceptionIfNotFound, boolean orderByStartTime) {
 
     Set<PITGroup> pitGroupsSecure = new LinkedHashSet<PITGroup>();
     
     GrouperSession session = GrouperSession.staticGrouperSession();
-    Set<PITGroup> pitGroups = GrouperDAOFactory.getFactory().getPITGroup().findByName(name);
+    Set<PITGroup> pitGroups = GrouperDAOFactory.getFactory().getPITGroup().findByName(name, true);
     
     for (PITGroup pitGroup : pitGroups) {
       if (!pitGroup.isActive() && !PrivilegeHelper.isWheelOrRoot(session.getSubject())) {
@@ -108,22 +109,12 @@ public class PITGroupFinder {
    * @return pit group
    */
   public static PITGroup findMostRecentByName(String name, boolean exceptionIfNotFound) {
-    Set<PITGroup> pitGroups = findByName(name, exceptionIfNotFound);
+    Set<PITGroup> pitGroups = findByName(name, exceptionIfNotFound, true);
     
-    Long lastEndTime = 0L;
-    PITGroup lastPITGroup = null;
-    
-    for (PITGroup pitGroup : pitGroups) {
-      if (pitGroup.isActive()) {
-        return pitGroup;
-      }
-      
-      if (pitGroup.getEndTimeDb() > lastEndTime) {
-        lastEndTime = pitGroup.getEndTimeDb();
-        lastPITGroup = pitGroup;
-      }
+    if (pitGroups.size() > 0) {
+      return pitGroups.toArray(new PITGroup[0])[pitGroups.size() - 1];
     }
     
-    return lastPITGroup;
+    return null;
   }
 }

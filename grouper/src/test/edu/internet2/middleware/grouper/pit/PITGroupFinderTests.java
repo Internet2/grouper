@@ -134,7 +134,7 @@ public class PITGroupFinderTests extends GrouperTest {
     ChangeLogTempToEntity.convertRecords();
     
     // root can see all 3 groups
-    Set<PITGroup> pitGroups = PITGroupFinder.findByName("edu:test", true);
+    Set<PITGroup> pitGroups = PITGroupFinder.findByName("edu:test", true, true);
     assertEquals(3, pitGroups.size());
     
     PITGroup pitGroup = PITGroupFinder.findMostRecentByName("edu:test", true);
@@ -143,7 +143,7 @@ public class PITGroupFinderTests extends GrouperTest {
     
     // subj1 can only see the current active group
     GrouperSession s = GrouperSession.start(member1.getSubject());
-    pitGroups = PITGroupFinder.findByName("edu:test", true);
+    pitGroups = PITGroupFinder.findByName("edu:test", true, true);
     assertEquals(1, pitGroups.size());
     assertEquals(group3.getId(), pitGroups.iterator().next().getId());
     
@@ -158,7 +158,7 @@ public class PITGroupFinderTests extends GrouperTest {
     ChangeLogTempToEntity.convertRecords();
 
     // root can still see all 3 groups
-    pitGroups = PITGroupFinder.findByName("edu:test", true);
+    pitGroups = PITGroupFinder.findByName("edu:test", true, true);
     assertEquals(3, pitGroups.size());
     
     pitGroup = PITGroupFinder.findMostRecentByName("edu:test", true);
@@ -168,7 +168,7 @@ public class PITGroupFinderTests extends GrouperTest {
     // subj1 can't see anything now
     s = GrouperSession.start(member1.getSubject());
     try {
-      pitGroups = PITGroupFinder.findByName("edu:test", true);
+      pitGroups = PITGroupFinder.findByName("edu:test", true, true);
       fail("Expected GroupNotFoundException.");
     } catch (GroupNotFoundException e) {
       // good
@@ -189,7 +189,7 @@ public class PITGroupFinderTests extends GrouperTest {
     ChangeLogTempToEntity.convertRecords();
 
     // root can still see all 3 groups
-    pitGroups = PITGroupFinder.findByName("edu:test", true);
+    pitGroups = PITGroupFinder.findByName("edu:test", true, true);
     assertEquals(3, pitGroups.size());
     
     pitGroup = PITGroupFinder.findMostRecentByName("edu:test", true);
@@ -199,7 +199,7 @@ public class PITGroupFinderTests extends GrouperTest {
     // subj1 can't see anything still
     s = GrouperSession.start(member1.getSubject());
     try {
-      pitGroups = PITGroupFinder.findByName("edu:test", true);
+      pitGroups = PITGroupFinder.findByName("edu:test", true, true);
       fail("Expected GroupNotFoundException.");
     } catch (GroupNotFoundException e) {
       // good
