@@ -19,6 +19,8 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.group.TypeOfGroup;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
+import edu.internet2.middleware.grouper.pit.PITGroup;
+import edu.internet2.middleware.grouper.pit.finder.PITGroupFinder;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 import edu.internet2.middleware.grouper.ws.soap.WsGetMembersResult.WsGetMembersResultCode;
 import edu.internet2.middleware.grouper.ws.soap.WsGroupDeleteResult.WsGroupDeleteResultCode;
@@ -146,6 +148,10 @@ public class WsGroupLookup {
   /** find the group */
   @XStreamOmitField
   private Group group = null;
+  
+  /** find the pit groups */
+  @XStreamOmitField
+  private Set<PITGroup> pitGroups = new LinkedHashSet<PITGroup>();
 
   /** result of group find */
   public static enum GroupFindResult {
@@ -408,12 +414,78 @@ public class WsGroupLookup {
     }
     return this.group;
   }
+  
+  /**
+   * retrieve the pit groups for this lookup if not looked up yet.
+   * @param invalidQueryReason is the text to go in the WsInvalidQueryException
+   * @return the pit group
+   * @throws WsInvalidQueryException if there is a problem, and if the invalidQueryReason is set
+   */
+  public Set<PITGroup> retrievePITGroupsIfNeeded(String invalidQueryReason) throws WsInvalidQueryException {
+
+    //see if we already retrieved
+    if (this.groupFindResult != null) {
+      return this.pitGroups;
+    }
+
+    //assume success (set otherwise if there is a problem)
+    this.groupFindResult = GroupFindResult.SUCCESS;
+    
+    try {
+      boolean hasUuid = !StringUtils.isBlank(this.uuid);
+
+      boolean hasName = !StringUtils.isBlank(this.groupName);
+
+      //must have a name or uuid
+      if (!hasUuid && !hasName) {
+        this.groupFindResult = GroupFindResult.INVALID_QUERY;
+        if (!StringUtils.isEmpty(invalidQueryReason)) {
+          throw new WsInvalidQueryException("Invalid point in time group query for '"
+              + invalidQueryReason + "', " + this);
+        }
+        String logMessage = "Invalid query: " + this;
+        LOG.warn(logMessage);
+      }
+
+      if (hasUuid) {        
+        PITGroup theGroup = PITGroupFinder.findById(this.uuid, true);
+
+        //make sure name matches 
+        if (hasName && !StringUtils.equals(this.groupName, theGroup.getName())) {
+          this.groupFindResult = GroupFindResult.GROUP_UUID_DOESNT_MATCH_NAME;
+          String error = "Group name '" + this.groupName + "' and uuid '" + this.uuid
+              + "' do not match";
+          if (!StringUtils.isEmpty(invalidQueryReason)) {
+            throw new WsInvalidQueryException(error + " for '" + invalidQueryReason
+                + "', " + this);
+          }
+          String logMessage = "Invalid query: " + this;
+          LOG.warn(logMessage);
+        }
+
+        //success
+        this.pitGroups.add(theGroup);
+
+      } else if (hasName) {
+        this.pitGroups = PITGroupFinder.findByName(this.groupName, true, true);
+      }
+
+    } catch (GroupNotFoundException gnf) {
+      this.groupFindResult = GroupFindResult.GROUP_NOT_FOUND;
+      if (!StringUtils.isBlank(invalidQueryReason)) {
+        throw new WsInvalidQueryException("Invalid group for '" + invalidQueryReason
+            + "', " + this, gnf);
+      }
+    }
+    return this.pitGroups;
+  }
 
   /**
    * clear the group if a setter is called
    */
   private void clearGroup() {
     this.group = null;
+    this.pitGroups = new LinkedHashSet<PITGroup>();
     this.groupFindResult = null;
   }
 

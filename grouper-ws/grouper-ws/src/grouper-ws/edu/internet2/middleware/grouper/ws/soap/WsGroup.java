@@ -9,6 +9,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.pit.PITGroup;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
@@ -116,6 +117,16 @@ public class WsGroup implements Comparable<WsGroup> {
 
       }
     }
+  }
+  
+  /**
+   * construct based on pit group
+   * @param pitGroup
+   */
+  public WsGroup(PITGroup pitGroup) {
+    this.setName(pitGroup.getName());
+    this.setUuid(pitGroup.getId());
+    this.setExtension(GrouperUtil.extensionFromName(pitGroup.getName()));
   }
 
   /**
