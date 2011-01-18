@@ -246,7 +246,7 @@ public class GrouperClientUtils extends GrouperClientCommonUtils {
       throw new RuntimeException("Error substituting string: '" + stringToParse + "'", e);
     }
   }
-
+  
   /**
    * get the attribute value of an attribute name of a subject
    * @param wsSubject subject
@@ -266,5 +266,25 @@ public class GrouperClientUtils extends GrouperClientCommonUtils {
     return null;
   }
 
-
+  /**
+   * 
+   * @return the encrypt key
+   */
+  public static String encryptKey() {
+    String encryptKey = GrouperClientUtils.propertiesValue("encrypt.key", true);
+    
+    boolean disableExternalFileLookup = GrouperClientUtils.propertiesValueBoolean(
+        "encrypt.disableExternalFileLookup", false, true);
+    
+    //lets lookup if file
+    encryptKey = GrouperClientUtils.readFromFileIfFile(encryptKey, disableExternalFileLookup);
+    
+    //the server does this, so if the key is blank, it will still have something there, so be consistent
+    if (GrouperClientUtils.propertiesValueBoolean("encrypt.encryptLikeServer", false, false)) {
+      
+      encryptKey += "w";
+    }
+    
+    return encryptKey;
+  }
 }

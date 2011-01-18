@@ -93,7 +93,7 @@ public class GrouperClientLdapUtils {
         
         passPrefix = "LDAP pass: reading encrypted value from file: " + ldapPass;
         
-        String encryptKey = GrouperClientUtils.propertiesValue("encrypt.key", true);
+        String encryptKey = GrouperClientUtils.encryptKey();
         
         ldapPass = new Crypto(encryptKey).decrypt(ldapPassFromFile);
         

@@ -34,6 +34,7 @@ import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.grouperClient.ws.beans.WsGetMembersResult;
 import edu.internet2.middleware.grouperClient.ws.beans.WsGetMembersResults;
 import edu.internet2.middleware.grouperClient.ws.beans.WsSubject;
+import edu.internet2.middleware.grouperClientExt.edu.internet2.middleware.morphString.Crypto;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.jexl.Expression;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.jexl.ExpressionFactory;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.jexl.JexlContext;
@@ -125,6 +126,16 @@ public class GrouperClientXmppMain {
     String pass = GrouperClientUtils.propertiesValue("grouperClient.xmpp.pass", true);
     String passFromFile = GrouperClientUtils.readFromFileIfFile(pass, disableExternalFileLookup);
     
+    if (GrouperClientUtils.propertiesValueBoolean("encrypt.encryptLikeServer", false, false)) {
+      if (!GrouperClientUtils.equals(pass, passFromFile)) {
+  
+        String encryptKey = GrouperClientUtils.encryptKey();
+        pass = new Crypto(encryptKey).decrypt(passFromFile);
+        
+      }
+      
+      return pass;
+    }
     return passFromFile;
   }
 

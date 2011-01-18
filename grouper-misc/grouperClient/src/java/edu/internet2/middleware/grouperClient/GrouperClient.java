@@ -427,13 +427,7 @@ public class GrouperClient {
       boolean shouldSaveResultsToFile) {
     boolean dontMask = GrouperClientUtils.argMapBoolean(argMap, argMapNotUsed, "dontMask", false, false);
     
-    String encryptKey = GrouperClientUtils.propertiesValue("encrypt.key", true);
-    
-    boolean disableExternalFileLookup = GrouperClientUtils.propertiesValueBoolean(
-        "encrypt.disableExternalFileLookup", false, true);
-    
-    //lets lookup if file
-    encryptKey = GrouperClientUtils.readFromFileIfFile(encryptKey, disableExternalFileLookup);
+    String encryptKey = GrouperClientUtils.encryptKey();
     
     //lets get the password from stdin
     String password = GrouperClientUtils.retrievePasswordFromStdin(dontMask, 

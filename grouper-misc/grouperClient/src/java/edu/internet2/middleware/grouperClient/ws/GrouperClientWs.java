@@ -305,8 +305,7 @@ public class GrouperClientWs {
 
       passPrefix = "WebService pass: reading encrypted value from file: " + wsPass;
 
-      String encryptKey = GrouperClientUtils.propertiesValue("encrypt.key", true);
-      encryptKey = GrouperClientUtils.readFromFileIfFile(encryptKey, disableExternalFileLookup);
+      String encryptKey = GrouperClientUtils.encryptKey();
       wsPass = new Crypto(encryptKey).decrypt(wsPassFromFile);
       
     } else {
