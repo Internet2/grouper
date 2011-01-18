@@ -30,7 +30,6 @@ public class ClientCustomizer {
   
   /**
    * when connection is setup
-   * @param clientAuthenticationContext
    */
   public void setupConnection() {
     
@@ -61,7 +60,6 @@ public class ClientCustomizer {
 
   /**
    * when connection is done
-   * @param clientAuthenticationContext
    */
   public void teardownConnection() {
     Map<String, String> overrideMap = GrouperClientUtils.propertiesThreadLocalOverrideMap("grouper.client.properties");

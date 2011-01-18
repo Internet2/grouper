@@ -12,14 +12,21 @@ import junit.textui.TestRunner;
 import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
+import edu.internet2.middleware.grouper.app.loader.GrouperLoaderType;
 import edu.internet2.middleware.grouper.cfg.ApiConfig;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.externalSubjects.ExternalSubject;
 import edu.internet2.middleware.grouper.externalSubjects.ExternalSubjectConfig;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.api.GcAddMember;
+import edu.internet2.middleware.grouperClient.api.GcDeleteMember;
 import edu.internet2.middleware.grouperClient.api.GcGetMembers;
 import edu.internet2.middleware.grouperClient.api.GcGroupSave;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
@@ -76,11 +83,14 @@ public class GroupSyncDaemonTest extends GrouperTest {
     ApiConfig.testConfig.put("grouperClient.remoteGrouperTest.source.externalSubjects.local.sourceId", "grouperExternal");
     ApiConfig.testConfig.put("grouperClient.remoteGrouperTest.source.externalSubjects.local.read.subjectId", "identifier");
     ApiConfig.testConfig.put("grouperClient.remoteGrouperTest.source.externalSubjects.local.write.subjectId", "identifier");
-    ApiConfig.testConfig.put("grouperClient.remoteGrouperTest.source.externalSubjects.remote.sourceId", "grouperExternal");
-    ApiConfig.testConfig.put("grouperClient.remoteGrouperTest.source.externalSubjects.remote.read.subjectId", "identifier");
-    ApiConfig.testConfig.put("grouperClient.remoteGrouperTest.source.externalSubjects.remote.write.subjectId", "identifier");
+    ApiConfig.testConfig.put("grouperClient.remoteGrouperTest.source.externalSubjects.remote.sourceId", 
+        GrouperConfig.getProperty("junit.test.groupSync.remoteSourceId"));
+    ApiConfig.testConfig.put("grouperClient.remoteGrouperTest.source.externalSubjects.remote.read.subjectId", 
+        GrouperConfig.getProperty("junit.test.groupSync.remoteReadSubjectId"));
+    ApiConfig.testConfig.put("grouperClient.remoteGrouperTest.source.externalSubjects.remote.write.subjectId", 
+        GrouperConfig.getProperty("junit.test.groupSync.remoteWriteSubjectId"));
 
-
+    //########################## PUSH
     ApiConfig.testConfig.put("syncAnotherGrouper.unitTest.connectionName", "remoteGrouperTest");
     ApiConfig.testConfig.put("syncAnotherGrouper.unitTest.syncType", "push");
     ApiConfig.testConfig.put("syncAnotherGrouper.unitTest.cron", "0 0 5 * * ?");
@@ -91,32 +101,74 @@ public class GroupSyncDaemonTest extends GrouperTest {
     
     ApiConfig.testConfig.put("syncAnotherGrouper.unitTest.remote.groupName", this.remoteTestFolder + ":" + "remoteTestPush");
     
-    String addExternalSubjectIfNotExist = StringUtils.defaultString(GrouperConfig.getProperty("junit.test.groupSync.addExternalSubjectIfNotFound"), "true");
+    String pushAddExternalSubjectIfNotExist = StringUtils.defaultString(GrouperConfig.getProperty("junit.test.groupSync.pushAddExternalSubjectIfNotExist"), "true");
 
-    ApiConfig.testConfig.put("syncAnotherGrouper.unitTest.addExternalSubjectIfNotFound", addExternalSubjectIfNotExist);
+    ApiConfig.testConfig.put("syncAnotherGrouper.unitTest.addExternalSubjectIfNotFound", pushAddExternalSubjectIfNotExist);
     
     //##########################  PULL
     
-    ApiConfig.testConfig.put("syncAnotherGrouper.unitTestPull.connectionName", "remoteGrouperPullTest");
+    ApiConfig.testConfig.put("syncAnotherGrouper.unitTestPull.connectionName", "remoteGrouperTest");
     ApiConfig.testConfig.put("syncAnotherGrouper.unitTestPull.syncType", "pull");
     ApiConfig.testConfig.put("syncAnotherGrouper.unitTestPull.cron", "0 0 5 * * ?");
-    ApiConfig.testConfig.put("syncAnotherGrouper.unitTestPull.local.groupName", "localGroupSyncTest:localTestPush");
+    ApiConfig.testConfig.put("syncAnotherGrouper.unitTestPull.local.groupName", "localGroupSyncTest:localTestPull");
     
-    this.remoteTestFolder = GrouperConfig.getProperty("junit.test.groupSync.folder");
-    assertTrue(StringUtils.isNotBlank(this.remoteTestFolder));
+    ApiConfig.testConfig.put("syncAnotherGrouper.unitTestPull.remote.groupName", this.remoteTestFolder + ":" + "remoteTestPull");
     
-    ApiConfig.testConfig.put("syncAnotherGrouper.unitTestPull.remote.groupName", this.remoteTestFolder + ":" + "remoteTestPush");
+    //note, always true to create subjects
+    ApiConfig.testConfig.put("syncAnotherGrouper.unitTestPull.addExternalSubjectIfNotFound", "true");    
+
+    //########################## PUSH INCREMENTAL
+    ApiConfig.testConfig.put("syncAnotherGrouper.unitTestPushIncremental.connectionName", "remoteGrouperTest");
+    ApiConfig.testConfig.put("syncAnotherGrouper.unitTestPushIncremental.syncType", "incremental_push");
+    ApiConfig.testConfig.put("syncAnotherGrouper.unitTestPushIncremental.cron", "0 0 5 * * ?");
+    ApiConfig.testConfig.put("syncAnotherGrouper.unitTestPushIncremental.local.groupName", "localGroupSyncTest:localTestPushIncremental");
     
-    ApiConfig.testConfig.put("syncAnotherGrouper.unitTestPull.addExternalSubjectIfNotFound", addExternalSubjectIfNotExist);
+    ApiConfig.testConfig.put("syncAnotherGrouper.unitTestPushIncremental.remote.groupName", this.remoteTestFolder + ":" + "remoteTestPushIncremental");
+    
+    ApiConfig.testConfig.put("syncAnotherGrouper.unitTestPushIncremental.addExternalSubjectIfNotFound", pushAddExternalSubjectIfNotExist);
     
   }
 
+  /**
+   * setup a client connection
+   */
+  private static void setUpClient() {
+    //get the connection, and set it up
+    
+    ClientCustomizerContext clientCustomizerContext = new ClientCustomizerContext();
+    clientCustomizerContext.setConnectionName("remoteGrouperTest");
+    clientCustomizer = new ClientCustomizer();
+    clientCustomizer.init(clientCustomizerContext);
+    clientCustomizer.setupConnection();
+
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.helper.GrouperTest#tearDown()
+   */
+  @Override
+  protected void tearDown() {
+    super.tearDown();
+  }
+  
+  /**
+   * teardown client
+   */
+  private static void tearDownClient() {
+    if (clientCustomizer != null) {
+      clientCustomizer.teardownConnection();
+    }
+  }
+  
+  /** client customizer */
+  private static ClientCustomizer clientCustomizer = null;
+  
   /**
    * 
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new GroupSyncDaemonTest("testSyncGroupPush"));
+    TestRunner.run(new GroupSyncDaemonTest("testSyncGroupPushIncremental"));
   }
 
   /**
@@ -144,6 +196,9 @@ public class GroupSyncDaemonTest extends GrouperTest {
     //create a local group
     GrouperSession grouperSession = GrouperSession.startRootSession();
     
+    GrouperLoader.runOnceByJobName(grouperSession, GrouperLoaderType.GROUPER_CHANGE_LOG_TEMP_TO_CHANGE_LOG);
+    GrouperLoader.runOnceByJobName(grouperSession, GrouperLoaderType.GROUPER_CHANGE_LOG_CONSUMER_PREFIX + "syncGroups");
+
     boolean createFolderIfNotExist = 
         GrouperConfig.getPropertyBoolean("junit.test.groupSync.createRemoteFolderIfNotExist", true);
 
@@ -172,6 +227,19 @@ public class GroupSyncDaemonTest extends GrouperTest {
     
     localTestPush.addMember(testUser1);
     localTestPush.addMember(testUser2);
+    
+    addRemoteMember(this.remoteTestFolder + ":" + "remoteTestPush", "testuser7@internet2.edu");
+    
+    GrouperLoader.runOnceByJobName(grouperSession, GrouperLoaderType.GROUPER_CHANGE_LOG_TEMP_TO_CHANGE_LOG);
+    GrouperLoader.runOnceByJobName(grouperSession, GrouperLoaderType.GROUPER_CHANGE_LOG_CONSUMER_PREFIX + "syncGroups");
+
+    //make sure nothing happened since it is not incremental
+    remoteIdentifiers = remoteMembers(this.remoteTestFolder + ":" + "remoteTestPush");
+    
+    assertEquals(1, remoteIdentifiers.size());
+    
+    assertTrue(remoteIdentifiers.contains("testuser7@internet2.edu"));
+    
     
     //sync the group
     assertEquals(2, GroupSyncDaemon.syncGroup(localTestPush.getName()));
@@ -217,16 +285,89 @@ public class GroupSyncDaemonTest extends GrouperTest {
     GrouperSession grouperSession = GrouperSession.startRootSession();
     
     
-    Group localTestPush = new GroupSave(grouperSession).assignName("localGroupSyncTest:localTestPush")
+    Group localTestPull = new GroupSave(grouperSession).assignName("localGroupSyncTest:localTestPull")
       .assignCreateParentStemsIfNotExist(true).save();
     
-    createRemoteGroup(this.remoteTestFolder, "remoteTestPush");
+    createRemoteGroup(this.remoteTestFolder, "remoteTestPull");
+    
+    //sync the group
+    assertEquals(0, GroupSyncDaemon.syncGroup(localTestPull.getName()));
+    
+    //lets see the remote group has no members
+    Set<String> localIdentifiers = localMembers(localTestPull.getName());
+    
+    assertEquals(0, localIdentifiers.size());
+    
+    //############ ADD A MEMBER
+    //add an external member
+    Subject testUser7 = createExternalPerson("testuser7");
+    
+    addRemoteMember(this.remoteTestFolder + ":remoteTestPull", "testuser1@internet2.edu");
+    addRemoteMember(this.remoteTestFolder + ":remoteTestPull", "testuser2@internet2.edu");
+    
+    localTestPull.addMember(testUser7);
+    
+    //sync the group
+    assertEquals(3, GroupSyncDaemon.syncGroup(localTestPull.getName()));
+    
+    //lets see the remote group has no members
+    localIdentifiers = localMembers(localTestPull.getName());
+    
+    assertEquals(2, localIdentifiers.size());
+    
+    assertTrue(localIdentifiers.contains("testuser1@internet2.edu"));
+    assertTrue(localIdentifiers.contains("testuser2@internet2.edu"));
+
+    
+    //############ CHANGE THE MEMBERS
+    removeRemoteMember(this.remoteTestFolder + ":remoteTestPull", "testuser1@internet2.edu");
+    addRemoteMember(this.remoteTestFolder + ":remoteTestPull", "testuser3@internet2.edu");
+    addRemoteMember(this.remoteTestFolder + ":remoteTestPull", "testuser4@internet2.edu");
+    
+    //sync the group
+    assertEquals(3, GroupSyncDaemon.syncGroup(localTestPull.getName()));
+    
+    //lets see the remote group has no members
+    localIdentifiers = localMembers(localTestPull.getName());
+    
+    assertEquals(3, localIdentifiers.size());
+    
+    assertTrue(localIdentifiers.contains("testuser2@internet2.edu"));
+    assertTrue(localIdentifiers.contains("testuser3@internet2.edu"));
+    assertTrue(localIdentifiers.contains("testuser4@internet2.edu"));
+    
+  }
+  
+  /**
+   * note, this isnt a real test since the demo server needs to be setup correctly...
+   * test a sync group push
+   */
+  public void testSyncGroupPushIncremental() {
+  
+    //create a local group
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    
+    GrouperLoader.runOnceByJobName(grouperSession, GrouperLoaderType.GROUPER_CHANGE_LOG_TEMP_TO_CHANGE_LOG);
+    GrouperLoader.runOnceByJobName(grouperSession, GrouperLoaderType.GROUPER_CHANGE_LOG_CONSUMER_PREFIX + "syncGroups");
+
+    boolean createFolderIfNotExist = 
+        GrouperConfig.getPropertyBoolean("junit.test.groupSync.createRemoteFolderIfNotExist", true);
+  
+    GroupSave groupSave = new GroupSave(grouperSession).assignName("localGroupSyncTest:localTestPushIncremental");
+    
+    if (createFolderIfNotExist) {
+      groupSave.assignCreateParentStemsIfNotExist(true);
+    }
+    
+    Group localTestPush = groupSave.save();
+    
+    createRemoteGroup(this.remoteTestFolder, "remoteTestPushIncremental");
     
     //sync the group
     assertEquals(0, GroupSyncDaemon.syncGroup(localTestPush.getName()));
     
     //lets see the remote group has no members
-    Set<String> remoteIdentifiers = remoteMembers(this.remoteTestFolder + ":" + "remoteTestPush");
+    Set<String> remoteIdentifiers = remoteMembers(this.remoteTestFolder + ":" + "remoteTestPushIncremental");
     
     assertEquals(0, remoteIdentifiers.size());
     
@@ -238,17 +379,32 @@ public class GroupSyncDaemonTest extends GrouperTest {
     localTestPush.addMember(testUser1);
     localTestPush.addMember(testUser2);
     
+    addRemoteMember(this.remoteTestFolder + ":" + "remoteTestPushIncremental", "testuser7@internet2.edu");
+    
+    GrouperLoader.runOnceByJobName(grouperSession, GrouperLoaderType.GROUPER_CHANGE_LOG_TEMP_TO_CHANGE_LOG);
+    GrouperLoader.runOnceByJobName(grouperSession, GrouperLoaderType.GROUPER_CHANGE_LOG_CONSUMER_PREFIX + "syncGroups");
+
+    //make sure nothing happened since it is not incremental
+    remoteIdentifiers = remoteMembers(this.remoteTestFolder + ":" + "remoteTestPushIncremental");
+    
+    assertEquals(3, remoteIdentifiers.size());
+
+    assertTrue(remoteIdentifiers.contains("testuser1@internet2.edu"));
+    assertTrue(remoteIdentifiers.contains("testuser2@internet2.edu"));
+    assertTrue(remoteIdentifiers.contains("testuser7@internet2.edu"));
+
+    
     //sync the group
     assertEquals(2, GroupSyncDaemon.syncGroup(localTestPush.getName()));
     
     //lets see the remote group has no members
-    remoteIdentifiers = remoteMembers(this.remoteTestFolder + ":" + "remoteTestPush");
+    remoteIdentifiers = remoteMembers(this.remoteTestFolder + ":" + "remoteTestPushIncremental");
     
     assertEquals(2, remoteIdentifiers.size());
     
     assertTrue(remoteIdentifiers.contains("testuser1@internet2.edu"));
     assertTrue(remoteIdentifiers.contains("testuser2@internet2.edu"));
-
+  
     
     //############ CHANGE THE MEMBERS
     localTestPush.deleteMember(testUser1);
@@ -257,12 +413,25 @@ public class GroupSyncDaemonTest extends GrouperTest {
     Subject testUser4 = createExternalPerson("testuser4");
     localTestPush.addMember(testUser3);
     localTestPush.addMember(testUser4);
+
+    GrouperLoader.runOnceByJobName(grouperSession, GrouperLoaderType.GROUPER_CHANGE_LOG_TEMP_TO_CHANGE_LOG);
+    GrouperLoader.runOnceByJobName(grouperSession, GrouperLoaderType.GROUPER_CHANGE_LOG_CONSUMER_PREFIX + "syncGroups");
+
+    //make sure nothing happened since it is not incremental
+    remoteIdentifiers = remoteMembers(this.remoteTestFolder + ":" + "remoteTestPushIncremental");
+    
+    assertEquals(3, remoteIdentifiers.size());
+    
+    assertTrue(remoteIdentifiers.contains("testuser2@internet2.edu"));
+    assertTrue(remoteIdentifiers.contains("testuser3@internet2.edu"));
+    assertTrue(remoteIdentifiers.contains("testuser4@internet2.edu"));
+
     
     //sync the group
     assertEquals(3, GroupSyncDaemon.syncGroup(localTestPush.getName()));
     
     //lets see the remote group has no members
-    remoteIdentifiers = remoteMembers(this.remoteTestFolder + ":" + "remoteTestPush");
+    remoteIdentifiers = remoteMembers(this.remoteTestFolder + ":" + "remoteTestPushIncremental");
     
     assertEquals(3, remoteIdentifiers.size());
     
@@ -271,7 +440,7 @@ public class GroupSyncDaemonTest extends GrouperTest {
     assertTrue(remoteIdentifiers.contains("testuser4@internet2.edu"));
     
   }
-  
+
   /**
    * create an external person
    * @param name
@@ -306,20 +475,51 @@ public class GroupSyncDaemonTest extends GrouperTest {
     wsGroupToSave.setWsGroup(wsGroup);
     wsGroupToSave.setWsGroupLookup(new WsGroupLookup(stemName + ":" + extension, null));
     wsGroupToSave.setCreateParentStemsIfNotExist("T");
+    setUpClient();
     new GcGroupSave().addGroupToSave(wsGroupToSave).execute();
-
+    tearDownClient();
+    
+    //lets init all the members
+    Set<String> identifiers = remoteMembers(stemName + ":" + extension);
+    for (String identifier : identifiers) {
+      removeRemoteMember(stemName + ":" + extension, identifier);
+    }
+    
+    
   }
   
   /**
    * @param groupName 
-   * @param stemName 
-   * @param extension 
+   * @return the group name
+   */
+  public static Set<String> localMembers(String groupName) {
+    
+    Set<String> identifiers = new HashSet<String>();
+    Group group = GroupFinder.findByName(GrouperSession.staticGrouperSession(), groupName, true);
+    for (Member member : GrouperUtil.nonNull(group.getMembers())) {
+      Subject subject = member.getSubject();
+      String identifier = subject.getAttributeValue("identifier");
+      if (!StringUtils.isBlank(identifier)) {
+        identifiers.add(identifier);
+      }
+    }
+    return identifiers;
+  }
+
+  /**
+   * @param groupName 
    * @return the group name
    */
   public static Set<String> remoteMembers(String groupName) {
-    
+    setUpClient();
+
+    String remoteIdentifierName = GrouperConfig.getProperty(
+        "grouperClient.remoteGrouperTest.source.externalSubjects.remote.read.subjectId");
     WsGetMembersResults wsGetMembersResults = new GcGetMembers().addGroupName(groupName)
-      .addSubjectAttributeName("identifier").execute();
+      .addSubjectAttributeName(remoteIdentifierName).execute();
+    
+    tearDownClient();
+    
     WsGetMembersResult wsGetMembersResult = wsGetMembersResults.getResults()[0];
 
     Set<String> identifiers = new HashSet<String>();
@@ -327,7 +527,7 @@ public class GroupSyncDaemonTest extends GrouperTest {
       for (WsSubject wsSubject : wsGetMembersResult.getWsSubjects()) {
   
         String identifier = GrouperClientUtils.subjectAttributeValue(
-            wsSubject, wsGetMembersResults.getSubjectAttributeNames(), "identifier");
+            wsSubject, wsGetMembersResults.getSubjectAttributeNames(), remoteIdentifierName);
         if (!StringUtils.isBlank(identifier)) {
           identifiers.add(identifier);
         }
@@ -336,4 +536,39 @@ public class GroupSyncDaemonTest extends GrouperTest {
     }
     return identifiers;
   }
+  
+  /**
+   * @param groupName 
+   * @param identifier
+   */
+  public static void addRemoteMember(String groupName, String identifier) {
+    
+    setUpClient();
+
+    GcAddMember gcAddMember = new GcAddMember().assignGroupName(groupName).addSubjectIdentifier(identifier);
+
+    if (GrouperConfig.getPropertyBoolean("junit.test.groupSync.pushAddExternalSubjectIfNotExist", false)) {
+      gcAddMember.assignAddExternalSubjectIfNotFound(true);
+    }
+  
+    gcAddMember.execute();
+    
+    tearDownClient();
+    
+  }
+
+  /**
+   * @param groupName 
+   * @param identifier
+   */
+  public static void removeRemoteMember(String groupName, String identifier) {
+    
+    setUpClient();
+
+    new GcDeleteMember().assignGroupName(groupName).addSubjectIdentifier(identifier).execute();
+    
+    tearDownClient();
+    
+  }
+
 }
