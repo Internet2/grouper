@@ -243,7 +243,6 @@ public class GrouperLoader {
     scheduleDailyReportJob();
     scheduleEnabledDisabledJob();
     scheduleRulesJob();
-    scheduleRulesJob();
     scheduleGroupSyncJobs();
   }
 

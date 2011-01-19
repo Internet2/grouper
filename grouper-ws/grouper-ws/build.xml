@@ -85,7 +85,7 @@
   </path>
 
 	<!-- TODO move this out of project -->
-	<property name="webservice.folder" value="${webapp.folder}/../webservices" />
+	<!-- property name="webservice.folder" value="${webapp.folder}/../webservices" / -->
   
   
   
