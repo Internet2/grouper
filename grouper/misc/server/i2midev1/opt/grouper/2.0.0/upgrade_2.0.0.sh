@@ -4,6 +4,9 @@
 cd /opt/grouper/2.0.0
 
 # get the latest build, assumes that you built it on the remote server
+rm /opt/grouper/2.0.0/grouper.apiBinary-2.0.0.tar.gz
+rm /opt/grouper/2.0.0/grouper.ws-2.0.0.tar.gz
+rm /opt/grouper/2.0.0/grouper.ui-2.0.0.tar.gz
 /usr/bin/scp -B i2mibuild:/home/mchyzer/tmp/grouperAll/build_mchyzer/grouper.apiBinary-2.0.0.tar.gz /opt/grouper/2.0.0
 /usr/bin/scp -B i2mibuild:/home/mchyzer/tmp/grouperAll/build_mchyzer/grouper.ws-2.0.0.tar.gz /opt/grouper/2.0.0
 /usr/bin/scp -B i2mibuild:/home/mchyzer/tmp/grouperAll/build_mchyzer/grouper.ui-2.0.0.tar.gz /opt/grouper/2.0.0
