@@ -8,6 +8,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.kuali.rice.kew.docsearch.DocSearchCriteriaDTO;
+import org.kuali.rice.kew.docsearch.DocSearchDTO;
 import org.kuali.rice.kew.docsearch.StandardDocumentSearchResultProcessor;
 import org.kuali.rice.kew.util.KEWPropertyConstants;
 import org.kuali.rice.kns.web.ui.Column;
@@ -20,11 +21,11 @@ public class CustomDocumentSearchPreferences extends
     StandardDocumentSearchResultProcessor {
 
   /**
-   * @see org.kuali.rice.kew.docsearch.StandardDocumentSearchResultProcessor#constructColumnList(org.kuali.rice.kew.docsearch.DocSearchCriteriaDTO)
+   * @see org.kuali.rice.kew.docsearch.StandardDocumentSearchResultProcessor#constructColumnList(DocSearchCriteriaDTO, List)
    */
   @Override
-  public List<Column> constructColumnList(DocSearchCriteriaDTO criteria) {
-    List<Column> columns = super.constructColumnList(criteria);
+  public List<Column> constructColumnList(DocSearchCriteriaDTO criteria, List<DocSearchDTO> docSearchDtos) {
+    List<Column> columns = super.constructColumnList(criteria, docSearchDtos);
     
     if (columns != null) {
       Iterator<Column> iterator = columns.iterator();

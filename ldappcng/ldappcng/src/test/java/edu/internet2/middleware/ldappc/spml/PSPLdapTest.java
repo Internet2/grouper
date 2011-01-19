@@ -360,6 +360,18 @@ public class PSPLdapTest extends BasePSPProvisioningTest {
 
     verifySpml(response, DATA_PATH + "PSPTest.testCalcBushyAdd.response.xml");
   }
+  
+	public void testCalcBushyAddScoped() throws Exception {
+
+		loadLdif(DATA_PATH + "PSPTest.testCalcBushyAddScoped.before.ldif");
+
+		CalcRequest request = new CalcRequest();
+		request.setRequestID(REQUESTID_TEST);
+		request.setId(groupB.getName());
+		CalcResponse response = psp.execute(request);
+
+		verifySpml(response, DATA_PATH + "PSPTest.testCalcBushyAddScoped.response.xml");
+	}
 
   public void testCalcFlatAdd() throws Exception {
 
