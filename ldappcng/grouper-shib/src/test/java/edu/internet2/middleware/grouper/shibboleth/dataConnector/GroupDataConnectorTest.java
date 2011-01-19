@@ -10,6 +10,9 @@ import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.context.support.GenericApplicationContext;
 
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupType;
+import edu.internet2.middleware.grouper.GroupTypeFinder;
+import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.AttributeDefType;
@@ -416,6 +419,16 @@ public class GroupDataConnectorTest extends BaseDataConnectorTest {
         GrouperUtil.toSet("foo@memphis.edu", "bar@memphis.edu"), true);
 
     correctAttributesA.setAttribute("parentStem:mailAlternateAddress", "foo@memphis.edu", "bar@memphis.edu");
+
+    runResolveTest("testAttributesOnly", groupA, correctAttributesA);
+  }
+  
+  public void testGroupType() {
+
+    GroupType adminType = GroupType.createType(GrouperSession.staticGrouperSession(), "adminType");
+    groupA.addType(adminType);
+
+    correctAttributesA.setAttribute("groupType", adminType, GroupTypeFinder.find("base", true));
 
     runResolveTest("testAttributesOnly", groupA, correctAttributesA);
   }

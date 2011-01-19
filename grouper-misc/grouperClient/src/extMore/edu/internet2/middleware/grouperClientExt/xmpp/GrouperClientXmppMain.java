@@ -86,6 +86,11 @@ public class GrouperClientXmppMain {
    */
   private static synchronized XMPPConnection xmppConnection() {
     if (xmppConnection == null || !xmppConnection.isAuthenticated() || !xmppConnection.isConnected()) {
+      String user = null;
+      String pass = null;
+      String resource = null;
+      String server = null;
+      int port = -1;
       try {
         if (xmppConnection != null) {
           try {
@@ -94,9 +99,13 @@ public class GrouperClientXmppMain {
             //this is ok
           }
         }
-        ConnectionConfiguration config = new ConnectionConfiguration(xmppServer(), xmppPort());
+        server = xmppServer();
+        port = xmppPort();
+        ConnectionConfiguration config = new ConnectionConfiguration(server, port);
   
-        config.setDebuggerEnabled(false);
+        boolean debuggerEnabled = GrouperClientUtils.propertiesValueBoolean("grouperClient.xmpp.debuggerEnabled", false, false);
+        
+        config.setDebuggerEnabled(debuggerEnabled);
         config.setReconnectionAllowed(true);
         
         config.setSASLAuthenticationEnabled(true);
@@ -105,9 +114,15 @@ public class GrouperClientXmppMain {
         xmppConnection = new XMPPConnection(config);
         xmppConnection.connect();
   
-        xmppConnection.login(xmppUser(), xmppPass(), xmppResource());
+        user = xmppUser();
+        pass = xmppPass();
+        resource = xmppResource();
+        xmppConnection.login(user, pass, resource);
       } catch (XMPPException xe) {
-        throw new RuntimeException(xe);
+        throw new RuntimeException("Problem connecting: server: " + server + ", port: " 
+            + port + ",  user: " + user + ", pass not included, "
+            //+ GrouperClientUtils.repeat("*", GrouperClientUtils.defaultString(pass).length()) 
+            + ", resource: " + resource,  xe);
       }
     }
     return xmppConnection;
@@ -136,6 +151,14 @@ public class GrouperClientXmppMain {
       
       return pass;
     }
+    if (!GrouperClientUtils.equals(pass, passFromFile)) {
+
+      String encryptKey = GrouperClientUtils.propertiesValue("encrypt.key", true);
+      encryptKey = GrouperClientUtils.readFromFileIfFile(encryptKey, disableExternalFileLookup);
+      passFromFile = new Crypto(encryptKey).decrypt(passFromFile);
+      
+    }
+    
     return passFromFile;
   }
 
@@ -208,17 +231,24 @@ public class GrouperClientXmppMain {
                 }
 
               }
-              
-              if (GrouperClientUtils.nonNull(grouperClientXmppJob.getGroupNames()).size() > 0) {
-                if (grouperClientXmppJob.getGroupNames().contains(esbEvent.getGroupName())) {
-                  if (matches == null) {
-                    matches = true;
+              if (XmppJobEventAction.incremental == grouperClientXmppJob.getEventAction()
+                  && grouperClientXmppJob.isAllowIncrementalNotInGroupNamesList()) {
+                if (log.isDebugEnabled()) {
+                  log.debug("including since incremental and allowIncrementalNotInGroupNamesList is true: " + grouperClientXmppJob.getJobName());
+                }
+                matches = true;
+              } else {
+                if (GrouperClientUtils.nonNull(grouperClientXmppJob.getGroupNames()).size() > 0) {
+                  if (grouperClientXmppJob.getGroupNames().contains(esbEvent.getGroupName())) {
+                    if (matches == null) {
+                      matches = true;
+                    }
+                  } else {
+                    if (log.isDebugEnabled()) {
+                      log.debug("skipping event to not match group name list, sequence: " + (esbEvent == null ? null : esbEvent.getSequenceNumber()) + ", " + grouperClientXmppJob.getJobName());
+                    }
+                    matches = false;
                   }
-                } else {
-                  if (log.isDebugEnabled()) {
-                    log.debug("skipping event to not match group name list, sequence: " + (esbEvent == null ? null : esbEvent.getSequenceNumber()) + ", " + grouperClientXmppJob.getJobName());
-                  }
-                  matches = false;
                 }
               }
               if (matches != null && !matches) {
@@ -442,10 +472,49 @@ public class GrouperClientXmppMain {
       
       Scheduler scheduler = scheduler();
       String jobName = grouperClientXmppJob.getJobName();
-      JobDetail jobDetail = new JobDetail("fullRefresh_" + jobName, 
-          null, MembershipFullRefreshJob.class);
-
-      CronTrigger cronTrigger = new CronTrigger();
+      
+      //note, in old versions of quartz, blank group cannot be used
+      String quartzJobName = "fullRefresh_" + jobName;
+      String jobGroup = Scheduler.DEFAULT_GROUP;
+      
+      JobDetail jobDetail = null;
+      
+      //try {
+      //  jobDetail = scheduler.getJobDetail(jobName, jobGroup);
+      //} catch (SchedulerException se) {
+      //  throw new RuntimeException("Problem finding job: " + quartzJobName, se);
+      //}
+      
+      if (jobDetail == null) {
+        jobDetail = new JobDetail(quartzJobName, 
+            jobGroup, MembershipFullRefreshJob.class);
+        
+      }
+      
+      //atlassian requires durable jobs...
+      jobDetail.setDurability(true);
+      
+      boolean uniqueTriggerNames = GrouperClientUtils.propertiesValueBoolean("grouperClient.xmpp.uniqueQuartzTriggerNames", false, false);
+      
+      //in old versions of quartz, the trigger group cannot be null
+      String triggerName = "triggerFullRefresh_" + jobName;
+      
+      if (uniqueTriggerNames) {
+        triggerName += GrouperClientUtils.uniqueId();
+      }
+      
+      CronTrigger cronTrigger = null;
+      if (!uniqueTriggerNames) {
+        try {
+          cronTrigger = (CronTrigger)scheduler.getTrigger(triggerName, jobGroup);
+        } catch (SchedulerException se) {
+          throw new RuntimeException("Problem with trigger: " + jobName, se);
+        }
+      }
+      if (cronTrigger == null) {
+        cronTrigger = new CronTrigger(triggerName, jobGroup);
+      }
+      
       String quartzCronString = grouperClientXmppJob.getFullRefreshQuartzCronString();
       try {
         cronTrigger.setCronExpression(quartzCronString);
@@ -453,9 +522,20 @@ public class GrouperClientXmppMain {
         throw new RuntimeException("Problems parsing: '" + quartzCronString + "'", pe);
       }
 
-      cronTrigger.setName("triggerFullRefresh_" + jobName);
-
       try {
+        //for persistent jobs, if already scheduled, will not be able to reschedule unless delete job
+        try {
+          if (!uniqueTriggerNames) {
+            scheduler.unscheduleJob(triggerName, quartzJobName);
+          }
+        } catch (Exception e) {
+          log.warn("Non fatal error unscheduling job", e);
+        }
+        try {
+          scheduler.deleteJob(quartzJobName, jobGroup);
+        } catch (Exception e) {
+          log.warn("Non fatal error deleting job", e);
+        }
         scheduler.scheduleJob(jobDetail, cronTrigger);
       } catch (SchedulerException se) {
         throw new RuntimeException("Problem with job: " + jobName, se);
