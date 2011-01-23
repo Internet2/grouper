@@ -79,7 +79,7 @@ public class GrouperClientWsTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new GrouperClientWsTest("testGetMembers"));
+    TestRunner.run(new GrouperClientWsTest("testHasMember"));
     //TestRunner.run(new GrouperClientWsTest("testGroupSaveLookupNameSame"));
     //TestRunner.run(new GrouperClientWsTest("testGroupSaveNoLookup"));
   }
@@ -3376,9 +3376,30 @@ public class GrouperClientWsTest extends GrouperTest {
     group.grantPriv(wsUser, AccessPrivilege.READ, false);
     group.grantPriv(wsUser, AccessPrivilege.VIEW, false);
 
+    // add some subjects for PIT
+    group.addMember(SubjectTestHelper.SUBJ2, false);
+    group.deleteMember(SubjectTestHelper.SUBJ2, false);
+    Thread.sleep(100);
+    Timestamp pointInTimeFrom = new Timestamp(new Date().getTime());
+    Thread.sleep(100);
+    
+    group.addMember(SubjectTestHelper.SUBJ3, false);
+    group.deleteMember(SubjectTestHelper.SUBJ3, false);
+
     // add some subjects
     group.addMember(SubjectTestHelper.SUBJ0, false);
     group.addMember(SubjectTestHelper.SUBJ1, false);
+
+    // add some subjects for PIT
+    group.addMember(SubjectTestHelper.SUBJ4, false);
+    group.deleteMember(SubjectTestHelper.SUBJ4, false);
+    Thread.sleep(100);
+    Timestamp pointInTimeTo = new Timestamp(new Date().getTime());
+    Thread.sleep(100);
+    
+    group.addMember(SubjectTestHelper.SUBJ5, false);
+    group.deleteMember(SubjectTestHelper.SUBJ5, false);
+    ChangeLogTempToEntity.convertRecords();
 
     PrintStream systemOut = System.out;
 
@@ -3755,6 +3776,69 @@ public class GrouperClientWsTest extends GrouperTest {
 
         assertTrue(GrouperClientWs.mostRecentRequest.contains("memberFilter")
             && GrouperClientWs.mostRecentRequest.contains("Immediate"));
+
+
+        // #####################################################
+        // run again, with point in time params 
+        baos = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(baos));
+
+        ArrayList<String> args = new ArrayList<String>();
+        args.add("--operation=hasMemberWs");
+        args.add("--groupName=aStem:aGroup");
+        args.add("--subjectIds=test.subject.0,test.subject.1,test.subject.2,test.subject.3,test.subject.4,test.subject.5");
+        args.add("--pointInTimeFrom=" + GrouperClientUtils.timestampToString(pointInTimeFrom));
+        args.add("--pointInTimeTo=" + GrouperClientUtils.timestampToString(pointInTimeTo));
+        GrouperClient.main(args.toArray(new String[0]));
+
+        System.out.flush();
+        output = new String(baos.toByteArray());
+
+        System.setOut(systemOut);
+
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
+
+        matcher = pattern.matcher(outputLines[0]);
+        assertTrue(outputLines[0], matcher.matches());
+        assertEquals("0", matcher.group(1));
+        assertEquals("IS_MEMBER", matcher.group(2));
+        assertEquals("test.subject.0", matcher.group(3));
+        assertEquals("true", matcher.group(4));
+
+        matcher = pattern.matcher(outputLines[1]);
+        assertTrue(outputLines[1], matcher.matches());
+        assertEquals("1", matcher.group(1));
+        assertEquals("IS_MEMBER", matcher.group(2));
+        assertEquals("test.subject.1", matcher.group(3));
+        assertEquals("true", matcher.group(4));
+
+        matcher = pattern.matcher(outputLines[2]);
+        assertTrue(outputLines[2], matcher.matches());
+        assertEquals("2", matcher.group(1));
+        assertEquals("IS_NOT_MEMBER", matcher.group(2));
+        assertEquals("test.subject.2", matcher.group(3));
+        assertEquals("false", matcher.group(4));
+
+        matcher = pattern.matcher(outputLines[3]);
+        assertTrue(outputLines[3], matcher.matches());
+        assertEquals("3", matcher.group(1));
+        assertEquals("IS_MEMBER", matcher.group(2));
+        assertEquals("test.subject.3", matcher.group(3));
+        assertEquals("true", matcher.group(4));
+
+        matcher = pattern.matcher(outputLines[4]);
+        assertTrue(outputLines[4], matcher.matches());
+        assertEquals("4", matcher.group(1));
+        assertEquals("IS_MEMBER", matcher.group(2));
+        assertEquals("test.subject.4", matcher.group(3));
+        assertEquals("true", matcher.group(4));
+
+        matcher = pattern.matcher(outputLines[5]);
+        assertTrue(outputLines[5], matcher.matches());
+        assertEquals("5", matcher.group(1));
+        assertEquals("IS_NOT_MEMBER", matcher.group(2));
+        assertEquals("test.subject.5", matcher.group(3));
+        assertEquals("false", matcher.group(4));
 
       } finally {
         if (subjectIdsFile.exists()) {

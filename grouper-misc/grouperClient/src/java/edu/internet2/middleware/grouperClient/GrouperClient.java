@@ -1471,6 +1471,9 @@ public class GrouperClient {
   
       List<WsParam> params = retrieveParamsFromArgs(argMap, argMapNotUsed);
       
+      Timestamp pointInTimeFrom = GrouperClientUtils.argMapTimestamp(argMap, argMapNotUsed, "pointInTimeFrom");
+      Timestamp pointInTimeTo = GrouperClientUtils.argMapTimestamp(argMap, argMapNotUsed, "pointInTimeTo");
+      
       GcHasMember gcHasMember = new GcHasMember();        
       
       String clientVersion = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "clientVersion", false);
@@ -1505,6 +1508,9 @@ public class GrouperClient {
       for (String subjectAttribute : GrouperClientUtils.nonNull(subjectAttributeNames)) {
         gcHasMember.addSubjectAttributeName(subjectAttribute);
       }
+      
+      gcHasMember.assignPointInTimeFrom(pointInTimeFrom);
+      gcHasMember.assignPointInTimeTo(pointInTimeTo);
       
       //register that we will use this
       GrouperClientUtils.argMapString(argMap, argMapNotUsed, "outputTemplate", false);
