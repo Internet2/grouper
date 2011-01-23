@@ -77,6 +77,7 @@ import edu.internet2.middleware.grouper.ws.soap.WsGroupLookup;
 import edu.internet2.middleware.grouper.ws.soap.WsGroupSaveResult;
 import edu.internet2.middleware.grouper.ws.soap.WsGroupSaveResults;
 import edu.internet2.middleware.grouper.ws.soap.WsGroupToSave;
+import edu.internet2.middleware.grouper.ws.soap.WsHasMemberResults;
 import edu.internet2.middleware.grouper.ws.soap.WsMembershipAnyLookup;
 import edu.internet2.middleware.grouper.ws.soap.WsMembershipLookup;
 import edu.internet2.middleware.grouper.ws.soap.WsPermissionAssign;
@@ -87,6 +88,8 @@ import edu.internet2.middleware.grouper.ws.soap.WsAddMemberResult.WsAddMemberRes
 import edu.internet2.middleware.grouper.ws.soap.WsAddMemberResults.WsAddMemberResultsCode;
 import edu.internet2.middleware.grouper.ws.soap.WsGetAttributeAssignmentsResults.WsGetAttributeAssignmentsResultsCode;
 import edu.internet2.middleware.grouper.ws.soap.WsGetMembersResults.WsGetMembersResultsCode;
+import edu.internet2.middleware.grouper.ws.soap.WsHasMemberResult.WsHasMemberResultCode;
+import edu.internet2.middleware.grouper.ws.soap.WsHasMemberResults.WsHasMemberResultsCode;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
 import edu.internet2.middleware.grouper.ws.util.GrouperWsVersionUtils;
 import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
@@ -155,6 +158,221 @@ public class GrouperServiceLogicTest extends GrouperTest {
 
     //clear out
     GrouperServiceUtils.testSession = null;
+  }
+  
+  /**
+   * test has member
+   */
+  public void testHasMember() {
+  
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+
+    Group group1 = new GroupSave(GrouperSession.staticGrouperSession()).assignSaveMode(SaveMode.INSERT_OR_UPDATE)
+      .assignGroupNameToEdit("test:group1").assignName("test:group1").assignCreateParentStemsIfNotExist(true)
+      .assignDescription("description").save();
+
+    // add members
+    group1.addMember(SubjectTestHelper.SUBJ0);
+    group1.addMember(SubjectTestHelper.SUBJ1);    
+    ChangeLogTempToEntity.convertRecords();
+    
+    group1.deleteMember(SubjectTestHelper.SUBJ1);    
+    ChangeLogTempToEntity.convertRecords();
+    
+    WsGroupLookup wsGroupLookup = new WsGroupLookup(group1.getName(), group1.getUuid());
+    WsSubjectLookup wsSubjectLookup0 = new WsSubjectLookup(SubjectTestHelper.SUBJ0.getId(), null, null);
+    WsSubjectLookup wsSubjectLookup1 = new WsSubjectLookup(SubjectTestHelper.SUBJ1.getId(), null, null);
+    WsSubjectLookup[] wsSubjectLookups = new WsSubjectLookup[] {wsSubjectLookup0, wsSubjectLookup1};
+    
+    //###############################################
+    //valid query
+    WsHasMemberResults wsHasMemberResults = GrouperServiceLogic.hasMember(
+        GrouperVersion.valueOfIgnoreCase("v1_6_000"), wsGroupLookup, wsSubjectLookups, WsMemberFilter.Immediate, 
+        null, null, true, true, null, null, null, null);
+    
+    assertEquals(wsHasMemberResults.getResultMetadata().getResultMessage(),
+        WsHasMemberResultsCode.SUCCESS.name(), 
+        wsHasMemberResults.getResultMetadata().getResultCode());
+    
+    WsGroup wsGroup = wsHasMemberResults.getWsGroup();
+    assertEquals(group1.getUuid(), wsGroup.getUuid());
+    assertEquals(group1.getName(), wsGroup.getName());
+    
+    assertEquals(2, GrouperUtil.length(wsHasMemberResults.getResults()));
+    WsSubject wsSubject1 = wsHasMemberResults.getResults()[0].getWsSubject();
+    WsSubject wsSubject2 = wsHasMemberResults.getResults()[1].getWsSubject();
+    
+    if (wsSubject1.getId().equals(SubjectTestHelper.SUBJ0.getId())) {
+      assertEquals(SubjectTestHelper.SUBJ1.getId(), wsSubject2.getId());
+      assertEquals(WsHasMemberResultCode.IS_MEMBER, wsHasMemberResults.getResults()[0].resultCode());
+      assertEquals(WsHasMemberResultCode.IS_NOT_MEMBER, wsHasMemberResults.getResults()[1].resultCode());
+    } else {
+      assertEquals(SubjectTestHelper.SUBJ0.getId(), wsSubject2.getId());
+      assertEquals(SubjectTestHelper.SUBJ1.getId(), wsSubject1.getId());
+      assertEquals(WsHasMemberResultCode.IS_NOT_MEMBER, wsHasMemberResults.getResults()[0].resultCode());
+      assertEquals(WsHasMemberResultCode.IS_MEMBER, wsHasMemberResults.getResults()[1].resultCode());
+    }
+  }
+  
+  /**
+   * test has member using point in time
+   */
+  public void testHasMemberPIT() {
+  
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+
+    Group group1 = new GroupSave(GrouperSession.staticGrouperSession()).assignSaveMode(SaveMode.INSERT_OR_UPDATE)
+      .assignGroupNameToEdit("test:group1").assignName("test:group1").assignCreateParentStemsIfNotExist(true)
+      .assignDescription("description").save();
+
+    // add/delete member
+    group1.addMember(SubjectTestHelper.SUBJ0);
+    ChangeLogTempToEntity.convertRecords();
+    
+    group1.deleteMember(SubjectTestHelper.SUBJ0);    
+    ChangeLogTempToEntity.convertRecords();
+    
+    //###############################################
+    //valid query
+    {
+      WsGroupLookup wsGroupLookup = new WsGroupLookup(group1.getName(), group1.getUuid());
+      WsSubjectLookup wsSubjectLookup0 = new WsSubjectLookup(SubjectTestHelper.SUBJ0.getId(), null, null);
+      WsSubjectLookup wsSubjectLookup1 = new WsSubjectLookup(SubjectTestHelper.SUBJ1.getId(), null, null);
+      WsSubjectLookup[] wsSubjectLookups = new WsSubjectLookup[] {wsSubjectLookup0, wsSubjectLookup1};
+      
+      WsHasMemberResults wsHasMemberResults = GrouperServiceLogic.hasMember(
+          GrouperVersion.valueOfIgnoreCase("v1_6_000"), wsGroupLookup, wsSubjectLookups, WsMemberFilter.All, 
+          null, null, false, true, null, null, null, new Timestamp(new Date().getTime()));
+      
+      assertEquals(wsHasMemberResults.getResultMetadata().getResultMessage(),
+          WsHasMemberResultsCode.SUCCESS.name(), 
+          wsHasMemberResults.getResultMetadata().getResultCode());
+      
+      WsGroup wsGroup = wsHasMemberResults.getWsGroup();
+      assertEquals(group1.getUuid(), wsGroup.getUuid());
+      assertEquals(group1.getName(), wsGroup.getName());
+      
+      assertEquals(2, GrouperUtil.length(wsHasMemberResults.getResults()));
+      WsSubject wsSubject1 = wsHasMemberResults.getResults()[0].getWsSubject();
+      WsSubject wsSubject2 = wsHasMemberResults.getResults()[1].getWsSubject();
+      
+      if (wsSubject1.getId().equals(SubjectTestHelper.SUBJ0.getId())) {
+        assertEquals(SubjectTestHelper.SUBJ1.getId(), wsSubject2.getId());
+        assertEquals(WsHasMemberResultCode.IS_MEMBER, wsHasMemberResults.getResults()[0].resultCode());
+        assertEquals(WsHasMemberResultCode.IS_NOT_MEMBER, wsHasMemberResults.getResults()[1].resultCode());
+      } else {
+        assertEquals(SubjectTestHelper.SUBJ0.getId(), wsSubject2.getId());
+        assertEquals(SubjectTestHelper.SUBJ1.getId(), wsSubject1.getId());
+        assertEquals(WsHasMemberResultCode.IS_NOT_MEMBER, wsHasMemberResults.getResults()[0].resultCode());
+        assertEquals(WsHasMemberResultCode.IS_MEMBER, wsHasMemberResults.getResults()[1].resultCode());
+      }
+    }
+    //###############################################
+    //another valid query -- this time with the group deleted
+    {
+      GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+      group1.delete();
+      ChangeLogTempToEntity.convertRecords();
+      
+      WsGroupLookup wsGroupLookup = new WsGroupLookup(group1.getName(), group1.getUuid());
+      WsSubjectLookup wsSubjectLookup0 = new WsSubjectLookup(SubjectTestHelper.SUBJ0.getId(), null, null);
+      WsSubjectLookup wsSubjectLookup1 = new WsSubjectLookup(SubjectTestHelper.SUBJ1.getId(), null, null);
+      WsSubjectLookup[] wsSubjectLookups = new WsSubjectLookup[] {wsSubjectLookup0, wsSubjectLookup1};
+      
+      WsHasMemberResults wsHasMemberResults = GrouperServiceLogic.hasMember(
+          GrouperVersion.valueOfIgnoreCase("v1_6_000"), wsGroupLookup, wsSubjectLookups, WsMemberFilter.All, 
+          null, null, false, true, null, null, null, new Timestamp(new Date().getTime()));
+      
+      assertEquals(wsHasMemberResults.getResultMetadata().getResultMessage(),
+          WsHasMemberResultsCode.SUCCESS.name(), 
+          wsHasMemberResults.getResultMetadata().getResultCode());
+      
+      WsGroup wsGroup = wsHasMemberResults.getWsGroup();
+      assertEquals(group1.getUuid(), wsGroup.getUuid());
+      assertEquals(group1.getName(), wsGroup.getName());
+      
+      assertEquals(2, GrouperUtil.length(wsHasMemberResults.getResults()));
+      WsSubject wsSubject1 = wsHasMemberResults.getResults()[0].getWsSubject();
+      WsSubject wsSubject2 = wsHasMemberResults.getResults()[1].getWsSubject();
+      
+      if (wsSubject1.getId().equals(SubjectTestHelper.SUBJ0.getId())) {
+        assertEquals(SubjectTestHelper.SUBJ1.getId(), wsSubject2.getId());
+        assertEquals(WsHasMemberResultCode.IS_MEMBER, wsHasMemberResults.getResults()[0].resultCode());
+        assertEquals(WsHasMemberResultCode.IS_NOT_MEMBER, wsHasMemberResults.getResults()[1].resultCode());
+      } else {
+        assertEquals(SubjectTestHelper.SUBJ0.getId(), wsSubject2.getId());
+        assertEquals(SubjectTestHelper.SUBJ1.getId(), wsSubject1.getId());
+        assertEquals(WsHasMemberResultCode.IS_NOT_MEMBER, wsHasMemberResults.getResults()[0].resultCode());
+        assertEquals(WsHasMemberResultCode.IS_MEMBER, wsHasMemberResults.getResults()[1].resultCode());
+      }
+    }
+    
+    //###############################################
+    //another valid query -- this time recreate the deleted group and find by name
+    {
+      GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+      Group group2 = new GroupSave(GrouperSession.staticGrouperSession()).assignSaveMode(SaveMode.INSERT_OR_UPDATE)
+        .assignGroupNameToEdit("test:group1").assignName("test:group1").assignCreateParentStemsIfNotExist(true)
+        .assignDescription("description").save();
+      
+      // add/delete member
+      group2.addMember(SubjectTestHelper.SUBJ1);
+      ChangeLogTempToEntity.convertRecords();
+      
+      group2.deleteMember(SubjectTestHelper.SUBJ1);    
+      ChangeLogTempToEntity.convertRecords();
+      
+      WsGroupLookup wsGroupLookup = new WsGroupLookup(group2.getName(), null);
+      WsSubjectLookup wsSubjectLookup0 = new WsSubjectLookup(SubjectTestHelper.SUBJ0.getId(), null, null);
+      WsSubjectLookup wsSubjectLookup1 = new WsSubjectLookup(SubjectTestHelper.SUBJ1.getId(), null, null);
+      WsSubjectLookup[] wsSubjectLookups = new WsSubjectLookup[] {wsSubjectLookup0, wsSubjectLookup1};
+     
+      WsHasMemberResults wsHasMemberResults = GrouperServiceLogic.hasMember(
+          GrouperVersion.valueOfIgnoreCase("v1_6_000"), wsGroupLookup, wsSubjectLookups, WsMemberFilter.All, 
+          null, null, false, true, null, null, null, new Timestamp(new Date().getTime()));
+      
+      assertEquals(wsHasMemberResults.getResultMetadata().getResultMessage(),
+          WsHasMemberResultsCode.SUCCESS.name(), 
+          wsHasMemberResults.getResultMetadata().getResultCode());
+      
+      WsGroup wsGroup = wsHasMemberResults.getWsGroup();
+      assertEquals(group2.getUuid(), wsGroup.getUuid());
+      assertEquals(group2.getName(), wsGroup.getName());
+      
+      assertEquals(2, GrouperUtil.length(wsHasMemberResults.getResults()));
+      WsSubject wsSubject1 = wsHasMemberResults.getResults()[0].getWsSubject();
+      WsSubject wsSubject2 = wsHasMemberResults.getResults()[1].getWsSubject();
+      
+      if (wsSubject1.getId().equals(SubjectTestHelper.SUBJ1.getId())) {
+        assertEquals(SubjectTestHelper.SUBJ0.getId(), wsSubject2.getId());
+        assertEquals(WsHasMemberResultCode.IS_MEMBER, wsHasMemberResults.getResults()[0].resultCode());
+        assertEquals(WsHasMemberResultCode.IS_NOT_MEMBER, wsHasMemberResults.getResults()[1].resultCode());
+      } else {
+        assertEquals(SubjectTestHelper.SUBJ0.getId(), wsSubject1.getId());
+        assertEquals(SubjectTestHelper.SUBJ1.getId(), wsSubject2.getId());
+        assertEquals(WsHasMemberResultCode.IS_NOT_MEMBER, wsHasMemberResults.getResults()[0].resultCode());
+        assertEquals(WsHasMemberResultCode.IS_MEMBER, wsHasMemberResults.getResults()[1].resultCode());
+      }
+    }
+    
+    //###############################################
+    //invalid query - bad group name
+    {
+      GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+
+      WsGroupLookup wsGroupLookup = new WsGroupLookup("test:bogus", null);
+      WsSubjectLookup wsSubjectLookup0 = new WsSubjectLookup(SubjectTestHelper.SUBJ0.getId(), null, null);
+      WsSubjectLookup wsSubjectLookup1 = new WsSubjectLookup(SubjectTestHelper.SUBJ1.getId(), null, null);
+      WsSubjectLookup[] wsSubjectLookups = new WsSubjectLookup[] {wsSubjectLookup0, wsSubjectLookup1};
+     
+      WsHasMemberResults wsHasMemberResults = GrouperServiceLogic.hasMember(
+          GrouperVersion.valueOfIgnoreCase("v1_6_000"), wsGroupLookup, wsSubjectLookups, WsMemberFilter.All, 
+          null, null, false, true, null, null, null, new Timestamp(new Date().getTime()));
+      
+      assertEquals(wsHasMemberResults.getResultMetadata().getResultMessage(),
+          WsHasMemberResultsCode.GROUP_NOT_FOUND.name(), 
+          wsHasMemberResults.getResultMetadata().getResultCode());
+    }
   }
   
   /**

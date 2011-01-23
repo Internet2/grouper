@@ -1379,7 +1379,7 @@ public class GrouperServiceLogic {
         
             wsGetMembersResult.assignSubjectResult(members, subjectAttributeNamesToRetrieve, includeSubjectDetail);
           } else {            
-            Set<PITGroup> pitGroups = wsGroupLookup.retrievePITGroupsIfNeeded("wsGroupLookup");
+            Set<PITGroup> pitGroups = wsGroupLookup.retrievePITGroupsIfNeeded("wsGroupLookup", pointInTimeFrom, pointInTimeTo);
             if (pitGroups == null || pitGroups.size() == 0) {
               wsGetMembersResult.setWsGroup(new WsGroup(null, wsGroupLookup, includeGroupDetail));
 
@@ -2093,6 +2093,18 @@ public class GrouperServiceLogic {
    * @param subjectAttributeNames are the additional subject attributes (data) to return.
    * If blank, whatever is configured in the grouper-ws.properties will be sent
    * @param params optional: reserved for future use
+   * @param pointInTimeFrom 
+   *            To query members at a certain point in time or time range in the past, set this value
+   *            and/or the value of pointInTimeTo.  This parameter specifies the start of the range
+   *            of the point in time query.  If this is specified but pointInTimeTo is not specified, 
+   *            then the point in time query range will be from the time specified to now.  
+   * @param pointInTimeTo 
+   *            To query members at a certain point in time or time range in the past, set this value
+   *            and/or the value of pointInTimeFrom.  This parameter specifies the end of the range 
+   *            of the point in time query.  If this is the same as pointInTimeFrom, then the query 
+   *            will be done at a single point in time rather than a range.  If this is specified but 
+   *            pointInTimeFrom is not specified, then the point in time query range will be from the 
+   *            minimum point in time to the time specified.
    * @return the results
    */
   @SuppressWarnings("unchecked")
@@ -2101,10 +2113,12 @@ public class GrouperServiceLogic {
       WsMemberFilter memberFilter,
       WsSubjectLookup actAsSubjectLookup, Field fieldName,
       final boolean includeGroupDetail, boolean includeSubjectDetail, 
-      String[] subjectAttributeNames, WsParam[] params) {
+      String[] subjectAttributeNames, WsParam[] params,
+      Timestamp pointInTimeFrom, Timestamp pointInTimeTo) {
   
     WsHasMemberResults wsHasMemberResults = new WsHasMemberResults();
-  
+    boolean usePIT = pointInTimeFrom != null || pointInTimeTo != null;
+
     GrouperSession session = null;
     String theSummary = null;
     try {
@@ -2119,20 +2133,43 @@ public class GrouperServiceLogic {
           + ", includeSubjectDetail: " + includeSubjectDetail
           + ", subjectAttributeNames: "
           + GrouperUtil.toStringForLog(subjectAttributeNames) + "\n," +
-          		"params: " + GrouperUtil.toStringForLog(params, 100) + "\n";
+          		"params: " + GrouperUtil.toStringForLog(params, 100) + "\n,"
+          + "pointInTimeFrom: " + pointInTimeFrom + ", pointInTimeTo: " + pointInTimeTo;
+
   
       //start session based on logged in user or the actAs passed in
       session = GrouperServiceUtils.retrieveGrouperSession(actAsSubjectLookup);
   
+      String fieldId = fieldName == null ? Group.getDefaultList().getUuid() : fieldName.getUuid();
+
       //convert the options to a map for easy access, and validate them
       @SuppressWarnings("unused")
       Map<String, String> paramMap = GrouperServiceUtils.convertParamsToMap(
           params);
+      
+      if (usePIT && memberFilter.getMembershipType() != null) {
+        throw new WsInvalidQueryException("Cannot specify a member filter for point in time queries.");
+      }
+      
+      if (usePIT && includeGroupDetail) {
+        throw new WsInvalidQueryException("Cannot specify includeGroupDetail for point in time queries.");
+      }
+      
+      Group group = null;
+      PITGroup pitGroup = null;
   
-      Group group = wsGroupLookup.retrieveGroupIfNeeded(session, "wsGroupLookup");
-  
-      //assign the group to the result to be descriptive
-      wsHasMemberResults.setWsGroup(new WsGroup(group, wsGroupLookup, includeGroupDetail));
+      if (!usePIT) {
+        group = wsGroupLookup.retrieveGroupIfNeeded(session, "wsGroupLookup");
+    
+        //assign the group to the result to be descriptive
+        wsHasMemberResults.setWsGroup(new WsGroup(group, wsGroupLookup, includeGroupDetail));
+      } else {
+        Set<PITGroup> pitGroups = wsGroupLookup.retrievePITGroupsIfNeeded("wsGroupLookup", pointInTimeFrom, pointInTimeTo);
+        pitGroup = pitGroups.toArray(new PITGroup[0])[pitGroups.size() - 1];
+        
+        //assign the group to the result to be descriptive
+        wsHasMemberResults.setWsGroup(new WsGroup(pitGroup));
+      }
   
       String[] subjectAttributeNamesToRetrieve = GrouperServiceUtils
           .calculateSubjectAttributes(subjectAttributeNames, includeSubjectDetail);
@@ -2167,8 +2204,14 @@ public class GrouperServiceLogic {
 
           } else {
 
-            boolean hasMember = memberFilter.hasMember(group, wsSubjectLookup
-                .retrieveSubject(), fieldName);
+            boolean hasMember;
+
+            if (!usePIT) {
+              hasMember = memberFilter.hasMember(group, wsSubjectLookup.retrieveSubject(), fieldName);
+            } else {
+              hasMember = pitGroup.hasMember(wsSubjectLookup.retrieveSubject(), fieldId, pointInTimeFrom, pointInTimeTo, null);
+            }
+            
             wsHasMemberResult.assignResultCode(hasMember ? WsHasMemberResultCode.IS_MEMBER
                 : WsHasMemberResultCode.IS_NOT_MEMBER);
 
@@ -2238,6 +2281,18 @@ public class GrouperServiceLogic {
    *            reserved for future use
    * @param paramValue1
    *            reserved for future use
+   * @param pointInTimeFrom 
+   *            To query members at a certain point in time or time range in the past, set this value
+   *            and/or the value of pointInTimeTo.  This parameter specifies the start of the range
+   *            of the point in time query.  If this is specified but pointInTimeTo is not specified, 
+   *            then the point in time query range will be from the time specified to now.  
+   * @param pointInTimeTo 
+   *            To query members at a certain point in time or time range in the past, set this value
+   *            and/or the value of pointInTimeFrom.  This parameter specifies the end of the range 
+   *            of the point in time query.  If this is the same as pointInTimeFrom, then the query 
+   *            will be done at a single point in time rather than a range.  If this is specified but 
+   *            pointInTimeFrom is not specified, then the point in time query range will be from the 
+   *            minimum point in time to the time specified.
    * @return the result of one member query
    */
   public static WsHasMemberLiteResult hasMemberLite(final GrouperVersion clientVersion, String groupName,
@@ -2246,7 +2301,8 @@ public class GrouperServiceLogic {
       String actAsSubjectId, String actAsSubjectSourceId, String actAsSubjectIdentifier,
       Field fieldName, final boolean includeGroupDetail, boolean includeSubjectDetail, String subjectAttributeNames, 
       String paramName0,
-      String paramValue0, String paramName1, String paramValue1) {
+      String paramValue0, String paramName1, String paramValue1,
+      Timestamp pointInTimeFrom, Timestamp pointInTimeTo) {
   
     // setup the group lookup
     WsGroupLookup wsGroupLookup = new WsGroupLookup(groupName, groupUuid);
@@ -2265,7 +2321,7 @@ public class GrouperServiceLogic {
     WsHasMemberResults wsHasMemberResults = hasMember(clientVersion, wsGroupLookup,
         subjectLookups, memberFilter,
         actAsSubjectLookup, fieldName, includeGroupDetail, 
-        includeSubjectDetail, subjectAttributeArray, params);
+        includeSubjectDetail, subjectAttributeArray, params, pointInTimeFrom, pointInTimeTo);
   
     return new WsHasMemberLiteResult(wsHasMemberResults);
   }

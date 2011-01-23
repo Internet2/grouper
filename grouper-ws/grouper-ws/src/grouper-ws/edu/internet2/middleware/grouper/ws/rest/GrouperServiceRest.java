@@ -457,7 +457,9 @@ public class GrouperServiceRest {
             .getActAsSubjectLookup(), wsRestHasMembersRequest.getFieldName(),
         wsRestHasMembersRequest.getIncludeGroupDetail(), wsRestHasMembersRequest
             .getIncludeSubjectDetail(), wsRestHasMembersRequest
-            .getSubjectAttributeNames(), wsRestHasMembersRequest.getParams());
+            .getSubjectAttributeNames(), wsRestHasMembersRequest.getParams(),
+        wsRestHasMembersRequest.getPointInTimeFrom(), 
+        wsRestHasMembersRequest.getPointInTimeTo());
 
     //return result
     return wsHasMemberResults;
@@ -545,7 +547,9 @@ public class GrouperServiceRest {
             .getIncludeSubjectDetail(), wsRestHasMemberLiteRequest
             .getSubjectAttributeNames(), wsRestHasMemberLiteRequest.getParamName0(),
         wsRestHasMemberLiteRequest.getParamValue0(), wsRestHasMemberLiteRequest
-            .getParamName1(), wsRestHasMemberLiteRequest.getParamValue1());
+            .getParamName1(), wsRestHasMemberLiteRequest.getParamValue1(),
+        wsRestHasMemberLiteRequest.getPointInTimeFrom(), 
+        wsRestHasMemberLiteRequest.getPointInTimeTo());
   
     //return result
     return wsHasMemberLiteResult;

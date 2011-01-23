@@ -3,6 +3,7 @@
  */
 package edu.internet2.middleware.grouper.ws.soap;
 
+import java.sql.Timestamp;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -418,10 +419,13 @@ public class WsGroupLookup {
   /**
    * retrieve the pit groups for this lookup if not looked up yet.
    * @param invalidQueryReason is the text to go in the WsInvalidQueryException
+   * @param pointInTimeFrom 
+   * @param pointInTimeTo 
    * @return the pit group
    * @throws WsInvalidQueryException if there is a problem, and if the invalidQueryReason is set
    */
-  public Set<PITGroup> retrievePITGroupsIfNeeded(String invalidQueryReason) throws WsInvalidQueryException {
+  public Set<PITGroup> retrievePITGroupsIfNeeded(String invalidQueryReason, Timestamp pointInTimeFrom, 
+      Timestamp pointInTimeTo) throws WsInvalidQueryException {
 
     //see if we already retrieved
     if (this.groupFindResult != null) {
@@ -467,7 +471,7 @@ public class WsGroupLookup {
         this.pitGroups.add(theGroup);
 
       } else if (hasName) {
-        this.pitGroups = PITGroupFinder.findByName(this.groupName, true, true);
+        this.pitGroups = PITGroupFinder.findByName(this.groupName, pointInTimeFrom, pointInTimeTo, true, true);
       }
 
     } catch (GroupNotFoundException gnf) {
