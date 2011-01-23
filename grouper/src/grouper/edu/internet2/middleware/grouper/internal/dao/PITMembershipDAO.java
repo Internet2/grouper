@@ -47,15 +47,28 @@ public interface PITMembershipDAO extends GrouperDAO {
   public void deleteInactiveRecords(Timestamp time);
   
   /**
-   * Get members by group owner and field.
-   * @param ownerGroupId
+   * Get members by owner and field.
+   * @param ownerId
    * @param fieldId
    * @param pointInTimeFrom 
    * @param pointInTimeTo 
    * @param sources
    * @param queryOptions
-   * @return set of pit members
+   * @return set of members
    */
-  public Set<Member> findAllMembersByGroupOwnerAndField(String ownerGroupId, String fieldId, 
+  public Set<Member> findAllMembersByOwnerAndField(String ownerId, String fieldId, 
       Timestamp pointInTimeFrom, Timestamp pointInTimeTo, Set<Source> sources, QueryOptions queryOptions);
+  
+  /**
+   * Get memberships by owner, member, and field.
+   * @param ownerId
+   * @param memberId
+   * @param fieldId
+   * @param pointInTimeFrom 
+   * @param pointInTimeTo 
+   * @param queryOptions
+   * @return set of pit memberships
+   */
+  public Set<PITMembership> findAllByOwnerAndMemberAndField(String ownerId, String memberId, String fieldId, 
+      Timestamp pointInTimeFrom, Timestamp pointInTimeTo, QueryOptions queryOptions);
 }

@@ -1,5 +1,8 @@
 package edu.internet2.middleware.grouper.pit;
 
+import java.sql.Timestamp;
+import java.util.Date;
+import java.util.Iterator;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.Group;
@@ -16,6 +19,7 @@ import edu.internet2.middleware.grouper.helper.StemHelper;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.pit.finder.PITGroupFinder;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * @author shilen
@@ -57,6 +61,13 @@ public class PITGroupFinderTests extends GrouperTest {
   @Override
   protected void tearDown() {
     super.tearDown();
+  }
+  
+  private Timestamp getTimestampWithSleep() {
+    GrouperUtil.sleep(100);
+    Date date = new Date();
+    GrouperUtil.sleep(100);
+    return new Timestamp(date.getTime());
   }
   
   /**
@@ -213,5 +224,61 @@ public class PITGroupFinderTests extends GrouperTest {
     }
     
     s.stop();    
+  }
+  
+  /**
+   * 
+   */
+  public void testFindByNameInDateRange() {
+    
+    Timestamp beforeFirst = getTimestampWithSleep();
+    Group group1 = edu.addChildGroup("test", "test");
+    ChangeLogTempToEntity.convertRecords();
+
+    group1.delete();
+    ChangeLogTempToEntity.convertRecords();
+
+    Timestamp beforeSecond = getTimestampWithSleep();
+    Group group2 = edu.addChildGroup("test", "test");
+    ChangeLogTempToEntity.convertRecords();
+
+    Timestamp afterSecond = getTimestampWithSleep();
+    group2.delete();
+    ChangeLogTempToEntity.convertRecords();
+    
+    Timestamp beforeThird = getTimestampWithSleep();
+    Group group3 = edu.addChildGroup("test", "test");
+    ChangeLogTempToEntity.convertRecords();
+    
+    Timestamp afterThird = getTimestampWithSleep();
+    
+    try {
+      PITGroupFinder.findByName("edu:test", null, beforeFirst, true, true);
+      fail("Expected GroupNotFoundException.");
+    } catch (GroupNotFoundException e) {
+      // good
+    }
+    
+    Set<PITGroup> pitGroups = PITGroupFinder.findByName("edu:test", null, afterSecond, true, true);
+    assertEquals(2, pitGroups.size());
+    Iterator<PITGroup> iterator = pitGroups.iterator();
+    assertEquals(group1.getId(), iterator.next().getId());
+    assertEquals(group2.getId(), iterator.next().getId());
+    
+    pitGroups = PITGroupFinder.findByName("edu:test", beforeSecond, null, true, true);
+    assertEquals(2, pitGroups.size());
+    iterator = pitGroups.iterator();
+    assertEquals(group2.getId(), iterator.next().getId());
+    assertEquals(group3.getId(), iterator.next().getId());
+    
+    pitGroups = PITGroupFinder.findByName("edu:test", afterThird, null, true, true);
+    assertEquals(1, pitGroups.size());
+    iterator = pitGroups.iterator();
+    assertEquals(group3.getId(), iterator.next().getId());
+    
+    pitGroups = PITGroupFinder.findByName("edu:test", beforeSecond, beforeThird, true, true);
+    assertEquals(1, pitGroups.size());
+    iterator = pitGroups.iterator();
+    assertEquals(group2.getId(), iterator.next().getId());
   }
 }

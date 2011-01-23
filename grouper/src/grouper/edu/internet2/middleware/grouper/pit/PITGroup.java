@@ -10,6 +10,7 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperAPI;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
@@ -17,6 +18,7 @@ import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Source;
+import edu.internet2.middleware.subject.Subject;
 
 /**
  * @author shilen
@@ -179,7 +181,7 @@ public class PITGroup extends GrouperPIT implements Hib3GrouperVersioned {
         PrivilegeHelper.dispatch(session, group, session.getSubject(), field.getReadPriv());
       }
       
-      members = GrouperDAOFactory.getFactory().getPITMembership().findAllMembersByGroupOwnerAndField( 
+      members = GrouperDAOFactory.getFactory().getPITMembership().findAllMembersByOwnerAndField( 
           this.getId(), pitFieldId, pointInTimeFrom, pointInTimeTo, sources, queryOptions);
     }
     catch (InsufficientPrivilegeException e) {
@@ -187,5 +189,47 @@ public class PITGroup extends GrouperPIT implements Hib3GrouperVersioned {
     }
     
     return members;
+  }
+  
+  /**
+   * Check if the group has a member using point in time and the specified field.
+   * @param subject specifies the subject.  This is required.
+   * @param pitFieldId specifies the field id.  This is required.
+   * @param pointInTimeFrom the start of the range of the point in time query.  This is optional.
+   * @param pointInTimeTo the end of the range of the point in time query.  This is optional.  If this is the same as pointInTimeFrom, then the query will be done at a single point in time rather than a range.
+   * @param queryOptions optional query options.
+   * @return boolean
+   */
+  public boolean hasMember(Subject subject, String pitFieldId, Timestamp pointInTimeFrom, Timestamp pointInTimeTo, QueryOptions queryOptions) {
+    
+    if (subject == null) {
+      throw new IllegalArgumentException("subject required.");
+    }
+    
+    if (pitFieldId == null) {
+      throw new IllegalArgumentException("pitFieldId required.");
+    }
+    
+    Member m = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), subject, true);
+    
+    int size = GrouperDAOFactory.getFactory().getPITMembership().findAllByOwnerAndMemberAndField(
+        this.getId(), m.getUuid(), pitFieldId, pointInTimeFrom, pointInTimeTo, queryOptions).size();
+    
+    if (size > 0) {
+      return true;
+    }
+    
+    // need to check GrouperAll as well...
+    Member all = MemberFinder.internal_findAllMember();
+    if (!all.getUuid().equals(m.getUuid())) {
+      size = GrouperDAOFactory.getFactory().getPITMembership().findAllByOwnerAndMemberAndField(
+          this.getId(), all.getUuid(), pitFieldId, pointInTimeFrom, pointInTimeTo, queryOptions).size();
+      
+      if (size > 0) {
+        return true;
+      }
+    }
+    
+    return false;
   }
 }

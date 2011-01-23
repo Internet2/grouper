@@ -1,5 +1,6 @@
 package edu.internet2.middleware.grouper.pit.finder;
 
+import java.sql.Timestamp;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -116,5 +117,47 @@ public class PITGroupFinder {
     }
     
     return null;
+  }
+  
+
+  /**
+   * Find point in time groups by name and date ranges
+   * If the group currently exists, you must have view access to it.  If it has been deleted, you must be wheel or root.
+   * @param name
+   * @param pointInTimeFrom
+   * @param pointInTimeTo
+   * @param exceptionIfNotFound
+   * @param orderByStartTime
+   * @return set of pit group
+   */
+  public static Set<PITGroup> findByName(String name, Timestamp pointInTimeFrom, Timestamp pointInTimeTo, 
+      boolean exceptionIfNotFound, boolean orderByStartTime) {
+    
+    Set<PITGroup> pitGroups = findByName(name, exceptionIfNotFound, orderByStartTime);
+    Set<PITGroup> pitGroupsInRange = new LinkedHashSet<PITGroup>();
+
+    for (PITGroup pitGroup : pitGroups) {
+      if (pointInTimeFrom != null) {
+        if (!pitGroup.isActive() && pitGroup.getEndTime().before(pointInTimeFrom)) {
+          continue;
+        }
+      }
+      
+      if (pointInTimeTo != null) {
+        if (pitGroup.getStartTime().after(pointInTimeTo)) {
+          continue;
+        }
+      }
+      
+      pitGroupsInRange.add(pitGroup);
+    }
+    
+    if (pitGroupsInRange.size() == 0) {
+      if (exceptionIfNotFound) {
+        throw new GroupNotFoundException("Point in time group with name " + name + " does not exist in the given date range.");
+      }
+    }
+    
+    return pitGroupsInRange;
   }
 }
