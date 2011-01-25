@@ -3694,34 +3694,42 @@ public class GrouperUtil {
       String methodName, Object paramTypesOrArrayOrList,
       Object paramsOrListOrArray, boolean callOnSupers,
       boolean overrideSecurity) {
-    Method method = null;
-
-    Class[] paramTypesArray = (Class[]) toArray(paramTypesOrArrayOrList);
-
     try {
-      method = theClass.getDeclaredMethod(methodName, paramTypesArray);
-      if (overrideSecurity) {
-        method.setAccessible(true);
-      }
-    } catch (Exception e) {
-      // if method not found
-      if (e instanceof NoSuchMethodException) {
-        // if traversing up, and not Object, and not instance method
-        // CH 070425 not sure why invokeOn needs to be null, removing
-        // this
-        if (callOnSupers /* && invokeOn == null */
-            && !theClass.equals(Object.class)) {
-          return callMethod(theClass.getSuperclass(), invokeOn,
-              methodName, paramTypesOrArrayOrList,
-              paramsOrListOrArray, callOnSupers, overrideSecurity);
+      Method method = null;
+  
+      Class[] paramTypesArray = (Class[]) toArray(paramTypesOrArrayOrList);
+  
+      try {
+        method = theClass.getDeclaredMethod(methodName, paramTypesArray);
+        if (overrideSecurity) {
+          method.setAccessible(true);
         }
+      } catch (Exception e) {
+        // if method not found
+        if (e instanceof NoSuchMethodException) {
+          // if traversing up, and not Object, and not instance method
+          // CH 070425 not sure why invokeOn needs to be null, removing
+          // this
+          if (callOnSupers /* && invokeOn == null */
+              && !theClass.equals(Object.class)) {
+            return callMethod(theClass.getSuperclass(), invokeOn,
+                methodName, paramTypesOrArrayOrList,
+                paramsOrListOrArray, callOnSupers, overrideSecurity);
+          }
+        }
+        throw new RuntimeException("Problem calling method " + methodName
+            + " on " + theClass.getName(), e);
       }
-      throw new RuntimeException("Problem calling method " + methodName
-          + " on " + theClass.getName(), e);
+  
+      return invokeMethod(method, invokeOn, paramsOrListOrArray);
+    } catch (RuntimeException re) {
+      String message = "Problem calling method " + methodName
+            + " on " + (theClass == null ? null : theClass.getName());
+      if (injectInException(re, message)) {
+        throw re;
+      }
+      throw new RuntimeException(message, re);
     }
-
-    return invokeMethod(method, invokeOn, paramsOrListOrArray);
-
   }
   
   /** pass this in the invokeOn to signify no params */
