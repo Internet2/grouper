@@ -95,5 +95,24 @@
   <session-config>
     <session-timeout>1</session-timeout> 
   </session-config>
-  
+  <!--  config to enable ESB listener servlet
+  <servlet>
+    <servlet-name>EsbServlet</servlet-name>
+    <display-name>Esb Servlet</display-name>
+    <servlet-class>edu.internet2.middleware.grouper.esb.EsbHttpHandler</servlet-class>
+    <load-on-startup>1</load-on-startup>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>EsbServlet</servlet-name>
+    <url-pattern>/servicesEsb/*</url-pattern>
+  </servlet-mapping>
+  <security-constraint>
+    <web-resource-collection>
+      <web-resource-name>Web services</web-resource-name>
+      <url-pattern>/servicesEsb/*</url-pattern>
+    </web-resource-collection>
+    <auth-constraint>
+      <role-name>grouper_user</role-name>
+    </auth-constraint>
+  </security-constraint> -->  
 </web-app>
