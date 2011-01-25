@@ -1,5 +1,5 @@
 <%@ include file="../common/commonTaglib.jsp"%>
-<!-- externalSubjectSelfRegister/index.jsp: main page -->
+<!-- Start: externalSubjectSelfRegister/index.jsp: main page -->
 
 <div class="section">
   <grouper:subtitle key="externalSubjectSelfRegister.topIndexSectionHeader" />
@@ -10,3 +10,4 @@
   </div>
 </div>
 
+<!-- End: externalSubjectSelfRegister/index.jsp: main page -->

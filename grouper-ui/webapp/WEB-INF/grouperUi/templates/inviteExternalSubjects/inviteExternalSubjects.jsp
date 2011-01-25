@@ -1,5 +1,5 @@
 <%@ include file="../common/commonTaglib.jsp"%>
-<!-- externalSubjectSelfRegister/externalSubjectSelfRegister.jsp: main page -->
+<!-- Start: inviteExternalSubjects/inviteExternalSubjects.jsp: main page -->
 
 <table cellpadding="0" cellspacing="0" width="800">
   <tr>
@@ -131,3 +131,4 @@
 	  </form>
   </div>
 </div>
+<!-- End: inviteExternalSubjects/inviteExternalSubjects.jsp: main page -->

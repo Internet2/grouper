@@ -1,5 +1,5 @@
 <%@ include file="../common/commonTaglib.jsp"%>
-<!-- externalSubjectSelfRegister/externalSubjectSelfRegister.jsp: main page -->
+<!-- Start: externalSubjectSelfRegister/externalSubjectSelfRegister.jsp: main page -->
 
 <grouper:title key="externalSubjectSelfRegister.registerTitle" />
 
@@ -67,3 +67,4 @@
 	  </form>
   </div>
 </div>
+<!-- End: externalSubjectSelfRegister/externalSubjectSelfRegister.jsp: main page -->

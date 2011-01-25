@@ -396,6 +396,9 @@ public class GrouperUiFilter implements Filter {
     /** simple membership update */
     SIMPLE_MEMBERSHIP_UPDATE("require.group.for.membershipUpdateLite.logins", GrouperUtil.toSet(ADMIN_UI)),
     
+    /** simple membership update */
+    SIMPLE_ATTRIBUTE_UPDATE("require.group.for.attributeUpdateLite.logins", GrouperUtil.toSet(ADMIN_UI)),
+    
     /** subject picker */
     SUBJECT_PICKER("require.group.for.subjectPicker.logins", GrouperUtil.toSet(ADMIN_UI, SIMPLE_MEMBERSHIP_UPDATE));
     
@@ -575,6 +578,9 @@ public class GrouperUiFilter implements Filter {
     
     if (!StringUtils.isBlank(operation)) {
       
+      if (theClass.startsWith("SimpleAttributeUpdate")) {
+        return UiSection.SIMPLE_ATTRIBUTE_UPDATE;
+      }
       if (theClass.equals("Misc") || theClass.startsWith("SimpleMembershipUpdate")) {
         return UiSection.SIMPLE_MEMBERSHIP_UPDATE;
       }
