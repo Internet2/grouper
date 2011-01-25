@@ -1,4 +1,5 @@
 <%@ include file="../common/commonTaglib.jsp"%>
+<!-- Start: simpleMembershipUpdateImport.jsp -->
 
 <div class="simpleMembershipUpload">
 
@@ -72,3 +73,4 @@
     </div>
   </div>
 </div>
+<!-- End: simpleMembershipUpdateImport.jsp -->

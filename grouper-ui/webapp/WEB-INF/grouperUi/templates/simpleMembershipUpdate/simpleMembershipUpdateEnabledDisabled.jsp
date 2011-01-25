@@ -1,5 +1,5 @@
 <%@ include file="../common/commonTaglib.jsp"%>
-<!-- Start: simpleMembershipUpdateSubjectDetails.jsp -->
+<!-- Start: simpleMembershipUpdateEnabledDisabled.jsp -->
 <div class="simpleMembershipUploadMemberDetails">
 
   <div class="section">
@@ -85,6 +85,6 @@
     </div>
   </div>
 </div>
-<!-- End: simpleMembershipUpdateSubjectDetails.jsp -->
+<!-- End: simpleMembershipUpdateEnabledDisabled.jsp -->
 
 
