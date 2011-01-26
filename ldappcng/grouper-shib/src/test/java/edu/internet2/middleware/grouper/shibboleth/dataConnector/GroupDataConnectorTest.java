@@ -18,6 +18,7 @@ import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.AttributeDefType;
 import edu.internet2.middleware.grouper.attr.AttributeDefValueType;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
+import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.shibboleth.filter.GroupQueryFilter;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.shibboleth.common.attribute.BaseAttribute;
@@ -100,6 +101,9 @@ public class GroupDataConnectorTest extends BaseDataConnectorTest {
     correctAttributesA.setAttribute("groups:immediate", groupB);
 
     correctAttributesA.setAttribute("admins", SubjectTestHelper.SUBJ3);
+    
+    groupA.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.VIEW);
+    correctAttributesA.setAttribute("viewers", SubjectTestHelper.SUBJ0);
 
     runResolveTest("testAll", groupA, correctAttributesA);
   }

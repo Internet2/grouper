@@ -20,6 +20,7 @@ import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupType;
+import edu.internet2.middleware.grouper.GroupTypeFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
@@ -121,6 +122,7 @@ public abstract class BaseDataConnectorTest extends GrouperTest {
     correctAttributesA.setAttribute("name", "parentStem:groupA");
     correctAttributesA.setAttribute("displayName", "Parent Stem:Group A");
     correctAttributesA.setAttribute(BaseGrouperDataConnector.PARENT_STEM_NAME_ATTR, "parentStem");
+    correctAttributesA.setAttribute(BaseGrouperDataConnector.GROUP_TYPE_ATTR, GroupTypeFinder.find("base", true));
 
     // group B
     groupB = StemHelper.addChildGroup(this.parentStem, "groupB", "Group B");
@@ -140,6 +142,7 @@ public abstract class BaseDataConnectorTest extends GrouperTest {
     correctAttributesB.setAttribute("description", "Group B Description");
     correctAttributesB.setAttribute(BaseGrouperDataConnector.PARENT_STEM_NAME_ATTR, "parentStem");
     correctAttributesB.setAttribute("attr1", "value1");
+    correctAttributesB.setAttribute(BaseGrouperDataConnector.GROUP_TYPE_ATTR, type, GroupTypeFinder.find("base", true));
 
     // group C
     groupC = StemHelper.addChildGroup(this.childStem, "groupC", "Group C");
@@ -150,6 +153,7 @@ public abstract class BaseDataConnectorTest extends GrouperTest {
     correctAttributesC.setAttribute("name", "parentStem:childStem:groupC");
     correctAttributesC.setAttribute("displayName", "Parent Stem:Child Stem:Group C");
     correctAttributesC.setAttribute(BaseGrouperDataConnector.PARENT_STEM_NAME_ATTR, "parentStem:childStem");
+    correctAttributesC.setAttribute(BaseGrouperDataConnector.GROUP_TYPE_ATTR, GroupTypeFinder.find("base", true));
 
     memberSubj0 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ0, false);
     memberSubj1 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ1, false);
