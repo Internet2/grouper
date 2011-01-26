@@ -330,6 +330,13 @@ public abstract class BaseDataConnectorTest extends GrouperTest {
       attr.setValues(list);
       map.put(attr.getId(), attr);
     }
+    
+    public void setAttribute(BaseAttribute baseAttribute) {
+      if (baseAttribute == null) {
+        return;
+      }
+      map.put(baseAttribute.getId(), baseAttribute);      
+    }
 
     /**
      * Attempt to evaluate equals() for an arbitrary BaseAttribute<Type>.

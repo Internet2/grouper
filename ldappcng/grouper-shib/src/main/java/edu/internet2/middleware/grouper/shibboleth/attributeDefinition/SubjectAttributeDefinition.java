@@ -70,7 +70,16 @@ public class SubjectAttributeDefinition extends BaseAttributeDefinition {
 
       for (AttributeIdentifier attr : attributes) {
         if (sourceId.equals(attr.getSource())) {
-          attribute.getValues().addAll(subject.getAttributeValues(attr.getId()));
+          // TODO this should be fixed
+          if (attr.getId().equalsIgnoreCase("id")) {
+            attribute.getValues().add(subject.getId());
+          } else if (attr.getId().equalsIgnoreCase("name")) {
+            attribute.getValues().add(subject.getName());
+          } else if (attr.getId().equalsIgnoreCase("description")) {
+            attribute.getValues().add(subject.getDescription());
+          } else {
+            attribute.getValues().addAll(subject.getAttributeValues(attr.getId()));
+          }
         }
       }
     }

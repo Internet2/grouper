@@ -97,5 +97,10 @@
       <grouper:GroupFilter xsi:type="grouper:ExactAttribute" name="notFound" value="notFound" />      
     </grouper:GroupFilter>
   </resolver:DataConnector>
+
+  <resolver:AttributeDefinition id="testHasViewer" xsi:type="grouper:Subject" sourceAttributeID="viewers">
+    <resolver:Dependency ref="testAll" />
+    <grouper:Attribute id="name" source="jdbc" />
+  </resolver:AttributeDefinition>
   
 </AttributeResolver>
