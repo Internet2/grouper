@@ -33,7 +33,7 @@ public class AttributeDefScopeTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new AttributeDefScopeTest("testTypeScopeAttrAssign"));
+    TestRunner.run(new AttributeDefScopeTest("testTypeScope"));
   }
   
   /**
@@ -108,12 +108,11 @@ public class AttributeDefScopeTest extends GrouperTest {
    */
   public void testTypeScope() {
     
-    AttributeDefName attributeDefTypeName = AttributeDefNameTest.exampleAttributeDefNameDb("test", "someType");
+    AttributeDefName attributeDefTypeName = AttributeDefNameTest.exampleAttributeDefNameDb(AttributeDefType.type, "test", "someType");
     AttributeDef attributeDefType = attributeDefTypeName.getAttributeDef();
     
     attributeDefType.setAssignToGroup(true);
     
-    attributeDefType.setAttributeDefType(AttributeDefType.type);
     attributeDefType.store();
     
     Stem stem2 = new StemSave(grouperSession).assignName("test2").assignStemNameToEdit("test2").save();
@@ -178,12 +177,11 @@ public class AttributeDefScopeTest extends GrouperTest {
    */
   public void testTypeScopeAttrAssign() {
     
-    AttributeDefName attributeDefTypeName = AttributeDefNameTest.exampleAttributeDefNameDb("test", "someType");
+    AttributeDefName attributeDefTypeName = AttributeDefNameTest.exampleAttributeDefNameDb(AttributeDefType.type, "test", "someType");
     AttributeDef attributeDefType = attributeDefTypeName.getAttributeDef();
     
     attributeDefType.setAssignToGroup(true);
     
-    attributeDefType.setAttributeDefType(AttributeDefType.type);
     attributeDefType.store();
     
     AttributeDefName attributeDefTypeName2 = new AttributeDefNameSave(this.grouperSession, attributeDefType).assignName("test:someType2").save();

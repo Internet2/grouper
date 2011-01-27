@@ -29,7 +29,7 @@ public class AttributeAssignActionTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new AttributeAssignActionTest("testXmlDifferentUpdateProperties"));
+    TestRunner.run(new AttributeAssignActionTest("testXmlInsert"));
   }
   
   /**

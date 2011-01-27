@@ -77,7 +77,7 @@ public class ChangeLogTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new ChangeLogTest("testAttributeAssignValue"));
+    TestRunner.run(new ChangeLogTest("testGroups"));
   }
   
   /**
@@ -4154,7 +4154,12 @@ public class ChangeLogTest extends GrouperTest {
    */
   public void testGroups() throws Exception {
   
-    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryTemp").executeUpdate();
+    //get things moved over:
+    ChangeLogTempToEntity.convertRecords();
+    
+    GrouperUtil.sleep(1000);
+    long testStart = System.currentTimeMillis() * 1000;
+    GrouperUtil.sleep(1000);
     
     int changeLogTempCount = HibernateSession.bySqlStatic().select(int.class, 
         "select count(1) from grouper_change_log_entry_temp");
@@ -4221,8 +4226,9 @@ public class ChangeLogTest extends GrouperTest {
         changeLogCount+1 <= newChangeLogCount);
   
     changeLogEntry = HibernateSession.byHqlStatic()
-      .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType")
+      .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType and createdOnDb > :theCreatedOnDb")
       .setString("theChangeLogType", ChangeLogTypeBuiltin.GROUP_ADD.getChangeLogType().getId())
+      .setLong("theCreatedOnDb", testStart)
       .uniqueResult(ChangeLogEntry.class);
     
     assertTrue(!StringUtils.isBlank(changeLogEntry.getContextId()));
@@ -4276,8 +4282,9 @@ public class ChangeLogTest extends GrouperTest {
         ChangeLogLabels.GROUP_UPDATE.propertyChanged.name());
     
     List<ChangeLogEntry> changeLogEntries = HibernateSession.byHqlStatic()
-      .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType order by " + propertyChangedFieldName)
+      .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType and createdOnDb > :theCreatedOnDb order by " + propertyChangedFieldName)
       .setString("theChangeLogType", ChangeLogTypeBuiltin.GROUP_UPDATE.getChangeLogType().getId())
+      .setLong("theCreatedOnDb", testStart)
       .list(ChangeLogEntry.class);
   
     {
@@ -4325,8 +4332,9 @@ public class ChangeLogTest extends GrouperTest {
     ChangeLogTempToEntity.convertRecords();
     
     ChangeLogEntry changeLogEntry2 = HibernateSession.byHqlStatic()
-      .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType")
+      .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType and createdOnDb > :theCreatedOnDb")
       .setString("theChangeLogType", ChangeLogTypeBuiltin.GROUP_DELETE.getChangeLogType().getId())
+      .setLong("theCreatedOnDb", testStart)
       .uniqueResult(ChangeLogEntry.class);
   
     assertTrue("contextId should exist", StringUtils.isNotBlank(changeLogEntry2.getContextId()));

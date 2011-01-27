@@ -610,7 +610,9 @@ public class PrivilegeHelper {
       throw new SchemaException(E.UNKNOWN_PRIVILEGE + priv);
     }
     if (!rv) {
-      throw new InsufficientPrivilegeException(msg);
+      throw new InsufficientPrivilegeException(msg + ", attributeDef: " 
+          + (attributeDef == null ? null : attributeDef.getName()) 
+          + ", " + GrouperUtil.subjectToString(subj));
     }
   } 
 

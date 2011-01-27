@@ -145,9 +145,10 @@ public class AttributeDefName extends GrouperAPI
    * fields which are included in clone method
    */
   private static final Set<String> CLONE_FIELDS = GrouperUtil.toSet(
-      FIELD_ATTRIBUTE_DEF_ID, FIELD_CONTEXT_ID, FIELD_CREATED_ON_DB, FIELD_DESCRIPTION, 
-      FIELD_DISPLAY_EXTENSION, FIELD_DISPLAY_NAME, FIELD_EXTENSION, FIELD_HIBERNATE_VERSION_NUMBER, 
-      FIELD_ID, FIELD_LAST_UPDATED_DB, FIELD_NAME, FIELD_STEM_ID);
+      FIELD_ATTRIBUTE_DEF_ID, FIELD_CONTEXT_ID, FIELD_CREATED_ON_DB, FIELD_DB_VERSION, 
+      FIELD_DESCRIPTION, FIELD_DISPLAY_EXTENSION, FIELD_DISPLAY_NAME, FIELD_EXTENSION, 
+      FIELD_HIBERNATE_VERSION_NUMBER, FIELD_ID, FIELD_LAST_UPDATED_DB, FIELD_NAME, 
+      FIELD_STEM_ID);
 
   //*****  END GENERATED WITH GenerateFieldConstants.java *****//
 
@@ -614,6 +615,7 @@ public class AttributeDefName extends GrouperAPI
   /**
    * delegate logic about attribute def name sets to this object
    */
+  @GrouperIgnoreClone @GrouperIgnoreDbVersion @GrouperIgnoreFieldConstant
   private AttributeDefNameSetDelegate attributeDefNameSetDelegate;
   
   /**
@@ -718,13 +720,13 @@ public class AttributeDefName extends GrouperAPI
     if (!StringUtils.equals(this.contextId, other.contextId)) {
       return true;
     }
-    if (this.createdOnDb != other.createdOnDb) {
+    if (!GrouperUtil.equals(this.createdOnDb, other.createdOnDb)) {
       return true;
     }
     if (!GrouperUtil.equals(this.getHibernateVersionNumber(), other.getHibernateVersionNumber())) {
       return true;
     }
-    if (this.lastUpdatedDb != other.lastUpdatedDb) {
+    if (!GrouperUtil.equals(this.lastUpdatedDb, other.lastUpdatedDb)) {
       return true;
     }
     return false;
@@ -968,7 +970,7 @@ public class AttributeDefName extends GrouperAPI
   public void onPreUpdate(HibernateSession hibernateSession) {
     super.onPreUpdate(hibernateSession);
     this.lastUpdatedDb = System.currentTimeMillis();
-
+    
     if (this.dbVersionDifferentFields().contains(FIELD_ATTRIBUTE_DEF_ID)) {
       throw new RuntimeException("cannot update attributeDefId");
     }

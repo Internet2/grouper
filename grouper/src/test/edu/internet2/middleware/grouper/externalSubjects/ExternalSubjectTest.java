@@ -44,7 +44,8 @@ public class ExternalSubjectTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new ExternalSubjectTest("testDynamicFieldsDaemon"));
+    TestRunner.run(new ExternalSubjectTest("testNonDynamicDescription"));
+    //TestRunner.run(ExternalSubjectTest.class);
   }
 
   /**
@@ -71,6 +72,8 @@ public class ExternalSubjectTest extends GrouperTest {
     ApiConfig.testConfig.put("externalSubjects.attributes.jabber.required", "false");
     ApiConfig.testConfig.put("externalSubjects.wheelOrRootCanEdit", "true");
     ApiConfig.testConfig.remove("externalSubjects.groupAllowedForEdit");
+    ApiConfig.testConfig.put("externalSubjects.validateIndentiferLikeEmail", "true");
+    
 
   }
   
@@ -83,7 +86,6 @@ public class ExternalSubjectTest extends GrouperTest {
     externalSubject.setIdentifier("a@id.b.c");
     externalSubject.setInstitution("My Institution");
     externalSubject.setName("My Name");
-    externalSubject.setDescription("My Description");
     externalSubject.store();
     
     String uuid = externalSubject.getUuid();
@@ -94,14 +96,14 @@ public class ExternalSubjectTest extends GrouperTest {
     Subject subject = SubjectFinder.findByIdentifier("a@id.b.c", true);
     
     assertEquals("My Name", subject.getName());
-    assertEquals("My Description", subject.getDescription());
+    assertEquals("My Name - My Institution", subject.getDescription());
     assertEquals(uuid, subject.getId());
     
     //lets find subject by hib api
     externalSubject = ExternalSubjectStorageController.findByIdentifier("a@id.b.c", true, null);
     
     assertEquals("My Name", externalSubject.getName());
-    assertEquals("My Description", externalSubject.getDescription());
+    assertEquals("My Name - My Institution", externalSubject.getDescription());
     assertEquals(uuid, externalSubject.getUuid());
     assertEquals("My Institution", externalSubject.getInstitution());
     assertEquals("a@b.c", externalSubject.getEmail());
@@ -133,12 +135,12 @@ public class ExternalSubjectTest extends GrouperTest {
     
     //make an externalSubject which should not be edited
     ExternalSubject externalSubject = new ExternalSubject();
-    externalSubject.setIdentifier("a");
+    externalSubject.setIdentifier("a@b.c");
     externalSubject.store();
       
     //make an externalSubject which should not be edited
     externalSubject = new ExternalSubject();
-    externalSubject.setIdentifier("b");
+    externalSubject.setIdentifier("b@b.c");
     //one hour in future
     externalSubject.setDisabledTimeDb(System.currentTimeMillis() + (1000*60*60*1));
     externalSubject.store();
@@ -146,7 +148,7 @@ public class ExternalSubjectTest extends GrouperTest {
 
     //make an externalSubject which should not be edited
     externalSubject = new ExternalSubject();
-    externalSubject.setIdentifier("c");
+    externalSubject.setIdentifier("c@b.c");
     //one hour in past
     externalSubject.setDisabledTimeDb(System.currentTimeMillis() - (1000*60*60*1));
     externalSubject.store();
@@ -154,23 +156,23 @@ public class ExternalSubjectTest extends GrouperTest {
 
     //this one should be edited, if null and disabled, flip it
     externalSubject = new ExternalSubject();
-    externalSubject.setIdentifier("d");
+    externalSubject.setIdentifier("d@b.c");
     externalSubject.store();
-    HibernateSession.bySqlStatic().executeSql("update grouper_ext_subj set enabled = 'F' where identifier = 'd'");
+    HibernateSession.bySqlStatic().executeSql("update grouper_ext_subj set enabled = 'F' where identifier = 'd@b.c'");
 
     //this one should be edited, should be disabled, flip it
     externalSubject = new ExternalSubject();
-    externalSubject.setIdentifier("e");
+    externalSubject.setIdentifier("e@b.c");
     externalSubject.setDisabledTimeDb(System.currentTimeMillis() - (1000*60*60*1));
     externalSubject.store();
-    HibernateSession.bySqlStatic().executeSql("update grouper_ext_subj set enabled = 'T' where identifier = 'e'");
+    HibernateSession.bySqlStatic().executeSql("update grouper_ext_subj set enabled = 'T' where identifier = 'e@b.c'");
     
     //this one shouldnt be edited, shouldnt be disabled, flip it
     externalSubject = new ExternalSubject();
-    externalSubject.setIdentifier("f");
+    externalSubject.setIdentifier("f@b.c");
     externalSubject.setDisabledTimeDb(System.currentTimeMillis() + (1000*60*60*1));
     externalSubject.store();
-    HibernateSession.bySqlStatic().executeSql("update grouper_ext_subj set enabled = 'F' where identifier = 'f'");
+    HibernateSession.bySqlStatic().executeSql("update grouper_ext_subj set enabled = 'F' where identifier = 'f@b.c'");
 
     //give a buffer so the times work out ok
     GrouperUtil.sleep(1000);
@@ -186,37 +188,37 @@ public class ExternalSubjectTest extends GrouperTest {
     assertEquals(3, ExternalSubject.lastDisabledFixCount);
 
     //lets find subject by hib api and check it out
-    externalSubject = ExternalSubjectStorageController.findByIdentifier("a", true, null);
+    externalSubject = ExternalSubjectStorageController.findByIdentifier("a@b.c", true, null);
     assertTrue(externalSubject.getModifyTimeDb() < daemonTime);
     assertTrue(externalSubject.isEnabled());
 
-    externalSubject = ExternalSubjectStorageController.findByIdentifier("b", true, null);
+    externalSubject = ExternalSubjectStorageController.findByIdentifier("b@b.c", true, null);
     assertTrue(externalSubject.getModifyTimeDb() < daemonTime);
     assertTrue(externalSubject.isEnabled());
 
-    externalSubject = ExternalSubjectStorageController.findByIdentifier("c", true, null);
+    externalSubject = ExternalSubjectStorageController.findByIdentifier("c@b.c", true, null);
     assertTrue(externalSubject.getModifyTimeDb() < daemonTime);
     assertFalse(externalSubject.isEnabled());
   
-    externalSubject = ExternalSubjectStorageController.findByIdentifier("d", true, null);
+    externalSubject = ExternalSubjectStorageController.findByIdentifier("d@b.c", true, null);
     assertTrue(externalSubject.getModifyTimeDb() > daemonTime);
     assertTrue(externalSubject.isEnabled());
   
-    externalSubject = ExternalSubjectStorageController.findByIdentifier("e", true, null);
+    externalSubject = ExternalSubjectStorageController.findByIdentifier("e@b.c", true, null);
     assertTrue(externalSubject.getModifyTimeDb() > daemonTime);
     assertFalse(externalSubject.isEnabled());
   
-    externalSubject = ExternalSubjectStorageController.findByIdentifier("f", true, null);
+    externalSubject = ExternalSubjectStorageController.findByIdentifier("f@b.c", true, null);
     assertTrue(externalSubject.getModifyTimeDb() > daemonTime);
     assertTrue(externalSubject.isEnabled());
   
     //at this point, the enabled ones should be resolvable and not the disabled ones
-    assertNotNull(SubjectFinder.findByIdentifierAndSource("a", "grouperExternal", false));
-    assertNotNull(SubjectFinder.findByIdentifierAndSource("b", "grouperExternal", false));
-    assertNull(SubjectFinder.findByIdentifierAndSource("c", "grouperExternal", false));
-    assertNotNull(SubjectFinder.findByIdentifierAndSource("d", "grouperExternal", false));
-    assertNull(SubjectFinder.findByIdentifierAndSource("e", "grouperExternal", false));
-    assertNotNull(SubjectFinder.findByIdentifierAndSource("f", "grouperExternal", false));
+    assertNotNull(SubjectFinder.findByIdentifierAndSource("a@b.c", "grouperExternal", false));
+    assertNotNull(SubjectFinder.findByIdentifierAndSource("b@b.c", "grouperExternal", false));
+    assertNull(SubjectFinder.findByIdentifierAndSource("c@b.c", "grouperExternal", false));
+    assertNotNull(SubjectFinder.findByIdentifierAndSource("d@b.c", "grouperExternal", false));
+    assertNull(SubjectFinder.findByIdentifierAndSource("e@b.c", "grouperExternal", false));
+    assertNotNull(SubjectFinder.findByIdentifierAndSource("f@b.c", "grouperExternal", false));
     
   }
 
@@ -285,7 +287,7 @@ public class ExternalSubjectTest extends GrouperTest {
 
     //grouper session should be able to insert/delete
     externalSubject = new ExternalSubject();
-    externalSubject.setIdentifier("a");
+    externalSubject.setIdentifier("a@idp.b.c");
     externalSubject.store();
     externalSubject.delete();
 
@@ -322,7 +324,7 @@ public class ExternalSubjectTest extends GrouperTest {
 
     //grouper session should be able to insert/delete
     externalSubject = new ExternalSubject();
-    externalSubject.setIdentifier("a");
+    externalSubject.setIdentifier("a@idp.b.c");
     externalSubject.store();
     externalSubject.delete();
 
@@ -357,7 +359,7 @@ public class ExternalSubjectTest extends GrouperTest {
     grouperSession = GrouperSession.start(subject1);
 
     externalSubject = new ExternalSubject();
-    externalSubject.setIdentifier("a");
+    externalSubject.setIdentifier("a@idp.b.c");
     externalSubject.store();
     externalSubject.delete();
     
@@ -381,7 +383,7 @@ public class ExternalSubjectTest extends GrouperTest {
     
     //name is not required
     ExternalSubject externalSubject = new ExternalSubject();
-    externalSubject.setIdentifier("a");
+    externalSubject.setIdentifier("a@idp.b.c");
     externalSubject.store();
     
     //###########################################
@@ -391,7 +393,7 @@ public class ExternalSubjectTest extends GrouperTest {
   
     //name is not required
     externalSubject = new ExternalSubject();
-    externalSubject.setIdentifier("b");
+    externalSubject.setIdentifier("b@idp.b.c");
     try {
       externalSubject.store();
       fail("Name is required");
@@ -419,7 +421,7 @@ public class ExternalSubjectTest extends GrouperTest {
     //name is not required
     ExternalSubject externalSubject = new ExternalSubject();
     externalSubject.setName("my name");
-    externalSubject.setIdentifier("c");
+    externalSubject.setIdentifier("c@idp.b.c");
     try {
       externalSubject.store();
       fail("Email is required");
@@ -448,7 +450,7 @@ public class ExternalSubjectTest extends GrouperTest {
     //institution is required
     ExternalSubject externalSubject = new ExternalSubject();
     externalSubject.setName("my name");
-    externalSubject.setIdentifier("d");
+    externalSubject.setIdentifier("d@idp.b.c");
     try {
       externalSubject.store();
       fail("Institution is a required");
@@ -480,7 +482,7 @@ public class ExternalSubjectTest extends GrouperTest {
       //institution is required
       ExternalSubject externalSubject = new ExternalSubject();
       externalSubject.setName("my name");
-      externalSubject.setIdentifier("d");
+      externalSubject.setIdentifier("d@idp.b.c");
       try {
         externalSubject.store();
         fail("Jabber is a required");
@@ -492,7 +494,7 @@ public class ExternalSubjectTest extends GrouperTest {
       //institution is required
       externalSubject = new ExternalSubject();
       externalSubject.setName("my name");
-      externalSubject.setIdentifier("e");
+      externalSubject.setIdentifier("e@idp.b.c");
       ExternalSubjectAttribute externalSubjectAttribute = new ExternalSubjectAttribute();
       externalSubjectAttribute.setAttributeSystemName("jabber");
       externalSubjectAttribute.setAttributeValue("w@e.r");
@@ -513,7 +515,7 @@ public class ExternalSubjectTest extends GrouperTest {
       //institution is required
       externalSubject = new ExternalSubject();
       externalSubject.setName("my name");
-      externalSubject.setIdentifier("f");
+      externalSubject.setIdentifier("f@idp.b.c");
       try {
         externalSubject.store(new HashSet<ExternalSubjectAttribute>(), null, true, true, false);
         fail("Jabber is a required");
@@ -541,7 +543,7 @@ public class ExternalSubjectTest extends GrouperTest {
     ExternalSubjectConfig.clearCache();
 
     ExternalSubject externalSubject = new ExternalSubject();
-    externalSubject.setIdentifier("a");
+    externalSubject.setIdentifier("a@idp.b.c");
     externalSubject.setInstitution("My Institution");
     externalSubject.setName("My Name");
     externalSubject.store();
@@ -549,14 +551,14 @@ public class ExternalSubjectTest extends GrouperTest {
     assertEquals("My Name - My Institution", externalSubject.getDescription());
 
     externalSubject = new ExternalSubject();
-    externalSubject.setIdentifier("b");
+    externalSubject.setIdentifier("b@idp.b.c");
     externalSubject.setName("My Name");
     externalSubject.store();
 
     assertEquals("My Name", externalSubject.getDescription());
 
     externalSubject = new ExternalSubject();
-    externalSubject.setIdentifier("c");
+    externalSubject.setIdentifier("c@idp.b.c");
     externalSubject.setInstitution("My Institution");
     externalSubject.store();
 
@@ -580,7 +582,7 @@ public class ExternalSubjectTest extends GrouperTest {
     ExternalSubjectConfig.clearCache();
 
     ExternalSubject externalSubject = new ExternalSubject();
-    externalSubject.setIdentifier("a");
+    externalSubject.setIdentifier("a@idp.b.c");
     externalSubject.setInstitution("My Institution");
     externalSubject.setName("My Name");
     externalSubject.store();
@@ -589,9 +591,9 @@ public class ExternalSubjectTest extends GrouperTest {
     externalSubject.store();
     externalSubject.assignAttribute("jabber", "e@r.t");
     
-    externalSubject = ExternalSubjectStorageController.findByIdentifier("a", true, null);
+    externalSubject = ExternalSubjectStorageController.findByIdentifier("a@idp.b.c", true, null);
     
-    assertEquals("my name, my institution, a, " + externalSubject.getUuid() + ", a@b.c, e@r.t, my name - my institution", externalSubject.getSearchStringLower());
+    assertEquals("my name, my institution, a@idp.b.c, " + externalSubject.getUuid() + ", a@b.c, e@r.t, my name - my institution", externalSubject.getSearchStringLower());
 
     //make sure searches work
     Set<Subject> subjects = SubjectFinder.findAll("e@r instit");
@@ -622,7 +624,7 @@ public class ExternalSubjectTest extends GrouperTest {
     ExternalSubjectConfig.clearCache();
 
     ExternalSubject externalSubject = new ExternalSubject();
-    externalSubject.setIdentifier("a");
+    externalSubject.setIdentifier("a@idp.b.c");
     externalSubject.setInstitution("My Institution");
     externalSubject.setName("My Name");
     externalSubject.setDescription("My Description");
@@ -651,17 +653,16 @@ public class ExternalSubjectTest extends GrouperTest {
     ExternalSubjectConfig.clearCache();
 
     ExternalSubject externalSubject = new ExternalSubject();
-    externalSubject.setIdentifier("a");
+    externalSubject.setIdentifier("a@idp.b.c");
     externalSubject.setInstitution("My Institution");
     externalSubject.setName("My Name");
     externalSubject.setEmail("a@b.c");
     externalSubject.store();
     externalSubject.assignAttribute("jabber", "e@r.t");
 
-    HibernateSession.bySqlStatic().executeSql("update grouper_ext_subj set description = 'a', search_string_lower = 'b' where identifier = 'a'");
+    HibernateSession.bySqlStatic().executeSql("update grouper_ext_subj set description = 'a', search_string_lower = 'b' where identifier = 'a@idp.b.c'");
 
-    //externalSubject = ExternalSubjectStorageController.findByIdentifier("a", true, null);
-    externalSubject = ExternalSubjectStorageController.findByIdentifier("a", true, null);
+    externalSubject = ExternalSubjectStorageController.findByIdentifier("a@idp.b.c", true, null);
     
     assertEquals("a", externalSubject.getDescription());
     assertEquals("b", externalSubject.getSearchStringLower());
@@ -670,10 +671,10 @@ public class ExternalSubjectTest extends GrouperTest {
     String status = GrouperLoader.runOnceByJobName(grouperSession, GrouperLoaderType.GROUPER_EXTERNAL_SUBJ_CALC_FIELDS);
     assertTrue(status.toLowerCase().contains("success"));
 
-    externalSubject = ExternalSubjectStorageController.findByIdentifier("a", true, null);
+    externalSubject = ExternalSubjectStorageController.findByIdentifier("a@idp.b.c", true, null);
 
     assertEquals("My Name - My Institution", externalSubject.getDescription());
-    assertEquals("my name, my institution, a, " + externalSubject.getUuid() + ", a@b.c, e@r.t, my name - my institution", externalSubject.getSearchStringLower());
+    assertEquals("my name, my institution, a@idp.b.c, " + externalSubject.getUuid() + ", a@b.c, e@r.t, my name - my institution", externalSubject.getSearchStringLower());
 
 
     ApiConfig.testConfig.remove("externalSubjects.searchStringFields");

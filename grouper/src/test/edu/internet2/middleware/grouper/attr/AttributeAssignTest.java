@@ -51,7 +51,7 @@ public class AttributeAssignTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new AttributeAssignTest("testFindStemAttributeAssignments"));
+    TestRunner.run(new AttributeAssignTest("testFindAttrDefAttributeAssignments"));
   }
   
   /**
@@ -192,7 +192,7 @@ public class AttributeAssignTest extends GrouperTest {
     this.grouperSession.stop();
     this.grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ0);
     
-    //try to grant, cant
+    //try to grant as delegatable, cant
     try {
       AttributeAssignDelegateOptions attributeAssignDelegateOptions = new AttributeAssignDelegateOptions();
       attributeAssignDelegateOptions.setAssignAttributeAssignDelegatable(true);
@@ -201,6 +201,7 @@ public class AttributeAssignTest extends GrouperTest {
           member7, true, attributeAssignDelegateOptions);
       fail();
     } catch (Exception e) {
+      //e.printStackTrace();
       //ok
     }
     
@@ -1849,6 +1850,9 @@ public class AttributeAssignTest extends GrouperTest {
     attributeDefs = PrivilegeHelper.canViewAttributeDefs(this.grouperSession, attributeDefsBase);
     assertTrue(attributeDefs.size() == 1 && attributeDefs.contains(attributeDef));
   
+    GrouperSession.stopQuietly(this.grouperSession);
+    this.grouperSession = GrouperSession.startRootSession();
+
     attributeDef.delete();
     
     attributeDef2.delete();

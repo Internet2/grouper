@@ -106,6 +106,44 @@ public class AttributeAssignAction extends GrouperAPI
             ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_UPDATE.name.name())); 
   }
 
+  
+  //*****  START GENERATED WITH GenerateFieldConstants.java *****//
+
+  /** constant for field name for: attributeDefId */
+  public static final String FIELD_ATTRIBUTE_DEF_ID = "attributeDefId";
+
+  /** constant for field name for: contextId */
+  public static final String FIELD_CONTEXT_ID = "contextId";
+
+  /** constant for field name for: createdOnDb */
+  public static final String FIELD_CREATED_ON_DB = "createdOnDb";
+
+  /** constant for field name for: id */
+  public static final String FIELD_ID = "id";
+
+  /** constant for field name for: lastUpdatedDb */
+  public static final String FIELD_LAST_UPDATED_DB = "lastUpdatedDb";
+
+  /** constant for field name for: name */
+  public static final String FIELD_NAME = "name";
+
+  /**
+   * fields which are included in db version
+   */
+  private static final Set<String> DB_VERSION_FIELDS = GrouperUtil.toSet(
+      FIELD_ATTRIBUTE_DEF_ID, FIELD_CONTEXT_ID, FIELD_CREATED_ON_DB, FIELD_ID, 
+      FIELD_LAST_UPDATED_DB, FIELD_NAME);
+
+  /**
+   * fields which are included in clone method
+   */
+  private static final Set<String> CLONE_FIELDS = GrouperUtil.toSet(
+      FIELD_ATTRIBUTE_DEF_ID, FIELD_CONTEXT_ID, FIELD_CREATED_ON_DB, FIELD_DB_VERSION, 
+      FIELD_HIBERNATE_VERSION_NUMBER, FIELD_ID, FIELD_LAST_UPDATED_DB, FIELD_NAME);
+
+  //*****  END GENERATED WITH GenerateFieldConstants.java *****//
+
+  
   /** column */
   public static final String COLUMN_ATTRIBUTE_DEF_ID = "attribute_def_id";
   /** column */
@@ -118,32 +156,6 @@ public class AttributeAssignAction extends GrouperAPI
   public static final String COLUMN_LAST_UPDATED = "last_updated";
   /** column */
   public static final String COLUMN_NAME = "name";
-
-  /** constant for field name for: attributeDefId */
-  public static final String FIELD_ATTRIBUTE_DEF_ID = "attributeDefId";
-  /** constant for field name for: contextId */
-  public static final String FIELD_CONTEXT_ID = "contextId";
-  /** constant for field name for: createdOnDb */
-  public static final String FIELD_CREATED_ON_DB = "createdOnDb";
-  /** constant for field name for: id */
-  public static final String FIELD_ID = "id";
-  /** constant for field name for: lastUpdatedDb */
-  public static final String FIELD_LAST_UPDATED_DB = "lastUpdatedDb";
-  /** constant for field name for: name */
-  public static final String FIELD_NAME = "name";
-  /**
-   * fields which are included in clone method
-   */
-  private static final Set<String> CLONE_FIELDS = GrouperUtil.toSet(
-      FIELD_CONTEXT_ID, FIELD_CREATED_ON_DB, FIELD_HIBERNATE_VERSION_NUMBER, 
-      FIELD_ID, FIELD_LAST_UPDATED_DB, FIELD_NAME);
-
-  /**
-   * fields which are included in db version
-   */
-  private static final Set<String> DB_VERSION_FIELDS = GrouperUtil.toSet(
-      FIELD_CONTEXT_ID, FIELD_CREATED_ON_DB, FIELD_ID, 
-      FIELD_LAST_UPDATED_DB, FIELD_NAME, FIELD_ATTRIBUTE_DEF_ID);
 
   /** logger */
   @SuppressWarnings("unused")

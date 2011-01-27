@@ -71,8 +71,8 @@ public class TestGroup extends GrouperTest {
    */
   public static void main(String[] args) {
     //TestRunner.run(new TestGroup("testNoLocking"));
-    TestRunner.run(TestGroup.class);
-    TestRunner.run(new TestGroup("testXmlInsert"));
+    //TestRunner.run(TestGroup.class);
+    TestRunner.run(new TestGroup("testXmlDifferentUpdateProperties"));
     //TestRunner.run(TestGroup.class);
   }
   

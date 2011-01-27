@@ -31,7 +31,7 @@ public class AttributeDefNameSetTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new AttributeDefNameSetTest("testXmlDifferentUpdateProperties"));
+    TestRunner.run(new AttributeDefNameSetTest("testSetLogic"));
   }
 
   /**
@@ -126,7 +126,8 @@ public class AttributeDefNameSetTest extends GrouperTest {
 
     //lets make sure one record was created
     AttributeDefNameSet attributeDefNameSet = HibernateSession.byHqlStatic().createQuery(
-        "from AttributeDefNameSet")
+        "from AttributeDefNameSet where ifHasAttributeDefNameId = :theIfHasId")
+        .setString("theIfHasId", org1.getId())
         .uniqueResult(AttributeDefNameSet.class);
 
     assertEquals(0, attributeDefNameSet.getDepth());

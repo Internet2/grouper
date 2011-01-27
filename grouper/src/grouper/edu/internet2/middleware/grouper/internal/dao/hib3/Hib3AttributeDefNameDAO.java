@@ -201,10 +201,12 @@ public class Hib3AttributeDefNameDAO extends Hib3DAO implements AttributeDefName
     HibernateSession.byHqlStatic().createQuery("update AttributeDefName " +
         "set hibernateVersionNumber = :theHibernateVersionNumber, " +
         "contextId = :theContextId, " +
+        "lastUpdatedDb = :theLastUpdatedDb, " +
         "createdOnDb = :theCreatedOnDb " +
         "where id = :theId")
         .setLong("theHibernateVersionNumber", attributeDefName.getHibernateVersionNumber())
         .setLong("theCreatedOnDb", attributeDefName.getCreatedOnDb())
+        .setLong("theLastUpdatedDb", attributeDefName.getLastUpdatedDb())
         .setString("theContextId", attributeDefName.getContextId())
         .setString("theId", attributeDefName.getId()).executeUpdate();
   }

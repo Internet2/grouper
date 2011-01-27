@@ -636,7 +636,7 @@ public class RoleSet extends GrouperAPI
     if (!GrouperUtil.equals(this.getHibernateVersionNumber(), other.getHibernateVersionNumber())) {
       return true;
     }
-    if (this.lastUpdatedDb != other.lastUpdatedDb) {
+    if (!GrouperUtil.equals(this.lastUpdatedDb, other.lastUpdatedDb)) {
       return true;
     }
     return false;

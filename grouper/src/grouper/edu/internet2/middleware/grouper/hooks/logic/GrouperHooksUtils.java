@@ -246,7 +246,7 @@ public class GrouperHooksUtils {
       //current state in db
       dbVersion = grouperAPI.dbVersion();
       
-      //take a snapshot of current object
+      //take a snapshot of current object (WHY NOT JUST CLONE?)
       grouperAPI.dbVersionReset();
       objectVersion = grouperAPI.dbVersion();
       

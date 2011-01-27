@@ -33,7 +33,7 @@ public class AttributeDefNameTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new AttributeDefNameTest("testFindAll"));
+    TestRunner.run(new AttributeDefNameTest("testXmlDifferentUpdateProperties"));
   }
   
   /**
@@ -139,6 +139,17 @@ public class AttributeDefNameTest extends GrouperTest {
    * @return an example attributeDefName
    */
   public static AttributeDefName exampleAttributeDefNameDb(String stemName, String extension) {
+    return exampleAttributeDefNameDb(AttributeDefType.attr, stemName, extension);
+  }
+  
+  /**
+   * make an example attributeDefName for testing
+   * @param attributeDefType 
+   * @param stemName 
+   * @param extension 
+   * @return an example attributeDefName
+   */
+  public static AttributeDefName exampleAttributeDefNameDb(AttributeDefType attributeDefType, String stemName, String extension) {
 
     String name = stemName + ":" + extension;
     
@@ -155,9 +166,13 @@ public class AttributeDefNameTest extends GrouperTest {
       AttributeDef attributeDef = AttributeDefFinder.findByName(nameOfAttributeDef, false);
       
       if (attributeDef == null) {
-        attributeDef = stem.addChildAttributeDef(extension + "Def", AttributeDefType.attr);
+        attributeDef = stem.addChildAttributeDef(extension + "Def", attributeDefType);
         attributeDef.setAssignToGroup(true);
         attributeDef.store();
+      }
+      
+      if (!attributeDefType.equals(attributeDef.getAttributeDefType())) {
+        throw new RuntimeException("Wrong type: " + attributeDefType + ", " + attributeDef.getAttributeDefType());
       }
       
       attributeDefName = stem.addChildAttributeDefName(attributeDef, extension, extension);
