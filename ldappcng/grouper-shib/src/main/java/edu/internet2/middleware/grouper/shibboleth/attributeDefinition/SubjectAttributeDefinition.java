@@ -15,7 +15,9 @@
 package edu.internet2.middleware.grouper.shibboleth.attributeDefinition;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -70,15 +72,22 @@ public class SubjectAttributeDefinition extends BaseAttributeDefinition {
 
       for (AttributeIdentifier attr : attributes) {
         if (sourceId.equals(attr.getSource())) {
+          Set<String> subjectValues = null;
           // TODO this should be fixed
           if (attr.getId().equalsIgnoreCase("id")) {
-            attribute.getValues().add(subject.getId());
+            subjectValues = new HashSet<String>();
+            subjectValues.add(subject.getId());
           } else if (attr.getId().equalsIgnoreCase("name")) {
-            attribute.getValues().add(subject.getName());
+            subjectValues = new HashSet<String>();
+            subjectValues.add(subject.getName());
           } else if (attr.getId().equalsIgnoreCase("description")) {
-            attribute.getValues().add(subject.getDescription());
+            subjectValues = new HashSet<String>();
+            subjectValues.add(subject.getDescription());
           } else {
-            attribute.getValues().addAll(subject.getAttributeValues(attr.getId()));
+            subjectValues = subject.getAttributeValues(attr.getId());
+          }
+          if (subjectValues != null) {
+            attribute.getValues().addAll(subjectValues);
           }
         }
       }
