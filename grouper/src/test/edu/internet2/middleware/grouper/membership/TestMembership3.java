@@ -46,7 +46,9 @@ public class TestMembership3 extends GrouperTest {
   public void testEffectiveMemberships() {
     LOG.info("testEffectiveMemberships");
     try {
-      Date    before   = DateHelper.getPastDate();
+      GrouperUtil.sleep(100);
+      Date            before  = new Date();
+      GrouperUtil.sleep(100);
 
       R       r     = R.populateRegistry(1, 12, 1);
       Group   gA    = r.getGroup("a", "a");

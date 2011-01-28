@@ -433,8 +433,6 @@ public class GrouperCheckConfig {
       inCheckConfig = true;
     }
     
-    Properties properties = GrouperUtil.propertiesFromResourceName(GROUPER_PROPERTIES_NAME);
-
     //groups auto-create
     //#configuration.autocreate.group.name.0 = etc:uiUsers
     //#configuration.autocreate.group.description.0 = users allowed to log in to the UI
@@ -455,15 +453,15 @@ public class GrouperCheckConfig {
         String groupName = null;
         try {
           String groupNameKey = "configuration.autocreate.group.name." + i;
-          groupName = GrouperUtil.propertiesValue(properties,groupNameKey);
+          groupName = GrouperConfig.getProperty(groupNameKey);
           
           if (StringUtils.isBlank(groupName)) {
             break;
           }
           
-          String groupDescription = GrouperUtil.propertiesValue(properties,"configuration.autocreate.group.description." + i);
+          String groupDescription = GrouperConfig.getProperty("configuration.autocreate.group.description." + i);
           String subjectsKey = "configuration.autocreate.group.subjects." + i;
-          String subjects = GrouperUtil.propertiesValue(properties,subjectsKey);
+          String subjects = GrouperConfig.getProperty(subjectsKey);
     
           Group[] theGroup = new Group[1];
           //first the group
@@ -500,9 +498,9 @@ public class GrouperCheckConfig {
         }
         i++;
       }
-      boolean useWheel = GrouperUtil.booleanValue(properties.getProperty("groups.wheel.use", "false"));
+      boolean useWheel = GrouperConfig.getPropertyBoolean("groups.wheel.use", false);
       if (useWheel) {
-        String wheelName = GrouperUtil.propertiesValue(properties,"groups.wheel.group");
+        String wheelName = GrouperConfig.getProperty("groups.wheel.group");
         if (StringUtils.isBlank(wheelName) && wasInCheckConfig) {
           String error = "grouper.properties property groups.wheel.group should not be blank if groups.wheel.use is true";
           System.err.println("Grouper error: " + error);
@@ -515,7 +513,7 @@ public class GrouperCheckConfig {
       
       // security.stem.groupAllowedToMoveStem
       String allowedGroupName = "security.stem.groupAllowedToMoveStem";
-      String groupAllowedToMoveStem = GrouperUtil.propertiesValue(properties, allowedGroupName);
+      String groupAllowedToMoveStem = GrouperConfig.getProperty(allowedGroupName);
       if (StringUtils.isNotBlank(groupAllowedToMoveStem)) {
         checkGroup(grouperSession, groupAllowedToMoveStem, wasInCheckConfig, null, wasInCheckConfig, null, 
             null, "grouper.properties key: " + allowedGroupName, null);        
@@ -523,7 +521,7 @@ public class GrouperCheckConfig {
       
       // security.stem.groupAllowedToRenameStem
       allowedGroupName = "security.stem.groupAllowedToRenameStem";
-      String groupAllowedToRenameStem = GrouperUtil.propertiesValue(properties, allowedGroupName);
+      String groupAllowedToRenameStem = GrouperConfig.getProperty(allowedGroupName);
       if (StringUtils.isNotBlank(groupAllowedToRenameStem)) {
         checkGroup(grouperSession, groupAllowedToRenameStem, wasInCheckConfig, null, wasInCheckConfig, null, 
             null, "grouper.properties key: " + allowedGroupName, null);        
@@ -531,7 +529,7 @@ public class GrouperCheckConfig {
       
       // security.stem.groupAllowedToCopyStem
       allowedGroupName = "security.stem.groupAllowedToCopyStem";
-      String groupAllowedToCopyStem = GrouperUtil.propertiesValue(properties, allowedGroupName);
+      String groupAllowedToCopyStem = GrouperConfig.getProperty(allowedGroupName);
       if (StringUtils.isNotBlank(groupAllowedToCopyStem)) {
         checkGroup(grouperSession, groupAllowedToCopyStem, wasInCheckConfig, null, wasInCheckConfig, null, 
             null, "grouper.properties key: " + allowedGroupName, null);        
@@ -540,14 +538,14 @@ public class GrouperCheckConfig {
       //groups in requireGroups
       i=0;
       while(true) {
-        String groupName = GrouperUtil.propertiesValue(properties,"grouperIncludeExclude.requireGroup.group." + i);
+        String groupName = GrouperConfig.getProperty("grouperIncludeExclude.requireGroup.group." + i);
         
         if (StringUtils.isBlank(groupName)) {
           break;
         }
         
         String key = "grouperIncludeExclude.requireGroup.description." + i;
-        String description = GrouperUtil.propertiesValue(properties,key);
+        String description = GrouperConfig.getProperty(key);
         
         checkGroup(grouperSession, groupName, wasInCheckConfig, null, wasInCheckConfig, null, description, 
           "requireGroup from grouper.properties key: " + key, null);

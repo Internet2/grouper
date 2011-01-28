@@ -18,8 +18,11 @@
 package edu.internet2.middleware.grouper.filter;
 import java.util.Date;
 
+import org.apache.commons.lang.StringUtils;
+
 import junit.framework.Assert;
 import junit.framework.TestCase;
+import junit.textui.TestRunner;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
@@ -32,6 +35,7 @@ import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SessionHelper;
 import edu.internet2.middleware.grouper.helper.StemHelper;
 import edu.internet2.middleware.grouper.registry.RegistryReset;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * Test {@link StemCreatedBeforeFilter}.
@@ -41,6 +45,10 @@ import edu.internet2.middleware.grouper.registry.RegistryReset;
  */
 public class TestGQStemCreatedBefore extends TestCase {
 
+  public static void main(String[] args) {
+    TestRunner.run(new TestGQStemCreatedBefore("testStemCreatedBeforeFilterSomething"));
+  }
+  
   public TestGQStemCreatedBefore(String name) {
     super(name);
   }
@@ -58,7 +66,9 @@ public class TestGQStemCreatedBefore extends TestCase {
   // Tests
 
   public void testStemCreatedBeforeFilterNothing() {
-    Date            when  = DateHelper.getPastDate();
+    GrouperUtil.sleep(100);
+    Date            when  = new Date();
+    GrouperUtil.sleep(100);
     GrouperSession  s     = SessionHelper.getRootSession();
     Stem            root  = StemHelper.findRootStem(s);
     Stem            edu   = StemHelper.addChildStem(root, "edu", "education");
@@ -98,7 +108,29 @@ public class TestGQStemCreatedBefore extends TestCase {
       Assert.assertTrue("groups",  gq.getGroups().size()      == 0);
       Assert.assertTrue("members", gq.getMembers().size()     == 0);
       Assert.assertTrue("mships",  gq.getMemberships().size() == 0);
-      Assert.assertTrue("stems",   gq.getStems().size()       == 2);
+      Assert.assertTrue("stems",   gq.getStems().size()       >= 2);
+      
+      //find edu
+      boolean foundIt = false;
+      for (Stem stem : gq.getStems()) {
+        if (StringUtils.equals("edu", stem.getName())) {
+          foundIt = true;
+        }
+      }
+      
+      assertTrue(foundIt);
+
+      //find com
+      foundIt = false;
+      for (Stem stem : gq.getStems()) {
+        if (StringUtils.equals("com", stem.getName())) {
+          foundIt = true;
+        }
+      }
+      
+      assertTrue(foundIt);
+
+      
     }
     catch (QueryException eQ) {
       Assert.fail("unable to query: " + eQ.getMessage());

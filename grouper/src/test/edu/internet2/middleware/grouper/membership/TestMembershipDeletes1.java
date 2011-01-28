@@ -80,7 +80,9 @@ public class TestMembershipDeletes1 extends GrouperTest {
   public void testMembershipDeletes1() {
     LOG.info("testMembershipDeletes1");
     try {
-      before   = DateHelper.getPastDate();
+      GrouperUtil.sleep(100);
+      before  = new Date();
+      GrouperUtil.sleep(100);
 
       r     = R.populateRegistry(1, 14, 6);
       gA    = r.getGroup("a", "a");

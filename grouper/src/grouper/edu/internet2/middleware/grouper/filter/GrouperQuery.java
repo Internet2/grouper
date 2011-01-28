@@ -212,7 +212,7 @@ public class GrouperQuery {
    * @return  Set of matching {@link Stem} objects.
    * @throws  QueryException
    */
-  public Set getStems() 
+  public Set<Stem> getStems() 
     throws QueryException
   {
     //note, no need for GrouperSession inverse of control

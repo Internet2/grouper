@@ -21,6 +21,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import junit.framework.TestCase;
+import junit.textui.TestRunner;
 
 import org.apache.commons.logging.Log;
 
@@ -45,6 +46,10 @@ import edu.internet2.middleware.subject.Subject;
  */
 public class TestMembership7 extends GrouperTest {
 
+  public static void main(String[] args) {
+    TestRunner.run(new TestMembership7("testCircularMembershipsWithoutComposites"));
+  }
+  
   private static final Log LOG = GrouperUtil.getLog(TestMembership7.class);
 
   Date before;
@@ -69,7 +74,9 @@ public class TestMembership7 extends GrouperTest {
   public void testCircularMembershipsWithoutComposites() {
     LOG.info("testCircularMembershipsWithoutComposites");
     try {
-      before   = DateHelper.getPastDate();
+      GrouperUtil.sleep(100);
+      before  = new Date();
+      GrouperUtil.sleep(100);
 
       r     = R.populateRegistry(1, 5, 1);
       gA    = r.getGroup("a", "a");

@@ -592,6 +592,12 @@ public class GrouperTest extends TestCase {
     ApiConfig.testConfig.clear();
     GrouperLoaderConfig.testConfig.clear();
 
+    for (int i=0;i<20;i++) {
+      ApiConfig.testConfig.put("configuration.autocreate.group.name." + i, null);
+      ApiConfig.testConfig.put("configuration.autocreate.group.description." + i, null);
+      ApiConfig.testConfig.put("configuration.autocreate.group.subjects." + i, null);
+    }
+
     RegistryReset.internal_resetRegistryAndAddTestSubjects();
     GrouperTest.initGroupsAndAttributes();
 
@@ -604,7 +610,6 @@ public class GrouperTest extends TestCase {
     ApiConfig.testConfig.put("attributeDefs.create.grant.all.attrRead", "false");
     ApiConfig.testConfig.put("attributeDefs.create.grant.all.attrView", "false");
 
-    initGroupsAndAttributes();
   }
 
   /**

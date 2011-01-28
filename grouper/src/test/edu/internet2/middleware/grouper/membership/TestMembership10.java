@@ -80,7 +80,9 @@ public class TestMembership10 extends GrouperTest {
   public void testComplementComposite() {
     LOG.info("testComplementComposite");
     try {
-      before   = DateHelper.getPastDate();
+      GrouperUtil.sleep(100);
+      before  = new Date();
+      GrouperUtil.sleep(100);
 
       r     = R.populateRegistry(2, 7, 3);
       gA    = r.getGroup("a", "a");

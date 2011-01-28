@@ -19,6 +19,8 @@ package edu.internet2.middleware.grouper.membership;
 import java.util.Date;
 import java.util.Set;
 
+import junit.textui.TestRunner;
+
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Field;
@@ -43,6 +45,10 @@ import edu.internet2.middleware.subject.Subject;
  */
 public class TestMembershipDeletes2 extends GrouperTest {
 
+  public static void main(String[] args) {
+    TestRunner.run(new TestMembershipDeletes2("testMembershipDeletes2"));
+  }
+  
   private static final Log LOG = GrouperUtil.getLog(TestMembershipDeletes2.class);
 
   Date before;
@@ -72,7 +78,9 @@ public class TestMembershipDeletes2 extends GrouperTest {
   public void testMembershipDeletes2() {
     LOG.info("testMembershipDeletes2");
     try {
-      before   = DateHelper.getPastDate();
+      GrouperUtil.sleep(100);
+      before  = new Date();
+      GrouperUtil.sleep(100);
 
       r     = R.populateRegistry(2, 10, 2);
       gA    = r.getGroup("a", "a");

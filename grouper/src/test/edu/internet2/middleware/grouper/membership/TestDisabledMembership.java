@@ -23,6 +23,8 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import junit.textui.TestRunner;
+
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.Group;
@@ -52,6 +54,10 @@ import edu.internet2.middleware.subject.Subject;
  */
 public class TestDisabledMembership extends GrouperTest {
 
+  public static void main(String[] args) {
+    TestRunner.run(new TestDisabledMembership("testDisablingMembership"));
+  }
+  
   R r = null;
 
   /**
