@@ -450,7 +450,7 @@ public class AddMissingGroupSets {
       groupSet.setCreateTime(attributeDef.getCreatedOnDb());
       groupSet.setDepth(0);
       groupSet.setMemberAttrDefId(attributeDef.getId());
-      groupSet.setOwnerStemId(attributeDef.getId());
+      groupSet.setOwnerAttrDefId(attributeDef.getId());
       groupSet.setParentId(groupSet.getId());
       groupSet.setFieldId(field.getUuid());
       

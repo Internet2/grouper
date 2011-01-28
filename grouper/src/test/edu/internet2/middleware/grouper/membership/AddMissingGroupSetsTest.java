@@ -126,9 +126,9 @@ public class AddMissingGroupSetsTest extends GrouperTest {
     updateFieldTest.grantPriv(four.toSubject(), AccessPrivilege.UPDATE);
     top.grantPriv(four.toSubject(), NamingPrivilege.CREATE);
 
-    // get and verify number of groupSets before proceeding..
+    // get number of groupSets before proceeding..
     Set<GroupSet> originalGroupSets = GrouperDAOFactory.getFactory().getGroupSet().findAllByCreator(rootMember);
-    T.amount("Total groupSets", 137, originalGroupSets.size());
+    int size = originalGroupSets.size();
 
     // delete all groupSets
     reset();
@@ -138,7 +138,7 @@ public class AddMissingGroupSetsTest extends GrouperTest {
     // add groupSets and verify them
     new AddMissingGroupSets().showResults(false).addAllMissingGroupSets();
     currentGroupSets = GrouperDAOFactory.getFactory().getGroupSet().findAllByCreator(rootMember);
-    T.amount("Total groupSets", 137, currentGroupSets.size());
+    T.amount("Total groupSets", size, currentGroupSets.size());
     Set<GroupSet> currentGroupSetsAfterMod = convertCurrentGroupSets(originalGroupSets, currentGroupSets);
     Set<GroupSet> checkGroupSets = new HashSet<GroupSet>(originalGroupSets);
     checkGroupSets.removeAll(currentGroupSetsAfterMod);
@@ -160,7 +160,7 @@ public class AddMissingGroupSetsTest extends GrouperTest {
     // now add them back and verify again
     new AddMissingGroupSets().showResults(false).addAllMissingGroupSets();
     currentGroupSets = GrouperDAOFactory.getFactory().getGroupSet().findAllByCreator(rootMember);
-    T.amount("Total groupSets", 137, currentGroupSets.size());
+    T.amount("Total groupSets", size, currentGroupSets.size());
     currentGroupSetsAfterMod = convertCurrentGroupSets(originalGroupSets, currentGroupSets);
     checkGroupSets = new HashSet<GroupSet>(originalGroupSets);
     checkGroupSets.removeAll(currentGroupSetsAfterMod);
