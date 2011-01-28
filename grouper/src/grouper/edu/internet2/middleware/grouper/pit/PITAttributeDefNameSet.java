@@ -290,7 +290,6 @@ public class PITAttributeDefNameSet extends GrouperPIT implements Hib3GrouperVer
    */
   @Override
   public void onPostSave(HibernateSession hibernateSession) {
-    super.onPostSave(hibernateSession);
     
     // add change log entry for flat permissions
     if (this.isActive() && this.getFlatPermissionNotificationsOnSaveOrUpdate()) {
@@ -335,6 +334,8 @@ public class PITAttributeDefNameSet extends GrouperPIT implements Hib3GrouperVer
         changeLogEntryBatch.clear();
       }
     }
+    
+    super.onPostSave(hibernateSession);
   }
 
   

@@ -496,7 +496,6 @@ public class PITAttributeAssign extends GrouperPIT implements Hib3GrouperVersion
    */
   @Override
   public void onPostSave(HibernateSession hibernateSession) {
-    super.onPostSave(hibernateSession);
     
     // add change log entry for flat permissions
     if (this.isActive() && this.getFlatPermissionNotificationsOnSaveOrUpdate()) {
@@ -541,6 +540,8 @@ public class PITAttributeAssign extends GrouperPIT implements Hib3GrouperVersion
         changeLogEntryBatch.clear();
       }
     }
+    
+    super.onPostSave(hibernateSession);
   }
   
 

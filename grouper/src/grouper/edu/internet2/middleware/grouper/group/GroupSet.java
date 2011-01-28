@@ -325,7 +325,6 @@ public class GroupSet extends GrouperAPI implements GrouperHasContext, Hib3Group
    */
   @Override
   public void onPostSave(HibernateSession hibernateSession) {
-    super.onPostSave(hibernateSession);
     
     // take care of effective group sets
     if (this.getDepth() == 1 && this.getMemberGroupId() != null) {
@@ -349,6 +348,8 @@ public class GroupSet extends GrouperAPI implements GrouperHasContext, Hib3Group
       // update last membership change time
       this.updateLastMembershipChange(this, results);
     }
+    
+    super.onPostSave(hibernateSession);
   }
 
   

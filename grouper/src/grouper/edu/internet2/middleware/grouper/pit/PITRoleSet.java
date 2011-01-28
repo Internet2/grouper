@@ -291,7 +291,6 @@ public class PITRoleSet extends GrouperPIT implements Hib3GrouperVersioned {
    */
   @Override
   public void onPostSave(HibernateSession hibernateSession) {
-    super.onPostSave(hibernateSession);
     
     // add change log entry for flat permissions
     if (this.isActive() && this.getFlatPermissionNotificationsOnSaveOrUpdate()) {
@@ -336,6 +335,8 @@ public class PITRoleSet extends GrouperPIT implements Hib3GrouperVersioned {
         changeLogEntryBatch.clear();
       }
     }
+    
+    super.onPostSave(hibernateSession);
   }
 
   

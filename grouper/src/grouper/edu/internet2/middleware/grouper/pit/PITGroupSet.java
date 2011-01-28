@@ -743,7 +743,6 @@ public class PITGroupSet extends GrouperPIT implements Hib3GrouperVersioned {
    */
   @Override
   public void onPostSave(HibernateSession hibernateSession) {
-    super.onPostSave(hibernateSession);
     
     // add change log entry for flat permissions
     if (this.isActive() && this.getFlatPermissionNotificationsOnSaveOrUpdate()) {
@@ -814,6 +813,8 @@ public class PITGroupSet extends GrouperPIT implements Hib3GrouperVersioned {
         pitGroupSet.saveOrUpdate();
       }
     }
+    
+    super.onPostSave(hibernateSession);
   }
   
   /**
@@ -991,7 +992,6 @@ public class PITGroupSet extends GrouperPIT implements Hib3GrouperVersioned {
    */
   @Override
   public void onPostUpdate(HibernateSession hibernateSession) {
-    super.onPostUpdate(hibernateSession);
 
     // take care of effective group sets
     if (!this.isActive() && this.dbVersion().isActive() && this.getDepth() == 1) {
@@ -1031,6 +1031,8 @@ public class PITGroupSet extends GrouperPIT implements Hib3GrouperVersioned {
         pitGroupSet.saveOrUpdate();
       }
     }
+    
+    super.onPostUpdate(hibernateSession);
   }
 
   
