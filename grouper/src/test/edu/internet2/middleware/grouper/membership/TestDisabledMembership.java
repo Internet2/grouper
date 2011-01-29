@@ -55,7 +55,7 @@ import edu.internet2.middleware.subject.Subject;
 public class TestDisabledMembership extends GrouperTest {
 
   public static void main(String[] args) {
-    TestRunner.run(new TestDisabledMembership("testDisablingMembership"));
+    TestRunner.run(new TestDisabledMembership("testAddingMembershipWhenDisabledMembershipExistsInPath"));
   }
   
   R r = null;

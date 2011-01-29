@@ -46,7 +46,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 public class TestGQStemCreatedBefore extends TestCase {
 
   public static void main(String[] args) {
-    TestRunner.run(new TestGQStemCreatedBefore("testStemCreatedBeforeFilterSomething"));
+    TestRunner.run(new TestGQStemCreatedBefore("testStemCreatedBeforeFilterNothing"));
   }
   
   public TestGQStemCreatedBefore(String name) {
@@ -84,7 +84,14 @@ public class TestGQStemCreatedBefore extends TestCase {
       Assert.assertTrue("groups",  gq.getGroups().size()      == 0);
       Assert.assertTrue("members", gq.getMembers().size()     == 0);
       Assert.assertTrue("mships",  gq.getMemberships().size() == 0);
-      Assert.assertTrue("stems",   gq.getStems().size()       == 0);
+      for (Stem stem : gq.getStems()) {
+        if (stem.getName().startsWith("edu")) {
+          throw new RuntimeException("Stem cant be edu");
+        }
+        if (stem.getName().startsWith("edu")) {
+          throw new RuntimeException("Stem cant be edu");
+        }
+      }
     }
     catch (QueryException eQ) {
       Assert.fail("unable to query: " + eQ.getMessage());

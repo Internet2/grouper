@@ -77,7 +77,8 @@ public class ChangeLogTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new ChangeLogTest("testGroups"));
+    //TestRunner.run(new ChangeLogTest("testMemberships"));
+    TestRunner.run(ChangeLogTest.class);
   }
   
   /**

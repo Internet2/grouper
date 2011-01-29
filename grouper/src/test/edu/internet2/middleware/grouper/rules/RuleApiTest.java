@@ -65,7 +65,7 @@ public class RuleApiTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new RuleApiTest("testInheritGroupPrivilegesPatternDaemon"));
+    TestRunner.run(new RuleApiTest("testRuleEmailFlattenedPermissionAssign"));
   }
 
   /**
@@ -191,7 +191,8 @@ public class RuleApiTest extends GrouperTest {
    */
   public void testGroupIntersectionDate() {
     GrouperSession grouperSession = GrouperSession.startRootSession();
-    Group groupA = new GroupSave(grouperSession).assignSaveMode(SaveMode.INSERT_OR_UPDATE).assignName("stem:a").assignCreateParentStemsIfNotExist(true).save();
+    Group groupA = new GroupSave(grouperSession).assignSaveMode(SaveMode.INSERT_OR_UPDATE)
+      .assignName("stem:a").assignCreateParentStemsIfNotExist(true).save();
     
     Subject subject9 = SubjectFinder.findById("test.subject.9", true);
     Subject subject0 = SubjectFinder.findById("test.subject.0", true);
@@ -199,7 +200,8 @@ public class RuleApiTest extends GrouperTest {
 
     groupA.grantPriv(subject9, AccessPrivilege.ADMIN, false);
   
-    Group groupB = new GroupSave(grouperSession).assignSaveMode(SaveMode.INSERT_OR_UPDATE).assignName("stem:b").assignCreateParentStemsIfNotExist(true).save();
+    Group groupB = new GroupSave(grouperSession).assignSaveMode(SaveMode.INSERT_OR_UPDATE)
+      .assignName("stem:b").assignCreateParentStemsIfNotExist(true).save();
     groupB.grantPriv(subject9, AccessPrivilege.READ, false);
     
     RuleApi.groupIntersection(subject9, groupA, groupB, 5);
@@ -226,16 +228,16 @@ public class RuleApiTest extends GrouperTest {
     //should have a disabled date in group A
     assertTrue(groupA.hasMember(subject0));
 
-    Member member0 = MemberFinder.findBySubject(grouperSession, subject0, false);
-    Member member1 = MemberFinder.findBySubject(grouperSession, subject1, false);
+    Member member0 = MemberFinder.findBySubject(grouperSession, subject0, true);
+    Member member1 = MemberFinder.findBySubject(grouperSession, subject1, true);
     
     Membership membership = groupA.getImmediateMembership(Group.getDefaultList(), member0, true, true);
     
     assertNotNull(membership.getDisabledTime());
     long disabledTime = membership.getDisabledTime().getTime();
     
-    assertTrue("More than 6 days: " + new Date(disabledTime), disabledTime > System.currentTimeMillis() + (6 * 24 * 60 * 60 * 1000));
-    assertTrue("Less than 8 days: " + new Date(disabledTime), disabledTime < System.currentTimeMillis() + (8 * 24 * 60 * 60 * 1000));
+    assertTrue("More than 4 days: " + new Date(disabledTime), disabledTime > System.currentTimeMillis() + (4 * 24 * 60 * 60 * 1000));
+    assertTrue("Less than 6 days: " + new Date(disabledTime), disabledTime < System.currentTimeMillis() + (6 * 24 * 60 * 60 * 1000));
 
     groupA.addMember(subject1);
 
@@ -253,8 +255,8 @@ public class RuleApiTest extends GrouperTest {
     assertNotNull(membership.getDisabledTime());
     disabledTime = membership.getDisabledTime().getTime();
     
-    assertTrue("More than 6 days: " + new Date(disabledTime), disabledTime > System.currentTimeMillis() + (6 * 24 * 60 * 60 * 1000));
-    assertTrue("Less than 8 days: " + new Date(disabledTime), disabledTime < System.currentTimeMillis() + (8 * 24 * 60 * 60 * 1000));
+    assertTrue("More than 4 days: " + new Date(disabledTime), disabledTime > System.currentTimeMillis() + (4 * 24 * 60 * 60 * 1000));
+    assertTrue("Less than 6 days: " + new Date(disabledTime), disabledTime < System.currentTimeMillis() + (6 * 24 * 60 * 60 * 1000));
   
   }
   
@@ -1084,15 +1086,19 @@ public class RuleApiTest extends GrouperTest {
     GrouperLoader.runOnceByJobName(grouperSession, GrouperLoaderType.GROUPER_CHANGE_LOG_TEMP_TO_CHANGE_LOG);
     GrouperLoader.runOnceByJobName(grouperSession, GrouperLoaderType.GROUPER_CHANGE_LOG_CONSUMER_PREFIX + "grouperRules");
     
-    AttributeDef permissionDef = new AttributeDefSave(grouperSession).assignName("stem:permissionDef").assignCreateParentStemsIfNotExist(true).assignAttributeDefType(AttributeDefType.perm).save();
+    AttributeDef permissionDef = new AttributeDefSave(grouperSession)
+      .assignName("stem:permissionDef").assignCreateParentStemsIfNotExist(true)
+      .assignAttributeDefType(AttributeDefType.perm).save();
     
     permissionDef.setAssignToEffMembership(true);
     permissionDef.setAssignToGroup(true);
     permissionDef.store();
     
     //make a role
-    Role payrollUser = new GroupSave(grouperSession).assignName("apps:payroll:roles:payrollUser").assignTypeOfGroup(TypeOfGroup.role).assignCreateParentStemsIfNotExist(true).save();
-    Role payrollGuest = new GroupSave(grouperSession).assignName("apps:payroll:roles:payrollGuest").assignTypeOfGroup(TypeOfGroup.role).assignCreateParentStemsIfNotExist(true).save();
+    Role payrollUser = new GroupSave(grouperSession).assignName("apps:payroll:roles:payrollUser")
+      .assignTypeOfGroup(TypeOfGroup.role).assignCreateParentStemsIfNotExist(true).save();
+    Role payrollGuest = new GroupSave(grouperSession).assignName("apps:payroll:roles:payrollGuest")
+      .assignTypeOfGroup(TypeOfGroup.role).assignCreateParentStemsIfNotExist(true).save();
   
     Subject subject0 = SubjectFinder.findByIdAndSource("test.subject.0", "jdbc", true);
     Subject subject1 = SubjectFinder.findByIdAndSource("test.subject.1", "jdbc", true);
@@ -1101,11 +1107,15 @@ public class RuleApiTest extends GrouperTest {
     payrollGuest.addMember(subject1, false);
     
     //create a permission, assign to role
-    AttributeDefName canLogin = new AttributeDefNameSave(grouperSession, permissionDef).assignName("apps:payroll:permissions:canLogin").assignCreateParentStemsIfNotExist(true).save();
+    AttributeDefName canLogin = new AttributeDefNameSave(grouperSession, permissionDef)
+      .assignName("apps:payroll:permissions:canLogin").assignCreateParentStemsIfNotExist(true).save();
     
     payrollUser.getPermissionRoleDelegate().assignRolePermission(canLogin);
     
-    RuleApi.emailOnFlattenedPermissionAssign(SubjectFinder.findRootSubject(), permissionDef, "a@b.c, ${safeSubject.emailAddress}", "You were assigned permission: ${attributeDefNameDisplayExtension} in role ${roleDisplayExtension}", "Hello ${safeSubject.name},\n\nJust letting you know you were assigned permission ${attributeDefNameDisplayExtension} in role ${roleDisplayExtension} in the central Groups/Permissions management system.  Please do not respond to this email.\n\nRegards.");
+    RuleApi.emailOnFlattenedPermissionAssign(SubjectFinder.findRootSubject(), permissionDef, 
+        "a@b.c, ${safeSubject.emailAddress}", 
+        "You were assigned permission: ${attributeDefNameDisplayExtension} in role ${roleDisplayExtension}", 
+        "Hello ${safeSubject.name},\n\nJust letting you know you were assigned permission ${attributeDefNameDisplayExtension} in role ${roleDisplayExtension} in the central Groups/Permissions management system.  Please do not respond to this email.\n\nRegards.");
       
     //count rule firings
     long initialFirings = RuleEngine.ruleFirings;

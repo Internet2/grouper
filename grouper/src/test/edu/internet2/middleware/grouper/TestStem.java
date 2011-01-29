@@ -76,8 +76,8 @@ public class TestStem extends GrouperTest {
    * @param args String[]
    */
   public static void main(String[] args) {
-    TestRunner.run(new TestStem("testGetChildGroups"));
-    //TestRunner.run(TestStem.class);
+    //TestRunner.run(new TestStem("testStemModifyAttributesAfterDisablingMembership"));
+    TestRunner.run(TestStem.class);
   }
 
   public TestStem(String name) {
