@@ -1,11 +1,25 @@
 package edu.internet2.middleware.grouper.internal.dao.hib3;
 
 import java.sql.Timestamp;
+import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
+
+import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.hibernate.ByHqlStatic;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.PITGroupDAO;
+import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
+import edu.internet2.middleware.grouper.internal.dao.QuerySortField;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.pit.PITGroup;
+import edu.internet2.middleware.grouper.privs.AccessPrivilege;
+import edu.internet2.middleware.grouper.privs.Privilege;
+import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
+import edu.internet2.middleware.subject.Subject;
 
 /**
  * @author shilen
@@ -89,6 +103,103 @@ public class Hib3PITGroupDAO extends Hib3DAO implements PITGroupDAO {
       .createQuery("delete from PITGroup where endTimeDb is not null and endTimeDb < :time")
       .setLong("time", time.getTime() * 1000)
       .executeUpdate();
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.PITGroupDAO#getAllGroupsMembershipSecure(java.lang.String, java.lang.String, java.lang.String, java.sql.Timestamp, java.sql.Timestamp, edu.internet2.middleware.grouper.internal.dao.QueryOptions)
+   */
+  public Set<PITGroup> getAllGroupsMembershipSecure(String pitMemberId, String pitFieldId, 
+      String scope, Timestamp pointInTimeFrom, Timestamp pointInTimeTo, QueryOptions queryOptions) {
+
+    boolean hasScope = StringUtils.isNotBlank(scope);
+    
+    if (queryOptions == null) {
+      queryOptions = new QueryOptions();
+    }
+    
+    if (queryOptions.getQuerySort() == null) {
+      queryOptions.sortAsc("thePITGroup.nameDb");
+    }
+    
+    List<QuerySortField> querySortFields = queryOptions.getQuerySort().getQuerySortFields();
+
+    //reset from friendly sort fields to non friendly
+    for (QuerySortField querySortField : querySortFields) {
+      if (StringUtils.equalsIgnoreCase(querySortField.getColumn(), "name")) {
+        querySortField.setColumn("thePITGroup.nameDb");
+      }
+    }
+  
+    StringBuilder sql = new StringBuilder("select distinct thePITGroup from PITGroup thePITGroup, " +
+        " PITMembershipView ms ");
+  
+    ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
+  
+    //make sure the session can read the privs
+    Set<Privilege> inPrivSet = AccessPrivilege.READ_PRIVILEGES;
+    
+    //subject to check privileges for
+    GrouperSession grouperSession = GrouperSession.staticGrouperSession();
+    Subject accessSubject = grouperSession.getSubject();
+    
+    //see if we are adding more to the query
+    boolean changedQuery = grouperSession.getAccessResolver().hqlFilterGroupsWhereClause(accessSubject, byHqlStatic, 
+        sql, "thePITGroup.id", inPrivSet);
+  
+    if (!changedQuery) {
+      sql.append(" where ");
+    } else {
+      sql.append(" and ");
+    }
+    
+    if (hasScope) {
+      sql.append(" thePITGroup.nameDb like :scope and ");
+      byHqlStatic.setString("scope", scope + "%");
+    }
+    
+    //this must be last due to and's
+    sql.append(" ms.ownerGroupId = thePITGroup.id and ms.fieldId = :fieldId " +
+      " and ms.memberId = :memberId ");
+    
+    if (pointInTimeFrom != null) {
+      Long endDateAfter = pointInTimeFrom.getTime() * 1000;
+      sql.append(" and (ms.membershipEndTimeDb is null or ms.membershipEndTimeDb > '" + endDateAfter + "')");
+      sql.append(" and (ms.groupSetEndTimeDb is null or ms.groupSetEndTimeDb > '" + endDateAfter + "')");
+    }
+    
+    if (pointInTimeTo != null) {
+      Long startDateBefore = pointInTimeTo.getTime() * 1000;
+      sql.append(" and ms.membershipStartTimeDb < '" + startDateBefore + "'");
+      sql.append(" and ms.groupSetStartTimeDb < '" + startDateBefore + "'");
+    }
+    
+    byHqlStatic.createQuery(sql.toString())
+      .setString("fieldId", pitFieldId)
+      .setString("memberId", pitMemberId);
+
+    Set<PITGroup> pitGroups = byHqlStatic
+      .setCacheable(false)
+      .setCacheRegion(KLASS + ".GetAllGroupsMembershipSecure")
+      .options(queryOptions)
+      .listSet(PITGroup.class);
+
+
+    if (changedQuery || PrivilegeHelper.isWheelOrRoot(accessSubject)) {
+      return pitGroups;
+    }
+
+    // TODO improve performance here...
+    Set<PITGroup> filteredPITGroups = new LinkedHashSet<PITGroup>();
+    for (PITGroup pitGroup : pitGroups) {
+      if (pitGroup.isActive()) {
+        Group group = GrouperDAOFactory.getFactory().getGroup().findByUuid(pitGroup.getId(), true);
+        if (PrivilegeHelper.canRead(grouperSession.internal_getRootSession(), group, accessSubject)) {
+          filteredPITGroups.add(pitGroup);
+        }
+      }
+    }
+    
+    return filteredPITGroups;
   }
 }
 

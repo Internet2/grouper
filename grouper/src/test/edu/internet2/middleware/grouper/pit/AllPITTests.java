@@ -21,6 +21,7 @@ public class AllPITTests {
     suite.addTestSuite(PITUtilsTests.class);
     suite.addTestSuite(PITGroupFinderTests.class);
     suite.addTestSuite(PITGroupTests.class);
+    suite.addTestSuite(PITMemberTests.class);
     return suite;
   }
 }
