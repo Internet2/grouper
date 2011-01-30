@@ -65,7 +65,7 @@ public class RuleApiTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new RuleApiTest("testInheritAttributeDefPrivileges"));
+    TestRunner.run(new RuleApiTest("testRuleEmailFlattenedPermissionAssign"));
   }
 
   /**
@@ -1131,16 +1131,15 @@ public class RuleApiTest extends GrouperTest {
     assertEquals(initialFirings+1, RuleEngine.ruleFirings);
     assertEquals(initialEmailCount+1, GrouperEmail.testingEmailCount);
 
-// THIS CHANGED
-//    //assign by a different path
-//    payrollGuest.getPermissionRoleDelegate().assignSubjectRolePermission(canLogin, subject0);
-//    
-//    //shouldnt fire or send email
-//    GrouperLoader.runOnceByJobName(grouperSession, GrouperLoaderType.GROUPER_CHANGE_LOG_TEMP_TO_CHANGE_LOG);
-//    GrouperLoader.runOnceByJobName(grouperSession, GrouperLoaderType.GROUPER_CHANGE_LOG_CONSUMER_PREFIX + "grouperRules");
-//
-//    assertEquals(initialFirings+1, RuleEngine.ruleFirings);
-//    assertEquals(initialEmailCount+1, GrouperEmail.testingEmailCount);
+    //assign by a different path
+    payrollGuest.getPermissionRoleDelegate().assignSubjectRolePermission(canLogin, subject0);
+    
+    //shouldnt fire or send email
+    GrouperLoader.runOnceByJobName(grouperSession, GrouperLoaderType.GROUPER_CHANGE_LOG_TEMP_TO_CHANGE_LOG);
+    GrouperLoader.runOnceByJobName(grouperSession, GrouperLoaderType.GROUPER_CHANGE_LOG_CONSUMER_PREFIX + "grouperRules");
+
+    assertEquals(initialFirings+1, RuleEngine.ruleFirings);
+    assertEquals(initialEmailCount+1, GrouperEmail.testingEmailCount);
 
     //assign a new user directly
     payrollGuest.getPermissionRoleDelegate().assignSubjectRolePermission(canLogin, subject1);
@@ -1152,16 +1151,15 @@ public class RuleApiTest extends GrouperTest {
     assertEquals(initialFirings+2, RuleEngine.ruleFirings);
     assertEquals(initialEmailCount+2, GrouperEmail.testingEmailCount);
 
-// THIS CHANGED
-//    //assign by a different path
-//    payrollUser.addMember(subject1, false);
-//
-//    //shouldnt fire or send email
-//    GrouperLoader.runOnceByJobName(grouperSession, GrouperLoaderType.GROUPER_CHANGE_LOG_TEMP_TO_CHANGE_LOG);
-//    GrouperLoader.runOnceByJobName(grouperSession, GrouperLoaderType.GROUPER_CHANGE_LOG_CONSUMER_PREFIX + "grouperRules");
-//
-//    assertEquals(initialFirings+2, RuleEngine.ruleFirings);
-//    assertEquals(initialEmailCount+2, GrouperEmail.testingEmailCount);
+    //assign by a different path
+    payrollUser.addMember(subject1, false);
+
+    //shouldnt fire or send email
+    GrouperLoader.runOnceByJobName(grouperSession, GrouperLoaderType.GROUPER_CHANGE_LOG_TEMP_TO_CHANGE_LOG);
+    GrouperLoader.runOnceByJobName(grouperSession, GrouperLoaderType.GROUPER_CHANGE_LOG_CONSUMER_PREFIX + "grouperRules");
+
+    assertEquals(initialFirings+2, RuleEngine.ruleFirings);
+    assertEquals(initialEmailCount+2, GrouperEmail.testingEmailCount);
     
   }
   
