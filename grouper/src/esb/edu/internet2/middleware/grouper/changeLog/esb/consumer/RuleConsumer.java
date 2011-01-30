@@ -16,7 +16,6 @@ import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
-import edu.internet2.middleware.grouper.attr.finder.AttributeAssignFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogConsumerBase;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogEntry;
@@ -337,12 +336,13 @@ public class RuleConsumer extends ChangeLogConsumerBase {
    */
   private static boolean shouldProcessPermission(ChangeLogType changeLogType, ChangeLogEntry changeLogEntry) {
     
-    //must be flattened
-    String permissionType = changeLogEntry.retrieveValueForLabel("permissionType");
-    
-    if (!StringUtils.equals("flattened", permissionType)) {
-      return false;
-    }
+//    There is no more flattened...
+//    //must be flattened
+//    String permissionType = changeLogEntry.retrieveValueForLabel("permissionType");
+//    
+//    if (!StringUtils.equals("flattened", permissionType)) {
+//      return false;
+//    }
     
     String memberId = changeLogEntry.retrieveValueForLabel("memberId");
     
@@ -392,13 +392,14 @@ public class RuleConsumer extends ChangeLogConsumerBase {
    * @return the rules bean
    */
   private static RulesBean setupRulesBeanPermission(ChangeLogType changeLogType, ChangeLogEntry changeLogEntry, GrouperSession grouperSession) {
-    
-    String attributeAssignId = changeLogEntry.retrieveValueForLabel("attributeAssignId");
 
-    AttributeAssign attributeAssign = AttributeAssignFinder.findById(attributeAssignId, false);
-    if (attributeAssign == null) {
-      return null;
-    }
+    AttributeAssign attributeAssign = null;
+//    String attributeAssignId = changeLogEntry.retrieveValueForLabel("attributeAssignId");
+//
+//    AttributeAssign attributeAssign = AttributeAssignFinder.findById(attributeAssignId, false);
+//    if (attributeAssign == null) {
+//      return null;
+//    }
 
     String memberId = changeLogEntry.retrieveValueForLabel("memberId");
 
@@ -407,14 +408,15 @@ public class RuleConsumer extends ChangeLogConsumerBase {
     if (member == null) {
       return null;
     }
-    
-    String roleId = changeLogEntry.retrieveValueForLabel("roleId");
-
-    Role role = GroupFinder.findByUuid(grouperSession, roleId, false);
-    
-    if (role == null) {
-      return null;
-    }
+    Role role = null;
+// CH this went away    
+//    String roleId = changeLogEntry.retrieveValueForLabel("roleId");
+//
+//    Role role = GroupFinder.findByUuid(grouperSession, roleId, false);
+//    
+//    if (role == null) {
+//      return null;
+//    }
     
     String attributeDefNameId = changeLogEntry.retrieveValueForLabel("attributeDefNameId");
 
