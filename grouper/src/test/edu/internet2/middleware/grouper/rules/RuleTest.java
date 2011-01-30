@@ -80,7 +80,7 @@ public class RuleTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new RuleTest("testRuleLonghandStemScopeSubCreateGroupNamePattern"));
+    TestRunner.run(new RuleTest("testRuleLonghandStemScopeSubDaemon"));
     //TestRunner.run(RuleTest.class);
   }
 
@@ -3915,6 +3915,8 @@ public class RuleTest extends GrouperTest {
     GrouperSession grouperSession = GrouperSession.startRootSession();
     Group groupA = new GroupSave(grouperSession).assignName("stem1:a").assignCreateParentStemsIfNotExist(true).save();
     
+    new StemSave(grouperSession).assignName("stem2").save();
+    
     //add a rule on stem:a saying if you are out of stem2, then remove from stem:a
     AttributeAssign attributeAssign = groupA
       .getAttributeDelegate().addAttribute(RuleUtils.ruleAttributeDefName()).getAttributeAssign();
@@ -3933,7 +3935,7 @@ public class RuleTest extends GrouperTest {
         Stem.Scope.SUB.name());
     attributeAssign.getAttributeValueDelegate().assignValue(
         RuleUtils.ruleIfConditionEnumName(), 
-        RuleIfConditionEnum.thisGroupHasImmediateEnabledMembership.name());
+        RuleIfConditionEnum.thisGroupAndNotFolderHasImmediateEnabledMembership.name());
     attributeAssign.getAttributeValueDelegate().assignValue(
         RuleUtils.ruleThenElName(), 
         "${ruleElUtils.removeMemberFromGroupId(ownerGroupId, memberId)}");
@@ -3950,9 +3952,9 @@ public class RuleTest extends GrouperTest {
     
     //count rule firings
     //should come out of groupA
-    assertFalse(groupA.hasMember(SubjectTestHelper.SUBJ0));
-  
     assertEquals(initialFirings+1, RuleEngine.ruleFirings);
+    
+    assertFalse(groupA.hasMember(SubjectTestHelper.SUBJ0));
   
     
   }

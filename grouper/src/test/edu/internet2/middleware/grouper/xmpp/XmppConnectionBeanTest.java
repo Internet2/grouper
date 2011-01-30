@@ -34,8 +34,8 @@ public class XmppConnectionBeanTest extends GrouperTest {
    * 
    */
   public void testEqualsHashcode() {
-    XmppConnectionBean xmppConnectionBean = new XmppConnectionBean();
-    XmppConnectionBean xmppConnectionBean2 = new XmppConnectionBean();
+    XmppConnectionBean xmppConnectionBean = new XmppConnectionBean("server", 123, "user", "resource", "pass");
+    XmppConnectionBean xmppConnectionBean2 = new XmppConnectionBean("server", 123, "user", "resource", "pass");
     
     assertTrue(xmppConnectionBean.equals(xmppConnectionBean2));
     assertEquals(xmppConnectionBean.hashCode(), xmppConnectionBean2.hashCode());

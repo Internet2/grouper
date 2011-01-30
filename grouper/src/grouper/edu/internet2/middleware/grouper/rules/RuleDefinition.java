@@ -10,7 +10,9 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssignType;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValueContainer;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
@@ -87,9 +89,18 @@ public class RuleDefinition {
     String checkOwnerName = AttributeAssignValueContainer
       .attributeValueString(attributeAssignValueContainers, RuleUtils.ruleCheckOwnerNameName());
     
+    AttributeAssign attributeAssignType = attributeAssignValueContainers.iterator().next().getAttributeTypeAssign();
+
     //if owner id and name are blank, then we get from where the rules are assigned
     if (StringUtils.isBlank(checkOwnerId) && StringUtils.isBlank(checkOwnerName)) {
-      checkOwnerId = attributeAssignValueContainers.iterator().next().getAttributeTypeAssign().getOwnerSingleId();
+      //if it is stem, lets go by name, if it is not, then go by id
+      if (attributeAssignType.getAttributeAssignType() == AttributeAssignType.stem) {
+        //lets get the stem
+        Stem stem = attributeAssignType.getOwnerStem();
+        checkOwnerName = stem.getName();
+      } else {
+        checkOwnerId = attributeAssignType.getOwnerSingleId();
+      }
     }
     
     String checkArg0 = AttributeAssignValueContainer
@@ -137,8 +148,6 @@ public class RuleDefinition {
     
     RuleThen ruleThen = new RuleThen(thenEl, thenEnum, thenEnumArg0, thenEnumArg1, thenEnumArg2);
 
-    AttributeAssign attributeAssignType = attributeAssignValueContainers
-      .iterator().next().getAttributeTypeAssign();
     construct(attributeAssignType, 
         ruleSubjectActAs, ruleCheck, ruleIfCondition, ruleThen);
     

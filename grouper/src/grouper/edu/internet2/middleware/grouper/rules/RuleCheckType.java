@@ -447,14 +447,16 @@ public enum RuleCheckType {
       RulesMembershipBean rulesMembershipBean = (RulesMembershipBean)rulesBean;
       if (rulesMembershipBean != null) {
         Group group = rulesMembershipBean.getGroup();
-        variableMap.put("groupId", group.getId());
-        variableMap.put("groupName", group.getName());
-        variableMap.put("groupDisplayName", group.getDisplayName());
-        variableMap.put("groupExtension", group.getExtension());
-        variableMap.put("groupDisplayExtension", group.getDisplayExtension());
-        variableMap.put("groupDescription", group.getDescription());
-        if (hasAccessToElApi) {
-          variableMap.put("group", group);
+        if (group != null) {
+          variableMap.put("groupId", group.getId());
+          variableMap.put("groupName", group.getName());
+          variableMap.put("groupDisplayName", group.getDisplayName());
+          variableMap.put("groupExtension", group.getExtension());
+          variableMap.put("groupDisplayExtension", group.getDisplayExtension());
+          variableMap.put("groupDescription", group.getDescription());
+          if (hasAccessToElApi) {
+            variableMap.put("group", group);
+          }
         }
       }
       if (!StringUtils.isBlank(rulesMembershipBean.getMemberId())) {
@@ -822,7 +824,8 @@ public enum RuleCheckType {
       RuleThenEnum ruleThenEnum = ruleDefinition.getThen().thenEnum();
       
       if (ruleThenEnum != RuleThenEnum.assignGroupPrivilegeToGroupId 
-          || ruleDefinition.getIfCondition().ifConditionEnum() != RuleIfConditionEnum.nameMatchesSqlLikeString
+          || (ruleDefinition.getIfCondition().ifConditionEnum() != null 
+              && ruleDefinition.getIfCondition().ifConditionEnum() != RuleIfConditionEnum.nameMatchesSqlLikeString)
           || !StringUtils.isBlank(ruleDefinition.getIfCondition().getIfConditionEl())) {
         if (StringUtils.isNotBlank(ruleDefinition.getRunDaemon()) && ruleDefinition.isRunDaemonBoolean() ) {
           throw new RuntimeException("RuleThenEnum needs to be " + RuleThenEnum.assignGroupPrivilegeToGroupId);
@@ -976,7 +979,8 @@ public enum RuleCheckType {
       RuleThenEnum ruleThenEnum = ruleDefinition.getThen().thenEnum();
       
       if (ruleThenEnum != RuleThenEnum.assignStemPrivilegeToStemId 
-          || ruleDefinition.getIfCondition().ifConditionEnum() != RuleIfConditionEnum.nameMatchesSqlLikeString
+          || (ruleDefinition.getIfCondition().ifConditionEnum() != null 
+              && ruleDefinition.getIfCondition().ifConditionEnum() != RuleIfConditionEnum.nameMatchesSqlLikeString)
           || !StringUtils.isBlank(ruleDefinition.getIfCondition().getIfConditionEl())) {
         if (StringUtils.isNotBlank(ruleDefinition.getRunDaemon()) && ruleDefinition.isRunDaemonBoolean() ) {
           throw new RuntimeException("RuleThenEnum needs to be " + RuleThenEnum.assignStemPrivilegeToStemId);
@@ -1324,7 +1328,8 @@ public enum RuleCheckType {
       RuleThenEnum ruleThenEnum = ruleDefinition.getThen().thenEnum();
       
       if (ruleThenEnum != RuleThenEnum.assignAttributeDefPrivilegeToAttributeDefId 
-          || ruleDefinition.getIfCondition().ifConditionEnum() != RuleIfConditionEnum.nameMatchesSqlLikeString
+          || (ruleDefinition.getIfCondition().ifConditionEnum() != null && 
+              ruleDefinition.getIfCondition().ifConditionEnum() != RuleIfConditionEnum.nameMatchesSqlLikeString)
           || !StringUtils.isBlank(ruleDefinition.getIfCondition().getIfConditionEl())) {
         if (StringUtils.isNotBlank(ruleDefinition.getRunDaemon()) && ruleDefinition.isRunDaemonBoolean() ) {
           throw new RuntimeException("RuleThenEnum needs to be " + RuleThenEnum.assignAttributeDefPrivilegeToAttributeDefId);
