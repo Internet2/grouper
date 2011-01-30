@@ -55,7 +55,6 @@ import edu.internet2.middleware.grouper.hooks.logic.GrouperHookType;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHooksUtils;
 import edu.internet2.middleware.grouper.hooks.logic.HookVeto;
 import edu.internet2.middleware.grouper.hooks.logic.VetoTypeGrouper;
-import edu.internet2.middleware.grouper.internal.dao.GrouperDAO;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
@@ -1924,6 +1923,33 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
     }
   }
 
+  /**
+   * if it is possible to get a single ownerid (i.e. not any_mem), then do that here
+   * @return the single owner id
+   */
+  public String getOwnerSingleId() {
+    String ownerId = null;
+    AttributeAssignType ownerType = this.getAttributeAssignType();
+    if (AttributeAssignType.group == ownerType) {
+      ownerId = this.getOwnerGroupId();
+    } else if (AttributeAssignType.stem == ownerType) {
+      ownerId = this.getOwnerStemId();
+    } else if (AttributeAssignType.member == ownerType) {
+      ownerId = this.getOwnerMemberId();
+    } else if (AttributeAssignType.attr_def == ownerType) {
+      ownerId = this.getOwnerAttributeDefId();
+    } else if (AttributeAssignType.any_mem == ownerType) {
+      throw new RuntimeException("Cant get single owner id from any_mem... " + this.getOwnerGroupId() + ", " + this.getOwnerMemberId());
+    } else if (AttributeAssignType.imm_mem == ownerType) {
+      ownerId = this.getOwnerMembershipId();
+    } else if (this.getOwnerAttributeAssignId() != null) {
+      ownerId = this.getOwnerAttributeAssignId();
+    } else {
+      throw new RuntimeException("Unexpected ownerType: " + ownerType);
+    }
+    return ownerId;
+  }
+  
   /**
    * e.g. if enabled or disabled is switching, delete this attribute assignment (and child objects)
    * and recommit it (which will not have the child objects or will have this time)

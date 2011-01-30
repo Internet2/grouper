@@ -60,8 +60,6 @@ public class ExternalSubjectAttrFrameworkTest extends GrouperTest {
   protected void setUp() {
     super.setUp();
     this.grouperSession = GrouperSession.startRootSession();
-    ApiConfig.testConfig.put("mail.smtp.server", "testing");
-    GrouperEmail.testingEmails().clear();
   }
 
   /**

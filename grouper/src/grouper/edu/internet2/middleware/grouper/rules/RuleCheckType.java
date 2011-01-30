@@ -1528,16 +1528,17 @@ public enum RuleCheckType {
         RulesBean rulesBean, boolean hasAccessToElApi) {
       RulesPermissionBean rulesPermissionBean = (RulesPermissionBean)rulesBean;
       if (rulesPermissionBean != null) {
-        Role role = rulesPermissionBean.getRole();
-        variableMap.put("roleId", role.getId());
-        variableMap.put("roleName", role.getName());
-        variableMap.put("roleDisplayName", role.getDisplayName());
-        variableMap.put("roleExtension", role.getExtension());
-        variableMap.put("roleDisplayExtension", role.getDisplayExtension());
-        variableMap.put("roleDescription", role.getDescription());
-        if (hasAccessToElApi) {
-          variableMap.put("role", role);
-        }
+//CH this went away
+//        Role role = rulesPermissionBean.getRole();
+//        variableMap.put("roleId", role.getId());
+//        variableMap.put("roleName", role.getName());
+//        variableMap.put("roleDisplayName", role.getDisplayName());
+//        variableMap.put("roleExtension", role.getExtension());
+//        variableMap.put("roleDisplayExtension", role.getDisplayExtension());
+//        variableMap.put("roleDescription", role.getDescription());
+//        if (hasAccessToElApi) {
+//          variableMap.put("role", role);
+//        }
       }
       if (!StringUtils.isBlank(rulesPermissionBean.getMemberId())) {
         variableMap.put("memberId", rulesPermissionBean.getMemberId());
@@ -1583,20 +1584,21 @@ public enum RuleCheckType {
           variableMap.put("attributeDefName", attributeDefName);
         }
       }
-      AttributeAssign attributeAssign = rulesPermissionBean.getAttributeAssign();
-      if (attributeAssign != null) {
-        variableMap.put("attributeAssignId", attributeAssign.getId());
-        if (attributeAssign.getDisabledTime() != null) {
-          variableMap.put("permissionDisabledTimestamp", attributeAssign.getDisabledTime());
-        }
-        if (attributeAssign.getEnabledTime() != null) {
-          variableMap.put("permissionEnabledTimestamp", attributeAssign.getEnabledTime());
-        }
-
-        if (hasAccessToElApi) {
-          variableMap.put("attributeAssign", attributeAssign);
-        }
-      }
+//CH THIS WENT AWAY
+//      AttributeAssign attributeAssign = rulesPermissionBean.getAttributeAssign();
+//      if (attributeAssign != null) {
+//        variableMap.put("attributeAssignId", attributeAssign.getId());
+//        if (attributeAssign.getDisabledTime() != null) {
+//          variableMap.put("permissionDisabledTimestamp", attributeAssign.getDisabledTime());
+//        }
+//        if (attributeAssign.getEnabledTime() != null) {
+//          variableMap.put("permissionEnabledTimestamp", attributeAssign.getEnabledTime());
+//        }
+//
+//        if (hasAccessToElApi) {
+//          variableMap.put("attributeAssign", attributeAssign);
+//        }
+//      }
       
     }
   

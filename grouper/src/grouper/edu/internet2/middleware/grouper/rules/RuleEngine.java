@@ -66,21 +66,61 @@ public class RuleEngine {
     String ownerId = ruleCheck.getCheckOwnerId();
     String ownerName = ruleCheck.getCheckOwnerName();
     
-    Set<RuleDefinition> ruleDefinitions = new HashSet<RuleDefinition>();
+    Set<RuleDefinition> theRuleDefinitions = new HashSet<RuleDefinition>();
     
     if (!StringUtils.isBlank(ownerId)) {
       ruleCheck.setCheckOwnerName(null);
-      ruleDefinitions.addAll(GrouperUtil.nonNull(this.getRuleCheckIndex().get(ruleCheck)));
+      Set<RuleDefinition> ruleDefinitionsToAdd = GrouperUtil.nonNull(this.getRuleCheckIndex().get(ruleCheck));
+      
+      if (LOG.isDebugEnabled() && GrouperConfig.getPropertyBoolean("rules.logWhyRulesDontFire", false)) {
+        
+        StringBuilder logMessage = new StringBuilder("Checking rules by id: ");
+        logMessage.append(ownerId);
+        logMessage.append(", ids found: ");
+        for (RuleDefinition current : ruleDefinitionsToAdd) {
+          logMessage.append(current.getCheck().getCheckOwnerId()).append(",");
+        }
+        
+        logMessage.append("... ids in rules engine: ");
+        for (RuleCheck current : this.getRuleCheckIndex().keySet()) {
+          if (!StringUtils.isBlank(current.getCheckOwnerId())) {
+            logMessage.append(current.getCheckOwnerId()).append(",");
+          }
+        }
+        LOG.debug(logMessage);
+      }
+      
+      theRuleDefinitions.addAll(ruleDefinitionsToAdd);
       ruleCheck.setCheckOwnerName(ownerName);
     }
     
     if (!StringUtils.isBlank(ownerName)) {
       ruleCheck.setCheckOwnerId(null);
-      ruleDefinitions.addAll(GrouperUtil.nonNull(this.getRuleCheckIndex().get(ruleCheck)));
+      Set<RuleDefinition> ruleDefinitionsToAdd = GrouperUtil.nonNull(this.getRuleCheckIndex().get(ruleCheck));
+
+      if (LOG.isDebugEnabled() && GrouperConfig.getPropertyBoolean("rules.logWhyRulesDontFire", false)) {
+        
+        StringBuilder logMessage = new StringBuilder("Checking rules by name: ");
+        logMessage.append(ownerName);
+        logMessage.append(", names found: ");
+        for (RuleDefinition current : ruleDefinitionsToAdd) {
+          logMessage.append(current.getCheck().getCheckOwnerName()).append(",");
+        }
+        
+        logMessage.append("... names in rules engine: ");
+        for (RuleCheck current : this.getRuleCheckIndex().keySet()) {
+          if (!StringUtils.isBlank(current.getCheckOwnerName())) {
+            logMessage.append(current.getCheckOwnerName()).append(",");
+          }
+        }
+        LOG.debug(logMessage);
+      }
+      
+      theRuleDefinitions.addAll(ruleDefinitionsToAdd);
       ruleCheck.setCheckOwnerId(ownerId);
     }
     
-    return ruleDefinitions;
+    return theRuleDefinitions;
   }
   
   /**
@@ -195,8 +235,16 @@ public class RuleEngine {
     
     for (RuleDefinition ruleDefinition : GrouperUtil.nonNull(this.ruleDefinitions)) {
       
-      RuleCheck ruleCheck = ruleDefinition.getCheck();
-      ruleCheck = ruleCheck.checkTypeEnum().checkKey(ruleDefinition);
+      RuleCheck originalRuleCheck = ruleDefinition.getCheck();
+      RuleCheck ruleCheck = originalRuleCheck.checkTypeEnum().checkKey(ruleDefinition);
+      
+      if (StringUtils.isBlank(ruleCheck.getCheckOwnerId())
+          && StringUtils.isBlank(ruleCheck.getCheckOwnerName())) {
+        
+        LOG.error("Why are ownerId and ownerName blank for this rule: " + originalRuleCheck.getCheckOwnerId() + ", " + originalRuleCheck.getCheckOwnerName());
+        continue;
+      }
+      
       Set<RuleDefinition> checkRuleDefinitions = this.ruleCheckIndex.get(ruleCheck);
       
       //if this list isnt there, then make one

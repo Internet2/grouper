@@ -53,6 +53,7 @@ import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.registry.RegistryInitializeSchema;
 import edu.internet2.middleware.grouper.registry.RegistryReset;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
+import edu.internet2.middleware.grouper.util.GrouperEmail;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
@@ -609,6 +610,10 @@ public class GrouperTest extends TestCase {
     
     ApiConfig.testConfig.put("attributeDefs.create.grant.all.attrRead", "false");
     ApiConfig.testConfig.put("attributeDefs.create.grant.all.attrView", "false");
+
+    //dont send emails
+    ApiConfig.testConfig.put("mail.smtp.server", "testing");
+    GrouperEmail.testingEmails().clear();
 
   }
 

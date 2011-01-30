@@ -150,7 +150,7 @@ public class RuleApi {
       .getAttributeDelegate().addAttribute(RuleUtils.ruleAttributeDefName()).getAttributeAssign();
     
     AttributeValueDelegate attributeValueDelegate = attributeAssign.getAttributeValueDelegate();
-    
+
     attributeValueDelegate.assignValue(
         RuleUtils.ruleActAsSubjectSourceIdName(), actAs.getSourceId());
     attributeValueDelegate.assignValue(
@@ -1061,6 +1061,8 @@ public class RuleApi {
       .getAttributeDelegate().addAttribute(RuleUtils.ruleAttributeDefName()).getAttributeAssign();
     
     AttributeValueDelegate attributeValueDelegate = attributeAssign.getAttributeValueDelegate();
+
+    
     attributeValueDelegate.assignValue(
         RuleUtils.ruleActAsSubjectSourceIdName(), subjectActAs.getSourceId());
     attributeValueDelegate.assignValue(
@@ -1068,6 +1070,7 @@ public class RuleApi {
     attributeValueDelegate.assignValue(
         RuleUtils.ruleCheckTypeName(), 
         RuleCheckType.flattenedPermissionAssignToSubject.name());
+
     attributeValueDelegate.assignValue(
         RuleUtils.ruleThenEnumName(), RuleThenEnum.sendEmail.name());
     

@@ -86,6 +86,12 @@ public class RuleDefinition {
       .attributeValueString(attributeAssignValueContainers, RuleUtils.ruleCheckOwnerIdName());
     String checkOwnerName = AttributeAssignValueContainer
       .attributeValueString(attributeAssignValueContainers, RuleUtils.ruleCheckOwnerNameName());
+    
+    //if owner id and name are blank, then we get from where the rules are assigned
+    if (StringUtils.isBlank(checkOwnerId) && StringUtils.isBlank(checkOwnerName)) {
+      checkOwnerId = attributeAssignValueContainers.iterator().next().getAttributeTypeAssign().getOwnerSingleId();
+    }
+    
     String checkArg0 = AttributeAssignValueContainer
       .attributeValueString(attributeAssignValueContainers, RuleUtils.ruleCheckArg0Name());
     String checkArg1 = AttributeAssignValueContainer
