@@ -156,14 +156,14 @@ public class GrouperEmail {
     try {
       //mail.smtp.server = whatever.school.edu
       //#mail.from.address = noreply@school.edu
-      String theFrom = StringUtils.defaultIfEmpty(this.from, GrouperConfig.getProperty("mail.from.address"));
-      if (StringUtils.isBlank(theFrom)) {
-        throw new RuntimeException("You need to specify the from email address mail.from.address in grouper.properties");
-      }
-      
       String smtpServer = GrouperConfig.getProperty("mail.smtp.server");
       if (StringUtils.isBlank(smtpServer)) {
         throw new RuntimeException("You need to specify the from smtp server mail.smtp.server in grouper.properties");
+      }
+      
+      String theFrom = StringUtils.defaultIfEmpty(this.from, GrouperConfig.getProperty("mail.from.address"));
+      if (!StringUtils.equals("testing", smtpServer) && StringUtils.isBlank(theFrom)) {
+        throw new RuntimeException("You need to specify the from email address mail.from.address in grouper.properties");
       }
       
       String subjectPrefix = StringUtils.defaultString(GrouperConfig.getProperty("mail.subject.prefix"));
@@ -202,7 +202,9 @@ public class GrouperEmail {
         
       }
 
-      //props.put("mail.smtp.debug", "true");
+      if (LOG.isDebugEnabled()) {
+        properties.put("mail.smtp.debug", "true");
+      }
       
       //leave blank for default (probably 25), if ssl is true, default is 465, else specify
       String port = GrouperConfig.getProperty("mail.smtp.port");
@@ -240,8 +242,10 @@ public class GrouperEmail {
         return;
       }
       
-      message.addFrom(new InternetAddress[] { new InternetAddress(theFrom) });
-  
+      if (!StringUtils.isBlank(theFrom)) {
+        message.addFrom(new InternetAddress[] { new InternetAddress(theFrom) });
+      }
+      
       String theSubject = StringUtils.defaultString(subjectPrefix) + this.subject;
       message.setSubject(theSubject);
       
