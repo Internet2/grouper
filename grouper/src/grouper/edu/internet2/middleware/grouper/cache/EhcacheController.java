@@ -224,7 +224,7 @@ public class EhcacheController implements CacheController {
         if (this.mgr == null) {
           URL url = this.getClass().getResource("/grouper.ehcache.xml");
           if (url == null) {
-            throw new RuntimeException("Cant find resourse /grouper.ehcache.xml, " +
+            throw new RuntimeException("Cant find resource /grouper.ehcache.xml, " +
                 "make sure it is on the classpath");
           }
           
