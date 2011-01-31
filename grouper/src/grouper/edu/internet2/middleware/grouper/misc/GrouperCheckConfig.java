@@ -1128,6 +1128,7 @@ public class GrouperCheckConfig {
     checkJar("dom4j.jar", 730604, "org.dom4j.Attribute", "1.6.1");
     checkJar("ehcache.jar", 527332, "net.sf.ehcache.bootstrap.BootstrapCacheLoader", "1.4.0");
     checkJar("ezmorph.jar", 86542, "net.sf.ezmorph.array.AbstractArrayMorpher", "1.0.6");
+    checkJar("grouperClient.jar", 2629340, "edu.internet2.middleware.grouperClientExt.com.thoughtworks.xstream.InitializationException", "1.7.0");
     checkJar("hibernate.jar", 3770617, "org.hibernate.action.BulkOperationCleanupAction", "3.2.6.ga");
     checkJar("invoker.jar", 27767, "com.dawidweiss.invoker.Invoker", "1.0");
     checkJar("jakarta-oro.jar", 65261, "org.apache.oro.io.AwkFilenameFilter", "2.0.8 2003-12-28 11:00:13");
