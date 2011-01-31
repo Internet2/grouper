@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>edu.internet2.middleware.ldappc</groupId>
     <artifactId>ldappcng</artifactId>
-    <version>2.0.0</version>
+    <version>1.7.0</version>
     <packaging>jar</packaging>
 
     <name>LDAP Provisioning Connector - New/Next Generation</name>
