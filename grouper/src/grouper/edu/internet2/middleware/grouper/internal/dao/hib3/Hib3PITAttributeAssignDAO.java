@@ -116,15 +116,13 @@ public class Hib3PITAttributeAssignDAO extends Hib3DAO implements PITAttributeAs
     
     HibernateSession.byHqlStatic()
       .createQuery("update PITAttributeAssign a set a.ownerAttributeAssignId = null where a.endTimeDb is not null and a.endTimeDb < :time and a.ownerAttributeAssignId is not null " +
-      		"and not exists (select 1 from PITAttributeAssignValue v where v.attributeAssignId = a.id)" +
-          "and not exists (select 1 from PITAttributeAssign a2 where a2.ownerAttributeAssignId = a.id)")
+      		"and not exists (select 1 from PITAttributeAssignValue v where v.attributeAssignId = a.id)")
       .setLong("time", time.getTime() * 1000)
       .executeUpdate();
     
     HibernateSession.byHqlStatic()
       .createQuery("delete from PITAttributeAssign a where a.endTimeDb is not null and a.endTimeDb < :time and a.ownerAttributeAssignId is null " +
-      		"and not exists (select 1 from PITAttributeAssignValue v where v.attributeAssignId = a.id)" +
-          "and not exists (select 1 from PITAttributeAssign a2 where a2.ownerAttributeAssignId = a.id)")
+      		"and not exists (select 1 from PITAttributeAssignValue v where v.attributeAssignId = a.id)")
       .setLong("time", time.getTime() * 1000)
       .executeUpdate();
   }
