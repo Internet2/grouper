@@ -3,8 +3,8 @@
 	<classpathentry kind="src" path="src/grouper-ws"/>
 	<classpathentry kind="src" path="conf"/>
 	<classpathentry kind="src" path="src/test"/>
-	<classpathentry kind="src" path="GROUPER_TRUNK_CONF"/>
-	<classpathentry kind="src" path="GROUPER_TRUNK_SOURCE"/>
+	<classpathentry kind="src" path="GROUPER_V1_7_CONF"/>
+	<classpathentry kind="src" path="GROUPER_V1_7_SOURCE"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper-ws-non-webapp/servlet.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper-ws/jdom-1.0.jar"/>
@@ -65,6 +65,6 @@
 	<classpathentry exported="true" kind="lib" path="lib/axis/xml-resolver-1.2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/axis/XmlSchema-1.4.2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper-ws/junit.jar"/>
-	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/grouper_trunk"/>
+	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/grouper_v1_7"/>
 	<classpathentry kind="output" path="webapp/WEB-INF/classes"/>
 </classpath>
