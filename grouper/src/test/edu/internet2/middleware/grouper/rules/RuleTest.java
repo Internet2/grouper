@@ -80,7 +80,7 @@ public class RuleTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new RuleTest("testRuleLonghandStemScopeSubDaemon"));
+    TestRunner.run(new RuleTest("testRuleLonghandStemScopeSubCreateAttributeDefAsGrouperSystem"));
     //TestRunner.run(RuleTest.class);
   }
 

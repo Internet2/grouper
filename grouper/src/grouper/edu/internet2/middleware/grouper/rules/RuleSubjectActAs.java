@@ -340,9 +340,9 @@ public class RuleSubjectActAs {
           
           //see if this is a special case
           if (SubjectHelper.eq(SubjectFinder.findRootSubject(), subjectToActAs) && ownerStem != null ) {
-            if (StringUtils.isBlank(ruleDefinition.getCheck().getCheckOwnerId())
-                && StringUtils.isBlank(ruleDefinition.getCheck().getCheckOwnerName())
-                && ownerStem != null) {
+            if (((StringUtils.isBlank(ruleDefinition.getCheck().getCheckOwnerId())
+                && StringUtils.isBlank(ruleDefinition.getCheck().getCheckOwnerName()))
+                || StringUtils.equals(ruleDefinition.getCheck().getCheckOwnerName(), ownerStem.getName()))) {
               
               RuleThenEnum ruleThenEnum = ruleDefinition.getThen().thenEnum();
               

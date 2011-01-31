@@ -2,6 +2,8 @@ package edu.internet2.middleware.grouper.pit;
 
 import java.util.Date;
 
+import junit.textui.TestRunner;
+
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupType;
@@ -37,6 +39,14 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * $Id$
  */
 public class PITUtilsTests extends GrouperTest {
+  
+  /**
+   * 
+   * @param args
+   */
+  public static void main(String[] args) {
+    TestRunner.run(new PITUtilsTests("testDeleteInactiveRecords"));
+  }
   
   /** top level stem */
   private Stem edu;
@@ -77,6 +87,10 @@ public class PITUtilsTests extends GrouperTest {
     super.tearDown();
   }
   
+  /**
+   * 
+   * @return the date
+   */
   private Date getDateWithSleep() {
     GrouperUtil.sleep(sleepTime);
     Date date = new Date();
