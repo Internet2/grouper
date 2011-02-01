@@ -301,7 +301,7 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
   /** */
   private long      modifyTime      = 0; // default to the epoch
   /** */
-  private String    parentUUID;
+  private String    parentUuid;
 
   /** default to group type, as opposed to role */
   private TypeOfGroup typeOfGroup = TypeOfGroup.group;
@@ -392,8 +392,8 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
   /** constant for field name for: name */
   public static final String FIELD_NAME = "name";
 
-  /** constant for field name for: parentUUID */
-  public static final String FIELD_PARENT_UUID = "parentUUID";
+  /** constant for field name for: parentUuid */
+  public static final String FIELD_PARENT_UUID = "parentUuid";
 
   /** constant for field name for: typeOfGroup */
   public static final String FIELD_TYPE_OF_GROUP = "typeOfGroup";
@@ -4948,7 +4948,7 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
    * @since   1.2.0
    */
   public String getParentUuid() {
-    return this.parentUUID;
+    return this.parentUuid;
   }
 
   /**
@@ -5279,7 +5279,7 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
    * @since   1.2.0
    */
   public void setParentUuid(String parentUUID) {
-    this.parentUUID = parentUUID;
+    this.parentUuid = parentUUID;
 
   }
 
@@ -5370,8 +5370,9 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
             ChangeLogLabels.GROUP_UPDATE.parentStemId.name(), this.getParentUuid(),
             ChangeLogLabels.GROUP_UPDATE.displayName.name(), this.getDisplayName(),
             ChangeLogLabels.GROUP_UPDATE.description.name(), this.getDescription()),
-        GrouperUtil.toList(FIELD_NAME, FIELD_DESCRIPTION, FIELD_DISPLAY_EXTENSION),
+        GrouperUtil.toList(FIELD_NAME, FIELD_PARENT_UUID, FIELD_DESCRIPTION, FIELD_DISPLAY_EXTENSION),
         GrouperUtil.toList(ChangeLogLabels.GROUP_UPDATE.name.name(),
+            ChangeLogLabels.GROUP_UPDATE.parentStemId.name(), 
             ChangeLogLabels.GROUP_UPDATE.description.name(), 
             ChangeLogLabels.GROUP_UPDATE.displayExtension.name()));    
   }
@@ -6293,7 +6294,7 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
     if (!StringUtils.equals(this.name, other.name)) {
       return true;
     }
-    if (!StringUtils.equals(this.parentUUID, other.parentUUID)) {
+    if (!StringUtils.equals(this.parentUuid, other.parentUuid)) {
       return true;
     }
     if (!GrouperUtil.equals(this.typeOfGroup, other.typeOfGroup)) {
