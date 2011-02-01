@@ -3212,7 +3212,18 @@ public enum GrouperDdl implements DdlVersionable {
     GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, PITAttributeAssign.TABLE_GROUPER_PIT_ATTRIBUTE_ASSIGN, 
         "fk_pit_attr_assn_owner_stem_id", PITStem.TABLE_GROUPER_PIT_STEMS, 
         PITAttributeAssign.COLUMN_OWNER_STEM_ID, PITStem.COLUMN_ID);
-
+    
+    GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, PITStem.TABLE_GROUPER_PIT_STEMS, 
+        "fk_pit_stem_parent", PITStem.TABLE_GROUPER_PIT_STEMS, 
+        PITStem.COLUMN_PARENT_STEM_ID, PITStem.COLUMN_ID);
+    
+    GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, PITGroup.TABLE_GROUPER_PIT_GROUPS, 
+        "fk_pit_group_stem", PITStem.TABLE_GROUPER_PIT_STEMS, 
+        PITGroup.COLUMN_STEM_ID, PITStem.COLUMN_ID);
+    
+    GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, PITAttributeDef.TABLE_GROUPER_PIT_ATTRIBUTE_DEF, 
+        "fk_pit_attr_def_stem", PITStem.TABLE_GROUPER_PIT_STEMS, 
+        PITAttributeDef.COLUMN_STEM_ID, PITStem.COLUMN_ID);
     
     GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, PITAttributeDefName.TABLE_GROUPER_PIT_ATTRIBUTE_DEF_NAME, 
         "fk_pit_attr_def_name_stem", PITStem.TABLE_GROUPER_PIT_STEMS, 
@@ -7574,6 +7585,9 @@ public enum GrouperDdl implements DdlVersionable {
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitGroupsTable, PITGroup.COLUMN_NAME, 
           Types.VARCHAR, ddlVersionBean.isSqlServer() ? "900" : "1024", false, true);
       
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitGroupsTable, PITGroup.COLUMN_STEM_ID, 
+          Types.VARCHAR, "40", false, true);
+      
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitGroupsTable, PITGroup.COLUMN_ACTIVE,
           Types.VARCHAR, "1", false, true);
       
@@ -7596,6 +7610,9 @@ public enum GrouperDdl implements DdlVersionable {
           "pit_group_name_idx", scriptOverride, false, PITGroup.COLUMN_NAME);
       
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitGroupsTable.getName(), 
+          "pit_group_parent_idx", false, PITGroup.COLUMN_STEM_ID);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitGroupsTable.getName(), 
           "pit_group_context_idx", false, PITGroup.COLUMN_CONTEXT_ID);
       
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitGroupsTable.getName(), 
@@ -7614,6 +7631,9 @@ public enum GrouperDdl implements DdlVersionable {
   
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitStemsTable, PITStem.COLUMN_NAME, 
           Types.VARCHAR, ddlVersionBean.isSqlServer() ? "900" : "1024", false, true);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitStemsTable, PITStem.COLUMN_PARENT_STEM_ID, 
+          Types.VARCHAR, "40", false, false);
       
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitStemsTable, PITStem.COLUMN_ACTIVE,
           Types.VARCHAR, "1", false, true);
@@ -7637,6 +7657,9 @@ public enum GrouperDdl implements DdlVersionable {
           "pit_stem_name_idx", scriptOverride, false, PITStem.COLUMN_NAME);
       
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitStemsTable.getName(), 
+          "pit_stem_parent_idx", false, PITStem.COLUMN_PARENT_STEM_ID);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitStemsTable.getName(), 
           "pit_stem_context_idx", false, PITStem.COLUMN_CONTEXT_ID);
       
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitStemsTable.getName(), 
@@ -7655,6 +7678,9 @@ public enum GrouperDdl implements DdlVersionable {
   
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeDefTable, PITAttributeDef.COLUMN_NAME, 
           Types.VARCHAR, ddlVersionBean.isSqlServer() ? "900" : "1024", false, true);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeDefTable, PITAttributeDef.COLUMN_STEM_ID, 
+          Types.VARCHAR, "40", false, true);
       
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeDefTable, PITAttributeDef.COLUMN_ATTRIBUTE_DEF_TYPE,
           Types.VARCHAR, "32", false, true);
@@ -7679,6 +7705,9 @@ public enum GrouperDdl implements DdlVersionable {
       
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, ddlVersionBean, pitAttributeDefTable.getName(), 
           "pit_attribute_def_name_idx", scriptOverride, false, PITAttributeDef.COLUMN_NAME);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitAttributeDefTable.getName(), 
+          "pit_attribute_def_parent_idx", false, PITAttributeDef.COLUMN_STEM_ID);
       
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitAttributeDefTable.getName(), 
           "pit_attribute_def_context_idx", false, PITAttributeDef.COLUMN_CONTEXT_ID);
@@ -8263,9 +8292,11 @@ public enum GrouperDdl implements DdlVersionable {
   private static void populatePITTables(Database database, DdlVersionBean ddlVersionBean) {
     long startTime = new Date().getTime() * 1000;
     String orderByDepth = "";
+    String orderByName = "";
 
     if (ddlVersionBean.isMysql() || ddlVersionBean.isHsql()) {
       orderByDepth = " order by depth";
+      orderByName = " order by name";
     }
     
     int count = GrouperDdlUtils.getTableCount(database, "grouper_pit_fields", false);
@@ -8277,12 +8308,21 @@ public enum GrouperDdl implements DdlVersionable {
       }
     }
     
+    count = GrouperDdlUtils.getTableCount(database, "grouper_pit_stems", false);
+    if (count == 0) {
+      count = GrouperDdlUtils.getTableCount(database, "grouper_stems", false);
+      if (count != 0) {
+        ddlVersionBean.appendAdditionalScriptUnique("\ninsert into grouper_pit_stems (id, name, parent_stem_id, active, start_time, context_id, hibernate_version_number) " +
+            "select id, name, parent_stem, 'T', '" + startTime + "', context_id, '0' from grouper_stems" + orderByName + ";\ncommit;\n\n");
+      }
+    }
+    
     count = GrouperDdlUtils.getTableCount(database, "grouper_pit_attribute_def", false);
     if (count == 0) {
       count = GrouperDdlUtils.getTableCount(database, "grouper_attribute_def", false);
       if (count != 0) {
-        ddlVersionBean.appendAdditionalScriptUnique("\ninsert into grouper_pit_attribute_def (id, name, attribute_def_type, active, start_time, context_id, hibernate_version_number) " +
-            "select id, name, attribute_def_type, 'T', '" + startTime + "', context_id, '0' from grouper_attribute_def;\ncommit;\n\n");
+        ddlVersionBean.appendAdditionalScriptUnique("\ninsert into grouper_pit_attribute_def (id, name, stem_id, attribute_def_type, active, start_time, context_id, hibernate_version_number) " +
+            "select id, name, stem_id, attribute_def_type, 'T', '" + startTime + "', context_id, '0' from grouper_attribute_def;\ncommit;\n\n");
       }
     }
     
@@ -8290,17 +8330,8 @@ public enum GrouperDdl implements DdlVersionable {
     if (count == 0) {
       count = GrouperDdlUtils.getTableCount(database, "grouper_groups", false);
       if (count != 0) {
-        ddlVersionBean.appendAdditionalScriptUnique("\ninsert into grouper_pit_groups (id, name, active, start_time, context_id, hibernate_version_number) " +
-            "select id, name, 'T', '" + startTime + "', context_id, '0' from grouper_groups;\ncommit;\n\n");
-      }
-    }
-    
-    count = GrouperDdlUtils.getTableCount(database, "grouper_pit_stems", false);
-    if (count == 0) {
-      count = GrouperDdlUtils.getTableCount(database, "grouper_stems", false);
-      if (count != 0) {
-        ddlVersionBean.appendAdditionalScriptUnique("\ninsert into grouper_pit_stems (id, name, active, start_time, context_id, hibernate_version_number) " +
-            "select id, name, 'T', '" + startTime + "', context_id, '0' from grouper_stems;\ncommit;\n\n");
+        ddlVersionBean.appendAdditionalScriptUnique("\ninsert into grouper_pit_groups (id, name, stem_id, active, start_time, context_id, hibernate_version_number) " +
+            "select id, name, parent_stem, 'T', '" + startTime + "', context_id, '0' from grouper_groups;\ncommit;\n\n");
       }
     }
     

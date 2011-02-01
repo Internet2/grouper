@@ -44,6 +44,9 @@ public class Hib3PITStemDAO extends Hib3DAO implements PITStemDAO {
    * @param hibernateSession
    */
   public static void reset(HibernateSession hibernateSession) {
+    //do this since mysql cant handle self-referential foreign keys    
+    hibernateSession.byHql().createQuery("update PITStem set parentStemId = null where id not in (select s.uuid from Stem as s)").executeUpdate();
+
     hibernateSession.byHql().createQuery("delete from PITStem where id not in (select s.uuid from Stem as s)").executeUpdate();
   }
 
@@ -65,6 +68,13 @@ public class Hib3PITStemDAO extends Hib3DAO implements PITStemDAO {
    * @see edu.internet2.middleware.grouper.internal.dao.PITStemDAO#deleteInactiveRecords(java.sql.Timestamp)
    */
   public void deleteInactiveRecords(Timestamp time) {
+    
+    //do this since mysql cant handle self-referential foreign keys    
+    HibernateSession.byHqlStatic()
+      .createQuery("update PITStem set parentStemId = null where endTimeDb is not null and endTimeDb < :time")
+      .setLong("time", time.getTime() * 1000)
+      .executeUpdate();
+      
     HibernateSession.byHqlStatic()
       .createQuery("delete from PITStem where endTimeDb is not null and endTimeDb < :time")
       .setLong("time", time.getTime() * 1000)

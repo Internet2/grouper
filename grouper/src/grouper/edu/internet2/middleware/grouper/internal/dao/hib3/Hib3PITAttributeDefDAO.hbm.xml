@@ -39,6 +39,7 @@
     <property name="contextId" column="context_id"/>
 
     <property name="nameDb" column="name" />
+    <property name="stemId" column="stem_id" />
     <property name="attributeDefTypeDb" column="attribute_def_type"/>
     
     <property name="activeDb" column="active" />

@@ -192,8 +192,8 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
   /** constant for field name for: name */
   public static final String FIELD_NAME = "name";
 
-  /** constant for field name for: parentUUID */
-  public static final String FIELD_PARENT_UUID = "parentUUID";
+  /** constant for field name for: parentUuid */
+  public static final String FIELD_PARENT_UUID = "parentUuid";
 
   /** constant for field name for: uuid */
   public static final String FIELD_UUID = "uuid";
@@ -314,7 +314,7 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
   /** */
   private String  name;
   /** */
-  private String  parentUUID;
+  private String  parentUuid;
   /** */
   private String  uuid;
 
@@ -2613,7 +2613,7 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
    * @since   1.2.0
    */
   public String getParentUuid() {
-    return this.parentUUID;
+    return this.parentUuid;
   }
 
   /**
@@ -2730,7 +2730,7 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
    * @since   1.2.0
    */
   public void setParentUuid(String parentUUID) {
-    this.parentUUID = parentUUID;
+    this.parentUuid = parentUUID;
   
   }
 
@@ -2921,8 +2921,9 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
             ChangeLogLabels.STEM_UPDATE.parentStemId.name(), this.getParentUuid(),
             ChangeLogLabels.STEM_UPDATE.displayName.name(), this.getDisplayName(),
             ChangeLogLabels.STEM_UPDATE.description.name(), this.getDescription()),
-        GrouperUtil.toList(FIELD_NAME, FIELD_DESCRIPTION, FIELD_DISPLAY_EXTENSION),
+        GrouperUtil.toList(FIELD_NAME, FIELD_PARENT_UUID, FIELD_DESCRIPTION, FIELD_DISPLAY_EXTENSION),
         GrouperUtil.toList(ChangeLogLabels.STEM_UPDATE.name.name(),
+            ChangeLogLabels.STEM_UPDATE.parentStemId.name(), 
             ChangeLogLabels.STEM_UPDATE.description.name(), 
             ChangeLogLabels.STEM_UPDATE.displayExtension.name()));    
     
@@ -3490,7 +3491,7 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
     if (!StringUtils.equals(this.name, other.name)) {
       return true;
     }
-    if (!StringUtils.equals(this.parentUUID, other.parentUUID)) {
+    if (!StringUtils.equals(this.parentUuid, other.parentUuid)) {
       return true;
     }
     if (!StringUtils.equals(this.uuid, other.uuid)) {

@@ -22,6 +22,9 @@ public class PITStem extends GrouperPIT implements Hib3GrouperVersioned {
 
   /** name */
   public static final String COLUMN_NAME = "name";
+  
+  /** parent stem */
+  public static final String COLUMN_PARENT_STEM_ID = "parent_stem_id";
 
   /** hibernate version */
   public static final String COLUMN_HIBERNATE_VERSION_NUMBER = "hibernate_version_number";
@@ -35,13 +38,16 @@ public class PITStem extends GrouperPIT implements Hib3GrouperVersioned {
 
   /** constant for field name for: name */
   public static final String FIELD_NAME = "name";
+  
+  /** constant for field name for: parentStemId */
+  public static final String FIELD_PARENT_STEM_ID = "parentStemId";
 
   /**
    * fields which are included in clone method
    */
   private static final Set<String> CLONE_FIELDS = GrouperUtil.toSet(
       FIELD_CONTEXT_ID, FIELD_HIBERNATE_VERSION_NUMBER, FIELD_ID,
-      FIELD_NAME);
+      FIELD_NAME, FIELD_PARENT_STEM_ID);
 
 
 
@@ -58,6 +64,9 @@ public class PITStem extends GrouperPIT implements Hib3GrouperVersioned {
 
   /** name */
   private String name;
+  
+  /** parent stem */
+  private String parentStemId;
 
   /**
    * @see edu.internet2.middleware.grouper.GrouperAPI#clone()
@@ -117,6 +126,20 @@ public class PITStem extends GrouperPIT implements Hib3GrouperVersioned {
    */
   public void setNameDb(String name) {
     this.name = name;
+  }
+  
+  /**
+   * @return parent stem id
+   */
+  public String getParentStemId() {
+    return parentStemId;
+  }
+  
+  /**
+   * @param parentStemId
+   */
+  public void setParentStemId(String parentStemId) {
+    this.parentStemId = parentStemId;
   }
 
   /**
