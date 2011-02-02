@@ -11,6 +11,7 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.cfg.ApiConfig;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogTempToEntity;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
@@ -107,20 +108,20 @@ public class PITMemberTests extends GrouperTest {
     PITGroup pitGroup2 = GrouperDAOFactory.getFactory().getPITGroup().findById(group2.getId());
     PITGroup pitGroup3 = GrouperDAOFactory.getFactory().getPITGroup().findById(group3.getId());
     
-    Set<PITGroup> results = pitMember0.getGroups(Group.getDefaultList().getUuid(), null, beforeAll, beforeAll, null);
+    Set<PITGroup> results = pitMember0.getGroups(Group.getDefaultList().getUuid(), null, null, null, beforeAll, beforeAll, null);
     assertEquals(0, results.size());
     
-    results = pitMember0.getGroups(Group.getDefaultList().getUuid(), null, afterGroup2AddMember, afterGroup2AddMember, null);
+    results = pitMember0.getGroups(Group.getDefaultList().getUuid(), null, null, null, afterGroup2AddMember, afterGroup2AddMember, null);
     assertEquals(2, results.size());
     assertTrue(results.contains(pitGroup1));
     assertTrue(results.contains(pitGroup2));
     
-    results = pitMember0.getGroups(Group.getDefaultList().getUuid(), null, afterGroup1DeleteMember, afterGroup1DeleteMember, null);
+    results = pitMember0.getGroups(Group.getDefaultList().getUuid(), null, null, null, afterGroup1DeleteMember, afterGroup1DeleteMember, null);
     assertEquals(2, results.size());
     assertTrue(results.contains(pitGroup2));
     assertTrue(results.contains(pitGroup3));
     
-    results = pitMember0.getGroups(Group.getDefaultList().getUuid(), null, afterGroup2Delete, afterGroup2Delete, null);
+    results = pitMember0.getGroups(Group.getDefaultList().getUuid(), null, null, null, afterGroup2Delete, afterGroup2Delete, null);
     assertEquals(1, results.size());
     assertTrue(results.contains(pitGroup3));
   }
@@ -160,24 +161,24 @@ public class PITMemberTests extends GrouperTest {
     PITGroup pitGroup2 = GrouperDAOFactory.getFactory().getPITGroup().findById(group2.getId());
     PITGroup pitGroup3 = GrouperDAOFactory.getFactory().getPITGroup().findById(group3.getId());
     
-    Set<PITGroup> results = pitMember0.getGroups(Group.getDefaultList().getUuid(), null, beforeAll, null, null);
+    Set<PITGroup> results = pitMember0.getGroups(Group.getDefaultList().getUuid(), null, null, null, beforeAll, null, null);
     assertEquals(3, results.size());
     assertTrue(results.contains(pitGroup1));
     assertTrue(results.contains(pitGroup2));
     assertTrue(results.contains(pitGroup3));
     
-    results = pitMember0.getGroups(Group.getDefaultList().getUuid(), null, afterGroup2AddMember, null, null);
+    results = pitMember0.getGroups(Group.getDefaultList().getUuid(), null, null, null, afterGroup2AddMember, null, null);
     assertEquals(3, results.size());
     assertTrue(results.contains(pitGroup1));
     assertTrue(results.contains(pitGroup2));
     assertTrue(results.contains(pitGroup3));
     
-    results = pitMember0.getGroups(Group.getDefaultList().getUuid(), null, afterGroup1DeleteMember, null, null);
+    results = pitMember0.getGroups(Group.getDefaultList().getUuid(), null, null, null, afterGroup1DeleteMember, null, null);
     assertEquals(2, results.size());
     assertTrue(results.contains(pitGroup2));
     assertTrue(results.contains(pitGroup3));
     
-    results = pitMember0.getGroups(Group.getDefaultList().getUuid(), null, afterGroup2Delete, null, null);
+    results = pitMember0.getGroups(Group.getDefaultList().getUuid(), null, null, null, afterGroup2Delete, null, null);
     assertEquals(1, results.size());
     assertTrue(results.contains(pitGroup3));
   }
@@ -217,21 +218,21 @@ public class PITMemberTests extends GrouperTest {
     PITGroup pitGroup2 = GrouperDAOFactory.getFactory().getPITGroup().findById(group2.getId());
     PITGroup pitGroup3 = GrouperDAOFactory.getFactory().getPITGroup().findById(group3.getId());
     
-    Set<PITGroup> results = pitMember0.getGroups(Group.getDefaultList().getUuid(), null, null, beforeAll, null);
+    Set<PITGroup> results = pitMember0.getGroups(Group.getDefaultList().getUuid(), null, null, null, null, beforeAll, null);
     assertEquals(0, results.size());
     
-    results = pitMember0.getGroups(Group.getDefaultList().getUuid(), null, null, afterGroup2AddMember, null);
+    results = pitMember0.getGroups(Group.getDefaultList().getUuid(), null, null, null, null, afterGroup2AddMember, null);
     assertEquals(2, results.size());
     assertTrue(results.contains(pitGroup1));
     assertTrue(results.contains(pitGroup2));
     
-    results = pitMember0.getGroups(Group.getDefaultList().getUuid(), null, null, afterGroup1DeleteMember, null);
+    results = pitMember0.getGroups(Group.getDefaultList().getUuid(), null, null, null, null, afterGroup1DeleteMember, null);
     assertEquals(3, results.size());
     assertTrue(results.contains(pitGroup1));
     assertTrue(results.contains(pitGroup2));
     assertTrue(results.contains(pitGroup3));
     
-    results = pitMember0.getGroups(Group.getDefaultList().getUuid(), null, null, afterGroup2Delete, null);
+    results = pitMember0.getGroups(Group.getDefaultList().getUuid(), null, null, null, null, afterGroup2Delete, null);
     assertEquals(3, results.size());
     assertTrue(results.contains(pitGroup1));
     assertTrue(results.contains(pitGroup2));
@@ -258,9 +259,135 @@ public class PITMemberTests extends GrouperTest {
     PITMember pitMember0 = GrouperDAOFactory.getFactory().getPITMember().findById(member0.getUuid());
     PITGroup pitGroup2 = GrouperDAOFactory.getFactory().getPITGroup().findById(group2.getId());
     
-    Set<PITGroup> results = pitMember0.getGroups(Group.getDefaultList().getUuid(), "edu:child:", null, null, null);
+    Set<PITGroup> results = pitMember0.getGroups(Group.getDefaultList().getUuid(), "edu:child:", null, null, null, null, null);
     assertEquals(1, results.size());
     assertTrue(results.contains(pitGroup2));
+  }
+  
+  /**
+   * 
+   */
+  public void testGetGroupsWithStemScopeSub() {
+    Member member0 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ0, true);
+    ApiConfig.testConfig.put("groups.create.grant.all.read", "false");
+    ApiConfig.testConfig.put("groups.create.grant.all.view", "false");
+    
+    Stem child = edu.addChildStem("child", "child");
+    
+    Group group1 = edu.addChildGroup("test1", "test1");
+    Group group2 = child.addChildGroup("test2", "test2");
+
+    group1.addMember(member0.getSubject());
+    group2.addMember(member0.getSubject());
+    ChangeLogTempToEntity.convertRecords();
+    
+    PITMember pitMember0 = GrouperDAOFactory.getFactory().getPITMember().findById(member0.getUuid());
+    PITGroup pitGroup2 = GrouperDAOFactory.getFactory().getPITGroup().findById(group2.getId());
+    PITStem pitStem = GrouperDAOFactory.getFactory().getPITStem().findById(child.getUuid());
+    
+    Set<PITGroup> results = pitMember0.getGroups(Group.getDefaultList().getUuid(), null, pitStem, Scope.SUB, null, null, null);
+    assertEquals(1, results.size());
+    assertTrue(results.contains(pitGroup2));
+    
+    // this should still work if everything is deleted...
+    group1.delete();
+    group2.delete();
+    child.delete();
+    edu.delete();
+    ChangeLogTempToEntity.convertRecords();
+    
+    // refresh
+    pitGroup2 = GrouperDAOFactory.getFactory().getPITGroup().findById(group2.getId());
+    pitStem = GrouperDAOFactory.getFactory().getPITStem().findById(child.getUuid());
+
+    results = pitMember0.getGroups(Group.getDefaultList().getUuid(), null, pitStem, Scope.SUB, null, null, null);
+    assertEquals(1, results.size());
+    assertTrue(results.contains(pitGroup2));
+    
+    // recreate and verify that the sub scope is working properly.
+    Stem eduNew = StemHelper.addChildStem(root, "edu", "education");
+    Stem childNew = eduNew.addChildStem("child", "child");
+
+    Group group1New = eduNew.addChildGroup("test1", "test1");
+    Group group2New = childNew.addChildGroup("test2", "test2");
+
+    group1New.addMember(member0.getSubject());
+    group2New.addMember(member0.getSubject());
+    ChangeLogTempToEntity.convertRecords();
+    
+    PITGroup pitGroup2New = GrouperDAOFactory.getFactory().getPITGroup().findById(group2New.getId());
+    PITStem pitStemNew = GrouperDAOFactory.getFactory().getPITStem().findById(childNew.getUuid());
+   
+    results = pitMember0.getGroups(Group.getDefaultList().getUuid(), null, pitStem, Scope.SUB, null, null, null);
+    assertEquals(1, results.size());
+    assertTrue(results.contains(pitGroup2));
+    
+    results = pitMember0.getGroups(Group.getDefaultList().getUuid(), null, pitStemNew, Scope.SUB, null, null, null);
+    assertEquals(1, results.size());
+    assertTrue(results.contains(pitGroup2New));
+  }
+  
+  /**
+   * 
+   */
+  public void testGetGroupsWithStemScopeOne() {
+    Member member0 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ0, true);
+    ApiConfig.testConfig.put("groups.create.grant.all.read", "false");
+    ApiConfig.testConfig.put("groups.create.grant.all.view", "false");
+    
+    Stem child = edu.addChildStem("child", "child");
+    
+    Group group1 = edu.addChildGroup("test1", "test1");
+    Group group2 = child.addChildGroup("test2", "test2");
+
+    group1.addMember(member0.getSubject());
+    group2.addMember(member0.getSubject());
+    ChangeLogTempToEntity.convertRecords();
+    
+    PITMember pitMember0 = GrouperDAOFactory.getFactory().getPITMember().findById(member0.getUuid());
+    PITGroup pitGroup1 = GrouperDAOFactory.getFactory().getPITGroup().findById(group1.getId());
+    PITStem pitStem = GrouperDAOFactory.getFactory().getPITStem().findById(edu.getUuid());
+    
+    Set<PITGroup> results = pitMember0.getGroups(Group.getDefaultList().getUuid(), null, pitStem, Scope.ONE, null, null, null);
+    assertEquals(1, results.size());
+    assertTrue(results.contains(pitGroup1));
+    
+    // this should still work if everything is deleted...
+    group1.delete();
+    group2.delete();
+    child.delete();
+    edu.delete();
+    ChangeLogTempToEntity.convertRecords();
+
+    // refresh
+    pitGroup1 = GrouperDAOFactory.getFactory().getPITGroup().findById(group1.getId());
+    pitStem = GrouperDAOFactory.getFactory().getPITStem().findById(edu.getUuid());
+    
+    results = pitMember0.getGroups(Group.getDefaultList().getUuid(), null, pitStem, Scope.ONE, null, null, null);
+    assertEquals(1, results.size());
+    assertTrue(results.contains(pitGroup1));
+    
+    // recreate and verify that the one scope is working properly.
+    Stem eduNew = StemHelper.addChildStem(root, "edu", "education");
+    Stem childNew = eduNew.addChildStem("child", "child");
+
+    Group group1New = eduNew.addChildGroup("test1", "test1");
+    Group group2New = childNew.addChildGroup("test2", "test2");
+
+    group1New.addMember(member0.getSubject());
+    group2New.addMember(member0.getSubject());
+    ChangeLogTempToEntity.convertRecords();
+    
+    PITGroup pitGroup1New = GrouperDAOFactory.getFactory().getPITGroup().findById(group1New.getId());
+    PITStem pitStemNew = GrouperDAOFactory.getFactory().getPITStem().findById(eduNew.getUuid());
+   
+    results = pitMember0.getGroups(Group.getDefaultList().getUuid(), null, pitStem, Scope.ONE, null, null, null);
+    assertEquals(1, results.size());
+    assertTrue(results.contains(pitGroup1));
+    
+    results = pitMember0.getGroups(Group.getDefaultList().getUuid(), null, pitStemNew, Scope.ONE, null, null, null);
+    assertEquals(1, results.size());
+    assertTrue(results.contains(pitGroup1New));
   }
   
   /**
@@ -285,7 +412,7 @@ public class PITMemberTests extends GrouperTest {
     PITGroup pitGroup2 = GrouperDAOFactory.getFactory().getPITGroup().findById(group2.getId());
     PITGroup pitGroup3 = GrouperDAOFactory.getFactory().getPITGroup().findById(group3.getId());
     
-    Set<PITGroup> results = pitMember0.getGroups(Group.getDefaultList().getUuid(), null, null, null, null);
+    Set<PITGroup> results = pitMember0.getGroups(Group.getDefaultList().getUuid(), null, null, null, null, null, null);
     assertEquals(3, results.size());
 
     // should have sorted by name...
@@ -297,7 +424,7 @@ public class PITMemberTests extends GrouperTest {
     // actually specify sort by name this time...
     QueryOptions queryOptions = new QueryOptions();
     queryOptions.sort(new QuerySort("name", true));
-    results = pitMember0.getGroups(Group.getDefaultList().getUuid(), null, null, null, queryOptions);
+    results = pitMember0.getGroups(Group.getDefaultList().getUuid(), null, null, null, null, null, queryOptions);
     assertEquals(3, results.size());
 
     // should have sorted by name...
@@ -309,7 +436,7 @@ public class PITMemberTests extends GrouperTest {
     // sort by name desc this time
     queryOptions = new QueryOptions();
     queryOptions.sort(new QuerySort("name", false));
-    results = pitMember0.getGroups(Group.getDefaultList().getUuid(), null, null, null, queryOptions);
+    results = pitMember0.getGroups(Group.getDefaultList().getUuid(), null, null, null, null, null, queryOptions);
     assertEquals(3, results.size());
 
     // should have sorted by name desc...
@@ -343,7 +470,7 @@ public class PITMemberTests extends GrouperTest {
     
     QueryOptions queryOptions = new QueryOptions();
     queryOptions.paging(2, 1, false);
-    Set<PITGroup> results = pitMember0.getGroups(Group.getDefaultList().getUuid(), null, null, null, queryOptions);
+    Set<PITGroup> results = pitMember0.getGroups(Group.getDefaultList().getUuid(), null, null, null, null, null, queryOptions);
     assertEquals(2, results.size());
 
     // should have sorted by name...
@@ -354,7 +481,7 @@ public class PITMemberTests extends GrouperTest {
     // check second page now...
     queryOptions = new QueryOptions();
     queryOptions.paging(2, 2, false);
-    results = pitMember0.getGroups(Group.getDefaultList().getUuid(), null, null, null, queryOptions);
+    results = pitMember0.getGroups(Group.getDefaultList().getUuid(), null, null, null, null, null, queryOptions);
     assertEquals(1, results.size());
 
     iter = results.iterator();
@@ -379,7 +506,7 @@ public class PITMemberTests extends GrouperTest {
     PITMember pitMember0 = GrouperDAOFactory.getFactory().getPITMember().findById(member0.getUuid());
     PITGroup pitGroup2 = GrouperDAOFactory.getFactory().getPITGroup().findById(group2.getId());
     
-    Set<PITGroup> results = pitMember0.getGroups(FieldFinder.find("readers", true).getUuid(), null, null, null, null);
+    Set<PITGroup> results = pitMember0.getGroups(FieldFinder.find("readers", true).getUuid(), null, null, null, null, null, null);
     assertEquals(1, results.size());
     assertTrue(results.contains(pitGroup2));
   }
@@ -422,13 +549,13 @@ public class PITMemberTests extends GrouperTest {
     PITGroup pitGroup4 = GrouperDAOFactory.getFactory().getPITGroup().findById(group4.getId());
         
     // root should be able to get all groups
-    Set<PITGroup> results = pitMember1.getGroups(Group.getDefaultList().getUuid(), null, null, null, null);
+    Set<PITGroup> results = pitMember1.getGroups(Group.getDefaultList().getUuid(), null, null, null, null, null, null);
     assertEquals(3, results.size());
     assertTrue(results.contains(pitGroup1));
     assertTrue(results.contains(pitGroup2));
     assertTrue(results.contains(pitGroup3));
     assertFalse(results.contains(pitGroup4));
-    results = pitMember2.getGroups(Group.getDefaultList().getUuid(), null, null, null, null);
+    results = pitMember2.getGroups(Group.getDefaultList().getUuid(), null, null, null, null, null, null);
     assertEquals(1, results.size());
     assertFalse(results.contains(pitGroup1));
     assertFalse(results.contains(pitGroup2));
@@ -437,10 +564,10 @@ public class PITMemberTests extends GrouperTest {
     
     // subj0 should be able to read members of group1 and group4 only
     GrouperSession s = GrouperSession.start(member0.getSubject());
-    results = pitMember1.getGroups(Group.getDefaultList().getUuid(), null, null, null, null);
+    results = pitMember1.getGroups(Group.getDefaultList().getUuid(), null, null, null, null, null, null);
     assertEquals(1, results.size());
     assertTrue(results.contains(pitGroup1));
-    results = pitMember2.getGroups(Group.getDefaultList().getUuid(), null, null, null, null);
+    results = pitMember2.getGroups(Group.getDefaultList().getUuid(), null, null, null, null, null, null);
     assertEquals(1, results.size());
     assertTrue(results.contains(pitGroup4));
     s.stop();
@@ -455,12 +582,12 @@ public class PITMemberTests extends GrouperTest {
     Timestamp second = getTimestampWithSleep();
     
     // root should be able to get all groups
-    results = pitMember1.getGroups(Group.getDefaultList().getUuid(), null, first, second, null);
+    results = pitMember1.getGroups(Group.getDefaultList().getUuid(), null, null, null, first, second, null);
     assertEquals(2, results.size());
     assertTrue(results.contains(pitGroup1));
     assertTrue(results.contains(pitGroup2));
     assertFalse(results.contains(pitGroup4));
-    results = pitMember2.getGroups(Group.getDefaultList().getUuid(), null, first, second, null);
+    results = pitMember2.getGroups(Group.getDefaultList().getUuid(), null, null, null, first, second, null);
     assertEquals(1, results.size());
     assertFalse(results.contains(pitGroup1));
     assertFalse(results.contains(pitGroup2));
@@ -469,10 +596,10 @@ public class PITMemberTests extends GrouperTest {
 
     // subj0 should be able to read members of group1 and group4 only
     s = GrouperSession.start(member0.getSubject());
-    results = pitMember1.getGroups(Group.getDefaultList().getUuid(), null, first, second, null);
+    results = pitMember1.getGroups(Group.getDefaultList().getUuid(), null, null, null, first, second, null);
     assertEquals(1, results.size());
     assertTrue(results.contains(pitGroup1));
-    results = pitMember2.getGroups(Group.getDefaultList().getUuid(), null, first, second, null);
+    results = pitMember2.getGroups(Group.getDefaultList().getUuid(), null, null, null, first, second, null);
     assertEquals(1, results.size());
     assertTrue(results.contains(pitGroup4));
     s.stop();
@@ -484,9 +611,9 @@ public class PITMemberTests extends GrouperTest {
     
     // subj0 should be able to read members of group4 only
     s = GrouperSession.start(member0.getSubject());
-    results = pitMember1.getGroups(Group.getDefaultList().getUuid(), null, first, second, null);
+    results = pitMember1.getGroups(Group.getDefaultList().getUuid(), null, null, null, first, second, null);
     assertEquals(0, results.size());
-    results = pitMember2.getGroups(Group.getDefaultList().getUuid(), null, first, second, null);
+    results = pitMember2.getGroups(Group.getDefaultList().getUuid(), null, null, null, first, second, null);
     assertEquals(1, results.size());
     assertTrue(results.contains(pitGroup4));
     s.stop();

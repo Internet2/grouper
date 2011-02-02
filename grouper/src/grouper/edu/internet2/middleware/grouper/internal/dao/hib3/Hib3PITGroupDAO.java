@@ -9,6 +9,7 @@ import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.hibernate.ByHqlStatic;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.PITGroupDAO;
@@ -16,6 +17,7 @@ import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.internal.dao.QuerySortField;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.pit.PITGroup;
+import edu.internet2.middleware.grouper.pit.PITStem;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
@@ -106,10 +108,14 @@ public class Hib3PITGroupDAO extends Hib3DAO implements PITGroupDAO {
   }
 
   /**
-   * @see edu.internet2.middleware.grouper.internal.dao.PITGroupDAO#getAllGroupsMembershipSecure(java.lang.String, java.lang.String, java.lang.String, java.sql.Timestamp, java.sql.Timestamp, edu.internet2.middleware.grouper.internal.dao.QueryOptions)
+   * @see edu.internet2.middleware.grouper.internal.dao.PITGroupDAO#getAllGroupsMembershipSecure(java.lang.String, java.lang.String, java.lang.String, edu.internet2.middleware.grouper.pit.PITStem, edu.internet2.middleware.grouper.Stem.Scope, java.sql.Timestamp, java.sql.Timestamp, edu.internet2.middleware.grouper.internal.dao.QueryOptions)
    */
   public Set<PITGroup> getAllGroupsMembershipSecure(String pitMemberId, String pitFieldId, 
-      String scope, Timestamp pointInTimeFrom, Timestamp pointInTimeTo, QueryOptions queryOptions) {
+      String scope, PITStem pitStem, Scope stemScope, Timestamp pointInTimeFrom, Timestamp pointInTimeTo, QueryOptions queryOptions) {
+
+    if ((pitStem == null) != (stemScope == null)) {
+      throw new RuntimeException("If pitStem is set, then stem scope must be set.  If pitStem isnt set, then stem scope must not be set.");
+    }
 
     boolean hasScope = StringUtils.isNotBlank(scope);
     
@@ -157,6 +163,31 @@ public class Hib3PITGroupDAO extends Hib3DAO implements PITGroupDAO {
       byHqlStatic.setString("scope", scope + "%");
     }
     
+    boolean subScope = false;
+    
+    if (pitStem != null) {
+      switch (stemScope) {
+        case ONE:
+
+          sql.append(" thePITGroup.stemId = :stemId and ");
+          byHqlStatic.setString("stemId", pitStem.getId());
+          
+          break;
+
+        case SUB:
+          
+          // additional filtering after the query
+          subScope = true;
+
+          sql.append(" thePITGroup.nameDb like :stemSub and ");
+          byHqlStatic.setString("stemSub", pitStem.getName() + ":%");
+
+          break;
+        default:
+          throw new RuntimeException("Not expecting scope: " + stemScope);
+      }
+    }
+    
     //this must be last due to and's
     sql.append(" ms.ownerGroupId = thePITGroup.id and ms.fieldId = :fieldId " +
       " and ms.memberId = :memberId ");
@@ -184,6 +215,19 @@ public class Hib3PITGroupDAO extends Hib3DAO implements PITGroupDAO {
       .listSet(PITGroup.class);
 
 
+    if (subScope) {
+      Set<PITGroup> pitGroupsCopy = new LinkedHashSet<PITGroup>(pitGroups);
+      for (PITGroup pitGroup : pitGroupsCopy) {
+        
+        // make sure the pit group was active when the pit stem was active...
+        if (pitGroup.getEndTimeDb() != null && pitGroup.getEndTimeDb() < pitStem.getStartTimeDb()) {
+          pitGroups.remove(pitGroup);
+        } else if (pitStem.getEndTime() != null && pitGroup.getStartTimeDb() > pitStem.getEndTimeDb()) {
+          pitGroups.remove(pitGroup);
+        }
+      }
+    }
+    
     if (changedQuery || PrivilegeHelper.isWheelOrRoot(accessSubject)) {
       return pitGroups;
     }

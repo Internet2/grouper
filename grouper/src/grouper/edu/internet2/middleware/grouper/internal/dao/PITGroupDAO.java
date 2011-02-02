@@ -7,7 +7,9 @@ package edu.internet2.middleware.grouper.internal.dao;
 import java.sql.Timestamp;
 import java.util.Set;
 
+import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.pit.PITGroup;
+import edu.internet2.middleware.grouper.pit.PITStem;
 
 /**
  * 
@@ -56,11 +58,13 @@ public interface PITGroupDAO extends GrouperDAO {
    * @param pitMemberId 
    * @param pitFieldId 
    * @param scope 
+   * @param pitStem
+   * @param stemScope
    * @param pointInTimeFrom 
    * @param pointInTimeTo 
    * @param queryOptions 
    * @return set of pit groups
    */
   public Set<PITGroup> getAllGroupsMembershipSecure(String pitMemberId, String pitFieldId, String scope,
-      Timestamp pointInTimeFrom, Timestamp pointInTimeTo, QueryOptions queryOptions);
+      PITStem pitStem, Scope stemScope, Timestamp pointInTimeFrom, Timestamp pointInTimeTo, QueryOptions queryOptions);
 }
