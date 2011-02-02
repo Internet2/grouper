@@ -780,7 +780,8 @@ public class GrouperServiceRest {
             wsRestGetGroupsRequest.getScope(),
             wsRestGetGroupsRequest.getWsStemLookup(), wsRestGetGroupsRequest.getStemScope(), wsRestGetGroupsRequest.getEnabled(),
             wsRestGetGroupsRequest.getPageSize(), wsRestGetGroupsRequest.getPageNumber(), wsRestGetGroupsRequest.getSortString(), 
-            wsRestGetGroupsRequest.getAscending());
+            wsRestGetGroupsRequest.getAscending(),
+            wsRestGetGroupsRequest.getPointInTimeFrom(), wsRestGetGroupsRequest.getPointInTimeTo());
 
     //return result
     return wsGetGroupsResults;
@@ -830,7 +831,8 @@ public class GrouperServiceRest {
             wsRestGetGroupsLiteRequest.getStemUuid(), wsRestGetGroupsLiteRequest.getStemScope(),
             wsRestGetGroupsLiteRequest.getEnabled(), wsRestGetGroupsLiteRequest.getPageSize(),
             wsRestGetGroupsLiteRequest.getPageNumber(), wsRestGetGroupsLiteRequest.getSortString(), 
-            wsRestGetGroupsLiteRequest.getAscending());
+            wsRestGetGroupsLiteRequest.getAscending(),
+            wsRestGetGroupsLiteRequest.getPointInTimeFrom(), wsRestGetGroupsLiteRequest.getPointInTimeTo());
 
     //return result
     return wsGetGroupsLiteResult;

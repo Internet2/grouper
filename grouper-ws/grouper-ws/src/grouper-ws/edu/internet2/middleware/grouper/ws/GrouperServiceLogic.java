@@ -66,6 +66,8 @@ import edu.internet2.middleware.grouper.permissions.PermissionAssignOperation;
 import edu.internet2.middleware.grouper.permissions.PermissionEntry;
 import edu.internet2.middleware.grouper.permissions.PermissionEntry.PermissionType;
 import edu.internet2.middleware.grouper.pit.PITGroup;
+import edu.internet2.middleware.grouper.pit.PITMember;
+import edu.internet2.middleware.grouper.pit.PITStem;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.AccessResolver;
 import edu.internet2.middleware.grouper.privs.GrouperPrivilege;
@@ -1040,6 +1042,18 @@ public class GrouperServiceLogic {
    * @param pageNumber page number 1 indexed if paging
    * @param sortString must be an hql query field, e.g. can sort on name, displayName, extension, displayExtension
    * @param ascending or null for ascending, false for descending.  If you pass true or false, must pass a sort string
+   * @param pointInTimeFrom 
+   *            To query members at a certain point in time or time range in the past, set this value
+   *            and/or the value of pointInTimeTo.  This parameter specifies the start of the range
+   *            of the point in time query.  If this is specified but pointInTimeTo is not specified, 
+   *            then the point in time query range will be from the time specified to now.  
+   * @param pointInTimeTo 
+   *            To query members at a certain point in time or time range in the past, set this value
+   *            and/or the value of pointInTimeFrom.  This parameter specifies the end of the range 
+   *            of the point in time query.  If this is the same as pointInTimeFrom, then the query 
+   *            will be done at a single point in time rather than a range.  If this is specified but 
+   *            pointInTimeFrom is not specified, then the point in time query range will be from the 
+   *            minimum point in time to the time specified.
    * @return the results
    */
   @SuppressWarnings("unchecked")
@@ -1049,10 +1063,12 @@ public class GrouperServiceLogic {
       boolean includeSubjectDetail, 
       String[] subjectAttributeNames, WsParam[] params, String fieldName, String scope, 
       WsStemLookup wsStemLookup, StemScope stemScope, String enabled, 
-      Integer pageSize, Integer pageNumber, String sortString, Boolean ascending) {
+      Integer pageSize, Integer pageNumber, String sortString, Boolean ascending,
+      Timestamp pointInTimeFrom, Timestamp pointInTimeTo) {
   
     final WsGetGroupsResults wsGetGroupsResults = new WsGetGroupsResults();
-  
+    boolean usePIT = pointInTimeFrom != null || pointInTimeTo != null;
+
     GrouperSession session = null;
     String theSummary = null;
     try {
@@ -1066,7 +1082,8 @@ public class GrouperServiceLogic {
           + "\n fieldName1: " + fieldName + "\n, scope: " + scope
           + ", wsStemLookup: " + wsStemLookup + "\n, stemScope: " + stemScope + ", enabled: " + enabled
           + ", pageSize: " + pageSize + ", pageNumber: " + pageNumber + ", sortString: " + sortString
-          + ", ascending: " + ascending;
+          + ", ascending: " + ascending
+          + "\n, pointInTimeFrom: " + pointInTimeFrom + ", pointInTimeTo: " + pointInTimeTo;
   
       subjectAttributeNames = GrouperServiceUtils
         .calculateSubjectAttributes(subjectAttributeNames, includeSubjectDetail);
@@ -1100,7 +1117,23 @@ public class GrouperServiceLogic {
         field = GrouperServiceUtils.retrieveField(fieldName);
         theSummary += ", field: " + field.getName();
       }
-  
+      
+      if (usePIT && memberFilter != null && memberFilter.getMembershipType() != null) {
+        throw new WsInvalidQueryException("Cannot specify a member filter for point in time queries.");
+      }
+      
+      if (usePIT && includeGroupDetail) {
+        throw new WsInvalidQueryException("Cannot specify includeGroupDetail for point in time queries.");
+      }
+      
+      if (usePIT && (enabledBoolean == null || !enabledBoolean)) {
+        throw new WsInvalidQueryException("Cannot search for disabled memberships for point in time queries.");
+      }
+      
+      if (usePIT && sortString != null && !sortString.equals("name")) {
+        throw new WsInvalidQueryException("Can only sort by name for point in time queries.");
+      }
+        
       for (WsSubjectLookup wsSubjectLookup : subjectLookups) {
         WsGetGroupsResult wsGetGroupsResult = new WsGetGroupsResult();
         wsGetGroupsResults.getResults()[resultIndex++] = wsGetGroupsResult;
@@ -1112,8 +1145,10 @@ public class GrouperServiceLogic {
           wsGetGroupsResult.setWsSubject(new WsSubject(subject, subjectAttributeNames, wsSubjectLookup));
           Member member = MemberFinder.internal_findBySubject(subject, null, false);
           Set<Group> groups = null;
+          Set<PITGroup> pitGroups = null;
           if (member == null) {
             groups = new HashSet<Group>();
+            pitGroups = new HashSet<PITGroup>();
           } else {
             if (field == null) {
               field = Group.getDefaultList();
@@ -1151,9 +1186,19 @@ public class GrouperServiceLogic {
               }
               
             }
-            groups = memberFilter.getGroups(member, field, scope, stem, stemDotScope, queryOptions, enabledBoolean);
+            
+            if (!usePIT) {
+              groups = memberFilter.getGroups(member, field, scope, stem, stemDotScope, queryOptions, enabledBoolean);
+            } else {
+              pitGroups = PITMember.getGroups(member.getUuid(), field.getUuid(), scope, stem, stemDotScope, pointInTimeFrom, pointInTimeTo, queryOptions);
+            }
           }
-          wsGetGroupsResult.assignGroupResult(groups, includeGroupDetail);
+          
+          if (!usePIT) {
+            wsGetGroupsResult.assignGroupResult(groups, includeGroupDetail);
+          } else {
+            wsGetGroupsResult.assignGroupResult(pitGroups);
+          }
         } catch (Exception e) {
           wsGetGroupsResult.assignResultCodeException(null, null,wsSubjectLookup,  e);
         }
@@ -1224,6 +1269,18 @@ public class GrouperServiceLogic {
    * @param pageNumber page number 1 indexed if paging
    * @param sortString must be an hql query field, e.g. can sort on name, displayName, extension, displayExtension
    * @param ascending or null for ascending, false for descending.  If you pass true or false, must pass a sort string
+   * @param pointInTimeFrom 
+   *            To query members at a certain point in time or time range in the past, set this value
+   *            and/or the value of pointInTimeTo.  This parameter specifies the start of the range
+   *            of the point in time query.  If this is specified but pointInTimeTo is not specified, 
+   *            then the point in time query range will be from the time specified to now.  
+   * @param pointInTimeTo 
+   *            To query members at a certain point in time or time range in the past, set this value
+   *            and/or the value of pointInTimeFrom.  This parameter specifies the end of the range 
+   *            of the point in time query.  If this is the same as pointInTimeFrom, then the query 
+   *            will be done at a single point in time rather than a range.  If this is specified but 
+   *            pointInTimeFrom is not specified, then the point in time query range will be from the 
+   *            minimum point in time to the time specified.
    * @return the result of one member add
    */
   public static WsGetGroupsLiteResult getGroupsLite(final GrouperVersion clientVersion, String subjectId,
@@ -1235,7 +1292,8 @@ public class GrouperServiceLogic {
       String paramName0, String paramValue0,
       String paramName1, String paramValue1, String fieldName, String scope, 
       String stemName, String stemUuid, StemScope stemScope, String enabled, 
-      Integer pageSize, Integer pageNumber, String sortString, Boolean ascending) {
+      Integer pageSize, Integer pageNumber, String sortString, Boolean ascending,
+      Timestamp pointInTimeFrom, Timestamp pointInTimeTo) {
   
     // setup the subject lookup
     WsSubjectLookup subjectLookup = new WsSubjectLookup(subjectId, subjectSourceId,
@@ -1253,7 +1311,8 @@ public class GrouperServiceLogic {
     
     WsGetGroupsResults wsGetGroupsResults = getGroups(clientVersion, subjectLookups,
         memberFilter, actAsSubjectLookup, includeGroupDetail, includeSubjectDetail,
-        subjectAttributeArray, params, fieldName, scope, wsStemLookup, stemScope, enabled, pageSize, pageNumber, sortString, ascending);
+        subjectAttributeArray, params, fieldName, scope, wsStemLookup, stemScope, enabled, pageSize, pageNumber, sortString, ascending,
+        pointInTimeFrom, pointInTimeTo);
   
     return new WsGetGroupsLiteResult(wsGetGroupsResults);
   
@@ -1339,7 +1398,7 @@ public class GrouperServiceLogic {
         sources = GrouperUtil.convertSources(sourceIds);
       }
       
-      if (usePIT && memberFilter.getMembershipType() != null) {
+      if (usePIT && memberFilter != null && memberFilter.getMembershipType() != null) {
         throw new WsInvalidQueryException("Cannot specify a member filter for point in time queries.");
       }
       
@@ -2147,7 +2206,7 @@ public class GrouperServiceLogic {
       Map<String, String> paramMap = GrouperServiceUtils.convertParamsToMap(
           params);
       
-      if (usePIT && memberFilter.getMembershipType() != null) {
+      if (usePIT && memberFilter != null && memberFilter.getMembershipType() != null) {
         throw new WsInvalidQueryException("Cannot specify a member filter for point in time queries.");
       }
       

@@ -457,6 +457,19 @@ public class GrouperService {
    * @param pageNumber page number 1 indexed if paging
    * @param sortString must be an hql query field, e.g. can sort on name, displayName, extension, displayExtension
    * @param ascending or null for ascending, F for descending.  If you pass T or F, must pass a sort string
+   * @param pointInTimeFrom 
+   *            To query members at a certain point in time or time range in the past, set this value
+   *            and/or the value of pointInTimeTo.  This parameter specifies the start of the range
+   *            of the point in time query.  If this is specified but pointInTimeTo is not specified, 
+   *            then the point in time query range will be from the time specified to now.  
+   *            Format:  yyyy/MM/dd HH:mm:ss.SSS
+   * @param pointInTimeTo 
+   *            To query members at a certain point in time or time range in the past, set this value
+   *            and/or the value of pointInTimeFrom.  This parameter specifies the end of the range 
+   *            of the point in time query.  If this is the same as pointInTimeFrom, then the query 
+   *            will be done at a single point in time rather than a range.  If this is specified but 
+   *            pointInTimeFrom is not specified, then the point in time query range will be from the 
+   *            minimum point in time to the time specified.  Format: yyyy/MM/dd HH:mm:ss.SSS
    * @return the results
    */
   @SuppressWarnings("unchecked")
@@ -466,7 +479,8 @@ public class GrouperService {
       String includeSubjectDetail, String[] subjectAttributeNames, 
       WsParam[] params, String fieldName, String scope, 
       WsStemLookup wsStemLookup, String stemScope, String enabled, 
-      String pageSize, String pageNumber, String sortString, String ascending) {
+      String pageSize, String pageNumber, String sortString, String ascending,
+      String pointInTimeFrom, String pointInTimeTo) {
     
     WsGetGroupsResults wsGetGroupsResults = new WsGetGroupsResults();
 
@@ -491,10 +505,14 @@ public class GrouperService {
       
       Boolean ascendingBoolean = GrouperUtil.booleanObjectValue(ascending);
       
+      Timestamp pointInTimeFromTimestamp = GrouperServiceUtils.stringToTimestamp(pointInTimeFrom);
+      Timestamp pointInTimeToTimestamp = GrouperServiceUtils.stringToTimestamp(pointInTimeTo);
+      
       wsGetGroupsResults = GrouperServiceLogic.getGroups(grouperWsVersion, subjectLookups, 
           wsMemberFilter, actAsSubjectLookup, includeGroupDetailBoolean, 
           includeSubjectDetailBoolean, subjectAttributeNames, params, fieldName, scope, wsStemLookup, 
-          stemScopeEnum, enabled, pageSizeInteger, pageNumberInteger, sortString, ascendingBoolean);
+          stemScopeEnum, enabled, pageSizeInteger, pageNumberInteger, sortString, ascendingBoolean,
+          pointInTimeFromTimestamp, pointInTimeToTimestamp);
     } catch (Exception e) {
       wsGetGroupsResults.assignResultCodeException(null, null, e);
     }
@@ -1572,6 +1590,19 @@ public class GrouperService {
    * @param pageNumber page number 1 indexed if paging
    * @param sortString must be an hql query field, e.g. can sort on name, displayName, extension, displayExtension
    * @param ascending or null for ascending, false for descending.  If you pass true or false, must pass a sort string
+   * @param pointInTimeFrom 
+   *            To query members at a certain point in time or time range in the past, set this value
+   *            and/or the value of pointInTimeTo.  This parameter specifies the start of the range
+   *            of the point in time query.  If this is specified but pointInTimeTo is not specified, 
+   *            then the point in time query range will be from the time specified to now.  
+   *            Format:  yyyy/MM/dd HH:mm:ss.SSS
+   * @param pointInTimeTo 
+   *            To query members at a certain point in time or time range in the past, set this value
+   *            and/or the value of pointInTimeFrom.  This parameter specifies the end of the range 
+   *            of the point in time query.  If this is the same as pointInTimeFrom, then the query 
+   *            will be done at a single point in time rather than a range.  If this is specified but 
+   *            pointInTimeFrom is not specified, then the point in time query range will be from the 
+   *            minimum point in time to the time specified.  Format: yyyy/MM/dd HH:mm:ss.SSS
    * @return the result of one member add
    */
   public WsGetGroupsLiteResult getGroupsLite(final String clientVersion, String subjectId,
@@ -1582,7 +1613,8 @@ public class GrouperService {
       String subjectAttributeNames, String paramName0, String paramValue0,
       String paramName1, String paramValue1, String fieldName, String scope, 
       String stemName, String stemUuid, String stemScope, String enabled, 
-      String pageSize, String pageNumber, String sortString, String ascending) {
+      String pageSize, String pageNumber, String sortString, String ascending,
+      String pointInTimeFrom, String pointInTimeTo) {
 
     WsGetGroupsLiteResult wsGetGroupsLiteResult = new WsGetGroupsLiteResult();
 
@@ -1607,12 +1639,16 @@ public class GrouperService {
       
       Boolean ascendingBoolean = GrouperUtil.booleanObjectValue(ascending);
 
+      Timestamp pointInTimeFromTimestamp = GrouperServiceUtils.stringToTimestamp(pointInTimeFrom);
+      Timestamp pointInTimeToTimestamp = GrouperServiceUtils.stringToTimestamp(pointInTimeTo);
+      
       wsGetGroupsLiteResult = GrouperServiceLogic.getGroupsLite(grouperWsVersion, 
           subjectId, subjectSourceId, subjectIdentifier, wsMemberFilter, actAsSubjectId, 
           actAsSubjectSourceId, actAsSubjectIdentifier, includeGroupDetailBoolean, 
           includeSubjectDetailBoolean, subjectAttributeNames, paramName0, paramValue0, 
           paramName1, paramValue1, fieldName, scope, stemName, stemUuid, stemScopeEnum, enabled, 
-          pageSizeInteger, pageNumberInteger, sortString, ascendingBoolean);
+          pageSizeInteger, pageNumberInteger, sortString, ascendingBoolean, pointInTimeFromTimestamp,
+          pointInTimeToTimestamp);
     } catch (Exception e) {
       wsGetGroupsLiteResult.assignResultCodeException(null, null, e);
     }

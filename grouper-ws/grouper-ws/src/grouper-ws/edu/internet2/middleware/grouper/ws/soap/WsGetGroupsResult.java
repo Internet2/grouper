@@ -10,6 +10,7 @@ import org.apache.commons.logging.LogFactory;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.exception.MemberNotFoundException;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
+import edu.internet2.middleware.grouper.pit.PITGroup;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.ResultMetadataHolder;
 import edu.internet2.middleware.grouper.ws.WsResultCode;
@@ -256,6 +257,15 @@ public class WsGetGroupsResult implements ResultMetadataHolder {
    */
   public void assignGroupResult(Set<Group> groupSet, boolean includeDetail) {
     this.setWsGroups(WsGroup.convertGroups(groupSet, includeDetail));
+    this.assignResultCode(WsGetGroupsResultCode.SUCCESS);
+  }
+  
+  /**
+   * put pit groups in the results
+   * @param pitGroupSet
+   */
+  public void assignGroupResult(Set<PITGroup> pitGroupSet) {
+    this.setWsGroups(WsGroup.convertGroups(pitGroupSet));
     this.assignResultCode(WsGetGroupsResultCode.SUCCESS);
   }
 

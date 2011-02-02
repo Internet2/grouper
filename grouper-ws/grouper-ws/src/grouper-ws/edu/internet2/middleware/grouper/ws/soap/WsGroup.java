@@ -55,6 +55,27 @@ public class WsGroup implements Comparable<WsGroup> {
     return wsGroupResults;
 
   }
+  
+  /**
+   * convert a set of pit groups to results
+   * @param pitGroupSet
+   * @return the groups (null if none or null)
+   */
+  public static WsGroup[] convertGroups(Set<PITGroup> pitGroupSet) {
+    if (pitGroupSet == null || pitGroupSet.size() == 0) {
+      return null;
+    }
+    int groupSetSize = pitGroupSet.size();
+    WsGroup[] wsGroupResults = new WsGroup[groupSetSize];
+    int index = 0;
+    for (PITGroup pitGroup : pitGroupSet) {
+      WsGroup wsGroup = new WsGroup(pitGroup);
+      wsGroupResults[index] = wsGroup;
+      index++;
+    }
+    return wsGroupResults;
+
+  }
 
   /**
    * friendly description of this group
