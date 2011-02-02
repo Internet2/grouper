@@ -4,6 +4,7 @@
  */
 package edu.internet2.middleware.grouperClient.api;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -131,6 +132,24 @@ public class GcGetGroups {
     if (GrouperClientUtils.length(this.subjectLookups) == 0) {
       throw new RuntimeException("Need at least one subject to add to group: " + this);
     }
+    
+    if (pointInTimeFrom != null || pointInTimeTo != null) {
+      if (this.includeGroupDetail != null && this.includeGroupDetail) {
+        throw new RuntimeException("Cannot specify includeGroupDetail for point in time queries.");
+      }
+      
+      if (this.memberFilter != null && !this.memberFilter.equals(WsMemberFilter.All)) {
+        throw new RuntimeException("Cannot specify a member filter for point in time queries.");
+      }
+      
+      if (this.enabled == null || !this.enabled) {
+        throw new RuntimeException("Cannot search for disabled memberships for point in time queries.");
+      }
+      
+      if (sortString != null && !sortString.equals("name")) {
+        throw new RuntimeException("Can only sort by name for point in time queries.");
+      }
+    }
   }
   
   /** if the group detail should be sent back */
@@ -142,6 +161,24 @@ public class GcGetGroups {
   /** subject attribute names to return */
   private Set<String> subjectAttributeNames = new LinkedHashSet<String>();
 
+  /**
+   * To query members at a certain point in time or time range in the past, set this value
+   * and/or the value of pointInTimeTo.  This parameter specifies the start of the range
+   * of the point in time query.  If this is specified but pointInTimeTo is not specified, 
+   * then the point in time query range will be from the time specified to now.  
+   */
+  private Timestamp pointInTimeFrom;
+  
+  /**
+   * To query members at a certain point in time or time range in the past, set this value
+   * and/or the value of pointInTimeFrom.  This parameter specifies the end of the range 
+   * of the point in time query.  If this is the same as pointInTimeFrom, then the query 
+   * will be done at a single point in time rather than a range.  If this is specified but 
+   * pointInTimeFrom is not specified, then the point in time query range will be from the 
+   * minimum point in time to the time specified.
+   */
+  private Timestamp pointInTimeTo;
+  
   /**
    * member filter 
    */
@@ -284,6 +321,34 @@ public class GcGetGroups {
   }
   
   /**
+   * To query members at a certain point in time or time range in the past, set this value
+   * and/or the value of pointInTimeTo.  This parameter specifies the start of the range
+   * of the point in time query.  If this is specified but pointInTimeTo is not specified, 
+   * then the point in time query range will be from the time specified to now.  
+   * @param pointInTimeFrom
+   * @return this for chaining
+   */
+  public GcGetGroups assignPointInTimeFrom(Timestamp pointInTimeFrom) {
+    this.pointInTimeFrom = pointInTimeFrom;
+    return this;
+  }
+  
+  /**
+   * To query members at a certain point in time or time range in the past, set this value
+   * and/or the value of pointInTimeFrom.  This parameter specifies the end of the range 
+   * of the point in time query.  If this is the same as pointInTimeFrom, then the query 
+   * will be done at a single point in time rather than a range.  If this is specified but 
+   * pointInTimeFrom is not specified, then the point in time query range will be from the 
+   * minimum point in time to the time specified.
+   * @param pointInTimeTo
+   * @return this for chaining
+   */
+  public GcGetGroups assignPointInTimeTo(Timestamp pointInTimeTo) {
+    this.pointInTimeTo = pointInTimeTo;
+    return this;
+  }
+  
+  /**
    * execute the call and return the results.  If there is a problem calling the service, an
    * exception will be thrown
    * 
@@ -340,6 +405,9 @@ public class GcGetGroups {
       if (this.params.size() > 0) {
         getGroups.setParams(GrouperClientUtils.toArray(this.params, WsParam.class));
       }
+      
+      getGroups.setPointInTimeFrom(GrouperClientUtils.dateToString(this.pointInTimeFrom));
+      getGroups.setPointInTimeTo(GrouperClientUtils.dateToString(this.pointInTimeTo));
       
       GrouperClientWs grouperClientWs = new GrouperClientWs();
       

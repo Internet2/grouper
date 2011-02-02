@@ -2113,6 +2113,9 @@ public class GrouperClient {
     
     Boolean ascending = GrouperClientUtils.argMapBoolean(argMap, argMapNotUsed, "ascending");
     
+    Timestamp pointInTimeFrom = GrouperClientUtils.argMapTimestamp(argMap, argMapNotUsed, "pointInTimeFrom");
+    Timestamp pointInTimeTo = GrouperClientUtils.argMapTimestamp(argMap, argMapNotUsed, "pointInTimeTo");
+    
     GcGetGroups gcGetGroups = new GcGetGroups();        
 
     String clientVersion = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "clientVersion", false);
@@ -2165,6 +2168,9 @@ public class GrouperClient {
     for (WsParam param : params) {
       gcGetGroups.addParam(param);
     }
+    
+    gcGetGroups.assignPointInTimeFrom(pointInTimeFrom);
+    gcGetGroups.assignPointInTimeTo(pointInTimeTo);
     
     //register that we will use this
     GrouperClientUtils.argMapString(argMap, argMapNotUsed, "outputTemplate", false);
