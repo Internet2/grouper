@@ -60,7 +60,7 @@ public class GuiSubject implements Serializable {
   public Map<String, String> getAttributes() {
     if (this.attributes == null) {
       Map<String, String> result = new LinkedHashMap<String, String>();
-      for (String key : (Set<String>)(Object)GrouperUtil.nonNull(this.subject.getAttributes().keySet())) {
+      for (String key : (Set<String>)(Object)GrouperUtil.nonNull(this.subject.getAttributes()).keySet()) {
         Object value = this.subject.getAttributes().get(key);
         if (value instanceof String) {
           //if a string
