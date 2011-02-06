@@ -93,7 +93,10 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
   public AttributeAssign findById(String id, boolean exceptionIfNotFound) {
     AttributeAssign attributeAssign = HibernateSession.byHqlStatic().createQuery(
         "from AttributeAssign where id = :theId")
-      .setString("theId", id).uniqueResult(AttributeAssign.class);
+      .setString("theId", id)
+      .setCacheable(true)
+      .setCacheRegion(KLASS + ".FindById")
+      .uniqueResult(AttributeAssign.class);
     if (attributeAssign == null && exceptionIfNotFound) {
       throw new AttributeAssignNotFoundException("Cant find attribute assign by id: " + id);
     }

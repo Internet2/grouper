@@ -18,12 +18,12 @@
 		<link>
 			<name>GROUPER_V1_7_CONF</name>
 			<type>2</type>
-			<location>C:/mchyzer/grouper/v1_7/grouper_v1_7/conf</location>
+			<locationURI>GROUPER_V1_7_CONF</locationURI>
 		</link>
 		<link>
 			<name>GROUPER_V1_7_SOURCE</name>
 			<type>2</type>
-			<location>C:/mchyzer/grouper/v1_7/grouper_v1_7/src/grouper</location>
+			<locationURI>GROUPER_V1_7_SOURCE</locationURI>
 		</link>
 	</linkedResources>
 </projectDescription>

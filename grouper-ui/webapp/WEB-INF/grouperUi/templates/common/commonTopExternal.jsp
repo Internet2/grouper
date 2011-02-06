@@ -5,8 +5,8 @@
 <div id="topRightLogo">
   <img src="../../${mediaMap['image.grouper-logo']}" id="topRightLogoImage" />
 </div>
-<div id="navbar"> 
-     <grouper:message key="simpleMembershipUpdate.screenWelcome"/> ${grouperLoginId} 
+<div id="navbar"><table border="0" cellpadding="0" cellspacing="0"><tr><td style="white-space: nowrap;"> 
+     <grouper:message key="simpleMembershipUpdate.screenWelcome"/> ${grouper:abbreviate(grouperLoginId, 125, true, true)} 
      &nbsp; &nbsp; 
      <a href="#" onclick="if (confirm('${grouper:message('simpleMembershipUpdate.confirmLogout', true, true) }')) {location.href = 'grouper.html?operation=ExternalSubjectSelfRegister.logout'; } return false;"
      ><img src="../../grouperExternal/public/assets/images/logout.gif" border="0" id="logoutImage" 
@@ -14,5 +14,5 @@
      
      <a href="#" 
      onclick="if (confirm('${grouper:message('simpleMembershipUpdate.confirmLogout', true, true) }')) {location.href = 'grouper.html?operation=ExternalSubjectSelfRegister.logout'; } return false;"><grouper:message key="simpleMembershipUpdate.logoutText"/></a>
-</div>
+     </td></tr></table></div>
 

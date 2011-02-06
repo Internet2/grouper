@@ -113,7 +113,7 @@ public class Hib3AttributeDefNameDAO extends Hib3DAO implements AttributeDefName
       throws GrouperDAOException, AttributeDefNameNotFoundException {
     AttributeDefName attributeDefName = HibernateSession.byHqlStatic()
       .createQuery("select a from AttributeDefName as a where a.nameDb = :value")
-      .setCacheable(false)
+      .setCacheable(true)
       .setCacheRegion(KLASS + ".FindByName")
       .setString("value", name).uniqueResult(AttributeDefName.class);
 

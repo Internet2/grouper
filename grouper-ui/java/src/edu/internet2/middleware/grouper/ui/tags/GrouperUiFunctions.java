@@ -6,10 +6,13 @@ package edu.internet2.middleware.grouper.ui.tags;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.lang.StringUtils;
+
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiHideShow;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
 import edu.internet2.middleware.grouper.ui.util.MapBundleWrapper;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
 /**
@@ -142,6 +145,53 @@ public class GrouperUiFunctions {
     
     return guiHideShow.getTextWhenHidden();
     
+  }
+  
+  /**
+   * 
+   * @param string
+   * @param length
+   * @param tooltip
+   * @param escapeHtml should probably always be true
+   * @return the string
+   */
+  public static String abbreviate(String string, int length, boolean tooltip, boolean escapeHtml) {
+
+    if (StringUtils.isEmpty(string)) {
+      return string;
+    }
+    
+    //if under the size limit, that is ok
+    if (string.length() < length) {
+      if (escapeHtml) {
+        return escapeHtml(string);
+      }
+      return string;
+    }
+    
+    String abbreviatedString = StringUtils.abbreviate(string, length);
+    
+    //if not tooltipping, thats ok
+    if (!tooltip) {
+      return abbreviatedString;
+    }
+    
+    //if tooltipping, do that
+    return "<span class=\"tooltip\" onmouseover=\"Tip('" + escapeJavascript(string)
+      + "')\" onmouseout=\"UnTip()\">" 
+      + (escapeHtml ? escapeHtml(abbreviatedString) : abbreviatedString) + "</span>"; 
+        
+  }
+
+  /**
+   * Escapes XML ( ampersand, lessthan, greater than)
+   * @param input 
+   * @return the escaped string
+   */
+  public static String escapeHtml(String input) {
+    
+    input = GrouperUtil.xmlEscape(input, true);
+    return input;
   }
   
 }

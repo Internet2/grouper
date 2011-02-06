@@ -363,22 +363,25 @@ public class ExternalSubjectSelfRegister {
                 externalSubject.validateIdentifier();
               } catch (Exception e) {
                 
-                LOG.warn("Invalid identifier: " + identifier, e);
-                
-                message = TagUtils.navResourceString("externalSubjectSelfRegister.invalidIdentifier");
-                
-                //note there is a java way to do this... hmmmm...
-                message = StringUtils.replace(message, "{0}", identifier);
-                guiResponseJs.addAction(GuiScreenAction.newAlert(message));
-                message = null;
                 invalidIdentifier = true;
-                //lets see if that subject exists not as an external subject...
+                //lets see if that subject exists not in some source...
                 try {
                   subjectWhoRegistered = SubjectFinder.findByIdOrIdentifier(identifier, false);
                 } catch (Exception e2) {
                   LOG.warn("Problem looking for subject: " + identifier, e2);
                 }
+                
+                String errorKey = subjectWhoRegistered == null 
+                    ? "externalSubjectSelfRegister.invalidIdentifier" 
+                    : "externalSubjectSelfRegister.invalidIdentifierButFound";
+                message = TagUtils.navResourceString(errorKey);
+                //note there is a java way to do this... hmmmm...
+                message = StringUtils.replace(message, "{0}", identifier);
+                guiResponseJs.addAction(GuiScreenAction.newAlert(message));
+                message = null;
+                
                 if (subjectWhoRegistered == null) {
+                  LOG.warn("Invalid identifier: " + identifier, e);
                   return null;
                 }
               }

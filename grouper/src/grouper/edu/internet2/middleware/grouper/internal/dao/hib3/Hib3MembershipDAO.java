@@ -413,7 +413,7 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
     
     Set<Object[]> mships = HibernateSession.byHqlStatic()
       .createQuery(sql.toString())
-      .setCacheable(false)
+      .setCacheable(true)
       .setCacheRegion(KLASS + ".FindAllByGroupOwnerAndMemberAndField")
       .setString( "owner",  ownerGroupId              )
       .setString( "member", memberUUID             )
