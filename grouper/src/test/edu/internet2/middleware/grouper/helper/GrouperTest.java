@@ -91,7 +91,7 @@ public class GrouperTest extends TestCase {
     
     //I believe this needs to be here before Grouper starts up
     ApiConfig.testConfig.put("externalSubjects.autoCreateSource", "true");
-    ApiConfig.testConfig.put("externalSubjects.autoCreateSource", "grouperExternal");
+    ApiConfig.testConfig.put("externalSubject.sourceId", "grouperExternal");
 
     //let the database release...
     GrouperStartup.startup();

@@ -89,41 +89,17 @@ public class SourcesXmlResolver implements SubjectResolver {
   }            
 
   /**
-   * @see     SubjectResolver#find(String, String)
-   * @since   1.2.1
-   */
-  public Subject find(String id, String type)
-    throws  IllegalArgumentException,
-            SubjectNotFoundException,
-            SubjectNotUniqueException
-  {
-    List<Subject> subjects = new ArrayList();
-    for ( Source sa : this.getSources(type) ) {
-      try {
-        subjects.add( sa.getSubject(id, true) );
-      }
-      catch (SubjectNotFoundException eSNF) {
-        // ignore.  subject might be in another source.
-      }
-    }    
-    return this.thereCanOnlyBeOne(subjects, id);
-  }
-
-  /**
    * @see     SubjectResolver#find(String, String, String)
    * @since   1.2.1
    */
-  public Subject find(String id, String type, String source)
+  public Subject find(String id, String source)
     throws  IllegalArgumentException,
             SourceUnavailableException,
             SubjectNotFoundException,
             SubjectNotUniqueException
   {
     Subject subj = this.getSource(source).getSubject(id, true);
-    if ( type.equals( subj.getType().getName() ) ) {
-      return subj;
-    }
-    throw new SubjectNotFoundException("subject not found: " + id);
+    return subj;
   }
 
   /**
@@ -182,41 +158,17 @@ public class SourcesXmlResolver implements SubjectResolver {
   }            
 
   /**
-   * @see     SubjectResolver#findByIdentifier(String, String)
-   * @since   1.2.1
-   */
-  public Subject findByIdentifier(String id, String type)
-    throws  IllegalArgumentException,
-            SubjectNotFoundException,
-            SubjectNotUniqueException
-  {
-    List<Subject> subjects = new ArrayList();
-    for ( Source sa : this.getSources(type) ) {
-      try {
-        subjects.add( sa.getSubjectByIdentifier(id, true) );
-      }
-      catch (SubjectNotFoundException eSNF) {
-        // ignore.  subject might be in another source.
-      }
-    }    
-    return this.thereCanOnlyBeOne(subjects, id);
-  }
-
-  /**
    * @see     SubjectResolver#findByIdentifier(String, String, String)
    * @since   1.2.1
    */
-  public Subject findByIdentifier(String id, String type, String source)
+  public Subject findByIdentifier(String id, String source)
     throws  IllegalArgumentException,
             SourceUnavailableException,
             SubjectNotFoundException,
             SubjectNotUniqueException
   {
     Subject subj = this.getSource(source).getSubjectByIdentifier(id, true);
-    if ( type.equals( subj.getType().getName() ) ) {
-      return subj;
-    }
-    throw new SubjectNotFoundException("subject not found: " + id);
+    return subj;
   }
 
   /**
@@ -288,6 +240,35 @@ public class SourcesXmlResolver implements SubjectResolver {
       return subjects.get(0);
     }
     throw new SubjectNotUniqueException( "found multiple matching subjects: " + subjects.size() + ", '" + id + "'" );
+  }
+
+  /**
+   * @see SubjectResolver#findByIdOrIdentifier(String)
+   */
+  public Subject findByIdOrIdentifier(String idOrIdentifier) throws IllegalArgumentException,
+      SubjectNotFoundException, SubjectNotUniqueException {
+    
+    List<Subject> subjects = new ArrayList();
+    for ( Source sa : this.getSources() ) {
+      try {
+        subjects.add( sa.getSubjectByIdOrIdentifier(idOrIdentifier, true) );
+      }
+      catch (SubjectNotFoundException eSNF) {
+        // ignore.  subject might be in another source.
+      }
+    }    
+    return this.thereCanOnlyBeOne(subjects, idOrIdentifier);
+  }
+
+  /**
+   * @see SubjectResolver#findByIdOrIdentifier(String, String)
+   */
+  public Subject findByIdOrIdentifier(String id, String source)
+      throws IllegalArgumentException, SourceUnavailableException,
+      SubjectNotFoundException, SubjectNotUniqueException {
+    
+    return this.getSource(source).getSubjectByIdOrIdentifier(id, true);
+    
   }
 
 }

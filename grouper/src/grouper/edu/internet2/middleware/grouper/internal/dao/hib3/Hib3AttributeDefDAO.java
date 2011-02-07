@@ -160,7 +160,10 @@ public class Hib3AttributeDefDAO extends Hib3DAO implements AttributeDefDAO {
         "select theAttributeDef from AttributeDef as theAttributeDef, " +
         "AttributeDefName as theAttributeDefName where theAttributeDefName.id = :theAttributeDefNameId" +
         " and theAttributeDef.id = theAttributeDefName.attributeDefId")
-      .setString("theAttributeDefNameId", attributeDefNameId).uniqueResult(AttributeDef.class);
+      .setString("theAttributeDefNameId", attributeDefNameId)
+      .setCacheable(true)
+      .setCacheRegion(KLASS + ".FindByAttributeDefNameIdSecure")
+      .uniqueResult(AttributeDef.class);
     
     //make sure grouper session can view the attribute def
     attributeDef = filterSecurity(attributeDef);

@@ -53,6 +53,11 @@ public class CachingResolver extends SubjectResolverDecorator {
   static GrouperCache<MultiKey, Subject> findByIdentifierCache = new GrouperCache<MultiKey, Subject>(CachingResolver.class.getName() + ".FindByIdentifier", 5000, false, 30, 120, false);
 
   /**
+   * cache of multikey, to subject
+   */
+  static GrouperCache<MultiKey, Subject> findByIdOrIdentifierCache = new GrouperCache<MultiKey, Subject>(CachingResolver.class.getName() + ".FindByIdentifier", 5000, false, 30, 120, false);
+
+  /**
    * flush the cache (e.g. for testing)
    */
   public void flushCache() {
@@ -78,7 +83,7 @@ public class CachingResolver extends SubjectResolverDecorator {
             SubjectNotFoundException,
             SubjectNotUniqueException
   {
-    Subject subj = this.getFromFindCache(id, null, null);
+    Subject subj = this.getFromFindCache(id, null);
     if (subj == null) {
       subj = super.getDecoratedResolver().find(id);
       this.putInFindCache(subj);
@@ -90,32 +95,15 @@ public class CachingResolver extends SubjectResolverDecorator {
    * @see     SubjectResolver#find(String, String)
    * @since   1.2.1
    */
-  public Subject find(String id, String type)
-    throws  IllegalArgumentException,
-            SubjectNotFoundException,
-            SubjectNotUniqueException
-  {
-    Subject subj = this.getFromFindCache(id, type, null);
-    if (subj == null) {
-      subj = super.getDecoratedResolver().find(id, type);
-      this.putInFindCache(subj);
-    }
-    return subj;
-  }
-
-  /**
-   * @see     SubjectResolver#find(String, String, String)
-   * @since   1.2.1
-   */
-  public Subject find(String id, String type, String source)
+  public Subject find(String id, String source)
     throws  IllegalArgumentException,
             SourceUnavailableException,
             SubjectNotFoundException,
             SubjectNotUniqueException
   {
-    Subject subj = this.getFromFindCache(id, type, source);
+    Subject subj = this.getFromFindCache(id, source);
     if (subj == null) {
-      subj = super.getDecoratedResolver().find(id, type, source);
+      subj = super.getDecoratedResolver().find(id, source);
       this.putInFindCache(subj);
     }
     return subj;
@@ -161,7 +149,7 @@ public class CachingResolver extends SubjectResolverDecorator {
             SubjectNotFoundException,
             SubjectNotUniqueException
   {
-    Subject subj = this.getFromFindByIdentifierCache(id, null, null);
+    Subject subj = this.getFromFindByIdentifierCache(id, null);
     if (subj == null) {
       subj = super.getDecoratedResolver().findByIdentifier(id);
       this.putInFindByIdentifierCache(id, subj);
@@ -173,32 +161,15 @@ public class CachingResolver extends SubjectResolverDecorator {
    * @see     SubjectResolver#findByIdentifier(String, String)
    * @since   1.2.1
    */
-  public Subject findByIdentifier(String id, String type)
-    throws  IllegalArgumentException,
-            SubjectNotFoundException,
-            SubjectNotUniqueException
-  {
-    Subject subj = this.getFromFindByIdentifierCache(id, type, null);
-    if (subj == null) {
-      subj = super.getDecoratedResolver().findByIdentifier(id, type);
-      this.putInFindByIdentifierCache(id, subj);
-    }
-    return subj;
-  }
-
-  /**
-   * @see     SubjectResolver#findByIdentifier(String, String, String)
-   * @since   1.2.1
-   */
-  public Subject findByIdentifier(String id, String type, String source)
+  public Subject findByIdentifier(String id, String source)
     throws  IllegalArgumentException,
             SourceUnavailableException,
             SubjectNotFoundException,
             SubjectNotUniqueException
   {
-    Subject subj = this.getFromFindByIdentifierCache(id, type, source);
+    Subject subj = this.getFromFindByIdentifierCache(id, source);
     if (subj == null) {
-      subj = super.getDecoratedResolver().findByIdentifier(id, type, source);
+      subj = super.getDecoratedResolver().findByIdentifier(id, source);
       this.putInFindByIdentifierCache(id, subj);
     }
     return subj;
@@ -218,8 +189,8 @@ public class CachingResolver extends SubjectResolverDecorator {
    * @return  Cached subject or null.
    * @since   1.2.1
    */
-  private Subject getFromFindByIdentifierCache(String id, String type, String source) {
-    return findByIdentifierCache.get( new MultiKey(id, type, source) );
+  private Subject getFromFindByIdentifierCache(String id, String source) {
+    return findByIdentifierCache.get( new MultiKey(id, source) );
   }
 
   /**
@@ -227,8 +198,8 @@ public class CachingResolver extends SubjectResolverDecorator {
    * @return  Cached subject or null.
    * @since   1.2.1
    */
-  private Subject getFromFindCache(String id, String type, String source) {
-    return findCache.get(new MultiKey(id, type, source));
+  private Subject getFromFindCache(String id, String source) {
+    return findCache.get(new MultiKey(id, source));
   }
 
   /**
@@ -251,16 +222,6 @@ public class CachingResolver extends SubjectResolverDecorator {
   }
 
   /**
-   * @see     SubjectResolver#getSources(String)
-   * @since   1.2.1
-   */
-  public Set<Source> getSources(String subjectType) 
-    throws  IllegalArgumentException
-  {
-    return super.getDecoratedResolver().getSources(subjectType);
-  }
-
-  /**
    * Put set of subjects into cache for <code>findAll(...)</code>.
    * @since   1.2.1
    */
@@ -274,13 +235,10 @@ public class CachingResolver extends SubjectResolverDecorator {
    */
   private void putInFindByIdentifierCache(String idfr, Subject subj) {
     findByIdentifierCache.put( 
-      new MultiKey(idfr, null, null), subj  
+      new MultiKey(idfr, null), subj  
     );
     findByIdentifierCache.put( 
-      new MultiKey( idfr, subj.getType().getName(), null ), subj
-    );
-    findByIdentifierCache.put( 
-        new MultiKey( idfr, subj.getType().getName(), subj.getSource().getId() ), subj
+        new MultiKey( idfr, subj.getSource().getId() ), subj
     );
     this.putInFindCache(subj);
   }
@@ -291,15 +249,61 @@ public class CachingResolver extends SubjectResolverDecorator {
    */
   private void putInFindCache(Subject subj) {
     findCache.put( 
-        new MultiKey( subj.getId(), null, null ), subj  
+        new MultiKey( subj.getId(), null), subj  
     );
     findCache.put( 
-        new MultiKey( subj.getId(), subj.getType().getName(), null ), subj
+        new MultiKey( subj.getId(), subj.getSource().getId() ), subj
     );
-    findCache.put( 
-        new MultiKey( subj.getId(), subj.getType().getName(), subj.getSource().getId() ), subj
+  }
+
+  /**
+   * Retrieve subject from cache for <code>findByIdentifier(...)</code>.
+   * @return  Cached subject or null.
+   * @since   1.2.1
+   */
+  private Subject getFromFindByIdOrIdentifierCache(String identifier, String source) {
+    return findByIdOrIdentifierCache.get( new MultiKey(identifier, source) );
+  }
+
+  /**
+   * Put subject into cache for <code>findByIdentifier(...)</code>.
+   * @since   1.2.1
+   */
+  private void putInFindByIdOrIdentifierCache(String idfr, Subject subj) {
+    findByIdOrIdentifierCache.put( 
+      new MultiKey(idfr, null), subj  
     );
-    // TODO 20070807 also put in "findByIdentifier(...)" cache?
+    findByIdOrIdentifierCache.put( 
+        new MultiKey( idfr, subj.getSource().getId() ), subj
+    );
+    this.putInFindCache(subj);
+  }
+
+  /**
+   * 
+   */
+  public Subject findByIdOrIdentifier(String id) throws IllegalArgumentException,
+      SubjectNotFoundException, SubjectNotUniqueException {
+    Subject subj = this.getFromFindByIdOrIdentifierCache(id, null);
+    if (subj == null) {
+      subj = super.getDecoratedResolver().findByIdOrIdentifier(id);
+      this.putInFindByIdOrIdentifierCache(id, subj);
+    }
+    return subj;
+  }
+
+  /**
+   * @see SubjectResolver#findByIdOrIdentifier(String, String)
+   */
+  public Subject findByIdOrIdentifier(String id, String source)
+      throws IllegalArgumentException, SourceUnavailableException,
+      SubjectNotFoundException, SubjectNotUniqueException {
+    Subject subj = this.getFromFindByIdOrIdentifierCache(id, source);
+    if (subj == null) {
+      subj = super.getDecoratedResolver().findByIdOrIdentifier(id, source);
+      this.putInFindByIdOrIdentifierCache(id, subj);
+    }
+    return subj;
   }
 
 }

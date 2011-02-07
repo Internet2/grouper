@@ -67,22 +67,14 @@ public class SubjectFinder {
    */
   public static Subject findByIdOrIdentifier(String idOrIdentifier, boolean exceptionIfNull) 
       throws SubjectNotFoundException, SubjectNotUniqueException {
-    Subject subject = null;
-    
-    //try by id first
-    subject = SubjectFinder.findById(idOrIdentifier, false);
-
-    //try by identifier if not by id
-    if (subject == null) {
-      subject = SubjectFinder.findByIdentifier(idOrIdentifier, false);
+    try {
+      return getResolver().findByIdOrIdentifier(idOrIdentifier);
+    } catch (SubjectNotFoundException snfe) {
+      if (exceptionIfNull) {
+        throw snfe;
+      }
+      return null;
     }
-    
-    //if null at this point, and exception, then throw it
-    if (subject == null && exceptionIfNull) {
-      throw new SubjectNotFoundException("Cant find subject by id or identifier: '" + idOrIdentifier + "'"); 
-    }
-
-    return subject;
   }
 
   /**
@@ -133,20 +125,14 @@ public class SubjectFinder {
    */
   public static Subject findByIdOrIdentifierAndSource(String idOrIdentifier, String source, boolean exceptionIfNull) 
       throws SubjectNotFoundException, SubjectNotUniqueException {
-    Subject subject = null;
     try {
-      subject = SubjectFinder.findByIdAndSource(idOrIdentifier, source, exceptionIfNull);
+      return getResolver().findByIdOrIdentifier(idOrIdentifier, source);
     } catch (SubjectNotFoundException snfe) {
-      try {
-        subject = SubjectFinder.findByIdentifierAndSource(idOrIdentifier, source, exceptionIfNull);
-      } catch (SubjectNotUniqueException snfe2) {
-        if (exceptionIfNull) {
-          throw snfe2;
-        }
-        return null;
+      if (exceptionIfNull) {
+        throw snfe;
       }
+      return null;
     }
-    return subject;
   }
 
   /**
@@ -231,7 +217,14 @@ public class SubjectFinder {
     throws  SubjectNotFoundException,
             SubjectNotUniqueException {
 
-    return SourceManager.getInstance().getSource(source).getSubject(id, exceptionIfNull);
+    try {
+      return getResolver().find(id, source);
+    } catch (SubjectNotFoundException snfe) {
+      if (exceptionIfNull) {
+        throw snfe;
+      }
+      return null;
+    }
     
   } 
 
@@ -486,7 +479,7 @@ public class SubjectFinder {
   {
     if (all == null) {
       try {
-        all = getResolver().find( GrouperConfig.ALL, GrouperConfig.IST, InternalSourceAdapter.ID );
+        all = getResolver().find( GrouperConfig.ALL, InternalSourceAdapter.ID );
       }
       catch (Exception e) {
         throw new GrouperException( "unable to retrieve GrouperAll: " + e.getMessage() );
@@ -509,7 +502,7 @@ public class SubjectFinder {
   {
     if (root == null) {
       try {
-        root = getResolver().find( GrouperConfig.ROOT, GrouperConfig.IST, InternalSourceAdapter.ID );
+        root = getResolver().find( GrouperConfig.ROOT, InternalSourceAdapter.ID );
       }
       catch (Exception e) {
         throw new GrouperException( "unable to retrieve GrouperSystem: " + e.getMessage() );
@@ -558,17 +551,6 @@ public class SubjectFinder {
    */
   public static Set<Source> getSources() {
     return getResolver().getSources();
-  }
-
-  /**
-   * <pre class="eg">
-   * Set personSources = SubjectFinder.getSources("person");
-   * </pre>
-   * @param subjectType 
-   * @return  Set of <i>Source</i> adapters providing <i>subjectType</i>.
-   */
-  public static Set<Source> getSources(String subjectType) {
-    return getResolver().getSources(subjectType);
   }
 
   /**
@@ -621,19 +603,14 @@ public class SubjectFinder {
    * @return  A {@link Subject} object
    * @throws SubjectNotFoundException
    * @throws SubjectNotUniqueException
+   * @deprecated since type is no longer an identifier... just use id or id/source
    */
+  @Deprecated
   public static Subject findById(String id, String type, boolean exceptionIfNull) 
     throws  SubjectNotFoundException,
             SubjectNotUniqueException
   {
-    try {
-      return getResolver().find(id, type);
-    } catch (SubjectNotFoundException snfe) {
-      if (exceptionIfNull) {
-        throw snfe;
-      }
-      return null;
-    }
+    return findById(id, exceptionIfNull);
   }
 
   /**
@@ -657,25 +634,16 @@ public class SubjectFinder {
    * @throws  SourceUnavailableException
    * @throws  SubjectNotFoundException
    * @throws  SubjectNotUniqueException
+   * @Deprecated since type is no longer an id, just use id or id/source
    */
+  @Deprecated
   public static Subject findById(String id, String type, String source, boolean exceptionIfNull) 
     throws  SourceUnavailableException,
             SubjectNotFoundException,
             SubjectNotUniqueException {
     
-    //if only by id and source
-    if (StringUtils.isBlank(type)) {
-      return SourceManager.getInstance().getSource(source).getSubject(id, exceptionIfNull);
-    }
+    return findByIdAndSource(id, source, exceptionIfNull);
     
-    try {
-      return getResolver().find(id, type, source);
-    } catch (SubjectNotFoundException snfe) {
-      if (exceptionIfNull) {
-        throw snfe;        
-      }
-      return null;
-    }
   }
  
   /**
@@ -730,13 +698,14 @@ public class SubjectFinder {
    * @return  A {@link Subject} object
    * @throws  SubjectNotFoundException
    * @throws  SubjectNotUniqueException
+   * @deprecated use id or id/source
    */
+  @Deprecated
   public static Subject findByIdentifier(String id, String type, boolean exceptionIfNull) 
     throws  SubjectNotFoundException,
-            SubjectNotUniqueException
-  {
+            SubjectNotUniqueException {
     try {
-      return getResolver().findByIdentifier(id, type);
+      return getResolver().findByIdentifier(id);
     } catch (SubjectNotFoundException snfe) {
       if (exceptionIfNull) {
         throw snfe;
@@ -767,20 +736,15 @@ public class SubjectFinder {
    * @throws  SourceUnavailableException
    * @throws  SubjectNotFoundException
    * @throws  SubjectNotUniqueException
+   * @Deprecated
    */
+  @Deprecated
   public static Subject findByIdentifier(String id, String type, String source, boolean exceptionIfNull) 
     throws  SourceUnavailableException,
             SubjectNotFoundException,
             SubjectNotUniqueException
   {
-    try {
-      return getResolver().findByIdentifier(id, type, source);
-    } catch (SubjectNotFoundException snfe) {
-      if (exceptionIfNull) {
-        throw snfe;
-      }
-      return null;
-    }
+    return findByIdentifierAndSource(id, source, exceptionIfNull);
   }
 
   /**
@@ -835,7 +799,14 @@ public class SubjectFinder {
     throws  SourceUnavailableException,
             SubjectNotFoundException,
             SubjectNotUniqueException {
-    return SourceManager.getInstance().getSource(source).getSubjectByIdentifier(identifier, exceptionIfNull);
+    try {
+      return getResolver().findByIdentifier(identifier, source);
+    } catch (SubjectNotFoundException snfe) {
+      if (exceptionIfNull) {
+        throw snfe;
+      }
+      return null;
+    }
   }
 
   /**
