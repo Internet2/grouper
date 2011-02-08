@@ -196,7 +196,11 @@ public class AllTests extends GrouperTest {
       suite.addTest(AllDdlTests.suite());
     }
 
-    suite.addTest(AllExternalSubjectTests.suite());
+    
+    if (GrouperConfig.getPropertyBoolean("junit.test.externalSubjects", false)) {
+      suite.addTest(AllExternalSubjectTests.suite());
+    }
+    
     suite.addTest(AllFilterTests.suite());
     suite.addTest(AllGroupTests.suite());
     suite.addTest(AllHibernateTests.suite());

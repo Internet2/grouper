@@ -78,8 +78,8 @@
 
   <!-- class: Hib3MemberDAO -->
 
-  <cache  name="edu.internet2.middleware.grouper.internal.dao.hib3.Hib3MembershipDAO.FindAllByGroupOwnerAndMemberAndField"
-          maxElementsInMemory="1000"
+  <cache  name="edu.internet2.middleware.grouper.internal.dao.hib3.Hib3MembershipDAO"
+          maxElementsInMemory="10000"
           eternal="false"
           timeToIdleSeconds="5"
           timeToLiveSeconds="5"
