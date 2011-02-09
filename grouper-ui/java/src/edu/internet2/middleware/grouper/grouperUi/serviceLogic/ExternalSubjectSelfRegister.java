@@ -61,6 +61,10 @@ public class ExternalSubjectSelfRegister {
    */
   public void delete(HttpServletRequest request, HttpServletResponse response) {
 
+    if (!TagUtils.mediaResourceBoolean("externalMembers.allowSelfDelete", false)) {
+      throw new RuntimeException("Not sure why delete was pressed, it is not allowed, and shouldnt show the button");
+    }
+    
     //setup the container
     final ExternalRegisterContainer externalRegisterContainer = new ExternalRegisterContainer();
     externalRegisterContainer.storeToRequest();
