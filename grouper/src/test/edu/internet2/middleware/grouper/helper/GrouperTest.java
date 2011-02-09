@@ -586,6 +586,9 @@ public class GrouperTest extends TestCase {
   protected void setUp () {
     LOG.debug("setUp");
     
+    GrouperSession.stopQuietly(GrouperSession.staticGrouperSession(false));
+    GrouperSession.clearGrouperSessions();
+    
     //set this and leave it...
     GrouperContext.createNewDefaultContext(GrouperEngineBuiltin.JUNIT, false, true);
     

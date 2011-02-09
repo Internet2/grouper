@@ -60,6 +60,7 @@ public class ExternalSubjectAttrFrameworkTest extends GrouperTest {
   protected void setUp() {
     super.setUp();
     this.grouperSession = GrouperSession.startRootSession();
+    ApiConfig.testConfig.put("grouper.ui.url", "http://whatever/grouper/");
   }
 
   /**

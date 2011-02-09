@@ -63,8 +63,8 @@ public class TestSubjectFinder extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    //TestRunner.run(TestSubjectFinder.class);
-    TestRunner.run(new TestSubjectFinder("testFindByPackedSubjectString"));
+    TestRunner.run(TestSubjectFinder.class);
+    //TestRunner.run(new TestSubjectFinder("testFindByPackedSubjectString"));
   }
   
   /**
@@ -87,12 +87,6 @@ public class TestSubjectFinder extends GrouperTest {
   protected void tearDown () {
     LOG.debug("tearDown");
   }
-
-  public void testFindByIdentifierGoodIdBadType2() {
-    LOG.info("testFindByIdentifierGoodIdBadType");
-    SubjectTestHelper.getSubjectByBadIdType(i2.getName(), "person");
-    Assert.assertTrue("failed to find bad subject", true);
-  } // public void testFindByIdentifierGoodIdBadType()
 
   public void testFindByIdentifierGoodId() {
     LOG.info("testFindByIdentifierGoodId");
@@ -175,12 +169,6 @@ public class TestSubjectFinder extends GrouperTest {
     SubjectTestHelper.getSubjectById(i2.getUuid());
     Assert.assertTrue("found subject", true);
   } // public void testFindByIdGoodId()
-
-  public void testFindByIdGoodIdBadType2() {
-    LOG.info("testFindByIdGoodIdBadType");
-    SubjectTestHelper.getSubjectByBadIdType(i2.getUuid(), "person");
-    Assert.assertTrue("failed to find bad subject", true);
-  } // public void testFindByIdGoodIdBadType()
 
   public void testFindByIdGoodIdGoodType() {
     LOG.info("testFindByIdGoodIdGoodType");
@@ -285,11 +273,6 @@ public class TestSubjectFinder extends GrouperTest {
     Assert.assertTrue("failed to find bad subject", true);
   } // public void testFindByIdentifierBadId()
 
-  public void testFindByIdentifierGoodIdBadType() {
-    SubjectTestHelper.getSubjectByBadIdType(SubjectTestHelper.SUBJ_ROOT, "person");
-    Assert.assertTrue("failed to find bad subject", true);
-  } // public void testFindByIdentifierGoodIdBadType()
-
   public void testFindByIdentifierGoodIdGoodTypeRoot() {
     SubjectTestHelper.getSubjectByIdentifierType(
       SubjectTestHelper.SUBJ_ROOT, "application"
@@ -306,11 +289,6 @@ public class TestSubjectFinder extends GrouperTest {
     SubjectTestHelper.getSubjectById(SubjectTestHelper.SUBJ_ALL);
     Assert.assertTrue("found all subject", true);
   } // public void testFindByIdGoodIdAll()
-
-  public void testFindByIdGoodIdBadType() {
-    SubjectTestHelper.getSubjectByBadIdType(SubjectTestHelper.SUBJ_ROOT, "person");
-    Assert.assertTrue("failed to find bad subject", true);
-  } // public void testFindByIdGoodIdBadType()
 
   public void testFindByIdGoodIdGoodTypeAll() {
     SubjectTestHelper.getSubjectByIdType(
@@ -435,11 +413,6 @@ public class TestSubjectFinder extends GrouperTest {
     }
   } // public void testFinderBadSubjectByIdentifierWithGoodType()
 
-  public void testFinderBadSubjectWithType() {
-    SubjectTestHelper.getSubjectByBadIdType("i do not exist", "person");
-    Assert.assertTrue("failed to get bad subject", true);
-  } // public void testFinderBadSubjectWithType()
-
   public void testFinderGrouperSystemSubject() {
     String id = "GrouperSystem";
     try { 
@@ -492,21 +465,6 @@ public class TestSubjectFinder extends GrouperTest {
     }
   } // public void testFinderGrouperSystemSubjectByIdentifier()
 
-  public void testFinderGrouperSystemSubjectByIdentifierWithBadType() {
-    String  id    = "GrouperSystem";
-    String  type  = "person";
-    try { 
-      Subject subj = SubjectFinder.findByIdentifier(id, type, true);
-      Assert.fail("found good subject with bad type: " + subj);
-    } 
-    catch (SubjectNotFoundException e) {
-      Assert.assertTrue("failed to find good subject with bad type", true);
-    }
-    catch (Exception e) {
-      T.e(e);
-    }
-  } // public void testFinderGrouperSystemSubjectByIdentifierWithBadType()
-
   public void testFinderGrouperSystemSubjectByIdentifierWithGoodType() {
     String  id    = "GrouperSystem";
     String  type  = "application";
@@ -533,21 +491,6 @@ public class TestSubjectFinder extends GrouperTest {
       T.e(e);
     }
   } // public void testFinderGrouperSystemSubjectByIdentifierWithGoodType()
-
-  public void testFinderGrouperSystemSubjectWithBadType() {
-    String  id    = "GrouperSystem";
-    String  type  = "person";
-    try { 
-      Subject subj = SubjectFinder.findById(id, type, true);
-      Assert.fail("found good subject with bad type: " + subj);
-    } 
-    catch (SubjectNotFoundException e) {
-      Assert.assertTrue("failed to find good subject with bad type", true);
-    }
-    catch (Exception e) {
-      T.e(e);
-    }
-  } // public void testFinderGrouperSystemSubjectWithBadType()
 
   public void testFinderGrouperSystemSubjectWithGoodType() {
     String  id    = "GrouperSystem";

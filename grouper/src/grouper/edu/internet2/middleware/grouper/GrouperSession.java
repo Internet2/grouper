@@ -733,6 +733,14 @@ public class GrouperSession implements Serializable {
   }
   
   /**
+   * clear the threadlocal grouper sessions (dont really need to call this, just
+   * stop the session, but this is here for testing)
+   */
+  public static void clearGrouperSessions() {
+    staticSessions.remove();
+  }
+  
+  /**
    * get the threadlocal grouper session. access this through inverse of
    * control.  this should be called by internal grouper methods which need the
    * grouper session

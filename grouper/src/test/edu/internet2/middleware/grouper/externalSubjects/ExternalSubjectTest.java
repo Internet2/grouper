@@ -45,8 +45,8 @@ public class ExternalSubjectTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    //TestRunner.run(new ExternalSubjectTest("testPersistence"));
-    TestRunner.run(ExternalSubjectTest.class);
+    TestRunner.run(new ExternalSubjectTest("testPersistence"));
+    //TestRunner.run(ExternalSubjectTest.class);
   }
 
   /**
