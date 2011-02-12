@@ -65,7 +65,7 @@ public class RuleApiTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new RuleApiTest("testInheritFolderPrivilegesDaemon"));
+    TestRunner.run(new RuleApiTest("testRuleVetoSubjectAssignInFolderIfNotInGroupPenn"));
   }
 
   /**
@@ -293,6 +293,93 @@ public class RuleApiTest extends GrouperTest {
     
     assertEquals("Didnt fire since is a member", initialFirings+1, RuleEngine.ruleFirings);
 
+  }
+  
+  /**
+   * 
+   */
+  public void testRuleVetoSubjectAssignInFolderIfNotInGroup() {
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    
+    Group allowedGroup = new GroupSave(grouperSession).assignName("stem:allowed").assignCreateParentStemsIfNotExist(true).save();
+    Group restrictedGroup = new GroupSave(grouperSession).assignName("stem2:restricted").assignCreateParentStemsIfNotExist(true).save();
+    Group employeeGroup = new GroupSave(grouperSession).assignName("etc:employee").assignCreateParentStemsIfNotExist(true).save();
+    
+    //Stem rootStem = StemFinder.findRootStem(grouperSession);
+    Stem restrictedStem = StemFinder.findByName(grouperSession, "stem2", true);
+
+    
+    RuleApi.vetoSubjectAssignInFolderIfNotInGroup(SubjectFinder.findRootSubject(), restrictedStem, employeeGroup, false, "jdbc", Scope.SUB,
+        "rule.entity.must.be.a.member.of.etc.employee", "Entity cannot be assigned if not a member of etc:employee");
+
+    //count rule firings
+    long initialFirings = RuleEngine.ruleFirings;
+
+    Subject subject0 = SubjectFinder.findByIdAndSource("test.subject.0", "jdbc", true);
+
+    try {
+      restrictedGroup.addMember(subject0);
+      fail("Should be vetoed");
+    } catch (RuleVeto rve) {
+      //this is good
+      String stack = ExceptionUtils.getFullStackTrace(rve);
+      assertTrue(stack, stack.contains("Entity cannot be assigned if not a member of etc:employee"));
+    }
+  
+    assertEquals(initialFirings+1, RuleEngine.ruleFirings);
+    
+    allowedGroup.addMember(SubjectTestHelper.SUBJ0);
+
+    //this doesnt actually fire
+    assertEquals(initialFirings+1, RuleEngine.ruleFirings);
+    
+    employeeGroup.addMember(SubjectTestHelper.SUBJ0);
+    restrictedGroup.addMember(SubjectTestHelper.SUBJ0);
+    
+    assertEquals("Didnt fire since is a member", initialFirings+1, RuleEngine.ruleFirings);
+
+  }
+  
+  /**
+   * disallow a source at root, but then allow in subfolder
+   */
+  public void testRuleVetoSubjectAssignInFolderIfNotInGroupPenn() {
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    
+    Group allowedGroup = new GroupSave(grouperSession).assignName("stem:allowed").assignCreateParentStemsIfNotExist(true).save();
+    Group restrictedGroup = new GroupSave(grouperSession).assignName("stem2:restricted").assignCreateParentStemsIfNotExist(true).save();
+    
+    Stem rootStem = StemFinder.findRootStem(grouperSession);
+    Stem allowedStem = StemFinder.findByName(grouperSession, "stem", true);
+
+    RuleApi.vetoSubjectAssignInFolderIfNotInGroup(SubjectFinder.findRootSubject(), rootStem, null, false, "jdbc", Scope.SUB,
+        "rule.entity.must.be.a.member.of.etc.employee", "Entity cannot be assigned if not a member of etc:employee");
+
+    
+    RuleApi.vetoSubjectAssignInFolderIfNotInGroup(SubjectFinder.findRootSubject(), allowedStem, null, true, "jdbc", Scope.SUB,
+        "rule.entity.must.be.a.member.of.etc.employee", "Entity cannot be assigned if not a member of etc:employee");
+
+    //count rule firings
+    long initialFirings = RuleEngine.ruleFirings;
+
+    Subject subject0 = SubjectFinder.findByIdAndSource("test.subject.0", "jdbc", true);
+
+    try {
+      restrictedGroup.addMember(subject0);
+      fail("Should be vetoed");
+    } catch (RuleVeto rve) {
+      //this is good
+      String stack = ExceptionUtils.getFullStackTrace(rve);
+      assertTrue(stack, stack.contains("Entity cannot be assigned if not a member of etc:employee"));
+    }
+  
+    assertEquals(initialFirings+1, RuleEngine.ruleFirings);
+    
+    allowedGroup.addMember(SubjectTestHelper.SUBJ0);
+
+    //this doesnt actually fire
+    assertEquals(initialFirings+1, RuleEngine.ruleFirings);
+    
   }
   
   /**

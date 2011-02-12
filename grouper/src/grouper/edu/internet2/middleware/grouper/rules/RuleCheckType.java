@@ -1136,7 +1136,7 @@ public enum RuleCheckType {
     @Override
     public void addElVariables(RuleDefinition ruleDefinition, Map<String, Object> variableMap, 
         RulesBean rulesBean, boolean hasAccessToElApi) {
-      flattenedMembershipAdd.addElVariables(ruleDefinition, variableMap, rulesBean, hasAccessToElApi);
+      flattenedMembershipRemove.addElVariables(ruleDefinition, variableMap, rulesBean, hasAccessToElApi);
     }
 
     /**
@@ -1146,6 +1146,86 @@ public enum RuleCheckType {
     @Override
     public String validate(RuleDefinition ruleDefinition, RuleCheck ruleCheck) {
       return this.validate(false, ruleDefinition, ruleCheck, false, true, false, false);
+    }
+
+  }, 
+  
+  /** if there is a membership add, privilege add, permission add, etc in transaction */
+  subjectAssignInStem {
+
+    /**
+     * 
+     */
+    @Override
+    public void runDaemon(final RuleDefinition ruleDefinition) {
+      
+      throw new RuntimeException("Not implemented daemon: " + ruleDefinition);
+      
+    }
+
+    
+    /**
+     * @see RuleCheckType#checkKey(RuleDefinition)
+     */
+    @Override
+    public RuleCheck checkKey(RuleDefinition ruleDefinition) {
+      RuleCheck ruleCheck = ruleDefinition.getCheck();
+      if (StringUtils.isBlank(ruleCheck.getCheckOwnerId()) && StringUtils.isBlank(ruleCheck.getCheckOwnerName())) {
+        //if this is assigned to a stem
+        String ownerStemId = ruleDefinition.getAttributeAssignType().getOwnerStemId();
+        if (!StringUtils.isBlank(ownerStemId)) {
+
+          //clone so we dont edit the object
+          ruleCheck = ruleCheck.clone();
+          //set the owner to this group
+          ruleCheck.setCheckOwnerId(ownerStemId);
+        } else {
+          LOG.error("Not sure why no check owner if not assigned to group");
+        }
+      }
+      return ruleCheck;
+    }
+
+    /**
+     * this is going to find one or no rules based on the source of the subject being affected
+     * @see edu.internet2.middleware.grouper.rules.RuleCheckType#ruleDefinitions(edu.internet2.middleware.grouper.rules.RuleEngine, edu.internet2.middleware.grouper.rules.beans.RulesBean)
+     */
+    @Override
+    public Set<RuleDefinition> ruleDefinitions(RuleEngine ruleEngine, RulesBean rulesBean) {
+
+      String sourceId = rulesBean.getSubjectSourceId();
+      
+      Stem stem = rulesBean.getStem();
+      
+      //name
+      RuleCheck ruleCheck = new RuleCheck(this.name(), 
+          null, stem.getName(), null, sourceId, null);
+
+      return ruleEngine.ruleCheckIndexDefinitionsByNameOrIdInFolderPickOneArgOptional(ruleCheck);
+    }
+  
+    /**
+     * 
+     */
+    @Override
+    public void addElVariables(RuleDefinition ruleDefinition, Map<String, Object> variableMap, 
+        RulesBean rulesBean, boolean hasAccessToElApi) {
+      
+      
+      if (rulesBean instanceof RulesMembershipBean) {
+        flattenedMembershipRemove.addElVariables(ruleDefinition, variableMap, rulesBean, hasAccessToElApi);
+      } else if (rulesBean instanceof RulesPermissionBean) {
+        permissionAssignToSubject.addElVariables(ruleDefinition, variableMap, rulesBean, hasAccessToElApi);
+      }
+    }
+
+    /**
+     * 
+     * @see edu.internet2.middleware.grouper.rules.RuleCheckType#validate(RuleDefinition, edu.internet2.middleware.grouper.rules.RuleCheck)
+     */
+    @Override
+    public String validate(RuleDefinition ruleDefinition, RuleCheck ruleCheck) {
+      return this.validate(true, ruleDefinition, ruleCheck, true, false, true, false);
     }
 
   }, 
@@ -1656,7 +1736,7 @@ public enum RuleCheckType {
   
   /**
    * validate this check type
-   * @param allowArgs 
+   * @param allowCheckArgs 
    * @param ruleDefinition
    * @param ruleCheck 
    * @param requireStemScope true to require, false to require blank
@@ -1665,7 +1745,7 @@ public enum RuleCheckType {
    * @param ownerIsAttributeDef 
    * @return the error or null if valid
    */
-  public String validate(boolean allowArgs, RuleDefinition ruleDefinition, RuleCheck ruleCheck, 
+  public String validate(boolean allowCheckArgs, RuleDefinition ruleDefinition, RuleCheck ruleCheck, 
       boolean requireStemScope, boolean ownerIsGroup, boolean ownerIsStem, boolean ownerIsAttributeDef) {
     
     if (!StringUtils.isBlank(ruleCheck.getCheckOwnerId()) && !StringUtils.isBlank(ruleCheck.getCheckOwnerName())) {
@@ -1707,7 +1787,7 @@ public enum RuleCheckType {
       }
     }
     
-    if (!allowArgs) {
+    if (!allowCheckArgs) {
       if (!StringUtils.isBlank(ruleDefinition.getCheck().getCheckArg0()) 
           || !StringUtils.isBlank(ruleDefinition.getCheck().getCheckArg1())) {
         return "Should not use checkArg0 or checkArg1";
@@ -1787,7 +1867,6 @@ public enum RuleCheckType {
    * 
    * @param ruleDefinition
    * @param ruleEngine
-   * @param thisGroupHasEndDateNull
    */
   private static void membershipAddDaemonVetoThisGroupHasMembership(final RuleDefinition ruleDefinition,
       final RuleEngine ruleEngine) {
@@ -1842,7 +1921,6 @@ public enum RuleCheckType {
    * 
    * @param ruleDefinition
    * @param ruleEngine
-   * @param thisGroupHasEndDateNull
    */
   private static void permissionAddDaemonVetoThisGroupHasMembership(final RuleDefinition ruleDefinition,
       final RuleEngine ruleEngine) {
@@ -2049,7 +2127,6 @@ public enum RuleCheckType {
    * 
    * @param ruleDefinition
    * @param ruleEngine
-   * @param thisGroupHasEndDateNull
    */
   private static void membershipAddDaemonVetoThisStemHasMembership(final RuleDefinition ruleDefinition,
       final RuleEngine ruleEngine) {

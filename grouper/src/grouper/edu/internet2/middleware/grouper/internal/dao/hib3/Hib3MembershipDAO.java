@@ -782,7 +782,7 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
     
     Set<Membership> memberships = new LinkedHashSet<Membership>();
     
-    MembershipType membershipType = MembershipType.valueOfIgnoreCase(type, true);
+    MembershipType membershipType = MembershipType.valueOfIgnoreCase(type, false);
     
     for (int i=0; i<pages; i++) {
       List<String> currentMemberIdList = GrouperUtil.batchList(memberIds, batchSize, i);
@@ -791,11 +791,14 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
       StringBuilder query = new StringBuilder("select ms"
             + " from MembershipEntry ms where"
             + " ms.ownerGroupId      = :owner "
-            + "and  ms.fieldId = :fieldId "
-            + "and  ms.type  " + membershipType.queryClause()
-            + " and ms.memberUuid in (");
-        byHqlStatic.setString( "owner", ownerGroupId ) 
-          .setString( "fieldId", f.getUuid() );
+            + " and  ms.fieldId = :fieldId ");
+      if (membershipType != null) {
+        query.append(" and  ms.type  " + membershipType.queryClause());
+      }
+
+      query.append(" and ms.memberUuid in (");
+      byHqlStatic.setString( "owner", ownerGroupId ) 
+        .setString( "fieldId", f.getUuid() );
 
       //add all the uuids
       byHqlStatic.setCollectionInClause(query, currentMemberIdList);
@@ -806,7 +809,7 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
       }
       
       List<Membership> currentList = byHqlStatic.createQuery(query.toString())
-        .setCacheable(false)
+        .setCacheable(true)
         .setCacheRegion(KLASS)
         .list(Membership.class);
       memberships.addAll(currentList);

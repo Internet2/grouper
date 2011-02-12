@@ -1,7 +1,10 @@
 package edu.internet2.middleware.grouper.rules;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -10,6 +13,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 
+import edu.emory.mathcs.backport.java.util.Collections;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
@@ -27,6 +31,7 @@ import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.rules.beans.RulesBean;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.ws.StemScope;
 import edu.internet2.middleware.subject.Subject;
 
 /**
@@ -259,6 +264,96 @@ public class RuleEngine {
     
   }
   
+  /**
+   * pop one and log error if multiple
+   * @param ruleDefinitions
+   * @return the set
+   */
+  private static Set<RuleDefinition> listPopOneLogError(Set<RuleDefinition> ruleDefinitions) {
+    int length = GrouperUtil.length(ruleDefinitions);
+    if (length == 1) {
+      return ruleDefinitions;
+    }
+    if (length == 0) {
+      throw new RuntimeException("Why is length 0");
+    }
+    RuleDefinition ruleDefinition = ruleDefinitions.iterator().next();
+    LOG.error("Why is there more than 1? " + length + ", " + ruleDefinition);
+    return GrouperUtil.toSet(ruleDefinition);
+  }
+  
+  /**
+   * get rule definitions from cache based on name or id
+   * @param ruleCheck
+   * @return the definitions
+   */
+  public Set<RuleDefinition> ruleCheckIndexDefinitionsByNameOrIdInFolderPickOneArgOptional(RuleCheck ruleCheck) {
+  
+    //owner name is the stem name
+    String ownerName = ruleCheck.getCheckOwnerName();
+    
+    if (StringUtils.isBlank(ownerName)) {
+      throw new RuntimeException("Checking in folder needs an owner name: " + ruleCheck);
+    }
+    
+    Set<RuleDefinition> ruleDefinitions = null;
+    
+    //see if there is a direct that matches the arg
+    RuleCheck tempRuleCheck = new RuleCheck(ruleCheck.getCheckType(), null, ownerName, Stem.Scope.ONE.name(), ruleCheck.getCheckArg0(), null);
+    
+    ruleDefinitions = this.getRuleCheckIndex().get(tempRuleCheck);
+    
+    if (GrouperUtil.length(ruleDefinitions) > 0) {
+      return listPopOneLogError(ruleDefinitions);
+    }
+    
+    tempRuleCheck.setCheckArg0(null);
+    
+    //see if there is a direct without a matching arg
+    ruleDefinitions = this.getRuleCheckIndex().get(tempRuleCheck);
+    
+    if (GrouperUtil.length(ruleDefinitions) > 0) {
+      return listPopOneLogError(ruleDefinitions);
+    }
+    
+    //we need the stems, 
+    List<String> stemNameList = null;
+    
+    {
+      Set<String> stemNameSet = GrouperUtil.findParentStemNames(ownerName);
+      
+      stemNameSet.add(ownerName);
+
+      stemNameList = new ArrayList<String>(stemNameSet);
+      
+      Collections.reverse(stemNameList);
+    }
+    
+    //loop through all stems from more specific to less specific
+    for (String ancestorStemName : stemNameList) {
+      
+      tempRuleCheck = new RuleCheck(ruleCheck.getCheckType(), null, ancestorStemName, Stem.Scope.SUB.name(), ruleCheck.getCheckArg0(), null);
+      
+      ruleDefinitions = this.getRuleCheckIndex().get(tempRuleCheck);
+      
+      if (GrouperUtil.length(ruleDefinitions) > 0) {
+        return listPopOneLogError(ruleDefinitions);
+      }
+      
+      tempRuleCheck.setCheckArg0(null);
+      
+      //see if there is a direct without a matching arg
+      ruleDefinitions = this.getRuleCheckIndex().get(tempRuleCheck);
+      
+      if (GrouperUtil.length(ruleDefinitions) > 0) {
+        return listPopOneLogError(ruleDefinitions);
+      }
+    }
+    //didnt find anything, dont return null
+    return new HashSet<RuleDefinition>();
+
+  }
+
   /**
    * find rules and fire them
    * @param ruleCheckType

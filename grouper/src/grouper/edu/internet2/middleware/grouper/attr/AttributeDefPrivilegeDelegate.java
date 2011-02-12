@@ -25,6 +25,9 @@ import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.privs.AttributeDefResolver;
 import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
+import edu.internet2.middleware.grouper.rules.RuleCheckType;
+import edu.internet2.middleware.grouper.rules.RuleEngine;
+import edu.internet2.middleware.grouper.rules.beans.RulesPrivilegeBean;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
@@ -239,6 +242,13 @@ public class AttributeDefPrivilegeDelegate {
             //note, this will validate the inputs
             GrouperSession.staticGrouperSession().getAttributeDefResolver().grantPrivilege(
                 AttributeDefPrivilegeDelegate.this.attributeDef, subj, priv, uuid);
+            
+            RulesPrivilegeBean rulesPrivilegeBean = new RulesPrivilegeBean(AttributeDefPrivilegeDelegate.this.attributeDef, subj, priv);
+            
+            //fire rules related to subject assign in folder
+            RuleEngine.fireRule(RuleCheckType.subjectAssignInStem, rulesPrivilegeBean);
+
+            
             assignedPrivilege = true;
   
           } catch (UnableToPerformAlreadyExistsException eUTP) {
