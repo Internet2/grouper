@@ -30,6 +30,7 @@ import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.audit.GrouperEngineBuiltin;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogConsumerBase;
 import edu.internet2.middleware.grouper.client.ClientConfig;
 import edu.internet2.middleware.grouper.client.ClientConfig.ClientGroupConfigBean;
@@ -507,7 +508,13 @@ public class GrouperLoader {
 
     //schedule the job
     try {
-      
+
+      if (!GrouperConfig.getPropertyBoolean("rules.enable", true)) {
+        LOG.warn("grouper.properties key: rules.enable is false " +
+          "so the rules engine/daemon will not run");
+        return;
+      }
+
       cronString = GrouperLoaderConfig.getPropertyString("rules.quartz.cron");
 
       if (StringUtils.isBlank(cronString)) {
@@ -1077,7 +1084,7 @@ public class GrouperLoader {
           Hib3GrouperLoaderLog hib3GrouploaderLog = new Hib3GrouperLoaderLog();
           hib3GrouploaderLog.setHost(GrouperUtil.hostname());
           hib3GrouploaderLog.setJobMessage(errorMessage);
-          hib3GrouploaderLog.setJobName(GrouperLoaderType.GROUPER_RULES);
+          hib3GrouploaderLog.setJobName(GrouperLoaderType.GROUPER_GROUP_SYNC);
           hib3GrouploaderLog.setJobScheduleQuartzCron(clientGroupConfigBean.getCron());
           hib3GrouploaderLog.setJobScheduleType(GrouperLoaderScheduleType.CRON.name());
           hib3GrouploaderLog.setJobType(GrouperLoaderType.MAINTENANCE.name());

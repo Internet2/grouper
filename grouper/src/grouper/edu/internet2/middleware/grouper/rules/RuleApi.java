@@ -117,7 +117,7 @@ public class RuleApi {
     attributeValueDelegate.assignValue(
         RuleUtils.ruleCheckTypeName(), RuleCheckType.subjectAssignInStem.name());
     attributeValueDelegate.assignValue(
-        RuleUtils.ruleCheckStemScopeName(), stemScope == null ? stemScope.name() : Stem.Scope.SUB.name());
+        RuleUtils.ruleCheckStemScopeName(), stemScope != null ? stemScope.name() : Stem.Scope.SUB.name());
     
     //this is optional to restrict to source.  I think you will want to do that, or you
     //would need to have all the usable groups in the allowed group...

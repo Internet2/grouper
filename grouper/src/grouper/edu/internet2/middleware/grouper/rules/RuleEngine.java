@@ -246,7 +246,7 @@ public class RuleEngine {
       if (StringUtils.isBlank(ruleCheck.getCheckOwnerId())
           && StringUtils.isBlank(ruleCheck.getCheckOwnerName())) {
         
-        LOG.error("Why are ownerId and ownerName blank for this rule: " + originalRuleCheck.getCheckOwnerId() + ", " + originalRuleCheck.getCheckOwnerName());
+        LOG.error("Why are ownerId and ownerName blank for this rule: " + ruleDefinition);
         continue;
       }
       
@@ -364,6 +364,10 @@ public class RuleEngine {
     if (GrouperCheckConfig.inCheckConfig) {
       return;
     }
+
+    if (!GrouperConfig.getPropertyBoolean("rules.enable", true)) {
+      return;
+    }
     
     final RuleEngine ruleEngine = ruleEngine();
     
@@ -462,6 +466,12 @@ public class RuleEngine {
     Map<AttributeAssign, Set<AttributeAssignValueContainer>> result = GrouperDAOFactory.getFactory()
       .getAttributeAssign().findByAttributeTypeDefNameId(ruleTypeDefName.getId(), queryOptions);
   
+    //List<AttributeAssign> keyList = new ArrayList<AttributeAssign>(result.keySet());
+    //List<List<AttributeAssignValueContainer>> valuesList = new ArrayList<List<AttributeAssignValueContainer>>();
+    //for (AttributeAssign attributeAssign: keyList) {
+    //  valuesList.add(new ArrayList<AttributeAssignValueContainer>(result.get(attributeAssign)));
+    //}
+    
     return result;
     
   }

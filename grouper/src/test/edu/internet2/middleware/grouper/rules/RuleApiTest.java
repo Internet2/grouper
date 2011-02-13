@@ -65,7 +65,7 @@ public class RuleApiTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new RuleApiTest("testRuleVetoSubjectAssignInFolderIfNotInGroupPenn"));
+    TestRunner.run(new RuleApiTest("testRuleVetoSubjectAssignInFolderInherit"));
   }
 
   /**
@@ -380,6 +380,312 @@ public class RuleApiTest extends GrouperTest {
     //this doesnt actually fire
     assertEquals(initialFirings+1, RuleEngine.ruleFirings);
     
+  }
+  
+  /**
+   * <pre>
+   * root  denies groups SUB
+   * a:    allows all ONE, result: allows all, allows grouperSystem
+   * b:    denies jdbc ONE, result: denies groups and jdbc, allows grouperSystem
+   * a:a   result: will deny groups inherit, allow jdbc, allows grouperSystem
+   * b:a   result: will deny groups inherit, allow jdbc, allows grouperSystem
+   * b:c   allows groups SUB, result: allow all, allows grouperSystem
+   * a:b   denies jdbc SUB, result: deny jdbc, groups, allows grouperSystem
+   * b:d   allows amployees in jdbc SUB, result: denies groups and allows employees, allows grouperSystem
+   * a:e   allows employees for all SUB, result: allows employees, denies groups, denies grouperSystem
+   * a:e:a deny all SUB, result: cant assign jdbc, groups, grouperSystem
+   * a:e:b allow all ONE, result, can assign jdbc, groups, grouperSystem
+   * </pre>
+   */
+  public void testRuleVetoSubjectAssignInFolderInherit() {
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    
+    Group a_group = new GroupSave(grouperSession).assignName("a:group").assignCreateParentStemsIfNotExist(true).save();
+    Group b_group = new GroupSave(grouperSession).assignName("b:group").assignCreateParentStemsIfNotExist(true).save();
+    Group a_a_group = new GroupSave(grouperSession).assignName("a:a:group").assignCreateParentStemsIfNotExist(true).save();
+    Group b_a_group = new GroupSave(grouperSession).assignName("b:a:group").assignCreateParentStemsIfNotExist(true).save();
+    Group b_c_group = new GroupSave(grouperSession).assignName("b:c:group").assignCreateParentStemsIfNotExist(true).save();
+    Group a_b_group = new GroupSave(grouperSession).assignName("a:b:group").assignCreateParentStemsIfNotExist(true).save();
+    Group b_d_group = new GroupSave(grouperSession).assignName("b:d:group").assignCreateParentStemsIfNotExist(true).save();
+    Group a_e_group = new GroupSave(grouperSession).assignName("a:e:group").assignCreateParentStemsIfNotExist(true).save();
+    Group a_e_a_group = new GroupSave(grouperSession).assignName("a:e:a:group").assignCreateParentStemsIfNotExist(true).save();
+    Group a_e_b_group = new GroupSave(grouperSession).assignName("a:e:b:group").assignCreateParentStemsIfNotExist(true).save();
+    
+    Group groupEmployee = new GroupSave(grouperSession).assignName("stem:employee").assignCreateParentStemsIfNotExist(true).save();
+    Group groupAnother = new GroupSave(grouperSession).assignName("stem:another").assignCreateParentStemsIfNotExist(true).save();
+
+    Stem rootStem = StemFinder.findRootStem(grouperSession);
+    Stem a_stem = StemFinder.findByName(grouperSession, "a", true);
+    Stem b_stem = StemFinder.findByName(grouperSession, "b", true);
+    //Stem a_a_stem = StemFinder.findByName(grouperSession, "a:a", true);
+    //Stem b_a_stem = StemFinder.findByName(grouperSession, "b:a", true);
+    Stem b_c_stem = StemFinder.findByName(grouperSession, "b:c", true);
+    Stem a_b_stem = StemFinder.findByName(grouperSession, "a:b", true);
+    Stem b_d_stem = StemFinder.findByName(grouperSession, "b:d", true);
+    Stem a_e_stem = StemFinder.findByName(grouperSession, "a:e", true);
+    Stem a_e_a_stem = StemFinder.findByName(grouperSession, "a:e:a", true);
+    Stem a_e_b_stem = StemFinder.findByName(grouperSession, "a:e:b", true);
+    
+    RuleApi.vetoSubjectAssignInFolderIfNotInGroup(SubjectFinder.findRootSubject(), rootStem, null, false, "g:gsa", Scope.SUB,
+        "root.cannot.be.group", "Root cannot be group");
+    RuleApi.vetoSubjectAssignInFolderIfNotInGroup(SubjectFinder.findRootSubject(), a_stem, null, true, null, Scope.ONE,
+        "a.allow.all", "a allow all");
+    RuleApi.vetoSubjectAssignInFolderIfNotInGroup(SubjectFinder.findRootSubject(), b_stem, null, false, "jdbc", Scope.ONE,
+        "b.deny.jdbc", "b deny jdbc");
+    RuleApi.vetoSubjectAssignInFolderIfNotInGroup(SubjectFinder.findRootSubject(), b_c_stem, null, true, "g:gsa", Scope.SUB,
+        "b.c.allow.groups.sub", "b:c allow groups sub");
+    RuleApi.vetoSubjectAssignInFolderIfNotInGroup(SubjectFinder.findRootSubject(), a_b_stem, null, false, "jdbc", Scope.SUB,
+        "a.b.deny.jdbc.sub", "a:b deny jdbc sub");
+    RuleApi.vetoSubjectAssignInFolderIfNotInGroup(SubjectFinder.findRootSubject(), b_d_stem, groupEmployee, false, "jdbc", Scope.SUB,
+        "b.d.allow.employees.jdbc.sub", "b:d allow employees jdbc sub");
+    RuleApi.vetoSubjectAssignInFolderIfNotInGroup(SubjectFinder.findRootSubject(), a_e_stem, groupEmployee, false, null, Scope.SUB,
+        "a.e.allow.employees.all.sub", "a:e allow employees all sub");
+    RuleApi.vetoSubjectAssignInFolderIfNotInGroup(SubjectFinder.findRootSubject(), a_e_a_stem, null, false, null, Scope.SUB,
+        "a.e.a.deny.all.sub", "a:e:a deny all sub");
+    RuleApi.vetoSubjectAssignInFolderIfNotInGroup(SubjectFinder.findRootSubject(), a_e_b_stem, null, true, null, Scope.SUB,
+        "a.e.b.allow.all.one", "a:e:b allow all one");
+
+    //count rule firings
+    long initialFirings = -1;
+
+    Subject subjectEmployee = SubjectFinder.findByIdAndSource("test.subject.0", "jdbc", true);
+    Subject subjectGrouperSystem = SubjectFinder.findRootSubject();
+    groupEmployee.addMember(subjectEmployee);
+    
+    Subject subjectNonEmployee = SubjectFinder.findByIdAndSource("test.subject.1", "jdbc", true);
+    
+    //* a:    allows all ONE, result: allows all, allows grouperSystem
+    a_group.addMember(subjectEmployee);
+    a_group.addMember(subjectNonEmployee);
+    a_group.addMember(subjectGrouperSystem);
+    a_group.addMember(groupAnother.toSubject());
+    
+    //* b:    denies jdbc ONE, result: denies groups and jdbc, allows grouperSystem
+    initialFirings = RuleEngine.ruleFirings;
+    try {
+      b_group.addMember(subjectEmployee);
+      fail();
+    } catch (RuntimeException re) {
+      //this is good
+      String stack = ExceptionUtils.getFullStackTrace(re);
+      assertTrue(stack, stack.contains("b deny jdbc"));
+    }
+    assertEquals(initialFirings+1, RuleEngine.ruleFirings);
+    
+    initialFirings = RuleEngine.ruleFirings;
+    try {
+      b_group.addMember(subjectNonEmployee);
+      fail();
+    } catch (RuntimeException re) {
+      //this is good
+      String stack = ExceptionUtils.getFullStackTrace(re);
+      assertTrue(stack, stack.contains("b deny jdbc"));
+    }
+    assertEquals(initialFirings+1, RuleEngine.ruleFirings);
+    
+    initialFirings = RuleEngine.ruleFirings;
+    try {
+      b_group.addMember(groupAnother.toSubject());
+      fail();
+    } catch (RuntimeException re) {
+      //this is good
+      String stack = ExceptionUtils.getFullStackTrace(re);
+      assertTrue(stack, stack.contains("Root cannot be group"));
+    }
+    assertEquals(initialFirings+1, RuleEngine.ruleFirings);
+    
+    b_group.addMember(subjectGrouperSystem);
+       
+    //* a:a   result: will deny groups inherit, allow jdbc, allows grouperSystem
+    a_a_group.addMember(subjectEmployee);
+    a_a_group.addMember(subjectNonEmployee);
+    a_a_group.addMember(subjectGrouperSystem);
+
+    initialFirings = RuleEngine.ruleFirings;
+    try {
+      a_a_group.addMember(groupAnother.toSubject());
+      fail();
+    } catch (RuntimeException re) {
+      //this is good
+      String stack = ExceptionUtils.getFullStackTrace(re);
+      assertTrue(stack, stack.contains("Root cannot be group"));
+    }
+    assertEquals(initialFirings+1, RuleEngine.ruleFirings);
+        
+    //* b:a   result: will deny groups inherit, allow jdbc, allows grouperSystem
+    b_a_group.addMember(subjectEmployee);
+    b_a_group.addMember(subjectNonEmployee);
+    b_a_group.addMember(subjectGrouperSystem);
+
+    initialFirings = RuleEngine.ruleFirings;
+    try {
+      b_a_group.addMember(groupAnother.toSubject());
+      fail();
+    } catch (RuntimeException re) {
+      //this is good
+      String stack = ExceptionUtils.getFullStackTrace(re);
+      assertTrue(stack, stack.contains("Root cannot be group"));
+    }
+    assertEquals(initialFirings+1, RuleEngine.ruleFirings);
+
+    //* b:c   allows groups SUB, result: allow all, allows grouperSystem
+    b_c_group.addMember(subjectEmployee);
+    b_c_group.addMember(subjectNonEmployee);
+    b_c_group.addMember(subjectGrouperSystem);
+    b_c_group.addMember(groupAnother.toSubject());
+
+    //* a:b   denies jdbc SUB, result: deny jdbc, groups, allows grouperSystem
+    initialFirings = RuleEngine.ruleFirings;
+    try {
+      a_b_group.addMember(subjectEmployee);
+      fail();
+    } catch (RuntimeException re) {
+      //this is good
+      String stack = ExceptionUtils.getFullStackTrace(re);
+      assertTrue(stack, stack.contains("a:b deny jdbc sub"));
+    }
+    assertEquals(initialFirings+1, RuleEngine.ruleFirings);
+    
+    initialFirings = RuleEngine.ruleFirings;
+    try {
+      a_b_group.addMember(subjectNonEmployee);
+      fail();
+    } catch (RuntimeException re) {
+      //this is good
+      String stack = ExceptionUtils.getFullStackTrace(re);
+      assertTrue(stack, stack.contains("a:b deny jdbc sub"));
+    }
+    assertEquals(initialFirings+1, RuleEngine.ruleFirings);
+    
+    initialFirings = RuleEngine.ruleFirings;
+    try {
+      a_b_group.addMember(groupAnother.toSubject());
+      fail();
+    } catch (RuntimeException re) {
+      //this is good
+      String stack = ExceptionUtils.getFullStackTrace(re);
+      assertTrue(stack, stack.contains("Root cannot be group"));
+    }
+    assertEquals(initialFirings+1, RuleEngine.ruleFirings);
+    
+    a_b_group.addMember(subjectGrouperSystem);
+
+    //* b:d   allows amployees in jdbc SUB, result: denies groups and allows employees, allows grouperSystem
+    b_d_group.addMember(subjectEmployee);
+    
+    initialFirings = RuleEngine.ruleFirings;
+    try {
+      b_d_group.addMember(subjectNonEmployee);
+      fail();
+    } catch (RuntimeException re) {
+      //this is good
+      String stack = ExceptionUtils.getFullStackTrace(re);
+      assertTrue(stack, stack.contains("b:d allow employees jdbc sub"));
+    }
+    assertEquals(initialFirings+1, RuleEngine.ruleFirings);
+    
+    initialFirings = RuleEngine.ruleFirings;
+    try {
+      b_d_group.addMember(groupAnother.toSubject());
+      fail();
+    } catch (RuntimeException re) {
+      //this is good
+      String stack = ExceptionUtils.getFullStackTrace(re);
+      assertTrue(stack, stack.contains("Root cannot be group"));
+    }
+    assertEquals(initialFirings+1, RuleEngine.ruleFirings);
+    
+    b_d_group.addMember(subjectGrouperSystem);
+
+    //* a:e   allows employees for all SUB, result: allows employees, denies groups, denies grouperSystem
+    a_e_group.addMember(subjectEmployee);
+    
+    initialFirings = RuleEngine.ruleFirings;
+    try {
+      a_e_group.addMember(subjectNonEmployee);
+      fail();
+    } catch (RuntimeException re) {
+      //this is good
+      String stack = ExceptionUtils.getFullStackTrace(re);
+      assertTrue(stack, stack.contains("a:e allow employees all sub"));
+    }
+    assertEquals(initialFirings+1, RuleEngine.ruleFirings);
+    
+    initialFirings = RuleEngine.ruleFirings;
+    try {
+      a_e_group.addMember(groupAnother.toSubject());
+      fail();
+    } catch (RuntimeException re) {
+      //this is good
+      String stack = ExceptionUtils.getFullStackTrace(re);
+      assertTrue(stack, stack.contains("a:e allow employees all sub"));
+    }
+    assertEquals(initialFirings+1, RuleEngine.ruleFirings);
+    
+    initialFirings = RuleEngine.ruleFirings;
+    try {
+      a_e_group.addMember(subjectGrouperSystem);
+      fail();
+    } catch (RuntimeException re) {
+      //this is good
+      String stack = ExceptionUtils.getFullStackTrace(re);
+      assertTrue(stack, stack.contains("a:e allow employees all sub"));
+    }
+    assertEquals(initialFirings+1, RuleEngine.ruleFirings);
+
+    //* a:e:a deny all SUB, result: cant assign jdbc, groups, grouperSystem
+    
+    initialFirings = RuleEngine.ruleFirings;
+    try {
+      a_e_a_group.addMember(subjectEmployee);
+      fail();
+    } catch (RuntimeException re) {
+      //this is good
+      String stack = ExceptionUtils.getFullStackTrace(re);
+      assertTrue(stack, stack.contains("a:e:a deny all sub"));
+    }
+    assertEquals(initialFirings+1, RuleEngine.ruleFirings);
+    
+    initialFirings = RuleEngine.ruleFirings;
+    try {
+      a_e_a_group.addMember(subjectNonEmployee);
+      fail();
+    } catch (RuntimeException re) {
+      //this is good
+      String stack = ExceptionUtils.getFullStackTrace(re);
+      assertTrue(stack, stack.contains("a:e:a deny all sub"));
+    }
+    assertEquals(initialFirings+1, RuleEngine.ruleFirings);
+    
+    initialFirings = RuleEngine.ruleFirings;
+    try {
+      a_e_a_group.addMember(groupAnother.toSubject());
+      fail();
+    } catch (RuntimeException re) {
+      //this is good
+      String stack = ExceptionUtils.getFullStackTrace(re);
+      assertTrue(stack, stack.contains("a:e:a deny all sub"));
+    }
+    assertEquals(initialFirings+1, RuleEngine.ruleFirings);
+    
+    initialFirings = RuleEngine.ruleFirings;
+    try {
+      a_e_a_group.addMember(subjectGrouperSystem);
+      fail();
+    } catch (RuntimeException re) {
+      //this is good
+      String stack = ExceptionUtils.getFullStackTrace(re);
+      assertTrue(stack, stack.contains("a:e:a deny all"));
+    }
+    assertEquals(initialFirings+1, RuleEngine.ruleFirings);
+
+    
+    //* a:e:b allow all ONE, result, can assign jdbc, groups, grouperSystem
+    a_e_b_group.addMember(subjectEmployee);
+    a_e_b_group.addMember(subjectNonEmployee);
+    a_e_b_group.addMember(subjectGrouperSystem);
+    a_e_b_group.addMember(groupAnother.toSubject());
+
   }
   
   /**

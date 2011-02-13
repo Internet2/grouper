@@ -2062,7 +2062,7 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
       
       //if not on same batch
       currentAttributeTypeAssignId = attributeAssignValueContainer.getAttributeTypeAssign().getId();
-      currentContainers.clear();
+      currentContainers = new HashSet<AttributeAssignValueContainer>();
       currentContainers.add(attributeAssignValueContainer);
       result.put(attributeAssignValueContainer.getAttributeTypeAssign(), currentContainers);
 

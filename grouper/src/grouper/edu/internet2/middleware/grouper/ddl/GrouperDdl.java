@@ -2243,6 +2243,9 @@ public enum GrouperDdl implements DdlVersionable {
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_rpt_roles_v");
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_rpt_stems_v");
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_rpt_types_v");
+    
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_rules_v");
+    
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_stems_v");
         
   }
@@ -7467,6 +7470,434 @@ public enum GrouperDdl implements DdlVersionable {
               + " WHERE gaasv.attribute_def_name_name = '" + attributeRootStem + ":attrExternalSubjectInvite:externalSubjectInvite'"      
       );
       
+      //SELECT main_gaa.attribute_assign_type AS assigned_to_type,
+      //(SELECT gg.name
+      //FROM grouper_groups gg WHERE gg.id = main_gaa.owner_group_id
+      //) AS assigned_to_group_name,
+      //(SELECT gs.name
+      //FROM grouper_stems gs WHERE gs.id = main_gaa.owner_stem_id
+      //) AS assigned_to_stem_name,
+      //(SELECT gm.subject_id
+      //FROM grouper_members gm WHERE gm.id = main_gaa.owner_member_id
+      //) AS assigned_to_member_subject_id,
+      //(SELECT gad.name
+      //FROM grouper_attribute_def gad WHERE gad.id = main_gaa.owner_attribute_def_id
+      //) AS assigned_to_attribute_def_name,
+      //(SELECT gaav.value_string
+      // FROM grouper_attribute_assign gaa, grouper_attribute_assign_value gaav, grouper_attribute_def_name gadn
+      // WHERE gadn.name = 'etc:attribute:rules:ruleCheckType'
+      // AND gaav.attribute_assign_id = gaa.id
+      // AND gaa.attribute_def_name_id = gadn.id
+      // AND gaa.owner_attribute_assign_id = main_gaa.id
+      // AND gaa.enabled = 'T') AS rule_check_type,
+      //(SELECT gaav.value_string
+      // FROM grouper_attribute_assign gaa, grouper_attribute_assign_value gaav, grouper_attribute_def_name gadn
+      // WHERE gadn.name = 'etc:attribute:rules:ruleCheckOwnerId'
+      // AND gaav.attribute_assign_id = gaa.id
+      // AND gaa.attribute_def_name_id = gadn.id
+      // AND gaa.owner_attribute_assign_id = main_gaa.id
+      // AND gaa.enabled = 'T') AS rule_check_owner_id,
+      //(SELECT gaav.value_string
+      // FROM grouper_attribute_assign gaa, grouper_attribute_assign_value gaav, grouper_attribute_def_name gadn
+      // WHERE gadn.name = 'etc:attribute:rules:ruleCheckOwnerName'
+      // AND gaav.attribute_assign_id = gaa.id
+      // AND gaa.attribute_def_name_id = gadn.id
+      // AND gaa.owner_attribute_assign_id = main_gaa.id
+      // AND gaa.enabled = 'T') AS rule_check_owner_name,
+      //(SELECT gaav.value_string
+      // FROM grouper_attribute_assign gaa, grouper_attribute_assign_value gaav, grouper_attribute_def_name gadn
+      // WHERE gadn.name = 'etc:attribute:rules:ruleCheckStemScope'
+      // AND gaav.attribute_assign_id = gaa.id
+      // AND gaa.attribute_def_name_id = gadn.id
+      // AND gaa.owner_attribute_assign_id = main_gaa.id
+      // AND gaa.enabled = 'T') AS rule_check_stem_scope,
+      //(SELECT gaav.value_string
+      // FROM grouper_attribute_assign gaa, grouper_attribute_assign_value gaav, grouper_attribute_def_name gadn
+      // WHERE gadn.name = 'etc:attribute:rules:ruleCheckArg0'
+      // AND gaav.attribute_assign_id = gaa.id
+      // AND gaa.attribute_def_name_id = gadn.id
+      // AND gaa.owner_attribute_assign_id = main_gaa.id
+      // AND gaa.enabled = 'T') AS rule_check_arg0,
+      //(SELECT gaav.value_string
+      // FROM grouper_attribute_assign gaa, grouper_attribute_assign_value gaav, grouper_attribute_def_name gadn
+      // WHERE gadn.name = 'etc:attribute:rules:ruleCheckArg1'
+      // AND gaav.attribute_assign_id = gaa.id
+      // AND gaa.attribute_def_name_id = gadn.id
+      // AND gaa.owner_attribute_assign_id = main_gaa.id
+      // AND gaa.enabled = 'T') AS rule_check_arg1,
+      //(SELECT gaav.value_string
+      // FROM grouper_attribute_assign gaa, grouper_attribute_assign_value gaav, grouper_attribute_def_name gadn
+      // WHERE gadn.name = 'etc:attribute:rules:ruleIfConditionEl'
+      // AND gaav.attribute_assign_id = gaa.id
+      // AND gaa.attribute_def_name_id = gadn.id
+      // AND gaa.owner_attribute_assign_id = main_gaa.id
+      // AND gaa.enabled = 'T') AS rule_if_condition_el,
+      //(SELECT gaav.value_string
+      // FROM grouper_attribute_assign gaa, grouper_attribute_assign_value gaav, grouper_attribute_def_name gadn
+      // WHERE gadn.name = 'etc:attribute:rules:ruleIfConditionEnum'
+      // AND gaav.attribute_assign_id = gaa.id
+      // AND gaa.attribute_def_name_id = gadn.id
+      // AND gaa.owner_attribute_assign_id = main_gaa.id
+      // AND gaa.enabled = 'T') AS rule_if_condition_enum,
+      //(SELECT gaav.value_string
+      // FROM grouper_attribute_assign gaa, grouper_attribute_assign_value gaav, grouper_attribute_def_name gadn
+      // WHERE gadn.name = 'etc:attribute:rules:ruleIfConditionEnumArg0'
+      // AND gaav.attribute_assign_id = gaa.id
+      // AND gaa.attribute_def_name_id = gadn.id
+      // AND gaa.owner_attribute_assign_id = main_gaa.id
+      // AND gaa.enabled = 'T') AS rule_if_condition_enum_arg0,
+      //(SELECT gaav.value_string
+      // FROM grouper_attribute_assign gaa, grouper_attribute_assign_value gaav, grouper_attribute_def_name gadn
+      // WHERE gadn.name = 'etc:attribute:rules:ruleIfConditionEnumArg1'
+      // AND gaav.attribute_assign_id = gaa.id
+      // AND gaa.attribute_def_name_id = gadn.id
+      // AND gaa.owner_attribute_assign_id = main_gaa.id
+      // AND gaa.enabled = 'T') AS rule_if_condition_enum_arg1,
+      //(SELECT gaav.value_string
+      // FROM grouper_attribute_assign gaa, grouper_attribute_assign_value gaav, grouper_attribute_def_name gadn
+      // WHERE gadn.name = 'etc:attribute:rules:ruleIfOwnerId'
+      // AND gaav.attribute_assign_id = gaa.id
+      // AND gaa.attribute_def_name_id = gadn.id
+      // AND gaa.owner_attribute_assign_id = main_gaa.id
+      // AND gaa.enabled = 'T') AS rule_if_owner_id,
+      //(SELECT gaav.value_string
+      // FROM grouper_attribute_assign gaa, grouper_attribute_assign_value gaav, grouper_attribute_def_name gadn
+      // WHERE gadn.name = 'etc:attribute:rules:ruleIfOwnerName'
+      // AND gaav.attribute_assign_id = gaa.id
+      // AND gaa.attribute_def_name_id = gadn.id
+      // AND gaa.owner_attribute_assign_id = main_gaa.id
+      // AND gaa.enabled = 'T') AS rule_if_owner_name,
+      //(SELECT gaav.value_string
+      // FROM grouper_attribute_assign gaa, grouper_attribute_assign_value gaav, grouper_attribute_def_name gadn
+      // WHERE gadn.name = 'etc:attribute:rules:ruleIfStemScope'
+      // AND gaav.attribute_assign_id = gaa.id
+      // AND gaa.attribute_def_name_id = gadn.id
+      // AND gaa.owner_attribute_assign_id = main_gaa.id
+      // AND gaa.enabled = 'T') AS rule_if_stem_scope,
+      //(SELECT gaav.value_string
+      // FROM grouper_attribute_assign gaa, grouper_attribute_assign_value gaav, grouper_attribute_def_name gadn
+      // WHERE gadn.name = 'etc:attribute:rules:ruleThenEl'
+      // AND gaav.attribute_assign_id = gaa.id
+      // AND gaa.attribute_def_name_id = gadn.id
+      // AND gaa.owner_attribute_assign_id = main_gaa.id
+      // AND gaa.enabled = 'T') AS rule_then_el,
+      //(SELECT gaav.value_string
+      // FROM grouper_attribute_assign gaa, grouper_attribute_assign_value gaav, grouper_attribute_def_name gadn
+      // WHERE gadn.name = 'etc:attribute:rules:ruleThenEnum'
+      // AND gaav.attribute_assign_id = gaa.id
+      // AND gaa.attribute_def_name_id = gadn.id
+      // AND gaa.owner_attribute_assign_id = main_gaa.id
+      // AND gaa.enabled = 'T') AS rule_then_enum,
+      //(SELECT gaav.value_string
+      // FROM grouper_attribute_assign gaa, grouper_attribute_assign_value gaav, grouper_attribute_def_name gadn
+      // WHERE gadn.name = 'etc:attribute:rules:ruleThenEnumArg0'
+      // AND gaav.attribute_assign_id = gaa.id
+      // AND gaa.attribute_def_name_id = gadn.id
+      // AND gaa.owner_attribute_assign_id = main_gaa.id
+      // AND gaa.enabled = 'T') AS rule_then_enum_arg0,
+      //(SELECT gaav.value_string
+      // FROM grouper_attribute_assign gaa, grouper_attribute_assign_value gaav, grouper_attribute_def_name gadn
+      // WHERE gadn.name = 'etc:attribute:rules:ruleThenEnumArg1'
+      // AND gaav.attribute_assign_id = gaa.id
+      // AND gaa.attribute_def_name_id = gadn.id
+      // AND gaa.owner_attribute_assign_id = main_gaa.id
+      // AND gaa.enabled = 'T') AS rule_then_enum_arg1,
+      //(SELECT gaav.value_string
+      // FROM grouper_attribute_assign gaa, grouper_attribute_assign_value gaav, grouper_attribute_def_name gadn
+      // WHERE gadn.name = 'etc:attribute:rules:ruleThenEnumArg2'
+      // AND gaav.attribute_assign_id = gaa.id
+      // AND gaa.attribute_def_name_id = gadn.id
+      // AND gaa.owner_attribute_assign_id = main_gaa.id
+      // AND gaa.enabled = 'T') AS rule_then_enum_arg2,
+      //(SELECT gaav.value_string
+      // FROM grouper_attribute_assign gaa, grouper_attribute_assign_value gaav, grouper_attribute_def_name gadn
+      // WHERE gadn.name = 'etc:attribute:rules:ruleValid'
+      // AND gaav.attribute_assign_id = gaa.id
+      // AND gaa.attribute_def_name_id = gadn.id
+      // AND gaa.owner_attribute_assign_id = main_gaa.id
+      // AND gaa.enabled = 'T') AS rule_valid,
+      //(SELECT gaav.value_string
+      // FROM grouper_attribute_assign gaa, grouper_attribute_assign_value gaav, grouper_attribute_def_name gadn
+      // WHERE gadn.name = 'etc:attribute:rules:ruleRunDaemon'
+      // AND gaav.attribute_assign_id = gaa.id
+      // AND gaa.attribute_def_name_id = gadn.id
+      // AND gaa.owner_attribute_assign_id = main_gaa.id
+      // AND gaa.enabled = 'T') AS rule_run_daemon,
+      //(SELECT gaav.value_string
+      // FROM grouper_attribute_assign gaa, grouper_attribute_assign_value gaav, grouper_attribute_def_name gadn
+      // WHERE gadn.name = 'etc:attribute:rules:ruleActAsSubjectId'
+      // AND gaav.attribute_assign_id = gaa.id
+      // AND gaa.attribute_def_name_id = gadn.id
+      // AND gaa.owner_attribute_assign_id = main_gaa.id
+      // AND gaa.enabled = 'T') AS rule_act_as_subject_id,
+      //(SELECT gaav.value_string
+      // FROM grouper_attribute_assign gaa, grouper_attribute_assign_value gaav, grouper_attribute_def_name gadn
+      // WHERE gadn.name = 'etc:attribute:rules:ruleActAsSubjectIdentifier'
+      // AND gaav.attribute_assign_id = gaa.id
+      // AND gaa.attribute_def_name_id = gadn.id
+      // AND gaa.owner_attribute_assign_id = main_gaa.id
+      // AND gaa.enabled = 'T') AS rule_act_as_subject_identifier,
+      //(SELECT gaav.value_string
+      // FROM grouper_attribute_assign gaa, grouper_attribute_assign_value gaav, grouper_attribute_def_name gadn
+      // WHERE gadn.name = 'etc:attribute:rules:ruleActAsSubjectSourceId'
+      // AND gaav.attribute_assign_id = gaa.id
+      // AND gaa.attribute_def_name_id = gadn.id
+      // AND gaa.owner_attribute_assign_id = main_gaa.id
+      // AND gaa.enabled = 'T') AS rule_act_as_subject_source_id,
+      //main_gaa.enabled AS assignment_enabled,
+      //main_gaa.id AS attribute_assign_id
+      //FROM grouper_attribute_assign main_gaa, grouper_attribute_def_name main_gadn 
+      //WHERE main_gadn.name = 'etc:attribute:rules:rule'
+      //AND main_gaa.attribute_def_name_id = main_gadn.id
+
+      GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_rules_v", 
+          "Rules setup in grouper",
+          GrouperUtil.toSet("assigned_to_type", 
+              "assigned_to_group_name", 
+              "assigned_to_stem_name",
+              "assigned_to_member_subject_id",
+              "assigned_to_attribute_def_name",
+              "rule_check_type",
+              "rule_check_owner_id",
+              "rule_check_owner_name",
+              "rule_check_stem_scope",
+              "rule_check_arg0",
+              "rule_check_arg1",
+              "rule_if_condition_el",
+              "rule_if_condition_enum",
+              "rule_if_condition_enum_arg0",
+              "rule_if_condition_enum_arg1",
+              "rule_if_owner_id",
+              "rule_if_owner_name",
+              "rule_if_stem_scope",
+              "rule_then_el",
+              "rule_then_enum",
+              "rule_then_enum_arg0",
+              "rule_then_enum_arg1",
+              "rule_then_enum_arg2",
+              "rule_valid",
+              "rule_run_daemon",
+              "rule_act_as_subject_id",
+              "rule_act_as_subject_identifier",
+              "rule_act_as_subject_source_id",
+              "assignment_enabled",
+              "attribute_assign_id"
+          ),
+          GrouperUtil.toSet("assigned_to_type: attribute_assign_type of rule assignment, e.g. group, stem, etc", 
+              "assigned_to_group_name: if rule is assigned to group, this is the group name", 
+              "assigned_to_stem_name: if rule is assigned to stem, this is the stem name",
+              "assigned_to_member_subject_id: if rule is assigned to member, this is the subject id",
+              "assigned_to_attribute_def_name: if rule is assigned to attribute_def, this is the name of the attribute_def",
+              "rule_check_type: RuleCheckType enum of when this rule is fired and how to decides which rules are affected",
+              "rule_check_owner_id: If the owner is not the object where the rule is assigned, specify id here.  Check owner affects when rule is fired.  Mutually exclusive with rule_check_owner_name",
+              "rule_check_owner_name: If the owner is not the object where the rule is assigned, specify name here.  Check owner affects when rule is fired.  Mutually exclusive with rule_check_owner_id",
+              "rule_check_stem_scope: If the owner type is stem, then this is the scope: ONE or SUB",
+              "rule_check_arg0: If the rule check type has arguments, this is the first",
+              "rule_check_arg1: If the rule check type has arguments, this is the second",
+              "rule_if_condition_el: If there is expression language to decide if the rule should fire, it is here.  Mutually exclusive with if_condition_enum",
+              "rule_if_condition_enum: If the if condition is a built in enum, that IfConditionEnum should be here.  Mutually exclusive with if_condition_el",
+              "rule_if_condition_enum_arg0: If the if_condition_enum has arguments, this is the first",
+              "rule_if_condition_enum_arg1: If the if_condition_enum has arguments, this is the second",
+              "rule_if_owner_id: If the if condition enum has an owner, the id is here.  Mutually exclusive with rule_if_owner_name",
+              "rule_if_owner_name: If the if condition enum has an owner, the name is here.  Mutually exclusive with rule_if_owner_id",
+              "rule_if_stem_scope: If the if condition enum is a stem type, this is the scope, ONE or SUB",
+              "rule_then_el: Then condition expression language if the rule fires.  Mutually exclusive with rule_then_enum",
+              "rule_then_enum: then condition built in enum: ThenConditionEnum.  Mutually exclusive with rule_then_el",
+              "rule_then_enum_arg0: If the then condition enum has arguments, this is the first",
+              "rule_then_enum_arg1: If the then condition enum has arguments, this is the second",
+              "rule_then_enum_arg2: If the then condition enum has arguments, this is the third",
+              "rule_valid: If the rule is valid, this will be T, else it is the error message",
+              "rule_run_daemon: If this rule should run a daemon.  Needs to be daemonable...",
+              "rule_act_as_subject_id: Who this rule should act as when firing.  Mutually exclusive with rule_act_as_subject_identifier",
+              "rule_act_as_subject_identifier: Who this rule should act as when firing.  Mutually exclusive with rule_act_as_subject_id",
+              "rule_act_as_subject_source_id: Optional, source id of who this rule should act as",
+              "assignment_enabled: If the rule assignment is enabled",
+              "attribute_assign_id: The attribute assign id in the grouper_attribute_assign table for the main rule definition"
+          ),
+              "SELECT main_gaa.attribute_assign_type AS assigned_to_type, "
+              + " (SELECT gg.name "
+              + " FROM grouper_groups gg WHERE gg.id = main_gaa.owner_group_id "
+              + " ) AS assigned_to_group_name, "
+              + " (SELECT gs.name "
+              + " FROM grouper_stems gs WHERE gs.id = main_gaa.owner_stem_id "
+              + " ) AS assigned_to_stem_name, "
+              + " (SELECT gm.subject_id "
+              + " FROM grouper_members gm WHERE gm.id = main_gaa.owner_member_id "
+              + " ) AS assigned_to_member_subject_id, "
+              + " (SELECT gad.name "
+              + " FROM grouper_attribute_def gad WHERE gad.id = main_gaa.owner_attribute_def_id "
+              + " ) AS assigned_to_attribute_def_name, "
+              + " (SELECT gaav.value_string "
+              + "  FROM grouper_attribute_assign gaa, grouper_attribute_assign_value gaav, grouper_attribute_def_name gadn "
+              + "  WHERE gadn.name = '" + attributeRootStem + ":rules:ruleCheckType' "
+              + "  AND gaav.attribute_assign_id = gaa.id "
+              + "  AND gaa.attribute_def_name_id = gadn.id "
+              + "  AND gaa.owner_attribute_assign_id = main_gaa.id "
+              + "  AND gaa.enabled = 'T') AS rule_check_type, "
+              + " (SELECT gaav.value_string "
+              + "  FROM grouper_attribute_assign gaa, grouper_attribute_assign_value gaav, grouper_attribute_def_name gadn "
+              + "  WHERE gadn.name = '" + attributeRootStem + ":rules:ruleCheckOwnerId' "
+              + "  AND gaav.attribute_assign_id = gaa.id "
+              + "  AND gaa.attribute_def_name_id = gadn.id "
+              + "  AND gaa.owner_attribute_assign_id = main_gaa.id "
+              + "  AND gaa.enabled = 'T') AS rule_check_owner_id, "
+              + " (SELECT gaav.value_string "
+              + "  FROM grouper_attribute_assign gaa, grouper_attribute_assign_value gaav, grouper_attribute_def_name gadn "
+              + "  WHERE gadn.name = '" + attributeRootStem + ":rules:ruleCheckOwnerName' "
+              + "  AND gaav.attribute_assign_id = gaa.id "
+              + "  AND gaa.attribute_def_name_id = gadn.id "
+              + "  AND gaa.owner_attribute_assign_id = main_gaa.id "
+              + "  AND gaa.enabled = 'T') AS rule_check_owner_name, "
+              + " (SELECT gaav.value_string "
+              + "  FROM grouper_attribute_assign gaa, grouper_attribute_assign_value gaav, grouper_attribute_def_name gadn "
+              + "  WHERE gadn.name = '" + attributeRootStem + ":rules:ruleCheckStemScope' "
+              + "  AND gaav.attribute_assign_id = gaa.id "
+              + "  AND gaa.attribute_def_name_id = gadn.id "
+              + "  AND gaa.owner_attribute_assign_id = main_gaa.id "
+              + "  AND gaa.enabled = 'T') AS rule_check_stem_scope, "
+              + " (SELECT gaav.value_string "
+              + "  FROM grouper_attribute_assign gaa, grouper_attribute_assign_value gaav, grouper_attribute_def_name gadn "
+              + "  WHERE gadn.name = '" + attributeRootStem + ":rules:ruleCheckArg0' "
+              + "  AND gaav.attribute_assign_id = gaa.id "
+              + "  AND gaa.attribute_def_name_id = gadn.id "
+              + "  AND gaa.owner_attribute_assign_id = main_gaa.id "
+              + "  AND gaa.enabled = 'T') AS rule_check_arg0, "
+              + " (SELECT gaav.value_string "
+              + " FROM grouper_attribute_assign gaa, grouper_attribute_assign_value gaav, grouper_attribute_def_name gadn "
+              + "  WHERE gadn.name = '" + attributeRootStem + ":rules:ruleCheckArg1' "
+              + "  AND gaav.attribute_assign_id = gaa.id "
+              + "  AND gaa.attribute_def_name_id = gadn.id "
+              + "  AND gaa.owner_attribute_assign_id = main_gaa.id "
+              + "  AND gaa.enabled = 'T') AS rule_check_arg1, "
+              + " (SELECT gaav.value_string "
+              + "  FROM grouper_attribute_assign gaa, grouper_attribute_assign_value gaav, grouper_attribute_def_name gadn "
+              + "  WHERE gadn.name = '" + attributeRootStem + ":rules:ruleIfConditionEl' "
+              + "  AND gaav.attribute_assign_id = gaa.id "
+              + "  AND gaa.attribute_def_name_id = gadn.id "
+              + "  AND gaa.owner_attribute_assign_id = main_gaa.id "
+              + "  AND gaa.enabled = 'T') AS rule_if_condition_el, "
+              + " (SELECT gaav.value_string "
+              + "  FROM grouper_attribute_assign gaa, grouper_attribute_assign_value gaav, grouper_attribute_def_name gadn "
+              + "  WHERE gadn.name = '" + attributeRootStem + ":rules:ruleIfConditionEnum' "
+              + "  AND gaav.attribute_assign_id = gaa.id "
+              + "  AND gaa.attribute_def_name_id = gadn.id "
+              + "  AND gaa.owner_attribute_assign_id = main_gaa.id "
+              + "  AND gaa.enabled = 'T') AS rule_if_condition_enum, "
+              + " (SELECT gaav.value_string "
+              + "  FROM grouper_attribute_assign gaa, grouper_attribute_assign_value gaav, grouper_attribute_def_name gadn "
+              + "  WHERE gadn.name = '" + attributeRootStem + ":rules:ruleIfConditionEnumArg0' "
+              + "  AND gaav.attribute_assign_id = gaa.id "
+              + "  AND gaa.attribute_def_name_id = gadn.id "
+              + "  AND gaa.owner_attribute_assign_id = main_gaa.id "
+              + "  AND gaa.enabled = 'T') AS rule_if_condition_enum_arg0, "
+              + " (SELECT gaav.value_string "
+              + "  FROM grouper_attribute_assign gaa, grouper_attribute_assign_value gaav, grouper_attribute_def_name gadn "
+              + "  WHERE gadn.name = '" + attributeRootStem + ":rules:ruleIfConditionEnumArg1' "
+              + "  AND gaav.attribute_assign_id = gaa.id "
+              + "  AND gaa.attribute_def_name_id = gadn.id "
+              + "  AND gaa.owner_attribute_assign_id = main_gaa.id "
+              + "  AND gaa.enabled = 'T') AS rule_if_condition_enum_arg1, "
+              + " (SELECT gaav.value_string "
+              + "  FROM grouper_attribute_assign gaa, grouper_attribute_assign_value gaav, grouper_attribute_def_name gadn "
+              + "  WHERE gadn.name = '" + attributeRootStem + ":rules:ruleIfOwnerId' "
+              + "  AND gaav.attribute_assign_id = gaa.id "
+              + "  AND gaa.attribute_def_name_id = gadn.id "
+              + "  AND gaa.owner_attribute_assign_id = main_gaa.id "
+              + "  AND gaa.enabled = 'T') AS rule_if_owner_id, "
+              + " (SELECT gaav.value_string "
+              + "  FROM grouper_attribute_assign gaa, grouper_attribute_assign_value gaav, grouper_attribute_def_name gadn "
+              + "  WHERE gadn.name = '" + attributeRootStem + ":rules:ruleIfOwnerName' "
+              + "  AND gaav.attribute_assign_id = gaa.id "
+              + "  AND gaa.attribute_def_name_id = gadn.id "
+              + "  AND gaa.owner_attribute_assign_id = main_gaa.id "
+              + "  AND gaa.enabled = 'T') AS rule_if_owner_name, "
+              + " (SELECT gaav.value_string "
+              + "  FROM grouper_attribute_assign gaa, grouper_attribute_assign_value gaav, grouper_attribute_def_name gadn "
+              + "  WHERE gadn.name = '" + attributeRootStem + ":rules:ruleIfStemScope' "
+              + "  AND gaav.attribute_assign_id = gaa.id "
+              + "  AND gaa.attribute_def_name_id = gadn.id "
+              + "  AND gaa.owner_attribute_assign_id = main_gaa.id "
+              + "  AND gaa.enabled = 'T') AS rule_if_stem_scope, "
+              + " (SELECT gaav.value_string "
+              + "  FROM grouper_attribute_assign gaa, grouper_attribute_assign_value gaav, grouper_attribute_def_name gadn "
+              + "  WHERE gadn.name = '" + attributeRootStem + ":rules:ruleThenEl' "
+              + "  AND gaav.attribute_assign_id = gaa.id "
+              + "  AND gaa.attribute_def_name_id = gadn.id "
+              + "  AND gaa.owner_attribute_assign_id = main_gaa.id "
+              + "  AND gaa.enabled = 'T') AS rule_then_el, "
+              + " (SELECT gaav.value_string "
+              + "  FROM grouper_attribute_assign gaa, grouper_attribute_assign_value gaav, grouper_attribute_def_name gadn "
+              + "  WHERE gadn.name = '" + attributeRootStem + ":rules:ruleThenEnum' "
+              + "  AND gaav.attribute_assign_id = gaa.id "
+              + "  AND gaa.attribute_def_name_id = gadn.id "
+              + "  AND gaa.owner_attribute_assign_id = main_gaa.id "
+              + "  AND gaa.enabled = 'T') AS rule_then_enum, "
+              + " (SELECT gaav.value_string "
+              + "  FROM grouper_attribute_assign gaa, grouper_attribute_assign_value gaav, grouper_attribute_def_name gadn "
+              + "  WHERE gadn.name = '" + attributeRootStem + ":rules:ruleThenEnumArg0' "
+              + "  AND gaav.attribute_assign_id = gaa.id "
+              + "  AND gaa.attribute_def_name_id = gadn.id "
+              + "  AND gaa.owner_attribute_assign_id = main_gaa.id "
+              + "  AND gaa.enabled = 'T') AS rule_then_enum_arg0, "
+              + " (SELECT gaav.value_string "
+              + "  FROM grouper_attribute_assign gaa, grouper_attribute_assign_value gaav, grouper_attribute_def_name gadn "
+              + "  WHERE gadn.name = '" + attributeRootStem + ":rules:ruleThenEnumArg1' "
+              + "  AND gaav.attribute_assign_id = gaa.id "
+              + "  AND gaa.attribute_def_name_id = gadn.id "
+              + "  AND gaa.owner_attribute_assign_id = main_gaa.id "
+              + "  AND gaa.enabled = 'T') AS rule_then_enum_arg1, "
+              + " (SELECT gaav.value_string "
+              + "  FROM grouper_attribute_assign gaa, grouper_attribute_assign_value gaav, grouper_attribute_def_name gadn "
+              + "  WHERE gadn.name = '" + attributeRootStem + ":rules:ruleThenEnumArg2' "
+              + "  AND gaav.attribute_assign_id = gaa.id "
+              + "  AND gaa.attribute_def_name_id = gadn.id "
+              + "  AND gaa.owner_attribute_assign_id = main_gaa.id "
+              + "  AND gaa.enabled = 'T') AS rule_then_enum_arg2, "
+              + " (SELECT gaav.value_string "
+              + "  FROM grouper_attribute_assign gaa, grouper_attribute_assign_value gaav, grouper_attribute_def_name gadn "
+              + "  WHERE gadn.name = '" + attributeRootStem + ":rules:ruleValid' "
+              + "  AND gaav.attribute_assign_id = gaa.id "
+              + "  AND gaa.attribute_def_name_id = gadn.id "
+              + "  AND gaa.owner_attribute_assign_id = main_gaa.id "
+              + "  AND gaa.enabled = 'T') AS rule_valid, "
+              + " (SELECT gaav.value_string "
+              + "  FROM grouper_attribute_assign gaa, grouper_attribute_assign_value gaav, grouper_attribute_def_name gadn "
+              + "  WHERE gadn.name = '" + attributeRootStem + ":rules:ruleRunDaemon' "
+              + "  AND gaav.attribute_assign_id = gaa.id "
+              + "  AND gaa.attribute_def_name_id = gadn.id "
+              + "  AND gaa.owner_attribute_assign_id = main_gaa.id "
+              + "  AND gaa.enabled = 'T') AS rule_run_daemon, "
+              + " (SELECT gaav.value_string "
+              + "  FROM grouper_attribute_assign gaa, grouper_attribute_assign_value gaav, grouper_attribute_def_name gadn "
+              + "  WHERE gadn.name = '" + attributeRootStem + ":rules:ruleActAsSubjectId' "
+              + "  AND gaav.attribute_assign_id = gaa.id "
+              + "  AND gaa.attribute_def_name_id = gadn.id "
+              + "  AND gaa.owner_attribute_assign_id = main_gaa.id "
+              + "  AND gaa.enabled = 'T') AS rule_act_as_subject_id, "
+              + " (SELECT gaav.value_string "
+              + "  FROM grouper_attribute_assign gaa, grouper_attribute_assign_value gaav, grouper_attribute_def_name gadn "
+              + "  WHERE gadn.name = '" + attributeRootStem + ":rules:ruleActAsSubjectIdentifier' "
+              + "  AND gaav.attribute_assign_id = gaa.id "
+              + "  AND gaa.attribute_def_name_id = gadn.id "
+              + "  AND gaa.owner_attribute_assign_id = main_gaa.id "
+              + "  AND gaa.enabled = 'T') AS rule_act_as_subject_identifier, "
+              + " (SELECT gaav.value_string "
+              + "  FROM grouper_attribute_assign gaa, grouper_attribute_assign_value gaav, grouper_attribute_def_name gadn "
+              + "  WHERE gadn.name = '" + attributeRootStem + ":rules:ruleActAsSubjectSourceId' "
+              + "  AND gaav.attribute_assign_id = gaa.id "
+              + "  AND gaa.attribute_def_name_id = gadn.id "
+              + "  AND gaa.owner_attribute_assign_id = main_gaa.id "
+              + "  AND gaa.enabled = 'T') AS rule_act_as_subject_source_id, "
+              + "  main_gaa.enabled AS assignment_enabled, "
+              + " main_gaa.id AS attribute_assign_id "
+              + " FROM grouper_attribute_assign main_gaa, grouper_attribute_def_name main_gadn " 
+              + " WHERE main_gadn.name = '" + attributeRootStem + ":rules:rule' "
+              + " AND main_gaa.attribute_def_name_id = main_gadn.id "
+      );
+      
+      
+      
+      
     }
     
 
@@ -8289,6 +8720,11 @@ public enum GrouperDdl implements DdlVersionable {
     }
   }
   
+  /**
+   * 
+   * @param database
+   * @param ddlVersionBean
+   */
   private static void populatePITTables(Database database, DdlVersionBean ddlVersionBean) {
     long startTime = new Date().getTime() * 1000;
     String orderByDepth = "";
