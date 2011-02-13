@@ -79,6 +79,16 @@ public interface SubjectResolver {
     throws  IllegalArgumentException;
 
   /**
+   * @param stemName name of stem we are querying
+   * @param   query   A source-appropriate query string.
+   * @return  All subjects matching <i>query</i>.
+   * @throws  IllegalArgumentException if any parameter is null.
+   * @since   1.2.1
+   */
+  Set<Subject> findAllInStem(String stemName, String query)
+    throws  IllegalArgumentException;
+
+  /**
    * @param   query   A source-appropriate query string.
    * @param   source  Restrict query to within this source.
    * @return  All subjects matching <i>query</i>.

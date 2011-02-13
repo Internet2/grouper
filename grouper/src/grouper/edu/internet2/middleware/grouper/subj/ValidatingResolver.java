@@ -34,6 +34,9 @@ import  java.util.Set;
  */
 public class ValidatingResolver extends SubjectResolverDecorator {
 
+  /**
+   * param
+   */
   private ParameterHelper param;
 
   /**
@@ -45,6 +48,7 @@ public class ValidatingResolver extends SubjectResolverDecorator {
 
 
   /**
+   * @param resolver 
    * @since   1.2.1
    */
   public ValidatingResolver(SubjectResolver resolver) {
@@ -168,6 +172,16 @@ public class ValidatingResolver extends SubjectResolverDecorator {
       SubjectNotFoundException, SubjectNotUniqueException {
     this.param.notNullString(id, "null Subject Id").notNullString(source, "null Source Id");
     return super.getDecoratedResolver().findByIdOrIdentifier(id, source);
+  }
+
+  /**
+   * @see SubjectResolver#findAllInStem(String, String)
+   */
+  public Set<Subject> findAllInStem(String stemName, String query)
+      throws IllegalArgumentException {
+    this.param.notNullString(query, "null query string");
+    this.param.notNullString(stemName, "null stem name");
+    return super.getDecoratedResolver().findAllInStem(stemName, query);
   }
 
 }

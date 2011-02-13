@@ -271,5 +271,11 @@ public class SourcesXmlResolver implements SubjectResolver {
     
   }
 
+
+  public Set<Subject> findAllInStem(String stemName, String query)
+      throws IllegalArgumentException {
+    throw new RuntimeException("Not implemented");
+  }
+
 }
 

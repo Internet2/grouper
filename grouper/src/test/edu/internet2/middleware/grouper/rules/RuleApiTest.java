@@ -309,8 +309,7 @@ public class RuleApiTest extends GrouperTest {
     Stem restrictedStem = StemFinder.findByName(grouperSession, "stem2", true);
 
     
-    RuleApi.vetoSubjectAssignInFolderIfNotInGroup(SubjectFinder.findRootSubject(), restrictedStem, employeeGroup, false, "jdbc", Scope.SUB,
-        "rule.entity.must.be.a.member.of.etc.employee", "Entity cannot be assigned if not a member of etc:employee");
+    RuleApi.vetoSubjectAssignInFolderIfNotInGroup(SubjectFinder.findRootSubject(), restrictedStem, employeeGroup, false, "jdbc", Stem.Scope.SUB, "rule.entity.must.be.a.member.of.etc.employee", "Entity cannot be assigned if not a member of etc:employee");
 
     //count rule firings
     long initialFirings = RuleEngine.ruleFirings;
@@ -328,13 +327,13 @@ public class RuleApiTest extends GrouperTest {
   
     assertEquals(initialFirings+1, RuleEngine.ruleFirings);
     
-    allowedGroup.addMember(SubjectTestHelper.SUBJ0);
+    allowedGroup.addMember(subject0);
 
     //this doesnt actually fire
     assertEquals(initialFirings+1, RuleEngine.ruleFirings);
     
-    employeeGroup.addMember(SubjectTestHelper.SUBJ0);
-    restrictedGroup.addMember(SubjectTestHelper.SUBJ0);
+    employeeGroup.addMember(subject0);
+    restrictedGroup.addMember(subject0);
     
     assertEquals("Didnt fire since is a member", initialFirings+1, RuleEngine.ruleFirings);
 

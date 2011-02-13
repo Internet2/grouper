@@ -116,10 +116,10 @@ public class CachingResolver extends SubjectResolverDecorator {
   public Set<Subject> findAll(String query)
     throws  IllegalArgumentException
   {
-    Set<Subject> subjects = this.getFromFindAllCache(query, null);
+    Set<Subject> subjects = this.getFromFindAllCache(null, query, null);
     if (subjects == null) {
       subjects = super.getDecoratedResolver().findAll(query);
-      this.putInFindAllCache(query, null, subjects);
+      this.putInFindAllCache(null, query, null, subjects);
     }
     return subjects;
   }
@@ -132,10 +132,10 @@ public class CachingResolver extends SubjectResolverDecorator {
     throws  IllegalArgumentException,
             SourceUnavailableException
   {
-    Set<Subject> subjects = this.getFromFindAllCache(query, source);
+    Set<Subject> subjects = this.getFromFindAllCache(null, query, source);
     if (subjects == null) {
       subjects = super.getDecoratedResolver().findAll(query, source);
-      this.putInFindAllCache(query, source, subjects);
+      this.putInFindAllCache(null, query, source, subjects);
     }
     return subjects;
   }
@@ -180,8 +180,8 @@ public class CachingResolver extends SubjectResolverDecorator {
    * @return  Cached set of subjects or null.
    * @since   1.2.1
    */
-  private Set<Subject> getFromFindAllCache(String query, String source) {
-    return findAllCache.get( new MultiKey(query, source) );
+  private Set<Subject> getFromFindAllCache(String stemName, String query, String source) {
+    return findAllCache.get( new MultiKey(stemName, query, source) );
   }
 
   /**
@@ -225,8 +225,8 @@ public class CachingResolver extends SubjectResolverDecorator {
    * Put set of subjects into cache for <code>findAll(...)</code>.
    * @since   1.2.1
    */
-  private void putInFindAllCache(String query, String source, Set<Subject> subjects) {
-    findAllCache.put( new MultiKey(query, source), subjects );
+  private void putInFindAllCache(String stemName, String query, String source, Set<Subject> subjects) {
+    findAllCache.put( new MultiKey(stemName, query, source), subjects );
   }
 
   /**
@@ -304,6 +304,12 @@ public class CachingResolver extends SubjectResolverDecorator {
       this.putInFindByIdOrIdentifierCache(id, subj);
     }
     return subj;
+  }
+
+  public Set<Subject> findAllInStem(String stemName, String query)
+      throws IllegalArgumentException {
+    // TODO Auto-generated method stub
+    return null;
   }
 
 }
