@@ -16,10 +16,13 @@
 */
 
 package edu.internet2.middleware.grouper;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GrouperException;
@@ -55,6 +58,9 @@ import edu.internet2.middleware.subject.SubjectTooManyResults;
  * @version $Id: SubjectFinder.java,v 1.47 2009-12-28 06:08:37 mchyzer Exp $
  */
 public class SubjectFinder {
+
+  /** logger */
+  private static final Log LOG = GrouperUtil.getLog(SubjectFinder.class);
 
   /** */
   private static        Subject         all;
@@ -969,19 +975,36 @@ public class SubjectFinder {
    */
   public static RestrictSourceForGroup restrictSourceForGroup(String stemName, String sourceId) {
     
+    Map<String, Object> debugMap = LOG.isDebugEnabled() ? new LinkedHashMap<String, Object>() : null;
+    
     //somtimes root is blank, so convert
     if (StringUtils.isBlank(stemName)) {
       stemName = ":";
     }
     
+    if (LOG.isDebugEnabled()) {
+      debugMap.put("operation", "restrictSourceForGroup");
+      debugMap.put("stemName", stemName);
+      debugMap.put("sourceId", sourceId);
+    }
+    
     //lets see if the source is restricted for this folder
     RuleCheck ruleCheck = new RuleCheck(RuleCheckType.subjectAssignInStem.name(), null, stemName, null, sourceId, null);
     Set<RuleDefinition> ruleDefinitions = RuleEngine.ruleEngine().ruleCheckIndexDefinitionsByNameOrIdInFolderPickOneArgOptional(ruleCheck);
+
+    if (LOG.isDebugEnabled()) {
+      debugMap.put("ruleDefinitionsSize", GrouperUtil.length(ruleDefinitions));
+    }
+    
     if (GrouperUtil.length(ruleDefinitions) == 1) {
       RuleDefinition ruleDefinition = ruleDefinitions.iterator().next();
       final RuleIfCondition ruleIfCondition = ruleDefinition.getIfCondition();
       if (ruleIfCondition != null) {
         RuleIfConditionEnum ruleIfConditionEnum = RuleIfConditionEnum.valueOfIgnoreCase(ruleIfCondition.getIfConditionEnum(), false);
+        
+        if (LOG.isDebugEnabled()) {
+          debugMap.put("ruleIfConditionEnum", ruleIfConditionEnum);
+        }
         
         //never means allow all
         if (ruleIfConditionEnum != RuleIfConditionEnum.never) {
@@ -989,10 +1012,19 @@ public class SubjectFinder {
           RuleThen ruleThen = ruleDefinition.getThen();
           RuleThenEnum ruleThenEnum = ruleThen.thenEnum();
           
+          if (LOG.isDebugEnabled()) {
+            debugMap.put("ruleIfConditionEnum", ruleThenEnum);
+            debugMap.put("ruleIfOwnerName", ruleIfCondition.getIfOwnerName());
+            debugMap.put("ruleIfOwnerId", ruleIfCondition.getIfOwnerId());
+          }
           //if veto, this is the right type of rule
           if (ruleThenEnum == RuleThenEnum.veto) {
             if (StringUtils.isBlank(ruleIfCondition.getIfOwnerId()) 
                 && StringUtils.isBlank(ruleIfCondition.getIfOwnerName())) {
+              if (LOG.isDebugEnabled()) {
+                debugMap.put("restrict all", Boolean.TRUE);
+                LOG.debug(GrouperUtil.mapToString(debugMap));
+              }
               return new RestrictSourceForGroup(true, null);
             } 
               
@@ -1002,11 +1034,19 @@ public class SubjectFinder {
             } else {
               group = GrouperDAOFactory.getFactory().getGroup().findByName(ruleIfCondition.getIfOwnerName(), true);
             }
-            
+            if (LOG.isDebugEnabled()) {
+              debugMap.put("restrict group", group.getName());
+              LOG.debug(GrouperUtil.mapToString(debugMap));
+            }
+
             return new RestrictSourceForGroup(true, group);
           }
         }
       }
+    }
+    if (LOG.isDebugEnabled()) {
+      debugMap.put("restrict none", Boolean.TRUE);
+      LOG.debug(GrouperUtil.mapToString(debugMap));
     }
     return new RestrictSourceForGroup(false, null);
   }

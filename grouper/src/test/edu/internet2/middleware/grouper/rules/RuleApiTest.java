@@ -531,13 +531,13 @@ public class RuleApiTest extends GrouperTest {
     b_group.addMember(subjectGrouperSystem);
 
     //lets do some searches / etc
-    assertFalse(SubjectHelper.inList(SubjectFinder.findAllInStem(a_stem.getName(), subjectEmployee.getId()), subjectEmployee));
-    assertFalse(SubjectHelper.inList(SubjectFinder.findAllInStem(a_stem.getName(), subjectNonEmployee.getId()), subjectNonEmployee));
-    assertFalse(SubjectHelper.inList(SubjectFinder.findAllInStem(a_stem.getName(), groupAnother.getName()), groupAnother.toSubject()));
-    assertTrue(SubjectHelper.inList(SubjectFinder.findAllInStem(a_stem.getName(), "GrouperSystem"), SubjectFinder.findRootSubject()));
-    assertTrue(SubjectFinder.restrictSourceForGroup(a_stem.getName(), "jdbc").isRestrict());
-    assertTrue(SubjectFinder.restrictSourceForGroup(a_stem.getName(), "g:gsa").isRestrict());
-    assertFalse(SubjectFinder.restrictSourceForGroup(a_stem.getName(), "g:isa").isRestrict());
+    assertFalse(SubjectHelper.inList(SubjectFinder.findAllInStem(b_stem.getName(), subjectEmployee.getId()), subjectEmployee));
+    assertFalse(SubjectHelper.inList(SubjectFinder.findAllInStem(b_stem.getName(), subjectNonEmployee.getId()), subjectNonEmployee));
+    assertFalse(SubjectHelper.inList(SubjectFinder.findAllInStem(b_stem.getName(), groupAnother.getName()), groupAnother.toSubject()));
+    assertTrue(SubjectHelper.inList(SubjectFinder.findAllInStem(b_stem.getName(), "GrouperSystem"), SubjectFinder.findRootSubject()));
+    assertTrue(SubjectFinder.restrictSourceForGroup(b_stem.getName(), "jdbc").isRestrict());
+    assertTrue(SubjectFinder.restrictSourceForGroup(b_stem.getName(), "g:gsa").isRestrict());
+    assertFalse(SubjectFinder.restrictSourceForGroup(b_stem.getName(), "g:isa").isRestrict());
     
 
     
@@ -558,13 +558,13 @@ public class RuleApiTest extends GrouperTest {
     assertEquals(initialFirings+1, RuleEngine.ruleFirings);
         
     //lets do some searches / etc
-    assertTrue(SubjectHelper.inList(SubjectFinder.findAllInStem(a_stem.getName(), subjectEmployee.getId()), subjectEmployee));
-    assertTrue(SubjectHelper.inList(SubjectFinder.findAllInStem(a_stem.getName(), subjectNonEmployee.getId()), subjectNonEmployee));
-    assertFalse(SubjectHelper.inList(SubjectFinder.findAllInStem(a_stem.getName(), groupAnother.getName()), groupAnother.toSubject()));
-    assertTrue(SubjectHelper.inList(SubjectFinder.findAllInStem(a_stem.getName(), "GrouperSystem"), SubjectFinder.findRootSubject()));
-    assertFalse(SubjectFinder.restrictSourceForGroup(a_stem.getName(), "jdbc").isRestrict());
-    assertTrue(SubjectFinder.restrictSourceForGroup(a_stem.getName(), "g:gsa").isRestrict());
-    assertFalse(SubjectFinder.restrictSourceForGroup(a_stem.getName(), "g:isa").isRestrict());
+    assertTrue(SubjectHelper.inList(SubjectFinder.findAllInStem(a_a_stem.getName(), subjectEmployee.getId()), subjectEmployee));
+    assertTrue(SubjectHelper.inList(SubjectFinder.findAllInStem(a_a_stem.getName(), subjectNonEmployee.getId()), subjectNonEmployee));
+    assertFalse(SubjectHelper.inList(SubjectFinder.findAllInStem(a_a_stem.getName(), groupAnother.getName()), groupAnother.toSubject()));
+    assertTrue(SubjectHelper.inList(SubjectFinder.findAllInStem(a_a_stem.getName(), "GrouperSystem"), SubjectFinder.findRootSubject()));
+    assertFalse(SubjectFinder.restrictSourceForGroup(a_a_stem.getName(), "jdbc").isRestrict());
+    assertTrue(SubjectFinder.restrictSourceForGroup(a_a_stem.getName(), "g:gsa").isRestrict());
+    assertFalse(SubjectFinder.restrictSourceForGroup(a_a_stem.getName(), "g:isa").isRestrict());
     
 
     //* b:a   result: will deny groups inherit, allow jdbc, allows grouperSystem
@@ -584,13 +584,13 @@ public class RuleApiTest extends GrouperTest {
     assertEquals(initialFirings+1, RuleEngine.ruleFirings);
 
     //lets do some searches / etc
-    assertTrue(SubjectHelper.inList(SubjectFinder.findAllInStem(a_stem.getName(), subjectEmployee.getId()), subjectEmployee));
-    assertTrue(SubjectHelper.inList(SubjectFinder.findAllInStem(a_stem.getName(), subjectNonEmployee.getId()), subjectNonEmployee));
-    assertFalse(SubjectHelper.inList(SubjectFinder.findAllInStem(a_stem.getName(), groupAnother.getName()), groupAnother.toSubject()));
-    assertTrue(SubjectHelper.inList(SubjectFinder.findAllInStem(a_stem.getName(), "GrouperSystem"), SubjectFinder.findRootSubject()));
-    assertFalse(SubjectFinder.restrictSourceForGroup(a_stem.getName(), "jdbc").isRestrict());
-    assertTrue(SubjectFinder.restrictSourceForGroup(a_stem.getName(), "g:gsa").isRestrict());
-    assertFalse(SubjectFinder.restrictSourceForGroup(a_stem.getName(), "g:isa").isRestrict());
+    assertTrue(SubjectHelper.inList(SubjectFinder.findAllInStem(b_a_stem.getName(), subjectEmployee.getId()), subjectEmployee));
+    assertTrue(SubjectHelper.inList(SubjectFinder.findAllInStem(b_a_stem.getName(), subjectNonEmployee.getId()), subjectNonEmployee));
+    assertFalse(SubjectHelper.inList(SubjectFinder.findAllInStem(b_a_stem.getName(), groupAnother.getName()), groupAnother.toSubject()));
+    assertTrue(SubjectHelper.inList(SubjectFinder.findAllInStem(b_a_stem.getName(), "GrouperSystem"), SubjectFinder.findRootSubject()));
+    assertFalse(SubjectFinder.restrictSourceForGroup(b_a_stem.getName(), "jdbc").isRestrict());
+    assertTrue(SubjectFinder.restrictSourceForGroup(b_a_stem.getName(), "g:gsa").isRestrict());
+    assertFalse(SubjectFinder.restrictSourceForGroup(b_a_stem.getName(), "g:isa").isRestrict());
     
     //* b:c   allows groups SUB, result: allow all, allows grouperSystem
     b_c_group.addMember(subjectEmployee);
@@ -599,13 +599,13 @@ public class RuleApiTest extends GrouperTest {
     b_c_group.addMember(groupAnother.toSubject());
 
     //lets do some searches / etc
-    assertTrue(SubjectHelper.inList(SubjectFinder.findAllInStem(a_stem.getName(), subjectEmployee.getId()), subjectEmployee));
-    assertTrue(SubjectHelper.inList(SubjectFinder.findAllInStem(a_stem.getName(), subjectNonEmployee.getId()), subjectNonEmployee));
-    assertTrue(SubjectHelper.inList(SubjectFinder.findAllInStem(a_stem.getName(), groupAnother.getName()), groupAnother.toSubject()));
-    assertTrue(SubjectHelper.inList(SubjectFinder.findAllInStem(a_stem.getName(), "GrouperSystem"), SubjectFinder.findRootSubject()));
-    assertFalse(SubjectFinder.restrictSourceForGroup(a_stem.getName(), "jdbc").isRestrict());
-    assertFalse(SubjectFinder.restrictSourceForGroup(a_stem.getName(), "g:gsa").isRestrict());
-    assertFalse(SubjectFinder.restrictSourceForGroup(a_stem.getName(), "g:isa").isRestrict());
+    assertTrue(SubjectHelper.inList(SubjectFinder.findAllInStem(b_c_stem.getName(), subjectEmployee.getId()), subjectEmployee));
+    assertTrue(SubjectHelper.inList(SubjectFinder.findAllInStem(b_c_stem.getName(), subjectNonEmployee.getId()), subjectNonEmployee));
+    assertTrue(SubjectHelper.inList(SubjectFinder.findAllInStem(b_c_stem.getName(), groupAnother.getName()), groupAnother.toSubject()));
+    assertTrue(SubjectHelper.inList(SubjectFinder.findAllInStem(b_c_stem.getName(), "GrouperSystem"), SubjectFinder.findRootSubject()));
+    assertFalse(SubjectFinder.restrictSourceForGroup(b_c_stem.getName(), "jdbc").isRestrict());
+    assertFalse(SubjectFinder.restrictSourceForGroup(b_c_stem.getName(), "g:gsa").isRestrict());
+    assertFalse(SubjectFinder.restrictSourceForGroup(b_c_stem.getName(), "g:isa").isRestrict());
     
 
     //* a:b   denies jdbc SUB, result: deny jdbc, groups, allows grouperSystem
@@ -645,13 +645,13 @@ public class RuleApiTest extends GrouperTest {
     a_b_group.addMember(subjectGrouperSystem);
 
     //lets do some searches / etc
-    assertFalse(SubjectHelper.inList(SubjectFinder.findAllInStem(a_stem.getName(), subjectEmployee.getId()), subjectEmployee));
-    assertFalse(SubjectHelper.inList(SubjectFinder.findAllInStem(a_stem.getName(), subjectNonEmployee.getId()), subjectNonEmployee));
-    assertFalse(SubjectHelper.inList(SubjectFinder.findAllInStem(a_stem.getName(), groupAnother.getName()), groupAnother.toSubject()));
-    assertTrue(SubjectHelper.inList(SubjectFinder.findAllInStem(a_stem.getName(), "GrouperSystem"), SubjectFinder.findRootSubject()));
-    assertTrue(SubjectFinder.restrictSourceForGroup(a_stem.getName(), "jdbc").isRestrict());
-    assertTrue(SubjectFinder.restrictSourceForGroup(a_stem.getName(), "g:gsa").isRestrict());
-    assertFalse(SubjectFinder.restrictSourceForGroup(a_stem.getName(), "g:isa").isRestrict());
+    assertFalse(SubjectHelper.inList(SubjectFinder.findAllInStem(a_b_stem.getName(), subjectEmployee.getId()), subjectEmployee));
+    assertFalse(SubjectHelper.inList(SubjectFinder.findAllInStem(a_b_stem.getName(), subjectNonEmployee.getId()), subjectNonEmployee));
+    assertFalse(SubjectHelper.inList(SubjectFinder.findAllInStem(a_b_stem.getName(), groupAnother.getName()), groupAnother.toSubject()));
+    assertTrue(SubjectHelper.inList(SubjectFinder.findAllInStem(a_b_stem.getName(), "GrouperSystem"), SubjectFinder.findRootSubject()));
+    assertTrue(SubjectFinder.restrictSourceForGroup(a_b_stem.getName(), "jdbc").isRestrict());
+    assertTrue(SubjectFinder.restrictSourceForGroup(a_b_stem.getName(), "g:gsa").isRestrict());
+    assertFalse(SubjectFinder.restrictSourceForGroup(a_b_stem.getName(), "g:isa").isRestrict());
     
 
     //* b:d   allows amployees in jdbc SUB, result: denies groups and allows employees, allows grouperSystem
@@ -681,13 +681,13 @@ public class RuleApiTest extends GrouperTest {
     
     b_d_group.addMember(subjectGrouperSystem);
 
-    assertTrue(SubjectHelper.inList(SubjectFinder.findAllInStem(a_stem.getName(), subjectEmployee.getId()), subjectEmployee));
-    assertTrue(SubjectHelper.inList(SubjectFinder.findAllInStem(a_stem.getName(), subjectNonEmployee.getId()), subjectNonEmployee));
-    assertFalse(SubjectHelper.inList(SubjectFinder.findAllInStem(a_stem.getName(), groupAnother.getName()), groupAnother.toSubject()));
-    assertTrue(SubjectHelper.inList(SubjectFinder.findAllInStem(a_stem.getName(), "GrouperSystem"), SubjectFinder.findRootSubject()));
-    assertFalse(SubjectFinder.restrictSourceForGroup(a_stem.getName(), "jdbc").isRestrict());
-    assertTrue(SubjectFinder.restrictSourceForGroup(a_stem.getName(), "g:gsa").isRestrict());
-    assertFalse(SubjectFinder.restrictSourceForGroup(a_stem.getName(), "g:isa").isRestrict());
+    assertTrue(SubjectHelper.inList(SubjectFinder.findAllInStem(b_d_stem.getName(), subjectEmployee.getId()), subjectEmployee));
+    assertTrue(SubjectHelper.inList(SubjectFinder.findAllInStem(b_d_stem.getName(), subjectNonEmployee.getId()), subjectNonEmployee));
+    assertFalse(SubjectHelper.inList(SubjectFinder.findAllInStem(b_d_stem.getName(), groupAnother.getName()), groupAnother.toSubject()));
+    assertTrue(SubjectHelper.inList(SubjectFinder.findAllInStem(b_d_stem.getName(), "GrouperSystem"), SubjectFinder.findRootSubject()));
+    assertTrue(SubjectFinder.restrictSourceForGroup(b_d_stem.getName(), "jdbc").isRestrict());
+    assertTrue(SubjectFinder.restrictSourceForGroup(b_d_stem.getName(), "g:gsa").isRestrict());
+    assertFalse(SubjectFinder.restrictSourceForGroup(b_d_stem.getName(), "g:isa").isRestrict());
 
     //* a:e   allows employees for all SUB, result: allows employees, denies groups, denies grouperSystem
     a_e_group.addMember(subjectEmployee);
@@ -725,13 +725,17 @@ public class RuleApiTest extends GrouperTest {
     }
     assertEquals(initialFirings+1, RuleEngine.ruleFirings);
 
-    assertTrue(SubjectHelper.inList(SubjectFinder.findAllInStem(a_stem.getName(), subjectEmployee.getId()), subjectEmployee));
-    assertTrue(SubjectHelper.inList(SubjectFinder.findAllInStem(a_stem.getName(), subjectNonEmployee.getId()), subjectNonEmployee));
-    assertFalse(SubjectHelper.inList(SubjectFinder.findAllInStem(a_stem.getName(), groupAnother.getName()), groupAnother.toSubject()));
-    assertFalse(SubjectHelper.inList(SubjectFinder.findAllInStem(a_stem.getName(), "GrouperSystem"), SubjectFinder.findRootSubject()));
-    assertFalse(SubjectFinder.restrictSourceForGroup(a_stem.getName(), "jdbc").isRestrict());
-    assertTrue(SubjectFinder.restrictSourceForGroup(a_stem.getName(), "g:gsa").isRestrict());
-    assertTrue(SubjectFinder.restrictSourceForGroup(a_stem.getName(), "g:isa").isRestrict());
+    assertTrue(SubjectHelper.inList(SubjectFinder.findAllInStem(a_e_stem.getName(), subjectEmployee.getId()), subjectEmployee));
+    assertTrue(SubjectHelper.inList(SubjectFinder.findAllInStem(a_e_stem.getName(), subjectNonEmployee.getId()), subjectNonEmployee));
+    
+    {
+      Set<Subject> results = SubjectFinder.findAllInStem(a_e_stem.getName(), groupAnother.getName());
+      assertTrue(GrouperUtil.setToString(results), SubjectHelper.inList(results, groupAnother.toSubject()));
+    }    
+    assertTrue(SubjectHelper.inList(SubjectFinder.findAllInStem(a_e_stem.getName(), "GrouperSystem"), SubjectFinder.findRootSubject()));
+    assertTrue(SubjectFinder.restrictSourceForGroup(a_e_stem.getName(), "jdbc").isRestrict());
+    assertTrue(SubjectFinder.restrictSourceForGroup(a_e_stem.getName(), "g:gsa").isRestrict());
+    assertTrue(SubjectFinder.restrictSourceForGroup(a_e_stem.getName(), "g:isa").isRestrict());
 
     //* a:e:a deny all SUB, result: cant assign jdbc, groups, grouperSystem
     
@@ -779,13 +783,13 @@ public class RuleApiTest extends GrouperTest {
     }
     assertEquals(initialFirings+1, RuleEngine.ruleFirings);
 
-    assertFalse(SubjectHelper.inList(SubjectFinder.findAllInStem(a_stem.getName(), subjectEmployee.getId()), subjectEmployee));
-    assertFalse(SubjectHelper.inList(SubjectFinder.findAllInStem(a_stem.getName(), subjectNonEmployee.getId()), subjectNonEmployee));
-    assertFalse(SubjectHelper.inList(SubjectFinder.findAllInStem(a_stem.getName(), groupAnother.getName()), groupAnother.toSubject()));
-    assertFalse(SubjectHelper.inList(SubjectFinder.findAllInStem(a_stem.getName(), "GrouperSystem"), SubjectFinder.findRootSubject()));
-    assertTrue(SubjectFinder.restrictSourceForGroup(a_stem.getName(), "jdbc").isRestrict());
-    assertTrue(SubjectFinder.restrictSourceForGroup(a_stem.getName(), "g:gsa").isRestrict());
-    assertTrue(SubjectFinder.restrictSourceForGroup(a_stem.getName(), "g:isa").isRestrict());
+    assertFalse(SubjectHelper.inList(SubjectFinder.findAllInStem(a_e_a_stem.getName(), subjectEmployee.getId()), subjectEmployee));
+    assertFalse(SubjectHelper.inList(SubjectFinder.findAllInStem(a_e_a_stem.getName(), subjectNonEmployee.getId()), subjectNonEmployee));
+    assertFalse(SubjectHelper.inList(SubjectFinder.findAllInStem(a_e_a_stem.getName(), groupAnother.getName()), groupAnother.toSubject()));
+    assertFalse(SubjectHelper.inList(SubjectFinder.findAllInStem(a_e_a_stem.getName(), "GrouperSystem"), SubjectFinder.findRootSubject()));
+    assertTrue(SubjectFinder.restrictSourceForGroup(a_e_a_stem.getName(), "jdbc").isRestrict());
+    assertTrue(SubjectFinder.restrictSourceForGroup(a_e_a_stem.getName(), "g:gsa").isRestrict());
+    assertTrue(SubjectFinder.restrictSourceForGroup(a_e_a_stem.getName(), "g:isa").isRestrict());
 
     //* a:e:b allow all ONE, result, can assign jdbc, groups, grouperSystem
     a_e_b_group.addMember(subjectEmployee);
@@ -793,13 +797,13 @@ public class RuleApiTest extends GrouperTest {
     a_e_b_group.addMember(subjectGrouperSystem);
     a_e_b_group.addMember(groupAnother.toSubject());
 
-    assertTrue(SubjectHelper.inList(SubjectFinder.findAllInStem(a_stem.getName(), subjectEmployee.getId()), subjectEmployee));
-    assertTrue(SubjectHelper.inList(SubjectFinder.findAllInStem(a_stem.getName(), subjectNonEmployee.getId()), subjectNonEmployee));
-    assertTrue(SubjectHelper.inList(SubjectFinder.findAllInStem(a_stem.getName(), groupAnother.getName()), groupAnother.toSubject()));
-    assertTrue(SubjectHelper.inList(SubjectFinder.findAllInStem(a_stem.getName(), "GrouperSystem"), SubjectFinder.findRootSubject()));
-    assertFalse(SubjectFinder.restrictSourceForGroup(a_stem.getName(), "jdbc").isRestrict());
-    assertFalse(SubjectFinder.restrictSourceForGroup(a_stem.getName(), "g:gsa").isRestrict());
-    assertFalse(SubjectFinder.restrictSourceForGroup(a_stem.getName(), "g:isa").isRestrict());
+    assertTrue(SubjectHelper.inList(SubjectFinder.findAllInStem(a_e_b_stem.getName(), subjectEmployee.getId()), subjectEmployee));
+    assertTrue(SubjectHelper.inList(SubjectFinder.findAllInStem(a_e_b_stem.getName(), subjectNonEmployee.getId()), subjectNonEmployee));
+    assertTrue(SubjectHelper.inList(SubjectFinder.findAllInStem(a_e_b_stem.getName(), groupAnother.getName()), groupAnother.toSubject()));
+    assertTrue(SubjectHelper.inList(SubjectFinder.findAllInStem(a_e_b_stem.getName(), "GrouperSystem"), SubjectFinder.findRootSubject()));
+    assertFalse(SubjectFinder.restrictSourceForGroup(a_e_b_stem.getName(), "jdbc").isRestrict());
+    assertFalse(SubjectFinder.restrictSourceForGroup(a_e_b_stem.getName(), "g:gsa").isRestrict());
+    assertFalse(SubjectFinder.restrictSourceForGroup(a_e_b_stem.getName(), "g:isa").isRestrict());
   }
   
   /**

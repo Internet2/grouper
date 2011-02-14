@@ -16,11 +16,17 @@
 */
 
 package edu.internet2.middleware.grouper.subj;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.collections.keyvalue.MultiKey;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
 
+import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.cache.GrouperCache;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.SourceUnavailableException;
 import edu.internet2.middleware.subject.Subject;
@@ -58,6 +64,9 @@ public class CachingResolver extends SubjectResolverDecorator {
    * cache of multikey, to subject
    */
   static GrouperCache<MultiKey, Subject> findByIdOrIdentifierCache = new GrouperCache<MultiKey, Subject>(CachingResolver.class.getName() + ".FindByIdentifier", 5000, false, 30, 120, false);
+
+  /** logger */
+  private static final Log LOG = GrouperUtil.getLog(CachingResolver.class);
 
   /**
    * flush the cache (e.g. for testing)
@@ -314,10 +323,33 @@ public class CachingResolver extends SubjectResolverDecorator {
    */
   public Set<Subject> findAllInStem(String stemName, String query)
       throws IllegalArgumentException {
+
+    Map<String, Object> debugMap = LOG.isDebugEnabled() ? new LinkedHashMap<String, Object>() : null;
+    if (LOG.isDebugEnabled()) {
+      debugMap.put("operation", "findAllInStem");
+      debugMap.put("stemName", stemName);
+      debugMap.put("query", query);
+    }
+
     Set<Subject> subjects = this.getFromFindAllCache(stemName, query, null);
-    if (subjects == null) {
+    
+    //TODO do this caching better... need to clear when group changes???
+    //for now dont cache if finding in stem name
+    if (subjects == null || !StringUtils.isBlank(stemName)) {
+      if (LOG.isDebugEnabled()) {
+        debugMap.put("foundInCache", Boolean.FALSE);
+      }
       subjects = super.getDecoratedResolver().findAllInStem(stemName, query);
       this.putInFindAllCache(stemName, query, null, subjects);
+    } else {
+      if (LOG.isDebugEnabled()) {
+        debugMap.put("foundInCache", Boolean.TRUE);
+      }
+
+    }
+    if (LOG.isDebugEnabled()) {
+      debugMap.put("resultSize", GrouperUtil.length(subjects));
+      LOG.debug(GrouperUtil.mapToString(debugMap));
     }
     return subjects;
   }
