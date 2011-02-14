@@ -3,7 +3,6 @@ package edu.internet2.middleware.grouper.rules;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -31,7 +30,6 @@ import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.rules.beans.RulesBean;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.grouperClient.ws.StemScope;
 import edu.internet2.middleware.subject.Subject;
 
 /**
@@ -68,6 +66,10 @@ public class RuleEngine {
    */
   public Set<RuleDefinition> ruleCheckIndexDefinitionsByNameOrId(RuleCheck ruleCheck) {
    
+    if (!GrouperConfig.getPropertyBoolean("rules.enable", true)) {
+      return null;
+    }
+
     String ownerId = ruleCheck.getCheckOwnerId();
     String ownerName = ruleCheck.getCheckOwnerName();
     
@@ -135,6 +137,10 @@ public class RuleEngine {
    */
   public Set<RuleDefinition> ruleCheckIndexDefinitionsByNameOrIdInFolder(RuleCheck ruleCheck) {
    
+    if (!GrouperConfig.getPropertyBoolean("rules.enable", true)) {
+      return null;
+    }
+
     String ownerName = ruleCheck.getCheckOwnerName();
     
     if (StringUtils.isBlank(ownerName)) {
@@ -174,7 +180,7 @@ public class RuleEngine {
    * 
    * @return all the rule definitions, cached
    */
-  static RuleEngine ruleEngine() {
+  public static RuleEngine ruleEngine() {
     RuleEngine ruleEngine = ruleEngineCache.get(Boolean.TRUE);
     
     if (ruleEngine == null) {
@@ -289,6 +295,10 @@ public class RuleEngine {
    */
   public Set<RuleDefinition> ruleCheckIndexDefinitionsByNameOrIdInFolderPickOneArgOptional(RuleCheck ruleCheck) {
   
+    if (!GrouperConfig.getPropertyBoolean("rules.enable", true)) {
+      return null;
+    }
+
     //owner name is the stem name
     String ownerName = ruleCheck.getCheckOwnerName();
     

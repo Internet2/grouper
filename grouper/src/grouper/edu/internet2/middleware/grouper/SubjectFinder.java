@@ -26,6 +26,15 @@ import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.misc.E;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.rules.RuleCheck;
+import edu.internet2.middleware.grouper.rules.RuleCheckType;
+import edu.internet2.middleware.grouper.rules.RuleDefinition;
+import edu.internet2.middleware.grouper.rules.RuleEngine;
+import edu.internet2.middleware.grouper.rules.RuleIfCondition;
+import edu.internet2.middleware.grouper.rules.RuleIfConditionEnum;
+import edu.internet2.middleware.grouper.rules.RuleThen;
+import edu.internet2.middleware.grouper.rules.RuleThenEnum;
 import edu.internet2.middleware.grouper.subj.InternalSourceAdapter;
 import edu.internet2.middleware.grouper.subj.SubjectResolver;
 import edu.internet2.middleware.grouper.subj.SubjectResolverFactory;
@@ -37,7 +46,6 @@ import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
 import edu.internet2.middleware.subject.SubjectNotUniqueException;
 import edu.internet2.middleware.subject.SubjectTooManyResults;
-import edu.internet2.middleware.subject.provider.SourceManager;
 
 
 /**
@@ -419,14 +427,14 @@ public class SubjectFinder {
    * // Find all subjects matching the given query string.
    * Set subjects = SubjectFinder.findAll(query);
    * </pre>
+   * @param stemName stem name to search in
    * @param   query     Subject query string.
    * @return  A {@link Set} of {@link Subject} objects.
    * @throws SubjectTooManyResults if more results than configured
    */
   public static Set<Subject> findAllInStem(String stemName, String query) {
     
-    //lets see which rules are applicable
-    throw new RuntimeException("not implemented");
+    return getResolver().findAllInStem(stemName, query);
     
   } 
 
@@ -897,5 +905,111 @@ public class SubjectFinder {
     return findByOptionalArgs(sourceId, subjectId, subjectIdentifier, exceptionIfNotFound);
   }
   
+  /**
+   * result to see if source if restricted by group
+   */
+  public static class RestrictSourceForGroup {
+    
+    /** if restricted */
+    private boolean restrict;
+    
+    /** group to restrict to, null means restrict to all */
+    private Group group;
+
+    /**
+     * @param restrict
+     * @param group
+     */
+    public RestrictSourceForGroup(boolean restrict, Group group) {
+      this.restrict = restrict;
+      this.group = group;
+    }
+
+    /**
+     * if restricted
+     * @return the restrict
+     */
+    public boolean isRestrict() {
+      return this.restrict;
+    }
+
+    
+    /**
+     * if restricted
+     * @param restrict1 the restrict to set
+     */
+    public void setRestrict(boolean restrict1) {
+      this.restrict = restrict1;
+    }
+
+    
+    /**
+     * group to restrict to, null means restrict to all
+     * @return the group
+     */
+    public Group getGroup() {
+      return this.group;
+    }
+
+    
+    /**
+     * group to restrict to, null means restrict to all
+     * @param group1 the group to set
+     */
+    public void setGroup(Group group1) {
+      this.group = group1;
+    }
+    
+  }
+
+  /**
+   * @param sourceId
+   * @param stemName
+   * @return if restricted and to what extent
+   */
+  public static RestrictSourceForGroup restrictSourceForGroup(String stemName, String sourceId) {
+    
+    //somtimes root is blank, so convert
+    if (StringUtils.isBlank(stemName)) {
+      stemName = ":";
+    }
+    
+    //lets see if the source is restricted for this folder
+    RuleCheck ruleCheck = new RuleCheck(RuleCheckType.subjectAssignInStem.name(), null, stemName, null, sourceId, null);
+    Set<RuleDefinition> ruleDefinitions = RuleEngine.ruleEngine().ruleCheckIndexDefinitionsByNameOrIdInFolderPickOneArgOptional(ruleCheck);
+    if (GrouperUtil.length(ruleDefinitions) == 1) {
+      RuleDefinition ruleDefinition = ruleDefinitions.iterator().next();
+      final RuleIfCondition ruleIfCondition = ruleDefinition.getIfCondition();
+      if (ruleIfCondition != null) {
+        RuleIfConditionEnum ruleIfConditionEnum = RuleIfConditionEnum.valueOfIgnoreCase(ruleIfCondition.getIfConditionEnum(), false);
+        
+        //never means allow all
+        if (ruleIfConditionEnum != RuleIfConditionEnum.never) {
+          
+          RuleThen ruleThen = ruleDefinition.getThen();
+          RuleThenEnum ruleThenEnum = ruleThen.thenEnum();
+          
+          //if veto, this is the right type of rule
+          if (ruleThenEnum == RuleThenEnum.veto) {
+            if (StringUtils.isBlank(ruleIfCondition.getIfOwnerId()) 
+                && StringUtils.isBlank(ruleIfCondition.getIfOwnerName())) {
+              return new RestrictSourceForGroup(true, null);
+            } 
+              
+            Group group = null;
+            if (!StringUtils.isBlank(ruleIfCondition.getIfOwnerId())) {
+              group = GrouperDAOFactory.getFactory().getGroup().findByUuid(ruleIfCondition.getIfOwnerId(), true);
+            } else {
+              group = GrouperDAOFactory.getFactory().getGroup().findByName(ruleIfCondition.getIfOwnerName(), true);
+            }
+            
+            return new RestrictSourceForGroup(true, group);
+          }
+        }
+      }
+    }
+    return new RestrictSourceForGroup(false, null);
+  }
+
 }
 

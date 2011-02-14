@@ -21,9 +21,11 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.SubjectFinder.RestrictSourceForGroup;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.internal.util.ParameterHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -270,11 +272,36 @@ public class SourcesXmlResolver implements SubjectResolver {
     return this.getSource(source).getSubjectByIdOrIdentifier(id, true);
     
   }
-
-
+  
+  /**
+   * note if stem name is blank, it means root
+   * @see edu.internet2.middleware.grouper.subj.SubjectResolver#findAllInStem(java.lang.String, java.lang.String)
+   */
   public Set<Subject> findAllInStem(String stemName, String query)
       throws IllegalArgumentException {
-    throw new RuntimeException("Not implemented");
+    
+    //if stem name is blank, they mean root
+    if (StringUtils.isBlank(stemName)) {
+      stemName = ":";
+    }
+    
+    Set<Subject> subjects = new LinkedHashSet();
+    
+    //loop through sources
+    for ( Source sa : this.getSources() ) {
+      
+      //see if it is restricted
+      RestrictSourceForGroup restrictSourceForGroup = SubjectFinder.restrictSourceForGroup(stemName, sa.getId());
+      if (!restrictSourceForGroup.isRestrict() || restrictSourceForGroup.getGroup() != null) {
+        subjects.addAll( sa.search(query) );
+      }
+    }
+    
+    if (GrouperConfig.getPropertyBoolean("grouper.sort.subjectSets.exactOnTop", true)) {
+      subjects = SubjectHelper.sortSetForSearch(subjects, query);
+    }
+
+    return subjects;
   }
 
 }

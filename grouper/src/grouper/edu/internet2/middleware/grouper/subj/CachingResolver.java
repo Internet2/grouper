@@ -30,6 +30,8 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
 
 /**
  * Decorator that provides caching for {@link SubjectResolver}.
+ * 
+ * TODO the caching of findAll should work based on group restricted to, not stem name
  * <p/>
  * @author  blair christensen.
  * @version $Id: CachingResolver.java,v 1.8 2008-08-26 21:11:51 mchyzer Exp $
@@ -306,10 +308,18 @@ public class CachingResolver extends SubjectResolverDecorator {
     return subj;
   }
 
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.subj.SubjectResolver#findAllInStem(java.lang.String, java.lang.String)
+   */
   public Set<Subject> findAllInStem(String stemName, String query)
       throws IllegalArgumentException {
-    // TODO Auto-generated method stub
-    return null;
+    Set<Subject> subjects = this.getFromFindAllCache(stemName, query, null);
+    if (subjects == null) {
+      subjects = super.getDecoratedResolver().findAllInStem(stemName, query);
+      this.putInFindAllCache(stemName, query, null, subjects);
+    }
+    return subjects;
   }
 
 }
