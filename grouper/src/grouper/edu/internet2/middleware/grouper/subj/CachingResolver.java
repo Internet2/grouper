@@ -16,20 +16,28 @@
 */
 
 package edu.internet2.middleware.grouper.subj;
-import  edu.internet2.middleware.grouper.cache.CacheStats;
-import  edu.internet2.middleware.grouper.cache.EhcacheController;
-import  edu.internet2.middleware.subject.Source;
-import  edu.internet2.middleware.subject.SourceUnavailableException;
-import  edu.internet2.middleware.subject.Subject;
-import  edu.internet2.middleware.subject.SubjectNotFoundException;
-import  edu.internet2.middleware.subject.SubjectNotUniqueException;
-import  java.util.Set;
-import  net.sf.ehcache.Element;
-import  org.apache.commons.collections.keyvalue.MultiKey;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Set;
+
+import org.apache.commons.collections.keyvalue.MultiKey;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+
+import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.cache.GrouperCache;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.subject.Source;
+import edu.internet2.middleware.subject.SourceUnavailableException;
+import edu.internet2.middleware.subject.Subject;
+import edu.internet2.middleware.subject.SubjectNotFoundException;
+import edu.internet2.middleware.subject.SubjectNotUniqueException;
 
 
 /**
  * Decorator that provides caching for {@link SubjectResolver}.
+ * 
+ * TODO the caching of findAll should work based on group restricted to, not stem name
  * <p/>
  * @author  blair christensen.
  * @version $Id: CachingResolver.java,v 1.8 2008-08-26 21:11:51 mchyzer Exp $
@@ -37,18 +45,36 @@ import  org.apache.commons.collections.keyvalue.MultiKey;
  */
 public class CachingResolver extends SubjectResolverDecorator {
 
+  /**
+   * cache of multikey, to subject
+   */
+  static GrouperCache<MultiKey, Subject> findCache = new GrouperCache<MultiKey, Subject>(CachingResolver.class.getName() + ".Find", 5000, false, 30, 120, false);
 
-  public static final String            CACHE_FIND              = CachingResolver.class.getName() + ".Find";
-  public static final String            CACHE_FINDALL           = CachingResolver.class.getName() + ".FindAll";
-  public static final String            CACHE_FINDBYIDENTIFIER  = CachingResolver.class.getName() + ".FindByIdentifier";
-  private             EhcacheController cc;
+  /**
+   * cache of multikey including query to subjects
+   */
+  static GrouperCache<MultiKey, Set<Subject>> findAllCache = new GrouperCache<MultiKey, Set<Subject>>(CachingResolver.class.getName() + ".FindAll", 5000, false, 30, 120, false);
+  
+  /**
+   * cache of multikey, to subject
+   */
+  static GrouperCache<MultiKey, Subject> findByIdentifierCache = new GrouperCache<MultiKey, Subject>(CachingResolver.class.getName() + ".FindByIdentifier", 5000, false, 30, 120, false);
+
+  /**
+   * cache of multikey, to subject
+   */
+  static GrouperCache<MultiKey, Subject> findByIdOrIdentifierCache = new GrouperCache<MultiKey, Subject>(CachingResolver.class.getName() + ".FindByIdentifier", 5000, false, 30, 120, false);
+
+  /** logger */
+  private static final Log LOG = GrouperUtil.getLog(CachingResolver.class);
 
   /**
    * flush the cache (e.g. for testing)
    */
   public void flushCache() {
-    this.cc.flushCache();
-    super.getDecoratedResolver().flushCache();
+    findCache.clear();
+    findAllCache.clear();
+    findByIdentifierCache.clear();
   }
 
   /**
@@ -56,7 +82,6 @@ public class CachingResolver extends SubjectResolverDecorator {
    */
   public CachingResolver(SubjectResolver resolver) {
     super(resolver);
-    this.cc = new EhcacheController();
   }
 
 
@@ -69,13 +94,11 @@ public class CachingResolver extends SubjectResolverDecorator {
             SubjectNotFoundException,
             SubjectNotUniqueException
   {
-    Subject subj = this.getFromFindCache(id, null, null);
+    Subject subj = this.getFromFindCache(id, null);
     if (subj == null) {
       subj = super.getDecoratedResolver().find(id);
+      this.putInFindCache(subj);
     }
-    // TODO 20070816  am i performing excessive puts by place this statement here rather
-    //                than in the if clause?
-    this.putInFindCache(subj);
     return subj;
   }
 
@@ -83,34 +106,17 @@ public class CachingResolver extends SubjectResolverDecorator {
    * @see     SubjectResolver#find(String, String)
    * @since   1.2.1
    */
-  public Subject find(String id, String type)
-    throws  IllegalArgumentException,
-            SubjectNotFoundException,
-            SubjectNotUniqueException
-  {
-    Subject subj = this.getFromFindCache(id, type, null);
-    if (subj == null) {
-      subj = super.getDecoratedResolver().find(id, type);
-    }
-    this.putInFindCache(subj);
-    return subj;
-  }
-
-  /**
-   * @see     SubjectResolver#find(String, String, String)
-   * @since   1.2.1
-   */
-  public Subject find(String id, String type, String source)
+  public Subject find(String id, String source)
     throws  IllegalArgumentException,
             SourceUnavailableException,
             SubjectNotFoundException,
             SubjectNotUniqueException
   {
-    Subject subj = this.getFromFindCache(id, type, source);
+    Subject subj = this.getFromFindCache(id, source);
     if (subj == null) {
-      subj = super.getDecoratedResolver().find(id, type, source);
+      subj = super.getDecoratedResolver().find(id, source);
+      this.putInFindCache(subj);
     }
-    this.putInFindCache(subj);
     return subj;
   }
 
@@ -121,11 +127,11 @@ public class CachingResolver extends SubjectResolverDecorator {
   public Set<Subject> findAll(String query)
     throws  IllegalArgumentException
   {
-    Set<Subject> subjects = this.getFromFindAllCache(query, null);
+    Set<Subject> subjects = this.getFromFindAllCache(null, query, null);
     if (subjects == null) {
       subjects = super.getDecoratedResolver().findAll(query);
+      this.putInFindAllCache(null, query, null, subjects);
     }
-    this.putInFindAllCache(query, null, subjects);
     return subjects;
   }
 
@@ -137,11 +143,11 @@ public class CachingResolver extends SubjectResolverDecorator {
     throws  IllegalArgumentException,
             SourceUnavailableException
   {
-    Set<Subject> subjects = this.getFromFindAllCache(query, source);
+    Set<Subject> subjects = this.getFromFindAllCache(null, query, source);
     if (subjects == null) {
       subjects = super.getDecoratedResolver().findAll(query, source);
+      this.putInFindAllCache(null, query, source, subjects);
     }
-    this.putInFindAllCache(query, source, subjects);
     return subjects;
   }
 
@@ -154,11 +160,11 @@ public class CachingResolver extends SubjectResolverDecorator {
             SubjectNotFoundException,
             SubjectNotUniqueException
   {
-    Subject subj = this.getFromFindByIdentifierCache(id, null, null);
+    Subject subj = this.getFromFindByIdentifierCache(id, null);
     if (subj == null) {
       subj = super.getDecoratedResolver().findByIdentifier(id);
+      this.putInFindByIdentifierCache(id, subj);
     }
-    this.putInFindByIdentifierCache(id, subj);
     return subj;
   }            
 
@@ -166,34 +172,17 @@ public class CachingResolver extends SubjectResolverDecorator {
    * @see     SubjectResolver#findByIdentifier(String, String)
    * @since   1.2.1
    */
-  public Subject findByIdentifier(String id, String type)
-    throws  IllegalArgumentException,
-            SubjectNotFoundException,
-            SubjectNotUniqueException
-  {
-    Subject subj = this.getFromFindByIdentifierCache(id, type, null);
-    if (subj == null) {
-      subj = super.getDecoratedResolver().findByIdentifier(id, type);
-    }
-    this.putInFindByIdentifierCache(id, subj);
-    return subj;
-  }
-
-  /**
-   * @see     SubjectResolver#findByIdentifier(String, String, String)
-   * @since   1.2.1
-   */
-  public Subject findByIdentifier(String id, String type, String source)
+  public Subject findByIdentifier(String id, String source)
     throws  IllegalArgumentException,
             SourceUnavailableException,
             SubjectNotFoundException,
             SubjectNotUniqueException
   {
-    Subject subj = this.getFromFindByIdentifierCache(id, type, source);
+    Subject subj = this.getFromFindByIdentifierCache(id, source);
     if (subj == null) {
-      subj = super.getDecoratedResolver().findByIdentifier(id, type, source);
+      subj = super.getDecoratedResolver().findByIdentifier(id, source);
+      this.putInFindByIdentifierCache(id, subj);
     }
-    this.putInFindByIdentifierCache(id, subj);
     return subj;
   }
 
@@ -202,12 +191,8 @@ public class CachingResolver extends SubjectResolverDecorator {
    * @return  Cached set of subjects or null.
    * @since   1.2.1
    */
-  private Set<Subject> getFromFindAllCache(String query, String source) {
-    Element el = this.cc.getCache(CACHE_FINDALL).get( new MultiKey(query, source) );
-    if (el != null) {
-      return (Set<Subject>) el.getObjectValue();
-    }
-    return null;
+  private Set<Subject> getFromFindAllCache(String stemName, String query, String source) {
+    return findAllCache.get( new MultiKey(stemName, query, source) );
   }
 
   /**
@@ -215,13 +200,8 @@ public class CachingResolver extends SubjectResolverDecorator {
    * @return  Cached subject or null.
    * @since   1.2.1
    */
-  private Subject getFromFindByIdentifierCache(String id, String type, String source) {
-    // TODO 20070807 DRY w/ getFromFindCache(String, String, String)
-    Element el = this.cc.getCache(CACHE_FINDBYIDENTIFIER).get( new MultiKey(id, type, source) );
-    if (el != null) {
-      return (Subject) el.getObjectValue();    
-    }
-    return null;
+  private Subject getFromFindByIdentifierCache(String id, String source) {
+    return findByIdentifierCache.get( new MultiKey(id, source) );
   }
 
   /**
@@ -229,13 +209,8 @@ public class CachingResolver extends SubjectResolverDecorator {
    * @return  Cached subject or null.
    * @since   1.2.1
    */
-  private Subject getFromFindCache(String id, String type, String source) {
-    // TODO 20070807 DRY w/ getFromFindByIdentifierCache(String, String, String)
-    Element el = this.cc.getCache(CACHE_FIND).get( new MultiKey(id, type, source) );
-    if (el != null) {
-      return (Subject) el.getObjectValue();    
-    }
-    return null;
+  private Subject getFromFindCache(String id, String source) {
+    return findCache.get(new MultiKey(id, source));
   }
 
   /**
@@ -258,29 +233,11 @@ public class CachingResolver extends SubjectResolverDecorator {
   }
 
   /**
-   * @see     SubjectResolver#getSources(String)
-   * @since   1.2.1
-   */
-  public Set<Source> getSources(String subjectType) 
-    throws  IllegalArgumentException
-  {
-    return super.getDecoratedResolver().getSources(subjectType);
-  }
-
-  /**
-   * @return  ehcache statistics for <i>cache</i>.
-   * @since   1.2.1
-   */
-  public CacheStats getStats(String cache) {
-    return this.cc.getStats(cache);
-  }
-
-  /**
    * Put set of subjects into cache for <code>findAll(...)</code>.
    * @since   1.2.1
    */
-  private void putInFindAllCache(String query, String source, Set<Subject> subjects) {
-    this.cc.getCache(CACHE_FINDALL).put( new Element( new MultiKey(query, source), subjects ) );
+  private void putInFindAllCache(String stemName, String query, String source, Set<Subject> subjects) {
+    findAllCache.put( new MultiKey(stemName, query, source), subjects );
   }
 
   /**
@@ -288,20 +245,11 @@ public class CachingResolver extends SubjectResolverDecorator {
    * @since   1.2.1
    */
   private void putInFindByIdentifierCache(String idfr, Subject subj) {
-    this.cc.getCache(CACHE_FINDBYIDENTIFIER).put( 
-      new Element( 
-        new MultiKey(idfr, null, null), subj  
-      )
+    findByIdentifierCache.put( 
+      new MultiKey(idfr, null), subj  
     );
-    this.cc.getCache(CACHE_FINDBYIDENTIFIER).put( 
-      new Element( 
-        new MultiKey( idfr, subj.getType().getName(), null ), subj
-      )
-    );
-    this.cc.getCache(CACHE_FINDBYIDENTIFIER).put( 
-      new Element(
-        new MultiKey( idfr, subj.getType().getName(), subj.getSource().getId() ), subj
-      )
+    findByIdentifierCache.put( 
+        new MultiKey( idfr, subj.getSource().getId() ), subj
     );
     this.putInFindCache(subj);
   }
@@ -311,22 +259,99 @@ public class CachingResolver extends SubjectResolverDecorator {
    * @since   1.2.1
    */
   private void putInFindCache(Subject subj) {
-    this.cc.getCache(CACHE_FIND).put( 
-      new Element( 
-        new MultiKey( subj.getId(), null, null ), subj  
-      )
+    findCache.put( 
+        new MultiKey( subj.getId(), null), subj  
     );
-    this.cc.getCache(CACHE_FIND).put( 
-      new Element( 
-        new MultiKey( subj.getId(), subj.getType().getName(), null ), subj
-      )
+    findCache.put( 
+        new MultiKey( subj.getId(), subj.getSource().getId() ), subj
     );
-    this.cc.getCache(CACHE_FIND).put( 
-      new Element(
-        new MultiKey( subj.getId(), subj.getType().getName(), subj.getSource().getId() ), subj
-      )
+  }
+
+  /**
+   * Retrieve subject from cache for <code>findByIdentifier(...)</code>.
+   * @return  Cached subject or null.
+   * @since   1.2.1
+   */
+  private Subject getFromFindByIdOrIdentifierCache(String identifier, String source) {
+    return findByIdOrIdentifierCache.get( new MultiKey(identifier, source) );
+  }
+
+  /**
+   * Put subject into cache for <code>findByIdentifier(...)</code>.
+   * @since   1.2.1
+   */
+  private void putInFindByIdOrIdentifierCache(String idfr, Subject subj) {
+    findByIdOrIdentifierCache.put( 
+      new MultiKey(idfr, null), subj  
     );
-    // TODO 20070807 also put in "findByIdentifier(...)" cache?
+    findByIdOrIdentifierCache.put( 
+        new MultiKey( idfr, subj.getSource().getId() ), subj
+    );
+    this.putInFindCache(subj);
+  }
+
+  /**
+   * 
+   */
+  public Subject findByIdOrIdentifier(String id) throws IllegalArgumentException,
+      SubjectNotFoundException, SubjectNotUniqueException {
+    Subject subj = this.getFromFindByIdOrIdentifierCache(id, null);
+    if (subj == null) {
+      subj = super.getDecoratedResolver().findByIdOrIdentifier(id);
+      this.putInFindByIdOrIdentifierCache(id, subj);
+    }
+    return subj;
+  }
+
+  /**
+   * @see SubjectResolver#findByIdOrIdentifier(String, String)
+   */
+  public Subject findByIdOrIdentifier(String id, String source)
+      throws IllegalArgumentException, SourceUnavailableException,
+      SubjectNotFoundException, SubjectNotUniqueException {
+    Subject subj = this.getFromFindByIdOrIdentifierCache(id, source);
+    if (subj == null) {
+      subj = super.getDecoratedResolver().findByIdOrIdentifier(id, source);
+      this.putInFindByIdOrIdentifierCache(id, subj);
+    }
+    return subj;
+  }
+
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.subj.SubjectResolver#findAllInStem(java.lang.String, java.lang.String)
+   */
+  public Set<Subject> findAllInStem(String stemName, String query)
+      throws IllegalArgumentException {
+
+    Map<String, Object> debugMap = LOG.isDebugEnabled() ? new LinkedHashMap<String, Object>() : null;
+    if (LOG.isDebugEnabled()) {
+      debugMap.put("operation", "findAllInStem");
+      debugMap.put("stemName", stemName);
+      debugMap.put("query", query);
+    }
+
+    Set<Subject> subjects = this.getFromFindAllCache(stemName, query, null);
+    
+    //TODO do this caching better... need to clear when group changes???
+    //for now dont cache if finding in stem name
+    if (subjects == null || !StringUtils.isBlank(stemName)) {
+      if (LOG.isDebugEnabled()) {
+        debugMap.put("foundInCache", Boolean.FALSE);
+      }
+      subjects = super.getDecoratedResolver().findAllInStem(stemName, query);
+      this.putInFindAllCache(stemName, query, null, subjects);
+    } else {
+      if (LOG.isDebugEnabled()) {
+        debugMap.put("foundInCache", Boolean.TRUE);
+      }
+
+    }
+    if (LOG.isDebugEnabled()) {
+      debugMap.put("resultSize", GrouperUtil.length(subjects));
+      LOG.debug(GrouperUtil.mapToString(debugMap));
+    }
+    return subjects;
   }
 
 }

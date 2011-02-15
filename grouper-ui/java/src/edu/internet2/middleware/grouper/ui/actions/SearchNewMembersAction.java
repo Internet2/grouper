@@ -39,8 +39,11 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperHelper;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
+import edu.internet2.middleware.grouper.exception.StemNotFoundException;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.Message;
@@ -260,13 +263,34 @@ public class SearchNewMembersAction extends GrouperCapableAction {
 		Boolean searchedPeople = Boolean.FALSE;
 		String targetId = null;
 		//Determine stem or group that is target
-		if(forStem) {
+		if(!forStem) {
 			targetId=(String)searchForm.get("groupId");
 		}else{
 			targetId=(String)searchForm.get("stemId");
 		}
 		if (targetId == null || targetId.length() == 0)
 			targetId = (String) session.getAttribute("findForNode");
+		
+		String stemName = null;
+    Group group = null;
+		if (!forStem) {
+      try {
+        group = GroupFinder.findByUuid(grouperSession, targetId, true);
+      }catch(GroupNotFoundException e) {
+        LOG.error("Error retrieving group with id=" + targetId,e);
+        throw new UnrecoverableErrorException("error.search-new-members.bad-group-id",targetId);
+      }
+      stemName = group.getParentStemName();
+		} else {
+      try {
+        Stem stem = StemFinder.findByUuid(grouperSession, targetId, true);
+        stemName = stem.getName();
+      }catch(StemNotFoundException e) {
+        LOG.error("Error retrieving stem with id=" + targetId,e);
+        throw new UnrecoverableErrorException("error.search-new-members.bad-stem-id",targetId);
+      }
+		  
+		}
 		
 		//Did we search for people?
 		if (!"g:gsa".equals(subjectSource)) {
@@ -281,7 +305,7 @@ public class SearchNewMembersAction extends GrouperCapableAction {
       try {
   			if ((query != null) && (!query.equals(""))) {
   				if("all".equals(subjectSource)) {
-  					results = SubjectFinder.findAll(query);
+  					results = SubjectFinder.findAllInStem(stemName, query);
   				}else{
   					SourceManager sm= SourceManager.getInstance();
   					Source personSourceImpl = sm.getSource(subjectSource);
@@ -289,7 +313,7 @@ public class SearchNewMembersAction extends GrouperCapableAction {
   					ProcessSearchTerm processSearchTerm = new ProcessSearchTerm();
   					String processedSearchTerm = processSearchTerm.processSearchTerm(personSourceImpl, query, request);
   					
-  					results = personSourceImpl.search(processedSearchTerm);
+  					results = SubjectFinder.findAll(processedSearchTerm, GrouperUtil.toSet(personSourceImpl));
   				}
   		  }
       } catch (SubjectTooManyResults stmr) {
@@ -335,26 +359,26 @@ public class SearchNewMembersAction extends GrouperCapableAction {
 		  //will this always be accurate??
 		  if (StringUtils.equals("group", subjectType)) {
 		    Object groupGet = map.get("group");
-		    Group group = groupGet instanceof Group ? (Group)groupGet : null;
-		    if (group == null) {
+		    Group theGroup = groupGet instanceof Group ? (Group)groupGet : null;
+		    if (theGroup == null) {
 	        String subjectId = (String)map.get("subjectId");
 		      try {
-		        group = GroupFinder.findByUuid(grouperSession,subjectId, true);
+		        theGroup = GroupFinder.findByUuid(grouperSession,subjectId, true);
 		      } catch (Exception e) {
 		        //this is probably ok, just cant find it
 		        LOG.debug("Cant find group: " + subjectId, e);
 		      }
 		    }
-	      if (group != null) {
+	      if (theGroup != null) {
 	        
 	        try {
-	          PrivilegeHelper.dispatch( grouperSession, group, 
+	          PrivilegeHelper.dispatch( grouperSession, theGroup, 
 	              grouperSession.getSubject(), Group.getDefaultList().getReadPriv() );
 	        } catch (Exception e) {
             //this is probably ok, just not allowed
 	          if (LOG.isDebugEnabled()) {
               LOG.debug("Not allowed to read: " 
-                + GrouperUtil.subjectToString(grouperSession.getSubject()) + ", " + group.getName(), e);
+                + GrouperUtil.subjectToString(grouperSession.getSubject()) + ", " + theGroup.getName(), e);
 	          }
 	          iterator.remove();
 	        }
@@ -365,13 +389,6 @@ public class SearchNewMembersAction extends GrouperCapableAction {
 		  }
 		}
 		if(!forStem) {
-			Group group = null;
-			try {
-				group = GroupFinder.findByUuid(grouperSession, targetId, true);
-			}catch(GroupNotFoundException e) {
-				LOG.error("Error retrieving group with id=" + targetId,e);
-				throw new UnrecoverableErrorException("error.search-new-members.bad-group-id",targetId);
-			}
 			 UIGroupPrivilegeResolver resolver = 
 					UIGroupPrivilegeResolverFactory.getInstance(grouperSession, 
 					    GrouperUiFilter.retrieveSessionMediaResourceBundle(), 

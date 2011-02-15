@@ -24,7 +24,7 @@
 	<classpathentry kind="lib" path="lib/xstream/commons-lang.jar"/>
 	<classpathentry kind="lib" path="lib/xstream/dom4j.jar"/>
 	<classpathentry kind="lib" path="lib/xstream/jakarta-oro.jar"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/grouper_trunk"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/grouper-ws_trunk"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/grouper_v1_7"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/grouper-ws_v1_7"/>
 	<classpathentry kind="output" path="build/eclipseBin"/>
 </classpath>

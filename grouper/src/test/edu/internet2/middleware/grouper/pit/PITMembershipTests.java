@@ -76,7 +76,7 @@ public class PITMembershipTests extends GrouperTest {
   public void testImmediateMemberships() {
     
     // clear change log
-    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryTemp").executeUpdate();
+    ChangeLogTempToEntity.convertRecords();
     HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryEntity").executeUpdate();
     
     Group group1 = edu.addChildGroup("group1", "group1");    
@@ -197,7 +197,7 @@ public class PITMembershipTests extends GrouperTest {
   public void testImmediateAccessPrivileges() {
     
     // clear change log
-    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryTemp").executeUpdate();
+    ChangeLogTempToEntity.convertRecords();
     HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryEntity").executeUpdate();
     
     Group group1 = edu.addChildGroup("group1", "group1");    
@@ -326,7 +326,7 @@ public class PITMembershipTests extends GrouperTest {
   public void testImmediateNamingPrivileges() {
     
     // clear change log
-    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryTemp").executeUpdate();
+    ChangeLogTempToEntity.convertRecords();
     HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryEntity").executeUpdate();
     
     Stem stem1 = edu.addChildStem("stem1", "stem1");    
@@ -455,7 +455,7 @@ public class PITMembershipTests extends GrouperTest {
   public void testImmediateAttributeDefPrivileges() {
     
     // clear change log
-    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryTemp").executeUpdate();
+    ChangeLogTempToEntity.convertRecords();
     HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryEntity").executeUpdate();
     
     AttributeDef attrDef1 = edu.addChildAttributeDef("attrDef1", AttributeDefType.perm);    
@@ -585,7 +585,7 @@ public class PITMembershipTests extends GrouperTest {
   public void testEffectiveMemberships() {
     
     // clear change log
-    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryTemp").executeUpdate();
+    ChangeLogTempToEntity.convertRecords();
     HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryEntity").executeUpdate();
     
     Group group1 = edu.addChildGroup("group1", "group1");    
@@ -717,7 +717,7 @@ public class PITMembershipTests extends GrouperTest {
   public void testEffectiveAccessPrivileges() {
     
     // clear change log
-    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryTemp").executeUpdate();
+    ChangeLogTempToEntity.convertRecords();
     HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryEntity").executeUpdate();
     
     Group group0 = edu.addChildGroup("group0", "group0");    
@@ -873,7 +873,7 @@ public class PITMembershipTests extends GrouperTest {
   public void testEffectiveNamingPrivileges() {
     
     // clear change log
-    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryTemp").executeUpdate();
+    ChangeLogTempToEntity.convertRecords();
     HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryEntity").executeUpdate();
     
     Stem stem1 = edu.addChildStem("stem1", "stem1");
@@ -1029,7 +1029,7 @@ public class PITMembershipTests extends GrouperTest {
   public void testEffectiveAttributeDefPrivileges() {
     
     // clear change log
-    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryTemp").executeUpdate();
+    ChangeLogTempToEntity.convertRecords();
     HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryEntity").executeUpdate();
     
     AttributeDef attrDef1 = edu.addChildAttributeDef("attrDef1", AttributeDefType.perm);
@@ -1186,7 +1186,7 @@ public class PITMembershipTests extends GrouperTest {
   public void testCompositeMemberships() {
     
     // clear change log
-    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryTemp").executeUpdate();
+    ChangeLogTempToEntity.convertRecords();
     HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryEntity").executeUpdate();
     
     Group group1 = edu.addChildGroup("group1", "group1");    
@@ -1311,7 +1311,7 @@ public class PITMembershipTests extends GrouperTest {
   public void testOtherDateOptions() {
     
     // clear change log
-    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryTemp").executeUpdate();
+    ChangeLogTempToEntity.convertRecords();
     HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryEntity").executeUpdate();
     
     Group group1 = edu.addChildGroup("group1", "group1");    
@@ -1407,7 +1407,7 @@ public class PITMembershipTests extends GrouperTest {
   public void testGroupTypeAssignmentDelete() {
     
     // clear change log
-    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryTemp").executeUpdate();
+    ChangeLogTempToEntity.convertRecords();
     HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryEntity").executeUpdate();
     
     GroupType groupType = GroupType.createType(grouperSession, "testType");
@@ -1529,7 +1529,7 @@ public class PITMembershipTests extends GrouperTest {
   public void testFieldDelete() {
     
     // clear change log
-    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryTemp").executeUpdate();
+    ChangeLogTempToEntity.convertRecords();
     HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryEntity").executeUpdate();
     
     GroupType groupType = GroupType.createType(grouperSession, "testType");

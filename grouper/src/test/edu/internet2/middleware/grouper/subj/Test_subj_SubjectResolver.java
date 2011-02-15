@@ -67,8 +67,9 @@ public class Test_subj_SubjectResolver extends GrouperTest {
   }
 
 
-  public void test_find_SubjectIdAndType_nullId() 
-    throws  SubjectNotFoundException,
+  public void test_find_SubjectIdAndSource_nullId() 
+    throws  SourceUnavailableException,
+            SubjectNotFoundException,
             SubjectNotUniqueException
   {
     try {
@@ -80,55 +81,13 @@ public class Test_subj_SubjectResolver extends GrouperTest {
     }
   }
 
-  public void test_find_SubjectIdAndType_nullType() 
-    throws  SubjectNotFoundException,
+  public void test_find_SubjectIdAndSource_nullSource() 
+    throws  SourceUnavailableException,
+            SubjectNotFoundException,
             SubjectNotUniqueException
   {
     try {
       this.resolver.find("GrouperSystem", null);
-      fail("failed to throw IllegalArgumentException");
-    }
-    catch (IllegalArgumentException eExpected) {
-      assertTrue("threw expected exception", true);
-    }
-  }
-
-
-  public void test_find_SubjectIdAndTypeAndSource_nullId() 
-    throws  SourceUnavailableException,
-            SubjectNotFoundException,
-            SubjectNotUniqueException
-  {
-    try {
-      this.resolver.find(null, null, null);
-      fail("failed to throw IllegalArgumentException");
-    }
-    catch (IllegalArgumentException eExpected) {
-      assertTrue("threw expected exception", true);
-    }
-  }
-
-  public void test_find_SubjectIdAndTypeAndSource_nullType() 
-    throws  SourceUnavailableException,
-            SubjectNotFoundException,
-            SubjectNotUniqueException
-  {
-    try {
-      this.resolver.find("GrouperSystem", null, null);
-      fail("failed to throw IllegalArgumentException");
-    }
-    catch (IllegalArgumentException eExpected) {
-      assertTrue("threw expected exception", true);
-    }
-  }
-
-  public void test_find_SubjectIdAndTypeAndSource_nullSource() 
-    throws  SourceUnavailableException,
-            SubjectNotFoundException,
-            SubjectNotUniqueException
-  {
-    try {
-      this.resolver.find("GrouperSystem", "application", null);
       fail("failed to throw IllegalArgumentException");
     }
     catch (IllegalArgumentException eExpected) {
@@ -186,9 +145,9 @@ public class Test_subj_SubjectResolver extends GrouperTest {
     }
   }
 
-
-  public void test_findByIdentifier_SubjectIdAndType_nullId() 
-    throws  SubjectNotFoundException,
+  public void test_findByIdentifier_SubjectIdAndSource_nullId() 
+    throws  SourceUnavailableException,
+            SubjectNotFoundException,
             SubjectNotUniqueException
   {
     try {
@@ -200,55 +159,13 @@ public class Test_subj_SubjectResolver extends GrouperTest {
     }
   }
 
-  public void test_findByIdentifier_SubjectIdAndType_nullType() 
-    throws  SubjectNotFoundException,
+  public void test_findByIdentifier_SubjectIdAndSource_nullSource() 
+    throws  SourceUnavailableException,
+            SubjectNotFoundException,
             SubjectNotUniqueException
   {
     try {
       this.resolver.findByIdentifier("GrouperSystem", null);
-      fail("failed to throw IllegalArgumentException");
-    }
-    catch (IllegalArgumentException eExpected) {
-      assertTrue("threw expected exception", true);
-    }
-  }
-
-
-  public void test_findByIdentifier_SubjectIdAndTypeAndSource_nullId() 
-    throws  SourceUnavailableException,
-            SubjectNotFoundException,
-            SubjectNotUniqueException
-  {
-    try {
-      this.resolver.findByIdentifier(null, null, null);
-      fail("failed to throw IllegalArgumentException");
-    }
-    catch (IllegalArgumentException eExpected) {
-      assertTrue("threw expected exception", true);
-    }
-  }
-
-  public void test_findByIdentifier_SubjectIdAndTypeAndSource_nullType() 
-    throws  SourceUnavailableException,
-            SubjectNotFoundException,
-            SubjectNotUniqueException
-  {
-    try {
-      this.resolver.findByIdentifier("GrouperSystem", null, null);
-      fail("failed to throw IllegalArgumentException");
-    }
-    catch (IllegalArgumentException eExpected) {
-      assertTrue("threw expected exception", true);
-    }
-  }
-
-  public void test_findByIdentifier_SubjectIdAndTypeAndSource_nullSource() 
-    throws  SourceUnavailableException,
-            SubjectNotFoundException,
-            SubjectNotUniqueException
-  {
-    try {
-      this.resolver.findByIdentifier("GrouperSystem", "application", null);
       fail("failed to throw IllegalArgumentException");
     }
     catch (IllegalArgumentException eExpected) {
@@ -297,54 +214,5 @@ public class Test_subj_SubjectResolver extends GrouperTest {
   }
  
  
-  public void test_getSources_Type_nullType() {
-    try {
-      this.resolver.getSources(null);
-      fail("failed to throw IllegalArgumentException");
-    }
-    catch (IllegalArgumentException eExpected) {
-      assertTrue("threw expected exception", true);
-    }
-  }
-
-  public void test_getSources_Type_invalidType() {
-    try {
-      this.resolver.getSources("invalid type").size();
-      fail("failed to throw IllegalArgumentException");
-    }
-    catch (IllegalArgumentException eExpected) {
-      assertTrue("threw expected exception", true);
-    }
-  }
-  
-  public void test_getSources_Type_applicationType() {
-    assertEquals( 1, this.resolver.getSources("application").size() );
-  }
-  
-  public void test_getSources_Type_groupType() {
-    assertEquals( 1, this.resolver.getSources("group").size() );
-  }
-  
-  public void test_getSources_Type_personType() {
-    assertTrue( 1 <= this.resolver.getSources("person").size() );
-  }
-
-/*
-  public void testFindGrouperAllByIdentifier() {
-    LOG.info("testFindGrouperAllByIdentifier");
-    try {
-      Subject subj = SubjectFinder.findByIdentifier(GrouperConfig.ALL);
-      Assert.assertNotNull("subj !null", subj);
-      Assert.assertTrue("subj instanceof Subject", subj instanceof Subject);
-      T.string("subj id"      , GrouperConfig.ALL       , subj.getId()              );
-      T.string("subj type"    , GrouperConfig.IST       , subj.getType().getName()  );
-      T.string("subj source"  , InternalSourceAdapter.ID, subj.getSource().getId()  );
-    }
-    catch (Exception e) {
-      T.e(e);
-    }
-  } // public void testFindGrouperAllByIdentifier()
-*/
-  
 }
 

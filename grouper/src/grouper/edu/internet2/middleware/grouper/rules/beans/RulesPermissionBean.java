@@ -4,10 +4,13 @@
  */
 package edu.internet2.middleware.grouper.rules.beans;
 
+import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.permissions.role.Role;
 
 
@@ -63,6 +66,8 @@ public class RulesPermissionBean extends RulesBean {
   /** action */
   private String action;
   
+  /** stem */
+  private Stem stem;
   
   /**
    * member
@@ -185,7 +190,16 @@ public class RulesPermissionBean extends RulesBean {
   public String getMemberId() {
     return this.member == null ? null : this.member.getUuid();
   }
-  
+
+  /**
+   * subject source id
+   * @return the subject
+   */
+  @Override
+  public String getSubjectSourceId() {
+    return this.member == null ? null : this.member.getSubjectSourceId();
+  }
+
   /**
    * @see java.lang.Object#toString()
    */
@@ -214,5 +228,20 @@ public class RulesPermissionBean extends RulesBean {
     return result.toString();
   }
   
+  /**
+   * @see edu.internet2.middleware.grouper.rules.beans.RulesBean#getStem()
+   */
+  @Override
+  public Stem getStem() {
+    if (this.stem == null) {
+      AttributeDefName theAttributeDefName = this.getAttributeDefName();
+      String stemId = theAttributeDefName == null ? null : theAttributeDefName.getStemId();
+      this.stem = stemId == null ? null 
+          : GrouperDAOFactory.getFactory().getStem().findByUuid(stemId, true) ;
+    }
+    return this.stem;
+  }
+  
+
 
 }

@@ -284,5 +284,29 @@ public abstract class Hib3DAO {
 		return FACTORY.openSession();
 	} 
 
+	/**
+	 * evict a persistent class
+	 * @param persistentClass
+	 */
+	public static void evict(Class persistentClass) {
+	  FACTORY.evict(persistentClass);
+	}
+	
+  /**
+   * evict a persistent class
+   * @param entityName
+   */
+  public static void evictEntity(String entityName) {
+    FACTORY.evictEntity(entityName);
+  }
+  
+  /**
+   * evict a persistent class
+   * @param cacheRegion
+   */
+  public static void evictQueries(String cacheRegion) {
+    FACTORY.evictQueries(cacheRegion);
+  }
+  
 } 
 

@@ -7,6 +7,7 @@ import org.apache.commons.lang.StringUtils;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.grouperUi.beans.externalSubjectSelfRegister.ExternalRegisterContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.AppState;
@@ -171,5 +172,22 @@ public class InviteExternalSubjectsContainer {
     return theDefaultGroup == null ? null : theDefaultGroup.getUuid();
   }
   
+  /**
+   * 
+   * @return default email subject for form
+   */
+  public String getDefaultEmailSubject() {
+    return GrouperConfig.getProperty("externalSubjectsInviteDefaultEmailSubject");
+  }
+
+  /**
+   * 
+   * @return default email message for form
+   */
+  public String getDefaultEmailMessage() {
+    String email = StringUtils.defaultString(GrouperConfig.getProperty("externalSubjectsInviteDefaultEmail"));
+    email = StringUtils.replace(email, "$newline$", "\n");
+    return email;
+  }
 
 }

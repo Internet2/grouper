@@ -59,7 +59,11 @@ public class GrouperSessionWrapper implements HttpSession {
       return SessionInitialiser.retrieveMapBundleWrapper(resourceBundleKey, false, true);
     }
 
-    return this.httpSession.getAttribute(attributeName);
+    Object object = this.httpSession.getAttribute(attributeName);
+    if (object != null) {
+//      System.out.println(attributeName + ": " + GrouperUtil.className(object));
+    }
+    return object;
   }
 
   /**

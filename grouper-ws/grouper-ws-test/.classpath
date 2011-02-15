@@ -2,7 +2,7 @@
 <classpath>
 	<classpathentry kind="src" path="src/test"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/grouper-ws_trunk"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/grouper-ws-java-generated-client_trunk"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/grouper-ws_v1_7"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/grouper-ws-java-generated-client_v1_7"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

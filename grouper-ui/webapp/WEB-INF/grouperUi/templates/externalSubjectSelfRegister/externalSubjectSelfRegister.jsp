@@ -46,7 +46,7 @@
 	        <tr>
 	          <td colspan="2" style="text-align: right">
 	            <div class="buttonRow">
-	              <c:if test="${!externalRegisterContainer.insert}">
+	              <c:if test="${externalRegisterContainer.showDeleteButton}">
 	                <input class="redButton" type="submit" 
 	                  onclick="if(confirm('${grouper:escapeJavascript(navMap['inviteExternalSubjects.confirmDelete'])}')) {ajax('ExternalSubjectSelfRegister.delete', {formIds: 'selfRegisterFormId'});} return false;" 
 	                  value="${navMap['externalSubjectSelfRegister.deleteRecordButtonText']}" 

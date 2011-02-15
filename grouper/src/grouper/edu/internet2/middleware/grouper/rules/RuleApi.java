@@ -83,6 +83,88 @@ public class RuleApi {
   }
   
   /**
+   * add a rule on a stem saying that all subject use in the folder must be in a certain group.
+   * note, the first rule found will be used
+   * @param actAs
+   * @param ruleStem
+   * @param mustBeInGroup if blank and not allowAll, then restrict all
+   * @param allowAll if mustBeIn is blank and allowAll, then allow all (to override a restriction in ancestor folders)
+   * @param sourceId optional (recommended), to constraint this to subjects from certain sources
+   * @param stemScope 
+   * @param vetoKey
+   * @param vetoMessage
+   * @return the assignment in case there are edits
+   */
+  public static AttributeAssign vetoSubjectAssignInFolderIfNotInGroup(Subject actAs, Stem ruleStem, 
+      Group mustBeInGroup, boolean allowAll, String sourceId, Stem.Scope stemScope, String vetoKey, String vetoMessage) {
+    
+    if (allowAll && mustBeInGroup != null) {
+      throw new RuntimeException("If allowAll, then mustBeInGroup must be false");
+    }
+    
+    //add a rule on stem:a saying if not in a group, then dont allow add member, permission, privilege etc
+    AttributeAssign attributeAssign = ruleStem
+      .getAttributeDelegate().addAttribute(RuleUtils.ruleAttributeDefName()).getAttributeAssign();
+    
+    AttributeValueDelegate attributeValueDelegate = attributeAssign.getAttributeValueDelegate();
+  
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleActAsSubjectSourceIdName(), actAs.getSourceId());
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleActAsSubjectIdName(), actAs.getId());
+  
+    //subject use means membership add, privilege assign, permission assign, etc.
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleCheckTypeName(), RuleCheckType.subjectAssignInStem.name());
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleCheckStemScopeName(), stemScope != null ? stemScope.name() : Stem.Scope.SUB.name());
+    
+    //this is optional to restrict to source.  I think you will want to do that, or you
+    //would need to have all the usable groups in the allowed group...
+    if (!StringUtils.isBlank(sourceId)) {
+      attributeValueDelegate.assignValue(
+          RuleUtils.ruleCheckArg0Name(), sourceId);
+    }  
+    
+    //if not allow all, and not must be in group, then leave blank if condition
+    if (allowAll) {
+      
+      attributeValueDelegate.assignValue(
+          RuleUtils.ruleIfConditionEnumName(), RuleIfConditionEnum.never.name());
+
+    } else if (mustBeInGroup != null) {
+      
+      attributeValueDelegate.assignValue(
+          RuleUtils.ruleIfConditionEnumName(), RuleIfConditionEnum.groupHasNoEnabledMembership.name());
+      attributeValueDelegate.assignValue(
+          RuleUtils.ruleIfOwnerIdName(), mustBeInGroup.getId());
+      
+    }
+
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleThenEnumName(), RuleThenEnum.veto.name());
+
+    //key which would be used in UI messages file if applicable
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleThenEnumArg0Name(), vetoKey);
+    
+    //error message (if key in UI messages file not there)
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleThenEnumArg1Name(), vetoMessage);
+  
+    //should be valid
+    String isValidString = attributeValueDelegate.retrieveValueString(
+        RuleUtils.ruleValidName());
+  
+    if (!StringUtils.equals("T", isValidString)) {
+      throw new RuntimeException(isValidString);
+    }
+  
+    return attributeAssign;
+    
+  }
+  
+  /**
    * 
    * @param actAs
    * @param ruleGroup

@@ -17,6 +17,7 @@ import org.apache.commons.lang.StringUtils;
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GroupTypeTuple;
 import edu.internet2.middleware.grouper.GrouperSession;
@@ -25,6 +26,7 @@ import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.MembershipFinder;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
@@ -77,8 +79,8 @@ public class ChangeLogTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    //TestRunner.run(new ChangeLogTest("testMemberships"));
-    TestRunner.run(ChangeLogTest.class);
+    TestRunner.run(new ChangeLogTest("testGroups"));
+    //TestRunner.run(ChangeLogTest.class);
   }
   
   /**
@@ -3505,7 +3507,7 @@ public class ChangeLogTest extends GrouperTest {
    * @throws Exception
    */
   public void testAttributeDefs() throws Exception {
-    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryTemp").executeUpdate();
+    ChangeLogTempToEntity.convertRecords();
     HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryEntity").executeUpdate();
 
     //add attr def
@@ -3581,6 +3583,7 @@ public class ChangeLogTest extends GrouperTest {
     PITAttributeDef pitAttributeDef = GrouperDAOFactory.getFactory().getPITAttributeDef().findById(resourcesDef.getId());
     assertNotNull(pitAttributeDef);
     assertEquals(resourcesDef.getName(), pitAttributeDef.getName());
+    assertEquals(resourcesDef.getStemId(), pitAttributeDef.getStemId());
     assertEquals(resourcesDef.getContextId(), pitAttributeDef.getContextId());
     
     Iterator<Field> allFields = FieldFinder.findAll().iterator();
@@ -4243,6 +4246,7 @@ public class ChangeLogTest extends GrouperTest {
     PITGroup pitGroup = GrouperDAOFactory.getFactory().getPITGroup().findById(group.getId());
     assertNotNull(pitGroup);
     assertEquals(group.getName(), pitGroup.getName());
+    assertEquals(group.getParentUuid(), pitGroup.getStemId());
     assertEquals(group.getContextId(), pitGroup.getContextId());
     
     Iterator<Field> allFields = FieldFinder.findAll().iterator();
@@ -4381,6 +4385,24 @@ public class ChangeLogTest extends GrouperTest {
     assertNotNull(pitGroup2);
     assertEquals(group2.getName(), pitGroup2.getName());
     assertEquals(group2.getContextId(), pitGroup2.getContextId());
+    
+    
+    //##################################
+    // try updating the stem id
+    
+    Stem stem1 = edu.addChildStem("stem1", "stem1");
+    Stem stem2 = edu.addChildStem("stem2", "stem2");
+    Group groupToMove = stem1.addChildGroup("groupToMove", "groupToMove");
+    ChangeLogTempToEntity.convertRecords();
+
+    groupToMove.move(stem2);
+    ChangeLogTempToEntity.convertRecords();
+    
+    PITGroup pitGroupToMove = GrouperDAOFactory.getFactory().getPITGroup().findById(groupToMove.getId());
+    assertNotNull(pitGroupToMove);
+    assertEquals(groupToMove.getParentUuid(), pitGroupToMove.getStemId());
+    assertEquals(groupToMove.getContextId(), pitGroupToMove.getContextId());
+
 
     //##################################
     // try adding and deleting before change log daemon runs
@@ -4401,15 +4423,15 @@ public class ChangeLogTest extends GrouperTest {
    */
   public void testStems() throws Exception {
   
-    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryTemp").executeUpdate();
-    
+    ChangeLogTempToEntity.convertRecords();
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryEntity").executeUpdate();
+
     int changeLogTempCount = HibernateSession.bySqlStatic().select(int.class, 
         "select count(1) from grouper_change_log_entry_temp");
     int changeLogCount = HibernateSession.bySqlStatic().select(int.class, 
       "select count(1) from grouper_change_log_entry");
     
     //add a stem
-    @SuppressWarnings("unused")
     GrouperSession grouperSession = SessionHelper.getRootSession();
     Stem stem = this.edu.addChildStem("test1", "test1");
     
@@ -4483,6 +4505,7 @@ public class ChangeLogTest extends GrouperTest {
     PITStem pitStem = GrouperDAOFactory.getFactory().getPITStem().findById(stem.getUuid());
     assertNotNull(pitStem);
     assertEquals(stem.getName(), pitStem.getName());
+    assertEquals(stem.getParentUuid(), pitStem.getParentStemId());
     assertEquals(stem.getContextId(), pitStem.getContextId());
     
     Iterator<Field> allFields = FieldFinder.findAll().iterator();
@@ -4619,7 +4642,7 @@ public class ChangeLogTest extends GrouperTest {
     assertNotNull(pitStem2);
     assertEquals(stem2.getName(), pitStem2.getName());
     assertEquals(stem2.getContextId(), pitStem2.getContextId());
-
+    
     //##################################
     // try adding and deleting before change log daemon runs
     
@@ -4631,6 +4654,37 @@ public class ChangeLogTest extends GrouperTest {
     PITStem pitStem3 = GrouperDAOFactory.getFactory().getPITStem().findById(stem3.getUuid());
     assertNotNull(pitStem3);
     assertEquals("edu:stem3a", pitStem3.getName());
+    
+    //##################################
+    // try updating the parent stem id
+    
+    Stem stem4 = edu.addChildStem("stem4", "stem4");
+    Stem stem5 = edu.addChildStem("stem5", "stem5");
+    Group group1 = stem4.addChildGroup("group1", "group1");
+    ChangeLogTempToEntity.convertRecords();
+
+    stem4.move(stem5);
+    ChangeLogTempToEntity.convertRecords();
+    
+    PITGroup pitGroup1 = GrouperDAOFactory.getFactory().getPITGroup().findById(group1.getId());
+    PITStem pitStem4 = GrouperDAOFactory.getFactory().getPITStem().findById(stem4.getUuid());
+    PITStem pitStem5 = GrouperDAOFactory.getFactory().getPITStem().findById(stem5.getUuid());
+    
+    stem4 = StemFinder.findByName(grouperSession, stem4.getName(), true);
+    stem5 = StemFinder.findByName(grouperSession, stem5.getName(), true);
+    group1 = GroupFinder.findByName(grouperSession, group1.getName(), true);
+    
+    assertNotNull(pitGroup1);
+    assertEquals(group1.getParentUuid(), pitGroup1.getStemId());
+    assertEquals(group1.getContextId(), pitGroup1.getContextId());
+    
+    assertNotNull(pitStem4);
+    assertEquals(stem4.getParentUuid(), pitStem4.getParentStemId());
+    assertEquals(stem4.getContextId(), pitStem4.getContextId());
+    
+    assertNotNull(pitStem5);
+    assertEquals(stem5.getParentUuid(), pitStem5.getParentStemId());
+    assertEquals(stem5.getContextId(), pitStem5.getContextId());
   }
 
   /**

@@ -1403,6 +1403,23 @@ public class AttributeDef extends GrouperAPI implements GrouperHasContext,
     existingRecord.setValueType(this.valueType);
   }
 
+  /**
+   * Get parent stem.
+   * <pre class="eg">
+   * Stem parent = g.getParentStem();
+   * </pre>
+   * @return  Parent {@link Stem}.
+   * @throws IllegalStateException 
+   */
+  public Stem getParentStem() {
+    String uuid = this.getStemId();
+    if (uuid == null) {
+      throw new IllegalStateException("attributeDef has no parent stem");
+    }
+    Stem parent = GrouperDAOFactory.getFactory().getStem().findByUuid(uuid, true) ;
+    return parent;
+  }
+
 
   /**
    * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlDifferentBusinessProperties(java.lang.Object)

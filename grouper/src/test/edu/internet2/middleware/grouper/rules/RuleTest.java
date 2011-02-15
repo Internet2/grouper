@@ -80,7 +80,7 @@ public class RuleTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new RuleTest("testRuleLonghandStemScopeSubCreateAttributeDefAsGrouperSystem"));
+    TestRunner.run(new RuleTest("testRuleLonghandVetoInFolderPermission"));
     //TestRunner.run(RuleTest.class);
   }
 
@@ -4052,5 +4052,452 @@ public class RuleTest extends GrouperTest {
     assertEquals(initialFirings+1, RuleEngine.ruleFirings);
   
     
+  }
+
+  /**
+   * 
+   */
+  public void testRuleLonghandVetoInFolder() {
+    
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    Group allowedGroup = new GroupSave(grouperSession).assignName("stem:allowed").assignCreateParentStemsIfNotExist(true).save();
+    Group restrictedGroup = new GroupSave(grouperSession).assignName("stem2:restricted").assignCreateParentStemsIfNotExist(true).save();
+    Group employeeGroup = new GroupSave(grouperSession).assignName("etc:employee").assignCreateParentStemsIfNotExist(true).save();
+    
+    Stem restrictedStem = StemFinder.findByName(grouperSession, "stem2", true);
+    
+    //add a rule on stem:a saying if not in stem:b, then dont allow add to stem:a
+    AttributeAssign attributeAssign = restrictedStem
+      .getAttributeDelegate().addAttribute(RuleUtils.ruleAttributeDefName()).getAttributeAssign();
+    
+    AttributeValueDelegate attributeValueDelegate = attributeAssign.getAttributeValueDelegate();
+  
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleActAsSubjectSourceIdName(), "g:isa");
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleActAsSubjectIdName(), "GrouperSystem");
+
+    //subject use means membership add, privilege assign, permission assign, etc.
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleCheckTypeName(), RuleCheckType.subjectAssignInStem.name());
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleCheckStemScopeName(), "SUB");
+    
+    //this is optional to restrict to source.  I think you will want to do that, or you
+    //would need to have all the usable groups in the allowed group...
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleCheckArg0Name(), "jdbc");
+
+    
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleIfConditionEnumName(), RuleIfConditionEnum.groupHasNoEnabledMembership.name());
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleIfOwnerNameName(), employeeGroup.getName());
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleThenEnumName(), RuleThenEnum.veto.name());
+    
+    //key which would be used in UI messages file if applicable
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleThenEnumArg0Name(), "rule.entity.must.be.a.member.of.etc.employee");
+    
+    //error message (if key in UI messages file not there)
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleThenEnumArg1Name(), "Entity cannot be assigned if not a member of etc:employee");
+  
+    //should be valid
+    String isValidString = attributeValueDelegate.retrieveValueString(
+        RuleUtils.ruleValidName());
+  
+    if (!StringUtils.equals("T", isValidString)) {
+      throw new RuntimeException(isValidString);
+    }
+  
+    //count rule firings
+    long initialFirings = RuleEngine.ruleFirings;
+    
+    try {
+      restrictedGroup.addMember(SubjectTestHelper.SUBJ0);
+      fail("Should be vetoed");
+    } catch (RuleVeto rve) {
+      //this is good
+      String stack = ExceptionUtils.getFullStackTrace(rve);
+      assertTrue(stack, stack.contains("Entity cannot be assigned if not a member of etc:employee"));
+    }
+  
+    assertEquals(initialFirings+1, RuleEngine.ruleFirings);
+    
+    allowedGroup.addMember(SubjectTestHelper.SUBJ0);
+
+    //this doesnt actually fire
+    assertEquals(initialFirings+1, RuleEngine.ruleFirings);
+    
+    employeeGroup.addMember(SubjectTestHelper.SUBJ0);
+    restrictedGroup.addMember(SubjectTestHelper.SUBJ0);
+    
+    assertEquals("Didnt fire since is a member", initialFirings+1, RuleEngine.ruleFirings);
+  
+  }
+
+  /**
+   * 
+   */
+  public void testRuleLonghandVetoInFolderStemPrivilege() {
+  
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    new GroupSave(grouperSession).assignName("stem:allowed").assignCreateParentStemsIfNotExist(true).save();
+    new GroupSave(grouperSession).assignName("stem2:restricted").assignCreateParentStemsIfNotExist(true).save();
+    Group employeeGroup = new GroupSave(grouperSession).assignName("etc:employee").assignCreateParentStemsIfNotExist(true).save();
+    
+    Stem restrictedStem = StemFinder.findByName(grouperSession, "stem2", true);
+    Stem allowedStem = StemFinder.findByName(grouperSession, "stem", true);
+    
+    //add a rule on stem:a saying if not in stem:b, then dont allow add to stem:a
+    AttributeAssign attributeAssign = restrictedStem
+      .getAttributeDelegate().addAttribute(RuleUtils.ruleAttributeDefName()).getAttributeAssign();
+    
+    AttributeValueDelegate attributeValueDelegate = attributeAssign.getAttributeValueDelegate();
+  
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleActAsSubjectSourceIdName(), "g:isa");
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleActAsSubjectIdName(), "GrouperSystem");
+  
+    //subject use means membership add, privilege assign, permission assign, etc.
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleCheckTypeName(), RuleCheckType.subjectAssignInStem.name());
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleCheckStemScopeName(), "SUB");
+    
+    //this is optional to restrict to source.  I think you will want to do that, or you
+    //would need to have all the usable groups in the allowed group...
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleCheckArg0Name(), "jdbc");
+  
+    
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleIfConditionEnumName(), RuleIfConditionEnum.groupHasNoEnabledMembership.name());
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleIfOwnerNameName(), employeeGroup.getName());
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleThenEnumName(), RuleThenEnum.veto.name());
+    
+    //key which would be used in UI messages file if applicable
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleThenEnumArg0Name(), "rule.entity.must.be.a.member.of.etc.employee");
+    
+    //error message (if key in UI messages file not there)
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleThenEnumArg1Name(), "Entity cannot be assigned if not a member of etc:employee");
+  
+    //should be valid
+    String isValidString = attributeValueDelegate.retrieveValueString(
+        RuleUtils.ruleValidName());
+  
+    if (!StringUtils.equals("T", isValidString)) {
+      throw new RuntimeException(isValidString);
+    }
+  
+    //count rule firings
+    long initialFirings = RuleEngine.ruleFirings;
+    
+    try {
+      restrictedStem.grantPriv(SubjectTestHelper.SUBJ0, NamingPrivilege.CREATE);
+      fail("Should be vetoed");
+    } catch (RuleVeto rve) {
+      //this is good
+      String stack = ExceptionUtils.getFullStackTrace(rve);
+      assertTrue(stack, stack.contains("Entity cannot be assigned if not a member of etc:employee"));
+    }
+
+    assertEquals(initialFirings+1, RuleEngine.ruleFirings);
+
+    allowedStem.grantPriv(SubjectTestHelper.SUBJ0, NamingPrivilege.CREATE);
+
+    //this doesnt actually fire
+    assertEquals(initialFirings+1, RuleEngine.ruleFirings);
+
+    employeeGroup.addMember(SubjectTestHelper.SUBJ0);
+    restrictedStem.grantPriv(SubjectTestHelper.SUBJ0, NamingPrivilege.CREATE);
+    
+    assertEquals("Didnt fire since is a member", initialFirings+1, RuleEngine.ruleFirings);
+  
+  }
+
+  /**
+   * 
+   */
+  public void testRuleLonghandVetoInFolderGroupPrivilege() {
+  
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    Group allowedGroup = new GroupSave(grouperSession).assignName("stem:allowed").assignCreateParentStemsIfNotExist(true).save();
+    Group restrictedGroup = new GroupSave(grouperSession).assignName("stem2:restricted").assignCreateParentStemsIfNotExist(true).save();
+    Group employeeGroup = new GroupSave(grouperSession).assignName("etc:employee").assignCreateParentStemsIfNotExist(true).save();
+    
+    Stem restrictedStem = StemFinder.findByName(grouperSession, "stem2", true);
+    
+    //add a rule on stem:a saying if not in stem:b, then dont allow add to stem:a
+    AttributeAssign attributeAssign = restrictedStem
+      .getAttributeDelegate().addAttribute(RuleUtils.ruleAttributeDefName()).getAttributeAssign();
+    
+    AttributeValueDelegate attributeValueDelegate = attributeAssign.getAttributeValueDelegate();
+  
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleActAsSubjectSourceIdName(), "g:isa");
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleActAsSubjectIdName(), "GrouperSystem");
+  
+    //subject use means membership add, privilege assign, permission assign, etc.
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleCheckTypeName(), RuleCheckType.subjectAssignInStem.name());
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleCheckStemScopeName(), "SUB");
+    
+    //this is optional to restrict to source.  I think you will want to do that, or you
+    //would need to have all the usable groups in the allowed group...
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleCheckArg0Name(), "jdbc");
+  
+    
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleIfConditionEnumName(), RuleIfConditionEnum.groupHasNoEnabledMembership.name());
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleIfOwnerNameName(), employeeGroup.getName());
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleThenEnumName(), RuleThenEnum.veto.name());
+    
+    //key which would be used in UI messages file if applicable
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleThenEnumArg0Name(), "rule.entity.must.be.a.member.of.etc.employee");
+    
+    //error message (if key in UI messages file not there)
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleThenEnumArg1Name(), "Entity cannot be assigned if not a member of etc:employee");
+  
+    //should be valid
+    String isValidString = attributeValueDelegate.retrieveValueString(
+        RuleUtils.ruleValidName());
+  
+    if (!StringUtils.equals("T", isValidString)) {
+      throw new RuntimeException(isValidString);
+    }
+  
+    //count rule firings
+    long initialFirings = RuleEngine.ruleFirings;
+    
+    try {
+      restrictedGroup.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.READ);
+      fail("Should be vetoed");
+    } catch (RuleVeto rve) {
+      //this is good
+      String stack = ExceptionUtils.getFullStackTrace(rve);
+      assertTrue(stack, stack.contains("Entity cannot be assigned if not a member of etc:employee"));
+    }
+  
+    assertEquals(initialFirings+1, RuleEngine.ruleFirings);
+  
+    allowedGroup.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.READ);
+  
+    //this doesnt actually fire
+    assertEquals(initialFirings+1, RuleEngine.ruleFirings);
+  
+    employeeGroup.addMember(SubjectTestHelper.SUBJ0);
+    restrictedStem.grantPriv(SubjectTestHelper.SUBJ0, NamingPrivilege.CREATE);
+    
+    assertEquals("Didnt fire since is a member", initialFirings+1, RuleEngine.ruleFirings);
+  
+  }
+
+  /**
+   * 
+   */
+  public void testRuleLonghandVetoInFolderAttributeDefPrivilege() {
+  
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    AttributeDef allowedAttributeDef = new AttributeDefSave(grouperSession).assignName("stem:allowed").assignCreateParentStemsIfNotExist(true).save();
+    AttributeDef restrictedAttributeDef = new AttributeDefSave(grouperSession).assignName("stem2:restricted").assignCreateParentStemsIfNotExist(true).save();
+    Group employeeGroup = new GroupSave(grouperSession).assignName("etc:employee").assignCreateParentStemsIfNotExist(true).save();
+    
+    Stem restrictedStem = StemFinder.findByName(grouperSession, "stem2", true);
+    
+    //add a rule on stem:a saying if not in stem:b, then dont allow add to stem:a
+    AttributeAssign attributeAssign = restrictedStem
+      .getAttributeDelegate().addAttribute(RuleUtils.ruleAttributeDefName()).getAttributeAssign();
+    
+    AttributeValueDelegate attributeValueDelegate = attributeAssign.getAttributeValueDelegate();
+  
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleActAsSubjectSourceIdName(), "g:isa");
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleActAsSubjectIdName(), "GrouperSystem");
+  
+    //subject use means membership add, privilege assign, permission assign, etc.
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleCheckTypeName(), RuleCheckType.subjectAssignInStem.name());
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleCheckStemScopeName(), "SUB");
+    
+    //this is optional to restrict to source.  I think you will want to do that, or you
+    //would need to have all the usable groups in the allowed group...
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleCheckArg0Name(), "jdbc");
+  
+    
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleIfConditionEnumName(), RuleIfConditionEnum.groupHasNoEnabledMembership.name());
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleIfOwnerNameName(), employeeGroup.getName());
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleThenEnumName(), RuleThenEnum.veto.name());
+    
+    //key which would be used in UI messages file if applicable
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleThenEnumArg0Name(), "rule.entity.must.be.a.member.of.etc.employee");
+    
+    //error message (if key in UI messages file not there)
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleThenEnumArg1Name(), "Entity cannot be assigned if not a member of etc:employee");
+  
+    //should be valid
+    String isValidString = attributeValueDelegate.retrieveValueString(
+        RuleUtils.ruleValidName());
+  
+    if (!StringUtils.equals("T", isValidString)) {
+      throw new RuntimeException(isValidString);
+    }
+  
+    //count rule firings
+    long initialFirings = RuleEngine.ruleFirings;
+    
+    try {
+      restrictedAttributeDef.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ0, AttributeDefPrivilege.ATTR_UPDATE, false);
+      fail("Should be vetoed");
+    } catch (RuleVeto rve) {
+      //this is good
+      String stack = ExceptionUtils.getFullStackTrace(rve);
+      assertTrue(stack, stack.contains("Entity cannot be assigned if not a member of etc:employee"));
+    }
+  
+    assertEquals(initialFirings+1, RuleEngine.ruleFirings);
+  
+    allowedAttributeDef.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ0, AttributeDefPrivilege.ATTR_UPDATE, false);
+  
+    //this doesnt actually fire
+    assertEquals(initialFirings+1, RuleEngine.ruleFirings);
+  
+    employeeGroup.addMember(SubjectTestHelper.SUBJ0);
+    restrictedAttributeDef.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ0, AttributeDefPrivilege.ATTR_UPDATE, false);
+    
+    assertEquals("Didnt fire since is a member", initialFirings+1, RuleEngine.ruleFirings);
+  
+  }
+
+  /**
+   * 
+   */
+  public void testRuleLonghandVetoInFolderPermission() {
+    
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    new GroupSave(grouperSession).assignName("stem:allowed").assignCreateParentStemsIfNotExist(true).save();
+    new GroupSave(grouperSession).assignName("stem2:restricted").assignCreateParentStemsIfNotExist(true).save();
+    Group employeeGroup = new GroupSave(grouperSession).assignName("etc:employee").assignCreateParentStemsIfNotExist(true).save();
+    
+    Stem restrictedStem = StemFinder.findByName(grouperSession, "stem2", true);
+    
+    //add a rule on stem:a saying if not in stem:b, then dont allow add to stem:a
+    AttributeAssign attributeAssign = restrictedStem
+      .getAttributeDelegate().addAttribute(RuleUtils.ruleAttributeDefName()).getAttributeAssign();
+    
+    AttributeValueDelegate attributeValueDelegate = attributeAssign.getAttributeValueDelegate();
+  
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleActAsSubjectSourceIdName(), "g:isa");
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleActAsSubjectIdName(), "GrouperSystem");
+  
+    //subject use means membership add, privilege assign, permission assign, etc.
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleCheckTypeName(), RuleCheckType.subjectAssignInStem.name());
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleCheckStemScopeName(), "SUB");
+    
+    //this is optional to restrict to source.  I think you will want to do that, or you
+    //would need to have all the usable groups in the allowed group...
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleCheckArg0Name(), "jdbc");
+  
+    
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleIfConditionEnumName(), RuleIfConditionEnum.groupHasNoEnabledMembership.name());
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleIfOwnerNameName(), employeeGroup.getName());
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleThenEnumName(), RuleThenEnum.veto.name());
+    
+    //key which would be used in UI messages file if applicable
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleThenEnumArg0Name(), "rule.entity.must.be.a.member.of.etc.employee");
+    
+    //error message (if key in UI messages file not there)
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleThenEnumArg1Name(), "Entity cannot be assigned if not a member of etc:employee");
+  
+    //should be valid
+    String isValidString = attributeValueDelegate.retrieveValueString(
+        RuleUtils.ruleValidName());
+  
+    if (!StringUtils.equals("T", isValidString)) {
+      throw new RuntimeException(isValidString);
+    }
+  
+    AttributeDef permissionDef = new AttributeDefSave(grouperSession)
+      .assignName("stem:permissionDef").assignCreateParentStemsIfNotExist(true)
+      .assignAttributeDefType(AttributeDefType.perm)
+      .save();
+    
+    permissionDef.setAssignToEffMembership(true);
+    permissionDef.setAssignToGroup(true);
+    permissionDef.store();
+    
+    //make a role
+    Role payrollUser = new GroupSave(grouperSession).assignName("apps:payroll:roles:payrollUser")
+      .assignTypeOfGroup(TypeOfGroup.role).assignCreateParentStemsIfNotExist(true).save();
+
+    //assign a user to a role
+    payrollUser.addMember(SubjectTestHelper.SUBJ0, false);
+    
+    //create a permission, assign to role
+    AttributeDefName restrictedPermission = new AttributeDefNameSave(grouperSession, permissionDef).assignName("stem2:payroll:permissions:canLogin").assignCreateParentStemsIfNotExist(true).save();
+    AttributeDefName allowedPermission = new AttributeDefNameSave(grouperSession, permissionDef).assignName("stem:payroll:permissions:canLogout").assignCreateParentStemsIfNotExist(true).save();
+    
+    //count rule firings
+    long initialFirings = RuleEngine.ruleFirings;
+    
+    try {
+      //assign the permission to another user directly, not due to a role
+      payrollUser.getPermissionRoleDelegate().assignSubjectRolePermission(restrictedPermission, SubjectTestHelper.SUBJ0);
+
+      fail("Should be vetoed");
+    } catch (RuleVeto rve) {
+      //this is good
+      String stack = ExceptionUtils.getFullStackTrace(rve);
+      assertTrue(stack, stack.contains("Entity cannot be assigned if not a member of etc:employee"));
+    }
+  
+    assertEquals(initialFirings+1, RuleEngine.ruleFirings);
+    
+    //assign the permission to another user directly, not due to a role
+    payrollUser.getPermissionRoleDelegate().assignSubjectRolePermission(allowedPermission, SubjectTestHelper.SUBJ0);
+
+    //this doesnt actually fire
+    assertEquals(initialFirings+1, RuleEngine.ruleFirings);
+    
+    employeeGroup.addMember(SubjectTestHelper.SUBJ0);
+    
+    //assign the permission to another user directly, not due to a role
+    payrollUser.getPermissionRoleDelegate().assignSubjectRolePermission(restrictedPermission, SubjectTestHelper.SUBJ0);
+
+    
+    assertEquals("Didnt fire since is a member", initialFirings+1, RuleEngine.ruleFirings);
+  
   }
 }

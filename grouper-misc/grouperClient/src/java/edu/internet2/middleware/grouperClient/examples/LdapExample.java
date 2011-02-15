@@ -226,7 +226,7 @@ public class LdapExample {
 
     env.put(Context.SECURITY_AUTHENTICATION, "simple");
     env.put(Context.SECURITY_PRINCIPAL, "uid=penngroups/medley.isc-seo.upenn.edu,ou=entities,dc=upenn,dc=edu");
-    env.put(Context.SECURITY_CREDENTIALS, "xc5ai39bm");
+    env.put(Context.SECURITY_CREDENTIALS, "xxxxxxxxx");
 
     // Create the initial context
     DirContext ctx = new InitialDirContext(env);

@@ -75,7 +75,7 @@
               <span class="requiredIndicator"></span>
             </td>
             <td class="formTableRight">
-              <input type="text" name="emailSubject" style="width: 450px"/>
+              <input type="text" name="emailSubject" style="width: 450px" value="${grouper:escapeHtml(inviteExternalSubjectsContainer.defaultEmailSubject)}" />
             </td>
           </tr>
           <tr class="formTableRow shows_inviteExternalSubjectEmails">
@@ -84,7 +84,7 @@
               <span class="requiredIndicator"></span>
             </td>
             <td class="formTableRight">
-              <textarea name="messageToUsers" cols="40" rows="6"></textarea>
+              <textarea name="messageToUsers" cols="40" rows="6">${grouper:escapeHtml(inviteExternalSubjectsContainer.defaultEmailMessage)}</textarea>
             </td>
           </tr>
           <tr class="formTableRow shows_inviteExternalSubjectEmails">

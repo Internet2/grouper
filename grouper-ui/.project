@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>grouper-ui_trunk</name>
+	<name>grouper-ui_v1_7</name>
 	<comment></comment>
 	<projects>
 	</projects>
@@ -16,14 +16,14 @@
 	</natures>
 	<linkedResources>
 		<link>
-			<name>GROUPER_TRUNK_CONF</name>
+			<name>GROUPER_V1_7_CONF</name>
 			<type>2</type>
-			<locationURI>GROUPER_TRUNK_CONF</locationURI>
+			<locationURI>GROUPER_V1_7_CONF</locationURI>
 		</link>
 		<link>
-			<name>GROUPER_TRUNK_SOURCE</name>
+			<name>GROUPER_V1_7_SOURCE</name>
 			<type>2</type>
-			<locationURI>GROUPER_TRUNK_SOURCE</locationURI>
+			<locationURI>GROUPER_V1_7_SOURCE</locationURI>
 		</link>
 	</linkedResources>
 </projectDescription>
