@@ -67,6 +67,12 @@ $Id: sources.example.xml,v 1.8 2009-08-11 20:18:09 mchyzer Exp $
        <param-name>emailAttributeName</param-name>
        <param-value>email</param-value>
      </init-param>
+     
+     <!-- if more than this many results are returned, then throw a too many subjects exception -->
+     <init-param>
+       <param-name>maxResults</param-name>
+       <param-value>1000</param-value>
+     </init-param>
 
      <!-- note: again, if you use GrouperJdbcConnectionProvider, then you should not fill out maxActive, maxIdle,
        maxWait, dbDriver, dbUrl, dbUser, dbPwd, since it will use the grouper.hibernate.properties db settings -->
@@ -231,6 +237,11 @@ where
      <init-param>
        <param-name>jdbcConnectionProvider</param-name>
        <param-value>edu.internet2.middleware.grouper.subj.GrouperJdbcConnectionProvider</param-value>
+     </init-param>
+
+     <init-param>
+       <param-name>maxResults</param-name>
+       <param-value>1000</param-value>
      </init-param>
 
       <init-param>

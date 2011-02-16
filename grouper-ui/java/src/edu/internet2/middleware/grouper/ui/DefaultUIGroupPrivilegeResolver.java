@@ -31,7 +31,10 @@ import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GrouperHelper;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.SubjectFinder.RestrictSourceForGroup;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
+import edu.internet2.middleware.grouper.externalSubjects.ExternalSubject;
 import edu.internet2.middleware.grouper.grouperUi.serviceLogic.InviteExternalSubjects;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
@@ -302,6 +305,20 @@ public class DefaultUIGroupPrivilegeResolver implements
         }
         if (!allowed) {
           result = false;
+          return false;
+        }
+      }
+      
+      //lets see if the source is available for this group...
+      String sourceId = ExternalSubject.sourceId();
+      if (!StringUtils.isBlank(sourceId)) {
+        
+        String stemName = this.group.getParentStemName();
+        RestrictSourceForGroup restrictSourceForGroup = SubjectFinder.restrictSourceForGroup(stemName, sourceId);
+
+        //if restricting all, dont show the link
+        if (restrictSourceForGroup.isRestrict() && restrictSourceForGroup.getGroup() == null) {
+          result=false;
           return false;
         }
       }
