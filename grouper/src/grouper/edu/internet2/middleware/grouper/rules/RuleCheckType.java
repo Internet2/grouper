@@ -1183,9 +1183,15 @@ public enum RuleCheckType {
       
       Stem stem = rulesBean.getStem();
       
+      String stemName = stem.getName();
+      
+      //root would be blank
+      if (StringUtils.isBlank(stemName)) {
+        stemName = ":";
+      }
       //name
       RuleCheck ruleCheck = new RuleCheck(this.name(), 
-          null, stem.getName(), null, sourceId, null);
+          null, stemName, null, sourceId, null);
 
       return ruleEngine.ruleCheckIndexDefinitionsByNameOrIdInFolderPickOneArgOptional(ruleCheck);
     }

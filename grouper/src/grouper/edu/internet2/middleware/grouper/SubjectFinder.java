@@ -975,6 +975,11 @@ public class SubjectFinder {
    */
   public static RestrictSourceForGroup restrictSourceForGroup(String stemName, String sourceId) {
     
+    if (!GrouperConfig.getPropertyBoolean("rules.enable", true)) {
+      LOG.debug("rules.enable is false, do not check to see if stem is restricted");
+      return new RestrictSourceForGroup(false, null);
+    }
+    
     Map<String, Object> debugMap = LOG.isDebugEnabled() ? new LinkedHashMap<String, Object>() : null;
     
     //somtimes root is blank, so convert
