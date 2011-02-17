@@ -31,6 +31,7 @@ import edu.internet2.middleware.grouper.cache.EhcacheController;
 import edu.internet2.middleware.grouper.exception.UnableToPerformException;
 import edu.internet2.middleware.grouper.hibernate.HqlQuery;
 import edu.internet2.middleware.grouper.permissions.PermissionEntry;
+import edu.internet2.middleware.grouper.pit.PITPermissionAllView;
 import edu.internet2.middleware.subject.Subject;
 
 /**
@@ -387,6 +388,15 @@ public class CachingAttrDefResolver extends AttributeDefResolverDecorator {
     }
 
     return filteredPermissions;
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.privs.AttributeDefResolverDecorator#postHqlFilterPITPermissions(edu.internet2.middleware.subject.Subject, java.util.Set)
+   */
+  public Set<PITPermissionAllView> postHqlFilterPITPermissions(Subject subject,
+      Set<PITPermissionAllView> pitPermissionsEntries) {
+
+    return super.getDecoratedResolver().postHqlFilterPITPermissions(subject, pitPermissionsEntries);
   }
 
   /**

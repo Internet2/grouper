@@ -29,6 +29,7 @@ import edu.internet2.middleware.grouper.exception.RevokePrivilegeException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.hibernate.HqlQuery;
 import edu.internet2.middleware.grouper.permissions.PermissionEntry;
+import edu.internet2.middleware.grouper.pit.PITPermissionAllView;
 import edu.internet2.middleware.subject.Subject;
 
 
@@ -287,6 +288,16 @@ public interface AttributeDefAdapter {
    */
   public Set<PermissionEntry> postHqlFilterPermissions(GrouperSession grouperSession, 
       Subject subject, Set<PermissionEntry> permissionEntries);
+  
+  /**
+   * filter pitPermissionEntries for things the subject can see, assume underlying assignments are ok to view
+   * @param grouperSession 
+   * @param pitPermissionEntries
+   * @param subject
+   * @return the pit permission entries
+   */
+  public Set<PITPermissionAllView> postHqlFilterPITPermissions(GrouperSession grouperSession, 
+      Subject subject, Set<PITPermissionAllView> pitPermissionEntries);
   
   
   /**
