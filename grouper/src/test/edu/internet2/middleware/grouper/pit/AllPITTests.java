@@ -20,6 +20,8 @@ public class AllPITTests {
     suite.addTestSuite(PITPermissionTests.class);
     suite.addTestSuite(PITUtilsTests.class);
     suite.addTestSuite(PITGroupFinderTests.class);
+    suite.addTestSuite(PITAttributeDefFinderTests.class);
+    suite.addTestSuite(PITAttributeDefNameFinderTests.class);
     suite.addTestSuite(PITGroupTests.class);
     suite.addTestSuite(PITMemberTests.class);
     return suite;

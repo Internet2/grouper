@@ -70,5 +70,25 @@ public class Hib3PITAttributeDefDAO extends Hib3DAO implements PITAttributeDefDA
       .setLong("time", time.getTime() * 1000)
       .executeUpdate();
   }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.PITAttributeDefDAO#findByName(java.lang.String, boolean)
+   */
+  public Set<PITAttributeDef> findByName(String name, boolean orderByStartTime) {
+    String sql = "select pitAttributeDef from PITAttributeDef as pitAttributeDef where pitAttributeDef.nameDb = :name";
+    
+    if (orderByStartTime) {
+      sql += " order by startTimeDb";
+    }
+    
+    Set<PITAttributeDef> pitAttributeDefs = HibernateSession
+      .byHqlStatic()
+      .createQuery(sql)
+      .setCacheable(false).setCacheRegion(KLASS + ".FindByName")
+      .setString("name", name)
+      .listSet(PITAttributeDef.class);
+    
+    return pitAttributeDefs;
+  }
 }
 

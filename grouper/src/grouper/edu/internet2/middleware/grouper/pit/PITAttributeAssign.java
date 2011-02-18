@@ -6,6 +6,8 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.apache.commons.collections.keyvalue.MultiKey;
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
 
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogEntry;
@@ -577,5 +579,29 @@ public class PITAttributeAssign extends GrouperPIT implements Hib3GrouperVersion
     Set<String> result = GrouperUtil.compareObjectFields(this, this.dbVersion,
         DB_VERSION_FIELDS, null);
     return result;
+  }
+
+  /**
+   * @see java.lang.Object#equals(java.lang.Object)
+   */
+  @Override
+  public boolean equals(Object other) {
+    if (this == other) {
+      return true;
+    }
+    
+    if (!(other instanceof PITAttributeAssign)) {
+      return false;
+    }
+    
+    return new EqualsBuilder().append(this.getId(), ((PITAttributeAssign) other).getId()).isEquals();
+  }
+
+  /**
+   * @see java.lang.Object#hashCode()
+   */
+  @Override
+  public int hashCode() {
+    return new HashCodeBuilder().append(this.getId()).toHashCode();
   }
 }

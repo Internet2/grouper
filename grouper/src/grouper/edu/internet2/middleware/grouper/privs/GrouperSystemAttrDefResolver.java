@@ -24,6 +24,7 @@ import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.hibernate.HqlQuery;
 import edu.internet2.middleware.grouper.permissions.PermissionEntry;
+import edu.internet2.middleware.grouper.pit.PITAttributeAssign;
 import edu.internet2.middleware.grouper.pit.PITPermissionAllView;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.subject.Subject;
@@ -144,6 +145,20 @@ public class GrouperSystemAttrDefResolver extends AttributeDefResolverDecorator 
 
     AttributeDefResolver decoratedResolver = super.getDecoratedResolver();
     return decoratedResolver.postHqlFilterAttributeAssigns(subject, attributeAssigns);
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.privs.AttributeDefResolverDecorator#postHqlFilterPITAttributeAssigns(edu.internet2.middleware.subject.Subject, java.util.Set)
+   */
+  public Set<PITAttributeAssign> postHqlFilterPITAttributeAssigns(Subject subject,
+      Set<PITAttributeAssign> pitAttributeAssigns) {
+
+    if (SubjectHelper.eq(this.root, subject)) {
+      return pitAttributeAssigns;
+    }
+
+    AttributeDefResolver decoratedResolver = super.getDecoratedResolver();
+    return decoratedResolver.postHqlFilterPITAttributeAssigns(subject, pitAttributeAssigns);
   }
 
   /**

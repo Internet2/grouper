@@ -26,6 +26,7 @@ import edu.internet2.middleware.grouper.exception.UnableToPerformException;
 import edu.internet2.middleware.grouper.hibernate.HqlQuery;
 import edu.internet2.middleware.grouper.internal.util.ParameterHelper;
 import edu.internet2.middleware.grouper.permissions.PermissionEntry;
+import edu.internet2.middleware.grouper.pit.PITAttributeAssign;
 import edu.internet2.middleware.grouper.pit.PITPermissionAllView;
 import edu.internet2.middleware.subject.Subject;
 
@@ -178,7 +179,14 @@ public abstract class AttributeDefResolverDecorator implements AttributeDefResol
       Set<AttributeAssign> attributeDefs) {
     return this.getDecoratedResolver().postHqlFilterAttributeAssigns(subject, attributeDefs);
   }
-
+  
+  /**
+   * @see edu.internet2.middleware.grouper.privs.AttributeDefResolver#postHqlFilterPITAttributeAssigns(edu.internet2.middleware.subject.Subject, java.util.Set)
+   */
+  public Set<PITAttributeAssign> postHqlFilterPITAttributeAssigns(Subject subject,
+      Set<PITAttributeAssign> pitAttributeAssigns) {
+    return this.getDecoratedResolver().postHqlFilterPITAttributeAssigns(subject, pitAttributeAssigns);
+  }
 
   /**
    * @see edu.internet2.middleware.grouper.privs.AttributeDefResolver#privilegeCopy(edu.internet2.middleware.grouper.attr.AttributeDef, edu.internet2.middleware.grouper.attr.AttributeDef, edu.internet2.middleware.grouper.privs.Privilege)

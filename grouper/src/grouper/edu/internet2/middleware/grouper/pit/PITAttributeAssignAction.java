@@ -122,6 +122,13 @@ public class PITAttributeAssignAction extends GrouperPIT implements Hib3GrouperV
   /**
    * @return name
    */
+  public String getName() {
+    return name;
+  }
+  
+  /**
+   * @return name
+   */
   public String getNameDb() {
     return name;
   }

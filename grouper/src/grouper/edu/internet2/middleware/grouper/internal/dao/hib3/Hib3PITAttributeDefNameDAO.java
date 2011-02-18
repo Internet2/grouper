@@ -1,6 +1,7 @@
 package edu.internet2.middleware.grouper.internal.dao.hib3;
 
 import java.sql.Timestamp;
+import java.util.Set;
 
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.PITAttributeDefNameDAO;
@@ -61,5 +62,25 @@ public class Hib3PITAttributeDefNameDAO extends Hib3DAO implements PITAttributeD
       .createQuery("delete from PITAttributeDefName where endTimeDb is not null and endTimeDb < :time")
       .setLong("time", time.getTime() * 1000)
       .executeUpdate();
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.PITAttributeDefNameDAO#findByName(java.lang.String, boolean)
+   */
+  public Set<PITAttributeDefName> findByName(String name, boolean orderByStartTime) {
+    String sql = "select pitAttributeDefName from PITAttributeDefName as pitAttributeDefName where pitAttributeDefName.nameDb = :name";
+    
+    if (orderByStartTime) {
+      sql += " order by startTimeDb";
+    }
+    
+    Set<PITAttributeDefName> pitAttributeDefNames = HibernateSession
+      .byHqlStatic()
+      .createQuery(sql)
+      .setCacheable(false).setCacheRegion(KLASS + ".FindByName")
+      .setString("name", name)
+      .listSet(PITAttributeDefName.class);
+    
+    return pitAttributeDefNames;
   }
 }

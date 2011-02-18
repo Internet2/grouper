@@ -43,6 +43,7 @@ import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.misc.E;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.permissions.PermissionEntry;
+import edu.internet2.middleware.grouper.pit.PITAttributeAssign;
 import edu.internet2.middleware.grouper.pit.PITPermissionAllView;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -1029,6 +1030,41 @@ public class PrivilegeHelper {
     }
     
     return permissionEntries;
+  }
+  
+  /**
+   * see if the pit attribute assigns are viewable
+   * @param grouperSession 
+   * @param inputPITAttributeAssigns 
+   * @param checkUnderlyingIfAssignmentOnAssignment if deep security check should take place on underlying assignments
+   * @return filtered pit attribute assignments
+   * 
+   */
+  public static Set<PITAttributeAssign> canViewPITAttributeAssigns(GrouperSession grouperSession, Collection<PITAttributeAssign> inputPITAttributeAssigns, boolean checkUnderlyingIfAssignmentOnAssignment) {
+    
+    if (inputPITAttributeAssigns == null) {
+      return null;
+    }
+    
+    if (isWheelOrRoot(grouperSession.getSubject())) {
+      return new LinkedHashSet<PITAttributeAssign>(inputPITAttributeAssigns);
+    }
+    
+    Set<PITAttributeAssign> pitAttributeAssigns  = new LinkedHashSet<PITAttributeAssign>();
+    
+    for (PITAttributeAssign pitAttributeAssign : inputPITAttributeAssigns) {
+      
+      if (!pitAttributeAssign.isActive()) {
+        continue;
+      }
+      
+      AttributeAssign attributeAssign = GrouperDAOFactory.getFactory().getAttributeAssign().findById(pitAttributeAssign.getId(), true);
+      if (canViewAttributeAssign(grouperSession, attributeAssign, checkUnderlyingIfAssignmentOnAssignment)) {
+        pitAttributeAssigns.add(pitAttributeAssign);
+      }
+    }
+    
+    return pitAttributeAssigns;
   }
 }
 

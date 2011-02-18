@@ -25,6 +25,7 @@ import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.exception.UnableToPerformException;
 import edu.internet2.middleware.grouper.hibernate.HqlQuery;
 import edu.internet2.middleware.grouper.permissions.PermissionEntry;
+import edu.internet2.middleware.grouper.pit.PITAttributeAssign;
 import edu.internet2.middleware.grouper.pit.PITPermissionAllView;
 import edu.internet2.middleware.subject.Subject;
 
@@ -210,6 +211,15 @@ public interface AttributeDefResolver {
    */
   public Set<AttributeAssign> postHqlFilterAttributeAssigns(
       Subject subject, Set<AttributeAssign> attributeAssigns);
+  
+  /**
+   * filter pit attribute assignments for things the subject can see
+   * @param pitAttributeAssigns
+   * @param subject
+   * @return the pit attribute assignments
+   */
+  public Set<PITAttributeAssign> postHqlFilterPITAttributeAssigns(
+      Subject subject, Set<PITAttributeAssign> pitAttributeAssigns);
 
   /**
    * filter permissions for things the subject can see
