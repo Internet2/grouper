@@ -63,12 +63,10 @@ import edu.internet2.middleware.grouper.ui.GroupOrStem;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.PersonalStem;
 import edu.internet2.middleware.grouper.ui.UIThreadLocal;
-import edu.internet2.middleware.grouper.ui.actions.PopulateGroupMemberAction;
 import edu.internet2.middleware.grouper.ui.util.GroupAsMap;
 import edu.internet2.middleware.grouper.ui.util.MembershipAsMap;
 import edu.internet2.middleware.grouper.ui.util.ObjectAsMap;
 import edu.internet2.middleware.grouper.ui.util.SubjectAsMap;
-import edu.internet2.middleware.grouper.ui.util.SubjectPrivilegeAsMap;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
@@ -2769,7 +2767,7 @@ public class GrouperHelper {
 			field = (Field) it.next();
 			if(noSearchFields.indexOf(":" + field.getName() + ":") == -1) {
 				names.add(field.getName());
-				res.add(ObjectAsMap.getInstance("FieldAsMap",field,bundle));
+				res.add(ObjectAsMap.getInstance("FieldAsMap",field));
 			}
 		}
 		accumulateFields(names);
@@ -2812,16 +2810,16 @@ public class GrouperHelper {
 	 * @throws SchemaException
 	 */
 	public static  Map getFieldsAsMap() throws SchemaException{
-	  ResourceBundle bundle = GrouperUiFilter.retrieveSessionNavResourceBundle();
 
 		Set fields = FieldFinder.findAll();
 		Iterator it = fields.iterator();
 		Field field;
 		Map fieldMap;
 		Map map = new LinkedHashMap();
+		ResourceBundle bundle = GrouperUiFilter.retrieveSessionNavResourceBundle();
 		while(it.hasNext()) {
 			field = (Field) it.next();
-			fieldMap=ObjectAsMap.getInstance("FieldAsMap",field,bundle);
+			fieldMap=ObjectAsMap.getInstance("FieldAsMap",field);
 			map.put(field.getName(),fieldMap);
 		}
 		String[] primaryFields = new String[] {"extension","displayExtension","name","displayName","description"};

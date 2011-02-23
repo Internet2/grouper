@@ -69,6 +69,23 @@
     <body-content>empty</body-content>
     <attribute>
       <description>
+        Show current location label, defaults true
+        </description>
+      <name>showCurrentLocationLabel</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+      <description>
+        Show leaf node, default true
+        </description>
+      <name>showLeafNode</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+
+    <attribute>
+      <description>
         Name of groupName or groupDisplayName
         </description>
       <name>groupName</name>

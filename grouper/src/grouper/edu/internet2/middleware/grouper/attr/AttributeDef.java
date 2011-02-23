@@ -979,7 +979,15 @@ public class AttributeDef extends GrouperAPI implements GrouperHasContext,
    * @return the stem id
    */
   public String getStemId() {
-    return stemId;
+    return this.stemId;
+  }
+
+  /**
+   * stem that this attribute is in
+   * @return the stem id
+   */
+  public Stem getStem() {
+    return this.stemId == null ? null : StemFinder.findByUuid(GrouperSession.staticGrouperSession(), this.stemId, true);
   }
 
   /**

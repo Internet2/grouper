@@ -35,6 +35,42 @@ public class AttributeUpdateText {
   
   /** if found grouper html filter found */
   private static boolean grouperHtmlFilterFound = false;
+ 
+  /**
+   * edit panel submit
+   * @return title
+   */
+  public String getEditPanelSubmit() {
+    return text("simpleAttributeUpdate.editPanelSubmit");
+  }
+
+  /**
+   * edit panel submit
+   * @return title
+   */
+  public String getEditPanelCancel() {
+    return text("simpleAttributeUpdate.editPanelCancel");
+  }
+  
+  /**
+   * edit panel actions
+   * @return title
+   */
+  public String getEditPanelActions() {
+    return text("simpleAttributeUpdate.editPanelEditActions");
+  }
+  
+  
+
+  /**
+   * edit panel delete
+   * @return title
+   */
+  public String getEditPanelDelete() {
+    return text("simpleAttributeUpdate.editPanelDelete");
+  }
+
+  
   
   /**
    * cache this
@@ -72,12 +108,56 @@ public class AttributeUpdateText {
   }
   
   /**
+   * title of update screen
+   * @return title
+   */
+  public String getEditId() {
+    return text("simpleAttributeUpdate.editId");
+  }
+  
+  
+  
+  /**
+   * title of create edit screen
+   * @return the title
+   */
+  public String getCreateEditIndexTitle() {
+    return text("simpleAttributeUpdate.createEditIndexTitle");
+  }
+
+  /**
+   * infodot of the title
+   * @return the infodot of the title
+   */
+  public String getCreateEditIndexTitleInfodot() {
+    return text("simpleAttributeUpdate.createEditIndexTitleInfodot");
+  }
+  
+  /**
+   * button to edit an existing attribute definition
+   * @return the infodot of the title
+   */
+  public String getFilterAttributeDefButton() {
+    return text("simpleAttributeUpdate.filterAttributeDefButton");
+  }
+  
+  /**
    * infodot of title of update screen
    * @return title
    */
   public String getAssignIndexTitleInfodot() {
     return text("simpleAttributeUpdate.assignIndexTitleInfodot");
   }
+  
+  /**
+   * new attribute def button
+   * @return title
+   */
+  public String getNewAttributeDefButton() {
+    return text("simpleAttributeUpdate.newAttributeDefButton");
+  }
+  
+  
   
 //  /**
 //   * @param memberDescription 

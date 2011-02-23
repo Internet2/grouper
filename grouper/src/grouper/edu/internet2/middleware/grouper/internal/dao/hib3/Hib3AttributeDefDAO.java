@@ -274,6 +274,22 @@ public class Hib3AttributeDefDAO extends Hib3DAO implements AttributeDefDAO {
   public Set<AttributeDef> getAllAttributeDefsSecure(String scope,
       GrouperSession grouperSession, Subject subject, Set<Privilege> privileges,
       QueryOptions queryOptions) {
+    return getAllAttributeDefsSecureHelper(scope, grouperSession, subject, privileges, queryOptions, false);
+  }
+
+  /**
+   * @param scope 
+   * @param grouperSession 
+   * @param subject 
+   * @param privileges 
+   * @param queryOptions 
+   * @param splitScope 
+   * @return 
+   * 
+   */
+  private Set<AttributeDef> getAllAttributeDefsSecureHelper(String scope,
+      GrouperSession grouperSession, Subject subject, Set<Privilege> privileges,
+      QueryOptions queryOptions, boolean splitScope) {
     if (queryOptions == null) {
       queryOptions = new QueryOptions();
     }
@@ -289,10 +305,28 @@ public class Hib3AttributeDefDAO extends Hib3DAO implements AttributeDefDAO {
     
     //see if there is a scope
     if (!StringUtils.isBlank(scope)) {
-      whereClause.append(" theStem.nameDb like :scope ");
-      byHqlStatic.setString("scope", scope + "%");
+      
+      String[] scopes = splitScope ? GrouperUtil.splitTrim(scope, " ") : new String[]{scope};
+      int index = 0;
+      for (String theScope : scopes) {
+        if (whereClause.length() > 0) {
+          whereClause.append(" and ");
+        } else {
+          whereClause.append(" (( ");
+        }
+        whereClause.append(" lower(theAttributeDef.nameDb) like :scope" + index + " ");
+        if (splitScope) {
+          theScope = "%" + theScope + "%";
+        } else if (!theScope.endsWith("%")) {
+          theScope += "%";
+        }
+        byHqlStatic.setString("scope" + index, theScope.toLowerCase());
+        index++;
+      }
+
+      whereClause.append(" ) or ( theAttributeDef.id = :attributeId  )) ");
+      byHqlStatic.setString("attributeId", scope);
     }
-    
 
     //see if we are adding more to the query
     boolean changedQuery = grouperSession.getAttributeDefResolver().hqlFilterAttrDefsWhereClause(subject, byHqlStatic,
@@ -409,6 +443,16 @@ public class Hib3AttributeDefDAO extends Hib3DAO implements AttributeDefDAO {
     
     return filteredAttributeDefs;
     
+  }
+
+  /**
+   * @see AttributeDefDAO#getAllAttributeDefsSplitScopeSecure(String, GrouperSession, Subject, Set, QueryOptions)
+   * @Override
+   */
+  public Set<AttributeDef> getAllAttributeDefsSplitScopeSecure(String scope,
+      GrouperSession grouperSession, Subject subject, Set<Privilege> privileges,
+      QueryOptions queryOptions) {
+    return getAllAttributeDefsSecureHelper(scope, grouperSession, subject, privileges, queryOptions, true);
   }
 
 

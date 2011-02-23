@@ -4,32 +4,19 @@
  */
 package edu.internet2.middleware.grouper.grouperUi.beans.attributeUpdate;
 
-import java.io.File;
 import java.io.Serializable;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.MissingResourceException;
-import java.util.Properties;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-import org.apache.commons.lang.StringUtils;
-
-import edu.internet2.middleware.grouper.cache.GrouperCache;
-import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGroup;
-import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiMember;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.exceptions.NoSessionException;
-import edu.internet2.middleware.grouper.ui.tags.TagUtils;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
-import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.subject.Subject;
 
 
 
 /**
- * bean for simple membership update.  holds all state for this module
+ * bean for simple attribute update.  holds all state for this module
  */
 public class AttributeUpdateSessionContainer implements Serializable {
 
@@ -38,7 +25,7 @@ public class AttributeUpdateSessionContainer implements Serializable {
    */
   public void storeToSession() {
     HttpServletRequest httpServletRequest = GrouperUiFilter.retrieveHttpServletRequest();
-    httpServletRequest.getSession().setAttribute("simpleMembershipUpdateContainer", this);
+    httpServletRequest.getSession().setAttribute("simpleAttributeUpdateContainer", this);
   }
 
   /**
@@ -49,9 +36,9 @@ public class AttributeUpdateSessionContainer implements Serializable {
     HttpServletRequest httpServletRequest = GrouperUiFilter.retrieveHttpServletRequest();
     HttpSession httpSession = httpServletRequest.getSession();
     AttributeUpdateSessionContainer simpleMembershipUpdateContainer = (AttributeUpdateSessionContainer)httpSession
-      .getAttribute("simpleMembershipUpdateContainer");
+      .getAttribute("simpleAttributeUpdateContainer");
     if (simpleMembershipUpdateContainer == null) {
-      throw new NoSessionException(GrouperUiUtils.message("simpleMembershipUpdate.noContainer"));
+      throw new NoSessionException(GrouperUiUtils.message("simpleAttributeUpdate.noContainer"));
     }
     return simpleMembershipUpdateContainer;
   }

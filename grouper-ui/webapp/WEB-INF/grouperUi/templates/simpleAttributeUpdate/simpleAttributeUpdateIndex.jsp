@@ -5,6 +5,7 @@
   <grouper:subtitle key="simpleAttributeUpdate.indexSectionHeader" />
   <div class="sectionBody">
     <ul>
+      <li><a href="grouper.html?operation=SimpleAttributeUpdate.createEdit"><grouper:message key="simpleAttributeUpdate.topIndexCreateEdit" /></a></li>
       <li><a href="grouper.html?operation=SimpleAttributeUpdate.assignInit"><grouper:message key="simpleAttributeUpdate.topIndexAssignAttribute" /></a></li>
     </ul>
   </div>

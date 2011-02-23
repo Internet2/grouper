@@ -377,4 +377,8 @@ div#simpleMembershipUpdatePickGroupDiv img.dhx_combo_img {
 } 
 div.inviteExternalSubjectsDiv img.dhx_combo_img {
   display: none;
-} 
+}
+td.attributeAssignAssignToTd {
+  white-space: nowrap;
+  padding-right: 5px;	
+}
