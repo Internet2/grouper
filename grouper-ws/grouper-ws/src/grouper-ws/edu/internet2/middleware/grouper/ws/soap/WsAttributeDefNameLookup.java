@@ -417,7 +417,7 @@ public class WsAttributeDefNameLookup {
           } else {
             attributeDefNameIds.add(attributeDefName.getId());
           }
-        } else if (usePIT && pitAttributeDefNames != null) {
+        } else if (usePIT && pitAttributeDefNames != null && pitAttributeDefNames.size() > 0) {
           for (PITAttributeDefName pitAttributeDefName : pitAttributeDefNames) {
             if (attributeDefType == null) {
               attributeDefNameIds.add(pitAttributeDefName.getId());

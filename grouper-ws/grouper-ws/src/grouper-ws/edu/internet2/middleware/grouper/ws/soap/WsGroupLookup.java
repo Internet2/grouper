@@ -112,7 +112,7 @@ public class WsGroupLookup {
                 + typeOfGroup + ", " + wsGroupLookup.toStringCompact());
               
           }
-        } else if (usePIT && pitGroups != null) {
+        } else if (usePIT && pitGroups != null && pitGroups.size() > 0) {
           for (PITGroup pitGroup : pitGroups) {
             // the point in time tables do not have typeOfGroup...
             if (typeOfGroup != null) {
