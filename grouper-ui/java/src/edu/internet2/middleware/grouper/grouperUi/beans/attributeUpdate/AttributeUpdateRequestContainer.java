@@ -5,6 +5,7 @@
 package edu.internet2.middleware.grouper.grouperUi.beans.attributeUpdate;
 
 import java.io.Serializable;
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -16,12 +17,31 @@ import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 /**
  * bean for simple attribute update.  holds all state for this module
  */
+@SuppressWarnings("serial")
 public class AttributeUpdateRequestContainer implements Serializable {
 
   /** attribute def we are editing */
   private AttributeDef attributeDefToEdit;
   
+  /** list of actions for the attribute def */
+  private List<String> actions;
   
+  /**
+   * list of actions for the attribute def
+   * @return actions
+   */
+  public List<String> getActions() {
+    return this.actions;
+  }
+
+  /**
+   * list of actions for the attribute def
+   * @param actions1
+   */
+  public void setActions(List<String> actions1) {
+    this.actions = actions1;
+  }
+
   /**
    * attribute def we are editing
    * @return the attribute def

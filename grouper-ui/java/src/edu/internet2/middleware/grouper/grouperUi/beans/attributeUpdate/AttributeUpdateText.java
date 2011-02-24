@@ -4,14 +4,7 @@
  */
 package edu.internet2.middleware.grouper.grouperUi.beans.attributeUpdate;
 
-import java.util.Properties;
-
-import org.apache.commons.lang.StringUtils;
-
 import edu.internet2.middleware.grouper.ui.tags.TagUtils;
-import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
-import edu.internet2.middleware.grouper.util.GrouperHtmlFilter;
-import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
 /**
@@ -20,22 +13,33 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 public class AttributeUpdateText {
 
   /** singleton */
-  private static AttributeUpdateText simpleMembershipUpdateText = new AttributeUpdateText();
+  private static AttributeUpdateText simpleAttributeUpdateText = new AttributeUpdateText();
   
+  /**
+   * add actions
+   * @return add actions
+   */
+  public String getAddActions() {
+    return text("simpleAttributeUpdate.addActions");
+  }
+
+  /**
+   * replace actions
+   * @return replace actions
+   */
+  public String getReplaceActions() {
+    return text("simpleAttributeUpdate.replaceActions");
+  }
+
+
   /**
    * get singleton
    * @return singleton
    */
   public static AttributeUpdateText retrieveSingleton() {
-    return simpleMembershipUpdateText;
+    return simpleAttributeUpdateText;
   }
 
-  /** grouper html filter */
-  private static GrouperHtmlFilter grouperHtmlFilter;
-  
-  /** if found grouper html filter found */
-  private static boolean grouperHtmlFilterFound = false;
- 
   /**
    * edit panel submit
    * @return title
@@ -53,6 +57,22 @@ public class AttributeUpdateText {
   }
   
   /**
+   * delete action confirm
+   * @return delete action confirm
+   */
+  public String getDeleteActionConfirm() {
+    return text("simpleAttributeUpdate.deleteActionConfirm");
+  }
+  
+  /**
+   * delete action image alt
+   * @return delete action image alt
+   */
+  public String getDeleteActionImageAlt() {
+    return text("simpleAttributeUpdate.deleteActionImageAlt");
+  }
+  
+  /**
    * edit panel actions
    * @return title
    */
@@ -60,8 +80,6 @@ public class AttributeUpdateText {
     return text("simpleAttributeUpdate.editPanelEditActions");
   }
   
-  
-
   /**
    * edit panel delete
    * @return title
@@ -71,21 +89,6 @@ public class AttributeUpdateText {
   }
 
   
-  
-  /**
-   * cache this
-   * @return grouper html filter
-   */
-  @SuppressWarnings("unchecked")
-  private static GrouperHtmlFilter grouperHtmlFilter() {
-    if (!grouperHtmlFilterFound) {
-      String grouperHtmlFilterString = TagUtils.mediaResourceString("simpleMembershipUpdate.externalUrlTextProperties.grouperHtmlFilter");
-      Class<GrouperHtmlFilter> grouperHtmlFilterClass = GrouperUtil.forName(grouperHtmlFilterString);
-      grouperHtmlFilter = GrouperUtil.newInstance(grouperHtmlFilterClass);
-      grouperHtmlFilterFound = true;
-    }
-    return grouperHtmlFilter;
-  }
   
   /**
    * get text based on key
