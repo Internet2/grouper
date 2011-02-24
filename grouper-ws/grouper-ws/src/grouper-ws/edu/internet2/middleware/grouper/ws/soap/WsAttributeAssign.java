@@ -4,6 +4,7 @@
  */
 package edu.internet2.middleware.grouper.ws.soap;
 
+import java.sql.Timestamp;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
@@ -19,6 +20,18 @@ import edu.internet2.middleware.grouper.attr.assign.AttributeAssignActionType;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignType;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.pit.PITAttributeAssign;
+import edu.internet2.middleware.grouper.pit.PITAttributeAssignAction;
+import edu.internet2.middleware.grouper.pit.PITAttributeAssignValue;
+import edu.internet2.middleware.grouper.pit.PITAttributeDef;
+import edu.internet2.middleware.grouper.pit.PITAttributeDefName;
+import edu.internet2.middleware.grouper.pit.PITGroup;
+import edu.internet2.middleware.grouper.pit.PITMember;
+import edu.internet2.middleware.grouper.pit.PITStem;
+import edu.internet2.middleware.grouper.pit.finder.PITAttributeAssignValueFinder;
+import edu.internet2.middleware.grouper.pit.finder.PITAttributeDefFinder;
+import edu.internet2.middleware.grouper.pit.finder.PITAttributeDefNameFinder;
+import edu.internet2.middleware.grouper.pit.finder.PITGroupFinder;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
 
@@ -763,4 +776,75 @@ public class WsAttributeAssign implements Comparable<WsAttributeAssign> {
     
   }
 
+  /**
+   * construct with attribute assign to set internal fields
+   * 
+   * @param pitAttributeAssign
+   * @param pointInTimeFrom 
+   * @param pointInTimeTo 
+   */
+  public WsAttributeAssign(PITAttributeAssign pitAttributeAssign, Timestamp pointInTimeFrom, Timestamp pointInTimeTo) {
+    
+    this.attributeAssignActionId = pitAttributeAssign.getAttributeAssignActionId();
+    
+    PITAttributeAssignAction action = GrouperDAOFactory.getFactory().getPITAttributeAssignAction().findById(this.attributeAssignActionId);
+    
+    this.attributeAssignActionName = action.getName();
+    
+    this.attributeAssignType = pitAttributeAssign.getAttributeAssignTypeDb();
+    
+    PITAttributeDefName theAttributeDefName = PITAttributeDefNameFinder.findById(pitAttributeAssign.getAttributeDefNameId(), false);
+    PITAttributeDef theAttributeDef = PITAttributeDefFinder.findById(theAttributeDefName.getAttributeDefId(), false);
+    
+    this.attributeDefId = theAttributeDef == null ? null : theAttributeDef.getId();
+    this.attributeDefName = theAttributeDef == null ? null : theAttributeDef.getName();
+    this.attributeDefNameId = pitAttributeAssign.getAttributeDefNameId();
+    this.attributeDefNameName = theAttributeDefName == null ? null : theAttributeDefName.getName();
+
+    this.enabled = "T";
+    
+    this.id = pitAttributeAssign.getId();
+    this.ownerAttributeAssignId = pitAttributeAssign.getOwnerAttributeAssignId();
+    this.ownerAttributeDefId = pitAttributeAssign.getOwnerAttributeDefId();
+    
+    if (this.ownerAttributeDefId != null) {
+      PITAttributeDef ownerAttributeDef = PITAttributeDefFinder.findById(this.ownerAttributeDefId, false);
+      this.ownerAttributeDefName = ownerAttributeDef == null ? null : ownerAttributeDef.getName();
+    }
+    
+    this.ownerGroupId = pitAttributeAssign.getOwnerGroupId();
+    
+    if (this.ownerGroupId != null) {
+      PITGroup ownerGroup = PITGroupFinder.findById(this.ownerGroupId, false);
+      this.ownerGroupName = ownerGroup == null ? null : ownerGroup.getName();
+    }
+    
+    this.ownerMemberId = pitAttributeAssign.getOwnerMemberId();
+    
+    if (this.ownerMemberId != null) {
+      PITMember ownerMember = GrouperDAOFactory.getFactory().getPITMember().findById(this.ownerMemberId);
+      this.ownerMemberSourceId = ownerMember == null ? null : ownerMember.getSubjectSourceId();
+      this.ownerMemberSubjectId = ownerMember == null ? null : ownerMember.getSubjectId();
+    }
+    
+    this.ownerMembershipId = pitAttributeAssign.getOwnerMembershipId();
+    this.ownerStemId = pitAttributeAssign.getOwnerStemId();
+    
+    if (this.ownerStemId != null) {
+      PITStem ownerStem = GrouperDAOFactory.getFactory().getPITStem().findById(this.ownerStemId);
+      this.ownerStemName = ownerStem == null ? null : ownerStem.getName();
+    }
+        
+    //get the values
+    if (theAttributeDef != null && !StringUtils.isBlank(this.id)) {
+      
+      Set<PITAttributeAssignValue> values = PITAttributeAssignValueFinder.findByPITAttributeAssign(
+          pitAttributeAssign, pointInTimeFrom, pointInTimeTo);
+      
+      if (GrouperUtil.length(values) > 0) {
+        this.wsAttributeAssignValues = WsAttributeAssignValue.convertPITAttributeAssignValues(values);
+      }
+      
+    }
+  }
 }

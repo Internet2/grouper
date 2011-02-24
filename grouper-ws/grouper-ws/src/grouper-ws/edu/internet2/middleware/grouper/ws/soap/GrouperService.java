@@ -3429,6 +3429,19 @@ public class GrouperService {
    * @param includeGroupDetail T or F as to if the group detail should be returned
    * @param params optional: reserved for future use
    * @param enabled is A for all, T or null for enabled only, F for disabled 
+   * @param pointInTimeFrom 
+   *            To query permissions at a certain point in time or time range in the past, set this value
+   *            and/or the value of pointInTimeTo.  This parameter specifies the start of the range
+   *            of the point in time query.  If this is specified but pointInTimeTo is not specified, 
+   *            then the point in time query range will be from the time specified to now.  
+   *            Format:  yyyy/MM/dd HH:mm:ss.SSS
+   * @param pointInTimeTo 
+   *            To query permissions at a certain point in time or time range in the past, set this value
+   *            and/or the value of pointInTimeFrom.  This parameter specifies the end of the range 
+   *            of the point in time query.  If this is the same as pointInTimeFrom, then the query 
+   *            will be done at a single point in time rather than a range.  If this is specified but 
+   *            pointInTimeFrom is not specified, then the point in time query range will be from the 
+   *            minimum point in time to the time specified.  Format: yyyy/MM/dd HH:mm:ss.SSS
    * @return the results
    */
   @SuppressWarnings("unchecked")
@@ -3440,7 +3453,7 @@ public class GrouperService {
       String includeAttributeDefNames, String includeAttributeAssignments,
       String includeAssignmentsOnAssignments, WsSubjectLookup actAsSubjectLookup, String includeSubjectDetail,
       String[] subjectAttributeNames, String includeGroupDetail, WsParam[] params, 
-      String enabled) {  
+      String enabled, String pointInTimeFrom, String pointInTimeTo) {  
   
     WsGetPermissionAssignmentsResults wsGetPermissionAssignmentsResults = new WsGetPermissionAssignmentsResults();
   
@@ -3467,10 +3480,14 @@ public class GrouperService {
       GrouperVersion grouperWsVersion = GrouperVersion.valueOfIgnoreCase(
           clientVersion, true);
   
+      Timestamp pointInTimeFromTimestamp = GrouperServiceUtils.stringToTimestamp(pointInTimeFrom);
+      Timestamp pointInTimeToTimestamp = GrouperServiceUtils.stringToTimestamp(pointInTimeTo);
+      
       wsGetPermissionAssignmentsResults = GrouperServiceLogic.getPermissionAssignments(grouperWsVersion, wsAttributeDefLookups, 
           wsAttributeDefNameLookups, roleLookups, wsSubjectLookups, actions, includePermissionAssignDetailBoolean, 
           includeAttributeDefNamesBoolean, includeAttributeAssignmentsBoolean, includeAssignmentsOnAssignmentsBoolean, 
-          actAsSubjectLookup, includeSubjectDetailBoolean, subjectAttributeNames, includeGroupDetailBoolean, params, enabled);
+          actAsSubjectLookup, includeSubjectDetailBoolean, subjectAttributeNames, includeGroupDetailBoolean, params, enabled,
+          pointInTimeFromTimestamp, pointInTimeToTimestamp);
   
     } catch (Exception e) {
       wsGetPermissionAssignmentsResults.assignResultCodeException(null, null, e);
@@ -3520,6 +3537,19 @@ public class GrouperService {
    * @param paramValue1
    *            reserved for future use
    * @param enabled is A for all, T or null for enabled only, F for disabled 
+   * @param pointInTimeFrom 
+   *            To query permissions at a certain point in time or time range in the past, set this value
+   *            and/or the value of pointInTimeTo.  This parameter specifies the start of the range
+   *            of the point in time query.  If this is specified but pointInTimeTo is not specified, 
+   *            then the point in time query range will be from the time specified to now.  
+   *            Format:  yyyy/MM/dd HH:mm:ss.SSS
+   * @param pointInTimeTo 
+   *            To query permissions at a certain point in time or time range in the past, set this value
+   *            and/or the value of pointInTimeFrom.  This parameter specifies the end of the range 
+   *            of the point in time query.  If this is the same as pointInTimeFrom, then the query 
+   *            will be done at a single point in time rather than a range.  If this is specified but 
+   *            pointInTimeFrom is not specified, then the point in time query range will be from the 
+   *            minimum point in time to the time specified.  Format: yyyy/MM/dd HH:mm:ss.SSS
    * @return the results
    */
   @SuppressWarnings("unchecked")
@@ -3533,7 +3563,7 @@ public class GrouperService {
       String includeAssignmentsOnAssignments, String actAsSubjectId, String actAsSubjectSourceId,
       String actAsSubjectIdentifier, String includeSubjectDetail,
       String subjectAttributeNames, String includeGroupDetail, String paramName0, String paramValue0,
-      String paramName1, String paramValue1, String enabled) {  
+      String paramName1, String paramValue1, String enabled, String pointInTimeFrom, String pointInTimeTo) {  
   
     WsGetPermissionAssignmentsResults wsGetPermissionAssignmentsResults = new WsGetPermissionAssignmentsResults();
     
@@ -3560,6 +3590,9 @@ public class GrouperService {
       GrouperVersion grouperWsVersion = GrouperVersion.valueOfIgnoreCase(
           clientVersion, true);
   
+      Timestamp pointInTimeFromTimestamp = GrouperServiceUtils.stringToTimestamp(pointInTimeFrom);
+      Timestamp pointInTimeToTimestamp = GrouperServiceUtils.stringToTimestamp(pointInTimeTo);
+      
       wsGetPermissionAssignmentsResults = GrouperServiceLogic.getPermissionAssignmentsLite(
           grouperWsVersion, wsAttributeDefName, 
           wsAttributeDefId, wsAttributeDefNameName, wsAttributeDefNameId, roleName, 
@@ -3569,7 +3602,8 @@ public class GrouperService {
           includeAssignmentsOnAssignmentsBoolean, actAsSubjectId, actAsSubjectSourceId,
           actAsSubjectIdentifier, includeSubjectDetailBoolean, 
           subjectAttributeNames, includeGroupDetailBoolean, paramName0, 
-          paramValue0, paramName1, paramValue1, enabled );
+          paramValue0, paramName1, paramValue1, enabled, pointInTimeFromTimestamp,
+          pointInTimeToTimestamp);
   
     } catch (Exception e) {
       wsGetPermissionAssignmentsResults.assignResultCodeException(null, null, e);

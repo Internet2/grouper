@@ -67,6 +67,7 @@ import edu.internet2.middleware.grouper.permissions.PermissionEntry;
 import edu.internet2.middleware.grouper.permissions.PermissionEntry.PermissionType;
 import edu.internet2.middleware.grouper.pit.PITGroup;
 import edu.internet2.middleware.grouper.pit.PITMember;
+import edu.internet2.middleware.grouper.pit.PITPermissionAllView;
 import edu.internet2.middleware.grouper.pit.PITStem;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.AccessResolver;
@@ -5140,13 +5141,13 @@ public class GrouperServiceLogic {
       Set<String> attributeAssignIds = WsAttributeAssignLookup.convertToAttributeAssignIds(session, wsAttributeAssignLookups, errorMessage);
       
       //get the attributedefs to retrieve
-      Set<String> attributeDefIds = WsAttributeDefLookup.convertToAttributeDefIds(session, wsAttributeDefLookups, errorMessage, null);
+      Set<String> attributeDefIds = WsAttributeDefLookup.convertToAttributeDefIds(session, wsAttributeDefLookups, errorMessage, null, false, null, null);
       
       //get the attributeDefNames to retrieve
-      Set<String> attributeDefNameIds = WsAttributeDefNameLookup.convertToAttributeDefNameIds(session, wsAttributeDefNameLookups, errorMessage, null);
+      Set<String> attributeDefNameIds = WsAttributeDefNameLookup.convertToAttributeDefNameIds(session, wsAttributeDefNameLookups, errorMessage, null, false, null, null);
       
       //get all the owner groups
-      Set<String> ownerGroupIds = WsGroupLookup.convertToGroupIds(session, wsOwnerGroupLookups, errorMessage, null, lookupCount);
+      Set<String> ownerGroupIds = WsGroupLookup.convertToGroupIds(session, wsOwnerGroupLookups, errorMessage, null, false, null, null, lookupCount);
       
       //get all the owner stems
       Set<String> ownerStemIds = WsStemLookup.convertToStemIds(session, wsOwnerStemLookups, errorMessage, lookupCount);
@@ -5161,7 +5162,7 @@ public class GrouperServiceLogic {
       Set<MultiKey> ownerGroupMemberIds = WsMembershipAnyLookup.convertToGroupMemberIds(session, wsOwnerMembershipAnyLookups, errorMessage, null, lookupCount);
       
       //get all the owner attributeDef ids
-      Set<String> ownerAttributeDefIds = WsAttributeDefLookup.convertToAttributeDefIds(session, wsOwnerAttributeDefLookups, errorMessage, null, lookupCount);
+      Set<String> ownerAttributeDefIds = WsAttributeDefLookup.convertToAttributeDefIds(session, wsOwnerAttributeDefLookups, errorMessage, null, false, null, null, lookupCount);
       
       if (lookupCount[0] > 1) {
         throw new WsInvalidQueryException("Why is there more than one type of lookup?  ");
@@ -5755,6 +5756,18 @@ public class GrouperServiceLogic {
    * @param includeGroupDetail T or F as to if the group detail should be returned
    * @param params optional: reserved for future use
    * @param enabled is A for all, T or null for enabled only, F for disabled 
+   * @param pointInTimeFrom 
+   *            To query permissions at a certain point in time or time range in the past, set this value
+   *            and/or the value of pointInTimeTo.  This parameter specifies the start of the range
+   *            of the point in time query.  If this is specified but pointInTimeTo is not specified, 
+   *            then the point in time query range will be from the time specified to now.  
+   * @param pointInTimeTo 
+   *            To query permissions at a certain point in time or time range in the past, set this value
+   *            and/or the value of pointInTimeFrom.  This parameter specifies the end of the range 
+   *            of the point in time query.  If this is the same as pointInTimeFrom, then the query 
+   *            will be done at a single point in time rather than a range.  If this is specified but 
+   *            pointInTimeFrom is not specified, then the point in time query range will be from the 
+   *            minimum point in time to the time specified.
    * @return the results
    */
   @SuppressWarnings("unchecked")
@@ -5766,12 +5779,14 @@ public class GrouperServiceLogic {
       boolean includeAttributeDefNames, boolean includeAttributeAssignments,
       boolean includeAssignmentsOnAssignments, WsSubjectLookup actAsSubjectLookup, boolean includeSubjectDetail,
       String[] subjectAttributeNames, boolean includeGroupDetail, WsParam[] params, 
-      String enabled) {  
+      String enabled, Timestamp pointInTimeFrom, Timestamp pointInTimeTo) {  
   
     WsGetPermissionAssignmentsResults wsGetPermissionAssignmentsResults = new WsGetPermissionAssignmentsResults();
   
     GrouperSession session = null;
     String theSummary = null;
+    boolean usePIT = pointInTimeFrom != null || pointInTimeTo != null;
+
     try {
   
       theSummary = "clientVersion: " + clientVersion 
@@ -5790,7 +5805,8 @@ public class GrouperServiceLogic {
           + GrouperUtil.toStringForLog(subjectAttributeNames) + "\n, paramNames: "
           + "\n, params: " + GrouperUtil.toStringForLog(params, 100) + "\n, wsSubjectLookups: "
           + GrouperUtil.toStringForLog(wsSubjectLookups, 200) 
-          + ", enabled: " + enabled;
+          + ", enabled: " + enabled
+          + "\n, pointInTimeFrom: " + pointInTimeFrom + ", pointInTimeTo: " + pointInTimeTo;
   
       //start session based on logged in user or the actAs passed in
       session = GrouperServiceUtils.retrieveGrouperSession(actAsSubjectLookup);
@@ -5814,19 +5830,19 @@ public class GrouperServiceLogic {
       StringBuilder errorMessage = new StringBuilder();
   
       //get the attributedefs to retrieve
-      Set<String> attributeDefIds = WsAttributeDefLookup.convertToAttributeDefIds(session, wsAttributeDefLookups, errorMessage, AttributeDefType.perm);
+      Set<String> attributeDefIds = WsAttributeDefLookup.convertToAttributeDefIds(session, wsAttributeDefLookups, errorMessage, AttributeDefType.perm, usePIT, pointInTimeFrom, pointInTimeTo);
       
       //get the attributeDefNames to retrieve
-      Set<String> attributeDefNameIds = WsAttributeDefNameLookup.convertToAttributeDefNameIds(session, wsAttributeDefNameLookups, errorMessage, AttributeDefType.perm);
+      Set<String> attributeDefNameIds = WsAttributeDefNameLookup.convertToAttributeDefNameIds(session, wsAttributeDefNameLookups, errorMessage, AttributeDefType.perm, usePIT, pointInTimeFrom, pointInTimeTo);
       
       //get all the owner groups
-      Set<String> roleIds = WsGroupLookup.convertToGroupIds(session, roleLookups, errorMessage, TypeOfGroup.role);
+      //the point in time tables do not have typeOfGroup.... permissions only exist on roles so hopefully this doesn't matter..
+      TypeOfGroup typeOfGroup = usePIT ? null : TypeOfGroup.role;
+      Set<String> roleIds = WsGroupLookup.convertToGroupIds(session, roleLookups, errorMessage, typeOfGroup, usePIT, pointInTimeFrom, pointInTimeTo);
       
       //get all the member ids
       Set<String> memberIds = WsSubjectLookup.convertToMemberIds(session, wsSubjectLookups, errorMessage);
-      
-      Set<PermissionEntry> results = null;
-      
+            
       Boolean enabledBoolean = true;
       if (!StringUtils.isBlank(enabled)) {
         if (StringUtils.equalsIgnoreCase("A", enabled)) {
@@ -5843,23 +5859,38 @@ public class GrouperServiceLogic {
         actionsCollection = null;
       }
       
-      results = GrouperDAOFactory.getFactory().getPermissionEntry().findPermissions(
-          attributeDefIds, attributeDefNameIds, roleIds, actionsCollection, enabledBoolean, memberIds);
-
-      wsGetPermissionAssignmentsResults.assignResult(results, subjectAttributeNames, includePermissionAssignDetail);
+      if (usePIT && includeGroupDetail) {
+        throw new WsInvalidQueryException("Cannot specify includeGroupDetail for point in time queries.");
+      }
       
+      if (usePIT && (enabledBoolean == null || !enabledBoolean)) {
+        throw new WsInvalidQueryException("Cannot search for disabled memberships for point in time queries.");
+      }
       
+      if (!usePIT) {
+        Set<PermissionEntry> results = GrouperDAOFactory.getFactory().getPermissionEntry().findPermissions(
+            attributeDefIds, attributeDefNameIds, roleIds, actionsCollection, enabledBoolean, memberIds);
+  
+        wsGetPermissionAssignmentsResults.assignResult(results, subjectAttributeNames, includePermissionAssignDetail);
+      } else {
+        Set<PITPermissionAllView> results = GrouperDAOFactory.getFactory().getPITPermissionAllView().findPermissions(
+            attributeDefIds, attributeDefNameIds, roleIds, actionsCollection, memberIds, pointInTimeFrom, pointInTimeTo);
+  
+        wsGetPermissionAssignmentsResults.assignPITResult(results, subjectAttributeNames, includePermissionAssignDetail);
+      }
+        
       if (includeAttributeAssignments) {
-        wsGetPermissionAssignmentsResults.fillInAttributeAssigns(includeAssignmentsOnAssignments, enabledBoolean);
+        wsGetPermissionAssignmentsResults.fillInAttributeAssigns(usePIT, pointInTimeFrom, pointInTimeTo,
+            includeAssignmentsOnAssignments, enabledBoolean);
       }
       
       if (includeAttributeDefNames) {
-        wsGetPermissionAssignmentsResults.fillInAttributeDefNames(attributeDefNameIds);
+        wsGetPermissionAssignmentsResults.fillInAttributeDefNames(usePIT, attributeDefNameIds);
       }
       
-      wsGetPermissionAssignmentsResults.fillInAttributeDefs(attributeDefIds);
+      wsGetPermissionAssignmentsResults.fillInAttributeDefs(usePIT, attributeDefIds);
       
-      wsGetPermissionAssignmentsResults.fillInGroups(roleIds, includeGroupDetail);
+      wsGetPermissionAssignmentsResults.fillInGroups(usePIT, roleIds, includeGroupDetail);
       wsGetPermissionAssignmentsResults.fillInSubjects(wsSubjectLookups, null, 
           includeSubjectDetail, subjectAttributeNamesToRetrieve);
       
@@ -5923,6 +5954,18 @@ public class GrouperServiceLogic {
    * @param paramValue1
    *            reserved for future use
    * @param enabled is A for all, T or null for enabled only, F for disabled 
+   * @param pointInTimeFrom 
+   *            To query permissions at a certain point in time or time range in the past, set this value
+   *            and/or the value of pointInTimeTo.  This parameter specifies the start of the range
+   *            of the point in time query.  If this is specified but pointInTimeTo is not specified, 
+   *            then the point in time query range will be from the time specified to now.  
+   * @param pointInTimeTo 
+   *            To query permissions at a certain point in time or time range in the past, set this value
+   *            and/or the value of pointInTimeFrom.  This parameter specifies the end of the range 
+   *            of the point in time query.  If this is the same as pointInTimeFrom, then the query 
+   *            will be done at a single point in time rather than a range.  If this is specified but 
+   *            pointInTimeFrom is not specified, then the point in time query range will be from the 
+   *            minimum point in time to the time specified.
    * @return the results
    */
   @SuppressWarnings("unchecked")
@@ -5936,7 +5979,7 @@ public class GrouperServiceLogic {
       boolean includeAssignmentsOnAssignments, String actAsSubjectId, String actAsSubjectSourceId,
       String actAsSubjectIdentifier, boolean includeSubjectDetail,
       String subjectAttributeNames, boolean includeGroupDetail, String paramName0, String paramValue0,
-      String paramName1, String paramValue1, String enabled) {  
+      String paramName1, String paramValue1, String enabled, Timestamp pointInTimeFrom, Timestamp pointInTimeTo) {  
     
     
     
@@ -5975,7 +6018,7 @@ public class GrouperServiceLogic {
     WsGetPermissionAssignmentsResults wsGetPermissionAssignmentsResults = getPermissionAssignments(clientVersion, wsAttributeDefLookups, wsAttributeDefNameLookups, roleLookups, 
         wsSubjectLookups, actions, includePermissionAssignDetail, includeAttributeDefNames, includeAttributeAssignments, includeAssignmentsOnAssignments, 
         actAsSubjectLookup, includeSubjectDetail, subjectAttributeArray, includeGroupDetail, 
-        params, enabled );
+        params, enabled, pointInTimeFrom, pointInTimeTo);
     
     return wsGetPermissionAssignmentsResults;
   }

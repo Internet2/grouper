@@ -5,6 +5,7 @@
 package edu.internet2.middleware.grouper.ws.soap;
 
 import edu.internet2.middleware.grouper.permissions.PermissionEntry;
+import edu.internet2.middleware.grouper.pit.PITPermissionAllView;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
 
 
@@ -289,5 +290,20 @@ public class WsPermissionAssignDetail {
     this.roleSetDepth = Integer.toString(permissionEntry.getRoleSetDepth());
     
   }
-
+  
+  /**
+   * construct with permission entry to set internal fields
+   * 
+   * @param pitPermissionEntry
+   */
+  public WsPermissionAssignDetail(PITPermissionAllView pitPermissionEntry) {
+    
+    this.actionDepth = Integer.toString(pitPermissionEntry.getAttributeAssignActionSetDepth());
+    this.actionId = pitPermissionEntry.getActionId();
+    this.attributeDefNameSetDepth = Integer.toString(pitPermissionEntry.getAttributeDefNameSetDepth());
+    this.memberId = pitPermissionEntry.getMemberId();
+    this.membershipDepth = Integer.toString(pitPermissionEntry.getMembershipDepth());
+    this.roleSetDepth = Integer.toString(pitPermissionEntry.getRoleSetDepth());
+    
+  }
 }

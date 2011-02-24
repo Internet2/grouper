@@ -43,11 +43,15 @@ public class WsGroupLookup {
    * @param wsGroupLookups
    * @param errorMessage
    * @param typeOfGroup 
+   * @param usePIT 
+   * @param pointInTimeFrom 
+   * @param pointInTimeTo 
    * @param lookupCount is an array of size one int where 1 will be added if there are records, and no change if not
    * @return the group ids
    */
-  public static Set<String> convertToGroupIds(GrouperSession grouperSession, WsGroupLookup[] wsGroupLookups, StringBuilder errorMessage, TypeOfGroup typeOfGroup) {
-    return convertToGroupIds(grouperSession, wsGroupLookups, errorMessage, typeOfGroup, new int[1]);
+  public static Set<String> convertToGroupIds(GrouperSession grouperSession, WsGroupLookup[] wsGroupLookups, StringBuilder errorMessage, TypeOfGroup typeOfGroup,
+      boolean usePIT, Timestamp pointInTimeFrom, Timestamp pointInTimeTo) {
+    return convertToGroupIds(grouperSession, wsGroupLookups, errorMessage, typeOfGroup, usePIT, pointInTimeFrom, pointInTimeTo, new int[1]);
   }
 
   /**
@@ -56,12 +60,16 @@ public class WsGroupLookup {
    * @param wsGroupLookups
    * @param errorMessage
    * @param typeOfGroup 
+   * @param usePIT 
+   * @param pointInTimeFrom 
+   * @param pointInTimeTo 
    * @param lookupCount is an array of size one int where 1 will be added if there are records, and no change if not
    * @return the group ids
    */
   public static Set<String> convertToGroupIds(GrouperSession grouperSession, 
       WsGroupLookup[] wsGroupLookups, StringBuilder errorMessage, 
-      TypeOfGroup typeOfGroup, int[] lookupCount) {
+      TypeOfGroup typeOfGroup, boolean usePIT, Timestamp pointInTimeFrom,
+      Timestamp pointInTimeTo, int[] lookupCount) {
     //get all the groups
     //we could probably batch these to get better performance.
     Set<String> groupIds = null;
@@ -83,9 +91,16 @@ public class WsGroupLookup {
           foundRecords = true;
         }
         
-        wsGroupLookup.retrieveGroupIfNeeded(grouperSession);
+        if (!usePIT) {
+          wsGroupLookup.retrieveGroupIfNeeded(grouperSession);
+        } else {
+          wsGroupLookup.retrievePITGroupsIfNeeded(null, pointInTimeFrom, pointInTimeTo);
+        }
+        
         Group group = wsGroupLookup.retrieveGroup();
-        if (group != null) {
+        Set<PITGroup> pitGroups = wsGroupLookup.retrievePITGroups();        
+        
+        if (!usePIT && group != null) {
           if (typeOfGroup == null || typeOfGroup == group.getTypeOfGroup()) {
             groupIds.add(group.getUuid());
           } else {
@@ -96,6 +111,15 @@ public class WsGroupLookup {
             errorMessage.append("Error on group index: " + i + ", expecting type of group: " 
                 + typeOfGroup + ", " + wsGroupLookup.toStringCompact());
               
+          }
+        } else if (usePIT && pitGroups != null) {
+          for (PITGroup pitGroup : pitGroups) {
+            // the point in time tables do not have typeOfGroup...
+            if (typeOfGroup != null) {
+              throw new RuntimeException("typeOfGroup expected to be null for point in time queries.");
+            }
+            
+            groupIds.add(pitGroup.getId());
           }
         } else {
           
@@ -304,6 +328,17 @@ public class WsGroupLookup {
   public Group retrieveGroup() {
     return this.group;
   }
+  
+  /**
+   * <pre>
+   * 
+   * Note: this is not a javabean property because we dont want it in the web service
+   * </pre>
+   * @return the pit groups
+   */
+  public Set<PITGroup> retrievePITGroups() {
+    return this.pitGroups;
+  }
 
   /**
    * <pre>
@@ -468,6 +503,7 @@ public class WsGroupLookup {
         }
 
         //success
+        this.pitGroups = new LinkedHashSet<PITGroup>();
         this.pitGroups.add(theGroup);
 
       } else if (hasName) {

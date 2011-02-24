@@ -9,6 +9,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 import edu.internet2.middleware.grouper.attr.AttributeDef;
+import edu.internet2.middleware.grouper.pit.PITAttributeDef;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
 
@@ -199,6 +200,28 @@ public class WsAttributeDef implements Comparable<WsAttributeDef> {
       this.multiValued = GrouperServiceUtils.booleanToStringOneChar(attributeDef.isMultiValued());
       this.valueType = attributeDef.getValueTypeDb();
       
+    } else {
+      if (wsAttributeDefLookup != null) {
+        //no attributeDef, set the look values so the caller can keep things in sync
+        this.setName(wsAttributeDefLookup.getName());
+        this.setUuid(wsAttributeDefLookup.getUuid());
+        this.setExtension(GrouperUtil.extensionFromName(wsAttributeDefLookup.getName()));
+      }
+    }
+  }
+  
+  /**
+   * construct based on attribute def name, assign all fields
+   * @param attributeDef 
+   * @param wsAttributeDefLookup is the lookup to set looked up values
+   */
+  public WsAttributeDef(PITAttributeDef attributeDef, WsAttributeDefLookup wsAttributeDefLookup) {
+    if (attributeDef != null) {
+      this.setName(attributeDef.getName());
+      this.setUuid(attributeDef.getId());
+      this.setExtension(GrouperUtil.extensionFromName(attributeDef.getName()));
+      
+      this.attributeDefType = attributeDef.getAttributeDefTypeDb();      
     } else {
       if (wsAttributeDefLookup != null) {
         //no attributeDef, set the look values so the caller can keep things in sync
