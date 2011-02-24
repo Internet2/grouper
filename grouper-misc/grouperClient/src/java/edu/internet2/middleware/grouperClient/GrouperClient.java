@@ -3881,6 +3881,12 @@ public class GrouperClient {
       }
     }
     
+    Timestamp pointInTimeFrom = GrouperClientUtils.argMapTimestamp(argMap, argMapNotUsed, "pointInTimeFrom");
+    Timestamp pointInTimeTo = GrouperClientUtils.argMapTimestamp(argMap, argMapNotUsed, "pointInTimeTo");
+    
+    gcGetPermissionAssignments.assignPointInTimeFrom(pointInTimeFrom);
+    gcGetPermissionAssignments.assignPointInTimeTo(pointInTimeTo);
+    
     //register that we will use this
     GrouperClientUtils.argMapString(argMap, argMapNotUsed, "outputTemplate", false);
     

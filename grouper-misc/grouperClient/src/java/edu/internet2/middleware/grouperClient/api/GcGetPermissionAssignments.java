@@ -4,6 +4,7 @@
  */
 package edu.internet2.middleware.grouperClient.api;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -39,6 +40,52 @@ public class GcGetPermissionAssignments {
    * and assignments on those assignments should be returned, enter true.  default to false.   
    */
   private Boolean includeAssignmentsOnAssignments;
+  
+  /**
+   * To query permissions at a certain point in time or time range in the past, set this value
+   * and/or the value of pointInTimeTo.  This parameter specifies the start of the range
+   * of the point in time query.  If this is specified but pointInTimeTo is not specified, 
+   * then the point in time query range will be from the time specified to now.  
+   */
+  private Timestamp pointInTimeFrom;
+  
+  /**
+   * To query permissions at a certain point in time or time range in the past, set this value
+   * and/or the value of pointInTimeFrom.  This parameter specifies the end of the range 
+   * of the point in time query.  If this is the same as pointInTimeFrom, then the query 
+   * will be done at a single point in time rather than a range.  If this is specified but 
+   * pointInTimeFrom is not specified, then the point in time query range will be from the 
+   * minimum point in time to the time specified.
+   */
+  private Timestamp pointInTimeTo;
+  
+  /**
+   * To query permissions at a certain point in time or time range in the past, set this value
+   * and/or the value of pointInTimeTo.  This parameter specifies the start of the range
+   * of the point in time query.  If this is specified but pointInTimeTo is not specified, 
+   * then the point in time query range will be from the time specified to now.  
+   * @param pointInTimeFrom
+   * @return this for chaining
+   */
+  public GcGetPermissionAssignments assignPointInTimeFrom(Timestamp pointInTimeFrom) {
+    this.pointInTimeFrom = pointInTimeFrom;
+    return this;
+  }
+  
+  /**
+   * To query permissions at a certain point in time or time range in the past, set this value
+   * and/or the value of pointInTimeFrom.  This parameter specifies the end of the range 
+   * of the point in time query.  If this is the same as pointInTimeFrom, then the query 
+   * will be done at a single point in time rather than a range.  If this is specified but 
+   * pointInTimeFrom is not specified, then the point in time query range will be from the 
+   * minimum point in time to the time specified.
+   * @param pointInTimeTo
+   * @return this for chaining
+   */
+  public GcGetPermissionAssignments assignPointInTimeTo(Timestamp pointInTimeTo) {
+    this.pointInTimeTo = pointInTimeTo;
+    return this;
+  }
   
   /**
    * 
@@ -150,6 +197,16 @@ public class GcGetPermissionAssignments {
    * validate this call
    */
   private void validate() {
+    
+    if (pointInTimeFrom != null || pointInTimeTo != null) {
+      if (this.includeGroupDetail != null && this.includeGroupDetail) {
+        throw new RuntimeException("Cannot specify includeGroupDetail for point in time queries.");
+      }
+      
+      if (this.enabled != null && !this.enabled.equals("T")) {
+        throw new RuntimeException("Cannot search for disabled memberships for point in time queries.");
+      }
+    }
   }
   
   /** if the group detail should be sent back */
@@ -347,6 +404,9 @@ public class GcGetPermissionAssignments {
       if (GrouperClientUtils.length(this.actions) > 0) {
         getPermissionAssignments.setActions(GrouperClientUtils.toArray(this.actions, String.class));
       }
+      
+      getPermissionAssignments.setPointInTimeFrom(GrouperClientUtils.dateToString(this.pointInTimeFrom));
+      getPermissionAssignments.setPointInTimeTo(GrouperClientUtils.dateToString(this.pointInTimeTo));
       
       GrouperClientWs grouperClientWs = new GrouperClientWs();
       
