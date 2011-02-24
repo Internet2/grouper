@@ -264,4 +264,23 @@ public class PITAttributeAssignValue extends GrouperPIT implements Hib3GrouperVe
   public void delete() {
     GrouperDAOFactory.getFactory().getPITAttributeAssignValue().delete(this);
   }
+  
+  /**
+   * @return the string value regardless of type
+   */
+  public String valueString() {
+    if (this.valueFloating != null) {
+      return this.valueFloating.toString();
+    }
+    
+    if (this.valueInteger != null) {
+      return this.valueInteger.toString();
+    }
+    
+    if (this.valueMemberId != null) {
+      return this.valueMemberId;
+    }
+    
+    return this.valueString;
+  }
 }
