@@ -180,21 +180,43 @@ public enum GrouperLoaderType {
         Hib3GrouperLoaderLog hib3GrouploaderLog = loaderJobBean.getHib3GrouploaderLogOverall();
         
         if (StringUtils.equals(MAINTENANCE_CLEAN_LOGS, hib3GrouploaderLog.getJobName())) {
-          int daysToKeepLogs = GrouperLoaderConfig.getPropertyInt(GrouperLoaderConfig.LOADER_RETAIN_DB_LOGS_DAYS, 7);
-          if (daysToKeepLogs != -1) {
-            //lets get a date
-            Calendar calendar = GregorianCalendar.getInstance();
-            //get however many days in the past
-            calendar.add(Calendar.DAY_OF_YEAR, -1 * daysToKeepLogs);
-            //run a query to delete (note, dont retrieve records to java, just delete)
-            int records = HibernateSession.bySqlStatic().executeSql("delete from grouper_loader_log where last_updated < ?", 
-                (List<Object>)(Object)GrouperUtil.toList(new Timestamp(calendar.getTimeInMillis())));
-            hib3GrouploaderLog.setJobMessage("Deleted " + records + " records from grouper_loader_log older than " + daysToKeepLogs + " days old");
-          } else {
-            hib3GrouploaderLog.setJobMessage("Configured to not delete records from grouper_loader_log table");
+          StringBuilder jobMessage = new StringBuilder();
+          {
+            int daysToKeepLogs = GrouperLoaderConfig.getPropertyInt(GrouperLoaderConfig.LOADER_RETAIN_DB_LOGS_DAYS, 7);
+            if (daysToKeepLogs != -1) {
+              //lets get a date
+              Calendar calendar = GregorianCalendar.getInstance();
+              //get however many days in the past
+              calendar.add(Calendar.DAY_OF_YEAR, -1 * daysToKeepLogs);
+              //run a query to delete (note, dont retrieve records to java, just delete)
+              int records = HibernateSession.bySqlStatic().executeSql("delete from grouper_loader_log where last_updated < ?", 
+                  (List<Object>)(Object)GrouperUtil.toList(new Timestamp(calendar.getTimeInMillis())));
+              jobMessage.append("Deleted " + records + " records from grouper_loader_log older than " + daysToKeepLogs + " days old.  ");
+              
+            } else {
+              jobMessage.append("Configured to not delete records from grouper_loader_log table.  ");
+            }
           }
-          
+          {
+            int daysToKeepLogs = GrouperLoaderConfig.getPropertyInt("loader.retain.db.change_log_entry.days", 14);
+            if (daysToKeepLogs != -1) {
+              //lets get a date
+              Calendar calendar = GregorianCalendar.getInstance();
+              //get however many days in the past
+              calendar.add(Calendar.DAY_OF_YEAR, -1 * daysToKeepLogs);
+              //note, this is *1000 so that we can differentiate conflicting records
+              long time = calendar.getTimeInMillis()*1000L;
+              //run a query to delete (note, dont retrieve records to java, just delete)
+              int records = HibernateSession.bySqlStatic().executeSql("delete from grouper_change_log_entry where created_on < ?", 
+                  (List<Object>)(Object)GrouperUtil.toList(new Long(time)));
+              jobMessage.append("Deleted " + records + " records from grouper_change_log_entry older than " + daysToKeepLogs + " days old. (" + time + ")  ");
+            } else {
+              jobMessage.append("Configured to not delete records from grouper_change_log_entry table.  ");
+            }
+            
+          }
           hib3GrouploaderLog.setStatus(GrouperLoaderStatus.SUCCESS.name());
+          hib3GrouploaderLog.setJobMessage(jobMessage.toString());
         } else if (StringUtils.equals(GROUPER_REPORT, hib3GrouploaderLog.getJobName())) {
 
 

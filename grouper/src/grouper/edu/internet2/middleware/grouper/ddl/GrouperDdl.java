@@ -680,6 +680,13 @@ public enum GrouperDdl implements DdlVersionable {
           "attribute_def_type_idx", false, AttributeDef.COLUMN_ATTRIBUTE_DEF_TYPE);
       
       populatePITTables(database, ddlVersionBean);
+      
+      Table grouperChangeLogEntryTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database,
+          ChangeLogEntry.TABLE_GROUPER_CHANGE_LOG_ENTRY);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, ddlVersionBean, grouperChangeLogEntryTable.getName(), 
+          "change_log_created_on_idx", null, false, "created_on");
+
     }
   },
   
@@ -9714,6 +9721,9 @@ public enum GrouperDdl implements DdlVersionable {
       
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, ddlVersionBean, grouperChangeLogEntryTable.getName(), 
           "change_log_context_id_idx", null, false, "context_id");
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, ddlVersionBean, grouperChangeLogEntryTable.getName(), 
+          "change_log_created_on_idx", null, false, "created_on");
       
     }
 
