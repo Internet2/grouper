@@ -25,7 +25,26 @@ public class AttributeUpdateRequestContainer implements Serializable {
   
   /** list of actions for the attribute def */
   private List<String> actions;
+
+  /** action we are editing */
+  private String action;
   
+  /**
+   * action we are editing
+   * @return the action
+   */
+  public String getAction() {
+    return this.action;
+  }
+  
+  /**
+   * action we are editing
+   * @param action1 the action to set
+   */
+  public void setAction(String action1) {
+    this.action = action1;
+  }
+
   /**
    * list of actions for the attribute def
    * @return actions

@@ -43,6 +43,15 @@
 	          <a href="#" onclick="if (confirm('${simpleAttributeUpdateContainer.text.deleteActionConfirm}')) {ajax('SimpleAttributeUpdate.deleteAction?attributeDefToEditId=${attributeUpdateRequestContainer.attributeDefToEdit.id}&action=${action}');} return false;" 
 	          ><img src="../../grouperExternal/public/assets/images/page_cross.gif" height="14px" border="0" 
 	          alt="${simpleAttributeUpdateContainer.text.deleteActionImageAlt }"/></a>
+            
+            <%-- only show the edit button if this is a permission --%>
+            <c:if test="${attributeUpdateRequestContainer.attributeDefToEdit.attributeDefTypeDb == 'perm'}">
+              <a href="#" onclick="ajax('SimpleAttributeUpdate.editAction?attributeDefToEditId=${attributeUpdateRequestContainer.attributeDefToEdit.id}&action=${action}'); return false;" 
+              ><img src="../../grouperExternal/public/assets/images/application_edit.png" height="14px" border="0" 
+              alt="${simpleAttributeUpdateContainer.text.editActionImageAlt }"/></a>
+            </c:if>            
+            
+            
 	            ${action}
             
             <br />
@@ -55,5 +64,7 @@
   </div>
 </div>
 
+<div id="attributeActionEditPanel">
+</div>
 
 <!-- End: simpleAttributeUpdate/attributeActionsPanel.jsp -->

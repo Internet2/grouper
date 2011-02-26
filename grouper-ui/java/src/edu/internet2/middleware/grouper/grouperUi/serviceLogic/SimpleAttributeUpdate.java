@@ -641,6 +641,67 @@ public class SimpleAttributeUpdate {
     }
   }
 
+  /**
+   * edit an action
+   * @param httpServletRequest
+   * @param httpServletResponse
+   */
+  public void editAction(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
+  
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+  
+    AttributeUpdateRequestContainer attributeUpdateRequestContainer = AttributeUpdateRequestContainer.retrieveFromRequestOrCreate();
+  
+    GrouperSession grouperSession = null;
+  
+    try {
+      grouperSession = GrouperSession.start(loggedInSubject);
+      
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+  
+      AttributeDef attributeDef = null;
+      
+      String uuid = httpServletRequest.getParameter("attributeDefToEditId");
+      
+      if (StringUtils.isBlank(uuid)) {
+        throw new RuntimeException("Why is uuid blank????");
+      }
+  
+      String action = httpServletRequest.getParameter("action");
+      
+      if (StringUtils.isBlank(action)) {
+        throw new RuntimeException("Why is action blank????");
+      }
+      
+      //if editing, then this must be there, or it has been tampered with
+      try {
+        attributeDef = AttributeDefFinder.findById(uuid, true);
+      } catch (Exception e) {
+        LOG.info("Error searching for attribute def: " + uuid, e);
+        guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simpleAttributeUpdate.errorCantEditAttributeDef", false)));
+        return;
+        
+      }
+      
+      if (!attributeDef.getPrivilegeDelegate().canAttrAdmin(loggedInSubject)) {
+        LOG.info("Subject " + GrouperUtil.subjectToString(loggedInSubject) + " cannot admin attribute definition: " + attributeDef.getName());
+        guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simpleAttributeUpdate.errorCantEditAttributeDef", false)));
+        return;
+      }
+              
+      attributeUpdateRequestContainer.setAttributeDefToEdit(attributeDef);
+  
+      //set the actions panel
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#attributeActionEditPanel", 
+        "/WEB-INF/grouperUi/templates/simpleAttributeUpdate/attributeActionEditPanel.jsp"));
+      
+      guiResponseJs.addAction(GuiScreenAction.newScript("guiScrollToBottom();"));
+      
+    } finally {
+      GrouperSession.stopQuietly(grouperSession); 
+    }
+  }
+
   /** logger */
   private static final Log LOG = LogFactory.getLog(SimpleAttributeUpdate.class);
   

@@ -65,6 +65,32 @@ public class AttributeUpdateText {
   }
   
   /**
+   * edit action confirm
+   * @return edit action confirm
+   */
+  public String getEditActionImageAlt() {
+    return text("simpleAttributeUpdate.editActionImageAlt");
+  }
+
+  /**
+   * add action edit implies
+   * @return edit action confirmadd action edit implies
+   */
+  public String getAddActionEditImplies() {
+    return text("simpleAttributeUpdate.addActionEditImplies");
+  }
+
+  /**
+   * add action edit implied by
+   * @return edit action confirmadd action edit implied by
+   */
+  public String getAddActionEditImpliedBy() {
+    return text("simpleAttributeUpdate.addActionEditImpliedBy");
+  }
+
+  
+  
+  /**
    * delete action image alt
    * @return delete action image alt
    */
