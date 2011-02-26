@@ -502,7 +502,9 @@ public class EsbConsumer extends ChangeLogConsumerBase {
     if (currentId == -1) {
       throw new RuntimeException("Couldn't process any records");
     }
-    this.esbPublisherBase.disconnect();
+    if (this.esbPublisherBase != null) {
+      this.esbPublisherBase.disconnect();
+    }
     return currentId;
   }
 
