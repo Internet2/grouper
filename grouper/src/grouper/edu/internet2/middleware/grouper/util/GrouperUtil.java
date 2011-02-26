@@ -97,6 +97,7 @@ import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.hooks.logic.HookVeto;
 import edu.internet2.middleware.grouper.misc.GrouperCloneable;
+import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.provider.SourceManager;
@@ -2292,8 +2293,12 @@ public class GrouperUtil {
    */
   private static GrouperCache<String, Set<Field>> fieldSetCache() {
     if (fieldSetCache == null) {
-      fieldSetCache = new GrouperCache<String, Set<Field>>("edu.internet2.middleware.grouper.util.fieldSetCache",
-          2000, false, 0, 60*60*24, false);
+      synchronized(GrouperStartup.class) {
+        if (fieldSetCache == null) {
+          fieldSetCache = new GrouperCache<String, Set<Field>>("edu.internet2.middleware.grouper.util.fieldSetCache",
+              2000, false, 0, 60*60*24, false);
+        }
+      }
     }
     return fieldSetCache;
   }
@@ -2310,10 +2315,15 @@ public class GrouperUtil {
    */
   private static GrouperCache<Class, Method[]> declaredMethodsCache() {
     if (declaredMethodsCache == null) {
-      declaredMethodsCache = new GrouperCache<Class, Method[]>("edu.internet2.middleware.grouper.util.declaredMethodsCache",
-          2000, false, 0, 60*60*24, false);
+      synchronized(GrouperStartup.class) {
+        if (declaredMethodsCache == null) {
+          declaredMethodsCache = new GrouperCache<Class, Method[]>("edu.internet2.middleware.grouper.util.declaredMethodsCache",
+              2000, false, 0, 60*60*24, false);
+        }
+      }
     }
     return declaredMethodsCache;
+      
   }
   
     
@@ -2330,8 +2340,12 @@ public class GrouperUtil {
    */
   private static GrouperCache<String, Set<Method>> getterSetCache() {
     if (getterSetCache == null) {
-      getterSetCache = new GrouperCache<String, Set<Method>>("edu.internet2.middleware.grouper.util.getterSetCache",
-          2000, false, 0, 60*60*24, false);
+      synchronized(GrouperStartup.class) {
+        if (getterSetCache == null) {
+          getterSetCache = new GrouperCache<String, Set<Method>>("edu.internet2.middleware.grouper.util.getterSetCache",
+              2000, false, 0, 60*60*24, false);
+        }
+      }
     }
     return getterSetCache;
   }
@@ -2350,8 +2364,12 @@ public class GrouperUtil {
    */
   private static GrouperCache<String, Set<Method>> setterSetCache() {
     if (setterSetCache == null) {
-      setterSetCache = new GrouperCache<String, Set<Method>>("edu.internet2.middleware.grouper.util.setterSetCache",
-          2000, false, 0, 60*60*24, false);
+      synchronized(GrouperStartup.class) {
+        if (setterSetCache == null) {
+          setterSetCache = new GrouperCache<String, Set<Method>>("edu.internet2.middleware.grouper.util.setterSetCache",
+              2000, false, 0, 60*60*24, false);
+        }
+      }
     }
     return setterSetCache;
   }
@@ -2374,8 +2392,12 @@ public class GrouperUtil {
    */
   private static GrouperCache<String, Properties> resourcePropertiesCache() {
     if (resourcePropertiesCache == null) {
-      resourcePropertiesCache = new GrouperCache<String, Properties>(
-          GrouperUtil.class.getName() + ".resourcePropertiesCache", 200, false, 300, 300, false);
+      synchronized(GrouperStartup.class) {
+        if (resourcePropertiesCache == null) {
+          resourcePropertiesCache = new GrouperCache<String, Properties>(
+              GrouperUtil.class.getName() + ".resourcePropertiesCache", 200, false, 300, 300, false);
+        }
+      }
     }
     return resourcePropertiesCache;
   }
@@ -6842,8 +6864,12 @@ public class GrouperUtil {
    */
   private static GrouperCache<File, Properties> propertiesFromFileCache() {
     if (propertiesFromFileCache == null) {
-      propertiesFromFileCache = new GrouperCache<File,Properties>(
-          GrouperUtil.class.getName() + ".propertiesFromFileCache", 200, false, 300, 300, false);
+      synchronized(GrouperStartup.class) {
+        if (propertiesFromFileCache == null) {
+          propertiesFromFileCache = new GrouperCache<File,Properties>(
+              GrouperUtil.class.getName() + ".propertiesFromFileCache", 200, false, 300, 300, false);
+        }
+      }
     }
     return propertiesFromFileCache;
   }
@@ -6859,8 +6885,12 @@ public class GrouperUtil {
    */
   private static GrouperCache<String, Properties> propertiesFromUrlCache() {
     if (propertiesFromUrlCache == null) {
-      propertiesFromUrlCache = new GrouperCache<String,Properties>(
-          GrouperUtil.class.getName() + ".propertiesFromUrlCache", 200, false, 300, 300, false);
+      synchronized(GrouperStartup.class) {
+        if (propertiesFromUrlCache == null) {
+          propertiesFromUrlCache = new GrouperCache<String,Properties>(
+              GrouperUtil.class.getName() + ".propertiesFromUrlCache", 200, false, 300, 300, false);
+        }
+      }
     }
     return propertiesFromUrlCache;
   }
@@ -6876,8 +6906,12 @@ public class GrouperUtil {
    */
   private static GrouperCache<String, Properties> propertiesFromUrlFailsafeCache() {
     if (propertiesFromUrlFailsafeCache == null) {
-      propertiesFromUrlFailsafeCache = new GrouperCache<String,Properties>(
-          GrouperUtil.class.getName() + ".propertiesFromUrlFailsafeCache", 200, false, 60*60*24, 60*60*24, false);
+      synchronized(GrouperStartup.class) {
+        if (propertiesFromUrlFailsafeCache == null) {
+          propertiesFromUrlFailsafeCache = new GrouperCache<String,Properties>(
+              GrouperUtil.class.getName() + ".propertiesFromUrlFailsafeCache", 200, false, 60*60*24, 60*60*24, false);
+        }
+      }
     }
     return propertiesFromUrlFailsafeCache;
   }

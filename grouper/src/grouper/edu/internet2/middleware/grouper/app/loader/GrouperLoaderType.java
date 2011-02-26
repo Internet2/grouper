@@ -52,6 +52,7 @@ import edu.internet2.middleware.grouper.attr.assign.AttributeAssignAction;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignActionSet;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
+import edu.internet2.middleware.grouper.audit.GrouperEngineBuiltin;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogConsumer;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogConsumerBase;
@@ -62,6 +63,7 @@ import edu.internet2.middleware.grouper.client.GroupSyncDaemon;
 import edu.internet2.middleware.grouper.externalSubjects.ExternalSubject;
 import edu.internet2.middleware.grouper.hibernate.ByHqlStatic;
 import edu.internet2.middleware.grouper.hibernate.GrouperCommitType;
+import edu.internet2.middleware.grouper.hibernate.GrouperContext;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransaction;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionHandler;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
@@ -124,6 +126,8 @@ public enum GrouperLoaderType {
     @Override
     public void runJob(LoaderJobBean loaderJobBean) {
       
+      GrouperContext.createNewDefaultContext(GrouperEngineBuiltin.LOADER, false, true);
+
 //      String groupName, GrouperLoaderDb grouperLoaderDb, String query, 
 //      Hib3GrouperLoaderLog hib3GrouploaderLog, long startTime, GrouperSession grouperSession, 
 //      List<Group> andGroups, List<GroupType> groupTypes, String groupLikeString, String groupQuery
@@ -171,6 +175,8 @@ public enum GrouperLoaderType {
       @Override
       public void runJob(LoaderJobBean loaderJobBean) {
         
+        GrouperContext.createNewDefaultContext(GrouperEngineBuiltin.LOADER, false, true);
+
         Hib3GrouperLoaderLog hib3GrouploaderLog = loaderJobBean.getHib3GrouploaderLogOverall();
         
         if (StringUtils.equals(MAINTENANCE_CLEAN_LOGS, hib3GrouploaderLog.getJobName())) {
@@ -332,6 +338,8 @@ public enum GrouperLoaderType {
       @Override
       public void runJob(LoaderJobBean loaderJobBean) {
         
+        GrouperContext.createNewDefaultContext(GrouperEngineBuiltin.LOADER, false, true);
+
         String groupNameOverall = loaderJobBean.getGroupNameOverall();
         GrouperLoaderDb grouperLoaderDb = loaderJobBean.getGrouperLoaderDb();
         String query = loaderJobBean.getQuery();
@@ -778,6 +786,8 @@ public enum GrouperLoaderType {
           @Override
           public void runJob(LoaderJobBean loaderJobBean) {
             
+            GrouperContext.createNewDefaultContext(GrouperEngineBuiltin.LOADER, false, true);
+
             Hib3GrouperLoaderLog hib3GrouploaderLog = loaderJobBean.getHib3GrouploaderLogOverall();
             
             if (StringUtils.equals(GROUPER_CHANGE_LOG_TEMP_TO_CHANGE_LOG, hib3GrouploaderLog.getJobName())) {
@@ -791,6 +801,7 @@ public enum GrouperLoaderType {
               
               String consumerName = hib3GrouploaderLog.getJobName().substring(GROUPER_CHANGE_LOG_CONSUMER_PREFIX.length());
               ChangeLogConsumer changeLogConsumer = GrouperDAOFactory.getFactory().getChangeLogConsumer().findByName(consumerName, false);
+              boolean error = false;
               
               //if this is a new job
               if (changeLogConsumer == null) {
@@ -827,7 +838,6 @@ public enum GrouperLoaderType {
                 }
                 
                 //pass this to the consumer
-                boolean error = false;
                 long lastProcessed = -1;
                 try {
                   lastProcessed = changeLogConsumerBase.processChangeLogEntries(changeLogEntryList, changeLogProcessorMetadata);
@@ -873,7 +883,11 @@ public enum GrouperLoaderType {
                 }
                 hib3GrouploaderLog.store();
               }
-              
+
+              if (!error) {
+
+                hib3GrouploaderLog.setStatus(GrouperLoaderStatus.SUCCESS.name());
+              }
             } else {
               throw new RuntimeException("Cant find implementation for job: " + hib3GrouploaderLog.getJobName());
             }
@@ -922,6 +936,8 @@ public enum GrouperLoaderType {
       @SuppressWarnings("unchecked")
       @Override
       public void runJob(LoaderJobBean loaderJobBean) {
+
+        GrouperContext.createNewDefaultContext(GrouperEngineBuiltin.LOADER, false, true);
 
         //      GrouperLoaderDb grouperLoaderDb, attributeDefName
         //      Hib3GrouperLoaderLog hib3GrouploaderLog, long startTime, GrouperSession grouperSession, 
@@ -1020,7 +1036,12 @@ public enum GrouperLoaderType {
   public abstract boolean attributeRequired(String attributeName);
 
   /**
-   * sync up a group membership based on query and db
+   * <pre>
+   * sync up a group membership based on query and db.  Note, the first thing you should
+   * do is set the context type:
+   * 
+   *             GrouperContext.createNewDefaultContext(GrouperEngineBuiltin.LOADER, false, true);
+   * </pre>       
    * @param loaderJobBean is the bean data
    */
   public abstract void runJob(LoaderJobBean loaderJobBean);
