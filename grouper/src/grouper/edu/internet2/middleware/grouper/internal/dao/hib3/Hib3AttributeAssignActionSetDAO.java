@@ -186,9 +186,9 @@ public class Hib3AttributeAssignActionSetDAO extends Hib3DAO implements Attribut
    */
   public Set<AttributeAssignAction> attributeAssignActionsImpliedByThis(String attributeAssignActionId) {
     Set<AttributeAssignAction> attributeAssignActions = HibernateSession.byHqlStatic().createQuery(
-        "select distinct adn from AttributeAssignActionSet as adns, AttributeAssignAction as adn " +
-        "where adns.ifHasAttrAssignActionId = :theId and adn.id = adns.thenHasAttrAssignActionId " +
-        "and adn.id != :theId order by adn.nameDb")
+        "select distinct aaa from AttributeAssignActionSet as aaas, AttributeAssignAction as aaa " +
+        "where aaas.ifHasAttrAssignActionId = :theId and aaa.id = aaas.thenHasAttrAssignActionId " +
+        "and aaa.id != :theId order by aaa.nameDb")
         .setString("theId", attributeAssignActionId).listSet(AttributeAssignAction.class);
       return attributeAssignActions;
   }
@@ -198,9 +198,9 @@ public class Hib3AttributeAssignActionSetDAO extends Hib3DAO implements Attribut
    */
   public Set<AttributeAssignAction> attributeAssignActionsImpliedByThisImmediate(String attributeAssignActionId) {
     Set<AttributeAssignAction> attributeAssignActions = HibernateSession.byHqlStatic().createQuery(
-        "select distinct adn from AttributeAssignActionSet as adns, AttributeAssignAction as adn " +
-        "where adn.ifHasAttrAssignActionId = :theId and adn.id = adns.thenHasAttrAssignActionId " +
-        "and adn.id != :theId and adn.typeDb = 'immediate' order by adn.name")
+        "select distinct aaa from AttributeAssignActionSet as aaas, AttributeAssignAction as aaa " +
+        "where aaas.ifHasAttrAssignActionId = :theId and aaa.id = aaas.thenHasAttrAssignActionId " +
+        "and aaa.id != :theId and aaas.typeDb = 'immediate' order by aaa.nameDb")
         .setString("theId", attributeAssignActionId).listSet(AttributeAssignAction.class);
       return attributeAssignActions;
   }
@@ -210,9 +210,9 @@ public class Hib3AttributeAssignActionSetDAO extends Hib3DAO implements Attribut
    */
   public Set<AttributeAssignAction> attributeAssignActionsThatImplyThis(String attributeAssignActionId) {
     Set<AttributeAssignAction> attributeAssignActions = HibernateSession.byHqlStatic().createQuery(
-        "select distinct adn from AttributeAssignActionSet as adns, AttributeAssignAction as adn " +
-        "where adn.thenHasAttrAssignActionId = :theId and adn.id = adns.ifHasAttrAssignActionId " +
-        "and adn.id != :theId order by adn.name")
+        "select distinct aaa from AttributeAssignActionSet as aaas, AttributeAssignAction as aaa " +
+        "where aaas.thenHasAttrAssignActionId = :theId and aaa.id = aaas.ifHasAttrAssignActionId " +
+        "and aaa.id != :theId order by aaa.nameDb")
         .setString("theId", attributeAssignActionId).listSet(AttributeAssignAction.class);
       return attributeAssignActions;
   }
@@ -222,9 +222,9 @@ public class Hib3AttributeAssignActionSetDAO extends Hib3DAO implements Attribut
    */
   public Set<AttributeAssignAction> attributeAssignActionsThatImplyThisImmediate(String attributeAssignActionId) {
     Set<AttributeAssignAction> attributeAssignActions = HibernateSession.byHqlStatic().createQuery(
-        "select distinct adn from AttributeAssignActionSet as adns, AttributeAssignAction as adn " +
-        "where adn.thenHasAttrAssignActionId = :theId and adn.id = adns.ifHasAttrAssignActionId " +
-        "and adn.id != :theId and adn.typeDb = 'immediate' order by adn.name")
+        "select distinct aaa from AttributeAssignActionSet as aaas, AttributeAssignAction as aaa " +
+        "where aaas.thenHasAttrAssignActionId = :theId and aaa.id = aaas.ifHasAttrAssignActionId " +
+        "and aaa.id != :theId and aaas.typeDb = 'immediate' order by aaa.nameDb")
         .setString("theId", attributeAssignActionId).listSet(AttributeAssignAction.class);
       return attributeAssignActions;
   }

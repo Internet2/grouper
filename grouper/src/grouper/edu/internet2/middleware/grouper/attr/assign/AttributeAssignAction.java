@@ -198,6 +198,14 @@ public class AttributeAssignAction extends GrouperAPI
     return this.attributeDefId;
   }
 
+  /**
+   * attribute def that this action is possible for
+   * @return the attributeDef
+   */
+  public AttributeDef getAttributeDef() {
+    return GrouperDAOFactory.getFactory().getAttributeDef().findById(this.attributeDefId, true);
+  }
+
   
   /**
    * id of the attribute def that this action is possible for

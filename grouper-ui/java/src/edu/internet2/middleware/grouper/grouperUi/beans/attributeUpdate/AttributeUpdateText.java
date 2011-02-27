@@ -16,6 +16,40 @@ public class AttributeUpdateText {
   private static AttributeUpdateText simpleAttributeUpdateText = new AttributeUpdateText();
   
   /**
+   * delete action implies confirm
+   * @return confirm
+   */
+  public String getDeleteActionImpliesConfirm() {
+    return text("simpleAttributeUpdate.deleteActionImpliesConfirm");
+  }
+
+  /**
+   * delete action implies image alt
+   * @return image alt
+   */
+  public String getDeleteActionImpliesImageAlt() {
+    return text("simpleAttributeUpdate.deleteActionImpliesImageAlt");
+  }
+
+  
+  /**
+   * delete action implied by confirm
+   * @return confirm
+   */
+  public String getDeleteActionImpliedByConfirm() {
+    return text("simpleAttributeUpdate.deleteActionImpliedByConfirm");
+  }
+
+  /**
+   * delete action implied by image alt
+   * @return image alt
+   */
+  public String getdeleteActionImpliedByImageAlt() {
+    return text("simpleAttributeUpdate.deleteActionImpliedByImageAlt");
+  }
+
+  
+  /**
    * add actions
    * @return add actions
    */

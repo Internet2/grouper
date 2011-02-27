@@ -8,6 +8,7 @@ import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
+import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.grouperSet.GrouperSetEnum;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -55,6 +56,48 @@ public class AttributeAssignActionSetDelegate implements Serializable {
   }
   
   /**
+   * get action names implied by this immediate
+   * @return names
+   */
+  public Set<String> getAttributeAssignActionNamesImpliedByThisImmediate() {
+    
+    Set<String> actions = new HashSet<String>();
+    for (AttributeAssignAction attributeAssignAction : GrouperUtil.nonNull(this.getAttributeAssignActionsImpliedByThisImmediate())) {
+      actions.add(attributeAssignAction.getName());
+    }
+    return actions;
+    
+  }
+  
+  /**
+   * get action names that imply this immediate
+   * @return names
+   */
+  public Set<String> getAttributeAssignActionNamesThatImplyThisImmediate() {
+    
+    Set<String> actions = new HashSet<String>();
+    for (AttributeAssignAction attributeAssignAction : GrouperUtil.nonNull(this.getAttributeAssignActionsThatImplyThisImmediate())) {
+      actions.add(attributeAssignAction.getName());
+    }
+    return actions;
+    
+  }
+  
+  /**
+   * get action names that imply this
+   * @return names
+   */
+  public Set<String> getAttributeAssignActionNamesThatImplyThis() {
+    
+    Set<String> actions = new HashSet<String>();
+    for (AttributeAssignAction attributeAssignAction : GrouperUtil.nonNull(this.getAttributeAssignActionsThatImplyThis())) {
+      actions.add(attributeAssignAction.getName());
+    }
+    return actions;
+    
+  }
+  
+  /**
    * get all the THEN rows from attributeAssignActionSet about this id (immediate only).  The ones returned
    * are implied if this one is assigned.  Those are the children, this is the parent
    * @return set of attributeAssignActionSets, or empty set if none available
@@ -83,6 +126,50 @@ public class AttributeAssignActionSetDelegate implements Serializable {
       .attributeAssignActionsThatImplyThisImmediate(this.attributeAssignAction.getId());
   }
 
+  /**
+   * return actions which can imply this, i.e. they already do not
+   * @return the set of action strings
+   */
+  public Set<String> getNewAttributeAssignActionNamesThatCanImplyThis() {
+    //find list which can imply
+    AttributeDef attributeDef = this.attributeAssignAction.getAttributeDef();
+
+    Set<String> actionsWhichCanImply = attributeDef.getAttributeDefActionDelegate().allowedActionStrings();
+
+    //remove self
+    actionsWhichCanImply.remove(this.attributeAssignAction.getName());
+    
+    //remove existing direct relations
+    Set<AttributeAssignAction> actionsWhichImplyThisImmediate = this.getAttributeAssignActionsThatImplyThisImmediate();
+    
+    for (AttributeAssignAction actionWhichImplyThisImmediate : actionsWhichImplyThisImmediate) {
+      actionsWhichCanImply.remove(actionWhichImplyThisImmediate.getName());
+    }
+    return actionsWhichCanImply;
+  }
+  
+  /**
+   * return actions which can be implied this, i.e. they already do not
+   * @return the set of action strings
+   */
+  public Set<String> getNewAttributeAssignActionNamesThatCanBeImpliedByThis() {
+    //find list which can imply
+    AttributeDef attributeDef = this.attributeAssignAction.getAttributeDef();
+
+    Set<String> actionsWhichCanBeImplied = attributeDef.getAttributeDefActionDelegate().allowedActionStrings();
+
+    //remove self
+    actionsWhichCanBeImplied.remove(this.attributeAssignAction.getName());
+    
+    //remove existing direct relations
+    Set<AttributeAssignAction> actionsWhichImpliedByThisImmediate = this.getAttributeAssignActionsImpliedByThisImmediate();
+    
+    for (AttributeAssignAction actionWhichImpliedByThisImmediate : actionsWhichImpliedByThisImmediate) {
+      actionsWhichCanBeImplied.remove(actionWhichImpliedByThisImmediate.getName());
+    }
+    return actionsWhichCanBeImplied;
+  }
+  
   /**
    * 
    * @param newAttributeAssignAction

@@ -26,6 +26,120 @@ public class AttributeUpdateRequestContainer implements Serializable {
   /** list of actions for the attribute def */
   private List<String> actions;
 
+  /** list of actions which can be added as an action which implies */
+  private List<String> newActionsCanImply;
+
+  /** list of actions which can be added as an action which impliedBy */
+  private List<String> newActionsCanImpliedBy;
+
+  /** list of actions that imply this action */
+  private List<String> actionsThatImply;
+  
+  /** list of actions implied by this action */
+  private List<String> actionsImpliedBy;
+  
+  /**
+   * list of actions implied by this action
+   * @return actions
+   */
+  public List<String> getActionsImpliedBy() {
+    return this.actionsImpliedBy;
+  }
+
+  /**
+   * list of actions implied by this action
+   * @param actionsImpliedBy1
+   */
+  public void setActionsImpliedBy(List<String> actionsImpliedBy1) {
+    this.actionsImpliedBy = actionsImpliedBy1;
+  }
+
+  /** list of actions implied by this action immediately */
+  private List<String> actionsImpliedByImmediate;
+  
+  /**
+   * list of actions implied by this action immediately
+   * @return actions
+   */
+  public List<String> getActionsImpliedByImmediate() {
+    return this.actionsImpliedByImmediate;
+  }
+
+  /**
+   * list of actions implied by this action immediately
+   * @param actionsImpliedByImmediate1
+   */
+  public void setActionsImpliedByImmediate(List<String> actionsImpliedByImmediate1) {
+    this.actionsImpliedByImmediate = actionsImpliedByImmediate1;
+  }
+
+  /** list of actions that imply this action immediately */
+  private List<String> actionsThatImplyImmediate;
+  
+  /**
+   * list of actions that imply this action immediately
+   * @return actions
+   */
+  public List<String> getActionsThatImplyImmediate() {
+    return this.actionsThatImplyImmediate;
+  }
+
+  /**
+   * list of actions that imply this action immediately
+   * @param actionsThatImplyImmediate1
+   */
+  public void setActionsThatImplyImmediate(List<String> actionsThatImplyImmediate1) {
+    this.actionsThatImplyImmediate = actionsThatImplyImmediate1;
+  }
+
+  /**
+   * list of actions that imply this action
+   * @return the actions
+   */
+  public List<String> getActionsThatImply() {
+    return this.actionsThatImply;
+  }
+
+  /**
+   * list of actions that imply this action
+   * @param actionsThatImply1
+   */
+  public void setActionsThatImply(List<String> actionsThatImply1) {
+    this.actionsThatImply = actionsThatImply1;
+  }
+
+  /**
+   * list of actions which can be added as an action which impliedBy
+   * @return actions
+   */
+  public List<String> getNewActionsCanImpliedBy() {
+    return this.newActionsCanImpliedBy;
+  }
+
+  /**
+   * list of actions which can be added as an action which impliedBy
+   * @param newActionsCanImpliedBy1
+   */
+  public void setNewActionsCanImpliedBy(List<String> newActionsCanImpliedBy1) {
+    this.newActionsCanImpliedBy = newActionsCanImpliedBy1;
+  }
+
+  /**
+   * list of actions which can be added as an action which implies
+   * @return actions
+   */
+  public List<String> getNewActionsCanImply() {
+    return this.newActionsCanImply;
+  }
+
+  /**
+   * list of actions which can be added as an action which implies
+   * @param newActionsCanImply1
+   */
+  public void setNewActionsCanImply(List<String> newActionsCanImply1) {
+    this.newActionsCanImply = newActionsCanImply1;
+  }
+
   /** action we are editing */
   private String action;
   

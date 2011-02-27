@@ -22,6 +22,7 @@ import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefType;
 import edu.internet2.middleware.grouper.attr.AttributeDefValueType;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssignAction;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.grouperUi.beans.attributeUpdate.AttributeUpdateRequestContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.attributeUpdate.AttributeUpdateSessionContainer;
@@ -38,7 +39,6 @@ import edu.internet2.middleware.subject.Subject;
  * main ajax methods for simple attribute update module
  */
 public class SimpleAttributeUpdate {
-
   
   /**
    * delete button was pressed on the attribute edit panel
@@ -642,6 +642,143 @@ public class SimpleAttributeUpdate {
   }
 
   /**
+   * delete an action that implies the current action
+   * @param httpServletRequest
+   * @param httpServletResponse
+   */
+  public void deleteActionImplies(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
+  
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+  
+    AttributeUpdateRequestContainer attributeUpdateRequestContainer = AttributeUpdateRequestContainer.retrieveFromRequestOrCreate();
+
+    GrouperSession grouperSession = null;
+
+    try {
+      grouperSession = GrouperSession.start(loggedInSubject);
+
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+
+      AttributeDef attributeDef = null;
+
+      String uuid = httpServletRequest.getParameter("attributeDefToEditId");
+
+      if (StringUtils.isBlank(uuid)) {
+        throw new RuntimeException("Why is uuid blank????");
+      }
+  
+      String action = httpServletRequest.getParameter("action");
+      
+      if (StringUtils.isBlank(action)) {
+        throw new RuntimeException("Why is action blank????");
+      }
+      
+      //if editing, then this must be there, or it has been tampered with
+      try {
+        attributeDef = AttributeDefFinder.findById(uuid, true);
+      } catch (Exception e) {
+        LOG.info("Error searching for attribute def: " + uuid, e);
+        guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simpleAttributeUpdate.errorCantEditAttributeDef", false)));
+        return;
+        
+      }
+      
+      if (!attributeDef.getPrivilegeDelegate().canAttrAdmin(loggedInSubject)) {
+        LOG.info("Subject " + GrouperUtil.subjectToString(loggedInSubject) + " cannot admin attribute definition: " + attributeDef.getName());
+        guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simpleAttributeUpdate.errorCantEditAttributeDef", false)));
+        return;
+      }
+      
+      String actionImplies = httpServletRequest.getParameter("actionImplies");
+      
+      if (StringUtils.isBlank(actionImplies)) {
+        throw new RuntimeException("Why is actionImplies blank?");
+      }
+      
+      AttributeAssignAction attributeAssignAction = attributeDef.getAttributeDefActionDelegate().allowedAction(action, true);
+      AttributeAssignAction attributeAssignActionThatImplies = attributeDef.getAttributeDefActionDelegate().allowedAction(actionImplies, true);
+      attributeAssignActionThatImplies.getAttributeAssignActionSetDelegate().removeFromAttributeAssignActionSet(attributeAssignAction);
+
+      guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simpleAttributeUpdate.successRemoveImpliesAction", false)));
+
+      setupEditActionPanel(attributeUpdateRequestContainer, guiResponseJs, attributeDef,
+          action);
+      
+    } finally {
+      GrouperSession.stopQuietly(grouperSession); 
+    }
+  }
+  
+  /**
+   * add an action that implies the current action
+   * @param httpServletRequest
+   * @param httpServletResponse
+   */
+  public void addActionEditImplies(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
+  
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+  
+    AttributeUpdateRequestContainer attributeUpdateRequestContainer = AttributeUpdateRequestContainer.retrieveFromRequestOrCreate();
+  
+    GrouperSession grouperSession = null;
+  
+    try {
+      grouperSession = GrouperSession.start(loggedInSubject);
+      
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+  
+      AttributeDef attributeDef = null;
+      
+      String uuid = httpServletRequest.getParameter("attributeDefToEditId");
+      
+      if (StringUtils.isBlank(uuid)) {
+        throw new RuntimeException("Why is uuid blank????");
+      }
+  
+      String action = httpServletRequest.getParameter("action");
+      
+      if (StringUtils.isBlank(action)) {
+        throw new RuntimeException("Why is action blank????");
+      }
+      
+      //if editing, then this must be there, or it has been tampered with
+      try {
+        attributeDef = AttributeDefFinder.findById(uuid, true);
+      } catch (Exception e) {
+        LOG.info("Error searching for attribute def: " + uuid, e);
+        guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simpleAttributeUpdate.errorCantEditAttributeDef", false)));
+        return;
+        
+      }
+      
+      if (!attributeDef.getPrivilegeDelegate().canAttrAdmin(loggedInSubject)) {
+        LOG.info("Subject " + GrouperUtil.subjectToString(loggedInSubject) + " cannot admin attribute definition: " + attributeDef.getName());
+        guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simpleAttributeUpdate.errorCantEditAttributeDef", false)));
+        return;
+      }
+      
+      String actionAddImply = httpServletRequest.getParameter("actionAddImply");
+      
+      if (StringUtils.isBlank(actionAddImply)) {
+        guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simpleAttributeUpdate.mustSelectAnActionToImply", false)));
+        return;
+      }
+      
+      AttributeAssignAction attributeAssignAction = attributeDef.getAttributeDefActionDelegate().allowedAction(action, true);
+      AttributeAssignAction attributeAssignActionThatImplies = attributeDef.getAttributeDefActionDelegate().allowedAction(actionAddImply, true);
+      attributeAssignActionThatImplies.getAttributeAssignActionSetDelegate().addToAttributeAssignActionSet(attributeAssignAction);
+
+      guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simpleAttributeUpdate.successAddImpliesAction", false)));
+
+      setupEditActionPanel(attributeUpdateRequestContainer, guiResponseJs, attributeDef,
+          action);
+      
+    } finally {
+      GrouperSession.stopQuietly(grouperSession); 
+    }
+  }
+  
+  /**
    * edit an action
    * @param httpServletRequest
    * @param httpServletResponse
@@ -689,13 +826,210 @@ public class SimpleAttributeUpdate {
         return;
       }
               
-      attributeUpdateRequestContainer.setAttributeDefToEdit(attributeDef);
-  
-      //set the actions panel
-      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#attributeActionEditPanel", 
-        "/WEB-INF/grouperUi/templates/simpleAttributeUpdate/attributeActionEditPanel.jsp"));
+      setupEditActionPanel(attributeUpdateRequestContainer, guiResponseJs, attributeDef,
+          action);
       
-      guiResponseJs.addAction(GuiScreenAction.newScript("guiScrollToBottom();"));
+    } finally {
+      GrouperSession.stopQuietly(grouperSession); 
+    }
+  }
+
+  /**
+   * setup the edit action panel
+   * @param attributeUpdateRequestContainer
+   * @param guiResponseJs
+   * @param attributeDef
+   * @param action
+   */
+  private void setupEditActionPanel(
+      AttributeUpdateRequestContainer attributeUpdateRequestContainer,
+      GuiResponseJs guiResponseJs, AttributeDef attributeDef, String action) {
+    
+    if (attributeDef.getAttributeDefActionDelegate().allowedActions().size() < 2) {
+      guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simpleAttributeUpdate.cantEditActionIfOnlyOne", false)));
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtml("#attributeActionEditPanel", null));
+      return;
+    }
+    
+    attributeUpdateRequestContainer.setAttributeDefToEdit(attributeDef);
+    attributeUpdateRequestContainer.setAction(action);
+    
+    //find list which can imply
+    AttributeAssignAction attributeAssignAction = attributeDef.getAttributeDefActionDelegate().findAction(action, true);
+    {
+      List<String> actionsWhichCanImply = new ArrayList<String>(attributeAssignAction.getAttributeAssignActionSetDelegate().getNewAttributeAssignActionNamesThatCanImplyThis());
+      Collections.sort(actionsWhichCanImply);
+      attributeUpdateRequestContainer.setNewActionsCanImply(actionsWhichCanImply);
+    }
+    
+    {
+      List<String> actionsWhichCanBeImplied = new ArrayList<String>(attributeAssignAction.getAttributeAssignActionSetDelegate().getNewAttributeAssignActionNamesThatCanBeImpliedByThis());
+      Collections.sort(actionsWhichCanBeImplied);
+      attributeUpdateRequestContainer.setNewActionsCanImpliedBy(actionsWhichCanBeImplied);
+    }
+    
+    {
+      List<String> actionsThatImplyThis = new ArrayList<String>(attributeAssignAction.getAttributeAssignActionSetDelegate().getAttributeAssignActionNamesThatImplyThis());
+      Collections.sort(actionsThatImplyThis);
+      attributeUpdateRequestContainer.setActionsThatImply(actionsThatImplyThis);
+    }
+    
+    {
+      List<String> actionsThatImplyThisImmediate = new ArrayList<String>(attributeAssignAction.getAttributeAssignActionSetDelegate().getAttributeAssignActionNamesThatImplyThisImmediate());
+      Collections.sort(actionsThatImplyThisImmediate);
+      attributeUpdateRequestContainer.setActionsThatImplyImmediate(actionsThatImplyThisImmediate);
+    }
+    
+    {
+      List<String> actionsImpliedByThis = new ArrayList<String>(attributeAssignAction.getAttributeAssignActionSetDelegate().getAttributeAssignActionNamesImpliedByThis());
+      Collections.sort(actionsImpliedByThis);
+      attributeUpdateRequestContainer.setActionsImpliedBy(actionsImpliedByThis);
+    }
+    
+    {
+      List<String> actionsImpliedByThisImmediate = new ArrayList<String>(attributeAssignAction.getAttributeAssignActionSetDelegate().getAttributeAssignActionNamesImpliedByThisImmediate());
+      Collections.sort(actionsImpliedByThisImmediate);
+      attributeUpdateRequestContainer.setActionsImpliedByImmediate(actionsImpliedByThisImmediate);
+    }
+    
+    //set the actions panel
+    guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#attributeActionEditPanel", 
+      "/WEB-INF/grouperUi/templates/simpleAttributeUpdate/attributeActionEditPanel.jsp"));
+    
+    guiResponseJs.addAction(GuiScreenAction.newScript("guiScrollToBottom();"));
+  }
+
+  /**
+   * add an action that implied by the current action
+   * @param httpServletRequest
+   * @param httpServletResponse
+   */
+  public void addActionEditImpliedBy(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
+  
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+  
+    AttributeUpdateRequestContainer attributeUpdateRequestContainer = AttributeUpdateRequestContainer.retrieveFromRequestOrCreate();
+  
+    GrouperSession grouperSession = null;
+  
+    try {
+      grouperSession = GrouperSession.start(loggedInSubject);
+      
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+  
+      AttributeDef attributeDef = null;
+      
+      String uuid = httpServletRequest.getParameter("attributeDefToEditId");
+      
+      if (StringUtils.isBlank(uuid)) {
+        throw new RuntimeException("Why is uuid blank????");
+      }
+  
+      String action = httpServletRequest.getParameter("action");
+      
+      if (StringUtils.isBlank(action)) {
+        throw new RuntimeException("Why is action blank????");
+      }
+      
+      //if editing, then this must be there, or it has been tampered with
+      try {
+        attributeDef = AttributeDefFinder.findById(uuid, true);
+      } catch (Exception e) {
+        LOG.info("Error searching for attribute def: " + uuid, e);
+        guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simpleAttributeUpdate.errorCantEditAttributeDef", false)));
+        return;
+        
+      }
+      
+      if (!attributeDef.getPrivilegeDelegate().canAttrAdmin(loggedInSubject)) {
+        LOG.info("Subject " + GrouperUtil.subjectToString(loggedInSubject) + " cannot admin attribute definition: " + attributeDef.getName());
+        guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simpleAttributeUpdate.errorCantEditAttributeDef", false)));
+        return;
+      }
+      
+      String actionAddImpliedBy = httpServletRequest.getParameter("actionAddImpliedBy");
+      
+      if (StringUtils.isBlank(actionAddImpliedBy)) {
+        guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simpleAttributeUpdate.mustSelectAnActionToImpliedBy", false)));
+        return;
+      }
+      
+      AttributeAssignAction attributeAssignAction = attributeDef.getAttributeDefActionDelegate().allowedAction(action, true);
+      AttributeAssignAction attributeAssignActionThatImpliedBy = attributeDef.getAttributeDefActionDelegate().allowedAction(actionAddImpliedBy, true);
+      attributeAssignAction.getAttributeAssignActionSetDelegate().addToAttributeAssignActionSet(attributeAssignActionThatImpliedBy);
+  
+      guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simpleAttributeUpdate.successAddImpliedByAction", false)));
+  
+      setupEditActionPanel(attributeUpdateRequestContainer, guiResponseJs, attributeDef,
+          action);
+      
+    } finally {
+      GrouperSession.stopQuietly(grouperSession); 
+    }
+  }
+
+  /**
+   * delete an action that is implied by the current action
+   * @param httpServletRequest
+   * @param httpServletResponse
+   */
+  public void deleteActionImpliedBy(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
+  
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+  
+    AttributeUpdateRequestContainer attributeUpdateRequestContainer = AttributeUpdateRequestContainer.retrieveFromRequestOrCreate();
+  
+    GrouperSession grouperSession = null;
+  
+    try {
+      grouperSession = GrouperSession.start(loggedInSubject);
+  
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+  
+      AttributeDef attributeDef = null;
+  
+      String uuid = httpServletRequest.getParameter("attributeDefToEditId");
+  
+      if (StringUtils.isBlank(uuid)) {
+        throw new RuntimeException("Why is uuid blank????");
+      }
+  
+      String action = httpServletRequest.getParameter("action");
+      
+      if (StringUtils.isBlank(action)) {
+        throw new RuntimeException("Why is action blank????");
+      }
+      
+      //if editing, then this must be there, or it has been tampered with
+      try {
+        attributeDef = AttributeDefFinder.findById(uuid, true);
+      } catch (Exception e) {
+        LOG.info("Error searching for attribute def: " + uuid, e);
+        guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simpleAttributeUpdate.errorCantEditAttributeDef", false)));
+        return;
+        
+      }
+      
+      if (!attributeDef.getPrivilegeDelegate().canAttrAdmin(loggedInSubject)) {
+        LOG.info("Subject " + GrouperUtil.subjectToString(loggedInSubject) + " cannot admin attribute definition: " + attributeDef.getName());
+        guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simpleAttributeUpdate.errorCantEditAttributeDef", false)));
+        return;
+      }
+      
+      String actionImpliedBy = httpServletRequest.getParameter("actionImpliedBy");
+      
+      if (StringUtils.isBlank(actionImpliedBy)) {
+        throw new RuntimeException("Why is actionImpliedBy blank?");
+      }
+      
+      AttributeAssignAction attributeAssignAction = attributeDef.getAttributeDefActionDelegate().allowedAction(action, true);
+      AttributeAssignAction attributeAssignActionImpliedBy = attributeDef.getAttributeDefActionDelegate().allowedAction(actionImpliedBy, true);
+      attributeAssignAction.getAttributeAssignActionSetDelegate().removeFromAttributeAssignActionSet(attributeAssignActionImpliedBy);
+  
+      guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simpleAttributeUpdate.successRemoveImpliedByAction", false)));
+  
+      setupEditActionPanel(attributeUpdateRequestContainer, guiResponseJs, attributeDef,
+          action);
       
     } finally {
       GrouperSession.stopQuietly(grouperSession); 

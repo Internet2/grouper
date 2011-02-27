@@ -21,7 +21,7 @@
         </td>
         <td class="formTableRight" style="white-space: nowrap;">
         
-          <input type="text" name="changeActions" width="20" />
+          <input type="text" name="changeActions" style="width: 400px" />
           
           <input class="blueButton" type="submit" 
           onclick="ajax('../app/SimpleAttributeUpdate.newActions', {formIds: 'attributeActionsFormId'}); return false;" 
