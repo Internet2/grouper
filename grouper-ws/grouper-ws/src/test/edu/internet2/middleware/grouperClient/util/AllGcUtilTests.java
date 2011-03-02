@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: AllGcUtilTests.java,v 1.1 2008-11-30 10:57:31 mchyzer Exp $
+ * $Id$
  */
 package edu.internet2.middleware.grouperClient.util;
 
