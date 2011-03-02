@@ -55,15 +55,13 @@ public class Hib3AttributeDefDAO extends Hib3DAO implements AttributeDefDAO {
    * @see edu.internet2.middleware.grouper.internal.dao.AttributeDefDAO#findByIdSecure(java.lang.String, boolean)
    */
   public AttributeDef findByIdSecure(String id, boolean exceptionIfNotFound) {
-    AttributeDef attributeDef = HibernateSession.byHqlStatic().createQuery(
-        "from AttributeDef where id = :theId")
-      .setString("theId", id).uniqueResult(AttributeDef.class);
+    AttributeDef attributeDef = findById(id, exceptionIfNotFound);
 
     //make sure grouper session can view the attribute def
     attributeDef = filterSecurity(attributeDef);
     
     if (attributeDef == null && exceptionIfNotFound) {
-      throw new AttributeDefNotFoundException("Cant find (or not allowed to find) AttributeDef by id: " + id);
+      throw new AttributeDefNotFoundException("Not allowed to find AttributeDef by id: " + id);
     }
     
     return attributeDef;
@@ -139,7 +137,7 @@ public class Hib3AttributeDefDAO extends Hib3DAO implements AttributeDefDAO {
       throws GrouperDAOException, AttributeDefNotFoundException {
     AttributeDef attributeDef = HibernateSession.byHqlStatic()
       .createQuery("select a from AttributeDef as a where a.nameDb = :value")
-      .setCacheable(false)
+      .setCacheable(true)
       .setCacheRegion(KLASS + ".FindByName")
       .setString("value", name).uniqueResult(AttributeDef.class);
 
@@ -162,7 +160,10 @@ public class Hib3AttributeDefDAO extends Hib3DAO implements AttributeDefDAO {
         "select theAttributeDef from AttributeDef as theAttributeDef, " +
         "AttributeDefName as theAttributeDefName where theAttributeDefName.id = :theAttributeDefNameId" +
         " and theAttributeDef.id = theAttributeDefName.attributeDefId")
-      .setString("theAttributeDefNameId", attributeDefNameId).uniqueResult(AttributeDef.class);
+      .setString("theAttributeDefNameId", attributeDefNameId)
+      .setCacheable(true)
+      .setCacheRegion(KLASS + ".FindByAttributeDefNameIdSecure")
+      .uniqueResult(AttributeDef.class);
     
     //make sure grouper session can view the attribute def
     attributeDef = filterSecurity(attributeDef);

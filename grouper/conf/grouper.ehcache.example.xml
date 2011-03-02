@@ -72,7 +72,7 @@
 
   <!-- @see   CachingResolver#find(...) -->
   <cache  name="edu.internet2.middleware.grouper.subj.CachingResolver.Find"
-          maxElementsInMemory="1000"
+          maxElementsInMemory="5000"
           eternal="false"
           timeToIdleSeconds="30"
           timeToLiveSeconds="120"
@@ -81,7 +81,7 @@
 
   <!-- @see   CachingResolver#findAll(...) -->
   <cache  name="edu.internet2.middleware.grouper.subj.CachingResolver.FindAll"
-          maxElementsInMemory="1000"
+          maxElementsInMemory="5000"
           eternal="false"
           timeToIdleSeconds="30"
           timeToLiveSeconds="120"
@@ -90,7 +90,7 @@
 
   <!-- @see   CachingResolver#findByIdentifier(...) -->
   <cache  name="edu.internet2.middleware.grouper.subj.CachingResolver.FindByIdentifier"
-          maxElementsInMemory="1000"
+          maxElementsInMemory="5000"
           eternal="false"
           timeToIdleSeconds="30"
           timeToLiveSeconds="120"
@@ -168,13 +168,5 @@
           timeToLiveSeconds="120"
           overflowToDisk="false"
   />
-
-  <!-- cache  name="edu.internet2.middleware.grouper.subj.CachingResolver.FindByIdentifier"
-          maxElementsInMemory="1000"
-          eternal="false"
-          timeToIdleSeconds="30"
-          timeToLiveSeconds="120"
-          overflowToDisk="false"
-  / -->
 
 </ehcache>

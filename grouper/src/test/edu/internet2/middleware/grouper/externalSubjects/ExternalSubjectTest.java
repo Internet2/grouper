@@ -24,6 +24,7 @@ import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
+import edu.internet2.middleware.subject.provider.SourceManager;
 
 
 /**
@@ -44,7 +45,7 @@ public class ExternalSubjectTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new ExternalSubjectTest("testNonDynamicDescription"));
+    TestRunner.run(new ExternalSubjectTest("testPersistence"));
     //TestRunner.run(ExternalSubjectTest.class);
   }
 
@@ -73,8 +74,9 @@ public class ExternalSubjectTest extends GrouperTest {
     ApiConfig.testConfig.put("externalSubjects.wheelOrRootCanEdit", "true");
     ApiConfig.testConfig.remove("externalSubjects.groupAllowedForEdit");
     ApiConfig.testConfig.put("externalSubjects.validateIndentiferLikeEmail", "true");
+    ApiConfig.testConfig.put("externalSubjects.autoCreateSource", "true");
     
-
+    SourceManager.getInstance().loadSource(ExternalSubjectAutoSourceAdapter.instance());
   }
   
   /**

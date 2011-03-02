@@ -7,6 +7,7 @@ package edu.internet2.middleware.grouper.rules.beans;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Membership;
+import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
@@ -60,6 +61,8 @@ public class RulesMembershipBean extends RulesBean {
   /** subject */
   private Subject subject;
 
+  /** stem */
+  private Stem stem;
   
   /**
    * membership
@@ -104,6 +107,15 @@ public class RulesMembershipBean extends RulesBean {
   }
   
   /**
+   * subject source id
+   * @return the subject
+   */
+  @Override
+  public String getSubjectSourceId() {
+    return this.subject == null ? null : this.subject.getSourceId();
+  }
+  
+  /**
    * 
    * @see edu.internet2.middleware.grouper.rules.beans.RulesBean#getMemberId()
    */
@@ -143,6 +155,17 @@ public class RulesMembershipBean extends RulesBean {
     }
     return result.toString();
   }
-  
 
+  /**
+   * @see edu.internet2.middleware.grouper.rules.beans.RulesBean#getStem()
+   */
+  @Override
+  public Stem getStem() {
+    if (this.stem == null) {
+      Group theGroup = this.getGroup();
+      this.stem = theGroup == null ? null : theGroup.getParentStem();
+    }
+    return this.stem;
+  }
+  
 }

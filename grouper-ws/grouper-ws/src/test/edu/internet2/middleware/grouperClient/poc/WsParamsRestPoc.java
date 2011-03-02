@@ -1,6 +1,6 @@
 /**
  * @author mchyzer
- * $Id: WsParamsRestPoc.java,v 1.2 2009-11-17 06:25:04 mchyzer Exp $
+ * $Id$
  */
 package edu.internet2.middleware.grouperClient.poc;
 

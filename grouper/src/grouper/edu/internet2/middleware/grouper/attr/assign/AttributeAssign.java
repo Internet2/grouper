@@ -507,6 +507,8 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
 
                 //fire rules directly connected to this permission add
                 RuleEngine.fireRule(RuleCheckType.permissionAssignToSubject, rulesPermissionBean);
+                
+                RuleEngine.fireRule(RuleCheckType.subjectAssignInStem, rulesPermissionBean);
 
               }
               

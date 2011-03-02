@@ -16,16 +16,28 @@
 */
 
 package edu.internet2.middleware.grouper;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.misc.E;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.rules.RuleCheck;
+import edu.internet2.middleware.grouper.rules.RuleCheckType;
+import edu.internet2.middleware.grouper.rules.RuleDefinition;
+import edu.internet2.middleware.grouper.rules.RuleEngine;
+import edu.internet2.middleware.grouper.rules.RuleIfCondition;
+import edu.internet2.middleware.grouper.rules.RuleIfConditionEnum;
+import edu.internet2.middleware.grouper.rules.RuleThen;
+import edu.internet2.middleware.grouper.rules.RuleThenEnum;
 import edu.internet2.middleware.grouper.subj.InternalSourceAdapter;
 import edu.internet2.middleware.grouper.subj.SubjectResolver;
 import edu.internet2.middleware.grouper.subj.SubjectResolverFactory;
@@ -37,7 +49,6 @@ import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
 import edu.internet2.middleware.subject.SubjectNotUniqueException;
 import edu.internet2.middleware.subject.SubjectTooManyResults;
-import edu.internet2.middleware.subject.provider.SourceManager;
 
 
 /**
@@ -47,6 +58,9 @@ import edu.internet2.middleware.subject.provider.SourceManager;
  * @version $Id: SubjectFinder.java,v 1.47 2009-12-28 06:08:37 mchyzer Exp $
  */
 public class SubjectFinder {
+
+  /** logger */
+  private static final Log LOG = GrouperUtil.getLog(SubjectFinder.class);
 
   /** */
   private static        Subject         all;
@@ -67,22 +81,14 @@ public class SubjectFinder {
    */
   public static Subject findByIdOrIdentifier(String idOrIdentifier, boolean exceptionIfNull) 
       throws SubjectNotFoundException, SubjectNotUniqueException {
-    Subject subject = null;
-    
-    //try by id first
-    subject = SubjectFinder.findById(idOrIdentifier, false);
-
-    //try by identifier if not by id
-    if (subject == null) {
-      subject = SubjectFinder.findByIdentifier(idOrIdentifier, false);
+    try {
+      return getResolver().findByIdOrIdentifier(idOrIdentifier);
+    } catch (SubjectNotFoundException snfe) {
+      if (exceptionIfNull) {
+        throw snfe;
+      }
+      return null;
     }
-    
-    //if null at this point, and exception, then throw it
-    if (subject == null && exceptionIfNull) {
-      throw new SubjectNotFoundException("Cant find subject by id or identifier: '" + idOrIdentifier + "'"); 
-    }
-
-    return subject;
   }
 
   /**
@@ -133,20 +139,14 @@ public class SubjectFinder {
    */
   public static Subject findByIdOrIdentifierAndSource(String idOrIdentifier, String source, boolean exceptionIfNull) 
       throws SubjectNotFoundException, SubjectNotUniqueException {
-    Subject subject = null;
     try {
-      subject = SubjectFinder.findByIdAndSource(idOrIdentifier, source, exceptionIfNull);
+      return getResolver().findByIdOrIdentifier(idOrIdentifier, source);
     } catch (SubjectNotFoundException snfe) {
-      try {
-        subject = SubjectFinder.findByIdentifierAndSource(idOrIdentifier, source, exceptionIfNull);
-      } catch (SubjectNotUniqueException snfe2) {
-        if (exceptionIfNull) {
-          throw snfe2;
-        }
-        return null;
+      if (exceptionIfNull) {
+        throw snfe;
       }
+      return null;
     }
-    return subject;
   }
 
   /**
@@ -231,7 +231,14 @@ public class SubjectFinder {
     throws  SubjectNotFoundException,
             SubjectNotUniqueException {
 
-    return SourceManager.getInstance().getSource(source).getSubject(id, exceptionIfNull);
+    try {
+      return getResolver().find(id, source);
+    } catch (SubjectNotFoundException snfe) {
+      if (exceptionIfNull) {
+        throw snfe;
+      }
+      return null;
+    }
     
   } 
 
@@ -410,6 +417,34 @@ public class SubjectFinder {
   } 
 
   /**
+   * Find all subjects matching the query, in a certain folder.  If there are
+   * rules restricting subjects, then dont search those folders
+   * <p>
+   * The query string specification is currently unique to each subject
+   * source adapter.  Queries may not work or may lead to erratic
+   * results across different source adapters.  Consult the
+   * documentation for each source adapter for more information on the
+   * query language supported by each adapter.
+   * </p>
+   * <p>
+   * <b>NOTE:</b> This method does not perform any caching.
+   * </p>
+   * <pre class="eg">
+   * // Find all subjects matching the given query string.
+   * Set subjects = SubjectFinder.findAll(query);
+   * </pre>
+   * @param stemName stem name to search in
+   * @param   query     Subject query string.
+   * @return  A {@link Set} of {@link Subject} objects.
+   * @throws SubjectTooManyResults if more results than configured
+   */
+  public static Set<Subject> findAllInStem(String stemName, String query) {
+    
+    return getResolver().findAllInStem(stemName, query);
+    
+  } 
+
+  /**
    * Find all subjects matching the query within the specified {@link Source}.
    * <p>
    * <b>NOTE:</b> This method does not perform any caching.
@@ -486,7 +521,7 @@ public class SubjectFinder {
   {
     if (all == null) {
       try {
-        all = getResolver().find( GrouperConfig.ALL, GrouperConfig.IST, InternalSourceAdapter.ID );
+        all = getResolver().find( GrouperConfig.ALL, InternalSourceAdapter.ID );
       }
       catch (Exception e) {
         throw new GrouperException( "unable to retrieve GrouperAll: " + e.getMessage() );
@@ -509,7 +544,7 @@ public class SubjectFinder {
   {
     if (root == null) {
       try {
-        root = getResolver().find( GrouperConfig.ROOT, GrouperConfig.IST, InternalSourceAdapter.ID );
+        root = getResolver().find( GrouperConfig.ROOT, InternalSourceAdapter.ID );
       }
       catch (Exception e) {
         throw new GrouperException( "unable to retrieve GrouperSystem: " + e.getMessage() );
@@ -558,17 +593,6 @@ public class SubjectFinder {
    */
   public static Set<Source> getSources() {
     return getResolver().getSources();
-  }
-
-  /**
-   * <pre class="eg">
-   * Set personSources = SubjectFinder.getSources("person");
-   * </pre>
-   * @param subjectType 
-   * @return  Set of <i>Source</i> adapters providing <i>subjectType</i>.
-   */
-  public static Set<Source> getSources(String subjectType) {
-    return getResolver().getSources(subjectType);
   }
 
   /**
@@ -621,19 +645,14 @@ public class SubjectFinder {
    * @return  A {@link Subject} object
    * @throws SubjectNotFoundException
    * @throws SubjectNotUniqueException
+   * @deprecated since type is no longer an identifier... just use id or id/source
    */
+  @Deprecated
   public static Subject findById(String id, String type, boolean exceptionIfNull) 
     throws  SubjectNotFoundException,
             SubjectNotUniqueException
   {
-    try {
-      return getResolver().find(id, type);
-    } catch (SubjectNotFoundException snfe) {
-      if (exceptionIfNull) {
-        throw snfe;
-      }
-      return null;
-    }
+    return findById(id, exceptionIfNull);
   }
 
   /**
@@ -657,25 +676,16 @@ public class SubjectFinder {
    * @throws  SourceUnavailableException
    * @throws  SubjectNotFoundException
    * @throws  SubjectNotUniqueException
+   * @Deprecated since type is no longer an id, just use id or id/source
    */
+  @Deprecated
   public static Subject findById(String id, String type, String source, boolean exceptionIfNull) 
     throws  SourceUnavailableException,
             SubjectNotFoundException,
             SubjectNotUniqueException {
     
-    //if only by id and source
-    if (StringUtils.isBlank(type)) {
-      return SourceManager.getInstance().getSource(source).getSubject(id, exceptionIfNull);
-    }
+    return findByIdAndSource(id, source, exceptionIfNull);
     
-    try {
-      return getResolver().find(id, type, source);
-    } catch (SubjectNotFoundException snfe) {
-      if (exceptionIfNull) {
-        throw snfe;        
-      }
-      return null;
-    }
   }
  
   /**
@@ -730,13 +740,14 @@ public class SubjectFinder {
    * @return  A {@link Subject} object
    * @throws  SubjectNotFoundException
    * @throws  SubjectNotUniqueException
+   * @deprecated use id or id/source
    */
+  @Deprecated
   public static Subject findByIdentifier(String id, String type, boolean exceptionIfNull) 
     throws  SubjectNotFoundException,
-            SubjectNotUniqueException
-  {
+            SubjectNotUniqueException {
     try {
-      return getResolver().findByIdentifier(id, type);
+      return getResolver().findByIdentifier(id);
     } catch (SubjectNotFoundException snfe) {
       if (exceptionIfNull) {
         throw snfe;
@@ -767,20 +778,15 @@ public class SubjectFinder {
    * @throws  SourceUnavailableException
    * @throws  SubjectNotFoundException
    * @throws  SubjectNotUniqueException
+   * @Deprecated
    */
+  @Deprecated
   public static Subject findByIdentifier(String id, String type, String source, boolean exceptionIfNull) 
     throws  SourceUnavailableException,
             SubjectNotFoundException,
             SubjectNotUniqueException
   {
-    try {
-      return getResolver().findByIdentifier(id, type, source);
-    } catch (SubjectNotFoundException snfe) {
-      if (exceptionIfNull) {
-        throw snfe;
-      }
-      return null;
-    }
+    return findByIdentifierAndSource(id, source, exceptionIfNull);
   }
 
   /**
@@ -835,7 +841,14 @@ public class SubjectFinder {
     throws  SourceUnavailableException,
             SubjectNotFoundException,
             SubjectNotUniqueException {
-    return SourceManager.getInstance().getSource(source).getSubjectByIdentifier(identifier, exceptionIfNull);
+    try {
+      return getResolver().findByIdentifier(identifier, source);
+    } catch (SubjectNotFoundException snfe) {
+      if (exceptionIfNull) {
+        throw snfe;
+      }
+      return null;
+    }
   }
 
   /**
@@ -898,5 +911,150 @@ public class SubjectFinder {
     return findByOptionalArgs(sourceId, subjectId, subjectIdentifier, exceptionIfNotFound);
   }
   
+  /**
+   * result to see if source if restricted by group
+   */
+  public static class RestrictSourceForGroup {
+    
+    /** if restricted */
+    private boolean restrict;
+    
+    /** group to restrict to, null means restrict to all */
+    private Group group;
+
+    /**
+     * @param restrict
+     * @param group
+     */
+    public RestrictSourceForGroup(boolean restrict, Group group) {
+      this.restrict = restrict;
+      this.group = group;
+    }
+
+    /**
+     * if restricted
+     * @return the restrict
+     */
+    public boolean isRestrict() {
+      return this.restrict;
+    }
+
+    
+    /**
+     * if restricted
+     * @param restrict1 the restrict to set
+     */
+    public void setRestrict(boolean restrict1) {
+      this.restrict = restrict1;
+    }
+
+    
+    /**
+     * group to restrict to, null means restrict to all
+     * @return the group
+     */
+    public Group getGroup() {
+      return this.group;
+    }
+
+    
+    /**
+     * group to restrict to, null means restrict to all
+     * @param group1 the group to set
+     */
+    public void setGroup(Group group1) {
+      this.group = group1;
+    }
+    
+  }
+
+  /**
+   * @param sourceId
+   * @param stemName
+   * @return if restricted and to what extent
+   */
+  public static RestrictSourceForGroup restrictSourceForGroup(String stemName, String sourceId) {
+    
+    if (!GrouperConfig.getPropertyBoolean("rules.enable", true)) {
+      LOG.debug("rules.enable is false, do not check to see if stem is restricted");
+      return new RestrictSourceForGroup(false, null);
+    }
+    
+    Map<String, Object> debugMap = LOG.isDebugEnabled() ? new LinkedHashMap<String, Object>() : null;
+    
+    //somtimes root is blank, so convert
+    if (StringUtils.isBlank(stemName)) {
+      stemName = ":";
+    }
+    
+    if (LOG.isDebugEnabled()) {
+      debugMap.put("operation", "restrictSourceForGroup");
+      debugMap.put("stemName", stemName);
+      debugMap.put("sourceId", sourceId);
+    }
+    
+    //lets see if the source is restricted for this folder
+    RuleCheck ruleCheck = new RuleCheck(RuleCheckType.subjectAssignInStem.name(), null, stemName, null, sourceId, null);
+    Set<RuleDefinition> ruleDefinitions = RuleEngine.ruleEngine().ruleCheckIndexDefinitionsByNameOrIdInFolderPickOneArgOptional(ruleCheck);
+
+    if (LOG.isDebugEnabled()) {
+      debugMap.put("ruleDefinitionsSize", GrouperUtil.length(ruleDefinitions));
+    }
+    
+    if (GrouperUtil.length(ruleDefinitions) == 1) {
+      RuleDefinition ruleDefinition = ruleDefinitions.iterator().next();
+      final RuleIfCondition ruleIfCondition = ruleDefinition.getIfCondition();
+      if (ruleIfCondition != null) {
+        RuleIfConditionEnum ruleIfConditionEnum = RuleIfConditionEnum.valueOfIgnoreCase(ruleIfCondition.getIfConditionEnum(), false);
+        
+        if (LOG.isDebugEnabled()) {
+          debugMap.put("ruleIfConditionEnum", ruleIfConditionEnum);
+        }
+        
+        //never means allow all
+        if (ruleIfConditionEnum != RuleIfConditionEnum.never) {
+          
+          RuleThen ruleThen = ruleDefinition.getThen();
+          RuleThenEnum ruleThenEnum = ruleThen.thenEnum();
+          
+          if (LOG.isDebugEnabled()) {
+            debugMap.put("ruleIfConditionEnum", ruleThenEnum);
+            debugMap.put("ruleIfOwnerName", ruleIfCondition.getIfOwnerName());
+            debugMap.put("ruleIfOwnerId", ruleIfCondition.getIfOwnerId());
+          }
+          //if veto, this is the right type of rule
+          if (ruleThenEnum == RuleThenEnum.veto) {
+            if (StringUtils.isBlank(ruleIfCondition.getIfOwnerId()) 
+                && StringUtils.isBlank(ruleIfCondition.getIfOwnerName())) {
+              if (LOG.isDebugEnabled()) {
+                debugMap.put("restrict all", Boolean.TRUE);
+                LOG.debug(GrouperUtil.mapToString(debugMap));
+              }
+              return new RestrictSourceForGroup(true, null);
+            } 
+              
+            Group group = null;
+            if (!StringUtils.isBlank(ruleIfCondition.getIfOwnerId())) {
+              group = GrouperDAOFactory.getFactory().getGroup().findByUuid(ruleIfCondition.getIfOwnerId(), true);
+            } else {
+              group = GrouperDAOFactory.getFactory().getGroup().findByName(ruleIfCondition.getIfOwnerName(), true);
+            }
+            if (LOG.isDebugEnabled()) {
+              debugMap.put("restrict group", group.getName());
+              LOG.debug(GrouperUtil.mapToString(debugMap));
+            }
+
+            return new RestrictSourceForGroup(true, group);
+          }
+        }
+      }
+    }
+    if (LOG.isDebugEnabled()) {
+      debugMap.put("restrict none", Boolean.TRUE);
+      LOG.debug(GrouperUtil.mapToString(debugMap));
+    }
+    return new RestrictSourceForGroup(false, null);
+  }
+
 }
 

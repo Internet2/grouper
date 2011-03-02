@@ -46,7 +46,8 @@ public class TestQueryMembershipModifiedAfter extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new TestQueryMembershipModifiedAfter("testFindNothing"));
+    //TestRunner.run(new TestQueryMembershipModifiedAfter("testFindNothing"));
+    TestRunner.run(TestQueryMembershipModifiedAfter.class);
   }
   
   private static final Log LOG = GrouperUtil

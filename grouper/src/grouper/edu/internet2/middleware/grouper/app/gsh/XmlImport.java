@@ -110,7 +110,7 @@ public class XmlImport {
       importHelper(doc);
       System.out.println("Imported file: " + GrouperUtil.fileCanonicalPath(file));
     } catch (Exception e) {
-      throw new RuntimeException("Error importing file: " + filePath);
+      throw new RuntimeException("Error importing file: " + filePath, e);
     }
   }
 
@@ -124,7 +124,7 @@ public class XmlImport {
       importHelper(doc);
       System.out.println("Imported from string");
     } catch (Exception e) {
-      throw new RuntimeException("Error importing string");
+      throw new RuntimeException("Error importing string", e);
     }
   }
 
@@ -138,7 +138,7 @@ public class XmlImport {
       importHelper(doc);
       System.out.println("Imported from url: " + url);
     } catch (Exception e) {
-      throw new RuntimeException("Error importing url: " + url);
+      throw new RuntimeException("Error importing url: " + url, e);
     }
   }
 

@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: ScriptingPoc.java,v 1.2 2009-03-15 08:16:36 mchyzer Exp $
+ * $Id$
  */
 package edu.internet2.middleware.grouperClient.poc;
 

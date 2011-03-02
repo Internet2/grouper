@@ -108,6 +108,7 @@ import edu.internet2.middleware.grouper.rules.RuleCheckType;
 import edu.internet2.middleware.grouper.rules.RuleEngine;
 import edu.internet2.middleware.grouper.rules.beans.RulesAttributeDefBean;
 import edu.internet2.middleware.grouper.rules.beans.RulesGroupBean;
+import edu.internet2.middleware.grouper.rules.beans.RulesPrivilegeBean;
 import edu.internet2.middleware.grouper.rules.beans.RulesStemBean;
 import edu.internet2.middleware.grouper.subj.GrouperSubject;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -1045,6 +1046,11 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
             hibernateHandlerBean.getHibernateSession().setCachingEnabled(false);
 
             GrouperSession.staticGrouperSession().getNamingResolver().grantPrivilege(Stem.this, subj, priv, uuid);
+            
+            RulesPrivilegeBean rulesPrivilegeBean = new RulesPrivilegeBean(Stem.this, subj, priv);
+            
+            //fire rules related to subject assign in folder
+            RuleEngine.fireRule(RuleCheckType.subjectAssignInStem, rulesPrivilegeBean);
             
             if (!hibernateHandlerBean.isCallerWillCreateAudit()) {
               

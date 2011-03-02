@@ -142,6 +142,11 @@
         <exclude name="grouper*.jar"/>
       </fileset>
     </copy>
+    <copy todir="${basedir}/webapp/WEB-INF/lib">
+      <fileset dir="${grouper.lib.dir}">
+        <include name="grouperClient.jar"/>
+      </fileset>
+    </copy>
     <copy todir="${basedir}/webapp/WEB-INF">
       <fileset file="${dist.home}/${webapp.name}/WEB-INF/web.xml" />
     </copy>
