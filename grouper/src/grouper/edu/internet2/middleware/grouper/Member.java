@@ -20,6 +20,7 @@ import java.io.StringWriter;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
@@ -170,6 +171,42 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
   /** old uuid id col for id conversion */
   public static final String COLUMN_OLD_MEMBER_UUID = "old_member_uuid";
   
+  /** sortString0 */
+  public static final String COLUMN_SORT_STRING0 = "sort_string0";
+
+  /** sortString1 */
+  public static final String COLUMN_SORT_STRING1 = "sort_string1";
+  
+  /** sortString2 */
+  public static final String COLUMN_SORT_STRING2 = "sort_string2";
+  
+  /** sortString3 */
+  public static final String COLUMN_SORT_STRING3 = "sort_string3";
+  
+  /** sortString4 */
+  public static final String COLUMN_SORT_STRING4 = "sort_string4";
+  
+  /** searchString0 */
+  public static final String COLUMN_SEARCH_STRING0 = "search_string0";
+
+  /** searchString1 */
+  public static final String COLUMN_SEARCH_STRING1 = "search_string1";
+
+  /** searchString2 */
+  public static final String COLUMN_SEARCH_STRING2 = "search_string2";
+
+  /** searchString3 */
+  public static final String COLUMN_SEARCH_STRING3 = "search_string3";
+
+  /** searchString4 */
+  public static final String COLUMN_SEARCH_STRING4 = "search_string4";
+
+  /** name */
+  public static final String COLUMN_NAME = "name";
+  
+  /** description */
+  public static final String COLUMN_DESCRIPTION = "description";
+  
   /** serial version */
   public static final long serialVersionUID = 2348656645982471668L;
 
@@ -190,18 +227,60 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
   /** constant for field name for: subjectTypeID */
   public static final String FIELD_SUBJECT_TYPE_ID = "subjectTypeID";
 
+  /** constant for field name for: sortString0 */
+  public static final String FIELD_SORT_STRING0 = "sortString0";
+
+  /** constant for field name for: sortString1 */
+  public static final String FIELD_SORT_STRING1 = "sortString1";
+  
+  /** constant for field name for: sortString2 */
+  public static final String FIELD_SORT_STRING2 = "sortString2";
+  
+  /** constant for field name for: sortString3 */
+  public static final String FIELD_SORT_STRING3 = "sortString3";
+  
+  /** constant for field name for: sortString4 */
+  public static final String FIELD_SORT_STRING4 = "sortString4";
+  
+  /** constant for field name for: searchString0 */
+  public static final String FIELD_SEARCH_STRING0 = "searchString0";
+  
+  /** constant for field name for: searchString1 */
+  public static final String FIELD_SEARCH_STRING1 = "searchString1";
+  
+  /** constant for field name for: searchString2 */
+  public static final String FIELD_SEARCH_STRING2 = "searchString2";
+  
+  /** constant for field name for: searchString3 */
+  public static final String FIELD_SEARCH_STRING3 = "searchString3";
+  
+  /** constant for field name for: searchString4 */
+  public static final String FIELD_SEARCH_STRING4 = "searchString4";
+  
+  /** constant for field name for: name */
+  public static final String FIELD_NAME = "name";
+  
+  /** constant for field name for: description */
+  public static final String FIELD_DESCRIPTION = "description";
+  
   /**
    * fields which are included in db version
    */
   private static final Set<String> DB_VERSION_FIELDS = GrouperUtil.toSet(
-      FIELD_MEMBER_UUID, FIELD_SUBJECT_ID, FIELD_SUBJECT_SOURCE_ID, FIELD_SUBJECT_TYPE_ID);
+      FIELD_MEMBER_UUID, FIELD_SUBJECT_ID, FIELD_SUBJECT_SOURCE_ID, FIELD_SUBJECT_TYPE_ID,
+      FIELD_SORT_STRING0, FIELD_SORT_STRING1, FIELD_SORT_STRING2, FIELD_SORT_STRING3, FIELD_SORT_STRING4,
+      FIELD_SEARCH_STRING0, FIELD_SEARCH_STRING1, FIELD_SEARCH_STRING2, FIELD_SEARCH_STRING3, FIELD_SEARCH_STRING4,
+      FIELD_NAME, FIELD_DESCRIPTION);
 
   /**
    * fields which are included in clone method
    */
   private static final Set<String> CLONE_FIELDS = GrouperUtil.toSet(
       FIELD_DB_VERSION, FIELD_HIBERNATE_VERSION_NUMBER, FIELD_MEMBER_UUID, FIELD_SUBJECT_ID, 
-      FIELD_SUBJECT_SOURCE_ID, FIELD_SUBJECT_TYPE_ID);
+      FIELD_SUBJECT_SOURCE_ID, FIELD_SUBJECT_TYPE_ID,
+      FIELD_SORT_STRING0, FIELD_SORT_STRING1, FIELD_SORT_STRING2, FIELD_SORT_STRING3, FIELD_SORT_STRING4,
+      FIELD_SEARCH_STRING0, FIELD_SEARCH_STRING1, FIELD_SEARCH_STRING2, FIELD_SEARCH_STRING3, FIELD_SEARCH_STRING4,
+      FIELD_NAME, FIELD_DESCRIPTION);
 
   //*****  END GENERATED WITH GenerateFieldConstants.java *****//
   
@@ -234,6 +313,42 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
 
   /**  */
   private String  subjectTypeID;
+  
+  /** string that can be used to sort results */
+  private String sortString0;
+  
+  /** string that can be used to sort results */
+  private String sortString1;
+  
+  /** string that can be used to sort results */
+  private String sortString2;
+  
+  /** string that can be used to sort results */
+  private String sortString3;
+  
+  /** string that can be used to sort results */
+  private String sortString4;
+  
+  /** string that can be used to filter results */
+  private String searchString0;
+  
+  /** string that can be used to filter results */
+  private String searchString1;
+  
+  /** string that can be used to filter results */
+  private String searchString2;
+  
+  /** string that can be used to filter results */
+  private String searchString3;
+  
+  /** string that can be used to filter results */
+  private String searchString4;
+  
+  /** name of member -- helpful for unresolvable subjects */
+  private String name;
+  
+  /** description of member -- helpful for unresolvable subjects */
+  private String description;
 
   /** change a subject to the same subject (for testing) */
   public static int changeSubjectSameSubject = 0;
@@ -3157,6 +3272,42 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
     if (!StringUtils.equals(this.subjectTypeID, other.subjectTypeID)) {
       return true;
     }
+    if (!StringUtils.equals(this.sortString0, other.sortString0)) {
+      return true;
+    }
+    if (!StringUtils.equals(this.sortString1, other.sortString1)) {
+      return true;
+    }
+    if (!StringUtils.equals(this.sortString2, other.sortString2)) {
+      return true;
+    }
+    if (!StringUtils.equals(this.sortString3, other.sortString3)) {
+      return true;
+    }
+    if (!StringUtils.equals(this.sortString4, other.sortString4)) {
+      return true;
+    }
+    if (!StringUtils.equals(this.searchString0, other.searchString0)) {
+      return true;
+    }
+    if (!StringUtils.equals(this.searchString1, other.searchString1)) {
+      return true;
+    }
+    if (!StringUtils.equals(this.searchString2, other.searchString2)) {
+      return true;
+    }
+    if (!StringUtils.equals(this.searchString3, other.searchString3)) {
+      return true;
+    }
+    if (!StringUtils.equals(this.searchString4, other.searchString4)) {
+      return true;
+    }
+    if (!StringUtils.equals(this.name, other.name)) {
+      return true;
+    }
+    if (!StringUtils.equals(this.description, other.description)) {
+      return true;
+    }
 
     return false;
   }
@@ -3184,6 +3335,18 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
     existingRecord.subjectID = this.subjectID;
     existingRecord.subjectSourceID = this.subjectSourceID;
     existingRecord.subjectTypeID = this.subjectTypeID;
+    existingRecord.sortString0 = this.sortString0;
+    existingRecord.sortString1 = this.sortString1;
+    existingRecord.sortString2 = this.sortString2;
+    existingRecord.sortString3 = this.sortString3;
+    existingRecord.sortString4 = this.sortString4;
+    existingRecord.searchString0 = this.searchString0;
+    existingRecord.searchString1 = this.searchString1;
+    existingRecord.searchString2 = this.searchString2;
+    existingRecord.searchString3 = this.searchString3;
+    existingRecord.searchString4 = this.searchString4;
+    existingRecord.name = this.name;
+    existingRecord.description = this.description;
   }
 
 
@@ -3241,6 +3404,20 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
     xmlExportMember.setSubjectId(this.getSubjectId());
     xmlExportMember.setSubjectType(this.getSubjectTypeId());
     xmlExportMember.setUuid(this.getUuid());
+    
+    xmlExportMember.setSortString0(this.getSortString0());
+    xmlExportMember.setSortString1(this.getSortString1());
+    xmlExportMember.setSortString2(this.getSortString2());
+    xmlExportMember.setSortString3(this.getSortString3());
+    xmlExportMember.setSortString4(this.getSortString4());
+    xmlExportMember.setSearchString0(this.getSearchString0());
+    xmlExportMember.setSearchString1(this.getSearchString1());
+    xmlExportMember.setSearchString2(this.getSearchString2());
+    xmlExportMember.setSearchString3(this.getSearchString3());
+    xmlExportMember.setSearchString4(this.getSearchString4());
+    xmlExportMember.setName(this.getName());
+    xmlExportMember.setDescription(this.getDescription());
+
     return xmlExportMember;
   }
 
@@ -3273,5 +3450,273 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
   }
 
   
+  /**
+   * @return the sortString0
+   */
+  public String getSortString0() {
+    return sortString0;
+  }
+
+  
+  /**
+   * @param sortString0 the sortString0 to set
+   */
+  public void setSortString0(String sortString0) {
+    this.sortString0 = sortString0;
+  }
+
+  
+  /**
+   * @return the sortString1
+   */
+  public String getSortString1() {
+    return sortString1;
+  }
+
+  
+  /**
+   * @param sortString1 the sortString1 to set
+   */
+  public void setSortString1(String sortString1) {
+    this.sortString1 = sortString1;
+  }
+
+  
+  /**
+   * @return the sortString2
+   */
+  public String getSortString2() {
+    return sortString2;
+  }
+
+  
+  /**
+   * @param sortString2 the sortString2 to set
+   */
+  public void setSortString2(String sortString2) {
+    this.sortString2 = sortString2;
+  }
+
+  
+  /**
+   * @return the sortString3
+   */
+  public String getSortString3() {
+    return sortString3;
+  }
+
+  
+  /**
+   * @param sortString3 the sortString3 to set
+   */
+  public void setSortString3(String sortString3) {
+    this.sortString3 = sortString3;
+  }
+
+  
+  /**
+   * @return the sortString4
+   */
+  public String getSortString4() {
+    return sortString4;
+  }
+
+  
+  /**
+   * @param sortString4 the sortString4 to set
+   */
+  public void setSortString4(String sortString4) {
+    this.sortString4 = sortString4;
+  }
+
+  
+  /**
+   * @return the searchString0
+   */
+  public String getSearchString0() {
+    return searchString0;
+  }
+
+  
+  /**
+   * @param searchString0 the searchString0 to set
+   */
+  public void setSearchString0(String searchString0) {
+    this.searchString0 = searchString0;
+  }
+
+  
+  /**
+   * @return the searchString1
+   */
+  public String getSearchString1() {
+    return searchString1;
+  }
+
+  
+  /**
+   * @param searchString1 the searchString1 to set
+   */
+  public void setSearchString1(String searchString1) {
+    this.searchString1 = searchString1;
+  }
+
+  
+  /**
+   * @return the searchString2
+   */
+  public String getSearchString2() {
+    return searchString2;
+  }
+
+  
+  /**
+   * @param searchString2 the searchString2 to set
+   */
+  public void setSearchString2(String searchString2) {
+    this.searchString2 = searchString2;
+  }
+
+  
+  /**
+   * @return the searchString3
+   */
+  public String getSearchString3() {
+    return searchString3;
+  }
+
+  
+  /**
+   * @param searchString3 the searchString3 to set
+   */
+  public void setSearchString3(String searchString3) {
+    this.searchString3 = searchString3;
+  }
+
+  
+  /**
+   * @return the searchString4
+   */
+  public String getSearchString4() {
+    return searchString4;
+  }
+
+  
+  /**
+   * @param searchString4 the searchString4 to set
+   */
+  public void setSearchString4(String searchString4) {
+    this.searchString4 = searchString4;
+  }
+
+  
+  /**
+   * @return the name
+   */
+  public String getName() {
+    return name;
+  }
+
+  
+  /**
+   * @param name the name to set
+   */
+  public void setName(String name) {
+    this.name = name;
+  }
+
+  
+  /**
+   * @return the description
+   */
+  public String getDescription() {
+    return description;
+  }
+
+  
+  /**
+   * @param description the description to set
+   */
+  public void setDescription(String description) {
+    this.description = description;
+  }  
+  
+  /**
+   * @param subject
+   * @param storeChanges if there are changes, should they be saved to the database?
+   */
+  public void updateMemberAttributes(Subject subject, boolean storeChanges) {
+    this.sortString0 = null;
+    this.sortString1 = null;
+    this.sortString2 = null;
+    this.sortString3 = null;
+    this.sortString4 = null;
+    this.searchString0 = null;
+    this.searchString1 = null;
+    this.searchString2 = null;
+    this.searchString3 = null;
+    this.searchString4 = null;
+
+    this.name = GrouperUtil.isEmpty(subject.getName()) ? null : subject.getName();
+    this.description = GrouperUtil.isEmpty(subject.getDescription()) ? null : subject.getDescription();
+    
+    List<String> sortAttributes = subject.getSource().getSortAttributes();
+    if (sortAttributes.size() > 0) {
+      this.sortString0 = subject.getAttributeValue(sortAttributes.get(0));
+    }
+    
+    if (sortAttributes.size() > 1) {
+      this.sortString1 = subject.getAttributeValue(sortAttributes.get(1));
+    }
+
+    if (sortAttributes.size() > 2) {
+      this.sortString2 = subject.getAttributeValue(sortAttributes.get(2));
+    }
+    
+    if (sortAttributes.size() > 3) {
+      this.sortString3 = subject.getAttributeValue(sortAttributes.get(3));
+    }
+    
+    if (sortAttributes.size() > 4) {
+      this.sortString4 = subject.getAttributeValue(sortAttributes.get(4));
+    }
+    
+    List<String> searchAttributes = subject.getSource().getSearchAttributes();
+    if (searchAttributes.size() > 0) {
+      this.searchString0 = subject.getAttributeValue(searchAttributes.get(0));
+    }
+    
+    if (searchAttributes.size() > 1) {
+      this.searchString1 = subject.getAttributeValue(searchAttributes.get(1));
+    }
+    
+    if (searchAttributes.size() > 2) {
+      this.searchString2 = subject.getAttributeValue(searchAttributes.get(2));
+    }
+    
+    if (searchAttributes.size() > 3) {
+      this.searchString3 = subject.getAttributeValue(searchAttributes.get(3));
+    }
+    
+    if (searchAttributes.size() > 4) {
+      this.searchString4 = subject.getAttributeValue(searchAttributes.get(4));
+    }
+    
+    this.sortString0 = GrouperUtil.isEmpty(this.sortString0) ? null : this.sortString0;
+    this.sortString1 = GrouperUtil.isEmpty(this.sortString1) ? null : this.sortString1;
+    this.sortString2 = GrouperUtil.isEmpty(this.sortString2) ? null : this.sortString2;
+    this.sortString3 = GrouperUtil.isEmpty(this.sortString3) ? null : this.sortString3;
+    this.sortString4 = GrouperUtil.isEmpty(this.sortString4) ? null : this.sortString4;
+    
+    this.searchString0 = GrouperUtil.isEmpty(this.searchString0) ? null : this.searchString0.toLowerCase();
+    this.searchString1 = GrouperUtil.isEmpty(this.searchString1) ? null : this.searchString1.toLowerCase();
+    this.searchString2 = GrouperUtil.isEmpty(this.searchString2) ? null : this.searchString2.toLowerCase();
+    this.searchString3 = GrouperUtil.isEmpty(this.searchString3) ? null : this.searchString3.toLowerCase();
+    this.searchString4 = GrouperUtil.isEmpty(this.searchString4) ? null : this.searchString4.toLowerCase();
+    
+    if (storeChanges && this.dbVersionIsDifferent()) {
+      this.store();
+    }
+  }
 } 
 

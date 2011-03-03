@@ -11,6 +11,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -153,6 +155,14 @@ public abstract class BaseSourceAdapter implements Source {
 
   /** */
   protected Set<String> attributes = new HashSet<String>();
+  
+  private List<String> sortAttributes = null;
+  
+  private List<String> searchAttributes = null;
+  
+  private List<String> sortAttributeDisplayNames = null;
+  
+  private List<String> searchAttributeDisplayNames = null;
 
   /**
    * Default constructor.
@@ -386,5 +396,97 @@ public abstract class BaseSourceAdapter implements Source {
   public void loadSearch(Search search) {
     log.debug("Loading search: " + search.getSearchType());
     this.searches.put(search.getSearchType(), search);
+  }
+  
+  /**
+   * @see edu.internet2.middleware.subject.Source#getSortAttributes()
+   */
+  public List<String> getSortAttributes() {
+    
+    if (this.sortAttributes == null) {
+      this.sortAttributes = new LinkedList<String>();
+      
+      int count = 0;
+      while (true) {
+        String value = getInitParam("sortAttribute" + count);
+        if (value == null) {
+          break;
+        }
+        
+        this.sortAttributes.add(value);
+        count++;
+      }
+    }
+    
+    return this.sortAttributes;
+  }
+  
+  /**
+   * @see edu.internet2.middleware.subject.Source#getSearchAttributes()
+   */
+  public List<String> getSearchAttributes() {
+    
+    if (this.searchAttributes == null) {
+      this.searchAttributes = new LinkedList<String>();
+      
+      int count = 0;
+      while (true) {
+        String value = getInitParam("searchAttribute" + count);
+        if (value == null) {
+          break;
+        }
+        
+        this.searchAttributes.add(value);
+        count++;
+      }
+    }
+    
+    return this.searchAttributes;
+  }
+  
+  /**
+   * @see edu.internet2.middleware.subject.Source#getSortAttributeDisplayNames()
+   */
+  public List<String> getSortAttributeDisplayNames() {
+    
+    if (this.sortAttributeDisplayNames == null) {
+      this.sortAttributeDisplayNames = new LinkedList<String>();
+      
+      int count = 0;
+      while (true) {
+        String value = getInitParam("sortAttributeDisplayName" + count);
+        if (value == null) {
+          break;
+        }
+        
+        this.sortAttributeDisplayNames.add(value);
+        count++;
+      }
+    }
+    
+    return this.sortAttributeDisplayNames;
+  }
+  
+  /**
+   * @see edu.internet2.middleware.subject.Source#getSearchAttributeDisplayNames()
+   */
+  public List<String> getSearchAttributeDisplayNames() {
+    
+    if (this.searchAttributeDisplayNames == null) {
+      this.searchAttributeDisplayNames = new LinkedList<String>();
+      
+      int count = 0;
+      while (true) {
+        String value = getInitParam("searchAttributeDisplayName" + count);
+        if (value == null) {
+          break;
+        }
+        
+        this.searchAttributeDisplayNames.add(value);
+        count++;
+      }
+    }
+    
+    return this.searchAttributeDisplayNames;
   }
 }

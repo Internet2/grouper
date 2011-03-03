@@ -266,13 +266,7 @@ public class MemberFinder {
       throw new NullPointerException("Subject is null");
     }
     
-    String sourceId = null;
-    if (subj instanceof LazySubject) {
-      sourceId = ((LazySubject)subj).getSourceId();
-    } else {
-      sourceId = subj.getSource().getId();
-    }
-    Member m = internal_findOrCreateBySubject( subj.getId(), sourceId, subj.getType().getName(), uuidIfCreate, createIfNotExist ) ;
+    Member m = internal_findOrCreateBySubject(subj, uuidIfCreate, createIfNotExist);
     
     //Member m = internal_findOrCreateBySubject( subj.getId(), subj.getSource().getId(), subj.getType().getName() ) ;
     return m;
@@ -298,10 +292,17 @@ public class MemberFinder {
    * @param createIfNotExist 
    * @return the member or null
    */
-  private static Member internal_findOrCreateBySubject(String id, String src, String type, 
-      String memberUuidIfCreate, boolean createIfNotExist) {
+  private static Member internal_findOrCreateBySubject(Subject subj, String memberUuidIfCreate, boolean createIfNotExist) {
+    
+    String sourceId = null;
+    if (subj instanceof LazySubject) {
+      sourceId = ((LazySubject)subj).getSourceId();
+    } else {
+      sourceId = subj.getSource().getId();
+    }
+    
     try {
-      return GrouperDAOFactory.getFactory().getMember().findBySubject(id, src, type, true);
+      return GrouperDAOFactory.getFactory().getMember().findBySubject(subj.getId(), sourceId, subj.getType().getName(), true);
     }
     catch (MemberNotFoundException eMNF) {
       if (createIfNotExist) {
@@ -311,16 +312,33 @@ public class MemberFinder {
         }
         
         Member _m = new Member();
-        _m.setSubjectIdDb(id);
-        _m.setSubjectSourceIdDb(src);
-        _m.setSubjectTypeId(type);
+        _m.setSubjectIdDb(subj.getId());
+        _m.setSubjectSourceIdDb(sourceId);
+        _m.setSubjectTypeId(subj.getType().getName());
         _m.setUuid( StringUtils.isEmpty(memberUuidIfCreate) ? GrouperUuid.getUuid() : memberUuidIfCreate);
+        _m.updateMemberAttributes(subj, false);
         
         GrouperDAOFactory.getFactory().getMember().create(_m);
         return _m;
       }
       return null;
     }
+  }
+  
+  /**
+   * find a member 
+   * @param id
+   * @param src
+   * @param type
+   * @param memberUuidIfCreate 
+   * @param createIfNotExist 
+   * @return the member or null
+   */
+  private static Member internal_findOrCreateBySubject(String id, String src, String type, 
+      String memberUuidIfCreate, boolean createIfNotExist) {
+
+    Subject subj = SubjectFinder.findById(id, type, src, true);
+    return internal_findOrCreateBySubject(subj, memberUuidIfCreate, createIfNotExist);
   } 
 
   /**

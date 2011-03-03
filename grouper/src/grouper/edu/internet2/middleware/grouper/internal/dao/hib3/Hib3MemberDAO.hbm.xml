@@ -86,6 +86,19 @@
 
     <property name="contextId" column="context_id"/>
 
+    <property name="sortString0" column="sort_string0"/>
+    <property name="sortString1" column="sort_string1"/>
+    <property name="sortString2" column="sort_string2"/>
+    <property name="sortString3" column="sort_string3"/>
+    <property name="sortString4" column="sort_string4"/>
+    <property name="searchString0" column="search_string0"/>
+    <property name="searchString1" column="search_string1"/>
+    <property name="searchString2" column="search_string2"/>
+    <property name="searchString3" column="search_string3"/>
+    <property name="searchString4" column="search_string4"/>
+    <property name="name" column="name"/>
+    <property name="description" column="description"/>
+
   </class>
 
 </hibernate-mapping>

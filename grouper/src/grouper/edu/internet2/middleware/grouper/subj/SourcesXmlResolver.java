@@ -24,6 +24,8 @@ import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
+import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.SubjectFinder.RestrictSourceForGroup;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
@@ -101,6 +103,7 @@ public class SourcesXmlResolver implements SubjectResolver {
             SubjectNotUniqueException
   {
     Subject subj = this.getSource(source).getSubject(id, true);
+    updateMemberAttributes(subj);
     return subj;
   }
 
@@ -170,6 +173,7 @@ public class SourcesXmlResolver implements SubjectResolver {
             SubjectNotUniqueException
   {
     Subject subj = this.getSource(source).getSubjectByIdentifier(id, true);
+    updateMemberAttributes(subj);
     return subj;
   }
 
@@ -239,7 +243,9 @@ public class SourcesXmlResolver implements SubjectResolver {
       throw new SubjectNotFoundException("subject not found: " + id);
     }
     else if (subjects.size() == 1) {
-      return subjects.get(0);
+      Subject subj = subjects.get(0);
+      updateMemberAttributes(subj);
+      return subj;
     }
     throw new SubjectNotUniqueException( "found multiple matching subjects: " + subjects.size() + ", '" + id + "'" );
   }
@@ -269,8 +275,9 @@ public class SourcesXmlResolver implements SubjectResolver {
       throws IllegalArgumentException, SourceUnavailableException,
       SubjectNotFoundException, SubjectNotUniqueException {
     
-    return this.getSource(source).getSubjectByIdOrIdentifier(id, true);
-    
+    Subject subj = this.getSource(source).getSubjectByIdOrIdentifier(id, true);
+    updateMemberAttributes(subj);
+    return subj;
   }
   
   /**
@@ -304,5 +311,16 @@ public class SourcesXmlResolver implements SubjectResolver {
     return subjects;
   }
 
+  /**
+   * @param subj
+   */
+  private void updateMemberAttributes(Subject subj) {
+    // update member attributes
+    Member member = MemberFinder.internal_findBySubject(subj, null, false);
+
+    if (member != null) {
+      member.updateMemberAttributes(subj, true);
+    }
+  }
 }
 
