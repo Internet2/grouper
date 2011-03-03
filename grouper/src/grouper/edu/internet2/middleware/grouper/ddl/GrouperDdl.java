@@ -694,7 +694,7 @@ public enum GrouperDdl implements DdlVersionable {
   
   /**
    * <pre>
-   * Add point in time indexes
+   * Add point in time indexes, add additional subject data to member table.
    * </pre>
    */
   V25 {
@@ -707,6 +707,8 @@ public enum GrouperDdl implements DdlVersionable {
         DdlVersionBean ddlVersionBean) {
 
       addPITIndexes(ddlVersionBean, database);
+      
+      addMemberAttributes(database);
     }
   },
   
@@ -1644,6 +1646,8 @@ public enum GrouperDdl implements DdlVersionable {
             "member_subjecttype_idx", false, "subject_type");
         
         versionNumberColumnFindOrCreate(membersTable);
+        
+        addMemberAttributes(database);
       }
     
       {
@@ -8996,6 +9000,36 @@ public enum GrouperDdl implements DdlVersionable {
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeAssignValueTable,
         AttributeAssignValue.COLUMN_VALUE_FLOATING, Types.FLOAT, "20,5", false, false);
 
+  }
+  
+  private static void addMemberAttributes(Database database) {
+    Table membersTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database, Member.TABLE_GROUPER_MEMBERS);
+    
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(membersTable, Member.COLUMN_SORT_STRING0, Types.VARCHAR, "255", false, false);
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(membersTable, Member.COLUMN_SORT_STRING1, Types.VARCHAR, "255", false, false);
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(membersTable, Member.COLUMN_SORT_STRING2, Types.VARCHAR, "255", false, false);
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(membersTable, Member.COLUMN_SORT_STRING3, Types.VARCHAR, "255", false, false);
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(membersTable, Member.COLUMN_SORT_STRING4, Types.VARCHAR, "255", false, false);
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(membersTable, Member.COLUMN_SEARCH_STRING0, Types.VARCHAR, "255", false, false);
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(membersTable, Member.COLUMN_SEARCH_STRING1, Types.VARCHAR, "255", false, false);
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(membersTable, Member.COLUMN_SEARCH_STRING2, Types.VARCHAR, "255", false, false);
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(membersTable, Member.COLUMN_SEARCH_STRING3, Types.VARCHAR, "255", false, false);
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(membersTable, Member.COLUMN_SEARCH_STRING4, Types.VARCHAR, "255", false, false);
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(membersTable, Member.COLUMN_NAME, Types.VARCHAR, "255", false, false);
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(membersTable, Member.COLUMN_DESCRIPTION, Types.VARCHAR, "255", false, false);
+
+    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, membersTable.getName(), "member_sort_string0_idx", false, Member.COLUMN_SORT_STRING0);
+    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, membersTable.getName(), "member_sort_string1_idx", false, Member.COLUMN_SORT_STRING1);
+    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, membersTable.getName(), "member_sort_string2_idx", false, Member.COLUMN_SORT_STRING2);
+    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, membersTable.getName(), "member_sort_string3_idx", false, Member.COLUMN_SORT_STRING3);
+    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, membersTable.getName(), "member_sort_string4_idx", false, Member.COLUMN_SORT_STRING4);
+    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, membersTable.getName(), "member_search_string0_idx", false, Member.COLUMN_SEARCH_STRING0);
+    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, membersTable.getName(), "member_search_string1_idx", false, Member.COLUMN_SEARCH_STRING1);
+    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, membersTable.getName(), "member_search_string2_idx", false, Member.COLUMN_SEARCH_STRING2);
+    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, membersTable.getName(), "member_search_string3_idx", false, Member.COLUMN_SEARCH_STRING3);
+    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, membersTable.getName(), "member_search_string4_idx", false, Member.COLUMN_SEARCH_STRING4);
+    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, membersTable.getName(), "member_name_idx", false, Member.COLUMN_NAME);
+    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, membersTable.getName(), "member_description_idx", false, Member.COLUMN_DESCRIPTION);
   }
   
   /**

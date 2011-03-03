@@ -1815,6 +1815,7 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
               _m.setSubjectIdDb( subj.getId() );
               _m.setSubjectSourceIdDb( subj.getSource().getId() );
               _m.setSubjectTypeId( subj.getType().getName() );
+              _m.updateMemberAttributes(subj, false);
               // TODO 20070328 this is incredibly ugly.  making it even worse is that i am also checking
               //               for existence in the dao as well.
               if (uuid == null) {

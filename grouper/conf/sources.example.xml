@@ -136,6 +136,26 @@ $Id: sources.example.xml,v 1.8 2009-08-11 20:18:09 mchyzer Exp $
        <param-name>Description_AttributeType</param-name>
        <param-value>description</param-value>
      </init-param>
+     <init-param>
+       <param-name>sortAttribute0</param-name>
+       <param-value>LOGINID</param-value>
+     </init-param>
+     <init-param>
+       <param-name>sortAttribute1</param-name>
+       <param-value>LFNAME</param-value>
+     </init-param>
+     <init-param>
+       <param-name>searchAttribute0</param-name>
+       <param-value>LOGINID</param-value>
+     </init-param>
+     <init-param>
+       <param-name>searchAttribute1</param-name>
+       <param-value>LFNAME</param-value>
+     </init-param>
+     <init-param>
+       <param-name>searchAttribute2</param-name>
+       <param-value>EMAIL</param-value>
+     </init-param>
 
      <search>
          <searchType>searchSubject</searchType>

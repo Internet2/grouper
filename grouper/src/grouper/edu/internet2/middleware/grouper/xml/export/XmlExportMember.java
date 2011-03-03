@@ -222,6 +222,18 @@ public class XmlExportMember {
     member.setSubjectSourceId(this.sourceId);
     member.setSubjectTypeId(this.subjectType);
     member.setUuid(this.uuid);
+    member.setSortString0(this.sortString0);
+    member.setSortString1(this.sortString1);
+    member.setSortString2(this.sortString2);
+    member.setSortString3(this.sortString3);
+    member.setSortString4(this.sortString4);
+    member.setSearchString0(this.searchString0);
+    member.setSearchString1(this.searchString1);
+    member.setSearchString2(this.searchString2);
+    member.setSearchString3(this.searchString3);
+    member.setSearchString4(this.searchString4);
+    member.setName(this.name);
+    member.setDescription(this.description);
     
     return member;
   }
@@ -285,6 +297,43 @@ public class XmlExportMember {
   
   /** contextId */
   private String contextId;
+  
+  /** string that can be used to sort results */
+  private String sortString0;
+  
+  /** string that can be used to sort results */
+  private String sortString1;
+  
+  /** string that can be used to sort results */
+  private String sortString2;
+  
+  /** string that can be used to sort results */
+  private String sortString3;
+  
+  /** string that can be used to sort results */
+  private String sortString4;
+  
+  /** string that can be used to filter results */
+  private String searchString0;
+  
+  /** string that can be used to filter results */
+  private String searchString1;
+  
+  /** string that can be used to filter results */
+  private String searchString2;
+  
+  /** string that can be used to filter results */
+  private String searchString3;
+  
+  /** string that can be used to filter results */
+  private String searchString4;
+  
+  /** name of member -- helpful for unresolvable subjects */
+  private String name;
+  
+  /** description of member -- helpful for unresolvable subjects */
+  private String description;
+
 
   /**
    * hibernateVersionNumber
@@ -399,6 +448,200 @@ public class XmlExportMember {
    */
   public void setUuid(String uuid1) {
     this.uuid = uuid1;
+  }
+  
+  
+
+  
+  /**
+   * @return the sortString0
+   */
+  public String getSortString0() {
+    return sortString0;
+  }
+
+  
+  /**
+   * @param sortString0 the sortString0 to set
+   */
+  public void setSortString0(String sortString0) {
+    this.sortString0 = sortString0;
+  }
+
+  
+  /**
+   * @return the sortString1
+   */
+  public String getSortString1() {
+    return sortString1;
+  }
+
+  
+  /**
+   * @param sortString1 the sortString1 to set
+   */
+  public void setSortString1(String sortString1) {
+    this.sortString1 = sortString1;
+  }
+
+  
+  /**
+   * @return the sortString2
+   */
+  public String getSortString2() {
+    return sortString2;
+  }
+
+  
+  /**
+   * @param sortString2 the sortString2 to set
+   */
+  public void setSortString2(String sortString2) {
+    this.sortString2 = sortString2;
+  }
+
+  
+  /**
+   * @return the sortString3
+   */
+  public String getSortString3() {
+    return sortString3;
+  }
+
+  
+  /**
+   * @param sortString3 the sortString3 to set
+   */
+  public void setSortString3(String sortString3) {
+    this.sortString3 = sortString3;
+  }
+
+  
+  /**
+   * @return the sortString4
+   */
+  public String getSortString4() {
+    return sortString4;
+  }
+
+  
+  /**
+   * @param sortString4 the sortString4 to set
+   */
+  public void setSortString4(String sortString4) {
+    this.sortString4 = sortString4;
+  }
+
+  
+  /**
+   * @return the searchString0
+   */
+  public String getSearchString0() {
+    return searchString0;
+  }
+
+  
+  /**
+   * @param searchString0 the searchString0 to set
+   */
+  public void setSearchString0(String searchString0) {
+    this.searchString0 = searchString0;
+  }
+
+  
+  /**
+   * @return the searchString1
+   */
+  public String getSearchString1() {
+    return searchString1;
+  }
+
+  
+  /**
+   * @param searchString1 the searchString1 to set
+   */
+  public void setSearchString1(String searchString1) {
+    this.searchString1 = searchString1;
+  }
+
+  
+  /**
+   * @return the searchString2
+   */
+  public String getSearchString2() {
+    return searchString2;
+  }
+
+  
+  /**
+   * @param searchString2 the searchString2 to set
+   */
+  public void setSearchString2(String searchString2) {
+    this.searchString2 = searchString2;
+  }
+
+  
+  /**
+   * @return the searchString3
+   */
+  public String getSearchString3() {
+    return searchString3;
+  }
+
+  
+  /**
+   * @param searchString3 the searchString3 to set
+   */
+  public void setSearchString3(String searchString3) {
+    this.searchString3 = searchString3;
+  }
+
+  
+  /**
+   * @return the searchString4
+   */
+  public String getSearchString4() {
+    return searchString4;
+  }
+
+  
+  /**
+   * @param searchString4 the searchString4 to set
+   */
+  public void setSearchString4(String searchString4) {
+    this.searchString4 = searchString4;
+  }
+
+  
+  /**
+   * @return the name
+   */
+  public String getName() {
+    return name;
+  }
+
+  
+  /**
+   * @param name the name to set
+   */
+  public void setName(String name) {
+    this.name = name;
+  }
+
+  
+  /**
+   * @return the description
+   */
+  public String getDescription() {
+    return description;
+  }
+
+  
+  /**
+   * @param description the description to set
+   */
+  public void setDescription(String description) {
+    this.description = description;
   }
 
   /**
