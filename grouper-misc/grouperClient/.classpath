@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="conf"/>
-	<classpathentry kind="src" path="src/test"/>
 	<classpathentry kind="src" path="src/java"/>
 	<classpathentry kind="src" path="src/ext"/>
 	<classpathentry kind="src" path="src/custom"/>
@@ -24,7 +23,15 @@
 	<classpathentry kind="lib" path="lib/xstream/commons-lang.jar"/>
 	<classpathentry kind="lib" path="lib/xstream/dom4j.jar"/>
 	<classpathentry kind="lib" path="lib/xstream/jakarta-oro.jar"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/grouper_trunk"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/grouper-ws_trunk"/>
+	<classpathentry kind="lib" path="lib/requiresJarIfUse/mailapi.jar"/>
+	<classpathentry kind="lib" path="lib/xmpp/quartz.jar"/>
+	<classpathentry kind="lib" path="lib/xmpp/smack.jar"/>
+	<classpathentry kind="lib" path="lib/xmpp/commons-beanutils.jar"/>
+	<classpathentry kind="lib" path="lib/xmpp/commons-collections.jar"/>
+	<classpathentry kind="lib" path="lib/xmpp/commons-lang.jar"/>
+	<classpathentry kind="lib" path="lib/xmpp/commons-logging.jar"/>
+	<classpathentry kind="lib" path="lib/xmpp/ezmorph.jar"/>
+	<classpathentry kind="lib" path="lib/xmpp/json-lib.jar"/>
+	<classpathentry kind="lib" path="lib/xmpp/jta.jar"/>
 	<classpathentry kind="output" path="build/eclipseBin"/>
 </classpath>

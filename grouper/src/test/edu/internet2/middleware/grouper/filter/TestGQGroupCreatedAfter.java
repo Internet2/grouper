@@ -32,6 +32,7 @@ import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SessionHelper;
 import edu.internet2.middleware.grouper.helper.StemHelper;
 import edu.internet2.middleware.grouper.registry.RegistryReset;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * Test {@link GroupCreatedAfterFilter}.
@@ -82,7 +83,9 @@ public class TestGQGroupCreatedAfter extends TestCase {
   } // public void testGroupCreatedAfterFilterNothing()
 
   public void testGroupCreatedAfterFilterSomething() {
-    Date            when  = DateHelper.getPastDate();
+    GrouperUtil.sleep(100);
+    Date            when  = new Date();
+    GrouperUtil.sleep(100);
     GrouperSession  s     = SessionHelper.getRootSession();
     Stem            root  = StemHelper.findRootStem(s);
     Stem            edu   = StemHelper.addChildStem(root, "edu", "education");
@@ -106,7 +109,9 @@ public class TestGQGroupCreatedAfter extends TestCase {
   } // public void testGroupCreatedAfter()
 
   public void testGroupCreatedAfterFilterSomethingScoped() {
-    Date            when  = DateHelper.getPastDate();
+    GrouperUtil.sleep(100);
+    Date            when  = new Date();
+    GrouperUtil.sleep(100);
     GrouperSession  s     = SessionHelper.getRootSession();
     Stem            root  = StemHelper.findRootStem(s);
     Stem            edu   = StemHelper.addChildStem(root, "edu", "education");

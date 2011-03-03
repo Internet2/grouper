@@ -12,6 +12,8 @@ import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.hibernate.HqlQuery;
 import edu.internet2.middleware.grouper.permissions.PermissionEntry;
+import edu.internet2.middleware.grouper.pit.PITAttributeAssign;
+import edu.internet2.middleware.grouper.pit.PITPermissionAllView;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
@@ -28,6 +30,14 @@ public abstract class BaseAttrDefAdapter implements AttributeDefAdapter {
   public Set<PermissionEntry> postHqlFilterPermissions(GrouperSession grouperSession,
       Subject subject, Set<PermissionEntry> permissionEntries) {
     return PrivilegeHelper.canViewPermissions(grouperSession, permissionEntries);
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.privs.AttributeDefAdapter#postHqlFilterPITPermissions(edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.subject.Subject, java.util.Set)
+   */
+  public Set<PITPermissionAllView> postHqlFilterPITPermissions(GrouperSession grouperSession,
+      Subject subject, Set<PITPermissionAllView> pitPermissionEntries) {
+    return PrivilegeHelper.canViewPITPermissions(grouperSession, pitPermissionEntries);
   }
 
   /**
@@ -72,6 +82,12 @@ public abstract class BaseAttrDefAdapter implements AttributeDefAdapter {
       GrouperSession grouperSession, Subject subject,
       Set<AttributeAssign> attributeAssigns) {
     return PrivilegeHelper.canViewAttributeAssigns(grouperSession, attributeAssigns, false);
+  }
+  
+  public Set<PITAttributeAssign> postHqlFilterPITAttributeAssigns(
+      GrouperSession grouperSession, Subject subject,
+      Set<PITAttributeAssign> pitAttributeAssigns) {
+    return PrivilegeHelper.canViewPITAttributeAssigns(grouperSession, pitAttributeAssigns, false);
   }
 
   /**

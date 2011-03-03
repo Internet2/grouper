@@ -4,12 +4,16 @@ import java.sql.Timestamp;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperAPI;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
@@ -17,6 +21,7 @@ import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Source;
+import edu.internet2.middleware.subject.Subject;
 
 /**
  * @author shilen
@@ -33,6 +38,9 @@ public class PITGroup extends GrouperPIT implements Hib3GrouperVersioned {
 
   /** name */
   public static final String COLUMN_NAME = "name";
+  
+  /** stem */
+  public static final String COLUMN_STEM_ID = "stem_id";
 
   /** hibernate version */
   public static final String COLUMN_HIBERNATE_VERSION_NUMBER = "hibernate_version_number";
@@ -47,12 +55,15 @@ public class PITGroup extends GrouperPIT implements Hib3GrouperVersioned {
   /** constant for field name for: name */
   public static final String FIELD_NAME = "name";
 
+  /** constant for field name for: stemId */
+  public static final String FIELD_STEM_ID = "stemId";
+  
   /**
    * fields which are included in clone method
    */
   private static final Set<String> CLONE_FIELDS = GrouperUtil.toSet(
       FIELD_CONTEXT_ID, FIELD_HIBERNATE_VERSION_NUMBER, FIELD_ID,
-      FIELD_NAME);
+      FIELD_NAME, FIELD_STEM_ID);
 
 
 
@@ -69,6 +80,9 @@ public class PITGroup extends GrouperPIT implements Hib3GrouperVersioned {
 
   /** name */
   private String name;
+  
+  /** stem */
+  private String stemId;
 
   /**
    * @see edu.internet2.middleware.grouper.GrouperAPI#clone()
@@ -131,6 +145,20 @@ public class PITGroup extends GrouperPIT implements Hib3GrouperVersioned {
   }
 
   /**
+   * @return stem id
+   */
+  public String getStemId() {
+    return stemId;
+  }
+  
+  /**
+   * @param stemId
+   */
+  public void setStemId(String stemId) {
+    this.stemId = stemId;
+  }
+  
+  /**
    * save or update this object
    */
   public void saveOrUpdate() {
@@ -179,7 +207,7 @@ public class PITGroup extends GrouperPIT implements Hib3GrouperVersioned {
         PrivilegeHelper.dispatch(session, group, session.getSubject(), field.getReadPriv());
       }
       
-      members = GrouperDAOFactory.getFactory().getPITMembership().findAllMembersByGroupOwnerAndField( 
+      members = GrouperDAOFactory.getFactory().getPITMembership().findAllMembersByOwnerAndField( 
           this.getId(), pitFieldId, pointInTimeFrom, pointInTimeTo, sources, queryOptions);
     }
     catch (InsufficientPrivilegeException e) {
@@ -187,5 +215,75 @@ public class PITGroup extends GrouperPIT implements Hib3GrouperVersioned {
     }
     
     return members;
+  }
+  
+  /**
+   * Check if the group has a member using point in time and the specified field.
+   * @param subject specifies the subject.  This is required.
+   * @param pitFieldId specifies the field id.  This is required.
+   * @param pointInTimeFrom the start of the range of the point in time query.  This is optional.
+   * @param pointInTimeTo the end of the range of the point in time query.  This is optional.  If this is the same as pointInTimeFrom, then the query will be done at a single point in time rather than a range.
+   * @param queryOptions optional query options.
+   * @return boolean
+   */
+  public boolean hasMember(Subject subject, String pitFieldId, Timestamp pointInTimeFrom, Timestamp pointInTimeTo, QueryOptions queryOptions) {
+    
+    if (subject == null) {
+      throw new IllegalArgumentException("subject required.");
+    }
+    
+    if (pitFieldId == null) {
+      throw new IllegalArgumentException("pitFieldId required.");
+    }
+    
+    Member m = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), subject, true);
+    
+    int size = GrouperDAOFactory.getFactory().getPITMembership().findAllByOwnerAndMemberAndField(
+        this.getId(), m.getUuid(), pitFieldId, pointInTimeFrom, pointInTimeTo, queryOptions).size();
+    
+    if (size > 0) {
+      return true;
+    }
+    
+    // need to check GrouperAll as well...
+    Member all = MemberFinder.internal_findAllMember();
+    if (!all.getUuid().equals(m.getUuid())) {
+      size = GrouperDAOFactory.getFactory().getPITMembership().findAllByOwnerAndMemberAndField(
+          this.getId(), all.getUuid(), pitFieldId, pointInTimeFrom, pointInTimeTo, queryOptions).size();
+      
+      if (size > 0) {
+        return true;
+      }
+    }
+    
+    return false;
+  }
+  
+  /**
+   * @see java.lang.Object#equals(java.lang.Object)
+   */
+  public boolean equals(Object other) {
+    if (this == other) {
+      return true;
+    }
+    
+    if (!(other instanceof PITGroup)) {
+      return false;
+    }
+    
+    return new EqualsBuilder()
+      .append(this.getName(), ((PITGroup) other).getName())
+      .append(this.getStartTimeDb(), ((PITGroup) other).getStartTimeDb())
+      .isEquals();
+  }
+  
+  /**
+   * @see java.lang.Object#hashCode()
+   */
+  public int hashCode() {
+    return new HashCodeBuilder()
+      .append(this.getName())
+      .append(this.getStartTimeDb())
+      .toHashCode();
   }
 }

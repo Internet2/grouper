@@ -26,6 +26,7 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.RegistrySubject;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
+import edu.internet2.middleware.grouper.StemSave;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.exception.GroupAddException;
 import edu.internet2.middleware.grouper.exception.GrouperException;
@@ -336,7 +337,7 @@ public class R {
     R r  = new R();
     r.rs    = SessionHelper.getRootSession();
     r.root  = StemFinder.findRootStem(r.rs);
-    r.ns    = r.root.addChildStem("i2", "internet2");
+    r.ns    = new StemSave(r.rs).assignName("i2").assignDisplayExtension("internet2").save();
     for (int i=0; i<nStems; i++) {
       String  nsExtn  = _getSuffix(i);
       Stem    ns      = r.ns.addChildStem(nsExtn, "stem " + nsExtn);

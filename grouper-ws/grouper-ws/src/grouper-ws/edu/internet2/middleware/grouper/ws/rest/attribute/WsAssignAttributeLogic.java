@@ -311,10 +311,10 @@ public class WsAssignAttributeLogic {
     Set<String> ownerAttributeAssignIds = WsAttributeAssignLookup.convertToAttributeAssignIds(session, wsOwnerAttributeAssignLookups, errorMessage, lookupCount);
     
     //get the attributeDefNames to retrieve
-    Set<String> attributeDefNameIds = WsAttributeDefNameLookup.convertToAttributeDefNameIds(session, wsAttributeDefNameLookups, errorMessage, attributeDefType);
+    Set<String> attributeDefNameIds = WsAttributeDefNameLookup.convertToAttributeDefNameIds(session, wsAttributeDefNameLookups, errorMessage, attributeDefType, false, null, null);
     
     //get all the owner groups
-    Set<String> ownerGroupIds = WsGroupLookup.convertToGroupIds(session, wsOwnerGroupLookups, errorMessage, typeOfGroup, lookupCount);
+    Set<String> ownerGroupIds = WsGroupLookup.convertToGroupIds(session, wsOwnerGroupLookups, errorMessage, typeOfGroup, false, null, null, lookupCount);
     
     //get all the owner stems
     Set<String> ownerStemIds = WsStemLookup.convertToStemIds(session, wsOwnerStemLookups, errorMessage, lookupCount);
@@ -329,7 +329,7 @@ public class WsAssignAttributeLogic {
     Set<MultiKey> ownerGroupMemberIds = WsMembershipAnyLookup.convertToGroupMemberIds(session, wsOwnerMembershipAnyLookups, errorMessage, typeOfGroup, lookupCount);
     
     //get all the owner attributeDef ids
-    Set<String> ownerAttributeDefIds = WsAttributeDefLookup.convertToAttributeDefIds(session, wsOwnerAttributeDefLookups, errorMessage, attributeDefType, lookupCount);
+    Set<String> ownerAttributeDefIds = WsAttributeDefLookup.convertToAttributeDefIds(session, wsOwnerAttributeDefLookups, errorMessage, attributeDefType, false, null, null, lookupCount);
     
     List<WsAssignAttributeResult> wsAssignAttributeResultList = new ArrayList<WsAssignAttributeResult>();
     
@@ -541,7 +541,7 @@ public class WsAssignAttributeLogic {
         //lets filter out by attributeDefName
         if (GrouperUtil.length(attributeDefsToReplace) > 0) {
           attributeDefIdsToReplace = WsAttributeDefLookup.convertToAttributeDefIds(
-              session, attributeDefsToReplace, errorMessage, attributeDefType);
+              session, attributeDefsToReplace, errorMessage, attributeDefType, false, null, null);
         }
         
       }

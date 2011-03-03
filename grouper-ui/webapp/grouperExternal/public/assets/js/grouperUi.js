@@ -1891,3 +1891,9 @@ function guiSubmitAttributeDefNamePickerToUrl(attributeDefNamePickerElementName,
   return false;
 }
 
+/**
+ * scroll to the bottom of the page
+ */
+function guiScrollToBottom() {
+  $('html, body').animate({scrollTop: $(document).height()},1500);
+}

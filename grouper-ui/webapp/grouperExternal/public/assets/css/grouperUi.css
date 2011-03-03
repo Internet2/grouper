@@ -5,6 +5,10 @@ body {
   margin: 0;
 }
 
+#topDiv, #navbar {
+  width: 1100px;
+}
+
 #topLeftLogo {
   padding: 8px;
   float: left;
@@ -15,7 +19,7 @@ body {
   float: right;
 }
 
-#navbar,#navbar a {
+#navbar,#navbar a,#navbar table {
   background-color: #015782;
   color: #FFFFFF;
 }
@@ -28,6 +32,7 @@ body {
   font-weight: normal;
   height: 15px;
   margin: 0;
+  white-space: nowrap;
 }
 
 #simpleMain {
@@ -377,4 +382,8 @@ div#simpleMembershipUpdatePickGroupDiv img.dhx_combo_img {
 } 
 div.inviteExternalSubjectsDiv img.dhx_combo_img {
   display: none;
-} 
+}
+td.attributeAssignAssignToTd {
+  white-space: nowrap;
+  padding-right: 5px;	
+}

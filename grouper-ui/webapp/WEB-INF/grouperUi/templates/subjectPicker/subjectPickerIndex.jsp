@@ -1,5 +1,5 @@
 <%@ include file="../common/commonTaglib.jsp"%>
-<!-- subjectPicker/subjectPickerIndex.jsp: main page -->
+<!-- Start: subjectPicker/subjectPickerIndex.jsp: main page -->
 
 <grouper:title label="${subjectPickerContainer.header}" />
 

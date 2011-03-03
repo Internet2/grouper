@@ -86,6 +86,22 @@ public class RuleDefinition {
       .attributeValueString(attributeAssignValueContainers, RuleUtils.ruleCheckOwnerIdName());
     String checkOwnerName = AttributeAssignValueContainer
       .attributeValueString(attributeAssignValueContainers, RuleUtils.ruleCheckOwnerNameName());
+    
+    AttributeAssign attributeAssignType = attributeAssignValueContainers.iterator().next().getAttributeTypeAssign();
+
+    //this is done in the RuleCheckType I believe
+    ////if owner id and name are blank, then we get from where the rules are assigned
+    //if (StringUtils.isBlank(checkOwnerId) && StringUtils.isBlank(checkOwnerName)) {
+    //  //if it is stem, lets go by name, if it is not, then go by id
+    //  if (attributeAssignType.getAttributeAssignType() == AttributeAssignType.stem) {
+    //    //lets get the stem
+    //    Stem stem = attributeAssignType.getOwnerStem();
+    //    checkOwnerName = stem.getName();
+    //  } else {
+    //    checkOwnerId = attributeAssignType.getOwnerSingleId();
+    //  }
+    //}
+
     String checkArg0 = AttributeAssignValueContainer
       .attributeValueString(attributeAssignValueContainers, RuleUtils.ruleCheckArg0Name());
     String checkArg1 = AttributeAssignValueContainer
@@ -131,8 +147,6 @@ public class RuleDefinition {
     
     RuleThen ruleThen = new RuleThen(thenEl, thenEnum, thenEnumArg0, thenEnumArg1, thenEnumArg2);
 
-    AttributeAssign attributeAssignType = attributeAssignValueContainers
-      .iterator().next().getAttributeTypeAssign();
     construct(attributeAssignType, 
         ruleSubjectActAs, ruleCheck, ruleIfCondition, ruleThen);
     

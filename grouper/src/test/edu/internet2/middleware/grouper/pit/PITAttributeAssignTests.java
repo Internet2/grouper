@@ -1,7 +1,10 @@
 package edu.internet2.middleware.grouper.pit;
 
+import java.sql.Timestamp;
 import java.util.Date;
 import java.util.Set;
+
+import junit.textui.TestRunner;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
@@ -20,6 +23,10 @@ import edu.internet2.middleware.grouper.changeLog.ChangeLogTempToEntity;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SessionHelper;
 import edu.internet2.middleware.grouper.helper.StemHelper;
+import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.permissions.role.Role;
+import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
@@ -72,6 +79,13 @@ public class PITAttributeAssignTests extends GrouperTest {
     Date date = new Date();
     GrouperUtil.sleep(sleepTime);
     return date;
+  }
+  
+  private Timestamp getTimestampWithSleep() {
+    GrouperUtil.sleep(100);
+    Date date = new Date();
+    GrouperUtil.sleep(100);
+    return new Timestamp(date.getTime());
   }
   
   /**
@@ -513,5 +527,327 @@ public class PITAttributeAssignTests extends GrouperTest {
       .setOwnerMemberId(member.getUuid())
       .execute();
     assertEquals(1, results.size());
+  }
+  
+  /**
+   * 
+   */
+  public void testFindAssignmentsOnAssignmentsWithFromDate() {
+    
+    Role role1 = edu.addChildRole("testGroup1", "testGroup1");
+    Role role2 = edu.addChildRole("testGroup2", "testGroup2");
+    
+    AttributeDef attributeDef1 = edu.addChildAttributeDef("attributeDef1", AttributeDefType.perm);
+    AttributeDef attributeDef2 = edu.addChildAttributeDef("attributeDef2", AttributeDefType.attr);
+    attributeDef1.setAssignToGroup(true);
+    attributeDef1.store();
+    attributeDef2.setAssignToGroupAssn(true);
+    attributeDef2.store();
+    AttributeDefName attributeDefName1 = edu.addChildAttributeDefName(attributeDef1, "testAttribute1", "testAttribute1");
+    AttributeDefName attributeDefName2 = edu.addChildAttributeDefName(attributeDef2, "testAttribute2", "testAttribute2");
+    AttributeDefName attributeDefName3 = edu.addChildAttributeDefName(attributeDef2, "testAttribute3", "testAttribute3");
+    AttributeAssign attributeAssign1 = role1.getPermissionRoleDelegate().assignRolePermission(attributeDefName1).getAttributeAssign();
+    AttributeAssign attributeAssign2 = attributeAssign1.getAttributeDelegate().assignAttribute(attributeDefName2).getAttributeAssign();
+    AttributeAssign attributeAssign3 = attributeAssign1.getAttributeDelegate().assignAttribute(attributeDefName3).getAttributeAssign();
+    
+    AttributeDef attributeDef3 = edu.addChildAttributeDef("attributeDef3", AttributeDefType.perm);
+    AttributeDef attributeDef4 = edu.addChildAttributeDef("attributeDef4", AttributeDefType.attr);
+    attributeDef3.setAssignToGroup(true);
+    attributeDef3.store();
+    attributeDef4.setAssignToGroupAssn(true);
+    attributeDef4.store();
+    AttributeDefName attributeDefName4 = edu.addChildAttributeDefName(attributeDef3, "testAttribute4", "testAttribute4");
+    AttributeDefName attributeDefName5 = edu.addChildAttributeDefName(attributeDef4, "testAttribute5", "testAttribute5");
+    AttributeDefName attributeDefName6 = edu.addChildAttributeDefName(attributeDef4, "testAttribute6", "testAttribute6");
+    AttributeAssign attributeAssign4 = role2.getPermissionRoleDelegate().assignRolePermission(attributeDefName4).getAttributeAssign();
+    AttributeAssign attributeAssign5 = attributeAssign4.getAttributeDelegate().assignAttribute(attributeDefName5).getAttributeAssign();
+    AttributeAssign attributeAssign6 = attributeAssign4.getAttributeDelegate().assignAttribute(attributeDefName6).getAttributeAssign();
+    
+    // populate PIT tables
+    ChangeLogTempToEntity.convertRecords();
+    
+    PITAttributeAssign pitAttributeAssign1 = GrouperDAOFactory.getFactory().getPITAttributeAssign().findById(attributeAssign1.getId());
+    PITAttributeAssign pitAttributeAssign2 = GrouperDAOFactory.getFactory().getPITAttributeAssign().findById(attributeAssign2.getId());
+    PITAttributeAssign pitAttributeAssign3 = GrouperDAOFactory.getFactory().getPITAttributeAssign().findById(attributeAssign3.getId());
+    PITAttributeAssign pitAttributeAssign4 = GrouperDAOFactory.getFactory().getPITAttributeAssign().findById(attributeAssign4.getId());
+    PITAttributeAssign pitAttributeAssign5 = GrouperDAOFactory.getFactory().getPITAttributeAssign().findById(attributeAssign5.getId());
+    PITAttributeAssign pitAttributeAssign6 = GrouperDAOFactory.getFactory().getPITAttributeAssign().findById(attributeAssign6.getId());
+    
+    Timestamp before = getTimestampWithSleep();
+    attributeAssign1.delete();
+    attributeAssign4.delete();
+    ChangeLogTempToEntity.convertRecords();
+    Timestamp after = getTimestampWithSleep();
+
+    
+    Set<PITAttributeAssign> assignments = GrouperDAOFactory.getFactory().getPITAttributeAssign().findAssignmentsOnAssignments(
+        GrouperUtil.toSet(pitAttributeAssign1), before, null);
+    assertEquals(2, assignments.size());  
+    assertTrue(assignments.contains(pitAttributeAssign2));
+    assertTrue(assignments.contains(pitAttributeAssign3));
+    
+    assignments = GrouperDAOFactory.getFactory().getPITAttributeAssign().findAssignmentsOnAssignments(
+        GrouperUtil.toSet(pitAttributeAssign1, pitAttributeAssign4), before, null);
+    assertEquals(4, assignments.size());  
+    assertTrue(assignments.contains(pitAttributeAssign2));
+    assertTrue(assignments.contains(pitAttributeAssign3));
+    assertTrue(assignments.contains(pitAttributeAssign5));
+    assertTrue(assignments.contains(pitAttributeAssign6));
+    
+    assignments = GrouperDAOFactory.getFactory().getPITAttributeAssign().findAssignmentsOnAssignments(
+        GrouperUtil.toSet(pitAttributeAssign1), after, null);
+    assertEquals(0, assignments.size());  
+    
+    assignments = GrouperDAOFactory.getFactory().getPITAttributeAssign().findAssignmentsOnAssignments(
+        GrouperUtil.toSet(pitAttributeAssign1, pitAttributeAssign4), after, null);
+    assertEquals(0, assignments.size());  
+  }
+  
+  /**
+   * 
+   */
+  public void testFindAssignmentsOnAssignmentsWithToDate() {
+    
+    Role role1 = edu.addChildRole("testGroup1", "testGroup1");
+    Role role2 = edu.addChildRole("testGroup2", "testGroup2");
+    
+    Timestamp before = getTimestampWithSleep();
+
+    AttributeDef attributeDef1 = edu.addChildAttributeDef("attributeDef1", AttributeDefType.perm);
+    AttributeDef attributeDef2 = edu.addChildAttributeDef("attributeDef2", AttributeDefType.attr);
+    attributeDef1.setAssignToGroup(true);
+    attributeDef1.store();
+    attributeDef2.setAssignToGroupAssn(true);
+    attributeDef2.store();
+    AttributeDefName attributeDefName1 = edu.addChildAttributeDefName(attributeDef1, "testAttribute1", "testAttribute1");
+    AttributeDefName attributeDefName2 = edu.addChildAttributeDefName(attributeDef2, "testAttribute2", "testAttribute2");
+    AttributeDefName attributeDefName3 = edu.addChildAttributeDefName(attributeDef2, "testAttribute3", "testAttribute3");
+    AttributeAssign attributeAssign1 = role1.getPermissionRoleDelegate().assignRolePermission(attributeDefName1).getAttributeAssign();
+    AttributeAssign attributeAssign2 = attributeAssign1.getAttributeDelegate().assignAttribute(attributeDefName2).getAttributeAssign();
+    AttributeAssign attributeAssign3 = attributeAssign1.getAttributeDelegate().assignAttribute(attributeDefName3).getAttributeAssign();
+    
+    AttributeDef attributeDef3 = edu.addChildAttributeDef("attributeDef3", AttributeDefType.perm);
+    AttributeDef attributeDef4 = edu.addChildAttributeDef("attributeDef4", AttributeDefType.attr);
+    attributeDef3.setAssignToGroup(true);
+    attributeDef3.store();
+    attributeDef4.setAssignToGroupAssn(true);
+    attributeDef4.store();
+    AttributeDefName attributeDefName4 = edu.addChildAttributeDefName(attributeDef3, "testAttribute4", "testAttribute4");
+    AttributeDefName attributeDefName5 = edu.addChildAttributeDefName(attributeDef4, "testAttribute5", "testAttribute5");
+    AttributeDefName attributeDefName6 = edu.addChildAttributeDefName(attributeDef4, "testAttribute6", "testAttribute6");
+    AttributeAssign attributeAssign4 = role2.getPermissionRoleDelegate().assignRolePermission(attributeDefName4).getAttributeAssign();
+    AttributeAssign attributeAssign5 = attributeAssign4.getAttributeDelegate().assignAttribute(attributeDefName5).getAttributeAssign();
+    AttributeAssign attributeAssign6 = attributeAssign4.getAttributeDelegate().assignAttribute(attributeDefName6).getAttributeAssign();
+    
+    // populate PIT tables
+    ChangeLogTempToEntity.convertRecords();
+    Timestamp after = getTimestampWithSleep();
+    
+    PITAttributeAssign pitAttributeAssign1 = GrouperDAOFactory.getFactory().getPITAttributeAssign().findById(attributeAssign1.getId());
+    PITAttributeAssign pitAttributeAssign2 = GrouperDAOFactory.getFactory().getPITAttributeAssign().findById(attributeAssign2.getId());
+    PITAttributeAssign pitAttributeAssign3 = GrouperDAOFactory.getFactory().getPITAttributeAssign().findById(attributeAssign3.getId());
+    PITAttributeAssign pitAttributeAssign4 = GrouperDAOFactory.getFactory().getPITAttributeAssign().findById(attributeAssign4.getId());
+    PITAttributeAssign pitAttributeAssign5 = GrouperDAOFactory.getFactory().getPITAttributeAssign().findById(attributeAssign5.getId());
+    PITAttributeAssign pitAttributeAssign6 = GrouperDAOFactory.getFactory().getPITAttributeAssign().findById(attributeAssign6.getId());
+   
+    
+    Set<PITAttributeAssign> assignments = GrouperDAOFactory.getFactory().getPITAttributeAssign().findAssignmentsOnAssignments(
+        GrouperUtil.toSet(pitAttributeAssign1), null, before);
+    assertEquals(0, assignments.size());
+    
+    assignments = GrouperDAOFactory.getFactory().getPITAttributeAssign().findAssignmentsOnAssignments(
+        GrouperUtil.toSet(pitAttributeAssign1, pitAttributeAssign4), null, before);
+    assertEquals(0, assignments.size());
+    
+    assignments = GrouperDAOFactory.getFactory().getPITAttributeAssign().findAssignmentsOnAssignments(
+        GrouperUtil.toSet(pitAttributeAssign1), null, after);
+    assertEquals(2, assignments.size());  
+    assertTrue(assignments.contains(pitAttributeAssign2));
+    assertTrue(assignments.contains(pitAttributeAssign3));
+    
+    assignments = GrouperDAOFactory.getFactory().getPITAttributeAssign().findAssignmentsOnAssignments(
+        GrouperUtil.toSet(pitAttributeAssign1, pitAttributeAssign4), null, after);
+    assertEquals(4, assignments.size());
+    assertTrue(assignments.contains(pitAttributeAssign2));
+    assertTrue(assignments.contains(pitAttributeAssign3));
+    assertTrue(assignments.contains(pitAttributeAssign5));
+    assertTrue(assignments.contains(pitAttributeAssign6));
+    
+    attributeAssign1.delete();
+    attributeAssign4.delete();
+    ChangeLogTempToEntity.convertRecords();
+    Timestamp afterDelete = getTimestampWithSleep();
+    
+    assignments = GrouperDAOFactory.getFactory().getPITAttributeAssign().findAssignmentsOnAssignments(
+        GrouperUtil.toSet(pitAttributeAssign1), null, afterDelete);
+    assertEquals(2, assignments.size());  
+    assertTrue(assignments.contains(pitAttributeAssign2));
+    assertTrue(assignments.contains(pitAttributeAssign3));
+    
+    assignments = GrouperDAOFactory.getFactory().getPITAttributeAssign().findAssignmentsOnAssignments(
+        GrouperUtil.toSet(pitAttributeAssign1, pitAttributeAssign4), null, afterDelete);
+    assertEquals(4, assignments.size());
+    assertTrue(assignments.contains(pitAttributeAssign2));
+    assertTrue(assignments.contains(pitAttributeAssign3));
+    assertTrue(assignments.contains(pitAttributeAssign5));
+    assertTrue(assignments.contains(pitAttributeAssign6));
+  }
+  
+  /**
+   * 
+   */
+  public void testFindAssignmentsOnAssignmentsAtPointInTime() {
+    
+    Role role1 = edu.addChildRole("testGroup1", "testGroup1");
+    Role role2 = edu.addChildRole("testGroup2", "testGroup2");
+    
+    Timestamp before = getTimestampWithSleep();
+
+    AttributeDef attributeDef1 = edu.addChildAttributeDef("attributeDef1", AttributeDefType.perm);
+    AttributeDef attributeDef2 = edu.addChildAttributeDef("attributeDef2", AttributeDefType.attr);
+    attributeDef1.setAssignToGroup(true);
+    attributeDef1.store();
+    attributeDef2.setAssignToGroupAssn(true);
+    attributeDef2.store();
+    AttributeDefName attributeDefName1 = edu.addChildAttributeDefName(attributeDef1, "testAttribute1", "testAttribute1");
+    AttributeDefName attributeDefName2 = edu.addChildAttributeDefName(attributeDef2, "testAttribute2", "testAttribute2");
+    AttributeDefName attributeDefName3 = edu.addChildAttributeDefName(attributeDef2, "testAttribute3", "testAttribute3");
+    AttributeAssign attributeAssign1 = role1.getPermissionRoleDelegate().assignRolePermission(attributeDefName1).getAttributeAssign();
+    AttributeAssign attributeAssign2 = attributeAssign1.getAttributeDelegate().assignAttribute(attributeDefName2).getAttributeAssign();
+    AttributeAssign attributeAssign3 = attributeAssign1.getAttributeDelegate().assignAttribute(attributeDefName3).getAttributeAssign();
+    
+    AttributeDef attributeDef3 = edu.addChildAttributeDef("attributeDef3", AttributeDefType.perm);
+    AttributeDef attributeDef4 = edu.addChildAttributeDef("attributeDef4", AttributeDefType.attr);
+    attributeDef3.setAssignToGroup(true);
+    attributeDef3.store();
+    attributeDef4.setAssignToGroupAssn(true);
+    attributeDef4.store();
+    AttributeDefName attributeDefName4 = edu.addChildAttributeDefName(attributeDef3, "testAttribute4", "testAttribute4");
+    AttributeDefName attributeDefName5 = edu.addChildAttributeDefName(attributeDef4, "testAttribute5", "testAttribute5");
+    AttributeDefName attributeDefName6 = edu.addChildAttributeDefName(attributeDef4, "testAttribute6", "testAttribute6");
+    AttributeAssign attributeAssign4 = role2.getPermissionRoleDelegate().assignRolePermission(attributeDefName4).getAttributeAssign();
+    AttributeAssign attributeAssign5 = attributeAssign4.getAttributeDelegate().assignAttribute(attributeDefName5).getAttributeAssign();
+    AttributeAssign attributeAssign6 = attributeAssign4.getAttributeDelegate().assignAttribute(attributeDefName6).getAttributeAssign();
+    
+    // populate PIT tables
+    ChangeLogTempToEntity.convertRecords();
+    Timestamp after = getTimestampWithSleep();
+    
+    PITAttributeAssign pitAttributeAssign1 = GrouperDAOFactory.getFactory().getPITAttributeAssign().findById(attributeAssign1.getId());
+    PITAttributeAssign pitAttributeAssign2 = GrouperDAOFactory.getFactory().getPITAttributeAssign().findById(attributeAssign2.getId());
+    PITAttributeAssign pitAttributeAssign3 = GrouperDAOFactory.getFactory().getPITAttributeAssign().findById(attributeAssign3.getId());
+    PITAttributeAssign pitAttributeAssign4 = GrouperDAOFactory.getFactory().getPITAttributeAssign().findById(attributeAssign4.getId());
+    PITAttributeAssign pitAttributeAssign5 = GrouperDAOFactory.getFactory().getPITAttributeAssign().findById(attributeAssign5.getId());
+    PITAttributeAssign pitAttributeAssign6 = GrouperDAOFactory.getFactory().getPITAttributeAssign().findById(attributeAssign6.getId());
+   
+    
+    Set<PITAttributeAssign> assignments = GrouperDAOFactory.getFactory().getPITAttributeAssign().findAssignmentsOnAssignments(
+        GrouperUtil.toSet(pitAttributeAssign1), before, before);
+    assertEquals(0, assignments.size());
+    
+    assignments = GrouperDAOFactory.getFactory().getPITAttributeAssign().findAssignmentsOnAssignments(
+        GrouperUtil.toSet(pitAttributeAssign1, pitAttributeAssign4), before, before);
+    assertEquals(0, assignments.size());
+    
+    assignments = GrouperDAOFactory.getFactory().getPITAttributeAssign().findAssignmentsOnAssignments(
+        GrouperUtil.toSet(pitAttributeAssign1), after, after);
+    assertEquals(2, assignments.size());  
+    assertTrue(assignments.contains(pitAttributeAssign2));
+    assertTrue(assignments.contains(pitAttributeAssign3));
+    
+    assignments = GrouperDAOFactory.getFactory().getPITAttributeAssign().findAssignmentsOnAssignments(
+        GrouperUtil.toSet(pitAttributeAssign1, pitAttributeAssign4), after, after);
+    assertEquals(4, assignments.size());
+    assertTrue(assignments.contains(pitAttributeAssign2));
+    assertTrue(assignments.contains(pitAttributeAssign3));
+    assertTrue(assignments.contains(pitAttributeAssign5));
+    assertTrue(assignments.contains(pitAttributeAssign6));
+    
+    attributeAssign1.delete();
+    attributeAssign4.delete();
+    ChangeLogTempToEntity.convertRecords();
+    Timestamp afterDelete = getTimestampWithSleep();
+    
+    assignments = GrouperDAOFactory.getFactory().getPITAttributeAssign().findAssignmentsOnAssignments(
+        GrouperUtil.toSet(pitAttributeAssign1), afterDelete, afterDelete);
+    assertEquals(0, assignments.size());
+    
+    assignments = GrouperDAOFactory.getFactory().getPITAttributeAssign().findAssignmentsOnAssignments(
+        GrouperUtil.toSet(pitAttributeAssign1, pitAttributeAssign4), afterDelete, afterDelete);
+    assertEquals(0, assignments.size());
+  }
+  
+  /**
+   * 
+   */
+  public void testFindAssignmentsOnAssignmentsPrivs() {
+    
+    Timestamp before = getTimestampWithSleep();
+
+    Role role = edu.addChildRole("testGroup", "testGroup");
+    Group group = GrouperDAOFactory.getFactory().getGroup().findByUuid(role.getId(), true);
+    Member member0 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ0, true);
+    Member member1 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ1, true);
+    group.addMember(member1.getSubject(), true);
+    
+    AttributeDef attributeDef1 = edu.addChildAttributeDef("attributeDef1", AttributeDefType.perm);
+    AttributeDef attributeDef2 = edu.addChildAttributeDef("attributeDef2", AttributeDefType.attr);
+    attributeDef1.setAssignToGroup(true);
+    attributeDef1.store();
+    attributeDef2.setAssignToGroupAssn(true);
+    attributeDef2.store();
+    AttributeDefName attributeDefName1 = edu.addChildAttributeDefName(attributeDef1, "testAttribute1", "testAttribute1");
+    AttributeDefName attributeDefName2 = edu.addChildAttributeDefName(attributeDef2, "testAttribute2", "testAttribute2");
+    AttributeAssign attributeAssign1 = role.getPermissionRoleDelegate().assignRolePermission(attributeDefName1).getAttributeAssign();
+    AttributeAssign attributeAssign2 = attributeAssign1.getAttributeDelegate().assignAttribute(attributeDefName2).getAttributeAssign();
+    
+    // populate PIT tables
+    ChangeLogTempToEntity.convertRecords();
+    
+    PITAttributeAssign pitAttributeAssign1 = GrouperDAOFactory.getFactory().getPITAttributeAssign().findById(attributeAssign1.getId());
+    
+    Timestamp after = getTimestampWithSleep();
+
+    Set<PITAttributeAssign> assignments = GrouperDAOFactory.getFactory().getPITAttributeAssign().findAssignmentsOnAssignments(
+        GrouperUtil.toSet(pitAttributeAssign1), before, after);
+    assertEquals(1, assignments.size());  
+    assertEquals(attributeAssign2.getId(), assignments.iterator().next().getId());
+    
+    GrouperSession s = GrouperSession.start(member0.getSubject());
+    assignments = GrouperDAOFactory.getFactory().getPITAttributeAssign().findAssignmentsOnAssignments(
+        GrouperUtil.toSet(pitAttributeAssign1), before, after);
+    assertEquals(0, assignments.size());
+    s.stop();
+    
+    s = GrouperSession.startRootSession();
+    attributeDef2.getPrivilegeDelegate().grantPriv(member0.getSubject(), AttributeDefPrivilege.ATTR_READ, true);
+    s = GrouperSession.start(member0.getSubject());
+    assignments = GrouperDAOFactory.getFactory().getPITAttributeAssign().findAssignmentsOnAssignments(
+        GrouperUtil.toSet(pitAttributeAssign1), before, after);
+    assertEquals(1, assignments.size());
+    assertEquals(attributeAssign2.getId(), assignments.iterator().next().getId());
+    s.stop();
+    
+    s = GrouperSession.startRootSession();
+    attributeAssign2.delete();
+    ChangeLogTempToEntity.convertRecords();
+    s = GrouperSession.start(member0.getSubject());
+    assignments = GrouperDAOFactory.getFactory().getPITAttributeAssign().findAssignmentsOnAssignments(
+        GrouperUtil.toSet(pitAttributeAssign1), before, after);
+    assertEquals(0, assignments.size());
+    s.stop();
+    
+    s = GrouperSession.startRootSession();
+    assignments = GrouperDAOFactory.getFactory().getPITAttributeAssign().findAssignmentsOnAssignments(
+        GrouperUtil.toSet(pitAttributeAssign1), before, after);
+    assertEquals(1, assignments.size());
+    assertEquals(attributeAssign2.getId(), assignments.iterator().next().getId());
+  }
+  
+  /**
+   * @param args
+   */
+  public static void main(String[] args) {
+    TestRunner.run(new PITAttributeAssignTests("testFindAssignmentsOnAssignmentsAtPointInTime"));
   }
 }

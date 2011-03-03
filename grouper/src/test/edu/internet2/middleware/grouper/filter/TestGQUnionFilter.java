@@ -20,6 +20,7 @@ import java.util.Date;
 
 import junit.framework.Assert;
 import junit.framework.TestCase;
+import junit.textui.TestRunner;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
@@ -35,6 +36,7 @@ import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SessionHelper;
 import edu.internet2.middleware.grouper.helper.StemHelper;
 import edu.internet2.middleware.grouper.registry.RegistryReset;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * Test {@link UnionFilter}.
@@ -44,6 +46,14 @@ import edu.internet2.middleware.grouper.registry.RegistryReset;
  */
 public class TestGQUnionFilter extends TestCase {
 
+  /**
+   * 
+   * @param args
+   */
+  public static void main(String[] args) {
+    TestRunner.run(new TestGQUnionFilter("testUnionFilterSomething"));
+  }
+  
   public TestGQUnionFilter(String name) {
     super(name);
   }
@@ -87,7 +97,10 @@ public class TestGQUnionFilter extends TestCase {
   } // public void testUnionFilterNothing()
 
   public void testUnionFilterSomething() {
-    Date            when  = DateHelper.getPastDate();
+    GrouperUtil.sleep(100);
+    Date            when  = new Date();
+    GrouperUtil.sleep(100);
+    
     GrouperSession  s     = SessionHelper.getRootSession();
     Stem            root  = StemHelper.findRootStem(s);
     Stem            edu   = StemHelper.addChildStem(root, "edu", "education");
@@ -104,7 +117,7 @@ public class TestGQUnionFilter extends TestCase {
           new GroupCreatedAfterFilter(when, root) 
         )
       );
-      Assert.assertTrue("groups",  gq.getGroups().size()      == 3);
+      assertEquals("groups",  3, gq.getGroups().size());
       Assert.assertTrue("members", gq.getMembers().size()     == 1);
       Assert.assertTrue("mships",  gq.getMemberships().size() == 1);
       Assert.assertTrue("stems",   gq.getStems().size()       == 2);
@@ -115,7 +128,9 @@ public class TestGQUnionFilter extends TestCase {
   } // public void testAnd()
 
   public void testUnionFilterSomethingScoped() {
-    Date            when  = DateHelper.getPastDate();
+    GrouperUtil.sleep(100);
+    Date            when  = new Date();
+    GrouperUtil.sleep(100);
     GrouperSession  s     = SessionHelper.getRootSession();
     Stem            root  = StemHelper.findRootStem(s);
     Stem            edu   = StemHelper.addChildStem(root, "edu", "education");

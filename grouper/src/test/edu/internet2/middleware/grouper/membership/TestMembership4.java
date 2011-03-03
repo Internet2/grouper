@@ -76,7 +76,9 @@ public class TestMembership4 extends GrouperTest {
   public void testEffectiveMembershipsWithComposites() {
     LOG.info("testEffectiveMembershipsWithComposites");
     try {
-      before   = DateHelper.getPastDate();
+      GrouperUtil.sleep(100);
+      before  = new Date();
+      GrouperUtil.sleep(100);
 
       r     = R.populateRegistry(1, 22, 4);
       gA    = r.getGroup("a", "a");

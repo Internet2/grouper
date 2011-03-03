@@ -270,7 +270,7 @@ public class PSPOptions {
        */
       public Option getOption() {
         Option option = new Option("interval", true,
-            "Number of seconds between provisioning cycles. If omitted, only one provisioning cycle is performed.");
+            "Number of seconds between the start of recurring provisioning iterations. If omitted, only one provisioning cycle is performed.");
         option.setArgName("seconds");
         return option;
       }

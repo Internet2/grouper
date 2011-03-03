@@ -54,23 +54,7 @@ public interface SubjectResolver {
 
   /**
    * @return  Subject matching search parameters.
-   * @param   id    Subject id to search on.
-   * @param   type  Subject type to search on.
-   * @throws  IllegalArgumentException if any parameter is null.
-   * @throws  SubjectNotFoundException if no matching subject is found.
-   * @throws  SubjectNotUniqueException if more than one matching subject is found.
-   * @since   1.2.1
-   */
-  Subject find(String id, String type)
-    throws  IllegalArgumentException,
-            SubjectNotFoundException,
-            SubjectNotUniqueException
-            ;
-
-  /**
-   * @return  Subject matching search parameters.
    * @param   id      Subject id to search on.
-   * @param   type    Subject type to search on.
    * @param   source  Source adapter to search within.
    * @throws  IllegalArgumentException if any parameter is null.
    * @throws  SourceUnavailableException if source is unavailable.
@@ -78,7 +62,7 @@ public interface SubjectResolver {
    * @throws  SubjectNotUniqueException if more than one matching subject is found.
    * @since   1.2.1
    */
-  Subject find(String id, String type, String source)
+  Subject find(String id, String source)
     throws  IllegalArgumentException,
             SourceUnavailableException,
             SubjectNotFoundException,
@@ -92,6 +76,16 @@ public interface SubjectResolver {
    * @since   1.2.1
    */
   Set<Subject> findAll(String query)
+    throws  IllegalArgumentException;
+
+  /**
+   * @param stemName name of stem we are querying
+   * @param   query   A source-appropriate query string.
+   * @return  All subjects matching <i>query</i>.
+   * @throws  IllegalArgumentException if any parameter is null.
+   * @since   1.2.1
+   */
+  Set<Subject> findAllInStem(String stemName, String query)
     throws  IllegalArgumentException;
 
   /**
@@ -123,23 +117,7 @@ public interface SubjectResolver {
 
   /**
    * @return  Subject matching search parameters.
-   * @param   id    Subject identifier to search on.
-   * @param   type  Subject type to search on.
-   * @throws  IllegalArgumentException if any parameter is null.
-   * @throws  SubjectNotFoundException if no matching subject is found.
-   * @throws  SubjectNotUniqueException if more than one matching subject is found.
-   * @since   1.2.1
-   */
-  Subject findByIdentifier(String id, String type)
-    throws  IllegalArgumentException,
-            SubjectNotFoundException,
-            SubjectNotUniqueException
-            ;
-
-  /**
-   * @return  Subject matching search parameters.
    * @param   id      Subject identifier to search on.
-   * @param   type    Subject type to search on.
    * @param   source  Source adapter to search within.
    * @throws  IllegalArgumentException if any parameter is null.
    * @throws  SourceUnavailableException if source is unavailable.
@@ -147,7 +125,7 @@ public interface SubjectResolver {
    * @throws  SubjectNotUniqueException if more than one matching subject is found.
    * @since   1.2.1
    */
-  Subject findByIdentifier(String id, String type, String source)
+  Subject findByIdentifier(String id, String source)
     throws  IllegalArgumentException,
             SourceUnavailableException,
             SubjectNotFoundException,
@@ -155,6 +133,7 @@ public interface SubjectResolver {
             ;
 
   /**
+   * @param id 
    * @return  Subject source identified by <i>id</i>.
    * @throws  IllegalArgumentException if <i>id</i> is null.
    * @throws  SourceUnavailableException if source cannot be returned.
@@ -172,12 +151,36 @@ public interface SubjectResolver {
   Set<Source> getSources();
 
   /**
-   * @param   subjectType   Only return sources that provide this type.
-   * @return  All Subject sources that provide <i>subjectType</i>.
-   * @throws  IllegalArgumentException if <i>subjectType</i> is null or invalid.
+   * @return  Subject matching search parameters.
+   * @param   id    Subject identifier to search on.
+   * @throws  IllegalArgumentException if any parameter is null.
+   * @throws  SubjectNotFoundException if no matching subject is found.
+   * @throws  SubjectNotUniqueException if more than one matching subject is found.
    * @since   1.2.1
    */
-  Set<Source> getSources(String subjectType) throws IllegalArgumentException;
+  Subject findByIdOrIdentifier(String id)
+    throws  IllegalArgumentException,
+            SubjectNotFoundException,
+            SubjectNotUniqueException
+            ;
+
+  /**
+   * @return  Subject matching search parameters.
+   * @param   id      Subject identifier to search on.
+   * @param   type    Subject type to search on.
+   * @param   source  Source adapter to search within.
+   * @throws  IllegalArgumentException if any parameter is null.
+   * @throws  SourceUnavailableException if source is unavailable.
+   * @throws  SubjectNotFoundException if no matching subject is found.
+   * @throws  SubjectNotUniqueException if more than one matching subject is found.
+   * @since   1.2.1
+   */
+  Subject findByIdOrIdentifier(String id, String source)
+    throws  IllegalArgumentException,
+            SourceUnavailableException,
+            SubjectNotFoundException,
+            SubjectNotUniqueException
+            ;
   
 }
 

@@ -69,6 +69,23 @@
     <body-content>empty</body-content>
     <attribute>
       <description>
+        Show current location label, defaults true
+        </description>
+      <name>showCurrentLocationLabel</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+      <description>
+        Show leaf node, default true
+        </description>
+      <name>showLeafNode</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+
+    <attribute>
+      <description>
         Name of groupName or groupDisplayName
         </description>
       <name>groupName</name>
@@ -428,7 +445,33 @@
         <rtexprvalue>true</rtexprvalue>
     </attribute>
   </tag>
-    <function>
+  <function>
+    <description>
+      Abbreviate something if necessary.  3rd arg is if should put a tooltip in it with span tag.
+      4th arg is if should escape html, probably should always be true
+    </description>
+    <name>abbreviate</name>
+    <function-class>edu.internet2.middleware.grouper.ui.tags.GrouperUiFunctions
+    </function-class>
+    <function-signature>String abbreviate(java.lang.String, int, boolean, boolean)</function-signature>
+    <example>
+      ${grouper:abbreviate(something.somewhere, 20, true)}
+    </example>
+  </function>
+  <function>
+    <description>
+      Escapes XML ( ampersand, lessthan, greater than, double quote)
+    </description>
+    <name>escapeHtml</name>
+    <function-class>edu.internet2.middleware.grouper.ui.tags.GrouperUiFunctions
+    </function-class>
+    <function-signature>String escapeHtml(java.lang.String)
+    </function-signature>
+    <example>
+      ${grouper:escapeHtml(someVar.someField)}
+    </example>
+  </function>
+  <function>
     <description>
       Escapes XML ( ampersand, lessthan, greater than, double quote), and single quote with slash
     </description>
@@ -439,22 +482,6 @@
     </function-signature>
     <example>
       &lt;a onclick="alert('${grouper:escapeJavascript('somestuff')}'); return false;" ...
-    </example>
-  </function>
-    <function>
-    <description>
-      Prints out a message from the nav bundle. String is the key, then boolean
-      for if escape HTML,
-      and then boolean for if escaping HTML, if single quotes should be
-      escaped
-    </description>
-    <name>message</name>
-    <function-class>edu.internet2.middleware.grouper.ui.tags.GrouperUiFunctions
-    </function-class>
-    <function-signature>String message(java.lang.String, boolean, boolean)
-    </function-signature>
-    <example>
-      &lt;img alt="${grouper:message('some.key', true, false)}" ...
     </example>
   </function>
   <function>
@@ -486,6 +513,22 @@
     <example>
       &lt;a href="#" onclick="onclick="return guiHideShow(event,
       'hideShowName');"&gt;${grouper:hideShowButtonText('hideShowName')}&lt;/a&gt;
+    </example>
+  </function>
+  <function>
+    <description>
+      Prints out a message from the nav bundle. String is the key, then boolean
+      for if escape HTML,
+      and then boolean for if escaping HTML, if single quotes should be
+      escaped
+    </description>
+    <name>message</name>
+    <function-class>edu.internet2.middleware.grouper.ui.tags.GrouperUiFunctions
+    </function-class>
+    <function-signature>String message(java.lang.String, boolean, boolean)
+    </function-signature>
+    <example>
+      &lt;img alt="${grouper:message('some.key', true, false)}" ...
     </example>
   </function>
   

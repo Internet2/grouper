@@ -4,6 +4,7 @@
  */
 package edu.internet2.middleware.grouperClient.api;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -148,6 +149,16 @@ public class GcHasMember {
     if (GrouperClientUtils.length(this.subjectLookups) == 0) {
       throw new RuntimeException("Need at least one subject to add to group: " + this);
     }
+    
+    if (pointInTimeFrom != null || pointInTimeTo != null) {
+      if (this.includeGroupDetail != null && this.includeGroupDetail) {
+        throw new RuntimeException("Cannot specify includeGroupDetail for point in time queries.");
+      }
+      
+      if (this.memberFilter != null && !this.memberFilter.equals(WsMemberFilter.All)) {
+        throw new RuntimeException("Cannot specify a member filter for point in time queries.");
+      }
+    }
   }
   
   /** field name to add member */
@@ -178,6 +189,24 @@ public class GcHasMember {
   private WsMemberFilter memberFilter;
 
   /**
+   * To query members at a certain point in time or time range in the past, set this value
+   * and/or the value of pointInTimeTo.  This parameter specifies the start of the range
+   * of the point in time query.  If this is specified but pointInTimeTo is not specified, 
+   * then the point in time query range will be from the time specified to now.  
+   */
+  private Timestamp pointInTimeFrom;
+  
+  /**
+   * To query members at a certain point in time or time range in the past, set this value
+   * and/or the value of pointInTimeFrom.  This parameter specifies the end of the range 
+   * of the point in time query.  If this is the same as pointInTimeFrom, then the query 
+   * will be done at a single point in time rather than a range.  If this is specified but 
+   * pointInTimeFrom is not specified, then the point in time query range will be from the 
+   * minimum point in time to the time specified.
+   */
+  private Timestamp pointInTimeTo;
+  
+  /**
    * 
    * @param subjectAttributeName
    * @return this for chaining
@@ -204,6 +233,34 @@ public class GcHasMember {
    */
   public GcHasMember assignIncludeSubjectDetail(Boolean theIncludeSubjectDetail) {
     this.includeSubjectDetail = theIncludeSubjectDetail;
+    return this;
+  }
+  
+  /**
+   * To query members at a certain point in time or time range in the past, set this value
+   * and/or the value of pointInTimeTo.  This parameter specifies the start of the range
+   * of the point in time query.  If this is specified but pointInTimeTo is not specified, 
+   * then the point in time query range will be from the time specified to now.  
+   * @param pointInTimeFrom
+   * @return this for chaining
+   */
+  public GcHasMember assignPointInTimeFrom(Timestamp pointInTimeFrom) {
+    this.pointInTimeFrom = pointInTimeFrom;
+    return this;
+  }
+  
+  /**
+   * To query members at a certain point in time or time range in the past, set this value
+   * and/or the value of pointInTimeFrom.  This parameter specifies the end of the range 
+   * of the point in time query.  If this is the same as pointInTimeFrom, then the query 
+   * will be done at a single point in time rather than a range.  If this is specified but 
+   * pointInTimeFrom is not specified, then the point in time query range will be from the 
+   * minimum point in time to the time specified.
+   * @param pointInTimeTo
+   * @return this for chaining
+   */
+  public GcHasMember assignPointInTimeTo(Timestamp pointInTimeTo) {
+    this.pointInTimeTo = pointInTimeTo;
     return this;
   }
   
@@ -259,6 +316,9 @@ public class GcHasMember {
       if (this.params.size() > 0) {
         hasMember.setParams(GrouperClientUtils.toArray(this.params, WsParam.class));
       }
+      
+      hasMember.setPointInTimeFrom(GrouperClientUtils.dateToString(this.pointInTimeFrom));
+      hasMember.setPointInTimeTo(GrouperClientUtils.dateToString(this.pointInTimeTo));
       
       GrouperClientWs grouperClientWs = new GrouperClientWs();
       

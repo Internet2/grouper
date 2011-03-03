@@ -1,5 +1,5 @@
 <%@ include file="../common/commonTaglib.jsp"%>
-<!-- misc/index.jsp: main page -->
+<!-- simpleMembershipUpdate/simpleMembershipUpdateIndex.jsp: main page -->
 
 
 
@@ -29,3 +29,4 @@
   </div>
 </div>
 
+<!-- end: simpleMembershipUpdate/simpleMembershipUpdateIndex.jsp: main page -->

@@ -44,19 +44,19 @@ public class GroupSyncDaemon {
 
   /**
    * sync a group by config name from the cron daemon
-   * @param configName
+   * @param localGroupName
    * @return the number of records changed
    */
-  public static int syncGroup(final String configName) {
+  public static int syncGroup(final String localGroupName) {
 
     final Map<String, Object> infoMap = new LinkedHashMap<String, Object>();
     
-    infoMap.put("configName", configName);
+    infoMap.put("configName", localGroupName);
     
-    final ClientGroupConfigBean clientGroupConfigBean = ClientConfig.clientGroupConfigBeanCache().get(configName);
+    final ClientGroupConfigBean clientGroupConfigBean = ClientConfig.clientGroupConfigBeanCache().get(localGroupName);
 
     if (clientGroupConfigBean == null) {
-      throw new RuntimeException("Cant find clientGroupConfigBean by config id: '" + configName + "'");
+      throw new RuntimeException("Cant find clientGroupConfigBean by config id: '" + localGroupName + "'");
     }
     
     //get the connection and the grouper session
@@ -68,7 +68,7 @@ public class GroupSyncDaemon {
     
     if (clientConnectionConfigBean == null) {
       throw new RuntimeException("Cant find clientConnectionBean by config id: '"       
-          + configName + "', connectionId: '" + connectionName + "'");      
+          + localGroupName + "', connectionId: '" + connectionName + "'");      
     }
 
     String actAsSubjectString = clientConnectionConfigBean.getLocalActAsSubject();
@@ -84,6 +84,13 @@ public class GroupSyncDaemon {
 
     GrouperSession grouperSession = GrouperSession.start(actAsSubject, false);
     
+    //get the connection, and set it up
+    ClientCustomizerContext clientCustomizerContext = new ClientCustomizerContext();
+    clientCustomizerContext.setConnectionName(connectionName);
+    ClientCustomizer clientCustomizer = new ClientCustomizer();
+    clientCustomizer.init(clientCustomizerContext);
+    clientCustomizer.setupConnection();
+    
     try {
       int result = (Integer)GrouperSession.callbackGrouperSession(grouperSession, new GrouperSessionHandler() {
         
@@ -96,7 +103,7 @@ public class GroupSyncDaemon {
           } else if (groupSyncType == GroupSyncType.incremental_push || groupSyncType == GroupSyncType.push) {    
             return syncGroupPush(clientGroupConfigBean, clientConnectionConfigBean, theGrouperSession, infoMap);
           } else {    
-            throw new RuntimeException("Not expecting configName: " + configName + ", groupSyncType: " + groupSyncType);
+            throw new RuntimeException("Not expecting configName: " + localGroupName + ", groupSyncType: " + groupSyncType);
           }   
         }
       });
@@ -108,10 +115,11 @@ public class GroupSyncDaemon {
     } catch (RuntimeException re) {
       
       LOG.error(GrouperUtil.mapToString(infoMap));
-      GrouperUtil.injectInException(re, "Error in configName: " + configName);
+      GrouperUtil.injectInException(re, "Error in configName: " + localGroupName);
       throw re;
 
     } finally {     
+      clientCustomizer.teardownConnection();
       GrouperSession.stopQuietly(grouperSession); 
     }     
     
@@ -196,7 +204,7 @@ public class GroupSyncDaemon {
         
         Set<Subject> subjectsToReplace = new HashSet<Subject>();
         
-        for (WsSubject wsSubject : wsSubjects) {
+        for (WsSubject wsSubject : GrouperUtil.nonNull(wsSubjects, WsSubject.class)) {
           
           subjectIndex++;
           
@@ -249,8 +257,14 @@ public class GroupSyncDaemon {
             subject = localLookupType.findSubject(localSourceId, localSubjectIdOrIdentifier);
             
           } catch (RuntimeException re) {
-            debugMap.put("problem getting subject", re.getMessage());
-            LOG.error(GrouperUtil.mapToString(debugMap), re);
+            if (LOG.isDebugEnabled()) {
+
+              debugMap.put("problem getting subject", re.getMessage());
+              LOG.error(GrouperUtil.mapToString(debugMap), re);
+            } else {
+              LOG.error("error running record: " + wsSubject.getSourceId() + ", " + wsSubject.getId(), re);
+            }
+             
             continue;
             
           }
@@ -258,7 +272,9 @@ public class GroupSyncDaemon {
           //create if not there
           if (subject == null) {
             
-            debugMap.put("subjectIdNull", true);
+            if (LOG.isDebugEnabled()) {
+              debugMap.put("subjectIdNull", true);
+            }
             
             if (clientGroupConfigBean.getAddExternalSubjectIfNotFound() == null || !clientGroupConfigBean.getAddExternalSubjectIfNotFound()) {
               
@@ -314,7 +330,11 @@ public class GroupSyncDaemon {
             
             subject = SubjectFinder.findByIdAndSource(externalSubject.getUuid(), ExternalSubject.sourceId(), false);
             if (subject == null) {
-              LOG.error("This should not be null, it was just created: " + externalSubject.getUuid() + ", " + GrouperUtil.mapToString(debugMap));
+              
+              LOG.error("This should not be null, it was just created: " + externalSubject.getUuid());
+              if (LOG.isDebugEnabled()) {
+                LOG.debug(GrouperUtil.mapToString(debugMap));
+              }
               continue;
             }
           }
@@ -483,7 +503,10 @@ public class GroupSyncDaemon {
   
       infoMap.put("filteredMemberSize", filteredMemberSize);
   
-      gcAddMember.assignAddExternalSubjectIfNotFound(clientGroupConfigBean.getAddExternalSubjectIfNotFound());
+      //if not true, dont set it, it defaults to false
+      if (clientGroupConfigBean.getAddExternalSubjectIfNotFound() != null && clientGroupConfigBean.getAddExternalSubjectIfNotFound()) {
+        gcAddMember.assignAddExternalSubjectIfNotFound(clientGroupConfigBean.getAddExternalSubjectIfNotFound());
+      }
       
       //replace what was there...
       gcAddMember.assignReplaceAllExisting(true);

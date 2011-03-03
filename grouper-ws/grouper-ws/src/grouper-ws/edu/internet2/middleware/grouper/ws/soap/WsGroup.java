@@ -9,6 +9,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.pit.PITGroup;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
@@ -48,6 +49,27 @@ public class WsGroup implements Comparable<WsGroup> {
     int index = 0;
     for (Group group : groupSet) {
       WsGroup wsGroup = new WsGroup(group, null, includeDetail);
+      wsGroupResults[index] = wsGroup;
+      index++;
+    }
+    return wsGroupResults;
+
+  }
+  
+  /**
+   * convert a set of pit groups to results
+   * @param pitGroupSet
+   * @return the groups (null if none or null)
+   */
+  public static WsGroup[] convertGroups(Set<PITGroup> pitGroupSet) {
+    if (pitGroupSet == null || pitGroupSet.size() == 0) {
+      return null;
+    }
+    int groupSetSize = pitGroupSet.size();
+    WsGroup[] wsGroupResults = new WsGroup[groupSetSize];
+    int index = 0;
+    for (PITGroup pitGroup : pitGroupSet) {
+      WsGroup wsGroup = new WsGroup(pitGroup);
       wsGroupResults[index] = wsGroup;
       index++;
     }
@@ -116,6 +138,16 @@ public class WsGroup implements Comparable<WsGroup> {
 
       }
     }
+  }
+  
+  /**
+   * construct based on pit group
+   * @param pitGroup
+   */
+  public WsGroup(PITGroup pitGroup) {
+    this.setName(pitGroup.getName());
+    this.setUuid(pitGroup.getId());
+    this.setExtension(GrouperUtil.extensionFromName(pitGroup.getName()));
   }
 
   /**

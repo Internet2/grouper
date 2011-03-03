@@ -50,7 +50,7 @@ public class TestGroupModifyAttributes extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    //TestRunner.run(new TestGroupModifyAttributes("testGroupModifyAttributesUpdatedAfterAddingImmediateMember"));
+    //TestRunner.run(new TestGroupModifyAttributes("testGroupModifyAttributesAfterDisablingMembership"));
     TestRunner.run(TestGroupModifyAttributes.class);
   }
   

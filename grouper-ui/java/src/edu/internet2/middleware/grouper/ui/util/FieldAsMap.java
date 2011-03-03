@@ -24,6 +24,7 @@ import java.util.Set;
 import org.apache.commons.beanutils.WrapDynaBean;
 
 import edu.internet2.middleware.grouper.Field;
+import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.subject.Subject;
 
 /**
@@ -39,29 +40,27 @@ public class FieldAsMap extends ObjectAsMap {
 	protected String objType = "Field";
 
 	private Field field = null;
-	private ResourceBundle bundle=null;
 	
 	protected FieldAsMap() {}
 	
-	/**
-	 * @param field
-	 *            to wrap
-	  * @param bundle
-	 *            where to lookup display names
-	 */
-	public FieldAsMap(Field field,ResourceBundle bundle) {
-		super();
-		init(field,bundle);
-	}
-	
-	protected void init(Field field, ResourceBundle bundle) {
+  /**
+   * @param field
+   *            to wrap
+    * @param bundle
+   *            where to lookup display names
+   */
+  public FieldAsMap(Field field) {
+    super();
+    init(field);
+  }
+  
+	protected void init(Field field) {
 		super.objType = objType;
 		dynaBean = new WrapDynaBean(field);
 		if (field == null)
 			throw new NullPointerException(
 					"Cannot create SubjectAsMap with a null Subject");
 		this.field = field;
-		this.bundle = bundle;
 		wrappedObject = field;
 	}
 
@@ -84,7 +83,7 @@ public class FieldAsMap extends ObjectAsMap {
 				if ("displayName".equals(key)) {
 					String displayName = null;
 					try {
-						displayName = bundle.getString("field.displayName." + field.getName());
+						displayName =  GrouperUiFilter.retrieveSessionNavResourceBundle().getString("field.displayName." + field.getName());
 					}catch(Exception e) {
 						displayName = field.getName();
 					}

@@ -86,6 +86,8 @@ public class GrouperKimGenerateStuff {
 //                  + "                  >Find org</button>\n"
                   + "                <xsl:value-of disable-output-escaping=\"yes\"\n" 
                   + "                  select=\"java:edu.internet2.middleware.grouperKimConnector.util.GrouperKimUtils.xslGrouperButton('AttributeDefNamePicker.index', 'attributeDefNamePickerName', 'orgPicker', 'attributeDefNamePickerElementName', 'attributeDefName" + i + "', 'orgPicker', '700', '500', 'Find org')\" />\n"
+                  + "                                    <xsl:text disable-output-escaping=\"yes\">&amp;nbsp;</xsl:text>\n"
+                  + "                      <a href=\"#\" onclick=\"assignValueByName('attributeDefName" + i + "', ''); assignValueByName('attributeDefName" + i + "extension', ''); return false;\">Clear</a>\n"
                   + "                </xsl:when>\n"
                   + "              </xsl:choose>\n"
                   + "            </td>\n"

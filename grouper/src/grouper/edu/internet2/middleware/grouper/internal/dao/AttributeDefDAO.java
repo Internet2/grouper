@@ -6,7 +6,6 @@ package edu.internet2.middleware.grouper.internal.dao;
 
 import java.util.Set;
 
-import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
@@ -109,6 +108,18 @@ public interface AttributeDefDAO extends GrouperDAO {
    * @return set of attribute defs
    */
   public Set<AttributeDef> getAllAttributeDefsSecure(String scope, GrouperSession grouperSession, 
+      Subject subject, Set<Privilege> privileges, QueryOptions queryOptions);
+  
+  /**
+   * get all attribute defs secure, split the scope by whitespace
+   * @param scope
+   * @param grouperSession
+   * @param subject
+   * @param privileges
+   * @param queryOptions
+   * @return set of attribute defs
+   */
+  public Set<AttributeDef> getAllAttributeDefsSplitScopeSecure(String scope, GrouperSession grouperSession, 
       Subject subject, Set<Privilege> privileges, QueryOptions queryOptions);
   
   /**

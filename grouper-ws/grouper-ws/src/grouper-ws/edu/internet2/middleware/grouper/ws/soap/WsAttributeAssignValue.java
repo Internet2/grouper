@@ -8,6 +8,7 @@ import java.util.Set;
 
 import edu.emory.mathcs.backport.java.util.Arrays;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
+import edu.internet2.middleware.grouper.pit.PITAttributeAssignValue;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
@@ -117,6 +118,28 @@ public class WsAttributeAssignValue implements Comparable<WsAttributeAssignValue
     
     return wsAttributeAssignValueResultArray;
   }
+  
+  /** 
+   * convert pit attribute assign values
+   * @param attributeAssignValueSet should be the value row
+   * @return the results
+   */
+  public static WsAttributeAssignValue[] convertPITAttributeAssignValues(Set<PITAttributeAssignValue> attributeAssignValueSet) {
+    int attributeAssignSetLength = GrouperUtil.length(attributeAssignValueSet);
+    if (attributeAssignSetLength == 0) {
+      return null;
+    }
+  
+    WsAttributeAssignValue[] wsAttributeAssignValueResultArray = new WsAttributeAssignValue[attributeAssignSetLength];
+    int index = 0;
+    for (PITAttributeAssignValue attributeAssignValue : attributeAssignValueSet) {
+      wsAttributeAssignValueResultArray[index++] = new WsAttributeAssignValue(attributeAssignValue);      
+    }
+    
+    Arrays.sort(wsAttributeAssignValueResultArray);
+    
+    return wsAttributeAssignValueResultArray;
+  }
 
 
   /**
@@ -138,4 +161,13 @@ public class WsAttributeAssignValue implements Comparable<WsAttributeAssignValue
     
   }
 
+  /**
+   * construct with pit attribute assign value to set internal fields
+   * 
+   * @param attributeAssignValue
+   */
+  public WsAttributeAssignValue(PITAttributeAssignValue attributeAssignValue) {
+    this.id = attributeAssignValue.getId();
+    this.valueSystem = attributeAssignValue.valueString();
+  }
 }

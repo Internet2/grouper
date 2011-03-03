@@ -5,6 +5,7 @@
 package edu.internet2.middleware.grouperKimConnector.util;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -51,6 +52,13 @@ import edu.internet2.middleware.grouperKimConnector.identity.GrouperKimIdentityS
  */
 public class GrouperKimUtils {
 
+  /**
+   * current date time for xslt
+   * @return string of date time
+   */
+  public static String currentDateTime() {
+    return new Date().toString();
+  }
 
   /**
    * @param operation e.g. AttributeDefNamePicker.index
@@ -545,8 +553,6 @@ public class GrouperKimUtils {
     kimEntityInfo.setAffiliations(kimEntityDefaultInfo.getAffiliations());
     kimEntityInfo.setBioDemographics(null);
     kimEntityInfo.setCitizenships(null);
-    kimEntityInfo.setDefaultAffiliation(kimEntityDefaultInfo.getDefaultAffiliation());
-    kimEntityInfo.setDefaultName(kimEntityDefaultInfo.getDefaultName());
     kimEntityInfo.setEmploymentInformation(null);
     kimEntityInfo.setEntityId(kimEntityDefaultInfo.getEntityId());
     
@@ -582,7 +588,6 @@ public class GrouperKimUtils {
     kimEntityInfo.setEthnicities(null);
     kimEntityInfo.setExternalIdentifiers(kimEntityDefaultInfo.getExternalIdentifiers());
     kimEntityInfo.setNames(GrouperClientUtils.toList(kimEntityDefaultInfo.getDefaultName()));
-    kimEntityInfo.setPrimaryEmployment(kimEntityDefaultInfo.getPrimaryEmployment());
     kimEntityInfo.setPrincipals(kimEntityDefaultInfo.getPrincipals());
     kimEntityInfo.setPrivacyPreferences(kimEntityDefaultInfo.getPrivacyPreferences());
     kimEntityInfo.setResidencies(null);

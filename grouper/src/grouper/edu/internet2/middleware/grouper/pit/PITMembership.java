@@ -713,7 +713,6 @@ public class PITMembership extends GrouperPIT implements Hib3GrouperVersioned {
    */
   @Override
   public void onPostSave(HibernateSession hibernateSession) {
-    super.onPostSave(hibernateSession);
 
     // add change log entry for flat permissions
     if (this.isActive() && this.getFlatPermissionNotificationsOnSaveOrUpdate()) {
@@ -764,6 +763,7 @@ public class PITMembership extends GrouperPIT implements Hib3GrouperVersioned {
       Field field = FieldFinder.findById(this.getFieldId(), false);
       if (field == null) {
         // if the field was deleted, then there's nothing to do
+        super.onPostSave(hibernateSession);
         return;
       }
       
@@ -787,6 +787,7 @@ public class PITMembership extends GrouperPIT implements Hib3GrouperVersioned {
       
       if (immediateGroupSet == null) {
         // if the immediate group set was deleted, then there's nothing to do
+        super.onPostSave(hibernateSession);
         return;
       }
       
@@ -803,6 +804,8 @@ public class PITMembership extends GrouperPIT implements Hib3GrouperVersioned {
       pitImmediateGroupSet.setFlatPrivilegeNotificationsOnSaveOrUpdate(this.getFlatPrivilegeNotificationsOnSaveOrUpdate());
       pitImmediateGroupSet.saveOrUpdate();
     }
+    
+    super.onPostSave(hibernateSession);
   }
   
   /**
@@ -810,7 +813,6 @@ public class PITMembership extends GrouperPIT implements Hib3GrouperVersioned {
    */
   @Override
   public void onPostUpdate(HibernateSession hibernateSession) {
-    super.onPostUpdate(hibernateSession);
 
     // if the member is a group and the membership is ending, add an end time to the PIT immediate group set.
     if (!this.isActive() && this.dbVersion().isActive() && this.getMember().getSubjectTypeId().equals("group")) {
@@ -823,6 +825,7 @@ public class PITMembership extends GrouperPIT implements Hib3GrouperVersioned {
       
       if (pitImmediateGroupSet == null) {
         // this must have already been deleted...
+        super.onPostUpdate(hibernateSession);
         return;
       }
 
@@ -833,6 +836,8 @@ public class PITMembership extends GrouperPIT implements Hib3GrouperVersioned {
       pitImmediateGroupSet.setFlatPrivilegeNotificationsOnSaveOrUpdate(this.getFlatPrivilegeNotificationsOnSaveOrUpdate());
       pitImmediateGroupSet.saveOrUpdate();
     }
+    
+    super.onPostUpdate(hibernateSession);
   }
   
   /**

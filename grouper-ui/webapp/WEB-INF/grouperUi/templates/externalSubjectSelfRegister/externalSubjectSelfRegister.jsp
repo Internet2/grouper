@@ -1,5 +1,5 @@
 <%@ include file="../common/commonTaglib.jsp"%>
-<!-- externalSubjectSelfRegister/externalSubjectSelfRegister.jsp: main page -->
+<!-- Start: externalSubjectSelfRegister/externalSubjectSelfRegister.jsp: main page -->
 
 <grouper:title key="externalSubjectSelfRegister.registerTitle" />
 
@@ -46,7 +46,7 @@
 	        <tr>
 	          <td colspan="2" style="text-align: right">
 	            <div class="buttonRow">
-	              <c:if test="${!externalRegisterContainer.insert}">
+	              <c:if test="${externalRegisterContainer.showDeleteButton}">
 	                <input class="redButton" type="submit" 
 	                  onclick="if(confirm('${grouper:escapeJavascript(navMap['inviteExternalSubjects.confirmDelete'])}')) {ajax('ExternalSubjectSelfRegister.delete', {formIds: 'selfRegisterFormId'});} return false;" 
 	                  value="${navMap['externalSubjectSelfRegister.deleteRecordButtonText']}" 
@@ -67,3 +67,4 @@
 	  </form>
   </div>
 </div>
+<!-- End: externalSubjectSelfRegister/externalSubjectSelfRegister.jsp: main page -->

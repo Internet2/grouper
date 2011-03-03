@@ -1,5 +1,8 @@
 package edu.internet2.middleware.grouper.pit;
 
+import java.sql.Timestamp;
+import java.util.Date;
+import java.util.Iterator;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.Group;
@@ -9,12 +12,14 @@ import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.cfg.ApiConfig;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogTempToEntity;
+import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SessionHelper;
 import edu.internet2.middleware.grouper.helper.StemHelper;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.pit.finder.PITGroupFinder;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * @author shilen
@@ -58,6 +63,13 @@ public class PITGroupFinderTests extends GrouperTest {
     super.tearDown();
   }
   
+  private Timestamp getTimestampWithSleep() {
+    GrouperUtil.sleep(100);
+    Date date = new Date();
+    GrouperUtil.sleep(100);
+    return new Timestamp(date.getTime());
+  }
+  
   /**
    * 
    */
@@ -88,14 +100,22 @@ public class PITGroupFinderTests extends GrouperTest {
     // now verify what subj1 can see
     GrouperSession s = GrouperSession.start(member1.getSubject());
     
-    pitGroup1 = PITGroupFinder.findById(group1.getId(), true);
-    assertNull(pitGroup1);
+    try {
+      pitGroup1 = PITGroupFinder.findById(group1.getId(), true);
+      fail("Expected GroupNotFoundException.");
+    } catch (GroupNotFoundException e) {
+      // good
+    }
     
     pitGroup2 = PITGroupFinder.findById(group2.getId(), true);
     assertNotNull(pitGroup2);
     
-    pitGroup3 = PITGroupFinder.findById(group3.getId(), true);
-    assertNull(pitGroup3);
+    try {
+      pitGroup3 = PITGroupFinder.findById(group3.getId(), true);
+      fail("Expected GroupNotFoundException.");
+    } catch (GroupNotFoundException e) {
+      // good
+    }
     
     s.stop();
   }
@@ -125,7 +145,7 @@ public class PITGroupFinderTests extends GrouperTest {
     ChangeLogTempToEntity.convertRecords();
     
     // root can see all 3 groups
-    Set<PITGroup> pitGroups = PITGroupFinder.findByName("edu:test", true);
+    Set<PITGroup> pitGroups = PITGroupFinder.findByName("edu:test", true, true);
     assertEquals(3, pitGroups.size());
     
     PITGroup pitGroup = PITGroupFinder.findMostRecentByName("edu:test", true);
@@ -134,7 +154,7 @@ public class PITGroupFinderTests extends GrouperTest {
     
     // subj1 can only see the current active group
     GrouperSession s = GrouperSession.start(member1.getSubject());
-    pitGroups = PITGroupFinder.findByName("edu:test", true);
+    pitGroups = PITGroupFinder.findByName("edu:test", true, true);
     assertEquals(1, pitGroups.size());
     assertEquals(group3.getId(), pitGroups.iterator().next().getId());
     
@@ -149,7 +169,7 @@ public class PITGroupFinderTests extends GrouperTest {
     ChangeLogTempToEntity.convertRecords();
 
     // root can still see all 3 groups
-    pitGroups = PITGroupFinder.findByName("edu:test", true);
+    pitGroups = PITGroupFinder.findByName("edu:test", true, true);
     assertEquals(3, pitGroups.size());
     
     pitGroup = PITGroupFinder.findMostRecentByName("edu:test", true);
@@ -158,11 +178,20 @@ public class PITGroupFinderTests extends GrouperTest {
     
     // subj1 can't see anything now
     s = GrouperSession.start(member1.getSubject());
-    pitGroups = PITGroupFinder.findByName("edu:test", true);
-    assertEquals(0, pitGroups.size());
+    try {
+      pitGroups = PITGroupFinder.findByName("edu:test", true, true);
+      fail("Expected GroupNotFoundException.");
+    } catch (GroupNotFoundException e) {
+      // good
+    }
     
-    pitGroup = PITGroupFinder.findMostRecentByName("edu:test", true);
-    assertNull(pitGroup);
+    try {
+      pitGroup = PITGroupFinder.findMostRecentByName("edu:test", true);
+      fail("Expected GroupNotFoundException.");
+    } catch (GroupNotFoundException e) {
+      // good
+    }
+    
     s.stop();
     
     // delete group3
@@ -171,7 +200,7 @@ public class PITGroupFinderTests extends GrouperTest {
     ChangeLogTempToEntity.convertRecords();
 
     // root can still see all 3 groups
-    pitGroups = PITGroupFinder.findByName("edu:test", true);
+    pitGroups = PITGroupFinder.findByName("edu:test", true, true);
     assertEquals(3, pitGroups.size());
     
     pitGroup = PITGroupFinder.findMostRecentByName("edu:test", true);
@@ -180,11 +209,76 @@ public class PITGroupFinderTests extends GrouperTest {
     
     // subj1 can't see anything still
     s = GrouperSession.start(member1.getSubject());
-    pitGroups = PITGroupFinder.findByName("edu:test", true);
-    assertEquals(0, pitGroups.size());
+    try {
+      pitGroups = PITGroupFinder.findByName("edu:test", true, true);
+      fail("Expected GroupNotFoundException.");
+    } catch (GroupNotFoundException e) {
+      // good
+    }
     
-    pitGroup = PITGroupFinder.findMostRecentByName("edu:test", true);
-    assertNull(pitGroup);
+    try {
+      pitGroup = PITGroupFinder.findMostRecentByName("edu:test", true);
+      fail("Expected GroupNotFoundException.");
+    } catch (GroupNotFoundException e) {
+      // good
+    }
+    
     s.stop();    
+  }
+  
+  /**
+   * 
+   */
+  public void testFindByNameInDateRange() {
+    
+    Timestamp beforeFirst = getTimestampWithSleep();
+    Group group1 = edu.addChildGroup("test", "test");
+    ChangeLogTempToEntity.convertRecords();
+
+    group1.delete();
+    ChangeLogTempToEntity.convertRecords();
+
+    Timestamp beforeSecond = getTimestampWithSleep();
+    Group group2 = edu.addChildGroup("test", "test");
+    ChangeLogTempToEntity.convertRecords();
+
+    Timestamp afterSecond = getTimestampWithSleep();
+    group2.delete();
+    ChangeLogTempToEntity.convertRecords();
+    
+    Timestamp beforeThird = getTimestampWithSleep();
+    Group group3 = edu.addChildGroup("test", "test");
+    ChangeLogTempToEntity.convertRecords();
+    
+    Timestamp afterThird = getTimestampWithSleep();
+    
+    try {
+      PITGroupFinder.findByName("edu:test", null, beforeFirst, true, true);
+      fail("Expected GroupNotFoundException.");
+    } catch (GroupNotFoundException e) {
+      // good
+    }
+    
+    Set<PITGroup> pitGroups = PITGroupFinder.findByName("edu:test", null, afterSecond, true, true);
+    assertEquals(2, pitGroups.size());
+    Iterator<PITGroup> iterator = pitGroups.iterator();
+    assertEquals(group1.getId(), iterator.next().getId());
+    assertEquals(group2.getId(), iterator.next().getId());
+    
+    pitGroups = PITGroupFinder.findByName("edu:test", beforeSecond, null, true, true);
+    assertEquals(2, pitGroups.size());
+    iterator = pitGroups.iterator();
+    assertEquals(group2.getId(), iterator.next().getId());
+    assertEquals(group3.getId(), iterator.next().getId());
+    
+    pitGroups = PITGroupFinder.findByName("edu:test", afterThird, null, true, true);
+    assertEquals(1, pitGroups.size());
+    iterator = pitGroups.iterator();
+    assertEquals(group3.getId(), iterator.next().getId());
+    
+    pitGroups = PITGroupFinder.findByName("edu:test", beforeSecond, beforeThird, true, true);
+    assertEquals(1, pitGroups.size());
+    iterator = pitGroups.iterator();
+    assertEquals(group2.getId(), iterator.next().getId());
   }
 }

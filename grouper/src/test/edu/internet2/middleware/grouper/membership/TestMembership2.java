@@ -67,7 +67,9 @@ public class TestMembership2 extends GrouperTest {
       Group   gC    = r.getGroup("a", "c");
       Subject subjA = r.getSubject("a");
 
-      Date    before  = DateHelper.getPastDate();
+      GrouperUtil.sleep(100);
+      Date before  = new Date();
+      GrouperUtil.sleep(100);
       gA.addMember(subjA);
       gB.addMember( gA.toSubject() );
       gC.grantPriv( subjA, AccessPrivilege.ADMIN );

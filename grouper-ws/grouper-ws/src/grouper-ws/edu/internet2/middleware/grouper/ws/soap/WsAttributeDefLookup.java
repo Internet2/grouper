@@ -3,6 +3,7 @@
  */
 package edu.internet2.middleware.grouper.ws.soap;
 
+import java.sql.Timestamp;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -18,6 +19,8 @@ import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefType;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.exception.AttributeDefNotFoundException;
+import edu.internet2.middleware.grouper.pit.PITAttributeDef;
+import edu.internet2.middleware.grouper.pit.finder.PITAttributeDefFinder;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
 
@@ -57,6 +60,10 @@ public class WsAttributeDefLookup {
   /** find the attributeDef */
   @XStreamOmitField
   private AttributeDef attributeDef = null;
+  
+  /** find the pit attributeDef */
+  @XStreamOmitField
+  private Set<PITAttributeDef> pitAttributeDefs = new LinkedHashSet<PITAttributeDef>();
 
   /** result of attribute def name find */
   public static enum AttributeDefFindResult {
@@ -97,6 +104,17 @@ public class WsAttributeDefLookup {
    */
   public AttributeDef retrieveAttributeDef() {
     return this.attributeDef;
+  }
+  
+  /**
+   * <pre>
+   * 
+   * Note: this is not a javabean property because we dont want it in the web service
+   * </pre>
+   * @return the pit attributeDefs
+   */
+  public Set<PITAttributeDef> retrievePITAttributeDefs() {
+    return this.pitAttributeDefs;
   }
 
   /**
@@ -193,12 +211,82 @@ public class WsAttributeDefLookup {
     }
     return this.attributeDef;
   }
+  
+  /**
+   * retrieve the pit attribute defs for this lookup if not looked up yet.
+   * @param invalidQueryReason is the text to go in the WsInvalidQueryException
+   * @param pointInTimeFrom 
+   * @param pointInTimeTo 
+   * @return the pit attribute def
+   * @throws WsInvalidQueryException if there is a problem, and if the invalidQueryReason is set
+   */
+  public Set<PITAttributeDef> retrievePITAttributeDefsIfNeeded(String invalidQueryReason, Timestamp pointInTimeFrom, 
+      Timestamp pointInTimeTo) throws WsInvalidQueryException {
+
+    //see if we already retrieved
+    if (this.attributeDefFindResult != null) {
+      return this.pitAttributeDefs;
+    }
+
+    //assume success (set otherwise if there is a problem)
+    this.attributeDefFindResult = AttributeDefFindResult.SUCCESS;
+    
+    try {
+      boolean hasUuid = !StringUtils.isBlank(this.uuid);
+
+      boolean hasName = !StringUtils.isBlank(this.name);
+
+      //must have a name or uuid
+      if (!hasUuid && !hasName) {
+        this.attributeDefFindResult = AttributeDefFindResult.INVALID_QUERY;
+        if (!StringUtils.isEmpty(invalidQueryReason)) {
+          throw new WsInvalidQueryException("Invalid point in time attributeDef query for '"
+              + invalidQueryReason + "', " + this);
+        }
+        String logMessage = "Invalid query: " + this;
+        LOG.warn(logMessage);
+      }
+
+      if (hasUuid) {        
+        PITAttributeDef theAttributeDef = PITAttributeDefFinder.findById(this.uuid, true);
+
+        //make sure name matches 
+        if (hasName && !StringUtils.equals(this.name, theAttributeDef.getName())) {
+          this.attributeDefFindResult = AttributeDefFindResult.ATTRIBUTE_DEF_UUID_DOESNT_MATCH_NAME;
+          String error = "AttributeDef name '" + this.name + "' and uuid '" + this.uuid
+              + "' do not match";
+          if (!StringUtils.isEmpty(invalidQueryReason)) {
+            throw new WsInvalidQueryException(error + " for '" + invalidQueryReason
+                + "', " + this);
+          }
+          String logMessage = "Invalid query: " + this;
+          LOG.warn(logMessage);
+        }
+
+        //success
+        this.pitAttributeDefs = new LinkedHashSet<PITAttributeDef>();
+        this.pitAttributeDefs.add(theAttributeDef);
+
+      } else if (hasName) {
+        this.pitAttributeDefs = PITAttributeDefFinder.findByName(this.name, pointInTimeFrom, pointInTimeTo, true, true);
+      }
+
+    } catch (AttributeDefNotFoundException anf) {
+      this.attributeDefFindResult = AttributeDefFindResult.ATTRIBUTE_DEF_NOT_FOUND;
+      if (!StringUtils.isBlank(invalidQueryReason)) {
+        throw new WsInvalidQueryException("Invalid attributeDef for '" + invalidQueryReason
+            + "', " + this, anf);
+      }
+    }
+    return this.pitAttributeDefs;
+  }
 
   /**
    * clear the attributeDef if a setter is called
    */
   private void clearAttributeDef() {
     this.attributeDef = null;
+    this.pitAttributeDefs = new LinkedHashSet<PITAttributeDef>();
     this.attributeDefFindResult = null;
   }
 
@@ -249,12 +337,17 @@ public class WsAttributeDefLookup {
    * @param wsAttributeDefLookups
    * @param errorMessage
    * @param attributeDefType 
+   * @param usePIT 
+   * @param pointInTimeFrom 
+   * @param pointInTimeTo 
    * @param lookupCount is an array of size one int where 1 will be added if there are records, and no change if not
    * @return the attributeDef ids
    */
   public static Set<String> convertToAttributeDefIds(GrouperSession grouperSession, 
-      WsAttributeDefLookup[] wsAttributeDefLookups, StringBuilder errorMessage, AttributeDefType attributeDefType) {
-    return convertToAttributeDefIds(grouperSession, wsAttributeDefLookups, errorMessage, attributeDefType, new int[]{0});
+      WsAttributeDefLookup[] wsAttributeDefLookups, StringBuilder errorMessage, AttributeDefType attributeDefType, 
+      boolean usePIT, Timestamp pointInTimeFrom, Timestamp pointInTimeTo) {
+    return convertToAttributeDefIds(grouperSession, wsAttributeDefLookups, errorMessage, attributeDefType, 
+        usePIT, pointInTimeFrom, pointInTimeTo, new int[]{0});
   }
 
   /**
@@ -263,11 +356,15 @@ public class WsAttributeDefLookup {
    * @param wsAttributeDefLookups
    * @param errorMessage
    * @param attributeDefType 
+   * @param usePIT 
+   * @param pointInTimeFrom 
+   * @param pointInTimeTo 
    * @param lookupCount is an array of size one int where 1 will be added if there are records, and no change if not
    * @return the attributeDef ids
    */
   public static Set<String> convertToAttributeDefIds(GrouperSession grouperSession, 
-      WsAttributeDefLookup[] wsAttributeDefLookups, StringBuilder errorMessage, AttributeDefType attributeDefType, int[] lookupCount) {
+      WsAttributeDefLookup[] wsAttributeDefLookups, StringBuilder errorMessage, AttributeDefType attributeDefType, 
+      boolean usePIT, Timestamp pointInTimeFrom, Timestamp pointInTimeTo, int[] lookupCount) {
     //get all the attributeDefs
     //we could probably batch these to get better performance.
     Set<String> attributeDefIds = null;
@@ -289,9 +386,16 @@ public class WsAttributeDefLookup {
           foundRecords = true;
         }
         
-        wsAttributeDefLookup.retrieveAttributeDefIfNeeded(grouperSession);
+        if (!usePIT) {
+          wsAttributeDefLookup.retrieveAttributeDefIfNeeded(grouperSession);
+        } else {
+          wsAttributeDefLookup.retrievePITAttributeDefsIfNeeded(null, pointInTimeFrom, pointInTimeTo);
+        }
+        
         AttributeDef attributeDef = wsAttributeDefLookup.retrieveAttributeDef();
-        if (attributeDef != null) {
+        Set<PITAttributeDef> pitAttributeDefs = wsAttributeDefLookup.retrievePITAttributeDefs();
+        
+        if (!usePIT && attributeDef != null) {
           if (attributeDefType == null) {
             attributeDefIds.add(attributeDef.getUuid());
           } else {
@@ -306,6 +410,25 @@ public class WsAttributeDefLookup {
                   + ", expecting attributeDefType:  " + attributeDefType
                   + ", " + wsAttributeDefLookup.toStringCompact());
               
+            }
+          }
+        } else if (usePIT && pitAttributeDefs != null && pitAttributeDefs.size() > 0) {
+          for (PITAttributeDef pitAttributeDef : pitAttributeDefs) {
+            if (attributeDefType == null) {
+              attributeDefIds.add(pitAttributeDef.getId());
+            } else {
+              if (attributeDefType.name().equals(pitAttributeDef.getAttributeDefTypeDb())) {
+                attributeDefIds.add(pitAttributeDef.getId());
+              } else {
+                if (errorMessage.length() > 0) {
+                  errorMessage.append(", ");
+                }
+                
+                errorMessage.append("Error on attributeDef index: " + i 
+                    + ", expecting attributeDefType:  " + attributeDefType
+                    + ", " + wsAttributeDefLookup.toStringCompact());
+                
+              }
             }
           }
         } else {

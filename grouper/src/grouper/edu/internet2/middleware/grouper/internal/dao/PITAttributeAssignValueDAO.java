@@ -49,4 +49,12 @@ public interface PITAttributeAssignValueDAO extends GrouperDAO {
    * @param time
    */
   public void deleteInactiveRecords(Timestamp time);
+  
+  /**
+   * Find values by attribute assign id
+   * @param attributeAssignId
+   * @param queryOptions
+   * @return set of values
+   */
+  public Set<PITAttributeAssignValue> findByAttributeAssignId(String attributeAssignId, QueryOptions queryOptions);
 }

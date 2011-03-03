@@ -18,6 +18,8 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
 import org.openspml.v2.msg.spmlbatch.BatchRequest;
 import org.openspml.v2.msg.spmlbatch.OnError;
 
@@ -32,7 +34,7 @@ public abstract class BulkProvisioningRequest extends ProvisioningRequest {
   // available
 
   /** The format for the updated since time. */
-  public static final SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd'_'hh:mm:ss");
+  public static final SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd'_'HH:mm:ss");
   static {
     df.setLenient(true);
   }
@@ -114,5 +116,13 @@ public abstract class BulkProvisioningRequest extends ProvisioningRequest {
       updatedSinceDate = df.parse(dateInput.toString());
     }
     m_updatedSince = updatedSince;
+  }
+  
+  public String toString() {
+    ToStringBuilder toStringBuilder = new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE);
+    toStringBuilder.appendSuper(super.toString());
+    toStringBuilder.append("onError", this.getOnError());
+    toStringBuilder.append("updatedSince", this.getUpdatedSince());
+    return toStringBuilder.toString();
   }
 }

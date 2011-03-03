@@ -20,13 +20,16 @@ import java.util.Date;
 
 import junit.framework.Assert;
 import junit.framework.TestCase;
+import junit.textui.TestRunner;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.helper.DateHelper;
+import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.R;
 import edu.internet2.middleware.grouper.helper.T;
 import edu.internet2.middleware.grouper.registry.RegistryReset;
@@ -37,8 +40,13 @@ import edu.internet2.middleware.subject.Subject;
  * @author  blair christensen.
  * @version $Id: TestQuery.java,v 1.2 2009-03-20 19:56:41 mchyzer Exp $
  */
-public class TestQuery extends TestCase {
+public class TestQuery extends GrouperTest {
 
+  public static void main(String[] args) {
+    //TestRunner.run(TestQuery.class);
+    TestRunner.run(new TestQuery("testStemExtensionFilterFindSomething"));
+  }
+  
   private static final Log LOG = GrouperUtil.getLog(TestQuery.class);
 
   public TestQuery(String name) {
@@ -59,7 +67,7 @@ public class TestQuery extends TestCase {
       r.rs.stop();
     }
     catch (Exception e) {
-      Assert.fail("unexpected exception: " + e.getMessage());
+      throw new RuntimeException(e);
     }
   } // public void testStemDisplayExtensionFilterFindNothing()
 
@@ -209,7 +217,9 @@ public class TestQuery extends TestCase {
       Subject subjA   = r.getSubject("a");
       Subject subjB   = r.getSubject("b");
   
-      Date    past    = DateHelper.getPastDate();
+      GrouperUtil.sleep(100);
+      Date            past  = new Date();
+      GrouperUtil.sleep(100);
       a.addMember(subjA); 
       b.addMember(subjB);
       Date    future  = DateHelper.getFutureDate();
@@ -258,7 +268,9 @@ public class TestQuery extends TestCase {
       Subject subjA   = r.getSubject("a");
       Subject subjB   = r.getSubject("b");
   
-      Date    past    = DateHelper.getPastDate();
+      GrouperUtil.sleep(100);
+      Date            past  = new Date();
+      GrouperUtil.sleep(100);
       a.addMember(subjA); 
       b.addMember(subjB);
       Date    future  = DateHelper.getFutureDate();
@@ -415,7 +427,27 @@ public class TestQuery extends TestCase {
       T.amount( "groups"  , 0,  gq.getGroups().size()       );
       T.amount( "members" , 0,  gq.getMembers().size()      );
       T.amount( "mships"  , 0,  gq.getMemberships().size()  );
-      T.amount( "stems"   , 1,  gq.getStems().size()        );
+      assertTrue(gq.getStems().size() >= 1);
+      
+      //find a
+      boolean foundIt = false;
+      for (Stem stem : gq.getStems()) {
+        if (StringUtils.equals("a", stem.getExtension())) {
+          foundIt = true;
+        }
+      }
+      
+      assertTrue(foundIt);
+
+      foundIt = false;
+      for (Stem stem : gq.getStems()) {
+        if (StringUtils.equals("b", stem.getExtension())) {
+          foundIt = true;
+        }
+      }
+      
+      assertFalse(foundIt);
+
       r.rs.stop();
     }
     catch (Exception e) {

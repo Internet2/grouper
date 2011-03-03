@@ -979,7 +979,15 @@ public class AttributeDef extends GrouperAPI implements GrouperHasContext,
    * @return the stem id
    */
   public String getStemId() {
-    return stemId;
+    return this.stemId;
+  }
+
+  /**
+   * stem that this attribute is in
+   * @return the stem id
+   */
+  public Stem getStem() {
+    return this.stemId == null ? null : StemFinder.findByUuid(GrouperSession.staticGrouperSession(), this.stemId, true);
   }
 
   /**
@@ -1401,6 +1409,23 @@ public class AttributeDef extends GrouperAPI implements GrouperHasContext,
     existingRecord.setNameDb(this.getNameDb());
     existingRecord.setStemId(this.stemId);
     existingRecord.setValueType(this.valueType);
+  }
+
+  /**
+   * Get parent stem.
+   * <pre class="eg">
+   * Stem parent = g.getParentStem();
+   * </pre>
+   * @return  Parent {@link Stem}.
+   * @throws IllegalStateException 
+   */
+  public Stem getParentStem() {
+    String uuid = this.getStemId();
+    if (uuid == null) {
+      throw new IllegalStateException("attributeDef has no parent stem");
+    }
+    Stem parent = GrouperDAOFactory.getFactory().getStem().findByUuid(uuid, true) ;
+    return parent;
   }
 
 

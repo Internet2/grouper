@@ -447,14 +447,16 @@ public enum RuleCheckType {
       RulesMembershipBean rulesMembershipBean = (RulesMembershipBean)rulesBean;
       if (rulesMembershipBean != null) {
         Group group = rulesMembershipBean.getGroup();
-        variableMap.put("groupId", group.getId());
-        variableMap.put("groupName", group.getName());
-        variableMap.put("groupDisplayName", group.getDisplayName());
-        variableMap.put("groupExtension", group.getExtension());
-        variableMap.put("groupDisplayExtension", group.getDisplayExtension());
-        variableMap.put("groupDescription", group.getDescription());
-        if (hasAccessToElApi) {
-          variableMap.put("group", group);
+        if (group != null) {
+          variableMap.put("groupId", group.getId());
+          variableMap.put("groupName", group.getName());
+          variableMap.put("groupDisplayName", group.getDisplayName());
+          variableMap.put("groupExtension", group.getExtension());
+          variableMap.put("groupDisplayExtension", group.getDisplayExtension());
+          variableMap.put("groupDescription", group.getDescription());
+          if (hasAccessToElApi) {
+            variableMap.put("group", group);
+          }
         }
       }
       if (!StringUtils.isBlank(rulesMembershipBean.getMemberId())) {
@@ -822,7 +824,8 @@ public enum RuleCheckType {
       RuleThenEnum ruleThenEnum = ruleDefinition.getThen().thenEnum();
       
       if (ruleThenEnum != RuleThenEnum.assignGroupPrivilegeToGroupId 
-          || ruleDefinition.getIfCondition().ifConditionEnum() != RuleIfConditionEnum.nameMatchesSqlLikeString
+          || (ruleDefinition.getIfCondition().ifConditionEnum() != null 
+              && ruleDefinition.getIfCondition().ifConditionEnum() != RuleIfConditionEnum.nameMatchesSqlLikeString)
           || !StringUtils.isBlank(ruleDefinition.getIfCondition().getIfConditionEl())) {
         if (StringUtils.isNotBlank(ruleDefinition.getRunDaemon()) && ruleDefinition.isRunDaemonBoolean() ) {
           throw new RuntimeException("RuleThenEnum needs to be " + RuleThenEnum.assignGroupPrivilegeToGroupId);
@@ -976,7 +979,8 @@ public enum RuleCheckType {
       RuleThenEnum ruleThenEnum = ruleDefinition.getThen().thenEnum();
       
       if (ruleThenEnum != RuleThenEnum.assignStemPrivilegeToStemId 
-          || ruleDefinition.getIfCondition().ifConditionEnum() != RuleIfConditionEnum.nameMatchesSqlLikeString
+          || (ruleDefinition.getIfCondition().ifConditionEnum() != null 
+              && ruleDefinition.getIfCondition().ifConditionEnum() != RuleIfConditionEnum.nameMatchesSqlLikeString)
           || !StringUtils.isBlank(ruleDefinition.getIfCondition().getIfConditionEl())) {
         if (StringUtils.isNotBlank(ruleDefinition.getRunDaemon()) && ruleDefinition.isRunDaemonBoolean() ) {
           throw new RuntimeException("RuleThenEnum needs to be " + RuleThenEnum.assignStemPrivilegeToStemId);
@@ -1132,7 +1136,7 @@ public enum RuleCheckType {
     @Override
     public void addElVariables(RuleDefinition ruleDefinition, Map<String, Object> variableMap, 
         RulesBean rulesBean, boolean hasAccessToElApi) {
-      flattenedMembershipAdd.addElVariables(ruleDefinition, variableMap, rulesBean, hasAccessToElApi);
+      flattenedMembershipRemove.addElVariables(ruleDefinition, variableMap, rulesBean, hasAccessToElApi);
     }
 
     /**
@@ -1142,6 +1146,78 @@ public enum RuleCheckType {
     @Override
     public String validate(RuleDefinition ruleDefinition, RuleCheck ruleCheck) {
       return this.validate(false, ruleDefinition, ruleCheck, false, true, false, false);
+    }
+
+  }, 
+  
+  /** if there is a membership add, privilege add, permission add, etc in transaction */
+  subjectAssignInStem {
+
+    /**
+     * 
+     */
+    @Override
+    public void runDaemon(final RuleDefinition ruleDefinition) {
+      
+      throw new RuntimeException("Not implemented daemon: " + ruleDefinition);
+      
+    }
+
+    
+    /**
+     * @see RuleCheckType#checkKey(RuleDefinition)
+     */
+    @Override
+    public RuleCheck checkKey(RuleDefinition ruleDefinition) {
+      return checkKeyForStem(ruleDefinition);
+    }
+
+    /**
+     * this is going to find one or no rules based on the source of the subject being affected
+     * @see edu.internet2.middleware.grouper.rules.RuleCheckType#ruleDefinitions(edu.internet2.middleware.grouper.rules.RuleEngine, edu.internet2.middleware.grouper.rules.beans.RulesBean)
+     */
+    @Override
+    public Set<RuleDefinition> ruleDefinitions(RuleEngine ruleEngine, RulesBean rulesBean) {
+
+      String sourceId = rulesBean.getSubjectSourceId();
+      
+      Stem stem = rulesBean.getStem();
+      
+      String stemName = stem.getName();
+      
+      //root would be blank
+      if (StringUtils.isBlank(stemName)) {
+        stemName = ":";
+      }
+      //name
+      RuleCheck ruleCheck = new RuleCheck(this.name(), 
+          null, stemName, null, sourceId, null);
+
+      return ruleEngine.ruleCheckIndexDefinitionsByNameOrIdInFolderPickOneArgOptional(ruleCheck);
+    }
+  
+    /**
+     * 
+     */
+    @Override
+    public void addElVariables(RuleDefinition ruleDefinition, Map<String, Object> variableMap, 
+        RulesBean rulesBean, boolean hasAccessToElApi) {
+      
+      
+      if (rulesBean instanceof RulesMembershipBean) {
+        flattenedMembershipRemove.addElVariables(ruleDefinition, variableMap, rulesBean, hasAccessToElApi);
+      } else if (rulesBean instanceof RulesPermissionBean) {
+        permissionAssignToSubject.addElVariables(ruleDefinition, variableMap, rulesBean, hasAccessToElApi);
+      }
+    }
+
+    /**
+     * 
+     * @see edu.internet2.middleware.grouper.rules.RuleCheckType#validate(RuleDefinition, edu.internet2.middleware.grouper.rules.RuleCheck)
+     */
+    @Override
+    public String validate(RuleDefinition ruleDefinition, RuleCheck ruleCheck) {
+      return this.validate(true, ruleDefinition, ruleCheck, true, false, true, false);
     }
 
   }, 
@@ -1324,7 +1400,8 @@ public enum RuleCheckType {
       RuleThenEnum ruleThenEnum = ruleDefinition.getThen().thenEnum();
       
       if (ruleThenEnum != RuleThenEnum.assignAttributeDefPrivilegeToAttributeDefId 
-          || ruleDefinition.getIfCondition().ifConditionEnum() != RuleIfConditionEnum.nameMatchesSqlLikeString
+          || (ruleDefinition.getIfCondition().ifConditionEnum() != null && 
+              ruleDefinition.getIfCondition().ifConditionEnum() != RuleIfConditionEnum.nameMatchesSqlLikeString)
           || !StringUtils.isBlank(ruleDefinition.getIfCondition().getIfConditionEl())) {
         if (StringUtils.isNotBlank(ruleDefinition.getRunDaemon()) && ruleDefinition.isRunDaemonBoolean() ) {
           throw new RuntimeException("RuleThenEnum needs to be " + RuleThenEnum.assignAttributeDefPrivilegeToAttributeDefId);
@@ -1528,16 +1605,17 @@ public enum RuleCheckType {
         RulesBean rulesBean, boolean hasAccessToElApi) {
       RulesPermissionBean rulesPermissionBean = (RulesPermissionBean)rulesBean;
       if (rulesPermissionBean != null) {
-        Role role = rulesPermissionBean.getRole();
-        variableMap.put("roleId", role.getId());
-        variableMap.put("roleName", role.getName());
-        variableMap.put("roleDisplayName", role.getDisplayName());
-        variableMap.put("roleExtension", role.getExtension());
-        variableMap.put("roleDisplayExtension", role.getDisplayExtension());
-        variableMap.put("roleDescription", role.getDescription());
-        if (hasAccessToElApi) {
-          variableMap.put("role", role);
-        }
+//CH this went away
+//        Role role = rulesPermissionBean.getRole();
+//        variableMap.put("roleId", role.getId());
+//        variableMap.put("roleName", role.getName());
+//        variableMap.put("roleDisplayName", role.getDisplayName());
+//        variableMap.put("roleExtension", role.getExtension());
+//        variableMap.put("roleDisplayExtension", role.getDisplayExtension());
+//        variableMap.put("roleDescription", role.getDescription());
+//        if (hasAccessToElApi) {
+//          variableMap.put("role", role);
+//        }
       }
       if (!StringUtils.isBlank(rulesPermissionBean.getMemberId())) {
         variableMap.put("memberId", rulesPermissionBean.getMemberId());
@@ -1583,20 +1661,21 @@ public enum RuleCheckType {
           variableMap.put("attributeDefName", attributeDefName);
         }
       }
-      AttributeAssign attributeAssign = rulesPermissionBean.getAttributeAssign();
-      if (attributeAssign != null) {
-        variableMap.put("attributeAssignId", attributeAssign.getId());
-        if (attributeAssign.getDisabledTime() != null) {
-          variableMap.put("permissionDisabledTimestamp", attributeAssign.getDisabledTime());
-        }
-        if (attributeAssign.getEnabledTime() != null) {
-          variableMap.put("permissionEnabledTimestamp", attributeAssign.getEnabledTime());
-        }
-
-        if (hasAccessToElApi) {
-          variableMap.put("attributeAssign", attributeAssign);
-        }
-      }
+//CH THIS WENT AWAY
+//      AttributeAssign attributeAssign = rulesPermissionBean.getAttributeAssign();
+//      if (attributeAssign != null) {
+//        variableMap.put("attributeAssignId", attributeAssign.getId());
+//        if (attributeAssign.getDisabledTime() != null) {
+//          variableMap.put("permissionDisabledTimestamp", attributeAssign.getDisabledTime());
+//        }
+//        if (attributeAssign.getEnabledTime() != null) {
+//          variableMap.put("permissionEnabledTimestamp", attributeAssign.getEnabledTime());
+//        }
+//
+//        if (hasAccessToElApi) {
+//          variableMap.put("attributeAssign", attributeAssign);
+//        }
+//      }
       
     }
   
@@ -1649,7 +1728,7 @@ public enum RuleCheckType {
   
   /**
    * validate this check type
-   * @param allowArgs 
+   * @param allowCheckArgs 
    * @param ruleDefinition
    * @param ruleCheck 
    * @param requireStemScope true to require, false to require blank
@@ -1658,7 +1737,7 @@ public enum RuleCheckType {
    * @param ownerIsAttributeDef 
    * @return the error or null if valid
    */
-  public String validate(boolean allowArgs, RuleDefinition ruleDefinition, RuleCheck ruleCheck, 
+  public String validate(boolean allowCheckArgs, RuleDefinition ruleDefinition, RuleCheck ruleCheck, 
       boolean requireStemScope, boolean ownerIsGroup, boolean ownerIsStem, boolean ownerIsAttributeDef) {
     
     if (!StringUtils.isBlank(ruleCheck.getCheckOwnerId()) && !StringUtils.isBlank(ruleCheck.getCheckOwnerName())) {
@@ -1700,7 +1779,7 @@ public enum RuleCheckType {
       }
     }
     
-    if (!allowArgs) {
+    if (!allowCheckArgs) {
       if (!StringUtils.isBlank(ruleDefinition.getCheck().getCheckArg0()) 
           || !StringUtils.isBlank(ruleDefinition.getCheck().getCheckArg1())) {
         return "Should not use checkArg0 or checkArg1";
@@ -1780,7 +1859,6 @@ public enum RuleCheckType {
    * 
    * @param ruleDefinition
    * @param ruleEngine
-   * @param thisGroupHasEndDateNull
    */
   private static void membershipAddDaemonVetoThisGroupHasMembership(final RuleDefinition ruleDefinition,
       final RuleEngine ruleEngine) {
@@ -1835,7 +1913,6 @@ public enum RuleCheckType {
    * 
    * @param ruleDefinition
    * @param ruleEngine
-   * @param thisGroupHasEndDateNull
    */
   private static void permissionAddDaemonVetoThisGroupHasMembership(final RuleDefinition ruleDefinition,
       final RuleEngine ruleEngine) {
@@ -2042,7 +2119,6 @@ public enum RuleCheckType {
    * 
    * @param ruleDefinition
    * @param ruleEngine
-   * @param thisGroupHasEndDateNull
    */
   private static void membershipAddDaemonVetoThisStemHasMembership(final RuleDefinition ruleDefinition,
       final RuleEngine ruleEngine) {
@@ -2152,7 +2228,13 @@ public enum RuleCheckType {
     ruleCheck.setCheckOwnerId(null);
     //set the owner to this stem
     Stem stem = StemFinder.findByUuid(GrouperSession.staticGrouperSession(), stemId, true);
-    ruleCheck.setCheckOwnerName(stem.getName());
+    String stemName = stem.getName();
+    
+    //if there is a rule on the root stem set that here
+    if (StringUtils.isBlank(stemName)) {
+      stemName = ":";
+    }
+    ruleCheck.setCheckOwnerName(stemName);
     
     return ruleCheck;
 

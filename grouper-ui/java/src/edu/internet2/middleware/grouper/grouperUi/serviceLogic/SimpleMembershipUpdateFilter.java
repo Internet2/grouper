@@ -231,10 +231,12 @@ public class SimpleMembershipUpdateFilter {
     GrouperSession grouperSession = null;
   
     String searchTerm = httpServletRequest.getParameter("mask");
-  
+    
     try {
       grouperSession = GrouperSession.start(loggedInSubject);
       
+      Group group = new SimpleMembershipUpdate().retrieveGroup(grouperSession);
+      String stemName = group.getParentStemName();
       
       Set<Subject> subjects = null;
       
@@ -259,7 +261,7 @@ public class SimpleMembershipUpdateFilter {
             Set<Source> sources = GrouperUtil.convertSources(requireSources);
             subjects = SubjectFinder.findAll(searchTerm, sources);
           } else {
-          subjects = SubjectFinder.findAll(searchTerm);            
+            subjects = SubjectFinder.findAllInStem(stemName, searchTerm);            
           }
           
           
@@ -279,9 +281,7 @@ public class SimpleMembershipUpdateFilter {
               }
             });
             
-
           }
-
           
           String maxSubjectsDropDownString = TagUtils.mediaResourceString("simpleMembershipUpdate.subjectComboboxResultSize");
           int maxSubjectsDropDown = GrouperUtil.intValue(maxSubjectsDropDownString, 50);

@@ -1,7 +1,9 @@
 package edu.internet2.middleware.grouper.rules;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -10,6 +12,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 
+import edu.emory.mathcs.backport.java.util.Collections;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
@@ -63,24 +66,68 @@ public class RuleEngine {
    */
   public Set<RuleDefinition> ruleCheckIndexDefinitionsByNameOrId(RuleCheck ruleCheck) {
    
+    if (!GrouperConfig.getPropertyBoolean("rules.enable", true)) {
+      return null;
+    }
+
     String ownerId = ruleCheck.getCheckOwnerId();
     String ownerName = ruleCheck.getCheckOwnerName();
     
-    Set<RuleDefinition> ruleDefinitions = new HashSet<RuleDefinition>();
+    Set<RuleDefinition> theRuleDefinitions = new HashSet<RuleDefinition>();
     
     if (!StringUtils.isBlank(ownerId)) {
       ruleCheck.setCheckOwnerName(null);
-      ruleDefinitions.addAll(GrouperUtil.nonNull(this.getRuleCheckIndex().get(ruleCheck)));
+      Set<RuleDefinition> ruleDefinitionsToAdd = GrouperUtil.nonNull(this.getRuleCheckIndex().get(ruleCheck));
+      
+      if (LOG.isDebugEnabled() && GrouperConfig.getPropertyBoolean("rules.logWhyRulesDontFire", false)) {
+        
+        StringBuilder logMessage = new StringBuilder("Checking rules by id: ");
+        logMessage.append(ownerId);
+        logMessage.append(", ids found: ");
+        for (RuleDefinition current : ruleDefinitionsToAdd) {
+          logMessage.append(current.getCheck().getCheckOwnerId()).append(",");
+        }
+        
+        logMessage.append("... ids in rules engine: ");
+        for (RuleCheck current : this.getRuleCheckIndex().keySet()) {
+          if (!StringUtils.isBlank(current.getCheckOwnerId())) {
+            logMessage.append(current.getCheckOwnerId()).append(",");
+          }
+        }
+        LOG.debug(logMessage);
+      }
+      
+      theRuleDefinitions.addAll(ruleDefinitionsToAdd);
       ruleCheck.setCheckOwnerName(ownerName);
     }
     
     if (!StringUtils.isBlank(ownerName)) {
       ruleCheck.setCheckOwnerId(null);
-      ruleDefinitions.addAll(GrouperUtil.nonNull(this.getRuleCheckIndex().get(ruleCheck)));
+      Set<RuleDefinition> ruleDefinitionsToAdd = GrouperUtil.nonNull(this.getRuleCheckIndex().get(ruleCheck));
+
+      if (LOG.isDebugEnabled() && GrouperConfig.getPropertyBoolean("rules.logWhyRulesDontFire", false)) {
+        
+        StringBuilder logMessage = new StringBuilder("Checking rules by name: ");
+        logMessage.append(ownerName);
+        logMessage.append(", names found: ");
+        for (RuleDefinition current : ruleDefinitionsToAdd) {
+          logMessage.append(current.getCheck().getCheckOwnerName()).append(",");
+        }
+        
+        logMessage.append("... names in rules engine: ");
+        for (RuleCheck current : this.getRuleCheckIndex().keySet()) {
+          if (!StringUtils.isBlank(current.getCheckOwnerName())) {
+            logMessage.append(current.getCheckOwnerName()).append(",");
+          }
+        }
+        LOG.debug(logMessage);
+      }
+      
+      theRuleDefinitions.addAll(ruleDefinitionsToAdd);
       ruleCheck.setCheckOwnerId(ownerId);
     }
     
-    return ruleDefinitions;
+    return theRuleDefinitions;
   }
   
   /**
@@ -90,6 +137,10 @@ public class RuleEngine {
    */
   public Set<RuleDefinition> ruleCheckIndexDefinitionsByNameOrIdInFolder(RuleCheck ruleCheck) {
    
+    if (!GrouperConfig.getPropertyBoolean("rules.enable", true)) {
+      return null;
+    }
+
     String ownerName = ruleCheck.getCheckOwnerName();
     
     if (StringUtils.isBlank(ownerName)) {
@@ -129,7 +180,7 @@ public class RuleEngine {
    * 
    * @return all the rule definitions, cached
    */
-  static RuleEngine ruleEngine() {
+  public static RuleEngine ruleEngine() {
     RuleEngine ruleEngine = ruleEngineCache.get(Boolean.TRUE);
     
     if (ruleEngine == null) {
@@ -195,8 +246,16 @@ public class RuleEngine {
     
     for (RuleDefinition ruleDefinition : GrouperUtil.nonNull(this.ruleDefinitions)) {
       
-      RuleCheck ruleCheck = ruleDefinition.getCheck();
-      ruleCheck = ruleCheck.checkTypeEnum().checkKey(ruleDefinition);
+      RuleCheck originalRuleCheck = ruleDefinition.getCheck();
+      RuleCheck ruleCheck = originalRuleCheck.checkTypeEnum().checkKey(ruleDefinition);
+      
+      if (StringUtils.isBlank(ruleCheck.getCheckOwnerId())
+          && StringUtils.isBlank(ruleCheck.getCheckOwnerName())) {
+        
+        LOG.error("Why are ownerId and ownerName blank for this rule: " + ruleDefinition);
+        continue;
+      }
+      
       Set<RuleDefinition> checkRuleDefinitions = this.ruleCheckIndex.get(ruleCheck);
       
       //if this list isnt there, then make one
@@ -212,6 +271,100 @@ public class RuleEngine {
   }
   
   /**
+   * pop one and log error if multiple
+   * @param ruleDefinitions
+   * @return the set
+   */
+  private static Set<RuleDefinition> listPopOneLogError(Set<RuleDefinition> ruleDefinitions) {
+    int length = GrouperUtil.length(ruleDefinitions);
+    if (length == 1) {
+      return ruleDefinitions;
+    }
+    if (length == 0) {
+      throw new RuntimeException("Why is length 0");
+    }
+    RuleDefinition ruleDefinition = ruleDefinitions.iterator().next();
+    LOG.error("Why is there more than 1? " + length + ", " + ruleDefinition);
+    return GrouperUtil.toSet(ruleDefinition);
+  }
+  
+  /**
+   * get rule definitions from cache based on name or id
+   * @param ruleCheck
+   * @return the definitions
+   */
+  public Set<RuleDefinition> ruleCheckIndexDefinitionsByNameOrIdInFolderPickOneArgOptional(RuleCheck ruleCheck) {
+  
+    if (!GrouperConfig.getPropertyBoolean("rules.enable", true)) {
+      return null;
+    }
+
+    //owner name is the stem name
+    String ownerName = ruleCheck.getCheckOwnerName();
+    
+    if (StringUtils.isBlank(ownerName)) {
+      throw new RuntimeException("Checking in folder needs an owner name: " + ruleCheck);
+    }
+    
+    Set<RuleDefinition> ruleDefinitions = null;
+    
+    //see if there is a direct that matches the arg
+    RuleCheck tempRuleCheck = new RuleCheck(ruleCheck.getCheckType(), null, ownerName, Stem.Scope.ONE.name(), ruleCheck.getCheckArg0(), null);
+    
+    ruleDefinitions = this.getRuleCheckIndex().get(tempRuleCheck);
+    
+    if (GrouperUtil.length(ruleDefinitions) > 0) {
+      return listPopOneLogError(ruleDefinitions);
+    }
+    
+    tempRuleCheck.setCheckArg0(null);
+    
+    //see if there is a direct without a matching arg
+    ruleDefinitions = this.getRuleCheckIndex().get(tempRuleCheck);
+    
+    if (GrouperUtil.length(ruleDefinitions) > 0) {
+      return listPopOneLogError(ruleDefinitions);
+    }
+    
+    //we need the stems, 
+    List<String> stemNameList = null;
+    
+    {
+      Set<String> stemNameSet = GrouperUtil.findParentStemNames(ownerName);
+      
+      stemNameSet.add(ownerName);
+
+      stemNameList = new ArrayList<String>(stemNameSet);
+      
+      Collections.reverse(stemNameList);
+    }
+    
+    //loop through all stems from more specific to less specific
+    for (String ancestorStemName : stemNameList) {
+      
+      tempRuleCheck = new RuleCheck(ruleCheck.getCheckType(), null, ancestorStemName, Stem.Scope.SUB.name(), ruleCheck.getCheckArg0(), null);
+      
+      ruleDefinitions = this.getRuleCheckIndex().get(tempRuleCheck);
+      
+      if (GrouperUtil.length(ruleDefinitions) > 0) {
+        return listPopOneLogError(ruleDefinitions);
+      }
+      
+      tempRuleCheck.setCheckArg0(null);
+      
+      //see if there is a direct without a matching arg
+      ruleDefinitions = this.getRuleCheckIndex().get(tempRuleCheck);
+      
+      if (GrouperUtil.length(ruleDefinitions) > 0) {
+        return listPopOneLogError(ruleDefinitions);
+      }
+    }
+    //didnt find anything, dont return null
+    return new HashSet<RuleDefinition>();
+
+  }
+
+  /**
    * find rules and fire them
    * @param ruleCheckType
    * @param rulesBean
@@ -219,6 +372,10 @@ public class RuleEngine {
   public static void fireRule(final RuleCheckType ruleCheckType, final RulesBean rulesBean) {
 
     if (GrouperCheckConfig.inCheckConfig) {
+      return;
+    }
+
+    if (!GrouperConfig.getPropertyBoolean("rules.enable", true)) {
       return;
     }
     
@@ -319,6 +476,12 @@ public class RuleEngine {
     Map<AttributeAssign, Set<AttributeAssignValueContainer>> result = GrouperDAOFactory.getFactory()
       .getAttributeAssign().findByAttributeTypeDefNameId(ruleTypeDefName.getId(), queryOptions);
   
+    //List<AttributeAssign> keyList = new ArrayList<AttributeAssign>(result.keySet());
+    //List<List<AttributeAssignValueContainer>> valuesList = new ArrayList<List<AttributeAssignValueContainer>>();
+    //for (AttributeAssign attributeAssign: keyList) {
+    //  valuesList.add(new ArrayList<AttributeAssignValueContainer>(result.get(attributeAssign)));
+    //}
+    
     return result;
     
   }

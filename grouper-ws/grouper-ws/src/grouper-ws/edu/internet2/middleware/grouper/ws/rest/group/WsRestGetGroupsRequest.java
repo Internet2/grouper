@@ -70,6 +70,25 @@ public class WsRestGetGroupsRequest implements WsRequestBean {
   private String fieldName;
   
   /**
+   * To query members at a certain point in time or time range in the past, set this value
+   * and/or the value of pointInTimeTo.  This parameter specifies the start of the range
+   * of the point in time query.  If this is specified but pointInTimeTo is not specified, 
+   * then the point in time query range will be from the time specified to now.  
+   * Format:  yyyy/MM/dd HH:mm:ss.SSS
+   */
+  private String pointInTimeFrom;
+  
+  /**
+   * To query members at a certain point in time or time range in the past, set this value
+   * and/or the value of pointInTimeFrom.  This parameter specifies the end of the range 
+   * of the point in time query.  If this is the same as pointInTimeFrom, then the query 
+   * will be done at a single point in time rather than a range.  If this is specified but 
+   * pointInTimeFrom is not specified, then the point in time query range will be from the 
+   * minimum point in time to the time specified.  Format: yyyy/MM/dd HH:mm:ss.SSS   
+   */
+  private String pointInTimeTo;
+  
+  /**
    * field name (list) to search, blank for members list
    * @return field name
    */
@@ -366,4 +385,56 @@ public class WsRestGetGroupsRequest implements WsRequestBean {
     return GrouperRestHttpMethod.GET;
   }
 
+  /**
+   * To query members at a certain point in time or time range in the past, set this value
+   * and/or the value of pointInTimeTo.  This parameter specifies the start of the range
+   * of the point in time query.  If this is specified but pointInTimeTo is not specified, 
+   * then the point in time query range will be from the time specified to now.  
+   * Format:  yyyy/MM/dd HH:mm:ss.SSS
+   * @return the pointInTimeFrom
+   */
+  public String getPointInTimeFrom() {
+    return this.pointInTimeFrom;
+  }
+
+  
+  /**
+   * To query members at a certain point in time or time range in the past, set this value
+   * and/or the value of pointInTimeTo.  This parameter specifies the start of the range
+   * of the point in time query.  If this is specified but pointInTimeTo is not specified, 
+   * then the point in time query range will be from the time specified to now.  
+   * Format:  yyyy/MM/dd HH:mm:ss.SSS
+   * @param pointInTimeFrom1 the pointInTimeFrom to set
+   */
+  public void setPointInTimeFrom(String pointInTimeFrom1) {
+    this.pointInTimeFrom = pointInTimeFrom1;
+  }
+
+  
+  /**
+   * To query members at a certain point in time or time range in the past, set this value
+   * and/or the value of pointInTimeFrom.  This parameter specifies the end of the range 
+   * of the point in time query.  If this is the same as pointInTimeFrom, then the query 
+   * will be done at a single point in time rather than a range.  If this is specified but 
+   * pointInTimeFrom is not specified, then the point in time query range will be from the 
+   * minimum point in time to the time specified.  Format: yyyy/MM/dd HH:mm:ss.SSS 
+   * @return the pointInTimeTo
+   */
+  public String getPointInTimeTo() {
+    return this.pointInTimeTo;
+  }
+
+  
+  /**
+   * To query members at a certain point in time or time range in the past, set this value
+   * and/or the value of pointInTimeFrom.  This parameter specifies the end of the range 
+   * of the point in time query.  If this is the same as pointInTimeFrom, then the query 
+   * will be done at a single point in time rather than a range.  If this is specified but 
+   * pointInTimeFrom is not specified, then the point in time query range will be from the 
+   * minimum point in time to the time specified.  Format: yyyy/MM/dd HH:mm:ss.SSS 
+   * @param pointInTimeTo1 the pointInTimeTo to set
+   */
+  public void setPointInTimeTo(String pointInTimeTo1) {
+    this.pointInTimeTo = pointInTimeTo1;
+  }
 }

@@ -22,6 +22,7 @@ import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.exceptions.NoSessionException;
+import edu.internet2.middleware.grouper.ui.tags.TagUtils;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
 
 
@@ -43,6 +44,14 @@ public class ExternalRegisterContainer implements Serializable {
 
   /** cache if this is an insert or not */
   private Boolean insert = null;
+  
+  /**
+   * if should show delete button
+   * @return if should show
+   */
+  public boolean isShowDeleteButton() {
+    return !this.isInsert() && TagUtils.mediaResourceBoolean("externalMembers.allowSelfDelete", false);
+  }
   
   /**
    * if this record exists in the DB then it is an update.  Else it is an insert

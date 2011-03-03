@@ -152,30 +152,6 @@ public static ObjectAsMap getInstance(String type, Subject subject, GrouperSessi
  * from media.properties. This allows sites to provide alternative implementations
  * @param type
  * @param object
- * @param bundle
- * @return subclass as configured in media.properties
- */
-public static ObjectAsMap getInstance(String type, Object object, ResourceBundle bundle) {
-		
-		ResourceBundle mediaBundle = (ResourceBundle) UIThreadLocal.get("mediaBundle");
-		String claz = mediaBundle.getString("objectasmap." + type + ".impl");
-		
-		try {
-			Class impl = Class.forName(claz);
-			Constructor c = impl.getConstructor(object.getClass(), ResourceBundle.class);
-			ObjectAsMap result = (ObjectAsMap) c.newInstance(object, bundle);
-		
-			return result;
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-	}
-
-/**
- * Rather than use a constructor directly, the UI reads the implementation type
- * from media.properties. This allows sites to provide alternative implementations
- * @param type
- * @param object
  * @return subclass as configured in media.properties
  */
 public static ObjectAsMap getInstance(String type, Object object) {

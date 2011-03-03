@@ -1891,8 +1891,6 @@ public class Membership extends GrouperAPI implements
   @Override
   public void onPostSave(HibernateSession hibernateSession) {
 
-    super.onPostSave(hibernateSession);
-
     if (this.isImmediate()) {
       processPostMembershipSaveOrUpdate();
     }
@@ -1926,6 +1924,8 @@ public class Membership extends GrouperAPI implements
             VetoTypeGrouper.MEMBERSHIP_POST_ADD_MEMBER);
       }
     }
+    
+    super.onPostSave(hibernateSession);
   }
 
   /**
@@ -2190,8 +2190,6 @@ public class Membership extends GrouperAPI implements
    */
   @Override
   public void onPostUpdate(HibernateSession hibernateSession) {
-
-    super.onPostUpdate(hibernateSession);
     
     if (this.isImmediate()) {
       if (this.dbVersionDifferentFields().contains(FIELD_ENABLED)) {
@@ -2227,6 +2225,8 @@ public class Membership extends GrouperAPI implements
         dbVersion().addMembershipDeleteChangeLog(this.dbVersion().getMember());
         addMembershipAddChangeLog();
       }
+      
+      super.onPostUpdate(hibernateSession);
     }
     
     GrouperHooksUtils.schedulePostCommitHooksIfRegistered(GrouperHookType.MEMBERSHIP, 

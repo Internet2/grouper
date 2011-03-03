@@ -43,8 +43,8 @@ import edu.internet2.middleware.subject.Subject;
 public class TestQueryMembershipModifiedBefore extends GrouperTest {
 
   public static void main(String[] args) {
-    //TestRunner.run(new TestQueryMembershipModifiedBefore("testFindSomething"));
-    TestRunner.run(TestQueryMembershipModifiedBefore.class);
+    TestRunner.run(new TestQueryMembershipModifiedBefore("testFindNothing"));
+    //TestRunner.run(TestQueryMembershipModifiedBefore.class);
   }
 
   private static final Log LOG = GrouperUtil

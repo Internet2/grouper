@@ -90,6 +90,14 @@ public abstract class RulesBean {
   }
 
   /**
+   * get this subject source id
+   * @return this subject
+   */
+  public String getSubjectSourceId() {
+    throw new RuntimeException("Not implemented in " + this.getClass());
+  }
+
+  /**
    * get this attributeDef
    * @return this attributeDef
    */

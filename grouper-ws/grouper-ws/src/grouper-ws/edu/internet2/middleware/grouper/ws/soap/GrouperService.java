@@ -281,6 +281,19 @@ public class GrouperService {
    * @param paramValue1
    *            reserved for future use
    * @param sourceIds comma separated source ids or null for all
+   * @param pointInTimeFrom 
+   *            To query members at a certain point in time or time range in the past, set this value
+   *            and/or the value of pointInTimeTo.  This parameter specifies the start of the range
+   *            of the point in time query.  If this is specified but pointInTimeTo is not specified, 
+   *            then the point in time query range will be from the time specified to now.  
+   *            Format:  yyyy/MM/dd HH:mm:ss.SSS
+   * @param pointInTimeTo 
+   *            To query members at a certain point in time or time range in the past, set this value
+   *            and/or the value of pointInTimeFrom.  This parameter specifies the end of the range 
+   *            of the point in time query.  If this is the same as pointInTimeFrom, then the query 
+   *            will be done at a single point in time rather than a range.  If this is specified but 
+   *            pointInTimeFrom is not specified, then the point in time query range will be from the 
+   *            minimum point in time to the time specified.  Format: yyyy/MM/dd HH:mm:ss.SSS
    * @return the members, or no members if none found
    */
   public WsGetMembersLiteResult getMembersLite(final String clientVersion,
@@ -289,7 +302,8 @@ public class GrouperService {
       String includeGroupDetail, 
       String includeSubjectDetail, String subjectAttributeNames,
       String paramName0, String paramValue0,
-      String paramName1, String paramValue1, String sourceIds) {
+      String paramName1, String paramValue1, String sourceIds,
+      String pointInTimeFrom, String pointInTimeTo) {
 
     WsGetMembersLiteResult wsGetMembersLiteResult = new WsGetMembersLiteResult();
 
@@ -309,12 +323,16 @@ public class GrouperService {
 
       //get the field or null or invalid query exception
       Field field = GrouperServiceUtils.retrieveField(fieldName);
+      
+      Timestamp pointInTimeFromTimestamp = GrouperServiceUtils.stringToTimestamp(pointInTimeFrom);
+      Timestamp pointInTimeToTimestamp = GrouperServiceUtils.stringToTimestamp(pointInTimeTo);
+
 
       wsGetMembersLiteResult = GrouperServiceLogic.getMembersLite(grouperWsVersion, 
           groupName, groupUuid, wsMemberFilter, actAsSubjectId, 
           actAsSubjectSourceId, actAsSubjectIdentifier, field, includeGroupDetailBoolean, 
           includeSubjectDetailBoolean, subjectAttributeNames, paramName0, paramValue0, 
-          paramName1, paramValue1, sourceIds);
+          paramName1, paramValue1, sourceIds, pointInTimeFromTimestamp, pointInTimeToTimestamp);
     } catch (Exception e) {
       wsGetMembersLiteResult.assignResultCodeException(null, null, e);
     }
@@ -346,6 +364,19 @@ public class GrouperService {
    * @param includeGroupDetail T or F as to if the group detail should be returned
    * @param params optional: reserved for future use
    * @param sourceIds array of source ids or null if all
+   * @param pointInTimeFrom 
+   *            To query members at a certain point in time or time range in the past, set this value
+   *            and/or the value of pointInTimeTo.  This parameter specifies the start of the range
+   *            of the point in time query.  If this is specified but pointInTimeTo is not specified, 
+   *            then the point in time query range will be from the time specified to now.  
+   *            Format:  yyyy/MM/dd HH:mm:ss.SSS
+   * @param pointInTimeTo 
+   *            To query members at a certain point in time or time range in the past, set this value
+   *            and/or the value of pointInTimeFrom.  This parameter specifies the end of the range 
+   *            of the point in time query.  If this is the same as pointInTimeFrom, then the query 
+   *            will be done at a single point in time rather than a range.  If this is specified but 
+   *            pointInTimeFrom is not specified, then the point in time query range will be from the 
+   *            minimum point in time to the time specified.  Format: yyyy/MM/dd HH:mm:ss.SSS
    * @return the results
    */
   @SuppressWarnings("unchecked")
@@ -354,7 +385,8 @@ public class GrouperService {
       WsSubjectLookup actAsSubjectLookup, final String fieldName,
       String includeGroupDetail, 
       String includeSubjectDetail, String[] subjectAttributeNames,
-      WsParam[] params, String[] sourceIds) {
+      WsParam[] params, String[] sourceIds,
+      String pointInTimeFrom, String pointInTimeTo) {
   
     WsGetMembersResults wsGetMembersResults = new WsGetMembersResults();
   
@@ -374,10 +406,14 @@ public class GrouperService {
   
       //get the field or null or invalid query exception
       Field field = GrouperServiceUtils.retrieveField(fieldName);
+      
+      Timestamp pointInTimeFromTimestamp = GrouperServiceUtils.stringToTimestamp(pointInTimeFrom);
+      Timestamp pointInTimeToTimestamp = GrouperServiceUtils.stringToTimestamp(pointInTimeTo);
   
       wsGetMembersResults = GrouperServiceLogic.getMembers(grouperWsVersion, wsGroupLookups, 
           wsMemberFilter, actAsSubjectLookup, field, includeGroupDetailBoolean, 
-          includeSubjectDetailBoolean, subjectAttributeNames, params, sourceIds);
+          includeSubjectDetailBoolean, subjectAttributeNames, params, sourceIds, 
+          pointInTimeFromTimestamp, pointInTimeToTimestamp);
     } catch (Exception e) {
       wsGetMembersResults.assignResultCodeException(null, null, e);
     }
@@ -421,6 +457,19 @@ public class GrouperService {
    * @param pageNumber page number 1 indexed if paging
    * @param sortString must be an hql query field, e.g. can sort on name, displayName, extension, displayExtension
    * @param ascending or null for ascending, F for descending.  If you pass T or F, must pass a sort string
+   * @param pointInTimeFrom 
+   *            To query members at a certain point in time or time range in the past, set this value
+   *            and/or the value of pointInTimeTo.  This parameter specifies the start of the range
+   *            of the point in time query.  If this is specified but pointInTimeTo is not specified, 
+   *            then the point in time query range will be from the time specified to now.  
+   *            Format:  yyyy/MM/dd HH:mm:ss.SSS
+   * @param pointInTimeTo 
+   *            To query members at a certain point in time or time range in the past, set this value
+   *            and/or the value of pointInTimeFrom.  This parameter specifies the end of the range 
+   *            of the point in time query.  If this is the same as pointInTimeFrom, then the query 
+   *            will be done at a single point in time rather than a range.  If this is specified but 
+   *            pointInTimeFrom is not specified, then the point in time query range will be from the 
+   *            minimum point in time to the time specified.  Format: yyyy/MM/dd HH:mm:ss.SSS
    * @return the results
    */
   @SuppressWarnings("unchecked")
@@ -430,7 +479,8 @@ public class GrouperService {
       String includeSubjectDetail, String[] subjectAttributeNames, 
       WsParam[] params, String fieldName, String scope, 
       WsStemLookup wsStemLookup, String stemScope, String enabled, 
-      String pageSize, String pageNumber, String sortString, String ascending) {
+      String pageSize, String pageNumber, String sortString, String ascending,
+      String pointInTimeFrom, String pointInTimeTo) {
     
     WsGetGroupsResults wsGetGroupsResults = new WsGetGroupsResults();
 
@@ -455,10 +505,14 @@ public class GrouperService {
       
       Boolean ascendingBoolean = GrouperUtil.booleanObjectValue(ascending);
       
+      Timestamp pointInTimeFromTimestamp = GrouperServiceUtils.stringToTimestamp(pointInTimeFrom);
+      Timestamp pointInTimeToTimestamp = GrouperServiceUtils.stringToTimestamp(pointInTimeTo);
+      
       wsGetGroupsResults = GrouperServiceLogic.getGroups(grouperWsVersion, subjectLookups, 
           wsMemberFilter, actAsSubjectLookup, includeGroupDetailBoolean, 
           includeSubjectDetailBoolean, subjectAttributeNames, params, fieldName, scope, wsStemLookup, 
-          stemScopeEnum, enabled, pageSizeInteger, pageNumberInteger, sortString, ascendingBoolean);
+          stemScopeEnum, enabled, pageSizeInteger, pageNumberInteger, sortString, ascendingBoolean,
+          pointInTimeFromTimestamp, pointInTimeToTimestamp);
     } catch (Exception e) {
       wsGetGroupsResults.assignResultCodeException(null, null, e);
     }
@@ -498,6 +552,19 @@ public class GrouperService {
    * @param subjectAttributeNames are the additional subject attributes (data) to return.
    * If blank, whatever is configured in the grouper-ws.properties will be sent
    * @param params optional: reserved for future use
+   * @param pointInTimeFrom 
+   *            To query members at a certain point in time or time range in the past, set this value
+   *            and/or the value of pointInTimeTo.  This parameter specifies the start of the range
+   *            of the point in time query.  If this is specified but pointInTimeTo is not specified, 
+   *            then the point in time query range will be from the time specified to now.  
+   *            Format:  yyyy/MM/dd HH:mm:ss.SSS
+   * @param pointInTimeTo 
+   *            To query members at a certain point in time or time range in the past, set this value
+   *            and/or the value of pointInTimeFrom.  This parameter specifies the end of the range 
+   *            of the point in time query.  If this is the same as pointInTimeFrom, then the query 
+   *            will be done at a single point in time rather than a range.  If this is specified but 
+   *            pointInTimeFrom is not specified, then the point in time query range will be from the 
+   *            minimum point in time to the time specified.  Format: yyyy/MM/dd HH:mm:ss.SSS
    * @return the results
    */
   @SuppressWarnings("unchecked")
@@ -507,7 +574,8 @@ public class GrouperService {
       WsSubjectLookup actAsSubjectLookup, String fieldName,
       final String includeGroupDetail, 
       String includeSubjectDetail, String[] subjectAttributeNames, 
-      WsParam[] params) {
+      WsParam[] params,
+      String pointInTimeFrom, String pointInTimeTo) {
 
     WsHasMemberResults wsHasMemberResults = new WsHasMemberResults();
 
@@ -524,6 +592,9 @@ public class GrouperService {
 
       //get the field or null or invalid query exception
       Field field = GrouperServiceUtils.retrieveField(fieldName);
+      
+      Timestamp pointInTimeFromTimestamp = GrouperServiceUtils.stringToTimestamp(pointInTimeFrom);
+      Timestamp pointInTimeToTimestamp = GrouperServiceUtils.stringToTimestamp(pointInTimeTo);
 
       GrouperVersion grouperWsVersion = GrouperVersion.valueOfIgnoreCase(
           clientVersion, true);
@@ -531,7 +602,7 @@ public class GrouperService {
       wsHasMemberResults = GrouperServiceLogic.hasMember(grouperWsVersion, wsGroupLookup,
           subjectLookups, wsMemberFilter, actAsSubjectLookup, field,
           includeGroupDetailBoolean, includeSubjectDetailBoolean,
-          subjectAttributeNames, params);
+          subjectAttributeNames, params, pointInTimeFromTimestamp, pointInTimeToTimestamp);
     } catch (Exception e) {
       wsHasMemberResults.assignResultCodeException(null, null, e);
     }
@@ -1519,6 +1590,19 @@ public class GrouperService {
    * @param pageNumber page number 1 indexed if paging
    * @param sortString must be an hql query field, e.g. can sort on name, displayName, extension, displayExtension
    * @param ascending or null for ascending, false for descending.  If you pass true or false, must pass a sort string
+   * @param pointInTimeFrom 
+   *            To query members at a certain point in time or time range in the past, set this value
+   *            and/or the value of pointInTimeTo.  This parameter specifies the start of the range
+   *            of the point in time query.  If this is specified but pointInTimeTo is not specified, 
+   *            then the point in time query range will be from the time specified to now.  
+   *            Format:  yyyy/MM/dd HH:mm:ss.SSS
+   * @param pointInTimeTo 
+   *            To query members at a certain point in time or time range in the past, set this value
+   *            and/or the value of pointInTimeFrom.  This parameter specifies the end of the range 
+   *            of the point in time query.  If this is the same as pointInTimeFrom, then the query 
+   *            will be done at a single point in time rather than a range.  If this is specified but 
+   *            pointInTimeFrom is not specified, then the point in time query range will be from the 
+   *            minimum point in time to the time specified.  Format: yyyy/MM/dd HH:mm:ss.SSS
    * @return the result of one member add
    */
   public WsGetGroupsLiteResult getGroupsLite(final String clientVersion, String subjectId,
@@ -1529,7 +1613,8 @@ public class GrouperService {
       String subjectAttributeNames, String paramName0, String paramValue0,
       String paramName1, String paramValue1, String fieldName, String scope, 
       String stemName, String stemUuid, String stemScope, String enabled, 
-      String pageSize, String pageNumber, String sortString, String ascending) {
+      String pageSize, String pageNumber, String sortString, String ascending,
+      String pointInTimeFrom, String pointInTimeTo) {
 
     WsGetGroupsLiteResult wsGetGroupsLiteResult = new WsGetGroupsLiteResult();
 
@@ -1554,12 +1639,16 @@ public class GrouperService {
       
       Boolean ascendingBoolean = GrouperUtil.booleanObjectValue(ascending);
 
+      Timestamp pointInTimeFromTimestamp = GrouperServiceUtils.stringToTimestamp(pointInTimeFrom);
+      Timestamp pointInTimeToTimestamp = GrouperServiceUtils.stringToTimestamp(pointInTimeTo);
+      
       wsGetGroupsLiteResult = GrouperServiceLogic.getGroupsLite(grouperWsVersion, 
           subjectId, subjectSourceId, subjectIdentifier, wsMemberFilter, actAsSubjectId, 
           actAsSubjectSourceId, actAsSubjectIdentifier, includeGroupDetailBoolean, 
           includeSubjectDetailBoolean, subjectAttributeNames, paramName0, paramValue0, 
           paramName1, paramValue1, fieldName, scope, stemName, stemUuid, stemScopeEnum, enabled, 
-          pageSizeInteger, pageNumberInteger, sortString, ascendingBoolean);
+          pageSizeInteger, pageNumberInteger, sortString, ascendingBoolean, pointInTimeFromTimestamp,
+          pointInTimeToTimestamp);
     } catch (Exception e) {
       wsGetGroupsLiteResult.assignResultCodeException(null, null, e);
     }
@@ -1889,6 +1978,19 @@ public class GrouperService {
      *            reserved for future use
      * @param paramValue1
      *            reserved for future use
+     * @param pointInTimeFrom 
+     *            To query members at a certain point in time or time range in the past, set this value
+     *            and/or the value of pointInTimeTo.  This parameter specifies the start of the range
+     *            of the point in time query.  If this is specified but pointInTimeTo is not specified, 
+     *            then the point in time query range will be from the time specified to now.  
+     *            Format:  yyyy/MM/dd HH:mm:ss.SSS
+     * @param pointInTimeTo 
+     *            To query members at a certain point in time or time range in the past, set this value
+     *            and/or the value of pointInTimeFrom.  This parameter specifies the end of the range 
+     *            of the point in time query.  If this is the same as pointInTimeFrom, then the query 
+     *            will be done at a single point in time rather than a range.  If this is specified but 
+     *            pointInTimeFrom is not specified, then the point in time query range will be from the 
+     *            minimum point in time to the time specified.  Format: yyyy/MM/dd HH:mm:ss.SSS
      * @return the result of one member query
      */
     public WsHasMemberLiteResult hasMemberLite(final String clientVersion, String groupName,
@@ -1897,7 +1999,8 @@ public class GrouperService {
         String actAsSubjectId, String actAsSubjectSourceId, String actAsSubjectIdentifier,
         String fieldName, final String includeGroupDetail, 
         String includeSubjectDetail, String subjectAttributeNames, String paramName0,
-        String paramValue0, String paramName1, String paramValue1) {
+        String paramValue0, String paramName1, String paramValue1,
+        String pointInTimeFrom, String pointInTimeTo) {
   
       WsHasMemberLiteResult wsHasMemberLiteResult = new WsHasMemberLiteResult();
   
@@ -1915,6 +2018,9 @@ public class GrouperService {
         //get the field or null or invalid query exception
         Field field = GrouperServiceUtils.retrieveField(fieldName);
   
+        Timestamp pointInTimeFromTimestamp = GrouperServiceUtils.stringToTimestamp(pointInTimeFrom);
+        Timestamp pointInTimeToTimestamp = GrouperServiceUtils.stringToTimestamp(pointInTimeTo);
+        
         GrouperVersion grouperWsVersion = GrouperVersion.valueOfIgnoreCase(
             clientVersion, true);
   
@@ -1922,7 +2028,7 @@ public class GrouperService {
             groupUuid, subjectId, subjectSourceId, subjectIdentifier, wsMemberFilter, actAsSubjectId, 
             actAsSubjectSourceId, actAsSubjectIdentifier, field, includeGroupDetailBoolean, 
             includeSubjectDetailBoolean, subjectAttributeNames, paramName0, paramValue0, 
-            paramName1, paramValue1);
+            paramName1, paramValue1, pointInTimeFromTimestamp, pointInTimeToTimestamp);
       } catch (Exception e) {
         wsHasMemberLiteResult.assignResultCodeException(null, null, e);
       }
@@ -3323,6 +3429,19 @@ public class GrouperService {
    * @param includeGroupDetail T or F as to if the group detail should be returned
    * @param params optional: reserved for future use
    * @param enabled is A for all, T or null for enabled only, F for disabled 
+   * @param pointInTimeFrom 
+   *            To query permissions at a certain point in time or time range in the past, set this value
+   *            and/or the value of pointInTimeTo.  This parameter specifies the start of the range
+   *            of the point in time query.  If this is specified but pointInTimeTo is not specified, 
+   *            then the point in time query range will be from the time specified to now.  
+   *            Format:  yyyy/MM/dd HH:mm:ss.SSS
+   * @param pointInTimeTo 
+   *            To query permissions at a certain point in time or time range in the past, set this value
+   *            and/or the value of pointInTimeFrom.  This parameter specifies the end of the range 
+   *            of the point in time query.  If this is the same as pointInTimeFrom, then the query 
+   *            will be done at a single point in time rather than a range.  If this is specified but 
+   *            pointInTimeFrom is not specified, then the point in time query range will be from the 
+   *            minimum point in time to the time specified.  Format: yyyy/MM/dd HH:mm:ss.SSS
    * @return the results
    */
   @SuppressWarnings("unchecked")
@@ -3334,7 +3453,7 @@ public class GrouperService {
       String includeAttributeDefNames, String includeAttributeAssignments,
       String includeAssignmentsOnAssignments, WsSubjectLookup actAsSubjectLookup, String includeSubjectDetail,
       String[] subjectAttributeNames, String includeGroupDetail, WsParam[] params, 
-      String enabled) {  
+      String enabled, String pointInTimeFrom, String pointInTimeTo) {  
   
     WsGetPermissionAssignmentsResults wsGetPermissionAssignmentsResults = new WsGetPermissionAssignmentsResults();
   
@@ -3361,10 +3480,14 @@ public class GrouperService {
       GrouperVersion grouperWsVersion = GrouperVersion.valueOfIgnoreCase(
           clientVersion, true);
   
+      Timestamp pointInTimeFromTimestamp = GrouperServiceUtils.stringToTimestamp(pointInTimeFrom);
+      Timestamp pointInTimeToTimestamp = GrouperServiceUtils.stringToTimestamp(pointInTimeTo);
+      
       wsGetPermissionAssignmentsResults = GrouperServiceLogic.getPermissionAssignments(grouperWsVersion, wsAttributeDefLookups, 
           wsAttributeDefNameLookups, roleLookups, wsSubjectLookups, actions, includePermissionAssignDetailBoolean, 
           includeAttributeDefNamesBoolean, includeAttributeAssignmentsBoolean, includeAssignmentsOnAssignmentsBoolean, 
-          actAsSubjectLookup, includeSubjectDetailBoolean, subjectAttributeNames, includeGroupDetailBoolean, params, enabled);
+          actAsSubjectLookup, includeSubjectDetailBoolean, subjectAttributeNames, includeGroupDetailBoolean, params, enabled,
+          pointInTimeFromTimestamp, pointInTimeToTimestamp);
   
     } catch (Exception e) {
       wsGetPermissionAssignmentsResults.assignResultCodeException(null, null, e);
@@ -3414,6 +3537,19 @@ public class GrouperService {
    * @param paramValue1
    *            reserved for future use
    * @param enabled is A for all, T or null for enabled only, F for disabled 
+   * @param pointInTimeFrom 
+   *            To query permissions at a certain point in time or time range in the past, set this value
+   *            and/or the value of pointInTimeTo.  This parameter specifies the start of the range
+   *            of the point in time query.  If this is specified but pointInTimeTo is not specified, 
+   *            then the point in time query range will be from the time specified to now.  
+   *            Format:  yyyy/MM/dd HH:mm:ss.SSS
+   * @param pointInTimeTo 
+   *            To query permissions at a certain point in time or time range in the past, set this value
+   *            and/or the value of pointInTimeFrom.  This parameter specifies the end of the range 
+   *            of the point in time query.  If this is the same as pointInTimeFrom, then the query 
+   *            will be done at a single point in time rather than a range.  If this is specified but 
+   *            pointInTimeFrom is not specified, then the point in time query range will be from the 
+   *            minimum point in time to the time specified.  Format: yyyy/MM/dd HH:mm:ss.SSS
    * @return the results
    */
   @SuppressWarnings("unchecked")
@@ -3427,7 +3563,7 @@ public class GrouperService {
       String includeAssignmentsOnAssignments, String actAsSubjectId, String actAsSubjectSourceId,
       String actAsSubjectIdentifier, String includeSubjectDetail,
       String subjectAttributeNames, String includeGroupDetail, String paramName0, String paramValue0,
-      String paramName1, String paramValue1, String enabled) {  
+      String paramName1, String paramValue1, String enabled, String pointInTimeFrom, String pointInTimeTo) {  
   
     WsGetPermissionAssignmentsResults wsGetPermissionAssignmentsResults = new WsGetPermissionAssignmentsResults();
     
@@ -3454,6 +3590,9 @@ public class GrouperService {
       GrouperVersion grouperWsVersion = GrouperVersion.valueOfIgnoreCase(
           clientVersion, true);
   
+      Timestamp pointInTimeFromTimestamp = GrouperServiceUtils.stringToTimestamp(pointInTimeFrom);
+      Timestamp pointInTimeToTimestamp = GrouperServiceUtils.stringToTimestamp(pointInTimeTo);
+      
       wsGetPermissionAssignmentsResults = GrouperServiceLogic.getPermissionAssignmentsLite(
           grouperWsVersion, wsAttributeDefName, 
           wsAttributeDefId, wsAttributeDefNameName, wsAttributeDefNameId, roleName, 
@@ -3463,7 +3602,8 @@ public class GrouperService {
           includeAssignmentsOnAssignmentsBoolean, actAsSubjectId, actAsSubjectSourceId,
           actAsSubjectIdentifier, includeSubjectDetailBoolean, 
           subjectAttributeNames, includeGroupDetailBoolean, paramName0, 
-          paramValue0, paramName1, paramValue1, enabled );
+          paramValue0, paramName1, paramValue1, enabled, pointInTimeFromTimestamp,
+          pointInTimeToTimestamp);
   
     } catch (Exception e) {
       wsGetPermissionAssignmentsResults.assignResultCodeException(null, null, e);

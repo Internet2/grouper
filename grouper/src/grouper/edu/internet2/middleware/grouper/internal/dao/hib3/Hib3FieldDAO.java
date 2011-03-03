@@ -89,7 +89,7 @@ public class Hib3FieldDAO extends Hib3DAO implements FieldDAO {
   {
     return HibernateSession.byHqlStatic()
       .createQuery("from Field order by name asc")
-      .setCacheable(false)
+      .setCacheable(true)
       .setCacheRegion(KLASS + ".FindAll").listSet(Field.class);
   } // public Set findAll()
 

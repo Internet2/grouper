@@ -116,20 +116,6 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
     }
   } // public static void getSubjectByBadId(id)
 
-  // Don't get a subject by bad id and type
-  public static void getSubjectByBadIdType(String id, String type) { 
-    try {
-      Subject subj = SubjectFinder.findById(id, type, true);
-      Assert.fail("found bad subject '" + id + "'/'" + type + "': " + subj);
-    }
-    catch (SubjectNotFoundException e) {
-      Assert.assertTrue("failed to find bad subject", true);
-    }
-    catch (SubjectNotUniqueException eSNU) {
-      T.e(eSNU);
-    }
-  } // public static void getSubjectByBadIdType(id, type)
-
   // Don't get a subject by bad identifier and type
   public static void getSubjectByBadIdentifierType(String id, String type) { 
     try {

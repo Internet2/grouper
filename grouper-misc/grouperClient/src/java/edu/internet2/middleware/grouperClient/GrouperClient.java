@@ -427,13 +427,7 @@ public class GrouperClient {
       boolean shouldSaveResultsToFile) {
     boolean dontMask = GrouperClientUtils.argMapBoolean(argMap, argMapNotUsed, "dontMask", false, false);
     
-    String encryptKey = GrouperClientUtils.propertiesValue("encrypt.key", true);
-    
-    boolean disableExternalFileLookup = GrouperClientUtils.propertiesValueBoolean(
-        "encrypt.disableExternalFileLookup", false, true);
-    
-    //lets lookup if file
-    encryptKey = GrouperClientUtils.readFromFileIfFile(encryptKey, disableExternalFileLookup);
+    String encryptKey = GrouperClientUtils.encryptKey();
     
     //lets get the password from stdin
     String password = GrouperClientUtils.retrievePasswordFromStdin(dontMask, 
@@ -1477,6 +1471,9 @@ public class GrouperClient {
   
       List<WsParam> params = retrieveParamsFromArgs(argMap, argMapNotUsed);
       
+      Timestamp pointInTimeFrom = GrouperClientUtils.argMapTimestamp(argMap, argMapNotUsed, "pointInTimeFrom");
+      Timestamp pointInTimeTo = GrouperClientUtils.argMapTimestamp(argMap, argMapNotUsed, "pointInTimeTo");
+      
       GcHasMember gcHasMember = new GcHasMember();        
       
       String clientVersion = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "clientVersion", false);
@@ -1511,6 +1508,9 @@ public class GrouperClient {
       for (String subjectAttribute : GrouperClientUtils.nonNull(subjectAttributeNames)) {
         gcHasMember.addSubjectAttributeName(subjectAttribute);
       }
+      
+      gcHasMember.assignPointInTimeFrom(pointInTimeFrom);
+      gcHasMember.assignPointInTimeTo(pointInTimeTo);
       
       //register that we will use this
       GrouperClientUtils.argMapString(argMap, argMapNotUsed, "outputTemplate", false);
@@ -1971,6 +1971,9 @@ public class GrouperClient {
   
     String sourceIds = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "sourceIds", false);
     
+    Timestamp pointInTimeFrom = GrouperClientUtils.argMapTimestamp(argMap, argMapNotUsed, "pointInTimeFrom");
+    Timestamp pointInTimeTo = GrouperClientUtils.argMapTimestamp(argMap, argMapNotUsed, "pointInTimeTo");
+    
     GcGetMembers gcGetMembers = new GcGetMembers();        
   
     String clientVersion = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "clientVersion", false);
@@ -2016,6 +2019,9 @@ public class GrouperClient {
         gcGetMembers.addSourceId(sourceId);
       }
     }
+    
+    gcGetMembers.assignPointInTimeFrom(pointInTimeFrom);
+    gcGetMembers.assignPointInTimeTo(pointInTimeTo);
     
     //register that we will use this
     GrouperClientUtils.argMapString(argMap, argMapNotUsed, "outputTemplate", false);
@@ -2107,6 +2113,9 @@ public class GrouperClient {
     
     Boolean ascending = GrouperClientUtils.argMapBoolean(argMap, argMapNotUsed, "ascending");
     
+    Timestamp pointInTimeFrom = GrouperClientUtils.argMapTimestamp(argMap, argMapNotUsed, "pointInTimeFrom");
+    Timestamp pointInTimeTo = GrouperClientUtils.argMapTimestamp(argMap, argMapNotUsed, "pointInTimeTo");
+    
     GcGetGroups gcGetGroups = new GcGetGroups();        
 
     String clientVersion = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "clientVersion", false);
@@ -2159,6 +2168,9 @@ public class GrouperClient {
     for (WsParam param : params) {
       gcGetGroups.addParam(param);
     }
+    
+    gcGetGroups.assignPointInTimeFrom(pointInTimeFrom);
+    gcGetGroups.assignPointInTimeTo(pointInTimeTo);
     
     //register that we will use this
     GrouperClientUtils.argMapString(argMap, argMapNotUsed, "outputTemplate", false);
@@ -3868,6 +3880,12 @@ public class GrouperClient {
         gcGetPermissionAssignments.addParam(param);
       }
     }
+    
+    Timestamp pointInTimeFrom = GrouperClientUtils.argMapTimestamp(argMap, argMapNotUsed, "pointInTimeFrom");
+    Timestamp pointInTimeTo = GrouperClientUtils.argMapTimestamp(argMap, argMapNotUsed, "pointInTimeTo");
+    
+    gcGetPermissionAssignments.assignPointInTimeFrom(pointInTimeFrom);
+    gcGetPermissionAssignments.assignPointInTimeTo(pointInTimeTo);
     
     //register that we will use this
     GrouperClientUtils.argMapString(argMap, argMapNotUsed, "outputTemplate", false);

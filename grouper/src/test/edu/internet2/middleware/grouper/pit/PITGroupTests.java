@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
@@ -68,6 +69,142 @@ public class PITGroupTests extends GrouperTest {
     Date date = new Date();
     GrouperUtil.sleep(100);
     return new Timestamp(date.getTime());
+  }
+  
+  /**
+   * 
+   */
+  public void testHasMemberAtPointInTime() {
+    Member member1 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ1, true);
+    Member member2 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ2, true);
+    Member member3 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ3, true);
+    Member member4 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ4, true);
+    
+    Group group1 = edu.addChildGroup("test1", "test1");
+    group1.addMember(member1.getSubject());
+    group1.addMember(member2.getSubject());
+    ChangeLogTempToEntity.convertRecords();
+    
+    Timestamp beforeAll = getTimestampWithSleep();
+    group1.deleteMember(member1);
+    group1.revokePriv(AccessPrivilege.READ);
+    ChangeLogTempToEntity.convertRecords();
+    Timestamp afterFirst = getTimestampWithSleep();
+    group1.deleteMember(member2);
+    group1.grantPriv(member1.getSubject(), AccessPrivilege.READ);
+    ChangeLogTempToEntity.convertRecords();
+    Timestamp afterSecond = getTimestampWithSleep();
+    
+    group1.addMember(member3.getSubject());
+    group1.addMember(member4.getSubject());
+    ChangeLogTempToEntity.convertRecords();
+    
+    group1.deleteMember(member4);
+    ChangeLogTempToEntity.convertRecords();
+    
+    PITGroup pitGroup1 = PITGroupFinder.findMostRecentByName("edu:test1", true);
+    String membersfieldId = Group.getDefaultList().getUuid();
+    String readersFieldId = FieldFinder.find("readers", true).getUuid();
+    
+    assertTrue(pitGroup1.hasMember(member1.getSubject(), membersfieldId, beforeAll, beforeAll, null));
+    assertTrue(pitGroup1.hasMember(member2.getSubject(), membersfieldId, beforeAll, beforeAll, null));
+    assertFalse(pitGroup1.hasMember(member3.getSubject(), membersfieldId, beforeAll, beforeAll, null));
+    assertFalse(pitGroup1.hasMember(member4.getSubject(), membersfieldId, beforeAll, beforeAll, null));
+    assertTrue(pitGroup1.hasMember(member1.getSubject(), readersFieldId, beforeAll, beforeAll, null));
+ 
+    assertFalse(pitGroup1.hasMember(member1.getSubject(), membersfieldId, afterFirst, afterFirst, null));
+    assertTrue(pitGroup1.hasMember(member2.getSubject(), membersfieldId, afterFirst, afterFirst, null));
+    assertFalse(pitGroup1.hasMember(member3.getSubject(), membersfieldId, afterFirst, afterFirst, null));
+    assertFalse(pitGroup1.hasMember(member4.getSubject(), membersfieldId, afterFirst, afterFirst, null));
+    assertFalse(pitGroup1.hasMember(member1.getSubject(), readersFieldId, afterFirst, afterFirst, null));
+
+    assertFalse(pitGroup1.hasMember(member1.getSubject(), membersfieldId, afterSecond, afterSecond, null));
+    assertFalse(pitGroup1.hasMember(member2.getSubject(), membersfieldId, afterSecond, afterSecond, null));
+    assertFalse(pitGroup1.hasMember(member3.getSubject(), membersfieldId, afterSecond, afterSecond, null));
+    assertFalse(pitGroup1.hasMember(member4.getSubject(), membersfieldId, afterSecond, afterSecond, null));
+    assertTrue(pitGroup1.hasMember(member1.getSubject(), readersFieldId, afterSecond, afterSecond, null));
+  }
+  
+  /**
+   * 
+   */
+  public void testHasMemberWithFromDate() {
+    Member member1 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ1, true);
+    Member member2 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ2, true);
+    Member member3 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ3, true);
+    
+    Group group1 = edu.addChildGroup("test1", "test1");
+    group1.addMember(member1.getSubject());
+    group1.addMember(member2.getSubject());
+    ChangeLogTempToEntity.convertRecords();
+    
+    Timestamp beforeAll = getTimestampWithSleep();
+    group1.deleteMember(member1);
+    ChangeLogTempToEntity.convertRecords();
+    Timestamp afterFirst = getTimestampWithSleep();
+    group1.deleteMember(member2);
+    ChangeLogTempToEntity.convertRecords();
+    Timestamp afterSecond = getTimestampWithSleep();
+    
+    group1.addMember(member3.getSubject());
+    ChangeLogTempToEntity.convertRecords();
+    
+    PITGroup pitGroup1 = PITGroupFinder.findMostRecentByName("edu:test1", true);
+    String membersfieldId = Group.getDefaultList().getUuid();
+
+    assertTrue(pitGroup1.hasMember(member1.getSubject(), membersfieldId, beforeAll, null, null));
+    assertTrue(pitGroup1.hasMember(member2.getSubject(), membersfieldId, beforeAll, null, null));
+    assertTrue(pitGroup1.hasMember(member3.getSubject(), membersfieldId, beforeAll, null, null));
+
+    assertFalse(pitGroup1.hasMember(member1.getSubject(), membersfieldId, afterFirst, null, null));
+    assertTrue(pitGroup1.hasMember(member2.getSubject(), membersfieldId, afterFirst, null, null));
+    assertTrue(pitGroup1.hasMember(member3.getSubject(), membersfieldId, afterFirst, null, null));
+    
+    assertFalse(pitGroup1.hasMember(member1.getSubject(), membersfieldId, afterSecond, null, null));
+    assertFalse(pitGroup1.hasMember(member2.getSubject(), membersfieldId, afterSecond, null, null));
+    assertTrue(pitGroup1.hasMember(member3.getSubject(), membersfieldId, afterSecond, null, null));
+  }
+  
+  /**
+   * 
+   */
+  public void testHasMemberWithToDate() {
+    Member member1 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ1, true);
+    Member member2 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ2, true);
+    
+    Group group1 = edu.addChildGroup("test1", "test1");
+    Timestamp beforeAll = getTimestampWithSleep();
+    group1.addMember(member1.getSubject());
+    Timestamp afterFirst = getTimestampWithSleep();
+    group1.addMember(member2.getSubject());
+    Timestamp afterSecond = getTimestampWithSleep();
+    ChangeLogTempToEntity.convertRecords();
+    
+    PITGroup pitGroup1 = PITGroupFinder.findMostRecentByName("edu:test1", true);
+    String membersfieldId = Group.getDefaultList().getUuid();
+
+    assertFalse(pitGroup1.hasMember(member1.getSubject(), membersfieldId, null, beforeAll, null));
+    assertFalse(pitGroup1.hasMember(member2.getSubject(), membersfieldId, null, beforeAll, null));
+
+    assertTrue(pitGroup1.hasMember(member1.getSubject(), membersfieldId, null, afterFirst, null));
+    assertFalse(pitGroup1.hasMember(member2.getSubject(), membersfieldId, null, afterFirst, null));
+    
+    assertTrue(pitGroup1.hasMember(member1.getSubject(), membersfieldId, null, afterSecond, null));
+    assertTrue(pitGroup1.hasMember(member2.getSubject(), membersfieldId, null, afterSecond, null));
+    
+    group1.delete();
+    ChangeLogTempToEntity.convertRecords();
+
+    pitGroup1 = PITGroupFinder.findMostRecentByName("edu:test1", true);
+
+    assertFalse(pitGroup1.hasMember(member1.getSubject(), membersfieldId, null, beforeAll, null));
+    assertFalse(pitGroup1.hasMember(member2.getSubject(), membersfieldId, null, beforeAll, null));
+
+    assertTrue(pitGroup1.hasMember(member1.getSubject(), membersfieldId, null, afterFirst, null));
+    assertFalse(pitGroup1.hasMember(member2.getSubject(), membersfieldId, null, afterFirst, null));
+    
+    assertTrue(pitGroup1.hasMember(member1.getSubject(), membersfieldId, null, afterSecond, null));
+    assertTrue(pitGroup1.hasMember(member2.getSubject(), membersfieldId, null, afterSecond, null));
   }
   
   /**

@@ -24,6 +24,8 @@ import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.hibernate.HqlQuery;
 import edu.internet2.middleware.grouper.permissions.PermissionEntry;
+import edu.internet2.middleware.grouper.pit.PITAttributeAssign;
+import edu.internet2.middleware.grouper.pit.PITPermissionAllView;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.subject.Subject;
 
@@ -144,6 +146,20 @@ public class GrouperSystemAttrDefResolver extends AttributeDefResolverDecorator 
     AttributeDefResolver decoratedResolver = super.getDecoratedResolver();
     return decoratedResolver.postHqlFilterAttributeAssigns(subject, attributeAssigns);
   }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.privs.AttributeDefResolverDecorator#postHqlFilterPITAttributeAssigns(edu.internet2.middleware.subject.Subject, java.util.Set)
+   */
+  public Set<PITAttributeAssign> postHqlFilterPITAttributeAssigns(Subject subject,
+      Set<PITAttributeAssign> pitAttributeAssigns) {
+
+    if (SubjectHelper.eq(this.root, subject)) {
+      return pitAttributeAssigns;
+    }
+
+    AttributeDefResolver decoratedResolver = super.getDecoratedResolver();
+    return decoratedResolver.postHqlFilterPITAttributeAssigns(subject, pitAttributeAssigns);
+  }
 
   /**
    * @see edu.internet2.middleware.grouper.privs.AttributeDefResolver#postHqlFilterPermissions(edu.internet2.middleware.subject.Subject, java.util.Set)
@@ -157,6 +173,20 @@ public class GrouperSystemAttrDefResolver extends AttributeDefResolverDecorator 
     AttributeDefResolver decoratedResolver = super.getDecoratedResolver();
     return decoratedResolver.postHqlFilterPermissions(subject, permissionsEntries);
   }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.privs.AttributeDefResolverDecorator#postHqlFilterPITPermissions(edu.internet2.middleware.subject.Subject, java.util.Set)
+   */
+  public Set<PITPermissionAllView> postHqlFilterPITPermissions(Subject subject,
+      Set<PITPermissionAllView> pitPermissionsEntries) {
+    if (SubjectHelper.eq(this.root, subject)) {
+      return pitPermissionsEntries;
+    }
+
+    AttributeDefResolver decoratedResolver = super.getDecoratedResolver();
+    return decoratedResolver.postHqlFilterPITPermissions(subject, pitPermissionsEntries);
+  }
+  
   /**
    * @see edu.internet2.middleware.grouper.privs.AttributeDefResolver#hqlFilterAttributeDefsNotWithPrivWhereClause(edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.hibernate.HqlQuery, java.lang.StringBuilder, String, Privilege, boolean)
    */

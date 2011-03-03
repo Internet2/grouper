@@ -1,8 +1,12 @@
 package edu.internet2.middleware.grouper.pit;
 
+import java.sql.Timestamp;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.GrouperAPI;
+import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.Stem.Scope;
+import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -172,5 +176,70 @@ public class PITMember extends GrouperPIT implements Hib3GrouperVersioned {
    */
   public void delete() {
     GrouperDAOFactory.getFactory().getPITMember().delete(this);
+  }
+  
+  /**
+   * @param pitFieldId specifies the field id.  This is required.
+   * @param scope is a DB pattern that will have % appended to it, or null for all.  e.g. school:whatever:parent:
+   * @param pitStem is the stem to check in, or null if all
+   * @param stemScope is if in this stem, or in any stem underneath.  You must pass stemScope if you pass a stem
+   * @param pointInTimeFrom the start of the range of the point in time query.  This is optional.
+   * @param pointInTimeTo the end of the range of the point in time query.  This is optional.  If this is the same as pointInTimeFrom, then the query will be done at a single point in time rather than a range.
+   * @param queryOptions optional query options.
+   * @return Set of PITGroup
+   */
+  public Set<PITGroup> getGroups(String pitFieldId, String scope, PITStem pitStem, Scope stemScope, Timestamp pointInTimeFrom, 
+      Timestamp pointInTimeTo, QueryOptions queryOptions) {
+    return PITMember.getGroups(this.getId(), pitFieldId, scope, pitStem, stemScope, pointInTimeFrom, pointInTimeTo, queryOptions);
+  }
+  
+  /**
+   * @param pitMemberId specifies the member id.  This is required.
+   * @param pitFieldId specifies the field id.  This is required.
+   * @param scope is a DB pattern that will have % appended to it, or null for all.  e.g. school:whatever:parent:
+   * @param pitStem is the stem to check in, or null if all
+   * @param stemScope is if in this stem, or in any stem underneath.  You must pass stemScope if you pass a stem
+   * @param pointInTimeFrom the start of the range of the point in time query.  This is optional.
+   * @param pointInTimeTo the end of the range of the point in time query.  This is optional.  If this is the same as pointInTimeFrom, then the query will be done at a single point in time rather than a range.
+   * @param queryOptions optional query options.
+   * @return Set of PITGroup
+   */
+  public static Set<PITGroup> getGroups(String pitMemberId, String pitFieldId, String scope, PITStem pitStem, Scope stemScope, Timestamp pointInTimeFrom, 
+      Timestamp pointInTimeTo, QueryOptions queryOptions) {
+    
+    if (pitMemberId == null) {
+      throw new IllegalArgumentException("pitMemberId required.");
+    }
+    
+    if (pitFieldId == null) {
+      throw new IllegalArgumentException("pitFieldId required.");
+    }
+        
+    return GrouperDAOFactory.getFactory().getPITGroup().getAllGroupsMembershipSecure(
+        pitMemberId, pitFieldId, scope, pitStem, stemScope, pointInTimeFrom, pointInTimeTo, queryOptions);
+  }
+  
+  /**
+   * @param pitMemberId specifies the member id.  This is required.
+   * @param pitFieldId specifies the field id.  This is required.
+   * @param scope is a DB pattern that will have % appended to it, or null for all.  e.g. school:whatever:parent:
+   * @param stem is the stem to check in, or null if all
+   * @param stemScope is if in this stem, or in any stem underneath.  You must pass stemScope if you pass a stem
+   * @param pointInTimeFrom the start of the range of the point in time query.  This is optional.
+   * @param pointInTimeTo the end of the range of the point in time query.  This is optional.  If this is the same as pointInTimeFrom, then the query will be done at a single point in time rather than a range.
+   * @param queryOptions optional query options.
+   * @return Set of PITGroup
+   */
+  public static Set<PITGroup> getGroups(String pitMemberId, String pitFieldId, String scope, Stem stem, Scope stemScope, Timestamp pointInTimeFrom, 
+      Timestamp pointInTimeTo, QueryOptions queryOptions) {
+    
+    PITStem pitStem = null;
+    
+    if (stem != null) {
+      pitStem = GrouperDAOFactory.getFactory().getPITStem().findById(stem.getUuid());
+    }
+        
+    return GrouperDAOFactory.getFactory().getPITGroup().getAllGroupsMembershipSecure(
+        pitMemberId, pitFieldId, scope, pitStem, stemScope, pointInTimeFrom, pointInTimeTo, queryOptions);
   }
 }

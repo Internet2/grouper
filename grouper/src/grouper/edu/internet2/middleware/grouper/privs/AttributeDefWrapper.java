@@ -33,6 +33,8 @@ import edu.internet2.middleware.grouper.exception.UnableToPerformException;
 import edu.internet2.middleware.grouper.hibernate.HqlQuery;
 import edu.internet2.middleware.grouper.internal.util.ParameterHelper;
 import edu.internet2.middleware.grouper.permissions.PermissionEntry;
+import edu.internet2.middleware.grouper.pit.PITAttributeAssign;
+import edu.internet2.middleware.grouper.pit.PITPermissionAllView;
 import edu.internet2.middleware.subject.Subject;
 
 /** 
@@ -269,6 +271,15 @@ public class AttributeDefWrapper implements AttributeDefResolver {
     return this.attributeDefAdapter.postHqlFilterAttributeAssigns(this.grouperSession,
         subject, attributeAssigns);
   }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.privs.AttributeDefResolver#postHqlFilterPITAttributeAssigns(edu.internet2.middleware.subject.Subject, java.util.Set)
+   */
+  public Set<PITAttributeAssign> postHqlFilterPITAttributeAssigns(Subject subject,
+      Set<PITAttributeAssign> pitAttributeAssigns) {
+    return this.attributeDefAdapter.postHqlFilterPITAttributeAssigns(this.grouperSession,
+        subject, pitAttributeAssigns);
+  }
 
   /**
    * 
@@ -294,6 +305,14 @@ public class AttributeDefWrapper implements AttributeDefResolver {
         subject, permissionsEntries);
   }
 
+  /**
+   * @see edu.internet2.middleware.grouper.privs.AttributeDefResolver#postHqlFilterPITPermissions(edu.internet2.middleware.subject.Subject, java.util.Set)
+   */
+  public Set<PITPermissionAllView> postHqlFilterPITPermissions(Subject subject,
+      Set<PITPermissionAllView> pitPermissionsEntries) {
+    return this.attributeDefAdapter.postHqlFilterPITPermissions(this.grouperSession,
+        subject, pitPermissionsEntries);
+  }
 
   /**
    * @see AttributeDefResolver#getAttributeDefsWhereSubjectDoesntHavePrivilege(String, Scope, Subject, Privilege, boolean, String)

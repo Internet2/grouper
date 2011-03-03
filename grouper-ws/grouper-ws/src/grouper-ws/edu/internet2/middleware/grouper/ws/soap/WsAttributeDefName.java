@@ -9,6 +9,9 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
+import edu.internet2.middleware.grouper.pit.PITAttributeDef;
+import edu.internet2.middleware.grouper.pit.PITAttributeDefName;
+import edu.internet2.middleware.grouper.pit.finder.PITAttributeDefFinder;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
@@ -136,6 +139,34 @@ public class WsAttributeDefName implements Comparable<WsAttributeDefName> {
       this.setDisplayExtension(theAttributeDefName.getDisplayExtension());
       this.setAttributeDefId(theAttributeDefName.getAttributeDefId());
       this.setAttributeDefName(theAttributeDefName.getAttributeDef().getName());
+      
+    } else {
+      if (wsAttributeDefNameLookup != null) {
+        //no attributeDefName, set the look values so the caller can keep things in sync
+        this.setName(wsAttributeDefNameLookup.getName());
+        this.setUuid(wsAttributeDefNameLookup.getUuid());
+        this.setExtension(GrouperUtil.extensionFromName(wsAttributeDefNameLookup.getName()));
+      }
+    }
+  }
+  
+  /**
+   * construct based on pit attribute def name, assign all fields
+   * @param theAttributeDefName 
+   * @param wsAttributeDefNameLookup is the lookup to set looked up values
+   */
+  public WsAttributeDefName(PITAttributeDefName theAttributeDefName, WsAttributeDefNameLookup wsAttributeDefNameLookup) {
+    if (theAttributeDefName != null) {
+      this.setName(theAttributeDefName.getName());
+      this.setUuid(theAttributeDefName.getId());
+      this.setExtension(GrouperUtil.extensionFromName(theAttributeDefName.getName()));
+      this.setAttributeDefId(theAttributeDefName.getAttributeDefId());
+      
+      PITAttributeDef theAttributeDef = PITAttributeDefFinder.findById(theAttributeDefName.getAttributeDefId(), false);
+      
+      if (theAttributeDef != null) {
+        this.setAttributeDefName(theAttributeDef.getName());
+      }
       
     } else {
       if (wsAttributeDefNameLookup != null) {

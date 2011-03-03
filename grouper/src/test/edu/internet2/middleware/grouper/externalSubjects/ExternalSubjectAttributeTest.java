@@ -31,7 +31,8 @@ public class ExternalSubjectAttributeTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new ExternalSubjectAttributeTest("testInvalidAttribute"));
+    //TestRunner.run(new ExternalSubjectAttributeTest("testInvalidAttribute"));
+    TestRunner.run(ExternalSubjectAttributeTest.class);
   }
 
   /**

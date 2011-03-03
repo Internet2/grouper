@@ -186,7 +186,9 @@ public class GrouperServiceRest {
             .getSubjectAttributeNames(), wsRestGetMembersLiteRequest.getParamName0(),
         wsRestGetMembersLiteRequest.getParamValue0(), wsRestGetMembersLiteRequest
             .getParamName1(), wsRestGetMembersLiteRequest.getParamValue1(), 
-            wsRestGetMembersLiteRequest.getSourceIds());
+            wsRestGetMembersLiteRequest.getSourceIds(), 
+            wsRestGetMembersLiteRequest.getPointInTimeFrom(), 
+            wsRestGetMembersLiteRequest.getPointInTimeTo());
 
     //return result
     return wsGetMembersLiteResult;
@@ -455,7 +457,9 @@ public class GrouperServiceRest {
             .getActAsSubjectLookup(), wsRestHasMembersRequest.getFieldName(),
         wsRestHasMembersRequest.getIncludeGroupDetail(), wsRestHasMembersRequest
             .getIncludeSubjectDetail(), wsRestHasMembersRequest
-            .getSubjectAttributeNames(), wsRestHasMembersRequest.getParams());
+            .getSubjectAttributeNames(), wsRestHasMembersRequest.getParams(),
+        wsRestHasMembersRequest.getPointInTimeFrom(), 
+        wsRestHasMembersRequest.getPointInTimeTo());
 
     //return result
     return wsHasMemberResults;
@@ -493,7 +497,9 @@ public class GrouperServiceRest {
         wsRestGetMembersRequest.getIncludeGroupDetail(), wsRestGetMembersRequest
             .getIncludeSubjectDetail(), wsRestGetMembersRequest
             .getSubjectAttributeNames(), wsRestGetMembersRequest.getParams(),
-            wsRestGetMembersRequest.getSourceIds());
+            wsRestGetMembersRequest.getSourceIds(),
+            wsRestGetMembersRequest.getPointInTimeFrom(),
+            wsRestGetMembersRequest.getPointInTimeTo());
 
     //return result
     return wsGetMembersResults;
@@ -541,7 +547,9 @@ public class GrouperServiceRest {
             .getIncludeSubjectDetail(), wsRestHasMemberLiteRequest
             .getSubjectAttributeNames(), wsRestHasMemberLiteRequest.getParamName0(),
         wsRestHasMemberLiteRequest.getParamValue0(), wsRestHasMemberLiteRequest
-            .getParamName1(), wsRestHasMemberLiteRequest.getParamValue1());
+            .getParamName1(), wsRestHasMemberLiteRequest.getParamValue1(),
+        wsRestHasMemberLiteRequest.getPointInTimeFrom(), 
+        wsRestHasMemberLiteRequest.getPointInTimeTo());
   
     //return result
     return wsHasMemberLiteResult;
@@ -772,7 +780,8 @@ public class GrouperServiceRest {
             wsRestGetGroupsRequest.getScope(),
             wsRestGetGroupsRequest.getWsStemLookup(), wsRestGetGroupsRequest.getStemScope(), wsRestGetGroupsRequest.getEnabled(),
             wsRestGetGroupsRequest.getPageSize(), wsRestGetGroupsRequest.getPageNumber(), wsRestGetGroupsRequest.getSortString(), 
-            wsRestGetGroupsRequest.getAscending());
+            wsRestGetGroupsRequest.getAscending(),
+            wsRestGetGroupsRequest.getPointInTimeFrom(), wsRestGetGroupsRequest.getPointInTimeTo());
 
     //return result
     return wsGetGroupsResults;
@@ -822,7 +831,8 @@ public class GrouperServiceRest {
             wsRestGetGroupsLiteRequest.getStemUuid(), wsRestGetGroupsLiteRequest.getStemScope(),
             wsRestGetGroupsLiteRequest.getEnabled(), wsRestGetGroupsLiteRequest.getPageSize(),
             wsRestGetGroupsLiteRequest.getPageNumber(), wsRestGetGroupsLiteRequest.getSortString(), 
-            wsRestGetGroupsLiteRequest.getAscending());
+            wsRestGetGroupsLiteRequest.getAscending(),
+            wsRestGetGroupsLiteRequest.getPointInTimeFrom(), wsRestGetGroupsLiteRequest.getPointInTimeTo());
 
     //return result
     return wsGetGroupsLiteResult;
@@ -1578,7 +1588,8 @@ public class GrouperServiceRest {
         wsRestGetPermissionAssignmentsRequest.getIncludeAssignmentsOnAssignments(), wsRestGetPermissionAssignmentsRequest.getActAsSubjectLookup(), 
         wsRestGetPermissionAssignmentsRequest.getIncludeSubjectDetail(), wsRestGetPermissionAssignmentsRequest.getSubjectAttributeNames(), 
         wsRestGetPermissionAssignmentsRequest.getIncludeGroupDetail(), wsRestGetPermissionAssignmentsRequest.getParams(), 
-        wsRestGetPermissionAssignmentsRequest.getEnabled());
+        wsRestGetPermissionAssignmentsRequest.getEnabled(),
+        wsRestGetPermissionAssignmentsRequest.getPointInTimeFrom(), wsRestGetPermissionAssignmentsRequest.getPointInTimeTo());
     
     return wsGetPermissionAssignmentsResults;
   }
@@ -1613,7 +1624,8 @@ public class GrouperServiceRest {
         wsRestGetPermissionAssignmentsLiteRequest.getSubjectAttributeNames(), wsRestGetPermissionAssignmentsLiteRequest.getIncludeGroupDetail(), 
         wsRestGetPermissionAssignmentsLiteRequest.getParamName0(), 
         wsRestGetPermissionAssignmentsLiteRequest.getParamValue0(), wsRestGetPermissionAssignmentsLiteRequest.getParamName1(), 
-        wsRestGetPermissionAssignmentsLiteRequest.getParamValue1(), wsRestGetPermissionAssignmentsLiteRequest.getEnabled());
+        wsRestGetPermissionAssignmentsLiteRequest.getParamValue1(), wsRestGetPermissionAssignmentsLiteRequest.getEnabled(),
+        wsRestGetPermissionAssignmentsLiteRequest.getPointInTimeFrom(), wsRestGetPermissionAssignmentsLiteRequest.getPointInTimeTo());
     
     return wsGetPermissionAssignmentsResults;
     

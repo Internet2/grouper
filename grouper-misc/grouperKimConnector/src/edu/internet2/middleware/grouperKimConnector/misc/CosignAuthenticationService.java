@@ -40,7 +40,9 @@ public class CosignAuthenticationService implements AuthenticationService {
       netId = request.getUserPrincipal().getName();
     }
     LOG.debug("netId: " + netId);
-    
+    if (GrouperClientUtils.isBlank(netId)) {
+      throw new RuntimeException("netId is null");
+    }
     String requireGroup = GrouperClientUtils.propertiesValue("kuali.authn.require.group", false);
     
     if (!GrouperClientUtils.isBlank(requireGroup)) {

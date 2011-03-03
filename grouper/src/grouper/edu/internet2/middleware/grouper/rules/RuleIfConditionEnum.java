@@ -462,6 +462,107 @@ public enum RuleIfConditionEnum {
       return GrouperUtil.length(permissionEntries) > 0;
       
     }
+  }, 
+  
+  /**
+   * make sure a group has no enabled membership
+   */
+  groupHasNoEnabledMembership {
+  
+    /**
+     * 
+     */
+    @Override
+    public boolean shouldFire(RuleDefinition ruleDefinition, RuleEngine ruleEngine,
+        RulesBean rulesBean) {
+      
+      String memberId = null;
+      try {
+        memberId = rulesBean.getMemberId();
+      } catch (Exception e) {
+        //ignore
+      }
+      
+      GrouperSession rootSession = GrouperSession.startRootSession(false);
+      try {
+        
+        if (StringUtils.isBlank(memberId)) {
+          
+          Member member = MemberFinder.findBySubject(rootSession, rulesBean.getSubject(), false);
+          memberId = member == null ? null : member.getUuid();
+  
+          if (StringUtils.isBlank(memberId )) {
+            return false;
+          }
+        }
+        Group group = RuleUtils.group(ruleDefinition.getIfCondition().getIfOwnerId(), 
+            ruleDefinition.getIfCondition().getIfOwnerName(), ruleDefinition.getAttributeAssignType().getOwnerGroupId(), false, false);
+        if (group == null) {
+          LOG.error("Group doesnt exist in rule! " + ruleDefinition);
+          return false;
+        }
+        String groupId = group.getId();
+        
+        Set<Membership> memberships = GrouperDAOFactory.getFactory().getMembership()
+          .findAllByGroupOwnerAndFieldAndMemberIdsAndType(
+              groupId, Group.getDefaultList(), 
+              GrouperUtil.toSet(memberId), null, true);
+        
+        return GrouperUtil.length(memberships) == 0;
+        
+      } finally {
+        GrouperSession.stopQuietly(rootSession);
+      }
+    }
+  
+    /**
+     * 
+     */
+    @Override
+    public String validate(RuleDefinition ruleDefinition) {
+  
+      return RuleUtils.validateGroup(ruleDefinition.getIfCondition().getIfOwnerId(), 
+          ruleDefinition.getIfCondition().getIfOwnerName(), 
+          ruleDefinition.getAttributeAssignType().getOwnerGroupId());
+  
+    }
+    
+  }, 
+  
+  /**
+   * make sure a group has no enabled membership
+   */
+  never {
+  
+    /**
+     * 
+     */
+    @Override
+    public boolean shouldFire(RuleDefinition ruleDefinition, RuleEngine ruleEngine,
+        RulesBean rulesBean) {
+      return false;
+    }
+  
+    /**
+     * 
+     */
+    @Override
+    public String validate(RuleDefinition ruleDefinition) {
+  
+      RuleIfCondition ifCondition = ruleDefinition.getIfCondition();
+      if (!StringUtils.isBlank(ifCondition.getIfConditionEnumArg0())
+          || !StringUtils.isBlank(ifCondition.getIfConditionEnumArg1())
+          || !StringUtils.isBlank(ifCondition.getIfConditionEl())
+          || !StringUtils.isBlank(ifCondition.getIfOwnerId())
+          || !StringUtils.isBlank(ifCondition.getIfOwnerName())
+          || !StringUtils.isBlank(ifCondition.getIfStemScope())
+      ) {
+        return "This if condition enum does not take args: " + this.name() + ", " 
+          + ifCondition;
+      }
+      return null;
+    }
+    
   };
   
   /** logger */
@@ -516,7 +617,7 @@ public enum RuleIfConditionEnum {
    * @param ruleDefinition
    * @return error message if there are params
    */
-  public static String validateNoParams(RuleDefinition ruleDefinition) {
+  public static String validateNoParams(@SuppressWarnings("unused") RuleDefinition ruleDefinition) {
     //if (!StringUtils.isBlank(ruleDefinition.getIfCondition().get))
     //TODO
     return null;

@@ -26,6 +26,7 @@ import org.hibernate.classic.Lifecycle;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreClone;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreDbVersion;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreFieldConstant;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.hibernate.GrouperContext;
 import edu.internet2.middleware.grouper.hibernate.HibGrouperLifecycle;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
@@ -57,7 +58,6 @@ public abstract class GrouperAPI implements FieldValuable, Serializable, HibGrou
   
   /** save the state when retrieving from DB */
   @GrouperIgnoreDbVersion
-  @GrouperIgnoreClone
   @GrouperIgnoreFieldConstant
   protected Object dbVersion = null;
 
@@ -141,6 +141,9 @@ public abstract class GrouperAPI implements FieldValuable, Serializable, HibGrou
    * @see edu.internet2.middleware.grouper.hibernate.HibGrouperLifecycle#onPostSave(edu.internet2.middleware.grouper.hibernate.HibernateSession)
    */
   public void onPostSave(HibernateSession hibernateSession) {
+    if (GrouperConfig.getPropertyBoolean("resetOnPostSave", true)) {
+      this.dbVersionReset();
+    }
   }
 
 
@@ -148,6 +151,9 @@ public abstract class GrouperAPI implements FieldValuable, Serializable, HibGrou
    * @see edu.internet2.middleware.grouper.hibernate.HibGrouperLifecycle#onPostUpdate(edu.internet2.middleware.grouper.hibernate.HibernateSession)
    */
   public void onPostUpdate(HibernateSession hibernateSession) {
+    if (GrouperConfig.getPropertyBoolean("resetOnPostUpdate", true)) {
+      this.dbVersionReset();
+    }
   }
 
 

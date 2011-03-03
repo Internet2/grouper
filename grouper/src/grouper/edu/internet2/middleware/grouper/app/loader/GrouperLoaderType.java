@@ -52,6 +52,7 @@ import edu.internet2.middleware.grouper.attr.assign.AttributeAssignAction;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignActionSet;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
+import edu.internet2.middleware.grouper.audit.GrouperEngineBuiltin;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogConsumer;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogConsumerBase;
@@ -62,6 +63,7 @@ import edu.internet2.middleware.grouper.client.GroupSyncDaemon;
 import edu.internet2.middleware.grouper.externalSubjects.ExternalSubject;
 import edu.internet2.middleware.grouper.hibernate.ByHqlStatic;
 import edu.internet2.middleware.grouper.hibernate.GrouperCommitType;
+import edu.internet2.middleware.grouper.hibernate.GrouperContext;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransaction;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionHandler;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
@@ -124,6 +126,8 @@ public enum GrouperLoaderType {
     @Override
     public void runJob(LoaderJobBean loaderJobBean) {
       
+      GrouperContext.createNewDefaultContext(GrouperEngineBuiltin.LOADER, false, true);
+
 //      String groupName, GrouperLoaderDb grouperLoaderDb, String query, 
 //      Hib3GrouperLoaderLog hib3GrouploaderLog, long startTime, GrouperSession grouperSession, 
 //      List<Group> andGroups, List<GroupType> groupTypes, String groupLikeString, String groupQuery
@@ -171,24 +175,48 @@ public enum GrouperLoaderType {
       @Override
       public void runJob(LoaderJobBean loaderJobBean) {
         
+        GrouperContext.createNewDefaultContext(GrouperEngineBuiltin.LOADER, false, true);
+
         Hib3GrouperLoaderLog hib3GrouploaderLog = loaderJobBean.getHib3GrouploaderLogOverall();
         
         if (StringUtils.equals(MAINTENANCE_CLEAN_LOGS, hib3GrouploaderLog.getJobName())) {
-          int daysToKeepLogs = GrouperLoaderConfig.getPropertyInt(GrouperLoaderConfig.LOADER_RETAIN_DB_LOGS_DAYS, 7);
-          if (daysToKeepLogs != -1) {
-            //lets get a date
-            Calendar calendar = GregorianCalendar.getInstance();
-            //get however many days in the past
-            calendar.add(Calendar.DAY_OF_YEAR, -1 * daysToKeepLogs);
-            //run a query to delete (note, dont retrieve records to java, just delete)
-            int records = HibernateSession.bySqlStatic().executeSql("delete from grouper_loader_log where last_updated < ?", 
-                (List<Object>)(Object)GrouperUtil.toList(new Timestamp(calendar.getTimeInMillis())));
-            hib3GrouploaderLog.setJobMessage("Deleted " + records + " records from grouper_loader_log older than " + daysToKeepLogs + " days old");
-          } else {
-            hib3GrouploaderLog.setJobMessage("Configured to not delete records from grouper_loader_log table");
+          StringBuilder jobMessage = new StringBuilder();
+          {
+            int daysToKeepLogs = GrouperLoaderConfig.getPropertyInt(GrouperLoaderConfig.LOADER_RETAIN_DB_LOGS_DAYS, 7);
+            if (daysToKeepLogs != -1) {
+              //lets get a date
+              Calendar calendar = GregorianCalendar.getInstance();
+              //get however many days in the past
+              calendar.add(Calendar.DAY_OF_YEAR, -1 * daysToKeepLogs);
+              //run a query to delete (note, dont retrieve records to java, just delete)
+              int records = HibernateSession.bySqlStatic().executeSql("delete from grouper_loader_log where last_updated < ?", 
+                  (List<Object>)(Object)GrouperUtil.toList(new Timestamp(calendar.getTimeInMillis())));
+              jobMessage.append("Deleted " + records + " records from grouper_loader_log older than " + daysToKeepLogs + " days old.  ");
+              
+            } else {
+              jobMessage.append("Configured to not delete records from grouper_loader_log table.  ");
+            }
           }
-          
+          {
+            int daysToKeepLogs = GrouperLoaderConfig.getPropertyInt("loader.retain.db.change_log_entry.days", 14);
+            if (daysToKeepLogs != -1) {
+              //lets get a date
+              Calendar calendar = GregorianCalendar.getInstance();
+              //get however many days in the past
+              calendar.add(Calendar.DAY_OF_YEAR, -1 * daysToKeepLogs);
+              //note, this is *1000 so that we can differentiate conflicting records
+              long time = calendar.getTimeInMillis()*1000L;
+              //run a query to delete (note, dont retrieve records to java, just delete)
+              int records = HibernateSession.bySqlStatic().executeSql("delete from grouper_change_log_entry where created_on < ?", 
+                  (List<Object>)(Object)GrouperUtil.toList(new Long(time)));
+              jobMessage.append("Deleted " + records + " records from grouper_change_log_entry older than " + daysToKeepLogs + " days old. (" + time + ")  ");
+            } else {
+              jobMessage.append("Configured to not delete records from grouper_change_log_entry table.  ");
+            }
+            
+          }
           hib3GrouploaderLog.setStatus(GrouperLoaderStatus.SUCCESS.name());
+          hib3GrouploaderLog.setJobMessage(jobMessage.toString());
         } else if (StringUtils.equals(GROUPER_REPORT, hib3GrouploaderLog.getJobName())) {
 
 
@@ -277,8 +305,8 @@ public enum GrouperLoaderType {
         } else if (hib3GrouploaderLog.getJobName().startsWith(GrouperLoaderType.GROUPER_GROUP_SYNC)) {
 
           //strip off the beginning
-          String configName = hib3GrouploaderLog.getJobName().substring(GrouperLoaderType.GROUPER_GROUP_SYNC.length()+2);
-          int records = GroupSyncDaemon.syncGroup(configName);
+          String localGroupName = hib3GrouploaderLog.getJobName().substring(GrouperLoaderType.GROUPER_GROUP_SYNC.length()+2);
+          int records = GroupSyncDaemon.syncGroup(localGroupName);
           hib3GrouploaderLog.setUpdateCount(records);
 
           hib3GrouploaderLog.setJobMessage("Ran group sync daemon, changed " + records + " records");
@@ -332,6 +360,8 @@ public enum GrouperLoaderType {
       @Override
       public void runJob(LoaderJobBean loaderJobBean) {
         
+        GrouperContext.createNewDefaultContext(GrouperEngineBuiltin.LOADER, false, true);
+
         String groupNameOverall = loaderJobBean.getGroupNameOverall();
         GrouperLoaderDb grouperLoaderDb = loaderJobBean.getGrouperLoaderDb();
         String query = loaderJobBean.getQuery();
@@ -778,6 +808,8 @@ public enum GrouperLoaderType {
           @Override
           public void runJob(LoaderJobBean loaderJobBean) {
             
+            GrouperContext.createNewDefaultContext(GrouperEngineBuiltin.LOADER, false, true);
+
             Hib3GrouperLoaderLog hib3GrouploaderLog = loaderJobBean.getHib3GrouploaderLogOverall();
             
             if (StringUtils.equals(GROUPER_CHANGE_LOG_TEMP_TO_CHANGE_LOG, hib3GrouploaderLog.getJobName())) {
@@ -791,6 +823,7 @@ public enum GrouperLoaderType {
               
               String consumerName = hib3GrouploaderLog.getJobName().substring(GROUPER_CHANGE_LOG_CONSUMER_PREFIX.length());
               ChangeLogConsumer changeLogConsumer = GrouperDAOFactory.getFactory().getChangeLogConsumer().findByName(consumerName, false);
+              boolean error = false;
               
               //if this is a new job
               if (changeLogConsumer == null) {
@@ -827,7 +860,6 @@ public enum GrouperLoaderType {
                 }
                 
                 //pass this to the consumer
-                boolean error = false;
                 long lastProcessed = -1;
                 try {
                   lastProcessed = changeLogConsumerBase.processChangeLogEntries(changeLogEntryList, changeLogProcessorMetadata);
@@ -873,7 +905,11 @@ public enum GrouperLoaderType {
                 }
                 hib3GrouploaderLog.store();
               }
-              
+
+              if (!error) {
+
+                hib3GrouploaderLog.setStatus(GrouperLoaderStatus.SUCCESS.name());
+              }
             } else {
               throw new RuntimeException("Cant find implementation for job: " + hib3GrouploaderLog.getJobName());
             }
@@ -922,6 +958,8 @@ public enum GrouperLoaderType {
       @SuppressWarnings("unchecked")
       @Override
       public void runJob(LoaderJobBean loaderJobBean) {
+
+        GrouperContext.createNewDefaultContext(GrouperEngineBuiltin.LOADER, false, true);
 
         //      GrouperLoaderDb grouperLoaderDb, attributeDefName
         //      Hib3GrouperLoaderLog hib3GrouploaderLog, long startTime, GrouperSession grouperSession, 
@@ -1020,7 +1058,12 @@ public enum GrouperLoaderType {
   public abstract boolean attributeRequired(String attributeName);
 
   /**
-   * sync up a group membership based on query and db
+   * <pre>
+   * sync up a group membership based on query and db.  Note, the first thing you should
+   * do is set the context type:
+   * 
+   *             GrouperContext.createNewDefaultContext(GrouperEngineBuiltin.LOADER, false, true);
+   * </pre>       
    * @param loaderJobBean is the bean data
    */
   public abstract void runJob(LoaderJobBean loaderJobBean);

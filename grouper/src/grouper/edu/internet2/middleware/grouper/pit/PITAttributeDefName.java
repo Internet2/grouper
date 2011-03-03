@@ -141,6 +141,13 @@ public class PITAttributeDefName extends GrouperPIT implements Hib3GrouperVersio
   public void setStemId(String stemId) {
     this.stemId = stemId;
   }
+  
+  /**
+   * @return name
+   */
+  public String getName() {
+    return name;
+  }
 
   /**
    * @return name

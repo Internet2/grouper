@@ -197,6 +197,7 @@ public class SPMLDataConnector extends BaseDataConnector {
     Query query = new Query();
     query.setBasePsoID(basePsoID);
     query.addQueryClause(filterQueryClause);
+    query.setScope(scope);
 
     // search request
     SearchRequest searchRequest = new SearchRequest();

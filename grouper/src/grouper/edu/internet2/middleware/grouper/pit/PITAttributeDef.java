@@ -23,6 +23,9 @@ public class PITAttributeDef extends GrouperPIT implements Hib3GrouperVersioned 
   /** name */
   public static final String COLUMN_NAME = "name";
   
+  /** stem */
+  public static final String COLUMN_STEM_ID = "stem_id";
+  
   /** attributeDefType */
   public static final String COLUMN_ATTRIBUTE_DEF_TYPE = "attribute_def_type";
 
@@ -39,6 +42,9 @@ public class PITAttributeDef extends GrouperPIT implements Hib3GrouperVersioned 
   /** constant for field name for: name */
   public static final String FIELD_NAME = "name";
   
+  /** constant for field name for: stemId */
+  public static final String FIELD_STEM_ID = "stemId";
+  
   /** constant for field name for: attributeDefType */
   public static final String FIELD_ATTRIBUTE_DEF_TYPE = "attributeDefType";
 
@@ -47,7 +53,7 @@ public class PITAttributeDef extends GrouperPIT implements Hib3GrouperVersioned 
    */
   private static final Set<String> CLONE_FIELDS = GrouperUtil.toSet(
       FIELD_CONTEXT_ID, FIELD_HIBERNATE_VERSION_NUMBER, FIELD_ID,
-      FIELD_NAME, FIELD_ATTRIBUTE_DEF_TYPE);
+      FIELD_NAME, FIELD_ATTRIBUTE_DEF_TYPE, FIELD_STEM_ID);
 
 
 
@@ -64,6 +70,9 @@ public class PITAttributeDef extends GrouperPIT implements Hib3GrouperVersioned 
 
   /** name */
   private String name;
+  
+  /** stem */
+  private String stemId;
   
   /** attributeDefType */
   private String attributeDefType;
@@ -126,6 +135,20 @@ public class PITAttributeDef extends GrouperPIT implements Hib3GrouperVersioned 
    */
   public void setNameDb(String name) {
     this.name = name;
+  }
+  
+  /**
+   * @return stem id
+   */
+  public String getStemId() {
+    return stemId;
+  }
+  
+  /**
+   * @param stemId
+   */
+  public void setStemId(String stemId) {
+    this.stemId = stemId;
   }
   
   /**

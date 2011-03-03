@@ -39,6 +39,7 @@
     <property name="contextId" column="context_id"/>
 
     <property name="nameDb" column="name" />
+    <property name="parentStemId" column="parent_stem_id" />
     
     <property name="activeDb" column="active" />
     <property name="startTimeDb" column="start_time" />

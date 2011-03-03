@@ -5,12 +5,21 @@ package edu.internet2.middleware.grouper.filter;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
+import junit.textui.TestRunner;
 
 /**
  *
  */
 public class AllFilterTests {
 
+  /**
+   * 
+   * @param args
+   */
+  public static void main(String[] args) {
+    TestRunner.run(AllFilterTests.suite());
+  }
+  
   public static Test suite() {
     TestSuite suite = new TestSuite("Test for edu.internet2.middleware.grouper.finder");
     //$JUnit-BEGIN$

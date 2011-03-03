@@ -17,12 +17,15 @@ limitations under the License.
 
 package edu.internet2.middleware.grouper.ui;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.security.Principal;
 import java.util.Enumeration;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.Set;
@@ -396,6 +399,9 @@ public class GrouperUiFilter implements Filter {
     /** simple membership update */
     SIMPLE_MEMBERSHIP_UPDATE("require.group.for.membershipUpdateLite.logins", GrouperUtil.toSet(ADMIN_UI)),
     
+    /** simple membership update */
+    SIMPLE_ATTRIBUTE_UPDATE("require.group.for.attributeUpdateLite.logins", GrouperUtil.toSet(ADMIN_UI)),
+    
     /** subject picker */
     SUBJECT_PICKER("require.group.for.subjectPicker.logins", GrouperUtil.toSet(ADMIN_UI, SIMPLE_MEMBERSHIP_UPDATE));
     
@@ -575,6 +581,9 @@ public class GrouperUiFilter implements Filter {
     
     if (!StringUtils.isBlank(operation)) {
       
+      if (theClass.startsWith("SimpleAttributeUpdate")) {
+        return UiSection.SIMPLE_ATTRIBUTE_UPDATE;
+      }
       if (theClass.equals("Misc") || theClass.startsWith("SimpleMembershipUpdate")) {
         return UiSection.SIMPLE_MEMBERSHIP_UPDATE;
       }
@@ -746,7 +755,40 @@ public class GrouperUiFilter implements Filter {
       
       httpServletRequest = initRequest(httpServletRequest, response);
   
+      //TEMPORARY TO SEE WHAT IS NOT SERIALIZIBLE
+      HttpSession httpSession = httpServletRequest.getSession();
+      
+      Enumeration attributeNames = httpSession.getAttributeNames();
+      while (attributeNames.hasMoreElements()) {
+        String attributeName = (String)attributeNames.nextElement();
+        Object object = httpSession.getAttribute(attributeName);
+        try {
+          ByteArrayOutputStream baos = new ByteArrayOutputStream();
+          ObjectOutputStream    out  = new ObjectOutputStream(baos);
+          out.writeObject(object);
 
+        } catch (Exception e) {
+          LOG.error("Error serializing: " + attributeName, e);
+          if (object instanceof Map) {
+            Map<String, Object> map = (Map)object;
+            Set<String> set = map.keySet();
+            for (String key : set) {
+              Object current = map.get(key);
+              try {
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                ObjectOutputStream    out  = new ObjectOutputStream(baos);
+                out.writeObject(current);
+
+              } catch (Exception e2) {
+                LOG.error("Error serializing in map: " + key, e2);
+              }
+              
+            }
+          }
+        }
+      }
+      
+      
       filterChain.doFilter(httpServletRequest, response);
       
     } catch (ControllerDone cd) {

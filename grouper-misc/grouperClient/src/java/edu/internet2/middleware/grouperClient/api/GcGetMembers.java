@@ -4,6 +4,7 @@
  */
 package edu.internet2.middleware.grouperClient.api;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -121,6 +122,16 @@ public class GcGetMembers {
         && GrouperClientUtils.length(this.groupUuids) == 0) {
       throw new RuntimeException("Group name or uuid is required: " + this);
     }
+    
+    if (pointInTimeFrom != null || pointInTimeTo != null) {
+      if (this.includeGroupDetail != null && this.includeGroupDetail) {
+        throw new RuntimeException("Cannot specify includeGroupDetail for point in time queries.");
+      }
+      
+      if (this.memberFilter != null && !this.memberFilter.equals(WsMemberFilter.All)) {
+        throw new RuntimeException("Cannot specify a member filter for point in time queries.");
+      }
+    }
   }
   
   /** field name to add member */
@@ -147,6 +158,24 @@ public class GcGetMembers {
 
   /** source ids to limit the results to, or null for all sources */
   private Set<String> sourceIds = null;
+  
+  /**
+   * To query members at a certain point in time or time range in the past, set this value
+   * and/or the value of pointInTimeTo.  This parameter specifies the start of the range
+   * of the point in time query.  If this is specified but pointInTimeTo is not specified, 
+   * then the point in time query range will be from the time specified to now.  
+   */
+  private Timestamp pointInTimeFrom;
+  
+  /**
+   * To query members at a certain point in time or time range in the past, set this value
+   * and/or the value of pointInTimeFrom.  This parameter specifies the end of the range 
+   * of the point in time query.  If this is the same as pointInTimeFrom, then the query 
+   * will be done at a single point in time rather than a range.  If this is specified but 
+   * pointInTimeFrom is not specified, then the point in time query range will be from the 
+   * minimum point in time to the time specified.
+   */
+  private Timestamp pointInTimeTo;
   
   /**
    * add a source id to filter by (or none for all sources)
@@ -188,6 +217,34 @@ public class GcGetMembers {
    */
   public GcGetMembers assignIncludeSubjectDetail(Boolean theIncludeSubjectDetail) {
     this.includeSubjectDetail = theIncludeSubjectDetail;
+    return this;
+  }
+  
+  /**
+   * To query members at a certain point in time or time range in the past, set this value
+   * and/or the value of pointInTimeTo.  This parameter specifies the start of the range
+   * of the point in time query.  If this is specified but pointInTimeTo is not specified, 
+   * then the point in time query range will be from the time specified to now.  
+   * @param pointInTimeFrom
+   * @return this for chaining
+   */
+  public GcGetMembers assignPointInTimeFrom(Timestamp pointInTimeFrom) {
+    this.pointInTimeFrom = pointInTimeFrom;
+    return this;
+  }
+  
+  /**
+   * To query members at a certain point in time or time range in the past, set this value
+   * and/or the value of pointInTimeFrom.  This parameter specifies the end of the range 
+   * of the point in time query.  If this is the same as pointInTimeFrom, then the query 
+   * will be done at a single point in time rather than a range.  If this is specified but 
+   * pointInTimeFrom is not specified, then the point in time query range will be from the 
+   * minimum point in time to the time specified.
+   * @param pointInTimeTo
+   * @return this for chaining
+   */
+  public GcGetMembers assignPointInTimeTo(Timestamp pointInTimeTo) {
+    this.pointInTimeTo = pointInTimeTo;
     return this;
   }
   
@@ -243,6 +300,9 @@ public class GcGetMembers {
         getMembers.setSourceIds(GrouperClientUtils.toArray(this.sourceIds, String.class));
       }
       
+      getMembers.setPointInTimeFrom(GrouperClientUtils.dateToString(this.pointInTimeFrom));
+      getMembers.setPointInTimeTo(GrouperClientUtils.dateToString(this.pointInTimeTo));
+      
       GrouperClientWs grouperClientWs = new GrouperClientWs();
       
       //kick off the web service
@@ -258,5 +318,4 @@ public class GcGetMembers {
     return wsGetMembersResults;
     
   }
-  
 }

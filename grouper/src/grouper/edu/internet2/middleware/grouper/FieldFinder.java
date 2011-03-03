@@ -93,13 +93,16 @@ public class FieldFinder {
    * init and return the cache
    * @return the cache
    */
-  private synchronized static Map<String,Field> fieldCache() {
-
-    Map<String,Field> theFieldCache = fieldGrouperCache().get(Boolean.TRUE);
-    if (theFieldCache == null || theFieldCache.size() == 0) {
-      theFieldCache = internal_updateKnownFields();
+  private static Map<String,Field> fieldCache() {
+    //synchronize on GrouperStartup to avoid deadlock
+    synchronized(GrouperStartup.class) {
+      Map<String,Field> theFieldCache = fieldGrouperCache().get(Boolean.TRUE);
+      if (theFieldCache == null || theFieldCache.size() == 0) {
+        theFieldCache = internal_updateKnownFields();
+      }
+      return theFieldCache;
+      
     }
-    return theFieldCache;
   }
 
   /**
@@ -337,26 +340,29 @@ public class FieldFinder {
   /**
    * 
    */
-  public static synchronized Map<String, Field> internal_updateKnownFields() {
+  public static Map<String, Field> internal_updateKnownFields() {
 
-    GrouperStartup.startup();
-    Map<String, Field> theFieldCache = new LinkedHashMap<String, Field>();
-
-    Field f;
-    Set   fieldsInRegistry = findAllFromDb();
-    
-    // find fields to add to the cache
-    Iterator it = fieldsInRegistry.iterator();
-    while (it.hasNext()) {
-      f = (Field) it.next();
-      theFieldCache.put( f.getName(), f );
-      }
-
-    fieldGrouperCache().put(Boolean.TRUE, theFieldCache);
-
-    FieldFinder.lastTimeRefreshed = System.currentTimeMillis();
-    
-    return theFieldCache;
+    //synchronize on GrouperStartup to avoid deadlock
+    synchronized(GrouperStartup.class) {
+      GrouperStartup.startup();
+      Map<String, Field> theFieldCache = new LinkedHashMap<String, Field>();
+  
+      Field f;
+      Set   fieldsInRegistry = findAllFromDb();
+      
+      // find fields to add to the cache
+      Iterator it = fieldsInRegistry.iterator();
+      while (it.hasNext()) {
+        f = (Field) it.next();
+        theFieldCache.put( f.getName(), f );
+        }
+  
+      fieldGrouperCache().put(Boolean.TRUE, theFieldCache);
+  
+      FieldFinder.lastTimeRefreshed = System.currentTimeMillis();
+      
+      return theFieldCache;
+    }
   } 
 
   /**

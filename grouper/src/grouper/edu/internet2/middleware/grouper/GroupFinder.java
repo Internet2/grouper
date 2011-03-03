@@ -238,7 +238,7 @@ public class GroupFinder {
     if ( PrivilegeHelper.canView( s.internal_getRootSession(), g, s.getSubject() ) ) {
       return g;
     }
-    LOG.error(E.GF_FBNAME + E.CANNOT_VIEW);
+    LOG.error(E.GF_FBNAME + E.CANNOT_VIEW + ", name: " + name);
     if (!exceptionIfNotFound) {
       return null;
     }

@@ -4,6 +4,8 @@
  */
 package edu.internet2.middleware.grouper.internal.dao;
 
+import java.sql.Timestamp;
+import java.util.Collection;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.pit.PITPermissionAllView;
@@ -48,4 +50,18 @@ public interface PITPermissionAllViewDAO extends GrouperDAO {
    * @return set
    */
   public Set<PITPermissionAllView> findNewOrDeletedFlatPermissionsAfterAttributeAssignAddOrDelete(String attributeAssignId);
+  
+  /**
+   * @param attributeDefIds
+   * @param attributeDefNameIds
+   * @param roleIds
+   * @param actions
+   * @param memberIds
+   * @param pointInTimeFrom
+   * @param pointInTimeTo
+   * @return set
+   */
+  public Set<PITPermissionAllView> findPermissions(Collection<String> attributeDefIds, Collection<String> attributeDefNameIds, 
+      Collection<String> roleIds, Collection<String> actions, Collection<String> memberIds, Timestamp pointInTimeFrom, 
+      Timestamp pointInTimeTo);
 }

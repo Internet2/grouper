@@ -1,5 +1,5 @@
 <%@ include file="../common/commonTaglib.jsp"%>
-<!-- misc/index.jsp: main page -->
+<!-- Start: misc/index.jsp: main page -->
 
 <grouper:title key="simpleMembershipUpdate.topIndexTitle" />
 
@@ -12,3 +12,5 @@
     </ul>
   </div>
 </div>
+
+<!-- End: misc/index.jsp: main page -->

@@ -123,6 +123,7 @@ import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.rules.RuleCheckType;
 import edu.internet2.middleware.grouper.rules.RuleEngine;
 import edu.internet2.middleware.grouper.rules.beans.RulesMembershipBean;
+import edu.internet2.middleware.grouper.rules.beans.RulesPrivilegeBean;
 import edu.internet2.middleware.grouper.subj.LazySubject;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.validator.AddAlternateGroupNameValidator;
@@ -301,7 +302,7 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
   /** */
   private long      modifyTime      = 0; // default to the epoch
   /** */
-  private String    parentUUID;
+  private String    parentUuid;
 
   /** default to group type, as opposed to role */
   private TypeOfGroup typeOfGroup = TypeOfGroup.group;
@@ -392,8 +393,8 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
   /** constant for field name for: name */
   public static final String FIELD_NAME = "name";
 
-  /** constant for field name for: parentUUID */
-  public static final String FIELD_PARENT_UUID = "parentUUID";
+  /** constant for field name for: parentUuid */
+  public static final String FIELD_PARENT_UUID = "parentUuid";
 
   /** constant for field name for: typeOfGroup */
   public static final String FIELD_TYPE_OF_GROUP = "typeOfGroup";
@@ -1010,15 +1011,20 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
                 
                 EVENT_LOG.groupAddMember(GrouperSession.staticGrouperSession(), Group.this.getName(), subj, f, sw);
                 
+                RulesMembershipBean rulesMembershipBean = new RulesMembershipBean(membership, Group.this, subj);
+
                 //if we are in the default list, then fire a rule
                 if (StringUtils.equals(f.getUuid(), Group.getDefaultList().getUuid())) {
-                  RulesMembershipBean rulesMembershipBean = new RulesMembershipBean(membership, Group.this, subj);
+                  
                   //fire rules directly connected to this membership add
                   RuleEngine.fireRule(RuleCheckType.membershipAdd, rulesMembershipBean);
                   //fire rules related to add in stem
                   RuleEngine.fireRule(RuleCheckType.membershipAddInFolder, rulesMembershipBean);
 
                 }
+
+                //fire rules related to subject assign in folder
+                RuleEngine.fireRule(RuleCheckType.subjectAssignInStem, rulesMembershipBean);
 
                 if (!hibernateHandlerBean.isCallerWillCreateAudit()) {
                   
@@ -3450,6 +3456,11 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
             GrouperSession.staticGrouperSession().getAccessResolver().grantPrivilege(Group.this, subj, priv, uuid);
             assignedPrivilege = true;
 
+            RulesPrivilegeBean rulesPrivilegeBean = new RulesPrivilegeBean(Group.this, subj, priv);
+            
+            //fire rules related to subject assign in folder
+            RuleEngine.fireRule(RuleCheckType.subjectAssignInStem, rulesPrivilegeBean);
+
             if (!hibernateHandlerBean.isCallerWillCreateAudit()) {
               
               Member member = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), subj, false);
@@ -4948,7 +4959,7 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
    * @since   1.2.0
    */
   public String getParentUuid() {
-    return this.parentUUID;
+    return this.parentUuid;
   }
 
   /**
@@ -5279,7 +5290,7 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
    * @since   1.2.0
    */
   public void setParentUuid(String parentUUID) {
-    this.parentUUID = parentUUID;
+    this.parentUuid = parentUUID;
 
   }
 
@@ -5370,8 +5381,9 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
             ChangeLogLabels.GROUP_UPDATE.parentStemId.name(), this.getParentUuid(),
             ChangeLogLabels.GROUP_UPDATE.displayName.name(), this.getDisplayName(),
             ChangeLogLabels.GROUP_UPDATE.description.name(), this.getDescription()),
-        GrouperUtil.toList(FIELD_NAME, FIELD_DESCRIPTION, FIELD_DISPLAY_EXTENSION),
+        GrouperUtil.toList(FIELD_NAME, FIELD_PARENT_UUID, FIELD_DESCRIPTION, FIELD_DISPLAY_EXTENSION),
         GrouperUtil.toList(ChangeLogLabels.GROUP_UPDATE.name.name(),
+            ChangeLogLabels.GROUP_UPDATE.parentStemId.name(), 
             ChangeLogLabels.GROUP_UPDATE.description.name(), 
             ChangeLogLabels.GROUP_UPDATE.displayExtension.name()));    
   }
@@ -6293,7 +6305,7 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
     if (!StringUtils.equals(this.name, other.name)) {
       return true;
     }
-    if (!StringUtils.equals(this.parentUUID, other.parentUUID)) {
+    if (!StringUtils.equals(this.parentUuid, other.parentUuid)) {
       return true;
     }
     if (!GrouperUtil.equals(this.typeOfGroup, other.typeOfGroup)) {

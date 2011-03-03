@@ -3,6 +3,7 @@
  */
 package edu.internet2.middleware.grouper.ws.soap;
 
+import java.sql.Timestamp;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -19,6 +20,8 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.group.TypeOfGroup;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
+import edu.internet2.middleware.grouper.pit.PITGroup;
+import edu.internet2.middleware.grouper.pit.finder.PITGroupFinder;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 import edu.internet2.middleware.grouper.ws.soap.WsGetMembersResult.WsGetMembersResultCode;
 import edu.internet2.middleware.grouper.ws.soap.WsGroupDeleteResult.WsGroupDeleteResultCode;
@@ -40,11 +43,15 @@ public class WsGroupLookup {
    * @param wsGroupLookups
    * @param errorMessage
    * @param typeOfGroup 
+   * @param usePIT 
+   * @param pointInTimeFrom 
+   * @param pointInTimeTo 
    * @param lookupCount is an array of size one int where 1 will be added if there are records, and no change if not
    * @return the group ids
    */
-  public static Set<String> convertToGroupIds(GrouperSession grouperSession, WsGroupLookup[] wsGroupLookups, StringBuilder errorMessage, TypeOfGroup typeOfGroup) {
-    return convertToGroupIds(grouperSession, wsGroupLookups, errorMessage, typeOfGroup, new int[1]);
+  public static Set<String> convertToGroupIds(GrouperSession grouperSession, WsGroupLookup[] wsGroupLookups, StringBuilder errorMessage, TypeOfGroup typeOfGroup,
+      boolean usePIT, Timestamp pointInTimeFrom, Timestamp pointInTimeTo) {
+    return convertToGroupIds(grouperSession, wsGroupLookups, errorMessage, typeOfGroup, usePIT, pointInTimeFrom, pointInTimeTo, new int[1]);
   }
 
   /**
@@ -53,12 +60,16 @@ public class WsGroupLookup {
    * @param wsGroupLookups
    * @param errorMessage
    * @param typeOfGroup 
+   * @param usePIT 
+   * @param pointInTimeFrom 
+   * @param pointInTimeTo 
    * @param lookupCount is an array of size one int where 1 will be added if there are records, and no change if not
    * @return the group ids
    */
   public static Set<String> convertToGroupIds(GrouperSession grouperSession, 
       WsGroupLookup[] wsGroupLookups, StringBuilder errorMessage, 
-      TypeOfGroup typeOfGroup, int[] lookupCount) {
+      TypeOfGroup typeOfGroup, boolean usePIT, Timestamp pointInTimeFrom,
+      Timestamp pointInTimeTo, int[] lookupCount) {
     //get all the groups
     //we could probably batch these to get better performance.
     Set<String> groupIds = null;
@@ -80,9 +91,16 @@ public class WsGroupLookup {
           foundRecords = true;
         }
         
-        wsGroupLookup.retrieveGroupIfNeeded(grouperSession);
+        if (!usePIT) {
+          wsGroupLookup.retrieveGroupIfNeeded(grouperSession);
+        } else {
+          wsGroupLookup.retrievePITGroupsIfNeeded(null, pointInTimeFrom, pointInTimeTo);
+        }
+        
         Group group = wsGroupLookup.retrieveGroup();
-        if (group != null) {
+        Set<PITGroup> pitGroups = wsGroupLookup.retrievePITGroups();        
+        
+        if (!usePIT && group != null) {
           if (typeOfGroup == null || typeOfGroup == group.getTypeOfGroup()) {
             groupIds.add(group.getUuid());
           } else {
@@ -93,6 +111,15 @@ public class WsGroupLookup {
             errorMessage.append("Error on group index: " + i + ", expecting type of group: " 
                 + typeOfGroup + ", " + wsGroupLookup.toStringCompact());
               
+          }
+        } else if (usePIT && pitGroups != null && pitGroups.size() > 0) {
+          for (PITGroup pitGroup : pitGroups) {
+            // the point in time tables do not have typeOfGroup...
+            if (typeOfGroup != null) {
+              throw new RuntimeException("typeOfGroup expected to be null for point in time queries.");
+            }
+            
+            groupIds.add(pitGroup.getId());
           }
         } else {
           
@@ -146,6 +173,10 @@ public class WsGroupLookup {
   /** find the group */
   @XStreamOmitField
   private Group group = null;
+  
+  /** find the pit groups */
+  @XStreamOmitField
+  private Set<PITGroup> pitGroups = new LinkedHashSet<PITGroup>();
 
   /** result of group find */
   public static enum GroupFindResult {
@@ -297,6 +328,17 @@ public class WsGroupLookup {
   public Group retrieveGroup() {
     return this.group;
   }
+  
+  /**
+   * <pre>
+   * 
+   * Note: this is not a javabean property because we dont want it in the web service
+   * </pre>
+   * @return the pit groups
+   */
+  public Set<PITGroup> retrievePITGroups() {
+    return this.pitGroups;
+  }
 
   /**
    * <pre>
@@ -408,12 +450,82 @@ public class WsGroupLookup {
     }
     return this.group;
   }
+  
+  /**
+   * retrieve the pit groups for this lookup if not looked up yet.
+   * @param invalidQueryReason is the text to go in the WsInvalidQueryException
+   * @param pointInTimeFrom 
+   * @param pointInTimeTo 
+   * @return the pit group
+   * @throws WsInvalidQueryException if there is a problem, and if the invalidQueryReason is set
+   */
+  public Set<PITGroup> retrievePITGroupsIfNeeded(String invalidQueryReason, Timestamp pointInTimeFrom, 
+      Timestamp pointInTimeTo) throws WsInvalidQueryException {
+
+    //see if we already retrieved
+    if (this.groupFindResult != null) {
+      return this.pitGroups;
+    }
+
+    //assume success (set otherwise if there is a problem)
+    this.groupFindResult = GroupFindResult.SUCCESS;
+    
+    try {
+      boolean hasUuid = !StringUtils.isBlank(this.uuid);
+
+      boolean hasName = !StringUtils.isBlank(this.groupName);
+
+      //must have a name or uuid
+      if (!hasUuid && !hasName) {
+        this.groupFindResult = GroupFindResult.INVALID_QUERY;
+        if (!StringUtils.isEmpty(invalidQueryReason)) {
+          throw new WsInvalidQueryException("Invalid point in time group query for '"
+              + invalidQueryReason + "', " + this);
+        }
+        String logMessage = "Invalid query: " + this;
+        LOG.warn(logMessage);
+      }
+
+      if (hasUuid) {        
+        PITGroup theGroup = PITGroupFinder.findById(this.uuid, true);
+
+        //make sure name matches 
+        if (hasName && !StringUtils.equals(this.groupName, theGroup.getName())) {
+          this.groupFindResult = GroupFindResult.GROUP_UUID_DOESNT_MATCH_NAME;
+          String error = "Group name '" + this.groupName + "' and uuid '" + this.uuid
+              + "' do not match";
+          if (!StringUtils.isEmpty(invalidQueryReason)) {
+            throw new WsInvalidQueryException(error + " for '" + invalidQueryReason
+                + "', " + this);
+          }
+          String logMessage = "Invalid query: " + this;
+          LOG.warn(logMessage);
+        }
+
+        //success
+        this.pitGroups = new LinkedHashSet<PITGroup>();
+        this.pitGroups.add(theGroup);
+
+      } else if (hasName) {
+        this.pitGroups = PITGroupFinder.findByName(this.groupName, pointInTimeFrom, pointInTimeTo, true, true);
+      }
+
+    } catch (GroupNotFoundException gnf) {
+      this.groupFindResult = GroupFindResult.GROUP_NOT_FOUND;
+      if (!StringUtils.isBlank(invalidQueryReason)) {
+        throw new WsInvalidQueryException("Invalid group for '" + invalidQueryReason
+            + "', " + this, gnf);
+      }
+    }
+    return this.pitGroups;
+  }
 
   /**
    * clear the group if a setter is called
    */
   private void clearGroup() {
     this.group = null;
+    this.pitGroups = new LinkedHashSet<PITGroup>();
     this.groupFindResult = null;
   }
 

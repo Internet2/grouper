@@ -33,7 +33,7 @@ public class AttributeAssignActionSetTest extends GrouperTest {
    */
   public static void main(String[] args) {
     //TestRunner.run(new AttributeAssignActionSetTest("testHibernate"));
-    TestRunner.run(new AttributeAssignActionSetTest("testXmlDifferentUpdateProperties"));
+    TestRunner.run(new AttributeAssignActionSetTest("testSetLogic"));
     //TestRunner.run(AttributeAssignActionSetTest.class);
   }
 
@@ -14421,7 +14421,8 @@ public class AttributeAssignActionSetTest extends GrouperTest {
   
     //lets make sure one record was created
     AttributeAssignActionSet attributeDefNameSet = HibernateSession.byHqlStatic().createQuery(
-        "from AttributeAssignActionSet")
+        "from AttributeAssignActionSet where ifHasAttrAssignActionId = :theIfHasAttrAssignActionId ")
+        .setString("theIfHasAttrAssignActionId",  org1.getId())
         .uniqueResult(AttributeAssignActionSet.class);
   
     assertEquals(0, attributeDefNameSet.getDepth());

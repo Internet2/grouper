@@ -35,6 +35,7 @@ import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SessionHelper;
 import edu.internet2.middleware.grouper.helper.StemHelper;
 import edu.internet2.middleware.grouper.registry.RegistryReset;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * Test {@link IntersectionFilter}.
@@ -87,7 +88,9 @@ public class TestGQIntersectionFilter extends TestCase {
   } // public void testIntersectionFilterNothing()
 
   public void testIntersectionFilterSomething() {
-    Date            when  = DateHelper.getPastDate();
+    GrouperUtil.sleep(100);
+    Date            when  = new Date();
+    GrouperUtil.sleep(100);
     GrouperSession  s     = SessionHelper.getRootSession();
     Stem            root  = StemHelper.findRootStem(s);
     Stem            edu   = StemHelper.addChildStem(root, "edu", "education");
@@ -115,7 +118,9 @@ public class TestGQIntersectionFilter extends TestCase {
   } // public void testAnd()
 
   public void testIntersectionFilterSomethingScoped() {
-    Date            when  = DateHelper.getPastDate();
+    GrouperUtil.sleep(100);
+    Date            when  = new Date();
+    GrouperUtil.sleep(100);
     GrouperSession  s     = SessionHelper.getRootSession();
     Stem            root  = StemHelper.findRootStem(s);
     Stem            edu   = StemHelper.addChildStem(root, "edu", "education");

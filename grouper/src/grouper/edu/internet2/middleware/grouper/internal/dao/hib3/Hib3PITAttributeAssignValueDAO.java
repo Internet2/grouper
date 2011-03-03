@@ -5,6 +5,7 @@ import java.util.Set;
 
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.PITAttributeAssignValueDAO;
+import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.pit.PITAttributeAssignValue;
 
 /**
@@ -88,5 +89,22 @@ public class Hib3PITAttributeAssignValueDAO extends Hib3DAO implements PITAttrib
       .createQuery("delete from PITAttributeAssignValue where endTimeDb is not null and endTimeDb < :time")
       .setLong("time", time.getTime() * 1000)
       .executeUpdate();
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.PITAttributeAssignValueDAO#findByAttributeAssignId(java.lang.String, edu.internet2.middleware.grouper.internal.dao.QueryOptions)
+   */
+  public Set<PITAttributeAssignValue> findByAttributeAssignId(String attributeAssignId, QueryOptions queryOptions) {
+    Set<PITAttributeAssignValue> attributeAssignValues = HibernateSession.byHqlStatic()
+      .createQuery("from PITAttributeAssignValue as theAttributeAssignValue where " +
+          "theAttributeAssignValue.attributeAssignId = :theAttributeAssignId")
+      .options(queryOptions)
+      .setCacheable(true)
+      .setCacheRegion(KLASS + ".FindByAttributeAssignId")
+      .setString("theAttributeAssignId", attributeAssignId)
+      .listSet(PITAttributeAssignValue.class);
+
+    //return result
+    return attributeAssignValues;
   }
 }

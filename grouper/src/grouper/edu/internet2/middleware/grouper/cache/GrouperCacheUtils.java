@@ -10,6 +10,7 @@ import java.util.List;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Status;
 
 
@@ -27,7 +28,20 @@ public class GrouperCacheUtils {
       
       //if not alive we get an exception
       if (cacheManager.getStatus() == Status.STATUS_ALIVE) {
-        cacheManager.clearAll();
+        //note we get an exception if the cache is not alive, so do this manually
+        //cacheManager.clearAll();
+        String[] cacheNames = cacheManager.getCacheNames();
+        for (int i = 0; i < cacheNames.length; i++) {
+            String cacheName = cacheNames[i];
+            Ehcache cache = cacheManager.getEhcache(cacheName);
+            if (cache.getStatus().equals(Status.STATUS_ALIVE) ) {
+              cache.removeAll();
+            } else {
+              //i dont know, maybe remove it?
+              cacheManager.removeCache(cacheName);
+            }
+        }
+
       }
     }
   }

@@ -625,12 +625,14 @@ public abstract class AttributeAssignBaseDelegate {
       }
     }
     
-    if (assign) {
-    
-      AttributeAssignResult attributeAssignResult = (AttributeAssignResult)GrouperSession
-        .callbackGrouperSession(GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
-        
-        public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+    AttributeAssignResult attributeAssignResult = (AttributeAssignResult)GrouperSession
+      .callbackGrouperSession(GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+      
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+
+        if (assign) {
+          
+
           //do the same thing that an assign would do
           //do this as root since the user who can delegate might not be able to assign...
           AttributeAssignResult attributeAssignResult2 = AttributeAssignBaseDelegate
@@ -638,7 +640,7 @@ public abstract class AttributeAssignBaseDelegate {
           
           if (attributeAssignDelegateOptions != null) {
             
-
+  
             AttributeAssign attributeAssign = attributeAssignResult2.getAttributeAssign();
             if (attributeAssignDelegateOptions.isAssignAttributeAssignDelegatable()) {
               attributeAssign.setAttributeAssignDelegatable(attributeAssignDelegateOptions.getAttributeAssignDelegatable());
@@ -653,13 +655,13 @@ public abstract class AttributeAssignBaseDelegate {
           }
           return attributeAssignResult2;
         }
-      });
         
-      return attributeAssignResult;
+        return AttributeAssignBaseDelegate.this.removeAttributeHelper(action, attributeDefName, false);
+      }
+    });
+        
+    return attributeAssignResult;
       
-    }
-    
-    return this.removeAttributeHelper(action, attributeDefName, false);
   }
 
   /**

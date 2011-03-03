@@ -383,6 +383,18 @@ public interface StemDAO extends GrouperDAO {
     throws  GrouperDAOException;
   
   /**
+   * get all stems secure, split the scope by whitespace
+   * @param scope
+   * @param grouperSession
+   * @param subject
+   * @param privileges
+   * @param queryOptions
+   * @return set of attribute defs
+   */
+  public Set<Stem> getAllStemsSplitScopeSecure(String scope, GrouperSession grouperSession, 
+      Subject subject, Set<Privilege> privileges, QueryOptions queryOptions);
+
+  /**
    * @param stemId
    */
   public void updateLastMembershipChange(String stemId);

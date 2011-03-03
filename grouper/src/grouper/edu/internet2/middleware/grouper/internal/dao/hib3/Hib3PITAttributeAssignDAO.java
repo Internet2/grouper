@@ -1,11 +1,21 @@
 package edu.internet2.middleware.grouper.internal.dao.hib3;
 
 import java.sql.Timestamp;
+import java.util.Collection;
+import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
+import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.hibernate.ByHqlStatic;
+import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.PITAttributeAssignDAO;
 import edu.internet2.middleware.grouper.pit.PITAttributeAssign;
+import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.subject.Subject;
 
 /**
  * @author shilen
@@ -116,16 +126,106 @@ public class Hib3PITAttributeAssignDAO extends Hib3DAO implements PITAttributeAs
     
     HibernateSession.byHqlStatic()
       .createQuery("update PITAttributeAssign a set a.ownerAttributeAssignId = null where a.endTimeDb is not null and a.endTimeDb < :time and a.ownerAttributeAssignId is not null " +
-      		"and not exists (select 1 from PITAttributeAssignValue v where v.attributeAssignId = a.id)" +
-          "and not exists (select 1 from PITAttributeAssign a2 where a2.ownerAttributeAssignId = a.id)")
+      		"and not exists (select 1 from PITAttributeAssignValue v where v.attributeAssignId = a.id)")
       .setLong("time", time.getTime() * 1000)
       .executeUpdate();
     
     HibernateSession.byHqlStatic()
       .createQuery("delete from PITAttributeAssign a where a.endTimeDb is not null and a.endTimeDb < :time and a.ownerAttributeAssignId is null " +
-      		"and not exists (select 1 from PITAttributeAssignValue v where v.attributeAssignId = a.id)" +
-          "and not exists (select 1 from PITAttributeAssign a2 where a2.ownerAttributeAssignId = a.id)")
+      		"and not exists (select 1 from PITAttributeAssignValue v where v.attributeAssignId = a.id)")
       .setLong("time", time.getTime() * 1000)
       .executeUpdate();
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.PITAttributeAssignDAO#findAssignmentsOnAssignments(java.util.Collection, java.sql.Timestamp, java.sql.Timestamp)
+   */
+  public Set<PITAttributeAssign> findAssignmentsOnAssignments(Collection<PITAttributeAssign> attributeAssigns, 
+      Timestamp pointInTimeFrom, Timestamp pointInTimeTo) {
+    
+    int attributeAssignsSize = GrouperUtil.length(attributeAssigns);
+
+    Set<PITAttributeAssign> results = new LinkedHashSet<PITAttributeAssign>();
+    
+    if (attributeAssignsSize == 0) {
+      return results;
+    }
+    
+    int numberOfBatches = GrouperUtil.batchNumberOfBatches(attributeAssignsSize, 100);
+
+    int maxAssignments = GrouperConfig.getPropertyInt("ws.findAttrAssignments.maxResultSize", 30000);
+
+    for (int i = 0; i < numberOfBatches; i++) {
+      
+      List<PITAttributeAssign> currentBatch = GrouperUtil.batchList(attributeAssigns, 100, i);
+      
+      int currentBatchSize = GrouperUtil.length(currentBatch);
+      if (currentBatchSize == 0) {
+        continue;
+      }
+      
+      ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
+
+      String selectPrefix = "select distinct aa ";
+      StringBuilder sqlTables = new StringBuilder(" from PITAttributeAssign aa, PITAttributeDefName adn ");
+      
+      StringBuilder sqlWhereClause = new StringBuilder(" aa.attributeDefNameId = adn.id ");
+      
+      GrouperSession grouperSession = GrouperSession.staticGrouperSession();
+      Subject grouperSessionSubject = grouperSession.getSubject();
+      
+      grouperSession.getAttributeDefResolver().hqlFilterAttrDefsWhereClause(
+        grouperSessionSubject, byHqlStatic, 
+        sqlTables, sqlWhereClause, "adn.attributeDefId", AttributeDefPrivilege.READ_PRIVILEGES);
+      
+      StringBuilder sql;
+      sql = sqlTables.append(" where ").append(sqlWhereClause);
+              
+      //convert to a list of ids
+      Set<String> ids = new LinkedHashSet<String>();
+      for (PITAttributeAssign attributeAssign : currentBatch) {
+        ids.add(attributeAssign.getId());
+      }
+        
+      sql.append(" and aa.ownerAttributeAssignId in (");
+      sql.append(HibUtils.convertToInClause(ids, byHqlStatic));
+      sql.append(") ");
+      
+      if (pointInTimeFrom != null) {
+        Long endDateAfter = pointInTimeFrom.getTime() * 1000;
+        sql.append(" and (aa.endTimeDb is null or aa.endTimeDb > '" + endDateAfter + "')");
+      }
+      
+      if (pointInTimeTo != null) {
+        Long startDateBefore = pointInTimeTo.getTime() * 1000;
+        sql.append(" and aa.startTimeDb < '" + startDateBefore + "'");
+      }
+      
+      byHqlStatic
+        .setCacheable(false)
+        .setCacheRegion(KLASS + ".FindAssignmentsOnAssignments");
+
+      Set<PITAttributeAssign> tempResults = byHqlStatic.createQuery(selectPrefix + sql.toString()).listSet(PITAttributeAssign.class);
+
+      //nothing to filter
+      if (GrouperUtil.length(tempResults) > 0) {
+        //if the hql didnt filter, we need to do that here
+        tempResults = grouperSession.getAttributeDefResolver().postHqlFilterPITAttributeAssigns(grouperSessionSubject, tempResults);
+      }
+      
+      results.addAll(tempResults);
+      
+      if (maxAssignments >= 0) {
+
+        //see if too many
+        if (results.size() > maxAssignments) {
+          throw new RuntimeException("Too many results: " + results.size());
+        }
+        
+      }
+    }
+    
+    //we should be down to the secure list
+    return results;
   }
 }

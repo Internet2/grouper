@@ -66,7 +66,8 @@ public class GrouperUiRestServlet extends HttpServlet {
       "SimpleMembershipUpdateFilter.filterUsers", "SimpleMembershipUpdateFilter.filterGroups",
       "SimpleMembershipUpdateMenu.advancedMenuStructure", "SimpleMembershipUpdateImportExport.exportSubjectIdsCsv",
       "SimpleMembershipUpdateImportExport.exportAllCsv", "SimpleMembershipUpdateMenu.memberMenuStructure",
-      "SimpleMembershipUpdateFilter.filterMembers");
+      "SimpleMembershipUpdateFilter.filterMembers", "SimpleAttributeUpdateFilter.filterAttributeDefs",
+      "SimpleAttributeUpdateFilter.filterCreatableNamespace");
 
   /**
    * @see javax.servlet.http.HttpServlet#service(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
@@ -139,7 +140,8 @@ public class GrouperUiRestServlet extends HttpServlet {
       //I think we are all post all the time, right?
       if (!StringUtils.equalsIgnoreCase("post", request.getMethod() )) {
         if (!operationsOkGet.contains(classAndMethodName)) {
-          throw new RuntimeException("Cant process method: " + request.getMethod() + " for operation: " + classAndMethodName);
+          String errorMessage = "Cant process method: " + request.getMethod() + " for operation: " + classAndMethodName;
+          throw new RuntimeException(errorMessage);
         }
       }
       

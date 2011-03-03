@@ -53,10 +53,10 @@ import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.registry.RegistryInitializeSchema;
 import edu.internet2.middleware.grouper.registry.RegistryReset;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
+import edu.internet2.middleware.grouper.util.GrouperEmail;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
-import edu.internet2.middleware.subject.SubjectUtils;
 
 /**
  * Grouper-specific JUnit assertions.
@@ -88,6 +88,10 @@ public class GrouperTest extends TestCase {
   public GrouperTest() {
     super();
     testing = true;
+    
+    //I believe this needs to be here before Grouper starts up
+    ApiConfig.testConfig.put("externalSubjects.autoCreateSource", "true");
+    ApiConfig.testConfig.put("externalSubject.sourceId", "grouperExternal");
 
     //let the database release...
     GrouperStartup.startup();
@@ -582,12 +586,21 @@ public class GrouperTest extends TestCase {
   protected void setUp () {
     LOG.debug("setUp");
     
+    GrouperSession.stopQuietly(GrouperSession.staticGrouperSession(false));
+    GrouperSession.clearGrouperSessions();
+    
     //set this and leave it...
     GrouperContext.createNewDefaultContext(GrouperEngineBuiltin.JUNIT, false, true);
     
     //remove any settings in testconfig
     ApiConfig.testConfig.clear();
     GrouperLoaderConfig.testConfig.clear();
+
+    for (int i=0;i<20;i++) {
+      ApiConfig.testConfig.put("configuration.autocreate.group.name." + i, null);
+      ApiConfig.testConfig.put("configuration.autocreate.group.description." + i, null);
+      ApiConfig.testConfig.put("configuration.autocreate.group.subjects." + i, null);
+    }
 
     RegistryReset.internal_resetRegistryAndAddTestSubjects();
     GrouperTest.initGroupsAndAttributes();
@@ -601,7 +614,10 @@ public class GrouperTest extends TestCase {
     ApiConfig.testConfig.put("attributeDefs.create.grant.all.attrRead", "false");
     ApiConfig.testConfig.put("attributeDefs.create.grant.all.attrView", "false");
 
-    initGroupsAndAttributes();
+    //dont send emails
+    ApiConfig.testConfig.put("mail.smtp.server", "testing");
+    GrouperEmail.testingEmails().clear();
+
   }
 
   /**

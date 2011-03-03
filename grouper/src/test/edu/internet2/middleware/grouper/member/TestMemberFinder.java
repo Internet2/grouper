@@ -49,7 +49,7 @@ public class TestMemberFinder extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new TestMemberFinder("testFailToFindByNullUuid"));
+    TestRunner.run(new TestMemberFinder("testFindAll"));
   }
   
   private static final Log LOG = GrouperUtil.getLog(TestMemberFinder.class);

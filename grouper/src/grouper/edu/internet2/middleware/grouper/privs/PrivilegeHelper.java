@@ -43,6 +43,8 @@ import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.misc.E;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.permissions.PermissionEntry;
+import edu.internet2.middleware.grouper.pit.PITAttributeAssign;
+import edu.internet2.middleware.grouper.pit.PITPermissionAllView;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
@@ -610,7 +612,9 @@ public class PrivilegeHelper {
       throw new SchemaException(E.UNKNOWN_PRIVILEGE + priv);
     }
     if (!rv) {
-      throw new InsufficientPrivilegeException(msg);
+      throw new InsufficientPrivilegeException(msg + ", attributeDef: " 
+          + (attributeDef == null ? null : attributeDef.getName()) 
+          + ", " + GrouperUtil.subjectToString(subj));
     }
   } 
 
@@ -988,5 +992,79 @@ public class PrivilegeHelper {
     return permissionEntries;
   }
 
+  /**
+   * see if the permissions are viewable
+   * @param grouperSession 
+   * @param inputPITPermissionEntries 
+   * @return filtered pit permissions
+   * 
+   */
+  public static Set<PITPermissionAllView> canViewPITPermissions(GrouperSession grouperSession, Collection<PITPermissionAllView> inputPITPermissionEntries) {
+    
+    if (inputPITPermissionEntries == null) {
+      return null;
+    }
+    
+    if (isWheelOrRoot(grouperSession.getSubject())) {
+      return new LinkedHashSet<PITPermissionAllView>(inputPITPermissionEntries);
+    }
+    
+    Set<PITPermissionAllView> permissionEntries  = new LinkedHashSet<PITPermissionAllView>();
+    
+    for (PITPermissionAllView permissionEntry : inputPITPermissionEntries) {
+      if (!permissionEntry.isActive()) {
+        continue;
+      }
+      
+      Group group = GrouperDAOFactory.getFactory().getGroup().findByUuid(permissionEntry.getRoleId(), true);
+      if (!canRead(grouperSession, group, grouperSession.getSubject())) {
+        continue;
+      }
+      
+      AttributeDef attributeDef = GrouperDAOFactory.getFactory().getAttributeDef().findById(permissionEntry.getAttributeDefId(), true);
+      if (!canAttrRead(grouperSession, attributeDef, grouperSession.getSubject())) {
+        continue;
+      }
+      
+      permissionEntries.add(permissionEntry);
+    }
+    
+    return permissionEntries;
+  }
+  
+  /**
+   * see if the pit attribute assigns are viewable
+   * @param grouperSession 
+   * @param inputPITAttributeAssigns 
+   * @param checkUnderlyingIfAssignmentOnAssignment if deep security check should take place on underlying assignments
+   * @return filtered pit attribute assignments
+   * 
+   */
+  public static Set<PITAttributeAssign> canViewPITAttributeAssigns(GrouperSession grouperSession, Collection<PITAttributeAssign> inputPITAttributeAssigns, boolean checkUnderlyingIfAssignmentOnAssignment) {
+    
+    if (inputPITAttributeAssigns == null) {
+      return null;
+    }
+    
+    if (isWheelOrRoot(grouperSession.getSubject())) {
+      return new LinkedHashSet<PITAttributeAssign>(inputPITAttributeAssigns);
+    }
+    
+    Set<PITAttributeAssign> pitAttributeAssigns  = new LinkedHashSet<PITAttributeAssign>();
+    
+    for (PITAttributeAssign pitAttributeAssign : inputPITAttributeAssigns) {
+      
+      if (!pitAttributeAssign.isActive()) {
+        continue;
+      }
+      
+      AttributeAssign attributeAssign = GrouperDAOFactory.getFactory().getAttributeAssign().findById(pitAttributeAssign.getId(), true);
+      if (canViewAttributeAssign(grouperSession, attributeAssign, checkUnderlyingIfAssignmentOnAssignment)) {
+        pitAttributeAssigns.add(pitAttributeAssign);
+      }
+    }
+    
+    return pitAttributeAssigns;
+  }
 }
 

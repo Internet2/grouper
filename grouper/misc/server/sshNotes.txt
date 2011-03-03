@@ -1,0 +1,14 @@
+The private key in question that is getting you from i2midev to i2mibuild is probably the one that you have on your local pc or mac.  ssh will forward those credentials along so you can use them on a "second hop."  
+
+Probably a better way to handle this would be to generate a new set of keys for the appadmin user.
+
+on the source machine, as appadmin,
+
+  ssh-keygen -t rsa -N '' 
+
+this will create a new id_rsa and id_rsa.pub in ~appadmin/.ssh
+
+copy the contents of id_rsa.pub to the .ssh/authorized_keys file in the target account on the target machine.  
+
+You mention that mchyzer is the target account; it'd be better to create a pseudo-user account for this on the target machine, perhaps just an appadmin account there too.  Try to use the same UID, and keep it under 1000.
+

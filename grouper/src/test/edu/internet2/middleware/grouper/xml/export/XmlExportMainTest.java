@@ -21,6 +21,7 @@ import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.AttributeDefScope;
 import edu.internet2.middleware.grouper.attr.AttributeDefScopeType;
 import edu.internet2.middleware.grouper.attr.AttributeDefType;
+import edu.internet2.middleware.grouper.attr.AttributeDefValueType;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignAction;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignResult;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
@@ -119,6 +120,7 @@ public class XmlExportMainTest extends GrouperTest {
     groupB.store();
     Stem stem = StemFinder.findByName(grouperSession, "etc", true);
     AttributeDef studentsAttrDef = stem.addChildAttributeDef("students", AttributeDefType.attr);
+    
     Role userSharerRole = stem.addChildRole("userSharer", "userSharer");
     Role userReceiverRole = stem.addChildRole("userReceiver", "userReceiver");
     userSharerRole.getRoleInheritanceDelegate().addRoleToInheritFromThis(userReceiverRole);
@@ -126,7 +128,9 @@ public class XmlExportMainTest extends GrouperTest {
     AttributeAssignAction action2 = studentsAttrDef.getAttributeDefActionDelegate().addAction("someAction2");
     action.getAttributeAssignActionSetDelegate().addToAttributeAssignActionSet(action2);
 
-    studentsAttrDef.setAssignToGroup(true);
+    studentsAttrDef.setAssignToGroup(true);    
+    
+    studentsAttrDef.setValueType(AttributeDefValueType.string);
     studentsAttrDef.store();
 
     AttributeDef studentsAttrDef2 = stem.addChildAttributeDef("students2", AttributeDefType.attr);
@@ -374,6 +378,7 @@ public class XmlExportMainTest extends GrouperTest {
     action.getAttributeAssignActionSetDelegate().addToAttributeAssignActionSet(action2);
 
     AttributeDef studentsAttrDefYes = stemYes.addChildAttributeDef("studentsYes", AttributeDefType.attr);
+    
     AttributeDefName studentsAttrNameYes = stemYes.addChildAttributeDefName(studentsAttrDefYes, "studentsNameYes", "studentsNameYes");
     AttributeDefName studentsAttrNameYes2 = stemYes.addChildAttributeDefName(studentsAttrDefYes, "studentsNameYes2", "studentsNameYes2");
 
@@ -390,8 +395,24 @@ public class XmlExportMainTest extends GrouperTest {
     studentsAttrDef.setAssignToStem(true);
     studentsAttrDef.setAssignToImmMembership(true);
     studentsAttrDef.setAssignToAttributeDef(true);
+    studentsAttrDef.setValueType(AttributeDefValueType.string);
     studentsAttrDef.store();
   
+    studentsAttrDefYes.setAssignToAttributeDef(true);
+    studentsAttrDefYes.setAssignToAttributeDefAssn(true);
+    studentsAttrDefYes.setAssignToEffMembership(true);
+    studentsAttrDefYes.setAssignToEffMembershipAssn(true);
+    studentsAttrDefYes.setAssignToGroup(true);
+    studentsAttrDefYes.setAssignToGroupAssn(true);
+    studentsAttrDefYes.setAssignToImmMembership(true);
+    studentsAttrDefYes.setAssignToImmMembershipAssn(true);
+    studentsAttrDefYes.setAssignToMember(true);
+    studentsAttrDefYes.setAssignToMemberAssn(true);
+    studentsAttrDefYes.setAssignToStem(true);
+    studentsAttrDefYes.setAssignToStemAssn(true);
+    
+    studentsAttrDefYes.setValueType(AttributeDefValueType.string);
+
     studentsAttrDefYes.setAssignToGroup(true);
     studentsAttrDefYes.setAssignToStem(true);
     studentsAttrDefYes.setAssignToMember(true);

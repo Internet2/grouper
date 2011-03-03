@@ -82,7 +82,9 @@ public class TestMembership5 extends GrouperTest {
   public void testEffectiveMembershipsWithPrivileges() {
     LOG.info("testEffectiveMembershipsWithPrivileges");
     try {
-      before   = DateHelper.getPastDate();
+      GrouperUtil.sleep(100);
+      before  = new Date();
+      GrouperUtil.sleep(100);
 
       r     = R.populateRegistry(1, 11, 4);
       gA    = r.getGroup("a", "a");

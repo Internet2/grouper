@@ -43,7 +43,8 @@ public class ExternalSubjectAttrFrameworkTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new ExternalSubjectAttrFrameworkTest("testSendInviteOne"));
+    //TestRunner.run(new ExternalSubjectAttrFrameworkTest("testSendInviteOne"));
+    TestRunner.run(ExternalSubjectAttrFrameworkTest.class);
   }
   
   /**
@@ -59,6 +60,7 @@ public class ExternalSubjectAttrFrameworkTest extends GrouperTest {
   protected void setUp() {
     super.setUp();
     this.grouperSession = GrouperSession.startRootSession();
+    ApiConfig.testConfig.put("grouper.ui.url", "http://whatever/grouper/");
   }
 
   /**
@@ -99,7 +101,8 @@ public class ExternalSubjectAttrFrameworkTest extends GrouperTest {
       
       String body = GrouperEmail.testingEmails().get(0).getBody();
       assertTrue(body.contains("this is the email\n\nhttp://"));
-      assertTrue(body.contains("grouperExternal/appHtml/grouper.html?operation=ExternalSubjectSelfRegister.index&externalSubjectInviteId="));
+              
+      assertTrue(body, body.contains("grouperExternal/appHtml/grouper.html?operation=ExternalSubjectSelfRegister.externalSubjectSelfRegister&externalSubjectInviteId="));
       
       //grab the uuid
       Pattern pattern = Pattern.compile(".*externalSubjectInviteId=([0-9a-z]+)", Pattern.DOTALL);
@@ -168,7 +171,7 @@ public class ExternalSubjectAttrFrameworkTest extends GrouperTest {
       
       String body = GrouperEmail.testingEmails().get(0).getBody();
       assertTrue(body.contains("this is the email\n\nhttp://"));
-      assertTrue(body.contains("grouperExternal/appHtml/grouper.html?operation=ExternalSubjectSelfRegister.index&externalSubjectInviteId="));
+      assertTrue(body.contains("grouperExternal/appHtml/grouper.html?operation=ExternalSubjectSelfRegister.externalSubjectSelfRegister&externalSubjectInviteId="));
       
       //grab the uuid
       Pattern pattern = Pattern.compile(".*externalSubjectInviteId=([0-9a-z]+)", Pattern.DOTALL);

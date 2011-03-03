@@ -285,16 +285,6 @@ public class TestSubject extends GrouperTest {
     }
   } // public void testGetSource()
 
-  public void testGetSourcesWithType() {
-    LOG.info("testGetSourcesWithType");
-    Set applications  = SubjectFinder.getSources("application");
-    Set groups        = SubjectFinder.getSources("group");
-    Set people        = SubjectFinder.getSources("person");
-    T.amount("application sources", 1, applications.size());  
-    T.amount("group sources"      , 1, groups.size()      );  
-    assertTrue(people.size() >= 1);
-  } // public void testGetSourcesWithType()
-
   public void testGrouperSubjectEqual() {
     LOG.info("testGrouperSubjectEqual");
     try {

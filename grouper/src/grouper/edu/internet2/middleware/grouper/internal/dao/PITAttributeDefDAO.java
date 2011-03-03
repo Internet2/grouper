@@ -39,6 +39,13 @@ public interface PITAttributeDefDAO extends GrouperDAO {
   public PITAttributeDef findById(String pitAttributeDefId);
   
   /**
+   * @param name
+   * @param orderByStartTime
+   * @return set of pit attribute defs
+   */
+  public Set<PITAttributeDef> findByName(String name, boolean orderByStartTime);
+  
+  /**
    * Delete records that ended before the given date.
    * @param time
    */
