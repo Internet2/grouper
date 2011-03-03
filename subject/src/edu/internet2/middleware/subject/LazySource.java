@@ -5,6 +5,7 @@
 package edu.internet2.middleware.subject;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -209,6 +210,34 @@ public class LazySource implements Source {
    */
   public Properties getInitParams() {
     return this.getSource().getInitParams();
+  }
+
+  /**
+   * @see edu.internet2.middleware.subject.Source#getSearchAttributes()
+   */
+  public List<String> getSearchAttributes() {
+    return this.getSource().getSearchAttributes();
+  }
+
+  /**
+   * @see edu.internet2.middleware.subject.Source#getSearchAttributeDisplayNames()
+   */
+  public List<String> getSearchAttributeDisplayNames() {
+    return this.getSource().getSearchAttributeDisplayNames();
+  }
+
+  /**
+   * @see edu.internet2.middleware.subject.Source#getSortAttributes()
+   */
+  public List<String> getSortAttributes() {
+    return this.getSource().getSortAttributes();
+  }
+
+  /**
+   * @see edu.internet2.middleware.subject.Source#getSortAttributeDisplayNames()
+   */
+  public List<String> getSortAttributeDisplayNames() {
+    return this.getSource().getSortAttributeDisplayNames();
   }
 
 }
