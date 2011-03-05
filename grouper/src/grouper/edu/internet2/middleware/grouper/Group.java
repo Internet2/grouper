@@ -174,6 +174,9 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
   /** timestamp of the last membership change for this group */
   public static final String COLUMN_LAST_MEMBERSHIP_CHANGE = "last_membership_change";
   
+  /** timestamp of the last immediate membership change for this group */
+  public static final String COLUMN_LAST_IMMEDIATE_MEMBERSHIP_CHANGE = "last_imm_membership_change";
+  
   /** an alternate name for this group */
   public static final String COLUMN_ALTERNATE_NAME = "alternate_name";
   
@@ -384,6 +387,9 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
   /** constant for field name for: lastMembershipChangeDb */
   public static final String FIELD_LAST_MEMBERSHIP_CHANGE_DB = "lastMembershipChangeDb";
 
+  /** constant for field name for: lastImmediateMembershipChangeDb */
+  public static final String FIELD_LAST_IMMEDIATE_MEMBERSHIP_CHANGE_DB = "lastImmediateMembershipChangeDb";
+  
   /** constant for field name for: modifierUUID */
   public static final String FIELD_MODIFIER_UUID = "modifierUUID";
 
@@ -409,7 +415,7 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
       FIELD_CREATE_TIME, FIELD_CREATOR_UUID, FIELD_DESCRIPTION, 
       FIELD_DISPLAY_EXTENSION, FIELD_DISPLAY_NAME, FIELD_EXTENSION, FIELD_MODIFIER_UUID, 
       FIELD_MODIFY_TIME, FIELD_NAME, FIELD_PARENT_UUID, FIELD_TYPE_OF_GROUP, FIELD_UUID, 
-      FIELD_ALTERNATE_NAME_DB, FIELD_LAST_MEMBERSHIP_CHANGE_DB);
+      FIELD_ALTERNATE_NAME_DB, FIELD_LAST_MEMBERSHIP_CHANGE_DB, FIELD_LAST_IMMEDIATE_MEMBERSHIP_CHANGE_DB);
 
   /**
    * fields which are included in clone method
@@ -419,7 +425,7 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
       FIELD_DESCRIPTION, FIELD_DISPLAY_EXTENSION, FIELD_DISPLAY_NAME, FIELD_EXTENSION, 
       FIELD_HIBERNATE_VERSION_NUMBER, FIELD_MODIFIER_UUID, FIELD_MODIFY_TIME, FIELD_NAME, 
       FIELD_PARENT_UUID, FIELD_TYPE_OF_GROUP, FIELD_UUID, FIELD_LAST_MEMBERSHIP_CHANGE_DB, 
-      FIELD_ALTERNATE_NAME_DB);
+      FIELD_ALTERNATE_NAME_DB, FIELD_LAST_IMMEDIATE_MEMBERSHIP_CHANGE_DB);
 
   //*****  END GENERATED WITH GenerateFieldConstants.java *****//
 
@@ -5073,12 +5079,12 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
   }
 
   /**
-   * when the last member has changed, used by hibernate
+   * when the last member has changed
    */
   private Long lastMembershipChangeDb;
   
   /**
-   * when the last member has changed, used by hibernate
+   * when the last member has changed
    * @return when
    */
   public Long getLastMembershipChangeDb() {
@@ -5086,7 +5092,7 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
   }
   
   /**
-   * when the last member has changed, used by hibernate
+   * when the last member has changed
    * @param theMembershipLastChange
    */
   public void setLastMembershipChangeDb(Long theMembershipLastChange) {
@@ -5100,6 +5106,36 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
   public Timestamp getLastMembershipChange() {
     return this.lastMembershipChangeDb == null ? null : new Timestamp(this.lastMembershipChangeDb);
   }
+  
+  /**
+   * when the last immediate member has changed
+   */
+  private Long lastImmediateMembershipChangeDb;
+  
+  /**
+   * when the last immediate member has changed
+   * @return when
+   */
+  public Long getLastImmediateMembershipChangeDb() {
+    return this.lastImmediateMembershipChangeDb;
+  }
+  
+  /**
+   * when the last immediate member has changed
+   * @param theImmediateMembershipLastChange
+   */
+  public void setLastImmediateMembershipChangeDb(Long theImmediateMembershipLastChange) {
+    this.lastImmediateMembershipChangeDb = theImmediateMembershipLastChange;
+  }
+  
+  /**
+   * when the last immediate member has changed
+   * @return the immediate membership last change timestamp
+   */
+  public Timestamp getLastImmediateMembershipChange() {
+    return this.lastImmediateMembershipChangeDb == null ? null : new Timestamp(this.lastImmediateMembershipChangeDb);
+  }
+  
   
   /**
    * Returns the alternate name for the group.  Used by hibernate.

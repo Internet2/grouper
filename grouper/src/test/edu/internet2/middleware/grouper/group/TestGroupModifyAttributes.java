@@ -88,6 +88,9 @@ public class TestGroupModifyAttributes extends GrouperTest {
       assertTrue( "gA last membership time >= pre",    gA.getLastMembershipChange().getTime() >= pre );
       assertTrue( "gA last membership time <= post",   gA.getLastMembershipChange().getTime() <= post );
 
+      assertTrue( "gA last immediate membership time >= pre",    gA.getLastImmediateMembershipChange().getTime() >= pre );
+      assertTrue( "gA last immediate membership time <= post",   gA.getLastImmediateMembershipChange().getTime() <= post );
+      
       r.rs.stop();
     }
     catch (Exception e) {
@@ -117,11 +120,15 @@ public class TestGroupModifyAttributes extends GrouperTest {
       gA = GroupFinder.findByUuid(r.rs, gA.getUuid(), true,new QueryOptions().secondLevelCache(false));
       long    mtime = gA.getModifyTime().getTime();
       long    mtime_mem = gA.getLastMembershipChange().getTime();
+      long    mtime_imm_mem = gA.getLastImmediateMembershipChange().getTime();
 
       assertTrue( "gA modify time not updated (" + mtime + " == " + orig + ")", mtime == orig );
       assertTrue( "gA last membership time >= pre (" + mtime_mem + " >= " + pre + ")", mtime_mem >= pre );
       assertTrue( "gA last membership time <= post (" + mtime_mem + " <= " + post + ")", mtime_mem <= post );
 
+      assertTrue( "gA last immediate membership time >= pre (" + mtime_imm_mem + " >= " + pre + ")", mtime_imm_mem >= pre );
+      assertTrue( "gA last immediate membership time <= post (" + mtime_imm_mem + " <= " + post + ")", mtime_imm_mem <= post );
+      
       r.rs.stop();
     }
     catch (Exception e) {
@@ -159,6 +166,7 @@ public class TestGroupModifyAttributes extends GrouperTest {
       assertTrue( "gA modifyTime == orig",  g.getModifyTime().getTime() == orig );
       assertTrue( "gA getLastMembershipChange >= pre", g.getLastMembershipChange().getTime() >= pre );
       assertTrue( "gA getLastMembershipChange <= post", g.getLastMembershipChange().getTime() <= post );
+      assertTrue( "gA getLastImmediateMembershipChange <= pre", g.getLastImmediateMembershipChange().getTime() <= pre );
 
       s.stop();
       r.rs.stop();
@@ -197,6 +205,7 @@ public class TestGroupModifyAttributes extends GrouperTest {
       assertTrue( "gA modifyTime == orig",  g.getModifyTime().getTime() == orig );
       assertTrue( "gA getLastMembershipChange >= pre", g.getLastMembershipChange().getTime() >= pre );
       assertTrue( "gA getLastMembershipChange <= post", g.getLastMembershipChange().getTime() <= post );
+      assertTrue( "gA getLastImmediateMembershipChange <= pre", g.getLastImmediateMembershipChange().getTime() <= pre );
 
       s.stop();
       r.rs.stop();
@@ -225,11 +234,15 @@ public class TestGroupModifyAttributes extends GrouperTest {
       Subject subjB = r.getSubject("b");
       Subject subjC = r.getSubject("c");
 
+      GrouperUtil.sleep(50);
+      long    pre   = new java.util.Date().getTime();
+      GrouperUtil.sleep(50);
+      
       gA.addMember(subjA);
       gB.addMember(subjB);
       gC.addCompositeMember(CompositeType.COMPLEMENT, gA, gB);
 
-      long    pre   = new java.util.Date().getTime();
+      long    pre2   = new java.util.Date().getTime();
       GrouperUtil.sleep(50);
 
       gA.addMember(subjC);
@@ -239,9 +252,10 @@ public class TestGroupModifyAttributes extends GrouperTest {
       GrouperSession  s     = GrouperSession.start( SubjectFinder.findRootSubject() );
       Group           g     = GroupFinder.findByUuid( s, gC.getUuid(), true,new QueryOptions().secondLevelCache(false) );
 
-      assertTrue( "gC modifyTime <= pre",  g.getModifyTime().getTime() <= pre );
-      assertTrue( "gC getLastMembershipChange >= pre", g.getLastMembershipChange().getTime() >= pre );
+      assertTrue( "gC modifyTime <= pre2",  g.getModifyTime().getTime() <= pre2 );
+      assertTrue( "gC getLastMembershipChange >= pre2", g.getLastMembershipChange().getTime() >= pre2 );
       assertTrue( "gC getLastMembershipChange <= post", g.getLastMembershipChange().getTime() <= post );
+      assertTrue( "gC getLastImmediateMembershipChange <= pre", g.getLastImmediateMembershipChange().getTime() <= pre );
 
       s.stop();
       r.rs.stop();
@@ -275,11 +289,15 @@ public class TestGroupModifyAttributes extends GrouperTest {
 
       long    mtime = gA.getModifyTime().getTime();
       long    mtime_mem = gA.getLastMembershipChange().getTime();
+      long    mtime_imm_mem = gA.getLastImmediateMembershipChange().getTime();
 
       assertTrue( "gA modify time not updated (" + mtime + " == " + orig + ")", mtime == orig );
       assertTrue( "gA last membership time >= pre (" + mtime_mem + " >= " + pre + ")", mtime_mem >= pre );
       assertTrue( "gA last membership time <= post (" + mtime_mem + " <= " + post + ")", mtime_mem <= post );
 
+      assertTrue( "gA last immediate membership time >= pre (" + mtime_imm_mem + " >= " + pre + ")", mtime_imm_mem >= pre );
+      assertTrue( "gA last immediate membership time <= post (" + mtime_imm_mem + " <= " + post + ")", mtime_imm_mem <= post );
+      
       r.rs.stop();
     }
     catch (Exception e) {
@@ -310,10 +328,15 @@ public class TestGroupModifyAttributes extends GrouperTest {
 
       long    mtime = gA.getModifyTime().getTime();
       long    mtime_mem = gA.getLastMembershipChange().getTime();
+      long    mtime_imm_mem = gA.getLastImmediateMembershipChange().getTime();
 
       assertTrue( "gA modify time not updated (" + mtime + " == " + orig + ")", mtime == orig );
       assertTrue( "gA last membership time >= pre (" + mtime_mem + " >= " + pre + ")", mtime_mem >= pre );
       assertTrue( "gA last membership time <= post (" + mtime_mem + " <= " + post + ")", mtime_mem <= post );
+      
+      assertTrue( "gA last immediate membership time >= pre (" + mtime_imm_mem + " >= " + pre + ")", mtime_imm_mem >= pre );
+      assertTrue( "gA last immediate membership time <= post (" + mtime_imm_mem + " <= " + post + ")", mtime_imm_mem <= post );
+      
       r.rs.stop();
     }
     catch (Exception e) {
@@ -347,9 +370,11 @@ public class TestGroupModifyAttributes extends GrouperTest {
       Group g     = GroupFinder.findByUuid( s, gA.getUuid(), true,new QueryOptions().secondLevelCache(false) );
       long  mtime = g.getModifyTime().getTime();
       long  mtime_mem = g.getLastMembershipChange().getTime();
+      long  mtime_imm_mem = g.getLastImmediateMembershipChange().getTime();
 
       assertTrue( "gA modifyTime <= pre (" + mtime + " <= " + pre + ")",  mtime <= pre );
       assertTrue( "gA last membership time < pre (" + mtime_mem + " < " + pre + ")", mtime_mem < pre );
+      assertTrue( "gA last immediate membership time < pre (" + mtime_imm_mem + " < " + pre + ")", mtime_imm_mem < pre );
       
       s.stop();
       r.rs.stop();
@@ -386,9 +411,11 @@ public class TestGroupModifyAttributes extends GrouperTest {
       GrouperSession s = GrouperSession.start( SubjectFinder.findRootSubject() );
       Group g = GroupFinder.findByUuid( s, gA.getUuid(), true ,new QueryOptions().secondLevelCache(false));
       long  mtime_mem = g.getLastMembershipChange().getTime();
+      long  mtime_imm_mem = g.getLastImmediateMembershipChange().getTime();
 
       assertTrue( "gA modifyTime < pre",  g.getModifyTime().getTime() < pre );
       assertTrue( "gA last membership time < pre (" + mtime_mem + " < " + pre + ")", mtime_mem < pre );
+      assertTrue( "gA last immediate membership time < pre (" + mtime_imm_mem + " < " + pre + ")", mtime_imm_mem < pre );
       
       s.stop();
       r.rs.stop();
@@ -413,7 +440,7 @@ public class TestGroupModifyAttributes extends GrouperTest {
       GrouperUtil.sleep(100);
 
       long pre = new java.util.Date().getTime();
-      
+      GrouperUtil.sleep(100);
 
       gB.addMember(subjA);
       GrouperUtil.sleep(100);
@@ -423,9 +450,11 @@ public class TestGroupModifyAttributes extends GrouperTest {
       Group g     = GroupFinder.findByUuid( s, gA.getUuid(), true,new QueryOptions().secondLevelCache(false) );
       long  mtime = g.getModifyTime().getTime();
       long  mtime_mem = g.getLastMembershipChange().getTime();
+      long  mtime_imm_mem = g.getLastImmediateMembershipChange().getTime();
 
       assertTrue( "gA modifyTime <= pre (" + mtime + " <= " + pre + ")",  mtime <= pre );
       assertTrue( "gA last membership time >= pre (" + mtime_mem + " >= " + pre + ")", mtime_mem >= pre );
+      assertTrue( "gA last immediate membership time <= pre (" + mtime_imm_mem + " <= " + pre + ")", mtime_imm_mem <= pre );
       
       s.stop();
       r.rs.stop();
@@ -452,7 +481,7 @@ public class TestGroupModifyAttributes extends GrouperTest {
       GrouperUtil.sleep(100);
 
       long pre = new java.util.Date().getTime();
-
+      GrouperUtil.sleep(100);
       
       gB.deleteMember(subjA);
       GrouperUtil.sleep(100);
@@ -461,9 +490,11 @@ public class TestGroupModifyAttributes extends GrouperTest {
       GrouperSession s = GrouperSession.start( SubjectFinder.findRootSubject() );
       Group g = GroupFinder.findByUuid( s, gA.getUuid(), true,new QueryOptions().secondLevelCache(false) );
       long  mtime_mem = g.getLastMembershipChange().getTime();
+      long  mtime_imm_mem = g.getLastImmediateMembershipChange().getTime();
 
       assertTrue( "gA modifyTime < pre",  g.getModifyTime().getTime() < pre );
       assertTrue( "gA last membership time >= pre (" + mtime_mem + " >= " + pre + ")", mtime_mem >= pre );
+      assertTrue( "gA last immediate membership time <= pre (" + mtime_imm_mem + " <= " + pre + ")", mtime_imm_mem <= pre );
       
       s.stop();
       r.rs.stop();
@@ -494,9 +525,11 @@ public class TestGroupModifyAttributes extends GrouperTest {
       GrouperSession s = GrouperSession.start( SubjectFinder.findRootSubject() );
       Group g = GroupFinder.findByUuid( s, gA.getUuid(), true,new QueryOptions().secondLevelCache(false) );
       long  mtime_mem = g.getLastMembershipChange().getTime();
+      long  mtime_imm_mem = g.getLastImmediateMembershipChange().getTime();
 
       assertTrue( "gA modifyTime > pre",  g.getModifyTime().getTime() > pre );
       assertTrue( "gA last membership time < pre (" + mtime_mem + " < " + pre + ")", mtime_mem < pre );
+      assertTrue( "gA last immediate membership time < pre (" + mtime_imm_mem + " < " + pre + ")", mtime_imm_mem < pre );
       
       s.stop();
       r.rs.stop();
@@ -531,6 +564,7 @@ public class TestGroupModifyAttributes extends GrouperTest {
 
       assertTrue( "gC modifyTime < pre",  g.getModifyTime().getTime() < pre );
       assertTrue( "gC getLastMembershipChange < pre", g.getLastMembershipChange().getTime() < pre );
+      assertTrue( "gC getLastImmediateMembershipChange < pre", g.getLastImmediateMembershipChange().getTime() < pre );
 
       s.stop();
       r.rs.stop();
@@ -568,6 +602,7 @@ public class TestGroupModifyAttributes extends GrouperTest {
 
       assertTrue( "gC modifyTime < pre",  g.getModifyTime().getTime() < pre );
       assertTrue( "gC getLastMembershipChange > pre", g.getLastMembershipChange().getTime() > pre );
+      assertTrue( "gC getLastImmediateMembershipChange < pre", g.getLastImmediateMembershipChange().getTime() < pre );
 
       s.stop();
       r.rs.stop();
@@ -603,6 +638,7 @@ public class TestGroupModifyAttributes extends GrouperTest {
 
       assertTrue( "gC modifyTime < pre",  g.getModifyTime().getTime() < pre );
       assertTrue( "gC getLastMembershipChange < pre", g.getLastMembershipChange().getTime() < pre );
+      assertTrue( "gC getLastImmediateMembershipChange < pre", g.getLastImmediateMembershipChange().getTime() < pre );
 
       s.stop();
       r.rs.stop();
@@ -639,6 +675,7 @@ public class TestGroupModifyAttributes extends GrouperTest {
 
       assertTrue( "gC modifyTime < pre",  g.getModifyTime().getTime() < pre );
       assertTrue( "gC getLastMembershipChange > pre", g.getLastMembershipChange().getTime() > pre );
+      assertTrue( "gC getLastImmediateMembershipChange < pre", g.getLastImmediateMembershipChange().getTime() < pre );
 
       s.stop();
       r.rs.stop();
@@ -687,6 +724,12 @@ public class TestGroupModifyAttributes extends GrouperTest {
       assertTrue("gC getLastMembershipChange > pre", gC.getLastMembershipChange().getTime() > pre);
       assertTrue("gD getLastMembershipChange < pre", gD.getLastMembershipChange().getTime() < pre);
       assertTrue("gE getLastMembershipChange < pre", gE.getLastMembershipChange().getTime() < pre);
+      
+      assertTrue("gA getLastImmediateMembershipChange < pre", gA.getLastImmediateMembershipChange().getTime() < pre);
+      assertTrue("gB getLastImmediateMembershipChange < pre", gB.getLastImmediateMembershipChange().getTime() < pre);
+      assertTrue("gC getLastImmediateMembershipChange > pre", gC.getLastImmediateMembershipChange().getTime() > pre);
+      assertTrue("gD getLastImmediateMembershipChange < pre", gD.getLastImmediateMembershipChange().getTime() < pre);
+      assertTrue("gE getLastImmediateMembershipChange < pre", gE.getLastImmediateMembershipChange().getTime() < pre);
 
       s.stop();
       r.rs.stop();
@@ -736,6 +779,12 @@ public class TestGroupModifyAttributes extends GrouperTest {
       assertTrue("gC getLastMembershipChange > pre", gC.getLastMembershipChange().getTime() > pre);
       assertTrue("gD getLastMembershipChange < pre", gD.getLastMembershipChange().getTime() < pre);
       assertTrue("gE getLastMembershipChange < pre", gE.getLastMembershipChange().getTime() < pre);
+      
+      assertTrue("gA getLastImmediateMembershipChange < pre", gA.getLastImmediateMembershipChange().getTime() < pre);
+      assertTrue("gB getLastImmediateMembershipChange < pre", gB.getLastImmediateMembershipChange().getTime() < pre);
+      assertTrue("gC getLastImmediateMembershipChange > pre", gC.getLastImmediateMembershipChange().getTime() > pre);
+      assertTrue("gD getLastImmediateMembershipChange < pre", gD.getLastImmediateMembershipChange().getTime() < pre);
+      assertTrue("gE getLastImmediateMembershipChange < pre", gE.getLastImmediateMembershipChange().getTime() < pre);
 
       s.stop();
       r.rs.stop();
@@ -786,6 +835,12 @@ public class TestGroupModifyAttributes extends GrouperTest {
       assertTrue("gC getLastMembershipChange > pre", gC.getLastMembershipChange().getTime() > pre);
       assertTrue("gD getLastMembershipChange < pre", gD.getLastMembershipChange().getTime() < pre);
       assertTrue("gE getLastMembershipChange < pre", gE.getLastMembershipChange().getTime() < pre);
+      
+      assertTrue("gA getLastImmediateMembershipChange < pre", gA.getLastImmediateMembershipChange().getTime() < pre);
+      assertTrue("gB getLastImmediateMembershipChange < pre", gB.getLastImmediateMembershipChange().getTime() < pre);
+      assertTrue("gC getLastImmediateMembershipChange > pre", gC.getLastImmediateMembershipChange().getTime() > pre);
+      assertTrue("gD getLastImmediateMembershipChange < pre", gD.getLastImmediateMembershipChange().getTime() < pre);
+      assertTrue("gE getLastImmediateMembershipChange < pre", gE.getLastImmediateMembershipChange().getTime() < pre);
 
       s.stop();
       r.rs.stop();
@@ -839,6 +894,12 @@ public class TestGroupModifyAttributes extends GrouperTest {
       assertTrue("gD getLastMembershipChange < pre", gD.getLastMembershipChange().getTime() < pre);
       assertTrue("gE getLastMembershipChange < pre", gE.getLastMembershipChange().getTime() < pre);
 
+      assertTrue("gA getLastImmediateMembershipChange < pre", gA.getLastImmediateMembershipChange().getTime() < pre);
+      assertTrue("gB getLastImmediateMembershipChange < pre", gB.getLastImmediateMembershipChange().getTime() < pre);
+      assertTrue("gC getLastImmediateMembershipChange > pre", gC.getLastImmediateMembershipChange().getTime() > pre);
+      assertTrue("gD getLastImmediateMembershipChange < pre", gD.getLastImmediateMembershipChange().getTime() < pre);
+      assertTrue("gE getLastImmediateMembershipChange < pre", gE.getLastImmediateMembershipChange().getTime() < pre);
+      
       s.stop();
       r.rs.stop();
     }

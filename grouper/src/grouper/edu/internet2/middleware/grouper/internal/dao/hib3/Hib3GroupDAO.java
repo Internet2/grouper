@@ -1677,6 +1677,15 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
   }
   
   /**
+   * @see edu.internet2.middleware.grouper.internal.dao.GroupDAO#updateLastImmediateMembershipChange(java.lang.String)
+   */
+  public void updateLastImmediateMembershipChange(String groupId) {
+    HibernateSession.bySqlStatic().executeSql(
+        "update grouper_groups set last_imm_membership_change = ? where id = ?",
+        GrouperUtil.toList((Object) System.currentTimeMillis(), groupId));
+  }
+  
+  /**
    * @see edu.internet2.middleware.grouper.internal.dao.GroupDAO#updateLastMembershipChangeIncludeAncestorGroups(java.lang.String)
    */
   public void updateLastMembershipChangeIncludeAncestorGroups(String groupId) {

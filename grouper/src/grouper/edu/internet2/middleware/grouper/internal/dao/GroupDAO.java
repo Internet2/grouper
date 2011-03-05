@@ -534,6 +534,11 @@ public interface GroupDAO extends GrouperDAO {
   public void updateLastMembershipChange(String groupId);
   
   /**
+   * @param groupId
+   */
+  public void updateLastImmediateMembershipChange(String groupId);
+  
+  /**
    * This will update last_membership_change for group owners where group member in groupSet is the given groupId.
    * @param groupId
    */

@@ -47,6 +47,7 @@
     <version name="hibernateVersionNumber" column="hibernate_version_number" type="long"/>
 
     <property name="lastMembershipChangeDb" column="last_membership_change" update="false"/>
+    <property name="lastImmediateMembershipChangeDb" column="last_imm_membership_change" update="false"/>
 
     <!-- parentUuid -->
     <!-- [@since 1.2.0] Refers to parent stem's UUID, not ID -->

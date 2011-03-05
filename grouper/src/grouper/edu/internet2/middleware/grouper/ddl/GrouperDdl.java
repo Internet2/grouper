@@ -694,7 +694,7 @@ public enum GrouperDdl implements DdlVersionable {
   
   /**
    * <pre>
-   * Add point in time indexes, add additional subject data to member table.
+   * Add point in time indexes, add additional subject data to member table, add last immediate membership change column to grouper_groups.
    * </pre>
    */
   V25 {
@@ -709,6 +709,11 @@ public enum GrouperDdl implements DdlVersionable {
       addPITIndexes(ddlVersionBean, database);
       
       addMemberAttributes(database);
+      
+      Table groupsTable = GrouperDdlUtils.ddlutilsFindTable(database, Group.TABLE_GROUPER_GROUPS);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupsTable, Group.COLUMN_LAST_IMMEDIATE_MEMBERSHIP_CHANGE, Types.BIGINT, "20", false, false); 
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, Group.TABLE_GROUPER_GROUPS, "group_last_imm_membership_idx", false, 
+          Group.COLUMN_LAST_IMMEDIATE_MEMBERSHIP_CHANGE);
     }
   },
   
@@ -1549,11 +1554,18 @@ public enum GrouperDdl implements DdlVersionable {
   
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupsTable, Group.COLUMN_LAST_MEMBERSHIP_CHANGE, 
             Types.BIGINT, "20", false, false); 
+        
+        GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupsTable, Group.COLUMN_LAST_IMMEDIATE_MEMBERSHIP_CHANGE, 
+            Types.BIGINT, "20", false, false); 
 
         addAlternateNameCol(database, ddlVersionBean, groupsTable);
         
         GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, Group.TABLE_GROUPER_GROUPS,
             "group_last_membership_idx", false, Group.COLUMN_LAST_MEMBERSHIP_CHANGE);
+        
+        GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, Group.TABLE_GROUPER_GROUPS, 
+            "group_last_imm_membership_idx", false, 
+            Group.COLUMN_LAST_IMMEDIATE_MEMBERSHIP_CHANGE);
 
         GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, groupsTable.getName(), 
             "group_creator_idx", false, "creator_id");
@@ -2670,6 +2682,9 @@ public enum GrouperDdl implements DdlVersionable {
     
     GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Group.TABLE_GROUPER_GROUPS, 
         Group.COLUMN_LAST_MEMBERSHIP_CHANGE, "If configured to keep track, this is the last membership change for this group");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Group.TABLE_GROUPER_GROUPS, 
+        Group.COLUMN_LAST_IMMEDIATE_MEMBERSHIP_CHANGE, "If configured to keep track, this is the last immediate membership change for this group");
     
     GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Group.TABLE_GROUPER_GROUPS, 
         Group.COLUMN_ALTERNATE_NAME, "An alternate name for this group");
@@ -2713,6 +2728,42 @@ public enum GrouperDdl implements DdlVersionable {
 
     GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Member.TABLE_GROUPER_MEMBERS,  "subject_type", 
           "type of subject, e.g. person");
+    
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Member.TABLE_GROUPER_MEMBERS,  Member.COLUMN_SORT_STRING0, 
+          "string that can be used to sort results");
+    
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Member.TABLE_GROUPER_MEMBERS,  Member.COLUMN_SORT_STRING1, 
+          "string that can be used to sort results");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Member.TABLE_GROUPER_MEMBERS,  Member.COLUMN_SORT_STRING2, 
+          "string that can be used to sort results");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Member.TABLE_GROUPER_MEMBERS,  Member.COLUMN_SORT_STRING3, 
+          "string that can be used to sort results");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Member.TABLE_GROUPER_MEMBERS,  Member.COLUMN_SORT_STRING4, 
+          "string that can be used to sort results");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Member.TABLE_GROUPER_MEMBERS,  Member.COLUMN_SEARCH_STRING0, 
+          "string that can be used to filter results");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Member.TABLE_GROUPER_MEMBERS,  Member.COLUMN_SEARCH_STRING1, 
+          "string that can be used to filter results");
+    
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Member.TABLE_GROUPER_MEMBERS,  Member.COLUMN_SEARCH_STRING2, 
+          "string that can be used to filter results");
+    
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Member.TABLE_GROUPER_MEMBERS,  Member.COLUMN_SEARCH_STRING3, 
+          "string that can be used to filter results");
+    
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Member.TABLE_GROUPER_MEMBERS,  Member.COLUMN_SEARCH_STRING4, 
+          "string that can be used to filter results");
+    
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Member.TABLE_GROUPER_MEMBERS,  Member.COLUMN_NAME, 
+          "name of subject");
+    
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Member.TABLE_GROUPER_MEMBERS,  Member.COLUMN_DESCRIPTION, 
+          "description of subject");
 
     GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Member.TABLE_GROUPER_MEMBERS, 
         COLUMN_HIBERNATE_VERSION_NUMBER, "hibernate uses this to version rows");
