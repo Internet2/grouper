@@ -38,6 +38,7 @@ import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Composite;
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.exception.SessionException;
 import edu.internet2.middleware.grouper.membership.MembershipType;
@@ -109,7 +110,11 @@ public class FindBadMemberships {
     // maybe this should go to a log file instead?
     printErrorsToSTOUT = true;
     
+    GrouperSession grouperSession = null;
+    
     try {
+      grouperSession = GrouperSession.startRootSession();
+
       if (line.hasOption("all")) {
         checkAll(out);
       } else {
@@ -120,6 +125,8 @@ public class FindBadMemberships {
     } catch (Exception e) {
       System.err.println(e.getMessage());
       System.exit(1);
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
     }
 
     out.println();
