@@ -4,6 +4,7 @@
  */
 package edu.internet2.middleware.grouper.ui.actions;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -14,7 +15,7 @@ import org.apache.commons.lang.StringUtils;
 /**
  * Information about menu
  */
-public class MenuMetaBean {
+public class MenuMetaBean implements Serializable {
 
   /** the menu */
   private List<Map<String, String>> menu;
