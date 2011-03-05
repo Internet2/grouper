@@ -19,11 +19,14 @@ package edu.internet2.middleware.grouper.privs;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.exception.UnableToPerformException;
 import edu.internet2.middleware.grouper.hibernate.HqlQuery;
+import edu.internet2.middleware.grouper.internal.dao.QueryPaging;
+import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.permissions.PermissionEntry;
 import edu.internet2.middleware.grouper.pit.PITAttributeAssign;
 import edu.internet2.middleware.grouper.pit.PITPermissionAllView;
@@ -272,5 +275,18 @@ public interface AttributeDefResolver {
   public boolean hqlFilterAttributeDefsNotWithPrivWhereClause( 
       Subject subject, HqlQuery hqlQuery, StringBuilder hql, String attributeDefColumn, Privilege privilege, boolean considerAllSubject);
 
+  /**
+   * get a list of privilege subjects, there are no results with the same subject
+   * @param attributeDef to search on
+   * @param privileges if blank, get all
+   * @param membershipType if immediate, effective, or blank for all
+   * @param queryPaging if a certain page should be returned, based on subject
+   * @param additionalMembers additional members to query that the user is finding or adding
+   * @return the privilege subject combinations
+   */
+  public Set<PrivilegeSubjectContainer> retrievePrivileges(
+      AttributeDef attributeDef, Set<Privilege> privileges, 
+      MembershipType membershipType, QueryPaging queryPaging, Set<Member> additionalMembers);
+  
 }
 

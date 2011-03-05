@@ -4,11 +4,11 @@ import java.sql.Timestamp;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.PITMembershipDAO;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.pit.PITMembership;
-import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Source;
 
 /**
@@ -82,7 +82,10 @@ public class Hib3PITMembershipDAO extends Hib3DAO implements PITMembershipDAO {
   }
   
 
-  
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.internal.dao.PITMembershipDAO#findAllMembersByOwnerAndField(java.lang.String, java.lang.String, java.sql.Timestamp, java.sql.Timestamp, java.util.Set, edu.internet2.middleware.grouper.internal.dao.QueryOptions)
+   */
   public Set<Member> findAllMembersByOwnerAndField(String ownerId, String fieldId, 
       Timestamp pointInTimeFrom, Timestamp pointInTimeTo, Set<Source> sources, QueryOptions queryOptions) {
 
@@ -105,7 +108,7 @@ public class Hib3PITMembershipDAO extends Hib3DAO implements PITMembershipDAO {
     }
 
     if (sources != null && sources.size() > 0) {
-      sql.append(" and m.subjectSourceIdDb in ").append(GrouperUtil.convertSourcesToSqlInString(sources));
+      sql.append(" and m.subjectSourceIdDb in ").append(HibUtils.convertSourcesToSqlInString(sources));
     }
     
     return HibernateSession.byHqlStatic().options(queryOptions)
@@ -117,6 +120,10 @@ public class Hib3PITMembershipDAO extends Hib3DAO implements PITMembershipDAO {
       .listSet(Member.class);
   }
   
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.internal.dao.PITMembershipDAO#findAllByOwnerAndMemberAndField(java.lang.String, java.lang.String, java.lang.String, java.sql.Timestamp, java.sql.Timestamp, edu.internet2.middleware.grouper.internal.dao.QueryOptions)
+   */
   public Set<PITMembership> findAllByOwnerAndMemberAndField(String ownerId, String memberId, String fieldId, 
       Timestamp pointInTimeFrom, Timestamp pointInTimeTo, QueryOptions queryOptions) {
 

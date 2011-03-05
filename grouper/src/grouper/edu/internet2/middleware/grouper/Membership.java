@@ -91,7 +91,6 @@ import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.grouper.validator.CanOptinValidator;
 import edu.internet2.middleware.grouper.validator.CompositeMembershipValidator;
 import edu.internet2.middleware.grouper.validator.GrouperValidator;
 import edu.internet2.middleware.grouper.validator.ImmediateMembershipValidator;
@@ -1071,6 +1070,14 @@ public class Membership extends GrouperAPI implements
     return this.type;
   } 
 
+  /**
+   * get MembershipType of type
+   * @return type
+   */
+  public MembershipType getTypeEnum() {
+    return MembershipType.valueOfIgnoreCase(this.type, false);
+  }
+  
   /**
    * @return uuid
    */

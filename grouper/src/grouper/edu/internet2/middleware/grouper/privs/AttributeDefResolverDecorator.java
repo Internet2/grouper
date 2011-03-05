@@ -19,12 +19,15 @@ package edu.internet2.middleware.grouper.privs;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.exception.UnableToPerformException;
 import edu.internet2.middleware.grouper.hibernate.HqlQuery;
+import edu.internet2.middleware.grouper.internal.dao.QueryPaging;
 import edu.internet2.middleware.grouper.internal.util.ParameterHelper;
+import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.permissions.PermissionEntry;
 import edu.internet2.middleware.grouper.pit.PITAttributeAssign;
 import edu.internet2.middleware.grouper.pit.PITPermissionAllView;
@@ -229,6 +232,17 @@ public abstract class AttributeDefResolverDecorator implements AttributeDefResol
   public void revokePrivilege(AttributeDef attributeDef, Subject subject,
       Privilege privilege) throws IllegalArgumentException, UnableToPerformException {
     this.getDecoratedResolver().revokePrivilege(attributeDef, subject, privilege);
+  }
+
+
+  /**
+   * @see edu.internet2.middleware.grouper.privs.AttributeDefResolver#retrievePrivileges(edu.internet2.middleware.grouper.attr.AttributeDef, java.util.Set, edu.internet2.middleware.grouper.membership.MembershipType, edu.internet2.middleware.grouper.internal.dao.QueryPaging, java.util.Set)
+   */
+  public Set<PrivilegeSubjectContainer> retrievePrivileges(AttributeDef attributeDef,
+      Set<Privilege> privileges, MembershipType membershipType, QueryPaging queryPaging,
+      Set<Member> additionalMembers) {
+    return this.getDecoratedResolver().retrievePrivileges(attributeDef, privileges, 
+        membershipType, queryPaging, additionalMembers);
   }
 
 

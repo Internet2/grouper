@@ -12,7 +12,10 @@ import java.sql.Statement;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -21,7 +24,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
-import org.hibernate.Query;
 import org.hibernate.ScrollableResults;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
@@ -30,8 +32,10 @@ import org.hibernate.criterion.Junction;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.type.Type;
 
+import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
 
 /**
@@ -757,4 +761,99 @@ public class HibUtils {
     }
     whereClause.append(" ) ");
   }
+  
+  /**
+   * @param fields
+   * @param hqlQuery 
+   * @param sql before the and statement
+   * @param fieldColumnName 
+   */
+  public static void convertFieldsToSqlInString(Collection<Field> fields, 
+      HqlQuery hqlQuery, StringBuilder sql, String fieldColumnName) {
+
+    if (GrouperUtil.length(fields) > 0) {
+      if (GrouperUtil.length(fields) == 1) {
+        String bindVar = "fieldId_" + GrouperUtil.uniqueId();
+        sql.append(" and ").append(fieldColumnName).append(" = :").append(bindVar).append(" ");
+        hqlQuery.setString(bindVar, fields.iterator().next().getUuid());
+      } else {
+        sql.append(" and ").append(fieldColumnName).append(" in ( ");
+        Set<String> fieldIds = new HashSet<String>();
+        for (Field field : fields) {
+          fieldIds.add(field.getUuid());
+        }
+        String inClause = HibUtils.convertToInClause(fieldIds, hqlQuery);
+        sql.append(inClause).append(" ) ");
+        
+      }
+    }
+  }      
+  
+  /**
+   * @param sources
+   * @param hqlQuery 
+   * @param sql before the and statement
+   * @param sourceColumnName 
+   */
+  public static void convertSourcesToSqlInString(Set<Source> sources, 
+      HqlQuery hqlQuery, StringBuilder sql, String sourceColumnName) {
+    if (sources == null || sources.size() == 0) {
+      return;
+    }
+    
+    //simplify if 1
+    if (sources.size() == 1) {
+      String bindVar = "sourceId_" + GrouperUtil.uniqueId();
+      sql.append(" and ").append(sourceColumnName).append(" = :").append(bindVar).append(" ");
+      hqlQuery.setString(bindVar, sources.iterator().next().getId());
+      return;
+    }
+    
+    List<String> sourcesStrings = new ArrayList<String>();
+    for (Source source : sources) {
+      sourcesStrings.add(source.getId());
+    }
+    
+    String questions = HibUtils.convertToInClause(sourcesStrings, hqlQuery);
+    
+    sql.append(" and ").append(sourceColumnName).append(" in ( ").append(questions).append(" ) ");
+    
+  }
+  
+  /**
+   * e.g. ('g:gsa', 'jdbc')
+   * @param sources
+   * @return the in string, of sources sorted alphabetically
+   */
+  public static String convertSourcesToSqlInString(Set<Source> sources) {
+    if (sources == null || sources.size() == 0) {
+      return null;
+    }
+    
+    //simplify if 1
+    if (sources.size() == 1) {
+      return " ('" + sources.iterator().next().getId() + "') ";
+    }
+    
+    List<String> sourcesStrings = new ArrayList<String>();
+    for (Source source : sources) {
+      sourcesStrings.add(source.getId());
+    }
+    
+    //sort 
+    Collections.sort(sourcesStrings);
+    
+    StringBuilder result = new StringBuilder();
+    result.append(" (");
+    for (int i=0;i<sourcesStrings.size();i++) {
+      result.append("'").append(sourcesStrings.get(i)).append("'");
+      if (i != sourcesStrings.size()-1) {
+        result.append(", ");
+      }
+    }
+    result.append(") ");
+    return result.toString();
+  }
+  
+
 }

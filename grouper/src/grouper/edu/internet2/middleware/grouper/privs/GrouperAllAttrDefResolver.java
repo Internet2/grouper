@@ -19,10 +19,11 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
-import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
+import edu.internet2.middleware.grouper.internal.dao.QueryPaging;
+import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.subject.Subject;
 
 /**
