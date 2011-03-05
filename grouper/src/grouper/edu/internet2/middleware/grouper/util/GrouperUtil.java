@@ -1721,19 +1721,19 @@ public class GrouperUtil {
   
   /**
    * convert a set to a string (comma separate)
-   * @param set
+   * @param collection
    * @return the String
    */
-  public static String setToString(Set set) {
-    if (set == null) {
+  public static String collectionToString(Collection collection) {
+    if (collection == null) {
       return "null";
     }
-    if (set.size() == 0) {
+    if (collection.size() == 0) {
       return "empty";
     }
     StringBuilder result = new StringBuilder();
     boolean first = true;
-    for (Object object : set) {
+    for (Object object : collection) {
       if (!first) {
         result.append(", ");
       }
@@ -1741,6 +1741,15 @@ public class GrouperUtil {
       result.append(object);
     }
     return result.toString();
+    
+  }
+  /**
+   * convert a set to a string (comma separate)
+   * @param set
+   * @return the String
+   */
+  public static String setToString(Set set) {
+    return collectionToString(set);
   }
   
   /**

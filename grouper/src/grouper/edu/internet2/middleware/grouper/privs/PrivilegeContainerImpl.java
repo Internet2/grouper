@@ -1,6 +1,7 @@
 package edu.internet2.middleware.grouper.privs;
 
 
+
 /**
  * @author mchyzer
  * $Id$
@@ -10,6 +11,24 @@ package edu.internet2.middleware.grouper.privs;
  *
  */
 public class PrivilegeContainerImpl implements PrivilegeContainer {
+
+  /**
+   * 
+   * @param privilege
+   * @param privilegeAssignType
+   */
+  public PrivilegeContainerImpl(Privilege privilege,
+      PrivilegeAssignType privilegeAssignType) {
+    super();
+    this.privilege = privilege;
+    this.privilegeAssignType = privilegeAssignType;
+  }
+
+  /**
+   * 
+   */
+  public PrivilegeContainerImpl() {
+  }
 
   /** privilege */
   private Privilege privilege;
@@ -45,6 +64,26 @@ public class PrivilegeContainerImpl implements PrivilegeContainer {
    */
   public void setPrivilegeAssignType(PrivilegeAssignType privilegeAssignType1) {
     this.privilegeAssignType = privilegeAssignType1;
+  }
+
+  /**
+   * @see Object#toString()
+   */
+  @Override
+  public String toString() {
+    StringBuilder result = new StringBuilder("Privilege: ");
+    if (this.privilege == null) {
+      result.append("null");
+    } else {
+      result.append(privilege.getName());
+    }
+    result.append(", type: ");
+    if (this.privilegeAssignType == null) {
+      result.append("null");
+    } else {
+      result.append(this.privilegeAssignType.name());
+    }
+    return result.toString();
   }
 
 }

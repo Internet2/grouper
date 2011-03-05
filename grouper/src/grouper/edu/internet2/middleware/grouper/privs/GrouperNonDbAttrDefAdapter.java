@@ -25,6 +25,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 
 import org.apache.commons.collections.keyvalue.MultiKey;
 import org.apache.commons.logging.Log;
@@ -58,6 +59,7 @@ import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.internal.dao.MembershipDAO;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.internal.dao.QueryPaging;
+import edu.internet2.middleware.grouper.internal.dao.QuerySort;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.misc.E;
@@ -461,6 +463,13 @@ public class GrouperNonDbAttrDefAdapter extends BaseAttrDefAdapter implements
     //note, no need for GrouperSession inverse of control
     GrouperSession.validate(grouperSession);
 
+    ///check privs
+    if (!grouperSession.getMember().hasAttrAdmin(attributeDef)) {
+      throw new InsufficientPrivilegeException("Subject: " 
+          + GrouperUtil.subjectToString(grouperSession.getSubject()) 
+          + " does not have attrAdmin on attributeDef: " + attributeDef.getName());
+    }
+    
     Set<Field> fields = null;
     if (GrouperUtil.length(privileges) > 0) {
       fields = new LinkedHashSet<Field>();
@@ -471,10 +480,14 @@ public class GrouperNonDbAttrDefAdapter extends BaseAttrDefAdapter implements
     
     Set<Object[]> memberships = null;
     
+    QuerySort querySort = new QuerySort("m.subjectSourceIdDb", true);
+    querySort.addSort("m.subjectIdDb", true);
+    QueryOptions queryOptions = new QueryOptions();
+    queryOptions.sort(querySort);
+
     //see if there is paging
     if (queryPaging != null) {
       
-      QueryOptions queryOptions = new QueryOptions();
       queryOptions.paging(queryPaging);
       
       //lets get the members
@@ -497,8 +510,9 @@ public class GrouperNonDbAttrDefAdapter extends BaseAttrDefAdapter implements
       
     } else {
       
+      //note, still sort by subject
       memberships = GrouperDAOFactory.getFactory().getMembership().findAllByAttributeDefOwnerOptions(
-          attributeDef.getId(), membershipType, fields, null, true, null);
+          attributeDef.getId(), membershipType, fields, null, true, queryOptions);
       
     }
     
@@ -596,7 +610,7 @@ public class GrouperNonDbAttrDefAdapter extends BaseAttrDefAdapter implements
       for (PrivilegeSubjectContainer privilegeSubjectContainer : results) {
         PrivilegeSubjectContainerImpl privilegeSubjectContainerImpl = (PrivilegeSubjectContainerImpl)privilegeSubjectContainer;
         
-        privilegeSubjectContainerImpl.setPrivilegeContainers(new HashMap<String, PrivilegeContainer>());
+        privilegeSubjectContainerImpl.setPrivilegeContainers(new TreeMap<String, PrivilegeContainer>());
         
         Subject subject = privilegeSubjectContainerImpl.getSubject();
         MultiKey subjectKey = new MultiKey(subject.getSourceId(), subject.getId());
@@ -609,12 +623,15 @@ public class GrouperNonDbAttrDefAdapter extends BaseAttrDefAdapter implements
           Membership membership = (Membership)objectArray[0];
           Member member = (Member)objectArray[1];
           Field field = FieldFinder.findById(membership.getFieldId(), true);
-          String privilegeName = field.getName();
+          Privilege privilege = AttributeDefPrivilege.listToPriv(field.getName());
+          if (privilege == null) {
+            throw new RuntimeException("Privilege not found by list name! " + field.getName());
+          }
+          String privilegeName = privilege.getName();
           
-          //multiple memberships could have the same result
+          //multiple memberships could have the same result, just skip is already set
           if (privilegeSubjectContainerImpl.getPrivilegeContainers().get(privilegeName) == null) {
             PrivilegeContainerImpl privilegeContainerImpl = new PrivilegeContainerImpl();
-            Privilege privilege = Privilege.getInstance(privilegeName);
             privilegeContainerImpl.setPrivilege(privilege);
             
             //if the subject, field, attributeDefId match, then correlate the assign type...
@@ -626,10 +643,15 @@ public class GrouperNonDbAttrDefAdapter extends BaseAttrDefAdapter implements
               throw new RuntimeException("Why is result not there???");
             }
             privilegeContainerImpl.setPrivilegeAssignType(privilegeAssignType);
+            privilegeSubjectContainerImpl.getPrivilegeContainers().put(privilegeName, privilegeContainerImpl);
             
           }
           
           
+        }
+        
+        if (privilegeSubjectContainerImpl.getPrivilegeContainers().size() == 0) {
+          throw new RuntimeException("Why no containers for subject: " + GrouperUtil.subjectToString(subject));
         }
         
       }
