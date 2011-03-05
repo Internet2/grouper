@@ -1554,7 +1554,7 @@ public enum GrouperDdl implements DdlVersionable {
   
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupsTable, Group.COLUMN_LAST_MEMBERSHIP_CHANGE, 
             Types.BIGINT, "20", false, false); 
-        
+
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupsTable, Group.COLUMN_LAST_IMMEDIATE_MEMBERSHIP_CHANGE, 
             Types.BIGINT, "20", false, false); 
 
@@ -1562,7 +1562,7 @@ public enum GrouperDdl implements DdlVersionable {
         
         GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, Group.TABLE_GROUPER_GROUPS,
             "group_last_membership_idx", false, Group.COLUMN_LAST_MEMBERSHIP_CHANGE);
-        
+
         GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, Group.TABLE_GROUPER_GROUPS, 
             "group_last_imm_membership_idx", false, 
             Group.COLUMN_LAST_IMMEDIATE_MEMBERSHIP_CHANGE);
@@ -2682,7 +2682,7 @@ public enum GrouperDdl implements DdlVersionable {
     
     GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Group.TABLE_GROUPER_GROUPS, 
         Group.COLUMN_LAST_MEMBERSHIP_CHANGE, "If configured to keep track, this is the last membership change for this group");
-
+    
     GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Group.TABLE_GROUPER_GROUPS, 
         Group.COLUMN_LAST_IMMEDIATE_MEMBERSHIP_CHANGE, "If configured to keep track, this is the last immediate membership change for this group");
     
@@ -2728,7 +2728,7 @@ public enum GrouperDdl implements DdlVersionable {
 
     GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Member.TABLE_GROUPER_MEMBERS,  "subject_type", 
           "type of subject, e.g. person");
-    
+
     GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Member.TABLE_GROUPER_MEMBERS,  Member.COLUMN_SORT_STRING0, 
           "string that can be used to sort results");
     
@@ -3965,20 +3965,22 @@ public enum GrouperDdl implements DdlVersionable {
     
     GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_memberships_lw_v", 
         "Grouper_memberships_lw_v unique membership records that can be read from a SQL interface outside of grouper.  Immediate and effective memberships are represented here (distinct)",
-        GrouperUtil.toSet("SUBJECT_ID", "SUBJECT_SOURCE", "GROUP_NAME", "LIST_NAME", "LIST_TYPE", "GROUP_ID"),
+        GrouperUtil.toSet("SUBJECT_ID", "SUBJECT_SOURCE", "GROUP_NAME", "LIST_NAME", "LIST_TYPE", "GROUP_ID", "MEMBER_ID"),
         GrouperUtil.toSet("SUBJECT_ID: of the member of the group", 
             "SUBJECT_SOURCE: of the member of the group", 
             "GROUP_NAME: system name of the group", 
             "LIST_NAME: name of the list, e.g. members", 
             "LIST_TYPE: type of list e.g. access or list", 
-            "GROUP_ID: uuid of the group"),
+            "GROUP_ID: uuid of the group",
+            "MEMBER_ID: uuid of the member"),
             "select distinct gm.SUBJECT_ID, gm.SUBJECT_SOURCE, gg.name as group_name, "
-            + "gfl.NAME as list_name, gfl.TYPE as list_type, gg.ID as group_id "
+            + "gfl.NAME as list_name, gfl.TYPE as list_type, gg.ID as group_id, gm.ID as member_id  "
             + "from grouper_memberships_all_v gms, grouper_members gm, " 
             + "grouper_groups gg, grouper_fields gfl "
             + "where gms.OWNER_GROUP_ID = gg.id " 
             + "and gms.FIELD_ID = gfl.ID "
-            + "and gms.MEMBER_ID = gm.ID");
+            + "and gms.MEMBER_ID = gm.ID "
+            +	"and gms.IMMEDIATE_MSHIP_ENABLED = 'T'");
 
     GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_mship_stem_lw_v", 
         "grouper_mship_stem_lw_v unique membership records that can be read from a SQL interface outside of grouper for stems.  Immediate and effective memberships are represented here (distinct)",
