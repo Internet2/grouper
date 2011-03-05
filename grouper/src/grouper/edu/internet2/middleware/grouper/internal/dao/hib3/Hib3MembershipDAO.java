@@ -2377,7 +2377,6 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
         );
 
     ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic()
-      .createQuery(sql.toString())
       .setCacheable(true)
       .setCacheRegion(KLASS)
       .setString("owner", attributeDefId)
@@ -2393,7 +2392,8 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
     if (enabled != null) {
       sql.append(" and ms.enabledDb = '" + (enabled ? 'T' : 'F') + "'");
     }
-    
+    byHqlStatic.createQuery(sql.toString());
+
     Set<Object[]> mships = byHqlStatic
       .listSet(Object[].class);
     return mships;
