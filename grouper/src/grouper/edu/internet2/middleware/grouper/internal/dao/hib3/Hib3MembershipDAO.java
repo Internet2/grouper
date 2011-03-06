@@ -2408,7 +2408,7 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
       QueryOptions queryOptions) {
 
     
-    Set<Object[]> totalResults = new HashSet<Object[]>();
+    Set<Object[]> totalResults = new LinkedHashSet<Object[]>();
 
     int memberIdsSize = GrouperUtil.length(totalMemberIds);
 
@@ -2422,10 +2422,12 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
       
       List<String> memberIds = GrouperUtil.batchList(totalMemberIds, 100, memberIndex);
 
-      StringBuilder sql = new StringBuilder();
+      StringBuilder sql = new StringBuilder("select ms, m from MembershipEntry as ms, Member as m where  "
+          + " ms.ownerAttrDefId   = :owner "
+          + " and  ms.memberUuid  = m.uuid   "
+          );
       
       ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic()
-        .createQuery(sql.toString())
         .setCacheable(true)
         .setCacheRegion(KLASS)
         .setString("owner", attributeDefId)
@@ -2445,8 +2447,8 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
       sql.append(HibUtils.convertToInClause(memberIds, byHqlStatic));
       sql.append(") ");
       
-      Set<Object[]> mships = byHqlStatic
-        .listSet(Object[].class);
+      byHqlStatic.createQuery(sql.toString());
+      Set<Object[]> mships = byHqlStatic.listSet(Object[].class);
       
       totalResults.addAll(mships);
           
@@ -2470,7 +2472,6 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
         );
 
     ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic()
-      .createQuery(sql.toString())
       .setCacheable(true)
       .setCacheRegion(KLASS)
       .setString("owner", attributeDefId)
@@ -2487,6 +2488,8 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
       sql.append(" and ms.enabledDb = '" + (enabled ? 'T' : 'F') + "'");
     }
     
+    byHqlStatic.createQuery(sql.toString());
+
     List<Member> members = byHqlStatic
       .list(Member.class);
     return members;

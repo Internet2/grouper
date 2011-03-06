@@ -19,8 +19,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -460,215 +460,245 @@ public class GrouperNonDbAttrDefAdapter extends BaseAttrDefAdapter implements
       AttributeDef attributeDef, Set<Privilege> privileges,
       MembershipType membershipType, QueryPaging queryPaging, Set<Member> additionalMembers) {
     
-    //note, no need for GrouperSession inverse of control
-    GrouperSession.validate(grouperSession);
-
-    ///check privs
-    if (!grouperSession.getMember().hasAttrAdmin(attributeDef)) {
-      throw new InsufficientPrivilegeException("Subject: " 
-          + GrouperUtil.subjectToString(grouperSession.getSubject()) 
-          + " does not have attrAdmin on attributeDef: " + attributeDef.getName());
+    Map<String, Object> debugLog = null;
+    if (LOG.isDebugEnabled()) {
+       debugLog = new LinkedHashMap<String, Object>();
+       debugLog.put("attributeDefId", attributeDef.getId());
+       debugLog.put("attributeDefName", attributeDef.getName());
+       if (GrouperUtil.length(privileges) > 0) {
+         debugLog.put("privileges", GrouperUtil.collectionToString(privileges));
+       }
+       if (membershipType != null) {
+         debugLog.put("membershipType", membershipType.name());
+       }
+       debugLog.put("additionalMembersSize", GrouperUtil.length(additionalMembers));
+       if (queryPaging != null) {
+         debugLog.put("queryPaging", queryPaging);
+       }
     }
-    
-    Set<Field> fields = null;
-    if (GrouperUtil.length(privileges) > 0) {
-      fields = new LinkedHashSet<Field>();
-      for (Privilege privilege : privileges) {
-        fields.add(privilege.getField());
-      }
-    }
-    
-    Set<Object[]> memberships = null;
-    
-    QuerySort querySort = new QuerySort("m.subjectSourceIdDb", true);
-    querySort.addSort("m.subjectIdDb", true);
-    QueryOptions queryOptions = new QueryOptions();
-    queryOptions.sort(querySort);
-
-    //see if there is paging
-    if (queryPaging != null) {
-      
-      queryOptions.paging(queryPaging);
-      
-      //lets get the members
-      List<Member> members = GrouperDAOFactory.getFactory().getMembership().findAllMembersByAttributeDefOwnerOptions(
-          attributeDef.getId(), membershipType, fields, null, true, queryOptions);
-      
-      //ok, if there are results...
-      if (GrouperUtil.length(members) > 0) {
-        
-        //lets get the memberships for these members
-        List<String> memberIds = new ArrayList<String>();
-        for (Member member : members) {
-          memberIds.add(member.getUuid());
-        }
-        //note, we arent paging here... we paged the members
-        memberships = GrouperDAOFactory.getFactory().getMembership().findAllByAttributeDefOwnerOptions(
-            attributeDef.getId(), memberIds, membershipType, fields, null, true, null);
-        
+    Exception exception = null;
+    try {
+      //note, no need for GrouperSession inverse of control
+      GrouperSession.validate(grouperSession);
+  
+      ///check privs
+      if (!grouperSession.getMember().hasAttrAdmin(attributeDef)) {
+        throw new InsufficientPrivilegeException("Subject: " 
+            + GrouperUtil.subjectToString(grouperSession.getSubject()) 
+            + " does not have attrAdmin on attributeDef: " + attributeDef.getName());
       }
       
-    } else {
+      Set<Field> fields = null;
+      if (GrouperUtil.length(privileges) > 0) {
+        fields = new LinkedHashSet<Field>();
+        for (Privilege privilege : privileges) {
+          fields.add(privilege.getField());
+        }
+      }
       
-      //note, still sort by subject
-      memberships = GrouperDAOFactory.getFactory().getMembership().findAllByAttributeDefOwnerOptions(
-          attributeDef.getId(), membershipType, fields, null, true, queryOptions);
+      Set<Object[]> memberships = null;
       
-    }
-    
-    //lets non-null it
-    memberships = GrouperUtil.nonNull(memberships);
-    
-    //now we need to factor in the additionals
-    if (GrouperUtil.length(additionalMembers) > 0) {
-      
-      //lets copy and remove existings...
-      additionalMembers = new LinkedHashSet<Member>(additionalMembers);
-      
-      if (GrouperUtil.length(memberships) > 0) {
-        //multi key of sourceid, subject id
-        Set<MultiKey> foundMembers = new HashSet<MultiKey>();
+      QuerySort querySort = new QuerySort("m.subjectIdDb", true);
+      querySort.insertSortToBeginning("m.subjectSourceIdDb", true);
+      QueryOptions queryOptions = new QueryOptions();
+      queryOptions.sort(querySort);
+  
+      //see if there is paging
+      if (queryPaging != null) {
         
-        //add in memberships
-        for (Object[] objectArray : memberships) {
-          Member member = (Member)objectArray[1];
-          foundMembers.add(new MultiKey(member.getSubjectSourceId(), member.getSubjectId()));
+        queryOptions.paging(queryPaging);
+        
+        //lets get the members
+        List<Member> members = GrouperDAOFactory.getFactory().getMembership().findAllMembersByAttributeDefOwnerOptions(
+            attributeDef.getId(), membershipType, fields, null, true, queryOptions);
+        
+        if (LOG.isDebugEnabled()) {
+          debugLog.put("membersSize", GrouperUtil.length(members));
+          
         }
         
-        //now loop through additionals, and remove if exists
-        Iterator<Member> iterator = additionalMembers.iterator();
-        
-        while (iterator.hasNext()) {
-          Member member = iterator.next();
-          if (foundMembers.contains(new MultiKey(member.getSubjectSourceId(), member.getSubjectId()))) {
-            iterator.remove();
+        //ok, if there are results...
+        if (GrouperUtil.length(members) > 0) {
+          
+          //lets get the memberships for these members
+          List<String> memberIds = new ArrayList<String>();
+          for (Member member : members) {
+            memberIds.add(member.getUuid());
+          }
+          queryOptions = new QueryOptions();
+          queryOptions.sort(querySort);
+          //note, we arent paging here... we paged the members
+          memberships = GrouperDAOFactory.getFactory().getMembership().findAllByAttributeDefOwnerOptions(
+              attributeDef.getId(), memberIds, membershipType, fields, null, true, queryOptions);
+          
+          if (LOG.isDebugEnabled()) {
+            debugLog.put("membershipsSize", GrouperUtil.length(memberships));
           }
         }
+        
+      } else {
+        
+        //note, still sort by subject
+        memberships = GrouperDAOFactory.getFactory().getMembership().findAllByAttributeDefOwnerOptions(
+            attributeDef.getId(), membershipType, fields, null, true, queryOptions);
+        
+        if (LOG.isDebugEnabled()) {
+          debugLog.put("membershipsSize", GrouperUtil.length(memberships));
+        }
+
       }
       
+      //lets non-null it
+      memberships = GrouperUtil.nonNull(memberships);
+      
+      //lets put it all back together...
+      Set<PrivilegeSubjectContainer> results = new LinkedHashSet<PrivilegeSubjectContainer>();
+      Map<MultiKey, PrivilegeSubjectContainerImpl> resultsMap = new HashMap<MultiKey, PrivilegeSubjectContainerImpl>();
+      
+
+      //now we need to factor in the additionals
       if (GrouperUtil.length(additionalMembers) > 0) {
         
-        //lets get the memberships for these members
-        List<String> memberIds = new ArrayList<String>();
-        for (Member member : additionalMembers) {
-          memberIds.add(member.getUuid());
+        if (GrouperUtil.length(additionalMembers) > 0) {
+          
+          //lets get the memberships for these members
+          List<String> memberIds = new ArrayList<String>();
+          for (Member member : additionalMembers) {
+            memberIds.add(member.getUuid());
+            
+            //put in a placeholder
+            PrivilegeSubjectContainerImpl privilegeSubjectContainerImpl = new PrivilegeSubjectContainerImpl();
+            privilegeSubjectContainerImpl.setSubject(new LazySubject(member));
+            results.add(privilegeSubjectContainerImpl);
+            MultiKey multiKey = new MultiKey(member.getSubjectSourceId(), member.getSubjectId());
+            resultsMap.put(multiKey, privilegeSubjectContainerImpl);
+            
+          }
+          //note, we arent paging here...
+          //get those results
+          Set<Object[]> additionalMemberships = GrouperDAOFactory.getFactory().getMembership().findAllByAttributeDefOwnerOptions(
+              attributeDef.getId(), memberIds, membershipType, fields, null, true, null);
+  
+          if (LOG.isDebugEnabled()) {
+            debugLog.put("additionalMembershipsSize", GrouperUtil.length(additionalMemberships));
+          }
+          
+          //collate this
+          if (GrouperUtil.length(additionalMemberships) > 0) {
+            Set<Object[]> newMemberships = new LinkedHashSet<Object[]>(additionalMemberships);
+            newMemberships.addAll(memberships);
+            memberships = newMemberships;
+            
+          }
         }
-        //note, we arent paging here...
-        //get those results
-        Set<Object[]> additionalMemberships = GrouperDAOFactory.getFactory().getMembership().findAllByAttributeDefOwnerOptions(
-            attributeDef.getId(), memberIds, membershipType, fields, null, true, null);
-
-        //lets mix it up
-        additionalMemberships.addAll(memberships);
-        memberships = additionalMemberships;
+        
       }
       
-    }
-    
-    //lets put it all back together...
-    Set<PrivilegeSubjectContainer> results = new LinkedHashSet<PrivilegeSubjectContainer>();
-    
-    if (GrouperUtil.length(memberships) > 0) {
-      
-      Map<MultiKey, List<Object[]>> membershipsMap = new HashMap<MultiKey, List<Object[]>>();
-      
-      //this multikey is sourceid, subjectid, attributedefid, fieldid, 
-      Map<MultiKey, PrivilegeAssignType> privilegeAssignTypeMap = new HashMap<MultiKey, PrivilegeAssignType>();
-      
-      //lets get all the members first, and keep the answer
-      for (Object[] objectArray: memberships) {
+      if (GrouperUtil.length(memberships) > 0) {
         
-        Member member = (Member)objectArray[1];
-        Membership membership = (Membership)objectArray[0];
-
-        MultiKey subjectKey = new MultiKey(member.getSubjectSourceId(), member.getSubjectId());
+        Map<MultiKey, List<Object[]>> membershipsMap = new HashMap<MultiKey, List<Object[]>>();
         
-        List<Object[]> membershipList = membershipsMap.get(subjectKey);
-        if (membershipList == null) {
+        //this multikey is sourceid, subjectid, attributedefid, fieldid, 
+        Map<MultiKey, PrivilegeAssignType> privilegeAssignTypeMap = new HashMap<MultiKey, PrivilegeAssignType>();
+        
+        //lets get all the members first, and keep the answer
+        for (Object[] objectArray: memberships) {
           
-          PrivilegeSubjectContainerImpl privilegeSubjectContainerImpl = new PrivilegeSubjectContainerImpl();
-          results.add(privilegeSubjectContainerImpl);
-          privilegeSubjectContainerImpl.setSubject(new LazySubject(member));
-          membershipList = new ArrayList<Object[]>();
-          
-          
-          membershipsMap.put(subjectKey, membershipList);
-
-        }
-
-        membershipList.add(objectArray);
-        
-        MultiKey privilegeAssignTypeKey = new MultiKey(member.getSubjectSourceId(), member.getSubjectId(), attributeDef.getId(), membership.getFieldId());
-        
-        PrivilegeAssignType privilegeAssignType = privilegeAssignTypeMap.get(privilegeAssignTypeKey);
-        privilegeAssignType = PrivilegeAssignType.convertMembership(privilegeAssignType, membership);
-        privilegeAssignTypeMap.put(privilegeAssignTypeKey, privilegeAssignType);
-        
-      
-      }
-      
-      for (PrivilegeSubjectContainer privilegeSubjectContainer : results) {
-        PrivilegeSubjectContainerImpl privilegeSubjectContainerImpl = (PrivilegeSubjectContainerImpl)privilegeSubjectContainer;
-        
-        privilegeSubjectContainerImpl.setPrivilegeContainers(new TreeMap<String, PrivilegeContainer>());
-        
-        Subject subject = privilegeSubjectContainerImpl.getSubject();
-        MultiKey subjectKey = new MultiKey(subject.getSourceId(), subject.getId());
-        
-        //lets get the memberships
-        List<Object[]> membershipList = membershipsMap.get(subjectKey);
-        
-        for (Object[] objectArray : membershipList) {
-          
-          Membership membership = (Membership)objectArray[0];
           Member member = (Member)objectArray[1];
-          Field field = FieldFinder.findById(membership.getFieldId(), true);
-          Privilege privilege = AttributeDefPrivilege.listToPriv(field.getName());
-          if (privilege == null) {
-            throw new RuntimeException("Privilege not found by list name! " + field.getName());
-          }
-          String privilegeName = privilege.getName();
           
-          //multiple memberships could have the same result, just skip is already set
-          if (privilegeSubjectContainerImpl.getPrivilegeContainers().get(privilegeName) == null) {
-            PrivilegeContainerImpl privilegeContainerImpl = new PrivilegeContainerImpl();
-            privilegeContainerImpl.setPrivilege(privilege);
-            
-            //if the subject, field, attributeDefId match, then correlate the assign type...
-            
-            MultiKey privilegeAssignTypeKey = new MultiKey(member.getSubjectSourceId(), member.getSubjectId(), attributeDef.getId(), membership.getFieldId());
+          MultiKey subjectKey = new MultiKey(member.getSubjectSourceId(), member.getSubjectId());
 
-            PrivilegeAssignType privilegeAssignType = privilegeAssignTypeMap.get(privilegeAssignTypeKey);
-            if (privilegeAssignType == null) {
-              throw new RuntimeException("Why is result not there???");
-            }
-            privilegeContainerImpl.setPrivilegeAssignType(privilegeAssignType);
-            privilegeSubjectContainerImpl.getPrivilegeContainers().put(privilegeName, privilegeContainerImpl);
+          PrivilegeSubjectContainerImpl privilegeSubjectContainerImpl = resultsMap.get(subjectKey);
+          if (privilegeSubjectContainerImpl == null) {
+            privilegeSubjectContainerImpl = new PrivilegeSubjectContainerImpl();
+            privilegeSubjectContainerImpl.setSubject(new LazySubject(member));
+            resultsMap.put(subjectKey, privilegeSubjectContainerImpl);
+            results.add(privilegeSubjectContainerImpl);
+
+          }            
+
+          Membership membership = (Membership)objectArray[0];
+  
+          List<Object[]> membershipList = membershipsMap.get(subjectKey);
+          
+          if (membershipList == null) {
+  
+            membershipList = new ArrayList<Object[]>();
             
+            membershipsMap.put(subjectKey, membershipList);
+  
           }
+  
+          membershipList.add(objectArray);
           
+          MultiKey privilegeAssignTypeKey = new MultiKey(member.getSubjectSourceId(), member.getSubjectId(), attributeDef.getId(), membership.getFieldId());
+          
+          PrivilegeAssignType privilegeAssignType = privilegeAssignTypeMap.get(privilegeAssignTypeKey);
+          privilegeAssignType = PrivilegeAssignType.convertMembership(privilegeAssignType, membership);
+          privilegeAssignTypeMap.put(privilegeAssignTypeKey, privilegeAssignType);
           
         }
         
-        if (privilegeSubjectContainerImpl.getPrivilegeContainers().size() == 0) {
-          throw new RuntimeException("Why no containers for subject: " + GrouperUtil.subjectToString(subject));
+        if (LOG.isDebugEnabled()) {
+          debugLog.put("resultsSize", GrouperUtil.length(results));
         }
-        
+
+        for (PrivilegeSubjectContainer privilegeSubjectContainer : results) {
+          PrivilegeSubjectContainerImpl privilegeSubjectContainerImpl = (PrivilegeSubjectContainerImpl)privilegeSubjectContainer;
+          
+          privilegeSubjectContainerImpl.setPrivilegeContainers(new TreeMap<String, PrivilegeContainer>());
+          
+          Subject subject = privilegeSubjectContainerImpl.getSubject();
+          MultiKey subjectKey = new MultiKey(subject.getSourceId(), subject.getId());
+          
+          //lets get the memberships
+          List<Object[]> membershipList = membershipsMap.get(subjectKey);
+          
+          if (membershipList != null) {
+            for (Object[] objectArray : membershipList) {
+              
+              Membership membership = (Membership)objectArray[0];
+              Member member = (Member)objectArray[1];
+              Field field = FieldFinder.findById(membership.getFieldId(), true);
+              Privilege privilege = AttributeDefPrivilege.listToPriv(field.getName());
+              if (privilege == null) {
+                throw new RuntimeException("Privilege not found by list name! " + field.getName());
+              }
+              String privilegeName = privilege.getName();
+              
+              //multiple memberships could have the same result, just skip is already set
+              if (privilegeSubjectContainerImpl.getPrivilegeContainers().get(privilegeName) == null) {
+                PrivilegeContainerImpl privilegeContainerImpl = new PrivilegeContainerImpl();
+                privilegeContainerImpl.setPrivilege(privilege);
+                
+                //if the subject, field, attributeDefId match, then correlate the assign type...
+                
+                MultiKey privilegeAssignTypeKey = new MultiKey(member.getSubjectSourceId(), member.getSubjectId(), attributeDef.getId(), membership.getFieldId());
+    
+                PrivilegeAssignType privilegeAssignType = privilegeAssignTypeMap.get(privilegeAssignTypeKey);
+                if (privilegeAssignType == null) {
+                  throw new RuntimeException("Why is result not there???");
+                }
+                privilegeContainerImpl.setPrivilegeAssignType(privilegeAssignType);
+                privilegeSubjectContainerImpl.getPrivilegeContainers().put(privilegeName, privilegeContainerImpl);
+                
+              }
+            }
+          }
+        }
       }
+      
+      
       return results;
-      
-      
+    } catch (RuntimeException e) {
+      exception = e;
+      LOG.error(GrouperUtil.mapToString(debugLog), e);
+      throw e;
+    } finally {
+      if (LOG.isDebugEnabled() && exception == null) {
+        LOG.debug(GrouperUtil.mapToString(debugLog));
+      }
     }
-    
-    
-//    MembershipFinder.findMemberships()
-//    
-//    
-//    return MembershipFinder.internal_findAttributeDefSubjects(
-//        grouperSession, attributeDef, FieldFinder.find(priv.getListName(), true)
-//        );
-    //TODO fix this
-    return results;
   }  
 
 

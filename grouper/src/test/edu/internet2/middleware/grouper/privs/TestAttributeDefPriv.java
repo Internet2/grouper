@@ -28,11 +28,16 @@ import junit.textui.TestRunner;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefSave;
+import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
+import edu.internet2.middleware.grouper.internal.dao.QueryPaging;
+import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
@@ -53,6 +58,12 @@ public class TestAttributeDefPriv extends GrouperTest {
   /** subject0 can read a different attribute def */
   private Subject subject0;
 
+  /** grouperSystemMember member */
+  private Member grouperSystemMember;
+  
+  /** member0 can read a different attribute def */
+  private Member member0;
+
   /** attribute def is the main attribute def of the test */
   private AttributeDef attributeDef;
 
@@ -62,8 +73,15 @@ public class TestAttributeDefPriv extends GrouperTest {
   /** subject1 can read the attributeDef */
   private Subject subject1;
 
+  /** member1 can read the attributeDef */
+  private Member member1;
+
   /** subject2 can effectively view the attributeDef */
   private Subject subject2;
+
+  /** member2 can read the attributeDef */
+  @SuppressWarnings("unused")
+  private Member member2;
 
   /** groupSubject2 holds subject2 and can immediately view the attributeDef */
   private Group groupSubject2;
@@ -71,11 +89,18 @@ public class TestAttributeDefPriv extends GrouperTest {
   /** subject3 can immediately and effectively admin the attribute def */
   private Subject subject3;
 
+  /** member3 can read the attributeDef */
+  @SuppressWarnings("unused")
+  private Member member3;
+
   /** groupSubject3 holds subject3 and can immediately admin the attributeDef */
   private Group groupSubject3;
 
   /** subject4 can view and read the attribute def */
   private Subject subject4;
+
+  /** member3 can read the attributeDef */
+  private Member member4;
 
   /** subject5 can effectively read the attribute def by 2 paths */
   private Subject subject5;
@@ -119,8 +144,12 @@ public class TestAttributeDefPriv extends GrouperTest {
 
     this.grouperSession = GrouperSession.startRootSession();
     
+    this.grouperSystemMember = MemberFinder.findBySubject(this.grouperSession, SubjectFinder.findRootSubject(), true);
+    
     //subject0 can read a different attribute def
     this.subject0 = SubjectTestHelper.SUBJ0;
+    
+    this.member0 = MemberFinder.findBySubject(this.grouperSession, this.subject0, true);
     
     //attribute def is the main attribute def of the test
     this.attributeDef = new AttributeDefSave(this.grouperSession)
@@ -137,6 +166,8 @@ public class TestAttributeDefPriv extends GrouperTest {
     //subject1 can read the attributeDef
     this.subject1 = SubjectTestHelper.SUBJ1;
 
+    this.member1 = MemberFinder.findBySubject(this.grouperSession, this.subject1, true);
+    
     this.attributeDef.getPrivilegeDelegate().grantPriv(this.subject1, AttributeDefPrivilege.ATTR_READ, true);
     
     //subject2 can effectively view the attributeDef
@@ -152,11 +183,13 @@ public class TestAttributeDefPriv extends GrouperTest {
     theGroupMap.put(this.groupSubject2, new PrivilegeContainerImpl(AttributeDefPrivilege.ATTR_VIEW, PrivilegeAssignType.IMMEDIATE));
 
     this.groupSubject2.addMember(this.subject2);
+    this.member2 = MemberFinder.findBySubject(this.grouperSession, this.subject2, true);
     
     this.attributeDef.getPrivilegeDelegate().grantPriv(this.groupSubject2.toSubject(), AttributeDefPrivilege.ATTR_VIEW, true);
 
     //subject3 can immediately and effectively admin the attribute def
     this.subject3 = SubjectTestHelper.SUBJ3;
+    this.member3 = MemberFinder.findBySubject(this.grouperSession, this.subject3, true);
 
     //groupSubject3 holds subject3 and can immediately admin the attributeDef
     this.groupSubject3 = new GroupSave(this.grouperSession)
@@ -173,6 +206,7 @@ public class TestAttributeDefPriv extends GrouperTest {
     
     //subject4 can view and read the attribute def
     this.subject4 = SubjectTestHelper.SUBJ4;
+    this.member4 = MemberFinder.findBySubject(this.grouperSession, this.subject4, true);
 
     this.attributeDef.getPrivilegeDelegate().grantPriv(this.subject4, AttributeDefPrivilege.ATTR_VIEW, true);
     this.attributeDef.getPrivilegeDelegate().grantPriv(this.subject4, AttributeDefPrivilege.ATTR_READ, true);
@@ -241,7 +275,7 @@ public class TestAttributeDefPriv extends GrouperTest {
    * @param args String[]
    */
   public static void main(String[] args) {
-    TestRunner.run(new TestAttributeDefPriv("testRetrieveReadView"));
+    TestRunner.run(new TestAttributeDefPriv("testRetrieveMembershipType"));
     //TestRunner.run(TestAttributeDefPrivRetrieve.class);
   }
 
@@ -249,7 +283,6 @@ public class TestAttributeDefPriv extends GrouperTest {
    * 
    */
   public void testRetrieveAll() {
-
 
     //ok, lets get all as admin
     List<PrivilegeSubjectContainer> subjectPrivilegeContainers = new ArrayList<PrivilegeSubjectContainer>(this.grouperSession
@@ -329,6 +362,64 @@ public class TestAttributeDefPriv extends GrouperTest {
   /**
    * 
    */
+  public void testRetrievePaging() {
+
+    //ok, lets get all as admin
+    List<PrivilegeSubjectContainer> subjectPrivilegeContainers = new ArrayList<PrivilegeSubjectContainer>(this.grouperSession
+      .getAttributeDefResolver().retrievePrivileges(this.attributeDef, null, null, QueryPaging.page(3, 1, false), null));
+    
+    //should be 9, subject 1,2,3,4,5,6, grouperSystem, groupSubject2, groupSubject3, groupSubject5a, groupSubject5b
+    assertEquals(GrouperUtil.collectionToString(subjectPrivilegeContainers), 3, GrouperUtil.length(subjectPrivilegeContainers));
+    PrivilegeSubjectContainer privilegeSubjectContainer = null;
+    //first should be first group
+    for (int i=0; i<3; i++) {
+      privilegeSubjectContainer = subjectPrivilegeContainers.get(i);
+      Group group = this.allGroups.get(i);
+      assertEquals(i + ", " + GrouperUtil.collectionToString(subjectPrivilegeContainers), group.getId(), 
+          privilegeSubjectContainer.getSubject().getId());
+      assertEquals(i + ", " + GrouperUtil.collectionToString(subjectPrivilegeContainers), 1, 
+          privilegeSubjectContainer.getPrivilegeContainers().size());
+      assertEquals(i + ", " + GrouperUtil.collectionToString(subjectPrivilegeContainers), 
+          this.allGroupsMap.get(group).getPrivilege().getName(), privilegeSubjectContainer.getPrivilegeContainers().keySet().iterator().next());
+      assertEquals(i + ", " + GrouperUtil.collectionToString(subjectPrivilegeContainers), 
+          this.allGroupsMap.get(group).getPrivilegeAssignType(), privilegeSubjectContainer.getPrivilegeContainers().get(this.allGroupsMap.get(group).getPrivilege().getName()).getPrivilegeAssignType());
+    }
+    
+    //another page
+    subjectPrivilegeContainers = new ArrayList<PrivilegeSubjectContainer>(this.grouperSession
+        .getAttributeDefResolver().retrievePrivileges(this.attributeDef, null, null, QueryPaging.page(3, 3, false), null));
+      
+    //should be 9, subject 1,2,3,4,5,6, grouperSystem, groupSubject2, groupSubject3, groupSubject5a, groupSubject5b
+    assertEquals(GrouperUtil.collectionToString(subjectPrivilegeContainers), 3, GrouperUtil.length(subjectPrivilegeContainers));
+    
+    //subject2 can effectively view the attributeDef
+    privilegeSubjectContainer = subjectPrivilegeContainers.get(0);
+    assertEquals(GrouperUtil.collectionToString(subjectPrivilegeContainers), this.subject2.getId(), privilegeSubjectContainer.getSubject().getId());
+    assertEquals(GrouperUtil.collectionToString(subjectPrivilegeContainers), 1, privilegeSubjectContainer.getPrivilegeContainers().size());
+    assertEquals(GrouperUtil.collectionToString(subjectPrivilegeContainers), AttributeDefPrivilege.ATTR_VIEW.getName(), privilegeSubjectContainer.getPrivilegeContainers().keySet().iterator().next());
+    assertEquals(GrouperUtil.collectionToString(subjectPrivilegeContainers), PrivilegeAssignType.EFFECTIVE, privilegeSubjectContainer.getPrivilegeContainers().get(AttributeDefPrivilege.ATTR_VIEW.getName()).getPrivilegeAssignType());
+    
+    //subject3 can immediately and effectively admin the attribute def
+    privilegeSubjectContainer = subjectPrivilegeContainers.get(1);
+    assertEquals(GrouperUtil.collectionToString(subjectPrivilegeContainers), this.subject3.getId(), privilegeSubjectContainer.getSubject().getId());
+    assertEquals(GrouperUtil.collectionToString(subjectPrivilegeContainers), 1, privilegeSubjectContainer.getPrivilegeContainers().size());
+    assertEquals(GrouperUtil.collectionToString(subjectPrivilegeContainers), AttributeDefPrivilege.ATTR_ADMIN.getName(), privilegeSubjectContainer.getPrivilegeContainers().keySet().iterator().next());
+    assertEquals(GrouperUtil.collectionToString(subjectPrivilegeContainers), PrivilegeAssignType.IMMEDIATE_AND_EFFECTIVE, privilegeSubjectContainer.getPrivilegeContainers().get(AttributeDefPrivilege.ATTR_ADMIN.getName()).getPrivilegeAssignType());
+
+    //subject4 can view and read the attribute def
+    privilegeSubjectContainer = subjectPrivilegeContainers.get(2);
+    assertEquals(GrouperUtil.collectionToString(subjectPrivilegeContainers), this.subject4.getId(), privilegeSubjectContainer.getSubject().getId());
+    assertEquals(GrouperUtil.collectionToString(subjectPrivilegeContainers), 2, privilegeSubjectContainer.getPrivilegeContainers().size());
+    assertEquals(GrouperUtil.collectionToString(subjectPrivilegeContainers), AttributeDefPrivilege.ATTR_READ.getName(), privilegeSubjectContainer.getPrivilegeContainers().keySet().iterator().next());
+    assertEquals(GrouperUtil.collectionToString(subjectPrivilegeContainers), PrivilegeAssignType.IMMEDIATE, privilegeSubjectContainer.getPrivilegeContainers().get(AttributeDefPrivilege.ATTR_READ.getName()).getPrivilegeAssignType());
+    assertEquals(GrouperUtil.collectionToString(subjectPrivilegeContainers), AttributeDefPrivilege.ATTR_VIEW.getName(), GrouperUtil.get(privilegeSubjectContainer.getPrivilegeContainers().keySet(), 1));
+    assertEquals(GrouperUtil.collectionToString(subjectPrivilegeContainers), PrivilegeAssignType.IMMEDIATE, privilegeSubjectContainer.getPrivilegeContainers().get(AttributeDefPrivilege.ATTR_VIEW.getName()).getPrivilegeAssignType());
+
+  }
+
+  /**
+   * 
+   */
   public void testRetrieveReadView() {
   
     //ok, lets get all as admin
@@ -352,13 +443,6 @@ public class TestAttributeDefPriv extends GrouperTest {
       assertEquals(i + ", " + GrouperUtil.collectionToString(subjectPrivilegeContainers), 
           this.allGroupsMap.get(group).getPrivilegeAssignType(), privilegeSubjectContainer.getPrivilegeContainers().get(this.allGroupsMap.get(group).getPrivilege().getName()).getPrivilegeAssignType());
     }
-    
-    //subject1 can read the attributeDef
-    privilegeSubjectContainer = subjectPrivilegeContainers.get(3);
-    assertEquals(GrouperUtil.collectionToString(subjectPrivilegeContainers), this.subject1.getId(), privilegeSubjectContainer.getSubject().getId());
-    assertEquals(GrouperUtil.collectionToString(subjectPrivilegeContainers), 1, privilegeSubjectContainer.getPrivilegeContainers().size());
-    assertEquals(GrouperUtil.collectionToString(subjectPrivilegeContainers), AttributeDefPrivilege.ATTR_READ.getName(), privilegeSubjectContainer.getPrivilegeContainers().keySet().iterator().next());
-    assertEquals(GrouperUtil.collectionToString(subjectPrivilegeContainers), PrivilegeAssignType.IMMEDIATE, privilegeSubjectContainer.getPrivilegeContainers().get(AttributeDefPrivilege.ATTR_READ.getName()).getPrivilegeAssignType());
     
     //subject2 can effectively view the attributeDef
     privilegeSubjectContainer = subjectPrivilegeContainers.get(4);
@@ -384,6 +468,143 @@ public class TestAttributeDefPriv extends GrouperTest {
     assertEquals(GrouperUtil.collectionToString(subjectPrivilegeContainers), PrivilegeAssignType.EFFECTIVE, privilegeSubjectContainer.getPrivilegeContainers().get(AttributeDefPrivilege.ATTR_READ.getName()).getPrivilegeAssignType());
     
     
+  }
+
+  /**
+   * 
+   */
+  public void testRetrieveSecurity() {
+    
+    //as GrouperSystem
+  
+    //ok, lets get all as admin
+    List<PrivilegeSubjectContainer> subjectPrivilegeContainers = new ArrayList<PrivilegeSubjectContainer>(this.grouperSession
+      .getAttributeDefResolver().retrievePrivileges(this.attributeDef, null, null, null, null));
+    
+    //should be 9, subject 1,2,3,4,5,6, grouperSystem, groupSubject2, groupSubject3, groupSubject5a, groupSubject5b
+    assertEquals(GrouperUtil.collectionToString(subjectPrivilegeContainers), 11, GrouperUtil.length(subjectPrivilegeContainers));
+  
+    //try as a subject which doesnt have privileges
+    this.grouperSession.stop();
+    
+    this.grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ8);
+    
+    try {
+      this.grouperSession
+        .getAttributeDefResolver().retrievePrivileges(this.attributeDef, null, null, null, null);
+      fail("Shouldnt get here");
+    } catch (InsufficientPrivilegeException ipe) {
+      
+    }
+    
+    this.grouperSession.stop();
+    
+    this.grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ3);
+    
+    subjectPrivilegeContainers = new ArrayList<PrivilegeSubjectContainer>(this.grouperSession
+      .getAttributeDefResolver().retrievePrivileges(this.attributeDef, null, null, null, null));
+
+    //should be 9, subject 1,2,3,4,5,6, grouperSystem, groupSubject2, groupSubject3, groupSubject5a, groupSubject5b
+    assertEquals(GrouperUtil.collectionToString(subjectPrivilegeContainers), 11, GrouperUtil.length(subjectPrivilegeContainers));
+
+  }
+
+  /**
+   * 
+   */
+  public void testRetrievePagingWithAdditional() {
+  
+    PrivilegeSubjectContainer privilegeSubjectContainer = null;
+
+    //ok, lets get all as admin
+    List<PrivilegeSubjectContainer> subjectPrivilegeContainers = new ArrayList<PrivilegeSubjectContainer>(this.grouperSession
+      .getAttributeDefResolver().retrievePrivileges(this.attributeDef, null, null, QueryPaging.page(5, 1, false), GrouperUtil.toSet(
+          this.grouperSystemMember, this.member4, this.member0, this.member1)));
+    
+    //should be 6, subject 4,0,1,groupSubject2, groupSubject3, groupSubject5a
+    assertEquals(GrouperUtil.collectionToString(subjectPrivilegeContainers), 8, GrouperUtil.length(subjectPrivilegeContainers));
+
+    //fifth should be grouperSystem with admin immediate
+    privilegeSubjectContainer = subjectPrivilegeContainers.get(0);
+    assertEquals(GrouperUtil.collectionToString(subjectPrivilegeContainers), SubjectFinder.findRootSubject().getId(), privilegeSubjectContainer.getSubject().getId());
+    assertEquals(GrouperUtil.collectionToString(subjectPrivilegeContainers), 1, privilegeSubjectContainer.getPrivilegeContainers().size());
+    assertEquals(GrouperUtil.collectionToString(subjectPrivilegeContainers), AttributeDefPrivilege.ATTR_ADMIN.getName(), privilegeSubjectContainer.getPrivilegeContainers().keySet().iterator().next());
+    assertEquals(GrouperUtil.collectionToString(subjectPrivilegeContainers), PrivilegeAssignType.IMMEDIATE, privilegeSubjectContainer.getPrivilegeContainers().get(AttributeDefPrivilege.ATTR_ADMIN.getName()).getPrivilegeAssignType());
+
+    //subject4 can view and read the attribute def
+    privilegeSubjectContainer = subjectPrivilegeContainers.get(1);
+    assertEquals(GrouperUtil.collectionToString(subjectPrivilegeContainers), this.subject4.getId(), privilegeSubjectContainer.getSubject().getId());
+    assertEquals(GrouperUtil.collectionToString(subjectPrivilegeContainers), 2, privilegeSubjectContainer.getPrivilegeContainers().size());
+    assertEquals(GrouperUtil.collectionToString(subjectPrivilegeContainers), AttributeDefPrivilege.ATTR_READ.getName(), privilegeSubjectContainer.getPrivilegeContainers().keySet().iterator().next());
+    assertEquals(GrouperUtil.collectionToString(subjectPrivilegeContainers), PrivilegeAssignType.IMMEDIATE, privilegeSubjectContainer.getPrivilegeContainers().get(AttributeDefPrivilege.ATTR_READ.getName()).getPrivilegeAssignType());
+    assertEquals(GrouperUtil.collectionToString(subjectPrivilegeContainers), AttributeDefPrivilege.ATTR_VIEW.getName(), GrouperUtil.get(privilegeSubjectContainer.getPrivilegeContainers().keySet(), 1));
+    assertEquals(GrouperUtil.collectionToString(subjectPrivilegeContainers), PrivilegeAssignType.IMMEDIATE, privilegeSubjectContainer.getPrivilegeContainers().get(AttributeDefPrivilege.ATTR_VIEW.getName()).getPrivilegeAssignType());
+
+    //subject0 can do nothing
+    privilegeSubjectContainer = subjectPrivilegeContainers.get(2);
+    assertEquals(GrouperUtil.collectionToString(subjectPrivilegeContainers), this.subject0.getId(), privilegeSubjectContainer.getSubject().getId());
+    assertEquals(GrouperUtil.collectionToString(subjectPrivilegeContainers), 0, privilegeSubjectContainer.getPrivilegeContainers().size());
+      
+    //subject1 can read the attributeDef
+    privilegeSubjectContainer = subjectPrivilegeContainers.get(3);
+    assertEquals(GrouperUtil.collectionToString(subjectPrivilegeContainers), this.subject1.getId(), privilegeSubjectContainer.getSubject().getId());
+    assertEquals(GrouperUtil.collectionToString(subjectPrivilegeContainers), 1, privilegeSubjectContainer.getPrivilegeContainers().size());
+    assertEquals(GrouperUtil.collectionToString(subjectPrivilegeContainers), AttributeDefPrivilege.ATTR_READ.getName(), privilegeSubjectContainer.getPrivilegeContainers().keySet().iterator().next());
+    assertEquals(GrouperUtil.collectionToString(subjectPrivilegeContainers), PrivilegeAssignType.IMMEDIATE, privilegeSubjectContainer.getPrivilegeContainers().get(AttributeDefPrivilege.ATTR_READ.getName()).getPrivilegeAssignType());
+      
+    //first should be first group
+    for (int i=0; i<4; i++) {
+      privilegeSubjectContainer = subjectPrivilegeContainers.get(i + 4);
+      Group group = this.allGroups.get(i);
+      assertEquals(i + ", " + GrouperUtil.collectionToString(subjectPrivilegeContainers), group.getId(), 
+          privilegeSubjectContainer.getSubject().getId());
+      assertEquals(i + ", " + GrouperUtil.collectionToString(subjectPrivilegeContainers), 1, 
+          privilegeSubjectContainer.getPrivilegeContainers().size());
+      assertEquals(i + ", " + GrouperUtil.collectionToString(subjectPrivilegeContainers), 
+          this.allGroupsMap.get(group).getPrivilege().getName(), privilegeSubjectContainer.getPrivilegeContainers().keySet().iterator().next());
+      assertEquals(i + ", " + GrouperUtil.collectionToString(subjectPrivilegeContainers), 
+          this.allGroupsMap.get(group).getPrivilegeAssignType(), privilegeSubjectContainer.getPrivilegeContainers().get(this.allGroupsMap.get(group).getPrivilege().getName()).getPrivilegeAssignType());
+    }
+    
+  
+  }
+
+  /**
+   * 
+   */
+  public void testRetrieveMembershipType() {
+  
+    //ok, lets get all as admin
+    List<PrivilegeSubjectContainer> subjectPrivilegeContainers = new ArrayList<PrivilegeSubjectContainer>(this.grouperSession
+      .getAttributeDefResolver().retrievePrivileges(this.attributeDef, null, MembershipType.NONIMMEDIATE, null, null));
+    
+    //should be 3, subject 2,3,5
+    assertEquals(GrouperUtil.collectionToString(subjectPrivilegeContainers), 3, GrouperUtil.length(subjectPrivilegeContainers));
+    PrivilegeSubjectContainer privilegeSubjectContainer = null;
+    
+    //subject2 can effectively view the attributeDef
+    privilegeSubjectContainer = subjectPrivilegeContainers.get(0);
+    assertEquals(GrouperUtil.collectionToString(subjectPrivilegeContainers), this.subject2.getId(), privilegeSubjectContainer.getSubject().getId());
+    assertEquals(GrouperUtil.collectionToString(subjectPrivilegeContainers), 1, privilegeSubjectContainer.getPrivilegeContainers().size());
+    assertEquals(GrouperUtil.collectionToString(subjectPrivilegeContainers), AttributeDefPrivilege.ATTR_VIEW.getName(), privilegeSubjectContainer.getPrivilegeContainers().keySet().iterator().next());
+    assertEquals(GrouperUtil.collectionToString(subjectPrivilegeContainers), PrivilegeAssignType.EFFECTIVE, privilegeSubjectContainer.getPrivilegeContainers().get(AttributeDefPrivilege.ATTR_VIEW.getName()).getPrivilegeAssignType());
+    
+    //subject3 can immediately and effectively admin the attribute def
+    privilegeSubjectContainer = subjectPrivilegeContainers.get(1);
+    assertEquals(GrouperUtil.collectionToString(subjectPrivilegeContainers), this.subject3.getId(), privilegeSubjectContainer.getSubject().getId());
+    assertEquals(GrouperUtil.collectionToString(subjectPrivilegeContainers), 1, privilegeSubjectContainer.getPrivilegeContainers().size());
+    assertEquals(GrouperUtil.collectionToString(subjectPrivilegeContainers), AttributeDefPrivilege.ATTR_ADMIN.getName(), privilegeSubjectContainer.getPrivilegeContainers().keySet().iterator().next());
+ 
+    //note, no immediates were returned, so only effective
+    assertEquals(GrouperUtil.collectionToString(subjectPrivilegeContainers), PrivilegeAssignType.EFFECTIVE, privilegeSubjectContainer.getPrivilegeContainers().get(AttributeDefPrivilege.ATTR_ADMIN.getName()).getPrivilegeAssignType());
+    
+    //subject5 can effectively read the attribute def by 2 paths
+    privilegeSubjectContainer = subjectPrivilegeContainers.get(2);
+    assertEquals(GrouperUtil.collectionToString(subjectPrivilegeContainers), this.subject5.getId(), privilegeSubjectContainer.getSubject().getId());
+    assertEquals(GrouperUtil.collectionToString(subjectPrivilegeContainers), 1, privilegeSubjectContainer.getPrivilegeContainers().size());
+    assertEquals(GrouperUtil.collectionToString(subjectPrivilegeContainers), AttributeDefPrivilege.ATTR_READ.getName(), privilegeSubjectContainer.getPrivilegeContainers().keySet().iterator().next());
+    assertEquals(GrouperUtil.collectionToString(subjectPrivilegeContainers), PrivilegeAssignType.EFFECTIVE, privilegeSubjectContainer.getPrivilegeContainers().get(AttributeDefPrivilege.ATTR_READ.getName()).getPrivilegeAssignType());
+        
   }
 
 } 

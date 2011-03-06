@@ -36,10 +36,10 @@ public class Hib3RoleSetViewDAO extends Hib3DAO implements RoleSetViewDAO {
     QueryOptions queryOptions = new QueryOptions();
     //ifHas.name, thenHas.name, gadns.depth, gadnParentIfHas.name, gadnParentThenHas.name
     QuerySort querySort = QuerySort.asc(RoleSetView.FIELD_PARENT_THEN_HAS_NAME);
-    querySort.addSort(RoleSetView.FIELD_PARENT_IF_HAS_NAME, true);
-    querySort.addSort(RoleSetView.FIELD_DEPTH, true);
-    querySort.addSort(RoleSetView.FIELD_THEN_HAS_ROLE_NAME, true);
-    querySort.addSort(RoleSetView.FIELD_IF_HAS_ROLE_NAME, true);
+    querySort.insertSortToBeginning(RoleSetView.FIELD_PARENT_IF_HAS_NAME, true);
+    querySort.insertSortToBeginning(RoleSetView.FIELD_DEPTH, true);
+    querySort.insertSortToBeginning(RoleSetView.FIELD_THEN_HAS_ROLE_NAME, true);
+    querySort.insertSortToBeginning(RoleSetView.FIELD_IF_HAS_ROLE_NAME, true);
     
     queryOptions.sort(querySort);
 
