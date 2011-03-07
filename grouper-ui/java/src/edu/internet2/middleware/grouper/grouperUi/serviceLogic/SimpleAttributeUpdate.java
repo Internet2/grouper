@@ -28,6 +28,8 @@ import edu.internet2.middleware.grouper.grouperUi.beans.attributeUpdate.Attribut
 import edu.internet2.middleware.grouper.grouperUi.beans.attributeUpdate.AttributeUpdateSessionContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
+import edu.internet2.middleware.grouper.internal.dao.QueryPaging;
+import edu.internet2.middleware.grouper.privs.PrivilegeSubjectContainer;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.tags.TagUtils;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
@@ -452,6 +454,66 @@ public class SimpleAttributeUpdate {
     }
   }
 
+  /**
+   * privileges button was pressed on the attribute edit panel
+   * @param httpServletRequest
+   * @param httpServletResponse
+   */
+  public void attributeEditPanelPrivileges(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
+  
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+  
+    AttributeUpdateRequestContainer attributeUpdateRequestContainer = AttributeUpdateRequestContainer.retrieveFromRequestOrCreate();
+
+    GrouperSession grouperSession = null;
+
+    try {
+      grouperSession = GrouperSession.start(loggedInSubject);
+      
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+  
+      AttributeDef attributeDef = null;
+      
+      String uuid = httpServletRequest.getParameter("attributeDefToEditId");
+      
+      if (StringUtils.isBlank(uuid)) {
+        throw new RuntimeException("Why is uuid blank????");
+      }
+  
+      //if editing, then this must be there, or it has been tampered with
+      try {
+        attributeDef = AttributeDefFinder.findById(uuid, true);
+      } catch (Exception e) {
+        LOG.info("Error searching for attribute def: " + uuid, e);
+        guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simpleAttributeUpdate.errorCantEditAttributeDef", false)));
+        return;
+        
+      }
+      
+      if (!attributeDef.getPrivilegeDelegate().canAttrAdmin(loggedInSubject)) {
+        LOG.info("Subject " + GrouperUtil.subjectToString(loggedInSubject) + " cannot admin attribute definition: " + attributeDef.getName());
+        guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simpleAttributeUpdate.errorCantEditAttributeDef", false)));
+        return;
+      }
+      
+      Set<PrivilegeSubjectContainer> privilegeSubjectContainers = grouperSession
+        .getAttributeDefResolver().retrievePrivileges(attributeDef, null, 
+            null, QueryPaging.page(50, 1, false), null);
+      
+      attributeUpdateRequestContainer.setAttributeDefToEdit(attributeDef);
+      attributeUpdateRequestContainer.setPrivilegeSubjectContainers(privilegeSubjectContainers);
+      
+      //set the actions panel
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#attributePrivilegesPanel", 
+        "/WEB-INF/grouperUi/templates/simpleAttributeUpdate/attributePrivilegesPanel.jsp"));
+      
+      guiResponseJs.addAction(GuiScreenAction.newScript("guiScrollToBottom();"));
+      
+    } finally {
+      GrouperSession.stopQuietly(grouperSession); 
+    }
+  }
+  
   /**
    * delete an action
    * @param httpServletRequest

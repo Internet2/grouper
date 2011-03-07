@@ -44,7 +44,7 @@ public class AttributeUpdateText {
    * delete action implied by image alt
    * @return image alt
    */
-  public String getdeleteActionImpliedByImageAlt() {
+  public String getDeleteActionImpliedByImageAlt() {
     return text("simpleAttributeUpdate.deleteActionImpliedByImageAlt");
   }
 
@@ -137,7 +137,7 @@ public class AttributeUpdateText {
    * @return title
    */
   public String getEditPanelActions() {
-    return text("simpleAttributeUpdate.editPanelEditActions");
+    return text("simpleAttributeUpdate.editPanelActions");
   }
   
   /**
@@ -148,6 +148,14 @@ public class AttributeUpdateText {
     return text("simpleAttributeUpdate.editPanelDelete");
   }
 
+  /**
+   * edit panel privileges
+   * @return title
+   */
+  public String getEditPanelPrivileges() {
+    return text("simpleAttributeUpdate.editPanelPrivileges");
+  }
+  
   
   
   /**

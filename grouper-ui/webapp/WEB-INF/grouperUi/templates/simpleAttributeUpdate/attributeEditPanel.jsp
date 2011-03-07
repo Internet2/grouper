@@ -250,6 +250,11 @@
            <input class="blueButton" type="submit" 
             onclick="ajax('../app/SimpleAttributeUpdate.attributeEditPanelActions', {formIds: 'attributeEditFormId'}); return false;" 
             value="${simpleAttributeUpdateContainer.text.editPanelActions}" style="margin-top: 2px" />
+
+           <input class="blueButton" type="submit" 
+            onclick="ajax('../app/SimpleAttributeUpdate.attributeEditPanelPrivileges', {formIds: 'attributeEditFormId'}); return false;" 
+            value="${simpleAttributeUpdateContainer.text.editPanelPrivileges}" style="margin-top: 2px" />
+
          </c:if>
        
          <input class="blueButton" type="submit" 
@@ -268,5 +273,7 @@
 <div id="attributeActionsPanel">
 </div>
 
+<div id="attributePrivilegesPanel">
+</div>
 
 <!-- End: simpleAttributeUpdate/attributeEditPanel.jsp -->
