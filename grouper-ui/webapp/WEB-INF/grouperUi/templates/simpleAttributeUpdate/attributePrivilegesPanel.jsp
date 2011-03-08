@@ -11,10 +11,20 @@
 	    <%-- signify which attribute def we are talking about --%>
 	    <input type="hidden" name="attributeDefToEditId" 
 	              value="${attributeUpdateRequestContainer.attributeDefToEdit.id}" />
-
-      <c:forEach items="${attributeUpdateRequestContainer.privilegeSubjectContainers}" var="privilegeSubjectContainer">
-	       ${privilegeSubjectContainer.subject }
-	    </c:forEach>          
+      
+      <table>
+	      <c:forEach items="${attributeUpdateRequestContainer.privilegeSubjectContainers}" var="privilegeSubjectContainer">
+          
+          <tr>
+		        <c:forTokens var="privilegeName" items="attrView attrRead attrUpdate attrAdmin attrOptin attrOptout" delims=" ">
+		          <td><grouper:message key="priv.${privilegeName}" /></grou></td>
+		        </c:forTokens>
+		        <td>
+  			      ${privilegeSubjectContainer.subject }
+  			    </td>
+			    </tr>
+		    </c:forEach>          
+      </table> 
     </form>
     <br />
   </div>
