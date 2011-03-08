@@ -6,6 +6,7 @@ package edu.internet2.middleware.grouper.grouperUi.beans.attributeUpdate;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
@@ -13,6 +14,9 @@ import javax.servlet.http.HttpServletRequest;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.privs.PrivilegeSubjectContainer;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
+import edu.internet2.middleware.grouper.ui.tags.TagUtils;
+import edu.internet2.middleware.grouper.ui.util.MapWrapper;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
 
@@ -264,7 +268,30 @@ public class AttributeUpdateRequestContainer implements Serializable {
   public AttributeUpdateText getText() {
     return AttributeUpdateText.retrieveSingleton();
   }
-  
-  
+
+  /**
+   * if we should show the privilege header
+   * @param rowNumber 0 indexed
+   * @return if we should show the privilege header
+   */
+  public Map<Integer, Boolean> getShowPrivilegeHeader() {
+    
+    return new MapWrapper<Integer, Boolean>() {
+
+      @Override
+      public Boolean get(Object key) {
+        Integer theInt = GrouperUtil.intObjectValue(key, false);
+        int repeatAfterRows = TagUtils.mediaResourceInt("simpleAttributeUpdate.repeatPrivilegeHeaderAfterRows", 20);
+
+        if (theInt % repeatAfterRows == 0) {
+          return true;
+        }
+        return false;
+        
+      }
+      
+    };
+    
+  }
   
 }

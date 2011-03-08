@@ -387,3 +387,8 @@ td.attributeAssignAssignToTd {
   white-space: nowrap;
   padding-right: 5px;	
 }
+th.privilegeHeader {
+  color: #015782;
+  font-weight: bold;
+  text-align: center;
+}

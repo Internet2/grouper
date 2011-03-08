@@ -496,9 +496,11 @@ public class SimpleAttributeUpdate {
         return;
       }
       
+      int privilegeListSize = TagUtils.mediaResourceInt("simpleAttributeUpdate.privilegeListSize", 50);
+      
       Set<PrivilegeSubjectContainer> privilegeSubjectContainers = grouperSession
         .getAttributeDefResolver().retrievePrivileges(attributeDef, null, 
-            null, QueryPaging.page(50, 1, false), null);
+            null, QueryPaging.page(privilegeListSize, 1, false), null);
       
       attributeUpdateRequestContainer.setAttributeDefToEdit(attributeDef);
       attributeUpdateRequestContainer.setPrivilegeSubjectContainers(privilegeSubjectContainers);
