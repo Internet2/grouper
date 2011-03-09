@@ -14,6 +14,14 @@ public class AttributeUpdateText {
 
   /** singleton */
   private static AttributeUpdateText simpleAttributeUpdateText = new AttributeUpdateText();
+
+  /**
+   * filter button for add subject
+   * @return filter button text
+   */
+  public String getFilterAttributePrivilegeSubject() {
+    return text("simpleAttributeUpdate.filterAttributePrivilegeSubject");
+  }
   
   /**
    * delete action implies confirm

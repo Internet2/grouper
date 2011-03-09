@@ -17,6 +17,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
@@ -510,8 +512,10 @@ public class SimpleAttributeUpdate {
       List<GuiMember> guiMembers = new ArrayList<GuiMember>();
       
       for (PrivilegeSubjectContainer privilegeSubjectContainer : privilegeSubjectContainers) {
-        GuiMember guiMember = new GuiMember();
-        guiMember.setGuiSubject(new GuiSubject(privilegeSubjectContainer.getSubject()));
+        //guiMember.setGuiSubject(new GuiSubject(privilegeSubjectContainer.getSubject()));
+        //note, probably better not to do this in loop, oh well
+        Member member = MemberFinder.findBySubject(grouperSession, privilegeSubjectContainer.getSubject(), true);
+        GuiMember guiMember = new GuiMember(member);
         guiMembers.add(guiMember);
       }
       

@@ -51,6 +51,8 @@ public class AttributeUpdateRequestContainer implements Serializable {
   /** gui members */
   private List<GuiMember> privilegeSubjectContainerGuiMembers;
 
+  /** additional gui members to view or assign */
+  private List<GuiMember> privilegeAdditionalGuiMembers;
   
   /**
    * gui members
