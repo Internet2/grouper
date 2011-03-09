@@ -12,6 +12,7 @@ import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 
 import edu.internet2.middleware.grouper.attr.AttributeDef;
+import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiMember;
 import edu.internet2.middleware.grouper.privs.PrivilegeSubjectContainer;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.tags.TagUtils;
@@ -47,6 +48,27 @@ public class AttributeUpdateRequestContainer implements Serializable {
   /** privilege subject containers */
   private Set<PrivilegeSubjectContainer> privilegeSubjectContainers;
   
+  /** gui members */
+  private List<GuiMember> privilegeSubjectContainerGuiMembers;
+
+  
+  /**
+   * gui members
+   * @return gui members
+   */
+  public List<GuiMember> getPrivilegeSubjectContainerGuiMembers() {
+    return this.privilegeSubjectContainerGuiMembers;
+  }
+
+  /**
+   * gui members
+   * @param privilegeSubjectContainerGuiMembers1
+   */
+  public void setPrivilegeSubjectContainerGuiMembers(
+      List<GuiMember> privilegeSubjectContainerGuiMembers1) {
+    this.privilegeSubjectContainerGuiMembers = privilegeSubjectContainerGuiMembers1;
+  }
+
   /**
    * privilege subject containers
    * @return privilege subject containers

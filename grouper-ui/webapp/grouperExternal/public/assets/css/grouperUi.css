@@ -391,4 +391,9 @@ th.privilegeHeader {
   color: #015782;
   font-weight: bold;
   text-align: center;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+td.privilegeRow {
+	text-align: center;
 }

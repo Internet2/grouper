@@ -24,6 +24,8 @@ import edu.internet2.middleware.grouper.attr.AttributeDefType;
 import edu.internet2.middleware.grouper.attr.AttributeDefValueType;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignAction;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
+import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiMember;
+import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiSubject;
 import edu.internet2.middleware.grouper.grouperUi.beans.attributeUpdate.AttributeUpdateRequestContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.attributeUpdate.AttributeUpdateSessionContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
@@ -504,6 +506,16 @@ public class SimpleAttributeUpdate {
       
       attributeUpdateRequestContainer.setAttributeDefToEdit(attributeDef);
       attributeUpdateRequestContainer.setPrivilegeSubjectContainers(privilegeSubjectContainers);
+      
+      List<GuiMember> guiMembers = new ArrayList<GuiMember>();
+      
+      for (PrivilegeSubjectContainer privilegeSubjectContainer : privilegeSubjectContainers) {
+        GuiMember guiMember = new GuiMember();
+        guiMember.setGuiSubject(new GuiSubject(privilegeSubjectContainer.getSubject()));
+        guiMembers.add(guiMember);
+      }
+      
+      attributeUpdateRequestContainer.setPrivilegeSubjectContainerGuiMembers(guiMembers);
       
       //set the actions panel
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#attributePrivilegesPanel", 

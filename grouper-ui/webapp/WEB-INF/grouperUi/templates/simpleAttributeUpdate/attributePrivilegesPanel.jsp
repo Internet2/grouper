@@ -28,10 +28,22 @@
           </c:if>
           <tr>
             <c:forTokens var="privilegeName" items="attrView attrRead attrUpdate attrAdmin attrOptin attrOptout" delims=" ">
-              <td>${row}<grouper:message key="priv.${privilegeName}" /></grou></td>
+              <td class="privilegeRow">
+                <input  style="margin-right: -3px"
+                  type="checkbox" ${privilegeSubjectContainer.privilegeContainers[privilegeName].privilegeAssignType.immediate ? 'checked="checked"' : '' } 
+                /><c:choose>
+			            <c:when test="${privilegeSubjectContainer.privilegeContainers[privilegeName].privilegeAssignType.allowed}"
+			            ><img src="../../grouperExternal/public/assets/images/accept.png" height="14px" border="0" 
+			            /></c:when>
+			            <c:otherwise><img src="../../grouperExternal/public/assets/images/cancel.png" height="14px" border="0" /></c:otherwise>
+			          </c:choose>
+              </td>
             </c:forTokens>
             <td>
-              ${privilegeSubjectContainer.subject }
+	            <c:set var="guiMember" value="${attributeUpdateRequestContainer.privilegeSubjectContainerGuiMembers[row]}" />
+	            <%-- show an icon for the subject --%>
+	            <grouper:subjectIcon guiSubject="${guiMember.guiSubject}" /> 
+	            ${fn:escapeXml(guiMember.guiSubject.screenLabel)}
             </td>
           </tr>
           <c:set var="row" value="${row + 1}" />
