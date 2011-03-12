@@ -53,6 +53,14 @@ public enum PrivilegeAssignType {
   public abstract boolean isImmediate();
   
   /**
+   * if allowed
+   * @return true/false
+   */
+  public boolean isAllowed() {
+    return true;
+  }
+  
+  /**
    * convert a privilege to a type
    * @param privilegeAssignType
    * @param membership
