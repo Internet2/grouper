@@ -99,6 +99,22 @@ public class AttributeUpdateText {
   }
   
   /**
+   * privilege panel submit
+   * @return button text
+   */
+  public String getPrivilegePanelSubmit() {
+    return text("simpleAttributeUpdate.privilegePanelSubmit");
+  }
+
+  /**
+   * privilege panel submit
+   * @return button text
+   */
+  public String getPrivilegePanelCancel() {
+    return text("simpleAttributeUpdate.privilegePanelCancel");
+  }
+  
+  /**
    * delete action confirm
    * @return delete action confirm
    */

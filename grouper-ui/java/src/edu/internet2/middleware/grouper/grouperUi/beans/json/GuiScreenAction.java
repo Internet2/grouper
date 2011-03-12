@@ -13,6 +13,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * one action for screen (response has many actions in a list
  * @author mchyzer
  */
+@SuppressWarnings("serial")
 public class GuiScreenAction implements Serializable {
 
   /** the place in object model to assign */
@@ -161,8 +162,42 @@ public class GuiScreenAction implements Serializable {
   /**
    * this is the html (e.g. from JSP)
    */
-  private String innerHtml;
+  private String html;
   
+  /**
+   * this is the html (e.g. from JSP)
+   * @return html
+   */
+  public String getHtml() {
+    return this.html;
+  }
+
+  /**
+   * this is the html (e.g. from JSP)
+   * @param appendHtml1
+   */
+  public void setHtml(String appendHtml1) {
+    this.html = appendHtml1;
+  }
+
+
+  /**
+   * if appending html, this is the jquery handle to append in, e.g. #someId
+   * @return handle
+   */
+  public String getAppendHtmlJqueryHandle() {
+    return this.appendHtmlJqueryHandle;
+  }
+
+
+  /**
+   * if appending html, this is the jquery handle to append in, e.g. #someId
+   * @param appendHtmlJqueryHandle1
+   */
+  public void setAppendHtmlJqueryHandle(String appendHtmlJqueryHandle1) {
+    this.appendHtmlJqueryHandle = appendHtmlJqueryHandle1;
+  }
+
   /** hide show name to show */
   private String hideShowNameToShow;
   
@@ -193,6 +228,11 @@ public class GuiScreenAction implements Serializable {
   
   /** if the alert should be centered or not (default true) */
   private Boolean alertCentered;
+
+  /**
+   * if appending html, this is the jquery handle to append in, e.g. #someId
+   */
+  private String appendHtmlJqueryHandle;
   
   /**
    * hide show name to show
@@ -263,21 +303,6 @@ public class GuiScreenAction implements Serializable {
   }
 
   
-  /**
-   * @return the htmlReplaceHtml
-   */
-  public String getInnerHtml() {
-    return this.innerHtml;
-  }
-
-  
-  /**
-   * @param htmlReplaceHtml1 the htmlReplaceHtml to set
-   */
-  public void setInnerHtml(String htmlReplaceHtml1) {
-    this.innerHtml = htmlReplaceHtml1;
-  }
-
   /**
    * run a javascript
    * @return the script
@@ -425,7 +450,23 @@ public class GuiScreenAction implements Serializable {
     String jspContents = GrouperUiUtils.convertJspToString(jspName);
     
     guiScreenAction.setInnerHtmlJqueryHandle(htmlReplaceJqueryHandle1);
-    guiScreenAction.setInnerHtml(jspContents);
+    guiScreenAction.setHtml(jspContents);
+    
+    return guiScreenAction;
+  }
+  
+  /**
+   * construct with the name and JSP name
+   * @param htmlAppendJqueryHandle1 e.g. #someId
+   * @param jspName e.g. /WEB-INF/templates/something.jsp
+   * @return the action
+   */
+  public static GuiScreenAction newAppendHtmlFromJsp(String htmlAppendJqueryHandle1, String jspName) {
+    GuiScreenAction guiScreenAction = new GuiScreenAction();
+    String jspContents = GrouperUiUtils.convertJspToString(jspName);
+    
+    guiScreenAction.setAppendHtmlJqueryHandle(htmlAppendJqueryHandle1);
+    guiScreenAction.setHtml(jspContents);
     
     return guiScreenAction;
   }
@@ -529,11 +570,27 @@ public class GuiScreenAction implements Serializable {
    * @param html is html to put on screen
    * @return the action
    */
+  public static GuiScreenAction newAppendHtml(String htmlReplaceJqueryHandle1, String html) {
+    GuiScreenAction guiScreenAction = new GuiScreenAction();
+    
+    guiScreenAction.setAppendHtmlJqueryHandle(htmlReplaceJqueryHandle1);
+    guiScreenAction.setHtml(html);
+    
+    return guiScreenAction;
+  }
+
+
+  /**
+   * construct with the name and object
+   * @param htmlReplaceJqueryHandle1 e.g. #someId
+   * @param html is html to put on screen
+   * @return the action
+   */
   public static GuiScreenAction newInnerHtml(String htmlReplaceJqueryHandle1, String html) {
     GuiScreenAction guiScreenAction = new GuiScreenAction();
     
     guiScreenAction.setInnerHtmlJqueryHandle(htmlReplaceJqueryHandle1);
-    guiScreenAction.setInnerHtml(html);
+    guiScreenAction.setHtml(html);
     
     return guiScreenAction;
   }

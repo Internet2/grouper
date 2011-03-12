@@ -201,7 +201,6 @@ function guiRegisterDhtmlxCombo(divId, comboName, width, useImages, filterUrl, c
   }
   if (!guiIsEmpty(comboDefaultText)) {
     theCombo.setComboText(comboDefaultText);
-
   }
 
   //add hidden throbber
@@ -462,7 +461,12 @@ function guiProcessAction(guiScreenAction) {
   }
   //replace some html
   if (!guiIsEmpty(guiScreenAction.innerHtmlJqueryHandle)) {
-     $(guiScreenAction.innerHtmlJqueryHandle).html(guiScreenAction.innerHtml);
+     $(guiScreenAction.innerHtmlJqueryHandle).html(guiScreenAction.html);
+  }
+
+  //append html
+  if (!guiIsEmpty(guiScreenAction.appendHtmlJqueryHandle)) {
+    $(guiScreenAction.appendHtmlJqueryHandle).append(guiScreenAction.html);
   }
 
   //hide/shows
@@ -1894,6 +1898,12 @@ function guiSubmitAttributeDefNamePickerToUrl(attributeDefNamePickerElementName,
 /**
  * scroll to the bottom of the page
  */
-function guiScrollToBottom() {
-  $('html, body').animate({scrollTop: $(document).height()},1500);
+function guiScrollTo(jqueryId) {
+  
+  //got this here: http://beski.wordpress.com/2009/04/21/scroll-effect-with-local-anchors-jquery/
+  var targetOffset = $(jqueryId).offset();
+  var targetTop = targetOffset.top;
+  
+  //$('html, body').animate({scrollTop: $(document).height()},1500);
+  $('html, body').animate({scrollTop: targetTop},500);
 }

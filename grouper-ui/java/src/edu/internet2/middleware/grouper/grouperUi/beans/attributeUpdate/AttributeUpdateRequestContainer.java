@@ -5,12 +5,18 @@
 package edu.internet2.middleware.grouper.grouperUi.beans.attributeUpdate;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.lang.StringUtils;
+
+import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiMember;
 import edu.internet2.middleware.grouper.privs.PrivilegeSubjectContainer;
@@ -54,6 +60,51 @@ public class AttributeUpdateRequestContainer implements Serializable {
   /** additional gui members to view or assign */
   private List<GuiMember> privilegeAdditionalGuiMembers;
   
+  /**
+   * additional gui members to view or assign
+   * @return additional gui members to view or assign
+   */
+  public List<GuiMember> getPrivilegeAdditionalGuiMembers() {
+    return this.privilegeAdditionalGuiMembers;
+  }
+
+  /**
+   * calculate based on request object, and return list, unless it is already calculated
+   * @return the list
+   */
+  public List<GuiMember> privilegeAdditionalGuiMembers() {
+    if (this.privilegeAdditionalGuiMembers == null) {
+      this.privilegeAdditionalGuiMembers = new ArrayList<GuiMember>();
+      
+      HttpServletRequest httpServletRequest = GrouperUiFilter.retrieveHttpServletRequest();
+      
+      //max of 200, no endless loops
+      for (int i=0;i<200;i++) {
+        
+        String memberId = httpServletRequest.getParameter("additionalMemberId_" + i);
+        if (StringUtils.isBlank(memberId)) {
+          break;
+        }
+        
+        Member member = MemberFinder.findByUuid(GrouperSession.staticGrouperSession(), memberId, true);
+        
+        this.privilegeAdditionalGuiMembers.add(new GuiMember(member));
+        
+      }
+    }
+    
+    return this.privilegeAdditionalGuiMembers;
+    
+  }
+  
+  /**
+   * additional gui members to view or assign
+   * @param privilegeAdditionalGuiMembers1
+   */
+  public void setPrivilegeAdditionalGuiMembers(List<GuiMember> privilegeAdditionalGuiMembers1) {
+    this.privilegeAdditionalGuiMembers = privilegeAdditionalGuiMembers1;
+  }
+
   /**
    * gui members
    * @return gui members
@@ -291,6 +342,19 @@ public class AttributeUpdateRequestContainer implements Serializable {
    */
   public AttributeUpdateText getText() {
     return AttributeUpdateText.retrieveSingleton();
+  }
+
+  /**
+   * if should show indirect privileges
+   * @return true if should show
+   */
+  public boolean isShowIndirectPrivilegesComputed() {
+
+    HttpServletRequest httpServletRequest = GrouperUiFilter.retrieveHttpServletRequest();
+
+    String showIndirectPrivilegesString = httpServletRequest.getParameter("showIndirectPrivileges");
+    
+    return GrouperUtil.booleanValue(showIndirectPrivilegesString, false);
   }
 
   /**

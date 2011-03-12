@@ -26,6 +26,11 @@ import edu.internet2.middleware.grouper.grouperUi.beans.json.AppState;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiSettings;
+import edu.internet2.middleware.grouper.grouperUi.serviceLogic.InviteExternalSubjects;
+import edu.internet2.middleware.grouper.grouperUi.serviceLogic.SimpleAttributeUpdateFilter;
+import edu.internet2.middleware.grouper.grouperUi.serviceLogic.SimpleMembershipUpdateFilter;
+import edu.internet2.middleware.grouper.grouperUi.serviceLogic.SimpleMembershipUpdateImportExport;
+import edu.internet2.middleware.grouper.grouperUi.serviceLogic.SimpleMembershipUpdateMenu;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter.UiSection;
@@ -62,12 +67,15 @@ public class GrouperUiRestServlet extends HttpServlet {
 
   /** uris that it is ok to get (e.g. auto complete and other ajax components */
   private static Set<String> operationsOkGet = GrouperUtil.toSet(
-      "InviteExternalSubjects.groupToAssignFilter",
-      "SimpleMembershipUpdateFilter.filterUsers", "SimpleMembershipUpdateFilter.filterGroups",
-      "SimpleMembershipUpdateMenu.advancedMenuStructure", "SimpleMembershipUpdateImportExport.exportSubjectIdsCsv",
+      InviteExternalSubjects.class.getSimpleName() + ".groupToAssignFilter",
+      SimpleMembershipUpdateFilter.class.getSimpleName() + ".filterUsers", 
+      "SimpleMembershipUpdateFilter.filterGroups",
+      SimpleMembershipUpdateMenu.class.getSimpleName() + ".advancedMenuStructure", 
+      SimpleMembershipUpdateImportExport.class.getSimpleName() + ".exportSubjectIdsCsv",
       "SimpleMembershipUpdateImportExport.exportAllCsv", "SimpleMembershipUpdateMenu.memberMenuStructure",
       "SimpleMembershipUpdateFilter.filterMembers", "SimpleAttributeUpdateFilter.filterAttributeDefs",
-      "SimpleAttributeUpdateFilter.filterCreatableNamespace");
+      "SimpleAttributeUpdateFilter.filterCreatableNamespace", 
+      SimpleAttributeUpdateFilter.class.getSimpleName() + ".filterPrivilegeUsers");
 
   /**
    * @see javax.servlet.http.HttpServlet#service(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)

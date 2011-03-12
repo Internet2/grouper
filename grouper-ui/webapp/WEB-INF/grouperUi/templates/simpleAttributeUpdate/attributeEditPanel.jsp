@@ -238,28 +238,28 @@
 
            <input class="redButton" type="submit" 
             onclick="if (confirm('${grouper:message('simpleAttributeUpdate.editPanelDeleteConfirm', true, true) }')) {ajax('../app/SimpleAttributeUpdate.attributeEditPanelDelete', {formIds: 'attributeEditFormId'}); } return false;" 
-            value="${simpleAttributeUpdateContainer.text.editPanelDelete}" style="margin-top: 2px" />
+            value="${attributeUpdateRequestContainer.text.editPanelDelete}" style="margin-top: 2px" />
 
          </c:if>
 
          <input class="redButton" type="submit" 
           onclick="window.location = 'grouper.html?operation=SimpleAttributeUpdate.createEdit'; return false;" 
-          value="${simpleAttributeUpdateContainer.text.editPanelCancel}" style="margin-top: 2px" />
+          value="${attributeUpdateRequestContainer.text.editPanelCancel}" style="margin-top: 2px" />
          
          <c:if test="${!attributeUpdateRequestContainer.create}">
            <input class="blueButton" type="submit" 
             onclick="ajax('../app/SimpleAttributeUpdate.attributeEditPanelActions', {formIds: 'attributeEditFormId'}); return false;" 
-            value="${simpleAttributeUpdateContainer.text.editPanelActions}" style="margin-top: 2px" />
+            value="${attributeUpdateRequestContainer.text.editPanelActions}" style="margin-top: 2px" />
 
            <input class="blueButton" type="submit" 
             onclick="ajax('../app/SimpleAttributeUpdate.attributeEditPanelPrivileges', {formIds: 'attributeEditFormId'}); return false;" 
-            value="${simpleAttributeUpdateContainer.text.editPanelPrivileges}" style="margin-top: 2px" />
+            value="${attributeUpdateRequestContainer.text.editPanelPrivileges}" style="margin-top: 2px" />
 
          </c:if>
        
          <input class="blueButton" type="submit" 
           onclick="ajax('../app/SimpleAttributeUpdate.attributeEditPanelSubmit', {formIds: 'attributeEditFormId'}); return false;" 
-          value="${simpleAttributeUpdateContainer.text.editPanelSubmit}" style="margin-top: 2px" />
+          value="${attributeUpdateRequestContainer.text.editPanelSubmit}" style="margin-top: 2px" />
        
        </td>
        </tr>

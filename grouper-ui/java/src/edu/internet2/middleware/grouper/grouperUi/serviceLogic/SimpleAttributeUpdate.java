@@ -6,8 +6,12 @@ package edu.internet2.middleware.grouper.grouperUi.serviceLogic;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Enumeration;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -27,12 +31,12 @@ import edu.internet2.middleware.grouper.attr.AttributeDefValueType;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignAction;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiMember;
-import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiSubject;
 import edu.internet2.middleware.grouper.grouperUi.beans.attributeUpdate.AttributeUpdateRequestContainer;
-import edu.internet2.middleware.grouper.grouperUi.beans.attributeUpdate.AttributeUpdateSessionContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
 import edu.internet2.middleware.grouper.internal.dao.QueryPaging;
+import edu.internet2.middleware.grouper.membership.MembershipType;
+import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.privs.PrivilegeSubjectContainer;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.tags.TagUtils;
@@ -83,7 +87,7 @@ public class SimpleAttributeUpdate {
       }
       
       if (!attributeDef.getPrivilegeDelegate().canAttrAdmin(loggedInSubject)) {
-        LOG.info("Subject " + GrouperUtil.subjectToString(loggedInSubject) + " cannot admin attribute definition: " + attributeDef.getName());
+        LOG.error("Subject " + GrouperUtil.subjectToString(loggedInSubject) + " cannot admin attribute definition: " + attributeDef.getName());
         guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simpleAttributeUpdate.errorCantEditAttributeDef", false)));
         return;
       }
@@ -214,7 +218,7 @@ public class SimpleAttributeUpdate {
         }
       
         if (!attributeDef.getPrivilegeDelegate().canAttrAdmin(loggedInSubject)) {
-          LOG.info("Subject " + GrouperUtil.subjectToString(loggedInSubject) + " cannot admin attribute definition: " + attributeDef.getName());
+          LOG.error("Subject " + GrouperUtil.subjectToString(loggedInSubject) + " cannot admin attribute definition: " + attributeDef.getName());
           guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simpleAttributeUpdate.errorCantEditAttributeDef", false)));
           return;
         }
@@ -340,8 +344,7 @@ public class SimpleAttributeUpdate {
   public void index(HttpServletRequest request, HttpServletResponse response) {
     
     //setup the container
-    final AttributeUpdateSessionContainer attributeUpdateSessionContainer = new AttributeUpdateSessionContainer();
-    attributeUpdateSessionContainer.storeToSession();
+    AttributeUpdateRequestContainer.retrieveFromRequestOrCreate();
 
     GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
 
@@ -362,12 +365,10 @@ public class SimpleAttributeUpdate {
    */
   public void assignInit(HttpServletRequest request, HttpServletResponse response) {
   
-    //setup the container
-    final AttributeUpdateSessionContainer attributeUpdateSessionContainer = new AttributeUpdateSessionContainer();
-    attributeUpdateSessionContainer.storeToSession();
-
     GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
   
+    AttributeUpdateRequestContainer.retrieveFromRequestOrCreate();
+
     guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#bodyDiv", 
         "/WEB-INF/grouperUi/templates/simpleAttributeUpdate/simpleAttributeAssignInit.jsp"));
   
@@ -382,8 +383,7 @@ public class SimpleAttributeUpdate {
     GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
   
     //setup the container
-    final AttributeUpdateSessionContainer attributeUpdateSessionContainer = new AttributeUpdateSessionContainer();
-    attributeUpdateSessionContainer.storeToSession();
+    AttributeUpdateRequestContainer.retrieveFromRequestOrCreate();
   
     guiResponseJs.addAction(GuiScreenAction.newScript("document.title = '" 
         + GrouperUiUtils.message("simpleAttributeUpdate.addEditTitle", false) + "'"));
@@ -433,7 +433,7 @@ public class SimpleAttributeUpdate {
       }
       
       if (!attributeDef.getPrivilegeDelegate().canAttrAdmin(loggedInSubject)) {
-        LOG.info("Subject " + GrouperUtil.subjectToString(loggedInSubject) + " cannot admin attribute definition: " + attributeDef.getName());
+        LOG.error("Subject " + GrouperUtil.subjectToString(loggedInSubject) + " cannot admin attribute definition: " + attributeDef.getName());
         guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simpleAttributeUpdate.errorCantEditAttributeDef", false)));
         return;
       }
@@ -451,19 +451,33 @@ public class SimpleAttributeUpdate {
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#attributeActionsPanel", 
         "/WEB-INF/grouperUi/templates/simpleAttributeUpdate/attributeActionsPanel.jsp"));
       
-      guiResponseJs.addAction(GuiScreenAction.newScript("guiScrollToBottom();"));
+      guiResponseJs.addAction(GuiScreenAction.newScript("guiScrollTo('#attributeActionsPanel');"));
       
     } finally {
       GrouperSession.stopQuietly(grouperSession); 
     }
   }
-
+  
   /**
-   * privileges button was pressed on the attribute edit panel
+   * cancel privilege button was pressed on the attribute edit panel
    * @param httpServletRequest
    * @param httpServletResponse
    */
-  public void attributeEditPanelPrivileges(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
+  public void privilegeCancel(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
+  
+    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+
+    //set the privilege panel
+    guiResponseJs.addAction(GuiScreenAction.newInnerHtml("#attributePrivilegesPanel", null));
+    
+  }
+
+  /**
+   * submit privileges button was pressed on the privilege edit panel
+   * @param httpServletRequest
+   * @param httpServletResponse
+   */
+  public void privilegePanelSubmit(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
   
     final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
   
@@ -495,16 +509,164 @@ public class SimpleAttributeUpdate {
       }
       
       if (!attributeDef.getPrivilegeDelegate().canAttrAdmin(loggedInSubject)) {
-        LOG.info("Subject " + GrouperUtil.subjectToString(loggedInSubject) + " cannot admin attribute definition: " + attributeDef.getName());
+        LOG.error("Subject " + GrouperUtil.subjectToString(loggedInSubject) + " cannot admin attribute definition: " + attributeDef.getName());
         guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simpleAttributeUpdate.errorCantEditAttributeDef", false)));
         return;
       }
       
+      attributeUpdateRequestContainer.setAttributeDefToEdit(attributeDef);
+      
+      //lets see what to do...
+      //<input  name="previousState__${guiMember.member.uuid}__${privilegeName}"
+      //  type="hidden" value="${privilegeSubjectContainer.privilegeContainers[privilegeName].privilegeAssignType.immediate ? 'true' : 'false'}" />
+      //<%-- note, too much space between elements, move it over 3px --%>
+      //<input  style="margin-right: -3px" name="privilegeCheckbox__${guiMember.member.uuid}__${privilegeName}"
+      //  type="checkbox" ${privilegeSubjectContainer.privilegeContainers[privilegeName].privilegeAssignType.immediate ? 'checked="checked"' : '' } 
+      ///><c:choose>
+      
+      StringBuilder alert = new StringBuilder();
+      
+      Pattern pattern = Pattern.compile("^previousState__(.*)__(.*)$");
+      Enumeration<?> enumeration = httpServletRequest.getParameterNames();
+      while (enumeration != null && enumeration.hasMoreElements()) {
+        String paramName = (String)enumeration.nextElement();
+        Matcher matcher = pattern.matcher(paramName);
+        if (matcher.matches()) {
+          
+          //lets get the previous state
+          boolean previousChecked = GrouperUtil.booleanValue(httpServletRequest.getParameter(paramName));
+          
+          //get current state
+          String memberId = matcher.group(1);
+          String privilegeName = matcher.group(2);
+          String currentStateString = httpServletRequest.getParameter("privilegeCheckbox__" + memberId + "__" + privilegeName);
+          boolean currentChecked = GrouperUtil.booleanValue(currentStateString, false);
+          
+          //if they dont match, do something about it
+          if (previousChecked != currentChecked) {
+            
+            Member member = MemberFinder.findByUuid(grouperSession, memberId, true);
+            Subject subject = member.getSubject();
+            Privilege privilege = Privilege.getInstance(privilegeName);
+            String privilegeGuiLabel = GrouperUiUtils.message("priv." + privilege.getName(), false);
+
+            if (alert.length() > 0) {
+              alert.append("<br />");
+            }
+
+            GuiMember guiMember = new GuiMember(member);
+            String subjectScreenLabel = guiMember.getGuiSubject().getScreenLabel();
+
+            if (currentChecked) {
+              boolean result = attributeDef.getPrivilegeDelegate().grantPriv(
+                  subject, privilege, false);
+              
+              if (result) {
+                
+                alert.append(GrouperUiUtils.message("simpleAttributeUpdate.privilegeGrant", false, true, new Object[]{privilegeGuiLabel, subjectScreenLabel}));
+                
+              } else {
+                
+                alert.append(GrouperUiUtils.message("simpleAttributeUpdate.privilegeGrantWarn", false, true, new Object[]{privilegeGuiLabel, subjectScreenLabel}));
+              }              
+            } else {
+              boolean result = attributeDef.getPrivilegeDelegate().revokePriv(
+                  subject, privilege, false);
+              
+              if (result) {
+                
+                alert.append(GrouperUiUtils.message("simpleAttributeUpdate.privilegeRevoke", false, true, new Object[]{privilegeGuiLabel, subjectScreenLabel}));
+                
+              } else {
+                
+                alert.append(GrouperUiUtils.message("simpleAttributeUpdate.privilegeRevokeWarn", false, true, new Object[]{privilegeGuiLabel, subjectScreenLabel}));
+              }              
+            }
+          }
+        }
+      }
+      
+      if (alert.length() > 0) {
+        guiResponseJs.addAction(GuiScreenAction.newAlert(alert.toString()));
+      } else {
+        guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simpleAttributeUpdate.noPrivilegeChangesDetected", false)));
+      }
+      
+    } finally {
+      GrouperSession.stopQuietly(grouperSession); 
+    }
+    
+    attributeEditPanelPrivileges(httpServletRequest, httpServletResponse);
+    
+  }
+  
+  /**
+   * privileges button was pressed on the attribute edit panel
+   * @param httpServletRequest
+   * @param httpServletResponse
+   */
+  public void attributeEditPanelPrivileges(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
+  
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+  
+    AttributeUpdateRequestContainer attributeUpdateRequestContainer = AttributeUpdateRequestContainer.retrieveFromRequestOrCreate();
+
+    GrouperSession grouperSession = null;
+
+    try {
+      grouperSession = GrouperSession.start(loggedInSubject);
+      
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+  
+      AttributeDef attributeDef = attributeUpdateRequestContainer.getAttributeDefToEdit();
+      
+      if (attributeDef == null) {
+      
+        String uuid = httpServletRequest.getParameter("attributeDefToEditId");
+        
+        if (StringUtils.isBlank(uuid)) {
+          throw new RuntimeException("Why is uuid blank????");
+        }
+    
+        //if editing, then this must be there, or it has been tampered with
+        try {
+          attributeDef = AttributeDefFinder.findById(uuid, true);
+        } catch (Exception e) {
+          LOG.info("Error searching for attribute def: " + uuid, e);
+          guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simpleAttributeUpdate.errorCantEditAttributeDef", false)));
+          return;
+          
+        }
+        
+        if (!attributeDef.getPrivilegeDelegate().canAttrAdmin(loggedInSubject)) {
+          LOG.error("Subject " + GrouperUtil.subjectToString(loggedInSubject) + " cannot admin attribute definition: " + attributeDef.getName());
+          guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simpleAttributeUpdate.errorCantEditAttributeDef", false)));
+          return;
+        }
+      }
+      
       int privilegeListSize = TagUtils.mediaResourceInt("simpleAttributeUpdate.privilegeListSize", 50);
+      
+      //might be additional members at top of list
+      List<GuiMember> additionalGuiMembers = attributeUpdateRequestContainer.privilegeAdditionalGuiMembers();
+      
+      Set<Member> additionalMembers = null;
+      
+      if (GrouperUtil.length(additionalGuiMembers) > 0) {
+        
+        //needs to be ordered
+        additionalMembers = new LinkedHashSet<Member>();
+        for (GuiMember guiMember : additionalGuiMembers) {
+          additionalMembers.add(guiMember.getMember());
+        }
+        
+      }
+      
+      boolean showIndirectPrivileges = attributeUpdateRequestContainer.isShowIndirectPrivilegesComputed();
       
       Set<PrivilegeSubjectContainer> privilegeSubjectContainers = grouperSession
         .getAttributeDefResolver().retrievePrivileges(attributeDef, null, 
-            null, QueryPaging.page(privilegeListSize, 1, false), null);
+            showIndirectPrivileges ? null : MembershipType.IMMEDIATE, QueryPaging.page(privilegeListSize, 1, false), additionalMembers);
       
       attributeUpdateRequestContainer.setAttributeDefToEdit(attributeDef);
       attributeUpdateRequestContainer.setPrivilegeSubjectContainers(privilegeSubjectContainers);
@@ -521,11 +683,11 @@ public class SimpleAttributeUpdate {
       
       attributeUpdateRequestContainer.setPrivilegeSubjectContainerGuiMembers(guiMembers);
       
-      //set the actions panel
+      //set the privilege panel
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#attributePrivilegesPanel", 
         "/WEB-INF/grouperUi/templates/simpleAttributeUpdate/attributePrivilegesPanel.jsp"));
       
-      guiResponseJs.addAction(GuiScreenAction.newScript("guiScrollToBottom();"));
+      guiResponseJs.addAction(GuiScreenAction.newScript("guiScrollTo('#attributePrivilegesPanel');"));
       
     } finally {
       GrouperSession.stopQuietly(grouperSession); 
@@ -575,7 +737,7 @@ public class SimpleAttributeUpdate {
       }
       
       if (!attributeDef.getPrivilegeDelegate().canAttrAdmin(loggedInSubject)) {
-        LOG.info("Subject " + GrouperUtil.subjectToString(loggedInSubject) + " cannot admin attribute definition: " + attributeDef.getName());
+        LOG.error("Subject " + GrouperUtil.subjectToString(loggedInSubject) + " cannot admin attribute definition: " + attributeDef.getName());
         guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simpleAttributeUpdate.errorCantEditAttributeDef", false)));
         return;
       }
@@ -604,7 +766,7 @@ public class SimpleAttributeUpdate {
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#attributeActionsPanel", 
         "/WEB-INF/grouperUi/templates/simpleAttributeUpdate/attributeActionsPanel.jsp"));
       
-      guiResponseJs.addAction(GuiScreenAction.newScript("guiScrollToBottom();"));
+      guiResponseJs.addAction(GuiScreenAction.newScript("guiScrollTo('#attributeActionsPanel');"));
       
     } finally {
       GrouperSession.stopQuietly(grouperSession); 
@@ -674,7 +836,7 @@ public class SimpleAttributeUpdate {
       }
       
       if (!attributeDef.getPrivilegeDelegate().canAttrAdmin(loggedInSubject)) {
-        LOG.info("Subject " + GrouperUtil.subjectToString(loggedInSubject) + " cannot admin attribute definition: " + attributeDef.getName());
+        LOG.error("Subject " + GrouperUtil.subjectToString(loggedInSubject) + " cannot admin attribute definition: " + attributeDef.getName());
         guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simpleAttributeUpdate.errorCantEditAttributeDef", false)));
         return;
       }
@@ -714,7 +876,7 @@ public class SimpleAttributeUpdate {
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#attributeActionsPanel", 
         "/WEB-INF/grouperUi/templates/simpleAttributeUpdate/attributeActionsPanel.jsp"));
       
-      guiResponseJs.addAction(GuiScreenAction.newScript("guiScrollToBottom();"));
+      guiResponseJs.addAction(GuiScreenAction.newScript("guiScrollTo('#attributeActionsPanel');"));
       
     } finally {
       GrouperSession.stopQuietly(grouperSession); 
@@ -764,7 +926,7 @@ public class SimpleAttributeUpdate {
       }
       
       if (!attributeDef.getPrivilegeDelegate().canAttrAdmin(loggedInSubject)) {
-        LOG.info("Subject " + GrouperUtil.subjectToString(loggedInSubject) + " cannot admin attribute definition: " + attributeDef.getName());
+        LOG.error("Subject " + GrouperUtil.subjectToString(loggedInSubject) + " cannot admin attribute definition: " + attributeDef.getName());
         guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simpleAttributeUpdate.errorCantEditAttributeDef", false)));
         return;
       }
@@ -832,7 +994,7 @@ public class SimpleAttributeUpdate {
       }
       
       if (!attributeDef.getPrivilegeDelegate().canAttrAdmin(loggedInSubject)) {
-        LOG.info("Subject " + GrouperUtil.subjectToString(loggedInSubject) + " cannot admin attribute definition: " + attributeDef.getName());
+        LOG.error("Subject " + GrouperUtil.subjectToString(loggedInSubject) + " cannot admin attribute definition: " + attributeDef.getName());
         guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simpleAttributeUpdate.errorCantEditAttributeDef", false)));
         return;
       }
@@ -901,7 +1063,7 @@ public class SimpleAttributeUpdate {
       }
       
       if (!attributeDef.getPrivilegeDelegate().canAttrAdmin(loggedInSubject)) {
-        LOG.info("Subject " + GrouperUtil.subjectToString(loggedInSubject) + " cannot admin attribute definition: " + attributeDef.getName());
+        LOG.error("Subject " + GrouperUtil.subjectToString(loggedInSubject) + " cannot admin attribute definition: " + attributeDef.getName());
         guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simpleAttributeUpdate.errorCantEditAttributeDef", false)));
         return;
       }
@@ -976,7 +1138,7 @@ public class SimpleAttributeUpdate {
     guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#attributeActionEditPanel", 
       "/WEB-INF/grouperUi/templates/simpleAttributeUpdate/attributeActionEditPanel.jsp"));
     
-    guiResponseJs.addAction(GuiScreenAction.newScript("guiScrollToBottom();"));
+    guiResponseJs.addAction(GuiScreenAction.newScript("guiScrollTo('#attributeActionsPanel');"));
   }
 
   /**
@@ -1022,7 +1184,7 @@ public class SimpleAttributeUpdate {
       }
       
       if (!attributeDef.getPrivilegeDelegate().canAttrAdmin(loggedInSubject)) {
-        LOG.info("Subject " + GrouperUtil.subjectToString(loggedInSubject) + " cannot admin attribute definition: " + attributeDef.getName());
+        LOG.error("Subject " + GrouperUtil.subjectToString(loggedInSubject) + " cannot admin attribute definition: " + attributeDef.getName());
         guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simpleAttributeUpdate.errorCantEditAttributeDef", false)));
         return;
       }
@@ -1091,7 +1253,7 @@ public class SimpleAttributeUpdate {
       }
       
       if (!attributeDef.getPrivilegeDelegate().canAttrAdmin(loggedInSubject)) {
-        LOG.info("Subject " + GrouperUtil.subjectToString(loggedInSubject) + " cannot admin attribute definition: " + attributeDef.getName());
+        LOG.error("Subject " + GrouperUtil.subjectToString(loggedInSubject) + " cannot admin attribute definition: " + attributeDef.getName());
         guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simpleAttributeUpdate.errorCantEditAttributeDef", false)));
         return;
       }
