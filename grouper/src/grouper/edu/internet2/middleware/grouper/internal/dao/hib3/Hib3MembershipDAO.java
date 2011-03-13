@@ -2356,7 +2356,7 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
       .createQuery(sql.toString())
       .setCacheable(false)
       .setCacheRegion(KLASS)
-      .setString( "ownerInGroupId" , ownerInGroupId                 )
+      .setString( "ownerInGroupId" , ownerInGroupId )
       .listSet(Member.class);
 
     return members;

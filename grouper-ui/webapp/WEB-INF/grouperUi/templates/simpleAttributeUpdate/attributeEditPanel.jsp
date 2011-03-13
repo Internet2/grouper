@@ -231,6 +231,62 @@
            </table>
          </td>
        </tr>
+
+       <tr class="formTableRow">
+         <td class="formTableLeft">
+           <grouper:message key="simpleAttributeUpdate.create.privs-for-all" />
+         </td>
+         <td class="formTableRight" style="white-space: nowrap;">
+            
+            <input type="checkbox" name="attributeDefToEditAllowAllAdmin" 
+              value="true" 
+              ${attributeUpdateRequestContainer.allowAllAdmin ? 'checked="checked"' : '' } />
+              
+             <grouper:message key="priv.attrAdminLower" /> 
+             
+             &nbsp;
+             
+            <input type="checkbox" name="attributeDefToEditAllowAllUpdate" 
+              value="true" 
+              ${attributeUpdateRequestContainer.allowAllUpdate ? 'checked="checked"' : '' } />
+              
+             <grouper:message key="priv.attrUpdateLower" /> 
+             
+             &nbsp;
+             
+             <input type="checkbox" name="attributeDefToEditAllowAllRead" 
+              value="true" 
+              ${attributeUpdateRequestContainer.allowAllRead ? 'checked="checked"' : '' } />
+              
+             <grouper:message key="priv.attrReadLower" /> 
+             
+             &nbsp;
+             
+            <input type="checkbox" name="attributeDefToEditAllowAllView" 
+              value="true" 
+              ${attributeUpdateRequestContainer.allowAllView ? 'checked="checked"' : '' } />
+              
+             <grouper:message key="priv.attrViewLower" /> 
+             
+             &nbsp;
+             
+            <input type="checkbox" name="attributeDefToEditAllowAllOptin" 
+              value="true" 
+              ${attributeUpdateRequestContainer.allowAllOptin ? 'checked="checked"' : '' } />
+              
+             <grouper:message key="priv.attrOptinLower" /> 
+             
+             &nbsp;
+             
+            <input type="checkbox" name="attributeDefToEditAllowAllOptout" 
+              value="true" 
+              ${attributeUpdateRequestContainer.allowAllOptout ? 'checked="checked"' : '' } />
+              
+             <grouper:message key="priv.attrOptoutLower" /> 
+                          
+         </td>
+       </tr>
+
        <tr>
        <td colspan="2">
 

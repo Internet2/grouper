@@ -180,7 +180,7 @@ public class TestAttributeDefPriv extends GrouperTest {
 
     this.allGroups.add(this.groupSubject2);
     this.readViewGroups.add(this.groupSubject2);
-    theGroupMap.put(this.groupSubject2, new PrivilegeContainerImpl(AttributeDefPrivilege.ATTR_VIEW, PrivilegeAssignType.IMMEDIATE));
+    theGroupMap.put(this.groupSubject2, new PrivilegeContainerImpl(AttributeDefPrivilege.ATTR_VIEW.getName(), PrivilegeAssignType.IMMEDIATE));
 
     this.groupSubject2.addMember(this.subject2);
     this.member2 = MemberFinder.findBySubject(this.grouperSession, this.subject2, true);
@@ -197,7 +197,7 @@ public class TestAttributeDefPriv extends GrouperTest {
       .assignName("aStem:subject3Group").save();
 
     this.allGroups.add(this.groupSubject3);
-    theGroupMap.put(this.groupSubject3, new PrivilegeContainerImpl(AttributeDefPrivilege.ATTR_ADMIN, PrivilegeAssignType.IMMEDIATE));
+    theGroupMap.put(this.groupSubject3, new PrivilegeContainerImpl(AttributeDefPrivilege.ATTR_ADMIN.getName(), PrivilegeAssignType.IMMEDIATE));
 
     this.groupSubject3.addMember(this.subject3);
     
@@ -221,7 +221,7 @@ public class TestAttributeDefPriv extends GrouperTest {
 
     this.allGroups.add(this.groupSubject5a);
     this.readViewGroups.add(this.groupSubject5a);
-    theGroupMap.put(this.groupSubject5a, new PrivilegeContainerImpl(AttributeDefPrivilege.ATTR_READ, PrivilegeAssignType.IMMEDIATE));
+    theGroupMap.put(this.groupSubject5a, new PrivilegeContainerImpl(AttributeDefPrivilege.ATTR_READ.getName(), PrivilegeAssignType.IMMEDIATE));
 
     this.groupSubject5a.addMember(this.subject5);
 
@@ -234,7 +234,7 @@ public class TestAttributeDefPriv extends GrouperTest {
 
     this.allGroups.add(this.groupSubject5b);
     this.readViewGroups.add(this.groupSubject5b);
-    theGroupMap.put(this.groupSubject5b, new PrivilegeContainerImpl(AttributeDefPrivilege.ATTR_READ, PrivilegeAssignType.IMMEDIATE));
+    theGroupMap.put(this.groupSubject5b, new PrivilegeContainerImpl(AttributeDefPrivilege.ATTR_READ.getName(), PrivilegeAssignType.IMMEDIATE));
 
     this.groupSubject5b.addMember(this.subject5);
   
@@ -300,9 +300,9 @@ public class TestAttributeDefPriv extends GrouperTest {
       assertEquals(i + ", " + GrouperUtil.collectionToString(subjectPrivilegeContainers), 1, 
           privilegeSubjectContainer.getPrivilegeContainers().size());
       assertEquals(i + ", " + GrouperUtil.collectionToString(subjectPrivilegeContainers), 
-          this.allGroupsMap.get(group).getPrivilege().getName(), privilegeSubjectContainer.getPrivilegeContainers().keySet().iterator().next());
+          this.allGroupsMap.get(group).getPrivilegeName(), privilegeSubjectContainer.getPrivilegeContainers().keySet().iterator().next());
       assertEquals(i + ", " + GrouperUtil.collectionToString(subjectPrivilegeContainers), 
-          this.allGroupsMap.get(group).getPrivilegeAssignType(), privilegeSubjectContainer.getPrivilegeContainers().get(this.allGroupsMap.get(group).getPrivilege().getName()).getPrivilegeAssignType());
+          this.allGroupsMap.get(group).getPrivilegeAssignType(), privilegeSubjectContainer.getPrivilegeContainers().get(this.allGroupsMap.get(group).getPrivilegeName()).getPrivilegeAssignType());
     }
     
     //fifth should be grouperSystem with admin immediate
@@ -380,9 +380,9 @@ public class TestAttributeDefPriv extends GrouperTest {
       assertEquals(i + ", " + GrouperUtil.collectionToString(subjectPrivilegeContainers), 1, 
           privilegeSubjectContainer.getPrivilegeContainers().size());
       assertEquals(i + ", " + GrouperUtil.collectionToString(subjectPrivilegeContainers), 
-          this.allGroupsMap.get(group).getPrivilege().getName(), privilegeSubjectContainer.getPrivilegeContainers().keySet().iterator().next());
+          this.allGroupsMap.get(group).getPrivilegeName(), privilegeSubjectContainer.getPrivilegeContainers().keySet().iterator().next());
       assertEquals(i + ", " + GrouperUtil.collectionToString(subjectPrivilegeContainers), 
-          this.allGroupsMap.get(group).getPrivilegeAssignType(), privilegeSubjectContainer.getPrivilegeContainers().get(this.allGroupsMap.get(group).getPrivilege().getName()).getPrivilegeAssignType());
+          this.allGroupsMap.get(group).getPrivilegeAssignType(), privilegeSubjectContainer.getPrivilegeContainers().get(this.allGroupsMap.get(group).getPrivilegeName()).getPrivilegeAssignType());
     }
     
     //another page
@@ -439,9 +439,9 @@ public class TestAttributeDefPriv extends GrouperTest {
       assertEquals(i + ", " + GrouperUtil.collectionToString(subjectPrivilegeContainers), 1, 
           privilegeSubjectContainer.getPrivilegeContainers().size());
       assertEquals(i + ", " + GrouperUtil.collectionToString(subjectPrivilegeContainers), 
-          this.allGroupsMap.get(group).getPrivilege().getName(), privilegeSubjectContainer.getPrivilegeContainers().keySet().iterator().next());
+          this.allGroupsMap.get(group).getPrivilegeName(), privilegeSubjectContainer.getPrivilegeContainers().keySet().iterator().next());
       assertEquals(i + ", " + GrouperUtil.collectionToString(subjectPrivilegeContainers), 
-          this.allGroupsMap.get(group).getPrivilegeAssignType(), privilegeSubjectContainer.getPrivilegeContainers().get(this.allGroupsMap.get(group).getPrivilege().getName()).getPrivilegeAssignType());
+          this.allGroupsMap.get(group).getPrivilegeAssignType(), privilegeSubjectContainer.getPrivilegeContainers().get(this.allGroupsMap.get(group).getPrivilegeName()).getPrivilegeAssignType());
     }
     
     //subject2 can effectively view the attributeDef
@@ -561,9 +561,9 @@ public class TestAttributeDefPriv extends GrouperTest {
       assertEquals(i + ", " + GrouperUtil.collectionToString(subjectPrivilegeContainers), 1, 
           privilegeSubjectContainer.getPrivilegeContainers().size());
       assertEquals(i + ", " + GrouperUtil.collectionToString(subjectPrivilegeContainers), 
-          this.allGroupsMap.get(group).getPrivilege().getName(), privilegeSubjectContainer.getPrivilegeContainers().keySet().iterator().next());
+          this.allGroupsMap.get(group).getPrivilegeName(), privilegeSubjectContainer.getPrivilegeContainers().keySet().iterator().next());
       assertEquals(i + ", " + GrouperUtil.collectionToString(subjectPrivilegeContainers), 
-          this.allGroupsMap.get(group).getPrivilegeAssignType(), privilegeSubjectContainer.getPrivilegeContainers().get(this.allGroupsMap.get(group).getPrivilege().getName()).getPrivilegeAssignType());
+          this.allGroupsMap.get(group).getPrivilegeAssignType(), privilegeSubjectContainer.getPrivilegeContainers().get(this.allGroupsMap.get(group).getPrivilegeName()).getPrivilegeAssignType());
     }
     
   

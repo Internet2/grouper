@@ -61,6 +61,14 @@ public enum PrivilegeAssignType {
   }
   
   /**
+   * name as javabean property
+   * @return name
+   */
+  public String getName() {
+    return this.name();
+  }
+  
+  /**
    * convert a privilege to a type
    * @param privilegeAssignType
    * @param membership
@@ -68,18 +76,29 @@ public enum PrivilegeAssignType {
    */
   public static PrivilegeAssignType convertMembership(PrivilegeAssignType privilegeAssignType, Membership membership) {
 
-    if (privilegeAssignType == IMMEDIATE_AND_EFFECTIVE ) {
+    PrivilegeAssignType membershipAssignType = convertMembership(membership);
+    return convert(privilegeAssignType, membershipAssignType);
+  }
+  
+  /**
+   * convert a privilege to a type
+   * @param privilegeAssignType
+   * @param anotherAssignType
+   * @return the type
+   */
+  public static PrivilegeAssignType convert(PrivilegeAssignType privilegeAssignType, PrivilegeAssignType anotherAssignType) {
+
+    if (privilegeAssignType == IMMEDIATE_AND_EFFECTIVE || anotherAssignType == IMMEDIATE_AND_EFFECTIVE) {
       return IMMEDIATE_AND_EFFECTIVE;
     }
-    PrivilegeAssignType membershipAssignType = convertMembership(membership);
     if (privilegeAssignType == null) {
-      return membershipAssignType;
+      return anotherAssignType;
     }
-    if (privilegeAssignType == IMMEDIATE && membershipAssignType == IMMEDIATE) {
+    if (privilegeAssignType == IMMEDIATE && anotherAssignType == IMMEDIATE) {
       return IMMEDIATE;
     }
     
-    if (privilegeAssignType == EFFECTIVE && membershipAssignType == EFFECTIVE) {
+    if (privilegeAssignType == EFFECTIVE && anotherAssignType == EFFECTIVE) {
       return EFFECTIVE;
     }
     return IMMEDIATE_AND_EFFECTIVE;

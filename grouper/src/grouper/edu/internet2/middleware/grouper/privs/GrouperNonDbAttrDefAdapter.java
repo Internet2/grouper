@@ -669,7 +669,7 @@ public class GrouperNonDbAttrDefAdapter extends BaseAttrDefAdapter implements
               //multiple memberships could have the same result, just skip is already set
               if (privilegeSubjectContainerImpl.getPrivilegeContainers().get(privilegeName) == null) {
                 PrivilegeContainerImpl privilegeContainerImpl = new PrivilegeContainerImpl();
-                privilegeContainerImpl.setPrivilege(privilege);
+                privilegeContainerImpl.setPrivilegeName(privilegeName);
                 
                 //if the subject, field, attributeDefId match, then correlate the assign type...
                 

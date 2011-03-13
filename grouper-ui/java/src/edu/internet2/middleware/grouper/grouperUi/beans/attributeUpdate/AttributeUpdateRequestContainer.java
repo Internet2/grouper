@@ -356,10 +356,45 @@ public class AttributeUpdateRequestContainer implements Serializable {
     
     return GrouperUtil.booleanValue(showIndirectPrivilegesString, false);
   }
+  
+  /**
+   * if this is public
+   * @return if we should show the privilege header
+   */
+  public Map<String, Boolean> getAllowAll() {
+    
+    return new MapWrapper<String, Boolean>() {
+
+      @Override
+      public Boolean get(Object key) {
+        String priv = (String)key;
+        if (StringUtils.equals(priv, "attrView")) {
+          return AttributeUpdateRequestContainer.this.isAllowAllView();
+        }
+        if (StringUtils.equals(priv, "attrRead")) {
+          return AttributeUpdateRequestContainer.this.isAllowAllRead();
+        }
+        if (StringUtils.equals(priv, "attrAdmin")) {
+          return AttributeUpdateRequestContainer.this.isAllowAllAdmin();
+        }
+        if (StringUtils.equals(priv, "attrUpdate")) {
+          return AttributeUpdateRequestContainer.this.isAllowAllUpdate();
+        }
+        if (StringUtils.equals(priv, "attrOptin")) {
+          return AttributeUpdateRequestContainer.this.isAllowAllOptin();
+        }
+        if (StringUtils.equals(priv, "attrOptout")) {
+          return AttributeUpdateRequestContainer.this.isAllowAllOptout();
+        }
+        throw new RuntimeException("Not expecting string");
+      }
+      
+    };
+    
+  }
 
   /**
    * if we should show the privilege header
-   * @param rowNumber 0 indexed
    * @return if we should show the privilege header
    */
   public Map<Integer, Boolean> getShowPrivilegeHeader() {
@@ -381,5 +416,131 @@ public class AttributeUpdateRequestContainer implements Serializable {
     };
     
   }
+
+  /** if optin should be checked on edit jsp */
+  private boolean allowAllOptin;
   
+  /** if optout should be checked on edit jsp */
+  private boolean allowAllOptout;
+  
+  /** if read should be checked on edit jsp */
+  private boolean allowAllRead;
+  
+  /** if view should be checked on edit jsp */
+  private boolean allowAllView;
+  
+  /** if admin should be checked on edit jsp */
+  private boolean allowAllAdmin;
+  
+  /** if update should be checked on edit jsp */
+  private boolean allowAllUpdate;
+  
+  /**
+   * if optin should be checked on edit jsp
+   * @return the editAttributeDefOptin
+   */
+  public boolean isAllowAllOptin() {
+    return this.allowAllOptin;
+  }
+  
+  /**
+   * if optin should be checked on edit jsp
+   * @param editAttributeDefOptin1 the editAttributeDefOptin to set
+   */
+  public void setAllowAllOptin(boolean editAttributeDefOptin1) {
+    this.allowAllOptin = editAttributeDefOptin1;
+  }
+
+  
+  /**
+   * if optout should be checked on edit jsp
+   * @return the editAttributeDefOptout
+   */
+  public boolean isAllowAllOptout() {
+    return this.allowAllOptout;
+  }
+
+  
+  /**
+   * if optout should be checked on edit jsp
+   * @param editAttributeDefOptout1 the editAttributeDefOptout to set
+   */
+  public void setAllowAllOptout(boolean editAttributeDefOptout1) {
+    this.allowAllOptout = editAttributeDefOptout1;
+  }
+
+  
+  /**
+   * if read should be checked on edit jsp
+   * @return the editAttributeDefRead
+   */
+  public boolean isAllowAllRead() {
+    return this.allowAllRead;
+  }
+
+  
+  /**
+   * if read should be checked on edit jsp
+   * @param editAttributeDefRead1 the editAttributeDefRead to set
+   */
+  public void setAllowAllRead(boolean editAttributeDefRead1) {
+    this.allowAllRead = editAttributeDefRead1;
+  }
+
+  
+  /**
+   * if view should be checked on edit jsp
+   * @return the editAttributeDefView
+   */
+  public boolean isAllowAllView() {
+    return this.allowAllView;
+  }
+
+  
+  /**
+   * if view should be checked on edit jsp
+   * @param editAttributeDefView1 the editAttributeDefView to set
+   */
+  public void setAllowAllView(boolean editAttributeDefView1) {
+    this.allowAllView = editAttributeDefView1;
+  }
+
+  
+  /**
+   * if admin should be checked on edit jsp
+   * @return the editAttributeDefAdmin
+   */
+  public boolean isAllowAllAdmin() {
+    return this.allowAllAdmin;
+  }
+
+  
+  /**
+   * if admin should be checked on edit jsp
+   * @param editAttributeDefAdmin1 the editAttributeDefAdmin to set
+   */
+  public void setAllowAllAdmin(boolean editAttributeDefAdmin1) {
+    this.allowAllAdmin = editAttributeDefAdmin1;
+  }
+
+  
+  /**
+   * if update should be checked on edit jsp
+   * @return the editAttributeDefUpdate
+   */
+  public boolean isAllowAllUpdate() {
+    return this.allowAllUpdate;
+  }
+
+  
+  /**
+   * if update should be checked on edit jsp
+   * @param editAttributeDefUpdate1 the editAttributeDefUpdate to set
+   */
+  public void setAllowAllUpdate(boolean editAttributeDefUpdate1) {
+    this.allowAllUpdate = editAttributeDefUpdate1;
+  }
+  
+
+
 }

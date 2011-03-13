@@ -14,13 +14,13 @@ public class PrivilegeContainerImpl implements PrivilegeContainer {
 
   /**
    * 
-   * @param privilege
+   * @param thePrivilegeName
    * @param privilegeAssignType
    */
-  public PrivilegeContainerImpl(Privilege privilege,
+  public PrivilegeContainerImpl(String thePrivilegeName,
       PrivilegeAssignType privilegeAssignType) {
     super();
-    this.privilege = privilege;
+    this.privilegeName = thePrivilegeName;
     this.privilegeAssignType = privilegeAssignType;
   }
 
@@ -30,14 +30,14 @@ public class PrivilegeContainerImpl implements PrivilegeContainer {
   public PrivilegeContainerImpl() {
   }
 
-  /** privilege */
-  private Privilege privilege;
+  /** privilege name */
+  private String privilegeName;
   
   /**
-   * @see edu.internet2.middleware.grouper.privs.PrivilegeContainer#getPrivilege()
+   * @see edu.internet2.middleware.grouper.privs.PrivilegeContainer#getPrivilegeName()
    */
-  public Privilege getPrivilege() {
-    return this.privilege;
+  public String getPrivilegeName() {
+    return this.privilegeName;
   }
 
   /** privilege assign type */
@@ -54,8 +54,8 @@ public class PrivilegeContainerImpl implements PrivilegeContainer {
   /**
    * @param privilege1 the privilege to set
    */
-  public void setPrivilege(Privilege privilege1) {
-    this.privilege = privilege1;
+  public void setPrivilegeName(String privilege1) {
+    this.privilegeName = privilege1;
   }
 
   
@@ -72,10 +72,10 @@ public class PrivilegeContainerImpl implements PrivilegeContainer {
   @Override
   public String toString() {
     StringBuilder result = new StringBuilder("Privilege: ");
-    if (this.privilege == null) {
+    if (this.privilegeName == null) {
       result.append("null");
     } else {
-      result.append(privilege.getName());
+      result.append(this.privilegeName);
     }
     result.append(", type: ");
     if (this.privilegeAssignType == null) {

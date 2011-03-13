@@ -25,4 +25,17 @@ public interface PrivilegeSubjectContainer {
    * @return map of privileges, by privilege name
    */
   public Map<String, PrivilegeContainer> getPrivilegeContainers();
+
+  /**
+   * set the subject this involves
+   * @param theSubject
+   */
+  public void setSubject(Subject theSubject);
+  
+  /**
+   * privileges for this subject
+   * @param thePrivilegeContainers map of privileges, by privilege name
+   */
+  public void setPrivilegeContainers(Map<String, PrivilegeContainer> thePrivilegeContainers);
+
 }

@@ -7,6 +7,7 @@ package edu.internet2.middleware.grouper.grouperUi.serviceLogic;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -25,6 +26,7 @@ import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
+import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefType;
 import edu.internet2.middleware.grouper.attr.AttributeDefValueType;
@@ -32,11 +34,16 @@ import edu.internet2.middleware.grouper.attr.assign.AttributeAssignAction;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiMember;
 import edu.internet2.middleware.grouper.grouperUi.beans.attributeUpdate.AttributeUpdateRequestContainer;
+import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiPaging;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
 import edu.internet2.middleware.grouper.internal.dao.QueryPaging;
 import edu.internet2.middleware.grouper.membership.MembershipType;
+import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.privs.Privilege;
+import edu.internet2.middleware.grouper.privs.PrivilegeAssignType;
+import edu.internet2.middleware.grouper.privs.PrivilegeContainer;
+import edu.internet2.middleware.grouper.privs.PrivilegeContainerImpl;
 import edu.internet2.middleware.grouper.privs.PrivilegeSubjectContainer;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.tags.TagUtils;
@@ -114,7 +121,7 @@ public class SimpleAttributeUpdate {
 
   
   /**
-   * 
+   * click save button on edit panel
    * @param httpServletRequest
    * @param httpServletResponse
    */
@@ -319,6 +326,78 @@ public class SimpleAttributeUpdate {
       
       attributeDef.store();
 
+      Subject everyEntitySubject = SubjectFinder.findAllSubject();
+      
+      {
+        boolean attributeDefToEditAllowAllOptin = GrouperUtil.booleanValue(httpServletRequest.getParameter("attributeDefToEditAllowAllOptin"), false);
+        attributeUpdateRequestContainer.setAllowAllOptin(attributeDefToEditAllowAllOptin);
+        if (attributeDefToEditAllowAllOptin != attributeDef.getPrivilegeDelegate().hasAttrOptin(everyEntitySubject)) {
+          if (attributeDefToEditAllowAllOptin) {
+            attributeDef.getPrivilegeDelegate().grantPriv(everyEntitySubject, AttributeDefPrivilege.ATTR_OPTIN, false);
+          } else{
+            attributeDef.getPrivilegeDelegate().revokePriv(everyEntitySubject, AttributeDefPrivilege.ATTR_OPTIN, false);
+          }
+        }
+      }
+      {
+        boolean attributeDefToEditAllowAllOptout = GrouperUtil.booleanValue(httpServletRequest.getParameter("attributeDefToEditAllowAllOptout"), false);
+        attributeUpdateRequestContainer.setAllowAllOptout(attributeDefToEditAllowAllOptout);
+        if (attributeDefToEditAllowAllOptout != attributeDef.getPrivilegeDelegate().hasAttrOptout(everyEntitySubject)) {
+          if (attributeDefToEditAllowAllOptout) {
+            attributeDef.getPrivilegeDelegate().grantPriv(everyEntitySubject, AttributeDefPrivilege.ATTR_OPTOUT, false);
+          } else{
+            attributeDef.getPrivilegeDelegate().revokePriv(everyEntitySubject, AttributeDefPrivilege.ATTR_OPTOUT, false);
+          }
+        }
+      }
+      {
+        boolean attributeDefToEditAllowAllAdmin = GrouperUtil.booleanValue(httpServletRequest.getParameter("attributeDefToEditAllowAllAdmin"), false);
+        attributeUpdateRequestContainer.setAllowAllAdmin(attributeDefToEditAllowAllAdmin);
+        if (attributeDefToEditAllowAllAdmin != attributeDef.getPrivilegeDelegate().hasAttrAdmin(everyEntitySubject)) {
+          if (attributeDefToEditAllowAllAdmin) {
+            attributeUpdateRequestContainer.setAllowAllAdmin(true);
+            attributeDef.getPrivilegeDelegate().grantPriv(everyEntitySubject, AttributeDefPrivilege.ATTR_ADMIN, false);
+          } else{
+            attributeDef.getPrivilegeDelegate().revokePriv(everyEntitySubject, AttributeDefPrivilege.ATTR_ADMIN, false);
+          }
+        }
+      }
+      {
+        boolean attributeDefToEditAllowAllUpdate = GrouperUtil.booleanValue(httpServletRequest.getParameter("attributeDefToEditAllowAllUpdate"), false);
+        attributeUpdateRequestContainer.setAllowAllUpdate(attributeDefToEditAllowAllUpdate);
+        if (attributeDefToEditAllowAllUpdate != attributeDef.getPrivilegeDelegate().hasAttrUpdate(everyEntitySubject)) {
+          if (attributeDefToEditAllowAllUpdate) {
+            attributeDef.getPrivilegeDelegate().grantPriv(everyEntitySubject, AttributeDefPrivilege.ATTR_UPDATE, false);
+          } else{
+            attributeDef.getPrivilegeDelegate().revokePriv(everyEntitySubject, AttributeDefPrivilege.ATTR_UPDATE, false);
+          }
+        }
+      }
+      {
+        boolean attributeDefToEditAllowAllRead = GrouperUtil.booleanValue(httpServletRequest.getParameter("attributeDefToEditAllowAllRead"), false);
+        attributeUpdateRequestContainer.setAllowAllRead(attributeDefToEditAllowAllRead);
+        if (attributeDefToEditAllowAllRead != attributeDef.getPrivilegeDelegate().hasAttrRead(everyEntitySubject)) {
+          if (attributeDefToEditAllowAllRead) {
+            attributeDef.getPrivilegeDelegate().grantPriv(everyEntitySubject, AttributeDefPrivilege.ATTR_READ, false);
+          } else{
+            attributeDef.getPrivilegeDelegate().revokePriv(everyEntitySubject, AttributeDefPrivilege.ATTR_READ, false);
+          }
+        }
+      }
+      {
+        boolean attributeDefToEditAllowAllView = GrouperUtil.booleanValue(httpServletRequest.getParameter("attributeDefToEditAllowAllView"), false);
+        attributeUpdateRequestContainer.setAllowAllView(attributeDefToEditAllowAllView);
+        if (attributeDefToEditAllowAllView != attributeDef.getPrivilegeDelegate().hasAttrView(everyEntitySubject)) {
+          if (attributeDefToEditAllowAllView) {
+            attributeDef.getPrivilegeDelegate().grantPriv(everyEntitySubject, AttributeDefPrivilege.ATTR_VIEW, false);
+          } else{
+            attributeDef.getPrivilegeDelegate().revokePriv(everyEntitySubject, AttributeDefPrivilege.ATTR_VIEW, false);
+          }
+        }
+      }
+      
+      
+      
       guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message(
           "simpleAttributeUpdate.attributeDefSaved", false, true, stemName + ":" + extension)));
 
@@ -472,6 +551,122 @@ public class SimpleAttributeUpdate {
     
   }
 
+  
+  
+  /**
+   * privilege image button was pressed on the privilege edit panel
+   * @param httpServletRequest
+   * @param httpServletResponse
+   */
+  public void privilegePanelImageClick(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
+  
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+  
+    AttributeUpdateRequestContainer attributeUpdateRequestContainer = AttributeUpdateRequestContainer.retrieveFromRequestOrCreate();
+
+    GrouperSession grouperSession = null;
+
+    AttributeDef attributeDef = null;
+    
+    try {
+      grouperSession = GrouperSession.start(loggedInSubject);
+      
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+  
+      String uuid = httpServletRequest.getParameter("attributeDefToEditId");
+      
+      if (StringUtils.isBlank(uuid)) {
+        throw new RuntimeException("Why is uuid blank????");
+      }
+
+      String memberId = httpServletRequest.getParameter("memberId");
+
+      if (StringUtils.isBlank(memberId)) {
+        throw new RuntimeException("Why is memberId blank????");
+      }
+
+      String privilegeName = httpServletRequest.getParameter("privilegeName");
+
+      if (StringUtils.isBlank(privilegeName)) {
+        throw new RuntimeException("Why is privilegeName blank????");
+      }
+
+      String allowString = httpServletRequest.getParameter("allow");
+
+      if (StringUtils.isBlank(allowString)) {
+        throw new RuntimeException("Why is allow blank????");
+      }
+      boolean allow = GrouperUtil.booleanValue(allowString);
+      
+      //if editing, then this must be there, or it has been tampered with
+      try {
+        attributeDef = AttributeDefFinder.findById(uuid, true);
+      } catch (Exception e) {
+        LOG.info("Error searching for attribute def: " + uuid, e);
+        guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simpleAttributeUpdate.errorCantEditAttributeDef", false)));
+        return;
+        
+      }
+      
+      if (!attributeDef.getPrivilegeDelegate().canAttrAdmin(loggedInSubject)) {
+        LOG.error("Subject " + GrouperUtil.subjectToString(loggedInSubject) + " cannot admin attribute definition: " + attributeDef.getName());
+        guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simpleAttributeUpdate.errorCantEditAttributeDef", false)));
+        return;
+      }
+      
+      attributeUpdateRequestContainer.setAttributeDefToEdit(attributeDef);
+      
+      StringBuilder alert = new StringBuilder();
+      
+      Member member = MemberFinder.findByUuid(grouperSession, memberId, true);
+      Subject subject = member.getSubject();
+      Privilege privilege = Privilege.getInstance(privilegeName);
+      String privilegeGuiLabel = GrouperUiUtils.message("priv." + privilege.getName(), false);
+
+      GuiMember guiMember = new GuiMember(member);
+      String subjectScreenLabel = guiMember.getGuiSubject().getScreenLabel();
+
+      if (allow) {
+        boolean result = attributeDef.getPrivilegeDelegate().grantPriv(
+            subject, privilege, false);
+        
+        if (result) {
+          
+          alert.append(GrouperUiUtils.message("simpleAttributeUpdate.privilegeGrant", false, true, new Object[]{privilegeGuiLabel, subjectScreenLabel}));
+          
+        } else {
+          
+          alert.append(GrouperUiUtils.message("simpleAttributeUpdate.privilegeGrantWarn", false, true, new Object[]{privilegeGuiLabel, subjectScreenLabel}));
+        }              
+      } else {
+        boolean result = attributeDef.getPrivilegeDelegate().revokePriv(
+            subject, privilege, false);
+        
+        if (result) {
+          
+          alert.append(GrouperUiUtils.message("simpleAttributeUpdate.privilegeRevoke", false, true, new Object[]{privilegeGuiLabel, subjectScreenLabel}));
+          
+        } else {
+          
+          alert.append(GrouperUiUtils.message("simpleAttributeUpdate.privilegeRevokeWarn", false, true, new Object[]{privilegeGuiLabel, subjectScreenLabel}));
+        }              
+      }
+      
+      guiResponseJs.addAction(GuiScreenAction.newAlert(alert.toString()));
+      
+    } finally {
+      GrouperSession.stopQuietly(grouperSession); 
+    }
+    
+    //show the edit panel since it might change due to everyentity privilege changing
+    if (!new SimpleAttributeUpdateFilter().editAttributeDefsHelper(httpServletRequest, httpServletResponse, attributeDef, false)) {
+      return;
+    }
+    
+    attributeEditPanelPrivileges(httpServletRequest, httpServletResponse);
+    
+  }
+
   /**
    * submit privileges button was pressed on the privilege edit panel
    * @param httpServletRequest
@@ -485,13 +680,13 @@ public class SimpleAttributeUpdate {
 
     GrouperSession grouperSession = null;
 
+    AttributeDef attributeDef = null;
+    
     try {
       grouperSession = GrouperSession.start(loggedInSubject);
       
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
   
-      AttributeDef attributeDef = null;
-      
       String uuid = httpServletRequest.getParameter("attributeDefToEditId");
       
       if (StringUtils.isBlank(uuid)) {
@@ -596,6 +791,11 @@ public class SimpleAttributeUpdate {
       GrouperSession.stopQuietly(grouperSession); 
     }
     
+    //show the edit panel since it might change due to everyentity privilege changing
+    if (!new SimpleAttributeUpdateFilter().editAttributeDefsHelper(httpServletRequest, httpServletResponse, attributeDef, false)) {
+      return;
+    }
+    
     attributeEditPanelPrivileges(httpServletRequest, httpServletResponse);
     
   }
@@ -645,8 +845,6 @@ public class SimpleAttributeUpdate {
         }
       }
       
-      int privilegeListSize = TagUtils.mediaResourceInt("simpleAttributeUpdate.privilegeListSize", 50);
-      
       //might be additional members at top of list
       List<GuiMember> additionalGuiMembers = attributeUpdateRequestContainer.privilegeAdditionalGuiMembers();
       
@@ -664,9 +862,137 @@ public class SimpleAttributeUpdate {
       
       boolean showIndirectPrivileges = attributeUpdateRequestContainer.isShowIndirectPrivilegesComputed();
       
+      GuiPaging guiPaging = GuiPaging.retrievePaging("simpleAttributeUpdatePrivileges", false);
+      if (guiPaging == null) {
+        GuiPaging.init("simpleAttributeUpdatePrivileges");
+        guiPaging = GuiPaging.retrievePaging("simpleAttributeUpdatePrivileges", true);
+      }
+      
+      
+      QueryPaging queryPaging = guiPaging.queryPaging();
+      //this could have messed up some stuff
+      queryPaging.setPageNumber(guiPaging.getPageNumber());
+      queryPaging.setDoTotalCount(true);
+      
       Set<PrivilegeSubjectContainer> privilegeSubjectContainers = grouperSession
         .getAttributeDefResolver().retrievePrivileges(attributeDef, null, 
-            showIndirectPrivileges ? null : MembershipType.IMMEDIATE, QueryPaging.page(privilegeListSize, 1, false), additionalMembers);
+            showIndirectPrivileges ? null : MembershipType.IMMEDIATE, queryPaging, additionalMembers);
+      
+      //set back the total record count
+      guiPaging.setTotalRecordCount(queryPaging.getTotalRecordCount());
+      
+      Subject everyEntitySubject = SubjectFinder.findAllSubject();
+      boolean allowAllAdmin = attributeDef.getPrivilegeDelegate().hasAttrAdmin(everyEntitySubject);
+      boolean allowAllUpdate = attributeDef.getPrivilegeDelegate().hasAttrUpdate(everyEntitySubject);
+      boolean allowAllRead = attributeDef.getPrivilegeDelegate().hasAttrRead(everyEntitySubject);
+      boolean allowAllView = attributeDef.getPrivilegeDelegate().hasAttrView(everyEntitySubject);
+      boolean allowAllOptin = attributeDef.getPrivilegeDelegate().hasAttrOptin(everyEntitySubject);
+      boolean allowAllOptout = attributeDef.getPrivilegeDelegate().hasAttrOptout(everyEntitySubject);
+      
+      //lets setup the hierarchies, inheritance, from allow all, and actions which imply other actions
+      for (PrivilegeSubjectContainer privilegeSubjectContainer : GrouperUtil.nonNull(privilegeSubjectContainers)) {
+        if (privilegeSubjectContainer.getPrivilegeContainers() == null) {
+          privilegeSubjectContainer.setPrivilegeContainers(new HashMap<String, PrivilegeContainer>());
+        }
+        //go through each
+        boolean canAdmin = false;
+        {
+          PrivilegeContainer attrAdmin = privilegeSubjectContainer.getPrivilegeContainers().get(AttributeDefPrivilege.ATTR_ADMIN.getName());
+          canAdmin = attrAdmin != null || allowAllAdmin;
+          //see if inheriting
+          if (allowAllAdmin) {
+            if (attrAdmin == null) {
+              attrAdmin = new PrivilegeContainerImpl();
+              attrAdmin.setPrivilegeName(AttributeDefPrivilege.ATTR_ADMIN.getName());
+              privilegeSubjectContainer.getPrivilegeContainers().put(AttributeDefPrivilege.ATTR_ADMIN.getName(), attrAdmin);
+              attrAdmin.setPrivilegeAssignType(PrivilegeAssignType.EFFECTIVE);
+            } else {
+              attrAdmin.setPrivilegeAssignType(PrivilegeAssignType.convert(attrAdmin.getPrivilegeAssignType(), PrivilegeAssignType.EFFECTIVE));
+            }
+          }
+        }
+        boolean canUpdate = false;
+        {
+          PrivilegeContainer attrUpdate = privilegeSubjectContainer.getPrivilegeContainers().get("attrUpdate");
+          canUpdate = attrUpdate != null || allowAllUpdate || canAdmin;
+          //see if inheriting
+          if (allowAllUpdate || canAdmin) {
+            if (attrUpdate == null) {
+              attrUpdate = new PrivilegeContainerImpl();
+              attrUpdate.setPrivilegeName(AttributeDefPrivilege.ATTR_UPDATE.getName());
+              privilegeSubjectContainer.getPrivilegeContainers().put(AttributeDefPrivilege.ATTR_UPDATE.getName(), attrUpdate);
+              attrUpdate.setPrivilegeAssignType(PrivilegeAssignType.EFFECTIVE);
+            } else {
+              attrUpdate.setPrivilegeAssignType(PrivilegeAssignType.convert(attrUpdate.getPrivilegeAssignType(), PrivilegeAssignType.EFFECTIVE));
+            }
+          }
+        }
+        boolean canRead = false;
+        {
+          PrivilegeContainer attrRead = privilegeSubjectContainer.getPrivilegeContainers().get("attrRead");
+          canRead = attrRead != null || allowAllRead || canAdmin;
+          //see if inheriting
+          if (allowAllRead || canAdmin) {
+            if (attrRead == null) {
+              attrRead = new PrivilegeContainerImpl();
+              attrRead.setPrivilegeName(AttributeDefPrivilege.ATTR_READ.getName());
+              privilegeSubjectContainer.getPrivilegeContainers().put(AttributeDefPrivilege.ATTR_READ.getName(), attrRead);
+              attrRead.setPrivilegeAssignType(PrivilegeAssignType.EFFECTIVE);
+            } else {
+              attrRead.setPrivilegeAssignType(PrivilegeAssignType.convert(attrRead.getPrivilegeAssignType(), PrivilegeAssignType.EFFECTIVE));
+            }
+          }
+        }
+        boolean canOptin = false;
+        {
+          PrivilegeContainer attrOptin = privilegeSubjectContainer.getPrivilegeContainers().get("attrOptin");
+          canOptin = attrOptin != null || allowAllOptin || canAdmin || canUpdate;
+          //see if inheriting
+          if (allowAllOptin || canAdmin || canUpdate) {
+            if (attrOptin == null) {
+              attrOptin = new PrivilegeContainerImpl();
+              attrOptin.setPrivilegeName(AttributeDefPrivilege.ATTR_OPTIN.getName());
+              privilegeSubjectContainer.getPrivilegeContainers().put(AttributeDefPrivilege.ATTR_OPTIN.getName(), attrOptin);
+              attrOptin.setPrivilegeAssignType(PrivilegeAssignType.EFFECTIVE);
+            } else {
+              attrOptin.setPrivilegeAssignType(PrivilegeAssignType.convert(attrOptin.getPrivilegeAssignType(), PrivilegeAssignType.EFFECTIVE));
+            }
+          }
+        }
+        boolean canOptout = false;
+        {
+          PrivilegeContainer attrOptout = privilegeSubjectContainer.getPrivilegeContainers().get("attrOptout");
+          canOptout = attrOptout != null || allowAllOptout || canAdmin || canUpdate;
+          //see if inheriting
+          if (allowAllOptout || canAdmin || canUpdate) {
+            if (attrOptout == null) {
+              attrOptout = new PrivilegeContainerImpl();
+              attrOptout.setPrivilegeName(AttributeDefPrivilege.ATTR_OPTOUT.getName());
+              privilegeSubjectContainer.getPrivilegeContainers().put(AttributeDefPrivilege.ATTR_OPTOUT.getName(), attrOptout);
+              attrOptout.setPrivilegeAssignType(PrivilegeAssignType.EFFECTIVE);
+            } else {
+              attrOptout.setPrivilegeAssignType(PrivilegeAssignType.convert(attrOptout.getPrivilegeAssignType(), PrivilegeAssignType.EFFECTIVE));
+            }
+          }
+        }
+        {
+          PrivilegeContainer attrView = privilegeSubjectContainer.getPrivilegeContainers().get("attrView");
+          //boolean canView = attrView != null || allowAllView || canAdmin || canUpdate || canRead || canOptin || canOptout;
+          //see if inheriting
+          if (allowAllView || canAdmin || canUpdate || canRead || canOptin || canOptout) {
+            if (attrView == null) {
+              attrView = new PrivilegeContainerImpl();
+              attrView.setPrivilegeName(AttributeDefPrivilege.ATTR_VIEW.getName());
+              privilegeSubjectContainer.getPrivilegeContainers().put(AttributeDefPrivilege.ATTR_VIEW.getName(), attrView);
+              attrView.setPrivilegeAssignType(PrivilegeAssignType.EFFECTIVE);
+            } else {
+              attrView.setPrivilegeAssignType(PrivilegeAssignType.convert(attrView.getPrivilegeAssignType(), PrivilegeAssignType.EFFECTIVE));
+            }
+          }
+        }
+        
+        
+      }
       
       attributeUpdateRequestContainer.setAttributeDefToEdit(attributeDef);
       attributeUpdateRequestContainer.setPrivilegeSubjectContainers(privilegeSubjectContainers);
@@ -1067,7 +1393,7 @@ public class SimpleAttributeUpdate {
         guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simpleAttributeUpdate.errorCantEditAttributeDef", false)));
         return;
       }
-              
+      
       setupEditActionPanel(attributeUpdateRequestContainer, guiResponseJs, attributeDef,
           action);
       

@@ -17,6 +17,7 @@ import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiMember;
 import edu.internet2.middleware.grouper.grouperUi.beans.attributeUpdate.AttributeUpdateRequestContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
@@ -315,14 +316,12 @@ public class SimpleAttributeUpdateFilter {
       return;
     }
     
-    AttributeUpdateRequestContainer attributeUpdateRequestContainer = AttributeUpdateRequestContainer.retrieveFromRequestOrCreate();
-
     GrouperSession grouperSession = null;
 
+    AttributeDef attributeDef = null;
+    
     try {
       grouperSession = GrouperSession.start(loggedInSubject);
-      
-      AttributeDef attributeDef = null;
       
       try {
       
@@ -332,17 +331,58 @@ public class SimpleAttributeUpdateFilter {
         guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simpleAttributeUpdate.errorCantEditAttributeDef", false)));
         return;
         
-      }
+      }  
       
-      if (!attributeDef.getPrivilegeDelegate().canAttrAdmin(loggedInSubject)) {
+    } finally {
+      GrouperSession.stopQuietly(grouperSession); 
+    }
+    editAttributeDefsHelper(httpServletRequest, httpServletResponse, attributeDef, true);
+  }  
+
+  /**
+   * edit an attribute def
+   * @param httpServletRequest
+   * @param httpServletResponse
+   * @param attributeDef 
+   * @param checkSecurity 
+   * @return true if ok, false if error
+   */
+  public boolean editAttributeDefsHelper(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, AttributeDef attributeDef, boolean checkSecurity) {
+
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+
+    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+
+    AttributeUpdateRequestContainer attributeUpdateRequestContainer = AttributeUpdateRequestContainer.retrieveFromRequestOrCreate();
+
+    GrouperSession grouperSession = null;
+
+    try {
+      grouperSession = GrouperSession.start(loggedInSubject);
+      
+      if (checkSecurity && !attributeDef.getPrivilegeDelegate().canAttrAdmin(loggedInSubject)) {
         LOG.error("Subject " + GrouperUtil.subjectToString(loggedInSubject) + " cannot admin attribute definition: " + attributeDef.getName());
         guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simpleAttributeUpdate.errorCantEditAttributeDef", false)));
-        return;
+        return false;
       }
       
       attributeUpdateRequestContainer.setAttributeDefToEdit(attributeDef);
       attributeUpdateRequestContainer.setCreate(false);
       
+      Subject everyEntity = SubjectFinder.findAllSubject();
+      
+      attributeUpdateRequestContainer.setAllowAllAdmin(
+          attributeDef.getPrivilegeDelegate().hasAttrAdmin(everyEntity));
+      attributeUpdateRequestContainer.setAllowAllUpdate(
+          attributeDef.getPrivilegeDelegate().hasAttrUpdate(everyEntity));
+      attributeUpdateRequestContainer.setAllowAllView(
+          attributeDef.getPrivilegeDelegate().hasAttrView(everyEntity));
+      attributeUpdateRequestContainer.setAllowAllRead(
+          attributeDef.getPrivilegeDelegate().hasAttrRead(everyEntity));
+      attributeUpdateRequestContainer.setAllowAllOptin(
+          attributeDef.getPrivilegeDelegate().hasAttrOptin(everyEntity));
+      attributeUpdateRequestContainer.setAllowAllOptout(
+          attributeDef.getPrivilegeDelegate().hasAttrOptout(everyEntity));
 
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#attributeEditPanel", 
         "/WEB-INF/grouperUi/templates/simpleAttributeUpdate/attributeEditPanel.jsp"));
@@ -351,7 +391,7 @@ public class SimpleAttributeUpdateFilter {
     } finally {
       GrouperSession.stopQuietly(grouperSession); 
     }
-
+    return true;
   }  
 
   /**
@@ -376,6 +416,19 @@ public class SimpleAttributeUpdateFilter {
       
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
 
+      attributeUpdateRequestContainer.setAllowAllAdmin(
+          GrouperConfig.getPropertyBoolean("attributeDefs.create.grant.all.attrAdmin", false));
+      attributeUpdateRequestContainer.setAllowAllUpdate(
+          GrouperConfig.getPropertyBoolean("attributeDefs.create.grant.all.attrUpdate", false));
+      attributeUpdateRequestContainer.setAllowAllRead(
+          GrouperConfig.getPropertyBoolean("attributeDefs.create.grant.all.attrRead", false));
+      attributeUpdateRequestContainer.setAllowAllView(
+          GrouperConfig.getPropertyBoolean("attributeDefs.create.grant.all.attrView", false));
+      attributeUpdateRequestContainer.setAllowAllOptin(
+          GrouperConfig.getPropertyBoolean("attributeDefs.create.grant.all.attrOptin", false));
+      attributeUpdateRequestContainer.setAllowAllOptout(
+          GrouperConfig.getPropertyBoolean("attributeDefs.create.grant.all.attrOptout", false));
+      
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#attributeEditPanel", 
         "/WEB-INF/grouperUi/templates/simpleAttributeUpdate/attributeEditPanel.jsp"));
   
