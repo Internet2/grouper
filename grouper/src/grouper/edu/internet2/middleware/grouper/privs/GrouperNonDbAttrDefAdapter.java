@@ -507,6 +507,8 @@ public class GrouperNonDbAttrDefAdapter extends BaseAttrDefAdapter implements
       if (queryPaging != null) {
         
         queryOptions.paging(queryPaging);
+        //dont cache, changing the effective etc messes it up
+        queryPaging.setCacheTotalCount(false);
         
         //lets get the members
         List<Member> members = GrouperDAOFactory.getFactory().getMembership().findAllMembersByAttributeDefOwnerOptions(
