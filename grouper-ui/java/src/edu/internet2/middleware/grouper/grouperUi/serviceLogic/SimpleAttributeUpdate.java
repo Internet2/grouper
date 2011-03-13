@@ -799,7 +799,23 @@ public class SimpleAttributeUpdate {
     attributeEditPanelPrivileges(httpServletRequest, httpServletResponse);
     
   }
-  
+
+  /**
+   * privileges button was pressed on the attribute edit panel
+   * @param httpServletRequest
+   * @param httpServletResponse
+   */
+  public void attributeEditPanelPrivilegesClearPaging(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
+    
+    //we need to set page number to 1, in general a good thing to do, and specifically, if reducing the numbers
+    //and on a later page, then no members will be shown...
+    GuiPaging guiPaging = GuiPaging.retrievePaging("simpleAttributeUpdatePrivileges", false);
+    if (guiPaging != null) {
+      guiPaging.setPageNumber(1);
+    }
+    attributeEditPanelPrivileges(httpServletRequest, httpServletResponse);
+  }
+
   /**
    * privileges button was pressed on the attribute edit panel
    * @param httpServletRequest

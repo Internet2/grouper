@@ -308,7 +308,7 @@
             value="${attributeUpdateRequestContainer.text.editPanelActions}" style="margin-top: 2px" />
 
            <input class="blueButton" type="submit" 
-            onclick="ajax('../app/SimpleAttributeUpdate.attributeEditPanelPrivileges', {formIds: 'attributeEditFormId'}); return false;" 
+            onclick="ajax('../app/SimpleAttributeUpdate.attributeEditPanelPrivilegesClearPaging', {formIds: 'attributeEditFormId'}); return false;" 
             value="${attributeUpdateRequestContainer.text.editPanelPrivileges}" style="margin-top: 2px" />
 
          </c:if>

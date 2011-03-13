@@ -48,7 +48,7 @@
           </td>
           <td class="formTableRight" style="white-space: nowrap;">
             <input style="margin-right: -3px" name="showIndirectPrivileges" value="true"
-              onchange="ajax('../app/SimpleAttributeUpdate.attributeEditPanelPrivileges', {formIds: 'attributePrivilegesSubjectFormId'}); return true"
+              onchange="ajax('../app/SimpleAttributeUpdate.attributeEditPanelPrivilegesClearPaging', {formIds: 'attributePrivilegesSubjectFormId'}); return true"
               type="checkbox" ${attributeUpdateRequestContainer.showIndirectPrivilegesComputed ? 'checked="checked"' : '' } 
             />
             <grouper:message key="simpleAttributeUpdate.indirectPrivilegesCheckbox" />
@@ -78,7 +78,7 @@
           <div class="pagingSummary">
             <grouper:message key="simpleAttributeUpdate.pagingLabelPrefix" />
             <grouper:paging 
-              refreshOperation="SimpleAttributeUpdate.attributeEditPanelPrivileges?attributeDefToEditId=${attributeUpdateRequestContainer.attributeDefToEdit.id}" 
+              refreshOperation="SimpleAttributeUpdate.attributeEditPanelPrivileges?attributeDefToEditId=${attributeUpdateRequestContainer.attributeDefToEdit.id}&showIndirectPrivileges=${attributeUpdateRequestContainer.showIndirectPrivilegesComputed}" 
               showSummaryOrButtons="true" pagingName="simpleAttributeUpdatePrivileges"  />
             <c:if test="${fn:length(attributeUpdateRequestContainer.privilegeAdditionalGuiMembers) > 0}">
               <grouper:message key="simpleAttributeUpdate.pagingAndAdditional" />
@@ -160,7 +160,7 @@
           <div class="pagingButtons">
             <grouper:message key="simpleAttributeUpdate.pagingResultPrefix" />
               <grouper:paging showSummaryOrButtons="false" pagingName="simpleAttributeUpdatePrivileges" 
-              refreshOperation="SimpleAttributeUpdate.attributeEditPanelPrivileges?attributeDefToEditId=${attributeUpdateRequestContainer.attributeDefToEdit.id}" 
+              refreshOperation="SimpleAttributeUpdate.attributeEditPanelPrivileges?attributeDefToEditId=${attributeUpdateRequestContainer.attributeDefToEdit.id}&showIndirectPrivileges=${attributeUpdateRequestContainer.showIndirectPrivilegesComputed}" 
                />
           </div>
         
