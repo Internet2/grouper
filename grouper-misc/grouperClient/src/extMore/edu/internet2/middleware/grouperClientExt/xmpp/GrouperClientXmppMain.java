@@ -225,6 +225,15 @@ public class GrouperClientXmppMain {
             for (GrouperClientXmppJob grouperClientXmppJob : GrouperClientXmppJob.retrieveXmppJobs()) {
               String elfilter = grouperClientXmppJob.getElfilter();
               Boolean matches = null;
+
+              String groupName = esbEvent.getGroupName();
+              if (GrouperClientUtils.isBlank(groupName) && (
+                  "GROUP_ADD".equals(esbEvent.getEventType()) || 
+                  "GROUP_DELETE".equals(esbEvent.getEventType()) ||
+                  "GROUP_UPDATE".equals(esbEvent.getEventType()))) {
+                groupName = esbEvent.getName();
+              }
+
               if (!GrouperClientUtils.isBlank(elfilter)) {
                 if (!matchesFilter(esbEvent, elfilter)) {
 
@@ -246,7 +255,7 @@ public class GrouperClientXmppMain {
                 matches = true;
               } else {
                 if (GrouperClientUtils.nonNull(grouperClientXmppJob.getGroupNames()).size() > 0) {
-                  if (grouperClientXmppJob.getGroupNames().contains(esbEvent.getGroupName())) {
+                  if (grouperClientXmppJob.getGroupNames().contains(groupName)) {
                     if (matches == null) {
                       matches = true;
                     }
@@ -266,21 +275,21 @@ public class GrouperClientXmppMain {
               if (XmppJobEventAction.reload_group == grouperClientXmppJob.getEventAction()) {
 
                 if (log.isDebugEnabled()) {
-                  log.debug("performing a full reload on group: " + esbEvent.getGroupName()
+                  log.debug("performing a full reload on group: " + groupName
                       + " for job: " + grouperClientXmppJob.getJobName() + ", subject: " + esbEvent.getSubjectId());
                 }
-                fullRefreshGroup(grouperClientXmppJob, esbEvent.getGroupName());
+                fullRefreshGroup(grouperClientXmppJob, groupName);
 
               } else if (XmppJobEventAction.incremental == grouperClientXmppJob.getEventAction()) {
 
                 if (log.isDebugEnabled()) {
-                  log.debug("performing an incremental reload on group: " + esbEvent.getGroupName()
+                  log.debug("performing an incremental reload on group: " + groupName
                       + " for job: " + grouperClientXmppJob.getJobName() + ", subject: " + esbEvent.getSubjectId());
                 }
 
                 GrouperClientXmppSubject grouperClientXmppSubject = new GrouperClientXmppSubject(esbEvent);
 
-                incrementalRefreshGroup(grouperClientXmppJob, esbEvent.getGroupName(),
+                incrementalRefreshGroup(grouperClientXmppJob, groupName,
                     grouperClientXmppSubject, esbEvent.getEventType());
 
               } else {
