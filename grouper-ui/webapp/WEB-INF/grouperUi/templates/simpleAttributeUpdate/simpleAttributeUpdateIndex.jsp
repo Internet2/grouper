@@ -7,6 +7,7 @@
     <ul>
       <li><a href="grouper.html?operation=SimpleAttributeUpdate.createEdit"><grouper:message key="simpleAttributeUpdate.topIndexCreateEdit" /></a></li>
       <li><a href="grouper.html?operation=SimpleAttributeUpdate.assignInit"><grouper:message key="simpleAttributeUpdate.topIndexAssignAttribute" /></a></li>
+      <li><a href="grouper.html?operation=SimpleAttributeNameUpdate.createEditAttributeNames"><grouper:message key="simpleAttributeNameUpdate.topIndexAttributeName" /></a></li>
     </ul>
   </div>
 </div>

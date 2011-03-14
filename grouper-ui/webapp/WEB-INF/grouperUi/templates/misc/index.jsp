@@ -9,7 +9,7 @@
     <ul>
       <li><a href="grouper.html?operation=SimpleMembershipUpdate.index"
         ><grouper:message key="simpleMembershipUpdate.topIndexMembershipUpdate" /></a></li>
-      <li><a href="grouper.html?operation=SimpleAttributeUpdate.createEdit"><grouper:message key="simpleAttributeUpdate.topIndexCreateEdit" /></a></li>
+      <li><a href="grouper.html?operation=SimpleAttributeUpdate.index"><grouper:message key="simpleAttributeUpdate.topIndex" /></a></li>
     </ul>
   </div>
 </div>
