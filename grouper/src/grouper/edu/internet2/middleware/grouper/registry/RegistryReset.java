@@ -48,7 +48,7 @@ public class RegistryReset {
 
 
   // CONSTRUCTORS //
-  private RegistryReset() {
+  public RegistryReset() {
     super();
   } // private RegistryReset()
 

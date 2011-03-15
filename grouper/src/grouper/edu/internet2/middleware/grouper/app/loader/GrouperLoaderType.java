@@ -345,7 +345,7 @@ public enum GrouperLoaderType {
           Map<String, String> groupNameToDisplayName = new LinkedHashMap<String, String>();
           Map<String, String> groupNameToDescription = new LinkedHashMap<String, String>();
           Map<String, Subject> subjectCache = new HashMap<String, Subject>();
-          Map<Privilege, List<Subject>> privsToAdd = new LinkedHashMap<Privilege, List<Subject>>();
+          Map<String, Map<Privilege, List<Subject>>> privsToAdd = new LinkedHashMap<String, Map<Privilege, List<Subject>>>();
           Set<String> groupNamesFromGroupQuery = new LinkedHashSet<String>();
           if (!StringUtils.isBlank(groupQuery)) {
             //get a resultset from the db
@@ -361,46 +361,48 @@ public enum GrouperLoaderType {
               groupNameToDisplayName.put(groupName, groupDisplayName);
               String groupDescription = (String)grouperLoaderGroupsResultset.getCell(i, GrouperLoaderResultset.GROUP_DESCRIPTION_COL, false);
               groupNameToDescription.put(groupName, groupDescription);
+              Map<Privilege, List<Subject>> privsToAddForGroup = new HashMap<Privilege, List<Subject>>();
+              privsToAdd.put(groupName, privsToAddForGroup);
               {
                 String groupViewers = (String)grouperLoaderGroupsResultset.getCell(i, GrouperLoaderResultset.GROUP_VIEWERS_COL, false);
                 if (!StringUtils.isBlank(groupViewers)) {
                   List<Subject> viewerSubjects = lookupSubject(subjectCache, groupViewers);
-                  privsToAdd.put(AccessPrivilege.VIEW, viewerSubjects);
+                  privsToAddForGroup.put(AccessPrivilege.VIEW, viewerSubjects);
                 }
             }
               {
                 String groupReaders = (String)grouperLoaderGroupsResultset.getCell(i, GrouperLoaderResultset.GROUP_READERS_COL, false);
                 if (!StringUtils.isBlank(groupReaders)) {
                   List<Subject> readerSubjects = lookupSubject(subjectCache, groupReaders);
-                  privsToAdd.put(AccessPrivilege.READ, readerSubjects);
+                  privsToAddForGroup.put(AccessPrivilege.READ, readerSubjects);
                 }
               }
               {
                 String groupUpdaters = (String)grouperLoaderGroupsResultset.getCell(i, GrouperLoaderResultset.GROUP_UPDATERS_COL, false);
                 if (!StringUtils.isBlank(groupUpdaters)) {
                   List<Subject> updaterSubjects = lookupSubject(subjectCache, groupUpdaters);
-                  privsToAdd.put(AccessPrivilege.UPDATE, updaterSubjects);
+                  privsToAddForGroup.put(AccessPrivilege.UPDATE, updaterSubjects);
                 }
               }
               {
                 String groupAdmins = (String)grouperLoaderGroupsResultset.getCell(i, GrouperLoaderResultset.GROUP_ADMINS_COL, false);
                 if (!StringUtils.isBlank(groupAdmins)) {
                   List<Subject> adminSubjects = lookupSubject(subjectCache, groupAdmins);
-                  privsToAdd.put(AccessPrivilege.ADMIN, adminSubjects);
+                  privsToAddForGroup.put(AccessPrivilege.ADMIN, adminSubjects);
                 }
               }
               {
                 String groupOptins = (String)grouperLoaderGroupsResultset.getCell(i, GrouperLoaderResultset.GROUP_OPTINS_COL, false);
                 if (!StringUtils.isBlank(groupOptins)) {
                   List<Subject> optinSubjects = lookupSubject(subjectCache, groupOptins);
-                  privsToAdd.put(AccessPrivilege.OPTIN, optinSubjects);
+                  privsToAddForGroup.put(AccessPrivilege.OPTIN, optinSubjects);
                 }
               }
               {
                 String groupOptouts = (String)grouperLoaderGroupsResultset.getCell(i, GrouperLoaderResultset.GROUP_OPTOUTS_COL, false);
                 if (!StringUtils.isBlank(groupOptouts)) {
                   List<Subject> optoutSubjects = lookupSubject(subjectCache, groupOptouts);
-                  privsToAdd.put(AccessPrivilege.OPTOUT, optoutSubjects);
+                  privsToAddForGroup.put(AccessPrivilege.OPTOUT, optoutSubjects);
                 }
               }
             }
@@ -644,7 +646,7 @@ public enum GrouperLoaderType {
               //based on type, run query from the db and sync members
               syncOneGroupMembership(groupName, groupNameToDisplayName.get(groupName), 
                   groupNameToDescription.get(groupName), hib3GrouploaderLog, groupStartedMillis,
-                  grouperLoaderResultset, true, grouperSession, andGroups, groupTypes, privsToAdd, membershipsInRegistry.get(groupName));
+                  grouperLoaderResultset, true, grouperSession, andGroups, groupTypes, privsToAdd.get(groupName), membershipsInRegistry.get(groupName));
               
               long endTime = System.currentTimeMillis();
               hib3GrouploaderLog.setEndedTime(new Timestamp(endTime));
