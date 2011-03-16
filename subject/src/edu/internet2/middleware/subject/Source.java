@@ -135,7 +135,8 @@ public interface Source {
 	/**
 	 * Unstructured search for Subjects. Each implementation
 	 * utilizes its own search algorithm tailored to
-	 * the Subject repository and schema.
+	 * the Subject repository and schema.  Note if config param:
+	 * throwErrorOnFindAllFailure is false, then swallow and log exceptions
 	 * @param searchValue 
 	 * @return set
 	 */

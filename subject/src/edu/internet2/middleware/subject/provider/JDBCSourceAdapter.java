@@ -159,6 +159,9 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
     return subject;
   }
 
+  /** for testing if we should fail on testing */
+  public static boolean failOnSearchForTesting = false;
+
   /**
    * {@inheritDoc}
    */
@@ -170,10 +173,17 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
       log.error("searchType: \"search\" not defined.");
       return result;
     }
+    String throwErrorOnFindAllFailureString = this.getInitParam("throwErrorOnFindAllFailure");
+    boolean throwErrorOnFindAllFailure = SubjectUtils.booleanValue(throwErrorOnFindAllFailureString, true);
+
     Connection conn = null;
     PreparedStatement stmt = null;
     JdbcConnectionBean jdbcConnectionBean = null;
     try {
+      if (failOnSearchForTesting) {
+        throw new RuntimeException("failOnSearchForTesting");
+      }
+      
       jdbcConnectionBean = this.jdbcConnectionProvider.connectionBean();
       conn = jdbcConnectionBean.connection();
       stmt = prepareStatement(search, conn);
@@ -191,23 +201,19 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
         }
       }
       jdbcConnectionBean.doneWithConnection();
-    } catch (InvalidQueryException nqe) {
-      try {
-        jdbcConnectionBean.doneWithConnectionError(nqe);
-      } catch (RuntimeException re) {
-        log.error(re);
-      }
-      //shouldnt this throw???
-      log.error(nqe.getMessage() + ", source: " + this.getId() + ", sql: "
-          + search.getParam("sql"), nqe);
-    } catch (SQLException ex) {
+    } catch (Exception ex) {
       try {
         jdbcConnectionBean.doneWithConnectionError(ex);
       } catch (RuntimeException re) {
         log.error(re);
       }
-      log.error(ex.getMessage() + ", source: " + this.getId() + ", sql: "
+      if (!throwErrorOnFindAllFailure) {
+        log.error(ex.getMessage() + ", source: " + this.getId() + ", sql: "
           + search.getParam("sql"), ex);
+      } else {
+        throw new SourceUnavailableException(ex.getMessage() + ", source: " + this.getId() + ", sql: "
+            + search.getParam("sql"), ex);
+      }
     } finally {
       closeStatement(stmt);
       if (jdbcConnectionBean != null) {
@@ -241,7 +247,7 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
       subject = new SubjectImpl(subjectID, name1, description, this.getSubjectType().getName(),
           this.getId(), attributes1);
     } catch (SQLException ex) {
-      log.error("SQLException occurred: " + ex.getMessage() + ": " + sql, ex);
+      throw new SourceUnavailableException("SQLException occurred: " + ex.getMessage() + ": " + sql, ex);
     }
     return subject;
   }
@@ -297,7 +303,7 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
         throw new SubjectNotUniqueException(errMsg);
       }
     } catch (SQLException ex) {
-      log.error("SQLException occurred: " + ex.getMessage() + ": " + sql, ex);
+      throw new SourceUnavailableException("SQLException occurred: " + ex.getMessage() + ": " + sql, ex);
     }
     return subject;
 
@@ -415,7 +421,7 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
         values.add(value);
       }
     } catch (SQLException ex) {
-      log.error("SQLException occurred: " + ex.getMessage(), ex);
+      throw new SourceUnavailableException("SQLException occurred: " + ex.getMessage(), ex);
     }
 
     return attributes1;

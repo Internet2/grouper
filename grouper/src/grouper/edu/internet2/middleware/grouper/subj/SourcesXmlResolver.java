@@ -17,6 +17,7 @@
 
 package edu.internet2.middleware.grouper.subj;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -36,6 +37,7 @@ import edu.internet2.middleware.subject.SourceUnavailableException;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
 import edu.internet2.middleware.subject.SubjectNotUniqueException;
+import edu.internet2.middleware.subject.SubjectUtils;
 import edu.internet2.middleware.subject.provider.SourceManager;
 import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
 
@@ -116,7 +118,19 @@ public class SourcesXmlResolver implements SubjectResolver {
   {
     Set<Subject> subjects = new LinkedHashSet();
     for ( Source sa : this.getSources() ) {
-      subjects.addAll( sa.search(query) );
+      try {
+        subjects.addAll( sa.search(query) );
+      } catch (RuntimeException re) {
+        String throwErrorOnFindAllFailureString = sa.getInitParam("throwErrorOnFindAllFailure");
+        boolean throwErrorOnFindAllFailure = SubjectUtils.booleanValue(throwErrorOnFindAllFailureString, true);
+
+        if (!throwErrorOnFindAllFailure) {
+          LOG.error("Exception with source: " + sa.getId() + ", on query: '" + query + "'", re);
+        } else {
+          throw new SourceUnavailableException(
+              "Exception with source: " + sa.getId() + ", on query: '" + query + "'", re);
+        }
+      }
     }
     
     if (GrouperConfig.getPropertyBoolean("grouper.sort.subjectSets.exactOnTop", true)) {
@@ -134,11 +148,24 @@ public class SourcesXmlResolver implements SubjectResolver {
     throws  IllegalArgumentException,
             SourceUnavailableException
   {
-    Set<Subject> subjects = this.getSource(source).search(query);
-    if (GrouperConfig.getPropertyBoolean("grouper.sort.subjectSets.exactOnTop", true)) {
-      subjects = SubjectHelper.sortSetForSearch(subjects, query);
+    Source sourceObject = this.getSource(source);
+    try {
+      Set<Subject> subjects = sourceObject.search(query);
+      if (GrouperConfig.getPropertyBoolean("grouper.sort.subjectSets.exactOnTop", true)) {
+        subjects = SubjectHelper.sortSetForSearch(subjects, query);
+      }
+      return subjects;
+    } catch (RuntimeException re) {
+      String throwErrorOnFindAllFailureString = sourceObject.getInitParam("throwErrorOnFindAllFailure");
+      boolean throwErrorOnFindAllFailure = SubjectUtils.booleanValue(throwErrorOnFindAllFailureString, true);
+
+      if (!throwErrorOnFindAllFailure) {
+        LOG.error("Exception with source: " + sourceObject.getId() + ", on query: '" + query + "'", re);
+        return new HashSet<Subject>();
+      } 
+      throw new SourceUnavailableException(
+          "Exception with source: " + sourceObject.getId() + ", on query: '" + query + "'", re);
     }
-    return subjects;
   }
 
   /**
@@ -297,10 +324,24 @@ public class SourcesXmlResolver implements SubjectResolver {
     //loop through sources
     for ( Source sa : this.getSources() ) {
       
-      //see if it is restricted
-      RestrictSourceForGroup restrictSourceForGroup = SubjectFinder.restrictSourceForGroup(stemName, sa.getId());
-      if (!restrictSourceForGroup.isRestrict() || restrictSourceForGroup.getGroup() != null) {
-        subjects.addAll( sa.search(query) );
+      try {
+        //see if it is restricted
+        RestrictSourceForGroup restrictSourceForGroup = SubjectFinder.restrictSourceForGroup(stemName, sa.getId());
+        if (!restrictSourceForGroup.isRestrict() || restrictSourceForGroup.getGroup() != null) {
+          subjects.addAll( sa.search(query) );
+        }
+      } catch (RuntimeException re) {
+
+        String throwErrorOnFindAllFailureString = sa.getInitParam("throwErrorOnFindAllFailure");
+        boolean throwErrorOnFindAllFailure = SubjectUtils.booleanValue(throwErrorOnFindAllFailureString, true);
+
+        if (!throwErrorOnFindAllFailure) {
+          LOG.error("Exception with source: " + sa.getId() + ", on query: '" + query + "'", re);
+        } else {
+          throw new SourceUnavailableException(
+              "Exception with source: " + sa.getId() + ", on query: '" + query + "'", re);
+        }
+
       }
     }
     

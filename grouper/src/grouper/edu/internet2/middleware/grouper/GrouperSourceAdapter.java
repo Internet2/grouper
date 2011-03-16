@@ -25,7 +25,6 @@ import org.apache.commons.logging.Log;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
-import edu.internet2.middleware.grouper.exception.QueryException;
 import edu.internet2.middleware.grouper.exception.SessionException;
 import edu.internet2.middleware.grouper.filter.GroupNameFilter;
 import edu.internet2.middleware.grouper.filter.GrouperQuery;
@@ -39,6 +38,7 @@ import edu.internet2.middleware.grouper.validator.NotNullValidator;
 import edu.internet2.middleware.subject.SourceUnavailableException;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
+import edu.internet2.middleware.subject.SubjectUtils;
 import edu.internet2.middleware.subject.provider.BaseSourceAdapter;
 import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
 
@@ -259,6 +259,9 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
     // Nothing
   } // public void init()
 
+  /** for testing if we should fail on testing */
+  public static boolean failOnSearchForTesting = false;
+  
   /**
    * Searches for {@link Group} subjects by naming attributes.
    * <p/>
@@ -279,6 +282,10 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
   public Set<Subject> search(final String searchValue) 
     throws  IllegalArgumentException
   {
+    
+    String throwErrorOnFindAllFailureString = this.getInitParam("throwErrorOnFindAllFailure");
+    final boolean throwErrorOnFindAllFailure = SubjectUtils.booleanValue(throwErrorOnFindAllFailureString, true);
+
     final Set<Subject>   subjs  = new LinkedHashSet();
     GrouperSession.callbackGrouperSession(this._getSession(), new GrouperSessionHandler() {
 
@@ -291,6 +298,11 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
         
         Stem  root   = StemFinder.findRootStem(grouperSession);
         try {
+          
+          if (failOnSearchForTesting) {
+            throw new RuntimeException("failOnSearchForTesting");
+          }
+          
           GrouperQuery gq = GrouperQuery.createQuery(
             grouperSession, new GroupNameFilter(searchValue, root)
           );
@@ -301,8 +313,17 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
             subjs.add(g.toSubject()); 
           }
         }
-        catch (QueryException eQ) {
-          LOG.error(E.GSA_SEARCH + eQ.getMessage());
+        catch (Exception ex) {
+ 
+          if (!throwErrorOnFindAllFailure) {
+            LOG.error(ex.getMessage() + ", source: " + GrouperSourceAdapter.this.getId() + ", searchValue: "
+              + searchValue, ex);
+          } else {
+            throw new SourceUnavailableException(ex.getMessage() + ", source: " 
+                + GrouperSourceAdapter.this.getId() + ", searchValue: "
+                + searchValue, ex);
+          }
+
         } 
         return null;
       }

@@ -37,8 +37,12 @@ import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.helper.T;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Source;
+import edu.internet2.middleware.subject.SourceUnavailableException;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
+import edu.internet2.middleware.subject.provider.JDBCSourceAdapter;
+import edu.internet2.middleware.subject.provider.JDBCSourceAdapter2;
+import edu.internet2.middleware.subject.provider.JNDISourceAdapter;
 import edu.internet2.middleware.subject.provider.SourceManager;
 
 /**
@@ -63,8 +67,8 @@ public class TestSubjectFinder extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(TestSubjectFinder.class);
-    //TestRunner.run(new TestSubjectFinder("testFindByPackedSubjectString"));
+    //TestRunner.run(TestSubjectFinder.class);
+    TestRunner.run(new TestSubjectFinder("testFindAllSourceException"));
   }
   
   /**
@@ -540,11 +544,54 @@ public class TestSubjectFinder extends GrouperTest {
     }
     
     assertEquals(SubjectTestHelper.SUBJ0_ID, subjects.iterator().next().getId());
-    
-    
-    
   }
+
+  /**
+   * 
+   */
+  public void testFindAllSourceException() {
+    
+    //should work
+    try {
+      SubjectFinder.findAll("string1");
+      
+      GrouperSourceAdapter.failOnSearchForTesting = true;
   
+      try {
+        SubjectFinder.findAll("string2");
+        fail();
+      } catch (SourceUnavailableException sue) {
+        //good
+      }
+      
+      GrouperSourceAdapter.failOnSearchForTesting = false;
+
+      SubjectFinder.findAll("string3");
+
+      JDBCSourceAdapter.failOnSearchForTesting = true;
+      
+      try {
+        SubjectFinder.findAll("string4");
+        fail();
+      } catch (SourceUnavailableException sue) {
+        //good
+      }
+      
+      JDBCSourceAdapter.failOnSearchForTesting = false;
+      
+
+      SubjectFinder.findAll("string5");
+
+    } finally {
+      
+      GrouperSourceAdapter.failOnSearchForTesting = false;
+      JDBCSourceAdapter.failOnSearchForTesting = false;
+      JNDISourceAdapter.failOnSearchForTesting = false;
+      JDBCSourceAdapter2.failOnSearchForTesting = false;
+      
+    }
+  }
+
   /**
    * 
    */

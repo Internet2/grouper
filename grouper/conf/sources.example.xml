@@ -10,6 +10,16 @@ $Id: sources.example.xml,v 1.8 2009-08-11 20:18:09 mchyzer Exp $
   <!-- Group Subject Resolver -->
   
   <!-- 
+     You can flag a source as not throwing exception on a findAll (general search) i.e. if it is
+     ok if it is down.  Generally you probably won't want to do this.  It defaults to true if omitted.
+  
+     <init-param>
+       <param-name>throwErrorOnFindAllFailure</param-name>
+       <param-value>false</param-value>
+     </init-param>
+   -->
+  
+  <!-- 
       You can make virtual attributes (attributes with formatting or based on other attributes) like this:
       init-param name is subjectVirtualAttribute_<index>_<name> where index is the order to be processed
       if some depend on others (0 to 99).  The value is the jexl expression language.  You can use subjectUtils
