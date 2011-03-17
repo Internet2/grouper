@@ -606,7 +606,7 @@ public class JDBCSourceAdapter2 extends JDBCSourceAdapter {
       } catch (RuntimeException e) {
         log.error(error, e);
       }
-      log.error(error, ex);
+      throw new SourceUnavailableException(error, ex);
     } finally {
       closeStatement(stmt);
       if (jdbcConnectionBean != null) {

@@ -140,13 +140,13 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
       jdbcConnectionBean.doneWithConnection();
     } catch (SQLException ex) {
       String error = "problem in sources.xml source: " + this.getId() + ", sql: "
-          + search.getParam("sql");
+          + search.getParam("sql") + ", " + id1 + ", " + searchType;
       try {
         jdbcConnectionBean.doneWithConnectionError(ex);
       } catch (RuntimeException e) {
         log.error(error, e);
       }
-      log.error(error, ex);
+      throw new SourceUnavailableException(error, ex);
     } finally {
       closeStatement(stmt);
       if (jdbcConnectionBean != null) {
