@@ -96,6 +96,7 @@ import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.misc.GrouperCloneable;
+import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.provider.SourceManager;
@@ -6956,6 +6957,9 @@ public class GrouperUtil {
     return properties;
   }
   
+  /** beore grouper is started, you might not be able to use a grouper cache... */
+  private static Map<String, Properties> preStartupProperties = new HashMap<String, Properties>();
+  
   /**
    * read properties from a resource, dont modify the properties returned since they are cached
    * @param resourceName
@@ -6966,9 +6970,23 @@ public class GrouperUtil {
   public synchronized static Properties propertiesFromResourceName(String resourceName, boolean useCache, 
       boolean exceptionIfNotExist) {
 
-    Properties properties = resourcePropertiesCache() == null ? null : resourcePropertiesCache().get(resourceName);
+    Properties properties = null;
     
-    if (resourcePropertiesCache() == null || !useCache || !resourcePropertiesCache().containsKey(resourceName)) {
+    boolean finishedStartupSuccessfully = GrouperStartup.isFinishedStartupSuccessfully();
+    if (useCache) {
+      if (!finishedStartupSuccessfully) {
+        //note, during classloading, this is null
+        if (preStartupProperties != null) {
+          properties = preStartupProperties.get(resourceName);
+        }
+      } else {
+      
+        properties = resourcePropertiesCache() == null ? null : resourcePropertiesCache().get(resourceName);
+      }
+      
+    }
+    
+    if ((!finishedStartupSuccessfully && properties == null) || (!useCache || resourcePropertiesCache() == null || !resourcePropertiesCache().containsKey(resourceName))) {
   
       properties = new Properties();
 
@@ -6985,8 +7003,11 @@ public class GrouperUtil {
       } finally {
         closeQuietly(inputStream);
 
-        if (useCache && resourcePropertiesCache() != null) {
+        if (finishedStartupSuccessfully && useCache && resourcePropertiesCache() != null) {
           resourcePropertiesCache().put(resourceName, properties);
+        }
+        if (!finishedStartupSuccessfully && useCache && preStartupProperties != null) {
+          preStartupProperties.put(resourceName, properties);
         }
       }
     }
@@ -10413,4 +10434,41 @@ public class GrouperUtil {
     }
   }
 
+  /**
+   * 
+   */
+  public static final String JAVA_IO_TMPDIR = "java.io.tmpdir";
+  
+  /** original tmp dir */
+  private static final String ORIGINAL_TMP_DIR = System.getProperty(JAVA_IO_TMPDIR);
+
+  /** log it once */
+  private static boolean loggedTempDir = false;
+  
+  /**
+   * return the temp dir, either what is in the java env var, or something in the grouper conf
+   * @return the temp dir
+   */
+  public static String tmpDir() {
+    
+    String tmpDir = null;
+
+    tmpDir = GrouperConfig.getProperty("grouper.tmp.dir");
+    if (isBlank(tmpDir)) {
+      tmpDir = ORIGINAL_TMP_DIR;
+      if (isBlank(tmpDir)) {
+        //logger might not be set, lets SOP this too...
+        System.out.println("Error: Cant find tmpDir.  You should set grouper.tmp.dir in the grouper.properties!");
+        LOG.fatal("Error: Cant find tmpDir.  You should set grouper.tmp.dir in the grouper.properties!");
+      }
+    }
+    if (!isBlank(tmpDir)) {
+      if (!loggedTempDir) {
+        loggedTempDir = true;
+        LOG.info("Tmp dir is set to: '" + tmpDir + "'");
+      }
+    }
+    return tmpDir;
+  }
+  
 }
