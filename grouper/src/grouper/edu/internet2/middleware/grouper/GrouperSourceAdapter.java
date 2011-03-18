@@ -154,9 +154,6 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
     catch (GroupNotFoundException eGNF) {
       throw new SubjectNotFoundException( "subject not found: " + eGNF.getMessage(), eGNF );
     }
-    catch (SourceUnavailableException eSU) {
-      throw new SubjectNotFoundException( "subject not found: " + eSU.getMessage(), eSU );
-    }
   }
   
   /**
@@ -226,9 +223,6 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
     }
     catch (GroupNotFoundException eGNF) {
       throw new SubjectNotFoundException( "subject not found: " + eGNF.getMessage(), eGNF );
-    }
-    catch (SourceUnavailableException eSU) {
-      throw new SubjectNotFoundException( "subject not found: " + eSU.getMessage(), eSU );
     }
   } // public Subject getSubjectByIdentifier(name)
 
