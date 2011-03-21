@@ -499,7 +499,7 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
             }
           } catch (NamingException e) {
               log.error("ldap excp: " + e);
-              throw new SourceUnavailableException("Ldap Exception: " + ex.getMessage(), ex);
+              throw new SourceUnavailableException("Ldap Exception: " + e.getMessage(), e);
           }
         }
         return attributes;
