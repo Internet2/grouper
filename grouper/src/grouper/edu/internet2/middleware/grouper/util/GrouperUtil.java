@@ -1885,7 +1885,7 @@ public class GrouperUtil {
    * @return the set of stem names
    */
   public static Set<String> findParentStemNames(String objectName) {
-    Set<String> result = new LinkedHashSet<String>();
+    List<String> result = new ArrayList<String>();
     String currentName = objectName;
     while(true) {
       currentName = parentStemNameFromName(currentName);
@@ -1896,8 +1896,8 @@ public class GrouperUtil {
       }
       result.add(currentName);
     }
-    
-    return result;
+    Collections.reverse(result); 
+    return new LinkedHashSet(result);
   }
 
   /**
