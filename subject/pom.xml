@@ -20,6 +20,10 @@
                 <enabled>true</enabled>
             </snapshots>
         </repository>
+        <repository>
+            <id>vt-middleware.googlecode.com.repo</id>
+            <url>http://vt-middleware.googlecode.com/svn/maven2</url>
+        </repository>
     </repositories>
 
     <distributionManagement>
@@ -93,6 +97,16 @@
             <groupId>log4j</groupId>
             <artifactId>log4j</artifactId>
             <version>1.2.16</version>
+        </dependency>
+        <dependency>
+            <groupId>edu.vt.middleware</groupId>
+            <artifactId>vt-ldap</artifactId>
+            <version>3.3.2</version>
+        </dependency>
+        <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcprov-jdk16</artifactId>
+            <version>1.46</version>
         </dependency>
 
         <!--  custom Penn -->
