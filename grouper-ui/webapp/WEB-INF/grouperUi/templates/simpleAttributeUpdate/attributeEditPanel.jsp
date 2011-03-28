@@ -311,6 +311,10 @@
             onclick="ajax('../app/SimpleAttributeUpdate.attributeEditPanelPrivilegesClearPaging', {formIds: 'attributeEditFormId'}); return false;" 
             value="${attributeUpdateRequestContainer.text.editPanelPrivileges}" style="margin-top: 2px" />
 
+           <input class="blueButton" type="submit" 
+            onclick="location.href = 'grouper.html?operation=SimpleAttributeNameUpdate.createEditAttributeNames&attributeDefIdForFilter=${attributeUpdateRequestContainer.attributeDefToEdit.id}'; return false;" 
+            value="${attributeUpdateRequestContainer.text.editAttributeNames}" style="margin-top: 2px" />
+
          </c:if>
        
          <input class="blueButton" type="submit" 

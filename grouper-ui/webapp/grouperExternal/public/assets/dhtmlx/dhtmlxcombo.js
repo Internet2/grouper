@@ -986,6 +986,25 @@ function dhtmlXCombo(parent,name,width,optionType,tabIndex){
     dhtmlXCombo.prototype._fetchOptions=function(ind,text){
          if (text=="") { this.closeAll();  return this.clearAll();   }
          var url=this._xml+((this._xml.indexOf("?")!=-1)?"&":"?")+"pos="+ind+"&mask="+encodeURIComponent(text);
+         
+         var formElementNamesToSend = comboboxFormElementNamesToSend[this.name];
+         
+         //chris hyzer: make the request dynamic, maybe send some other form element names
+         if (!guiIsEmpty(formElementNamesToSend)) {
+           
+           //add additional form element names to filter based on other things on the screen
+           var additionalFormElementNamesArray = guiSplitTrim(formElementNamesToSend, ",");
+           for (var i = 0; i<additionalFormElementNamesArray.length; i++) {
+             var additionalFormElementName = additionalFormElementNamesArray[i];
+             url += url.indexOf("?") == -1 ? "?" : "&";
+             url += additionalFormElementName + "=";
+             var val = $("input[type=hidden][name=" + additionalFormElementName + "]").val();
+             //alert(val);
+             url += URLEncode(document.getElementsByName(additionalFormElementName)[0].value);
+           }
+         }
+
+         
          this._lasttext=text;
          if (this._load) this._load=url;
          else {
@@ -993,6 +1012,14 @@ function dhtmlXCombo(parent,name,width,optionType,tabIndex){
 			this.loadXML(url);
      	 }
     }
+
+
+  //keep track of element names to add to the request
+  //key is the dhtmlx combo name
+  var comboboxFormElementNamesToSend = new Object();
+
+
+    
 /**
 *     @desc: filter list of options
 *     @type: private
@@ -1363,6 +1390,5 @@ dhtmlXCombo.prototype.dhx_Event=function()
 		}
 	});
 })();
-
 
 //(c)dhtmlx ltd. www.dhtmlx.com

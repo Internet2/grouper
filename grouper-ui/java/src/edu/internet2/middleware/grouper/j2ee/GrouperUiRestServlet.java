@@ -27,6 +27,7 @@ import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiSettings;
 import edu.internet2.middleware.grouper.grouperUi.serviceLogic.InviteExternalSubjects;
+import edu.internet2.middleware.grouper.grouperUi.serviceLogic.SimpleAttributeNameUpdateFilter;
 import edu.internet2.middleware.grouper.grouperUi.serviceLogic.SimpleAttributeUpdateFilter;
 import edu.internet2.middleware.grouper.grouperUi.serviceLogic.SimpleMembershipUpdateFilter;
 import edu.internet2.middleware.grouper.grouperUi.serviceLogic.SimpleMembershipUpdateImportExport;
@@ -75,7 +76,11 @@ public class GrouperUiRestServlet extends HttpServlet {
       "SimpleMembershipUpdateImportExport.exportAllCsv", "SimpleMembershipUpdateMenu.memberMenuStructure",
       "SimpleMembershipUpdateFilter.filterMembers", "SimpleAttributeUpdateFilter.filterAttributeDefs",
       "SimpleAttributeUpdateFilter.filterCreatableNamespace", 
-      SimpleAttributeUpdateFilter.class.getSimpleName() + ".filterPrivilegeUsers");
+      SimpleAttributeUpdateFilter.class.getSimpleName() + ".filterPrivilegeUsers",
+      SimpleAttributeNameUpdateFilter.class.getSimpleName() + ".filterAttributeDefs",
+      SimpleAttributeNameUpdateFilter.class.getSimpleName() + ".filterAttributeDefNames",
+      SimpleAttributeNameUpdateFilter.class.getSimpleName() + ".filterCreatableNamespace"
+  );
 
   /**
    * @see javax.servlet.http.HttpServlet#service(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)

@@ -108,7 +108,7 @@ public class SimpleAttributeUpdateFilter {
       //dont rethrow or the control will get confused
       StringBuilder xmlBuilder = new StringBuilder(GrouperUiUtils.DHTMLX_OPTIONS_START);
       GrouperUiUtils.dhtmlxOptionAppend(xmlBuilder, null, 
-          GrouperUiUtils.escapeHtml("Error searching for folders: " + searchTerm + ", " + se.getMessage(), true), null);
+          GrouperUiUtils.escapeHtml("Error searching for attributeDefs: " + searchTerm + ", " + se.getMessage(), true), null);
       xmlBuilder.append(GrouperUiUtils.DHTMLX_OPTIONS_END);
       GrouperUiUtils.printToScreen(xmlBuilder.toString(), HttpContentType.TEXT_XML, false, false);
     } finally {

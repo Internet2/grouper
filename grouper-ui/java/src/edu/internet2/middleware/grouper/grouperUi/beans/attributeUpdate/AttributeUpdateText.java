@@ -14,7 +14,15 @@ public class AttributeUpdateText {
 
   /** singleton */
   private static AttributeUpdateText simpleAttributeUpdateText = new AttributeUpdateText();
-
+  
+  /**
+   * attribute attribute definition names for this attribute def
+   * @return attribute def name button
+   */
+  public String getEditAttributeNames() {
+    return text("simpleAttributeUpdate.editAttributeNames");
+  }
+  
   /**
    * filter button for add subject
    * @return filter button text

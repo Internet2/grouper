@@ -48,6 +48,17 @@ public class GrouperComboboxTag extends SimpleTagSupport {
   /** the default value (will be submitted) which should appear in the combo box when drawn */
   private String comboDefaultValue;
   
+  /** send more form element names to the filter operation, comma separated */
+  private String additionalFormElementNames;
+  
+  /**
+   * send more form element names to the filter operation, comma separated
+   * @param additionalFormElementNames1
+   */
+  public void setAdditionalFormElementNames(String additionalFormElementNames1) {
+    this.additionalFormElementNames = additionalFormElementNames1;
+  }
+
   /**
    * the default text which should appear in the combo box when drawn
    * @param comboDefaultText1
@@ -106,6 +117,12 @@ public class GrouperComboboxTag extends SimpleTagSupport {
       result.append("null");
     } else {
       result.append("'").append(GrouperUiUtils.escapeJavascript(this.comboDefaultValue, true)).append("'");
+    }
+    result.append(", ");
+    if (StringUtils.isBlank(this.additionalFormElementNames)) {
+      result.append("null");
+    } else {
+      result.append("'").append(GrouperUiUtils.escapeJavascript(this.additionalFormElementNames, true)).append("'");
     }
     result.append(");\n");
     

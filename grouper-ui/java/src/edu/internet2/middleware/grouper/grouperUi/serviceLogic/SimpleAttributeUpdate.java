@@ -461,17 +461,58 @@ public class SimpleAttributeUpdate {
   public void createEdit(HttpServletRequest request, HttpServletResponse response) {
     GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
   
-    //setup the container
-    AttributeUpdateRequestContainer.retrieveFromRequestOrCreate();
-  
-    guiResponseJs.addAction(GuiScreenAction.newScript("document.title = '" 
-        + GrouperUiUtils.message("simpleAttributeUpdate.addEditTitle", false) + "'"));
-    guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#topDiv", 
-        "/WEB-INF/grouperUi/templates/common/commonTop.jsp"));
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
 
+    GrouperSession grouperSession = null;
+
+    AttributeDef attributeDef = null;
     
-    guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#bodyDiv", 
+    try {
+      grouperSession = GrouperSession.start(loggedInSubject);
+
+      //setup the container
+      AttributeUpdateRequestContainer attributeUpdateRequestContainer = AttributeUpdateRequestContainer.retrieveFromRequestOrCreate();
+    
+      guiResponseJs.addAction(GuiScreenAction.newScript("document.title = '" 
+          + GrouperUiUtils.message("simpleAttributeUpdate.addEditTitle", false) + "'"));
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#topDiv", 
+          "/WEB-INF/grouperUi/templates/common/commonTop.jsp"));
+  
+      
+      String attributeDefId = request.getParameter("attributeDefId");
+      
+      if (!StringUtils.isBlank(attributeDefId)) {
+        
+        //if editing, then this must be there, or it has been tampered with
+        try {
+          attributeDef = AttributeDefFinder.findById(attributeDefId, true);
+        } catch (Exception e) {
+          LOG.info("Error searching for attribute def: " + attributeDefId, e);
+          guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simpleAttributeUpdate.errorCantEditAttributeDef", false)));
+          return;
+          
+        }
+        
+        if (!attributeDef.getPrivilegeDelegate().canAttrAdmin(loggedInSubject)) {
+          LOG.error("Subject " + GrouperUtil.subjectToString(loggedInSubject) + " cannot admin attribute definition: " + attributeDef.getName());
+          guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simpleAttributeUpdate.errorCantEditAttributeDef", false)));
+          return;
+        }
+  
+        
+        attributeUpdateRequestContainer.setAttributeDefToEdit(attributeDef);
+      }
+    
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#bodyDiv", 
         "/WEB-INF/grouperUi/templates/simpleAttributeUpdate/simpleAttributeCreateEditInit.jsp"));
+  
+    } finally {
+      GrouperSession.stopQuietly(grouperSession); 
+    }
+
+    if (attributeDef != null) {
+      new SimpleAttributeUpdateFilter().editAttributeDefsHelper(request, response, attributeDef, true);
+    }
   
   }
 

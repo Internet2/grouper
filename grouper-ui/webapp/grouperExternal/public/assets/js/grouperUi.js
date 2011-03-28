@@ -181,8 +181,9 @@ var allComboboxes = new Object();
  * @param width
  * @param useImages true or false, if images are in the combobox
  * @param filterUrl
+ * @param additionalFormElementNames send more form element names to the filter operation, comma separated
  */
-function guiRegisterDhtmlxCombo(divId, comboName, width, useImages, filterUrl, comboDefaultText, comboDefaultValue ) {
+function guiRegisterDhtmlxCombo(divId, comboName, width, useImages, filterUrl, comboDefaultText, comboDefaultValue, additionalFormElementNames ) {
   /* long hand...
    var simpleMembershipUpdateAddMemberSelect=new dhtmlXCombo(
       "simpleMembershipUpdateAddMemberDiv","simpleMembershipUpdateAddMember",200, 'image');
@@ -193,6 +194,9 @@ function guiRegisterDhtmlxCombo(divId, comboName, width, useImages, filterUrl, c
   
   filterUrl = guiDecorateUrl(filterUrl);
   
+  comboboxFormElementNamesToSend[comboName] = additionalFormElementNames;
+  
+  //remember the combo names for when the request goes out
   theCombo.enableFilteringMode(true,filterUrl,false);
   
   //note, for some reason the default value has to be above the default text...
@@ -286,6 +290,14 @@ function guiDecorateUrl(theUrl) {
   if (typeof urlArgObjectMap.membershipLiteName != 'undefined') {
     theUrl += theUrl.indexOf("?") == -1 ? "?" : "&";
     theUrl += "membershipLiteName=" +  urlArgObjectMap.membershipLiteName;
+  }
+  if (typeof urlArgObjectMap.attributeDefIdForFilter != 'undefined') {
+    theUrl += theUrl.indexOf("?") == -1 ? "?" : "&";
+    theUrl += "attributeDefIdForFilter=" +  urlArgObjectMap.attributeDefIdForFilter;
+  }
+  if (typeof urlArgObjectMap.attributeDefId != 'undefined') {
+    theUrl += theUrl.indexOf("?") == -1 ? "?" : "&";
+    theUrl += "attributeDefId=" +  urlArgObjectMap.attributeDefId;
   }
   return theUrl;
 }

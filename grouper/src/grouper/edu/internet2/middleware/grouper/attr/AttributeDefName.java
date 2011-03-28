@@ -189,6 +189,14 @@ public class AttributeDefName extends GrouperAPI
   private String stemId;
 
   /**
+   * stem that this attribute is in
+   * @return the stem id
+   */
+  public Stem getStem() {
+    return this.stemId == null ? null : StemFinder.findByUuid(GrouperSession.staticGrouperSession(), this.stemId, true);
+  }
+
+  /**
    * name of attribute, e.g. school:community:students:expireDate 
    */
   private String name;

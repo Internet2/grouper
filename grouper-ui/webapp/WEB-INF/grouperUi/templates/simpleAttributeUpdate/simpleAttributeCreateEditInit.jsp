@@ -16,6 +16,7 @@
       <tr valign="top">
         <td style="padding: 0px" width="710">
           <grouper:combobox filterOperation="SimpleAttributeUpdateFilter.filterAttributeDefs" id="simpleAttributeUpdatePickAttributeDef" 
+            comboDefaultText="${attributeUpdateRequestContainer.attributeDefToEdit.name}" comboDefaultValue="${attributeUpdateRequestContainer.attributeDefToEdit.id}"
             width="700"/>
           
         </td>

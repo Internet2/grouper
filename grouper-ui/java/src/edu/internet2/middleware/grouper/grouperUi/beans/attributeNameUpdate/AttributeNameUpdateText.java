@@ -14,7 +14,55 @@ public class AttributeNameUpdateText {
 
   /** singleton */
   private static AttributeNameUpdateText attributeNameUpdateText = new AttributeNameUpdateText();
-
+  
+  /**
+   * edit panel submit
+   * @return submit button text
+   */
+  public String getFilterAttributeDefNameButton() {
+    return text("simpleAttributeNameUpdate.filterAttributeDefNameButton");
+  }
+  
+  /**
+   * edit panel submit
+   * @return submit button text
+   */
+  public String getNewAttributeDefNameButton() {
+    return text("simpleAttributeNameUpdate.newAttributeDefNameButton");
+  }
+  
+  /**
+   * edit panel submit
+   * @return submit button text
+   */
+  public String getEditPanelSubmit() {
+    return text("simpleAttributeNameUpdate.editPanelSubmit");
+  }
+  
+  /**
+   * edit panel hierarchies
+   * @return hierarchies button text
+   */
+  public String getEditPanelHierarchies() {
+    return text("simpleAttributeNameUpdate.editPanelHierarchies");
+  }
+  
+  /**
+   * edit panel cancel
+   * @return cancel button text
+   */
+  public String getEditPanelCancel() {
+    return text("simpleAttributeNameUpdate.editPanelCancel");
+  }
+  
+  /**
+   * edit panel delete
+   * @return delete button text
+   */
+  public String getEditPanelDelete() {
+    return text("simpleAttributeNameUpdate.editPanelDelete");
+  }
+  
   /**
    * title of main screen
    * @return title of main screen
