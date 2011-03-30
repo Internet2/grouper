@@ -3,6 +3,7 @@ package edu.internet2.middleware.grouper.pit;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.GrouperAPI;
+import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -152,5 +153,32 @@ public class PITAttributeAssignAction extends GrouperPIT implements Hib3GrouperV
    */
   public void delete() {
     GrouperDAOFactory.getFactory().getPITAttributeAssignAction().delete(this);
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.GrouperAPI#onPreDelete(edu.internet2.middleware.grouper.hibernate.HibernateSession)
+   */
+  @Override
+  public void onPreDelete(HibernateSession hibernateSession) {
+    super.onPreDelete(hibernateSession);
+
+    if (this.isActive()) {
+      throw new RuntimeException("Cannot delete active point in time attribute assign action object with id=" + this.getId());
+    }
+    
+    // delete attribute assignments
+    Set<PITAttributeAssign> assignments = GrouperDAOFactory.getFactory().getPITAttributeAssign().findByAttributeAssignActionId(this.getId());
+    for (PITAttributeAssign assignment : assignments) {
+      GrouperDAOFactory.getFactory().getPITAttributeAssign().delete(assignment);
+    }
+    
+    // delete self action sets and their children
+    GrouperDAOFactory.getFactory().getPITAttributeAssignActionSet().deleteSelfByAttributeAssignActionId(this.getId());
+    
+    // delete action sets by thenHasAttributeAssignActionId ... and their children.
+    Set<PITAttributeAssignActionSet> actionSets = GrouperDAOFactory.getFactory().getPITAttributeAssignActionSet().findByThenHasAttributeAssignActionId(this.getId());
+    for (PITAttributeAssignActionSet actionSet : actionSets) {
+      GrouperDAOFactory.getFactory().getPITAttributeAssignActionSet().delete(actionSet);
+    }
   }
 }

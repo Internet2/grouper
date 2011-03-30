@@ -43,4 +43,17 @@ public interface PITStemDAO extends GrouperDAO {
    * @param time
    */
   public void deleteInactiveRecords(Timestamp time);
+  
+  /**
+   * @param id
+   * @return set of PITStem
+   */
+  public Set<PITStem> findByParentStemId(String id);
+  
+  /**
+   * @param stemName
+   * @param orderByStartTime
+   * @return set of pit stems
+   */
+  public Set<PITStem> findByName(String stemName, boolean orderByStartTime);
 }

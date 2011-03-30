@@ -50,4 +50,10 @@ public interface PITAttributeDefDAO extends GrouperDAO {
    * @param time
    */
   public void deleteInactiveRecords(Timestamp time);
+  
+  /**
+   * @param id
+   * @return set of PITAttributeDef
+   */
+  public Set<PITAttributeDef> findByStemId(String id);
 }

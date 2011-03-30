@@ -100,6 +100,12 @@ public interface PITGroupSetDAO extends GrouperDAO {
   public Set<PITGroupSet> findAllActiveByMemberGroup(String groupId);
   
   /**
+   * @param groupId
+   * @return pit group sets
+   */
+  public Set<PITGroupSet> findAllByMemberGroup(String groupId);
+  
+  /**
    * @param pitGroupSet
    * @return all nested children of the pit group set
    */
@@ -113,8 +119,25 @@ public interface PITGroupSetDAO extends GrouperDAO {
   public PITGroupSet findActiveImmediateChildByParentAndMemberGroup(PITGroupSet parentPITGroupSet, String memberGroupId);
   
   /**
+   * @param pitGroupSet
+   * @return pit group sets
+   */
+  public Set<PITGroupSet> findImmediateChildren(PITGroupSet pitGroupSet);
+  
+  /**
    * Delete records that ended before the given date.
    * @param time
    */
   public void deleteInactiveRecords(Timestamp time);
+  
+  /**
+   * @param id
+   * @return pit group sets
+   */
+  public Set<PITGroupSet> findAllSelfGroupSetsByOwnerId(String id);
+  
+  /**
+   * @param id
+   */
+  public void deleteSelfByOwnerId(String id);
 }

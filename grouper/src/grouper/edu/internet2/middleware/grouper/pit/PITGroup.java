@@ -15,6 +15,7 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
+import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
@@ -207,7 +208,7 @@ public class PITGroup extends GrouperPIT implements Hib3GrouperVersioned {
         PrivilegeHelper.dispatch(session, group, session.getSubject(), field.getReadPriv());
       }
       
-      members = GrouperDAOFactory.getFactory().getPITMembership().findAllMembersByOwnerAndField( 
+      members = GrouperDAOFactory.getFactory().getPITMembershipView().findAllMembersByOwnerAndField( 
           this.getId(), pitFieldId, pointInTimeFrom, pointInTimeTo, sources, queryOptions);
     }
     catch (InsufficientPrivilegeException e) {
@@ -238,7 +239,7 @@ public class PITGroup extends GrouperPIT implements Hib3GrouperVersioned {
     
     Member m = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), subject, true);
     
-    int size = GrouperDAOFactory.getFactory().getPITMembership().findAllByOwnerAndMemberAndField(
+    int size = GrouperDAOFactory.getFactory().getPITMembershipView().findAllByOwnerAndMemberAndField(
         this.getId(), m.getUuid(), pitFieldId, pointInTimeFrom, pointInTimeTo, queryOptions).size();
     
     if (size > 0) {
@@ -248,7 +249,7 @@ public class PITGroup extends GrouperPIT implements Hib3GrouperVersioned {
     // need to check GrouperAll as well...
     Member all = MemberFinder.internal_findAllMember();
     if (!all.getUuid().equals(m.getUuid())) {
-      size = GrouperDAOFactory.getFactory().getPITMembership().findAllByOwnerAndMemberAndField(
+      size = GrouperDAOFactory.getFactory().getPITMembershipView().findAllByOwnerAndMemberAndField(
           this.getId(), all.getUuid(), pitFieldId, pointInTimeFrom, pointInTimeTo, queryOptions).size();
       
       if (size > 0) {
@@ -285,5 +286,47 @@ public class PITGroup extends GrouperPIT implements Hib3GrouperVersioned {
       .append(this.getName())
       .append(this.getStartTimeDb())
       .toHashCode();
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.GrouperAPI#onPreDelete(edu.internet2.middleware.grouper.hibernate.HibernateSession)
+   */
+  @Override
+  public void onPreDelete(HibernateSession hibernateSession) {
+    super.onPreDelete(hibernateSession);
+
+    if (this.isActive()) {
+      throw new RuntimeException("Cannot delete active point in time group object with id=" + this.getId());
+    }
+    
+    // delete memberships
+    Set<PITMembership> memberships = GrouperDAOFactory.getFactory().getPITMembership().findAllByOwner(this.getId());
+    for (PITMembership membership : memberships) {
+      GrouperDAOFactory.getFactory().getPITMembership().delete(membership);
+    }
+    
+    // delete attribute assignments
+    Set<PITAttributeAssign> assignments = GrouperDAOFactory.getFactory().getPITAttributeAssign().findByOwnerGroupId(this.getId());
+    for (PITAttributeAssign assignment : assignments) {
+      GrouperDAOFactory.getFactory().getPITAttributeAssign().delete(assignment);
+    }
+    
+    // delete self group sets and their children
+    GrouperDAOFactory.getFactory().getPITGroupSet().deleteSelfByOwnerId(this.getId());
+    
+    // delete group sets where this group is a member ... and their children.
+    Set<PITGroupSet> groupSets = GrouperDAOFactory.getFactory().getPITGroupSet().findAllByMemberGroup(this.getId());
+    for (PITGroupSet groupSet : groupSets) {
+      GrouperDAOFactory.getFactory().getPITGroupSet().delete(groupSet);
+    }
+    
+    // delete self role sets and their children
+    GrouperDAOFactory.getFactory().getPITRoleSet().deleteSelfByRoleId(this.getId());
+    
+    // delete role sets by thenHasRoleId ... and their children.
+    Set<PITRoleSet> roleSets = GrouperDAOFactory.getFactory().getPITRoleSet().findByThenHasRoleId(this.getId());
+    for (PITRoleSet roleSet : roleSets) {
+      GrouperDAOFactory.getFactory().getPITRoleSet().delete(roleSet);
+    }
   }
 }

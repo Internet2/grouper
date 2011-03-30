@@ -5,6 +5,7 @@
 package edu.internet2.middleware.grouper.internal.dao;
 
 import java.sql.Timestamp;
+import java.util.Set;
 
 import edu.internet2.middleware.grouper.pit.PITAttributeAssignActionSet;
 
@@ -36,4 +37,27 @@ public interface PITAttributeAssignActionSetDAO extends GrouperDAO {
    * @param time
    */
   public void deleteInactiveRecords(Timestamp time);
+  
+  /**
+   * @param pitAttributeAssignActionSet
+   * @return pit action sets
+   */
+  public Set<PITAttributeAssignActionSet> findImmediateChildren(PITAttributeAssignActionSet pitAttributeAssignActionSet);
+  
+  /**
+   * @param id
+   * @return pit action sets
+   */
+  public Set<PITAttributeAssignActionSet> findAllSelfAttributeAssignActionSetsByAttributeAssignActionId(String id);
+  
+  /**
+   * @param id
+   */
+  public void deleteSelfByAttributeAssignActionId(String id);
+  
+  /**
+   * @param id
+   * @return pit action sets
+   */
+  public Set<PITAttributeAssignActionSet> findByThenHasAttributeAssignActionId(String id);
 }

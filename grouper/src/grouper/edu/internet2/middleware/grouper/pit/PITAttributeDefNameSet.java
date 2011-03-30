@@ -371,4 +371,26 @@ public class PITAttributeDefNameSet extends GrouperPIT implements Hib3GrouperVer
         DB_VERSION_FIELDS, null);
     return result;
   }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.GrouperAPI#onPreDelete(edu.internet2.middleware.grouper.hibernate.HibernateSession)
+   */
+  @Override
+  public void onPreDelete(HibernateSession hibernateSession) {
+    super.onPreDelete(hibernateSession);
+
+    if (this.isActive()) {
+      throw new RuntimeException("Cannot delete active point in time attribute def name set object with id=" + this.getId());
+    }
+    
+    // Note that not all attribute def name sets that exist because of this attribute def name set are deleted by this.
+    // We're assuming that attribute def name sets only get deleted when the attribute def name is deleted.  
+    // So some attribute def name sets get deleted separately.
+
+    Set<PITAttributeDefNameSet> childResults = GrouperDAOFactory.getFactory().getPITAttributeDefNameSet().findImmediateChildren(this);
+
+    for (PITAttributeDefNameSet child : childResults) {
+      GrouperDAOFactory.getFactory().getPITAttributeDefNameSet().delete(child);
+    }
+  }
 }

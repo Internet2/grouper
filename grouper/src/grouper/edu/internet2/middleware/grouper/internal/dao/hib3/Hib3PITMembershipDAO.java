@@ -3,13 +3,9 @@ package edu.internet2.middleware.grouper.internal.dao.hib3;
 import java.sql.Timestamp;
 import java.util.Set;
 
-import edu.internet2.middleware.grouper.Member;
-import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.PITMembershipDAO;
-import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.pit.PITMembership;
-import edu.internet2.middleware.subject.Source;
 
 /**
  * @author shilen
@@ -81,77 +77,20 @@ public class Hib3PITMembershipDAO extends Hib3DAO implements PITMembershipDAO {
       .executeUpdate();
   }
   
-
   /**
-   * 
-   * @see edu.internet2.middleware.grouper.internal.dao.PITMembershipDAO#findAllMembersByOwnerAndField(java.lang.String, java.lang.String, java.sql.Timestamp, java.sql.Timestamp, java.util.Set, edu.internet2.middleware.grouper.internal.dao.QueryOptions)
+   * @see edu.internet2.middleware.grouper.internal.dao.PITMembershipDAO#findAllByOwner(java.lang.String)
    */
-  public Set<Member> findAllMembersByOwnerAndField(String ownerId, String fieldId, 
-      Timestamp pointInTimeFrom, Timestamp pointInTimeTo, Set<Source> sources, QueryOptions queryOptions) {
-
-    StringBuilder sql = new StringBuilder("select m "
-        + "from Member m, PITMembershipView ms where "
-        + "ms.ownerId = :ownerId "
-        + "and ms.fieldId = :fieldId "
-        + "and ms.memberId = m.uuid");
-    
-    if (pointInTimeFrom != null) {
-      Long endDateAfter = pointInTimeFrom.getTime() * 1000;
-      sql.append(" and (ms.membershipEndTimeDb is null or ms.membershipEndTimeDb > '" + endDateAfter + "')");
-      sql.append(" and (ms.groupSetEndTimeDb is null or ms.groupSetEndTimeDb > '" + endDateAfter + "')");
-    }
-    
-    if (pointInTimeTo != null) {
-      Long startDateBefore = pointInTimeTo.getTime() * 1000;
-      sql.append(" and ms.membershipStartTimeDb < '" + startDateBefore + "'");
-      sql.append(" and ms.groupSetStartTimeDb < '" + startDateBefore + "'");
-    }
-
-    if (sources != null && sources.size() > 0) {
-      sql.append(" and m.subjectSourceIdDb in ").append(HibUtils.convertSourcesToSqlInString(sources));
-    }
-    
-    return HibernateSession.byHqlStatic().options(queryOptions)
-      .createQuery(sql.toString())
-      .setCacheable(false)
-      .setCacheRegion(KLASS + ".FindAllMembersByOwnerAndField")
-      .setString("ownerId", ownerId) 
-      .setString("fieldId", fieldId)
-      .listSet(Member.class);
-  }
-  
-  /**
-   * 
-   * @see edu.internet2.middleware.grouper.internal.dao.PITMembershipDAO#findAllByOwnerAndMemberAndField(java.lang.String, java.lang.String, java.lang.String, java.sql.Timestamp, java.sql.Timestamp, edu.internet2.middleware.grouper.internal.dao.QueryOptions)
-   */
-  public Set<PITMembership> findAllByOwnerAndMemberAndField(String ownerId, String memberId, String fieldId, 
-      Timestamp pointInTimeFrom, Timestamp pointInTimeTo, QueryOptions queryOptions) {
+  public Set<PITMembership> findAllByOwner(String ownerId) {
 
     StringBuilder sql = new StringBuilder("select ms "
-        + "from PITMembershipView ms where "
-        + "ms.ownerId = :ownerId "
-        + "and ms.memberId = :memberId "
-        + "and ms.fieldId = :fieldId");
+        + "from PITMembership ms where "
+        + "ms.ownerId = :ownerId");
     
-    if (pointInTimeFrom != null) {
-      Long endDateAfter = pointInTimeFrom.getTime() * 1000;
-      sql.append(" and (ms.membershipEndTimeDb is null or ms.membershipEndTimeDb > '" + endDateAfter + "')");
-      sql.append(" and (ms.groupSetEndTimeDb is null or ms.groupSetEndTimeDb > '" + endDateAfter + "')");
-    }
-    
-    if (pointInTimeTo != null) {
-      Long startDateBefore = pointInTimeTo.getTime() * 1000;
-      sql.append(" and ms.membershipStartTimeDb < '" + startDateBefore + "'");
-      sql.append(" and ms.groupSetStartTimeDb < '" + startDateBefore + "'");
-    }
-    
-    return HibernateSession.byHqlStatic().options(queryOptions)
+    return HibernateSession.byHqlStatic()
       .createQuery(sql.toString())
       .setCacheable(false)
-      .setCacheRegion(KLASS + ".FindAllByOwnerAndMemberAndField")
-      .setString("ownerId", ownerId) 
-      .setString("memberId", memberId) 
-      .setString("fieldId", fieldId)
+      .setCacheRegion(KLASS + ".FindAllByOwner")
+      .setString("ownerId", ownerId)
       .listSet(PITMembership.class);
   }
 }

@@ -80,5 +80,34 @@ public class Hib3PITStemDAO extends Hib3DAO implements PITStemDAO {
       .setLong("time", time.getTime() * 1000)
       .executeUpdate();
   }
+
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.PITStemDAO#findByParentStemId(java.lang.String)
+   */
+  public Set<PITStem> findByParentStemId(String id) {
+    return HibernateSession
+        .byHqlStatic()
+        .createQuery("select pitStem from PITStem as pitStem where pitStem.parentStemId = :id")
+        .setCacheable(false).setCacheRegion(KLASS + ".FindByParentStemId")
+        .setString("id", id)
+        .listSet(PITStem.class);
+  }
+
+  public Set<PITStem> findByName(String stemName, boolean orderByStartTime) {
+    String sql = "select pitStem from PITStem as pitStem where pitStem.nameDb = :name";
+    
+    if (orderByStartTime) {
+      sql += " order by startTimeDb";
+    }
+    
+    Set<PITStem> pitStems = HibernateSession
+      .byHqlStatic()
+      .createQuery(sql)
+      .setCacheable(false).setCacheRegion(KLASS + ".FindByName")
+      .setString("name", stemName)
+      .listSet(PITStem.class);
+    
+    return pitStems;
+  }
 }
 

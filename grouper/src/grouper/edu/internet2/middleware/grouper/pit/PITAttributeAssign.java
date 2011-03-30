@@ -604,4 +604,31 @@ public class PITAttributeAssign extends GrouperPIT implements Hib3GrouperVersion
   public int hashCode() {
     return new HashCodeBuilder().append(this.getId()).toHashCode();
   }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.GrouperAPI#onPreDelete(edu.internet2.middleware.grouper.hibernate.HibernateSession)
+   */
+  @Override
+  public void onPreDelete(HibernateSession hibernateSession) {
+    super.onPreDelete(hibernateSession);
+
+    if (this.isActive()) {
+      throw new RuntimeException("Cannot delete active point in time attribute assign object with id=" + this.getId());
+    }
+    
+    // delete attribute values
+    Set<PITAttributeAssignValue> values = GrouperDAOFactory.getFactory().getPITAttributeAssignValue().findByAttributeAssignId(this.getId(), null);
+    
+    for (PITAttributeAssignValue value : values) {
+      GrouperDAOFactory.getFactory().getPITAttributeAssignValue().delete(value);
+    }
+    
+    
+    // delete attribute assignments
+    Set<PITAttributeAssign> assignments = GrouperDAOFactory.getFactory().getPITAttributeAssign().findByOwnerAttributeAssignId(this.getId());
+    
+    for (PITAttributeAssign assignment : assignments) {
+      GrouperDAOFactory.getFactory().getPITAttributeAssign().delete(assignment);
+    }
+  }
 }

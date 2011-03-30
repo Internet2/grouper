@@ -372,4 +372,26 @@ public class PITRoleSet extends GrouperPIT implements Hib3GrouperVersioned {
         DB_VERSION_FIELDS, null);
     return result;
   }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.GrouperAPI#onPreDelete(edu.internet2.middleware.grouper.hibernate.HibernateSession)
+   */
+  @Override
+  public void onPreDelete(HibernateSession hibernateSession) {
+    super.onPreDelete(hibernateSession);
+
+    if (this.isActive()) {
+      throw new RuntimeException("Cannot delete active point in time role set object with id=" + this.getId());
+    }
+    
+    // Note that not all role sets that exist because of this role set are deleted by this.
+    // We're assuming that role sets only get deleted when the group is deleted.  
+    // So some role sets get deleted separately.
+
+    Set<PITRoleSet> childResults = GrouperDAOFactory.getFactory().getPITRoleSet().findImmediateChildren(this);
+
+    for (PITRoleSet child : childResults) {
+      GrouperDAOFactory.getFactory().getPITRoleSet().delete(child);
+    }
+  }
 }

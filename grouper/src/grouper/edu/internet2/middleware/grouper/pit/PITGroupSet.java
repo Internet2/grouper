@@ -1067,5 +1067,28 @@ public class PITGroupSet extends GrouperPIT implements Hib3GrouperVersioned {
     Set<String> result = GrouperUtil.compareObjectFields(this, this.dbVersion,
         DB_VERSION_FIELDS, null);
     return result;
-  }  
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.GrouperAPI#onPreDelete(edu.internet2.middleware.grouper.hibernate.HibernateSession)
+   */
+  @Override
+  public void onPreDelete(HibernateSession hibernateSession) {
+    super.onPreDelete(hibernateSession);
+
+    if (this.isActive()) {
+      throw new RuntimeException("Cannot delete active point in time group set object with id=" + this.getId());
+    }
+    
+    // Note that not all group sets that exist because of this group set are deleted by this.
+    // We're assuming that group sets only get deleted when all the memberships for the group, stem, or attr def
+    // are getting deleted.  So some group sets get deleted separately.
+
+    Set<PITGroupSet> childResults = GrouperDAOFactory.getFactory().getPITGroupSet().findImmediateChildren(this);
+
+    for (PITGroupSet child : childResults) {
+      GrouperDAOFactory.getFactory().getPITGroupSet().delete(child);
+    }
+  }
+
 }

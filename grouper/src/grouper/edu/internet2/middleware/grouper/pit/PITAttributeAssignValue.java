@@ -2,6 +2,7 @@ package edu.internet2.middleware.grouper.pit;
 
 import java.util.Set;
 
+import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -282,5 +283,17 @@ public class PITAttributeAssignValue extends GrouperPIT implements Hib3GrouperVe
     }
     
     return this.valueString;
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.GrouperAPI#onPreDelete(edu.internet2.middleware.grouper.hibernate.HibernateSession)
+   */
+  @Override
+  public void onPreDelete(HibernateSession hibernateSession) {
+    super.onPreDelete(hibernateSession);
+
+    if (this.isActive()) {
+      throw new RuntimeException("Cannot delete active point in time value object with id=" + this.getId());
+    }
   }
 }

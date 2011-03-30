@@ -7,7 +7,12 @@ import java.util.Set;
 
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.group.GroupSet;
+import edu.internet2.middleware.grouper.hibernate.AuditControl;
+import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
+import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
+import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
+import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.PITGroupSetDAO;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.pit.PITGroupSet;
@@ -240,6 +245,20 @@ public class Hib3PITGroupSetDAO extends Hib3DAO implements PITGroupSetDAO {
   }
   
   /**
+   * @see edu.internet2.middleware.grouper.internal.dao.PITGroupSetDAO#findAllByMemberGroup(java.lang.String)
+   */
+  public Set<PITGroupSet> findAllByMemberGroup(String groupId) {
+    Set<PITGroupSet> pitGroupSets = HibernateSession
+        .byHqlStatic()
+        .createQuery("select pitGroupSet from PITGroupSet as pitGroupSet where memberGroupId = :memberId")
+        .setCacheable(false).setCacheRegion(KLASS + ".FindAllByMemberGroup")
+        .setString("memberId", groupId)
+        .listSet(PITGroupSet.class);
+
+    return pitGroupSets;
+  }
+  
+  /**
    * @see edu.internet2.middleware.grouper.internal.dao.PITGroupSetDAO#findAllActiveChildren(edu.internet2.middleware.grouper.pit.PITGroupSet)
    */
   public Set<PITGroupSet> findAllActiveChildren(PITGroupSet pitGroupSet) {
@@ -294,6 +313,60 @@ public class Hib3PITGroupSetDAO extends Hib3DAO implements PITGroupSetDAO {
       .createQuery("delete from PITGroupSet where endTimeDb is not null and endTimeDb < :time and parentId is null")
       .setLong("time", time.getTime() * 1000)
       .executeUpdate();
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.PITGroupSetDAO#findImmediateChildren(edu.internet2.middleware.grouper.pit.PITGroupSet)
+   */
+  public Set<PITGroupSet> findImmediateChildren(PITGroupSet groupSet) {
+    Set<PITGroupSet> children = HibernateSession
+        .byHqlStatic()
+        .createQuery("select gs from PITGroupSet as gs where gs.parentId = :parent and gs.depth <> '0'")
+        .setCacheable(false).setCacheRegion(KLASS + ".FindImmediateChildren")
+        .setString("parent", groupSet.getId())
+        .listSet(PITGroupSet.class);
+
+    return children;
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.PITGroupSetDAO#findAllSelfGroupSetsByOwnerId(java.lang.String)
+   */
+  public Set<PITGroupSet> findAllSelfGroupSetsByOwnerId(String id) {
+    Set<PITGroupSet> groupSets = HibernateSession
+        .byHqlStatic()
+        .createQuery("select gs from PITGroupSet as gs where gs.ownerId = :id and gs.depth = '0'")
+        .setCacheable(false).setCacheRegion(KLASS + ".FindAllSelfGroupSetsByOwnerId")
+        .setString("id", id)
+        .listSet(PITGroupSet.class);
+    
+    return groupSets;
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.PITGroupSetDAO#deleteSelfByOwnerId(java.lang.String)
+   */
+  public void deleteSelfByOwnerId(final String id) {
+    HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING,
+        AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
+
+          public Object callback(HibernateHandlerBean hibernateHandlerBean)
+              throws GrouperDAOException {
+
+            //update before delete since mysql cant handle self referential foreign keys
+            hibernateHandlerBean.getHibernateSession().byHql().createQuery(
+              "update PITGroupSet set parentId = null where ownerId = :id and depth='0'")
+              .setString("id", id)
+              .executeUpdate();
+
+            Set<PITGroupSet> pitGroupSetsToDelete = findAllSelfGroupSetsByOwnerId(id);
+            for (PITGroupSet gs : pitGroupSetsToDelete) {
+              delete(gs);
+            }
+
+            return null;
+          }
+        });
   }
 }
 

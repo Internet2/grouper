@@ -1,6 +1,7 @@
 package edu.internet2.middleware.grouper.internal.dao.hib3;
 
 import java.sql.Timestamp;
+import java.util.Set;
 
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.PITAttributeAssignActionDAO;
@@ -61,5 +62,17 @@ public class Hib3PITAttributeAssignActionDAO extends Hib3DAO implements PITAttri
       .createQuery("delete from PITAttributeAssignAction where endTimeDb is not null and endTimeDb < :time")
       .setLong("time", time.getTime() * 1000)
       .executeUpdate();
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.PITAttributeAssignActionDAO#findByAttributeDefId(java.lang.String)
+   */
+  public Set<PITAttributeAssignAction> findByAttributeDefId(String id) {
+    return HibernateSession
+        .byHqlStatic()
+        .createQuery("select action from PITAttributeAssignAction as action where action.attributeDefId = :id")
+        .setCacheable(false).setCacheRegion(KLASS + ".FindByAttributeDefId")
+        .setString("id", id)
+        .listSet(PITAttributeAssignAction.class);
   }
 }

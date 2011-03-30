@@ -245,5 +245,17 @@ public class Hib3PITGroupDAO extends Hib3DAO implements PITGroupDAO {
     
     return filteredPITGroups;
   }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.PITGroupDAO#findByStemId(java.lang.String)
+   */
+  public Set<PITGroup> findByStemId(String id) {
+    return HibernateSession
+        .byHqlStatic()
+        .createQuery("select pitGroup from PITGroup as pitGroup where pitGroup.stemId = :id")
+        .setCacheable(false).setCacheRegion(KLASS + ".FindByStemId")
+        .setString("id", id)
+        .listSet(PITGroup.class);
+  }
 }
 

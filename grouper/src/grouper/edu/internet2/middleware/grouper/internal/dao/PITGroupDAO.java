@@ -54,6 +54,12 @@ public interface PITGroupDAO extends GrouperDAO {
   public void deleteInactiveRecords(Timestamp time);
   
   /**
+   * @param id
+   * @return set of PITGroup
+   */
+  public Set<PITGroup> findByStemId(String id);
+  
+  /**
    * Get all the groups that a member is a member of.
    * @param pitMemberId 
    * @param pitFieldId 
