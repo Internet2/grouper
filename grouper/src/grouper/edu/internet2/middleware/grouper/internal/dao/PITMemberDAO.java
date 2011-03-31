@@ -43,4 +43,12 @@ public interface PITMemberDAO extends GrouperDAO {
    * @param time
    */
   public void deleteInactiveRecords(Timestamp time);
+  
+  /**
+   * @param id
+   * @param source
+   * @param type
+   * @return pit member
+   */
+  public PITMember findMemberBySubjectIdSourceAndType(String id, String source, String type);
 }

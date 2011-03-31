@@ -50,4 +50,11 @@ public interface PITMembershipDAO extends GrouperDAO {
    * @return set of pit memberships
    */
   public Set<PITMembership> findAllByOwner(String ownerId);
+  
+  /**
+   * Get memberships by member.
+   * @param memberId
+   * @return set of pit memberships
+   */
+  public Set<PITMembership> findAllByMember(String memberId);
 }

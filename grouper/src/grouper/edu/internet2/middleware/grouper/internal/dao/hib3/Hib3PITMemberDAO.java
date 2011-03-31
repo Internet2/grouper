@@ -70,5 +70,21 @@ public class Hib3PITMemberDAO extends Hib3DAO implements PITMemberDAO {
       .setLong("time", time.getTime() * 1000)
       .executeUpdate();
   }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.PITMemberDAO#findMemberBySubjectIdSourceAndType(java.lang.String, java.lang.String, java.lang.String)
+   */
+  public PITMember findMemberBySubjectIdSourceAndType(String id, String source, String type) {
+    PITMember pitMember = HibernateSession
+      .byHqlStatic()
+      .createQuery("select pitMember from PITMember as pitMember where pitMember.subjectId = :id and pitMember.subjectSourceId = :source and pitMember.subjectTypeId = :type")
+      .setCacheable(false).setCacheRegion(KLASS + ".FindMemberBySubjectIdSourceAndType")
+      .setString("id", id)
+      .setString("source", source)
+      .setString("type", type)
+      .uniqueResult(PITMember.class);
+    
+    return pitMember;
+  }
 }
 

@@ -320,6 +320,13 @@ public class PITGroup extends GrouperPIT implements Hib3GrouperVersioned {
       GrouperDAOFactory.getFactory().getPITGroupSet().delete(groupSet);
     }
     
+    // delete memberships where this group is a member
+    PITMember member = GrouperDAOFactory.getFactory().getPITMember().findMemberBySubjectIdSourceAndType(this.getId(), "g:gsa", "group");
+    memberships = GrouperDAOFactory.getFactory().getPITMembership().findAllByMember(member.getId());
+    for (PITMembership membership : memberships) {
+      GrouperDAOFactory.getFactory().getPITMembership().delete(membership);
+    }
+    
     // delete self role sets and their children
     GrouperDAOFactory.getFactory().getPITRoleSet().deleteSelfByRoleId(this.getId());
     
