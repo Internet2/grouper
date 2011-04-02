@@ -576,9 +576,9 @@
         <developer>
             <id>rhebron</id>
             <name>Rob Hebron</name>
-            <organization>Cardiff University</organization>
-            <organizationUrl>http://www.cardiff.ac.uk</organizationUrl>
-            <email>HebronR@cardiff.ac.uk</email>
+            <organization>Oxford University</organization>
+            <organizationUrl>http://www.ox.ac.uk</organizationUrl>
+            <email>rob.hebron@oucs.ox.ac.uk</email>
             <roles>
                 <role>developer</role>
             </roles>
