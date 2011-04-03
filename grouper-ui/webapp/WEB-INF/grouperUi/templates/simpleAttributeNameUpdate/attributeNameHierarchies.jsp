@@ -67,9 +67,9 @@
           </grouper:message>
         </td>
         <td class="formTableRight" style="white-space: nowrap;">
-          <c:forEach items="${attributeUpdateRequestContainer.actionsThatImply}" var="actionThatImplies">
+          <c:forEach items="${attributeNameUpdateRequestContainer.attributeDefNamesThatImplyThis}" var="attributeNameThatImplies">
             
-	            ${actionThatImplies}
+	            ${attributeNameThatImplies.name}
             
             <br />
           </c:forEach>
@@ -83,13 +83,13 @@
           </grouper:message>
         </td>
         <td class="formTableRight" style="white-space: nowrap;">
-          <c:forEach items="${attributeUpdateRequestContainer.actionsThatImplyImmediate}" var="actionThatImpliesImmediate">
+          <c:forEach items="${attributeNameUpdateRequestContainer.attributeDefNamesThatImplyThis}" var="attributeNameThatImpliesImmediate">
             
-            <a href="#" onclick="if (confirm('${attributeUpdateRequestContainer.text.deleteActionImpliesConfirm}')) {ajax('SimpleAttributeNameUpdate.deleteActionImplies?attributeDefToEditId=${attributeUpdateRequestContainer.attributeDefToEdit.id}&action=${attributeUpdateRequestContainer.action}&actionImplies=${actionThatImpliesImmediate}');} return false;" 
+            <a href="#" onclick="if (confirm('${grouper:message('simpleAttributeNameUpdate.deleteAttributeNameImpliesConfirm', true, true)}')) {ajax('SimpleAttributeNameUpdate.deleteAttributeNameImplies?attributeDefNameToEditId=${attributeNameUpdateRequestContainer.attributeDefNameToEdit.id}&attributeDefNameIdForHierarchy=${attributeNameThatImpliesImmediate.id}');} return false;" 
 	            ><img src="../../grouperExternal/public/assets/images/page_cross.gif" height="14px" border="0" 
-	            alt="${attributeUpdateRequestContainer.text.deleteActionImpliesImageAlt }"/></a>
+	            alt="${grouper:message('simpleAttributeNameUpdate.deleteAttributeNameImpliesImageAlt', true, false)}"/></a>
             
-            ${actionThatImpliesImmediate}
+            ${attributeNameThatImpliesImmediate.displayName}
             
             <br />
           </c:forEach>
@@ -114,13 +114,13 @@
           </grouper:message>
         </td>
         <td class="formTableRight" style="white-space: nowrap;">
-          <c:forEach items="${attributeUpdateRequestContainer.actionsImpliedByImmediate}" var="actionThatImpiedByImmediate">
+          <c:forEach items="${attributeNameUpdateRequestContainer.attributeDefNamesImpliedByThis}" var="attributeNameImpliedByImmediate">
             
-            <a href="#" onclick="if (confirm('${attributeUpdateRequestContainer.text.deleteActionImpliedByConfirm}')) {ajax('SimpleAttributeNameUpdate.deleteActionImpliedBy?attributeDefToEditId=${attributeUpdateRequestContainer.attributeDefToEdit.id}&action=${attributeUpdateRequestContainer.action}&actionImpliedBy=${actionThatImpiedByImmediate}');} return false;" 
+            <a href="#" onclick="if (confirm('${grouper:message('simpleAttributeNameUpdate.deleteAttributeNameImpliedByConfirm', true, true)}')) {ajax('SimpleAttributeNameUpdate.deleteAttributeNameImpliedBy?attributeDefNameToEditId=${attributeNameUpdateRequestContainer.attributeDefNameToEdit.id}&attributeDefNameIdForHierarchy=${attributeNameImpliedByImmediate.id}');} return false;" 
               ><img src="../../grouperExternal/public/assets/images/page_cross.gif" height="14px" border="0" 
-              alt="${attributeUpdateRequestContainer.text.deleteActionImpliedByImageAlt }"/></a>
+              alt="${grouper:message('simpleAttributeNameUpdate.deleteAttributeNameImpliedByImageAlt', true, false)}"/></a>
             
-            ${actionThatImpiedByImmediate}
+            ${attributeNameImpliedByImmediate.displayName}
             
             <br />
           </c:forEach>
@@ -134,14 +134,15 @@
           </grouper:message>
         </td>
         <td class="formTableRight" style="white-space: nowrap;">
-          <c:forEach items="${attributeUpdateRequestContainer.actionsImpliedBy}" var="actionImpliedBy">
+          <c:forEach items="${attributeNameUpdateRequestContainer.attributeDefNamesImpliedByThis}" var="attributeNameImpliedBy">
             
-              ${actionImpliedBy}
+              ${attributeNameImpliedBy.name}
             
             <br />
           </c:forEach>
         </td>
       </tr>
+      
       
     </table>
     </form>

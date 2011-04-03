@@ -1393,7 +1393,7 @@ public class SimpleAttributeUpdate {
       AttributeAssignAction attributeAssignActionThatImplies = attributeDef.getAttributeDefActionDelegate().allowedAction(actionAddImply, true);
       attributeAssignActionThatImplies.getAttributeAssignActionSetDelegate().addToAttributeAssignActionSet(attributeAssignAction);
 
-      guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simpleAttributeUpdate.successAddImpliesAction", false)));
+      guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simpleAttributeNameUpdate.successAddImpliesAttributeDefName", false)));
 
       setupEditActionPanel(attributeUpdateRequestContainer, guiResponseJs, attributeDef,
           action);
@@ -1583,7 +1583,7 @@ public class SimpleAttributeUpdate {
       AttributeAssignAction attributeAssignActionThatImpliedBy = attributeDef.getAttributeDefActionDelegate().allowedAction(actionAddImpliedBy, true);
       attributeAssignAction.getAttributeAssignActionSetDelegate().addToAttributeAssignActionSet(attributeAssignActionThatImpliedBy);
   
-      guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simpleAttributeUpdate.successAddImpliedByAction", false)));
+      guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simpleAttributeNameUpdate.successAddImpliedByAttributeDefName", false)));
   
       setupEditActionPanel(attributeUpdateRequestContainer, guiResponseJs, attributeDef,
           action);

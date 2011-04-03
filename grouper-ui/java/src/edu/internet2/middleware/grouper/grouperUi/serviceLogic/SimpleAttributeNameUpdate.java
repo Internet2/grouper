@@ -1,8 +1,5 @@
 package edu.internet2.middleware.grouper.grouperUi.serviceLogic;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
@@ -18,11 +15,9 @@ import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.AttributeDefType;
-import edu.internet2.middleware.grouper.attr.assign.AttributeAssignAction;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.grouperUi.beans.attributeNameUpdate.AttributeNameUpdateRequestContainer;
-import edu.internet2.middleware.grouper.grouperUi.beans.attributeUpdate.AttributeUpdateRequestContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
@@ -336,6 +331,7 @@ public class SimpleAttributeNameUpdate {
           "simpleAttributeNameUpdate.attributeDefNameSaved", false, true, stemName + ":" + extension)));
   
       attributeNameUpdateRequestContainer.setAttributeDefNameToEdit(attributeDefName);
+      attributeNameUpdateRequestContainer.setAttributeDef(attributeDefName.getAttributeDef());
       attributeNameUpdateRequestContainer.setCreate(false);
       
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#attributeNameEditPanel", 
@@ -347,4 +343,166 @@ public class SimpleAttributeNameUpdate {
   
   }
 
+  /**
+   * delete an attribute def name that implies the current attribute def name
+   * @param httpServletRequest
+   * @param httpServletResponse
+   */
+  public void deleteAttributeNameImplies(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
+  
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+
+    GrouperSession grouperSession = null;
+    
+    try {
+      grouperSession = GrouperSession.start(loggedInSubject);
+      
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+  
+      AttributeDefName attributeDefName = null;
+      AttributeDefName attributeDefNameThatImplies = null;
+      
+      String uuid = httpServletRequest.getParameter("attributeDefNameToEditId");
+      
+      if (StringUtils.isBlank(uuid)) {
+        throw new RuntimeException("Why is uuid blank????");
+      }
+  
+      String attributeDefNameIdThatImplies = httpServletRequest.getParameter("attributeDefNameIdForHierarchy");
+      
+      if (StringUtils.isBlank(attributeDefNameIdThatImplies)) {
+        throw new RuntimeException("Why is attributeDefNameIdForHierarchy blank????");
+      }
+      
+      //if editing, then this must be there, or it has been tampered with
+      try {
+        attributeDefName = AttributeDefNameFinder.findById(uuid, true);
+      } catch (Exception e) {
+        LOG.info("Error searching for attribute def: " + uuid, e);
+        guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simpleAttributeNameUpdate.errorCantEditAttributeDefName", false)));
+        return;
+        
+      }
+      
+      if (!attributeDefName.getAttributeDef().getPrivilegeDelegate().canAttrAdmin(loggedInSubject)) {
+        LOG.error("Subject " + GrouperUtil.subjectToString(loggedInSubject) + " cannot admin attribute definition: " + attributeDefName.getAttributeDef().getName());
+        guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simpleAttributeNameUpdate.errorCantEditAttributeDefName", false)));
+        return;
+      }
+      
+      //if editing, then this must be there, or it has been tampered with
+      try {
+        attributeDefNameThatImplies = AttributeDefNameFinder.findById(attributeDefNameIdThatImplies, true);
+      } catch (Exception e) {
+        LOG.info("Error searching for attribute def: " + attributeDefNameIdThatImplies, e);
+        guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simpleAttributeNameUpdate.errorCantEditAttributeDefNameHierarchy", false)));
+        return;
+        
+      }
+      
+      if (!attributeDefNameThatImplies.getAttributeDef().getPrivilegeDelegate().canAttrAdmin(loggedInSubject)) {
+        LOG.error("Subject " + GrouperUtil.subjectToString(loggedInSubject) + " cannot admin attribute definition: " + attributeDefNameThatImplies.getAttributeDef().getName());
+        guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simpleAttributeNameUpdate.errorCantEditAttributeDefNameHierarchy", false)));
+        return;
+      }
+      
+      boolean assigned = attributeDefNameThatImplies.getAttributeDefNameSetDelegate().removeFromAttributeDefNameSet(attributeDefName);
+      
+      if (assigned) {
+        guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simpleAttributeNameUpdate.successRemoveImpliesAttributeDefName", false)));
+      } else {
+        guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simpleAttributeNameUpdate.failureRemoveImpliesAttributeDefName", false)));
+      }
+  
+    } finally {
+      GrouperSession.stopQuietly(grouperSession); 
+    }
+
+    //setup the screen again...
+    new SimpleAttributeNameUpdate().attributeNameEditPanelHierarchies(httpServletRequest, httpServletResponse);  
+
+  }
+
+  /**
+   * delete an attribute def name thats implied by the current attribute def name
+   * @param httpServletRequest
+   * @param httpServletResponse
+   */
+  public void deleteAttributeNameImpliedBy(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
+  
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+  
+    GrouperSession grouperSession = null;
+    
+    try {
+      grouperSession = GrouperSession.start(loggedInSubject);
+      
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+  
+      AttributeDefName attributeDefName = null;
+      AttributeDefName attributeDefNameImpliedBy = null;
+      
+      String uuid = httpServletRequest.getParameter("attributeDefNameToEditId");
+      
+      if (StringUtils.isBlank(uuid)) {
+        throw new RuntimeException("Why is uuid blank????");
+      }
+  
+      String attributeDefNameIdImpliedBy = httpServletRequest.getParameter("attributeDefNameIdForHierarchy");
+      
+      if (StringUtils.isBlank(attributeDefNameIdImpliedBy)) {
+        throw new RuntimeException("Why is attributeDefNameIdForHierarchy blank????");
+      }
+      
+      //if editing, then this must be there, or it has been tampered with
+      try {
+        attributeDefName = AttributeDefNameFinder.findById(uuid, true);
+      } catch (Exception e) {
+        LOG.info("Error searching for attribute def: " + uuid, e);
+        guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simpleAttributeNameUpdate.errorCantEditAttributeDefName", false)));
+        return;
+        
+      }
+      
+      if (!attributeDefName.getAttributeDef().getPrivilegeDelegate().canAttrAdmin(loggedInSubject)) {
+        LOG.error("Subject " + GrouperUtil.subjectToString(loggedInSubject) + " cannot admin attribute definition: " + attributeDefName.getAttributeDef().getName());
+        guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simpleAttributeNameUpdate.errorCantEditAttributeDefName", false)));
+        return;
+      }
+      
+      //if editing, then this must be there, or it has been tampered with
+      try {
+        attributeDefNameImpliedBy = AttributeDefNameFinder.findById(attributeDefNameIdImpliedBy, true);
+      } catch (Exception e) {
+        LOG.info("Error searching for attribute def: " + attributeDefNameIdImpliedBy, e);
+        guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simpleAttributeNameUpdate.errorCantEditAttributeDefNameHierarchy", false)));
+        return;
+        
+      }
+      
+      if (!attributeDefNameImpliedBy.getAttributeDef().getPrivilegeDelegate().canAttrAdmin(loggedInSubject)) {
+        LOG.error("Subject " + GrouperUtil.subjectToString(loggedInSubject) + " cannot admin attribute definition: " + attributeDefNameImpliedBy.getAttributeDef().getName());
+        guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simpleAttributeNameUpdate.errorCantEditAttributeDefNameHierarchy", false)));
+        return;
+      }
+      
+      boolean assigned = attributeDefName.getAttributeDefNameSetDelegate().removeFromAttributeDefNameSet(attributeDefNameImpliedBy);
+      
+      if (assigned) {
+        guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simpleAttributeNameUpdate.successRemoveImpliedByAttributeDefName", false)));
+      } else {
+        guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simpleAttributeNameUpdate.failureRemoveImpliedByAttributeDefName", false)));
+      }
+  
+    } finally {
+      GrouperSession.stopQuietly(grouperSession); 
+    }
+  
+    //setup the screen again...
+    new SimpleAttributeNameUpdate().attributeNameEditPanelHierarchies(httpServletRequest, httpServletResponse);  
+  
+  }
+
+  
+  
 }
