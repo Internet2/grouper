@@ -44,8 +44,8 @@
 	          </tr>
 	        </c:forEach>
 	        <tr>
-	          <td colspan="2" style="text-align: right">
-	            <div class="buttonRow">
+	          <td colspan="2" >
+	            <div class="buttonRow" style="width: 600px; text-align: right">
 	              <c:if test="${externalRegisterContainer.showDeleteButton}">
 	                <input class="redButton" type="submit" 
 	                  onclick="if(confirm('${grouper:escapeJavascript(navMap['inviteExternalSubjects.confirmDelete'])}')) {ajax('ExternalSubjectSelfRegister.delete', {formIds: 'selfRegisterFormId'});} return false;" 
