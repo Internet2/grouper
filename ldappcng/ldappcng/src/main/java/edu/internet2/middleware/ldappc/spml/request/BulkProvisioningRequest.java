@@ -95,7 +95,9 @@ public abstract class BulkProvisioningRequest extends ProvisioningRequest {
   }
 
   public void setUpdatedSince(Date updatedSince) {
-    if (updatedSince != null) {
+    if (updatedSince == null) {
+      m_updatedSince = null;
+    } else {
       m_updatedSince = df.format(updatedSince);
     }
     updatedSinceDate = updatedSince;
