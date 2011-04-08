@@ -18,9 +18,17 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
+import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.TreeMap;
+
+import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.Statistics;
 
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.lang.time.StopWatch;
@@ -189,6 +197,13 @@ public class PSPCLI extends TimerTask {
         timer.cancel();
       }
 
+      // log cache statistics
+      if (LOG.isDebugEnabled()) {
+        for (String stats : PSPCLI.getAllCacheStats()) {
+          LOG.debug(stats);
+        }
+      }
+
     } catch (IOException e) {
       LOG.error("Unable to write SPML.", e);
       timer.cancel();
@@ -219,6 +234,43 @@ public class PSPCLI extends TimerTask {
    */
   public Timer getTimer() {
     return timer;
+  }
+
+  /**
+   * Return ehcache statistics.
+   * <ul>
+   * <li>cache hit ratio 0% 0 hits 20 miss : ImmediateMembershipEntry
+   * <li>cache hit ratio 0% 0 hits 45 miss : edu.internet2.middleware.grouper.Field
+   * <ul>
+   * 
+   * @return the statistics
+   */
+  public static List<String> getAllCacheStats() {
+
+    Map<String, String> name2stats = new TreeMap<String, String>();
+    
+    // sort cache managers by name
+    List<CacheManager> cacheManagers = new ArrayList<CacheManager>(CacheManager.ALL_CACHE_MANAGERS);
+    for (CacheManager cacheManager : cacheManagers) {
+      for (String cacheName : cacheManager.getCacheNames()) {
+        Statistics stats = cacheManager.getCache(cacheName).getStatistics();
+        long h = stats.getCacheHits();
+        long m = stats.getCacheMisses();
+
+        if (h + m != 0) {
+          String ratio = h + m == 0 ? "0%" : MessageFormat.format("{0,number,percent}", 1. * h / (h + m));
+          String out = String.format("cache hit ratio %4s %6d hits %6d miss : %s", ratio, h, m, cacheName);
+          // TODO probably should not assume cache names are unique
+          name2stats.put(cacheName, out);
+        }
+      }
+    }
+
+    List<String> out = new ArrayList<String>();
+    for (String cacheName : name2stats.keySet()) {
+      out.add(name2stats.get(cacheName));
+    }
+    return out;
   }
 
 }
