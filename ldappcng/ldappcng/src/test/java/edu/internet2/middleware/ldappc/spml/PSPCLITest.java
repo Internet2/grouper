@@ -36,7 +36,7 @@ public class PSPCLITest extends BasePSPProvisioningTest {
 
   public static void main(String[] args) {
     TestRunner.run(PSPCLITest.class);
-    // TestRunner.run(new PSPCLITest("testInterval"));
+    // TestRunner.run(new PSPCLITest("testIntervalBulkSyncFullSync"));
   }
 
   public PSPCLITest(String name) {
@@ -130,7 +130,7 @@ public class PSPCLITest extends BasePSPProvisioningTest {
     Timer timer = pspCLI.getTimer();
 
     // process 3 intervals, approximately
-    Thread.sleep(options.getInterval() * 3 * 1000);
+    Thread.sleep(options.getInterval() * 4 * 1000);
 
     timer.cancel();
   }
@@ -188,6 +188,47 @@ public class PSPCLITest extends BasePSPProvisioningTest {
     request.setUpdatedSince(new Date());
     cmds.add("-" + PSPOptions.Opts.lastModifyTime.getOpt());
     cmds.add(request.getUpdatedSince());
+
+    bulkSync(cmds.toArray(new String[] {}));
+
+    // TODO test output file for correctness
+    verifyLdif(DATA_PATH + "PSPTest.testBulkSyncBushyAdd.after.ldif");
+  }
+
+  public void testIntervalBulkSyncFullSync() throws Exception {
+
+    loadLdif(DATA_PATH + "PSPTest.before.ldif");
+
+    List<String> cmds = getCmds();
+
+    // tmp file output
+    File tmpFile = getTmpFile();
+    cmds.add("-" + PSPOptions.Opts.output.getOpt());
+    cmds.add(tmpFile.getAbsolutePath());
+
+    // bulkSync
+    cmds.add("-" + PSPOptions.Mode.bulkSync.getOpt());
+
+    // interval 2
+    cmds.add("-" + PSPOptions.Opts.interval.getOpt());
+    cmds.add("2");
+
+    // full sync interval 2
+    cmds.add("-" + PSPOptions.Opts.intervalFullSync.getOpt());
+    cmds.add("4");
+
+    // iterations e
+    cmds.add("-" + PSPOptions.Opts.iterations.getOpt());
+    cmds.add("3");
+
+    if (true) {
+      // run again with last modify time set
+      // updated since, use bulk request for date formatting, ugly
+      BulkSyncRequest request = new BulkSyncRequest();
+      request.setUpdatedSince(new Date());
+      cmds.add("-" + PSPOptions.Opts.lastModifyTime.getOpt());
+      cmds.add(request.getUpdatedSince());
+    }
 
     bulkSync(cmds.toArray(new String[] {}));
 
