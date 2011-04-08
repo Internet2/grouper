@@ -14,6 +14,9 @@
 
 package edu.internet2.middleware.grouper.shibboleth.dataConnector.config;
 
+import net.sf.ehcache.Cache;
+import net.sf.ehcache.CacheManager;
+
 import org.openspml.v2.msg.spml.ReturnData;
 import org.openspml.v2.msg.spmlsearch.Scope;
 
@@ -39,6 +42,15 @@ public class SPMLDataConnectorFactoryBean extends BaseDataConnectorFactoryBean {
   private ReturnData returnData;
 
   private Scope scope;
+
+  /** Whether results should be cached. */
+  private CacheManager cacheManager;
+
+  /** Maximum number of queries to keep in the cache. */
+  private int maximumCachedElements;
+
+  /** Length of time, in milliseconds, elements are cached. */
+  private long cacheElementTtl;
 
   public String getBase() {
     return base;
@@ -88,8 +100,73 @@ public class SPMLDataConnectorFactoryBean extends BaseDataConnectorFactoryBean {
     this.templateEngine = templateEngine;
   }
 
+  /**
+   * Gets the manager for the results cache.
+   * 
+   * @return manager for the results cache
+   */
+  public CacheManager getCacheManager() {
+    return cacheManager;
+  }
+
+  /**
+   * Sets the manager for the results cache.
+   * 
+   * @param manager manager for the results cache
+   */
+  public void setCacheManager(CacheManager manager) {
+    cacheManager = manager;
+  }
+
+  /**
+   * Gets the time to live, in milliseconds, for cache elements.
+   * 
+   * @return time to live, in milliseconds, for cache elements
+   */
+  public long getCacheElementTimeToLive() {
+    return cacheElementTtl;
+  }
+
+  /**
+   * Sets the time to live, in milliseconds, for cache elements.
+   * 
+   * @param ttl time to live, in milliseconds, for cache elements
+   */
+  public void setCacheElementTimeToLive(long ttl) {
+    cacheElementTtl = ttl;
+  }
+
+  /**
+   * Gets the maximum number of elements that will be cached.
+   * 
+   * @return maximum number of elements that will be cached
+   */
+  public int getMaximumCachedElements() {
+    return maximumCachedElements;
+  }
+
+  /**
+   * Sets the maximum number of elements that will be cached.
+   * 
+   * @param max maximum number of elements that will be cached
+   */
+  public void setMaximumCachedElements(int max) {
+    maximumCachedElements = max;
+  }
+
   protected Object createInstance() throws Exception {
-    SPMLDataConnector connector = new SPMLDataConnector();
+
+    Cache resultsCache = null;
+    if (cacheManager != null) {
+      resultsCache = cacheManager.getCache(getPluginId());
+      if (resultsCache == null) {
+        long ttlInSeconds = cacheElementTtl / 1000;
+        resultsCache = new Cache(getPluginId(), maximumCachedElements, false, false, ttlInSeconds, ttlInSeconds);
+        cacheManager.addCache(resultsCache);
+      }
+    }
+
+    SPMLDataConnector connector = new SPMLDataConnector(resultsCache);
     populateDataConnector(connector);
     connector.setBase(base);
     connector.setFilterTemplate(filterTemplate);
