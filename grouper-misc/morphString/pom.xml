@@ -1,42 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
     <modelVersion>4.0.0</modelVersion>
-    <groupId>edu.internet2.middleware.grouper</groupId>
+
+    <parent>
+        <groupId>edu.internet2.middleware.grouper</groupId>
+        <artifactId>grouper-parent</artifactId>
+        <version>2.0.0-SNAPSHOT</version>
+        <relativePath>../grouper-parent</relativePath>
+    </parent>
+
+    <name>MorphString</name>
+    <description>morphString</description>
     <artifactId>morphString</artifactId>
-    <version>2.0.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
-    <repositories>
-        <repository>
-            <id>grouper.internet2.edu</id>
-            <name>Internet2</name>
-            <layout>default</layout>
-            <url>http://www.internet2.edu/grouper/downloads/maven2</url>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </repository>
-    </repositories>
-
-    <distributionManagement>
-        <repository>
-            <id>release-repo</id>
-            <url>${dist.release.url}</url>
-        </repository>
-    </distributionManagement>
-
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    </properties>
-
     <dependencies>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.8.1</version>
-            <scope>test</scope>
-        </dependency>
+        <!-- Compile Dependencies -->
+
+        <!-- Provided Dependencies -->
+
+        <!-- Runtime Dependencies -->
+
+        <!-- Test Dependencies -->
+
+        <!-- Managed Dependencies -->
     </dependencies>
 
     <build>
@@ -54,16 +43,9 @@
         </testResources>
         <plugins>
             <plugin>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <source>1.5</source>
-                    <target>1.5</target>
-                </configuration>
-            </plugin>
-            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.5</version>
+                <version>2.7.2</version>
                 <configuration>
                     <includes>
                         <include>**/AllMorphStringTests.java</include>
@@ -73,6 +55,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
+                <version>2.3.1</version>
                 <configuration>
                     <archive>
                         <index>true</index>
@@ -83,8 +66,8 @@
                             <manifestSection>
                                 <name>edu/internet2/middleware/grouper/</name>
                                 <manifestEntries>
-                                    <Implementation-Title>${pom.artifactId}</Implementation-Title>
-                                    <Implementation-Version>${pom.version}</Implementation-Version>
+                                    <Implementation-Title>${project.artifactId}</Implementation-Title>
+                                    <Implementation-Version>${project.version}</Implementation-Version>
                                     <Implementation-Vendor>grouper.internet2.edu</Implementation-Vendor>
                                 </manifestEntries>
                             </manifestSection>
@@ -94,134 +77,5 @@
             </plugin>
         </plugins>
     </build>
-
-    <profiles>
-        <profile>
-            <id>release</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <artifactId>maven-compiler-plugin</artifactId>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-javadoc-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <id>release-javadoc</id>
-                                <phase>package</phase>
-                                <goals>
-                                    <goal>javadoc</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-gpg-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <id>sign-artifacts</id>
-                                <phase>verify</phase>
-                                <goals>
-                                    <goal>sign</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-source-plugin</artifactId>
-                        <version>2.1.2</version>
-                        <executions>
-                            <execution>
-                                <id>attach-sources</id>
-                                <goals>
-                                    <goal>jar</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-javadoc-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <id>attach-javadocs</id>
-                                <goals>
-                                    <goal>jar</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
-
-    <!-- Project Metadata -->
-    <url>http://grouper.internet2.edu/</url>
-
-    <licenses>
-        <license>
-            <name>Apache 2</name>
-            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
-            <distribution>repo</distribution>
-        </license>
-    </licenses>
-
-    <organization>
-        <name>Internet2</name>
-        <url>http://www.internet2.edu/</url>
-    </organization>
-
-    <issueManagement>
-        <system>JIRA</system>
-        <url>http://bugs.internet2.edu/</url>
-    </issueManagement>
-
-    <mailingLists>
-        <mailingList>
-            <name>Grouper Users</name>
-            <subscribe>http://www.internet2.edu/grouper/lists.html</subscribe>
-            <unsubscribe>http://www.internet2.edu/grouper/lists.html</unsubscribe>
-            <post>grouper-users@internet2.edu</post>
-            <archive>https://mail.internet2.edu/wws/arc/grouper-users</archive>
-            <otherArchives>
-                <otherArchive>http://groups.google.com/group/grouper-users</otherArchive>
-            </otherArchives>
-        </mailingList>
-        <mailingList>
-            <name>Grouper Development</name>
-            <subscribe>http://www.internet2.edu/grouper/lists.html</subscribe>
-            <unsubscribe>http://www.internet2.edu/grouper/lists.html</unsubscribe>
-            <post>grouper-dev@internet2.edu</post>
-            <archive>https://mail.internet2.edu/wws/arc/grouper-dev</archive>
-            <otherArchives>
-                <otherArchive>http://groups.google.com/group/grouper-dev</otherArchive>
-            </otherArchives>
-        </mailingList>
-    </mailingLists>
-
-    <scm>
-        <connection>scm:svn:http://anonsvn.internet2.edu/svn/i2mi/</connection>
-        <developerConnection>scm:svn:http://anonsvn.internet2.edu/svn/i2mi</developerConnection>
-        <tag>HEAD</tag>
-        <url>http://anonsvn.internet2.edu/cgi-bin/viewvc.cgi/i2mi/</url>
-    </scm>
-
-    <developers>
-        <developer>
-            <id>mchyzer</id>
-            <name>Chris Hyzer</name>
-            <organization>University of Pennsylvania</organization>
-            <organizationUrl>http://www.upenn.edu</organizationUrl>
-            <email>mchyzer@isc.upenn.edu</email>
-            <roles>
-                <role>developer</role>
-            </roles>
-            <timezone>-5</timezone>
-        </developer>
-    </developers>
 
 </project>
