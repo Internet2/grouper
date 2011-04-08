@@ -1,16 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
     <modelVersion>4.0.0</modelVersion>
-    <groupId>edu.internet2.middleware.ldappc</groupId>
-    <artifactId>ldappcng</artifactId>
-    <version>2.0.0-SNAPSHOT</version>
-    <packaging>jar</packaging>
+
+    <parent>
+        <groupId>edu.internet2.middleware.grouper</groupId>
+        <artifactId>grouper-parent</artifactId>
+        <version>2.0.0-SNAPSHOT</version>
+        <relativePath>../grouper-parent</relativePath>
+    </parent>
 
     <name>LDAP Provisioning Connector - New/Next Generation</name>
     <description>
         Provisions group memberships from Grouper (or other DataConnector) to an LDAP directory (or other SPML target).
     </description>
+    <artifactId>ldappcng</artifactId>
+    <packaging>jar</packaging>
 
     <repositories>
         <repository>
@@ -18,15 +24,6 @@
             <name>Internet2</name>
             <layout>default</layout>
             <url>http://shibboleth.internet2.edu/downloads/maven2</url>
-        </repository>        
-        <repository>
-            <id>grouper.internet2.edu</id>
-            <name>Internet2</name>
-            <layout>default</layout>
-            <url>http://www.internet2.edu/grouper/downloads/maven2</url>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
         </repository>
         <repository>
             <id>vt-middleware.googlecode.com.repo</id>
@@ -34,41 +31,26 @@
         </repository>
     </repositories>
 
-    <distributionManagement>
-        <repository>
-            <id>release-repo</id>
-            <url>${dist.release.url}</url>
-        </repository>
-    </distributionManagement>
-
     <properties>
-        <grouper.dir>../grouper_trunk</grouper.dir>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <grouper.dir>../grouper</grouper.dir>
     </properties>
 
     <dependencies>
         <!-- Compile Dependencies -->
         <dependency>
-            <groupId>log4j</groupId>
-            <artifactId>log4j</artifactId>
-            <version>1.2.16</version>
-        </dependency>
-        <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-            <version>1.5.11</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-log4j12</artifactId>
-            <version>1.5.11</version>
         </dependency>
         <dependency>
-            <groupId>edu.internet2.middleware.grouper</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>grouper</artifactId>
             <version>${project.version}</version>
             <exclusions>
-                <!--  xerces 2.0.2 from dbcp -->
+                <!-- xerces 2.0.2 from dbcp -->
                 <exclusion>
                     <groupId>xerces</groupId>
                     <artifactId>xercesImpl</artifactId>
@@ -76,19 +58,17 @@
             </exclusions>
         </dependency>
         <dependency>
-            <groupId>edu.internet2.middleware.grouper</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>grouper-shib</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>edu.vt.middleware</groupId>
             <artifactId>vt-ldap</artifactId>
-            <version>3.3</version>
         </dependency>
         <dependency>
             <groupId>edu.internet2.middleware</groupId>
             <artifactId>shibboleth-common</artifactId>
-            <version>1.2.0-ldappc</version>
             <exclusions>
                 <!-- Exclude logback in lieu of sl4j-log4j12 binding. -->
                 <exclusion>
@@ -96,44 +76,47 @@
                     <artifactId>logback-classic</artifactId>
                 </exclusion>
                 <exclusion>
+                    <groupId>ch.qos.logback</groupId>
+                    <artifactId>logback-core</artifactId>
+                </exclusion>
+                <exclusion>
                     <groupId>org.slf4j</groupId>
                     <artifactId>log4j-over-slf4j</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>log4j</groupId>
+                    <artifactId>log4j</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
         <dependency>
             <groupId>org.openspml</groupId>
             <artifactId>openspml2</artifactId>
-            <version>192-20100413</version>
         </dependency>
         <dependency>
             <groupId>org.apache.directory.shared</groupId>
             <artifactId>shared-ldap</artifactId>
-            <version>0.9.15</version>
         </dependency>
         <dependency>
             <groupId>org.apache.directory.server</groupId>
             <artifactId>apacheds-core</artifactId>
-            <version>1.5.5</version>
         </dependency>
         <dependency>
             <groupId>org.apache.directory.server</groupId>
             <artifactId>apacheds-protocol-ldap</artifactId>
-            <version>1.5.5</version>
         </dependency>
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
-            <version>1.4</version>
         </dependency>
 
         <!-- Provided Dependencies -->
 
         <!-- Runtime Dependencies -->
 
-        <!--  Test Dependencies -->
+        <!-- Test Dependencies -->
         <dependency>
-            <groupId>edu.internet2.middleware.grouper</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>grouper</artifactId>
             <version>${project.version}</version>
             <type>test-jar</type>
@@ -142,7 +125,6 @@
         <dependency>
             <groupId>xmlunit</groupId>
             <artifactId>xmlunit</artifactId>
-            <version>1.0</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -155,15 +137,6 @@
             </testResource>
         </testResources>
         <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <source>1.5</source>
-                    <target>1.5</target>
-                    <debug>true</debug>
-                </configuration>
-            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
@@ -179,6 +152,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
+                <version>2.2.1</version>
                 <configuration>
                     <descriptors>
                         <descriptor>src/main/assembly/bin.xml</descriptor>
@@ -198,6 +172,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
+                <version>2.3.1</version>
                 <configuration>
                     <archive>
                         <index>true</index>
@@ -208,101 +183,19 @@
                             <manifestSection>
                                 <name>edu/internet2/middleware/ldappc/</name>
                                 <manifestEntries>
-                                    <Implementation-Title>${pom.artifactId}</Implementation-Title>
-                                    <Implementation-Version>${pom.version}</Implementation-Version>
+                                    <Implementation-Title>${project.artifactId}</Implementation-Title>
+                                    <Implementation-Version>${project.version}</Implementation-Version>
                                     <Implementation-Vendor>grouper.internet2.edu</Implementation-Vendor>
                                 </manifestEntries>
                             </manifestSection>
                         </manifestSections>
                     </archive>
                 </configuration>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>test-jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
         </plugins>
     </build>
 
-    <reporting>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-javadoc-plugin</artifactId>
-                <configuration>
-                    <links>
-                        <link>http://java.sun.com/j2se/1.5.0/docs/api/</link>
-                    </links>
-                    <quiet>true</quiet>
-                    <author>false</author>
-                    <version>true</version>
-                    <doctitle>${project.name} ${project.version} Java API.</doctitle>
-                    <windowtitle>${project.name} ${project.version} Java API.</windowtitle>
-                    <overview>src/main/java/overview.html</overview>
-                </configuration>
-            </plugin>
-        </plugins>
-    </reporting>
-
     <profiles>
-        <profile>
-            <id>release</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <artifactId>maven-compiler-plugin</artifactId>
-                    </plugin>                   
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-gpg-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <id>sign-artifacts</id>
-                                <phase>verify</phase>
-                                <goals>
-                                    <goal>sign</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-source-plugin</artifactId>
-                        <version>2.1.2</version>
-                        <executions>
-                            <execution>
-                                <id>attach-sources</id>
-                                <goals>
-                                    <goal>jar</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-javadoc-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <id>release-javadoc</id>
-                                <phase>package</phase>
-                                <goals>
-                                    <goal>javadoc</goal>
-                                </goals>
-                            </execution>
-                            <execution>
-                                <id>attach-javadocs</id>
-                                <goals>
-                                    <goal>jar</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
         <profile>
             <id>ldappc</id>
             <activation>
@@ -406,7 +299,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-surefire-plugin</artifactId>
-                        <!--  <version>2.5</version> -->
+                        <!-- <version>2.5</version> -->
                         <configuration>
                             <excludes>
                                 <exclude>**/notad/*</exclude>
@@ -481,73 +374,7 @@
                     </plugin>
                 </plugins>
             </build>
-        </profile> 
+        </profile>
     </profiles>
-
-
-    <!-- Project Metadata -->
-    <url>http://grouper.internet2.edu</url>
-
-    <licenses>
-        <license>
-            <name>Apache 2</name>
-            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
-            <distribution>repo</distribution>
-        </license>
-    </licenses>
-
-    <organization>
-        <name>Internet2</name>
-        <url>http://www.internet2.edu/</url>
-    </organization>
-
-    <issueManagement>
-        <system>JIRA</system>
-        <url>http://bugs.internet2.edu/</url>
-    </issueManagement>
-
-    <mailingLists>
-        <mailingList>
-            <name>Grouper Users</name>
-            <subscribe>http://www.internet2.edu/grouper/lists.html</subscribe>
-            <unsubscribe>http://www.internet2.edu/grouper/lists.html</unsubscribe>
-            <post>grouper-users@internet2.edu</post>
-            <archive>https://mail.internet2.edu/wws/arc/grouper-users</archive>
-            <otherArchives>
-                <otherArchive>http://groups.google.com/group/grouper-users</otherArchive>
-            </otherArchives>
-        </mailingList>
-        <mailingList>
-            <name>Grouper Development</name>
-            <subscribe>http://www.internet2.edu/grouper/lists.html</subscribe>
-            <unsubscribe>http://www.internet2.edu/grouper/lists.html</unsubscribe>
-            <post>grouper-dev@internet2.edu</post>
-            <archive>https://mail.internet2.edu/wws/arc/grouper-dev</archive>
-            <otherArchives>
-                <otherArchive>http://groups.google.com/group/grouper-dev</otherArchive>
-            </otherArchives>
-        </mailingList>
-    </mailingLists>
-
-    <scm>
-        <connection>scm:svn:http://anonsvn.internet2.edu/svn/i2mi/</connection>
-        <developerConnection>scm:svn:http://anonsvn.internet2.edu/svn/i2mi</developerConnection>
-        <tag>HEAD</tag>
-        <url>http://anonsvn.internet2.edu/cgi-bin/viewvc.cgi/i2mi/</url>
-    </scm>
-
-    <developers>
-        <developer>
-            <id>tzeller</id>
-            <name>Tom Zeller</name>
-            <organization>University of Memphis</organization>
-            <organizationUrl>http://www.memphis.edu</organizationUrl>
-            <email>tzeller@memphis.edu</email>
-            <roles>
-                <role>developer</role>
-            </roles>
-            <timezone>-6</timezone>
-        </developer>
-    </developers>
 
 </project>
