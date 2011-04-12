@@ -13,10 +13,6 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GroupTypeFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
-import edu.internet2.middleware.grouper.attr.AttributeDef;
-import edu.internet2.middleware.grouper.attr.AttributeDefName;
-import edu.internet2.middleware.grouper.attr.AttributeDefType;
-import edu.internet2.middleware.grouper.attr.AttributeDefValueType;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.shibboleth.filter.GroupQueryFilter;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -406,21 +402,12 @@ public class GroupDataConnectorTest extends BaseDataConnectorTest {
   }
 
   public void testAttributeDef() {
-    AttributeDef attributeDef = parentStem.addChildAttributeDef("attrDef", AttributeDefType.attr);
-    attributeDef.setAssignToGroup(true);
-    attributeDef.setMultiValued(true);
-    attributeDef.setValueType(AttributeDefValueType.string);
-    attributeDef.store();
-
-    AttributeDefName attributeDefName = parentStem.addChildAttributeDefName(attributeDef, "mailAlternateAddress",
-        "mailAlternateAddress");
-
-    groupA.getAttributeValueDelegate().assignValuesString(attributeDefName.getName(),
+    groupA.getAttributeValueDelegate().assignValuesString("parentStem:mailAlternateAddress",
         GrouperUtil.toSet("foo@memphis.edu", "bar@memphis.edu"), true);
 
     correctAttributesA.setAttribute("parentStem:mailAlternateAddress", "foo@memphis.edu", "bar@memphis.edu");
 
-    runResolveTest("testAttributesOnly", groupA, correctAttributesA);
+    runResolveTest("testAttributesAndAttributeDefs", groupA, correctAttributesA);
   }
   
   public void testGroupType() {

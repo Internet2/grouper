@@ -21,6 +21,13 @@
     <grouper:Attribute id="description" source="jdbc" />
     <grouper:Attribute id="unknown" source="jdbc" />
   </resolver:DataConnector>
+  
+  <resolver:DataConnector id="testAttributesAndAttributeDefs" xsi:type="grouper:MemberDataConnector">
+    <grouper:Attribute id="name" source="jdbc" />
+    <grouper:Attribute id="description" source="jdbc" />
+    <grouper:Attribute id="unknown" source="jdbc" />
+    <grouper:Attribute id="parentStem:mailAlternateAddress" />
+  </resolver:DataConnector>
 
   <resolver:DataConnector id="testGroups" xsi:type="grouper:MemberDataConnector">
     <grouper:Attribute id="groups" />

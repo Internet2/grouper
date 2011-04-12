@@ -31,7 +31,6 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
-import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
@@ -238,13 +237,12 @@ public class MemberDataConnector extends BaseGrouperDataConnector {
             }
             
             // attribute defs
-            Set<AttributeDefName> attributeDefNames = member.getAttributeDelegate().retrieveAttributes();
-            for (AttributeDefName attributeDefName : attributeDefNames) {
-              List<String> values = member.getAttributeValueDelegate().retrieveValuesString(attributeDefName.getName());
+            for (String attributeDefName : getAttributeDefNames()) {
+              List<String> values = member.getAttributeValueDelegate().retrieveValuesString(attributeDefName);
               if (values != null && !values.isEmpty()) {
-                BasicAttribute<String> basicAttribute = new BasicAttribute<String>(attributeDefName.getName());
+                BasicAttribute<String> basicAttribute = new BasicAttribute<String>(attributeDefName);
                 basicAttribute.setValues(values);
-                attributes.put(attributeDefName.getName(), basicAttribute);
+                attributes.put(attributeDefName, basicAttribute);
               }
             }
 

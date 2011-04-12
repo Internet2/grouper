@@ -37,6 +37,10 @@
   </resolver:DataConnector>
 
   <resolver:DataConnector id="testAttributesOnly" xsi:type="grouper:GroupDataConnector" />
+  
+  <resolver:DataConnector id="testAttributesAndAttributeDefs" xsi:type="grouper:GroupDataConnector">
+    <grouper:Attribute id="parentStem:mailAlternateAddress" />
+  </resolver:DataConnector>
 
   <resolver:DataConnector id="testAttributesAndMembers" xsi:type="grouper:GroupDataConnector">
     <grouper:Attribute id="members" />

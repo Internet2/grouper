@@ -25,6 +25,9 @@ import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.attr.AttributeDef;
+import edu.internet2.middleware.grouper.attr.AttributeDefType;
+import edu.internet2.middleware.grouper.attr.AttributeDefValueType;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SessionHelper;
 import edu.internet2.middleware.grouper.helper.StemHelper;
@@ -71,9 +74,9 @@ public abstract class BaseDataConnectorTest extends GrouperTest {
   protected Member memberSubj3;
 
   protected Member memberAll;
-  
+
   protected AttributeMap correctAttributesParentStem;
-  
+
   protected AttributeMap correctAttributesChildStem;
 
   public BaseDataConnectorTest(String name) {
@@ -89,7 +92,7 @@ public abstract class BaseDataConnectorTest extends GrouperTest {
     root = StemHelper.findRootStem(grouperSession);
 
     // parent stem
-    parentStem = StemHelper.addChildStem(root, "parentStem", "Parent Stem");    
+    parentStem = StemHelper.addChildStem(root, "parentStem", "Parent Stem");
     correctAttributesParentStem = new AttributeMap();
     correctAttributesParentStem.setAttribute("extension", "parentStem");
     correctAttributesParentStem.setAttribute("displayExtension", "Parent Stem");
@@ -121,6 +124,8 @@ public abstract class BaseDataConnectorTest extends GrouperTest {
     correctAttributesA.setAttribute("name", "parentStem:groupA");
     correctAttributesA.setAttribute("displayName", "Parent Stem:Group A");
     correctAttributesA.setAttribute(BaseGrouperDataConnector.PARENT_STEM_NAME_ATTR, "parentStem");
+    correctAttributesA.setAttribute(BaseGrouperDataConnector.GROUP_TYPE_ATTR,
+        new ArrayList<GroupType>(groupA.getTypes()).toArray(new GroupType[] {}));
 
     // group B
     groupB = StemHelper.addChildGroup(this.parentStem, "groupB", "Group B");
@@ -140,6 +145,8 @@ public abstract class BaseDataConnectorTest extends GrouperTest {
     correctAttributesB.setAttribute("description", "Group B Description");
     correctAttributesB.setAttribute(BaseGrouperDataConnector.PARENT_STEM_NAME_ATTR, "parentStem");
     correctAttributesB.setAttribute("attr1", "value1");
+    correctAttributesB.setAttribute(BaseGrouperDataConnector.GROUP_TYPE_ATTR,
+        new ArrayList<GroupType>(groupB.getTypes()).toArray(new GroupType[] {}));
 
     // group C
     groupC = StemHelper.addChildGroup(this.childStem, "groupC", "Group C");
@@ -150,12 +157,24 @@ public abstract class BaseDataConnectorTest extends GrouperTest {
     correctAttributesC.setAttribute("name", "parentStem:childStem:groupC");
     correctAttributesC.setAttribute("displayName", "Parent Stem:Child Stem:Group C");
     correctAttributesC.setAttribute(BaseGrouperDataConnector.PARENT_STEM_NAME_ATTR, "parentStem:childStem");
+    correctAttributesC.setAttribute(BaseGrouperDataConnector.GROUP_TYPE_ATTR,
+        new ArrayList<GroupType>(groupC.getTypes()).toArray(new GroupType[] {}));
 
     memberSubj0 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ0, false);
     memberSubj1 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ1, false);
     memberSubj2 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ2, false);
     memberSubj3 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ3, false);
     memberAll = MemberFinder.findBySubject(grouperSession, SubjectFinder.findAllSubject(), false);
+    
+    AttributeDef attributeDef = parentStem.addChildAttributeDef("attrDef", AttributeDefType.attr);
+    attributeDef.setAssignToGroup(true);
+    attributeDef.setAssignToStem(true);
+    attributeDef.setAssignToMember(true);
+    attributeDef.setMultiValued(true);
+    attributeDef.setValueType(AttributeDefValueType.string);
+    attributeDef.store();
+
+    parentStem.addChildAttributeDefName(attributeDef, "mailAlternateAddress", "mailAlternateAddress");
   }
 
   public static ShibbolethResolutionContext getShibContext(String principal) {
@@ -163,32 +182,26 @@ public abstract class BaseDataConnectorTest extends GrouperTest {
     attributeRequestContext.setPrincipalName(principal);
     return new ShibbolethResolutionContext(attributeRequestContext);
   }
-  
-	public static GenericApplicationContext createSpringContext(
-			String... configs) throws ResourceException {
 
-		GenericApplicationContext gContext = new GenericApplicationContext();
-		SpringConfigurationUtils.populateRegistry(gContext, getResources(null,
-				configs));
-		gContext.refresh();
-		gContext.registerShutdownHook();
+  public static GenericApplicationContext createSpringContext(String... configs) throws ResourceException {
 
-		return gContext;
-	}
-  
+    GenericApplicationContext gContext = new GenericApplicationContext();
+    SpringConfigurationUtils.populateRegistry(gContext, getResources(null, configs));
+    gContext.refresh();
+    gContext.registerShutdownHook();
+
+    return gContext;
+  }
+
   /**
-   * Returns {@link Resource}s with the given names. If the path is {@code null},
-   * resources will be found using the classpath.
+   * Returns {@link Resource}s with the given names. If the path is {@code null}, resources will be found using the
+   * classpath.
    * 
-   * @param path
-   *          the directory containing resources
-   * @param resourceNames
-   *          the names of the resource files
+   * @param path the directory containing resources
+   * @param resourceNames the names of the resource files
    * @return the resources
-   * @throws ResourceException
-   *           if an error occurs loading the resource
-   * @throws IllegalArgumentException
-   *           if the resources are not files or are not readable
+   * @throws ResourceException if an error occurs loading the resource
+   * @throws IllegalArgumentException if the resources are not files or are not readable
    */
   public static List<Resource> getResources(String path, String... resourceNames) throws ResourceException {
     ArrayList<Resource> resources = new ArrayList<Resource>();
@@ -300,7 +313,7 @@ public abstract class BaseDataConnectorTest extends GrouperTest {
       attr.setValues(list);
       map.put(attr.getId(), attr);
     }
-    
+
     public void setAttribute(String name, Subject... subjects) {
       if (subjects == null) {
         return;
@@ -313,7 +326,7 @@ public abstract class BaseDataConnectorTest extends GrouperTest {
       attr.setValues(list);
       map.put(attr.getId(), attr);
     }
-    
+
     public void setAttribute(String name, GroupType... groupTypes) {
       if (groupTypes == null) {
         return;

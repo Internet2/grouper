@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -26,13 +27,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
-import edu.internet2.middleware.grouper.Stem.Scope;
+import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.shibboleth.dataConnector.field.BaseField;
@@ -54,7 +58,7 @@ public abstract class BaseGrouperDataConnector extends BaseDataConnector impleme
 
   /** the name of the attribute whose values are {@link GroupType}s */
   public static final String GROUP_TYPE_ATTR = "groupType";
-  
+
   /** the name of the attribute whose value is the name of the parent stem */
   public static final String PARENT_STEM_NAME_ATTR = "parentStemName";
 
@@ -83,15 +87,13 @@ public abstract class BaseGrouperDataConnector extends BaseDataConnector impleme
   private GroupQueryFilter groupQueryFilter;
 
   /** a set of valid names for the first element of an attribute identifier */
-  private static Set<String> validFirstIdElements = new HashSet<String>();
-  static {
-    validFirstIdElements.add(GroupsField.NAME);
-    validFirstIdElements.add(MembersField.NAME);
-    validFirstIdElements.addAll(AccessPrivilege.getAllPrivilegeNames());
-  }
+  private Set<String> validFirstIdElements = new HashSet<String>();
 
   /** The subject identifier used to start a <code>GrouperSession</code>. */
   private AttributeIdentifier subjectIdentifier;
+
+  /** The possibly empty set of attribute definition names defined in the resolver configuration. */
+  private Set<String> attributeDefNames = new LinkedHashSet<String>();
 
   /**
    * Constructor.
@@ -113,6 +115,11 @@ public abstract class BaseGrouperDataConnector extends BaseDataConnector impleme
     this.getGrouperSession();
     LOG.info("started grouper session '" + this.getGrouperSession() + "' for '" + this.getId() + "'");
 
+    validFirstIdElements.add(GroupsField.NAME);
+    validFirstIdElements.add(MembersField.NAME);
+    validFirstIdElements.addAll(AccessPrivilege.getAllPrivilegeNames());
+    validFirstIdElements.addAll(getAllAttributeDefNames());
+
     for (AttributeIdentifier fieldIdentifier : fieldIdentifiers) {
 
       LOG.debug("attribute identifier '{}' for dc '{}'", fieldIdentifier, this.getId());
@@ -122,7 +129,8 @@ public abstract class BaseGrouperDataConnector extends BaseDataConnector impleme
 
         BaseField bf = new BaseField(fieldIdentifier.getId());
 
-        if (!validFirstIdElements.contains(bf.getFirstIdElement())) {
+        if (!validFirstIdElements.contains(bf.getFirstIdElement())
+            && !validFirstIdElements.contains(fieldIdentifier.getId())) {
           LOG.error("Invalid identifer '" + fieldIdentifier.getId() + "', should start with one of "
               + validFirstIdElements);
           throw new GrouperException("Invalid identifer '" + fieldIdentifier.getId() + "', should start with one of "
@@ -137,10 +145,17 @@ public abstract class BaseGrouperDataConnector extends BaseDataConnector impleme
 
           membersFields.add(new MembersField(fieldIdentifier.getId()));
 
-        } else {
+        } else if (AccessPrivilege.getAllPrivilegeNames().contains(fieldIdentifier.getId())) {
 
           privilegeFields.add(new PrivilegeField(fieldIdentifier.getId(), getGrouperSession().getAccessResolver()));
 
+        } else if (getAllAttributeDefNames().contains(fieldIdentifier.getId())) {
+
+          attributeDefNames.add(fieldIdentifier.getId());
+
+        } else {
+          LOG.error("Unknown field identifier {}", fieldIdentifier.getId());
+          throw new GrouperException("Unknown field identifier " + fieldIdentifier.getId());
         }
       } else {
         // subject source attributes
@@ -167,20 +182,19 @@ public abstract class BaseGrouperDataConnector extends BaseDataConnector impleme
   }
 
   /**
-   * Start a new session if necessary, otherwise reuse existing session. The session is
-   * started using the {@link Subject} identified by the configured subject identifier.
-   * This session is not added to the threadlocal.
+   * Start a new session if necessary, otherwise reuse existing session. The session is started using the
+   * {@link Subject} identified by the configured subject identifier. This session is not added to the threadlocal.
    * 
    * @return the <code>GrouperSession</code>
-   * @throws SubjectNotFoundException
-   *           if the {@link Subject} identified by the subjectId cannot be found
+   * @throws SubjectNotFoundException if the {@link Subject} identified by the subjectId cannot be found
    */
   public GrouperSession getGrouperSession() throws SubjectNotFoundException {
     if (grouperSession == null) {
       if (subjectIdentifier == null) {
         grouperSession = GrouperSession.startRootSession(false);
       } else {
-        Subject subject = SubjectFinder.findById(subjectIdentifier.getId(), null, subjectIdentifier.getSource(), true);
+        Subject subject = SubjectFinder.findByIdAndSource(subjectIdentifier.getId(), subjectIdentifier.getSource(),
+            true);
         grouperSession = GrouperSession.start(subject, false);
       }
       LOG.debug("started grouper session {}", grouperSession);
@@ -201,8 +215,7 @@ public abstract class BaseGrouperDataConnector extends BaseDataConnector impleme
   /**
    * Set the group query filter
    * 
-   * @param groupQueryFilter
-   *          the GroupQueryFilter
+   * @param groupQueryFilter the GroupQueryFilter
    */
   public void setGroupQueryFilter(GroupQueryFilter groupQueryFilter) {
     this.groupQueryFilter = groupQueryFilter;
@@ -281,16 +294,15 @@ public abstract class BaseGrouperDataConnector extends BaseDataConnector impleme
   /**
    * Set the subject and source identifier used to start {@link GrouperSession}s.
    * 
-   * @param subjectIdentifier
-   *          The source and subject identifier to set.
+   * @param subjectIdentifier The source and subject identifier to set.
    */
   public void setSubjectIdentifier(AttributeIdentifier subjectIdentifier) {
     this.subjectIdentifier = subjectIdentifier;
   }
 
   /**
-   * Query for all groups matching the group query filter. If no group query filter has
-   * been configured, then return all groups.
+   * Query for all groups matching the group query filter. If no group query filter has been configured, then return all
+   * groups.
    * 
    * @return the groups returned from the group query filter or all groups
    */
@@ -318,8 +330,10 @@ public abstract class BaseGrouperDataConnector extends BaseDataConnector impleme
               Iterator<Group> iterator = groups.iterator();
               while (iterator.hasNext()) {
                 Group group = iterator.next();
-                if (group.getCreateTime().after(lastModifyTime)) continue;
-                if (group.getModifyTime().after(lastModifyTime)) continue;
+                if (group.getCreateTime().after(lastModifyTime))
+                  continue;
+                if (group.getModifyTime().after(lastModifyTime))
+                  continue;
                 if (group.getLastMembershipChange() != null) {
                   Date memberModifyTime = new Date(group.getLastMembershipChange().getTime());
                   if (memberModifyTime.after(lastModifyTime)) {
@@ -336,5 +350,34 @@ public abstract class BaseGrouperDataConnector extends BaseDataConnector impleme
         });
 
     return groups;
+  }
+
+  /**
+   * Returns the possibly empty set of attribute definition names defined in the attribute resolver configuration.
+   * 
+   * @return the possibly empty set of attribute definition names
+   */
+  protected Set<String> getAttributeDefNames() {
+    return attributeDefNames;
+  }
+
+  /**
+   * Return all attribute definition names.
+   * 
+   * @return all attribute definition names.
+   */
+  protected Set<String> getAllAttributeDefNames() {
+    Set<String> allAttributeDefNames = new HashSet<String>();
+
+    Set<AttributeDefName> attributeDefNames = GrouperDAOFactory
+        .getFactory()
+        .getAttributeDefName()
+        .findAllAttributeNamesSplitScopeSecure(null, getGrouperSession(), null, SubjectFinder.findRootSubject(), null,
+            null);
+
+    for (AttributeDefName attributeDefName : attributeDefNames) {
+      allAttributeDefNames.add(attributeDefName.getName());
+    }
+    return allAttributeDefNames;
   }
 }

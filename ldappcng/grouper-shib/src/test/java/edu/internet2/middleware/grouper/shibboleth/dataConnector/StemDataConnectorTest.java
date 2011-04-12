@@ -9,10 +9,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.support.GenericApplicationContext;
 
 import edu.internet2.middleware.grouper.Stem;
-import edu.internet2.middleware.grouper.attr.AttributeDef;
-import edu.internet2.middleware.grouper.attr.AttributeDefName;
-import edu.internet2.middleware.grouper.attr.AttributeDefType;
-import edu.internet2.middleware.grouper.attr.AttributeDefValueType;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.shibboleth.common.attribute.BaseAttribute;
 
@@ -78,19 +74,10 @@ public class StemDataConnectorTest extends BaseDataConnectorTest {
   }
   
   public void testAttributeDef() {
-    AttributeDef attributeDef = parentStem.addChildAttributeDef("attrDef", AttributeDefType.attr);
-    attributeDef.setAssignToStem(true);
-    attributeDef.setMultiValued(true);
-    attributeDef.setValueType(AttributeDefValueType.string);
-    attributeDef.store();
+    parentStem.getAttributeValueDelegate().assignValuesString("parentStem:mailAlternateAddress",
+        GrouperUtil.toSet("foo@memphis.edu", "bar@memphis.edu"), true);
 
-    AttributeDefName attributeDefName = parentStem.addChildAttributeDefName(attributeDef, "stemAttrDef",
-        "stemAttrDef");
-
-    parentStem.getAttributeValueDelegate().assignValuesString(attributeDefName.getName(),
-        GrouperUtil.toSet("value1", "value2"), true);
-    
-    correctAttributesParentStem.setAttribute("parentStem:stemAttrDef", "value1", "value2");
+    correctAttributesParentStem.setAttribute("parentStem:mailAlternateAddress", "foo@memphis.edu", "bar@memphis.edu");
 
     runResolveTest("testAll", parentStem, correctAttributesParentStem);
   }
