@@ -63,7 +63,7 @@ public class CachingResolver extends SubjectResolverDecorator {
   /**
    * cache of multikey, to subject
    */
-  static GrouperCache<MultiKey, Subject> findByIdOrIdentifierCache = new GrouperCache<MultiKey, Subject>(CachingResolver.class.getName() + ".FindByIdentifier", 5000, false, 30, 120, false);
+  static GrouperCache<MultiKey, Subject> findByIdOrIdentifierCache = new GrouperCache<MultiKey, Subject>(CachingResolver.class.getName() + ".FindByIdOrIdentifier", 5000, false, 30, 120, false);
 
   /** logger */
   private static final Log LOG = GrouperUtil.getLog(CachingResolver.class);
