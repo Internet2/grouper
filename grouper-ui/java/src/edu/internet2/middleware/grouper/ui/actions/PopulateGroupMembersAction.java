@@ -18,6 +18,7 @@ limitations under the License.
 package edu.internet2.middleware.grouper.ui.actions;
 
 
+import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.HashSet;
 
@@ -25,7 +26,9 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.ResourceBundle;
 import java.util.Set;
+import java.util.TreeMap;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -54,6 +57,8 @@ import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.internal.dao.MembershipDAO;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.internal.dao.QueryPaging;
+import edu.internet2.middleware.grouper.member.SearchStringEnum;
+import edu.internet2.middleware.grouper.member.SortStringEnum;
 import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.ui.GroupOrStem;
@@ -63,6 +68,7 @@ import edu.internet2.middleware.grouper.ui.UIGroupPrivilegeResolverFactory;
 import edu.internet2.middleware.grouper.ui.UnrecoverableErrorException;
 import edu.internet2.middleware.grouper.ui.util.CollectionPager;
 import edu.internet2.middleware.grouper.ui.util.NavExceptionHelper;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.provider.SourceManager;
 
@@ -385,7 +391,69 @@ public class PopulateGroupMembersAction extends GrouperCapableAction {
 		request.setAttribute("listFields",listFields);
 		request.setAttribute("listFieldsSize",new Integer(listFields.size()));
 		
+		ResourceBundle mediaResource = GrouperUiFilter.retrieveSessionMediaResourceBundle();
+		ResourceBundle navResource = GrouperUiFilter.retrieveSessionNavResourceBundle();
+		
+		// get member sort and search parameters from the request
+		String memberSortIndex = request.getParameter("memberSortIndex");
+		String memberSearchValueAsInput = request.getParameter("memberSearchValue");
+		
+		// get member sort and search properties
+    String memberSortEnabled = mediaResource.containsKey("member.sort.enabled") ? mediaResource.getString("member.sort.enabled") : null;
+    String memberSearchEnabled = mediaResource.containsKey("member.search.enabled") ? mediaResource.getString("member.search.enabled") : null;
+    
+    String memberSortDefaultOnly = mediaResource.containsKey("member.sort.defaultOnly") ? mediaResource.getString("member.sort.defaultOnly") : null;
 
+    // figure out if and how member sorting and searching should be done
+    SortStringEnum sortStringEnum = null;
+    SearchStringEnum searchStringEnum = null;
+    String memberSearchValue = null;
+    Map<Integer, String> memberSortSelections = new TreeMap<Integer, String>();
+
+    if ("true".equals(memberSortEnabled)) {
+      if (!"true".equals(memberSortDefaultOnly)) {
+        for (int i = 0; i < 5; i++) {
+          String sortDisplayName = navResource.containsKey("member.sort.string" + i) ? navResource.getString("member.sort.string" + i) : null;
+          if (sortDisplayName != null && SortStringEnum.newInstance(i).hasAccess()) {
+            memberSortSelections.put(i, sortDisplayName);
+          }
+        }
+        
+        if (memberSortSelections.size() > 0) {
+          request.setAttribute("memberSortSelections", memberSortSelections);
+        }
+      }
+      
+      if ("true".equals(memberSortDefaultOnly)) {
+        sortStringEnum = SortStringEnum.getDefaultSortString();
+      } else if (GrouperUtil.isEmpty(memberSortIndex)) {
+        sortStringEnum = SortStringEnum.getDefaultSortString();
+        if (sortStringEnum == null && memberSortSelections.size() > 0) {
+          // if the user doesn't have access to the default sort strings but has access to other sort strings, sort using a non-default sort string.
+          sortStringEnum = SortStringEnum.newInstance(memberSortSelections.keySet().iterator().next());
+        }
+        
+        if (sortStringEnum != null) {
+          request.setAttribute("memberSortIndex", sortStringEnum.getIndex());
+          memberSortIndex = "" + sortStringEnum.getIndex();
+        }
+      } else {
+        sortStringEnum = SortStringEnum.newInstance(Integer.parseInt(memberSortIndex));
+        request.setAttribute("memberSortIndex", memberSortIndex);        
+      }
+    }
+    
+    if ("true".equals(memberSearchEnabled) && SearchStringEnum.getDefaultSearchString() != null) {
+      request.setAttribute("showMemberSearch", true);
+      
+      if (!GrouperUtil.isEmpty(memberSearchValueAsInput)) {
+        request.setAttribute("memberSearchValue", memberSearchValueAsInput);
+        searchStringEnum = SearchStringEnum.getDefaultSearchString();
+        memberSearchValue = "%" + memberSearchValueAsInput + "%";
+      }
+    }
+    
+    
 		Set<Member> nMembers = null;
 		
     //Set up CollectionPager for view
@@ -396,7 +464,7 @@ public class PopulateGroupMembersAction extends GrouperCapableAction {
     int start = Integer.parseInt(startStr);
     int pageSize = getPageSize(session);
     int end = start + pageSize;
-
+    
     MembershipDAO membershipDao = GrouperDAOFactory.getFactory().getMembership();
 
 	QueryOptions queryOptions = new QueryOptions();
@@ -418,7 +486,7 @@ public class PopulateGroupMembersAction extends GrouperCapableAction {
 				nMembers = new HashSet<Member>();
 				sourceIds = new HashSet<String>();
 			}else{
-				nMembers=membershipDao.findAllMembersByGroupOwnerAndFieldAndType(group.getUuid(),mField,MembershipType.IMMEDIATE.getTypeString(),sourceFilter,queryOptions,true);
+				nMembers=membershipDao.findAllMembersByGroupOwnerAndFieldAndType(group.getUuid(),mField,MembershipType.IMMEDIATE.getTypeString(),sourceFilter,queryOptions,true, sortStringEnum, searchStringEnum, memberSearchValue);
 				sourceIds = membershipDao.findSourceIdsByGroupOwnerOptions(group.getUuid(),MembershipType.IMMEDIATE,mField,true);
 			}
 			if("members".equals(membershipField)) {
@@ -428,10 +496,10 @@ public class PopulateGroupMembersAction extends GrouperCapableAction {
 			}
 		} else if ("eff".equals(membershipListScope)) {
 			if(group.hasComposite()&& membershipField.equals("members")) {
-				nMembers=membershipDao.findAllMembersByGroupOwnerAndFieldAndType(group.getUuid(),mField,MembershipType.COMPOSITE.getTypeString(),sourceFilter,queryOptions,true);
+				nMembers=membershipDao.findAllMembersByGroupOwnerAndFieldAndType(group.getUuid(),mField,MembershipType.COMPOSITE.getTypeString(),sourceFilter,queryOptions,true, sortStringEnum, searchStringEnum, memberSearchValue);
 				sourceIds = membershipDao.findSourceIdsByGroupOwnerOptions(group.getUuid(),MembershipType.COMPOSITE,mField,true);
 			}else{
-				nMembers=membershipDao.findAllMembersByGroupOwnerAndFieldAndType(group.getUuid(),mField,MembershipType.EFFECTIVE.getTypeString(),sourceFilter,queryOptions,true);
+				nMembers=membershipDao.findAllMembersByGroupOwnerAndFieldAndType(group.getUuid(),mField,MembershipType.EFFECTIVE.getTypeString(),sourceFilter,queryOptions,true, sortStringEnum, searchStringEnum, memberSearchValue);
 				sourceIds = membershipDao.findSourceIdsByGroupOwnerOptions(group.getUuid(),MembershipType.EFFECTIVE,mField,true);
 			}
 			if("members".equals(membershipField)) {
@@ -440,7 +508,7 @@ public class PopulateGroupMembersAction extends GrouperCapableAction {
 				noResultsKey="groups.list-members.custom.eff.none";
 			}
 		} else {
-			nMembers=membershipDao.findAllMembersByGroupOwnerAndFieldAndType(group.getUuid(),mField,null,sourceFilter,queryOptions,true);
+			nMembers=membershipDao.findAllMembersByGroupOwnerAndFieldAndType(group.getUuid(),mField,null,sourceFilter,queryOptions,true, sortStringEnum, searchStringEnum, memberSearchValue);
 			sourceIds = membershipDao.findSourceIdsByGroupOwnerOptions(group.getUuid(),null,mField,true);
 			if("members".equals(membershipField)) {
 				noResultsKey="groups.list-members.all.none";
@@ -498,17 +566,21 @@ public class PopulateGroupMembersAction extends GrouperCapableAction {
 		for(Member m : nMembers) {
 			memberIds.add(m.getUuid());
 		}
-		Set<Object[]> res = MembershipFinder.findMemberships(groupIds, memberIds, empty, null, mField, null, null, null, null, true);
-		for(Object[] objects : res) {
-			String memberId = ((Member)objects[2]).getUuid();
-			nMembershipMap.put(memberId, (Membership)objects[0]);
-			Integer count = pathCount.get(memberId);
-			int newCount=1;
-			if(count !=null) {
-				newCount = count.intValue() + 1;
-			}
-			pathCount.put(memberId, newCount);
+		
+		if (memberIds.size() > 0) {
+  		Set<Object[]> res = MembershipFinder.findMemberships(groupIds, memberIds, empty, null, mField, null, null, null, null, true);
+  		for(Object[] objects : res) {
+  			String memberId = ((Member)objects[2]).getUuid();
+  			nMembershipMap.put(memberId, (Membership)objects[0]);
+  			Integer count = pathCount.get(memberId);
+  			int newCount=1;
+  			if(count !=null) {
+  				newCount = count.intValue() + 1;
+  			}
+  			pathCount.put(memberId, newCount);
+  		}
 		}
+		
 		for(Member m : nMembers) {
 			String memberId = m.getUuid();
 			Membership ms = nMembershipMap.get(memberId);
@@ -524,12 +596,21 @@ public class PopulateGroupMembersAction extends GrouperCapableAction {
 			membershipMaps.add(0,compMap);
 			nMemberCount++;
 		}
-		if(nMemberCount <= pageSize) {
+		if(nMemberCount <= pageSize && sortStringEnum == null) {
 			membershipMaps=sort(membershipMaps,request,"members", nMemberCount);
 		}
 		CollectionPager pager = new CollectionPager(null, membershipMaps,nMemberCount,
 				null, start, null, pageSize);
 		pager.setParam("groupId", groupId);
+		
+		if (!GrouperUtil.isEmpty(memberSearchValueAsInput)) {
+		  pager.setParam("memberSearchValue", URLEncoder.encode(memberSearchValueAsInput, "UTF-8"));
+		}
+		
+    if (!GrouperUtil.isEmpty(memberSortIndex)) {
+      pager.setParam("memberSortIndex", memberSortIndex);
+    }
+		
 		pager.setTarget(mapping.getPath());
 		if(!isEmpty(listField))pager.setParam("listField", listField);
 		request.setAttribute("pager", pager);
@@ -539,6 +620,7 @@ public class PopulateGroupMembersAction extends GrouperCapableAction {
 		
 		membership.put("groupId", groupId);
 		membership.put("callerPageId",request.getAttribute("thisPageId"));
+		membership.put("memberSortIndex", memberSortIndex);
 		if(!isEmpty(listField)) membership.put("listField",listField);
 		//TODO: some of this looks familar  - look at refactoring
 		Map privs = GrouperHelper.hasAsMap(grouperSession, GroupOrStem.findByGroup(grouperSession, group));

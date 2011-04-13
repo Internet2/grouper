@@ -83,6 +83,8 @@
       <form-property name="privilege" type="java.lang.String"/>
 	  <form-property name="listField" type="java.lang.String"/>
       <form-property name="pageSize" type="java.lang.String"/>
+      <form-property name="memberSortIndex" type="java.lang.Integer"/>
+      <form-property name="memberSearchValue" type="java.lang.String"/>
       <form-property name="asMemberOf" type="java.lang.String"/>
       <form-property name="contextGroup" type="java.lang.String"/>
       <form-property name="contextSubject" type="java.lang.String"/>

@@ -281,5 +281,48 @@ public class ImportSubjectWrapper implements Subject {
     return null;
   }
 
+  /**
+   * @see edu.internet2.middleware.subject.Subject#getAttributeValue(java.lang.String, boolean)
+   */
+  @Override
+  public String getAttributeValue(String attributeName, boolean excludeInternalAttributes) {
+    throw new RuntimeException("Dont call this method on an import subject");
+  }
+
+  /**
+   * @see edu.internet2.middleware.subject.Subject#getAttributeValueOrCommaSeparated(java.lang.String, boolean)
+   */
+  @Override
+  public String getAttributeValueOrCommaSeparated(String attributeName,
+      boolean excludeInternalAttributes) {
+    throw new RuntimeException("Dont call this method on an import subject");
+  }
+
+  /**
+   * @see edu.internet2.middleware.subject.Subject#getAttributeValueSingleValued(java.lang.String, boolean)
+   */
+  @Override
+  public String getAttributeValueSingleValued(String attributeName,
+      boolean excludeInternalAttributes) {
+    throw new RuntimeException("Dont call this method on an import subject");
+  }
+
+  /**
+   * @see edu.internet2.middleware.subject.Subject#getAttributeValues(java.lang.String, boolean)
+   */
+  @Override
+  public Set<String> getAttributeValues(String attributeName,
+      boolean excludeInternalAttributes) {
+    throw new RuntimeException("Dont call this method on an import subject");
+  }
+
+  /**
+   * @see edu.internet2.middleware.subject.Subject#getAttributes(boolean)
+   */
+  @Override
+  public Map<String, Set<String>> getAttributes(boolean excludeInternalAttributes) {
+    throw new RuntimeException("Dont call this method on an import subject");
+  }
+
   
 }

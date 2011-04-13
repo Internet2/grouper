@@ -153,4 +153,47 @@ public class SubjectSortWrapper implements Subject, Comparable {
     return this.wrappedSubject.getTypeName();
   }
 
+  /**
+   * @see edu.internet2.middleware.subject.Subject#getAttributeValue(java.lang.String, boolean)
+   */
+  @Override
+  public String getAttributeValue(String attributeName, boolean excludeInternalAttributes) {
+    return this.wrappedSubject.getAttributeValue(attributeName, excludeInternalAttributes);
+  }
+
+  /**
+   * @see edu.internet2.middleware.subject.Subject#getAttributeValueOrCommaSeparated(java.lang.String, boolean)
+   */
+  @Override
+  public String getAttributeValueOrCommaSeparated(String attributeName,
+      boolean excludeInternalAttributes) {
+    return this.wrappedSubject.getAttributeValueOrCommaSeparated(attributeName, excludeInternalAttributes);
+  }
+
+  /**
+   * @see edu.internet2.middleware.subject.Subject#getAttributeValueSingleValued(java.lang.String, boolean)
+   */
+  @Override
+  public String getAttributeValueSingleValued(String attributeName,
+      boolean excludeInternalAttributes) {
+    return this.wrappedSubject.getAttributeValueSingleValued(attributeName, excludeInternalAttributes);
+  }
+
+  /**
+   * @see edu.internet2.middleware.subject.Subject#getAttributeValues(java.lang.String, boolean)
+   */
+  @Override
+  public Set<String> getAttributeValues(String attributeName,
+      boolean excludeInternalAttributes) {
+    return this.wrappedSubject.getAttributeValues(attributeName, excludeInternalAttributes);
+  }
+
+  /**
+   * @see edu.internet2.middleware.subject.Subject#getAttributes(boolean)
+   */
+  @Override
+  public Map<String, Set<String>> getAttributes(boolean excludeInternalAttributes) {
+    return this.wrappedSubject.getAttributes(excludeInternalAttributes);
+  }
+
 }
