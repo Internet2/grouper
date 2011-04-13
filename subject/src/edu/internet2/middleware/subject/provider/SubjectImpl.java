@@ -175,13 +175,25 @@ public class SubjectImpl implements Subject {
   }
 
   /**
-   * {@inheritDoc}
+   * @see edu.internet2.middleware.subject.Subject#getAttributeValue(java.lang.String, boolean)
    */
   public String getAttributeValue(String name1) {
+    return getAttributeValue(name1, true);
+  }
+  
+  /**
+   * @see edu.internet2.middleware.subject.Subject#getAttributeValue(java.lang.String, boolean)
+   */
+  public String getAttributeValue(String name1, boolean excludeInternalAttributes) {
     this.initAttributesIfNeeded();
     if (this.attributes == null) {
       return null;
     }
+    
+    if (excludeInternalAttributes && !StringUtils.isBlank(this.sourceId) && getSource().getInternalAttributes().contains(name1)) {
+      return null;
+    }
+    
     Set<String> values = this.attributes.get(name1);
     if (values != null && values.size() > 0) {
       //return the first, no matter how many there are
@@ -191,13 +203,25 @@ public class SubjectImpl implements Subject {
   }
 
   /**
-   * {@inheritDoc}
+   * @see edu.internet2.middleware.subject.Subject#getAttributeValues(java.lang.String)
    */
   public Set<String> getAttributeValues(String name1) {
+    return getAttributeValues(name1, true);
+  }
+  
+  /**
+   * @see edu.internet2.middleware.subject.Subject#getAttributeValues(java.lang.String, boolean)
+   */
+  public Set<String> getAttributeValues(String name1, boolean excludeInternalAttributes) {
     this.initAttributesIfNeeded();
     if (this.attributes == null) {
       return new LinkedHashSet<String>();
     }
+    
+    if (excludeInternalAttributes && !StringUtils.isBlank(this.sourceId) && getSource().getInternalAttributes().contains(name1)) {
+      return null;
+    }
+    
     return this.attributes.get(name1);
   }
 
@@ -256,7 +280,7 @@ public class SubjectImpl implements Subject {
       String value =  SubjectUtils.substituteExpressionLanguage(el, variableMap);
       Set<String> valueSet = new HashSet<String>();
       valueSet.add(value);
-      subject.getAttributes().put(attributeName, valueSet);
+      subject.getAttributes(false).put(attributeName, valueSet);
     }
     
     
@@ -389,11 +413,32 @@ public class SubjectImpl implements Subject {
     new ExpirableCache<String, Map<String, String>>(2);
   
   /**
-   * {@inheritDoc}
+   * @see edu.internet2.middleware.subject.Subject#getAttributes()
    */
   public Map<String, Set<String>> getAttributes() {
+    return getAttributes(true);
+  }
+  
+  /**
+   * @see edu.internet2.middleware.subject.Subject#getAttributes(boolean)
+   */
+  public Map<String, Set<String>> getAttributes(boolean excludeInternalAttributes) {
     this.initAttributesIfNeeded();
-    return this.attributes;
+    
+    if (!excludeInternalAttributes || StringUtils.isBlank(this.sourceId)) {
+      return this.attributes;
+    }
+    
+    Set<String> internalAttributes = getSource().getInternalAttributes();
+    Map<String, Set<String>> nonInternalAttributes = new LinkedHashMap<String, Set<String>>();
+    
+    for (String attribute : attributes.keySet()) {
+      if (!internalAttributes.contains(attribute)) {
+        nonInternalAttributes.put(attribute, attributes.get(attribute));
+      }
+    }
+    
+    return nonInternalAttributes;
   }
 
   /**
@@ -502,15 +547,20 @@ public class SubjectImpl implements Subject {
     return new HashCodeBuilder().append(subject.getId()).append(subject.getSourceId()).toHashCode();
   }
 
-
   /**
    * @see edu.internet2.middleware.subject.Subject#getAttributeValueOrCommaSeparated(java.lang.String)
    */
   public String getAttributeValueOrCommaSeparated(String attributeName) {
-    this.initAttributesIfNeeded();
-    return attributeValueOrCommaSeparated(this, attributeName);
+    return getAttributeValueOrCommaSeparated(attributeName, true);
   }
-
+  
+  /**
+   * @see edu.internet2.middleware.subject.Subject#getAttributeValueOrCommaSeparated(java.lang.String, boolean)
+   */
+  public String getAttributeValueOrCommaSeparated(String attributeName, boolean excludeInternalAttributes) {
+    this.initAttributesIfNeeded();
+    return attributeValueOrCommaSeparated(this, attributeName, excludeInternalAttributes);
+  }
 
   /**
    * @see Subject#getAttributeValueOrCommaSeparated(String)
@@ -519,6 +569,21 @@ public class SubjectImpl implements Subject {
    * @return the string
    */
   public static String attributeValueOrCommaSeparated(Subject subject, String attributeName) {
+    return attributeValueOrCommaSeparated(subject, attributeName, true);
+  }
+
+  /**
+   * @see Subject#getAttributeValueOrCommaSeparated(String, boolean)
+   * @param subject shouldnt be null
+   * @param attributeName
+   * @param excludeInternalAttributes 
+   * @return the string
+   */
+  public static String attributeValueOrCommaSeparated(Subject subject, String attributeName, boolean excludeInternalAttributes) {
+    if (excludeInternalAttributes && !StringUtils.isBlank(subject.getSourceId()) && subject.getSource().getInternalAttributes().contains(attributeName)) {
+      return null;
+    }
+    
     Set<String> attributeValues = subject.getAttributeValues(attributeName);
     if (attributeValues == null || attributeValues.size() == 0) {
       return null;
@@ -530,10 +595,22 @@ public class SubjectImpl implements Subject {
    * @see edu.internet2.middleware.subject.Subject#getAttributeValueSingleValued(java.lang.String)
    */
   public String getAttributeValueSingleValued(String attributeName) {
+    return getAttributeValueSingleValued(attributeName, true);
+  }
+  
+  /**
+   * @see edu.internet2.middleware.subject.Subject#getAttributeValueSingleValued(java.lang.String, boolean)
+   */
+  public String getAttributeValueSingleValued(String attributeName, boolean excludeInternalAttributes) {
     this.initAttributesIfNeeded();
     if (this.attributes == null) {
       return null;
     }
+    
+    if (excludeInternalAttributes && !StringUtils.isBlank(this.sourceId) && getSource().getInternalAttributes().contains(attributeName)) {
+      return null;
+    }
+    
     Set<String> values = this.attributes.get(attributeName);
     if (values != null) {
       if (values.size() > 1) {

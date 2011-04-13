@@ -194,6 +194,7 @@ public class SourceManager {
     digester.addCallParam("sources/source/init-param/param-name", 0);
     digester.addCallParam("sources/source/init-param/param-value", 1);
     digester.addCallMethod("sources/source/attribute", "addAttribute", 0);
+    digester.addCallMethod("sources/source/internal-attribute", "addInternalAttribute", 0);
 
     digester.addObjectCreate("sources/source/search",
         "edu.internet2.middleware.subject.provider.Search");
