@@ -271,8 +271,8 @@ public class GrouperSubject extends SubjectImpl {
       // Don't bother with any of the create* attrs unless we can find
       // the creating subject
       Subject creator = g.getCreateSubject();
-      ((GrouperSubjectAttributeMap)this.getAttributes()).put( "createSubjectId",   GrouperUtil.toSet(creator.getId()), false);
-      ((GrouperSubjectAttributeMap)this.getAttributes()).put( "createSubjectType", GrouperUtil.toSet(creator.getType().getName()), false);
+      ((GrouperSubjectAttributeMap)this.getAttributes(false)).put( "createSubjectId",   GrouperUtil.toSet(creator.getId()), false);
+      ((GrouperSubjectAttributeMap)this.getAttributes(false)).put( "createSubjectType", GrouperUtil.toSet(creator.getType().getName()), false);
     }
     catch (SubjectNotFoundException eSNF0) {
       LOG.error(E.GSUBJ_NOCREATOR + eSNF0.getMessage());
@@ -281,9 +281,9 @@ public class GrouperSubject extends SubjectImpl {
       // Don't bother with any of the modify* attrs unless we can find
       // the modifying subject
       Subject modifier = g.getModifySubject();
-      ((GrouperSubjectAttributeMap)this.getAttributes()).put( "modifySubjectId",   
+      ((GrouperSubjectAttributeMap)this.getAttributes(false)).put( "modifySubjectId",   
           GrouperUtil.toSet(modifier.getId()), false);
-      ((GrouperSubjectAttributeMap)this.getAttributes()).put( "modifySubjectType", 
+      ((GrouperSubjectAttributeMap)this.getAttributes(false)).put( "modifySubjectType", 
           GrouperUtil.toSet(modifier.getType().getName()), false);
     }
     catch (SubjectNotFoundException eSNF1) {
@@ -314,12 +314,12 @@ public class GrouperSubject extends SubjectImpl {
     int count=0;
     while (it.hasNext()) {
       kv = it.next();
-      ((GrouperSubjectAttributeMap)this.getAttributes()).put( kv.getKey(), GrouperUtil.toSet(kv.getValue().getValue()), false );
+      ((GrouperSubjectAttributeMap)this.getAttributes(false)).put( kv.getKey(), GrouperUtil.toSet(kv.getValue().getValue()), false );
       count++;
     }
     this.loadedGroupAttributes = true;
     LOG.debug("[" + this.getName() + "] attached " + count +  " new attributes: " 
-        + ((GrouperSubjectAttributeMap)GrouperUtil.nonNull(this.getAttributes())).attrs.size() );
+        + ((GrouperSubjectAttributeMap)GrouperUtil.nonNull(this.getAttributes(false))).attrs.size() );
   }
 
   /** logger */

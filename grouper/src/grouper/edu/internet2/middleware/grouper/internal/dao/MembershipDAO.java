@@ -30,6 +30,8 @@ import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.MembershipNotFoundException;
+import edu.internet2.middleware.grouper.member.SearchStringEnum;
+import edu.internet2.middleware.grouper.member.SortStringEnum;
 import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.subject.Source;
 
@@ -277,6 +279,24 @@ TODO update for 1.5
    */
   public Set<Member> findAllMembersByGroupOwnerAndFieldAndType(String ownerGroupId,
       Field f, String type, Set<Source> sources, QueryOptions queryOptions, boolean enabledOnly) throws GrouperDAOException;
+  
+
+  /**
+   * @param ownerGroupId
+   * @param f
+   * @param type
+   * @param sources
+   * @param queryOptions
+   * @param enabledOnly
+   * @param memberSortStringEnum How to sort results or null for no sorting unless specified by queryOptions
+   * @param memberSearchStringEnum Specify search string if searching for members in the group
+   * @param memberSearchStringValue Search string value.  Use '%' for wildcards.
+   * @return set
+   * @throws GrouperDAOException
+   */
+  public Set<Member> findAllMembersByGroupOwnerAndFieldAndType(String ownerGroupId,
+      Field f, String type, Set<Source> sources, QueryOptions queryOptions, boolean enabledOnly,
+      SortStringEnum memberSortStringEnum, SearchStringEnum memberSearchStringEnum, String memberSearchStringValue) throws GrouperDAOException;
   
   /**
    * @param ownerStemId

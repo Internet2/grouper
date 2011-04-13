@@ -311,6 +311,41 @@ public class RegistrySubject extends GrouperAPI implements Subject {
    */
   public Map<String, Set<String>> getAttributes() {
     return this.subject.getAttributes();
+  }
+
+  /**
+   * @see edu.internet2.middleware.subject.Subject#getAttributeValue(java.lang.String, boolean)
+   */
+  public String getAttributeValue(String attributeName, boolean excludeInternalAttributes) {
+    return this.subject.getAttributeValue(attributeName, excludeInternalAttributes);
+  }
+
+  /**
+   * @see edu.internet2.middleware.subject.Subject#getAttributeValueOrCommaSeparated(java.lang.String, boolean)
+   */
+  public String getAttributeValueOrCommaSeparated(String attributeName, boolean excludeInternalAttributes) {
+    return this.subject.getAttributeValueOrCommaSeparated(attributeName, excludeInternalAttributes);
+  }
+
+  /**
+   * @see edu.internet2.middleware.subject.Subject#getAttributeValueSingleValued(java.lang.String, boolean)
+   */
+  public String getAttributeValueSingleValued(String attributeName, boolean excludeInternalAttributes) {
+    return this.subject.getAttributeValueSingleValued(attributeName, excludeInternalAttributes);
+  }
+
+  /**
+   * @see edu.internet2.middleware.subject.Subject#getAttributeValues(java.lang.String, boolean)
+   */
+  public Set<String> getAttributeValues(String attributeName, boolean excludeInternalAttributes) {
+    return this.subject.getAttributeValues(attributeName, excludeInternalAttributes);
+  }
+
+  /**
+   * @see edu.internet2.middleware.subject.Subject#getAttributes(boolean)
+   */
+  public Map<String, Set<String>> getAttributes(boolean excludeInternalAttributes) {
+    return this.subject.getAttributes(excludeInternalAttributes);
   } 
   
 }

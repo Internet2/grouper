@@ -124,6 +124,7 @@ import edu.internet2.middleware.grouper.rules.RuleCheckType;
 import edu.internet2.middleware.grouper.rules.RuleEngine;
 import edu.internet2.middleware.grouper.rules.beans.RulesMembershipBean;
 import edu.internet2.middleware.grouper.rules.beans.RulesPrivilegeBean;
+import edu.internet2.middleware.grouper.subj.GrouperSubject;
 import edu.internet2.middleware.grouper.subj.LazySubject;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.validator.AddAlternateGroupNameValidator;
@@ -5075,7 +5076,8 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
         GroupHooks.METHOD_GROUP_POST_UPDATE, HooksGroupBean.class, 
         this, Group.class, VetoTypeGrouper.GROUP_POST_UPDATE, true, false);
 
-
+    // update member table
+    this.toMember().updateMemberAttributes(new GrouperSubject(this), true);
   }
 
   /**

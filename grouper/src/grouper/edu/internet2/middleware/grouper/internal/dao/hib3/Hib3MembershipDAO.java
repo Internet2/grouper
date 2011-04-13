@@ -49,7 +49,10 @@ import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.MembershipDAO;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
+import edu.internet2.middleware.grouper.internal.dao.QuerySortField;
 import edu.internet2.middleware.grouper.internal.util.Quote;
+import edu.internet2.middleware.grouper.member.SearchStringEnum;
+import edu.internet2.middleware.grouper.member.SortStringEnum;
 import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
@@ -689,31 +692,85 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
   public Set<Member> findAllMembersByGroupOwnerAndFieldAndType(
       String ownerGroupId, Field f, String type, Set<Source> sources, QueryOptions queryOptions, boolean enabledOnly) 
     throws  GrouperDAOException {
+    return findAllMembersByGroupOwnerAndFieldAndType(ownerGroupId, f, type, sources, queryOptions, enabledOnly, null, null, null);
+  } 
+  
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.MembershipDAO#findAllMembersByGroupOwnerAndFieldAndType(java.lang.String, edu.internet2.middleware.grouper.Field, java.lang.String, java.util.Set, edu.internet2.middleware.grouper.internal.dao.QueryOptions, boolean, edu.internet2.middleware.grouper.member.SortStringEnum, edu.internet2.middleware.grouper.member.SearchStringEnum, java.lang.String)
+   */
+  public Set<Member> findAllMembersByGroupOwnerAndFieldAndType(String ownerGroupId,
+      Field f, String type, Set<Source> sources, QueryOptions queryOptions,
+      boolean enabledOnly, SortStringEnum memberSortStringEnum,
+      SearchStringEnum memberSearchStringEnum, String memberSearchStringValue)
+      throws GrouperDAOException {
+
+    ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
+    
     StringBuilder sql = new StringBuilder("select distinct m "
-            + "from Member m, MembershipEntry ms where "
-            + "ms.ownerGroupId = :owner "
-            + "and ms.fieldId = :fieldId ");
-        if(type != null) {
-          MembershipType membershipType = MembershipType.valueOfIgnoreCase(type, true);
-            sql.append("and ms.type  " + membershipType.queryClause());
+        + "from Member m, MembershipEntry ms where " 
+        + "ms.ownerGroupId = :owner "
+        + "and ms.fieldId = :fieldId ");
+    
+    if (type != null) {
+      MembershipType membershipType = MembershipType.valueOfIgnoreCase(type, true);
+      sql.append("and ms.type  " + membershipType.queryClause());
+    }
+    
+    if (memberSearchStringEnum != null) {
+      if (!memberSearchStringEnum.hasAccess()) {
+        throw new RuntimeException("Not allowed to access " + memberSearchStringEnum.getFieldName());
+      }
+      
+      if (memberSearchStringValue == null) {
+        sql.append(" and m." + memberSearchStringEnum.getFieldName() + " is null ");
+      } else {
+        sql.append(" and m." + memberSearchStringEnum.getFieldName() + " like :searchString ");
+        byHqlStatic.setString("searchString", memberSearchStringValue);
+      }
+    }
+    
+    if (memberSortStringEnum != null) {      
+      if (queryOptions == null) {
+        queryOptions = new QueryOptions();
+      }
+      
+      queryOptions.sortAsc(memberSortStringEnum.getFieldName());
+    }
+    
+    // if performing member sorting, verify access and adjust field name
+    if (queryOptions != null && queryOptions.getQuerySort() != null) {
+      List<QuerySortField> querySortFields = queryOptions.getQuerySort().getQuerySortFields();
+      for (QuerySortField querySortField : querySortFields) {
+        String column = querySortField.getColumn();
+        if (column.matches("sortString[0-4]")) {
+          int index = Integer.parseInt(column.substring(10, 11));
+          if (!SortStringEnum.newInstance(index).hasAccess()) {
+            throw new RuntimeException("Not allowed to access " + column);
+          }
+          
+          querySortField.setColumn("m." + column);
+          sql.append(" and m." + column + " is not null ");
         }
-        sql.append(" and ms.memberUuid = m.uuid  ");
+      }
+    }
+    
+    sql.append(" and ms.memberUuid = m.uuid  ");
     if (enabledOnly) {
       sql.append(" and ms.enabledDb = 'T'");
     }
+    
     if (sources != null && sources.size() > 0) {
       sql.append(" and m.subjectSourceIdDb in ").append(HibUtils.convertSourcesToSqlInString(sources));
     }
-    return HibernateSession.byHqlStatic()
-    .createQuery(sql.toString())
-    .setCacheable(false)
-    .setCacheRegion(KLASS)
-    .options(queryOptions)
-    .setString("owner", ownerGroupId)
-    .setString( "fieldId", f.getUuid() )
-    .listSet(Member.class);
-
-  } 
+    
+    return byHqlStatic
+        .createQuery(sql.toString())
+        .setCacheable(false)
+        .setCacheRegion(KLASS).options(queryOptions)
+        .setString("owner", ownerGroupId)
+        .setString("fieldId", f.getUuid())
+        .listSet(Member.class);
+  }
   
   /**
    * @param ownerStemId 

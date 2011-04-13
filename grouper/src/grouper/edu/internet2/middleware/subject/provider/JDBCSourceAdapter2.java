@@ -10,7 +10,6 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -682,7 +681,10 @@ public class JDBCSourceAdapter2 extends JDBCSourceAdapter {
       }
     }
     //caller should not change this
-    return Collections.unmodifiableMap(attributes);
+    //return Collections.unmodifiableMap(attributes);
+    
+    //actually this may change due to virtual attributes
+    return attributes;
   }
 
   /**

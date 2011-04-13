@@ -708,7 +708,7 @@ public enum GrouperDdl implements DdlVersionable {
 
       addPITIndexes(ddlVersionBean, database);
       
-      addMemberAttributes(database);
+      addMemberAttributes(database, ddlVersionBean);
       
       Table groupsTable = GrouperDdlUtils.ddlutilsFindTable(database, Group.TABLE_GROUPER_GROUPS);
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupsTable, Group.COLUMN_LAST_IMMEDIATE_MEMBERSHIP_CHANGE, Types.BIGINT, "20", false, false); 
@@ -1659,7 +1659,7 @@ public enum GrouperDdl implements DdlVersionable {
         
         versionNumberColumnFindOrCreate(membersTable);
         
-        addMemberAttributes(database);
+        addMemberAttributes(database, ddlVersionBean);
       }
     
       {
@@ -9055,34 +9055,57 @@ public enum GrouperDdl implements DdlVersionable {
 
   }
   
-  private static void addMemberAttributes(Database database) {
+  private static void addMemberAttributes(Database database, DdlVersionBean ddlVersionBean) {
     Table membersTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database, Member.TABLE_GROUPER_MEMBERS);
     
-    GrouperDdlUtils.ddlutilsFindOrCreateColumn(membersTable, Member.COLUMN_SORT_STRING0, Types.VARCHAR, "255", false, false);
-    GrouperDdlUtils.ddlutilsFindOrCreateColumn(membersTable, Member.COLUMN_SORT_STRING1, Types.VARCHAR, "255", false, false);
-    GrouperDdlUtils.ddlutilsFindOrCreateColumn(membersTable, Member.COLUMN_SORT_STRING2, Types.VARCHAR, "255", false, false);
-    GrouperDdlUtils.ddlutilsFindOrCreateColumn(membersTable, Member.COLUMN_SORT_STRING3, Types.VARCHAR, "255", false, false);
-    GrouperDdlUtils.ddlutilsFindOrCreateColumn(membersTable, Member.COLUMN_SORT_STRING4, Types.VARCHAR, "255", false, false);
-    GrouperDdlUtils.ddlutilsFindOrCreateColumn(membersTable, Member.COLUMN_SEARCH_STRING0, Types.VARCHAR, "255", false, false);
-    GrouperDdlUtils.ddlutilsFindOrCreateColumn(membersTable, Member.COLUMN_SEARCH_STRING1, Types.VARCHAR, "255", false, false);
-    GrouperDdlUtils.ddlutilsFindOrCreateColumn(membersTable, Member.COLUMN_SEARCH_STRING2, Types.VARCHAR, "255", false, false);
-    GrouperDdlUtils.ddlutilsFindOrCreateColumn(membersTable, Member.COLUMN_SEARCH_STRING3, Types.VARCHAR, "255", false, false);
-    GrouperDdlUtils.ddlutilsFindOrCreateColumn(membersTable, Member.COLUMN_SEARCH_STRING4, Types.VARCHAR, "255", false, false);
-    GrouperDdlUtils.ddlutilsFindOrCreateColumn(membersTable, Member.COLUMN_NAME, Types.VARCHAR, "255", false, false);
-    GrouperDdlUtils.ddlutilsFindOrCreateColumn(membersTable, Member.COLUMN_DESCRIPTION, Types.VARCHAR, "255", false, false);
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(membersTable, Member.COLUMN_SORT_STRING0, Types.VARCHAR, "2048", false, false);
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(membersTable, Member.COLUMN_SORT_STRING1, Types.VARCHAR, "2048", false, false);
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(membersTable, Member.COLUMN_SORT_STRING2, Types.VARCHAR, "2048", false, false);
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(membersTable, Member.COLUMN_SORT_STRING3, Types.VARCHAR, "2048", false, false);
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(membersTable, Member.COLUMN_SORT_STRING4, Types.VARCHAR, "2048", false, false);
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(membersTable, Member.COLUMN_SEARCH_STRING0, Types.VARCHAR, "2048", false, false);
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(membersTable, Member.COLUMN_SEARCH_STRING1, Types.VARCHAR, "2048", false, false);
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(membersTable, Member.COLUMN_SEARCH_STRING2, Types.VARCHAR, "2048", false, false);
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(membersTable, Member.COLUMN_SEARCH_STRING3, Types.VARCHAR, "2048", false, false);
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(membersTable, Member.COLUMN_SEARCH_STRING4, Types.VARCHAR, "2048", false, false);
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(membersTable, Member.COLUMN_NAME, Types.VARCHAR, "2048", false, false);
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(membersTable, Member.COLUMN_DESCRIPTION, Types.VARCHAR, "2048", false, false);
 
-    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, membersTable.getName(), "member_sort_string0_idx", false, Member.COLUMN_SORT_STRING0);
-    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, membersTable.getName(), "member_sort_string1_idx", false, Member.COLUMN_SORT_STRING1);
-    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, membersTable.getName(), "member_sort_string2_idx", false, Member.COLUMN_SORT_STRING2);
-    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, membersTable.getName(), "member_sort_string3_idx", false, Member.COLUMN_SORT_STRING3);
-    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, membersTable.getName(), "member_sort_string4_idx", false, Member.COLUMN_SORT_STRING4);
-    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, membersTable.getName(), "member_search_string0_idx", false, Member.COLUMN_SEARCH_STRING0);
-    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, membersTable.getName(), "member_search_string1_idx", false, Member.COLUMN_SEARCH_STRING1);
-    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, membersTable.getName(), "member_search_string2_idx", false, Member.COLUMN_SEARCH_STRING2);
-    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, membersTable.getName(), "member_search_string3_idx", false, Member.COLUMN_SEARCH_STRING3);
-    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, membersTable.getName(), "member_search_string4_idx", false, Member.COLUMN_SEARCH_STRING4);
-    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, membersTable.getName(), "member_name_idx", false, Member.COLUMN_NAME);
-    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, membersTable.getName(), "member_description_idx", false, Member.COLUMN_DESCRIPTION);
+    String scriptOverride = ddlVersionBean.isSmallIndexes() ? "\nCREATE INDEX member_sort_string0_idx ON grouper_members (sort_string0(255));\n" : null;
+    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, ddlVersionBean, membersTable.getName(), "member_sort_string0_idx", scriptOverride, false, Member.COLUMN_SORT_STRING0);
+
+    scriptOverride = ddlVersionBean.isSmallIndexes() ? "\nCREATE INDEX member_sort_string1_idx ON grouper_members (sort_string1(255));\n" : null;
+    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, ddlVersionBean, membersTable.getName(), "member_sort_string1_idx", scriptOverride, false, Member.COLUMN_SORT_STRING1);
+
+    scriptOverride = ddlVersionBean.isSmallIndexes() ? "\nCREATE INDEX member_sort_string2_idx ON grouper_members (sort_string2(255));\n" : null;
+    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, ddlVersionBean, membersTable.getName(), "member_sort_string2_idx", scriptOverride, false, Member.COLUMN_SORT_STRING2);
+    
+    scriptOverride = ddlVersionBean.isSmallIndexes() ? "\nCREATE INDEX member_sort_string3_idx ON grouper_members (sort_string3(255));\n" : null;
+    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, ddlVersionBean, membersTable.getName(), "member_sort_string3_idx", scriptOverride, false, Member.COLUMN_SORT_STRING3);
+
+    scriptOverride = ddlVersionBean.isSmallIndexes() ? "\nCREATE INDEX member_sort_string4_idx ON grouper_members (sort_string4(255));\n" : null;
+    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, ddlVersionBean, membersTable.getName(), "member_sort_string4_idx", scriptOverride, false, Member.COLUMN_SORT_STRING4);
+
+    scriptOverride = ddlVersionBean.isSmallIndexes() ? "\nCREATE INDEX member_search_string0_idx ON grouper_members (search_string0(255));\n" : null;
+    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, ddlVersionBean, membersTable.getName(), "member_search_string0_idx", scriptOverride, false, Member.COLUMN_SEARCH_STRING0);
+
+    scriptOverride = ddlVersionBean.isSmallIndexes() ? "\nCREATE INDEX member_search_string1_idx ON grouper_members (search_string1(255));\n" : null;
+    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, ddlVersionBean, membersTable.getName(), "member_search_string1_idx", scriptOverride, false, Member.COLUMN_SEARCH_STRING1);
+
+    scriptOverride = ddlVersionBean.isSmallIndexes() ? "\nCREATE INDEX member_search_string2_idx ON grouper_members (search_string2(255));\n" : null;
+    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, ddlVersionBean, membersTable.getName(), "member_search_string2_idx", scriptOverride, false, Member.COLUMN_SEARCH_STRING2);
+
+    scriptOverride = ddlVersionBean.isSmallIndexes() ? "\nCREATE INDEX member_search_string3_idx ON grouper_members (search_string3(255));\n" : null;
+    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, ddlVersionBean, membersTable.getName(), "member_search_string3_idx", scriptOverride, false, Member.COLUMN_SEARCH_STRING3);
+
+    scriptOverride = ddlVersionBean.isSmallIndexes() ? "\nCREATE INDEX member_search_string4_idx ON grouper_members (search_string4(255));\n" : null;
+    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, ddlVersionBean, membersTable.getName(), "member_search_string4_idx", scriptOverride, false, Member.COLUMN_SEARCH_STRING4);
+
+    scriptOverride = ddlVersionBean.isSmallIndexes() ? "\nCREATE INDEX member_name_idx ON grouper_members (name(255));\n" : null;
+    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, ddlVersionBean, membersTable.getName(), "member_name_idx", scriptOverride, false, Member.COLUMN_NAME);
+
+    scriptOverride = ddlVersionBean.isSmallIndexes() ? "\nCREATE INDEX member_description_idx ON grouper_members (description(255));\n" : null;
+    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, ddlVersionBean, membersTable.getName(), "member_description_idx", scriptOverride, false, Member.COLUMN_DESCRIPTION);
   }
   
   /**

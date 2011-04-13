@@ -18,6 +18,8 @@
 package edu.internet2.middleware.grouper.subj;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
@@ -53,6 +55,10 @@ public class InternalSourceAdapter extends BaseSourceAdapter {
   private Set     _types  = new LinkedHashSet();
   private String allName = getAllName();
   private String rootName = getRootName();
+  
+  private List<String> searchAttributeEl = new LinkedList<String>();
+  private List<String> sortAttributeEl = new LinkedList<String>();
+  
 
   /** singleton */
   private static InternalSourceAdapter instance = new InternalSourceAdapter();
@@ -164,7 +170,6 @@ public class InternalSourceAdapter extends BaseSourceAdapter {
 
   /**
    * Called by SourceManager when it loads this source.
-   * <p>No initialization is performed by this source adapter.</p>
    * <pre class="eg">
    * // Initialize this source adapter.
    * SourceAdapter sa = new InternalSourceAdapter();
@@ -172,7 +177,32 @@ public class InternalSourceAdapter extends BaseSourceAdapter {
    * </pre>
    */
   public void init() {
-    // Nothing
+    sortAttributeEl.add(GrouperConfig.getProperty("internalSubjects.sortAttribute0.el"));
+    sortAttributeEl.add(GrouperConfig.getProperty("internalSubjects.sortAttribute1.el"));
+    sortAttributeEl.add(GrouperConfig.getProperty("internalSubjects.sortAttribute2.el"));
+    sortAttributeEl.add(GrouperConfig.getProperty("internalSubjects.sortAttribute3.el"));
+    sortAttributeEl.add(GrouperConfig.getProperty("internalSubjects.sortAttribute4.el"));
+    searchAttributeEl.add(GrouperConfig.getProperty("internalSubjects.searchAttribute0.el"));
+    searchAttributeEl.add(GrouperConfig.getProperty("internalSubjects.searchAttribute1.el"));
+    searchAttributeEl.add(GrouperConfig.getProperty("internalSubjects.searchAttribute2.el"));
+    searchAttributeEl.add(GrouperConfig.getProperty("internalSubjects.searchAttribute3.el"));
+    searchAttributeEl.add(GrouperConfig.getProperty("internalSubjects.searchAttribute4.el"));
+    
+    for (int i = 0; i < sortAttributeEl.size(); i++) {
+      if (!GrouperUtil.isEmpty(sortAttributeEl.get(i))) {
+        this.addInitParam("subjectVirtualAttribute_" + i + "_sortAttribute" + i, sortAttributeEl.get(i));
+        this.addInternalAttribute("sortAttribute" + i);
+        this.addInitParam("sortAttribute" + i, "sortAttribute" + i);
+      }
+    }
+    
+    for (int i = 0; i < searchAttributeEl.size(); i++) {
+      if (!GrouperUtil.isEmpty(searchAttributeEl.get(i))) {
+        this.addInitParam("subjectVirtualAttribute_" + i + "_searchAttribute" + i, searchAttributeEl.get(i));
+        this.addInternalAttribute("searchAttribute" + i);
+        this.addInitParam("searchAttribute" + i, "searchAttribute" + i);
+      }
+    }
   } // public void init()
 
   /**
@@ -253,7 +283,8 @@ public class InternalSourceAdapter extends BaseSourceAdapter {
     Subject subject = new SubjectImpl(id, name, name, 
         SubjectTypeEnum.APPLICATION.getName(), this.getId(), 
         new HashMap<String, Set<String>>());
-    subject.getAttributes().put("name", GrouperUtil.toSet(allName));
+    subject.getAttributes(false).put("name", GrouperUtil.toSet(allName));
+    
     return subject;
   }
   

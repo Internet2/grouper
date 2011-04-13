@@ -2,6 +2,7 @@ package edu.internet2.middleware.grouper.externalSubjects;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -133,7 +134,11 @@ public class ExternalSubjectConfig {
     /** if the institution column is enabled */
     private boolean institutionEnabled = true;
 
+    /** expression language for each of the search attributes */
+    private List<String> searchAttributeEl = new LinkedList<String>();
     
+    /** expression language for each of the sort attributes */
+    private List<String> sortAttributeEl = new LinkedList<String>();
     
     /**
      * expression language of the description
@@ -143,6 +148,19 @@ public class ExternalSubjectConfig {
       return this.descriptionEl;
     }
 
+    /**
+     * @return expression language for each of the search attributes
+     */
+    public List<String> getSearchAttributeEl() {
+      return this.searchAttributeEl;
+    }
+    
+    /**
+     * @return expression language for each of the sort attributes
+     */
+    public List<String> getSortAttributeEl() {
+      return this.sortAttributeEl;
+    }
 
 
     /**
@@ -289,6 +307,17 @@ public class ExternalSubjectConfig {
           externalSubjectConfigBean.institutionRequired = GrouperConfig.getPropertyBoolean("externalSubjects.institution.required", false);
           externalSubjectConfigBean.nameRequired = GrouperConfig.getPropertyBoolean("externalSubjects.name.required", false);
           externalSubjectConfigBean.externalSubjectAttributeConfigBeans = new ArrayList<ExternalSubjectAttributeConfigBean>();
+          
+          externalSubjectConfigBean.sortAttributeEl.add(GrouperConfig.getProperty("externalSubjects.sortAttribute0.el"));
+          externalSubjectConfigBean.sortAttributeEl.add(GrouperConfig.getProperty("externalSubjects.sortAttribute1.el"));
+          externalSubjectConfigBean.sortAttributeEl.add(GrouperConfig.getProperty("externalSubjects.sortAttribute2.el"));
+          externalSubjectConfigBean.sortAttributeEl.add(GrouperConfig.getProperty("externalSubjects.sortAttribute3.el"));
+          externalSubjectConfigBean.sortAttributeEl.add(GrouperConfig.getProperty("externalSubjects.sortAttribute4.el"));
+          externalSubjectConfigBean.searchAttributeEl.add(GrouperConfig.getProperty("externalSubjects.searchAttribute0.el"));
+          externalSubjectConfigBean.searchAttributeEl.add(GrouperConfig.getProperty("externalSubjects.searchAttribute1.el"));
+          externalSubjectConfigBean.searchAttributeEl.add(GrouperConfig.getProperty("externalSubjects.searchAttribute2.el"));
+          externalSubjectConfigBean.searchAttributeEl.add(GrouperConfig.getProperty("externalSubjects.searchAttribute3.el"));
+          externalSubjectConfigBean.searchAttributeEl.add(GrouperConfig.getProperty("externalSubjects.searchAttribute4.el"));
           
           for (String propertyName : GrouperConfig.getPropertyNames()) {
             Matcher matcher = externalSubjectAttributeSystemNamePattern.matcher(propertyName);
