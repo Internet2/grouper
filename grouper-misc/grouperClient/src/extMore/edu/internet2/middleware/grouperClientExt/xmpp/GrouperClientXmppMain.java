@@ -210,7 +210,7 @@ public class GrouperClientXmppMain {
     XMPPConnection theXmppConnection = xmppConnection();
     theXmppConnection.addPacketListener(new PacketListener() {
 
-      @Override
+      // @Override
       public void processPacket(Packet packet) {
         Message message = null;
         try {
@@ -309,7 +309,7 @@ public class GrouperClientXmppMain {
       }
     }, new PacketFilter() {
 
-      @Override
+      // @Override
       public boolean accept(Packet packet) {
         if (packet instanceof Message) {
           Message message = (Message) packet;

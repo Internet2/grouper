@@ -26,7 +26,7 @@ public class MembershipFullRefreshJob implements Job, StatefulJob {
   /**
    * @see org.quartz.Job#execute(org.quartz.JobExecutionContext)
    */
-  @Override
+  // @Override
   public void execute(JobExecutionContext context) throws JobExecutionException {
     String jobName = null;
     try {
