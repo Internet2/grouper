@@ -155,7 +155,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  */
 @SuppressWarnings("serial")
 public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner, 
-    Hib3GrouperVersioned, Comparable<Group>, XmlImportable<Group>, AttributeAssignable {
+    Hib3GrouperVersioned, Comparable, XmlImportable<Group>, AttributeAssignable {
 
   /** name of the groups table in the db */
   public static final String TABLE_GROUPER_GROUPS = "grouper_groups";
@@ -5429,12 +5429,15 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
   /**
    * @see java.lang.Comparable#compareTo(java.lang.Object)
    */
-  public int compareTo(Group that) {
+  public int compareTo(Object that) {
     if (that==null) {
       return 1;
     }
+    if (!(that instanceof Group)) {
+      return 1;
+    }
     String thisName = StringUtils.defaultString(this.getName());
-    String thatName = StringUtils.defaultString(that.getName());
+    String thatName = StringUtils.defaultString(((Group)that).getName());
     return thisName.compareTo(thatName);
   }
 

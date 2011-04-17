@@ -857,5 +857,51 @@ TODO update for 1.5
    */
   public void saveUpdateProperties(Membership membership);
 
+  /**
+   * find memberships by attribute def owner and other options.  
+   * @param groupId to limit memberships to
+   * @param membershipType Immediate, NonImmediate, etc
+   * @param fields if finding by fields, list here, otherwise all list fields will be returned
+   * @param sources if limiting memberships of members in certain sources, list here
+   * @param enabled null for all, true for enabled only, false for disabled only
+   * @param queryOptions for the query
+   * @return a set of members and member objects
+   */
+  public List<Member> findAllMembersByGroupOwnerOptions(String groupId, 
+      MembershipType membershipType,
+      Collection<Field> fields,  
+      Set<Source> sources, Boolean enabled, QueryOptions queryOptions);
+
+  /**
+   * find membershpis by group owner and other options.  
+   * @param groupId to limit memberships to
+   * @param memberIds memberids to get, or blank for all
+   * @param membershipType Immediate, NonImmediate, etc
+   * @param fields if finding by fields, list here, otherwise all list fields will be returned
+   * @param sources if limiting memberships of members in certain sources, list here
+   * @param enabled null for all, true for enabled only, false for disabled only
+   * @param queryOptions for the query
+   * @return a set of membership and member objects
+   */
+  public Set<Object[]> findAllByGroupOwnerOptions(String groupId, 
+      Collection<String> memberIds, MembershipType membershipType,
+      Collection<Field> fields,  
+      Set<Source> sources, Boolean enabled, QueryOptions queryOptions);
+
+  /**
+   * find memberships by group owner and other options.  
+   * @param groupId to limit memberships to
+   * @param membershipType Immediate, NonImmediate, etc
+   * @param fields if finding by fields, list here, otherwise all list fields will be returned
+   * @param sources if limiting memberships of members in certain sources, list here
+   * @param enabled null for all, true for enabled only, false for disabled only
+   * @param queryOptions for the query
+   * @return a set of membership and member objects
+   */
+  public Set<Object[]> findAllByGroupOwnerOptions(String groupId, 
+      MembershipType membershipType,
+      Collection<Field> fields,  
+      Set<Source> sources, Boolean enabled, QueryOptions queryOptions);
+
 } 
 

@@ -707,14 +707,13 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
     ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
     
     StringBuilder sql = new StringBuilder("select distinct m "
-        + "from Member m, MembershipEntry ms where " 
-        + "ms.ownerGroupId = :owner "
-        + "and ms.fieldId = :fieldId ");
-    
-    if (type != null) {
-      MembershipType membershipType = MembershipType.valueOfIgnoreCase(type, true);
-      sql.append("and ms.type  " + membershipType.queryClause());
-    }
+            + "from Member m, MembershipEntry ms where "
+            + "ms.ownerGroupId = :owner "
+            + "and ms.fieldId = :fieldId ");
+        if(type != null) {
+          MembershipType membershipType = MembershipType.valueOfIgnoreCase(type, true);
+            sql.append("and ms.type  " + membershipType.queryClause());
+        }
     
     if (memberSearchStringEnum != null) {
       if (!memberSearchStringEnum.hasAccess()) {
@@ -754,23 +753,23 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
       }
     }
     
-    sql.append(" and ms.memberUuid = m.uuid  ");
+        sql.append(" and ms.memberUuid = m.uuid  ");
     if (enabledOnly) {
       sql.append(" and ms.enabledDb = 'T'");
     }
-    
     if (sources != null && sources.size() > 0) {
       sql.append(" and m.subjectSourceIdDb in ").append(HibUtils.convertSourcesToSqlInString(sources));
     }
     
     return byHqlStatic
-        .createQuery(sql.toString())
-        .setCacheable(false)
+    .createQuery(sql.toString())
+    .setCacheable(false)
         .setCacheRegion(KLASS).options(queryOptions)
-        .setString("owner", ownerGroupId)
-        .setString("fieldId", f.getUuid())
-        .listSet(Member.class);
-  }
+    .setString("owner", ownerGroupId)
+    .setString( "fieldId", f.getUuid() )
+    .listSet(Member.class);
+
+  } 
   
   /**
    * @param ownerStemId 
@@ -2550,6 +2549,143 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
     List<Member> members = byHqlStatic
       .list(Member.class);
     return members;
+  }
+
+  /**
+   * generally you will order by m.subjectSourceIdDb, m.subjectIdDb, and page to the first 100
+   * @see edu.internet2.middleware.grouper.internal.dao.MembershipDAO#findAllMembersByGroupOwnerOptions(java.lang.String, edu.internet2.middleware.grouper.membership.MembershipType, java.util.Collection, java.util.Set, java.lang.Boolean, edu.internet2.middleware.grouper.internal.dao.QueryOptions)
+   */
+  public List<Member> findAllMembersByGroupOwnerOptions(String groupId,
+      MembershipType membershipType, Collection<Field> fields, Set<Source> sources,
+      Boolean enabled, QueryOptions queryOptions) {
+    
+    //first get the 
+    StringBuilder sql = new StringBuilder("select distinct m from MembershipEntry as ms, Member as m, Field as f where  "
+        + " ms.ownerGroupId   = :owner "
+        + " and  ms.memberUuid  = m.uuid   "
+        + " and  ms.fieldId  = f.uuid   "
+        + " and  f.typeString  = 'access'   "
+        );
+  
+    ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic()
+      .setCacheable(true)
+      .setCacheRegion(KLASS)
+      .setString("owner", groupId)
+      .options(queryOptions);
+  
+    HibUtils.convertFieldsToSqlInString(fields, byHqlStatic, sql, "ms.fieldId");
+    HibUtils.convertSourcesToSqlInString(sources, byHqlStatic, sql, "m.subjectSourceIdDb");
+    
+    if (membershipType != null) {
+      sql.append("and  ms.type ").append(membershipType.queryClause());
+    }
+    
+    if (enabled != null) {
+      sql.append(" and ms.enabledDb = '" + (enabled ? 'T' : 'F') + "'");
+    }
+    
+    byHqlStatic.createQuery(sql.toString());
+  
+    List<Member> members = byHqlStatic
+      .list(Member.class);
+    return members;
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.MembershipDAO#findAllByGroupOwnerOptions(java.lang.String, java.util.Collection, edu.internet2.middleware.grouper.membership.MembershipType, java.util.Collection, java.util.Set, java.lang.Boolean, edu.internet2.middleware.grouper.internal.dao.QueryOptions)
+   */
+  public Set<Object[]> findAllByGroupOwnerOptions(String groupId,
+      Collection<String> totalMemberIds, MembershipType membershipType,
+      Collection<Field> fields, Set<Source> sources, Boolean enabled,
+      QueryOptions queryOptions) {
+    
+    Set<Object[]> totalResults = new LinkedHashSet<Object[]>();
+  
+    int memberIdsSize = GrouperUtil.length(totalMemberIds);
+  
+    if (memberIdsSize == 0) {
+      throw new RuntimeException("Must pass in group(s), member(s), and/or membership(s)");
+    }
+    
+    int memberBatches = GrouperUtil.batchNumberOfBatches(totalMemberIds, 100);
+  
+    for (int memberIndex = 0; memberIndex < memberBatches; memberIndex++) {
+      
+      List<String> memberIds = GrouperUtil.batchList(totalMemberIds, 100, memberIndex);
+  
+      StringBuilder sql = new StringBuilder("select ms, m from MembershipEntry as ms, Member as m, Field as f where  "
+          + " ms.ownerGroupId   = :owner "
+          + " and  ms.memberUuid  = m.uuid   "
+          + " and  ms.fieldId  = f.uuid   "
+          + " and  f.typeString  = 'access'   "
+          );
+      
+      ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic()
+        .setCacheable(true)
+        .setCacheRegion(KLASS)
+        .setString("owner", groupId)
+        .options(queryOptions);
+  
+      HibUtils.convertFieldsToSqlInString(fields, byHqlStatic, sql, "ms.fieldId");
+      HibUtils.convertSourcesToSqlInString(sources, byHqlStatic, sql, "m.subjectSourceIdDb");
+      
+      if (membershipType != null) {
+        sql.append("and  ms.type ").append(membershipType.queryClause());
+      }
+      
+      if (enabled != null) {
+        sql.append(" and ms.enabledDb = '" + (enabled ? 'T' : 'F') + "'");
+      }
+      sql.append(" and ms.memberUuid in (");
+      sql.append(HibUtils.convertToInClause(memberIds, byHqlStatic));
+      sql.append(") ");
+      
+      byHqlStatic.createQuery(sql.toString());
+      Set<Object[]> mships = byHqlStatic.listSet(Object[].class);
+      
+      totalResults.addAll(mships);
+          
+    }
+    
+    return totalResults;
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.MembershipDAO#findAllByGroupOwnerOptions(java.lang.String, edu.internet2.middleware.grouper.membership.MembershipType, java.util.Collection, java.util.Set, java.lang.Boolean, edu.internet2.middleware.grouper.internal.dao.QueryOptions)
+   */
+  public Set<Object[]> findAllByGroupOwnerOptions(String groupId,
+      MembershipType membershipType, Collection<Field> fields, Set<Source> sources,
+      Boolean enabled, QueryOptions queryOptions) {
+    
+    //first get the 
+    StringBuilder sql = new StringBuilder("select ms, m from MembershipEntry as ms, Member as m, Field as f where  "
+        + " ms.ownerGroupId   = :owner "
+        + " and  ms.memberUuid  = m.uuid   "
+        + " and  ms.fieldId  = f.uuid   "
+        + " and  f.typeString  = 'access'   "
+        );
+  
+    ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic()
+      .setCacheable(true)
+      .setCacheRegion(KLASS)
+      .setString("owner", groupId)
+      .options(queryOptions);
+  
+    HibUtils.convertFieldsToSqlInString(fields, byHqlStatic, sql, "ms.fieldId");
+    HibUtils.convertSourcesToSqlInString(sources, byHqlStatic, sql, "m.subjectSourceIdDb");
+    
+    if (membershipType != null) {
+      sql.append("and  ms.type ").append(membershipType.queryClause());
+    }
+    
+    if (enabled != null) {
+      sql.append(" and ms.enabledDb = '" + (enabled ? 'T' : 'F') + "'");
+    }
+    byHqlStatic.createQuery(sql.toString());
+  
+    Set<Object[]> mships = byHqlStatic
+      .listSet(Object[].class);
+    return mships;
   }
 
 }

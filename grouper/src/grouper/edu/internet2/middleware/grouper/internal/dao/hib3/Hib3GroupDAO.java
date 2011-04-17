@@ -1998,5 +1998,107 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
     
   }
 
+  /**
+   * @see GroupDAO#
+   * @Override
+   */
+  public Set<Group> getAllGroupsSplitScopeSecure(String scope,
+      GrouperSession grouperSession, Subject subject, Set<Privilege> privileges,
+      QueryOptions queryOptions, TypeOfGroup typeOfGroup) {
+    return findAllGroupsSecureHelper(scope, grouperSession, subject, privileges, queryOptions, true, typeOfGroup);
+  }
+
+  /**
+   * 
+   * @param scope 
+   * @param grouperSession 
+   * @param subject 
+   * @param privileges 
+   * @param queryOptions 
+   * @param splitScope 
+   * @param typeOfGroup
+   * @return groups
+   * 
+   */
+  private Set<Group> findAllGroupsSecureHelper(String scope,
+      GrouperSession grouperSession, Subject subject, Set<Privilege> privileges,
+      QueryOptions queryOptions, boolean splitScope, TypeOfGroup typeOfGroup) {
+    if (queryOptions == null) {
+      queryOptions = new QueryOptions();
+    }
+    if (queryOptions.getQuerySort() == null) {
+      queryOptions.sortAsc("theGroup.displayNameDb");
+    }
+  
+    StringBuilder sql = new StringBuilder(
+        "select distinct theGroup from Group theGroup ");
+  
+    ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
+  
+    StringBuilder whereClause = new StringBuilder();
+    
+    if (typeOfGroup != null) {
+      if (whereClause.length() > 0) {
+        whereClause.append(" and ");
+      }
+      whereClause.append(" theGroup.typeOfGroupDb = :theTypeOfGroup ");
+      byHqlStatic.setString("theTypeOfGroup", typeOfGroup.name());
+
+    }
+    
+    //see if there is a scope
+    if (!StringUtils.isBlank(scope)) {
+      scope = scope.toLowerCase();
+
+      String[] scopes = splitScope ? GrouperUtil.splitTrim(scope, " ") : new String[]{scope};
+
+      if (whereClause.length() > 0) {
+        whereClause.append(" and ");
+      }
+      if (GrouperUtil.length(scopes) == 1) {
+        whereClause.append(" ( theGroup.id = :theGroupIdScope or ( ");
+        byHqlStatic.setString("theGroupIdScope", scope);
+      } else {
+        whereClause.append(" ( ( ");
+      }
+
+      int index = 0;
+      for (String theScope : scopes) {
+        if (index != 0) {
+          whereClause.append(" and ");
+        }
+        whereClause.append(" ( lower(theGroup.nameDb) like :scope" + index 
+            + " or lower(theGroup.displayNameDb) like :scope" + index 
+            + " or lower(theGroup.descriptionDb) like :scope" + index + " ) ");
+        if (splitScope) {
+          theScope = "%" + theScope + "%";
+        } else if (!theScope.endsWith("%")) {
+          theScope += "%";
+        }
+        byHqlStatic.setString("scope" + index, theScope);
+        index++;
+      }
+      whereClause.append(" ) ) ");
+    }
+
+    sql.append(" where ");
+    sql.append(whereClause);
+
+    //see if we are adding more to the query
+    grouperSession.getAccessResolver().hqlFilterGroupsWhereClause(subject, byHqlStatic,
+        sql, "theGroup.uuid", privileges);
+  
+    Set<Group> groups = byHqlStatic.createQuery(sql.toString())
+      .setCacheable(false)
+      .setCacheRegion(KLASS + ".GetAllGroupsSecure")
+      .options(queryOptions)
+      .listSet(Group.class);
+    
+    return groups;
+  
+  }
+
+  
+
 } 
 

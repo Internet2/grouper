@@ -20,11 +20,14 @@ import java.util.Set;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.exception.UnableToPerformException;
 import edu.internet2.middleware.grouper.hibernate.HqlQuery;
+import edu.internet2.middleware.grouper.internal.dao.QueryPaging;
+import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.subject.Subject;
 
 
@@ -266,5 +269,18 @@ public interface AccessResolver {
    * @param subject
    */
   public void revokeAllPrivilegesForSubject(Subject subject);
+
+  /**
+   * get a list of privilege subjects, there are no results with the same subject
+   * @param group to search on
+   * @param privileges if blank, get all
+   * @param membershipType if immediate, effective, or blank for all
+   * @param queryPaging if a certain page should be returned, based on subject
+   * @param additionalMembers additional members to query that the user is finding or adding
+   * @return the privilege subject combinations
+   */
+  public Set<PrivilegeSubjectContainer> retrievePrivileges(
+      Group group, Set<Privilege> privileges, 
+      MembershipType membershipType, QueryPaging queryPaging, Set<Member> additionalMembers);
 }
 

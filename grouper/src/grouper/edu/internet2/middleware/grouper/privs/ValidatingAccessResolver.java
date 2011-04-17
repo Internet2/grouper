@@ -18,12 +18,15 @@ package edu.internet2.middleware.grouper.privs;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.exception.UnableToPerformException;
 import edu.internet2.middleware.grouper.hibernate.HqlQuery;
+import edu.internet2.middleware.grouper.internal.dao.QueryPaging;
 import edu.internet2.middleware.grouper.internal.util.ParameterHelper;
+import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.subject.Subject;
 
 /**
@@ -242,6 +245,21 @@ public class ValidatingAccessResolver extends AccessResolverDecorator {
   public void revokeAllPrivilegesForSubject(Subject subject) {
     this.param.notNullSubject(subject);
     super.getDecoratedResolver().revokeAllPrivilegesForSubject(subject);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.privs.AccessResolverDecorator#retrievePrivileges(Group, java.util.Set, edu.internet2.middleware.grouper.membership.MembershipType, edu.internet2.middleware.grouper.internal.dao.QueryPaging, java.util.Set)
+   */
+  @Override
+  public Set<PrivilegeSubjectContainer> retrievePrivileges(Group group,
+      Set<Privilege> privileges, MembershipType membershipType, QueryPaging queryPaging,
+      Set<Member> additionalMembers) {
+    
+    this.param.notNullGroup(group);
+
+    return super.retrievePrivileges(group, privileges, membershipType, queryPaging,
+        additionalMembers);
+
   }
 
 }
