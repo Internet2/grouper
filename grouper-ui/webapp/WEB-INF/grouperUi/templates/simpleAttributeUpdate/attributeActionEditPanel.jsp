@@ -93,7 +93,9 @@
             
             <a href="#" onclick="if (confirm('${attributeUpdateRequestContainer.text.deleteActionImpliesConfirm}')) {ajax('SimpleAttributeUpdate.deleteActionImplies?attributeDefToEditId=${attributeUpdateRequestContainer.attributeDefToEdit.id}&action=${attributeUpdateRequestContainer.action}&actionImplies=${actionThatImpliesImmediate}');} return false;" 
 	            ><img src="../../grouperExternal/public/assets/images/page_cross.gif" height="14px" border="0" 
-	            alt="${attributeUpdateRequestContainer.text.deleteActionImpliesImageAlt }"/></a>
+	            alt="${attributeUpdateRequestContainer.text.deleteActionImpliesImageAlt }"
+              onmouseover="Tip('${grouper:escapeJavascript(attributeUpdateRequestContainer.text.deleteActionImpliesImageAlt)}')" 
+              onmouseout="UnTip()"/></a>
             
             ${actionThatImpliesImmediate}
             
@@ -124,7 +126,9 @@
             
             <a href="#" onclick="if (confirm('${attributeUpdateRequestContainer.text.deleteActionImpliedByConfirm}')) {ajax('SimpleAttributeUpdate.deleteActionImpliedBy?attributeDefToEditId=${attributeUpdateRequestContainer.attributeDefToEdit.id}&action=${attributeUpdateRequestContainer.action}&actionImpliedBy=${actionThatImpiedByImmediate}');} return false;" 
               ><img src="../../grouperExternal/public/assets/images/page_cross.gif" height="14px" border="0" 
-              alt="${attributeUpdateRequestContainer.text.deleteActionImpliedByImageAlt }"/></a>
+              alt="${attributeUpdateRequestContainer.text.deleteActionImpliedByImageAlt }"
+              onmouseover="Tip('${grouper:escapeJavascript(attributeUpdateRequestContainer.text.deleteActionImpliedByImageAlt)}')" 
+              onmouseout="UnTip()"/></a>
             
             ${actionThatImpiedByImmediate}
             

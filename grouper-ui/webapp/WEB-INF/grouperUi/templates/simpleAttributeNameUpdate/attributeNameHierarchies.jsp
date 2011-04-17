@@ -83,11 +83,13 @@
           </grouper:message>
         </td>
         <td class="formTableRight" style="white-space: nowrap;">
-          <c:forEach items="${attributeNameUpdateRequestContainer.attributeDefNamesThatImplyThis}" var="attributeNameThatImpliesImmediate">
+          <c:forEach items="${attributeNameUpdateRequestContainer.attributeDefNamesThatImplyThisImmediate}" var="attributeNameThatImpliesImmediate">
             
             <a href="#" onclick="if (confirm('${grouper:message('simpleAttributeNameUpdate.deleteAttributeNameImpliesConfirm', true, true)}')) {ajax('SimpleAttributeNameUpdate.deleteAttributeNameImplies?attributeDefNameToEditId=${attributeNameUpdateRequestContainer.attributeDefNameToEdit.id}&attributeDefNameIdForHierarchy=${attributeNameThatImpliesImmediate.id}');} return false;" 
 	            ><img src="../../grouperExternal/public/assets/images/page_cross.gif" height="14px" border="0" 
-	            alt="${grouper:message('simpleAttributeNameUpdate.deleteAttributeNameImpliesImageAlt', true, false)}"/></a>
+	            alt="${grouper:message('simpleAttributeNameUpdate.deleteAttributeNameImpliesImageAlt', true, false)}"
+              onmouseover="Tip('${grouper:escapeJavascript(navMap['simpleAttributeNameUpdate.deleteAttributeNameImpliesImageAlt'])}')" 
+              onmouseout="UnTip()"/></a>
             
             ${attributeNameThatImpliesImmediate.displayName}
             
@@ -114,11 +116,13 @@
           </grouper:message>
         </td>
         <td class="formTableRight" style="white-space: nowrap;">
-          <c:forEach items="${attributeNameUpdateRequestContainer.attributeDefNamesImpliedByThis}" var="attributeNameImpliedByImmediate">
+          <c:forEach items="${attributeNameUpdateRequestContainer.attributeDefNamesImpliedByThisImmediate}" var="attributeNameImpliedByImmediate">
             
             <a href="#" onclick="if (confirm('${grouper:message('simpleAttributeNameUpdate.deleteAttributeNameImpliedByConfirm', true, true)}')) {ajax('SimpleAttributeNameUpdate.deleteAttributeNameImpliedBy?attributeDefNameToEditId=${attributeNameUpdateRequestContainer.attributeDefNameToEdit.id}&attributeDefNameIdForHierarchy=${attributeNameImpliedByImmediate.id}');} return false;" 
               ><img src="../../grouperExternal/public/assets/images/page_cross.gif" height="14px" border="0" 
-              alt="${grouper:message('simpleAttributeNameUpdate.deleteAttributeNameImpliedByImageAlt', true, false)}"/></a>
+              alt="${grouper:message('simpleAttributeNameUpdate.deleteAttributeNameImpliedByImageAlt', true, false)}"
+              onmouseover="Tip('${grouper:escapeJavascript(navMap['simpleAttributeNameUpdate.deleteAttributeNameImpliedByImageAlt'])}')" 
+              onmouseout="UnTip()"/></a>
             
             ${attributeNameImpliedByImmediate.displayName}
             
