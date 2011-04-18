@@ -16,6 +16,7 @@ import edu.internet2.middleware.grouper.attr.AttributeDefScope;
 import edu.internet2.middleware.grouper.attr.AttributeDefScopeType;
 import edu.internet2.middleware.grouper.attr.AttributeDefType;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
+import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.exception.AttributeOwnerNotInScopeException;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
@@ -345,13 +346,40 @@ public abstract class AttributeAssignBaseDelegate {
     return removeAttribute(null, attributeDefName);
   }
 
+  /** keep a cache of attribute assigns, expire after 2 minutes */
+  private GrouperCache<Boolean, Set<AttributeAssign>> allAttributeAssignsCache = null;
+  
+  
+  
+  
+  /**
+   * return the cache of all attribute assigns, might be null if not caching
+   * @return the allAttributeAssignsCache
+   */
+  protected Set<AttributeAssign> getAllAttributeAssignsForCache() {
+    return this.allAttributeAssignsCache == null ? null : this.allAttributeAssignsCache.get(Boolean.TRUE);
+  }
+
+  
+  /**
+   * @param allAttributeAssignsForCache the Set of attributes to put in cache
+   */
+  protected void setAllAttributeAssignsForCache(
+      Set<AttributeAssign> allAttributeAssignsForCache) {
+    if (this.allAttributeAssignsCache == null) {
+      this.allAttributeAssignsCache = new GrouperCache(
+          AttributeAssignBaseDelegate.class.getSimpleName() + ".allAttributeAssignsCache");
+    }
+    this.allAttributeAssignsCache.put(Boolean.TRUE, allAttributeAssignsForCache);
+  }
+
   /**
    * get attribute assigns by owner and attribute def name id
    * @param attributeDefNameId
    * @return set of assigns or empty if none there
    */
-  abstract Set<AttributeAssign> retrieveAttributeAssignsByOwnerAndAttributeDefNameId(String attributeDefNameId);
-  
+  abstract Set<AttributeAssign> retrieveAttributeAssignsByOwnerAndAttributeDefNameId(
+      String attributeDefNameId);
   
   /**
    * get attribute assigns by owner and attribute def id
