@@ -11,16 +11,17 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
-import net.sf.json.JSONObject;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
 import edu.internet2.middleware.grouper.ui.util.HttpContentType;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * container object for the response back to screen
  * @author mchyzer
  *
  */
+@SuppressWarnings("serial")
 public class GuiResponseJs implements Serializable {
 
   /**
@@ -35,8 +36,7 @@ public class GuiResponseJs implements Serializable {
       result.append("<textarea>");
     }
     //take the object to print (bean) and print it
-    JSONObject jsonObject = net.sf.json.JSONObject.fromObject( this );  
-    String json = jsonObject.toString();
+    String json = GrouperUtil.jsonConvertToNoWrap(this);
     result.append(json);
     if (this.isAddTextAreaTag()) {
       result.append("</textarea>");

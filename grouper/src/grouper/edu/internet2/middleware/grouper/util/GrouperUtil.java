@@ -1362,8 +1362,6 @@ public class GrouperUtil {
       return string;
     }
     throw new RuntimeException("Cant find type of string: " + string);
-    
-    
   }
   
   /**
@@ -1384,7 +1382,14 @@ public class GrouperUtil {
     JsonConfig jsonConfig = new JsonConfig();  
     jsonConfig.setJsonPropertyFilter( new PropertyFilter(){  
        public boolean apply( Object source, String name, Object value ) {  
-          return value == null; 
+         //json-lib cannot handle maps where the key is not a string
+         if( value != null && value instanceof Map ){
+           Map map = (Map)value;
+           if (map.size() > 0 && !(map.keySet().iterator().next() instanceof String)) {
+             return true;
+           }
+         }  
+         return value == null; 
        }  
     });  
     JSONObject jsonObject = JSONObject.fromObject( object, jsonConfig );  
@@ -1405,7 +1410,14 @@ public class GrouperUtil {
 	    JsonConfig jsonConfig = new JsonConfig();  
 	    jsonConfig.setJsonPropertyFilter( new PropertyFilter(){  
 	       public boolean apply( Object source, String name, Object value ) {  
-	          return value == null; 
+	         //json-lib cannot handle maps where the key is not a string
+	         if( value != null && value instanceof Map ){
+	           Map map = (Map)value;
+	           if (map.size() > 0 && !(map.keySet().iterator().next() instanceof String)) {
+	             return true;
+	           }
+	         }  
+           return value == null; 
 	       }  
 	    });  
 	    JSONObject jsonObject = JSONObject.fromObject( object, jsonConfig );  

@@ -14,21 +14,26 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
-import junit.framework.TestCase;
 import junit.textui.TestRunner;
+import net.sf.json.JSONObject;
+import net.sf.json.JsonConfig;
+import net.sf.json.util.PropertyFilter;
 
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.AttributeNotFoundException;
+import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SessionHelper;
+import edu.internet2.middleware.subject.Source;
+import edu.internet2.middleware.subject.provider.SourceManager;
 
 
 /**
  *
  */
-public class GrouperUtilTest extends TestCase {
+public class GrouperUtilTest extends GrouperTest {
   
   /**
    * 
@@ -36,7 +41,7 @@ public class GrouperUtilTest extends TestCase {
    * @throws Exception
    */
   public static void main(String[] args) throws Exception {
-    TestRunner.run(new GrouperUtilTest("testMail"));
+    TestRunner.run(new GrouperUtilTest("testConvertJson"));
     //TestRunner.run(TestGroup0.class);
     //runPerfProblem();
   }
@@ -602,6 +607,34 @@ public class GrouperUtilTest extends TestCase {
     String indented = GrouperUtil.indent(json, true);
     String expected = "{\n  \"a\":{\n    \"b\\\"b\":{\n      \"c\\\\\":\"d\"\n    },\n    \"e\":\"f\",\n    \"g\":[\n      \"h\":\"i\"\n    ]\n  }\n}";
     assertEquals("\n\nExpected:\n" + expected + "\n\nresult:\n" + indented + "\n\n", expected, indented);
+  }
+  
+  private static JsonConfig jsonConfig = new JsonConfig();  
+  
+  static {
+  
+    jsonConfig.setJsonPropertyFilter( new PropertyFilter() {
+      
+      public boolean apply(Object source, String name, Object value) {
+        if( value != null && value instanceof Map ){
+          Map map = (Map)value;
+          if (map.size() > 0 && !(map.keySet().iterator().next() instanceof String)) {
+            return true;
+          }
+        }  
+        return false;
+      }
+    });
+  }
+  
+  /**
+   * 
+   */
+  public void testConvertJson() {
+    Source isa = SourceManager.getInstance().getSource("g:isa");
+    JSONObject jsonObject = net.sf.json.JSONObject.fromObject(isa, jsonConfig);  
+    String json = jsonObject.toString();
+    System.out.println(json);
   }
   
   /**
