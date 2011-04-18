@@ -38,6 +38,10 @@ public class ExternalSubjectAutoSourceAdapter extends GrouperJdbcSourceAdapter2 
           newInstance.addInitParam("nameCol", "name");
           newInstance.addInitParam("descriptionCol", "description");
           newInstance.addInitParam("lowerSearchCol", "search_string_lower");
+
+          newInstance.addInitParam("sortAttribute0", "description");
+          newInstance.addInitParam("searchAttribute0", "search_string_lower");
+
           newInstance.addInitParam("subjectIdentifierCol0", "identifier");
           
           ExternalSubjectConfigBean externalSubjectConfigBean = ExternalSubjectConfig.externalSubjectConfigBean();
