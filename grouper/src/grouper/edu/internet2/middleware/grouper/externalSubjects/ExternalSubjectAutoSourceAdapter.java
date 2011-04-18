@@ -39,9 +39,6 @@ public class ExternalSubjectAutoSourceAdapter extends GrouperJdbcSourceAdapter2 
           newInstance.addInitParam("descriptionCol", "description");
           newInstance.addInitParam("lowerSearchCol", "search_string_lower");
 
-          newInstance.addInitParam("sortAttribute0", "description");
-          newInstance.addInitParam("searchAttribute0", "search_string_lower");
-
           newInstance.addInitParam("subjectIdentifierCol0", "identifier");
           
           ExternalSubjectConfigBean externalSubjectConfigBean = ExternalSubjectConfig.externalSubjectConfigBean();
@@ -63,23 +60,36 @@ public class ExternalSubjectAutoSourceAdapter extends GrouperJdbcSourceAdapter2 
 
             index++;
           }
-
-          for (int i = 0; i < externalSubjectConfigBean.getSortAttributeEl().size(); i++) {
-            if (!GrouperUtil.isEmpty(externalSubjectConfigBean.getSortAttributeEl().get(i))) {
-              newInstance.addInitParam("subjectVirtualAttribute_" + i + "_sortAttribute" + i, externalSubjectConfigBean.getSortAttributeEl().get(i));
-              newInstance.addInternalAttribute("sortAttribute" + i);
-              newInstance.addInitParam("sortAttribute" + i, "sortAttribute" + i);
+          {
+            boolean foundSortAttribute = false;
+            for (int i = 0; i < externalSubjectConfigBean.getSortAttributeEl().size(); i++) {
+              if (!GrouperUtil.isEmpty(externalSubjectConfigBean.getSortAttributeEl().get(i))) {
+                newInstance.addInitParam("subjectVirtualAttribute_" + i + "_sortAttribute" + i, externalSubjectConfigBean.getSortAttributeEl().get(i));
+                newInstance.addInternalAttribute("sortAttribute" + i);
+                newInstance.addInitParam("sortAttribute" + i, "sortAttribute" + i);
+                foundSortAttribute = true;
+              }
+            }
+            
+            if (!foundSortAttribute) {
+              newInstance.addInitParam("sortAttribute0", "description");
             }
           }
           
-          for (int i = 0; i < externalSubjectConfigBean.getSearchAttributeEl().size(); i++) {
-            if (!GrouperUtil.isEmpty(externalSubjectConfigBean.getSearchAttributeEl().get(i))) {
-              newInstance.addInitParam("subjectVirtualAttribute_" + i + "_searchAttribute" + i, externalSubjectConfigBean.getSearchAttributeEl().get(i));
-              newInstance.addInternalAttribute("searchAttribute" + i);
-              newInstance.addInitParam("searchAttribute" + i, "searchAttribute" + i);
+          {
+            boolean foundSearchAttribute = false;
+            for (int i = 0; i < externalSubjectConfigBean.getSearchAttributeEl().size(); i++) {
+              if (!GrouperUtil.isEmpty(externalSubjectConfigBean.getSearchAttributeEl().get(i))) {
+                newInstance.addInitParam("subjectVirtualAttribute_" + i + "_searchAttribute" + i, externalSubjectConfigBean.getSearchAttributeEl().get(i));
+                newInstance.addInternalAttribute("searchAttribute" + i);
+                newInstance.addInitParam("searchAttribute" + i, "searchAttribute" + i);
+                foundSearchAttribute = true;
+              }
             }
-          }
-          
+            if (!foundSearchAttribute) {
+              newInstance.addInitParam("searchAttribute0", "search_string_lower");
+            }
+          }          
           instance = newInstance;
           
         }

@@ -177,5 +177,12 @@
           timeToLiveSeconds="120"
           overflowToDisk="false"
   />
+  <cache  name="AttributeAssignBaseDelegate.allAttributeAssignsCache"
+          maxElementsInMemory="1000"
+          eternal="false"
+          timeToIdleSeconds="1200"
+          timeToLiveSeconds="1200"
+          overflowToDisk="false"
+  />
 
 </ehcache>
