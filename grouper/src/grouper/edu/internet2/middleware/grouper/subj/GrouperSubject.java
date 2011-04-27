@@ -30,9 +30,7 @@ import edu.internet2.middleware.grouper.Attribute;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSourceAdapter;
 import edu.internet2.middleware.grouper.SubjectFinder;
-import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.misc.E;
-import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.SourceUnavailableException;
 import edu.internet2.middleware.subject.Subject;
@@ -209,6 +207,9 @@ public class GrouperSubject extends SubjectImpl {
   public boolean isLoadedModifyCreateSubjects() {
     return this.loadedModifyCreateSubjects;
   }
+  
+  /** keep a reference to the group */
+  private Group group;
 
   /**
    * @param g
@@ -219,6 +220,8 @@ public class GrouperSubject extends SubjectImpl {
     
     super(g.getUuid(), g.getName(), null, SubjectTypeEnum.GROUP.getName(), 
         SubjectFinder.internal_getGSA().getId(), null);
+    
+    this.group = g;
     
     /** attributes (refresh if not found) */
     GrouperSubjectAttributeMap<String, Set<String>> attrs 
@@ -258,19 +261,11 @@ public class GrouperSubject extends SubjectImpl {
     if (this.loadedModifyCreateSubjects) {
       return;
     }
-    Group g = null;
-    try {
-      g = GrouperDAOFactory.getFactory().getGroup().findByUuid( this.getId(), true ) ;
-    } catch (GroupNotFoundException eGNF) {
-      LOG.error("unable to retrieve group attributes: " + this.getId() + ", " 
-          + this.getName() + ", " + eGNF.getMessage() );
-      return;
-    }
-
+    
     try {
       // Don't bother with any of the create* attrs unless we can find
       // the creating subject
-      Subject creator = g.getCreateSubject();
+      Subject creator = group.getCreateSubject();
       ((GrouperSubjectAttributeMap)this.getAttributes(false)).put( "createSubjectId",   GrouperUtil.toSet(creator.getId()), false);
       ((GrouperSubjectAttributeMap)this.getAttributes(false)).put( "createSubjectType", GrouperUtil.toSet(creator.getType().getName()), false);
     }
@@ -280,7 +275,7 @@ public class GrouperSubject extends SubjectImpl {
     try {
       // Don't bother with any of the modify* attrs unless we can find
       // the modifying subject
-      Subject modifier = g.getModifySubject();
+      Subject modifier = group.getModifySubject();
       ((GrouperSubjectAttributeMap)this.getAttributes(false)).put( "modifySubjectId",   
           GrouperUtil.toSet(modifier.getId()), false);
       ((GrouperSubjectAttributeMap)this.getAttributes(false)).put( "modifySubjectType", 
@@ -301,16 +296,9 @@ public class GrouperSubject extends SubjectImpl {
       return;
     }
 
-    Group g = null;
     Map.Entry<String,Attribute> kv;
-    try {
-      g = GrouperDAOFactory.getFactory().getGroup().findByUuid( this.getId(), true ) ;
-    } catch (GroupNotFoundException eGNF) {
-      LOG.error("unable to retrieve group attributes: " + this.getId() + ", " 
-          + this.getName() + ", " + eGNF.getMessage() );
-      return;
-    }
-    Iterator<Map.Entry<String, Attribute>>  it  = g.getAttributesMap(true).entrySet().iterator();
+
+    Iterator<Map.Entry<String, Attribute>>  it  = group.getAttributesMap(true).entrySet().iterator();
     int count=0;
     while (it.hasNext()) {
       kv = it.next();
