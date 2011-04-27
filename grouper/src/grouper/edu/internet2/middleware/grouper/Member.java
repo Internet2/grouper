@@ -3717,11 +3717,11 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
       }
     }
         
-    this.sortString0 = GrouperUtil.isEmpty(this.sortString0) ? null : GrouperUtil.truncateAscii(this.sortString0, 2048);
-    this.sortString1 = GrouperUtil.isEmpty(this.sortString1) ? null : GrouperUtil.truncateAscii(this.sortString1, 2048);
-    this.sortString2 = GrouperUtil.isEmpty(this.sortString2) ? null : GrouperUtil.truncateAscii(this.sortString2, 2048);
-    this.sortString3 = GrouperUtil.isEmpty(this.sortString3) ? null : GrouperUtil.truncateAscii(this.sortString3, 2048);
-    this.sortString4 = GrouperUtil.isEmpty(this.sortString4) ? null : GrouperUtil.truncateAscii(this.sortString4, 2048);
+    this.sortString0 = GrouperUtil.isEmpty(this.sortString0) ? null : GrouperUtil.truncateAscii(this.sortString0, 50);
+    this.sortString1 = GrouperUtil.isEmpty(this.sortString1) ? null : GrouperUtil.truncateAscii(this.sortString1, 50);
+    this.sortString2 = GrouperUtil.isEmpty(this.sortString2) ? null : GrouperUtil.truncateAscii(this.sortString2, 50);
+    this.sortString3 = GrouperUtil.isEmpty(this.sortString3) ? null : GrouperUtil.truncateAscii(this.sortString3, 50);
+    this.sortString4 = GrouperUtil.isEmpty(this.sortString4) ? null : GrouperUtil.truncateAscii(this.sortString4, 50);
     
     this.searchString0 = GrouperUtil.isEmpty(this.searchString0) ? null : GrouperUtil.truncateAscii(this.searchString0.toLowerCase(), 2048);
     this.searchString1 = GrouperUtil.isEmpty(this.searchString1) ? null : GrouperUtil.truncateAscii(this.searchString1.toLowerCase(), 2048);

@@ -341,7 +341,7 @@ where
      </init-param>
      <init-param>
        <param-name>sortAttribute0</param-name>
-       <param-value>PENNNAME</param-value>
+       <param-value>description</param-value>
      </init-param>
      <init-param>
        <param-name>searchAttribute0</param-name>
