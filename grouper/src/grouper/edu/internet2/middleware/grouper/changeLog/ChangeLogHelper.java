@@ -166,7 +166,7 @@ public class ChangeLogHelper {
       }
       
       if (error) {
-        hib3GrouploaderLog.setStatus(GrouperLoaderStatus.CONFIG_ERROR.name());
+        hib3GrouploaderLog.setStatus(GrouperLoaderStatus.ERROR.name());
         break;
       }
       
