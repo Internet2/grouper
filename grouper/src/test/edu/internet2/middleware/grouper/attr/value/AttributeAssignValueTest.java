@@ -1489,9 +1489,9 @@ public class AttributeAssignValueTest extends GrouperTest {
   }
 
   /**
-   * 
+   * pre populate members attributes
    */
-  public void testValueStringOneQuery() {
+  public void testMarkersOneQuery() {
     AttributeDefName attributeDefName = AttributeDefNameTest.exampleAttributeDefNameDb("test", "testAttributeAssignValueDefName");
     AttributeDefName attributeDefName2 = AttributeDefNameTest.exampleAttributeDefNameDb("test", "testAttributeAssignValueDefName2");
     AttributeDefName attributeDefName3 = AttributeDefNameTest.exampleAttributeDefNameDb("test", "testAttributeAssignValueDefName3");
@@ -1511,20 +1511,6 @@ public class AttributeAssignValueTest extends GrouperTest {
     attributeDefName3.getAttributeDef().setMultiValued(true);
     attributeDefName3.getAttributeDef().store();
 
-    Group group = new GroupSave(GrouperSession.staticGrouperSession()).assignSaveMode(SaveMode.INSERT_OR_UPDATE)
-      .assignGroupNameToEdit("test:groupTestAttrValue").assignName("test:groupTestAttrValue").assignCreateParentStemsIfNotExist(true)
-      .assignDescription("description").save();
-
-    Group group1 = new GroupSave(GrouperSession.staticGrouperSession()).assignSaveMode(SaveMode.INSERT_OR_UPDATE)
-      .assignGroupNameToEdit("test:groupTestAttrValue2").assignName("test:groupTestAttrValue2").assignCreateParentStemsIfNotExist(true)
-      .assignDescription("description2").save();
-
-    group.addMember(SubjectTestHelper.SUBJ0);
-    group.addMember(SubjectTestHelper.SUBJ1);
-    group.addMember(SubjectTestHelper.SUBJ7);
-    group1.addMember(SubjectTestHelper.SUBJ2);
-    group1.addMember(SubjectTestHelper.SUBJ3);
-    
     Member member0 = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), SubjectTestHelper.SUBJ0, true);
     Member member1 = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), SubjectTestHelper.SUBJ1, true);
     Member member2 = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), SubjectTestHelper.SUBJ2, true);
@@ -1545,13 +1531,7 @@ public class AttributeAssignValueTest extends GrouperTest {
     member4.getAttributeValueDelegate().assignValueString(
         "test:testAttributeAssignValueDefName2", "d").getAttributeAssignValueResult().getAttributeAssignValue();
 
-    //lets get the members
-    Set<Member> members = group.getMembers();
-    
-    assertEquals(3, members.size());
-    assertTrue(members.contains(member0));
-    assertTrue(members.contains(member1));
-    assertTrue(members.contains(member7));
+    Set<Member> members = GrouperUtil.toSet(member0, member1, member2);
     
     //lets preload with attributes
     AttributeAssignMemberDelegate.populateAttributeAssignments(members);
@@ -1563,37 +1543,87 @@ public class AttributeAssignValueTest extends GrouperTest {
     AttributeAssignValue attributeAssignValue0find = member1.getAttributeValueDelegate().findValue("test:testAttributeAssignValueDefName", attributeAssignValue0);
     assertTrue(attributeAssignValue0.sameValue(attributeAssignValue0find));
     
-    assertEquals(1, group.getAttributeValueDelegate().retrieveValuesString("test:testAttributeAssignValueDefName").size());
-    group.getAttributeValueDelegate().addValueString("test:testAttributeAssignValueDefName", "a");
+    assertEquals(1, member1.getAttributeValueDelegate().retrieveValuesString("test:testAttributeAssignValueDefName").size());
+    member1.getAttributeValueDelegate().addValueString("test:testAttributeAssignValueDefName", "a");
     
-    assertEquals(2, group.getAttributeValueDelegate().retrieveValuesString("test:testAttributeAssignValueDefName").size());
+    assertEquals(2, member1.getAttributeValueDelegate().retrieveValuesString("test:testAttributeAssignValueDefName").size());
     
-    group.getAttributeValueDelegate().assignValueString("test:testAttributeAssignValueDefName", "a");
-    assertEquals(2, group.getAttributeValueDelegate().retrieveValuesString("test:testAttributeAssignValueDefName").size());
+    member1.getAttributeValueDelegate().assignValueString("test:testAttributeAssignValueDefName", "a");
+    assertEquals(2, member1.getAttributeValueDelegate().retrieveValuesString("test:testAttributeAssignValueDefName").size());
   
-    group.getAttributeValueDelegate().deleteValue("test:testAttributeAssignValueDefName", attributeAssignValue0find);
-    assertEquals(1, group.getAttributeValueDelegate().retrieveValuesString("test:testAttributeAssignValueDefName").size());
+  }
   
-    group.getAttributeValueDelegate().addValueString("test:testAttributeAssignValueDefName", "a");
-    group.getAttributeValueDelegate().deleteValueString("test:testAttributeAssignValueDefName", "a");
-    
-    assertEquals(0, group.getAttributeValueDelegate().retrieveValuesString("test:testAttributeAssignValueDefName").size());
-    
-    group.getAttributeValueDelegate().addValueString("test:testAttributeAssignValueDefName", "b");
-    group.getAttributeValueDelegate().addValueString("test:testAttributeAssignValueDefName", "c");
-    
-    group.getAttributeValueDelegate().assignValuesString("test:testAttributeAssignValueDefName", GrouperUtil.toSet("c", "d", "e"), true);
+  /**
+   * pre populate members attributes
+   */
+  public void testValuesOneQuery() {
+    AttributeDefName attributeDefName = AttributeDefNameTest.exampleAttributeDefNameDb("test", "testAttributeAssignValueDefName");
+    AttributeDefName attributeDefName2 = AttributeDefNameTest.exampleAttributeDefNameDb("test", "testAttributeAssignValueDefName2");
+    AttributeDefName attributeDefName3 = AttributeDefNameTest.exampleAttributeDefNameDb("test", "testAttributeAssignValueDefName3");
   
-    assertEquals(3, group.getAttributeValueDelegate().retrieveValuesString("test:testAttributeAssignValueDefName").size());
+    attributeDefName.getAttributeDef().setAssignToMember(true);
+    attributeDefName.getAttributeDef().setValueType(AttributeDefValueType.string);
+    attributeDefName.getAttributeDef().setMultiValued(true);
+    attributeDefName.getAttributeDef().store();
+
+    attributeDefName2.getAttributeDef().setAssignToMember(true);
+    attributeDefName2.getAttributeDef().setValueType(AttributeDefValueType.string);
+    attributeDefName2.getAttributeDef().setMultiValued(true);
+    attributeDefName2.getAttributeDef().store();
+
+    attributeDefName3.getAttributeDef().setAssignToMember(true);
+    attributeDefName3.getAttributeDef().setValueType(AttributeDefValueType.string);
+    attributeDefName3.getAttributeDef().setMultiValued(true);
+    attributeDefName3.getAttributeDef().store();
+
+    Member member0 = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), SubjectTestHelper.SUBJ0, true);
+    Member member1 = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), SubjectTestHelper.SUBJ1, true);
+    Member member2 = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), SubjectTestHelper.SUBJ2, true);
+    Member member3 = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), SubjectTestHelper.SUBJ3, true);
+    Member member4 = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), SubjectTestHelper.SUBJ4, true);
+    Member member7 = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), SubjectTestHelper.SUBJ7, true);
+    
+    //this is ok    
+    AttributeAssignValue attributeAssignValue0 = member1.getAttributeValueDelegate().assignValueString(
+        "test:testAttributeAssignValueDefName", "a").getAttributeAssignValueResult().getAttributeAssignValue();
+
+    //assign one with no value
+    member2.getAttributeDelegate().assignAttribute(attributeDefName3);
+
+    member3.getAttributeValueDelegate().assignValueString(
+        "test:testAttributeAssignValueDefName2", "c").getAttributeAssignValueResult().getAttributeAssignValue();
+
+    member4.getAttributeValueDelegate().assignValueString(
+        "test:testAttributeAssignValueDefName2", "d").getAttributeAssignValueResult().getAttributeAssignValue();
+
+    Set<Member> members = GrouperUtil.toSet(member0, member1, member2);
+    
+    //lets preload with attributes
+    AttributeAssignMemberDelegate.populateAttributeAssignments(members);
+
+    Set<AttributeAssign> attributeAssigns = member1.getAttributeDelegate().retrieveAssignments(attributeDefName);
+    assertEquals(1, attributeAssigns.size());
+
+    
+    AttributeAssignValue attributeAssignValue0find = member1.getAttributeValueDelegate().findValue("test:testAttributeAssignValueDefName", attributeAssignValue0);
+    assertTrue(attributeAssignValue0.sameValue(attributeAssignValue0find));
+    
+    assertEquals(1, member1.getAttributeValueDelegate().retrieveValuesString("test:testAttributeAssignValueDefName").size());
+    member1.getAttributeValueDelegate().addValueString("test:testAttributeAssignValueDefName", "a");
+    
+    assertEquals(2, member1.getAttributeValueDelegate().retrieveValuesString("test:testAttributeAssignValueDefName").size());
+    
+    member1.getAttributeValueDelegate().assignValueString("test:testAttributeAssignValueDefName", "a");
+    assertEquals(2, member1.getAttributeValueDelegate().retrieveValuesString("test:testAttributeAssignValueDefName").size());
   
-    group.getAttributeValueDelegate().addValuesString("test:testAttributeAssignValueDefName", GrouperUtil.toSet("e", "f"));
+    member1.getAttributeValueDelegate().deleteValue("test:testAttributeAssignValueDefName", attributeAssignValue0find);
+    assertEquals(1, member1.getAttributeValueDelegate().retrieveValuesString("test:testAttributeAssignValueDefName").size());
+  
+    member1.getAttributeValueDelegate().addValueString("test:testAttributeAssignValueDefName", "a");
+    member1.getAttributeValueDelegate().deleteValueString("test:testAttributeAssignValueDefName", "a");
     
-    assertEquals(5, group.getAttributeValueDelegate().retrieveValuesString("test:testAttributeAssignValueDefName").size());
+    assertEquals(0, member1.getAttributeValueDelegate().retrieveValuesString("test:testAttributeAssignValueDefName").size());
     
-    group.getAttributeValueDelegate().deleteValuesString("test:testAttributeAssignValueDefName", GrouperUtil.toSet("d", "e", "f"));
-    
-    assertEquals(1, group.getAttributeValueDelegate().retrieveValuesString("test:testAttributeAssignValueDefName").size());
-    assertEquals(new String("c"), group.getAttributeValueDelegate().retrieveValuesString("test:testAttributeAssignValueDefName").iterator().next());
   }
   
 }

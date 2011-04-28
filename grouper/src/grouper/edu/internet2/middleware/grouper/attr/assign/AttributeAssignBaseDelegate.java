@@ -349,15 +349,22 @@ public abstract class AttributeAssignBaseDelegate {
   /** keep a cache of attribute assigns, expire after 2 minutes */
   private GrouperCache<Boolean, Set<AttributeAssign>> allAttributeAssignsCache = null;
   
+  /** cache hits for testing */
+  public long allAttributeAssignsCacheHitsForTest = 0;
   
-  
+  /** cache misses for testing */
+  public long allAttributeAssignsCacheMissesForTest = 0;
   
   /**
    * return the cache of all attribute assigns, might be null if not caching
    * @return the allAttributeAssignsCache
    */
   protected Set<AttributeAssign> getAllAttributeAssignsForCache() {
-    return this.allAttributeAssignsCache == null ? null : this.allAttributeAssignsCache.get(Boolean.TRUE);
+    if (this.allAttributeAssignsCache == null) {
+      //TODO fix this, add hits/misses
+      //? null : this.allAttributeAssignsCache.get(Boolean.TRUE);
+    }
+    return null;
   }
 
   

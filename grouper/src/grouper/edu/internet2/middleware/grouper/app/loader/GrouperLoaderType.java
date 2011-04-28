@@ -57,6 +57,7 @@ import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogConsumer;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogConsumerBase;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogEntry;
+import edu.internet2.middleware.grouper.changeLog.ChangeLogHelper;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogProcessorMetadata;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogTempToEntity;
 import edu.internet2.middleware.grouper.client.GroupSyncDaemon;
@@ -822,98 +823,17 @@ public enum GrouperLoaderType {
             } else if (hib3GrouploaderLog.getJobName().startsWith(GROUPER_CHANGE_LOG_CONSUMER_PREFIX)) {
               
               String consumerName = hib3GrouploaderLog.getJobName().substring(GROUPER_CHANGE_LOG_CONSUMER_PREFIX.length());
-              ChangeLogConsumer changeLogConsumer = GrouperDAOFactory.getFactory().getChangeLogConsumer().findByName(consumerName, false);
-              boolean error = false;
-              
-              //if this is a new job
-              if (changeLogConsumer == null) {
-                changeLogConsumer = new ChangeLogConsumer();
-                changeLogConsumer.setName(consumerName);
-                GrouperDAOFactory.getFactory().getChangeLogConsumer().saveOrUpdate(changeLogConsumer);
-              }
-              
-              //if the sequence number is not set
-              if (changeLogConsumer.getLastSequenceProcessed() == null) {
-                changeLogConsumer.setLastSequenceProcessed(GrouperUtil.defaultIfNull(ChangeLogEntry.maxSequenceNumber(true), 0l));
-                GrouperDAOFactory.getFactory().getChangeLogConsumer().saveOrUpdate(changeLogConsumer);
-              }
               
               //ok, we have the sequence, and the job name, lets get the change log records after that sequence, and give them to the 
               //consumer
               String theClassName = GrouperLoaderConfig.getPropertyString("changeLog.consumer." + consumerName + ".class");
               Class<?> theClass = GrouperUtil.forName(theClassName);
               ChangeLogConsumerBase changeLogConsumerBase = (ChangeLogConsumerBase)GrouperUtil.newInstance(theClass);
-              
-              //lets only do 100k records at a time
-              for (int i=0;i<1000;i++) {
-                
-                ChangeLogProcessorMetadata changeLogProcessorMetadata = new ChangeLogProcessorMetadata();
-                changeLogProcessorMetadata.setHib3GrouperLoaderLog(hib3GrouploaderLog);
-                changeLogProcessorMetadata.setConsumerName(consumerName);
-                
-                //lets get 100 records
-                List<ChangeLogEntry> changeLogEntryList = GrouperDAOFactory.getFactory().getChangeLogEntry()
-                  .retrieveBatch(changeLogConsumer.getLastSequenceProcessed(), 100);
-                
-                if (changeLogEntryList.size() == 0) {
-                  break;
-                }
-                
-                //pass this to the consumer
-                long lastProcessed = -1;
-                try {
-                  lastProcessed = changeLogConsumerBase.processChangeLogEntries(changeLogEntryList, changeLogProcessorMetadata);
-                } catch (Exception e) {
-                  LOG.error("Error", e);
-                  hib3GrouploaderLog.appendJobMessage("Error: " 
-                      + ExceptionUtils.getFullStackTrace(e));
-                  error = true;
-                }
-                changeLogConsumer.setLastSequenceProcessed(lastProcessed);
-                GrouperDAOFactory.getFactory().getChangeLogConsumer().saveOrUpdate(changeLogConsumer);
-                
-                long lastSequenceInBatch = changeLogEntryList.get(changeLogEntryList.size()-1).getSequenceNumber();
 
-                
-                if (changeLogProcessorMetadata.isHadProblem()) {
-                  String errorString = "Error: " 
-                      + changeLogProcessorMetadata.getRecordProblemText()
-                      + ", sequenceNumber: " + changeLogProcessorMetadata.getRecordExceptionSequence()
-                      + ", " + ExceptionUtils.getFullStackTrace(changeLogProcessorMetadata.getRecordException());
-                  LOG.error(errorString);
-                  hib3GrouploaderLog.appendJobMessage(errorString);
-                  error = true;
-                }
-                if (lastProcessed != lastSequenceInBatch) {
-                  String errorString = "Did not get all the way through the batch! " + lastProcessed
-                      + " != " + lastSequenceInBatch;
-                  LOG.error(errorString);
-                  hib3GrouploaderLog.appendJobMessage(errorString);
-                  //didnt get all the way through
-                  error = true;
-                }
-                
-                if (error) {
-                  hib3GrouploaderLog.setStatus(GrouperLoaderStatus.CONFIG_ERROR.name());
-                  break;
-                }
-                
-                hib3GrouploaderLog.addTotalCount(changeLogEntryList.size());
-
-                if (changeLogEntryList.size() < 100) {
-                  break;
-                }
-                hib3GrouploaderLog.store();
-              }
-
-              if (!error) {
-
-                hib3GrouploaderLog.setStatus(GrouperLoaderStatus.SUCCESS.name());
-              }
+              ChangeLogHelper.processRecords(consumerName, hib3GrouploaderLog, changeLogConsumerBase);
             } else {
               throw new RuntimeException("Cant find implementation for job: " + hib3GrouploaderLog.getJobName());
             }
-            
           }
         }, 
         
