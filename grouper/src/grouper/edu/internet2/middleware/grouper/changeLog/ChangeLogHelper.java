@@ -27,7 +27,19 @@ public class ChangeLogHelper {
   private static final Log LOG = GrouperUtil.getLog(GrouperLoaderType.class);
 
   /**
+   * <pre>
+   * call this method to process a batch of 100k (max) records of the change log... 
+   * pass in a consumer name (nothing that people would use for a real change log consumer), that is used
+   * to keep track of the last processed record, the loader log which will log process in the grouper loader
+   * log table, and the processor which is the change log consumer base...
    * 
+   * to test this, do your changes, e.g. add a member, delete a member, then call this:
+   * 
+   * GrouperLoader.runOnceByJobName(grouperSession, GrouperLoaderType.GROUPER_CHANGE_LOG_TEMP_TO_CHANGE_LOG);
+   * 
+   * then call this method...
+   * 
+   * </pre>
    * @param consumerName name of configured consumer, or another name that is not configured (e.g. ldappcng)
    * @param hib3GrouploaderLog send an instance of this in so it can be logged to the DB...
    * @param changeLogConsumerBase is the instance that should handle the requests
