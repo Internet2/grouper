@@ -27,6 +27,59 @@ public class ChangeLogHelper {
   private static final Log LOG = GrouperUtil.getLog(GrouperLoaderType.class);
 
   /**
+   * this is an unused example of calling the processRecords method.  Note, you might not have an anonymous inner
+   * class there, you might just define a top level class which extends ChangeLogConsumerBase
+   */
+  @SuppressWarnings("unused")
+  private static void example() {
+    Hib3GrouperLoaderLog hib3GrouploaderLog = new Hib3GrouperLoaderLog();
+    hib3GrouploaderLog.setHost(GrouperUtil.hostname());
+    hib3GrouploaderLog.setJobName("myCustomJob");
+    hib3GrouploaderLog.setStatus(GrouperLoaderStatus.RUNNING.name());
+    hib3GrouploaderLog.store();
+    
+    try {
+      processRecords("myCustomJob", hib3GrouploaderLog, new ChangeLogConsumerBase() {
+        
+        @Override
+        public long processChangeLogEntries(List<ChangeLogEntry> changeLogEntryList,
+            ChangeLogProcessorMetadata changeLogProcessorMetadata) {
+          
+          long currentId = -1;
+
+          for (ChangeLogEntry changeLogEntry : changeLogEntryList) {
+            //try catch so we can track that we made some progress
+            try {
+              final ChangeLogType changeLogType = changeLogEntry.getChangeLogType();
+
+              currentId = changeLogEntry.getSequenceNumber();
+              
+              if (changeLogEntry.equalsCategoryAndAction(ChangeLogTypeBuiltin.MEMBERSHIP_ADD)) {
+                //do something
+              } else if (changeLogEntry.equalsCategoryAndAction(ChangeLogTypeBuiltin.MEMBER_DELETE)) {
+                //do something
+              }
+              
+            } catch (Exception e) {
+              //we unsuccessfully processed this record... decide whether to wait, throw, ignore, log, etc...
+              LOG.error("problem with id: " + currentId, e);
+              //continue
+            }
+          }
+
+          return currentId;
+        }
+      });
+      hib3GrouploaderLog.setStatus(GrouperLoaderStatus.SUCCESS.name());
+      
+    } catch (Exception e) {
+      LOG.error("Error processing records", e);
+      hib3GrouploaderLog.setStatus(GrouperLoaderStatus.ERROR.name());
+    }
+    hib3GrouploaderLog.store();
+  }
+  
+  /**
    * <pre>
    * call this method to process a batch of 100k (max) records of the change log... 
    * pass in a consumer name (nothing that people would use for a real change log consumer), that is used
@@ -37,7 +90,8 @@ public class ChangeLogHelper {
    * 
    * GrouperLoader.runOnceByJobName(grouperSession, GrouperLoaderType.GROUPER_CHANGE_LOG_TEMP_TO_CHANGE_LOG);
    * 
-   * then call this method...
+   * then call this method...  e.g. the static example() method in this class
+   * 
    * 
    * </pre>
    * @param consumerName name of configured consumer, or another name that is not configured (e.g. ldappcng)
