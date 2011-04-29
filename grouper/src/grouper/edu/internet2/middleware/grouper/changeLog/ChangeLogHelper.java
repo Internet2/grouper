@@ -9,10 +9,16 @@ import java.util.List;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 
+import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupSave;
+import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderStatus;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderType;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
@@ -27,11 +33,88 @@ public class ChangeLogHelper {
   private static final Log LOG = GrouperUtil.getLog(GrouperLoaderType.class);
 
   /**
+   * example change log helper
+   */
+  static class TestChangeLogHelper extends ChangeLogConsumerBase {
+
+    /**
+     * 
+     * @see edu.internet2.middleware.grouper.changeLog.ChangeLogConsumerBase#processChangeLogEntries(java.util.List, edu.internet2.middleware.grouper.changeLog.ChangeLogProcessorMetadata)
+     */
+    @Override
+    public long processChangeLogEntries(List<ChangeLogEntry> changeLogEntryList,
+        ChangeLogProcessorMetadata changeLogProcessorMetadata) {
+      
+      long currentId = -1;
+
+      for (ChangeLogEntry changeLogEntry : changeLogEntryList) {
+        //try catch so we can track that we made some progress
+        try {
+
+          currentId = changeLogEntry.getSequenceNumber();
+          
+          if (changeLogEntry.equalsCategoryAndAction(ChangeLogTypeBuiltin.MEMBERSHIP_ADD)) {
+
+            System.out.println("Member add, name: " 
+                + changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.groupName)
+                + ", " + changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.subjectId));
+
+          } else if (changeLogEntry.equalsCategoryAndAction(ChangeLogTypeBuiltin.MEMBERSHIP_DELETE)) {
+
+            System.out.println("Member delete, name: " 
+                + changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.groupName)
+                + ", " + changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.subjectId));
+
+          }
+          
+        } catch (Exception e) {
+          //we unsuccessfully processed this record... decide whether to wait, throw, ignore, log, etc...
+          LOG.error("problem with id: " + currentId, e);
+          //continue
+        }
+      }
+
+      return currentId;
+    }
+  };
+  
+  /**
+   * main
+   * @param args
+   */
+  public static void main(String args[]) {
+    example();
+  }
+  
+  /**
    * this is an unused example of calling the processRecords method.  Note, you might not have an anonymous inner
    * class there, you might just define a top level class which extends ChangeLogConsumerBase
    */
   @SuppressWarnings("unused")
   private static void example() {
+    
+    GrouperStartup.startup();
+    
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    
+    //lets start on latest change log for this example...  you probably shouldnt do this in real life...
+    {
+      ChangeLogConsumer changeLogConsumer = GrouperDAOFactory.getFactory().getChangeLogConsumer().findByName("myCustomJob", false);
+      if (changeLogConsumer == null) {
+        changeLogConsumer = new ChangeLogConsumer();
+        changeLogConsumer.setName("myCustomJob");
+        GrouperDAOFactory.getFactory().getChangeLogConsumer().saveOrUpdate(changeLogConsumer);
+      }
+      
+      changeLogConsumer.setLastSequenceProcessed(GrouperUtil.defaultIfNull(ChangeLogEntry.maxSequenceNumber(true), 0l));
+      GrouperDAOFactory.getFactory().getChangeLogConsumer().saveOrUpdate(changeLogConsumer);
+    }
+    
+    
+    Group group = new GroupSave(grouperSession).assignName("a:b").assignCreateParentStemsIfNotExist(true).save();
+    
+    TestChangeLogHelper testChangeLogHelper = new TestChangeLogHelper();
+    
     Hib3GrouperLoaderLog hib3GrouploaderLog = new Hib3GrouperLoaderLog();
     hib3GrouploaderLog.setHost(GrouperUtil.hostname());
     hib3GrouploaderLog.setJobName("myCustomJob");
@@ -39,37 +122,21 @@ public class ChangeLogHelper {
     hib3GrouploaderLog.store();
     
     try {
-      processRecords("myCustomJob", hib3GrouploaderLog, new ChangeLogConsumerBase() {
-        
-        @Override
-        public long processChangeLogEntries(List<ChangeLogEntry> changeLogEntryList,
-            ChangeLogProcessorMetadata changeLogProcessorMetadata) {
-          
-          long currentId = -1;
 
-          for (ChangeLogEntry changeLogEntry : changeLogEntryList) {
-            //try catch so we can track that we made some progress
-            try {
-              final ChangeLogType changeLogType = changeLogEntry.getChangeLogType();
+      group.addMember(SubjectFinder.findRootSubject(), false);
+      
+      GrouperLoader.runOnceByJobName(grouperSession, GrouperLoaderType.GROUPER_CHANGE_LOG_TEMP_TO_CHANGE_LOG);
+      processRecords("myCustomJob", hib3GrouploaderLog, testChangeLogHelper);
+      
+      group.addMember(SubjectFinder.findRootSubject(), false);
+      group.addMember(SubjectFinder.findAllSubject(), false);
+      group.deleteMember(SubjectFinder.findAllSubject());
+      group.deleteMember(SubjectFinder.findRootSubject());
 
-              currentId = changeLogEntry.getSequenceNumber();
-              
-              if (changeLogEntry.equalsCategoryAndAction(ChangeLogTypeBuiltin.MEMBERSHIP_ADD)) {
-                //do something
-              } else if (changeLogEntry.equalsCategoryAndAction(ChangeLogTypeBuiltin.MEMBER_DELETE)) {
-                //do something
-              }
-              
-            } catch (Exception e) {
-              //we unsuccessfully processed this record... decide whether to wait, throw, ignore, log, etc...
-              LOG.error("problem with id: " + currentId, e);
-              //continue
-            }
-          }
+      GrouperLoader.runOnceByJobName(grouperSession, GrouperLoaderType.GROUPER_CHANGE_LOG_TEMP_TO_CHANGE_LOG);
+      
+      processRecords("myCustomJob", hib3GrouploaderLog, testChangeLogHelper);
 
-          return currentId;
-        }
-      });
       hib3GrouploaderLog.setStatus(GrouperLoaderStatus.SUCCESS.name());
       
     } catch (Exception e) {
