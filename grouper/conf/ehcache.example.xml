@@ -457,7 +457,7 @@
           overflowToDisk="false"
   />
 
-  <cache  name="edu.internet2.middleware.grouper.internal.dao.hib3.Hib3ChangeLogEntryDAO.FindById"
+  <cache  name="edu.internet2.middleware.grouper.internal.dao.hib3.Hib3ChangeLogEntryDAO.FindBySequenceNumber"
           maxElementsInMemory="1000"
           eternal="false"
           timeToIdleSeconds="5"
