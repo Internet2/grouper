@@ -98,5 +98,23 @@ public class Hib3ChangeLogEntryDAO extends Hib3DAO implements ChangeLogEntryDAO 
     return changeLogEntryList;
   }
 
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.ChangeLogEntryDAO#findById(java.lang.String, boolean)
+   */
+  public ChangeLogEntry findById(String id, boolean exceptionIfNotFound) {
+    ChangeLogEntry changeLogEntry = HibernateSession.byHqlStatic()
+      .setCacheable(true)
+      .setCacheRegion(KLASS + ".FindById")
+      .createQuery(
+        "from ChangeLogEntryEntity where id = :theId")
+      .setString("theId", id).uniqueResult(ChangeLogEntry.class);
+  
+    if (changeLogEntry == null && exceptionIfNotFound) {
+      throw new RuntimeException("Cant find changeLogEntry by id: " + id);
+    }
+    
+    return changeLogEntry;
+  }
+
 } 
 
