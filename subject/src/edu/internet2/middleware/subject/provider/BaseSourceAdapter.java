@@ -157,9 +157,9 @@ public abstract class BaseSourceAdapter implements Source {
   /** internal attributes. */
   protected Set<String> internalAttributes = new HashSet<String>();
   
-  private Map<Integer, String> sortAttributes = null;
+  protected Map<Integer, String> sortAttributes = null;
   
-  private Map<Integer, String> searchAttributes = null;
+  protected Map<Integer, String> searchAttributes = null;
   /**
    * Default constructor.
    */
@@ -325,6 +325,13 @@ public abstract class BaseSourceAdapter implements Source {
   public void addInitParam(String name1, String value) {
     this.params.setProperty(name1, value);
   }
+  
+  /**
+   * @param name1
+   */
+  public void removeInitParam(String name1) {
+    this.params.remove(name1);
+  }
 
   /**
    * (non-javadoc)
@@ -406,6 +413,20 @@ public abstract class BaseSourceAdapter implements Source {
   public void loadSearch(Search search) {
     log.debug("Loading search: " + search.getSearchType());
     this.searches.put(search.getSearchType(), search);
+  }
+  
+  /**
+   * @param sortAttributes
+   */
+  public void setSortAttributes(Map<Integer, String> sortAttributes) {
+    this.sortAttributes = sortAttributes;
+  }
+  
+  /**
+   * @param searchAttributes
+   */
+  public void setSearchAttributes(Map<Integer, String> searchAttributes) {
+    this.searchAttributes = searchAttributes;
   }
   
   /**
