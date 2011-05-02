@@ -9081,22 +9081,7 @@ public enum GrouperDdl implements DdlVersionable {
 
     GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, membersTable.getName(), "member_sort_string4_idx", false, Member.COLUMN_SORT_STRING4);
 
-    String scriptOverride = ddlVersionBean.isSmallIndexes() ? "\nCREATE INDEX member_search_string0_idx ON grouper_members (search_string0(255));\n" : null;
-    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, ddlVersionBean, membersTable.getName(), "member_search_string0_idx", scriptOverride, false, Member.COLUMN_SEARCH_STRING0);
-
-    scriptOverride = ddlVersionBean.isSmallIndexes() ? "\nCREATE INDEX member_search_string1_idx ON grouper_members (search_string1(255));\n" : null;
-    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, ddlVersionBean, membersTable.getName(), "member_search_string1_idx", scriptOverride, false, Member.COLUMN_SEARCH_STRING1);
-
-    scriptOverride = ddlVersionBean.isSmallIndexes() ? "\nCREATE INDEX member_search_string2_idx ON grouper_members (search_string2(255));\n" : null;
-    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, ddlVersionBean, membersTable.getName(), "member_search_string2_idx", scriptOverride, false, Member.COLUMN_SEARCH_STRING2);
-
-    scriptOverride = ddlVersionBean.isSmallIndexes() ? "\nCREATE INDEX member_search_string3_idx ON grouper_members (search_string3(255));\n" : null;
-    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, ddlVersionBean, membersTable.getName(), "member_search_string3_idx", scriptOverride, false, Member.COLUMN_SEARCH_STRING3);
-
-    scriptOverride = ddlVersionBean.isSmallIndexes() ? "\nCREATE INDEX member_search_string4_idx ON grouper_members (search_string4(255));\n" : null;
-    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, ddlVersionBean, membersTable.getName(), "member_search_string4_idx", scriptOverride, false, Member.COLUMN_SEARCH_STRING4);
-
-    scriptOverride = ddlVersionBean.isSmallIndexes() ? "\nCREATE INDEX member_name_idx ON grouper_members (name(255));\n" : null;
+    String scriptOverride = ddlVersionBean.isSmallIndexes() ? "\nCREATE INDEX member_name_idx ON grouper_members (name(255));\n" : null;
     GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, ddlVersionBean, membersTable.getName(), "member_name_idx", scriptOverride, false, Member.COLUMN_NAME);
 
     scriptOverride = ddlVersionBean.isSmallIndexes() ? "\nCREATE INDEX member_description_idx ON grouper_members (description(255));\n" : null;

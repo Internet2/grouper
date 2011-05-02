@@ -17,9 +17,11 @@
 
 package edu.internet2.middleware.grouper.subj;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Properties;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
@@ -177,6 +179,15 @@ public class InternalSourceAdapter extends BaseSourceAdapter {
    * </pre>
    */
   public void init() {
+    this.sortAttributes = null;
+    this.searchAttributes = null;
+    this.internalAttributes = new HashSet<String>();
+    this.params = new Properties();
+    sortAttributeEl.clear();
+    searchAttributeEl.clear();
+    this.all = null;
+    this.root = null;
+    
     sortAttributeEl.add(GrouperConfig.getProperty("internalSubjects.sortAttribute0.el"));
     sortAttributeEl.add(GrouperConfig.getProperty("internalSubjects.sortAttribute1.el"));
     sortAttributeEl.add(GrouperConfig.getProperty("internalSubjects.sortAttribute2.el"));

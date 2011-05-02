@@ -22,6 +22,7 @@ public class AllMemberTests {
     suite.addTestSuite(TestAddMember.class);
     suite.addTestSuite(TestMemberChangeSubject.class);
     suite.addTestSuite(TestMemberFinder.class);
+    suite.addTestSuite(TestMemberAttributes.class);
     //$JUnit-END$
     return suite;
   }

@@ -282,7 +282,7 @@ TODO update for 1.5
   
 
   /**
-   * @param ownerGroupId
+   * @param ownerId
    * @param f
    * @param type
    * @param sources
@@ -290,11 +290,11 @@ TODO update for 1.5
    * @param enabledOnly
    * @param memberSortStringEnum How to sort results or null for no sorting unless specified by queryOptions
    * @param memberSearchStringEnum Specify search string if searching for members in the group
-   * @param memberSearchStringValue Search string value.  Use '%' for wildcards.
+   * @param memberSearchStringValue Search string value.
    * @return set
    * @throws GrouperDAOException
    */
-  public Set<Member> findAllMembersByGroupOwnerAndFieldAndType(String ownerGroupId,
+  public Set<Member> findAllMembersByOwnerAndFieldAndType(String ownerId,
       Field f, String type, Set<Source> sources, QueryOptions queryOptions, boolean enabledOnly,
       SortStringEnum memberSortStringEnum, SearchStringEnum memberSearchStringEnum, String memberSearchStringValue) throws GrouperDAOException;
   

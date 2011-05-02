@@ -692,13 +692,13 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
   public Set<Member> findAllMembersByGroupOwnerAndFieldAndType(
       String ownerGroupId, Field f, String type, Set<Source> sources, QueryOptions queryOptions, boolean enabledOnly) 
     throws  GrouperDAOException {
-    return findAllMembersByGroupOwnerAndFieldAndType(ownerGroupId, f, type, sources, queryOptions, enabledOnly, null, null, null);
+    return findAllMembersByOwnerAndFieldAndType(ownerGroupId, f, type, sources, queryOptions, enabledOnly, null, null, null);
   } 
   
   /**
-   * @see edu.internet2.middleware.grouper.internal.dao.MembershipDAO#findAllMembersByGroupOwnerAndFieldAndType(java.lang.String, edu.internet2.middleware.grouper.Field, java.lang.String, java.util.Set, edu.internet2.middleware.grouper.internal.dao.QueryOptions, boolean, edu.internet2.middleware.grouper.member.SortStringEnum, edu.internet2.middleware.grouper.member.SearchStringEnum, java.lang.String)
+   * @see edu.internet2.middleware.grouper.internal.dao.MembershipDAO#findAllMembersByOwnerAndFieldAndType(java.lang.String, edu.internet2.middleware.grouper.Field, java.lang.String, java.util.Set, edu.internet2.middleware.grouper.internal.dao.QueryOptions, boolean, edu.internet2.middleware.grouper.member.SortStringEnum, edu.internet2.middleware.grouper.member.SearchStringEnum, java.lang.String)
    */
-  public Set<Member> findAllMembersByGroupOwnerAndFieldAndType(String ownerGroupId,
+  public Set<Member> findAllMembersByOwnerAndFieldAndType(String ownerId,
       Field f, String type, Set<Source> sources, QueryOptions queryOptions,
       boolean enabledOnly, SortStringEnum memberSortStringEnum,
       SearchStringEnum memberSearchStringEnum, String memberSearchStringValue)
@@ -708,7 +708,7 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
     
     StringBuilder sql = new StringBuilder("select distinct m "
             + "from Member m, MembershipEntry ms where "
-            + "ms.ownerGroupId = :owner "
+            + "ms.ownerId = :owner "
             + "and ms.fieldId = :fieldId ");
         if(type != null) {
           MembershipType membershipType = MembershipType.valueOfIgnoreCase(type, true);
@@ -723,8 +723,11 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
       if (memberSearchStringValue == null) {
         sql.append(" and m." + memberSearchStringEnum.getFieldName() + " is null ");
       } else {
-        sql.append(" and m." + memberSearchStringEnum.getFieldName() + " like :searchString ");
-        byHqlStatic.setString("searchString", memberSearchStringValue);
+        String[] parts = memberSearchStringValue.trim().toLowerCase().split("\\s+");
+        for (int i = 0; i < parts.length; i++) {
+          sql.append(" and m." + memberSearchStringEnum.getFieldName() + " like :searchString" + i + " ");
+          byHqlStatic.setString("searchString" + i, "%" + parts[i] + "%");
+        }
       }
     }
     
@@ -765,7 +768,7 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
     .createQuery(sql.toString())
     .setCacheable(false)
         .setCacheRegion(KLASS).options(queryOptions)
-    .setString("owner", ownerGroupId)
+    .setString("owner", ownerId)
     .setString( "fieldId", f.getUuid() )
     .listSet(Member.class);
 
