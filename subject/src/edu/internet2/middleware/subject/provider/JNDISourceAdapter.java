@@ -274,14 +274,20 @@ public class JNDISourceAdapter extends BaseSourceAdapter {
     this.environment.put(Context.PROVIDER_URL, props.getProperty("PROVIDER_URL"));
     this.environment.put(Context.SECURITY_AUTHENTICATION, props
         .getProperty("SECURITY_AUTHENTICATION"));
-    this.environment.put(Context.SECURITY_PRINCIPAL, props.getProperty("SECURITY_PRINCIPAL"));
+    
+    if (props.getProperty("SECURITY_PRINCIPAL") != null) {
+      this.environment.put(Context.SECURITY_PRINCIPAL, props.getProperty("SECURITY_PRINCIPAL"));
+    }
 
     String password = props.getProperty("SECURITY_CREDENTIALS");
     password = Morph.decryptIfFile(password);
 
-    this.environment.put(Context.SECURITY_CREDENTIALS, password);
+    if (password != null) {
+      this.environment.put(Context.SECURITY_CREDENTIALS, password);
+    }
+    
     if (props.getProperty("SECURITY_PROTOCOL") != null) {
-      this.environment.put(Context.SECURITY_PROTOCOL, "ssl");
+      this.environment.put(Context.SECURITY_PROTOCOL, props.getProperty("SECURITY_PROTOCOL"));
     }
     Context context = null;
     try {
