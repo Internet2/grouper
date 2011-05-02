@@ -1,17 +1,30 @@
 package edu.internet2.middleware.grouper.internal.dao.hib3;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 
+import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.AttributeAssignValueNotFoundException;
+import edu.internet2.middleware.grouper.hibernate.ByHqlStatic;
+import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.AttributeAssignValueDAO;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.subject.Subject;
 
 /**
  * Data Access Object for attribute def
@@ -186,6 +199,112 @@ public class Hib3AttributeAssignValueDAO extends Hib3DAO implements AttributeAss
       throw new GrouperDAOException( error, e );
     }
 
+  }
+
+  /**
+   * find all assignments and values for a member
+   */
+  public Map<AttributeAssign, Set<AttributeAssignValue>> findMemberAttributeAssignmentValues(
+      Collection<String> memberIds, Boolean enabled) {
+
+    int memberIdsSize = GrouperUtil.length(memberIds);
+    
+    if (memberIdsSize == 0) {
+      throw new RuntimeException("Illegal query, you need to pass in memberId(s) [subjectIds or subjectIdentifiers]");
+    }
+    
+    //too many bind vars
+    if (memberIdsSize > 100) {
+      throw new RuntimeException("Too many memberIdsSize " + memberIdsSize);
+    }
+  
+    //lets get the attribute assigns
+    Set<AttributeAssign> attributeAssigns = GrouperDAOFactory.getFactory().getAttributeAssign().findMemberAttributeAssignments(null, null, null, memberIds, null, enabled, false);
+    
+    ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
+  
+    String selectPrefix = "select distinct aav ";
+    String countPrefix = "select count(distinct aav) ";
+    
+    StringBuilder sqlTables = new StringBuilder(" from AttributeAssign aa, AttributeDefName adn, AttributeAssignValue aav ");
+    
+    StringBuilder sqlWhereClause = new StringBuilder(
+        " aav.attributeAssignId = aa.id and aa.attributeDefNameId = adn.id and aa.attributeAssignTypeDb = 'member' ");
+    
+    GrouperSession grouperSession = GrouperSession.staticGrouperSession();
+    
+    Subject grouperSessionSubject = grouperSession.getSubject();
+    
+    grouperSession.getAttributeDefResolver().hqlFilterAttrDefsWhereClause(
+      grouperSessionSubject, byHqlStatic, 
+      sqlTables, sqlWhereClause, "adn.attributeDefId", AttributeDefPrivilege.READ_PRIVILEGES);
+    
+    StringBuilder sql;
+    sql = sqlTables.append(" where ").append(sqlWhereClause);
+    
+    if (enabled != null && enabled) {
+      sql.append(" and aa.enabledDb = 'T' ");
+    }
+    if (enabled != null && !enabled) {
+      sql.append(" and aa.enabledDb = 'F' ");
+    }
+    if (memberIdsSize > 0) {
+      sql.append(" and aa.ownerMemberId in (");
+      sql.append(HibUtils.convertToInClause(memberIds, byHqlStatic));
+      sql.append(") ");
+    }
+    byHqlStatic
+      .setCacheable(false)
+      .setCacheRegion(KLASS + ".FindMemberAttributeAssignmentValues");
+  
+    int maxAssignments = GrouperConfig.getPropertyInt("ws.findAttrAssignments.maxResultSize", 30000);
+    
+    long size = -1;
+    
+    //if -1, lets not check
+    if (maxAssignments >= 0) {
+  
+      size = byHqlStatic.createQuery(countPrefix + sql.toString()).uniqueResult(long.class);    
+      
+      //see if too many
+      if (size > maxAssignments) {
+        throw new RuntimeException("Too many results: " + size);
+      }
+      
+    }
+    
+    Set<AttributeAssignValue> results = size == 0 ? new LinkedHashSet<AttributeAssignValue>() 
+        : byHqlStatic.createQuery(selectPrefix + sql.toString()).listSet(AttributeAssignValue.class);
+  
+    //hash these by id
+    Map<String, AttributeAssign> attributeAssignMap = new HashMap<String, AttributeAssign>();
+
+    Map<AttributeAssign, Set<AttributeAssignValue>> resultMap = new LinkedHashMap<AttributeAssign, Set<AttributeAssignValue>>();
+    
+    for (AttributeAssign attributeAssign : attributeAssigns) {
+      attributeAssignMap.put(attributeAssign.getId(), attributeAssign);
+      resultMap.put(attributeAssign, new HashSet<AttributeAssignValue>());
+    }
+    
+    
+    //nothing to filter
+    if (GrouperUtil.length(results) == 0) {
+      return resultMap;
+    }
+    
+    //lets add stuff to the map
+    for (AttributeAssignValue attributeAssignValue : results) {
+      AttributeAssign attributeAssign = attributeAssignMap.get(attributeAssignValue.getAttributeAssignId());
+      
+      //if its null then we arent allowed to see it or something...
+      if (attributeAssign == null) {
+        continue;
+      }
+      Set<AttributeAssignValue> values = resultMap.get(attributeAssign);
+      values.add(attributeAssignValue);
+    }
+    
+    return resultMap;
   }
 
 } 

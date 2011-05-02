@@ -6,8 +6,12 @@ package edu.internet2.middleware.grouper.attr.value;
 
 import java.sql.Timestamp;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+
+import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
@@ -27,6 +31,12 @@ public class AttributeValueDelegate {
    * reference to the attribute delegate
    */
   private AttributeAssignBaseDelegate attributeAssignBaseDelegate = null;
+  /** cache hits for testing */
+  public static long allAttributeAssignValuesCacheHitsForTest = 0;
+  /** cache misses for testing */
+  public static long allAttributeAssignValuesCacheMissesForTest = 0;
+  /** keep a cache of attribute assigns and values */
+  private Map<AttributeAssign, Set<AttributeAssignValue>> allAttributeAssignValuesCache = null;
 
   /**
    * 
@@ -583,6 +593,18 @@ public class AttributeValueDelegate {
     
     this.attributeAssignBaseDelegate.assertCanReadAttributeDefName(attributeDefName);
     
+    Map<AttributeAssign, Set<AttributeAssignValue>> cachedMap = this.getAllAttributeAssignsForCache();
+    
+    if (cachedMap != null) {
+      Set<AttributeAssign> matching = new HashSet<AttributeAssign>();
+      for (AttributeAssign attributeAssign : cachedMap.keySet()) {
+        if (StringUtils.equals(attributeAssign.getAttributeDefNameId(), attributeDefName.getId())) {
+          matching.add(attributeAssign);
+        }
+      }
+      return GrouperUtil.setPopOne(matching);
+    }
+    
     AttributeAssign attributeAssign = this.attributeAssignBaseDelegate.retrieveAssignment(
         null, attributeDefName, false, false);
     return attributeAssign;
@@ -950,6 +972,7 @@ public class AttributeValueDelegate {
    * @return the value object
    */
   public AttributeValueResult addValueString(String attributeDefNameName, String value) {
+    
     AttributeAssignResult attributeAssignResult = this.attributeAssignBaseDelegate
       .assignAttributeByName(attributeDefNameName);
   
@@ -1204,6 +1227,27 @@ public class AttributeValueDelegate {
    */
   public AttributeValueResult deleteValueTimestamp(String attributeDefNameName, Timestamp value) {
     return deleteValuesTimestamp(attributeDefNameName, GrouperUtil.toSet(value));
+  }
+
+  /**
+   * return the cache of all attribute assigns, might be null if not caching
+   * @return the allAttributeAssignsCache
+   */
+  public Map<AttributeAssign, Set<AttributeAssignValue>> getAllAttributeAssignsForCache() {
+    if (this.allAttributeAssignValuesCache == null) {
+      allAttributeAssignValuesCacheMissesForTest++;
+      return null;
+    }
+    allAttributeAssignValuesCacheHitsForTest++;
+    return this.allAttributeAssignValuesCache;
+  }
+
+  /**
+   * @param theAllAttributeAssignValuesForCache the Set of attributes to put in cache
+   */
+  public void setAllAttributeAssignValuesForCache(
+      Map<AttributeAssign, Set<AttributeAssignValue>> theAllAttributeAssignValuesForCache) {
+    this.allAttributeAssignValuesCache = theAllAttributeAssignValuesForCache;
   }
 
 }

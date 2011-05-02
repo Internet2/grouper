@@ -28,6 +28,7 @@ import edu.internet2.middleware.grouper.attr.AttributeDefNameTest;
 import edu.internet2.middleware.grouper.attr.AttributeDefType;
 import edu.internet2.middleware.grouper.attr.AttributeDefValueType;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssignBaseDelegate;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignMemberDelegate;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignResult;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
@@ -50,7 +51,7 @@ public class AttributeAssignValueTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new AttributeAssignValueTest("testValueStringOneQuery"));
+    TestRunner.run(new AttributeAssignValueTest("testValuesOneQuery"));
   }
   
   /**
@@ -1516,6 +1517,7 @@ public class AttributeAssignValueTest extends GrouperTest {
     Member member2 = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), SubjectTestHelper.SUBJ2, true);
     Member member3 = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), SubjectTestHelper.SUBJ3, true);
     Member member4 = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), SubjectTestHelper.SUBJ4, true);
+    @SuppressWarnings("unused")
     Member member7 = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), SubjectTestHelper.SUBJ7, true);
     
     //this is ok    
@@ -1556,7 +1558,7 @@ public class AttributeAssignValueTest extends GrouperTest {
   /**
    * pre populate members attributes
    */
-  public void testValuesOneQuery() {
+  public void testAttrsOneQuery() {
     AttributeDefName attributeDefName = AttributeDefNameTest.exampleAttributeDefNameDb("test", "testAttributeAssignValueDefName");
     AttributeDefName attributeDefName2 = AttributeDefNameTest.exampleAttributeDefNameDb("test", "testAttributeAssignValueDefName2");
     AttributeDefName attributeDefName3 = AttributeDefNameTest.exampleAttributeDefNameDb("test", "testAttributeAssignValueDefName3");
@@ -1578,9 +1580,11 @@ public class AttributeAssignValueTest extends GrouperTest {
 
     Member member0 = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), SubjectTestHelper.SUBJ0, true);
     Member member1 = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), SubjectTestHelper.SUBJ1, true);
+    Member member1nonCache = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), SubjectTestHelper.SUBJ1, true);
     Member member2 = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), SubjectTestHelper.SUBJ2, true);
     Member member3 = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), SubjectTestHelper.SUBJ3, true);
     Member member4 = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), SubjectTestHelper.SUBJ4, true);
+    @SuppressWarnings("unused")
     Member member7 = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), SubjectTestHelper.SUBJ7, true);
     
     //this is ok    
@@ -1598,16 +1602,71 @@ public class AttributeAssignValueTest extends GrouperTest {
 
     Set<Member> members = GrouperUtil.toSet(member0, member1, member2);
     
-    //lets preload with attributes
+    //############## lets preload with attributes
     AttributeAssignMemberDelegate.populateAttributeAssignments(members);
 
-    Set<AttributeAssign> attributeAssigns = member1.getAttributeDelegate().retrieveAssignments(attributeDefName);
+    //############## check non cache
+    int cacheHits = (int)AttributeAssignBaseDelegate.allAttributeAssignsCacheHitsForTest;
+    int cacheMisses = (int)AttributeAssignBaseDelegate.allAttributeAssignsCacheMissesForTest;
+    
+    Set<AttributeAssign> attributeAssigns = member1nonCache.getAttributeDelegate().retrieveAssignments(attributeDefName);
     assertEquals(1, attributeAssigns.size());
 
+    assertEquals(cacheHits, AttributeAssignBaseDelegate.allAttributeAssignsCacheHitsForTest);
+    assertTrue(cacheMisses + ", " + AttributeAssignBaseDelegate.allAttributeAssignsCacheMissesForTest, cacheMisses < AttributeAssignBaseDelegate.allAttributeAssignsCacheMissesForTest);
     
+    cacheHits = (int)AttributeAssignBaseDelegate.allAttributeAssignsCacheHitsForTest;
+    cacheMisses = (int)AttributeAssignBaseDelegate.allAttributeAssignsCacheMissesForTest;
+
+    
+    //############## check cache
+    
+    cacheHits = (int)AttributeAssignBaseDelegate.allAttributeAssignsCacheHitsForTest;
+    cacheMisses = (int)AttributeAssignBaseDelegate.allAttributeAssignsCacheMissesForTest;
+    
+    attributeAssigns = member1.getAttributeDelegate().retrieveAssignments(attributeDefName);
+    assertEquals(1, attributeAssigns.size());
+
+    assertEquals(cacheHits+1, AttributeAssignBaseDelegate.allAttributeAssignsCacheHitsForTest);
+    assertEquals(cacheMisses, AttributeAssignBaseDelegate.allAttributeAssignsCacheMissesForTest);
+    
+    //############## check cache
+    
+    cacheHits = (int)AttributeAssignBaseDelegate.allAttributeAssignsCacheHitsForTest;
+    cacheMisses = (int)AttributeAssignBaseDelegate.allAttributeAssignsCacheMissesForTest;
+    
+    attributeAssigns = member2.getAttributeDelegate().retrieveAssignments(attributeDefName3);
+    assertEquals(1, attributeAssigns.size());
+    
+    assertEquals(attributeAssigns.iterator().next().getAttributeDefNameId(), attributeDefName3.getId());
+    
+    assertEquals(cacheHits+1, AttributeAssignBaseDelegate.allAttributeAssignsCacheHitsForTest);
+    assertEquals(cacheMisses, AttributeAssignBaseDelegate.allAttributeAssignsCacheMissesForTest);
+    
+    //############## check non cache
+    
+    cacheHits = (int)AttributeAssignBaseDelegate.allAttributeAssignsCacheHitsForTest;
+    cacheMisses = (int)AttributeAssignBaseDelegate.allAttributeAssignsCacheMissesForTest;
+    
+    attributeAssigns = member4.getAttributeDelegate().retrieveAssignments(attributeDefName2);
+    assertEquals(1, attributeAssigns.size());
+    
+    assertEquals(attributeAssigns.iterator().next().getAttributeDefNameId(), attributeDefName2.getId());
+    
+    assertEquals(cacheHits, AttributeAssignBaseDelegate.allAttributeAssignsCacheHitsForTest);
+    assertEquals(cacheMisses+1, AttributeAssignBaseDelegate.allAttributeAssignsCacheMissesForTest);
+    
+    //############## check cache, values arent in cache...
+    
+    cacheHits = (int)AttributeAssignBaseDelegate.allAttributeAssignsCacheHitsForTest;
+    cacheMisses = (int)AttributeAssignBaseDelegate.allAttributeAssignsCacheMissesForTest;
+
     AttributeAssignValue attributeAssignValue0find = member1.getAttributeValueDelegate().findValue("test:testAttributeAssignValueDefName", attributeAssignValue0);
     assertTrue(attributeAssignValue0.sameValue(attributeAssignValue0find));
-    
+
+    assertEquals(cacheHits+1, AttributeAssignBaseDelegate.allAttributeAssignsCacheHitsForTest);
+    assertEquals(cacheMisses, AttributeAssignBaseDelegate.allAttributeAssignsCacheMissesForTest);
+
     assertEquals(1, member1.getAttributeValueDelegate().retrieveValuesString("test:testAttributeAssignValueDefName").size());
     member1.getAttributeValueDelegate().addValueString("test:testAttributeAssignValueDefName", "a");
     
@@ -1624,6 +1683,125 @@ public class AttributeAssignValueTest extends GrouperTest {
     
     assertEquals(0, member1.getAttributeValueDelegate().retrieveValuesString("test:testAttributeAssignValueDefName").size());
     
+  }
+
+  /**
+   * pre populate members attributes
+   */
+  public void testValuesOneQuery() {
+    AttributeDefName attributeDefName = AttributeDefNameTest.exampleAttributeDefNameDb("test", "testAttributeAssignValueDefName");
+    AttributeDefName attributeDefName2 = AttributeDefNameTest.exampleAttributeDefNameDb("test", "testAttributeAssignValueDefName2");
+    AttributeDefName attributeDefName3 = AttributeDefNameTest.exampleAttributeDefNameDb("test", "testAttributeAssignValueDefName3");
+  
+    attributeDefName.getAttributeDef().setAssignToMember(true);
+    attributeDefName.getAttributeDef().setValueType(AttributeDefValueType.string);
+    attributeDefName.getAttributeDef().setMultiValued(true);
+    attributeDefName.getAttributeDef().store();
+  
+    attributeDefName2.getAttributeDef().setAssignToMember(true);
+    attributeDefName2.getAttributeDef().setValueType(AttributeDefValueType.string);
+    attributeDefName2.getAttributeDef().setMultiValued(true);
+    attributeDefName2.getAttributeDef().store();
+  
+    attributeDefName3.getAttributeDef().setAssignToMember(true);
+    attributeDefName3.getAttributeDef().setValueType(AttributeDefValueType.string);
+    attributeDefName3.getAttributeDef().setMultiValued(true);
+    attributeDefName3.getAttributeDef().store();
+  
+    Member member0 = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), SubjectTestHelper.SUBJ0, true);
+    Member member1 = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), SubjectTestHelper.SUBJ1, true);
+    Member member1nonCache = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), SubjectTestHelper.SUBJ1, true);
+    Member member2 = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), SubjectTestHelper.SUBJ2, true);
+    Member member3 = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), SubjectTestHelper.SUBJ3, true);
+    Member member4 = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), SubjectTestHelper.SUBJ4, true);
+    @SuppressWarnings("unused")
+    Member member7 = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), SubjectTestHelper.SUBJ7, true);
+    
+    //this is ok    
+    AttributeAssignValue attributeAssignValue0 = member1.getAttributeValueDelegate().assignValueString(
+        "test:testAttributeAssignValueDefName", "a").getAttributeAssignValueResult().getAttributeAssignValue();
+  
+    //assign one with no value
+    member2.getAttributeDelegate().assignAttribute(attributeDefName3);
+  
+    member3.getAttributeValueDelegate().assignValueString(
+        "test:testAttributeAssignValueDefName2", "c").getAttributeAssignValueResult().getAttributeAssignValue();
+  
+    member4.getAttributeValueDelegate().assignValueString(
+        "test:testAttributeAssignValueDefName2", "d").getAttributeAssignValueResult().getAttributeAssignValue();
+  
+    Set<Member> members = GrouperUtil.toSet(member0, member1, member2);
+    
+    //############## lets preload with attributes
+    AttributeAssignMemberDelegate.populateAttributeAssignments(members);
+  
+    //############## check non cache
+    int cacheHits = (int)AttributeAssignBaseDelegate.allAttributeAssignsCacheHitsForTest;
+    int cacheMisses = (int)AttributeAssignBaseDelegate.allAttributeAssignsCacheMissesForTest;
+    
+    Set<AttributeAssign> attributeAssigns = member1nonCache.getAttributeDelegate().retrieveAssignments(attributeDefName);
+    assertEquals(1, attributeAssigns.size());
+  
+    assertEquals(cacheHits, AttributeAssignBaseDelegate.allAttributeAssignsCacheHitsForTest);
+    assertTrue(cacheMisses + ", " + AttributeAssignBaseDelegate.allAttributeAssignsCacheMissesForTest, cacheMisses < AttributeAssignBaseDelegate.allAttributeAssignsCacheMissesForTest);
+    
+    cacheHits = (int)AttributeAssignBaseDelegate.allAttributeAssignsCacheHitsForTest;
+    cacheMisses = (int)AttributeAssignBaseDelegate.allAttributeAssignsCacheMissesForTest;
+  
+    
+    //############## check cache
+    
+    cacheHits = (int)AttributeAssignBaseDelegate.allAttributeAssignsCacheHitsForTest;
+    cacheMisses = (int)AttributeAssignBaseDelegate.allAttributeAssignsCacheMissesForTest;
+    
+    attributeAssigns = member1.getAttributeDelegate().retrieveAssignments(attributeDefName);
+    assertEquals(1, attributeAssigns.size());
+  
+    assertEquals(cacheHits+1, AttributeAssignBaseDelegate.allAttributeAssignsCacheHitsForTest);
+    assertEquals(cacheMisses, AttributeAssignBaseDelegate.allAttributeAssignsCacheMissesForTest);
+    
+    //############## check cache
+    
+    cacheHits = (int)AttributeAssignBaseDelegate.allAttributeAssignsCacheHitsForTest;
+    cacheMisses = (int)AttributeAssignBaseDelegate.allAttributeAssignsCacheMissesForTest;
+    
+    attributeAssigns = member2.getAttributeDelegate().retrieveAssignments(attributeDefName3);
+    assertEquals(1, attributeAssigns.size());
+    
+    assertEquals(attributeAssigns.iterator().next().getAttributeDefNameId(), attributeDefName3.getId());
+    
+    assertEquals(cacheHits+1, AttributeAssignBaseDelegate.allAttributeAssignsCacheHitsForTest);
+    assertEquals(cacheMisses, AttributeAssignBaseDelegate.allAttributeAssignsCacheMissesForTest);
+    
+    //############## check non cache
+    
+    cacheHits = (int)AttributeAssignBaseDelegate.allAttributeAssignsCacheHitsForTest;
+    cacheMisses = (int)AttributeAssignBaseDelegate.allAttributeAssignsCacheMissesForTest;
+    
+    attributeAssigns = member4.getAttributeDelegate().retrieveAssignments(attributeDefName2);
+    assertEquals(1, attributeAssigns.size());
+    
+    assertEquals(attributeAssigns.iterator().next().getAttributeDefNameId(), attributeDefName2.getId());
+    
+    assertEquals(cacheHits, AttributeAssignBaseDelegate.allAttributeAssignsCacheHitsForTest);
+    assertEquals(cacheMisses+1, AttributeAssignBaseDelegate.allAttributeAssignsCacheMissesForTest);
+    
+    //############## check cache,for values
+    
+    cacheHits = (int)AttributeAssignValueDelegate.allAttributeAssignValuesCacheHitsForTest;
+    cacheMisses = (int)AttributeAssignValueDelegate.allAttributeAssignValuesCacheMissesForTest;
+  
+    AttributeAssignValue attributeAssignValue0find = member1.getAttributeValueDelegate().findValue("test:testAttributeAssignValueDefName", attributeAssignValue0);
+    assertTrue(attributeAssignValue0.sameValue(attributeAssignValue0find));
+  
+    assertEquals(1, member1.getAttributeValueDelegate().retrieveValuesString("test:testAttributeAssignValueDefName").size());
+
+    assertEquals("a", member1.getAttributeValueDelegate().retrieveValueString("test:testAttributeAssignValueDefName"));
+
+    assertTrue(cacheHits + ", " + AttributeAssignBaseDelegate.allAttributeAssignsCacheHitsForTest, cacheHits < AttributeAssignBaseDelegate.allAttributeAssignsCacheHitsForTest);
+    assertEquals(cacheMisses, AttributeAssignBaseDelegate.allAttributeAssignsCacheMissesForTest);
+  
+
   }
   
 }

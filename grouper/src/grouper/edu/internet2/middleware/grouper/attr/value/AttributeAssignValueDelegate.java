@@ -34,6 +34,33 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  */
 public class AttributeAssignValueDelegate {
 
+  /** cache hits for testing */
+  public static long allAttributeAssignValuesCacheHitsForTest = 0;
+  
+  /** cache misses for testing */
+  public static long allAttributeAssignValuesCacheMissesForTest = 0;
+  
+  /** keep a cache of values */
+  private Set<AttributeAssignValue> allAttributeAssignValuesCache = null;
+
+  /**
+   * cache of values
+   * @return values
+   */
+  public Set<AttributeAssignValue> getAllAttributeAssignValuesCache() {
+    return this.allAttributeAssignValuesCache;
+  }
+
+  /**
+   * cache of values
+   * @param allAttributeAssignValuesCache1
+   */
+  public void setAllAttributeAssignValuesCache(
+      Set<AttributeAssignValue> allAttributeAssignValuesCache1) {
+    this.allAttributeAssignValuesCache = allAttributeAssignValuesCache1;
+  }
+
+
   /**
    * reference to the group in question
    */
@@ -82,9 +109,16 @@ public class AttributeAssignValueDelegate {
     
     AttributeDef attributeDef = this.attributeAssign.getAttributeDef();
     
-    Set<AttributeAssignValue> results = GrouperDAOFactory.getFactory().getAttributeAssignValue()
-      .findByAttributeAssignId(this.attributeAssign.getId(), new QueryOptions().secondLevelCache(useCache));
+    Set<AttributeAssignValue> results = this.allAttributeAssignValuesCache;
     
+    if (results == null) {
+      results = GrouperDAOFactory.getFactory().getAttributeAssignValue()
+        .findByAttributeAssignId(this.attributeAssign.getId(), new QueryOptions().secondLevelCache(useCache));
+      allAttributeAssignValuesCacheMissesForTest++;
+    } else {
+      allAttributeAssignValuesCacheHitsForTest++;
+    }
+
     if (filterInvalidTypes) {
       //lets filter if not the right type...  not sure why this would be, might be because the type was changed mid-use
       Iterator<AttributeAssignValue> iterator = results.iterator();

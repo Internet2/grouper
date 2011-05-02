@@ -6,6 +6,8 @@ package edu.internet2.middleware.grouper.attr.assign;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -20,6 +22,7 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
+import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
@@ -41,7 +44,8 @@ public class AttributeAssignMemberDelegate extends AttributeAssignBaseDelegate {
   
   /**
    * populate attribute assignments to prevent N+1 queries when looping through members and 
-   * getting attributes.  This cache will last for 2 minutes
+   * getting attributes.  Do not do any assignments with these objects or expect them to change,
+   * they are preloaded and will stay that way.
    * @param members is the members to populate
    */
   public static void populateAttributeAssignments(Collection<Member> members) {
@@ -53,7 +57,7 @@ public class AttributeAssignMemberDelegate extends AttributeAssignBaseDelegate {
     //lets go through in batches
     int numberOfBatches = GrouperUtil.batchNumberOfBatches(members, 100);
     
-    Map<String, Set<AttributeAssign>> attributeAssignMap = new LinkedHashMap<String, Set<AttributeAssign>>(); 
+    Map<String, Member> memberMap = new LinkedHashMap<String, Member>(); 
     for (int i=0;i<numberOfBatches;i++) {
       
       List<Member> membersInBatch = GrouperUtil.batchList(members, 100, i);
@@ -61,44 +65,37 @@ public class AttributeAssignMemberDelegate extends AttributeAssignBaseDelegate {
       for (Member member : membersInBatch) {
         memberIdsInBatch.add(member.getUuid());
       }
-      Set<AttributeAssign> attributeAssigns = GrouperDAOFactory.getFactory()
-        .getAttributeAssign().findMemberAttributeAssignments(null, null, null, 
-          memberIdsInBatch, null, null, false);
+      Map<AttributeAssign, Set<AttributeAssignValue>> attributeAssigns = GrouperDAOFactory.getFactory()
+        .getAttributeAssignValue().findMemberAttributeAssignmentValues(memberIdsInBatch, true);
       
       //start again for this batch
-      attributeAssignMap.clear();
-      
-      //go through the results and collate for members
-      for (AttributeAssign attributeAssign : attributeAssigns) {
-        
-        Set<AttributeAssign> attributeAssignSet = attributeAssignMap.get(attributeAssign.getOwnerMemberId());
-        
-        //if first for this member, init it
-        if (attributeAssignSet == null) {
-          attributeAssignSet = new LinkedHashSet<AttributeAssign>();
-          attributeAssignMap.put(attributeAssign.getOwnerMemberId(), attributeAssignSet);
-        }
-        
-        attributeAssignSet.add(attributeAssign);
-        
-      }
-      
+      memberMap.clear();
+
       //go through the members, and put in the assignments
       for (Member member : membersInBatch) {
+        memberMap.put(member.getUuid(), member);
+        //lets init each one
+        member.getAttributeDelegate().setAllAttributeAssignsForCache(new HashSet<AttributeAssign>());
+        member.getAttributeValueDelegate().setAllAttributeAssignValuesForCache(new HashMap<AttributeAssign, Set<AttributeAssignValue>>());
+      }
+
+      //go through the results and collate for members
+      for (AttributeAssign attributeAssign : attributeAssigns.keySet()) {
+
+        Set<AttributeAssignValue> attributeAssignValues = attributeAssigns.get(attributeAssign);
         
-        //see if there are attributes for this member
-        Set<AttributeAssign> attributeAssignsForMember = attributeAssignMap.get(member.getUuid());
+        attributeAssign.getValueDelegate().setAllAttributeAssignValuesCache(new HashSet<AttributeAssignValue>());
         
-        if (attributeAssignsForMember == null) {
-          //init so it isnt lazy loaded to get nothing
-          attributeAssignsForMember = new LinkedHashSet<AttributeAssign>();
-        }
-        member.getAttributeDelegate().setAllAttributeAssignsForCache(attributeAssignsForMember);
+        //get the member
+        Member member = memberMap.get(attributeAssign.getOwnerMemberId());
+        
+        //set the cache values
+        member.getAttributeDelegate().getAllAttributeAssignsForCache().add(attributeAssign);
+        member.getAttributeValueDelegate().getAllAttributeAssignsForCache().put(attributeAssign, attributeAssignValues);
+        attributeAssign.getValueDelegate().getAllAttributeAssignValuesCache().addAll(attributeAssignValues);
       }
       
     }
-      
-      
   }
   
   /**

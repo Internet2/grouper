@@ -5,8 +5,10 @@
 package edu.internet2.middleware.grouper.internal.dao;
 
 import java.util.Collection;
+import java.util.Map;
 import java.util.Set;
 
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
 import edu.internet2.middleware.grouper.exception.AttributeAssignValueNotFoundException;
 
@@ -73,4 +75,17 @@ public interface AttributeAssignValueDAO extends GrouperDAO {
       String id, String attributeAssignId, boolean exceptionIfNull, 
       Long valueInteger, String valueMemberId, String valueString) throws GrouperDAOException;
 
+  /**
+   * securely search for assignments.  need to pass in member ids
+   * cannot have more than 100 bind variables
+   * @param memberIds optional
+   * @param enabled (null means all, true means enabled, false means disabled)
+   * @param includeAssignmentsOnAssignments if assignments on assignments should also be included
+   * @return the assignments
+   */
+  public Map<AttributeAssign, Set<AttributeAssignValue>> findMemberAttributeAssignmentValues(
+      Collection<String> memberIds,
+      Boolean enabled);
+
+  
 }

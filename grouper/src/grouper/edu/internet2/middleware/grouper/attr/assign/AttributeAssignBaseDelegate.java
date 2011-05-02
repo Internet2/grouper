@@ -4,6 +4,7 @@
  */
 package edu.internet2.middleware.grouper.attr.assign;
 
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -16,7 +17,6 @@ import edu.internet2.middleware.grouper.attr.AttributeDefScope;
 import edu.internet2.middleware.grouper.attr.AttributeDefScopeType;
 import edu.internet2.middleware.grouper.attr.AttributeDefType;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
-import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.exception.AttributeOwnerNotInScopeException;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
@@ -314,7 +314,6 @@ public abstract class AttributeAssignBaseDelegate {
     this.assertCanReadAttributeDef(attributeDef);
 
     return retrieveAttributeAssignsByOwnerAndAttributeDefId(attributeDef.getId());
-
   }
 
   /**
@@ -346,14 +345,14 @@ public abstract class AttributeAssignBaseDelegate {
     return removeAttribute(null, attributeDefName);
   }
 
-  /** keep a cache of attribute assigns, expire after 2 minutes */
-  private GrouperCache<Boolean, Set<AttributeAssign>> allAttributeAssignsCache = null;
+  /** keep a cache of attribute assigns */
+  private Set<AttributeAssign> allAttributeAssignsCache = null;
   
   /** cache hits for testing */
-  public long allAttributeAssignsCacheHitsForTest = 0;
+  public static long allAttributeAssignsCacheHitsForTest = 0;
   
   /** cache misses for testing */
-  public long allAttributeAssignsCacheMissesForTest = 0;
+  public static long allAttributeAssignsCacheMissesForTest = 0;
   
   /**
    * return the cache of all attribute assigns, might be null if not caching
@@ -361,10 +360,11 @@ public abstract class AttributeAssignBaseDelegate {
    */
   protected Set<AttributeAssign> getAllAttributeAssignsForCache() {
     if (this.allAttributeAssignsCache == null) {
-      //TODO fix this, add hits/misses
-      //? null : this.allAttributeAssignsCache.get(Boolean.TRUE);
+      allAttributeAssignsCacheMissesForTest++;
+      return null;
     }
-    return null;
+    allAttributeAssignsCacheHitsForTest++;
+    return this.allAttributeAssignsCache;
   }
 
   
@@ -373,11 +373,7 @@ public abstract class AttributeAssignBaseDelegate {
    */
   protected void setAllAttributeAssignsForCache(
       Set<AttributeAssign> allAttributeAssignsForCache) {
-    if (this.allAttributeAssignsCache == null) {
-      this.allAttributeAssignsCache = new GrouperCache(
-          AttributeAssignBaseDelegate.class.getSimpleName() + ".allAttributeAssignsCache");
-    }
-    this.allAttributeAssignsCache.put(Boolean.TRUE, allAttributeAssignsForCache);
+    this.allAttributeAssignsCache = allAttributeAssignsForCache;
   }
 
   /**
