@@ -396,7 +396,7 @@ public class PopulateGroupMembersAction extends GrouperCapableAction {
 		
 		// get member sort and search parameters from the request
 		String memberSortIndex = request.getParameter("memberSortIndex");
-		String memberSearchValueAsInput = request.getParameter("memberSearchValue");
+		String memberSearchValue = GrouperUtil.isEmpty(request.getParameter("memberSearchValue")) ? null : request.getParameter("memberSearchValue");
 		
 		// get member sort and search properties
     String memberSortEnabled = mediaResource.containsKey("member.sort.enabled") ? mediaResource.getString("member.sort.enabled") : null;
@@ -407,7 +407,6 @@ public class PopulateGroupMembersAction extends GrouperCapableAction {
     // figure out if and how member sorting and searching should be done
     SortStringEnum sortStringEnum = null;
     SearchStringEnum searchStringEnum = null;
-    String memberSearchValue = null;
     Map<Integer, String> memberSortSelections = new TreeMap<Integer, String>();
 
     if ("true".equals(memberSortEnabled)) {
@@ -446,11 +445,12 @@ public class PopulateGroupMembersAction extends GrouperCapableAction {
     if ("true".equals(memberSearchEnabled) && SearchStringEnum.getDefaultSearchString() != null) {
       request.setAttribute("showMemberSearch", true);
       
-      if (!GrouperUtil.isEmpty(memberSearchValueAsInput)) {
-        request.setAttribute("memberSearchValue", memberSearchValueAsInput);
+      if (!GrouperUtil.isEmpty(memberSearchValue)) {
+        request.setAttribute("memberSearchValue", memberSearchValue);
         searchStringEnum = SearchStringEnum.getDefaultSearchString();
-        memberSearchValue = "%" + memberSearchValueAsInput + "%";
       }
+    } else {
+      memberSearchValue = null;
     }
     
     
@@ -486,7 +486,7 @@ public class PopulateGroupMembersAction extends GrouperCapableAction {
 				nMembers = new HashSet<Member>();
 				sourceIds = new HashSet<String>();
 			}else{
-				nMembers=membershipDao.findAllMembersByGroupOwnerAndFieldAndType(group.getUuid(),mField,MembershipType.IMMEDIATE.getTypeString(),sourceFilter,queryOptions,true, sortStringEnum, searchStringEnum, memberSearchValue);
+				nMembers=membershipDao.findAllMembersByOwnerAndFieldAndType(group.getUuid(),mField,MembershipType.IMMEDIATE.getTypeString(),sourceFilter,queryOptions,true, sortStringEnum, searchStringEnum, memberSearchValue);
 				sourceIds = membershipDao.findSourceIdsByGroupOwnerOptions(group.getUuid(),MembershipType.IMMEDIATE,mField,true);
 			}
 			if("members".equals(membershipField)) {
@@ -496,10 +496,10 @@ public class PopulateGroupMembersAction extends GrouperCapableAction {
 			}
 		} else if ("eff".equals(membershipListScope)) {
 			if(group.hasComposite()&& membershipField.equals("members")) {
-				nMembers=membershipDao.findAllMembersByGroupOwnerAndFieldAndType(group.getUuid(),mField,MembershipType.COMPOSITE.getTypeString(),sourceFilter,queryOptions,true, sortStringEnum, searchStringEnum, memberSearchValue);
+				nMembers=membershipDao.findAllMembersByOwnerAndFieldAndType(group.getUuid(),mField,MembershipType.COMPOSITE.getTypeString(),sourceFilter,queryOptions,true, sortStringEnum, searchStringEnum, memberSearchValue);
 				sourceIds = membershipDao.findSourceIdsByGroupOwnerOptions(group.getUuid(),MembershipType.COMPOSITE,mField,true);
 			}else{
-				nMembers=membershipDao.findAllMembersByGroupOwnerAndFieldAndType(group.getUuid(),mField,MembershipType.EFFECTIVE.getTypeString(),sourceFilter,queryOptions,true, sortStringEnum, searchStringEnum, memberSearchValue);
+				nMembers=membershipDao.findAllMembersByOwnerAndFieldAndType(group.getUuid(),mField,MembershipType.EFFECTIVE.getTypeString(),sourceFilter,queryOptions,true, sortStringEnum, searchStringEnum, memberSearchValue);
 				sourceIds = membershipDao.findSourceIdsByGroupOwnerOptions(group.getUuid(),MembershipType.EFFECTIVE,mField,true);
 			}
 			if("members".equals(membershipField)) {
@@ -508,7 +508,7 @@ public class PopulateGroupMembersAction extends GrouperCapableAction {
 				noResultsKey="groups.list-members.custom.eff.none";
 			}
 		} else {
-			nMembers=membershipDao.findAllMembersByGroupOwnerAndFieldAndType(group.getUuid(),mField,null,sourceFilter,queryOptions,true, sortStringEnum, searchStringEnum, memberSearchValue);
+			nMembers=membershipDao.findAllMembersByOwnerAndFieldAndType(group.getUuid(),mField,null,sourceFilter,queryOptions,true, sortStringEnum, searchStringEnum, memberSearchValue);
 			sourceIds = membershipDao.findSourceIdsByGroupOwnerOptions(group.getUuid(),null,mField,true);
 			if("members".equals(membershipField)) {
 				noResultsKey="groups.list-members.all.none";
@@ -603,8 +603,8 @@ public class PopulateGroupMembersAction extends GrouperCapableAction {
 				null, start, null, pageSize);
 		pager.setParam("groupId", groupId);
 		
-		if (!GrouperUtil.isEmpty(memberSearchValueAsInput)) {
-		  pager.setParam("memberSearchValue", URLEncoder.encode(memberSearchValueAsInput, "UTF-8"));
+		if (!GrouperUtil.isEmpty(memberSearchValue)) {
+		  pager.setParam("memberSearchValue", URLEncoder.encode(memberSearchValue, "UTF-8"));
 		}
 		
     if (!GrouperUtil.isEmpty(memberSortIndex)) {
