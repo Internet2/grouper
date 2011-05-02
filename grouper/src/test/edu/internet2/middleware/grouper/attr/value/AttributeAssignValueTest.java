@@ -1798,8 +1798,8 @@ public class AttributeAssignValueTest extends GrouperTest {
 
     assertEquals("a", member1.getAttributeValueDelegate().retrieveValueString("test:testAttributeAssignValueDefName"));
 
-    assertTrue(cacheHits + ", " + AttributeAssignBaseDelegate.allAttributeAssignsCacheHitsForTest, cacheHits < AttributeAssignBaseDelegate.allAttributeAssignsCacheHitsForTest);
-    assertEquals(cacheMisses, AttributeAssignBaseDelegate.allAttributeAssignsCacheMissesForTest);
+    assertTrue(cacheHits + ", " + AttributeAssignValueDelegate.allAttributeAssignValuesCacheHitsForTest, cacheHits < AttributeAssignBaseDelegate.allAttributeAssignsCacheHitsForTest);
+    assertEquals(cacheMisses, AttributeAssignValueDelegate.allAttributeAssignValuesCacheMissesForTest);
   
 
   }
