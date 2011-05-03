@@ -18,7 +18,6 @@ limitations under the License.
 package edu.internet2.middleware.grouper.ui.actions;
 
 
-import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.HashSet;
 
@@ -604,7 +603,7 @@ public class PopulateGroupMembersAction extends GrouperCapableAction {
 		pager.setParam("groupId", groupId);
 		
 		if (!GrouperUtil.isEmpty(memberSearchValue)) {
-		  pager.setParam("memberSearchValue", URLEncoder.encode(memberSearchValue, "UTF-8"));
+		  pager.setParam("memberSearchValue", memberSearchValue);
 		}
 		
     if (!GrouperUtil.isEmpty(memberSortIndex)) {

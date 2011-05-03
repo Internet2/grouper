@@ -14,6 +14,7 @@
 			<div class="sectionBody">
 				<grouper:message key="member.search.filter-members-hint" /><input type="text" name="memberSearchValue" />
 				<html:hidden property="groupId" />
+				<html:hidden property="listField" />
 				<html:hidden property="memberSortIndex" />
 				<input type="submit" class="blueButton" value="<grouper:message key="member.search.search-members" /> "/>
 			</div>
@@ -50,6 +51,7 @@
 				</c:forEach>
 			</select>
 			<html:hidden property="groupId" />
+			<html:hidden property="listField" />
 			<html:hidden property="memberSearchValue" />
 			<input type="submit" class="blueButton" value="<grouper:message key="member.sort.change-sort-attribute" /> "/>&nbsp;&nbsp;
 		</html:form>
