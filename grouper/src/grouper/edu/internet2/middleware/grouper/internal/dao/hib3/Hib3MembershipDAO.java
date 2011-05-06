@@ -714,6 +714,15 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
           MembershipType membershipType = MembershipType.valueOfIgnoreCase(type, true);
             sql.append("and ms.type  " + membershipType.queryClause());
         }
+
+    sql.append(" and ms.memberUuid = m.uuid  ");
+    if (enabledOnly) {
+      sql.append(" and ms.enabledDb = 'T'");
+    }
+    if (sources != null && sources.size() > 0) {
+      sql.append(" and m.subjectSourceIdDb in ").append(HibUtils.convertSourcesToSqlInString(sources));
+    }
+    
     
     if (memberSearchStringEnum != null) {
       if (!memberSearchStringEnum.hasAccess()) {
@@ -754,14 +763,6 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
           sql.append(" and m." + column + " is not null ");
         }
       }
-    }
-    
-        sql.append(" and ms.memberUuid = m.uuid  ");
-    if (enabledOnly) {
-      sql.append(" and ms.enabledDb = 'T'");
-    }
-    if (sources != null && sources.size() > 0) {
-      sql.append(" and m.subjectSourceIdDb in ").append(HibUtils.convertSourcesToSqlInString(sources));
     }
     
     return byHqlStatic
