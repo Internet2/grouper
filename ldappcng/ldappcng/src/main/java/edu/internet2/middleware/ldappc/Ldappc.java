@@ -532,7 +532,7 @@ public final class Ldappc extends TimerTask {
       for (String dataConnectorId : dataConnectorIds) {
         GroupDataConnector groupDataConnector = (GroupDataConnector) getAttributeResolver()
             .getServiceContext().getBean(dataConnectorId);
-        groups.addAll(groupDataConnector.getGroupQueryFilter().getResults(
+        groups.addAll(groupDataConnector.getMatchQueryFilter().getResults(
             getGrouperSession()));
       }
     }

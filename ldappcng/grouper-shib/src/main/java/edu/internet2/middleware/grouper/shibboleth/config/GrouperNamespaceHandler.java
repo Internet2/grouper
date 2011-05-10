@@ -21,11 +21,11 @@ import edu.internet2.middleware.grouper.shibboleth.attributeDefinition.config.Su
 import edu.internet2.middleware.grouper.shibboleth.dataConnector.config.GroupDataConnectorBeanDefinitionParser;
 import edu.internet2.middleware.grouper.shibboleth.dataConnector.config.MemberDataConnectorBeanDefinitionParser;
 import edu.internet2.middleware.grouper.shibboleth.dataConnector.config.StemDataConnectorBeanDefinitionParser;
-import edu.internet2.middleware.grouper.shibboleth.filter.provider.AndGroupQueryFilterBeanDefinitionParser;
-import edu.internet2.middleware.grouper.shibboleth.filter.provider.ExactAttributeGroupQueryFilterBeanDefinitionParser;
-import edu.internet2.middleware.grouper.shibboleth.filter.provider.MinusGroupQueryFilterBeanDefinitionParser;
-import edu.internet2.middleware.grouper.shibboleth.filter.provider.OrGroupQueryFilterBeanDefinitionParser;
-import edu.internet2.middleware.grouper.shibboleth.filter.provider.StemNameGroupQueryFilterBeanDefinitionParser;
+import edu.internet2.middleware.grouper.shibboleth.filter.provider.AndMatchQueryFilterBeanDefinitionParser;
+import edu.internet2.middleware.grouper.shibboleth.filter.provider.GroupsByExactAttributeMatchQueryFilterBeanDefinitionParser;
+import edu.internet2.middleware.grouper.shibboleth.filter.provider.MinusMatchQueryFilterBeanDefinitionParser;
+import edu.internet2.middleware.grouper.shibboleth.filter.provider.OrMatchQueryFilterBeanDefinitionParser;
+import edu.internet2.middleware.grouper.shibboleth.filter.provider.GroupsInStemMatchQueryFilterBeanDefinitionParser;
 import edu.internet2.middleware.grouper.shibboleth.util.AttributeIdentifierBeanDefinitionParser;
 import edu.internet2.middleware.grouper.shibboleth.util.ClasspathPropertyReplacementResourceFilterBeanDefinitionParser;
 import edu.internet2.middleware.grouper.shibboleth.util.SourceIdentifierBeanDefinitionParser;
@@ -61,17 +61,17 @@ public class GrouperNamespaceHandler extends BaseSpringNamespaceHandler {
     registerBeanDefinitionParser(SubjectAttributeDefinitionBeanDefinitionParser.TYPE_NAME,
         new SubjectAttributeDefinitionBeanDefinitionParser());
 
-    registerBeanDefinitionParser(AndGroupQueryFilterBeanDefinitionParser.TYPE_NAME,
-        new AndGroupQueryFilterBeanDefinitionParser());
+    registerBeanDefinitionParser(AndMatchQueryFilterBeanDefinitionParser.TYPE_NAME,
+        new AndMatchQueryFilterBeanDefinitionParser());
 
-    registerBeanDefinitionParser(ExactAttributeGroupQueryFilterBeanDefinitionParser.TYPE_NAME,
-        new ExactAttributeGroupQueryFilterBeanDefinitionParser());
+    registerBeanDefinitionParser(GroupsByExactAttributeMatchQueryFilterBeanDefinitionParser.TYPE_NAME,
+        new GroupsByExactAttributeMatchQueryFilterBeanDefinitionParser());
 
-    registerBeanDefinitionParser(OrGroupQueryFilterBeanDefinitionParser.TYPE_NAME,
-        new OrGroupQueryFilterBeanDefinitionParser());
+    registerBeanDefinitionParser(OrMatchQueryFilterBeanDefinitionParser.TYPE_NAME,
+        new OrMatchQueryFilterBeanDefinitionParser());
 
-    registerBeanDefinitionParser(StemNameGroupQueryFilterBeanDefinitionParser.TYPE_NAME,
-        new StemNameGroupQueryFilterBeanDefinitionParser());
+    registerBeanDefinitionParser(GroupsInStemMatchQueryFilterBeanDefinitionParser.TYPE_NAME,
+        new GroupsInStemMatchQueryFilterBeanDefinitionParser());
 
     registerBeanDefinitionParser(SimpleAttributeAuthorityBeanDefinitionParser.TYPE_NAME,
         new SimpleAttributeAuthorityBeanDefinitionParser());
@@ -79,8 +79,8 @@ public class GrouperNamespaceHandler extends BaseSpringNamespaceHandler {
     registerBeanDefinitionParser(SourceIdentifierBeanDefinitionParser.TYPE_NAME,
         new SourceIdentifierBeanDefinitionParser());
 
-    registerBeanDefinitionParser(MinusGroupQueryFilterBeanDefinitionParser.TYPE_NAME,
-        new MinusGroupQueryFilterBeanDefinitionParser());
+    registerBeanDefinitionParser(MinusMatchQueryFilterBeanDefinitionParser.TYPE_NAME,
+        new MinusMatchQueryFilterBeanDefinitionParser());
 
     registerBeanDefinitionParser(ClasspathPropertyReplacementResourceFilterBeanDefinitionParser.TYPE_NAME,
         new ClasspathPropertyReplacementResourceFilterBeanDefinitionParser());

@@ -38,7 +38,7 @@
   </resolver:DataConnector>
 
   <resolver:DataConnector id="testGroupsFilterExactAttribute" xsi:type="grouper:MemberDataConnector">
-    <grouper:GroupFilter xsi:type="grouper:ExactAttribute" name="name" value="parentStem:groupA" />
+    <grouper:MatchFilter xsi:type="grouper:GroupsByExactAttribute" name="name" value="parentStem:groupA" />
     <grouper:Attribute id="groups" />
   </resolver:DataConnector>
   

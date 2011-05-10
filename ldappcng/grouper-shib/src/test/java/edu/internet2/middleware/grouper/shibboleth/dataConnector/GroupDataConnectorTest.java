@@ -14,7 +14,7 @@ import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GroupTypeFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
-import edu.internet2.middleware.grouper.shibboleth.filter.GroupQueryFilter;
+import edu.internet2.middleware.grouper.shibboleth.filter.MatchQueryFilter;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.shibboleth.common.attribute.BaseAttribute;
 
@@ -27,8 +27,8 @@ public class GroupDataConnectorTest extends BaseDataConnectorTest {
   }
 
   public static void main(String[] args) {
-    TestRunner.run(GroupDataConnectorTest.class);
-    // TestRunner.run(new GroupDataConnectorTest("testAttributeDef"));
+    //TestRunner.run(GroupDataConnectorTest.class);
+    TestRunner.run(new GroupDataConnectorTest("testFilterExactAttribute"));
   }
 
   private void runResolveTest(String groupDataConnectorName, Group group, AttributeMap correctMap) {
@@ -153,8 +153,12 @@ public class GroupDataConnectorTest extends BaseDataConnectorTest {
       GenericApplicationContext gContext = BaseDataConnectorTest.createSpringContext(RESOLVER_CONFIG);
       GroupDataConnector gdc = (GroupDataConnector) gContext.getBean("testFilterExactAttribute");
 
-      GroupQueryFilter filter = gdc.getGroupQueryFilter();
+      MatchQueryFilter filter = gdc.getMatchQueryFilter();
 
+      if (filter==null) {
+        fail("null filter");
+      }
+      
       Set<Group> groups = filter.getResults(grouperSession);
 
       assertEquals(1, groups.size());
@@ -163,10 +167,11 @@ public class GroupDataConnectorTest extends BaseDataConnectorTest {
       assertFalse(groups.contains(groupB));
       assertFalse(groups.contains(groupC));
 
-      assertTrue(filter.matchesGroup(groupA));
-      assertFalse(filter.matchesGroup(groupB));
-      assertFalse(filter.matchesGroup(groupC));
+      assertTrue(filter.matches(groupA));
+      assertFalse(filter.matches(groupB));
+      assertFalse(filter.matches(groupC));
     } catch (Exception e) {
+      e.printStackTrace();
       throw new RuntimeException(e);
     }
   }
@@ -176,7 +181,7 @@ public class GroupDataConnectorTest extends BaseDataConnectorTest {
       GenericApplicationContext gContext = BaseDataConnectorTest.createSpringContext(RESOLVER_CONFIG);
       GroupDataConnector gdc = (GroupDataConnector) gContext.getBean("testFilterStemNameSUB");
 
-      GroupQueryFilter filter = gdc.getGroupQueryFilter();
+      MatchQueryFilter filter = gdc.getMatchQueryFilter();
 
       Set<Group> groups = filter.getResults(grouperSession);
 
@@ -186,9 +191,9 @@ public class GroupDataConnectorTest extends BaseDataConnectorTest {
       assertTrue(groups.contains(groupB));
       assertTrue(groups.contains(groupC));
 
-      assertTrue(filter.matchesGroup(groupA));
-      assertTrue(filter.matchesGroup(groupB));
-      assertTrue(filter.matchesGroup(groupC));
+      assertTrue(filter.matches(groupA));
+      assertTrue(filter.matches(groupB));
+      assertTrue(filter.matches(groupC));
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
@@ -199,7 +204,7 @@ public class GroupDataConnectorTest extends BaseDataConnectorTest {
       GenericApplicationContext gContext = BaseDataConnectorTest.createSpringContext(RESOLVER_CONFIG);
       GroupDataConnector gdc = (GroupDataConnector) gContext.getBean("testFilterStemNameONE");
 
-      GroupQueryFilter filter = gdc.getGroupQueryFilter();
+      MatchQueryFilter filter = gdc.getMatchQueryFilter();
 
       Set<Group> groups = filter.getResults(grouperSession);
 
@@ -209,8 +214,8 @@ public class GroupDataConnectorTest extends BaseDataConnectorTest {
       assertTrue(groups.contains(groupB));
       assertFalse(groups.contains(groupC));
 
-      assertTrue(filter.matchesGroup(groupA));
-      assertTrue(filter.matchesGroup(groupB));
+      assertTrue(filter.matches(groupA));
+      assertTrue(filter.matches(groupB));
       assertFalse(groups.contains(groupC));
     } catch (Exception e) {
       throw new RuntimeException(e);
@@ -222,7 +227,7 @@ public class GroupDataConnectorTest extends BaseDataConnectorTest {
       GenericApplicationContext gContext = BaseDataConnectorTest.createSpringContext(RESOLVER_CONFIG);
       GroupDataConnector gdc = (GroupDataConnector) gContext.getBean("testFilterAnd");
 
-      GroupQueryFilter filter = gdc.getGroupQueryFilter();
+      MatchQueryFilter filter = gdc.getMatchQueryFilter();
 
       Set<Group> groups = filter.getResults(grouperSession);
 
@@ -232,9 +237,9 @@ public class GroupDataConnectorTest extends BaseDataConnectorTest {
       assertTrue(groups.contains(groupB));
       assertFalse(groups.contains(groupC));
 
-      assertFalse(filter.matchesGroup(groupA));
-      assertTrue(filter.matchesGroup(groupB));
-      assertFalse(filter.matchesGroup(groupC));
+      assertFalse(filter.matches(groupA));
+      assertTrue(filter.matches(groupB));
+      assertFalse(filter.matches(groupC));
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
@@ -245,7 +250,7 @@ public class GroupDataConnectorTest extends BaseDataConnectorTest {
       GenericApplicationContext gContext = BaseDataConnectorTest.createSpringContext(RESOLVER_CONFIG);
       GroupDataConnector gdc = (GroupDataConnector) gContext.getBean("testFilterOr");
 
-      GroupQueryFilter filter = gdc.getGroupQueryFilter();
+      MatchQueryFilter filter = gdc.getMatchQueryFilter();
 
       Set<Group> groups = filter.getResults(grouperSession);
 
@@ -255,9 +260,9 @@ public class GroupDataConnectorTest extends BaseDataConnectorTest {
       assertTrue(groups.contains(groupB));
       assertTrue(groups.contains(groupC));
 
-      assertFalse(filter.matchesGroup(groupA));
-      assertTrue(filter.matchesGroup(groupB));
-      assertTrue(filter.matchesGroup(groupC));
+      assertFalse(filter.matches(groupA));
+      assertTrue(filter.matches(groupB));
+      assertTrue(filter.matches(groupC));
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
@@ -268,7 +273,7 @@ public class GroupDataConnectorTest extends BaseDataConnectorTest {
       GenericApplicationContext gContext = BaseDataConnectorTest.createSpringContext(RESOLVER_CONFIG);
       GroupDataConnector gdc = (GroupDataConnector) gContext.getBean("testFilterMinus");
 
-      GroupQueryFilter filter = gdc.getGroupQueryFilter();
+      MatchQueryFilter filter = gdc.getMatchQueryFilter();
 
       Set<Group> groups = filter.getResults(grouperSession);
 
@@ -278,9 +283,9 @@ public class GroupDataConnectorTest extends BaseDataConnectorTest {
       assertFalse(groups.contains(groupB));
       assertFalse(groups.contains(groupC));
 
-      assertTrue(filter.matchesGroup(groupA));
-      assertFalse(filter.matchesGroup(groupB));
-      assertFalse(filter.matchesGroup(groupC));
+      assertTrue(filter.matches(groupA));
+      assertFalse(filter.matches(groupB));
+      assertFalse(filter.matches(groupC));
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
@@ -291,7 +296,7 @@ public class GroupDataConnectorTest extends BaseDataConnectorTest {
       GenericApplicationContext gContext = BaseDataConnectorTest.createSpringContext(RESOLVER_CONFIG);
       GroupDataConnector gdc = (GroupDataConnector) gContext.getBean("testFilterMinusAttributeNotFound");
 
-      GroupQueryFilter filter = gdc.getGroupQueryFilter();
+      MatchQueryFilter filter = gdc.getMatchQueryFilter();
 
       Set<Group> groups = filter.getResults(grouperSession);
 
@@ -301,9 +306,9 @@ public class GroupDataConnectorTest extends BaseDataConnectorTest {
       assertTrue(groups.contains(groupB));
       assertFalse(groups.contains(groupC));
 
-      assertTrue(filter.matchesGroup(groupA));
-      assertTrue(filter.matchesGroup(groupB));
-      assertFalse(filter.matchesGroup(groupC));
+      assertTrue(filter.matches(groupA));
+      assertTrue(filter.matches(groupB));
+      assertFalse(filter.matches(groupC));
     } catch (Exception e) {
       throw new RuntimeException(e);
     }

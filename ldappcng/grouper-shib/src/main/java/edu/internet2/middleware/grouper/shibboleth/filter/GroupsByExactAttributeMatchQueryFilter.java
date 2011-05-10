@@ -15,15 +15,17 @@
 package edu.internet2.middleware.grouper.shibboleth.filter;
 
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.exception.AttributeNotFoundException;
 import edu.internet2.middleware.grouper.filter.GroupAttributeFilter;
 import edu.internet2.middleware.grouper.filter.QueryFilter;
+import edu.internet2.middleware.grouper.shibboleth.dataConnector.BaseGrouperDataConnector;
 
 /**
- * Selects groups possessing an attribute name and value.
+ * Selects {@link Group}s possessing an attribute name and value.
  */
-public class ExactAttributeGroupFilter extends BaseGroupQueryFilter {
+public class GroupsByExactAttributeMatchQueryFilter extends BaseMatchQueryFilter<Group> {
 
   /** attribute name */
   private String name;
@@ -32,23 +34,21 @@ public class ExactAttributeGroupFilter extends BaseGroupQueryFilter {
   private String value;
 
   /**
-   * Creates a GroupAttributeFilter which returns groups with the given attribute name and
-   * value. Groups are not restricted by stem.
+   * Creates a {@link GroupAttributeFilter} which returns groups with the given attribute name and value. Groups are not
+   * restricted by stem.
    * 
-   * @param name
-   *          the attribute name
-   * @param value
-   *          the attribute value
+   * @param name the attribute name
+   * @param value the attribute value
    */
-  public ExactAttributeGroupFilter(String name, String value) {
+  public GroupsByExactAttributeMatchQueryFilter(String name, String value) {
     this.name = name;
     this.value = value;
   }
 
   /**
-   * If the query filter is null, create a new {@link GroupAttributeFilter}. As this
-   * filter relies upon a {@link GrouperSession}, this method should be called after the
-   * session has been started in the parent {@link BaseGrouperDataConnector}.
+   * If the query filter is null, create a new {@link GroupAttributeFilter}. As this filter relies upon a
+   * {@link GrouperSession}, this method should be called after the session has been started in the parent
+   * {@link BaseGrouperDataConnector}.
    * 
    * {@inheritDoc}
    */
@@ -59,8 +59,8 @@ public class ExactAttributeGroupFilter extends BaseGroupQueryFilter {
     return super.getQueryFilter();
   }
 
-  /** {@inheritDoc} */
-  public boolean matchesGroup(Group group) {
+  /** Returns true if the group has an attribute with the configured name and value. {@inheritDoc} */
+  public boolean matches(Group group) {
     try {
       return value.equals(group.getAttributeOrFieldValue(name, true, false));
     } catch (AttributeNotFoundException e) {

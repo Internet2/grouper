@@ -16,16 +16,16 @@ package edu.internet2.middleware.grouper.shibboleth.filter;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.Stem;
-import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.Stem.Scope;
+import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.filter.GroupsInStemFilter;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
- * Selects groups in a stem with scope.
+ * Selects {@link Group}s in a {@link Stem} with {@link Scope}.
  */
-public class StemNameGroupFilter extends BaseGroupQueryFilter {
+public class GroupsInStemMatchQueryFilter extends BaseMatchQueryFilter<Group> {
 
   /** stem name */
   private String name;
@@ -34,22 +34,20 @@ public class StemNameGroupFilter extends BaseGroupQueryFilter {
   private Scope scope;
 
   /**
-   * Creates a GroupsInStemFilter which returns the groups which are under the given stem
-   * name and scope.
+   * Creates a {@link GroupsInStemFilter} which returns the {@link Group}s which are under the given {@link Stem} name
+   * and scope.
    * 
-   * @param name
-   *          the stem name
-   * @param scope
-   *          the stem scope
+   * @param name the stem name
+   * @param scope the stem scope
    */
-  public StemNameGroupFilter(String name, String scope) {
+  public GroupsInStemMatchQueryFilter(String name, String scope) {
     this.name = name;
     this.scope = Scope.valueOf(scope);
     this.setQueryFilter(new GroupsInStemFilter(name, this.scope, true));
   }
 
-  /** {@inheritDoc} */
-  public boolean matchesGroup(Group group) {
+  /** Returns true if the group is a child of the configured stem with the configured scope. {@inheritDoc} */
+  public boolean matches(Group group) {
     Stem stem = StemFinder.findByName(getGrouperSession(), name, false);
     if (stem == null) {
       return false;

@@ -17,10 +17,10 @@
   <!-- group data connector -->
   <resolver:DataConnector id="GroupDataConnector" xsi:type="grouper:GroupDataConnector">
     <!-- a do nothing filter for tests -->
-    <grouper:GroupFilter xsi:type="grouper:OR">    
-      <grouper:GroupFilter xsi:type="grouper:ExactAttribute" name="extension" value="NOT_FOUND" />
-      <grouper:GroupFilter xsi:type="grouper:StemName" name=":" scope="SUB" />      
-    </grouper:GroupFilter>
+    <grouper:MatchFilter xsi:type="grouper:OR">    
+      <grouper:MatchFilter xsi:type="grouper:GroupsByExactAttribute" name="extension" value="NOT_FOUND" />
+      <grouper:MatchFilter xsi:type="grouper:GroupsInStem" name=":" scope="SUB" />      
+    </grouper:MatchFilter>
     <grouper:Attribute id="members" />
     <grouper:Attribute id="groups" />
   </resolver:DataConnector>

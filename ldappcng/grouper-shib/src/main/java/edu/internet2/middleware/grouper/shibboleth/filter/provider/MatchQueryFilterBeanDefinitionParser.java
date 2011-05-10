@@ -16,29 +16,18 @@ package edu.internet2.middleware.grouper.shibboleth.filter.provider;
 
 import javax.xml.namespace.QName;
 
-import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.xml.AbstractSingleBeanDefinitionParser;
-import org.springframework.beans.factory.xml.ParserContext;
-import org.w3c.dom.Element;
 
 import edu.internet2.middleware.grouper.shibboleth.config.GrouperNamespaceHandler;
-import edu.internet2.middleware.grouper.shibboleth.filter.StemNameGroupFilter;
+import edu.internet2.middleware.grouper.shibboleth.filter.MatchQueryFilter;
 
-public class StemNameGroupQueryFilterBeanDefinitionParser extends AbstractSingleBeanDefinitionParser {
+/** Spring bean definition parser for configuring a {@link MatchQueryFilter}. */
+public abstract class MatchQueryFilterBeanDefinitionParser extends AbstractSingleBeanDefinitionParser {
 
-  public static final QName TYPE_NAME = new QName(GrouperNamespaceHandler.NAMESPACE, "StemName");
+  /** {@link MatchQueryFilter} type name. */
+  public static final QName MATCH_FILTER_TYPE_NAME = new QName(GrouperNamespaceHandler.NAMESPACE, "MatchFilter");
 
-  protected Class getBeanClass(Element element) {
-    return StemNameGroupFilter.class;
-  }
-
-  protected void doParse(Element element, ParserContext parserContext, BeanDefinitionBuilder builder) {
-    super.doParse(element, parserContext, builder);
-
-    builder.addConstructorArgValue(element.getAttributeNS(null, "name"));
-    builder.addConstructorArgValue(element.getAttributeNS(null, "scope"));
-  }
-
+  /** {@inheritDoc} */
   protected boolean shouldGenerateId() {
     return true;
   }

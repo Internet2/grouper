@@ -86,8 +86,8 @@ public class GroupDataConnector extends BaseGrouperDataConnector {
             LOG.debug("resolve {} found group '{}'", msg, group);
 
             // does group match query filter
-            if (getGroupQueryFilter() != null) {
-              if (!getGroupQueryFilter().matchesGroup(group)) {
+            if (getMatchQueryFilter() != null) {
+              if (!getMatchQueryFilter().matches(group)) {
                 LOG.debug("resolve {} group {} does not match filter", msg, group);
                 return attributes;
               }

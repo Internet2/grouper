@@ -63,43 +63,43 @@
   </resolver:DataConnector>
 
   <resolver:DataConnector id="testFilterExactAttribute" xsi:type="grouper:GroupDataConnector">
-    <grouper:GroupFilter xsi:type="grouper:ExactAttribute" name="name" value="parentStem:groupA" />
+    <grouper:MatchFilter xsi:type="grouper:GroupsByExactAttribute" name="name" value="parentStem:groupA" />
   </resolver:DataConnector>
 
   <resolver:DataConnector id="testFilterStemNameONE" xsi:type="grouper:GroupDataConnector">
-    <grouper:GroupFilter xsi:type="grouper:StemName" name="parentStem" scope="ONE" />
+    <grouper:MatchFilter xsi:type="grouper:GroupsInStem" name="parentStem" scope="ONE" />
   </resolver:DataConnector>
 
   <resolver:DataConnector id="testFilterStemNameSUB" xsi:type="grouper:GroupDataConnector">
-    <grouper:GroupFilter xsi:type="grouper:StemName" name="parentStem" scope="SUB" />
+    <grouper:MatchFilter xsi:type="grouper:GroupsInStem" name="parentStem" scope="SUB" />
   </resolver:DataConnector>
 
   <resolver:DataConnector id="testFilterAnd" xsi:type="grouper:GroupDataConnector">
-    <grouper:GroupFilter xsi:type="grouper:AND">
-      <grouper:GroupFilter xsi:type="grouper:ExactAttribute" name="name" value="parentStem:groupB" />
-      <grouper:GroupFilter xsi:type="grouper:StemName" name="parentStem" scope="ONE" />
-    </grouper:GroupFilter>
+    <grouper:MatchFilter xsi:type="grouper:AND">
+      <grouper:MatchFilter xsi:type="grouper:GroupsByExactAttribute" name="name" value="parentStem:groupB" />
+      <grouper:MatchFilter xsi:type="grouper:GroupsInStem" name="parentStem" scope="ONE" />
+    </grouper:MatchFilter>
   </resolver:DataConnector>
 
   <resolver:DataConnector id="testFilterOr" xsi:type="grouper:GroupDataConnector">
-    <grouper:GroupFilter xsi:type="grouper:OR">
-      <grouper:GroupFilter xsi:type="grouper:ExactAttribute" name="name" value="parentStem:groupB" />
-      <grouper:GroupFilter xsi:type="grouper:StemName" name="parentStem:childStem" scope="ONE" />
-    </grouper:GroupFilter>
+    <grouper:MatchFilter xsi:type="grouper:OR">
+      <grouper:MatchFilter xsi:type="grouper:GroupsByExactAttribute" name="name" value="parentStem:groupB" />
+      <grouper:MatchFilter xsi:type="grouper:GroupsInStem" name="parentStem:childStem" scope="ONE" />
+    </grouper:MatchFilter>
   </resolver:DataConnector>
   
   <resolver:DataConnector id="testFilterMinus" xsi:type="grouper:GroupDataConnector">
-    <grouper:GroupFilter xsi:type="grouper:Minus">
-      <grouper:GroupFilter xsi:type="grouper:StemName" name="parentStem" scope="ONE" />
-      <grouper:GroupFilter xsi:type="grouper:ExactAttribute" name="name" value="parentStem:groupB" />      
-    </grouper:GroupFilter>
+    <grouper:MatchFilter xsi:type="grouper:Minus">
+      <grouper:MatchFilter xsi:type="grouper:GroupsInStem" name="parentStem" scope="ONE" />
+      <grouper:MatchFilter xsi:type="grouper:GroupsByExactAttribute" name="name" value="parentStem:groupB" />      
+    </grouper:MatchFilter>
   </resolver:DataConnector>
   
   <resolver:DataConnector id="testFilterMinusAttributeNotFound" xsi:type="grouper:GroupDataConnector">
-    <grouper:GroupFilter xsi:type="grouper:Minus">
-      <grouper:GroupFilter xsi:type="grouper:StemName" name="parentStem" scope="ONE" />
-      <grouper:GroupFilter xsi:type="grouper:ExactAttribute" name="notFound" value="notFound" />      
-    </grouper:GroupFilter>
+    <grouper:MatchFilter xsi:type="grouper:Minus">
+      <grouper:MatchFilter xsi:type="grouper:GroupsInStem" name="parentStem" scope="ONE" />
+      <grouper:MatchFilter xsi:type="grouper:GroupsByExactAttribute" name="notFound" value="notFound" />      
+    </grouper:MatchFilter>
   </resolver:DataConnector>
   
 </AttributeResolver>

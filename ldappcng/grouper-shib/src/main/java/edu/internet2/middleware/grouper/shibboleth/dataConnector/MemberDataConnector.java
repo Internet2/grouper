@@ -222,7 +222,7 @@ public class MemberDataConnector extends BaseGrouperDataConnector {
 
             // groups
             for (GroupsField groupsField : getGroupsFields()) {
-              BaseAttribute<Group> attr = groupsField.getAttribute(member, getGroupQueryFilter());
+              BaseAttribute<Group> attr = groupsField.getAttribute(member, getMatchQueryFilter());
               if (attr != null) {
                 attributes.put(groupsField.getId(), attr);
               }
