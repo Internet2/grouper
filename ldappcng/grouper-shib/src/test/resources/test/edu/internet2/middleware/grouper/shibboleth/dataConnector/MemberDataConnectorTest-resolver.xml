@@ -9,44 +9,44 @@
    urn:mace:shibboleth:2.0:resolver:ad classpath:/schema/shibboleth-2.0-attribute-resolver-ad.xsd
    http://grouper.internet2.edu/shibboleth/2.0 classpath:/schema/shibboleth-2.0-grouper.xsd">
 
-  <resolver:DataConnector id="testIdOnly" xsi:type="grouper:MemberDataConnector" />
+  <resolver:DataConnector id="testIdOnly" xsi:type="grouper:FindMemberBySubjectIdOrIdentifierDataConnector" />
 
-  <resolver:DataConnector id="testIdNameDescription" xsi:type="grouper:MemberDataConnector">
+  <resolver:DataConnector id="testIdNameDescription" xsi:type="grouper:FindMemberBySubjectIdOrIdentifierDataConnector">
     <grouper:Attribute id="name" source="jdbc" />
     <grouper:Attribute id="description" source="jdbc" />
   </resolver:DataConnector>
 
-  <resolver:DataConnector id="testAttributesOnly" xsi:type="grouper:MemberDataConnector">
+  <resolver:DataConnector id="testAttributesOnly" xsi:type="grouper:FindMemberBySubjectIdOrIdentifierDataConnector">
     <grouper:Attribute id="name" source="jdbc" />
     <grouper:Attribute id="description" source="jdbc" />
     <grouper:Attribute id="unknown" source="jdbc" />
   </resolver:DataConnector>
   
-  <resolver:DataConnector id="testAttributesAndAttributeDefs" xsi:type="grouper:MemberDataConnector">
+  <resolver:DataConnector id="testAttributesAndAttributeDefs" xsi:type="grouper:FindMemberBySubjectIdOrIdentifierDataConnector">
     <grouper:Attribute id="name" source="jdbc" />
     <grouper:Attribute id="description" source="jdbc" />
     <grouper:Attribute id="unknown" source="jdbc" />
     <grouper:Attribute id="parentStem:mailAlternateAddress" />
   </resolver:DataConnector>
 
-  <resolver:DataConnector id="testGroups" xsi:type="grouper:MemberDataConnector">
+  <resolver:DataConnector id="testGroups" xsi:type="grouper:FindMemberBySubjectIdOrIdentifierDataConnector">
     <grouper:Attribute id="groups" />
   </resolver:DataConnector>
   
-  <resolver:DataConnector id="testGroupsCustomList" xsi:type="grouper:MemberDataConnector">
+  <resolver:DataConnector id="testGroupsCustomList" xsi:type="grouper:FindMemberBySubjectIdOrIdentifierDataConnector">
     <grouper:Attribute id="groups:all:customList" />
   </resolver:DataConnector>
 
-  <resolver:DataConnector id="testGroupsFilterExactAttribute" xsi:type="grouper:MemberDataConnector">
+  <resolver:DataConnector id="testGroupsFilterExactAttribute" xsi:type="grouper:FindMemberBySubjectIdOrIdentifierDataConnector">
     <grouper:MatchFilter xsi:type="grouper:GroupsByExactAttribute" name="name" value="parentStem:groupA" />
     <grouper:Attribute id="groups" />
   </resolver:DataConnector>
   
-  <resolver:DataConnector id="testAdmins" xsi:type="grouper:MemberDataConnector">
+  <resolver:DataConnector id="testAdmins" xsi:type="grouper:FindMemberBySubjectIdOrIdentifierDataConnector">
     <grouper:Attribute id="admins" />
   </resolver:DataConnector>
   
-  <resolver:DataConnector id="testIdOnlySource" xsi:type="grouper:MemberDataConnector" >
+  <resolver:DataConnector id="testIdOnlySource" xsi:type="grouper:FindMemberBySubjectIdOrIdentifierDataConnector" >
     <grouper:Source id="jdbc" />
   </resolver:DataConnector>
   

@@ -25,14 +25,18 @@ import org.w3c.dom.Element;
 
 import edu.internet2.middleware.grouper.shibboleth.config.GrouperNamespaceHandler;
 
-public class GroupDataConnectorBeanDefinitionParser extends BaseGrouperDataConnectorBeanDefinitionParser {
+/** Spring bean definition parser for configuring a {@link FindStemByNameDataConnector}. */
+public class FindStemByNameDataConnectorBeanDefinitionParser extends BaseGrouperDataConnectorBeanDefinitionParser {
 
-  public static final QName TYPE_NAME = new QName(GrouperNamespaceHandler.NAMESPACE, "GroupDataConnector");
+  /** Schema type name. */
+  public static final QName TYPE_NAME = new QName(GrouperNamespaceHandler.NAMESPACE, "FindStemByNameDataConnector");
 
+  /** {@inheritDoc} */
   protected Class getBeanClass(Element element) {
-    return GroupDataConnectorFactoryBean.class;
+    return FindStemByNameDataConnectorFactoryBean.class;
   }
 
+  /** {@inheritDoc} */
   protected void doParse(String pluginId, Element pluginConfig, Map<QName, List<Element>> pluginConfigChildren,
       BeanDefinitionBuilder pluginBuilder, ParserContext parserContext) {
     super.doParse(pluginId, pluginConfig, pluginConfigChildren, pluginBuilder, parserContext);

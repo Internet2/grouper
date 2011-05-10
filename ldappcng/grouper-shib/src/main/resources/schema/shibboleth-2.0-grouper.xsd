@@ -25,10 +25,10 @@
     <documentation>Grouper support for the Shibboleth 2.0 Attribute Resolver</documentation>
   </annotation>
 
-  <complexType name="GroupDataConnector">
+  <complexType name="FindGroupByNameDataConnector">
     <annotation>
       <documentation>
-        A data connector that returns Group information from Grouper.
+        A data connector that finds a Group by name and returns the Group's attributes.
       </documentation>
     </annotation>
     <complexContent>
@@ -37,10 +37,10 @@
     </complexContent>
   </complexType>
 
-  <complexType name="MemberDataConnector">
+  <complexType name="FindMemberBySubjectIdOrIdentifierDataConnector">
     <annotation>
       <documentation>
-        A data connector that returns Member information from Grouper.
+        A data connector that finds a Member by Subject Id or Identifier and returns the Member's attributes.
       </documentation>
     </annotation>
     <complexContent>
@@ -57,10 +57,10 @@
     </complexContent>
   </complexType>
 
-  <complexType name="StemDataConnector">
+  <complexType name="FindStemByNameDataConnector">
       <annotation>
       <documentation>
-        A data connector that can returns Stem information from Grouper.
+        A data connector that can finds a Stem by name and returns the Stem's attributes.
       </documentation>
     </annotation>
     <complexContent>

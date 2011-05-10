@@ -18,9 +18,9 @@ import edu.internet2.middleware.grouper.shibboleth.attribute.config.SimpleAttrib
 import edu.internet2.middleware.grouper.shibboleth.attributeDefinition.config.GroupAttributeDefinitionBeanDefinitionParser;
 import edu.internet2.middleware.grouper.shibboleth.attributeDefinition.config.MemberAttributeDefinitionBeanDefinitionParser;
 import edu.internet2.middleware.grouper.shibboleth.attributeDefinition.config.SubjectAttributeDefinitionBeanDefinitionParser;
-import edu.internet2.middleware.grouper.shibboleth.dataConnector.config.GroupDataConnectorBeanDefinitionParser;
-import edu.internet2.middleware.grouper.shibboleth.dataConnector.config.MemberDataConnectorBeanDefinitionParser;
-import edu.internet2.middleware.grouper.shibboleth.dataConnector.config.StemDataConnectorBeanDefinitionParser;
+import edu.internet2.middleware.grouper.shibboleth.dataConnector.config.FindGroupByNameDataConnectorBeanDefinitionParser;
+import edu.internet2.middleware.grouper.shibboleth.dataConnector.config.FindMemberBySubjectIdOrIdentifierDataConnectorBeanDefinitionParser;
+import edu.internet2.middleware.grouper.shibboleth.dataConnector.config.FindStemByNameDataConnectorBeanDefinitionParser;
 import edu.internet2.middleware.grouper.shibboleth.filter.provider.AndMatchQueryFilterBeanDefinitionParser;
 import edu.internet2.middleware.grouper.shibboleth.filter.provider.GroupsByExactAttributeMatchQueryFilterBeanDefinitionParser;
 import edu.internet2.middleware.grouper.shibboleth.filter.provider.MinusMatchQueryFilterBeanDefinitionParser;
@@ -37,14 +37,14 @@ public class GrouperNamespaceHandler extends BaseSpringNamespaceHandler {
 
   public void init() {
 
-    registerBeanDefinitionParser(GroupDataConnectorBeanDefinitionParser.TYPE_NAME,
-        new GroupDataConnectorBeanDefinitionParser());
+    registerBeanDefinitionParser(FindGroupByNameDataConnectorBeanDefinitionParser.TYPE_NAME,
+        new FindGroupByNameDataConnectorBeanDefinitionParser());
 
-    registerBeanDefinitionParser(MemberDataConnectorBeanDefinitionParser.TYPE_NAME,
-        new MemberDataConnectorBeanDefinitionParser());
+    registerBeanDefinitionParser(FindMemberBySubjectIdOrIdentifierDataConnectorBeanDefinitionParser.TYPE_NAME,
+        new FindMemberBySubjectIdOrIdentifierDataConnectorBeanDefinitionParser());
 
-    registerBeanDefinitionParser(StemDataConnectorBeanDefinitionParser.TYPE_NAME,
-        new StemDataConnectorBeanDefinitionParser());
+    registerBeanDefinitionParser(FindStemByNameDataConnectorBeanDefinitionParser.TYPE_NAME,
+        new FindStemByNameDataConnectorBeanDefinitionParser());
 
     registerBeanDefinitionParser(AttributeIdentifierBeanDefinitionParser.TYPE_NAME,
         new AttributeIdentifierBeanDefinitionParser());

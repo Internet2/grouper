@@ -12,25 +12,25 @@ import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.shibboleth.common.attribute.BaseAttribute;
 
-public class StemDataConnectorTest extends BaseDataConnectorTest {
+public class FindStemByNameDataConnectorTest extends BaseDataConnectorTest {
 
-  private static final Logger LOG = LoggerFactory.getLogger(StemDataConnectorTest.class);
+  private static final Logger LOG = LoggerFactory.getLogger(FindStemByNameDataConnectorTest.class);
 
   public static final String RESOLVER_CONFIG = TEST_PATH + "StemDataConnectorTest-resolver.xml";
 
-  public StemDataConnectorTest(String name) {
+  public FindStemByNameDataConnectorTest(String name) {
     super(name);
   }
 
   public static void main(String[] args) {
-    TestRunner.run(StemDataConnectorTest.class);
-    // TestRunner.run(new StemDataConnectorTest("testAttributeDef"));
+    TestRunner.run(FindStemByNameDataConnectorTest.class);
+    // TestRunner.run(new FindStemByNameDataConnectorTest("testAttributeDef"));
   }
   
   private void runResolveTest(String groupDataConnectorName, Stem stem, AttributeMap correctMap) {
     try {
       GenericApplicationContext gContext = BaseDataConnectorTest.createSpringContext(RESOLVER_CONFIG);
-      StemDataConnector sdc = (StemDataConnector) gContext.getBean(groupDataConnectorName);
+      FindStemByNameDataConnector sdc = (FindStemByNameDataConnector) gContext.getBean(groupDataConnectorName);
       AttributeMap currentMap = new AttributeMap(sdc.resolve(getShibContext(stem.getName())));
       if (LOG.isDebugEnabled()) {
         LOG.debug("correct\n{}", correctMap);
@@ -46,7 +46,7 @@ public class StemDataConnectorTest extends BaseDataConnectorTest {
   public void testRootStem() {
     try {
       GenericApplicationContext gContext = BaseDataConnectorTest.createSpringContext(RESOLVER_CONFIG);
-      StemDataConnector sdc = (StemDataConnector) gContext.getBean("testAll");
+      FindStemByNameDataConnector sdc = (FindStemByNameDataConnector) gContext.getBean("testAll");
       Map<String, BaseAttribute> map = sdc.resolve(getShibContext("root"));
       assertTrue(map.isEmpty());
     } catch (Exception e) {
@@ -57,7 +57,7 @@ public class StemDataConnectorTest extends BaseDataConnectorTest {
   public void testStemNotFound() {
     try {
       GenericApplicationContext gContext = BaseDataConnectorTest.createSpringContext(RESOLVER_CONFIG);
-      StemDataConnector sdc = (StemDataConnector) gContext.getBean("testAll");
+      FindStemByNameDataConnector sdc = (FindStemByNameDataConnector) gContext.getBean("testAll");
       Map<String, BaseAttribute> map = sdc.resolve(getShibContext("notfound"));
       assertTrue(map.isEmpty());
     } catch (Exception e) {

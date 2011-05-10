@@ -15,7 +15,7 @@
    http://grouper.internet2.edu/ldappc classpath:/schema/ldappc.xsd">
 
   <!-- group data connector -->
-  <resolver:DataConnector id="GroupDataConnector" xsi:type="grouper:GroupDataConnector">
+  <resolver:DataConnector id="GroupDataConnector" xsi:type="grouper:FindGroupByNameDataConnector">
     <!-- a do nothing filter for tests -->
     <grouper:MatchFilter xsi:type="grouper:OR">    
       <grouper:MatchFilter xsi:type="grouper:GroupsByExactAttribute" name="extension" value="NOT_FOUND" />
@@ -26,11 +26,11 @@
   </resolver:DataConnector>
 
   <!-- stem data connector -->
-  <resolver:DataConnector id="StemDataConnector" xsi:type="grouper:StemDataConnector">
+  <resolver:DataConnector id="StemDataConnector" xsi:type="grouper:FindStemByNameDataConnector">
   </resolver:DataConnector>
   
   <!-- member data connector -->
-  <resolver:DataConnector id="MemberDataConnector" xsi:type="grouper:MemberDataConnector">
+  <resolver:DataConnector id="MemberDataConnector" xsi:type="grouper:FindMemberBySubjectIdOrIdentifierDataConnector">
     <grouper:Attribute id="groups" />
   </resolver:DataConnector>
 

@@ -24,22 +24,22 @@ import org.springframework.beans.factory.xml.ParserContext;
 import org.w3c.dom.Element;
 
 import edu.internet2.middleware.grouper.shibboleth.config.GrouperNamespaceHandler;
-import edu.internet2.middleware.grouper.shibboleth.util.SourceIdentifierBeanDefinitionParser;
-import edu.internet2.middleware.shibboleth.common.config.SpringConfigurationUtils;
+import edu.internet2.middleware.grouper.shibboleth.dataConnector.FindGroupByNameDataConnector;
 
-public class MemberDataConnectorBeanDefinitionParser extends BaseGrouperDataConnectorBeanDefinitionParser {
+/** Spring bean definition parser for configuring a {@link FindGroupByNameDataConnector}. */
+public class FindGroupByNameDataConnectorBeanDefinitionParser extends BaseGrouperDataConnectorBeanDefinitionParser {
 
-  public static final QName TYPE_NAME = new QName(GrouperNamespaceHandler.NAMESPACE, "MemberDataConnector");
+  /** Schema type name. */
+  public static final QName TYPE_NAME = new QName(GrouperNamespaceHandler.NAMESPACE, "FindGroupByNameDataConnector");
 
+  /** {@inheritDoc} */
   protected Class getBeanClass(Element element) {
-    return MemberDataConnectorFactoryBean.class;
+    return FindGroupByNameDataConnectorFactoryBean.class;
   }
 
+  /** {@inheritDoc} */
   protected void doParse(String pluginId, Element pluginConfig, Map<QName, List<Element>> pluginConfigChildren,
       BeanDefinitionBuilder pluginBuilder, ParserContext parserContext) {
-    super.doParse(pluginId, pluginConfig, pluginConfigChildren, pluginBuilder, parserContext);       
-    
-    pluginBuilder.addPropertyValue("sourceIdentifiers", SpringConfigurationUtils.parseInnerCustomElements(pluginConfigChildren
-        .get(SourceIdentifierBeanDefinitionParser.TYPE_NAME), parserContext));
+    super.doParse(pluginId, pluginConfig, pluginConfigChildren, pluginBuilder, parserContext);
   }
 }

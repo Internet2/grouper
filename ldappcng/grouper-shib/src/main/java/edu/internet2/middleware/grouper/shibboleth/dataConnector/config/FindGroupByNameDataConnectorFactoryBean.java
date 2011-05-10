@@ -14,21 +14,23 @@
 
 package edu.internet2.middleware.grouper.shibboleth.dataConnector.config;
 
-import edu.internet2.middleware.grouper.shibboleth.dataConnector.GroupDataConnector;
+import edu.internet2.middleware.grouper.shibboleth.dataConnector.FindGroupByNameDataConnector;
 
 /**
- * Spring bean factory that produces {@link GroupDataConnector}s.
+ * Spring bean factory that produces {@link FindGroupByNameDataConnector}s.
  */
-public class GroupDataConnectorFactoryBean extends BaseGrouperDataConnectorFactoryBean {
+public class FindGroupByNameDataConnectorFactoryBean extends BaseGrouperDataConnectorFactoryBean {
 
+  /** {@inheritDoc} */
   protected Object createInstance() throws Exception {
-    GroupDataConnector connector = new GroupDataConnector();
+    FindGroupByNameDataConnector connector = new FindGroupByNameDataConnector();
     populateDataConnector(connector);
     return connector;
   }
 
+  /** {@inheritDoc} */
   public Class getObjectType() {
-    return GroupDataConnector.class;
+    return FindGroupByNameDataConnector.class;
   }
 
 }

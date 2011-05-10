@@ -16,25 +16,25 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.shibboleth.common.attribute.BaseAttribute;
 import edu.internet2.middleware.subject.Subject;
 
-public class MemberDataConnectorTest extends BaseDataConnectorTest {
+public class FindMemberBySubjectIdOrIdentifierDataConnectorTest extends BaseDataConnectorTest {
 
-  private static final Logger LOG = LoggerFactory.getLogger(MemberDataConnectorTest.class);
+  private static final Logger LOG = LoggerFactory.getLogger(FindMemberBySubjectIdOrIdentifierDataConnectorTest.class);
 
   public static final String RESOLVER_CONFIG = TEST_PATH + "MemberDataConnectorTest-resolver.xml";
 
-  public MemberDataConnectorTest(String name) {
+  public FindMemberBySubjectIdOrIdentifierDataConnectorTest(String name) {
     super(name);
   }
 
   public static void main(String[] args) {
-    TestRunner.run(MemberDataConnectorTest.class);
-    // TestRunner.run(new MemberDataConnectorTest("testAttributeDef"));
+    TestRunner.run(FindMemberBySubjectIdOrIdentifierDataConnectorTest.class);
+    // TestRunner.run(new FindMemberBySubjectIdOrIdentifierDataConnectorTest("testAttributeDef"));
   }
 
   private void runResolveTest(String groupDataConnectorName, Subject subject, AttributeMap correctMap) {
     try {
       GenericApplicationContext gContext = BaseDataConnectorTest.createSpringContext(RESOLVER_CONFIG);
-      MemberDataConnector mdc = (MemberDataConnector) gContext.getBean(groupDataConnectorName);
+      FindMemberBySubjectIdOrIdentifierDataConnector mdc = (FindMemberBySubjectIdOrIdentifierDataConnector) gContext.getBean(groupDataConnectorName);
       AttributeMap currentMap = new AttributeMap(mdc.resolve(getShibContext(subject.getId())));
       if (LOG.isDebugEnabled()) {
         LOG.debug("correct\n{}", correctMap);
@@ -71,7 +71,7 @@ public class MemberDataConnectorTest extends BaseDataConnectorTest {
   public void testSubjectNotFound() {
     try {
       GenericApplicationContext gContext = BaseDataConnectorTest.createSpringContext(RESOLVER_CONFIG);
-      MemberDataConnector mdc = (MemberDataConnector) gContext.getBean("testIdOnly");
+      FindMemberBySubjectIdOrIdentifierDataConnector mdc = (FindMemberBySubjectIdOrIdentifierDataConnector) gContext.getBean("testIdOnly");
       Map<String, BaseAttribute> map = mdc.resolve(getShibContext("notfound"));
       assertTrue(map.isEmpty());
     } catch (Exception e) {
@@ -82,7 +82,7 @@ public class MemberDataConnectorTest extends BaseDataConnectorTest {
   public void testMemberNotFound() {
     try {
       GenericApplicationContext gContext = BaseDataConnectorTest.createSpringContext(RESOLVER_CONFIG);
-      MemberDataConnector mdc = (MemberDataConnector) gContext.getBean("testIdOnly");
+      FindMemberBySubjectIdOrIdentifierDataConnector mdc = (FindMemberBySubjectIdOrIdentifierDataConnector) gContext.getBean("testIdOnly");
       Map<String, BaseAttribute> map = mdc.resolve(getShibContext(SubjectTestHelper.SUBJ9_ID));
       assertTrue(map.isEmpty());
       assertNotNull(SubjectFinder.findByIdOrIdentifier(SubjectTestHelper.SUBJ9_ID, false));
@@ -94,7 +94,7 @@ public class MemberDataConnectorTest extends BaseDataConnectorTest {
   public void testDoNotReturnGroups() {
     try {
       GenericApplicationContext gContext = BaseDataConnectorTest.createSpringContext(RESOLVER_CONFIG);
-      MemberDataConnector mdc = (MemberDataConnector) gContext.getBean("testIdOnly");
+      FindMemberBySubjectIdOrIdentifierDataConnector mdc = (FindMemberBySubjectIdOrIdentifierDataConnector) gContext.getBean("testIdOnly");
       Map<String, BaseAttribute> map = mdc.resolve(getShibContext(groupA.getName()));
       assertTrue(map.isEmpty());
     } catch (Exception e) {

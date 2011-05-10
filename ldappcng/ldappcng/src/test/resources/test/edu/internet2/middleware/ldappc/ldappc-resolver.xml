@@ -13,10 +13,10 @@
    http://grouper.internet2.edu/shibboleth/2.0 classpath:/schema/shibboleth-2.0-grouper.xsd">
 
   <!-- group data connector -->
-  <resolver:DataConnector id="groupDataConnector" xsi:type="grouper:GroupDataConnector" />
+  <resolver:DataConnector id="groupDataConnector" xsi:type="grouper:FindGroupByNameDataConnector" />
 
   <!-- filtered group data connector -->
-  <resolver:DataConnector id="filteredGroupDataConnector" xsi:type="grouper:GroupDataConnector">
+  <resolver:DataConnector id="filteredGroupDataConnector" xsi:type="grouper:FindGroupByNameDataConnector">
     <grouper:MatchFilter xsi:type="grouper:Minus">
       <grouper:MatchFilter xsi:type="grouper:GroupsInStem" name="edu" scope="SUB" />
       <grouper:MatchFilter xsi:type="grouper:GroupsByExactAttribute" name="extension" value="groupD" />

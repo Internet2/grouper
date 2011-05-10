@@ -9,7 +9,7 @@
    urn:mace:shibboleth:2.0:resolver:ad classpath:/schema/shibboleth-2.0-attribute-resolver-ad.xsd
    http://grouper.internet2.edu/shibboleth/2.0 classpath:/schema/shibboleth-2.0-grouper.xsd">
 
-  <resolver:DataConnector id="testAll" xsi:type="grouper:GroupDataConnector">
+  <resolver:DataConnector id="testAll" xsi:type="grouper:FindGroupByNameDataConnector">
     <grouper:Attribute id="admins" />
     <grouper:Attribute id="optins" />
     <grouper:Attribute id="optouts" />
@@ -36,66 +36,66 @@
     <!-- <grouper:Attribute id="groups:composite:customList" /> -->
   </resolver:DataConnector>
 
-  <resolver:DataConnector id="testAttributesOnly" xsi:type="grouper:GroupDataConnector" />
+  <resolver:DataConnector id="testAttributesOnly" xsi:type="grouper:FindGroupByNameDataConnector" />
   
-  <resolver:DataConnector id="testAttributesAndAttributeDefs" xsi:type="grouper:GroupDataConnector">
+  <resolver:DataConnector id="testAttributesAndAttributeDefs" xsi:type="grouper:FindGroupByNameDataConnector">
     <grouper:Attribute id="parentStem:mailAlternateAddress" />
   </resolver:DataConnector>
 
-  <resolver:DataConnector id="testAttributesAndMembers" xsi:type="grouper:GroupDataConnector">
+  <resolver:DataConnector id="testAttributesAndMembers" xsi:type="grouper:FindGroupByNameDataConnector">
     <grouper:Attribute id="members" />
   </resolver:DataConnector>
 
-  <resolver:DataConnector id="testAttributesAndImmediateMembers" xsi:type="grouper:GroupDataConnector">
+  <resolver:DataConnector id="testAttributesAndImmediateMembers" xsi:type="grouper:FindGroupByNameDataConnector">
     <grouper:Attribute id="members:immediate" />
   </resolver:DataConnector>
 
-  <resolver:DataConnector id="testAttributesAndEffectiveMembers" xsi:type="grouper:GroupDataConnector">
+  <resolver:DataConnector id="testAttributesAndEffectiveMembers" xsi:type="grouper:FindGroupByNameDataConnector">
     <grouper:Attribute id="members:effective" />
   </resolver:DataConnector>
 
-  <resolver:DataConnector id="testAttributesAndAllMembers" xsi:type="grouper:GroupDataConnector">
+  <resolver:DataConnector id="testAttributesAndAllMembers" xsi:type="grouper:FindGroupByNameDataConnector">
     <grouper:Attribute id="members:all" />
   </resolver:DataConnector>
 
-  <resolver:DataConnector id="testAttributesAndMembersCustomList" xsi:type="grouper:GroupDataConnector">
+  <resolver:DataConnector id="testAttributesAndMembersCustomList" xsi:type="grouper:FindGroupByNameDataConnector">
     <grouper:Attribute id="members:all:customList" />
   </resolver:DataConnector>
 
-  <resolver:DataConnector id="testFilterExactAttribute" xsi:type="grouper:GroupDataConnector">
+  <resolver:DataConnector id="testFilterExactAttribute" xsi:type="grouper:FindGroupByNameDataConnector">
     <grouper:MatchFilter xsi:type="grouper:GroupsByExactAttribute" name="name" value="parentStem:groupA" />
   </resolver:DataConnector>
 
-  <resolver:DataConnector id="testFilterStemNameONE" xsi:type="grouper:GroupDataConnector">
+  <resolver:DataConnector id="testFilterStemNameONE" xsi:type="grouper:FindGroupByNameDataConnector">
     <grouper:MatchFilter xsi:type="grouper:GroupsInStem" name="parentStem" scope="ONE" />
   </resolver:DataConnector>
 
-  <resolver:DataConnector id="testFilterStemNameSUB" xsi:type="grouper:GroupDataConnector">
+  <resolver:DataConnector id="testFilterStemNameSUB" xsi:type="grouper:FindGroupByNameDataConnector">
     <grouper:MatchFilter xsi:type="grouper:GroupsInStem" name="parentStem" scope="SUB" />
   </resolver:DataConnector>
 
-  <resolver:DataConnector id="testFilterAnd" xsi:type="grouper:GroupDataConnector">
+  <resolver:DataConnector id="testFilterAnd" xsi:type="grouper:FindGroupByNameDataConnector">
     <grouper:MatchFilter xsi:type="grouper:AND">
       <grouper:MatchFilter xsi:type="grouper:GroupsByExactAttribute" name="name" value="parentStem:groupB" />
       <grouper:MatchFilter xsi:type="grouper:GroupsInStem" name="parentStem" scope="ONE" />
     </grouper:MatchFilter>
   </resolver:DataConnector>
 
-  <resolver:DataConnector id="testFilterOr" xsi:type="grouper:GroupDataConnector">
+  <resolver:DataConnector id="testFilterOr" xsi:type="grouper:FindGroupByNameDataConnector">
     <grouper:MatchFilter xsi:type="grouper:OR">
       <grouper:MatchFilter xsi:type="grouper:GroupsByExactAttribute" name="name" value="parentStem:groupB" />
       <grouper:MatchFilter xsi:type="grouper:GroupsInStem" name="parentStem:childStem" scope="ONE" />
     </grouper:MatchFilter>
   </resolver:DataConnector>
   
-  <resolver:DataConnector id="testFilterMinus" xsi:type="grouper:GroupDataConnector">
+  <resolver:DataConnector id="testFilterMinus" xsi:type="grouper:FindGroupByNameDataConnector">
     <grouper:MatchFilter xsi:type="grouper:Minus">
       <grouper:MatchFilter xsi:type="grouper:GroupsInStem" name="parentStem" scope="ONE" />
       <grouper:MatchFilter xsi:type="grouper:GroupsByExactAttribute" name="name" value="parentStem:groupB" />      
     </grouper:MatchFilter>
   </resolver:DataConnector>
   
-  <resolver:DataConnector id="testFilterMinusAttributeNotFound" xsi:type="grouper:GroupDataConnector">
+  <resolver:DataConnector id="testFilterMinusAttributeNotFound" xsi:type="grouper:FindGroupByNameDataConnector">
     <grouper:MatchFilter xsi:type="grouper:Minus">
       <grouper:MatchFilter xsi:type="grouper:GroupsInStem" name="parentStem" scope="ONE" />
       <grouper:MatchFilter xsi:type="grouper:GroupsByExactAttribute" name="notFound" value="notFound" />      

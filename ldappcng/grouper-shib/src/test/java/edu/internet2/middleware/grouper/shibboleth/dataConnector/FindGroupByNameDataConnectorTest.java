@@ -18,23 +18,23 @@ import edu.internet2.middleware.grouper.shibboleth.filter.MatchQueryFilter;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.shibboleth.common.attribute.BaseAttribute;
 
-public class GroupDataConnectorTest extends BaseDataConnectorTest {
+public class FindGroupByNameDataConnectorTest extends BaseDataConnectorTest {
 
   public static final String RESOLVER_CONFIG = TEST_PATH + "GroupDataConnectorTest-resolver.xml";
 
-  public GroupDataConnectorTest(String name) {
+  public FindGroupByNameDataConnectorTest(String name) {
     super(name);
   }
 
   public static void main(String[] args) {
-    //TestRunner.run(GroupDataConnectorTest.class);
-    TestRunner.run(new GroupDataConnectorTest("testFilterExactAttribute"));
+    TestRunner.run(FindGroupByNameDataConnectorTest.class);
+    //TestRunner.run(new FindGroupByNameDataConnectorTest("testFilterExactAttribute"));
   }
 
   private void runResolveTest(String groupDataConnectorName, Group group, AttributeMap correctMap) {
     try {
       GenericApplicationContext gContext = BaseDataConnectorTest.createSpringContext(RESOLVER_CONFIG);
-      GroupDataConnector gdc = (GroupDataConnector) gContext.getBean(groupDataConnectorName);
+      FindGroupByNameDataConnector gdc = (FindGroupByNameDataConnector) gContext.getBean(groupDataConnectorName);
       AttributeMap currentMap = new AttributeMap(gdc.resolve(getShibContext(group.getName())));
       assertEquals(correctMap, currentMap);
     } catch (Exception e) {
@@ -78,7 +78,7 @@ public class GroupDataConnectorTest extends BaseDataConnectorTest {
   public void testGroupNotFound() {
     try {
       GenericApplicationContext gContext = BaseDataConnectorTest.createSpringContext(RESOLVER_CONFIG);
-      GroupDataConnector gdc = (GroupDataConnector) gContext.getBean("testAttributesOnly");
+      FindGroupByNameDataConnector gdc = (FindGroupByNameDataConnector) gContext.getBean("testAttributesOnly");
       Map<String, BaseAttribute> map = gdc.resolve(getShibContext("notfound"));
       assertTrue(map.isEmpty());
     } catch (Exception e) {
@@ -151,7 +151,7 @@ public class GroupDataConnectorTest extends BaseDataConnectorTest {
 
     try {
       GenericApplicationContext gContext = BaseDataConnectorTest.createSpringContext(RESOLVER_CONFIG);
-      GroupDataConnector gdc = (GroupDataConnector) gContext.getBean("testFilterExactAttribute");
+      FindGroupByNameDataConnector gdc = (FindGroupByNameDataConnector) gContext.getBean("testFilterExactAttribute");
 
       MatchQueryFilter filter = gdc.getMatchQueryFilter();
 
@@ -179,7 +179,7 @@ public class GroupDataConnectorTest extends BaseDataConnectorTest {
   public void testFilterStemNameSUB() {
     try {
       GenericApplicationContext gContext = BaseDataConnectorTest.createSpringContext(RESOLVER_CONFIG);
-      GroupDataConnector gdc = (GroupDataConnector) gContext.getBean("testFilterStemNameSUB");
+      FindGroupByNameDataConnector gdc = (FindGroupByNameDataConnector) gContext.getBean("testFilterStemNameSUB");
 
       MatchQueryFilter filter = gdc.getMatchQueryFilter();
 
@@ -202,7 +202,7 @@ public class GroupDataConnectorTest extends BaseDataConnectorTest {
   public void testFilterStemNameONE() {
     try {
       GenericApplicationContext gContext = BaseDataConnectorTest.createSpringContext(RESOLVER_CONFIG);
-      GroupDataConnector gdc = (GroupDataConnector) gContext.getBean("testFilterStemNameONE");
+      FindGroupByNameDataConnector gdc = (FindGroupByNameDataConnector) gContext.getBean("testFilterStemNameONE");
 
       MatchQueryFilter filter = gdc.getMatchQueryFilter();
 
@@ -225,7 +225,7 @@ public class GroupDataConnectorTest extends BaseDataConnectorTest {
   public void testFilterAnd() {
     try {
       GenericApplicationContext gContext = BaseDataConnectorTest.createSpringContext(RESOLVER_CONFIG);
-      GroupDataConnector gdc = (GroupDataConnector) gContext.getBean("testFilterAnd");
+      FindGroupByNameDataConnector gdc = (FindGroupByNameDataConnector) gContext.getBean("testFilterAnd");
 
       MatchQueryFilter filter = gdc.getMatchQueryFilter();
 
@@ -248,7 +248,7 @@ public class GroupDataConnectorTest extends BaseDataConnectorTest {
   public void testFilterOr() {
     try {
       GenericApplicationContext gContext = BaseDataConnectorTest.createSpringContext(RESOLVER_CONFIG);
-      GroupDataConnector gdc = (GroupDataConnector) gContext.getBean("testFilterOr");
+      FindGroupByNameDataConnector gdc = (FindGroupByNameDataConnector) gContext.getBean("testFilterOr");
 
       MatchQueryFilter filter = gdc.getMatchQueryFilter();
 
@@ -271,7 +271,7 @@ public class GroupDataConnectorTest extends BaseDataConnectorTest {
   public void testFilterMinus() {
     try {
       GenericApplicationContext gContext = BaseDataConnectorTest.createSpringContext(RESOLVER_CONFIG);
-      GroupDataConnector gdc = (GroupDataConnector) gContext.getBean("testFilterMinus");
+      FindGroupByNameDataConnector gdc = (FindGroupByNameDataConnector) gContext.getBean("testFilterMinus");
 
       MatchQueryFilter filter = gdc.getMatchQueryFilter();
 
@@ -294,7 +294,7 @@ public class GroupDataConnectorTest extends BaseDataConnectorTest {
   public void testFilterMinusNotFound() {
     try {
       GenericApplicationContext gContext = BaseDataConnectorTest.createSpringContext(RESOLVER_CONFIG);
-      GroupDataConnector gdc = (GroupDataConnector) gContext.getBean("testFilterMinusAttributeNotFound");
+      FindGroupByNameDataConnector gdc = (FindGroupByNameDataConnector) gContext.getBean("testFilterMinusAttributeNotFound");
 
       MatchQueryFilter filter = gdc.getMatchQueryFilter();
 
@@ -318,7 +318,7 @@ public class GroupDataConnectorTest extends BaseDataConnectorTest {
 
     try {
       GenericApplicationContext gContext = BaseDataConnectorTest.createSpringContext(RESOLVER_CONFIG);
-      GroupDataConnector gdc = (GroupDataConnector) gContext.getBean("testFilterExactAttribute");
+      FindGroupByNameDataConnector gdc = (FindGroupByNameDataConnector) gContext.getBean("testFilterExactAttribute");
 
       assertTrue("map should not be empty", !gdc.resolve(getShibContext(groupA.getName())).isEmpty());
       assertTrue("map should be empty", gdc.resolve(getShibContext(groupB.getName())).isEmpty());
@@ -331,7 +331,7 @@ public class GroupDataConnectorTest extends BaseDataConnectorTest {
   public void testFilterMatchStemNameSUB() {
     try {
       GenericApplicationContext gContext = BaseDataConnectorTest.createSpringContext(RESOLVER_CONFIG);
-      GroupDataConnector gdc = (GroupDataConnector) gContext.getBean("testFilterStemNameSUB");
+      FindGroupByNameDataConnector gdc = (FindGroupByNameDataConnector) gContext.getBean("testFilterStemNameSUB");
 
       assertTrue("map should not be empty", !gdc.resolve(getShibContext(groupA.getName())).isEmpty());
       assertTrue("map should not be empty", !gdc.resolve(getShibContext(groupB.getName())).isEmpty());
@@ -344,7 +344,7 @@ public class GroupDataConnectorTest extends BaseDataConnectorTest {
   public void testFilterMatchStemNameONE() {
     try {
       GenericApplicationContext gContext = BaseDataConnectorTest.createSpringContext(RESOLVER_CONFIG);
-      GroupDataConnector gdc = (GroupDataConnector) gContext.getBean("testFilterStemNameONE");
+      FindGroupByNameDataConnector gdc = (FindGroupByNameDataConnector) gContext.getBean("testFilterStemNameONE");
 
       assertTrue("map should not be empty", !gdc.resolve(getShibContext(groupA.getName())).isEmpty());
       assertTrue("map should not be empty", !gdc.resolve(getShibContext(groupB.getName())).isEmpty());
@@ -358,7 +358,7 @@ public class GroupDataConnectorTest extends BaseDataConnectorTest {
   public void testMatchFilterAnd() {
     try {
       GenericApplicationContext gContext = BaseDataConnectorTest.createSpringContext(RESOLVER_CONFIG);
-      GroupDataConnector gdc = (GroupDataConnector) gContext.getBean("testFilterAnd");
+      FindGroupByNameDataConnector gdc = (FindGroupByNameDataConnector) gContext.getBean("testFilterAnd");
 
       assertTrue("map should be empty", gdc.resolve(getShibContext(groupA.getName())).isEmpty());
       assertTrue("map should not be empty", !gdc.resolve(getShibContext(groupB.getName())).isEmpty());
@@ -371,7 +371,7 @@ public class GroupDataConnectorTest extends BaseDataConnectorTest {
   public void testMatchFilterOr() {
     try {
       GenericApplicationContext gContext = BaseDataConnectorTest.createSpringContext(RESOLVER_CONFIG);
-      GroupDataConnector gdc = (GroupDataConnector) gContext.getBean("testFilterOr");
+      FindGroupByNameDataConnector gdc = (FindGroupByNameDataConnector) gContext.getBean("testFilterOr");
 
       assertTrue("map should be empty", gdc.resolve(getShibContext(groupA.getName())).isEmpty());
       assertTrue("map should not be empty", !gdc.resolve(getShibContext(groupB.getName())).isEmpty());
@@ -384,7 +384,7 @@ public class GroupDataConnectorTest extends BaseDataConnectorTest {
   public void testMatchFilterMinus() {
     try {
       GenericApplicationContext gContext = BaseDataConnectorTest.createSpringContext(RESOLVER_CONFIG);
-      GroupDataConnector gdc = (GroupDataConnector) gContext.getBean("testFilterMinus");
+      FindGroupByNameDataConnector gdc = (FindGroupByNameDataConnector) gContext.getBean("testFilterMinus");
 
       assertTrue("map should not be empty", !gdc.resolve(getShibContext(groupA.getName())).isEmpty());
       assertTrue("map should be empty", gdc.resolve(getShibContext(groupB.getName())).isEmpty());
@@ -398,7 +398,7 @@ public class GroupDataConnectorTest extends BaseDataConnectorTest {
     try {
       GenericApplicationContext gContext = BaseDataConnectorTest.createSpringContext(TEST_PATH
           + "GroupDataConnectorTest-resolver-subjectId.xml");
-      GroupDataConnector gdc = (GroupDataConnector) gContext.getBean("customSubjectId");
+      FindGroupByNameDataConnector gdc = (FindGroupByNameDataConnector) gContext.getBean("customSubjectId");
       Map<String, BaseAttribute> map = gdc.resolve(getShibContext("notfound"));
       assertTrue(map.isEmpty());
     } catch (Exception e) {
