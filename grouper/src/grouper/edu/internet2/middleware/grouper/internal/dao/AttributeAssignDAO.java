@@ -566,7 +566,21 @@ public interface AttributeAssignDAO extends GrouperDAO {
    * @return the attribute assigns that match
    */
   public Set<AttributeAssign> findByAttributeDefNameAndValueString(String attributeDefNameId, String value, QueryOptions queryOptions);
-  
 
+  /**
+   * securely search for assignments
+   * @param attributeAssignType
+   * @param attributeDefId optional
+   * @param attributeDefNameId mutually exclusive with attributeDefIds
+   * @param ownerGroupId optional
+   * @param ownerStemId optional
+   * @param enabled (null means all, true means enabled, false means disabled)
+   * @param includeAssignmentsOnAssignments if assignments on assignments should also be included
+   * @return the assignments
+   */
+  public Set<AttributeAssign> findAttributeAssignments(
+      AttributeAssignType attributeAssignType, String attributeDefId, String attributeDefNameId,
+      String ownerGroupId, String ownerStemId, 
+      Boolean enabled, boolean includeAssignmentsOnAssignments);
   
 }

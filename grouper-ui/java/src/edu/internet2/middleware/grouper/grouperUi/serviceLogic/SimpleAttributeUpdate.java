@@ -30,8 +30,12 @@ import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefType;
 import edu.internet2.middleware.grouper.attr.AttributeDefValueType;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignAction;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssignType;
+import edu.internet2.middleware.grouper.attr.finder.AttributeAssignFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
+import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeAssign;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiMember;
 import edu.internet2.middleware.grouper.grouperUi.beans.attributeUpdate.AttributeUpdateRequestContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiPaging;
@@ -39,6 +43,7 @@ import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
 import edu.internet2.middleware.grouper.internal.dao.QueryPaging;
 import edu.internet2.middleware.grouper.membership.MembershipType;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.privs.PrivilegeAssignType;
@@ -1664,4 +1669,132 @@ public class SimpleAttributeUpdate {
   /** logger */
   private static final Log LOG = LogFactory.getLog(SimpleAttributeUpdate.class);
   
+  /**
+   * the owner type drop down was changed
+   * @param httpServletRequest
+   * @param httpServletResponse
+   */
+  public void assignSelectOwnerType(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
+  
+    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+    
+    AttributeUpdateRequestContainer attributeUpdateRequestContainer = AttributeUpdateRequestContainer.retrieveFromRequestOrCreate();
+    
+    String attributeAssignTypeString = httpServletRequest.getParameter("attributeAssignType");
+    
+    //clear out the assignments panel
+    guiResponseJs.addAction(GuiScreenAction.newInnerHtml("#attributeAssignAssignments", ""));
+    
+    
+    if (StringUtils.isBlank(attributeAssignTypeString)) {
+      guiResponseJs.addAction(GuiScreenAction.newAlert(TagUtils.navResourceString("simpleAttributeAssign.requiredOwnerType")));
+
+      //clear out the filter panels for generic and specific
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtml("#attributeAssignFilterCommon", ""));
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtml("#attributeAssignFilterOwnerSpecific", ""));
+      
+      return;
+    }
+    
+    AttributeAssignType attributeAssignType = AttributeAssignType.valueOfIgnoreCase(attributeAssignTypeString, true);
+    
+    if (attributeAssignType.isAssignmentOnAssignment()) {
+      throw new RuntimeException("Why is this an assignment on an assignment?");
+    }
+    
+    attributeUpdateRequestContainer.setAttributeAssignType(attributeAssignType);
+
+    //put in the generic panel that filters on attribute definitions
+    guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#attributeAssignFilter", 
+        "/WEB-INF/grouperUi/templates/simpleAttributeUpdate/simpleAttributeAssignFilter.jsp"));
+
+    
+  }
+
+  /**
+   * filter attribute assignments and display the results
+   * @param httpServletRequest
+   * @param httpServletResponse
+   */
+  public void assignFilter(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    AttributeUpdateRequestContainer attributeUpdateRequestContainer = AttributeUpdateRequestContainer.retrieveFromRequestOrCreate();
+
+    GrouperSession grouperSession = null;
+
+    try {
+      grouperSession = GrouperSession.start(loggedInSubject);
+      
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+  
+      String attributeAssignTypeString = httpServletRequest.getParameter("attributeAssignType");
+      
+      if (StringUtils.isBlank(attributeAssignTypeString)) {
+        throw new RuntimeException("Why is attributeAssignType blank???");
+      }
+      
+      AttributeAssignType attributeAssignType = AttributeAssignType.valueOfIgnoreCase(attributeAssignTypeString, true);
+      
+      if (attributeAssignType.isAssignmentOnAssignment()) {
+        throw new RuntimeException("Why is this an assignment on an assignment?");
+      }
+      
+      attributeUpdateRequestContainer.setAttributeAssignType(attributeAssignType);
+
+      String attributeAssignAttributeDef = StringUtils.trimToNull(httpServletRequest.getParameter("attributeAssignType"));
+      String attributeAssignAttributeName = StringUtils.trimToNull(httpServletRequest.getParameter("attributeAssignAttributeName"));
+      String attributeAssignGroup = null;
+      String attributeAssignStem = null;
+      String attributeAssignMember = null;
+      String attributeAssignMembershipGroup = null;
+      String attributeAssignMembershipSubject = null;    
+      String attributeAssignOwnerAttributeDef = null;
+
+      switch(attributeAssignType) {
+        case group:
+          attributeAssignGroup = StringUtils.trimToNull(httpServletRequest.getParameter("attributeAssignGroup"));
+          break;
+        case stem:
+          attributeAssignStem = StringUtils.trimToNull(httpServletRequest.getParameter("attributeAssignStem"));
+          break;
+        case member:
+          attributeAssignMember = StringUtils.trimToNull(httpServletRequest.getParameter("attributeAssignMember"));
+          break;
+        case attr_def:
+          attributeAssignOwnerAttributeDef = StringUtils.trimToNull(httpServletRequest.getParameter("attributeAssignOwnerAttributeDef"));
+          break;
+        case any_mem:
+        case imm_mem:
+          attributeAssignMembershipGroup = StringUtils.trimToNull(httpServletRequest.getParameter("attributeAssignMembershipGroup"));
+          attributeAssignMembershipSubject = StringUtils.trimToNull(httpServletRequest.getParameter("attributeAssignMembershipSubject"));
+          break;
+        default:
+          throw new RuntimeException("Not expecting attributeAssignType: " + attributeAssignType);
+      }
+      
+      Set<AttributeAssign> attributeAssigns = GrouperDAOFactory.getFactory().getAttributeAssign().findAttributeAssignments(attributeAssignType, attributeAssignAttributeDef,
+          attributeAssignAttributeName, attributeAssignGroup, attributeAssignStem, true, false);
+      
+      List<GuiAttributeAssign> guiAttributeAssigns = new ArrayList<GuiAttributeAssign>();
+      
+      for (AttributeAssign attributeAssign : attributeAssigns) {
+        GuiAttributeAssign guiAttributeAssign = new GuiAttributeAssign();
+        guiAttributeAssign.setAttributeAssign(attributeAssign);
+        guiAttributeAssigns.add(guiAttributeAssign);
+      }
+      
+      attributeUpdateRequestContainer.setGuiAttributeAssigns(guiAttributeAssigns);
+      
+      //set the privilege panel
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#attributeAssignAssignments", 
+        "/WEB-INF/grouperUi/templates/simpleAttributeUpdate/simpleAttributeAssignments.jsp"));
+      
+      guiResponseJs.addAction(GuiScreenAction.newScript("guiScrollTo('#attributeAssignAssignments');"));
+      
+    } finally {
+      GrouperSession.stopQuietly(grouperSession); 
+    }
+
+  }
 }

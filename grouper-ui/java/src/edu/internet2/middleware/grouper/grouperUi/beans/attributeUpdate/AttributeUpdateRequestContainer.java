@@ -18,6 +18,8 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssignType;
+import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeAssign;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiMember;
 import edu.internet2.middleware.grouper.privs.PrivilegeSubjectContainer;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
@@ -32,6 +34,25 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  */
 @SuppressWarnings("serial")
 public class AttributeUpdateRequestContainer implements Serializable {
+
+  /** if we are assigning to a group, folder, etc */
+  private AttributeAssignType attributeAssignType;
+  
+  /**
+   * if we are assigning to a group, folder, etc
+   * @return type
+   */
+  public AttributeAssignType getAttributeAssignType() {
+    return this.attributeAssignType;
+  }
+
+  /**
+   * if we are assigning to a group, folder, etc
+   * @param attributeAssignType1
+   */
+  public void setAttributeAssignType(AttributeAssignType attributeAssignType1) {
+    this.attributeAssignType = attributeAssignType1;
+  }
 
   /** attribute def we are editing */
   private AttributeDef attributeDefToEdit;
@@ -54,6 +75,25 @@ public class AttributeUpdateRequestContainer implements Serializable {
   /** privilege subject containers */
   private Set<PrivilegeSubjectContainer> privilegeSubjectContainers;
   
+  /** attribute assigns */
+  private List<GuiAttributeAssign> guiAttributeAssigns;
+  
+  /**
+   * attribute assigns
+   * @return the attribute assigns
+   */
+  public List<GuiAttributeAssign> getGuiAttributeAssigns() {
+    return this.guiAttributeAssigns;
+  }
+
+  /**
+   * attribute assigns
+   * @param attributeAssigns1
+   */
+  public void setGuiAttributeAssigns(List<GuiAttributeAssign> attributeAssigns1) {
+    this.guiAttributeAssigns = attributeAssigns1;
+  }
+
   /** gui members */
   private List<GuiMember> privilegeSubjectContainerGuiMembers;
 

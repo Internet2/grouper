@@ -297,7 +297,7 @@ public class SimpleGroupUpdateFilter {
       }
   
       Subject additionalSubject = null;
-      
+
       try {
         additionalSubject = GrouperUiUtils.findSubject(additionalSubjectString); 
       } catch (Exception e) {

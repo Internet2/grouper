@@ -84,7 +84,12 @@ public class GrouperUiRestServlet extends HttpServlet {
       SimpleAttributeNameUpdateFilter.class.getSimpleName() + ".filterCreatableNamespace",
       SimpleGroupUpdateFilter.class.getSimpleName() + ".filterCreatableNamespace",
       SimpleGroupUpdateFilter.class.getSimpleName() + ".filterPrivilegeUsers",
-      SimpleGroupUpdateFilter.class.getSimpleName() + ".filterRoles"
+      SimpleGroupUpdateFilter.class.getSimpleName() + ".filterRoles",
+      SimpleAttributeUpdateFilter.class.getSimpleName() + ".filterAttributeDefsByOwnerType",
+      SimpleAttributeUpdateFilter.class.getSimpleName() + ".filterAttributeNamesByOwnerType",
+      SimpleAttributeUpdateFilter.class.getSimpleName() + ".filterGroups",
+      SimpleAttributeUpdateFilter.class.getSimpleName() + ".filterStems",
+      SimpleAttributeUpdateFilter.class.getSimpleName() + ".filterSubjects"
   );
 
   /**

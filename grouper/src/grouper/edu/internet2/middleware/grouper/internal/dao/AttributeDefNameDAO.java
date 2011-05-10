@@ -8,6 +8,7 @@ import java.util.Set;
 
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssignType;
 import edu.internet2.middleware.grouper.exception.AttributeDefNameNotFoundException;
 import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.subject.Subject;
@@ -102,10 +103,11 @@ public interface AttributeDefNameDAO extends GrouperDAO {
    * @param subject
    * @param privileges
    * @param queryOptions
+   * @param attributeAssignType
    * @return set of attribute defs
    */
   public Set<AttributeDefName> findAllAttributeNamesSplitScopeSecure(String scope, 
       GrouperSession grouperSession, String attributeDefId, 
-      Subject subject, Set<Privilege> privileges, QueryOptions queryOptions);
+      Subject subject, Set<Privilege> privileges, QueryOptions queryOptions, AttributeAssignType attributeAssignType);
   
 }
