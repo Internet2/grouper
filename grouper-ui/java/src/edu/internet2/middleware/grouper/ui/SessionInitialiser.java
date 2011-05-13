@@ -291,6 +291,16 @@ public class SessionInitialiser {
     
     initDebugging(session);
     GrouperSession s = getGrouperSession(session);
+    
+    try {
+    	if(GrouperHelper.isRoot(s) && "true".equals(chainedMediaBundle.getString("act-as-admin.default"))) {
+    		session.setAttribute("activeWheelGroupMember",true);
+    	}
+    }catch(Exception e) {
+    	
+    }
+    
+    
     //@TODO: should we split the personalStemRoot and create
     //any stems which are missing
 
