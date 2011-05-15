@@ -35,6 +35,9 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 @SuppressWarnings("serial")
 public class AttributeUpdateRequestContainer implements Serializable {
 
+  /** gui attribute assign */
+  private GuiAttributeAssign guiAttributeAssign = null;
+  
   /** if we are assigning to a group, folder, etc */
   private AttributeAssignType attributeAssignType;
   
@@ -46,6 +49,45 @@ public class AttributeUpdateRequestContainer implements Serializable {
     return this.attributeAssignType;
   }
 
+  /**
+   * label for type
+   * @return label for type
+   */
+  public String getAttributeAssignTypeLabelKey() {
+    
+    switch (this.getAttributeAssignType()) {
+
+      case group:
+      {
+        return "simpleAttributeUpdate.assignHeaderOwnerGroup";
+      }
+      case stem:
+      {
+        return "simpleAttributeUpdate.assignHeaderOwnerFolder";
+      }
+      case member:
+      {
+        return "simpleAttributeUpdate.assignHeaderOwnerMember";
+      }
+      case imm_mem:
+      {
+        return "simpleAttributeUpdate.assignHeaderOwnerMembership";
+      }
+      case any_mem:
+      {
+        return "simpleAttributeUpdate.assignHeaderOwnerMembership";
+      }
+      case attr_def:
+      {
+        return "simpleAttributeUpdate.assignHeaderOwnerAttributeDefinition";
+      }
+      
+      default:
+        throw new RuntimeException("Not expecting attribute assign type: " + this.getAttributeAssignType());
+    }
+    
+  }
+  
   /**
    * if we are assigning to a group, folder, etc
    * @param attributeAssignType1
@@ -579,6 +621,22 @@ public class AttributeUpdateRequestContainer implements Serializable {
    */
   public void setAllowAllUpdate(boolean editAttributeDefUpdate1) {
     this.allowAllUpdate = editAttributeDefUpdate1;
+  }
+
+  /**
+   * gui attribute assign e.g. for edit screen
+   * @return gui attribute assign
+   */
+  public GuiAttributeAssign getGuiAttributeAssign() {
+    return this.guiAttributeAssign;
+  }
+
+  /**
+   * gui attribute assignment e.g. for edit screen
+   * @param guiAttributeAssign1
+   */
+  public void setGuiAttributeAssign(GuiAttributeAssign guiAttributeAssign1) {
+    this.guiAttributeAssign = guiAttributeAssign1;
   }
   
 

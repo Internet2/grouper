@@ -2,37 +2,43 @@
 <!-- Start: simpleAttributeUpdate/simpleAttributeAssignInit.jsp: main page -->
 
 <%--Attribute assignment --%>
-<grouper:title label="${attributeUpdateSessionContainer.text.assignIndexTitle}"  
-  infodotValue="${attributeUpdateSessionContainer.text.assignIndexTitleInfodot}" />
+<grouper:title label="${grouper:message('simpleAttributeAssign.assignIndexTitle', true, false)}"  
+  infodotValue="${grouper:message('simpleAttributeAssign.assignIndexTitleInfodot', true, false)}" />
 
-<div class="section" style="min-width: 900px">
+<div class="section">
 
-  <grouper:subtitle key="simpleAttributeUpdate.indexSectionHeader" />
+  <grouper:subtitle key="simpleAttributeAssign.indexSectionHeader" />
 
   <div class="sectionBody">
     <form id="simpleAttributeFilterForm" name="simpleAttributeFilterFormName" onsubmit="return false;" >
-    <table width="900" cellpadding="0" cellspacing="0">
-      <tr valign="top">
-        <td style="padding: 0px" width="710">
-          Owner type:
-          <select name="ownerType">
-            <option value="group">group</option>
-          </select>
-          
+    <table class="formTable formTableSpaced" cellspacing="2" style="margin-bottom: 0px">
+      <tr class="formTableRow">
+        <td class="formTableLeft" style="vertical-align: middle">
+          <label for="ownerType">
+            <grouper:message key="simpleAttributeAssign.ownerType" />
+          </label>
+          <sup class="requiredIndicator">*</sup>
         </td>
-      </tr>
-      <tr>
-        <td>
-          <input class="blueButton" type="submit" 
-          onclick="location.href = 'grouper.html?operation=SimpleAttributeUpdate.assignInit&groupId=' + guiFieldValue($('input[name=ownerType]')[0]); return false;" 
-          value="${grouper:message('simpleAttributeUpdate.selectOwnerTypeButton', true, false) }" style="margin-top: 2px" />
+        <td class="formTableRight">
+          <select name="attributeAssignType" onchange="ajax('SimpleAttributeUpdate.assignSelectOwnerType', {formIds: 'simpleAttributeFilterForm'}); return false;" >
+            <option></option>
+            <option value="group">${grouper:message('simpleAttributeAssign.ownerTypeGroup', true, false)}</option>
+            <option value="stem">${grouper:message('simpleAttributeAssign.ownerTypeFolder', true, false)}</option>
+            <option value="member">${grouper:message('simpleAttributeAssign.ownerTypeMember', true, false)}</option>
+            <option value="any_mem">${grouper:message('simpleAttributeAssign.ownerTypeMembership', true, false)}</option>
+            <option value="imm_mem">${grouper:message('simpleAttributeAssign.ownerTypeImmediateMembership', true, false)}</option>
+            <option value="attr_def">${grouper:message('simpleAttributeAssign.ownerTypeAttributeDefinition', true, false)}</option>
+          </select>
         </td>
       </tr>
     </table>
+    <div id="attributeAssignFilter">
+    </div>
     </form>
-    <br />
   </div>
 </div>
 
+<div id="attributeAssignAssignments">
+</div>
 
 <!-- End: simpleAttributeUpdate/simpleAttributeAssignInit.jsp: main page -->

@@ -960,12 +960,13 @@ public class GrouperUiUtils {
    * find a subject based on search string.  must be sourceId||||subjectId 
    * or a subjectId or subjectIdentifier which is unique
    * @param searchString
+   * @param exceptionIfNotFound
    * @return the subject
    * @throws SubjectNotFoundException 
    * @throws SubjectNotUniqueException 
    * @throws SourceUnavailableException 
    */
-  public static Subject findSubject(String searchString) 
+  public static Subject findSubject(String searchString, boolean exceptionIfNotFound) 
       throws SubjectNotFoundException, SubjectNotUniqueException, SourceUnavailableException {
     if (searchString == null) {
       throw new SubjectNotFoundException("Cant find null string");
@@ -976,11 +977,11 @@ public class GrouperUiUtils {
     if (matcher.matches()) {
       String sourceId = matcher.group(1);
       String subjectId = matcher.group(2);
-      return SubjectFinder.findByIdAndSource(subjectId, sourceId, true);
+      return SubjectFinder.findByIdAndSource(subjectId, sourceId, exceptionIfNotFound);
     }
     
     //if not, then try to get by subjectId or identifier
-    return SubjectFinder.findByIdOrIdentifier(searchString, true);
+    return SubjectFinder.findByIdOrIdentifier(searchString, exceptionIfNotFound);
   }
 
 

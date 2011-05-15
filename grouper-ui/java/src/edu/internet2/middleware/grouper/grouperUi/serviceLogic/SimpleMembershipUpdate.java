@@ -529,7 +529,7 @@ public class SimpleMembershipUpdate {
       group = this.retrieveGroup(grouperSession);
       groupName = group.getName();
       
-      subject = GrouperUiUtils.findSubject(comboValue);
+      subject = GrouperUiUtils.findSubject(comboValue, true);
       
       final String requireGroup = simpleMembershipUpdateContainer.configValue(
           "simpleMembershipUpdate.subjectSearchRequireGroup", false);

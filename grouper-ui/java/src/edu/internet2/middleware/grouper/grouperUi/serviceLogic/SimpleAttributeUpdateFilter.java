@@ -473,7 +473,7 @@ public class SimpleAttributeUpdateFilter {
       Subject additionalSubject = null;
       
       try {
-        additionalSubject = GrouperUiUtils.findSubject(additionalSubjectString); 
+        additionalSubject = GrouperUiUtils.findSubject(additionalSubjectString, true); 
       } catch (Exception e) {
         LOG.error("Error finding subject: " + additionalSubjectString, e);
         guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simpleAttributeUpdate.additionalPrivilegeSubjectNotFound", false)));
