@@ -164,9 +164,6 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
   /** constant for field name for: disabledTimeDb */
   public static final String FIELD_DISABLED_TIME_DB = "disabledTimeDb";
 
-  /** constant for field name for: enabled */
-  public static final String FIELD_ENABLED = "enabled";
-
   /** constant for field name for: enabledTimeDb */
   public static final String FIELD_ENABLED_TIME_DB = "enabledTimeDb";
 
@@ -205,7 +202,7 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
    */
   private static final Set<String> DB_VERSION_FIELDS = GrouperUtil.toSet(
       FIELD_ATTRIBUTE_ASSIGN_ACTION_ID, FIELD_ATTRIBUTE_ASSIGN_DELEGATABLE, FIELD_ATTRIBUTE_ASSIGN_TYPE, FIELD_ATTRIBUTE_DEF_NAME_ID, 
-      FIELD_CONTEXT_ID, FIELD_CREATED_ON_DB, FIELD_DISABLED_TIME_DB, FIELD_ENABLED, 
+      FIELD_CONTEXT_ID, FIELD_CREATED_ON_DB, FIELD_DISABLED_TIME_DB, 
       FIELD_ENABLED_TIME_DB, FIELD_ID, FIELD_LAST_UPDATED_DB, FIELD_NOTES, 
       FIELD_OWNER_ATTRIBUTE_ASSIGN_ID, FIELD_OWNER_ATTRIBUTE_DEF_ID, FIELD_OWNER_GROUP_ID, FIELD_OWNER_MEMBER_ID, 
       FIELD_OWNER_MEMBERSHIP_ID, FIELD_OWNER_STEM_ID, FIELD_VALUE_DELEGATE);
@@ -215,7 +212,7 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
    */
   private static final Set<String> CLONE_FIELDS = GrouperUtil.toSet(
       FIELD_ATTRIBUTE_ASSIGN_ACTION_ID, FIELD_ATTRIBUTE_ASSIGN_DELEGATABLE, FIELD_ATTRIBUTE_ASSIGN_TYPE, FIELD_ATTRIBUTE_DEF_NAME_ID, 
-      FIELD_CONTEXT_ID, FIELD_CREATED_ON_DB, FIELD_DISABLED_TIME_DB, FIELD_ENABLED, 
+      FIELD_CONTEXT_ID, FIELD_CREATED_ON_DB, FIELD_DISABLED_TIME_DB, 
       FIELD_ENABLED_TIME_DB, FIELD_HIBERNATE_VERSION_NUMBER, FIELD_ID, FIELD_LAST_UPDATED_DB, 
       FIELD_NOTES, FIELD_OWNER_ATTRIBUTE_ASSIGN_ID, FIELD_OWNER_ATTRIBUTE_DEF_ID, FIELD_OWNER_GROUP_ID, 
       FIELD_OWNER_MEMBER_ID, FIELD_OWNER_MEMBERSHIP_ID, FIELD_OWNER_STEM_ID, FIELD_VALUE_DELEGATE);
@@ -554,6 +551,7 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
   /**
    * @return if in delete
    */
+  @SuppressWarnings("unchecked")
   public static Set<AttributeAssign> attributeAssignDeletes() {
     Set<AttributeAssign> attributeAssignDeletesSet =  attributeAssignDeletes.get();
     return attributeAssignDeletesSet == null ? null : Collections.unmodifiableSet(attributeAssignDeletesSet);
@@ -563,6 +561,9 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
    * delete this object
    */
   public void delete() {
+    
+    //TODO does this check to see if allowed???
+    
     boolean clearInAttributeAssignDelete = false;
     Set<AttributeAssign> attributeAssignDeletesSet =  attributeAssignDeletes.get();
     if (attributeAssignDeletesSet == null || !attributeAssignDeletesSet.contains(this)) {
@@ -758,11 +759,6 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
    * id of action for this assignment (e.g. assign).  Generally this will be AttributeDef.ACTION_DEFAULT
    */
   private String attributeAssignActionId;
-  
-  /**
-   * true or false for if this assignment is enabled (e.g. might have expired) 
-   */
-  private boolean enabled = true;
   
   /**
    * if there is a date here, and it is in the future, this assignment is disabled
@@ -1046,6 +1042,17 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
   }
 
   /**
+   * if this is a membership attribute, this is the foreign key
+   * @return the ownerMembership
+   */
+  public Membership getOwnerMembership() {
+    
+    //I think the current grouper session isnt really relevant here, I think we just need to produce the membership without security
+    return this.ownerMembershipId == null ? null : GrouperDAOFactory.getFactory().getMembership().findByUuid(this.ownerMembershipId, true, false);
+
+  }
+
+  /**
    * if this is a member attribute, this is the foreign key
    * @return the ownerMember
    */
@@ -1181,29 +1188,28 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
   
   /**
    * true or false for if this assignment is enabled (e.g. might have expired) 
-   * @param enabled1 the enabled to set
-   */
-  public void setEnabled(boolean enabled1) {
-    this.enabled = enabled1;
-  }
-
-  /**
-   * true or false for if this assignment is enabled (e.g. might have expired) 
    * @return the enabled
    */
   public String getEnabledDb() {
-    return this.enabled ? "T" : "F";
+    return this.isEnabled() ? "T" : "F";
   }
 
   
   /**
    * true or false for if this assignment is enabled (e.g. might have expired) 
+   * dont call this method, its for hibernate
    * @param enabled1 the enabled to set
    */
   public void setEnabledDb(String enabled1) {
-    this.enabled = GrouperUtil.booleanValue(enabled1);
   }
 
+  /**
+   * true or false for if this assignment is enabled (e.g. might have expired) 
+   * dont call this method, its for hibernate
+   * @param enabled1 the enabled to set
+   */
+  public void setEnabled(boolean enabled1) {
+  }
   
   /**
    * if there is a date here, and it is in the future, this assignment is disabled
@@ -1338,7 +1344,6 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
     existingRecord.setAttributeAssignType(existingRecord.getAttributeAssignType());
     existingRecord.setAttributeDefNameId(existingRecord.getAttributeDefNameId());
     existingRecord.setDisabledTimeDb(existingRecord.getDisabledTimeDb());
-    existingRecord.setEnabled(existingRecord.isEnabled());
     existingRecord.setEnabledTimeDb(existingRecord.getEnabledTimeDb());
     existingRecord.setId(existingRecord.getId());
     existingRecord.setNotes(existingRecord.getNotes());
@@ -1368,9 +1373,6 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
       return true;
     }
     if (!GrouperUtil.equals(this.disabledTimeDb, other.disabledTimeDb)) {
-      return true;
-    }
-    if (this.enabled != other.enabled) {
       return true;
     }
     if (!GrouperUtil.equals(this.enabledTimeDb, other.enabledTimeDb)) {
@@ -1970,12 +1972,8 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
             
             if (attributeAssign != null) {
               hibernateHandlerBean.getHibernateSession().setCachingEnabled(false);
-              //set enabled temporarily to clean out what is there
-              AttributeAssign.this.enabled = true;
               
               AttributeAssign.this.delete();
-              //recalculate
-              AttributeAssign.this.enabled = AttributeAssign.this.isEnabled();
               //insert this again
               AttributeAssign.this.setHibernateVersionNumber(GrouperAPI.INITIAL_VERSION_NUMBER);
               GrouperDAOFactory.getFactory().getAttributeAssign().saveOrUpdate(AttributeAssign.this);

@@ -40,11 +40,20 @@ public interface AttributeAssignDAO extends GrouperDAO {
   public void delete(AttributeAssign attributeAssign);
   
   /**
+   * find by id, use cache
    * @param id
    * @param exceptionIfNotFound
    * @return the attribute assign or null if not there
    */
   public AttributeAssign findById(String id, boolean exceptionIfNotFound);
+
+  /**
+   * @param id
+   * @param exceptionIfNotFound
+   * @param useCache true to use cache, false for not
+   * @return the attribute assign or null if not there
+   */
+  public AttributeAssign findById(String id, boolean exceptionIfNotFound, boolean useCache);
 
   /**
    * @param groupId
@@ -574,13 +583,17 @@ public interface AttributeAssignDAO extends GrouperDAO {
    * @param attributeDefNameId mutually exclusive with attributeDefIds
    * @param ownerGroupId optional
    * @param ownerStemId optional
+   * @param ownerMemberId optional
+   * @param ownerAttributeDefId optional
+   * @param ownerMembershipId optional
    * @param enabled (null means all, true means enabled, false means disabled)
    * @param includeAssignmentsOnAssignments if assignments on assignments should also be included
    * @return the assignments
    */
   public Set<AttributeAssign> findAttributeAssignments(
       AttributeAssignType attributeAssignType, String attributeDefId, String attributeDefNameId,
-      String ownerGroupId, String ownerStemId, 
+      String ownerGroupId, String ownerStemId, String ownerMemberId, String ownerAttributeDefId,
+      String ownerMembershipId,
       Boolean enabled, boolean includeAssignmentsOnAssignments);
   
 }
