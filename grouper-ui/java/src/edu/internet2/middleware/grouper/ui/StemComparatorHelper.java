@@ -17,7 +17,10 @@ limitations under the License.
 package edu.internet2.middleware.grouper.ui;
 
 import java.util.ResourceBundle;
+
+import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.ui.util.MembershipAsMap;
 import edu.internet2.middleware.grouper.ui.util.StemAsMap;
 
 /**
@@ -56,6 +59,11 @@ public class StemComparatorHelper implements GrouperComparatorHelper{
 			stem=(Stem)obj;
 		}else if(obj instanceof StemAsMap) {
 			stem = (Stem)((StemAsMap)obj).getWrappedObject();
+		}else if(obj instanceof Membership) {
+			stem = ((Membership)obj).getStem();
+		}else if(obj instanceof MembershipAsMap) {
+			stem = ((Membership)((MembershipAsMap)obj).getWrappedObject()).getStem();
+		
 		}else{
 			throw new IllegalArgumentException(obj + " is not a Stem");
 		}

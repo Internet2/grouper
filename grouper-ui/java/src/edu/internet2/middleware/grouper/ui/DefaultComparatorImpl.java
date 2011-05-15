@@ -57,6 +57,8 @@ import edu.internet2.middleware.subject.Subject;
  * <p>This implementation has not been profiled. The sorting used is that provided by the JDK, however, determining the
  * String to sort an object by, may be expensive, the first time it is determined, if lazy instantiation of the object 
  * is used.  
+ * <p>Setting a UIThreadLocal GrouperComparatorHelperOverrideClass overrides the normal getHelper. Added so that caller
+ * can influence how Memberships are sorted i.e. use Group.class or Stem.class to override default Subject </p>
  * <p />
  * 
  * @author Gary Brown.
@@ -115,10 +117,17 @@ public class DefaultComparatorImpl implements GrouperComparator {
 	}
 	
 	private GrouperComparatorHelper getHelper(Object obj) {
-		GrouperComparatorHelper helper = (GrouperComparatorHelper)helpers.get(obj.getClass().getName());
+		String claz = null;
+		Class overrideClaz = (Class)UIThreadLocal.get("GrouperComparatorHelperOverrideClass");
+		if(overrideClaz!=null) {
+			claz=overrideClaz.getName();
+		}else{
+			claz=obj.getClass().getName();
+		}
+		GrouperComparatorHelper helper = (GrouperComparatorHelper)helpers.get(claz);
 		if(helper==null) {
 			String helperClass = null;
-			String keyLookup="comparator.helper." + obj.getClass().getName();
+			String keyLookup="comparator.helper." + claz;
 			try {
 				helperClass=GrouperUiFilter.retrieveSessionMediaResourceBundle().getString(keyLookup);
 			}catch (Exception e) {}
@@ -135,7 +144,7 @@ public class DefaultComparatorImpl implements GrouperComparator {
 			}
 			try {
 				helper=(GrouperComparatorHelper)Class.forName(helperClass).newInstance();
-				helpers.put(obj.getClass().getName(),helper);
+				helpers.put(claz,helper);
 			}catch (Exception e) {
 				throw new IllegalStateException("Could not instantiate " + helperClass);
 			}

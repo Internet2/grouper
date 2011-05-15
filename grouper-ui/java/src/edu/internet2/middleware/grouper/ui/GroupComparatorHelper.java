@@ -18,7 +18,9 @@ package edu.internet2.middleware.grouper.ui;
 
 import java.util.ResourceBundle;
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.ui.util.GroupAsMap;
+import edu.internet2.middleware.grouper.ui.util.MembershipAsMap;
 
 
 /**
@@ -56,6 +58,10 @@ public class GroupComparatorHelper implements GrouperComparatorHelper{
 			group=(Group)obj;
 		}else if(obj instanceof GroupAsMap) {
 			group = (Group)((GroupAsMap)obj).getWrappedObject();
+		}else if(obj instanceof Membership) {
+			group = ((Membership)obj).getGroup();
+		}else if(obj instanceof MembershipAsMap) {
+			group = ((Membership)((MembershipAsMap)obj).getWrappedObject()).getGroup();
 		}else{
 			throw new IllegalArgumentException(obj + " is not a Group");
 		}
