@@ -84,6 +84,14 @@ public class AttributeAssignValueDelegate {
   
   /**
    * get the values for an assignment or empty set if none
+   * @return the values
+   */
+  public Set<AttributeAssignValue> getAttributeAssignValues() {
+    return retrieveValues();
+  }
+  
+  /**
+   * get the values for an assignment or empty set if none
    * @param checkSecurity 
    * @param filterInvalidTypes if values of invalid types should be filtered out
    * @return the values

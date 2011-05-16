@@ -1,20 +1,22 @@
 <%@ include file="../common/commonTaglib.jsp"%>
-<!-- Start: simpleAttributeAssignEdit.jsp -->
-<div class="simpleAttributeAssignEdit">
+<!-- Start: simpleAttributeAssignAddValue.jsp -->
+<div class="simpleAttributeAssignAddValue">
 
   <div class="section">
   
-    <grouper:subtitle key="simpleAttributeAssign.assignEditSubtitle" 
-      infodotValue="${grouper:message('simpleAttributeAssign.assignEditSubtitleInfodot', true, false)}"/>
+    <grouper:subtitle key="simpleAttributeAssign.assignAddValueSubtitle" 
+      infodotValue="${grouper:message('simpleAttributeAssign.assignAddValueSubtitleInfodot', true, false)}"/>
   
     <div class="sectionBody">
-    <form id="simpleAttributeAssignEditForm" name="simpleAttributeAssignEditFormName">
+    <form id="simpleAttributeAssignAddValueForm" name="simpleAttributeAssignAddValueFormName">
+      
       <c:if test="${attributeUpdateRequestContainer.guiAttributeAssignAssign != null}">
         <input name="attributeAssignId" type="hidden" value="${attributeUpdateRequestContainer.guiAttributeAssignAssign.attributeAssign.id }" />
       </c:if>
       <c:if test="${attributeUpdateRequestContainer.guiAttributeAssignAssign == null}">
         <input name="attributeAssignId" type="hidden" value="${attributeUpdateRequestContainer.guiAttributeAssign.attributeAssign.id }" />
       </c:if>
+      
       <table class="formTable formTableSpaced">
       
           <tr class="formTableRow">
@@ -23,7 +25,6 @@
               <c:if test="${attributeUpdateRequestContainer.guiAttributeAssignAssign != null}">
                 <grouper:message key="simpleAttributeUpdate.assignMetadataLabelSuffix" />
               </c:if>
-              
             </td>
             <td class="formTableRight">
               <grouper:message 
@@ -63,37 +64,20 @@
 
           <tr class="formTableRow">
             <td class="formTableLeft" style="white-space: nowrap;">
-              <grouper:message key="simpleAttributeUpdate.assignEditEnabledDate" />
+              <grouper:message key="simpleAttributeUpdate.assignAddValue" />
             </td>
-            <td class="formTableRight"><input type="text" name="enabledDate"  id="enabledDateId"
-            value="${attributeUpdateRequestContainer.guiAttributeAssignAssign == null ? attributeUpdateRequestContainer.guiAttributeAssign.enabledDate : attributeUpdateRequestContainer.guiAttributeAssignAssign.enabledDate}" 
-            style="width: 8em" />
-            <span class="simpleMembershipUpdateDisabled"
-              ><grouper:message key="simpleAttributeUpdate.assignEditEnabledDisabledDateMask" /></span>
-            </td>
+            <td class="formTableRight"><input type="text" name="valueToAdd"  id="valueToAddId" /></td>
           </tr>
-          
-          <tr class="formTableRow">
-            <td class="formTableLeft" style="white-space: nowrap;">
-              <grouper:message key="simpleAttributeUpdate.assignEditDisabledDate" />
-            </td>
-            <td class="formTableRight"><input type="text" name="disabledDate"  id="disabledDateId"
-            value="${attributeUpdateRequestContainer.guiAttributeAssignAssign == null ? attributeUpdateRequestContainer.guiAttributeAssign.disabledDate : attributeUpdateRequestContainer.guiAttributeAssignAssign.disabledDate}" 
-            style="width: 8em" />
-            <span class="simpleMembershipUpdateDisabled"
-              ><grouper:message key="simpleAttributeUpdate.assignEditEnabledDisabledDateMask" /></span>
-            </td>
-          </tr>
-          
+                    
           <tr>
             <td colspan="2" align="right"  class="buttonRow">
 
-              <button class="simplemodal-close blueButton"><grouper:message key="simpleAttributeAssign.assignEditCancelButton" /></button> 
+              <button class="simplemodal-close blueButton"><grouper:message key="simpleAttributeAssign.assignAddValueCancelButton" /></button> 
               &nbsp;
-              <%-- edit assignment button --%>
+              <%-- add member button --%>
               <input class="blueButton" type="submit" 
-              onclick="ajax('../app/SimpleAttributeUpdate.assignEditSubmit', {formIds: 'simpleAttributeAssignEditForm, simpleAttributeFilterForm'}); return false;" 
-              value="${grouper:message('simpleAttributeAssign.assignEditSubmitButton', true, false)}" />
+              onclick="ajax('../app/SimpleAttributeUpdate.assignAddValueSubmit', {formIds: 'simpleAttributeAssignAddValueForm, simpleAttributeFilterForm'}); return false;" 
+              value="${grouper:message('simpleAttributeAssign.assignAddValueSubmitButton', true, false)}" />
             </td>
           </tr>
           
@@ -102,6 +86,6 @@
     </div>
   </div>
 </div>
-<!-- End: simpleAttributeAssignEdit.jsp -->
+<!-- End: simpleAttributeAssignAddValue.jsp -->
 
 

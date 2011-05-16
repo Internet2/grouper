@@ -3,6 +3,8 @@ package edu.internet2.middleware.grouper.grouperUi.beans.api;
 import java.io.Serializable;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -13,6 +15,7 @@ import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.ui.tags.TagUtils;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
 /**
@@ -42,6 +45,25 @@ public class GuiAttributeAssign implements Serializable {
    */
   public AttributeAssign getAttributeAssign() {
     return this.attributeAssign;
+  }
+
+  /**
+   * get the metadata on this assignment in the form of gui attribute assigns.
+   * Note, this isnt cached, so call it once and store the results and use them
+   * @return the set
+   */
+  public Set<GuiAttributeAssign> getGuiAttributeAssigns() {
+    Set<AttributeAssign> attributeAssigns = this.attributeAssign == null ? null 
+        : this.attributeAssign.getAttributeDelegate().retrieveAssignments();
+    
+    Set<GuiAttributeAssign> guiAttributeAssigns = new LinkedHashSet<GuiAttributeAssign>();
+    
+    for (AttributeAssign theAttributeAssign : GrouperUtil.nonNull(attributeAssigns)) {
+      GuiAttributeAssign guiAttributeAssign = new GuiAttributeAssign();
+      guiAttributeAssign.setAttributeAssign(theAttributeAssign);
+      guiAttributeAssigns.add(guiAttributeAssign);
+    }
+    return guiAttributeAssigns;
   }
   
   /**

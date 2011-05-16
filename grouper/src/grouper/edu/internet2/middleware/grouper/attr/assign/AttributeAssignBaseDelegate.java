@@ -4,7 +4,6 @@
  */
 package edu.internet2.middleware.grouper.attr.assign;
 
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -896,6 +895,15 @@ public abstract class AttributeAssignBaseDelegate {
     return retrieveAttributeDefNamesByOwner();
   }
 
+  /**
+   * find the assignments of any name associated with an owner
+   * this is the javabean equivalent to retrieveAssignments
+   * @return the set of assignments or the empty set
+   */
+  public Set<AttributeAssign> getAttributeAssigns() {
+    return retrieveAssignments();
+  }
+  
   /**
    * find the assignments of any name associated with an owner
    * @return the set of assignments or the empty set

@@ -19,6 +19,7 @@ import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignType;
+import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeAssign;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiMember;
 import edu.internet2.middleware.grouper.privs.PrivilegeSubjectContainer;
@@ -35,18 +36,100 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 @SuppressWarnings("serial")
 public class AttributeUpdateRequestContainer implements Serializable {
 
+  /**
+   * attribute assign value we are editing 
+   */
+  private AttributeAssignValue attributeAssignValue = null;
+  
+  /**
+   * 
+   * @return value
+   */
+  public AttributeAssignValue getAttributeAssignValue() {
+    return this.attributeAssignValue;
+  }
+
+  /**
+   * 
+   * @param attributeAssignValue1
+   */
+  public void setAttributeAssignValue(AttributeAssignValue attributeAssignValue1) {
+    this.attributeAssignValue = attributeAssignValue1;
+  }
+
   /** gui attribute assign */
   private GuiAttributeAssign guiAttributeAssign = null;
   
+  /** gui attribute assign on assignment */
+  private GuiAttributeAssign guiAttributeAssignAssign = null;
+  
+  
+  
+  /**
+   * gui attribute assign on assignment
+   * @return gui attribute assign on assignment
+   */
+  public GuiAttributeAssign getGuiAttributeAssignAssign() {
+    return this.guiAttributeAssignAssign;
+  }
+
+  /**
+   * gui attribute assign on assignment
+   * @param guiAttributeAssignAssign1
+   */
+  public void setGuiAttributeAssignAssign(GuiAttributeAssign guiAttributeAssignAssign1) {
+    this.guiAttributeAssignAssign = guiAttributeAssignAssign1;
+  }
+
   /** if we are assigning to a group, folder, etc */
   private AttributeAssignType attributeAssignType;
   
+  /** if we are assigning to a group, folder, etc, this is the non underlying assign type */
+  private AttributeAssignType attributeAssignAssignType;
+  
+  /**
+   * if we are assigning to a group, folder, etc, this is the non underlying assign type
+   * @return assign type
+   */
+  public AttributeAssignType getAttributeAssignAssignType() {
+    return this.attributeAssignAssignType;
+  }
+
+  /**
+   * if we are assigning to a group, folder, etc, this is the non underlying assign type
+   * @param attributeAssignAssignType1
+   */
+  public void setAttributeAssignAssignType(AttributeAssignType attributeAssignAssignType1) {
+    this.attributeAssignAssignType = attributeAssignAssignType1;
+  }
+
   /**
    * if we are assigning to a group, folder, etc
    * @return type
    */
   public AttributeAssignType getAttributeAssignType() {
     return this.attributeAssignType;
+  }
+
+  /**
+   * enabledOnly, disabledOnly, or all (null)
+   */
+  private Boolean enabledDisabled = Boolean.TRUE;
+
+  /** 
+   * return enabledOnly, disabledOnly, or all (null)
+   * @return enabledOnly, disabledOnly, or all (null)
+   */
+  public Boolean getEnabledDisabled() {
+    return this.enabledDisabled;
+  }
+
+  /**
+   * enabledOnly, disabledOnly, or all (null)
+   * @param theEnabledDisabled
+   */
+  public void setEnabledDisabled(Boolean theEnabledDisabled) {
+    this.enabledDisabled = theEnabledDisabled;
   }
 
   /**

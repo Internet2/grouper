@@ -28,8 +28,8 @@ import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiSettings;
 import edu.internet2.middleware.grouper.grouperUi.serviceLogic.InviteExternalSubjects;
 import edu.internet2.middleware.grouper.grouperUi.serviceLogic.SimpleAttributeNameUpdateFilter;
-import edu.internet2.middleware.grouper.grouperUi.serviceLogic.SimpleAttributeUpdate;
 import edu.internet2.middleware.grouper.grouperUi.serviceLogic.SimpleAttributeUpdateFilter;
+import edu.internet2.middleware.grouper.grouperUi.serviceLogic.SimpleAttributeUpdateMenu;
 import edu.internet2.middleware.grouper.grouperUi.serviceLogic.SimpleGroupUpdateFilter;
 import edu.internet2.middleware.grouper.grouperUi.serviceLogic.SimpleMembershipUpdateFilter;
 import edu.internet2.middleware.grouper.grouperUi.serviceLogic.SimpleMembershipUpdateImportExport;
@@ -90,7 +90,8 @@ public class GrouperUiRestServlet extends HttpServlet {
       SimpleAttributeUpdateFilter.class.getSimpleName() + ".filterAttributeNamesByOwnerType",
       SimpleAttributeUpdateFilter.class.getSimpleName() + ".filterGroups",
       SimpleAttributeUpdateFilter.class.getSimpleName() + ".filterStems",
-      SimpleAttributeUpdateFilter.class.getSimpleName() + ".filterSubjects"
+      SimpleAttributeUpdateFilter.class.getSimpleName() + ".filterSubjects",
+      SimpleAttributeUpdateMenu.class.getSimpleName() + ".assignmentMenuStructure"
   );
 
   /**

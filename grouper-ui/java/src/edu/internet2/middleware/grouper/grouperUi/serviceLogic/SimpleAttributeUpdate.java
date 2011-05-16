@@ -43,6 +43,7 @@ import edu.internet2.middleware.grouper.attr.assign.AttributeAssignType;
 import edu.internet2.middleware.grouper.attr.finder.AttributeAssignFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
+import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeAssign;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiMember;
 import edu.internet2.middleware.grouper.grouperUi.beans.attributeUpdate.AttributeUpdateRequestContainer;
@@ -1939,6 +1940,236 @@ public class SimpleAttributeUpdate {
     assignFilter(httpServletRequest, httpServletResponse);
   }
   
+   
+  
+  /**
+   * submit the add metadata screen
+   * @param httpServletRequest
+   * @param httpServletResponse
+   */
+  public void assignMetadataAddSubmit(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+
+    GrouperSession grouperSession = null;
+
+    try {
+      grouperSession = GrouperSession.start(loggedInSubject);
+      
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+
+      String attributeAssignId = httpServletRequest.getParameter("attributeAssignId");
+      
+      if (StringUtils.isBlank(attributeAssignId)) {
+        throw new RuntimeException("Why is attributeAssignId blank???");
+      }
+
+      AttributeAssign attributeAssign = GrouperDAOFactory.getFactory().getAttributeAssign().findById(attributeAssignId, true, false);
+      
+      //now we need to check security
+      if (!PrivilegeHelper.canAttrAdmin(grouperSession, attributeAssign.getAttributeDef(), loggedInSubject)) {
+        
+        String notAllowed = TagUtils.navResourceString("simpleAttributeAssign.assignEditNotAllowed");
+        notAllowed = GrouperUiUtils.escapeHtml(notAllowed, true);
+        guiResponseJs.addAction(GuiScreenAction.newAlert(notAllowed));
+        return;
+      }
+      
+      //todo check more security, e.g. where it is assigned
+      
+      {
+        String attributeAssignAssignAttributeNameId = httpServletRequest.getParameter("attributeAssignAssignAttributeName");
+        
+        AttributeDefName attributeDefName = null;
+
+        if (!StringUtils.isBlank(attributeAssignAssignAttributeNameId) ) {
+          attributeDefName = AttributeDefNameFinder.findById(attributeAssignAssignAttributeNameId, false);
+          
+        }
+        
+        if (attributeDefName == null) {
+          String required = TagUtils.navResourceString("simpleAttributeUpdate.assignMetadataAttributeNameRequired");
+          required = GrouperUiUtils.escapeHtml(required, true);
+          guiResponseJs.addAction(GuiScreenAction.newAlert(required));
+          return;
+          
+        }
+        
+        if (attributeDefName.getAttributeDef().isMultiAssignable()) {
+          
+          attributeAssign.getAttributeDelegate().addAttribute(attributeDefName);
+          
+        } else {
+          
+          if (attributeAssign.getAttributeDelegate().hasAttribute(attributeDefName)) {
+            
+            String alreadyAssigned = TagUtils.navResourceString("simpleAttributeUpdate.assignMetadataAlreadyAssigned");
+            alreadyAssigned = GrouperUiUtils.escapeHtml(alreadyAssigned, true);
+            guiResponseJs.addAction(GuiScreenAction.newAlert(alreadyAssigned));
+            return;
+          }
+          
+          attributeAssign.getAttributeDelegate().assignAttribute(attributeDefName);
+
+        }
+        
+      }
+      
+      String successMessage = TagUtils.navResourceString("simpleAttributeUpdate.assignMetadataAddSuccess");
+      successMessage = GrouperUiUtils.escapeHtml(successMessage, true);
+      guiResponseJs.addAction(GuiScreenAction.newAlert(successMessage));
+      
+    } finally {
+      GrouperSession.stopQuietly(grouperSession); 
+    }
+
+    assignFilter(httpServletRequest, httpServletResponse);
+    
+  }
+
+  /**
+   * submit the add value screen
+   * @param httpServletRequest
+   * @param httpServletResponse
+   */
+  public void assignAddValueSubmit(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+
+    GrouperSession grouperSession = null;
+
+    try {
+      grouperSession = GrouperSession.start(loggedInSubject);
+      
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+
+      String attributeAssignId = httpServletRequest.getParameter("attributeAssignId");
+      
+      if (StringUtils.isBlank(attributeAssignId)) {
+        throw new RuntimeException("Why is attributeAssignId blank???");
+      }
+
+      AttributeAssign attributeAssign = GrouperDAOFactory.getFactory().getAttributeAssign().findById(attributeAssignId, true, false);
+      
+      //now we need to check security
+      if (!PrivilegeHelper.canAttrAdmin(grouperSession, attributeAssign.getAttributeDef(), loggedInSubject)) {
+        //we are in a modal dialog, so we need to put up a native javascript alert
+        String notAllowed = TagUtils.navResourceString("simpleAttributeAssign.assignEditNotAllowed");
+        notAllowed = GrouperUiUtils.escapeJavascript(notAllowed, true);
+        guiResponseJs.addAction(GuiScreenAction.newScript("alert('" + notAllowed + "');"));
+        return;
+      }
+      
+      //todo check more security, e.g. where it is assigned
+      
+      {
+        String valueToAdd = httpServletRequest.getParameter("valueToAdd");
+        
+        if (StringUtils.isBlank(valueToAdd) ) {
+          //we are in a modal dialog, so we need to put up a native javascript alert
+          String required = TagUtils.navResourceString("simpleAttributeUpdate.addValueRequired");
+          required = GrouperUiUtils.escapeJavascript(required, true);
+          guiResponseJs.addAction(GuiScreenAction.newScript("alert('" + required + "');"));
+          return;
+          
+        }
+        
+        
+        attributeAssign.getValueDelegate().addValue(valueToAdd);
+        
+      }
+      
+      //close the modal dialog
+      guiResponseJs.addAction(GuiScreenAction.newCloseModal());
+
+      String successMessage = TagUtils.navResourceString("simpleAttributeUpdate.assignAddValueSuccess");
+      successMessage = GrouperUiUtils.escapeHtml(successMessage, true);
+      guiResponseJs.addAction(GuiScreenAction.newAlert(successMessage));
+      
+    } finally {
+      GrouperSession.stopQuietly(grouperSession); 
+    }
+
+    assignFilter(httpServletRequest, httpServletResponse);
+    
+  }
+
+  /**
+   * submit the edit value screen
+   * @param httpServletRequest
+   * @param httpServletResponse
+   */
+  public void assignValueEditSubmit(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+
+    GrouperSession grouperSession = null;
+
+    try {
+      grouperSession = GrouperSession.start(loggedInSubject);
+      
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+
+      String attributeAssignId = httpServletRequest.getParameter("attributeAssignId");
+      
+      if (StringUtils.isBlank(attributeAssignId)) {
+        throw new RuntimeException("Why is attributeAssignId blank???");
+      }
+
+      AttributeAssign attributeAssign = GrouperDAOFactory.getFactory().getAttributeAssign().findById(attributeAssignId, true, false);
+      
+      //now we need to check security
+      if (!PrivilegeHelper.canAttrAdmin(grouperSession, attributeAssign.getAttributeDef(), loggedInSubject)) {
+        
+        String notAllowed = TagUtils.navResourceString("simpleAttributeAssign.assignEditNotAllowed");
+        notAllowed = GrouperUiUtils.escapeHtml(notAllowed, true);
+        guiResponseJs.addAction(GuiScreenAction.newAlert(notAllowed));
+        return;
+      }
+      
+      //todo check more security, e.g. where it is assigned
+
+      String attributeAssignValueId = httpServletRequest.getParameter("attributeAssignValueId");
+      
+      if (StringUtils.isBlank(attributeAssignValueId)) {
+        throw new RuntimeException("Why is attributeAssignValueId blank???");
+      }
+
+      AttributeAssignValue attributeAssignValue = GrouperDAOFactory.getFactory().getAttributeAssignValue().findById(attributeAssignValueId, true);
+      
+
+      
+      {
+        String valueToEdit = httpServletRequest.getParameter("valueToEdit");
+        
+        if (StringUtils.isBlank(valueToEdit) ) {
+          String required = TagUtils.navResourceString("simpleAttributeUpdate.editValueRequired");
+          required = GrouperUiUtils.escapeHtml(required, true);
+          guiResponseJs.addAction(GuiScreenAction.newAlert(required));
+          return;
+          
+        }
+        
+        
+        attributeAssignValue.assignValue(valueToEdit);
+        
+        attributeAssignValue.saveOrUpdate();
+        
+      }
+      
+      //close the modal dialog
+      guiResponseJs.addAction(GuiScreenAction.newCloseModal());
+
+      String successMessage = TagUtils.navResourceString("simpleAttributeUpdate.assignEditValueSuccess");
+      successMessage = GrouperUiUtils.escapeHtml(successMessage, true);
+      guiResponseJs.addAction(GuiScreenAction.newAlert(successMessage));
+      
+    } finally {
+      GrouperSession.stopQuietly(grouperSession); 
+    }
+
+    assignFilter(httpServletRequest, httpServletResponse);
+    
+  }
+
+
   /**
    * submit the assign edit screen
    * @param httpServletRequest
@@ -2012,9 +2243,64 @@ public class SimpleAttributeUpdate {
     
   }
 
+  
+  
+  /**
+   * delete an attribute assignment value
+   * @param httpServletRequest
+   * @param httpServletResponse
+   */
+  public void assignValueDelete(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
 
-  
-  
+    GrouperSession grouperSession = null;
+
+    try {
+      grouperSession = GrouperSession.start(loggedInSubject);
+      
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+
+      String attributeAssignId = httpServletRequest.getParameter("attributeAssignId");
+      
+      if (StringUtils.isBlank(attributeAssignId)) {
+        throw new RuntimeException("Why is attributeAssignId blank???");
+      }
+
+      AttributeAssign attributeAssign = AttributeAssignFinder.findById(attributeAssignId, true);
+
+      //now we need to check security
+      if (!PrivilegeHelper.canAttrAdmin(grouperSession, attributeAssign.getAttributeDef(), loggedInSubject)) {
+        
+        String notAllowed = TagUtils.navResourceString("simpleAttributeAssign.assignEditNotAllowed");
+        notAllowed = GrouperUiUtils.escapeHtml(notAllowed, true);
+        guiResponseJs.addAction(GuiScreenAction.newAlert(notAllowed));
+        return;
+      }
+      
+      //todo check more security, e.g. where it is assigned
+
+      String attributeAssignValueId = httpServletRequest.getParameter("attributeAssignValueId");
+      
+      if (StringUtils.isBlank(attributeAssignValueId)) {
+        throw new RuntimeException("Why is attributeAssignValueId blank???");
+      }
+
+      AttributeAssignValue attributeAssignValue = GrouperDAOFactory.getFactory().getAttributeAssignValue().findById(attributeAssignValueId, true);
+      
+      attributeAssign.getValueDelegate().deleteValue(attributeAssignValue);
+      
+      String successMessage = TagUtils.navResourceString("simpleAttributeUpdate.assignValueSuccessDelete");
+      successMessage = GrouperUiUtils.escapeHtml(successMessage, true);
+      guiResponseJs.addAction(GuiScreenAction.newAlert(successMessage));
+      
+    } finally {
+      GrouperSession.stopQuietly(grouperSession); 
+    }
+
+    assignFilter(httpServletRequest, httpServletResponse);
+    
+  }
+
   /**
    * delete an attribute assignment
    * @param httpServletRequest
@@ -2039,6 +2325,17 @@ public class SimpleAttributeUpdate {
       AttributeAssign attributeAssign = AttributeAssignFinder.findById(attributeAssignId, true);
       
       attributeAssign.delete();
+      
+      //now we need to check security
+      if (!PrivilegeHelper.canAttrAdmin(grouperSession, attributeAssign.getAttributeDef(), loggedInSubject)) {
+        
+        String notAllowed = TagUtils.navResourceString("simpleAttributeAssign.assignEditNotAllowed");
+        notAllowed = GrouperUiUtils.escapeHtml(notAllowed, true);
+        guiResponseJs.addAction(GuiScreenAction.newAlert(notAllowed));
+        return;
+      }
+      
+      //todo check more security, e.g. where it is assigned
       
       String successMessage = TagUtils.navResourceString("simpleAttributeUpdate.assignSuccessDelete");
       successMessage = GrouperUiUtils.escapeHtml(successMessage, true);
@@ -2081,13 +2378,34 @@ public class SimpleAttributeUpdate {
       //we need the type so we know how to display it
       AttributeAssignType attributeAssignType = attributeAssign.getAttributeAssignType();
       
-      attributeUpdateRequestContainer.setAttributeAssignType(attributeAssignType);
+      if (attributeAssignType.isAssignmentOnAssignment()) {
+        AttributeAssign underlyingAssignment = attributeAssign.getOwnerAttributeAssign();
+        AttributeAssignType underlyingAttributeAssignType = underlyingAssignment.getAttributeAssignType();
+        
+        //set the type to underlying, so that the labels are correct
+        GuiAttributeAssign guiUnderlyingAttributeAssign = new GuiAttributeAssign();
+        guiUnderlyingAttributeAssign.setAttributeAssign(underlyingAssignment);
 
+        attributeUpdateRequestContainer.setGuiAttributeAssign(guiUnderlyingAttributeAssign);
+        
+        GuiAttributeAssign guiAttributeAssignAssign = new GuiAttributeAssign();
+        guiAttributeAssignAssign.setAttributeAssign(attributeAssign);
+
+        attributeUpdateRequestContainer.setGuiAttributeAssignAssign(guiAttributeAssignAssign);
+        attributeUpdateRequestContainer.setAttributeAssignType(underlyingAttributeAssignType);
+        attributeUpdateRequestContainer.setAttributeAssignAssignType(attributeAssignType);
+        
+      } else {
+        attributeUpdateRequestContainer.setAttributeAssignType(attributeAssignType);
+        
+        GuiAttributeAssign guiAttributeAssign = new GuiAttributeAssign();
+        guiAttributeAssign.setAttributeAssign(attributeAssign);
+
+        attributeUpdateRequestContainer.setGuiAttributeAssign(guiAttributeAssign);
+        
+      }
       
-      GuiAttributeAssign guiAttributeAssign = new GuiAttributeAssign();
-      guiAttributeAssign.setAttributeAssign(attributeAssign);
 
-      attributeUpdateRequestContainer.setGuiAttributeAssign(guiAttributeAssign);
       
       guiResponseJs.addAction(GuiScreenAction.newDialogFromJsp(
         "/WEB-INF/grouperUi/templates/simpleAttributeUpdate/simpleAttributeAssignEdit.jsp"));
@@ -2194,7 +2512,10 @@ public class SimpleAttributeUpdate {
           enabledDisabledBoolean = false;
         } else if (StringUtils.equals(enabledDisabledString, "all")) {
           enabledDisabledBoolean = null;
+        } else {
+          throw new RuntimeException("Not expecting enabledDisabled: " + enabledDisabledString);
         }
+        attributeUpdateRequestContainer.setEnabledDisabled(enabledDisabledBoolean);
       }
       
       Set<AttributeAssign> attributeAssigns = GrouperDAOFactory.getFactory().getAttributeAssign().findAttributeAssignments(
@@ -2224,5 +2545,90 @@ public class SimpleAttributeUpdate {
       GrouperSession.stopQuietly(grouperSession); 
     }
 
+  }
+
+
+  /**
+   * edit an attribute assignment value
+   * @param httpServletRequest
+   * @param httpServletResponse
+   */
+  public void assignValueEdit(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+  
+    GrouperSession grouperSession = null;
+  
+    try {
+      grouperSession = GrouperSession.start(loggedInSubject);
+      
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+  
+      String attributeAssignId = httpServletRequest.getParameter("attributeAssignId");
+      
+      if (StringUtils.isBlank(attributeAssignId)) {
+        throw new RuntimeException("Why is attributeAssignId blank???");
+      }
+
+      AttributeAssign attributeAssign = AttributeAssignFinder.findById(attributeAssignId, true);
+  
+      //now we need to check security
+      if (!PrivilegeHelper.canAttrAdmin(grouperSession, attributeAssign.getAttributeDef(), loggedInSubject)) {
+        
+        String notAllowed = TagUtils.navResourceString("simpleAttributeAssign.assignEditNotAllowed");
+        notAllowed = GrouperUiUtils.escapeHtml(notAllowed, true);
+        guiResponseJs.addAction(GuiScreenAction.newAlert(notAllowed));
+        return;
+      }
+
+      //todo check more security, e.g. where it is assigned
+
+      String attributeAssignValueId = httpServletRequest.getParameter("attributeAssignValueId");
+      
+      if (StringUtils.isBlank(attributeAssignValueId)) {
+        throw new RuntimeException("Why is attributeAssignValueId blank???");
+      }
+  
+      AttributeAssignValue attributeAssignValue = GrouperDAOFactory.getFactory().getAttributeAssignValue().findById(attributeAssignValueId, true);
+      
+      AttributeUpdateRequestContainer attributeUpdateRequestContainer = AttributeUpdateRequestContainer.retrieveFromRequestOrCreate();
+      
+      attributeUpdateRequestContainer.setAttributeAssignValue(attributeAssignValue);
+      AttributeAssignType attributeAssignType = attributeAssign.getAttributeAssignType();
+
+      if (attributeAssignType.isAssignmentOnAssignment()) {
+        AttributeAssign underlyingAssignment = attributeAssign.getOwnerAttributeAssign();
+        AttributeAssignType underlyingAttributeAssignType = underlyingAssignment.getAttributeAssignType();
+        
+        //set the type to underlying, so that the labels are correct
+        GuiAttributeAssign guiUnderlyingAttributeAssign = new GuiAttributeAssign();
+        guiUnderlyingAttributeAssign.setAttributeAssign(underlyingAssignment);
+
+        attributeUpdateRequestContainer.setGuiAttributeAssign(guiUnderlyingAttributeAssign);
+        
+        GuiAttributeAssign guiAttributeAssignAssign = new GuiAttributeAssign();
+        guiAttributeAssignAssign.setAttributeAssign(attributeAssign);
+
+        attributeUpdateRequestContainer.setGuiAttributeAssignAssign(guiAttributeAssignAssign);
+        attributeUpdateRequestContainer.setAttributeAssignType(underlyingAttributeAssignType);
+        attributeUpdateRequestContainer.setAttributeAssignAssignType(attributeAssignType);
+        
+      } else {
+        attributeUpdateRequestContainer.setAttributeAssignType(attributeAssignType);
+        
+        GuiAttributeAssign guiAttributeAssign = new GuiAttributeAssign();
+        guiAttributeAssign.setAttributeAssign(attributeAssign);
+
+        attributeUpdateRequestContainer.setGuiAttributeAssign(guiAttributeAssign);
+        
+      }
+      
+      
+      guiResponseJs.addAction(GuiScreenAction.newDialogFromJsp(
+          "/WEB-INF/grouperUi/templates/simpleAttributeUpdate/simpleAttributeAssignValueEdit.jsp"));
+      
+    } finally {
+      GrouperSession.stopQuietly(grouperSession); 
+    }
+  
   }
 }

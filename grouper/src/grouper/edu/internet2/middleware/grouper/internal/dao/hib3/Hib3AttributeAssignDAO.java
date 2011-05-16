@@ -2705,6 +2705,105 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
     
   }
 
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.AttributeAssignDAO#findAssignmentsOnAssignmentsAttributeDefNames(java.util.Collection, edu.internet2.middleware.grouper.attr.assign.AttributeAssignType, java.lang.Boolean)
+   */
+  public Set<AttributeDefName> findAssignmentsOnAssignmentsAttributeDefNames(
+      Collection<AttributeAssign> attributeAssigns,
+      AttributeAssignType attributeAssignType, Boolean enabled) {
+    
+    int attributeAssignsSize = GrouperUtil.length(attributeAssigns);
+  
+    Set<AttributeDefName> results = new LinkedHashSet<AttributeDefName>();
+    
+    if (attributeAssignsSize == 0) {
+      return results;
+    }
+    
+    int numberOfBatches = GrouperUtil.batchNumberOfBatches(attributeAssignsSize, 100);
+  
+    int maxAssignments = GrouperConfig.getPropertyInt("ws.findAttrAssignments.maxResultSize", 30000);
+    
+  
+    for (int i=0;i<numberOfBatches; i++) {
+      
+      List<AttributeAssign> currentBatch = GrouperUtil.batchList(attributeAssigns, 100, i);
+      
+      int currentBatchSize = GrouperUtil.length(currentBatch);
+      
+      ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
+  
+      String selectPrefix = "select distinct adn ";
+      
+      StringBuilder sqlTables = new StringBuilder(" from AttributeAssign aa, AttributeDefName adn ");
+      
+      StringBuilder sqlWhereClause = new StringBuilder(
+          " aa.attributeDefNameId = adn.id ");
+      
+      if (attributeAssignType != null) {
+        sqlWhereClause.append(" and aa.attributeAssignTypeDb = '" + attributeAssignType.name() + "' ");
+      }
+      
+      GrouperSession grouperSession = GrouperSession.staticGrouperSession();
+      
+      Subject grouperSessionSubject = grouperSession.getSubject();
+      
+      grouperSession.getAttributeDefResolver().hqlFilterAttrDefsWhereClause(
+        grouperSessionSubject, byHqlStatic, 
+        sqlTables, sqlWhereClause, "adn.attributeDefId", AttributeDefPrivilege.READ_PRIVILEGES);
+      
+      StringBuilder sql;
+      sql = sqlTables.append(" where ").append(sqlWhereClause);
+      
+      if (enabled != null && enabled) {
+        sql.append(" and aa.enabledDb = 'T' ");
+      }
+      if (enabled != null && !enabled) {
+        sql.append(" and aa.enabledDb = 'F' ");
+      }
+      if (currentBatchSize > 0) {
+        
+        //convert to a list of ids
+        Set<String> ids = new LinkedHashSet<String>();
+        for (AttributeAssign attributeAssign : currentBatch) {
+          ids.add(attributeAssign.getId());
+        }
+        
+        sql.append(" and aa.ownerAttributeAssignId in (");
+        sql.append(HibUtils.convertToInClause(ids, byHqlStatic));
+        sql.append(") ");
+      }
+      byHqlStatic
+        .setCacheable(false)
+        .setCacheRegion(KLASS + ".FindAssignmentsOnAssignmentsAttributeDefNames");
+  
+      //if -1, lets not check
+      Set<AttributeDefName> tempResults = byHqlStatic.createQuery(selectPrefix + sql.toString()).listSet(AttributeDefName.class);
+  
+      //nothing to filter
+      if (GrouperUtil.length(tempResults) > 0) {
+        //if the hql didnt filter, we need to do that here
+        tempResults = filterAttributeDefNames(grouperSession, tempResults);
+      }
+      
+      results.addAll(tempResults);
+      
+      if (maxAssignments >= 0) {
+  
+        //see if too many
+        if (results.size() > maxAssignments) {
+          throw new RuntimeException("Too many results: " + results.size());
+        }
+        
+      }
+    }
+    
+    //we should be down to the secure list
+    return results;
+  
+    
+  }
+
 
 } 
 

@@ -596,4 +596,16 @@ public interface AttributeAssignDAO extends GrouperDAO {
       String ownerMembershipId,
       Boolean enabled, boolean includeAssignmentsOnAssignments);
   
+  /**
+   * search for assignments on assignments attribute def names
+   * @param attributeAssigns to search on
+   * @param attributeAssignType
+   * @param enabled null for all...
+   * @return the attribute def names
+   */
+  public Set<AttributeDefName> findAssignmentsOnAssignmentsAttributeDefNames(
+      Collection<AttributeAssign> attributeAssigns,
+      AttributeAssignType attributeAssignType, Boolean enabled);
+
+  
 }

@@ -220,6 +220,14 @@ public class AttributeAssignValue extends GrouperAPI implements GrouperHasContex
   public String valueString() {
     return valueString(false);
   }
+
+  /**
+   * get value string value
+   * @return value string friendly
+   */
+  public String getValueFriendly() {
+    return this.valueString(true);
+  }
   
   /**
    * whatever the type, return the string value

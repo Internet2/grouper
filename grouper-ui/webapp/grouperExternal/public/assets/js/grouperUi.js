@@ -5,7 +5,8 @@ function guiRoundCorners() {
   if (!jQuery.browser.msie) {
     Nifty("div.sectionBody", "bottom");   
     Nifty("div.sectionHeader", "top");   
-    Nifty("div#navbar"); 
+    //this leaves a white line for some reason...
+    //Nifty("div#navbar"); 
   }  
 }
 
