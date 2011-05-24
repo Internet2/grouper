@@ -322,8 +322,9 @@ public class AttributeDef extends GrouperAPI implements GrouperHasContext,
    * @return the delegate
    */
   public AttributeDefActionDelegate getAttributeDefActionDelegate() {
-    //why does this not check for null and only create if needed???
-    this.attributeDefActionDelegate = new AttributeDefActionDelegate(this);
+    if (this.attributeAssignAttributeDefDelegate == null) {
+      this.attributeDefActionDelegate = new AttributeDefActionDelegate(this);
+    }
     return this.attributeDefActionDelegate;
   }
 

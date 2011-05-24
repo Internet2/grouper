@@ -1703,8 +1703,7 @@ public class SimpleAttributeUpdate {
       guiResponseJs.addAction(GuiScreenAction.newAlert(TagUtils.navResourceString("simpleAttributeAssign.requiredOwnerType")));
 
       //clear out the filter panels for generic and specific
-      guiResponseJs.addAction(GuiScreenAction.newInnerHtml("#attributeAssignFilterCommon", ""));
-      guiResponseJs.addAction(GuiScreenAction.newInnerHtml("#attributeAssignFilterOwnerSpecific", ""));
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtml("#attributeAssignFilter", ""));
       
       return;
     }

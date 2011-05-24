@@ -79,6 +79,27 @@ public interface PermissionEntryDAO extends GrouperDAO {
       Collection<String> memberIds,
       boolean noEndDate);
 
+
+  /**
+   * securely search for assignments
+   * @param attributeAssignType
+   * @param attributeDefId optional
+   * @param attributeDefNameId mutually exclusive with attributeDefIds
+   * @param ownerRoleId optional
+   * @param ownerStemId optional
+   * @param ownerMemberId optional
+   * @param ownerAttributeDefId optional
+   * @param ownerMembershipId optional
+   * @param enabled (null means all, true means enabled, false means disabled)
+   * @param includeAssignmentsOnAssignments if assignments on assignments should also be included
+   * @return the assignments
+   */
+  public Set<PermissionEntry> findPermissions(
+      String attributeDefId, String attributeDefNameId,
+      String ownerRoleId, String ownerMemberId,
+      Boolean enabled);
+
+  
   /**
    * securely search for assignments.  need to pass in either the assign ids, def ids, def name ids, or group ids
    * cannot have more than 100 bind variables

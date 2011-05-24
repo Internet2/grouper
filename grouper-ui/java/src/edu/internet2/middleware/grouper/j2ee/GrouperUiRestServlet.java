@@ -34,6 +34,7 @@ import edu.internet2.middleware.grouper.grouperUi.serviceLogic.SimpleGroupUpdate
 import edu.internet2.middleware.grouper.grouperUi.serviceLogic.SimpleMembershipUpdateFilter;
 import edu.internet2.middleware.grouper.grouperUi.serviceLogic.SimpleMembershipUpdateImportExport;
 import edu.internet2.middleware.grouper.grouperUi.serviceLogic.SimpleMembershipUpdateMenu;
+import edu.internet2.middleware.grouper.grouperUi.serviceLogic.SimplePermissionUpdateFilter;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter.UiSection;
@@ -91,7 +92,11 @@ public class GrouperUiRestServlet extends HttpServlet {
       SimpleAttributeUpdateFilter.class.getSimpleName() + ".filterGroups",
       SimpleAttributeUpdateFilter.class.getSimpleName() + ".filterStems",
       SimpleAttributeUpdateFilter.class.getSimpleName() + ".filterSubjects",
-      SimpleAttributeUpdateMenu.class.getSimpleName() + ".assignmentMenuStructure"
+      SimpleAttributeUpdateMenu.class.getSimpleName() + ".assignmentMenuStructure",
+      SimplePermissionUpdateFilter.class.getSimpleName() + ".filterPermissionAttributeDefs",
+      SimplePermissionUpdateFilter.class.getSimpleName() + ".filterPermissionResources",
+      SimplePermissionUpdateFilter.class.getSimpleName() + ".filterRoles",
+      SimplePermissionUpdateFilter.class.getSimpleName() + ".filterSubjects"
   );
 
   /**

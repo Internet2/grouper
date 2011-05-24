@@ -1,34 +1,33 @@
 <%@ include file="../common/commonTaglib.jsp"%>
-<!-- Start: simpleAttributeUpdate/simpleAttributeAssignments.jsp -->
+<!-- Start: simplePermissionUpdate/simplePermissionAssignments.jsp -->
 
 
 <div class="section" style="min-width: 900px">
 
-  <grouper:subtitle key="simpleAttributeUpdate.assignAssignments" />
+  <grouper:subtitle key="simplePermissionUpdate.assignAssignments" />
 
   <div class="sectionBody">
-      
-      <%-- message if no members --%>  
+
+      <%-- message if no permissions --%>  
       <c:choose>
-        <c:when test="${fn:length(attributeUpdateRequestContainer.guiAttributeAssigns) == 0}">
-          <grouper:message key="simpleAttributeUpdate.assignNoResultsFound" />
+        <c:when test="${fn:length(permissionUpdateRequestContainer.guiPermissionEntryActionsContainers) == 0}">
+          <grouper:message key="simplePermissionUpdate.assignNoResultsFound" />
         
         </c:when>
         <c:otherwise>
           <%-- paging summary shows which records, and page size --%>
           <%-- div class="pagingSummary">
-            <grouper:message key="simpleAttributeUpdate.pagingLabelPrefix" />
+            <grouper:message key="simplePermissionUpdate.pagingLabelPrefix" />
             <grouper:paging 
-              refreshOperation="SimpleAttributeUpdate.attributeEditPanelPrivileges?attributeDefToEditId=${attributeUpdateRequestContainer.attributeDefToEdit.id}&showIndirectPrivileges=${attributeUpdateRequestContainer.showIndirectPrivilegesComputed}" 
-              showSummaryOrButtons="true" pagingName="simpleAttributeUpdatePrivileges"  />
+              refreshOperation="SimplePermissionUpdate.permissionEditPanelPrivileges?attributeDefToEditId=${attributeUpdateRequestContainer.attributeDefToEdit.id}&showIndirectPrivileges=${attributeUpdateRequestContainer.showIndirectPrivilegesComputed}" 
+              showSummaryOrButtons="true" pagingName="simplePermissionUpdateAssignments"  />
               
           </div --%>
     
           <table cellspacing="2" class="formTable" width="700">
             <c:set var="row" value="0" />
-            <c:forEach items="${attributeUpdateRequestContainer.guiAttributeAssigns}" var="guiAttributeAssign">
-              
-              <c:if test="${attributeUpdateRequestContainer.showPrivilegeHeader[row]}">
+            <c:forEach items="${permissionUpdateRequestContainer.guiPermissionEntryActionsContainers}" var="guiPermissionEntryActionsContainers">
+              <c:if test="${attributeUpdateRequestContainer.showActionsHeader[row]}">
                 <tr>
                   <th></th>
                   
@@ -52,6 +51,7 @@
                   </th>
                 </tr>
               </c:if>
+<%--
               <tr  ${row % 2 == 1 ? 'class="alternate"' : ''} style="vertical-align: top">
                 <td style="white-space: nowrap;">
                 
@@ -82,13 +82,16 @@
                   <grouper:message key="${guiAttributeAssign.enabledDisabledKey}"  />
                 </td>
                 <td style="white-space: nowrap;">
+--%>
                   <%-- loop through the values --%>
+<%--
                   <c:set var="valueRow" value="0" />
               
                   
                   <c:forEach items="${guiAttributeAssign.attributeAssign.valueDelegate.attributeAssignValues}" var="attributeAssignValue">
-                  
+--%>                  
                     <%-- we need a newline before non-first rows --%>
+<%--
                     <c:if test="${valueRow != 0}">
                       <br />
                     </c:if>
@@ -119,10 +122,13 @@
               </tr>
               
               <c:forEach items="${guiAttributeAssign.guiAttributeAssigns}" var="guiAttributeAssignAssign">
-                
-                <%-- filter out results which dont match the enabled/disabled filter --%>              
+--%>                
+                <%-- filter out results which dont match the enabled/disabled filter --%>
+<%--
                 <c:if test="${attributeUpdateRequestContainer.enabledDisabled == null || (attributeUpdateRequestContainer.enabledDisabled == guiAttributeAssignAssign.attributeAssign.enabled )}" >
+--%>
                 <%-- see if there are assignments on the assignment --%>
+<%--
                 <tr  ${row % 2 == 1 ? 'class="alternate"' : ''} style="vertical-align: top">
                   <td style="white-space: nowrap;" align="right">
                     <span class="simpleMembershipUpdateDisabled"><grouper:message key="simpleAttributeUpdate.assignMetadata" /></span>
@@ -151,13 +157,16 @@
                     <grouper:message key="${guiAttributeAssignAssign.enabledDisabledKey}"  />
                   </td>
                   <td style="white-space: nowrap;">
+--%>
                     <%-- loop through the values --%>
+<%--
                     <c:set var="valueRow" value="0" />
                 
                     
                     <c:forEach items="${guiAttributeAssignAssign.attributeAssign.valueDelegate.attributeAssignValues}" var="attributeAssignValue">
-                    
+--%>                    
                       <%-- we need a newline before non-first rows --%>
+<%--
                       <c:if test="${valueRow != 0}">
                         <br />
                       </c:if>
@@ -192,16 +201,16 @@
                 </c:if>
               
               </c:forEach>              
-              <c:set var="row" value="${row + 1}" />
             </c:forEach>          
           </table> 
- 
+--%> 
           <%-- attach a menu for each row --%>
+<%--
           <grouper:menu menuId="assignmentMenu"
             operation="SimpleAttributeUpdateMenu.assignmentMenu" 
             structureOperation="SimpleAttributeUpdateMenu.assignmentMenuStructure" 
             contextZoneJqueryHandle=".assignmentMenuButton" contextMenu="true" />
-       
+--%>       
           <%-- show the google like paging buttons at the bottom to pick a page to go to --%>
           <%--div class="pagingButtons">
             <grouper:message key="simpleAttributeUpdate.pagingResultPrefix" />
@@ -209,11 +218,17 @@
               refreshOperation="SimpleAttributeUpdate.attributeEditPanelPrivileges?attributeDefToEditId=${attributeUpdateRequestContainer.attributeDefToEdit.id}&showIndirectPrivileges=${attributeUpdateRequestContainer.showIndirectPrivilegesComputed}" 
                />
           </div --%>
-        
+<%--        
         </c:otherwise>
       </c:choose>
+--%>
+            <c:set var="row" value="${row + 1}" />
+          </c:forEach>
+        </table>
+      </c:otherwise>
+    </c:choose>
     <br />
   </div>
 </div>
 
-<!-- End: simpleAttributeUpdate/simpleAttributeAssignments.jsp -->
+<!-- End: simplePermissionUpdate/simplePermissionAssignments.jsp -->

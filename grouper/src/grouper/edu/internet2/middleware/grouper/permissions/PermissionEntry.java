@@ -13,8 +13,12 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 import edu.internet2.middleware.grouper.GrouperAPI;
+import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignDelegatable;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignType;
+import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
@@ -480,6 +484,13 @@ public class PermissionEntry extends GrouperAPI implements Comparable<Permission
     return this.attributeDefId;
   }
 
+  /**
+   * 
+   * @return attributeDef
+   */
+  public AttributeDef getAttributeDef() {
+    return this.attributeDefId == null ? null : AttributeDefFinder.findByAttributeDefNameId(this.attributeDefNameId, true);
+  }
   
   /**
    * id of the attributeDef
@@ -496,6 +507,16 @@ public class PermissionEntry extends GrouperAPI implements Comparable<Permission
    */
   public String getMemberId() {
     return this.memberId;
+  }
+
+  /**
+   * get the member
+   * @return the member
+   */
+  public Member getMember() {
+      
+    //I think the current grouper session isnt really relevant here, I think we just need to produce the group without security
+    return this.memberId == null ? null : GrouperDAOFactory.getFactory().getMember().findByUuid(this.memberId, true);
   }
 
   
@@ -791,6 +812,15 @@ public class PermissionEntry extends GrouperAPI implements Comparable<Permission
           theString, exceptionOnNull);
 
     }
+
+    /**
+     * name for javabean
+     * @return the attribute assign type
+     */
+    public String getName() {
+      return this.name();
+    }
+    
 
     /**
      * convert to attribute assign type

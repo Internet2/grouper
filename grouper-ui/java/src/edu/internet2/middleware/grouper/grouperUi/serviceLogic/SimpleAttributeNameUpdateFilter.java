@@ -103,7 +103,7 @@ public class SimpleAttributeNameUpdateFilter {
             .sortAsc("theAttributeDefName.displayNameDb");
           attributeDefNames = GrouperDAOFactory.getFactory().getAttributeDefName().findAllAttributeNamesSplitScopeSecure(
               searchTerm, grouperSession, attributeDefId, loggedInSubject, 
-              GrouperUtil.toSet(AccessPrivilege.ADMIN, AccessPrivilege.UPDATE), queryOptions, null);
+              GrouperUtil.toSet(AccessPrivilege.ADMIN, AccessPrivilege.UPDATE), queryOptions, null, null);
           
           if (GrouperUtil.length(attributeDefNames) == 0) {
             GrouperUiUtils.dhtmlxOptionAppend(xmlBuilder, "", 

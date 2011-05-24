@@ -7,6 +7,7 @@ import org.apache.commons.lang.StringUtils;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
+import edu.internet2.middleware.grouper.attr.AttributeDefType;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignType;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
@@ -319,12 +320,14 @@ public class Hib3AttributeDefNameDAO extends Hib3DAO implements AttributeDefName
    * @param queryOptions 
    * @param splitScope 
    * @param attributeAssignType
+   * @param attributeDefType 
    * @return 
    * 
    */
   private Set<AttributeDefName> findAllAttributeNamesSecureHelper(String scope,
       GrouperSession grouperSession, String attributeDefId, Subject subject, Set<Privilege> privileges,
-      QueryOptions queryOptions, boolean splitScope, AttributeAssignType attributeAssignType) {
+      QueryOptions queryOptions, boolean splitScope, AttributeAssignType attributeAssignType,
+      AttributeDefType attributeDefType) {
     if (queryOptions == null) {
       queryOptions = new QueryOptions();
     }
@@ -339,6 +342,14 @@ public class Hib3AttributeDefNameDAO extends Hib3DAO implements AttributeDefName
   
     StringBuilder whereClause = new StringBuilder(" theAttributeDefName.attributeDefId = theAttributeDef.id ");
     
+    if (attributeDefType != null) {
+      if (whereClause.length() > 0) {
+        whereClause.append(" and ");
+      }
+      whereClause.append(" theAttributeDef.attributeDefTypeDb = :theAttributeDefType ");
+      byHqlStatic.setString("theAttributeDefType", attributeDefType.name());
+    }
+
     if (!StringUtils.isBlank(attributeDefId)) {
       
       if (whereClause.length() > 0) {
@@ -456,12 +467,13 @@ public class Hib3AttributeDefNameDAO extends Hib3DAO implements AttributeDefName
   }
 
   /**
-   * @see AttributeDefNameDAO#findAllAttributeNamesSplitScopeSecure(String, GrouperSession, String, Subject, Set, QueryOptions, AttributeAssignType)
+   * @see AttributeDefNameDAO#findAllAttributeNamesSplitScopeSecure(String, GrouperSession, String, Subject, Set, QueryOptions, AttributeAssignType, AttributeDefType)
    */
   public Set<AttributeDefName> findAllAttributeNamesSplitScopeSecure(String scope,
       GrouperSession grouperSession, String attributeDefId, Subject subject,
-      Set<Privilege> privileges, QueryOptions queryOptions, AttributeAssignType attributeAssignType) {
-    return findAllAttributeNamesSecureHelper(scope, grouperSession, attributeDefId, subject, privileges, queryOptions, true, attributeAssignType);
+      Set<Privilege> privileges, QueryOptions queryOptions, AttributeAssignType attributeAssignType,
+      AttributeDefType attributeDefType) {
+    return findAllAttributeNamesSecureHelper(scope, grouperSession, attributeDefId, subject, privileges, queryOptions, true, attributeAssignType, attributeDefType);
   }
 
 } 
