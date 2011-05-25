@@ -68,7 +68,7 @@
                     onmouseout="UnTip()"/></a>
                   <a class="assignmentMenuButton" href="#"
                     ><img src="../../grouperExternal/public/assets/images/bullet_arrow_down.png" border="0" 
-                    id="assignmentMenuButton_${guiAttributeAssign.attributeAssign.id}" alt="Options"/></a>
+                    id="assignmentMenuButton_${guiAttributeAssign.attributeAssign.id}" alt="${grouper:escapeJavascript(navMap['contextOptionsAlt'])}"/></a>
                 </td>
                 <td style="white-space: nowrap;">
                   <grouper:message valueTooltip="${grouper:escapeHtml(guiAttributeAssign.screenLabelLongIfDifferent)}" 
@@ -139,7 +139,7 @@
                       onmouseout="UnTip()"/></a>
                     <a class="assignmentMenuButton" href="#"
                       ><img src="../../grouperExternal/public/assets/images/bullet_arrow_down.png" border="0" 
-                      id="assignmentMenuButton_${guiAttributeAssignAssign.attributeAssign.id}" alt="Options"/></a>
+                      id="assignmentMenuButton_${guiAttributeAssignAssign.attributeAssign.id}" alt="${grouper:escapeJavascript(navMap['contextOptionsAlt'])}"/></a>
                   </td>
                   <td style="white-space: nowrap;">
                   </td>

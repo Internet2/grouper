@@ -110,6 +110,14 @@ img {
   border-bottom-width: 3px;
 }
 
+.noteMessage {
+	border-color: #056496;
+  border-style: dashed;
+  border-width: 3px;
+  margin: 1em;
+  padding: 1em;
+}
+
 td {
   padding: 3px;
 }

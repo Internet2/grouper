@@ -58,6 +58,20 @@
       </tr>
     </c:when>
   </c:choose>
+  <tr class="formTableRow">
+    <td class="formTableLeft" style="vertical-align: middle">
+      <label for="member">
+        <grouper:message key="simplePermissionAssign.assignAction" />
+      </label>
+    </td>
+    <td class="formTableRight">
+       <grouper:combobox 
+         filterOperation="SimplePermissionUpdateFilter.filterActions" 
+         id="permissionAssignAction" 
+         additionalFormElementNames="permissionAssignAttributeDef,permissionAssignAttributeName"
+         width="700"/>
+    </td>
+  </tr>
   
   <tr class="formTableRow">
     <td class="formTableLeft" style="vertical-align: middle">

@@ -15,10 +15,13 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import edu.internet2.middleware.grouper.GrouperAPI;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
+import edu.internet2.middleware.grouper.attr.AttributeDefName;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignDelegatable;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignType;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.permissions.role.Role;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
@@ -466,6 +469,34 @@ public class PermissionEntry extends GrouperAPI implements Comparable<Permission
     return this.roleId;
   }
 
+  /**
+   * owner role
+   * @return the ownerRole
+   */
+  public Role getRole() {
+    
+    //I think the current grouper session isnt really relevant here, I think we just need to produce the group without security
+    return this.roleId == null ? null : GrouperDAOFactory.getFactory().getGroup().findByUuid(this.roleId, true);
+
+  }
+
+  /**
+   * get attribute def name
+   * @return attributeDefName
+   */
+  public AttributeDefName getAttributeDefName() {
+    return this.attributeDefNameId == null ? null 
+      : GrouperDAOFactory.getFactory().getAttributeDefName().findByUuidOrName(this.attributeDefNameId, null, true);
+  }
+  
+  /**
+   * get attribute assign
+   * @return attributeAssign
+   */
+  public AttributeAssign getAttributeAssign() {
+    return this.attributeAssignId == null ? null 
+      : GrouperDAOFactory.getFactory().getAttributeAssign().findById(this.attributeAssignId, true);
+  }
   
   /**
    * id of the role which the subject is in to get the permission

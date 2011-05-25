@@ -1,5 +1,9 @@
 package edu.internet2.middleware.grouper.grouperUi.serviceLogic;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
@@ -17,6 +21,7 @@ import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.AttributeDefType;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
+import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.group.TypeOfGroup;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.internal.dao.QueryPaging;
@@ -346,6 +351,16 @@ public class SimplePermissionUpdateFilter {
             subjects = SubjectFinder.findBySubjectsInGroup(grouperSession, subjects, group, null, null);
           }
           
+          //dont allow groups here...  its too confusing, why would you do this?
+          Iterator<Subject> iterator = subjects.iterator();
+          while (iterator.hasNext()) {
+            Subject subject = iterator.next();
+            if (StringUtils.equals(subject.getSourceId(), "g:gsa")) {
+              iterator.remove();
+            }
+                
+          }
+          
           int maxSubjectsDropDown = TagUtils.mediaResourceInt("simplePermissionUpdate.subjectComboboxResultSize", 50);
   
           queryPaging = new QueryPaging(maxSubjectsDropDown, 1, true);
@@ -400,5 +415,127 @@ public class SimplePermissionUpdateFilter {
     throw new ControllerDone();
   
   }
+
+  /**
+   * filter actions to pick one to assign
+   * @param httpServletRequest
+   * @param httpServletResponse
+   */
+  public void filterActions(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
+  
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+  
+    String searchTerm = httpServletRequest.getParameter("mask");
+  
+    try {
+      grouperSession = GrouperSession.start(loggedInSubject);
+        
+      String attributeDefIdParam = httpServletRequest.getParameter("attributeAssignAttributeDef");
+
+      StringBuilder xmlBuilder = new StringBuilder(GrouperUiUtils.DHTMLX_OPTIONS_START);
+      
+      AttributeDef attributeDef = null;
+      
+      boolean foundError = false;
+      if (!StringUtils.isBlank(attributeDefIdParam)) {
+        
+        try {
+          attributeDef = AttributeDefFinder.findById(attributeDefIdParam, true);
+        } catch (Exception e) {
+          //this is ok, just not found
+          LOG.debug(e.getMessage(), e);
+          GrouperUiUtils.dhtmlxOptionAppend(xmlBuilder, "", 
+              GrouperUiUtils.message("simplePermissionUpdate.errorCantFindAttributeDef", false), "bullet_error.png");
+          foundError = true;
+        }
+      }
+
+      String attributeDefNameIdParam = httpServletRequest.getParameter("permissionAssignAttributeName");
+
+      if (!foundError && !StringUtils.isBlank(attributeDefNameIdParam)) {
+        
+        try {
+          AttributeDefName attributeDefName = AttributeDefNameFinder.findById(attributeDefNameIdParam, true);
+          attributeDef = attributeDefName.getAttributeDef();
+        } catch (Exception e) {
+          //this is ok, just not found
+          LOG.debug(e.getMessage(), e);
+          GrouperUiUtils.dhtmlxOptionAppend(xmlBuilder, "", 
+              GrouperUiUtils.message("simplePermissionUpdate.errorCantFindAttributeDefName", false), "bullet_error.png");
+          foundError = true;
+        }
+      }
+      
+      if (!foundError && attributeDef == null) {
+        GrouperUiUtils.dhtmlxOptionAppend(xmlBuilder, "", 
+            GrouperUiUtils.message("simplePermissionUpdate.errorCantFilterByActionWithNoDefOrName", false), "bullet_error.png");
+        foundError = true;
+      }
+      
+      if (!foundError) {
+        List<String> actions = new ArrayList<String>();
+        
+        Set<String> availableActions = attributeDef.getAttributeDefActionDelegate().allowedActionStrings();
+        
+        if (!StringUtils.isBlank(searchTerm)) {
+        
+          searchTerm = searchTerm.toLowerCase();
+          
+          for (String action : availableActions) {
+            
+            if (action.toLowerCase().contains(searchTerm)) {
+              actions.add(action);
+            }
+            
+          }
+
+          //if none, return all
+          
+        }
+        
+        if (StringUtils.isBlank(searchTerm) || actions.size() == 0) {
+          
+          actions.addAll(availableActions);
+          
+        }
+        
+        Collections.sort(actions);
+        
+        for (String action : actions) {
+    
+          String value = action;
+          String label = action;
+          //application image
+          String imageName = GrouperUiUtils.imageFromSubjectSource("g:isa");
+    
+          GrouperUiUtils.dhtmlxOptionAppend(xmlBuilder, value, label, imageName);
+        }
+    
+      }      
+      
+      xmlBuilder.append(GrouperUiUtils.DHTMLX_OPTIONS_END);
+      
+      GrouperUiUtils.printToScreen(xmlBuilder.toString(), HttpContentType.TEXT_XML, false, false);
+  
+    } catch (Exception se) {
+      LOG.error("Error searching for permission resource: '" + searchTerm + "', " + se.getMessage(), se);
+      
+      //dont rethrow or the control will get confused
+      StringBuilder xmlBuilder = new StringBuilder(GrouperUiUtils.DHTMLX_OPTIONS_START);
+      GrouperUiUtils.dhtmlxOptionAppend(xmlBuilder, null, 
+          GrouperUiUtils.escapeHtml("Error searching for permission resources: " + searchTerm + ", " + se.getMessage(), true), null);
+      xmlBuilder.append(GrouperUiUtils.DHTMLX_OPTIONS_END);
+      GrouperUiUtils.printToScreen(xmlBuilder.toString(), HttpContentType.TEXT_XML, false, false);
+    } finally {
+      GrouperSession.stopQuietly(grouperSession); 
+    }
+  
+    //dont print the regular JSON
+    throw new ControllerDone();
+      
+  }
+
 
 }

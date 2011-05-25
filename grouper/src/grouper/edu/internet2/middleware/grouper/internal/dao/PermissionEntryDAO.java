@@ -90,13 +90,14 @@ public interface PermissionEntryDAO extends GrouperDAO {
    * @param ownerMemberId optional
    * @param ownerAttributeDefId optional
    * @param ownerMembershipId optional
+   * @param action optional
    * @param enabled (null means all, true means enabled, false means disabled)
    * @param includeAssignmentsOnAssignments if assignments on assignments should also be included
    * @return the assignments
    */
   public Set<PermissionEntry> findPermissions(
       String attributeDefId, String attributeDefNameId,
-      String ownerRoleId, String ownerMemberId,
+      String ownerRoleId, String ownerMemberId, String action,
       Boolean enabled);
 
   

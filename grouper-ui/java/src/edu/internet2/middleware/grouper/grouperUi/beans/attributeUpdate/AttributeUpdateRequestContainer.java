@@ -559,26 +559,31 @@ public class AttributeUpdateRequestContainer implements Serializable {
   }
 
   /**
+   * map wrapper
+   */
+  private Map<Integer, Boolean> showPrivilegesHeader = new MapWrapper<Integer, Boolean>() {
+
+    @Override
+    public Boolean get(Object key) {
+      Integer theInt = GrouperUtil.intObjectValue(key, false);
+      int repeatAfterRows = TagUtils.mediaResourceInt("simpleAttributeUpdate.repeatPrivilegeHeaderAfterRows", 20);
+
+      if (theInt % repeatAfterRows == 0) {
+        return true;
+      }
+      return false;
+      
+    }
+    
+  };
+  
+  /**
    * if we should show the privilege header
    * @return if we should show the privilege header
    */
   public Map<Integer, Boolean> getShowPrivilegeHeader() {
     
-    return new MapWrapper<Integer, Boolean>() {
-
-      @Override
-      public Boolean get(Object key) {
-        Integer theInt = GrouperUtil.intObjectValue(key, false);
-        int repeatAfterRows = TagUtils.mediaResourceInt("simpleAttributeUpdate.repeatPrivilegeHeaderAfterRows", 20);
-
-        if (theInt % repeatAfterRows == 0) {
-          return true;
-        }
-        return false;
-        
-      }
-      
-    };
+    return this.showPrivilegesHeader;
     
   }
 

@@ -442,7 +442,7 @@ public class Hib3PermissionEntryDAO extends Hib3DAO implements PermissionEntryDA
    */
   public Set<PermissionEntry> findPermissions(String attributeDefId,
       String attributeDefNameId, String ownerRoleId, String ownerMemberId,
-      Boolean enabled) {
+      String action, Boolean enabled) {
     
     ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
 
@@ -490,6 +490,11 @@ public class Hib3PermissionEntryDAO extends Hib3DAO implements PermissionEntryDA
       byHqlStatic.setString("theOwnerRoleId", ownerRoleId);
     }
     
+    if (!StringUtils.isBlank(action)) {
+      sql.append(" and pea.action = :theAction ");
+      byHqlStatic.setString("theAction", action);
+    }
+
     if (!StringUtils.isBlank(attributeDefId)) {
       sql.append(" and pea.attributeDefId = :theAttributeDefId ");
       byHqlStatic.setString("theAttributeDefId", attributeDefId);
@@ -512,6 +517,7 @@ public class Hib3PermissionEntryDAO extends Hib3DAO implements PermissionEntryDA
     
     //if we did where and, then switch to where
     sqlString = sqlString.replaceAll("where\\s+and", "where");
+    sqlString = sqlString.replaceAll("where\\s*$", "");
     
     Set<PermissionEntry> results = byHqlStatic.createQuery(selectPrefix + sqlString).listSet(PermissionEntry.class);
 

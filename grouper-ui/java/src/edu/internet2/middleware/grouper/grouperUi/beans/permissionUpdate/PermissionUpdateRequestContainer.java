@@ -6,14 +6,19 @@ package edu.internet2.middleware.grouper.grouperUi.beans.permissionUpdate;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeAssign;
+import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiPermissionEntry;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiPermissionEntryActionsContainer;
 import edu.internet2.middleware.grouper.permissions.PermissionEntry.PermissionType;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
+import edu.internet2.middleware.grouper.ui.tags.TagUtils;
+import edu.internet2.middleware.grouper.ui.util.MapWrapper;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
 
@@ -22,6 +27,76 @@ import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
  */
 @SuppressWarnings("serial")
 public class PermissionUpdateRequestContainer implements Serializable {
+
+  /** gui permission entry */
+  private GuiPermissionEntry guiPermissionEntry = null;
+  
+  /**
+   * gui permission entry
+   * @return gui permission entry
+   */
+  public GuiPermissionEntry getGuiPermissionEntry() {
+    return this.guiPermissionEntry;
+  }
+
+  /**
+   * gui permission entry
+   * @param guiPermissionEntry1
+   */
+  public void setGuiPermissionEntry(GuiPermissionEntry guiPermissionEntry1) {
+    this.guiPermissionEntry = guiPermissionEntry1;
+  }
+
+  /**
+   * so we dont have a popup and extra click
+   */
+  private String assignmentStatusMessage;
+  
+  
+  /**
+   * so we dont have a popup
+   * @return message
+   */
+  public String getAssignmentStatusMessage() {
+    return this.assignmentStatusMessage;
+  }
+
+  /**
+   * so we dont have a popup
+   * @param assignmentStatusMessage1
+   */
+  public void setAssignmentStatusMessage(String assignmentStatusMessage1) {
+    this.assignmentStatusMessage = assignmentStatusMessage1;
+  }
+
+  /**
+   * aggregate of all actions of all attribute defs
+   */
+  private List<String> allActions = null;
+  
+  /**
+   * aggregate of all actions of all attribute defs
+   * @return actions
+   */
+  public List<String> getAllActions() {
+    return this.allActions;
+  }
+
+  /**
+   * aggregate of all actions of all attribute defs, number of them
+   * @return actions size
+   */
+  public int getAllActionsSize() {
+    return GrouperUtil.length(this.allActions);
+  }
+
+  /**
+   * aggregate of all actions of all attribute defs
+   * @param allActions1
+   */
+  public void setAllActions(List<String> allActions1) {
+    this.allActions = allActions1;
+  }
 
   /** type of permission, role or role_subject */
   private PermissionType permissionType;
@@ -193,6 +268,34 @@ public class PermissionUpdateRequestContainer implements Serializable {
     this.guiAttributeAssign = guiAttributeAssign1;
   }
   
+  /**
+   * map wrapper
+   */
+  private Map<Integer, Boolean> showHeader = new MapWrapper<Integer, Boolean>() {
+
+    @Override
+    public Boolean get(Object key) {
+      Integer theInt = GrouperUtil.intObjectValue(key, false);
+      int repeatAfterRows = TagUtils.mediaResourceInt("simplePermissionUpdate.repeatPermissionHeaderAfterRows", 20);
+
+      if (theInt % repeatAfterRows == 0) {
+        return true;
+      }
+      return false;
+      
+    }
+    
+  };
+  
+  /**
+   * if we should show the privilege header
+   * @return if we should show the privilege header
+   */
+  public Map<Integer, Boolean> getShowHeader() {
+    
+    return this.showHeader;
+    
+  }
 
 
 }

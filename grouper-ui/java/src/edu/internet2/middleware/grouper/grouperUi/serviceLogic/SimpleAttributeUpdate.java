@@ -606,7 +606,7 @@ public class SimpleAttributeUpdate {
     GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
 
     //set the privilege panel
-    guiResponseJs.addAction(GuiScreenAction.newInnerHtml("#attributePrivilegesPanel", null));
+    guiResponseJs.addAction(GuiScreenAction.newInnerHtml("#attributePrivilegesPanel", ""));
     
   }
 
