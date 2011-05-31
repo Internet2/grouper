@@ -19,6 +19,7 @@ public class AllPermissionsTests {
     //$JUnit-BEGIN$
     suite.addTestSuite(RoleSetTest.class);
     suite.addTestSuite(PermissionEntryTest.class);
+    suite.addTestSuite(PermissionHeuristicTest.class);
     //$JUnit-END$
     return suite;
   }

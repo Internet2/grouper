@@ -6,6 +6,7 @@ package edu.internet2.middleware.grouper.permissions;
 
 import java.sql.Timestamp;
 import java.util.Collection;
+import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.EqualsBuilder;
@@ -14,6 +15,9 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 
 import edu.internet2.middleware.grouper.GrouperAPI;
 import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.annotations.GrouperIgnoreClone;
+import edu.internet2.middleware.grouper.annotations.GrouperIgnoreDbVersion;
+import edu.internet2.middleware.grouper.annotations.GrouperIgnoreFieldConstant;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
@@ -30,6 +34,53 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  */
 @SuppressWarnings("serial")
 public class PermissionEntry extends GrouperAPI implements Comparable<PermissionEntry> {
+
+  /**
+   * if internal heuristic is not set, set it
+   * @param permissionEntries
+   */
+  public static void orderByAndSetFriendlyHeuristic(List<PermissionEntry> permissionEntries) {
+    if (permissionEntries == null) {
+      return;
+    }
+    
+    for (PermissionEntry permissionEntry : permissionEntries) {
+      if (permissionEntry.getPermissionHeuristics() == null) {
+        PermissionHeuristics permissionHeuristics = new PermissionHeuristics();
+        permissionEntry.setPermissionHeuristics(permissionHeuristics);
+      }
+      if (permissionEntry.getPermissionHeuristics().getInternalScore() == -1) {
+        long internalScore = PermissionHeuristic.computePermissionHeuristic(permissionEntry);
+        permissionEntry.getPermissionHeuristics().setInternalScore(internalScore);
+      }
+    }
+    
+  }
+  
+
+  
+  /** if allowed */
+  private boolean allowed;
+  
+  /**
+   * if this assignment is allowed
+   * @return true
+   */
+  public boolean isAllowed() {
+    return this.allowed;
+  }
+  
+  
+  
+  /**
+   * if this assignment is allowed
+   * @param allowed1
+   */
+  public void setAllowed(boolean allowed1) {
+    this.allowed = allowed1;
+  }
+
+
 
   /** notes on the assignment of privilege */
   private String assignmentNotes;
@@ -262,6 +313,26 @@ public class PermissionEntry extends GrouperAPI implements Comparable<Permission
 
   /** depth of action hierarchy, 0 means immediate */
   private int attributeAssignActionSetDepth = -2;
+
+  /** cache the weighting of this assignment */
+  @GrouperIgnoreClone @GrouperIgnoreDbVersion @GrouperIgnoreFieldConstant
+  private PermissionHeuristics permissionHeuristics;
+
+  /**
+   * cache the weighting of this assignment
+   * @return the permission heuristic
+   */
+  public PermissionHeuristics getPermissionHeuristics() {
+    return this.permissionHeuristics;
+  }
+
+  /**
+   * cache the weighting of this assignment
+   * @param permissionHeuristics1
+   */
+  public void setPermissionHeuristics(PermissionHeuristics permissionHeuristics1) {
+    this.permissionHeuristics = permissionHeuristics1;
+  }
 
   /**
    * depth of memberships, 0 means immediate
@@ -786,6 +857,7 @@ public class PermissionEntry extends GrouperAPI implements Comparable<Permission
       .append(this.immediateMshipEnabledTimeDb, other.immediateMshipEnabledTimeDb)
       .append(this.attributeAssignDelegatable, other.attributeAssignDelegatable)
       .append(this.permissionType, other.permissionType)
+      .append(this.attributeAssignId, other.attributeAssignId)
       .isEquals();
 
   }
@@ -796,7 +868,8 @@ public class PermissionEntry extends GrouperAPI implements Comparable<Permission
    */
   @Override
   public int hashCode() {
-    return new HashCodeBuilder().append(this.roleId)
+    return new HashCodeBuilder()
+      .append(this.roleId)
       .append(this.memberId)
       .append(this.action)
       .append(this.attributeDefNameId)
@@ -805,6 +878,7 @@ public class PermissionEntry extends GrouperAPI implements Comparable<Permission
       .append(this.immediateMshipDisabledTimeDb)
       .append(this.immediateMshipEnabledTimeDb)
       .append(this.permissionType)
+      .append(this.attributeAssignId)
       .toHashCode();
   }
 

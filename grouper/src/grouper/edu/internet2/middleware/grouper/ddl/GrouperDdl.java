@@ -4559,7 +4559,7 @@ public enum GrouperDdl implements DdlVersionable {
         + "and gf.type = 'list' "
         + "and gmav.member_id = gm.id "
         + "and gaa.owner_member_id is not null "
-        + "and gaa.owner_group_id is null "
+        + "and gaa.owner_group_id is not null "
         + "and gaa.attribute_assign_action_id = gaaa.id ");
 
     
