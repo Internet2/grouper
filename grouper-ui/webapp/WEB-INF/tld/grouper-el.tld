@@ -464,7 +464,7 @@
     </function-class>
     <function-signature>String abbreviate(java.lang.String, int, boolean, boolean)</function-signature>
     <example>
-      ${grouper:abbreviate(something.somewhere, 20, true)}
+      ${grouper:abbreviate(something.somewhere, 20, true, true)}
     </example>
   </function>
   <function>

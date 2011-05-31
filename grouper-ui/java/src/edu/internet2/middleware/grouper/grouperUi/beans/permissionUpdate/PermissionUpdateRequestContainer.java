@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeAssign;
+import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiPermissionAnalyze;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiPermissionEntry;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiPermissionEntryActionsContainer;
 import edu.internet2.middleware.grouper.permissions.PermissionEntry.PermissionType;
@@ -27,6 +28,29 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  */
 @SuppressWarnings("serial")
 public class PermissionUpdateRequestContainer implements Serializable {
+
+  /**
+   * gui permission analyze screen results by line
+   */
+  private GuiPermissionAnalyze guiPermissionAnalyze = null;
+   
+
+  
+  /**
+   * gui permission analyze screen results by line
+   * @return gui permission analyze screen results by line
+   */
+  public GuiPermissionAnalyze getGuiPermissionAnalyze() {
+    return this.guiPermissionAnalyze;
+  }
+
+  /**
+   * gui permission analyze screen results by line
+   * @param guiPermissionAnalyze1
+   */
+  public void setGuiPermissionAnalyze(GuiPermissionAnalyze guiPermissionAnalyze1) {
+    this.guiPermissionAnalyze = guiPermissionAnalyze1;
+  }
 
   /** gui permission entry */
   private GuiPermissionEntry guiPermissionEntry = null;

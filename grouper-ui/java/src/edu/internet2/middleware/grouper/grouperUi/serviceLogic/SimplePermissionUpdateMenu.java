@@ -1,5 +1,8 @@
 package edu.internet2.middleware.grouper.grouperUi.serviceLogic;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -17,10 +20,10 @@ import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
-import edu.internet2.middleware.grouper.attr.assign.AttributeAssignType;
 import edu.internet2.middleware.grouper.attr.finder.AttributeAssignFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeAssign;
+import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiPermissionAnalyze;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiPermissionEntry;
 import edu.internet2.middleware.grouper.grouperUi.beans.attributeUpdate.AttributeUpdateRequestContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
@@ -66,6 +69,8 @@ public class SimplePermissionUpdateMenu {
   
     if (StringUtils.equals(menuItemId, "editAssignment")) {
       this.assignmentMenuEditAssignment();
+    } else if (StringUtils.equals(menuItemId, "analyzeAssignment")) {
+      this.assignmentMenuAnalyzeAssignment();
     } else {
       throw new RuntimeException("Unexpected menu id: '" + menuItemId + "'");
     }
@@ -261,6 +266,151 @@ public class SimplePermissionUpdateMenu {
   }
 
   /**
+   * analyze assignment
+   */
+  public void assignmentMenuAnalyzeAssignment() {
+    
+    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+  
+    PermissionUpdateRequestContainer permissionUpdateRequestContainer = PermissionUpdateRequestContainer.retrieveFromRequestOrCreate();
+
+    //lets see which subject we are dealing with:
+    HttpServletRequest httpServletRequest = GrouperUiFilter.retrieveHttpServletRequest();
+    String menuIdOfMenuTarget = httpServletRequest.getParameter("menuIdOfMenuTarget");
+  
+    if (StringUtils.isBlank(menuIdOfMenuTarget)) {
+      throw new RuntimeException("Missing id of menu target");
+    }
+    if (!menuIdOfMenuTarget.startsWith("permissionMenuButton_")) {
+      throw new RuntimeException("Invalid id of menu target: '" + menuIdOfMenuTarget + "'");
+    }
+    String guiPermissionId = GrouperUtil.prefixOrSuffix(menuIdOfMenuTarget, "permissionMenuButton_", false);
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+    
+    try {
+  
+      grouperSession = GrouperSession.start(loggedInSubject);
+      
+      
+      //<c:set var="guiPermissionId" value="${firstPermissionEntry.roleId}__${firstPermissionEntry.memberId}__${firstPermissionEntry.attributeDefNameId}__${firstPermissionEntry.action}" />
+      Pattern pattern = Pattern.compile("^(.*)__(.*)__(.*)__(.*)__(.*)$");
+      Matcher matcher = pattern.matcher(guiPermissionId);
+      if (!matcher.matches()) {
+        throw new RuntimeException("Why does guiPermissionId not match? " + guiPermissionId);
+      }
+
+      //get current state
+      Role role = null;
+      {
+        String roleId = matcher.group(1);
+        role = GroupFinder.findByUuid(grouperSession, roleId, true);
+        if (!((Group)role).hasAdmin(loggedInSubject)) {
+          guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simplePermissionUpdate.errorCantManageRole", false)));
+          return;
+        }
+      }
+      
+      String permissionTypeString = matcher.group(5);
+      PermissionType permissionType = PermissionType.valueOfIgnoreCase(permissionTypeString, true);
+      permissionUpdateRequestContainer.setPermissionType(permissionType);
+      
+      Member member = null;
+      { 
+        if (permissionType == PermissionType.role_subject) {
+          String memberId = matcher.group(2);
+          member = MemberFinder.findByUuid(grouperSession, memberId, true);
+        }
+      }
+      AttributeDef attributeDef = null;
+      AttributeDefName attributeDefName = null;
+      {
+        String attributeDefNameId = matcher.group(3);
+        attributeDefName = AttributeDefNameFinder.findById(attributeDefNameId, true);
+        attributeDef = attributeDefName.getAttributeDef();
+        if (!attributeDef.getPrivilegeDelegate().canAttrUpdate(loggedInSubject)) {
+          guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simplePermissionUpdate.errorCantEditAttributeDef", false)));
+          return;
+        }
+        
+      }
+      
+      String action = matcher.group(4);
+
+      //get all the assignments
+      Set<PermissionEntry> permissionEntries = GrouperDAOFactory.getFactory()
+        .getPermissionEntry().findPermissions(null, attributeDefName.getId(), role.getId(), member.getUuid(), action, null);
+
+      if (GrouperUtil.length(permissionEntries) == 0) {
+        guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simplePermissionUpdate.analyzeNoPermissionFound", false)));
+        return;
+      }
+      
+      PermissionEntry permissionEntry = null;
+      
+      List<PermissionEntry> permissionEntriesList = new ArrayList<PermissionEntry>();
+      
+      Iterator<PermissionEntry> iterator = permissionEntries.iterator();
+      while (iterator.hasNext()) {
+       
+        PermissionEntry current = iterator.next();
+        
+        //find the immediate one
+        if (current.isImmediatePermission() && current.isImmediateMembership()) {
+         
+          if (permissionType == PermissionType.role || current.getPermissionType() == PermissionType.role_subject) {
+            
+            permissionEntry = current;
+            iterator.remove();
+            //move this to the front of the list
+            permissionEntriesList.add(permissionEntry);
+            break;
+            
+          }
+        }
+      }
+      
+      //add the rest
+      permissionEntriesList.addAll(permissionEntries);
+      
+      GuiPermissionEntry guiPermissionEntry = new GuiPermissionEntry();
+     
+      if (permissionEntry == null) {
+        permissionEntry = permissionEntries.iterator().next();
+      }
+      
+      guiPermissionEntry.setPermissionEntry(permissionEntry);
+      guiPermissionEntry.setPermissionType(permissionType);
+
+      guiPermissionEntry.setRawPermissionEntries(permissionEntriesList);
+      guiPermissionEntry.processRawEntries();
+
+      permissionUpdateRequestContainer.setGuiPermissionEntry(guiPermissionEntry);
+            
+      GuiPermissionAnalyze guiPermissionAnalyze = new GuiPermissionAnalyze();
+      permissionUpdateRequestContainer.setGuiPermissionAnalyze(guiPermissionAnalyze);
+      
+      guiPermissionAnalyze.analyze(permissionEntriesList);
+      
+      guiResponseJs.addAction(GuiScreenAction.newDialogFromJsp(
+        "/WEB-INF/grouperUi/templates/simplePermissionUpdate/simplePermissionAnalyze.jsp"));
+  
+    } catch (ControllerDone cd) {
+      throw cd;
+    } catch (NoSessionException nse) {
+      throw nse;
+    } catch (RuntimeException re) {
+      throw new RuntimeException("Error editAssignment menu item: " + menuIdOfMenuTarget 
+          + ", " + re.getMessage(), re);
+    } finally {
+      GrouperSession.stopQuietly(grouperSession); 
+    }
+  
+  }
+
+  /**
    * make the structure of the attribute assignment
    * @param httpServletRequest
    * @param httpServletResponse
@@ -269,6 +419,14 @@ public class SimplePermissionUpdateMenu {
     
     DhtmlxMenu dhtmlxMenu = new DhtmlxMenu();
     
+    {
+      DhtmlxMenuItem analyzeAssignmentMenuItem = new DhtmlxMenuItem();
+      analyzeAssignmentMenuItem.setId("analyzeAssignment");
+      analyzeAssignmentMenuItem.setText(TagUtils.navResourceString("simplePermissionAssign.assignMenuAnalyzeAssignment"));
+      analyzeAssignmentMenuItem.setTooltip(TagUtils.navResourceString("simplePermissionAssign.assignMenuAnalyzeAssignmentTooltip"));
+      dhtmlxMenu.addDhtmlxItem(analyzeAssignmentMenuItem);
+    }    
+  
     {
       DhtmlxMenuItem addValueMenuItem = new DhtmlxMenuItem();
       addValueMenuItem.setId("editAssignment");

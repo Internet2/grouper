@@ -220,7 +220,7 @@ public class GrouperSubtitleTag extends BodyTagSupport {
         //  /></div>
         out.print(" >");
         out.flush();
-        if (!StringUtils.isBlank(infodotKey)) {
+        if (!StringUtils.isBlank(infodotKey) && StringUtils.isBlank(this.infodotValue)) {
           GrouperMessageTag grouperMessageTag = new GrouperMessageTag();
           grouperMessageTag.setPageContext(this.pageContext);
           grouperMessageTag.setBundle("${nav}");

@@ -4,12 +4,15 @@ import java.io.Serializable;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.permissions.PermissionEntry;
 import edu.internet2.middleware.grouper.permissions.PermissionEntry.PermissionType;
 import edu.internet2.middleware.grouper.ui.tags.TagUtils;
+import edu.internet2.middleware.grouper.ui.util.MapWrapper;
+import edu.internet2.middleware.subject.Subject;
 
 /**
  * for displaying a permission entry on the screen
@@ -264,6 +267,56 @@ public class GuiPermissionEntry implements Serializable {
     }
   }
 
+  /**
+   * string label short
+   */
+  private Map<Subject, String> stringLabelShortFromGuiSubject = new MapWrapper<Subject, String>() {
+
+    @Override
+    public String get(Object key) {
+      GuiSubject guiSubject = new GuiSubject((Subject)key);
+      String screenLabel = guiSubject.getScreenLabel();
+      
+      int maxWidth = TagUtils.mediaResourceInt("simplePermissionUpdate.maxOwnerSubjectChars", 50);
+      if (maxWidth == -1) {
+        return screenLabel;
+      }
+      return StringUtils.abbreviate(screenLabel, maxWidth);
+    }
+  };
+
+  /**
+   * @return map to convert subject to string
+   */
+  public Map<Subject, String> getStringLabelShortFromGuiSubject() {
+    return this.stringLabelShortFromGuiSubject;
+  }
+
+  /**
+   * map to convert subject to string
+   * @return map
+   */
+  public Map<Subject, String> getStringLabelLongIfDifferentFromGuiSubject() {
+    return this.stringLabelLongIfDifferentFromGuiSubject;
+  }
+
+  /**
+   * string label short
+   */
+  private Map<Subject, String> stringLabelLongIfDifferentFromGuiSubject = new MapWrapper<Subject, String>() {
+
+    @Override
+    public String get(Object key) { 
+      GuiSubject guiSubject = new GuiSubject((Subject)key);
+      String screenLabel = guiSubject.getScreenLabel();
+      int maxWidth = TagUtils.mediaResourceInt("simplePermissionUpdate.maxOwnerSubjectChars", 50);
+      //this means the whole thing was printed in the screen, we dont need a tooltip
+      if (maxWidth == -1 || screenLabel == null || screenLabel.length() <= maxWidth) {
+        return null;
+      }
+      return screenLabel;
+    }
+  };
 
   /**
    * get short screen label 
