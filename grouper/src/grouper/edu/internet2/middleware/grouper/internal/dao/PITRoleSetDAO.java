@@ -7,6 +7,7 @@ package edu.internet2.middleware.grouper.internal.dao;
 import java.sql.Timestamp;
 import java.util.Set;
 
+import edu.internet2.middleware.grouper.permissions.role.RoleSet;
 import edu.internet2.middleware.grouper.pit.PITRoleSet;
 
 /**
@@ -19,6 +20,12 @@ public interface PITRoleSetDAO extends GrouperDAO {
    * @param pitRoleSet
    */
   public void saveOrUpdate(PITRoleSet pitRoleSet);
+  
+  /**
+   * insert or update
+   * @param pitRoleSets
+   */
+  public void saveOrUpdate(Set<PITRoleSet> pitRoleSets);
   
   /**
    * delete
@@ -60,4 +67,14 @@ public interface PITRoleSetDAO extends GrouperDAO {
    * @return pit role sets
    */
   public Set<PITRoleSet> findByThenHasRoleId(String id);
+  
+  /**
+   * @return active role sets that are missing in point in time
+   */
+  public Set<RoleSet> findMissingActivePITRoleSets();
+  
+  /**
+   * @return active point in time role sets that should be inactive
+   */
+  public Set<PITRoleSet> findMissingInactivePITRoleSets();
 }

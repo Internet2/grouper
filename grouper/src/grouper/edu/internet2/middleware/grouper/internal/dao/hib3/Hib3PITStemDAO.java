@@ -3,6 +3,7 @@ package edu.internet2.middleware.grouper.internal.dao.hib3;
 import java.sql.Timestamp;
 import java.util.Set;
 
+import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.PITStemDAO;
 import edu.internet2.middleware.grouper.pit.PITStem;
@@ -24,19 +25,19 @@ public class Hib3PITStemDAO extends Hib3DAO implements PITStemDAO {
   public void saveOrUpdate(PITStem pitStem) {
     HibernateSession.byObjectStatic().saveOrUpdate(pitStem);
   }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.PITStemDAO#saveOrUpdate(java.util.Set)
+   */
+  public void saveOrUpdate(Set<PITStem> pitStems) {
+    HibernateSession.byObjectStatic().saveOrUpdate(pitStems);
+  }
 
   /**
    * @see edu.internet2.middleware.grouper.internal.dao.PITStemDAO#delete(edu.internet2.middleware.grouper.pit.PITStem)
    */
   public void delete(PITStem pitStem) {
     HibernateSession.byObjectStatic().delete(pitStem);
-  }
-  
-  /**
-   * @see edu.internet2.middleware.grouper.internal.dao.PITStemDAO#saveBatch(java.util.Set)
-   */
-  public void saveBatch(Set<PITStem> pitStems) {
-    HibernateSession.byObjectStatic().saveBatch(pitStems);
   }
   
   /**
@@ -108,6 +109,46 @@ public class Hib3PITStemDAO extends Hib3DAO implements PITStemDAO {
       .listSet(PITStem.class);
     
     return pitStems;
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.PITStemDAO#findMissingActivePITStems()
+   */
+  public Set<Stem> findMissingActivePITStems() {
+
+    Set<Stem> stems = HibernateSession
+      .byHqlStatic()
+      .createQuery("select s from Stem s where " +
+          "not exists (select 1 from PITStem pit where s.uuid = pit.id and s.nameDb = pit.nameDb and s.parentUuid = pit.parentStemId) " +
+          "and not exists (select 1 from ChangeLogEntryTemp temp, ChangeLogType type " +
+          "    where temp.string01 = s.uuid " +
+          "    and type.actionName='addStem' and type.changeLogCategory='stem' and type.id=temp.changeLogTypeId) " +
+          "and not exists (select 1 from ChangeLogEntryTemp temp, ChangeLogType type " +
+          "    where temp.string01 = s.uuid " +
+          "    and type.actionName='updateStem' and type.changeLogCategory='stem' and type.id=temp.changeLogTypeId) " +
+          "order by s.nameDb")
+      .setCacheable(false).setCacheRegion(KLASS + ".FindMissingActivePITStems")
+      .listSet(Stem.class);
+    
+    return stems;
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.PITStemDAO#findMissingInactivePITStems()
+   */
+  public Set<PITStem> findMissingInactivePITStems() {
+
+    Set<PITStem> stems = HibernateSession
+      .byHqlStatic()
+      .createQuery("select pit from PITStem pit where activeDb = 'T' and " +
+          "not exists (select 1 from Stem s where s.uuid = pit.id) " +
+          "and not exists (select 1 from ChangeLogEntryTemp temp, ChangeLogType type " +
+          "    where temp.string01 = pit.id " +
+          "    and type.actionName='deleteStem' and type.changeLogCategory='stem' and type.id=temp.changeLogTypeId)")
+      .setCacheable(false).setCacheRegion(KLASS + ".FindMissingInactivePITStems")
+      .listSet(PITStem.class);
+    
+    return stems;
   }
 }
 

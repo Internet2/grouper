@@ -7,6 +7,7 @@ package edu.internet2.middleware.grouper.internal.dao;
 import java.sql.Timestamp;
 import java.util.Set;
 
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssignActionSet;
 import edu.internet2.middleware.grouper.pit.PITAttributeAssignActionSet;
 
 /**
@@ -19,6 +20,12 @@ public interface PITAttributeAssignActionSetDAO extends GrouperDAO {
    * @param pitAttributeAssignActionSet
    */
   public void saveOrUpdate(PITAttributeAssignActionSet pitAttributeAssignActionSet);
+  
+  /**
+   * insert or update
+   * @param pitAttributeAssignActionSets
+   */
+  public void saveOrUpdate(Set<PITAttributeAssignActionSet> pitAttributeAssignActionSets);
   
   /**
    * delete
@@ -60,4 +67,14 @@ public interface PITAttributeAssignActionSetDAO extends GrouperDAO {
    * @return pit action sets
    */
   public Set<PITAttributeAssignActionSet> findByThenHasAttributeAssignActionId(String id);
+  
+  /**
+   * @return active action sets that are missing in point in time
+   */
+  public Set<AttributeAssignActionSet> findMissingActivePITAttributeAssignActionSets();
+  
+  /**
+   * @return active point in time action sets that should be inactive
+   */
+  public Set<PITAttributeAssignActionSet> findMissingInactivePITAttributeAssignActionSets();
 }

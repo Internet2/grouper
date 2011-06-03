@@ -25,6 +25,7 @@ public class AllPITTests {
     suite.addTestSuite(PITAttributeAssignValueFinderTests.class);
     suite.addTestSuite(PITGroupTests.class);
     suite.addTestSuite(PITMemberTests.class);
+    suite.addTestSuite(PITSyncTests.class);
     return suite;
   }
 }

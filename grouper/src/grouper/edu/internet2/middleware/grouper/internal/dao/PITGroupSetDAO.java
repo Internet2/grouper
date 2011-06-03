@@ -8,6 +8,7 @@ import java.sql.Timestamp;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.Field;
+import edu.internet2.middleware.grouper.group.GroupSet;
 import edu.internet2.middleware.grouper.pit.PITGroupSet;
 
 /**
@@ -20,6 +21,12 @@ public interface PITGroupSetDAO extends GrouperDAO {
    * @param pitGroupSet
    */
   public void saveOrUpdate(PITGroupSet pitGroupSet);
+  
+  /**
+   * insert or update
+   * @param pitGroupSets
+   */
+  public void saveOrUpdate(Set<PITGroupSet> pitGroupSets);
   
   /**
    * delete
@@ -140,4 +147,14 @@ public interface PITGroupSetDAO extends GrouperDAO {
    * @param id
    */
   public void deleteSelfByOwnerId(String id);
+  
+  /**
+   * @return active group sets that are missing in point in time
+   */
+  public Set<GroupSet> findMissingActivePITGroupSets();
+  
+  /**
+   * @return active point in time group sets that should be inactive
+   */
+  public Set<PITGroupSet> findMissingInactivePITGroupSets();
 }

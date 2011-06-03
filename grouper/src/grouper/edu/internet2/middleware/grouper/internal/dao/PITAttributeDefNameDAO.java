@@ -7,6 +7,7 @@ package edu.internet2.middleware.grouper.internal.dao;
 import java.sql.Timestamp;
 import java.util.Set;
 
+import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.pit.PITAttributeDefName;
 
 /**
@@ -19,6 +20,12 @@ public interface PITAttributeDefNameDAO extends GrouperDAO {
    * @param pitAttributeDefName
    */
   public void saveOrUpdate(PITAttributeDefName pitAttributeDefName);
+
+  /**
+   * insert or update
+   * @param pitAttributeDefNames
+   */
+  public void saveOrUpdate(Set<PITAttributeDefName> pitAttributeDefNames);
   
   /**
    * delete
@@ -56,4 +63,14 @@ public interface PITAttributeDefNameDAO extends GrouperDAO {
    * @return set of PITAttributeDefName
    */
   public Set<PITAttributeDefName> findByStemId(String id);
+  
+  /**
+   * @return active attribute def names that are missing in point in time
+   */
+  public Set<AttributeDefName> findMissingActivePITAttributeDefNames();
+  
+  /**
+   * @return active point in time attribute def names that should be inactive
+   */
+  public Set<PITAttributeDefName> findMissingInactivePITAttributeDefNames();
 }

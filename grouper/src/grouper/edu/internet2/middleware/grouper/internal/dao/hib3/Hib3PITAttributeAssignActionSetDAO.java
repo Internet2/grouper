@@ -3,6 +3,7 @@ package edu.internet2.middleware.grouper.internal.dao.hib3;
 import java.sql.Timestamp;
 import java.util.Set;
 
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssignActionSet;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
@@ -28,6 +29,13 @@ public class Hib3PITAttributeAssignActionSetDAO extends Hib3DAO implements PITAt
    */
   public void saveOrUpdate(PITAttributeAssignActionSet pitAttributeAssignActionSet) {
     HibernateSession.byObjectStatic().saveOrUpdate(pitAttributeAssignActionSet);
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.PITAttributeAssignActionSetDAO#saveOrUpdate(java.util.Set)
+   */
+  public void saveOrUpdate(Set<PITAttributeAssignActionSet> pitAttributeAssignActionSets) {
+    HibernateSession.byObjectStatic().saveOrUpdate(pitAttributeAssignActionSets);
   }
 
   /**
@@ -139,5 +147,36 @@ public class Hib3PITAttributeAssignActionSetDAO extends Hib3DAO implements PITAt
         .setCacheable(false).setCacheRegion(KLASS + ".FindByThenHasAttributeAssignActionId")
         .setString("id", id)
         .listSet(PITAttributeAssignActionSet.class);
+  }
+  
+  public Set<AttributeAssignActionSet> findMissingActivePITAttributeAssignActionSets() {
+
+    Set<AttributeAssignActionSet> actionSets = HibernateSession
+      .byHqlStatic()
+      .createQuery("select a from AttributeAssignActionSet a where " +
+          "not exists (select 1 from PITAttributeAssignActionSet pit where a.id = pit.id) " +
+          "and not exists (select 1 from ChangeLogEntryTemp temp, ChangeLogType type " +
+          "    where temp.string01 = a.id " +
+          "    and type.actionName='addAttributeAssignActionSet' and type.changeLogCategory='attributeAssignActionSet' and type.id=temp.changeLogTypeId) " +
+          "order by a.depth")
+      .setCacheable(false).setCacheRegion(KLASS + ".FindMissingActivePITAttributeAssignActionSets")
+      .listSet(AttributeAssignActionSet.class);
+    
+    return actionSets;
+  }
+
+  public Set<PITAttributeAssignActionSet> findMissingInactivePITAttributeAssignActionSets() {
+
+    Set<PITAttributeAssignActionSet> actionSets = HibernateSession
+      .byHqlStatic()
+      .createQuery("select pit from PITAttributeAssignActionSet pit where activeDb = 'T' and " +
+          "not exists (select 1 from AttributeAssignActionSet a where a.id = pit.id) " +
+          "and not exists (select 1 from ChangeLogEntryTemp temp, ChangeLogType type " +
+          "    where temp.string01 = pit.id " +
+          "    and type.actionName='deleteAttributeAssignActionSet' and type.changeLogCategory='attributeAssignActionSet' and type.id=temp.changeLogTypeId)")
+      .setCacheable(false).setCacheRegion(KLASS + ".FindMissingInactivePITAttributeAssignActionSets")
+      .listSet(PITAttributeAssignActionSet.class);
+    
+    return actionSets;
   }
 }

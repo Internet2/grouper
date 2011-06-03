@@ -810,6 +810,7 @@ public class PITGroupSet extends GrouperPIT implements Hib3GrouperVersioned {
         PITGroupSet pitGroupSet = iter.next();
         pitGroupSet.setFlatMembershipNotificationsOnSaveOrUpdate(this.getFlatMembershipNotificationsOnSaveOrUpdate());
         pitGroupSet.setFlatPrivilegeNotificationsOnSaveOrUpdate(this.getFlatPrivilegeNotificationsOnSaveOrUpdate());
+        pitGroupSet.setFlatPermissionNotificationsOnSaveOrUpdate(this.getFlatPermissionNotificationsOnSaveOrUpdate());
         pitGroupSet.saveOrUpdate();
       }
     }
@@ -1028,6 +1029,7 @@ public class PITGroupSet extends GrouperPIT implements Hib3GrouperVersioned {
         pitGroupSet.setContextId(this.getContextId());
         pitGroupSet.setFlatMembershipNotificationsOnSaveOrUpdate(this.getFlatMembershipNotificationsOnSaveOrUpdate());
         pitGroupSet.setFlatPrivilegeNotificationsOnSaveOrUpdate(this.getFlatPrivilegeNotificationsOnSaveOrUpdate());
+        pitGroupSet.setFlatPermissionNotificationsOnSaveOrUpdate(this.getFlatPermissionNotificationsOnSaveOrUpdate());
         pitGroupSet.saveOrUpdate();
       }
     }

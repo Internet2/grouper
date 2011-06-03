@@ -10,6 +10,7 @@ import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.PITRoleSetDAO;
+import edu.internet2.middleware.grouper.permissions.role.RoleSet;
 import edu.internet2.middleware.grouper.pit.PITRoleSet;
 
 /**
@@ -28,6 +29,13 @@ public class Hib3PITRoleSetDAO extends Hib3DAO implements PITRoleSetDAO {
    */
   public void saveOrUpdate(PITRoleSet pitRoleSet) {
     HibernateSession.byObjectStatic().saveOrUpdate(pitRoleSet);
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.PITRoleSetDAO#saveOrUpdate(java.util.Set)
+   */
+  public void saveOrUpdate(Set<PITRoleSet> pitRoleSets) {
+    HibernateSession.byObjectStatic().saveOrUpdate(pitRoleSets);
   }
 
   /**
@@ -141,5 +149,42 @@ public class Hib3PITRoleSetDAO extends Hib3DAO implements PITRoleSetDAO {
         .setCacheable(false).setCacheRegion(KLASS + ".FindByThenHasRoleId")
         .setString("id", id)
         .listSet(PITRoleSet.class);
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.PITRoleSetDAO#findMissingActivePITRoleSets()
+   */
+  public Set<RoleSet> findMissingActivePITRoleSets() {
+
+    Set<RoleSet> roleSets = HibernateSession
+      .byHqlStatic()
+      .createQuery("select r from RoleSet r where " +
+          "not exists (select 1 from PITRoleSet pit where r.id = pit.id) " +
+          "and not exists (select 1 from ChangeLogEntryTemp temp, ChangeLogType type " +
+          "    where temp.string01 = r.id " +
+          "    and type.actionName='addRoleSet' and type.changeLogCategory='roleSet' and type.id=temp.changeLogTypeId) " +
+          "order by r.depth")
+      .setCacheable(false).setCacheRegion(KLASS + ".FindMissingActivePITRoleSets")
+      .listSet(RoleSet.class);
+    
+    return roleSets;
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.PITRoleSetDAO#findMissingInactivePITRoleSets()
+   */
+  public Set<PITRoleSet> findMissingInactivePITRoleSets() {
+
+    Set<PITRoleSet> roleSets = HibernateSession
+      .byHqlStatic()
+      .createQuery("select pit from PITRoleSet pit where activeDb = 'T' and " +
+          "not exists (select 1 from RoleSet r where r.id = pit.id) " +
+          "and not exists (select 1 from ChangeLogEntryTemp temp, ChangeLogType type " +
+          "    where temp.string01 = pit.id " +
+          "    and type.actionName='deleteRoleSet' and type.changeLogCategory='roleSet' and type.id=temp.changeLogTypeId)")
+      .setCacheable(false).setCacheRegion(KLASS + ".FindMissingInactivePITRoleSes")
+      .listSet(PITRoleSet.class);
+    
+    return roleSets;
   }
 }

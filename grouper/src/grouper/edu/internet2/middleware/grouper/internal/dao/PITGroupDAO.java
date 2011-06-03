@@ -7,6 +7,7 @@ package edu.internet2.middleware.grouper.internal.dao;
 import java.sql.Timestamp;
 import java.util.Set;
 
+import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.pit.PITGroup;
 import edu.internet2.middleware.grouper.pit.PITStem;
@@ -21,12 +22,12 @@ public interface PITGroupDAO extends GrouperDAO {
    * @param pitGroup
    */
   public void saveOrUpdate(PITGroup pitGroup);
-  
+
   /**
-   * insert in batch
+   * insert or update
    * @param pitGroups
    */
-  public void saveBatch(Set<PITGroup> pitGroups);
+  public void saveOrUpdate(Set<PITGroup> pitGroups);
   
   /**
    * delete
@@ -73,4 +74,14 @@ public interface PITGroupDAO extends GrouperDAO {
    */
   public Set<PITGroup> getAllGroupsMembershipSecure(String pitMemberId, String pitFieldId, String scope,
       PITStem pitStem, Scope stemScope, Timestamp pointInTimeFrom, Timestamp pointInTimeTo, QueryOptions queryOptions);
+  
+  /**
+   * @return active groups that are missing in point in time
+   */
+  public Set<Group> findMissingActivePITGroups();
+  
+  /**
+   * @return active point in time groups that should be inactive
+   */
+  public Set<PITGroup> findMissingInactivePITGroups();
 }

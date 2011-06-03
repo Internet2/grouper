@@ -34,6 +34,13 @@ public class Hib3PITGroupSetDAO extends Hib3DAO implements PITGroupSetDAO {
   public void saveOrUpdate(PITGroupSet pitGroupSet) {
     HibernateSession.byObjectStatic().saveOrUpdate(pitGroupSet);
   }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.PITGroupSetDAO#saveOrUpdate(java.util.Set)
+   */
+  public void saveOrUpdate(Set<PITGroupSet> pitGroupSets) {
+    HibernateSession.byObjectStatic().saveOrUpdate(pitGroupSets);
+  }
 
   /**
    * @see edu.internet2.middleware.grouper.internal.dao.PITGroupSetDAO#delete(edu.internet2.middleware.grouper.pit.PITGroupSet)
@@ -367,6 +374,40 @@ public class Hib3PITGroupSetDAO extends Hib3DAO implements PITGroupSetDAO {
             return null;
           }
         });
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.PITGroupSetDAO#findMissingActivePITGroupSets()
+   */
+  public Set<GroupSet> findMissingActivePITGroupSets() {
+
+    Set<GroupSet> groupSets = HibernateSession
+      .byHqlStatic()
+      .createQuery("select g from GroupSet g where g.depth = '0' and " +
+          "not exists (select 1 from PITGroupSet pit where g.id = pit.id) " +
+          "and not exists (select 1 from ChangeLogEntryTemp temp " +
+          "    where temp.string01 = g.ownerId or temp.string01 = g.fieldId or temp.string02 = g.ownerId)")
+      .setCacheable(false).setCacheRegion(KLASS + ".FindMissingActivePITGroupSets")
+      .listSet(GroupSet.class);
+    
+    return groupSets;
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.PITGroupSetDAO#findMissingInactivePITGroupSets()
+   */
+  public Set<PITGroupSet> findMissingInactivePITGroupSets() {
+
+    Set<PITGroupSet> groupSets = HibernateSession
+      .byHqlStatic()
+      .createQuery("select pit from PITGroupSet pit where depth = '0' and activeDb = 'T' and " +
+          "not exists (select 1 from GroupSet g where g.id = pit.id) " +
+          "and not exists (select 1 from ChangeLogEntryTemp temp " +
+          "    where temp.string01 = pit.ownerId or temp.string01 = pit.fieldId or temp.string02 = pit.ownerId)")
+      .setCacheable(false).setCacheRegion(KLASS + ".FindMissingInactivePITGroupSets")
+      .listSet(PITGroupSet.class);
+    
+    return groupSets;
   }
 }
 

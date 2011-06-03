@@ -3,6 +3,7 @@ package edu.internet2.middleware.grouper.internal.dao.hib3;
 import java.sql.Timestamp;
 import java.util.Set;
 
+import edu.internet2.middleware.grouper.attr.AttributeDefNameSet;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
@@ -28,6 +29,13 @@ public class Hib3PITAttributeDefNameSetDAO extends Hib3DAO implements PITAttribu
    */
   public void saveOrUpdate(PITAttributeDefNameSet pitAttributeDefNameSet) {
     HibernateSession.byObjectStatic().saveOrUpdate(pitAttributeDefNameSet);
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.PITAttributeDefNameSetDAO#saveOrUpdate(java.util.Set)
+   */
+  public void saveOrUpdate(Set<PITAttributeDefNameSet> pitAttributeDefNameSets) {
+    HibernateSession.byObjectStatic().saveOrUpdate(pitAttributeDefNameSets);
   }
 
   /**
@@ -142,5 +150,42 @@ public class Hib3PITAttributeDefNameSetDAO extends Hib3DAO implements PITAttribu
         .setCacheable(false).setCacheRegion(KLASS + ".FindByThenHasAttributeDefNameId")
         .setString("id", id)
         .listSet(PITAttributeDefNameSet.class);
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.PITAttributeDefNameSetDAO#findMissingActivePITAttributeDefNameSets()
+   */
+  public Set<AttributeDefNameSet> findMissingActivePITAttributeDefNameSets() {
+
+    Set<AttributeDefNameSet> attrSets = HibernateSession
+      .byHqlStatic()
+      .createQuery("select attrSet from AttributeDefNameSet attrSet where " +
+          "not exists (select 1 from PITAttributeDefNameSet pit where attrSet.id = pit.id) " +
+          "and not exists (select 1 from ChangeLogEntryTemp temp, ChangeLogType type " +
+          "    where temp.string01 = attrSet.id " +
+          "    and type.actionName='addAttributeDefNameSet' and type.changeLogCategory='attributeDefNameSet' and type.id=temp.changeLogTypeId) " +
+          "order by attrSet.depth")
+      .setCacheable(false).setCacheRegion(KLASS + ".FindMissingActivePITAttributeDefNameSets")
+      .listSet(AttributeDefNameSet.class);
+    
+    return attrSets;
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.PITAttributeDefNameSetDAO#findMissingInactivePITAttributeDefNameSets()
+   */
+  public Set<PITAttributeDefNameSet> findMissingInactivePITAttributeDefNameSets() {
+
+    Set<PITAttributeDefNameSet> attrSets = HibernateSession
+      .byHqlStatic()
+      .createQuery("select pit from PITAttributeDefNameSet pit where activeDb = 'T' and " +
+          "not exists (select 1 from AttributeDefNameSet attrSet where attrSet.id = pit.id) " +
+          "and not exists (select 1 from ChangeLogEntryTemp temp, ChangeLogType type " +
+          "    where temp.string01 = pit.id " +
+          "    and type.actionName='deleteAttributeDefNameSet' and type.changeLogCategory='attributeDefNameSet' and type.id=temp.changeLogTypeId)")
+      .setCacheable(false).setCacheRegion(KLASS + ".FindMissingInactivePITAttributeDefNameSets")
+      .listSet(PITAttributeDefNameSet.class);
+    
+    return attrSets;
   }
 }

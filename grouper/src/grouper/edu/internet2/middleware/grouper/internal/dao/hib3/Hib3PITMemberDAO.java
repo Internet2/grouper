@@ -3,6 +3,7 @@ package edu.internet2.middleware.grouper.internal.dao.hib3;
 import java.sql.Timestamp;
 import java.util.Set;
 
+import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.PITMemberDAO;
 import edu.internet2.middleware.grouper.pit.PITMember;
@@ -24,19 +25,19 @@ public class Hib3PITMemberDAO extends Hib3DAO implements PITMemberDAO {
   public void saveOrUpdate(PITMember pitMember) {
     HibernateSession.byObjectStatic().saveOrUpdate(pitMember);
   }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.PITMemberDAO#saveOrUpdate(java.util.Set)
+   */
+  public void saveOrUpdate(Set<PITMember> pitMembers) {
+    HibernateSession.byObjectStatic().saveOrUpdate(pitMembers);
+  }
 
   /**
    * @see edu.internet2.middleware.grouper.internal.dao.PITMemberDAO#delete(edu.internet2.middleware.grouper.pit.PITMember)
    */
   public void delete(PITMember pitMember) {
     HibernateSession.byObjectStatic().delete(pitMember);
-  }
-  
-  /**
-   * @see edu.internet2.middleware.grouper.internal.dao.PITMemberDAO#saveBatch(java.util.Set)
-   */
-  public void saveBatch(Set<PITMember> pitMembers) {
-    HibernateSession.byObjectStatic().saveBatch(pitMembers);
   }
   
   /**
@@ -85,6 +86,45 @@ public class Hib3PITMemberDAO extends Hib3DAO implements PITMemberDAO {
       .uniqueResult(PITMember.class);
     
     return pitMember;
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.PITMemberDAO#findMissingActivePITMembers()
+   */
+  public Set<Member> findMissingActivePITMembers() {
+
+    Set<Member> members = HibernateSession
+      .byHqlStatic()
+      .createQuery("select m from Member m where " +
+          "not exists (select 1 from PITMember pit where m.uuid = pit.id and m.subjectIdDb = pit.subjectId and m.subjectSourceIdDb = pit.subjectSourceId and m.subjectTypeId = pit.subjectTypeId) " +
+          "and not exists (select 1 from ChangeLogEntryTemp temp, ChangeLogType type " +
+          "    where temp.string01 = m.uuid " +
+          "    and type.actionName='addMember' and type.changeLogCategory='member' and type.id=temp.changeLogTypeId) " +
+          "and not exists (select 1 from ChangeLogEntryTemp temp, ChangeLogType type " +
+          "    where temp.string01 = m.uuid " +
+          "    and type.actionName='updateMember' and type.changeLogCategory='member' and type.id=temp.changeLogTypeId)")
+      .setCacheable(false).setCacheRegion(KLASS + ".FindMissingActivePITMembers")
+      .listSet(Member.class);
+    
+    return members;
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.PITMemberDAO#findMissingInactivePITMembers()
+   */
+  public Set<PITMember> findMissingInactivePITMembers() {
+
+    Set<PITMember> members = HibernateSession
+      .byHqlStatic()
+      .createQuery("select pit from PITMember pit where activeDb = 'T' and " +
+          "not exists (select 1 from Member m where m.uuid = pit.id) " +
+          "and not exists (select 1 from ChangeLogEntryTemp temp, ChangeLogType type " +
+          "    where temp.string01 = pit.id " +
+          "    and type.actionName='deleteMember' and type.changeLogCategory='member' and type.id=temp.changeLogTypeId)")
+      .setCacheable(false).setCacheRegion(KLASS + ".FindMissingInactivePITMember")
+      .listSet(PITMember.class);
+    
+    return members;
   }
 }
 

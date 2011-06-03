@@ -7,6 +7,7 @@ package edu.internet2.middleware.grouper.internal.dao;
 import java.sql.Timestamp;
 import java.util.Set;
 
+import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.pit.PITMembership;
 
 /**
@@ -19,6 +20,12 @@ public interface PITMembershipDAO extends GrouperDAO {
    * @param pitMembership
    */
   public void saveOrUpdate(PITMembership pitMembership);
+  
+  /**
+   * insert or update
+   * @param pitMemberships
+   */
+  public void saveOrUpdate(Set<PITMembership> pitMemberships);
   
   /**
    * delete
@@ -57,4 +64,14 @@ public interface PITMembershipDAO extends GrouperDAO {
    * @return set of pit memberships
    */
   public Set<PITMembership> findAllByMember(String memberId);
+  
+  /**
+   * @return active memberships that are missing in point in time
+   */
+  public Set<Membership> findMissingActivePITMemberships();
+  
+  /**
+   * @return active point in time memberships that should be inactive
+   */
+  public Set<PITMembership> findMissingInactivePITMemberships();
 }
