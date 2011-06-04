@@ -79,7 +79,7 @@ public class ChangeLogTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new ChangeLogTest("testFlatPermissionsByGroupSet"));
+    TestRunner.run(new ChangeLogTest("testSubjectRolePermissionAddAfterMembershipEnable"));
     //TestRunner.run(ChangeLogTest.class);
   }
   
@@ -8451,6 +8451,216 @@ public class ChangeLogTest extends GrouperTest {
     assertEquals("flattened", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_DELETE.membershipType));
     assertEquals(changeLogEntry.getContextId(), contextId);
     
+  }
+  
+  /**
+   * @throws Exception
+   */
+  public void testRolePermissionAddAfterMembershipEnable() throws Exception {
+
+    // initialize some data
+    Role group = edu.addChildRole("testGroup", "testGroup");
+    Member newMember1 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ1, true);
+    group.addMember(newMember1.getSubject(), true);
+    Membership membership = MembershipFinder.findImmediateMembership(grouperSession, (Group)group, newMember1.getSubject(), Group.getDefaultList(), true);
+    
+    AttributeDef attributeDef = edu.addChildAttributeDef("attributeDef", AttributeDefType.perm);
+    attributeDef.setAssignToGroup(true);
+    attributeDef.store();
+    AttributeDefName attributeDefName = edu.addChildAttributeDefName(attributeDef, "testAttribute", "testAttribute");
+    ChangeLogTempToEntity.convertRecords();
+
+    // assign permission
+    AttributeAssign attributeAssign = group.getPermissionRoleDelegate().assignRolePermission(attributeDefName).getAttributeAssign();
+    
+    //move the temp objects to the regular change log table
+    ChangeLogTempToEntity.convertRecords();
+    
+    // now disable the membership
+    membership.setEnabled(false);
+    membership.setEnabledTime(new Timestamp(new Date().getTime() + 100000));
+    membership.update();
+    ChangeLogTempToEntity.convertRecords();
+
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryEntity").executeUpdate();
+    
+    // now enable the membership and verify flattened membership and permission
+    membership.setEnabled(true);
+    membership.setEnabledTime(null);
+    final Membership MEMBERSHIP = membership;
+    
+    HibernateSession.callbackHibernateSession(
+        GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT, new HibernateHandler() {
+  
+      public Object callback(HibernateHandlerBean hibernateHandlerBean)
+          throws GrouperDAOException {
+  
+        hibernateHandlerBean.getHibernateSession().byObject().setEntityName("ImmediateMembershipEntry").update(MEMBERSHIP);
+
+        return null;
+      }
+    });
+    
+    ChangeLogTempToEntity.convertRecords();
+    
+    int newChangeLogTempCount = HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_change_log_entry_temp");
+    int newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_change_log_entry");
+  
+    assertEquals("Should have nothing in temp table", 0, newChangeLogTempCount);
+    assertEquals("Should have two records in the change log table", 2, newChangeLogCount);
+  
+    ChangeLogEntry changeLogEntry = HibernateSession.byHqlStatic()
+      .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType")
+      .setString("theChangeLogType", ChangeLogTypeBuiltin.PERMISSION_ADD.getChangeLogType().getId())
+      .uniqueResult(ChangeLogEntry.class);
+  
+    //make sure some time has passed
+    GrouperUtil.sleep(100);
+  
+    assertNotNull("createdOn should exist", changeLogEntry.getCreatedOn());
+    assertTrue("This should have happened in the last 5 seconds", System.currentTimeMillis() - changeLogEntry.getCreatedOn().getTime()  < 5000);
+    assertTrue("This should have happened in the last 5 seconds: + " + changeLogEntry.getCreatedOn(), System.currentTimeMillis() - changeLogEntry.getCreatedOn().getTime() > 0);
+    assertTrue("This should have happened in the last 5 seconds", System.currentTimeMillis() - (changeLogEntry.getCreatedOnDb() / 1000) < 5000);
+    assertTrue("This should have happened in the last 5 seconds", System.currentTimeMillis() - (changeLogEntry.getCreatedOnDb() / 1000) > 0);
+  
+    assertNotNull(changeLogEntry.getSequenceNumber());
+    assertEquals("Context id's should match", changeLogEntry.getContextId(), membership.getContextId());
+  
+    assertEquals(attributeDefName.getId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_ADD.attributeDefNameId));
+    assertEquals(attributeDefName.getName(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_ADD.attributeDefNameName));
+    assertEquals(attributeAssign.getAttributeAssignActionId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_ADD.actionId));
+    assertEquals("assign", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_ADD.action));
+    assertEquals(newMember1.getUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_ADD.memberId));
+    assertEquals(newMember1.getSubjectId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_ADD.subjectId));
+    assertEquals(newMember1.getSubjectSourceId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_ADD.subjectSourceId));
+    
+    changeLogEntry = HibernateSession.byHqlStatic()
+      .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType")
+      .setString("theChangeLogType", ChangeLogTypeBuiltin.MEMBERSHIP_ADD.getChangeLogType().getId())
+      .uniqueResult(ChangeLogEntry.class);
+    
+    //make sure some time has passed
+    GrouperUtil.sleep(100);
+  
+    assertNotNull("createdOn should exist", changeLogEntry.getCreatedOn());
+    assertTrue("This should have happened in the last 5 seconds", System.currentTimeMillis() - changeLogEntry.getCreatedOn().getTime()  < 5000);
+    assertTrue("This should have happened in the last 5 seconds: + " + changeLogEntry.getCreatedOn(), System.currentTimeMillis() - changeLogEntry.getCreatedOn().getTime() > 0);
+    assertTrue("This should have happened in the last 5 seconds", System.currentTimeMillis() - (changeLogEntry.getCreatedOnDb() / 1000) < 5000);
+    assertTrue("This should have happened in the last 5 seconds", System.currentTimeMillis() - (changeLogEntry.getCreatedOnDb() / 1000) > 0);
+  
+    assertNotNull(changeLogEntry.getSequenceNumber());
+    assertEquals("Context id's should match", changeLogEntry.getContextId(), membership.getContextId());
+  
+    assertEquals("members", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.fieldName));
+    assertEquals(newMember1.getSubjectId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.subjectId));
+    assertEquals(newMember1.getSubjectSourceId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.sourceId));
+    assertEquals(membership.getGroup().getUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.groupId));
+    assertEquals(membership.getGroup().getName(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.groupName));
+  }
+  
+  /**
+   * @throws Exception
+   */
+  public void testSubjectRolePermissionAddAfterMembershipEnable() throws Exception {
+
+    // initialize some data
+    Role group = edu.addChildRole("testGroup", "testGroup");
+    Member newMember1 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ1, true);
+    group.addMember(newMember1.getSubject(), true);
+    Membership membership = MembershipFinder.findImmediateMembership(grouperSession, (Group)group, newMember1.getSubject(), Group.getDefaultList(), true);
+    
+    AttributeDef attributeDef = edu.addChildAttributeDef("attributeDef", AttributeDefType.perm);
+    attributeDef.setAssignToEffMembership(true);
+    attributeDef.store();
+    AttributeDefName attributeDefName = edu.addChildAttributeDefName(attributeDef, "testAttribute", "testAttribute");
+    ChangeLogTempToEntity.convertRecords();
+
+    // assign permission
+    AttributeAssign attributeAssign = group.getPermissionRoleDelegate().assignSubjectRolePermission(attributeDefName, newMember1).getAttributeAssign();
+
+    //move the temp objects to the regular change log table
+    ChangeLogTempToEntity.convertRecords();
+    
+    // now disable the membership
+    membership.setEnabled(false);
+    membership.setEnabledTime(new Timestamp(new Date().getTime() + 100000));
+    membership.update();
+    ChangeLogTempToEntity.convertRecords();
+
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryEntity").executeUpdate();
+
+    // now enable the membership and verify flattened membership and permission
+    membership.setEnabled(true);
+    membership.setEnabledTime(null);
+    final Membership MEMBERSHIP = membership;
+    
+    HibernateSession.callbackHibernateSession(
+        GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT, new HibernateHandler() {
+  
+      public Object callback(HibernateHandlerBean hibernateHandlerBean)
+          throws GrouperDAOException {
+  
+        hibernateHandlerBean.getHibernateSession().byObject().setEntityName("ImmediateMembershipEntry").update(MEMBERSHIP);
+
+        return null;
+      }
+    });
+    
+    ChangeLogTempToEntity.convertRecords();
+    
+    int newChangeLogTempCount = HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_change_log_entry_temp");
+    int newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_change_log_entry");
+  
+    assertEquals("Should have nothing in temp table", 0, newChangeLogTempCount);
+    assertEquals("Should have two records in the change log table", 2, newChangeLogCount);
+  
+    ChangeLogEntry changeLogEntry = HibernateSession.byHqlStatic()
+      .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType")
+      .setString("theChangeLogType", ChangeLogTypeBuiltin.PERMISSION_ADD.getChangeLogType().getId())
+      .uniqueResult(ChangeLogEntry.class);
+  
+    //make sure some time has passed
+    GrouperUtil.sleep(100);
+  
+    assertNotNull("createdOn should exist", changeLogEntry.getCreatedOn());
+    assertTrue("This should have happened in the last 5 seconds", System.currentTimeMillis() - changeLogEntry.getCreatedOn().getTime()  < 5000);
+    assertTrue("This should have happened in the last 5 seconds: + " + changeLogEntry.getCreatedOn(), System.currentTimeMillis() - changeLogEntry.getCreatedOn().getTime() > 0);
+    assertTrue("This should have happened in the last 5 seconds", System.currentTimeMillis() - (changeLogEntry.getCreatedOnDb() / 1000) < 5000);
+    assertTrue("This should have happened in the last 5 seconds", System.currentTimeMillis() - (changeLogEntry.getCreatedOnDb() / 1000) > 0);
+  
+    assertNotNull(changeLogEntry.getSequenceNumber());
+    assertEquals("Context id's should match", changeLogEntry.getContextId(), membership.getContextId());
+  
+    assertEquals(attributeDefName.getId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_ADD.attributeDefNameId));
+    assertEquals(attributeDefName.getName(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_ADD.attributeDefNameName));
+    assertEquals(attributeAssign.getAttributeAssignActionId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_ADD.actionId));
+    assertEquals("assign", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_ADD.action));
+    assertEquals(newMember1.getUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_ADD.memberId));
+    assertEquals(newMember1.getSubjectId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_ADD.subjectId));
+    assertEquals(newMember1.getSubjectSourceId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PERMISSION_ADD.subjectSourceId));
+    
+    changeLogEntry = HibernateSession.byHqlStatic()
+      .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType")
+      .setString("theChangeLogType", ChangeLogTypeBuiltin.MEMBERSHIP_ADD.getChangeLogType().getId())
+      .uniqueResult(ChangeLogEntry.class);
+    
+    //make sure some time has passed
+    GrouperUtil.sleep(100);
+  
+    assertNotNull("createdOn should exist", changeLogEntry.getCreatedOn());
+    assertTrue("This should have happened in the last 5 seconds", System.currentTimeMillis() - changeLogEntry.getCreatedOn().getTime()  < 5000);
+    assertTrue("This should have happened in the last 5 seconds: + " + changeLogEntry.getCreatedOn(), System.currentTimeMillis() - changeLogEntry.getCreatedOn().getTime() > 0);
+    assertTrue("This should have happened in the last 5 seconds", System.currentTimeMillis() - (changeLogEntry.getCreatedOnDb() / 1000) < 5000);
+    assertTrue("This should have happened in the last 5 seconds", System.currentTimeMillis() - (changeLogEntry.getCreatedOnDb() / 1000) > 0);
+  
+    assertNotNull(changeLogEntry.getSequenceNumber());
+    assertEquals("Context id's should match", changeLogEntry.getContextId(), membership.getContextId());
+  
+    assertEquals("members", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.fieldName));
+    assertEquals(newMember1.getSubjectId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.subjectId));
+    assertEquals(newMember1.getSubjectSourceId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.sourceId));
+    assertEquals(membership.getGroup().getUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.groupId));
+    assertEquals(membership.getGroup().getName(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.groupName));
   }
   
   /** top level stem */
