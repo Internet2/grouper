@@ -129,13 +129,21 @@ public class AttributeUpdateText {
   public String getDeleteActionConfirm() {
     return text("simpleAttributeUpdate.deleteActionConfirm");
   }
-  
+
   /**
-   * edit action confirm
-   * @return edit action confirm
+   * edit action alt
+   * @return edit action alt
    */
   public String getEditActionImageAlt() {
     return text("simpleAttributeUpdate.editActionImageAlt");
+  }
+
+  /**
+   * action inheritance graph alt
+   * @return action inheritance alt
+   */
+  public String getActionGraphImageAlt() {
+    return text("simpleAttributeUpdate.actionGraphImageAlt");
   }
 
   /**

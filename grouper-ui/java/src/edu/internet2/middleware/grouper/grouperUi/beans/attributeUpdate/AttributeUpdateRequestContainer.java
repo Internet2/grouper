@@ -604,6 +604,21 @@ public class AttributeUpdateRequestContainer implements Serializable {
   
   /** if update should be checked on edit jsp */
   private boolean allowAllUpdate;
+
+  /**
+   * directed graph nodes from
+   */
+  private List<String> actionGraphNodesFrom;
+
+  /**
+   * directed graph nodes to
+   */
+  private List<String> actionGraphNodesTo;
+
+  /**
+   * starting points in graph
+   */
+  private List<String> actionGraphStartingPoints;
   
   /**
    * if optin should be checked on edit jsp
@@ -725,6 +740,54 @@ public class AttributeUpdateRequestContainer implements Serializable {
    */
   public void setGuiAttributeAssign(GuiAttributeAssign guiAttributeAssign1) {
     this.guiAttributeAssign = guiAttributeAssign1;
+  }
+
+  /**
+   * directed graph nodes from
+   * @return directed graph nodes from
+   */
+  public List<String> getActionGraphNodesFrom() {
+    return this.actionGraphNodesFrom;
+  }
+
+  /**
+   * directed graph nodes to
+   * @return directed graph nodes to
+   */
+  public List<String> getActionGraphNodesTo() {
+    return this.actionGraphNodesTo;
+  }
+
+  /**
+   * starting points in graph
+   * @return starting points in graph
+   */
+  public List<String> getActionGraphStartingPoints() {
+    return this.actionGraphStartingPoints;
+  }
+
+  /**
+   * directed graph nodes from
+   * @param attributeNameGraphNodesFrom1
+   */
+  public void setActionGraphNodesFrom(List<String> attributeNameGraphNodesFrom1) {
+    this.actionGraphNodesFrom = attributeNameGraphNodesFrom1;
+  }
+
+  /**
+   * directed graph nodes to
+   * @param attributeNameGraphNodesTo1
+   */
+  public void setActionGraphNodesTo(List<String> attributeNameGraphNodesTo1) {
+    this.actionGraphNodesTo = attributeNameGraphNodesTo1;
+  }
+
+  /**
+   * starting points in graph
+   * @param startingPoints1
+   */
+  public void setActionGraphStartingPoints(List<String> startingPoints1) {
+    this.actionGraphStartingPoints = startingPoints1;
   }
   
 

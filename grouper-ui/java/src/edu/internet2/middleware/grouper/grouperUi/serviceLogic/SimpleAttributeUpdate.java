@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -2629,5 +2630,123 @@ public class SimpleAttributeUpdate {
       GrouperSession.stopQuietly(grouperSession); 
     }
   
+  }
+
+
+  /**
+   * action graph
+   * @param httpServletRequest
+   * @param httpServletResponse
+   */
+  public void actionGraph(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
+  
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+  
+    AttributeUpdateRequestContainer attributeUpdateRequestContainer = AttributeUpdateRequestContainer.retrieveFromRequestOrCreate();
+  
+    GrouperSession grouperSession = null;
+  
+    try {
+      grouperSession = GrouperSession.start(loggedInSubject);
+      
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+  
+      AttributeDef attributeDef = null;
+      
+      String uuid = httpServletRequest.getParameter("attributeDefToEditId");
+      
+      if (StringUtils.isBlank(uuid)) {
+        throw new RuntimeException("Why is uuid blank????");
+      }
+  
+      String action = httpServletRequest.getParameter("action");
+      
+      if (StringUtils.isBlank(action)) {
+        throw new RuntimeException("Why is action blank????");
+      }
+      
+      //if editing, then this must be there, or it has been tampered with
+      try {
+        attributeDef = AttributeDefFinder.findById(uuid, true);
+      } catch (Exception e) {
+        LOG.info("Error searching for attribute def: " + uuid, e);
+        guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simpleAttributeUpdate.errorCantEditAttributeDef", false)));
+        return;
+        
+      }
+      
+      if (!attributeDef.getPrivilegeDelegate().canAttrAdmin(loggedInSubject)) {
+        LOG.error("Subject " + GrouperUtil.subjectToString(loggedInSubject) + " cannot admin attribute definition: " + attributeDef.getName());
+        guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simpleAttributeUpdate.errorCantEditAttributeDef", false)));
+        return;
+      }
+      
+      attributeUpdateRequestContainer.setAttributeDefToEdit(attributeDef);
+      attributeUpdateRequestContainer.setAction(action);
+      
+      //find list which can imply
+      AttributeAssignAction attributeAssignAction = attributeDef.getAttributeDefActionDelegate().findAction(action, true);
+      
+      attributeUpdateRequestContainer.setActionGraphNodesFrom(new ArrayList<String>());
+      attributeUpdateRequestContainer.setActionGraphNodesTo(new ArrayList<String>());
+      attributeUpdateRequestContainer.setActionGraphStartingPoints(new ArrayList<String>());
+      
+      Set<AttributeAssignAction> allActionsOnGraph = new HashSet<AttributeAssignAction>();
+      Set<AttributeAssignAction> actionsThatImplyThis = attributeAssignAction.getAttributeAssignActionSetDelegate().getAttributeAssignActionsThatImplyThis();
+      Set<AttributeAssignAction> actionsImpliedByThis = attributeAssignAction.getAttributeAssignActionSetDelegate().getAttributeAssignActionsImpliedByThis();
+      allActionsOnGraph.addAll(actionsThatImplyThis);
+      allActionsOnGraph.addAll(actionsImpliedByThis);
+      allActionsOnGraph.add(attributeAssignAction);
+
+      //find out which ones are starting points
+      Set<String> startingPoints = new HashSet<String>();
+      for (AttributeAssignAction current : GrouperUtil.nonNull(actionsThatImplyThis)) {
+        startingPoints.add(current.getName());
+      }
+      
+      //if none then add current
+      if (startingPoints.size() == 0) {
+        startingPoints.add(attributeAssignAction.getName());
+      }
+      
+      //find all relevant relationships
+      for (AttributeAssignAction current : GrouperUtil.nonNull(allActionsOnGraph)) {
+        
+        Set<AttributeAssignAction> actionsImpliedByCurrentImmediate = current.getAttributeAssignActionSetDelegate().getAttributeAssignActionsImpliedByThisImmediate();
+
+        for (AttributeAssignAction impliedBy : GrouperUtil.nonNull(actionsImpliedByCurrentImmediate)) {
+          
+          //make sure it is relevant
+          if (!allActionsOnGraph.contains(impliedBy)) {
+            continue;
+          }
+
+          //we know which ones arent starting points
+          startingPoints.remove(impliedBy.getName());
+          
+          attributeUpdateRequestContainer.getActionGraphNodesFrom().add(current.getName());
+          
+          attributeUpdateRequestContainer.getActionGraphNodesTo().add(impliedBy.getName());
+        }
+        
+      }
+
+      if (startingPoints.size() == 0) {
+        startingPoints.add(attributeAssignAction.getName());
+      }
+      
+      attributeUpdateRequestContainer.getActionGraphStartingPoints().addAll(startingPoints);
+
+      
+      
+      //set the actions panel
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#attributeActionEditPanel", 
+        "/WEB-INF/grouperUi/templates/simpleAttributeUpdate/attributeActionGraphPanel.jsp"));
+      
+      guiResponseJs.addAction(GuiScreenAction.newScript("guiScrollTo('#attributeActionsPanel');"));
+      
+    } finally {
+      GrouperSession.stopQuietly(grouperSession); 
+    }
   }
 }

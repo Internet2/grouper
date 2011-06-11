@@ -149,6 +149,9 @@
             onclick="ajax('../app/SimpleAttributeNameUpdate.attributeNameEditPanelHierarchies', {formIds: 'attributeNameEditFormId'}); return false;" 
             value="${attributeNameUpdateRequestContainer.text.editPanelHierarchies}" style="margin-top: 2px" />
 
+           <input class="blueButton" type="submit" 
+            onclick="ajax('../app/SimpleAttributeNameUpdate.attributeNameEditPanelHierarchiesGraph', {formIds: 'attributeNameEditFormId'}); return false;" 
+            value="${grouper:message('simpleAttributeNameUpdate.editPanelHierarchyGraph', true, true) }" style="margin-top: 2px" />
 
          </c:if>
        

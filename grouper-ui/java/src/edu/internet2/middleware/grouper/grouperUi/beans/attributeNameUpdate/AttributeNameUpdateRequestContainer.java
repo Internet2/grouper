@@ -5,6 +5,7 @@
 package edu.internet2.middleware.grouper.grouperUi.beans.attributeNameUpdate;
 
 import java.io.Serializable;
+import java.util.List;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
@@ -20,6 +21,69 @@ import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
  */
 @SuppressWarnings("serial")
 public class AttributeNameUpdateRequestContainer implements Serializable {
+
+  /**
+   * directed graph nodes from
+   */
+  private List<String> attributeNameGraphNodesFrom;
+
+  /**
+   * directed graph nodes to
+   */
+  private List<String> attributeNameGraphNodesTo;
+  
+  /**
+   * starting points in graph
+   */
+  private List<String> attributeNameGraphStartingPoints;
+  
+  /**
+   * starting points in graph
+   * @return starting points in graph
+   */
+  public List<String> getAttributeNameGraphStartingPoints() {
+    return this.attributeNameGraphStartingPoints;
+  }
+
+  /**
+   * starting points in graph
+   * @param startingPoints1
+   */
+  public void setAttributeNameGraphStartingPoints(List<String> startingPoints1) {
+    this.attributeNameGraphStartingPoints = startingPoints1;
+  }
+
+  /**
+   * directed graph nodes from
+   * @return directed graph nodes from
+   */
+  public List<String> getAttributeNameGraphNodesFrom() {
+    return this.attributeNameGraphNodesFrom;
+  }
+
+  /**
+   * directed graph nodes from
+   * @param attributeNameGraphNodesFrom1
+   */
+  public void setAttributeNameGraphNodesFrom(List<String> attributeNameGraphNodesFrom1) {
+    this.attributeNameGraphNodesFrom = attributeNameGraphNodesFrom1;
+  }
+
+  /**
+   * directed graph nodes to
+   * @return directed graph nodes to
+   */
+  public List<String> getAttributeNameGraphNodesTo() {
+    return this.attributeNameGraphNodesTo;
+  }
+
+  /**
+   * directed graph nodes to
+   * @param attributeNameGraphNodesTo1
+   */
+  public void setAttributeNameGraphNodesTo(List<String> attributeNameGraphNodesTo1) {
+    this.attributeNameGraphNodesTo = attributeNameGraphNodesTo1;
+  }
 
   /** attribute definition to filter by */
   private AttributeDef attributeDefForFilter = null;

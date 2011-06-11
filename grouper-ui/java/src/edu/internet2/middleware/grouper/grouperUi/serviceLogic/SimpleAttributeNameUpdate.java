@@ -1,5 +1,7 @@
 package edu.internet2.middleware.grouper.grouperUi.serviceLogic;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
@@ -501,6 +503,117 @@ public class SimpleAttributeNameUpdate {
     //setup the screen again...
     new SimpleAttributeNameUpdate().attributeNameEditPanelHierarchies(httpServletRequest, httpServletResponse);  
   
+  }
+
+  /**
+   * hierarchiesGraph button was pressed on the attribute name edit panel
+   * @param httpServletRequest
+   * @param httpServletResponse
+   */
+  public void attributeNameEditPanelHierarchiesGraph(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
+  
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+  
+    AttributeNameUpdateRequestContainer attributeNameUpdateRequestContainer = AttributeNameUpdateRequestContainer.retrieveFromRequestOrCreate();
+  
+    GrouperSession grouperSession = null;
+  
+    try {
+      grouperSession = GrouperSession.start(loggedInSubject);
+      
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+  
+      AttributeDefName attributeDefName = null;
+      
+      String uuid = httpServletRequest.getParameter("attributeDefNameToEditId");
+      
+      if (StringUtils.isBlank(uuid)) {
+        throw new RuntimeException("Why is uuid blank????");
+      }
+  
+      //if editing, then this must be there, or it has been tampered with
+      try {
+        attributeDefName = AttributeDefNameFinder.findById(uuid, true);
+      } catch (Exception e) {
+        LOG.info("Error searching for attribute def name: " + uuid, e);
+        guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simpleAttributeNameUpdate.errorCantEditAttributeDefName", false)));
+        return;
+      }
+      
+      if (!attributeDefName.getAttributeDef().getPrivilegeDelegate().canAttrAdmin(loggedInSubject)) {
+        LOG.error("Subject " + GrouperUtil.subjectToString(loggedInSubject) + " cannot admin attribute definition: " + attributeDefName.getName());
+        guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simpleAttributeUpdate.errorCantEditAttributeDef", false)));
+        return;
+      }
+      if (attributeDefName.getAttributeDef().getAttributeDefType() != AttributeDefType.perm) {
+        LOG.error("Why is this not a permission? " + attributeDefName);
+        guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simpleAttributeNameUpdate.errorNotPermission", false)));
+        return;
+      }
+      
+      attributeNameUpdateRequestContainer.setAttributeDefNameToEdit(attributeDefName);
+      
+      attributeNameUpdateRequestContainer.setAttributeNameGraphNodesFrom(new ArrayList<String>());
+      attributeNameUpdateRequestContainer.setAttributeNameGraphNodesTo(new ArrayList<String>());
+      attributeNameUpdateRequestContainer.setAttributeNameGraphStartingPoints(new ArrayList<String>());
+      
+      Set<AttributeDefName> allAttributeNamesOnGraph = new HashSet<AttributeDefName>();
+      Set<AttributeDefName> attributeDefNamesThatImplyThis = attributeDefName.getAttributeDefNameSetDelegate().getAttributeDefNamesThatImplyThis();
+      Set<AttributeDefName> attributeDefNamesImpliedByThis = attributeDefName.getAttributeDefNameSetDelegate().getAttributeDefNamesImpliedByThis();
+      allAttributeNamesOnGraph.addAll(attributeDefNamesThatImplyThis);
+      allAttributeNamesOnGraph.addAll(attributeDefNamesImpliedByThis);
+      allAttributeNamesOnGraph.add(attributeDefName);
+
+      //TODO make sure two dont have the same extension
+      
+      //find out which ones are starting points
+      Set<String> startingPoints = new HashSet<String>();
+      for (AttributeDefName current : GrouperUtil.nonNull(attributeDefNamesThatImplyThis)) {
+        startingPoints.add(current.getDisplayExtension());
+      }
+      
+      //if none then add current
+      if (startingPoints.size() == 0) {
+        startingPoints.add(attributeDefName.getDisplayExtension());
+      }
+      
+      //find all relevant relationships
+      for (AttributeDefName current : GrouperUtil.nonNull(allAttributeNamesOnGraph)) {
+        
+        Set<AttributeDefName> attributeDefNamesImpliedByCurrentImmediate = current.getAttributeDefNameSetDelegate().getAttributeDefNamesImpliedByThisImmediate();
+
+        for (AttributeDefName impliedBy : GrouperUtil.nonNull(attributeDefNamesImpliedByCurrentImmediate)) {
+          
+          //make sure it is relevant
+          if (!allAttributeNamesOnGraph.contains(impliedBy)) {
+            continue;
+          }
+
+          //we know which ones arent starting points
+          startingPoints.remove(impliedBy.getDisplayExtension());
+          
+          attributeNameUpdateRequestContainer.getAttributeNameGraphNodesFrom().add(current.getDisplayExtension());
+          
+          attributeNameUpdateRequestContainer.getAttributeNameGraphNodesTo().add(impliedBy.getDisplayExtension());
+        }
+        
+      }
+
+      if (startingPoints.size() == 0) {
+        startingPoints.add(attributeDefName.getDisplayExtension());
+      }
+      
+      attributeNameUpdateRequestContainer.getAttributeNameGraphStartingPoints().addAll(startingPoints);
+      
+      //set the actions panel
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#attributeNameHierarchiesPanel", 
+        "/WEB-INF/grouperUi/templates/simpleAttributeNameUpdate/attributeNameGraph.jsp"));
+      
+      guiResponseJs.addAction(GuiScreenAction.newScript("guiScrollTo('#attributeNameHierarchiesPanel');"));
+      
+    } finally {
+      GrouperSession.stopQuietly(grouperSession); 
+    }
   }
 
   
