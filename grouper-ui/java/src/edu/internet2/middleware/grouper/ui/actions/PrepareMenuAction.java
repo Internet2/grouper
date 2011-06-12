@@ -24,6 +24,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.Set;
 
@@ -143,6 +144,14 @@ public class PrepareMenuAction extends LowLevelGrouperCapableAction {
 	 * @return if
 	 */
 	protected boolean isValidMenuItem(Map<String, String> item,GrouperSession grouperSession,HttpServletRequest request) {
+		if(item.containsKey("mediaKeyMustBeTrue")) {
+			Properties mp = GrouperUiFilter.retrieveMediaProperties();
+			String val = mp.getProperty(item.get("mediaKeyMustBeTrue"));
+			if(!"true".equals(val)) {
+				return false;
+			}
+		}
+		
 		Set menuFilters = SessionInitialiser.getMenuFilters(request.getSession());
 		if(menuFilters.isEmpty()) return true;
 		Iterator it = menuFilters.iterator();
