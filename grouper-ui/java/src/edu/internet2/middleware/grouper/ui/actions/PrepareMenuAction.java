@@ -32,6 +32,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
@@ -68,7 +70,7 @@ import edu.internet2.middleware.grouper.ui.util.DOMHelper;
  * @version $Id: PrepareMenuAction.java,v 1.7 2009-08-12 04:52:14 mchyzer Exp $
  */
 public class PrepareMenuAction extends LowLevelGrouperCapableAction {
-
+	protected static final Log LOG = LogFactory.getLog(PrepareMenuAction.class);
 
   /**
    * 
@@ -84,6 +86,11 @@ public class PrepareMenuAction extends LowLevelGrouperCapableAction {
 		String menuFiles = mediaResources.getString("menu.resource.files");
 		String menuOrder = mediaResources.getString("menu.order");
 		String menuCache = mediaResources.getString("menu.cache");
+		if(LOG.isDebugEnabled()) {
+			LOG.debug("menu.resource.files=" + menuFiles);
+			LOG.debug("menu.order=" + menuOrder);
+			LOG.debug("menu.cache=" + menuCache);
+		}
 		boolean useCache=false;
 		if("true".equals(menuCache)) {
 			Object cachedMenu = session.getAttribute("cachedMenu");
@@ -103,6 +110,7 @@ public class PrepareMenuAction extends LowLevelGrouperCapableAction {
 		Collection menuItemElements = null;
 		Attr attribute = null;
 		for(int i=0;i<inputResources.length;i++) {
+			LOG.debug("Reading menu file: " + inputResources[i]);
 			menuDom = DOMHelper.getDomFromResourceOnClassPath(inputResources[i]);
 			menuItemElements = DOMHelper.getImmediateElements(menuDom.getDocumentElement(),"item");
 			menuIterator= menuItemElements.iterator();
@@ -124,6 +132,7 @@ public class PrepareMenuAction extends LowLevelGrouperCapableAction {
 		for(int i=0;i<order.length;i++) {
 			orderedItem = menuItems.get(order[i]);
 			if(orderedItem!=null && isValidMenuItem(orderedItem,grouperSession,request)) {
+				LOG.debug(order[i] + " added to menu");
 				menu.add(orderedItem);
 			}
 		}
@@ -148,6 +157,7 @@ public class PrepareMenuAction extends LowLevelGrouperCapableAction {
 			Properties mp = GrouperUiFilter.retrieveMediaProperties();
 			String val = mp.getProperty(item.get("mediaKeyMustBeTrue"));
 			if(!"true".equals(val)) {
+				LOG.debug("Discarding " + item.get("functionalArea") + " since " + item.get("mediaKeyMustBeTrue") + "is not 'true'");
 				return false;
 			}
 		}
@@ -158,7 +168,10 @@ public class PrepareMenuAction extends LowLevelGrouperCapableAction {
 		MenuFilter filter;
 		while(it.hasNext()) {
 			filter=(MenuFilter)it.next();
-			if(!filter.isValid(grouperSession, item, request)) return false;
+			if(!filter.isValid(grouperSession, item, request)) {
+				LOG.debug("Discarding " + item.get("functionalArea") + " - rejected by " + filter.getClass().getSimpleName());
+				return false;
+			}
 		}
 		//if((isActiveWheelGroupMember(request.getSession())||"GrouperSystem".equals(SessionInitialiser.getGrouperSession(request.getSession()).getSubject().getId())) && "false".equals(item.get("forAdmin"))) return false;
 		return true;
