@@ -46,6 +46,7 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.MenuFilter;
 import edu.internet2.middleware.grouper.ui.SessionInitialiser;
+import edu.internet2.middleware.grouper.ui.tags.TagUtils;
 import edu.internet2.middleware.grouper.ui.util.DOMHelper;
 
 /**
@@ -154,11 +155,9 @@ public class PrepareMenuAction extends LowLevelGrouperCapableAction {
 	 */
 	protected boolean isValidMenuItem(Map<String, String> item,GrouperSession grouperSession,HttpServletRequest request) {
 		if(item.containsKey("mediaKeyMustBeTrue")) {
-			Properties mp = GrouperUiFilter.retrieveMediaProperties();
-			String val = mp.getProperty(item.get("mediaKeyMustBeTrue"));
-			if(!"true".equals(val)) {
-				LOG.debug("Discarding " + item.get("functionalArea") + " since " + item.get("mediaKeyMustBeTrue") + "is not 'true'");
-				return false;
+	    if (!TagUtils.mediaResourceBoolean(item.get("mediaKeyMustBeTrue"), false)) {
+        LOG.debug("Discarding " + item.get("functionalArea") + " since " + item.get("mediaKeyMustBeTrue") + "is not 'true'");
+        return false;
 			}
 		}
 		

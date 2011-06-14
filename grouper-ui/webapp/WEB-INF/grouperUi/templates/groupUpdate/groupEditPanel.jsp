@@ -214,6 +214,11 @@
              <input class="blueButton" type="submit" 
               onclick="ajax('../app/SimpleGroupUpdate.roleHierarchies', {formIds: 'groupEditFormId'}); return false;" 
               value="${grouper:message('simpleGroupUpdate.editPanelRoleHierarchies', true, false)}" style="margin-top: 2px" />
+
+             <input class="blueButton" type="submit" 
+              onclick="ajax('../app/SimpleGroupUpdate.roleHierarchyGraph', {formIds: 'groupEditFormId'}); return false;" 
+              value="${grouper:message('simpleGroupUpdate.editPanelRoleHierarchyGraphButton', true, false)}" style="margin-top: 2px" />
+
            </c:if>
 
            <input class="blueButton" type="submit" 

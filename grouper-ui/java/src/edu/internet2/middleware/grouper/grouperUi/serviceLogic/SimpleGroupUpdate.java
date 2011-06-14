@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -194,7 +195,7 @@ public class SimpleGroupUpdate {
           
         }
       
-        if (group != null && !group.hasAdmin(loggedInSubject)) {
+        if (group == null || !group.hasAdmin(loggedInSubject)) {
           LOG.error("Subject " + GrouperUtil.subjectToString(loggedInSubject) + " cannot admin group: " + group.getName());
           guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simpleGroupUpdate.errorCantEditGroup", false)));
           return;
@@ -386,7 +387,7 @@ public class SimpleGroupUpdate {
         
       }
     
-      if (group != null && !group.hasAdmin(loggedInSubject)) {
+      if (group == null || !group.hasAdmin(loggedInSubject)) {
         LOG.error("Subject " + GrouperUtil.subjectToString(loggedInSubject) + " cannot admin group: " + group.getName());
         guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simpleGroupUpdate.errorCantEditGroup", false)));
         return;
@@ -448,7 +449,7 @@ public class SimpleGroupUpdate {
           
         }
       
-        if (group != null && !group.hasAdmin(loggedInSubject)) {
+        if (group == null || !group.hasAdmin(loggedInSubject)) {
           LOG.error("Subject " + GrouperUtil.subjectToString(loggedInSubject) + " cannot admin group: " + group.getName());
           guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simpleGroupUpdate.errorCantEditGroup", false)));
           return;
@@ -712,7 +713,7 @@ public class SimpleGroupUpdate {
         
       }
     
-      if (group != null && !group.hasAdmin(loggedInSubject)) {
+      if (group == null || !group.hasAdmin(loggedInSubject)) {
         LOG.error("Subject " + GrouperUtil.subjectToString(loggedInSubject) + " cannot admin group: " + group.getName());
         guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simpleGroupUpdate.errorCantEditGroup", false)));
         return;
@@ -807,7 +808,7 @@ public class SimpleGroupUpdate {
         
       }
     
-      if (group != null && !group.hasAdmin(loggedInSubject)) {
+      if (group == null || !group.hasAdmin(loggedInSubject)) {
         LOG.error("Subject " + GrouperUtil.subjectToString(loggedInSubject) + " cannot admin group: " + group.getName());
         guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simpleGroupUpdate.errorCantEditGroup", false)));
         return;
@@ -946,7 +947,7 @@ public class SimpleGroupUpdate {
         
       }
     
-      if (group != null && !group.hasAdmin(loggedInSubject)) {
+      if (group == null || !group.hasAdmin(loggedInSubject)) {
         LOG.error("Subject " + GrouperUtil.subjectToString(loggedInSubject) + " cannot admin group: " + group.getName());
         guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simpleGroupUpdate.errorCantEditGroup", false)));
         return;
@@ -1039,7 +1040,7 @@ public class SimpleGroupUpdate {
         
       }
     
-      if (group != null && !group.hasAdmin(loggedInSubject)) {
+      if (group == null || !group.hasAdmin(loggedInSubject)) {
         LOG.error("Subject " + GrouperUtil.subjectToString(loggedInSubject) + " cannot admin group: " + group.getName());
         guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simpleGroupUpdate.errorCantEditGroup", false)));
         return;
@@ -1132,7 +1133,7 @@ public class SimpleGroupUpdate {
         
       }
     
-      if (group != null && !group.hasAdmin(loggedInSubject)) {
+      if (group == null || !group.hasAdmin(loggedInSubject)) {
         LOG.error("Subject " + GrouperUtil.subjectToString(loggedInSubject) + " cannot admin group: " + group.getName());
         guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simpleGroupUpdate.errorCantEditGroup", false)));
         return;
@@ -1218,7 +1219,7 @@ public class SimpleGroupUpdate {
         
       }
     
-      if (group != null && !group.hasAdmin(loggedInSubject)) {
+      if (group == null || !group.hasAdmin(loggedInSubject)) {
         LOG.error("Subject " + GrouperUtil.subjectToString(loggedInSubject) + " cannot admin group: " + group.getName());
         guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simpleGroupUpdate.errorCantEditGroup", false)));
         return;
@@ -1299,7 +1300,7 @@ public class SimpleGroupUpdate {
         
       }
     
-      if (group != null && !group.hasAdmin(loggedInSubject)) {
+      if (group == null || !group.hasAdmin(loggedInSubject)) {
         LOG.error("Subject " + GrouperUtil.subjectToString(loggedInSubject) + " cannot admin group: " + group.getName());
         guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simpleGroupUpdate.errorCantEditGroup", false)));
         return;
@@ -1314,6 +1315,122 @@ public class SimpleGroupUpdate {
     }
   }
 
+  /**
+   * edit a role hierarchy
+   * @param httpServletRequest
+   * @param httpServletResponse
+   */
+  public void roleHierarchyGraph(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GroupUpdateRequestContainer groupUpdateRequestContainer = GroupUpdateRequestContainer.retrieveFromRequestOrCreate();
+  
+    GrouperSession grouperSession = null;
+  
+    try {
+      grouperSession = GrouperSession.start(loggedInSubject);
+      
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+  
+      Group group = null;
+      
+      String uuid = httpServletRequest.getParameter("groupToEditId");
+      
+      if (StringUtils.isBlank(uuid)) {
+        throw new RuntimeException("Why is uuid blank????");
+      }
+  
+      //if editing, then this must be there, or it has been tampered with
+      try {
+        group = GroupFinder.findByUuid(grouperSession, uuid, true);
+      } catch (Exception e) {
+        LOG.info("Error searching for group: " + uuid, e);
+        guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simpleGroupUpdate.errorCantEditGroup", false)));
+        return;
+        
+      }
+    
+      if (group == null || !group.hasAdmin(loggedInSubject)) {
+        LOG.error("Subject " + GrouperUtil.subjectToString(loggedInSubject) + " cannot admin group: " + group.getName());
+        guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simpleGroupUpdate.errorCantEditGroup", false)));
+        return;
+      }
+    
+      groupUpdateRequestContainer.setGroupToEdit(group);
+      
+      groupUpdateRequestContainer.setRoleGraphNodesFrom(new ArrayList<String>());
+      groupUpdateRequestContainer.setRoleGraphNodesTo(new ArrayList<String>());
+      groupUpdateRequestContainer.setRoleGraphStartingPoints(new ArrayList<String>());
+      
+      Set<Role> allRolesOnGraph = new HashSet<Role>();
+      Set<Role> rolesThatImplyThis = group.getRoleInheritanceDelegate().getRolesInheritPermissionsToThis();
+      Set<Role> rolesImpliedByThis = group.getRoleInheritanceDelegate().getRolesInheritPermissionsFromThis();
+      allRolesOnGraph.addAll(rolesThatImplyThis);
+      allRolesOnGraph.addAll(rolesImpliedByThis);
+      allRolesOnGraph.add(group);
+
+      {
+        //we are displaying by display extension, make sure there arent two nodes with the same extension
+        Set<String> uniqueDisplayExtensions = new HashSet<String>();
+        for (Role current : allRolesOnGraph) {
+          if (uniqueDisplayExtensions.contains(current.getDisplayExtension())) {
+            throw new RuntimeException("Cannot display graph is multiple roles have the same display extension!");
+          }
+          uniqueDisplayExtensions.add(current.getDisplayExtension());
+        }
+      }
+      
+      //find out which ones are starting points
+      Set<String> startingPoints = new HashSet<String>();
+      for (Role current : GrouperUtil.nonNull(rolesThatImplyThis)) {
+        startingPoints.add(current.getDisplayExtension());
+      }
+      
+      //if none then add current
+      if (startingPoints.size() == 0) {
+        startingPoints.add(group.getDisplayExtension());
+      }
+      
+      //find all relevant relationships
+      for (Role current : GrouperUtil.nonNull(allRolesOnGraph)) {
+        
+        Set<Role> rolesImpliedByCurrentImmediate = current.getRoleInheritanceDelegate().getRolesInheritPermissionsFromThisImmediate();
+
+        for (Role impliedBy : GrouperUtil.nonNull(rolesImpliedByCurrentImmediate)) {
+          
+          //make sure it is relevant
+          if (!allRolesOnGraph.contains(impliedBy)) {
+            continue;
+          }
+
+          //we know which ones arent starting points
+          startingPoints.remove(impliedBy.getDisplayExtension());
+          
+          groupUpdateRequestContainer.getRoleGraphNodesFrom().add(current.getDisplayExtension());
+          
+          groupUpdateRequestContainer.getRoleGraphNodesTo().add(impliedBy.getDisplayExtension());
+        }
+        
+      }
+
+      if (startingPoints.size() == 0) {
+        startingPoints.add(group.getDisplayExtension());
+      }
+      
+      groupUpdateRequestContainer.getRoleGraphStartingPoints().addAll(startingPoints);
+      
+      //set the hierarchies panel
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#roleHierarchyPanel", 
+        "/WEB-INF/grouperUi/templates/groupUpdate/roleHierarchyGraph.jsp"));
+      
+      guiResponseJs.addAction(GuiScreenAction.newScript("guiScrollTo('#roleHierarchyPanel');"));
+      
+    } finally {
+      GrouperSession.stopQuietly(grouperSession); 
+    }
+
+  }
+  
   /**
    * setup the role hierarchies panel
    * @param groupUpdateRequestContainer

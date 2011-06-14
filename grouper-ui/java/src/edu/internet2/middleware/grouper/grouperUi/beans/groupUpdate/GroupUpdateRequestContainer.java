@@ -74,6 +74,21 @@ public class GroupUpdateRequestContainer implements Serializable {
   private List<Role> rolesThatImplyImmediate;
 
   /**
+   * directed graph nodes from
+   */
+  private List<String> roleGraphNodesFrom;
+
+  /**
+   * directed graph nodes to
+   */
+  private List<String> roleGraphNodesTo;
+
+  /**
+   * starting points in graph
+   */
+  private List<String> roleGraphStartingPoints;
+
+  /**
    * group we are editing
    * @return grouper
    */
@@ -402,6 +417,54 @@ public class GroupUpdateRequestContainer implements Serializable {
    */
   public void setRolesThatImplyImmediate(List<Role> rolesThatImplyImmediate1) {
     this.rolesThatImplyImmediate = rolesThatImplyImmediate1;
+  }
+
+  /**
+   * directed graph nodes from
+   * @return directed graph nodes from
+   */
+  public List<String> getRoleGraphNodesFrom() {
+    return this.roleGraphNodesFrom;
+  }
+
+  /**
+   * directed graph nodes to
+   * @return directed graph nodes to
+   */
+  public List<String> getRoleGraphNodesTo() {
+    return this.roleGraphNodesTo;
+  }
+
+  /**
+   * starting points in graph
+   * @return starting points in graph
+   */
+  public List<String> getRoleGraphStartingPoints() {
+    return this.roleGraphStartingPoints;
+  }
+
+  /**
+   * directed graph nodes from
+   * @param attributeNameGraphNodesFrom1
+   */
+  public void setRoleGraphNodesFrom(List<String> attributeNameGraphNodesFrom1) {
+    this.roleGraphNodesFrom = attributeNameGraphNodesFrom1;
+  }
+
+  /**
+   * directed graph nodes to
+   * @param attributeNameGraphNodesTo1
+   */
+  public void setRoleGraphNodesTo(List<String> attributeNameGraphNodesTo1) {
+    this.roleGraphNodesTo = attributeNameGraphNodesTo1;
+  }
+
+  /**
+   * starting points in graph
+   * @param startingPoints1
+   */
+  public void setRoleGraphStartingPoints(List<String> startingPoints1) {
+    this.roleGraphStartingPoints = startingPoints1;
   }
 
 }

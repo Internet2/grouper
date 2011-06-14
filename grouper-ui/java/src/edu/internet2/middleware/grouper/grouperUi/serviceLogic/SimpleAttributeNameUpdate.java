@@ -564,7 +564,16 @@ public class SimpleAttributeNameUpdate {
       allAttributeNamesOnGraph.addAll(attributeDefNamesImpliedByThis);
       allAttributeNamesOnGraph.add(attributeDefName);
 
-      //TODO make sure two dont have the same extension
+      {
+        //we are displaying by display extension, make sure there arent two nodes with the same extension
+        Set<String> uniqueDisplayExtensions = new HashSet<String>();
+        for (AttributeDefName current : allAttributeNamesOnGraph) {
+          if (uniqueDisplayExtensions.contains(current.getDisplayExtension())) {
+            throw new RuntimeException("Cannot display graph is multiple attribute names have the same display extension!");
+          }
+          uniqueDisplayExtensions.add(current.getDisplayExtension());
+        }
+      }
       
       //find out which ones are starting points
       Set<String> startingPoints = new HashSet<String>();
