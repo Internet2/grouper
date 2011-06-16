@@ -469,18 +469,19 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
   }
 
   /**
-   * @see edu.internet2.middleware.grouper.internal.dao.AttributeAssignDAO#findByUuidOrKey(java.util.Collection, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, boolean, java.lang.Long, java.lang.Long, java.lang.String)
+   * @see edu.internet2.middleware.grouper.internal.dao.AttributeAssignDAO#findByUuidOrKey(java.util.Collection, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, boolean, java.lang.Long, java.lang.Long, java.lang.String, boolean)
    */
   public AttributeAssign findByUuidOrKey(Collection<String> idsToIgnore, String id,
       String attributeDefNameId, String attributeAssignActionId, String ownerAttributeAssignId,
       String ownerAttributeDefId, String ownerGroupId, String ownerMemberId,
       String ownerMembershipId, String ownerStemId, boolean exceptionIfNull,
-      Long disabledTimeDb, Long enabledTimeDb, String notes) throws GrouperDAOException {
+      Long disabledTimeDb, Long enabledTimeDb, String notes, boolean disallowed) throws GrouperDAOException {
     try {
       Set<AttributeAssign> attributeAssigns = HibernateSession.byHqlStatic()
         .createQuery("from AttributeAssign as theAttributeAssign where\n " +
             "theAttributeAssign.id = :theId or (theAttributeAssign.attributeDefNameId = :theAttributeDefNameId and\n " +
             "theAttributeAssign.attributeAssignActionId = :theAttributeAssignActionId and\n " +
+            "(" + (disallowed ? "theAttributeAssign.disallowedDb is null or " : "") + " theAttributeAssign.disallowedDb = :theDisallowedDb) and\n " +
             "(theAttributeAssign.ownerAttributeAssignId is null or theAttributeAssign.ownerAttributeAssignId = :theOwnerAttributeAssignId) and \n " +
             "(theAttributeAssign.ownerAttributeDefId is null or theAttributeAssign.ownerAttributeDefId = :theOwnerAttributeDefId) and \n " +
             "(theAttributeAssign.ownerGroupId is null or theAttributeAssign.ownerGroupId = :theOwnerGroupId) and \n " +
@@ -498,6 +499,7 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
         .setString("theOwnerMemberId", ownerMemberId)
         .setString("theOwnerMembershipId", ownerMembershipId)
         .setString("theOwnerStemId", ownerStemId)
+        .setString("theDisallowedDb", disallowed ? "T" : "F")
         .listSet(AttributeAssign.class);
       if (GrouperUtil.length(attributeAssigns) == 0) {
         if (exceptionIfNull) {

@@ -79,7 +79,7 @@ public class ChangeLogTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new ChangeLogTest("testSubjectRolePermissionAddAfterMembershipEnable"));
+    TestRunner.run(new ChangeLogTest("testAttributeAssign"));
     //TestRunner.run(ChangeLogTest.class);
   }
   
@@ -622,6 +622,7 @@ public class ChangeLogTest extends GrouperTest {
     assertEquals("", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_ASSIGN_ADD.ownerId2));
     assertEquals(attributeAssign.getAttributeDefName().getName(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_ASSIGN_ADD.attributeDefNameName));
     assertEquals(attributeAssign.getAttributeAssignAction().getName(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_ASSIGN_ADD.action));
+    assertEquals(attributeAssign.getDisallowedDb(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_ASSIGN_ADD.disallowed));
 
     //move the temp objects to the regular change log table
     ChangeLogTempToEntity.convertRecords();

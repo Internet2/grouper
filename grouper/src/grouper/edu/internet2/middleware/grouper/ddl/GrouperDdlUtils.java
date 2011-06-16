@@ -1807,7 +1807,7 @@ public class GrouperDdlUtils {
   public static Index ddlutilsFindOrCreateIndex(Database database, DdlVersionBean ddlVersionBean, 
       String tableName, String indexName, String customScript,
       boolean unique, String... columnNames) {
-    Table table = GrouperDdlUtils.ddlutilsFindTable(database,tableName);
+    Table table = GrouperDdlUtils.ddlutilsFindTable(database,tableName, true);
 
     //search for the index
     OUTERLOOP:
@@ -1856,7 +1856,7 @@ public class GrouperDdlUtils {
 
     for (String columnName : columnNames) {
       
-      Column column = GrouperDdlUtils.ddlutilsFindColumn(table, columnName);
+      Column column = GrouperDdlUtils.ddlutilsFindColumn(table, columnName, true);
       IndexColumn nameColumn = new IndexColumn(column);
       index.addColumn(nameColumn);
       
@@ -1901,8 +1901,8 @@ public class GrouperDdlUtils {
           + localColumnNames.size() + " != " + foreignColumnNames.size());
     }
     
-    Table table = GrouperDdlUtils.ddlutilsFindTable(database,tableName);
-    Table foreignTable = GrouperDdlUtils.ddlutilsFindTable(database,foreignTableName);
+    Table table = GrouperDdlUtils.ddlutilsFindTable(database,tableName, true);
+    Table foreignTable = GrouperDdlUtils.ddlutilsFindTable(database,foreignTableName, true);
     
     //search for the foreign key
     OUTERLOOP:
@@ -1935,8 +1935,8 @@ public class GrouperDdlUtils {
     
     for (int i=0;i<localColumnNames.size();i++) {
       
-      Column localColumn = GrouperDdlUtils.ddlutilsFindColumn(table, localColumnNames.get(i));
-      Column foreignColumn = GrouperDdlUtils.ddlutilsFindColumn(foreignTable, foreignColumnNames.get(i));
+      Column localColumn = GrouperDdlUtils.ddlutilsFindColumn(table, localColumnNames.get(i), true);
+      Column foreignColumn = GrouperDdlUtils.ddlutilsFindColumn(foreignTable, foreignColumnNames.get(i), true);
       
       Reference reference = new Reference(localColumn, foreignColumn);
       
@@ -1963,11 +1963,12 @@ public class GrouperDdlUtils {
    * find table, if not exist, throw exception
    * @param database
    * @param tableName
+   * @param exceptionOnNotFound 
    * @return the table
    */
-  public static Table ddlutilsFindTable(Database database, String tableName) {
+  public static Table ddlutilsFindTable(Database database, String tableName, boolean exceptionOnNotFound) {
     Table table = database.findTable(tableName);
-    if (table == null) {
+    if (table == null && exceptionOnNotFound) {
       throw new RuntimeException("Cant find table: '" + tableName 
           + "', perhaps you need to rollback your ddl version in the DB and sync up");
     }
@@ -2008,9 +2009,10 @@ public class GrouperDdlUtils {
    * find column, if not exist, throw exception
    * @param table table to get column from
    * @param columnName column name of column (case insensitive)
+   * @param exceptionOnNotFound 
    * @return the column
    */
-  public static Column ddlutilsFindColumn(Table table, String columnName) {
+  public static Column ddlutilsFindColumn(Table table, String columnName, boolean exceptionOnNotFound) {
     Column[] columns = table.getColumns();
     
     for (Column column : GrouperUtil.nonNull(columns, Column.class)) {
@@ -2019,9 +2021,11 @@ public class GrouperDdlUtils {
         return column;
       }
     }
-    
-    throw new RuntimeException("Cant find table: '" + table.getName() 
-        + "' columns: '" + columnName + "', perhaps you need to rollback your ddl version in the DB and sync up");
+    if (exceptionOnNotFound) {
+      throw new RuntimeException("Cant find table: '" + table.getName() 
+          + "' columns: '" + columnName + "', perhaps you need to rollback your ddl version in the DB and sync up");
+    }
+    return null;
   }
   
   /**

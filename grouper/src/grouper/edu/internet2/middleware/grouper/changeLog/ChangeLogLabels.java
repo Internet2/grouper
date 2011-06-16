@@ -963,7 +963,11 @@ public class ChangeLogLabels {
     attributeDefNameName, 
     
     /** action */
-    action;
+    action,
+
+    /** disallowed */
+    disallowed;
+
   }
   
   /**
@@ -993,7 +997,10 @@ public class ChangeLogLabels {
     attributeDefNameName, 
     
     /** action */
-    action;
+    action,
+
+    /** disallowed */
+    disallowed;
   }
   
   /**

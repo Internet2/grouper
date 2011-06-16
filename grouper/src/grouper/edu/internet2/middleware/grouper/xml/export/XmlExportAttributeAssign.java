@@ -166,6 +166,27 @@ public class XmlExportAttributeAssign {
     this.enabled = enabled1;
   }
 
+  /** allowed */
+  private String disallowed;
+
+  /**
+   * allowed
+   * @return allowed
+   */
+  public String getDisallowed() {
+    return this.disallowed;
+  }
+
+
+
+  /**
+   * allowed
+   * @param disallowed1
+   */
+  public void setDisallowed(String disallowed1) {
+    this.disallowed = disallowed1;
+  }
+
   /** enabledTime */
   private String enabledTime;
   
@@ -490,6 +511,7 @@ public class XmlExportAttributeAssign {
   public AttributeAssign toAttributeAssign() {
     AttributeAssign attributeAssign = new AttributeAssign();
     
+    attributeAssign.setDisallowedDb(this.disallowed);
     attributeAssign.setAttributeAssignActionId(this.attributeAssignActionId);
     attributeAssign.setAttributeAssignDelegatableDb(this.attributeAssignDelegatable);
     attributeAssign.setAttributeAssignTypeDb(this.attributeAssignType);

@@ -36,6 +36,9 @@ public class PITAttributeAssign extends GrouperPIT implements Hib3GrouperVersion
   public static final String COLUMN_OWNER_GROUP_ID = "owner_group_id";
 
   /** column */
+  public static final String COLUMN_DISALLOWED = "disallowed";
+
+  /** column */
   public static final String COLUMN_OWNER_STEM_ID = "owner_stem_id";
 
   /** column */
@@ -62,6 +65,9 @@ public class PITAttributeAssign extends GrouperPIT implements Hib3GrouperVersion
   
   /** constant for field name for: contextId */
   public static final String FIELD_CONTEXT_ID = "contextId";
+
+  /** constant for field name for: disallowed */
+  public static final String FIELD_DISALLOWED = "disallowed";
 
   /** constant for field name for: id */
   public static final String FIELD_ID = "id";
@@ -97,7 +103,7 @@ public class PITAttributeAssign extends GrouperPIT implements Hib3GrouperVersion
    * fields which are included in clone method
    */
   private static final Set<String> CLONE_FIELDS = GrouperUtil.toSet(
-      FIELD_CONTEXT_ID, FIELD_HIBERNATE_VERSION_NUMBER, FIELD_ID,
+      FIELD_CONTEXT_ID, FIELD_DISALLOWED, FIELD_HIBERNATE_VERSION_NUMBER, FIELD_ID,
       FIELD_ACTIVE_DB, FIELD_START_TIME_DB, FIELD_END_TIME_DB,
       FIELD_ATTRIBUTE_ASSIGN_ACTION_ID, FIELD_ATTRIBUTE_ASSIGN_TYPE, FIELD_ATTRIBUTE_DEF_NAME_ID,
       FIELD_OWNER_ATTRIBUTE_ASSIGN_ID, FIELD_OWNER_ATTRIBUTE_DEF_ID, FIELD_OWNER_GROUP_ID,
@@ -109,7 +115,7 @@ public class PITAttributeAssign extends GrouperPIT implements Hib3GrouperVersion
    */
   private static final Set<String> DB_VERSION_FIELDS = GrouperUtil.toSet(
       FIELD_ACTIVE_DB, FIELD_ATTRIBUTE_ASSIGN_ACTION_ID, FIELD_ATTRIBUTE_ASSIGN_TYPE, FIELD_ATTRIBUTE_DEF_NAME_ID, 
-      FIELD_CONTEXT_ID, FIELD_END_TIME_DB, FIELD_ID, 
+      FIELD_CONTEXT_ID, FIELD_DISALLOWED, FIELD_END_TIME_DB, FIELD_ID, 
       FIELD_OWNER_ATTRIBUTE_ASSIGN_ID, FIELD_OWNER_ATTRIBUTE_DEF_ID, FIELD_OWNER_GROUP_ID, FIELD_OWNER_MEMBER_ID, 
       FIELD_OWNER_MEMBERSHIP_ID, FIELD_OWNER_STEM_ID, FIELD_START_TIME_DB);
 
@@ -124,6 +130,9 @@ public class PITAttributeAssign extends GrouperPIT implements Hib3GrouperVersion
 
   /** context id ties multiple db changes */
   private String contextId;
+  
+  /** disallowed */
+  private boolean disallowed;
   
   /** if this is an attribute assign attribute, this is the foreign key */
   private String ownerAttributeAssignId;
@@ -177,6 +186,42 @@ public class PITAttributeAssign extends GrouperPIT implements Hib3GrouperVersion
     return GrouperUtil.clone(this, CLONE_FIELDS);
   }
 
+  
+  
+  
+  /**
+   * if permission is disallowed from a wider allow, null means false
+   * @return the disallowed
+   */
+  public boolean isDisallowed() {
+    return this.disallowed;
+  }
+
+  
+  /**
+   * if permission is disallowed from a wider allow, null means false
+   * @param disallowed1 the disallowed to set
+   */
+  public void setDisallowed(boolean disallowed1) {
+    this.disallowed = disallowed1;
+  }
+
+  /**
+   * disallowed for the db string
+   * @return the string
+   */
+  public String getDisallowedDb() {
+    return this.disallowed ? "T" : "F";
+  }
+  
+  /**
+   * disallowed for the db string
+   * @param theDisallowed the string T or F or null
+   */
+  public void setDisallowedDb(String theDisallowed) {
+    this.disallowed = GrouperUtil.booleanValue(theDisallowed, false);
+  }
+  
   /**
    * @return context id
    */

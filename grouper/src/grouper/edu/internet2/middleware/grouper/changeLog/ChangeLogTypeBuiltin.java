@@ -460,7 +460,8 @@ public enum ChangeLogTypeBuiltin implements ChangeLogTypeIdentifier {
       ChangeLogLabels.ATTRIBUTE_ASSIGN_ADD.ownerId1,
       ChangeLogLabels.ATTRIBUTE_ASSIGN_ADD.ownerId2,
       ChangeLogLabels.ATTRIBUTE_ASSIGN_ADD.attributeDefNameName,
-      ChangeLogLabels.ATTRIBUTE_ASSIGN_ADD.action)),
+      ChangeLogLabels.ATTRIBUTE_ASSIGN_ADD.action,
+      ChangeLogLabels.ATTRIBUTE_ASSIGN_ADD.disallowed)),
       
   /**
    * attribute assign delete
@@ -473,7 +474,8 @@ public enum ChangeLogTypeBuiltin implements ChangeLogTypeIdentifier {
       ChangeLogLabels.ATTRIBUTE_ASSIGN_DELETE.ownerId1,
       ChangeLogLabels.ATTRIBUTE_ASSIGN_DELETE.ownerId2,
       ChangeLogLabels.ATTRIBUTE_ASSIGN_DELETE.attributeDefNameName,
-      ChangeLogLabels.ATTRIBUTE_ASSIGN_DELETE.action)),
+      ChangeLogLabels.ATTRIBUTE_ASSIGN_DELETE.action,
+      ChangeLogLabels.ATTRIBUTE_ASSIGN_DELETE.disallowed)),
   
   /**
    * attribute assign value add

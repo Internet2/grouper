@@ -321,6 +321,7 @@ public interface AttributeAssignDAO extends GrouperDAO {
    * @param disabledTimeDb if there are multiple without id match, and this matches, that is good
    * @param enabledTimeDb if there are multiple without id match, this is good
    * @param notes if there are multiple without id match, this is good
+   * @param disallowed if there are multiple without id match, this is good
    * @return the attribute assign or null
    * @throws GrouperDAOException 
    * @since   1.6.0
@@ -328,7 +329,7 @@ public interface AttributeAssignDAO extends GrouperDAO {
   AttributeAssign findByUuidOrKey(Collection<String> idsToIgnore,
       String id, String attributeDefNameId, String attributeAssignActionId, String ownerAttributeAssignId, String ownerAttributeDefId, String ownerGroupId,
       String ownerMemberId, String ownerMembershipId, String ownerStemId, boolean exceptionIfNull, 
-      Long disabledTimeDb, Long enabledTimeDb, String notes) throws GrouperDAOException;
+      Long disabledTimeDb, Long enabledTimeDb, String notes, boolean disallowed) throws GrouperDAOException;
 
   /**
    * @param actionId 
