@@ -289,6 +289,7 @@ public class SyncPITTables {
         pitAttributeAssign.setAttributeDefNameId(assign.getAttributeDefNameId());
         pitAttributeAssign.setAttributeAssignActionId(assign.getAttributeAssignActionId());
         pitAttributeAssign.setAttributeAssignTypeDb(assign.getAttributeAssignTypeDb());
+        pitAttributeAssign.setDisallowedDb(assign.getDisallowedDb());
         pitAttributeAssign.setActiveDb("T");
         pitAttributeAssign.setStartTimeDb(System.currentTimeMillis() * 1000);
         
