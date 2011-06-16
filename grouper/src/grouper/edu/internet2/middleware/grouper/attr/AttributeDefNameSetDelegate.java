@@ -126,7 +126,8 @@ public class AttributeDefNameSetDelegate implements Serializable {
   }
 
   /**
-   * 
+   * for instance if the argument is arts and sciences, and this is all, then calling this will 
+   * allow all to imply arts and sciences
    * @param newAttributeDefName
    * @return true if added, false if already there
    */

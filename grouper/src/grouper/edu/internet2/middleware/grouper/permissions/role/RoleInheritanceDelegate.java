@@ -71,6 +71,7 @@ public class RoleInheritanceDelegate implements Serializable {
 
   /**
    * if a user has this role, then he also inherits permissions from the roleToAdd
+   * for isntance this would be senior admin, and the argument would be admin
    * @param roleToAdd
    * @return true if added, false if already there
    */

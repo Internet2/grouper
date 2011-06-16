@@ -171,7 +171,8 @@ public class AttributeAssignActionSetDelegate implements Serializable {
   }
   
   /**
-   * 
+   * add the param to this's set.  i.e. if this is "all", and the argument is "read", 
+   * then after this call, then all will imply read
    * @param newAttributeAssignAction
    * @return true if added, false if already there
    */

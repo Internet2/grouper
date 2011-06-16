@@ -2264,6 +2264,7 @@ public enum GrouperDdl implements DdlVersionable {
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_perms_all_v");
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_perms_role_v");
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_perms_role_subject_v");
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_perms_assigned_role_v");
     
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_pit_attr_asn_value_v");
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_pit_perms_all_v");
@@ -6551,6 +6552,88 @@ public enum GrouperDdl implements DdlVersionable {
         + "where gmav.owner_attr_def_id = gad.id and gmav.field_id = gf.id "
         + "and gmav.immediate_mship_enabled = 'T' and gmav.member_id = gm.id ");
 
+    GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_perms_assigned_role_v", 
+        "grouper_perms_assigned_role_v: shows all permissions assigned to roles",
+        GrouperUtil.toSet("role_name", 
+            "action", 
+            "attribute_def_name_name",
+            "attribute_def_name_disp_name",
+            "role_display_name",
+            "attribute_assign_delegatable",
+            "enabled",
+            "enabled_time",
+            "disabled_time",
+            "role_id",
+            "attribute_def_id",
+            "attribute_def_name_id",
+            "action_id",
+            "role_set_depth",
+            "attr_def_name_set_depth",
+            "attr_assign_action_set_depth",
+            "attribute_assign_id",
+            "assignment_notes",
+            "disallowed"),
+        GrouperUtil.toSet("role_name: name of the role that the user is in and that has the permission",
+            "action: the action associated with the attribute assignment (default is assign)",
+            "attribute_def_name_name: name of the attribute definition name which is assigned to the group",
+            "attribute_def_name_disp_name: display name of the attribute definition name assigned to the attribute",
+            "role_display_name: display name of role the subject is in, and that the permissions are assigned to",
+            "attribute_assign_delegatable: if this assignment is delegatable or grantable: TRUE, FALSE, GRANT",
+            "enabled: if this assignment is enabled: T, F",
+            "enabled_time: the time (seconds since 1970) that this assignment will be enabled",
+            "disabled_time: the time (seconds since 1970) that this assignment will be disabled",
+            "role_id: id of role the subject is in, and that the permissions are assigned to",
+            "attribute_def_id: id of the attribute definition",
+            "attribute_def_name_id: id of the attribute definition name",
+            "action_id: id of the attribute assign action",
+            "role_set_depth: depth of role hierarchy, 0 is immediate",
+            "attr_def_name_set_depth: depth of attribute def name set hierarchy, 0 is immediate",
+            "attr_assign_action_set_depth: depth of action hierarchy, 0 is immediate",
+            "attribute_assign_id: id of the underlying attribute assign",
+            "assignment_notes: notes on this assignment",
+            "disallowed: if permission is disallowed from a wider allow, null means false"
+        ),
+        "SELECT distinct gr.name AS role_name,  " +
+        "    gaaa.name AS action, " +
+        "    gadn.name AS attribute_def_name_name, " +
+        "    gadn.display_name AS attribute_def_name_disp_name, " +
+        "    gr.display_name AS role_display_name, " +
+        "    gaa.attribute_assign_delegatable,  " +
+        "    gaa.enabled, " +
+        "    gaa.enabled_time,  " +
+        "    gaa.disabled_time,  " +
+        "    gr.ID AS role_id, " +
+        "    gadn.attribute_def_id, " +
+        "    gadn.ID AS attribute_def_name_id,  " +
+        "    gaaa.ID AS action_id, " +
+        "    grs.DEPTH AS role_set_depth, " +
+        "    gadns.DEPTH AS attr_def_name_set_depth, " +
+        "    gaaas.DEPTH AS attr_assign_action_set_depth, " +
+        "    gaa.ID AS attribute_assign_id, " +
+        "    gaa.notes AS assignment_notes, " +
+        "    gaa.disallowed " +
+        "FROM grouper_groups gr, " +
+        "    grouper_role_set grs, " +
+        "    grouper_attribute_def gad, " +
+        "    grouper_attribute_assign gaa, " +
+        "    grouper_attribute_def_name gadn, " +
+        "    grouper_attribute_def_name_set gadns, " +
+        "    grouper_attr_assign_action gaaa, " +
+        "    grouper_attr_assign_action_set gaaas " +
+        "WHERE grs.if_has_role_id = gr.id " +
+        "and gr.type_of_group = 'role'  " +
+        "AND gadn.attribute_def_id = gad.id " +
+        "AND gad.attribute_def_type = 'perm' " +
+        "AND gaa.owner_group_id = grs.then_has_role_id " +
+        "AND gaa.attribute_def_name_id = gadns.if_has_attribute_def_name_id " +
+        "AND gadn.id = gadns.then_has_attribute_def_name_id " +
+        "AND gaa.attribute_assign_type = 'group' " +
+        "AND gaa.attribute_assign_action_id = gaaas.if_has_attr_assn_action_id " +
+        "AND gaaa.id = gaaas.then_has_attr_assn_action_id ");
+
+
+
+    
     GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_perms_role_v", 
         "grouper_perms_role_v: shows all permissions assigned to users due to the users being in a role, and the role being assigned the permission",
         GrouperUtil.toSet("role_name", 
@@ -6649,6 +6732,7 @@ public enum GrouperDdl implements DdlVersionable {
         + "grouper_attr_assign_action_set gaaas "
         + "where gmav.owner_group_id = gr.id  "
         + "and gmav.field_id = gf.id  "
+        + "and gr.type_of_group = 'role' "
         + "and gf.type = 'list'  "
         + "and gf.name = 'members'  "
         + "and gmav.immediate_mship_enabled = 'T'  "
@@ -6763,6 +6847,7 @@ public enum GrouperDdl implements DdlVersionable {
         "grouper_attr_assign_action gaaa,  " +
         "grouper_attr_assign_action_set gaaas  " +
         "WHERE gmav.owner_group_id = gr.id  " +
+        "and gr.type_of_group = 'role' " +
         "and gmav.field_id = gf.id  " +
         "and gmav.owner_group_id = gaa.owner_group_id  " +
         "AND gmav.member_id = gaa.owner_member_id   " +

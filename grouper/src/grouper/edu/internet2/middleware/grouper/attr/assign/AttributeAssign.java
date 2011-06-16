@@ -62,6 +62,7 @@ import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperHasContext;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
+import edu.internet2.middleware.grouper.permissions.PermissionAllowed;
 import edu.internet2.middleware.grouper.rules.RuleCheckType;
 import edu.internet2.middleware.grouper.rules.RuleEngine;
 import edu.internet2.middleware.grouper.rules.beans.RulesPermissionBean;
@@ -1509,38 +1510,38 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
         AttributeAssign ownerAttributeAssign = GrouperDAOFactory.getFactory().getAttributeAssign()
           .findById(this.ownerAttributeAssignId, true);
         attributeAssignResult = ownerAttributeAssign.getAttributeDelegate()
-          .internal_assignAttributeHelper(theAttributeAssignAction.getName(), theAttributeDefName, true, this.id);
+          .internal_assignAttributeHelper(theAttributeAssignAction.getName(), theAttributeDefName, true, this.id, PermissionAllowed.fromDisallowedBoolean(this.disallowed));
         
       } else if (!StringUtils.isBlank(this.ownerAttributeDefId)) {
 
         AttributeDef ownerAttributeDef = GrouperDAOFactory.getFactory().getAttributeDef()
           .findById(this.ownerAttributeDefId, true);
         attributeAssignResult = ownerAttributeDef.getAttributeDelegate()
-          .internal_assignAttributeHelper(theAttributeAssignAction.getName(), theAttributeDefName, true, this.id);
+          .internal_assignAttributeHelper(theAttributeAssignAction.getName(), theAttributeDefName, true, this.id, PermissionAllowed.fromDisallowedBoolean(this.disallowed));
       
       } else if (!StringUtils.isBlank(this.ownerGroupId)) {
 
         Group ownerGroup = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), this.ownerGroupId, true);
         attributeAssignResult = ownerGroup.getAttributeDelegate()
-          .internal_assignAttributeHelper(theAttributeAssignAction.getName(), theAttributeDefName, true, this.id);
+          .internal_assignAttributeHelper(theAttributeAssignAction.getName(), theAttributeDefName, true, this.id, PermissionAllowed.fromDisallowedBoolean(this.disallowed));
         
       } else if (!StringUtils.isBlank(this.ownerMemberId)) {
         
         Member ownerMember = MemberFinder.findByUuid(GrouperSession.staticGrouperSession(), this.ownerMemberId, true);
         attributeAssignResult = ownerMember.getAttributeDelegate()
-          .internal_assignAttributeHelper(theAttributeAssignAction.getName(), theAttributeDefName, true, this.id);
+          .internal_assignAttributeHelper(theAttributeAssignAction.getName(), theAttributeDefName, true, this.id, PermissionAllowed.fromDisallowedBoolean(this.disallowed));
 
       } else if (!StringUtils.isBlank(this.ownerMembershipId)) {
         
         Membership ownerMembership = GrouperDAOFactory.getFactory().getMembership().findByUuid(this.ownerMembershipId, true, false);
         attributeAssignResult = ownerMembership.getAttributeDelegate()
-          .internal_assignAttributeHelper(theAttributeAssignAction.getName(), theAttributeDefName, true, this.id);
+          .internal_assignAttributeHelper(theAttributeAssignAction.getName(), theAttributeDefName, true, this.id, PermissionAllowed.fromDisallowedBoolean(this.disallowed));
 
       } else if (!StringUtils.isBlank(this.ownerStemId)) {
         
         Stem ownerStem = StemFinder.findByUuid(GrouperSession.staticGrouperSession(), this.id, true);
         attributeAssignResult = ownerStem.getAttributeDelegate()
-          .internal_assignAttributeHelper(theAttributeAssignAction.getName(), theAttributeDefName, true, this.id);
+          .internal_assignAttributeHelper(theAttributeAssignAction.getName(), theAttributeDefName, true, this.id, PermissionAllowed.fromDisallowedBoolean(this.disallowed));
 
       } else {
         throw new RuntimeException("Cant find owner: " + this);
@@ -1582,7 +1583,6 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
       throw new RuntimeException();
     }
     XmlExportAttributeAssign xmlExportAttributeAssign = new XmlExportAttributeAssign();
-    xmlExportAttributeAssign.setDisallowed(this.getDisallowedDb());
     xmlExportAttributeAssign.setAttributeAssignActionId(this.getAttributeAssignActionId());
     xmlExportAttributeAssign.setAttributeAssignDelegatable(this.getAttributeAssignDelegatableDb());
     xmlExportAttributeAssign.setAttributeAssignType(this.getAttributeAssignTypeDb());
@@ -1590,6 +1590,7 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
     xmlExportAttributeAssign.setContextId(this.getContextId());
     xmlExportAttributeAssign.setCreateTime(GrouperUtil.dateStringValue(this.getCreatedOnDb()));
     xmlExportAttributeAssign.setDisabledTime(GrouperUtil.dateStringValue(this.getDisabledTimeDb()));
+    xmlExportAttributeAssign.setDisallowed(this.getDisallowedDb());
     xmlExportAttributeAssign.setEnabled(this.getEnabledDb());
     xmlExportAttributeAssign.setEnabledTime(GrouperUtil.dateStringValue(this.getEnabledTimeDb()));
     xmlExportAttributeAssign.setHibernateVersionNumber(this.getHibernateVersionNumber());
@@ -1935,6 +1936,10 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
     
     if (this.dbVersionDifferentFields().contains(FIELD_ATTRIBUTE_ASSIGN_TYPE)) {
       throw new RuntimeException("cannot update attributeAssignType");
+    }
+    
+    if (this.dbVersionDifferentFields().contains(FIELD_DISALLOWED)) {
+      throw new RuntimeException("cannot update disallowed");
     }
     
     if (this.dbVersionDifferentFields().contains(FIELD_OWNER_STEM_ID) ||

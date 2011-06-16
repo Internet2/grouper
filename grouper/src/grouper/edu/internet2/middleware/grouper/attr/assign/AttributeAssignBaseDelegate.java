@@ -20,6 +20,7 @@ import edu.internet2.middleware.grouper.exception.AttributeOwnerNotInScopeExcept
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
+import edu.internet2.middleware.grouper.permissions.PermissionAllowed;
 import edu.internet2.middleware.grouper.permissions.PermissionEntry;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
@@ -427,7 +428,18 @@ public abstract class AttributeAssignBaseDelegate {
    * @return the result including if added or already there
    */
   public AttributeAssignResult assignAttribute(String action, AttributeDefName attributeDefName) {
-    return this.internal_assignAttributeHelper(action, attributeDefName, true, null);
+    return assignAttribute(action, attributeDefName, null);
+
+  }
+  
+  /**
+   * @param action is the action on the assignment (null means default action)
+   * @param attributeDefName
+   * @param permissionAllowed if permission then if allowed or disallowed
+   * @return the result including if added or already there
+   */
+  public AttributeAssignResult assignAttribute(String action, AttributeDefName attributeDefName, PermissionAllowed permissionAllowed) {
+    return this.internal_assignAttributeHelper(action, attributeDefName, true, null, permissionAllowed);
 
   }
 
@@ -436,10 +448,11 @@ public abstract class AttributeAssignBaseDelegate {
    * @param attributeDefName
    * @param checkSecurity
    * @param uuid uuid of the assignment
+   * @param permissionAllowed if permission this is the allowed flag
    * @return the result including if added or already there
    */
   public AttributeAssignResult internal_assignAttributeHelper(String action, 
-      AttributeDefName attributeDefName, boolean checkSecurity, String uuid) {
+      AttributeDefName attributeDefName, boolean checkSecurity, String uuid, PermissionAllowed permissionAllowed) {
     
     AttributeDef attributeDef = attributeDefName.getAttributeDef();
     
@@ -447,6 +460,12 @@ public abstract class AttributeAssignBaseDelegate {
       this.assertCanUpdateAttributeDefName(attributeDefName);
     }
 
+    if (permissionAllowed != null && permissionAllowed.isDisallowed() && !AttributeDefType.perm.equals(attributeDefName.getAttributeDef().getAttributeDefType())) {
+      throw new RuntimeException("Can only assign a permissionAllowed with attributeDefName as perm (permission) type: " 
+          + attributeDefName.getName() + ", " + attributeDefName.getAttributeDef().getAttributeDefType());
+    }
+
+    
     AttributeAssign attributeAssign = retrieveAssignment(action, attributeDefName, false, false);
     
     if (attributeAssign != null) {
@@ -454,6 +473,8 @@ public abstract class AttributeAssignBaseDelegate {
     }
     
     attributeAssign = newAttributeAssign(action, attributeDefName, uuid);
+    
+    attributeAssign.setDisallowed(permissionAllowed == null ? null : permissionAllowed.isDisallowed());
     
     if (StringUtils.isBlank(attributeAssign.getAttributeAssignActionId())) {
       attributeAssign.setAttributeAssignActionId(attributeDef
@@ -666,7 +687,7 @@ public abstract class AttributeAssignBaseDelegate {
           //do the same thing that an assign would do
           //do this as root since the user who can delegate might not be able to assign...
           AttributeAssignResult attributeAssignResult2 = AttributeAssignBaseDelegate
-          .this.internal_assignAttributeHelper(action, attributeDefName, false, null);
+          .this.internal_assignAttributeHelper(action, attributeDefName, false, null, null);
           
           if (attributeAssignDelegateOptions != null) {
             

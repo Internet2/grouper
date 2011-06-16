@@ -44,9 +44,22 @@ public class PermissionRoleDelegate implements Serializable {
    * and any role in the roleSet directed graph will also get the permission
    * @param attributeDefName
    * @return if new, and the assignment
+   * @deprecated use assignRolePermission(attributeDefName, permissionAllowed) instead, will be removed some time after 2.0
    */
+  @Deprecated
   public AttributeAssignResult assignRolePermission(AttributeDefName attributeDefName) {
-    return this.assignRolePermission(null, attributeDefName);
+    return this.assignRolePermission(attributeDefName, PermissionAllowed.ALLOWED);
+  }
+  
+  /**
+   * add a permission to a role, which means that any subject in the role will get this permission, 
+   * and any role in the roleSet directed graph will also get the permission
+   * @param attributeDefName
+   * @param permissionAllowed
+   * @return if new, and the assignment
+   */
+  public AttributeAssignResult assignRolePermission(AttributeDefName attributeDefName, PermissionAllowed permissionAllowed) {
+    return this.assignRolePermission(null, attributeDefName, permissionAllowed);
   }
   
   /**
@@ -80,10 +93,23 @@ public class PermissionRoleDelegate implements Serializable {
    * @param attributeDefName
    * @param subject 
    * @return if new, and the assignment
+   * @deprecated use assignSubjectRolePermission(attributeDefName, subject, permissionAllowed) will be removed some time after 2.0
    */
+  @Deprecated
   public AttributeAssignResult assignSubjectRolePermission(AttributeDefName attributeDefName, Subject subject) {
+    return assignSubjectRolePermission(attributeDefName, subject, PermissionAllowed.ALLOWED);
+  }
+  
+  /**
+   * add a permission to a role / subject pair (effective membership)
+   * @param attributeDefName
+   * @param subject 
+   * @param permissionAllowed
+   * @return if new, and the assignment
+   */
+  public AttributeAssignResult assignSubjectRolePermission(AttributeDefName attributeDefName, Subject subject, PermissionAllowed permissionAllowed) {
     Member member = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), subject, true);
-    return assignSubjectRolePermission(null, attributeDefName, member);
+    return assignSubjectRolePermission(null, attributeDefName, member, permissionAllowed);
   }
   
   /**
@@ -104,13 +130,27 @@ public class PermissionRoleDelegate implements Serializable {
    * @param action is the action on the assignment (e.g. read, write, assign (default))
    * @param attributeDefName
    * @return if new, and the assignment
+   * @deprecated use assignRolePermission(action, attributeDefName, permissionAllowed), will remove this some time after 2.0
    */
+  @Deprecated
   public AttributeAssignResult assignRolePermission(String action, AttributeDefName attributeDefName) {
+    return assignRolePermission(action, attributeDefName, PermissionAllowed.ALLOWED);
+  }
+
+  /**
+   * add a permission to a role, which means that any subject in the role will get this permission, 
+   * and any role in the roleSet directed graph will also get the permission
+   * @param action is the action on the assignment (e.g. read, write, assign (default))
+   * @param attributeDefName
+   * @param permissionAllowed allowed or disallowed
+   * @return if new, and the assignment
+   */
+  public AttributeAssignResult assignRolePermission(String action, AttributeDefName attributeDefName, PermissionAllowed permissionAllowed) {
     if (!AttributeDefType.perm.equals(attributeDefName.getAttributeDef().getAttributeDefType())) {
-      throw new RuntimeException("Cant only assign a permission with attributeDefName as perm (permission) type: " 
+      throw new RuntimeException("Can only assign a permission with attributeDefName as perm (permission) type: " 
           + attributeDefName.getName() + ", " + attributeDefName.getAttributeDef().getAttributeDefType());
     }
-    return this.group.getAttributeDelegate().assignAttribute(action, attributeDefName);
+    return this.group.getAttributeDelegate().assignAttribute(action, attributeDefName, permissionAllowed);
   }
 
   /**
@@ -119,10 +159,25 @@ public class PermissionRoleDelegate implements Serializable {
    * @param attributeDefName
    * @param subject 
    * @return if new, and the assignment
+   * @deprecated use assignSubjectRolePermission(action, attributeDefName, subject, permissionAllowed) instead
    */
+  @Deprecated
   public AttributeAssignResult assignSubjectRolePermission(String action, AttributeDefName attributeDefName, Subject subject) {
+    return assignSubjectRolePermission(action, attributeDefName, subject, PermissionAllowed.ALLOWED);
+  }
+  
+  /**
+   * add a permission to a role / subject pair (effective membership)
+   * @param action is the action on the assignment (e.g. read, write, assign (default))
+   * @param attributeDefName
+   * @param subject 
+   * @param permissionAllowed 
+   * @return if new, and the assignment
+   */
+  public AttributeAssignResult assignSubjectRolePermission(String action, 
+      AttributeDefName attributeDefName, Subject subject, PermissionAllowed permissionAllowed) {
     Member member = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), subject, true);
-    return assignSubjectRolePermission(action, attributeDefName, member);
+    return assignSubjectRolePermission(action, attributeDefName, member, permissionAllowed);
   }
 
   /**
@@ -153,9 +208,24 @@ public class PermissionRoleDelegate implements Serializable {
    * @param attributeDefName
    * @param member 
    * @return if new, and the assignment
+   * @deprecated use assignSubjectRolePermission(attributeDefName, member, permissionAllowed) will be removed some time after 2.0
    */
+  @Deprecated
   public AttributeAssignResult assignSubjectRolePermission(AttributeDefName attributeDefName, Member member) {
-    return assignSubjectRolePermission(null, attributeDefName, member);
+    
+    return assignSubjectRolePermission(attributeDefName, member, PermissionAllowed.ALLOWED);
+    
+  }
+  
+  /**
+   * add a permission to a role / subject pair (effective membership)
+   * @param attributeDefName
+   * @param member 
+   * @param permissionAllowed 
+   * @return if new, and the assignment
+   */
+  public AttributeAssignResult assignSubjectRolePermission(AttributeDefName attributeDefName, Member member, PermissionAllowed permissionAllowed) {
+    return assignSubjectRolePermission(null, attributeDefName, member, permissionAllowed);
   }
 
   /**
@@ -164,13 +234,28 @@ public class PermissionRoleDelegate implements Serializable {
    * @param attributeDefName
    * @param member 
    * @return if new, and the assignment
+   * @deprecated use assignSubjectRolePermission(action, attributeDefName, member, permissionAllowed) will be removed some time after 2.0
    */
+  @Deprecated
   public AttributeAssignResult assignSubjectRolePermission(String action, AttributeDefName attributeDefName, Member member) {
+    return assignSubjectRolePermission(action, attributeDefName, member, PermissionAllowed.ALLOWED);
+  }
+  
+  /**
+   * add a permission to a role / subject pair (effective membership)
+   * @param action is the action on the assignment (e.g. read, write, assign (default))
+   * @param attributeDefName
+   * @param member 
+   * @param permissionAllowed 
+   * @return if new, and the assignment
+   */
+  public AttributeAssignResult assignSubjectRolePermission(String action, AttributeDefName attributeDefName, 
+      Member member, PermissionAllowed permissionAllowed) {
     if (!AttributeDefType.perm.equals(attributeDefName.getAttributeDef().getAttributeDefType())) {
       throw new RuntimeException("Cant only assign a permission with attributeDefName as perm (permission) type: " 
           + attributeDefName.getName() + ", " + attributeDefName.getAttributeDef().getAttributeDefType());
     }
-    return this.group.getAttributeDelegateEffMship(member).assignAttribute(action, attributeDefName);
+    return this.group.getAttributeDelegateEffMship(member).assignAttribute(action, attributeDefName, permissionAllowed);
   }
 
   /**
