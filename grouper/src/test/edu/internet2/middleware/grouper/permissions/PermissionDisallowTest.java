@@ -4,6 +4,11 @@
  */
 package edu.internet2.middleware.grouper.permissions;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+
 import junit.textui.TestRunner;
 import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GrouperSession;
@@ -36,7 +41,7 @@ public class PermissionDisallowTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new PermissionDisallowTest("testNotChangeDisallow"));
+    TestRunner.run(new PermissionDisallowTest("testVariousRoleAssignments"));
   }
 
   /**
@@ -95,6 +100,18 @@ public class PermissionDisallowTest extends GrouperTest {
   
   /** english */
   private AttributeDefName all;
+
+  /** read */
+  private String readString = "read";
+  
+  /** write */
+  private String writeString = "write";
+  
+  /** readWrite */
+  private String readWriteString = "readWrite";
+  
+  /** admin */
+  private String adminString = "admin";
   
   /**
    * 
@@ -146,10 +163,11 @@ public class PermissionDisallowTest extends GrouperTest {
 
     this.permissionDef.getAttributeDefActionDelegate().configureActionList("read, write, readWrite, admin");
     
-    AttributeAssignAction read = this.permissionDef.getAttributeDefActionDelegate().findAction("read", true);
-    AttributeAssignAction write = this.permissionDef.getAttributeDefActionDelegate().findAction("write", true);
-    AttributeAssignAction readWrite = this.permissionDef.getAttributeDefActionDelegate().findAction("readWrite", true);
-    AttributeAssignAction admin = this.permissionDef.getAttributeDefActionDelegate().findAction("admin", true);
+    
+    AttributeAssignAction read = this.permissionDef.getAttributeDefActionDelegate().findAction(this.readString, true);
+    AttributeAssignAction write = this.permissionDef.getAttributeDefActionDelegate().findAction(this.writeString, true);
+    AttributeAssignAction readWrite = this.permissionDef.getAttributeDefActionDelegate().findAction(this.readWriteString, true);
+    AttributeAssignAction admin = this.permissionDef.getAttributeDefActionDelegate().findAction(this.adminString, true);
     
     readWrite.getAttributeAssignActionSetDelegate().addToAttributeAssignActionSet(read);
     readWrite.getAttributeAssignActionSetDelegate().addToAttributeAssignActionSet(write);
@@ -177,11 +195,11 @@ public class PermissionDisallowTest extends GrouperTest {
   public void testVariousRoleAssignments() {
     
     //Role<Admin> allows: Action<Read> of Resource<Arts and sciences>
-    this.admin.getPermissionRoleDelegate().assignRolePermission("read", this.artsAndSciences, PermissionAllowed.ALLOWED);
+    this.admin.getPermissionRoleDelegate().assignRolePermission(this.readString, this.artsAndSciences, PermissionAllowed.ALLOWED);
     
     //
     //Role<User> denies: Action<Read> of Resource<Arts and sciences>
-    this.user.getPermissionRoleDelegate().assignRolePermission("read", this.artsAndSciences, PermissionAllowed.ALLOWED);
+    this.user.getPermissionRoleDelegate().assignRolePermission(this.readString, this.artsAndSciences, PermissionAllowed.ALLOWED);
 
     //
     //User subj0 is assigned Role<Admin> and Role<User>
@@ -196,6 +214,38 @@ public class PermissionDisallowTest extends GrouperTest {
     //If the application supports users acting as a certain role instead of flattening all permissions into one 
     //permissions set (i.e. ability to elevate permissions), then as a User, jsmith cannot Read Arts and Sciences, 
     //but as an Admin, jsmith can Read Arts and Sciences
+    
+    assertFalse("wrong subject", PermissionFinder.hasPermission(SubjectTestHelper.SUBJ1, this.admin, this.english, this.readString));
+    assertTrue("inherits from arts and sciences", PermissionFinder.hasPermission(SubjectTestHelper.SUBJ0, this.english, this.readString));
+    assertTrue("inherits from arts and sciences", PermissionFinder.hasPermission(SubjectTestHelper.SUBJ0, this.admin, this.english, this.readString));
+    assertTrue("inherits from arts and sciences", PermissionFinder.hasPermission(SubjectTestHelper.SUBJ0, this.user, this.english, this.readString));
+    assertFalse("wrong role", PermissionFinder.hasPermission(SubjectTestHelper.SUBJ0, this.seniorAdmin, this.english, this.readString));
+    assertTrue("is arts and sciences", PermissionFinder.hasPermission(SubjectTestHelper.SUBJ0, this.admin, this.artsAndSciences, this.readString));
+    assertFalse("wrong permission", PermissionFinder.hasPermission(SubjectTestHelper.SUBJ0, this.admin, this.electricalEngineering, this.readString));
+    assertFalse("wrong action", PermissionFinder.hasPermission(SubjectTestHelper.SUBJ0, this.admin, this.english, this.readWriteString));
+    
+    
+//    Set<PermissionEntry> permissionEntriesSet = GrouperDAOFactory.getFactory().getPermissionEntry().findPermissions(
+//        GrouperUtil.toSet(attributeDef.getId()), null, null, null, null, null);
+//    List<PermissionEntry> permissionEntriesList = new ArrayList<PermissionEntry>(permissionEntriesSet);
+//    Collections.sort(permissionEntriesList);
+//    System.out.println("\n\n");
+//    for (PermissionEntry permissionEntry : permissionEntriesList) {
+//      System.out.println("    permissionEntry = PermissionEntry.collectionFindFirst(permissionEntriesList, \"" 
+//          + permissionEntry.getRoleName() + "\", \"" + permissionEntry.getAttributeDefNameName() + "\", \"" 
+//          + permissionEntry.getAction() + "\", \"" + permissionEntry.getSubjectSourceId() + "\", \""
+//          + permissionEntry.getSubjectId() + "\", \"" + permissionEntry.getPermissionTypeDb() + "\");");
+//      System.out.println("    assertPermission(permissionEntry, \"" 
+//          + permissionEntry.getPermissionTypeDb() + "\", " + permissionEntry.isImmediateMembership() + ", " 
+//          + permissionEntry.isImmediatePermission() + ", " + permissionEntry.getMembershipDepth() + ", " 
+//          + permissionEntry.getRoleSetDepth() + ", " + permissionEntry.getAttributeAssignActionSetDepth()
+//          + ", " + permissionEntry.getAttributeDefNameSetDepth() + ");\n");
+//      
+//    }
+//    permissionEntry = PermissionEntry.collectionFindFirst(permissionEntriesList, "top:roleChild", "top:attrDefNameChild", "actionChild", "jdbc", "test.subject.3", "role");
+//    assertPermission(permissionEntry, "role", true, false, 0, 1, 1, 1);
+
+    
     
   }
   
