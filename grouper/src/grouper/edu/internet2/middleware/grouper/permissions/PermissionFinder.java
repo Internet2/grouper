@@ -4,6 +4,7 @@
  */
 package edu.internet2.middleware.grouper.permissions;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -33,6 +34,88 @@ public class PermissionFinder {
    */
   public static boolean hasPermission(Subject subject, AttributeDefName permissionName, String action) {
     return hasPermission(subject, (Set<Role>)null, permissionName, action);
+  }
+
+  /**
+   * find a list of permissions
+   * @param subject
+   * @param roles
+   * @param permissionName
+   * @param action
+   * @param permissionProcessor maybe process the results
+   * @return the set of permissions never null
+   */
+  public static Set<PermissionEntry> findPermissions(Subject subject, Set<Role> roles, AttributeDefName permissionName, String action, PermissionProcessor permissionProcessor) {
+    
+    if (subject == null) {
+      throw new RuntimeException("Subject is required");
+    }
+    
+    if (permissionName == null) {
+      throw new RuntimeException("PermissionName is required");
+    }
+    
+    if (StringUtils.isBlank(action)) {
+      throw new RuntimeException("Action is required");
+    }
+    
+    Member member = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), subject, false);
+    
+    if (member == null) {
+      //subject isnt a member, thus there are no permissions
+      return new HashSet<PermissionEntry>();
+    }
+    
+    Set<String> roleIds = null;
+
+    if (GrouperUtil.length(roles) > 0) {
+      roleIds = new HashSet<String>();
+      for (Role role : roles) {
+        roleIds.add(role.getId());
+      }
+    }
+    
+    Set<PermissionEntry> permissions = findPermissions(null, 
+        GrouperUtil.toSet(permissionName.getId()), roleIds, 
+        GrouperUtil.toSet(action), true, GrouperUtil.toSet(member.getUuid()), permissionProcessor);
+
+    return permissions;
+  }
+
+  /**
+   * find a list of permissions
+   * @param attributeDefIds 
+   * @param attributeDefNameIds 
+   * @param roleIds 
+   * @param actions 
+   * @param enabled 
+   * @param memberIds 
+   * @param permissionProcessor if picking the best one or something
+   * @return the set of permissions never null
+   */
+  public static Set<PermissionEntry> findPermissions(
+      Collection<String> attributeDefIds, 
+      Collection<String> attributeDefNameIds,
+      Collection<String> roleIds, 
+      Collection<String> actions, 
+      Boolean enabled,
+      Collection<String> memberIds, PermissionProcessor permissionProcessor) {
+
+    if (permissionProcessor != null && (enabled == null || !enabled)) {
+      throw new RuntimeException("You cannot process the permissions " +
+      		"(FILTER_REDUNDANT_PERMISSIONS || FILTER_REUNDANT_PERMISSIONS_AND_ROLES) " +
+      		"without looking for enabled permissions only");
+    }
+
+    Set<PermissionEntry> permissionEntries = GrouperDAOFactory.getFactory().getPermissionEntry().findPermissions(
+        attributeDefIds, attributeDefNameIds, roleIds, actions, enabled, memberIds);
+
+    //if size is one, there arent redundancies to process
+    if (permissionProcessor != null) {
+      permissionProcessor.processPermissions(permissionEntries);
+    }
+    return permissionEntries;
+    
   }
 
   /**
@@ -73,14 +156,11 @@ public class PermissionFinder {
     }
     
     //get all the permissions for this user in these roles
-    Set<PermissionEntry> permissionEntriesSet = GrouperDAOFactory.getFactory().getPermissionEntry().findPermissions(
-        null, GrouperUtil.toSet(permissionName.getId()), roleIds, GrouperUtil.toSet(action), true, GrouperUtil.toSet(member.getUuid()));
+    Set<PermissionEntry> permissionEntriesSet = findPermissions(
+        null, GrouperUtil.toSet(permissionName.getId()), roleIds, GrouperUtil.toSet(action), true, GrouperUtil.toSet(member.getUuid()), PermissionProcessor.FILTER_REDUNDANT_PERMISSIONS_AND_ROLES);
     
     //we have the permissions, was anything returned?
-    return permissionEntriesSet.size() > 0;
-    
-    //TODO filter out the disallows
-    
+    return permissionEntriesSet.size() == 0 ? false : !permissionEntriesSet.iterator().next().isDisallowed();
     
   }
 

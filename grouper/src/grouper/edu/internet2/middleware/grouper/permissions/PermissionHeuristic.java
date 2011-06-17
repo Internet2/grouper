@@ -411,6 +411,7 @@ public class PermissionHeuristic {
   
   /**
    * max depth in grouper
+   * @return max depth
    */
   static int maxDepth() {
     if (maxDepth == -1) {
@@ -461,7 +462,7 @@ public class PermissionHeuristic {
     }
     
     //if allow, add one
-    if (permissionEntry.isAllowed()) {
+    if (!permissionEntry.isDisallowed()) {
       result += 1;
     }
     

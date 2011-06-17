@@ -56,6 +56,7 @@
     <property name="assignmentNotes" column="assignment_notes"/>
     <property name="immediateMshipEnabledTimeDb" column="immediate_mship_enabled_time"/>
     <property name="immediateMshipDisabledTimeDb" column="immediate_mship_disabled_time"/>
+    <property name="disallowedDb" column="disallowed"/>
 
   </class>
 </hibernate-mapping>

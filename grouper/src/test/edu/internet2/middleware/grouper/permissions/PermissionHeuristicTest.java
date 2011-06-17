@@ -142,7 +142,7 @@ public class PermissionHeuristicTest extends TestCase {
         permissionEntry.setAttributeAssignActionSetDepth(30);
         permissionEntry.setAttributeDefNameSetDepth(30);
         permissionEntry.setRoleSetDepth(30);
-        permissionEntry.setAllowed(false);
+        permissionEntry.setDisallowed(true);
         permissionEntry.setEnabled(true);
         long score = PermissionHeuristic.computePermissionHeuristic(permissionEntry);
         assertEquals(0, score);
@@ -159,7 +159,7 @@ public class PermissionHeuristicTest extends TestCase {
         permissionEntry.setRoleSetDepth(30);
         permissionEntry.setAttributeDefNameSetDepth(30);
         permissionEntry.setAttributeAssignActionSetDepth(30);
-        permissionEntry.setAllowed(true);
+        permissionEntry.setDisallowed(false);
         permissionEntry.setEnabled(true);
         long score = PermissionHeuristic.computePermissionHeuristic(permissionEntry);
         assertEquals(1, score);
@@ -177,7 +177,7 @@ public class PermissionHeuristicTest extends TestCase {
         permissionEntry.setRoleSetDepth(30);
         permissionEntry.setAttributeDefNameSetDepth(30);
         permissionEntry.setAttributeAssignActionSetDepth(29);
-        permissionEntry.setAllowed(true);
+        permissionEntry.setDisallowed(false);
         permissionEntry.setEnabled(true);
         long score = PermissionHeuristic.computePermissionHeuristic(permissionEntry);
         assertEquals(3, score);
@@ -197,7 +197,7 @@ public class PermissionHeuristicTest extends TestCase {
         permissionEntry.setRoleSetDepth(30);
         permissionEntry.setAttributeDefNameSetDepth(30);
         permissionEntry.setAttributeAssignActionSetDepth(28);
-        permissionEntry.setAllowed(true);
+        permissionEntry.setDisallowed(false);
         permissionEntry.setEnabled(true);
         long score = PermissionHeuristic.computePermissionHeuristic(permissionEntry);
         assertEquals(5, score);
@@ -218,7 +218,7 @@ public class PermissionHeuristicTest extends TestCase {
         permissionEntry.setRoleSetDepth(30);
         permissionEntry.setAttributeDefNameSetDepth(30);
         permissionEntry.setAttributeAssignActionSetDepth(0);
-        permissionEntry.setAllowed(true);
+        permissionEntry.setDisallowed(false);
         permissionEntry.setEnabled(true);
         long score = PermissionHeuristic.computePermissionHeuristic(permissionEntry);
         assertEquals(61, score);
@@ -238,7 +238,7 @@ public class PermissionHeuristicTest extends TestCase {
         permissionEntry.setRoleSetDepth(30);
         permissionEntry.setAttributeDefNameSetDepth(30);
         permissionEntry.setAttributeAssignActionSetDepth(0);
-        permissionEntry.setAllowed(false);
+        permissionEntry.setDisallowed(true);
         permissionEntry.setEnabled(true);
         long score = PermissionHeuristic.computePermissionHeuristic(permissionEntry);
         assertEquals(60, score);
@@ -256,7 +256,7 @@ public class PermissionHeuristicTest extends TestCase {
         permissionEntry.setRoleSetDepth(30);
         permissionEntry.setAttributeDefNameSetDepth(29);
         permissionEntry.setAttributeAssignActionSetDepth(30);
-        permissionEntry.setAllowed(false);
+        permissionEntry.setDisallowed(true);
         permissionEntry.setEnabled(true);
         long score = PermissionHeuristic.computePermissionHeuristic(permissionEntry);
         assertEquals(120, score);
@@ -275,7 +275,7 @@ public class PermissionHeuristicTest extends TestCase {
         permissionEntry.setRoleSetDepth(30);
         permissionEntry.setAttributeDefNameSetDepth(29);
         permissionEntry.setAttributeAssignActionSetDepth(30);
-        permissionEntry.setAllowed(true);
+        permissionEntry.setDisallowed(false);
         permissionEntry.setEnabled(true);
         long score = PermissionHeuristic.computePermissionHeuristic(permissionEntry);
         assertEquals(121, score);
@@ -294,7 +294,7 @@ public class PermissionHeuristicTest extends TestCase {
         permissionEntry.setRoleSetDepth(30);
         permissionEntry.setAttributeDefNameSetDepth(0);
         permissionEntry.setAttributeAssignActionSetDepth(30);
-        permissionEntry.setAllowed(true);
+        permissionEntry.setDisallowed(false);
         permissionEntry.setEnabled(true);
         long score = PermissionHeuristic.computePermissionHeuristic(permissionEntry);
         assertEquals(3601, score);
@@ -314,7 +314,7 @@ public class PermissionHeuristicTest extends TestCase {
         permissionEntry.setRoleSetDepth(30);
         permissionEntry.setAttributeDefNameSetDepth(0);
         permissionEntry.setAttributeAssignActionSetDepth(30);
-        permissionEntry.setAllowed(false);
+        permissionEntry.setDisallowed(true);
         permissionEntry.setEnabled(true);
         long score = PermissionHeuristic.computePermissionHeuristic(permissionEntry);
         assertEquals(3600, score);
@@ -332,7 +332,7 @@ public class PermissionHeuristicTest extends TestCase {
         permissionEntry.setRoleSetDepth(30);
         permissionEntry.setAttributeDefNameSetDepth(0);
         permissionEntry.setAttributeAssignActionSetDepth(29);
-        permissionEntry.setAllowed(false);
+        permissionEntry.setDisallowed(true);
         permissionEntry.setEnabled(true);
         long score = PermissionHeuristic.computePermissionHeuristic(permissionEntry);
         assertEquals(3602, score);
@@ -353,7 +353,7 @@ public class PermissionHeuristicTest extends TestCase {
         permissionEntry.setRoleSetDepth(29);
         permissionEntry.setAttributeDefNameSetDepth(30);
         permissionEntry.setAttributeAssignActionSetDepth(30);
-        permissionEntry.setAllowed(false);
+        permissionEntry.setDisallowed(true);
         permissionEntry.setEnabled(true);
         long score = PermissionHeuristic.computePermissionHeuristic(permissionEntry);
         assertEquals(14400, score);
@@ -372,7 +372,7 @@ public class PermissionHeuristicTest extends TestCase {
         permissionEntry.setRoleSetDepth(29);
         permissionEntry.setAttributeDefNameSetDepth(30);
         permissionEntry.setAttributeAssignActionSetDepth(30);
-        permissionEntry.setAllowed(true);
+        permissionEntry.setDisallowed(false);
         permissionEntry.setEnabled(true);
         long score = PermissionHeuristic.computePermissionHeuristic(permissionEntry);
         assertEquals(14401, score);
@@ -392,7 +392,7 @@ public class PermissionHeuristicTest extends TestCase {
         permissionEntry.setRoleSetDepth(29);
         permissionEntry.setAttributeDefNameSetDepth(29);
         permissionEntry.setAttributeAssignActionSetDepth(29);
-        permissionEntry.setAllowed(true);
+        permissionEntry.setDisallowed(false);
         permissionEntry.setEnabled(true);
         long score = PermissionHeuristic.computePermissionHeuristic(permissionEntry);
         assertEquals(14523, score);
@@ -416,7 +416,7 @@ public class PermissionHeuristicTest extends TestCase {
         permissionEntry.setRoleSetDepth(0);
         permissionEntry.setAttributeDefNameSetDepth(30);
         permissionEntry.setAttributeAssignActionSetDepth(30);
-        permissionEntry.setAllowed(true);
+        permissionEntry.setDisallowed(false);
         permissionEntry.setEnabled(true);
         long score = PermissionHeuristic.computePermissionHeuristic(permissionEntry);
         assertEquals(432001, score);
@@ -436,7 +436,7 @@ public class PermissionHeuristicTest extends TestCase {
         permissionEntry.setRoleSetDepth(0);
         permissionEntry.setAttributeDefNameSetDepth(0);
         permissionEntry.setAttributeAssignActionSetDepth(0);
-        permissionEntry.setAllowed(true);
+        permissionEntry.setDisallowed(false);
         permissionEntry.setEnabled(true);
         long score = PermissionHeuristic.computePermissionHeuristic(permissionEntry);
         assertEquals(867661, score);
@@ -459,7 +459,7 @@ public class PermissionHeuristicTest extends TestCase {
         permissionEntry.setRoleSetDepth(0);
         permissionEntry.setAttributeDefNameSetDepth(0);
         permissionEntry.setAttributeAssignActionSetDepth(0);
-        permissionEntry.setAllowed(false);
+        permissionEntry.setDisallowed(true);
         permissionEntry.setEnabled(true);
         long score = PermissionHeuristic.computePermissionHeuristic(permissionEntry);
         assertEquals(867660, score);

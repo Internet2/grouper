@@ -6,6 +6,8 @@ package edu.internet2.middleware.grouper.permissions;
 
 import java.sql.Timestamp;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
@@ -36,52 +38,44 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 public class PermissionEntry extends GrouperAPI implements Comparable<PermissionEntry> {
 
   /**
-   * if internal heuristic is not set, set it
+   * if internal heuristic is not set, set it, order by so most important as at top...
    * @param permissionEntries
    */
   public static void orderByAndSetFriendlyHeuristic(List<PermissionEntry> permissionEntries) {
-    if (permissionEntries == null) {
+    if (GrouperUtil.length(permissionEntries) <= 1) {
       return;
     }
     
     for (PermissionEntry permissionEntry : permissionEntries) {
-      if (permissionEntry.getPermissionHeuristics() == null) {
-        PermissionHeuristics permissionHeuristics = new PermissionHeuristics();
+      PermissionHeuristics permissionHeuristics = permissionEntry.getPermissionHeuristics();
+      if (permissionHeuristics == null) {
+        permissionHeuristics = new PermissionHeuristics();
         permissionEntry.setPermissionHeuristics(permissionHeuristics);
       }
-      if (permissionEntry.getPermissionHeuristics().getInternalScore() == -1) {
+      if (permissionHeuristics.getInternalScore() == -1) {
         long internalScore = PermissionHeuristic.computePermissionHeuristic(permissionEntry);
-        permissionEntry.getPermissionHeuristics().setInternalScore(internalScore);
+        permissionHeuristics.setInternalScore(internalScore);
       }
     }
+    
+    Collections.sort(permissionEntries, new Comparator<PermissionEntry>() {
+
+      public int compare(PermissionEntry o1, PermissionEntry o2) {
+        PermissionHeuristics permissionHeuristics1 = o1.getPermissionHeuristics();
+        PermissionHeuristics permissionHeuristics2 = o2.getPermissionHeuristics();
+        
+        Long score1 = permissionHeuristics1.getInternalScore();
+        Long score2 = permissionHeuristics2.getInternalScore();
+        
+        return score2.compareTo(score1);
+      }
+
+    });
     
   }
   
 
   
-  /** if allowed */
-  private boolean allowed;
-  
-  /**
-   * if this assignment is allowed
-   * @return true
-   */
-  public boolean isAllowed() {
-    return this.allowed;
-  }
-  
-  
-  
-  /**
-   * if this assignment is allowed
-   * @param allowed1
-   */
-  public void setAllowed(boolean allowed1) {
-    this.allowed = allowed1;
-  }
-
-
-
   /** notes on the assignment of privilege */
   private String assignmentNotes;
   
@@ -969,6 +963,11 @@ public class PermissionEntry extends GrouperAPI implements Comparable<Permission
   private String attributeAssignId;
 
   /**
+   * if this is a permission, then if this permission assignment is allowed or not 
+   */
+  private boolean disallowed = false;
+
+  /**
    * id of the membership row
    * @return id of the membership row
    */
@@ -1082,6 +1081,38 @@ public class PermissionEntry extends GrouperAPI implements Comparable<Permission
       return compare;
     }
     return GrouperUtil.compare(this.attributeAssignId, o2.attributeAssignId);
+  }
+
+  /**
+   * if this is a permission, then if this permission assignment is allowed or not 
+   * @return the allowed
+   */
+  public String getDisallowedDb() {
+    return this.disallowed ? "T" : "F";
+  }
+
+  /**
+   * if this is a permission, then if this permission assignment is allowed or not 
+   * @return if allowed
+   */
+  public boolean isDisallowed() {
+    return this.disallowed;
+  }
+
+  /**
+   * if this is a permission, then if this permission assignment is allowed or not 
+   * @param disallowed1 the allowed to set
+   */
+  public void setDisallowed(boolean disallowed1) {
+    this.disallowed = disallowed1;
+  }
+
+  /**
+   * if this is a permission, then if this permission assignment is allowed or not 
+   * @param disallowed1 the allowed to set
+   */
+  public void setDisallowedDb(String disallowed1) {
+    this.disallowed = GrouperUtil.booleanValue(disallowed1, false);
   }
   
 }

@@ -69,7 +69,7 @@ public class PermissionHeuristics {
   /**
    * internal score will be a number which signifies how important, and can go back
    */
-  private long internalScore;
+  private long internalScore = -1;
 
   /**
    * internal score will be a number which signifies how important, and can go back
