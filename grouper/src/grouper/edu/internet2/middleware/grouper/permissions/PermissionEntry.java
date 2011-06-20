@@ -42,7 +42,7 @@ public class PermissionEntry extends GrouperAPI implements Comparable<Permission
    * @param permissionEntries
    */
   public static void orderByAndSetFriendlyHeuristic(List<PermissionEntry> permissionEntries) {
-    if (GrouperUtil.length(permissionEntries) <= 1) {
+    if (GrouperUtil.length(permissionEntries) < 1) {
       return;
     }
     
@@ -71,6 +71,28 @@ public class PermissionEntry extends GrouperAPI implements Comparable<Permission
       }
 
     });
+    
+    int previousFriendlyScore = 0;
+    long previousHeuristic = -1;
+    for (PermissionEntry permissionEntry : permissionEntries) {
+      PermissionHeuristics permissionHeuristics = permissionEntry.getPermissionHeuristics();
+      if (previousHeuristic == -1) {
+        permissionHeuristics.setFriendlyScore(1);
+      } else {
+        //if equal then same score
+        if (permissionHeuristics.getInternalScore() == previousHeuristic) {
+          permissionHeuristics.setFriendlyScore(previousFriendlyScore);
+        } else {
+          permissionHeuristics.setFriendlyScore(previousFriendlyScore + 1);
+        }
+      }
+      
+      
+      previousFriendlyScore = permissionHeuristics.getFriendlyScore();
+      previousHeuristic = permissionHeuristics.getInternalScore();
+      
+      
+    }
     
   }
   
@@ -996,7 +1018,7 @@ public class PermissionEntry extends GrouperAPI implements Comparable<Permission
     }
     //role set can be -1, if role subject assignment
     if (this.roleSetDepth < -1) {
-      throw new RuntimeException("Why is role depth not initialized??? " + this.membershipDepth );
+      throw new RuntimeException("Why is role depth not initialized??? " + this.roleSetDepth );
     }
     if (this.attributeDefNameSetDepth < 0) {
       throw new RuntimeException("Why is attribute def name set depth not initialized??? " + this.attributeDefNameSetDepth );

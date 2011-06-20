@@ -5,10 +5,10 @@
 package edu.internet2.middleware.grouper.permissions;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.commons.collections.keyvalue.MultiKey;
 
@@ -27,10 +27,10 @@ public enum PermissionProcessor {
 
     /**
      * 
-     * @see edu.internet2.middleware.grouper.permissions.PermissionProcessor#processPermissions(java.util.Set)
+     * @see edu.internet2.middleware.grouper.permissions.PermissionProcessor#processPermissions(java.util.Collection)
      */
     @Override
-    public void processPermissions(Set<PermissionEntry> permissionEntrySet) {
+    public void processPermissions(Collection<PermissionEntry> permissionEntrySet) {
       
       if (GrouperUtil.length(permissionEntrySet) <= 1) {
         return;
@@ -71,10 +71,10 @@ public enum PermissionProcessor {
 
     /**
      * 
-     * @see edu.internet2.middleware.grouper.permissions.PermissionProcessor#processPermissions(java.util.Set)
+     * @see edu.internet2.middleware.grouper.permissions.PermissionProcessor#processPermissions(java.util.Collection)
      */
     @Override
-    public void processPermissions(Set<PermissionEntry> permissionEntrySet) {
+    public void processPermissions(Collection<PermissionEntry> permissionEntrySet) {
 
       if (GrouperUtil.length(permissionEntrySet) <= 1) {
         return;
@@ -121,6 +121,6 @@ public enum PermissionProcessor {
    * filer permissions out which can be pruned based on the type of processor
    * @param permissionEntrySet
    */
-  public abstract void processPermissions(Set<PermissionEntry> permissionEntrySet);
+  public abstract void processPermissions(Collection<PermissionEntry> permissionEntrySet);
   
 }

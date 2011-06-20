@@ -2,6 +2,8 @@ package edu.internet2.middleware.grouper.permissions;
 
 import java.util.List;
 
+import edu.internet2.middleware.grouper.permissions.PermissionHeuristic.PermissionHeuristicType;
+
 /**
  * collection of PermissionHeuristic
  * @author mchyzer
@@ -22,11 +24,27 @@ public class PermissionHeuristics {
 
     PermissionHeuristicBetter permissionHeuristicBetter = new PermissionHeuristicBetter();
     
+    //these arent calculated by default
+    PermissionHeuristics thisHeuristics = PermissionHeuristic.computeHeuristics(this.internalScore);
+    other = PermissionHeuristic.computeHeuristics(other.internalScore);
+    
     //at this point we know that this is better than the arg... lets see why
-    for (PermissionHeuristic thisPermissionHeuristic : this.permissionHeuristicList) {
+    OUTER: for (PermissionHeuristic thisPermissionHeuristic : thisHeuristics.permissionHeuristicList) {
+
+      //if its allow, then we are done
+      if (thisPermissionHeuristic.getPermissionHeuristicType() == PermissionHeuristicType.allow) {
+        permissionHeuristicBetter.setThisPermissionHeuristic(thisPermissionHeuristic);
+        //there isnt an other
+        return permissionHeuristicBetter;
+      }
+
+      long thisMaxScore = thisPermissionHeuristic.getPermissionHeuristicType().maxScore();
       
       //lets see if the other one has it
       for (PermissionHeuristic otherPermissionHeuristic : other.getPermissionHeuristicList()) {
+        
+        
+        long otherMaxScore = otherPermissionHeuristic.getPermissionHeuristicType().maxScore();
         
         if (thisPermissionHeuristic.getPermissionHeuristicType() == otherPermissionHeuristic.getPermissionHeuristicType()) {
           
@@ -41,8 +59,15 @@ public class PermissionHeuristics {
             throw new RuntimeException("Why is this depth more than the other??? " + this + ", " + other);
             
           } else {
-            continue;
+            continue OUTER;
           }
+          
+        } else if (thisMaxScore > otherMaxScore) {
+
+          //if this is more important than the other, then that shows something...
+          permissionHeuristicBetter.setThisPermissionHeuristic(thisPermissionHeuristic);
+          permissionHeuristicBetter.setOtherPermissionHeuristic(otherPermissionHeuristic);
+          return permissionHeuristicBetter;
           
         }
         

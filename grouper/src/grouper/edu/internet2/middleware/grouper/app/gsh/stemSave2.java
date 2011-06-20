@@ -13,13 +13,13 @@ import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.misc.SaveMode;
 
 /**
- * Call Stem.saveStem()
+ * Call Stem.saveStem().  Note, this was renamed to stemSave2 since it conflicted with StemSave
  * <p/>
  * @author  Chris Hyzer
  * @version $Id: stemSave.java,v 1.1 2008-10-15 03:57:06 mchyzer Exp $
  * @since   0.0.1
  */
-public class stemSave {
+public class stemSave2 {
 
   /** insert a stem */
   public static final String INSERT = "INSERT";

@@ -20,29 +20,24 @@
   limitations under the License.
 -->
 
-<!-- $Id: Hib3PermissionRoleSubjectViewDAO.hbm.xml,v 1.2 2009-10-12 09:46:34 mchyzer Exp $ -->
+<!-- $Id: Hib3PermissionAllViewDAO.hbm.xml,v 1.2 2009-10-12 09:46:34 mchyzer Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper.permissions">
 
   <!-- note: optimistic-lock defaults to version, but will be dynamically replaced
     based on the grouper.properties, so dont remove that attribute  -->
-  <class name="PermissionEntry" table="grouper_perms_role_subject_v" entity-name="PermissionEntryRoleSubject" >
+  <class name="PermissionEntry" table="grouper_perms_assigned_role_v" entity-name="PermissionEntryRoleAssigned" >
 
     <composite-id >
       <key-property name="actionId" column="action_id"/>
       <key-property name="roleId" column="role_id"/>
-      <key-property name="memberId" column="member_id"/>
       <key-property name="attributeDefNameId" column="attribute_def_name_id"/>
-      <key-property name="membershipId" column="membership_id"/>
       <key-property name="attributeAssignId" column="attribute_assign_id"/>
-	    <key-property name="membershipDepth" column="membership_depth"/>
 	    <key-property name="roleSetDepth" column="role_set_depth"/>
 	    <key-property name="attributeDefNameSetDepth" column="attr_def_name_set_depth"/>
 	    <key-property name="attributeAssignActionSetDepth" column="attr_assign_action_set_depth"/>
     </composite-id>
     <property name="action" column="action"/>
-    <property name="subjectSourceId" column="subject_source_id"/>
-    <property name="subjectId" column="subject_id"/>
     <property name="roleName" column="role_name" />
     <property name="attributeDefNameName" column="attribute_def_name_name"/>
     <property name="attributeDefNameDispName" column="attribute_def_name_disp_name"/>
@@ -52,9 +47,10 @@
     <property name="attributeAssignDelegatableDb" column="attribute_assign_delegatable"/>
     <property name="enabledTimeDb" column="enabled_time"/>
     <property name="disabledTimeDb" column="disabled_time"/>
-    <property name="permissionTypeDb" column="permission_type"/>
     <property name="assignmentNotes" column="assignment_notes"/>
     <property name="disallowedDb" column="disallowed"/>
+    <property name="permissionTypeDb" column="permission_type"/>
+
   </class>
 </hibernate-mapping>
 

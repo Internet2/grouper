@@ -28,7 +28,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
 /**
- * Use this class to insert or update a group
+ * Use this class to insert or update an attribute definition
  */
 public class AttributeDefSave {
   

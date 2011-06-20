@@ -6572,7 +6572,8 @@ public enum GrouperDdl implements DdlVersionable {
             "attr_assign_action_set_depth",
             "attribute_assign_id",
             "assignment_notes",
-            "disallowed"),
+            "disallowed",
+            "permission_type"),
         GrouperUtil.toSet("role_name: name of the role that the user is in and that has the permission",
             "action: the action associated with the attribute assignment (default is assign)",
             "attribute_def_name_name: name of the attribute definition name which is assigned to the group",
@@ -6591,7 +6592,8 @@ public enum GrouperDdl implements DdlVersionable {
             "attr_assign_action_set_depth: depth of action hierarchy, 0 is immediate",
             "attribute_assign_id: id of the underlying attribute assign",
             "assignment_notes: notes on this assignment",
-            "disallowed: if permission is disallowed from a wider allow, null means false"
+            "disallowed: if permission is disallowed from a wider allow, null means false",
+            "permission_type: role since these are role assignments"
         ),
         "SELECT distinct gr.name AS role_name,  " +
         "    gaaa.name AS action, " +
@@ -6611,7 +6613,8 @@ public enum GrouperDdl implements DdlVersionable {
         "    gaaas.DEPTH AS attr_assign_action_set_depth, " +
         "    gaa.ID AS attribute_assign_id, " +
         "    gaa.notes AS assignment_notes, " +
-        "    gaa.disallowed " +
+        "    gaa.disallowed, " +
+        "    'role' AS permission_type " +
         "FROM grouper_groups gr, " +
         "    grouper_role_set grs, " +
         "    grouper_attribute_def gad, " +

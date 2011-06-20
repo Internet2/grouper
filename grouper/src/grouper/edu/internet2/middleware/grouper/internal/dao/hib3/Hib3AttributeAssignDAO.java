@@ -136,7 +136,7 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
   public Set<AttributeAssign> findByGroupIdAndAttributeDefNameId(String groupId, String attributeDefNameId) {
     
     Set<AttributeAssign> attributeAssigns = HibernateSession.byHqlStatic().createQuery(
-      "from AttributeAssign where attributeDefNameId = :theAttributeDefNameId and ownerGroupId = :theOwnerGroupId")
+      "from AttributeAssign where attributeDefNameId = :theAttributeDefNameId and ownerGroupId = :theOwnerGroupId and attributeAssignTypeDb = 'group'")
       .setString("theAttributeDefNameId", attributeDefNameId)
       .setString("theOwnerGroupId", groupId)
       .listSet(AttributeAssign.class);
