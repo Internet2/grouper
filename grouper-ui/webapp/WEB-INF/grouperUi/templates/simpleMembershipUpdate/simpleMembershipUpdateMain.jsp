@@ -26,6 +26,13 @@ style="${grouper:hideShowStyle('simpleMembershipUpdateGroupDetails', true)}"
   &nbsp; &nbsp; &nbsp; <a class="smallLink" href="../../populateGroupSummary.do?groupId=${simpleMembershipUpdateContainer.guiGroup.group.id}"
   ><grouper:message valueTooltip="${simpleMembershipUpdateContainer.text.viewInAdminUiTooltip}"  
   value="${simpleMembershipUpdateContainer.text.viewInAdminUi}"  /></a>
+  &nbsp; &nbsp; &nbsp;
+  <a class="smallLink" id="menuLink" href="#"><grouper:message key="mainMenu.liteLink"/></a>
+        <%-- register the menu, and attach it to the link --%>
+        <grouper:menu menuId="liteMenu"
+        operation="MiscMenu.miscMenu" 
+        structureOperation="MiscMenu.miscMenuStructure" 
+        contextZoneJqueryHandle="#menuLink" contextMenu="true" />
   </c:if>
 </td>
 </tr>

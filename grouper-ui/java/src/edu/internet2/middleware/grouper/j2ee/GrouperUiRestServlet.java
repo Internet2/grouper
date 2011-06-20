@@ -27,6 +27,7 @@ import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiSettings;
 import edu.internet2.middleware.grouper.grouperUi.serviceLogic.InviteExternalSubjects;
+import edu.internet2.middleware.grouper.grouperUi.serviceLogic.MiscMenu;
 import edu.internet2.middleware.grouper.grouperUi.serviceLogic.SimpleAttributeNameUpdateFilter;
 import edu.internet2.middleware.grouper.grouperUi.serviceLogic.SimpleAttributeUpdateFilter;
 import edu.internet2.middleware.grouper.grouperUi.serviceLogic.SimpleAttributeUpdateMenu;
@@ -73,6 +74,7 @@ public class GrouperUiRestServlet extends HttpServlet {
   /** uris that it is ok to get (e.g. auto complete and other ajax components */
   private static Set<String> operationsOkGet = GrouperUtil.toSet(
       InviteExternalSubjects.class.getSimpleName() + ".groupToAssignFilter",
+      MiscMenu.class.getSimpleName() + ".miscMenuStructure",
       SimpleMembershipUpdateFilter.class.getSimpleName() + ".filterUsers", 
       "SimpleMembershipUpdateFilter.filterGroups",
       SimpleMembershipUpdateMenu.class.getSimpleName() + ".advancedMenuStructure", 

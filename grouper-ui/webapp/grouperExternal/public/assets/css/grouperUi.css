@@ -23,18 +23,21 @@ body {
   background-color: #015782;
   color: #FFFFFF;
 }
-
-#navbar {
+#navbar td {
+padding: 0;
+margin: 0;
+}
+#navbar, #navbar td {
   clear: both;
-  text-align: right;
-  padding: 2px 20px 4px 0;
   font-style: normal;
   font-weight: normal;
   height: 15px;
   margin: 0;
   white-space: nowrap;
 }
-
+#navbar {
+  padding: 2px 20px 4px 0;
+}
 #simpleMain {
   padding: 8px;
 }
