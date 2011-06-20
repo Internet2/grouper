@@ -12,7 +12,6 @@ import javax.servlet.http.HttpServletRequest;
 
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeAssign;
-import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiPermissionAnalyze;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiPermissionEntry;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiPermissionEntryActionsContainer;
 import edu.internet2.middleware.grouper.permissions.PermissionEntry.PermissionType;
@@ -29,27 +28,63 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 @SuppressWarnings("serial")
 public class PermissionUpdateRequestContainer implements Serializable {
 
-  /**
-   * gui permission analyze screen results by line
-   */
-  private GuiPermissionAnalyze guiPermissionAnalyze = null;
-   
-
+  /** default attribute def id */
+  private String defaultAttributeDefId = null;
+  
+  
   
   /**
-   * gui permission analyze screen results by line
-   * @return gui permission analyze screen results by line
+   * default attribute def id
+   * @return default attribute def id
    */
-  public GuiPermissionAnalyze getGuiPermissionAnalyze() {
-    return this.guiPermissionAnalyze;
+  public String getDefaultAttributeDefId() {
+    return this.defaultAttributeDefId;
   }
 
   /**
-   * gui permission analyze screen results by line
-   * @param guiPermissionAnalyze1
+   * default attribute def id
+   * @param defaultAttributeDefId1
    */
-  public void setGuiPermissionAnalyze(GuiPermissionAnalyze guiPermissionAnalyze1) {
-    this.guiPermissionAnalyze = guiPermissionAnalyze1;
+  public void setDefaultAttributeDefId(String defaultAttributeDefId1) {
+    this.defaultAttributeDefId = defaultAttributeDefId1;
+  }
+
+  /**
+   * default attribute def display name
+   * @return default attribute def display name
+   */
+  public String getDefaultAttributeDefDisplayName() {
+    return this.defaultAttributeDefDisplayName;
+  }
+
+  /**
+   * default attribute def display name
+   * @param defaultAttributeDefDisplayName1
+   */
+  public void setDefaultAttributeDefDisplayName(String defaultAttributeDefDisplayName1) {
+    this.defaultAttributeDefDisplayName = defaultAttributeDefDisplayName1;
+  }
+
+  /** default attribute def display name */
+  private String defaultAttributeDefDisplayName = null;
+  
+  /** default attribute name display name */
+  private String defaultAttributeNameDisplayName = null;
+  
+  /**
+   * default attribute name display name 
+   * @return default attribute name display name
+   */
+  public String getDefaultAttributeNameDisplayName() {
+    return this.defaultAttributeNameDisplayName;
+  }
+
+  /**
+   * default attribute name display name
+   * @param defaultAttributeNameDisplayName1
+   */
+  public void setDefaultAttributeNameDisplayName(String defaultAttributeNameDisplayName1) {
+    this.defaultAttributeNameDisplayName = defaultAttributeNameDisplayName1;
   }
 
   /** gui permission entry */
@@ -310,7 +345,83 @@ public class PermissionUpdateRequestContainer implements Serializable {
     }
     
   };
+
+  /** default attribute name id */
+  private String defaultAttributeNameId = null;
+
+  /** default role display name */
+  private String defaultRoleDisplayName = null;
+
+  /** default role id */
+  private String defaultRoleId = null;
+
+  /** default action */
+  private String defaultAction = null;
   
+  /**
+   * default action 
+   * @return default action
+   */
+  public String getDefaultAction() {
+    return this.defaultAction;
+  }
+
+  /**
+   * default action
+   * @param defaultAction1
+   */
+  public void setDefaultAction(String defaultAction1) {
+    this.defaultAction = defaultAction1;
+  }
+
+  /**
+   * default role display name
+   * @return default role display name
+   */
+  public String getDefaultRoleDisplayName() {
+    return this.defaultRoleDisplayName;
+  }
+
+  /**
+   * default role dislpay name
+   * @param defaultRoleDisplayName1
+   */
+  public void setDefaultRoleDisplayName(String defaultRoleDisplayName1) {
+    this.defaultRoleDisplayName = defaultRoleDisplayName1;
+  }
+
+  /**
+   * default role id
+   * @return default role id
+   */
+  public String getDefaultRoleId() {
+    return this.defaultRoleId;
+  }
+
+  /**
+   * default role id
+   * @param defaultRoleId1
+   */
+  public void setDefaultRoleId(String defaultRoleId1) {
+    this.defaultRoleId = defaultRoleId1;
+  }
+
+  /**
+   * default attribute name id
+   * @return default attribute name id
+   */
+  public String getDefaultAttributeNameId() {
+    return this.defaultAttributeNameId;
+  }
+
+  /**
+   * default attribute name id
+   * @param defaultAttributeNameId1
+   */
+  public void setDefaultAttributeNameId(String defaultAttributeNameId1) {
+    this.defaultAttributeNameId = defaultAttributeNameId1;
+  }
+
   /**
    * if we should show the privilege header
    * @return if we should show the privilege header

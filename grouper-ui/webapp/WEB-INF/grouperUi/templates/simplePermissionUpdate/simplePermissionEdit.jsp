@@ -17,10 +17,8 @@
       <input type="hidden" name="permissionAssignType" 
                 value="${permissionUpdateRequestContainer.permissionType.name}" />
 
-      <c:set var="guiPermissionId" value="${permissionEntry.roleId}__${permissionEntry.memberId}__${permissionEntry.attributeDefNameId}__${permissionEntry.action}" />
-      
-      <input type="hidden" name="guiPermissionId" 
-                value="${guiPermissionId}" />
+      <input type="hidden" name="permissionAssignmentId" 
+                value="${permissionEntry.attributeAssignId}" />
 
       <table class="formTable formTableSpaced">
       

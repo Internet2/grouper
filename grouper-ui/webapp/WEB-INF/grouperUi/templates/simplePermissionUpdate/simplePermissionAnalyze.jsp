@@ -171,6 +171,19 @@
             <th class="privilegeHeader" style="text-align: left; white-space: nowrap;">
               <grouper:message key="simplePermissionUpdate.assignHeaderPermissionResource" />
             </th>
+            
+            <th class="privilegeHeader" style="text-align: left; white-space: nowrap;">
+              <grouper:message key="simplePermissionUpdate.assignHeaderAllowed" />
+            </th>
+            
+            <th class="privilegeHeader" style="text-align: left; white-space: nowrap;">
+              <grouper:message key="simplePermissionAssign.assignHeaderScore" />
+            </th>
+            
+            <th class="privilegeHeader" style="text-align: left; white-space: nowrap;">
+              <grouper:message key="simplePermissionAssign.whyRankNotOne" />
+            </th>
+            
             <th class="privilegeHeader" style="text-align: left; white-space: nowrap;">
               <grouper:message key="simplePermissionUpdate.assignHeaderPermissionDefinition" />
             </th>
@@ -178,13 +191,15 @@
               <grouper:message key="simplePermissionUpdate.assignHeaderOwnerUuid" />
             </th>
           </tr>
-          <c:forEach items="${guiPermissionEntry.rawPermissionEntries}" var="permissionEntry">
+          <c:forEach items="${guiPermissionEntry.rawGuiPermissionEntries}" var="guiPermissionEntry">
             <c:set var="row" value="0" />
+            <c:set var="permissionEntry" value="${guiPermissionEntry.permissionEntry}"/>
             <c:set var="attributeAssign" value="${permissionEntry.attributeAssign}"/>
 
             <tr  ${row % 2 == 1 ? 'class="alternate"' : ''} style="vertical-align: top">
                   
               <td style="white-space: nowrap;">
+              
                 <grouper:message 
                    key="permissionUpdateRequestContainer.permissionType.${permissionEntry.permissionType.name}" />
               </td>
@@ -204,11 +219,32 @@
                   <grouper:message value="${grouper:escapeHtml(attributeAssign.attributeAssignAction.name)}" />
                 </td>
 
-                <td>
+                <td style="white-space: nowrap;">
                   <grouper:message value="${grouper:escapeHtml(attributeAssign.attributeDefName.displayExtension)}" 
                     valueTooltip="${grouper:escapeJavascript(attributeAssign.attributeDefName.displayName)}" />
                 </td>
                 
+                <td>
+                  
+                  <c:choose>
+                    <c:when test="${attributeAssign.disallowed}">
+                      <grouper:message key="simplePermissionAssign.assignAllowedDisallow" />
+                    </c:when>
+                    <c:otherwise>
+                      <grouper:message key="simplePermissionAssign.assignAllowedAllow" />
+                    </c:otherwise>
+                  </c:choose>
+                
+                </td>
+                
+                <td>
+                  ${permissionEntry.permissionHeuristics.friendlyScore }
+                </td>
+
+                <td style="white-space: nowrap;">
+                  ${grouper:abbreviate(guiPermissionEntry.compareWithBest, 60, true, true)}
+                </td>
+
                 <td>
                   <grouper:message value="${grouper:escapeHtml(attributeAssign.attributeDef.extension)}" 
                     valueTooltip="${grouper:escapeJavascript(attributeAssign.attributeDef.name)}" />
@@ -226,7 +262,7 @@
     </div>
   </div>
   
-  
+  <%--
     <div class="section">
   
     <grouper:subtitle key="simplePermissionAssign.analyzeRelevantAssignmentsSubtitle" 
@@ -257,7 +293,7 @@
       </table>
       </div>
     </div>
-  
+   --%>  
   
 </div>
 <!-- End: simpleAttributeAssignEdit.jsp -->

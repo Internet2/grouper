@@ -3,12 +3,15 @@ package edu.internet2.middleware.grouper.grouperUi.beans.api;
 import java.io.Serializable;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.permissions.PermissionEntry;
+import edu.internet2.middleware.grouper.permissions.PermissionProcessor;
 import edu.internet2.middleware.grouper.permissions.PermissionEntry.PermissionType;
 import edu.internet2.middleware.grouper.ui.tags.TagUtils;
 import edu.internet2.middleware.grouper.ui.util.MapWrapper;
@@ -28,8 +31,8 @@ public class GuiPermissionEntry implements Serializable {
   /** permission type */
   private PermissionType permissionType;
 
-  /** raw permission entries */
-  private List<PermissionEntry> rawPermissionEntries = null;
+  /** raw gui permission entries */
+  private List<GuiPermissionEntry> rawGuiPermissionEntries = null;
   
   /**
    * see if allowed
@@ -42,28 +45,61 @@ public class GuiPermissionEntry implements Serializable {
   private boolean immediate;
   
   /**
+   * reason why this row wasnt chose on analyze screen
+   */
+  private String compareWithBest;
+  
+  /**
+   * reason why this row wasnt chose on analyze screen
+   * @return reason why this row wasnt chose on analyze screen
+   */
+  public String getCompareWithBest() {
+    return compareWithBest;
+  }
+
+  /**
+   * reason why this row wasnt chose on analyze screen
+   * @param compareWithBest1
+   */
+  public void setCompareWithBest(String compareWithBest1) {
+    this.compareWithBest = compareWithBest1;
+  }
+
+
+  /**
    * process raw entries
    * @param actions 
    */
   public void processRawEntries() {
+
+    //make a new set since we dont want to mess up the original one
+    Set<PermissionEntry> permissionEntriesSet = new HashSet<PermissionEntry>();
     
-    for (PermissionEntry thePermissionEntry : this.rawPermissionEntries) {
+    for (GuiPermissionEntry guiPermissionEntry : this.rawGuiPermissionEntries) {
+      permissionEntriesSet.add(guiPermissionEntry.getPermissionEntry());
+    }
+    
+    
+    PermissionProcessor.FILTER_REDUNDANT_PERMISSIONS.processPermissions(permissionEntriesSet);
+
+    //we have the permissions, was anything returned?  take the first, and see if not disallowed
+    this.allowed = permissionEntriesSet.size() == 0 ? false : !permissionEntriesSet.iterator().next().isDisallowed();
+    
+    //see if any are immediate
+    for (GuiPermissionEntry guiPermissionEntry : this.rawGuiPermissionEntries) {
       
-      if (thePermissionEntry.isEnabled()) {
-        this.allowed = true;
+      PermissionEntry thePermissionEntry = guiPermissionEntry.getPermissionEntry();
+      
+      boolean theImmediate = thePermissionEntry.isImmediatePermission();
+      
+      if (theImmediate && thePermissionEntry.getPermissionType() == PermissionType.role_subject) {
+        if (!thePermissionEntry.isImmediateMembership()) {
+          theImmediate = false;
+        }
       }
       
-      boolean theImmediate = thePermissionEntry.isImmediatePermission() && thePermissionEntry.isImmediateMembership();
-      
-      //if it is a role assignment, and we are looking at entities, then it is not immediate
-      if (thePermissionEntry.getPermissionType() == PermissionType.role && this.permissionType == PermissionType.role_subject) {
-        theImmediate = false;
-      }
-      
-      if (theImmediate) {
-        
-        this.immediate = true;
-      } else {
+      this.immediate = this.immediate || theImmediate;
+      if (!theImmediate) {
         this.effective = true;
       }
     }
@@ -158,16 +194,16 @@ public class GuiPermissionEntry implements Serializable {
    * raw permission entries
    * @return raw permission entries
    */
-  public List<PermissionEntry> getRawPermissionEntries() {
-    return rawPermissionEntries;
+  public List<GuiPermissionEntry> getRawGuiPermissionEntries() {
+    return this.rawGuiPermissionEntries;
   }
 
   /**
    * raw permission entries
-   * @param rawPermissionEntries1
+   * @param rawGuiPermissionEntries1
    */
-  public void setRawPermissionEntries(List<PermissionEntry> rawPermissionEntries1) {
-    this.rawPermissionEntries = rawPermissionEntries1;
+  public void setRawGuiPermissionEntries(List<GuiPermissionEntry> rawGuiPermissionEntries1) {
+    this.rawGuiPermissionEntries = rawGuiPermissionEntries1;
   }
 
 

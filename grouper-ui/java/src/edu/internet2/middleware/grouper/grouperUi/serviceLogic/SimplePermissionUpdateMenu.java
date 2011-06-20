@@ -23,7 +23,6 @@ import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.finder.AttributeAssignFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeAssign;
-import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiPermissionAnalyze;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiPermissionEntry;
 import edu.internet2.middleware.grouper.grouperUi.beans.attributeUpdate.AttributeUpdateRequestContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
@@ -31,6 +30,9 @@ import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
 import edu.internet2.middleware.grouper.grouperUi.beans.permissionUpdate.PermissionUpdateRequestContainer;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.permissions.PermissionEntry;
+import edu.internet2.middleware.grouper.permissions.PermissionHeuristic;
+import edu.internet2.middleware.grouper.permissions.PermissionHeuristicBetter;
+import edu.internet2.middleware.grouper.permissions.PermissionHeuristics;
 import edu.internet2.middleware.grouper.permissions.PermissionEntry.PermissionType;
 import edu.internet2.middleware.grouper.permissions.role.Role;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
@@ -219,17 +221,34 @@ public class SimplePermissionUpdateMenu {
       String action = matcher.group(4);
 
       //get all the assignments
-      Set<PermissionEntry> permissionEntries = GrouperDAOFactory.getFactory()
-        .getPermissionEntry().findPermissions(null, attributeDefName.getId(), role.getId(), member.getUuid(), action, null);
+      Set<PermissionEntry> permissionEntries = null;
+      
+      if (permissionType == PermissionType.role_subject) {
+
+        permissionEntries = GrouperDAOFactory.getFactory()
+          .getPermissionEntry().findPermissions(null, attributeDefName.getId(), role.getId(), member.getUuid(), action, null);
+
+      } else if (permissionType == PermissionType.role) {
+        
+        permissionEntries = GrouperDAOFactory.getFactory()
+          .getPermissionEntry().findRolePermissions(null, attributeDefName.getId(), role.getId(), action, null);
+        
+        
+      } else {
+        throw new RuntimeException("Invalid permissionType: " + permissionType);
+      }
 
       PermissionEntry permissionEntry = null;
       for (PermissionEntry current : permissionEntries) {
        
         //find the immediate one
-        if (current.isImmediatePermission() && current.isImmediateMembership()) {
-         
-          if (permissionType == PermissionType.role || current.getPermissionType() == PermissionType.role_subject) {
-            
+        if (current.isImmediatePermission()) {
+          if (permissionType == PermissionType.role) {
+             
+            permissionEntry = current;
+            break;
+          }
+          if (current.isImmediateMembership() && current.getPermissionType() == PermissionType.role_subject) {
             permissionEntry = current;
             break;
             
@@ -340,8 +359,22 @@ public class SimplePermissionUpdateMenu {
       String action = matcher.group(4);
 
       //get all the assignments
-      Set<PermissionEntry> permissionEntries = GrouperDAOFactory.getFactory()
-        .getPermissionEntry().findPermissions(null, attributeDefName.getId(), role.getId(), member.getUuid(), action, null);
+      Set<PermissionEntry> permissionEntries = null;
+      
+      if (permissionType == PermissionType.role_subject) {
+
+        permissionEntries = GrouperDAOFactory.getFactory()
+          .getPermissionEntry().findPermissions(null, attributeDefName.getId(), role.getId(), member.getUuid(), action, null);
+
+      } else if (permissionType == PermissionType.role) {
+        
+        permissionEntries = GrouperDAOFactory.getFactory()
+          .getPermissionEntry().findRolePermissions(null, attributeDefName.getId(), role.getId(), action, null);
+        
+        
+      } else {
+        throw new RuntimeException("Invalid permissionType: " + permissionType);
+      }
 
       if (GrouperUtil.length(permissionEntries) == 0) {
         guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simplePermissionUpdate.analyzeNoPermissionFound", false)));
@@ -358,10 +391,18 @@ public class SimplePermissionUpdateMenu {
         PermissionEntry current = iterator.next();
         
         //find the immediate one
-        if (current.isImmediatePermission() && current.isImmediateMembership()) {
-         
-          if (permissionType == PermissionType.role || current.getPermissionType() == PermissionType.role_subject) {
+        if (current.isImmediatePermission()) {
+          boolean immediate = false;
+          if (permissionType == PermissionType.role) {
             
+            immediate = true;
+          } else {
+            if (current.getPermissionType() == PermissionType.role_subject && current.isImmediateMembership()) {
+              immediate = true;
+            }            
+          }
+          
+          if (immediate) {
             permissionEntry = current;
             iterator.remove();
             //move this to the front of the list
@@ -369,12 +410,16 @@ public class SimplePermissionUpdateMenu {
             break;
             
           }
+          
         }
       }
       
       //add the rest
       permissionEntriesList.addAll(permissionEntries);
-      
+
+      PermissionEntry.orderByAndSetFriendlyHeuristic(permissionEntriesList);
+
+
       GuiPermissionEntry guiPermissionEntry = new GuiPermissionEntry();
      
       if (permissionEntry == null) {
@@ -384,15 +429,79 @@ public class SimplePermissionUpdateMenu {
       guiPermissionEntry.setPermissionEntry(permissionEntry);
       guiPermissionEntry.setPermissionType(permissionType);
 
-      guiPermissionEntry.setRawPermissionEntries(permissionEntriesList);
+      List<GuiPermissionEntry> rawGuiPermissionEntries = new ArrayList<GuiPermissionEntry>();
+      
+      boolean isFirst = true;
+      
+      PermissionHeuristics firstHeuristics = permissionEntry.getPermissionHeuristics();
+      
+      String isBetterThan =  GrouperUiUtils.message("simplePermissionAssign.analyzeIsBetterThan", false); 
+      
+      for (PermissionEntry current : permissionEntriesList) {
+        GuiPermissionEntry guiCurrent = new GuiPermissionEntry();
+        guiCurrent.setPermissionEntry(current);
+        rawGuiPermissionEntries.add(guiCurrent);
+        
+        if (!isFirst) {
+          
+          PermissionHeuristics currentHeuristics = current.getPermissionHeuristics();
+          
+          PermissionHeuristicBetter permissionHeuristicBetter = firstHeuristics.whyBetterThanArg(currentHeuristics);
+          String compareWithBest = null;
+          if (permissionHeuristicBetter == null) {
+            //they are equivalent
+            
+            compareWithBest = GrouperUiUtils.message("simplePermissionAssign.analyzeType.same", false);
+          } else {
+            
+            PermissionHeuristic firstHeuristic = permissionHeuristicBetter.getThisPermissionHeuristic();
+            
+            String firstMessage = null;
+            
+            if (firstHeuristic.getDepth() == 0) {
+              firstMessage = GrouperUiUtils.message("simplePermissionAssign.analyzeType." 
+                  + firstHeuristic.getPermissionHeuristicType().name() + ".0", false);
+            } else {
+              firstMessage = GrouperUiUtils.message("simplePermissionAssign.analyzeType." 
+                  + firstHeuristic.getPermissionHeuristicType().name(), false, false, Integer.toString(firstHeuristic.getDepth()));
+            }
+            
+            PermissionHeuristic currentHeuristic = permissionHeuristicBetter.getOtherPermissionHeuristic();
+            
+            String secondMessage = null;
+            
+            if (currentHeuristic == null) {
+              
+              //disallow
+              secondMessage = GrouperUiUtils.message("simplePermissionAssign.analyzeType.disallow", false);
+              
+            } else {
+              
+              if (currentHeuristic.getDepth() == 0) {
+                secondMessage = GrouperUiUtils.message("simplePermissionAssign.analyzeType." 
+                    + currentHeuristic.getPermissionHeuristicType().name() + ".0", false);
+              } else {
+                secondMessage = GrouperUiUtils.message("simplePermissionAssign.analyzeType." 
+                    + currentHeuristic.getPermissionHeuristicType().name(), false, false, Integer.toString(currentHeuristic.getDepth()));
+              }
+            }
+            
+            compareWithBest = firstMessage + " " + isBetterThan + " " + secondMessage;
+          }
+          
+          
+          guiCurrent.setCompareWithBest(StringUtils.capitalize(compareWithBest));
+        }
+        
+        isFirst = false;
+      }
+      
+      guiPermissionEntry.setRawGuiPermissionEntries(rawGuiPermissionEntries);
       guiPermissionEntry.processRawEntries();
 
       permissionUpdateRequestContainer.setGuiPermissionEntry(guiPermissionEntry);
             
-      GuiPermissionAnalyze guiPermissionAnalyze = new GuiPermissionAnalyze();
-      permissionUpdateRequestContainer.setGuiPermissionAnalyze(guiPermissionAnalyze);
       
-      guiPermissionAnalyze.analyze(permissionEntriesList);
       
       guiResponseJs.addAction(GuiScreenAction.newDialogFromJsp(
         "/WEB-INF/grouperUi/templates/simplePermissionUpdate/simplePermissionAnalyze.jsp"));

@@ -137,6 +137,14 @@ public class SimplePermissionUpdateFilter {
         
       String attributeDefIdParam = httpServletRequest.getParameter("attributeAssignAttributeDef");
       
+      //from the permission filter
+      if (StringUtils.isBlank(attributeDefIdParam)) {
+        attributeDefIdParam = httpServletRequest.getParameter("permissionAssignAttributeDef");
+      }
+      if (StringUtils.isBlank(attributeDefIdParam)) {
+        attributeDefIdParam = httpServletRequest.getParameter("permissionAddAssignAttributeDef");
+      }
+      
       String attributeDefId = null;
       
       StringBuilder xmlBuilder = new StringBuilder(GrouperUiUtils.DHTMLX_OPTIONS_START);
@@ -322,6 +330,9 @@ public class SimplePermissionUpdateFilter {
       
       Group group = null;
       String permissionAssignRoleId = httpServletRequest.getParameter("permissionAssignRoleId");
+      if (StringUtils.isBlank(permissionAssignRoleId)) {
+        permissionAssignRoleId = httpServletRequest.getParameter("permissionAddAssignRoleId");
+      }
       if (!StringUtils.isBlank(permissionAssignRoleId)) {
         group = GroupFinder.findByUuid(grouperSession, permissionAssignRoleId, false);
       }
@@ -434,6 +445,16 @@ public class SimplePermissionUpdateFilter {
         
       String attributeDefIdParam = httpServletRequest.getParameter("attributeAssignAttributeDef");
 
+      //we might be on the permissions filter screen
+      if (StringUtils.isBlank(attributeDefIdParam)) {
+        attributeDefIdParam = httpServletRequest.getParameter("permissionAssignAttributeDef");
+      }
+      
+      //we might be adding a new permission
+      if (StringUtils.isBlank(attributeDefIdParam)) {
+        attributeDefIdParam = httpServletRequest.getParameter("permissionAddAssignAttributeDef");
+      }
+      
       StringBuilder xmlBuilder = new StringBuilder(GrouperUiUtils.DHTMLX_OPTIONS_START);
       
       AttributeDef attributeDef = null;
@@ -454,6 +475,10 @@ public class SimplePermissionUpdateFilter {
 
       String attributeDefNameIdParam = httpServletRequest.getParameter("permissionAssignAttributeName");
 
+      if (StringUtils.isBlank(attributeDefNameIdParam)) {
+        attributeDefNameIdParam = httpServletRequest.getParameter("permissionAddAssignAttributeName");
+      }
+      
       if (!foundError && !StringUtils.isBlank(attributeDefNameIdParam)) {
         
         try {

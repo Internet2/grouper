@@ -280,7 +280,7 @@ public class GuiPermissionEntryContainer implements Serializable, Comparable<Gui
       GuiPermissionEntry guiPermissionEntry = new GuiPermissionEntry();
       this.actionToGuiPermissionEntryMap.put(action, guiPermissionEntry);
       guiPermissionEntry.setPermissionType(this.permissionType);
-      guiPermissionEntry.setRawPermissionEntries(new ArrayList<PermissionEntry>());
+      guiPermissionEntry.setRawGuiPermissionEntries(new ArrayList<GuiPermissionEntry>());
     }
     
     for (PermissionEntry permissionEntry : this.getRawPermissionEntries()) {
@@ -292,7 +292,10 @@ public class GuiPermissionEntryContainer implements Serializable, Comparable<Gui
             + permissionEntry.getAction() + ", " + GrouperUtil.stringValue(actions));
       }
       
-      guiPermissionEntry.getRawPermissionEntries().add(permissionEntry);
+      GuiPermissionEntry currentGui = new GuiPermissionEntry();
+      currentGui.setPermissionEntry(permissionEntry);
+      
+      guiPermissionEntry.getRawGuiPermissionEntries().add(currentGui);
     }
     
     //now lets process the inner objects

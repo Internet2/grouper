@@ -96,7 +96,7 @@
       value="${grouper:message('simplePermissionAssign.assignFilterButton', true, false) }" style="margin-top: 2px" />
    
      <input class="blueButton" type="submit" 
-      onclick="ajax('../app/SimplePermissionUpdate.assignPermission', {formIds: 'simplePermissionFilterForm'}); return false;" 
+      onclick="ajax('../app/SimplePermissionUpdate.assignPermissionButton', {formIds: 'simplePermissionFilterForm'}); return false;" 
       value="${grouper:message('simplePermissionAssign.assignPermissionButton', true, false) }" style="margin-top: 2px" />
    
    </td>

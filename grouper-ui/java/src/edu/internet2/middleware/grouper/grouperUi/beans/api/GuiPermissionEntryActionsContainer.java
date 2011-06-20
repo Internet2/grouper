@@ -68,7 +68,11 @@ public class GuiPermissionEntryActionsContainer implements Serializable {
         guiPermissionEntryContainer.setPermissionResource(permissionEntry.getAttributeDefName());
         guiPermissionEntryContainer.setPermissionDefinition(permissionEntry.getAttributeDef());
         guiPermissionEntryContainer.setMemberId(permissionEntry.getMemberId());
-        guiPermissionEntryContainer.setGuiSubject(new GuiSubject(permissionEntry.getMember().getSubject()));
+        
+        //if searching by role this will be null
+        if (permissionEntry.getMember() != null) {
+          guiPermissionEntryContainer.setGuiSubject(new GuiSubject(permissionEntry.getMember().getSubject()));
+        }
         
         this.guiPermissionEntryContainers.add(guiPermissionEntryContainer);
       }
