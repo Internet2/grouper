@@ -98,5 +98,23 @@ public class Hib3ChangeLogEntryDAO extends Hib3DAO implements ChangeLogEntryDAO 
     return changeLogEntryList;
   }
 
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.ChangeLogEntryDAO#findBySequenceNumber(long, boolean)
+   */
+  public ChangeLogEntry findBySequenceNumber(long sequenceNumber, boolean exceptionIfNotFound) {
+    ChangeLogEntry changeLogEntry = HibernateSession.byHqlStatic()
+      .setCacheable(true)
+      .setCacheRegion(KLASS + ".FindBySequenceNumber")
+      .createQuery(
+        "from ChangeLogEntryEntity where sequenceNumber = :theSequenceNumber")
+      .setLong("theSequenceNumber", sequenceNumber).uniqueResult(ChangeLogEntry.class);
+  
+    if (changeLogEntry == null && exceptionIfNotFound) {
+      throw new RuntimeException("Cant find changeLogEntry by sequenceNumber: " + sequenceNumber);
+    }
+    
+    return changeLogEntry;
+  }
+
 } 
 

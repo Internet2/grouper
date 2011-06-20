@@ -4,14 +4,25 @@
  */
 package edu.internet2.middleware.grouper.attr.assign;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
+import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
@@ -30,6 +41,62 @@ public class AttributeAssignMemberDelegate extends AttributeAssignBaseDelegate {
    * reference to the member in question
    */
   private Member member = null;
+  
+  /**
+   * populate attribute assignments to prevent N+1 queries when looping through members and 
+   * getting attributes.  Do not do any assignments with these objects or expect them to change,
+   * they are preloaded and will stay that way.
+   * @param members is the members to populate
+   */
+  public static void populateAttributeAssignments(Collection<Member> members) {
+    
+    if (GrouperUtil.length(members) == 0) {
+      return;
+    }
+    
+    //lets go through in batches
+    int numberOfBatches = GrouperUtil.batchNumberOfBatches(members, 100);
+    
+    Map<String, Member> memberMap = new LinkedHashMap<String, Member>(); 
+    for (int i=0;i<numberOfBatches;i++) {
+      
+      List<Member> membersInBatch = GrouperUtil.batchList(members, 100, i);
+      List<String> memberIdsInBatch = new ArrayList<String>();
+      for (Member member : membersInBatch) {
+        memberIdsInBatch.add(member.getUuid());
+      }
+      Map<AttributeAssign, Set<AttributeAssignValue>> attributeAssigns = GrouperDAOFactory.getFactory()
+        .getAttributeAssignValue().findMemberAttributeAssignmentValues(memberIdsInBatch, true);
+      
+      //start again for this batch
+      memberMap.clear();
+
+      //go through the members, and put in the assignments
+      for (Member member : membersInBatch) {
+        memberMap.put(member.getUuid(), member);
+        //lets init each one
+        member.getAttributeDelegate().setAllAttributeAssignsForCache(new HashSet<AttributeAssign>());
+        member.getAttributeValueDelegate().setAllAttributeAssignValuesForCache(new HashMap<AttributeAssign, Set<AttributeAssignValue>>());
+      }
+
+      //go through the results and collate for members
+      for (AttributeAssign attributeAssign : attributeAssigns.keySet()) {
+
+        Set<AttributeAssignValue> attributeAssignValues = attributeAssigns.get(attributeAssign);
+        
+        attributeAssign.getValueDelegate().setAllAttributeAssignValuesCache(new HashSet<AttributeAssignValue>());
+        
+        //get the member
+        Member member = memberMap.get(attributeAssign.getOwnerMemberId());
+        
+        //set the cache values
+        member.getAttributeDelegate().getAllAttributeAssignsForCache().add(attributeAssign);
+        member.getAttributeValueDelegate().getAllAttributeAssignsForCache().put(attributeAssign, attributeAssignValues);
+        attributeAssign.getValueDelegate().getAllAttributeAssignValuesCache().addAll(attributeAssignValues);
+      }
+      
+    }
+  }
   
   /**
    * 
@@ -124,6 +191,22 @@ public class AttributeAssignMemberDelegate extends AttributeAssignBaseDelegate {
   @Override
   Set<AttributeAssign> retrieveAttributeAssignsByOwnerAndAttributeDefNameId(
       String attributeDefNameId) {
+
+    Set<AttributeAssign> cachedAttributeAssigns = this.getAllAttributeAssignsForCache();
+    if (cachedAttributeAssigns != null) {
+      
+      Set<AttributeAssign> result = new LinkedHashSet<AttributeAssign>();
+      
+      for (AttributeAssign attributeAssign : cachedAttributeAssigns) {
+        if (StringUtils.equals(this.member.getUuid(), attributeAssign.getOwnerMemberId())
+            && StringUtils.equals(attributeDefNameId, attributeAssign.getAttributeDefNameId())) {
+          result.add(attributeAssign);
+        }
+      }
+      return result;
+      
+    }
+
     return GrouperDAOFactory.getFactory().getAttributeAssign()
       .findByMemberIdAndAttributeDefNameId(this.member.getUuid(), attributeDefNameId);
   }
@@ -134,6 +217,22 @@ public class AttributeAssignMemberDelegate extends AttributeAssignBaseDelegate {
   @Override
   Set<AttributeAssign> retrieveAttributeAssignsByOwnerAndAttributeDefId(
       String attributeDefId) {
+    
+    Set<AttributeAssign> cachedAttributeAssigns = this.getAllAttributeAssignsForCache();
+    if (cachedAttributeAssigns != null) {
+      
+      Set<AttributeAssign> result = new LinkedHashSet<AttributeAssign>();
+      
+      for (AttributeAssign attributeAssign : cachedAttributeAssigns) {
+        if (StringUtils.equals(this.member.getUuid(), attributeAssign.getOwnerMemberId())
+            && StringUtils.equals(attributeDefId, attributeAssign.getAttributeDefName().getAttributeDefId())) {
+          result.add(attributeAssign);
+        }
+      }
+      return result;
+      
+    }
+
     return GrouperDAOFactory.getFactory()
       .getAttributeAssign().findByMemberIdAndAttributeDefId(this.member.getUuid(), attributeDefId);
   }
@@ -144,6 +243,22 @@ public class AttributeAssignMemberDelegate extends AttributeAssignBaseDelegate {
   @Override
   Set<AttributeDefName> retrieveAttributeDefNamesByOwnerAndAttributeDefId(
       String attributeDefId) {
+    
+    Set<AttributeAssign> cachedAttributeAssigns = this.getAllAttributeAssignsForCache();
+    if (cachedAttributeAssigns != null) {
+      
+      Set<AttributeDefName> result = new LinkedHashSet<AttributeDefName>();
+      
+      for (AttributeAssign attributeAssign : cachedAttributeAssigns) {
+        if (StringUtils.equals(this.member.getUuid(), attributeAssign.getOwnerMemberId())
+            && StringUtils.equals(attributeDefId, attributeAssign.getAttributeDefName().getAttributeDefId())) {
+          result.add(attributeAssign.getAttributeDefName());
+        }
+      }
+      return result;
+      
+    }
+    
     return GrouperDAOFactory.getFactory()
       .getAttributeAssign().findAttributeDefNamesByMemberIdAndAttributeDefId(this.member.getUuid(), attributeDefId);
   }
@@ -172,6 +287,22 @@ public class AttributeAssignMemberDelegate extends AttributeAssignBaseDelegate {
    */
   @Override
   Set<AttributeAssign> retrieveAttributeAssignsByOwner() {
+    
+    Set<AttributeAssign> cachedAttributeAssigns = this.getAllAttributeAssignsForCache();
+    if (cachedAttributeAssigns != null) {
+      
+      Set<AttributeAssign> result = new LinkedHashSet<AttributeAssign>();
+      
+      for (AttributeAssign attributeAssign : cachedAttributeAssigns) {
+        if (StringUtils.equals(this.member.getUuid(), attributeAssign.getOwnerMemberId())) {
+          result.add(attributeAssign);
+        }
+      }
+      return result;
+      
+    }
+    
+
     return GrouperDAOFactory.getFactory()
       .getAttributeAssign().findMemberAttributeAssignments(null, null, null, 
           GrouperUtil.toSet(this.member.getUuid()), null, null, false);
@@ -182,6 +313,21 @@ public class AttributeAssignMemberDelegate extends AttributeAssignBaseDelegate {
    */
   @Override
   Set<AttributeDefName> retrieveAttributeDefNamesByOwner() {
+    
+    Set<AttributeAssign> cachedAttributeAssigns = this.getAllAttributeAssignsForCache();
+    if (cachedAttributeAssigns != null) {
+      
+      Set<AttributeDefName> result = new TreeSet<AttributeDefName>();
+      
+      for (AttributeAssign attributeAssign : cachedAttributeAssigns) {
+        if (StringUtils.equals(this.member.getUuid(), attributeAssign.getOwnerMemberId())) {
+          result.add(attributeAssign.getAttributeDefName());
+        }
+      }
+      return result;
+      
+    }
+    
     return GrouperDAOFactory.getFactory()
       .getAttributeAssign().findMemberAttributeDefNames(null, null, null, GrouperUtil.toSet(this.member.getUuid()),null, true);
   }

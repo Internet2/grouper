@@ -36,10 +36,10 @@ public class Hib3AttributeDefNameSetViewDAO extends Hib3DAO implements Attribute
     QueryOptions queryOptions = new QueryOptions();
     //ifHas.name, thenHas.name, gadns.depth, gadnParentIfHas.name, gadnParentThenHas.name
     QuerySort querySort = QuerySort.asc(AttributeDefNameSetView.FIELD_PARENT_THEN_HAS_NAME);
-    querySort.addSort(AttributeDefNameSetView.FIELD_PARENT_IF_HAS_NAME, true);
-    querySort.addSort(AttributeDefNameSetView.FIELD_DEPTH, true);
-    querySort.addSort(AttributeDefNameSetView.FIELD_THEN_HAS_ATTR_DEF_NAME_NAME, true);
-    querySort.addSort(AttributeDefNameSetView.FIELD_IF_HAS_ATTR_DEF_NAME_NAME, true);
+    querySort.insertSortToBeginning(AttributeDefNameSetView.FIELD_PARENT_IF_HAS_NAME, true);
+    querySort.insertSortToBeginning(AttributeDefNameSetView.FIELD_DEPTH, true);
+    querySort.insertSortToBeginning(AttributeDefNameSetView.FIELD_THEN_HAS_ATTR_DEF_NAME_NAME, true);
+    querySort.insertSortToBeginning(AttributeDefNameSetView.FIELD_IF_HAS_ATTR_DEF_NAME_NAME, true);
     
     queryOptions.sort(querySort);
     

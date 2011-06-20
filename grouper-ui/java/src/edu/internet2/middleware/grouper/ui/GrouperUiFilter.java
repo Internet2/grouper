@@ -744,6 +744,7 @@ public class GrouperUiFilter implements Filter {
    * 
    * @see javax.servlet.Filter#doFilter(javax.servlet.ServletRequest, javax.servlet.ServletResponse, javax.servlet.FilterChain)
    */
+  @SuppressWarnings("unchecked")
   public void doFilter(ServletRequest servletRequest, ServletResponse response,
       FilterChain filterChain) throws IOException, ServletException {
 
@@ -755,39 +756,48 @@ public class GrouperUiFilter implements Filter {
       
       httpServletRequest = initRequest(httpServletRequest, response);
   
-      //TEMPORARY TO SEE WHAT IS NOT SERIALIZIBLE
-      HttpSession httpSession = httpServletRequest.getSession();
-      
-      Enumeration attributeNames = httpSession.getAttributeNames();
-      while (attributeNames.hasMoreElements()) {
-        String attributeName = (String)attributeNames.nextElement();
-        Object object = httpSession.getAttribute(attributeName);
-        try {
-          ByteArrayOutputStream baos = new ByteArrayOutputStream();
-          ObjectOutputStream    out  = new ObjectOutputStream(baos);
-          out.writeObject(object);
+      try {
+        boolean debugSessionSerialization = TagUtils.mediaResourceBoolean("debugSessionSerialization", false);
 
-        } catch (Exception e) {
-          LOG.error("Error serializing: " + attributeName, e);
-          if (object instanceof Map) {
-            Map<String, Object> map = (Map)object;
-            Set<String> set = map.keySet();
-            for (String key : set) {
-              Object current = map.get(key);
-              try {
-                ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                ObjectOutputStream    out  = new ObjectOutputStream(baos);
-                out.writeObject(current);
-
-              } catch (Exception e2) {
-                LOG.error("Error serializing in map: " + key, e2);
+        if (debugSessionSerialization) {
+          //TEMPORARY TO SEE WHAT IS NOT SERIALIZIBLE
+          HttpSession httpSession = httpServletRequest.getSession();
+          
+          Enumeration attributeNames = httpSession.getAttributeNames();
+          while (attributeNames.hasMoreElements()) {
+            String attributeName = (String)attributeNames.nextElement();
+            Object object = httpSession.getAttribute(attributeName);
+            try {
+              ByteArrayOutputStream baos = new ByteArrayOutputStream();
+              ObjectOutputStream    out  = new ObjectOutputStream(baos);
+              out.writeObject(object);
+  
+            } catch (Exception e) {
+              LOG.error("Error serializing: " + attributeName, e);
+              if (object instanceof Map) {
+                Map<String, Object> map = (Map)object;
+                Set<String> set = map.keySet();
+                for (String key : set) {
+                  Object current = map.get(key);
+                  try {
+                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                    ObjectOutputStream    out  = new ObjectOutputStream(baos);
+                    out.writeObject(current);
+  
+                  } catch (Exception e2) {
+                    LOG.error("Error serializing in map: " + key, e2);
+                  }
+                  
+                }
               }
-              
             }
           }
+          
         }
+        
+      } catch (Exception e) {
+        LOG.error("Error checking debugSessionSerialization", e);
       }
-      
       
       filterChain.doFilter(httpServletRequest, response);
       

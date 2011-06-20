@@ -11,7 +11,9 @@ import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
+import edu.internet2.middleware.grouper.attr.AttributeDefType;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignAction;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssignType;
 import edu.internet2.middleware.grouper.exception.AttributeDefNotFoundException;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
@@ -275,7 +277,7 @@ public class Hib3AttributeDefDAO extends Hib3DAO implements AttributeDefDAO {
   public Set<AttributeDef> getAllAttributeDefsSecure(String scope,
       GrouperSession grouperSession, Subject subject, Set<Privilege> privileges,
       QueryOptions queryOptions) {
-    return getAllAttributeDefsSecureHelper(scope, grouperSession, subject, privileges, queryOptions, false);
+    return getAllAttributeDefsSecureHelper(scope, grouperSession, subject, privileges, queryOptions, false, null, null);
   }
 
   /**
@@ -285,12 +287,15 @@ public class Hib3AttributeDefDAO extends Hib3DAO implements AttributeDefDAO {
    * @param privileges 
    * @param queryOptions 
    * @param splitScope 
+   * @param attributeAssignType
+   * @param attributeDefType
    * @return 
    * 
    */
   private Set<AttributeDef> getAllAttributeDefsSecureHelper(String scope,
       GrouperSession grouperSession, Subject subject, Set<Privilege> privileges,
-      QueryOptions queryOptions, boolean splitScope) {
+      QueryOptions queryOptions, boolean splitScope, AttributeAssignType attributeAssignType,
+      AttributeDefType attributeDefType) {
     if (queryOptions == null) {
       queryOptions = new QueryOptions();
     }
@@ -304,17 +309,74 @@ public class Hib3AttributeDefDAO extends Hib3DAO implements AttributeDefDAO {
 
     StringBuilder whereClause = new StringBuilder();
     
+    if (attributeDefType != null) {
+      if (whereClause.length() > 0) {
+        whereClause.append(" and ");
+      }
+      whereClause.append(" theAttributeDef.attributeDefTypeDb = :theAttributeDefType ");
+      byHqlStatic.setString("theAttributeDefType", attributeDefType.name());
+    }
+    
+    if (attributeAssignType != null) {
+      if (whereClause.length() > 0) {
+        whereClause.append(" and ");
+      }
+      switch (attributeAssignType) {
+        case any_mem:
+          whereClause.append(" theAttributeDef.assignToEffMembershipDb = 'T' ");
+          break;
+        case any_mem_asgn:
+          whereClause.append(" theAttributeDef.assignToEffMembershipAssnDb = 'T' ");
+          break;
+        case attr_def:
+          whereClause.append(" theAttributeDef.assignToAttributeDefDb = 'T' ");
+          break;
+        case attr_def_asgn:
+          whereClause.append(" theAttributeDef.assignToAttributeDefAssnDb = 'T' ");
+          break;
+        case group:
+          whereClause.append(" theAttributeDef.assignToGroupDb = 'T' ");
+          break;
+        case group_asgn:
+          whereClause.append(" theAttributeDef.assignToGroupAssnDb = 'T' ");
+          break;
+        case imm_mem:
+          whereClause.append(" theAttributeDef.assignToImmMembershipDb = 'T' ");
+          break;
+        case imm_mem_asgn:
+          whereClause.append(" theAttributeDef.assignToImmMembershipAssnDb = 'T' ");
+          break;
+        case member:
+          whereClause.append(" theAttributeDef.assignToMemberDb = 'T' ");
+          break;
+        case mem_asgn:
+          whereClause.append(" theAttributeDef.assignToMemberAssnDb = 'T' ");
+          break;
+        case stem:
+          whereClause.append(" theAttributeDef.assignToStemDb = 'T' ");
+          break;
+        case stem_asgn:
+          whereClause.append(" theAttributeDef.assignToStemAssnDb = 'T' ");
+          break;
+        default:
+          throw new RuntimeException("Not expecting attribute assign type: " + attributeAssignType);
+      }
+    }
+    
     //see if there is a scope
     if (!StringUtils.isBlank(scope)) {
       
       String[] scopes = splitScope ? GrouperUtil.splitTrim(scope, " ") : new String[]{scope};
       int index = 0;
+      boolean firstScope = true;
       for (String theScope : scopes) {
         if (whereClause.length() > 0) {
           whereClause.append(" and ");
-        } else {
+        } 
+        if (firstScope) {
           whereClause.append(" (( ");
         }
+        firstScope = false;
         whereClause.append(" lower(theAttributeDef.nameDb) like :scope" + index + " ");
         if (splitScope) {
           theScope = "%" + theScope + "%";
@@ -447,13 +509,14 @@ public class Hib3AttributeDefDAO extends Hib3DAO implements AttributeDefDAO {
   }
 
   /**
-   * @see AttributeDefDAO#getAllAttributeDefsSplitScopeSecure(String, GrouperSession, Subject, Set, QueryOptions)
+   * @see AttributeDefDAO#getAllAttributeDefsSplitScopeSecure(String, GrouperSession, Subject, Set, QueryOptions, AttributeAssignType, AttributeDefType)
    * @Override
    */
   public Set<AttributeDef> getAllAttributeDefsSplitScopeSecure(String scope,
       GrouperSession grouperSession, Subject subject, Set<Privilege> privileges,
-      QueryOptions queryOptions) {
-    return getAllAttributeDefsSecureHelper(scope, grouperSession, subject, privileges, queryOptions, true);
+      QueryOptions queryOptions, AttributeAssignType attributeAssignType,
+      AttributeDefType attributeDefType) {
+    return getAllAttributeDefsSecureHelper(scope, grouperSession, subject, privileges, queryOptions, true, attributeAssignType, attributeDefType);
   }
 
 

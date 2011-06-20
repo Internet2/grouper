@@ -40,19 +40,19 @@ public class Hib3PITGroupDAO extends Hib3DAO implements PITGroupDAO {
   public void saveOrUpdate(PITGroup pitGroup) {
     HibernateSession.byObjectStatic().saveOrUpdate(pitGroup);
   }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.PITGroupDAO#saveOrUpdate(java.util.Set)
+   */
+  public void saveOrUpdate(Set<PITGroup> pitGroups) {
+    HibernateSession.byObjectStatic().saveOrUpdate(pitGroups);
+  }
 
   /**
    * @see edu.internet2.middleware.grouper.internal.dao.PITGroupDAO#delete(edu.internet2.middleware.grouper.pit.PITGroup)
    */
   public void delete(PITGroup pitGroup) {
     HibernateSession.byObjectStatic().delete(pitGroup);
-  }
-  
-  /**
-   * @see edu.internet2.middleware.grouper.internal.dao.PITGroupDAO#saveBatch(java.util.Set)
-   */
-  public void saveBatch(Set<PITGroup> pitGroups) {
-    HibernateSession.byObjectStatic().saveBatch(pitGroups);
   }
   
   /**
@@ -244,6 +244,57 @@ public class Hib3PITGroupDAO extends Hib3DAO implements PITGroupDAO {
     }
     
     return filteredPITGroups;
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.PITGroupDAO#findByStemId(java.lang.String)
+   */
+  public Set<PITGroup> findByStemId(String id) {
+    return HibernateSession
+        .byHqlStatic()
+        .createQuery("select pitGroup from PITGroup as pitGroup where pitGroup.stemId = :id")
+        .setCacheable(false).setCacheRegion(KLASS + ".FindByStemId")
+        .setString("id", id)
+        .listSet(PITGroup.class);
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.PITGroupDAO#findMissingActivePITGroups()
+   */
+  public Set<Group> findMissingActivePITGroups() {
+
+    Set<Group> groups = HibernateSession
+      .byHqlStatic()
+      .createQuery("select g from Group g where " +
+          "not exists (select 1 from PITGroup pit where g.uuid = pit.id and g.nameDb = pit.nameDb and g.parentUuid = pit.stemId) " +
+          "and not exists (select 1 from ChangeLogEntryTemp temp, ChangeLogType type " +
+          "    where temp.string01 = g.uuid " +
+          "    and type.actionName='addGroup' and type.changeLogCategory='group' and type.id=temp.changeLogTypeId) " +
+          "and not exists (select 1 from ChangeLogEntryTemp temp, ChangeLogType type " +
+          "    where temp.string01 = g.uuid " +
+          "    and type.actionName='updateGroup' and type.changeLogCategory='group' and type.id=temp.changeLogTypeId)")
+      .setCacheable(false).setCacheRegion(KLASS + ".FindMissingActivePITGroups")
+      .listSet(Group.class);
+    
+    return groups;
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.PITGroupDAO#findMissingInactivePITGroups()
+   */
+  public Set<PITGroup> findMissingInactivePITGroups() {
+
+    Set<PITGroup> groups = HibernateSession
+      .byHqlStatic()
+      .createQuery("select pit from PITGroup pit where activeDb = 'T' and " +
+          "not exists (select 1 from Group g where g.uuid = pit.id) " +
+          "and not exists (select 1 from ChangeLogEntryTemp temp, ChangeLogType type " +
+          "    where temp.string01 = pit.id " +
+          "    and type.actionName='deleteGroup' and type.changeLogCategory='group' and type.id=temp.changeLogTypeId)")
+      .setCacheable(false).setCacheRegion(KLASS + ".FindMissingInactivePITGroups")
+      .listSet(PITGroup.class);
+    
+    return groups;
   }
 }
 

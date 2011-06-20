@@ -14,15 +14,15 @@
    http://grouper.internet2.edu/shibboleth/2.0 classpath:/schema/shibboleth-2.0-grouper.xsd
    http://grouper.internet2.edu/ldappc classpath:/schema/ldappc.xsd">
 
-  <resolver:DataConnector id="GroupDataConnector" xsi:type="grouper:GroupDataConnector">   
+  <resolver:DataConnector id="GroupDataConnector" xsi:type="grouper:FindGroupByNameDataConnector">   
     <grouper:Attribute id="members" />
     <grouper:Attribute id="groups" />
   </resolver:DataConnector>
 
-  <resolver:DataConnector id="StemDataConnector" xsi:type="grouper:StemDataConnector">
+  <resolver:DataConnector id="StemDataConnector" xsi:type="grouper:FindStemByNameDataConnector">
   </resolver:DataConnector>
   
-  <resolver:DataConnector id="MemberDataConnector" xsi:type="grouper:MemberDataConnector">
+  <resolver:DataConnector id="MemberDataConnector" xsi:type="grouper:FindMemberBySubjectIdOrIdentifierDataConnector">
     <grouper:Attribute id="groups" />
   </resolver:DataConnector>
 

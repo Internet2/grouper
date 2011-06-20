@@ -231,6 +231,62 @@
            </table>
          </td>
        </tr>
+
+       <tr class="formTableRow">
+         <td class="formTableLeft">
+           <grouper:message key="simpleAttributeUpdate.create.privs-for-all" />
+         </td>
+         <td class="formTableRight" style="white-space: nowrap;">
+            
+            <input type="checkbox" name="attributeDefToEditAllowAllAdmin" 
+              value="true" 
+              ${attributeUpdateRequestContainer.allowAllAdmin ? 'checked="checked"' : '' } />
+              
+             <grouper:message key="priv.attrAdminLower" /> 
+             
+             &nbsp;
+             
+            <input type="checkbox" name="attributeDefToEditAllowAllUpdate" 
+              value="true" 
+              ${attributeUpdateRequestContainer.allowAllUpdate ? 'checked="checked"' : '' } />
+              
+             <grouper:message key="priv.attrUpdateLower" /> 
+             
+             &nbsp;
+             
+             <input type="checkbox" name="attributeDefToEditAllowAllRead" 
+              value="true" 
+              ${attributeUpdateRequestContainer.allowAllRead ? 'checked="checked"' : '' } />
+              
+             <grouper:message key="priv.attrReadLower" /> 
+             
+             &nbsp;
+             
+            <input type="checkbox" name="attributeDefToEditAllowAllView" 
+              value="true" 
+              ${attributeUpdateRequestContainer.allowAllView ? 'checked="checked"' : '' } />
+              
+             <grouper:message key="priv.attrViewLower" /> 
+             
+             &nbsp;
+             
+            <input type="checkbox" name="attributeDefToEditAllowAllOptin" 
+              value="true" 
+              ${attributeUpdateRequestContainer.allowAllOptin ? 'checked="checked"' : '' } />
+              
+             <grouper:message key="priv.attrOptinLower" /> 
+             
+             &nbsp;
+             
+            <input type="checkbox" name="attributeDefToEditAllowAllOptout" 
+              value="true" 
+              ${attributeUpdateRequestContainer.allowAllOptout ? 'checked="checked"' : '' } />
+              
+             <grouper:message key="priv.attrOptoutLower" /> 
+                          
+         </td>
+       </tr>
+
        <tr>
        <td colspan="2">
 
@@ -238,23 +294,32 @@
 
            <input class="redButton" type="submit" 
             onclick="if (confirm('${grouper:message('simpleAttributeUpdate.editPanelDeleteConfirm', true, true) }')) {ajax('../app/SimpleAttributeUpdate.attributeEditPanelDelete', {formIds: 'attributeEditFormId'}); } return false;" 
-            value="${simpleAttributeUpdateContainer.text.editPanelDelete}" style="margin-top: 2px" />
+            value="${attributeUpdateRequestContainer.text.editPanelDelete}" style="margin-top: 2px" />
 
          </c:if>
 
          <input class="redButton" type="submit" 
           onclick="window.location = 'grouper.html?operation=SimpleAttributeUpdate.createEdit'; return false;" 
-          value="${simpleAttributeUpdateContainer.text.editPanelCancel}" style="margin-top: 2px" />
+          value="${attributeUpdateRequestContainer.text.editPanelCancel}" style="margin-top: 2px" />
          
          <c:if test="${!attributeUpdateRequestContainer.create}">
            <input class="blueButton" type="submit" 
             onclick="ajax('../app/SimpleAttributeUpdate.attributeEditPanelActions', {formIds: 'attributeEditFormId'}); return false;" 
-            value="${simpleAttributeUpdateContainer.text.editPanelActions}" style="margin-top: 2px" />
+            value="${attributeUpdateRequestContainer.text.editPanelActions}" style="margin-top: 2px" />
+
+           <input class="blueButton" type="submit" 
+            onclick="ajax('../app/SimpleAttributeUpdate.attributeEditPanelPrivilegesClearPaging', {formIds: 'attributeEditFormId'}); return false;" 
+            value="${attributeUpdateRequestContainer.text.editPanelPrivileges}" style="margin-top: 2px" />
+
+           <input class="blueButton" type="submit" 
+            onclick="location.href = 'grouper.html?operation=SimpleAttributeNameUpdate.createEditAttributeNames&attributeDefIdForFilter=${attributeUpdateRequestContainer.attributeDefToEdit.id}'; return false;" 
+            value="${attributeUpdateRequestContainer.text.editAttributeNames}" style="margin-top: 2px" />
+
          </c:if>
        
          <input class="blueButton" type="submit" 
           onclick="ajax('../app/SimpleAttributeUpdate.attributeEditPanelSubmit', {formIds: 'attributeEditFormId'}); return false;" 
-          value="${simpleAttributeUpdateContainer.text.editPanelSubmit}" style="margin-top: 2px" />
+          value="${attributeUpdateRequestContainer.text.editPanelSubmit}" style="margin-top: 2px" />
        
        </td>
        </tr>
@@ -268,5 +333,7 @@
 <div id="attributeActionsPanel">
 </div>
 
+<div id="attributePrivilegesPanel">
+</div>
 
 <!-- End: simpleAttributeUpdate/attributeEditPanel.jsp -->

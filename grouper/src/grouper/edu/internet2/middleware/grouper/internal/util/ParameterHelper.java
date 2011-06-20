@@ -16,6 +16,7 @@
 */
 
 package edu.internet2.middleware.grouper.internal.util;
+import java.io.Serializable;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.Group;
@@ -41,7 +42,7 @@ import edu.internet2.middleware.subject.provider.SourceManager;
  * @version $Id: ParameterHelper.java,v 1.7 2009-09-21 06:14:27 mchyzer Exp $
  * @since   1.2.1
  */
-public class ParameterHelper {
+public class ParameterHelper implements Serializable {
 
 
   /**

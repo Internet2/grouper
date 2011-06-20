@@ -11,8 +11,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -155,15 +153,13 @@ public abstract class BaseSourceAdapter implements Source {
 
   /** */
   protected Set<String> attributes = new HashSet<String>();
-  
-  private List<String> sortAttributes = null;
-  
-  private List<String> searchAttributes = null;
-  
-  private List<String> sortAttributeDisplayNames = null;
-  
-  private List<String> searchAttributeDisplayNames = null;
 
+  /** internal attributes. */
+  protected Set<String> internalAttributes = new HashSet<String>();
+  
+  protected Map<Integer, String> sortAttributes = null;
+  
+  protected Map<Integer, String> searchAttributes = null;
   /**
    * Default constructor.
    */
@@ -329,6 +325,13 @@ public abstract class BaseSourceAdapter implements Source {
   public void addInitParam(String name1, String value) {
     this.params.setProperty(name1, value);
   }
+  
+  /**
+   * @param name1
+   */
+  public void removeInitParam(String name1) {
+    this.params.remove(name1);
+  }
 
   /**
    * (non-javadoc)
@@ -354,6 +357,13 @@ public abstract class BaseSourceAdapter implements Source {
   public void addAttribute(String attributeName) {
     this.attributes.add(attributeName);
   }
+  
+  /**
+   * @param attributeName
+   */
+  public void addInternalAttribute(String attributeName) {
+    this.internalAttributes.add(attributeName);
+  }
 
   /**
    * 
@@ -361,6 +371,13 @@ public abstract class BaseSourceAdapter implements Source {
    */
   protected Set getAttributes() {
     return this.attributes;
+  }
+  
+  /**
+   * @return set
+   */
+  public Set<String> getInternalAttributes() {
+    return this.internalAttributes;
   }
 
   /**
@@ -399,22 +416,32 @@ public abstract class BaseSourceAdapter implements Source {
   }
   
   /**
+   * @param sortAttributes
+   */
+  public void setSortAttributes(Map<Integer, String> sortAttributes) {
+    this.sortAttributes = sortAttributes;
+  }
+  
+  /**
+   * @param searchAttributes
+   */
+  public void setSearchAttributes(Map<Integer, String> searchAttributes) {
+    this.searchAttributes = searchAttributes;
+  }
+  
+  /**
    * @see edu.internet2.middleware.subject.Source#getSortAttributes()
    */
-  public List<String> getSortAttributes() {
+  public Map<Integer, String> getSortAttributes() {
     
     if (this.sortAttributes == null) {
-      this.sortAttributes = new LinkedList<String>();
+      this.sortAttributes = new LinkedHashMap<Integer, String>();
       
-      int count = 0;
-      while (true) {
-        String value = getInitParam("sortAttribute" + count);
-        if (value == null) {
-          break;
-        }
-        
-        this.sortAttributes.add(value);
-        count++;
+      for (int i = 0; i < 5; i++) {
+        String value = getInitParam("sortAttribute" + i);
+        if (value != null) {
+          this.sortAttributes.put(i, value);
+        }        
       }
     }
     
@@ -424,69 +451,19 @@ public abstract class BaseSourceAdapter implements Source {
   /**
    * @see edu.internet2.middleware.subject.Source#getSearchAttributes()
    */
-  public List<String> getSearchAttributes() {
+  public Map<Integer, String> getSearchAttributes() {
     
     if (this.searchAttributes == null) {
-      this.searchAttributes = new LinkedList<String>();
+      this.searchAttributes = new LinkedHashMap<Integer, String>();
       
-      int count = 0;
-      while (true) {
-        String value = getInitParam("searchAttribute" + count);
-        if (value == null) {
-          break;
-        }
-        
-        this.searchAttributes.add(value);
-        count++;
+      for (int i = 0; i < 5; i++) {
+        String value = getInitParam("searchAttribute" + i);
+        if (value != null) {
+          this.searchAttributes.put(i, value);
+        }        
       }
     }
     
     return this.searchAttributes;
-  }
-  
-  /**
-   * @see edu.internet2.middleware.subject.Source#getSortAttributeDisplayNames()
-   */
-  public List<String> getSortAttributeDisplayNames() {
-    
-    if (this.sortAttributeDisplayNames == null) {
-      this.sortAttributeDisplayNames = new LinkedList<String>();
-      
-      int count = 0;
-      while (true) {
-        String value = getInitParam("sortAttributeDisplayName" + count);
-        if (value == null) {
-          break;
-        }
-        
-        this.sortAttributeDisplayNames.add(value);
-        count++;
-      }
-    }
-    
-    return this.sortAttributeDisplayNames;
-  }
-  
-  /**
-   * @see edu.internet2.middleware.subject.Source#getSearchAttributeDisplayNames()
-   */
-  public List<String> getSearchAttributeDisplayNames() {
-    
-    if (this.searchAttributeDisplayNames == null) {
-      this.searchAttributeDisplayNames = new LinkedList<String>();
-      
-      int count = 0;
-      while (true) {
-        String value = getInitParam("searchAttributeDisplayName" + count);
-        if (value == null) {
-          break;
-        }
-        
-        this.searchAttributeDisplayNames.add(value);
-        count++;
-      }
-    }
-    
-    return this.searchAttributeDisplayNames;
   }
 }

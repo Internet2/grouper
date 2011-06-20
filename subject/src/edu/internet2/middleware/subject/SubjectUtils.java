@@ -38,10 +38,10 @@ import java.util.regex.Pattern;
 
 import net.sf.cglib.proxy.Enhancer;
 
-import org.apache.commons.jexl.Expression;
-import org.apache.commons.jexl.ExpressionFactory;
-import org.apache.commons.jexl.JexlContext;
-import org.apache.commons.jexl.JexlHelper;
+import org.apache.commons.jexl2.Expression;
+import org.apache.commons.jexl2.JexlContext;
+import org.apache.commons.jexl2.JexlEngine;
+import org.apache.commons.jexl2.MapContext;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
@@ -1720,16 +1720,16 @@ public class SubjectUtils {
       return stringToParse;
     }
     try {
-      JexlContext jc = JexlHelper.createContext();
+      JexlContext jc = new MapContext();
 
       int index = 0;
       
       for (String key: variableMap.keySet()) {
-        jc.getVars().put(key, variableMap.get(key));
+        jc.set(key, variableMap.get(key));
       }
       
       //allow utility methods
-      jc.getVars().put("subjectUtils", new SubjectUtils());
+      jc.set("subjectUtils", new SubjectUtils());
       
       // matching ${ exp }   (non-greedy)
       Pattern pattern = Pattern.compile("\\$\\{(.*?)\\}");
@@ -1737,6 +1737,10 @@ public class SubjectUtils {
       
       StringBuilder result = new StringBuilder();
   
+      JexlEngine jexlEngine = new JexlEngine();
+      jexlEngine.setSilent(false);
+
+      
       //loop through and find each script
       while(matcher.find()) {
         result.append(stringToParse.substring(index, matcher.start()));
@@ -1744,7 +1748,7 @@ public class SubjectUtils {
         //here is the script inside the curlies
         String script = matcher.group(1);
         
-        Expression e = ExpressionFactory.createExpression(script);
+        Expression e = jexlEngine.createExpression(script);
   
         //this is the result of the evaluation
         Object o = e.evaluate(jc);

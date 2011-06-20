@@ -291,4 +291,44 @@ public class LazySubject implements Subject {
   public String getAttributeValueSingleValued(String attributeName) {
     return SubjectImpl.attributeValueOrCommaSeparated(this, attributeName);
   }
+
+  /**
+   * @see edu.internet2.middleware.subject.Subject#getAttributeValue(java.lang.String, boolean)
+   */
+  public String getAttributeValue(String attributeName, boolean excludeInternalAttributes) {
+    return getSubject().getAttributeValue(attributeName, excludeInternalAttributes);
+  }
+  
+  /**
+   * @see edu.internet2.middleware.subject.Subject#getAttributeValues(java.lang.String, boolean)
+   */
+  public Set<String> getAttributeValues(String attributeName, boolean excludeInternalAttributes) {
+    return getSubject().getAttributeValues(attributeName, excludeInternalAttributes);
+  }
+
+  /**
+   * @see edu.internet2.middleware.subject.Subject#getAttributeValueOrCommaSeparated(java.lang.String, boolean)
+   */
+  public String getAttributeValueOrCommaSeparated(String attributeName, boolean excludeInternalAttributes) {
+    return SubjectImpl.attributeValueOrCommaSeparated(this, attributeName, excludeInternalAttributes);
+  }
+
+  /**
+   * @see edu.internet2.middleware.subject.Subject#getAttributeValueSingleValued(java.lang.String, boolean)
+   */
+  public String getAttributeValueSingleValued(String attributeName, boolean excludeInternalAttributes) {
+    return getSubject().getAttributeValueSingleValued(attributeName, excludeInternalAttributes);
+  }
+
+  /**
+   * @see edu.internet2.middleware.subject.Subject#getAttributes(boolean)
+   */
+  public Map<String, Set<String>> getAttributes(boolean excludeInternalAttributes) {
+    try {
+      return getSubject().getAttributes(excludeInternalAttributes);
+    } catch (RuntimeException re) {
+      unresolvable = true;
+      throw re;
+    }
+  }
 }

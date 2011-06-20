@@ -54,7 +54,7 @@
 	/>
 	<item 	functionalArea="SavedSubjects"
 				action="/populateListSavedSubjects.do"
-				titleKey="saved-subjects.link.title"
+				titleKey="saved-subjects.link.title"	
 				linkKey="saved.subjects"
 	/>
 	<item 	functionalArea="GroupTypes"
@@ -62,6 +62,12 @@
 				titleKey="grouptypes.link.title"
 				linkKey="grouptypes.list"
 			forAdmin="true"
+	/>
+<item 	functionalArea="LiteUi"
+				action="/grouperUi/appHtml/grouper.html?operation=Misc.index"
+				titleKey="liteUi.link.title"
+				linkKey="liteUi.list"
+				mediaKeyMustBeTrue="ui-lite.link-from-admin-ui"
 	/>	
 	<item 	functionalArea="Help"
 				action="/help.do"

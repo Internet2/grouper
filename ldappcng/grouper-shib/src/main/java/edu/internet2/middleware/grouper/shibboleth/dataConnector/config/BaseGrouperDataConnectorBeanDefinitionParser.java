@@ -25,33 +25,36 @@ import org.springframework.beans.factory.xml.ParserContext;
 import org.w3c.dom.Element;
 
 import edu.internet2.middleware.grouper.shibboleth.config.GrouperNamespaceHandler;
+import edu.internet2.middleware.grouper.shibboleth.filter.provider.MatchQueryFilterBeanDefinitionParser;
 import edu.internet2.middleware.grouper.shibboleth.util.AttributeIdentifierBeanDefinitionParser;
 import edu.internet2.middleware.shibboleth.common.config.SpringConfigurationUtils;
 import edu.internet2.middleware.shibboleth.common.config.attribute.resolver.dataConnector.BaseDataConnectorBeanDefinitionParser;
 
+/** Spring bean definition parser for configuring Grouper data connectors. */
 public abstract class BaseGrouperDataConnectorBeanDefinitionParser extends BaseDataConnectorBeanDefinitionParser {
 
+  /** {@inheritDoc} */
   protected void doParse(String pluginId, Element pluginConfig, Map<QName, List<Element>> pluginConfigChildren,
       BeanDefinitionBuilder pluginBuilder, ParserContext parserContext) {
 
     List<Element> fieldIdentifiers = XMLHelper.getChildElementsByTagNameNS(pluginConfig,
         GrouperNamespaceHandler.NAMESPACE, AttributeIdentifierBeanDefinitionParser.TYPE_NAME.getLocalPart());
-    pluginBuilder.addPropertyValue("fieldIdentifiers", SpringConfigurationUtils.parseInnerCustomElements(
-        fieldIdentifiers, parserContext));
+    pluginBuilder.addPropertyValue("fieldIdentifiers",
+        SpringConfigurationUtils.parseInnerCustomElements(fieldIdentifiers, parserContext));
 
     // TOOD is this the correct way to handle a single custom child element ?
-    List<Element> groupQueryFilters = XMLHelper.getChildElementsByTagNameNS(pluginConfig,
-        GrouperNamespaceHandler.NAMESPACE, "GroupFilter");
-    if (!groupQueryFilters.isEmpty()) {
-      pluginBuilder.addPropertyValue("groupQueryFilter", SpringConfigurationUtils.parseInnerCustomElement(
-          groupQueryFilters.get(0), parserContext));
+    List<Element> matchQueryFilters = XMLHelper.getChildElementsByTagNameNS(pluginConfig,
+        GrouperNamespaceHandler.NAMESPACE, MatchQueryFilterBeanDefinitionParser.MATCH_FILTER_TYPE_NAME.getLocalPart());
+    if (!matchQueryFilters.isEmpty()) {
+      pluginBuilder.addPropertyValue("matchQueryFilter",
+          SpringConfigurationUtils.parseInnerCustomElement(matchQueryFilters.get(0), parserContext));
     }
 
     List<Element> subjectIdentifiers = XMLHelper.getChildElementsByTagNameNS(pluginConfig,
         GrouperNamespaceHandler.NAMESPACE, AttributeIdentifierBeanDefinitionParser.SUBJECT_ID_TYPE_NAME.getLocalPart());
     if (!subjectIdentifiers.isEmpty()) {
-      pluginBuilder.addPropertyValue("subjectIdentifier", SpringConfigurationUtils.parseInnerCustomElement(
-          subjectIdentifiers.get(0), parserContext));
+      pluginBuilder.addPropertyValue("subjectIdentifier",
+          SpringConfigurationUtils.parseInnerCustomElement(subjectIdentifiers.get(0), parserContext));
     }
   }
 }

@@ -802,6 +802,7 @@ public class PITMembership extends GrouperPIT implements Hib3GrouperVersioned {
       pitImmediateGroupSet.setContextId(this.getContextId());
       pitImmediateGroupSet.setFlatMembershipNotificationsOnSaveOrUpdate(this.getFlatMembershipNotificationsOnSaveOrUpdate());
       pitImmediateGroupSet.setFlatPrivilegeNotificationsOnSaveOrUpdate(this.getFlatPrivilegeNotificationsOnSaveOrUpdate());
+      pitImmediateGroupSet.setFlatPermissionNotificationsOnSaveOrUpdate(this.getFlatPermissionNotificationsOnSaveOrUpdate());
       pitImmediateGroupSet.saveOrUpdate();
     }
     
@@ -834,6 +835,7 @@ public class PITMembership extends GrouperPIT implements Hib3GrouperVersioned {
       pitImmediateGroupSet.setContextId(this.getContextId());
       pitImmediateGroupSet.setFlatMembershipNotificationsOnSaveOrUpdate(this.getFlatMembershipNotificationsOnSaveOrUpdate());
       pitImmediateGroupSet.setFlatPrivilegeNotificationsOnSaveOrUpdate(this.getFlatPrivilegeNotificationsOnSaveOrUpdate());
+      pitImmediateGroupSet.setFlatPermissionNotificationsOnSaveOrUpdate(this.getFlatPermissionNotificationsOnSaveOrUpdate());
       pitImmediateGroupSet.saveOrUpdate();
     }
     
@@ -871,5 +873,28 @@ public class PITMembership extends GrouperPIT implements Hib3GrouperVersioned {
     Set<String> result = GrouperUtil.compareObjectFields(this, this.dbVersion,
         DB_VERSION_FIELDS, null);
     return result;
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.GrouperAPI#onPreDelete(edu.internet2.middleware.grouper.hibernate.HibernateSession)
+   */
+  @Override
+  public void onPreDelete(HibernateSession hibernateSession) {
+    super.onPreDelete(hibernateSession);
+
+    if (this.isActive()) {
+      throw new RuntimeException("Cannot delete active point in time membership object with id=" + this.getId());
+    }
+    
+    // Note that we're not deleting group sets from here since there's no foreign key to the grouper_group_set table.
+    // We're assuming that memberships only get deleted when all the memberships for the group, stem, or attr def
+    // are getting deleted.  So the group sets get deleted separately.
+    
+    // delete attribute assignments
+    Set<PITAttributeAssign> assignments = GrouperDAOFactory.getFactory().getPITAttributeAssign().findByOwnerMembershipId(this.getId());
+    
+    for (PITAttributeAssign assignment : assignments) {
+      GrouperDAOFactory.getFactory().getPITAttributeAssign().delete(assignment);
+    }
   }
 }

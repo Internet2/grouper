@@ -20,9 +20,11 @@ import java.util.Set;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.Stem.Scope;
+import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.exception.GrantPrivilegeAlreadyExistsException;
 import edu.internet2.middleware.grouper.exception.GrantPrivilegeException;
 import edu.internet2.middleware.grouper.exception.GrouperException;
@@ -33,7 +35,9 @@ import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.exception.UnableToPerformAlreadyExistsException;
 import edu.internet2.middleware.grouper.exception.UnableToPerformException;
 import edu.internet2.middleware.grouper.hibernate.HqlQuery;
+import edu.internet2.middleware.grouper.internal.dao.QueryPaging;
 import edu.internet2.middleware.grouper.internal.util.ParameterHelper;
+import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.subject.Subject;
 
 
@@ -336,6 +340,15 @@ public class AccessWrapper implements AccessResolver {
    */
   public void revokeAllPrivilegesForSubject(Subject subject) {
     this.access.revokeAllPrivilegesForSubject(this.s, subject);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.privs.GroupResolver#retrievePrivileges(Group, java.util.Set, edu.internet2.middleware.grouper.membership.MembershipType, edu.internet2.middleware.grouper.internal.dao.QueryPaging, Set)
+   */
+  public Set<PrivilegeSubjectContainer> retrievePrivileges(Group group,
+      Set<Privilege> privileges, MembershipType membershipType, QueryPaging queryPaging, Set<Member> additionalMembers) {
+    return this.access.retrievePrivileges(this.s, 
+        group, privileges, membershipType, queryPaging, additionalMembers);
   }
 
 }

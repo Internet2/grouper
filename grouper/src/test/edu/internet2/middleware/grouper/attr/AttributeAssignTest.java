@@ -687,16 +687,16 @@ public class AttributeAssignTest extends GrouperTest {
     AttributeAssign attributeAssign = attributeAssignResult.getAttributeAssign();
 
     //this one is the same
-    AttributeAssign attributeAssign1 = group.getAttributeDelegate().internal_assignAttributeHelper(null, attributeDefName, true, null).getAttributeAssign();
+    AttributeAssign attributeAssign1 = group.getAttributeDelegate().internal_assignAttributeHelper(null, attributeDefName, true, null, null).getAttributeAssign();
     attributeAssign1.saveOrUpdate();
 
     //this one has different notes
-    AttributeAssign attributeAssign2 = group.getAttributeDelegate().internal_assignAttributeHelper(null, attributeDefName, true, null).getAttributeAssign();
+    AttributeAssign attributeAssign2 = group.getAttributeDelegate().internal_assignAttributeHelper(null, attributeDefName, true, null, null).getAttributeAssign();
     attributeAssign2.setNotes("abc");
     attributeAssign2.saveOrUpdate();
     
     //this one has different notes and date
-    AttributeAssign attributeAssign3 = group.getAttributeDelegate().internal_assignAttributeHelper(null, attributeDefName, true, null).getAttributeAssign();
+    AttributeAssign attributeAssign3 = group.getAttributeDelegate().internal_assignAttributeHelper(null, attributeDefName, true, null, null).getAttributeAssign();
     attributeAssign3.setNotes("abc");
     attributeAssign3.setEnabledTimeDb(9L);
     attributeAssign3.saveOrUpdate();

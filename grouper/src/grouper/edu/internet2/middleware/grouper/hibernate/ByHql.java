@@ -298,10 +298,10 @@ public class ByHql extends HibernateDelegate implements HqlQuery {
     
     //see if we are even retrieving the results
     if (this.queryOptions == null || this.queryOptions.isRetrieveResults()) {
-    Query query = ByHql.this.attachQueryInfo(session);
-    //not sure this can ever be null, but make sure not to make iterating results easier
+      Query query = ByHql.this.attachQueryInfo(session);
+      //not sure this can ever be null, but make sure not to make iterating results easier
       list = query.list();
-    HibUtils.evict(hibernateSession,  list, true);
+      HibUtils.evict(hibernateSession,  list, true);
     }
     //no nulls
     list = GrouperUtil.nonNull(list);
@@ -325,23 +325,32 @@ public class ByHql extends HibernateDelegate implements HqlQuery {
         }
       }
       
+      boolean needsPagingQuery = false;
+      if (queryPaging != null && (queryPaging.getTotalRecordCount() <= 0 || !queryPaging.isCacheTotalCount())) {
+        needsPagingQuery = true;
+      }
+      if (retrieveQueryCountNotForPaging) {
+        needsPagingQuery = true;
+      }
+      //we already know the size
+      if (resultSize != -1) {
+        needsPagingQuery = false;
+      }
+
       //do this if we dont have a total, or if we are not caching the total
-      if ((queryPaging != null && (queryPaging.getTotalRecordCount() < 0 || !queryPaging.isCacheTotalCount())) 
-          || resultSize > -1 || retrieveQueryCountNotForPaging) {
+      if (needsPagingQuery) {
         
-        //if we dont already know the size
-        if (resultSize == -1) {
-          queryCountQueries++;
-          String countQueryHql = HibUtils.convertHqlToCountHql(this.query);
-          Query countQuery = session.createQuery(countQueryHql);
-          attachBindValues(countQuery);
-          Long theCount = (Long)countQuery.iterate().next();
-          resultSize = theCount.intValue();
-        }
-        
+        queryCountQueries++;
+        String countQueryHql = HibUtils.convertHqlToCountHql(this.query);
+        Query countQuery = session.createQuery(countQueryHql);
+        attachBindValues(countQuery);
+        Long theCount = (Long)countQuery.iterate().next();
+        resultSize = theCount.intValue();
+      }
+      if (resultSize != -1) {
         if (queryPaging != null) {
           queryPaging.setTotalRecordCount(resultSize);
-  
+
           //calculate the page stuff like how many pages etc
           queryPaging.calculateIndexes();
         }

@@ -29,6 +29,7 @@ import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 
+import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.j2ee.GrouperRequestWrapper;
 import edu.internet2.middleware.grouper.ui.ErrorFilter;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
@@ -47,7 +48,7 @@ import edu.internet2.middleware.grouper.ui.util.NavExceptionHelper;
  * @version $Id: PopulateErrorAction.java,v 1.4 2009-08-12 04:52:14 mchyzer Exp $
  */
 
-public class PopulateErrorAction extends org.apache.struts.action.Action {
+public class PopulateErrorAction extends GrouperCapableAction {
 	protected static Log LOG = LogFactory.getLog(PopulateErrorAction.class);
 	//------------------------------------------------------------ Local
 	// Forwards
@@ -59,8 +60,9 @@ public class PopulateErrorAction extends org.apache.struts.action.Action {
 	 * 
 	 * @see org.apache.struts.action.Action#execute(org.apache.struts.action.ActionMapping, org.apache.struts.action.ActionForm, javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
 	 */
-	public ActionForward execute(ActionMapping mapping, ActionForm form,
-			HttpServletRequest request, HttpServletResponse response)
+	public ActionForward grouperExecute(ActionMapping mapping, ActionForm form,
+			HttpServletRequest request, HttpServletResponse response,
+			HttpSession session, GrouperSession grouperSession)
 			throws Exception {
 		
 	  boolean needsThreadLocalInit = GrouperUiFilter.retrieveHttpServletRequest() == null;
@@ -86,7 +88,7 @@ public class PopulateErrorAction extends org.apache.struts.action.Action {
   				msg=code;
   			}
   		}else{
-  			HttpSession session = request.getSession();
+  			//HttpSession session = request.getSession();
   			Exception e = (Exception) session.getAttribute("templateException");
   			if(e!=null) {
   				request.setAttribute("exception",e);

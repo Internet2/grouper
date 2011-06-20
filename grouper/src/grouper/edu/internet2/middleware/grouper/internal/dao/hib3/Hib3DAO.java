@@ -130,6 +130,7 @@ public abstract class Hib3DAO {
       addClass(CFG, Hib3PermissionEntryDAO.class, "Hib3PermissionRoleViewDAO");
       addClass(CFG, Hib3PermissionEntryDAO.class, "Hib3PermissionRoleSubjectViewDAO");
       addClass(CFG, Hib3PermissionEntryDAO.class, "Hib3PermissionAllViewDAO");
+      addClass(CFG, Hib3PermissionEntryDAO.class, "Hib3PermissionRoleAssignedViewDAO");
       addClass(CFG, Hib3RegistrySubjectDAO.class);
       addClass(CFG, Hib3RegistrySubjectAttributeDAO.class);
       addClass(CFG, Hib3RoleSetDAO.class);

@@ -170,7 +170,7 @@ public class QueryOptions {
     if (this.querySort == null) {
       this.querySort = new QuerySort(field, true);
     } else {
-      this.querySort.addSort(field, true);
+      this.querySort.insertSortToBeginning(field, true);
     }
     return this;
   }
@@ -196,7 +196,7 @@ public class QueryOptions {
     if (this.querySort == null) {
       this.querySort = new QuerySort(field, false);
     } else {
-      this.querySort.addSort(field, false);
+      this.querySort.insertSortToBeginning(field, false);
     }
     return this;
   }

@@ -10,7 +10,6 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -489,13 +488,20 @@ public class JDBCSourceAdapter2 extends JDBCSourceAdapter {
       query.append(" order by ").append(this.defaultSortCol);
     }
     
+    String throwErrorOnFindAllFailureString = this.getInitParam("throwErrorOnFindAllFailure");
+    boolean throwErrorOnFindAllFailure = SubjectUtils.booleanValue(throwErrorOnFindAllFailureString, true);
+
     Set<Subject> results = null;
     try {
       results = this.search(query.toString(), args, false, true);
-    } catch (SubjectNotUniqueException snue) {
-      throw new RuntimeException("This shouldnt happen", snue);
-    } catch (SubjectNotFoundException sfue) {
-      throw new RuntimeException("This shouldnt happen", sfue);
+    } catch (Exception ex) {
+      if (!throwErrorOnFindAllFailure) {
+        log.error(ex.getMessage() + ", source: " + this.getId() + ", searchValue: "
+          + searchValue, ex);
+      } else {
+        throw new SourceUnavailableException(ex.getMessage() + ", source: " + this.getId() + ", searchValue: "
+            + searchValue, ex);
+      }
     }
 
     return results;
@@ -599,7 +605,7 @@ public class JDBCSourceAdapter2 extends JDBCSourceAdapter {
       } catch (RuntimeException e) {
         log.error(error, e);
       }
-      log.error(error, ex);
+      throw new SourceUnavailableException(error, ex);
     } finally {
       closeStatement(stmt);
       if (jdbcConnectionBean != null) {
@@ -675,7 +681,10 @@ public class JDBCSourceAdapter2 extends JDBCSourceAdapter {
       }
     }
     //caller should not change this
-    return Collections.unmodifiableMap(attributes);
+    //return Collections.unmodifiableMap(attributes);
+    
+    //actually this may change due to virtual attributes
+    return attributes;
   }
 
   /**

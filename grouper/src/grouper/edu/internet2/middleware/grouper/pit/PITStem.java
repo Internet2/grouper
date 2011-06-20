@@ -3,6 +3,7 @@ package edu.internet2.middleware.grouper.pit;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.GrouperAPI;
+import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -154,5 +155,56 @@ public class PITStem extends GrouperPIT implements Hib3GrouperVersioned {
    */
   public void delete() {
     GrouperDAOFactory.getFactory().getPITStem().delete(this);
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.GrouperAPI#onPreDelete(edu.internet2.middleware.grouper.hibernate.HibernateSession)
+   */
+  @Override
+  public void onPreDelete(HibernateSession hibernateSession) {
+    super.onPreDelete(hibernateSession);
+
+    if (this.isActive()) {
+      throw new RuntimeException("Cannot delete active point in time stem object with id=" + this.getId());
+    }
+    
+    // delete memberships
+    Set<PITMembership> memberships = GrouperDAOFactory.getFactory().getPITMembership().findAllByOwner(this.getId());
+    for (PITMembership membership : memberships) {
+      GrouperDAOFactory.getFactory().getPITMembership().delete(membership);
+    }
+    
+    // delete attribute assignments
+    Set<PITAttributeAssign> assignments = GrouperDAOFactory.getFactory().getPITAttributeAssign().findByOwnerStemId(this.getId());
+    for (PITAttributeAssign assignment : assignments) {
+      GrouperDAOFactory.getFactory().getPITAttributeAssign().delete(assignment);
+    }
+    
+    // delete self group sets and their children
+    GrouperDAOFactory.getFactory().getPITGroupSet().deleteSelfByOwnerId(this.getId());
+    
+    // delete groups
+    Set<PITGroup> groups = GrouperDAOFactory.getFactory().getPITGroup().findByStemId(this.getId());
+    for (PITGroup group : groups) {
+      GrouperDAOFactory.getFactory().getPITGroup().delete(group);
+    }
+    
+    // delete attribute def names
+    Set<PITAttributeDefName> attrs = GrouperDAOFactory.getFactory().getPITAttributeDefName().findByStemId(this.getId());
+    for (PITAttributeDefName attr : attrs) {
+      GrouperDAOFactory.getFactory().getPITAttributeDefName().delete(attr);
+    }
+    
+    // delete attribute defs
+    Set<PITAttributeDef> defs = GrouperDAOFactory.getFactory().getPITAttributeDef().findByStemId(this.getId());
+    for (PITAttributeDef def : defs) {
+      GrouperDAOFactory.getFactory().getPITAttributeDef().delete(def);
+    }
+    
+    // delete child stems
+    Set<PITStem> stems = GrouperDAOFactory.getFactory().getPITStem().findByParentStemId(this.getId());
+    for (PITStem stem : stems) {
+      GrouperDAOFactory.getFactory().getPITStem().delete(stem);
+    }
   }
 }

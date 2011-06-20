@@ -24,6 +24,14 @@ public enum AttributeAssignType {
   group {
 
     /**
+     * @see AttributeAssignType#getAssignmentOnAssignmentType()
+     */
+    @Override
+    public AttributeAssignType getAssignmentOnAssignmentType() {
+      return group_asgn;
+    }
+
+    /**
      * @see AttributeAssignType#decorateAuditEntryDelete(AuditEntry, Object)
      */
     @Override
@@ -65,6 +73,14 @@ public enum AttributeAssignType {
 
   /** attribute assigned to member */
   member {
+
+    /**
+     * @see AttributeAssignType#getAssignmentOnAssignmentType()
+     */
+    @Override
+    public AttributeAssignType getAssignmentOnAssignmentType() {
+      return mem_asgn;
+    }
 
     /**
      * @see AttributeAssignType#decorateAuditEntryDelete(AuditEntry, Object)
@@ -117,6 +133,14 @@ public enum AttributeAssignType {
   stem {
 
     /**
+     * @see AttributeAssignType#getAssignmentOnAssignmentType()
+     */
+    @Override
+    public AttributeAssignType getAssignmentOnAssignmentType() {
+      return stem_asgn;
+    }
+
+    /**
      * @see AttributeAssignType#decorateAuditEntryDelete(AuditEntry, Object)
      */
     @Override
@@ -161,6 +185,14 @@ public enum AttributeAssignType {
 
   /** attribute assigned to effective membership */
   any_mem {
+
+    /**
+     * @see AttributeAssignType#getAssignmentOnAssignmentType()
+     */
+    @Override
+    public AttributeAssignType getAssignmentOnAssignmentType() {
+      return any_mem_asgn;
+    }
 
     /**
      * @see AttributeAssignType#decorateAuditEntryDelete(AuditEntry, Object)
@@ -215,6 +247,14 @@ public enum AttributeAssignType {
   imm_mem {
 
     /**
+     * @see AttributeAssignType#getAssignmentOnAssignmentType()
+     */
+    @Override
+    public AttributeAssignType getAssignmentOnAssignmentType() {
+      return imm_mem_asgn;
+    }
+
+    /**
      * @see AttributeAssignType#decorateAuditEntryDelete(AuditEntry, Object)
      */
     @Override
@@ -266,6 +306,14 @@ public enum AttributeAssignType {
   attr_def {
 
     /**
+     * @see AttributeAssignType#getAssignmentOnAssignmentType()
+     */
+    @Override
+    public AttributeAssignType getAssignmentOnAssignmentType() {
+      return attr_def_asgn;
+    }
+
+    /**
      * @see AttributeAssignType#decorateAuditEntryDelete(AuditEntry, Object)
      */
     @Override
@@ -312,6 +360,14 @@ public enum AttributeAssignType {
   group_asgn {
 
     /**
+     * @see AttributeAssignType#isAssignmentOnAssignment()
+     */
+    @Override
+    public boolean isAssignmentOnAssignment() {
+      return true;
+    }
+
+    /**
      * @see AttributeAssignType#decorateAuditEntryDelete(AuditEntry, Object)
      */
     @Override
@@ -340,6 +396,14 @@ public enum AttributeAssignType {
   
   /** attribute assigned to member assignment */
   mem_asgn {
+
+    /**
+     * @see AttributeAssignType#isAssignmentOnAssignment()
+     */
+    @Override
+    public boolean isAssignmentOnAssignment() {
+      return true;
+    }
 
     /**
      * @see AttributeAssignType#decorateAuditEntryDelete(AuditEntry, Object)
@@ -373,6 +437,14 @@ public enum AttributeAssignType {
   stem_asgn {
 
     /**
+     * @see AttributeAssignType#isAssignmentOnAssignment()
+     */
+    @Override
+    public boolean isAssignmentOnAssignment() {
+      return true;
+    }
+
+    /**
      * @see AttributeAssignType#decorateAuditEntryDelete(AuditEntry, Object)
      */
     @Override
@@ -402,6 +474,14 @@ public enum AttributeAssignType {
   
   /** attribute assigned to effective membership assignment */
   any_mem_asgn {
+
+    /**
+     * @see AttributeAssignType#isAssignmentOnAssignment()
+     */
+    @Override
+    public boolean isAssignmentOnAssignment() {
+      return true;
+    }
 
     /**
      * @see AttributeAssignType#decorateAuditEntryDelete(AuditEntry, Object)
@@ -435,6 +515,14 @@ public enum AttributeAssignType {
   imm_mem_asgn {
 
     /**
+     * @see AttributeAssignType#isAssignmentOnAssignment()
+     */
+    @Override
+    public boolean isAssignmentOnAssignment() {
+      return true;
+    }
+
+    /**
      * @see AttributeAssignType#decorateAuditEntryDelete(AuditEntry, Object)
      */
     @Override
@@ -464,6 +552,14 @@ public enum AttributeAssignType {
   
   /** attribute assigned to an attribute def assignment */
   attr_def_asgn {
+
+    /**
+     * @see AttributeAssignType#isAssignmentOnAssignment()
+     */
+    @Override
+    public boolean isAssignmentOnAssignment() {
+      return true;
+    }
 
     /**
      * @see AttributeAssignType#decorateAuditEntryDelete(AuditEntry, Object)
@@ -501,6 +597,21 @@ public enum AttributeAssignType {
     return this == group;
   }
   
+  /**
+   * name for javabean
+   * @return the attribute assign type
+   */
+  public String getName() {
+    return this.name();
+  }
+  
+  /**
+   * see if assignment on assignment
+   * @return if assignment on assignment
+   */
+  public boolean isAssignmentOnAssignment() {
+    return false;
+  }
   /**
    * 
    * @param auditEntry
@@ -567,6 +678,14 @@ public enum AttributeAssignType {
    */
   public boolean isEffectiveMembership() {
     return this == any_mem;
+  }
+  
+  /**
+   * attribute assignment type of an assignment on this assignment
+   * @return the type
+   */
+  public AttributeAssignType getAssignmentOnAssignmentType() {
+    throw new RuntimeException("Not applicable for attributeAssignType: " + this);
   }
   
   /**

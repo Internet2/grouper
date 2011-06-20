@@ -5,7 +5,8 @@ function guiRoundCorners() {
   if (!jQuery.browser.msie) {
     Nifty("div.sectionBody", "bottom");   
     Nifty("div.sectionHeader", "top");   
-    Nifty("div#navbar"); 
+    //this leaves a white line for some reason...
+    //Nifty("div#navbar"); 
   }  
 }
 
@@ -181,8 +182,9 @@ var allComboboxes = new Object();
  * @param width
  * @param useImages true or false, if images are in the combobox
  * @param filterUrl
+ * @param additionalFormElementNames send more form element names to the filter operation, comma separated
  */
-function guiRegisterDhtmlxCombo(divId, comboName, width, useImages, filterUrl, comboDefaultText, comboDefaultValue ) {
+function guiRegisterDhtmlxCombo(divId, comboName, width, useImages, filterUrl, comboDefaultText, comboDefaultValue, additionalFormElementNames ) {
   /* long hand...
    var simpleMembershipUpdateAddMemberSelect=new dhtmlXCombo(
       "simpleMembershipUpdateAddMemberDiv","simpleMembershipUpdateAddMember",200, 'image');
@@ -193,6 +195,9 @@ function guiRegisterDhtmlxCombo(divId, comboName, width, useImages, filterUrl, c
   
   filterUrl = guiDecorateUrl(filterUrl);
   
+  comboboxFormElementNamesToSend[comboName] = additionalFormElementNames;
+  
+  //remember the combo names for when the request goes out
   theCombo.enableFilteringMode(true,filterUrl,false);
   
   //note, for some reason the default value has to be above the default text...
@@ -201,7 +206,6 @@ function guiRegisterDhtmlxCombo(divId, comboName, width, useImages, filterUrl, c
   }
   if (!guiIsEmpty(comboDefaultText)) {
     theCombo.setComboText(comboDefaultText);
-
   }
 
   //add hidden throbber
@@ -287,6 +291,14 @@ function guiDecorateUrl(theUrl) {
   if (typeof urlArgObjectMap.membershipLiteName != 'undefined') {
     theUrl += theUrl.indexOf("?") == -1 ? "?" : "&";
     theUrl += "membershipLiteName=" +  urlArgObjectMap.membershipLiteName;
+  }
+  if (typeof urlArgObjectMap.attributeDefIdForFilter != 'undefined') {
+    theUrl += theUrl.indexOf("?") == -1 ? "?" : "&";
+    theUrl += "attributeDefIdForFilter=" +  urlArgObjectMap.attributeDefIdForFilter;
+  }
+  if (typeof urlArgObjectMap.attributeDefId != 'undefined') {
+    theUrl += theUrl.indexOf("?") == -1 ? "?" : "&";
+    theUrl += "attributeDefId=" +  urlArgObjectMap.attributeDefId;
   }
   return theUrl;
 }
@@ -462,7 +474,12 @@ function guiProcessAction(guiScreenAction) {
   }
   //replace some html
   if (!guiIsEmpty(guiScreenAction.innerHtmlJqueryHandle)) {
-     $(guiScreenAction.innerHtmlJqueryHandle).html(guiScreenAction.innerHtml);
+     $(guiScreenAction.innerHtmlJqueryHandle).html(guiScreenAction.html);
+  }
+
+  //append html
+  if (!guiIsEmpty(guiScreenAction.appendHtmlJqueryHandle)) {
+    $(guiScreenAction.appendHtmlJqueryHandle).append(guiScreenAction.html);
   }
 
   //hide/shows
@@ -1894,6 +1911,12 @@ function guiSubmitAttributeDefNamePickerToUrl(attributeDefNamePickerElementName,
 /**
  * scroll to the bottom of the page
  */
-function guiScrollToBottom() {
-  $('html, body').animate({scrollTop: $(document).height()},1500);
+function guiScrollTo(jqueryId) {
+  
+  //got this here: http://beski.wordpress.com/2009/04/21/scroll-effect-with-local-anchors-jquery/
+  var targetOffset = $(jqueryId).offset();
+  var targetTop = targetOffset.top;
+  
+  //$('html, body').animate({scrollTop: $(document).height()},1500);
+  $('html, body').animate({scrollTop: targetTop},500);
 }

@@ -13,6 +13,8 @@
 
 <html:form  action="/populateGroupMembers" enctype="multipart/form-data">
 <html:hidden property="groupId"/>
+<html:hidden property="memberSortIndex" />
+<html:hidden property="memberSearchValue" />
 <html:hidden property="contextSubject"/>
 <html:hidden property="contextSubjectId"/>
 <html:hidden property="contextSubjectType"/>

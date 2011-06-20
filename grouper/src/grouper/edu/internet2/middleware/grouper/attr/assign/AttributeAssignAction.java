@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.logging.Log;
 
@@ -685,5 +686,34 @@ public class AttributeAssignAction extends GrouperAPI
         DB_VERSION_FIELDS, null);
     return result;
   }
+
+  /**
+   * 
+   * @see java.lang.Object#equals(java.lang.Object)
+   */
+  @Override
+  public boolean equals(Object other) {
+    if (this == other) {
+      return true;
+    }
+    if (!(other instanceof AttributeAssignAction)) {
+      return false;
+    }
+    return StringUtils.equals(this.getName(), ( (AttributeAssignAction) other ).getName() )
+      && StringUtils.equals(this.getAttributeDefId(), ( (AttributeAssignAction) other ).getAttributeDefId() );
+  } // public boolean equals(other)
+
+  /**
+   * @return hashcode
+   * @since   1.2.0
+   */
+  @Override
+  public int hashCode() {
+    return new HashCodeBuilder()
+      .append( this.getName() )
+      .append( this.getAttributeDefId() )
+      .toHashCode();
+  } // public int hashCode()
+
 
 }

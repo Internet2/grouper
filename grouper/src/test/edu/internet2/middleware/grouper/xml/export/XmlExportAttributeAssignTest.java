@@ -73,6 +73,7 @@ public class XmlExportAttributeAssignTest extends GrouperTest {
     
     XmlExportAttributeAssign xmlExportAttributeAssign = new XmlExportAttributeAssign();
     
+    xmlExportAttributeAssign.setDisallowed("disallowed");
     xmlExportAttributeAssign.setAttributeAssignActionId("attributeAssignActionId");
     xmlExportAttributeAssign.setAttributeAssignDelegatable("attributeAssignDelegatable");
     xmlExportAttributeAssign.setAttributeAssignType("attributeAssignType");
@@ -97,6 +98,7 @@ public class XmlExportAttributeAssignTest extends GrouperTest {
     
     xmlExportAttributeAssign = XmlExportAttributeAssign.fromXml(new GrouperVersion(GrouperVersion.GROUPER_VERSION), xml);
     
+    assertEquals("disallowed", xmlExportAttributeAssign.getDisallowed());
     assertEquals("attributeAssignActionId", xmlExportAttributeAssign.getAttributeAssignActionId());
     assertEquals("attributeAssignDelegatable", xmlExportAttributeAssign.getAttributeAssignDelegatable());
     assertEquals("attributeAssignType", xmlExportAttributeAssign.getAttributeAssignType());
@@ -130,6 +132,7 @@ public class XmlExportAttributeAssignTest extends GrouperTest {
     //now go back
     attributeAssign = xmlExportAttributeAssign.toAttributeAssign();
     
+    assertEquals("T", attributeAssign.getDisallowedDb());
     assertEquals("attributeAssignActionId", attributeAssign.getAttributeAssignActionId());
     assertEquals(AttributeAssignDelegatable.TRUE, attributeAssign.getAttributeAssignDelegatable());
     assertEquals(AttributeAssignType.any_mem, attributeAssign.getAttributeAssignType());

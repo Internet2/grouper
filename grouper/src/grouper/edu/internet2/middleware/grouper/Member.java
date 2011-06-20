@@ -20,7 +20,7 @@ import java.io.StringWriter;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
-import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
@@ -3660,59 +3660,74 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
     this.name = GrouperUtil.isEmpty(subject.getName()) ? null : subject.getName();
     this.description = GrouperUtil.isEmpty(subject.getDescription()) ? null : subject.getDescription();
     
-    List<String> sortAttributes = subject.getSource().getSortAttributes();
-    if (sortAttributes.size() > 0) {
-      this.sortString0 = subject.getAttributeValue(sortAttributes.get(0));
+    Map<Integer, String> sortAttributes = subject.getSource().getSortAttributes();
+    if (sortAttributes.containsKey(0)) {
+      this.sortString0 = subject.getAttributeValue(sortAttributes.get(0), false);
     }
     
-    if (sortAttributes.size() > 1) {
-      this.sortString1 = subject.getAttributeValue(sortAttributes.get(1));
+    if (sortAttributes.containsKey(1)) {
+      this.sortString1 = subject.getAttributeValue(sortAttributes.get(1), false);
     }
 
-    if (sortAttributes.size() > 2) {
-      this.sortString2 = subject.getAttributeValue(sortAttributes.get(2));
+    if (sortAttributes.containsKey(2)) {
+      this.sortString2 = subject.getAttributeValue(sortAttributes.get(2), false);
     }
     
-    if (sortAttributes.size() > 3) {
-      this.sortString3 = subject.getAttributeValue(sortAttributes.get(3));
+    if (sortAttributes.containsKey(3)) {
+      this.sortString3 = subject.getAttributeValue(sortAttributes.get(3), false);
     }
     
-    if (sortAttributes.size() > 4) {
-      this.sortString4 = subject.getAttributeValue(sortAttributes.get(4));
+    if (sortAttributes.containsKey(4)) {
+      this.sortString4 = subject.getAttributeValue(sortAttributes.get(4), false);
     }
     
-    List<String> searchAttributes = subject.getSource().getSearchAttributes();
-    if (searchAttributes.size() > 0) {
-      this.searchString0 = subject.getAttributeValue(searchAttributes.get(0));
+    Map<Integer, String> searchAttributes = subject.getSource().getSearchAttributes();
+    if (searchAttributes.containsKey(0)) {
+      Set<String> attrs = subject.getAttributeValues(searchAttributes.get(0), false);
+      if (attrs != null && attrs.size() > 0) {
+        this.searchString0 = GrouperUtil.join(attrs.iterator(), ",");
+      }
     }
     
-    if (searchAttributes.size() > 1) {
-      this.searchString1 = subject.getAttributeValue(searchAttributes.get(1));
+    if (searchAttributes.containsKey(1)) {
+      Set<String> attrs = subject.getAttributeValues(searchAttributes.get(1), false);
+      if (attrs != null && attrs.size() > 0) {
+        this.searchString1 = GrouperUtil.join(attrs.iterator(), ",");
+      }
     }
     
-    if (searchAttributes.size() > 2) {
-      this.searchString2 = subject.getAttributeValue(searchAttributes.get(2));
+    if (searchAttributes.containsKey(2)) {
+      Set<String> attrs = subject.getAttributeValues(searchAttributes.get(2), false);
+      if (attrs != null && attrs.size() > 0) {
+        this.searchString2 = GrouperUtil.join(attrs.iterator(), ",");
+      }
     }
     
-    if (searchAttributes.size() > 3) {
-      this.searchString3 = subject.getAttributeValue(searchAttributes.get(3));
+    if (searchAttributes.containsKey(3)) {
+      Set<String> attrs = subject.getAttributeValues(searchAttributes.get(3), false);
+      if (attrs != null && attrs.size() > 0) {
+        this.searchString3 = GrouperUtil.join(attrs.iterator(), ",");
+      }
     }
     
-    if (searchAttributes.size() > 4) {
-      this.searchString4 = subject.getAttributeValue(searchAttributes.get(4));
+    if (searchAttributes.containsKey(4)) {
+      Set<String> attrs = subject.getAttributeValues(searchAttributes.get(4), false);
+      if (attrs != null && attrs.size() > 0) {
+        this.searchString4 = GrouperUtil.join(attrs.iterator(), ",");
+      }
     }
+        
+    this.sortString0 = GrouperUtil.isEmpty(this.sortString0) ? null : GrouperUtil.truncateAscii(this.sortString0, 50);
+    this.sortString1 = GrouperUtil.isEmpty(this.sortString1) ? null : GrouperUtil.truncateAscii(this.sortString1, 50);
+    this.sortString2 = GrouperUtil.isEmpty(this.sortString2) ? null : GrouperUtil.truncateAscii(this.sortString2, 50);
+    this.sortString3 = GrouperUtil.isEmpty(this.sortString3) ? null : GrouperUtil.truncateAscii(this.sortString3, 50);
+    this.sortString4 = GrouperUtil.isEmpty(this.sortString4) ? null : GrouperUtil.truncateAscii(this.sortString4, 50);
     
-    this.sortString0 = GrouperUtil.isEmpty(this.sortString0) ? null : this.sortString0;
-    this.sortString1 = GrouperUtil.isEmpty(this.sortString1) ? null : this.sortString1;
-    this.sortString2 = GrouperUtil.isEmpty(this.sortString2) ? null : this.sortString2;
-    this.sortString3 = GrouperUtil.isEmpty(this.sortString3) ? null : this.sortString3;
-    this.sortString4 = GrouperUtil.isEmpty(this.sortString4) ? null : this.sortString4;
-    
-    this.searchString0 = GrouperUtil.isEmpty(this.searchString0) ? null : this.searchString0.toLowerCase();
-    this.searchString1 = GrouperUtil.isEmpty(this.searchString1) ? null : this.searchString1.toLowerCase();
-    this.searchString2 = GrouperUtil.isEmpty(this.searchString2) ? null : this.searchString2.toLowerCase();
-    this.searchString3 = GrouperUtil.isEmpty(this.searchString3) ? null : this.searchString3.toLowerCase();
-    this.searchString4 = GrouperUtil.isEmpty(this.searchString4) ? null : this.searchString4.toLowerCase();
+    this.searchString0 = GrouperUtil.isEmpty(this.searchString0) ? null : GrouperUtil.truncateAscii(this.searchString0.toLowerCase(), 2048);
+    this.searchString1 = GrouperUtil.isEmpty(this.searchString1) ? null : GrouperUtil.truncateAscii(this.searchString1.toLowerCase(), 2048);
+    this.searchString2 = GrouperUtil.isEmpty(this.searchString2) ? null : GrouperUtil.truncateAscii(this.searchString2.toLowerCase(), 2048);
+    this.searchString3 = GrouperUtil.isEmpty(this.searchString3) ? null : GrouperUtil.truncateAscii(this.searchString3.toLowerCase(), 2048);
+    this.searchString4 = GrouperUtil.isEmpty(this.searchString4) ? null : GrouperUtil.truncateAscii(this.searchString4.toLowerCase(), 2048);
     
     if (storeChanges && this.dbVersionIsDifferent()) {
       this.store();

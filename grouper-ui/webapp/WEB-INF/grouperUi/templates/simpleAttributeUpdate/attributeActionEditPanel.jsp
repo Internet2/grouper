@@ -44,7 +44,7 @@
         
           <input class="blueButton" type="submit" 
           onclick="ajax('../app/SimpleAttributeUpdate.addActionEditImplies?attributeDefToEditId=${attributeUpdateRequestContainer.attributeDefToEdit.id}&action=${attributeUpdateRequestContainer.action}', {formIds: 'attributeActionEditFormId'}); return false;" 
-          value="${simpleAttributeUpdateContainer.text.addActionEditImplies} ${attributeUpdateRequestContainer.action}" style="margin-top: 2px" />
+          value="${attributeUpdateRequestContainer.text.addActionEditImplies} ${attributeUpdateRequestContainer.action}" style="margin-top: 2px" />
         </td>
       </tr>
       <tr class="formTableRow">
@@ -61,7 +61,7 @@
         
           <input class="blueButton" type="submit" 
           onclick="ajax('../app/SimpleAttributeUpdate.addActionEditImpliedBy?attributeDefToEditId=${attributeUpdateRequestContainer.attributeDefToEdit.id}&action=${attributeUpdateRequestContainer.action}', {formIds: 'attributeActionEditFormId'}); return false;" 
-          value="${simpleAttributeUpdateContainer.text.addActionEditImpliedBy} ${attributeUpdateRequestContainer.action}" style="margin-top: 2px" />
+          value="${attributeUpdateRequestContainer.text.addActionEditImpliedBy} ${attributeUpdateRequestContainer.action}" style="margin-top: 2px" />
         
         </td>
       </tr>
@@ -91,9 +91,11 @@
         <td class="formTableRight" style="white-space: nowrap;">
           <c:forEach items="${attributeUpdateRequestContainer.actionsThatImplyImmediate}" var="actionThatImpliesImmediate">
             
-            <a href="#" onclick="if (confirm('${simpleAttributeUpdateContainer.text.deleteActionImpliesConfirm}')) {ajax('SimpleAttributeUpdate.deleteActionImplies?attributeDefToEditId=${attributeUpdateRequestContainer.attributeDefToEdit.id}&action=${attributeUpdateRequestContainer.action}&actionImplies=${actionThatImpliesImmediate}');} return false;" 
+            <a href="#" onclick="if (confirm('${attributeUpdateRequestContainer.text.deleteActionImpliesConfirm}')) {ajax('SimpleAttributeUpdate.deleteActionImplies?attributeDefToEditId=${attributeUpdateRequestContainer.attributeDefToEdit.id}&action=${attributeUpdateRequestContainer.action}&actionImplies=${actionThatImpliesImmediate}');} return false;" 
 	            ><img src="../../grouperExternal/public/assets/images/page_cross.gif" height="14px" border="0" 
-	            alt="${simpleAttributeUpdateContainer.text.deleteActionImpliesImageAlt }"/></a>
+	            alt="${attributeUpdateRequestContainer.text.deleteActionImpliesImageAlt }"
+              onmouseover="Tip('${grouper:escapeJavascript(attributeUpdateRequestContainer.text.deleteActionImpliesImageAlt)}')" 
+              onmouseout="UnTip()"/></a>
             
             ${actionThatImpliesImmediate}
             
@@ -122,9 +124,11 @@
         <td class="formTableRight" style="white-space: nowrap;">
           <c:forEach items="${attributeUpdateRequestContainer.actionsImpliedByImmediate}" var="actionThatImpiedByImmediate">
             
-            <a href="#" onclick="if (confirm('${simpleAttributeUpdateContainer.text.deleteActionImpliedByConfirm}')) {ajax('SimpleAttributeUpdate.deleteActionImpliedBy?attributeDefToEditId=${attributeUpdateRequestContainer.attributeDefToEdit.id}&action=${attributeUpdateRequestContainer.action}&actionImpliedBy=${actionThatImpiedByImmediate}');} return false;" 
+            <a href="#" onclick="if (confirm('${attributeUpdateRequestContainer.text.deleteActionImpliedByConfirm}')) {ajax('SimpleAttributeUpdate.deleteActionImpliedBy?attributeDefToEditId=${attributeUpdateRequestContainer.attributeDefToEdit.id}&action=${attributeUpdateRequestContainer.action}&actionImpliedBy=${actionThatImpiedByImmediate}');} return false;" 
               ><img src="../../grouperExternal/public/assets/images/page_cross.gif" height="14px" border="0" 
-              alt="${simpleAttributeUpdateContainer.text.deleteActionImpliedByImageAlt }"/></a>
+              alt="${attributeUpdateRequestContainer.text.deleteActionImpliedByImageAlt }"
+              onmouseover="Tip('${grouper:escapeJavascript(attributeUpdateRequestContainer.text.deleteActionImpliedByImageAlt)}')" 
+              onmouseout="UnTip()"/></a>
             
             ${actionThatImpiedByImmediate}
             

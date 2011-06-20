@@ -46,6 +46,7 @@ import edu.internet2.middleware.subject.SourceUnavailableException;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
 import edu.internet2.middleware.subject.SubjectNotUniqueException;
+import edu.internet2.middleware.subject.SubjectUtils;
 
 /**
  * JNDI Source 
@@ -171,6 +172,9 @@ public class JNDISourceAdapter extends BaseSourceAdapter {
     return subject;
   }
 
+  /** for testing if we should fail on testing */
+  public static boolean failOnSearchForTesting = false;
+
   /**
    * 
    * @see edu.internet2.middleware.subject.provider.BaseSourceAdapter#search(java.lang.String)
@@ -183,21 +187,35 @@ public class JNDISourceAdapter extends BaseSourceAdapter {
       log.error("searchType: \"search\" not defined.");
       return result;
     }
-    String[] attributeNames = { this.nameAttributeName, this.subjectIDAttributeName,
-        this.descriptionAttributeName };
-    NamingEnumeration ldapResults = getLdapResults(search, searchValue, attributeNames);
-    if (ldapResults == null) {
-      return result;
-    }
+    String throwErrorOnFindAllFailureString = this.getInitParam("throwErrorOnFindAllFailure");
+    boolean throwErrorOnFindAllFailure = SubjectUtils.booleanValue(throwErrorOnFindAllFailureString, true);
+
     try {
+      String[] attributeNames = { this.nameAttributeName, this.subjectIDAttributeName,
+          this.descriptionAttributeName };
+      NamingEnumeration ldapResults = getLdapResults(search, searchValue, attributeNames);
+      if (ldapResults == null) {
+        return result;
+      }
+
+      if (failOnSearchForTesting) {
+        throw new RuntimeException("failOnSearchForTesting");
+      }
+      
       while (ldapResults.hasMore()) {
         SearchResult si = (SearchResult) ldapResults.next();
         Attributes attributes1 = si.getAttributes();
         Subject subject = createSubject(attributes1);
         result.add(subject);
       }
-    } catch (NamingException ex) {
-      log.error("LDAP Naming Except: " + ex.getMessage(), ex);
+    } catch (Exception ex) {
+      if (!throwErrorOnFindAllFailure) {
+        log.error("LDAP Naming Except: " 
+            + ex.getMessage() + ", " + this.id + ", " + searchValue, ex);
+      } else {
+        throw new SourceUnavailableException(ex.getMessage() + ", source: " + this.getId() + ", sql: "
+            + search.getParam("sql"), ex);
+      }
     }
 
     return result;
@@ -241,7 +259,7 @@ public class JNDISourceAdapter extends BaseSourceAdapter {
         description = (String) attribute.get();
       }
     } catch (NamingException ex) {
-      log.error("LDAP Naming Except: " + ex.getMessage(), ex);
+      throw new SourceUnavailableException("LDAP Naming Except: " + ex.getMessage(), ex);
     }
     
     return new JNDISubject(subjectID, name1, description, 
@@ -274,14 +292,21 @@ public class JNDISourceAdapter extends BaseSourceAdapter {
     this.environment.put(Context.PROVIDER_URL, props.getProperty("PROVIDER_URL"));
     this.environment.put(Context.SECURITY_AUTHENTICATION, props
         .getProperty("SECURITY_AUTHENTICATION"));
-    this.environment.put(Context.SECURITY_PRINCIPAL, props.getProperty("SECURITY_PRINCIPAL"));
-
+    
+    if (props.getProperty("SECURITY_PRINCIPAL") != null) {
+      this.environment.put(Context.SECURITY_PRINCIPAL, props.getProperty("SECURITY_PRINCIPAL"));
+    }
+    
     String password = props.getProperty("SECURITY_CREDENTIALS");
     password = Morph.decryptIfFile(password);
 
-    this.environment.put(Context.SECURITY_CREDENTIALS, password);
+    if (password != null) {
+      this.environment.put(Context.SECURITY_CREDENTIALS, password);
+    }
+    
     if (props.getProperty("SECURITY_PROTOCOL") != null) {
-      this.environment.put(Context.SECURITY_PROTOCOL, "ssl");
+      //this used to be hardcoded to SSL!!!
+      this.environment.put(Context.SECURITY_PROTOCOL, props.getProperty("SECURITY_PROTOCOL"));
     }
     Context context = null;
     try {
@@ -356,12 +381,8 @@ public class JNDISourceAdapter extends BaseSourceAdapter {
         attributes1.put(name1, values);
       }
       subject.setAttributes(attributes1);
-    } catch (SubjectNotFoundException ex) {
-      log.error("SubjectNotFound: " + subject.getId() + " " + ex.getMessage(), ex);
-    } catch (SubjectNotUniqueException ex) {
-      log.error("SubjectNotUnique: " + subject.getId() + " " + ex.getMessage(), ex);
     } catch (NamingException ex) {
-      log.error("LDAP Naming Except: " + ex.getMessage(), ex);
+      throw new SourceUnavailableException("LDAP Naming Except: " + ex.getMessage(), ex);
     }
     return attributes1;
   }
@@ -409,9 +430,9 @@ public class JNDISourceAdapter extends BaseSourceAdapter {
       constraints.setReturningAttributes(attributeNames);
       results = context.search(base, filter, constraints);
     } catch (AuthenticationException ex) {
-      log.error("Ldap Authentication Exception: " + ex.getMessage(), ex);
+      throw new SourceUnavailableException("Ldap Authentication Exception: " + ex.getMessage(), ex);
     } catch (NamingException ex) {
-      log.error("Ldap NamingException: " + ex.getMessage(), ex);
+      throw new SourceUnavailableException("Ldap NamingException: " + ex.getMessage(), ex);
 
     } finally {
       if (context != null) {
@@ -455,7 +476,7 @@ public class JNDISourceAdapter extends BaseSourceAdapter {
         throw new SubjectNotUniqueException(errMsg);
       }
     } catch (NamingException ex) {
-      log.error("Ldap NamingException: " + ex.getMessage(), ex);
+      throw new SourceUnavailableException("Ldap NamingException: " + ex.getMessage(), ex);
     }
     return attributes1;
   }

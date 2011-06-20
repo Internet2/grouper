@@ -77,6 +77,7 @@ public class PermissionEntryTest extends GrouperTest {
   /**
    * 
    */
+  @Override
   public void setUp() {
     super.setUp();
     this.grouperSession = GrouperSession.start(SubjectFinder.findRootSubject());
@@ -94,6 +95,16 @@ public class PermissionEntryTest extends GrouperTest {
     ApiConfig.testConfig.put("groups.create.grant.all.view", "false");
   }
 
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.helper.GrouperTest#tearDown()
+   */
+  @Override
+  public void tearDown() {
+    GrouperSession.stopQuietly(this.grouperSession);
+    super.tearDown();
+  }
+  
   /**
    * permission entry
    */

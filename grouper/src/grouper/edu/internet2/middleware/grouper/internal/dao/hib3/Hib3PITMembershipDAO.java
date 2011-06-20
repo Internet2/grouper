@@ -3,13 +3,10 @@ package edu.internet2.middleware.grouper.internal.dao.hib3;
 import java.sql.Timestamp;
 import java.util.Set;
 
-import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.PITMembershipDAO;
-import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.pit.PITMembership;
-import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.subject.Source;
 
 /**
  * @author shilen
@@ -29,6 +26,13 @@ public class Hib3PITMembershipDAO extends Hib3DAO implements PITMembershipDAO {
     HibernateSession.byObjectStatic().saveOrUpdate(pitMembership);
   }
 
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.PITMembershipDAO#saveOrUpdate(java.util.Set)
+   */
+  public void saveOrUpdate(Set<PITMembership> pitMemberships) {
+    HibernateSession.byObjectStatic().saveOrUpdate(pitMemberships);
+  }
+  
   /**
    * @see edu.internet2.middleware.grouper.internal.dao.PITMembershipDAO#delete(edu.internet2.middleware.grouper.pit.PITMembership)
    */
@@ -81,71 +85,77 @@ public class Hib3PITMembershipDAO extends Hib3DAO implements PITMembershipDAO {
       .executeUpdate();
   }
   
-
-  
-  public Set<Member> findAllMembersByOwnerAndField(String ownerId, String fieldId, 
-      Timestamp pointInTimeFrom, Timestamp pointInTimeTo, Set<Source> sources, QueryOptions queryOptions) {
-
-    StringBuilder sql = new StringBuilder("select m "
-        + "from Member m, PITMembershipView ms where "
-        + "ms.ownerId = :ownerId "
-        + "and ms.fieldId = :fieldId "
-        + "and ms.memberId = m.uuid");
-    
-    if (pointInTimeFrom != null) {
-      Long endDateAfter = pointInTimeFrom.getTime() * 1000;
-      sql.append(" and (ms.membershipEndTimeDb is null or ms.membershipEndTimeDb > '" + endDateAfter + "')");
-      sql.append(" and (ms.groupSetEndTimeDb is null or ms.groupSetEndTimeDb > '" + endDateAfter + "')");
-    }
-    
-    if (pointInTimeTo != null) {
-      Long startDateBefore = pointInTimeTo.getTime() * 1000;
-      sql.append(" and ms.membershipStartTimeDb < '" + startDateBefore + "'");
-      sql.append(" and ms.groupSetStartTimeDb < '" + startDateBefore + "'");
-    }
-
-    if (sources != null && sources.size() > 0) {
-      sql.append(" and m.subjectSourceIdDb in ").append(GrouperUtil.convertSourcesToSqlInString(sources));
-    }
-    
-    return HibernateSession.byHqlStatic().options(queryOptions)
-      .createQuery(sql.toString())
-      .setCacheable(false)
-      .setCacheRegion(KLASS + ".FindAllMembersByOwnerAndField")
-      .setString("ownerId", ownerId) 
-      .setString("fieldId", fieldId)
-      .listSet(Member.class);
-  }
-  
-  public Set<PITMembership> findAllByOwnerAndMemberAndField(String ownerId, String memberId, String fieldId, 
-      Timestamp pointInTimeFrom, Timestamp pointInTimeTo, QueryOptions queryOptions) {
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.PITMembershipDAO#findAllByOwner(java.lang.String)
+   */
+  public Set<PITMembership> findAllByOwner(String ownerId) {
 
     StringBuilder sql = new StringBuilder("select ms "
-        + "from PITMembershipView ms where "
-        + "ms.ownerId = :ownerId "
-        + "and ms.memberId = :memberId "
-        + "and ms.fieldId = :fieldId");
+        + "from PITMembership ms where "
+        + "ms.ownerId = :ownerId");
     
-    if (pointInTimeFrom != null) {
-      Long endDateAfter = pointInTimeFrom.getTime() * 1000;
-      sql.append(" and (ms.membershipEndTimeDb is null or ms.membershipEndTimeDb > '" + endDateAfter + "')");
-      sql.append(" and (ms.groupSetEndTimeDb is null or ms.groupSetEndTimeDb > '" + endDateAfter + "')");
-    }
-    
-    if (pointInTimeTo != null) {
-      Long startDateBefore = pointInTimeTo.getTime() * 1000;
-      sql.append(" and ms.membershipStartTimeDb < '" + startDateBefore + "'");
-      sql.append(" and ms.groupSetStartTimeDb < '" + startDateBefore + "'");
-    }
-    
-    return HibernateSession.byHqlStatic().options(queryOptions)
+    return HibernateSession.byHqlStatic()
       .createQuery(sql.toString())
       .setCacheable(false)
-      .setCacheRegion(KLASS + ".FindAllByOwnerAndMemberAndField")
-      .setString("ownerId", ownerId) 
-      .setString("memberId", memberId) 
-      .setString("fieldId", fieldId)
+      .setCacheRegion(KLASS + ".FindAllByOwner")
+      .setString("ownerId", ownerId)
       .listSet(PITMembership.class);
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.PITMembershipDAO#findAllByMember(java.lang.String)
+   */
+  public Set<PITMembership> findAllByMember(String memberId) {
+
+    StringBuilder sql = new StringBuilder("select ms "
+        + "from PITMembership ms where "
+        + "ms.memberId = :memberId");
+    
+    return HibernateSession.byHqlStatic()
+      .createQuery(sql.toString())
+      .setCacheable(false)
+      .setCacheRegion(KLASS + ".FindAllByMember")
+      .setString("memberId", memberId)
+      .listSet(PITMembership.class);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.PITMembershipDAO#findMissingActivePITMemberships()
+   */
+  public Set<Membership> findMissingActivePITMemberships() {
+
+    // note that doing actual checks for the addMembership and addPrivilege change log events seem to be very expensive...
+    Set<Membership> mships = HibernateSession
+      .byHqlStatic()
+      .createQuery("select ms from ImmediateMembershipEntry ms where ms.enabledDb='T' and " +
+          "not exists (select 1 from PITMembership pit where ms.immediateMembershipId = pit.id and pit.activeDb = 'T') " +
+          "and not exists (select 1 from ChangeLogEntryTemp temp " +
+          "    where temp.string01 = ms.immediateMembershipId)")
+      .setCacheable(false).setCacheRegion(KLASS + ".FindMissingActivePITMemberships")
+      .listSet(Membership.class);
+    
+    return mships;
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.PITMembershipDAO#findMissingInactivePITMemberships()
+   */
+  public Set<PITMembership> findMissingInactivePITMemberships() {
+
+    Set<PITMembership> mships = HibernateSession
+      .byHqlStatic()
+      .createQuery("select pit from PITMembership pit where activeDb = 'T' and " +
+          "not exists (select 1 from ImmediateMembershipEntry ms where ms.immediateMembershipId = pit.id and ms.enabledDb='T') " +
+          "and not exists (select 1 from ChangeLogEntryTemp temp, ChangeLogType type " +
+          "    where temp.string01 = pit.id " +
+          "    and type.actionName='deleteMembership' and type.changeLogCategory='membership' and type.id=temp.changeLogTypeId) " +
+          "and not exists (select 1 from ChangeLogEntryTemp temp, ChangeLogType type " +
+          "    where temp.string01 = pit.id " +
+          "    and type.actionName='deletePrivilege' and type.changeLogCategory='privilege' and type.id=temp.changeLogTypeId)")
+      .setCacheable(false).setCacheRegion(KLASS + ".FindMissingInactivePITMemberships")
+      .listSet(PITMembership.class);
+    
+    return mships;
   }
 }
 

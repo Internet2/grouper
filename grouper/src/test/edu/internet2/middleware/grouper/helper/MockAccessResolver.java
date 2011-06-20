@@ -20,16 +20,19 @@ import java.util.Set;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.exception.UnableToPerformException;
-import edu.internet2.middleware.grouper.hibernate.ByHqlStatic;
 import edu.internet2.middleware.grouper.hibernate.HqlQuery;
+import edu.internet2.middleware.grouper.internal.dao.QueryPaging;
+import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.AccessResolver;
 import edu.internet2.middleware.grouper.privs.Privilege;
+import edu.internet2.middleware.grouper.privs.PrivilegeSubjectContainer;
 import edu.internet2.middleware.subject.Subject;
 
 
@@ -49,11 +52,8 @@ public class MockAccessResolver implements AccessResolver {
     throw E;
   }
 
-
-
+  /** */
   private static final GrouperException E = new GrouperException("not implemented");
-
-
 
   /**
    * @return  New <code>MockAccessResolver</code>.
@@ -67,6 +67,9 @@ public class MockAccessResolver implements AccessResolver {
 
   /**
    * Not implemented.
+   * @param property 
+   * @return  config
+   * @throws IllegalArgumentException 
    * @throws  GrouperException
    * @since   1.2.1
    */
@@ -259,10 +262,19 @@ public class MockAccessResolver implements AccessResolver {
   }
 
   /**
-   * @see AccessResolver#hqlFilterGroupsNotWithPrivWhereClause(Subject, HqlQuery, StringBuilder, String, Privilege, boolean
+   * @see AccessResolver#hqlFilterGroupsNotWithPrivWhereClause(Subject, HqlQuery, StringBuilder, String, Privilege, boolean)
    */
   public boolean hqlFilterGroupsNotWithPrivWhereClause(Subject subject, HqlQuery byHqlStatic, 
       StringBuilder sql, String groupColumn, Privilege privilege, boolean considerAllSubject) {
+    throw E;
+  }
+
+  /**
+   * @see AccessResolver#retrievePrivileges(Group, Set, MembershipType, QueryPaging, Set)
+   */
+  public Set<PrivilegeSubjectContainer> retrievePrivileges(Group group,
+      Set<Privilege> privileges, MembershipType membershipType, QueryPaging queryPaging,
+      Set<Member> additionalMembers) {
     throw E;
   }
 }

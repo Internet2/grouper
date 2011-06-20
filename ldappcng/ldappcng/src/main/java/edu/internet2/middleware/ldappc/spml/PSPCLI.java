@@ -18,9 +18,17 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
+import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.TreeMap;
+
+import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.Statistics;
 
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.lang.time.StopWatch;
@@ -53,11 +61,16 @@ public class PSPCLI extends TimerTask {
   /** The lastModifyTime. */
   private Date lastModifyTime;
 
+  /** When a full sync was last run. */
+  private Date lastFullSyncTime;
+
+  /** The number of provisioning iterations performed. */
+  private int iterations = 0;
+
   /**
    * Run this application.
    * 
-   * @param args
-   *          the command line arguments
+   * @param args the command line arguments
    */
   public static void main(String[] args) {
 
@@ -95,12 +108,9 @@ public class PSPCLI extends TimerTask {
   /**
    * Constructor. Load the <code>PSP</code> based on the given <code>PSPOptions</code>.
    * 
-   * @param options
-   *          the <code>PSPOptions</code>
-   * @throws ResourceException
-   *           if the <code>PSP</code> could not be instantiated
-   * @throws IOException
-   *           if output cannot be written
+   * @param options the <code>PSPOptions</code>
+   * @throws ResourceException if the <code>PSP</code> could not be instantiated
+   * @throws IOException if output cannot be written
    */
   public PSPCLI(PSPOptions options) throws ResourceException, IOException {
     psp = PSP.getPSP(options);
@@ -132,10 +142,31 @@ public class PSPCLI extends TimerTask {
         lastModifyTime = psp.getPspOptions().getLastModifyTime();
       }
 
+      // initialize lastFullSyncTime to now
+      if (lastFullSyncTime == null) {
+        lastFullSyncTime = now;
+      }
+
+      // perform partial sync
+      boolean partial = true;
+
+      // if full sync interval is specified as an option
+      if (psp.getPspOptions().getIntervalFullSync() > 0) {
+        // perform full sync if the time since the last full sync is greater than the supplied full sync interval
+        if ((now.getTime() - lastFullSyncTime.getTime()) > psp.getPspOptions().getIntervalFullSync() * 1000) {
+          partial = false;
+        }
+      }
+
       for (Request request : psp.getPspOptions().getRequests()) {
         // set updated since for bulk requests
-        if (request instanceof BulkProvisioningRequest && lastModifyTime != null) {
-          ((BulkProvisioningRequest) request).setUpdatedSince(lastModifyTime);
+        if (request instanceof BulkProvisioningRequest) {
+          if (!partial || lastModifyTime == null) {
+            LOG.info("Performing full synchronization. Time since last full sync {} ms", now.getTime()
+                - lastFullSyncTime.getTime());
+          }
+          Date updatedSince = partial ? lastModifyTime : null;
+          ((BulkProvisioningRequest) request).setUpdatedSince(updatedSince);
         }
         // print requests if so configured
         if (psp.getPspOptions().isPrintRequests()) {
@@ -149,11 +180,29 @@ public class PSPCLI extends TimerTask {
 
       writer.flush();
 
-      sw.stop();
-      LOG.info("End of {} execution : {} ms", PSPOptions.NAME, sw.getTime());
+      // update last full sync time if a full sync was performed
+      if (!partial) {
+        lastFullSyncTime = now;
+      }
 
       // update last modified time
       lastModifyTime = now;
+
+      sw.stop();
+      LOG.info("End of {} execution : {} ms", PSPOptions.NAME, sw.getTime());
+
+      // cancel if the number of desired iterations have been run
+      if (psp.getPspOptions().getIterations() > 0 && iterations++ >= psp.getPspOptions().getIterations()) {
+        LOG.info("Finish {} execution : {} provisioning cycles performed.", PSPOptions.NAME, iterations);
+        timer.cancel();
+      }
+
+      // log cache statistics
+      if (LOG.isDebugEnabled()) {
+        for (String stats : PSPCLI.getAllCacheStats()) {
+          LOG.debug(stats);
+        }
+      }
 
     } catch (IOException e) {
       LOG.error("Unable to write SPML.", e);
@@ -185,6 +234,43 @@ public class PSPCLI extends TimerTask {
    */
   public Timer getTimer() {
     return timer;
+  }
+
+  /**
+   * Return ehcache statistics.
+   * <ul>
+   * <li>cache hit ratio 0% 0 hits 20 miss : ImmediateMembershipEntry
+   * <li>cache hit ratio 0% 0 hits 45 miss : edu.internet2.middleware.grouper.Field
+   * <ul>
+   * 
+   * @return the statistics
+   */
+  public static List<String> getAllCacheStats() {
+
+    Map<String, String> name2stats = new TreeMap<String, String>();
+    
+    // sort cache managers by name
+    List<CacheManager> cacheManagers = new ArrayList<CacheManager>(CacheManager.ALL_CACHE_MANAGERS);
+    for (CacheManager cacheManager : cacheManagers) {
+      for (String cacheName : cacheManager.getCacheNames()) {
+        Statistics stats = cacheManager.getCache(cacheName).getStatistics();
+        long h = stats.getCacheHits();
+        long m = stats.getCacheMisses();
+
+        if (h + m != 0) {
+          String ratio = h + m == 0 ? "0%" : MessageFormat.format("{0,number,percent}", 1. * h / (h + m));
+          String out = String.format("cache hit ratio %4s %6d hits %6d miss : %s", ratio, h, m, cacheName);
+          // TODO probably should not assume cache names are unique
+          name2stats.put(cacheName, out);
+        }
+      }
+    }
+
+    List<String> out = new ArrayList<String>();
+    for (String cacheName : name2stats.keySet()) {
+      out.add(name2stats.get(cacheName));
+    }
+    return out;
   }
 
 }

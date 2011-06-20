@@ -3,6 +3,7 @@ package edu.internet2.middleware.grouper.internal.dao.hib3;
 import java.sql.Timestamp;
 import java.util.Set;
 
+import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.PITAttributeAssignValueDAO;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
@@ -24,6 +25,13 @@ public class Hib3PITAttributeAssignValueDAO extends Hib3DAO implements PITAttrib
    */
   public void saveOrUpdate(PITAttributeAssignValue pitAttributeAssignValue) {
     HibernateSession.byObjectStatic().saveOrUpdate(pitAttributeAssignValue);
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.PITAttributeAssignValueDAO#saveOrUpdate(java.util.Set)
+   */
+  public void saveOrUpdate(Set<PITAttributeAssignValue> pitAttributeAssignValues) {
+    HibernateSession.byObjectStatic().saveOrUpdate(pitAttributeAssignValues);
   }
 
   /**
@@ -106,5 +114,41 @@ public class Hib3PITAttributeAssignValueDAO extends Hib3DAO implements PITAttrib
 
     //return result
     return attributeAssignValues;
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.PITAttributeAssignValueDAO#findMissingActivePITAttributeAssignValues()
+   */
+  public Set<AttributeAssignValue> findMissingActivePITAttributeAssignValues() {
+
+    Set<AttributeAssignValue> values = HibernateSession
+      .byHqlStatic()
+      .createQuery("select value from AttributeAssignValue value where " +
+          "not exists (select 1 from PITAttributeAssignValue pit where value.id = pit.id) " +
+          "and not exists (select 1 from ChangeLogEntryTemp temp, ChangeLogType type " +
+          "    where temp.string01 = value.id " +
+          "    and type.actionName='addAttributeAssignValue' and type.changeLogCategory='attributeAssignValue' and type.id=temp.changeLogTypeId)")
+      .setCacheable(false).setCacheRegion(KLASS + ".FindMissingActivePITAttributeAssignValues")
+      .listSet(AttributeAssignValue.class);
+    
+    return values;
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.PITAttributeAssignValueDAO#findMissingInactivePITAttributeAssignValues()
+   */
+  public Set<PITAttributeAssignValue> findMissingInactivePITAttributeAssignValues() {
+
+    Set<PITAttributeAssignValue> values = HibernateSession
+      .byHqlStatic()
+      .createQuery("select pit from PITAttributeAssignValue pit where activeDb = 'T' and " +
+          "not exists (select 1 from AttributeAssignValue value where value.id = pit.id) " +
+          "and not exists (select 1 from ChangeLogEntryTemp temp, ChangeLogType type " +
+          "    where temp.string01 = pit.id " +
+          "    and type.actionName='deleteAttributeAssignValue' and type.changeLogCategory='attributeAssignValue' and type.id=temp.changeLogTypeId)")
+      .setCacheable(false).setCacheRegion(KLASS + ".FindMissingInactivePITAttributeAssignValues")
+      .listSet(PITAttributeAssignValue.class);
+    
+    return values;
   }
 }

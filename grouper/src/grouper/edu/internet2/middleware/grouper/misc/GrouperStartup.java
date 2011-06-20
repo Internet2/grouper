@@ -29,6 +29,7 @@ import edu.internet2.middleware.grouper.registry.RegistryInstall;
 import edu.internet2.middleware.grouper.subj.InternalSourceAdapter;
 import edu.internet2.middleware.grouper.util.GrouperToStringStyle;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.provider.SourceManager;
 
 
@@ -112,6 +113,9 @@ public class GrouperStartup {
       //init membership lite config type
       initMembershipLiteConfigType();
       
+      // verify member search and sort config
+      verifyMemberSortAndSearchConfig();
+      
       return true;
     } catch (RuntimeException re) {
       if (logErrorStatic) {
@@ -123,6 +127,21 @@ public class GrouperStartup {
         LOG.error(error, re);
       }
       throw re;
+    }
+  }
+  
+  /**
+   * verify that at least one search/sort column is specified for each source
+   */
+  public static void verifyMemberSortAndSearchConfig() {
+    for (Source source : SourceManager.getInstance().getSources()) {
+      if (source.getSortAttributes() == null || source.getSortAttributes().size() == 0) {
+        throw new RuntimeException("At least one sort column should be specified for source " + source.getId());
+      }
+      
+      if (source.getSearchAttributes() == null || source.getSearchAttributes().size() == 0) {
+        throw new RuntimeException("At least one search column should be specified for source " + source.getId());
+      }
     }
   }
   

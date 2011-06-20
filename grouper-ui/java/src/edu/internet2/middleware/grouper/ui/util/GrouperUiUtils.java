@@ -57,7 +57,6 @@ import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.tags.TagUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.SourceUnavailableException;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
@@ -961,12 +960,13 @@ public class GrouperUiUtils {
    * find a subject based on search string.  must be sourceId||||subjectId 
    * or a subjectId or subjectIdentifier which is unique
    * @param searchString
+   * @param exceptionIfNotFound
    * @return the subject
    * @throws SubjectNotFoundException 
    * @throws SubjectNotUniqueException 
    * @throws SourceUnavailableException 
    */
-  public static Subject findSubject(String searchString) 
+  public static Subject findSubject(String searchString, boolean exceptionIfNotFound) 
       throws SubjectNotFoundException, SubjectNotUniqueException, SourceUnavailableException {
     if (searchString == null) {
       throw new SubjectNotFoundException("Cant find null string");
@@ -977,12 +977,11 @@ public class GrouperUiUtils {
     if (matcher.matches()) {
       String sourceId = matcher.group(1);
       String subjectId = matcher.group(2);
-      Source source = SubjectFinder.getSource(sourceId);
-      return source.getSubject(subjectId, true);
+      return SubjectFinder.findByIdAndSource(subjectId, sourceId, exceptionIfNotFound);
     }
     
     //if not, then try to get by subjectId or identifier
-    return SubjectFinder.findByIdOrIdentifier(searchString, true);
+    return SubjectFinder.findByIdOrIdentifier(searchString, exceptionIfNotFound);
   }
 
 

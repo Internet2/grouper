@@ -1,0 +1,48 @@
+<html>
+  <head>
+  <title>JUNG2 Demo: TreeNodeCollapse Demo</title>
+  <link rel="stylesheet" href="../default.css" type="text/css" media="screen" />
+  </head>
+  <body>
+<p><center>
+    <applet code="edu.uci.ics.jung.samples.TreeCollapseDemo.class"
+            archive="jar/jung-samples-2.0.1.jar,jar/collections-generic-4.01.jar,jar/jung-api-2.0.1.jar,jar/jung-algorithms-2.0.1.jar,jar/jung-visualization-2.0.1.jar,jar/jung-graph-impl-2.0.1.jar"
+            width="600" height="500">
+    </applet>
+   </center>
+   <p>
+
+   <h2>HowTo</h2>
+   <p>
+    Select a single tree node (in picking mode), then press the Collapse button to
+    hide the children of that node. Select again and press Expand to restore the children.
+	<p>
+	    <h2>Mouse listeners:</h2>
+    <p>
+    <h3>Picking Mode:</h3>
+	<ul>
+
+	<li> MouseButtonOne press on a Vertex or Edge to select it
+	<li> MouseButtonOne+Shift press on a Vertex or Edge to add or toggle selection
+	<li> MouseButtonOne+drag on a Vertex to move all selected vertices
+	<li> MouseButtonOne+drag to select Vertices in a rectangle
+	<li> MouseButtonOne+Shift+drag to add to selection with Vertices in a rectangle
+	</ul>
+	<p>
+	<h3>TransformingMode:</h3>
+
+	<ul>
+	<li> MouseButtonOne+drag to translate the display
+	<li> MouseButtonOne+Shift+drag to rotate the display
+	<li> MouseButtonOne+ctrl(or Command)+drag to shear the display
+	</ul>
+	<p>
+	<h3>Both Modes:</h3>
+	<ul>
+
+	<li> MouseWheel to scale. When scale &lt; 1, view is scaled. When scale &gt; 1, layout is scaled.
+	</ul>
+	</p>
+
+	  </body>
+</html>

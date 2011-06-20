@@ -16,7 +16,7 @@ import edu.internet2.middleware.subject.Subject;
 /**
  *
  */
-public interface Role extends GrouperSetElement {
+public interface Role extends GrouperSetElement, Comparable {
 
   /**
    * @see Group#hasMember(Subject)

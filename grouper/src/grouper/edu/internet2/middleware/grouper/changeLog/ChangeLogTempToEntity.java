@@ -709,6 +709,7 @@ public class ChangeLogTempToEntity {
     String assignType = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_ASSIGN_ADD.assignType);
     String ownerId1 = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_ASSIGN_ADD.ownerId1);    
     String ownerId2 = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_ASSIGN_ADD.ownerId2);    
+    String disallowedDb = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_ASSIGN_ADD.disallowed);    
     Long time = changeLogEntry.getCreatedOnDb();
     String contextId = GrouperUtil.isEmpty(changeLogEntry.getContextId()) ? null : changeLogEntry.getContextId();
     
@@ -720,6 +721,7 @@ public class ChangeLogTempToEntity {
     pitAttributeAssign.setActiveDb("T");
     pitAttributeAssign.setStartTimeDb(time);
     pitAttributeAssign.setContextId(contextId);
+    pitAttributeAssign.setDisallowedDb(disallowedDb);
     
     if (AttributeAssignType.group.name().equals(assignType)) {
       pitAttributeAssign.setOwnerGroupId(ownerId1);

@@ -3,6 +3,7 @@ package edu.internet2.middleware.grouper.pit;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.GrouperAPI;
+import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -177,5 +178,44 @@ public class PITAttributeDef extends GrouperPIT implements Hib3GrouperVersioned 
    */
   public void delete() {
     GrouperDAOFactory.getFactory().getPITAttributeDef().delete(this);
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.GrouperAPI#onPreDelete(edu.internet2.middleware.grouper.hibernate.HibernateSession)
+   */
+  @Override
+  public void onPreDelete(HibernateSession hibernateSession) {
+    super.onPreDelete(hibernateSession);
+
+    if (this.isActive()) {
+      throw new RuntimeException("Cannot delete active point in time attribute def object with id=" + this.getId());
+    }
+    
+    // delete memberships
+    Set<PITMembership> memberships = GrouperDAOFactory.getFactory().getPITMembership().findAllByOwner(this.getId());
+    for (PITMembership membership : memberships) {
+      GrouperDAOFactory.getFactory().getPITMembership().delete(membership);
+    }
+    
+    // delete attribute assignments
+    Set<PITAttributeAssign> assignments = GrouperDAOFactory.getFactory().getPITAttributeAssign().findByOwnerAttributeDefId(this.getId());
+    for (PITAttributeAssign assignment : assignments) {
+      GrouperDAOFactory.getFactory().getPITAttributeAssign().delete(assignment);
+    }
+    
+    // delete self group sets and their children
+    GrouperDAOFactory.getFactory().getPITGroupSet().deleteSelfByOwnerId(this.getId());
+    
+    // delete attribute def names
+    Set<PITAttributeDefName> attrs = GrouperDAOFactory.getFactory().getPITAttributeDefName().findByAttributeDefId(this.getId());
+    for (PITAttributeDefName attr : attrs) {
+      GrouperDAOFactory.getFactory().getPITAttributeDefName().delete(attr);
+    }
+    
+    // delete actions
+    Set<PITAttributeAssignAction> actions = GrouperDAOFactory.getFactory().getPITAttributeAssignAction().findByAttributeDefId(this.getId());
+    for (PITAttributeAssignAction action : actions) {
+      GrouperDAOFactory.getFactory().getPITAttributeAssignAction().delete(action);
+    }
   }
 }

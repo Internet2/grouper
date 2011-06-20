@@ -28,7 +28,9 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.Stem.Scope;
+import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
+import edu.internet2.middleware.grouper.group.TypeOfGroup;
 import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.subject.Subject;
@@ -534,6 +536,11 @@ public interface GroupDAO extends GrouperDAO {
   public void updateLastMembershipChange(String groupId);
   
   /**
+   * @param groupId
+   */
+  public void updateLastImmediateMembershipChange(String groupId);
+  
+  /**
    * This will update last_membership_change for group owners where group member in groupSet is the given groupId.
    * @param groupId
    */
@@ -572,6 +579,20 @@ public interface GroupDAO extends GrouperDAO {
       String stemId, Scope scope, Subject subject, Privilege privilege, 
       QueryOptions queryOptions, boolean considerAllSubject, 
       String sqlLikeString);
+
+  /**
+   * get all groups secure, split the scope by whitespace
+   * @param scope
+   * @param grouperSession
+   * @param subject
+   * @param privileges
+   * @param queryOptions
+   * @param typeOfGroup or null for all
+   * @return set of group
+   */
+  public Set<Group> getAllGroupsSplitScopeSecure(String scope, GrouperSession grouperSession, 
+      Subject subject, Set<Privilege> privileges, QueryOptions queryOptions, TypeOfGroup typeOfGroup);
+  
 
 } 
 

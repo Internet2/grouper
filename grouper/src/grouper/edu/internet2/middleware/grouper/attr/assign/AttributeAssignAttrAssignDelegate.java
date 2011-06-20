@@ -18,12 +18,12 @@ import edu.internet2.middleware.subject.Subject;
 
 
 /**
- * delegate privilege calls from attribute defs
+ * delegate attribute calls from attribute assigns
  */
 public class AttributeAssignAttrAssignDelegate extends AttributeAssignBaseDelegate {
 
   /**
-   * reference to the group in question
+   * reference to the assignment in question
    */
   private AttributeAssign attributeAssignToAssignTo = null;
   
@@ -186,7 +186,14 @@ public class AttributeAssignAttrAssignDelegate extends AttributeAssignBaseDelega
    */
   @Override
   Set<AttributeAssign> retrieveAttributeAssignsByOwner() {
-    throw new RuntimeException("This is not implemented");
+    
+    AttributeAssignType originalAttributeAssignType = this.attributeAssignToAssignTo.getAttributeAssignType();
+    AttributeAssignType attributeAssignType = originalAttributeAssignType.getAssignmentOnAssignmentType();
+    
+    return GrouperDAOFactory.getFactory()
+      .getAttributeAssign().findAssignmentsOnAssignments( 
+        GrouperUtil.toSet(this.attributeAssignToAssignTo), attributeAssignType, null);
+
   }
 
 
@@ -195,7 +202,14 @@ public class AttributeAssignAttrAssignDelegate extends AttributeAssignBaseDelega
    */
   @Override
   Set<AttributeDefName> retrieveAttributeDefNamesByOwner() {
-    throw new RuntimeException("This is not implemented");
+
+    AttributeAssignType originalAttributeAssignType = this.attributeAssignToAssignTo.getAttributeAssignType();
+    AttributeAssignType attributeAssignType = originalAttributeAssignType.getAssignmentOnAssignmentType();
+    
+    return GrouperDAOFactory.getFactory()
+      .getAttributeAssign().findAssignmentsOnAssignmentsAttributeDefNames(
+          GrouperUtil.toSet(this.attributeAssignToAssignTo), attributeAssignType, null);
+
   }
 
 }

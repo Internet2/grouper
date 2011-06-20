@@ -7,6 +7,8 @@ import org.apache.commons.lang.StringUtils;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
+import edu.internet2.middleware.grouper.attr.AttributeDefType;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssignType;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.AttributeDefNameNotFoundException;
@@ -25,6 +27,7 @@ import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
+import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
@@ -38,7 +41,6 @@ public class Hib3AttributeDefNameDAO extends Hib3DAO implements AttributeDefName
   /**
    * 
    */
-  @SuppressWarnings("unused")
   private static final String KLASS = Hib3AttributeDefNameDAO.class.getName();
 
   /**
@@ -306,6 +308,172 @@ public class Hib3AttributeDefNameDAO extends Hib3DAO implements AttributeDefName
       .listSet(AttributeDefName.class);
   
     return attributeDefNames;
+  }
+
+  /**
+   * 
+   * @param scope 
+   * @param grouperSession 
+   * @param attributeDefId 
+   * @param subject 
+   * @param privileges 
+   * @param queryOptions 
+   * @param splitScope 
+   * @param attributeAssignType
+   * @param attributeDefType 
+   * @return 
+   * 
+   */
+  private Set<AttributeDefName> findAllAttributeNamesSecureHelper(String scope,
+      GrouperSession grouperSession, String attributeDefId, Subject subject, Set<Privilege> privileges,
+      QueryOptions queryOptions, boolean splitScope, AttributeAssignType attributeAssignType,
+      AttributeDefType attributeDefType) {
+    if (queryOptions == null) {
+      queryOptions = new QueryOptions();
+    }
+    if (queryOptions.getQuerySort() == null) {
+      queryOptions.sortAsc("theAttributeDefName.displayNameDb");
+    }
+  
+    StringBuilder sql = new StringBuilder(
+        "select distinct theAttributeDefName from AttributeDefName theAttributeDefName, AttributeDef theAttributeDef ");
+  
+    ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
+  
+    StringBuilder whereClause = new StringBuilder(" theAttributeDefName.attributeDefId = theAttributeDef.id ");
+    
+    if (attributeDefType != null) {
+      if (whereClause.length() > 0) {
+        whereClause.append(" and ");
+      }
+      whereClause.append(" theAttributeDef.attributeDefTypeDb = :theAttributeDefType ");
+      byHqlStatic.setString("theAttributeDefType", attributeDefType.name());
+    }
+
+    if (!StringUtils.isBlank(attributeDefId)) {
+      
+      if (whereClause.length() > 0) {
+        whereClause.append(" and ");
+      }
+      whereClause.append(" theAttributeDefName.attributeDefId = :theAttributeDefId ");
+      byHqlStatic.setString("theAttributeDefId", attributeDefId);
+      
+    }
+
+    if (attributeAssignType != null) {
+      if (whereClause.length() > 0) {
+        whereClause.append(" and ");
+      }
+      switch (attributeAssignType) {
+        case any_mem:
+          whereClause.append(" theAttributeDef.assignToEffMembershipDb = 'T' ");
+          break;
+        case any_mem_asgn:
+          whereClause.append(" theAttributeDef.assignToEffMembershipAssnDb = 'T' ");
+          break;
+        case attr_def:
+          whereClause.append(" theAttributeDef.assignToAttributeDefDb = 'T' ");
+          break;
+        case attr_def_asgn:
+          whereClause.append(" theAttributeDef.assignToAttributeDefAssnDb = 'T' ");
+          break;
+        case group:
+          whereClause.append(" theAttributeDef.assignToGroupDb = 'T' ");
+          break;
+        case group_asgn:
+          whereClause.append(" theAttributeDef.assignToGroupAssnDb = 'T' ");
+          break;
+        case imm_mem:
+          whereClause.append(" theAttributeDef.assignToImmMembershipDb = 'T' ");
+          break;
+        case imm_mem_asgn:
+          whereClause.append(" theAttributeDef.assignToImmMembershipAssnDb = 'T' ");
+          break;
+        case member:
+          whereClause.append(" theAttributeDef.assignToMemberDb = 'T' ");
+          break;
+        case mem_asgn:
+          whereClause.append(" theAttributeDef.assignToMemberAssnDb = 'T' ");
+          break;
+        case stem:
+          whereClause.append(" theAttributeDef.assignToStemDb = 'T' ");
+          break;
+        case stem_asgn:
+          whereClause.append(" theAttributeDef.assignToStemAssnDb = 'T' ");
+          break;
+        default:
+          throw new RuntimeException("Not expecting attribute assign type: " + attributeAssignType);
+      }
+    }
+    
+
+    //see if there is a scope
+    if (!StringUtils.isBlank(scope)) {
+      scope = scope.toLowerCase();
+
+      String[] scopes = splitScope ? GrouperUtil.splitTrim(scope, " ") : new String[]{scope};
+
+      if (whereClause.length() > 0) {
+        whereClause.append(" and ");
+      }
+      if (GrouperUtil.length(scopes) == 1) {
+        whereClause.append(" ( theAttributeDefName.id = :theAttributeDefNameIdScope or ( ");
+        byHqlStatic.setString("theAttributeDefNameIdScope", scope);
+      } else {
+        whereClause.append(" ( ( ");
+      }
+
+      int index = 0;
+      for (String theScope : scopes) {
+        if (index != 0) {
+          whereClause.append(" and ");
+        }
+        whereClause.append(" ( lower(theAttributeDefName.nameDb) like :scope" + index 
+            + " or lower(theAttributeDefName.displayNameDb) like :scope" + index 
+            + " or lower(theAttributeDefName.description) like :scope" + index + " ) ");
+        if (splitScope) {
+          theScope = "%" + theScope + "%";
+        } else if (!theScope.endsWith("%")) {
+          theScope += "%";
+        }
+        byHqlStatic.setString("scope" + index, theScope);
+        index++;
+      }
+      whereClause.append(" ) ) ");
+    }
+  
+    //see if we are adding more to the query
+    boolean changedQuery = grouperSession.getAttributeDefResolver().hqlFilterAttrDefsWhereClause(subject, byHqlStatic,
+        sql, whereClause, "theAttributeDefName.attributeDefId", privileges);
+  
+    if (whereClause.length() > 0) {
+      if (!changedQuery) {
+        sql.append(" where ");
+      } else {
+        sql.append(" and ");
+      }
+      sql.append(whereClause);
+    }    
+    
+    Set<AttributeDefName> attributeDefNames = byHqlStatic.createQuery(sql.toString())
+      .setCacheable(false)
+      .setCacheRegion(KLASS + ".GetAllAttributeDefNamesSecure")
+      .options(queryOptions)
+      .listSet(AttributeDefName.class);
+    
+  
+    return attributeDefNames;
+  
+  }
+
+  /**
+   * @see AttributeDefNameDAO#findAllAttributeNamesSplitScopeSecure(String, GrouperSession, String, Subject, Set, QueryOptions, AttributeAssignType, AttributeDefType)
+   */
+  public Set<AttributeDefName> findAllAttributeNamesSplitScopeSecure(String scope,
+      GrouperSession grouperSession, String attributeDefId, Subject subject,
+      Set<Privilege> privileges, QueryOptions queryOptions, AttributeAssignType attributeAssignType,
+      AttributeDefType attributeDefType) {
+    return findAllAttributeNamesSecureHelper(scope, grouperSession, attributeDefId, subject, privileges, queryOptions, true, attributeAssignType, attributeDefType);
   }
 
 } 

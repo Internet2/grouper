@@ -573,6 +573,26 @@ public class GrouperCheckConfig {
         
       }
       
+      //groups that manage access to sort and search strings
+      Map<String, String> memberSortSearchPatterns = memberSortSearchSecuritySettings();
+      for (String key: memberSortSearchPatterns.keySet()) {
+        
+        Matcher matcher = memberSortSearchSecurityPattern.matcher(key);
+        
+        matcher.matches();
+        String name = matcher.group(1) + matcher.group(2);
+        String settingType = matcher.group(3);
+        if (!StringUtils.equalsIgnoreCase("allowOnlyGroup", settingType)) {
+          continue;
+        }
+        //this is a group
+        String groupName = memberSortSearchPatterns.get(key);
+        String description = "Group whose members are allowed to access: " + name;
+        checkGroup(grouperSession, groupName, wasInCheckConfig, null, wasInCheckConfig, null, description, 
+            "member sort/search security from grouper.properties key: " + key, null);
+        
+      }
+      
     } catch (SessionException se) {
       throw new RuntimeException(se);
     } finally {
@@ -591,6 +611,13 @@ public class GrouperCheckConfig {
    */
   public static Map<String, String> typeSecuritySettings() {
     return retrievePropertiesKeys(GROUPER_PROPERTIES_NAME, typeSecurityPattern);
+  }
+  
+  /**
+   * @return the map of settings from grouper.properties
+   */
+  public static Map<String, String> memberSortSearchSecuritySettings() {
+    return retrievePropertiesKeys(GROUPER_PROPERTIES_NAME, memberSortSearchSecurityPattern);
   }
   
   /**
@@ -1322,6 +1349,18 @@ public class GrouperCheckConfig {
       "^security\\.types\\.(.*)\\.(wheelOnly|allowOnlyGroup)$");
   
   /**
+   * <pre>
+   * match security for search and sort strings
+   * match: security.member.sort.string[0-4].allowOnlyGroup
+   * match: security.member.sort.string[0-4].wheelOnly
+   * match: security.member.search.string[0-4].allowOnlyGroup
+   * match: security.member.search.string[0-4].wheelOnly
+   * </pre>
+   */
+  public static final Pattern memberSortSearchSecurityPattern = Pattern.compile(
+      "^security\\.member\\.(sort|search)\\.(string[0-4])\\.(wheelOnly|allowOnlyGroup)$");
+  
+  /**
    * return true if this is an exception case, dont worry about it
    * @param resourceName
    * @param propertyName
@@ -1345,6 +1384,9 @@ public class GrouperCheckConfig {
         return true;
       }
       if (typeSecurityPattern.matcher(propertyName).matches()) {
+        return true;
+      }
+      if (memberSortSearchSecurityPattern.matcher(propertyName).matches()) {
         return true;
       }
     }

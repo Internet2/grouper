@@ -6,6 +6,7 @@
   xmlns:ldappc="http://grouper.internet2.edu/ldappc"
   xmlns:grouper="http://grouper.internet2.edu/shibboleth/2.0"
   xmlns:resolver="urn:mace:shibboleth:2.0:resolver"
+  xmlns:dc="urn:mace:shibboleth:2.0:resolver:dc"
   xmlns:service="urn:mace:shibboleth:2.0:services"
   xmlns:spml="urn:oasis:names:tc:SPML:2:0"
   xmlns:spmldsml="urn:oasis:names:tc:SPML:2:0:DSML"
@@ -15,6 +16,7 @@
 
   <import namespace="urn:mace:shibboleth:2.0:services" schemaLocation="classpath:/schema/shibboleth-2.0-services.xsd" />
   <import namespace="urn:mace:shibboleth:2.0:resolver" schemaLocation="classpath:/schema/shibboleth-2.0-attribute-resolver.xsd" />
+  <import namespace="urn:mace:shibboleth:2.0:resolver:dc" schemaLocation="classpath:/schema/shibboleth-2.0-attribute-resolver-dc.xsd" />
   <import namespace="urn:oasis:names:tc:SPML:2:0" schemaLocation="classpath:/schema/pstc_spmlv2_core.xsd" />
   <import namespace="http://grouper.internet2.edu/shibboleth/2.0" schemaLocation="classpath:/schema/shibboleth-2.0-grouper.xsd" />
   <!--
@@ -224,6 +226,7 @@
               <documentation>TODO</documentation>
             </annotation>
           </element>
+          <element name="ResultCache" type="dc:CacheConfigType" minOccurs="0" />
         </sequence>
         <attribute name="provider" type="string" use="required" />
         <attribute name="base" type="string" use="required" />

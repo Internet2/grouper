@@ -373,4 +373,26 @@ public class PITAttributeAssignActionSet extends GrouperPIT implements Hib3Group
         DB_VERSION_FIELDS, null);
     return result;
   }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.GrouperAPI#onPreDelete(edu.internet2.middleware.grouper.hibernate.HibernateSession)
+   */
+  @Override
+  public void onPreDelete(HibernateSession hibernateSession) {
+    super.onPreDelete(hibernateSession);
+
+    if (this.isActive()) {
+      throw new RuntimeException("Cannot delete active point in time action set object with id=" + this.getId());
+    }
+    
+    // Note that not all action sets that exist because of this action set are deleted by this.
+    // We're assuming that action sets only get deleted when the action is deleted.  
+    // So some action sets get deleted separately.
+
+    Set<PITAttributeAssignActionSet> childResults = GrouperDAOFactory.getFactory().getPITAttributeAssignActionSet().findImmediateChildren(this);
+
+    for (PITAttributeAssignActionSet child : childResults) {
+      GrouperDAOFactory.getFactory().getPITAttributeAssignActionSet().delete(child);
+    }
+  }
 }

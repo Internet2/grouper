@@ -1,188 +1,148 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
     <modelVersion>4.0.0</modelVersion>
-    <groupId>edu.internet2.middleware.grouper</groupId>
-    <artifactId>grouper</artifactId>
-    <version>2.0.0</version>
-    <packaging>jar</packaging>
 
-    <name>Grouper</name>
+    <parent>
+        <groupId>edu.internet2.middleware.grouper</groupId>
+        <artifactId>grouper-parent</artifactId>
+        <version>2.0.0-SNAPSHOT</version>
+        <relativePath>../grouper-parent</relativePath>
+    </parent>
+
+    <name>Grouper API</name>
     <description>Internet2 Groups Management Toolkit</description>
-
-    <repositories>
-        <repository>
-            <id>grouper.internet2.edu</id>
-            <name>Internet2</name>
-            <layout>default</layout>
-            <url>http://www.internet2.edu/grouper/downloads/maven2</url>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </repository>
-    </repositories>
-
-    <distributionManagement>
-        <repository>
-            <id>release-repo</id>
-            <url>${dist.release.url}</url>
-        </repository>
-    </distributionManagement>
-
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    </properties>
+    <artifactId>grouper</artifactId>
+    <packaging>jar</packaging>
 
     <dependencies>
         <dependency>
-            <groupId>edu.internet2.middleware.subject</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>subject</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>edu.internet2.middleware.grouper</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>morphString</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>edu.internet2.middleware.grouper</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>grouperClient</artifactId>
             <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>log4j</groupId>
-            <artifactId>log4j</artifactId>
-            <version>1.2.16</version>
+            <exclusions>
+                <!-- ignore xalan 2.7.0 -->
+                <!-- http://groups.google.com/group/opensaml-users/browse_thread/thread/d06ae0cac4ae9929 -->
+                <exclusion>
+                    <groupId>xalan</groupId>
+                    <artifactId>xalan</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate</artifactId>
-            <version>3.2.6.ga</version>
         </dependency>
         <dependency>
             <groupId>ant</groupId>
             <artifactId>ant-jakarta-oro</artifactId>
-            <version>1.6.1</version>
         </dependency>
         <dependency>
             <groupId>antlr</groupId>
             <artifactId>antlr</artifactId>
-            <version>2.7.6</version>
         </dependency>
         <dependency>
             <groupId>asm</groupId>
             <artifactId>asm</artifactId>
-            <version>1.5.3</version>
         </dependency>
         <dependency>
             <groupId>asm</groupId>
             <artifactId>asm-attrs</artifactId>
-            <version>1.5.3</version>
         </dependency>
         <dependency>
             <groupId>asm</groupId>
             <artifactId>asm-util</artifactId>
-            <version>1.5.3</version>
         </dependency>
         <dependency>
             <groupId>backport-util-concurrent</groupId>
             <artifactId>backport-util-concurrent</artifactId>
-            <version>3.1</version>
         </dependency>
         <dependency>
             <groupId>cglib</groupId>
             <artifactId>cglib</artifactId>
-            <version>2.1_3</version>
         </dependency>
         <dependency>
             <groupId>commons-beanutils</groupId>
             <artifactId>commons-beanutils</artifactId>
-            <version>1.7.0</version>
         </dependency>
         <dependency>
             <groupId>commons-betwixt</groupId>
             <artifactId>commons-betwixt</artifactId>
-            <version>0.8</version>
         </dependency>
         <dependency>
             <groupId>commons-cli</groupId>
             <artifactId>commons-cli</artifactId>
-            <version>1.2</version>
         </dependency>
         <dependency>
             <groupId>commons-collections</groupId>
             <artifactId>commons-collections</artifactId>
-            <version>3.2</version>
         </dependency>
         <dependency>
             <groupId>commons-digester</groupId>
             <artifactId>commons-digester</artifactId>
-            <version>1.7</version>
         </dependency>
         <dependency>
             <groupId>commons-discovery</groupId>
             <artifactId>commons-discovery</artifactId>
-            <version>0.4</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-jexl</artifactId>
-            <version>2.0.1</version>
         </dependency>
         <dependency>
             <groupId>commons-httpclient</groupId>
             <artifactId>commons-httpclient</artifactId>
-            <version>3.0</version>
         </dependency>
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
-            <version>1.4</version>
         </dependency>
         <dependency>
             <groupId>commons-jexl</groupId>
             <artifactId>commons-jexl</artifactId>
-            <version>1.1</version>
         </dependency>
         <dependency>
             <groupId>commons-lang</groupId>
             <artifactId>commons-lang</artifactId>
-            <version>2.1</version>
         </dependency>
         <dependency>
             <groupId>commons-logging</groupId>
             <artifactId>commons-logging</artifactId>
-            <version>1.1.1</version>
         </dependency>
         <dependency>
             <groupId>commons-math</groupId>
             <artifactId>commons-math</artifactId>
-            <version>1.1</version>
         </dependency>
         <dependency>
             <groupId>com.jamonapi</groupId>
             <artifactId>jamon</artifactId>
-            <version>2.7</version>
         </dependency>
         <dependency>
             <groupId>com.thoughtworks.xstream</groupId>
             <artifactId>xstream</artifactId>
-            <version>1.3</version>
         </dependency>
         <dependency>
             <groupId>c3p0</groupId>
             <artifactId>c3p0</artifactId>
-            <version>0.9.1.2</version>
         </dependency>
         <dependency>
             <groupId>dom4j</groupId>
             <artifactId>dom4j</artifactId>
-            <version>1.6.1</version>
         </dependency>
         <dependency>
             <groupId>javax.activation</groupId>
             <artifactId>activation</artifactId>
-            <version>1.1.1</version>
         </dependency>
         <dependency>
             <groupId>javax.mail</groupId>
@@ -192,118 +152,91 @@
         <dependency>
             <groupId>javax.transaction</groupId>
             <artifactId>jta</artifactId>
-            <version>1.0.1B</version>
         </dependency>
         <dependency>
             <groupId>jug</groupId>
             <artifactId>jug</artifactId>
-            <version>1.1.2</version>
         </dependency>
         <dependency>
             <groupId>net.sf.ehcache</groupId>
             <artifactId>ehcache</artifactId>
-            <version>1.4.0</version>
         </dependency>
         <dependency>
             <groupId>net.sf.ezmorph</groupId>
             <artifactId>ezmorph</artifactId>
-            <version>1.0.6</version>
         </dependency>
         <dependency>
             <groupId>net.sf.json-lib</groupId>
             <artifactId>json-lib</artifactId>
             <version>2.3</version>
             <classifier>jdk15</classifier>
-            <optional>false</optional>
         </dependency>
         <dependency>
             <groupId>net.sf.jsr107cache</groupId>
             <artifactId>jsr107cache</artifactId>
-            <version>1.0</version>
         </dependency>
         <dependency>
             <groupId>odmg</groupId>
             <artifactId>odmg</artifactId>
-            <version>3.0</version>
         </dependency>
         <dependency>
             <groupId>org.opensymphony.quartz</groupId>
             <artifactId>quartz</artifactId>
-            <version>1.6.1</version>
         </dependency>
         <dependency>
             <groupId>org.apache.ant</groupId>
             <artifactId>ant</artifactId>
-            <version>1.7.1</version>
         </dependency>
         <dependency>
             <groupId>org.apache.ddlutils</groupId>
             <artifactId>ddlutils</artifactId>
-            <version>1.0</version>
         </dependency>
         <dependency>
             <groupId>org.beanshell</groupId>
             <artifactId>bsh</artifactId>
-            <version>2.0b4</version>
         </dependency>
-        <!--  custom Penn -->
+        <!-- custom Penn -->
         <dependency>
             <groupId>p6spy</groupId>
             <artifactId>p6spy</artifactId>
-            <version>1.1</version>
             <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>xpp3</groupId>
             <artifactId>xpp3_min</artifactId>
-            <version>1.1.4c</version>
         </dependency>
         <dependency>
             <groupId>jivesoftware</groupId>
             <artifactId>smack</artifactId>
-            <version>3.1.0</version>
         </dependency>
         <dependency>
             <groupId>org.mortbay.jetty</groupId>
             <artifactId>jetty</artifactId>
-            <version>6.1.24</version>
         </dependency>
         <dependency>
             <groupId>org.mortbay.jetty</groupId>
             <artifactId>jetty-util</artifactId>
-            <version>6.1.24</version>
         </dependency>
 
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>servlet-api</artifactId>
-            <version>2.4</version>
             <scope>provided</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.8.1</version>
-            <scope>test</scope>
         </dependency>
 
         <!-- database drivers, using profiles proved too cumbersome for tests - this is not ideal -->
         <dependency>
             <groupId>hsqldb</groupId>
             <artifactId>hsqldb</artifactId>
-            <version>1.8.0.10</version>
         </dependency>
         <dependency>
             <groupId>postgresql</groupId>
             <artifactId>postgresql</artifactId>
-            <version>8.4-701.jdbc4</version>
             <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
-            <version>5.1.12</version>
             <scope>runtime</scope>
         </dependency>
 
@@ -336,6 +269,7 @@
         <plugins>
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
+                <version>2.3.2</version>
                 <configuration>
                     <source>1.5</source>
                     <target>1.5</target>
@@ -363,7 +297,7 @@
                     </execution>
                 </executions>
             </plugin>
-            <!--  copy conf/*.properties to conf/* -->
+            <!-- copy conf/*.properties to conf/* -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>
@@ -386,7 +320,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.5</version>
+                <version>2.7.2</version>
                 <configuration>
                     <includes>
                         <include>**/edu/internet2/middleware/grouper/AllTests.java</include>
@@ -400,6 +334,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
+                <version>2.3.1</version>
                 <configuration>
                     <archive>
                         <index>true</index>
@@ -410,8 +345,8 @@
                             <manifestSection>
                                 <name>edu/internet2/middleware/grouper/</name>
                                 <manifestEntries>
-                                    <Implementation-Title>${pom.artifactId}</Implementation-Title>
-                                    <Implementation-Version>${pom.version}</Implementation-Version>
+                                    <Implementation-Title>${project.artifactId}</Implementation-Title>
+                                    <Implementation-Version>${project.version}</Implementation-Version>
                                     <Implementation-Vendor>grouper.internet2.edu</Implementation-Vendor>
                                 </manifestEntries>
                             </manifestSection>
@@ -424,198 +359,8 @@
                         <exclude>sqltool.rc</exclude>
                     </excludes>
                 </configuration>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>test-jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
         </plugins>
     </build>
 
-    <profiles>
-        <profile>
-            <id>release</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <artifactId>maven-compiler-plugin</artifactId>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-javadoc-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <id>release-javadoc</id>
-                                <phase>package</phase>
-                                <goals>
-                                    <goal>javadoc</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-gpg-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <id>sign-artifacts</id>
-                                <phase>verify</phase>
-                                <goals>
-                                    <goal>sign</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-source-plugin</artifactId>
-                        <version>2.1.2</version>
-                        <executions>
-                            <execution>
-                                <id>attach-sources</id>
-                                <goals>
-                                    <goal>jar</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-javadoc-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <id>attach-javadocs</id>
-                                <goals>
-                                    <goal>jar</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
-
-    <!-- Project Metadata -->
-    <url>http://grouper.internet2.edu</url>
-
-    <licenses>
-        <license>
-            <name>Apache 2</name>
-            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
-            <distribution>repo</distribution>
-        </license>
-    </licenses>
-
-    <organization>
-        <name>Internet2</name>
-        <url>http://www.internet2.edu/</url>
-    </organization>
-
-    <issueManagement>
-        <system>JIRA</system>
-        <url>http://bugs.internet2.edu/</url>
-    </issueManagement>
-
-    <mailingLists>
-        <mailingList>
-            <name>Grouper Users</name>
-            <subscribe>http://www.internet2.edu/grouper/lists.html</subscribe>
-            <unsubscribe>http://www.internet2.edu/grouper/lists.html</unsubscribe>
-            <post>grouper-users@internet2.edu</post>
-            <archive>https://mail.internet2.edu/wws/arc/grouper-users</archive>
-            <otherArchives>
-                <otherArchive>http://groups.google.com/group/grouper-users</otherArchive>
-            </otherArchives>
-        </mailingList>
-        <mailingList>
-            <name>Grouper Development</name>
-            <subscribe>http://www.internet2.edu/grouper/lists.html</subscribe>
-            <unsubscribe>http://www.internet2.edu/grouper/lists.html</unsubscribe>
-            <post>grouper-dev@internet2.edu</post>
-            <archive>https://mail.internet2.edu/wws/arc/grouper-dev</archive>
-            <otherArchives>
-                <otherArchive>http://groups.google.com/group/grouper-dev</otherArchive>
-            </otherArchives>
-        </mailingList>
-    </mailingLists>
-
-    <scm>
-        <connection>scm:svn:http://anonsvn.internet2.edu/svn/i2mi/</connection>
-        <developerConnection>scm:svn:http://anonsvn.internet2.edu/svn/i2mi</developerConnection>
-        <tag>HEAD</tag>
-        <url>http://anonsvn.internet2.edu/cgi-bin/viewvc.cgi/i2mi/</url>
-    </scm>
-
-    <developers>
-        <developer>
-            <id>tbarton</id>
-            <name>Tom Barton</name>
-            <organization>The University of Chicago</organization>
-            <organizationUrl>http://www.uchicago.edu/</organizationUrl>
-            <email>tbarton@uchicago.edu</email>
-            <roles>
-                <role>manager</role>
-            </roles>
-            <timezone>-6</timezone>
-        </developer>
-        <developer>
-            <id>gbrown</id>
-            <name>Gary Brown</name>
-            <organization>University of Bristol</organization>
-            <organizationUrl>http://www.bristol.ac.uk</organizationUrl>
-            <email>Gary.Brown@bristol.ac.uk</email>
-            <roles>
-                <role>developer</role>
-            </roles>
-            <timezone>0</timezone>
-        </developer>
-        <developer>
-            <id>rhebron</id>
-            <name>Rob Hebron</name>
-            <organization>Cardiff University</organization>
-            <organizationUrl>http://www.cardiff.ac.uk</organizationUrl>
-            <email>HebronR@cardiff.ac.uk</email>
-            <roles>
-                <role>developer</role>
-            </roles>
-            <timezone>0</timezone>
-        </developer>
-        <developer>
-            <id>mchyzer</id>
-            <name>Chris Hyzer</name>
-            <organization>University of Pennsylvania</organization>
-            <organizationUrl>http://www.upenn.edu</organizationUrl>
-            <email>mchyzer@isc.upenn.edu</email>
-            <roles>
-                <role>developer</role>
-            </roles>
-            <timezone>-5</timezone>
-        </developer>
-        <developer>
-            <id>shilen</id>
-            <name>Shilen Patel</name>
-            <organization>Duke University</organization>
-            <organizationUrl>http://www.duke.edu</organizationUrl>
-            <email>shilen@duke.edu</email>
-            <roles>
-                <role>developer</role>
-            </roles>
-            <timezone>-5</timezone>
-        </developer>
-        <developer>
-            <id>tzeller</id>
-            <name>Tom Zeller</name>
-            <organization>University of Memphis</organization>
-            <organizationUrl>http://www.memphis.edu</organizationUrl>
-            <email>tzeller@memphis.edu</email>
-            <roles>
-                <role>developer</role>
-            </roles>
-            <timezone>-6</timezone>
-        </developer>
-    </developers>
 </project>

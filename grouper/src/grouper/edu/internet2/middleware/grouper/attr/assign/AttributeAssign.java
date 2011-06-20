@@ -62,6 +62,7 @@ import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperHasContext;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
+import edu.internet2.middleware.grouper.permissions.PermissionAllowed;
 import edu.internet2.middleware.grouper.rules.RuleCheckType;
 import edu.internet2.middleware.grouper.rules.RuleEngine;
 import edu.internet2.middleware.grouper.rules.beans.RulesPermissionBean;
@@ -71,7 +72,7 @@ import edu.internet2.middleware.grouper.xml.export.XmlImportableMultiple;
 
 
 /**
- * definition of an attribute
+ * assignment of an attribute
  * @author mchyzer
  *
  */
@@ -85,6 +86,9 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
 
   /** name of the groups attribute def table in the db */
   public static final String TABLE_GROUPER_ATTRIBUTE_ASSIGN = "grouper_attribute_assign";
+
+  /** allowed col in db */
+  public static final String COLUMN_DISALLOWED = "disallowed";
 
   /** actions col in db */
   public static final String COLUMN_ATTRIBUTE_ASSIGN_ACTION_ID = "attribute_assign_action_id";
@@ -143,6 +147,9 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
   
   //*****  START GENERATED WITH GenerateFieldConstants.java *****//
 
+  /** constant for field name for: disallowed */
+  public static final String FIELD_DISALLOWED = "disallowed";
+
   /** constant for field name for: attributeAssignActionId */
   public static final String FIELD_ATTRIBUTE_ASSIGN_ACTION_ID = "attributeAssignActionId";
 
@@ -163,9 +170,6 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
 
   /** constant for field name for: disabledTimeDb */
   public static final String FIELD_DISABLED_TIME_DB = "disabledTimeDb";
-
-  /** constant for field name for: enabled */
-  public static final String FIELD_ENABLED = "enabled";
 
   /** constant for field name for: enabledTimeDb */
   public static final String FIELD_ENABLED_TIME_DB = "enabledTimeDb";
@@ -204,8 +208,9 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
    * fields which are included in db version
    */
   private static final Set<String> DB_VERSION_FIELDS = GrouperUtil.toSet(
-      FIELD_ATTRIBUTE_ASSIGN_ACTION_ID, FIELD_ATTRIBUTE_ASSIGN_DELEGATABLE, FIELD_ATTRIBUTE_ASSIGN_TYPE, FIELD_ATTRIBUTE_DEF_NAME_ID, 
-      FIELD_CONTEXT_ID, FIELD_CREATED_ON_DB, FIELD_DISABLED_TIME_DB, FIELD_ENABLED, 
+      FIELD_DISALLOWED, FIELD_ATTRIBUTE_ASSIGN_ACTION_ID, 
+      FIELD_ATTRIBUTE_ASSIGN_DELEGATABLE, FIELD_ATTRIBUTE_ASSIGN_TYPE, FIELD_ATTRIBUTE_DEF_NAME_ID, 
+      FIELD_CONTEXT_ID, FIELD_CREATED_ON_DB, FIELD_DISABLED_TIME_DB, 
       FIELD_ENABLED_TIME_DB, FIELD_ID, FIELD_LAST_UPDATED_DB, FIELD_NOTES, 
       FIELD_OWNER_ATTRIBUTE_ASSIGN_ID, FIELD_OWNER_ATTRIBUTE_DEF_ID, FIELD_OWNER_GROUP_ID, FIELD_OWNER_MEMBER_ID, 
       FIELD_OWNER_MEMBERSHIP_ID, FIELD_OWNER_STEM_ID, FIELD_VALUE_DELEGATE);
@@ -214,8 +219,9 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
    * fields which are included in clone method
    */
   private static final Set<String> CLONE_FIELDS = GrouperUtil.toSet(
-      FIELD_ATTRIBUTE_ASSIGN_ACTION_ID, FIELD_ATTRIBUTE_ASSIGN_DELEGATABLE, FIELD_ATTRIBUTE_ASSIGN_TYPE, FIELD_ATTRIBUTE_DEF_NAME_ID, 
-      FIELD_CONTEXT_ID, FIELD_CREATED_ON_DB, FIELD_DISABLED_TIME_DB, FIELD_ENABLED, 
+      FIELD_DISALLOWED, FIELD_ATTRIBUTE_ASSIGN_ACTION_ID, 
+      FIELD_ATTRIBUTE_ASSIGN_DELEGATABLE, FIELD_ATTRIBUTE_ASSIGN_TYPE, FIELD_ATTRIBUTE_DEF_NAME_ID, 
+      FIELD_CONTEXT_ID, FIELD_CREATED_ON_DB, FIELD_DISABLED_TIME_DB, 
       FIELD_ENABLED_TIME_DB, FIELD_HIBERNATE_VERSION_NUMBER, FIELD_ID, FIELD_LAST_UPDATED_DB, 
       FIELD_NOTES, FIELD_OWNER_ATTRIBUTE_ASSIGN_ID, FIELD_OWNER_ATTRIBUTE_DEF_ID, FIELD_OWNER_GROUP_ID, 
       FIELD_OWNER_MEMBER_ID, FIELD_OWNER_MEMBERSHIP_ID, FIELD_OWNER_STEM_ID, FIELD_VALUE_DELEGATE);
@@ -511,6 +517,13 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
                 RuleEngine.fireRule(RuleCheckType.subjectAssignInStem, rulesPermissionBean);
 
               }
+
+              if (AttributeDefType.perm != theAttributeDef.getAttributeDefType()) {
+                if (AttributeAssign.this.disallowed) {
+                  throw new RuntimeException("You can only have an attribute assignment which is not " +
+                      "allowed if the attribute definition is a permission: " + theAttributeDef);
+                }
+              }
               
               if (!hibernateHandlerBean.isCallerWillCreateAudit()) {
                 AuditEntry auditEntry = new AuditEntry();
@@ -518,7 +531,12 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
                 if (isInsert) {
                   
                   AttributeAssign.this.getAttributeAssignType().decorateAuditEntryInsert(auditEntry, attributeAssignable);
-                  auditEntry.setDescription("Added attribute assignment");
+                  
+                  if (AttributeDefType.perm == theAttributeDef.getAttributeDefType() && AttributeAssign.this.disallowed) {
+                    auditEntry.setDescription("Added attribute assignment, disallowed");
+                  } else {
+                    auditEntry.setDescription("Added attribute assignment");
+                  }
 
                 } else {
 
@@ -554,6 +572,7 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
   /**
    * @return if in delete
    */
+  @SuppressWarnings("unchecked")
   public static Set<AttributeAssign> attributeAssignDeletes() {
     Set<AttributeAssign> attributeAssignDeletesSet =  attributeAssignDeletes.get();
     return attributeAssignDeletesSet == null ? null : Collections.unmodifiableSet(attributeAssignDeletesSet);
@@ -563,6 +582,9 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
    * delete this object
    */
   public void delete() {
+    
+    //TODO does this check to see if allowed???
+    
     boolean clearInAttributeAssignDelete = false;
     Set<AttributeAssign> attributeAssignDeletesSet =  attributeAssignDeletes.get();
     if (attributeAssignDeletesSet == null || !attributeAssignDeletesSet.contains(this)) {
@@ -604,12 +626,19 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
   
           if (!hibernateHandlerBean.isCallerWillCreateAudit()) {
             AuditEntry auditEntry = new AuditEntry();
-  
+            AttributeDefName theAttributeDefName = AttributeAssign.this.getAttributeDefName();
             AttributeAssign.this.getAttributeAssignType().decorateAuditEntryInsert(auditEntry, AttributeAssign.this.retrieveAttributeAssignable());
-            auditEntry.setDescription("Deleted attribute assignment");
-  
+
+            AttributeDef theAttributeDef = theAttributeDefName.getAttributeDef();
+            
+            if (AttributeDefType.perm == theAttributeDef.getAttributeDefType() && AttributeAssign.this.disallowed) {
+              auditEntry.setDescription("Deleted attribute assignment, disallowed");
+            } else {
+              auditEntry.setDescription("Deleted attribute assignment");
+            }
+            
             auditEntry.assignStringValue(auditEntry.getAuditType(), "id", AttributeAssign.this.getId());
-            auditEntry.assignStringValue(auditEntry.getAuditType(), "attributeDefNameName", AttributeAssign.this.getAttributeDefName().getName());
+            auditEntry.assignStringValue(auditEntry.getAuditType(), "attributeDefNameName", theAttributeDefName.getName());
             auditEntry.assignStringValue(auditEntry.getAuditType(), "attributeDefNameId", AttributeAssign.this.getAttributeDefNameId());
             auditEntry.assignStringValue(auditEntry.getAuditType(), "action", AttributeAssign.this.getAttributeAssignAction().getName());
             auditEntry.assignStringValue(auditEntry.getAuditType(), "attributeDefId", attributeDef.getId());
@@ -760,10 +789,42 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
   private String attributeAssignActionId;
   
   /**
-   * true or false for if this assignment is enabled (e.g. might have expired) 
+   * if this is a permission, then if this permission assignment is allowed or not 
    */
-  private boolean enabled = true;
+  private boolean disallowed = false;
   
+  /**
+   * if this is a permission, then if this permission assignment is allowed or not 
+   * @param disallowed1 the allowed to set
+   */
+  public void setDisallowed(boolean disallowed1) {
+    this.disallowed = disallowed1;
+  }
+
+  /**
+   * if this is a permission, then if this permission assignment is allowed or not 
+   * @param disallowed1 the allowed to set
+   */
+  public void setDisallowedDb(String disallowed1) {
+    this.disallowed = GrouperUtil.booleanValue(disallowed1, false);
+  }
+
+  /**
+   * if this is a permission, then if this permission assignment is allowed or not 
+   * @return the allowed
+   */
+  public String getDisallowedDb() {
+    return this.disallowed ? "T" : "F";
+  }
+
+  /**
+   * if this is a permission, then if this permission assignment is allowed or not 
+   * @return if allowed
+   */
+  public boolean isDisallowed() {
+    return this.disallowed;
+  }
+
   /**
    * if there is a date here, and it is in the future, this assignment is disabled
    * until that time
@@ -1046,6 +1107,17 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
   }
 
   /**
+   * if this is a membership attribute, this is the foreign key
+   * @return the ownerMembership
+   */
+  public Membership getOwnerMembership() {
+    
+    //I think the current grouper session isnt really relevant here, I think we just need to produce the membership without security
+    return this.ownerMembershipId == null ? null : GrouperDAOFactory.getFactory().getMembership().findByUuid(this.ownerMembershipId, true, false);
+
+  }
+
+  /**
    * if this is a member attribute, this is the foreign key
    * @return the ownerMember
    */
@@ -1181,29 +1253,29 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
   
   /**
    * true or false for if this assignment is enabled (e.g. might have expired) 
-   * @param enabled1 the enabled to set
-   */
-  public void setEnabled(boolean enabled1) {
-    this.enabled = enabled1;
-  }
-
-  /**
-   * true or false for if this assignment is enabled (e.g. might have expired) 
    * @return the enabled
    */
   public String getEnabledDb() {
-    return this.enabled ? "T" : "F";
+    return this.isEnabled() ? "T" : "F";
   }
 
-  
   /**
    * true or false for if this assignment is enabled (e.g. might have expired) 
+   * dont call this method, its for hibernate
    * @param enabled1 the enabled to set
    */
-  public void setEnabledDb(String enabled1) {
-    this.enabled = GrouperUtil.booleanValue(enabled1);
+  public void setEnabledDb(@SuppressWarnings("unused") String enabled1) {
+    //note enabled is handled by dates
   }
 
+  /**
+   * true or false for if this assignment is enabled (e.g. might have expired) 
+   * dont call this method, its for hibernate
+   * @param enabled1 the enabled to set
+   */
+  public void setEnabled(@SuppressWarnings("unused") boolean enabled1) {
+    //note enabeld is handled by dates
+  }
   
   /**
    * if there is a date here, and it is in the future, this assignment is disabled
@@ -1333,12 +1405,12 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
    */
   public void xmlCopyBusinessPropertiesToExisting(AttributeAssign existingRecord) {
     
+    existingRecord.setDisallowed(existingRecord.isDisallowed());
     existingRecord.setAttributeAssignActionId(existingRecord.getAttributeAssignActionId());
     existingRecord.setAttributeAssignDelegatable(existingRecord.getAttributeAssignDelegatable());
     existingRecord.setAttributeAssignType(existingRecord.getAttributeAssignType());
     existingRecord.setAttributeDefNameId(existingRecord.getAttributeDefNameId());
     existingRecord.setDisabledTimeDb(existingRecord.getDisabledTimeDb());
-    existingRecord.setEnabled(existingRecord.isEnabled());
     existingRecord.setEnabledTimeDb(existingRecord.getEnabledTimeDb());
     existingRecord.setId(existingRecord.getId());
     existingRecord.setNotes(existingRecord.getNotes());
@@ -1355,6 +1427,9 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
    * @see edu.internet2.middleware.grouper.xml.export.XmlImportableBase#xmlDifferentBusinessProperties(java.lang.Object)
    */
   public boolean xmlDifferentBusinessProperties(AttributeAssign other) {
+    if (this.disallowed != other.disallowed) {
+      return true;
+    }
     if (!StringUtils.equals(this.attributeAssignActionId, other.attributeAssignActionId)) {
       return true;
     }
@@ -1368,9 +1443,6 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
       return true;
     }
     if (!GrouperUtil.equals(this.disabledTimeDb, other.disabledTimeDb)) {
-      return true;
-    }
-    if (this.enabled != other.enabled) {
       return true;
     }
     if (!GrouperUtil.equals(this.enabledTimeDb, other.enabledTimeDb)) {
@@ -1438,38 +1510,38 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
         AttributeAssign ownerAttributeAssign = GrouperDAOFactory.getFactory().getAttributeAssign()
           .findById(this.ownerAttributeAssignId, true);
         attributeAssignResult = ownerAttributeAssign.getAttributeDelegate()
-          .internal_assignAttributeHelper(theAttributeAssignAction.getName(), theAttributeDefName, true, this.id);
+          .internal_assignAttributeHelper(theAttributeAssignAction.getName(), theAttributeDefName, true, this.id, PermissionAllowed.fromDisallowedBoolean(this.disallowed));
         
       } else if (!StringUtils.isBlank(this.ownerAttributeDefId)) {
 
         AttributeDef ownerAttributeDef = GrouperDAOFactory.getFactory().getAttributeDef()
           .findById(this.ownerAttributeDefId, true);
         attributeAssignResult = ownerAttributeDef.getAttributeDelegate()
-          .internal_assignAttributeHelper(theAttributeAssignAction.getName(), theAttributeDefName, true, this.id);
+          .internal_assignAttributeHelper(theAttributeAssignAction.getName(), theAttributeDefName, true, this.id, PermissionAllowed.fromDisallowedBoolean(this.disallowed));
       
       } else if (!StringUtils.isBlank(this.ownerGroupId)) {
 
         Group ownerGroup = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), this.ownerGroupId, true);
         attributeAssignResult = ownerGroup.getAttributeDelegate()
-          .internal_assignAttributeHelper(theAttributeAssignAction.getName(), theAttributeDefName, true, this.id);
+          .internal_assignAttributeHelper(theAttributeAssignAction.getName(), theAttributeDefName, true, this.id, PermissionAllowed.fromDisallowedBoolean(this.disallowed));
         
       } else if (!StringUtils.isBlank(this.ownerMemberId)) {
         
         Member ownerMember = MemberFinder.findByUuid(GrouperSession.staticGrouperSession(), this.ownerMemberId, true);
         attributeAssignResult = ownerMember.getAttributeDelegate()
-          .internal_assignAttributeHelper(theAttributeAssignAction.getName(), theAttributeDefName, true, this.id);
+          .internal_assignAttributeHelper(theAttributeAssignAction.getName(), theAttributeDefName, true, this.id, PermissionAllowed.fromDisallowedBoolean(this.disallowed));
 
       } else if (!StringUtils.isBlank(this.ownerMembershipId)) {
         
         Membership ownerMembership = GrouperDAOFactory.getFactory().getMembership().findByUuid(this.ownerMembershipId, true, false);
         attributeAssignResult = ownerMembership.getAttributeDelegate()
-          .internal_assignAttributeHelper(theAttributeAssignAction.getName(), theAttributeDefName, true, this.id);
+          .internal_assignAttributeHelper(theAttributeAssignAction.getName(), theAttributeDefName, true, this.id, PermissionAllowed.fromDisallowedBoolean(this.disallowed));
 
       } else if (!StringUtils.isBlank(this.ownerStemId)) {
         
         Stem ownerStem = StemFinder.findByUuid(GrouperSession.staticGrouperSession(), this.id, true);
         attributeAssignResult = ownerStem.getAttributeDelegate()
-          .internal_assignAttributeHelper(theAttributeAssignAction.getName(), theAttributeDefName, true, this.id);
+          .internal_assignAttributeHelper(theAttributeAssignAction.getName(), theAttributeDefName, true, this.id, PermissionAllowed.fromDisallowedBoolean(this.disallowed));
 
       } else {
         throw new RuntimeException("Cant find owner: " + this);
@@ -1498,7 +1570,7 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
     return GrouperDAOFactory.getFactory().getAttributeAssign().findByUuidOrKey(idsToIgnore,
         this.id, this.attributeDefNameId, this.attributeAssignActionId, this.ownerAttributeAssignId, this.ownerAttributeDefId, this.ownerGroupId,
         this.ownerMemberId, this.ownerMembershipId, this.ownerStemId,  
-        false, this.disabledTimeDb, this.enabledTimeDb, this.notes);
+        false, this.disabledTimeDb, this.enabledTimeDb, this.notes, this.disallowed);
   }
 
   /**
@@ -1518,6 +1590,7 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
     xmlExportAttributeAssign.setContextId(this.getContextId());
     xmlExportAttributeAssign.setCreateTime(GrouperUtil.dateStringValue(this.getCreatedOnDb()));
     xmlExportAttributeAssign.setDisabledTime(GrouperUtil.dateStringValue(this.getDisabledTimeDb()));
+    xmlExportAttributeAssign.setDisallowed(this.getDisallowedDb());
     xmlExportAttributeAssign.setEnabled(this.getEnabledDb());
     xmlExportAttributeAssign.setEnabledTime(GrouperUtil.dateStringValue(this.getEnabledTimeDb()));
     xmlExportAttributeAssign.setHibernateVersionNumber(this.getHibernateVersionNumber());
@@ -1786,7 +1859,8 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
           ChangeLogLabels.ATTRIBUTE_ASSIGN_DELETE.ownerId1.name(), ownerId1,
           ChangeLogLabels.ATTRIBUTE_ASSIGN_DELETE.ownerId2.name(), ownerId2,
           ChangeLogLabels.ATTRIBUTE_ASSIGN_DELETE.attributeDefNameName.name(), this.getAttributeDefName().getName(),
-          ChangeLogLabels.ATTRIBUTE_ASSIGN_DELETE.action.name(), this.getAttributeAssignAction().getName()).save();
+          ChangeLogLabels.ATTRIBUTE_ASSIGN_DELETE.action.name(), this.getAttributeAssignAction().getName(),
+          ChangeLogLabels.ATTRIBUTE_ASSIGN_DELETE.disallowed.name(), this.getDisallowedDb()).save();
     }
   }
 
@@ -1838,7 +1912,8 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
           ChangeLogLabels.ATTRIBUTE_ASSIGN_ADD.ownerId1.name(), ownerId1,
           ChangeLogLabels.ATTRIBUTE_ASSIGN_ADD.ownerId2.name(), ownerId2,
           ChangeLogLabels.ATTRIBUTE_ASSIGN_ADD.attributeDefNameName.name(), this.getAttributeDefName().getName(),
-          ChangeLogLabels.ATTRIBUTE_ASSIGN_ADD.action.name(), this.getAttributeAssignAction().getName()).save();
+          ChangeLogLabels.ATTRIBUTE_ASSIGN_ADD.action.name(), this.getAttributeAssignAction().getName(),
+          ChangeLogLabels.ATTRIBUTE_ASSIGN_ADD.disallowed.name(), this.getDisallowedDb()).save();
     }
   }
 
@@ -1861,6 +1936,10 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
     
     if (this.dbVersionDifferentFields().contains(FIELD_ATTRIBUTE_ASSIGN_TYPE)) {
       throw new RuntimeException("cannot update attributeAssignType");
+    }
+    
+    if (this.dbVersionDifferentFields().contains(FIELD_DISALLOWED)) {
+      throw new RuntimeException("cannot update disallowed");
     }
     
     if (this.dbVersionDifferentFields().contains(FIELD_OWNER_STEM_ID) ||
@@ -1910,7 +1989,8 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
           ChangeLogLabels.ATTRIBUTE_ASSIGN_ADD.ownerId1.name(), ownerId1,
           ChangeLogLabels.ATTRIBUTE_ASSIGN_ADD.ownerId2.name(), ownerId2,
           ChangeLogLabels.ATTRIBUTE_ASSIGN_ADD.attributeDefNameName.name(), this.getAttributeDefName().getName(),
-          ChangeLogLabels.ATTRIBUTE_ASSIGN_ADD.action.name(), this.getAttributeAssignAction().getName()).save();
+          ChangeLogLabels.ATTRIBUTE_ASSIGN_ADD.action.name(), this.getAttributeAssignAction().getName(),
+          ChangeLogLabels.ATTRIBUTE_ASSIGN_ADD.disallowed.name(), this.getDisallowedDb()).save();
     } else if (!this.isEnabled() && this.dbVersion().isEnabled()) {
       // this is a delete
       new ChangeLogEntry(true, ChangeLogTypeBuiltin.ATTRIBUTE_ASSIGN_DELETE, 
@@ -1921,7 +2001,8 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
           ChangeLogLabels.ATTRIBUTE_ASSIGN_DELETE.ownerId1.name(), ownerId1,
           ChangeLogLabels.ATTRIBUTE_ASSIGN_DELETE.ownerId2.name(), ownerId2,
           ChangeLogLabels.ATTRIBUTE_ASSIGN_DELETE.attributeDefNameName.name(), this.getAttributeDefName().getName(),
-          ChangeLogLabels.ATTRIBUTE_ASSIGN_DELETE.action.name(), this.getAttributeAssignAction().getName()).save();
+          ChangeLogLabels.ATTRIBUTE_ASSIGN_DELETE.action.name(), this.getAttributeAssignAction().getName(),
+          ChangeLogLabels.ATTRIBUTE_ASSIGN_DELETE.disallowed.name(), this.getDisallowedDb()).save();
     }
   }
 
@@ -1970,12 +2051,8 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
             
             if (attributeAssign != null) {
               hibernateHandlerBean.getHibernateSession().setCachingEnabled(false);
-              //set enabled temporarily to clean out what is there
-              AttributeAssign.this.enabled = true;
               
               AttributeAssign.this.delete();
-              //recalculate
-              AttributeAssign.this.enabled = AttributeAssign.this.isEnabled();
               //insert this again
               AttributeAssign.this.setHibernateVersionNumber(GrouperAPI.INITIAL_VERSION_NUMBER);
               GrouperDAOFactory.getFactory().getAttributeAssign().saveOrUpdate(AttributeAssign.this);

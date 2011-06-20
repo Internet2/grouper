@@ -3,6 +3,7 @@ package edu.internet2.middleware.grouper.internal.dao.hib3;
 import java.sql.Timestamp;
 import java.util.Set;
 
+import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.PITAttributeDefDAO;
 import edu.internet2.middleware.grouper.pit.PITAttributeDef;
@@ -26,17 +27,17 @@ public class Hib3PITAttributeDefDAO extends Hib3DAO implements PITAttributeDefDA
   }
 
   /**
+   * @see edu.internet2.middleware.grouper.internal.dao.PITAttributeDefDAO#saveOrUpdate(java.util.Set)
+   */
+  public void saveOrUpdate(Set<PITAttributeDef> pitAttributeDefs) {
+    HibernateSession.byObjectStatic().saveOrUpdate(pitAttributeDefs);
+  }
+  
+  /**
    * @see edu.internet2.middleware.grouper.internal.dao.PITAttributeDefDAO#delete(edu.internet2.middleware.grouper.pit.PITAttributeDef)
    */
   public void delete(PITAttributeDef pitAttributeDef) {
     HibernateSession.byObjectStatic().delete(pitAttributeDef);
-  }
-  
-  /**
-   * @see edu.internet2.middleware.grouper.internal.dao.PITAttributeDefDAO#saveBatch(java.util.Set)
-   */
-  public void saveBatch(Set<PITAttributeDef> pitAttributeDefs) {
-    HibernateSession.byObjectStatic().saveBatch(pitAttributeDefs);
   }
   
   /**
@@ -89,6 +90,57 @@ public class Hib3PITAttributeDefDAO extends Hib3DAO implements PITAttributeDefDA
       .listSet(PITAttributeDef.class);
     
     return pitAttributeDefs;
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.PITAttributeDefDAO#findByStemId(java.lang.String)
+   */
+  public Set<PITAttributeDef> findByStemId(String id) {
+    return HibernateSession
+        .byHqlStatic()
+        .createQuery("select pitAttributeDef from PITAttributeDef as pitAttributeDef where pitAttributeDef.stemId = :id")
+        .setCacheable(false).setCacheRegion(KLASS + ".FindByStemId")
+        .setString("id", id)
+        .listSet(PITAttributeDef.class);
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.PITAttributeDefDAO#findMissingActivePITAttributeDefs()
+   */
+  public Set<AttributeDef> findMissingActivePITAttributeDefs() {
+
+    Set<AttributeDef> attrs = HibernateSession
+      .byHqlStatic()
+      .createQuery("select def from AttributeDef def where " +
+          "not exists (select 1 from PITAttributeDef pit where def.id = pit.id and def.nameDb = pit.nameDb and def.stemId = pit.stemId) " +
+          "and not exists (select 1 from ChangeLogEntryTemp temp, ChangeLogType type " +
+          "    where temp.string01 = def.id " +
+          "    and type.actionName='addAttributeDef' and type.changeLogCategory='attributeDef' and type.id=temp.changeLogTypeId) " +
+          "and not exists (select 1 from ChangeLogEntryTemp temp, ChangeLogType type " +
+          "    where temp.string01 = def.id " +
+          "    and type.actionName='updateAttributeDef' and type.changeLogCategory='attributeDef' and type.id=temp.changeLogTypeId)")
+      .setCacheable(false).setCacheRegion(KLASS + ".FindMissingActivePITAttributeDefs")
+      .listSet(AttributeDef.class);
+    
+    return attrs;
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.PITAttributeDefDAO#findMissingInactivePITAttributeDefs()
+   */
+  public Set<PITAttributeDef> findMissingInactivePITAttributeDefs() {
+
+    Set<PITAttributeDef> attrs = HibernateSession
+      .byHqlStatic()
+      .createQuery("select pit from PITAttributeDef pit where activeDb = 'T' and " +
+          "not exists (select 1 from AttributeDef def where def.id = pit.id) " +
+          "and not exists (select 1 from ChangeLogEntryTemp temp, ChangeLogType type " +
+          "    where temp.string01 = pit.id " +
+          "    and type.actionName='deleteAttributeDef' and type.changeLogCategory='attributeDef' and type.id=temp.changeLogTypeId)")
+      .setCacheable(false).setCacheRegion(KLASS + ".FindMissingInactivePITAttributeDefs")
+      .listSet(PITAttributeDef.class);
+    
+    return attrs;
   }
 }
 

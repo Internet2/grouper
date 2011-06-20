@@ -157,21 +157,23 @@ public class SourceManager {
    */
   public void loadSource(Source source) {
     log.debug("Loading source: " + source.getId());
-    try {
-      source.init();
-      this.sourceMap.put(source.getId(), source);
-      for (Iterator it = source.getSubjectTypes().iterator(); it.hasNext();) {
-        SubjectType type = (SubjectType) it.next();
-        Set<Source> sources = this.source2TypeMap.get(type);
-        if (sources == null) {
-          sources = new HashSet<Source>();
-          this.source2TypeMap.put(type, sources);
-        }
-        sources.add(source);
+
+    //put in map before initting
+    this.sourceMap.put(source.getId(), source);
+
+    for (Iterator it = source.getSubjectTypes().iterator(); it.hasNext();) {
+      SubjectType type = (SubjectType) it.next();
+      Set<Source> sources = this.source2TypeMap.get(type);
+      if (sources == null) {
+        sources = new HashSet<Source>();
+        this.source2TypeMap.put(type, sources);
       }
-    } catch (SourceUnavailableException ex) {
-      log.error("Unable to init sources.xml Source: " + source.getId(), ex);
+      sources.add(source);
     }
+
+    //do this last in case it throws exceptions...
+    source.init();
+      
   }
 
   /**
@@ -192,6 +194,7 @@ public class SourceManager {
     digester.addCallParam("sources/source/init-param/param-name", 0);
     digester.addCallParam("sources/source/init-param/param-value", 1);
     digester.addCallMethod("sources/source/attribute", "addAttribute", 0);
+    digester.addCallMethod("sources/source/internal-attribute", "addInternalAttribute", 0);
 
     digester.addObjectCreate("sources/source/search",
         "edu.internet2.middleware.subject.provider.Search");

@@ -88,8 +88,19 @@ public class QuerySort {
    * 
    * @param column
    * @param ascending
+   * @deprecated use insertSortToBeginning
    */
+  @Deprecated
   public void addSort(String column, boolean ascending) {
+    this.insertSortToBeginning(column, ascending);
+  }
+  
+  /**
+   * insert sort to beginning of sort order...
+   * @param column
+   * @param ascending
+   */
+  public void insertSortToBeginning(String column, boolean ascending) {
     Iterator<QuerySortField> iterator = this.querySortFields.iterator();
     
     //remove elements that are the same column

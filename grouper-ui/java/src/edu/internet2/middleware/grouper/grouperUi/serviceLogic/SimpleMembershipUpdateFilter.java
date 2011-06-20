@@ -366,17 +366,13 @@ public class SimpleMembershipUpdateFilter {
     boolean filterByOneSubject = false;
     
     //lets see if there is a subject in there
-    try {
-      Subject subject = GrouperUiUtils.findSubject(filterString);
-      if (subject != null) {
-        //if there was a subject selected...
-        filterByOneSubject = true;
-        subjects = GrouperUtil.toSet(subject);
-        //show filter string on screen
-        simpleMembershipUpdateContainer.setMemberFilterForScreen(GrouperUiUtils.convertSubjectToLabelConfigured(subject));
-      }
-    } catch (Exception e) {
-      //just ignore
+    Subject subject = GrouperUiUtils.findSubject(filterString, false);
+    if (subject != null) {
+      //if there was a subject selected...
+      filterByOneSubject = true;
+      subjects = GrouperUtil.toSet(subject);
+      //show filter string on screen
+      simpleMembershipUpdateContainer.setMemberFilterForScreen(GrouperUiUtils.convertSubjectToLabelConfigured(subject));
     }
   
     if (!filterByOneSubject) {

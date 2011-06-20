@@ -14,6 +14,7 @@ public class AllPrivsTests {
   public static Test suite() {
     TestSuite suite = new TestSuite("Test for edu.internet2.middleware.grouper.privs");
     //$JUnit-BEGIN$
+    suite.addTestSuite(TestAttributeDefPriv.class);
     suite.addTestSuite(TestPrivOPTIN.class);
     suite.addTestSuite(Test_privs_NamingWrapper.class);
     suite.addTestSuite(TestPrivADMIN.class);

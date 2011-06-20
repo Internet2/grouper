@@ -18,6 +18,7 @@ package edu.internet2.middleware.grouper.privs;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
@@ -31,7 +32,9 @@ import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.exception.UnableToPerformAlreadyExistsException;
 import edu.internet2.middleware.grouper.exception.UnableToPerformException;
 import edu.internet2.middleware.grouper.hibernate.HqlQuery;
+import edu.internet2.middleware.grouper.internal.dao.QueryPaging;
 import edu.internet2.middleware.grouper.internal.util.ParameterHelper;
+import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.permissions.PermissionEntry;
 import edu.internet2.middleware.grouper.pit.PITAttributeAssign;
 import edu.internet2.middleware.grouper.pit.PITPermissionAllView;
@@ -332,6 +335,15 @@ public class AttributeDefWrapper implements AttributeDefResolver {
   public boolean hqlFilterAttributeDefsNotWithPrivWhereClause( 
       Subject subject, HqlQuery hqlQuery, StringBuilder hql, String attributeDefColumn, Privilege privilege, boolean considerAllSubject) {
     return this.attributeDefAdapter.hqlFilterAttributeDefsNotWithPrivWhereClause(this.grouperSession, subject, hqlQuery, hql, attributeDefColumn, privilege, considerAllSubject);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.privs.AttributeDefResolver#retrievePrivileges(edu.internet2.middleware.grouper.attr.AttributeDef, java.util.Set, edu.internet2.middleware.grouper.membership.MembershipType, edu.internet2.middleware.grouper.internal.dao.QueryPaging, Set)
+   */
+  public Set<PrivilegeSubjectContainer> retrievePrivileges(AttributeDef attributeDef,
+      Set<Privilege> privileges, MembershipType membershipType, QueryPaging queryPaging, Set<Member> additionalMembers) {
+    return this.attributeDefAdapter.retrievePrivileges(this.grouperSession, 
+        attributeDef, privileges, membershipType, queryPaging, additionalMembers);
   }
 
 }

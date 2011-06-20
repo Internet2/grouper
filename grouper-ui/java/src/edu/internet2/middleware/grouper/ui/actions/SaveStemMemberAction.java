@@ -38,6 +38,7 @@ import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.privs.Privilege;
+import edu.internet2.middleware.grouper.subj.UnresolvableSubject;
 import edu.internet2.middleware.grouper.ui.GroupOrStem;
 import edu.internet2.middleware.grouper.ui.Message;
 import edu.internet2.middleware.subject.Subject;
@@ -147,7 +148,14 @@ public class SaveStemMemberAction extends GrouperCapableAction {
 				asMemberOf, true);
 		Map subjectMap = GrouperHelper.subject2Map(grouperSession, subjectId,
 				subjectType,sourceId);
-		Member member = MemberFinder.findBySubject(grouperSession,SubjectFinder.findById(subjectId, subjectType, true), true);
+		Subject subj = null;
+		try {
+			subj=SubjectFinder.findByIdentifierAndSource(subjectId, sourceId, true);
+		}catch(Exception e) {
+			subj = new UnresolvableSubject(subjectId,subjectType,sourceId);
+		}
+		
+		Member member = MemberFinder.findBySubject(grouperSession,subj, true);
 		
 		//Get new privileges as a Map
 		Map privs = GrouperHelper.getImmediateHas(grouperSession, GroupOrStem.findByStem(grouperSession,curStem), member);

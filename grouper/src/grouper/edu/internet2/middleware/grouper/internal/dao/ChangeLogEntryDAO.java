@@ -47,4 +47,12 @@ public interface ChangeLogEntryDAO extends GrouperDAO {
    * @return the records
    */
   public List<ChangeLogEntry> retrieveBatch(long afterSequenceNumber, int batchSize);
+
+  /**
+   * find by sequence number.  This is NOT a secure method, a grouperSession does not need to be open
+   * @param sequenceNumber uniquely identifies rows in change log, newer records have greater than older
+   * @param exceptionIfNotFound
+   * @return the change log entry or null if not there
+   */
+  public ChangeLogEntry findBySequenceNumber(long sequenceNumber, boolean exceptionIfNotFound);
 }

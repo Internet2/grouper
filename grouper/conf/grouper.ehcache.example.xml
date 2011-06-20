@@ -96,6 +96,15 @@
           timeToLiveSeconds="120"
           overflowToDisk="false"
   />
+
+  <!-- @see   CachingResolver#findByIdOrIdentifier(...) -->
+  <cache  name="edu.internet2.middleware.grouper.subj.CachingResolver.FindByIdOrIdentifier"
+          maxElementsInMemory="5000"
+          eternal="false"
+          timeToIdleSeconds="30"
+          timeToLiveSeconds="120"
+          overflowToDisk="false"
+  />
   
     <!-- @see   WheelAccessResolver#isWheelMember(...) -->
   <cache  name="edu.internet2.middleware.grouper.privs.WheelAccessResolver.isWheelMember"
@@ -166,6 +175,13 @@
           eternal="false"
           timeToIdleSeconds="30"
           timeToLiveSeconds="120"
+          overflowToDisk="false"
+  />
+  <cache  name="AttributeAssignBaseDelegate.allAttributeAssignsCache"
+          maxElementsInMemory="1000"
+          eternal="false"
+          timeToIdleSeconds="1200"
+          timeToLiveSeconds="1200"
           overflowToDisk="false"
   />
 

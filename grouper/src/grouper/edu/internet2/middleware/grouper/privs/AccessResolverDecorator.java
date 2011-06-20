@@ -20,12 +20,15 @@ import java.util.Set;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.exception.UnableToPerformException;
 import edu.internet2.middleware.grouper.hibernate.HqlQuery;
-import  edu.internet2.middleware.grouper.internal.util.ParameterHelper;
+import edu.internet2.middleware.grouper.internal.dao.QueryPaging;
+import edu.internet2.middleware.grouper.internal.util.ParameterHelper;
+import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.subject.Subject;
 
 
@@ -246,6 +249,17 @@ public abstract class AccessResolverDecorator implements AccessResolver {
    */
   public void stop() {
     this.getDecoratedResolver().stop();
+  }
+
+
+  /**
+   * @see edu.internet2.middleware.grouper.privs.AccessResolver#retrievePrivileges(Group, java.util.Set, edu.internet2.middleware.grouper.membership.MembershipType, edu.internet2.middleware.grouper.internal.dao.QueryPaging, java.util.Set)
+   */
+  public Set<PrivilegeSubjectContainer> retrievePrivileges(Group group,
+      Set<Privilege> privileges, MembershipType membershipType, QueryPaging queryPaging,
+      Set<Member> additionalMembers) {
+    return this.getDecoratedResolver().retrievePrivileges(group, privileges, 
+        membershipType, queryPaging, additionalMembers);
   }
 
 }

@@ -38,16 +38,19 @@ import org.apache.struts.action.DynaActionForm;
 
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.FieldFinder;
+import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperHelper;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
+import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.exception.MemberNotFoundException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.subj.UnresolvableSubject;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.Message;
+import edu.internet2.middleware.grouper.ui.UIThreadLocal;
 import edu.internet2.middleware.grouper.ui.UnrecoverableErrorException;
 import edu.internet2.middleware.grouper.ui.util.CollectionPager;
 import edu.internet2.middleware.grouper.ui.util.NavExceptionHelper;
@@ -294,7 +297,7 @@ public class PopulateSubjectSummaryAction extends GrouperCapableAction {
 			HttpServletRequest request, HttpServletResponse response,
 			HttpSession session, GrouperSession grouperSession)
 			throws Exception {
-		
+		Class sortOverrideClass = Group.class;
 		NavExceptionHelper neh=getExceptionHelper(session);
 		DynaActionForm subjectForm = (DynaActionForm) form;
 		if("true".equals(request.getParameter("changeMode"))) PopulateSearchSubjectsAction.initMode(session);
@@ -464,6 +467,7 @@ public class PopulateSubjectSummaryAction extends GrouperCapableAction {
 			listViews.put("view","subjectSummaryPrivileges");
 			listViews.put("itemView","subjectSummaryPrivilege");
 		}else {
+			sortOverrideClass=Stem.class;
 			subjectScopes = GrouperHelper.getGroupsOrStemsWhereMemberHasPriv(member,namingPriv);
 			subjectScopeMaps = GrouperHelper.subjects2SubjectPrivilegeMaps(grouperSession,subjectScopes,subject,namingPriv);
 			listViews.put("titleKey","subject.summary.naming-privs");
@@ -479,7 +483,11 @@ public class PopulateSubjectSummaryAction extends GrouperCapableAction {
 			subjectScopeMaps = GrouperHelper.memberships2Maps(grouperSession,uniqueSubjectScopes);
 			GrouperHelper.setMembershipCountPerSubjectOrGroup(subjectScopeMaps,"subject",countMap);
 		}
+		//This is a hack to force sorting by Group/Stem rather than Subject - which is generally what happens with Memberships
+		//DefaultComparatorImpl has been updated to read the TheadLocal
+		UIThreadLocal.put("GrouperComparatorHelperOverrideClass",sortOverrideClass);
 		subjectScopeMaps = sort(subjectScopeMaps,request,"subjectSummary", -1);
+		UIThreadLocal.replace("GrouperComparatorHelperOverrideClass",null);
 		String startStr = (String)subjectForm.get("start");
 		if (startStr == null || "".equals(startStr))
 			startStr = "0";

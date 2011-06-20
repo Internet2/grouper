@@ -1703,6 +1703,57 @@ public class Test_api_Group extends GrouperTest {
     assertNull(first.getLastMembershipChange());
     assertNull(second.getLastMembershipChange());
     assertNotNull(test.getLastMembershipChange());
+    assertNotNull(owner.getLastImmediateMembershipChange());
+    assertNotNull(first.getLastImmediateMembershipChange());
+    assertNotNull(second.getLastImmediateMembershipChange());
+  }
+  
+  /**
+   * @throws Exception
+   */
+  public void test_option_to_disable_last_imm_membership_change() throws Exception {
+    ApiConfig.testConfig.put("groups.updateLastImmediateMembershipTime", "false");
+    ApiConfig.testConfig.put("stems.updateLastMembershipTime", "true");
+    
+    R r = R.populateRegistry(0, 0, 2);
+    Subject a = r.getSubject("a");
+    Subject b = r.getSubject("b");
+    
+    Group owner = top.addChildGroup("owner", "owner");
+    Group first = top.addChildGroup("first", "first");
+    Group second = top.addChildGroup("second", "second");
+    Stem test = top.addChildStem("test", "test");
+    
+    owner.addCompositeMember(CompositeType.UNION, first, second);
+    
+    first.addMember(second.toSubject());
+    first.grantPriv(second.toSubject(), AccessPrivilege.UPDATE);
+    
+    second.addMember(a);
+    second.addMember(b);
+    second.deleteMember(a);
+    
+    second.grantPriv(a, AccessPrivilege.ADMIN);
+    second.grantPriv(b, AccessPrivilege.ADMIN);
+    second.grantPriv(b, AccessPrivilege.UPDATE);
+    second.revokePriv(AccessPrivilege.UPDATE);
+    second.revokePriv(a, AccessPrivilege.ADMIN);
+
+    owner.deleteCompositeMember();
+    
+    // after all this, the last_membership_change should still be null for all groups
+    owner = GroupFinder.findByName(r.rs, "top:owner", true);
+    first = GroupFinder.findByName(r.rs, "top:first", true);
+    second = GroupFinder.findByName(r.rs, "top:second", true);
+    test = StemFinder.findByName(r.rs, "top:test", true);
+
+    assertNotNull(owner.getLastMembershipChange());
+    assertNotNull(first.getLastMembershipChange());
+    assertNotNull(second.getLastMembershipChange());
+    assertNotNull(test.getLastMembershipChange());
+    assertNull(owner.getLastImmediateMembershipChange());
+    assertNull(first.getLastImmediateMembershipChange());
+    assertNull(second.getLastImmediateMembershipChange());
   }
   
   /**

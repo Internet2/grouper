@@ -17,12 +17,15 @@ package edu.internet2.middleware.grouper.privs;
 
 import java.util.Set;
 
+import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.exception.UnableToPerformException;
 import edu.internet2.middleware.grouper.hibernate.HqlQuery;
+import edu.internet2.middleware.grouper.internal.dao.QueryPaging;
 import edu.internet2.middleware.grouper.internal.util.ParameterHelper;
+import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.permissions.PermissionEntry;
 import edu.internet2.middleware.grouper.pit.PITAttributeAssign;
 import edu.internet2.middleware.grouper.pit.PITPermissionAllView;
@@ -239,7 +242,7 @@ public class ValidatingAttrDefResolver extends AttributeDefResolverDecorator {
   }
 
   /**
-   * @see edu.internet2.middleware.grouper.privs.AttributeDefResolver#hqlFilterAttributeDefsWhereClause(edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.hibernate.HqlQuery, java.lang.StringBuilder, String, Privilege, boolean)
+   * @see edu.internet2.middleware.grouper.privs.AttributeDefResolver#hqlFilterAttributeDefsNotWithPrivWhereClause(Subject, HqlQuery, StringBuilder, String, Privilege, boolean)
    */
   public boolean hqlFilterAttributeDefsNotWithPrivWhereClause(Subject subject, HqlQuery hqlQuery,
       StringBuilder hql, String attributeDefColumn, Privilege privilege, boolean considerAllSubject) {
@@ -251,6 +254,20 @@ public class ValidatingAttrDefResolver extends AttributeDefResolverDecorator {
     //CachingAccessResolver
     return decoratedResolver.hqlFilterAttributeDefsNotWithPrivWhereClause(subject, hqlQuery, hql,
         attributeDefColumn, privilege, considerAllSubject);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.privs.AttributeDefResolverDecorator#retrievePrivileges(edu.internet2.middleware.grouper.attr.AttributeDef, java.util.Set, edu.internet2.middleware.grouper.membership.MembershipType, edu.internet2.middleware.grouper.internal.dao.QueryPaging, java.util.Set)
+   */
+  @Override
+  public Set<PrivilegeSubjectContainer> retrievePrivileges(AttributeDef attributeDef,
+      Set<Privilege> privileges, MembershipType membershipType, QueryPaging queryPaging,
+      Set<Member> additionalMembers) {
+    
+    this.param.notNullAttributeDef(attributeDef);
+
+    return super.retrievePrivileges(attributeDef, privileges, membershipType, queryPaging,
+        additionalMembers);
   }
 
 }

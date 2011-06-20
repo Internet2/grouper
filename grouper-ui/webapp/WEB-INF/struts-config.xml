@@ -83,6 +83,8 @@
       <form-property name="privilege" type="java.lang.String"/>
 	  <form-property name="listField" type="java.lang.String"/>
       <form-property name="pageSize" type="java.lang.String"/>
+      <form-property name="memberSortIndex" type="java.lang.Integer"/>
+      <form-property name="memberSearchValue" type="java.lang.String"/>
       <form-property name="asMemberOf" type="java.lang.String"/>
       <form-property name="contextGroup" type="java.lang.String"/>
       <form-property name="contextSubject" type="java.lang.String"/>
@@ -329,11 +331,11 @@
             unknown="false" validate="false">
       <forward name="AllGroups" path="AllGroupsDef" redirect="false"/>
     </action>
-	<!--<action parameter="AllGroups" name="BrowseFormBean" path="/browseStemsSearchSubjects" scope="request"
+	<!----><action parameter="AllGroups" name="BrowseFormBean" path="/browseStemsSubjectSearch" scope="request"
             type="edu.internet2.middleware.grouper.ui.actions.BrowseStemsAction"
             unknown="false" validate="false">
       <forward name="AllGroups" path="AllGroupsDef" redirect="false"/>
-    </action>-->
+    </action><!---->
   
     <action name="BrowseFormBean" parameter="FindNewMembers"
             path="/browseStemsFind" scope="request"

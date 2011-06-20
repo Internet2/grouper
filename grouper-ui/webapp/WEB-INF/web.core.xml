@@ -64,19 +64,19 @@
   </servlet-mapping>
     <error-page> 
   <error-code>404</error-code> 
-  <location>/error.do?code=404</location> 
+  <location>/error.jsp?code=404</location> 
 </error-page>
   <error-page> 
   <error-code>403</error-code> 
-  <location>/error.do?code=403</location> 
+  <location>/error.jsp?code=403</location> 
 </error-page>
   <error-page> 
   <error-code>500</error-code> 
-  <location>/error.do?code=500</location> 
+  <location>/error.jsp?code=500</location> 
 </error-page>
 <error-page> 
   <exception-type>java.lang.Exception</exception-type> 
-  <location>/error.do</location> 
+  <location>/error.jsp</location> 
 </error-page>
   
    <security-constraint>

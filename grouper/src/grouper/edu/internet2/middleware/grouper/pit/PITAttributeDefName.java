@@ -3,6 +3,7 @@ package edu.internet2.middleware.grouper.pit;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.GrouperAPI;
+import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -175,5 +176,32 @@ public class PITAttributeDefName extends GrouperPIT implements Hib3GrouperVersio
    */
   public void delete() {
     GrouperDAOFactory.getFactory().getPITAttributeDefName().delete(this);
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.GrouperAPI#onPreDelete(edu.internet2.middleware.grouper.hibernate.HibernateSession)
+   */
+  @Override
+  public void onPreDelete(HibernateSession hibernateSession) {
+    super.onPreDelete(hibernateSession);
+
+    if (this.isActive()) {
+      throw new RuntimeException("Cannot delete active point in time attribute def name object with id=" + this.getId());
+    }
+    
+    // delete attribute assignments
+    Set<PITAttributeAssign> assignments = GrouperDAOFactory.getFactory().getPITAttributeAssign().findByAttributeDefNameId(this.getId());
+    for (PITAttributeAssign assignment : assignments) {
+      GrouperDAOFactory.getFactory().getPITAttributeAssign().delete(assignment);
+    }
+    
+    // delete self attribute def name sets and their children
+    GrouperDAOFactory.getFactory().getPITAttributeDefNameSet().deleteSelfByAttributeDefNameId(this.getId());
+    
+    // delete attribute def name sets by thenHasAttributeDefNameId ... and their children.
+    Set<PITAttributeDefNameSet> attributeDefNameSets = GrouperDAOFactory.getFactory().getPITAttributeDefNameSet().findByThenHasAttributeDefNameId(this.getId());
+    for (PITAttributeDefNameSet attributeDefNameSet : attributeDefNameSets) {
+      GrouperDAOFactory.getFactory().getPITAttributeDefNameSet().delete(attributeDefNameSet);
+    }
   }
 }

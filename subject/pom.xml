@@ -1,114 +1,84 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
     <modelVersion>4.0.0</modelVersion>
-    <groupId>edu.internet2.middleware.subject</groupId>
-    <artifactId>subject</artifactId>
-    <version>2.0.0</version>
-    <packaging>jar</packaging>
+
+    <parent>
+        <groupId>edu.internet2.middleware.grouper</groupId>
+        <artifactId>grouper-parent</artifactId>
+        <version>2.0.0-SNAPSHOT</version>
+        <relativePath>../grouper-parent</relativePath>
+    </parent>
 
     <name>Subject API</name>
     <description>Integrates java applications with existing Identity Management operations</description>
-
-    <repositories>
-        <repository>
-            <id>grouper.internet2.edu</id>
-            <name>Internet2</name>
-            <layout>default</layout>
-            <url>http://www.internet2.edu/grouper/downloads/maven2</url>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </repository>
-    </repositories>
-
-    <distributionManagement>
-        <repository>
-            <id>release-repo</id>
-            <url>${dist.release.url}</url>
-        </repository>
-    </distributionManagement>
-
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    </properties>
+    <artifactId>subject</artifactId>
+    <packaging>jar</packaging>
 
     <dependencies>
         <dependency>
-            <groupId>edu.internet2.middleware.grouper</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>morphString</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>commons-collections</groupId>
             <artifactId>commons-collections</artifactId>
-            <version>3.2</version>
         </dependency>
         <dependency>
             <groupId>cglib</groupId>
             <artifactId>cglib</artifactId>
-            <version>2.1_3</version>
         </dependency>
         <dependency>
             <groupId>commons-logging</groupId>
             <artifactId>commons-logging</artifactId>
-            <version>1.1.1</version>
         </dependency>
         <dependency>
             <groupId>commons-digester</groupId>
             <artifactId>commons-digester</artifactId>
-            <version>1.7</version>
         </dependency>
         <dependency>
             <groupId>commons-lang</groupId>
             <artifactId>commons-lang</artifactId>
-            <version>2.1</version>
         </dependency>
         <dependency>
-            <groupId>commons-jexl</groupId>
+            <groupId>org.apache.commons</groupId>
             <artifactId>commons-jexl</artifactId>
-            <version>1.1</version>
         </dependency>
         <dependency>
             <groupId>commons-dbcp</groupId>
             <artifactId>commons-dbcp</artifactId>
-            <version>1.2.1</version>
         </dependency>
         <dependency>
             <groupId>c3p0</groupId>
             <artifactId>c3p0</artifactId>
-            <version>0.9.1.2</version>
         </dependency>
         <dependency>
             <groupId>commons-pool</groupId>
             <artifactId>commons-pool</artifactId>
-            <version>1.3</version>
+        </dependency>
+        <dependency>
+            <groupId>edu.vt.middleware</groupId>
+            <artifactId>vt-ldap</artifactId>
         </dependency>
         <dependency>
             <groupId>hsqldb</groupId>
             <artifactId>hsqldb</artifactId>
-            <version>1.8.0.10</version>
         </dependency>
         <dependency>
-            <groupId>log4j</groupId>
-            <artifactId>log4j</artifactId>
-            <version>1.2.16</version>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcprov-jdk16</artifactId>
         </dependency>
 
-        <!--  custom Penn -->
-        <dependency>
-            <groupId>p6spy</groupId>
-            <artifactId>p6spy</artifactId>
-            <version>1.1</version>
-            <scope>runtime</scope>
-        </dependency>
+        <!-- custom Penn -->
+            <dependency>
+                <groupId>p6spy</groupId>
+                <artifactId>p6spy</artifactId>
+                <version>1.1</version>
+                <scope>runtime</scope>
+            </dependency>
 
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.8.1</version>
-            <scope>test</scope>
-        </dependency>
     </dependencies>
 
     <build>
@@ -124,16 +94,9 @@
         </testResources>
         <plugins>
             <plugin>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <source>1.5</source>
-                    <target>1.5</target>
-                </configuration>
-            </plugin>
-            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.5</version>
+                <version>2.7.2</version>
                 <configuration>
                     <includes>
                         <include>**/AllSubjectTests.java</include>
@@ -143,6 +106,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
+                <version>2.3.1</version>
                 <configuration>
                     <archive>
                         <index>true</index>
@@ -150,8 +114,8 @@
                             <manifestSection>
                                 <name>edu/internet2/middleware/subject/</name>
                                 <manifestEntries>
-                                    <Implementation-Title>${pom.artifactId}</Implementation-Title>
-                                    <Implementation-Version>${pom.version}</Implementation-Version>
+                                    <Implementation-Title>${project.artifactId}</Implementation-Title>
+                                    <Implementation-Version>${project.version}</Implementation-Version>
                                     <Implementation-Vendor>grouper.internet2.edu</Implementation-Vendor>
                                 </manifestEntries>
                             </manifestSection>
@@ -161,178 +125,5 @@
             </plugin>
         </plugins>
     </build>
-
-    <profiles>
-        <profile>
-            <id>release</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <artifactId>maven-compiler-plugin</artifactId>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-javadoc-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <id>release-javadoc</id>
-                                <phase>package</phase>
-                                <goals>
-                                    <goal>javadoc</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-gpg-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <id>sign-artifacts</id>
-                                <phase>verify</phase>
-                                <goals>
-                                    <goal>sign</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-source-plugin</artifactId>
-                        <version>2.1.2</version>
-                        <executions>
-                            <execution>
-                                <id>attach-sources</id>
-                                <goals>
-                                    <goal>jar</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-javadoc-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <id>attach-javadocs</id>
-                                <goals>
-                                    <goal>jar</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
-
-    <!-- Project Metadata -->
-    <url>http://grouper.internet2.edu/</url>
-
-    <licenses>
-        <license>
-            <name>Apache 2</name>
-            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
-            <distribution>repo</distribution>
-        </license>
-    </licenses>
-
-    <organization>
-        <name>Internet2</name>
-        <url>http://www.internet2.edu/</url>
-    </organization>
-
-    <issueManagement>
-        <system>JIRA</system>
-        <url>http://bugs.internet2.edu/</url>
-    </issueManagement>
-
-    <mailingLists>
-        <mailingList>
-            <name>Grouper Users</name>
-            <subscribe>http://www.internet2.edu/grouper/lists.html</subscribe>
-            <unsubscribe>http://www.internet2.edu/grouper/lists.html</unsubscribe>
-            <post>grouper-users@internet2.edu</post>
-            <archive>https://mail.internet2.edu/wws/arc/grouper-users</archive>
-            <otherArchives>
-                <otherArchive>http://groups.google.com/group/grouper-users</otherArchive>
-            </otherArchives>
-        </mailingList>
-        <mailingList>
-            <name>Grouper Development</name>
-            <subscribe>http://www.internet2.edu/grouper/lists.html</subscribe>
-            <unsubscribe>http://www.internet2.edu/grouper/lists.html</unsubscribe>
-            <post>grouper-dev@internet2.edu</post>
-            <archive>https://mail.internet2.edu/wws/arc/grouper-dev</archive>
-            <otherArchives>
-                <otherArchive>http://groups.google.com/group/grouper-dev</otherArchive>
-            </otherArchives>
-        </mailingList>
-    </mailingLists>
-
-    <scm>
-        <connection>scm:svn:http://anonsvn.internet2.edu/svn/i2mi/</connection>
-        <developerConnection>scm:svn:http://anonsvn.internet2.edu/svn/i2mi</developerConnection>
-        <tag>HEAD</tag>
-        <url>http://anonsvn.internet2.edu/cgi-bin/viewvc.cgi/i2mi/</url>
-    </scm>
-
-    <developers>
-        <developer>
-            <id>tbarton</id>
-            <name>Tom Barton</name>
-            <organization>The University of Chicago</organization>
-            <organizationUrl>http://www.uchicago.edu/</organizationUrl>
-            <email>tbarton@uchicago.edu</email>
-            <roles>
-                <role>manager</role>
-            </roles>
-            <timezone>-6</timezone>
-        </developer>
-        <developer>
-            <id>gbrown</id>
-            <name>Gary Brown</name>
-            <organization>University of Bristol</organization>
-            <organizationUrl>http://www.bristol.ac.uk</organizationUrl>
-            <email>Gary.Brown@bristol.ac.uk</email>
-            <roles>
-                <role>developer</role>
-            </roles>
-            <timezone>0</timezone>
-        </developer>
-        <developer>
-            <id>mchyzer</id>
-            <name>Chris Hyzer</name>
-            <organization>University of Pennsylvania</organization>
-            <organizationUrl>http://www.upenn.edu</organizationUrl>
-            <email>mchyzer@isc.upenn.edu</email>
-            <roles>
-                <role>developer</role>
-            </roles>
-            <timezone>-5</timezone>
-        </developer>
-        <developer>
-            <id>shilen</id>
-            <name>Shilen Patel</name>
-            <organization>Duke University</organization>
-            <organizationUrl>http://www.duke.edu</organizationUrl>
-            <email>shilen@duke.edu</email>
-            <roles>
-                <role>developer</role>
-            </roles>
-            <timezone>-5</timezone>
-        </developer>
-        <developer>
-            <id>tzeller</id>
-            <name>Tom Zeller</name>
-            <organization>University of Memphis</organization>
-            <organizationUrl>http://www.memphis.edu</organizationUrl>
-            <email>tzeller@memphis.edu</email>
-            <roles>
-                <role>developer</role>
-            </roles>
-            <timezone>-6</timezone>
-        </developer>
-    </developers>
 
 </project>

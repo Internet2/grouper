@@ -10,6 +10,16 @@ $Id: sources.example.xml,v 1.8 2009-08-11 20:18:09 mchyzer Exp $
   <!-- Group Subject Resolver -->
   
   <!-- 
+     You can flag a source as not throwing exception on a findAll (general search) i.e. if it is
+     ok if it is down.  Generally you probably won't want to do this.  It defaults to true if omitted.
+  
+     <init-param>
+       <param-name>throwErrorOnFindAllFailure</param-name>
+       <param-value>false</param-value>
+     </init-param>
+   -->
+  
+  <!-- 
       You can make virtual attributes (attributes with formatting or based on other attributes) like this:
       init-param name is subjectVirtualAttribute_<index>_<name> where index is the order to be processed
       if some depend on others (0 to 99).  The value is the jexl expression language.  You can use subjectUtils
@@ -45,6 +55,20 @@ $Id: sources.example.xml,v 1.8 2009-08-11 20:18:09 mchyzer Exp $
     <id>g:gsa</id>
     <name>Grouper: Group Source Adapter</name>
     <type>group</type>
+
+    <init-param>
+      <param-name>subjectVirtualAttribute_0_searchAttribute0</param-name>
+      <param-value>${subject.getAttributeValue('name')},${subject.getAttributeValue('displayName')},${subject.getAttributeValue('alternateName')}</param-value>
+    </init-param>
+    <init-param>
+      <param-name>sortAttribute0</param-name>
+      <param-value>name</param-value>
+    </init-param>
+    <init-param>
+      <param-name>searchAttribute0</param-name>
+      <param-value>searchAttribute0</param-value>
+    </init-param>
+    <internal-attribute>searchAttribute0</internal-attribute>
   </source>
   <!-- Group Subject Resolver -->
 
@@ -137,25 +161,22 @@ $Id: sources.example.xml,v 1.8 2009-08-11 20:18:09 mchyzer Exp $
        <param-value>description</param-value>
      </init-param>
      <init-param>
+       <param-name>subjectVirtualAttribute_0_searchAttribute0</param-name>
+       <param-value>${subject.name},${subjectUtils.defaultIfBlank(subject.getAttributeValue('LFNAME'), "")},${subjectUtils.defaultIfBlank(subject.getAttributeValue('LOGINID'), "")},${subjectUtils.defaultIfBlank(subject.description, "")},${subjectUtils.defaultIfBlank(subject.getAttributeValue('EMAIL'), "")}</param-value>
+     </init-param>
+     <init-param>
        <param-name>sortAttribute0</param-name>
-       <param-value>LOGINID</param-value>
+       <param-value>LFNAME</param-value>
      </init-param>
      <init-param>
        <param-name>sortAttribute1</param-name>
-       <param-value>LFNAME</param-value>
-     </init-param>
-     <init-param>
-       <param-name>searchAttribute0</param-name>
        <param-value>LOGINID</param-value>
      </init-param>
      <init-param>
-       <param-name>searchAttribute1</param-name>
-       <param-value>LFNAME</param-value>
+       <param-name>searchAttribute0</param-name>
+       <param-value>searchAttribute0</param-value>
      </init-param>
-     <init-param>
-       <param-name>searchAttribute2</param-name>
-       <param-value>EMAIL</param-value>
-     </init-param>
+     <internal-attribute>searchAttribute0</internal-attribute>
 
      <search>
          <searchType>searchSubject</searchType>
@@ -310,6 +331,23 @@ where
        <param-name>subjectAttributeName0</param-name>
        <param-value>PENNNAME</param-value>
      </init-param>
+     <init-param>
+       <param-name>subjectAttributeCol1</param-name>
+       <param-value>description_lower</param-value>
+     </init-param>
+     <init-param>
+       <param-name>subjectAttributeName1</param-name>
+       <param-value>searchAttribute0</param-value>
+     </init-param>
+     <init-param>
+       <param-name>sortAttribute0</param-name>
+       <param-value>description</param-value>
+     </init-param>
+     <init-param>
+       <param-name>searchAttribute0</param-name>
+       <param-value>searchAttribute0</param-value>
+     </init-param>
+     <internal-attribute>searchAttribute0</internal-attribute>
 
    </source>
    -->
@@ -420,9 +458,26 @@ where
             </param-value>
         </param>
     </search>
+    <init-param>
+      <param-name>subjectVirtualAttribute_0_searchAttribute0</param-name>
+      <param-value>${subjectUtils.defaultIfBlank(subject.getAttributeValueOrCommaSeparated('uid'), "")},${subjectUtils.defaultIfBlank(subject.getAttributeValueOrCommaSeparated('cn'), "")},${subjectUtils.defaultIfBlank(subject.getAttributeValueOrCommaSeparated('exampleEduRegId'), "")}</param-value>
+    </init-param>
+    <init-param>
+      <param-name>sortAttribute0</param-name>
+      <param-value>cn</param-value>
+    </init-param>
+    <init-param>
+      <param-name>searchAttribute0</param-name>
+      <param-value>searchAttribute0</param-value>
+    </init-param>
+    <internal-attribute>searchAttribute0</internal-attribute>
+
     ///Attributes you would like to display when doing a search 
+    <attribute>cn</attribute>
     <attribute>sn</attribute>
+    <attribute>uid</attribute>
     <attribute>department</attribute>
+    <attribute>exampleEduRegId</attribute>
    
   </source>
 -->

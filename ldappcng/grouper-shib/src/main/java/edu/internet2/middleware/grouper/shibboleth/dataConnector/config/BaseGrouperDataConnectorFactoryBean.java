@@ -17,33 +17,56 @@ package edu.internet2.middleware.grouper.shibboleth.dataConnector.config;
 import java.util.List;
 
 import edu.internet2.middleware.grouper.shibboleth.dataConnector.BaseGrouperDataConnector;
-import edu.internet2.middleware.grouper.shibboleth.filter.GroupQueryFilter;
+import edu.internet2.middleware.grouper.shibboleth.filter.MatchQueryFilter;
 import edu.internet2.middleware.grouper.shibboleth.util.AttributeIdentifier;
 import edu.internet2.middleware.shibboleth.common.config.attribute.resolver.dataConnector.BaseDataConnectorFactoryBean;
 
+/** Spring factory bean for {@link BaseGrouperDataConnector}s. */
 public abstract class BaseGrouperDataConnectorFactoryBean extends BaseDataConnectorFactoryBean {
 
+  /** Attribute identifiers. */
   private List<AttributeIdentifier> fieldIdentifiers;
 
-  private GroupQueryFilter groupQueryFilter;
+  /** The match query filter. */
+  private MatchQueryFilter matchQueryFilter;
 
   /** The subject identifier used to start a <code>GrouperSession</code>. */
   private AttributeIdentifier subjectIdentifier;
 
+  /**
+   * Gets the {@link AttributeIdentifer}s.
+   * 
+   * @return the {@link AttributeIdentifer}s.
+   */
   public List<AttributeIdentifier> getFieldIdentifiers() {
     return fieldIdentifiers;
   }
 
+  /**
+   * Sets the the {@link AttributeIdentifer}s.
+   * 
+   * @param fieldIdentifiers
+   */
   public void setFieldIdentifiers(List<AttributeIdentifier> fieldIdentifiers) {
     this.fieldIdentifiers = fieldIdentifiers;
   }
 
-  public GroupQueryFilter getGroupQueryFilter() {
-    return groupQueryFilter;
+  /**
+   * Gets the {@link MatchQueryFilter}.
+   * 
+   * @return the {@link MatchQueryFilter}.
+   */
+  public MatchQueryFilter getMatchQueryFilter() {
+    return matchQueryFilter;
   }
 
-  public void setGroupQueryFilter(GroupQueryFilter groupQueryFilter) {
-    this.groupQueryFilter = groupQueryFilter;
+  /**
+   * Sets the {@link MatchQueryFilter}.
+   * 
+   * @param matchQueryFilter
+   */
+  public void setMatchQueryFilter(MatchQueryFilter matchQueryFilter) {
+    this.matchQueryFilter = matchQueryFilter;
   }
 
   /**
@@ -54,8 +77,7 @@ public abstract class BaseGrouperDataConnectorFactoryBean extends BaseDataConnec
   }
 
   /**
-   * @param subjectIdentifier
-   *          The subjectIdentifier to set.
+   * @param subjectIdentifier The subjectIdentifier to set.
    */
   public void setSubjectIdentifier(AttributeIdentifier subjectIdentifier) {
     this.subjectIdentifier = subjectIdentifier;
@@ -66,7 +88,7 @@ public abstract class BaseGrouperDataConnectorFactoryBean extends BaseDataConnec
    */
   protected void populateDataConnector(BaseGrouperDataConnector connector) {
     super.populateDataConnector(connector);
-    connector.setGroupQueryFilter(this.getGroupQueryFilter());
+    connector.setMatchQueryFilter(this.getMatchQueryFilter());
     connector.setFieldIdentifiers(this.getFieldIdentifiers());
     connector.setSubjectIdentifier(this.getSubjectIdentifier());
     connector.initialize();

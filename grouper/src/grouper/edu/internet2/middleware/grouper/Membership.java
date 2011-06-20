@@ -91,7 +91,6 @@ import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.grouper.validator.CanOptinValidator;
 import edu.internet2.middleware.grouper.validator.CompositeMembershipValidator;
 import edu.internet2.middleware.grouper.validator.GrouperValidator;
 import edu.internet2.middleware.grouper.validator.ImmediateMembershipValidator;
@@ -1072,6 +1071,14 @@ public class Membership extends GrouperAPI implements
   } 
 
   /**
+   * get MembershipType of type
+   * @return type
+   */
+  public MembershipType getTypeEnum() {
+    return MembershipType.valueOfIgnoreCase(this.type, false);
+  }
+  
+  /**
    * @return uuid
    */
   public String getUuid() {
@@ -1993,6 +2000,9 @@ public class Membership extends GrouperAPI implements
       // if this is not the default list, then we may just have to update last_membership_change
       updateLastMembershipChangeDuringNonMembersListUpdate();
     }
+    
+    // update last_imm_membership_change
+    updateLastImmediateMembershipChange();
   }
   
   /**
@@ -2070,8 +2080,19 @@ public class Membership extends GrouperAPI implements
       // if this is not the default list, then we may just have to update last_membership_change
       updateLastMembershipChangeDuringNonMembersListUpdate();
     }
+    
+    // update last_imm_membership_change
+    updateLastImmediateMembershipChange();
   }
   
+  /**
+   * Update the last_imm_membership_change for the group that's getting a change to an immediate privilege or membership
+   */
+  private void updateLastImmediateMembershipChange() {
+    if (GrouperConfig.getPropertyBoolean("groups.updateLastImmediateMembershipTime", true) && this.getOwnerGroupId() != null) {
+      GrouperDAOFactory.getFactory().getGroup().updateLastImmediateMembershipChange(this.getOwnerGroupId());
+    }
+  }
 
   /**
    * Update the last_membership_change for the group or stem that's getting a new privilege or custom list membership.

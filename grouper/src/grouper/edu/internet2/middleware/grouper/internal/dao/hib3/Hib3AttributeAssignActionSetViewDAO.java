@@ -36,10 +36,10 @@ public class Hib3AttributeAssignActionSetViewDAO extends Hib3DAO implements Attr
     QueryOptions queryOptions = new QueryOptions();
     //ifHas.name, thenHas.name, gadns.depth, gadnParentIfHas.name, gadnParentThenHas.name
     QuerySort querySort = QuerySort.asc(AttributeAssignActionSetView.FIELD_PARENT_THEN_HAS_NAME);
-    querySort.addSort(AttributeAssignActionSetView.FIELD_PARENT_IF_HAS_NAME, true);
-    querySort.addSort(AttributeAssignActionSetView.FIELD_DEPTH, true);
-    querySort.addSort(AttributeAssignActionSetView.FIELD_THEN_HAS_ATTR_ASSIGN_ACTION_NAME, true);
-    querySort.addSort(AttributeAssignActionSetView.FIELD_IF_HAS_ATTR_ASSIGN_ACTION_NAME, true);
+    querySort.insertSortToBeginning(AttributeAssignActionSetView.FIELD_PARENT_IF_HAS_NAME, true);
+    querySort.insertSortToBeginning(AttributeAssignActionSetView.FIELD_DEPTH, true);
+    querySort.insertSortToBeginning(AttributeAssignActionSetView.FIELD_THEN_HAS_ATTR_ASSIGN_ACTION_NAME, true);
+    querySort.insertSortToBeginning(AttributeAssignActionSetView.FIELD_IF_HAS_ATTR_ASSIGN_ACTION_NAME, true);
     
     queryOptions.sort(querySort);
 

@@ -16,6 +16,22 @@ public class AttributeUpdateText {
   private static AttributeUpdateText simpleAttributeUpdateText = new AttributeUpdateText();
   
   /**
+   * attribute attribute definition names for this attribute def
+   * @return attribute def name button
+   */
+  public String getEditAttributeNames() {
+    return text("simpleAttributeUpdate.editAttributeNames");
+  }
+  
+  /**
+   * filter button for add subject
+   * @return filter button text
+   */
+  public String getFilterAttributePrivilegeSubject() {
+    return text("simpleAttributeUpdate.filterAttributePrivilegeSubject");
+  }
+  
+  /**
    * delete action implies confirm
    * @return confirm
    */
@@ -44,7 +60,7 @@ public class AttributeUpdateText {
    * delete action implied by image alt
    * @return image alt
    */
-  public String getdeleteActionImpliedByImageAlt() {
+  public String getDeleteActionImpliedByImageAlt() {
     return text("simpleAttributeUpdate.deleteActionImpliedByImageAlt");
   }
 
@@ -91,19 +107,43 @@ public class AttributeUpdateText {
   }
   
   /**
+   * privilege panel submit
+   * @return button text
+   */
+  public String getPrivilegePanelSubmit() {
+    return text("simpleAttributeUpdate.privilegePanelSubmit");
+  }
+
+  /**
+   * privilege panel submit
+   * @return button text
+   */
+  public String getPrivilegePanelCancel() {
+    return text("simpleAttributeUpdate.privilegePanelCancel");
+  }
+  
+  /**
    * delete action confirm
    * @return delete action confirm
    */
   public String getDeleteActionConfirm() {
     return text("simpleAttributeUpdate.deleteActionConfirm");
   }
-  
+
   /**
-   * edit action confirm
-   * @return edit action confirm
+   * edit action alt
+   * @return edit action alt
    */
   public String getEditActionImageAlt() {
     return text("simpleAttributeUpdate.editActionImageAlt");
+  }
+
+  /**
+   * action inheritance graph alt
+   * @return action inheritance alt
+   */
+  public String getActionGraphImageAlt() {
+    return text("simpleAttributeUpdate.actionGraphImageAlt");
   }
 
   /**
@@ -137,7 +177,7 @@ public class AttributeUpdateText {
    * @return title
    */
   public String getEditPanelActions() {
-    return text("simpleAttributeUpdate.editPanelEditActions");
+    return text("simpleAttributeUpdate.editPanelActions");
   }
   
   /**
@@ -148,6 +188,14 @@ public class AttributeUpdateText {
     return text("simpleAttributeUpdate.editPanelDelete");
   }
 
+  /**
+   * edit panel privileges
+   * @return title
+   */
+  public String getEditPanelPrivileges() {
+    return text("simpleAttributeUpdate.editPanelPrivileges");
+  }
+  
   
   
   /**

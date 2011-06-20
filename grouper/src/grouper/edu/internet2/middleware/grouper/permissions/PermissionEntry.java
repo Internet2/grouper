@@ -6,6 +6,9 @@ package edu.internet2.middleware.grouper.permissions;
 
 import java.sql.Timestamp;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.EqualsBuilder;
@@ -13,8 +16,18 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 import edu.internet2.middleware.grouper.GrouperAPI;
+import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.annotations.GrouperIgnoreClone;
+import edu.internet2.middleware.grouper.annotations.GrouperIgnoreDbVersion;
+import edu.internet2.middleware.grouper.annotations.GrouperIgnoreFieldConstant;
+import edu.internet2.middleware.grouper.attr.AttributeDef;
+import edu.internet2.middleware.grouper.attr.AttributeDefName;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignDelegatable;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignType;
+import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.permissions.role.Role;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
@@ -24,6 +37,67 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 @SuppressWarnings("serial")
 public class PermissionEntry extends GrouperAPI implements Comparable<PermissionEntry> {
 
+  /**
+   * if internal heuristic is not set, set it, order by so most important as at top...
+   * @param permissionEntries
+   */
+  public static void orderByAndSetFriendlyHeuristic(List<PermissionEntry> permissionEntries) {
+    if (GrouperUtil.length(permissionEntries) < 1) {
+      return;
+    }
+    
+    for (PermissionEntry permissionEntry : permissionEntries) {
+      PermissionHeuristics permissionHeuristics = permissionEntry.getPermissionHeuristics();
+      if (permissionHeuristics == null) {
+        permissionHeuristics = new PermissionHeuristics();
+        permissionEntry.setPermissionHeuristics(permissionHeuristics);
+      }
+      if (permissionHeuristics.getInternalScore() == -1) {
+        long internalScore = PermissionHeuristic.computePermissionHeuristic(permissionEntry);
+        permissionHeuristics.setInternalScore(internalScore);
+      }
+    }
+    
+    Collections.sort(permissionEntries, new Comparator<PermissionEntry>() {
+
+      public int compare(PermissionEntry o1, PermissionEntry o2) {
+        PermissionHeuristics permissionHeuristics1 = o1.getPermissionHeuristics();
+        PermissionHeuristics permissionHeuristics2 = o2.getPermissionHeuristics();
+        
+        Long score1 = permissionHeuristics1.getInternalScore();
+        Long score2 = permissionHeuristics2.getInternalScore();
+        
+        return score2.compareTo(score1);
+      }
+
+    });
+    
+    int previousFriendlyScore = 0;
+    long previousHeuristic = -1;
+    for (PermissionEntry permissionEntry : permissionEntries) {
+      PermissionHeuristics permissionHeuristics = permissionEntry.getPermissionHeuristics();
+      if (previousHeuristic == -1) {
+        permissionHeuristics.setFriendlyScore(1);
+      } else {
+        //if equal then same score
+        if (permissionHeuristics.getInternalScore() == previousHeuristic) {
+          permissionHeuristics.setFriendlyScore(previousFriendlyScore);
+        } else {
+          permissionHeuristics.setFriendlyScore(previousFriendlyScore + 1);
+        }
+      }
+      
+      
+      previousFriendlyScore = permissionHeuristics.getFriendlyScore();
+      previousHeuristic = permissionHeuristics.getInternalScore();
+      
+      
+    }
+    
+  }
+  
+
+  
   /** notes on the assignment of privilege */
   private String assignmentNotes;
   
@@ -256,6 +330,26 @@ public class PermissionEntry extends GrouperAPI implements Comparable<Permission
   /** depth of action hierarchy, 0 means immediate */
   private int attributeAssignActionSetDepth = -2;
 
+  /** cache the weighting of this assignment */
+  @GrouperIgnoreClone @GrouperIgnoreDbVersion @GrouperIgnoreFieldConstant
+  private PermissionHeuristics permissionHeuristics;
+
+  /**
+   * cache the weighting of this assignment
+   * @return the permission heuristic
+   */
+  public PermissionHeuristics getPermissionHeuristics() {
+    return this.permissionHeuristics;
+  }
+
+  /**
+   * cache the weighting of this assignment
+   * @param permissionHeuristics1
+   */
+  public void setPermissionHeuristics(PermissionHeuristics permissionHeuristics1) {
+    this.permissionHeuristics = permissionHeuristics1;
+  }
+
   /**
    * depth of memberships, 0 means immediate
    * @return depth
@@ -462,6 +556,34 @@ public class PermissionEntry extends GrouperAPI implements Comparable<Permission
     return this.roleId;
   }
 
+  /**
+   * owner role
+   * @return the ownerRole
+   */
+  public Role getRole() {
+    
+    //I think the current grouper session isnt really relevant here, I think we just need to produce the group without security
+    return this.roleId == null ? null : GrouperDAOFactory.getFactory().getGroup().findByUuid(this.roleId, true);
+
+  }
+
+  /**
+   * get attribute def name
+   * @return attributeDefName
+   */
+  public AttributeDefName getAttributeDefName() {
+    return this.attributeDefNameId == null ? null 
+      : GrouperDAOFactory.getFactory().getAttributeDefName().findByUuidOrName(this.attributeDefNameId, null, true);
+  }
+  
+  /**
+   * get attribute assign
+   * @return attributeAssign
+   */
+  public AttributeAssign getAttributeAssign() {
+    return this.attributeAssignId == null ? null 
+      : GrouperDAOFactory.getFactory().getAttributeAssign().findById(this.attributeAssignId, true);
+  }
   
   /**
    * id of the role which the subject is in to get the permission
@@ -480,6 +602,13 @@ public class PermissionEntry extends GrouperAPI implements Comparable<Permission
     return this.attributeDefId;
   }
 
+  /**
+   * 
+   * @return attributeDef
+   */
+  public AttributeDef getAttributeDef() {
+    return this.attributeDefId == null ? null : AttributeDefFinder.findByAttributeDefNameId(this.attributeDefNameId, true);
+  }
   
   /**
    * id of the attributeDef
@@ -496,6 +625,16 @@ public class PermissionEntry extends GrouperAPI implements Comparable<Permission
    */
   public String getMemberId() {
     return this.memberId;
+  }
+
+  /**
+   * get the member
+   * @return the member
+   */
+  public Member getMember() {
+      
+    //I think the current grouper session isnt really relevant here, I think we just need to produce the group without security
+    return this.memberId == null ? null : GrouperDAOFactory.getFactory().getMember().findByUuid(this.memberId, true);
   }
 
   
@@ -734,6 +873,7 @@ public class PermissionEntry extends GrouperAPI implements Comparable<Permission
       .append(this.immediateMshipEnabledTimeDb, other.immediateMshipEnabledTimeDb)
       .append(this.attributeAssignDelegatable, other.attributeAssignDelegatable)
       .append(this.permissionType, other.permissionType)
+      .append(this.attributeAssignId, other.attributeAssignId)
       .isEquals();
 
   }
@@ -744,7 +884,8 @@ public class PermissionEntry extends GrouperAPI implements Comparable<Permission
    */
   @Override
   public int hashCode() {
-    return new HashCodeBuilder().append(this.roleId)
+    return new HashCodeBuilder()
+      .append(this.roleId)
       .append(this.memberId)
       .append(this.action)
       .append(this.attributeDefNameId)
@@ -753,6 +894,7 @@ public class PermissionEntry extends GrouperAPI implements Comparable<Permission
       .append(this.immediateMshipDisabledTimeDb)
       .append(this.immediateMshipEnabledTimeDb)
       .append(this.permissionType)
+      .append(this.attributeAssignId)
       .toHashCode();
   }
 
@@ -791,6 +933,15 @@ public class PermissionEntry extends GrouperAPI implements Comparable<Permission
           theString, exceptionOnNull);
 
     }
+
+    /**
+     * name for javabean
+     * @return the attribute assign type
+     */
+    public String getName() {
+      return this.name();
+    }
+    
 
     /**
      * convert to attribute assign type
@@ -834,6 +985,11 @@ public class PermissionEntry extends GrouperAPI implements Comparable<Permission
   private String attributeAssignId;
 
   /**
+   * if this is a permission, then if this permission assignment is allowed or not 
+   */
+  private boolean disallowed = false;
+
+  /**
    * id of the membership row
    * @return id of the membership row
    */
@@ -862,7 +1018,7 @@ public class PermissionEntry extends GrouperAPI implements Comparable<Permission
     }
     //role set can be -1, if role subject assignment
     if (this.roleSetDepth < -1) {
-      throw new RuntimeException("Why is role depth not initialized??? " + this.membershipDepth );
+      throw new RuntimeException("Why is role depth not initialized??? " + this.roleSetDepth );
     }
     if (this.attributeDefNameSetDepth < 0) {
       throw new RuntimeException("Why is attribute def name set depth not initialized??? " + this.attributeDefNameSetDepth );
@@ -947,6 +1103,38 @@ public class PermissionEntry extends GrouperAPI implements Comparable<Permission
       return compare;
     }
     return GrouperUtil.compare(this.attributeAssignId, o2.attributeAssignId);
+  }
+
+  /**
+   * if this is a permission, then if this permission assignment is allowed or not 
+   * @return the allowed
+   */
+  public String getDisallowedDb() {
+    return this.disallowed ? "T" : "F";
+  }
+
+  /**
+   * if this is a permission, then if this permission assignment is allowed or not 
+   * @return if allowed
+   */
+  public boolean isDisallowed() {
+    return this.disallowed;
+  }
+
+  /**
+   * if this is a permission, then if this permission assignment is allowed or not 
+   * @param disallowed1 the allowed to set
+   */
+  public void setDisallowed(boolean disallowed1) {
+    this.disallowed = disallowed1;
+  }
+
+  /**
+   * if this is a permission, then if this permission assignment is allowed or not 
+   * @param disallowed1 the allowed to set
+   */
+  public void setDisallowedDb(String disallowed1) {
+    this.disallowed = GrouperUtil.booleanValue(disallowed1, false);
   }
   
 }

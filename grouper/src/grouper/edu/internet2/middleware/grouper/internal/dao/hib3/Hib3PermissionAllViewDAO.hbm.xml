@@ -35,6 +35,10 @@
       <key-property name="attributeDefNameId" column="attribute_def_name_id"/>
       <key-property name="membershipId" column="membership_id"/>
       <key-property name="attributeAssignId" column="attribute_assign_id"/>
+	    <key-property name="membershipDepth" column="membership_depth"/>
+	    <key-property name="roleSetDepth" column="role_set_depth"/>
+	    <key-property name="attributeDefNameSetDepth" column="attr_def_name_set_depth"/>
+	    <key-property name="attributeAssignActionSetDepth" column="attr_assign_action_set_depth"/>
     </composite-id>
     <property name="action" column="action"/>
     <property name="subjectSourceId" column="subject_source_id"/>
@@ -48,14 +52,11 @@
     <property name="attributeAssignDelegatableDb" column="attribute_assign_delegatable"/>
     <property name="enabledTimeDb" column="enabled_time"/>
     <property name="disabledTimeDb" column="disabled_time"/>
-    <property name="membershipDepth" column="membership_depth"/>
-    <property name="roleSetDepth" column="role_set_depth"/>
-    <property name="attributeDefNameSetDepth" column="attr_def_name_set_depth"/>
-    <property name="attributeAssignActionSetDepth" column="attr_assign_action_set_depth"/>
     <property name="permissionTypeDb" column="permission_type"/>
     <property name="assignmentNotes" column="assignment_notes"/>
     <property name="immediateMshipEnabledTimeDb" column="immediate_mship_enabled_time"/>
     <property name="immediateMshipDisabledTimeDb" column="immediate_mship_disabled_time"/>
+    <property name="disallowedDb" column="disallowed"/>
 
   </class>
 </hibernate-mapping>

@@ -46,13 +46,13 @@ public class QuerySortTest extends GrouperTest {
     assertEquals(" col1 desc", querySort.sortString(true));
 
     querySort.setMaxCols(2);
-    querySort.addSort("col2", true);
+    querySort.insertSortToBeginning("col2", true);
     assertEquals("col2 asc, col1 desc", querySort.sortString(false));
     
-    querySort.addSort("col2", false);
+    querySort.insertSortToBeginning("col2", false);
     assertEquals("col2 desc, col1 desc", querySort.sortString(false));
     
-    querySort.addSort("col3", true);
+    querySort.insertSortToBeginning("col3", true);
     assertEquals("col3 asc, col2 desc", querySort.sortString(false));
     
     querySort.assignSort("col4", false);

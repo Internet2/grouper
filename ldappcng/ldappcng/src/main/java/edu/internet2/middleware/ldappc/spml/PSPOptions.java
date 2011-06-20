@@ -163,8 +163,7 @@ public class PSPOptions {
     };
 
     /**
-     * Return a newly created <code>ProvisioningRequest</code> appropriate for the mode of
-     * operation.
+     * Return a newly created <code>ProvisioningRequest</code> appropriate for the mode of operation.
      * 
      * @return the newly instantiated <code>ProvisioningRequest</code>
      */
@@ -187,11 +186,9 @@ public class PSPOptions {
     public abstract Option getOption();
 
     /**
-     * Return the <code>ProvisioningRequest</code>s resulting from the processing of the
-     * command line.
+     * Return the <code>ProvisioningRequest</code>s resulting from the processing of the command line.
      * 
-     * @param line
-     *          the <code>CommandLine</code>
+     * @param line the <code>CommandLine</code>
      * @return the SPML requests
      */
     public List<ProvisioningRequest> getRequests(CommandLine line) {
@@ -269,7 +266,9 @@ public class PSPOptions {
        * {@inheritDoc}
        */
       public Option getOption() {
-        Option option = new Option("interval", true,
+        Option option = new Option(
+            "interval",
+            true,
             "Number of seconds between the start of recurring provisioning iterations. If omitted, only one provisioning cycle is performed.");
         option.setArgName("seconds");
         return option;
@@ -280,6 +279,48 @@ public class PSPOptions {
        */
       public void handle(PSPOptions pspOptions, CommandLine line) {
         pspOptions.setInterval(Integer.parseInt(line.getOptionValue(this.getOpt())));
+      }
+    },
+
+    /** full synchronization interval */
+    intervalFullSync {
+
+      /**
+       * {@inheritDoc}
+       */
+      public Option getOption() {
+        Option option = new Option("intervalFullSync", true,
+            "Number of seconds between the start of full synchronizations. If omitted, full synchronizations are never performed.");
+        option.setArgName("seconds");
+        return option;
+      }
+
+      /**
+       * {@inheritDoc}
+       */
+      public void handle(PSPOptions pspOptions, CommandLine line) {
+        pspOptions.setIntervalFullSync(Integer.parseInt(line.getOptionValue(this.getOpt())));
+      }
+    },
+
+    /** iterations */
+    iterations {
+
+      /**
+       * {@inheritDoc}
+       */
+      public Option getOption() {
+        Option option = new Option("iterations", true,
+            "The number of provisioning iterations to perform. If omitted, the number of iterations will be potentially infinite.");
+        option.setArgName("number");
+        return option;
+      }
+
+      /**
+       * {@inheritDoc}
+       */
+      public void handle(PSPOptions pspOptions, CommandLine line) {
+        pspOptions.setIterations(Integer.parseInt(line.getOptionValue(this.getOpt())));
       }
     },
 
@@ -504,19 +545,16 @@ public class PSPOptions {
     public abstract Option getOption();
 
     /**
-     * Handle the cli arguments. For example, set the bean parameters matching the cli
-     * args.
+     * Handle the cli arguments. For example, set the bean parameters matching the cli args.
      * 
-     * @param pspOptions
-     *          the <code>PSPOptions</code>
-     * @param line
-     *          the <code>CommandLine<code>
+     * @param pspOptions the <code>PSPOptions</code>
+     * @param line the <code>CommandLine<code>
      */
     public abstract void handle(PSPOptions pspOptions, CommandLine line);
   }
 
   /** Program name. */
-  public static final String NAME = "ldappc-ng";
+  public static final String NAME = "ldappcng";
 
   /** Command line arguments. */
   private String[] args;
@@ -529,6 +567,12 @@ public class PSPOptions {
 
   /** The interval in seconds between polling actions. */
   private int interval = 0;
+
+  /** The interval in seconds between full synchronizations. */
+  private int intervalFullSync = 0;
+
+  /** The number of provisioning iterations to perform. */
+  private int iterations = 0;
 
   /** The lastModifyTime. */
   private Date lastModifyTime;
@@ -551,8 +595,7 @@ public class PSPOptions {
   /**
    * Constructor
    * 
-   * @param args
-   *          command line arguments
+   * @param args command line arguments
    */
   public PSPOptions(String[] args) {
     this.args = args;
@@ -581,6 +624,20 @@ public class PSPOptions {
   }
 
   /**
+   * @return Returns the full sync interval.
+   */
+  public int getIntervalFullSync() {
+    return intervalFullSync;
+  }
+
+  /**
+   * @return Returns the number of iterations.
+   */
+  public int getIterations() {
+    return iterations;
+  }
+
+  /**
    * @return Returns the lastModifyTime.
    */
   public Date getLastModifyTime() {
@@ -595,8 +652,8 @@ public class PSPOptions {
   }
 
   /**
-   * Returns the result of parsing the command line arguments in the form of
-   * <code>ProvisioningRequest</code>s ready to be executed by the <code>PSP</code>.
+   * Returns the result of parsing the command line arguments in the form of <code>ProvisioningRequest</code>s ready to
+   * be executed by the <code>PSP</code>.
    * 
    * @return the <code>ProvisioningRequest</code>s
    */
@@ -631,6 +688,8 @@ public class PSPOptions {
     options.addOption(Opts.conf.getOption());
     options.addOption(Opts.entityName.getOption());
     options.addOption(Opts.interval.getOption());
+    options.addOption(Opts.intervalFullSync.getOption());
+    options.addOption(Opts.iterations.getOption());
     options.addOption(Opts.lastModifyTime.getOption());
     options.addOption(Opts.logSpml.getOption());
     options.addOption(Opts.output.getOption());
@@ -660,8 +719,7 @@ public class PSPOptions {
   /**
    * Process cli args.
    * 
-   * @throws ParseException
-   *           if an error occurs parsing the args
+   * @throws ParseException if an error occurs parsing the args
    */
   public void parseCommandLineOptions() throws ParseException {
 
@@ -693,32 +751,42 @@ public class PSPOptions {
   }
 
   /**
-   * @param beanName
-   *          The beanName to set.
+   * @param beanName The beanName to set.
    */
   public void setBeanName(String beanName) {
     this.beanName = beanName;
   }
 
   /**
-   * @param confDir
-   *          The confDir to set.
+   * @param confDir The confDir to set.
    */
   public void setConfDir(String confDir) {
     this.confDir = confDir;
   }
 
   /**
-   * @param interval
-   *          The interval to set.
+   * @param interval The interval to set.
    */
   public void setInterval(int interval) {
     this.interval = interval;
   }
 
   /**
-   * @param lastModifyTime
-   *          The lastModifyTime to set.
+   * @param full sync interval The full sync interval to set.
+   */
+  public void setIntervalFullSync(int intervalFullSync) {
+    this.intervalFullSync = intervalFullSync;
+  }
+
+  /**
+   * @param iterations The number of iterations to set.
+   */
+  public void setIterations(int iterations) {
+    this.iterations = iterations;
+  }
+
+  /**
+   * @param lastModifyTime The lastModifyTime to set.
    */
   public void setLastModifyTime(Date lastModifyTime) {
     this.lastModifyTime = lastModifyTime;
@@ -727,16 +795,14 @@ public class PSPOptions {
   /**
    * Whether or not the <code>PSP</code> should log SPML request and responses.
    * 
-   * @param logSpml
-   *          <code>boolean</code>
+   * @param logSpml <code>boolean</code>
    */
   public void setLogSpml(boolean logSpml) {
     this.logSpml = logSpml;
   }
 
   /**
-   * @param outputFile
-   *          The outputFile to set.
+   * @param outputFile The outputFile to set.
    */
   public void setOutputFile(String outputFile) {
     this.outputFile = outputFile;
@@ -760,6 +826,8 @@ public class PSPOptions {
     toStringBuilder.append("beanName", beanName);
     toStringBuilder.append("confDir", confDir);
     toStringBuilder.append("interval", interval);
+    toStringBuilder.append("intervalFullSync", intervalFullSync);
+    toStringBuilder.append("iterations", iterations);
     toStringBuilder.append("logSpml", logSpml);
     toStringBuilder.append("outputFile", outputFile);
     toStringBuilder.append("printRequests", printRequests);

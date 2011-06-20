@@ -24,5 +24,8 @@
   <bean id="shibboleth.TemplateEngine" class="edu.internet2.middleware.shibboleth.common.attribute.resolver.provider.dataConnector.TemplateEngine">
     <constructor-arg ref="shibboleth.VelocityEngine" />
   </bean>
+  
+  <!-- workaround logback requirement -->
+  <bean id="shibboleth.LogbackLogging" class="edu.internet2.middleware.ldappc.util.EmptyBean" />
 
 </beans>

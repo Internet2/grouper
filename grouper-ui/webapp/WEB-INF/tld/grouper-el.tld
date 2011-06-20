@@ -57,6 +57,15 @@
       <required>false</required>
       <rtexprvalue>true</rtexprvalue>
     </attribute>
+    <attribute>
+      <description>
+        send more form element names to the filter operation, comma separated
+        </description>
+      <name>additionalFormElementNames</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+
   </tag>
   
   <tag>
@@ -455,7 +464,7 @@
     </function-class>
     <function-signature>String abbreviate(java.lang.String, int, boolean, boolean)</function-signature>
     <example>
-      ${grouper:abbreviate(something.somewhere, 20, true)}
+      ${grouper:abbreviate(something.somewhere, 20, true, true)}
     </example>
   </function>
   <function>

@@ -2,8 +2,8 @@
 <!-- Start: simpleAttributeUpdate/simpleAttributeCreateEdit.jsp: main page -->
 
 <%--Attribute assignment --%>
-<grouper:title label="${simpleAttributeUpdateContainer.text.createEditIndexTitle}"  
-  infodotValue="${simpleAttributeUpdateContainer.text.createEditIndexTitleInfodot}" />
+<grouper:title label="${attributeUpdateRequestContainer.text.createEditIndexTitle}"  
+  infodotValue="${attributeUpdateRequestContainer.text.createEditIndexTitleInfodot}" />
 
 <div class="section" style="min-width: 900px">
 
@@ -16,18 +16,19 @@
       <tr valign="top">
         <td style="padding: 0px" width="710">
           <grouper:combobox filterOperation="SimpleAttributeUpdateFilter.filterAttributeDefs" id="simpleAttributeUpdatePickAttributeDef" 
+            comboDefaultText="${attributeUpdateRequestContainer.attributeDefToEdit.name}" comboDefaultValue="${attributeUpdateRequestContainer.attributeDefToEdit.id}"
             width="700"/>
           
         </td>
         <td>
           <input class="blueButton" type="submit" 
           onclick="ajax('../app/SimpleAttributeUpdateFilter.editAttributeDefsButton', {formIds: 'simpleAttributeUpdatePickAttributeDefFormId'}); return false;" 
-          value="${simpleAttributeUpdateContainer.text.filterAttributeDefButton}" style="margin-top: 2px" />
+          value="${attributeUpdateRequestContainer.text.filterAttributeDefButton}" style="margin-top: 2px" />
         </td>
         <td>
           <input class="blueButton" type="submit" 
           onclick="ajax('../app/SimpleAttributeUpdateFilter.newAttributeDefButton'); return false;" 
-          value="${simpleAttributeUpdateContainer.text.newAttributeDefButton}" style="margin-top: 2px" />
+          value="${attributeUpdateRequestContainer.text.newAttributeDefButton}" style="margin-top: 2px" />
         </td>
       </tr>
     </table>

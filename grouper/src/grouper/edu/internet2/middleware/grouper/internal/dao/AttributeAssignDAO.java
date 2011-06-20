@@ -40,11 +40,20 @@ public interface AttributeAssignDAO extends GrouperDAO {
   public void delete(AttributeAssign attributeAssign);
   
   /**
+   * find by id, use cache
    * @param id
    * @param exceptionIfNotFound
    * @return the attribute assign or null if not there
    */
   public AttributeAssign findById(String id, boolean exceptionIfNotFound);
+
+  /**
+   * @param id
+   * @param exceptionIfNotFound
+   * @param useCache true to use cache, false for not
+   * @return the attribute assign or null if not there
+   */
+  public AttributeAssign findById(String id, boolean exceptionIfNotFound, boolean useCache);
 
   /**
    * @param groupId
@@ -312,6 +321,7 @@ public interface AttributeAssignDAO extends GrouperDAO {
    * @param disabledTimeDb if there are multiple without id match, and this matches, that is good
    * @param enabledTimeDb if there are multiple without id match, this is good
    * @param notes if there are multiple without id match, this is good
+   * @param disallowed if there are multiple without id match, this is good
    * @return the attribute assign or null
    * @throws GrouperDAOException 
    * @since   1.6.0
@@ -319,7 +329,7 @@ public interface AttributeAssignDAO extends GrouperDAO {
   AttributeAssign findByUuidOrKey(Collection<String> idsToIgnore,
       String id, String attributeDefNameId, String attributeAssignActionId, String ownerAttributeAssignId, String ownerAttributeDefId, String ownerGroupId,
       String ownerMemberId, String ownerMembershipId, String ownerStemId, boolean exceptionIfNull, 
-      Long disabledTimeDb, Long enabledTimeDb, String notes) throws GrouperDAOException;
+      Long disabledTimeDb, Long enabledTimeDb, String notes, boolean disallowed) throws GrouperDAOException;
 
   /**
    * @param actionId 
@@ -566,7 +576,37 @@ public interface AttributeAssignDAO extends GrouperDAO {
    * @return the attribute assigns that match
    */
   public Set<AttributeAssign> findByAttributeDefNameAndValueString(String attributeDefNameId, String value, QueryOptions queryOptions);
+
+  /**
+   * securely search for assignments
+   * @param attributeAssignType
+   * @param attributeDefId optional
+   * @param attributeDefNameId mutually exclusive with attributeDefIds
+   * @param ownerGroupId optional
+   * @param ownerStemId optional
+   * @param ownerMemberId optional
+   * @param ownerAttributeDefId optional
+   * @param ownerMembershipId optional
+   * @param enabled (null means all, true means enabled, false means disabled)
+   * @param includeAssignmentsOnAssignments if assignments on assignments should also be included
+   * @return the assignments
+   */
+  public Set<AttributeAssign> findAttributeAssignments(
+      AttributeAssignType attributeAssignType, String attributeDefId, String attributeDefNameId,
+      String ownerGroupId, String ownerStemId, String ownerMemberId, String ownerAttributeDefId,
+      String ownerMembershipId,
+      Boolean enabled, boolean includeAssignmentsOnAssignments);
   
+  /**
+   * search for assignments on assignments attribute def names
+   * @param attributeAssigns to search on
+   * @param attributeAssignType
+   * @param enabled null for all...
+   * @return the attribute def names
+   */
+  public Set<AttributeDefName> findAssignmentsOnAssignmentsAttributeDefNames(
+      Collection<AttributeAssign> attributeAssigns,
+      AttributeAssignType attributeAssignType, Boolean enabled);
 
   
 }

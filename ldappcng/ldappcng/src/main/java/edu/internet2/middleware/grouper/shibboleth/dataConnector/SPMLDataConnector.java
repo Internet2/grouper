@@ -19,6 +19,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import net.sf.ehcache.Cache;
+import net.sf.ehcache.Element;
+
 import org.openspml.v2.msg.spml.ErrorCode;
 import org.openspml.v2.msg.spml.Extensible;
 import org.openspml.v2.msg.spml.PSO;
@@ -74,7 +77,14 @@ public class SPMLDataConnector extends BaseDataConnector {
   /** Template that produces the query to use. */
   private String filterTemplate;
 
+  /** Cache of past search results. */
+  private Cache resultsCache;
+
   public final String ID_ATTRIBUTE = "psoID";
+
+  public SPMLDataConnector(Cache cache) {
+    this.resultsCache = cache;
+  }
 
   public String getBase() {
     return base;
@@ -204,37 +214,19 @@ public class SPMLDataConnector extends BaseDataConnector {
     searchRequest.setReturnData(returnData);
     searchRequest.setQuery(query);
     searchRequest.setRequestID(PSPUtil.uniqueRequestId());
-    
-    // execute search
-    LOG.debug("{}", PSPUtil.toString(searchRequest));
-    Response response = getProvider().execute(searchRequest);
-    LOG.debug("{}", PSPUtil.toString(response));
 
-    if (!(response instanceof SearchResponse)) {
-      LOG.error("resolve {} Unable to resolve attributes, expected a SearchResponse but received {}", msg,
-          response.getClass());
-      throw new AttributeResolutionException("Unable to resolve attributes, expected a SearchResponse");
-    }
+    // create SearchRequest object just for cache retrieval, inelegant; the searchRequest has a unique requestID
+    SearchRequest cacheRequest = new SearchRequest();
+    cacheRequest.setReturnData(returnData);
+    cacheRequest.setQuery(query);
 
-    SearchResponse searchResponse = (SearchResponse) response;
+    // attempt to get attributes from the cache
+    attributes = retrieveAttributesFromCache(cacheRequest);
 
-    if (searchResponse.getStatus().equals(StatusCode.SUCCESS)) {
-      for (PSO pso : searchResponse.getPSOs()) {
-        buildAttributes(attributes, pso);
-      }
-    }
-
-    // TODO proper handling of status=failure ?
-    if (response.getStatus().equals(StatusCode.FAILURE)) {
-      LOG.error("Unable to resolve " + msg + " " + response.getError() + " "
-          + Arrays.asList(response.getErrorMessages()));
-      throw new AttributeResolutionException("Unable to resolve " + msg + " " + response.getError());
-    }
-
-    // TODO proper handling of status=pending ?
-    if (searchResponse.getStatus().equals(StatusCode.PENDING)) {
-      LOG.error("Unable to resolve " + msg + " " + ErrorCode.UNSUPPORTED_EXECUTION_MODE);
-      throw new AttributeResolutionException("Unable to resolve " + msg + " " + ErrorCode.UNSUPPORTED_EXECUTION_MODE);
+    // results not found in the cache
+    if (attributes == null) {
+      attributes = retrieveAttributesFromTarget(searchRequest);
+      cacheResult(cacheRequest, attributes);
     }
 
     if (LOG.isDebugEnabled()) {
@@ -285,6 +277,73 @@ public class SPMLDataConnector extends BaseDataConnector {
         }
       }
     }
+  }
+
+  protected void cacheResult(SearchRequest searchRequest, Map<String, BaseAttribute> attributes) {
+    if (resultsCache == null) {
+      return;
+    }
+
+    LOG.debug("SPML data connector {} - Caching attributes from search '{}'", getId(), PSPUtil.toString(searchRequest));
+    resultsCache.put(new Element(searchRequest, attributes));
+  }
+
+  protected Map<String, BaseAttribute> retrieveAttributesFromCache(SearchRequest searchRequest) {
+    if (resultsCache == null) {
+      return null;
+    }
+
+    LOG.debug("SPML data connector {} - Checking cache for search results {}", getId(), PSPUtil.toString(searchRequest));
+    Element cachedResult = resultsCache.get(searchRequest);
+    if (cachedResult != null && !cachedResult.isExpired()) {
+      LOG.debug("SPML data connector {} - Returning attributes from cache {}", getId(), PSPUtil.toString(searchRequest));
+      return (Map<String, BaseAttribute>) cachedResult.getObjectValue();
+    }
+
+    LOG.debug("SPML data connector {} - No results cached for search filter '{}'", getId(), PSPUtil.toString(searchRequest));
+    return null;
+  }
+
+  protected Map<String, BaseAttribute> retrieveAttributesFromTarget(SearchRequest searchRequest)
+      throws AttributeResolutionException {
+
+    String msg = "retrieve attributes from target";
+
+    Map<String, BaseAttribute> attributes = new HashMap<String, BaseAttribute>();
+
+    // execute search
+    LOG.debug("{}", PSPUtil.toString(searchRequest));
+    Response response = getProvider().execute(searchRequest);
+    LOG.debug("{}", PSPUtil.toString(response));
+
+    if (!(response instanceof SearchResponse)) {
+      LOG.error("resolve {} Unable to resolve attributes, expected a SearchResponse but received {}", msg,
+          response.getClass());
+      throw new AttributeResolutionException("Unable to resolve attributes, expected a SearchResponse");
+    }
+
+    SearchResponse searchResponse = (SearchResponse) response;
+
+    // TODO proper handling of status=failure ?
+    if (response.getStatus().equals(StatusCode.FAILURE)) {
+      LOG.error("Unable to resolve " + msg + " " + response.getError() + " "
+          + Arrays.asList(response.getErrorMessages()));
+      throw new AttributeResolutionException("Unable to resolve " + msg + " " + response.getError());
+    }
+
+    // TODO proper handling of status=pending ?
+    if (searchResponse.getStatus().equals(StatusCode.PENDING)) {
+      LOG.error("Unable to resolve " + msg + " " + ErrorCode.UNSUPPORTED_EXECUTION_MODE);
+      throw new AttributeResolutionException("Unable to resolve " + msg + " " + ErrorCode.UNSUPPORTED_EXECUTION_MODE);
+    }
+
+    if (searchResponse.getStatus().equals(StatusCode.SUCCESS)) {
+      for (PSO pso : searchResponse.getPSOs()) {
+        buildAttributes(attributes, pso);
+      }
+    }
+
+    return attributes;
   }
 
   public void validate() throws AttributeResolutionException {

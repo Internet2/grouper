@@ -6,8 +6,13 @@ package edu.internet2.middleware.grouper.internal.dao;
 
 import java.util.Set;
 
+import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
+import edu.internet2.middleware.grouper.attr.AttributeDefType;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssignType;
 import edu.internet2.middleware.grouper.exception.AttributeDefNameNotFoundException;
+import edu.internet2.middleware.grouper.privs.Privilege;
+import edu.internet2.middleware.subject.Subject;
 
 /**
  * attribute def name data access methods
@@ -90,5 +95,22 @@ public interface AttributeDefNameDAO extends GrouperDAO {
    * @return the attribute def names or empty set
    */
   public Set<AttributeDefName> findByAttributeDefLike(String attributeDefId, String likeString);
+
+  /**
+   * get all attribute names secure, split the scope by whitespace
+   * @param scope
+   * @param attributeDefId optional if filtering by names in a certain attribute definition
+   * @param grouperSession
+   * @param subject
+   * @param privileges
+   * @param queryOptions
+   * @param attributeAssignType
+   * @param attributeDefType
+   * @return set of attribute defs
+   */
+  public Set<AttributeDefName> findAllAttributeNamesSplitScopeSecure(String scope, 
+      GrouperSession grouperSession, String attributeDefId, 
+      Subject subject, Set<Privilege> privileges, QueryOptions queryOptions, AttributeAssignType attributeAssignType,
+      AttributeDefType attributeDefType);
   
 }

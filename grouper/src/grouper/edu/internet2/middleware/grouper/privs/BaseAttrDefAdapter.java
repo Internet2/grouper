@@ -46,14 +46,13 @@ public abstract class BaseAttrDefAdapter implements AttributeDefAdapter {
    */
   public Set<AttributeDef> postHqlFilterAttributeDefs(GrouperSession grouperSession, Set<AttributeDef> inputAttributeDefs, 
       Subject subject, Set<Privilege> privInSet) {
-    
 
     //no privs no filter
     if (GrouperUtil.length(privInSet) == 0 || GrouperUtil.length(inputAttributeDefs) == 0) {
       return inputAttributeDefs;
     }
 
-    Set<AttributeDef>  attributeDefs  = new LinkedHashSet();
+    Set<AttributeDef>  attributeDefs  = new LinkedHashSet<AttributeDef>();
     for ( AttributeDef child : inputAttributeDefs ) {
       
       if ( PrivilegeHelper.hasPrivilege(
@@ -84,6 +83,10 @@ public abstract class BaseAttrDefAdapter implements AttributeDefAdapter {
     return PrivilegeHelper.canViewAttributeAssigns(grouperSession, attributeAssigns, false);
   }
   
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.privs.AttributeDefAdapter#postHqlFilterPITAttributeAssigns(edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.subject.Subject, java.util.Set)
+   */
   public Set<PITAttributeAssign> postHqlFilterPITAttributeAssigns(
       GrouperSession grouperSession, Subject subject,
       Set<PITAttributeAssign> pitAttributeAssigns) {

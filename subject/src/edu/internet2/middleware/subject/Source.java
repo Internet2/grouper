@@ -1,6 +1,5 @@
 package edu.internet2.middleware.subject;
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -135,7 +134,8 @@ public interface Source {
 	/**
 	 * Unstructured search for Subjects. Each implementation
 	 * utilizes its own search algorithm tailored to
-	 * the Subject repository and schema.
+	 * the Subject repository and schema.  Note if config param:
+	 * throwErrorOnFindAllFailure is false, then swallow and log exceptions
 	 * @param searchValue 
 	 * @return set
 	 */
@@ -173,26 +173,20 @@ public interface Source {
   public Properties getInitParams();
   
   /**
+   * Get a set of attributes that are marked as being internal attributes
+   * @return set
+   */
+  public Set<String> getInternalAttributes();
+  
+  /**
    * Get the names of attributes used for sorting.
    * @return sort attributes
    */
-  public List<String> getSortAttributes();
+  public Map<Integer, String> getSortAttributes();
   
   /**
    * Get the names of attributes used for searching.
    * @return search attributes
    */
-  public List<String> getSearchAttributes();
-  
-  /**
-   * Get the display names of attributes used for sorting.
-   * @return sort attribute display names
-   */
-  public List<String> getSortAttributeDisplayNames();
-  
-  /**
-   * Get the display names of attributes used for searching.
-   * @return search attribute display names
-   */
-  public List<String> getSearchAttributeDisplayNames();  
+  public Map<Integer, String> getSearchAttributes();
 }

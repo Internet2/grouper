@@ -7,6 +7,7 @@ import edu.internet2.middleware.grouper.externalSubjects.ExternalSubjectConfig.E
 import edu.internet2.middleware.grouper.externalSubjects.ExternalSubjectConfig.ExternalSubjectConfigBean;
 import edu.internet2.middleware.grouper.subj.GrouperJdbcConnectionProvider;
 import edu.internet2.middleware.grouper.subj.GrouperJdbcSourceAdapter2;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
 /**
@@ -37,14 +38,21 @@ public class ExternalSubjectAutoSourceAdapter extends GrouperJdbcSourceAdapter2 
           newInstance.addInitParam("nameCol", "name");
           newInstance.addInitParam("descriptionCol", "description");
           newInstance.addInitParam("lowerSearchCol", "search_string_lower");
+
           newInstance.addInitParam("subjectIdentifierCol0", "identifier");
           
           ExternalSubjectConfigBean externalSubjectConfigBean = ExternalSubjectConfig.externalSubjectConfigBean();
           
           newInstance.addInitParam("subjectAttributeCol0", "identifier");
           newInstance.addInitParam("subjectAttributeName0", "identifier");
-
-          int index = 1;
+          
+          newInstance.addInitParam("subjectAttributeCol1", "institution");
+          newInstance.addInitParam("subjectAttributeName1", "institution");
+          
+          newInstance.addInitParam("subjectAttributeCol2", "email");
+          newInstance.addInitParam("subjectAttributeName2", "email");
+          
+          int index = 3;
           for (ExternalSubjectAttributeConfigBean externalSubjectAttributeConfigBean : 
               externalSubjectConfigBean.getExternalSubjectAttributeConfigBeans()) {
             newInstance.addInitParam("subjectAttributeCol" + index, externalSubjectAttributeConfigBean.getSystemName());
@@ -52,7 +60,36 @@ public class ExternalSubjectAutoSourceAdapter extends GrouperJdbcSourceAdapter2 
 
             index++;
           }
-
+          {
+            boolean foundSortAttribute = false;
+            for (int i = 0; i < externalSubjectConfigBean.getSortAttributeEl().size(); i++) {
+              if (!GrouperUtil.isEmpty(externalSubjectConfigBean.getSortAttributeEl().get(i))) {
+                newInstance.addInitParam("subjectVirtualAttribute_" + i + "_sortAttribute" + i, externalSubjectConfigBean.getSortAttributeEl().get(i));
+                newInstance.addInternalAttribute("sortAttribute" + i);
+                newInstance.addInitParam("sortAttribute" + i, "sortAttribute" + i);
+                foundSortAttribute = true;
+              }
+            }
+            
+            if (!foundSortAttribute) {
+              newInstance.addInitParam("sortAttribute0", "description");
+            }
+          }
+          
+          {
+            boolean foundSearchAttribute = false;
+            for (int i = 0; i < externalSubjectConfigBean.getSearchAttributeEl().size(); i++) {
+              if (!GrouperUtil.isEmpty(externalSubjectConfigBean.getSearchAttributeEl().get(i))) {
+                newInstance.addInitParam("subjectVirtualAttribute_" + i + "_searchAttribute" + i, externalSubjectConfigBean.getSearchAttributeEl().get(i));
+                newInstance.addInternalAttribute("searchAttribute" + i);
+                newInstance.addInitParam("searchAttribute" + i, "searchAttribute" + i);
+                foundSearchAttribute = true;
+              }
+            }
+            if (!foundSearchAttribute) {
+              newInstance.addInitParam("searchAttribute0", "search_string_lower");
+            }
+          }          
           instance = newInstance;
           
         }
@@ -60,5 +97,4 @@ public class ExternalSubjectAutoSourceAdapter extends GrouperJdbcSourceAdapter2 
     }
     return instance;
   }
-
 }

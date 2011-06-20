@@ -9,7 +9,7 @@
    urn:mace:shibboleth:2.0:resolver:ad classpath:/schema/shibboleth-2.0-attribute-resolver-ad.xsd
    http://grouper.internet2.edu/shibboleth/2.0 classpath:/schema/shibboleth-2.0-grouper.xsd">
 
-  <resolver:DataConnector id="testUnknownSource" xsi:type="grouper:MemberDataConnector">
+  <resolver:DataConnector id="testUnknownSource" xsi:type="grouper:FindMemberBySubjectIdOrIdentifierDataConnector">
     <grouper:Source id="unknown" />
   </resolver:DataConnector>
  

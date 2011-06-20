@@ -4755,8 +4755,12 @@ public class GrouperServiceLogic {
    * @param wsGroupLookup if this is a group privilege, this is the group
    * @param wsStemLookup if this is a stem privilege, this is the stem
    * @param replaceAllExisting
-   *            optional: T or F (default), if the existing privilege assignments for this object should be
-   *            replaced
+   *            optional: T or F (default), If replaceAllExisting is T, 
+   *            then allowed must be set to T.  This will assign the provided 
+   *            privilege(s) to the provided subject(s), and remove it from all other 
+   *            subjects who are assigned. If F or blank, assign or remove  
+   *            (depending on value provided in 'allowed') the provided privilege(s) 
+   *            from the provided subject(s)
    * @param actAsSubjectLookup optional: is the subject to act as (if proxying).
    * @param privilegeType (e.g. "access" for groups and "naming" for stems)
    * @param privilegeNames (e.g. for groups: read, view, update, admin, optin, optout.  e.g. for stems:

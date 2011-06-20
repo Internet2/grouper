@@ -54,6 +54,47 @@ public class AttributeDefNameSetDelegate implements Serializable {
     
   }
 
+  /**
+   * get attribute def names implied by this immediate
+   * @return names
+   */
+  public Set<String> getAttributeDefNameNamesImpliedByThisImmediate() {
+    
+    Set<String> names = new HashSet<String>();
+    for (AttributeDefName attributeDefName : GrouperUtil.nonNull(this.getAttributeDefNamesImpliedByThisImmediate())) {
+      names.add(attributeDefName.getName());
+    }
+    return names;
+    
+  }
+
+  /**
+   * get attribute def names that imply this immediate
+   * @return names
+   */
+  public Set<String> getAttributeDefNameNamesThatImplyThisImmediate() {
+    
+    Set<String> names = new HashSet<String>();
+    for (AttributeDefName attributeDefName : GrouperUtil.nonNull(this.getAttributeDefNamesThatImplyThisImmediate())) {
+      names.add(attributeDefName.getName());
+    }
+    return names;
+    
+  }
+
+  /**
+   * get attribute def names that imply this immediate
+   * @return names
+   */
+  public Set<String> getAttributeDefNameNamesThatImplyThis() {
+    
+    Set<String> names = new HashSet<String>();
+    for (AttributeDefName attributeDefName : GrouperUtil.nonNull(this.getAttributeDefNamesThatImplyThis())) {
+      names.add(attributeDefName.getName());
+    }
+    return names;
+    
+  }
 
   /**
    * get all the THEN rows from attributeDefNameSet about this id (immediate only).  The ones returned
@@ -85,7 +126,8 @@ public class AttributeDefNameSetDelegate implements Serializable {
   }
 
   /**
-   * 
+   * for instance if the argument is arts and sciences, and this is all, then calling this will 
+   * allow all to imply arts and sciences
    * @param newAttributeDefName
    * @return true if added, false if already there
    */

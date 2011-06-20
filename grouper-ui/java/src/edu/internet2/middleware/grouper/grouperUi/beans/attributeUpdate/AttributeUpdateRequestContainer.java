@@ -5,12 +5,28 @@
 package edu.internet2.middleware.grouper.grouperUi.beans.attributeUpdate;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.lang.StringUtils;
+
+import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssignType;
+import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
+import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeAssign;
+import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiMember;
+import edu.internet2.middleware.grouper.privs.PrivilegeSubjectContainer;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
+import edu.internet2.middleware.grouper.ui.tags.TagUtils;
+import edu.internet2.middleware.grouper.ui.util.MapWrapper;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
 
@@ -19,6 +35,149 @@ import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
  */
 @SuppressWarnings("serial")
 public class AttributeUpdateRequestContainer implements Serializable {
+
+  /**
+   * attribute assign value we are editing 
+   */
+  private AttributeAssignValue attributeAssignValue = null;
+  
+  /**
+   * 
+   * @return value
+   */
+  public AttributeAssignValue getAttributeAssignValue() {
+    return this.attributeAssignValue;
+  }
+
+  /**
+   * 
+   * @param attributeAssignValue1
+   */
+  public void setAttributeAssignValue(AttributeAssignValue attributeAssignValue1) {
+    this.attributeAssignValue = attributeAssignValue1;
+  }
+
+  /** gui attribute assign */
+  private GuiAttributeAssign guiAttributeAssign = null;
+  
+  /** gui attribute assign on assignment */
+  private GuiAttributeAssign guiAttributeAssignAssign = null;
+  
+  
+  
+  /**
+   * gui attribute assign on assignment
+   * @return gui attribute assign on assignment
+   */
+  public GuiAttributeAssign getGuiAttributeAssignAssign() {
+    return this.guiAttributeAssignAssign;
+  }
+
+  /**
+   * gui attribute assign on assignment
+   * @param guiAttributeAssignAssign1
+   */
+  public void setGuiAttributeAssignAssign(GuiAttributeAssign guiAttributeAssignAssign1) {
+    this.guiAttributeAssignAssign = guiAttributeAssignAssign1;
+  }
+
+  /** if we are assigning to a group, folder, etc */
+  private AttributeAssignType attributeAssignType;
+  
+  /** if we are assigning to a group, folder, etc, this is the non underlying assign type */
+  private AttributeAssignType attributeAssignAssignType;
+  
+  /**
+   * if we are assigning to a group, folder, etc, this is the non underlying assign type
+   * @return assign type
+   */
+  public AttributeAssignType getAttributeAssignAssignType() {
+    return this.attributeAssignAssignType;
+  }
+
+  /**
+   * if we are assigning to a group, folder, etc, this is the non underlying assign type
+   * @param attributeAssignAssignType1
+   */
+  public void setAttributeAssignAssignType(AttributeAssignType attributeAssignAssignType1) {
+    this.attributeAssignAssignType = attributeAssignAssignType1;
+  }
+
+  /**
+   * if we are assigning to a group, folder, etc
+   * @return type
+   */
+  public AttributeAssignType getAttributeAssignType() {
+    return this.attributeAssignType;
+  }
+
+  /**
+   * enabledOnly, disabledOnly, or all (null)
+   */
+  private Boolean enabledDisabled = Boolean.TRUE;
+
+  /** 
+   * return enabledOnly, disabledOnly, or all (null)
+   * @return enabledOnly, disabledOnly, or all (null)
+   */
+  public Boolean getEnabledDisabled() {
+    return this.enabledDisabled;
+  }
+
+  /**
+   * enabledOnly, disabledOnly, or all (null)
+   * @param theEnabledDisabled
+   */
+  public void setEnabledDisabled(Boolean theEnabledDisabled) {
+    this.enabledDisabled = theEnabledDisabled;
+  }
+
+  /**
+   * label for type
+   * @return label for type
+   */
+  public String getAttributeAssignTypeLabelKey() {
+    
+    switch (this.getAttributeAssignType()) {
+
+      case group:
+      {
+        return "simpleAttributeUpdate.assignHeaderOwnerGroup";
+      }
+      case stem:
+      {
+        return "simpleAttributeUpdate.assignHeaderOwnerFolder";
+      }
+      case member:
+      {
+        return "simpleAttributeUpdate.assignHeaderOwnerMember";
+      }
+      case imm_mem:
+      {
+        return "simpleAttributeUpdate.assignHeaderOwnerMembership";
+      }
+      case any_mem:
+      {
+        return "simpleAttributeUpdate.assignHeaderOwnerMembership";
+      }
+      case attr_def:
+      {
+        return "simpleAttributeUpdate.assignHeaderOwnerAttributeDefinition";
+      }
+      
+      default:
+        throw new RuntimeException("Not expecting attribute assign type: " + this.getAttributeAssignType());
+    }
+    
+  }
+  
+  /**
+   * if we are assigning to a group, folder, etc
+   * @param attributeAssignType1
+   */
+  public void setAttributeAssignType(AttributeAssignType attributeAssignType1) {
+    this.attributeAssignType = attributeAssignType1;
+  }
 
   /** attribute def we are editing */
   private AttributeDef attributeDefToEdit;
@@ -38,6 +197,113 @@ public class AttributeUpdateRequestContainer implements Serializable {
   /** list of actions implied by this action */
   private List<String> actionsImpliedBy;
   
+  /** privilege subject containers */
+  private Set<PrivilegeSubjectContainer> privilegeSubjectContainers;
+  
+  /** attribute assigns */
+  private List<GuiAttributeAssign> guiAttributeAssigns;
+  
+  /**
+   * attribute assigns
+   * @return the attribute assigns
+   */
+  public List<GuiAttributeAssign> getGuiAttributeAssigns() {
+    return this.guiAttributeAssigns;
+  }
+
+  /**
+   * attribute assigns
+   * @param attributeAssigns1
+   */
+  public void setGuiAttributeAssigns(List<GuiAttributeAssign> attributeAssigns1) {
+    this.guiAttributeAssigns = attributeAssigns1;
+  }
+
+  /** gui members */
+  private List<GuiMember> privilegeSubjectContainerGuiMembers;
+
+  /** additional gui members to view or assign */
+  private List<GuiMember> privilegeAdditionalGuiMembers;
+  
+  /**
+   * additional gui members to view or assign
+   * @return additional gui members to view or assign
+   */
+  public List<GuiMember> getPrivilegeAdditionalGuiMembers() {
+    return this.privilegeAdditionalGuiMembers;
+  }
+
+  /**
+   * calculate based on request object, and return list, unless it is already calculated
+   * @return the list
+   */
+  public List<GuiMember> privilegeAdditionalGuiMembers() {
+    if (this.privilegeAdditionalGuiMembers == null) {
+      this.privilegeAdditionalGuiMembers = new ArrayList<GuiMember>();
+      
+      HttpServletRequest httpServletRequest = GrouperUiFilter.retrieveHttpServletRequest();
+      
+      //max of 200, no endless loops
+      for (int i=0;i<200;i++) {
+        
+        String memberId = httpServletRequest.getParameter("additionalMemberId_" + i);
+        if (StringUtils.isBlank(memberId)) {
+          break;
+        }
+        
+        Member member = MemberFinder.findByUuid(GrouperSession.staticGrouperSession(), memberId, true);
+        
+        this.privilegeAdditionalGuiMembers.add(new GuiMember(member));
+        
+      }
+    }
+    
+    return this.privilegeAdditionalGuiMembers;
+    
+  }
+  
+  /**
+   * additional gui members to view or assign
+   * @param privilegeAdditionalGuiMembers1
+   */
+  public void setPrivilegeAdditionalGuiMembers(List<GuiMember> privilegeAdditionalGuiMembers1) {
+    this.privilegeAdditionalGuiMembers = privilegeAdditionalGuiMembers1;
+  }
+
+  /**
+   * gui members
+   * @return gui members
+   */
+  public List<GuiMember> getPrivilegeSubjectContainerGuiMembers() {
+    return this.privilegeSubjectContainerGuiMembers;
+  }
+
+  /**
+   * gui members
+   * @param privilegeSubjectContainerGuiMembers1
+   */
+  public void setPrivilegeSubjectContainerGuiMembers(
+      List<GuiMember> privilegeSubjectContainerGuiMembers1) {
+    this.privilegeSubjectContainerGuiMembers = privilegeSubjectContainerGuiMembers1;
+  }
+
+  /**
+   * privilege subject containers
+   * @return privilege subject containers
+   */
+  public Set<PrivilegeSubjectContainer> getPrivilegeSubjectContainers() {
+    return this.privilegeSubjectContainers;
+  }
+
+  /**
+   * privilege subject containers
+   * @param privilegeSubjectContainers1
+   */
+  public void setPrivilegeSubjectContainers(
+      Set<PrivilegeSubjectContainer> privilegeSubjectContainers1) {
+    this.privilegeSubjectContainers = privilegeSubjectContainers1;
+  }
+
   /**
    * list of actions implied by this action
    * @return actions
@@ -242,7 +508,288 @@ public class AttributeUpdateRequestContainer implements Serializable {
   public AttributeUpdateText getText() {
     return AttributeUpdateText.retrieveSingleton();
   }
+
+  /**
+   * if should show indirect privileges
+   * @return true if should show
+   */
+  public boolean isShowIndirectPrivilegesComputed() {
+
+    HttpServletRequest httpServletRequest = GrouperUiFilter.retrieveHttpServletRequest();
+
+    String showIndirectPrivilegesString = httpServletRequest.getParameter("showIndirectPrivileges");
+    
+    return GrouperUtil.booleanValue(showIndirectPrivilegesString, false);
+  }
   
+  /**
+   * if this is public
+   * @return if we should show the privilege header
+   */
+  public Map<String, Boolean> getAllowAll() {
+    
+    return new MapWrapper<String, Boolean>() {
+
+      @Override
+      public Boolean get(Object key) {
+        String priv = (String)key;
+        if (StringUtils.equals(priv, "attrView")) {
+          return AttributeUpdateRequestContainer.this.isAllowAllView();
+        }
+        if (StringUtils.equals(priv, "attrRead")) {
+          return AttributeUpdateRequestContainer.this.isAllowAllRead();
+        }
+        if (StringUtils.equals(priv, "attrAdmin")) {
+          return AttributeUpdateRequestContainer.this.isAllowAllAdmin();
+        }
+        if (StringUtils.equals(priv, "attrUpdate")) {
+          return AttributeUpdateRequestContainer.this.isAllowAllUpdate();
+        }
+        if (StringUtils.equals(priv, "attrOptin")) {
+          return AttributeUpdateRequestContainer.this.isAllowAllOptin();
+        }
+        if (StringUtils.equals(priv, "attrOptout")) {
+          return AttributeUpdateRequestContainer.this.isAllowAllOptout();
+        }
+        throw new RuntimeException("Not expecting string");
+      }
+      
+    };
+    
+  }
+
+  /**
+   * map wrapper
+   */
+  private Map<Integer, Boolean> showPrivilegesHeader = new MapWrapper<Integer, Boolean>() {
+
+    @Override
+    public Boolean get(Object key) {
+      Integer theInt = GrouperUtil.intObjectValue(key, false);
+      int repeatAfterRows = TagUtils.mediaResourceInt("simpleAttributeUpdate.repeatPrivilegeHeaderAfterRows", 20);
+
+      if (theInt % repeatAfterRows == 0) {
+        return true;
+      }
+      return false;
+      
+    }
+    
+  };
   
+  /**
+   * if we should show the privilege header
+   * @return if we should show the privilege header
+   */
+  public Map<Integer, Boolean> getShowPrivilegeHeader() {
+    
+    return this.showPrivilegesHeader;
+    
+  }
+
+  /** if optin should be checked on edit jsp */
+  private boolean allowAllOptin;
   
+  /** if optout should be checked on edit jsp */
+  private boolean allowAllOptout;
+  
+  /** if read should be checked on edit jsp */
+  private boolean allowAllRead;
+  
+  /** if view should be checked on edit jsp */
+  private boolean allowAllView;
+  
+  /** if admin should be checked on edit jsp */
+  private boolean allowAllAdmin;
+  
+  /** if update should be checked on edit jsp */
+  private boolean allowAllUpdate;
+
+  /**
+   * directed graph nodes from
+   */
+  private List<String> actionGraphNodesFrom;
+
+  /**
+   * directed graph nodes to
+   */
+  private List<String> actionGraphNodesTo;
+
+  /**
+   * starting points in graph
+   */
+  private List<String> actionGraphStartingPoints;
+  
+  /**
+   * if optin should be checked on edit jsp
+   * @return the editAttributeDefOptin
+   */
+  public boolean isAllowAllOptin() {
+    return this.allowAllOptin;
+  }
+  
+  /**
+   * if optin should be checked on edit jsp
+   * @param editAttributeDefOptin1 the editAttributeDefOptin to set
+   */
+  public void setAllowAllOptin(boolean editAttributeDefOptin1) {
+    this.allowAllOptin = editAttributeDefOptin1;
+  }
+
+  
+  /**
+   * if optout should be checked on edit jsp
+   * @return the editAttributeDefOptout
+   */
+  public boolean isAllowAllOptout() {
+    return this.allowAllOptout;
+  }
+
+  
+  /**
+   * if optout should be checked on edit jsp
+   * @param editAttributeDefOptout1 the editAttributeDefOptout to set
+   */
+  public void setAllowAllOptout(boolean editAttributeDefOptout1) {
+    this.allowAllOptout = editAttributeDefOptout1;
+  }
+
+  
+  /**
+   * if read should be checked on edit jsp
+   * @return the editAttributeDefRead
+   */
+  public boolean isAllowAllRead() {
+    return this.allowAllRead;
+  }
+
+  
+  /**
+   * if read should be checked on edit jsp
+   * @param editAttributeDefRead1 the editAttributeDefRead to set
+   */
+  public void setAllowAllRead(boolean editAttributeDefRead1) {
+    this.allowAllRead = editAttributeDefRead1;
+  }
+
+  
+  /**
+   * if view should be checked on edit jsp
+   * @return the editAttributeDefView
+   */
+  public boolean isAllowAllView() {
+    return this.allowAllView;
+  }
+
+  
+  /**
+   * if view should be checked on edit jsp
+   * @param editAttributeDefView1 the editAttributeDefView to set
+   */
+  public void setAllowAllView(boolean editAttributeDefView1) {
+    this.allowAllView = editAttributeDefView1;
+  }
+
+  
+  /**
+   * if admin should be checked on edit jsp
+   * @return the editAttributeDefAdmin
+   */
+  public boolean isAllowAllAdmin() {
+    return this.allowAllAdmin;
+  }
+
+  
+  /**
+   * if admin should be checked on edit jsp
+   * @param editAttributeDefAdmin1 the editAttributeDefAdmin to set
+   */
+  public void setAllowAllAdmin(boolean editAttributeDefAdmin1) {
+    this.allowAllAdmin = editAttributeDefAdmin1;
+  }
+
+  
+  /**
+   * if update should be checked on edit jsp
+   * @return the editAttributeDefUpdate
+   */
+  public boolean isAllowAllUpdate() {
+    return this.allowAllUpdate;
+  }
+
+  
+  /**
+   * if update should be checked on edit jsp
+   * @param editAttributeDefUpdate1 the editAttributeDefUpdate to set
+   */
+  public void setAllowAllUpdate(boolean editAttributeDefUpdate1) {
+    this.allowAllUpdate = editAttributeDefUpdate1;
+  }
+
+  /**
+   * gui attribute assign e.g. for edit screen
+   * @return gui attribute assign
+   */
+  public GuiAttributeAssign getGuiAttributeAssign() {
+    return this.guiAttributeAssign;
+  }
+
+  /**
+   * gui attribute assignment e.g. for edit screen
+   * @param guiAttributeAssign1
+   */
+  public void setGuiAttributeAssign(GuiAttributeAssign guiAttributeAssign1) {
+    this.guiAttributeAssign = guiAttributeAssign1;
+  }
+
+  /**
+   * directed graph nodes from
+   * @return directed graph nodes from
+   */
+  public List<String> getActionGraphNodesFrom() {
+    return this.actionGraphNodesFrom;
+  }
+
+  /**
+   * directed graph nodes to
+   * @return directed graph nodes to
+   */
+  public List<String> getActionGraphNodesTo() {
+    return this.actionGraphNodesTo;
+  }
+
+  /**
+   * starting points in graph
+   * @return starting points in graph
+   */
+  public List<String> getActionGraphStartingPoints() {
+    return this.actionGraphStartingPoints;
+  }
+
+  /**
+   * directed graph nodes from
+   * @param attributeNameGraphNodesFrom1
+   */
+  public void setActionGraphNodesFrom(List<String> attributeNameGraphNodesFrom1) {
+    this.actionGraphNodesFrom = attributeNameGraphNodesFrom1;
+  }
+
+  /**
+   * directed graph nodes to
+   * @param attributeNameGraphNodesTo1
+   */
+  public void setActionGraphNodesTo(List<String> attributeNameGraphNodesTo1) {
+    this.actionGraphNodesTo = attributeNameGraphNodesTo1;
+  }
+
+  /**
+   * starting points in graph
+   * @param startingPoints1
+   */
+  public void setActionGraphStartingPoints(List<String> startingPoints1) {
+    this.actionGraphStartingPoints = startingPoints1;
+  }
+  
+
+
 }
