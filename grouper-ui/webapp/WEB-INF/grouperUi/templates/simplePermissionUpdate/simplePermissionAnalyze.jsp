@@ -210,8 +210,13 @@
               <c:choose>
                 <c:when test="${permissionUpdateRequestContainer.permissionType.name == 'role_subject'}">
                   <td style="white-space: nowrap;">
-                    <grouper:message valueTooltip="${grouper:escapeHtml(guiPermissionEntry.stringLabelLongIfDifferentFromGuiSubject[permissionEntry.member.subject])}" 
-                       value="${grouper:escapeHtml(guiPermissionEntry.stringLabelShortFromGuiSubject[permissionEntry.member.subject])}"  />
+                    <c:choose>
+                      <c:when test="${guiPermissionEntry.permissionEntry.permissionType == 'role_subject'}">
+                  
+                        <grouper:message valueTooltip="${grouper:escapeHtml(guiPermissionEntry.stringLabelLongIfDifferentFromGuiSubject[permissionEntry.member.subject])}" 
+                           value="${grouper:escapeHtml(guiPermissionEntry.stringLabelShortFromGuiSubject[permissionEntry.member.subject])}"  />
+                       </c:when>
+                     </c:choose>
                   </td>
                 </c:when>
               </c:choose>
@@ -228,13 +233,18 @@
                   
                   <c:choose>
                     <c:when test="${attributeAssign.disallowed}">
-                      <grouper:message key="simplePermissionAssign.assignAllowedDisallow" />
+                      <img src="../../grouperExternal/public/assets/images/cancel.png" height="14px" border="0" 
+                        onmouseover="Tip('${grouper:escapeJavascript(navMap['simplePermissionAssign.assignAllowedDisallow'])}')" 
+                        onmouseout="UnTip()"
+                      />                    
                     </c:when>
                     <c:otherwise>
-                      <grouper:message key="simplePermissionAssign.assignAllowedAllow" />
+                      <img src="../../grouperExternal/public/assets/images/accept.png" height="14px" border="0" 
+                        onmouseover="Tip('${grouper:escapeJavascript(navMap['simplePermissionAssign.assignAllowedAllow'])}')" 
+                        onmouseout="UnTip()"
+                        />
                     </c:otherwise>
                   </c:choose>
-                
                 </td>
                 
                 <td>

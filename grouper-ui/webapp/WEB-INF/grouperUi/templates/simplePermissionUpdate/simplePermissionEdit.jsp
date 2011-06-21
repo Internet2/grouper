@@ -65,6 +65,27 @@
           </tr>
           <tr class="formTableRow">
             <td class="formTableLeft" style="white-space: nowrap;">
+              <grouper:message key="simplePermissionUpdate.assignHeaderAllowed" />
+            </td>
+            <td class="formTableRight">
+              <c:choose>
+                <c:when test="${permissionEntry.disallowed}">
+                  <img src="../../grouperExternal/public/assets/images/cancel.png" height="14px" border="0" 
+                    onmouseover="Tip('${grouper:escapeJavascript(navMap['simplePermissionAssign.assignAllowedDisallow'])}')" 
+                    onmouseout="UnTip()"
+                  />                    
+                </c:when>
+                <c:otherwise>
+                  <img src="../../grouperExternal/public/assets/images/accept.png" height="14px" border="0" 
+                    onmouseover="Tip('${grouper:escapeJavascript(navMap['simplePermissionAssign.assignAllowedAllow'])}')" 
+                    onmouseout="UnTip()"
+                    />
+                </c:otherwise>
+              </c:choose>
+            </td>
+          </tr>
+          <tr class="formTableRow">
+            <td class="formTableLeft" style="white-space: nowrap;">
               <grouper:message key="simplePermissionUpdate.assignHeaderDefinition" />
             </td>
             <td class="formTableRight">

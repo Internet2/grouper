@@ -90,11 +90,15 @@ public class GuiPermissionEntry implements Serializable {
       
       PermissionEntry thePermissionEntry = guiPermissionEntry.getPermissionEntry();
       
-      boolean theImmediate = thePermissionEntry.isImmediatePermission();
-      
-      if (theImmediate && thePermissionEntry.getPermissionType() == PermissionType.role_subject) {
-        if (!thePermissionEntry.isImmediateMembership()) {
-          theImmediate = false;
+      boolean theImmediate = false;
+      if (thePermissionEntry.isImmediatePermission()) {
+        if (this.permissionType == PermissionType.role && thePermissionEntry.getPermissionType() == PermissionType.role) {
+          theImmediate = true;
+        }
+        if (this.permissionType == PermissionType.role_subject && thePermissionEntry.getPermissionType() == PermissionType.role_subject) {
+          if (thePermissionEntry.isImmediateMembership()) {
+            theImmediate = true;
+          }
         }
       }
       
