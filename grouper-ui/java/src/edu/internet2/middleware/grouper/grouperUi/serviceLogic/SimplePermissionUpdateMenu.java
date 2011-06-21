@@ -422,9 +422,7 @@ public class SimplePermissionUpdateMenu {
 
       GuiPermissionEntry guiPermissionEntry = new GuiPermissionEntry();
      
-      if (permissionEntry == null) {
-        permissionEntry = permissionEntries.iterator().next();
-      }
+      permissionEntry = permissionEntriesList.get(0);
       
       guiPermissionEntry.setPermissionEntry(permissionEntry);
       guiPermissionEntry.setPermissionType(permissionType);
@@ -433,7 +431,7 @@ public class SimplePermissionUpdateMenu {
       
       boolean isFirst = true;
       
-      PermissionHeuristics firstHeuristics = permissionEntry.getPermissionHeuristics();
+      PermissionHeuristics firstHeuristics = permissionEntriesList.get(0).getPermissionHeuristics();
       
       String isBetterThan =  GrouperUiUtils.message("simplePermissionAssign.analyzeIsBetterThan", false); 
       
