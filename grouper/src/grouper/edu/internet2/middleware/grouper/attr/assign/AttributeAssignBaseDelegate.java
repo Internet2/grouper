@@ -460,7 +460,8 @@ public abstract class AttributeAssignBaseDelegate {
       this.assertCanUpdateAttributeDefName(attributeDefName);
     }
 
-    if (permissionAllowed != null && permissionAllowed.isDisallowed() && !AttributeDefType.perm.equals(attributeDefName.getAttributeDef().getAttributeDefType())) {
+    boolean isPermission = AttributeDefType.perm.equals(attributeDefName.getAttributeDef().getAttributeDefType());
+    if (permissionAllowed != null && permissionAllowed.isDisallowed() && !isPermission) {
       throw new RuntimeException("Can only assign a permissionAllowed with attributeDefName as perm (permission) type: " 
           + attributeDefName.getName() + ", " + attributeDefName.getAttributeDef().getAttributeDefType());
     }
@@ -474,7 +475,7 @@ public abstract class AttributeAssignBaseDelegate {
     
     attributeAssign = newAttributeAssign(action, attributeDefName, uuid);
     
-    attributeAssign.setDisallowed(permissionAllowed == null ? null : permissionAllowed.isDisallowed());
+    attributeAssign.setDisallowed(permissionAllowed == null ? false : permissionAllowed.isDisallowed());
     
     if (StringUtils.isBlank(attributeAssign.getAttributeAssignActionId())) {
       attributeAssign.setAttributeAssignActionId(attributeDef
