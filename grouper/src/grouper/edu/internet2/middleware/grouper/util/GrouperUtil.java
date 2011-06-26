@@ -310,10 +310,30 @@ public class GrouperUtil {
     Map<String, String> map = new LinkedHashMap<String, String>();
     if (strings != null) {
       if (strings.length % 2 != 0) {
-        throw new RuntimeException("Must pass in an odd number of strings: " + strings.length);
+        throw new RuntimeException("Must pass in an even number of strings: " + strings.length);
       }
       for (int i=0;i<strings.length;i+=2) {
-        map.put(strings[i], strings[i+2]);
+        map.put(strings[i], strings[i+1]);
+      }
+    }
+    return map;
+  }
+  
+  /**
+   * turn some strings into a map
+   * @param stringObjects is an array of String,Object,String,Object etc where the 
+   * Strings are the key, and the Object is the value
+   * @return the map (never null)
+   */
+  public static Map<String, Object> toStringObjectMap(Object... stringObjects) {
+    Map<String, Object> map = new LinkedHashMap<String, Object>();
+    if (stringObjects != null) {
+      if (stringObjects.length % 2 != 0) {
+        throw new RuntimeException("Must pass in an even number of strings: " + stringObjects.length);
+      }
+      for (int i=0;i<stringObjects.length;i+=2) {
+        String key = (String)stringObjects[i];
+        map.put(key, stringObjects[i+1]);
       }
     }
     return map;
@@ -10678,6 +10698,182 @@ public class GrouperUtil {
     }
     return propertiesOverrideMap;
   }
+
+  /**
+   * ^\s*\((.+)\)\s*([^\s]+)\s*$
+   * start, optional space, open paren, stuff inside, close parent, optional space, not space, optional space
+   */
+  private static Pattern typeCastTypePattern = Pattern.compile("^\\s*\\((.+)\\)\\s*([^\\s]+)\\s*$");
   
+  /**
+   * process a string / string map and convert the values to a string/object map.
+   * @param limitEnvVars if processing limits, pass in a map of limits.  The name is the
+   * name of the variable, and the value is the value.  Note, you can typecast the
+   * values by putting a valid type in parens in front of the param name.  e.g.
+   * name: (integer)amount, value: 50         (will convert to long)
+   * name: (decimal)amount, value: 50.3   (will convert to double)
+   * name: (timestamp)amount, value: 2011/01/26 19:02:04   (will convert to date/timestamp)
+   * @return the map of string to object
+   */
+  public static Map<String, Object> typeCastStringStringMap(Map<String, Object> limitEnvVars) {
+    
+    Map<String, Object> result = new LinkedHashMap<String, Object>();
+    
+    if (GrouperUtil.length(limitEnvVars) == 0) {
+      return result;
+    }
+    
+    Matcher matcher = null;
+    
+    for (String key : limitEnvVars.keySet()) {
+      
+      Object value = limitEnvVars.get(key);
+      matcher = typeCastTypePattern.matcher(key);
+      if (value instanceof String && matcher.matches()) {
+        String type = StringUtils.trimToEmpty(matcher.group(1));
+        Object valueOriginal = value;
+        key = StringUtils.trimToEmpty(matcher.group(2));
+        try {
+          if (StringUtils.equalsIgnoreCase(type, "int") || StringUtils.equalsIgnoreCase(type, "integer")
+              || StringUtils.equalsIgnoreCase(type, "long")) {
+            value = GrouperUtil.longValue(value);
+          } else if (StringUtils.equalsIgnoreCase(type, "double") || StringUtils.equalsIgnoreCase(type, "float")
+              || StringUtils.equalsIgnoreCase(type, "decimal")) {
+            value = GrouperUtil.doubleValue(value);
+          } else if (StringUtils.equalsIgnoreCase(type, "date") || StringUtils.equalsIgnoreCase(type, "timestamp")) {
+            value = GrouperUtil.toTimestamp(value);
+          } else {
+            throw new RuntimeException("Not expecting type: " + type + ", " + valueOriginal);
+          }
+        } catch (RuntimeException re) {
+          throw new RuntimeException("Cannot convert value to " + key + ", " + type + ", " + valueOriginal, re);
+        }
+      }
+      
+      result.put(key, value);
+      
+    }
+    return result;
+  }
+
+  /**
+   * see if an ip address is on a network
+   * 
+   * @param ipString
+   *          is the ip address to check
+   * @param networkIpString
+   *          is the ip address of the network
+   * @param mask
+   *          is the length of the mask (0-32)
+   * @return boolean
+   */
+  public static boolean ipOnNetwork(String ipString, String networkIpString, int mask) {
+
+    //this allows all
+    if (mask == 0) {
+      return true;
+    }
+    int ip = ipInt(ipString);
+    int networkIp = ipInt(networkIpString);
   
+    ip = ipReadyForAnd(ip, mask);
+    networkIp = ipReadyForAnd(networkIp, mask);
+  
+    return ip == networkIp;
+  }
+
+  /**
+   * see if an ip address is on a network
+   * 
+   * @param ipString
+   *          is the ip address to check
+   * @param networkIpStrings
+   *          are the ip addresses of the networks, e.g. 1.2.3.4/12, 2.3.4.5/24
+   * @return boolean
+   */
+  public static boolean ipOnNetworks(String ipString, String networkIpStrings) {
+    
+    String[] networkIpStringsArray = splitTrim(networkIpStrings, ",");
+    
+    //check each one
+    for (String networkIpString : networkIpStringsArray) {
+      
+      if (!contains(networkIpString, "/")) {
+        throw new RuntimeException("String must contain slash and CIDR network bits, e.g. 1.2.3.4/14");
+      }
+      //get network part:
+      String network = prefixOrSuffix(networkIpString, "/", true);
+      network = trim(network);
+      
+      String mask = prefixOrSuffix(networkIpString, "/", false);
+      mask = trim(mask);
+      int maskInt = -1;
+      
+      maskInt = Integer.parseInt(mask);
+      
+      //if on the network, then all good
+      if (ipOnNetwork(ipString, network, maskInt)) {
+        return true;
+      }
+      
+      
+    }
+    return false;
+  }
+
+  /**
+   * get the ip address after putting 1's where the subnet mask is not
+   * @param ip int
+   * @param maskLength int
+   * @return int
+   */
+  public static int ipReadyForAnd(int ip, int maskLength) {
+    int mask = -1 + (int) Math.pow(2, 32 - maskLength);
+
+    return ip | mask;
+  }
+
+  /**
+   * get the ip addres integer from a string ip address
+   * @param ip String
+   * @return int
+   */
+  public static int ipInt(String ip) {
+    int block1;
+    int block2;
+    int block3;
+    int block4;
+  
+    try {
+      int periodIndex = ip.indexOf('.');
+      String blockString = ip.substring(0, periodIndex);
+      block1 = Integer.parseInt(blockString);
+  
+      //split it up for 2^24 since it does the math wrong if you dont
+      int mathPow = (int) Math.pow(2, 24);
+      block1 *= mathPow;
+  
+      int oldPeriodIndex = periodIndex;
+  
+      periodIndex = ip.indexOf('.', periodIndex + 1);
+      blockString = ip.substring(oldPeriodIndex + 1, periodIndex);
+      block2 = Integer.parseInt(blockString);
+      block2 *= Math.pow(2, 16);
+      oldPeriodIndex = periodIndex;
+  
+      periodIndex = ip.indexOf('.', periodIndex + 1);
+      blockString = ip.substring(oldPeriodIndex + 1, periodIndex);
+      block3 = Integer.parseInt(blockString);
+      block3 *= Math.pow(2, 8);
+  
+      blockString = ip.substring(periodIndex + 1, ip.length());
+      block4 = Integer.parseInt(blockString);
+    } catch (NumberFormatException nfe) {
+      throw new RuntimeException("Could not parse the ipaddress: " + ip);
+    }
+  
+    return block1 + block2 + block3 + block4;
+  }
+
+
 }

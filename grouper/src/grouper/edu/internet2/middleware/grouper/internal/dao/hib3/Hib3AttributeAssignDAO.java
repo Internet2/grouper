@@ -1,4 +1,5 @@
 package edu.internet2.middleware.grouper.internal.dao.hib3;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashSet;
@@ -18,6 +19,7 @@ import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
+import edu.internet2.middleware.grouper.attr.AttributeDefType;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignType;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
@@ -1501,13 +1503,36 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
       Collection<AttributeAssign> attributeAssigns,
       AttributeAssignType attributeAssignType, Boolean enabled) {
     
-    int attributeAssignsSize = GrouperUtil.length(attributeAssigns);
+    Set<String> attributeAssignIds = new HashSet<String>();
+    
+    for (AttributeAssign attributeAssign : GrouperUtil.nonNull(attributeAssigns)) {
+      attributeAssignIds.add(attributeAssign.getId());
+    }
+    
+    return findAssignmentsOnAssignmentsByIds(attributeAssignIds, attributeAssignType, null, enabled);
+  }
+    
+  /**
+   * @see AttributeAssignDAO#findAssignmentsOnAssignmentsByIds(Collection, AttributeAssignType, AttributeDefType, Boolean)
+   */
+  public Set<AttributeAssign> findAssignmentsOnAssignmentsByIds(Collection<String> attributeAssignIds, 
+      AttributeAssignType attributeAssignType, AttributeDefType attributeDefType, Boolean enabled) {
+
+    int attributeAssignsSize = GrouperUtil.length(attributeAssignIds);
 
     Set<AttributeAssign> results = new LinkedHashSet<AttributeAssign>();
     
     if (attributeAssignsSize == 0) {
       return results;
     }
+    
+    //remove dupes
+    Set<String> attributeAssignIdsSet = attributeAssignIds instanceof Set ? (Set)attributeAssignIds : new LinkedHashSet<String>(attributeAssignIds);
+    
+    //get in ordered list
+    List<String> attributeAssignIdsList = new ArrayList<String>(attributeAssignIdsSet);
+    
+    attributeAssignsSize = GrouperUtil.length(attributeAssignIdsList);
     
     int numberOfBatches = GrouperUtil.batchNumberOfBatches(attributeAssignsSize, 100);
 
@@ -1516,7 +1541,7 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
 
     for (int i=0;i<numberOfBatches; i++) {
       
-      List<AttributeAssign> currentBatch = GrouperUtil.batchList(attributeAssigns, 100, i);
+      List<String> currentBatch = GrouperUtil.batchList(attributeAssignIdsList, 100, i);
       
       int currentBatchSize = GrouperUtil.length(currentBatch);
       
@@ -1524,10 +1549,10 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
 
       String selectPrefix = "select distinct aa ";
       
-      StringBuilder sqlTables = new StringBuilder(" from AttributeAssign aa, AttributeDefName adn ");
+      StringBuilder sqlTables = new StringBuilder(" from AttributeAssign aa, AttributeDefName adn, AttributeDef ad ");
       
       StringBuilder sqlWhereClause = new StringBuilder(
-          " aa.attributeDefNameId = adn.id ");
+          " aa.attributeDefNameId = adn.id and adn.attributeDefId = ad.id ");
       
       if (attributeAssignType != null) {
         sqlWhereClause.append(" and aa.attributeAssignTypeDb = '" + attributeAssignType.name() + "' ");
@@ -1544,6 +1569,10 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
       StringBuilder sql;
       sql = sqlTables.append(" where ").append(sqlWhereClause);
       
+      if (attributeDefType != null) {
+        sql.append(" and ad.attributeDefTypeDb = :theAttributeDefType ");
+        byHqlStatic.setString("theAttributeDefType", attributeDefType.name());
+      }
       if (enabled != null && enabled) {
         sql.append(" and aa.enabledDb = 'T' ");
       }
@@ -1552,16 +1581,11 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
       }
       if (currentBatchSize > 0) {
         
-        //convert to a list of ids
-        Set<String> ids = new LinkedHashSet<String>();
-        for (AttributeAssign attributeAssign : currentBatch) {
-          ids.add(attributeAssign.getId());
-        }
-        
         sql.append(" and aa.ownerAttributeAssignId in (");
-        sql.append(HibUtils.convertToInClause(ids, byHqlStatic));
+        sql.append(HibUtils.convertToInClause(currentBatch, byHqlStatic));
         sql.append(") ");
       }
+      
       byHqlStatic
         .setCacheable(false)
         .setCacheRegion(KLASS + ".FindAssignmentsOnAssignments");

@@ -12,6 +12,7 @@ import org.apache.commons.collections.keyvalue.MultiKey;
 
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
+import edu.internet2.middleware.grouper.attr.AttributeDefType;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignType;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValueContainer;
@@ -454,12 +455,24 @@ public interface AttributeAssignDAO extends GrouperDAO {
    * find assignments on assignments.  Note, it is assumed the current user can read the assignments passed in (and other underlying objects),
    * so only the attributeDefs of the assignments on assignments are checked for security
    * @param attributeAssigns to find assignments on these assignments
-   * @param attributeAssignType of the assignments we are looking for
+   * @param attributeAssignType of the assignments we are looking for or null for all
    * @param enabled null for all, true for enabled only, false for disabled only
    * @return the assignments
    */
   public Set<AttributeAssign> findAssignmentsOnAssignments(Collection<AttributeAssign> attributeAssigns, 
       AttributeAssignType attributeAssignType, Boolean enabled);
+
+  /**
+   * find assignments on assignments.  Note, it is assumed the current user can read the assignments passed in (and other underlying objects),
+   * so only the attributeDefs of the assignments on assignments are checked for security
+   * @param attributeAssignIds to find assignments on these assignment ids
+   * @param attributeAssignType of the assignments we are looking for
+   * @param attributeDefType attr, perm, limit, or null for all
+   * @param enabled null for all, true for enabled only, false for disabled only
+   * @return the assignments
+   */
+  public Set<AttributeAssign> findAssignmentsOnAssignmentsByIds(Collection<String> attributeAssignIds, 
+      AttributeAssignType attributeAssignType, AttributeDefType attributeDefType, Boolean enabled);
 
   /**
    * securely search for attribute def names.  need to pass in either the assign ids, def ids, def name ids, or group ids

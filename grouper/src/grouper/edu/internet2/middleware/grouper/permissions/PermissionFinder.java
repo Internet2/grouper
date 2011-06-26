@@ -6,6 +6,7 @@ package edu.internet2.middleware.grouper.permissions;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
@@ -45,7 +46,27 @@ public class PermissionFinder {
    * @param permissionProcessor maybe process the results
    * @return the set of permissions never null
    */
-  public static Set<PermissionEntry> findPermissions(Subject subject, Set<Role> roles, AttributeDefName permissionName, String action, PermissionProcessor permissionProcessor) {
+  public static Set<PermissionEntry> findPermissions(Subject subject, Set<Role> roles, 
+      AttributeDefName permissionName, String action, PermissionProcessor permissionProcessor) {
+    
+    return findPermissions(subject, roles, permissionName, action, permissionProcessor, null);
+    
+  }
+
+  
+  /**
+   * find a list of permissions
+   * @param subject
+   * @param roles
+   * @param permissionName
+   * @param action
+   * @param permissionProcessor maybe process the results
+   * @param limitEnvVars maps of name to value of environment variables
+   * @return the set of permissions never null
+   */
+  public static Set<PermissionEntry> findPermissions(Subject subject, Set<Role> roles, 
+      AttributeDefName permissionName, String action, PermissionProcessor permissionProcessor,
+      Map<String, Object> limitEnvVars) {
     
     if (subject == null) {
       throw new RuntimeException("Subject is required");
@@ -77,7 +98,8 @@ public class PermissionFinder {
     
     Set<PermissionEntry> permissions = findPermissions(null, 
         GrouperUtil.toSet(permissionName.getId()), roleIds, 
-        GrouperUtil.toSet(action), true, GrouperUtil.toSet(member.getUuid()), permissionProcessor);
+        GrouperUtil.toSet(action), true, GrouperUtil.toSet(member.getUuid()), 
+        permissionProcessor, limitEnvVars);
 
     return permissions;
   }
@@ -91,6 +113,12 @@ public class PermissionFinder {
    * @param enabled 
    * @param memberIds 
    * @param permissionProcessor if picking the best one or something
+   * @param limitEnvVars if you are computing limits in the permissionProcessor, pass the environment variables here 
+   * (e.g. amount is 33845 if there is a limit of amount < 50000)
+   * if processing limits, pass in a map of limits.  The name is the
+   * name of the variable, and the value is the value.  Note, you can typecast the
+   * values by putting a valid type in parens in front of the param name.  e.g.
+   * name: (int)amount, value: 50
    * @return the set of permissions never null
    */
   public static Set<PermissionEntry> findPermissions(
@@ -99,7 +127,7 @@ public class PermissionFinder {
       Collection<String> roleIds, 
       Collection<String> actions, 
       Boolean enabled,
-      Collection<String> memberIds, PermissionProcessor permissionProcessor) {
+      Collection<String> memberIds, PermissionProcessor permissionProcessor, Map<String, Object> limitEnvVars) {
 
     if (permissionProcessor != null && (enabled == null || !enabled)) {
       throw new RuntimeException("You cannot process the permissions " +
@@ -112,7 +140,7 @@ public class PermissionFinder {
 
     //if size is one, there arent redundancies to process
     if (permissionProcessor != null) {
-      permissionProcessor.processPermissions(permissionEntries);
+      permissionProcessor.processPermissions(permissionEntries, limitEnvVars);
     }
     return permissionEntries;
     
@@ -127,6 +155,18 @@ public class PermissionFinder {
    * @return true if the subject has this permission in any role specified
    */
   public static boolean hasPermission(Subject subject, Set<Role> roles, AttributeDefName permissionName, String action) {
+    return hasPermission(subject, roles, permissionName, action, null);
+  }
+  /**
+   * 
+   * @param subject
+   * @param roles
+   * @param permissionName
+   * @param action
+   * @param limitEnvVars send in a map (null to not check, empty to check with no env vars)
+   * @return true if the subject has this permission in any role specified
+   */
+  public static boolean hasPermission(Subject subject, Set<Role> roles, AttributeDefName permissionName, String action, Map<String, Object> limitEnvVars) {
     Set<String> roleIds = null;
     
     if (subject == null) {
@@ -156,11 +196,14 @@ public class PermissionFinder {
     }
     
     //get all the permissions for this user in these roles
+    PermissionProcessor permissionProcessor = limitEnvVars == null ? PermissionProcessor.FILTER_REDUNDANT_PERMISSIONS_AND_ROLES
+        : PermissionProcessor.FILTER_REDUNDANT_PERMISSIONS_AND_ROLES_AND_PROCESS_LIMITS ;
     Set<PermissionEntry> permissionEntriesSet = findPermissions(
-        null, GrouperUtil.toSet(permissionName.getId()), roleIds, GrouperUtil.toSet(action), true, GrouperUtil.toSet(member.getUuid()), PermissionProcessor.FILTER_REDUNDANT_PERMISSIONS_AND_ROLES);
+        null, GrouperUtil.toSet(permissionName.getId()), roleIds, GrouperUtil.toSet(action), 
+        true, GrouperUtil.toSet(member.getUuid()), permissionProcessor, limitEnvVars);
     
     //we have the permissions, was anything returned?
-    return permissionEntriesSet.size() == 0 ? false : !permissionEntriesSet.iterator().next().isDisallowed();
+    return permissionEntriesSet.size() == 0 ? false : permissionEntriesSet.iterator().next().isAllowedOverall();
     
   }
 

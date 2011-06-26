@@ -80,7 +80,7 @@ public class GuiPermissionEntry implements Serializable {
     }
     
     
-    PermissionProcessor.FILTER_REDUNDANT_PERMISSIONS.processPermissions(permissionEntriesSet);
+    PermissionProcessor.FILTER_REDUNDANT_PERMISSIONS.processPermissions(permissionEntriesSet, null);
 
     //we have the permissions, was anything returned?  take the first, and see if not disallowed
     this.allowed = permissionEntriesSet.size() == 0 ? false : !permissionEntriesSet.iterator().next().isDisallowed();

@@ -37,6 +37,33 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 @SuppressWarnings("serial")
 public class PermissionEntry extends GrouperAPI implements Comparable<PermissionEntry> {
 
+  /** 
+   * this will be if this permissions is allowed (not in DB/assignment, but overall).  So if we are
+   * considering limits, and the limit is false, then this will be false for a permission where
+   * the disallow is set to false
+   */
+  private boolean allowedOverall = true;
+
+  /**
+   * this will be if this permissions is allowed (not in DB/assignment, but overall).  So if we are
+   * considering limits, and the limit is false, then this will be false for a permission where
+   * the disallow is set to false
+   * @return true if allowed overall
+   */
+  public boolean isAllowedOverall() {
+    return this.allowedOverall && !this.disallowed && this.isEnabled();
+  }
+
+  /**
+   * this will be if this permissions is allowed (not in DB/assignment, but overall).  So if we are
+   * considering limits, and the limit is false, then this will be false for a permission where
+   * the disallow is set to false
+   * @param allowedOverall1
+   */
+  public void setAllowedOverall(boolean allowedOverall1) {
+    this.allowedOverall = allowedOverall1;
+  }
+
   /**
    * if internal heuristic is not set, set it, order by so most important as at top...
    * @param permissionEntries

@@ -59,6 +59,7 @@ import edu.internet2.middleware.grouper.hooks.LifecycleHooks;
 import edu.internet2.middleware.grouper.hooks.MemberHooks;
 import edu.internet2.middleware.grouper.hooks.MembershipHooks;
 import edu.internet2.middleware.grouper.hooks.StemHooks;
+import edu.internet2.middleware.grouper.permissions.limits.PermissionLimitUtils;
 import edu.internet2.middleware.grouper.privs.AccessAdapter;
 import edu.internet2.middleware.grouper.privs.NamingAdapter;
 import edu.internet2.middleware.grouper.rules.RuleUtils;
@@ -1675,7 +1676,35 @@ public class GrouperCheckConfig {
             "T|F for if this rule daemon should run.  Default to true if blank and check and if are enums, false if not", wasInCheckConfig);
         
       }      
-      
+
+      {
+        String limitsRootStemName = PermissionLimitUtils.attributeLimitStemName();
+        
+        Stem limitsStem = StemFinder.findByName(grouperSession, limitsRootStemName, false);
+        if (limitsStem == null) {
+          limitsStem = new StemSave(grouperSession).assignCreateParentStemsIfNotExist(true)
+            .assignDescription("folder for built in Grouper permission limits").assignName(limitsRootStemName)
+            .save();
+        }
+
+        //see if attributeDef is there
+        String limitDefName = limitsRootStemName + ":limitsDef";
+        AttributeDef limitDef = AttributeDefFinder.findByName(limitDefName, false);
+        if (limitDef == null) {
+          limitDef = limitsStem.addChildAttributeDef("limitsDef", AttributeDefType.limit);
+          limitDef.setAssignToGroupAssn(true);
+          limitDef.setAssignToEffMembershipAssn(true);
+          limitDef.setValueType(AttributeDefValueType.string);
+          limitDef.store();
+        }
+        
+        //add an el
+        checkAttribute(limitsStem, limitDef, PermissionLimitUtils.LIMIT_EL, 
+            "An expression language limit has a value of an EL which evaluates to true or false", wasInCheckConfig);
+      }
+
+
+
       AttributeDefName attributeLoaderTypeName = null;
       
       {
