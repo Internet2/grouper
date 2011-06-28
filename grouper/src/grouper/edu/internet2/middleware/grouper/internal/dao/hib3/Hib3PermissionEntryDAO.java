@@ -653,5 +653,131 @@ public class Hib3PermissionEntryDAO extends Hib3DAO implements PermissionEntryDA
 
   }
 
+  /**
+   * @see PermissionEntryDAO#findRolePermissions(Collection, Collection, Collection, Collection, Boolean, boolean)
+   */
+  public Set<PermissionEntry> findRolePermissions(Collection<String> attributeDefIds,
+      Collection<String> attributeDefNameIds, Collection<String> roleIds,
+      Collection<String> actions, Boolean enabled, boolean noEndDate) {
+    int roleIdsSize = GrouperUtil.length(roleIds);
+    int actionsSize = GrouperUtil.length(actions);
+    int attributeDefIdsSize = GrouperUtil.length(attributeDefIds);
+    int attributeDefNameIdsSize = GrouperUtil.length(attributeDefNameIds);
+    
+    if (roleIdsSize == 0 && attributeDefIdsSize == 0 && attributeDefNameIdsSize == 0) {
+      throw new RuntimeException("Illegal query, you need to pass in attributeDefId(s) and/or roleId(s) and/or roleNames and/or attributeDefNameIds");
+    }
+    
+    //too many bind vars
+    if (roleIdsSize + attributeDefIdsSize + attributeDefNameIdsSize + actionsSize > 100) {
+      throw new RuntimeException("Too many roleIdsSize " + roleIdsSize + " or attributeDefIdsSize " 
+          + attributeDefIdsSize + " or attributeDefNameIds " + attributeDefNameIdsSize + " or actionsSize " + actionsSize );
+    }
+
+    ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
+
+    String selectPrefix = "select distinct pea ";
+    
+    //doesnt work due to composite key, hibernate puts parens around it and mysql fails
+    //String countPrefix = "select count(distinct pea) ";
+    
+    StringBuilder sqlTables = new StringBuilder(" from PermissionEntryRoleAssigned pea ");
+    
+    StringBuilder sqlWhereClause = new StringBuilder("");
+    
+    GrouperSession grouperSession = GrouperSession.staticGrouperSession();
+    
+    Subject grouperSessionSubject = grouperSession.getSubject();
+    
+    grouperSession.getAttributeDefResolver().hqlFilterAttrDefsWhereClause(
+      grouperSessionSubject, byHqlStatic, 
+      sqlTables, sqlWhereClause, "pea.attributeDefId", AttributeDefPrivilege.READ_PRIVILEGES);
+    
+    boolean changedQuery = grouperSession.getAccessResolver().hqlFilterGroupsWhereClause(
+        grouperSessionSubject, byHqlStatic, 
+        sqlTables, "pea.roleId", AccessPrivilege.READ_PRIVILEGES);
+
+    StringBuilder sql;
+    if (changedQuery) {
+      if (sqlWhereClause.length() > 0) {
+        sql = sqlTables.append(" and ").append(sqlWhereClause);
+      } else {
+        sql = sqlTables;
+      }
+    } else {
+      sql = sqlTables.append(" where ").append(sqlWhereClause);
+    }
+    
+    if (enabled != null && enabled) {
+      sql.append(" and pea.enabledDb = 'T' ");
+    }
+    if (enabled != null && !enabled) {
+      sql.append(" and pea.enabledDb = 'F' ");
+    }
+    
+    if (noEndDate) {
+      sql.append(" and pea.disabledTimeDb is null ");
+    }
+    
+    if (actionsSize > 0) {
+      sql.append(" and pea.action in (");
+      sql.append(HibUtils.convertToInClause(actions, byHqlStatic));
+      sql.append(") ");
+    }
+    if (roleIdsSize > 0) {
+      sql.append(" and pea.roleId in (");
+      sql.append(HibUtils.convertToInClause(roleIds, byHqlStatic));
+      sql.append(") ");
+    }
+    if (attributeDefIdsSize > 0) {
+      sql.append(" and pea.attributeDefId in (");
+      sql.append(HibUtils.convertToInClause(attributeDefIds, byHqlStatic));
+      sql.append(") ");
+    }
+    if (attributeDefNameIdsSize > 0) {
+      sql.append(" and pea.attributeDefNameId in (");
+      sql.append(HibUtils.convertToInClause(attributeDefNameIds, byHqlStatic));
+      sql.append(") ");
+    }
+    byHqlStatic
+      .setCacheable(false)
+      .setCacheRegion(KLASS + ".findRolePermissions");
+
+    int maxAssignments = GrouperConfig.getPropertyInt("ws.findPermissions.maxResultSize", 30000);
+    
+    String sqlString = sql.toString();
+    
+    //if we did where and, then switch to where
+    sqlString = sqlString.replaceAll("where\\s+and", "where");
+    
+    Set<PermissionEntry> results = byHqlStatic.createQuery(selectPrefix + sqlString).listSet(PermissionEntry.class);
+
+    int size = GrouperUtil.length(results);
+    if (maxAssignments >= 0) {
+
+      //doesnt work on mysql i think due to hibernate and composite key
+      //size = byHqlStatic.createQuery(countPrefix + sqlString).uniqueResult(long.class);    
+      
+      //see if too many
+      if (size > maxAssignments) {
+        throw new RuntimeException("Too many results: " + size);
+      }
+      
+    }
+    
+
+    //nothing to filter
+    if (size == 0) {
+      return results;
+    }
+    
+    //if the hql didnt filter, we need to do that here
+    results = grouperSession.getAttributeDefResolver().postHqlFilterPermissions(grouperSessionSubject, results);
+    
+    //we should be down to the secure list
+    return results;
+      
+  }
+
 
 }

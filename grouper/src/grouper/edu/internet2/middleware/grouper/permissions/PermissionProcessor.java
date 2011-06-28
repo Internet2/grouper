@@ -9,6 +9,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -103,37 +104,8 @@ public enum PermissionProcessor {
       //first filter the permissions
       FILTER_REDUNDANT_PERMISSIONS.processPermissions(permissionEntrySet, limitEnvVars);
       
-      //now filter out roles
-      //multikey is memberId, permissionNameId, action
-      Map<MultiKey, List<PermissionEntry>> permissionMap = new LinkedHashMap<MultiKey, List<PermissionEntry>>();
-      for (PermissionEntry permissionEntry : permissionEntrySet) {
-        MultiKey key = new MultiKey(permissionEntry.getMemberId(), permissionEntry.getAttributeDefNameId(), permissionEntry.getAction());
-        List<PermissionEntry> permissionList = permissionMap.get(key);
-        if (permissionList == null) {
-          permissionList = new ArrayList<PermissionEntry>();
-          permissionMap.put(key, permissionList);
-        }
-        permissionList.add(permissionEntry);
-      }
+      filterRedundantRoles(permissionEntrySet);
       
-      //go through the map, and find the best permissions, and put back in set
-      permissionEntrySet.clear();
-      
-      OUTER: for (List<PermissionEntry> permissionEntryList : permissionMap.values()) {
-        
-        if (permissionEntryList.size() > 1) {
-          //if any in the list is an allow, then use it (allow from any role ok)
-          for (PermissionEntry permissionEntry : permissionEntryList) {
-            if (!permissionEntry.isDisallowed()) {
-              permissionEntrySet.add(permissionEntry);
-              continue OUTER;
-            }
-          }
-        }
-        
-        //well, just get the first disallow
-        permissionEntrySet.add(permissionEntryList.get(0));
-      }
     }
   }, 
   /** this will see if there are two rows with the same 
@@ -148,7 +120,7 @@ public enum PermissionProcessor {
     public void processPermissions(Collection<PermissionEntry> permissionEntrySet, 
         Map<String, Object> limitEnvVars) {
       
-      FILTER_REDUNDANT_PERMISSIONS_AND_ROLES.processPermissions(permissionEntrySet, limitEnvVars);
+      FILTER_REDUNDANT_PERMISSIONS.processPermissions(permissionEntrySet, limitEnvVars);
       PROCESS_LIMITS.processPermissions(permissionEntrySet, limitEnvVars);
   
     }
@@ -166,8 +138,12 @@ public enum PermissionProcessor {
     @Override
     public void processPermissions(Collection<PermissionEntry> permissionEntrySet, 
         Map<String, Object> limitEnvVars) {
+
       FILTER_REDUNDANT_PERMISSIONS.processPermissions(permissionEntrySet, limitEnvVars);
+      
+      //we need to process limits before looking at roles
       PROCESS_LIMITS.processPermissions(permissionEntrySet, limitEnvVars);
+      filterRedundantRoles(permissionEntrySet);
     }
   }, 
   
@@ -218,13 +194,27 @@ public enum PermissionProcessor {
           }
           
           //get the values of the assignments
-          //TODO batch the values
           if (GrouperUtil.length(limitAssigns) > 0) {
+            Set<String> attributeAssignIds = new HashSet<String>();
+            
+            //get all the assign ids
             for (AttributeAssign attributeAssign : assignments) {
-              Set<AttributeAssignValue> attributeAssignValues = GrouperDAOFactory.getFactory()
-                .getAttributeAssignValue().findByAttributeAssignId(attributeAssign.getId());
-              limitAssignValues.put(attributeAssign.getId(), attributeAssignValues);
+              attributeAssignIds.add(attributeAssign.getId());
             }
+
+            //get all assigns at once
+            Set<AttributeAssignValue> attributeAssignValues = GrouperDAOFactory.getFactory()
+              .getAttributeAssignValue().findByAttributeAssignIds(attributeAssignIds);
+            
+            for (AttributeAssignValue attributeAssignValue : GrouperUtil.nonNull(attributeAssignValues)) {
+              Set<AttributeAssignValue> attributeAssignValuesSet = limitAssignValues.get(attributeAssignValue.getAttributeAssignId());
+              if (attributeAssignValuesSet == null) {
+                attributeAssignValuesSet = new LinkedHashSet<AttributeAssignValue>();
+                limitAssignValues.put(attributeAssignValue.getAttributeAssignId(), attributeAssignValuesSet);
+              }
+              attributeAssignValuesSet.add(attributeAssignValue);
+            }
+            
           }
           return null;
         }
@@ -314,6 +304,45 @@ public enum PermissionProcessor {
       }
     }
   };
+  
+  /**
+   * if any role has it, one of them stays
+   * @param permissionEntrySet
+   */
+  private static void filterRedundantRoles(Collection<PermissionEntry> permissionEntrySet) {
+    //now filter out roles
+    //multikey is memberId, permissionNameId, action
+    Map<MultiKey, List<PermissionEntry>> permissionMap = new LinkedHashMap<MultiKey, List<PermissionEntry>>();
+    for (PermissionEntry permissionEntry : permissionEntrySet) {
+      MultiKey key = new MultiKey(permissionEntry.getMemberId(), permissionEntry.getAttributeDefNameId(), permissionEntry.getAction());
+      List<PermissionEntry> permissionList = permissionMap.get(key);
+      if (permissionList == null) {
+        permissionList = new ArrayList<PermissionEntry>();
+        permissionMap.put(key, permissionList);
+      }
+      permissionList.add(permissionEntry);
+    }
+    
+    //go through the map, and find the best permissions, and put back in set
+    permissionEntrySet.clear();
+    
+    OUTER: for (List<PermissionEntry> permissionEntryList : permissionMap.values()) {
+      
+      if (permissionEntryList.size() > 1) {
+        //if any in the list is an allow, then use it (allow from any role ok)
+        for (PermissionEntry permissionEntry : permissionEntryList) {
+          if (permissionEntry.isAllowedOverall()) {
+            permissionEntrySet.add(permissionEntry);
+            continue OUTER;
+          }
+        }
+      }
+      
+      //well, just get the first disallow
+      permissionEntrySet.add(permissionEntryList.get(0));
+    }
+
+  }
   
   /** keep the caches by how long they are cached m*/
   private static Map<Integer, ExpirableCache<MultiKey, Boolean>> limitLogicCaches = new HashMap<Integer, ExpirableCache<MultiKey, Boolean>>();

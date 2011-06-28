@@ -1,4 +1,4 @@
-package edu.internet2.middleware.grouper.permissions.limits;
+package edu.internet2.middleware.grouper.permissions.limits.impl;
 
 import java.util.Date;
 import java.util.Map;
@@ -10,6 +10,10 @@ import org.apache.commons.logging.Log;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
 import edu.internet2.middleware.grouper.permissions.PermissionEntry;
+import edu.internet2.middleware.grouper.permissions.limits.LimitElUtils;
+import edu.internet2.middleware.grouper.permissions.limits.PermissionLimitBase;
+import edu.internet2.middleware.grouper.permissions.limits.PermissionLimitInterface;
+import edu.internet2.middleware.grouper.permissions.limits.PermissionLimitUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
@@ -19,10 +23,10 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 public class PermissionLimitElLogic extends PermissionLimitBase {
 
   /** if you are testing this, set it, otherwise, it will default */
-  static Integer testingCacheMinutesInt = null;
+  public static Integer testingCacheMinutesInt = null;
   
   /** count how many times called logic for testing the cache */
-  static int testingTimesCalledLogic = 0;
+  public static int testingTimesCalledLogic = 0;
 
   /**
    * @see PermissionLimitInterface#cacheLimitValueResultMinutes()

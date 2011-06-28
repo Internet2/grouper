@@ -31,6 +31,7 @@ import edu.internet2.middleware.grouper.permissions.PermissionAllowed;
 import edu.internet2.middleware.grouper.permissions.PermissionEntry;
 import edu.internet2.middleware.grouper.permissions.PermissionFinder;
 import edu.internet2.middleware.grouper.permissions.PermissionProcessor;
+import edu.internet2.middleware.grouper.permissions.limits.impl.PermissionLimitElLogic;
 import edu.internet2.middleware.grouper.permissions.role.Role;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
@@ -208,9 +209,12 @@ public class PermissionLimitTest extends GrouperTest {
     //subj0 can read except for the limit
     
     //lets get all of the permission assignments
-    List<PermissionEntry> permissionEntries = new ArrayList<PermissionEntry>(PermissionFinder.findPermissions(this.subj0, 
-        null, this.english, this.readString, PermissionProcessor.PROCESS_LIMITS, GrouperUtil.toStringObjectMap("(int)amount", "49000")));
-    
+    List<PermissionEntry> permissionEntries = new ArrayList<PermissionEntry>(
+        new PermissionFinder().addSubject(this.subj0)
+        .addAction(this.readString).addPermissionName(this.english)
+        .assignPermissionProcessor(PermissionProcessor.PROCESS_LIMITS)
+        .addLimitEnvVar("(int)amount", "49000").findPermissions());
+        
     //there should be two, one should be allow, the other deny
     assertEquals(1, GrouperUtil.length(permissionEntries));
     assertFalse(permissionEntries.get(0).isDisallowed());
@@ -220,17 +224,21 @@ public class PermissionLimitTest extends GrouperTest {
     
     attributeAssign.getAttributeValueDelegate().assignValue(PermissionLimitUtils.limitElAttributeDefName().getName(), "amount < 50000");
     
-    permissionEntries = new ArrayList<PermissionEntry>(PermissionFinder.findPermissions(this.subj0, 
-        null, this.english, this.readString, PermissionProcessor.PROCESS_LIMITS, GrouperUtil.toStringObjectMap("(int)amount", "49000")));
-    
+    permissionEntries = new ArrayList<PermissionEntry>(new PermissionFinder().addSubject(this.subj0)
+        .addAction(this.readString).addPermissionName(this.english)
+        .assignPermissionProcessor(PermissionProcessor.PROCESS_LIMITS)
+        .addLimitEnvVar("(int)amount", "49000").findPermissions());
+        
     //there should be two, one should be allow, the other deny
     assertEquals(1, GrouperUtil.length(permissionEntries));
     assertFalse(permissionEntries.get(0).isDisallowed());
     assertTrue(permissionEntries.get(0).isAllowedOverall());
 
-    permissionEntries = new ArrayList<PermissionEntry>(PermissionFinder.findPermissions(this.subj0, 
-        null, this.english, this.readString, PermissionProcessor.PROCESS_LIMITS, GrouperUtil.toStringObjectMap("(int)amount", "51000")));
-    
+    permissionEntries = new ArrayList<PermissionEntry>(new PermissionFinder().addSubject(this.subj0)
+        .addAction(this.readString).addPermissionName(this.english)
+        .assignPermissionProcessor(PermissionProcessor.PROCESS_LIMITS)
+        .addLimitEnvVar("(int)amount", "51000").findPermissions());
+        
     //there should be two, one should be allow, the other deny
     assertEquals(1, GrouperUtil.length(permissionEntries));
     assertFalse(permissionEntries.get(0).isDisallowed());
@@ -258,9 +266,12 @@ public class PermissionLimitTest extends GrouperTest {
     //subj0 can read except for the limit
     
     //lets get all of the permission assignments
-    List<PermissionEntry> permissionEntries = new ArrayList<PermissionEntry>(PermissionFinder.findPermissions(this.subj0, 
-        null, this.english, this.readString, PermissionProcessor.PROCESS_LIMITS, GrouperUtil.toStringObjectMap("(int)amount", "49000")));
-    
+    List<PermissionEntry> permissionEntries = new ArrayList<PermissionEntry>(
+        new PermissionFinder().addSubject(this.subj0)
+        .addAction(this.readString).addPermissionName(this.english)
+        .assignPermissionProcessor(PermissionProcessor.PROCESS_LIMITS)
+        .addLimitEnvVar("(int)amount", "49000").findPermissions());
+            
     //there should be two, one should be allow, the other deny
     assertEquals(1, GrouperUtil.length(permissionEntries));
     assertFalse(permissionEntries.get(0).isDisallowed());
@@ -278,9 +289,12 @@ public class PermissionLimitTest extends GrouperTest {
     attributeAssign.getAttributeValueDelegate().assignValue(limitName.getName(), "amount < 30000");
     
     try {
-      permissionEntries = new ArrayList<PermissionEntry>(PermissionFinder.findPermissions(this.subj0, 
-          null, this.english, this.readString, PermissionProcessor.PROCESS_LIMITS, 
-          GrouperUtil.toStringObjectMap("(int)amount", "29000")));
+      permissionEntries = new ArrayList<PermissionEntry>(
+          new PermissionFinder().addSubject(this.subj0)
+          .addAction(this.readString).addPermissionName(this.english)
+          .assignPermissionProcessor(PermissionProcessor.PROCESS_LIMITS)
+          .addLimitEnvVar("(int)amount", "29000").findPermissions());
+          
       fail("Shouldnt make it this far, not associated with logic class");
     } catch (RuntimeException re) {
       //good
@@ -296,9 +310,11 @@ public class PermissionLimitTest extends GrouperTest {
     
     //this is still cached
     try {
-      permissionEntries = new ArrayList<PermissionEntry>(PermissionFinder.findPermissions(this.subj0, 
-          null, this.english, this.readString, PermissionProcessor.PROCESS_LIMITS, 
-          GrouperUtil.toStringObjectMap("(int)amount", "29000")));
+      permissionEntries = new ArrayList<PermissionEntry>(new PermissionFinder().addSubject(this.subj0)
+          .addAction(this.readString).addPermissionName(this.english)
+          .assignPermissionProcessor(PermissionProcessor.PROCESS_LIMITS)
+          .addLimitEnvVar("(int)amount", "29000").findPermissions());
+          
       fail("Shouldnt make it this far, not associated with logic class");
     } catch (RuntimeException re) {
       //good
@@ -307,20 +323,22 @@ public class PermissionLimitTest extends GrouperTest {
     //clear the cache
     PermissionLimitUtils.limitLogicMap.clear();
     
-    permissionEntries = new ArrayList<PermissionEntry>(PermissionFinder.findPermissions(this.subj0, 
-        null, this.english, this.readString, PermissionProcessor.PROCESS_LIMITS, 
-        GrouperUtil.toStringObjectMap("(int)amount", "29000")));
-
-    
+    permissionEntries = new ArrayList<PermissionEntry>(
+        new PermissionFinder().addSubject(this.subj0)
+        .addAction(this.readString).addPermissionName(this.english)
+        .assignPermissionProcessor(PermissionProcessor.PROCESS_LIMITS)
+        .addLimitEnvVar("(int)amount", "29000").findPermissions());
+        
     //there should be two, one should be allow, the other deny
     assertEquals(1, GrouperUtil.length(permissionEntries));
     assertFalse(permissionEntries.get(0).isDisallowed());
     assertTrue(permissionEntries.get(0).isAllowedOverall());
   
-    permissionEntries = new ArrayList<PermissionEntry>(PermissionFinder.findPermissions(this.subj0, 
-        null, this.english, this.readString, PermissionProcessor.PROCESS_LIMITS, 
-        GrouperUtil.toStringObjectMap("(int)amount", "31000")));
-    
+    permissionEntries = new ArrayList<PermissionEntry>(new PermissionFinder().addSubject(this.subj0)
+        .addAction(this.readString).addPermissionName(this.english)
+        .assignPermissionProcessor(PermissionProcessor.PROCESS_LIMITS)
+        .addLimitEnvVar("(int)amount", "31000").findPermissions());
+        
     //there should be two, one should be allow, the other deny
     assertEquals(1, GrouperUtil.length(permissionEntries));
     assertFalse(permissionEntries.get(0).isDisallowed());
@@ -349,9 +367,12 @@ public class PermissionLimitTest extends GrouperTest {
       //subj0 can read except for the limit
       
       //lets get all of the permission assignments
-      List<PermissionEntry> permissionEntries = new ArrayList<PermissionEntry>(PermissionFinder.findPermissions(this.subj0, 
-          null, this.english, this.readString, PermissionProcessor.PROCESS_LIMITS, GrouperUtil.toStringObjectMap("(int)amount", "49000")));
-      
+      List<PermissionEntry> permissionEntries = new ArrayList<PermissionEntry>(
+          new PermissionFinder().addSubject(this.subj0)
+          .addAction(this.readString).addPermissionName(this.english)
+          .assignPermissionProcessor(PermissionProcessor.PROCESS_LIMITS)
+          .addLimitEnvVar("(int)amount", "49000").findPermissions());
+          
       //there should be two, one should be allow, the other deny
       assertEquals(1, GrouperUtil.length(permissionEntries));
       assertFalse(permissionEntries.get(0).isDisallowed());
@@ -361,9 +382,11 @@ public class PermissionLimitTest extends GrouperTest {
       
       attributeAssign.getAttributeValueDelegate().assignValue(PermissionLimitUtils.limitElAttributeDefName().getName(), "amount < 50000");
       
-      permissionEntries = new ArrayList<PermissionEntry>(PermissionFinder.findPermissions(this.subj0, 
-          null, this.english, this.readString, PermissionProcessor.PROCESS_LIMITS, GrouperUtil.toStringObjectMap("(int)amount", "51000")));
-      
+      permissionEntries = new ArrayList<PermissionEntry>(new PermissionFinder().addSubject(this.subj0)
+          .addAction(this.readString).addPermissionName(this.english)
+          .assignPermissionProcessor(PermissionProcessor.PROCESS_LIMITS)
+          .addLimitEnvVar("(int)amount", "51000").findPermissions());
+          
       //there should be two, one should be allow, the other deny
       assertEquals(1, GrouperUtil.length(permissionEntries));
       assertFalse(permissionEntries.get(0).isDisallowed());
@@ -371,8 +394,10 @@ public class PermissionLimitTest extends GrouperTest {
       
       int timesCalled = PermissionLimitElLogic.testingTimesCalledLogic;
       
-      permissionEntries = new ArrayList<PermissionEntry>(PermissionFinder.findPermissions(this.subj0, 
-          null, this.english, this.readString, PermissionProcessor.PROCESS_LIMITS, GrouperUtil.toStringObjectMap("(int)amount", "51000")));
+      permissionEntries = new ArrayList<PermissionEntry>(new PermissionFinder().addSubject(this.subj0)
+          .addAction(this.readString).addPermissionName(this.english)
+          .assignPermissionProcessor(PermissionProcessor.PROCESS_LIMITS)
+          .addLimitEnvVar("(int)amount", "51000").findPermissions());
       
       //there should be two, one should be allow, the other deny
       assertEquals(1, GrouperUtil.length(permissionEntries));
@@ -388,9 +413,11 @@ public class PermissionLimitTest extends GrouperTest {
       //wait 61 seconds
       GrouperUtil.sleep(61000);
       
-      permissionEntries = new ArrayList<PermissionEntry>(PermissionFinder.findPermissions(this.subj0, 
-          null, this.english, this.readString, PermissionProcessor.PROCESS_LIMITS, GrouperUtil.toStringObjectMap("(int)amount", "51000")));
-      
+      permissionEntries = new ArrayList<PermissionEntry>(new PermissionFinder().addSubject(this.subj0)
+          .addAction(this.readString).addPermissionName(this.english)
+          .assignPermissionProcessor(PermissionProcessor.PROCESS_LIMITS)
+          .addLimitEnvVar("(int)amount", "51000").findPermissions());
+          
       //there should be two, one should be allow, the other deny
       assertEquals(1, GrouperUtil.length(permissionEntries));
       assertFalse(permissionEntries.get(0).isDisallowed());
@@ -400,9 +427,11 @@ public class PermissionLimitTest extends GrouperTest {
       
       PermissionLimitElLogic.testingCacheMinutesInt = 0;
       
-      permissionEntries = new ArrayList<PermissionEntry>(PermissionFinder.findPermissions(this.subj0, 
-          null, this.english, this.readString, PermissionProcessor.PROCESS_LIMITS, GrouperUtil.toStringObjectMap("(int)amount", "51000")));
-      
+      permissionEntries = new ArrayList<PermissionEntry>(new PermissionFinder().addSubject(this.subj0)
+          .addAction(this.readString).addPermissionName(this.english)
+          .assignPermissionProcessor(PermissionProcessor.PROCESS_LIMITS)
+          .addLimitEnvVar("(int)amount", "51000").findPermissions());
+          
       //there should be two, one should be allow, the other deny
       assertEquals(1, GrouperUtil.length(permissionEntries));
       assertFalse(permissionEntries.get(0).isDisallowed());
