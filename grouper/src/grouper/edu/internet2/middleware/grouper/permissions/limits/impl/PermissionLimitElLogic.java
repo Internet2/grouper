@@ -72,7 +72,7 @@ public class PermissionLimitElLogic extends PermissionLimitBase {
       }
       
       limitEnvVars.put("limitElUtils", new LimitElUtils());
-  
+      
       limitEnvVars.put("limitAssignmentId", limitAssignment.getId());
       limitEnvVars.put("permissionAction", permissionEntry.getAction());
       limitEnvVars.put("permissionMemberId", permissionEntry.getMemberId());
@@ -86,7 +86,8 @@ public class PermissionLimitElLogic extends PermissionLimitBase {
       
       limitEnvVars.putAll(GrouperUtil.nonNull(customElClasses));
       
-      result = GrouperUtil.substituteExpressionLanguage(expression, limitEnvVars);
+      //dont be lenient on undefined variables
+      result = GrouperUtil.substituteExpressionLanguage(expression, limitEnvVars, false, false, false);
       
       return GrouperUtil.booleanObjectValue(result);
     } catch (RuntimeException re) {

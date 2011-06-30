@@ -74,6 +74,7 @@ import org.apache.commons.collections.keyvalue.MultiKey;
 import org.apache.commons.jexl2.Expression;
 import org.apache.commons.jexl2.JexlContext;
 import org.apache.commons.jexl2.JexlEngine;
+import org.apache.commons.jexl2.JexlException;
 import org.apache.commons.jexl2.MapContext;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
@@ -95,6 +96,7 @@ import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.exception.ExpressionLanguageMissingVariableException;
 import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hooks.logic.HookVeto;
 import edu.internet2.middleware.grouper.misc.GrouperCloneable;
@@ -8767,6 +8769,22 @@ public class GrouperUtil {
   @SuppressWarnings("unchecked")
   public static String substituteExpressionLanguage(String stringToParse, 
       Map<String, Object> variableMap, boolean allowStaticClasses, boolean silent) {
+    return substituteExpressionLanguage(stringToParse, variableMap, allowStaticClasses, silent, false);
+  }
+
+  /**
+   * substitute an EL for objects
+   * @param stringToParse
+   * @param variableMap
+   * @param allowStaticClasses if true allow static classes not registered with context
+   * @param silent if silent mode, swallow exceptions (warn), and dont warn when variable not found
+   * @param lenient false if undefined variables should throw an exception.  if lenient is true (default)
+   * then undefined variables are null
+   * @return the string
+   */
+  @SuppressWarnings("unchecked")
+  public static String substituteExpressionLanguage(String stringToParse, 
+      Map<String, Object> variableMap, boolean allowStaticClasses, boolean silent, boolean lenient) {
     if (GrouperUtil.isBlank(stringToParse)) {
       return stringToParse;
     }
@@ -8823,11 +8841,33 @@ public class GrouperUtil {
         
         JexlEngine jexlEngine = new JexlEngine();
         jexlEngine.setSilent(silent);
+        jexlEngine.setLenient(lenient);
+
         Expression e = jexlEngine.createExpression(script);
 
         //this is the result of the evaluation
-        Object o = e.evaluate(jc);
-  
+        Object o = null;
+        
+        try {
+          o = e.evaluate(jc);
+        } catch (JexlException je) {
+          //exception-scrape to see if missing variable
+          if (!lenient && StringUtils.trimToEmpty(je.getMessage()).contains("undefined variable")) {
+            //clean up the message a little bit
+            // e.g. edu.internet2.middleware.grouper.util.GrouperUtil.substituteExpressionLanguage@8846![0,6]: 'amount < 50000 && amount2 < 23;' undefined variable amount
+            String message = je.getMessage();
+            //Pattern exceptionPattern = Pattern.compile("^" + GrouperUtil.class.getName() + "\\.substituteExpressionLanguage.*?]: '(.*)");
+            Pattern exceptionPattern = Pattern.compile("^.*undefined variable (.*)");
+            Matcher exceptionMatcher = exceptionPattern.matcher(message);
+            if (exceptionMatcher.matches()) {
+              //message = "'" + exceptionMatcher.group(1);
+              message = "variable '" + exceptionMatcher.group(1) + "' is not defined in script: '" + script + "'";
+            }
+            throw new ExpressionLanguageMissingVariableException(message, je);
+          }
+          throw je;
+        }
+          
         if (o == null) {
           LOG.warn("expression returned null: " + script + ", in pattern: '" + stringToParse + "', available variables are: "
               + GrouperUtil.toStringForLog(variableMap.keySet()));
@@ -8847,6 +8887,9 @@ public class GrouperUtil {
     } catch (HookVeto hv) {
       throw hv;
     } catch (Exception e) {
+      if (e instanceof ExpressionLanguageMissingVariableException) {
+        throw (ExpressionLanguageMissingVariableException)e;
+      }
       throw new RuntimeException("Error substituting string: '" + stringToParse + "'", e);
     }
   }
@@ -10742,6 +10785,12 @@ public class GrouperUtil {
             value = GrouperUtil.doubleValue(value);
           } else if (StringUtils.equalsIgnoreCase(type, "date") || StringUtils.equalsIgnoreCase(type, "timestamp")) {
             value = GrouperUtil.toTimestamp(value);
+          } else if (StringUtils.equalsIgnoreCase(type, "boolean")) {
+            value = GrouperUtil.booleanValue(value);
+          } else if (StringUtils.equalsIgnoreCase(type, "null")) {
+            value = null;
+          } else if (StringUtils.equalsIgnoreCase(type, "empty") || StringUtils.equalsIgnoreCase(type, "emptyString")) {
+            value = "";
           } else {
             throw new RuntimeException("Not expecting type: " + type + ", " + valueOriginal);
           }

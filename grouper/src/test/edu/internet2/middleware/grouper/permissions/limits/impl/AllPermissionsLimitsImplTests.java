@@ -1,6 +1,5 @@
-package edu.internet2.middleware.grouper.permissions.limits;
+package edu.internet2.middleware.grouper.permissions.limits.impl;
 
-import edu.internet2.middleware.grouper.permissions.limits.impl.AllPermissionsLimitsImplTests;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
@@ -9,7 +8,7 @@ import junit.framework.TestSuite;
  * @author mchyzer
  *
  */
-public class AllPermissionsLimitsTests {
+public class AllPermissionsLimitsImplTests {
 
   /**
    * 
@@ -18,9 +17,8 @@ public class AllPermissionsLimitsTests {
   public static Test suite() {
     TestSuite suite = new TestSuite("Test for edu.internet2.middleware.grouper.attr");
     //$JUnit-BEGIN$
-    suite.addTestSuite(PermissionLimitTest.class);
+    suite.addTestSuite(PermissionLimitElLogicTest.class);
     //$JUnit-END$
-    suite.addTest(AllPermissionsLimitsImplTests.suite());
     return suite;
   }
 

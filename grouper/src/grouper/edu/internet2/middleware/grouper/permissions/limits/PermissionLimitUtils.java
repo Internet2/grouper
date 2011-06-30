@@ -113,6 +113,9 @@ public class PermissionLimitUtils {
     //january is 0
     int monthOfYear = calendar.get(Calendar.MONTH);
     
+    if (!limitEnvVarsObject.containsKey("calendar")) {
+      limitEnvVarsObject.put("calendar", calendar);
+    }
     if (!limitEnvVarsObject.containsKey("dayOfWeek")) {
       limitEnvVarsObject.put("dayOfWeek", dayOfWeek);
     }
