@@ -1688,10 +1688,10 @@ public class GrouperCheckConfig {
         }
 
         //see if attributeDef is there
-        String limitDefName = limitsRootStemName + ":limitsDef";
+        String limitDefName = limitsRootStemName + ":" + PermissionLimitUtils.LIMIT_DEF;
         AttributeDef limitDef = AttributeDefFinder.findByName(limitDefName, false);
         if (limitDef == null) {
-          limitDef = limitsStem.addChildAttributeDef("limitsDef", AttributeDefType.limit);
+          limitDef = limitsStem.addChildAttributeDef(PermissionLimitUtils.LIMIT_DEF, AttributeDefType.limit);
           limitDef.setAssignToGroupAssn(true);
           limitDef.setAssignToEffMembershipAssn(true);
           limitDef.setValueType(AttributeDefValueType.string);
@@ -1701,8 +1701,54 @@ public class GrouperCheckConfig {
         //add an el
         checkAttribute(limitsStem, limitDef, PermissionLimitUtils.LIMIT_EL, 
             "An expression language limit has a value of an EL which evaluates to true or false", wasInCheckConfig);
+        checkAttribute(limitsStem, limitDef, PermissionLimitUtils.LIMIT_IP_ON_NETWORKS, 
+            "If the user is on an IP address on the following networks", wasInCheckConfig);
+        checkAttribute(limitsStem, limitDef, PermissionLimitUtils.LIMIT_IP_ON_NETWORK_REALM, 
+            "If the user is on an IP address on a centrally configured list of addresses", wasInCheckConfig);
+      }
+      
+      {
+        String limitsRootStemName = PermissionLimitUtils.attributeLimitStemName();
+        Stem limitsStem = StemFinder.findByName(grouperSession, limitsRootStemName, true);
+
+        //see if attributeDef is there
+        String limitDefIntName = limitsRootStemName + ":" + PermissionLimitUtils.LIMIT_DEF_INT;
+        AttributeDef limitDefInt = AttributeDefFinder.findByName(limitDefIntName, false);
+        if (limitDefInt == null) {
+          limitDefInt = limitsStem.addChildAttributeDef(PermissionLimitUtils.LIMIT_DEF_INT, AttributeDefType.limit);
+          limitDefInt.setAssignToGroupAssn(true);
+          limitDefInt.setAssignToEffMembershipAssn(true);
+          limitDefInt.setValueType(AttributeDefValueType.integer);
+          limitDefInt.store();
+        }
+
+        checkAttribute(limitsStem, limitDefInt, PermissionLimitUtils.LIMIT_AMOUNT_LESS_THAN, 
+            "Make sure the amount is less than the configured value", wasInCheckConfig);
+        checkAttribute(limitsStem, limitDefInt, PermissionLimitUtils.LIMIT_AMOUNT_LESS_THAN_OR_EQUAL, 
+            "Make sure the amount is less or equal to the configured value", wasInCheckConfig);
+        
       }
 
+      {
+        String limitsRootStemName = PermissionLimitUtils.attributeLimitStemName();
+        Stem limitsStem = StemFinder.findByName(grouperSession, limitsRootStemName, true);
+
+        //see if attributeDef is there
+        String limitDefMarkerName = limitsRootStemName + ":" + PermissionLimitUtils.LIMIT_DEF_MARKER;
+        AttributeDef limitDefMarker = AttributeDefFinder.findByName(limitDefMarkerName, false);
+        if (limitDefMarker == null) {
+          limitDefMarker = limitsStem.addChildAttributeDef(PermissionLimitUtils.LIMIT_DEF_MARKER, AttributeDefType.limit);
+          limitDefMarker.setAssignToGroupAssn(true);
+          limitDefMarker.setAssignToEffMembershipAssn(true);
+          limitDefMarker.setValueType(AttributeDefValueType.marker);
+          limitDefMarker.store();
+        }
+        
+        //add an weekday 9 to 5
+        checkAttribute(limitsStem, limitDefMarker, PermissionLimitUtils.LIMIT_WEEKDAY_9_TO_5, 
+            "Make sure the check for the permission happens between 9am to 5pm on Monday through Friday", wasInCheckConfig);
+
+      }
 
 
       AttributeDefName attributeLoaderTypeName = null;

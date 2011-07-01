@@ -23,40 +23,83 @@ import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
+import edu.internet2.middleware.grouper.permissions.limits.impl.PermissionLimitAmountLessThan;
+import edu.internet2.middleware.grouper.permissions.limits.impl.PermissionLimitAmountLessThanEquals;
 import edu.internet2.middleware.grouper.permissions.limits.impl.PermissionLimitElLogic;
+import edu.internet2.middleware.grouper.permissions.limits.impl.PermissionLimitWeekday9to5Logic;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.util.ExpirableCache;
 
 
 /**
- *
+ * utils for permission limits
  */
 public class PermissionLimitUtils {
 
   /**
-   * return the limit attribute def name, assign this to an object to attach a rule.
-   * this throws exception if cant find
-   * @return the attribute def name
+   * name of variable in the env map
    */
-  public static AttributeDefName limitAttributeDefName() {
-    return AttributeDefNameFinder.findByName(attributeLimitStemName() + ":rule", true);
-  }
-  
-  /**
-   * regex limit
-   * @return the attribute def name
-   */
-  public static AttributeDefName limitElAttributeDefName() {
-    return AttributeDefNameFinder.findByName(limitElName(), true);
-  }
+  public static final String MONTH_OF_YEAR = "monthOfYear";
 
+  /**
+   * name of variable in the env map
+   */
+  private static final String MINUTE_OF_DAY = "minuteOfDay";
+
+  /**
+   * name of variable in the env map
+   */
+  public static final String MINUTE_OF_HOUR = "minuteOfHour";
+
+  /**
+   * name of variable in the env map
+   */
+  public static final String HOUR_OF_DAY = "hourOfDay";
+
+  /**
+   * name of variable in the env map
+   */
+  public static final String DAY_OF_WEEK = "dayOfWeek";
+
+  /**
+   * name of variable in the env map
+   */
+  public static final String CALENDAR = "calendar";
+
+  /** limits def extension */
+  public static final String LIMIT_DEF = "limitsDef";
+  
   /**
    * return the limit type attribute def
    * this throws exception if cant find
    * @return the attribute def
    */
   public static AttributeDef limitAttributeDef() {
-    return AttributeDefFinder.findByName(attributeLimitStemName() + ":limitsDef", true);
+    return AttributeDefFinder.findByName(attributeLimitStemName() + ":" + LIMIT_DEF, true);
+  }
+
+  /** limits def extension */
+  public static final String LIMIT_DEF_INT = "limitsDefInt";
+  
+  /**
+   * return the limit type attribute def
+   * this throws exception if cant find
+   * @return the attribute def
+   */
+  public static AttributeDef limitAttributeDefInt() {
+    return AttributeDefFinder.findByName(attributeLimitStemName() + ":" + LIMIT_DEF_INT, true);
+  }
+
+  /** limits def extension */
+  public static final String LIMIT_DEF_MARKER = "limitsDefMarker";
+  
+  /**
+   * return the limit type attribute def
+   * this throws exception if cant find
+   * @return the attribute def
+   */
+  public static AttributeDef limitAttributeDefMarker() {
+    return AttributeDefFinder.findByName(attributeLimitStemName() + ":" + LIMIT_DEF_MARKER, true);
   }
 
   /**
@@ -91,7 +134,160 @@ public class PermissionLimitUtils {
     }
     return limitElName;
   }
-  
+
+  /**
+   * regex limit
+   * @return the attribute def name
+   */
+  public static AttributeDefName limitElAttributeDefName() {
+    return AttributeDefNameFinder.findByName(limitElName(), true);
+  }
+
+  /**
+   * 
+   */
+  public static final String LIMIT_WEEKDAY_9_TO_5 = "limitWeekday9to5";
+
+  /**
+   * limit el name
+   */
+  private static String limitWeekday9to5Name = null;
+
+  /**
+   * limit el name
+   * @return name
+   */
+  public static String limitWeekday9to5Name() {
+    if (limitWeekday9to5Name == null) {
+      limitWeekday9to5Name = PermissionLimitUtils.attributeLimitStemName() + ":" + LIMIT_WEEKDAY_9_TO_5;
+    }
+    return limitWeekday9to5Name;
+  }
+
+  /**
+   * weekday 9 to 5
+   * @return the attribute def name
+   */
+  public static AttributeDefName limitWeekday9to5AttributeDefName() {
+    return AttributeDefNameFinder.findByName(limitWeekday9to5Name(), true);
+  }
+
+  /**
+   * 
+   */
+  public static final String LIMIT_AMOUNT_LESS_THAN = "limitAmountLessThan";
+
+  /**
+   * limit amount less than
+   */
+  private static String limitAmountLessThanName = null;
+
+  /**
+   * limit amount less than
+   * @return name
+   */
+  public static String limitAmountLessThanName() {
+    if (limitAmountLessThanName == null) {
+      limitAmountLessThanName = PermissionLimitUtils.attributeLimitStemName() + ":" + LIMIT_AMOUNT_LESS_THAN;
+    }
+    return limitAmountLessThanName;
+  }
+
+  /**
+   * amount less than
+   * @return the attribute def name
+   */
+  public static AttributeDefName limitAmountLessThanAttributeDefName() {
+    return AttributeDefNameFinder.findByName(limitAmountLessThanName(), true);
+  }
+
+  /**
+   * 
+   */
+  public static final String LIMIT_AMOUNT_LESS_THAN_OR_EQUAL = "limitAmountLessThanOrEqual";
+
+  /**
+   * limit amount less than
+   */
+  private static String limitAmountLessThanOrEqualName = null;
+
+  /**
+   * limit amount less than or equal
+   * @return name
+   */
+  public static String limitAmountLessThanOrEqualName() {
+    if (limitAmountLessThanOrEqualName == null) {
+      limitAmountLessThanOrEqualName = PermissionLimitUtils.attributeLimitStemName() + ":" + LIMIT_AMOUNT_LESS_THAN_OR_EQUAL;
+    }
+    return limitAmountLessThanOrEqualName;
+  }
+
+  /**
+   * amount less than or equal
+   * @return the attribute def name
+   */
+  public static AttributeDefName limitAmountLessThanOrEqualAttributeDefName() {
+    return AttributeDefNameFinder.findByName(limitAmountLessThanOrEqualName(), true);
+  }
+
+  /**
+   * 
+   */
+  public static final String LIMIT_IP_ON_NETWORKS = "limitIpOnNetworks";
+
+  /**
+   * limit ip on networks
+   */
+  private static String limitIpOnNetworksName = null;
+
+  /**
+   * limit ip on networks
+   * @return name
+   */
+  public static String limitIpOnNetworksName() {
+    if (limitIpOnNetworksName == null) {
+      limitIpOnNetworksName = PermissionLimitUtils.attributeLimitStemName() + ":" + LIMIT_IP_ON_NETWORKS;
+    }
+    return limitIpOnNetworksName;
+  }
+
+  /**
+   * amount less than or equal
+   * @return the attribute def name
+   */
+  public static AttributeDefName limitIpOnNetworksAttributeDefName() {
+    return AttributeDefNameFinder.findByName(limitIpOnNetworksName(), true);
+  }
+
+  /**
+   * 
+   */
+  public static final String LIMIT_IP_ON_NETWORK_REALM = "limitIpOnNetworkRealm";
+
+  /**
+   * limit ip on network realm
+   */
+  private static String limitIpOnNetworkRealmName = null;
+
+  /**
+   * limit ip on network realm
+   * @return name
+   */
+  public static String limitIpOnNetworkRealmName() {
+    if (limitIpOnNetworkRealmName == null) {
+      limitIpOnNetworkRealmName = PermissionLimitUtils.attributeLimitStemName() + ":" + LIMIT_IP_ON_NETWORK_REALM;
+    }
+    return limitIpOnNetworkRealmName;
+  }
+
+  /**
+   * amount less than or equal
+   * @return the attribute def name
+   */
+  public static AttributeDefName limitIpOnNetworkRealmAttributeDefName() {
+    return AttributeDefNameFinder.findByName(limitIpOnNetworkRealmName(), true);
+  }
+
   /** logger */
   private static final Log LOG = GrouperUtil.getLog(PermissionLimitUtils.class);
   
@@ -113,23 +309,23 @@ public class PermissionLimitUtils {
     //january is 0
     int monthOfYear = calendar.get(Calendar.MONTH);
     
-    if (!limitEnvVarsObject.containsKey("calendar")) {
-      limitEnvVarsObject.put("calendar", calendar);
+    if (!limitEnvVarsObject.containsKey(CALENDAR)) {
+      limitEnvVarsObject.put(CALENDAR, calendar);
     }
-    if (!limitEnvVarsObject.containsKey("dayOfWeek")) {
-      limitEnvVarsObject.put("dayOfWeek", dayOfWeek);
+    if (!limitEnvVarsObject.containsKey(DAY_OF_WEEK)) {
+      limitEnvVarsObject.put(DAY_OF_WEEK, dayOfWeek);
     }
-    if (!limitEnvVarsObject.containsKey("hourOfDay")) {
-      limitEnvVarsObject.put("hourOfDay", hourOfDay);
+    if (!limitEnvVarsObject.containsKey(HOUR_OF_DAY)) {
+      limitEnvVarsObject.put(HOUR_OF_DAY, hourOfDay);
     }
-    if (!limitEnvVarsObject.containsKey("minuteOfHour")) {
-      limitEnvVarsObject.put("minuteOfHour", minuteOfHour);
+    if (!limitEnvVarsObject.containsKey(MINUTE_OF_HOUR)) {
+      limitEnvVarsObject.put(MINUTE_OF_HOUR, minuteOfHour);
     }
-    if (!limitEnvVarsObject.containsKey("minuteOfDay")) {
-      limitEnvVarsObject.put("minuteOfDay", minuteOfDay);
+    if (!limitEnvVarsObject.containsKey(MINUTE_OF_DAY)) {
+      limitEnvVarsObject.put(MINUTE_OF_DAY, minuteOfDay);
     }
-    if (!limitEnvVarsObject.containsKey("monthOfYear")) {
-      limitEnvVarsObject.put("monthOfYear", monthOfYear);
+    if (!limitEnvVarsObject.containsKey(MONTH_OF_YEAR)) {
+      limitEnvVarsObject.put(MONTH_OF_YEAR, monthOfYear);
     }
     
   }
@@ -163,6 +359,9 @@ public class PermissionLimitUtils {
           limitMap = new HashMap<String, Class<PermissionLimitInterface>>();
           //lets add standard entries, do this first so they can be overridden
           limitMap.put(PermissionLimitUtils.limitElName(), (Class<PermissionLimitInterface>)(Object)PermissionLimitElLogic.class);
+          limitMap.put(PermissionLimitUtils.limitWeekday9to5Name(), (Class<PermissionLimitInterface>)(Object)PermissionLimitWeekday9to5Logic.class);
+          limitMap.put(PermissionLimitUtils.limitAmountLessThanName(), (Class<PermissionLimitInterface>)(Object)PermissionLimitAmountLessThan.class);
+          limitMap.put(PermissionLimitUtils.limitAmountLessThanOrEqualName(), (Class<PermissionLimitInterface>)(Object)PermissionLimitAmountLessThanEquals.class);
           
           Matcher matcher = null;
           
@@ -207,7 +406,6 @@ public class PermissionLimitUtils {
 
   /**
    * custom el instances to add to the variable map for limit EL
-   * @param limitName 
    * @return the map
    */
   public static Map<String, Object> limitElClasses() {

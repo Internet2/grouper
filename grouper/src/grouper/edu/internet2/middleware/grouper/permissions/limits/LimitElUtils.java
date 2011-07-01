@@ -1,5 +1,8 @@
 package edu.internet2.middleware.grouper.permissions.limits;
 
+import org.apache.commons.lang.StringUtils;
+
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
@@ -39,6 +42,27 @@ public class LimitElUtils {
     return GrouperUtil.ipOnNetworks(ipString, networkIpStrings);
   }
 
-  
-  
+  /**
+   * if the ip address is on the realm name in the grouper.properties
+   * in grouper.permissions.limits.realm.realmName
+   * @param ipAddress 
+   * @param realmName 
+   * @return if the ip address is on the realm name in the grouper.properties
+   */
+  public static boolean ipOnNetworkRealm(String ipAddress, String realmName) {
+
+    if (StringUtils.isBlank(realmName) || !realmName.matches("^[a-zA-Z0-9_]+$")) {
+      throw new RuntimeException("You must use a realm name which is alphanumeric or underscore... '" + realmName + "'");
+    }
+
+    String grouperConfigPropertyName = "grouper.permissions.limits.realm." + realmName;
+    String networkIpStrings = GrouperConfig.getProperty(grouperConfigPropertyName);
+
+    if (StringUtils.isBlank(networkIpStrings)) {
+      throw new RuntimeException("You should have a grouper.properties entry for " + grouperConfigPropertyName);
+    }
+
+    return ipOnNetworks(ipAddress, networkIpStrings);
+  }
+
 }

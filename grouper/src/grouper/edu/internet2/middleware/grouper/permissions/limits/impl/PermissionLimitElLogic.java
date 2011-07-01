@@ -142,10 +142,14 @@ public class PermissionLimitElLogic extends PermissionLimitBase {
   }
 
   /**
-   * @see PermissionLimitInterface#validateLimitAssignValue(AttributeAssign)
+   * @see PermissionLimitInterface#validateLimitAssignValue(AttributeAssign, Set)
    */
-  public String validateLimitAssignValue(AttributeAssign limitAssign) {
-    String value = limitAssign.getValueDelegate().retrieveValueString();
+  public String validateLimitAssignValue(AttributeAssign limitAssign, Set<AttributeAssignValue> limitAssignmentValues) {
+    String value = null;
+    
+    if (GrouperUtil.length(limitAssignmentValues) == 1) {
+      value = limitAssignmentValues.iterator().next().getValueString();
+    }
     
     if (StringUtils.isBlank(value)) {
       return "grouperPermissionExpressionLanguage.required";
