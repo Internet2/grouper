@@ -49,7 +49,7 @@ public class PermissionLimitElLogicTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new PermissionLimitElLogicTest("testIpAddressFromConfig"));
+    TestRunner.run(new PermissionLimitElLogicTest("testLabelsContain"));
   }
 
   /** admin role */
@@ -394,8 +394,6 @@ public class PermissionLimitElLogicTest extends GrouperTest {
       //good
     }
     
-    
-    
   }
 
   /**
@@ -437,6 +435,53 @@ public class PermissionLimitElLogicTest extends GrouperTest {
         .addAction(this.readString).addPermissionName(this.english)
         .assignPermissionProcessor(PermissionProcessor.FILTER_REDUNDANT_PERMISSIONS_AND_ROLES_AND_PROCESS_LIMITS)
         .addLimitEnvVar("ipAddress", "6.8.1.2").hasPermission());
+    
+    try {
+      new PermissionFinder().addSubject(this.subj0)
+        .addAction(this.readString).addPermissionName(this.english)
+        .assignPermissionProcessor(PermissionProcessor.FILTER_REDUNDANT_PERMISSIONS_AND_ROLES_AND_PROCESS_LIMITS)
+        .hasPermission();
+      fail("shouldnt get here");
+    } catch (Exception e) {
+      //good
+    }
+    
+    
+    
+  }
+
+  /**
+   * 
+   */
+  public void testLabelsContain() {
+    
+    //
+    //User subj0 is assigned Role<Admin>
+    this.adminRole.addMember(this.subj0, true);
+  
+    //
+    //User subj0 is assigned permission Deny, Action<Read>, Resource<Arts and sciences>, in the context of Role<Admin>
+    this.adminRole.getPermissionRoleDelegate().assignSubjectRolePermission(
+        this.readString, this.artsAndSciences, this.subj0, PermissionAllowed.ALLOWED);
+    
+    AttributeAssign attributeAssign = new PermissionFinder().addSubject(this.subj0).addAction(this.readString)
+      .addPermissionName(this.artsAndSciences).addRole(this.adminRole).assignImmediateOnly(true).findPermission(true).getAttributeAssign();
+    
+    attributeAssign.getAttributeValueDelegate().assignValue(PermissionLimitUtils.limitElAttributeDefName().getName(), 
+        "limitElUtils.labelsContain(authnAttributes, 'twoFactor, certificate')");
+    
+    assertTrue(new PermissionFinder().addSubject(this.subj0)
+        .addAction(this.readString).addPermissionName(this.english)
+        .assignPermissionProcessor(PermissionProcessor.FILTER_REDUNDANT_PERMISSIONS_AND_ROLES_AND_PROCESS_LIMITS)
+        .addLimitEnvVar("authnAttributes", "twoFactor, threeFactor, biometric").hasPermission());
+    assertFalse(new PermissionFinder().addSubject(this.subj0)
+        .addAction(this.readString).addPermissionName(this.english)
+        .assignPermissionProcessor(PermissionProcessor.FILTER_REDUNDANT_PERMISSIONS_AND_ROLES_AND_PROCESS_LIMITS)
+        .addLimitEnvVar("authnAttributes", "oneFactor, whatever").hasPermission());
+    assertFalse(new PermissionFinder().addSubject(this.subj0)
+        .addAction(this.readString).addPermissionName(this.english)
+        .assignPermissionProcessor(PermissionProcessor.FILTER_REDUNDANT_PERMISSIONS_AND_ROLES_AND_PROCESS_LIMITS)
+        .addLimitEnvVar("authnAttributes", "").hasPermission());
     
     try {
       new PermissionFinder().addSubject(this.subj0)

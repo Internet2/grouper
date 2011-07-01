@@ -61,6 +61,7 @@ import edu.internet2.middleware.grouper.hooks.MembershipHooks;
 import edu.internet2.middleware.grouper.hooks.StemHooks;
 import edu.internet2.middleware.grouper.permissions.limits.PermissionLimitUtils;
 import edu.internet2.middleware.grouper.privs.AccessAdapter;
+import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingAdapter;
 import edu.internet2.middleware.grouper.rules.RuleUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -1677,6 +1678,8 @@ public class GrouperCheckConfig {
         
       }      
 
+      boolean permissionsLimitsPublic = GrouperConfig.getPropertyBoolean("grouper.permissions.limits.builtin.createAs.public", true);
+      
       {
         String limitsRootStemName = PermissionLimitUtils.attributeLimitStemName();
         
@@ -1692,10 +1695,19 @@ public class GrouperCheckConfig {
         AttributeDef limitDef = AttributeDefFinder.findByName(limitDefName, false);
         if (limitDef == null) {
           limitDef = limitsStem.addChildAttributeDef(PermissionLimitUtils.LIMIT_DEF, AttributeDefType.limit);
+          limitDef.setAssignToGroup(true);
+          limitDef.setAssignToAttributeDef(true);
           limitDef.setAssignToGroupAssn(true);
           limitDef.setAssignToEffMembershipAssn(true);
           limitDef.setValueType(AttributeDefValueType.string);
+          limitDef.setMultiAssignable(true);
           limitDef.store();
+          
+          if (permissionsLimitsPublic) {
+            limitDef.getPrivilegeDelegate().grantPriv(SubjectFinder.findAllSubject(), AttributeDefPrivilege.ATTR_READ, false);
+            limitDef.getPrivilegeDelegate().grantPriv(SubjectFinder.findAllSubject(), AttributeDefPrivilege.ATTR_UPDATE, false);
+          }
+          
         }
         
         //add an el
@@ -1705,6 +1717,9 @@ public class GrouperCheckConfig {
             "If the user is on an IP address on the following networks", wasInCheckConfig);
         checkAttribute(limitsStem, limitDef, PermissionLimitUtils.LIMIT_IP_ON_NETWORK_REALM, 
             "If the user is on an IP address on a centrally configured list of addresses", wasInCheckConfig);
+        checkAttribute(limitsStem, limitDef, PermissionLimitUtils.LIMIT_LABELS_CONTAIN, 
+            "Configure a set of comma separated labels.  The env variable 'labels' should be passed with comma separated " +
+            "labels.  If one is there, its ok, if not, then disallowed", wasInCheckConfig);
       }
       
       {
@@ -1716,10 +1731,18 @@ public class GrouperCheckConfig {
         AttributeDef limitDefInt = AttributeDefFinder.findByName(limitDefIntName, false);
         if (limitDefInt == null) {
           limitDefInt = limitsStem.addChildAttributeDef(PermissionLimitUtils.LIMIT_DEF_INT, AttributeDefType.limit);
+          limitDefInt.setAssignToGroup(true);
+          limitDefInt.setAssignToAttributeDef(true);
           limitDefInt.setAssignToGroupAssn(true);
           limitDefInt.setAssignToEffMembershipAssn(true);
+          limitDefInt.setMultiAssignable(true);
           limitDefInt.setValueType(AttributeDefValueType.integer);
           limitDefInt.store();
+
+          if (permissionsLimitsPublic) {
+            limitDefInt.getPrivilegeDelegate().grantPriv(SubjectFinder.findAllSubject(), AttributeDefPrivilege.ATTR_READ, false);
+            limitDefInt.getPrivilegeDelegate().grantPriv(SubjectFinder.findAllSubject(), AttributeDefPrivilege.ATTR_UPDATE, false);
+          }
         }
 
         checkAttribute(limitsStem, limitDefInt, PermissionLimitUtils.LIMIT_AMOUNT_LESS_THAN, 
@@ -1738,10 +1761,18 @@ public class GrouperCheckConfig {
         AttributeDef limitDefMarker = AttributeDefFinder.findByName(limitDefMarkerName, false);
         if (limitDefMarker == null) {
           limitDefMarker = limitsStem.addChildAttributeDef(PermissionLimitUtils.LIMIT_DEF_MARKER, AttributeDefType.limit);
+          limitDefMarker.setAssignToGroup(true);
+          limitDefMarker.setAssignToAttributeDef(true);
           limitDefMarker.setAssignToGroupAssn(true);
           limitDefMarker.setAssignToEffMembershipAssn(true);
+          limitDefMarker.setMultiAssignable(true);
           limitDefMarker.setValueType(AttributeDefValueType.marker);
           limitDefMarker.store();
+
+          if (permissionsLimitsPublic) {
+            limitDefMarker.getPrivilegeDelegate().grantPriv(SubjectFinder.findAllSubject(), AttributeDefPrivilege.ATTR_READ, false);
+            limitDefMarker.getPrivilegeDelegate().grantPriv(SubjectFinder.findAllSubject(), AttributeDefPrivilege.ATTR_UPDATE, false);
+          }
         }
         
         //add an weekday 9 to 5

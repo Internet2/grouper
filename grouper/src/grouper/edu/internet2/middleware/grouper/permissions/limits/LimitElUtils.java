@@ -1,5 +1,7 @@
 package edu.internet2.middleware.grouper.permissions.limits;
 
+import java.util.Set;
+
 import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
@@ -14,6 +16,34 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  */
 public class LimitElUtils {
 
+  /**
+   * see if the labels in the config contain any of the labels for the user
+   * @param labelsForUser comma separated, and trimmed
+   * @param labelsInConfig comma separated, and trimmed
+   * @return true if contains
+   */
+  public static boolean labelsContain(String labelsForUser, String labelsInConfig) {
+    //its ok if the labels for the user are blank
+    if (StringUtils.isBlank(labelsForUser)) {
+      return false;
+    }
+    if (StringUtils.isBlank(labelsInConfig)) {
+      throw new RuntimeException("Why are labels in config blank?");
+    }
+    
+    //get the labelsInConfig in a set
+    Set<String> labelsInConfigSet = GrouperUtil.splitTrimToSet(labelsInConfig, ",");
+    
+    String[] labelsForUserArray = GrouperUtil.splitTrim(labelsForUser, ",");
+    
+    for (String labelforUser : labelsForUserArray) {
+      if (labelsInConfigSet.contains(labelforUser)) {
+        return true;
+      }
+    }
+    return false;
+  }
+  
   /**
    * see if an ip address is on a network
    * 

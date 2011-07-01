@@ -26,6 +26,9 @@ import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
 import edu.internet2.middleware.grouper.permissions.limits.impl.PermissionLimitAmountLessThan;
 import edu.internet2.middleware.grouper.permissions.limits.impl.PermissionLimitAmountLessThanEquals;
 import edu.internet2.middleware.grouper.permissions.limits.impl.PermissionLimitElLogic;
+import edu.internet2.middleware.grouper.permissions.limits.impl.PermissionLimitIpOnNetworkRealm;
+import edu.internet2.middleware.grouper.permissions.limits.impl.PermissionLimitIpOnNetworks;
+import edu.internet2.middleware.grouper.permissions.limits.impl.PermissionLimitLabelsContain;
 import edu.internet2.middleware.grouper.permissions.limits.impl.PermissionLimitWeekday9to5Logic;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.util.ExpirableCache;
@@ -288,6 +291,35 @@ public class PermissionLimitUtils {
     return AttributeDefNameFinder.findByName(limitIpOnNetworkRealmName(), true);
   }
 
+  /**
+   * 
+   */
+  public static final String LIMIT_LABELS_CONTAIN = "limitLabelsContain";
+
+  /**
+   * limit labels contain a label
+   */
+  private static String limitLabelsContainName = null;
+
+  /**
+   * limit labels contain a label
+   * @return name
+   */
+  public static String limitLabelsContainName() {
+    if (limitLabelsContainName == null) {
+      limitLabelsContainName = PermissionLimitUtils.attributeLimitStemName() + ":" + LIMIT_LABELS_CONTAIN;
+    }
+    return limitLabelsContainName;
+  }
+
+  /**
+   * amount labels contain
+   * @return the attribute def name
+   */
+  public static AttributeDefName limitLabelsContainAttributeDefName() {
+    return AttributeDefNameFinder.findByName(limitLabelsContainName(), true);
+  }
+
   /** logger */
   private static final Log LOG = GrouperUtil.getLog(PermissionLimitUtils.class);
   
@@ -362,6 +394,9 @@ public class PermissionLimitUtils {
           limitMap.put(PermissionLimitUtils.limitWeekday9to5Name(), (Class<PermissionLimitInterface>)(Object)PermissionLimitWeekday9to5Logic.class);
           limitMap.put(PermissionLimitUtils.limitAmountLessThanName(), (Class<PermissionLimitInterface>)(Object)PermissionLimitAmountLessThan.class);
           limitMap.put(PermissionLimitUtils.limitAmountLessThanOrEqualName(), (Class<PermissionLimitInterface>)(Object)PermissionLimitAmountLessThanEquals.class);
+          limitMap.put(PermissionLimitUtils.limitIpOnNetworksName(), (Class<PermissionLimitInterface>)(Object)PermissionLimitIpOnNetworks.class);
+          limitMap.put(PermissionLimitUtils.limitIpOnNetworkRealmName(), (Class<PermissionLimitInterface>)(Object)PermissionLimitIpOnNetworkRealm.class);
+          limitMap.put(PermissionLimitUtils.limitLabelsContainName(), (Class<PermissionLimitInterface>)(Object)PermissionLimitLabelsContain.class);
           
           Matcher matcher = null;
           
