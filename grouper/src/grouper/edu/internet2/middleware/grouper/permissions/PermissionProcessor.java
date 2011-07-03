@@ -7,9 +7,7 @@ package edu.internet2.middleware.grouper.permissions;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -18,13 +16,9 @@ import java.util.TreeMap;
 import org.apache.commons.collections.keyvalue.MultiKey;
 
 import edu.emory.mathcs.backport.java.util.Collections;
-import edu.internet2.middleware.grouper.GrouperSession;
-import edu.internet2.middleware.grouper.attr.AttributeDefType;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
-import edu.internet2.middleware.grouper.exception.GrouperSessionException;
-import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
-import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
+import edu.internet2.middleware.grouper.permissions.limits.PermissionLimitBean;
 import edu.internet2.middleware.grouper.permissions.limits.PermissionLimitInterface;
 import edu.internet2.middleware.grouper.permissions.limits.PermissionLimitUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -160,66 +154,10 @@ public enum PermissionProcessor {
     @Override
     public void processPermissions(Collection<PermissionEntry> permissionEntrySet, 
         Map<String, Object> limitEnvVarsString) {
-
-      if (GrouperUtil.length(permissionEntrySet) == 0) {
-        return;
-      }
-
-      //lets get the limits...
-      final Set<String> attributeAssignIds = new HashSet<String>();
       
-      for (PermissionEntry permissionEntry : permissionEntrySet) {
-        attributeAssignIds.add(permissionEntry.getAttributeAssignId());
-      }
+      //get limits from permissions
+      Map<PermissionEntry, Set<PermissionLimitBean>> permissionLimitBeanMap = GrouperUtil.nonNull(PermissionLimitBean.findPermissionLimits(permissionEntrySet));
       
-      final Map<String, Set<AttributeAssign>> limitAssigns = new HashMap<String, Set<AttributeAssign>>();
-      final Map<String, Set<AttributeAssignValue>> limitAssignValues = new HashMap<String, Set<AttributeAssignValue>>();
-      
-      //lets get the limits for those attribute assign ids
-      //do this as grouper system so we dont miss any
-      GrouperSession.callbackGrouperSession(GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
-        
-        public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
-          
-          Set<AttributeAssign> assignments = GrouperUtil.nonNull(GrouperDAOFactory.getFactory().getAttributeAssign().findAssignmentsOnAssignmentsByIds(attributeAssignIds, null, AttributeDefType.limit, true));
-          
-          //keep track of limit assignments on permission assignments
-          for (AttributeAssign attributeAssign : assignments) {
-            Set<AttributeAssign> assignSet = limitAssigns.get(attributeAssign.getId());
-            if (assignSet == null) {
-              assignSet = new HashSet<AttributeAssign>();
-              limitAssigns.put(attributeAssign.getOwnerAttributeAssignId(), assignSet);
-            }
-            assignSet.add(attributeAssign);
-          }
-          
-          //get the values of the assignments
-          if (GrouperUtil.length(limitAssigns) > 0) {
-            Set<String> attributeAssignIds = new HashSet<String>();
-            
-            //get all the assign ids
-            for (AttributeAssign attributeAssign : assignments) {
-              attributeAssignIds.add(attributeAssign.getId());
-            }
-
-            //get all assigns at once
-            Set<AttributeAssignValue> attributeAssignValues = GrouperDAOFactory.getFactory()
-              .getAttributeAssignValue().findByAttributeAssignIds(attributeAssignIds);
-            
-            for (AttributeAssignValue attributeAssignValue : GrouperUtil.nonNull(attributeAssignValues)) {
-              Set<AttributeAssignValue> attributeAssignValuesSet = limitAssignValues.get(attributeAssignValue.getAttributeAssignId());
-              if (attributeAssignValuesSet == null) {
-                attributeAssignValuesSet = new LinkedHashSet<AttributeAssignValue>();
-                limitAssignValues.put(attributeAssignValue.getAttributeAssignId(), attributeAssignValuesSet);
-              }
-              attributeAssignValuesSet.add(attributeAssignValue);
-            }
-            
-          }
-          return null;
-        }
-      });
-
       //if there are string values, and needed to be typecast, do that here
       Map<String, Object> limitEnvVarsObject = GrouperUtil.typeCastStringStringMap(limitEnvVarsString);
       
@@ -228,10 +166,13 @@ public enum PermissionProcessor {
       //TODO add logging in here
       for (PermissionEntry permissionEntry : permissionEntrySet) {
         
-        //now we have limits and values, lets evaluate
-        Set<AttributeAssign> limits = limitAssigns.get(permissionEntry.getAttributeAssignId());
-        for (AttributeAssign limit : GrouperUtil.nonNull(limits)) {
-          Set<AttributeAssignValue> limitValues = limitAssignValues.get(limit.getId());
+        Set<PermissionLimitBean> permissionLimitBeanSet = permissionLimitBeanMap.get(permissionEntry);
+        
+        for (PermissionLimitBean permissionLimitBean : GrouperUtil.nonNull(permissionLimitBeanSet)) {
+          
+          AttributeAssign limit = permissionLimitBean.getLimitAssign();
+          
+          Set<AttributeAssignValue> limitValues = permissionLimitBean.getLimitAssignValues();
           
           String limitName = limit.getAttributeDefName().getName();
           PermissionLimitInterface permissionLimitInterface = PermissionLimitUtils
@@ -289,7 +230,7 @@ public enum PermissionProcessor {
           }
 
           //run the logic
-          boolean allowed = permissionLimitInterface.allowPermission(permissionEntry, limit, limitValues, limitEnvVarsObject);
+          boolean allowed = permissionLimitInterface.allowPermission(permissionEntry, limit, limitValues, limitEnvVarsObject, permissionLimitBeanSet);
           
           if (!allowed) {
             permissionEntry.setAllowedOverall(false);

@@ -5,13 +5,17 @@
 package edu.internet2.middleware.grouper.group;
 
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreClone;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreDbVersion;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreFieldConstant;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignEffMshipDelegate;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignable;
 import edu.internet2.middleware.grouper.attr.value.AttributeValueDelegate;
+import edu.internet2.middleware.grouper.permissions.role.Role;
+import edu.internet2.middleware.subject.Subject;
 
 
 /**
@@ -27,6 +31,24 @@ public class GroupMember implements AttributeAssignable {
     super();
     this.group = group1;
     this.member = member1;
+  }
+
+  /**
+   * @param group1
+   * @param subject
+   */
+  public GroupMember(Role group1, Subject subject) {
+    this((Group)group1, subject);
+  }
+
+  /**
+   * @param group1
+   * @param subject
+   */
+  public GroupMember(Group group1, Subject subject) {
+    super();
+    this.group = group1;
+    this.member = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), subject, false);
   }
 
   /**

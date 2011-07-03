@@ -18,8 +18,10 @@ public class AllPermissionsLimitsImplTests {
     TestSuite suite = new TestSuite("Test for edu.internet2.middleware.grouper.attr");
     //$JUnit-BEGIN$
     suite.addTestSuite(PermissionLimitElLogicTest.class);
+    suite.addTestSuite(PermissionLimitLabelsContainTest.class);
     suite.addTestSuite(PermissionLimitTimeLogicTest.class);
     suite.addTestSuite(PermissionLimitAmountLogicTest.class);
+    suite.addTestSuite(PermissionLimitIpNetworkLogicTest.class);
     //$JUnit-END$
     return suite;
   }

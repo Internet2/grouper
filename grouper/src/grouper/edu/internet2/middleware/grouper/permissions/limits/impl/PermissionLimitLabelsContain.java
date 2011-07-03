@@ -10,6 +10,7 @@ import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
 import edu.internet2.middleware.grouper.permissions.PermissionEntry;
 import edu.internet2.middleware.grouper.permissions.limits.LimitElUtils;
 import edu.internet2.middleware.grouper.permissions.limits.PermissionLimitBase;
+import edu.internet2.middleware.grouper.permissions.limits.PermissionLimitBean;
 import edu.internet2.middleware.grouper.permissions.limits.PermissionLimitInterface;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
@@ -20,11 +21,11 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 public class PermissionLimitLabelsContain extends PermissionLimitBase {
 
   /**
-   * @see PermissionLimitInterface#allowPermission(PermissionEntry, AttributeAssign, Set, Map)
+   * @see PermissionLimitInterface#allowPermission(PermissionEntry, AttributeAssign, Set, Map, Set)
    */
   public boolean allowPermission(PermissionEntry permissionEntry,
       AttributeAssign limitAssignment, Set<AttributeAssignValue> limitAssignmentValues,
-      Map<String, Object> limitEnvVars) {
+      Map<String, Object> limitEnvVars, Set<PermissionLimitBean> permissionLimitBeans) {
     
     Object userLabels = limitEnvVars.get("labels");
     

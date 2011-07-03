@@ -729,6 +729,17 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
   public Set<AttributeAssign> findGroupAttributeAssignments(Collection<String> attributeAssignIds,
       Collection<String> attributeDefIds, Collection<String> attributeDefNameIds,
       Collection<String> groupIds, Collection<String> actions, Boolean enabled, boolean includeAssignmentsOnAssignments) {
+    
+    return findGroupAttributeAssignments(attributeAssignIds, attributeDefIds, attributeDefNameIds, groupIds, actions, enabled, includeAssignmentsOnAssignments, null);
+  }
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.internal.dao.AttributeAssignDAO#findGroupAttributeAssignments(java.util.Collection, java.util.Collection, java.util.Collection, java.util.Collection, java.util.Collection, java.lang.Boolean, boolean, AttributeDefType)
+   */
+  public Set<AttributeAssign> findGroupAttributeAssignments(Collection<String> attributeAssignIds,
+      Collection<String> attributeDefIds, Collection<String> attributeDefNameIds,
+      Collection<String> groupIds, Collection<String> actions, Boolean enabled, boolean includeAssignmentsOnAssignments,
+      AttributeDefType attributeDefType) {
       
     int attributeAssignIdsSize = GrouperUtil.length(attributeAssignIds);
     int groupIdsSize = GrouperUtil.length(groupIds);
@@ -752,14 +763,14 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
     String selectPrefix = "select distinct aa ";
     String countPrefix = "select count(distinct aa) ";
     
-    StringBuilder sqlTables = new StringBuilder(" from AttributeAssign aa, AttributeDefName adn ");
+    StringBuilder sqlTables = new StringBuilder(" from AttributeAssign aa, AttributeDefName adn, AttributeDef ad ");
     
     if (actionsSize > 0) {
       sqlTables.append(", AttributeAssignAction aaa ");
     }
     
     StringBuilder sqlWhereClause = new StringBuilder(
-    		" aa.attributeDefNameId = adn.id and aa.attributeAssignTypeDb = 'group' ");
+    		" aa.attributeDefNameId = adn.id and aa.attributeAssignTypeDb = 'group' and adn.attributeDefId = ad.id ");
     
     GrouperSession grouperSession = GrouperSession.staticGrouperSession();
     
@@ -785,6 +796,10 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
     }
     if (enabled != null && !enabled) {
       sql.append(" and aa.enabledDb = 'F' ");
+    }
+    if (attributeDefType != null) {
+      sql.append(" and ad.attributeDefTypeDb = :theAttributeDefType ");
+      byHqlStatic.setString("theAttributeDefType", attributeDefType.name());
     }
     if (attributeAssignIdsSize > 0) {
       sql.append(" and aa.id in (");
@@ -1370,6 +1385,17 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
       Collection<String> attributeAssignIds, Collection<String> attributeDefIds,
       Collection<String> attributeDefNameIds, Collection<MultiKey> groupIdsAndMemberIds,
       Collection<String> actions, Boolean enabled, boolean includeAssignmentsOnAssignments) {
+    return findAnyMembershipAttributeAssignments(attributeAssignIds, attributeDefIds, attributeDefNameIds, groupIdsAndMemberIds, actions, enabled, includeAssignmentsOnAssignments, null);
+  }
+
+  
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.AttributeAssignDAO#findAnyMembershipAttributeAssignments(java.util.Collection, java.util.Collection, java.util.Collection, java.util.Collection, java.util.Collection, java.lang.Boolean, boolean, AttributeDefType)
+   */
+  public Set<AttributeAssign> findAnyMembershipAttributeAssignments(
+      Collection<String> attributeAssignIds, Collection<String> attributeDefIds,
+      Collection<String> attributeDefNameIds, Collection<MultiKey> groupIdsAndMemberIds,
+      Collection<String> actions, Boolean enabled, boolean includeAssignmentsOnAssignments, AttributeDefType attributeDefType) {
     int attributeAssignIdsSize = GrouperUtil.length(attributeAssignIds);
     int groupIdsAndMemberIdsSize = GrouperUtil.length(groupIdsAndMemberIds);
     int actionsSize = GrouperUtil.length(actions);
@@ -1393,7 +1419,7 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
     String selectPrefix = "select distinct aa ";
     String countPrefix = "select count(distinct aa) ";
     
-    StringBuilder sqlTables = new StringBuilder(" from AttributeAssign aa, AttributeDefName adn, MembershipEntry me ");
+    StringBuilder sqlTables = new StringBuilder(" from AttributeAssign aa, AttributeDefName adn, AttributeDef ad, MembershipEntry me ");
     
     if (actionsSize > 0) {
       sqlTables.append(", AttributeAssignAction aaa ");
@@ -1404,7 +1430,7 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
     StringBuilder sqlWhereClause = new StringBuilder(
         " aa.attributeDefNameId = adn.id and aa.attributeAssignTypeDb = 'any_mem' and " +
         "aa.ownerGroupId = me.ownerGroupId and aa.ownerMemberId = me.memberUuid and me.fieldId = '" + membersField.getUuid() + "' " +
-        		" and me.enabledDb = 'T' ");
+        		" and me.enabledDb = 'T' and adn.attributeDefId = ad.id ");
     
     GrouperSession grouperSession = GrouperSession.staticGrouperSession();
     
@@ -1430,6 +1456,10 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
     }
     if (enabled != null && !enabled) {
       sql.append(" and aa.enabledDb = 'F' ");
+    }
+    if (attributeDefType != null) {
+      sql.append(" and ad.attributeDefTypeDb = :theAttributeDefType ");
+      byHqlStatic.setString("theAttributeDefType", attributeDefType.name());
     }
     if (attributeAssignIdsSize > 0) {
       sql.append(" and aa.id in (");
@@ -2829,7 +2859,6 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
   
     
   }
-
 
 } 
 

@@ -7,6 +7,7 @@ import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
 import edu.internet2.middleware.grouper.permissions.PermissionEntry;
 import edu.internet2.middleware.grouper.permissions.limits.PermissionLimitBase;
+import edu.internet2.middleware.grouper.permissions.limits.PermissionLimitBean;
 import edu.internet2.middleware.grouper.permissions.limits.PermissionLimitInterface;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
@@ -17,11 +18,11 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 public class PermissionLimitAmountLessThan extends PermissionLimitBase {
 
   /**
-   * @see PermissionLimitInterface#allowPermission(PermissionEntry, AttributeAssign, Set, Map)
+   * @see PermissionLimitInterface#allowPermission(PermissionEntry, AttributeAssign, Set, Map, Set)
    */
   public boolean allowPermission(PermissionEntry permissionEntry,
       AttributeAssign limitAssignment, Set<AttributeAssignValue> limitAssignmentValues,
-      Map<String, Object> limitEnvVars) {
+      Map<String, Object> limitEnvVars, Set<PermissionLimitBean> permissionLimitBeans) {
     
     return amountLimitHelper(limitAssignment, limitAssignmentValues, limitEnvVars, false);
     

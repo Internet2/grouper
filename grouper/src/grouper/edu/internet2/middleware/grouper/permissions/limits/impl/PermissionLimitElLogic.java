@@ -12,6 +12,7 @@ import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
 import edu.internet2.middleware.grouper.permissions.PermissionEntry;
 import edu.internet2.middleware.grouper.permissions.limits.LimitElUtils;
 import edu.internet2.middleware.grouper.permissions.limits.PermissionLimitBase;
+import edu.internet2.middleware.grouper.permissions.limits.PermissionLimitBean;
 import edu.internet2.middleware.grouper.permissions.limits.PermissionLimitInterface;
 import edu.internet2.middleware.grouper.permissions.limits.PermissionLimitUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -40,11 +41,11 @@ public class PermissionLimitElLogic extends PermissionLimitBase {
   private static final Log LOG = GrouperUtil.getLog(PermissionLimitElLogic.class);
 
   /**
-   * @see PermissionLimitInterface#allowPermission(PermissionEntry, AttributeAssign, Set, Map)
+   * @see PermissionLimitInterface#allowPermission(PermissionEntry, AttributeAssign, Set, Map, Set)
    */
   public boolean allowPermission(PermissionEntry permissionEntry,
       AttributeAssign limitAssignment, Set<AttributeAssignValue> limitAssignmentValues,
-      Map<String, Object> limitEnvVars) {
+      Map<String, Object> limitEnvVars, Set<PermissionLimitBean> permissionLimitBeans) {
     
     testingTimesCalledLogic++;
     
@@ -63,7 +64,8 @@ public class PermissionLimitElLogic extends PermissionLimitBase {
       
       //this should have 1 string value
       if (GrouperUtil.length(limitAssignmentValues) != 1 || StringUtils.isBlank(expression)) {
-        throw new RuntimeException(attributeDefNameName + " must have 1 string value");
+        throw new RuntimeException(attributeDefNameName + " must have 1 string value: " + GrouperUtil.length(limitAssignmentValues) + 
+        ", limitAssignId: " + limitAssignment.getId());
       }
       
       //add the curlies around if it not already there

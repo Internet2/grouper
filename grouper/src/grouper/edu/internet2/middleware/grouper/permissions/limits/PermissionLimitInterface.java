@@ -23,10 +23,12 @@ public interface PermissionLimitInterface {
    * assignment a parent assignment, or the role, etc)
    * @param limitAssignmentValues 
    * @param limitEnvVars value could be String, Long, or Double
+   * @param permissionLimitBeans all limits for this permission (in case the limit logic needs it... 
+   * note, dont use built in caching if this is the case)
    * @return true if allowed, false if not
    */
   public boolean allowPermission(PermissionEntry permissionEntry, AttributeAssign limitAssignment, 
-      Set<AttributeAssignValue> limitAssignmentValues, Map<String, Object> limitEnvVars);
+      Set<AttributeAssignValue> limitAssignmentValues, Map<String, Object> limitEnvVars, Set<PermissionLimitBean> permissionLimitBeans);
 
   /**
    * validate a user entered value(s) on the limit assignment

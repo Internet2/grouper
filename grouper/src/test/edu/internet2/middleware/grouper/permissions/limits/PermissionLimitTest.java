@@ -8,8 +8,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import junit.textui.TestRunner;
+import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.MemberFinder;
+import edu.internet2.middleware.grouper.Membership;
+import edu.internet2.middleware.grouper.MembershipFinder;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.StemSave;
@@ -24,6 +28,7 @@ import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignAction;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignResult;
 import edu.internet2.middleware.grouper.cfg.ApiConfig;
+import edu.internet2.middleware.grouper.group.GroupMember;
 import edu.internet2.middleware.grouper.group.TypeOfGroup;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
@@ -46,7 +51,7 @@ public class PermissionLimitTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new PermissionLimitTest("testLimitCache"));
+    TestRunner.run(new PermissionLimitTest("testLimitMembership"));
   }
 
   /**
@@ -118,6 +123,9 @@ public class PermissionLimitTest extends GrouperTest {
   /** subj0 */
   private Subject subj0;
   
+  /** subj1 */
+  private Subject subj1;
+  
   /**
    * 
    */
@@ -175,6 +183,7 @@ public class PermissionLimitTest extends GrouperTest {
     admin.getAttributeAssignActionSetDelegate().addToAttributeAssignActionSet(readWrite);
     
     this.subj0 = SubjectTestHelper.SUBJ0;
+    this.subj1 = SubjectTestHelper.SUBJ1;
     
   }
 
@@ -444,6 +453,89 @@ public class PermissionLimitTest extends GrouperTest {
       //reset
       PermissionLimitElLogic.testingCacheMinutesInt = null;
     }
+  }
+
+  /**
+   * 
+   */
+  public void testLimitRole() {
+    
+    //
+    //User subj0 is assigned Role<Admin>
+    this.adminRole.addMember(this.subj0, true);
+  
+    //
+    //User subj0 is assigned permission Deny, Action<Read>, Resource<Arts and sciences>, in the context of Role<Admin>
+    this.adminRole.getPermissionRoleDelegate().assignSubjectRolePermission(
+        this.readString, this.artsAndSciences, this.subj0, PermissionAllowed.ALLOWED);
+    
+    //Result:
+    //
+    //subj0 can read except for the limit
+    
+    assertTrue(new PermissionFinder().addAction(this.readString).addPermissionName(this.english)
+        .addSubject(this.subj0).assignPermissionProcessor(PermissionProcessor.FILTER_REDUNDANT_PERMISSIONS_AND_ROLES_AND_PROCESS_LIMITS)
+        .hasPermission());
+  
+    this.adminRole.getAttributeValueDelegate().assignValue(PermissionLimitUtils.limitElAttributeDefName().getName(), "amount < 50000");
+    
+    assertTrue(new PermissionFinder().addAction(this.readString).addPermissionName(this.english)
+        .addSubject(this.subj0).assignPermissionProcessor(PermissionProcessor.FILTER_REDUNDANT_PERMISSIONS_AND_ROLES_AND_PROCESS_LIMITS)
+        .addLimitEnvVar("(int)amount", "49000").hasPermission());
+    assertFalse(new PermissionFinder().addAction(this.readString).addPermissionName(this.english)
+        .addSubject(this.subj0).assignPermissionProcessor(PermissionProcessor.FILTER_REDUNDANT_PERMISSIONS_AND_ROLES_AND_PROCESS_LIMITS)
+        .addLimitEnvVar("(int)amount", "51000").hasPermission());
+
+  
+  }
+
+  
+  /**
+   * 
+   */
+  public void testLimitMembership() {
+    
+    //
+    //User subj0 is assigned Role<Admin>
+    this.adminRole.addMember(this.subj0, true);
+    this.adminRole.addMember(this.subj1, true);
+  
+    //
+    //User subj0 is assigned permission Deny, Action<Read>, Resource<Arts and sciences>, in the context of Role<Admin>
+    this.adminRole.getPermissionRoleDelegate().assignSubjectRolePermission(
+        this.readString, this.artsAndSciences, this.subj0, PermissionAllowed.ALLOWED);
+    this.adminRole.getPermissionRoleDelegate().assignSubjectRolePermission(
+        this.readString, this.artsAndSciences, this.subj1, PermissionAllowed.ALLOWED);
+    
+    //Result:
+    //
+    //subj0 can read except for the limit
+    assertTrue(new PermissionFinder().addAction(this.readString).addPermissionName(this.english)
+        .addSubject(this.subj0).assignPermissionProcessor(PermissionProcessor.FILTER_REDUNDANT_PERMISSIONS_AND_ROLES_AND_PROCESS_LIMITS)
+        .hasPermission());
+    assertTrue(new PermissionFinder().addAction(this.readString).addPermissionName(this.english)
+        .addSubject(this.subj1).assignPermissionProcessor(PermissionProcessor.FILTER_REDUNDANT_PERMISSIONS_AND_ROLES_AND_PROCESS_LIMITS)
+        .hasPermission());
+  
+    GroupMember groupMember = new GroupMember(this.adminRole, this.subj0);
+    groupMember.getAttributeValueDelegate().assignValue(PermissionLimitUtils.limitElAttributeDefName().getName(), "amount < 50000");
+    
+    assertTrue(new PermissionFinder().addAction(this.readString).addPermissionName(this.english)
+        .addSubject(this.subj0).assignPermissionProcessor(PermissionProcessor.FILTER_REDUNDANT_PERMISSIONS_AND_ROLES_AND_PROCESS_LIMITS)
+        .addLimitEnvVar("(int)amount", "49000").hasPermission());
+    assertFalse(new PermissionFinder().addAction(this.readString).addPermissionName(this.english)
+        .addSubject(this.subj0).assignPermissionProcessor(PermissionProcessor.FILTER_REDUNDANT_PERMISSIONS_AND_ROLES_AND_PROCESS_LIMITS)
+        .addLimitEnvVar("(int)amount", "51000").hasPermission());
+    
+    //other users still have the permission
+    assertTrue(new PermissionFinder().addAction(this.readString).addPermissionName(this.english)
+        .addSubject(this.subj1).assignPermissionProcessor(PermissionProcessor.FILTER_REDUNDANT_PERMISSIONS_AND_ROLES_AND_PROCESS_LIMITS)
+        .addLimitEnvVar("(int)amount", "49000").hasPermission());
+    assertTrue(new PermissionFinder().addAction(this.readString).addPermissionName(this.english)
+        .addSubject(this.subj1).assignPermissionProcessor(PermissionProcessor.FILTER_REDUNDANT_PERMISSIONS_AND_ROLES_AND_PROCESS_LIMITS)
+        .addLimitEnvVar("(int)amount", "51000").hasPermission());
+
+  
   }
 
   

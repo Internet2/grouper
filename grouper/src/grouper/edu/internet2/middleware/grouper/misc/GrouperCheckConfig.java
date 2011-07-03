@@ -1698,6 +1698,7 @@ public class GrouperCheckConfig {
           limitDef.setAssignToGroup(true);
           limitDef.setAssignToAttributeDef(true);
           limitDef.setAssignToGroupAssn(true);
+          limitDef.setAssignToEffMembership(true);
           limitDef.setAssignToEffMembershipAssn(true);
           limitDef.setValueType(AttributeDefValueType.string);
           limitDef.setMultiAssignable(true);
@@ -1734,6 +1735,7 @@ public class GrouperCheckConfig {
           limitDefInt.setAssignToGroup(true);
           limitDefInt.setAssignToAttributeDef(true);
           limitDefInt.setAssignToGroupAssn(true);
+          limitDefInt.setAssignToEffMembership(true);
           limitDefInt.setAssignToEffMembershipAssn(true);
           limitDefInt.setMultiAssignable(true);
           limitDefInt.setValueType(AttributeDefValueType.integer);
@@ -1765,6 +1767,7 @@ public class GrouperCheckConfig {
           limitDefMarker.setAssignToAttributeDef(true);
           limitDefMarker.setAssignToGroupAssn(true);
           limitDefMarker.setAssignToEffMembershipAssn(true);
+          limitDefMarker.setAssignToEffMembership(true);
           limitDefMarker.setMultiAssignable(true);
           limitDefMarker.setValueType(AttributeDefValueType.marker);
           limitDefMarker.store();
