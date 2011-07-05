@@ -1,6 +1,8 @@
 <%@ include file="../common/commonTaglib.jsp"%>
 <!-- Start: simplePermissionUpdate/simplePermissionAssignFilter.jsp: main page -->
 
+<input type="hidden" name="limitSimulationHiddenField" value="false" />
+
 <table class="formTable formTableSpaced" cellspacing="2" style="margin-top: 0px; margin-bottom: 0px">
   <tr class="formTableRow">
     <td class="formTableLeft" style="vertical-align: middle">
@@ -88,6 +90,58 @@
     </td>
   </tr>
 
+  <tr class="formTableRow limitSimulationRow" style="display: none">
+    <td class="formTableLeft" style="vertical-align: middle">
+      <label for="enabledDisabled">
+        <grouper:message key="simplePermissionAssign.limitProcessor" />
+      </label>
+    </td>
+    <td class="formTableRight">
+      <select name="processLimitsProcessor">
+        <option value=""><grouper:message key="simplePermissionAssign.limitDropDownNone" /></option>
+        <option value="PROCESS_LIMITS" selected="selected"><grouper:message key="simplePermissionAssign.limitDropDownProcessLimits" /></option>
+      </select>
+    </td>
+  </tr>
+
+  <tr class="formTableRow limitSimulationRow" style="display: none">
+    <td class="formTableLeft" style="vertical-align: middle">
+      <label for="enabledDisabled">
+        <grouper:message key="simplePermissionAssign.limitEnvironmentVariables" />
+      </label>
+    </td>
+    <td class="formTableRight">
+    <table>
+      <tr>
+        <th style="white-space: nowrap; text-align: left; " class="privilegeHeader"><grouper:message key="simplePermissionAssign.limitEnvironmentVariableName" /></th>
+        <th style="white-space: nowrap; text-align: left; " class="privilegeHeader"><grouper:message key="simplePermissionAssign.limitEnvironmentVariableValue" /></th>
+        <th style="white-space: nowrap; text-align: left; " class="privilegeHeader"><grouper:message key="simplePermissionAssign.limitEnvironmentVariableType" /></th>
+      </tr>
+      <c:forEach var="i" begin="0" end="50">
+
+        <tr style="${i>=2 ? 'display:none;' : '' }" id="limitEnvVarRow${i}">
+          <td><input name="envVarName${i}" type="text" style="width: 15em" /></td>
+          <td><input name="envVarValue${i}" type="text" style="width: 25em"/></td>
+          <td>
+            <select name="envVarType${i}" type="text">
+              <option value="string"><grouper:message key="simplePermissionAssign.limitEnvironmentVariableTypeString" /></option>
+              <option value="integer"><grouper:message key="simplePermissionAssign.limitEnvironmentVariableTypeInteger" /></option>
+              <option value="double"><grouper:message key="simplePermissionAssign.limitEnvironmentVariableTypeDecimal" /></option>
+              <option value="timestamp"><grouper:message key="simplePermissionAssign.limitEnvironmentVariableTypeTimestamp" /></option>
+              <option value="boolean"><grouper:message key="simplePermissionAssign.limitEnvironmentVariableTypeBoolean" /></option>
+              <option value="empty"><grouper:message key="simplePermissionAssign.limitEnvironmentVariableTypeEmpty" /></option>
+              <option value="null"><grouper:message key="simplePermissionAssign.limitEnvironmentVariableTypeNull" /></option>
+            </select>
+          </td>
+        </tr>
+      </c:forEach>      
+      <script type="text/javascript">var nextFreeEnvVarRow = 2;</script>
+      <tr><td colspan="2"><a href="#" onclick="$('#limitEnvVarRow' + nextFreeEnvVarRow).show(); nextFreeEnvVarRow++; return false;"
+        ><grouper:message key="simplePermissionAssign.moreLimitEnvVars" /></a></td></tr>
+    </table>
+    </td>
+  </tr>
+
   <tr>
    <td colspan="2">
 
@@ -98,6 +152,10 @@
      <input class="blueButton" type="submit" 
       onclick="ajax('../app/SimplePermissionUpdate.assignPermissionButton', {formIds: 'simplePermissionFilterForm'}); return false;" 
       value="${grouper:message('simplePermissionAssign.assignPermissionButton', true, false) }" style="margin-top: 2px" />
+   
+     <input class="blueButton" type="submit"  id="simulateLimitsButton"
+      onclick="ajax('../app/SimplePermissionUpdate.limitSimulation', {formIds: 'simplePermissionFilterForm'}); return false;" 
+      value="${grouper:message('simplePermissionAssign.limitSimulationButton', true, false) }" style="margin-top: 2px" />
    
    </td>
   </tr>

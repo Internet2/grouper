@@ -104,7 +104,7 @@ public enum PermissionProcessor {
   }, 
   /** this will see if there are two rows with the same 
    * role/subject/permissionName/action, pick the best one, and remove the others */
-  FILTER_REDUNDANT_PERMISSIONS_AND_PROCESS_LIMITS{
+  FILTER_REDUNDANT_PERMISSIONS_AND_PROCESS_LIMITS {
   
     /**
      * 

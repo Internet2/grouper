@@ -664,10 +664,6 @@ public class Hib3PermissionEntryDAO extends Hib3DAO implements PermissionEntryDA
     int attributeDefIdsSize = GrouperUtil.length(attributeDefIds);
     int attributeDefNameIdsSize = GrouperUtil.length(attributeDefNameIds);
     
-    if (roleIdsSize == 0 && attributeDefIdsSize == 0 && attributeDefNameIdsSize == 0) {
-      throw new RuntimeException("Illegal query, you need to pass in attributeDefId(s) and/or roleId(s) and/or roleNames and/or attributeDefNameIds");
-    }
-    
     //too many bind vars
     if (roleIdsSize + attributeDefIdsSize + attributeDefNameIdsSize + actionsSize > 100) {
       throw new RuntimeException("Too many roleIdsSize " + roleIdsSize + " or attributeDefIdsSize " 

@@ -11,7 +11,6 @@ import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.permissions.PermissionEntry;
-import edu.internet2.middleware.grouper.permissions.PermissionProcessor;
 import edu.internet2.middleware.grouper.permissions.PermissionEntry.PermissionType;
 import edu.internet2.middleware.grouper.ui.tags.TagUtils;
 import edu.internet2.middleware.grouper.ui.util.MapWrapper;
@@ -79,11 +78,11 @@ public class GuiPermissionEntry implements Serializable {
       permissionEntriesSet.add(guiPermissionEntry.getPermissionEntry());
     }
     
-    
-    PermissionProcessor.FILTER_REDUNDANT_PERMISSIONS.processPermissions(permissionEntriesSet, null);
+    //we dont have to process since it is already processed
+    //PermissionProcessor.FILTER_REDUNDANT_PERMISSIONS.processPermissions(permissionEntriesSet, null);
 
     //we have the permissions, was anything returned?  take the first, and see if not disallowed
-    this.allowed = permissionEntriesSet.size() == 0 ? false : !permissionEntriesSet.iterator().next().isDisallowed();
+    this.allowed = permissionEntriesSet.size() == 0 ? false : permissionEntriesSet.iterator().next().isAllowedOverall();
     
     //see if any are immediate
     for (GuiPermissionEntry guiPermissionEntry : this.rawGuiPermissionEntries) {

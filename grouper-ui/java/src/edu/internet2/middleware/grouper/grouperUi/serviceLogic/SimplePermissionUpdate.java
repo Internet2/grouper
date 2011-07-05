@@ -42,9 +42,10 @@ import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiPermissionEntryAc
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
 import edu.internet2.middleware.grouper.grouperUi.beans.permissionUpdate.PermissionUpdateRequestContainer;
-import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.permissions.PermissionAllowed;
 import edu.internet2.middleware.grouper.permissions.PermissionEntry;
+import edu.internet2.middleware.grouper.permissions.PermissionFinder;
+import edu.internet2.middleware.grouper.permissions.PermissionProcessor;
 import edu.internet2.middleware.grouper.permissions.PermissionRoleDelegate;
 import edu.internet2.middleware.grouper.permissions.PermissionEntry.PermissionType;
 import edu.internet2.middleware.grouper.permissions.role.Role;
@@ -292,6 +293,48 @@ public class SimplePermissionUpdate {
     permissionUpdateRequestContainer.setPermissionType(permissionAssignType);
     return permissionAssignType;
   }
+
+  /**
+   * show the limit simulation panel
+   * @param httpServletRequest
+   * @param httpServletResponse
+   */
+  public void limitSimulation(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
+
+    PermissionUpdateRequestContainer permissionUpdateRequestContainer = 
+      PermissionUpdateRequestContainer.retrieveFromRequestOrCreate();
+    
+    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+    
+    //change to not since we are doing the opposite
+    boolean simulateLimits = !GrouperUtil.booleanValue(httpServletRequest.getParameter("limitSimulationHiddenField"));
+    
+    permissionUpdateRequestContainer.setSimulateLimits(simulateLimits);
+    
+    if (permissionUpdateRequestContainer.isSimulateLimits()) {
+
+      permissionUpdateRequestContainer.setSimulateLimits(true);
+      
+      guiResponseJs.addAction(GuiScreenAction.newScript("$('input[name=\"limitSimulationHiddenField\"]').val('true')"));
+      
+      //note, for some reason showing slowly doesnt work right, probably since table rows...
+      guiResponseJs.addAction(GuiScreenAction.newScript("$('.limitSimulationRow').show()"));
+      guiResponseJs.addAction(GuiScreenAction.newScript("$('#simulateLimitsButton').hide()"));
+      
+      
+    } else {
+      
+      //note, we hid the button which means you cant get in this block, but leave it anyway
+      permissionUpdateRequestContainer.setSimulateLimits(true);
+      
+      guiResponseJs.addAction(GuiScreenAction.newScript("$('input[name=\"limitSimulationHiddenField\"]').val('false')"));
+      guiResponseJs.addAction(GuiScreenAction.newScript("$('.limitSimulationRow').hide('slow')"));
+
+    }
+    
+    //it makes more sense to just show the screen
+    //assignFilter(httpServletRequest, httpServletResponse);
+  }
   
   /**
    * filter permission assignments and display the results
@@ -316,14 +359,24 @@ public class SimplePermissionUpdate {
         return;
       }
       
+      boolean processLimits = false;
+      
+      {
+        boolean simulateLimits = GrouperUtil.booleanValue(httpServletRequest.getParameter("limitSimulationHiddenField"), false);
+        
+        permissionUpdateRequestContainer.setSimulateLimits(simulateLimits);
+        
+        processLimits = simulateLimits && StringUtils.equals("PROCESS_LIMITS", httpServletRequest.getParameter("processLimitsProcessor") );
+      }
+      
       //get the permission name to assign
-      String permissionAssignAttributeName = StringUtils.trimToNull(httpServletRequest.getParameter("permissionAssignAttributeName"));
+      String permissionAssignAttributeNameId = StringUtils.trimToNull(httpServletRequest.getParameter("permissionAssignAttributeName"));
       
       //attribute def name is not required
       AttributeDefName attributeDefName = null;
-      if (!StringUtils.isBlank(permissionAssignAttributeName)) {
+      if (!StringUtils.isBlank(permissionAssignAttributeNameId)) {
 
-        attributeDefName = AttributeDefNameFinder.findById(permissionAssignAttributeName, false);
+        attributeDefName = AttributeDefNameFinder.findById(permissionAssignAttributeNameId, false);
         
         //if cant find, but submitted
         if (attributeDefName == null) {
@@ -402,21 +455,70 @@ public class SimplePermissionUpdate {
       
       Set<PermissionEntry> permissionEntriesFromDb = null;
       
-      if (permissionType == PermissionType.role_subject) {
+      PermissionFinder permissionFinder = new PermissionFinder();
+      
+      if (!StringUtils.isBlank(permissionAssignAttributeDefId)) { 
+        permissionFinder.addPermissionDefId(permissionAssignAttributeDefId);
+      }
+      
+      if (!StringUtils.isBlank(permissionAssignAttributeNameId)) {
+        permissionFinder.addPermissionNameId(permissionAssignAttributeNameId);
+      }
+      
+      if (!StringUtils.isBlank(permissionAssignRoleId)) {
+        permissionFinder.addRoleId(permissionAssignRoleId);
+      }
 
-        permissionEntriesFromDb = GrouperDAOFactory.getFactory().getPermissionEntry().findPermissions(
-            permissionAssignAttributeDefId,  permissionAssignAttributeName, permissionAssignRoleId, 
-            member == null ? null : member.getUuid(), action, enabledDisabledBoolean);
+      if (permissionType == PermissionType.role_subject && member != null) {
 
-      } else if (permissionType == PermissionType.role) {
-        
-        permissionEntriesFromDb = GrouperDAOFactory.getFactory().getPermissionEntry().findRolePermissions(
-            permissionAssignAttributeDefId,  permissionAssignAttributeName, permissionAssignRoleId, 
-            action, enabledDisabledBoolean);
+        permissionFinder.addMemberId(member.getUuid());
+      }
+      
+      if (!StringUtils.isBlank(action)) {
+        permissionFinder.addAction(action);
+      }
+      
+      permissionFinder.assignEnabled(enabledDisabledBoolean);
+      
+      if (permissionType == PermissionType.role_subject || permissionType == PermissionType.role) {
+        permissionFinder.assignPermissionType(permissionType);
         
       } else {
         throw new RuntimeException("Invalid permissionType: " + permissionType);
       }
+
+      if (processLimits) {
+        
+        permissionFinder.assignPermissionProcessor(PermissionProcessor.FILTER_REDUNDANT_PERMISSIONS_AND_PROCESS_LIMITS);
+        
+        //get the limits
+        for(int i=0;i<50;i++) {
+          
+          String envVarName = StringUtils.trimToNull(httpServletRequest.getParameter("envVarName"));
+          String envVarValue = StringUtils.trimToNull(httpServletRequest.getParameter("envVarValue"));
+          String envVarType = StringUtils.trimToNull(httpServletRequest.getParameter("envVarType"));
+          
+          if (!StringUtils.isBlank(envVarName)) {
+            
+            //if it is string, just leave it
+            if (!StringUtils.equals("string", envVarType)) {
+              
+              envVarName = "(" + envVarType + ")" + envVarName;
+              
+            }
+            
+            permissionFinder.addLimitEnvVar(envVarName, envVarValue);
+            
+          }
+          
+        }
+      } else {
+        
+        permissionFinder.assignPermissionProcessor(PermissionProcessor.FILTER_REDUNDANT_PERMISSIONS);
+
+      }
+      
+      permissionEntriesFromDb = permissionFinder.findPermissions();
       
       List<GuiPermissionEntryActionsContainer> guiPermissionEntryActionsContainers = new ArrayList<GuiPermissionEntryActionsContainer>();
       

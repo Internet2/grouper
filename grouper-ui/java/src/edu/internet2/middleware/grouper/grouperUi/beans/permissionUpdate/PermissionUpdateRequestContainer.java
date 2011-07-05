@@ -28,6 +28,27 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 @SuppressWarnings("serial")
 public class PermissionUpdateRequestContainer implements Serializable {
 
+  /** if the panel to simulate limits should display */
+  private boolean simulateLimits = false;
+  
+  
+  
+  /**
+   * if the panel to simulate limits should display
+   * @return if the panel to simulate limits should display
+   */
+  public boolean isSimulateLimits() {
+    return this.simulateLimits;
+  }
+
+  /**
+   * if the panel to simulate limits should display
+   * @param simulateLimits1
+   */
+  public void setSimulateLimits(boolean simulateLimits1) {
+    this.simulateLimits = simulateLimits1;
+  }
+
   /** default attribute def id */
   private String defaultAttributeDefId = null;
   
