@@ -19,17 +19,14 @@ import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
-import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
-import edu.internet2.middleware.grouper.attr.finder.AttributeAssignFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
-import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeAssign;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiPermissionEntry;
-import edu.internet2.middleware.grouper.grouperUi.beans.attributeUpdate.AttributeUpdateRequestContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
 import edu.internet2.middleware.grouper.grouperUi.beans.permissionUpdate.PermissionUpdateRequestContainer;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.permissions.PermissionEntry;
+import edu.internet2.middleware.grouper.permissions.PermissionFinder;
 import edu.internet2.middleware.grouper.permissions.PermissionHeuristic;
 import edu.internet2.middleware.grouper.permissions.PermissionHeuristicBetter;
 import edu.internet2.middleware.grouper.permissions.PermissionHeuristics;
@@ -73,6 +70,8 @@ public class SimplePermissionUpdateMenu {
       this.assignmentMenuEditAssignment();
     } else if (StringUtils.equals(menuItemId, "analyzeAssignment")) {
       this.assignmentMenuAnalyzeAssignment();
+    } else if (StringUtils.equals(menuItemId, "addLimit")) {
+      this.assignmentMenuAddLimit();
     } else {
       throw new RuntimeException("Unexpected menu id: '" + menuItemId + "'");
     }
@@ -81,12 +80,14 @@ public class SimplePermissionUpdateMenu {
   }
 
   /**
-   * add an assignment on an assignment
+   * add a limit on an assignment
    */
-  public void assignmentMenuAddMetadataAssignment() {
+  public void assignmentMenuAddLimit() {
     
     GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
   
+    PermissionUpdateRequestContainer permissionUpdateRequestContainer = PermissionUpdateRequestContainer.retrieveFromRequestOrCreate();
+
     //lets see which subject we are dealing with:
     HttpServletRequest httpServletRequest = GrouperUiFilter.retrieveHttpServletRequest();
     String menuIdOfMenuTarget = httpServletRequest.getParameter("menuIdOfMenuTarget");
@@ -94,56 +95,101 @@ public class SimplePermissionUpdateMenu {
     if (StringUtils.isBlank(menuIdOfMenuTarget)) {
       throw new RuntimeException("Missing id of menu target");
     }
-    if (!menuIdOfMenuTarget.startsWith("assignmentMenuButton_")) {
+    if (!menuIdOfMenuTarget.startsWith("permissionMenuButton_")) {
       throw new RuntimeException("Invalid id of menu target: '" + menuIdOfMenuTarget + "'");
     }
-    String attributeAssignId = GrouperUtil.prefixOrSuffix(menuIdOfMenuTarget, "assignmentMenuButton_", false);
+    String guiPermissionId = GrouperUtil.prefixOrSuffix(menuIdOfMenuTarget, "permissionMenuButton_", false);
     
     final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
     
     GrouperSession grouperSession = null;
     
-    AttributeAssign attributeAssign = null;
-    
     try {
   
       grouperSession = GrouperSession.start(loggedInSubject);
       
-      attributeAssign = AttributeAssignFinder.findById(attributeAssignId, true);
       
-      if (attributeAssign.getAttributeAssignType().isAssignmentOnAssignment()) {
-        guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message(
-            "simpleAttributeUpdate.assignCantAddMetadataOnAssignmentOfAssignment", false)));
-        return;
+      //<c:set var="guiPermissionId" value="${firstPermissionEntry.roleId}__${firstPermissionEntry.memberId}__${firstPermissionEntry.attributeDefNameId}__${firstPermissionEntry.action}" />
+      Pattern pattern = Pattern.compile("^(.*)__(.*)__(.*)__(.*)__(.*)$");
+      Matcher matcher = pattern.matcher(guiPermissionId);
+      if (!matcher.matches()) {
+        throw new RuntimeException("Why does guiPermissionId not match? " + guiPermissionId);
+      }
+
+      //get current state
+      Role role = null;
+      {
+        String roleId = matcher.group(1);
+        role = GroupFinder.findByUuid(grouperSession, roleId, true);
+        if (!((Group)role).hasAdmin(loggedInSubject)) {
+          guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simplePermissionUpdate.errorCantManageRole", false)));
+          return;
+        }
+      }
+      
+      String permissionTypeString = matcher.group(5);
+      PermissionType permissionType = PermissionType.valueOfIgnoreCase(permissionTypeString, true);
+      permissionUpdateRequestContainer.setPermissionType(permissionType);
+      
+      Member member = null;
+      { 
+        if (permissionType == PermissionType.role_subject) {
+          String memberId = matcher.group(2);
+          member = MemberFinder.findByUuid(grouperSession, memberId, true);
+        }
+      }
+      AttributeDef attributeDef = null;
+      AttributeDefName attributeDefName = null;
+      {
+        String attributeDefNameId = matcher.group(3);
+        attributeDefName = AttributeDefNameFinder.findById(attributeDefNameId, true);
+        attributeDef = attributeDefName.getAttributeDef();
+        if (!attributeDef.getPrivilegeDelegate().canAttrUpdate(loggedInSubject)) {
+          guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simplePermissionUpdate.errorCantEditAttributeDef", false)));
+          return;
+        }
         
       }
       
-      AttributeUpdateRequestContainer attributeUpdateRequestContainer = AttributeUpdateRequestContainer.retrieveFromRequestOrCreate();
+      String action = matcher.group(4);
+
+      //get the assignment
+
+      PermissionFinder permissionFinder = new PermissionFinder().addAction(action).addRoleId(role.getId()).addPermissionNameId(attributeDefName.getId());
+      if (permissionType == PermissionType.role_subject) {
+        permissionFinder.addMemberId(member.getUuid());
+      }
+      permissionFinder.assignPermissionType(permissionType);
+      permissionFinder.assignImmediateOnly(true);
+      PermissionEntry permissionEntry = permissionFinder.findPermission(false);
       
-      attributeUpdateRequestContainer.setAttributeAssignType(attributeAssign.getAttributeAssignType());
+      if (permissionEntry == null || permissionEntry.isDisallowed()) {
+        guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simplePermissionUpdate.noImmediatePermissionFoundForLimit", false)));
+        return;
+      }
+
+      GuiPermissionEntry guiPermissionEntry = new GuiPermissionEntry();
+      guiPermissionEntry.setPermissionEntry(permissionEntry);
+      guiPermissionEntry.setPermissionType(permissionType);
       
-      GuiAttributeAssign guiAttributeAssign = new GuiAttributeAssign();
-      guiAttributeAssign.setAttributeAssign(attributeAssign);
+      permissionUpdateRequestContainer.setGuiPermissionEntry(guiPermissionEntry);
+
+      //set the permissions panel
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#permissionAssignAssignments", 
+        "/WEB-INF/grouperUi/templates/simplePermissionUpdate/simplePermissionAddLimit.jsp"));
       
-      attributeUpdateRequestContainer.setGuiAttributeAssign(guiAttributeAssign);
-      
-      //the combo boxes cant be shows on a dialog, so just replace the search results with this
-      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#attributeAssignAssignments",
-        "/WEB-INF/grouperUi/templates/simpleAttributeUpdate/simpleAttributeAssignAddMetadataAssignment.jsp"));
-  
-      guiResponseJs.addAction(GuiScreenAction.newScript("guiScrollTo('#attributeAssignAssignments');"));
+      guiResponseJs.addAction(GuiScreenAction.newScript("guiScrollTo('#permissionAssignAssignments');"));
   
     } catch (ControllerDone cd) {
       throw cd;
     } catch (NoSessionException nse) {
       throw nse;
     } catch (RuntimeException re) {
-      throw new RuntimeException("Error addMetadataAssignment menu item: " + menuIdOfMenuTarget 
+      throw new RuntimeException("Error addLimit menu item: " + menuIdOfMenuTarget 
           + ", " + re.getMessage(), re);
     } finally {
       GrouperSession.stopQuietly(grouperSession); 
     }
-  
   }
 
   /**
@@ -220,41 +266,15 @@ public class SimplePermissionUpdateMenu {
       
       String action = matcher.group(4);
 
-      //get all the assignments
-      Set<PermissionEntry> permissionEntries = null;
-      
+      //get the assignment
+
+      PermissionFinder permissionFinder = new PermissionFinder().addAction(action).addRoleId(role.getId()).addPermissionNameId(attributeDefName.getId());
       if (permissionType == PermissionType.role_subject) {
-
-        permissionEntries = GrouperDAOFactory.getFactory()
-          .getPermissionEntry().findPermissions(null, attributeDefName.getId(), role.getId(), member.getUuid(), action, null);
-
-      } else if (permissionType == PermissionType.role) {
-        
-        permissionEntries = GrouperDAOFactory.getFactory()
-          .getPermissionEntry().findRolePermissions(null, attributeDefName.getId(), role.getId(), action, null);
-        
-        
-      } else {
-        throw new RuntimeException("Invalid permissionType: " + permissionType);
+        permissionFinder.addMemberId(member.getUuid());
       }
-
-      PermissionEntry permissionEntry = null;
-      for (PermissionEntry current : permissionEntries) {
-       
-        //find the immediate one
-        if (current.isImmediatePermission()) {
-          if (permissionType == PermissionType.role) {
-             
-            permissionEntry = current;
-            break;
-          }
-          if (current.isImmediateMembership() && current.getPermissionType() == PermissionType.role_subject) {
-            permissionEntry = current;
-            break;
-            
-          }
-        }
-      }
+      permissionFinder.assignPermissionType(permissionType);
+      permissionFinder.assignImmediateOnly(true);
+      PermissionEntry permissionEntry = permissionFinder.findPermission(false);
       
       if (permissionEntry == null) {
         guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simplePermissionUpdate.noImmediatePermissionFound", false)));
@@ -527,6 +547,14 @@ public class SimplePermissionUpdateMenu {
     DhtmlxMenu dhtmlxMenu = new DhtmlxMenu();
     
     {
+      DhtmlxMenuItem addLimitMenuItem = new DhtmlxMenuItem();
+      addLimitMenuItem.setId("addLimit");
+      addLimitMenuItem.setText(TagUtils.navResourceString("simplePermissionAssign.addLimit"));
+      addLimitMenuItem.setTooltip(TagUtils.navResourceString("simplePermissionAssign.addLimitTooltip"));
+      dhtmlxMenu.addDhtmlxItem(addLimitMenuItem);
+    }    
+  
+    {
       DhtmlxMenuItem analyzeAssignmentMenuItem = new DhtmlxMenuItem();
       analyzeAssignmentMenuItem.setId("analyzeAssignment");
       analyzeAssignmentMenuItem.setText(TagUtils.navResourceString("simplePermissionAssign.assignMenuAnalyzeAssignment"));
@@ -535,11 +563,11 @@ public class SimplePermissionUpdateMenu {
     }    
   
     {
-      DhtmlxMenuItem addValueMenuItem = new DhtmlxMenuItem();
-      addValueMenuItem.setId("editAssignment");
-      addValueMenuItem.setText(TagUtils.navResourceString("simplePermissionAssign.editAssignment"));
-      addValueMenuItem.setTooltip(TagUtils.navResourceString("simplePermissionAssign.editAssignmentTooltip"));
-      dhtmlxMenu.addDhtmlxItem(addValueMenuItem);
+      DhtmlxMenuItem editAssignmentMenuItem = new DhtmlxMenuItem();
+      editAssignmentMenuItem.setId("editAssignment");
+      editAssignmentMenuItem.setText(TagUtils.navResourceString("simplePermissionAssign.editAssignment"));
+      editAssignmentMenuItem.setTooltip(TagUtils.navResourceString("simplePermissionAssign.editAssignmentTooltip"));
+      dhtmlxMenu.addDhtmlxItem(editAssignmentMenuItem);
     }    
   
     GrouperUiUtils.printToScreen("<?xml version=\"1.0\"?>\n" + 

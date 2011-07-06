@@ -358,11 +358,9 @@ public class PermissionUpdateRequestContainer implements Serializable {
       Integer theInt = GrouperUtil.intObjectValue(key, false);
       int repeatAfterRows = TagUtils.mediaResourceInt("simplePermissionUpdate.repeatPermissionHeaderAfterRows", 20);
 
-      if (theInt % repeatAfterRows == 0) {
-        return true;
-      }
-      return false;
-      
+      boolean result = theInt % repeatAfterRows == 0;
+      System.out.println("Row: " + theInt + ": " + result);
+      return result;
     }
     
   };

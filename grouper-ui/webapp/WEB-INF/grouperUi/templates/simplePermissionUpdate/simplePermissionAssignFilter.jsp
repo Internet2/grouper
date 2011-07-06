@@ -124,6 +124,7 @@
           <td><input name="envVarValue${i}" type="text" style="width: 25em"/></td>
           <td>
             <select name="envVarType${i}" type="text">
+              <option value="string"></option>
               <option value="string"><grouper:message key="simplePermissionAssign.limitEnvironmentVariableTypeString" /></option>
               <option value="integer"><grouper:message key="simplePermissionAssign.limitEnvironmentVariableTypeInteger" /></option>
               <option value="double"><grouper:message key="simplePermissionAssign.limitEnvironmentVariableTypeDecimal" /></option>

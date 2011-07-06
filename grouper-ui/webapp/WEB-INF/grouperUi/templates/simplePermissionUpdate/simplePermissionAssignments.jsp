@@ -293,7 +293,6 @@
         </c:otherwise>
       </c:choose>
 --%>
-
               <c:set var="row" value="${row + 1}" />
             </c:forEach>
             <tr>

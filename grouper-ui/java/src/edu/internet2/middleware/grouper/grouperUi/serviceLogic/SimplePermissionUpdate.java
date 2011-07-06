@@ -494,9 +494,9 @@ public class SimplePermissionUpdate {
         //get the limits
         for(int i=0;i<50;i++) {
           
-          String envVarName = StringUtils.trimToNull(httpServletRequest.getParameter("envVarName"));
-          String envVarValue = StringUtils.trimToNull(httpServletRequest.getParameter("envVarValue"));
-          String envVarType = StringUtils.trimToNull(httpServletRequest.getParameter("envVarType"));
+          String envVarName = StringUtils.trimToNull(httpServletRequest.getParameter("envVarName" + i));
+          String envVarValue = StringUtils.trimToNull(httpServletRequest.getParameter("envVarValue" + i));
+          String envVarType = StringUtils.trimToNull(httpServletRequest.getParameter("envVarType" + i));
           
           if (!StringUtils.isBlank(envVarName)) {
             
