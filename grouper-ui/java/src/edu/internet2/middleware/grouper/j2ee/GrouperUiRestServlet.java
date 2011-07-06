@@ -101,7 +101,9 @@ public class GrouperUiRestServlet extends HttpServlet {
       SimplePermissionUpdateFilter.class.getSimpleName() + ".filterRoles",
       SimplePermissionUpdateFilter.class.getSimpleName() + ".filterSubjects",
       SimplePermissionUpdateFilter.class.getSimpleName() + ".filterActions",
-      SimplePermissionUpdateMenu.class.getSimpleName() + ".assignmentMenuStructure"
+      SimplePermissionUpdateMenu.class.getSimpleName() + ".assignmentMenuStructure",
+      SimplePermissionUpdateFilter.class.getSimpleName() + ".filterLimitDefinitions",
+      SimplePermissionUpdateFilter.class.getSimpleName() + ".filterLimitNames"
   );
 
   /**

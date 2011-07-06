@@ -3,6 +3,12 @@
 
 <%-- the success message will go here --%>
 <div id="permissionAddLimitMessageId"></div>
+  <script type="text/javascript">
+    //hide this after it shows for a while
+    function hidePermissionAddLimitMessage() {
+      $("#permissionAddLimitMessageId").hide('slow');
+    }
+  </script>
 
 <div class="section" style="min-width: 900px" id="permissionAddLimitPanel">
 
@@ -14,7 +20,7 @@
 
       <input type="hidden" name="permissionAssignType" 
                 value="${permissionUpdateRequestContainer.permissionType.name}" />
-      <input name="attributeAssignId" type="hidden" 
+      <input name="permissionAssignmentId" type="hidden" 
                 value="${permissionUpdateRequestContainer.guiPermissionEntry.permissionEntry.attributeAssignId }" />
 
       <table class="formTable formTableSpaced" cellspacing="2" style="margin-top: 0px; margin-bottom: 0px">
@@ -69,89 +75,50 @@
         <tr class="formTableRow">
           <td class="formTableLeft" style="vertical-align: middle">
             <label for="permissionResource">
-              <grouper:message key="simplePermissionAssign.permissionResource" />
+              <grouper:message key="simplePermissionUpdate.addLimitDefinition" />
+            </label>
+          </td>
+          <td class="formTableRight">
+             <grouper:combobox 
+               filterOperation="SimplePermissionUpdateFilter.filterLimitDefinitions" 
+               id="permissionAddLimitDef" 
+               width="700"/>
+          </td>
+        </tr>
+        <tr class="formTableRow">
+          <td class="formTableLeft" style="vertical-align: middle">
+            <label for="permissionResource">
+              <grouper:message key="simplePermissionUpdate.addLimitName" />
             </label>
             <sup class="requiredIndicator">*</sup>
           </td>
           <td class="formTableRight">
-             <grouper:combobox comboDefaultText="${permissionUpdateRequestContainer.defaultAttributeNameDisplayName}" 
-               comboDefaultValue="${permissionUpdateRequestContainer.defaultAttributeNameId}"
-               filterOperation="SimplePermissionUpdateFilter.filterPermissionResources" 
-               id="permissionAddAssignAttributeName" additionalFormElementNames="permissionAddAssignAttributeDef"
+             <grouper:combobox 
+               filterOperation="SimplePermissionUpdateFilter.filterLimitNames" 
+               id="permissionAddLimitName" additionalFormElementNames="permissionAddLimitDef"
                width="700"/>
           </td>
         </tr>
         <tr class="formTableRow">
           <td class="formTableLeft" style="vertical-align: middle">
             <label for="group">
-              <grouper:message key="simplePermissionAssign.assignRole" />
+              <grouper:message key="simplePermissionAssign.addLimitValue" />
             </label>
-            <sup class="requiredIndicator">*</sup>
           </td>
           <td class="formTableRight">
-             <grouper:combobox comboDefaultText="${permissionUpdateRequestContainer.defaultRoleDisplayName}" 
-               comboDefaultValue="${permissionUpdateRequestContainer.defaultRoleId}"
-               filterOperation="SimplePermissionUpdateFilter.filterRoles" 
-               id="permissionAddAssignRoleId" 
-               width="700"/>
-          </td>
-        </tr>
-        <c:choose>
-          <c:when test="${permissionUpdateRequestContainer.permissionType.name == 'role_subject'}">
-            <tr class="formTableRow">
-              <td class="formTableLeft" style="vertical-align: middle">
-                <label for="member">
-                  <grouper:message key="simplePermissionAssign.assignMember" />
-                </label>
-                <sup class="requiredIndicator">*</sup>
-              </td>
-              <td class="formTableRight">
-                 <grouper:combobox 
-                   filterOperation="SimplePermissionUpdateFilter.filterSubjects" 
-                   id="permissionAddAssignMemberId" additionalFormElementNames="permissionAddAssignRoleId"
-                   width="700"/>
-              </td>
-            </tr>
-          </c:when>
-        </c:choose>
-        <tr class="formTableRow">
-          <td class="formTableLeft" style="vertical-align: middle">
-            <label for="member">
-              <grouper:message key="simplePermissionAssign.assignAction" />
-            </label>
-            <sup class="requiredIndicator">*</sup>
-          </td>
-          <td class="formTableRight">
-             <grouper:combobox  comboDefaultText="${permissionUpdateRequestContainer.defaultAction}" comboDefaultValue="${permissionUpdateRequestContainer.defaultAction}"
-               filterOperation="SimplePermissionUpdateFilter.filterActions" 
-               id="permissionAddAssignAction" 
-               additionalFormElementNames="permissionAddAssignAttributeDef,permissionAddAssignAttributeName"
-               width="700"/>
-          </td>
-        </tr>
-        <tr class="formTableRow">
-          <td class="formTableLeft" style="vertical-align: middle">
-            <label for="member">
-              <grouper:message key="simplePermissionAssign.assignAllowedLabel" />
-            </label>
-            <sup class="requiredIndicator">*</sup>
-          </td>
-          <td class="formTableRight">
-           <input type="radio" name="permissionAddAllowed" value="allow" checked="checked" } /><grouper:message key="simplePermissionAssign.assignAllowedAllow" />
-           &nbsp;
-           <input type="radio" name="permissionAddAllowed" value="disallow" /><grouper:message key="simplePermissionAssign.assignAllowedDisallow" />
+            <input type="text" name="addLimitValue" />
           </td>
         </tr>
         <tr>
          <td colspan="2">
       
            <input class="blueButton" type="submit" 
-            onclick="ajax('../app/SimplePermissionUpdate.assignPermissionCancelButton'); return false;" 
-            value="${grouper:message('simplePermissionAssign.assignPermissionCancelButton', true, false) }" style="margin-top: 2px" />
+            onclick="ajax('../app/SimplePermissionUpdate.addLimitCancelButton'); return false;" 
+            value="${grouper:message('simplePermissionAssign.addLimitCancelButton', true, false) }" style="margin-top: 2px" />
          
            <input class="blueButton" type="submit" 
-            onclick="ajax('../app/SimplePermissionUpdate.assignPermission', {formIds: 'simplePermissionFilterForm, attributePermissionAssignmentFormId'}); return false;" 
-            value="${grouper:message('simplePermissionAssign.assignPermissionSubmitButton', true, false) }" style="margin-top: 2px" />
+            onclick="ajax('../app/SimplePermissionUpdate.addLimitSubmit', {formIds: 'simplePermissionFilterForm, attributePermissionAddLimitFormId'}); return false;" 
+            value="${grouper:message('simplePermissionAssign.addLimitSubmitButton', true, false) }" style="margin-top: 2px" />
          
          </td>
         </tr>
