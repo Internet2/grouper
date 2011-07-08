@@ -30,11 +30,8 @@ import edu.internet2.middleware.grouper.cache.CacheStats;
 import edu.internet2.middleware.grouper.cache.EhcacheController;
 import edu.internet2.middleware.grouper.exception.UnableToPerformException;
 import edu.internet2.middleware.grouper.hibernate.HqlQuery;
-import edu.internet2.middleware.grouper.internal.dao.QueryPaging;
-import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.permissions.PermissionEntry;
 import edu.internet2.middleware.grouper.pit.PITAttributeAssign;
-import edu.internet2.middleware.grouper.pit.PITPermissionAllView;
 import edu.internet2.middleware.subject.Subject;
 
 /**
@@ -396,20 +393,15 @@ public class CachingAttrDefResolver extends AttributeDefResolverDecorator {
         subject, permissionsEntries);
 
     for (PermissionEntry permissionEntry : permissionsEntries) {
-      putInHasPrivilegeCache(permissionEntry, subject, AttributeDefPrivilege.ATTR_VIEW,
-          filteredPermissions.contains(permissionEntry));
+      
+      // make sure we're not putting an inactive point in time entry in the cache...
+      if (permissionEntry.isActive()) {
+        putInHasPrivilegeCache(permissionEntry, subject, AttributeDefPrivilege.ATTR_VIEW,
+            filteredPermissions.contains(permissionEntry));
+      }
     }
 
     return filteredPermissions;
-  }
-  
-  /**
-   * @see edu.internet2.middleware.grouper.privs.AttributeDefResolverDecorator#postHqlFilterPITPermissions(edu.internet2.middleware.subject.Subject, java.util.Set)
-   */
-  public Set<PITPermissionAllView> postHqlFilterPITPermissions(Subject subject,
-      Set<PITPermissionAllView> pitPermissionsEntries) {
-
-    return super.getDecoratedResolver().postHqlFilterPITPermissions(subject, pitPermissionsEntries);
   }
 
   /**

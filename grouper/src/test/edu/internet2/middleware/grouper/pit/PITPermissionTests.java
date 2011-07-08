@@ -23,6 +23,7 @@ import edu.internet2.middleware.grouper.helper.SessionHelper;
 import edu.internet2.middleware.grouper.helper.StemHelper;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.permissions.PermissionEntry;
 import edu.internet2.middleware.grouper.permissions.role.Role;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
@@ -1410,7 +1411,7 @@ public class PITPermissionTests extends GrouperTest {
     ChangeLogTempToEntity.convertRecords();
     Timestamp after = getTimestampWithSleep();
 
-    Set<PITPermissionAllView> perms = GrouperDAOFactory.getFactory().getPITPermissionAllView().findPermissions(
+    Set<PermissionEntry> perms = GrouperDAOFactory.getFactory().getPITPermissionAllView().findPermissions(
         GrouperUtil.toSet(attributeDef.getId()), 
         GrouperUtil.toSet(attributeDefName1.getId()), 
         GrouperUtil.toSet(role.getId()), 
@@ -1456,7 +1457,7 @@ public class PITPermissionTests extends GrouperTest {
     ChangeLogTempToEntity.convertRecords();
     Timestamp after = getTimestampWithSleep();
 
-    Set<PITPermissionAllView> perms = GrouperDAOFactory.getFactory().getPITPermissionAllView().findPermissions(
+    Set<PermissionEntry> perms = GrouperDAOFactory.getFactory().getPITPermissionAllView().findPermissions(
         GrouperUtil.toSet(attributeDef.getId()), 
         GrouperUtil.toSet(attributeDefName1.getId()), 
         GrouperUtil.toSet(role.getId()), 
@@ -1515,7 +1516,7 @@ public class PITPermissionTests extends GrouperTest {
     ChangeLogTempToEntity.convertRecords();
     Timestamp after = getTimestampWithSleep();
 
-    Set<PITPermissionAllView> perms = GrouperDAOFactory.getFactory().getPITPermissionAllView().findPermissions(
+    Set<PermissionEntry> perms = GrouperDAOFactory.getFactory().getPITPermissionAllView().findPermissions(
         GrouperUtil.toSet(attributeDef.getId()), 
         GrouperUtil.toSet(attributeDefName1.getId()), 
         GrouperUtil.toSet(role.getId()), 
@@ -1576,7 +1577,7 @@ public class PITPermissionTests extends GrouperTest {
     
     Timestamp after = getTimestampWithSleep();
 
-    Set<PITPermissionAllView> perms = GrouperDAOFactory.getFactory().getPITPermissionAllView().findPermissions(
+    Set<PermissionEntry> perms = GrouperDAOFactory.getFactory().getPITPermissionAllView().findPermissions(
         GrouperUtil.toSet(attributeDef.getId()), 
         GrouperUtil.toSet(attributeDefName1.getId()), 
         GrouperUtil.toSet(role.getId()), 

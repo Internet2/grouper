@@ -26,7 +26,7 @@
 
   <!-- note: optimistic-lock defaults to version, but will be dynamically replaced
     based on the grouper.properties, so dont remove that attribute  -->
-  <class name="PermissionEntry" table="grouper_perms_role_subject_v" entity-name="PermissionEntryRoleSubject" >
+  <class name="PermissionEntryImpl" table="grouper_perms_role_subject_v" entity-name="PermissionEntryRoleSubject" >
 
     <composite-id >
       <key-property name="actionId" column="action_id"/>

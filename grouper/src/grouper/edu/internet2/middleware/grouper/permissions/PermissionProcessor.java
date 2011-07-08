@@ -68,7 +68,7 @@ public enum PermissionProcessor {
       for (List<PermissionEntry> permissionEntryList : permissionMap.values()) {
         
         //set the heuristics
-        PermissionEntry.orderByAndSetFriendlyHeuristic(permissionEntryList);
+        PermissionEntryUtils.orderByAndSetFriendlyHeuristic(permissionEntryList);
         
         //the first one is the one we want
         permissionEntrySet.add(permissionEntryList.get(0));

@@ -10,6 +10,7 @@ import edu.internet2.middleware.grouper.hibernate.ByHqlStatic;
 import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.PITPermissionAllViewDAO;
+import edu.internet2.middleware.grouper.permissions.PermissionEntry;
 import edu.internet2.middleware.grouper.pit.PITPermissionAllView;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
@@ -128,7 +129,10 @@ public class Hib3PITPermissionAllViewDAO extends Hib3DAO implements PITPermissio
     return perms;
   }
   
-  public Set<PITPermissionAllView> findPermissions(Collection<String> attributeDefIds, Collection<String> attributeDefNameIds, 
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.PITPermissionAllViewDAO#findPermissions(java.util.Collection, java.util.Collection, java.util.Collection, java.util.Collection, java.util.Collection, java.sql.Timestamp, java.sql.Timestamp)
+   */
+  public Set<PermissionEntry> findPermissions(Collection<String> attributeDefIds, Collection<String> attributeDefNameIds, 
       Collection<String> roleIds, Collection<String> actions, Collection<String> memberIds, Timestamp pointInTimeFrom, 
       Timestamp pointInTimeTo) {
     
@@ -237,7 +241,7 @@ public class Hib3PITPermissionAllViewDAO extends Hib3DAO implements PITPermissio
     //if we did where and, then switch to where
     sqlString = sqlString.replaceAll("where\\s+and", "where");
     
-    Set<PITPermissionAllView> results = byHqlStatic.createQuery(selectPrefix + sqlString).listSet(PITPermissionAllView.class);
+    Set<PermissionEntry> results = byHqlStatic.createQuery(selectPrefix + sqlString).listSet(PermissionEntry.class);
 
     int size = GrouperUtil.length(results);
     if (maxAssignments >= 0) {
@@ -254,7 +258,7 @@ public class Hib3PITPermissionAllViewDAO extends Hib3DAO implements PITPermissio
     }
     
     //if the hql didnt filter, we need to do that here
-    results = grouperSession.getAttributeDefResolver().postHqlFilterPITPermissions(grouperSessionSubject, results);
+    results = grouperSession.getAttributeDefResolver().postHqlFilterPermissions(grouperSessionSubject, results);
     
     //we should be down to the secure list
     return results;

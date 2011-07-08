@@ -44,7 +44,6 @@ import edu.internet2.middleware.grouper.misc.E;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.permissions.PermissionEntry;
 import edu.internet2.middleware.grouper.pit.PITAttributeAssign;
-import edu.internet2.middleware.grouper.pit.PITPermissionAllView;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
@@ -976,9 +975,17 @@ public class PrivilegeHelper {
       return null;
     }
     
+    if (isWheelOrRoot(grouperSession.getSubject())) {
+      return new LinkedHashSet<PermissionEntry>(inputPermissionEntries);
+    }
+    
     Set<PermissionEntry> permissionEntries  = new LinkedHashSet<PermissionEntry>();
     
     for (PermissionEntry permissionEntry : inputPermissionEntries) {
+      if (!permissionEntry.isActive()) {
+        continue;
+      }
+      
       Group group = GrouperDAOFactory.getFactory().getGroup().findByUuid(permissionEntry.getRoleId(), true);
       if (!canRead(grouperSession, group, grouperSession.getSubject())) {
         continue;
@@ -989,46 +996,6 @@ public class PrivilegeHelper {
       }
       permissionEntries.add(permissionEntry);
     }
-    return permissionEntries;
-  }
-
-  /**
-   * see if the permissions are viewable
-   * @param grouperSession 
-   * @param inputPITPermissionEntries 
-   * @return filtered pit permissions
-   * 
-   */
-  public static Set<PITPermissionAllView> canViewPITPermissions(GrouperSession grouperSession, Collection<PITPermissionAllView> inputPITPermissionEntries) {
-    
-    if (inputPITPermissionEntries == null) {
-      return null;
-    }
-    
-    if (isWheelOrRoot(grouperSession.getSubject())) {
-      return new LinkedHashSet<PITPermissionAllView>(inputPITPermissionEntries);
-    }
-    
-    Set<PITPermissionAllView> permissionEntries  = new LinkedHashSet<PITPermissionAllView>();
-    
-    for (PITPermissionAllView permissionEntry : inputPITPermissionEntries) {
-      if (!permissionEntry.isActive()) {
-        continue;
-      }
-      
-      Group group = GrouperDAOFactory.getFactory().getGroup().findByUuid(permissionEntry.getRoleId(), true);
-      if (!canRead(grouperSession, group, grouperSession.getSubject())) {
-        continue;
-      }
-      
-      AttributeDef attributeDef = GrouperDAOFactory.getFactory().getAttributeDef().findById(permissionEntry.getAttributeDefId(), true);
-      if (!canAttrRead(grouperSession, attributeDef, grouperSession.getSubject())) {
-        continue;
-      }
-      
-      permissionEntries.add(permissionEntry);
-    }
-    
     return permissionEntries;
   }
   

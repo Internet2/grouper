@@ -29,7 +29,6 @@ import edu.internet2.middleware.grouper.internal.dao.QueryPaging;
 import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.permissions.PermissionEntry;
 import edu.internet2.middleware.grouper.pit.PITAttributeAssign;
-import edu.internet2.middleware.grouper.pit.PITPermissionAllView;
 import edu.internet2.middleware.subject.Subject;
 
 
@@ -233,15 +232,6 @@ public interface AttributeDefResolver {
   public Set<PermissionEntry> postHqlFilterPermissions(
       Subject subject, Set<PermissionEntry> permissionsEntries);
   
-  /**
-   * filter permissions for things the subject can see
-   * @param pitPermissionsEntries
-   * @param subject
-   * @return the pit permission entries
-   */
-  public Set<PITPermissionAllView> postHqlFilterPITPermissions(
-      Subject subject, Set<PITPermissionAllView> pitPermissionsEntries);
-
   /**
    * Revoke all attrDef privileges that this subject has.
    * @param subject

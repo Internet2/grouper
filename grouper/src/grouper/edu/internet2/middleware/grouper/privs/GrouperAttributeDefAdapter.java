@@ -29,7 +29,6 @@ import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hibernate.HqlQuery;
 import edu.internet2.middleware.grouper.permissions.PermissionEntry;
 import edu.internet2.middleware.grouper.pit.PITAttributeAssign;
-import edu.internet2.middleware.grouper.pit.PITPermissionAllView;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
@@ -130,26 +129,17 @@ public class GrouperAttributeDefAdapter extends GrouperNonDbAttrDefAdapter {
   @Override
   public Set<PermissionEntry> postHqlFilterPermissions(GrouperSession grouperSession,
       Subject subject, Set<PermissionEntry> permissionEntries) {
-    return permissionEntries;
-  }
-  
-  /**
-   * @see edu.internet2.middleware.grouper.privs.BaseAttrDefAdapter#postHqlFilterPITPermissions(edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.subject.Subject, java.util.Set)
-   */
-  @Override
-  public Set<PITPermissionAllView> postHqlFilterPITPermissions(GrouperSession grouperSession,
-      Subject subject, Set<PITPermissionAllView> pitPermissionEntries) {
-
-    if (pitPermissionEntries == null) {
+    
+    if (permissionEntries == null) {
       return null;
     }
     
     // if we get here, we're not wheel or root so filter out inactive permissions
-    Set<PITPermissionAllView> filteredPermissions = new LinkedHashSet<PITPermissionAllView>();
+    Set<PermissionEntry> filteredPermissions = new LinkedHashSet<PermissionEntry>();
     
-    for (PITPermissionAllView pitPermissionEntry : pitPermissionEntries) {
-      if (pitPermissionEntry.isActive()) {
-        filteredPermissions.add(pitPermissionEntry);
+    for (PermissionEntry permissionEntry : permissionEntries) {
+      if (permissionEntry.isActive()) {
+        filteredPermissions.add(permissionEntry);
       }
     }
     
