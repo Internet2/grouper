@@ -26,6 +26,7 @@ import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
 import edu.internet2.middleware.grouper.grouperUi.beans.permissionUpdate.PermissionUpdateRequestContainer;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.permissions.PermissionEntry;
+import edu.internet2.middleware.grouper.permissions.PermissionEntryUtils;
 import edu.internet2.middleware.grouper.permissions.PermissionFinder;
 import edu.internet2.middleware.grouper.permissions.PermissionHeuristic;
 import edu.internet2.middleware.grouper.permissions.PermissionHeuristicBetter;
@@ -423,7 +424,7 @@ public class SimplePermissionUpdateMenu {
       //add the rest
       permissionEntriesList.addAll(permissionEntries);
 
-      PermissionEntry.orderByAndSetFriendlyHeuristic(permissionEntriesList);
+      PermissionEntryUtils.orderByAndSetFriendlyHeuristic(permissionEntriesList);
 
 
       GuiPermissionEntry guiPermissionEntry = new GuiPermissionEntry();
