@@ -121,7 +121,10 @@ import edu.internet2.middleware.grouper.privs.AccessResolver;
 import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.rules.RuleCheckType;
+import edu.internet2.middleware.grouper.rules.RuleDefinition;
 import edu.internet2.middleware.grouper.rules.RuleEngine;
+import edu.internet2.middleware.grouper.rules.RuleThenEnum;
+import edu.internet2.middleware.grouper.rules.RuleUtils;
 import edu.internet2.middleware.grouper.rules.beans.RulesMembershipBean;
 import edu.internet2.middleware.grouper.rules.beans.RulesPrivilegeBean;
 import edu.internet2.middleware.grouper.subj.GrouperSubject;
@@ -5065,6 +5068,46 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
    * @see edu.internet2.middleware.grouper.hibernate.HibGrouperLifecycle#onPostUpdate(HibernateSession)
    */
   public void onPostUpdate(HibernateSession hibernateSession) {
+    
+    if (this.dbVersionDifferentFields().contains(FIELD_NAME)) {
+      GrouperSession.callbackGrouperSession(GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+  
+        /**
+         * @see edu.internet2.middleware.grouper.misc.GrouperSessionHandler#callback(edu.internet2.middleware.grouper.GrouperSession)
+         */
+        public Object callback(GrouperSession rootSession) throws GrouperSessionException {
+
+          // need to potentially update group name in rules
+          Set<RuleDefinition> definitions = RuleEngine.ruleEngine().getRuleDefinitions();
+          for (RuleDefinition definition : definitions) {
+            if (definition.getCheck() != null && definition.getCheck().checkTypeEnum() != null && 
+                definition.getCheck().checkTypeEnum().isCheckOwnerTypeGroup(definition) && Group.this.dbVersion().getName().equals(definition.getCheck().getCheckOwnerName())) {
+              definition.getAttributeAssignType().getAttributeValueDelegate().assignValue(RuleUtils.ruleCheckOwnerNameName(), Group.this.getName());
+            }
+            
+            if (definition.getIfCondition() != null && definition.getIfCondition().ifConditionEnum() != null &&
+                definition.getIfCondition().ifConditionEnum().isIfOwnerTypeGroup(definition) && Group.this.dbVersion().getName().equals(definition.getIfCondition().getIfOwnerName())) {
+              definition.getAttributeAssignType().getAttributeValueDelegate().assignValue(RuleUtils.ruleIfOwnerNameName(), Group.this.getName());
+            }
+            
+            // thenEnumArg0 can be a packed subject string so it may need to be updated...
+            RuleThenEnum ruleThenEnum = definition.getThen().thenEnum();
+            if ((ruleThenEnum == RuleThenEnum.assignGroupPrivilegeToGroupId ||
+                ruleThenEnum == RuleThenEnum.assignStemPrivilegeToStemId ||
+                ruleThenEnum == RuleThenEnum.assignAttributeDefPrivilegeToAttributeDefId) &&
+                definition.getThen().getThenEnumArg0().endsWith(Group.this.dbVersion().getName())) {
+              
+              String prefix = definition.getThen().getThenEnumArg0().substring(0, definition.getThen().getThenEnumArg0().length() - Group.this.dbVersion().getName().length());
+              if (prefix.trim().isEmpty() || prefix.trim().endsWith("::")) {
+                definition.getAttributeAssignType().getAttributeValueDelegate().assignValue(RuleUtils.ruleThenEnumArg0Name(), prefix + Group.this.getName());
+              }
+            }
+          }
+          
+          return null;
+        }
+      });
+    }
     
     super.onPostUpdate(hibernateSession);
     

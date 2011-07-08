@@ -32,6 +32,7 @@ import edu.internet2.middleware.grouper.changeLog.ChangeLogEntry;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogLabels;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogTypeBuiltin;
 import edu.internet2.middleware.grouper.exception.GrouperException;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
@@ -47,8 +48,12 @@ import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperHasContext;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.misc.Owner;
+import edu.internet2.middleware.grouper.rules.RuleDefinition;
+import edu.internet2.middleware.grouper.rules.RuleEngine;
+import edu.internet2.middleware.grouper.rules.RuleUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.xml.export.XmlExportAttributeDef;
 import edu.internet2.middleware.grouper.xml.export.XmlImportable;
@@ -1752,6 +1757,33 @@ public class AttributeDef extends GrouperAPI implements GrouperHasContext,
    * @see edu.internet2.middleware.grouper.hibernate.HibGrouperLifecycle#onPostUpdate(HibernateSession)
    */
   public void onPostUpdate(HibernateSession hibernateSession) {
+    
+    if (this.dbVersionDifferentFields().contains(FIELD_NAME)) {
+      GrouperSession.callbackGrouperSession(GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+  
+        /**
+         * @see edu.internet2.middleware.grouper.misc.GrouperSessionHandler#callback(edu.internet2.middleware.grouper.GrouperSession)
+         */
+        public Object callback(GrouperSession rootSession) throws GrouperSessionException {
+
+          // need to potentially update attribute def name in rules
+          Set<RuleDefinition> definitions = RuleEngine.ruleEngine().getRuleDefinitions();
+          for (RuleDefinition definition : definitions) {
+            if (definition.getCheck() != null && definition.getCheck().checkTypeEnum() != null && 
+                definition.getCheck().checkTypeEnum().isCheckOwnerTypeAttributeDef(definition) && AttributeDef.this.dbVersion().getName().equals(definition.getCheck().getCheckOwnerName())) {
+              definition.getAttributeAssignType().getAttributeValueDelegate().assignValue(RuleUtils.ruleCheckOwnerNameName(), AttributeDef.this.getName());
+            }
+            
+            if (definition.getIfCondition() != null && definition.getIfCondition().ifConditionEnum() != null &&
+                definition.getIfCondition().ifConditionEnum().isIfOwnerTypeAttributeDef(definition) && AttributeDef.this.dbVersion().getName().equals(definition.getIfCondition().getIfOwnerName())) {
+              definition.getAttributeAssignType().getAttributeValueDelegate().assignValue(RuleUtils.ruleIfOwnerNameName(), AttributeDef.this.getName());
+            }
+          }
+          
+          return null;
+        }
+      });
+    }
     
     super.onPostUpdate(hibernateSession);
     

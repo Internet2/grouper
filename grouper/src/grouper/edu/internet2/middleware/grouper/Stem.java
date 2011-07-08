@@ -105,7 +105,10 @@ import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.rules.RuleCheckType;
+import edu.internet2.middleware.grouper.rules.RuleDefinition;
 import edu.internet2.middleware.grouper.rules.RuleEngine;
+import edu.internet2.middleware.grouper.rules.RuleIfConditionEnum;
+import edu.internet2.middleware.grouper.rules.RuleUtils;
 import edu.internet2.middleware.grouper.rules.beans.RulesAttributeDefBean;
 import edu.internet2.middleware.grouper.rules.beans.RulesGroupBean;
 import edu.internet2.middleware.grouper.rules.beans.RulesPrivilegeBean;
@@ -2811,9 +2814,45 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
    */
   @Override
   public void onPostUpdate(HibernateSession hibernateSession) {
-
-    super.onPostUpdate(hibernateSession);
     
+    if (this.dbVersionDifferentFields().contains(FIELD_NAME)) {
+      GrouperSession.callbackGrouperSession(GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+  
+        /**
+         * @see edu.internet2.middleware.grouper.misc.GrouperSessionHandler#callback(edu.internet2.middleware.grouper.GrouperSession)
+         */
+        public Object callback(GrouperSession rootSession) throws GrouperSessionException {
+
+          // need to potentially update stem name in rules
+          Set<RuleDefinition> definitions = RuleEngine.ruleEngine().getRuleDefinitions();
+          for (RuleDefinition definition : definitions) {
+            if (definition.getCheck() != null && definition.getCheck().checkTypeEnum() != null && 
+                definition.getCheck().checkTypeEnum().isCheckOwnerTypeStem(definition) && Stem.this.dbVersion().getName().equals(definition.getCheck().getCheckOwnerName())) {
+              definition.getAttributeAssignType().getAttributeValueDelegate().assignValue(RuleUtils.ruleCheckOwnerNameName(), Stem.this.getName());
+            }
+            
+            if (definition.getIfCondition() != null && definition.getIfCondition().ifConditionEnum() != null &&
+                definition.getIfCondition().ifConditionEnum().isIfOwnerTypeStem(definition) && Stem.this.dbVersion().getName().equals(definition.getIfCondition().getIfOwnerName())) {
+              definition.getAttributeAssignType().getAttributeValueDelegate().assignValue(RuleUtils.ruleIfOwnerNameName(), Stem.this.getName());
+            }
+            
+            // take care of nameMatchesSqlLikeString
+            // if sql like string is a:b:%someGroup and a is changing to x:a, update sql like string to x:a:b:%someGroup
+            if (definition.getIfCondition() != null && definition.getIfCondition().ifConditionEnum() == RuleIfConditionEnum.nameMatchesSqlLikeString) {
+              if (definition.getIfCondition().getIfConditionEnumArg0().startsWith(Stem.this.dbVersion().getName() + ":")) {
+                String newString = Stem.this.getName() + definition.getIfCondition().getIfConditionEnumArg0().substring(Stem.this.dbVersion().getName().length());
+                definition.getAttributeAssignType().getAttributeValueDelegate().assignValue(RuleUtils.ruleIfConditionEnumArg0Name(), newString);
+              }
+            }
+          }
+          
+          return null;
+        }
+      });
+    }
+    
+    super.onPostUpdate(hibernateSession);
+
     GrouperHooksUtils.schedulePostCommitHooksIfRegistered(GrouperHookType.STEM, 
         StemHooks.METHOD_STEM_POST_COMMIT_UPDATE, HooksStemBean.class, 
         this, Stem.class);

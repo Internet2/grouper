@@ -72,6 +72,30 @@ public enum RuleIfConditionEnum {
       
       return null;
     }
+
+    /**
+     * @see edu.internet2.middleware.grouper.rules.RuleIfConditionEnum#isIfOwnerTypeAttributeDef(edu.internet2.middleware.grouper.rules.RuleDefinition)
+     */
+    @Override
+    public boolean isIfOwnerTypeAttributeDef(RuleDefinition ruleDefinition) {
+      return false;
+    }
+
+    /**
+     * @see edu.internet2.middleware.grouper.rules.RuleIfConditionEnum#isIfOwnerTypeGroup(edu.internet2.middleware.grouper.rules.RuleDefinition)
+     */
+    @Override
+    public boolean isIfOwnerTypeGroup(RuleDefinition ruleDefinition) {
+      return false;
+    }
+
+    /**
+     * @see edu.internet2.middleware.grouper.rules.RuleIfConditionEnum#isIfOwnerTypeStem(edu.internet2.middleware.grouper.rules.RuleDefinition)
+     */
+    @Override
+    public boolean isIfOwnerTypeStem(RuleDefinition ruleDefinition) {
+      return true;
+    }
     
   },
   /**
@@ -123,6 +147,29 @@ public enum RuleIfConditionEnum {
       return null;
     }
     
+    /**
+     * @see edu.internet2.middleware.grouper.rules.RuleIfConditionEnum#isIfOwnerTypeAttributeDef(edu.internet2.middleware.grouper.rules.RuleDefinition)
+     */
+    @Override
+    public boolean isIfOwnerTypeAttributeDef(RuleDefinition ruleDefinition) {
+      return false;
+    }
+
+    /**
+     * @see edu.internet2.middleware.grouper.rules.RuleIfConditionEnum#isIfOwnerTypeGroup(edu.internet2.middleware.grouper.rules.RuleDefinition)
+     */
+    @Override
+    public boolean isIfOwnerTypeGroup(RuleDefinition ruleDefinition) {
+      return false;
+    }
+
+    /**
+     * @see edu.internet2.middleware.grouper.rules.RuleIfConditionEnum#isIfOwnerTypeStem(edu.internet2.middleware.grouper.rules.RuleDefinition)
+     */
+    @Override
+    public boolean isIfOwnerTypeStem(RuleDefinition ruleDefinition) {
+      return false;
+    }
   },
   /**
    * make sure this group and not the folder has membership
@@ -183,6 +230,29 @@ public enum RuleIfConditionEnum {
       return super.validate(ruleDefinition);
     }
     
+    /**
+     * @see edu.internet2.middleware.grouper.rules.RuleIfConditionEnum#isIfOwnerTypeAttributeDef(edu.internet2.middleware.grouper.rules.RuleDefinition)
+     */
+    @Override
+    public boolean isIfOwnerTypeAttributeDef(RuleDefinition ruleDefinition) {
+      return false;
+    }
+
+    /**
+     * @see edu.internet2.middleware.grouper.rules.RuleIfConditionEnum#isIfOwnerTypeGroup(edu.internet2.middleware.grouper.rules.RuleDefinition)
+     */
+    @Override
+    public boolean isIfOwnerTypeGroup(RuleDefinition ruleDefinition) {
+      return false;
+    }
+
+    /**
+     * @see edu.internet2.middleware.grouper.rules.RuleIfConditionEnum#isIfOwnerTypeStem(edu.internet2.middleware.grouper.rules.RuleDefinition)
+     */
+    @Override
+    public boolean isIfOwnerTypeStem(RuleDefinition ruleDefinition) {
+      return false;
+    }
   },
   /** 
    * make sure there is not a membership in folder, but does have an attributeDef
@@ -234,6 +304,29 @@ public enum RuleIfConditionEnum {
       return super.validate(ruleDefinition);
     }
 
+    /**
+     * @see edu.internet2.middleware.grouper.rules.RuleIfConditionEnum#isIfOwnerTypeAttributeDef(edu.internet2.middleware.grouper.rules.RuleDefinition)
+     */
+    @Override
+    public boolean isIfOwnerTypeAttributeDef(RuleDefinition ruleDefinition) {
+      return false;
+    }
+
+    /**
+     * @see edu.internet2.middleware.grouper.rules.RuleIfConditionEnum#isIfOwnerTypeGroup(edu.internet2.middleware.grouper.rules.RuleDefinition)
+     */
+    @Override
+    public boolean isIfOwnerTypeGroup(RuleDefinition ruleDefinition) {
+      return false;
+    }
+
+    /**
+     * @see edu.internet2.middleware.grouper.rules.RuleIfConditionEnum#isIfOwnerTypeStem(edu.internet2.middleware.grouper.rules.RuleDefinition)
+     */
+    @Override
+    public boolean isIfOwnerTypeStem(RuleDefinition ruleDefinition) {
+      return false;
+    }
   },
   
   /**
@@ -299,6 +392,34 @@ public enum RuleIfConditionEnum {
 
     }
     
+    /**
+     * @see edu.internet2.middleware.grouper.rules.RuleIfConditionEnum#isIfOwnerTypeAttributeDef(edu.internet2.middleware.grouper.rules.RuleDefinition)
+     */
+    @Override
+    public boolean isIfOwnerTypeAttributeDef(RuleDefinition ruleDefinition) {
+      return false;
+    }
+
+    /**
+     * @see edu.internet2.middleware.grouper.rules.RuleIfConditionEnum#isIfOwnerTypeGroup(edu.internet2.middleware.grouper.rules.RuleDefinition)
+     */
+    @Override
+    public boolean isIfOwnerTypeGroup(RuleDefinition ruleDefinition) {
+      if (!StringUtils.isBlank(ruleDefinition.getIfCondition().getIfOwnerId()) || !StringUtils.isBlank(ruleDefinition.getIfCondition().getIfOwnerName())) {
+        return true;
+      }
+      
+      return false;
+    }
+
+    /**
+     * @see edu.internet2.middleware.grouper.rules.RuleIfConditionEnum#isIfOwnerTypeStem(edu.internet2.middleware.grouper.rules.RuleDefinition)
+     */
+    @Override
+    public boolean isIfOwnerTypeStem(RuleDefinition ruleDefinition) {
+      return false;
+    }
+    
   }, 
   
   
@@ -360,6 +481,33 @@ public enum RuleIfConditionEnum {
       }
     }
 
+    /**
+     * @see edu.internet2.middleware.grouper.rules.RuleIfConditionEnum#isIfOwnerTypeAttributeDef(edu.internet2.middleware.grouper.rules.RuleDefinition)
+     */
+    @Override
+    public boolean isIfOwnerTypeAttributeDef(RuleDefinition ruleDefinition) {
+      return false;
+    }
+
+    /**
+     * @see edu.internet2.middleware.grouper.rules.RuleIfConditionEnum#isIfOwnerTypeGroup(edu.internet2.middleware.grouper.rules.RuleDefinition)
+     */
+    @Override
+    public boolean isIfOwnerTypeGroup(RuleDefinition ruleDefinition) {
+      if (!StringUtils.isBlank(ruleDefinition.getIfCondition().getIfOwnerId()) || !StringUtils.isBlank(ruleDefinition.getIfCondition().getIfOwnerName())) {
+        return true;
+      }
+      
+      return false;
+    }
+
+    /**
+     * @see edu.internet2.middleware.grouper.rules.RuleIfConditionEnum#isIfOwnerTypeStem(edu.internet2.middleware.grouper.rules.RuleDefinition)
+     */
+    @Override
+    public boolean isIfOwnerTypeStem(RuleDefinition ruleDefinition) {
+      return false;
+    }
   },
   
   /** if on group which has membership with no end date */
@@ -426,6 +574,33 @@ public enum RuleIfConditionEnum {
       }
     }
 
+    /**
+     * @see edu.internet2.middleware.grouper.rules.RuleIfConditionEnum#isIfOwnerTypeAttributeDef(edu.internet2.middleware.grouper.rules.RuleDefinition)
+     */
+    @Override
+    public boolean isIfOwnerTypeAttributeDef(RuleDefinition ruleDefinition) {
+      return false;
+    }
+
+    /**
+     * @see edu.internet2.middleware.grouper.rules.RuleIfConditionEnum#isIfOwnerTypeGroup(edu.internet2.middleware.grouper.rules.RuleDefinition)
+     */
+    @Override
+    public boolean isIfOwnerTypeGroup(RuleDefinition ruleDefinition) {
+      if (!StringUtils.isBlank(ruleDefinition.getIfCondition().getIfOwnerId()) || !StringUtils.isBlank(ruleDefinition.getIfCondition().getIfOwnerName())) {
+        return true;
+      }
+      
+      return false;
+    }
+
+    /**
+     * @see edu.internet2.middleware.grouper.rules.RuleIfConditionEnum#isIfOwnerTypeStem(edu.internet2.middleware.grouper.rules.RuleDefinition)
+     */
+    @Override
+    public boolean isIfOwnerTypeStem(RuleDefinition ruleDefinition) {
+      return false;
+    }
   },
   /** if permission def has assignment */
   thisPermissionDefHasAssignment {
@@ -444,6 +619,30 @@ public enum RuleIfConditionEnum {
       return GrouperUtil.length(permissionEntries) > 0;
       
     }
+    
+    /**
+     * @see edu.internet2.middleware.grouper.rules.RuleIfConditionEnum#isIfOwnerTypeAttributeDef(edu.internet2.middleware.grouper.rules.RuleDefinition)
+     */
+    @Override
+    public boolean isIfOwnerTypeAttributeDef(RuleDefinition ruleDefinition) {
+      return false;
+    }
+
+    /**
+     * @see edu.internet2.middleware.grouper.rules.RuleIfConditionEnum#isIfOwnerTypeGroup(edu.internet2.middleware.grouper.rules.RuleDefinition)
+     */
+    @Override
+    public boolean isIfOwnerTypeGroup(RuleDefinition ruleDefinition) {
+      return false;
+    }
+
+    /**
+     * @see edu.internet2.middleware.grouper.rules.RuleIfConditionEnum#isIfOwnerTypeStem(edu.internet2.middleware.grouper.rules.RuleDefinition)
+     */
+    @Override
+    public boolean isIfOwnerTypeStem(RuleDefinition ruleDefinition) {
+      return false;
+    }
   },
   /** if permission def has assignment with no end date */
   thisPermissionDefHasNoEndDateAssignment {
@@ -461,6 +660,30 @@ public enum RuleIfConditionEnum {
       
       return GrouperUtil.length(permissionEntries) > 0;
       
+    }
+    
+    /**
+     * @see edu.internet2.middleware.grouper.rules.RuleIfConditionEnum#isIfOwnerTypeAttributeDef(edu.internet2.middleware.grouper.rules.RuleDefinition)
+     */
+    @Override
+    public boolean isIfOwnerTypeAttributeDef(RuleDefinition ruleDefinition) {
+      return false;
+    }
+
+    /**
+     * @see edu.internet2.middleware.grouper.rules.RuleIfConditionEnum#isIfOwnerTypeGroup(edu.internet2.middleware.grouper.rules.RuleDefinition)
+     */
+    @Override
+    public boolean isIfOwnerTypeGroup(RuleDefinition ruleDefinition) {
+      return false;
+    }
+
+    /**
+     * @see edu.internet2.middleware.grouper.rules.RuleIfConditionEnum#isIfOwnerTypeStem(edu.internet2.middleware.grouper.rules.RuleDefinition)
+     */
+    @Override
+    public boolean isIfOwnerTypeStem(RuleDefinition ruleDefinition) {
+      return false;
     }
   }, 
   
@@ -527,6 +750,33 @@ public enum RuleIfConditionEnum {
   
     }
     
+    /**
+     * @see edu.internet2.middleware.grouper.rules.RuleIfConditionEnum#isIfOwnerTypeAttributeDef(edu.internet2.middleware.grouper.rules.RuleDefinition)
+     */
+    @Override
+    public boolean isIfOwnerTypeAttributeDef(RuleDefinition ruleDefinition) {
+      return false;
+    }
+
+    /**
+     * @see edu.internet2.middleware.grouper.rules.RuleIfConditionEnum#isIfOwnerTypeGroup(edu.internet2.middleware.grouper.rules.RuleDefinition)
+     */
+    @Override
+    public boolean isIfOwnerTypeGroup(RuleDefinition ruleDefinition) {
+      if (!StringUtils.isBlank(ruleDefinition.getIfCondition().getIfOwnerId()) || !StringUtils.isBlank(ruleDefinition.getIfCondition().getIfOwnerName())) {
+        return true;
+      }
+      
+      return false;
+    }
+
+    /**
+     * @see edu.internet2.middleware.grouper.rules.RuleIfConditionEnum#isIfOwnerTypeStem(edu.internet2.middleware.grouper.rules.RuleDefinition)
+     */
+    @Override
+    public boolean isIfOwnerTypeStem(RuleDefinition ruleDefinition) {
+      return false;
+    }
   }, 
   
   /**
@@ -563,6 +813,30 @@ public enum RuleIfConditionEnum {
       return null;
     }
     
+    /**
+     * @see edu.internet2.middleware.grouper.rules.RuleIfConditionEnum#isIfOwnerTypeAttributeDef(edu.internet2.middleware.grouper.rules.RuleDefinition)
+     */
+    @Override
+    public boolean isIfOwnerTypeAttributeDef(RuleDefinition ruleDefinition) {
+      return false;
+    }
+
+    /**
+     * @see edu.internet2.middleware.grouper.rules.RuleIfConditionEnum#isIfOwnerTypeGroup(edu.internet2.middleware.grouper.rules.RuleDefinition)
+     */
+    @Override
+    public boolean isIfOwnerTypeGroup(RuleDefinition ruleDefinition) {
+      return false;
+    }
+
+    /**
+     * @see edu.internet2.middleware.grouper.rules.RuleIfConditionEnum#isIfOwnerTypeStem(edu.internet2.middleware.grouper.rules.RuleDefinition)
+     */
+    @Override
+    public boolean isIfOwnerTypeStem(RuleDefinition ruleDefinition) {
+      return false;
+    }
+    
   };
   
   /** logger */
@@ -577,6 +851,27 @@ public enum RuleIfConditionEnum {
    */
   public abstract boolean shouldFire(RuleDefinition ruleDefinition, 
       RuleEngine ruleEngine, RulesBean rulesBean);
+  
+  /**
+   * Whether or not the rule if condition owner type is a group
+   * @param ruleDefinition 
+   * @return true if the if condition owner type is a group
+   */
+  public abstract boolean isIfOwnerTypeGroup(RuleDefinition ruleDefinition);
+  
+  /**
+   * Whether or not the rule if condition owner type is a stem
+   * @param ruleDefinition 
+   * @return true if the if condition owner type is a stem
+   */
+  public abstract boolean isIfOwnerTypeStem(RuleDefinition ruleDefinition);
+  
+  /**
+   * Whether or not the rule if condition owner type is an attribute def
+   * @param ruleDefinition 
+   * @return true if the if condition owner type is an attribute def
+   */
+  public abstract boolean isIfOwnerTypeAttributeDef(RuleDefinition ruleDefinition);
   
   /**
    * do a case-insensitive matching
