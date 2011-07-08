@@ -13,7 +13,6 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * @author shilen
- * $Id$
  */
 public interface PermissionEntry extends Comparable<PermissionEntry> {
 
