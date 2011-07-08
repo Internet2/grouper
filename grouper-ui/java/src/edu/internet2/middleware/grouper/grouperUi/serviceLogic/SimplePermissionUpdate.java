@@ -48,6 +48,7 @@ import edu.internet2.middleware.grouper.permissions.PermissionFinder;
 import edu.internet2.middleware.grouper.permissions.PermissionProcessor;
 import edu.internet2.middleware.grouper.permissions.PermissionRoleDelegate;
 import edu.internet2.middleware.grouper.permissions.PermissionEntry.PermissionType;
+import edu.internet2.middleware.grouper.permissions.limits.PermissionLimitBean;
 import edu.internet2.middleware.grouper.permissions.role.Role;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.tags.TagUtils;
@@ -518,7 +519,9 @@ public class SimplePermissionUpdate {
 
       }
       
-      permissionEntriesFromDb = permissionFinder.findPermissions();
+      Map<PermissionEntry, Set<PermissionLimitBean>> permissionEntryLimitBeanMap = permissionFinder.findPermissionsAndLimits();
+      
+      permissionEntriesFromDb = permissionEntryLimitBeanMap.keySet();
       
       List<GuiPermissionEntryActionsContainer> guiPermissionEntryActionsContainers = new ArrayList<GuiPermissionEntryActionsContainer>();
       
@@ -526,10 +529,11 @@ public class SimplePermissionUpdate {
       Map<MultiKey, GuiPermissionEntryActionsContainer> actionsToPermissionsEntryActionsContainer 
         = new HashMap<MultiKey, GuiPermissionEntryActionsContainer>();
       
-      //lets link the attribute def id to a GuiPermissionEntryActionsContainer
+      //lets link the attribute def id to a GuiPermissionEntryActionsContainer to save time since the attributeDefId has the same set of actions
       Map<String, GuiPermissionEntryActionsContainer> attributeDefIdToPermissionsEntryActionsContainer 
         = new HashMap<String, GuiPermissionEntryActionsContainer>();
 
+      //we need all actions so the screen knows how many columns etc
       Set<String> allActionsSet = new TreeSet<String>();
       
       if (!StringUtils.isBlank(action)) {
@@ -589,7 +593,7 @@ public class SimplePermissionUpdate {
       
       for (GuiPermissionEntryActionsContainer guiPermissionEntryActionsContainer : guiPermissionEntryActionsContainers) {
         
-        guiPermissionEntryActionsContainer.processRawEntries();
+        guiPermissionEntryActionsContainer.processRawEntries(permissionEntryLimitBeanMap);
         
       }
       

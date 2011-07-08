@@ -411,26 +411,12 @@ public class SimplePermissionUpdateMenu {
         PermissionEntry current = iterator.next();
         
         //find the immediate one
-        if (current.isImmediatePermission()) {
-          boolean immediate = false;
-          if (permissionType == PermissionType.role) {
-            
-            immediate = true;
-          } else {
-            if (current.getPermissionType() == PermissionType.role_subject && current.isImmediateMembership()) {
-              immediate = true;
-            }            
-          }
-          
-          if (immediate) {
-            permissionEntry = current;
-            iterator.remove();
-            //move this to the front of the list
-            permissionEntriesList.add(permissionEntry);
-            break;
-            
-          }
-          
+        if (current.isImmediate(permissionType)) {
+          permissionEntry = current;
+          iterator.remove();
+          //move this to the front of the list
+          permissionEntriesList.add(permissionEntry);
+          break;
         }
       }
       

@@ -1025,6 +1025,30 @@ public class PermissionEntry extends GrouperAPI implements Comparable<Permission
   }
 
   /**
+   * 
+   * @param thePermissionType
+   * @return if immediate, considering which permission type we are looking at
+   */
+  public boolean isImmediate(PermissionType thePermissionType) {
+    
+    //if inherited from another permission type
+    if (this.permissionType != thePermissionType) {
+      return false;
+    }
+    
+    if (thePermissionType == PermissionType.role) {
+      return this.isImmediatePermission();
+    }
+    
+    if (thePermissionType != PermissionType.role_subject) {
+      throw new RuntimeException("Not expecting permissionType: " + thePermissionType);
+    }
+    
+    return this.isImmediateMembership() && this.isImmediatePermission();
+    
+  }
+  
+  /**
    * see if the membership is unassignable directly
    * @return true if immediate
    */

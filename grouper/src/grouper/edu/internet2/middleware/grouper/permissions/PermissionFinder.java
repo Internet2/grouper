@@ -23,6 +23,7 @@ import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.permissions.PermissionEntry.PermissionType;
+import edu.internet2.middleware.grouper.permissions.limits.PermissionLimitBean;
 import edu.internet2.middleware.grouper.permissions.role.Role;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
@@ -415,6 +416,22 @@ public class PermissionFinder {
   }
   
   /**
+   * get the permissions, and the limits, so the caller (e.g. the UI/WS) doesnt have to get them again
+   * @return the map of entry to the limits and values
+   */
+  public Map<PermissionEntry, Set<PermissionLimitBean>> findPermissionsAndLimits() {
+    
+    Set<PermissionEntry> permissionEntrySet = this.findPermissions();
+    
+    //get limits from permissions
+    Map<PermissionEntry, Set<PermissionLimitBean>> permissionLimitBeanMap = GrouperUtil.nonNull(PermissionLimitBean.findPermissionLimits(permissionEntrySet));
+    
+    PermissionProcessor.processLimits(permissionEntrySet, this.limitEnvVars, permissionLimitBeanMap);
+    
+    return permissionLimitBeanMap;
+  }
+  
+  /**
    * find a list of permissions
    * @return the set of permissions never null
    */
@@ -452,16 +469,8 @@ public class PermissionFinder {
       Iterator<PermissionEntry> iterator = GrouperUtil.nonNull(permissionEntries).iterator();
       while (iterator.hasNext()) {
         PermissionEntry permissionEntry = iterator.next();
-        if (this.permissionType == PermissionType.role_subject) {
-          if (!permissionEntry.isImmediateMembership() || !permissionEntry.isImmediatePermission() || permissionEntry.getPermissionType() != PermissionType.role_subject) {
-            iterator.remove();
-          }
-        } else if (this.permissionType == PermissionType.role) {
-          if (!permissionEntry.isImmediatePermission()) {
-            iterator.remove();
-          }
-        } else {
-          throw new RuntimeException("Not expecting permission type: " + this.permissionType);
+        if (!permissionEntry.isImmediate(this.permissionType)) {
+          iterator.remove();
         }
       }
     }

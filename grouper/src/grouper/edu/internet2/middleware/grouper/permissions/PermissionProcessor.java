@@ -158,91 +158,7 @@ public enum PermissionProcessor {
       //get limits from permissions
       Map<PermissionEntry, Set<PermissionLimitBean>> permissionLimitBeanMap = GrouperUtil.nonNull(PermissionLimitBean.findPermissionLimits(permissionEntrySet));
       
-      //if there are string values, and needed to be typecast, do that here
-      Map<String, Object> limitEnvVarsObject = GrouperUtil.typeCastStringStringMap(limitEnvVarsString);
-      
-      PermissionLimitUtils.addStandardLimitVariablesIfNotExist(limitEnvVarsObject);
-      
-      //TODO add logging in here
-      for (PermissionEntry permissionEntry : permissionEntrySet) {
-        
-        Set<PermissionLimitBean> permissionLimitBeanSet = permissionLimitBeanMap.get(permissionEntry);
-        
-        for (PermissionLimitBean permissionLimitBean : GrouperUtil.nonNull(permissionLimitBeanSet)) {
-          
-          AttributeAssign limit = permissionLimitBean.getLimitAssign();
-          
-          Set<AttributeAssignValue> limitValues = permissionLimitBean.getLimitAssignValues();
-          
-          String limitName = limit.getAttributeDefName().getName();
-          PermissionLimitInterface permissionLimitInterface = PermissionLimitUtils
-            .logicInstance(limitName);
-          
-          if (permissionLimitInterface == null) {
-            throw new RuntimeException("Cannot find logic class for limit: " + limitName);
-          }
-          
-          //lets check the cache
-          int cacheMinutes = permissionLimitInterface.cacheLimitValueResultMinutes();
-          
-          MultiKey multiKey = null;
-          ExpirableCache<MultiKey, Boolean> cache = null;
-          
-          if (cacheMinutes > 0) {
-            cache = limitLogicCaches.get(cacheMinutes);
-            if (cache == null) {
-              cache = new ExpirableCache<MultiKey, Boolean>(cacheMinutes);
-              limitLogicCaches.put(cacheMinutes, cache);
-            }
-            
-            //lets make the key
-            List<Object> keyParts = new ArrayList<Object>();
-            keyParts.add(limit.getAttributeDefNameId());
-            keyParts.add(GrouperUtil.length(limitValues));
-            keyParts.add(GrouperUtil.length(limitEnvVarsString));
-            
-            //lets add the limit values
-            List<String> limitValuesStringList = new ArrayList<String>();
-            for (AttributeAssignValue attributeAssignValue : GrouperUtil.nonNull(limitValues)) {
-              limitValuesStringList.add(attributeAssignValue.valueString(false));
-            }
-            //sort so always the same
-            Collections.sort(limitValuesStringList);
-            for (String value : limitValuesStringList) {
-              keyParts.add(value);
-            }
-            
-            //get the map, sorted
-            TreeMap<String, Object> sortedArgMap = new TreeMap<String, Object>(GrouperUtil.nonNull(limitEnvVarsString));
-            for (String key : sortedArgMap.keySet()) {
-              keyParts.add(key);
-              keyParts.add(sortedArgMap.get(key));
-            }
-            multiKey = new MultiKey(keyParts.toArray());
-            
-            Boolean result = cache.get(multiKey);
-            if (result != null) {
-              if (!result) {
-                permissionEntry.setAllowedOverall(false);
-                continue;
-              }
-            }
-          }
-
-          //run the logic
-          boolean allowed = permissionLimitInterface.allowPermission(permissionEntry, limit, limitValues, limitEnvVarsObject, permissionLimitBeanSet);
-          
-          if (!allowed) {
-            permissionEntry.setAllowedOverall(false);
-          }
-          
-          //cache the result?
-          if (cacheMinutes > 0) {
-            cache.put(multiKey, allowed);
-          }
-          
-        }
-      }
+      processLimits(permissionEntrySet, limitEnvVarsString, permissionLimitBeanMap);
     }
   };
   
@@ -298,6 +214,103 @@ public enum PermissionProcessor {
    */
   public abstract void processPermissions(Collection<PermissionEntry> permissionEntrySet, 
       Map<String, Object> limitEnvVars);
+
+  /**
+   * process limits on some permission entries
+   * @param permissionEntrySet
+   * @param limitEnvVarsString can have types in there or not
+   * @param permissionLimitBeanMap the map of permission entry to its associated limits
+   * you can get that with PermissionLimitBean.findPermissionLimits()
+   */
+  public static void processLimits(Collection<PermissionEntry> permissionEntrySet,
+      Map<String, Object> limitEnvVarsString,
+      Map<PermissionEntry, Set<PermissionLimitBean>> permissionLimitBeanMap) {
+    //if there are string values, and needed to be typecast, do that here
+    Map<String, Object> limitEnvVarsObject = GrouperUtil.typeCastStringStringMap(limitEnvVarsString);
+    
+    PermissionLimitUtils.addStandardLimitVariablesIfNotExist(limitEnvVarsObject);
+    
+    //TODO add logging in here
+    for (PermissionEntry permissionEntry : permissionEntrySet) {
+      
+      Set<PermissionLimitBean> permissionLimitBeanSet = permissionLimitBeanMap.get(permissionEntry);
+      
+      for (PermissionLimitBean permissionLimitBean : GrouperUtil.nonNull(permissionLimitBeanSet)) {
+        
+        AttributeAssign limit = permissionLimitBean.getLimitAssign();
+        
+        Set<AttributeAssignValue> limitValues = permissionLimitBean.getLimitAssignValues();
+        
+        String limitName = limit.getAttributeDefName().getName();
+        PermissionLimitInterface permissionLimitInterface = PermissionLimitUtils
+          .logicInstance(limitName);
+        
+        if (permissionLimitInterface == null) {
+          throw new RuntimeException("Cannot find logic class for limit: " + limitName);
+        }
+        
+        //lets check the cache
+        int cacheMinutes = permissionLimitInterface.cacheLimitValueResultMinutes();
+        
+        MultiKey multiKey = null;
+        ExpirableCache<MultiKey, Boolean> cache = null;
+        
+        if (cacheMinutes > 0) {
+          cache = limitLogicCaches.get(cacheMinutes);
+          if (cache == null) {
+            cache = new ExpirableCache<MultiKey, Boolean>(cacheMinutes);
+            limitLogicCaches.put(cacheMinutes, cache);
+          }
+          
+          //lets make the key
+          List<Object> keyParts = new ArrayList<Object>();
+          keyParts.add(limit.getAttributeDefNameId());
+          keyParts.add(GrouperUtil.length(limitValues));
+          keyParts.add(GrouperUtil.length(limitEnvVarsString));
+          
+          //lets add the limit values
+          List<String> limitValuesStringList = new ArrayList<String>();
+          for (AttributeAssignValue attributeAssignValue : GrouperUtil.nonNull(limitValues)) {
+            limitValuesStringList.add(attributeAssignValue.valueString(false));
+          }
+          //sort so always the same
+          Collections.sort(limitValuesStringList);
+          for (String value : limitValuesStringList) {
+            keyParts.add(value);
+          }
+          
+          //get the map, sorted
+          TreeMap<String, Object> sortedArgMap = new TreeMap<String, Object>(GrouperUtil.nonNull(limitEnvVarsString));
+          for (String key : sortedArgMap.keySet()) {
+            keyParts.add(key);
+            keyParts.add(sortedArgMap.get(key));
+          }
+          multiKey = new MultiKey(keyParts.toArray());
+          
+          Boolean result = cache.get(multiKey);
+          if (result != null) {
+            if (!result) {
+              permissionEntry.setAllowedOverall(false);
+              continue;
+            }
+          }
+        }
+
+        //run the logic
+        boolean allowed = permissionLimitInterface.allowPermission(permissionEntry, limit, limitValues, limitEnvVarsObject, permissionLimitBeanSet);
+        
+        if (!allowed) {
+          permissionEntry.setAllowedOverall(false);
+        }
+        
+        //cache the result?
+        if (cacheMinutes > 0) {
+          cache.put(multiKey, allowed);
+        }
+        
+      }
+    }
+  }
   
   
 

@@ -6,14 +6,18 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.CompareToBuilder;
 
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssignType;
 import edu.internet2.middleware.grouper.permissions.PermissionEntry;
 import edu.internet2.middleware.grouper.permissions.PermissionEntry.PermissionType;
+import edu.internet2.middleware.grouper.permissions.limits.PermissionLimitBean;
 import edu.internet2.middleware.grouper.permissions.role.Role;
 import edu.internet2.middleware.grouper.ui.tags.TagUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -198,6 +202,21 @@ public class GuiPermissionEntryContainer implements Serializable, Comparable<Gui
   /** raw permission entries */
   private List<PermissionEntry> rawPermissionEntries = null;
 
+  /** 
+   * limits for this row for any action in this row, note, if a limit applies to multiple actions
+   * only one item will be in this list.  Also, this is a sorted set
+   */
+  private Set<GuiPermissionLimitBeanContainer> guiPermissionLimitBeanContainers = null;
+  
+  /**
+   * limits for this row for any action in this row, note, if a limit applies to multiple actions
+   * only one item will be in this list.  Also, this is a sorted set
+   * @return set
+   */
+  public Set<GuiPermissionLimitBeanContainer> getGuiPermissionLimitBeanContainers() {
+    return this.guiPermissionLimitBeanContainers;
+  }
+
   /** permission type */
   private PermissionType permissionType;
   
@@ -270,11 +289,12 @@ public class GuiPermissionEntryContainer implements Serializable, Comparable<Gui
   /**
    * process raw entries
    * @param actions 
+   * @param permissionEntryLimitBeanMap is the map of permission entry to the set of limit beans (limits and values)
    */
-  public void processRawEntries(List<String> actions) {
+  public void processRawEntries(List<String> actions, Map<PermissionEntry, Set<PermissionLimitBean>> permissionEntryLimitBeanMap) {
     
     this.actionToGuiPermissionEntryMap = new HashMap<String, GuiPermissionEntry>();
-    
+
     //lets get an entry for each action if there is an assignment or not
     for (String action: actions) {
       GuiPermissionEntry guiPermissionEntry = new GuiPermissionEntry();
@@ -282,7 +302,11 @@ public class GuiPermissionEntryContainer implements Serializable, Comparable<Gui
       guiPermissionEntry.setPermissionType(this.permissionType);
       guiPermissionEntry.setRawGuiPermissionEntries(new ArrayList<GuiPermissionEntry>());
     }
-    
+
+    //we only want one entry for each limit, so keep track
+    Map<AttributeAssign, GuiPermissionLimitBeanContainer> limitToGuiPermissionLimitBeanContainerMap = 
+      new HashMap<AttributeAssign, GuiPermissionLimitBeanContainer>();
+
     for (PermissionEntry permissionEntry : this.getRawPermissionEntries()) {
       GuiPermissionEntry guiPermissionEntry = this.actionToGuiPermissionEntryMap.get(permissionEntry.getAction());
       
@@ -296,6 +320,37 @@ public class GuiPermissionEntryContainer implements Serializable, Comparable<Gui
       currentGui.setPermissionEntry(permissionEntry);
       
       guiPermissionEntry.getRawGuiPermissionEntries().add(currentGui);
+      
+      //lets setup the limits
+      Set<PermissionLimitBean> permissionLimitBeanSet = permissionEntryLimitBeanMap.get(permissionEntry);
+      
+      //if we got some
+      if (GrouperUtil.length(permissionLimitBeanSet) > 0) {
+        if (this.guiPermissionLimitBeanContainers == null) {
+          this.guiPermissionLimitBeanContainers = new TreeSet<GuiPermissionLimitBeanContainer>();
+        }
+        for (PermissionLimitBean permissionLimitBean : permissionLimitBeanSet) {
+          //see if we have a row for this limit yet
+          GuiPermissionLimitBeanContainer guiPermissionLimitBeanContainer = limitToGuiPermissionLimitBeanContainerMap.get(permissionLimitBean.getLimitAssign());
+          
+          //if not, make one
+          if (guiPermissionLimitBeanContainer == null) {
+            guiPermissionLimitBeanContainer = new GuiPermissionLimitBeanContainer();
+            guiPermissionLimitBeanContainer.setPermissionLimitBean(permissionLimitBean);
+          }
+          
+          guiPermissionLimitBeanContainer.getActions().add(permissionEntry.getAction());
+          //for the limit to be immediate, it must be an assignment on the permission, and the permission needs to be immediate
+          if (permissionEntry.isImmediate(this.permissionType)) {
+            AttributeAssign limitAssign = permissionLimitBean.getLimitAssign();
+            if (StringUtils.equals(limitAssign.getOwnerAttributeAssignId(), permissionEntry.getAttributeAssignId())) {
+              guiPermissionLimitBeanContainer.setImmediate(true);
+            }
+          }
+          
+        }
+      }
+      
     }
     
     //now lets process the inner objects

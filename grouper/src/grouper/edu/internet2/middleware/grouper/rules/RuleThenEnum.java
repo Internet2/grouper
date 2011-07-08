@@ -229,7 +229,8 @@ public enum RuleThenEnum {
       //then remove immediate role assignment
       for (PermissionEntry permissionEntry : GrouperUtil.nonNull(permissionEntries)) {
 
-        if (permissionEntry.isImmediateMembership() && permissionEntry.getPermissionType() == PermissionType.role) {
+        //CH: 20110707: changed from immediate membership to immediate permission
+        if (permissionEntry.getPermissionType() == PermissionType.role) {
           
           try {
             String roleId = permissionEntry.getRoleId();
