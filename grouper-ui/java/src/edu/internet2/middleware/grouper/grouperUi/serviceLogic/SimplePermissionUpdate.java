@@ -1159,7 +1159,110 @@ public class SimplePermissionUpdate {
 
   }
    
+  /**
+   * delete a limit
+   * @param httpServletRequest
+   * @param httpServletResponse
+   */
+  public void limitDelete(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    PermissionUpdateRequestContainer permissionUpdateRequestContainer = PermissionUpdateRequestContainer.retrieveFromRequestOrCreate();
   
+    GrouperSession grouperSession = null;
+  
+    try {
+      grouperSession = GrouperSession.start(loggedInSubject);
+      
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+  
+      PermissionType permissionType = retrievePermissionType(httpServletRequest, guiResponseJs, permissionUpdateRequestContainer, false);
+      
+      if (permissionType == null) {
+        return;
+      }
+
+      String limitAssignId = httpServletRequest.getParameter("limitAssignId");
+      
+      if (StringUtils.isBlank(limitAssignId)) {
+        throw new RuntimeException("Why is limitAssignId blank???");
+      }
+      
+      AttributeAssign limitAssign = AttributeAssignFinder.findById(limitAssignId, true);
+      
+      limitAssign.delete();
+      
+//      //get current state
+//      Role role = null;
+//      {
+//        String roleId = limitAssign.getOwnerGroupId();
+//        role = GroupFinder.findByUuid(grouperSession, roleId, true);
+//        if (!((Group)role).hasAdmin(loggedInSubject)) {
+//          guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simplePermissionUpdate.errorCantManageRole", false)));
+//          return;
+//        }
+//      }
+//      
+//      AttributeDef attributeDef = null;
+//      AttributeDefName attributeDefName = null;
+//      {
+//        String attributeDefNameId = limitAssign.getAttributeDefNameId();
+//        attributeDefName = AttributeDefNameFinder.findById(attributeDefNameId, true);
+//        attributeDef = attributeDefName.getAttributeDef();
+//        if (!attributeDef.getPrivilegeDelegate().canAttrUpdate(loggedInSubject)) {
+//          guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simplePermissionUpdate.errorCantEditAttributeDef", false)));
+//          return;
+//        }
+//        
+//      }
+//
+//      AttributeDef limitDef = limitName.getAttributeDef();
+//      if (!limitDef.getPrivilegeDelegate().canAttrUpdate(loggedInSubject)) {
+//        guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simplePermissionUpdate.errorCantEditLimit", false)));
+//        return;
+//      }
+//
+//      String screenMessage = TagUtils.navResourceString("simplePermissionUpdate.addLimitSuccess");
+//      
+//      AttributeAssignResult attributeAssignResult = null;
+//      
+//      if (limitDef.isMultiAssignable()) {
+//        attributeAssignResult = permissionAssign.getAttributeDelegate().addAttribute(limitName);
+//      } else {
+//        attributeAssignResult = permissionAssign.getAttributeDelegate().assignAttribute(limitName);
+//        if (!attributeAssignResult.isChanged()) {
+//          screenMessage = TagUtils.navResourceString("simplePermissionUpdate.addLimitAlreadyAssigned");
+//        }
+//      }
+//      
+//      String addLimitValue = httpServletRequest.getParameter("addLimitValue");
+//      if (!StringUtils.isBlank(addLimitValue)) {
+//        try {
+//          if (limitDef.isMultiValued()) {
+//            attributeAssignResult.getAttributeAssign().getValueDelegate().addValue(addLimitValue);
+//          } else {
+//            attributeAssignResult.getAttributeAssign().getValueDelegate().assignValue(addLimitValue);
+//          }
+//          screenMessage = screenMessage + "<br />" + TagUtils.navResourceString("simplePermissionUpdate.addLimitValueSuccess");
+//        } catch (Exception e) {
+//          LOG.info("Error assigning value: " + addLimitValue + ", to assignment: " + attributeAssignResult.getAttributeAssign().getId(), e);
+//          screenMessage = screenMessage + "<br />" + TagUtils.navResourceString("simplePermissionUpdate.addLimitValueError") + "  " + e.getClass().getSimpleName() + ": " + GrouperUiUtils.escapeHtml(e.getMessage(), true);
+//        }
+//      }
+      
+      //put in a success message
+      String screenMessage = TagUtils.navResourceString("simplePermissionUpdate.deleteLimitSuccessMessage");
+      permissionUpdateRequestContainer.setAssignmentStatusMessage(screenMessage);
+      
+    } finally {
+      GrouperSession.stopQuietly(grouperSession); 
+    }
+
+    assignFilter(httpServletRequest, httpServletResponse);
+    
+  }
+   
 
   /**
    * submit the add limit screen

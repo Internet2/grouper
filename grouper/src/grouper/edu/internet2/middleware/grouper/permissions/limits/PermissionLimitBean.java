@@ -173,7 +173,8 @@ public class PermissionLimitBean {
   
   
   /**
-   * find permission limits based on the permission entries
+   * find permission limits based on the permission entries.  Note, every input will be in result map, 
+   * though the limits might be null or empty
    * @param permissionEntrySet
    * @return the map that finds permission limits based on permission entries
    */
@@ -323,6 +324,13 @@ public class PermissionLimitBean {
             permissionLimitBeanSet.add(permissionLimitBean);
           }
           
+        }
+      }
+      //init uninitialized values to null
+      for (PermissionEntry permissionEntry : permissionEntrySet) {
+        
+        if (!limitAssignsMap.containsKey(permissionEntry)) {
+          result.put(permissionEntry, null);
         }
       }
             

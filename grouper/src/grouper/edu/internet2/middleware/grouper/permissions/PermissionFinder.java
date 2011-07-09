@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -421,12 +422,55 @@ public class PermissionFinder {
    */
   public Map<PermissionEntry, Set<PermissionLimitBean>> findPermissionsAndLimits() {
     
+    PermissionProcessor originalProcessor = this.permissionProcessor;
+    
+    this.validateProcessor();
+    
+    PermissionProcessor nonLimitProcessor = originalProcessor;
+    boolean getLimits = false;
+
+    if (originalProcessor != null && this.permissionProcessor.isLimitProcessor()) {
+      nonLimitProcessor = this.permissionProcessor.nonLimitPermissionProcesssor();
+      getLimits = true;
+    }
+    
+    //do this without limits
+    this.assignPermissionProcessor(nonLimitProcessor);
+    
     Set<PermissionEntry> permissionEntrySet = this.findPermissions();
+    
+    List<PermissionEntry> permissionEntryList = new ArrayList<PermissionEntry>(permissionEntrySet);
+    for (PermissionEntry permissionEntry : permissionEntryList) {
+      System.out.println(permissionEntry.getRole().getDisplayExtension() + " - " 
+          + permissionEntry.getSubjectId() + " - " + permissionEntry.getAction() + " - " 
+          + permissionEntry.getAttributeDefName().getDisplayExtension() + " - " 
+          + permissionEntry.getAttributeAssignId());
+    }
+    System.out.println("\n");
+      
+    //assign back original
+    this.assignPermissionProcessor(originalProcessor);
     
     //get limits from permissions
     Map<PermissionEntry, Set<PermissionLimitBean>> permissionLimitBeanMap = GrouperUtil.nonNull(PermissionLimitBean.findPermissionLimits(permissionEntrySet));
     
-    PermissionProcessor.processLimits(permissionEntrySet, this.limitEnvVars, permissionLimitBeanMap);
+    if (GrouperUtil.length(permissionLimitBeanMap) > 0) {
+      for (PermissionEntry permissionEntry : permissionLimitBeanMap.keySet()) {
+        System.out.println(permissionEntry.getRole().getDisplayExtension() + " - " 
+            + permissionEntry.getSubjectId() + " - " + permissionEntry.getAction() + " - " 
+            + permissionEntry.getAttributeDefName().getDisplayExtension() + " - " 
+            + permissionEntry.getAttributeAssignId() + ":");
+        Set<PermissionLimitBean> permissionLimitBeans = permissionLimitBeanMap.get(permissionEntry);
+        for (PermissionLimitBean permissionLimitBean : GrouperUtil.nonNull(permissionLimitBeans)) {
+          System.out.println("  -> " + permissionLimitBean.getLimitAssign().getId() + " - " 
+              + permissionLimitBean.getLimitAssign().getAttributeDefName().getDisplayExtension());
+        }
+      }
+    }
+    
+    if (getLimits) {
+      PermissionProcessor.processLimits(permissionEntrySet, this.limitEnvVars, permissionLimitBeanMap);
+    }
     
     return permissionLimitBeanMap;
   }
@@ -437,16 +481,7 @@ public class PermissionFinder {
    */
   public Set<PermissionEntry> findPermissions() {
 
-    if (this.permissionProcessor != null && (this.enabled != null && !this.enabled)) {      
-      throw new RuntimeException("You cannot process the permissions " +
-      		"(FILTER_REDUNDANT_PERMISSIONS || FILTER_REUNDANT_PERMISSIONS_AND_ROLES) " +
-      		"without looking for enabled permissions only");
-    }
-    
-    //if processing permissions, just look at enabled
-    if (this.permissionProcessor != null && this.enabled == null) {
-      this.enabled = true;
-    }
+    validateProcessor();
 
     Set<PermissionEntry> permissionEntries = null;
     if (this.permissionType == PermissionType.role_subject) {
@@ -464,6 +499,7 @@ public class PermissionFinder {
       this.permissionProcessor.processPermissions(permissionEntries, this.limitEnvVars);
     }
     
+    //if immediate only, do this after processing since it might affect the best decision
     if (this.immediateOnly) {
       //see if we are doing immediate only
       Iterator<PermissionEntry> iterator = GrouperUtil.nonNull(permissionEntries).iterator();
@@ -477,6 +513,22 @@ public class PermissionFinder {
     
     return permissionEntries;
     
+  }
+
+  /**
+   * validate that the processor dosent conflict with anything...
+   */
+  private void validateProcessor() {
+    if (this.permissionProcessor != null && (this.enabled != null && !this.enabled)) {      
+      throw new RuntimeException("You cannot process the permissions " +
+      		"(FILTER_REDUNDANT_PERMISSIONS || FILTER_REUNDANT_PERMISSIONS_AND_ROLES) " +
+      		"without looking for enabled permissions only");
+    }
+    
+    //if processing permissions, just look at enabled
+    if (this.permissionProcessor != null && this.enabled == null) {
+      this.enabled = true;
+    }
   }
 
   /**

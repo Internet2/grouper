@@ -75,6 +75,22 @@ public enum PermissionProcessor {
       }
 
     }
+    
+    /**
+     * @see PermissionProcessor#isLimitProcessor()
+     */
+    @Override
+    public boolean isLimitProcessor() {
+      return false;
+    }
+
+    /**
+     * @see PermissionProcessor#nonLimitPermissionProcesssor()
+     */
+    @Override
+    public PermissionProcessor nonLimitPermissionProcesssor() {
+      return null;
+    }
   },
   
   /**
@@ -101,6 +117,21 @@ public enum PermissionProcessor {
       filterRedundantRoles(permissionEntrySet);
       
     }
+    /**
+     * @see PermissionProcessor#isLimitProcessor()
+     */
+    @Override
+    public boolean isLimitProcessor() {
+      return false;
+    }
+
+    /**
+     * @see PermissionProcessor#nonLimitPermissionProcesssor()
+     */
+    @Override
+    public PermissionProcessor nonLimitPermissionProcesssor() {
+      return null;
+    }
   }, 
   /** this will see if there are two rows with the same 
    * role/subject/permissionName/action, pick the best one, and remove the others */
@@ -117,6 +148,21 @@ public enum PermissionProcessor {
       FILTER_REDUNDANT_PERMISSIONS.processPermissions(permissionEntrySet, limitEnvVars);
       PROCESS_LIMITS.processPermissions(permissionEntrySet, limitEnvVars);
   
+    }
+    /**
+     * @see PermissionProcessor#isLimitProcessor()
+     */
+    @Override
+    public boolean isLimitProcessor() {
+      return true;
+    }
+
+    /**
+     * @see PermissionProcessor#nonLimitPermissionProcesssor()
+     */
+    @Override
+    public PermissionProcessor nonLimitPermissionProcesssor() {
+      return FILTER_REDUNDANT_PERMISSIONS;
     }
   }, 
   
@@ -139,6 +185,21 @@ public enum PermissionProcessor {
       PROCESS_LIMITS.processPermissions(permissionEntrySet, limitEnvVars);
       filterRedundantRoles(permissionEntrySet);
     }
+    /**
+     * @see PermissionProcessor#isLimitProcessor()
+     */
+    @Override
+    public boolean isLimitProcessor() {
+      return true;
+    }
+
+    /**
+     * @see PermissionProcessor#nonLimitPermissionProcesssor()
+     */
+    @Override
+    public PermissionProcessor nonLimitPermissionProcesssor() {
+      return FILTER_REDUNDANT_PERMISSIONS_AND_ROLES;
+    }
   }, 
   
   /** 
@@ -159,6 +220,21 @@ public enum PermissionProcessor {
       Map<PermissionEntry, Set<PermissionLimitBean>> permissionLimitBeanMap = GrouperUtil.nonNull(PermissionLimitBean.findPermissionLimits(permissionEntrySet));
       
       processLimits(permissionEntrySet, limitEnvVarsString, permissionLimitBeanMap);
+    }
+    /**
+     * @see PermissionProcessor#isLimitProcessor()
+     */
+    @Override
+    public boolean isLimitProcessor() {
+      return true;
+    }
+
+    /**
+     * @see PermissionProcessor#nonLimitPermissionProcesssor()
+     */
+    @Override
+    public PermissionProcessor nonLimitPermissionProcesssor() {
+      return null;
     }
   };
   
@@ -312,6 +388,16 @@ public enum PermissionProcessor {
     }
   }
   
+  /**
+   * if this is a limit processor, get the equivalent which isnt
+   * @return permission processor
+   */
+  public abstract PermissionProcessor nonLimitPermissionProcesssor();
   
-
+  /**
+   * if this is a limit processor
+   * @return if this is a limit processor
+   */
+  public abstract boolean isLimitProcessor();
+  
 }

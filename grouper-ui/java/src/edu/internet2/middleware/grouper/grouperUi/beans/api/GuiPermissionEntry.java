@@ -89,7 +89,7 @@ public class GuiPermissionEntry implements Serializable {
       
       PermissionEntry thePermissionEntry = guiPermissionEntry.getPermissionEntry();
       
-      boolean theImmediate = permissionEntry.isImmediate(this.permissionType);
+      boolean theImmediate = thePermissionEntry.isImmediate(this.permissionType);
       
       this.immediate = this.immediate || theImmediate;
       if (!theImmediate) {

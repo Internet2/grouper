@@ -339,7 +339,11 @@ public class GuiPermissionEntryContainer implements Serializable, Comparable<Gui
             guiPermissionLimitBeanContainer.setPermissionLimitBean(permissionLimitBean);
           }
           
+          this.guiPermissionLimitBeanContainers.add(guiPermissionLimitBeanContainer);
+          
+          //this limit can apply to multiple actions
           guiPermissionLimitBeanContainer.getActions().add(permissionEntry.getAction());
+
           //for the limit to be immediate, it must be an assignment on the permission, and the permission needs to be immediate
           if (permissionEntry.isImmediate(this.permissionType)) {
             AttributeAssign limitAssign = permissionLimitBean.getLimitAssign();

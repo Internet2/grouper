@@ -150,6 +150,7 @@
                     <grouper:message value="${grouper:escapeHtml(guiPermissionEntryContainer.permissionDefinition.extension)}" 
                       valueTooltip="${grouper:escapeJavascript(guiPermissionEntryContainer.permissionDefinition.name)}" />
                   </td>
+              </tr>
                   
   <%--
                   <td style="white-space: nowrap;">
@@ -192,8 +193,23 @@
                   <td>${grouper:abbreviate(guiAttributeAssign.attributeAssign.id, 8, true, true)}</td>
                 </tr>
                 
-                <c:forEach items="${guiAttributeAssign.guiAttributeAssigns}" var="guiAttributeAssignAssign">
-  --%>                
+                
+  --%>          
+            <c:forEach items="${guiPermissionEntryContainer.guiPermissionLimitBeanContainers}" var="guiPermissionLimitBeanContainer">
+              <tr>
+                <td colspan="3" style="white-space: nowrap;">
+                  <%-- <c:if test="guiPermissionLimitBeanContainer.immediate" > --%>
+                    <a href="#" onclick="if (confirm('${grouper:message('simplePermissionUpdate.limitDeleteConfirm', true, true)}')) {ajax('SimplePermissionUpdate.limitDelete?limitAssignId=${guiPermissionLimitBeanContainer.permissionLimitBean.limitAssign.id}', {formIds: 'simplePermissionFilterForm'});} return false;" 
+                          ><img src="../../grouperExternal/public/assets/images/page_cross.gif" height="14px" border="0" 
+                          alt="${grouper:message('simplePermissionUpdate.deleteLimitAlt', true, false)}"
+                          onmouseover="Tip('${grouper:message('simplePermissionUpdate.deleteLimitAlt', true, true)}')" 
+                          onmouseout="UnTip()"/></a>
+                  <%-- </c:if> --%>
+                
+                ${guiPermissionLimitBeanContainer.permissionLimitBean.limitAssign.attributeDefName.name} 
+                - ${guiPermissionLimitBeanContainer.permissionLimitBean.limitAssign.attributeAssignType.name}</td>
+              </tr>
+            </c:forEach>
                   <%-- filter out results which dont match the enabled/disabled filter --%>
   <%--
                   <c:if test="${attributeUpdateRequestContainer.enabledDisabled == null || (attributeUpdateRequestContainer.enabledDisabled == guiAttributeAssignAssign.attributeAssign.enabled )}" >
