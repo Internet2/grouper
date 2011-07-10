@@ -169,6 +169,11 @@ public class GrouperUiRestServlet extends HttpServlet {
 
       String classAndMethodName = urlStrings.get(1);
 
+      //if there is a hash, then toss that part out
+      if (classAndMethodName.contains("#")) {
+        classAndMethodName = GrouperUtil.prefixOrSuffix(classAndMethodName, "#", true);
+      }
+      
       //lets do some simple validation, text dot text
       if (!classAndMethodName.matches("^[a-zA-Z0-9]+\\.[a-zA-Z0-9]+$")) {
         throw new RuntimeException("Invalid class and method name: '" + classAndMethodName + "'");

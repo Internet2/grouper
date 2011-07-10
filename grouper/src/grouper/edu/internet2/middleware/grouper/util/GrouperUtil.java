@@ -2165,6 +2165,27 @@ public class GrouperUtil {
     }
     return result;
   }
+  
+  /**
+   * return a list of objects from varargs.  Though if there is one
+   * object, and it is a list, return it.
+   * 
+   * @param <T>
+   *            template type of the objects
+   * @param objects
+   * @return the list or null if objects is null
+   */
+  public static List<Object> toListObject(Object... objects) {
+    if (objects == null) {
+      return null;
+    }
+    List<Object> result = new ArrayList<Object>();
+    for (Object object : objects) {
+      result.add(object);
+    }
+    return result;
+  }
+
 
   /**
    * convert classes to a list

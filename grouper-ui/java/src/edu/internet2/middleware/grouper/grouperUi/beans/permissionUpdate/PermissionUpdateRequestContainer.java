@@ -310,7 +310,7 @@ public class PermissionUpdateRequestContainer implements Serializable {
   }
 
   /**
-   * store to session scope
+   * store to request scope
    */
   public void storeToRequest() {
     HttpServletRequest httpServletRequest = GrouperUiFilter.retrieveHttpServletRequest();
