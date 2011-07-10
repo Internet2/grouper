@@ -1,15 +1,22 @@
 package edu.internet2.middleware.grouper.ui.poc.fileManager;
 
 import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
 
+import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.subject.Subject;
 
 /**
  * file manager request container
@@ -63,12 +70,12 @@ public class PocFileManagerRequestContainer {
   /**
    * all folders in system, this isnt efficient, but just get for each request
    */
-  private Set<PocFileManagerFolder> allFolders = null;
+  private List<PocFileManagerFolder> allFolders = null;
 
   /**
    * all files in system, this isnt efficient, but just get for each request
    */
-  private Set<PocFileManagerFile> allFiles = null;
+  private List<PocFileManagerFile> allFiles = null;
 
   /**
    * all folders in system, this isnt efficient, but just get for each request, key is folder id
@@ -150,7 +157,7 @@ public class PocFileManagerRequestContainer {
    * 
    * @return all folders
    */
-  public Set<PocFileManagerFolder> getAllFolders() {
+  public List<PocFileManagerFolder> getAllFolders() {
     this.initFromDbIfNeeded(false);
     return this.allFolders;
   }
@@ -159,7 +166,7 @@ public class PocFileManagerRequestContainer {
    * 
    * @return all files
    */
-  public Set<PocFileManagerFile> getAllFiles() {
+  public List<PocFileManagerFile> getAllFiles() {
     this.initFromDbIfNeeded(false);
     return this.allFiles;
   }
@@ -182,6 +189,85 @@ public class PocFileManagerRequestContainer {
     return this.allFilesIdMap;
   }
   
+  /**
+   * get all backdoor subjects
+   * @return all backdoor subjects
+   */
+  public Set<Subject> getAllBackdoorSubjects() {
+    Set<Subject> subjects = new LinkedHashSet<Subject>();
+    subjects.add(SubjectFinder.findRootSubject());
+    Set<Subject> testSubjects = GrouperUtil.nonNull(SubjectFinder.findAll("test.subject."));
+    SubjectHelper.sortByDescription(testSubjects);
+    subjects.addAll(testSubjects);
+    return subjects;
+  }
   
+  /** logger */
+  private static final Log LOG = GrouperUtil.getLog(PocFileManagerRequestContainer.class);
+
+  /**
+   * see if has allowed folders
+   * @return if has allowed folders
+   */
+  public boolean isHasAllowedFolders() {
+    return GrouperUtil.nonNull(this.getAllAllowedFolders()).size() > 0;
+  }
+  
+  /**
+   * see if has allowed create folders
+   * @return if has allowed create folders
+   */
+  public boolean isHasAllowedCreateFolders() {
+    return GrouperUtil.nonNull(this.getAllowedCreateFolders()).size() > 0;
+  }
+  
+  /**
+   * get all allowed create folders
+   * @return all allowed create folders
+   */
+  public Set<PocFileManagerFolder> getAllowedCreateFolders() {
+    
+    this.initFromDbIfNeeded(false);
+    
+    Set<String> readSystemNames = PocFileManagerSessionContainer.retrieveFromSessionOrCreate().getGrouperPermissionsCreateSystemNames();
+    
+    Set<PocFileManagerFolder> result = new TreeSet<PocFileManagerFolder>();
+    
+    for (String systemName : GrouperUtil.nonNull(readSystemNames)) {
+      PocFileManagerFolder pocFileManagerFolder = this.getAllFoldersSystemNameMap().get(systemName);
+      if (pocFileManagerFolder == null) {
+        LOG.error("Why is folder in a system name, but not in the local DB? " + systemName);
+      } else {
+        result.add(pocFileManagerFolder);
+      }
+    }
+    
+    return result;
+  }
+  
+
+  /**
+   * get all allowed folders
+   * @return all allowed folders
+   */
+  public Set<PocFileManagerFolder> getAllAllowedFolders() {
+    
+    this.initFromDbIfNeeded(false);
+    
+    Set<String> readSystemNames = PocFileManagerSessionContainer.retrieveFromSessionOrCreate().getGrouperPermissionsReadSystemNames();
+    
+    Set<PocFileManagerFolder> result = new TreeSet<PocFileManagerFolder>();
+    
+    for (String systemName : GrouperUtil.nonNull(readSystemNames)) {
+      PocFileManagerFolder pocFileManagerFolder = this.getAllFoldersSystemNameMap().get(systemName);
+      if (pocFileManagerFolder == null) {
+        LOG.error("Why is folder in a system name, but not in the local DB? " + systemName);
+      } else {
+        result.add(pocFileManagerFolder);
+      }
+    }
+    
+    return result;
+  }
   
 }

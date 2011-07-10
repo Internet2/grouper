@@ -20,14 +20,25 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  */
 public class GroupBreadcrumbTag extends SimpleTagSupport  {
 
-  /** true of false, defaults to true */
+  /** true or false, defaults to true */
   private boolean showCurrentLocationLabel = true;
 
-  /** true of false, defaults to true */
+  /** true or false, defaults to true */
   private boolean showLeafNode = true;
   
+  /** true or false if should show tooltips on folders, defaults to true */
+  private boolean showGrouperTooltips = true;
+  
   /**
-   * true of false, defaults to true
+   * true or false if should show tooltips on folders, defaults to true
+   * @param showGrouperTooltips1
+   */
+  public void setShowGrouperTooltips(boolean showGrouperTooltips1) {
+    this.showGrouperTooltips = showGrouperTooltips1;
+  }
+
+  /**
+   * true or false, defaults to true
    * @return true or false
    */
   public boolean isShowCurrentLocationLabel() {
@@ -35,7 +46,7 @@ public class GroupBreadcrumbTag extends SimpleTagSupport  {
   }
 
   /**
-   * true of false, defaults to true
+   * true or false, defaults to true
    * @param showCurrentLocationLabel1
    */
   public void setShowCurrentLocationLabel(boolean showCurrentLocationLabel1) {
@@ -99,7 +110,7 @@ public class GroupBreadcrumbTag extends SimpleTagSupport  {
       //if its a folder
       if (i != GrouperUtil.length(names)-1) {
         result.append("<img onmouseover=\"grouperTooltip(\'" 
-            + GrouperUiUtils.escapeHtml(GrouperUiUtils.message("stem.icon.tooltip", false), true, true) 
+            + GrouperUiUtils.escapeHtml(GrouperUiUtils.message(this.showGrouperTooltips ? "stem.icon.tooltip" : "stem.icon.alt", false), true, true) 
             + "\');\" onmouseout=\"UnTip()\" src=\"../../grouperExternal/public/assets/images/folder.gif\" "
           + "class=\"groupIcon\" alt=\"" + GrouperUiUtils.message("stem.icon.alt", false) + "\"/>" 
           + GrouperUiUtils.escapeHtml(names[i], true, false) + ": ");
@@ -108,7 +119,7 @@ public class GroupBreadcrumbTag extends SimpleTagSupport  {
         if (this.showLeafNode) {
           result.append("<span class=\"browseStemsLocationHere\">\n"
             + "<img onmouseover=\"grouperTooltip(\'" 
-            + GrouperUiUtils.escapeHtml(GrouperUiUtils.message("group.icon.tooltip", true), true, true) + "\');\" onmouseout=\"UnTip()\""
+            + GrouperUiUtils.escapeHtml(GrouperUiUtils.message(this.showGrouperTooltips ? "group.icon.tooltip" : "group.icon.alt", true), true, true) + "\');\" onmouseout=\"UnTip()\""
             + " src=\"../../grouperExternal/public/assets/images/group.png\" class=\"groupIcon\" alt=\"" + GrouperUiUtils.message("group.icon.alt", true) 
             + "\"/>" + GrouperUiUtils.escapeHtml(names[i], true, false) + "</span>\n");
         }

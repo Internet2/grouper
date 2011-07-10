@@ -1,5 +1,6 @@
 package edu.internet2.middleware.grouper.ui.poc.fileManager;
 
+import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -8,7 +9,6 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.commons.lang.StringUtils;
 
-import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.permissions.PermissionEntry;
 import edu.internet2.middleware.grouper.permissions.PermissionFinder;
@@ -22,7 +22,8 @@ import edu.internet2.middleware.subject.Subject;
  * @author mchyzer
  *
  */
-public class PocFileManagerSessionContainer {
+@SuppressWarnings("serial")
+public class PocFileManagerSessionContainer implements Serializable {
 
   /**
    * retrieveFromSession, cannot be null
@@ -60,6 +61,7 @@ public class PocFileManagerSessionContainer {
    * @return folders permissions this act as user is allowed to read
    */
   public Set<String> getGrouperPermissionsReadSystemNames() {
+    this.initFromDbIfNeeded(false);
     return this.grouperPermissionsReadSystemNames;
   }
 
@@ -68,6 +70,7 @@ public class PocFileManagerSessionContainer {
    * @return folders permissions this act as user is allowed to read
    */
   public Set<String> getGrouperPermissionsCreateSystemNames() {
+    this.initFromDbIfNeeded(false);
     return this.grouperPermissionsCreateSystemNames;
   }
 
@@ -94,37 +97,31 @@ public class PocFileManagerSessionContainer {
         //lets just do all
         for (PocFileManagerFolder pocFileManagerFolder : pocFileManagerRequestContainer.getAllFolders()) {
           this.grouperPermissionsCreateSystemNames.add(pocFileManagerFolder.getGrouperSystemName());
+          this.grouperPermissionsReadSystemNames.add(pocFileManagerFolder.getGrouperSystemName());
         }
         
       } else {
         
-        GrouperSession grouperSession = GrouperSession.startRootSession();
-        
-        try {
-          String actAsSubjectId = PocFileManagerRequestContainer.retrieveFromRequestOrCreate().getActAsSubjectId();
-          Subject subject = SubjectFinder.findById(actAsSubjectId, true);
+        String actAsSubjectId = PocFileManagerRequestContainer.retrieveFromRequestOrCreate().getActAsSubjectId();
+        Subject subject = SubjectFinder.findById(actAsSubjectId, true);
 
-          //get the permissions we are allowed to see for this act as user
-          Set<PermissionEntry> permissionEntries = new PermissionFinder().addSubject(subject).addRole(PocFileManagerUtils.PSU_APPS_FILE_MANAGER_ROLES_FILE_MANAGER_USER)
-            .addPermissionDef(PocFileManagerUtils.PSU_APPS_FILE_MANAGER_PERMISSIONS_PERMISSION_DEFINITION_NAME)
-            .assignPermissionProcessor(PermissionProcessor.FILTER_REDUNDANT_PERMISSIONS_AND_ROLES_AND_PROCESS_LIMITS)
-            .findPermissions();
+        //get the permissions we are allowed to see for this act as user
+        Set<PermissionEntry> permissionEntries = new PermissionFinder().addSubject(subject)
+          .addPermissionDef(PocFileManagerUtils.PSU_APPS_FILE_MANAGER_PERMISSIONS_PERMISSION_DEFINITION_NAME)
+          .assignPermissionProcessor(PermissionProcessor.FILTER_REDUNDANT_PERMISSIONS_AND_ROLES_AND_PROCESS_LIMITS)
+          .findPermissions();
 
-          for (PermissionEntry permissionEntry : GrouperUtil.nonNull(permissionEntries)) {
-            
-            if (permissionEntry.isAllowedOverall()) {
-              if (StringUtils.equals(PocFileManagerUtils.ACTION_READ, permissionEntry.getAction())) {
-                this.grouperPermissionsReadSystemNames.add(permissionEntry.getAttributeDefNameName());
-              }
-              if (StringUtils.equals(PocFileManagerUtils.ACTION_CREATE, permissionEntry.getAction())) {
-                this.grouperPermissionsCreateSystemNames.add(permissionEntry.getAttributeDefNameName());
-              }
+        for (PermissionEntry permissionEntry : GrouperUtil.nonNull(permissionEntries)) {
+          
+          if (permissionEntry.isAllowedOverall()) {
+            if (StringUtils.equals(PocFileManagerUtils.ACTION_READ, permissionEntry.getAction())) {
+              this.grouperPermissionsReadSystemNames.add(permissionEntry.getAttributeDefNameName());
             }
-            
+            if (StringUtils.equals(PocFileManagerUtils.ACTION_CREATE, permissionEntry.getAction())) {
+              this.grouperPermissionsCreateSystemNames.add(permissionEntry.getAttributeDefNameName());
+            }
           }
           
-        } finally {
-          GrouperSession.stopQuietly(grouperSession);
         }
         
       }

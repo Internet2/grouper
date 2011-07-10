@@ -109,6 +109,14 @@
       <required>false</required>
       <rtexprvalue>true</rtexprvalue>
     </attribute>
+    <attribute>
+      <description>
+        Show tooltips on folders
+        </description>
+      <name>showGrouperTooltips</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
   </tag>
   
     <tag>

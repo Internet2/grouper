@@ -1,26 +1,17 @@
 package edu.internet2.middleware.grouper.ui.poc.fileManager;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
 
-import edu.internet2.middleware.grouper.GroupFinder;
-import edu.internet2.middleware.grouper.GrouperSession;
-import edu.internet2.middleware.grouper.SubjectFinder;
-import edu.internet2.middleware.grouper.attr.AttributeDef;
-import edu.internet2.middleware.grouper.attr.AttributeDefName;
-import edu.internet2.middleware.grouper.attr.AttributeDefNameSave;
-import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
-import edu.internet2.middleware.grouper.permissions.PermissionAllowed;
-import edu.internet2.middleware.grouper.permissions.role.Role;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.subject.Subject;
 
 /**
  * file in the penn state file manager 
@@ -30,19 +21,39 @@ import edu.internet2.middleware.subject.Subject;
 public class PocFileManagerFile implements Comparable<PocFileManagerFile>{
 
   /** sql pattern for row */
-  private static Pattern fileSqlPattern = Pattern.compile("^(.*)||(.*)||(.*)$");
+  private static Pattern fileSqlPattern = Pattern.compile("^(.*)\\|\\|(.*?)\\|\\|(.*)$");
   
+  /**
+   * @see Object#equals(Object)
+   */
+  @Override
+  public boolean equals(Object obj) {
+    if (!(obj instanceof PocFileManagerFile)) {
+      return false;
+    }
+    return new EqualsBuilder().append(this.id, ((PocFileManagerFile)obj).id).isEquals();
+  }
+
+  /**
+   * @see Object#hashCodeObject)
+   */
+  @Override
+  public int hashCode() {
+    return new HashCodeBuilder().append(this.id).toHashCode();
+  }
+
+
   /**
    * retrieve files from DB
    * @return the files
    */
-  public static Set<PocFileManagerFile> retrieveFiles() {
+  public static List<PocFileManagerFile> retrieveFiles() {
     
     //lets get all files
     List<String> rows = HibernateSession.bySqlStatic().listSelect(String.class, 
         "SELECT CONCAT(id, CONCAT('||', CONCAT(NAME, CONCAT('||', folder_id)))) AS the_row FROM file_mgr_file", null);
 
-    Set<PocFileManagerFile> pocFileManagerFiles = new TreeSet<PocFileManagerFile>();
+    List<PocFileManagerFile> pocFileManagerFiles = new ArrayList<PocFileManagerFile>();
     
     for (String row : GrouperUtil.nonNull(rows)) {
       

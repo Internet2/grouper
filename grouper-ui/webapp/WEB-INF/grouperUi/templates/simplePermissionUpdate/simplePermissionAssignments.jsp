@@ -99,7 +99,7 @@
                       </td>
                     </c:when>
                   </c:choose>
-                  <td>
+                  <td style="white-space: nowrap;">
                     <grouper:message value="${grouper:escapeHtml(guiPermissionEntryContainer.permissionResource.displayExtension)}" 
                       valueTooltip="${grouper:escapeJavascript(guiPermissionEntryContainer.permissionResource.displayName)}" />
                   </td>
