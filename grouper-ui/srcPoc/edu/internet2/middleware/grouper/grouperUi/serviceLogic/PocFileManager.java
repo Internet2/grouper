@@ -30,6 +30,7 @@ CREATE TABLE `file_mgr_file` (
   `name` varchar(100) NOT NULL,
   `folder_id` varchar(40) NOT NULL,
   PRIMARY KEY (`id`),
+  UNIQUE KEY `NewIndex1` (`name`,`folder_id`),
   KEY `FK_file_mgr_file` (`folder_id`),
   CONSTRAINT `FK_file_mgr_file` FOREIGN KEY (`folder_id`) REFERENCES `file_mgr_folder` (`id`)
 );
@@ -40,9 +41,62 @@ CREATE TABLE `file_mgr_folder` (
   `name` varchar(100) NOT NULL,
   `parent_folder_id` varchar(40) DEFAULT NULL,
   PRIMARY KEY (`id`),
+  UNIQUE KEY `NewIndex1` (`name`,`parent_folder_id`),
   KEY `FK_file_mgr_folder` (`parent_folder_id`),
   CONSTRAINT `FK_file_mgr_folder` FOREIGN KEY (`parent_folder_id`) REFERENCES `file_mgr_folder` (`id`)
 );
+
+insert into `subject` (`subjectId`, `subjectTypeId`, `name`) values('test.subject.0','person','my name is test.subject.0');
+insert into `subject` (`subjectId`, `subjectTypeId`, `name`) values('test.subject.1','person','my name is test.subject.1');
+insert into `subject` (`subjectId`, `subjectTypeId`, `name`) values('test.subject.2','person','my name is test.subject.2');
+insert into `subject` (`subjectId`, `subjectTypeId`, `name`) values('test.subject.3','person','my name is test.subject.3');
+insert into `subject` (`subjectId`, `subjectTypeId`, `name`) values('test.subject.4','person','my name is test.subject.4');
+insert into `subject` (`subjectId`, `subjectTypeId`, `name`) values('test.subject.5','person','my name is test.subject.5');
+insert into `subject` (`subjectId`, `subjectTypeId`, `name`) values('test.subject.6','person','my name is test.subject.6');
+insert into `subject` (`subjectId`, `subjectTypeId`, `name`) values('test.subject.7','person','my name is test.subject.7');
+insert into `subject` (`subjectId`, `subjectTypeId`, `name`) values('test.subject.8','person','my name is test.subject.8');
+insert into `subject` (`subjectId`, `subjectTypeId`, `name`) values('test.subject.9','person','my name is test.subject.9');
+insert into `subjectattribute` (`subjectId`, `name`, `value`, `searchValue`) values('test.subject.0','description','description.test.subject.0','description.test.subject.0');
+insert into `subjectattribute` (`subjectId`, `name`, `value`, `searchValue`) values('test.subject.0','email','test.subject.0@somewhere.someSchool.edu','test.subject.0@somewhere.someschool.edu');
+insert into `subjectattribute` (`subjectId`, `name`, `value`, `searchValue`) values('test.subject.0','loginid','id.test.subject.0','id.test.subject.0');
+insert into `subjectattribute` (`subjectId`, `name`, `value`, `searchValue`) values('test.subject.0','name','name.test.subject.0','name.test.subject.0');
+insert into `subjectattribute` (`subjectId`, `name`, `value`, `searchValue`) values('test.subject.1','description','description.test.subject.1','description.test.subject.1');
+insert into `subjectattribute` (`subjectId`, `name`, `value`, `searchValue`) values('test.subject.1','email','test.subject.1@somewhere.someSchool.edu','test.subject.1@somewhere.someschool.edu');
+insert into `subjectattribute` (`subjectId`, `name`, `value`, `searchValue`) values('test.subject.1','loginid','id.test.subject.1','id.test.subject.1');
+insert into `subjectattribute` (`subjectId`, `name`, `value`, `searchValue`) values('test.subject.1','name','name.test.subject.1','name.test.subject.1');
+insert into `subjectattribute` (`subjectId`, `name`, `value`, `searchValue`) values('test.subject.2','description','description.test.subject.2','description.test.subject.2');
+insert into `subjectattribute` (`subjectId`, `name`, `value`, `searchValue`) values('test.subject.2','email','test.subject.2@somewhere.someSchool.edu','test.subject.2@somewhere.someschool.edu');
+insert into `subjectattribute` (`subjectId`, `name`, `value`, `searchValue`) values('test.subject.2','loginid','id.test.subject.2','id.test.subject.2');
+insert into `subjectattribute` (`subjectId`, `name`, `value`, `searchValue`) values('test.subject.2','name','name.test.subject.2','name.test.subject.2');
+insert into `subjectattribute` (`subjectId`, `name`, `value`, `searchValue`) values('test.subject.3','description','description.test.subject.3','description.test.subject.3');
+insert into `subjectattribute` (`subjectId`, `name`, `value`, `searchValue`) values('test.subject.3','email','test.subject.3@somewhere.someSchool.edu','test.subject.3@somewhere.someschool.edu');
+insert into `subjectattribute` (`subjectId`, `name`, `value`, `searchValue`) values('test.subject.3','loginid','id.test.subject.3','id.test.subject.3');
+insert into `subjectattribute` (`subjectId`, `name`, `value`, `searchValue`) values('test.subject.3','name','name.test.subject.3','name.test.subject.3');
+insert into `subjectattribute` (`subjectId`, `name`, `value`, `searchValue`) values('test.subject.4','description','description.test.subject.4','description.test.subject.4');
+insert into `subjectattribute` (`subjectId`, `name`, `value`, `searchValue`) values('test.subject.4','email','test.subject.4@somewhere.someSchool.edu','test.subject.4@somewhere.someschool.edu');
+insert into `subjectattribute` (`subjectId`, `name`, `value`, `searchValue`) values('test.subject.4','loginid','id.test.subject.4','id.test.subject.4');
+insert into `subjectattribute` (`subjectId`, `name`, `value`, `searchValue`) values('test.subject.4','name','name.test.subject.4','name.test.subject.4');
+insert into `subjectattribute` (`subjectId`, `name`, `value`, `searchValue`) values('test.subject.5','description','description.test.subject.5','description.test.subject.5');
+insert into `subjectattribute` (`subjectId`, `name`, `value`, `searchValue`) values('test.subject.5','email','test.subject.5@somewhere.someSchool.edu','test.subject.5@somewhere.someschool.edu');
+insert into `subjectattribute` (`subjectId`, `name`, `value`, `searchValue`) values('test.subject.5','loginid','id.test.subject.5','id.test.subject.5');
+insert into `subjectattribute` (`subjectId`, `name`, `value`, `searchValue`) values('test.subject.5','name','name.test.subject.5','name.test.subject.5');
+insert into `subjectattribute` (`subjectId`, `name`, `value`, `searchValue`) values('test.subject.6','description','description.test.subject.6','description.test.subject.6');
+insert into `subjectattribute` (`subjectId`, `name`, `value`, `searchValue`) values('test.subject.6','email','test.subject.6@somewhere.someSchool.edu','test.subject.6@somewhere.someschool.edu');
+insert into `subjectattribute` (`subjectId`, `name`, `value`, `searchValue`) values('test.subject.6','loginid','id.test.subject.6','id.test.subject.6');
+insert into `subjectattribute` (`subjectId`, `name`, `value`, `searchValue`) values('test.subject.6','name','name.test.subject.6','name.test.subject.6');
+insert into `subjectattribute` (`subjectId`, `name`, `value`, `searchValue`) values('test.subject.7','description','description.test.subject.7','description.test.subject.7');
+insert into `subjectattribute` (`subjectId`, `name`, `value`, `searchValue`) values('test.subject.7','email','test.subject.7@somewhere.someSchool.edu','test.subject.7@somewhere.someschool.edu');
+insert into `subjectattribute` (`subjectId`, `name`, `value`, `searchValue`) values('test.subject.7','loginid','id.test.subject.7','id.test.subject.7');
+insert into `subjectattribute` (`subjectId`, `name`, `value`, `searchValue`) values('test.subject.7','name','name.test.subject.7','name.test.subject.7');
+insert into `subjectattribute` (`subjectId`, `name`, `value`, `searchValue`) values('test.subject.8','description','description.test.subject.8','description.test.subject.8');
+insert into `subjectattribute` (`subjectId`, `name`, `value`, `searchValue`) values('test.subject.8','email','test.subject.8@somewhere.someSchool.edu','test.subject.8@somewhere.someschool.edu');
+insert into `subjectattribute` (`subjectId`, `name`, `value`, `searchValue`) values('test.subject.8','loginid','id.test.subject.8','id.test.subject.8');
+insert into `subjectattribute` (`subjectId`, `name`, `value`, `searchValue`) values('test.subject.8','name','name.test.subject.8','name.test.subject.8');
+insert into `subjectattribute` (`subjectId`, `name`, `value`, `searchValue`) values('test.subject.9','description','description.test.subject.9','description.test.subject.9');
+insert into `subjectattribute` (`subjectId`, `name`, `value`, `searchValue`) values('test.subject.9','email','test.subject.9@somewhere.someSchool.edu','test.subject.9@somewhere.someschool.edu');
+insert into `subjectattribute` (`subjectId`, `name`, `value`, `searchValue`) values('test.subject.9','loginid','id.test.subject.9','id.test.subject.9');
+insert into `subjectattribute` (`subjectId`, `name`, `value`, `searchValue`) values('test.subject.9','name','name.test.subject.9','name.test.subject.9');
+
 
    */
   

@@ -73,7 +73,6 @@ public class SubjectHelper {
     
     Collections.sort(subjectList, new Comparator<Subject>() {
 
-      @Override
       public int compare(Subject subject1, Subject subject2) {
         return StringUtils.defaultString(subject1.getDescription()).compareTo(StringUtils.defaultString(subject2.getDescription()));
       }
