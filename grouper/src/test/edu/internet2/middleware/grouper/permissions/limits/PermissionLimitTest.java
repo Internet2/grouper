@@ -6,14 +6,12 @@ package edu.internet2.middleware.grouper.permissions.limits;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import junit.textui.TestRunner;
-import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GrouperSession;
-import edu.internet2.middleware.grouper.MemberFinder;
-import edu.internet2.middleware.grouper.Membership;
-import edu.internet2.middleware.grouper.MembershipFinder;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.StemSave;
@@ -27,6 +25,7 @@ import edu.internet2.middleware.grouper.attr.AttributeDefValueType;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignAction;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignResult;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssignType;
 import edu.internet2.middleware.grouper.cfg.ApiConfig;
 import edu.internet2.middleware.grouper.group.GroupMember;
 import edu.internet2.middleware.grouper.group.TypeOfGroup;
@@ -238,11 +237,30 @@ public class PermissionLimitTest extends GrouperTest {
         .assignPermissionProcessor(PermissionProcessor.PROCESS_LIMITS)
         .addLimitEnvVar("(int)amount", "49000").findPermissions());
         
+    
     //there should be two, one should be allow, the other deny
     assertEquals(1, GrouperUtil.length(permissionEntries));
     assertFalse(permissionEntries.get(0).isDisallowed());
     assertTrue(permissionEntries.get(0).isAllowedOverall());
 
+    //there should be a limit...
+    Map<PermissionEntry, Set<PermissionLimitBean>> permissionEntryLimitBeanMap = new PermissionFinder().addSubject(this.subj0)
+      .addAction(this.readString).addPermissionName(this.english)
+      .assignPermissionProcessor(PermissionProcessor.PROCESS_LIMITS)
+      .addLimitEnvVar("(int)amount", "49000").findPermissionsAndLimits();
+
+    assertEquals(1, GrouperUtil.length(permissionEntryLimitBeanMap));
+    
+    Set<PermissionLimitBean> permissionLimitBeans = permissionEntryLimitBeanMap.values().iterator().next();
+    
+    assertEquals(1, GrouperUtil.length(permissionLimitBeans));
+    
+    PermissionLimitBean permissionLimitBean = permissionLimitBeans.iterator().next();
+    
+    assertEquals(AttributeAssignType.any_mem_asgn, permissionLimitBean.getLimitAssign().getAttributeAssignType());
+    assertEquals(1, GrouperUtil.length(permissionLimitBean.getLimitAssignValues()));
+    assertEquals("amount < 50000", permissionLimitBean.getLimitAssignValues().iterator().next().getValueString());
+    
     permissionEntries = new ArrayList<PermissionEntry>(new PermissionFinder().addSubject(this.subj0)
         .addAction(this.readString).addPermissionName(this.english)
         .assignPermissionProcessor(PermissionProcessor.PROCESS_LIMITS)
@@ -479,6 +497,25 @@ public class PermissionLimitTest extends GrouperTest {
   
     this.adminRole.getAttributeValueDelegate().assignValue(PermissionLimitUtils.limitElAttributeDefName().getName(), "amount < 50000");
     
+    //there should be a limit...
+    Map<PermissionEntry, Set<PermissionLimitBean>> permissionEntryLimitBeanMap = new PermissionFinder().addSubject(this.subj0)
+      .addAction(this.readString).addPermissionName(this.english)
+      .assignPermissionProcessor(PermissionProcessor.PROCESS_LIMITS)
+      .addLimitEnvVar("(int)amount", "49000").findPermissionsAndLimits();
+
+    assertEquals(1, GrouperUtil.length(permissionEntryLimitBeanMap));
+    
+    Set<PermissionLimitBean> permissionLimitBeans = permissionEntryLimitBeanMap.values().iterator().next();
+    
+    assertEquals(1, GrouperUtil.length(permissionLimitBeans));
+    
+    PermissionLimitBean permissionLimitBean = permissionLimitBeans.iterator().next();
+    
+    assertEquals(AttributeAssignType.group, permissionLimitBean.getLimitAssign().getAttributeAssignType());
+    assertEquals(1, GrouperUtil.length(permissionLimitBean.getLimitAssignValues()));
+    assertEquals("amount < 50000", permissionLimitBean.getLimitAssignValues().iterator().next().getValueString());
+    
+
     assertTrue(new PermissionFinder().addAction(this.readString).addPermissionName(this.english)
         .addSubject(this.subj0).assignPermissionProcessor(PermissionProcessor.FILTER_REDUNDANT_PERMISSIONS_AND_ROLES_AND_PROCESS_LIMITS)
         .addLimitEnvVar("(int)amount", "49000").hasPermission());
@@ -519,6 +556,26 @@ public class PermissionLimitTest extends GrouperTest {
   
     GroupMember groupMember = new GroupMember(this.adminRole, this.subj0);
     groupMember.getAttributeValueDelegate().assignValue(PermissionLimitUtils.limitElAttributeDefName().getName(), "amount < 50000");
+    
+    //there should be a limit...
+    Map<PermissionEntry, Set<PermissionLimitBean>> permissionEntryLimitBeanMap = new PermissionFinder().addSubject(this.subj0)
+      .addAction(this.readString).addPermissionName(this.english)
+      .assignPermissionProcessor(PermissionProcessor.PROCESS_LIMITS)
+      .addLimitEnvVar("(int)amount", "49000").findPermissionsAndLimits();
+
+    assertEquals(1, GrouperUtil.length(permissionEntryLimitBeanMap));
+    
+    Set<PermissionLimitBean> permissionLimitBeans = permissionEntryLimitBeanMap.values().iterator().next();
+    
+    assertEquals(1, GrouperUtil.length(permissionLimitBeans));
+    
+    PermissionLimitBean permissionLimitBean = permissionLimitBeans.iterator().next();
+    
+    assertEquals(AttributeAssignType.any_mem, permissionLimitBean.getLimitAssign().getAttributeAssignType());
+    assertEquals(1, GrouperUtil.length(permissionLimitBean.getLimitAssignValues()));
+    assertEquals("amount < 50000", permissionLimitBean.getLimitAssignValues().iterator().next().getValueString());
+    
+
     
     assertTrue(new PermissionFinder().addAction(this.readString).addPermissionName(this.english)
         .addSubject(this.subj0).assignPermissionProcessor(PermissionProcessor.FILTER_REDUNDANT_PERMISSIONS_AND_ROLES_AND_PROCESS_LIMITS)

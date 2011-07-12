@@ -228,7 +228,7 @@ public class PermissionLimitBean {
             //keep track of limit assignments on permission assignments
             for (AttributeAssign limitAssign : limitAssignments) {
               
-              Set<PermissionEntry> permissionEntries = attributeAssignIdToPermissionEntries.get(limitAssign.getId());
+              Set<PermissionEntry> permissionEntries = attributeAssignIdToPermissionEntries.get(limitAssign.getOwnerAttributeAssignId());
               
               addLimitToPermissionEntries(limitAssign, permissionEntries, limitAssignsMap);
             }

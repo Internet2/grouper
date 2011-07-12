@@ -440,13 +440,13 @@ public class PermissionFinder {
     Set<PermissionEntry> permissionEntrySet = this.findPermissions();
     
     List<PermissionEntry> permissionEntryList = new ArrayList<PermissionEntry>(permissionEntrySet);
-    for (PermissionEntry permissionEntry : permissionEntryList) {
-      System.out.println(permissionEntry.getRole().getDisplayExtension() + " - " 
-          + permissionEntry.getSubjectId() + " - " + permissionEntry.getAction() + " - " 
-          + permissionEntry.getAttributeDefName().getDisplayExtension() + " - " 
-          + permissionEntry.getAttributeAssignId());
-    }
-    System.out.println("\n");
+    //for (PermissionEntry permissionEntry : permissionEntryList) {
+    //  System.out.println(permissionEntry.getRole().getDisplayExtension() + " - " 
+    //      + permissionEntry.getSubjectId() + " - " + permissionEntry.getAction() + " - " 
+    //      + permissionEntry.getAttributeDefName().getDisplayExtension() + " - " 
+    //      + permissionEntry.getAttributeAssignId());
+    //}
+    //System.out.println("\n");
       
     //assign back original
     this.assignPermissionProcessor(originalProcessor);
@@ -454,19 +454,19 @@ public class PermissionFinder {
     //get limits from permissions
     Map<PermissionEntry, Set<PermissionLimitBean>> permissionLimitBeanMap = GrouperUtil.nonNull(PermissionLimitBean.findPermissionLimits(permissionEntrySet));
     
-    if (GrouperUtil.length(permissionLimitBeanMap) > 0) {
-      for (PermissionEntry permissionEntry : permissionLimitBeanMap.keySet()) {
-        System.out.println(permissionEntry.getRole().getDisplayExtension() + " - " 
-            + permissionEntry.getSubjectId() + " - " + permissionEntry.getAction() + " - " 
-            + permissionEntry.getAttributeDefName().getDisplayExtension() + " - " 
-            + permissionEntry.getAttributeAssignId() + ":");
-        Set<PermissionLimitBean> permissionLimitBeans = permissionLimitBeanMap.get(permissionEntry);
-        for (PermissionLimitBean permissionLimitBean : GrouperUtil.nonNull(permissionLimitBeans)) {
-          System.out.println("  -> " + permissionLimitBean.getLimitAssign().getId() + " - " 
-              + permissionLimitBean.getLimitAssign().getAttributeDefName().getDisplayExtension());
-        }
-      }
-    }
+    //if (GrouperUtil.length(permissionLimitBeanMap) > 0) {
+    //  for (PermissionEntry permissionEntry : permissionLimitBeanMap.keySet()) {
+    //    System.out.println(permissionEntry.getRole().getDisplayExtension() + " - " 
+    //        + permissionEntry.getSubjectId() + " - " + permissionEntry.getAction() + " - " 
+    //        + permissionEntry.getAttributeDefName().getDisplayExtension() + " - " 
+    //        + permissionEntry.getAttributeAssignId() + ":");
+    //    Set<PermissionLimitBean> permissionLimitBeans = permissionLimitBeanMap.get(permissionEntry);
+    //    for (PermissionLimitBean permissionLimitBean : GrouperUtil.nonNull(permissionLimitBeans)) {
+    //      System.out.println("  -> " + permissionLimitBean.getLimitAssign().getId() + " - " 
+    //          + permissionLimitBean.getLimitAssign().getAttributeDefName().getDisplayExtension());
+    //    }
+    //  }
+    //}
     
     if (getLimits) {
       PermissionProcessor.processLimits(permissionEntrySet, this.limitEnvVars, permissionLimitBeanMap);
