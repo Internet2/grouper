@@ -50,7 +50,7 @@ public class PermissionLimitTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new PermissionLimitTest("testLimitMembership"));
+    TestRunner.run(new PermissionLimitTest("testBestLimit"));
   }
 
   /**
@@ -593,6 +593,137 @@ public class PermissionLimitTest extends GrouperTest {
         .addLimitEnvVar("(int)amount", "51000").hasPermission());
 
   
+  }
+
+  /**
+   * 
+   */
+  public void testBestLimit() {
+    
+    //
+    //User subj0 is assigned Role<Admin>
+    this.adminRole.addMember(this.subj0, true);
+  
+    //
+    //User subj0 is assigned permission Deny, Action<Read>, Resource<Arts and sciences>, in the context of Role<Admin>
+    AttributeAssignResult attributeAssignResult = this.adminRole.getPermissionRoleDelegate().assignSubjectRolePermission(
+        this.readString, this.artsAndSciences, this.subj0, PermissionAllowed.ALLOWED);
+  
+    
+    //Result:
+    //
+    //subj0 can read except for the limit
+    
+    //lets get all of the permission assignments
+    List<PermissionEntry> permissionEntries = new ArrayList<PermissionEntry>(
+        new PermissionFinder().addSubject(this.subj0)
+        .addAction(this.readString).addPermissionName(this.english)
+        .assignPermissionProcessor(PermissionProcessor.PROCESS_LIMITS)
+        .addLimitEnvVar("(int)amount", "49000").findPermissions());
+        
+    //there should be two, one should be allow, the other deny
+    assertEquals(1, GrouperUtil.length(permissionEntries));
+    assertFalse(permissionEntries.get(0).isDisallowed());
+    assertTrue(permissionEntries.get(0).isAllowedOverall());
+  
+    AttributeAssign attributeAssign = attributeAssignResult.getAttributeAssign();
+    
+    attributeAssign.getAttributeValueDelegate().assignValue(PermissionLimitUtils.limitElAttributeDefName().getName(), "amount < 50000");
+    
+    permissionEntries = new ArrayList<PermissionEntry>(new PermissionFinder().addSubject(this.subj0)
+        .addAction(this.readString).addPermissionName(this.english)
+        .assignPermissionProcessor(PermissionProcessor.PROCESS_LIMITS)
+        .addLimitEnvVar("(int)amount", "49000").findPermissions());
+        
+    
+    //there should be two, one should be allow, the other deny
+    assertEquals(1, GrouperUtil.length(permissionEntries));
+    assertFalse(permissionEntries.get(0).isDisallowed());
+    assertTrue(permissionEntries.get(0).isAllowedOverall());
+  
+    //there should be a limit...
+    Map<PermissionEntry, Set<PermissionLimitBean>> permissionEntryLimitBeanMap = new PermissionFinder().addSubject(this.subj0)
+      .addAction(this.readString).addPermissionName(this.english)
+      .assignPermissionProcessor(PermissionProcessor.PROCESS_LIMITS)
+      .addLimitEnvVar("(int)amount", "49000").findPermissionsAndLimits();
+  
+    assertEquals(1, GrouperUtil.length(permissionEntryLimitBeanMap));
+    
+    Set<PermissionLimitBean> permissionLimitBeans = permissionEntryLimitBeanMap.values().iterator().next();
+    
+    assertEquals(1, GrouperUtil.length(permissionLimitBeans));
+    
+    PermissionLimitBean permissionLimitBean = permissionLimitBeans.iterator().next();
+    
+    assertEquals(AttributeAssignType.any_mem_asgn, permissionLimitBean.getLimitAssign().getAttributeAssignType());
+    assertEquals(1, GrouperUtil.length(permissionLimitBean.getLimitAssignValues()));
+    assertEquals("amount < 50000", permissionLimitBean.getLimitAssignValues().iterator().next().getValueString());
+    
+    permissionEntries = new ArrayList<PermissionEntry>(new PermissionFinder().addSubject(this.subj0)
+        .addAction(this.readString).addPermissionName(this.english)
+        .assignPermissionProcessor(PermissionProcessor.PROCESS_LIMITS)
+        .addLimitEnvVar("(int)amount", "51000").findPermissions());
+        
+    //there should be two, one should be allow, the other deny
+    assertEquals(1, GrouperUtil.length(permissionEntries));
+    assertFalse(permissionEntries.get(0).isDisallowed());
+    assertFalse(permissionEntries.get(0).isAllowedOverall());
+    
+    //now lets assign a permission to english
+    attributeAssignResult = this.adminRole.getPermissionRoleDelegate().assignSubjectRolePermission(
+        this.readString, this.english, this.subj0, PermissionAllowed.ALLOWED);
+
+    //#####################
+    //there shouldnt be a limit there anymore
+    permissionEntryLimitBeanMap = new PermissionFinder().addSubject(this.subj0)
+      .addAction(this.readString).addPermissionName(this.english)
+      .assignPermissionProcessor(PermissionProcessor.FILTER_REDUNDANT_PERMISSIONS_AND_PROCESS_LIMITS)
+      .addLimitEnvVar("(int)amount", "49000").findPermissionsAndLimits();
+    
+    assertEquals(1, GrouperUtil.length(permissionEntryLimitBeanMap));
+    
+    permissionLimitBeans = permissionEntryLimitBeanMap.values().iterator().next();
+    
+    assertEquals(0, GrouperUtil.length(permissionLimitBeans));
+
+    //######################
+    // add a limit to english, should only have one limit
+    attributeAssign = attributeAssignResult.getAttributeAssign();
+    
+    attributeAssign.getAttributeValueDelegate().assignValue(PermissionLimitUtils.limitElAttributeDefName().getName(), "amount < 30000");
+    
+    permissionEntries = new ArrayList<PermissionEntry>(new PermissionFinder().addSubject(this.subj0)
+        .addAction(this.readString).addPermissionName(this.english)
+        .assignPermissionProcessor(PermissionProcessor.FILTER_REDUNDANT_PERMISSIONS_AND_PROCESS_LIMITS)
+        .addLimitEnvVar("(int)amount", "49000").findPermissions());
+        
+    
+    //there should be two, one should be allow, the other deny
+    assertEquals(1, GrouperUtil.length(permissionEntries));
+    assertFalse(permissionEntries.get(0).isDisallowed());
+    assertFalse(permissionEntries.get(0).isAllowedOverall());
+  
+    //there should be a limit...
+    permissionEntryLimitBeanMap = new PermissionFinder().addSubject(this.subj0)
+      .addAction(this.readString).addPermissionName(this.english)
+      .assignPermissionProcessor(PermissionProcessor.FILTER_REDUNDANT_PERMISSIONS_AND_PROCESS_LIMITS)
+      .addLimitEnvVar("(int)amount", "49000").findPermissionsAndLimits();
+  
+    assertEquals(1, GrouperUtil.length(permissionEntryLimitBeanMap));
+    
+    permissionLimitBeans = permissionEntryLimitBeanMap.values().iterator().next();
+    
+    assertEquals(1, GrouperUtil.length(permissionLimitBeans));
+    
+    permissionLimitBean = permissionLimitBeans.iterator().next();
+    
+    assertEquals(AttributeAssignType.any_mem_asgn, permissionLimitBean.getLimitAssign().getAttributeAssignType());
+    assertEquals(1, GrouperUtil.length(permissionLimitBean.getLimitAssignValues()));
+    assertEquals("amount < 30000", permissionLimitBean.getLimitAssignValues().iterator().next().getValueString());
+
+    
+    
+    
   }
 
   
