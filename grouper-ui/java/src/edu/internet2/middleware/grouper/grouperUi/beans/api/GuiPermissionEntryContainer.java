@@ -337,9 +337,9 @@ public class GuiPermissionEntryContainer implements Serializable, Comparable<Gui
           if (guiPermissionLimitBeanContainer == null) {
             guiPermissionLimitBeanContainer = new GuiPermissionLimitBeanContainer();
             guiPermissionLimitBeanContainer.setPermissionLimitBean(permissionLimitBean);
+            limitToGuiPermissionLimitBeanContainerMap.put(permissionLimitBean.getLimitAssign(), guiPermissionLimitBeanContainer);
+            this.guiPermissionLimitBeanContainers.add(guiPermissionLimitBeanContainer);
           }
-          
-          this.guiPermissionLimitBeanContainers.add(guiPermissionLimitBeanContainer);
           
           //this limit can apply to multiple actions
           guiPermissionLimitBeanContainer.getActions().add(permissionEntry.getAction());

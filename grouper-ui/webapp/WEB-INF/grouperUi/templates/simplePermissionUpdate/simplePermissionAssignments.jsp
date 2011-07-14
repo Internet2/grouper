@@ -197,17 +197,78 @@
   --%>          
             <c:forEach items="${guiPermissionEntryContainer.guiPermissionLimitBeanContainers}" var="guiPermissionLimitBeanContainer">
               <tr>
-                <td colspan="3" style="white-space: nowrap;">
-                  <%-- <c:if test="guiPermissionLimitBeanContainer.immediate" > --%>
-                    <a href="#" onclick="if (confirm('${grouper:message('simplePermissionUpdate.limitDeleteConfirm', true, true)}')) {ajax('SimplePermissionUpdate.limitDelete?limitAssignId=${guiPermissionLimitBeanContainer.permissionLimitBean.limitAssign.id}', {formIds: 'simplePermissionFilterForm'});} return false;" 
-                          ><img src="../../grouperExternal/public/assets/images/page_cross.gif" height="14px" border="0" 
-                          alt="${grouper:message('simplePermissionUpdate.deleteLimitAlt', true, false)}"
-                          onmouseover="Tip('${grouper:message('simplePermissionUpdate.deleteLimitAlt', true, true)}')" 
-                          onmouseout="UnTip()"/></a>
-                  <%-- </c:if> --%>
+ 
+                <td colspan="${permissionUpdateRequestContainer.permissionType.name == 'role_subject' ? '2' : '1'}" style="white-space: nowrap; padding-left: 1em">
+                  <span class="simpleMembershipUpdateDisabled"><grouper:message key="simplePermissionUpdate.limitLabel" /></span>
+                  <c:choose>
+                    <c:when test="${guiPermissionLimitBeanContainer.immediate}" >
+                      <a href="#" onclick="if (confirm('${grouper:message('simplePermissionUpdate.limitDeleteConfirm', true, true)}')) {ajax('SimplePermissionUpdate.limitDelete?limitAssignId=${guiPermissionLimitBeanContainer.permissionLimitBean.limitAssign.id}', {formIds: 'simplePermissionFilterForm'});} return false;" 
+                            ><img src="../../grouperExternal/public/assets/images/page_cross.gif" height="14px" border="0" 
+                            alt="${grouper:message('simplePermissionUpdate.deleteLimitAlt', true, false)}"
+                            onmouseover="Tip('${grouper:message('simplePermissionUpdate.deleteLimitAlt', true, true)}')" 
+                            onmouseout="UnTip()"/></a>
+                    </c:when>
+                    <c:otherwise>
+                      <img src="../../grouperExternal/public/assets/images/spacer.gif" height="14px" border="0" 
+                            alt=""/>
+                    </c:otherwise>
+                  </c:choose>
+                  <span class="simpleMembershipUpdateDisabled">
+                  <c:choose>
+                    <c:when test="${guiPermissionLimitBeanContainer.hasMultipleActions}"><grouper:message key="simplePermissionUpdate.limitActions" /></c:when>
+                    <c:otherwise><grouper:message key="simplePermissionUpdate.limitAction" /></c:otherwise>
+                  </c:choose>
+                  </span>
+                        ${guiPermissionLimitBeanContainer.actionsCommaSeparated}
+                </td>
+                <td style="white-space: nowrap;">
+                  <grouper:message value="${grouper:escapeHtml(guiPermissionLimitBeanContainer.permissionLimitBean.limitAssign.attributeDefName.displayExtension)}" 
+                    valueTooltip="${grouper:escapeHtml(guiPermissionLimitBeanContainer.permissionLimitBean.limitAssign.attributeDefName.displayName)}" />
+                </td>
+                <td style="white-space: nowrap;" colspan="${permissionUpdateRequestContainer.allActionsSize}">
+                  <c:if test="${guiPermissionLimitBeanContainer.hasValues}">
+
+                    <%-- loop through the values --%>
+                    <c:set var="valueRow" value="0" />
                 
-                ${guiPermissionLimitBeanContainer.permissionLimitBean.limitAssign.attributeDefName.name} 
-                - ${guiPermissionLimitBeanContainer.permissionLimitBean.limitAssign.attributeAssignType.name}</td>
+                    
+                    <c:forEach items="${guiPermissionLimitBeanContainer.permissionLimitBean.limitAssignValues}" var="limitAssignValue">
+                    
+                      <%-- we need a newline before non-first rows --%>
+                      <c:if test="${valueRow != 0}">
+                        <br />
+                      </c:if>
+  
+                      <a href="#" onclick="if (confirm('${grouper:message('simpleAttributeUpdate.assignValueDeleteConfirm', true, true)}')) {ajax('SimpleAttributeUpdate.assignValueDelete?attributeAssignId=${guiAttributeAssignAssign.attributeAssign.id}&attributeAssignValueId=${attributeAssignValue.id}', {formIds: 'simpleAttributeFilterForm'});} return false;" 
+                        ><img src="../../grouperExternal/public/assets/images/page_cross.gif" height="14px" border="0" 
+                        alt="${grouper:message('simpleAttributeUpdate.assignDeleteValueAlt', true, false)}"
+                        onmouseover="Tip('${grouper:message('simpleAttributeUpdate.assignDeleteValueAlt', true, true)}')" 
+                        onmouseout="UnTip()"/></a>
+  
+                      <a href="#" onclick="ajax('SimpleAttributeUpdate.assignValueEdit?attributeAssignId=${guiAttributeAssignAssign.attributeAssign.id}&attributeAssignValueId=${guiAttributeAssignAssign.attributeAssign.id}', {formIds: 'simpleAttributeFilterForm'}); return false;" 
+                        ><img src="../../grouperExternal/public/assets/images/application_edit.png" height="14px" border="0" 
+                        alt="${grouper:message('simpleAttributeUpdate.editValueAssignmentAlt', true, false)}"
+                        onmouseover="Tip('${grouper:message('simpleAttributeUpdate.editValueAssignmentAlt', true, true)}')" 
+                        onmouseout="UnTip()"/></a>
+                      
+                      <span class="simpleMembershipUpdateDisabled"><grouper:message key="simplePermissionUpdate.limitValueLabel" /></span>
+                      ${grouper:escapeHtml(limitAssignValue.valueFriendly)}
+                      
+                      <c:set var="valueRow" value="${valueRow + 1}" />
+                      
+                    </c:forEach>
+                  
+                  
+                  
+                  </c:if>
+                </td>
+                <td style="white-space: nowrap;">
+                
+                  <span class="simpleMembershipUpdateDisabled"><grouper:message key="simplePermissionUpdate.limitAssignedToLabel" 
+                    valueTooltip="${guiPermissionLimitBeanContainer.assignedToTooltip}" /></span>
+                
+                
+                </td>
               </tr>
             </c:forEach>
                   <%-- filter out results which dont match the enabled/disabled filter --%>

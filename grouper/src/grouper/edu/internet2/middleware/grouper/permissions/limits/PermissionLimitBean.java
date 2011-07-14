@@ -160,7 +160,7 @@ public class PermissionLimitBean {
   private static void addLimitToPermissionEntries(AttributeAssign limitAssign, Collection<PermissionEntry> permissionEntries, Map<PermissionEntry, Set<AttributeAssign>> limitAssignsMap) {
     
     for (PermissionEntry permissionEntry : GrouperUtil.nonNull(permissionEntries)) {
-      Set<AttributeAssign> assignSet = limitAssignsMap.get(limitAssign.getId());
+      Set<AttributeAssign> assignSet = limitAssignsMap.get(permissionEntry);
       if (assignSet == null) {
         assignSet = new HashSet<AttributeAssign>();
         limitAssignsMap.put(permissionEntry, assignSet);

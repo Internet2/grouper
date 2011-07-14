@@ -721,9 +721,38 @@ public class PermissionLimitTest extends GrouperTest {
     assertEquals(1, GrouperUtil.length(permissionLimitBean.getLimitAssignValues()));
     assertEquals("amount < 30000", permissionLimitBean.getLimitAssignValues().iterator().next().getValueString());
 
+    //##########################################################
+    //if we have two of the same limit, they should both show up
+    attributeAssign.getAttributeDelegate().addAttribute(PermissionLimitUtils.limitWeekday9to5AttributeDefName());
     
+    permissionEntryLimitBeanMap = new PermissionFinder().addSubject(this.subj0)
+      .addAction(this.readString).addPermissionName(this.english)
+      .assignPermissionProcessor(PermissionProcessor.FILTER_REDUNDANT_PERMISSIONS_AND_PROCESS_LIMITS)
+      .addLimitEnvVar("(int)amount", "49000").findPermissionsAndLimits();
+  
+    assertEquals(1, GrouperUtil.length(permissionEntryLimitBeanMap));
     
+    permissionLimitBeans = permissionEntryLimitBeanMap.values().iterator().next();
     
+    assertEquals(2, GrouperUtil.length(permissionLimitBeans));
+    
+    permissionLimitBean = permissionLimitBeans.iterator().next();
+    boolean foundMarker = false;
+    boolean foundValue = false;
+    for (PermissionLimitBean currentPermissionLimitBean : permissionLimitBeans) {
+      assertEquals(AttributeAssignType.any_mem_asgn, currentPermissionLimitBean.getLimitAssign().getAttributeAssignType());
+      assertTrue(1 >= GrouperUtil.length(currentPermissionLimitBean.getLimitAssignValues()));
+      if (GrouperUtil.length(currentPermissionLimitBean.getLimitAssignValues()) == 1) {
+        assertEquals("amount < 30000", currentPermissionLimitBean.getLimitAssignValues().iterator().next().getValueString());
+        foundValue = true;
+      } else {
+        foundMarker = true;
+      }
+      
+    }
+    
+    assertTrue(foundMarker);
+    assertTrue(foundValue);
   }
 
   
