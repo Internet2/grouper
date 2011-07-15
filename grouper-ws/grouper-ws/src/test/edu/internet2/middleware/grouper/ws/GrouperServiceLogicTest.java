@@ -1877,7 +1877,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
     assertEquals(attrDefName.getId(), wsPermissionAssign.getAttributeDefNameId());
     assertEquals(attrDefName.getName(), wsPermissionAssign.getAttributeDefNameName());
     assertTrue(!StringUtils.isBlank(wsPermissionAssign.getAttributeAssignId()));
-    assertEquals("T", wsPermissionAssign.getEnabled());
+    assertNull(wsPermissionAssign.getEnabled());
     assertTrue(!StringUtils.isBlank(wsPermissionAssign.getMembershipId()));
     assertEquals("role", wsPermissionAssign.getPermissionType());
     assertEquals(role.getId(), wsPermissionAssign.getRoleId());
@@ -1907,7 +1907,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
     assertEquals(attrDefName2.getId(), wsPermissionAssign.getAttributeDefNameId());
     assertEquals(attrDefName2.getName(), wsPermissionAssign.getAttributeDefNameName());
     assertTrue(!StringUtils.isBlank(wsPermissionAssign.getAttributeAssignId()));
-    assertEquals("T", wsPermissionAssign.getEnabled());
+    assertNull(wsPermissionAssign.getEnabled());
     assertTrue(!StringUtils.isBlank(wsPermissionAssign.getMembershipId()));
     assertEquals("role_subject", wsPermissionAssign.getPermissionType());
     assertEquals(role2.getId(), wsPermissionAssign.getRoleId());
@@ -1937,7 +1937,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
     assertEquals(attrDefName.getId(), wsPermissionAssign.getAttributeDefNameId());
     assertEquals(attrDefName.getName(), wsPermissionAssign.getAttributeDefNameName());
     assertTrue(!StringUtils.isBlank(wsPermissionAssign.getAttributeAssignId()));
-    assertEquals("T", wsPermissionAssign.getEnabled());
+    assertNull(wsPermissionAssign.getEnabled());
     assertTrue(!StringUtils.isBlank(wsPermissionAssign.getMembershipId()));
     assertEquals("role", wsPermissionAssign.getPermissionType());
     assertEquals(role.getId(), wsPermissionAssign.getRoleId());
@@ -1954,7 +1954,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
     assertEquals(attrDefName2.getId(), wsPermissionAssign.getAttributeDefNameId());
     assertEquals(attrDefName2.getName(), wsPermissionAssign.getAttributeDefNameName());
     assertTrue(!StringUtils.isBlank(wsPermissionAssign.getAttributeAssignId()));
-    assertEquals("T", wsPermissionAssign.getEnabled());
+    assertNull(wsPermissionAssign.getEnabled());
     assertTrue(!StringUtils.isBlank(wsPermissionAssign.getMembershipId()));
     assertEquals("role_subject", wsPermissionAssign.getPermissionType());
     assertEquals(role2.getId(), wsPermissionAssign.getRoleId());
@@ -1984,7 +1984,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
     assertEquals(attrDefName.getId(), wsPermissionAssign.getAttributeDefNameId());
     assertEquals(attrDefName.getName(), wsPermissionAssign.getAttributeDefNameName());
     assertTrue(!StringUtils.isBlank(wsPermissionAssign.getAttributeAssignId()));
-    assertEquals("T", wsPermissionAssign.getEnabled());
+    assertNull(wsPermissionAssign.getEnabled());
     assertTrue(!StringUtils.isBlank(wsPermissionAssign.getMembershipId()));
     assertEquals("role", wsPermissionAssign.getPermissionType());
     assertEquals(role.getId(), wsPermissionAssign.getRoleId());
@@ -2014,7 +2014,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
     assertEquals(attrDefName.getId(), wsPermissionAssign.getAttributeDefNameId());
     assertEquals(attrDefName.getName(), wsPermissionAssign.getAttributeDefNameName());
     assertTrue(!StringUtils.isBlank(wsPermissionAssign.getAttributeAssignId()));
-    assertEquals("T", wsPermissionAssign.getEnabled());
+    assertNull(wsPermissionAssign.getEnabled());
     assertTrue(!StringUtils.isBlank(wsPermissionAssign.getMembershipId()));
     assertEquals("role", wsPermissionAssign.getPermissionType());
     assertEquals(role.getId(), wsPermissionAssign.getRoleId());
@@ -2047,7 +2047,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
     assertEquals(attrDefName2.getId(), wsPermissionAssign.getAttributeDefNameId());
     assertEquals(attrDefName2.getName(), wsPermissionAssign.getAttributeDefNameName());
     assertTrue(!StringUtils.isBlank(wsPermissionAssign.getAttributeAssignId()));
-    assertEquals("T", wsPermissionAssign.getEnabled());
+    assertNull(wsPermissionAssign.getEnabled());
     assertTrue(!StringUtils.isBlank(wsPermissionAssign.getMembershipId()));
     assertEquals("role_subject", wsPermissionAssign.getPermissionType());
     assertEquals(role2.getId(), wsPermissionAssign.getRoleId());
@@ -2092,7 +2092,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
     assertEquals(attrDefName2.getId(), wsPermissionAssign.getAttributeDefNameId());
     assertEquals(attrDefName2.getName(), wsPermissionAssign.getAttributeDefNameName());
     assertTrue(!StringUtils.isBlank(wsPermissionAssign.getAttributeAssignId()));
-    assertEquals("T", wsPermissionAssign.getEnabled());
+    assertNull(wsPermissionAssign.getEnabled());
     assertTrue(!StringUtils.isBlank(wsPermissionAssign.getMembershipId()));
     assertEquals("role_subject", wsPermissionAssign.getPermissionType());
     assertEquals(role2.getId(), wsPermissionAssign.getRoleId());
@@ -2130,7 +2130,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
     assertEquals(attrDefName2.getId(), wsPermissionAssign.getAttributeDefNameId());
     assertEquals(attrDefName2.getName(), wsPermissionAssign.getAttributeDefNameName());
     assertTrue(!StringUtils.isBlank(wsPermissionAssign.getAttributeAssignId()));
-    assertEquals("T", wsPermissionAssign.getEnabled());
+    assertNull(wsPermissionAssign.getEnabled());
     assertTrue(!StringUtils.isBlank(wsPermissionAssign.getMembershipId()));
     assertEquals("role_subject", wsPermissionAssign.getPermissionType());
     assertEquals(role2.getId(), wsPermissionAssign.getRoleId());
@@ -2177,7 +2177,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
     assertEquals(attrDefName2.getId(), wsPermissionAssign.getAttributeDefNameId());
     assertEquals(attrDefName2.getName(), wsPermissionAssign.getAttributeDefNameName());
     assertTrue(!StringUtils.isBlank(wsPermissionAssign.getAttributeAssignId()));
-    assertEquals("T", wsPermissionAssign.getEnabled());
+    assertNull(wsPermissionAssign.getEnabled());
     assertTrue(!StringUtils.isBlank(wsPermissionAssign.getMembershipId()));
     assertEquals("role_subject", wsPermissionAssign.getPermissionType());
     assertEquals(role2.getId(), wsPermissionAssign.getRoleId());

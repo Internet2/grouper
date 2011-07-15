@@ -371,30 +371,6 @@ public class WsPermissionAssign implements Comparable<WsPermissionAssign> {
     }
     return wsAttributeAssignResultArray;
   }
-  
-  /**
-   * convert pit permission assigns
-   * @param pitPermissionEntrySet 
-   * @param includePermissionAssignDetail 
-   * @return the results
-   */
-  public static WsPermissionAssign[] convertPITPermissionEntries(
-      Set<PITPermissionAllView> pitPermissionEntrySet, boolean includePermissionAssignDetail) {
-    int permissionEntrySetLength = GrouperUtil.length(pitPermissionEntrySet);
-    if (permissionEntrySetLength == 0) {
-      return null;
-    }
-  
-    WsPermissionAssign[] wsAttributeAssignResultArray = new WsPermissionAssign[permissionEntrySetLength];
-    int index = 0;
-    for (PITPermissionAllView pitPermissionEntry : pitPermissionEntrySet) {
-            
-      wsAttributeAssignResultArray[index++] = new WsPermissionAssign(pitPermissionEntry, includePermissionAssignDetail);
-      
-    }
-    return wsAttributeAssignResultArray;
-  }
-
 
   /**
    * 
@@ -414,19 +390,24 @@ public class WsPermissionAssign implements Comparable<WsPermissionAssign> {
     this.action =  permissionEntry.getAction();
     this.attributeAssignId = permissionEntry.getAttributeAssignId();
     
-    AttributeDef theAttributeDef = GrouperDAOFactory.getFactory().getAttributeDef()
-      .findById(permissionEntry.getAttributeDefId(), true);
-    
+    if (permissionEntry instanceof PITPermissionAllView) {
+      PITAttributeDef theAttributeDef = GrouperDAOFactory.getFactory().getPITAttributeDef()
+        .findById(permissionEntry.getAttributeDefId());
+      this.attributeDefName = theAttributeDef == null ? null : theAttributeDef.getName();
+    } else {
+      AttributeDef theAttributeDef = GrouperDAOFactory.getFactory().getAttributeDef()
+        .findById(permissionEntry.getAttributeDefId(), true);
+      this.attributeDefName = theAttributeDef == null ? null : theAttributeDef.getName();
+      this.enabled = permissionEntry.isEnabled() ? "T" : "F";
+    }
+
     this.attributeDefId = permissionEntry.getAttributeDefId();
-    this.attributeDefName = theAttributeDef == null ? null : theAttributeDef.getName();
     this.attributeDefNameId = permissionEntry.getAttributeDefNameId();
     this.attributeDefNameName = permissionEntry.getAttributeDefNameName();
     
     if (includePermissionAssignDetail) {
       this.detail = new WsPermissionAssignDetail(permissionEntry);
     }
-
-    this.enabled = permissionEntry.isEnabled() ? "T" : "F";
     
     this.attributeAssignId = permissionEntry.getAttributeAssignId();
     
@@ -436,42 +417,6 @@ public class WsPermissionAssign implements Comparable<WsPermissionAssign> {
     this.roleName = permissionEntry.getRoleName();
     this.sourceId = permissionEntry.getSubjectSourceId();
     this.subjectId = permissionEntry.getSubjectId();
-    
-  }
-
-  /**
-   * construct with attribute assign to set internal fields
-   * 
-   * @param pitPermissionEntry
-   * @param includePermissionAssignDetail if detail should be added
-   */
-  public WsPermissionAssign(PITPermissionAllView pitPermissionEntry, boolean includePermissionAssignDetail) {
-    
-    this.action =  pitPermissionEntry.getAction();
-    this.attributeAssignId = pitPermissionEntry.getAttributeAssignId();
-    
-    PITAttributeDef theAttributeDef = GrouperDAOFactory.getFactory().getPITAttributeDef()
-      .findById(pitPermissionEntry.getAttributeDefId());
-    
-    this.attributeDefId = pitPermissionEntry.getAttributeDefId();
-    this.attributeDefName = theAttributeDef == null ? null : theAttributeDef.getName();
-    this.attributeDefNameId = pitPermissionEntry.getAttributeDefNameId();
-    this.attributeDefNameName = pitPermissionEntry.getAttributeDefNameName();
-    
-    if (includePermissionAssignDetail) {
-      this.detail = new WsPermissionAssignDetail(pitPermissionEntry);
-    }
-
-    this.enabled = "T";
-    
-    this.attributeAssignId = pitPermissionEntry.getAttributeAssignId();
-    
-    this.membershipId = pitPermissionEntry.getMembershipId();
-    this.permissionType = pitPermissionEntry.getPermissionTypeDb();
-    this.roleId = pitPermissionEntry.getRoleId();
-    this.roleName = pitPermissionEntry.getRoleName();
-    this.sourceId = pitPermissionEntry.getSubjectSourceId();
-    this.subjectId = pitPermissionEntry.getSubjectId();
     
   }
 }

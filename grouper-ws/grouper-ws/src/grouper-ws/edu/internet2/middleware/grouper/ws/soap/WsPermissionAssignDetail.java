@@ -278,32 +278,18 @@ public class WsPermissionAssignDetail {
     
     this.actionDepth = Integer.toString(permissionEntry.getAttributeAssignActionSetDepth());
     this.actionId = permissionEntry.getActionId();
-    this.assignmentNotes = permissionEntry.getAssignmentNotes();
     this.attributeDefNameSetDepth = Integer.toString(permissionEntry.getAttributeDefNameSetDepth());
-    this.disabledTime = GrouperServiceUtils.dateToString(permissionEntry.getDisabledTime());
-    this.enabledTime = GrouperServiceUtils.dateToString(permissionEntry.getEnabledTime());
-    this.immediateMembership = permissionEntry.isImmediateMembership() ? "T" : "F";
-    this.immediatePermission = permissionEntry.isImmediatePermission() ? "T" : "F";
     this.memberId = permissionEntry.getMemberId();
     this.membershipDepth = Integer.toString(permissionEntry.getMembershipDepth());
-    this.permissionDelegatable = permissionEntry.getAttributeAssignDelegatableDb();
     this.roleSetDepth = Integer.toString(permissionEntry.getRoleSetDepth());
     
-  }
-  
-  /**
-   * construct with permission entry to set internal fields
-   * 
-   * @param pitPermissionEntry
-   */
-  public WsPermissionAssignDetail(PITPermissionAllView pitPermissionEntry) {
-    
-    this.actionDepth = Integer.toString(pitPermissionEntry.getAttributeAssignActionSetDepth());
-    this.actionId = pitPermissionEntry.getActionId();
-    this.attributeDefNameSetDepth = Integer.toString(pitPermissionEntry.getAttributeDefNameSetDepth());
-    this.memberId = pitPermissionEntry.getMemberId();
-    this.membershipDepth = Integer.toString(pitPermissionEntry.getMembershipDepth());
-    this.roleSetDepth = Integer.toString(pitPermissionEntry.getRoleSetDepth());
-    
+    if (!(permissionEntry instanceof PITPermissionAllView)) {
+      this.assignmentNotes = permissionEntry.getAssignmentNotes();
+      this.disabledTime = GrouperServiceUtils.dateToString(permissionEntry.getDisabledTime());
+      this.enabledTime = GrouperServiceUtils.dateToString(permissionEntry.getEnabledTime());
+      this.immediateMembership = permissionEntry.isImmediateMembership() ? "T" : "F";
+      this.immediatePermission = permissionEntry.isImmediatePermission() ? "T" : "F";
+      this.permissionDelegatable = permissionEntry.getAttributeAssignDelegatableDb();    
+    }
   }
 }

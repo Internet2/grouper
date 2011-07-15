@@ -67,8 +67,6 @@ import edu.internet2.middleware.grouper.permissions.PermissionEntry;
 import edu.internet2.middleware.grouper.permissions.PermissionEntry.PermissionType;
 import edu.internet2.middleware.grouper.pit.PITGroup;
 import edu.internet2.middleware.grouper.pit.PITMember;
-import edu.internet2.middleware.grouper.pit.PITPermissionAllView;
-import edu.internet2.middleware.grouper.pit.PITStem;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.AccessResolver;
 import edu.internet2.middleware.grouper.privs.GrouperPrivilege;
@@ -5877,10 +5875,10 @@ public class GrouperServiceLogic {
   
         wsGetPermissionAssignmentsResults.assignResult(results, subjectAttributeNames, includePermissionAssignDetail);
       } else {
-        Set<PITPermissionAllView> results = GrouperDAOFactory.getFactory().getPITPermissionAllView().findPermissions(
+        Set<PermissionEntry> results = GrouperDAOFactory.getFactory().getPITPermissionAllView().findPermissions(
             attributeDefIds, attributeDefNameIds, roleIds, actionsCollection, memberIds, pointInTimeFrom, pointInTimeTo);
   
-        wsGetPermissionAssignmentsResults.assignPITResult(results, subjectAttributeNames, includePermissionAssignDetail);
+        wsGetPermissionAssignmentsResults.assignResult(results, subjectAttributeNames, includePermissionAssignDetail);
       }
         
       if (includeAttributeAssignments) {

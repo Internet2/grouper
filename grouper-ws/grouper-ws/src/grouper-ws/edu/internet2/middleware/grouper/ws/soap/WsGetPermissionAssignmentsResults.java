@@ -352,20 +352,6 @@ public class WsGetPermissionAssignmentsResults implements WsResponseBean, Result
     this.setWsPermissionAssigns(WsPermissionAssign.convertPermissionEntries(permissionEntries, includePermissionAssignDetail));
     
   }
-  
-  /**
-   * convert pit permissions to ws permissions
-   * @param pitPermissionEntries 
-   * @param theSubjectAttributeNames 
-   * @param includePermissionAssignDetail 
-   */
-  public void assignPITResult(Set<PITPermissionAllView> pitPermissionEntries, String[] theSubjectAttributeNames, boolean includePermissionAssignDetail) {
-    
-    this.subjectAttributeNames = theSubjectAttributeNames;
-
-    this.setWsPermissionAssigns(WsPermissionAssign.convertPITPermissionEntries(pitPermissionEntries, includePermissionAssignDetail));
-    
-  }
 
   /**
    * sort the assignments by def, name, etc  
