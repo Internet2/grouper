@@ -34,14 +34,18 @@ import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignResult;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssignType;
 import edu.internet2.middleware.grouper.attr.finder.AttributeAssignFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
+import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeAssign;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiMember;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiPermissionEntryActionsContainer;
+import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiSubject;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
 import edu.internet2.middleware.grouper.grouperUi.beans.permissionUpdate.PermissionUpdateRequestContainer;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.permissions.PermissionAllowed;
 import edu.internet2.middleware.grouper.permissions.PermissionEntry;
 import edu.internet2.middleware.grouper.permissions.PermissionFinder;
@@ -50,6 +54,7 @@ import edu.internet2.middleware.grouper.permissions.PermissionRoleDelegate;
 import edu.internet2.middleware.grouper.permissions.PermissionEntry.PermissionType;
 import edu.internet2.middleware.grouper.permissions.limits.PermissionLimitBean;
 import edu.internet2.middleware.grouper.permissions.role.Role;
+import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.tags.TagUtils;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
@@ -333,8 +338,10 @@ public class SimplePermissionUpdate {
 
     }
     
-    //it makes more sense to just show the screen
-    //assignFilter(httpServletRequest, httpServletResponse);
+    //clear out the filter since people might expect it to be calculating limits
+    guiResponseJs.addAction(GuiScreenAction.newInnerHtml("#permissionAssignAssignments", 
+      ""));
+
   }
   
   /**
@@ -1114,6 +1121,29 @@ public class SimplePermissionUpdate {
 
       }
       
+      String permissionAssignMemberId = StringUtils.trimToNull(httpServletRequest.getParameter("permissionAssignMemberId"));
+
+      Member member = null;
+      
+      //member is not required, could assign a permission to a role
+      if (!StringUtils.isBlank(permissionAssignMemberId)) {
+        Subject subject = GrouperUiUtils.findSubject(permissionAssignMemberId, false);
+        member = subject == null ? null : MemberFinder.findBySubject(grouperSession, subject, true);
+        
+        //this is required if a value was submitted
+        if (member == null) {
+          guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message(
+              "simplePermissionUpdate.assignErrorPickSubject", false)));
+          return;
+        }            
+        
+        permissionUpdateRequestContainer.setDefaultMemberId(permissionAssignMemberId);
+        GuiSubject guiSubject = new GuiSubject(subject);
+        
+        permissionUpdateRequestContainer.setDefaultMemberDisplayName(guiSubject.getScreenLabel());
+        
+      }
+
       String action = StringUtils.trimToNull(httpServletRequest.getParameter("permissionAssignAction"));
 
       permissionUpdateRequestContainer.setDefaultAction(action);
@@ -1343,23 +1373,249 @@ public class SimplePermissionUpdate {
       guiResponseJs.addAction(GuiScreenAction.newInnerHtml("#permissionAddLimitPanel", ""));
 
 
-      //dont escape HTML so that formatted HTML can be put in the nav file
-      
-      guiResponseJs.addAction(GuiScreenAction.newScript("$('#permissionAddLimitMessageId').addClass('noteMessage')"));
-      guiResponseJs.addAction(GuiScreenAction.newInnerHtml("#permissionAddLimitMessageId", screenMessage));
+//      //dont escape HTML so that formatted HTML can be put in the nav file
+//      
+//      guiResponseJs.addAction(GuiScreenAction.newScript("$('#permissionAddLimitMessageId').addClass('noteMessage')"));
+//      guiResponseJs.addAction(GuiScreenAction.newInnerHtml("#permissionAddLimitMessageId", screenMessage));
+//
+//      //scroll to it and hide it after 5 seconds, well, dont do that so they can read it: setTimeout('hidePermissionAddLimitMessage()', 5000);
+//      guiResponseJs.addAction(GuiScreenAction.newScript(
+//          "guiScrollTo('#permissionAddLimitMessageId'); "));
 
-      //scroll to it and hide it after 5 seconds, well, dont do that so they can read it: setTimeout('hidePermissionAddLimitMessage()', 5000);
-      guiResponseJs.addAction(GuiScreenAction.newScript(
-          "guiScrollTo('#permissionAddLimitMessageId'); "));
-
+      permissionUpdateRequestContainer.setAssignmentStatusMessage(screenMessage);
      
       
     } finally {
       GrouperSession.stopQuietly(grouperSession); 
     }
     
+    
+    assignFilter(httpServletRequest, httpServletResponse);
+
   }
 
+
+
+  /**
+   * edit an attribute assignment
+   * @param httpServletRequest
+   * @param httpServletResponse
+   */
+  public void assignLimitEdit(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+  
+    PermissionUpdateRequestContainer permissionUpdateRequestContainer = PermissionUpdateRequestContainer.retrieveFromRequestOrCreate();
+  
+    GrouperSession grouperSession = null;
+  
+    try {
+      grouperSession = GrouperSession.start(loggedInSubject);
+      
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+  
+      //this is the attribute we are editing
+      String limitAssignId = httpServletRequest.getParameter("limitAssignId");
+      
+      if (StringUtils.isBlank(limitAssignId)) {
+        throw new RuntimeException("Why is limitAssignId blank???");
+      }
+  
+      AttributeAssign limitAssign = AttributeAssignFinder.findById(limitAssignId, true);
+  
+      //we need the type so we know how to display it
+      AttributeAssignType attributeAssignType = limitAssign.getAttributeAssignType();
+      
+      if (!attributeAssignType.isAssignmentOnAssignment()) {
+        throw new RuntimeException("Why would an editable limit not be an assignment on assignment? " + attributeAssignType);
+      }
+      
+      AttributeAssign underlyingAssignment = limitAssign.getOwnerAttributeAssign();
+      AttributeAssignType underlyingAttributeAssignType = underlyingAssignment.getAttributeAssignType();
+      
+      //set the type to underlying, so that the labels are correct
+      GuiAttributeAssign guiUnderlyingAttributeAssign = new GuiAttributeAssign();
+      guiUnderlyingAttributeAssign.setAttributeAssign(underlyingAssignment);
+
+      permissionUpdateRequestContainer.setGuiAttributeAssign(guiUnderlyingAttributeAssign);
+      
+      GuiAttributeAssign guiAttributeAssignAssign = new GuiAttributeAssign();
+      guiAttributeAssignAssign.setAttributeAssign(limitAssign);
+
+      permissionUpdateRequestContainer.setGuiAttributeAssignAssign(guiAttributeAssignAssign);
+      permissionUpdateRequestContainer.setAttributeAssignType(underlyingAttributeAssignType);
+      permissionUpdateRequestContainer.setAttributeAssignAssignType(attributeAssignType);
+        
+      guiResponseJs.addAction(GuiScreenAction.newDialogFromJsp(
+        "/WEB-INF/grouperUi/templates/simplePermissionUpdate/simplePermissionLimitEdit.jsp"));
+  
+      
+    } finally {
+      GrouperSession.stopQuietly(grouperSession); 
+    }
+  
+  }
+
+  /**
+   * submit the limit edit screen
+   * @param httpServletRequest
+   * @param httpServletResponse
+   */
+  public void assignLimitEditSubmit(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+  
+    GrouperSession grouperSession = null;
+  
+    try {
+      PermissionUpdateRequestContainer permissionUpdateRequestContainer = PermissionUpdateRequestContainer.retrieveFromRequestOrCreate();
+      
+      grouperSession = GrouperSession.start(loggedInSubject);
+      
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+  
+      String limitAssignId = httpServletRequest.getParameter("limitAssignId");
+      
+      if (StringUtils.isBlank(limitAssignId)) {
+        throw new RuntimeException("Why is limitAssignId blank???");
+      }
+  
+      AttributeAssign limitAssign = GrouperDAOFactory.getFactory().getAttributeAssign().findById(limitAssignId, true, false);
+      
+      //now we need to check security
+      if (!PrivilegeHelper.canAttrUpdate(grouperSession, limitAssign.getAttributeDef(), loggedInSubject)) {
+        
+        String notAllowed = TagUtils.navResourceString("simplePermissionAssign.editLimitNotAllowed");
+        notAllowed = GrouperUiUtils.escapeHtml(notAllowed, true);
+        guiResponseJs.addAction(GuiScreenAction.newAlert(notAllowed));
+        return;
+      }
+
+      Role role = null;
+      {
+        String roleId = limitAssign.getOwnerAttributeAssign().getOwnerGroupId();
+        role = GroupFinder.findByUuid(grouperSession, roleId, true);
+        if (!((Group)role).hasAdmin(loggedInSubject)) {
+          guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simplePermissionUpdate.errorCantManageRole", false)));
+          return;
+        }
+      }
+
+      {
+        String enabledDate = httpServletRequest.getParameter("enabledDate");
+        
+        if (StringUtils.isBlank(enabledDate) ) {
+          limitAssign.setEnabledTime(null);
+        } else {
+          //must be yyyy/mm/dd
+          Timestamp enabledTimestamp = GrouperUtil.toTimestamp(enabledDate);
+          limitAssign.setEnabledTime(enabledTimestamp);
+        }
+      }
+      
+      {
+        String disabledDate = httpServletRequest.getParameter("disabledDate");
+  
+        if (StringUtils.isBlank(disabledDate) ) {
+          limitAssign.setDisabledTime(null);
+        } else {
+          //must be yyyy/mm/dd
+          Timestamp disabledTimestamp = GrouperUtil.toTimestamp(disabledDate);
+          limitAssign.setDisabledTime(disabledTimestamp);
+        }
+      }
+      
+      limitAssign.saveOrUpdate();
+      
+      //close the modal dialog
+      guiResponseJs.addAction(GuiScreenAction.newCloseModal());
+  
+      String successMessage = TagUtils.navResourceString("simplePermissionUpdate.assignEditSuccess");
+      successMessage = GrouperUiUtils.escapeHtml(successMessage, true);
+      permissionUpdateRequestContainer.setAssignmentStatusMessage(successMessage);
+
+    } finally {
+      GrouperSession.stopQuietly(grouperSession); 
+    }
+    
+    assignFilter(httpServletRequest, httpServletResponse);
+    
+  }
+
+  /**
+   * submit the add value limit screen
+   * @param httpServletRequest
+   * @param httpServletResponse
+   */
+  public void limitAddValueSubmit(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+
+    GrouperSession grouperSession = null;
+
+    try {
+      PermissionUpdateRequestContainer permissionUpdateRequestContainer = PermissionUpdateRequestContainer.retrieveFromRequestOrCreate();
+      grouperSession = GrouperSession.start(loggedInSubject);
+      
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+
+      String limitAssignId = httpServletRequest.getParameter("limitAssignId");
+      
+      if (StringUtils.isBlank(limitAssignId)) {
+        throw new RuntimeException("Why is limitAssignId blank???");
+      }
+
+      AttributeAssign limitAssign = GrouperDAOFactory.getFactory().getAttributeAssign().findById(limitAssignId, true, false);
+      
+      //now we need to check security
+      if (!PrivilegeHelper.canAttrUpdate(grouperSession, limitAssign.getAttributeDef(), loggedInSubject)) {
+        
+        String notAllowed = TagUtils.navResourceString("simplePermissionAssign.editLimitNotAllowed");
+        notAllowed = GrouperUiUtils.escapeHtml(notAllowed, true);
+        guiResponseJs.addAction(GuiScreenAction.newAlert(notAllowed));
+        return;
+      }
+
+      Role role = null;
+      {
+        String roleId = limitAssign.getOwnerAttributeAssign().getOwnerGroupId();
+        role = GroupFinder.findByUuid(grouperSession, roleId, true);
+        if (!((Group)role).hasAdmin(loggedInSubject)) {
+          guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simplePermissionUpdate.errorCantManageRole", false)));
+          return;
+        }
+      }
+      
+      //todo check more security, e.g. where it is assigned
+      
+      {
+        String valueToAdd = httpServletRequest.getParameter("valueToAdd");
+        
+        if (StringUtils.isBlank(valueToAdd) ) {
+          //we are in a modal dialog, so we need to put up a native javascript alert
+          String required = TagUtils.navResourceString("simplePermissionUpdate.addLimitValueRequired");
+          required = GrouperUiUtils.escapeJavascript(required, true);
+          guiResponseJs.addAction(GuiScreenAction.newScript("alert('" + required + "');"));
+          return;
+          
+        }
+        
+        
+        limitAssign.getValueDelegate().addValue(valueToAdd);
+        
+      }
+      
+      //close the modal dialog
+      guiResponseJs.addAction(GuiScreenAction.newCloseModal());
+
+      String successMessage = TagUtils.navResourceString("simplePermissionUpdate.limitAddValueSuccess");
+      successMessage = GrouperUiUtils.escapeHtml(successMessage, true);
+      permissionUpdateRequestContainer.setAssignmentStatusMessage(successMessage);
+      
+    } finally {
+      GrouperSession.stopQuietly(grouperSession); 
+    }
+
+    assignFilter(httpServletRequest, httpServletResponse);
+    
+  }
 
 
   /** logger */

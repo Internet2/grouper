@@ -156,7 +156,7 @@ public class SimpleAttributeUpdateMenu {
   }
 
   /**
-   * edit the enabled disabled
+   * add a value
    */
   public void assignmentMenuAddValue() {
     

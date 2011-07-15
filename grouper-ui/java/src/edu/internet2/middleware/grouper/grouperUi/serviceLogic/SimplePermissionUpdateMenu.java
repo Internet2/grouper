@@ -19,8 +19,13 @@ import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssignType;
+import edu.internet2.middleware.grouper.attr.finder.AttributeAssignFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
+import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeAssign;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiPermissionEntry;
+import edu.internet2.middleware.grouper.grouperUi.beans.attributeUpdate.AttributeUpdateRequestContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
 import edu.internet2.middleware.grouper.grouperUi.beans.permissionUpdate.PermissionUpdateRequestContainer;
@@ -561,6 +566,121 @@ public class SimplePermissionUpdateMenu {
         dhtmlxMenu.toXml(), HttpContentType.TEXT_XML, false, false);
   
     throw new ControllerDone();
+  }
+
+  /**
+   * make the structure of the limit menu
+   * @param httpServletRequest
+   * @param httpServletResponse
+   */
+  public void limitMenuStructure(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
+    
+    DhtmlxMenu dhtmlxMenu = new DhtmlxMenu();
+    
+    {
+      DhtmlxMenuItem addValueMenuItem = new DhtmlxMenuItem();
+      addValueMenuItem.setId("addValue");
+      addValueMenuItem.setText(TagUtils.navResourceString("simplePermissionAssign.limitMenuAddValue"));
+      addValueMenuItem.setTooltip(TagUtils.navResourceString("simplePermissionAssign.limitMenuAddValueTooltip"));
+      dhtmlxMenu.addDhtmlxItem(addValueMenuItem);
+    }    
+  
+    GrouperUiUtils.printToScreen("<?xml version=\"1.0\"?>\n" + 
+        dhtmlxMenu.toXml(), HttpContentType.TEXT_XML, false, false);
+  
+    throw new ControllerDone();
+  }
+
+  /**
+   * handle a click or select from the limit menu
+   * @param httpServletRequest
+   * @param httpServletResponse
+   */
+  @SuppressWarnings("unused")
+  public void limitMenu(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
+    
+    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+  
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+  
+    GrouperSession grouperSession = null;
+      
+    String menuItemId = httpServletRequest.getParameter("menuItemId");
+    String menuHtmlId = httpServletRequest.getParameter("menuIdOfMenuTarget");
+  
+    if (StringUtils.equals(menuItemId, "addValue")) {
+      this.limitMenuAddValue();
+    } else {
+      throw new RuntimeException("Unexpected menu id: '" + menuItemId + "'");
+    }
+  }
+
+  /**
+   * add a value
+   */
+  public void limitMenuAddValue() {
+    
+    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+  
+    //lets see which subject we are dealing with:
+    HttpServletRequest httpServletRequest = GrouperUiFilter.retrieveHttpServletRequest();
+    String menuIdOfMenuTarget = httpServletRequest.getParameter("menuIdOfMenuTarget");
+  
+    if (StringUtils.isBlank(menuIdOfMenuTarget)) {
+      throw new RuntimeException("Missing id of menu target");
+    }
+    if (!menuIdOfMenuTarget.startsWith("limitMenuButton_")) {
+      throw new RuntimeException("Invalid id of menu target: '" + menuIdOfMenuTarget + "'");
+    }
+    String limitAssignId = GrouperUtil.prefixOrSuffix(menuIdOfMenuTarget, "limitMenuButton_", false);
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+    
+    AttributeAssign limitAssign = null;
+    
+    try {
+  
+      grouperSession = GrouperSession.start(loggedInSubject);
+      
+      limitAssign = AttributeAssignFinder.findById(limitAssignId, true);
+      
+      PermissionUpdateRequestContainer permissionUpdateRequestContainer = PermissionUpdateRequestContainer.retrieveFromRequestOrCreate();
+  
+      AttributeAssignType limitAssignType = limitAssign.getAttributeAssignType();
+  
+      AttributeAssign underlyingPermissionAssignment = limitAssign.getOwnerAttributeAssign();
+      AttributeAssignType underlyingPermissionAssignType = underlyingPermissionAssignment.getAttributeAssignType();
+      
+      //set the type to underlying, so that the labels are correct
+      GuiAttributeAssign guiUnderlyingAttributeAssign = new GuiAttributeAssign();
+      guiUnderlyingAttributeAssign.setAttributeAssign(underlyingPermissionAssignment);
+
+      permissionUpdateRequestContainer.setGuiAttributeAssign(guiUnderlyingAttributeAssign);
+      
+      GuiAttributeAssign guiAttributeAssignAssign = new GuiAttributeAssign();
+      guiAttributeAssignAssign.setAttributeAssign(limitAssign);
+
+      permissionUpdateRequestContainer.setGuiAttributeAssignAssign(guiAttributeAssignAssign);
+      permissionUpdateRequestContainer.setAttributeAssignType(underlyingPermissionAssignType);
+      permissionUpdateRequestContainer.setAttributeAssignAssignType(limitAssignType);
+        
+            
+      guiResponseJs.addAction(GuiScreenAction.newDialogFromJsp(
+        "/WEB-INF/grouperUi/templates/simplePermissionUpdate/simplePermissionLimitAddValue.jsp"));
+  
+    } catch (ControllerDone cd) {
+      throw cd;
+    } catch (NoSessionException nse) {
+      throw nse;
+    } catch (RuntimeException re) {
+      throw new RuntimeException("Error addValue menu item: " + menuIdOfMenuTarget 
+          + ", " + re.getMessage(), re);
+    } finally {
+      GrouperSession.stopQuietly(grouperSession); 
+    }
+  
   }
   
   

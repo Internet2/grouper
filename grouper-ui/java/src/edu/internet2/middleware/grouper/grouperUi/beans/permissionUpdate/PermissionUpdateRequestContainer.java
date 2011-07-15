@@ -10,6 +10,7 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssignType;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeAssign;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiPermissionEntry;
@@ -31,7 +32,29 @@ public class PermissionUpdateRequestContainer implements Serializable {
   /** if the panel to simulate limits should display */
   private boolean simulateLimits = false;
   
-  
+  /**
+   * label for type
+   * @return label for type
+   */
+  public String getAttributeAssignTypeLabelKey() {
+    
+    switch (this.getAttributeAssignType()) {
+
+      case group:
+      {
+        return "simplePermissionUpdate.assignHeaderOwnerRole";
+      }
+      case any_mem:
+      {
+        return "simplePermissionUpdate.assignHeaderOwnerRoleMembership";
+      }
+      
+      default:
+        throw new RuntimeException("Not expecting attribute assign type: " + this.getAttributeAssignType());
+    }
+    
+  }
+
   
   /**
    * if the panel to simulate limits should display
@@ -374,8 +397,52 @@ public class PermissionUpdateRequestContainer implements Serializable {
   /** default role id */
   private String defaultRoleId = null;
 
+  /** default member display name */
+  private String defaultMemberDisplayName = null;
+
+  /**
+   * default member id
+   * @return default member id
+   */
+  public String getDefaultMemberDisplayName() {
+    return this.defaultMemberDisplayName;
+  }
+
+  /**
+   * default member id
+   * @param defaultMemberDisplayName1
+   */
+  public void setDefaultMemberDisplayName(String defaultMemberDisplayName1) {
+    this.defaultMemberDisplayName = defaultMemberDisplayName1;
+  }
+
+  /**
+   * default member id
+   * @return default member id
+   */
+  public String getDefaultMemberId() {
+    return this.defaultMemberId;
+  }
+
+  /**
+   * default member id
+   * @param defaultMemberId1
+   */
+  public void setDefaultMemberId(String defaultMemberId1) {
+    this.defaultMemberId = defaultMemberId1;
+  }
+
+  /** default member id */
+  private String defaultMemberId = null;
+
   /** default action */
   private String defaultAction = null;
+
+  /** if we are assigning to a group, folder, etc, this is the non underlying assign type */
+  private AttributeAssignType attributeAssignAssignType;
+
+  /** if we are assigning to a group, folder, etc */
+  private AttributeAssignType attributeAssignType;
   
   /**
    * default action 
@@ -449,6 +516,38 @@ public class PermissionUpdateRequestContainer implements Serializable {
     
     return this.showHeader;
     
+  }
+
+  /**
+   * if we are assigning to a group, folder, etc, this is the non underlying assign type
+   * @return assign type
+   */
+  public AttributeAssignType getAttributeAssignAssignType() {
+    return this.attributeAssignAssignType;
+  }
+
+  /**
+   * if we are assigning to a group, folder, etc
+   * @return type
+   */
+  public AttributeAssignType getAttributeAssignType() {
+    return this.attributeAssignType;
+  }
+
+  /**
+   * if we are assigning to a group, folder, etc, this is the non underlying assign type
+   * @param attributeAssignAssignType1
+   */
+  public void setAttributeAssignAssignType(AttributeAssignType attributeAssignAssignType1) {
+    this.attributeAssignAssignType = attributeAssignAssignType1;
+  }
+
+  /**
+   * if we are assigning to a group, folder, etc
+   * @param attributeAssignType1
+   */
+  public void setAttributeAssignType(AttributeAssignType attributeAssignType1) {
+    this.attributeAssignType = attributeAssignType1;
   }
 
 

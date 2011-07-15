@@ -194,10 +194,10 @@
                 </tr>
                 
                 
-  --%>          
+  --%>
             <c:forEach items="${guiPermissionEntryContainer.guiPermissionLimitBeanContainers}" var="guiPermissionLimitBeanContainer">
-              <tr>
- 
+              <tr  ${row % 2 == 1 ? 'class="alternate"' : ''} style="vertical-align: top">
+
                 <td colspan="${permissionUpdateRequestContainer.permissionType.name == 'role_subject' ? '2' : '1'}" style="white-space: nowrap; padding-left: 1em">
                   <span class="simpleMembershipUpdateDisabled"><grouper:message key="simplePermissionUpdate.limitLabel" /></span>
                   <c:choose>
@@ -207,8 +207,23 @@
                             alt="${grouper:message('simplePermissionUpdate.deleteLimitAlt', true, false)}"
                             onmouseover="Tip('${grouper:message('simplePermissionUpdate.deleteLimitAlt', true, true)}')" 
                             onmouseout="UnTip()"/></a>
+
+                      <a href="#" onclick="ajax('SimplePermissionUpdate.assignLimitEdit?limitAssignId=${guiPermissionLimitBeanContainer.permissionLimitBean.limitAssign.id}', {formIds: 'simplePermissionFilterForm'}); return false;" 
+                        ><img src="../../grouperExternal/public/assets/images/application_edit.png" height="14px" border="0" 
+                        alt="${grouper:message('simplePermissionUpdate.editLimitAlt', true, false)}"
+                        onmouseover="Tip('${grouper:message('simplePermissionUpdate.editLimitAlt', true, true)}')" 
+                        onmouseout="UnTip()"/></a>
+
+                      <a class="limitMenuButton" href="#"
+                        ><img src="../../grouperExternal/public/assets/images/bullet_arrow_down.png" border="0" 
+                        id="limitMenuButton_${guiPermissionLimitBeanContainer.permissionLimitBean.limitAssign.id}" alt="${grouper:escapeJavascript(navMap['contextOptionsAlt'])}"/></a>
+
                     </c:when>
                     <c:otherwise>
+                      <img src="../../grouperExternal/public/assets/images/spacer.gif" height="14px" border="0" 
+                            alt=""/>
+                      <img src="../../grouperExternal/public/assets/images/spacer.gif" height="14px" border="0" 
+                            alt=""/>
                       <img src="../../grouperExternal/public/assets/images/spacer.gif" height="14px" border="0" 
                             alt=""/>
                     </c:otherwise>
@@ -239,17 +254,27 @@
                         <br />
                       </c:if>
   
-                      <a href="#" onclick="if (confirm('${grouper:message('simpleAttributeUpdate.assignValueDeleteConfirm', true, true)}')) {ajax('SimpleAttributeUpdate.assignValueDelete?attributeAssignId=${guiAttributeAssignAssign.attributeAssign.id}&attributeAssignValueId=${attributeAssignValue.id}', {formIds: 'simpleAttributeFilterForm'});} return false;" 
-                        ><img src="../../grouperExternal/public/assets/images/page_cross.gif" height="14px" border="0" 
-                        alt="${grouper:message('simpleAttributeUpdate.assignDeleteValueAlt', true, false)}"
-                        onmouseover="Tip('${grouper:message('simpleAttributeUpdate.assignDeleteValueAlt', true, true)}')" 
-                        onmouseout="UnTip()"/></a>
-  
-                      <a href="#" onclick="ajax('SimpleAttributeUpdate.assignValueEdit?attributeAssignId=${guiAttributeAssignAssign.attributeAssign.id}&attributeAssignValueId=${guiAttributeAssignAssign.attributeAssign.id}', {formIds: 'simpleAttributeFilterForm'}); return false;" 
-                        ><img src="../../grouperExternal/public/assets/images/application_edit.png" height="14px" border="0" 
-                        alt="${grouper:message('simpleAttributeUpdate.editValueAssignmentAlt', true, false)}"
-                        onmouseover="Tip('${grouper:message('simpleAttributeUpdate.editValueAssignmentAlt', true, true)}')" 
-                        onmouseout="UnTip()"/></a>
+                      <c:choose>
+                        <c:when test="${guiPermissionLimitBeanContainer.immediate}" >
+                          <a href="#" onclick="if (confirm('${grouper:message('simpleAttributeUpdate.assignValueDeleteConfirm', true, true)}')) {ajax('SimpleAttributeUpdate.assignValueDelete?attributeAssignId=${guiAttributeAssignAssign.attributeAssign.id}&attributeAssignValueId=${attributeAssignValue.id}', {formIds: 'simpleAttributeFilterForm'});} return false;" 
+                            ><img src="../../grouperExternal/public/assets/images/page_cross.gif" height="14px" border="0" 
+                            alt="${grouper:message('simpleAttributeUpdate.assignDeleteValueAlt', true, false)}"
+                            onmouseover="Tip('${grouper:message('simpleAttributeUpdate.assignDeleteValueAlt', true, true)}')" 
+                            onmouseout="UnTip()"/></a>
+      
+                          <a href="#" onclick="ajax('SimpleAttributeUpdate.assignValueEdit?attributeAssignId=${guiAttributeAssignAssign.attributeAssign.id}&attributeAssignValueId=${guiAttributeAssignAssign.attributeAssign.id}', {formIds: 'simpleAttributeFilterForm'}); return false;" 
+                            ><img src="../../grouperExternal/public/assets/images/application_edit.png" height="14px" border="0" 
+                            alt="${grouper:message('simpleAttributeUpdate.editValueAssignmentAlt', true, false)}"
+                            onmouseover="Tip('${grouper:message('simpleAttributeUpdate.editValueAssignmentAlt', true, true)}')" 
+                            onmouseout="UnTip()"/></a>
+                        </c:when>
+                        <c:otherwise>
+                          <img src="../../grouperExternal/public/assets/images/spacer.gif" height="14px" border="0" 
+                                alt=""/>
+                          <img src="../../grouperExternal/public/assets/images/spacer.gif" height="14px" border="0" 
+                                alt=""/>
+                        </c:otherwise>
+                      </c:choose>
                       
                       <span class="simpleMembershipUpdateDisabled"><grouper:message key="simplePermissionUpdate.limitValueLabel" /></span>
                       ${grouper:escapeHtml(limitAssignValue.valueFriendly)}
@@ -382,6 +407,13 @@
             operation="SimplePermissionUpdateMenu.assignmentMenu" 
             structureOperation="SimplePermissionUpdateMenu.assignmentMenuStructure" 
             contextZoneJqueryHandle=".permissionMenuButton" contextMenu="true" />
+          
+          <%-- attach a menu for each direct limit row --%>
+          <grouper:menu menuId="limitMenu"
+            operation="SimplePermissionUpdateMenu.limitMenu" 
+            structureOperation="SimplePermissionUpdateMenu.limitMenuStructure" 
+            contextZoneJqueryHandle=".limitMenuButton" contextMenu="true" />
+          
           
           <tr>
             <td colspan="${permissionUpdateRequestContainer.allActionsSize + 4}">
