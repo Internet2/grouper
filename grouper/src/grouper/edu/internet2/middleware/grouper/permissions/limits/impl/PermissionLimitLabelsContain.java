@@ -11,6 +11,7 @@ import edu.internet2.middleware.grouper.permissions.PermissionEntry;
 import edu.internet2.middleware.grouper.permissions.limits.LimitElUtils;
 import edu.internet2.middleware.grouper.permissions.limits.PermissionLimitBase;
 import edu.internet2.middleware.grouper.permissions.limits.PermissionLimitBean;
+import edu.internet2.middleware.grouper.permissions.limits.PermissionLimitDocumentation;
 import edu.internet2.middleware.grouper.permissions.limits.PermissionLimitInterface;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
@@ -49,11 +50,15 @@ public class PermissionLimitLabelsContain extends PermissionLimitBase {
   }
 
   /**
-   * @see PermissionLimitInterface#documentationKey()
+   * @see PermissionLimitInterface#documentation()
    */
-  public String documentationKey() {
-    return "grouperPermissionLabelsContain.doc";
+  public PermissionLimitDocumentation documentation() {
+    PermissionLimitDocumentation permissionLimitDocumentation = new PermissionLimitDocumentation();
+    permissionLimitDocumentation.setDocumentationKey("grouperPermissionLabelsContain.doc");
+    
+    return permissionLimitDocumentation;
   }
+
 
   /**
    * @see PermissionLimitInterface#validateLimitAssignValue(AttributeAssign, Set)

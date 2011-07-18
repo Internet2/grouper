@@ -5,17 +5,25 @@
 package edu.internet2.middleware.grouper.grouperUi.beans.permissionUpdate;
 
 import java.io.Serializable;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.lang.StringUtils;
+
+import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignType;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeAssign;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiPermissionEntry;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiPermissionEntryActionsContainer;
 import edu.internet2.middleware.grouper.permissions.PermissionEntry.PermissionType;
+import edu.internet2.middleware.grouper.permissions.limits.PermissionLimitDocumentation;
+import edu.internet2.middleware.grouper.permissions.limits.PermissionLimitInterface;
+import edu.internet2.middleware.grouper.permissions.limits.PermissionLimitUtils;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.tags.TagUtils;
 import edu.internet2.middleware.grouper.ui.util.MapWrapper;
@@ -29,6 +37,52 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 @SuppressWarnings("serial")
 public class PermissionUpdateRequestContainer implements Serializable {
 
+  /** all limits on screen for documentation */
+  private Set<AttributeDefName> allLimitsOnScreen = new LinkedHashSet<AttributeDefName>();
+  
+  /**
+   * all limits on screen for documentation, these should be ordered by displayExtension
+   * @return all limits on screen for documentation
+   */
+  public Set<AttributeDefName> getAllLimitsOnScreen() {
+    return this.allLimitsOnScreen;
+  }
+
+  /**
+   * limit documentation map, name of attributedef name, to string or documentation, could have HTML
+   * @return limit map
+   */
+  public Map<String, String> getLimitDocumentation() {
+    return new MapWrapper<String, String>() {
+
+      @Override
+      public String get(Object key) {
+        String attributeDefName = (String)key;
+        
+        //this wont return null
+        PermissionLimitInterface permissionLimitInterface = PermissionLimitUtils.logicInstance(attributeDefName);
+        
+        PermissionLimitDocumentation permissionLimitDocumentation = permissionLimitInterface.documentation();
+        
+        String documentationKey = permissionLimitDocumentation == null ? null : permissionLimitDocumentation.getDocumentationKey();
+        
+        if (StringUtils.isBlank(documentationKey)) {
+          documentationKey = "simplePermissionUpdate.noLimitDocumentationConfigured";
+        }
+        
+        String documentation = TagUtils.navResourceString(documentationKey);
+        
+        for (int i=0; i<GrouperUtil.length(permissionLimitDocumentation.getArgs()); i++) {
+          documentation = StringUtils.replace(documentation, "{" + 0 + "}", permissionLimitDocumentation.getArgs().get(i));
+        }
+        
+        return documentation;
+        
+      }
+      
+    };
+  }
+  
   /** if the panel to simulate limits should display */
   private boolean simulateLimits = false;
   

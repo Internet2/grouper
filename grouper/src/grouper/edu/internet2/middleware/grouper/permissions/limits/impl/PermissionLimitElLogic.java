@@ -13,6 +13,7 @@ import edu.internet2.middleware.grouper.permissions.PermissionEntry;
 import edu.internet2.middleware.grouper.permissions.limits.LimitElUtils;
 import edu.internet2.middleware.grouper.permissions.limits.PermissionLimitBase;
 import edu.internet2.middleware.grouper.permissions.limits.PermissionLimitBean;
+import edu.internet2.middleware.grouper.permissions.limits.PermissionLimitDocumentation;
 import edu.internet2.middleware.grouper.permissions.limits.PermissionLimitInterface;
 import edu.internet2.middleware.grouper.permissions.limits.PermissionLimitUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -137,10 +138,17 @@ public class PermissionLimitElLogic extends PermissionLimitBase {
   }
 
   /**
-   * @see PermissionLimitInterface#documentationKey()
+   * @see PermissionLimitInterface#documentation()
    */
-  public String documentationKey() {
-    return "grouperPermissionExpressionLanguage.doc";
+  public PermissionLimitDocumentation documentation() {
+    PermissionLimitDocumentation permissionLimitDocumentation = new PermissionLimitDocumentation();
+    permissionLimitDocumentation.setDocumentationKey("grouperPermissionExpressionLanguage.doc");
+    
+    //comma separated realms
+    String realmNames = StringUtils.join(GrouperUtil.nonNull(PermissionLimitUtils.limitRealms()).iterator(), ", ");
+    
+    permissionLimitDocumentation.setArgs(GrouperUtil.toList(StringUtils.defaultIfEmpty(realmNames, "none")));
+    return permissionLimitDocumentation;
   }
 
   /**

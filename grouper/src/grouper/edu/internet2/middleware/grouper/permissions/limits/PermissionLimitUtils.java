@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -363,6 +364,57 @@ public class PermissionLimitUtils {
   }
   
   /** limit logic map */
+  static ExpirableCache<Boolean, Set<String>> limitRealms = new ExpirableCache<Boolean, Set<String>>(5);
+
+  /** 
+   * pattern to parse the limit realms
+   * "grouper.permissions.limits.realm." + realmName
+   */
+  private static Pattern limitRealmPattern = Pattern.compile("^grouper\\.permissions\\.limits\\.realm\\.([^.]+)$");
+
+  /**
+   * get a logic instance based on attributeDefName of the limit
+   * @param limitName name of the attribute def name
+   * @return an instance of the interface
+   */
+  @SuppressWarnings("unchecked")
+  public static Set<String> limitRealms() {
+    
+    Set<String> limitRealmsSet = limitRealms.get(Boolean.TRUE);
+
+    if (limitRealmsSet == null) {
+      
+      synchronized (PermissionLimitUtils.class) {
+        
+        limitRealmsSet = limitRealms.get(Boolean.TRUE);
+        
+        if (limitRealmsSet == null) {
+          limitRealmsSet = new TreeSet<String>();
+          
+          Matcher matcher = null;
+          
+          //lets get the sources
+          for (String sourcePropertyName : GrouperConfig.getPropertyNames()) {
+            
+            matcher = limitRealmPattern.matcher(sourcePropertyName);
+            if (matcher.matches()) {
+              String limitRealm = matcher.group(1);
+              limitRealmsSet.add(limitRealm);
+            }
+          }
+          limitRealms.put(Boolean.TRUE, limitRealmsSet);
+          
+        }
+      }
+    }
+    
+    return limitRealmsSet;
+    
+  }
+
+
+  
+  /** limit logic map */
   static ExpirableCache<Boolean, Map<String, Class<PermissionLimitInterface>>> limitLogicMap = new ExpirableCache<Boolean, Map<String, Class<PermissionLimitInterface>>>(5);
 
   /** 
@@ -373,10 +425,11 @@ public class PermissionLimitUtils {
   
   
   /**
-   * get the client connection source config beans based on connection id
+   * get a logic instance based on attributeDefName of the limit
    * @param limitName name of the attribute def name
    * @return an instance of the interface
    */
+  @SuppressWarnings("unchecked")
   public static PermissionLimitInterface logicInstance(String limitName) {
     
     Map<String, Class<PermissionLimitInterface>> limitMap = limitLogicMap.get(Boolean.TRUE);

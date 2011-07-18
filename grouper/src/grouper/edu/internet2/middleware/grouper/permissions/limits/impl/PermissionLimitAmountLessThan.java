@@ -8,6 +8,7 @@ import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
 import edu.internet2.middleware.grouper.permissions.PermissionEntry;
 import edu.internet2.middleware.grouper.permissions.limits.PermissionLimitBase;
 import edu.internet2.middleware.grouper.permissions.limits.PermissionLimitBean;
+import edu.internet2.middleware.grouper.permissions.limits.PermissionLimitDocumentation;
 import edu.internet2.middleware.grouper.permissions.limits.PermissionLimitInterface;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
@@ -67,10 +68,12 @@ public class PermissionLimitAmountLessThan extends PermissionLimitBase {
   }
 
   /**
-   * @see PermissionLimitInterface#documentationKey()
+   * @see PermissionLimitInterface#documentation()
    */
-  public String documentationKey() {
-    return "grouperPermissionAmountLessThan.doc";
+  public PermissionLimitDocumentation documentation() {
+    PermissionLimitDocumentation permissionLimitDocumentation = new PermissionLimitDocumentation();
+    permissionLimitDocumentation.setDocumentationKey("grouperPermissionAmountLessThan.doc");
+    return permissionLimitDocumentation;
   }
 
   /**

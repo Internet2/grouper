@@ -43,7 +43,7 @@ public interface PermissionLimitInterface {
    * return a UI key to documentation about the limit.  for Grouper, put in nav.properties
    * @return a UI key
    */
-  public String documentationKey();
+  public PermissionLimitDocumentation documentation();
 
   /**
    * if we can cache the result for a some minutes.
