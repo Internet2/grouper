@@ -1,29 +1,39 @@
 package edu.internet2.middleware.grouper.pit;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Set;
 
 import junit.textui.TestRunner;
 
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.StemSave;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
+import edu.internet2.middleware.grouper.attr.AttributeDefNameSave;
+import edu.internet2.middleware.grouper.attr.AttributeDefSave;
 import edu.internet2.middleware.grouper.attr.AttributeDefType;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignAction;
 import edu.internet2.middleware.grouper.cfg.ApiConfig;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogTempToEntity;
+import edu.internet2.middleware.grouper.group.TypeOfGroup;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SessionHelper;
 import edu.internet2.middleware.grouper.helper.StemHelper;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.permissions.PermissionAllowed;
 import edu.internet2.middleware.grouper.permissions.PermissionEntry;
+import edu.internet2.middleware.grouper.permissions.PermissionFinder;
+import edu.internet2.middleware.grouper.permissions.PermissionProcessor;
 import edu.internet2.middleware.grouper.permissions.role.Role;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
@@ -103,7 +113,7 @@ public class PITPermissionTests extends GrouperTest {
     AttributeAssignAction action1 = attributeDef.getAttributeDefActionDelegate().addAction("testAction1");
 
     Date beforeAddTime = getDateWithSleep();
-    group.getPermissionRoleDelegate().assignRolePermission("testAction1", attributeDefName1).getAttributeAssign();
+    group.getPermissionRoleDelegate().assignRolePermission("testAction1", attributeDefName1, PermissionAllowed.ALLOWED).getAttributeAssign();
     Date afterAddTime = getDateWithSleep();
 
     // populate PIT tables
@@ -163,7 +173,7 @@ public class PITPermissionTests extends GrouperTest {
     AttributeDefName attributeDefName1 = edu.addChildAttributeDefName(attributeDef, "testAttribute1", "testAttribute1");
     AttributeAssignAction action1 = attributeDef.getAttributeDefActionDelegate().addAction("testAction1");
 
-    AttributeAssign attributeAssign = group.getPermissionRoleDelegate().assignRolePermission("testAction1", attributeDefName1).getAttributeAssign();
+    AttributeAssign attributeAssign = group.getPermissionRoleDelegate().assignRolePermission("testAction1", attributeDefName1, PermissionAllowed.ALLOWED).getAttributeAssign();
     Date afterAddTime = getDateWithSleep();
     
     // populate PIT tables
@@ -244,7 +254,7 @@ public class PITPermissionTests extends GrouperTest {
 
     Date beforeAddTime = getDateWithSleep();
     
-    AttributeAssign attributeAssign = group.getPermissionRoleDelegate().assignRolePermission("testAction1", attributeDefName1).getAttributeAssign();
+    AttributeAssign attributeAssign = group.getPermissionRoleDelegate().assignRolePermission("testAction1", attributeDefName1, PermissionAllowed.ALLOWED).getAttributeAssign();
     
     Date afterAddTime = getDateWithSleep();
     Date beforeDisableTime = getDateWithSleep();
@@ -382,7 +392,7 @@ public class PITPermissionTests extends GrouperTest {
 
     Date beforeAddTime = getDateWithSleep();
     
-    group.getPermissionRoleDelegate().assignRolePermission("testAction1", attributeDefName1).getAttributeAssign();
+    group.getPermissionRoleDelegate().assignRolePermission("testAction1", attributeDefName1, PermissionAllowed.ALLOWED).getAttributeAssign();
     
     Date afterAddTime = getDateWithSleep();
     
@@ -466,7 +476,7 @@ public class PITPermissionTests extends GrouperTest {
 
     Date beforeAddTime = getDateWithSleep();
     
-    AttributeAssign attributeAssign = group.getPermissionRoleDelegate().assignRolePermission("testAction1", attributeDefName1).getAttributeAssign();
+    AttributeAssign attributeAssign = group.getPermissionRoleDelegate().assignRolePermission("testAction1", attributeDefName1, PermissionAllowed.ALLOWED).getAttributeAssign();
     
     Date afterAddTime = getDateWithSleep();
     Date beforeRemoveTime = getDateWithSleep();
@@ -587,7 +597,7 @@ public class PITPermissionTests extends GrouperTest {
 
     Date beforeAddTime = getDateWithSleep();
     
-    group.getPermissionRoleDelegate().assignSubjectRolePermission("testAction1", attributeDefName1, newMember1).getAttributeAssign();
+    group.getPermissionRoleDelegate().assignSubjectRolePermission("testAction1", attributeDefName1, newMember1, PermissionAllowed.ALLOWED).getAttributeAssign();
     
     Date afterAddTime = getDateWithSleep();
     
@@ -668,7 +678,7 @@ public class PITPermissionTests extends GrouperTest {
     AttributeDefName attributeDefName2 = edu.addChildAttributeDefName(attributeDef, "testAttribute2", "testAttribute2");
     AttributeAssignAction action1 = attributeDef.getAttributeDefActionDelegate().addAction("testAction1");
     AttributeAssignAction action2 = attributeDef.getAttributeDefActionDelegate().addAction("testAction2");
-    AttributeAssign attributeAssign = group.getPermissionRoleDelegate().assignRolePermission("testAction1", attributeDefName1).getAttributeAssign();
+    AttributeAssign attributeAssign = group.getPermissionRoleDelegate().assignRolePermission("testAction1", attributeDefName1, PermissionAllowed.ALLOWED).getAttributeAssign();
 
     Date beforeAddTime = getDateWithSleep();
     
@@ -792,7 +802,7 @@ public class PITPermissionTests extends GrouperTest {
     AttributeDefName attributeDefName2 = edu.addChildAttributeDefName(attributeDef, "testAttribute2", "testAttribute2");
     AttributeAssignAction action1 = attributeDef.getAttributeDefActionDelegate().addAction("testAction1");
     AttributeAssignAction action2 = attributeDef.getAttributeDefActionDelegate().addAction("testAction2");
-    AttributeAssign attributeAssign = group.getPermissionRoleDelegate().assignRolePermission("testAction1", attributeDefName1).getAttributeAssign();
+    AttributeAssign attributeAssign = group.getPermissionRoleDelegate().assignRolePermission("testAction1", attributeDefName1, PermissionAllowed.ALLOWED).getAttributeAssign();
 
     Date beforeAddTime = getDateWithSleep();
     
@@ -919,7 +929,7 @@ public class PITPermissionTests extends GrouperTest {
     AttributeAssignAction action2 = attributeDef.getAttributeDefActionDelegate().addAction("testAction2");
     AttributeAssignAction action3 = attributeDef.getAttributeDefActionDelegate().addAction("testAction3");
     AttributeAssignAction action4 = attributeDef.getAttributeDefActionDelegate().addAction("testAction4");
-    AttributeAssign attributeAssign = group.getPermissionRoleDelegate().assignRolePermission("testAction1", attributeDefName1).getAttributeAssign();
+    AttributeAssign attributeAssign = group.getPermissionRoleDelegate().assignRolePermission("testAction1", attributeDefName1, PermissionAllowed.ALLOWED).getAttributeAssign();
 
     action1.getAttributeAssignActionSetDelegate().addToAttributeAssignActionSet(action2);
     
@@ -1048,7 +1058,7 @@ public class PITPermissionTests extends GrouperTest {
     AttributeDefName attributeDefName4 = edu.addChildAttributeDefName(attributeDef, "testAttribute4", "testAttribute4");
     AttributeAssignAction action1 = attributeDef.getAttributeDefActionDelegate().addAction("testAction1");
     AttributeAssignAction action2 = attributeDef.getAttributeDefActionDelegate().addAction("testAction2");
-    AttributeAssign attributeAssign = group.getPermissionRoleDelegate().assignRolePermission("testAction1", attributeDefName1).getAttributeAssign();
+    AttributeAssign attributeAssign = group.getPermissionRoleDelegate().assignRolePermission("testAction1", attributeDefName1, PermissionAllowed.ALLOWED).getAttributeAssign();
 
     attributeDefName1.getAttributeDefNameSetDelegate().addToAttributeDefNameSet(attributeDefName2);
     
@@ -1180,9 +1190,9 @@ public class PITPermissionTests extends GrouperTest {
     AttributeDefName attributeDefName4 = edu.addChildAttributeDefName(attributeDef, "testAttribute4", "testAttribute4");
     AttributeAssignAction action1 = attributeDef.getAttributeDefActionDelegate().addAction("testAction1");
     AttributeAssignAction action2 = attributeDef.getAttributeDefActionDelegate().addAction("testAction2");
-    AttributeAssign attributeAssign1 = group1.getPermissionRoleDelegate().assignRolePermission("testAction1", attributeDefName1).getAttributeAssign();
-    AttributeAssign attributeAssign2 = group2.getPermissionRoleDelegate().assignRolePermission("testAction1", attributeDefName2).getAttributeAssign();
-    AttributeAssign attributeAssign3 = group3.getPermissionRoleDelegate().assignRolePermission("testAction1", attributeDefName3).getAttributeAssign();
+    AttributeAssign attributeAssign1 = group1.getPermissionRoleDelegate().assignRolePermission("testAction1", attributeDefName1, PermissionAllowed.ALLOWED).getAttributeAssign();
+    AttributeAssign attributeAssign2 = group2.getPermissionRoleDelegate().assignRolePermission("testAction1", attributeDefName2, PermissionAllowed.ALLOWED).getAttributeAssign();
+    AttributeAssign attributeAssign3 = group3.getPermissionRoleDelegate().assignRolePermission("testAction1", attributeDefName3, PermissionAllowed.ALLOWED).getAttributeAssign();
 
     group1.getRoleInheritanceDelegate().addRoleToInheritFromThis(group2);
     
@@ -1315,9 +1325,9 @@ public class PITPermissionTests extends GrouperTest {
     AttributeDefName attributeDefName2 = edu.addChildAttributeDefName(attributeDef, "testAttribute2", "testAttribute2");
     AttributeDefName attributeDefName3 = edu.addChildAttributeDefName(attributeDef, "testAttribute3", "testAttribute3");
     AttributeAssignAction action1 = attributeDef.getAttributeDefActionDelegate().addAction("testAction1");
-    group1.getPermissionRoleDelegate().assignRolePermission("testAction1", attributeDefName1).getAttributeAssign();
-    group2.getPermissionRoleDelegate().assignRolePermission("testAction1", attributeDefName2).getAttributeAssign();
-    group3.getPermissionRoleDelegate().assignRolePermission("testAction1", attributeDefName3).getAttributeAssign();
+    group1.getPermissionRoleDelegate().assignRolePermission("testAction1", attributeDefName1, PermissionAllowed.ALLOWED).getAttributeAssign();
+    group2.getPermissionRoleDelegate().assignRolePermission("testAction1", attributeDefName2, PermissionAllowed.ALLOWED).getAttributeAssign();
+    group3.getPermissionRoleDelegate().assignRolePermission("testAction1", attributeDefName3, PermissionAllowed.ALLOWED).getAttributeAssign();
 
     group1.getRoleInheritanceDelegate().addRoleToInheritFromThis(group2);
     
@@ -1400,8 +1410,8 @@ public class PITPermissionTests extends GrouperTest {
     AttributeDefName attributeDefName1 = edu.addChildAttributeDefName(attributeDef, "testAttribute1", "testAttribute1");
     AttributeAssignAction action1 = attributeDef.getAttributeDefActionDelegate().addAction("testAction1");
     AttributeAssignAction action2 = attributeDef.getAttributeDefActionDelegate().addAction("testAction2");
-    AttributeAssign attributeAssign1 = role.getPermissionRoleDelegate().assignRolePermission(action1.getName(), attributeDefName1).getAttributeAssign();
-    AttributeAssign attributeAssign2 = role.getPermissionRoleDelegate().assignRolePermission(action2.getName(), attributeDefName1).getAttributeAssign();
+    AttributeAssign attributeAssign1 = role.getPermissionRoleDelegate().assignRolePermission(action1.getName(), attributeDefName1, PermissionAllowed.ALLOWED).getAttributeAssign();
+    AttributeAssign attributeAssign2 = role.getPermissionRoleDelegate().assignRolePermission(action2.getName(), attributeDefName1, PermissionAllowed.ALLOWED).getAttributeAssign();
 
     // populate PIT tables
     ChangeLogTempToEntity.convertRecords();
@@ -1411,22 +1421,26 @@ public class PITPermissionTests extends GrouperTest {
     ChangeLogTempToEntity.convertRecords();
     Timestamp after = getTimestampWithSleep();
 
-    Set<PermissionEntry> perms = GrouperDAOFactory.getFactory().getPITPermissionAllView().findPermissions(
-        GrouperUtil.toSet(attributeDef.getId()), 
-        GrouperUtil.toSet(attributeDefName1.getId()), 
-        GrouperUtil.toSet(role.getId()), 
-        null, 
-        GrouperUtil.toSet(member1.getUuid()), 
-        before, null);
+    Set<PermissionEntry> perms = new PermissionFinder()
+      .addPermissionDefId(attributeDef.getId())
+      .addPermissionNameId(attributeDefName1.getId())
+      .addRoleId(role.getId())
+      .addMemberId(member1.getUuid())
+      .assignEnabled(true)
+      .assignPointInTimeFrom(before)
+      .findPermissions();
+    
     assertEquals(2, perms.size());
     
-    perms = GrouperDAOFactory.getFactory().getPITPermissionAllView().findPermissions(
-        GrouperUtil.toSet(attributeDef.getId()), 
-        GrouperUtil.toSet(attributeDefName1.getId()), 
-        GrouperUtil.toSet(role.getId()), 
-        null, 
-        GrouperUtil.toSet(member1.getUuid()), 
-        after, null);
+    perms = new PermissionFinder()
+      .addPermissionDefId(attributeDef.getId())
+      .addPermissionNameId(attributeDefName1.getId())
+      .addRoleId(role.getId())
+      .addMemberId(member1.getUuid())
+      .assignEnabled(true)
+      .assignPointInTimeFrom(after)
+      .findPermissions();
+    
     assertEquals(1, perms.size());
     assertEquals(attributeAssign2.getId(), perms.iterator().next().getAttributeAssignId());
   }
@@ -1452,27 +1466,31 @@ public class PITPermissionTests extends GrouperTest {
     ChangeLogTempToEntity.convertRecords();
     
     Timestamp before = getTimestampWithSleep();
-    AttributeAssign attributeAssign1 = role.getPermissionRoleDelegate().assignRolePermission(action1.getName(), attributeDefName1).getAttributeAssign();
-    role.getPermissionRoleDelegate().assignRolePermission(action2.getName(), attributeDefName1).getAttributeAssign();
+    AttributeAssign attributeAssign1 = role.getPermissionRoleDelegate().assignRolePermission(action1.getName(), attributeDefName1, PermissionAllowed.ALLOWED).getAttributeAssign();
+    role.getPermissionRoleDelegate().assignRolePermission(action2.getName(), attributeDefName1, PermissionAllowed.ALLOWED).getAttributeAssign();
     ChangeLogTempToEntity.convertRecords();
     Timestamp after = getTimestampWithSleep();
 
-    Set<PermissionEntry> perms = GrouperDAOFactory.getFactory().getPITPermissionAllView().findPermissions(
-        GrouperUtil.toSet(attributeDef.getId()), 
-        GrouperUtil.toSet(attributeDefName1.getId()), 
-        GrouperUtil.toSet(role.getId()), 
-        null, 
-        GrouperUtil.toSet(member1.getUuid()), 
-        null, before);
+    Set<PermissionEntry> perms = new PermissionFinder()
+      .addPermissionDefId(attributeDef.getId())
+      .addPermissionNameId(attributeDefName1.getId())
+      .addRoleId(role.getId())
+      .addMemberId(member1.getUuid())
+      .assignEnabled(true)
+      .assignPointInTimeTo(before)
+      .findPermissions();
+
     assertEquals(0, perms.size());
     
-    perms = GrouperDAOFactory.getFactory().getPITPermissionAllView().findPermissions(
-        GrouperUtil.toSet(attributeDef.getId()), 
-        GrouperUtil.toSet(attributeDefName1.getId()), 
-        GrouperUtil.toSet(role.getId()), 
-        null, 
-        GrouperUtil.toSet(member1.getUuid()), 
-        null, after);
+    perms = new PermissionFinder()
+      .addPermissionDefId(attributeDef.getId())
+      .addPermissionNameId(attributeDefName1.getId())
+      .addRoleId(role.getId())
+      .addMemberId(member1.getUuid())
+      .assignEnabled(true)
+      .assignPointInTimeTo(after)
+      .findPermissions();
+      
     assertEquals(2, perms.size());
     
     
@@ -1480,13 +1498,15 @@ public class PITPermissionTests extends GrouperTest {
     ChangeLogTempToEntity.convertRecords();
     Timestamp afterDelete = getTimestampWithSleep();
 
-    perms = GrouperDAOFactory.getFactory().getPITPermissionAllView().findPermissions(
-        GrouperUtil.toSet(attributeDef.getId()), 
-        GrouperUtil.toSet(attributeDefName1.getId()), 
-        GrouperUtil.toSet(role.getId()), 
-        null, 
-        GrouperUtil.toSet(member1.getUuid()), 
-        null, afterDelete);
+    perms = new PermissionFinder()
+      .addPermissionDefId(attributeDef.getId())
+      .addPermissionNameId(attributeDefName1.getId())
+      .addRoleId(role.getId())
+      .addMemberId(member1.getUuid())
+      .assignEnabled(true)
+      .assignPointInTimeTo(afterDelete)
+      .findPermissions();
+      
     assertEquals(2, perms.size());
   }
   
@@ -1511,41 +1531,72 @@ public class PITPermissionTests extends GrouperTest {
     ChangeLogTempToEntity.convertRecords();
     
     Timestamp before = getTimestampWithSleep();
-    AttributeAssign attributeAssign1 = role.getPermissionRoleDelegate().assignRolePermission(action1.getName(), attributeDefName1).getAttributeAssign();
-    AttributeAssign attributeAssign2 = role.getPermissionRoleDelegate().assignRolePermission(action2.getName(), attributeDefName1).getAttributeAssign();
+    AttributeAssign attributeAssign1 = role.getPermissionRoleDelegate().assignRolePermission(action1.getName(), attributeDefName1, PermissionAllowed.ALLOWED).getAttributeAssign();
+    AttributeAssign attributeAssign2 = role.getPermissionRoleDelegate().assignRolePermission(action2.getName(), attributeDefName1, PermissionAllowed.ALLOWED).getAttributeAssign();
     ChangeLogTempToEntity.convertRecords();
     Timestamp after = getTimestampWithSleep();
 
-    Set<PermissionEntry> perms = GrouperDAOFactory.getFactory().getPITPermissionAllView().findPermissions(
-        GrouperUtil.toSet(attributeDef.getId()), 
-        GrouperUtil.toSet(attributeDefName1.getId()), 
-        GrouperUtil.toSet(role.getId()), 
-        null, 
-        GrouperUtil.toSet(member1.getUuid()), 
-        before, before);
+    Set<PermissionEntry> perms = new PermissionFinder()
+      .addPermissionDefId(attributeDef.getId())
+      .addPermissionNameId(attributeDefName1.getId())
+      .addRoleId(role.getId())
+      .addMemberId(member1.getUuid())
+      .assignEnabled(true)
+      .assignPointInTimeFrom(before)
+      .assignPointInTimeTo(before)
+      .findPermissions();
+    
     assertEquals(0, perms.size());
     
-    perms = GrouperDAOFactory.getFactory().getPITPermissionAllView().findPermissions(
-        GrouperUtil.toSet(attributeDef.getId()), 
-        GrouperUtil.toSet(attributeDefName1.getId()), 
-        GrouperUtil.toSet(role.getId()), 
-        null, 
-        GrouperUtil.toSet(member1.getUuid()), 
-        after, after);
+    perms = new PermissionFinder()
+      .addPermissionDefId(attributeDef.getId())
+      .addPermissionNameId(attributeDefName1.getId())
+      .addRoleId(role.getId())
+      .addMemberId(member1.getUuid())
+      .assignEnabled(true)
+      .assignPointInTimeFrom(after)
+      .assignPointInTimeTo(after)
+      .findPermissions();
     assertEquals(2, perms.size());
     
+    // try with permission processors
+    perms = new PermissionFinder()
+      .addPermissionDefId(attributeDef.getId())
+      .addPermissionNameId(attributeDefName1.getId())
+      .addRoleId(role.getId())
+      .addMemberId(member1.getUuid())
+      .assignEnabled(true)
+      .assignPermissionProcessor(PermissionProcessor.FILTER_REDUNDANT_PERMISSIONS)
+      .assignPointInTimeFrom(after)
+      .assignPointInTimeTo(after)
+      .findPermissions();
+    assertEquals(2, perms.size());
+    
+    perms = new PermissionFinder()
+      .addPermissionDefId(attributeDef.getId())
+      .addPermissionNameId(attributeDefName1.getId())
+      .addRoleId(role.getId())
+      .addMemberId(member1.getUuid())
+      .assignEnabled(true)
+      .assignPermissionProcessor(PermissionProcessor.FILTER_REDUNDANT_PERMISSIONS_AND_ROLES)
+      .assignPointInTimeFrom(after)
+      .assignPointInTimeTo(after)
+      .findPermissions();
+    assertEquals(2, perms.size());
     
     attributeAssign1.delete();
     ChangeLogTempToEntity.convertRecords();
     Timestamp afterDelete = getTimestampWithSleep();
 
-    perms = GrouperDAOFactory.getFactory().getPITPermissionAllView().findPermissions(
-        GrouperUtil.toSet(attributeDef.getId()), 
-        GrouperUtil.toSet(attributeDefName1.getId()), 
-        GrouperUtil.toSet(role.getId()), 
-        null, 
-        GrouperUtil.toSet(member1.getUuid()), 
-        afterDelete, afterDelete);
+    perms = new PermissionFinder()
+      .addPermissionDefId(attributeDef.getId())
+      .addPermissionNameId(attributeDefName1.getId())
+      .addRoleId(role.getId())
+      .addMemberId(member1.getUuid())
+      .assignEnabled(true)
+      .assignPointInTimeFrom(afterDelete)
+      .assignPointInTimeTo(afterDelete)
+      .findPermissions();
     assertEquals(1, perms.size());
     assertEquals(attributeAssign2.getId(), perms.iterator().next().getAttributeAssignId());
   }
@@ -1570,43 +1621,52 @@ public class PITPermissionTests extends GrouperTest {
     attributeDef.store();
     AttributeDefName attributeDefName1 = edu.addChildAttributeDefName(attributeDef, "testAttribute1", "testAttribute1");
     AttributeAssignAction action1 = attributeDef.getAttributeDefActionDelegate().addAction("testAction1");
-    AttributeAssign attributeAssign1 = role.getPermissionRoleDelegate().assignRolePermission("testAction1", attributeDefName1).getAttributeAssign();
+    AttributeAssign attributeAssign1 = role.getPermissionRoleDelegate().assignRolePermission("testAction1", attributeDefName1, PermissionAllowed.ALLOWED).getAttributeAssign();
 
     // populate PIT tables
     ChangeLogTempToEntity.convertRecords();
     
     Timestamp after = getTimestampWithSleep();
 
-    Set<PermissionEntry> perms = GrouperDAOFactory.getFactory().getPITPermissionAllView().findPermissions(
-        GrouperUtil.toSet(attributeDef.getId()), 
-        GrouperUtil.toSet(attributeDefName1.getId()), 
-        GrouperUtil.toSet(role.getId()), 
-        GrouperUtil.toSet(action1.getName()), 
-        GrouperUtil.toSet(member1.getUuid()), 
-        before, after);
+    Set<PermissionEntry> perms = new PermissionFinder()
+      .addPermissionDefId(attributeDef.getId())
+      .addPermissionNameId(attributeDefName1.getId())
+      .addRoleId(role.getId())
+      .addMemberId(member1.getUuid())
+      .addAction(action1.getName())
+      .assignEnabled(true)
+      .assignPointInTimeFrom(before)
+      .assignPointInTimeTo(after)
+      .findPermissions();
     assertEquals(1, perms.size());
     
     GrouperSession s = GrouperSession.start(member0.getSubject());
-    perms = GrouperDAOFactory.getFactory().getPITPermissionAllView().findPermissions(
-        GrouperUtil.toSet(attributeDef.getId()), 
-        GrouperUtil.toSet(attributeDefName1.getId()), 
-        GrouperUtil.toSet(role.getId()), 
-        GrouperUtil.toSet(action1.getName()), 
-        GrouperUtil.toSet(member1.getUuid()), 
-        before, after);
+    perms = new PermissionFinder()
+      .addPermissionDefId(attributeDef.getId())
+      .addPermissionNameId(attributeDefName1.getId())
+      .addRoleId(role.getId())
+      .addMemberId(member1.getUuid())
+      .addAction(action1.getName())
+      .assignEnabled(true)
+      .assignPointInTimeFrom(before)
+      .assignPointInTimeTo(after)
+      .findPermissions();
     assertEquals(0, perms.size());
     s.stop();
     
     s = GrouperSession.startRootSession();
     group.grantPriv(member0.getSubject(), AccessPrivilege.READ);
     s = GrouperSession.start(member0.getSubject());
-    perms = GrouperDAOFactory.getFactory().getPITPermissionAllView().findPermissions(
-        GrouperUtil.toSet(attributeDef.getId()), 
-        GrouperUtil.toSet(attributeDefName1.getId()), 
-        GrouperUtil.toSet(role.getId()), 
-        GrouperUtil.toSet(action1.getName()), 
-        GrouperUtil.toSet(member1.getUuid()), 
-        before, after);
+    perms = new PermissionFinder()
+      .addPermissionDefId(attributeDef.getId())
+      .addPermissionNameId(attributeDefName1.getId())
+      .addRoleId(role.getId())
+      .addMemberId(member1.getUuid())
+      .addAction(action1.getName())
+      .assignEnabled(true)
+      .assignPointInTimeFrom(before)
+      .assignPointInTimeTo(after)
+      .findPermissions();
     assertEquals(0, perms.size());
     s.stop();
     
@@ -1614,26 +1674,32 @@ public class PITPermissionTests extends GrouperTest {
     group.revokePriv(member0.getSubject(), AccessPrivilege.READ);
     attributeDef.getPrivilegeDelegate().grantPriv(member0.getSubject(), AttributeDefPrivilege.ATTR_READ, true);
     s = GrouperSession.start(member0.getSubject());
-    perms = GrouperDAOFactory.getFactory().getPITPermissionAllView().findPermissions(
-        GrouperUtil.toSet(attributeDef.getId()), 
-        GrouperUtil.toSet(attributeDefName1.getId()), 
-        GrouperUtil.toSet(role.getId()), 
-        GrouperUtil.toSet(action1.getName()), 
-        GrouperUtil.toSet(member1.getUuid()), 
-        before, after);
+    perms = new PermissionFinder()
+      .addPermissionDefId(attributeDef.getId())
+      .addPermissionNameId(attributeDefName1.getId())
+      .addRoleId(role.getId())
+      .addMemberId(member1.getUuid())
+      .addAction(action1.getName())
+      .assignEnabled(true)
+      .assignPointInTimeFrom(before)
+      .assignPointInTimeTo(after)
+      .findPermissions();
     assertEquals(0, perms.size());
     s.stop();
     
     s = GrouperSession.startRootSession();
     group.grantPriv(member0.getSubject(), AccessPrivilege.READ);
     s = GrouperSession.start(member0.getSubject());
-    perms = GrouperDAOFactory.getFactory().getPITPermissionAllView().findPermissions(
-        GrouperUtil.toSet(attributeDef.getId()), 
-        GrouperUtil.toSet(attributeDefName1.getId()), 
-        GrouperUtil.toSet(role.getId()), 
-        GrouperUtil.toSet(action1.getName()), 
-        GrouperUtil.toSet(member1.getUuid()), 
-        before, after);
+    perms = new PermissionFinder()
+      .addPermissionDefId(attributeDef.getId())
+      .addPermissionNameId(attributeDefName1.getId())
+      .addRoleId(role.getId())
+      .addMemberId(member1.getUuid())
+      .addAction(action1.getName())
+      .assignEnabled(true)
+      .assignPointInTimeFrom(before)
+      .assignPointInTimeTo(after)
+      .findPermissions();
     assertEquals(1, perms.size());
     s.stop();
     
@@ -1641,31 +1707,162 @@ public class PITPermissionTests extends GrouperTest {
     attributeAssign1.delete();
     ChangeLogTempToEntity.convertRecords();
     s = GrouperSession.start(member0.getSubject());
-    perms = GrouperDAOFactory.getFactory().getPITPermissionAllView().findPermissions(
-        GrouperUtil.toSet(attributeDef.getId()), 
-        GrouperUtil.toSet(attributeDefName1.getId()), 
-        GrouperUtil.toSet(role.getId()), 
-        GrouperUtil.toSet(action1.getName()), 
-        GrouperUtil.toSet(member1.getUuid()), 
-        before, after);
+    perms = new PermissionFinder()
+      .addPermissionDefId(attributeDef.getId())
+      .addPermissionNameId(attributeDefName1.getId())
+      .addRoleId(role.getId())
+      .addMemberId(member1.getUuid())
+      .addAction(action1.getName())
+      .assignEnabled(true)
+      .assignPointInTimeFrom(before)
+      .assignPointInTimeTo(after)
+      .findPermissions();
     assertEquals(0, perms.size());
     s.stop();
     
     s = GrouperSession.startRootSession();
-    perms = GrouperDAOFactory.getFactory().getPITPermissionAllView().findPermissions(
-        GrouperUtil.toSet(attributeDef.getId()), 
-        GrouperUtil.toSet(attributeDefName1.getId()), 
-        GrouperUtil.toSet(role.getId()), 
-        GrouperUtil.toSet(action1.getName()), 
-        GrouperUtil.toSet(member1.getUuid()), 
-        before, after);
+    perms = new PermissionFinder()
+      .addPermissionDefId(attributeDef.getId())
+      .addPermissionNameId(attributeDefName1.getId())
+      .addRoleId(role.getId())
+      .addMemberId(member1.getUuid())
+      .addAction(action1.getName())
+      .assignEnabled(true)
+      .assignPointInTimeFrom(before)
+      .assignPointInTimeTo(after)
+      .findPermissions();
     assertEquals(1, perms.size());
+  }
+  
+  /**
+   * 
+   */
+  public void testFindPermissionsWithDisallowAndRoleInheritance() {
+    String readString = "read";
+    new StemSave(this.grouperSession).assignName("top").assignDisplayExtension("top display name").save();
+    Role adminRole = new GroupSave(this.grouperSession).assignName("top:admin").assignTypeOfGroup(TypeOfGroup.role).save();
+    Role seniorAdmin = new GroupSave(this.grouperSession).assignName("top:seniorAdmin").assignTypeOfGroup(TypeOfGroup.role).save();
+    
+    AttributeDef permissionDef = new AttributeDefSave(this.grouperSession).assignName("top:permissionDef")
+      .assignAttributeDefType(AttributeDefType.perm).assignToEffMembership(true).assignToGroup(true).save();
+    permissionDef.getAttributeDefActionDelegate().configureActionList("read");
+
+    AttributeDefName artsAndSciences = new AttributeDefNameSave(this.grouperSession, permissionDef).assignName("top:artsAndSciences").assignDisplayExtension("Arts and Sciences").save();
+    AttributeDefName all = new AttributeDefNameSave(this.grouperSession, permissionDef).assignName("top:all").assignDisplayExtension("All").save();
+
+    all.getAttributeDefNameSetDelegate().addToAttributeDefNameSet(artsAndSciences);
+    
+    //senior admin inherits from admin
+    seniorAdmin.getRoleInheritanceDelegate().addRoleToInheritFromThis(adminRole);
+
+    //Role<Admin> denies: Action<Read> of Resource<Arts and sciences>
+    adminRole.getPermissionRoleDelegate().assignRolePermission(readString, artsAndSciences, PermissionAllowed.DISALLOWED);
+
+    //Role<Senior admin> allows: Action<Read> of Resource<All>
+    seniorAdmin.getPermissionRoleDelegate().assignRolePermission(readString, all, PermissionAllowed.ALLOWED);
+    ChangeLogTempToEntity.convertRecords();
+    
+    //User subj0 is assigned Role<Senior admin>
+    seniorAdmin.addMember(SubjectTestHelper.SUBJ0, true);
+    
+    //User subj1 is assigned to Role<Admin>
+    adminRole.addMember(SubjectTestHelper.SUBJ1, true);
+    ChangeLogTempToEntity.convertRecords();
+
+    Timestamp after = getTimestampWithSleep();
+
+    // now delete everything...
+    permissionDef.delete();
+    seniorAdmin.getRoleInheritanceDelegate().removeRoleFromInheritFromThis(adminRole);
+    adminRole.delete();
+    seniorAdmin.delete();
+    ChangeLogTempToEntity.convertRecords();
+    
+    //
+    //Result:
+    //
+    //Overall, subj0 is allowed Action<Read> of Resource<Arts and sciences> since the subject is assigned 
+    //directly to Senior admin, it will trump inherited role assignments
+    
+    //lets get all of the permission assignments
+    List<PermissionEntry> permissionEntries = new ArrayList<PermissionEntry>(new PermissionFinder().addSubject(SubjectTestHelper.SUBJ0)
+        .addAction(readString)
+        .addPermissionName(artsAndSciences)
+        .assignEnabled(true)
+        .assignPointInTimeFrom(after)
+        .assignPointInTimeTo(after)
+        .findPermissions());
+        
+    //there should be two, one should be allow, the other deny
+    assertEquals(2, GrouperUtil.length(permissionEntries));
+    boolean isDisallowed1 = permissionEntries.get(0).isDisallowed();
+    boolean isDisallowed2 = permissionEntries.get(1).isDisallowed();
+    assertTrue(isDisallowed1 != isDisallowed2);
+    
+    //if we filter permissions, should be one
+    permissionEntries = new ArrayList<PermissionEntry>(new PermissionFinder().addSubject(SubjectTestHelper.SUBJ0)
+        .addAction(readString)
+        .assignPermissionProcessor(PermissionProcessor.FILTER_REDUNDANT_PERMISSIONS)
+        .addPermissionName(artsAndSciences)
+        .assignEnabled(true)
+        .assignPointInTimeFrom(after)
+        .assignPointInTimeTo(after)
+        .findPermissions());
+        
+    //there should be one, one should be allow
+    assertEquals(1, GrouperUtil.length(permissionEntries));
+
+    assertTrue(!permissionEntries.get(0).isDisallowed());
+
+    //if we filter by role, it should find the allow
+    permissionEntries = new ArrayList<PermissionEntry>(new PermissionFinder().addSubject(SubjectTestHelper.SUBJ0)
+        .addAction(readString)
+        .assignPermissionProcessor(PermissionProcessor.FILTER_REDUNDANT_PERMISSIONS_AND_ROLES)
+        .addPermissionName(artsAndSciences)
+        .assignEnabled(true)
+        .assignPointInTimeFrom(after)
+        .assignPointInTimeTo(after)
+        .findPermissions());
+        
+    //there should be one, one should be allow
+    assertEquals(1, GrouperUtil.length(permissionEntries));
+    
+    assertTrue(!permissionEntries.get(0).isDisallowed());
+    
+    // now make sure hasPermission() works...
+    boolean result = new PermissionFinder().addSubject(SubjectTestHelper.SUBJ0)
+      .addAction(readString)
+      .addPermissionName(artsAndSciences)
+      .assignEnabled(true)
+      .assignPointInTimeFrom(after)
+      .assignPointInTimeTo(after)
+      .hasPermission();
+    assertTrue(result);
+    
+    result = new PermissionFinder().addSubject(SubjectTestHelper.SUBJ0)
+      .addAction(readString)
+      .assignPermissionProcessor(PermissionProcessor.FILTER_REDUNDANT_PERMISSIONS_AND_ROLES)
+      .addPermissionName(artsAndSciences)
+      .assignEnabled(true)
+      .assignPointInTimeFrom(after)
+      .assignPointInTimeTo(after)
+      .hasPermission();
+    assertTrue(result);
+    
+    result = new PermissionFinder().addSubject(SubjectTestHelper.SUBJ1)
+      .addAction(readString)
+      .addPermissionName(artsAndSciences)
+      .assignEnabled(true)
+      .assignPointInTimeFrom(after)
+      .assignPointInTimeTo(after)
+      .hasPermission();
+    assertFalse(result);
   }
   
   /**
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new PITPermissionTests("testFindPermissionsWithToDate"));
+    TestRunner.run(new PITPermissionTests("testFindPermissionsWithDisallowAndRoleInheritance"));
   }
 }

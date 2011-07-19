@@ -4,11 +4,11 @@
  */
 package edu.internet2.middleware.grouper.permissions;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -50,7 +50,7 @@ public class PermissionFinder {
    * name: (int)amount, value: 50
    * @param key
    * @param value
-   * @return
+   * @return this for chaining
    */
   public PermissionFinder addLimitEnvVar(String key, Object value) {
     if (this.limitEnvVars == null) {
@@ -409,11 +409,16 @@ public class PermissionFinder {
       throw new RuntimeException("Why is there more than one permission entry? " + GrouperUtil.stringValue(permissionEntriesSet));
     }
     
-    //we have the permissions, was anything returned?
-    return GrouperUtil.length(permissionEntriesSet) == 0 ? false : permissionEntriesSet.iterator().next().isAllowedOverall();
-
+    if (GrouperUtil.length(permissionEntriesSet) == 0) {
+      return false;
+    }
     
+    if (pointInTimeTo != null || pointInTimeFrom != null) {
+      // we're not taking into consideration limits here...
+      return !permissionEntriesSet.iterator().next().isDisallowed();
+    }
 
+    return permissionEntriesSet.iterator().next().isAllowedOverall();
   }
   
   /**
@@ -484,14 +489,24 @@ public class PermissionFinder {
     validateProcessor();
 
     Set<PermissionEntry> permissionEntries = null;
-    if (this.permissionType == PermissionType.role_subject) {
-      permissionEntries = GrouperDAOFactory.getFactory().getPermissionEntry().findPermissions(
-          this.permissionDefIds, this.permissionNameIds, this.roleIds, this.actions, this.enabled, this.memberIds);
-    } else if (this.permissionType == PermissionType.role) {
-      permissionEntries = GrouperDAOFactory.getFactory().getPermissionEntry().findRolePermissions(
-          this.permissionDefIds, this.permissionNameIds, this.roleIds, this.actions, this.enabled, false);
+    
+    if (pointInTimeFrom == null && pointInTimeTo == null) {
+      if (this.permissionType == PermissionType.role_subject) {
+        permissionEntries = GrouperDAOFactory.getFactory().getPermissionEntry().findPermissions(
+            this.permissionDefIds, this.permissionNameIds, this.roleIds, this.actions, this.enabled, this.memberIds);
+      } else if (this.permissionType == PermissionType.role) {
+        permissionEntries = GrouperDAOFactory.getFactory().getPermissionEntry().findRolePermissions(
+            this.permissionDefIds, this.permissionNameIds, this.roleIds, this.actions, this.enabled, false);
+      } else {
+        throw new RuntimeException("Not expecting permission type: " + this.permissionType);
+      }
     } else {
-      throw new RuntimeException("Not expecting permission type: " + this.permissionType);
+      if (this.permissionType == PermissionType.role_subject) {
+        permissionEntries = GrouperDAOFactory.getFactory().getPITPermissionAllView().findPermissions(
+            permissionDefIds, permissionNameIds, roleIds, actions, memberIds, pointInTimeFrom, pointInTimeTo);
+      } else {
+        throw new RuntimeException("Not expecting permission type: " + this.permissionType);
+      }
     }
     
     //if size is one, there arent redundancies to process
@@ -528,6 +543,35 @@ public class PermissionFinder {
     //if processing permissions, just look at enabled
     if (this.permissionProcessor != null && this.enabled == null) {
       this.enabled = true;
+    }
+    
+    // verify options for point in time queries
+    if (pointInTimeFrom != null || pointInTimeTo != null) {
+      if (limitEnvVars != null && limitEnvVars.size() > 0) {
+        throw new RuntimeException("Cannot use limits for point in time queries.");
+      }
+      
+      if (immediateOnly) {
+        throw new RuntimeException("immediateOnly is not supported for point in time queries.");
+      }
+      
+      if (enabled == null || !enabled) {
+        throw new RuntimeException("Cannot search for disabled permissions for point in time queries.");
+      }
+      
+      if (permissionType == PermissionType.role) {
+        throw new RuntimeException("Permission type " + PermissionType.role.getName() + " is not supported for point in time queries.");
+      }
+      
+      if (permissionProcessor != null) {
+        if (permissionProcessor.isLimitProcessor()) {
+          throw new RuntimeException("limit processors are not supported for point in time queries.");
+        }
+        
+        if (pointInTimeFrom == null || pointInTimeTo == null || pointInTimeFrom.getTime() != pointInTimeTo.getTime()) {
+          throw new RuntimeException("When using permission processors with point in time queries, queries have to be at a single point in time.");
+        }
+      }
     }
   }
 
@@ -598,4 +642,49 @@ public class PermissionFinder {
     return result.toString();
   }
 
+  /**
+   * To query permissions at a certain point in time or time range in the past, set this value
+   * and/or the value of pointInTimeTo.  This parameter specifies the start of the range
+   * of the point in time query.  If this is specified but pointInTimeTo is not specified,
+   * then the point in time query range will be from the time specified to now.
+   */
+  private Timestamp pointInTimeFrom = null;
+  
+  /**
+   * To query permissions at a certain point in time or time range in the past, set this value
+   * and/or the value of pointInTimeFrom.  This parameter specifies the end of the range
+   * of the point in time query.  If this is the same as pointInTimeFrom, then the query
+   * will be done at a single point in time rather than a range.  If this is specified but
+   * pointInTimeFrom is not specified, then the point in time query range will be from the
+   * minimum point in time to the time specified.
+   */
+  private Timestamp pointInTimeTo = null;
+  
+  /**
+   * To query permissions at a certain point in time or time range in the past, set this value
+   * and/or the value of pointInTimeTo.  This parameter specifies the start of the range
+   * of the point in time query.  If this is specified but pointInTimeTo is not specified,
+   * then the point in time query range will be from the time specified to now.
+   * @param pointInTimeFrom 
+   * @return this for changing
+   */
+  public PermissionFinder assignPointInTimeFrom(Timestamp pointInTimeFrom) {
+    this.pointInTimeFrom = pointInTimeFrom;
+    return this;
+  }
+  
+  /**
+   * To query permissions at a certain point in time or time range in the past, set this value
+   * and/or the value of pointInTimeFrom.  This parameter specifies the end of the range
+   * of the point in time query.  If this is the same as pointInTimeFrom, then the query
+   * will be done at a single point in time rather than a range.  If this is specified but
+   * pointInTimeFrom is not specified, then the point in time query range will be from the
+   * minimum point in time to the time specified.
+   * @param pointInTimeTo 
+   * @return this for changing
+   */
+  public PermissionFinder assignPointInTimeTo(Timestamp pointInTimeTo) {
+    this.pointInTimeTo = pointInTimeTo;
+    return this;
+  }
 }
