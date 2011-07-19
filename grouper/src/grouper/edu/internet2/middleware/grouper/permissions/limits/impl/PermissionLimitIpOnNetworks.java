@@ -62,7 +62,7 @@ public class PermissionLimitIpOnNetworks extends PermissionLimitBase {
   /**
    * @see PermissionLimitInterface#validateLimitAssignValue(AttributeAssign, Set)
    */
-  public String validateLimitAssignValue(AttributeAssign limitAssign, Set<AttributeAssignValue> limitAssignmentValues) {
+  public PermissionLimitDocumentation validateLimitAssignValue(AttributeAssign limitAssign, Set<AttributeAssignValue> limitAssignmentValues) {
     
     //lets see what values we have...
     String value = null;
@@ -72,7 +72,7 @@ public class PermissionLimitIpOnNetworks extends PermissionLimitBase {
     }
     
     if (value == null) {
-      return "grouperPermissionIpOnNetworks.required";
+      return new PermissionLimitDocumentation("grouperPermissionIpOnNetworks.required");
     }
     
     //test one
@@ -80,7 +80,7 @@ public class PermissionLimitIpOnNetworks extends PermissionLimitBase {
       LimitElUtils.ipOnNetworks("1.2.3.4", value);
       //we are ok
     } catch (Exception e) {
-      return "grouperPermissionInvalidIpNetworks";
+      return new PermissionLimitDocumentation("grouperPermissionInvalidIpNetworks");
     }
     
     return null;

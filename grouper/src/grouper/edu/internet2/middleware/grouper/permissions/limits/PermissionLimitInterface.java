@@ -34,10 +34,10 @@ public interface PermissionLimitInterface {
    * validate a user entered value(s) on the limit assignment
    * @param limitAssign
    * @param limitAssignmentValues 
-   * @return the UI key for the error code (arbitrary, in Grouper should put in nav.properties)
+   * @return the UI key and args for the error code (arbitrary, in Grouper should put in nav.properties)
    * or null for ok
    */
-  public String validateLimitAssignValue(AttributeAssign limitAssign, Set<AttributeAssignValue> limitAssignmentValues);
+  public PermissionLimitDocumentation validateLimitAssignValue(AttributeAssign limitAssign, Set<AttributeAssignValue> limitAssignmentValues);
 
   /**
    * return a UI key to documentation about the limit.  for Grouper, put in nav.properties

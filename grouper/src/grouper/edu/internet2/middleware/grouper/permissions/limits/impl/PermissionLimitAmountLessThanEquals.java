@@ -41,7 +41,7 @@ public class PermissionLimitAmountLessThanEquals extends PermissionLimitBase {
   /**
    * @see PermissionLimitInterface#validateLimitAssignValue(AttributeAssign, Set)
    */
-  public String validateLimitAssignValue(AttributeAssign limitAssign, Set<AttributeAssignValue> limitAssignmentValues) {
+  public PermissionLimitDocumentation validateLimitAssignValue(AttributeAssign limitAssign, Set<AttributeAssignValue> limitAssignmentValues) {
     
     //lets see what values we have...
     Long value = null;
@@ -51,7 +51,7 @@ public class PermissionLimitAmountLessThanEquals extends PermissionLimitBase {
     }
     
     if (value == null) {
-      return "grouperPermissionAmountLessThanEquals.required";
+      return new PermissionLimitDocumentation("grouperPermissionAmountLessThanEquals.required");
     }
     
     return null;

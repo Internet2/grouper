@@ -11,6 +11,20 @@ import java.util.List;
 @SuppressWarnings("serial")
 public class PermissionLimitDocumentation implements Serializable {
 
+  /**
+   * 
+   */
+  public PermissionLimitDocumentation() {    
+  }
+
+  /**
+   * construct with key
+   * @param theDocumentationKey
+   */
+  public PermissionLimitDocumentation(String theDocumentationKey) {
+    this.documentationKey = theDocumentationKey;
+  }
+  
   /** documentation key in nav.properties */
   private String documentationKey;
   

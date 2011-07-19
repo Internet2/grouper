@@ -436,7 +436,7 @@ public class PermissionUpdateRequestContainer implements Serializable {
       int repeatAfterRows = TagUtils.mediaResourceInt("simplePermissionUpdate.repeatPermissionHeaderAfterRows", 20);
 
       boolean result = theInt % repeatAfterRows == 0;
-      System.out.println("Row: " + theInt + ": " + result);
+      //System.out.println("Row: " + theInt + ": " + result);
       return result;
     }
     

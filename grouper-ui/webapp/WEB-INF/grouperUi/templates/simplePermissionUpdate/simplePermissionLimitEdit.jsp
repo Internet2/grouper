@@ -56,7 +56,7 @@
 
           <tr class="formTableRow">
             <td class="formTableLeft" style="white-space: nowrap;">
-              <grouper:message key="simplePermissionUpdate.assignEditEnabledDate" />
+              <grouper:message key="simplePermissionUpdate.limitEditEnabledDate" />
             </td>
             <td class="formTableRight"><input type="text" name="enabledDate"  id="enabledDateId"
             value="${permissionUpdateRequestContainer.guiAttributeAssignAssign == null ? permissionUpdateRequestContainer.guiAttributeAssign.enabledDate : permissionUpdateRequestContainer.guiAttributeAssignAssign.enabledDate}" 
@@ -68,7 +68,7 @@
 
           <tr class="formTableRow">
             <td class="formTableLeft" style="white-space: nowrap;">
-              <grouper:message key="simplePermissionUpdate.assignEditDisabledDate" />
+              <grouper:message key="simplePermissionUpdate.limitEditDisabledDate" />
             </td>
             <td class="formTableRight"><input type="text" name="disabledDate"  id="disabledDateId"
             value="${permissionUpdateRequestContainer.guiAttributeAssignAssign == null ? permissionUpdateRequestContainer.guiAttributeAssign.disabledDate : permissionUpdateRequestContainer.guiAttributeAssignAssign.disabledDate}" 

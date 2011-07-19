@@ -63,7 +63,7 @@ public class PermissionLimitLabelsContain extends PermissionLimitBase {
   /**
    * @see PermissionLimitInterface#validateLimitAssignValue(AttributeAssign, Set)
    */
-  public String validateLimitAssignValue(AttributeAssign limitAssign, Set<AttributeAssignValue> limitAssignmentValues) {
+  public PermissionLimitDocumentation validateLimitAssignValue(AttributeAssign limitAssign, Set<AttributeAssignValue> limitAssignmentValues) {
     
     //lets see what values we have...
     String value = null;
@@ -73,7 +73,7 @@ public class PermissionLimitLabelsContain extends PermissionLimitBase {
     }
     
     if (StringUtils.isBlank(value)) {
-      return "grouperPermissionLabelsContain.required";
+      return new PermissionLimitDocumentation("grouperPermissionLabelsContain.required");
     }
     
     return null;

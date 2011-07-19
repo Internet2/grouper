@@ -68,17 +68,25 @@ public class PermissionLimitIpOnNetworkRealm extends PermissionLimitBase {
   /**
    * @see PermissionLimitInterface#validateLimitAssignValue(AttributeAssign, Set)
    */
-  public String validateLimitAssignValue(AttributeAssign limitAssign, Set<AttributeAssignValue> limitAssignmentValues) {
+  public PermissionLimitDocumentation validateLimitAssignValue(AttributeAssign limitAssign, Set<AttributeAssignValue> limitAssignmentValues) {
     
     //lets see what values we have...
     String value = null;
+    
+    PermissionLimitDocumentation permissionLimitDocumentation = new PermissionLimitDocumentation();
+    
+    //comma separated realms
+    String realmNames = StringUtils.join(GrouperUtil.nonNull(PermissionLimitUtils.limitRealms()).iterator(), ", ");
+    
+    permissionLimitDocumentation.setArgs(GrouperUtil.toList(StringUtils.defaultIfEmpty(realmNames, "none")));
     
     if (GrouperUtil.length(limitAssignmentValues) == 1) {
       value = limitAssignmentValues.iterator().next().getValueString();
     }
     
     if (value == null) {
-      return "grouperPermissionIpOnNetworkRealm.required";
+      permissionLimitDocumentation.setDocumentationKey("grouperPermissionIpOnNetworkRealm.required");
+      return permissionLimitDocumentation;
     }
     
     //test one
@@ -86,7 +94,8 @@ public class PermissionLimitIpOnNetworkRealm extends PermissionLimitBase {
       LimitElUtils.ipOnNetworkRealm("1.2.3.4", value);
       //we are ok
     } catch (Exception e) {
-      return "grouperPermissionInvalidIpNetworkRealm";
+      permissionLimitDocumentation.setDocumentationKey("grouperPermissionInvalidIpNetworkRealm");
+      return permissionLimitDocumentation;
     }
     
     return null;
