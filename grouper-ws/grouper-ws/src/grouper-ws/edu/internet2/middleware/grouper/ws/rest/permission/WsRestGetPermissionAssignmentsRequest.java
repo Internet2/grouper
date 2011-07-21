@@ -18,6 +18,39 @@ import edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup;
  */
 public class WsRestGetPermissionAssignmentsRequest implements WsRequestBean {
 
+  /** 
+   * if processing permissions, you can filter out either redundant permissions (find best in set),
+   * or do that and filter out redundant roles (if flattening roles) (find best in set).  This is the
+   * PermissionProcessor enum.  e.g. FILTER_REDUNDANT_PERMISSIONS, FILTER_REDUNDANT_PERMISSIONS_AND_PROCESS_LIMITS,
+   * FILTER_REDUNDANT_PERMISSIONS_AND_ROLES, FILTER_REDUNDANT_PERMISSIONS_AND_ROLES_AND_PROCESS_LIMITS,
+   * PROCESS_LIMITS.  If null, then just get all permissions and process on the client.
+   */
+  private String permissionProcessor;
+  
+  /**
+   * if processing permissions, you can filter out either redundant permissions (find best in set),
+   * or do that and filter out redundant roles (if flattening roles) (find best in set).  This is the
+   * PermissionProcessor enum.  e.g. FILTER_REDUNDANT_PERMISSIONS, FILTER_REDUNDANT_PERMISSIONS_AND_PROCESS_LIMITS,
+   * FILTER_REDUNDANT_PERMISSIONS_AND_ROLES, FILTER_REDUNDANT_PERMISSIONS_AND_ROLES_AND_PROCESS_LIMITS,
+   * PROCESS_LIMITS.  If null, then just get all permissions and process on the client.
+   * @return processor
+   */
+  public String getPermissionProcessor() {
+    return this.permissionProcessor;
+  }
+
+  /**
+   * if processing permissions, you can filter out either redundant permissions (find best in set),
+   * or do that and filter out redundant roles (if flattening roles) (find best in set).  This is the
+   * PermissionProcessor enum.  e.g. FILTER_REDUNDANT_PERMISSIONS, FILTER_REDUNDANT_PERMISSIONS_AND_PROCESS_LIMITS,
+   * FILTER_REDUNDANT_PERMISSIONS_AND_ROLES, FILTER_REDUNDANT_PERMISSIONS_AND_ROLES_AND_PROCESS_LIMITS,
+   * PROCESS_LIMITS.  If null, then just get all permissions and process on the client.
+   * @param permissionProcessor1
+   */
+  public void setPermissionProcessor(String permissionProcessor1) {
+    this.permissionProcessor = permissionProcessor1;
+  }
+
   /** T or F for if attributeDefName objects should be returned */
   private String includeAttributeDefNames;
   

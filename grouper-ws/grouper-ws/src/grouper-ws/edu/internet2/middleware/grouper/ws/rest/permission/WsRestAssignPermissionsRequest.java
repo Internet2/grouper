@@ -20,6 +20,25 @@ import edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup;
  */
 public class WsRestAssignPermissionsRequest implements WsRequestBean {
 
+  /** T or F (defaults to F), if this permission assignment is disallowed */
+  private String disallowed;
+  
+  /**
+   * T or F (defaults to F), if this permission assignment is disallowed
+   * @return T or F (defaults to F), if this permission assignment is disallowed
+   */
+  public String getDisallowed() {
+    return this.disallowed;
+  }
+
+  /**
+   * T or F (defaults to F), if this permission assignment is disallowed
+   * @param disallowed1
+   */
+  public void setDisallowed(String disallowed1) {
+    this.disallowed = disallowed1;
+  }
+
   /**
    * operation to perform for permission on role or subject, from enum PermissionAssignOperation
    * assign_permission, remove_permission
