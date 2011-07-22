@@ -1529,6 +1529,8 @@ public class GrouperServiceLogic {
     String theSummary = null;
     try {
   
+      GrouperWsVersionUtils.assignCurrentClientVersion(clientVersion, wsGetMembershipsResults.getResponseMetadata().warnings());
+
       theSummary = "clientVersion: " + clientVersion + ", wsGroupLookups: "
           + GrouperUtil.toStringForLog(wsGroupLookups, 200) + ", wsMemberFilter: " + wsMemberFilter
           + ", includeSubjectDetail: " + includeSubjectDetail + ", actAsSubject: "
@@ -4179,6 +4181,8 @@ public class GrouperServiceLogic {
       String theSummary = null;
       try {
     
+        GrouperWsVersionUtils.assignCurrentClientVersion(clientVersion, wsGetSubjectsResults.getResponseMetadata().warnings());
+
         theSummary = "clientVersion: " + clientVersion + ", wsSubjectLookups: "
             + GrouperUtil.toStringForLog(wsSubjectLookups, 200) + ", searchString: '" + searchString + "'" 
             + ", wsMemberFilter: " + wsMemberFilter
@@ -5095,6 +5099,8 @@ public class GrouperServiceLogic {
     String theSummary = null;
     try {
   
+      GrouperWsVersionUtils.assignCurrentClientVersion(clientVersion, wsGetAttributeAssignmentsResults.getResponseMetadata().warnings());
+
       theSummary = "clientVersion: " + clientVersion+ ", attributeAssignType: " + attributeAssignType 
           + ", wsAttributeDefLookups: "
           + GrouperUtil.toStringForLog(wsAttributeDefLookups, 200) 
@@ -5507,6 +5513,8 @@ public class GrouperServiceLogic {
     String theSummary = null;
     try {
   
+      GrouperWsVersionUtils.assignCurrentClientVersion(clientVersion, wsAssignAttributesResults.getResponseMetadata().warnings());
+
       theSummary = "clientVersion: " + clientVersion+ ", attributeAssignType: " + attributeAssignType 
           + ", attributeAssignOperation: " + attributeAssignOperation
           + ", attributeAssignValues: " + GrouperUtil.toStringForLog(values, 200)
@@ -5550,7 +5558,7 @@ public class GrouperServiceLogic {
           wsOwnerAttributeDefLookups, wsOwnerAttributeAssignLookups, actions,
           includeSubjectDetail, subjectAttributeNames, includeGroupDetail,
           wsAssignAttributesResults, session, params, null, null, 
-          attributeDefsToReplace, actionsToReplace, attributeDefTypesToReplace);
+          attributeDefsToReplace, actionsToReplace, attributeDefTypesToReplace, false);
 
         
     } catch (Exception e) {
@@ -5791,6 +5799,8 @@ public class GrouperServiceLogic {
 
     try {
   
+      GrouperWsVersionUtils.assignCurrentClientVersion(clientVersion, wsGetPermissionAssignmentsResults.getResponseMetadata().warnings());
+
       theSummary = "clientVersion: " + clientVersion 
           + ", wsAttributeDefLookups: "
           + GrouperUtil.toStringForLog(wsAttributeDefLookups, 200) 
@@ -6052,6 +6062,7 @@ public class GrouperServiceLogic {
    * are the related attributeDefs, if blank, then just do all
    * @param actionsToReplace if replacing attributeDefNames, then these are the
    * related actions, if blank, then just do all
+   * @param disallowed is disallowed
    * @return the results
    */
   @SuppressWarnings("unchecked")
@@ -6066,7 +6077,8 @@ public class GrouperServiceLogic {
       WsMembershipAnyLookup[] subjectRoleLookups, 
       String[] actions, WsSubjectLookup actAsSubjectLookup, boolean includeSubjectDetail,
       String[] subjectAttributeNames, boolean includeGroupDetail, WsParam[] params,
-      WsAttributeDefLookup[] attributeDefsToReplace, String[] actionsToReplace) {  
+      WsAttributeDefLookup[] attributeDefsToReplace, String[] actionsToReplace, 
+      Boolean disallowed) {  
   
     WsAssignAttributesResults wsAssignAttributesResults = new WsAssignAttributesResults();
   
@@ -6074,6 +6086,8 @@ public class GrouperServiceLogic {
     String theSummary = null;
     try {
   
+      GrouperWsVersionUtils.assignCurrentClientVersion(clientVersion, wsAssignAttributesResults.getResponseMetadata().warnings());
+
       theSummary = "clientVersion: " + clientVersion+ ", permissionType: " + permissionType 
           + ", permissionAssignOperation: " + permissionAssignOperation
           + ", wsAttributeAssignLookups: " + GrouperUtil.toStringForLog(wsAttributeAssignLookups, 200)
@@ -6088,7 +6102,8 @@ public class GrouperServiceLogic {
           + GrouperUtil.toStringForLog(subjectAttributeNames) + "\n, paramNames: "
           + "\n, params: " + GrouperUtil.toStringForLog(params, 100)
           + "\n, attributeDefsToReplace: " + GrouperUtil.toStringForLog(attributeDefsToReplace, 200)
-          + "\n, actionsToReplace: " + GrouperUtil.toStringForLog(actionsToReplace, 200);
+          + "\n, actionsToReplace: " + GrouperUtil.toStringForLog(actionsToReplace, 200)
+          + "\n, disallowed: " + disallowed;
   
       //start session based on logged in user or the actAs passed in
       session = GrouperServiceUtils.retrieveGrouperSession(actAsSubjectLookup);
@@ -6113,7 +6128,7 @@ public class GrouperServiceLogic {
           delegatable, null, wsAttributeAssignLookups, roleLookups, null, null, null, subjectRoleLookups, 
           null,null, actions, includeSubjectDetail, subjectAttributeNames, includeGroupDetail, 
           wsAssignAttributesResults, session, params, TypeOfGroup.role, AttributeDefType.perm,
-          attributeDefsToReplace, actionsToReplace, attributeDefTypesToReplace);
+          attributeDefsToReplace, actionsToReplace, attributeDefTypesToReplace, disallowed);
       
     } catch (Exception e) {
       wsAssignAttributesResults.assignResultCodeException(null, theSummary, e);
@@ -6159,6 +6174,7 @@ public class GrouperServiceLogic {
    * @param paramValue0 optional: reserved for future use
    * @param paramName1 optional: reserved for future use
    * @param paramValue1 optional: reserved for future use
+   * @param disallowed if the assignment is a disallow
    * @return the results
    */
   @SuppressWarnings("unchecked")
@@ -6174,7 +6190,7 @@ public class GrouperServiceLogic {
       String subjectRoleSubjectId, String subjectRoleSubjectSourceId, String subjectRoleSubjectIdentifier, 
       String action, String actAsSubjectId, String actAsSubjectSourceId, String actAsSubjectIdentifier, boolean includeSubjectDetail,
       String subjectAttributeNames, boolean includeGroupDetail, String paramName0, String paramValue0,
-      String paramName1, String paramValue1) {  
+      String paramName1, String paramValue1, Boolean disallowed) {  
 
     WsAttributeDefLookup[] attributeDefsToReplace = null; 
 
@@ -6231,7 +6247,7 @@ public class GrouperServiceLogic {
         assignmentDisabledTime, delegatable, attributeAssignLookups, roleLookups, subjectRoleLookups, 
         actions, 
         actAsSubjectLookup, includeSubjectDetail, subjectAttributeArray, includeGroupDetail, 
-        params, attributeDefsToReplace, actionsToReplace );
+        params, attributeDefsToReplace, actionsToReplace, disallowed);
     
     WsAssignPermissionsLiteResults wsAssignPermissionsLiteResults = new WsAssignPermissionsLiteResults(wsAssignPermissionsResults);
     

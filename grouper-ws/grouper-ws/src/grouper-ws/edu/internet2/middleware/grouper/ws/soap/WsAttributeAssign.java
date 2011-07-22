@@ -20,6 +20,7 @@ import edu.internet2.middleware.grouper.attr.assign.AttributeAssignActionType;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignType;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.pit.PITAttributeAssign;
 import edu.internet2.middleware.grouper.pit.PITAttributeAssignAction;
 import edu.internet2.middleware.grouper.pit.PITAttributeAssignValue;
@@ -34,12 +35,36 @@ import edu.internet2.middleware.grouper.pit.finder.PITAttributeDefNameFinder;
 import edu.internet2.middleware.grouper.pit.finder.PITGroupFinder;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
+import edu.internet2.middleware.grouper.ws.util.GrouperWsVersionUtils;
 
 
 /**
  * result of attribute assign query represents an assignment in the DB
  */
 public class WsAttributeAssign implements Comparable<WsAttributeAssign> {
+
+  /**
+   * T of F for if this is disallowed.  Defaults to false, only available in 2.0+
+   */
+  private WsAttributeAssignDisallowed wsAttributeAssignDisallowed;
+  
+  /**
+   * T of F for if this is disallowed.  Defaults to false, only available in 2.0+
+   * @return the wsAttributeAssignDisallowed
+   */
+  public WsAttributeAssignDisallowed getWsAttributeAssignDisallowed() {
+    return this.wsAttributeAssignDisallowed;
+  }
+  
+  /**
+   * T of F for if this is disallowed.  Defaults to false, only available in 2.0+
+   * @param wsAttributeAssignDisallowed1 the wsAttributeAssignDisallowed to set
+   */
+  public void setWsAttributeAssignDisallowed(
+      WsAttributeAssignDisallowed wsAttributeAssignDisallowed1) {
+    this.wsAttributeAssignDisallowed = wsAttributeAssignDisallowed1;
+  }
+
 
   /** type of assignment from enum AttributeAssignActionType e.g. effective, immediate */
   private String attributeAssignActionType;
@@ -773,6 +798,13 @@ public class WsAttributeAssign implements Comparable<WsAttributeAssign> {
       }
       
     }
+    GrouperVersion grouperVersion = GrouperWsVersionUtils.retrieveCurrentClientVersion();
+    
+    //disallowed is only appplicable post 2.0...
+    if (grouperVersion.greaterOrEqualToArg(GrouperVersion.valueOfIgnoreCase("2.0.0"))) {
+      this.wsAttributeAssignDisallowed = new WsAttributeAssignDisallowed();
+      this.wsAttributeAssignDisallowed.setDisallowed(attributeAssign.isDisallowed() ? "T" : "F");
+    }
     
   }
 
@@ -846,5 +878,14 @@ public class WsAttributeAssign implements Comparable<WsAttributeAssign> {
       }
       
     }
+    
+    GrouperVersion grouperVersion = GrouperWsVersionUtils.retrieveCurrentClientVersion();
+    
+    //disallowed is only appplicable post 2.0...
+    if (grouperVersion.greaterOrEqualToArg(GrouperVersion.valueOfIgnoreCase("2.0.0"))) {
+      this.wsAttributeAssignDisallowed = new WsAttributeAssignDisallowed();
+      this.wsAttributeAssignDisallowed.setDisallowed(pitAttributeAssign.isDisallowed() ? "T" : "F");
+    }
+
   }
 }

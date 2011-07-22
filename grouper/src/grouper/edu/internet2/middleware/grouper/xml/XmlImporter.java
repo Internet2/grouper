@@ -720,7 +720,7 @@ public class XmlImporter {
     if (v.isInvalid()) {
       return SubjectFinder.findById(id, true);
     }
-    return SubjectFinder.findById(id, type, true);
+    return SubjectFinder.findById(id, true);
   } // private Subject _getSubjectById(id, type)
 
   // @since   1.0
@@ -732,7 +732,7 @@ public class XmlImporter {
     if (v.isInvalid()) {
       return SubjectFinder.findByIdentifier(identifier, true);
     }
-    return SubjectFinder.findByIdentifier(identifier, type, true);
+    return SubjectFinder.findByIdentifier(identifier, true);
   } // private Subject _getSubjectByIdentifier(identifier, type)
 
   // @since   1.1.0

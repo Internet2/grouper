@@ -16,7 +16,7 @@ public class WsAssignPermissionResult  {
   public WsAssignPermissionResult() {
     //empty
   }
-  
+
   /**
    * convert
    * @param wsAssignAttributeResult
@@ -26,7 +26,7 @@ public class WsAssignPermissionResult  {
     this.deleted = wsAssignAttributeResult.getDeleted();
     this.wsAttributeAssigns = wsAssignAttributeResult.getWsAttributeAssigns();
   }
-  
+
   /** assignment(s) involved */
   private WsAttributeAssign[] wsAttributeAssigns;
 

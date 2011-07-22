@@ -2350,7 +2350,7 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
       // when called from "GrouperSubject" there is no attached session
       Member _m = GrouperDAOFactory.getFactory().getMember().findByUuid( this.getCreatorUuid(), true );
       this.subjectCache.put( 
-        KEY_CREATOR, SubjectFinder.findById( _m.getSubjectId(), _m.getSubjectTypeId(), _m.getSubjectSourceId() , true) 
+        KEY_CREATOR, SubjectFinder.findByIdAndSource( _m.getSubjectId(), _m.getSubjectSourceId() , true) 
       );
       return this.subjectCache.get(KEY_CREATOR);
     }
@@ -3139,7 +3139,7 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
       // when called from "GrouperSubject" there is no attached session
       Member _m = GrouperDAOFactory.getFactory().getMember().findByUuid( this.getModifierUuid(), true );
       this.subjectCache.put(
-        KEY_MODIFIER, SubjectFinder.findById( _m.getSubjectId(), _m.getSubjectTypeId(), _m.getSubjectSourceId(), true )
+        KEY_MODIFIER, SubjectFinder.findByIdAndSource( _m.getSubjectId(), _m.getSubjectSourceId(), true )
       );
       return this.subjectCache.get(KEY_MODIFIER);
     }
@@ -4541,7 +4541,7 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
     }
     try {
       this.subjectCache.put(
-        KEY_SUBJECT, SubjectFinder.findById( this.getUuid(), "group", SubjectFinder.internal_getGSA().getId(), true )
+        KEY_SUBJECT, SubjectFinder.findByIdAndSource( this.getUuid(), SubjectFinder.internal_getGSA().getId(), true )
       );
       return this.subjectCache.get(KEY_SUBJECT);
     }

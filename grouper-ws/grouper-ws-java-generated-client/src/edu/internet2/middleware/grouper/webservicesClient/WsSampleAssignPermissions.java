@@ -18,6 +18,7 @@ import edu.internet2.middleware.grouper.ws.soap.xsd.WsAttributeAssignLookup;
 import edu.internet2.middleware.grouper.ws.soap.xsd.WsAttributeDefNameLookup;
 import edu.internet2.middleware.grouper.ws.soap.xsd.WsGroup;
 import edu.internet2.middleware.grouper.ws.soap.xsd.WsGroupLookup;
+import edu.internet2.middleware.grouper.ws.soap.xsd.WsMembershipAnyLookup;
 import edu.internet2.middleware.grouper.ws.soap.xsd.WsParam;
 import edu.internet2.middleware.grouper.ws.soap.xsd.WsSubjectLookup;
 
@@ -88,7 +89,6 @@ public class WsSampleAssignPermissions implements WsSampleGenerated {
       assignPermissions.setSubjectAttributeNames(new String[]{null});
       
       assignPermissions.setWsAttributeAssignLookups(new WsAttributeAssignLookup[]{null});
-      assignPermissions.setWsAttributeAssignLookups(new WsAttributeAssignLookup[]{null});
       
       WsAttributeDefNameLookup permissionDefNameLookup = WsAttributeDefNameLookup.class.newInstance();
       permissionDefNameLookup.setUuid("");
@@ -99,6 +99,9 @@ public class WsSampleAssignPermissions implements WsSampleGenerated {
       roleLookup.setGroupName("aStem:role");
       roleLookup.setUuid("");
       assignPermissions.setRoleLookups(new WsGroupLookup[]{roleLookup});
+      
+      assignPermissions.setSubjectRoleLookups(new WsMembershipAnyLookup[]{null});
+      
       
       WsAssignPermissionsResults wsAssignPermissionsResults = stub.assignPermissions(assignPermissions)
           .get_return();

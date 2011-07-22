@@ -7,11 +7,6 @@
  */
         package edu.internet2.middleware.grouper.webservicesClient;
 
-import org.apache.axis2.transport.http.HTTPConstants;
-import org.apache.axis2.transport.http.HttpTransportProperties;
-
-import edu.internet2.middleware.grouper.webservicesClient.util.GeneratedClientSettings;
-
         
 
         /*
@@ -557,12 +552,6 @@ import edu.internet2.middleware.grouper.webservicesClient.util.GeneratedClientSe
         _serviceClient.getOptions().setTo(new org.apache.axis2.addressing.EndpointReference(
                 targetEndpoint));
         _serviceClient.getOptions().setUseSeparateListener(useSeparateListener);
-        HttpTransportProperties.Authenticator auth = new HttpTransportProperties.Authenticator();
-        auth.setUsername(GeneratedClientSettings.USER);
-        auth.setPassword(GeneratedClientSettings.PASS);
-        auth.setPreemptiveAuthentication(true);
-
-        _serviceClient.getOptions().setProperty(HTTPConstants.AUTHENTICATE, auth);
         
             //Set the soap version
             _serviceClient.getOptions().setSoapVersionURI(org.apache.axiom.soap.SOAP12Constants.SOAP_ENVELOPE_NAMESPACE_URI);

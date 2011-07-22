@@ -296,6 +296,50 @@
                             
 
                         /**
+                        * field for HeuristicFriendlyScore
+                        */
+
+                        
+                                    protected java.lang.String localHeuristicFriendlyScore ;
+                                
+                           /*  This tracker boolean wil be used to detect whether the user called the set method
+                          *   for this attribute. It will be used to determine whether to include this field
+                           *   in the serialized XML
+                           */
+                           protected boolean localHeuristicFriendlyScoreTracker = false ;
+                           
+
+                           /**
+                           * Auto generated getter method
+                           * @return java.lang.String
+                           */
+                           public  java.lang.String getHeuristicFriendlyScore(){
+                               return localHeuristicFriendlyScore;
+                           }
+
+                           
+                        
+                            /**
+                               * Auto generated setter method
+                               * @param param HeuristicFriendlyScore
+                               */
+                               public void setHeuristicFriendlyScore(java.lang.String param){
+                            
+                                       if (param != null){
+                                          //update the setting tracker
+                                          localHeuristicFriendlyScoreTracker = true;
+                                       } else {
+                                          localHeuristicFriendlyScoreTracker = true;
+                                              
+                                       }
+                                   
+                                            this.localHeuristicFriendlyScore=param;
+                                    
+
+                               }
+                            
+
+                        /**
                         * field for ImmediateMembership
                         */
 
@@ -859,6 +903,40 @@
                                           }
                                     
                                    xmlWriter.writeEndElement();
+                             } if (localHeuristicFriendlyScoreTracker){
+                                    namespace = "http://soap.ws.grouper.middleware.internet2.edu/xsd";
+                                    if (! namespace.equals("")) {
+                                        prefix = xmlWriter.getPrefix(namespace);
+
+                                        if (prefix == null) {
+                                            prefix = generatePrefix(namespace);
+
+                                            xmlWriter.writeStartElement(prefix,"heuristicFriendlyScore", namespace);
+                                            xmlWriter.writeNamespace(prefix, namespace);
+                                            xmlWriter.setPrefix(prefix, namespace);
+
+                                        } else {
+                                            xmlWriter.writeStartElement(namespace,"heuristicFriendlyScore");
+                                        }
+
+                                    } else {
+                                        xmlWriter.writeStartElement("heuristicFriendlyScore");
+                                    }
+                                
+
+                                          if (localHeuristicFriendlyScore==null){
+                                              // write the nil attribute
+                                              
+                                                     writeAttribute("xsi","http://www.w3.org/2001/XMLSchema-instance","nil","1",xmlWriter);
+                                                  
+                                          }else{
+
+                                        
+                                                   xmlWriter.writeCharacters(localHeuristicFriendlyScore);
+                                            
+                                          }
+                                    
+                                   xmlWriter.writeEndElement();
                              } if (localImmediateMembershipTracker){
                                     namespace = "http://soap.ws.grouper.middleware.internet2.edu/xsd";
                                     if (! namespace.equals("")) {
@@ -1261,6 +1339,12 @@
                                  
                                          elementList.add(localEnabledTime==null?null:
                                          org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localEnabledTime));
+                                    } if (localHeuristicFriendlyScoreTracker){
+                                      elementList.add(new javax.xml.namespace.QName("http://soap.ws.grouper.middleware.internet2.edu/xsd",
+                                                                      "heuristicFriendlyScore"));
+                                 
+                                         elementList.add(localHeuristicFriendlyScore==null?null:
+                                         org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localHeuristicFriendlyScore));
                                     } if (localImmediateMembershipTracker){
                                       elementList.add(new javax.xml.namespace.QName("http://soap.ws.grouper.middleware.internet2.edu/xsd",
                                                                       "immediateMembership"));
@@ -1519,6 +1603,33 @@
                                     java.lang.String content = reader.getElementText();
                                     
                                               object.setEnabledTime(
+                                                    org.apache.axis2.databinding.utils.ConverterUtil.convertToString(content));
+                                            
+                                       } else {
+                                           
+                                           
+                                           reader.getElementText(); // throw away text nodes if any.
+                                       }
+                                      
+                                        reader.next();
+                                    
+                              }  // End of if for expected property start element
+                                
+                                    else {
+                                        
+                                    }
+                                
+                                    
+                                    while (!reader.isStartElement() && !reader.isEndElement()) reader.next();
+                                
+                                    if (reader.isStartElement() && new javax.xml.namespace.QName("http://soap.ws.grouper.middleware.internet2.edu/xsd","heuristicFriendlyScore").equals(reader.getName())){
+                                
+                                       nillableValue = reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance","nil");
+                                       if (!"true".equals(nillableValue) && !"1".equals(nillableValue)){
+                                    
+                                    java.lang.String content = reader.getElementText();
+                                    
+                                              object.setHeuristicFriendlyScore(
                                                     org.apache.axis2.databinding.utils.ConverterUtil.convertToString(content));
                                             
                                        } else {

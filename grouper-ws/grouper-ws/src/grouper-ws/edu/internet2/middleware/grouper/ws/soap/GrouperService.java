@@ -3652,6 +3652,7 @@ public class GrouperService {
    * are the related attributeDefs, if blank, then just do all
    * @param actionsToReplace if replacing attributeDefNames, then these are the
    * related actions, if blank, then just do all
+   * @param disallowed T or F if the permission is disallowed
    * @return the results
    */
   @SuppressWarnings("unchecked")
@@ -3666,7 +3667,8 @@ public class GrouperService {
       WsMembershipAnyLookup[] subjectRoleLookups, 
       String[] actions, WsSubjectLookup actAsSubjectLookup, String includeSubjectDetail,
       String[] subjectAttributeNames, String includeGroupDetail, WsParam[] params,
-      WsAttributeDefLookup[] attributeDefsToReplace, String[] actionsToReplace) {  
+      WsAttributeDefLookup[] attributeDefsToReplace, String[] actionsToReplace, 
+      String disallowed) {  
   
     WsAssignPermissionsResults wsAssignPermissionsResults = new WsAssignPermissionsResults();
   
@@ -3679,6 +3681,9 @@ public class GrouperService {
   
       boolean includeSubjectDetailBoolean = GrouperServiceUtils.booleanValue(
           includeSubjectDetail, false, "includeSubjectDetail");
+  
+      Boolean disallowedBoolean = GrouperServiceUtils.booleanObjectValue(
+          disallowed, "disallowed");
   
       PermissionType permissionTypeEnum = GrouperServiceUtils.convertPermissionType(permissionType);
       Timestamp assignmentEnabledTimestamp = GrouperServiceUtils.stringToTimestamp(assignmentEnabledTime);
@@ -3693,7 +3698,8 @@ public class GrouperService {
           permissionDefNameLookups, permissionAssignOperationEnum, assignmentNotes, assignmentEnabledTimestamp, 
           assignmentDisabledTimestamp, attributeAssignDelegatableEnum, wsAttributeAssignLookups, 
           roleLookups, subjectRoleLookups, actions, actAsSubjectLookup, includeSubjectDetailBoolean, 
-          subjectAttributeNames, includeGroupDetailBoolean, params, attributeDefsToReplace, actionsToReplace);
+          subjectAttributeNames, includeGroupDetailBoolean, params, attributeDefsToReplace, actionsToReplace,
+          disallowedBoolean);
   
     } catch (Exception e) {
       wsAssignPermissionsResults.assignResultCodeException(null, null, e);
@@ -3741,6 +3747,7 @@ public class GrouperService {
    * @param paramValue0 optional: reserved for future use
    * @param paramName1 optional: reserved for future use
    * @param paramValue1 optional: reserved for future use
+   * @param disallowed T or F if the permission is disallowed
    * @return the results
    */
   @SuppressWarnings("unchecked")
@@ -3756,7 +3763,8 @@ public class GrouperService {
       String subjectRoleSubjectId, String subjectRoleSubjectSourceId, String subjectRoleSubjectIdentifier, 
       String action, String actAsSubjectId, String actAsSubjectSourceId, String actAsSubjectIdentifier, String includeSubjectDetail,
       String subjectAttributeNames, String includeGroupDetail, String paramName0, String paramValue0,
-      String paramName1, String paramValue1) {  
+      String paramName1, String paramValue1, 
+      String disallowed) {  
   
     WsAssignPermissionsLiteResults wsAssignPermissionsLiteResults = new WsAssignPermissionsLiteResults();
     
@@ -3770,6 +3778,9 @@ public class GrouperService {
       boolean includeSubjectDetailBoolean = GrouperServiceUtils.booleanValue(
           includeSubjectDetail, false, "includeSubjectDetail");
   
+      Boolean disallowedBoolean = GrouperServiceUtils.booleanObjectValue(
+          disallowed, "disallowed");
+
       PermissionType permissionTypeEnum = GrouperServiceUtils.convertPermissionType(permissionType);
       Timestamp assignmentEnabledTimestamp = GrouperServiceUtils.stringToTimestamp(assignmentEnabledTime);
       Timestamp assignmentDisabledTimestamp = GrouperServiceUtils.stringToTimestamp(assignmentDisabledTime);
@@ -3788,7 +3799,9 @@ public class GrouperService {
           subjectRoleSubjectIdentifier,  
           action, actAsSubjectId, actAsSubjectSourceId,
           actAsSubjectIdentifier, includeSubjectDetailBoolean, 
-          subjectAttributeNames, includeGroupDetailBoolean, paramName0, paramValue0, paramName1, paramValue1 );
+          subjectAttributeNames, includeGroupDetailBoolean, paramName0, paramValue0, paramName1, 
+          paramValue1,
+          disallowedBoolean);
   
     } catch (Exception e) {
       wsAssignPermissionsLiteResults.assignResultCodeException(null, null, e);

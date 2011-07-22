@@ -337,7 +337,7 @@ public class MemberFinder {
   private static Member internal_findOrCreateBySubject(String id, String src, String type, 
       String memberUuidIfCreate, boolean createIfNotExist) {
 
-    Subject subj = SubjectFinder.findById(id, type, src, true);
+    Subject subj = SubjectFinder.findByIdAndSource(id, src, true);
     return internal_findOrCreateBySubject(subj, memberUuidIfCreate, createIfNotExist);
   } 
 

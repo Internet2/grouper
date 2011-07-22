@@ -21,7 +21,7 @@ public class WsPermissionAssign implements Comparable<WsPermissionAssign> {
 
   /** detail on the permission */
   private WsPermissionAssignDetail detail;
-  
+
   /**
    * detail on the permission
    * @return detail

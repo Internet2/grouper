@@ -1659,7 +1659,8 @@ public class GrouperServiceRest {
         wsRestAssignPermissionsRequest.getActAsSubjectLookup(), 
         wsRestAssignPermissionsRequest.getIncludeSubjectDetail(), wsRestAssignPermissionsRequest.getSubjectAttributeNames(), 
         wsRestAssignPermissionsRequest.getIncludeGroupDetail(), wsRestAssignPermissionsRequest.getParams(),
-        wsRestAssignPermissionsRequest.getAttributeDefsToReplace(), wsRestAssignPermissionsRequest.getActionsToReplace());
+        wsRestAssignPermissionsRequest.getAttributeDefsToReplace(), wsRestAssignPermissionsRequest.getActionsToReplace(),
+        wsRestAssignPermissionsRequest.getDisallowed());
     
     return wsAssignPermissionsResults;
   }
@@ -1699,7 +1700,7 @@ public class GrouperServiceRest {
         wsRestAssignPermissionsLiteRequest.getSubjectAttributeNames(), wsRestAssignPermissionsLiteRequest.getIncludeGroupDetail(), 
         wsRestAssignPermissionsLiteRequest.getParamName0(), 
         wsRestAssignPermissionsLiteRequest.getParamValue0(), wsRestAssignPermissionsLiteRequest.getParamName1(), 
-        wsRestAssignPermissionsLiteRequest.getParamValue1());
+        wsRestAssignPermissionsLiteRequest.getParamValue1(), wsRestAssignPermissionsLiteRequest.getDisallowed());
     
     return wsAssignPermissionsLiteResults;
   }

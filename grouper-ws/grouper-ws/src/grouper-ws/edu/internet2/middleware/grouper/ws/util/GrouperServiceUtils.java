@@ -920,6 +920,26 @@ public final class GrouperServiceUtils {
   }
 
   /**
+   * parse a boolean as "T" or "F" or "TRUE" or "FALSE" case insensitive. If
+   * not specified, then use default. If malformed, then exception
+   * 
+   * @param input
+   * @param paramName to put in the invalid query exception
+   * @return the Boolean
+   * @throws WsInvalidQueryException if there is a problem
+   */
+  public static Boolean booleanObjectValue(String input, String paramName)
+      throws WsInvalidQueryException {
+    try {
+      return GrouperUtil.booleanObjectValue(input);
+    } catch (Exception e) {
+      //all info is in the message
+      throw new WsInvalidQueryException("Problem with boolean '" + paramName + "', "
+          + e.getMessage());
+    }
+  }
+
+  /**
    * convert a fieldName into a Field
    * @param fieldName name of field
    * @return the field, or throw invalid query exception, or null if not there

@@ -1210,6 +1210,50 @@
                              }
                              
 
+                        /**
+                        * field for Disallowed
+                        */
+
+                        
+                                    protected java.lang.String localDisallowed ;
+                                
+                           /*  This tracker boolean wil be used to detect whether the user called the set method
+                          *   for this attribute. It will be used to determine whether to include this field
+                           *   in the serialized XML
+                           */
+                           protected boolean localDisallowedTracker = false ;
+                           
+
+                           /**
+                           * Auto generated getter method
+                           * @return java.lang.String
+                           */
+                           public  java.lang.String getDisallowed(){
+                               return localDisallowed;
+                           }
+
+                           
+                        
+                            /**
+                               * Auto generated setter method
+                               * @param param Disallowed
+                               */
+                               public void setDisallowed(java.lang.String param){
+                            
+                                       if (param != null){
+                                          //update the setting tracker
+                                          localDisallowedTracker = true;
+                                       } else {
+                                          localDisallowedTracker = true;
+                                              
+                                       }
+                                   
+                                            this.localDisallowed=param;
+                                    
+
+                               }
+                            
+
      /**
      * isReaderMTOMAware
      * @return true if the reader supports MTOM
@@ -2273,7 +2317,41 @@
                                     
                              }
 
-                        }
+                        } if (localDisallowedTracker){
+                                    namespace = "http://soap.ws.grouper.middleware.internet2.edu/xsd";
+                                    if (! namespace.equals("")) {
+                                        prefix = xmlWriter.getPrefix(namespace);
+
+                                        if (prefix == null) {
+                                            prefix = generatePrefix(namespace);
+
+                                            xmlWriter.writeStartElement(prefix,"disallowed", namespace);
+                                            xmlWriter.writeNamespace(prefix, namespace);
+                                            xmlWriter.setPrefix(prefix, namespace);
+
+                                        } else {
+                                            xmlWriter.writeStartElement(namespace,"disallowed");
+                                        }
+
+                                    } else {
+                                        xmlWriter.writeStartElement("disallowed");
+                                    }
+                                
+
+                                          if (localDisallowed==null){
+                                              // write the nil attribute
+                                              
+                                                     writeAttribute("xsi","http://www.w3.org/2001/XMLSchema-instance","nil","1",xmlWriter);
+                                                  
+                                          }else{
+
+                                        
+                                                   xmlWriter.writeCharacters(localDisallowed);
+                                            
+                                          }
+                                    
+                                   xmlWriter.writeEndElement();
+                             }
                     xmlWriter.writeEndElement();
                
 
@@ -2727,7 +2805,13 @@
                                 
                             }
 
-                        }
+                        } if (localDisallowedTracker){
+                                      elementList.add(new javax.xml.namespace.QName("http://soap.ws.grouper.middleware.internet2.edu/xsd",
+                                                                      "disallowed"));
+                                 
+                                         elementList.add(localDisallowed==null?null:
+                                         org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localDisallowed));
+                                    }
 
                 return new org.apache.axis2.databinding.utils.reader.ADBXMLStreamReaderImpl(qName, elementList.toArray(), attribList.toArray());
             
@@ -3607,6 +3691,33 @@
                                                     object.setActionsToReplace((java.lang.String[])
                                                         list19.toArray(new java.lang.String[list19.size()]));
                                                 
+                              }  // End of if for expected property start element
+                                
+                                    else {
+                                        
+                                    }
+                                
+                                    
+                                    while (!reader.isStartElement() && !reader.isEndElement()) reader.next();
+                                
+                                    if (reader.isStartElement() && new javax.xml.namespace.QName("http://soap.ws.grouper.middleware.internet2.edu/xsd","disallowed").equals(reader.getName())){
+                                
+                                       nillableValue = reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance","nil");
+                                       if (!"true".equals(nillableValue) && !"1".equals(nillableValue)){
+                                    
+                                    java.lang.String content = reader.getElementText();
+                                    
+                                              object.setDisallowed(
+                                                    org.apache.axis2.databinding.utils.ConverterUtil.convertToString(content));
+                                            
+                                       } else {
+                                           
+                                           
+                                           reader.getElementText(); // throw away text nodes if any.
+                                       }
+                                      
+                                        reader.next();
+                                    
                               }  // End of if for expected property start element
                                 
                                     else {

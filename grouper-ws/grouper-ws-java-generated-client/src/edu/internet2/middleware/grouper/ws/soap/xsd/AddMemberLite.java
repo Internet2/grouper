@@ -868,6 +868,50 @@
                                }
                             
 
+                        /**
+                        * field for AddExternalSubjectIfNotFound
+                        */
+
+                        
+                                    protected java.lang.String localAddExternalSubjectIfNotFound ;
+                                
+                           /*  This tracker boolean wil be used to detect whether the user called the set method
+                          *   for this attribute. It will be used to determine whether to include this field
+                           *   in the serialized XML
+                           */
+                           protected boolean localAddExternalSubjectIfNotFoundTracker = false ;
+                           
+
+                           /**
+                           * Auto generated getter method
+                           * @return java.lang.String
+                           */
+                           public  java.lang.String getAddExternalSubjectIfNotFound(){
+                               return localAddExternalSubjectIfNotFound;
+                           }
+
+                           
+                        
+                            /**
+                               * Auto generated setter method
+                               * @param param AddExternalSubjectIfNotFound
+                               */
+                               public void setAddExternalSubjectIfNotFound(java.lang.String param){
+                            
+                                       if (param != null){
+                                          //update the setting tracker
+                                          localAddExternalSubjectIfNotFoundTracker = true;
+                                       } else {
+                                          localAddExternalSubjectIfNotFoundTracker = true;
+                                              
+                                       }
+                                   
+                                            this.localAddExternalSubjectIfNotFound=param;
+                                    
+
+                               }
+                            
+
      /**
      * isReaderMTOMAware
      * @return true if the reader supports MTOM
@@ -1610,6 +1654,40 @@
                                           }
                                     
                                    xmlWriter.writeEndElement();
+                             } if (localAddExternalSubjectIfNotFoundTracker){
+                                    namespace = "http://soap.ws.grouper.middleware.internet2.edu/xsd";
+                                    if (! namespace.equals("")) {
+                                        prefix = xmlWriter.getPrefix(namespace);
+
+                                        if (prefix == null) {
+                                            prefix = generatePrefix(namespace);
+
+                                            xmlWriter.writeStartElement(prefix,"addExternalSubjectIfNotFound", namespace);
+                                            xmlWriter.writeNamespace(prefix, namespace);
+                                            xmlWriter.setPrefix(prefix, namespace);
+
+                                        } else {
+                                            xmlWriter.writeStartElement(namespace,"addExternalSubjectIfNotFound");
+                                        }
+
+                                    } else {
+                                        xmlWriter.writeStartElement("addExternalSubjectIfNotFound");
+                                    }
+                                
+
+                                          if (localAddExternalSubjectIfNotFound==null){
+                                              // write the nil attribute
+                                              
+                                                     writeAttribute("xsi","http://www.w3.org/2001/XMLSchema-instance","nil","1",xmlWriter);
+                                                  
+                                          }else{
+
+                                        
+                                                   xmlWriter.writeCharacters(localAddExternalSubjectIfNotFound);
+                                            
+                                          }
+                                    
+                                   xmlWriter.writeEndElement();
                              }
                     xmlWriter.writeEndElement();
                
@@ -1886,6 +1964,12 @@
                                  
                                          elementList.add(localEnabledTime==null?null:
                                          org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localEnabledTime));
+                                    } if (localAddExternalSubjectIfNotFoundTracker){
+                                      elementList.add(new javax.xml.namespace.QName("http://soap.ws.grouper.middleware.internet2.edu/xsd",
+                                                                      "addExternalSubjectIfNotFound"));
+                                 
+                                         elementList.add(localAddExternalSubjectIfNotFound==null?null:
+                                         org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localAddExternalSubjectIfNotFound));
                                     }
 
                 return new org.apache.axis2.databinding.utils.reader.ADBXMLStreamReaderImpl(qName, elementList.toArray(), attribList.toArray());
@@ -2459,6 +2543,33 @@
                                     java.lang.String content = reader.getElementText();
                                     
                                               object.setEnabledTime(
+                                                    org.apache.axis2.databinding.utils.ConverterUtil.convertToString(content));
+                                            
+                                       } else {
+                                           
+                                           
+                                           reader.getElementText(); // throw away text nodes if any.
+                                       }
+                                      
+                                        reader.next();
+                                    
+                              }  // End of if for expected property start element
+                                
+                                    else {
+                                        
+                                    }
+                                
+                                    
+                                    while (!reader.isStartElement() && !reader.isEndElement()) reader.next();
+                                
+                                    if (reader.isStartElement() && new javax.xml.namespace.QName("http://soap.ws.grouper.middleware.internet2.edu/xsd","addExternalSubjectIfNotFound").equals(reader.getName())){
+                                
+                                       nillableValue = reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance","nil");
+                                       if (!"true".equals(nillableValue) && !"1".equals(nillableValue)){
+                                    
+                                    java.lang.String content = reader.getElementText();
+                                    
+                                              object.setAddExternalSubjectIfNotFound(
                                                     org.apache.axis2.databinding.utils.ConverterUtil.convertToString(content));
                                             
                                        } else {

@@ -72,11 +72,11 @@ public class findSubject {
   {
     GrouperShell.setOurCommand(i, true);
     try {
-      return SubjectFinder.findById(id, type, true);
+      return SubjectFinder.findById(id, true);
     }
     catch (SubjectNotFoundException eSNF) {
       try {
-        return SubjectFinder.findByIdentifier(id, type, true);
+        return SubjectFinder.findByIdentifier(id, true);
       } catch (SubjectNotFoundException snfe) {
         GrouperShell.error(i, eSNF);
       }
@@ -106,14 +106,14 @@ public class findSubject {
   {
     GrouperShell.setOurCommand(i, true);
     try {
-      return SubjectFinder.findById(id, type, source, true);
+      return SubjectFinder.findByIdAndSource(id, source, true);
     }
     catch (SourceUnavailableException eSNA) {
       GrouperShell.error(i, eSNA);
     }
     catch (SubjectNotFoundException eSNF) {
       try {
-        return SubjectFinder.findByIdentifier(id, type, source, true);
+        return SubjectFinder.findByIdentifierAndSource(id, source, true);
       } catch (SubjectNotFoundException snfe) {
         GrouperShell.error(i, eSNF);
       }
