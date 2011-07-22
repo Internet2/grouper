@@ -1253,7 +1253,7 @@
                                           //update the setting tracker
                                           localWsAttributeAssignDisallowedTracker = true;
                                        } else {
-                                          localWsAttributeAssignDisallowedTracker = false;
+                                          localWsAttributeAssignDisallowedTracker = true;
                                               
                                        }
                                    
@@ -2360,12 +2360,37 @@
                                     
                                    xmlWriter.writeEndElement();
                              } if (localWsAttributeAssignDisallowedTracker){
-                                            if (localWsAttributeAssignDisallowed==null){
-                                                 throw new org.apache.axis2.databinding.ADBException("wsAttributeAssignDisallowed cannot be null!!");
+                                    if (localWsAttributeAssignDisallowed==null){
+
+                                            java.lang.String namespace2 = "http://soap.ws.grouper.middleware.internet2.edu/xsd";
+
+                                        if (! namespace2.equals("")) {
+                                            java.lang.String prefix2 = xmlWriter.getPrefix(namespace2);
+
+                                            if (prefix2 == null) {
+                                                prefix2 = generatePrefix(namespace2);
+
+                                                xmlWriter.writeStartElement(prefix2,"wsAttributeAssignDisallowed", namespace2);
+                                                xmlWriter.writeNamespace(prefix2, namespace2);
+                                                xmlWriter.setPrefix(prefix2, namespace2);
+
+                                            } else {
+                                                xmlWriter.writeStartElement(namespace2,"wsAttributeAssignDisallowed");
                                             }
-                                           localWsAttributeAssignDisallowed.serialize(new javax.xml.namespace.QName("http://soap.ws.grouper.middleware.internet2.edu/xsd","wsAttributeAssignDisallowed"),
-                                               factory,xmlWriter);
-                                        } if (localWsAttributeAssignValuesTracker){
+
+                                        } else {
+                                            xmlWriter.writeStartElement("wsAttributeAssignDisallowed");
+                                        }
+
+
+                                       // write the nil attribute
+                                      writeAttribute("xsi","http://www.w3.org/2001/XMLSchema-instance","nil","1",xmlWriter);
+                                      xmlWriter.writeEndElement();
+                                    }else{
+                                     localWsAttributeAssignDisallowed.serialize(new javax.xml.namespace.QName("http://soap.ws.grouper.middleware.internet2.edu/xsd","wsAttributeAssignDisallowed"),
+                                        factory,xmlWriter);
+                                    }
+                                } if (localWsAttributeAssignValuesTracker){
                                        if (localWsAttributeAssignValues!=null){
                                             for (int i = 0;i < localWsAttributeAssignValues.length;i++){
                                                 if (localWsAttributeAssignValues[i] != null){
@@ -2756,10 +2781,8 @@
                                                                       "wsAttributeAssignDisallowed"));
                             
                             
-                                    if (localWsAttributeAssignDisallowed==null){
-                                         throw new org.apache.axis2.databinding.ADBException("wsAttributeAssignDisallowed cannot be null!!");
-                                    }
-                                    elementList.add(localWsAttributeAssignDisallowed);
+                                    elementList.add(localWsAttributeAssignDisallowed==null?null:
+                                    localWsAttributeAssignDisallowed);
                                 } if (localWsAttributeAssignValuesTracker){
                              if (localWsAttributeAssignValues!=null) {
                                  for (int i = 0;i < localWsAttributeAssignValues.length;i++){
@@ -3597,10 +3620,19 @@
                                 
                                     if (reader.isStartElement() && new javax.xml.namespace.QName("http://soap.ws.grouper.middleware.internet2.edu/xsd","wsAttributeAssignDisallowed").equals(reader.getName())){
                                 
+                                      nillableValue = reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance","nil");
+                                      if ("true".equals(nillableValue) || "1".equals(nillableValue)){
+                                          object.setWsAttributeAssignDisallowed(null);
+                                          reader.next();
+                                            
+                                            reader.next();
+                                          
+                                      }else{
+                                    
                                                 object.setWsAttributeAssignDisallowed(edu.internet2.middleware.grouper.ws.soap.xsd.WsAttributeAssignDisallowed.Factory.parse(reader));
                                               
                                         reader.next();
-                                    
+                                    }
                               }  // End of if for expected property start element
                                 
                                     else {
