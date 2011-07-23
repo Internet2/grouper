@@ -14,9 +14,9 @@ import org.apache.rampart.RampartMessageData;
 import edu.internet2.middleware.grouper.webservicesClient.util.GeneratedClientSettings;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGenerated;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGeneratedType;
-import edu.internet2.middleware.grouper.ws.soap.xsd.GetGroupsLite;
-import edu.internet2.middleware.grouper.ws.soap.xsd.WsGetGroupsLiteResult;
-import edu.internet2.middleware.grouper.ws.soap.xsd.WsGroup;
+import edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.GetGroupsLite;
+import edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.WsGetGroupsLiteResult;
+import edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.WsGroup;
 
 
 /**

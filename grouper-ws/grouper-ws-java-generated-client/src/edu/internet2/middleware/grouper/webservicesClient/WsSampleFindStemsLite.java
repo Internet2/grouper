@@ -12,10 +12,10 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import edu.internet2.middleware.grouper.webservicesClient.util.GeneratedClientSettings;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGenerated;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGeneratedType;
-import edu.internet2.middleware.grouper.ws.soap.xsd.FindStemsLite;
-import edu.internet2.middleware.grouper.ws.soap.xsd.FindStemsLiteResponse;
-import edu.internet2.middleware.grouper.ws.soap.xsd.WsFindStemsResults;
-import edu.internet2.middleware.grouper.ws.soap.xsd.WsStem;
+import edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.FindStemsLite;
+import edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.FindStemsLiteResponse;
+import edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.WsFindStemsResults;
+import edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.WsStem;
 
 
 /**

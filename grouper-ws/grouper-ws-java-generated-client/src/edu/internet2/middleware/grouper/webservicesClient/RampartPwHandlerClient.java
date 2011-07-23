@@ -1,12 +1,12 @@
 package edu.internet2.middleware.grouper.webservicesClient;
 
-import org.apache.ws.security.WSPasswordCallback;
-
 import java.io.IOException;
 
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.callback.UnsupportedCallbackException;
+
+import org.apache.ws.security.WSPasswordCallback;
 
 
 /**

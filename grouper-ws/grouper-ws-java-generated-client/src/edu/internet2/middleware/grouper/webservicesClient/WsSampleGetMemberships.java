@@ -11,15 +11,15 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import edu.internet2.middleware.grouper.webservicesClient.util.GeneratedClientSettings;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGenerated;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGeneratedType;
-import edu.internet2.middleware.grouper.ws.soap.xsd.GetMemberships;
-import edu.internet2.middleware.grouper.ws.soap.xsd.WsGetMembershipsResults;
-import edu.internet2.middleware.grouper.ws.soap.xsd.WsGroup;
-import edu.internet2.middleware.grouper.ws.soap.xsd.WsGroupLookup;
-import edu.internet2.middleware.grouper.ws.soap.xsd.WsMembership;
-import edu.internet2.middleware.grouper.ws.soap.xsd.WsParam;
-import edu.internet2.middleware.grouper.ws.soap.xsd.WsStemLookup;
-import edu.internet2.middleware.grouper.ws.soap.xsd.WsSubject;
-import edu.internet2.middleware.grouper.ws.soap.xsd.WsSubjectLookup;
+import edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.GetMemberships;
+import edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.WsGetMembershipsResults;
+import edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.WsGroup;
+import edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.WsGroupLookup;
+import edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.WsMembership;
+import edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.WsParam;
+import edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.WsStemLookup;
+import edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.WsSubject;
+import edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.WsSubjectLookup;
 
 /**
  *

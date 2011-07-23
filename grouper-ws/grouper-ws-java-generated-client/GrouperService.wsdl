@@ -24,7 +24,6 @@
                         <xs:element minOccurs="0" name="paramValue1" nillable="true" type="xs:string"/>
                         <xs:element minOccurs="0" name="disabledTime" nillable="true" type="xs:string"/>
                         <xs:element minOccurs="0" name="enabledTime" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="addExternalSubjectIfNotFound" nillable="true" type="xs:string"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
@@ -122,7 +121,6 @@
                         <xs:element maxOccurs="unbounded" minOccurs="0" name="params" nillable="true" type="ns:WsParam"/>
                         <xs:element minOccurs="0" name="disabledTime" nillable="true" type="xs:string"/>
                         <xs:element minOccurs="0" name="enabledTime" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="addExternalSubjectIfNotFound" nillable="true" type="xs:string"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
@@ -281,13 +279,7 @@
                     <xs:element minOccurs="0" name="ownerMembershipId" nillable="true" type="xs:string"/>
                     <xs:element minOccurs="0" name="ownerStemId" nillable="true" type="xs:string"/>
                     <xs:element minOccurs="0" name="ownerStemName" nillable="true" type="xs:string"/>
-                    <xs:element minOccurs="0" name="wsAttributeAssignDisallowed" nillable="false" type="ns:WsAttributeAssignDisallowed"/>
                     <xs:element maxOccurs="unbounded" minOccurs="0" name="wsAttributeAssignValues" nillable="true" type="ns:WsAttributeAssignValue"/>
-                </xs:sequence>
-            </xs:complexType>
-            <xs:complexType name="WsAttributeAssignDisallowed">
-                <xs:sequence>
-                    <xs:element minOccurs="0" name="disallowed" nillable="true" type="xs:string"/>
                 </xs:sequence>
             </xs:complexType>
             <xs:complexType name="WsAttributeDefName">
@@ -557,7 +549,6 @@
                         <xs:element minOccurs="0" name="paramValue0" nillable="true" type="xs:string"/>
                         <xs:element minOccurs="0" name="paramName1" nillable="true" type="xs:string"/>
                         <xs:element minOccurs="0" name="paramValue1" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="disallowed" nillable="true" type="xs:string"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
@@ -609,7 +600,6 @@
                         <xs:element maxOccurs="unbounded" minOccurs="0" name="params" nillable="true" type="ns:WsParam"/>
                         <xs:element maxOccurs="unbounded" minOccurs="0" name="attributeDefsToReplace" nillable="true" type="ns:WsAttributeDefLookup"/>
                         <xs:element maxOccurs="unbounded" minOccurs="0" name="actionsToReplace" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="disallowed" nillable="true" type="xs:string"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
@@ -1023,8 +1013,6 @@
                         <xs:element minOccurs="0" name="pageNumber" nillable="true" type="xs:string"/>
                         <xs:element minOccurs="0" name="sortString" nillable="true" type="xs:string"/>
                         <xs:element minOccurs="0" name="ascending" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="pointInTimeFrom" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="pointInTimeTo" nillable="true" type="xs:string"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
@@ -1064,8 +1052,6 @@
                         <xs:element minOccurs="0" name="pageNumber" nillable="true" type="xs:string"/>
                         <xs:element minOccurs="0" name="sortString" nillable="true" type="xs:string"/>
                         <xs:element minOccurs="0" name="ascending" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="pointInTimeFrom" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="pointInTimeTo" nillable="true" type="xs:string"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
@@ -1110,8 +1096,6 @@
                         <xs:element minOccurs="0" name="paramName1" nillable="true" type="xs:string"/>
                         <xs:element minOccurs="0" name="paramValue1" nillable="true" type="xs:string"/>
                         <xs:element minOccurs="0" name="sourceIds" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="pointInTimeFrom" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="pointInTimeTo" nillable="true" type="xs:string"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
@@ -1144,8 +1128,6 @@
                         <xs:element maxOccurs="unbounded" minOccurs="0" name="subjectAttributeNames" nillable="true" type="xs:string"/>
                         <xs:element maxOccurs="unbounded" minOccurs="0" name="params" nillable="true" type="ns:WsParam"/>
                         <xs:element maxOccurs="unbounded" minOccurs="0" name="sourceIds" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="pointInTimeFrom" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="pointInTimeTo" nillable="true" type="xs:string"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
@@ -1267,8 +1249,6 @@
                         <xs:element minOccurs="0" name="includeGroupDetail" nillable="true" type="xs:string"/>
                         <xs:element maxOccurs="unbounded" minOccurs="0" name="params" nillable="true" type="ns:WsParam"/>
                         <xs:element minOccurs="0" name="enabled" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="pointInTimeFrom" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="pointInTimeTo" nillable="true" type="xs:string"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
@@ -1295,14 +1275,12 @@
             <xs:complexType name="WsPermissionAssign">
                 <xs:sequence>
                     <xs:element minOccurs="0" name="action" nillable="true" type="xs:string"/>
-                    <xs:element minOccurs="0" name="allowedOverall" nillable="true" type="xs:string"/>
                     <xs:element minOccurs="0" name="attributeAssignId" nillable="true" type="xs:string"/>
                     <xs:element minOccurs="0" name="attributeDefId" nillable="true" type="xs:string"/>
                     <xs:element minOccurs="0" name="attributeDefName" nillable="true" type="xs:string"/>
                     <xs:element minOccurs="0" name="attributeDefNameId" nillable="true" type="xs:string"/>
                     <xs:element minOccurs="0" name="attributeDefNameName" nillable="true" type="xs:string"/>
                     <xs:element minOccurs="0" name="detail" nillable="true" type="ns:WsPermissionAssignDetail"/>
-                    <xs:element minOccurs="0" name="disallowed" nillable="true" type="xs:string"/>
                     <xs:element minOccurs="0" name="enabled" nillable="true" type="xs:string"/>
                     <xs:element minOccurs="0" name="membershipId" nillable="true" type="xs:string"/>
                     <xs:element minOccurs="0" name="permissionType" nillable="true" type="xs:string"/>
@@ -1320,7 +1298,6 @@
                     <xs:element minOccurs="0" name="attributeDefNameSetDepth" nillable="true" type="xs:string"/>
                     <xs:element minOccurs="0" name="disabledTime" nillable="true" type="xs:string"/>
                     <xs:element minOccurs="0" name="enabledTime" nillable="true" type="xs:string"/>
-                    <xs:element minOccurs="0" name="heuristicFriendlyScore" nillable="true" type="xs:string"/>
                     <xs:element minOccurs="0" name="immediateMembership" nillable="true" type="xs:string"/>
                     <xs:element minOccurs="0" name="immediatePermission" nillable="true" type="xs:string"/>
                     <xs:element minOccurs="0" name="memberId" nillable="true" type="xs:string"/>
@@ -1358,8 +1335,6 @@
                         <xs:element minOccurs="0" name="paramName1" nillable="true" type="xs:string"/>
                         <xs:element minOccurs="0" name="paramValue1" nillable="true" type="xs:string"/>
                         <xs:element minOccurs="0" name="enabled" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="pointInTimeFrom" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="pointInTimeTo" nillable="true" type="xs:string"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
@@ -1597,8 +1572,6 @@
                         <xs:element minOccurs="0" name="paramValue0" nillable="true" type="xs:string"/>
                         <xs:element minOccurs="0" name="paramName1" nillable="true" type="xs:string"/>
                         <xs:element minOccurs="0" name="paramValue1" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="pointInTimeFrom" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="pointInTimeTo" nillable="true" type="xs:string"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
@@ -1638,8 +1611,6 @@
                         <xs:element minOccurs="0" name="includeSubjectDetail" nillable="true" type="xs:string"/>
                         <xs:element maxOccurs="unbounded" minOccurs="0" name="subjectAttributeNames" nillable="true" type="xs:string"/>
                         <xs:element maxOccurs="unbounded" minOccurs="0" name="params" nillable="true" type="ns:WsParam"/>
-                        <xs:element minOccurs="0" name="pointInTimeFrom" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="pointInTimeTo" nillable="true" type="xs:string"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>

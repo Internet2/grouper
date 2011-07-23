@@ -12,11 +12,11 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import edu.internet2.middleware.grouper.webservicesClient.util.GeneratedClientSettings;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGenerated;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGeneratedType;
-import edu.internet2.middleware.grouper.ws.soap.xsd.StemDelete;
-import edu.internet2.middleware.grouper.ws.soap.xsd.WsStemDeleteResult;
-import edu.internet2.middleware.grouper.ws.soap.xsd.WsStemDeleteResults;
-import edu.internet2.middleware.grouper.ws.soap.xsd.WsStemLookup;
-import edu.internet2.middleware.grouper.ws.soap.xsd.WsSubjectLookup;
+import edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.StemDelete;
+import edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.WsStemDeleteResult;
+import edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.WsStemDeleteResults;
+import edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.WsStemLookup;
+import edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.WsSubjectLookup;
 
 
 /**

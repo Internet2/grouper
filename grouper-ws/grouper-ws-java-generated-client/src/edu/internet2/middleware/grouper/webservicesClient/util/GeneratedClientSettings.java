@@ -5,12 +5,8 @@ package edu.internet2.middleware.grouper.webservicesClient.util;
 
 import java.io.File;
 import java.io.InputStream;
-
 import java.net.URL;
-
 import java.util.Properties;
-
-import org.apache.commons.lang.StringUtils;
 
 
 /**
@@ -51,7 +47,7 @@ public class GeneratedClientSettings {
             || "80".equals(properties.getProperty("ws.testing.port"))) ? "" 
                 : (":" + properties.getProperty("ws.testing.port"))) + "/" +
         properties.getProperty("ws.testing.appName") +
-        "/services/GrouperService";
+        "/services/" + properties.getProperty("ws.testing.endpoint");
 
     /**
      * make sure a array is non null.  If null, then return an empty array.

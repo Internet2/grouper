@@ -11,10 +11,10 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import edu.internet2.middleware.grouper.webservicesClient.util.GeneratedClientSettings;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGenerated;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGeneratedType;
-import edu.internet2.middleware.grouper.ws.soap.xsd.GetPermissionAssignmentsLite;
-import edu.internet2.middleware.grouper.ws.soap.xsd.WsGetPermissionAssignmentsResults;
-import edu.internet2.middleware.grouper.ws.soap.xsd.WsGroup;
-import edu.internet2.middleware.grouper.ws.soap.xsd.WsPermissionAssign;
+import edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.GetPermissionAssignmentsLite;
+import edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.WsGetPermissionAssignmentsResults;
+import edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.WsGroup;
+import edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.WsPermissionAssign;
 
 
 /**
