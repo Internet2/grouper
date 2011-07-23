@@ -26,6 +26,8 @@ import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.AttributeNotFoundException;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SessionHelper;
+import edu.internet2.middleware.grouper.util.versioningV1.BeanA;
+import edu.internet2.middleware.grouper.util.versioningV1.BeanB;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.provider.SourceManager;
 
@@ -705,6 +707,141 @@ public class GrouperUtilTest extends GrouperTest {
     assertEquals("hello someName", nameDb);
     nameDb = GrouperUtil.substituteExpressionLanguage("${if (true) { if (true){ 'hello'; }}} ${if (true) { if (true){ 'hello'; }}} ${group.nameDb}", substituteMap);
     assertEquals("hello hello someName", nameDb);
+  }
+
+  /**
+   * some method to call
+   * @param arg1
+   * @param beanA
+   * @param beanB
+   * @param arg4 
+   * @param arg
+   * @return theVal
+   */
+  public String someMethod(String arg1, BeanA beanA, BeanB[] beanB, String arg4) {
+    beanB[0] = null;
+    return "success";
+  }
+
+  /**
+   * see if calling method with more params works
+   */
+  public void testCallMethodWithMoreParams() {
+    
+    BeanB[] beanBs = new BeanB[]{new BeanB()};
+    
+    Object result = GrouperUtil.callMethodWithMoreParams(new GrouperUtilTest(), GrouperUtilTest.class, "someMethod", 
+      new Object[]{"hey", new BeanA(), beanBs});
+    
+    assertEquals("success", result);
+    
+    assertNull(beanBs[0]);
+    
+    //should work with same number of params
+    beanBs = new BeanB[]{new BeanB()};
+    
+    result = GrouperUtil.callMethodWithMoreParams(new GrouperUtilTest(), GrouperUtilTest.class, "someMethod", 
+      new Object[]{"hey", new BeanA(), beanBs, "there"});
+    
+    assertEquals("success", result);
+    
+    assertNull(beanBs[0]);
+    
+    //shouldnt work with more params
+    try {
+      GrouperUtil.callMethodWithMoreParams(new GrouperUtilTest(), GrouperUtilTest.class, "someMethod", 
+        new Object[]{"hey", new BeanA(), beanBs, "there", "you"});
+      fail("shouldnt get here");
+    } catch (Exception e) {
+      //good
+    }
+    
+    //shouldnt work with wrong type of params
+    try {
+      GrouperUtil.callMethodWithMoreParams(new GrouperUtilTest(), GrouperUtilTest.class, "someMethod", 
+        new Object[]{"hey", beanBs, new BeanA(), "there", "you"});
+      fail("shouldnt get here");
+    } catch (Exception e) {
+      //good
+    }
+    
+    
+    
+  }
+
+  public GrouperUtilTest() {
+    super();
+    // TODO Auto-generated constructor stub
+  }
+
+  /**
+   * test versioning
+   */
+  public void testVersioning() {
+    BeanA beanA = null;
+    
+    String v2package = "edu.internet2.middleware.grouper.util.versioningV2";
+  
+    assertNull(GrouperUtil.changeToVersion(beanA, v2package));
+    
+    beanA = new BeanA();
+    
+    edu.internet2.middleware.grouper.util.versioningV2.BeanA v2BeanA = 
+      (edu.internet2.middleware.grouper.util.versioningV2.BeanA)GrouperUtil.changeToVersion(beanA, v2package);
+    
+    assertNotNull(v2BeanA);
+    
+    assertNull(v2BeanA.getField1());
+    assertNull(v2BeanA.getField1b());
+    assertNull(v2BeanA.getField2());
+    assertNull(v2BeanA.getField3());
+    assertNull(v2BeanA.getField4());
+  
+    beanA.setField1("field1");
+    beanA.setField1a("field1a");
+    beanA.setField2(new String[]{"a", "b"});
+    {
+      BeanB beanB = new BeanB();
+      beanB.setFieldB1("beanB");
+      beanB.setFieldB2(new String[]{"beanBa", "beanBb"});
+      beanA.setField3(beanB);
+    }
+    BeanB beanB1 = new BeanB();
+    beanB1.setFieldB1("beanB1");
+    beanB1.setFieldB2(new String[]{"beanBa1", "beanBb1"});
+    
+    BeanB beanB2 = new BeanB();
+    beanB2.setFieldB1("beanB2");
+    beanB2.setFieldB2(new String[]{"beanBa2", "beanBb2"});
+  
+    beanA.setField4(new BeanB[]{beanB1, beanB2});
+    
+    v2BeanA = (edu.internet2.middleware.grouper.util.versioningV2.BeanA)GrouperUtil.changeToVersion(beanA, v2package);
+    
+    assertEquals("field1", v2BeanA.getField1());
+    assertNull(v2BeanA.getField1b());
+    assertEquals(2, GrouperUtil.length(v2BeanA.getField2()));
+    assertEquals("a", v2BeanA.getField2()[0]);
+    assertEquals("b", v2BeanA.getField2()[1]);
+    
+    assertNotNull(v2BeanA.getField3());
+    assertEquals("beanB", v2BeanA.getField3().getFieldB1());
+    assertNull(v2BeanA.getField3().getFieldB1a());
+    assertEquals(2, GrouperUtil.length(v2BeanA.getField3().getFieldB2()));
+    assertEquals("beanBa", v2BeanA.getField3().getFieldB2()[0]);
+    assertEquals("beanBb", v2BeanA.getField3().getFieldB2()[1]);
+  
+    assertEquals(2, GrouperUtil.length(v2BeanA.getField4()));
+    assertEquals("beanB1", v2BeanA.getField4()[0].getFieldB1());
+    assertEquals("beanBa1", v2BeanA.getField4()[0].getFieldB2()[0]);
+    assertNull(v2BeanA.getField4()[0].getFieldB1a());
+    assertEquals("beanBb1", v2BeanA.getField4()[0].getFieldB2()[1]);
+    
+    assertEquals("beanB2", v2BeanA.getField4()[1].getFieldB1());
+    assertEquals("beanBa2", v2BeanA.getField4()[1].getFieldB2()[0]);
+    assertNull(v2BeanA.getField4()[1].getFieldB1a());
+    assertEquals("beanBb2", v2BeanA.getField4()[1].getFieldB2()[1]);
+    
   }
   
 }

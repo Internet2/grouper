@@ -3322,6 +3322,38 @@ public class GrouperUtil {
   }
 
   /**
+   * simple method to get method names
+   * @param theClass
+   * @param methodName
+   * @param superclassToStopAt 
+   * @param includeSuperclassToStopAt 
+   * @param includeStaticMethods 
+   * @param exceptionIfNotFound 
+   * @return the set of method names
+   */
+  public static Method methodByName(Class<?> theClass, String methodName, Class<?> superclassToStopAt, 
+      boolean includeSuperclassToStopAt, boolean includeStaticMethods, boolean exceptionIfNotFound) {
+
+    Set<Method> methods = new LinkedHashSet<Method>();
+    methodsByNameHelper(theClass, methodName, superclassToStopAt, 
+        includeSuperclassToStopAt, includeStaticMethods, 
+        null, false, methods);
+    if (methods.size() > 1) {
+      throw new RuntimeException("There are more than one method with name " + methodName + " in class: " + theClass);
+    }
+    
+    if (methods.size() == 1) {
+      return methods.iterator().next();
+    }
+    
+    if (exceptionIfNotFound) {
+      throw new RuntimeException("Could not find method " + methodName + " in class: " + theClass);
+    }
+    
+    return null;
+  }
+
+  /**
    * get the set of methods
    * @param theClass
    * @param superclassToStopAt 
@@ -10943,6 +10975,272 @@ public class GrouperUtil {
     }
   
     return block1 + block2 + block3 + block4;
+  }
+
+  /**
+   * get the set of methods
+   * @param theClass
+   * @param methodName
+   * @param superclassToStopAt 
+   * @param includeSuperclassToStopAt 
+   * @param includeStaticMethods
+   * @param markerAnnotation 
+   * @param includeAnnotation 
+   * @param methodSet
+   */
+  public static void methodsByNameHelper(Class<?> theClass, String methodName, Class<?> superclassToStopAt, 
+      boolean includeSuperclassToStopAt,
+      boolean includeStaticMethods, Class<? extends Annotation> markerAnnotation, 
+      boolean includeAnnotation, Set<Method> methodSet) {
+    theClass = unenhanceClass(theClass);
+    Method[] methods = theClass.getDeclaredMethods();
+    if (length(methods) != 0) {
+      for (Method method : methods) {
+        // if not static, then continue
+        if (!includeStaticMethods
+            && Modifier.isStatic(method.getModifiers())) {
+          continue;
+        }
+        // if checking for annotation
+        if (markerAnnotation != null
+            && (includeAnnotation != method
+                .isAnnotationPresent(markerAnnotation))) {
+          continue;
+        }
+        if (StringUtils.equals(methodName, method.getName())) {
+          // go for it
+          methodSet.add(method);
+        }
+      }
+    }
+    // see if done recursing (if superclassToStopAt is null, then stop at
+    // Object
+    if (theClass.equals(superclassToStopAt)
+        || theClass.equals(Object.class)) {
+      return;
+    }
+    Class superclass = theClass.getSuperclass();
+    if (!includeSuperclassToStopAt && superclass.equals(superclassToStopAt)) {
+      return;
+    }
+    // recurse
+    methodsByNameHelper(superclass, methodName, superclassToStopAt,
+        includeSuperclassToStopAt, includeStaticMethods,
+        markerAnnotation, includeAnnotation, methodSet);
+    
+  }
+
+  /**
+   * call method with more params.  e.g. if you are only passing in the first 3 params, of a 6 param method...
+   * @param instance
+   * @param theType of object to call method on
+   * @param methodName
+   * @param params
+   * @return the result of the method
+   */
+  public static Object callMethodWithMoreParams(Object instance, Class<?> theType, String methodName, Object[] params) {
+    Method method = methodByName(theType, methodName, Object.class, false, instance == null ? true : false, true);
+    
+    int paramsSize = length(params);
+    
+    Class<?>[] methodParamTypes = method.getParameterTypes();
+    
+    int methodParamsSize = length(methodParamTypes);
+    if (methodParamsSize < paramsSize) {
+      throw new RuntimeException("Why is method params " + methodParamsSize + "less than args? " + paramsSize);
+    }
+    
+    //lets see if the params match up, as many as there are
+    for (int i=0;i<paramsSize;i++) {
+      Class<?> methodParamClass = methodParamTypes[i];
+      
+      //make sure assignable
+      if (methodParamTypes[i].isPrimitive() && params[i] == null) {
+        throw new RuntimeException("Trying to call method: " + methodName + " on class: " + (instance == null ? null : instance.getClass())
+            + " and arg index: " + i + " is null: but should be a primitive: " + methodParamTypes[i].getName());
+      }
+        
+      if (params[i] != null && !(methodParamTypes[i].isAssignableFrom(params[i].getClass()))) {  
+        throw new RuntimeException("Trying to call method: " + methodName + " on class: " + (instance == null ? null : instance.getClass())
+            + " and arg index: " + i + " is of type: " + methodParamClass + ", but trying to pass: " + params[i].getClass());
+      }
+      
+    }
+    
+    Object[] methodArgs = new Object[methodParamsSize];
+    
+    //copy the args, the rest are null
+    if (paramsSize > 0) {
+      System.arraycopy(params, 0, methodArgs, 0, params.length);
+      
+    }
+    
+    //we are all good, just pass null for the extra methods
+    try {
+      return method.invoke(instance, methodArgs);
+    } catch (Exception e) {
+      throw new RuntimeException("Trying to call method: " + methodName + " on class: " + (instance == null ? null : instance.getClass()), e);
+    }
+  }
+
+  /**
+   * convert an object from one version to another
+   * @param input input object
+   * @param newPackage is the package where the other version of things are
+   * @return the object in the new version or null if input null or new version not found
+   */
+  public static Object changeToVersion(Object input, String newPackage) {
+    return changeToVersionHelper(input, newPackage, 100);
+  }
+
+  /**
+   * convert an object from one version to another
+   * @param input input object
+   * @param newPackage is the package where the other version of things are
+   * @param timeToLive avoid circular references
+   * @return the object in the new version or null if input null or new version not found
+   */
+  public static Object changeToVersionHelper(Object input, String newPackage, int timeToLive) {
+    
+    
+    if (input == null) {
+      return null;
+    }
+  
+    //if we are a string, just return it
+    if (input instanceof String) {
+      return input;
+    }
+    
+    //lets get the input class
+    Class inputClass = input.getClass();
+    
+    int interestingLogFields = 0;
+    
+    //if we are an array of strings, clone and return it
+    int inputArrayLength = inputClass.isArray() ? length(input) : -1;
+    if (inputClass.isArray() && String.class.equals(inputClass.getComponentType())) {
+      //lets clone
+      String[] result = new String[inputArrayLength];
+      System.arraycopy(input, 0, result, 0, result.length);
+      return result;
+    }
+    
+    StringBuilder logMessage = LOG.isDebugEnabled() ? new StringBuilder() : null;
+    
+    if (logMessage != null) {
+      logMessage.append("class: ").append(inputClass.getSimpleName()).append(", ");
+    }
+    
+    if (timeToLive-- < 0) {
+      throw new RuntimeException("Circular reference!");
+    }
+    
+    //new class
+    try {
+  
+      Object result = null;
+  
+      Class<?> outputClass = null;
+      String outputClassName = newPackage + "." + (inputClass.isArray() ? 
+          inputClass.getComponentType().getSimpleName() : inputClass.getSimpleName());
+      try {
+        outputClass = forName(outputClassName);
+      } catch (RuntimeException re) {
+        if (re.getCause() instanceof ClassNotFoundException) {
+          if (logMessage != null) {
+            logMessage.append("output classNotFound: ").append(outputClassName);
+            LOG.debug(logMessage.toString());
+          }
+          return null;
+        }
+        //let this be handled below
+        throw re;
+      }
+  
+  
+  
+      //if we are an array of objects, do that
+      if (inputClass.isArray()) {
+        Object array = Array.newInstance(outputClass, inputArrayLength);
+        for (int i=0;i<inputArrayLength;i++) {
+          
+          Object inputElement = Array.get(input, i);
+          Object outputElement = changeToVersionHelper(inputElement, newPackage, timeToLive);
+          Array.set(array, i, outputElement);
+          
+        }
+        return array;
+      }
+      
+      
+      //get instance
+      result = newInstance(outputClass);
+  
+      //get all fields in the input
+      Set<Field> inputFields = fields(inputClass, Object.class, null, false, false, false, null, false);
+      Set<Field> outputFields = fields(outputClass, Object.class, null, false, false, false, null, false);
+      
+      Map<String, Field> inputFieldMap = new HashMap<String, Field>();
+      
+      for (Field field : nonNull(inputFields)) {
+        inputFieldMap.put(field.getName(), field);
+      }
+      
+      //see which ones match
+      for (Field outputField : nonNull(outputFields)) {
+        
+        Field inputField = inputFieldMap.get(outputField.getName());
+        
+        if (inputField == null) {
+          if (logMessage != null) {
+            interestingLogFields++;
+            logMessage.append("field not found input: ").append(outputField.getName()).append(", ");
+          }
+          continue;
+        }
+        //take it out of the map so we know which ones are left
+        inputFieldMap.remove(inputField.getName());
+        
+        Object inputFieldObject = fieldValue(inputField, input);
+        
+        //lets convert that field
+        Object outputFieldObject = changeToVersionHelper(inputFieldObject, newPackage, timeToLive);
+        
+        //this is ok
+        if (outputFieldObject == null) {
+          continue;
+        }
+        
+        try {
+          assignField(outputField, result, outputFieldObject, true, false);
+        } catch (RuntimeException re) {
+          if (logMessage != null) {
+            logMessage.append("problem with field: ").append(inputField.getName()).append(", ").append(ExceptionUtils.getFullStackTrace(re));
+            interestingLogFields++;
+          }
+        }
+      }
+      if (logMessage != null) {
+        for (String inputFieldName : nonNull(inputFieldMap.keySet())) {
+          logMessage.append("field not found output: ").append(inputFieldName).append(", ");
+          interestingLogFields++;
+        }
+        
+        if (interestingLogFields > 0) {
+          LOG.debug(logMessage.toString());
+        }
+      }    
+      
+      return result;
+    } catch (RuntimeException re) {
+      if (logMessage != null) {
+        logMessage.append("Problem with class: ").append(re.getClass()).append(", ").append(re.getMessage());
+        LOG.debug(logMessage.toString(), re);
+      }
+      throw re;
+    }
+    
   }
 
 
