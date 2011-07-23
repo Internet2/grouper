@@ -18,7 +18,7 @@
   -->
 <service name="GrouperService" scope="application" targetNamespace="http://soap.ws.grouper.middleware.internet2.edu/">
     <description>
-        Grouper Service with ws security
+        Grouper Service version 1.6 or less with ws security
     </description>
     <messageReceivers>
         <messageReceiver mep="http://www.w3.org/2004/08/wsdl/in-only"
