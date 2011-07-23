@@ -7,9 +7,9 @@ package edu.internet2.middleware.grouper.ws.rest.group;
 import edu.internet2.middleware.grouper.ws.GrouperServiceLogic;
 import edu.internet2.middleware.grouper.ws.rest.WsRequestBean;
 import edu.internet2.middleware.grouper.ws.rest.method.GrouperRestHttpMethod;
-import edu.internet2.middleware.grouper.ws.soap.WsGroupLookup;
-import edu.internet2.middleware.grouper.ws.soap.WsParam;
-import edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup;
+import edu.internet2.middleware.grouper.ws.soap_v2_0.WsGroupLookup;
+import edu.internet2.middleware.grouper.ws.soap_v2_0.WsParam;
+import edu.internet2.middleware.grouper.ws.soap_v2_0.WsSubjectLookup;
 
 /**
  * bean that will be the data from rest request

@@ -18,9 +18,9 @@ import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.ws.rest.member.WsRestMemberChangeSubjectRequest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType;
-import edu.internet2.middleware.grouper.ws.soap.WsMemberChangeSubject;
-import edu.internet2.middleware.grouper.ws.soap.WsMemberChangeSubjectResults;
-import edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup;
+import edu.internet2.middleware.grouper.ws.soap_v2_0.WsMemberChangeSubject;
+import edu.internet2.middleware.grouper.ws.soap_v2_0.WsMemberChangeSubjectResults;
+import edu.internet2.middleware.grouper.ws.soap_v2_0.WsSubjectLookup;
 import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
 
 /**

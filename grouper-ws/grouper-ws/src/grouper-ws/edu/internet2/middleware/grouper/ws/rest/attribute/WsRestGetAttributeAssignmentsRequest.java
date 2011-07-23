@@ -6,15 +6,15 @@ package edu.internet2.middleware.grouper.ws.rest.attribute;
 
 import edu.internet2.middleware.grouper.ws.rest.WsRequestBean;
 import edu.internet2.middleware.grouper.ws.rest.method.GrouperRestHttpMethod;
-import edu.internet2.middleware.grouper.ws.soap.WsAttributeAssignLookup;
-import edu.internet2.middleware.grouper.ws.soap.WsAttributeDefLookup;
-import edu.internet2.middleware.grouper.ws.soap.WsAttributeDefNameLookup;
-import edu.internet2.middleware.grouper.ws.soap.WsGroupLookup;
-import edu.internet2.middleware.grouper.ws.soap.WsMembershipAnyLookup;
-import edu.internet2.middleware.grouper.ws.soap.WsMembershipLookup;
-import edu.internet2.middleware.grouper.ws.soap.WsParam;
-import edu.internet2.middleware.grouper.ws.soap.WsStemLookup;
-import edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup;
+import edu.internet2.middleware.grouper.ws.soap_v2_0.WsAttributeAssignLookup;
+import edu.internet2.middleware.grouper.ws.soap_v2_0.WsAttributeDefLookup;
+import edu.internet2.middleware.grouper.ws.soap_v2_0.WsAttributeDefNameLookup;
+import edu.internet2.middleware.grouper.ws.soap_v2_0.WsGroupLookup;
+import edu.internet2.middleware.grouper.ws.soap_v2_0.WsMembershipAnyLookup;
+import edu.internet2.middleware.grouper.ws.soap_v2_0.WsMembershipLookup;
+import edu.internet2.middleware.grouper.ws.soap_v2_0.WsParam;
+import edu.internet2.middleware.grouper.ws.soap_v2_0.WsStemLookup;
+import edu.internet2.middleware.grouper.ws.soap_v2_0.WsSubjectLookup;
 
 
 /**

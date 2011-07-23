@@ -17,9 +17,9 @@ import edu.internet2.middleware.grouper.ws.rest.WsRestResultProblem;
 import edu.internet2.middleware.grouper.ws.rest.stem.WsRestFindStemsRequest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType;
-import edu.internet2.middleware.grouper.ws.soap.WsFindStemsResults;
-import edu.internet2.middleware.grouper.ws.soap.WsStemQueryFilter;
-import edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup;
+import edu.internet2.middleware.grouper.ws.soap_v2_0.WsFindStemsResults;
+import edu.internet2.middleware.grouper.ws.soap_v2_0.WsStemQueryFilter;
+import edu.internet2.middleware.grouper.ws.soap_v2_0.WsSubjectLookup;
 import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
 
 /**

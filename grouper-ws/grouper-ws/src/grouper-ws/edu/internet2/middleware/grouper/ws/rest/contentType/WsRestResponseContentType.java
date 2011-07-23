@@ -21,7 +21,7 @@ import edu.internet2.middleware.grouper.ws.GrouperWsConfig;
 import edu.internet2.middleware.grouper.ws.rest.GrouperRestInvalidRequest;
 import edu.internet2.middleware.grouper.ws.rest.WsRestClassLookup;
 import edu.internet2.middleware.grouper.ws.rest.json.JsonConverter;
-import edu.internet2.middleware.grouper.ws.soap.WsSubject;
+import edu.internet2.middleware.grouper.ws.soap_v2_0.WsSubject;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
 import edu.internet2.middleware.grouper.ws.util.GrouperWsVersionUtils;
 

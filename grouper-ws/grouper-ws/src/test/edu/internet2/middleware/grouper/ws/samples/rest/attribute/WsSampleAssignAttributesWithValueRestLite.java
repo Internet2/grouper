@@ -15,7 +15,7 @@ import org.apache.commons.lang.StringUtils;
 import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestAssignAttributesLiteRequest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType;
-import edu.internet2.middleware.grouper.ws.soap.WsAssignAttributesLiteResults;
+import edu.internet2.middleware.grouper.ws.soap_v2_0.WsAssignAttributesLiteResults;
 import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
 
 /**

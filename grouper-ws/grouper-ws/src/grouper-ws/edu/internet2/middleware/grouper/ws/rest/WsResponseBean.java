@@ -3,8 +3,8 @@
  */
 package edu.internet2.middleware.grouper.ws.rest;
 
-import edu.internet2.middleware.grouper.ws.soap.WsResponseMeta;
-import edu.internet2.middleware.grouper.ws.soap.WsResultMeta;
+import edu.internet2.middleware.grouper.ws.soap_v2_0.WsResponseMeta;
+import edu.internet2.middleware.grouper.ws.soap_v2_0.WsResultMeta;
 
 /**
  * bean (used in Rest) which is a response from web service

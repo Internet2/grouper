@@ -189,6 +189,25 @@
 			<arg value="http://localhost:8090/grouper-ws/services/GrouperService" />
 
 		</java>
+
+   <touch file="${generated.client.project.dir}/GrouperService_v2_0.wsdl" />
+    <delete file="${generated.client.project.dir}/GrouperService_v2_0.wsdl" />
+    <java classname="org.apache.ws.java2wsdl.Java2WSDL" fork="true">
+      <classpath refid="ws.class.path" />
+      <arg value="-o" />
+      <arg value="${generated.client.project.dir}" />
+      <arg value="-of" />
+      <arg value="GrouperService_v2_0.wsdl" />
+      <arg value="-cn" />
+      <arg value="edu.internet2.middleware.grouper.ws.soap_v2_0.GrouperService" />
+      <arg value="-stn" />
+      <arg value="http://soap_v2_0.ws.grouper.middleware.internet2.edu/xsd" />
+      <arg value="-l" />
+      <arg value="http://localhost:8090/grouper-ws/services/GrouperService_v2_0" />
+
+    </java>
+
+	
 	</target>
 	<target name="wsdl2java" description="convert the wsdl to a java client">
 		<delete>
@@ -196,13 +215,15 @@
 			  <include name="src/edu/internet2/middleware/grouper/webservicesClient/GrouperServiceCallbackHandler.java" />
 				<include name="src/edu/internet2/middleware/grouper/webservicesClient/GrouperServiceStub.java" />
 				<include name="test/edu/internet2/middleware/grouper/webservicesClient/GrouperServiceTest.java" />
+        <include name="src/edu/internet2/middleware/grouper/webservicesClient/GrouperService.java" />
         <include name="test/edu/internet2/middleware/grouper/ws/soap/xsd/*.java" />
+        <include name="test/edu/internet2/middleware/grouper/ws/soap_v2_0/xsd/*.java" />
 			</fileset>
 		</delete>
 		<java classname="org.apache.axis2.wsdl.WSDL2Java" fork="true">
 			<classpath refid="ws.class.path" />
 			<arg value="-uri" />
-			<arg file="${generated.client.project.dir}/GrouperService.wsdl" />
+			<arg file="${generated.client.project.dir}/GrouperService_v2_0.wsdl" />
 			<arg value="-t" />
       <arg value="-u" />
 			<arg value="-p" />
@@ -234,6 +255,17 @@
       <fileset dir="webservices/GrouperServiceWssec.aar" />
     </jar>
 	  
+    <!-- normal axis -->
+    <jar destfile="${basedir}/webapp/WEB-INF/services/GrouperService_v2_0.aar">
+      <fileset excludes="edu/internet2/middleware/grouper/ws/**/*Test.class" dir="${webservice.folder}/classes" />
+      <fileset dir="webservices/GrouperService_v2_0.aar" />
+    </jar>
+    <!-- for rampart -->
+    <jar destfile="${basedir}/webapp/WEB-INF/services/GrouperServiceWssec_v2_0.aar">
+      <fileset excludes="edu/internet2/middleware/grouper/ws/**/*Test.class" dir="${webservice.folder}/classes" />
+      <fileset dir="webservices/GrouperServiceWssec_v2_0.aar" />
+    </jar>
+
 	</target>
 
 	<!-- 
@@ -295,8 +327,11 @@
 		<javac srcdir="${basedir}/src/grouper-ws" 
 		  destdir="${build.dir.grouper-ws}" 
 		  classpathref="ws.class.path" debug="true">
-			<!-- compilerarg value="-Xlint:deprecation" / -->
 		</javac>
+    <javac srcdir="${basedir}/src/grouper-ws_v1_6" 
+      destdir="${build.dir.grouper-ws}" 
+      classpathref="ws.class.path" debug="true">
+    </javac>
 	</target>
 	<!-- 
     Builds the entire webapp 

@@ -16,7 +16,7 @@ import edu.internet2.middleware.grouper.ws.rest.WsRestResultProblem;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestGroupDeleteLiteRequest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType;
-import edu.internet2.middleware.grouper.ws.soap.WsGroupDeleteLiteResult;
+import edu.internet2.middleware.grouper.ws.soap_v2_0.WsGroupDeleteLiteResult;
 import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
 
 /**

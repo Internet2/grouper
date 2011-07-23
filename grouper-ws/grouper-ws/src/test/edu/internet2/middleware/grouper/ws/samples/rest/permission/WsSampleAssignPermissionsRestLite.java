@@ -15,7 +15,7 @@ import org.apache.commons.lang.StringUtils;
 import edu.internet2.middleware.grouper.ws.rest.permission.WsRestAssignPermissionsLiteRequest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType;
-import edu.internet2.middleware.grouper.ws.soap.WsAssignPermissionsLiteResults;
+import edu.internet2.middleware.grouper.ws.soap_v2_0.WsAssignPermissionsLiteResults;
 import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
 
 /**

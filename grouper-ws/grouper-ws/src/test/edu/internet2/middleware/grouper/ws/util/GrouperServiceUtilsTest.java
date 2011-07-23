@@ -12,9 +12,9 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.rest.contentType.WsRestRequestContentType;
 import edu.internet2.middleware.grouper.ws.rest.member.WsRestAddMemberLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.member.WsRestGetMembersLiteRequest;
-import edu.internet2.middleware.grouper.ws.soap.WsDeleteMemberLiteResult;
-import edu.internet2.middleware.grouper.ws.soap.WsResponseMeta;
-import edu.internet2.middleware.grouper.ws.soap.WsResultMeta;
+import edu.internet2.middleware.grouper.ws.soap_v2_0.WsDeleteMemberLiteResult;
+import edu.internet2.middleware.grouper.ws.soap_v2_0.WsResponseMeta;
+import edu.internet2.middleware.grouper.ws.soap_v2_0.WsResultMeta;
 
 /**
  *
