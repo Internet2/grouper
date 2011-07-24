@@ -4025,6 +4025,11 @@ public class GrouperClient {
     }
     
     {
+      Boolean disallowed = GrouperClientUtils.argMapBoolean(argMap, argMapNotUsed, "disallowed");
+      gcAssignPermissions.assignDisallowed(disallowed);
+    }
+    
+    {
       String permissionAssignOperation = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "permissionAssignOperation", false);
       gcAssignPermissions.assignPermissionAssignOperation(permissionAssignOperation);
     }
