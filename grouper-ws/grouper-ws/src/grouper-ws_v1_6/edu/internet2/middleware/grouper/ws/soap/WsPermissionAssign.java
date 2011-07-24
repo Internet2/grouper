@@ -4,18 +4,12 @@
  */
 package edu.internet2.middleware.grouper.ws.soap;
 
-import java.util.Set;
-
-import edu.internet2.middleware.grouper.attr.AttributeDef;
-import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
-import edu.internet2.middleware.grouper.permissions.PermissionEntry;
-import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
 /**
  * result of permission entry query represents an assignment in the DB
  */
-public class WsPermissionAssign implements Comparable<WsPermissionAssign> {
+public class WsPermissionAssign {
 
   /** detail on the permission */
   private WsPermissionAssignDetail detail;
@@ -116,55 +110,6 @@ public class WsPermissionAssign implements Comparable<WsPermissionAssign> {
   
   /** if this is a membership attribute, this is the foreign key */
   private String membershipId;
-
-  /**
-   * compare and sort so results are reproducible for tests
-   * @see java.lang.Comparable#compareTo(java.lang.Object)
-   */
-  public int compareTo(WsPermissionAssign o2) {
-    if (this == o2) {
-      return 0;
-    }
-    //lets by null safe here
-    if (o2 == null) {
-      return 1;
-    }
-    int compare;
-    
-    compare = GrouperUtil.compare(this.permissionType, o2.permissionType);
-    if (compare != 0) {
-      return compare;
-    }
-    compare = GrouperUtil.compare(this.getAttributeDefName(), o2.getAttributeDefName());
-    if (compare != 0) {
-      return compare;
-    }
-    compare = GrouperUtil.compare(this.getAttributeDefNameName(), o2.getAttributeDefNameName());
-    if (compare != 0) {
-      return compare;
-    }
-    compare = GrouperUtil.compare(this.action, o2.action);
-    if (compare != 0) {
-      return compare;
-    }
-    compare = GrouperUtil.compare(this.getRoleName(), o2.getRoleName());
-    if (compare != 0) {
-      return compare;
-    }
-    compare = GrouperUtil.compare(this.getSourceId(), o2.getSourceId());
-    if (compare != 0) {
-      return compare;
-    }
-    compare = GrouperUtil.compare(this.getSubjectId(), o2.getSubjectId());
-    if (compare != 0) {
-      return compare;
-    }
-    compare = GrouperUtil.compare(this.getAttributeAssignId(), o2.getAttributeAssignId());
-    if (compare != 0) {
-      return compare;
-    }
-    return GrouperUtil.compare(this.membershipId, o2.membershipId);
-  }
 
   /**
    *  name of action for this assignment (e.g. assign).  Generally this will be AttributeDef.ACTION_DEFAULT
@@ -347,71 +292,10 @@ public class WsPermissionAssign implements Comparable<WsPermissionAssign> {
   }
 
   /**
-   * convert permission assigns
-   * @param permissionEntrySet 
-   * @param includePermissionAssignDetail 
-   * @param attributeAssignSet should be the membership, group, and member objects in a row
-   * @return the subject results
-   */
-  public static WsPermissionAssign[] convertPermissionEntries(
-      Set<PermissionEntry> permissionEntrySet, boolean includePermissionAssignDetail) {
-    int permissionEntrySetLength = GrouperUtil.length(permissionEntrySet);
-    if (permissionEntrySetLength == 0) {
-      return null;
-    }
-  
-    WsPermissionAssign[] wsAttributeAssignResultArray = new WsPermissionAssign[permissionEntrySetLength];
-    int index = 0;
-    for (PermissionEntry permissionEntry : permissionEntrySet) {
-            
-      wsAttributeAssignResultArray[index++] = new WsPermissionAssign(permissionEntry, includePermissionAssignDetail);
-      
-    }
-    return wsAttributeAssignResultArray;
-  }
-
-
-  /**
    * 
    */
   public WsPermissionAssign() {
     //default constructor
-  }
-  
-  /**
-   * construct with attribute assign to set internal fields
-   * 
-   * @param permissionEntry
-   * @param includePermissionAssignDetail if detail should be added
-   */
-  public WsPermissionAssign(PermissionEntry permissionEntry, boolean includePermissionAssignDetail) {
-    
-    this.action =  permissionEntry.getAction();
-    this.attributeAssignId = permissionEntry.getAttributeAssignId();
-    
-    AttributeDef theAttributeDef = GrouperDAOFactory.getFactory().getAttributeDef()
-      .findById(permissionEntry.getAttributeDefId(), true);
-    
-    this.attributeDefId = permissionEntry.getAttributeDefId();
-    this.attributeDefName = theAttributeDef == null ? null : theAttributeDef.getName();
-    this.attributeDefNameId = permissionEntry.getAttributeDefNameId();
-    this.attributeDefNameName = permissionEntry.getAttributeDefNameName();
-    
-    if (includePermissionAssignDetail) {
-      this.detail = new WsPermissionAssignDetail(permissionEntry);
-    }
-
-    this.enabled = permissionEntry.isEnabled() ? "T" : "F";
-    
-    this.attributeAssignId = permissionEntry.getAttributeAssignId();
-    
-    this.membershipId = permissionEntry.getMembershipId();
-    this.permissionType = permissionEntry.getPermissionTypeDb();
-    this.roleId = permissionEntry.getRoleId();
-    this.roleName = permissionEntry.getRoleName();
-    this.sourceId = permissionEntry.getSubjectSourceId();
-    this.subjectId = permissionEntry.getSubjectId();
-    
   }
 
 }

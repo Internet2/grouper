@@ -3,7 +3,6 @@
  */
 package edu.internet2.middleware.grouper.ws.soap;
 
-import org.apache.commons.lang.builder.ToStringBuilder;
 
 /**
  * Query for one privilege.
@@ -11,14 +10,6 @@ import org.apache.commons.lang.builder.ToStringBuilder;
  * @author mchyzer
  */
 public class WsGrouperPrivilegeResult {
-
-  /**
-   * make sure this is an explicit toString
-   */
-  @Override
-  public String toString() {
-    return ToStringBuilder.reflectionToString(this);
-  }
 
   /** whether this privilege is allowed T/F */
   private String allowed;

@@ -3,10 +3,6 @@
  */
 package edu.internet2.middleware.grouper.ws.soap;
 
-import org.apache.commons.lang.builder.ToStringBuilder;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
 
 /**
@@ -17,21 +13,6 @@ import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
  * @author mchyzer
  */
 public class WsMemberChangeSubject {
-
-  /**
-   * 
-   * @see java.lang.Object#toString()
-   */
-  @Override
-  public String toString() {
-    return ToStringBuilder.reflectionToString(this);
-  }
-
-  /**
-   * logger 
-   */
-  @SuppressWarnings("unused")
-  private static final Log LOG = LogFactory.getLog(WsMemberChangeSubject.class);
 
   /**
    * subject of the member which is going to change
@@ -51,7 +32,7 @@ public class WsMemberChangeSubject {
 
   /**
    * subject of the member which is going to change
-   * @return
+   * @return old subject
    */
   public WsSubjectLookup getOldSubjectLookup() {
     return this.oldSubjectLookup;
@@ -67,7 +48,7 @@ public class WsMemberChangeSubject {
 
   /**
    * subject which should be the new subject of the member
-   * @return
+   * @return new subject
    */
   public WsSubjectLookup getNewSubjectLookup() {
     return this.newSubjectLookup;
@@ -77,7 +58,7 @@ public class WsMemberChangeSubject {
   /**
    * if the old member should be removed (only an issue if the new subject is already a member,
    * this defaults to T).  Should be either T or F
-   * @return
+   * @return old member
    */
   public String getDeleteOldMember() {
     return this.deleteOldMember;
@@ -109,14 +90,6 @@ public class WsMemberChangeSubject {
   public boolean retrieveDeleteOldMemberBoolean() {
     return GrouperServiceUtils.booleanValue(
         this.deleteOldMember, true, "deleteOldMember");
-  }
-  
-  /**
-   * assign delete old member as a boolean
-   * @param deleteOldMember1
-   */
-  public void assignDeleteOldMemberBoolean(boolean deleteOldMember1) {
-    this.deleteOldMember = deleteOldMember1 ? "T" : "F";
   }
   
 }

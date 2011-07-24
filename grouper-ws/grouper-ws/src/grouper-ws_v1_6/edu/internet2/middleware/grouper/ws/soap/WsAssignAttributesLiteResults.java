@@ -1,13 +1,5 @@
 package edu.internet2.middleware.grouper.ws.soap;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.exception.ExceptionUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
-import edu.internet2.middleware.grouper.ws.soap_v2_0.WsAssignAttributesResults.WsAssignAttributesResultsCode;
 
 /**
  * <pre>
@@ -23,12 +15,6 @@ import edu.internet2.middleware.grouper.ws.soap_v2_0.WsAssignAttributesResults.W
  * @author mchyzer
  */
 public class WsAssignAttributesLiteResults {
-
-  /**
-   * logger 
-   */
-  @SuppressWarnings("unused")
-  private static final Log LOG = LogFactory.getLog(WsAssignAttributesLiteResults.class);
 
   /**
    * attribute def references in the assignments or inputs (and able to be read)
@@ -103,23 +89,6 @@ public class WsAssignAttributesLiteResults {
    */
   public WsAssignAttributesLiteResults() {
     //default
-  }
-  
-  /**
-   * 
-   * @param wsAssignAttributesResults
-   */
-  public WsAssignAttributesLiteResults(WsAssignAttributesResults wsAssignAttributesResults) {
-    this.responseMetadata = wsAssignAttributesResults.getResponseMetadata();
-    this.resultMetadata = wsAssignAttributesResults.getResultMetadata();
-    this.subjectAttributeNames = wsAssignAttributesResults.getSubjectAttributeNames();
-    this.wsAttributeAssignResult = GrouperUtil.arrayPopOne(wsAssignAttributesResults.getWsAttributeAssignResults());
-    this.wsAttributeDefName = GrouperUtil.arrayPopOne(wsAssignAttributesResults.getWsAttributeDefNames());
-    this.wsAttributeDefs = wsAssignAttributesResults.getWsAttributeDefs();
-    this.wsGroup = GrouperUtil.arrayPopOne(wsAssignAttributesResults.getWsGroups());
-    this.wsMembership = GrouperUtil.arrayPopOne(wsAssignAttributesResults.getWsMemberships());
-    this.wsStem = GrouperUtil.arrayPopOne(wsAssignAttributesResults.getWsStems());
-    this.wsSubject = GrouperUtil.arrayPopOne(wsAssignAttributesResults.getWsSubjects());
   }
   
   /**
@@ -259,45 +228,5 @@ public class WsAssignAttributesLiteResults {
    */
   public void setWsSubject(WsSubject wsSubject1) {
     this.wsSubject = wsSubject1;
-  }
-
-  /**
-   * prcess an exception, log, etc
-   * @param wsGetAttributeAssignmentsResultsCodeOverride
-   * @param theError
-   * @param e
-   */
-  public void assignResultCodeException(
-      WsAssignAttributesResultsCode wsGetAttributeAssignmentsResultsCodeOverride, String theError,
-      Exception e) {
-  
-    if (e instanceof WsInvalidQueryException) {
-      wsGetAttributeAssignmentsResultsCodeOverride = GrouperUtil.defaultIfNull(
-          wsGetAttributeAssignmentsResultsCodeOverride, WsAssignAttributesResultsCode.INVALID_QUERY);
-      //a helpful exception will probably be in the getMessage()
-      this.assignResultCode(wsGetAttributeAssignmentsResultsCodeOverride);
-      this.getResultMetadata().appendResultMessage(e.getMessage());
-      this.getResultMetadata().appendResultMessage(theError);
-      LOG.warn(e);
-  
-    } else {
-      wsGetAttributeAssignmentsResultsCodeOverride = GrouperUtil.defaultIfNull(
-          wsGetAttributeAssignmentsResultsCodeOverride, WsAssignAttributesResultsCode.EXCEPTION);
-      LOG.error(theError, e);
-  
-      theError = StringUtils.isBlank(theError) ? "" : (theError + ", ");
-      this.getResultMetadata().appendResultMessage(
-          theError + ExceptionUtils.getFullStackTrace(e));
-      this.assignResultCode(wsGetAttributeAssignmentsResultsCodeOverride);
-  
-    }
-  }
-
-  /**
-   * assign the code from the enum
-   * @param getAttributeAssignmentsResultCode
-   */
-  public void assignResultCode(WsAssignAttributesResultsCode getAttributeAssignmentsResultCode) {
-    this.getResultMetadata().assignResultCode(getAttributeAssignmentsResultCode);
   }
 }

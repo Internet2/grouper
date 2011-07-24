@@ -3,11 +3,6 @@
  */
 package edu.internet2.middleware.grouper.ws.soap;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import edu.internet2.middleware.grouper.ws.GrouperWsConfig;
-import edu.internet2.middleware.grouper.ws.soap_v2_0.WsHasMemberLiteResult.WsHasMemberLiteResultCode;
 
 /**
  * Result of seeing if one subject is a member of a group.  The number of
@@ -16,9 +11,6 @@ import edu.internet2.middleware.grouper.ws.soap_v2_0.WsHasMemberLiteResult.WsHas
  * @author mchyzer
  */
 public class WsHasMemberResult {
-
-  /** logger */
-  private static final Log LOG = LogFactory.getLog(WsHasMemberResult.class);
 
   /** sujbect info for hasMember */
   private WsSubject wsSubject;
@@ -45,113 +37,6 @@ public class WsHasMemberResult {
   /** empty constructor */
   public WsHasMemberResult() {
     //nothing
-  }
-
-  /**
-   * result code of a request
-   */
-  public static enum WsHasMemberResultCode {
-
-    /** found multiple results */
-    SUBJECT_DUPLICATE {
-      
-      /** 
-       * if there is one result, convert to the results code
-       * @return WsHasMemberResultLiteCode
-       */
-      @Override
-      public WsHasMemberLiteResultCode convertToLiteCode() {
-        return WsHasMemberLiteResultCode.SUBJECT_DUPLICATE;
-      }
-
-    },
-
-    /** cant find the subject */
-    SUBJECT_NOT_FOUND {
-      
-      /** 
-       * if there is one result, convert to the results code
-       * @return WsHasMemberResultLiteCode
-       */
-      @Override
-      public WsHasMemberLiteResultCode convertToLiteCode() {
-        return WsHasMemberLiteResultCode.SUBJECT_NOT_FOUND;
-      }
-
-    },
-
-    /** the subject is a member  (success = T) */
-    IS_MEMBER {
-      
-      /** 
-       * if there is one result, convert to the results code
-       * @return WsHasMemberResultLiteCode
-       */
-      @Override
-      public WsHasMemberLiteResultCode convertToLiteCode() {
-        return WsHasMemberLiteResultCode.IS_MEMBER;
-      }
-
-    },
-
-    /** the subject was found and is not a member (success = T) */
-    IS_NOT_MEMBER {
-      
-      /** 
-       * if there is one result, convert to the results code
-       * @return WsHasMemberResultLiteCode
-       */
-      @Override
-      public WsHasMemberLiteResultCode convertToLiteCode() {
-        return WsHasMemberLiteResultCode.IS_NOT_MEMBER;
-      }
-
-    },
-
-    /** problem with query */
-    EXCEPTION {
-      
-      /** 
-       * if there is one result, convert to the results code
-       * @return WsHasMemberResultLiteCode
-       */
-      @Override
-      public WsHasMemberLiteResultCode convertToLiteCode() {
-        return WsHasMemberLiteResultCode.EXCEPTION;
-      }
-
-    },
-
-    /** invalid query (e.g. if everything blank) */
-    INVALID_QUERY {
-      
-      /** 
-       * if there is one result, convert to the results code
-       * @return WsHasMemberResultLiteCode
-       */
-      @Override
-      public WsHasMemberLiteResultCode convertToLiteCode() {
-        return WsHasMemberLiteResultCode.INVALID_QUERY;
-      }
-
-    };
-
-    /**
-     * if this is a successful result
-     * @return true if success
-     */
-    public boolean isSuccess() {
-      return this.equals(IS_MEMBER) || this.equals(IS_NOT_MEMBER) 
-      || (!GrouperWsConfig.getPropertyBoolean("ws.hasMember.subjectNotFound.returnsError", false) 
-          && this.equals(SUBJECT_NOT_FOUND));
-    }
-    
-    /** 
-     * if there is one result, convert to the results code
-     * @return result code
-     */
-    public abstract WsHasMemberLiteResultCode convertToLiteCode();
-
   }
 
   /**

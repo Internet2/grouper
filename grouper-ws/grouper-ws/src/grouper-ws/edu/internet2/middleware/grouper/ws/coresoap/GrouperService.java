@@ -567,7 +567,6 @@ public class GrouperService {
    *            minimum point in time to the time specified.  Format: yyyy/MM/dd HH:mm:ss.SSS
    * @return the results
    */
-  @SuppressWarnings("unchecked")
   public WsHasMemberResults hasMember(final String clientVersion,
       WsGroupLookup wsGroupLookup, WsSubjectLookup[] subjectLookups,
       String memberFilter,

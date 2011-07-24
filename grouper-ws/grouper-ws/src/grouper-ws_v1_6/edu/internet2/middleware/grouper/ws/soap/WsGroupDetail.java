@@ -3,25 +3,6 @@
  */
 package edu.internet2.middleware.grouper.ws.soap;
 
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
-import java.util.TreeSet;
-
-import org.apache.commons.lang.builder.ToStringBuilder;
-
-import edu.internet2.middleware.grouper.Attribute;
-import edu.internet2.middleware.grouper.Composite;
-import edu.internet2.middleware.grouper.Group;
-import edu.internet2.middleware.grouper.GroupType;
-import edu.internet2.middleware.grouper.GroupTypeFinder;
-import edu.internet2.middleware.grouper.cfg.GrouperConfig;
-import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
-import edu.internet2.middleware.grouper.exception.SchemaException;
-import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
-import edu.internet2.middleware.subject.Subject;
-import edu.internet2.middleware.subject.SubjectNotFoundException;
 
 /**
  * Result for finding a group
@@ -30,14 +11,6 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  * 
  */
 public class WsGroupDetail {
-
-  /**
-   * make sure this is an explicit toString
-   */
-  @Override
-  public String toString() {
-    return ToStringBuilder.reflectionToString(this);
-  }
 
   /** if this group has a direct composite member, T|F */
   private String hasComposite = null;
@@ -147,104 +120,6 @@ public class WsGroupDetail {
   public WsGroupDetail() {
     // blank
 
-  }
-
-  /**
-   * construct based on group, assign all fields
-   * 
-   * @param group is what to construct from
-   */
-  @SuppressWarnings("unchecked")
-  public WsGroupDetail(Group group) {
-    if (group != null) {
-      //this group method isnt implemented, so dont send in web service
-      //this.setCreateSourceId(group.getCreateSource());
-      String createSubjectIdString = null;
-      try {
-        Subject createSubject = group.getCreateSubject();
-        createSubjectIdString = createSubject == null ? null : createSubject.getId();
-      } catch (SubjectNotFoundException e) {
-        // dont do anything if not found, null
-      }
-      this.setCreateSubjectId(createSubjectIdString);
-      this.setCreateTime(GrouperServiceUtils.dateToString(group.getCreateTime()));
-      this.setIsCompositeFactor(GrouperServiceUtils.booleanToStringOneChar(group
-          .isComposite()));
-      boolean groupHasComposite = group.hasComposite();
-      this.setHasComposite(GrouperServiceUtils.booleanToStringOneChar(groupHasComposite));
-
-      //get the composite factors
-      if (groupHasComposite) {
-        Composite composite = null;
-
-        composite = group.getComposite(true);
-
-        this.setCompositeType(composite.getType().getName());
-        
-        try {
-          this.setLeftGroup(new WsGroup(composite.getLeftGroup(), null, false));
-          this.setRightGroup(new WsGroup(composite.getRightGroup(), null, false));
-        } catch (GroupNotFoundException gnfe) {
-          //this means something bad is happening
-          throw new RuntimeException(gnfe);
-        }
-      }
-      //note modify source is not in the grouper api anymore..., since you get the 
-      //modify member, then get the source from the member object
-      this.setModifySource(null);
-
-      String modifySubjectIdString = null;
-      try {
-        Subject modifySubject = group.getModifySubject();
-        modifySubjectIdString = modifySubject == null ? null : modifySubject.getId();
-      } catch (SubjectNotFoundException e) {
-        // dont do anything if not found, null
-      }
-
-      this.setModifySubjectId(modifySubjectIdString);
-      this.setModifyTime(GrouperServiceUtils.dateToString(group.getModifyTime()));
-
-      //set the types
-      Set<GroupType> groupTypes = new TreeSet<GroupType>(group.getTypes());
-      
-      try {
-        GroupType baseType = GroupTypeFinder.find("base", true);
-        groupTypes.remove(baseType);
-      } catch (SchemaException se) {
-        throw new RuntimeException(se);
-      }
-
-      this.typeNames = new String[GrouperUtil.length(groupTypes)];
-      int i = 0;
-      for (GroupType groupType : GrouperUtil.nonNull(groupTypes)) {
-        this.typeNames[i++] = groupType.getName();
-      }
-
-      //set the attributes
-      Map<String, Attribute> attributeMap = new TreeMap<String, Attribute>(group.getAttributesMap(true));
-
-      //remove common attributes to not take redundant space in response
-      attributeMap.remove(GrouperConfig.ATTRIBUTE_NAME);
-      attributeMap.remove(GrouperConfig.ATTRIBUTE_EXTENSION);
-      attributeMap.remove(GrouperConfig.ATTRIBUTE_DISPLAY_EXTENSION);
-      attributeMap.remove(GrouperConfig.ATTRIBUTE_DISPLAY_NAME);
-      attributeMap.remove(GrouperConfig.ATTRIBUTE_DESCRIPTION);
-
-      //find attributes, set in arrays in order
-      if (attributeMap.size() > 0) {
-        String[] theAttributeNames = new String[attributeMap.size()];
-        String[] theAttributeValues = new String[attributeMap.size()];
-        i = 0;
-        for (String attributeName : attributeMap.keySet()) {
-          theAttributeNames[i] = attributeName;
-          theAttributeValues[i] = group.getAttributeValue(attributeName, false, true);
-          i++;
-        }
-        this.setAttributeNames(theAttributeNames);
-        this.setAttributeValues(theAttributeValues);
-      }
-
-    }
   }
 
   /**

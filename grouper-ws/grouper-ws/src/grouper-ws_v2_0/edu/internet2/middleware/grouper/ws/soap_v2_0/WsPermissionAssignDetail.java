@@ -13,6 +13,7 @@ import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
  */
 public class WsPermissionAssignDetail {
 
+  
   /** depth of role set hierarchy, 0 means immediate */
   private String roleSetDepth;
   
@@ -144,6 +145,12 @@ public class WsPermissionAssignDetail {
 
   /** T or F if this permission is immediate to the role or subject */
   private String immediatePermission;
+
+  /** 
+   * friendly score which just ranks the list: 1, 2, 3, etc.  ties will get the same score, note, this is applicable
+   * to rank two similar permissions (type, resource, action, role, and if applicable, member)
+   */
+  private String heuristicFriendlyScore;
   
   /**
    * T or F if the membership is immediate to the role
@@ -259,6 +266,24 @@ public class WsPermissionAssignDetail {
    */
   public void setActionId(String attributeAssignActionId1) {
     this.actionId = attributeAssignActionId1;
+  }
+
+  /**
+   * friendly score which just ranks the list: 1, 2, 3, etc.  ties will get the same score, note, this is applicable
+   * to rank two similar permissions (type, resource, action, role, and if applicable, member)
+   * @return score
+   */
+  public String getHeuristicFriendlyScore() {
+    return this.heuristicFriendlyScore;
+  }
+
+  /**
+   * friendly score which just ranks the list: 1, 2, 3, etc.  ties will get the same score, note, this is applicable
+   * to rank two similar permissions (type, resource, action, role, and if applicable, member)
+   * @param heuristicFriendlyScore1
+   */
+  public void setHeuristicFriendlyScore(String heuristicFriendlyScore1) {
+    this.heuristicFriendlyScore = heuristicFriendlyScore1;
   }
 
   /**

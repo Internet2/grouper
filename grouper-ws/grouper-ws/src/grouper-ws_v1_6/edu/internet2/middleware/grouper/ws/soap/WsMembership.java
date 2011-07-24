@@ -3,24 +3,13 @@
  */
 package edu.internet2.middleware.grouper.ws.soap;
 
-import java.util.Set;
-
-import edu.internet2.middleware.grouper.Field;
-import edu.internet2.middleware.grouper.FieldType;
-import edu.internet2.middleware.grouper.Group;
-import edu.internet2.middleware.grouper.Member;
-import edu.internet2.middleware.grouper.Membership;
-import edu.internet2.middleware.grouper.misc.GrouperVersion;
-import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
-import edu.internet2.middleware.grouper.ws.util.GrouperWsVersionUtils;
 
 /**
  * Result of one member being retrieved from a group.
  * 
  * @author mchyzer
  */
-public class WsMembership implements Comparable<WsMembership> {
+public class WsMembership {
 
   /** id of the membership */
   private String membershipId = null;
@@ -231,55 +220,6 @@ public class WsMembership implements Comparable<WsMembership> {
     // nothing
   }
 
-  /**
-   * 
-   * @param membership
-   */
-  public WsMembership(Membership membership) {
-    this(membership, null, null);
-  }
-  
-  /**
-   * construct with membership and other objects to set internal fields
-   * 
-   * @param membership
-   * @param group 
-   * @param member 
-   */
-  public WsMembership(Membership membership, Group group, Member member) {
-    this.setMembershipId(membership.getUuid());
-    this.setMembershipType(membership.getType());
-    this.setCreateTime(GrouperServiceUtils.dateToString(membership.getCreateTime()));
-    Field listField = membership.getList();
-    FieldType listFieldType = listField == null ? null : listField.getType();
-    this.setListType(listFieldType == null ? null : listFieldType.toString());
-    this.setListName(listField == null ? null : listField.getName());
-    if (membership.isImmediate()) {
-      this.setDisabledTime(GrouperServiceUtils.dateToString(membership.getDisabledTime()));
-      this.setEnabledTime(GrouperServiceUtils.dateToString(membership.getEnabledTime()));
-      this.setEnabled(membership.isEnabled() ? "T" : "F");
-    } else {
-      this.setEnabled("T");
-    }
-    this.setGroupId(membership.getOwnerGroupId());
-    
-    group = group == null ? membership.getGroup() : group;
-    
-    this.setGroupName(group.getName());
-    this.setMemberId(membership.getMemberUuid());
-    
-    member = member == null ? membership.getMember() : member;
-    
-    this.setSubjectId(member.getSubjectId());
-    this.setSubjectSourceId(member.getSubjectSourceId());
-    
-    GrouperVersion clientVersion = GrouperWsVersionUtils.retrieveCurrentClientVersion();
-    if (clientVersion != null && GrouperVersion.valueOfIgnoreCase("v1_6_000").lessThanArg(clientVersion, true)) {
-      this.setImmediateMembershipId(membership.getImmediateMembershipId());
-    }
-    
-  }
-
   /** timestamp it was created: yyyy/MM/dd HH:mm:ss.SSS */
   private String createTime;
 
@@ -353,81 +293,6 @@ public class WsMembership implements Comparable<WsMembership> {
    */
   public void setCreateTime(String createTime1) {
     this.createTime = createTime1;
-  }
-
-  /**
-   * convert members to subject results
-   * @param attributeNames to get from subjects
-   * @param membershipSet should be the membership, group, and member objects in a row
-   * @param returnedGroups pass in a set for groups, add any groups in there which arent
-   * there already
-   * @param returnedMembers psas in a set for members, add any members in there which arent
-   * there already 
-   * @param includeSubjectDetail 
-   * @return the subject results
-   */
-  public static WsMembership[] convertMembers(Set<Object[]> membershipSet,
-      Set<Group> returnedGroups, Set<Member> returnedMembers) {
-    int memberSetLength = GrouperUtil.length(membershipSet);
-    if (memberSetLength == 0) {
-      return null;
-    }
-
-    WsMembership[] wsGetMembershipsResultArray = new WsMembership[memberSetLength];
-    int index = 0;
-    for (Object[] objects : membershipSet) {
-      
-      Membership membership = (Membership)objects[0];
-      Group group = (Group)objects[1];
-      Member member = (Member)objects[2];
-      
-      wsGetMembershipsResultArray[index++] = new WsMembership(membership, group, 
-          member);
-      
-      if (!returnedGroups.contains(group)) {
-        returnedGroups.add(group);
-      }
-      
-      if (!returnedMembers.contains(member)) {
-        returnedMembers.add(member);
-      }
-      
-    }
-    return wsGetMembershipsResultArray;
-  }
-
-  /**
-   * @see java.lang.Comparable#compareTo(java.lang.Object)
-   */
-  public int compareTo(WsMembership o2) {
-    if (this == o2) {
-      return 0;
-    }
-    //lets by null safe here
-    if (o2 == null) {
-      return 1;
-    }
-    int compare = GrouperUtil.compare(this.getGroupName(), o2.getGroupName());
-    if (compare != 0) {
-      return compare;
-    }
-    compare = GrouperUtil.compare(this.getSubjectSourceId(), o2.getSubjectSourceId());
-    if (compare != 0) {
-      return compare;
-    }
-    compare = GrouperUtil.compare(this.getSubjectId(), o2.getSubjectId());
-    if (compare != 0) {
-      return compare;
-    }
-    compare = GrouperUtil.compare(this.getListType(), o2.getListType());
-    if (compare != 0) {
-      return compare;
-    }
-    compare = GrouperUtil.compare(this.getListName(), o2.getListName());
-    if (compare != 0) {
-      return compare;
-    }
-    return GrouperUtil.compare(this.getMembershipType(), o2.getMembershipType());
   }
 
 }

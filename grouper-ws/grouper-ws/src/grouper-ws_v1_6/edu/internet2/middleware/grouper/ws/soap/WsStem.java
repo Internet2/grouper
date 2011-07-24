@@ -3,10 +3,6 @@
  */
 package edu.internet2.middleware.grouper.ws.soap;
 
-import org.apache.commons.lang.builder.ToStringBuilder;
-
-import edu.internet2.middleware.grouper.Stem;
-import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * Result for finding a stem
@@ -14,7 +10,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * @author mchyzer
  * 
  */
-public class WsStem implements Comparable<WsStem> {
+public class WsStem {
 
   /** extension is the right part of the name */
   private String extension;
@@ -28,31 +24,6 @@ public class WsStem implements Comparable<WsStem> {
   public WsStem() {
     // blank
 
-  }
-
-  /**
-   * construct based on stem, assign all fields
-   * 
-   * @param stem is what to construct from
-   */
-  public WsStem(Stem stem) {
-    this.setDescription(stem.getDescription());
-    this.setDisplayName(stem.getDisplayName());
-    this.setName(stem.getName());
-    this.setUuid(stem.getUuid());
-    this.setExtension(stem.getExtension());
-    this.setDisplayExtension(stem.getDisplayExtension());
-  }
-
-  /**
-   * construct based on stem, assign all fields
-   * 
-   * @param stemLookup is what to construct from
-   */
-  public WsStem(WsStemLookup stemLookup) {
-    this.setName(stemLookup.getStemName());
-    this.setUuid(stemLookup.getUuid());
-    this.setExtension(GrouperUtil.extensionFromName(stemLookup.getStemName()));
   }
 
   /**
@@ -180,31 +151,6 @@ public class WsStem implements Comparable<WsStem> {
    */
   public void setDisplayExtension(String displayExtension1) {
     this.displayExtension = displayExtension1;
-  }
-
-  /**
-   * make sure this is an explicit toString
-   */
-  @Override
-  public String toString() {
-    return ToStringBuilder.reflectionToString(this);
-  }
-
-  /**
-   * @see java.lang.Comparable#compareTo(java.lang.Object)
-   */
-  public int compareTo(WsStem o2) {
-    if (this == o2) {
-      return 0;
-    }
-    //lets by null safe here
-    if (this == null) {
-      return -1;
-    }
-    if (o2 == null) {
-      return 1;
-    }
-    return GrouperUtil.compare(this.getName(), o2.getName());
   }
 
 }

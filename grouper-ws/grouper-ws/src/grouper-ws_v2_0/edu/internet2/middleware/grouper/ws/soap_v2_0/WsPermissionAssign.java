@@ -17,6 +17,55 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  */
 public class WsPermissionAssign implements Comparable<WsPermissionAssign> {
 
+  /**
+   * T or F, this will be if this permissions is allowed (not in DB/assignment, but overall).  So if we are
+   * considering limits, and the limit is false, then this will be false for a permission where
+   * the disallow is set to false
+   */
+  private String allowedOverall;
+  
+  /**
+   * T or F, this will be if this permissions is allowed (not in DB/assignment, but overall).  So if we are
+   * considering limits, and the limit is false, then this will be false for a permission where
+   * the disallow is set to false
+   * @return true if allowed overall
+   */
+  public String getAllowedOverall() {
+    return this.allowedOverall;
+  }
+  
+  /**
+   * T or F, this will be if this permissions is allowed (not in DB/assignment, but overall).  So if we are
+   * considering limits, and the limit is false, then this will be false for a permission where
+   * the disallow is set to false
+   * @param allowedOverall1
+   */
+  public void setAllowedOverall(String allowedOverall1) {
+    this.allowedOverall = allowedOverall1;
+  }
+
+  /**
+   * T or F, if this is a permission, then if this permission assignment is allowed or not 
+   * @param disallowed1
+   */
+  public void setDisallowed(String disallowed1) {
+    this.disallowed = disallowed1;
+  }
+
+
+  /**
+   * T or F, if this is a permission, then if this permission assignment is allowed or not 
+   */
+  private String disallowed;
+  
+  /**
+   * if this is a permission, then if this permission assignment is allowed or not 
+   * @return if disallowed
+   */
+  public String getDisallowed() {
+    return this.disallowed;
+  }
+
   /** detail on the permission */
   private WsPermissionAssignDetail detail;
   
