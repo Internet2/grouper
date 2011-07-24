@@ -19,8 +19,8 @@ import edu.internet2.middleware.grouper.filter.StemUuidFilter;
 import edu.internet2.middleware.grouper.filter.StemsInStemFilter;
 import edu.internet2.middleware.grouper.filter.UnionFilter;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouper.ws.coresoap.WsStemQueryFilter;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
-import edu.internet2.middleware.grouper.ws.soap_v2_0.WsStemQueryFilter;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
 
 /**

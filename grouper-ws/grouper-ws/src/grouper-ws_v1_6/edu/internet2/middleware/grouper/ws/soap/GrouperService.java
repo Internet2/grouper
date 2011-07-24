@@ -148,13 +148,24 @@ public class GrouperService {
    * in alphabetical order
    * @return the groups, or no groups if none found
    */
-  @SuppressWarnings("unchecked")
+
   public WsFindGroupsResults findGroups(final String clientVersion,
       WsQueryFilter wsQueryFilter, 
       WsSubjectLookup actAsSubjectLookup, 
       String includeGroupDetail, WsParam[] params, WsGroupLookup[] wsGroupLookups) {
 
-    return null;
+    Object result = GrouperUtil.callMethodWithMoreParams(GrouperUtil.newInstance(GrouperServiceUtils.currentServiceClass()), 
+        GrouperServiceUtils.currentServiceClass(), "findGroups",
+        new Object[]{
+      clientVersion,
+      GrouperUtil.changeToVersion(wsQueryFilter, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
+      GrouperUtil.changeToVersion(actAsSubjectLookup, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
+      includeGroupDetail, 
+      GrouperUtil.changeToVersion(params, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
+      GrouperUtil.changeToVersion(wsGroupLookups, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
+      });
+    
+    return (WsFindGroupsResults)GrouperUtil.changeToVersion(result, THIS_VERSION_PACKAGE);
   }
 
   
@@ -206,7 +217,17 @@ public class GrouperService {
       String paramName0, String paramValue0,
       String paramName1, String paramValue1, String sourceIds) {
 
-    return null;
+    Object result = GrouperUtil.callMethodWithMoreParams(GrouperUtil.newInstance(GrouperServiceUtils.currentServiceClass()), 
+        GrouperServiceUtils.currentServiceClass(), "getMembersLite",
+        new Object[]{clientVersion,
+      groupName, groupUuid, memberFilter, actAsSubjectId,
+      actAsSubjectSourceId, actAsSubjectIdentifier, fieldName,
+      includeGroupDetail, 
+      includeSubjectDetail, subjectAttributeNames,
+      paramName0, paramValue0,
+      paramName1, paramValue1, sourceIds});
+    
+    return (WsGetMembersLiteResult)GrouperUtil.changeToVersion(result, THIS_VERSION_PACKAGE);
 
   }
 
@@ -231,7 +252,7 @@ public class GrouperService {
    * @param sourceIds array of source ids or null if all
    * @return the results
    */
-  @SuppressWarnings("unchecked")
+
   public WsGetMembersResults getMembers(final String clientVersion,
       WsGroupLookup[] wsGroupLookups, String memberFilter,
       WsSubjectLookup actAsSubjectLookup, final String fieldName,
@@ -239,7 +260,20 @@ public class GrouperService {
       String includeSubjectDetail, String[] subjectAttributeNames,
       WsParam[] params, String[] sourceIds) {
   
-    return null;
+    Object result = GrouperUtil.callMethodWithMoreParams(GrouperUtil.newInstance(GrouperServiceUtils.currentServiceClass()), 
+        GrouperServiceUtils.currentServiceClass(), "getMembers",
+        new Object[]{clientVersion,
+      GrouperUtil.changeToVersion(wsGroupLookups, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
+      memberFilter,
+      GrouperUtil.changeToVersion(actAsSubjectLookup, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
+      fieldName,
+      includeGroupDetail, 
+      includeSubjectDetail, 
+      subjectAttributeNames,
+      GrouperUtil.changeToVersion(params, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
+      sourceIds});
+    
+    return (WsGetMembersResults)GrouperUtil.changeToVersion(result, THIS_VERSION_PACKAGE);
   
   }
 
@@ -275,7 +309,7 @@ public class GrouperService {
    * @param ascending or null for ascending, F for descending.  If you pass T or F, must pass a sort string
    * @return the results
    */
-  @SuppressWarnings("unchecked")
+
   public WsGetGroupsResults getGroups(final String clientVersion,
       WsSubjectLookup[] subjectLookups, String memberFilter, 
       WsSubjectLookup actAsSubjectLookup, String includeGroupDetail,
@@ -284,7 +318,21 @@ public class GrouperService {
       WsStemLookup wsStemLookup, String stemScope, String enabled, 
       String pageSize, String pageNumber, String sortString, String ascending) {
     
-    return null;
+    Object result = GrouperUtil.callMethodWithMoreParams(GrouperUtil.newInstance(GrouperServiceUtils.currentServiceClass()), 
+        GrouperServiceUtils.currentServiceClass(), "getGroups",
+        new Object[]{clientVersion,
+      GrouperUtil.changeToVersion(subjectLookups, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
+      memberFilter, 
+      GrouperUtil.changeToVersion(actAsSubjectLookup, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
+      includeGroupDetail,
+      includeSubjectDetail, subjectAttributeNames, 
+      GrouperUtil.changeToVersion(params, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
+      fieldName, scope, 
+      GrouperUtil.changeToVersion(wsStemLookup, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
+      stemScope, enabled, 
+      pageSize, pageNumber, sortString, ascending});
+    
+    return (WsGetGroupsResults)GrouperUtil.changeToVersion(result, THIS_VERSION_PACKAGE);
 
   }
 
@@ -317,7 +365,7 @@ public class GrouperService {
    * @param params optional: reserved for future use
    * @return the results
    */
-  @SuppressWarnings("unchecked")
+
   public WsHasMemberResults hasMember(final String clientVersion,
       WsGroupLookup wsGroupLookup, WsSubjectLookup[] subjectLookups,
       String memberFilter,
@@ -326,7 +374,22 @@ public class GrouperService {
       String includeSubjectDetail, String[] subjectAttributeNames, 
       WsParam[] params) {
 
-    return null;
+    Object result = GrouperUtil.callMethodWithMoreParams(GrouperUtil.newInstance(GrouperServiceUtils.currentServiceClass()), 
+        GrouperServiceUtils.currentServiceClass(), "hasMember",
+        new Object[]{
+      clientVersion,
+      GrouperUtil.changeToVersion(wsGroupLookup, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
+      GrouperUtil.changeToVersion(subjectLookups, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
+      memberFilter,
+      GrouperUtil.changeToVersion(actAsSubjectLookup, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
+      fieldName,
+      includeGroupDetail, 
+      includeSubjectDetail, subjectAttributeNames, 
+      GrouperUtil.changeToVersion(params, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
+
+    });
+    
+    return (WsHasMemberResults)GrouperUtil.changeToVersion(result, THIS_VERSION_PACKAGE);
 
   }
 
@@ -363,7 +426,14 @@ public class GrouperService {
       String actAsSubjectIdentifier, String paramName0, String paramValue0,
       String paramName1, String paramValue1) {
 
-    return null;
+    Object result = GrouperUtil.callMethodWithMoreParams(GrouperUtil.newInstance(GrouperServiceUtils.currentServiceClass()), 
+        GrouperServiceUtils.currentServiceClass(), "stemDeleteLite",
+        new Object[]{clientVersion,
+      stemName, stemUuid, actAsSubjectId, actAsSubjectSourceId,
+      actAsSubjectIdentifier, paramName0,  paramValue0,
+      paramName1, paramValue1});
+    
+    return (WsStemDeleteLiteResult)GrouperUtil.changeToVersion(result, THIS_VERSION_PACKAGE);
   }
 
   /**
@@ -401,7 +471,15 @@ public class GrouperService {
       final String includeGroupDetail, String paramName0, String paramValue0,
       String paramName1, String paramValue1) {
 
-    return null;
+    Object result = GrouperUtil.callMethodWithMoreParams(GrouperUtil.newInstance(GrouperServiceUtils.currentServiceClass()), 
+        GrouperServiceUtils.currentServiceClass(), "groupDeleteLite",
+        new Object[]{clientVersion,
+      groupName, groupUuid, actAsSubjectId,
+      actAsSubjectSourceId, actAsSubjectIdentifier,
+      includeGroupDetail, paramName0, paramValue0,
+      paramName1, paramValue1});
+    
+    return (WsGroupDeleteLiteResult)GrouperUtil.changeToVersion(result, THIS_VERSION_PACKAGE);
 
   }
 
@@ -448,7 +526,16 @@ public class GrouperService {
       String actAsSubjectId, String actAsSubjectSourceId,
       String actAsSubjectIdentifier, String includeGroupDetail, String paramName0, String paramValue0,
       String paramName1, String paramValue1) {
-    return null;
+    Object result = GrouperUtil.callMethodWithMoreParams(GrouperUtil.newInstance(GrouperServiceUtils.currentServiceClass()), 
+        GrouperServiceUtils.currentServiceClass(), "groupSaveLite",
+        new Object[]{clientVersion,
+      groupLookupUuid, groupLookupName, groupUuid,groupName, 
+      displayExtension,description,  saveMode,
+      actAsSubjectId, actAsSubjectSourceId,
+      actAsSubjectIdentifier, includeGroupDetail, paramName0, paramValue0,
+      paramName1, paramValue1});
+    
+    return (WsGroupSaveLiteResult)GrouperUtil.changeToVersion(result, THIS_VERSION_PACKAGE);
 
   }
 
@@ -491,7 +578,16 @@ public class GrouperService {
       String actAsSubjectId, String actAsSubjectSourceId,
       String actAsSubjectIdentifier, String paramName0, String paramValue0,
       String paramName1, String paramValue1) {
-    return null;
+    Object result = GrouperUtil.callMethodWithMoreParams(GrouperUtil.newInstance(GrouperServiceUtils.currentServiceClass()), 
+        GrouperServiceUtils.currentServiceClass(), "stemSaveLite",
+        new Object[]{clientVersion,
+      stemLookupUuid, stemLookupName, stemUuid, stemName, 
+      displayExtension, description, saveMode,
+      actAsSubjectId, actAsSubjectSourceId,
+      actAsSubjectIdentifier, paramName0, paramValue0,
+      paramName1, paramValue1});
+    
+    return (WsStemSaveLiteResult)GrouperUtil.changeToVersion(result, THIS_VERSION_PACKAGE);
 
   }
 
@@ -510,12 +606,22 @@ public class GrouperService {
    * @param params optional: reserved for future use
    * @return the results
    */
-  @SuppressWarnings("unchecked")
+
   public WsGroupSaveResults groupSave(final String clientVersion,
       final WsGroupToSave[] wsGroupToSaves, final WsSubjectLookup actAsSubjectLookup,
       final String txType, final String includeGroupDetail, final WsParam[] params) {
 
-    return null;
+    Object result = GrouperUtil.callMethodWithMoreParams(GrouperUtil.newInstance(GrouperServiceUtils.currentServiceClass()), 
+        GrouperServiceUtils.currentServiceClass(), "groupSave",
+        new Object[]{clientVersion,
+      GrouperUtil.changeToVersion(wsGroupToSaves, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
+      GrouperUtil.changeToVersion(actAsSubjectLookup, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
+      txType, 
+      includeGroupDetail, 
+      GrouperUtil.changeToVersion(params, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
+      });
+    
+    return (WsGroupSaveResults)GrouperUtil.changeToVersion(result, THIS_VERSION_PACKAGE);
     
   }
 
@@ -533,11 +639,20 @@ public class GrouperService {
    * @param params optional: reserved for future use
    * @return the results
    */
-  @SuppressWarnings("unchecked")
+
   public WsStemSaveResults stemSave(final String clientVersion,
       final WsStemToSave[] wsStemToSaves, final WsSubjectLookup actAsSubjectLookup,
       final String txType, final WsParam[] params) {
-    return null;
+    Object result = GrouperUtil.callMethodWithMoreParams(GrouperUtil.newInstance(GrouperServiceUtils.currentServiceClass()), 
+        GrouperServiceUtils.currentServiceClass(), "stemSave",
+        new Object[]{ clientVersion,
+      GrouperUtil.changeToVersion(wsStemToSaves, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
+      GrouperUtil.changeToVersion(actAsSubjectLookup, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
+      txType, 
+      GrouperUtil.changeToVersion(params, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
+    });
+    
+    return (WsStemSaveResults)GrouperUtil.changeToVersion(result, THIS_VERSION_PACKAGE);
 
   }
 
@@ -555,12 +670,21 @@ public class GrouperService {
    * @param params optional: reserved for future use
    * @return the results
    */
-  @SuppressWarnings("unchecked")
+
   public WsStemDeleteResults stemDelete(final String clientVersion,
       final WsStemLookup[] wsStemLookups, final WsSubjectLookup actAsSubjectLookup,
       final String txType, final WsParam[] params) {
 
-    return null;
+    Object result = GrouperUtil.callMethodWithMoreParams(GrouperUtil.newInstance(GrouperServiceUtils.currentServiceClass()), 
+        GrouperServiceUtils.currentServiceClass(), "stemDelete",
+        new Object[]{clientVersion,
+      GrouperUtil.changeToVersion(wsStemLookups, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
+      GrouperUtil.changeToVersion(actAsSubjectLookup, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
+      txType, 
+      GrouperUtil.changeToVersion(params, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
+      });
+    
+    return (WsStemDeleteResults)GrouperUtil.changeToVersion(result, THIS_VERSION_PACKAGE);
   }
 
   /**
@@ -577,12 +701,22 @@ public class GrouperService {
    * @param params optional: reserved for future use
    * @return the results
    */
-  @SuppressWarnings("unchecked")
+
   public WsGroupDeleteResults groupDelete(final String clientVersion,
       final WsGroupLookup[] wsGroupLookups, final WsSubjectLookup actAsSubjectLookup,
       final String txType, final String includeGroupDetail, final WsParam[] params) {
 
-    return null;
+    Object result = GrouperUtil.callMethodWithMoreParams(GrouperUtil.newInstance(GrouperServiceUtils.currentServiceClass()), 
+        GrouperServiceUtils.currentServiceClass(), "groupDelete",
+        new Object[]{clientVersion,
+      GrouperUtil.changeToVersion(wsGroupLookups, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
+      GrouperUtil.changeToVersion(actAsSubjectLookup, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
+      txType, 
+      includeGroupDetail, 
+      GrouperUtil.changeToVersion(params, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
+      });
+    
+    return (WsGroupDeleteResults)GrouperUtil.changeToVersion(result, THIS_VERSION_PACKAGE);
   }
 
     /**
@@ -614,7 +748,7 @@ public class GrouperService {
      * @return the results
      * @see GrouperVersion
      */
-    @SuppressWarnings("unchecked")
+  
     public WsAddMemberResults addMember(final String clientVersion,
         final WsGroupLookup wsGroupLookup, final WsSubjectLookup[] subjectLookups,
         final String replaceAllExisting, final WsSubjectLookup actAsSubjectLookup,
@@ -623,7 +757,20 @@ public class GrouperService {
         final WsParam[] params, final String disabledTime, 
         final String enabledTime) {
   
-      return null;
+      Object result = GrouperUtil.callMethodWithMoreParams(GrouperUtil.newInstance(GrouperServiceUtils.currentServiceClass()), 
+          GrouperServiceUtils.currentServiceClass(), "addMember",
+          new Object[]{clientVersion,
+        GrouperUtil.changeToVersion(wsGroupLookup, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
+        GrouperUtil.changeToVersion(subjectLookups, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
+        replaceAllExisting, 
+        GrouperUtil.changeToVersion(actAsSubjectLookup, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
+        fieldName, txType, includeGroupDetail,
+        includeSubjectDetail, subjectAttributeNames,
+        GrouperUtil.changeToVersion(params, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
+        disabledTime, 
+        enabledTime});
+      
+      return (WsAddMemberResults)GrouperUtil.changeToVersion(result, THIS_VERSION_PACKAGE);
     }
 
   /**
@@ -648,7 +795,7 @@ public class GrouperService {
    * @param params optional: reserved for future use
    * @return the results
    */
-  @SuppressWarnings("unchecked")
+
   public WsDeleteMemberResults deleteMember(final String clientVersion,
       final WsGroupLookup wsGroupLookup, final WsSubjectLookup[] subjectLookups,
       final WsSubjectLookup actAsSubjectLookup, final String fieldName,
@@ -657,7 +804,21 @@ public class GrouperService {
       final WsParam[] params) {
 
     
-    return null;
+    Object result = GrouperUtil.callMethodWithMoreParams(GrouperUtil.newInstance(GrouperServiceUtils.currentServiceClass()), 
+        GrouperServiceUtils.currentServiceClass(), "deleteMember",
+        new Object[]{clientVersion,
+      GrouperUtil.changeToVersion(wsGroupLookup, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
+      GrouperUtil.changeToVersion(subjectLookups, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
+      GrouperUtil.changeToVersion(actAsSubjectLookup, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
+      fieldName,
+      txType, 
+      includeGroupDetail, 
+      includeSubjectDetail, 
+      subjectAttributeNames,
+      GrouperUtil.changeToVersion(params, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
+      });
+    
+    return (WsDeleteMemberResults)GrouperUtil.changeToVersion(result, THIS_VERSION_PACKAGE);
     
   }
 
@@ -722,7 +883,19 @@ public class GrouperService {
       String stemName, String stemUuid, String stemScope, String enabled, 
       String pageSize, String pageNumber, String sortString, String ascending) {
 
-    return null;
+    Object result = GrouperUtil.callMethodWithMoreParams(GrouperUtil.newInstance(GrouperServiceUtils.currentServiceClass()), 
+        GrouperServiceUtils.currentServiceClass(), "getGroupsLite",
+        new Object[]{clientVersion, subjectId,
+      subjectSourceId, subjectIdentifier, memberFilter,
+      actAsSubjectId, actAsSubjectSourceId,
+      actAsSubjectIdentifier, includeGroupDetail, 
+      includeSubjectDetail, 
+      subjectAttributeNames, paramName0, paramValue0,
+      paramName1, paramValue1, fieldName, scope, 
+      stemName, stemUuid, stemScope, enabled, 
+      pageSize, pageNumber, sortString, ascending});
+    
+    return (WsGetGroupsLiteResult)GrouperUtil.changeToVersion(result, THIS_VERSION_PACKAGE);
 
   }
 
@@ -779,7 +952,17 @@ public class GrouperService {
       String paramValue0, String paramName1, String paramValue1, final String disabledTime, 
       final String enabledTime) {
     
-    return null;
+    Object result = GrouperUtil.callMethodWithMoreParams(GrouperUtil.newInstance(GrouperServiceUtils.currentServiceClass()), 
+        GrouperServiceUtils.currentServiceClass(), "addMemberLite",
+        new Object[]{clientVersion,
+      groupName, groupUuid, subjectId, subjectSourceId,
+      subjectIdentifier, actAsSubjectId, actAsSubjectSourceId,
+      actAsSubjectIdentifier, fieldName, includeGroupDetail,
+      includeSubjectDetail, subjectAttributeNames, paramName0,
+      paramValue0, paramName1, paramValue1, disabledTime, 
+      enabledTime});
+    
+    return (WsAddMemberLiteResult)GrouperUtil.changeToVersion(result, THIS_VERSION_PACKAGE);
     
   }
 
@@ -843,7 +1026,17 @@ public class GrouperService {
         String includeSubjectDetail, String subjectAttributeNames, String paramName0,
         String paramValue0, String paramName1, String paramValue1) {
   
-      return null;
+      Object result = GrouperUtil.callMethodWithMoreParams(GrouperUtil.newInstance(GrouperServiceUtils.currentServiceClass()), 
+          GrouperServiceUtils.currentServiceClass(), "hasMemberLite",
+          new Object[]{ clientVersion, groupName,
+        groupUuid, subjectId, subjectSourceId, subjectIdentifier,
+        memberFilter,
+        actAsSubjectId, actAsSubjectSourceId, actAsSubjectIdentifier,
+        fieldName, includeGroupDetail, 
+        includeSubjectDetail, subjectAttributeNames, paramName0,
+        paramValue0, paramName1, paramValue1});
+      
+      return (WsHasMemberLiteResult)GrouperUtil.changeToVersion(result, THIS_VERSION_PACKAGE);
     }
 
   /**
@@ -896,7 +1089,17 @@ public class GrouperService {
       String includeSubjectDetail, String subjectAttributeNames, String paramName0,
       String paramValue0, String paramName1, String paramValue1) {
 
-    return null;
+    Object result = GrouperUtil.callMethodWithMoreParams(GrouperUtil.newInstance(GrouperServiceUtils.currentServiceClass()), 
+        GrouperServiceUtils.currentServiceClass(), "memberChangeSubjectLite",
+        new Object[]{clientVersion, 
+      oldSubjectId, oldSubjectSourceId, oldSubjectIdentifier,
+      newSubjectId, newSubjectSourceId, newSubjectIdentifier,
+      actAsSubjectId, actAsSubjectSourceId, actAsSubjectIdentifier,
+      deleteOldMember, 
+      includeSubjectDetail, subjectAttributeNames, paramName0,
+      paramValue0, paramName1, paramValue1});
+    
+    return (WsMemberChangeSubjectLiteResult)GrouperUtil.changeToVersion(result, THIS_VERSION_PACKAGE);
   }
 
   /**
@@ -917,14 +1120,25 @@ public class GrouperService {
    * @return the results
    * @see GrouperVersion
    */
-  @SuppressWarnings("unchecked")
+
   public WsMemberChangeSubjectResults memberChangeSubject(final String clientVersion,
       WsMemberChangeSubject[] wsMemberChangeSubjects, final WsSubjectLookup actAsSubjectLookup,
       final String txType, 
       final String includeSubjectDetail, final String[] subjectAttributeNames,
       final WsParam[] params) {
 
-    return null;
+    Object result = GrouperUtil.callMethodWithMoreParams(GrouperUtil.newInstance(GrouperServiceUtils.currentServiceClass()), 
+        GrouperServiceUtils.currentServiceClass(), "memberChangeSubject",
+        new Object[]{clientVersion,
+      GrouperUtil.changeToVersion(wsMemberChangeSubjects, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
+      GrouperUtil.changeToVersion(actAsSubjectLookup, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
+      txType, 
+      includeSubjectDetail, 
+      subjectAttributeNames,
+      GrouperUtil.changeToVersion(params, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
+    });
+    
+    return (WsMemberChangeSubjectResults)GrouperUtil.changeToVersion(result, THIS_VERSION_PACKAGE);
   }
 
   /**
@@ -979,7 +1193,17 @@ public class GrouperService {
       String subjectAttributeNames, String paramName0, String paramValue0,
       String paramName1, String paramValue1) {
 
-    return null;
+    Object result = GrouperUtil.callMethodWithMoreParams(GrouperUtil.newInstance(GrouperServiceUtils.currentServiceClass()), 
+        GrouperServiceUtils.currentServiceClass(), "deleteMemberLite",
+        new Object[]{clientVersion,
+      groupName, groupUuid, subjectId, subjectSourceId,
+      subjectIdentifier, actAsSubjectId, actAsSubjectSourceId,
+      actAsSubjectIdentifier, fieldName,
+      includeGroupDetail, includeSubjectDetail,
+      subjectAttributeNames, paramName0, paramValue0,
+      paramName1, paramValue1});
+    
+    return (WsDeleteMemberLiteResult)GrouperUtil.changeToVersion(result, THIS_VERSION_PACKAGE);
   }
 
   /**
@@ -1031,7 +1255,16 @@ public class GrouperService {
       String actAsSubjectSourceId, String actAsSubjectIdentifier, String paramName0,
       String paramValue0, String paramName1, String paramValue1) {
 
-    return null;
+    Object result = GrouperUtil.callMethodWithMoreParams(GrouperUtil.newInstance(GrouperServiceUtils.currentServiceClass()), 
+        GrouperServiceUtils.currentServiceClass(), "findStemsLite",
+        new Object[]{clientVersion,
+      stemQueryFilterType, stemName, parentStemName,
+      parentStemNameScope, stemUuid, stemAttributeName,
+      stemAttributeValue, actAsSubjectId,
+      actAsSubjectSourceId, actAsSubjectIdentifier, paramName0,
+      paramValue0, paramName1, paramValue1});
+    
+    return (WsFindStemsResults)GrouperUtil.changeToVersion(result, THIS_VERSION_PACKAGE);
 
   }
   
@@ -1089,7 +1322,19 @@ public class GrouperService {
       String includeGroupDetail, String paramName0,
       String paramValue0, String paramName1, String paramValue1) {
 
-    return null;
+    Object result = GrouperUtil.callMethodWithMoreParams(GrouperUtil.newInstance(GrouperServiceUtils.currentServiceClass()), 
+        GrouperServiceUtils.currentServiceClass(), "getGrouperPrivilegesLite",
+        new Object[]{ clientVersion, 
+      subjectId, subjectSourceId, subjectIdentifier,
+      groupName, groupUuid, 
+      stemName, stemUuid, 
+      privilegeType, privilegeName,
+      actAsSubjectId, actAsSubjectSourceId, actAsSubjectIdentifier,
+      includeSubjectDetail, subjectAttributeNames, 
+      includeGroupDetail, paramName0,
+      paramValue0, paramName1, paramValue1});
+    
+    return (WsGetGrouperPrivilegesLiteResult)GrouperUtil.changeToVersion(result, THIS_VERSION_PACKAGE);
   }
 
   /**
@@ -1149,7 +1394,19 @@ public class GrouperService {
       String includeGroupDetail, String paramName0,
       String paramValue0, String paramName1, String paramValue1) {
 
-    return null;
+    Object result = GrouperUtil.callMethodWithMoreParams(GrouperUtil.newInstance(GrouperServiceUtils.currentServiceClass()), 
+        GrouperServiceUtils.currentServiceClass(), "assignGrouperPrivilegesLite",
+        new Object[]{clientVersion, 
+      subjectId, subjectSourceId, subjectIdentifier,
+      groupName, groupUuid, 
+      stemName, stemUuid, 
+      privilegeType, privilegeName, allowed,
+      actAsSubjectId, actAsSubjectSourceId, actAsSubjectIdentifier,
+      includeSubjectDetail, subjectAttributeNames, 
+      includeGroupDetail, paramName0,
+      paramValue0, paramName1, paramValue1});
+    
+    return (WsAssignGrouperPrivilegesLiteResult)GrouperUtil.changeToVersion(result, THIS_VERSION_PACKAGE);
     
   }
 
@@ -1182,7 +1439,7 @@ public class GrouperService {
    * @param membershipIds are the ids to search for if they are known
    * @return the results
    */
-  @SuppressWarnings("unchecked")
+
   public WsGetMembershipsResults getMemberships(final String clientVersion,
       WsGroupLookup[] wsGroupLookups, WsSubjectLookup[] wsSubjectLookups, String wsMemberFilter,
       WsSubjectLookup actAsSubjectLookup, String fieldName, String includeSubjectDetail,
@@ -1190,7 +1447,26 @@ public class GrouperService {
       String[] sourceIds, String scope, 
       WsStemLookup wsStemLookup, String stemScope, String enabled, String[] membershipIds) {  
   
-    return null;
+    Object result = GrouperUtil.callMethodWithMoreParams(GrouperUtil.newInstance(GrouperServiceUtils.currentServiceClass()), 
+        GrouperServiceUtils.currentServiceClass(), "getMemberships",
+        new Object[]{clientVersion,
+      GrouperUtil.changeToVersion(wsGroupLookups, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
+      GrouperUtil.changeToVersion(wsSubjectLookups, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
+      wsMemberFilter,
+      GrouperUtil.changeToVersion(actAsSubjectLookup, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
+      fieldName, 
+      includeSubjectDetail,
+      subjectAttributeNames, 
+      includeGroupDetail, 
+      GrouperUtil.changeToVersion(params, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
+      sourceIds, 
+      scope, 
+      GrouperUtil.changeToVersion(wsStemLookup, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
+      stemScope, 
+      enabled, 
+      membershipIds});
+    
+    return (WsGetMembershipsResults)GrouperUtil.changeToVersion(result, THIS_VERSION_PACKAGE);
   
   }
 
@@ -1254,7 +1530,18 @@ public class GrouperService {
       String paramName1, String paramValue1, String sourceIds, String scope, String stemName, 
       String stemUuid, String stemScope, String enabled, String membershipIds) {
   
-    return null;
+    Object result = GrouperUtil.callMethodWithMoreParams(GrouperUtil.newInstance(GrouperServiceUtils.currentServiceClass()), 
+        GrouperServiceUtils.currentServiceClass(), "getMembershipsLite",
+        new Object[]{clientVersion,
+      groupName, groupUuid, subjectId, sourceId, subjectIdentifier, 
+      wsMemberFilter,
+      includeSubjectDetail, actAsSubjectId, actAsSubjectSourceId,
+      actAsSubjectIdentifier, fieldName, subjectAttributeNames,
+      includeGroupDetail, paramName0, paramValue0,
+      paramName1, paramValue1, sourceIds, scope, stemName, 
+      stemUuid, stemScope, enabled, membershipIds});
+    
+    return (WsGetMembershipsResults)GrouperUtil.changeToVersion(result, THIS_VERSION_PACKAGE);
   }
 
   /**
@@ -1283,7 +1570,7 @@ public class GrouperService {
    * found in list is much lower e.g. 1000)
    * @return the results
    */
-  @SuppressWarnings("unchecked")
+
   public WsGetSubjectsResults getSubjects(final String clientVersion,
       WsSubjectLookup[] wsSubjectLookups, String searchString, String includeSubjectDetail, 
       String[] subjectAttributeNames, WsSubjectLookup actAsSubjectLookup, String[] sourceIds, 
@@ -1291,7 +1578,23 @@ public class GrouperService {
        String fieldName, 
       String includeGroupDetail, final WsParam[] params) {  
   
-    return null;
+    Object result = GrouperUtil.callMethodWithMoreParams(GrouperUtil.newInstance(GrouperServiceUtils.currentServiceClass()), 
+        GrouperServiceUtils.currentServiceClass(), "getSubjects",
+        new Object[]{clientVersion,
+      GrouperUtil.changeToVersion(wsSubjectLookups, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
+      searchString, 
+      includeSubjectDetail, 
+      subjectAttributeNames, 
+      GrouperUtil.changeToVersion(actAsSubjectLookup, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
+      sourceIds, 
+      GrouperUtil.changeToVersion(wsGroupLookup, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
+      wsMemberFilter,
+      fieldName, 
+      includeGroupDetail, 
+      GrouperUtil.changeToVersion(params, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
+      });
+    
+    return (WsGetSubjectsResults)GrouperUtil.changeToVersion(result, THIS_VERSION_PACKAGE);
   
   }
 
@@ -1350,7 +1653,18 @@ public class GrouperService {
       String fieldName, String includeGroupDetail, String paramName0, String paramValue0,
       String paramName1, String paramValue1) {
 
-    return null;
+    Object result = GrouperUtil.callMethodWithMoreParams(GrouperUtil.newInstance(GrouperServiceUtils.currentServiceClass()), 
+        GrouperServiceUtils.currentServiceClass(), "getSubjectsLite",
+        new Object[]{clientVersion,
+      subjectId, sourceId, subjectIdentifier, searchString,
+      includeSubjectDetail, subjectAttributeNames,
+      actAsSubjectId, actAsSubjectSourceId,
+      actAsSubjectIdentifier, sourceIds,
+      groupName, groupUuid, wsMemberFilter,
+      fieldName, includeGroupDetail, paramName0, paramValue0,
+      paramName1, paramValue1});
+    
+    return (WsGetSubjectsResults)GrouperUtil.changeToVersion(result, THIS_VERSION_PACKAGE);
   }
       
   /**
@@ -1395,7 +1709,24 @@ public class GrouperService {
       final String includeSubjectDetail, final String[] subjectAttributeNames, 
       final String includeGroupDetail,  final WsParam[] params) {
   
-    return null;
+    Object result = GrouperUtil.callMethodWithMoreParams(GrouperUtil.newInstance(GrouperServiceUtils.currentServiceClass()), 
+        GrouperServiceUtils.currentServiceClass(), "assignGrouperPrivileges",
+        new Object[]{clientVersion, 
+      GrouperUtil.changeToVersion(wsSubjectLookups, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
+      GrouperUtil.changeToVersion(wsGroupLookup, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
+      GrouperUtil.changeToVersion(wsStemLookup, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
+      privilegeType, 
+      privilegeNames,
+      allowed,
+      replaceAllExisting,
+      txType,
+      GrouperUtil.changeToVersion(actAsSubjectLookup, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
+      includeSubjectDetail, 
+      subjectAttributeNames, 
+      includeGroupDetail,  
+      GrouperUtil.changeToVersion(params, GrouperServiceUtils.currentServiceClass().getPackage().getName())});
+    
+    return (WsAssignGrouperPrivilegesResults)GrouperUtil.changeToVersion(result, THIS_VERSION_PACKAGE);
   }
 
   /**
@@ -1427,7 +1758,7 @@ public class GrouperService {
    * @param enabled is A for all, T or null for enabled only, F for disabled 
    * @return the results
    */
-  @SuppressWarnings("unchecked")
+
   public WsGetAttributeAssignmentsResults getAttributeAssignments(
       String clientVersion, String attributeAssignType,
       WsAttributeAssignLookup[] wsAttributeAssignLookups,
@@ -1440,7 +1771,27 @@ public class GrouperService {
       String[] subjectAttributeNames, String includeGroupDetail, final WsParam[] params, 
       String enabled) {  
 
-    return null;
+    Object result = GrouperUtil.callMethodWithMoreParams(GrouperUtil.newInstance(GrouperServiceUtils.currentServiceClass()), 
+        GrouperServiceUtils.currentServiceClass(), "getAttributeAssignments",
+        new Object[]{clientVersion, attributeAssignType,
+      GrouperUtil.changeToVersion(wsAttributeAssignLookups, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
+      GrouperUtil.changeToVersion(wsAttributeDefLookups, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
+      GrouperUtil.changeToVersion(wsAttributeDefNameLookups, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
+      GrouperUtil.changeToVersion(wsOwnerGroupLookups, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
+      GrouperUtil.changeToVersion(wsOwnerStemLookups, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
+      GrouperUtil.changeToVersion(wsOwnerSubjectLookups, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
+      GrouperUtil.changeToVersion(wsOwnerMembershipLookups, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
+      GrouperUtil.changeToVersion(wsOwnerMembershipAnyLookups, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
+      GrouperUtil.changeToVersion(wsOwnerAttributeDefLookups, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
+      actions, 
+      includeAssignmentsOnAssignments, 
+      GrouperUtil.changeToVersion(actAsSubjectLookup, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
+      includeSubjectDetail,
+      subjectAttributeNames, includeGroupDetail, 
+      GrouperUtil.changeToVersion(params, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
+      enabled});
+    
+    return (WsGetAttributeAssignmentsResults)GrouperUtil.changeToVersion(result, THIS_VERSION_PACKAGE);
   
   }
 
@@ -1493,7 +1844,7 @@ public class GrouperService {
    * @param enabled is A for all, T or null for enabled only, F for disabled 
    * @return the results
    */
-  @SuppressWarnings("unchecked")
+
   public WsGetAttributeAssignmentsResults getAttributeAssignmentsLite(
       String clientVersion, String attributeAssignType,
       String attributeAssignId,
@@ -1510,7 +1861,24 @@ public class GrouperService {
       String paramName1, String paramValue1, 
       String enabled) {  
 
-    return null;
+    Object result = GrouperUtil.callMethodWithMoreParams(GrouperUtil.newInstance(GrouperServiceUtils.currentServiceClass()), 
+        GrouperServiceUtils.currentServiceClass(), "getAttributeAssignmentsLite",
+        new Object[]{clientVersion, attributeAssignType,
+      attributeAssignId,
+      wsAttributeDefName, wsAttributeDefId, wsAttributeDefNameName, wsAttributeDefNameId,
+      wsOwnerGroupName, wsOwnerGroupId, wsOwnerStemName, wsOwnerStemId, 
+      wsOwnerSubjectId, wsOwnerSubjectSourceId, wsOwnerSubjectIdentifier,
+      wsOwnerMembershipId, wsOwnerMembershipAnyGroupName, wsOwnerMembershipAnyGroupId,
+      wsOwnerMembershipAnySubjectId, wsOwnerMembershipAnySubjectSourceId, wsOwnerMembershipAnySubjectIdentifier, 
+      wsOwnerAttributeDefName, wsOwnerAttributeDefId, 
+      action, 
+      includeAssignmentsOnAssignments, actAsSubjectId, actAsSubjectSourceId,
+      actAsSubjectIdentifier, includeSubjectDetail,
+      subjectAttributeNames, includeGroupDetail, paramName0, paramValue0,
+      paramName1, paramValue1, 
+      enabled});
+    
+    return (WsGetAttributeAssignmentsResults)GrouperUtil.changeToVersion(result, THIS_VERSION_PACKAGE);
   
   }
 
@@ -1557,7 +1925,7 @@ public class GrouperService {
    * related attributeDefTypes, if blank, then just do all
    * @return the results
    */
-  @SuppressWarnings("unchecked")
+
   public WsAssignAttributesResults assignAttributes(
       String clientVersion, String attributeAssignType,
       WsAttributeDefNameLookup[] wsAttributeDefNameLookups,
@@ -1574,7 +1942,32 @@ public class GrouperService {
       String[] subjectAttributeNames, String includeGroupDetail, WsParam[] params,
       WsAttributeDefLookup[] attributeDefsToReplace, String[] actionsToReplace, String[] attributeDefTypesToReplace) {  
   
-    return null;
+    Object result = GrouperUtil.callMethodWithMoreParams(GrouperUtil.newInstance(GrouperServiceUtils.currentServiceClass()), 
+        GrouperServiceUtils.currentServiceClass(), "assignAttributes",
+        new Object[]{clientVersion, attributeAssignType,
+      GrouperUtil.changeToVersion(wsAttributeDefNameLookups, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
+      attributeAssignOperation,
+      GrouperUtil.changeToVersion(values, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
+      assignmentNotes, assignmentEnabledTime,
+      assignmentDisabledTime, delegatable,
+      attributeAssignValueOperation,
+      GrouperUtil.changeToVersion(wsAttributeAssignLookups, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
+      GrouperUtil.changeToVersion(wsOwnerGroupLookups, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
+      GrouperUtil.changeToVersion(wsOwnerStemLookups, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
+      GrouperUtil.changeToVersion(wsOwnerSubjectLookups, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
+      GrouperUtil.changeToVersion(wsOwnerMembershipLookups, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
+      GrouperUtil.changeToVersion(wsOwnerMembershipAnyLookups, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
+      GrouperUtil.changeToVersion(wsOwnerAttributeDefLookups, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
+      GrouperUtil.changeToVersion(wsOwnerAttributeAssignLookups, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
+      actions, 
+      GrouperUtil.changeToVersion(actAsSubjectLookup, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
+      includeSubjectDetail,
+      subjectAttributeNames, includeGroupDetail, 
+      GrouperUtil.changeToVersion(params, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
+      GrouperUtil.changeToVersion(attributeDefsToReplace, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
+      actionsToReplace, attributeDefTypesToReplace});
+    
+    return (WsAssignAttributesResults)GrouperUtil.changeToVersion(result, THIS_VERSION_PACKAGE);
   
   }
 
@@ -1636,7 +2029,7 @@ public class GrouperService {
    *            reserved for future use
    * @return the results
    */
-  @SuppressWarnings("unchecked")
+
   public WsAssignAttributesLiteResults assignAttributesLite(
       String clientVersion, String attributeAssignType,
       String wsAttributeDefNameName, String wsAttributeDefNameId,
@@ -1655,7 +2048,26 @@ public class GrouperService {
       String subjectAttributeNames, String includeGroupDetail, String paramName0, String paramValue0,
       String paramName1, String paramValue1) {  
   
-    return null;
+    Object result = GrouperUtil.callMethodWithMoreParams(GrouperUtil.newInstance(GrouperServiceUtils.currentServiceClass()), 
+        GrouperServiceUtils.currentServiceClass(), "assignAttributesLite",
+        new Object[]{clientVersion, attributeAssignType,
+      wsAttributeDefNameName, wsAttributeDefNameId,
+      attributeAssignOperation,
+      valueId, valueSystem, valueFormatted,
+      assignmentNotes, assignmentEnabledTime,
+      assignmentDisabledTime, delegatable,
+      attributeAssignValueOperation,
+      wsAttributeAssignId,
+      wsOwnerGroupName, wsOwnerGroupId, wsOwnerStemName, wsOwnerStemId, 
+      wsOwnerSubjectId, wsOwnerSubjectSourceId, wsOwnerSubjectIdentifier,
+      wsOwnerMembershipId, wsOwnerMembershipAnyGroupName, wsOwnerMembershipAnyGroupId,
+      wsOwnerMembershipAnySubjectId, wsOwnerMembershipAnySubjectSourceId, wsOwnerMembershipAnySubjectIdentifier,
+      wsOwnerAttributeDefName, wsOwnerAttributeDefId, wsOwnerAttributeAssignId,
+      action, actAsSubjectId, actAsSubjectSourceId, actAsSubjectIdentifier, includeSubjectDetail,
+      subjectAttributeNames, includeGroupDetail, paramName0, paramValue0,
+      paramName1, paramValue1});
+    
+    return (WsAssignAttributesLiteResults)GrouperUtil.changeToVersion(result, THIS_VERSION_PACKAGE);
   
   }
 
@@ -1683,7 +2095,7 @@ public class GrouperService {
    * @param enabled is A for all, T or null for enabled only, F for disabled 
    * @return the results
    */
-  @SuppressWarnings("unchecked")
+
   public WsGetPermissionAssignmentsResults getPermissionAssignments(
       String clientVersion, 
       WsAttributeDefLookup[] wsAttributeDefLookups, WsAttributeDefNameLookup[] wsAttributeDefNameLookups,
@@ -1694,7 +2106,26 @@ public class GrouperService {
       String[] subjectAttributeNames, String includeGroupDetail, WsParam[] params, 
       String enabled) {  
   
-    return null;
+    Object result = GrouperUtil.callMethodWithMoreParams(GrouperUtil.newInstance(GrouperServiceUtils.currentServiceClass()), 
+        GrouperServiceUtils.currentServiceClass(), "getPermissionAssignments",
+        new Object[]{clientVersion, 
+      GrouperUtil.changeToVersion(wsAttributeDefLookups, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
+      GrouperUtil.changeToVersion(wsAttributeDefNameLookups, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
+      GrouperUtil.changeToVersion(roleLookups, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
+      GrouperUtil.changeToVersion(wsSubjectLookups, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
+      actions, 
+      includePermissionAssignDetail,
+      includeAttributeDefNames, 
+      includeAttributeAssignments,
+      includeAssignmentsOnAssignments, 
+      GrouperUtil.changeToVersion(actAsSubjectLookup, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
+      includeSubjectDetail,
+      subjectAttributeNames, 
+      includeGroupDetail, 
+      GrouperUtil.changeToVersion(params, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
+      enabled});
+    
+    return (WsGetPermissionAssignmentsResults)GrouperUtil.changeToVersion(result, THIS_VERSION_PACKAGE);
   
   }
 
@@ -1736,7 +2167,7 @@ public class GrouperService {
    * @param enabled is A for all, T or null for enabled only, F for disabled 
    * @return the results
    */
-  @SuppressWarnings("unchecked")
+
   public WsGetPermissionAssignmentsResults getPermissionAssignmentsLite(
       String clientVersion, 
       String wsAttributeDefName, String wsAttributeDefId, String wsAttributeDefNameName, String wsAttributeDefNameId,
@@ -1749,7 +2180,20 @@ public class GrouperService {
       String subjectAttributeNames, String includeGroupDetail, String paramName0, String paramValue0,
       String paramName1, String paramValue1, String enabled) {  
   
-    return null;
+    Object result = GrouperUtil.callMethodWithMoreParams(GrouperUtil.newInstance(GrouperServiceUtils.currentServiceClass()), 
+        GrouperServiceUtils.currentServiceClass(), "getPermissionAssignmentsLite",
+        new Object[]{clientVersion, 
+      wsAttributeDefName, wsAttributeDefId, wsAttributeDefNameName, wsAttributeDefNameId,
+      roleName, roleId, 
+      wsSubjectId, wsSubjectSourceId, wsSubjectIdentifier,
+      action, includePermissionAssignDetail,
+      includeAttributeDefNames, includeAttributeAssignments,
+      includeAssignmentsOnAssignments, actAsSubjectId, actAsSubjectSourceId,
+      actAsSubjectIdentifier, includeSubjectDetail,
+      subjectAttributeNames, includeGroupDetail, paramName0, paramValue0,
+      paramName1, paramValue1, enabled});
+    
+    return (WsGetPermissionAssignmentsResults)GrouperUtil.changeToVersion(result, THIS_VERSION_PACKAGE);
     
   
   }
@@ -1783,7 +2227,6 @@ public class GrouperService {
    * related actions, if blank, then just do all
    * @return the results
    */
-  @SuppressWarnings("unchecked")
   public WsAssignPermissionsResults assignPermissions(
       String clientVersion, String permissionType,
       WsAttributeDefNameLookup[] permissionDefNameLookups,
@@ -1855,7 +2298,7 @@ public class GrouperService {
    * @param paramValue1 optional: reserved for future use
    * @return the results
    */
-  @SuppressWarnings("unchecked")
+
   public WsAssignPermissionsLiteResults assignPermissionsLite(
       String clientVersion, String permissionType,
       String permissionDefNameName, String permissionDefNameId,
@@ -1870,7 +2313,22 @@ public class GrouperService {
       String subjectAttributeNames, String includeGroupDetail, String paramName0, String paramValue0,
       String paramName1, String paramValue1) {  
   
-    return null;
+    Object result = GrouperUtil.callMethodWithMoreParams(GrouperUtil.newInstance(GrouperServiceUtils.currentServiceClass()), 
+        GrouperServiceUtils.currentServiceClass(), "assignPermissionsLite",
+        new Object[]{clientVersion, permissionType,
+      permissionDefNameName, permissionDefNameId,
+      permissionAssignOperation,
+      assignmentNotes, assignmentEnabledTime,
+      assignmentDisabledTime, delegatable,
+      wsAttributeAssignId,
+      roleName, roleId,
+      subjectRoleName, subjectRoleId,
+      subjectRoleSubjectId, subjectRoleSubjectSourceId, subjectRoleSubjectIdentifier, 
+      action, actAsSubjectId, actAsSubjectSourceId, actAsSubjectIdentifier, includeSubjectDetail,
+      subjectAttributeNames, includeGroupDetail, paramName0, paramValue0,
+      paramName1, paramValue1});
+    
+    return (WsAssignPermissionsLiteResults)GrouperUtil.changeToVersion(result, THIS_VERSION_PACKAGE);
   
   }
 

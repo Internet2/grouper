@@ -5,15 +5,15 @@
 package edu.internet2.middleware.grouper.ws.rest.subject;
 
 import edu.internet2.middleware.grouper.ws.GrouperServiceLogic;
+import edu.internet2.middleware.grouper.ws.coresoap.WsGroupLookup;
+import edu.internet2.middleware.grouper.ws.coresoap.WsParam;
+import edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup;
 import edu.internet2.middleware.grouper.ws.rest.WsRequestBean;
 import edu.internet2.middleware.grouper.ws.rest.method.GrouperRestHttpMethod;
-import edu.internet2.middleware.grouper.ws.soap_v2_0.WsGroupLookup;
-import edu.internet2.middleware.grouper.ws.soap_v2_0.WsParam;
-import edu.internet2.middleware.grouper.ws.soap_v2_0.WsSubjectLookup;
 
 /**
  * bean that will be the data from rest request
- * @see GrouperServiceLogic#getMemberships(edu.internet2.middleware.grouper.ws.GrouperWsVersion, WsGroupLookup[], WsSubjectLookup[], edu.internet2.middleware.grouper.ws.member.WsMemberFilter, WsSubjectLookup, edu.internet2.middleware.grouper.Field, boolean, String[], boolean, WsParam[], String[], String, edu.internet2.middleware.grouper.ws.soap_v2_0.WsStemLookup, edu.internet2.middleware.grouper.ws.query.StemScope, String, String[])
+ * @see GrouperServiceLogic#getMemberships(edu.internet2.middleware.grouper.ws.GrouperWsVersion, WsGroupLookup[], WsSubjectLookup[], edu.internet2.middleware.grouper.ws.member.WsMemberFilter, WsSubjectLookup, edu.internet2.middleware.grouper.Field, boolean, String[], boolean, WsParam[], String[], String, edu.internet2.middleware.grouper.ws.coresoap.WsStemLookup, edu.internet2.middleware.grouper.ws.query.StemScope, String, String[])
  * for method
  */
 public class WsRestGetSubjectsRequest implements WsRequestBean {

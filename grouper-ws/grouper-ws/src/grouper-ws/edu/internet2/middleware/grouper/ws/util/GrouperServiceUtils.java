@@ -47,15 +47,15 @@ import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.GrouperServiceJ2ee;
 import edu.internet2.middleware.grouper.ws.GrouperWsConfig;
+import edu.internet2.middleware.grouper.ws.coresoap.GrouperService;
+import edu.internet2.middleware.grouper.ws.coresoap.WsParam;
+import edu.internet2.middleware.grouper.ws.coresoap.WsResultMeta;
+import edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 import edu.internet2.middleware.grouper.ws.member.WsMemberFilter;
 import edu.internet2.middleware.grouper.ws.rest.GrouperRestInvalidRequest;
 import edu.internet2.middleware.grouper.ws.rest.GrouperRestServlet;
 import edu.internet2.middleware.grouper.ws.rest.WsRestClassLookup;
-import edu.internet2.middleware.grouper.ws.soap_v2_0.GrouperService;
-import edu.internet2.middleware.grouper.ws.soap_v2_0.WsParam;
-import edu.internet2.middleware.grouper.ws.soap_v2_0.WsResultMeta;
-import edu.internet2.middleware.grouper.ws.soap_v2_0.WsSubjectLookup;
 import edu.internet2.middleware.subject.Subject;
 
 /**

@@ -328,7 +328,12 @@
 		  destdir="${build.dir.grouper-ws}" 
 		  classpathref="ws.class.path" debug="true">
 		</javac>
+		<!-- add each versioned soap source transfer objects here -->
     <javac srcdir="${basedir}/src/grouper-ws_v1_6" 
+      destdir="${build.dir.grouper-ws}" 
+      classpathref="ws.class.path" debug="true">
+    </javac>
+    <javac srcdir="${basedir}/src/grouper-ws_v2_0" 
       destdir="${build.dir.grouper-ws}" 
       classpathref="ws.class.path" debug="true">
     </javac>

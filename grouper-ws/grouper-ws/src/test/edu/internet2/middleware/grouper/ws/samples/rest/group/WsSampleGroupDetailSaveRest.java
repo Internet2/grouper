@@ -12,15 +12,15 @@ import org.apache.commons.httpclient.params.DefaultHttpParams;
 import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.commons.lang.StringUtils;
 
+import edu.internet2.middleware.grouper.ws.coresoap.WsGroup;
+import edu.internet2.middleware.grouper.ws.coresoap.WsGroupDetail;
+import edu.internet2.middleware.grouper.ws.coresoap.WsGroupLookup;
+import edu.internet2.middleware.grouper.ws.coresoap.WsGroupSaveResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsGroupToSave;
 import edu.internet2.middleware.grouper.ws.rest.WsRestResultProblem;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestGroupSaveRequest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType;
-import edu.internet2.middleware.grouper.ws.soap_v2_0.WsGroup;
-import edu.internet2.middleware.grouper.ws.soap_v2_0.WsGroupDetail;
-import edu.internet2.middleware.grouper.ws.soap_v2_0.WsGroupLookup;
-import edu.internet2.middleware.grouper.ws.soap_v2_0.WsGroupSaveResults;
-import edu.internet2.middleware.grouper.ws.soap_v2_0.WsGroupToSave;
 import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
 
 /**
