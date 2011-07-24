@@ -3,20 +3,11 @@
  */
 package edu.internet2.middleware.grouper.ws.soap_v2_0;
 
-import org.apache.commons.lang.builder.ReflectionToStringBuilder;
-
-import com.thoughtworks.xstream.annotations.XStreamOmitField;
-
-import edu.internet2.middleware.grouper.GrouperSession;
 
 /**
  * this represents a query which can be and'ed or or'ed
  */
 public class WsQueryFilter {
-
-  /** grouper session */
-  @XStreamOmitField
-  private GrouperSession grouperSession = null;
 
   /**
    * findGroupType is the WsQueryFilterType enum for which type of find is happening:  e.g.
@@ -252,31 +243,6 @@ public class WsQueryFilter {
    */
   public void setQueryFilter1(WsQueryFilter theQueryFilter1) {
     this.queryFilter1 = theQueryFilter1;
-  }
-
-  /**
-   * 
-   * @see java.lang.Object#toString()
-   */
-  @Override
-  public String toString() {
-    //delegate here
-    return new ReflectionToStringBuilder(this).toString();
-  }
-
-  /**
-   * grouper session
-   * @param grouperSession1 the grouperSession to set
-   */
-  public void assignGrouperSession(GrouperSession grouperSession1) {
-    this.grouperSession = grouperSession1;
-    
-    if (this.queryFilter0 != null) {
-      this.queryFilter0.assignGrouperSession(grouperSession1);
-    }
-    if (this.queryFilter1 != null) {
-      this.queryFilter1.assignGrouperSession(grouperSession1);
-    }
   }
 
   /**

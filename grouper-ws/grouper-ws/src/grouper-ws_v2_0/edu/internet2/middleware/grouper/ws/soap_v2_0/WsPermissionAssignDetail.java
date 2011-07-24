@@ -4,8 +4,6 @@
  */
 package edu.internet2.middleware.grouper.ws.soap_v2_0;
 
-import edu.internet2.middleware.grouper.permissions.PermissionEntry;
-import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
 
 
 /**
@@ -13,7 +11,6 @@ import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
  */
 public class WsPermissionAssignDetail {
 
-  
   /** depth of role set hierarchy, 0 means immediate */
   private String roleSetDepth;
   
@@ -291,28 +288,6 @@ public class WsPermissionAssignDetail {
    */
   public WsPermissionAssignDetail() {
     //default constructor
-  }
-  
-  /**
-   * construct with permission entry to set internal fields
-   * 
-   * @param permissionEntry
-   */
-  public WsPermissionAssignDetail(PermissionEntry permissionEntry) {
-    
-    this.actionDepth = Integer.toString(permissionEntry.getAttributeAssignActionSetDepth());
-    this.actionId = permissionEntry.getActionId();
-    this.assignmentNotes = permissionEntry.getAssignmentNotes();
-    this.attributeDefNameSetDepth = Integer.toString(permissionEntry.getAttributeDefNameSetDepth());
-    this.disabledTime = GrouperServiceUtils.dateToString(permissionEntry.getDisabledTime());
-    this.enabledTime = GrouperServiceUtils.dateToString(permissionEntry.getEnabledTime());
-    this.immediateMembership = permissionEntry.isImmediateMembership() ? "T" : "F";
-    this.immediatePermission = permissionEntry.isImmediatePermission() ? "T" : "F";
-    this.memberId = permissionEntry.getMemberId();
-    this.membershipDepth = Integer.toString(permissionEntry.getMembershipDepth());
-    this.permissionDelegatable = permissionEntry.getAttributeAssignDelegatableDb();
-    this.roleSetDepth = Integer.toString(permissionEntry.getRoleSetDepth());
-    
   }
 
 }

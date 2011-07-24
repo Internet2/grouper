@@ -1,10 +1,5 @@
 package edu.internet2.middleware.grouper.ws.soap_v2_0;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import edu.internet2.middleware.grouper.misc.GrouperVersion;
-import edu.internet2.middleware.grouper.ws.WsResultCode;
 
 /**
  * <pre>
@@ -19,72 +14,6 @@ import edu.internet2.middleware.grouper.ws.WsResultCode;
  * @author mchyzer
  */
 public class WsHasMemberLiteResult {
-
-  /**
-   * logger 
-   */
-  @SuppressWarnings("unused")
-  private static final Log LOG = LogFactory.getLog(WsHasMemberLiteResult.class);
-
-  /**
-   * result code of a request
-   */
-  public static enum WsHasMemberLiteResultCode implements WsResultCode {
-
-    /** discovered if each was a member of not (lite http status code 404) (success: F) */
-    GROUP_NOT_FOUND(404),
-
-    /** had an exception while figuring out if the subjects were members (lite http status code 500) (success: F) */
-    EXCEPTION(500),
-
-    /** invalid query (e.g. if everything blank) (lite http status code 400) (success: F) */
-    INVALID_QUERY(400), 
-    
-    /** the subject is a member (lite http status code 200) (success = T) */
-    IS_MEMBER(200), 
-    
-    /** the subject was found and is not a member (lite http status code 200) (success = T) */
-    IS_NOT_MEMBER(200), 
-    
-    /** found multiple results (lite http status code 409) (success = F) */
-    SUBJECT_DUPLICATE(409), 
-    
-    /** cant find the subject (lite http status code 404) (success = F) */
-    SUBJECT_NOT_FOUND(404);
-
-    /** get the name label for a certain version of client 
-     * @param clientVersion 
-     * @return */
-    public String nameForVersion(GrouperVersion clientVersion) {
-      return this.name();
-    }
-
-    /** http status code for rest/lite e.g. 200 */
-    private int httpStatusCode;
-
-    /**
-     * status code for rest/lite e.g. 200
-     * @param statusCode
-     */
-    private WsHasMemberLiteResultCode(int statusCode) {
-      this.httpStatusCode = statusCode;
-    }
-
-    /**
-     * @see edu.internet2.middleware.grouper.ws.WsResultCode#getHttpStatusCode()
-     */
-    public int getHttpStatusCode() {
-      return this.httpStatusCode;
-    }
-
-    /**
-     * if this is a successful result
-     * @return true if success
-     */
-    public boolean isSuccess() {
-      return this.equals(IS_MEMBER) || this.equals(IS_NOT_MEMBER);
-    }
-  }
 
   /**
    * results for each assignment sent in

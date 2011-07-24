@@ -3,13 +3,6 @@
  */
 package edu.internet2.middleware.grouper.ws.soap_v2_0;
 
-import java.util.Set;
-
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.builder.ToStringBuilder;
-
-import edu.internet2.middleware.grouper.attr.AttributeDefName;
-import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * Result of one attribute def name being retrieved.  The number of
@@ -17,42 +10,13 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * 
  * @author mchyzer
  */
-public class WsAttributeDefName implements Comparable<WsAttributeDefName> {
-
-  /**
-   * make sure this is an explicit toString
-   */
-  @Override
-  public String toString() {
-    return ToStringBuilder.reflectionToString(this);
-  }
+public class WsAttributeDefName {
 
   /** extension of attributeDefName, the part to the right of last colon in name */
   private String extension;
 
   /** display extension, the part to the right of the last colon in display name */
   private String displayExtension;
-
-  /**
-   * convert a set of attribute def names to results
-   * @param attributeDefNameSet
-   * @return the attributeDefNames (null if none or null)
-   */
-  public static WsAttributeDefName[] convertAttributeDefNames(Set<AttributeDefName> attributeDefNameSet) {
-    if (attributeDefNameSet == null || attributeDefNameSet.size() == 0) {
-      return null;
-    }
-    int attributeDefNameSetSize = attributeDefNameSet.size();
-    WsAttributeDefName[] wsAttributeDefNameResults = new WsAttributeDefName[attributeDefNameSetSize];
-    int index = 0;
-    for (AttributeDefName attributeDefName : attributeDefNameSet) {
-      WsAttributeDefName wsAttributeDefName = new WsAttributeDefName(attributeDefName, null);
-      wsAttributeDefNameResults[index] = wsAttributeDefName;
-      index++;
-    }
-    return wsAttributeDefNameResults;
-
-  }
 
   /**
    * friendly description of this attributeDefName
@@ -119,32 +83,6 @@ public class WsAttributeDefName implements Comparable<WsAttributeDefName> {
   public WsAttributeDefName() {
     //blank
 
-  }
-
-  /**
-   * construct based on attribute def name, assign all fields
-   * @param theAttributeDefName 
-   * @param wsAttributeDefNameLookup is the lookup to set looked up values
-   */
-  public WsAttributeDefName(AttributeDefName theAttributeDefName, WsAttributeDefNameLookup wsAttributeDefNameLookup) {
-    if (theAttributeDefName != null) {
-      this.setDescription(StringUtils.trimToNull(theAttributeDefName.getDescription()));
-      this.setDisplayName(theAttributeDefName.getDisplayName());
-      this.setName(theAttributeDefName.getName());
-      this.setUuid(theAttributeDefName.getId());
-      this.setExtension(theAttributeDefName.getExtension());
-      this.setDisplayExtension(theAttributeDefName.getDisplayExtension());
-      this.setAttributeDefId(theAttributeDefName.getAttributeDefId());
-      this.setAttributeDefName(theAttributeDefName.getAttributeDef().getName());
-      
-    } else {
-      if (wsAttributeDefNameLookup != null) {
-        //no attributeDefName, set the look values so the caller can keep things in sync
-        this.setName(wsAttributeDefNameLookup.getName());
-        this.setUuid(wsAttributeDefNameLookup.getUuid());
-        this.setExtension(GrouperUtil.extensionFromName(wsAttributeDefNameLookup.getName()));
-      }
-    }
   }
 
   /**
@@ -243,22 +181,5 @@ public class WsAttributeDefName implements Comparable<WsAttributeDefName> {
    */
   public void setDisplayExtension(String displayExtension1) {
     this.displayExtension = displayExtension1;
-  }
-
-  /**
-   * @see java.lang.Comparable#compareTo(java.lang.Object)
-   */
-  public int compareTo(WsAttributeDefName o2) {
-    if (this == o2) {
-      return 0;
-    }
-    //lets by null safe here
-    if (this == null) {
-      return -1;
-    }
-    if (o2 == null) {
-      return 1;
-    }
-    return GrouperUtil.compare(this.getName(), o2.getName());
   }
 }

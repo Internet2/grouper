@@ -5,15 +5,10 @@ package edu.internet2.middleware.grouper.ws.soap_v2_0;
 
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 
-import edu.internet2.middleware.grouper.GrouperSession;
-
 /**
  * this represents a query which can be and'ed or or'ed
  */
 public class WsStemQueryFilter {
-
-  /** grouper session */
-  private GrouperSession grouperSession = null;
 
   /**
    * findStemType is the WsStemQueryFilterType enum for which type of find is happening:  e.g.

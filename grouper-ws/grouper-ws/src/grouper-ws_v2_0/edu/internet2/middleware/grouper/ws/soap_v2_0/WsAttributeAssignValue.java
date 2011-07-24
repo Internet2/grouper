@@ -4,17 +4,12 @@
  */
 package edu.internet2.middleware.grouper.ws.soap_v2_0;
 
-import java.util.Set;
-
-import edu.emory.mathcs.backport.java.util.Arrays;
-import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
-import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
 /**
  * value of an attribute assign
  */
-public class WsAttributeAssignValue implements Comparable<WsAttributeAssignValue> {
+public class WsAttributeAssignValue {
 
   /** id of this attribute assignment */
   private String id;
@@ -58,27 +53,6 @@ public class WsAttributeAssignValue implements Comparable<WsAttributeAssignValue
   }
 
   /**
-   * compare and sort so results are reproducible for tests
-   * @see java.lang.Comparable#compareTo(java.lang.Object)
-   */
-  public int compareTo(WsAttributeAssignValue o2) {
-    if (this == o2) {
-      return 0;
-    }
-    //lets by null safe here
-    if (o2 == null) {
-      return 1;
-    }
-    int compare;
-    
-    compare = GrouperUtil.compare(this.valueSystem, o2.valueSystem);
-    if (compare != 0) {
-      return compare;
-    }
-    return GrouperUtil.compare(this.id, o2.id);
-  }
-
-  /**
    * id of this attribute assignment
    * @return id
    */
@@ -94,48 +68,10 @@ public class WsAttributeAssignValue implements Comparable<WsAttributeAssignValue
     this.id = id1;
   }
 
-  /** 
-   * convert attribute assigns
-   * @param attributeAssignValueSet should be the value row
-   * @return the subject results
-   */
-  public static WsAttributeAssignValue[] convertAttributeAssigns(Set<AttributeAssignValue> attributeAssignValueSet) {
-    int attributeAssignSetLength = GrouperUtil.length(attributeAssignValueSet);
-    if (attributeAssignSetLength == 0) {
-      return null;
-    }
-  
-    WsAttributeAssignValue[] wsAttributeAssignValueResultArray = new WsAttributeAssignValue[attributeAssignSetLength];
-    int index = 0;
-    for (AttributeAssignValue attributeAssignValue : attributeAssignValueSet) {
-            
-      wsAttributeAssignValueResultArray[index++] = new WsAttributeAssignValue(attributeAssignValue);
-      
-    }
-    
-    Arrays.sort(wsAttributeAssignValueResultArray);
-    
-    return wsAttributeAssignValueResultArray;
-  }
-
-
   /**
    * 
    */
   public WsAttributeAssignValue() {
     //default constructor
   }
-  
-  /**
-   * construct with attribute assign to set internal fields
-   * 
-   * @param attributeAssignValue
-   */
-  public WsAttributeAssignValue(AttributeAssignValue attributeAssignValue) {
-
-    this.id = attributeAssignValue.getId();
-    this.valueSystem = attributeAssignValue.valueString(true);
-    
-  }
-
 }

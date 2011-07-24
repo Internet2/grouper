@@ -1,11 +1,5 @@
 package edu.internet2.middleware.grouper.ws.soap_v2_0;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import edu.internet2.middleware.grouper.misc.GrouperVersion;
-import edu.internet2.middleware.grouper.ws.WsResultCode;
 
 /**
  * <pre>
@@ -20,75 +14,6 @@ import edu.internet2.middleware.grouper.ws.WsResultCode;
  * @author mchyzer
  */
 public class WsDeleteMemberResults {
-
-  /** logger */
-  private static final Log LOG = LogFactory.getLog(WsDeleteMemberResults.class);
-
-  /**
-   * result code of a request
-   */
-  public static enum WsDeleteMemberResultsCode implements WsResultCode {
-
-    /** cant find group (rest http status code 404) (success: F) */
-    GROUP_NOT_FOUND(404),
-
-    /** found the subject (rest http status code 200) (success: T) */
-    SUCCESS(200),
-
-    /** found the subject (rest http status code 500) (success: F) */
-    EXCEPTION(500),
-
-    /** problem deleting existing members (rest http status code 500) (success: F) */
-    PROBLEM_DELETING_MEMBERS(500),
-
-    /** invalid query (e.g. if everything blank) (rest http status code 400) (success: F) */
-    INVALID_QUERY(400);
-
-    /** get the name label for a certain version of client 
-     * @param clientVersion 
-     * @return */
-    public String nameForVersion(GrouperVersion clientVersion) {
-      return this.name();
-    }
-
-    /**
-     * if this is a successful result
-     * @return true if success
-     */
-    public boolean isSuccess() {
-      return this.name().startsWith("SUCCESS");
-    }
-
-    /** http status code for rest/lite e.g. 200 */
-    private int httpStatusCode;
-
-    /**
-     * status code for rest/lite e.g. 200
-     * @param statusCode
-     */
-    private WsDeleteMemberResultsCode(int statusCode) {
-      this.httpStatusCode = statusCode;
-    }
-
-    /**
-     * @see edu.internet2.middleware.grouper.ws.WsResultCode#getHttpStatusCode()
-     */
-    public int getHttpStatusCode() {
-      return this.httpStatusCode;
-    }
-  }
-
-  /**
-   * convert the result code back to enum
-   * 
-   * @return the enum code
-   */
-  public WsDeleteMemberResultsCode retrieveResultCode() {
-    if (StringUtils.isBlank(this.getResultMetadata().getResultCode())) {
-      return null;
-    }
-    return WsDeleteMemberResultsCode.valueOf(this.getResultMetadata().getResultCode());
-  }
 
   /**
    * results for each assignment sent in

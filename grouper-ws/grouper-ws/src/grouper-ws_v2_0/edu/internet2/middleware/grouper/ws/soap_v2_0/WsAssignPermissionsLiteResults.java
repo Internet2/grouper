@@ -1,13 +1,5 @@
 package edu.internet2.middleware.grouper.ws.soap_v2_0;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.exception.ExceptionUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributesResults.WsAssignAttributesResultsCode;
-import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 
 /**
  * <pre>
@@ -100,22 +92,6 @@ public class WsAssignPermissionsLiteResults {
   }
   
   /**
-   * 
-   * @param wsAssignPermissionsResults
-   */
-  public WsAssignPermissionsLiteResults(WsAssignPermissionsResults wsAssignPermissionsResults) {
-    this.responseMetadata = wsAssignPermissionsResults.getResponseMetadata();
-    this.resultMetadata = wsAssignPermissionsResults.getResultMetadata();
-    this.subjectAttributeNames = wsAssignPermissionsResults.getSubjectAttributeNames();
-    this.wsPermissionAssignResult = GrouperUtil.arrayPopOne(wsAssignPermissionsResults.getWsAssignPermissionResults());
-    this.wsAttributeDefName = GrouperUtil.arrayPopOne(wsAssignPermissionsResults.getWsAttributeDefNames());
-    this.wsAttributeDefs = wsAssignPermissionsResults.getWsAttributeDefs();
-    this.wsGroup = GrouperUtil.arrayPopOne(wsAssignPermissionsResults.getWsGroups());
-    this.wsSubject = GrouperUtil.arrayPopOne(wsAssignPermissionsResults.getWsSubjects());
-    
-  }
-  
-  /**
    * attributes of subjects returned, in same order as the data
    * @return the attributeNames
    */
@@ -157,12 +133,6 @@ public class WsAssignPermissionsLiteResults {
    * subjects that are in the result
    */
   private WsSubject wsSubject;
-
-  /**
-   * logger 
-   */
-  @SuppressWarnings("unused")
-  private static final Log LOG = LogFactory.getLog(WsAssignPermissionsLiteResults.class);
 
   /**
    * @see edu.internet2.middleware.grouper.ws.rest.WsResponseBean#getResponseMetadata()
@@ -216,45 +186,5 @@ public class WsAssignPermissionsLiteResults {
    */
   public void setWsSubject(WsSubject wsSubject1) {
     this.wsSubject = wsSubject1;
-  }
-
-  /**
-   * prcess an exception, log, etc
-   * @param wsGetAttributeAssignmentsResultsCodeOverride
-   * @param theError
-   * @param e
-   */
-  public void assignResultCodeException(
-      WsAssignAttributesResultsCode wsGetAttributeAssignmentsResultsCodeOverride, String theError,
-      Exception e) {
-  
-    if (e instanceof WsInvalidQueryException) {
-      wsGetAttributeAssignmentsResultsCodeOverride = GrouperUtil.defaultIfNull(
-          wsGetAttributeAssignmentsResultsCodeOverride, WsAssignAttributesResultsCode.INVALID_QUERY);
-      //a helpful exception will probably be in the getMessage()
-      this.assignResultCode(wsGetAttributeAssignmentsResultsCodeOverride);
-      this.getResultMetadata().appendResultMessage(e.getMessage());
-      this.getResultMetadata().appendResultMessage(theError);
-      LOG.warn(e);
-  
-    } else {
-      wsGetAttributeAssignmentsResultsCodeOverride = GrouperUtil.defaultIfNull(
-          wsGetAttributeAssignmentsResultsCodeOverride, WsAssignAttributesResultsCode.EXCEPTION);
-      LOG.error(theError, e);
-  
-      theError = StringUtils.isBlank(theError) ? "" : (theError + ", ");
-      this.getResultMetadata().appendResultMessage(
-          theError + ExceptionUtils.getFullStackTrace(e));
-      this.assignResultCode(wsGetAttributeAssignmentsResultsCodeOverride);
-  
-    }
-  }
-
-  /**
-   * assign the code from the enum
-   * @param getAttributeAssignmentsResultCode
-   */
-  public void assignResultCode(WsAssignAttributesResultsCode getAttributeAssignmentsResultCode) {
-    this.getResultMetadata().assignResultCode(getAttributeAssignmentsResultCode);
   }
 }

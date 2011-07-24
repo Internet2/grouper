@@ -4,25 +4,6 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.grouper.ws.coresoap.WsAddMemberLiteResult;
-import edu.internet2.middleware.grouper.ws.coresoap.WsAddMemberResults;
-import edu.internet2.middleware.grouper.ws.coresoap.WsAssignPermissionsLiteResults;
-import edu.internet2.middleware.grouper.ws.coresoap.WsAssignPermissionsResults;
-import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeAssignLookup;
-import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefLookup;
-import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameLookup;
-import edu.internet2.middleware.grouper.ws.coresoap.WsGetGroupsLiteResult;
-import edu.internet2.middleware.grouper.ws.coresoap.WsGetGroupsResults;
-import edu.internet2.middleware.grouper.ws.coresoap.WsGetMembersLiteResult;
-import edu.internet2.middleware.grouper.ws.coresoap.WsGetMembersResults;
-import edu.internet2.middleware.grouper.ws.coresoap.WsGetPermissionAssignmentsResults;
-import edu.internet2.middleware.grouper.ws.coresoap.WsGroupLookup;
-import edu.internet2.middleware.grouper.ws.coresoap.WsHasMemberLiteResult;
-import edu.internet2.middleware.grouper.ws.coresoap.WsHasMemberResults;
-import edu.internet2.middleware.grouper.ws.coresoap.WsMembershipAnyLookup;
-import edu.internet2.middleware.grouper.ws.coresoap.WsParam;
-import edu.internet2.middleware.grouper.ws.coresoap.WsStemLookup;
-import edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
 
 

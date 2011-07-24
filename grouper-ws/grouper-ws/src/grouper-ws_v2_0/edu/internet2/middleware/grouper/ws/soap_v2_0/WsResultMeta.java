@@ -4,13 +4,8 @@
 package edu.internet2.middleware.grouper.ws.soap_v2_0;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.builder.ToStringBuilder;
 
-import com.thoughtworks.xstream.annotations.XStreamOmitField;
-
-import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.ws.WsResultCode;
-import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
 
 /**
  * result metadata (if success, result code, etc) for one result
@@ -19,30 +14,9 @@ import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
  */
 public class WsResultMeta {
 
-  /**
-   * make sure this is an explicit toString
-   */
-  @Override
-  public String toString() {
-    return ToStringBuilder.reflectionToString(this);
-  }
-
   /** params for result */
   private WsParam[] params = null;
   
-  /**
-   * copy fields from another result meta.  will append warnings
-   * and errors
-   * @param wsResultMeta
-   */
-  public void copyFields(WsResultMeta wsResultMeta) {
-    this.httpStatusCode = wsResultMeta.httpStatusCode;
-    this.resultCode = wsResultMeta.resultCode;
-    this.success = wsResultMeta.success;
-    this.appendResultMessage(wsResultMeta.getResultMessage());
-    this.setResultCode2(wsResultMeta.getResultCode2());
-  }
-
   /**
    * <pre>
    * code of the result for this subject
@@ -69,25 +43,6 @@ public class WsResultMeta {
 
   /** T or F as to whether it was a successful assignment */
   private String success;
-
-  /** status code, if 500, then not set */
-  @XStreamOmitField
-  private int httpStatusCode = 500;
-
-  /**
-   * append error message to list of error messages
-   * 
-   * @param errorMessage
-   */
-  public void appendResultMessage(String errorMessage) {
-    if (StringUtils.isBlank(errorMessage)) {
-      return;
-    }
-    if (this.resultMessage == null) {
-      this.resultMessage = new StringBuilder();
-    }
-    this.resultMessage.append(errorMessage);
-  }
 
   /**
    * <pre>
@@ -157,43 +112,6 @@ public class WsResultMeta {
   }
 
   /**
-   * <pre>
-   * code of the result for this subject
-   * SUCCESS: means everything ok
-   * SUBJECT_NOT_FOUND: cant find the subject
-   * SUBJECT_DUPLICATE: found multiple subjects
-   *  
-   * </pre>
-   * 
-   * @param resultCode1
-   *            the resultCode to set
-   */
-  public void assignResultCode(String resultCode1) {
-    this.resultCode = resultCode1;
-  }
-
-  /**
-   * set result code which includes the success and http status code
-   * @param wsResultCode1 bean
-   * @param grouperWsVersion 
-   */
-  public void assignResultCode(WsResultCode wsResultCode1) {
-    this.assignResultCode(wsResultCode1, null);
-  }
- 
-  /**
-   * set result code which includes the success and http status code
-   * @param wsResultCode1 bean
-   * @param clientVersion 
-   */
-  public void assignResultCode(WsResultCode wsResultCode1, GrouperVersion clientVersion) {
-    this.assignResultCode(wsResultCode1.nameForVersion(clientVersion));
-    this.assignSuccess(GrouperServiceUtils.booleanToStringOneChar(wsResultCode1
-        .isSuccess()));
-    this.assignHttpStatusCode(wsResultCode1.getHttpStatusCode());
-  }
-
-  /**
    * error message if there is an error
    * 
    * @param errorMessage
@@ -207,33 +125,6 @@ public class WsResultMeta {
     }
   }
 
-  /**
-   * T or F as to whether it was a successful assignment
-   * 
-   * @param success1
-   *            the success to set
-   */
-  public void assignSuccess(String success1) {
-    this.success = success1;
-  }
-
-  /**
-   * status code for http lite / rest .  not a getter so isnt in soap/lite response
-   * @return the status code e.g. 200, if 500, then not initted
-   */
-  public int retrieveHttpStatusCode() {
-    return this.httpStatusCode;
-  }
-
-  /**
-   * status code for http lite / rest .  not a setter so isnt in soap/lite response
-   * @param statusCode1 the status code e.g. 200, if 500, then not initted
-   */
-  public void assignHttpStatusCode(int statusCode1) {
-    this.httpStatusCode = statusCode1;
-  }
-
-  
   /**
    * @return the params
    */
