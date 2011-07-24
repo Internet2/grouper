@@ -506,12 +506,27 @@
 			</fileset>
 		</copy>
 
+		<!-- move aar files in dev -->
+    <if>
+      <istrue value="${webapp.authentication.use.rampart.rename.indev}" />
+      <then>
+      	<delete file="webapp/WEB-INF/services/GrouperServiceWssec.aar.dontuse" />
+        <move file="webapp/WEB-INF/services/GrouperServiceWssec.aar" 
+          tofile="webapp/WEB-INF/services/GrouperServiceWssec.aar.dontuse"  />
+        <delete file="webapp/WEB-INF/services/GrouperServiceWssec_v2_0.aar.dontuse" />
+        <move file="webapp/WEB-INF/services/GrouperServiceWssec_v2_0.aar" 
+          tofile="webapp/WEB-INF/services/GrouperServiceWssec_v2_0.aar.dontuse"  />
+      </then>
+    </if>
+
 	  <!-- decide if  rampart or not -->
     <if>
       <istrue value="${webapp.authentication.use.rampart}" />
       <then>
         <move file="${webapp.folder}/WEB-INF/services/GrouperService.aar" 
           tofile="${webapp.folder}/WEB-INF/services/GrouperService.aar.ondeck"  />
+        <move file="${webapp.folder}/WEB-INF/services/GrouperService_v2_0.aar" 
+          tofile="${webapp.folder}/WEB-INF/services/GrouperService_v2_0.aar.isondeck"  />
       </then>
       <else>
         <if>
@@ -520,6 +535,14 @@
           <then>
             <move file="${webapp.folder}/WEB-INF/services/GrouperServiceWssec.aar" 
               tofile="${webapp.folder}/WEB-INF/services/GrouperServiceWssec.aar.ondeck"  />
+          </then>
+        </if>
+        <if>
+          <!-- might not be there if not there all the time for steady state -->
+          <available file="${webapp.folder}/WEB-INF/services/GrouperServiceWssec_v2_0.aar" />
+          <then>
+            <move file="${webapp.folder}/WEB-INF/services/GrouperServiceWssec_v2_0.aar" 
+              tofile="${webapp.folder}/WEB-INF/services/GrouperServiceWssec_v2_0.aar.isondeck"  />
           </then>
         </if>
       </else>

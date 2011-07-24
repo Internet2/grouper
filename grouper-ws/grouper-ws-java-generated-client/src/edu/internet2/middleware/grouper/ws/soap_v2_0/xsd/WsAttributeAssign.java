@@ -516,6 +516,50 @@
                             
 
                         /**
+                        * field for Disallowed
+                        */
+
+                        
+                                    protected java.lang.String localDisallowed ;
+                                
+                           /*  This tracker boolean wil be used to detect whether the user called the set method
+                          *   for this attribute. It will be used to determine whether to include this field
+                           *   in the serialized XML
+                           */
+                           protected boolean localDisallowedTracker = false ;
+                           
+
+                           /**
+                           * Auto generated getter method
+                           * @return java.lang.String
+                           */
+                           public  java.lang.String getDisallowed(){
+                               return localDisallowed;
+                           }
+
+                           
+                        
+                            /**
+                               * Auto generated setter method
+                               * @param param Disallowed
+                               */
+                               public void setDisallowed(java.lang.String param){
+                            
+                                       if (param != null){
+                                          //update the setting tracker
+                                          localDisallowedTracker = true;
+                                       } else {
+                                          localDisallowedTracker = true;
+                                              
+                                       }
+                                   
+                                            this.localDisallowed=param;
+                                    
+
+                               }
+                            
+
+                        /**
                         * field for Enabled
                         */
 
@@ -1220,50 +1264,6 @@
                             
 
                         /**
-                        * field for WsAttributeAssignDisallowed
-                        */
-
-                        
-                                    protected edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.WsAttributeAssignDisallowed localWsAttributeAssignDisallowed ;
-                                
-                           /*  This tracker boolean wil be used to detect whether the user called the set method
-                          *   for this attribute. It will be used to determine whether to include this field
-                           *   in the serialized XML
-                           */
-                           protected boolean localWsAttributeAssignDisallowedTracker = false ;
-                           
-
-                           /**
-                           * Auto generated getter method
-                           * @return edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.WsAttributeAssignDisallowed
-                           */
-                           public  edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.WsAttributeAssignDisallowed getWsAttributeAssignDisallowed(){
-                               return localWsAttributeAssignDisallowed;
-                           }
-
-                           
-                        
-                            /**
-                               * Auto generated setter method
-                               * @param param WsAttributeAssignDisallowed
-                               */
-                               public void setWsAttributeAssignDisallowed(edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.WsAttributeAssignDisallowed param){
-                            
-                                       if (param != null){
-                                          //update the setting tracker
-                                          localWsAttributeAssignDisallowedTracker = true;
-                                       } else {
-                                          localWsAttributeAssignDisallowedTracker = true;
-                                              
-                                       }
-                                   
-                                            this.localWsAttributeAssignDisallowed=param;
-                                    
-
-                               }
-                            
-
-                        /**
                         * field for WsAttributeAssignValues
                         * This was an Array!
                         */
@@ -1815,6 +1815,40 @@
                                           }
                                     
                                    xmlWriter.writeEndElement();
+                             } if (localDisallowedTracker){
+                                    namespace = "http://soap_v2_0.ws.grouper.middleware.internet2.edu/xsd";
+                                    if (! namespace.equals("")) {
+                                        prefix = xmlWriter.getPrefix(namespace);
+
+                                        if (prefix == null) {
+                                            prefix = generatePrefix(namespace);
+
+                                            xmlWriter.writeStartElement(prefix,"disallowed", namespace);
+                                            xmlWriter.writeNamespace(prefix, namespace);
+                                            xmlWriter.setPrefix(prefix, namespace);
+
+                                        } else {
+                                            xmlWriter.writeStartElement(namespace,"disallowed");
+                                        }
+
+                                    } else {
+                                        xmlWriter.writeStartElement("disallowed");
+                                    }
+                                
+
+                                          if (localDisallowed==null){
+                                              // write the nil attribute
+                                              
+                                                     writeAttribute("xsi","http://www.w3.org/2001/XMLSchema-instance","nil","1",xmlWriter);
+                                                  
+                                          }else{
+
+                                        
+                                                   xmlWriter.writeCharacters(localDisallowed);
+                                            
+                                          }
+                                    
+                                   xmlWriter.writeEndElement();
                              } if (localEnabledTracker){
                                     namespace = "http://soap_v2_0.ws.grouper.middleware.internet2.edu/xsd";
                                     if (! namespace.equals("")) {
@@ -2359,38 +2393,7 @@
                                           }
                                     
                                    xmlWriter.writeEndElement();
-                             } if (localWsAttributeAssignDisallowedTracker){
-                                    if (localWsAttributeAssignDisallowed==null){
-
-                                            java.lang.String namespace2 = "http://soap_v2_0.ws.grouper.middleware.internet2.edu/xsd";
-
-                                        if (! namespace2.equals("")) {
-                                            java.lang.String prefix2 = xmlWriter.getPrefix(namespace2);
-
-                                            if (prefix2 == null) {
-                                                prefix2 = generatePrefix(namespace2);
-
-                                                xmlWriter.writeStartElement(prefix2,"wsAttributeAssignDisallowed", namespace2);
-                                                xmlWriter.writeNamespace(prefix2, namespace2);
-                                                xmlWriter.setPrefix(prefix2, namespace2);
-
-                                            } else {
-                                                xmlWriter.writeStartElement(namespace2,"wsAttributeAssignDisallowed");
-                                            }
-
-                                        } else {
-                                            xmlWriter.writeStartElement("wsAttributeAssignDisallowed");
-                                        }
-
-
-                                       // write the nil attribute
-                                      writeAttribute("xsi","http://www.w3.org/2001/XMLSchema-instance","nil","1",xmlWriter);
-                                      xmlWriter.writeEndElement();
-                                    }else{
-                                     localWsAttributeAssignDisallowed.serialize(new javax.xml.namespace.QName("http://soap_v2_0.ws.grouper.middleware.internet2.edu/xsd","wsAttributeAssignDisallowed"),
-                                        factory,xmlWriter);
-                                    }
-                                } if (localWsAttributeAssignValuesTracker){
+                             } if (localWsAttributeAssignValuesTracker){
                                        if (localWsAttributeAssignValues!=null){
                                             for (int i = 0;i < localWsAttributeAssignValues.length;i++){
                                                 if (localWsAttributeAssignValues[i] != null){
@@ -2680,6 +2683,12 @@
                                  
                                          elementList.add(localDisabledTime==null?null:
                                          org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localDisabledTime));
+                                    } if (localDisallowedTracker){
+                                      elementList.add(new javax.xml.namespace.QName("http://soap_v2_0.ws.grouper.middleware.internet2.edu/xsd",
+                                                                      "disallowed"));
+                                 
+                                         elementList.add(localDisallowed==null?null:
+                                         org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localDisallowed));
                                     } if (localEnabledTracker){
                                       elementList.add(new javax.xml.namespace.QName("http://soap_v2_0.ws.grouper.middleware.internet2.edu/xsd",
                                                                       "enabled"));
@@ -2776,14 +2785,7 @@
                                  
                                          elementList.add(localOwnerStemName==null?null:
                                          org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localOwnerStemName));
-                                    } if (localWsAttributeAssignDisallowedTracker){
-                            elementList.add(new javax.xml.namespace.QName("http://soap_v2_0.ws.grouper.middleware.internet2.edu/xsd",
-                                                                      "wsAttributeAssignDisallowed"));
-                            
-                            
-                                    elementList.add(localWsAttributeAssignDisallowed==null?null:
-                                    localWsAttributeAssignDisallowed);
-                                } if (localWsAttributeAssignValuesTracker){
+                                    } if (localWsAttributeAssignValuesTracker){
                              if (localWsAttributeAssignValues!=null) {
                                  for (int i = 0;i < localWsAttributeAssignValues.length;i++){
 
@@ -3167,6 +3169,33 @@
                                     java.lang.String content = reader.getElementText();
                                     
                                               object.setDisabledTime(
+                                                    org.apache.axis2.databinding.utils.ConverterUtil.convertToString(content));
+                                            
+                                       } else {
+                                           
+                                           
+                                           reader.getElementText(); // throw away text nodes if any.
+                                       }
+                                      
+                                        reader.next();
+                                    
+                              }  // End of if for expected property start element
+                                
+                                    else {
+                                        
+                                    }
+                                
+                                    
+                                    while (!reader.isStartElement() && !reader.isEndElement()) reader.next();
+                                
+                                    if (reader.isStartElement() && new javax.xml.namespace.QName("http://soap_v2_0.ws.grouper.middleware.internet2.edu/xsd","disallowed").equals(reader.getName())){
+                                
+                                       nillableValue = reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance","nil");
+                                       if (!"true".equals(nillableValue) && !"1".equals(nillableValue)){
+                                    
+                                    java.lang.String content = reader.getElementText();
+                                    
+                                              object.setDisallowed(
                                                     org.apache.axis2.databinding.utils.ConverterUtil.convertToString(content));
                                             
                                        } else {
@@ -3609,30 +3638,6 @@
                                       
                                         reader.next();
                                     
-                              }  // End of if for expected property start element
-                                
-                                    else {
-                                        
-                                    }
-                                
-                                    
-                                    while (!reader.isStartElement() && !reader.isEndElement()) reader.next();
-                                
-                                    if (reader.isStartElement() && new javax.xml.namespace.QName("http://soap_v2_0.ws.grouper.middleware.internet2.edu/xsd","wsAttributeAssignDisallowed").equals(reader.getName())){
-                                
-                                      nillableValue = reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance","nil");
-                                      if ("true".equals(nillableValue) || "1".equals(nillableValue)){
-                                          object.setWsAttributeAssignDisallowed(null);
-                                          reader.next();
-                                            
-                                            reader.next();
-                                          
-                                      }else{
-                                    
-                                                object.setWsAttributeAssignDisallowed(edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.WsAttributeAssignDisallowed.Factory.parse(reader));
-                                              
-                                        reader.next();
-                                    }
                               }  // End of if for expected property start element
                                 
                                     else {

@@ -650,16 +650,6 @@
               
                   if (
                   "http://soap_v2_0.ws.grouper.middleware.internet2.edu/xsd".equals(namespaceURI) &&
-                  "WsAttributeAssignDisallowed".equals(typeName)){
-                   
-                            return  edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.WsAttributeAssignDisallowed.Factory.parse(reader);
-                        
-
-                  }
-
-              
-                  if (
-                  "http://soap_v2_0.ws.grouper.middleware.internet2.edu/xsd".equals(namespaceURI) &&
                   "WsDeleteMemberResults".equals(typeName)){
                    
                             return  edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.WsDeleteMemberResults.Factory.parse(reader);

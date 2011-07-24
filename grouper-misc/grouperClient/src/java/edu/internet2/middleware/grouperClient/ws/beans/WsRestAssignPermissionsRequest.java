@@ -363,6 +363,9 @@ public class WsRestAssignPermissionsRequest implements WsRequestBean {
    */
   private WsAttributeDefLookup[] attributeDefsToReplace;
 
+  /** T or F (defaults to F), if this permission assignment is disallowed */
+  private String disallowed;
+
   
   
   /**
@@ -415,6 +418,22 @@ public class WsRestAssignPermissionsRequest implements WsRequestBean {
    */
   public void setAttributeDefsToReplace(WsAttributeDefLookup[] attributeDefsToReplace1) {
     this.attributeDefsToReplace = attributeDefsToReplace1;
+  }
+
+  /**
+   * T or F (defaults to F), if this permission assignment is disallowed
+   * @return T or F (defaults to F), if this permission assignment is disallowed
+   */
+  public String getDisallowed() {
+    return this.disallowed;
+  }
+
+  /**
+   * T or F (defaults to F), if this permission assignment is disallowed
+   * @param disallowed1
+   */
+  public void setDisallowed(String disallowed1) {
+    this.disallowed = disallowed1;
   }
 
   

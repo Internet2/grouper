@@ -265,6 +265,7 @@
                     <xs:element minOccurs="0" name="attributeDefNameName" nillable="true" type="xs:string"/>
                     <xs:element minOccurs="0" name="createdOn" nillable="true" type="xs:string"/>
                     <xs:element minOccurs="0" name="disabledTime" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="disallowed" nillable="true" type="xs:string"/>
                     <xs:element minOccurs="0" name="enabled" nillable="true" type="xs:string"/>
                     <xs:element minOccurs="0" name="enabledTime" nillable="true" type="xs:string"/>
                     <xs:element minOccurs="0" name="id" nillable="true" type="xs:string"/>
@@ -281,13 +282,7 @@
                     <xs:element minOccurs="0" name="ownerMembershipId" nillable="true" type="xs:string"/>
                     <xs:element minOccurs="0" name="ownerStemId" nillable="true" type="xs:string"/>
                     <xs:element minOccurs="0" name="ownerStemName" nillable="true" type="xs:string"/>
-                    <xs:element minOccurs="0" name="wsAttributeAssignDisallowed" nillable="true" type="ns:WsAttributeAssignDisallowed"/>
                     <xs:element maxOccurs="unbounded" minOccurs="0" name="wsAttributeAssignValues" nillable="true" type="ns:WsAttributeAssignValue"/>
-                </xs:sequence>
-            </xs:complexType>
-            <xs:complexType name="WsAttributeAssignDisallowed">
-                <xs:sequence>
-                    <xs:element minOccurs="0" name="disallowed" nillable="true" type="xs:string"/>
                 </xs:sequence>
             </xs:complexType>
             <xs:complexType name="WsAttributeDefName">

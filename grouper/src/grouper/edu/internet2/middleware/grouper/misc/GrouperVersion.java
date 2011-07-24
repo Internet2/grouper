@@ -21,6 +21,18 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  */
 public class GrouperVersion {
   
+  /**
+   * return the parsed and tostring version of this version string (consistent), 
+   * or null if nothing passed in
+   * @param versionString
+   * @return the version string
+   */
+  public static String stringValueOrNull(String versionString) {
+    if (StringUtils.isBlank(versionString)) {
+      return null;
+    }
+    return valueOfIgnoreCase(versionString, true).toString();
+  }
   
   /**
    * @see Object#equals(Object)
