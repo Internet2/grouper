@@ -13,7 +13,305 @@ import edu.internet2.middleware.grouper.ws.rest.method.GrouperRestHttpMethod;
  */
 public class WsRestGetPermissionAssignmentsLiteRequest implements WsRequestBean {
 
+  /**
+   * includeLimits T or F (default to F) for if limits should be returned with the results.
+   * Note that the attributeDefs, attributeDefNames, and attributeAssignments will be added to those lists
+   */
+  private String includeLimits;
+  
+  /**
+   * includeLimits T or F (default to F) for if limits should be returned with the results.
+   * Note that the attributeDefs, attributeDefNames, and attributeAssignments will be added to those lists
+   * @return the includeLimits
+   */
+  public String getIncludeLimits() {
+    return this.includeLimits;
+  }
+  
+  /**
+   * includeLimits T or F (default to F) for if limits should be returned with the results.
+   * Note that the attributeDefs, attributeDefNames, and attributeAssignments will be added to those lists
+   * @param includeLimits1 the includeLimits to set
+   */
+  public void setIncludeLimits(String includeLimits1) {
+    this.includeLimits = includeLimits1;
+  }
 
+  /**
+   * immediateOnly T of F (defaults to F) if we should filter out non immediate permissions
+   */
+  private String immediateOnly;
+
+  /**
+   * immediateOnly T of F (defaults to F) if we should filter out non immediate permissions
+   * @return the immediateOnly
+   */
+  public String getImmediateOnly() {
+    return this.immediateOnly;
+  }
+
+  /**
+   * immediateOnly T of F (defaults to F) if we should filter out non immediate permissions
+   * @param immediateOnly1 the immediateOnly to set
+   */
+  public void setImmediateOnly(String immediateOnly1) {
+    this.immediateOnly = immediateOnly1;
+  }
+
+  /**
+   * are we looking for role permissions or subject permissions?  from
+   * enum PermissionType: role, or role_subject.  defaults to role_subject permissions
+   * @return the permissionType
+   */
+  public String getPermissionType() {
+    return this.permissionType;
+  }
+
+  /**
+   * are we looking for role permissions or subject permissions?  from
+   * enum PermissionType: role, or role_subject.  defaults to role_subject permissions
+   * @param permissionType1 the permissionType to set
+   */
+  public void setPermissionType(String permissionType1) {
+    this.permissionType = permissionType1;
+  }
+
+  /**
+   * are we looking for role permissions or subject permissions?  from
+   * enum PermissionType: role, or role_subject.  defaults to role_subject permissions
+   */
+  private String permissionType;
+
+  /**
+   * first env var name
+   * limitEnvVars limitEnvVars if processing limits, pass in a set of limits.  The name is the
+   * name of the variable, and the value is the value.  Note, you can typecast the
+   * values by putting a valid type in parens in front of the param name.  e.g.
+   * name: (int)amount, value: 50
+   */
+  private String limitEnvVarName0;
+  
+  
+  /**
+   * first env var name
+   * limitEnvVars limitEnvVars if processing limits, pass in a set of limits.  The name is the
+   * name of the variable, and the value is the value.  Note, you can typecast the
+   * values by putting a valid type in parens in front of the param name.  e.g.
+   * name: (int)amount, value: 50
+   * @return the limitEnvVarName0
+   */
+  public String getLimitEnvVarName0() {
+    return this.limitEnvVarName0;
+  }
+
+  
+  /**
+   * first env var name
+   * limitEnvVars limitEnvVars if processing limits, pass in a set of limits.  The name is the
+   * name of the variable, and the value is the value.  Note, you can typecast the
+   * values by putting a valid type in parens in front of the param name.  e.g.
+   * name: (int)amount, value: 50
+   * @param _limitEnvVarName0 the limitEnvVarName0 to set
+   */
+  public void setLimitEnvVarName0(String _limitEnvVarName0) {
+    this.limitEnvVarName0 = _limitEnvVarName0;
+  }
+
+  /**
+   * first env var value
+   * limitEnvVars limitEnvVars if processing limits, pass in a set of limits.  The name is the
+   * name of the variable, and the value is the value.  Note, you can typecast the
+   * values by putting a valid type in parens in front of the param name.  e.g.
+   * name: (int)amount, value: 50
+   */
+  private String limitEnvVarValue0;
+  
+  /**
+   * first env var value
+   * limitEnvVars limitEnvVars if processing limits, pass in a set of limits.  The name is the
+   * name of the variable, and the value is the value.  Note, you can typecast the
+   * values by putting a valid type in parens in front of the param name.  e.g.
+   * name: (int)amount, value: 50
+   * @return the limitEnvVarValue0
+   */
+  public String getLimitEnvVarValue0() {
+    return this.limitEnvVarValue0;
+  }
+
+  /**
+   * first env var value
+   * limitEnvVars limitEnvVars if processing limits, pass in a set of limits.  The name is the
+   * name of the variable, and the value is the value.  Note, you can typecast the
+   * values by putting a valid type in parens in front of the param name.  e.g.
+   * name: (int)amount, value: 50
+   * @param _limitEnvVarValue0 the limitEnvVarValue0 to set
+   */
+  public void setLimitEnvVarValue0(String _limitEnvVarValue0) {
+    this.limitEnvVarValue0 = _limitEnvVarValue0;
+  }
+
+  /**
+   * second env var name
+   * limitEnvVars limitEnvVars if processing limits, pass in a set of limits.  The name is the
+   * name of the variable, and the value is the value.  Note, you can typecast the
+   * values by putting a valid type in parens in front of the param name.  e.g.
+   * name: (int)amount, value: 50
+   * @return the limitEnvVarName1
+   */
+  public String getLimitEnvVarName1() {
+    return this.limitEnvVarName1;
+  }
+
+  
+  /**
+   * second env var name
+   * limitEnvVars limitEnvVars if processing limits, pass in a set of limits.  The name is the
+   * name of the variable, and the value is the value.  Note, you can typecast the
+   * values by putting a valid type in parens in front of the param name.  e.g.
+   * name: (int)amount, value: 50
+   * @param _limitEnvVarName1 the limitEnvVarName1 to set
+   */
+  public void setLimitEnvVarName1(String _limitEnvVarName1) {
+    this.limitEnvVarName1 = _limitEnvVarName1;
+  }
+
+  /**
+   * first env var type
+   * limitEnvVars limitEnvVars if processing limits, pass in a set of limits.  The name is the
+   * name of the variable, and the value is the value.  Note, you can typecast the
+   * values by putting a valid type in parens in front of the param name.  e.g.
+   * name: (int)amount, value: 50
+   */
+  private String limitEnvVarType0;
+  
+  
+  /**
+   * first env var type
+   * limitEnvVars limitEnvVars if processing limits, pass in a set of limits.  The name is the
+   * name of the variable, and the value is the value.  Note, you can typecast the
+   * values by putting a valid type in parens in front of the param name.  e.g.
+   * name: (int)amount, value: 50
+   * @return the limitEnvVarType0
+   */
+  public String getLimitEnvVarType0() {
+    return this.limitEnvVarType0;
+  }
+
+  
+  /**
+   * first env var type
+   * limitEnvVars limitEnvVars if processing limits, pass in a set of limits.  The name is the
+   * name of the variable, and the value is the value.  Note, you can typecast the
+   * values by putting a valid type in parens in front of the param name.  e.g.
+   * name: (int)amount, value: 50
+   * @param _limitEnvVarType0 the limitEnvVarType0 to set
+   */
+  public void setLimitEnvVarType0(String _limitEnvVarType0) {
+    this.limitEnvVarType0 = _limitEnvVarType0;
+  }
+
+  /**
+   * second env var name
+   * limitEnvVars limitEnvVars if processing limits, pass in a set of limits.  The name is the
+   * name of the variable, and the value is the value.  Note, you can typecast the
+   * values by putting a valid type in parens in front of the param name.  e.g.
+   * name: (int)amount, value: 50
+   */
+  private String limitEnvVarName1;
+  
+  /**
+   * second env var value
+   * limitEnvVars limitEnvVars if processing limits, pass in a set of limits.  The name is the
+   * name of the variable, and the value is the value.  Note, you can typecast the
+   * values by putting a valid type in parens in front of the param name.  e.g.
+   * name: (int)amount, value: 50
+   */
+  private String limitEnvVarValue1;
+  
+  /**
+   * second env var value
+   * limitEnvVars limitEnvVars if processing limits, pass in a set of limits.  The name is the
+   * name of the variable, and the value is the value.  Note, you can typecast the
+   * values by putting a valid type in parens in front of the param name.  e.g.
+   * name: (int)amount, value: 50
+   * @return the limitEnvVarValue1
+   */
+  public String getLimitEnvVarValue1() {
+    return this.limitEnvVarValue1;
+  }
+
+  /**
+   * @param _limitEnvVarValue1 the limitEnvVarValue1 to set
+   */
+  public void setLimitEnvVarValue1(String _limitEnvVarValue1) {
+    this.limitEnvVarValue1 = _limitEnvVarValue1;
+  }
+
+  /**
+   * second env var type
+   * limitEnvVars limitEnvVars if processing limits, pass in a set of limits.  The name is the
+   * name of the variable, and the value is the value.  Note, you can typecast the
+   * values by putting a valid type in parens in front of the param name.  e.g.
+   * name: (int)amount, value: 50
+   */
+  private String limitEnvVarType1;
+  
+  /**
+   * second env var type
+   * limitEnvVars limitEnvVars if processing limits, pass in a set of limits.  The name is the
+   * name of the variable, and the value is the value.  Note, you can typecast the
+   * values by putting a valid type in parens in front of the param name.  e.g.
+   * name: (int)amount, value: 50
+   * @return the limitEnvVarType1
+   */
+  public String getLimitEnvVarType1() {
+    return this.limitEnvVarType1;
+  }
+  
+  /**
+   * second env var type
+   * limitEnvVars limitEnvVars if processing limits, pass in a set of limits.  The name is the
+   * name of the variable, and the value is the value.  Note, you can typecast the
+   * values by putting a valid type in parens in front of the param name.  e.g.
+   * name: (int)amount, value: 50
+   * @param _limitEnvVarType1 the limitEnvVarType1 to set
+   */
+  public void setLimitEnvVarType1(String _limitEnvVarType1) {
+    this.limitEnvVarType1 = _limitEnvVarType1;
+  }
+
+  /** 
+   * if processing permissions, you can filter out either redundant permissions (find best in set),
+   * or do that and filter out redundant roles (if flattening roles) (find best in set).  This is the
+   * PermissionProcessor enum.  e.g. FILTER_REDUNDANT_PERMISSIONS, FILTER_REDUNDANT_PERMISSIONS_AND_PROCESS_LIMITS,
+   * FILTER_REDUNDANT_PERMISSIONS_AND_ROLES, FILTER_REDUNDANT_PERMISSIONS_AND_ROLES_AND_PROCESS_LIMITS,
+   * PROCESS_LIMITS.  If null, then just get all permissions and process on the client.
+   */
+  private String permissionProcessor;
+  
+  /**
+   * if processing permissions, you can filter out either redundant permissions (find best in set),
+   * or do that and filter out redundant roles (if flattening roles) (find best in set).  This is the
+   * PermissionProcessor enum.  e.g. FILTER_REDUNDANT_PERMISSIONS, FILTER_REDUNDANT_PERMISSIONS_AND_PROCESS_LIMITS,
+   * FILTER_REDUNDANT_PERMISSIONS_AND_ROLES, FILTER_REDUNDANT_PERMISSIONS_AND_ROLES_AND_PROCESS_LIMITS,
+   * PROCESS_LIMITS.  If null, then just get all permissions and process on the client.
+   * @return processor
+   */
+  public String getPermissionProcessor() {
+    return this.permissionProcessor;
+  }
+
+  /**
+   * if processing permissions, you can filter out either redundant permissions (find best in set),
+   * or do that and filter out redundant roles (if flattening roles) (find best in set).  This is the
+   * PermissionProcessor enum.  e.g. FILTER_REDUNDANT_PERMISSIONS, FILTER_REDUNDANT_PERMISSIONS_AND_PROCESS_LIMITS,
+   * FILTER_REDUNDANT_PERMISSIONS_AND_ROLES, FILTER_REDUNDANT_PERMISSIONS_AND_ROLES_AND_PROCESS_LIMITS,
+   * PROCESS_LIMITS.  If null, then just get all permissions and process on the client.
+   * @param permissionProcessor1
+   */
+  public void setPermissionProcessor(String permissionProcessor1) {
+    this.permissionProcessor = permissionProcessor1;
+  }
   
   /**
    * @see edu.internet2.middleware.grouper.ws.rest.WsRequestBean#retrieveRestHttpMethod()

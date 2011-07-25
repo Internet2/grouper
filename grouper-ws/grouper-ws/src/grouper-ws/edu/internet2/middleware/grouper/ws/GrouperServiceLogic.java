@@ -64,8 +64,10 @@ import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.misc.SaveResultType;
 import edu.internet2.middleware.grouper.permissions.PermissionAssignOperation;
 import edu.internet2.middleware.grouper.permissions.PermissionEntry;
+import edu.internet2.middleware.grouper.permissions.PermissionFinder;
 import edu.internet2.middleware.grouper.permissions.PermissionProcessor;
 import edu.internet2.middleware.grouper.permissions.PermissionEntry.PermissionType;
+import edu.internet2.middleware.grouper.permissions.limits.PermissionLimitBean;
 import edu.internet2.middleware.grouper.pit.PITGroup;
 import edu.internet2.middleware.grouper.pit.PITMember;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
@@ -5791,6 +5793,8 @@ public class GrouperServiceLogic {
    * name of the variable, and the value is the value.  Note, you can typecast the
    * values by putting a valid type in parens in front of the param name.  e.g.
    * name: (int)amount, value: 50
+   * @param includeLimits T or F (default to F) for if limits should be returned with the results.
+   * Note that the attributeDefs, attributeDefNames, and attributeAssignments will be added to those lists
    * @return the results
    */
   @SuppressWarnings("unchecked")
@@ -5803,7 +5807,8 @@ public class GrouperServiceLogic {
       boolean includeAssignmentsOnAssignments, WsSubjectLookup actAsSubjectLookup, boolean includeSubjectDetail,
       String[] subjectAttributeNames, boolean includeGroupDetail, WsParam[] params, 
       String enabled, Timestamp pointInTimeFrom, Timestamp pointInTimeTo, boolean immediateOnly,
-      PermissionType permissionType, PermissionProcessor permissionProcessor, WsPermissionEnvVar[] limitEnvVars) {  
+      PermissionType permissionType, PermissionProcessor permissionProcessor, WsPermissionEnvVar[] limitEnvVars,
+      boolean includeLimits) {  
   
     WsGetPermissionAssignmentsResults wsGetPermissionAssignmentsResults = new WsGetPermissionAssignmentsResults();
   
@@ -5832,8 +5837,11 @@ public class GrouperServiceLogic {
           + "\n, params: " + GrouperUtil.toStringForLog(params, 100) + "\n, wsSubjectLookups: "
           + GrouperUtil.toStringForLog(wsSubjectLookups, 200) 
           + ", enabled: " + enabled
-          + "\n, pointInTimeFrom: " + pointInTimeFrom + ", pointInTimeTo: " + pointInTimeTo;
-  
+          + "\n pointInTimeFrom: " + pointInTimeFrom + ", pointInTimeTo: " + pointInTimeTo
+          + "\n immediateOnly: " + immediateOnly + ", permissionType: " + permissionType
+          + ", permissionProcessor: " + permissionProcessor + "\n limitEnvVars: "
+          + GrouperUtil.toStringForLog(limitEnvVars, 100) + "\n includeLimits: " + includeLimits;
+
       //start session based on logged in user or the actAs passed in
       session = GrouperServiceUtils.retrieveGrouperSession(actAsSubjectLookup);
   
@@ -5850,6 +5858,9 @@ public class GrouperServiceLogic {
       @SuppressWarnings("unused")
       Map<String, String> paramMap = GrouperServiceUtils.convertParamsToMap(
           params);
+      
+      Map<String, Object> limitEnvMap = GrouperServiceUtils.convertLimitsToMap(
+          limitEnvVars);
       
       //this is for error checking
       
@@ -5893,26 +5904,56 @@ public class GrouperServiceLogic {
         throw new WsInvalidQueryException("Cannot search for disabled memberships for point in time queries.");
       }
       
-      if (!usePIT) {
-        Set<PermissionEntry> results = GrouperDAOFactory.getFactory().getPermissionEntry().findPermissions(
-            attributeDefIds, attributeDefNameIds, roleIds, actionsCollection, enabledBoolean, memberIds);
-  
-        wsGetPermissionAssignmentsResults.assignResult(results, subjectAttributeNames, includePermissionAssignDetail);
-      } else {
-        Set<PermissionEntry> results = GrouperDAOFactory.getFactory().getPITPermissionAllView().findPermissions(
-            attributeDefIds, attributeDefNameIds, roleIds, actionsCollection, memberIds, pointInTimeFrom, pointInTimeTo);
-  
-        wsGetPermissionAssignmentsResults.assignResult(results, subjectAttributeNames, includePermissionAssignDetail);
+      if (usePIT && includeLimits) {
+        throw new WsInvalidQueryException("Cannot search for disabled memberships for point in time queries.");
       }
-        
+      
+      PermissionFinder permissionFinder = new PermissionFinder().assignPermissionDefIds(attributeDefIds)
+        .assignPermissionNameIds(attributeDefNameIds).assignRoleIds(roleIds)
+        .assignActions(actionsCollection).assignEnabled(enabledBoolean)
+        .assignMemberIds(memberIds).assignImmediateOnly(immediateOnly)
+        .assignLimitEnvVars(limitEnvMap).assignPermissionType(permissionType)
+        .assignPermissionProcessor(permissionProcessor).assignPointInTimeFrom(pointInTimeFrom)
+        .assignPointInTimeTo(pointInTimeTo);
+
+      Set<PermissionEntry> results = null;
+      Map<PermissionEntry, Set<PermissionLimitBean>> permissionLimitMap = null;
+      if (includeLimits) {
+        permissionLimitMap = permissionFinder.findPermissionsAndLimits();
+        results = permissionLimitMap.keySet();
+      } else {
+        results = permissionFinder.findPermissions();
+      }
+
+      permissionLimitMap = GrouperUtil.nonNull(permissionLimitMap);
+
+      wsGetPermissionAssignmentsResults.assignResult(results, permissionLimitMap, 
+          subjectAttributeNames, includePermissionAssignDetail);
+
       if (includeAttributeAssignments) {
         wsGetPermissionAssignmentsResults.fillInAttributeAssigns(usePIT, pointInTimeFrom, pointInTimeTo,
             includeAssignmentsOnAssignments, enabledBoolean);
       }
       
+      //get the limit attribute assigns to fill in other objects
+      for (Set<PermissionLimitBean> permissionLimitBeanSet : permissionLimitMap.values()) {
+        for (PermissionLimitBean permissionLimitBean : GrouperUtil.nonNull(permissionLimitBeanSet)) {
+          AttributeAssign attributeAssign = permissionLimitBean.getLimitAssign();
+          if (!attributeDefNameIds.contains(attributeAssign.getAttributeDefNameId())) {
+            attributeDefNameIds.add(attributeAssign.getAttributeDefNameId());
+            attributeDefIds.add(attributeAssign.getAttributeDef().getId());
+          }
+          if (!StringUtils.isBlank(attributeAssign.getOwnerGroupId())) {
+            roleIds.add(attributeAssign.getOwnerGroupId());
+          }
+          //TODO add subjects?
+        }
+      }
+      
       if (includeAttributeDefNames) {
         wsGetPermissionAssignmentsResults.fillInAttributeDefNames(usePIT, attributeDefNameIds);
       }
+
       
       wsGetPermissionAssignmentsResults.fillInAttributeDefs(usePIT, attributeDefIds);
       
@@ -6008,6 +6049,8 @@ public class GrouperServiceLogic {
    * @param limitEnvVarName1 second limit env var name
    * @param limitEnvVarValue1 second limit env var value
    * @param limitEnvVarType1 second limit env var type
+   * @param includeLimits T or F (default to F) for if limits should be returned with the results.
+   * Note that the attributeDefs, attributeDefNames, and attributeAssignments will be added to those lists
    * @return the results
    */
   @SuppressWarnings("unchecked")
@@ -6025,7 +6068,8 @@ public class GrouperServiceLogic {
       boolean immediateOnly,
       PermissionType permissionType, PermissionProcessor permissionProcessor, 
       String limitEnvVarName0, String limitEnvVarValue0, 
-      String limitEnvVarType0, String limitEnvVarName1, String limitEnvVarValue1, String limitEnvVarType1) {  
+      String limitEnvVarType0, String limitEnvVarName1, String limitEnvVarValue1, String limitEnvVarType1, 
+      boolean includeLimits) {  
     
     WsAttributeDefLookup[] wsAttributeDefLookups = null;
     if (!StringUtils.isBlank(wsAttributeDefName) || !StringUtils.isBlank(wsAttributeDefId)) {
@@ -6046,27 +6090,30 @@ public class GrouperServiceLogic {
     if (!StringUtils.isBlank(wsSubjectId) || !StringUtils.isBlank(wsSubjectSourceId) || !StringUtils.isBlank(wsSubjectIdentifier)) {
       wsSubjectLookups = new WsSubjectLookup[]{new WsSubjectLookup(wsSubjectId, wsSubjectSourceId, wsSubjectIdentifier)};
     }
-    
+
     WsSubjectLookup actAsSubjectLookup = WsSubjectLookup.createIfNeeded(actAsSubjectId,
         actAsSubjectSourceId, actAsSubjectIdentifier);
-    
+
     String[] actions = null;
     if (!StringUtils.isBlank(action)) {
       actions = new String[]{action};
     }
-    
+
     String[] subjectAttributeArray = GrouperUtil.splitTrim(subjectAttributeNames, ",");
-    
+
     WsParam[] params = GrouperServiceUtils.params(paramName0, paramValue0, paramName0, paramName1);
 
-    WsPermissionEnvVar[] limitEnvVars = GrouperServiceUtils.permissionEnvVars(limitEnvVarName0, 
+    WsPermissionEnvVar[] limitEnvVars = GrouperServiceUtils.limitEnvVars(limitEnvVarName0, 
         limitEnvVarValue0, limitEnvVarType0, limitEnvVarName1, limitEnvVarValue1, limitEnvVarType1);
 
-    WsGetPermissionAssignmentsResults wsGetPermissionAssignmentsResults = getPermissionAssignments(clientVersion, wsAttributeDefLookups, wsAttributeDefNameLookups, roleLookups, 
-        wsSubjectLookups, actions, includePermissionAssignDetail, includeAttributeDefNames, includeAttributeAssignments, includeAssignmentsOnAssignments, 
+    WsGetPermissionAssignmentsResults wsGetPermissionAssignmentsResults = getPermissionAssignments(clientVersion, 
+        wsAttributeDefLookups, wsAttributeDefNameLookups, roleLookups, 
+        wsSubjectLookups, actions, includePermissionAssignDetail, includeAttributeDefNames, includeAttributeAssignments, 
+        includeAssignmentsOnAssignments, 
         actAsSubjectLookup, includeSubjectDetail, subjectAttributeArray, includeGroupDetail, 
-        params, enabled, pointInTimeFrom, pointInTimeTo, immediateOnly, permissionType, permissionProcessor, );
-    
+        params, enabled, pointInTimeFrom, pointInTimeTo, immediateOnly, permissionType, 
+        permissionProcessor, limitEnvVars, includeLimits);
+
     return wsGetPermissionAssignmentsResults;
   }
 

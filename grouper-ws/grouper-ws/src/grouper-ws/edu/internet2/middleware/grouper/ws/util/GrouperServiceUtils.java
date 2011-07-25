@@ -857,6 +857,59 @@ public final class GrouperServiceUtils {
   }
 
   /**
+   * if wrong size or a name is blank, then throw descriptive exception.  Assumes all params can be put into a map,
+   * only one name can be sent per request, no blank names.
+   * @param limitEnvParams
+   * @return the map of names to values, will not return null
+   * @throws WsInvalidQueryException if problem with inputs
+   */
+  public static Map<String, Object> convertLimitsToMap(WsPermissionEnvVar[] limitEnvParams) throws WsInvalidQueryException {
+    if (limitEnvParams == null || limitEnvParams.length == 0) {
+      return new HashMap<String,Object>();
+    }
+    Map<String, Object> result = new LinkedHashMap<String, Object>(limitEnvParams.length);
+    Set<String> paramNames = new HashSet<String>();
+    int i = 0;
+    for (WsPermissionEnvVar limitEnvParam : limitEnvParams) {
+      if (limitEnvParam!=null) {
+        String envParamName = limitEnvParam.getParamName();
+        if (StringUtils.isBlank(envParamName)) {
+          throw new WsInvalidQueryException("Limit env param name index " + i
+              + " cannot be blank: '" + envParamName + "'");
+        }
+        int closeParenIndex = envParamName.indexOf(")");
+        
+        String realName = closeParenIndex == -1 ? envParamName : 
+          GrouperUtil.prefixOrSuffix(envParamName, ")", false);
+
+        if (paramNames.contains(realName)) {
+          
+          throw new WsInvalidQueryException("Limit env param name index " + i
+              + " cannot be submitted twice: '" + envParamName + "'");
+        }
+        paramNames.add(realName);
+        
+        if (!StringUtils.isBlank(limitEnvParam.getParamType())) {
+          if (envParamName.startsWith("(")) {
+            if (!envParamName.startsWith("(" + limitEnvParam.getParamType() + ")")) {
+              throw new WsInvalidQueryException("Limit env param has typed " +
+              		"name and type which do not match: " + envParamName + ", " + limitEnvParam.getParamType());
+            }
+            //good, just leave it, defined twice, but the same way
+          } else {
+            envParamName = "(" + limitEnvParam.getParamType() + ")" + envParamName;
+          }
+        }
+        
+        result.put(envParamName, limitEnvParam.getParamValue());
+      }
+      i++;
+    }
+    return result;
+
+  }
+
+  /**
    * @param requestedAttributes
    * @param requestedAttributesLength
    * @param includeSubjectDetailBoolean

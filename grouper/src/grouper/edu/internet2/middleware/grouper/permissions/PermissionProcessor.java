@@ -400,4 +400,17 @@ public enum PermissionProcessor {
    */
   public abstract boolean isLimitProcessor();
   
+  /**
+   * do a case-insensitive matching
+   * 
+   * @param theString
+   * @param exceptionOnNull will not allow null or blank entries
+   * @return the enum or null or exception if not found
+   */
+  public static PermissionProcessor valueOfIgnoreCase(String theString, boolean exceptionOnNull) {
+    return GrouperUtil.enumValueOfIgnoreCase(PermissionProcessor.class, 
+        theString, exceptionOnNull);
+  }
+
+
 }

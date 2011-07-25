@@ -4,12 +4,29 @@
  */
 package edu.internet2.middleware.grouperClient.ws.beans;
 
-
-
 /**
  * result of permission entry query represents an assignment in the DB
  */
 public class WsPermissionAssign {
+
+  /** if retrieving limits, these are the limits */
+  private WsPermissionLimit[] limits;
+  
+  /**
+   * if retrieving limits, these are the limits
+   * @return the limits
+   */
+  public WsPermissionLimit[] getLimits() {
+    return this.limits;
+  }
+  
+  /**
+   * if retrieving limits, these are the limits
+   * @param limits1 the limits to set
+   */
+  public void setLimits(WsPermissionLimit[] limits1) {
+    this.limits = limits1;
+  }
 
   /** detail on the permission */
   private WsPermissionAssignDetail detail;

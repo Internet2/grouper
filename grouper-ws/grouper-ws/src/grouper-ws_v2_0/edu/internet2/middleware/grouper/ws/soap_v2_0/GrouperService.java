@@ -4,6 +4,13 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefLookup;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameLookup;
+import edu.internet2.middleware.grouper.ws.coresoap.WsGetPermissionAssignmentsResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsGroupLookup;
+import edu.internet2.middleware.grouper.ws.coresoap.WsParam;
+import edu.internet2.middleware.grouper.ws.coresoap.WsPermissionEnvVar;
+import edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
 
 
@@ -2191,6 +2198,19 @@ public class GrouperService {
    *            will be done at a single point in time rather than a range.  If this is specified but 
    *            pointInTimeFrom is not specified, then the point in time query range will be from the 
    *            minimum point in time to the time specified.  Format: yyyy/MM/dd HH:mm:ss.SSS
+   * @param immediateOnly T of F (defaults to F) if we should filter out non immediate permissions
+   * @param permissionType are we looking for role permissions or subject permissions?  from
+   * enum PermissionType: role, or role_subject.  defaults to role_subject permissions
+   * @param permissionProcessor if we should find the best answer, or process limits, etc.  From the enum
+   * PermissionProcessor.  example values are: FILTER_REDUNDANT_PERMISSIONS, 
+   * FILTER_REDUNDANT_PERMISSIONS_AND_PROCESS_LIMITS, FILTER_REDUNDANT_PERMISSIONS_AND_ROLES,
+   * FILTER_REDUNDANT_PERMISSIONS_AND_ROLES_AND_PROCESS_LIMITS, PROCESS_LIMITS
+   * @param limitEnvVars limitEnvVars if processing limits, pass in a set of limits.  The name is the
+   * name of the variable, and the value is the value.  Note, you can typecast the
+   * values by putting a valid type in parens in front of the param name.  e.g.
+   * name: (int)amount, value: 50
+   * @param includeLimits T or F (default to F) for if limits should be returned with the results.
+   * Note that the attributeDefs, attributeDefNames, and attributeAssignments will be added to those lists
    * @return the results
    */
   public WsGetPermissionAssignmentsResults getPermissionAssignments(
@@ -2201,7 +2221,8 @@ public class GrouperService {
       String includeAttributeDefNames, String includeAttributeAssignments,
       String includeAssignmentsOnAssignments, WsSubjectLookup actAsSubjectLookup, String includeSubjectDetail,
       String[] subjectAttributeNames, String includeGroupDetail, WsParam[] params, 
-      String enabled, String pointInTimeFrom, String pointInTimeTo) {  
+      String enabled, String pointInTimeFrom, String pointInTimeTo, String immediateOnly,
+      String permissionType, String permissionProcessor, WsPermissionEnvVar[] limitEnvVars, String includeLimits) {  
   
     Object result = GrouperUtil.callMethodWithMoreParams(GrouperUtil.newInstance(GrouperServiceUtils.currentServiceClass()), 
         GrouperServiceUtils.currentServiceClass(), "getPermissionAssignments",
@@ -2220,7 +2241,8 @@ public class GrouperService {
       subjectAttributeNames, 
       includeGroupDetail, 
       GrouperUtil.changeToVersion(params, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
-      enabled, pointInTimeFrom, pointInTimeTo});
+      enabled, pointInTimeFrom, pointInTimeTo, immediateOnly, permissionType, 
+      permissionProcessor, limitEnvVars, includeLimits});
     
     return (WsGetPermissionAssignmentsResults)GrouperUtil.changeToVersion(result, THIS_VERSION_PACKAGE);
   
@@ -2275,6 +2297,24 @@ public class GrouperService {
    *            will be done at a single point in time rather than a range.  If this is specified but 
    *            pointInTimeFrom is not specified, then the point in time query range will be from the 
    *            minimum point in time to the time specified.  Format: yyyy/MM/dd HH:mm:ss.SSS
+   * @param immediateOnly T of F (defaults to F) if we should filter out non immediate permissions
+   * @param permissionType are we looking for role permissions or subject permissions?  from
+   * enum PermissionType: role, or role_subject.  defaults to role_subject permissions
+   * @param permissionProcessor if we should find the best answer, or process limits, etc.  From the enum
+   * PermissionProcessor.  example values are: FILTER_REDUNDANT_PERMISSIONS, 
+   * FILTER_REDUNDANT_PERMISSIONS_AND_PROCESS_LIMITS, FILTER_REDUNDANT_PERMISSIONS_AND_ROLES,
+   * FILTER_REDUNDANT_PERMISSIONS_AND_ROLES_AND_PROCESS_LIMITS, PROCESS_LIMITS
+   * @param limitEnvVarName0 limitEnvVars if processing limits, pass in a set of limits.  The name is the
+   * name of the variable, and the value is the value.  Note, you can typecast the
+   * values by putting a valid type in parens in front of the param name.  e.g.
+   * name: (int)amount, value: 50
+   * @param limitEnvVarValue0 first limit env var value
+   * @param limitEnvVarType0 first limit env var type
+   * @param limitEnvVarName1 second limit env var name
+   * @param limitEnvVarValue1 second limit env var value
+   * @param limitEnvVarType1 second limit env var type
+   * @param includeLimits T or F (default to F) for if limits should be returned with the results.
+   * Note that the attributeDefs, attributeDefNames, and attributeAssignments will be added to those lists
    * @return the results
    */
   public WsGetPermissionAssignmentsResults getPermissionAssignmentsLite(
@@ -2287,20 +2327,29 @@ public class GrouperService {
       String includeAssignmentsOnAssignments, String actAsSubjectId, String actAsSubjectSourceId,
       String actAsSubjectIdentifier, String includeSubjectDetail,
       String subjectAttributeNames, String includeGroupDetail, String paramName0, String paramValue0,
-      String paramName1, String paramValue1, String enabled, String pointInTimeFrom, String pointInTimeTo) {  
+      String paramName1, String paramValue1, String enabled, String pointInTimeFrom, String pointInTimeTo,
+      String immediateOnly,
+      String permissionType, String permissionProcessor, 
+      String limitEnvVarName0, String limitEnvVarValue0, 
+      String limitEnvVarType0, String limitEnvVarName1, 
+      String limitEnvVarValue1, String limitEnvVarType1, String includeLimits) {  
   
     Object result = GrouperUtil.callMethodWithMoreParams(GrouperUtil.newInstance(GrouperServiceUtils.currentServiceClass()), 
         GrouperServiceUtils.currentServiceClass(), "getPermissionAssignmentsLite",
-        new Object[]{clientVersion, 
+        new Object[]{clientVersion,
       wsAttributeDefName, wsAttributeDefId, wsAttributeDefNameName, wsAttributeDefNameId,
-      roleName, roleId, 
+      roleName, roleId,
       wsSubjectId, wsSubjectSourceId, wsSubjectIdentifier,
       action, includePermissionAssignDetail,
       includeAttributeDefNames, includeAttributeAssignments,
       includeAssignmentsOnAssignments, actAsSubjectId, actAsSubjectSourceId,
       actAsSubjectIdentifier, includeSubjectDetail,
       subjectAttributeNames, includeGroupDetail, paramName0, paramValue0,
-      paramName1, paramValue1, enabled, pointInTimeFrom, pointInTimeTo});
+      paramName1, paramValue1, enabled, pointInTimeFrom, pointInTimeTo, immediateOnly,
+      permissionType, permissionProcessor,
+      limitEnvVarName0, limitEnvVarValue0,
+      limitEnvVarType0, limitEnvVarName1,
+      limitEnvVarValue1, limitEnvVarType1, includeLimits});
     
     return (WsGetPermissionAssignmentsResults)GrouperUtil.changeToVersion(result, THIS_VERSION_PACKAGE);
     

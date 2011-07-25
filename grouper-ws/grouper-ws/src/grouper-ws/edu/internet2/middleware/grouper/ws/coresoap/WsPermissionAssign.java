@@ -4,11 +4,13 @@
  */
 package edu.internet2.middleware.grouper.ws.coresoap;
 
+import java.util.Map;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.permissions.PermissionEntry;
+import edu.internet2.middleware.grouper.permissions.limits.PermissionLimitBean;
 import edu.internet2.middleware.grouper.pit.PITAttributeDef;
 import edu.internet2.middleware.grouper.pit.PITPermissionAllView;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -18,6 +20,26 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * result of permission entry query represents an assignment in the DB
  */
 public class WsPermissionAssign implements Comparable<WsPermissionAssign> {
+
+  /** if retrieving limits, these are the limits */
+  private WsPermissionLimit[] limits;
+  
+  /**
+   * if retrieving limits, these are the limits
+   * @return the limits
+   */
+  public WsPermissionLimit[] getLimits() {
+    return this.limits;
+  }
+  
+  /**
+   * if retrieving limits, these are the limits
+   * @param limits1 the limits to set
+   */
+  public void setLimits(WsPermissionLimit[] limits1) {
+    this.limits = limits1;
+  }
+
 
   /** detail on the permission */
   private WsPermissionAssignDetail detail;
@@ -400,12 +422,14 @@ public class WsPermissionAssign implements Comparable<WsPermissionAssign> {
   /**
    * convert permission assigns
    * @param permissionEntrySet 
+   * @param permissionLimitMap limits for the permission
    * @param includePermissionAssignDetail 
    * @param attributeAssignSet should be the membership, group, and member objects in a row
    * @return the subject results
    */
   public static WsPermissionAssign[] convertPermissionEntries(
-      Set<PermissionEntry> permissionEntrySet, boolean includePermissionAssignDetail) {
+      Set<PermissionEntry> permissionEntrySet, Map<PermissionEntry, Set<PermissionLimitBean>> permissionLimitMap,
+      boolean includePermissionAssignDetail) {
     int permissionEntrySetLength = GrouperUtil.length(permissionEntrySet);
     if (permissionEntrySetLength == 0) {
       return null;
@@ -413,9 +437,14 @@ public class WsPermissionAssign implements Comparable<WsPermissionAssign> {
   
     WsPermissionAssign[] wsAttributeAssignResultArray = new WsPermissionAssign[permissionEntrySetLength];
     int index = 0;
+    
+    permissionLimitMap = GrouperUtil.nonNull(permissionLimitMap);
+    
     for (PermissionEntry permissionEntry : permissionEntrySet) {
-            
-      wsAttributeAssignResultArray[index++] = new WsPermissionAssign(permissionEntry, includePermissionAssignDetail);
+
+      Set<PermissionLimitBean> permissionLimitBeans = permissionLimitMap.get(permissionEntry);
+      
+      wsAttributeAssignResultArray[index++] = new WsPermissionAssign(permissionEntry, permissionLimitBeans, includePermissionAssignDetail);
       
     }
     return wsAttributeAssignResultArray;
@@ -432,9 +461,11 @@ public class WsPermissionAssign implements Comparable<WsPermissionAssign> {
    * construct with attribute assign to set internal fields
    * 
    * @param permissionEntry
+   * @param permissionLimitBeans are the limits on this permission
    * @param includePermissionAssignDetail if detail should be added
    */
-  public WsPermissionAssign(PermissionEntry permissionEntry, boolean includePermissionAssignDetail) {
+  public WsPermissionAssign(PermissionEntry permissionEntry, 
+      Set<PermissionLimitBean> permissionLimitBeans, boolean includePermissionAssignDetail) {
     
     this.action =  permissionEntry.getAction();
     this.attributeAssignId = permissionEntry.getAttributeAssignId();
@@ -467,5 +498,14 @@ public class WsPermissionAssign implements Comparable<WsPermissionAssign> {
     this.sourceId = permissionEntry.getSubjectSourceId();
     this.subjectId = permissionEntry.getSubjectId();
     
+    if (GrouperUtil.length(permissionLimitBeans) > 0) {
+      this.limits = new WsPermissionLimit[GrouperUtil.length(permissionLimitBeans)];
+      
+      for (PermissionLimitBean permissionLimitBean : GrouperUtil.nonNull(permissionLimitBeans)) {
+        
+        
+        
+      }
+    }    
   }
 }

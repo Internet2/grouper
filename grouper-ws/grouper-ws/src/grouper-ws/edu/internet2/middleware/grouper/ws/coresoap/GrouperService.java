@@ -19,6 +19,7 @@ import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.permissions.PermissionAssignOperation;
+import edu.internet2.middleware.grouper.permissions.PermissionProcessor;
 import edu.internet2.middleware.grouper.permissions.PermissionEntry.PermissionType;
 import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.privs.PrivilegeType;
@@ -3457,6 +3458,8 @@ public class GrouperService {
    * name of the variable, and the value is the value.  Note, you can typecast the
    * values by putting a valid type in parens in front of the param name.  e.g.
    * name: (int)amount, value: 50
+   * @param includeLimits T or F (default to F) for if limits should be returned with the results.
+   * Note that the attributeDefs, attributeDefNames, and attributeAssignments will be added to those lists
    * @return the results
    */
   public WsGetPermissionAssignmentsResults getPermissionAssignments(
@@ -3468,7 +3471,7 @@ public class GrouperService {
       String includeAssignmentsOnAssignments, WsSubjectLookup actAsSubjectLookup, String includeSubjectDetail,
       String[] subjectAttributeNames, String includeGroupDetail, WsParam[] params, 
       String enabled, String pointInTimeFrom, String pointInTimeTo, String immediateOnly,
-      String permissionType, String permissionProcessor, WsPermissionEnvVar[] limitEnvVars) {  
+      String permissionType, String permissionProcessor, WsPermissionEnvVar[] limitEnvVars, String includeLimits) {  
   
     WsGetPermissionAssignmentsResults wsGetPermissionAssignmentsResults = new WsGetPermissionAssignmentsResults();
   
@@ -3498,11 +3501,21 @@ public class GrouperService {
       Timestamp pointInTimeFromTimestamp = GrouperServiceUtils.stringToTimestamp(pointInTimeFrom);
       Timestamp pointInTimeToTimestamp = GrouperServiceUtils.stringToTimestamp(pointInTimeTo);
       
+      boolean immediateOnlyBoolean = GrouperServiceUtils.booleanValue(
+          immediateOnly, false, "immediateOnly");
+      
+      PermissionType permissionTypeEnum = PermissionType.valueOfIgnoreCase(permissionType, false);
+      PermissionProcessor permissionProcessorEnum = PermissionProcessor.valueOfIgnoreCase(permissionProcessor, false);
+      
+      boolean includeLimitsBoolean = GrouperServiceUtils.booleanValue(
+          includeLimits, false, "includeLimits");
+      
       wsGetPermissionAssignmentsResults = GrouperServiceLogic.getPermissionAssignments(grouperWsVersion, wsAttributeDefLookups, 
           wsAttributeDefNameLookups, roleLookups, wsSubjectLookups, actions, includePermissionAssignDetailBoolean, 
           includeAttributeDefNamesBoolean, includeAttributeAssignmentsBoolean, includeAssignmentsOnAssignmentsBoolean, 
           actAsSubjectLookup, includeSubjectDetailBoolean, subjectAttributeNames, includeGroupDetailBoolean, params, enabled,
-          pointInTimeFromTimestamp, pointInTimeToTimestamp);
+          pointInTimeFromTimestamp, pointInTimeToTimestamp, immediateOnlyBoolean,
+          permissionTypeEnum, permissionProcessorEnum, limitEnvVars, includeLimitsBoolean);
   
     } catch (Exception e) {
       wsGetPermissionAssignmentsResults.assignResultCodeException(null, null, e);
@@ -3581,6 +3594,8 @@ public class GrouperService {
    * @param limitEnvVarName1 second limit env var name
    * @param limitEnvVarValue1 second limit env var value
    * @param limitEnvVarType1 second limit env var type
+   * @param includeLimits T or F (default to F) for if limits should be returned with the results.
+   * Note that the attributeDefs, attributeDefNames, and attributeAssignments will be added to those lists
    * @return the results
    */
   public WsGetPermissionAssignmentsResults getPermissionAssignmentsLite(
@@ -3595,8 +3610,10 @@ public class GrouperService {
       String subjectAttributeNames, String includeGroupDetail, String paramName0, String paramValue0,
       String paramName1, String paramValue1, String enabled, String pointInTimeFrom, String pointInTimeTo,
       String immediateOnly,
-      String permissionType, String permissionProcessor, String limitEnvVarName0, String limitEnvVarValue0, 
-      String limitEnvVarType0, String limitEnvVarName1, String limitEnvVarValue1, String limitEnvVarType1) {  
+      String permissionType, String permissionProcessor, 
+      String limitEnvVarName0, String limitEnvVarValue0, 
+      String limitEnvVarType0, String limitEnvVarName1, 
+      String limitEnvVarValue1, String limitEnvVarType1, String includeLimits) {  
   
     WsGetPermissionAssignmentsResults wsGetPermissionAssignmentsResults = new WsGetPermissionAssignmentsResults();
     
@@ -3626,6 +3643,15 @@ public class GrouperService {
       Timestamp pointInTimeFromTimestamp = GrouperServiceUtils.stringToTimestamp(pointInTimeFrom);
       Timestamp pointInTimeToTimestamp = GrouperServiceUtils.stringToTimestamp(pointInTimeTo);
       
+      boolean immediateOnlyBoolean = GrouperServiceUtils.booleanValue(
+          immediateOnly, false, "immediateOnly");
+      
+      PermissionType permissionTypeEnum = PermissionType.valueOfIgnoreCase(permissionType, false);
+      PermissionProcessor permissionProcessorEnum = PermissionProcessor.valueOfIgnoreCase(permissionProcessor, false);
+
+      boolean includeLimitsBoolean = GrouperServiceUtils.booleanValue(
+          includeLimits, false, "includeLimits");
+      
       wsGetPermissionAssignmentsResults = GrouperServiceLogic.getPermissionAssignmentsLite(
           grouperWsVersion, wsAttributeDefName, 
           wsAttributeDefId, wsAttributeDefNameName, wsAttributeDefNameId, roleName, 
@@ -3636,7 +3662,9 @@ public class GrouperService {
           actAsSubjectIdentifier, includeSubjectDetailBoolean, 
           subjectAttributeNames, includeGroupDetailBoolean, paramName0, 
           paramValue0, paramName1, paramValue1, enabled, pointInTimeFromTimestamp,
-          pointInTimeToTimestamp);
+          pointInTimeToTimestamp, immediateOnlyBoolean, permissionTypeEnum, 
+          permissionProcessorEnum, limitEnvVarName0, limitEnvVarValue0, 
+          limitEnvVarType0, limitEnvVarName1, limitEnvVarValue1, limitEnvVarType1, includeLimitsBoolean);
   
     } catch (Exception e) {
       wsGetPermissionAssignmentsResults.assignResultCodeException(null, null, e);

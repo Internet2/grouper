@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
@@ -23,6 +24,7 @@ import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.permissions.PermissionEntry;
+import edu.internet2.middleware.grouper.permissions.limits.PermissionLimitBean;
 import edu.internet2.middleware.grouper.pit.PITAttributeAssign;
 import edu.internet2.middleware.grouper.pit.PITAttributeDef;
 import edu.internet2.middleware.grouper.pit.PITAttributeDefName;
@@ -342,14 +344,19 @@ public class WsGetPermissionAssignmentsResults implements WsResponseBean, Result
   /**
    * convert permissions to ws permissions
    * @param permissionEntries 
+   * @param permissionLimitMap 
    * @param theSubjectAttributeNames 
    * @param includePermissionAssignDetail 
    */
-  public void assignResult(Set<PermissionEntry> permissionEntries, String[] theSubjectAttributeNames, boolean includePermissionAssignDetail) {
+  public void assignResult(Set<PermissionEntry> permissionEntries, 
+      Map<PermissionEntry, Set<PermissionLimitBean>> permissionLimitMap,
+      String[] theSubjectAttributeNames, 
+      boolean includePermissionAssignDetail) {
     
     this.subjectAttributeNames = theSubjectAttributeNames;
 
-    this.setWsPermissionAssigns(WsPermissionAssign.convertPermissionEntries(permissionEntries, includePermissionAssignDetail));
+    this.setWsPermissionAssigns(WsPermissionAssign.convertPermissionEntries(permissionEntries, 
+        permissionLimitMap, includePermissionAssignDetail));
     
   }
 

@@ -8,6 +8,7 @@ import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefLookup;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameLookup;
 import edu.internet2.middleware.grouper.ws.coresoap.WsGroupLookup;
 import edu.internet2.middleware.grouper.ws.coresoap.WsParam;
+import edu.internet2.middleware.grouper.ws.coresoap.WsPermissionEnvVar;
 import edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup;
 import edu.internet2.middleware.grouper.ws.rest.WsRequestBean;
 import edu.internet2.middleware.grouper.ws.rest.method.GrouperRestHttpMethod;
@@ -18,6 +19,107 @@ import edu.internet2.middleware.grouper.ws.rest.method.GrouperRestHttpMethod;
  */
 public class WsRestGetPermissionAssignmentsRequest implements WsRequestBean {
 
+  /**
+   * includeLimits T or F (default to F) for if limits should be returned with the results.
+   * Note that the attributeDefs, attributeDefNames, and attributeAssignments will be added to those lists
+   */
+  private String includeLimits;
+  
+  /**
+   * includeLimits T or F (default to F) for if limits should be returned with the results.
+   * Note that the attributeDefs, attributeDefNames, and attributeAssignments will be added to those lists
+   * @return the includeLimits
+   */
+  public String getIncludeLimits() {
+    return this.includeLimits;
+  }
+  
+  /**
+   * includeLimits T or F (default to F) for if limits should be returned with the results.
+   * Note that the attributeDefs, attributeDefNames, and attributeAssignments will be added to those lists
+   * @param includeLimits1 the includeLimits to set
+   */
+  public void setIncludeLimits(String includeLimits1) {
+    this.includeLimits = includeLimits1;
+  }
+
+  /**
+   * immediateOnly T of F (defaults to F) if we should filter out non immediate permissions
+   */
+  private String immediateOnly;
+  
+  
+  /**
+   * immediateOnly T of F (defaults to F) if we should filter out non immediate permissions
+   * @return the immediateOnly
+   */
+  public String getImmediateOnly() {
+    return this.immediateOnly;
+  }
+
+  
+  /**
+   * immediateOnly T of F (defaults to F) if we should filter out non immediate permissions
+   * @param immediateOnly1 the immediateOnly to set
+   */
+  public void setImmediateOnly(String immediateOnly1) {
+    this.immediateOnly = immediateOnly1;
+  }
+  
+  /**
+   * are we looking for role permissions or subject permissions?  from
+   * enum PermissionType: role, or role_subject.  defaults to role_subject permissions
+   * @return the permissionType
+   */
+  public String getPermissionType() {
+    return this.permissionType;
+  }
+  
+  /**
+   * are we looking for role permissions or subject permissions?  from
+   * enum PermissionType: role, or role_subject.  defaults to role_subject permissions
+   * @param permissionType1 the permissionType to set
+   */
+  public void setPermissionType(String permissionType1) {
+    this.permissionType = permissionType1;
+  }
+  
+  /**
+   * limitEnvVars limitEnvVars if processing limits, pass in a set of limits.  The name is the
+   * name of the variable, and the value is the value.  Note, you can typecast the
+   * values by putting a valid type in parens in front of the param name.  e.g.
+   * name: (int)amount, value: 50
+   * @return the limitEnvVars
+   */
+  public WsPermissionEnvVar[] getLimitEnvVars() {
+    return this.limitEnvVars;
+  }
+  
+  /**
+   * limitEnvVars limitEnvVars if processing limits, pass in a set of limits.  The name is the
+   * name of the variable, and the value is the value.  Note, you can typecast the
+   * values by putting a valid type in parens in front of the param name.  e.g.
+   * name: (int)amount, value: 50
+   * @param limitEnvVars1 the limitEnvVars to set
+   */
+  public void setLimitEnvVars(WsPermissionEnvVar[] limitEnvVars1) {
+    this.limitEnvVars = limitEnvVars1;
+  }
+
+  /**
+   * are we looking for role permissions or subject permissions?  from
+   * enum PermissionType: role, or role_subject.  defaults to role_subject permissions
+   */
+  private String permissionType;
+
+  /**
+   * limitEnvVars limitEnvVars if processing limits, pass in a set of limits.  The name is the
+   * name of the variable, and the value is the value.  Note, you can typecast the
+   * values by putting a valid type in parens in front of the param name.  e.g.
+   * name: (int)amount, value: 50
+   */
+  private WsPermissionEnvVar[] limitEnvVars;
+  
   /** 
    * if processing permissions, you can filter out either redundant permissions (find best in set),
    * or do that and filter out redundant roles (if flattening roles) (find best in set).  This is the

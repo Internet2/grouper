@@ -1573,7 +1573,8 @@ public class GrouperServiceRest {
   public static WsGetPermissionAssignmentsResults getPermissionAssignments(GrouperVersion clientVersion,
       WsRestGetPermissionAssignmentsRequest wsRestGetPermissionAssignmentsRequest) {
     //cant be null
-    wsRestGetPermissionAssignmentsRequest = wsRestGetPermissionAssignmentsRequest == null ? new WsRestGetPermissionAssignmentsRequest()
+    wsRestGetPermissionAssignmentsRequest = wsRestGetPermissionAssignmentsRequest == null ? 
+        new WsRestGetPermissionAssignmentsRequest()
       : wsRestGetPermissionAssignmentsRequest;
     
     String clientVersionString = GrouperServiceUtils.pickOne(clientVersion.toString(),
@@ -1589,7 +1590,10 @@ public class GrouperServiceRest {
         wsRestGetPermissionAssignmentsRequest.getIncludeSubjectDetail(), wsRestGetPermissionAssignmentsRequest.getSubjectAttributeNames(), 
         wsRestGetPermissionAssignmentsRequest.getIncludeGroupDetail(), wsRestGetPermissionAssignmentsRequest.getParams(), 
         wsRestGetPermissionAssignmentsRequest.getEnabled(),
-        wsRestGetPermissionAssignmentsRequest.getPointInTimeFrom(), wsRestGetPermissionAssignmentsRequest.getPointInTimeTo());
+        wsRestGetPermissionAssignmentsRequest.getPointInTimeFrom(), wsRestGetPermissionAssignmentsRequest.getPointInTimeTo(),
+        wsRestGetPermissionAssignmentsRequest.getImmediateOnly(), wsRestGetPermissionAssignmentsRequest.getPermissionType(),
+        wsRestGetPermissionAssignmentsRequest.getPermissionProcessor(), wsRestGetPermissionAssignmentsRequest.getLimitEnvVars(),
+        wsRestGetPermissionAssignmentsRequest.getIncludeLimits());
     
     return wsGetPermissionAssignmentsResults;
   }
@@ -1609,7 +1613,8 @@ public class GrouperServiceRest {
     String clientVersionString = GrouperServiceUtils.pickOne(clientVersion.toString(),
         GrouperVersion.stringValueOrNull(wsRestGetPermissionAssignmentsLiteRequest.getClientVersion()), false, "clientVersion");
   
-    WsGetPermissionAssignmentsResults wsGetPermissionAssignmentsResults = new GrouperService(false).getPermissionAssignmentsLite(
+    WsGetPermissionAssignmentsResults wsGetPermissionAssignmentsResults = new GrouperService(false)
+      .getPermissionAssignmentsLite(
         clientVersionString, wsRestGetPermissionAssignmentsLiteRequest.getWsAttributeDefName(), 
         wsRestGetPermissionAssignmentsLiteRequest.getWsAttributeDefId(), wsRestGetPermissionAssignmentsLiteRequest.getWsAttributeDefNameName(), 
         wsRestGetPermissionAssignmentsLiteRequest.getWsAttributeDefNameId(), wsRestGetPermissionAssignmentsLiteRequest.getRoleName(), 
@@ -1625,7 +1630,17 @@ public class GrouperServiceRest {
         wsRestGetPermissionAssignmentsLiteRequest.getParamName0(), 
         wsRestGetPermissionAssignmentsLiteRequest.getParamValue0(), wsRestGetPermissionAssignmentsLiteRequest.getParamName1(), 
         wsRestGetPermissionAssignmentsLiteRequest.getParamValue1(), wsRestGetPermissionAssignmentsLiteRequest.getEnabled(),
-        wsRestGetPermissionAssignmentsLiteRequest.getPointInTimeFrom(), wsRestGetPermissionAssignmentsLiteRequest.getPointInTimeTo());
+        wsRestGetPermissionAssignmentsLiteRequest.getPointInTimeFrom(), 
+        wsRestGetPermissionAssignmentsLiteRequest.getPointInTimeTo(),
+        wsRestGetPermissionAssignmentsLiteRequest.getImmediateOnly(), wsRestGetPermissionAssignmentsLiteRequest.getPermissionType(),
+        wsRestGetPermissionAssignmentsLiteRequest.getPermissionProcessor(), 
+        wsRestGetPermissionAssignmentsLiteRequest.getLimitEnvVarName0(),
+        wsRestGetPermissionAssignmentsLiteRequest.getLimitEnvVarValue0(),
+        wsRestGetPermissionAssignmentsLiteRequest.getLimitEnvVarType0(),
+        wsRestGetPermissionAssignmentsLiteRequest.getLimitEnvVarName1(),
+        wsRestGetPermissionAssignmentsLiteRequest.getLimitEnvVarValue1(),
+        wsRestGetPermissionAssignmentsLiteRequest.getLimitEnvVarType1(), 
+        wsRestGetPermissionAssignmentsLiteRequest.getIncludeLimits());
     
     return wsGetPermissionAssignmentsResults;
     
