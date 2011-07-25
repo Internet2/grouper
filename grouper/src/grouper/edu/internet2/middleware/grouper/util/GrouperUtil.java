@@ -10838,6 +10838,8 @@ public class GrouperUtil {
             value = GrouperUtil.doubleValue(value);
           } else if (StringUtils.equalsIgnoreCase(type, "date") || StringUtils.equalsIgnoreCase(type, "timestamp")) {
             value = GrouperUtil.toTimestamp(value);
+          } else if (StringUtils.equalsIgnoreCase(type, "text") || StringUtils.equalsIgnoreCase(type, "string")) {
+            //nothing, the value is a string
           } else if (StringUtils.equalsIgnoreCase(type, "boolean")) {
             value = GrouperUtil.booleanValue(value);
           } else if (StringUtils.equalsIgnoreCase(type, "null")) {
