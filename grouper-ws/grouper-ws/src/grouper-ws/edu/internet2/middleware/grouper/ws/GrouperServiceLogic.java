@@ -64,6 +64,7 @@ import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.misc.SaveResultType;
 import edu.internet2.middleware.grouper.permissions.PermissionAssignOperation;
 import edu.internet2.middleware.grouper.permissions.PermissionEntry;
+import edu.internet2.middleware.grouper.permissions.PermissionProcessor;
 import edu.internet2.middleware.grouper.permissions.PermissionEntry.PermissionType;
 import edu.internet2.middleware.grouper.pit.PITGroup;
 import edu.internet2.middleware.grouper.pit.PITMember;
@@ -126,6 +127,7 @@ import edu.internet2.middleware.grouper.ws.coresoap.WsMemberChangeSubjectResults
 import edu.internet2.middleware.grouper.ws.coresoap.WsMembershipAnyLookup;
 import edu.internet2.middleware.grouper.ws.coresoap.WsMembershipLookup;
 import edu.internet2.middleware.grouper.ws.coresoap.WsParam;
+import edu.internet2.middleware.grouper.ws.coresoap.WsPermissionEnvVar;
 import edu.internet2.middleware.grouper.ws.coresoap.WsQueryFilter;
 import edu.internet2.middleware.grouper.ws.coresoap.WsStem;
 import edu.internet2.middleware.grouper.ws.coresoap.WsStemDeleteLiteResult;
@@ -5778,6 +5780,17 @@ public class GrouperServiceLogic {
    *            will be done at a single point in time rather than a range.  If this is specified but 
    *            pointInTimeFrom is not specified, then the point in time query range will be from the 
    *            minimum point in time to the time specified.
+   * @param immediateOnly T of F (defaults to F) if we should filter out non immediate permissions
+   * @param permissionType are we looking for role permissions or subject permissions?  from
+   * enum PermissionType: role, or role_subject.  defaults to role_subject permissions
+   * @param permissionProcessor if we should find the best answer, or process limits, etc.  From the enum
+   * PermissionProcessor.  example values are: FILTER_REDUNDANT_PERMISSIONS, 
+   * FILTER_REDUNDANT_PERMISSIONS_AND_PROCESS_LIMITS, FILTER_REDUNDANT_PERMISSIONS_AND_ROLES,
+   * FILTER_REDUNDANT_PERMISSIONS_AND_ROLES_AND_PROCESS_LIMITS, PROCESS_LIMITS
+   * @param limitEnvVars limitEnvVars if processing limits, pass in a set of limits.  The name is the
+   * name of the variable, and the value is the value.  Note, you can typecast the
+   * values by putting a valid type in parens in front of the param name.  e.g.
+   * name: (int)amount, value: 50
    * @return the results
    */
   @SuppressWarnings("unchecked")
@@ -5789,7 +5802,8 @@ public class GrouperServiceLogic {
       boolean includeAttributeDefNames, boolean includeAttributeAssignments,
       boolean includeAssignmentsOnAssignments, WsSubjectLookup actAsSubjectLookup, boolean includeSubjectDetail,
       String[] subjectAttributeNames, boolean includeGroupDetail, WsParam[] params, 
-      String enabled, Timestamp pointInTimeFrom, Timestamp pointInTimeTo) {  
+      String enabled, Timestamp pointInTimeFrom, Timestamp pointInTimeTo, boolean immediateOnly,
+      PermissionType permissionType, PermissionProcessor permissionProcessor, WsPermissionEnvVar[] limitEnvVars) {  
   
     WsGetPermissionAssignmentsResults wsGetPermissionAssignmentsResults = new WsGetPermissionAssignmentsResults();
   
@@ -5978,6 +5992,22 @@ public class GrouperServiceLogic {
    *            will be done at a single point in time rather than a range.  If this is specified but 
    *            pointInTimeFrom is not specified, then the point in time query range will be from the 
    *            minimum point in time to the time specified.
+   * @param immediateOnly T of F (defaults to F) if we should filter out non immediate permissions
+   * @param permissionType are we looking for role permissions or subject permissions?  from
+   * enum PermissionType: role, or role_subject.  defaults to role_subject permissions
+   * @param permissionProcessor if we should find the best answer, or process limits, etc.  From the enum
+   * PermissionProcessor.  example values are: FILTER_REDUNDANT_PERMISSIONS, 
+   * FILTER_REDUNDANT_PERMISSIONS_AND_PROCESS_LIMITS, FILTER_REDUNDANT_PERMISSIONS_AND_ROLES,
+   * FILTER_REDUNDANT_PERMISSIONS_AND_ROLES_AND_PROCESS_LIMITS, PROCESS_LIMITS
+   * @param limitEnvVarName0 limitEnvVars if processing limits, pass in a set of limits.  The name is the
+   * name of the variable, and the value is the value.  Note, you can typecast the
+   * values by putting a valid type in parens in front of the param name.  e.g.
+   * name: (int)amount, value: 50
+   * @param limitEnvVarValue0 first limit env var value
+   * @param limitEnvVarType0 first limit env var type
+   * @param limitEnvVarName1 second limit env var name
+   * @param limitEnvVarValue1 second limit env var value
+   * @param limitEnvVarType1 second limit env var type
    * @return the results
    */
   @SuppressWarnings("unchecked")
@@ -5991,9 +6021,11 @@ public class GrouperServiceLogic {
       boolean includeAssignmentsOnAssignments, String actAsSubjectId, String actAsSubjectSourceId,
       String actAsSubjectIdentifier, boolean includeSubjectDetail,
       String subjectAttributeNames, boolean includeGroupDetail, String paramName0, String paramValue0,
-      String paramName1, String paramValue1, String enabled, Timestamp pointInTimeFrom, Timestamp pointInTimeTo) {  
-    
-    
+      String paramName1, String paramValue1, String enabled, Timestamp pointInTimeFrom, Timestamp pointInTimeTo,
+      boolean immediateOnly,
+      PermissionType permissionType, PermissionProcessor permissionProcessor, 
+      String limitEnvVarName0, String limitEnvVarValue0, 
+      String limitEnvVarType0, String limitEnvVarName1, String limitEnvVarValue1, String limitEnvVarType1) {  
     
     WsAttributeDefLookup[] wsAttributeDefLookups = null;
     if (!StringUtils.isBlank(wsAttributeDefName) || !StringUtils.isBlank(wsAttributeDefId)) {
@@ -6026,11 +6058,14 @@ public class GrouperServiceLogic {
     String[] subjectAttributeArray = GrouperUtil.splitTrim(subjectAttributeNames, ",");
     
     WsParam[] params = GrouperServiceUtils.params(paramName0, paramValue0, paramName0, paramName1);
-  
+
+    WsPermissionEnvVar[] limitEnvVars = GrouperServiceUtils.permissionEnvVars(limitEnvVarName0, 
+        limitEnvVarValue0, limitEnvVarType0, limitEnvVarName1, limitEnvVarValue1, limitEnvVarType1);
+
     WsGetPermissionAssignmentsResults wsGetPermissionAssignmentsResults = getPermissionAssignments(clientVersion, wsAttributeDefLookups, wsAttributeDefNameLookups, roleLookups, 
         wsSubjectLookups, actions, includePermissionAssignDetail, includeAttributeDefNames, includeAttributeAssignments, includeAssignmentsOnAssignments, 
         actAsSubjectLookup, includeSubjectDetail, subjectAttributeArray, includeGroupDetail, 
-        params, enabled, pointInTimeFrom, pointInTimeTo);
+        params, enabled, pointInTimeFrom, pointInTimeTo, immediateOnly, permissionType, permissionProcessor, );
     
     return wsGetPermissionAssignmentsResults;
   }

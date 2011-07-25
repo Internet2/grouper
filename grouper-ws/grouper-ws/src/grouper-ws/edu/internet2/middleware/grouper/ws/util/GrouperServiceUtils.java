@@ -49,6 +49,7 @@ import edu.internet2.middleware.grouper.ws.GrouperServiceJ2ee;
 import edu.internet2.middleware.grouper.ws.GrouperWsConfig;
 import edu.internet2.middleware.grouper.ws.coresoap.GrouperService;
 import edu.internet2.middleware.grouper.ws.coresoap.WsParam;
+import edu.internet2.middleware.grouper.ws.coresoap.WsPermissionEnvVar;
 import edu.internet2.middleware.grouper.ws.coresoap.WsResultMeta;
 import edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
@@ -1027,6 +1028,41 @@ public final class GrouperServiceUtils {
     //not sure why someone would pass second ard and not first, but oh well 
     if (!StringUtils.isBlank(paramName1)) {
       return new WsParam[]{new WsParam(paramName1, paramValue1)};
+    }
+    return null;
+  }
+
+
+  /**
+   * organize limit env vars
+   * 
+   * @param limitEnvVarName0 limitEnvVars if processing limits, pass in a set of limits.  The name is the
+   * name of the variable, and the value is the value.  Note, you can typecast the
+   * values by putting a valid type in parens in front of the param name.  e.g.
+   * name: (int)amount, value: 50
+   * @param limitEnvVarValue0 first limit env var value
+   * @param limitEnvVarType0 first limit env var type
+   * @param limitEnvVarName1 second limit env var name
+   * @param limitEnvVarValue1 second limit env var value
+   * @param limitEnvVarType1 second limit env var type
+   * @return the array limit env vars
+   */
+  public static WsPermissionEnvVar[] limitEnvVars(String limitEnvVarName0, 
+      String limitEnvVarValue0, String limitEnvVarType0, String limitEnvVarName1, 
+      String limitEnvVarValue1, String limitEnvVarType1) {
+    
+    if (!StringUtils.isBlank(limitEnvVarName0)) {
+      if (!StringUtils.isBlank(limitEnvVarName1)) {
+        WsPermissionEnvVar[] limitEnvVars = new WsPermissionEnvVar[2];
+        limitEnvVars[0] = new WsPermissionEnvVar(limitEnvVarName0, limitEnvVarValue0, limitEnvVarType0);
+        limitEnvVars[1] = new WsPermissionEnvVar(limitEnvVarName1, limitEnvVarValue1, limitEnvVarType1);
+        return limitEnvVars;
+      }
+      return new WsPermissionEnvVar[]{new WsPermissionEnvVar(limitEnvVarName0, limitEnvVarValue0, limitEnvVarType0)};
+    }
+    //not sure why someone would pass second ard and not first, but oh well 
+    if (!StringUtils.isBlank(limitEnvVarName1)) {
+      return new WsPermissionEnvVar[]{new WsPermissionEnvVar(limitEnvVarName1, limitEnvVarValue1, limitEnvVarType1)};
     }
     return null;
   }
