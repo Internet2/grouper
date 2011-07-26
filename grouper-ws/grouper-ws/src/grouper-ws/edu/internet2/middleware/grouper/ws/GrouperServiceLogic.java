@@ -5862,6 +5862,11 @@ public class GrouperServiceLogic {
       Map<String, Object> limitEnvMap = GrouperServiceUtils.convertLimitsToMap(
           limitEnvVars);
       
+      //role_subject permission type is the default
+      if (permissionType == null) {
+        permissionType = PermissionType.role_subject;
+      }
+      
       //this is for error checking
       
       StringBuilder errorMessage = new StringBuilder();

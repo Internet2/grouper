@@ -498,13 +498,16 @@ public class WsPermissionAssign implements Comparable<WsPermissionAssign> {
     this.sourceId = permissionEntry.getSubjectSourceId();
     this.subjectId = permissionEntry.getSubjectId();
     
+    this.disallowed = permissionEntry.isDisallowed() ? "T" : "F";
+    this.allowedOverall = permissionEntry.isAllowedOverall() ? "T" : "F";
     if (GrouperUtil.length(permissionLimitBeans) > 0) {
       this.limits = new WsPermissionLimit[GrouperUtil.length(permissionLimitBeans)];
       
+      int index = 0;
       for (PermissionLimitBean permissionLimitBean : GrouperUtil.nonNull(permissionLimitBeans)) {
         
-        
-        
+        this.limits[index] = new WsPermissionLimit(permissionLimitBean);
+        index++;
       }
     }    
   }

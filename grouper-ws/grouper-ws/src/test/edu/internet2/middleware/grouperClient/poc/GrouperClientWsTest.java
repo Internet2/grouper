@@ -79,7 +79,7 @@ public class GrouperClientWsTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new GrouperClientWsTest("testAssignPermissions"));
+    TestRunner.run(new GrouperClientWsTest("testGetPermissionAssigns"));
     //TestRunner.run(new GrouperClientWsTest("testGroupSaveLookupNameSame"));
     //TestRunner.run(new GrouperClientWsTest("testGroupSaveNoLookup"));
   }
@@ -13618,6 +13618,7 @@ public class GrouperClientWsTest extends GrouperTest {
         assertEquals(outputLine, "aStem:permissionDefName", matcher.group(5));
         assertEquals(outputLine, "action", matcher.group(6));
         assertEquals(outputLine, "T", matcher.group(7));
+        assertEquals(outputLine, "T", matcher.group(8));
         
         outputLine = outputLines[1];
         
@@ -13631,6 +13632,7 @@ public class GrouperClientWsTest extends GrouperTest {
         assertEquals(outputLine, "aStem:permissionDefName2", matcher.group(5));
         assertEquals(outputLine, "action2", matcher.group(6));
         assertEquals(outputLine, "T", matcher.group(7));
+        assertEquals(outputLine, "T", matcher.group(8));
         
         assertTrue(GrouperClientWs.mostRecentRequest,
             !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
@@ -13702,6 +13704,7 @@ public class GrouperClientWsTest extends GrouperTest {
         assertEquals(outputLine, "aStem:permissionDefName", matcher.group(5));
         assertEquals(outputLine, "action", matcher.group(6));
         assertEquals(outputLine, "T", matcher.group(7));
+        assertEquals(outputLine, "T", matcher.group(8));
         
         outputLine = outputLines[1];
         
@@ -13715,6 +13718,7 @@ public class GrouperClientWsTest extends GrouperTest {
         assertEquals(outputLine, "aStem:permissionDefName2", matcher.group(5));
         assertEquals(outputLine, "action2", matcher.group(6));
         assertEquals(outputLine, "T", matcher.group(7));
+        assertEquals(outputLine, "T", matcher.group(8));
         
         assertTrue(GrouperClientWs.mostRecentRequest,
             !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
@@ -13785,6 +13789,7 @@ public class GrouperClientWsTest extends GrouperTest {
         assertEquals(outputLine, "aStem:permissionDefName", matcher.group(5));
         assertEquals(outputLine, "action", matcher.group(6));
         assertEquals(outputLine, "T", matcher.group(7));
+        assertEquals(outputLine, "T", matcher.group(8));
         
         assertTrue(GrouperClientWs.mostRecentRequest,
             !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
@@ -13854,6 +13859,7 @@ public class GrouperClientWsTest extends GrouperTest {
         assertEquals(outputLine, "aStem:permissionDefName", matcher.group(5));
         assertEquals(outputLine, "action", matcher.group(6));
         assertEquals(outputLine, "T", matcher.group(7));
+        assertEquals(outputLine, "T", matcher.group(8));
         
         assertTrue(GrouperClientWs.mostRecentRequest,
             !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
@@ -13923,6 +13929,7 @@ public class GrouperClientWsTest extends GrouperTest {
         assertEquals(outputLine, "aStem:permissionDefName", matcher.group(5));
         assertEquals(outputLine, "action", matcher.group(6));
         assertEquals(outputLine, "T", matcher.group(7));
+        assertEquals(outputLine, "T", matcher.group(8));
         
         assertTrue(GrouperClientWs.mostRecentRequest,
             !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
@@ -13992,6 +13999,7 @@ public class GrouperClientWsTest extends GrouperTest {
         assertEquals(outputLine, "aStem:permissionDefName", matcher.group(5));
         assertEquals(outputLine, "action", matcher.group(6));
         assertEquals(outputLine, "T", matcher.group(7));
+        assertEquals(outputLine, "T", matcher.group(8));
         
         assertTrue(GrouperClientWs.mostRecentRequest,
             !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
@@ -14169,6 +14177,7 @@ public class GrouperClientWsTest extends GrouperTest {
         assertEquals(outputLine, "aStem:permissionDefName", matcher.group(5));
         assertEquals(outputLine, "action", matcher.group(6));
         assertEquals(outputLine, "T", matcher.group(7));
+        assertEquals(outputLine, "T", matcher.group(8));
 
         
         assertTrue(GrouperClientWs.mostRecentRequest,
@@ -14239,6 +14248,7 @@ public class GrouperClientWsTest extends GrouperTest {
         assertEquals(outputLine, "aStem:permissionDefName", matcher.group(5));
         assertEquals(outputLine, "action", matcher.group(6));
         assertEquals(outputLine, "T", matcher.group(7));
+        assertEquals(outputLine, "T", matcher.group(8));
 
         
         assertTrue(GrouperClientWs.mostRecentRequest,
@@ -14311,6 +14321,7 @@ public class GrouperClientWsTest extends GrouperTest {
         assertEquals(outputLine, "aStem:permissionDefName", matcher.group(5));
         assertEquals(outputLine, "action", matcher.group(6));
         assertEquals(outputLine, "T", matcher.group(7));
+        assertEquals(outputLine, "T", matcher.group(8));
 
         
         assertTrue(GrouperClientWs.mostRecentRequest,
@@ -14383,6 +14394,7 @@ public class GrouperClientWsTest extends GrouperTest {
         assertEquals(outputLine, "aStem:permissionDefName", matcher.group(5));
         assertEquals(outputLine, "action", matcher.group(6));
         assertEquals(outputLine, "T", matcher.group(7));
+        assertEquals(outputLine, "T", matcher.group(8));
 
         
         assertTrue(GrouperClientWs.mostRecentRequest,
@@ -14453,6 +14465,7 @@ public class GrouperClientWsTest extends GrouperTest {
         assertEquals(outputLine, "aStem:permissionDefName", matcher.group(5));
         assertEquals(outputLine, "action", matcher.group(6));
         assertEquals(outputLine, "T", matcher.group(7));
+        assertEquals(outputLine, "T", matcher.group(8));
 
         
         assertTrue(GrouperClientWs.mostRecentRequest,
@@ -14523,6 +14536,7 @@ public class GrouperClientWsTest extends GrouperTest {
         assertEquals(outputLine, "aStem:permissionDefName", matcher.group(5));
         assertEquals(outputLine, "action", matcher.group(6));
         assertEquals(outputLine, "T", matcher.group(7));
+        assertEquals(outputLine, "T", matcher.group(8));
 
         
         assertTrue(GrouperClientWs.mostRecentRequest,
@@ -14593,6 +14607,7 @@ public class GrouperClientWsTest extends GrouperTest {
         assertEquals(outputLine, "aStem:permissionDefName", matcher.group(5));
         assertEquals(outputLine, "action", matcher.group(6));
         assertEquals(outputLine, "T", matcher.group(7));
+        assertEquals(outputLine, "T", matcher.group(8));
 
         
         assertTrue(GrouperClientWs.mostRecentRequest,
@@ -14663,6 +14678,7 @@ public class GrouperClientWsTest extends GrouperTest {
         assertEquals(outputLine, "aStem:permissionDefName", matcher.group(5));
         assertEquals(outputLine, "action", matcher.group(6));
         assertEquals(outputLine, "T", matcher.group(7));
+        assertEquals(outputLine, "T", matcher.group(8));
 
         
         assertTrue(GrouperClientWs.mostRecentRequest,
@@ -14764,7 +14780,7 @@ public class GrouperClientWsTest extends GrouperTest {
             !GrouperClientWs.mostRecentRequest.contains("wsSubjectLookups"));
         
         // ######################################################
-        // Try roleName and custom template
+        // Try roleName and act as subject
 
         baos = new ByteArrayOutputStream();
         System.setOut(new PrintStream(baos));
@@ -14820,10 +14836,197 @@ public class GrouperClientWsTest extends GrouperTest {
             GrouperClientWs.mostRecentRequest.contains("roleLookups") && GrouperClientWs.mostRecentRequest.contains("<groupName>"));
         assertTrue(GrouperClientWs.mostRecentRequest,
             !GrouperClientWs.mostRecentRequest.contains("wsSubjectLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("<immediateOnly>T</immediateOnly>"));
+
+        // ######################################################
+        // Try roleName and immediateOnly
+
+        baos = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(baos));
+        
+        GrouperClient.main(GrouperClientUtils.splitTrim(
+            "--operation=getPermissionAssignmentsWs --roleNames=" + role.getName() + " --immediateOnly=T",
+            " "));
+  
+        System.out.flush();
+        output = new String(baos.toByteArray());
+    
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
+        
+        System.setOut(systemOut);
+        
+        
+        assertEquals(0, GrouperUtil.length(outputLines));
 
         
-    
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("actions"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("enabled"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeAttributeDefNames"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeAttributeAssignments"));
+        assertTrue(GrouperClientWs.mostRecentResponse,
+            !GrouperClientWs.mostRecentResponse.contains("<hasComposite>"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includePermissionAssignDetail"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("params"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("roleLookups") && GrouperClientWs.mostRecentRequest.contains("<groupName>"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsSubjectLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("<immediateOnly>T</immediateOnly>"));
         
+        // ######################################################
+        // Try roleName and permissionType
+
+        baos = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(baos));
+        
+        GrouperClient.main(GrouperClientUtils.splitTrim(
+            "--operation=getPermissionAssignmentsWs --roleNames=" + role.getName() + " --permissionType=role_subject",
+            " "));
+  
+        System.out.flush();
+        output = new String(baos.toByteArray());
+    
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
+        
+        System.setOut(systemOut);
+        
+        
+        assertEquals(1, GrouperUtil.length(outputLines));
+
+        
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("actions"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("enabled"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeAttributeDefNames"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeAttributeAssignments"));
+        assertTrue(GrouperClientWs.mostRecentResponse,
+            !GrouperClientWs.mostRecentResponse.contains("<hasComposite>"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includePermissionAssignDetail"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("params"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("roleLookups") && GrouperClientWs.mostRecentRequest.contains("<groupName>"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsSubjectLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("<immediateOnly>T</immediateOnly>"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("<permissionType>role_subject</permissionType>"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("<permissionProcessor>role_subject</permissionProcessor>"));
+
+        // ######################################################
+        // Try roleName and permissionProcessor
+
+        baos = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(baos));
+        
+        GrouperClient.main(GrouperClientUtils.splitTrim(
+            "--operation=getPermissionAssignmentsWs --roleNames=" + role.getName() + " --permissionProcessor=FILTER_REDUNDANT_PERMISSIONS",
+            " "));
+  
+        System.out.flush();
+        output = new String(baos.toByteArray());
+    
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
+        
+        System.setOut(systemOut);
+        
+        
+        assertEquals(1, GrouperUtil.length(outputLines));
+
+        
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("actions"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("enabled"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeAttributeDefNames"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeAttributeAssignments"));
+        assertTrue(GrouperClientWs.mostRecentResponse,
+            !GrouperClientWs.mostRecentResponse.contains("<hasComposite>"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includePermissionAssignDetail"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("params"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("roleLookups") && GrouperClientWs.mostRecentRequest.contains("<groupName>"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsSubjectLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("<immediateOnly>T</immediateOnly>"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("<permissionType>role_subject</permissionType>"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("<permissionProcessor>FILTER_REDUNDANT_PERMISSIONS</permissionProcessor>"));
+
       } finally {
         System.setOut(systemOut);
       }

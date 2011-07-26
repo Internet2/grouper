@@ -451,6 +451,15 @@ public class WsRestGetPermissionAssignmentsRequest implements WsRequestBean {
   /** A for all, T or null for enabled only, F for disabled  */
   private String enabled;
 
+  /** 
+   * if processing permissions, you can filter out either redundant permissions (find best in set),
+   * or do that and filter out redundant roles (if flattening roles) (find best in set).  This is the
+   * PermissionProcessor enum.  e.g. FILTER_REDUNDANT_PERMISSIONS, FILTER_REDUNDANT_PERMISSIONS_AND_PROCESS_LIMITS,
+   * FILTER_REDUNDANT_PERMISSIONS_AND_ROLES, FILTER_REDUNDANT_PERMISSIONS_AND_ROLES_AND_PROCESS_LIMITS,
+   * PROCESS_LIMITS.  If null, then just get all permissions and process on the client.
+   */
+  private String permissionProcessor;
+
   /**
    * A for all, T or null for enabled only, F for disabled 
    * @return enabled
@@ -518,6 +527,30 @@ public class WsRestGetPermissionAssignmentsRequest implements WsRequestBean {
    */
   public void setPointInTimeTo(String pointInTimeTo1) {
     this.pointInTimeTo = pointInTimeTo1;
+  }
+
+  /**
+   * if processing permissions, you can filter out either redundant permissions (find best in set),
+   * or do that and filter out redundant roles (if flattening roles) (find best in set).  This is the
+   * PermissionProcessor enum.  e.g. FILTER_REDUNDANT_PERMISSIONS, FILTER_REDUNDANT_PERMISSIONS_AND_PROCESS_LIMITS,
+   * FILTER_REDUNDANT_PERMISSIONS_AND_ROLES, FILTER_REDUNDANT_PERMISSIONS_AND_ROLES_AND_PROCESS_LIMITS,
+   * PROCESS_LIMITS.  If null, then just get all permissions and process on the client.
+   * @return processor
+   */
+  public String getPermissionProcessor() {
+    return this.permissionProcessor;
+  }
+
+  /**
+   * if processing permissions, you can filter out either redundant permissions (find best in set),
+   * or do that and filter out redundant roles (if flattening roles) (find best in set).  This is the
+   * PermissionProcessor enum.  e.g. FILTER_REDUNDANT_PERMISSIONS, FILTER_REDUNDANT_PERMISSIONS_AND_PROCESS_LIMITS,
+   * FILTER_REDUNDANT_PERMISSIONS_AND_ROLES, FILTER_REDUNDANT_PERMISSIONS_AND_ROLES_AND_PROCESS_LIMITS,
+   * PROCESS_LIMITS.  If null, then just get all permissions and process on the client.
+   * @param permissionProcessor1
+   */
+  public void setPermissionProcessor(String permissionProcessor1) {
+    this.permissionProcessor = permissionProcessor1;
   }
 
 

@@ -89,6 +89,7 @@ import edu.internet2.middleware.grouperClient.ws.beans.WsMembership;
 import edu.internet2.middleware.grouperClient.ws.beans.WsMembershipAnyLookup;
 import edu.internet2.middleware.grouperClient.ws.beans.WsParam;
 import edu.internet2.middleware.grouperClient.ws.beans.WsPermissionAssign;
+import edu.internet2.middleware.grouperClient.ws.beans.WsPermissionEnvVar;
 import edu.internet2.middleware.grouperClient.ws.beans.WsQueryFilter;
 import edu.internet2.middleware.grouperClient.ws.beans.WsStem;
 import edu.internet2.middleware.grouperClient.ws.beans.WsStemDeleteResult;
@@ -2317,6 +2318,31 @@ public class GrouperClient {
   }
   
   /**
+   * retrieve params from args
+   * @param argMap
+   * @param argMapNotUsed
+   * @return the list of params or empty list if none
+   */
+  private static List<WsPermissionEnvVar> retrieveLimitEnvVarsFromArgs(
+      Map<String, String> argMap, Map<String, String> argMapNotUsed) {
+
+    List<WsPermissionEnvVar> params = new ArrayList<WsPermissionEnvVar>();
+    int index = 0;
+    while (true) {
+
+      String argName = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "limitEnvVarName" + index, false);
+      if (GrouperClientUtils.isBlank(argName)) {
+        break;
+      }
+      String argValue = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "limitEnvVarValue" + index, true);
+      String argType = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "limitEnvVarType" + index, true);
+      params.add(new WsPermissionEnvVar(argName, argValue, argType));
+      index++;
+    }
+    return params;
+  }
+
+  /**
    * @param argMap
    * @param argMapNotUsed
    * @param required if they are required
@@ -3883,6 +3909,35 @@ public class GrouperClient {
     
     Timestamp pointInTimeFrom = GrouperClientUtils.argMapTimestamp(argMap, argMapNotUsed, "pointInTimeFrom");
     Timestamp pointInTimeTo = GrouperClientUtils.argMapTimestamp(argMap, argMapNotUsed, "pointInTimeTo");
+    
+    {
+      Boolean immediateOnlyBoolean = GrouperClientUtils.argMapBoolean(argMap, argMapNotUsed, "immediateOnly");
+      if (immediateOnlyBoolean != null) {
+        gcGetPermissionAssignments.assignImmediateOnly(immediateOnlyBoolean);
+      }
+    }
+
+    {
+      String permissionType = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "permissionType", false);
+      if (!GrouperClientUtils.isBlank(permissionType)) {
+        gcGetPermissionAssignments.assignPermissionType(permissionType);
+      }
+    }
+    
+    {
+      String permissionProcessor = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "permissionProcessor", false);
+      if (!GrouperClientUtils.isBlank(permissionProcessor)) {
+        gcGetPermissionAssignments.assignPermissionProcessor(permissionProcessor);
+      }
+    }
+
+    {
+      List<WsPermissionEnvVar> envVars = retrieveLimitEnvVarsFromArgs(argMap, argMapNotUsed);
+      
+      for (WsPermissionEnvVar envVar : envVars) {
+        gcGetPermissionAssignments.addPermissionEnvVar(envVar);
+      }
+    }
     
     gcGetPermissionAssignments.assignPointInTimeFrom(pointInTimeFrom);
     gcGetPermissionAssignments.assignPointInTimeTo(pointInTimeTo);
