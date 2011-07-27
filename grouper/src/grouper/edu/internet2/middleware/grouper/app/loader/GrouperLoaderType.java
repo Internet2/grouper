@@ -408,7 +408,7 @@ public enum GrouperLoaderType {
           if (!StringUtils.isBlank(groupQuery)) {
             //get a resultset from the db
             final GrouperLoaderResultset grouperLoaderGroupsResultset = new GrouperLoaderResultset(
-                grouperLoaderDb, groupQuery);
+                grouperLoaderDb, groupQuery + " order by group_name");
             
             groupMetadataNumberOfRows = grouperLoaderGroupsResultset.numberOfRows();
             for (int i=0;i<groupMetadataNumberOfRows;i++) {
@@ -671,11 +671,17 @@ public enum GrouperLoaderType {
             
           }
           
+          Set<String> groupNamesToSync = new LinkedHashSet<String>();
+          if (!StringUtils.isBlank(groupQuery)) {
+            groupNamesToSync.addAll(groupNamesFromGroupQuery);
+          } else {
+            groupNamesToSync.addAll(groupNames);
+          }
           
-          for (String groupName : groupNames) {
+          for (String groupName : groupNamesToSync) {
             
             if (LOG.isDebugEnabled()) {
-              LOG.debug(groupNameOverall + ": syncing membership for " + groupName + " " + count + " out of " + groupNames.size() + " groups");
+              LOG.debug(groupNameOverall + ": syncing membership for " + groupName + " " + count + " out of " + groupNamesToSync.size() + " groups");
             }
             
             Hib3GrouperLoaderLog hib3GrouploaderLog = new Hib3GrouperLoaderLog();
@@ -738,6 +744,9 @@ public enum GrouperLoaderType {
           }
           
           //lets go through and create groups which arent there
+          
+          // The above code should be taking care of these group creates..
+          /*
           for (String groupName : groupNamesFromGroupQuery) {
             
             Group group = GroupFinder.findByName(grouperSession, groupName, false);
@@ -762,7 +771,7 @@ public enum GrouperLoaderType {
                 }
               }
             }
-          }
+          }*/
           
           if (LOG.isDebugEnabled()) {
             LOG.debug(groupNameOverall + ": done syncing membership");
