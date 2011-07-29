@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<AttributeResolver
+  xmlns="urn:mace:shibboleth:2.0:resolver"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:resolver="urn:mace:shibboleth:2.0:resolver"
+  xmlns:ad="urn:mace:shibboleth:2.0:resolver:ad"
+  xmlns:dc="urn:mace:shibboleth:2.0:resolver:dc"
+  xmlns:grouper="http://grouper.internet2.edu/shibboleth/2.0"
+  xmlns:ldappc="http://grouper.internet2.edu/ldappc"
+  xsi:schemaLocation="
+   urn:mace:shibboleth:2.0:resolver classpath:/schema/shibboleth-2.0-attribute-resolver.xsd
+   urn:mace:shibboleth:2.0:resolver:dc classpath:/schema/shibboleth-2.0-attribute-resolver-dc.xsd
+   urn:mace:shibboleth:2.0:resolver:ad classpath:/schema/shibboleth-2.0-attribute-resolver-ad.xsd
+   http://grouper.internet2.edu/shibboleth/2.0 classpath:/schema/shibboleth-2.0-grouper.xsd
+   http://grouper.internet2.edu/ldappc classpath:/schema/ldappc.xsd">
+
+  <resolver:DataConnector id="GroupDataConnector" xsi:type="grouper:GroupDataConnector">   
+    <grouper:Attribute id="members" />
+    <grouper:Attribute id="groups" />
+  </resolver:DataConnector>
+
+  <resolver:DataConnector id="StemDataConnector" xsi:type="grouper:StemDataConnector">
+  </resolver:DataConnector>
+  
+  <resolver:DataConnector id="MemberDataConnector" xsi:type="grouper:MemberDataConnector">
+    <grouper:Attribute id="groups" />
+  </resolver:DataConnector>
+
+  <resolver:DataConnector id="StaticDataConnector" xsi:type="dc:Static">
+    <dc:Attribute id="group-objectclass">
+      <dc:Value>top</dc:Value>      
+      <dc:Value>${groupObjectClass}</dc:Value>
+    </dc:Attribute>
+    <dc:Attribute id="group-objectclass-eduMember">
+      <dc:Value>top</dc:Value>
+      <dc:Value>${groupObjectClass}</dc:Value>
+      <dc:Value>eduMember</dc:Value>
+    </dc:Attribute>
+    <dc:Attribute id="stem-objectclass">
+      <dc:Value>top</dc:Value>
+      <dc:Value>organizationalUnit</dc:Value>
+    </dc:Attribute>
+    <dc:Attribute id="member-objectclass">
+      <dc:Value>eduMember</dc:Value>
+    </dc:Attribute>
+  </resolver:DataConnector>
+
+  <resolver:AttributeDefinition id="stem-dn" xsi:type="ldappc:LdapDnPSOIdentifier"
+    structure="${DNstructure}" sourceAttributeID="name" rdnAttributeName="ou" base="${groupsOU}">
+    <resolver:Dependency ref="StemDataConnector" />
+  </resolver:AttributeDefinition>
+
+  <resolver:AttributeDefinition id="stem-objectclass" xsi:type="ad:Simple">
+    <resolver:Dependency ref="StaticDataConnector" />
+  </resolver:AttributeDefinition>
+
+  <resolver:AttributeDefinition id="stem-ou" xsi:type="ad:Simple" sourceAttributeID="extension">
+    <resolver:Dependency ref="StemDataConnector" />
+  </resolver:AttributeDefinition>
+  
+  <resolver:AttributeDefinition id="stem-description" xsi:type="ad:Simple" sourceAttributeID="description">
+    <resolver:Dependency ref="StemDataConnector" />
+  </resolver:AttributeDefinition>
+
+  <resolver:AttributeDefinition id="group-dn" xsi:type="ldappc:LdapDnPSOIdentifier"
+    structure="${DNstructure}" sourceAttributeID="name" rdnAttributeName="cn" base="${groupsOU}">
+    <resolver:Dependency ref="GroupDataConnector" />
+  </resolver:AttributeDefinition>
+
+  <resolver:AttributeDefinition id="group-objectclass" xsi:type="ad:Simple">
+    <resolver:Dependency ref="StaticDataConnector" />
+  </resolver:AttributeDefinition>
+  
+  <resolver:AttributeDefinition id="group-objectclass-eduMember" xsi:type="ad:Simple">
+    <resolver:Dependency ref="StaticDataConnector" />
+  </resolver:AttributeDefinition>
+
+  <resolver:AttributeDefinition id="description" xsi:type="ad:Simple">
+    <resolver:Dependency ref="GroupDataConnector" />
+  </resolver:AttributeDefinition>
+
+  <resolver:AttributeDefinition id="cn" xsi:type="ad:Simple" sourceAttributeID="extension">
+    <resolver:Dependency ref="GroupDataConnector" />
+  </resolver:AttributeDefinition>
+  
+  <resolver:AttributeDefinition xsi:type="Script" xmlns="urn:mace:shibboleth:2.0:resolver:ad" id="sAMAccountName" sourceAttributeID="name">
+    <resolver:Dependency ref="GroupDataConnector" />
+    <Script><![CDATA[
+      // Import Shibboleth attribute provider
+      importPackage(Packages.edu.internet2.middleware.shibboleth.common.attribute.provider);
+      
+      value = name.getValues().get(0); 
+      
+      value = value.replaceAll("\\/", "_");
+      value = value.replaceAll("\\/", "_");
+      value = value.replaceAll("\\[", "_");
+      value = value.replaceAll("\\]", "_");
+      value = value.replaceAll("\\:", "_");
+      value = value.replaceAll("\\;", "_");
+      value = value.replaceAll("\\|", "_");
+      value = value.replaceAll("\\=", "_");
+      value = value.replaceAll("\\,", "_");
+      value = value.replaceAll("\\+", "_");
+      value = value.replaceAll("\\*", "_");
+      value = value.replaceAll("\\?", "_");
+      
+      sAMAccountName = new BasicAttribute("sAMAccountName");
+      sAMAccountName.getValues().add(value);
+      ]]></Script>
+  </resolver:AttributeDefinition>
+
+  <resolver:AttributeDefinition id="hasMember" xsi:type="grouper:Member" sourceAttributeID="members">
+    <resolver:Dependency ref="GroupDataConnector" />
+    <grouper:Attribute id="name" source="jdbc" />
+    <grouper:Attribute id="name" source="g:gsa" />
+  </resolver:AttributeDefinition>
+
+  <resolver:AttributeDefinition id="groupIsMemberOf" xsi:type="grouper:Group" sourceAttributeID="groups">
+    <resolver:Dependency ref="GroupDataConnector" />
+    <grouper:Attribute id="name" />
+  </resolver:AttributeDefinition>
+
+  <resolver:AttributeDefinition id="members-jdbc" xsi:type="grouper:Member" sourceAttributeID="members">
+    <resolver:Dependency ref="GroupDataConnector" />
+    <grouper:Attribute id="id" source="jdbc" />
+  </resolver:AttributeDefinition>
+
+  <resolver:AttributeDefinition id="members-g:gsa" xsi:type="grouper:Member" sourceAttributeID="members">
+    <resolver:Dependency ref="GroupDataConnector" />
+    <grouper:Attribute id="name" source="g:gsa" />
+  </resolver:AttributeDefinition>
+
+  <resolver:AttributeDefinition id="member-dn" xsi:type="ad:Simple" sourceAttributeID="psoID">
+    <resolver:Dependency ref="SpmlDataConnector" />
+  </resolver:AttributeDefinition>
+
+  <resolver:DataConnector id="SpmlDataConnector" provider="ldap-provider" xsi:type="ldappc:SPMLDataConnector"
+    scope="subTree" base="${peopleOU}" returnData="identifier">
+    <resolver:Dependency ref="MemberDataConnector" />
+    <ldappc:FilterTemplate>(cn=${id.get(0)})</ldappc:FilterTemplate>
+  </resolver:DataConnector>
+
+  <resolver:AttributeDefinition id="member-objectclass" xsi:type="ad:Simple">
+    <resolver:Dependency ref="StaticDataConnector" />
+  </resolver:AttributeDefinition>
+
+  <resolver:AttributeDefinition id="memberIsMemberOf" xsi:type="grouper:Group" sourceAttributeID="groups">
+    <resolver:Dependency ref="MemberDataConnector" />
+    <grouper:Attribute id="name" />
+  </resolver:AttributeDefinition>
+
+</AttributeResolver>
