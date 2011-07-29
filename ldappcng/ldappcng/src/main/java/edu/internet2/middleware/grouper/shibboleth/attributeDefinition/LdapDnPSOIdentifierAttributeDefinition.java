@@ -29,7 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import edu.internet2.middleware.grouper.Stem;
-import edu.internet2.middleware.grouper.shibboleth.dataConnector.FindGroupByNameDataConnector;
+import edu.internet2.middleware.grouper.shibboleth.dataConnector.GroupDataConnector;
 import edu.internet2.middleware.ldappc.LdappcConfig.GroupDNStructure;
 import edu.internet2.middleware.ldappc.util.LdapUtil;
 import edu.internet2.middleware.ldappc.util.PSPUtil;
@@ -105,10 +105,9 @@ public class LdapDnPSOIdentifierAttributeDefinition extends BaseAttributeDefinit
     Collection<?> rdnValues = this.getValuesFromAllDependencies(resolutionContext, this.getSourceAttributeID());
     LOG.debug("{} dependency '{}' : {}", new Object[] { msg, this.getSourceAttributeID(), rdnValues });
 
-    // TODO fix the parent_stem attribute
     Collection<?> stemValues = this.getValuesFromAllDependencies(resolutionContext,
-        FindGroupByNameDataConnector.PARENT_STEM_NAME_ATTR);
-    LOG.debug("{} dependency '{}' : {}", new Object[] { msg, FindGroupByNameDataConnector.PARENT_STEM_NAME_ATTR, stemValues });
+        GroupDataConnector.PARENT_STEM_NAME_ATTR);
+    LOG.debug("{} dependency '{}' : {}", new Object[] { msg, GroupDataConnector.PARENT_STEM_NAME_ATTR, stemValues });
 
     if (rdnValues.isEmpty()) {
       LOG.debug("{} no dependency values", msg);
@@ -122,7 +121,7 @@ public class LdapDnPSOIdentifierAttributeDefinition extends BaseAttributeDefinit
     }
     if (stemValues.size() > 1) {
       LOG.warn("{} Unable to resolve identifier, dependency '{}' has more than one value", msg,
-          FindGroupByNameDataConnector.PARENT_STEM_NAME_ATTR);
+          GroupDataConnector.PARENT_STEM_NAME_ATTR);
       throw new AttributeResolutionException("Unable to resolve identifier, dependency has more than one value");
     }
 

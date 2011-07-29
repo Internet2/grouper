@@ -15,17 +15,17 @@
    http://grouper.internet2.edu/ldappc classpath:/schema/ldappc.xsd">
 
   <!-- group data connector -->
-  <resolver:DataConnector id="GroupDataConnector" xsi:type="grouper:FindGroupByNameDataConnector">
+  <resolver:DataConnector id="GroupDataConnector" xsi:type="grouper:GroupDataConnector">
     <grouper:Attribute id="members" />
     <grouper:Attribute id="groups" />
   </resolver:DataConnector>
 
   <!-- stem data connector -->
-  <resolver:DataConnector id="StemDataConnector" xsi:type="grouper:FindStemByNameDataConnector">
+  <resolver:DataConnector id="StemDataConnector" xsi:type="grouper:StemDataConnector">
   </resolver:DataConnector>
   
   <!-- member data connector -->
-  <resolver:DataConnector id="MemberDataConnector" xsi:type="grouper:FindMemberBySubjectIdOrIdentifierDataConnector">
+  <resolver:DataConnector id="MemberDataConnector" xsi:type="grouper:MemberDataConnector">
     <grouper:Attribute id="groups" />
   </resolver:DataConnector>
 
