@@ -373,7 +373,7 @@ public abstract class BaseGrouperDataConnector extends BaseDataConnector impleme
         .getFactory()
         .getAttributeDefName()
         .findAllAttributeNamesSplitScopeSecure(null, getGrouperSession(), null, SubjectFinder.findRootSubject(), null,
-            null);
+            null, null, null);
 
     for (AttributeDefName attributeDefName : attributeDefNames) {
       allAttributeDefNames.add(attributeDefName.getName());
