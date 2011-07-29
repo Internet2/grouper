@@ -10,8 +10,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.lang.StringUtils;
-
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.grouperClient.ws.GrouperClientWs;
 import edu.internet2.middleware.grouperClient.ws.beans.WsAttributeDefLookup;
@@ -504,11 +502,11 @@ public class GcGetPermissionAssignments {
         getPermissionAssignments.setImmediateOnly(this.immediateOnly ? "T" : "F");
       }
       
-      if (!StringUtils.isBlank(this.permissionType)) {
+      if (!GrouperClientUtils.isBlank(this.permissionType)) {
         getPermissionAssignments.setPermissionType(this.permissionType);
       }
       
-      if (!StringUtils.isBlank(this.permissionProcessor)) {
+      if (!GrouperClientUtils.isBlank(this.permissionProcessor)) {
         getPermissionAssignments.setPermissionProcessor(this.permissionProcessor);
       }
 
