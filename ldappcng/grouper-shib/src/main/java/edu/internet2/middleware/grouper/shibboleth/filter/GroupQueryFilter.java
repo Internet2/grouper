@@ -14,27 +14,30 @@
 
 package edu.internet2.middleware.grouper.shibboleth.filter;
 
+import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.filter.QueryFilter;
 
 /**
- * An extension to {@link QueryFilter} which provides the ability to determine if an object matches (would be returned
- * by) the filter.
+ * An extension to QueryFilter which provides the ability to determine if a Group matches
+ * (would be returned by) the filter.
  */
-public interface MatchQueryFilter<ValueType> extends QueryFilter {
+public interface GroupQueryFilter extends QueryFilter<Group> {
 
   /**
-   * Returns true if the object would be returned by the filter. False otherwise.
+   * Returns true if the Group would be returned by the filter. False otherwise.
    * 
-   * @param object
-   * @return if the object matches or not
+   * @param group
+   *          the Group
+   * @return if the group matches or not
    */
-  public boolean matches(ValueType valueType);
+  public boolean matchesGroup(Group group);
 
   /**
    * Set the grouper session
    * 
-   * @param grouperSession the {@link GrouperSession}
+   * @param grouperSession
+   *          the {@link GrouperSession}
    */
   public void setGrouperSession(GrouperSession grouperSession);
 

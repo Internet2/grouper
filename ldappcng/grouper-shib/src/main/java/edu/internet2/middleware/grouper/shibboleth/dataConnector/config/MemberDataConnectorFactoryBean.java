@@ -16,44 +16,33 @@ package edu.internet2.middleware.grouper.shibboleth.dataConnector.config;
 
 import java.util.Set;
 
-import edu.internet2.middleware.grouper.shibboleth.dataConnector.FindMemberBySubjectIdOrIdentifierDataConnector;
+import edu.internet2.middleware.grouper.shibboleth.dataConnector.MemberDataConnector;
 import edu.internet2.middleware.grouper.shibboleth.util.SourceIdentifier;
 
-/** Spring bean factory that produces {@link FindMemberBySubjectIdOrIdentifierDataConnector}s. */
-public class FindMemberBySubjectIdOrIdentifierDataConnectorFactoryBean extends BaseGrouperDataConnectorFactoryBean {
+/**
+ * Spring bean factory that produces {@link MemberDataConnector}s.
+ */
+public class MemberDataConnectorFactoryBean extends BaseGrouperDataConnectorFactoryBean {
 
-  /** The source identifiers. */
   private Set<SourceIdentifier> sourceIdentifiers;
 
-  /**
-   * Gets the source identifiers.
-   * 
-   * @return the source identifiers.
-   */
   public Set<SourceIdentifier> getSourceIdentifiers() {
     return sourceIdentifiers;
   }
 
-  /**
-   * Sets the source identifiers.
-   * 
-   * @param sourceIdentifiers
-   */
   public void setSourceIdentifiers(Set<SourceIdentifier> sourceIdentifiers) {
     this.sourceIdentifiers = sourceIdentifiers;
   }
 
-  /** {@inheritDoc} */
   protected Object createInstance() throws Exception {
-    FindMemberBySubjectIdOrIdentifierDataConnector connector = new FindMemberBySubjectIdOrIdentifierDataConnector();
+    MemberDataConnector connector = new MemberDataConnector();
     connector.setSourceIdentifiers(getSourceIdentifiers());
-    populateDataConnector(connector);
+    populateDataConnector(connector);    
     return connector;
   }
 
-  /** {@inheritDoc} */
   public Class getObjectType() {
-    return FindMemberBySubjectIdOrIdentifierDataConnector.class;
+    return MemberDataConnector.class;
   }
 
 }

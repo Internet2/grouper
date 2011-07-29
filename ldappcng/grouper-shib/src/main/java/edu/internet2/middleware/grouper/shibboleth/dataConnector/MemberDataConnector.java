@@ -53,10 +53,10 @@ import edu.internet2.middleware.subject.Subject;
  * A {@link DataConnector} which returns {@link Member}s. The attributes of the returned members may be limited in order
  * to avoid unnecessary queries to the Grouper database.
  */
-public class FindMemberBySubjectIdOrIdentifierDataConnector extends BaseGrouperDataConnector {
+public class MemberDataConnector extends BaseGrouperDataConnector {
 
   /** logger */
-  private static final Logger LOG = LoggerFactory.getLogger(FindMemberBySubjectIdOrIdentifierDataConnector.class);
+  private static final Logger LOG = LoggerFactory.getLogger(MemberDataConnector.class);
 
   /** the name of the attribute representing a subject's id */
   public static final String ID_ATTRIBUTE_NAME = "id";
@@ -222,7 +222,7 @@ public class FindMemberBySubjectIdOrIdentifierDataConnector extends BaseGrouperD
 
             // groups
             for (GroupsField groupsField : getGroupsFields()) {
-              BaseAttribute<Group> attr = groupsField.getAttribute(member, getMatchQueryFilter());
+              BaseAttribute<Group> attr = groupsField.getAttribute(member, getGroupQueryFilter());
               if (attr != null) {
                 attributes.put(groupsField.getId(), attr);
               }
@@ -278,7 +278,7 @@ public class FindMemberBySubjectIdOrIdentifierDataConnector extends BaseGrouperD
   /**
    * {@inheritDoc}
    * 
-   * see {@link FindMemberBySubjectIdOrIdentifierDataConnector#getAllIdentifiers()}
+   * see {@link MemberDataConnector#getAllIdentifiers()}
    * 
    */
   public Set<String> getAllIdentifiers(Date updatedSince) {

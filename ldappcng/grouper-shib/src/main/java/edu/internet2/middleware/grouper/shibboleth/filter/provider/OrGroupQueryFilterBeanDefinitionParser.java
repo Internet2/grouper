@@ -14,31 +14,44 @@
 
 package edu.internet2.middleware.grouper.shibboleth.filter.provider;
 
+import java.util.List;
+
 import javax.xml.namespace.QName;
 
+import org.opensaml.xml.util.XMLHelper;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
+import org.springframework.beans.factory.xml.AbstractSingleBeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.w3c.dom.Element;
 
 import edu.internet2.middleware.grouper.shibboleth.config.GrouperNamespaceHandler;
-import edu.internet2.middleware.grouper.shibboleth.filter.GroupsByExactAttributeMatchQueryFilter;
+import edu.internet2.middleware.grouper.shibboleth.filter.OrGroupFilter;
+import edu.internet2.middleware.shibboleth.common.config.SpringConfigurationUtils;
 
-/** Spring bean definition parser for configuring a {@link GroupsByExactAttributeMatchQueryFilter}. */
-public class GroupsByExactAttributeMatchQueryFilterBeanDefinitionParser extends MatchQueryFilterBeanDefinitionParser {
+public class OrGroupQueryFilterBeanDefinitionParser extends AbstractSingleBeanDefinitionParser {
 
-  /** {@link GroupsByExactAttributeMatchQueryFilter} type name. */
-  public static final QName TYPE_NAME = new QName(GrouperNamespaceHandler.NAMESPACE, "GroupsByExactAttribute");
+  public static final QName TYPE_NAME = new QName(GrouperNamespaceHandler.NAMESPACE, "OR");
 
-  /** Return {@link GroupsByExactAttributeMatchQueryFilter}. {@inheritDoc} */
+  public static final QName GROUP_FILTER = new QName(GrouperNamespaceHandler.NAMESPACE, "GroupFilter");
+
   protected Class getBeanClass(Element element) {
-    return GroupsByExactAttributeMatchQueryFilter.class;
+    return OrGroupFilter.class;
   }
 
-  /** {@inheritDoc} */
   protected void doParse(Element element, ParserContext parserContext, BeanDefinitionBuilder builder) {
     super.doParse(element, parserContext, builder);
 
-    builder.addConstructorArgValue(element.getAttributeNS(null, "name"));
-    builder.addConstructorArgValue(element.getAttributeNS(null, "value"));
+    List<Element> groupFilterElements = XMLHelper.getChildElementsByTagNameNS(element,
+        GrouperNamespaceHandler.NAMESPACE, "GroupFilter");
+
+    builder.addConstructorArgValue(SpringConfigurationUtils.parseInnerCustomElement(groupFilterElements.get(0),
+        parserContext));
+
+    builder.addConstructorArgValue(SpringConfigurationUtils.parseInnerCustomElement(groupFilterElements.get(1),
+        parserContext));
+  }
+
+  protected boolean shouldGenerateId() {
+    return true;
   }
 }

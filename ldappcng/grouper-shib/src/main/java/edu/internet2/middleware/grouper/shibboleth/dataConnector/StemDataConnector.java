@@ -40,10 +40,10 @@ import edu.internet2.middleware.shibboleth.common.attribute.resolver.provider.da
 /**
  * A {@link DataConnector} which returns {@link Stem}s.
  */
-public class FindStemByNameDataConnector extends BaseGrouperDataConnector {
+public class StemDataConnector extends BaseGrouperDataConnector {
 
   /** logger */
-  private static final Logger LOG = LoggerFactory.getLogger(FindStemByNameDataConnector.class);
+  private static final Logger LOG = LoggerFactory.getLogger(StemDataConnector.class);
 
   private Stem rootStem;
 
@@ -188,7 +188,7 @@ public class FindStemByNameDataConnector extends BaseGrouperDataConnector {
   /**
    * {@inheritDoc}
    * 
-   * see {@link FindStemByNameDataConnector#getAllIdentifiers()}
+   * see {@link StemDataConnector#getAllIdentifiers()}
    * 
    */
   public Set<String> getAllIdentifiers(Date updatedSince) {

@@ -12,34 +12,34 @@
  * permissions and limitations under the License.
  */
 
-package edu.internet2.middleware.grouper.shibboleth.dataConnector.config;
-
-import java.util.List;
-import java.util.Map;
+package edu.internet2.middleware.grouper.shibboleth.filter.provider;
 
 import javax.xml.namespace.QName;
 
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
+import org.springframework.beans.factory.xml.AbstractSingleBeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.w3c.dom.Element;
 
 import edu.internet2.middleware.grouper.shibboleth.config.GrouperNamespaceHandler;
-import edu.internet2.middleware.grouper.shibboleth.dataConnector.FindGroupByNameDataConnector;
+import edu.internet2.middleware.grouper.shibboleth.filter.ExactAttributeGroupFilter;
 
-/** Spring bean definition parser for configuring a {@link FindGroupByNameDataConnector}. */
-public class FindGroupByNameDataConnectorBeanDefinitionParser extends BaseGrouperDataConnectorBeanDefinitionParser {
+public class ExactAttributeGroupQueryFilterBeanDefinitionParser extends AbstractSingleBeanDefinitionParser {
 
-  /** Schema type name. */
-  public static final QName TYPE_NAME = new QName(GrouperNamespaceHandler.NAMESPACE, "FindGroupByNameDataConnector");
+  public static final QName TYPE_NAME = new QName(GrouperNamespaceHandler.NAMESPACE, "ExactAttribute");
 
-  /** {@inheritDoc} */
   protected Class getBeanClass(Element element) {
-    return FindGroupByNameDataConnectorFactoryBean.class;
+    return ExactAttributeGroupFilter.class;
   }
 
-  /** {@inheritDoc} */
-  protected void doParse(String pluginId, Element pluginConfig, Map<QName, List<Element>> pluginConfigChildren,
-      BeanDefinitionBuilder pluginBuilder, ParserContext parserContext) {
-    super.doParse(pluginId, pluginConfig, pluginConfigChildren, pluginBuilder, parserContext);
+  protected void doParse(Element element, ParserContext parserContext, BeanDefinitionBuilder builder) {
+    super.doParse(element, parserContext, builder);
+
+    builder.addConstructorArgValue(element.getAttributeNS(null, "name"));
+    builder.addConstructorArgValue(element.getAttributeNS(null, "value"));
+  }
+
+  protected boolean shouldGenerateId() {
+    return true;
   }
 }

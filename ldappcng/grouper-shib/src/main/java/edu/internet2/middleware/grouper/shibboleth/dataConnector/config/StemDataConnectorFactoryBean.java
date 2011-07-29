@@ -13,23 +13,21 @@
  */
 package edu.internet2.middleware.grouper.shibboleth.dataConnector.config;
 
-import edu.internet2.middleware.grouper.shibboleth.dataConnector.FindStemByNameDataConnector;
+import edu.internet2.middleware.grouper.shibboleth.dataConnector.StemDataConnector;
 
 /**
- * Spring bean factory that produces {@link FindStemByNameDataConnector}s.
+ * Spring bean factory that produces {@link StemDataConnector}s.
  */
-public class FindStemByNameDataConnectorFactoryBean extends BaseGrouperDataConnectorFactoryBean {
+public class StemDataConnectorFactoryBean extends BaseGrouperDataConnectorFactoryBean {
 
-  /** {@inheritDoc} */
   protected Object createInstance() throws Exception {
-    FindStemByNameDataConnector connector = new FindStemByNameDataConnector();
-    populateDataConnector(connector);
+    StemDataConnector connector = new StemDataConnector();
+    populateDataConnector(connector);   
     return connector;
   }
 
-  /** {@inheritDoc} */
   public Class getObjectType() {
-    return FindStemByNameDataConnector.class;
+    return StemDataConnector.class;
   }
 
 }

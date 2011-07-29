@@ -25,10 +25,10 @@
     <documentation>Grouper support for the Shibboleth 2.0 Attribute Resolver</documentation>
   </annotation>
 
-  <complexType name="FindGroupByNameDataConnector">
+  <complexType name="GroupDataConnector">
     <annotation>
       <documentation>
-        A data connector that finds a Group by name and returns the Group's attributes.
+        A data connector that returns Group information from Grouper.
       </documentation>
     </annotation>
     <complexContent>
@@ -37,10 +37,10 @@
     </complexContent>
   </complexType>
 
-  <complexType name="FindMemberBySubjectIdOrIdentifierDataConnector">
+  <complexType name="MemberDataConnector">
     <annotation>
       <documentation>
-        A data connector that finds a Member by Subject Id or Identifier and returns the Member's attributes.
+        A data connector that returns Member information from Grouper.
       </documentation>
     </annotation>
     <complexContent>
@@ -57,10 +57,10 @@
     </complexContent>
   </complexType>
 
-  <complexType name="FindStemByNameDataConnector">
+  <complexType name="StemDataConnector">
       <annotation>
       <documentation>
-        A data connector that can finds a Stem by name and returns the Stem's attributes.
+        A data connector that can returns Stem information from Grouper.
       </documentation>
     </annotation>
     <complexContent>
@@ -109,7 +109,7 @@
           </documentation>
         </annotation>
         <sequence>
-          <element ref="grouper:MatchFilter" minOccurs="0" maxOccurs="1">
+          <element ref="grouper:GroupFilter" minOccurs="0" maxOccurs="1">
             <annotation>
               <documentation>
                 Filters the returned objects.
@@ -233,24 +233,25 @@
     </complexContent>
   </complexType>
 
-  <element name="MatchFilter" type="grouper:BaseMatchFilterType" />
-  <complexType name="BaseMatchFilterType" abstract="true">
+  <element name="GroupFilter" type="grouper:BaseGroupFilterType">
+  </element>
+  <complexType name="BaseGroupFilterType" abstract="true">
     <annotation>
       <documentation>
-        A match filter is capable of returning the set of matching objects or determining if an object matches the
+        The filter is capable of returning the set of matching groups or determining if a group matches the
         filter.  
       </documentation>
     </annotation>
   </complexType>
 
-  <complexType name="GroupsByExactAttribute">
+  <complexType name="ExactAttribute">
     <annotation>
       <documentation>
-        Filter groups by exact attribute name and value.
+        Filter by exact attribute name and value.
       </documentation>
     </annotation>
     <complexContent>
-      <extension base="grouper:BaseMatchFilterType">
+      <extension base="grouper:BaseGroupFilterType">
         <attribute name="name" type="string" use="required">
           <annotation>
             <documentation>
@@ -269,14 +270,14 @@
     </complexContent>
   </complexType>
 
-  <complexType name="GroupsInStem">
+  <complexType name="StemName">
     <annotation>
       <documentation>
-        Filter groups by stem.
+        Filter by stem name.
       </documentation>
     </annotation>
     <complexContent>
-      <extension base="grouper:BaseMatchFilterType">
+      <extension base="grouper:BaseGroupFilterType">
         <attribute name="name" type="string" use="required">
           <annotation>
             <documentation>
@@ -314,10 +315,10 @@
       </documentation>
     </annotation>
     <complexContent>
-      <extension base="grouper:BaseMatchFilterType">
+      <extension base="grouper:BaseGroupFilterType">
         <sequence>
-          <element ref="grouper:MatchFilter" />
-          <element ref="grouper:MatchFilter" />
+          <element ref="grouper:GroupFilter" />
+          <element ref="grouper:GroupFilter" />
         </sequence>
       </extension>
     </complexContent>
@@ -330,10 +331,10 @@
       </documentation>
     </annotation>
     <complexContent>
-      <extension base="grouper:BaseMatchFilterType">
+      <extension base="grouper:BaseGroupFilterType">
         <sequence>
-          <element ref="grouper:MatchFilter" />
-          <element ref="grouper:MatchFilter" />
+          <element ref="grouper:GroupFilter" />
+          <element ref="grouper:GroupFilter" />
         </sequence>
       </extension>
     </complexContent>
@@ -346,10 +347,10 @@
       </documentation>
     </annotation>
     <complexContent>
-      <extension base="grouper:BaseMatchFilterType">
+      <extension base="grouper:BaseGroupFilterType">
         <sequence>
-          <element ref="grouper:MatchFilter" />
-          <element ref="grouper:MatchFilter" />
+          <element ref="grouper:GroupFilter" />
+          <element ref="grouper:GroupFilter" />
         </sequence>
       </extension>
     </complexContent>

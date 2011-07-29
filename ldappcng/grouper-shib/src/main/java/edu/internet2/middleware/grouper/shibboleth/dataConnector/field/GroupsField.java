@@ -20,7 +20,7 @@ import java.util.TreeSet;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.exception.GrouperException;
-import edu.internet2.middleware.grouper.shibboleth.filter.MatchQueryFilter;
+import edu.internet2.middleware.grouper.shibboleth.filter.GroupQueryFilter;
 import edu.internet2.middleware.shibboleth.common.attribute.BaseAttribute;
 import edu.internet2.middleware.shibboleth.common.attribute.provider.BasicAttribute;
 
@@ -52,7 +52,7 @@ public class GroupsField extends BaseMembershipField {
 
   /**
    * Get the resultant attribute whose values are the {@link Group}s that the given {@link Member} belongs to. If the
-   * {@link MatchQueryFilter} is not null, then only the groups which match the filter are returned.
+   * {@link GroupQueryFilter} is not null, then only the groups which match the filter are returned.
    * 
    * @param member
    *          the member
@@ -60,7 +60,7 @@ public class GroupsField extends BaseMembershipField {
    *          the group filter
    * @return the attribute consisting of groups or <tt>null</tt> if the member does not belong to any groups
    */
-  public BaseAttribute<Group> getAttribute(Member member, MatchQueryFilter groupQueryFilter) {
+  public BaseAttribute<Group> getAttribute(Member member, GroupQueryFilter groupQueryFilter) {
 
     // FUTURE make sorting optional ?
 
@@ -74,7 +74,7 @@ public class GroupsField extends BaseMembershipField {
     if (groupQueryFilter != null) {
       Set<Group> newGroups = new TreeSet<Group>();
       for (Group group : groups) {
-        if (groupQueryFilter.matches(group)) {
+        if (groupQueryFilter.matchesGroup(group)) {
           newGroups.add(group);
         }
       }

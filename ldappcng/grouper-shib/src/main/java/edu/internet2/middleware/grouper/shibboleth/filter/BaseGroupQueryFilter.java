@@ -16,28 +16,30 @@ package edu.internet2.middleware.grouper.shibboleth.filter;
 
 import java.util.Set;
 
+import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.exception.QueryException;
 import edu.internet2.middleware.grouper.filter.QueryFilter;
 
 /**
- * Base class for {@link MatchQueryFilter}s.
+ * Base class for GroupQueryFilters.
  */
-public abstract class BaseMatchQueryFilter<ValueType> implements MatchQueryFilter<ValueType> {
+public abstract class BaseGroupQueryFilter implements GroupQueryFilter {
 
   /** the grouper session */
   private GrouperSession grouperSession;
 
   /** the underlying query filter */
-  private QueryFilter<ValueType> queryFilter;
+  private QueryFilter<Group> queryFilter;
 
   /** {@inheritDoc} */
-  public Set<ValueType> getResults(GrouperSession s) throws QueryException {
+  public Set<Group> getResults(GrouperSession s) throws QueryException {
     return getQueryFilter().getResults(s);
   }
 
   /**
-   * Get the grouper session. Re-uses the same session. A grouper session must have been started already in the jvm.
+   * Get the grouper session. Re-uses the same session. A grouper session must have been
+   * started already in the jvm.
    * 
    * @return the grouper session
    */
@@ -50,7 +52,7 @@ public abstract class BaseMatchQueryFilter<ValueType> implements MatchQueryFilte
    * 
    * @return the QueryFilter
    */
-  public QueryFilter<ValueType> getQueryFilter() {
+  public QueryFilter<Group> getQueryFilter() {
     return queryFilter;
   }
 
@@ -59,7 +61,7 @@ public abstract class BaseMatchQueryFilter<ValueType> implements MatchQueryFilte
    * 
    * @param queryFilter
    */
-  public void setQueryFilter(QueryFilter<ValueType> queryFilter) {
+  public void setQueryFilter(QueryFilter<Group> queryFilter) {
     this.queryFilter = queryFilter;
   }
 

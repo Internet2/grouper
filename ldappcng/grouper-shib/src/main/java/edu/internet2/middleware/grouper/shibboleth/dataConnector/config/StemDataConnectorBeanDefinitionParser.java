@@ -12,23 +12,29 @@
  * permissions and limitations under the License.
  */
 
-package edu.internet2.middleware.grouper.shibboleth.filter.provider;
+package edu.internet2.middleware.grouper.shibboleth.dataConnector.config;
+
+import java.util.List;
+import java.util.Map;
 
 import javax.xml.namespace.QName;
 
+import org.springframework.beans.factory.support.BeanDefinitionBuilder;
+import org.springframework.beans.factory.xml.ParserContext;
 import org.w3c.dom.Element;
 
 import edu.internet2.middleware.grouper.shibboleth.config.GrouperNamespaceHandler;
-import edu.internet2.middleware.grouper.shibboleth.filter.MinusMatchQueryFilter;
 
-/** Spring bean definition parser for configuring a {@link MinusMatchQueryFilter}. */
-public class MinusMatchQueryFilterBeanDefinitionParser extends ConditionalMatchQueryFilterBeanDefinitionParser {
+public class StemDataConnectorBeanDefinitionParser extends BaseGrouperDataConnectorBeanDefinitionParser {
 
-  /** {@link MinusMatchQueryFilter} type name. */
-  public static final QName TYPE_NAME = new QName(GrouperNamespaceHandler.NAMESPACE, "Minus");
+  public static final QName TYPE_NAME = new QName(GrouperNamespaceHandler.NAMESPACE, "StemDataConnector");
 
-  /** Return {@link MinusMatchQueryFilter}. {@inheritDoc} */
   protected Class getBeanClass(Element element) {
-    return MinusMatchQueryFilter.class;
+    return StemDataConnectorFactoryBean.class;
+  }
+
+  protected void doParse(String pluginId, Element pluginConfig, Map<QName, List<Element>> pluginConfigChildren,
+      BeanDefinitionBuilder pluginBuilder, ParserContext parserContext) {
+    super.doParse(pluginId, pluginConfig, pluginConfigChildren, pluginBuilder, parserContext);
   }
 }

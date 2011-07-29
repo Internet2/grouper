@@ -12,23 +12,29 @@
  * permissions and limitations under the License.
  */
 
-package edu.internet2.middleware.grouper.shibboleth.filter.provider;
+package edu.internet2.middleware.grouper.shibboleth.dataConnector.config;
+
+import java.util.List;
+import java.util.Map;
 
 import javax.xml.namespace.QName;
 
+import org.springframework.beans.factory.support.BeanDefinitionBuilder;
+import org.springframework.beans.factory.xml.ParserContext;
 import org.w3c.dom.Element;
 
 import edu.internet2.middleware.grouper.shibboleth.config.GrouperNamespaceHandler;
-import edu.internet2.middleware.grouper.shibboleth.filter.AndMatchQueryFilter;
 
-/** Spring bean definition parser for configuring an {@link AndMatchQueryFilter}. */
-public class AndMatchQueryFilterBeanDefinitionParser extends ConditionalMatchQueryFilterBeanDefinitionParser {
+public class GroupDataConnectorBeanDefinitionParser extends BaseGrouperDataConnectorBeanDefinitionParser {
 
-  /** {@link AndMatchQueryFilter} type name. */
-  public static final QName TYPE_NAME = new QName(GrouperNamespaceHandler.NAMESPACE, "AND");
+  public static final QName TYPE_NAME = new QName(GrouperNamespaceHandler.NAMESPACE, "GroupDataConnector");
 
-  /** Return {@link AndMatchQueryFilter}. {@inheritDoc} */
   protected Class getBeanClass(Element element) {
-    return AndMatchQueryFilter.class;
+    return GroupDataConnectorFactoryBean.class;
+  }
+
+  protected void doParse(String pluginId, Element pluginConfig, Map<QName, List<Element>> pluginConfigChildren,
+      BeanDefinitionBuilder pluginBuilder, ParserContext parserContext) {
+    super.doParse(pluginId, pluginConfig, pluginConfigChildren, pluginBuilder, parserContext);
   }
 }

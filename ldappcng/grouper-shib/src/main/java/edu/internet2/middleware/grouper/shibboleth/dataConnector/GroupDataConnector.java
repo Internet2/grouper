@@ -48,10 +48,10 @@ import edu.internet2.middleware.subject.Subject;
  * A {@link DataConnector} which returns {@link Group}s. The attributes of the returned groups may be limited in order
  * to avoid unnecessary queries to the Grouper database.
  */
-public class FindGroupByNameDataConnector extends BaseGrouperDataConnector {
+public class GroupDataConnector extends BaseGrouperDataConnector {
 
   /** logger */
-  private static final Logger LOG = LoggerFactory.getLogger(FindGroupByNameDataConnector.class);
+  private static final Logger LOG = LoggerFactory.getLogger(GroupDataConnector.class);
 
   /** {@inheritDoc} */
   public Map<String, BaseAttribute> resolve(final ShibbolethResolutionContext resolutionContext)
@@ -86,8 +86,8 @@ public class FindGroupByNameDataConnector extends BaseGrouperDataConnector {
             LOG.debug("resolve {} found group '{}'", msg, group);
 
             // does group match query filter
-            if (getMatchQueryFilter() != null) {
-              if (!getMatchQueryFilter().matches(group)) {
+            if (getGroupQueryFilter() != null) {
+              if (!getGroupQueryFilter().matchesGroup(group)) {
                 LOG.debug("resolve {} group {} does not match filter", msg, group);
                 return attributes;
               }
