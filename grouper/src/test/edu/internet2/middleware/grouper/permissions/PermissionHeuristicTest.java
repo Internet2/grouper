@@ -137,7 +137,7 @@ public class PermissionHeuristicTest extends TestCase {
       
       //nothing...
       {
-        PermissionEntry permissionEntry = new PermissionEntry();
+        PermissionEntry permissionEntry = new PermissionEntryImpl();
         permissionEntry.setPermissionTypeDb(PermissionType.role.name());
         permissionEntry.setAttributeAssignActionSetDepth(30);
         permissionEntry.setAttributeDefNameSetDepth(30);
@@ -154,7 +154,7 @@ public class PermissionHeuristicTest extends TestCase {
       
       //only allowed
       {
-        PermissionEntry permissionEntry = new PermissionEntry();
+        PermissionEntry permissionEntry = new PermissionEntryImpl();
         permissionEntry.setPermissionTypeDb(PermissionType.role.name());
         permissionEntry.setRoleSetDepth(30);
         permissionEntry.setAttributeDefNameSetDepth(30);
@@ -172,7 +172,7 @@ public class PermissionHeuristicTest extends TestCase {
       
       //action set of n-1
       {
-        PermissionEntry permissionEntry = new PermissionEntry();
+        PermissionEntry permissionEntry = new PermissionEntryImpl();
         permissionEntry.setPermissionTypeDb(PermissionType.role.name());
         permissionEntry.setRoleSetDepth(30);
         permissionEntry.setAttributeDefNameSetDepth(30);
@@ -192,7 +192,7 @@ public class PermissionHeuristicTest extends TestCase {
       
       //action set of n-2
       {
-        PermissionEntry permissionEntry = new PermissionEntry();
+        PermissionEntry permissionEntry = new PermissionEntryImpl();
         permissionEntry.setPermissionTypeDb(PermissionType.role.name());
         permissionEntry.setRoleSetDepth(30);
         permissionEntry.setAttributeDefNameSetDepth(30);
@@ -213,7 +213,7 @@ public class PermissionHeuristicTest extends TestCase {
       
       //action set of 0
       {
-        PermissionEntry permissionEntry = new PermissionEntry();
+        PermissionEntry permissionEntry = new PermissionEntryImpl();
         permissionEntry.setPermissionTypeDb(PermissionType.role.name());
         permissionEntry.setRoleSetDepth(30);
         permissionEntry.setAttributeDefNameSetDepth(30);
@@ -233,7 +233,7 @@ public class PermissionHeuristicTest extends TestCase {
       
       //action set of 0 deny
       {
-        PermissionEntry permissionEntry = new PermissionEntry();
+        PermissionEntry permissionEntry = new PermissionEntryImpl();
         permissionEntry.setPermissionTypeDb(PermissionType.role.name());
         permissionEntry.setRoleSetDepth(30);
         permissionEntry.setAttributeDefNameSetDepth(30);
@@ -251,7 +251,7 @@ public class PermissionHeuristicTest extends TestCase {
       
       //resource assignment set of 29 deny
       {
-        PermissionEntry permissionEntry = new PermissionEntry();
+        PermissionEntry permissionEntry = new PermissionEntryImpl();
         permissionEntry.setPermissionTypeDb(PermissionType.role.name());
         permissionEntry.setRoleSetDepth(30);
         permissionEntry.setAttributeDefNameSetDepth(29);
@@ -270,7 +270,7 @@ public class PermissionHeuristicTest extends TestCase {
       
       //resource assignment set of 29 allow
       {
-        PermissionEntry permissionEntry = new PermissionEntry();
+        PermissionEntry permissionEntry = new PermissionEntryImpl();
         permissionEntry.setPermissionTypeDb(PermissionType.role.name());
         permissionEntry.setRoleSetDepth(30);
         permissionEntry.setAttributeDefNameSetDepth(29);
@@ -289,7 +289,7 @@ public class PermissionHeuristicTest extends TestCase {
       
       //resource assignment set of 0 allow
       {
-        PermissionEntry permissionEntry = new PermissionEntry();
+        PermissionEntry permissionEntry = new PermissionEntryImpl();
         permissionEntry.setPermissionTypeDb(PermissionType.role.name());
         permissionEntry.setRoleSetDepth(30);
         permissionEntry.setAttributeDefNameSetDepth(0);
@@ -309,7 +309,7 @@ public class PermissionHeuristicTest extends TestCase {
       
       //resource assignment set of 0 deny
       {
-        PermissionEntry permissionEntry = new PermissionEntry();
+        PermissionEntry permissionEntry = new PermissionEntryImpl();
         permissionEntry.setPermissionTypeDb(PermissionType.role.name());
         permissionEntry.setRoleSetDepth(30);
         permissionEntry.setAttributeDefNameSetDepth(0);
@@ -327,7 +327,7 @@ public class PermissionHeuristicTest extends TestCase {
       
       //resource assignment set of 0 deny plus action 29
       {
-        PermissionEntry permissionEntry = new PermissionEntry();
+        PermissionEntry permissionEntry = new PermissionEntryImpl();
         permissionEntry.setPermissionTypeDb(PermissionType.role.name());
         permissionEntry.setRoleSetDepth(30);
         permissionEntry.setAttributeDefNameSetDepth(0);
@@ -348,7 +348,7 @@ public class PermissionHeuristicTest extends TestCase {
       
       //role assignment set of 29 deny 
       {
-        PermissionEntry permissionEntry = new PermissionEntry();
+        PermissionEntry permissionEntry = new PermissionEntryImpl();
         permissionEntry.setPermissionTypeDb(PermissionType.role.name());
         permissionEntry.setRoleSetDepth(29);
         permissionEntry.setAttributeDefNameSetDepth(30);
@@ -367,7 +367,7 @@ public class PermissionHeuristicTest extends TestCase {
       
       //role assignment set of 29 allow 
       {
-        PermissionEntry permissionEntry = new PermissionEntry();
+        PermissionEntry permissionEntry = new PermissionEntryImpl();
         permissionEntry.setPermissionTypeDb(PermissionType.role.name());
         permissionEntry.setRoleSetDepth(29);
         permissionEntry.setAttributeDefNameSetDepth(30);
@@ -387,7 +387,7 @@ public class PermissionHeuristicTest extends TestCase {
       
       //role assignment set of 29 allow action 29 resource 29
       {
-        PermissionEntry permissionEntry = new PermissionEntry();
+        PermissionEntry permissionEntry = new PermissionEntryImpl();
         permissionEntry.setPermissionTypeDb(PermissionType.role.name());
         permissionEntry.setRoleSetDepth(29);
         permissionEntry.setAttributeDefNameSetDepth(29);
@@ -411,7 +411,7 @@ public class PermissionHeuristicTest extends TestCase {
       
       //role assignment set of 0 allow action 30 resource 30
       {
-        PermissionEntry permissionEntry = new PermissionEntry();
+        PermissionEntry permissionEntry = new PermissionEntryImpl();
         permissionEntry.setPermissionTypeDb(PermissionType.role.name());
         permissionEntry.setRoleSetDepth(0);
         permissionEntry.setAttributeDefNameSetDepth(30);
@@ -431,7 +431,7 @@ public class PermissionHeuristicTest extends TestCase {
       
       //person assignment set of 0 allow action 30 resource 30
       {
-        PermissionEntry permissionEntry = new PermissionEntry();
+        PermissionEntry permissionEntry = new PermissionEntryImpl();
         permissionEntry.setPermissionTypeDb(PermissionType.role_subject.name());
         permissionEntry.setRoleSetDepth(0);
         permissionEntry.setAttributeDefNameSetDepth(0);
@@ -454,7 +454,7 @@ public class PermissionHeuristicTest extends TestCase {
       
       //person assignment allow action 0 resource 0
       {
-        PermissionEntry permissionEntry = new PermissionEntry();
+        PermissionEntry permissionEntry = new PermissionEntryImpl();
         permissionEntry.setPermissionTypeDb(PermissionType.role_subject.name());
         permissionEntry.setRoleSetDepth(0);
         permissionEntry.setAttributeDefNameSetDepth(0);

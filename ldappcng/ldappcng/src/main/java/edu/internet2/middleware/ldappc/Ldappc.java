@@ -74,7 +74,7 @@ import edu.internet2.middleware.grouper.filter.QueryFilter;
 import edu.internet2.middleware.grouper.filter.UnionFilter;
 import edu.internet2.middleware.grouper.hibernate.GrouperContext;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
-import edu.internet2.middleware.grouper.shibboleth.dataConnector.FindGroupByNameDataConnector;
+import edu.internet2.middleware.grouper.shibboleth.dataConnector.GroupDataConnector;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.ldappc.LdappcConfig.GroupDNStructure;
 import edu.internet2.middleware.ldappc.exception.ConfigurationException;
@@ -529,11 +529,10 @@ public final class Ldappc extends TimerTask {
 
     Set<String> dataConnectorIds = configuration.getResolverQueries();
     if (!dataConnectorIds.isEmpty()) {
-      // TODO fix this for incremental provisioning
       for (String dataConnectorId : dataConnectorIds) {
-        FindGroupByNameDataConnector groupDataConnector = (FindGroupByNameDataConnector) getAttributeResolver()
+        GroupDataConnector groupDataConnector = (GroupDataConnector) getAttributeResolver()
             .getServiceContext().getBean(dataConnectorId);
-        groups.addAll(groupDataConnector.getMatchQueryFilter().getResults(
+        groups.addAll(groupDataConnector.getGroupQueryFilter().getResults(
             getGrouperSession()));
       }
     }

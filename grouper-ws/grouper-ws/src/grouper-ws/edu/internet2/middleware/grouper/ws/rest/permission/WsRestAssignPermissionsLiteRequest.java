@@ -13,6 +13,25 @@ import edu.internet2.middleware.grouper.ws.rest.method.GrouperRestHttpMethod;
  */
 public class WsRestAssignPermissionsLiteRequest implements WsRequestBean {
 
+  /** T or F (defaults to F), if this permission assignment is disallowed */
+  private String disallowed;
+  
+  /**
+   * T or F (defaults to F), if this permission assignment is disallowed
+   * @return T or F (defaults to F), if this permission assignment is disallowed
+   */
+  public String getDisallowed() {
+    return this.disallowed;
+  }
+
+  /**
+   * T or F (defaults to F), if this permission assignment is disallowed
+   * @param disallowed1
+   */
+  public void setDisallowed(String disallowed1) {
+    this.disallowed = disallowed1;
+  }
+
   /** disabled time, or null for not disabled */
   private String assignmentDisabledTime;
 

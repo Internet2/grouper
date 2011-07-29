@@ -197,9 +197,8 @@ public class LazySubject implements Subject {
     if (subject == null) {
       final String[] error = new String[1];
       try {
-        this.subject = SubjectFinder.findById(
-            this.member.getSubjectId(), this.member.getSubjectTypeId(), this.member
-            .getSubjectSourceId(), true
+        this.subject = SubjectFinder.findByIdAndSource(
+            this.member.getSubjectId(), this.member.getSubjectSourceId(), true
             );
         return subject;
       } catch (SubjectNotFoundException snfe) {

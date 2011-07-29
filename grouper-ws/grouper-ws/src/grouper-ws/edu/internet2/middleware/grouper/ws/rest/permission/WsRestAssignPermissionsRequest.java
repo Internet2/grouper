@@ -4,21 +4,40 @@
  */
 package edu.internet2.middleware.grouper.ws.rest.permission;
 
+import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeAssignLookup;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefLookup;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameLookup;
+import edu.internet2.middleware.grouper.ws.coresoap.WsGroupLookup;
+import edu.internet2.middleware.grouper.ws.coresoap.WsMembershipAnyLookup;
+import edu.internet2.middleware.grouper.ws.coresoap.WsParam;
+import edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup;
 import edu.internet2.middleware.grouper.ws.rest.WsRequestBean;
 import edu.internet2.middleware.grouper.ws.rest.method.GrouperRestHttpMethod;
-import edu.internet2.middleware.grouper.ws.soap.WsAttributeAssignLookup;
-import edu.internet2.middleware.grouper.ws.soap.WsAttributeDefLookup;
-import edu.internet2.middleware.grouper.ws.soap.WsAttributeDefNameLookup;
-import edu.internet2.middleware.grouper.ws.soap.WsGroupLookup;
-import edu.internet2.middleware.grouper.ws.soap.WsMembershipAnyLookup;
-import edu.internet2.middleware.grouper.ws.soap.WsParam;
-import edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup;
 
 
 /**
  * request bean in body of rest request
  */
 public class WsRestAssignPermissionsRequest implements WsRequestBean {
+
+  /** T or F (defaults to F), if this permission assignment is disallowed */
+  private String disallowed;
+  
+  /**
+   * T or F (defaults to F), if this permission assignment is disallowed
+   * @return T or F (defaults to F), if this permission assignment is disallowed
+   */
+  public String getDisallowed() {
+    return this.disallowed;
+  }
+
+  /**
+   * T or F (defaults to F), if this permission assignment is disallowed
+   * @param disallowed1
+   */
+  public void setDisallowed(String disallowed1) {
+    this.disallowed = disallowed1;
+  }
 
   /**
    * operation to perform for permission on role or subject, from enum PermissionAssignOperation

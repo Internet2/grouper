@@ -1,10 +1,10 @@
 package edu.internet2.middleware.grouper.ws.util;
 
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
+import edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAddMemberResult.WsAddMemberResultCode;
+import edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup.SubjectFindResult;
 import edu.internet2.middleware.grouper.ws.rest.GrouperRestServlet;
-import edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup;
-import edu.internet2.middleware.grouper.ws.soap.WsAddMemberResult.WsAddMemberResultCode;
-import edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup.SubjectFindResult;
 
 /**
  * WS grouper version utils

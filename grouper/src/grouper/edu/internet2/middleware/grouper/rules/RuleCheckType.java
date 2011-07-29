@@ -188,6 +188,30 @@ public enum RuleCheckType {
         }
       }
     }
+
+    /**
+     * @see edu.internet2.middleware.grouper.rules.RuleCheckType#isCheckOwnerTypeAttributeDef(edu.internet2.middleware.grouper.rules.RuleDefinition)
+     */
+    @Override
+    public boolean isCheckOwnerTypeAttributeDef(RuleDefinition ruleDefinition) {
+      return true;
+    }
+
+    /**
+     * @see edu.internet2.middleware.grouper.rules.RuleCheckType#isCheckOwnerTypeGroup(edu.internet2.middleware.grouper.rules.RuleDefinition)
+     */
+    @Override
+    public boolean isCheckOwnerTypeGroup(RuleDefinition ruleDefinition) {
+      return false;
+    }
+
+    /**
+     * @see edu.internet2.middleware.grouper.rules.RuleCheckType#isCheckOwnerTypeStem(edu.internet2.middleware.grouper.rules.RuleDefinition)
+     */
+    @Override
+    public boolean isCheckOwnerTypeStem(RuleDefinition ruleDefinition) {
+      return false;
+    }
   },
   
   /** query daily for memberships that are enabled, but have a disabled date coming up */
@@ -315,6 +339,29 @@ public enum RuleCheckType {
       }
     }
     
+    /**
+     * @see edu.internet2.middleware.grouper.rules.RuleCheckType#isCheckOwnerTypeAttributeDef(edu.internet2.middleware.grouper.rules.RuleDefinition)
+     */
+    @Override
+    public boolean isCheckOwnerTypeAttributeDef(RuleDefinition ruleDefinition) {
+      return false;
+    }
+
+    /**
+     * @see edu.internet2.middleware.grouper.rules.RuleCheckType#isCheckOwnerTypeGroup(edu.internet2.middleware.grouper.rules.RuleDefinition)
+     */
+    @Override
+    public boolean isCheckOwnerTypeGroup(RuleDefinition ruleDefinition) {
+      return true;
+    }
+
+    /**
+     * @see edu.internet2.middleware.grouper.rules.RuleCheckType#isCheckOwnerTypeStem(edu.internet2.middleware.grouper.rules.RuleDefinition)
+     */
+    @Override
+    public boolean isCheckOwnerTypeStem(RuleDefinition ruleDefinition) {
+      return false;
+    }
   },
   
   /** if there is a membership(flattened) add of a group in a stem */
@@ -358,6 +405,30 @@ public enum RuleCheckType {
         RulesBean rulesBean, boolean hasAccessToElApi) {
       flattenedMembershipRemove.addElVariables(ruleDefinition, variableMap, rulesBean, hasAccessToElApi);
     }
+    
+    /**
+     * @see edu.internet2.middleware.grouper.rules.RuleCheckType#isCheckOwnerTypeAttributeDef(edu.internet2.middleware.grouper.rules.RuleDefinition)
+     */
+    @Override
+    public boolean isCheckOwnerTypeAttributeDef(RuleDefinition ruleDefinition) {
+      return false;
+    }
+
+    /**
+     * @see edu.internet2.middleware.grouper.rules.RuleCheckType#isCheckOwnerTypeGroup(edu.internet2.middleware.grouper.rules.RuleDefinition)
+     */
+    @Override
+    public boolean isCheckOwnerTypeGroup(RuleDefinition ruleDefinition) {
+      return false;
+    }
+
+    /**
+     * @see edu.internet2.middleware.grouper.rules.RuleCheckType#isCheckOwnerTypeStem(edu.internet2.middleware.grouper.rules.RuleDefinition)
+     */
+    @Override
+    public boolean isCheckOwnerTypeStem(RuleDefinition ruleDefinition) {
+      return true;
+    }
   }, 
 
   /** if there is a membership(flattened) remove of a group in a stem */
@@ -400,6 +471,30 @@ public enum RuleCheckType {
     public void addElVariables(RuleDefinition ruleDefinition, Map<String, Object> variableMap, 
         RulesBean rulesBean, boolean hasAccessToElApi) {
       flattenedMembershipRemove.addElVariables(ruleDefinition, variableMap, rulesBean, hasAccessToElApi);
+    }
+    
+    /**
+     * @see edu.internet2.middleware.grouper.rules.RuleCheckType#isCheckOwnerTypeAttributeDef(edu.internet2.middleware.grouper.rules.RuleDefinition)
+     */
+    @Override
+    public boolean isCheckOwnerTypeAttributeDef(RuleDefinition ruleDefinition) {
+      return false;
+    }
+
+    /**
+     * @see edu.internet2.middleware.grouper.rules.RuleCheckType#isCheckOwnerTypeGroup(edu.internet2.middleware.grouper.rules.RuleDefinition)
+     */
+    @Override
+    public boolean isCheckOwnerTypeGroup(RuleDefinition ruleDefinition) {
+      return false;
+    }
+
+    /**
+     * @see edu.internet2.middleware.grouper.rules.RuleCheckType#isCheckOwnerTypeStem(edu.internet2.middleware.grouper.rules.RuleDefinition)
+     */
+    @Override
+    public boolean isCheckOwnerTypeStem(RuleDefinition ruleDefinition) {
+      return true;
     }
   }, 
 
@@ -500,7 +595,29 @@ public enum RuleCheckType {
       return this.validate(false, ruleDefinition, ruleCheck, false, true, false, false);
     }
 
-    
+    /**
+     * @see edu.internet2.middleware.grouper.rules.RuleCheckType#isCheckOwnerTypeAttributeDef(edu.internet2.middleware.grouper.rules.RuleDefinition)
+     */
+    @Override
+    public boolean isCheckOwnerTypeAttributeDef(RuleDefinition ruleDefinition) {
+      return false;
+    }
+
+    /**
+     * @see edu.internet2.middleware.grouper.rules.RuleCheckType#isCheckOwnerTypeGroup(edu.internet2.middleware.grouper.rules.RuleDefinition)
+     */
+    @Override
+    public boolean isCheckOwnerTypeGroup(RuleDefinition ruleDefinition) {
+      return true;
+    }
+
+    /**
+     * @see edu.internet2.middleware.grouper.rules.RuleCheckType#isCheckOwnerTypeStem(edu.internet2.middleware.grouper.rules.RuleDefinition)
+     */
+    @Override
+    public boolean isCheckOwnerTypeStem(RuleDefinition ruleDefinition) {
+      return false;
+    }
   },
   
   /** if there is a membership remove in transaction of remove */
@@ -600,6 +717,29 @@ public enum RuleCheckType {
       
     }
 
+    /**
+     * @see edu.internet2.middleware.grouper.rules.RuleCheckType#isCheckOwnerTypeAttributeDef(edu.internet2.middleware.grouper.rules.RuleDefinition)
+     */
+    @Override
+    public boolean isCheckOwnerTypeAttributeDef(RuleDefinition ruleDefinition) {
+      return false;
+    }
+
+    /**
+     * @see edu.internet2.middleware.grouper.rules.RuleCheckType#isCheckOwnerTypeGroup(edu.internet2.middleware.grouper.rules.RuleDefinition)
+     */
+    @Override
+    public boolean isCheckOwnerTypeGroup(RuleDefinition ruleDefinition) {
+      return true;
+    }
+
+    /**
+     * @see edu.internet2.middleware.grouper.rules.RuleCheckType#isCheckOwnerTypeStem(edu.internet2.middleware.grouper.rules.RuleDefinition)
+     */
+    @Override
+    public boolean isCheckOwnerTypeStem(RuleDefinition ruleDefinition) {
+      return false;
+    }
 
   },
   
@@ -652,7 +792,7 @@ public enum RuleCheckType {
 
                   
                   //must be immediate so it can be unassigned
-                  if (permissionEntry.isImmediateMembership() || permissionEntry.isImmediatePermission()) {
+                  if (permissionEntry.isImmediate(permissionEntry.getPermissionType())) {
                     
                     AttributeAssign attributeAssign = AttributeAssignFinder.findById(permissionEntry.getAttributeAssignId(), false);
                     
@@ -792,6 +932,29 @@ public enum RuleCheckType {
       flattenedMembershipRemove.addElVariables(ruleDefinition, variableMap, rulesBean, hasAccessToElApi);
     }
 
+    /**
+     * @see edu.internet2.middleware.grouper.rules.RuleCheckType#isCheckOwnerTypeAttributeDef(edu.internet2.middleware.grouper.rules.RuleDefinition)
+     */
+    @Override
+    public boolean isCheckOwnerTypeAttributeDef(RuleDefinition ruleDefinition) {
+      return false;
+    }
+
+    /**
+     * @see edu.internet2.middleware.grouper.rules.RuleCheckType#isCheckOwnerTypeGroup(edu.internet2.middleware.grouper.rules.RuleDefinition)
+     */
+    @Override
+    public boolean isCheckOwnerTypeGroup(RuleDefinition ruleDefinition) {
+      return false;
+    }
+
+    /**
+     * @see edu.internet2.middleware.grouper.rules.RuleCheckType#isCheckOwnerTypeStem(edu.internet2.middleware.grouper.rules.RuleDefinition)
+     */
+    @Override
+    public boolean isCheckOwnerTypeStem(RuleDefinition ruleDefinition) {
+      return true;
+    }
   },
   
   /** if a group is created */
@@ -911,6 +1074,29 @@ public enum RuleCheckType {
       }
     }
    
+    /**
+     * @see edu.internet2.middleware.grouper.rules.RuleCheckType#isCheckOwnerTypeAttributeDef(edu.internet2.middleware.grouper.rules.RuleDefinition)
+     */
+    @Override
+    public boolean isCheckOwnerTypeAttributeDef(RuleDefinition ruleDefinition) {
+      return false;
+    }
+
+    /**
+     * @see edu.internet2.middleware.grouper.rules.RuleCheckType#isCheckOwnerTypeGroup(edu.internet2.middleware.grouper.rules.RuleDefinition)
+     */
+    @Override
+    public boolean isCheckOwnerTypeGroup(RuleDefinition ruleDefinition) {
+      return false;
+    }
+
+    /**
+     * @see edu.internet2.middleware.grouper.rules.RuleCheckType#isCheckOwnerTypeStem(edu.internet2.middleware.grouper.rules.RuleDefinition)
+     */
+    @Override
+    public boolean isCheckOwnerTypeStem(RuleDefinition ruleDefinition) {
+      return true;
+    }
   },
   
   /** if a stem is created */
@@ -1033,6 +1219,29 @@ public enum RuleCheckType {
       
     }
 
+    /**
+     * @see edu.internet2.middleware.grouper.rules.RuleCheckType#isCheckOwnerTypeAttributeDef(edu.internet2.middleware.grouper.rules.RuleDefinition)
+     */
+    @Override
+    public boolean isCheckOwnerTypeAttributeDef(RuleDefinition ruleDefinition) {
+      return false;
+    }
+
+    /**
+     * @see edu.internet2.middleware.grouper.rules.RuleCheckType#isCheckOwnerTypeGroup(edu.internet2.middleware.grouper.rules.RuleDefinition)
+     */
+    @Override
+    public boolean isCheckOwnerTypeGroup(RuleDefinition ruleDefinition) {
+      return false;
+    }
+
+    /**
+     * @see edu.internet2.middleware.grouper.rules.RuleCheckType#isCheckOwnerTypeStem(edu.internet2.middleware.grouper.rules.RuleDefinition)
+     */
+    @Override
+    public boolean isCheckOwnerTypeStem(RuleDefinition ruleDefinition) {
+      return true;
+    }
   }, 
   
   /** if there is a membership add in transaction */
@@ -1148,6 +1357,29 @@ public enum RuleCheckType {
       return this.validate(false, ruleDefinition, ruleCheck, false, true, false, false);
     }
 
+    /**
+     * @see edu.internet2.middleware.grouper.rules.RuleCheckType#isCheckOwnerTypeAttributeDef(edu.internet2.middleware.grouper.rules.RuleDefinition)
+     */
+    @Override
+    public boolean isCheckOwnerTypeAttributeDef(RuleDefinition ruleDefinition) {
+      return false;
+    }
+
+    /**
+     * @see edu.internet2.middleware.grouper.rules.RuleCheckType#isCheckOwnerTypeGroup(edu.internet2.middleware.grouper.rules.RuleDefinition)
+     */
+    @Override
+    public boolean isCheckOwnerTypeGroup(RuleDefinition ruleDefinition) {
+      return true;
+    }
+
+    /**
+     * @see edu.internet2.middleware.grouper.rules.RuleCheckType#isCheckOwnerTypeStem(edu.internet2.middleware.grouper.rules.RuleDefinition)
+     */
+    @Override
+    public boolean isCheckOwnerTypeStem(RuleDefinition ruleDefinition) {
+      return false;
+    }
   }, 
   
   /** if there is a membership add, privilege add, permission add, etc in transaction */
@@ -1220,6 +1452,29 @@ public enum RuleCheckType {
       return this.validate(true, ruleDefinition, ruleCheck, true, false, true, false);
     }
 
+    /**
+     * @see edu.internet2.middleware.grouper.rules.RuleCheckType#isCheckOwnerTypeAttributeDef(edu.internet2.middleware.grouper.rules.RuleDefinition)
+     */
+    @Override
+    public boolean isCheckOwnerTypeAttributeDef(RuleDefinition ruleDefinition) {
+      return false;
+    }
+
+    /**
+     * @see edu.internet2.middleware.grouper.rules.RuleCheckType#isCheckOwnerTypeGroup(edu.internet2.middleware.grouper.rules.RuleDefinition)
+     */
+    @Override
+    public boolean isCheckOwnerTypeGroup(RuleDefinition ruleDefinition) {
+      return false;
+    }
+
+    /**
+     * @see edu.internet2.middleware.grouper.rules.RuleCheckType#isCheckOwnerTypeStem(edu.internet2.middleware.grouper.rules.RuleDefinition)
+     */
+    @Override
+    public boolean isCheckOwnerTypeStem(RuleDefinition ruleDefinition) {
+      return true;
+    }
   }, 
   
   /** if there is a membership remove flattened */
@@ -1275,6 +1530,29 @@ public enum RuleCheckType {
       return this.validate(false, ruleDefinition, ruleCheck, false, true, false, false);
     }
 
+    /**
+     * @see edu.internet2.middleware.grouper.rules.RuleCheckType#isCheckOwnerTypeAttributeDef(edu.internet2.middleware.grouper.rules.RuleDefinition)
+     */
+    @Override
+    public boolean isCheckOwnerTypeAttributeDef(RuleDefinition ruleDefinition) {
+      return false;
+    }
+
+    /**
+     * @see edu.internet2.middleware.grouper.rules.RuleCheckType#isCheckOwnerTypeGroup(edu.internet2.middleware.grouper.rules.RuleDefinition)
+     */
+    @Override
+    public boolean isCheckOwnerTypeGroup(RuleDefinition ruleDefinition) {
+      return true;
+    }
+
+    /**
+     * @see edu.internet2.middleware.grouper.rules.RuleCheckType#isCheckOwnerTypeStem(edu.internet2.middleware.grouper.rules.RuleDefinition)
+     */
+    @Override
+    public boolean isCheckOwnerTypeStem(RuleDefinition ruleDefinition) {
+      return false;
+    }
   }, 
   
   /** if there is a membership remove in transaction of remove of a group in a stem */
@@ -1316,6 +1594,30 @@ public enum RuleCheckType {
     public void addElVariables(RuleDefinition ruleDefinition, Map<String, Object> variableMap, 
         RulesBean rulesBean, boolean hasAccessToElApi) {
       flattenedMembershipRemove.addElVariables(ruleDefinition, variableMap, rulesBean, hasAccessToElApi);
+    }
+    
+    /**
+     * @see edu.internet2.middleware.grouper.rules.RuleCheckType#isCheckOwnerTypeAttributeDef(edu.internet2.middleware.grouper.rules.RuleDefinition)
+     */
+    @Override
+    public boolean isCheckOwnerTypeAttributeDef(RuleDefinition ruleDefinition) {
+      return false;
+    }
+
+    /**
+     * @see edu.internet2.middleware.grouper.rules.RuleCheckType#isCheckOwnerTypeGroup(edu.internet2.middleware.grouper.rules.RuleDefinition)
+     */
+    @Override
+    public boolean isCheckOwnerTypeGroup(RuleDefinition ruleDefinition) {
+      return false;
+    }
+
+    /**
+     * @see edu.internet2.middleware.grouper.rules.RuleCheckType#isCheckOwnerTypeStem(edu.internet2.middleware.grouper.rules.RuleDefinition)
+     */
+    @Override
+    public boolean isCheckOwnerTypeStem(RuleDefinition ruleDefinition) {
+      return true;
     }
   }, 
   
@@ -1454,6 +1756,30 @@ public enum RuleCheckType {
       }
       
     }
+    
+    /**
+     * @see edu.internet2.middleware.grouper.rules.RuleCheckType#isCheckOwnerTypeAttributeDef(edu.internet2.middleware.grouper.rules.RuleDefinition)
+     */
+    @Override
+    public boolean isCheckOwnerTypeAttributeDef(RuleDefinition ruleDefinition) {
+      return false;
+    }
+
+    /**
+     * @see edu.internet2.middleware.grouper.rules.RuleCheckType#isCheckOwnerTypeGroup(edu.internet2.middleware.grouper.rules.RuleDefinition)
+     */
+    @Override
+    public boolean isCheckOwnerTypeGroup(RuleDefinition ruleDefinition) {
+      return false;
+    }
+
+    /**
+     * @see edu.internet2.middleware.grouper.rules.RuleCheckType#isCheckOwnerTypeStem(edu.internet2.middleware.grouper.rules.RuleDefinition)
+     */
+    @Override
+    public boolean isCheckOwnerTypeStem(RuleDefinition ruleDefinition) {
+      return true;
+    }
   }, 
 
   /**
@@ -1486,6 +1812,29 @@ public enum RuleCheckType {
       return this.validate(false, ruleDefinition, ruleCheck, false, false, false, true);
     }
     
+    /**
+     * @see edu.internet2.middleware.grouper.rules.RuleCheckType#isCheckOwnerTypeAttributeDef(edu.internet2.middleware.grouper.rules.RuleDefinition)
+     */
+    @Override
+    public boolean isCheckOwnerTypeAttributeDef(RuleDefinition ruleDefinition) {
+      return true;
+    }
+
+    /**
+     * @see edu.internet2.middleware.grouper.rules.RuleCheckType#isCheckOwnerTypeGroup(edu.internet2.middleware.grouper.rules.RuleDefinition)
+     */
+    @Override
+    public boolean isCheckOwnerTypeGroup(RuleDefinition ruleDefinition) {
+      return false;
+    }
+
+    /**
+     * @see edu.internet2.middleware.grouper.rules.RuleCheckType#isCheckOwnerTypeStem(edu.internet2.middleware.grouper.rules.RuleDefinition)
+     */
+    @Override
+    public boolean isCheckOwnerTypeStem(RuleDefinition ruleDefinition) {
+      return false;
+    }
   },
   
   /**
@@ -1518,6 +1867,29 @@ public enum RuleCheckType {
       return this.validate(false, ruleDefinition, ruleCheck, false, false, false, true);
     }
     
+    /**
+     * @see edu.internet2.middleware.grouper.rules.RuleCheckType#isCheckOwnerTypeAttributeDef(edu.internet2.middleware.grouper.rules.RuleDefinition)
+     */
+    @Override
+    public boolean isCheckOwnerTypeAttributeDef(RuleDefinition ruleDefinition) {
+      return true;
+    }
+
+    /**
+     * @see edu.internet2.middleware.grouper.rules.RuleCheckType#isCheckOwnerTypeGroup(edu.internet2.middleware.grouper.rules.RuleDefinition)
+     */
+    @Override
+    public boolean isCheckOwnerTypeGroup(RuleDefinition ruleDefinition) {
+      return false;
+    }
+
+    /**
+     * @see edu.internet2.middleware.grouper.rules.RuleCheckType#isCheckOwnerTypeStem(edu.internet2.middleware.grouper.rules.RuleDefinition)
+     */
+    @Override
+    public boolean isCheckOwnerTypeStem(RuleDefinition ruleDefinition) {
+      return false;
+    }
   },
   
   /** if there is a permission assign in transaction to a subject, not to a role */
@@ -1688,6 +2060,29 @@ public enum RuleCheckType {
       return this.validate(false, ruleDefinition, ruleCheck, false, false, false, true);
     }
   
+    /**
+     * @see edu.internet2.middleware.grouper.rules.RuleCheckType#isCheckOwnerTypeAttributeDef(edu.internet2.middleware.grouper.rules.RuleDefinition)
+     */
+    @Override
+    public boolean isCheckOwnerTypeAttributeDef(RuleDefinition ruleDefinition) {
+      return true;
+    }
+
+    /**
+     * @see edu.internet2.middleware.grouper.rules.RuleCheckType#isCheckOwnerTypeGroup(edu.internet2.middleware.grouper.rules.RuleDefinition)
+     */
+    @Override
+    public boolean isCheckOwnerTypeGroup(RuleDefinition ruleDefinition) {
+      return false;
+    }
+
+    /**
+     * @see edu.internet2.middleware.grouper.rules.RuleCheckType#isCheckOwnerTypeStem(edu.internet2.middleware.grouper.rules.RuleDefinition)
+     */
+    @Override
+    public boolean isCheckOwnerTypeStem(RuleDefinition ruleDefinition) {
+      return false;
+    }
   };
 
   /**
@@ -1725,6 +2120,27 @@ public enum RuleCheckType {
   public abstract void addElVariables(RuleDefinition ruleDefinition, Map<String, Object> variableMap, 
       RulesBean rulesBean, boolean hasAccessToElApi);
 
+  /**
+   * Whether or not the rule check owner type is a group
+   * @param ruleDefinition 
+   * @return true if check owner type is a group
+   */
+  public abstract boolean isCheckOwnerTypeGroup(RuleDefinition ruleDefinition);
+  
+  /**
+   * Whether or not the rule check owner type is a stem
+   * @param ruleDefinition 
+   * @return true if check owner type is a stem
+   */
+  public abstract boolean isCheckOwnerTypeStem(RuleDefinition ruleDefinition);
+  
+  /**
+   * Whether or not the rule check owner type is an attribute def
+   * @param ruleDefinition 
+   * @return true if check owner type is an attribute def
+   */
+  public abstract boolean isCheckOwnerTypeAttributeDef(RuleDefinition ruleDefinition);
+  
   
   /**
    * validate this check type
@@ -1945,7 +2361,7 @@ public enum RuleCheckType {
         for (PermissionEntry permissionEntry : GrouperUtil.nonNull(permissionEntries)) {
   
           //must be immediate so it can be unassigned
-          if (permissionEntry.isImmediateMembership() || permissionEntry.isImmediatePermission()) {
+          if (permissionEntry.isImmediate(permissionEntry.getPermissionType())) {
             
             AttributeAssign attributeAssign = AttributeAssignFinder.findById(permissionEntry.getAttributeAssignId(), false);
             
@@ -2022,7 +2438,7 @@ public enum RuleCheckType {
             for (PermissionEntry permissionEntry : GrouperUtil.nonNull(permissionEntries)) {
      
               //must be immediate so it can be unassigned
-              if (permissionEntry.isImmediateMembership() || permissionEntry.isImmediatePermission()) {
+              if (permissionEntry.isImmediate(permissionEntry.getPermissionType())) {
                 
                 AttributeAssign attributeAssign = AttributeAssignFinder.findById(permissionEntry.getAttributeAssignId(), false);
                 

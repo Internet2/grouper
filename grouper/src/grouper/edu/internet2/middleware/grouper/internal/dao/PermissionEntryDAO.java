@@ -177,5 +177,25 @@ public interface PermissionEntryDAO extends GrouperDAO {
   public Set<PermissionEntry> findAllPermissionsNotInStem(String attributeDefId, Stem stem, Stem.Scope stemScope,
       boolean immediateRoleMembershipsOrRoleSubject, QueryOptions queryOptions, Boolean enabled, boolean hasNoEndDate);
 
+  /**
+   * securely search for role assignments.  need to pass in either the assign ids, def ids, def name ids, or group ids
+   * cannot have more than 100 bind variables
+   * @param attributeDefIds optional
+   * @param attributeDefNameIds mutually exclusive with attributeDefIds
+   * @param roleIds optional
+   * @param actions (null means all actions)
+   * @param enabled (null means all, true means enabled, false means disabled)
+   * @param memberIds
+   * @param noEndDate true if no end date on memberships
+   * @return the permissions
+   */
+  public Set<PermissionEntry> findRolePermissions(
+      Collection<String> attributeDefIds, 
+      Collection<String> attributeDefNameIds,
+      Collection<String> roleIds, 
+      Collection<String> actions, 
+      Boolean enabled,
+      boolean noEndDate);
+
 } 
 

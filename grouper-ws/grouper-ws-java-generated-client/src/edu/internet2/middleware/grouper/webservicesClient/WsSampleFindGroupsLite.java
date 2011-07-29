@@ -12,9 +12,9 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import edu.internet2.middleware.grouper.webservicesClient.util.GeneratedClientSettings;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGenerated;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGeneratedType;
-import edu.internet2.middleware.grouper.ws.soap.xsd.FindGroupsLite;
-import edu.internet2.middleware.grouper.ws.soap.xsd.WsFindGroupsResults;
-import edu.internet2.middleware.grouper.ws.soap.xsd.WsGroup;
+import edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.FindGroupsLite;
+import edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.WsFindGroupsResults;
+import edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.WsGroup;
 
 
 /**

@@ -5,6 +5,8 @@
 package edu.internet2.middleware.grouper.permissions.role;
 
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssignGroupDelegate;
+import edu.internet2.middleware.grouper.attr.value.AttributeValueDelegate;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.MemberAddException;
 import edu.internet2.middleware.grouper.exception.MemberDeleteException;
@@ -192,4 +194,11 @@ public interface Role extends GrouperSetElement, Comparable {
   public boolean deleteMember(Subject subj, boolean exceptionIfAlreadyDeleted)
     throws  InsufficientPrivilegeException,
             MemberDeleteException;
+  
+  /**
+   * this delegate works on attributes and values at the same time
+   * @return the delegate
+   */
+  public AttributeValueDelegate getAttributeValueDelegate();
+
 }

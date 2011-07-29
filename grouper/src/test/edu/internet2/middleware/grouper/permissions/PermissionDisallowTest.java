@@ -14,7 +14,6 @@ import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.StemSave;
 import edu.internet2.middleware.grouper.SubjectFinder;
-import edu.internet2.middleware.grouper.app.gsh.addSubject;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.AttributeDefNameSave;
@@ -205,8 +204,8 @@ public class PermissionDisallowTest extends GrouperTest {
     //User subj0 is denied from Action<Read> and Action<Write> of Resource<Math> since there 
     //are only inherited assignments and the one with the lower depth (tie in resource, 
     //Read/Write is lower than Action<Admin>) 
-    List<PermissionEntry> permissionEntries = new ArrayList<PermissionEntry>(PermissionFinder.findPermissions(this.subj0, 
-        null, this.math, this.readString, null));
+    List<PermissionEntry> permissionEntries = new ArrayList<PermissionEntry>(new PermissionFinder().addSubject(this.subj0)
+        .addAction(this.readString).addPermissionName(this.math).findPermissions());
 
     //there should be two, one should be allow, the other deny
     assertEquals(2, GrouperUtil.length(permissionEntries));
@@ -215,8 +214,10 @@ public class PermissionDisallowTest extends GrouperTest {
     assertTrue(isDisallowed1 != isDisallowed2);
     
     //if we filter permissions, should be one
-    permissionEntries = new ArrayList<PermissionEntry>(PermissionFinder.findPermissions(this.subj0, null, 
-        this.math, this.readString, PermissionProcessor.FILTER_REDUNDANT_PERMISSIONS));
+    permissionEntries = new ArrayList<PermissionEntry>(
+        new PermissionFinder().addSubject(this.subj0)
+        .addAction(this.readString).addPermissionName(this.math)
+        .assignPermissionProcessor(PermissionProcessor.FILTER_REDUNDANT_PERMISSIONS).findPermissions());
     
     //there should be one, one should be disallow
     assertEquals(1, GrouperUtil.length(permissionEntries));
@@ -224,31 +225,75 @@ public class PermissionDisallowTest extends GrouperTest {
     assertTrue(permissionEntries.get(0).isDisallowed());
 
     //if we filter by role, it should find the disallow
-    permissionEntries = new ArrayList<PermissionEntry>(PermissionFinder.findPermissions(this.subj0, null, 
-        this.math, this.readString, PermissionProcessor.FILTER_REDUNDANT_PERMISSIONS_AND_ROLES));
+    permissionEntries = new ArrayList<PermissionEntry>(
+        new PermissionFinder().addSubject(this.subj0)
+        .addAction(this.readString).addPermissionName(this.math)
+        .assignPermissionProcessor(PermissionProcessor.FILTER_REDUNDANT_PERMISSIONS_AND_ROLES).findPermissions());
     
     //there should be two, one should be allow, the other deny
     assertEquals(1, GrouperUtil.length(permissionEntries));
     
     assertTrue(permissionEntries.get(0).isDisallowed());
     
-    assertFalse("wrong subject", PermissionFinder.hasPermission(SubjectTestHelper.SUBJ1, this.adminRole, this.english, this.readString));
-    assertFalse("tie", PermissionFinder.hasPermission(this.subj0, this.math, this.readString));
-    assertFalse("tie", PermissionFinder.hasPermission(this.subj0, this.math, this.readWriteString));
-    assertTrue("tie", PermissionFinder.hasPermission(this.subj0, this.math, this.adminString));
-    assertFalse("tie", PermissionFinder.hasPermission(this.subj0, this.math, this.writeString));
-    assertFalse("wrong role", PermissionFinder.hasPermission(this.subj0, this.seniorAdmin, this.math, this.readString));
-    assertFalse("wrong role", PermissionFinder.hasPermission(this.subj0, this.user, this.math, this.readString));
-    assertFalse("inherits from arts and sciences", PermissionFinder.hasPermission(this.subj0, this.adminRole, this.english, this.readString));
-    assertFalse("inherits from engineering", PermissionFinder.hasPermission(this.subj0, this.adminRole, this.math, this.readString));
-    assertFalse("inherits from engineering", PermissionFinder.hasPermission(this.subj0, this.adminRole, this.electricalEngineering, this.readString));
-    assertFalse("directish", PermissionFinder.hasPermission(this.subj0, this.adminRole, this.artsAndSciences, this.readString));
-    assertFalse("is all", PermissionFinder.hasPermission(this.subj0, this.adminRole, this.all, this.readString));
-    assertFalse("inherits from engineering", PermissionFinder.hasPermission(this.subj0, this.adminRole, this.electricalEngineering, this.readString));
-    assertFalse("wrong action", PermissionFinder.hasPermission(this.subj0, this.adminRole, this.english, this.readWriteString));
-    assertFalse("inherits from engineering", PermissionFinder.hasPermission(this.subj0, this.adminRole, this.math, this.readString));
-
-
+    assertFalse("wrong subject", new PermissionFinder().addSubject(SubjectTestHelper.SUBJ1)
+        .addAction(this.readString).addRole(this.adminRole)
+        .addPermissionName(this.english).hasPermission());
+    assertFalse("tie", new PermissionFinder().addSubject(this.subj0)
+        .addAction(this.readString)
+        .addPermissionName(this.math).hasPermission());
+        
+    assertFalse("tie",new PermissionFinder().addSubject(this.subj0)
+        .addAction(this.readWriteString)
+        .addPermissionName(this.math).hasPermission());
+    
+    assertTrue("tie", new PermissionFinder().addSubject(this.subj0)
+        .addAction(this.adminString)
+        .addPermissionName(this.math).hasPermission());
+        
+    assertFalse("tie", new PermissionFinder().addSubject(this.subj0)
+        .addAction(this.writeString)
+        .addPermissionName(this.math).hasPermission());
+        
+    assertFalse("wrong role", new PermissionFinder().addSubject(this.subj0)
+        .addAction(this.readString).addRole(this.seniorAdmin)
+        .addPermissionName(this.math).hasPermission());
+        
+    assertFalse("wrong role", new PermissionFinder().addSubject(this.subj0)
+        .addAction(this.readString).addRole(this.user)
+        .addPermissionName(this.math).hasPermission());
+        
+    assertFalse("inherits from arts and sciences", new PermissionFinder().addSubject(this.subj0)
+        .addAction(this.readString).addRole(this.adminRole)
+        .addPermissionName(this.english).hasPermission());
+        
+    assertFalse("inherits from engineering", new PermissionFinder().addSubject(this.subj0)
+        .addAction(this.readString).addRole(this.adminRole)
+        .addPermissionName(this.math).hasPermission());
+        
+    assertFalse("inherits from engineering", new PermissionFinder().addSubject(this.subj0)
+        .addAction(this.readString).addRole(this.adminRole)
+        .addPermissionName(this.electricalEngineering).hasPermission());
+        
+    assertFalse("directish", new PermissionFinder().addSubject(this.subj0)
+        .addAction(this.readString).addRole(this.adminRole)
+        .addPermissionName(this.artsAndSciences).hasPermission());
+        
+    assertFalse("is all", new PermissionFinder().addSubject(this.subj0)
+        .addAction(this.readString).addRole(this.adminRole)
+        .addPermissionName(this.all).hasPermission());
+        
+    assertFalse("inherits from engineering", new PermissionFinder().addSubject(this.subj0)
+        .addAction(this.readString).addRole(this.adminRole)
+        .addPermissionName(this.electricalEngineering).hasPermission());
+        
+    assertFalse("wrong action", new PermissionFinder().addSubject(this.subj0)
+        .addAction(this.readWriteString).addRole(this.adminRole)
+        .addPermissionName(this.english).hasPermission());
+    
+    assertFalse("inherits from engineering", new PermissionFinder().addSubject(this.subj0)
+        .addAction(this.readString).addRole(this.adminRole)
+        .addPermissionName(this.math).hasPermission());
+        
   }
 
   
@@ -270,9 +315,10 @@ public class PermissionDisallowTest extends GrouperTest {
     //
     //User subj0 is allowed Action<Read> of Resource<Math> since there are only inherited assignments 
     // and the one with the lower depth (tie in resource, Read/Write is lower than Action<Admin>)
-    List<PermissionEntry> permissionEntries = new ArrayList<PermissionEntry>(PermissionFinder.findPermissions(this.subj0, 
-        null, this.math, this.readString, null));
-
+    List<PermissionEntry> permissionEntries = new ArrayList<PermissionEntry>(new PermissionFinder().addSubject(this.subj0)
+        .addAction(this.readString)
+        .addPermissionName(this.math).findPermissions());
+        
     //there should be two, one should be allow, the other deny
     assertEquals(2, GrouperUtil.length(permissionEntries));
     boolean isDisallowed1 = permissionEntries.get(0).isDisallowed();
@@ -280,37 +326,73 @@ public class PermissionDisallowTest extends GrouperTest {
     assertTrue(isDisallowed1 != isDisallowed2);
     
     //if we filter permissions, should be one
-    permissionEntries = new ArrayList<PermissionEntry>(PermissionFinder.findPermissions(this.subj0, null, 
-        this.math, this.readString, PermissionProcessor.FILTER_REDUNDANT_PERMISSIONS));
-    
+    permissionEntries = new ArrayList<PermissionEntry>(new PermissionFinder().addSubject(this.subj0)
+        .addAction(this.readString).assignPermissionProcessor(PermissionProcessor.FILTER_REDUNDANT_PERMISSIONS)
+        .addPermissionName(this.math).findPermissions());
+        
     //there should be one, one should be disallow
     assertEquals(1, GrouperUtil.length(permissionEntries));
 
     assertFalse(permissionEntries.get(0).isDisallowed());
 
     //if we filter by role, it should find the disallow
-    permissionEntries = new ArrayList<PermissionEntry>(PermissionFinder.findPermissions(this.subj0, null, 
-        this.math, this.readString, PermissionProcessor.FILTER_REDUNDANT_PERMISSIONS_AND_ROLES));
-    
+    permissionEntries = new ArrayList<PermissionEntry>(new PermissionFinder().addSubject(this.subj0)
+        .addAction(this.readString).assignPermissionProcessor(PermissionProcessor.FILTER_REDUNDANT_PERMISSIONS_AND_ROLES)
+        .addPermissionName(this.math).findPermissions());
+        
     //there should be two, one should be allow, the other deny
     assertEquals(1, GrouperUtil.length(permissionEntries));
     
     assertFalse(permissionEntries.get(0).isDisallowed());
     
-    assertFalse("wrong subject", PermissionFinder.hasPermission(SubjectTestHelper.SUBJ1, this.adminRole, this.english, this.readString));
-    assertTrue("tie", PermissionFinder.hasPermission(this.subj0, this.math, this.readString));
-    assertFalse("wrong role", PermissionFinder.hasPermission(this.subj0, this.seniorAdmin, this.math, this.readString));
-    assertFalse("wrong role", PermissionFinder.hasPermission(this.subj0, this.user, this.math, this.readString));
-    assertFalse("inherits from arts and sciences", PermissionFinder.hasPermission(this.subj0, this.adminRole, this.english, this.readString));
-    assertTrue("inherits from engineering", PermissionFinder.hasPermission(this.subj0, this.adminRole, this.math, this.readString));
-    assertTrue("inherits from engineering", PermissionFinder.hasPermission(this.subj0, this.adminRole, this.electricalEngineering, this.readString));
-    assertFalse("directish", PermissionFinder.hasPermission(this.subj0, this.adminRole, this.artsAndSciences, this.readString));
-    assertFalse("is all", PermissionFinder.hasPermission(this.subj0, this.adminRole, this.all, this.readString));
-    assertTrue("inherits from engineering", PermissionFinder.hasPermission(this.subj0, this.adminRole, this.electricalEngineering, this.readString));
-    assertFalse("wrong action", PermissionFinder.hasPermission(this.subj0, this.adminRole, this.english, this.readWriteString));
-    assertTrue("inherits from engineering", PermissionFinder.hasPermission(this.subj0, this.adminRole, this.math, this.readString));
-
-
+    assertFalse("wrong subject", new PermissionFinder().addSubject(SubjectTestHelper.SUBJ1)
+        .addAction(this.readString).addRole(this.adminRole)
+        .addPermissionName(this.english).hasPermission());
+        
+    assertTrue("tie", new PermissionFinder().addSubject(this.subj0)
+        .addAction(this.readString)
+        .addPermissionName(this.math).hasPermission());
+        
+    assertFalse("wrong role", new PermissionFinder().addSubject(this.subj0)
+        .addAction(this.readString).addRole(this.seniorAdmin)
+        .addPermissionName(this.math).hasPermission());
+        
+    assertFalse("wrong role", new PermissionFinder().addSubject(this.subj0)
+        .addAction(this.readString).addRole(this.user)
+        .addPermissionName(this.math).hasPermission());
+        
+    assertFalse("inherits from arts and sciences", new PermissionFinder().addSubject(this.subj0)
+        .addAction(this.readString).addRole(this.adminRole)
+        .addPermissionName(this.english).hasPermission());
+        
+    assertTrue("inherits from engineering", new PermissionFinder().addSubject(this.subj0)
+        .addAction(this.readString).addRole(this.adminRole)
+        .addPermissionName(this.math).hasPermission());
+        
+    assertTrue("inherits from engineering", new PermissionFinder().addSubject(this.subj0)
+        .addAction(this.readString).addRole(this.adminRole)
+        .addPermissionName(this.electricalEngineering).hasPermission());
+        
+    assertFalse("directish", new PermissionFinder().addSubject(this.subj0)
+        .addAction(this.readString).addRole(this.adminRole)
+        .addPermissionName(this.artsAndSciences).hasPermission());
+        
+    assertFalse("is all", new PermissionFinder().addSubject(this.subj0)
+        .addAction(this.readString).addRole(this.adminRole)
+        .addPermissionName(this.all).hasPermission());
+        
+    assertTrue("inherits from engineering", new PermissionFinder().addSubject(this.subj0)
+        .addAction(this.readString).addRole(this.adminRole)
+        .addPermissionName(this.electricalEngineering).hasPermission());
+        
+    assertFalse("wrong action", new PermissionFinder().addSubject(this.subj0)
+        .addAction(this.readWriteString).addRole(this.adminRole)
+        .addPermissionName(this.english).hasPermission());
+        
+    assertTrue("inherits from engineering", new PermissionFinder().addSubject(this.subj0)
+        .addAction(this.readString).addRole(this.adminRole)
+        .addPermissionName(this.math).hasPermission());
+        
   }
 
 
@@ -333,8 +415,10 @@ public class PermissionDisallowTest extends GrouperTest {
     //Result:
     //
     //User subj0 is allowed Action<Read> of Resource<Math> since there are only inherited assignments with the same depth and one is ALLOW
-    List<PermissionEntry> permissionEntries = new ArrayList<PermissionEntry>(PermissionFinder.findPermissions(this.subj0, 
-        null, this.math, this.readString, null));
+    List<PermissionEntry> permissionEntries = new ArrayList<PermissionEntry>(
+        new PermissionFinder().addSubject(this.subj0)
+        .addAction(this.readString)
+        .addPermissionName(this.math).findPermissions());
 
     //there should be two, one should be allow, the other deny
     assertEquals(2, GrouperUtil.length(permissionEntries));
@@ -343,35 +427,75 @@ public class PermissionDisallowTest extends GrouperTest {
     assertTrue(isDisallowed1 != isDisallowed2);
     
     //if we filter permissions, should be one
-    permissionEntries = new ArrayList<PermissionEntry>(PermissionFinder.findPermissions(this.subj0, null, 
-        this.math, this.readString, PermissionProcessor.FILTER_REDUNDANT_PERMISSIONS));
-    
+    permissionEntries = new ArrayList<PermissionEntry>(
+        new PermissionFinder().addSubject(this.subj0)
+        .addAction(this.readString).assignPermissionProcessor(PermissionProcessor.FILTER_REDUNDANT_PERMISSIONS)
+        .addPermissionName(this.math).findPermissions());
+
     //there should be one, one should be disallow
     assertEquals(1, GrouperUtil.length(permissionEntries));
 
     assertFalse(permissionEntries.get(0).isDisallowed());
 
     //if we filter by role, it should find the disallow
-    permissionEntries = new ArrayList<PermissionEntry>(PermissionFinder.findPermissions(this.subj0, null, 
-        this.math, this.readString, PermissionProcessor.FILTER_REDUNDANT_PERMISSIONS_AND_ROLES));
-    
+    permissionEntries = new ArrayList<PermissionEntry>(
+        new PermissionFinder().addSubject(this.subj0)
+          .addAction(this.readString).assignPermissionProcessor(PermissionProcessor.FILTER_REDUNDANT_PERMISSIONS_AND_ROLES)
+          .addPermissionName(this.math).findPermissions());
+        
     //there should be two, one should be allow, the other deny
     assertEquals(1, GrouperUtil.length(permissionEntries));
     
     assertFalse(permissionEntries.get(0).isDisallowed());
     
-    assertFalse("wrong subject", PermissionFinder.hasPermission(SubjectTestHelper.SUBJ1, this.adminRole, this.english, this.readString));
-    assertTrue("tie", PermissionFinder.hasPermission(this.subj0, this.math, this.readString));
-    assertFalse("wrong role", PermissionFinder.hasPermission(this.subj0, this.seniorAdmin, this.math, this.readString));
-    assertFalse("wrong role", PermissionFinder.hasPermission(this.subj0, this.user, this.math, this.readString));
-    assertFalse("inherits from arts and sciences", PermissionFinder.hasPermission(this.subj0, this.adminRole, this.english, this.readString));
-    assertTrue("inherits from engineering", PermissionFinder.hasPermission(this.subj0, this.adminRole, this.math, this.readString));
-    assertTrue("inherits from engineering", PermissionFinder.hasPermission(this.subj0, this.adminRole, this.electricalEngineering, this.readString));
-    assertFalse("direct", PermissionFinder.hasPermission(this.subj0, this.adminRole, this.artsAndSciences, this.readString));
-    assertFalse("is all", PermissionFinder.hasPermission(this.subj0, this.adminRole, this.all, this.readString));
-    assertTrue("inherits from engineering", PermissionFinder.hasPermission(this.subj0, this.adminRole, this.electricalEngineering, this.readString));
-    assertFalse("wrong action", PermissionFinder.hasPermission(this.subj0, this.adminRole, this.english, this.readWriteString));
-    assertTrue("inherits from engineering", PermissionFinder.hasPermission(this.subj0, this.adminRole, this.math, this.readString));
+    assertFalse("wrong subject", 
+        new PermissionFinder().addSubject(SubjectTestHelper.SUBJ1)
+          .addAction(this.readString).addRole(this.adminRole)
+          .addPermissionName(this.english).hasPermission());
+
+    assertTrue("tie", new PermissionFinder().addSubject(this.subj0)
+        .addAction(this.readString)
+        .addPermissionName(this.math).hasPermission());
+
+    assertFalse("wrong role", new PermissionFinder().addSubject(this.subj0)
+        .addAction(this.readString).addRole(this.seniorAdmin)
+        .addPermissionName(this.math).hasPermission());
+
+    assertFalse("wrong role", new PermissionFinder().addSubject(this.subj0)
+        .addAction(this.readString).addRole(this.user)
+        .addPermissionName(this.math).hasPermission());
+
+    assertFalse("inherits from arts and sciences", new PermissionFinder().addSubject(this.subj0)
+        .addAction(this.readString).addRole(this.adminRole)
+        .addPermissionName(this.english).hasPermission());
+
+    assertTrue("inherits from engineering", new PermissionFinder().addSubject(this.subj0)
+        .addAction(this.readString).addRole(this.adminRole)
+        .addPermissionName(this.math).hasPermission());
+
+    assertTrue("inherits from engineering", new PermissionFinder().addSubject(this.subj0)
+        .addAction(this.readString).addRole(this.adminRole)
+        .addPermissionName(this.electricalEngineering).hasPermission());
+
+    assertFalse("direct", new PermissionFinder().addSubject(this.subj0)
+        .addAction(this.readString).addRole(this.adminRole)
+        .addPermissionName(this.artsAndSciences).hasPermission());
+
+    assertFalse("is all", new PermissionFinder().addSubject(this.subj0)
+        .addAction(this.readString).addRole(this.adminRole)
+        .addPermissionName(this.all).hasPermission());
+
+    assertTrue("inherits from engineering", new PermissionFinder().addSubject(this.subj0)
+        .addAction(this.readString).addRole(this.adminRole)
+        .addPermissionName(this.electricalEngineering).hasPermission());
+
+    assertFalse("wrong action", new PermissionFinder().addSubject(this.subj0)
+        .addAction(this.readWriteString).addRole(this.adminRole)
+        .addPermissionName(this.english).hasPermission());
+
+    assertTrue("inherits from engineering", new PermissionFinder().addSubject(this.subj0)
+        .addAction(this.readString).addRole(this.adminRole)
+        .addPermissionName(this.math).hasPermission());
 
   }
   
@@ -393,8 +517,11 @@ public class PermissionDisallowTest extends GrouperTest {
     //Result:
     //
     //User subj0 is denied Action<Read> of Resource<English> and Resource<Math> since there are only inherited assignments and the ones with lower depth have priority
-    List<PermissionEntry> permissionEntries = new ArrayList<PermissionEntry>(PermissionFinder.findPermissions(this.subj0, 
-        null, this.artsAndSciences, this.readString, null));
+    List<PermissionEntry> permissionEntries = new ArrayList<PermissionEntry>(
+        new PermissionFinder().addSubject(this.subj0)
+        .addAction(this.readString)
+        .addPermissionName(this.artsAndSciences).findPermissions());
+    
 
     //there should be two, one should be allow, the other deny
     assertEquals(2, GrouperUtil.length(permissionEntries));
@@ -402,35 +529,43 @@ public class PermissionDisallowTest extends GrouperTest {
     boolean isDisallowed2 = permissionEntries.get(1).isDisallowed();
     assertTrue(isDisallowed1 != isDisallowed2);
     
-    permissionEntries = new ArrayList<PermissionEntry>(PermissionFinder.findPermissions(this.subj0, 
-        null, this.english, this.readString, null));
-
+    permissionEntries = new ArrayList<PermissionEntry>(
+        new PermissionFinder().addSubject(this.subj0)
+        .addAction(this.readString)
+        .addPermissionName(this.english).findPermissions());
+        
     //there should be two, one should be allow, the other deny
     assertEquals(2, GrouperUtil.length(permissionEntries));
     isDisallowed1 = permissionEntries.get(0).isDisallowed();
     isDisallowed2 = permissionEntries.get(1).isDisallowed();
     assertTrue(isDisallowed1 != isDisallowed2);
     
-    permissionEntries = new ArrayList<PermissionEntry>(PermissionFinder.findPermissions(this.subj0, 
-        null, this.math, this.readString, null));
-
+    permissionEntries = new ArrayList<PermissionEntry>(
+        new PermissionFinder().addSubject(this.subj0)
+        .addAction(this.readString)
+        .addPermissionName(this.math).findPermissions());
+        
     //there should be two, one should be allow, the other deny
     assertEquals(2, GrouperUtil.length(permissionEntries));
     isDisallowed1 = permissionEntries.get(0).isDisallowed();
     isDisallowed2 = permissionEntries.get(1).isDisallowed();
     assertTrue(isDisallowed1 != isDisallowed2);
 
-    permissionEntries = new ArrayList<PermissionEntry>(PermissionFinder.findPermissions(this.subj0, 
-        null, this.electricalEngineering, this.readString, null));
-
+    permissionEntries = new ArrayList<PermissionEntry>(
+        new PermissionFinder().addSubject(this.subj0)
+        .addAction(this.readString)
+        .addPermissionName(this.electricalEngineering).findPermissions());
+        
     //there should be two, one should be allow, the other deny
     assertEquals(1, GrouperUtil.length(permissionEntries));
     isDisallowed1 = permissionEntries.get(0).isDisallowed();
     assertFalse(isDisallowed1);
 
     //if we filter permissions, should be one
-    permissionEntries = new ArrayList<PermissionEntry>(PermissionFinder.findPermissions(this.subj0, null, 
-        this.english, this.readString, PermissionProcessor.FILTER_REDUNDANT_PERMISSIONS));
+    permissionEntries = new ArrayList<PermissionEntry>(
+        new PermissionFinder().addSubject(this.subj0)
+        .addAction(this.readString).assignPermissionProcessor(PermissionProcessor.FILTER_REDUNDANT_PERMISSIONS)
+        .addPermissionName(this.english).findPermissions());
     
     //there should be one, one should be disallow
     assertEquals(1, GrouperUtil.length(permissionEntries));
@@ -438,25 +573,57 @@ public class PermissionDisallowTest extends GrouperTest {
     assertTrue(permissionEntries.get(0).isDisallowed());
 
     //if we filter by role, it should find the disallow
-    permissionEntries = new ArrayList<PermissionEntry>(PermissionFinder.findPermissions(this.subj0, null, 
-        this.english, this.readString, PermissionProcessor.FILTER_REDUNDANT_PERMISSIONS_AND_ROLES));
+    permissionEntries = new ArrayList<PermissionEntry>(
+        new PermissionFinder().addSubject(this.subj0)
+        .addAction(this.readString).assignPermissionProcessor(PermissionProcessor.FILTER_REDUNDANT_PERMISSIONS_AND_ROLES)
+        .addPermissionName(this.english).findPermissions());
     
     //there should be two, one should be allow, the other deny
     assertEquals(1, GrouperUtil.length(permissionEntries));
     
     assertTrue(permissionEntries.get(0).isDisallowed());
     
-    assertFalse("wrong subject", PermissionFinder.hasPermission(SubjectTestHelper.SUBJ1, this.adminRole, this.english, this.readString));
-    assertFalse("inherits from arts and sciences", PermissionFinder.hasPermission(this.subj0, this.english, this.readString));
-    assertFalse("wrong role", PermissionFinder.hasPermission(this.subj0, this.seniorAdmin, this.english, this.readString));
-    assertFalse("wrong role", PermissionFinder.hasPermission(this.subj0, this.user, this.english, this.readString));
-    assertFalse("inherits from arts and sciences", PermissionFinder.hasPermission(this.subj0, this.adminRole, this.english, this.readString));
-    assertFalse("direct", PermissionFinder.hasPermission(this.subj0, this.adminRole, this.artsAndSciences, this.readString));
-    assertTrue("is all", PermissionFinder.hasPermission(this.subj0, this.adminRole, this.all, this.readString));
-    assertTrue("inherits from all", PermissionFinder.hasPermission(this.subj0, this.adminRole, this.electricalEngineering, this.readString));
-    assertFalse("wrong action", PermissionFinder.hasPermission(this.subj0, this.adminRole, this.english, this.readWriteString));
-    assertFalse("inherits from arts and sciences", PermissionFinder.hasPermission(this.subj0, this.adminRole, this.math, this.readString));
-
+    assertFalse("wrong subject", new PermissionFinder().addSubject(SubjectTestHelper.SUBJ0)
+        .addAction(this.readString).addRole(this.adminRole)
+        .addPermissionName(this.english).hasPermission());
+        
+    assertFalse("inherits from arts and sciences", new PermissionFinder().addSubject(this.subj0)
+        .addAction(this.readString)
+        .addPermissionName(this.english).hasPermission());
+        
+    assertFalse("wrong role", new PermissionFinder().addSubject(this.subj0)
+        .addAction(this.readString).addRole(this.seniorAdmin)
+        .addPermissionName(this.english).hasPermission());
+        
+    assertFalse("wrong role", new PermissionFinder().addSubject(this.subj0)
+        .addAction(this.readString).addRole(this.user)
+        .addPermissionName(this.english).hasPermission());
+        
+    assertFalse("inherits from arts and sciences", 
+        new PermissionFinder().addSubject(this.subj0)
+        .addAction(this.readString).addRole(this.adminRole)
+        .addPermissionName(this.english).hasPermission());
+        
+    assertFalse("direct", new PermissionFinder().addSubject(this.subj0)
+        .addAction(this.readString).addRole(this.adminRole)
+        .addPermissionName(this.artsAndSciences).hasPermission());
+        
+    assertTrue("is all", new PermissionFinder().addSubject(this.subj0)
+        .addAction(this.readString).addRole(this.adminRole)
+        .addPermissionName(this.all).hasPermission());
+        
+    assertTrue("inherits from all", new PermissionFinder().addSubject(this.subj0)
+        .addAction(this.readString).addRole(this.adminRole)
+        .addPermissionName(this.electricalEngineering).hasPermission());
+        
+    assertFalse("wrong action", new PermissionFinder().addSubject(this.subj0)
+        .addAction(this.readWriteString).addRole(this.adminRole)
+        .addPermissionName(this.english).hasPermission());
+        
+    assertFalse("inherits from arts and sciences", new PermissionFinder().addSubject(this.subj0)
+        .addAction(this.readString).addRole(this.adminRole)
+        .addPermissionName(this.math).hasPermission());
+        
   }
   //TODO do 
   
@@ -497,9 +664,10 @@ public class PermissionDisallowTest extends GrouperTest {
     //subj0 is not allowed to Read Arts and sciences (overall, or role specific) since an individual assignment trumps a generic role assignment
     
     //lets get all of the permission assignments
-    List<PermissionEntry> permissionEntries = new ArrayList<PermissionEntry>(PermissionFinder.findPermissions(this.subj0, 
-        null, this.artsAndSciences, this.readString, null));
-
+    List<PermissionEntry> permissionEntries = new ArrayList<PermissionEntry>(new PermissionFinder().addSubject(this.subj0)
+        .addAction(this.readString)
+        .addPermissionName(this.artsAndSciences).findPermissions());
+        
     //there should be two, one should be allow, the other deny
     assertEquals(2, GrouperUtil.length(permissionEntries));
     boolean isDisallowed1 = permissionEntries.get(0).isDisallowed();
@@ -507,33 +675,61 @@ public class PermissionDisallowTest extends GrouperTest {
     assertTrue(isDisallowed1 != isDisallowed2);
     
     //if we filter permissions, should be one
-    permissionEntries = new ArrayList<PermissionEntry>(PermissionFinder.findPermissions(this.subj0, null, 
-        this.artsAndSciences, this.readString, PermissionProcessor.FILTER_REDUNDANT_PERMISSIONS));
-    
+    permissionEntries = new ArrayList<PermissionEntry>(new PermissionFinder().addSubject(this.subj0)
+        .addAction(this.readString).assignPermissionProcessor(PermissionProcessor.FILTER_REDUNDANT_PERMISSIONS)
+        .addPermissionName(this.artsAndSciences).findPermissions());
+        
     //there should be one, one should be disallow
     assertEquals(1, GrouperUtil.length(permissionEntries));
 
     assertTrue(permissionEntries.get(0).isDisallowed());
 
     //if we filter by role, it should find the disallow
-    permissionEntries = new ArrayList<PermissionEntry>(PermissionFinder.findPermissions(this.subj0, null, 
-        this.artsAndSciences, this.readString, PermissionProcessor.FILTER_REDUNDANT_PERMISSIONS_AND_ROLES));
-    
+    permissionEntries = new ArrayList<PermissionEntry>(new PermissionFinder().addSubject(this.subj0)
+        .addAction(this.readString).assignPermissionProcessor(PermissionProcessor.FILTER_REDUNDANT_PERMISSIONS_AND_ROLES)
+        .addPermissionName(this.artsAndSciences).findPermissions());
+        
     //there should be two, one should be allow, the other deny
     assertEquals(1, GrouperUtil.length(permissionEntries));
     
     assertTrue(permissionEntries.get(0).isDisallowed());
     
-    assertFalse("wrong subject", PermissionFinder.hasPermission(SubjectTestHelper.SUBJ1, this.adminRole, this.english, this.readString));
-    assertFalse("inherits from arts and sciences", PermissionFinder.hasPermission(this.subj0, this.english, this.readString));
-    assertFalse("wrong role", PermissionFinder.hasPermission(this.subj0, this.adminRole, this.english, this.readString));
-    assertFalse("wrong role", PermissionFinder.hasPermission(this.subj0, this.user, this.english, this.readString));
-    assertFalse("inherits from all", PermissionFinder.hasPermission(this.subj0, this.seniorAdmin, this.english, this.readString));
-    assertFalse("inherits from all", PermissionFinder.hasPermission(this.subj0, this.seniorAdmin, this.artsAndSciences, this.readString));
-    assertFalse("is all", PermissionFinder.hasPermission(this.subj0, this.seniorAdmin, this.all, this.readString));
-    assertFalse("inherits from all", PermissionFinder.hasPermission(this.subj0, this.seniorAdmin, this.electricalEngineering, this.readString));
-    assertFalse("wrong action", PermissionFinder.hasPermission(this.subj0, this.seniorAdmin, this.english, this.readWriteString));
-
+    assertFalse("wrong subject", new PermissionFinder().addSubject(SubjectTestHelper.SUBJ1)
+        .addAction(this.readString).addRole(this.adminRole)
+        .addPermissionName(this.english).hasPermission());
+        
+    assertFalse("inherits from arts and sciences", new PermissionFinder().addSubject(this.subj0)
+        .addAction(this.readString)
+        .addPermissionName(this.english).hasPermission());
+        
+    assertFalse("wrong role", new PermissionFinder().addSubject(this.subj0)
+        .addAction(this.readString).addRole(this.adminRole)
+        .addPermissionName(this.english).hasPermission());
+        
+    assertFalse("wrong role", new PermissionFinder().addSubject(this.subj0)
+        .addAction(this.readString).addRole(this.user)
+        .addPermissionName(this.english).hasPermission());
+        
+    assertFalse("inherits from all", new PermissionFinder().addSubject(this.subj0)
+        .addAction(this.readString).addRole(this.seniorAdmin)
+        .addPermissionName(this.english).hasPermission());
+        
+    assertFalse("inherits from all", new PermissionFinder().addSubject(this.subj0)
+        .addAction(this.readString).addRole(this.seniorAdmin)
+        .addPermissionName(this.artsAndSciences).hasPermission());
+        
+    assertFalse("is all", new PermissionFinder().addSubject(this.subj0)
+        .addAction(this.readString).addRole(this.seniorAdmin)
+        .addPermissionName(this.all).hasPermission());
+        
+    assertFalse("inherits from all", new PermissionFinder().addSubject(this.subj0)
+        .addAction(this.readString).addRole(this.seniorAdmin)
+        .addPermissionName(this.electricalEngineering).hasPermission());
+        
+    assertFalse("wrong action", new PermissionFinder().addSubject(this.subj0)
+        .addAction(this.readWriteString).addRole(this.adminRole)
+        .addPermissionName(this.english).hasPermission());
+        
   }
 
   /**
@@ -556,9 +752,10 @@ public class PermissionDisallowTest extends GrouperTest {
     //subj0 is allowed to Read Arts and sciences (overall, or role specific) since an individual assignment trumps a generic role assignment
     
     //lets get all of the permission assignments
-    List<PermissionEntry> permissionEntries = new ArrayList<PermissionEntry>(PermissionFinder.findPermissions(this.subj0, 
-        null, this.artsAndSciences, this.readString, null));
-
+    List<PermissionEntry> permissionEntries = new ArrayList<PermissionEntry>(new PermissionFinder().addSubject(this.subj0)
+        .addAction(this.readString)
+        .addPermissionName(this.artsAndSciences).findPermissions());
+        
     //there should be two, one should be allow, the other deny
     assertEquals(2, GrouperUtil.length(permissionEntries));
     boolean isDisallowed1 = permissionEntries.get(0).isDisallowed();
@@ -566,32 +763,54 @@ public class PermissionDisallowTest extends GrouperTest {
     assertTrue(isDisallowed1 != isDisallowed2);
     
     //if we filter permissions, should be one
-    permissionEntries = new ArrayList<PermissionEntry>(PermissionFinder.findPermissions(this.subj0, null, 
-        this.artsAndSciences, this.readString, PermissionProcessor.FILTER_REDUNDANT_PERMISSIONS));
-    
+    permissionEntries = new ArrayList<PermissionEntry>(new PermissionFinder().addSubject(this.subj0)
+        .addAction(this.readString).assignPermissionProcessor(PermissionProcessor.FILTER_REDUNDANT_PERMISSIONS)
+        .addPermissionName(this.artsAndSciences).findPermissions());
+        
     //there should be one, one should be disallow
     assertEquals(1, GrouperUtil.length(permissionEntries));
 
     assertFalse(permissionEntries.get(0).isDisallowed());
 
     //if we filter by role, it should find the disallow
-    permissionEntries = new ArrayList<PermissionEntry>(PermissionFinder.findPermissions(this.subj0, null, 
-        this.artsAndSciences, this.readString, PermissionProcessor.FILTER_REDUNDANT_PERMISSIONS_AND_ROLES));
+    permissionEntries = new ArrayList<PermissionEntry>(
+        new PermissionFinder().addSubject(this.subj0)
+        .addAction(this.readString).assignPermissionProcessor(PermissionProcessor.FILTER_REDUNDANT_PERMISSIONS_AND_ROLES)
+        .addPermissionName(this.artsAndSciences).findPermissions());
     
     //there should be two, one should be allow, the other deny
     assertEquals(1, GrouperUtil.length(permissionEntries));
     
     assertFalse(permissionEntries.get(0).isDisallowed());
     
-    assertFalse("wrong subject", PermissionFinder.hasPermission(SubjectTestHelper.SUBJ1, this.adminRole, this.english, this.readString));
-    assertTrue("inherits from arts and sciences", PermissionFinder.hasPermission(this.subj0, this.english, this.readString));
-    assertTrue("ok", PermissionFinder.hasPermission(this.subj0, this.adminRole, this.english, this.readString));
-    assertFalse("wrong role", PermissionFinder.hasPermission(this.subj0, this.user, this.english, this.readString));
-    assertTrue("ok", PermissionFinder.hasPermission(this.subj0, this.adminRole, this.artsAndSciences, this.readString));
-    assertFalse("is all", PermissionFinder.hasPermission(this.subj0, this.adminRole, this.all, this.readString));
-    assertFalse("not related", PermissionFinder.hasPermission(this.subj0, this.adminRole, this.electricalEngineering, this.readString));
-    assertFalse("wrong action", PermissionFinder.hasPermission(this.subj0, this.adminRole, this.english, this.readWriteString));
-    
+    assertFalse("wrong subject", new PermissionFinder().addSubject(SubjectTestHelper.SUBJ1)
+        .addAction(this.readString).addRole(this.adminRole)
+        .addPermissionName(this.english).hasPermission());
+        
+    assertTrue("inherits from arts and sciences", new PermissionFinder().addSubject(this.subj0)
+        .addAction(this.readString)
+        .addPermissionName(this.english).hasPermission());
+        
+    assertTrue("ok", new PermissionFinder().addSubject(this.subj0)
+        .addAction(this.readString).addRole(this.adminRole)
+        .addPermissionName(this.english).hasPermission());
+        
+    assertFalse("wrong role", new PermissionFinder().addSubject(this.subj0)
+        .addAction(this.readString).addRole(this.user)
+        .addPermissionName(this.english).hasPermission());
+        
+    assertTrue("ok", new PermissionFinder().addSubject(this.subj0)
+        .addAction(this.readString).addRole(this.adminRole)
+        .addPermissionName(this.artsAndSciences).hasPermission());
+        
+    assertFalse("is all", new PermissionFinder().addSubject(this.subj0)
+        .addAction(this.readString).addRole(this.adminRole)
+        .addPermissionName(this.all).hasPermission());
+        
+    assertFalse("not related", new PermissionFinder().addSubject(this.subj0)
+        .addAction(this.readWriteString).addRole(this.adminRole)
+        .addPermissionName(this.english).hasPermission());
+        
   }
 
   /** 
@@ -620,18 +839,43 @@ public class PermissionDisallowTest extends GrouperTest {
     //permissions set (i.e. ability to elevate permissions), then as a User, subj0 cannot Read Arts and Sciences, 
     //but as an Admin, subj0 can Read Arts and Sciences
 
-    assertFalse("wrong subject", PermissionFinder.hasPermission(SubjectTestHelper.SUBJ1, this.adminRole, this.english, this.readString));
-    assertTrue("inherits from arts and sciences", PermissionFinder.hasPermission(this.subj0, this.english, this.readString));
-    assertTrue("inherits from arts and sciences", PermissionFinder.hasPermission(this.subj0, this.adminRole, this.english, this.readString));
-    assertFalse("inherits from arts and sciences", PermissionFinder.hasPermission(this.subj0, this.user, this.english, this.readString));
-    assertFalse("wrong role", PermissionFinder.hasPermission(this.subj0, this.seniorAdmin, this.english, this.readString));
-    assertTrue("is arts and sciences", PermissionFinder.hasPermission(this.subj0, this.adminRole, this.artsAndSciences, this.readString));
-    assertFalse("wrong permission", PermissionFinder.hasPermission(this.subj0, this.adminRole, this.electricalEngineering, this.readString));
-    assertFalse("wrong action", PermissionFinder.hasPermission(this.subj0, this.adminRole, this.english, this.readWriteString));
-    
+    assertFalse("wrong subject", new PermissionFinder().addSubject(SubjectTestHelper.SUBJ1)
+        .addAction(this.readString).addRole(this.adminRole)
+        .addPermissionName(this.english).hasPermission());
+        
+    assertTrue("inherits from arts and sciences", new PermissionFinder().addSubject(this.subj0)
+        .addAction(this.readString).addRole(this.adminRole)
+        .addPermissionName(this.english).hasPermission());
+        
+    assertTrue("inherits from arts and sciences", new PermissionFinder().addSubject(this.subj0)
+        .addAction(this.readString).addRole(this.adminRole)
+        .addPermissionName(this.english).hasPermission());
+        
+    assertFalse("inherits from arts and sciences", new PermissionFinder().addSubject(this.subj0)
+        .addAction(this.readString).addRole(this.user)
+        .addPermissionName(this.english).hasPermission());
+        
+    assertFalse("wrong role", new PermissionFinder().addSubject(this.subj0)
+        .addAction(this.readString).addRole(this.seniorAdmin)
+        .addPermissionName(this.english).hasPermission());
+        
+    assertTrue("is arts and sciences", new PermissionFinder().addSubject(this.subj0)
+        .addAction(this.readString).addRole(this.adminRole)
+        .addPermissionName(this.artsAndSciences).hasPermission());
+        
+    assertFalse("wrong permission", new PermissionFinder().addSubject(this.subj0)
+        .addAction(this.readString).addRole(this.adminRole)
+        .addPermissionName(this.electricalEngineering).hasPermission());
+        
+    assertFalse("wrong action", new PermissionFinder().addSubject(this.subj0)
+        .addAction(this.readWriteString).addRole(this.adminRole)
+        .addPermissionName(this.english).hasPermission());
+        
     //lets get all of the permission assignments
-    List<PermissionEntry> permissionEntries = new ArrayList<PermissionEntry>(PermissionFinder.findPermissions(this.subj0, 
-        null, this.artsAndSciences, this.readString, null));
+    List<PermissionEntry> permissionEntries = new ArrayList<PermissionEntry>(new PermissionFinder().addSubject(this.subj0)
+        .addAction(this.readString)
+        .addPermissionName(this.artsAndSciences).findPermissions());
+        
     //there should be two, one should be allow, the other deny
     assertEquals(2, GrouperUtil.length(permissionEntries));
     boolean isDisallowed1 = permissionEntries.get(0).isDisallowed();
@@ -639,16 +883,18 @@ public class PermissionDisallowTest extends GrouperTest {
     assertTrue("" + isDisallowed1, isDisallowed1 != isDisallowed2);
     
     //if we filter permissions, should still be two
-    permissionEntries = new ArrayList<PermissionEntry>(PermissionFinder.findPermissions(this.subj0, null, 
-        this.artsAndSciences, this.readString, PermissionProcessor.FILTER_REDUNDANT_PERMISSIONS));
-    
+    permissionEntries = new ArrayList<PermissionEntry>(new PermissionFinder().addSubject(this.subj0)
+        .addAction(this.readString).assignPermissionProcessor(PermissionProcessor.FILTER_REDUNDANT_PERMISSIONS)
+        .addPermissionName(this.artsAndSciences).findPermissions());
+        
     //there should be two, one should be allow, the other deny
     assertEquals(2, GrouperUtil.length(permissionEntries));
     
     //if we filter by role, it should find the allow
-    permissionEntries = new ArrayList<PermissionEntry>(PermissionFinder.findPermissions(this.subj0, null, 
-        this.artsAndSciences, this.readString, PermissionProcessor.FILTER_REDUNDANT_PERMISSIONS_AND_ROLES));
-    
+    permissionEntries = new ArrayList<PermissionEntry>(new PermissionFinder().addSubject(this.subj0)
+        .addAction(this.readString).assignPermissionProcessor(PermissionProcessor.FILTER_REDUNDANT_PERMISSIONS_AND_ROLES)
+        .addPermissionName(this.math).findPermissions());
+        
     //there should be two, one should be allow, the other deny
     assertEquals(1, GrouperUtil.length(permissionEntries));
     
@@ -699,8 +945,10 @@ public class PermissionDisallowTest extends GrouperTest {
     //directly to Senior admin, it will trump inherited role assignments
     
     //lets get all of the permission assignments
-    List<PermissionEntry> permissionEntries = new ArrayList<PermissionEntry>(PermissionFinder.findPermissions(this.subj0, 
-        null, this.artsAndSciences, this.readString, null));
+    List<PermissionEntry> permissionEntries = new ArrayList<PermissionEntry>(new PermissionFinder().addSubject(this.subj0)
+        .addAction(this.readString)
+        .addPermissionName(this.artsAndSciences).findPermissions());
+        
     //there should be two, one should be allow, the other deny
     assertEquals(2, GrouperUtil.length(permissionEntries));
     boolean isDisallowed1 = permissionEntries.get(0).isDisallowed();
@@ -708,34 +956,61 @@ public class PermissionDisallowTest extends GrouperTest {
     assertTrue(isDisallowed1 != isDisallowed2);
     
     //if we filter permissions, should be one
-    permissionEntries = new ArrayList<PermissionEntry>(PermissionFinder.findPermissions(this.subj0, null, 
-        this.artsAndSciences, this.readString, PermissionProcessor.FILTER_REDUNDANT_PERMISSIONS));
-    
+    permissionEntries = new ArrayList<PermissionEntry>(new PermissionFinder().addSubject(this.subj0)
+        .addAction(this.readString).assignPermissionProcessor(PermissionProcessor.FILTER_REDUNDANT_PERMISSIONS)
+        .addPermissionName(this.artsAndSciences).findPermissions());
+        
     //there should be one, one should be allow
     assertEquals(1, GrouperUtil.length(permissionEntries));
 
     assertTrue(!permissionEntries.get(0).isDisallowed());
 
     //if we filter by role, it should find the allow
-    permissionEntries = new ArrayList<PermissionEntry>(PermissionFinder.findPermissions(this.subj0, null, 
-        this.artsAndSciences, this.readString, PermissionProcessor.FILTER_REDUNDANT_PERMISSIONS_AND_ROLES));
-    
+    permissionEntries = new ArrayList<PermissionEntry>(new PermissionFinder().addSubject(this.subj0)
+        .addAction(this.readString).assignPermissionProcessor(PermissionProcessor.FILTER_REDUNDANT_PERMISSIONS_AND_ROLES)
+        .addPermissionName(this.artsAndSciences).findPermissions());
+        
     //there should be two, one should be allow, the other deny
     assertEquals(1, GrouperUtil.length(permissionEntries));
     
     assertTrue(!permissionEntries.get(0).isDisallowed());
     
-    assertFalse("wrong subject", PermissionFinder.hasPermission(SubjectTestHelper.SUBJ1, this.adminRole, this.english, this.readString));
-    assertTrue("inherits from arts and sciences", PermissionFinder.hasPermission(this.subj0, this.english, this.readString));
-    assertFalse("wrong role", PermissionFinder.hasPermission(this.subj0, this.adminRole, this.english, this.readString));
-    assertFalse("wrong role", PermissionFinder.hasPermission(this.subj0, this.user, this.english, this.readString));
-    assertTrue("inherits from all", PermissionFinder.hasPermission(this.subj0, this.seniorAdmin, this.english, this.readString));
-    assertTrue("inherits from all", PermissionFinder.hasPermission(this.subj0, this.seniorAdmin, this.artsAndSciences, this.readString));
-    assertTrue("is all", PermissionFinder.hasPermission(this.subj0, this.seniorAdmin, this.all, this.readString));
-    assertTrue("inherits from all", PermissionFinder.hasPermission(this.subj0, this.seniorAdmin, this.electricalEngineering, this.readString));
-    assertFalse("wrong action", PermissionFinder.hasPermission(this.subj0, this.seniorAdmin, this.english, this.readWriteString));
-
-    
+    assertFalse("wrong subject", new PermissionFinder().addSubject(SubjectTestHelper.SUBJ1)
+        .addAction(this.readString).addRole(this.adminRole)
+        .addPermissionName(this.english).hasPermission());
+        
+    assertTrue("inherits from arts and sciences", new PermissionFinder().addSubject(this.subj0)
+        .addAction(this.readString)
+        .addPermissionName(this.english).hasPermission());
+        
+    assertFalse("wrong role", new PermissionFinder().addSubject(this.subj0)
+        .addAction(this.readString).addRole(this.adminRole)
+        .addPermissionName(this.english).hasPermission());
+        
+    assertFalse("wrong role", new PermissionFinder().addSubject(this.subj0)
+        .addAction(this.readString).addRole(this.adminRole)
+        .addPermissionName(this.english).hasPermission());
+        
+    assertTrue("inherits from all", new PermissionFinder().addSubject(this.subj0)
+        .addAction(this.readString).addRole(this.seniorAdmin)
+        .addPermissionName(this.english).hasPermission());
+        
+    assertTrue("inherits from all", new PermissionFinder().addSubject(this.subj0)
+        .addAction(this.readString).addRole(this.seniorAdmin)
+        .addPermissionName(this.artsAndSciences).hasPermission());
+        
+    assertTrue("is all", new PermissionFinder().addSubject(this.subj0)
+        .addAction(this.readString).addRole(this.seniorAdmin)
+        .addPermissionName(this.all).hasPermission());
+        
+    assertTrue("inherits from all", new PermissionFinder().addSubject(this.subj0)
+        .addAction(this.readString).addRole(this.seniorAdmin)
+        .addPermissionName(this.electricalEngineering).hasPermission());
+        
+    assertFalse("wrong action", new PermissionFinder().addSubject(this.subj0)
+        .addAction(this.readWriteString).addRole(this.seniorAdmin)
+        .addPermissionName(this.english).hasPermission());
+        
   }
   
   /**

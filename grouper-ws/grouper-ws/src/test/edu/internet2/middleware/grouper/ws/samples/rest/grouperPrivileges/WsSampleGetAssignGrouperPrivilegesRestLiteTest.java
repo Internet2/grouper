@@ -16,13 +16,13 @@ import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAssignGrouperPrivilegesLiteResult;
+import edu.internet2.middleware.grouper.ws.coresoap.WsGetGrouperPrivilegesLiteResult;
+import edu.internet2.middleware.grouper.ws.coresoap.WsGrouperPrivilegeResult;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestAssignGrouperPrivilegesLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestGetGrouperPrivilegesLiteRequest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType;
-import edu.internet2.middleware.grouper.ws.soap.WsAssignGrouperPrivilegesLiteResult;
-import edu.internet2.middleware.grouper.ws.soap.WsGetGrouperPrivilegesLiteResult;
-import edu.internet2.middleware.grouper.ws.soap.WsGrouperPrivilegeResult;
 import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
 
 /**

@@ -6,15 +6,19 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.collections.keyvalue.MultiKey;
 
 import edu.internet2.middleware.grouper.permissions.PermissionEntry;
 import edu.internet2.middleware.grouper.permissions.PermissionEntry.PermissionType;
+import edu.internet2.middleware.grouper.permissions.limits.PermissionLimitBean;
 import edu.internet2.middleware.grouper.ui.util.MapWrapper;
 
 /**
- * container for permission entry to sets of permissions grouped by action sets
+ * container for permission entry to sets of permissions grouped by action sets.
+ * on the screen, the permissions are grouped by which ones have common actions, so the columns of actions
+ * can look good (the columns will line up).  This represents a block of rows with common actions.
  * @author mchyzer
  *
  */
@@ -45,8 +49,9 @@ public class GuiPermissionEntryActionsContainer implements Serializable {
 
   /**
    * process raw entries
+   * @param permissionEntryLimitBeanMap map of permission entry to the set of limits
    */
-  public void processRawEntries() {
+  public void processRawEntries(Map<PermissionEntry, Set<PermissionLimitBean>> permissionEntryLimitBeanMap) {
     
     this.guiPermissionEntryContainers = new ArrayList<GuiPermissionEntryContainer>();
     
@@ -54,6 +59,8 @@ public class GuiPermissionEntryActionsContainer implements Serializable {
     Map<MultiKey, GuiPermissionEntryContainer> roleResourceToContainer = new LinkedHashMap<MultiKey, GuiPermissionEntryContainer>();
 
     for (PermissionEntry permissionEntry : this.getRawPermissionEntries()) {
+      
+      //the row key is either the row and resource (if showing role permissions), or the role/resource/memberId (if showing member permissions)
       MultiKey roleResource = rowKey(permissionEntry);
       GuiPermissionEntryContainer guiPermissionEntryContainer = roleResourceToContainer.get(roleResource);
       
@@ -78,12 +85,12 @@ public class GuiPermissionEntryActionsContainer implements Serializable {
       }
       guiPermissionEntryContainer.getRawPermissionEntries().add(permissionEntry);
     }
-    
+    //sort by role, subject (if applicable), and resource
     Collections.sort(this.guiPermissionEntryContainers);
     
     //now lets process the inner objects
     for (GuiPermissionEntryContainer guiPermissionEntryContainer : this.guiPermissionEntryContainers) {
-      guiPermissionEntryContainer.processRawEntries(this.actions);
+      guiPermissionEntryContainer.processRawEntries(this.actions, permissionEntryLimitBeanMap);
     }
     
   }

@@ -9,7 +9,7 @@
    urn:mace:shibboleth:2.0:resolver:ad classpath:/schema/shibboleth-2.0-attribute-resolver-ad.xsd
    http://grouper.internet2.edu/shibboleth/2.0 classpath:/schema/shibboleth-2.0-grouper.xsd">
 
-  <resolver:DataConnector id="customSubjectId" xsi:type="grouper:FindGroupByNameDataConnector">
+  <resolver:DataConnector id="customSubjectId" xsi:type="grouper:GroupDataConnector">
     <grouper:SubjectIdentifier id="GrouperSystem" source="g:isa" />
   </resolver:DataConnector>
   

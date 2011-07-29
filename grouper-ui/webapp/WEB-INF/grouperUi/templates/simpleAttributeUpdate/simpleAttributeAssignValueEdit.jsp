@@ -1,6 +1,6 @@
 <%@ include file="../common/commonTaglib.jsp"%>
-<!-- Start: simpleAttributeAssignAddValue.jsp -->
-<div class="simpleAttributeAssignAddValue">
+<!-- Start: simpleAttributeAssignValueEdit.jsp -->
+<div class="simpleAttributeAssignEditValue">
 
   <div class="section">
   
@@ -94,6 +94,6 @@
     </div>
   </div>
 </div>
-<!-- End: simpleAttributeAssignAddValue.jsp -->
+<!-- End: simpleAttributeAssignValueEdit.jsp -->
 
 

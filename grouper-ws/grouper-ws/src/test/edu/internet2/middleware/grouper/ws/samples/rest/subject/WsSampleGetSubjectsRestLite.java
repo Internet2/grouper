@@ -12,9 +12,9 @@ import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
+import edu.internet2.middleware.grouper.ws.coresoap.WsGetSubjectsResults;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType;
-import edu.internet2.middleware.grouper.ws.soap.WsGetSubjectsResults;
 import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
 
 /**

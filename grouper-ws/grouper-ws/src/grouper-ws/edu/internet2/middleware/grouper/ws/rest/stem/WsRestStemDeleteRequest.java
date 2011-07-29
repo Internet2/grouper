@@ -5,11 +5,11 @@
 package edu.internet2.middleware.grouper.ws.rest.stem;
 
 import edu.internet2.middleware.grouper.ws.GrouperServiceLogic;
+import edu.internet2.middleware.grouper.ws.coresoap.WsParam;
+import edu.internet2.middleware.grouper.ws.coresoap.WsStemLookup;
+import edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup;
 import edu.internet2.middleware.grouper.ws.rest.WsRequestBean;
 import edu.internet2.middleware.grouper.ws.rest.method.GrouperRestHttpMethod;
-import edu.internet2.middleware.grouper.ws.soap.WsParam;
-import edu.internet2.middleware.grouper.ws.soap.WsStemLookup;
-import edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup;
 
 /**
  * bean that will be the data from rest request

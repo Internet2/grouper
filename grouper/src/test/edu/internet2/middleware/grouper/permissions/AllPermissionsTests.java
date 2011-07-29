@@ -1,5 +1,6 @@
 package edu.internet2.middleware.grouper.permissions;
 
+import edu.internet2.middleware.grouper.permissions.limits.AllPermissionsLimitsTests;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
@@ -21,6 +22,7 @@ public class AllPermissionsTests {
     suite.addTestSuite(PermissionEntryTest.class);
     suite.addTestSuite(PermissionHeuristicTest.class);
     //$JUnit-END$
+    suite.addTest(AllPermissionsLimitsTests.suite());
     return suite;
   }
 

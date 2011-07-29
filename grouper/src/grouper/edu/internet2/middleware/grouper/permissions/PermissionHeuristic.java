@@ -457,7 +457,7 @@ public class PermissionHeuristic {
     long result = 0;
     
     //if not enabled, then -1...
-    if (!permissionEntry.isEnabled()) {
+    if (permissionEntry instanceof PermissionEntryImpl && !permissionEntry.isEnabled()) {
       return -1;
     }
     

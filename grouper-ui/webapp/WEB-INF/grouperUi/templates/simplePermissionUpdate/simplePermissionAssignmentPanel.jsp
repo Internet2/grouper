@@ -69,7 +69,8 @@
                 <sup class="requiredIndicator">*</sup>
               </td>
               <td class="formTableRight">
-                 <grouper:combobox 
+                 <grouper:combobox comboDefaultText="${permissionUpdateRequestContainer.defaultMemberDisplayName}" 
+                    comboDefaultValue="${permissionUpdateRequestContainer.defaultMemberId}"
                    filterOperation="SimplePermissionUpdateFilter.filterSubjects" 
                    id="permissionAddAssignMemberId" additionalFormElementNames="permissionAddAssignRoleId"
                    width="700"/>

@@ -64,11 +64,12 @@ import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.misc.SaveResultType;
 import edu.internet2.middleware.grouper.permissions.PermissionAssignOperation;
 import edu.internet2.middleware.grouper.permissions.PermissionEntry;
+import edu.internet2.middleware.grouper.permissions.PermissionFinder;
+import edu.internet2.middleware.grouper.permissions.PermissionProcessor;
 import edu.internet2.middleware.grouper.permissions.PermissionEntry.PermissionType;
+import edu.internet2.middleware.grouper.permissions.limits.PermissionLimitBean;
 import edu.internet2.middleware.grouper.pit.PITGroup;
 import edu.internet2.middleware.grouper.pit.PITMember;
-import edu.internet2.middleware.grouper.pit.PITPermissionAllView;
-import edu.internet2.middleware.grouper.pit.PITStem;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.AccessResolver;
 import edu.internet2.middleware.grouper.privs.GrouperPrivilege;
@@ -78,6 +79,91 @@ import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.privs.PrivilegeType;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAddMemberLiteResult;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAddMemberResult;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAddMemberResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributesLiteResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributesResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAssignGrouperPrivilegesLiteResult;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAssignGrouperPrivilegesResult;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAssignGrouperPrivilegesResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAssignPermissionsLiteResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAssignPermissionsResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeAssignLookup;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeAssignValue;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefLookup;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameLookup;
+import edu.internet2.middleware.grouper.ws.coresoap.WsDeleteMemberLiteResult;
+import edu.internet2.middleware.grouper.ws.coresoap.WsDeleteMemberResult;
+import edu.internet2.middleware.grouper.ws.coresoap.WsDeleteMemberResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsFindGroupsResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsFindStemsResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsGetAttributeAssignmentsResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsGetGrouperPrivilegesLiteResult;
+import edu.internet2.middleware.grouper.ws.coresoap.WsGetGroupsLiteResult;
+import edu.internet2.middleware.grouper.ws.coresoap.WsGetGroupsResult;
+import edu.internet2.middleware.grouper.ws.coresoap.WsGetGroupsResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsGetMembersLiteResult;
+import edu.internet2.middleware.grouper.ws.coresoap.WsGetMembersResult;
+import edu.internet2.middleware.grouper.ws.coresoap.WsGetMembersResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsGetMembershipsResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsGetPermissionAssignmentsResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsGetSubjectsResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsGroup;
+import edu.internet2.middleware.grouper.ws.coresoap.WsGroupDeleteLiteResult;
+import edu.internet2.middleware.grouper.ws.coresoap.WsGroupDeleteResult;
+import edu.internet2.middleware.grouper.ws.coresoap.WsGroupDeleteResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsGroupLookup;
+import edu.internet2.middleware.grouper.ws.coresoap.WsGroupSaveLiteResult;
+import edu.internet2.middleware.grouper.ws.coresoap.WsGroupSaveResult;
+import edu.internet2.middleware.grouper.ws.coresoap.WsGroupSaveResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsGroupToSave;
+import edu.internet2.middleware.grouper.ws.coresoap.WsGrouperPrivilegeResult;
+import edu.internet2.middleware.grouper.ws.coresoap.WsHasMemberLiteResult;
+import edu.internet2.middleware.grouper.ws.coresoap.WsHasMemberResult;
+import edu.internet2.middleware.grouper.ws.coresoap.WsHasMemberResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsMemberChangeSubject;
+import edu.internet2.middleware.grouper.ws.coresoap.WsMemberChangeSubjectLiteResult;
+import edu.internet2.middleware.grouper.ws.coresoap.WsMemberChangeSubjectResult;
+import edu.internet2.middleware.grouper.ws.coresoap.WsMemberChangeSubjectResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsMembershipAnyLookup;
+import edu.internet2.middleware.grouper.ws.coresoap.WsMembershipLookup;
+import edu.internet2.middleware.grouper.ws.coresoap.WsParam;
+import edu.internet2.middleware.grouper.ws.coresoap.WsPermissionEnvVar;
+import edu.internet2.middleware.grouper.ws.coresoap.WsQueryFilter;
+import edu.internet2.middleware.grouper.ws.coresoap.WsStem;
+import edu.internet2.middleware.grouper.ws.coresoap.WsStemDeleteLiteResult;
+import edu.internet2.middleware.grouper.ws.coresoap.WsStemDeleteResult;
+import edu.internet2.middleware.grouper.ws.coresoap.WsStemDeleteResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsStemLookup;
+import edu.internet2.middleware.grouper.ws.coresoap.WsStemQueryFilter;
+import edu.internet2.middleware.grouper.ws.coresoap.WsStemSaveLiteResult;
+import edu.internet2.middleware.grouper.ws.coresoap.WsStemSaveResult;
+import edu.internet2.middleware.grouper.ws.coresoap.WsStemSaveResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsStemToSave;
+import edu.internet2.middleware.grouper.ws.coresoap.WsSubject;
+import edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAddMemberResult.WsAddMemberResultCode;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAddMemberResults.WsAddMemberResultsCode;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAssignGrouperPrivilegesResult.WsAssignGrouperPrivilegesResultCode;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAssignGrouperPrivilegesResults.WsAssignGrouperPrivilegesResultsCode;
+import edu.internet2.middleware.grouper.ws.coresoap.WsDeleteMemberResult.WsDeleteMemberResultCode;
+import edu.internet2.middleware.grouper.ws.coresoap.WsFindGroupsResults.WsFindGroupsResultsCode;
+import edu.internet2.middleware.grouper.ws.coresoap.WsFindStemsResults.WsFindStemsResultsCode;
+import edu.internet2.middleware.grouper.ws.coresoap.WsGetAttributeAssignmentsResults.WsGetAttributeAssignmentsResultsCode;
+import edu.internet2.middleware.grouper.ws.coresoap.WsGetGrouperPrivilegesLiteResult.WsGetGrouperPrivilegesLiteResultCode;
+import edu.internet2.middleware.grouper.ws.coresoap.WsGetMembershipsResults.WsGetMembershipsResultsCode;
+import edu.internet2.middleware.grouper.ws.coresoap.WsGetPermissionAssignmentsResults.WsGetPermissionAssignmentsResultsCode;
+import edu.internet2.middleware.grouper.ws.coresoap.WsGetSubjectsResults.WsGetSubjectsResultsCode;
+import edu.internet2.middleware.grouper.ws.coresoap.WsGroupDeleteResult.WsGroupDeleteResultCode;
+import edu.internet2.middleware.grouper.ws.coresoap.WsGroupLookup.GroupFindResult;
+import edu.internet2.middleware.grouper.ws.coresoap.WsGroupSaveResult.WsGroupSaveResultCode;
+import edu.internet2.middleware.grouper.ws.coresoap.WsHasMemberResult.WsHasMemberResultCode;
+import edu.internet2.middleware.grouper.ws.coresoap.WsMemberChangeSubjectResult.WsMemberChangeSubjectResultCode;
+import edu.internet2.middleware.grouper.ws.coresoap.WsStemDeleteResult.WsStemDeleteResultCode;
+import edu.internet2.middleware.grouper.ws.coresoap.WsStemLookup.StemFindResult;
+import edu.internet2.middleware.grouper.ws.coresoap.WsStemSaveResult.WsStemSaveResultCode;
+import edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup.MemberFindResult;
 import edu.internet2.middleware.grouper.ws.exceptions.WebServiceDoneException;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 import edu.internet2.middleware.grouper.ws.member.WsMemberFilter;
@@ -86,90 +172,6 @@ import edu.internet2.middleware.grouper.ws.query.WsQueryFilterType;
 import edu.internet2.middleware.grouper.ws.query.WsStemQueryFilterType;
 import edu.internet2.middleware.grouper.ws.rest.attribute.WsAssignAttributeLogic;
 import edu.internet2.middleware.grouper.ws.rest.subject.TooManyResultsWhenFilteringByGroupException;
-import edu.internet2.middleware.grouper.ws.soap.WsAddMemberLiteResult;
-import edu.internet2.middleware.grouper.ws.soap.WsAddMemberResult;
-import edu.internet2.middleware.grouper.ws.soap.WsAddMemberResults;
-import edu.internet2.middleware.grouper.ws.soap.WsAssignAttributesLiteResults;
-import edu.internet2.middleware.grouper.ws.soap.WsAssignAttributesResults;
-import edu.internet2.middleware.grouper.ws.soap.WsAssignGrouperPrivilegesLiteResult;
-import edu.internet2.middleware.grouper.ws.soap.WsAssignGrouperPrivilegesResult;
-import edu.internet2.middleware.grouper.ws.soap.WsAssignGrouperPrivilegesResults;
-import edu.internet2.middleware.grouper.ws.soap.WsAssignPermissionsLiteResults;
-import edu.internet2.middleware.grouper.ws.soap.WsAssignPermissionsResults;
-import edu.internet2.middleware.grouper.ws.soap.WsAttributeAssignLookup;
-import edu.internet2.middleware.grouper.ws.soap.WsAttributeAssignValue;
-import edu.internet2.middleware.grouper.ws.soap.WsAttributeDefLookup;
-import edu.internet2.middleware.grouper.ws.soap.WsAttributeDefNameLookup;
-import edu.internet2.middleware.grouper.ws.soap.WsDeleteMemberLiteResult;
-import edu.internet2.middleware.grouper.ws.soap.WsDeleteMemberResult;
-import edu.internet2.middleware.grouper.ws.soap.WsDeleteMemberResults;
-import edu.internet2.middleware.grouper.ws.soap.WsFindGroupsResults;
-import edu.internet2.middleware.grouper.ws.soap.WsFindStemsResults;
-import edu.internet2.middleware.grouper.ws.soap.WsGetAttributeAssignmentsResults;
-import edu.internet2.middleware.grouper.ws.soap.WsGetGrouperPrivilegesLiteResult;
-import edu.internet2.middleware.grouper.ws.soap.WsGetGroupsLiteResult;
-import edu.internet2.middleware.grouper.ws.soap.WsGetGroupsResult;
-import edu.internet2.middleware.grouper.ws.soap.WsGetGroupsResults;
-import edu.internet2.middleware.grouper.ws.soap.WsGetMembersLiteResult;
-import edu.internet2.middleware.grouper.ws.soap.WsGetMembersResult;
-import edu.internet2.middleware.grouper.ws.soap.WsGetMembersResults;
-import edu.internet2.middleware.grouper.ws.soap.WsGetMembershipsResults;
-import edu.internet2.middleware.grouper.ws.soap.WsGetPermissionAssignmentsResults;
-import edu.internet2.middleware.grouper.ws.soap.WsGetSubjectsResults;
-import edu.internet2.middleware.grouper.ws.soap.WsGroup;
-import edu.internet2.middleware.grouper.ws.soap.WsGroupDeleteLiteResult;
-import edu.internet2.middleware.grouper.ws.soap.WsGroupDeleteResult;
-import edu.internet2.middleware.grouper.ws.soap.WsGroupDeleteResults;
-import edu.internet2.middleware.grouper.ws.soap.WsGroupLookup;
-import edu.internet2.middleware.grouper.ws.soap.WsGroupSaveLiteResult;
-import edu.internet2.middleware.grouper.ws.soap.WsGroupSaveResult;
-import edu.internet2.middleware.grouper.ws.soap.WsGroupSaveResults;
-import edu.internet2.middleware.grouper.ws.soap.WsGroupToSave;
-import edu.internet2.middleware.grouper.ws.soap.WsGrouperPrivilegeResult;
-import edu.internet2.middleware.grouper.ws.soap.WsHasMemberLiteResult;
-import edu.internet2.middleware.grouper.ws.soap.WsHasMemberResult;
-import edu.internet2.middleware.grouper.ws.soap.WsHasMemberResults;
-import edu.internet2.middleware.grouper.ws.soap.WsMemberChangeSubject;
-import edu.internet2.middleware.grouper.ws.soap.WsMemberChangeSubjectLiteResult;
-import edu.internet2.middleware.grouper.ws.soap.WsMemberChangeSubjectResult;
-import edu.internet2.middleware.grouper.ws.soap.WsMemberChangeSubjectResults;
-import edu.internet2.middleware.grouper.ws.soap.WsMembershipAnyLookup;
-import edu.internet2.middleware.grouper.ws.soap.WsMembershipLookup;
-import edu.internet2.middleware.grouper.ws.soap.WsParam;
-import edu.internet2.middleware.grouper.ws.soap.WsQueryFilter;
-import edu.internet2.middleware.grouper.ws.soap.WsStem;
-import edu.internet2.middleware.grouper.ws.soap.WsStemDeleteLiteResult;
-import edu.internet2.middleware.grouper.ws.soap.WsStemDeleteResult;
-import edu.internet2.middleware.grouper.ws.soap.WsStemDeleteResults;
-import edu.internet2.middleware.grouper.ws.soap.WsStemLookup;
-import edu.internet2.middleware.grouper.ws.soap.WsStemQueryFilter;
-import edu.internet2.middleware.grouper.ws.soap.WsStemSaveLiteResult;
-import edu.internet2.middleware.grouper.ws.soap.WsStemSaveResult;
-import edu.internet2.middleware.grouper.ws.soap.WsStemSaveResults;
-import edu.internet2.middleware.grouper.ws.soap.WsStemToSave;
-import edu.internet2.middleware.grouper.ws.soap.WsSubject;
-import edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup;
-import edu.internet2.middleware.grouper.ws.soap.WsAddMemberResult.WsAddMemberResultCode;
-import edu.internet2.middleware.grouper.ws.soap.WsAddMemberResults.WsAddMemberResultsCode;
-import edu.internet2.middleware.grouper.ws.soap.WsAssignGrouperPrivilegesResult.WsAssignGrouperPrivilegesResultCode;
-import edu.internet2.middleware.grouper.ws.soap.WsAssignGrouperPrivilegesResults.WsAssignGrouperPrivilegesResultsCode;
-import edu.internet2.middleware.grouper.ws.soap.WsDeleteMemberResult.WsDeleteMemberResultCode;
-import edu.internet2.middleware.grouper.ws.soap.WsFindGroupsResults.WsFindGroupsResultsCode;
-import edu.internet2.middleware.grouper.ws.soap.WsFindStemsResults.WsFindStemsResultsCode;
-import edu.internet2.middleware.grouper.ws.soap.WsGetAttributeAssignmentsResults.WsGetAttributeAssignmentsResultsCode;
-import edu.internet2.middleware.grouper.ws.soap.WsGetGrouperPrivilegesLiteResult.WsGetGrouperPrivilegesLiteResultCode;
-import edu.internet2.middleware.grouper.ws.soap.WsGetMembershipsResults.WsGetMembershipsResultsCode;
-import edu.internet2.middleware.grouper.ws.soap.WsGetPermissionAssignmentsResults.WsGetPermissionAssignmentsResultsCode;
-import edu.internet2.middleware.grouper.ws.soap.WsGetSubjectsResults.WsGetSubjectsResultsCode;
-import edu.internet2.middleware.grouper.ws.soap.WsGroupDeleteResult.WsGroupDeleteResultCode;
-import edu.internet2.middleware.grouper.ws.soap.WsGroupLookup.GroupFindResult;
-import edu.internet2.middleware.grouper.ws.soap.WsGroupSaveResult.WsGroupSaveResultCode;
-import edu.internet2.middleware.grouper.ws.soap.WsHasMemberResult.WsHasMemberResultCode;
-import edu.internet2.middleware.grouper.ws.soap.WsMemberChangeSubjectResult.WsMemberChangeSubjectResultCode;
-import edu.internet2.middleware.grouper.ws.soap.WsStemDeleteResult.WsStemDeleteResultCode;
-import edu.internet2.middleware.grouper.ws.soap.WsStemLookup.StemFindResult;
-import edu.internet2.middleware.grouper.ws.soap.WsStemSaveResult.WsStemSaveResultCode;
-import edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup.MemberFindResult;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
 import edu.internet2.middleware.grouper.ws.util.GrouperWsVersionUtils;
 import edu.internet2.middleware.subject.Source;
@@ -1531,6 +1533,8 @@ public class GrouperServiceLogic {
     String theSummary = null;
     try {
   
+      GrouperWsVersionUtils.assignCurrentClientVersion(clientVersion, wsGetMembershipsResults.getResponseMetadata().warnings());
+
       theSummary = "clientVersion: " + clientVersion + ", wsGroupLookups: "
           + GrouperUtil.toStringForLog(wsGroupLookups, 200) + ", wsMemberFilter: " + wsMemberFilter
           + ", includeSubjectDetail: " + includeSubjectDetail + ", actAsSubject: "
@@ -4181,6 +4185,8 @@ public class GrouperServiceLogic {
       String theSummary = null;
       try {
     
+        GrouperWsVersionUtils.assignCurrentClientVersion(clientVersion, wsGetSubjectsResults.getResponseMetadata().warnings());
+
         theSummary = "clientVersion: " + clientVersion + ", wsSubjectLookups: "
             + GrouperUtil.toStringForLog(wsSubjectLookups, 200) + ", searchString: '" + searchString + "'" 
             + ", wsMemberFilter: " + wsMemberFilter
@@ -5097,6 +5103,8 @@ public class GrouperServiceLogic {
     String theSummary = null;
     try {
   
+      GrouperWsVersionUtils.assignCurrentClientVersion(clientVersion, wsGetAttributeAssignmentsResults.getResponseMetadata().warnings());
+
       theSummary = "clientVersion: " + clientVersion+ ", attributeAssignType: " + attributeAssignType 
           + ", wsAttributeDefLookups: "
           + GrouperUtil.toStringForLog(wsAttributeDefLookups, 200) 
@@ -5509,6 +5517,8 @@ public class GrouperServiceLogic {
     String theSummary = null;
     try {
   
+      GrouperWsVersionUtils.assignCurrentClientVersion(clientVersion, wsAssignAttributesResults.getResponseMetadata().warnings());
+
       theSummary = "clientVersion: " + clientVersion+ ", attributeAssignType: " + attributeAssignType 
           + ", attributeAssignOperation: " + attributeAssignOperation
           + ", attributeAssignValues: " + GrouperUtil.toStringForLog(values, 200)
@@ -5552,7 +5562,7 @@ public class GrouperServiceLogic {
           wsOwnerAttributeDefLookups, wsOwnerAttributeAssignLookups, actions,
           includeSubjectDetail, subjectAttributeNames, includeGroupDetail,
           wsAssignAttributesResults, session, params, null, null, 
-          attributeDefsToReplace, actionsToReplace, attributeDefTypesToReplace);
+          attributeDefsToReplace, actionsToReplace, attributeDefTypesToReplace, false);
 
         
     } catch (Exception e) {
@@ -5772,6 +5782,19 @@ public class GrouperServiceLogic {
    *            will be done at a single point in time rather than a range.  If this is specified but 
    *            pointInTimeFrom is not specified, then the point in time query range will be from the 
    *            minimum point in time to the time specified.
+   * @param immediateOnly T of F (defaults to F) if we should filter out non immediate permissions
+   * @param permissionType are we looking for role permissions or subject permissions?  from
+   * enum PermissionType: role, or role_subject.  defaults to role_subject permissions
+   * @param permissionProcessor if we should find the best answer, or process limits, etc.  From the enum
+   * PermissionProcessor.  example values are: FILTER_REDUNDANT_PERMISSIONS, 
+   * FILTER_REDUNDANT_PERMISSIONS_AND_PROCESS_LIMITS, FILTER_REDUNDANT_PERMISSIONS_AND_ROLES,
+   * FILTER_REDUNDANT_PERMISSIONS_AND_ROLES_AND_PROCESS_LIMITS, PROCESS_LIMITS
+   * @param limitEnvVars limitEnvVars if processing limits, pass in a set of limits.  The name is the
+   * name of the variable, and the value is the value.  Note, you can typecast the
+   * values by putting a valid type in parens in front of the param name.  e.g.
+   * name: (int)amount, value: 50
+   * @param includeLimits T or F (default to F) for if limits should be returned with the results.
+   * Note that the attributeDefs, attributeDefNames, and attributeAssignments will be added to those lists
    * @return the results
    */
   @SuppressWarnings("unchecked")
@@ -5783,7 +5806,9 @@ public class GrouperServiceLogic {
       boolean includeAttributeDefNames, boolean includeAttributeAssignments,
       boolean includeAssignmentsOnAssignments, WsSubjectLookup actAsSubjectLookup, boolean includeSubjectDetail,
       String[] subjectAttributeNames, boolean includeGroupDetail, WsParam[] params, 
-      String enabled, Timestamp pointInTimeFrom, Timestamp pointInTimeTo) {  
+      String enabled, Timestamp pointInTimeFrom, Timestamp pointInTimeTo, boolean immediateOnly,
+      PermissionType permissionType, PermissionProcessor permissionProcessor, WsPermissionEnvVar[] limitEnvVars,
+      boolean includeLimits) {  
   
     WsGetPermissionAssignmentsResults wsGetPermissionAssignmentsResults = new WsGetPermissionAssignmentsResults();
   
@@ -5793,6 +5818,8 @@ public class GrouperServiceLogic {
 
     try {
   
+      GrouperWsVersionUtils.assignCurrentClientVersion(clientVersion, wsGetPermissionAssignmentsResults.getResponseMetadata().warnings());
+
       theSummary = "clientVersion: " + clientVersion 
           + ", wsAttributeDefLookups: "
           + GrouperUtil.toStringForLog(wsAttributeDefLookups, 200) 
@@ -5810,8 +5837,11 @@ public class GrouperServiceLogic {
           + "\n, params: " + GrouperUtil.toStringForLog(params, 100) + "\n, wsSubjectLookups: "
           + GrouperUtil.toStringForLog(wsSubjectLookups, 200) 
           + ", enabled: " + enabled
-          + "\n, pointInTimeFrom: " + pointInTimeFrom + ", pointInTimeTo: " + pointInTimeTo;
-  
+          + "\n pointInTimeFrom: " + pointInTimeFrom + ", pointInTimeTo: " + pointInTimeTo
+          + "\n immediateOnly: " + immediateOnly + ", permissionType: " + permissionType
+          + ", permissionProcessor: " + permissionProcessor + "\n limitEnvVars: "
+          + GrouperUtil.toStringForLog(limitEnvVars, 100) + "\n includeLimits: " + includeLimits;
+
       //start session based on logged in user or the actAs passed in
       session = GrouperServiceUtils.retrieveGrouperSession(actAsSubjectLookup);
   
@@ -5828,6 +5858,14 @@ public class GrouperServiceLogic {
       @SuppressWarnings("unused")
       Map<String, String> paramMap = GrouperServiceUtils.convertParamsToMap(
           params);
+      
+      Map<String, Object> limitEnvMap = GrouperServiceUtils.convertLimitsToMap(
+          limitEnvVars);
+      
+      //role_subject permission type is the default
+      if (permissionType == null) {
+        permissionType = PermissionType.role_subject;
+      }
       
       //this is for error checking
       
@@ -5871,26 +5909,56 @@ public class GrouperServiceLogic {
         throw new WsInvalidQueryException("Cannot search for disabled memberships for point in time queries.");
       }
       
-      if (!usePIT) {
-        Set<PermissionEntry> results = GrouperDAOFactory.getFactory().getPermissionEntry().findPermissions(
-            attributeDefIds, attributeDefNameIds, roleIds, actionsCollection, enabledBoolean, memberIds);
-  
-        wsGetPermissionAssignmentsResults.assignResult(results, subjectAttributeNames, includePermissionAssignDetail);
-      } else {
-        Set<PITPermissionAllView> results = GrouperDAOFactory.getFactory().getPITPermissionAllView().findPermissions(
-            attributeDefIds, attributeDefNameIds, roleIds, actionsCollection, memberIds, pointInTimeFrom, pointInTimeTo);
-  
-        wsGetPermissionAssignmentsResults.assignPITResult(results, subjectAttributeNames, includePermissionAssignDetail);
+      if (usePIT && includeLimits) {
+        throw new WsInvalidQueryException("Cannot search for disabled memberships for point in time queries.");
       }
-        
+      
+      PermissionFinder permissionFinder = new PermissionFinder().assignPermissionDefIds(attributeDefIds)
+        .assignPermissionNameIds(attributeDefNameIds).assignRoleIds(roleIds)
+        .assignActions(actionsCollection).assignEnabled(enabledBoolean)
+        .assignMemberIds(memberIds).assignImmediateOnly(immediateOnly)
+        .assignLimitEnvVars(limitEnvMap).assignPermissionType(permissionType)
+        .assignPermissionProcessor(permissionProcessor).assignPointInTimeFrom(pointInTimeFrom)
+        .assignPointInTimeTo(pointInTimeTo);
+
+      Set<PermissionEntry> results = null;
+      Map<PermissionEntry, Set<PermissionLimitBean>> permissionLimitMap = null;
+      if (includeLimits) {
+        permissionLimitMap = permissionFinder.findPermissionsAndLimits();
+        results = permissionLimitMap.keySet();
+      } else {
+        results = permissionFinder.findPermissions();
+      }
+
+      permissionLimitMap = GrouperUtil.nonNull(permissionLimitMap);
+
+      wsGetPermissionAssignmentsResults.assignResult(results, permissionLimitMap, 
+          subjectAttributeNames, includePermissionAssignDetail);
+
       if (includeAttributeAssignments) {
         wsGetPermissionAssignmentsResults.fillInAttributeAssigns(usePIT, pointInTimeFrom, pointInTimeTo,
             includeAssignmentsOnAssignments, enabledBoolean);
       }
       
+      //get the limit attribute assigns to fill in other objects
+      for (Set<PermissionLimitBean> permissionLimitBeanSet : permissionLimitMap.values()) {
+        for (PermissionLimitBean permissionLimitBean : GrouperUtil.nonNull(permissionLimitBeanSet)) {
+          AttributeAssign attributeAssign = permissionLimitBean.getLimitAssign();
+          if (!attributeDefNameIds.contains(attributeAssign.getAttributeDefNameId())) {
+            attributeDefNameIds.add(attributeAssign.getAttributeDefNameId());
+            attributeDefIds.add(attributeAssign.getAttributeDef().getId());
+          }
+          if (!StringUtils.isBlank(attributeAssign.getOwnerGroupId())) {
+            roleIds.add(attributeAssign.getOwnerGroupId());
+          }
+          //TODO add subjects?
+        }
+      }
+      
       if (includeAttributeDefNames) {
         wsGetPermissionAssignmentsResults.fillInAttributeDefNames(usePIT, attributeDefNameIds);
       }
+
       
       wsGetPermissionAssignmentsResults.fillInAttributeDefs(usePIT, attributeDefIds);
       
@@ -5970,6 +6038,24 @@ public class GrouperServiceLogic {
    *            will be done at a single point in time rather than a range.  If this is specified but 
    *            pointInTimeFrom is not specified, then the point in time query range will be from the 
    *            minimum point in time to the time specified.
+   * @param immediateOnly T of F (defaults to F) if we should filter out non immediate permissions
+   * @param permissionType are we looking for role permissions or subject permissions?  from
+   * enum PermissionType: role, or role_subject.  defaults to role_subject permissions
+   * @param permissionProcessor if we should find the best answer, or process limits, etc.  From the enum
+   * PermissionProcessor.  example values are: FILTER_REDUNDANT_PERMISSIONS, 
+   * FILTER_REDUNDANT_PERMISSIONS_AND_PROCESS_LIMITS, FILTER_REDUNDANT_PERMISSIONS_AND_ROLES,
+   * FILTER_REDUNDANT_PERMISSIONS_AND_ROLES_AND_PROCESS_LIMITS, PROCESS_LIMITS
+   * @param limitEnvVarName0 limitEnvVars if processing limits, pass in a set of limits.  The name is the
+   * name of the variable, and the value is the value.  Note, you can typecast the
+   * values by putting a valid type in parens in front of the param name.  e.g.
+   * name: (int)amount, value: 50
+   * @param limitEnvVarValue0 first limit env var value
+   * @param limitEnvVarType0 first limit env var type
+   * @param limitEnvVarName1 second limit env var name
+   * @param limitEnvVarValue1 second limit env var value
+   * @param limitEnvVarType1 second limit env var type
+   * @param includeLimits T or F (default to F) for if limits should be returned with the results.
+   * Note that the attributeDefs, attributeDefNames, and attributeAssignments will be added to those lists
    * @return the results
    */
   @SuppressWarnings("unchecked")
@@ -5983,9 +6069,12 @@ public class GrouperServiceLogic {
       boolean includeAssignmentsOnAssignments, String actAsSubjectId, String actAsSubjectSourceId,
       String actAsSubjectIdentifier, boolean includeSubjectDetail,
       String subjectAttributeNames, boolean includeGroupDetail, String paramName0, String paramValue0,
-      String paramName1, String paramValue1, String enabled, Timestamp pointInTimeFrom, Timestamp pointInTimeTo) {  
-    
-    
+      String paramName1, String paramValue1, String enabled, Timestamp pointInTimeFrom, Timestamp pointInTimeTo,
+      boolean immediateOnly,
+      PermissionType permissionType, PermissionProcessor permissionProcessor, 
+      String limitEnvVarName0, String limitEnvVarValue0, 
+      String limitEnvVarType0, String limitEnvVarName1, String limitEnvVarValue1, String limitEnvVarType1, 
+      boolean includeLimits) {  
     
     WsAttributeDefLookup[] wsAttributeDefLookups = null;
     if (!StringUtils.isBlank(wsAttributeDefName) || !StringUtils.isBlank(wsAttributeDefId)) {
@@ -6006,24 +6095,30 @@ public class GrouperServiceLogic {
     if (!StringUtils.isBlank(wsSubjectId) || !StringUtils.isBlank(wsSubjectSourceId) || !StringUtils.isBlank(wsSubjectIdentifier)) {
       wsSubjectLookups = new WsSubjectLookup[]{new WsSubjectLookup(wsSubjectId, wsSubjectSourceId, wsSubjectIdentifier)};
     }
-    
+
     WsSubjectLookup actAsSubjectLookup = WsSubjectLookup.createIfNeeded(actAsSubjectId,
         actAsSubjectSourceId, actAsSubjectIdentifier);
-    
+
     String[] actions = null;
     if (!StringUtils.isBlank(action)) {
       actions = new String[]{action};
     }
-    
+
     String[] subjectAttributeArray = GrouperUtil.splitTrim(subjectAttributeNames, ",");
-    
+
     WsParam[] params = GrouperServiceUtils.params(paramName0, paramValue0, paramName0, paramName1);
-  
-    WsGetPermissionAssignmentsResults wsGetPermissionAssignmentsResults = getPermissionAssignments(clientVersion, wsAttributeDefLookups, wsAttributeDefNameLookups, roleLookups, 
-        wsSubjectLookups, actions, includePermissionAssignDetail, includeAttributeDefNames, includeAttributeAssignments, includeAssignmentsOnAssignments, 
+
+    WsPermissionEnvVar[] limitEnvVars = GrouperServiceUtils.limitEnvVars(limitEnvVarName0, 
+        limitEnvVarValue0, limitEnvVarType0, limitEnvVarName1, limitEnvVarValue1, limitEnvVarType1);
+
+    WsGetPermissionAssignmentsResults wsGetPermissionAssignmentsResults = getPermissionAssignments(clientVersion, 
+        wsAttributeDefLookups, wsAttributeDefNameLookups, roleLookups, 
+        wsSubjectLookups, actions, includePermissionAssignDetail, includeAttributeDefNames, includeAttributeAssignments, 
+        includeAssignmentsOnAssignments, 
         actAsSubjectLookup, includeSubjectDetail, subjectAttributeArray, includeGroupDetail, 
-        params, enabled, pointInTimeFrom, pointInTimeTo);
-    
+        params, enabled, pointInTimeFrom, pointInTimeTo, immediateOnly, permissionType, 
+        permissionProcessor, limitEnvVars, includeLimits);
+
     return wsGetPermissionAssignmentsResults;
   }
 
@@ -6054,6 +6149,7 @@ public class GrouperServiceLogic {
    * are the related attributeDefs, if blank, then just do all
    * @param actionsToReplace if replacing attributeDefNames, then these are the
    * related actions, if blank, then just do all
+   * @param disallowed is disallowed
    * @return the results
    */
   @SuppressWarnings("unchecked")
@@ -6068,7 +6164,8 @@ public class GrouperServiceLogic {
       WsMembershipAnyLookup[] subjectRoleLookups, 
       String[] actions, WsSubjectLookup actAsSubjectLookup, boolean includeSubjectDetail,
       String[] subjectAttributeNames, boolean includeGroupDetail, WsParam[] params,
-      WsAttributeDefLookup[] attributeDefsToReplace, String[] actionsToReplace) {  
+      WsAttributeDefLookup[] attributeDefsToReplace, String[] actionsToReplace, 
+      Boolean disallowed) {  
   
     WsAssignAttributesResults wsAssignAttributesResults = new WsAssignAttributesResults();
   
@@ -6076,6 +6173,8 @@ public class GrouperServiceLogic {
     String theSummary = null;
     try {
   
+      GrouperWsVersionUtils.assignCurrentClientVersion(clientVersion, wsAssignAttributesResults.getResponseMetadata().warnings());
+
       theSummary = "clientVersion: " + clientVersion+ ", permissionType: " + permissionType 
           + ", permissionAssignOperation: " + permissionAssignOperation
           + ", wsAttributeAssignLookups: " + GrouperUtil.toStringForLog(wsAttributeAssignLookups, 200)
@@ -6090,7 +6189,8 @@ public class GrouperServiceLogic {
           + GrouperUtil.toStringForLog(subjectAttributeNames) + "\n, paramNames: "
           + "\n, params: " + GrouperUtil.toStringForLog(params, 100)
           + "\n, attributeDefsToReplace: " + GrouperUtil.toStringForLog(attributeDefsToReplace, 200)
-          + "\n, actionsToReplace: " + GrouperUtil.toStringForLog(actionsToReplace, 200);
+          + "\n, actionsToReplace: " + GrouperUtil.toStringForLog(actionsToReplace, 200)
+          + "\n, disallowed: " + disallowed;
   
       //start session based on logged in user or the actAs passed in
       session = GrouperServiceUtils.retrieveGrouperSession(actAsSubjectLookup);
@@ -6115,7 +6215,7 @@ public class GrouperServiceLogic {
           delegatable, null, wsAttributeAssignLookups, roleLookups, null, null, null, subjectRoleLookups, 
           null,null, actions, includeSubjectDetail, subjectAttributeNames, includeGroupDetail, 
           wsAssignAttributesResults, session, params, TypeOfGroup.role, AttributeDefType.perm,
-          attributeDefsToReplace, actionsToReplace, attributeDefTypesToReplace);
+          attributeDefsToReplace, actionsToReplace, attributeDefTypesToReplace, disallowed);
       
     } catch (Exception e) {
       wsAssignAttributesResults.assignResultCodeException(null, theSummary, e);
@@ -6161,6 +6261,7 @@ public class GrouperServiceLogic {
    * @param paramValue0 optional: reserved for future use
    * @param paramName1 optional: reserved for future use
    * @param paramValue1 optional: reserved for future use
+   * @param disallowed if the assignment is a disallow
    * @return the results
    */
   @SuppressWarnings("unchecked")
@@ -6176,7 +6277,7 @@ public class GrouperServiceLogic {
       String subjectRoleSubjectId, String subjectRoleSubjectSourceId, String subjectRoleSubjectIdentifier, 
       String action, String actAsSubjectId, String actAsSubjectSourceId, String actAsSubjectIdentifier, boolean includeSubjectDetail,
       String subjectAttributeNames, boolean includeGroupDetail, String paramName0, String paramValue0,
-      String paramName1, String paramValue1) {  
+      String paramName1, String paramValue1, Boolean disallowed) {  
 
     WsAttributeDefLookup[] attributeDefsToReplace = null; 
 
@@ -6233,7 +6334,7 @@ public class GrouperServiceLogic {
         assignmentDisabledTime, delegatable, attributeAssignLookups, roleLookups, subjectRoleLookups, 
         actions, 
         actAsSubjectLookup, includeSubjectDetail, subjectAttributeArray, includeGroupDetail, 
-        params, attributeDefsToReplace, actionsToReplace );
+        params, attributeDefsToReplace, actionsToReplace, disallowed);
     
     WsAssignPermissionsLiteResults wsAssignPermissionsLiteResults = new WsAssignPermissionsLiteResults(wsAssignPermissionsResults);
     

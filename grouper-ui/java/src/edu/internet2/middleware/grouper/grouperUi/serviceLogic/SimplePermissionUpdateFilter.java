@@ -545,12 +545,12 @@ public class SimplePermissionUpdateFilter {
       GrouperUiUtils.printToScreen(xmlBuilder.toString(), HttpContentType.TEXT_XML, false, false);
   
     } catch (Exception se) {
-      LOG.error("Error searching for permission resource: '" + searchTerm + "', " + se.getMessage(), se);
+      LOG.error("Error searching for action: '" + searchTerm + "', " + se.getMessage(), se);
       
       //dont rethrow or the control will get confused
       StringBuilder xmlBuilder = new StringBuilder(GrouperUiUtils.DHTMLX_OPTIONS_START);
       GrouperUiUtils.dhtmlxOptionAppend(xmlBuilder, null, 
-          GrouperUiUtils.escapeHtml("Error searching for permission resources: " + searchTerm + ", " + se.getMessage(), true), null);
+          GrouperUiUtils.escapeHtml("Error searching for action: " + searchTerm + ", " + se.getMessage(), true), null);
       xmlBuilder.append(GrouperUiUtils.DHTMLX_OPTIONS_END);
       GrouperUiUtils.printToScreen(xmlBuilder.toString(), HttpContentType.TEXT_XML, false, false);
     } finally {
@@ -560,6 +560,179 @@ public class SimplePermissionUpdateFilter {
     //dont print the regular JSON
     throw new ControllerDone();
       
+  }
+
+  /**
+   * filter permission limit names to pick one to assign
+   * @param httpServletRequest
+   * @param httpServletResponse
+   */
+  public void filterLimitNames(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
+  
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+  
+    String searchTerm = httpServletRequest.getParameter("mask");
+  
+    try {
+      grouperSession = GrouperSession.start(loggedInSubject);
+        
+      String attributeDefIdParam = httpServletRequest.getParameter("permissionAddLimitDef");
+      
+      String attributeDefId = null;
+      
+      StringBuilder xmlBuilder = new StringBuilder(GrouperUiUtils.DHTMLX_OPTIONS_START);
+      
+      boolean foundError = false;
+      if (!StringUtils.isBlank(attributeDefIdParam)) {
+        
+        try {
+          AttributeDef attributeDef = AttributeDefFinder.findById(attributeDefIdParam, true);
+          attributeDefId = attributeDef.getId();
+        } catch (Exception e) {
+          //this is ok, just not found
+          LOG.debug(e.getMessage(), e);
+          GrouperUiUtils.dhtmlxOptionAppend(xmlBuilder, "", 
+              GrouperUiUtils.message("simplePermissionUpdate.errorCantFindAttributeDef", false), "bullet_error.png");
+          foundError = true;
+        }
+      }
+      
+      if (!foundError) {
+        Set<AttributeDefName> attributeDefNames = null;
+        
+        QueryOptions queryOptions = null;
+        
+        if (StringUtils.defaultString(searchTerm).length() < 2) {
+          GrouperUiUtils.dhtmlxOptionAppend(xmlBuilder, "", 
+              GrouperUiUtils.message("simplePermissionUpdate.errorNotEnoughChars", false), "bullet_error.png");
+        } else {
+          queryOptions = new QueryOptions()
+            .paging(TagUtils.mediaResourceInt("simplePermissionUpdate.permissionResourceComboboxResultSize", 200), 1, true)
+            .sortAsc("theAttributeDefName.displayNameDb");
+          attributeDefNames = GrouperDAOFactory.getFactory().getAttributeDefName().findAllAttributeNamesSplitScopeSecure(
+              searchTerm, grouperSession, attributeDefId, loggedInSubject, 
+              GrouperUtil.toSet(AccessPrivilege.ADMIN, AccessPrivilege.UPDATE), queryOptions, null, AttributeDefType.limit);
+          
+          if (GrouperUtil.length(attributeDefNames) == 0) {
+            GrouperUiUtils.dhtmlxOptionAppend(xmlBuilder, "", 
+                GrouperUiUtils.message("simplePermissionUpdate.errorNoPermissionResourcesFound", false), "bullet_error.png");
+          }
+        }
+        
+        for (AttributeDefName attributeDefName : GrouperUtil.nonNull(attributeDefNames)) {
+    
+          String value = attributeDefName.getId();
+          String label = GrouperUiUtils.escapeHtml(attributeDefName.getDisplayName(), true);
+          //application image
+          String imageName = GrouperUiUtils.imageFromSubjectSource("g:isa");
+    
+          GrouperUiUtils.dhtmlxOptionAppend(xmlBuilder, value, label, imageName);
+        }
+    
+        //add one more for more options if we didnt get them all
+        if (queryOptions != null && queryOptions.getCount() != null 
+            && attributeDefNames != null && queryOptions.getCount() > attributeDefNames.size()) {
+          GrouperUiUtils.dhtmlxOptionAppend(xmlBuilder, "", 
+              GrouperUiUtils.message("simplePermissionUpdate.errorTooManyPermissionResources", false), "bullet_error.png");
+        }
+      }      
+      
+      xmlBuilder.append(GrouperUiUtils.DHTMLX_OPTIONS_END);
+      
+      GrouperUiUtils.printToScreen(xmlBuilder.toString(), HttpContentType.TEXT_XML, false, false);
+  
+    } catch (Exception se) {
+      LOG.error("Error searching for limit resource: '" + searchTerm + "', " + se.getMessage(), se);
+      
+      //dont rethrow or the control will get confused
+      StringBuilder xmlBuilder = new StringBuilder(GrouperUiUtils.DHTMLX_OPTIONS_START);
+      GrouperUiUtils.dhtmlxOptionAppend(xmlBuilder, null, 
+          GrouperUiUtils.escapeHtml("Error searching for limit resources: " + searchTerm + ", " + se.getMessage(), true), null);
+      xmlBuilder.append(GrouperUiUtils.DHTMLX_OPTIONS_END);
+      GrouperUiUtils.printToScreen(xmlBuilder.toString(), HttpContentType.TEXT_XML, false, false);
+    } finally {
+      GrouperSession.stopQuietly(grouperSession); 
+    }
+  
+    //dont print the regular JSON
+    throw new ControllerDone();
+      
+  }
+
+  /**
+   * filter limit defs to pick one to edit for permission type
+   * @param httpServletRequest
+   * @param httpServletResponse
+   */
+  public void filterLimitDefinitions(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+  
+    String searchTerm = httpServletRequest.getParameter("mask");
+  
+    try {
+      grouperSession = GrouperSession.start(loggedInSubject);
+            
+      Set<AttributeDef> attributeDefs = null;
+      
+      StringBuilder xmlBuilder = new StringBuilder(GrouperUiUtils.DHTMLX_OPTIONS_START);
+  
+      QueryOptions queryOptions = null;
+      
+      if (StringUtils.defaultString(searchTerm).length() < 2) {
+        GrouperUiUtils.dhtmlxOptionAppend(xmlBuilder, "", 
+            GrouperUiUtils.message("simplePermissionUpdate.errorNotEnoughChars", false), "bullet_error.png");
+      } else {
+        queryOptions = new QueryOptions().paging(TagUtils.mediaResourceInt("simplePermissionUpdate.attributeDefComboboxResultSize", 200), 1, true).sortAsc("theAttributeDef.nameDb");
+        attributeDefs = GrouperDAOFactory.getFactory().getAttributeDef().getAllAttributeDefsSplitScopeSecure(searchTerm, grouperSession, loggedInSubject, 
+            GrouperUtil.toSet(AccessPrivilege.ADMIN, AccessPrivilege.UPDATE), queryOptions, null, AttributeDefType.limit);
+        
+        if (GrouperUtil.length(attributeDefs) == 0) {
+          GrouperUiUtils.dhtmlxOptionAppend(xmlBuilder, "", 
+              GrouperUiUtils.message("simplePermissionUpdate.errorNoAttributeDefsFound", false), "bullet_error.png");
+        }
+      }
+      
+      for (AttributeDef attributeDef : GrouperUtil.nonNull(attributeDefs)) {
+  
+        String value = attributeDef.getId();
+        String label = GrouperUiUtils.escapeHtml(attributeDef.getName(), true);
+        String imageName = GrouperUiUtils.imageFromSubjectSource("g:isa");
+  
+        GrouperUiUtils.dhtmlxOptionAppend(xmlBuilder, value, label, imageName);
+      }
+  
+      //add one more for more options if we didnt get them all
+      if (queryOptions != null && queryOptions.getCount() != null 
+          && attributeDefs != null && queryOptions.getCount() > attributeDefs.size()) {
+        GrouperUiUtils.dhtmlxOptionAppend(xmlBuilder, "", 
+            GrouperUiUtils.message("simplePermissionUpdate.errorTooManyAttributeDefs", false), "bullet_error.png");
+      }
+      
+      
+      xmlBuilder.append(GrouperUiUtils.DHTMLX_OPTIONS_END);
+      
+      GrouperUiUtils.printToScreen(xmlBuilder.toString(), HttpContentType.TEXT_XML, false, false);
+  
+    } catch (Exception se) {
+      LOG.error("Error searching for attributeDef: '" + searchTerm + "', " + se.getMessage(), se);
+      
+      //dont rethrow or the control will get confused
+      StringBuilder xmlBuilder = new StringBuilder(GrouperUiUtils.DHTMLX_OPTIONS_START);
+      GrouperUiUtils.dhtmlxOptionAppend(xmlBuilder, null, 
+          GrouperUiUtils.escapeHtml("Error searching for attributeDefs: " + searchTerm + ", " + se.getMessage(), true), null);
+      xmlBuilder.append(GrouperUiUtils.DHTMLX_OPTIONS_END);
+      GrouperUiUtils.printToScreen(xmlBuilder.toString(), HttpContentType.TEXT_XML, false, false);
+    } finally {
+      GrouperSession.stopQuietly(grouperSession); 
+    }
+  
+    //dont print the regular JSON
+    throw new ControllerDone();
+  
   }
 
 

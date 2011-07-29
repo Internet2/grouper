@@ -8,6 +8,7 @@ import java.sql.Timestamp;
 import java.util.Collection;
 import java.util.Set;
 
+import edu.internet2.middleware.grouper.permissions.PermissionEntry;
 import edu.internet2.middleware.grouper.pit.PITPermissionAllView;
 
 /**
@@ -61,7 +62,7 @@ public interface PITPermissionAllViewDAO extends GrouperDAO {
    * @param pointInTimeTo
    * @return set
    */
-  public Set<PITPermissionAllView> findPermissions(Collection<String> attributeDefIds, Collection<String> attributeDefNameIds, 
+  public Set<PermissionEntry> findPermissions(Collection<String> attributeDefIds, Collection<String> attributeDefNameIds, 
       Collection<String> roleIds, Collection<String> actions, Collection<String> memberIds, Timestamp pointInTimeFrom, 
       Timestamp pointInTimeTo);
 }

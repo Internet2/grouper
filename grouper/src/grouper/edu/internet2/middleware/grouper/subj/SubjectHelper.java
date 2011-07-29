@@ -16,16 +16,20 @@
 */
 
 package edu.internet2.middleware.grouper.subj;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.collections.keyvalue.MultiKey;
 import org.apache.commons.lang.StringUtils;
 
+import edu.emory.mathcs.backport.java.util.Collections;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.internal.util.Quote;
 import edu.internet2.middleware.subject.Subject;
@@ -51,6 +55,34 @@ public class SubjectHelper {
   public static MultiKey convertToMultiKey(Subject subject) {
     MultiKey multiKey = new MultiKey(subject.getSourceId(), subject.getId());
     return multiKey;
+  }
+  
+  /**
+   * sort a set or list by subject description
+   * @param subjects
+   */
+  public static void sortByDescription(Collection<Subject> subjects) {
+    if (subjects == null) {
+      return;
+    }
+    if (!(subjects instanceof List<?>) && !(subjects instanceof LinkedHashSet<?>)) {
+      throw new RuntimeException("expecting LinkedHashSet or List: " + subjects.getClass().getName());
+    }
+    
+    List<Subject> subjectList = subjects instanceof List<?> ? (List<Subject>)subjects : new ArrayList<Subject>(subjects);
+    
+    Collections.sort(subjectList, new Comparator<Subject>() {
+
+      public int compare(Subject subject1, Subject subject2) {
+        return StringUtils.defaultString(subject1.getDescription()).compareTo(StringUtils.defaultString(subject2.getDescription()));
+      }
+    });
+    
+    if (subjects instanceof Set<?>) {
+      subjects.clear();
+      subjects.addAll(subjectList);
+    }
+    
   }
   
   /**

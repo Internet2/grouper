@@ -74,6 +74,7 @@ import org.apache.commons.collections.keyvalue.MultiKey;
 import org.apache.commons.jexl2.Expression;
 import org.apache.commons.jexl2.JexlContext;
 import org.apache.commons.jexl2.JexlEngine;
+import org.apache.commons.jexl2.JexlException;
 import org.apache.commons.jexl2.MapContext;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
@@ -95,6 +96,7 @@ import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.exception.ExpressionLanguageMissingVariableException;
 import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hooks.logic.HookVeto;
 import edu.internet2.middleware.grouper.misc.GrouperCloneable;
@@ -310,10 +312,30 @@ public class GrouperUtil {
     Map<String, String> map = new LinkedHashMap<String, String>();
     if (strings != null) {
       if (strings.length % 2 != 0) {
-        throw new RuntimeException("Must pass in an odd number of strings: " + strings.length);
+        throw new RuntimeException("Must pass in an even number of strings: " + strings.length);
       }
       for (int i=0;i<strings.length;i+=2) {
-        map.put(strings[i], strings[i+2]);
+        map.put(strings[i], strings[i+1]);
+      }
+    }
+    return map;
+  }
+  
+  /**
+   * turn some strings into a map
+   * @param stringObjects is an array of String,Object,String,Object etc where the 
+   * Strings are the key, and the Object is the value
+   * @return the map (never null)
+   */
+  public static Map<String, Object> toStringObjectMap(Object... stringObjects) {
+    Map<String, Object> map = new LinkedHashMap<String, Object>();
+    if (stringObjects != null) {
+      if (stringObjects.length % 2 != 0) {
+        throw new RuntimeException("Must pass in an even number of strings: " + stringObjects.length);
+      }
+      for (int i=0;i<stringObjects.length;i+=2) {
+        String key = (String)stringObjects[i];
+        map.put(key, stringObjects[i+1]);
       }
     }
     return map;
@@ -2143,6 +2165,27 @@ public class GrouperUtil {
     }
     return result;
   }
+  
+  /**
+   * return a list of objects from varargs.  Though if there is one
+   * object, and it is a list, return it.
+   * 
+   * @param <T>
+   *            template type of the objects
+   * @param objects
+   * @return the list or null if objects is null
+   */
+  public static List<Object> toListObject(Object... objects) {
+    if (objects == null) {
+      return null;
+    }
+    List<Object> result = new ArrayList<Object>();
+    for (Object object : objects) {
+      result.add(object);
+    }
+    return result;
+  }
+
 
   /**
    * convert classes to a list
@@ -3276,6 +3319,38 @@ public class GrouperUtil {
       methodNames.add(method.getName());
     }
     return methodNames;
+  }
+
+  /**
+   * simple method to get method names
+   * @param theClass
+   * @param methodName
+   * @param superclassToStopAt 
+   * @param includeSuperclassToStopAt 
+   * @param includeStaticMethods 
+   * @param exceptionIfNotFound 
+   * @return the set of method names
+   */
+  public static Method methodByName(Class<?> theClass, String methodName, Class<?> superclassToStopAt, 
+      boolean includeSuperclassToStopAt, boolean includeStaticMethods, boolean exceptionIfNotFound) {
+
+    Set<Method> methods = new LinkedHashSet<Method>();
+    methodsByNameHelper(theClass, methodName, superclassToStopAt, 
+        includeSuperclassToStopAt, includeStaticMethods, 
+        null, false, methods);
+    if (methods.size() > 1) {
+      throw new RuntimeException("There are more than one method with name " + methodName + " in class: " + theClass);
+    }
+    
+    if (methods.size() == 1) {
+      return methods.iterator().next();
+    }
+    
+    if (exceptionIfNotFound) {
+      throw new RuntimeException("Could not find method " + methodName + " in class: " + theClass);
+    }
+    
+    return null;
   }
 
   /**
@@ -8747,6 +8822,22 @@ public class GrouperUtil {
   @SuppressWarnings("unchecked")
   public static String substituteExpressionLanguage(String stringToParse, 
       Map<String, Object> variableMap, boolean allowStaticClasses, boolean silent) {
+    return substituteExpressionLanguage(stringToParse, variableMap, allowStaticClasses, silent, false);
+  }
+
+  /**
+   * substitute an EL for objects
+   * @param stringToParse
+   * @param variableMap
+   * @param allowStaticClasses if true allow static classes not registered with context
+   * @param silent if silent mode, swallow exceptions (warn), and dont warn when variable not found
+   * @param lenient false if undefined variables should throw an exception.  if lenient is true (default)
+   * then undefined variables are null
+   * @return the string
+   */
+  @SuppressWarnings("unchecked")
+  public static String substituteExpressionLanguage(String stringToParse, 
+      Map<String, Object> variableMap, boolean allowStaticClasses, boolean silent, boolean lenient) {
     if (GrouperUtil.isBlank(stringToParse)) {
       return stringToParse;
     }
@@ -8803,11 +8894,33 @@ public class GrouperUtil {
         
         JexlEngine jexlEngine = new JexlEngine();
         jexlEngine.setSilent(silent);
+        jexlEngine.setLenient(lenient);
+
         Expression e = jexlEngine.createExpression(script);
 
         //this is the result of the evaluation
-        Object o = e.evaluate(jc);
-  
+        Object o = null;
+        
+        try {
+          o = e.evaluate(jc);
+        } catch (JexlException je) {
+          //exception-scrape to see if missing variable
+          if (!lenient && StringUtils.trimToEmpty(je.getMessage()).contains("undefined variable")) {
+            //clean up the message a little bit
+            // e.g. edu.internet2.middleware.grouper.util.GrouperUtil.substituteExpressionLanguage@8846![0,6]: 'amount < 50000 && amount2 < 23;' undefined variable amount
+            String message = je.getMessage();
+            //Pattern exceptionPattern = Pattern.compile("^" + GrouperUtil.class.getName() + "\\.substituteExpressionLanguage.*?]: '(.*)");
+            Pattern exceptionPattern = Pattern.compile("^.*undefined variable (.*)");
+            Matcher exceptionMatcher = exceptionPattern.matcher(message);
+            if (exceptionMatcher.matches()) {
+              //message = "'" + exceptionMatcher.group(1);
+              message = "variable '" + exceptionMatcher.group(1) + "' is not defined in script: '" + script + "'";
+            }
+            throw new ExpressionLanguageMissingVariableException(message, je);
+          }
+          throw je;
+        }
+          
         if (o == null) {
           LOG.warn("expression returned null: " + script + ", in pattern: '" + stringToParse + "', available variables are: "
               + GrouperUtil.toStringForLog(variableMap.keySet()));
@@ -8827,6 +8940,9 @@ public class GrouperUtil {
     } catch (HookVeto hv) {
       throw hv;
     } catch (Exception e) {
+      if (e instanceof ExpressionLanguageMissingVariableException) {
+        throw (ExpressionLanguageMissingVariableException)e;
+      }
       throw new RuntimeException("Error substituting string: '" + stringToParse + "'", e);
     }
   }
@@ -10678,6 +10794,456 @@ public class GrouperUtil {
     }
     return propertiesOverrideMap;
   }
+
+  /**
+   * ^\s*\((.+)\)\s*([^\s]+)\s*$
+   * start, optional space, open paren, stuff inside, close parent, optional space, not space, optional space
+   */
+  private static Pattern typeCastTypePattern = Pattern.compile("^\\s*\\((.+)\\)\\s*([^\\s]+)\\s*$");
+  
+  /**
+   * process a string / string map and convert the values to a string/object map.
+   * @param limitEnvVars if processing limits, pass in a map of limits.  The name is the
+   * name of the variable, and the value is the value.  Note, you can typecast the
+   * values by putting a valid type in parens in front of the param name.  e.g.
+   * name: (integer)amount, value: 50         (will convert to long)
+   * name: (decimal)amount, value: 50.3   (will convert to double)
+   * name: (timestamp)amount, value: 2011/01/26 19:02:04   (will convert to date/timestamp)
+   * @return the map of string to object
+   */
+  public static Map<String, Object> typeCastStringStringMap(Map<String, Object> limitEnvVars) {
+    
+    Map<String, Object> result = new LinkedHashMap<String, Object>();
+    
+    if (GrouperUtil.length(limitEnvVars) == 0) {
+      return result;
+    }
+    
+    Matcher matcher = null;
+    
+    for (String key : limitEnvVars.keySet()) {
+      
+      Object value = limitEnvVars.get(key);
+      matcher = typeCastTypePattern.matcher(key);
+      if (value instanceof String && matcher.matches()) {
+        String type = StringUtils.trimToEmpty(matcher.group(1));
+        Object valueOriginal = value;
+        key = StringUtils.trimToEmpty(matcher.group(2));
+        try {
+          if (StringUtils.equalsIgnoreCase(type, "int") || StringUtils.equalsIgnoreCase(type, "integer")
+              || StringUtils.equalsIgnoreCase(type, "long")) {
+            value = GrouperUtil.longValue(value);
+          } else if (StringUtils.equalsIgnoreCase(type, "double") || StringUtils.equalsIgnoreCase(type, "float")
+              || StringUtils.equalsIgnoreCase(type, "decimal")) {
+            value = GrouperUtil.doubleValue(value);
+          } else if (StringUtils.equalsIgnoreCase(type, "date") || StringUtils.equalsIgnoreCase(type, "timestamp")) {
+            value = GrouperUtil.toTimestamp(value);
+          } else if (StringUtils.equalsIgnoreCase(type, "text") || StringUtils.equalsIgnoreCase(type, "string")) {
+            //nothing, the value is a string
+          } else if (StringUtils.equalsIgnoreCase(type, "boolean")) {
+            value = GrouperUtil.booleanValue(value);
+          } else if (StringUtils.equalsIgnoreCase(type, "null")) {
+            value = null;
+          } else if (StringUtils.equalsIgnoreCase(type, "empty") || StringUtils.equalsIgnoreCase(type, "emptyString")) {
+            value = "";
+          } else {
+            throw new RuntimeException("Not expecting type: " + type + ", " + valueOriginal);
+          }
+        } catch (RuntimeException re) {
+          throw new RuntimeException("Cannot convert value to " + key + ", " + type + ", " + valueOriginal, re);
+        }
+      }
+      
+      result.put(key, value);
+      
+    }
+    return result;
+  }
+
+  /**
+   * see if an ip address is on a network
+   * 
+   * @param ipString
+   *          is the ip address to check
+   * @param networkIpString
+   *          is the ip address of the network
+   * @param mask
+   *          is the length of the mask (0-32)
+   * @return boolean
+   */
+  public static boolean ipOnNetwork(String ipString, String networkIpString, int mask) {
+
+    //this allows all
+    if (mask == 0) {
+      return true;
+    }
+    int ip = ipInt(ipString);
+    int networkIp = ipInt(networkIpString);
+  
+    ip = ipReadyForAnd(ip, mask);
+    networkIp = ipReadyForAnd(networkIp, mask);
+  
+    return ip == networkIp;
+  }
+
+  /**
+   * see if an ip address is on a network
+   * 
+   * @param ipString
+   *          is the ip address to check
+   * @param networkIpStrings
+   *          are the ip addresses of the networks, e.g. 1.2.3.4/12, 2.3.4.5/24
+   * @return boolean
+   */
+  public static boolean ipOnNetworks(String ipString, String networkIpStrings) {
+    
+    String[] networkIpStringsArray = splitTrim(networkIpStrings, ",");
+    
+    //check each one
+    for (String networkIpString : networkIpStringsArray) {
+      
+      if (!contains(networkIpString, "/")) {
+        throw new RuntimeException("String must contain slash and CIDR network bits, e.g. 1.2.3.4/14");
+      }
+      //get network part:
+      String network = prefixOrSuffix(networkIpString, "/", true);
+      network = trim(network);
+      
+      String mask = prefixOrSuffix(networkIpString, "/", false);
+      mask = trim(mask);
+      int maskInt = -1;
+      
+      maskInt = Integer.parseInt(mask);
+      
+      //if on the network, then all good
+      if (ipOnNetwork(ipString, network, maskInt)) {
+        return true;
+      }
+      
+      
+    }
+    return false;
+  }
+
+  /**
+   * get the ip address after putting 1's where the subnet mask is not
+   * @param ip int
+   * @param maskLength int
+   * @return int
+   */
+  public static int ipReadyForAnd(int ip, int maskLength) {
+    int mask = -1 + (int) Math.pow(2, 32 - maskLength);
+
+    return ip | mask;
+  }
+
+  /**
+   * get the ip addres integer from a string ip address
+   * @param ip String
+   * @return int
+   */
+  public static int ipInt(String ip) {
+    int block1;
+    int block2;
+    int block3;
+    int block4;
+  
+    try {
+      int periodIndex = ip.indexOf('.');
+      String blockString = ip.substring(0, periodIndex);
+      block1 = Integer.parseInt(blockString);
+  
+      //split it up for 2^24 since it does the math wrong if you dont
+      int mathPow = (int) Math.pow(2, 24);
+      block1 *= mathPow;
+  
+      int oldPeriodIndex = periodIndex;
+  
+      periodIndex = ip.indexOf('.', periodIndex + 1);
+      blockString = ip.substring(oldPeriodIndex + 1, periodIndex);
+      block2 = Integer.parseInt(blockString);
+      block2 *= Math.pow(2, 16);
+      oldPeriodIndex = periodIndex;
+  
+      periodIndex = ip.indexOf('.', periodIndex + 1);
+      blockString = ip.substring(oldPeriodIndex + 1, periodIndex);
+      block3 = Integer.parseInt(blockString);
+      block3 *= Math.pow(2, 8);
+  
+      blockString = ip.substring(periodIndex + 1, ip.length());
+      block4 = Integer.parseInt(blockString);
+    } catch (NumberFormatException nfe) {
+      throw new RuntimeException("Could not parse the ipaddress: " + ip);
+    }
+  
+    return block1 + block2 + block3 + block4;
+  }
+
+  /**
+   * get the set of methods
+   * @param theClass
+   * @param methodName
+   * @param superclassToStopAt 
+   * @param includeSuperclassToStopAt 
+   * @param includeStaticMethods
+   * @param markerAnnotation 
+   * @param includeAnnotation 
+   * @param methodSet
+   */
+  public static void methodsByNameHelper(Class<?> theClass, String methodName, Class<?> superclassToStopAt, 
+      boolean includeSuperclassToStopAt,
+      boolean includeStaticMethods, Class<? extends Annotation> markerAnnotation, 
+      boolean includeAnnotation, Set<Method> methodSet) {
+    theClass = unenhanceClass(theClass);
+    Method[] methods = theClass.getDeclaredMethods();
+    if (length(methods) != 0) {
+      for (Method method : methods) {
+        // if not static, then continue
+        if (!includeStaticMethods
+            && Modifier.isStatic(method.getModifiers())) {
+          continue;
+        }
+        // if checking for annotation
+        if (markerAnnotation != null
+            && (includeAnnotation != method
+                .isAnnotationPresent(markerAnnotation))) {
+          continue;
+        }
+        if (StringUtils.equals(methodName, method.getName())) {
+          // go for it
+          methodSet.add(method);
+        }
+      }
+    }
+    // see if done recursing (if superclassToStopAt is null, then stop at
+    // Object
+    if (theClass.equals(superclassToStopAt)
+        || theClass.equals(Object.class)) {
+      return;
+    }
+    Class superclass = theClass.getSuperclass();
+    if (!includeSuperclassToStopAt && superclass.equals(superclassToStopAt)) {
+      return;
+    }
+    // recurse
+    methodsByNameHelper(superclass, methodName, superclassToStopAt,
+        includeSuperclassToStopAt, includeStaticMethods,
+        markerAnnotation, includeAnnotation, methodSet);
+    
+  }
+
+  /**
+   * call method with more params.  e.g. if you are only passing in the first 3 params, of a 6 param method...
+   * @param instance
+   * @param theType of object to call method on
+   * @param methodName
+   * @param params
+   * @return the result of the method
+   */
+  public static Object callMethodWithMoreParams(Object instance, Class<?> theType, String methodName, Object[] params) {
+    Method method = methodByName(theType, methodName, Object.class, false, instance == null ? true : false, true);
+    
+    int paramsSize = length(params);
+    
+    Class<?>[] methodParamTypes = method.getParameterTypes();
+    
+    int methodParamsSize = length(methodParamTypes);
+    if (methodParamsSize < paramsSize) {
+      throw new RuntimeException("Why is method params " + methodParamsSize + "less than args? " + paramsSize);
+    }
+    
+    //lets see if the params match up, as many as there are
+    for (int i=0;i<paramsSize;i++) {
+      Class<?> methodParamClass = methodParamTypes[i];
+      
+      //make sure assignable
+      if (methodParamTypes[i].isPrimitive() && params[i] == null) {
+        throw new RuntimeException("Trying to call method: " + methodName + " on class: " + (instance == null ? null : instance.getClass())
+            + " and arg index: " + i + " is null: but should be a primitive: " + methodParamTypes[i].getName());
+      }
+        
+      if (params[i] != null && !(methodParamTypes[i].isAssignableFrom(params[i].getClass()))) {  
+        throw new RuntimeException("Trying to call method: " + methodName + " on class: " + (instance == null ? null : instance.getClass())
+            + " and arg index: " + i + " is of type: " + methodParamClass + ", but trying to pass: " + params[i].getClass());
+      }
+      
+    }
+    
+    Object[] methodArgs = new Object[methodParamsSize];
+    
+    //copy the args, the rest are null
+    if (paramsSize > 0) {
+      System.arraycopy(params, 0, methodArgs, 0, params.length);
+      
+    }
+    
+    //we are all good, just pass null for the extra methods
+    try {
+      return method.invoke(instance, methodArgs);
+    } catch (Exception e) {
+      throw new RuntimeException("Trying to call method: " + methodName + " on class: " + (instance == null ? null : instance.getClass()), e);
+    }
+  }
+
+  /**
+   * convert an object from one version to another
+   * @param input input object
+   * @param newPackage is the package where the other version of things are
+   * @return the object in the new version or null if input null or new version not found
+   */
+  public static Object changeToVersion(Object input, String newPackage) {
+    return changeToVersionHelper(input, newPackage, 100);
+  }
+
+  /**
+   * convert an object from one version to another
+   * @param input input object
+   * @param newPackage is the package where the other version of things are
+   * @param timeToLive avoid circular references
+   * @return the object in the new version or null if input null or new version not found
+   */
+  public static Object changeToVersionHelper(Object input, String newPackage, int timeToLive) {
+    
+    
+    if (input == null) {
+      return null;
+    }
+  
+    //if we are a string, just return it
+    if (input instanceof String) {
+      return input;
+    }
+    
+    //lets get the input class
+    Class inputClass = input.getClass();
+    
+    int interestingLogFields = 0;
+    
+    //if we are an array of strings, clone and return it
+    int inputArrayLength = inputClass.isArray() ? length(input) : -1;
+    if (inputClass.isArray() && String.class.equals(inputClass.getComponentType())) {
+      //lets clone
+      String[] result = new String[inputArrayLength];
+      System.arraycopy(input, 0, result, 0, result.length);
+      return result;
+    }
+    
+    StringBuilder logMessage = LOG.isDebugEnabled() ? new StringBuilder() : null;
+    
+    if (logMessage != null) {
+      logMessage.append("class: ").append(inputClass.getSimpleName()).append(", ");
+    }
+    
+    if (timeToLive-- < 0) {
+      throw new RuntimeException("Circular reference!");
+    }
+    
+    //new class
+    try {
+  
+      Object result = null;
+  
+      Class<?> outputClass = null;
+      String outputClassName = newPackage + "." + (inputClass.isArray() ? 
+          inputClass.getComponentType().getSimpleName() : inputClass.getSimpleName());
+      try {
+        outputClass = forName(outputClassName);
+      } catch (RuntimeException re) {
+        if (re.getCause() instanceof ClassNotFoundException) {
+          if (logMessage != null) {
+            logMessage.append("output classNotFound: ").append(outputClassName);
+            LOG.debug(logMessage.toString());
+          }
+          return null;
+        }
+        //let this be handled below
+        throw re;
+      }
   
   
+  
+      //if we are an array of objects, do that
+      if (inputClass.isArray()) {
+        Object array = Array.newInstance(outputClass, inputArrayLength);
+        for (int i=0;i<inputArrayLength;i++) {
+          
+          Object inputElement = Array.get(input, i);
+          Object outputElement = changeToVersionHelper(inputElement, newPackage, timeToLive);
+          Array.set(array, i, outputElement);
+          
+        }
+        return array;
+      }
+      
+      
+      //get instance
+      result = newInstance(outputClass);
+  
+      //get all fields in the input
+      Set<Field> inputFields = fields(inputClass, Object.class, null, false, false, false, null, false);
+      Set<Field> outputFields = fields(outputClass, Object.class, null, false, false, false, null, false);
+      
+      Map<String, Field> inputFieldMap = new HashMap<String, Field>();
+      
+      for (Field field : nonNull(inputFields)) {
+        inputFieldMap.put(field.getName(), field);
+      }
+      
+      //see which ones match
+      for (Field outputField : nonNull(outputFields)) {
+        
+        Field inputField = inputFieldMap.get(outputField.getName());
+        
+        if (inputField == null) {
+          if (logMessage != null) {
+            interestingLogFields++;
+            logMessage.append("field not found input: ").append(outputField.getName()).append(", ");
+          }
+          continue;
+        }
+        //take it out of the map so we know which ones are left
+        inputFieldMap.remove(inputField.getName());
+        
+        Object inputFieldObject = fieldValue(inputField, input);
+        
+        //lets convert that field
+        Object outputFieldObject = changeToVersionHelper(inputFieldObject, newPackage, timeToLive);
+        
+        //this is ok
+        if (outputFieldObject == null) {
+          continue;
+        }
+        
+        try {
+          assignField(outputField, result, outputFieldObject, true, false);
+        } catch (RuntimeException re) {
+          if (logMessage != null) {
+            logMessage.append("problem with field: ").append(inputField.getName()).append(", ").append(ExceptionUtils.getFullStackTrace(re));
+            interestingLogFields++;
+          }
+        }
+      }
+      if (logMessage != null) {
+        for (String inputFieldName : nonNull(inputFieldMap.keySet())) {
+          logMessage.append("field not found output: ").append(inputFieldName).append(", ");
+          interestingLogFields++;
+        }
+        
+        if (interestingLogFields > 0) {
+          LOG.debug(logMessage.toString());
+        }
+      }    
+      
+      return result;
+    } catch (RuntimeException re) {
+      if (logMessage != null) {
+        logMessage.append("Problem with class: ").append(re.getClass()).append(", ").append(re.getMessage());
+        LOG.debug(logMessage.toString(), re);
+      }
+      throw re;
+    }
+    
+  }
+
+
 }

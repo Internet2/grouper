@@ -101,7 +101,10 @@ public class GrouperUiRestServlet extends HttpServlet {
       SimplePermissionUpdateFilter.class.getSimpleName() + ".filterRoles",
       SimplePermissionUpdateFilter.class.getSimpleName() + ".filterSubjects",
       SimplePermissionUpdateFilter.class.getSimpleName() + ".filterActions",
-      SimplePermissionUpdateMenu.class.getSimpleName() + ".assignmentMenuStructure"
+      SimplePermissionUpdateMenu.class.getSimpleName() + ".assignmentMenuStructure",
+      SimplePermissionUpdateFilter.class.getSimpleName() + ".filterLimitDefinitions",
+      SimplePermissionUpdateFilter.class.getSimpleName() + ".filterLimitNames",
+      SimplePermissionUpdateMenu.class.getSimpleName() + ".limitMenuStructure"
   );
 
   /**
@@ -167,6 +170,11 @@ public class GrouperUiRestServlet extends HttpServlet {
 
       String classAndMethodName = urlStrings.get(1);
 
+      //if there is a hash, then toss that part out
+      if (classAndMethodName.contains("#")) {
+        classAndMethodName = GrouperUtil.prefixOrSuffix(classAndMethodName, "#", true);
+      }
+      
       //lets do some simple validation, text dot text
       if (!classAndMethodName.matches("^[a-zA-Z0-9]+\\.[a-zA-Z0-9]+$")) {
         throw new RuntimeException("Invalid class and method name: '" + classAndMethodName + "'");

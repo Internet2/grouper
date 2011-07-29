@@ -44,11 +44,11 @@ import edu.internet2.middleware.grouper.hooks.beans.GrouperContextTypeBuiltIn;
 import edu.internet2.middleware.grouper.hooks.beans.HooksContext;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouper.ws.coresoap.GrouperService;
+import edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 import edu.internet2.middleware.grouper.ws.security.WsCustomAuthentication;
 import edu.internet2.middleware.grouper.ws.security.WsGrouperDefaultAuthentication;
-import edu.internet2.middleware.grouper.ws.soap.GrouperService;
-import edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
 
@@ -609,34 +609,37 @@ public class GrouperServiceJ2ee implements Filter {
   public void doFilter(ServletRequest request, ServletResponse response,
       FilterChain filterChain) throws IOException, ServletException {
 
-    //make sure nulls are not returned for params for Axis bug where
-    //empty strings work, but nulls make things off a bit
-    request = new WsHttpServletRequest((HttpServletRequest) request);
-
-    NDC.clear();
-    
-    //servlet will set this...
-    threadLocalServlet.remove();
-    threadLocalRequest.set((HttpServletRequest) request);
-    threadLocalResponse.set((HttpServletResponse) response);
-    threadLocalRequestStartMillis.set(System.currentTimeMillis());
-    
-    GrouperContextTypeBuiltIn.setDefaultContext(GrouperContextTypeBuiltIn.GROUPER_WS);
-
-    //lets add the request, session, and response
-    HooksContext.setAttributeThreadLocal(HooksContext.KEY_HTTP_SERVLET_REQUEST, request, false);
-    HooksContext.setAttributeThreadLocal(HooksContext.KEY_HTTP_SESSION, 
-        ((HttpServletRequest)request).getSession(), false);
-    HooksContext.setAttributeThreadLocal(HooksContext.KEY_HTTP_SERVLET_RESPONSE, response, false);
-
-    GrouperContext grouperContext = GrouperContext.createNewDefaultContext(
-        GrouperEngineBuiltin.WS, false, false);
-    
-    grouperContext.setCallerIpAddress(request.getRemoteAddr());
-
-    
     try {
+      //make sure nulls are not returned for params for Axis bug where
+      //empty strings work, but nulls make things off a bit
+      request = new WsHttpServletRequest((HttpServletRequest) request);
+  
+      NDC.clear();
+      
+      //servlet will set this...
+      threadLocalServlet.remove();
+      threadLocalRequest.set((HttpServletRequest) request);
+      threadLocalResponse.set((HttpServletResponse) response);
+      threadLocalRequestStartMillis.set(System.currentTimeMillis());
+      
+      GrouperContextTypeBuiltIn.setDefaultContext(GrouperContextTypeBuiltIn.GROUPER_WS);
+  
+      //lets add the request, session, and response
+      HooksContext.setAttributeThreadLocal(HooksContext.KEY_HTTP_SERVLET_REQUEST, request, false);
+      HooksContext.setAttributeThreadLocal(HooksContext.KEY_HTTP_SESSION, 
+          ((HttpServletRequest)request).getSession(), false);
+      HooksContext.setAttributeThreadLocal(HooksContext.KEY_HTTP_SERVLET_RESPONSE, response, false);
+  
+      GrouperContext grouperContext = GrouperContext.createNewDefaultContext(
+          GrouperEngineBuiltin.WS, false, false);
+      
+      grouperContext.setCallerIpAddress(request.getRemoteAddr());
+
+    
       filterChain.doFilter(request, response);
+    } catch (RuntimeException re) {
+      LOG.info("error in request", re);
+      throw re;
     } finally {
       threadLocalRequest.remove();
       threadLocalResponse.remove();

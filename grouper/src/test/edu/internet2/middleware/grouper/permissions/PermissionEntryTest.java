@@ -289,109 +289,109 @@ public class PermissionEntryTest extends GrouperTest {
     
     //NOTE, THIS WAS GENERATED FROM ABOVE
 
-    permissionEntry = PermissionEntry.collectionFindFirst(permissionEntriesList, "top:roleChild", "top:attrDefNameChild", "actionChild", "jdbc", "test.subject.3", "role");
+    permissionEntry = PermissionEntryUtils.collectionFindFirst(permissionEntriesList, "top:roleChild", "top:attrDefNameChild", "actionChild", "jdbc", "test.subject.3", "role");
     assertPermission(permissionEntry, "role", true, false, 0, 1, 1, 1);
 
-    permissionEntry = PermissionEntry.collectionFindFirst(permissionEntriesList, "top:roleChild", "top:attrDefNameChild", "actionParent", "jdbc", "test.subject.3", "role");
+    permissionEntry = PermissionEntryUtils.collectionFindFirst(permissionEntriesList, "top:roleChild", "top:attrDefNameChild", "actionParent", "jdbc", "test.subject.3", "role");
     assertPermission(permissionEntry, "role", true, false, 0, 1, 0, 1);
 
-    permissionEntry = PermissionEntry.collectionFindFirst(permissionEntriesList, "top:roleChild", "top:attrDefNameParent", "actionChild", "jdbc", "test.subject.3", "role");
+    permissionEntry = PermissionEntryUtils.collectionFindFirst(permissionEntriesList, "top:roleChild", "top:attrDefNameParent", "actionChild", "jdbc", "test.subject.3", "role");
     assertPermission(permissionEntry, "role", true, false, 0, 1, 1, 0);
 
-    permissionEntry = PermissionEntry.collectionFindFirst(permissionEntriesList, "top:roleChild", "top:attrDefNameParent", "actionParent", "jdbc", "test.subject.3", "role");
+    permissionEntry = PermissionEntryUtils.collectionFindFirst(permissionEntriesList, "top:roleChild", "top:attrDefNameParent", "actionParent", "jdbc", "test.subject.3", "role");
     assertPermission(permissionEntry, "role", true, false, 0, 1, 0, 0);
 
-    permissionEntry = PermissionEntry.collectionFindFirst(permissionEntriesList, "top:roleChild2", "top:attrDefNameChild", "actionChild", "jdbc", "test.subject.5", "role");
+    permissionEntry = PermissionEntryUtils.collectionFindFirst(permissionEntriesList, "top:roleChild2", "top:attrDefNameChild", "actionChild", "jdbc", "test.subject.5", "role");
     assertPermission(permissionEntry, "role", true, false, 0, 1, 0, 0);
 
-    permissionEntry = PermissionEntry.collectionFindFirst(permissionEntriesList, "top:roleChild2", "top:attrDefNameChild", "actionChild", "jdbc", "test.subject.8", "role");
+    permissionEntry = PermissionEntryUtils.collectionFindFirst(permissionEntriesList, "top:roleChild2", "top:attrDefNameChild", "actionChild", "jdbc", "test.subject.8", "role");
     assertPermission(permissionEntry, "role", true, false, 0, 1, 0, 0);
 
-    permissionEntry = PermissionEntry.collectionFindFirst(permissionEntriesList, "top:roleChild2", "top:attrDefNameChild", "actionChild", "jdbc", "test.subject.9", "role");
+    permissionEntry = PermissionEntryUtils.collectionFindFirst(permissionEntriesList, "top:roleChild2", "top:attrDefNameChild", "actionChild", "jdbc", "test.subject.9", "role");
     assertPermission(permissionEntry, "role", true, false, 0, 1, 0, 0);
 
-    permissionEntry = PermissionEntry.collectionFindFirst(permissionEntriesList, "top:roleChild2", "top:attrDefNameChild", "actionChild", "jdbc", "test.subject.8", "role_subject");
+    permissionEntry = PermissionEntryUtils.collectionFindFirst(permissionEntriesList, "top:roleChild2", "top:attrDefNameChild", "actionChild", "jdbc", "test.subject.8", "role_subject");
     assertPermission(permissionEntry, "role_subject", true, false, 0, -1, 1, 1);
 
-    permissionEntry = PermissionEntry.collectionFindFirst(permissionEntriesList, "top:roleChild2", "top:attrDefNameChild", "actionChild", "jdbc", "test.subject.9", "role_subject");
+    permissionEntry = PermissionEntryUtils.collectionFindFirst(permissionEntriesList, "top:roleChild2", "top:attrDefNameChild", "actionChild", "jdbc", "test.subject.9", "role_subject");
     assertPermission(permissionEntry, "role_subject", true, true, 0, -1, 0, 0);
 
-    permissionEntry = PermissionEntry.collectionFindFirst(permissionEntriesList, "top:roleChild2", "top:attrDefNameChild", "actionParent", "jdbc", "test.subject.8", "role_subject");
+    permissionEntry = PermissionEntryUtils.collectionFindFirst(permissionEntriesList, "top:roleChild2", "top:attrDefNameChild", "actionParent", "jdbc", "test.subject.8", "role_subject");
     assertPermission(permissionEntry, "role_subject", true, false, 0, -1, 0, 1);
 
-    permissionEntry = PermissionEntry.collectionFindFirst(permissionEntriesList, "top:roleChild2", "top:attrDefNameParent", "actionChild", "jdbc", "test.subject.8", "role_subject");
+    permissionEntry = PermissionEntryUtils.collectionFindFirst(permissionEntriesList, "top:roleChild2", "top:attrDefNameParent", "actionChild", "jdbc", "test.subject.8", "role_subject");
     assertPermission(permissionEntry, "role_subject", true, false, 0, -1, 1, 0);
 
-    permissionEntry = PermissionEntry.collectionFindFirst(permissionEntriesList, "top:roleChild2", "top:attrDefNameParent", "actionParent", "jdbc", "test.subject.8", "role_subject");
+    permissionEntry = PermissionEntryUtils.collectionFindFirst(permissionEntriesList, "top:roleChild2", "top:attrDefNameParent", "actionParent", "jdbc", "test.subject.8", "role_subject");
     assertPermission(permissionEntry, "role_subject", true, true, 0, -1, 0, 0);
 
-    permissionEntry = PermissionEntry.collectionFindFirst(permissionEntriesList, "top:roleParent", "top:attrDefNameChild", "actionChild", "g:isa", "GrouperAll", "role");
+    permissionEntry = PermissionEntryUtils.collectionFindFirst(permissionEntriesList, "top:roleParent", "top:attrDefNameChild", "actionChild", "g:isa", "GrouperAll", "role");
     assertPermission(permissionEntry, "role", true, false, 0, 0, 1, 1);
 
-    permissionEntry = PermissionEntry.collectionFindFirst(permissionEntriesList, "top:roleParent", "top:attrDefNameChild", "actionChild", "jdbc", "test.subject.2", "role");
+    permissionEntry = PermissionEntryUtils.collectionFindFirst(permissionEntriesList, "top:roleParent", "top:attrDefNameChild", "actionChild", "jdbc", "test.subject.2", "role");
     assertPermission(permissionEntry, "role", true, false, 0, 0, 1, 1);
 
-    permissionEntry = PermissionEntry.collectionFindFirst(permissionEntriesList, "top:roleParent", "top:attrDefNameChild", "actionChild", "jdbc", "test.subject.6", "role");
+    permissionEntry = PermissionEntryUtils.collectionFindFirst(permissionEntriesList, "top:roleParent", "top:attrDefNameChild", "actionChild", "jdbc", "test.subject.6", "role");
     assertPermission(permissionEntry, "role", true, false, 0, 0, 1, 1);
 
-    permissionEntry = PermissionEntry.collectionFindFirst(permissionEntriesList, "top:roleParent", "top:attrDefNameChild", "actionChild", "jdbc", "test.subject.7", "role");
+    permissionEntry = PermissionEntryUtils.collectionFindFirst(permissionEntriesList, "top:roleParent", "top:attrDefNameChild", "actionChild", "jdbc", "test.subject.7", "role");
     assertPermission(permissionEntry, "role", true, false, 0, 0, 1, 1);
 
-    permissionEntry = PermissionEntry.collectionFindFirst(permissionEntriesList, "top:roleParent", "top:attrDefNameChild", "actionChild", "jdbc", "test.subject.6", "role_subject");
+    permissionEntry = PermissionEntryUtils.collectionFindFirst(permissionEntriesList, "top:roleParent", "top:attrDefNameChild", "actionChild", "jdbc", "test.subject.6", "role_subject");
     assertPermission(permissionEntry, "role_subject", true, false, 0, -1, 1, 0);
 
-    permissionEntry = PermissionEntry.collectionFindFirst(permissionEntriesList, "top:roleParent", "top:attrDefNameChild", "actionChild", "jdbc", "test.subject.7", "role_subject");
+    permissionEntry = PermissionEntryUtils.collectionFindFirst(permissionEntriesList, "top:roleParent", "top:attrDefNameChild", "actionChild", "jdbc", "test.subject.7", "role_subject");
     assertPermission(permissionEntry, "role_subject", true, false, 0, -1, 0, 1);
 
-    permissionEntry = PermissionEntry.collectionFindFirst(permissionEntriesList, "top:roleParent", "top:attrDefNameChild", "actionParent", "g:isa", "GrouperAll", "role");
+    permissionEntry = PermissionEntryUtils.collectionFindFirst(permissionEntriesList, "top:roleParent", "top:attrDefNameChild", "actionParent", "g:isa", "GrouperAll", "role");
     assertPermission(permissionEntry, "role", true, false, 0, 0, 0, 1);
 
-    permissionEntry = PermissionEntry.collectionFindFirst(permissionEntriesList, "top:roleParent", "top:attrDefNameChild", "actionParent", "jdbc", "test.subject.2", "role");
+    permissionEntry = PermissionEntryUtils.collectionFindFirst(permissionEntriesList, "top:roleParent", "top:attrDefNameChild", "actionParent", "jdbc", "test.subject.2", "role");
     assertPermission(permissionEntry, "role", true, false, 0, 0, 0, 1);
 
-    permissionEntry = PermissionEntry.collectionFindFirst(permissionEntriesList, "top:roleParent", "top:attrDefNameChild", "actionParent", "jdbc", "test.subject.6", "role");
+    permissionEntry = PermissionEntryUtils.collectionFindFirst(permissionEntriesList, "top:roleParent", "top:attrDefNameChild", "actionParent", "jdbc", "test.subject.6", "role");
     assertPermission(permissionEntry, "role", true, false, 0, 0, 0, 1);
 
-    permissionEntry = PermissionEntry.collectionFindFirst(permissionEntriesList, "top:roleParent", "top:attrDefNameChild", "actionParent", "jdbc", "test.subject.7", "role");
+    permissionEntry = PermissionEntryUtils.collectionFindFirst(permissionEntriesList, "top:roleParent", "top:attrDefNameChild", "actionParent", "jdbc", "test.subject.7", "role");
     assertPermission(permissionEntry, "role", true, false, 0, 0, 0, 1);
 
-    permissionEntry = PermissionEntry.collectionFindFirst(permissionEntriesList, "top:roleParent", "top:attrDefNameChild", "actionParent", "jdbc", "test.subject.6", "role_subject");
+    permissionEntry = PermissionEntryUtils.collectionFindFirst(permissionEntriesList, "top:roleParent", "top:attrDefNameChild", "actionParent", "jdbc", "test.subject.6", "role_subject");
     assertPermission(permissionEntry, "role_subject", true, true, 0, -1, 0, 0);
 
-    permissionEntry = PermissionEntry.collectionFindFirst(permissionEntriesList, "top:roleParent", "top:attrDefNameParent", "actionChild", "g:isa", "GrouperAll", "role");
+    permissionEntry = PermissionEntryUtils.collectionFindFirst(permissionEntriesList, "top:roleParent", "top:attrDefNameParent", "actionChild", "g:isa", "GrouperAll", "role");
     assertPermission(permissionEntry, "role", true, false, 0, 0, 1, 0);
 
-    permissionEntry = PermissionEntry.collectionFindFirst(permissionEntriesList, "top:roleParent", "top:attrDefNameParent", "actionChild", "jdbc", "test.subject.2", "role");
+    permissionEntry = PermissionEntryUtils.collectionFindFirst(permissionEntriesList, "top:roleParent", "top:attrDefNameParent", "actionChild", "jdbc", "test.subject.2", "role");
     assertPermission(permissionEntry, "role", true, false, 0, 0, 1, 0);
 
-    permissionEntry = PermissionEntry.collectionFindFirst(permissionEntriesList, "top:roleParent", "top:attrDefNameParent", "actionChild", "jdbc", "test.subject.6", "role");
+    permissionEntry = PermissionEntryUtils.collectionFindFirst(permissionEntriesList, "top:roleParent", "top:attrDefNameParent", "actionChild", "jdbc", "test.subject.6", "role");
     assertPermission(permissionEntry, "role", true, false, 0, 0, 1, 0);
 
-    permissionEntry = PermissionEntry.collectionFindFirst(permissionEntriesList, "top:roleParent", "top:attrDefNameParent", "actionChild", "jdbc", "test.subject.7", "role");
+    permissionEntry = PermissionEntryUtils.collectionFindFirst(permissionEntriesList, "top:roleParent", "top:attrDefNameParent", "actionChild", "jdbc", "test.subject.7", "role");
     assertPermission(permissionEntry, "role", true, false, 0, 0, 1, 0);
 
-    permissionEntry = PermissionEntry.collectionFindFirst(permissionEntriesList, "top:roleParent", "top:attrDefNameParent", "actionChild", "jdbc", "test.subject.7", "role_subject");
+    permissionEntry = PermissionEntryUtils.collectionFindFirst(permissionEntriesList, "top:roleParent", "top:attrDefNameParent", "actionChild", "jdbc", "test.subject.7", "role_subject");
     assertPermission(permissionEntry, "role_subject", true, true, 0, -1, 0, 0);
 
-    permissionEntry = PermissionEntry.collectionFindFirst(permissionEntriesList, "top:roleParent", "top:attrDefNameParent", "actionParent", "g:isa", "GrouperAll", "role");
+    permissionEntry = PermissionEntryUtils.collectionFindFirst(permissionEntriesList, "top:roleParent", "top:attrDefNameParent", "actionParent", "g:isa", "GrouperAll", "role");
     assertPermission(permissionEntry, "role", true, true, 0, 0, 0, 0);
 
-    permissionEntry = PermissionEntry.collectionFindFirst(permissionEntriesList, "top:roleParent", "top:attrDefNameParent", "actionParent", "jdbc", "test.subject.2", "role");
+    permissionEntry = PermissionEntryUtils.collectionFindFirst(permissionEntriesList, "top:roleParent", "top:attrDefNameParent", "actionParent", "jdbc", "test.subject.2", "role");
     assertPermission(permissionEntry, "role", true, true, 0, 0, 0, 0);
 
-    permissionEntry = PermissionEntry.collectionFindFirst(permissionEntriesList, "top:roleParent", "top:attrDefNameParent", "actionParent", "jdbc", "test.subject.6", "role");
+    permissionEntry = PermissionEntryUtils.collectionFindFirst(permissionEntriesList, "top:roleParent", "top:attrDefNameParent", "actionParent", "jdbc", "test.subject.6", "role");
     assertPermission(permissionEntry, "role", true, true, 0, 0, 0, 0);
 
-    permissionEntry = PermissionEntry.collectionFindFirst(permissionEntriesList, "top:roleParent", "top:attrDefNameParent", "actionParent", "jdbc", "test.subject.7", "role");
+    permissionEntry = PermissionEntryUtils.collectionFindFirst(permissionEntriesList, "top:roleParent", "top:attrDefNameParent", "actionParent", "jdbc", "test.subject.7", "role");
     assertPermission(permissionEntry, "role", true, true, 0, 0, 0, 0);
 
-    permissionEntry = PermissionEntry.collectionFindFirst(permissionEntriesList, "top:roleParent2", "top:attrDefNameChild", "actionChild", "g:gsa", groupParent.getUuid(), "role");
+    permissionEntry = PermissionEntryUtils.collectionFindFirst(permissionEntriesList, "top:roleParent2", "top:attrDefNameChild", "actionChild", "g:gsa", groupParent.getUuid(), "role");
     assertPermission(permissionEntry, "role", true, true, 0, 0, 0, 0);
 
-    permissionEntry = PermissionEntry.collectionFindFirst(permissionEntriesList, "top:roleParent2", "top:attrDefNameChild", "actionChild", "jdbc", "test.subject.0", "role");
+    permissionEntry = PermissionEntryUtils.collectionFindFirst(permissionEntriesList, "top:roleParent2", "top:attrDefNameChild", "actionChild", "jdbc", "test.subject.0", "role");
     assertPermission(permissionEntry, "role", false, true, 1, 0, 0, 0);
 
-    permissionEntry = PermissionEntry.collectionFindFirst(permissionEntriesList, "top:roleParent2", "top:attrDefNameChild", "actionChild", "jdbc", "test.subject.4", "role");
+    permissionEntry = PermissionEntryUtils.collectionFindFirst(permissionEntriesList, "top:roleParent2", "top:attrDefNameChild", "actionChild", "jdbc", "test.subject.4", "role");
     assertPermission(permissionEntry, "role", true, true, 0, 0, 0, 0);
 
 

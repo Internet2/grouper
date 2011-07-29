@@ -12,11 +12,11 @@ import org.apache.commons.httpclient.params.DefaultHttpParams;
 import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.commons.lang.StringUtils;
 
+import edu.internet2.middleware.grouper.ws.coresoap.WsGetGroupsLiteResult;
 import edu.internet2.middleware.grouper.ws.rest.WsRestResultProblem;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestGetGroupsLiteRequest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType;
-import edu.internet2.middleware.grouper.ws.soap.WsGetGroupsLiteResult;
 import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
 
 /**

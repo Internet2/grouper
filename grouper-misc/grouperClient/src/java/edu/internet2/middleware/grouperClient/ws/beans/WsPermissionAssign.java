@@ -4,12 +4,29 @@
  */
 package edu.internet2.middleware.grouperClient.ws.beans;
 
-
-
 /**
  * result of permission entry query represents an assignment in the DB
  */
 public class WsPermissionAssign {
+
+  /** if retrieving limits, these are the limits */
+  private WsPermissionLimit[] limits;
+  
+  /**
+   * if retrieving limits, these are the limits
+   * @return the limits
+   */
+  public WsPermissionLimit[] getLimits() {
+    return this.limits;
+  }
+  
+  /**
+   * if retrieving limits, these are the limits
+   * @param limits1 the limits to set
+   */
+  public void setLimits(WsPermissionLimit[] limits1) {
+    this.limits = limits1;
+  }
 
   /** detail on the permission */
   private WsPermissionAssignDetail detail;
@@ -110,6 +127,18 @@ public class WsPermissionAssign {
   
   /** if this is a membership attribute, this is the foreign key */
   private String membershipId;
+
+  /**
+   * T or F, this will be if this permissions is allowed (not in DB/assignment, but overall).  So if we are
+   * considering limits, and the limit is false, then this will be false for a permission where
+   * the disallow is set to false
+   */
+  private String allowedOverall;
+
+  /**
+   * T or F, if this is a permission, then if this permission assignment is allowed or not 
+   */
+  private String disallowed;
 
   /**
    *  name of action for this assignment (e.g. assign).  Generally this will be AttributeDef.ACTION_DEFAULT
@@ -289,6 +318,42 @@ public class WsPermissionAssign {
    */
   public void setMembershipId(String ownerMembershipId1) {
     this.membershipId = ownerMembershipId1;
+  }
+
+  /**
+   * T or F, this will be if this permissions is allowed (not in DB/assignment, but overall).  So if we are
+   * considering limits, and the limit is false, then this will be false for a permission where
+   * the disallow is set to false
+   * @return true if allowed overall
+   */
+  public String getAllowedOverall() {
+    return this.allowedOverall;
+  }
+
+  /**
+   * if this is a permission, then if this permission assignment is allowed or not 
+   * @return if disallowed
+   */
+  public String getDisallowed() {
+    return this.disallowed;
+  }
+
+  /**
+   * T or F, this will be if this permissions is allowed (not in DB/assignment, but overall).  So if we are
+   * considering limits, and the limit is false, then this will be false for a permission where
+   * the disallow is set to false
+   * @param allowedOverall1
+   */
+  public void setAllowedOverall(String allowedOverall1) {
+    this.allowedOverall = allowedOverall1;
+  }
+
+  /**
+   * T or F, if this is a permission, then if this permission assignment is allowed or not 
+   * @param disallowed1
+   */
+  public void setDisallowed(String disallowed1) {
+    this.disallowed = disallowed1;
   }
 
   /**

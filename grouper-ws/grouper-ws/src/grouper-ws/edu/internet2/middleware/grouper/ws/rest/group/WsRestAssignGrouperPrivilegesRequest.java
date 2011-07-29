@@ -7,12 +7,12 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import edu.internet2.middleware.grouper.ws.coresoap.WsGroupLookup;
+import edu.internet2.middleware.grouper.ws.coresoap.WsParam;
+import edu.internet2.middleware.grouper.ws.coresoap.WsStemLookup;
+import edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup;
 import edu.internet2.middleware.grouper.ws.rest.WsRequestBean;
 import edu.internet2.middleware.grouper.ws.rest.method.GrouperRestHttpMethod;
-import edu.internet2.middleware.grouper.ws.soap.WsGroupLookup;
-import edu.internet2.middleware.grouper.ws.soap.WsParam;
-import edu.internet2.middleware.grouper.ws.soap.WsStemLookup;
-import edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup;
 
 /**
  * <pre>

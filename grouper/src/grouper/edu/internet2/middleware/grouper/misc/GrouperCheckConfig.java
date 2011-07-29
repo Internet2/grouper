@@ -59,7 +59,9 @@ import edu.internet2.middleware.grouper.hooks.LifecycleHooks;
 import edu.internet2.middleware.grouper.hooks.MemberHooks;
 import edu.internet2.middleware.grouper.hooks.MembershipHooks;
 import edu.internet2.middleware.grouper.hooks.StemHooks;
+import edu.internet2.middleware.grouper.permissions.limits.PermissionLimitUtils;
 import edu.internet2.middleware.grouper.privs.AccessAdapter;
+import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingAdapter;
 import edu.internet2.middleware.grouper.rules.RuleUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -1461,10 +1463,24 @@ public class GrouperCheckConfig {
    * @return the attribute def name
    */
   private static AttributeDefName checkAttribute(Stem stem, AttributeDef attributeDef, String extension, String description, boolean logAutocreate) {
+    return checkAttribute(stem, attributeDef, extension, extension, description, logAutocreate);
+  }
+  
+  /**
+   * make sure an attribute is there or add it if not
+   * @param stem
+   * @param attributeDef 
+   * @param extension
+   * @param description
+   * @param displayExtension
+   * @param logAutocreate 
+   * @return the attribute def name
+   */
+  private static AttributeDefName checkAttribute(Stem stem, AttributeDef attributeDef, String extension, String displayExtension, String description, boolean logAutocreate) {
     String attributeDefNameName = stem.getName() + ":" + extension;
     AttributeDefName attributeDefName = AttributeDefNameFinder.findByName(attributeDefNameName, false);
     if (attributeDefName == null) {
-      attributeDefName = stem.addChildAttributeDefName(attributeDef, extension, extension);
+      attributeDefName = stem.addChildAttributeDefName(attributeDef, extension, displayExtension);
       attributeDefName.setDescription(description);
       attributeDefName.store();
       
@@ -1675,7 +1691,134 @@ public class GrouperCheckConfig {
             "T|F for if this rule daemon should run.  Default to true if blank and check and if are enums, false if not", wasInCheckConfig);
         
       }      
+
+      boolean permissionsLimitsPublic = GrouperConfig.getPropertyBoolean("grouper.permissions.limits.builtin.createAs.public", true);
       
+      {
+        String limitsRootStemName = PermissionLimitUtils.attributeLimitStemName();
+        
+        Stem limitsStem = StemFinder.findByName(grouperSession, limitsRootStemName, false);
+        if (limitsStem == null) {
+          limitsStem = new StemSave(grouperSession).assignCreateParentStemsIfNotExist(true)
+            .assignDescription("folder for built in Grouper permission limits").assignName(limitsRootStemName)
+            .save();
+        }
+
+        //see if attributeDef is there
+        String limitDefName = limitsRootStemName + ":" + PermissionLimitUtils.LIMIT_DEF;
+        AttributeDef limitDef = AttributeDefFinder.findByName(limitDefName, false);
+        if (limitDef == null) {
+          limitDef = limitsStem.addChildAttributeDef(PermissionLimitUtils.LIMIT_DEF, AttributeDefType.limit);
+          limitDef.setAssignToGroup(true);
+          limitDef.setAssignToAttributeDef(true);
+          limitDef.setAssignToGroupAssn(true);
+          limitDef.setAssignToEffMembership(true);
+          limitDef.setAssignToEffMembershipAssn(true);
+          limitDef.setValueType(AttributeDefValueType.string);
+          limitDef.setMultiAssignable(true);
+          limitDef.store();
+          
+          if (permissionsLimitsPublic) {
+            limitDef.getPrivilegeDelegate().grantPriv(SubjectFinder.findAllSubject(), AttributeDefPrivilege.ATTR_READ, false);
+            limitDef.getPrivilegeDelegate().grantPriv(SubjectFinder.findAllSubject(), AttributeDefPrivilege.ATTR_UPDATE, false);
+          }
+          
+        }
+        
+        //add an el
+        {
+          String elDisplayExtension = StringUtils.defaultIfEmpty(GrouperConfig.getProperty("grouper.permissions.limits.builtin.displayExtension.limitExpression"), "Expression");
+          checkAttribute(limitsStem, limitDef, PermissionLimitUtils.LIMIT_EL, elDisplayExtension, 
+              "An expression language limit has a value of an EL which evaluates to true or false", wasInCheckConfig);
+        }
+        {
+          String ipOnNetworksDisplayExtension = StringUtils.defaultIfEmpty(GrouperConfig.getProperty("grouper.permissions.limits.builtin.displayExtension.limitIpOnNetworks"), "ipAddress on networks");
+          checkAttribute(limitsStem, limitDef, PermissionLimitUtils.LIMIT_IP_ON_NETWORKS, ipOnNetworksDisplayExtension,
+              "If the user is on an IP address on the following networks", wasInCheckConfig);
+        }
+        {
+          String ipOnNetworkRealmDisplayEntension = StringUtils.defaultIfEmpty(GrouperConfig.getProperty("grouper.permissions.limits.builtin.displayExtension.limitIpOnNetworkRealm"), "ipAddress on network realm");
+          checkAttribute(limitsStem, limitDef, PermissionLimitUtils.LIMIT_IP_ON_NETWORK_REALM, ipOnNetworkRealmDisplayEntension,
+              "If the user is on an IP address on a centrally configured list of addresses", wasInCheckConfig);
+        }
+        {
+          String labelsContainDisplayExtension = StringUtils.defaultIfEmpty(GrouperConfig.getProperty("grouper.permissions.limits.builtin.displayExtension.limitLabelsContain"), "labels contains");
+          checkAttribute(limitsStem, limitDef, PermissionLimitUtils.LIMIT_LABELS_CONTAIN, labelsContainDisplayExtension,
+              "Configure a set of comma separated labels.  The env variable 'labels' should be passed with comma separated " +
+              "labels.  If one is there, its ok, if not, then disallowed", wasInCheckConfig);
+        }
+      }
+      
+      {
+        String limitsRootStemName = PermissionLimitUtils.attributeLimitStemName();
+        Stem limitsStem = StemFinder.findByName(grouperSession, limitsRootStemName, true);
+
+        //see if attributeDef is there
+        String limitDefIntName = limitsRootStemName + ":" + PermissionLimitUtils.LIMIT_DEF_INT;
+        AttributeDef limitDefInt = AttributeDefFinder.findByName(limitDefIntName, false);
+        if (limitDefInt == null) {
+          limitDefInt = limitsStem.addChildAttributeDef(PermissionLimitUtils.LIMIT_DEF_INT, AttributeDefType.limit);
+          limitDefInt.setAssignToGroup(true);
+          limitDefInt.setAssignToAttributeDef(true);
+          limitDefInt.setAssignToGroupAssn(true);
+          limitDefInt.setAssignToEffMembership(true);
+          limitDefInt.setAssignToEffMembershipAssn(true);
+          limitDefInt.setMultiAssignable(true);
+          limitDefInt.setValueType(AttributeDefValueType.integer);
+          limitDefInt.store();
+
+          if (permissionsLimitsPublic) {
+            limitDefInt.getPrivilegeDelegate().grantPriv(SubjectFinder.findAllSubject(), AttributeDefPrivilege.ATTR_READ, false);
+            limitDefInt.getPrivilegeDelegate().grantPriv(SubjectFinder.findAllSubject(), AttributeDefPrivilege.ATTR_UPDATE, false);
+          }
+        }
+        
+        {
+          String limitAmountLessThanDisplayExtension = StringUtils.defaultIfEmpty(GrouperConfig.getProperty("grouper.permissions.limits.builtin.displayExtension.limitAmountLessThan"), "amount less than");
+          checkAttribute(limitsStem, limitDefInt, PermissionLimitUtils.LIMIT_AMOUNT_LESS_THAN, limitAmountLessThanDisplayExtension, 
+              "Make sure the amount is less than the configured value", wasInCheckConfig);
+        }
+        {
+          String limitAmountLessThanOrEqualToDisplayExtension = StringUtils.defaultIfEmpty(GrouperConfig.getProperty("grouper.permissions.limits.builtin.displayExtension.limitAmountLessThanOrEqual"), "amount less than or equal to");
+          checkAttribute(limitsStem, limitDefInt, PermissionLimitUtils.LIMIT_AMOUNT_LESS_THAN_OR_EQUAL, limitAmountLessThanOrEqualToDisplayExtension,
+              "Make sure the amount is less or equal to the configured value", wasInCheckConfig);
+        }
+        
+      }
+
+      {
+        String limitsRootStemName = PermissionLimitUtils.attributeLimitStemName();
+        Stem limitsStem = StemFinder.findByName(grouperSession, limitsRootStemName, true);
+
+        //see if attributeDef is there
+        String limitDefMarkerName = limitsRootStemName + ":" + PermissionLimitUtils.LIMIT_DEF_MARKER;
+        AttributeDef limitDefMarker = AttributeDefFinder.findByName(limitDefMarkerName, false);
+        if (limitDefMarker == null) {
+          limitDefMarker = limitsStem.addChildAttributeDef(PermissionLimitUtils.LIMIT_DEF_MARKER, AttributeDefType.limit);
+          limitDefMarker.setAssignToGroup(true);
+          limitDefMarker.setAssignToAttributeDef(true);
+          limitDefMarker.setAssignToGroupAssn(true);
+          limitDefMarker.setAssignToEffMembershipAssn(true);
+          limitDefMarker.setAssignToEffMembership(true);
+          limitDefMarker.setMultiAssignable(true);
+          limitDefMarker.setValueType(AttributeDefValueType.marker);
+          limitDefMarker.store();
+
+          if (permissionsLimitsPublic) {
+            limitDefMarker.getPrivilegeDelegate().grantPriv(SubjectFinder.findAllSubject(), AttributeDefPrivilege.ATTR_READ, false);
+            limitDefMarker.getPrivilegeDelegate().grantPriv(SubjectFinder.findAllSubject(), AttributeDefPrivilege.ATTR_UPDATE, false);
+          }
+        }
+        
+        {
+          String limitAmountLessThanDisplayExtension = StringUtils.defaultIfEmpty(GrouperConfig.getProperty("grouper.permissions.limits.builtin.displayExtension.limitWeekday9to5"), "Weekday 9 to 5");
+          //add an weekday 9 to 5
+          checkAttribute(limitsStem, limitDefMarker, PermissionLimitUtils.LIMIT_WEEKDAY_9_TO_5, limitAmountLessThanDisplayExtension,
+              "Make sure the check for the permission happens between 9am to 5pm on Monday through Friday", wasInCheckConfig);
+        }
+      }
+
+
       AttributeDefName attributeLoaderTypeName = null;
       
       {

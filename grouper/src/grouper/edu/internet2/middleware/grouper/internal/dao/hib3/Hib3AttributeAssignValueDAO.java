@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -305,6 +306,48 @@ public class Hib3AttributeAssignValueDAO extends Hib3DAO implements AttributeAss
     }
     
     return resultMap;
+  }
+
+  /**
+   * @see AttributeAssignValueDAO#findByAttributeAssignIds(Collection)
+   */
+  public Set<AttributeAssignValue> findByAttributeAssignIds(
+      Collection<String> totalAttributeAssignIds) {
+
+    if (GrouperUtil.length(totalAttributeAssignIds) == 0) {
+      return new HashSet<AttributeAssignValue>();
+    }
+
+    Set<AttributeAssignValue> results = new LinkedHashSet<AttributeAssignValue>();
+    
+    int attributeAssignBatches = GrouperUtil.batchNumberOfBatches(totalAttributeAssignIds, 100);
+
+    //could be more than 100 so batch them up
+    for (int index = 0; index < attributeAssignBatches; index++) {
+      
+      List<String> currentAttributeAssignIds = GrouperUtil.batchList(totalAttributeAssignIds, 100, index);
+
+    
+      ByHqlStatic byHqlStatic =  HibernateSession.byHqlStatic();
+      
+      StringBuilder sql = new StringBuilder("from AttributeAssignValue as theAttributeAssignValue where ");
+      
+      sql.append(" theAttributeAssignValue.attributeAssignId in (");
+      sql.append(HibUtils.convertToInClause(currentAttributeAssignIds, byHqlStatic));
+      sql.append(") ");
+      
+      
+      Set<AttributeAssignValue> attributeAssignValues = byHqlStatic.createQuery(sql.toString())
+        .setCacheable(true)
+        .setCacheRegion(KLASS + ".FindByAttributeAssignIds")
+        .listSet(AttributeAssignValue.class);
+      
+      results.addAll(GrouperUtil.nonNull(attributeAssignValues));
+      
+    }
+    
+    //return result
+    return results;
   }
 
 } 

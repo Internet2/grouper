@@ -48,6 +48,11 @@ public class GcAssignPermissions {
    */
   private String delegatable;
   
+  /**
+   * really only for permissions, if the assignment is a disallow to override an allow in a wider inherited permission resource
+   */
+  private Boolean disallowed;
+  
   /** client version */
   private String clientVersion;
 
@@ -336,35 +341,38 @@ public class GcAssignPermissions {
       assignPermissions.setAssignmentNotes(this.assignmentNotes);
       assignPermissions.setPermissionAssignOperation(this.permissionAssignOperation);
       assignPermissions.setDelegatable(this.delegatable);
-      
+
+      if (this.disallowed != null) {
+        assignPermissions.setDisallowed(this.disallowed ? "T" : "F");
+      }
+
       if (GrouperClientUtils.length(this.attributeAssignLookups) > 0) {
         assignPermissions.setWsAttributeAssignLookups(GrouperClientUtils.toArray(
             this.attributeAssignLookups, WsAttributeAssignLookup.class));
       }
 
-      
       assignPermissions.setPermissionType(this.permissionType);
-      
+
       //add params if there are any
       if (this.params.size() > 0) {
         assignPermissions.setParams(GrouperClientUtils.toArray(this.params, WsParam.class));
       }
-      
+
       if (this.subjectAttributeNames.size() > 0) {
         assignPermissions.setSubjectAttributeNames(
             GrouperClientUtils.toArray(this.subjectAttributeNames, String.class));
       }
-      
+
       if (GrouperClientUtils.length(this.actions) > 0) {
         assignPermissions.setActions(GrouperClientUtils.toArray(this.actions, String.class));
       }
-      
+
       GrouperClientWs grouperClientWs = new GrouperClientWs();
-      
+
       //kick off the web service
       wsAssignPermissionsResults = (WsAssignPermissionsResults)
         grouperClientWs.executeService("permissionAssignments", assignPermissions, "getPermissionAssignments", this.clientVersion);
-      
+
       String resultMessage = wsAssignPermissionsResults.getResultMetadata().getResultMessage();
       grouperClientWs.handleFailure(wsAssignPermissionsResults, null, resultMessage);
       
@@ -443,6 +451,16 @@ public class GcAssignPermissions {
    */
   public GcAssignPermissions assignDelegatable(String theDelegatable) {
     this.delegatable = theDelegatable;
+    return this;
+  }
+
+  /**
+   * really only for permissions, if the assignment is a disallow to override an allow in a wider inherited permission resource
+   * @param theDisallowed
+   * @return this for chaining
+   */
+  public GcAssignPermissions assignDisallowed(Boolean theDisallowed) {
+    this.disallowed = theDisallowed;
     return this;
   }
 

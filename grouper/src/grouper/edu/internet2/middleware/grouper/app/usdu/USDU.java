@@ -511,7 +511,7 @@ public class USDU {
     try {
       // Changed because member.getSubject now always returns a LazySubject
       //member.getSubject();
-      SubjectFinder.findById(member.getSubjectId(),member.getSubjectTypeId(),member.getSubjectSourceId(), true);
+      SubjectFinder.findByIdAndSource(member.getSubjectId(),member.getSubjectSourceId(), true);
       return true;
     } catch (SubjectNotFoundException e) {
       return false;

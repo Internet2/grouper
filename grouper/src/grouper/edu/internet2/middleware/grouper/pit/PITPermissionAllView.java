@@ -3,6 +3,7 @@ package edu.internet2.middleware.grouper.pit;
 import java.io.Serializable;
 import java.sql.Timestamp;
 
+import edu.internet2.middleware.grouper.permissions.PermissionEntryBase;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
@@ -10,7 +11,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * $Id$
  */
 @SuppressWarnings("serial")
-public class PITPermissionAllView implements Serializable {
+public class PITPermissionAllView extends PermissionEntryBase implements Serializable {
 
   //*****  START GENERATED WITH GenerateFieldConstants.java *****//
 
@@ -95,9 +96,6 @@ public class PITPermissionAllView implements Serializable {
   /** constant for field name for: membershipStartTimeDb */
   public static final String FIELD_MEMBERSHIP_START_TIME_DB = "membershipStartTimeDb";
 
-  /** constant for field name for: permissionTypeDb */
-  public static final String FIELD_PERMISSION_TYPE_DB = "permissionTypeDb";
-
   /** constant for field name for: roleId */
   public static final String FIELD_ROLE_ID = "roleId";
 
@@ -144,58 +142,7 @@ public class PITPermissionAllView implements Serializable {
   private String attributeDefNameSetId;
 
   /** */
-  private String actionId;
-  
-  /** */
-  private String roleId;
-
-  /** */
-  private String memberId;
-
-  /** */
-  private String attributeDefNameId;
-
-  /** */
-  private String membershipId;
-
-  /** */
   private String groupSetId;
-
-  /** */
-  private String attributeAssignId;
-
-  /** */
-  private String action;
-  
-  /** */
-  private String subjectSourceId;
-  
-  /** */
-  private String subjectId;
-  
-  /** */
-  private String roleName;
-  
-  /** */
-  private String attributeDefNameName;
-  
-  /** */
-  private String attributeDefId;
-  
-  /** */
-  private int membershipDepth;
-  
-  /** */
-  private int roleSetDepth;
-  
-  /** */
-  private int attributeDefNameSetDepth;
-  
-  /** */
-  private int attributeAssignActionSetDepth;
-  
-  /** */
-  private String permissionTypeDb;
   
   /** */
   private String groupSetActiveDb;
@@ -251,77 +198,6 @@ public class PITPermissionAllView implements Serializable {
   /** */
   private Long attributeAssignEndTimeDb;
   
-  
-  /**
-   * @return actionId
-   */
-  public String getActionId() {
-    return actionId;
-  }
-
-  /**
-   * @param actionId
-   */
-  public void setActionId(String actionId) {
-    this.actionId = actionId;
-  }
-
-  /**
-   * @return roleId
-   */
-  public String getRoleId() {
-    return roleId;
-  }
-
-  /**
-   * @param roleId
-   */
-  public void setRoleId(String roleId) {
-    this.roleId = roleId;
-  }
-
-  /**
-   * @return memberId
-   */
-  public String getMemberId() {
-    return memberId;
-  }
-
-  /**
-   * @param memberId
-   */
-  public void setMemberId(String memberId) {
-    this.memberId = memberId;
-  }
-
-  /**
-   * @return attributeDefNameId
-   */
-  public String getAttributeDefNameId() {
-    return attributeDefNameId;
-  }
-
-  /**
-   * @param attributeDefNameId
-   */
-  public void setAttributeDefNameId(String attributeDefNameId) {
-    this.attributeDefNameId = attributeDefNameId;
-  }
-
-  /**
-   * @return membershipId
-   */
-  public String getMembershipId() {
-    return membershipId;
-  }
-
-  /**
-   * @param membershipId
-   */
-  public void setMembershipId(String membershipId) {
-    this.membershipId = membershipId;
-  }
-
   /**
    * @return groupSetId
    */
@@ -335,175 +211,6 @@ public class PITPermissionAllView implements Serializable {
   public void setGroupSetId(String groupSetId) {
     this.groupSetId = groupSetId;
   }
-
-  /**
-   * @return attributeAssignId
-   */
-  public String getAttributeAssignId() {
-    return attributeAssignId;
-  }
-
-  /**
-   * @param attributeAssignId
-   */
-  public void setAttributeAssignId(String attributeAssignId) {
-    this.attributeAssignId = attributeAssignId;
-  }
-
-  /**
-   * @return action
-   */
-  public String getAction() {
-    return action;
-  }
-
-  /**
-   * @param action
-   */
-  public void setAction(String action) {
-    this.action = action;
-  }
-
-  /**
-   * @return subjectSourceId
-   */
-  public String getSubjectSourceId() {
-    return subjectSourceId;
-  }
-
-  /**
-   * @param subjectSourceId
-   */
-  public void setSubjectSourceId(String subjectSourceId) {
-    this.subjectSourceId = subjectSourceId;
-  }
-
-  /**
-   * @return subjectId
-   */
-  public String getSubjectId() {
-    return subjectId;
-  }
-
-  /**
-   * @param subjectId
-   */
-  public void setSubjectId(String subjectId) {
-    this.subjectId = subjectId;
-  }
-
-  /**
-   * @return roleName
-   */
-  public String getRoleName() {
-    return roleName;
-  }
-
-  /**
-   * @param roleName
-   */
-  public void setRoleName(String roleName) {
-    this.roleName = roleName;
-  }
-
-  /**
-   * @return attributeDefNameName
-   */
-  public String getAttributeDefNameName() {
-    return attributeDefNameName;
-  }
-
-  /**
-   * @param attributeDefNameName
-   */
-  public void setAttributeDefNameName(String attributeDefNameName) {
-    this.attributeDefNameName = attributeDefNameName;
-  }
-
-  /**
-   * @return attributeDefId
-   */
-  public String getAttributeDefId() {
-    return attributeDefId;
-  }
-
-  /**
-   * @param attributeDefId
-   */
-  public void setAttributeDefId(String attributeDefId) {
-    this.attributeDefId = attributeDefId;
-  }
-
-  /**
-   * @return membershipDepth
-   */
-  public int getMembershipDepth() {
-    return membershipDepth;
-  }
-
-  /**
-   * @param membershipDepth
-   */
-  public void setMembershipDepth(int membershipDepth) {
-    this.membershipDepth = membershipDepth;
-  }
-
-  /**
-   * @return roleSetDepth
-   */
-  public int getRoleSetDepth() {
-    return roleSetDepth;
-  }
-
-  /**
-   * @param roleSetDepth
-   */
-  public void setRoleSetDepth(int roleSetDepth) {
-    this.roleSetDepth = roleSetDepth;
-  }
-
-  /**
-   * @return attributeDefNameSetDepth
-   */
-  public int getAttributeDefNameSetDepth() {
-    return attributeDefNameSetDepth;
-  }
-
-  /**
-   * @param attributeDefNameSetDepth
-   */
-  public void setAttributeDefNameSetDepth(int attributeDefNameSetDepth) {
-    this.attributeDefNameSetDepth = attributeDefNameSetDepth;
-  }
-
-  /**
-   * @return attributeAssignActionSetDepth
-   */
-  public int getAttributeAssignActionSetDepth() {
-    return attributeAssignActionSetDepth;
-  }
-
-  /**
-   * @param attributeAssignActionSetDepth
-   */
-  public void setAttributeAssignActionSetDepth(int attributeAssignActionSetDepth) {
-    this.attributeAssignActionSetDepth = attributeAssignActionSetDepth;
-  }
-
-  /**
-   * @return permissionTypeDb
-   */
-  public String getPermissionTypeDb() {
-    return permissionTypeDb;
-  }
-
-  /**
-   * @param permissionTypeDb
-   */
-  public void setPermissionTypeDb(String permissionTypeDb) {
-    this.permissionTypeDb = permissionTypeDb;
-  }
-
   
   /**
    * @return the groupSetActiveDb

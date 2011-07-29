@@ -43,18 +43,14 @@ import edu.internet2.middleware.grouper.shibboleth.dataConnector.field.BaseField
 import edu.internet2.middleware.grouper.shibboleth.dataConnector.field.GroupsField;
 import edu.internet2.middleware.grouper.shibboleth.dataConnector.field.MembersField;
 import edu.internet2.middleware.grouper.shibboleth.dataConnector.field.PrivilegeField;
-import edu.internet2.middleware.grouper.shibboleth.filter.ConditionalMatchQueryFilter;
-import edu.internet2.middleware.grouper.shibboleth.filter.MatchQueryFilter;
+import edu.internet2.middleware.grouper.shibboleth.filter.ConditionalGroupQueryFilter;
+import edu.internet2.middleware.grouper.shibboleth.filter.GroupQueryFilter;
 import edu.internet2.middleware.grouper.shibboleth.util.AttributeIdentifier;
 import edu.internet2.middleware.shibboleth.common.attribute.resolver.provider.dataConnector.BaseDataConnector;
-import edu.internet2.middleware.shibboleth.common.attribute.resolver.provider.dataConnector.DataConnector;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
 
-/**
- * A {@link DataConnector} which returns objects from Grouper.
- */
 public abstract class BaseGrouperDataConnector extends BaseDataConnector implements SourceDataConnector {
 
   /** logger */
@@ -87,8 +83,8 @@ public abstract class BaseGrouperDataConnector extends BaseDataConnector impleme
   /** the ids of all sources */
   private Set<String> sourceIds;
 
-  /** the query which filters the objects returned by this data connector */
-  private MatchQueryFilter matchQueryFilter;
+  /** the query which filters the groups returned by this data connector */
+  private GroupQueryFilter groupQueryFilter;
 
   /** a set of valid names for the first element of an attribute identifier */
   private Set<String> validFirstIdElements = new HashSet<String>();
@@ -176,11 +172,11 @@ public abstract class BaseGrouperDataConnector extends BaseDataConnector impleme
     groupsFields.trimToSize();
 
     // FUTURE improve session handling
-    if (matchQueryFilter != null) {
-      matchQueryFilter.setGrouperSession(grouperSession);
-      if (matchQueryFilter instanceof ConditionalMatchQueryFilter) {
-        ((ConditionalMatchQueryFilter) matchQueryFilter).getFilter0().setGrouperSession(grouperSession);
-        ((ConditionalMatchQueryFilter) matchQueryFilter).getFilter1().setGrouperSession(grouperSession);
+    if (groupQueryFilter != null) {
+      groupQueryFilter.setGrouperSession(grouperSession);
+      if (groupQueryFilter instanceof ConditionalGroupQueryFilter) {
+        ((ConditionalGroupQueryFilter) groupQueryFilter).getGroupFilter0().setGrouperSession(grouperSession);
+        ((ConditionalGroupQueryFilter) groupQueryFilter).getGroupFilter1().setGrouperSession(grouperSession);
       }
     }
   }
@@ -208,21 +204,21 @@ public abstract class BaseGrouperDataConnector extends BaseDataConnector impleme
   }
 
   /**
-   * Get the filter which determines the objects which will be considered by this data connector.
+   * Get the filter which determines the groups which will be considered by this data connector.
    * 
-   * @return the {@link MatchQueryFilter} or <tt>null</tt> if all objects should be considered
+   * @return the GroupQueryFilter or <tt>null</tt> if all groups should be considered
    */
-  public MatchQueryFilter getMatchQueryFilter() {
-    return matchQueryFilter;
+  public GroupQueryFilter getGroupQueryFilter() {
+    return groupQueryFilter;
   }
 
   /**
-   * Set the match query filter
+   * Set the group query filter
    * 
-   * @param groupQueryFilter the {@link MatchQueryFilter}
+   * @param groupQueryFilter the GroupQueryFilter
    */
-  public void setMatchQueryFilter(MatchQueryFilter groupQueryFilter) {
-    this.matchQueryFilter = groupQueryFilter;
+  public void setGroupQueryFilter(GroupQueryFilter groupQueryFilter) {
+    this.groupQueryFilter = groupQueryFilter;
   }
 
   /**
@@ -320,12 +316,12 @@ public abstract class BaseGrouperDataConnector extends BaseDataConnector impleme
             LOG.debug(msg);
 
             Set<Group> groups = new TreeSet<Group>();
-            MatchQueryFilter filter = getMatchQueryFilter();
+            GroupQueryFilter filter = getGroupQueryFilter();
             if (filter == null) {
               Stem root = StemFinder.findRootStem(grouperSession);
               groups.addAll(root.getChildGroups(Scope.SUB));
             } else {
-              groups.addAll(getMatchQueryFilter().getResults(grouperSession));
+              groups.addAll(getGroupQueryFilter().getResults(grouperSession));
             }
 
             LOG.debug("{} found {} before filtering", msg, groups.size());
@@ -377,7 +373,7 @@ public abstract class BaseGrouperDataConnector extends BaseDataConnector impleme
         .getFactory()
         .getAttributeDefName()
         .findAllAttributeNamesSplitScopeSecure(null, getGrouperSession(), null, SubjectFinder.findRootSubject(), null,
-            null);
+            null, null, null);
 
     for (AttributeDefName attributeDefName : attributeDefNames) {
       allAttributeDefNames.add(attributeDefName.getName());

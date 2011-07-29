@@ -47,14 +47,16 @@ import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.GrouperServiceJ2ee;
 import edu.internet2.middleware.grouper.ws.GrouperWsConfig;
+import edu.internet2.middleware.grouper.ws.coresoap.GrouperService;
+import edu.internet2.middleware.grouper.ws.coresoap.WsParam;
+import edu.internet2.middleware.grouper.ws.coresoap.WsPermissionEnvVar;
+import edu.internet2.middleware.grouper.ws.coresoap.WsResultMeta;
+import edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 import edu.internet2.middleware.grouper.ws.member.WsMemberFilter;
 import edu.internet2.middleware.grouper.ws.rest.GrouperRestInvalidRequest;
 import edu.internet2.middleware.grouper.ws.rest.GrouperRestServlet;
 import edu.internet2.middleware.grouper.ws.rest.WsRestClassLookup;
-import edu.internet2.middleware.grouper.ws.soap.WsParam;
-import edu.internet2.middleware.grouper.ws.soap.WsResultMeta;
-import edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup;
 import edu.internet2.middleware.subject.Subject;
 
 /**
@@ -62,6 +64,15 @@ import edu.internet2.middleware.subject.Subject;
  * 
  */
 public final class GrouperServiceUtils {
+
+  /**
+   * 
+   * @return the class
+   */
+  public static Class<?> currentServiceClass() {
+    return GrouperService.class;
+  }
+  
 
   /**
    * compute a url of a resource
@@ -846,6 +857,59 @@ public final class GrouperServiceUtils {
   }
 
   /**
+   * if wrong size or a name is blank, then throw descriptive exception.  Assumes all params can be put into a map,
+   * only one name can be sent per request, no blank names.
+   * @param limitEnvParams
+   * @return the map of names to values, will not return null
+   * @throws WsInvalidQueryException if problem with inputs
+   */
+  public static Map<String, Object> convertLimitsToMap(WsPermissionEnvVar[] limitEnvParams) throws WsInvalidQueryException {
+    if (limitEnvParams == null || limitEnvParams.length == 0) {
+      return new HashMap<String,Object>();
+    }
+    Map<String, Object> result = new LinkedHashMap<String, Object>(limitEnvParams.length);
+    Set<String> paramNames = new HashSet<String>();
+    int i = 0;
+    for (WsPermissionEnvVar limitEnvParam : limitEnvParams) {
+      if (limitEnvParam!=null) {
+        String envParamName = limitEnvParam.getParamName();
+        if (StringUtils.isBlank(envParamName)) {
+          throw new WsInvalidQueryException("Limit env param name index " + i
+              + " cannot be blank: '" + envParamName + "'");
+        }
+        int closeParenIndex = envParamName.indexOf(")");
+        
+        String realName = closeParenIndex == -1 ? envParamName : 
+          GrouperUtil.prefixOrSuffix(envParamName, ")", false);
+
+        if (paramNames.contains(realName)) {
+          
+          throw new WsInvalidQueryException("Limit env param name index " + i
+              + " cannot be submitted twice: '" + envParamName + "'");
+        }
+        paramNames.add(realName);
+        
+        if (!StringUtils.isBlank(limitEnvParam.getParamType())) {
+          if (envParamName.startsWith("(")) {
+            if (!envParamName.startsWith("(" + limitEnvParam.getParamType() + ")")) {
+              throw new WsInvalidQueryException("Limit env param has typed " +
+              		"name and type which do not match: " + envParamName + ", " + limitEnvParam.getParamType());
+            }
+            //good, just leave it, defined twice, but the same way
+          } else {
+            envParamName = "(" + limitEnvParam.getParamType() + ")" + envParamName;
+          }
+        }
+        
+        result.put(envParamName, limitEnvParam.getParamValue());
+      }
+      i++;
+    }
+    return result;
+
+  }
+
+  /**
    * @param requestedAttributes
    * @param requestedAttributesLength
    * @param includeSubjectDetailBoolean
@@ -912,6 +976,26 @@ public final class GrouperServiceUtils {
       throws WsInvalidQueryException {
     try {
       return GrouperUtil.booleanValue(input, defaultValue);
+    } catch (Exception e) {
+      //all info is in the message
+      throw new WsInvalidQueryException("Problem with boolean '" + paramName + "', "
+          + e.getMessage());
+    }
+  }
+
+  /**
+   * parse a boolean as "T" or "F" or "TRUE" or "FALSE" case insensitive. If
+   * not specified, then use default. If malformed, then exception
+   * 
+   * @param input
+   * @param paramName to put in the invalid query exception
+   * @return the Boolean
+   * @throws WsInvalidQueryException if there is a problem
+   */
+  public static Boolean booleanObjectValue(String input, String paramName)
+      throws WsInvalidQueryException {
+    try {
+      return GrouperUtil.booleanObjectValue(input);
     } catch (Exception e) {
       //all info is in the message
       throw new WsInvalidQueryException("Problem with boolean '" + paramName + "', "
@@ -997,6 +1081,41 @@ public final class GrouperServiceUtils {
     //not sure why someone would pass second ard and not first, but oh well 
     if (!StringUtils.isBlank(paramName1)) {
       return new WsParam[]{new WsParam(paramName1, paramValue1)};
+    }
+    return null;
+  }
+
+
+  /**
+   * organize limit env vars
+   * 
+   * @param limitEnvVarName0 limitEnvVars if processing limits, pass in a set of limits.  The name is the
+   * name of the variable, and the value is the value.  Note, you can typecast the
+   * values by putting a valid type in parens in front of the param name.  e.g.
+   * name: (int)amount, value: 50
+   * @param limitEnvVarValue0 first limit env var value
+   * @param limitEnvVarType0 first limit env var type
+   * @param limitEnvVarName1 second limit env var name
+   * @param limitEnvVarValue1 second limit env var value
+   * @param limitEnvVarType1 second limit env var type
+   * @return the array limit env vars
+   */
+  public static WsPermissionEnvVar[] limitEnvVars(String limitEnvVarName0, 
+      String limitEnvVarValue0, String limitEnvVarType0, String limitEnvVarName1, 
+      String limitEnvVarValue1, String limitEnvVarType1) {
+    
+    if (!StringUtils.isBlank(limitEnvVarName0)) {
+      if (!StringUtils.isBlank(limitEnvVarName1)) {
+        WsPermissionEnvVar[] limitEnvVars = new WsPermissionEnvVar[2];
+        limitEnvVars[0] = new WsPermissionEnvVar(limitEnvVarName0, limitEnvVarValue0, limitEnvVarType0);
+        limitEnvVars[1] = new WsPermissionEnvVar(limitEnvVarName1, limitEnvVarValue1, limitEnvVarType1);
+        return limitEnvVars;
+      }
+      return new WsPermissionEnvVar[]{new WsPermissionEnvVar(limitEnvVarName0, limitEnvVarValue0, limitEnvVarType0)};
+    }
+    //not sure why someone would pass second ard and not first, but oh well 
+    if (!StringUtils.isBlank(limitEnvVarName1)) {
+      return new WsPermissionEnvVar[]{new WsPermissionEnvVar(limitEnvVarName1, limitEnvVarValue1, limitEnvVarType1)};
     }
     return null;
   }

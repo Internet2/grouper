@@ -12,9 +12,9 @@ import junit.textui.TestRunner;
 
 import org.apache.commons.lang.StringUtils;
 
+import edu.internet2.middleware.grouper.ws.coresoap.WsGetMembershipsResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsMembership;
 import edu.internet2.middleware.grouper.ws.rest.WsRestClassLookup;
-import edu.internet2.middleware.grouper.ws.soap.WsGetMembershipsResults;
-import edu.internet2.middleware.grouper.ws.soap.WsMembership;
 
 
 /**

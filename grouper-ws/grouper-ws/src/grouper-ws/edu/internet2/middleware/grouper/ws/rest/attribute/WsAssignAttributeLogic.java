@@ -43,23 +43,24 @@ import edu.internet2.middleware.grouper.group.GroupMember;
 import edu.internet2.middleware.grouper.group.TypeOfGroup;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
+import edu.internet2.middleware.grouper.permissions.PermissionAllowed;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributeResult;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributesResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeAssign;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeAssignLookup;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeAssignValue;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeAssignValueResult;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefLookup;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameLookup;
+import edu.internet2.middleware.grouper.ws.coresoap.WsGroupLookup;
+import edu.internet2.middleware.grouper.ws.coresoap.WsMembershipAnyLookup;
+import edu.internet2.middleware.grouper.ws.coresoap.WsMembershipLookup;
+import edu.internet2.middleware.grouper.ws.coresoap.WsParam;
+import edu.internet2.middleware.grouper.ws.coresoap.WsStemLookup;
+import edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributesResults.WsAssignAttributesResultsCode;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
-import edu.internet2.middleware.grouper.ws.soap.WsAssignAttributeResult;
-import edu.internet2.middleware.grouper.ws.soap.WsAssignAttributesResults;
-import edu.internet2.middleware.grouper.ws.soap.WsAttributeAssign;
-import edu.internet2.middleware.grouper.ws.soap.WsAttributeAssignLookup;
-import edu.internet2.middleware.grouper.ws.soap.WsAttributeAssignValue;
-import edu.internet2.middleware.grouper.ws.soap.WsAttributeAssignValueResult;
-import edu.internet2.middleware.grouper.ws.soap.WsAttributeDefLookup;
-import edu.internet2.middleware.grouper.ws.soap.WsAttributeDefNameLookup;
-import edu.internet2.middleware.grouper.ws.soap.WsGroupLookup;
-import edu.internet2.middleware.grouper.ws.soap.WsMembershipAnyLookup;
-import edu.internet2.middleware.grouper.ws.soap.WsMembershipLookup;
-import edu.internet2.middleware.grouper.ws.soap.WsParam;
-import edu.internet2.middleware.grouper.ws.soap.WsStemLookup;
-import edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup;
-import edu.internet2.middleware.grouper.ws.soap.WsAssignAttributesResults.WsAssignAttributesResultsCode;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
 
 
@@ -255,6 +256,7 @@ public class WsAssignAttributeLogic {
    * related actions, if blank, then just do all
    * @param attributeDefTypesToReplace if replacing attributeDefNames, then these are the
    * related attributeDefTypes, if blank, then just do all
+   * @param disallowed is disallowed
    */
   public static void assignAttributesHelper(AttributeAssignType attributeAssignType,
       WsAttributeDefNameLookup[] wsAttributeDefNameLookups,
@@ -272,7 +274,8 @@ public class WsAssignAttributeLogic {
       boolean includeSubjectDetail, String[] subjectAttributeNames,
       boolean includeGroupDetail, WsAssignAttributesResults wsAssignAttributesResults,
       GrouperSession session, WsParam[] params, TypeOfGroup typeOfGroup, AttributeDefType attributeDefType,
-      WsAttributeDefLookup[] attributeDefsToReplace, String[] actionsToReplace, String[] attributeDefTypesToReplace) {
+      WsAttributeDefLookup[] attributeDefsToReplace, String[] actionsToReplace, String[] attributeDefTypesToReplace, 
+      Boolean disallowed) {
     
     final String[] subjectAttributeNamesToRetrieve = GrouperServiceUtils
       .calculateSubjectAttributes(subjectAttributeNames, includeSubjectDetail);
@@ -373,6 +376,9 @@ public class WsAssignAttributeLogic {
               + " has attributeAssignType: " + attributeAssign.getAttributeAssignType() 
               + " but this operation was passed attributeAssignType: " + attributeAssignType + ".  ");
         }
+        if (disallowed != null && (attributeAssign.isDisallowed() != disallowed)) {
+          throw new WsInvalidQueryException("Cannot change the disallowed property of an assignment.  ");
+        }
       }
       
       //dont pass in an action
@@ -395,6 +401,10 @@ public class WsAssignAttributeLogic {
           switch(attributeAssignOperation) {
             
             case assign_attr:
+              
+              if (disallowed) {
+                throw new WsInvalidQueryException("Cant pass in disallowed if ws attribute assign lookups...  delete and re-add");
+              }
               
               assignmentMetadataAndValues(wsAssignAttributeResult, 
                   attributeAssign, values, assignmentNotes, assignmentEnabledTime, 
@@ -562,7 +572,7 @@ public class WsAssignAttributeLogic {
             assignmentEnabledTime, assignmentDisabledTime, delegatable,
             attributeAssignValueOperation, actions, errorMessage, attributeDefNameIds,
             wsAssignAttributeResultList, attributeAssignable,
-            existingAttributeAssignsBeforeReplace);
+            existingAttributeAssignsBeforeReplace, disallowed);
         
         //remove existings if replacing
         if (attributeAssignOperation == AttributeAssignOperation.replace_attrs) {
@@ -672,6 +682,7 @@ public class WsAssignAttributeLogic {
    * @param wsAssignAttributeResultList
    * @param attributeAssignable
    * @param existingAttributeAssignsBeforeReplace
+   * @param disallowed true to make a permission disallowed
    */
   private static void attributeAssignOnOwnerHelper(
       AttributeAssignOperation attributeAssignOperation, WsAttributeAssignValue[] values,
@@ -681,13 +692,16 @@ public class WsAssignAttributeLogic {
       StringBuilder errorMessage, Set<String> attributeDefNameIds,
       List<WsAssignAttributeResult> wsAssignAttributeResultList,
       AttributeAssignable attributeAssignable,
-      Set<AttributeAssign> existingAttributeAssignsBeforeReplace) {
+      Set<AttributeAssign> existingAttributeAssignsBeforeReplace, Boolean disallowed) {
 
     if (GrouperUtil.length(attributeDefNameIds) == 0 
         || ((GrouperUtil.length(attributeDefNameIds) == 1 && GrouperUtil.isBlank(attributeDefNameIds.iterator().next())))) {
       throw new WsInvalidQueryException("You need to pass in an attributeDefName lookup.  ");
     }
-
+    
+    PermissionAllowed permissionAllowed = (disallowed != null && disallowed) ? PermissionAllowed.DISALLOWED 
+        : PermissionAllowed.ALLOWED;
+    
     for (String attributeDefNameId : GrouperUtil.nonNull(attributeDefNameIds)) {
       if (StringUtils.isBlank(attributeDefNameId)) {
         continue;
@@ -707,6 +721,9 @@ public class WsAssignAttributeLogic {
           AttributeAssignResult attributeAssignResult = null;
           switch (attributeAssignOperation) {
             case add_attr:
+              if (permissionAllowed.isDisallowed()) {
+                throw new WsInvalidQueryException("Cant pass in disallowed with add_attr, must be assign_attr");
+              }
               attributeAssignResult = attributeAssignable.getAttributeDelegate().addAttribute(action, attributeDefName);
               attributeAssigns = new AttributeAssign[]{attributeAssignResult.getAttributeAssign()};
               assignmentMetadataAndValues(wsAssignAttributeResult, 
@@ -717,7 +734,7 @@ public class WsAssignAttributeLogic {
               removeAttributeAssignForReplace(existingAttributeAssignsBeforeReplace, attributeDefNameId, action);
               //fall through to assign
             case assign_attr:
-              attributeAssignResult = attributeAssignable.getAttributeDelegate().assignAttribute(action, attributeDefName);
+              attributeAssignResult = attributeAssignable.getAttributeDelegate().assignAttribute(action, attributeDefName, permissionAllowed);
               attributeAssigns = new AttributeAssign[]{attributeAssignResult.getAttributeAssign()};
               assignmentMetadataAndValues(wsAssignAttributeResult, 
                   attributeAssigns[0], values, assignmentNotes, assignmentEnabledTime, assignmentDisabledTime, 

@@ -5,16 +5,25 @@
 package edu.internet2.middleware.grouper.grouperUi.beans.permissionUpdate;
 
 import java.io.Serializable;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.lang.StringUtils;
+
+import edu.internet2.middleware.grouper.attr.AttributeDefName;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssignType;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeAssign;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiPermissionEntry;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiPermissionEntryActionsContainer;
 import edu.internet2.middleware.grouper.permissions.PermissionEntry.PermissionType;
+import edu.internet2.middleware.grouper.permissions.limits.PermissionLimitDocumentation;
+import edu.internet2.middleware.grouper.permissions.limits.PermissionLimitInterface;
+import edu.internet2.middleware.grouper.permissions.limits.PermissionLimitUtils;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.tags.TagUtils;
 import edu.internet2.middleware.grouper.ui.util.MapWrapper;
@@ -27,6 +36,95 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  */
 @SuppressWarnings("serial")
 public class PermissionUpdateRequestContainer implements Serializable {
+
+  /** all limits on screen for documentation */
+  private Set<AttributeDefName> allLimitsOnScreen = new LinkedHashSet<AttributeDefName>();
+  
+  /**
+   * all limits on screen for documentation, these should be ordered by displayExtension
+   * @return all limits on screen for documentation
+   */
+  public Set<AttributeDefName> getAllLimitsOnScreen() {
+    return this.allLimitsOnScreen;
+  }
+
+  /**
+   * limit documentation map, name of attributedef name, to string or documentation, could have HTML
+   * @return limit map
+   */
+  public Map<String, String> getLimitDocumentation() {
+    return new MapWrapper<String, String>() {
+
+      @Override
+      public String get(Object key) {
+        String attributeDefName = (String)key;
+        
+        //this wont return null
+        PermissionLimitInterface permissionLimitInterface = PermissionLimitUtils.logicInstance(attributeDefName);
+        
+        PermissionLimitDocumentation permissionLimitDocumentation = permissionLimitInterface.documentation();
+        
+        String documentationKey = permissionLimitDocumentation == null ? null : permissionLimitDocumentation.getDocumentationKey();
+        
+        if (StringUtils.isBlank(documentationKey)) {
+          documentationKey = "simplePermissionUpdate.noLimitDocumentationConfigured";
+        }
+        
+        String documentation = TagUtils.navResourceString(documentationKey);
+        
+        for (int i=0; i<GrouperUtil.length(permissionLimitDocumentation.getArgs()); i++) {
+          documentation = StringUtils.replace(documentation, "{" + 0 + "}", permissionLimitDocumentation.getArgs().get(i));
+        }
+        
+        return documentation;
+        
+      }
+      
+    };
+  }
+  
+  /** if the panel to simulate limits should display */
+  private boolean simulateLimits = false;
+  
+  /**
+   * label for type
+   * @return label for type
+   */
+  public String getAttributeAssignTypeLabelKey() {
+    
+    switch (this.getAttributeAssignType()) {
+
+      case group:
+      {
+        return "simplePermissionUpdate.assignHeaderOwnerRole";
+      }
+      case any_mem:
+      {
+        return "simplePermissionUpdate.assignHeaderOwnerRoleMembership";
+      }
+      
+      default:
+        throw new RuntimeException("Not expecting attribute assign type: " + this.getAttributeAssignType());
+    }
+    
+  }
+
+  
+  /**
+   * if the panel to simulate limits should display
+   * @return if the panel to simulate limits should display
+   */
+  public boolean isSimulateLimits() {
+    return this.simulateLimits;
+  }
+
+  /**
+   * if the panel to simulate limits should display
+   * @param simulateLimits1
+   */
+  public void setSimulateLimits(boolean simulateLimits1) {
+    this.simulateLimits = simulateLimits1;
+  }
 
   /** default attribute def id */
   private String defaultAttributeDefId = null;
@@ -289,7 +387,7 @@ public class PermissionUpdateRequestContainer implements Serializable {
   }
 
   /**
-   * store to session scope
+   * store to request scope
    */
   public void storeToRequest() {
     HttpServletRequest httpServletRequest = GrouperUiFilter.retrieveHttpServletRequest();
@@ -337,11 +435,9 @@ public class PermissionUpdateRequestContainer implements Serializable {
       Integer theInt = GrouperUtil.intObjectValue(key, false);
       int repeatAfterRows = TagUtils.mediaResourceInt("simplePermissionUpdate.repeatPermissionHeaderAfterRows", 20);
 
-      if (theInt % repeatAfterRows == 0) {
-        return true;
-      }
-      return false;
-      
+      boolean result = theInt % repeatAfterRows == 0;
+      //System.out.println("Row: " + theInt + ": " + result);
+      return result;
     }
     
   };
@@ -355,8 +451,52 @@ public class PermissionUpdateRequestContainer implements Serializable {
   /** default role id */
   private String defaultRoleId = null;
 
+  /** default member display name */
+  private String defaultMemberDisplayName = null;
+
+  /**
+   * default member id
+   * @return default member id
+   */
+  public String getDefaultMemberDisplayName() {
+    return this.defaultMemberDisplayName;
+  }
+
+  /**
+   * default member id
+   * @param defaultMemberDisplayName1
+   */
+  public void setDefaultMemberDisplayName(String defaultMemberDisplayName1) {
+    this.defaultMemberDisplayName = defaultMemberDisplayName1;
+  }
+
+  /**
+   * default member id
+   * @return default member id
+   */
+  public String getDefaultMemberId() {
+    return this.defaultMemberId;
+  }
+
+  /**
+   * default member id
+   * @param defaultMemberId1
+   */
+  public void setDefaultMemberId(String defaultMemberId1) {
+    this.defaultMemberId = defaultMemberId1;
+  }
+
+  /** default member id */
+  private String defaultMemberId = null;
+
   /** default action */
   private String defaultAction = null;
+
+  /** if we are assigning to a group, folder, etc, this is the non underlying assign type */
+  private AttributeAssignType attributeAssignAssignType;
+
+  /** if we are assigning to a group, folder, etc */
+  private AttributeAssignType attributeAssignType;
   
   /**
    * default action 
@@ -430,6 +570,38 @@ public class PermissionUpdateRequestContainer implements Serializable {
     
     return this.showHeader;
     
+  }
+
+  /**
+   * if we are assigning to a group, folder, etc, this is the non underlying assign type
+   * @return assign type
+   */
+  public AttributeAssignType getAttributeAssignAssignType() {
+    return this.attributeAssignAssignType;
+  }
+
+  /**
+   * if we are assigning to a group, folder, etc
+   * @return type
+   */
+  public AttributeAssignType getAttributeAssignType() {
+    return this.attributeAssignType;
+  }
+
+  /**
+   * if we are assigning to a group, folder, etc, this is the non underlying assign type
+   * @param attributeAssignAssignType1
+   */
+  public void setAttributeAssignAssignType(AttributeAssignType attributeAssignAssignType1) {
+    this.attributeAssignAssignType = attributeAssignAssignType1;
+  }
+
+  /**
+   * if we are assigning to a group, folder, etc
+   * @param attributeAssignType1
+   */
+  public void setAttributeAssignType(AttributeAssignType attributeAssignType1) {
+    this.attributeAssignType = attributeAssignType1;
   }
 
 

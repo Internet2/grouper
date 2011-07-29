@@ -12,14 +12,14 @@ import org.apache.commons.httpclient.params.DefaultHttpParams;
 import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.commons.lang.StringUtils;
 
+import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributesResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeAssignValue;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameLookup;
+import edu.internet2.middleware.grouper.ws.coresoap.WsGroupLookup;
 import edu.internet2.middleware.grouper.ws.rest.WsRestResultProblem;
 import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestAssignAttributesRequest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType;
-import edu.internet2.middleware.grouper.ws.soap.WsAssignAttributesResults;
-import edu.internet2.middleware.grouper.ws.soap.WsAttributeAssignValue;
-import edu.internet2.middleware.grouper.ws.soap.WsAttributeDefNameLookup;
-import edu.internet2.middleware.grouper.ws.soap.WsGroupLookup;
 import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
 
 /**

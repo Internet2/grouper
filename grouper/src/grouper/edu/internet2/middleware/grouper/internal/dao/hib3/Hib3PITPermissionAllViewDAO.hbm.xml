@@ -75,6 +75,7 @@
     <property name="attributeAssignActiveDb" column="attribute_assign_active" />
     <property name="attributeAssignStartTimeDb" column="attribute_assign_start_time" />
     <property name="attributeAssignEndTimeDb" column="attribute_assign_end_time" />     
-    
+
+    <property name="disallowedDb" column="disallowed"/>
   </class>
 </hibernate-mapping>

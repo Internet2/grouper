@@ -10,6 +10,8 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
+
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.grouperClient.ws.GrouperClientWs;
 import edu.internet2.middleware.grouperClient.ws.beans.WsAttributeDefLookup;
@@ -17,6 +19,7 @@ import edu.internet2.middleware.grouperClient.ws.beans.WsAttributeDefNameLookup;
 import edu.internet2.middleware.grouperClient.ws.beans.WsGetPermissionAssignmentsResults;
 import edu.internet2.middleware.grouperClient.ws.beans.WsGroupLookup;
 import edu.internet2.middleware.grouperClient.ws.beans.WsParam;
+import edu.internet2.middleware.grouperClient.ws.beans.WsPermissionEnvVar;
 import edu.internet2.middleware.grouperClient.ws.beans.WsRestGetPermissionAssignmentsRequest;
 import edu.internet2.middleware.grouperClient.ws.beans.WsSubjectLookup;
 
@@ -25,6 +28,95 @@ import edu.internet2.middleware.grouperClient.ws.beans.WsSubjectLookup;
  * class to run a get permission assignments web service call
  */
 public class GcGetPermissionAssignments {
+
+  /**
+   * T of F (defaults to F) if we should filter out non immediate permissions
+   */
+  private boolean immediateOnly;
+  
+  /**
+   * T of F (defaults to F) if we should filter out non immediate permissions
+   * @param theImmediateOnly
+   * @return this for chaining
+   */
+  public GcGetPermissionAssignments assignImmediateOnly(boolean theImmediateOnly) {
+    this.immediateOnly = theImmediateOnly;
+    return this;
+  }
+  
+  /**
+   * are we looking for role permissions or subject permissions?  from
+   * enum PermissionType: role, or role_subject.  defaults to role_subject permissions
+   */
+  private String permissionType;
+  
+  /**
+   * are we looking for role permissions or subject permissions?  from
+   * enum PermissionType: role, or role_subject.  defaults to role_subject permissions
+   * @param thePermissionType
+   * @return this for chaining
+   */
+  public GcGetPermissionAssignments assignPermissionType(String thePermissionType) {
+    this.permissionType = thePermissionType;
+    return this;
+  }
+  
+  /**
+   * if we should find the best answer, or process limits, etc.  From the enum
+   * PermissionProcessor.  example values are: FILTER_REDUNDANT_PERMISSIONS, 
+   * FILTER_REDUNDANT_PERMISSIONS_AND_PROCESS_LIMITS, FILTER_REDUNDANT_PERMISSIONS_AND_ROLES,
+   * FILTER_REDUNDANT_PERMISSIONS_AND_ROLES_AND_PROCESS_LIMITS, PROCESS_LIMITS
+   */
+  private String permissionProcessor;
+  
+  /**
+   * if we should find the best answer, or process limits, etc.  From the enum
+   * PermissionProcessor.  example values are: FILTER_REDUNDANT_PERMISSIONS, 
+   * FILTER_REDUNDANT_PERMISSIONS_AND_PROCESS_LIMITS, FILTER_REDUNDANT_PERMISSIONS_AND_ROLES,
+   * FILTER_REDUNDANT_PERMISSIONS_AND_ROLES_AND_PROCESS_LIMITS, PROCESS_LIMITS
+   * @param thePermissionProcessor
+   * @return this for chaining
+   */
+  public GcGetPermissionAssignments assignPermissionProcessor(String thePermissionProcessor) {
+    this.permissionProcessor = thePermissionProcessor;
+    return this;
+  }
+
+  /**
+   * limitEnvVars if processing limits, pass in a set of limits.  The name is the
+   * name of the variable, and the value is the value.  Note, you can typecast the
+   * values by putting a valid type in parens in front of the param name.  e.g.
+   * name: (int)amount, value: 50
+   */
+  private List<WsPermissionEnvVar> permissionEnvVars = new ArrayList<WsPermissionEnvVar>();
+
+  /**
+   * limitEnvVars if processing limits, pass in a set of limits.  The name is the
+   * name of the variable, and the value is the value.  Note, you can typecast the
+   * values by putting a valid type in parens in front of the param name.  e.g.
+   * name: (int)amount, value: 50
+   * @param wsPermissionEnvVar
+   * @return this for chaining
+   */
+  public GcGetPermissionAssignments addPermissionEnvVar(WsPermissionEnvVar wsPermissionEnvVar) {
+    this.permissionEnvVars.add(wsPermissionEnvVar);
+    return this;
+  }
+  
+  /**
+   * limitEnvVars if processing limits, pass in a set of limits.  The name is the
+   * name of the variable, and the value is the value.  Note, you can typecast the
+   * values by putting a valid type in parens in front of the param name.  e.g.
+   * name: (int)amount, value: 50
+   * @param envVarName
+   * @param envVarValue
+   * @param envVarType
+   * @return this for chaining
+   */
+  public GcGetPermissionAssignments addPermissionEnvVar(String envVarName, String envVarValue, String envVarType) {
+    this.permissionEnvVars.add(new WsPermissionEnvVar(envVarName, envVarValue, envVarType));
+    return this;
+  }
 
   /** A for all, T or null for enabled only, F for disabled only */
   private String enabled;
@@ -407,6 +499,22 @@ public class GcGetPermissionAssignments {
       
       getPermissionAssignments.setPointInTimeFrom(GrouperClientUtils.dateToString(this.pointInTimeFrom));
       getPermissionAssignments.setPointInTimeTo(GrouperClientUtils.dateToString(this.pointInTimeTo));
+      
+      if (this.immediateOnly) {
+        getPermissionAssignments.setImmediateOnly(this.immediateOnly ? "T" : "F");
+      }
+      
+      if (!StringUtils.isBlank(this.permissionType)) {
+        getPermissionAssignments.setPermissionType(this.permissionType);
+      }
+      
+      if (!StringUtils.isBlank(this.permissionProcessor)) {
+        getPermissionAssignments.setPermissionProcessor(this.permissionProcessor);
+      }
+
+      if (this.permissionEnvVars.size() > 0) {
+        getPermissionAssignments.setLimitEnvVars(GrouperClientUtils.toArray(this.permissionEnvVars, WsPermissionEnvVar.class));
+      }
       
       GrouperClientWs grouperClientWs = new GrouperClientWs();
       

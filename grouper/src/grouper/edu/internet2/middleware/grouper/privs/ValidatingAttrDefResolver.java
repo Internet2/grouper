@@ -28,7 +28,6 @@ import edu.internet2.middleware.grouper.internal.util.ParameterHelper;
 import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.permissions.PermissionEntry;
 import edu.internet2.middleware.grouper.pit.PITAttributeAssign;
-import edu.internet2.middleware.grouper.pit.PITPermissionAllView;
 import edu.internet2.middleware.subject.Subject;
 
 /**
@@ -219,15 +218,6 @@ public class ValidatingAttrDefResolver extends AttributeDefResolverDecorator {
       Set<PermissionEntry> permissionsEntries) {
     this.param.notNullSubject(subject);
     return super.getDecoratedResolver().postHqlFilterPermissions(subject, permissionsEntries);
-  }
-
-  /**
-   * @see edu.internet2.middleware.grouper.privs.AttributeDefResolverDecorator#postHqlFilterPITPermissions(edu.internet2.middleware.subject.Subject, java.util.Set)
-   */
-  public Set<PITPermissionAllView> postHqlFilterPITPermissions(Subject subject,
-      Set<PITPermissionAllView> pitPermissionsEntries) {
-    this.param.notNullSubject(subject);
-    return super.getDecoratedResolver().postHqlFilterPITPermissions(subject, pitPermissionsEntries);
   }
   
   /**

@@ -262,6 +262,34 @@ public class MembershipFinder {
    * @throws  SchemaException
    */
   public static Membership findImmediateMembership(
+    GrouperSession s, Group g, Subject subj, boolean exceptionIfNotFound) 
+      throws  MembershipNotFoundException, SchemaException {
+    return findImmediateMembership(s, g, subj, Group.getDefaultList(), exceptionIfNotFound);
+  }
+
+  /**
+   * Return the immediate membership if it exists.  
+   * 
+   * An immediate member is directly assigned to a group.
+   * A composite group has no immediate members.  Note that a 
+   * member can have 0 to 1 immediate memberships
+   * to a single group, and 0 to many effective memberships to a group.
+   * A group can have potentially unlimited effective 
+   * memberships
+   * 
+   * <p/>
+   * <pre class="eg">
+   * </pre>
+   * @param   s     Get membership within this session context.
+   * @param   g     Immediate membership has this group.
+   * @param   subj  Immediate membership has this subject.
+   * @param   f     Immediate membership has this list.
+   * @param exceptionIfNotFound
+   * @return  A {@link Membership} object
+   * @throws  MembershipNotFoundException 
+   * @throws  SchemaException
+   */
+  public static Membership findImmediateMembership(
     GrouperSession s, Group g, Subject subj, Field f, boolean exceptionIfNotFound
   ) throws  MembershipNotFoundException, SchemaException {
     //note, no need for GrouperSession inverse of control

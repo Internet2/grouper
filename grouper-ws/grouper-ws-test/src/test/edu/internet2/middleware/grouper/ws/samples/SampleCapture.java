@@ -164,7 +164,7 @@ public class SampleCapture {
     
     setupData();
     
-    captureAssignAttributesWithValue();
+    //captureAssignAttributesWithValue();
     //
     
 //  captureRampart();
@@ -204,6 +204,8 @@ public class SampleCapture {
       
       RegistryReset.internal_resetRegistryAndAddTestSubjects(false);
       
+      GrouperCheckConfig.checkAttributes();
+
       GrouperCheckConfig.checkGroups();
 
       Subject grouperSystemSubject = SubjectFinder.findById("GrouperSystem", true);

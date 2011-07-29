@@ -3,11 +3,11 @@
  */
 package edu.internet2.middleware.grouper.ws.rest.member;
 
+import edu.internet2.middleware.grouper.ws.coresoap.WsMemberChangeSubject;
+import edu.internet2.middleware.grouper.ws.coresoap.WsParam;
+import edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup;
 import edu.internet2.middleware.grouper.ws.rest.WsRequestBean;
 import edu.internet2.middleware.grouper.ws.rest.method.GrouperRestHttpMethod;
-import edu.internet2.middleware.grouper.ws.soap.WsMemberChangeSubject;
-import edu.internet2.middleware.grouper.ws.soap.WsParam;
-import edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup;
 
 /**
  * request bean for rest member change subject lite

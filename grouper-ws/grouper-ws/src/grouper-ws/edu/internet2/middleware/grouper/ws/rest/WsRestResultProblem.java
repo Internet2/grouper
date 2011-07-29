@@ -3,8 +3,8 @@
  */
 package edu.internet2.middleware.grouper.ws.rest;
 
-import edu.internet2.middleware.grouper.ws.soap.WsResponseMeta;
-import edu.internet2.middleware.grouper.ws.soap.WsResultMeta;
+import edu.internet2.middleware.grouper.ws.coresoap.WsResponseMeta;
+import edu.internet2.middleware.grouper.ws.coresoap.WsResultMeta;
 
 /**
  *

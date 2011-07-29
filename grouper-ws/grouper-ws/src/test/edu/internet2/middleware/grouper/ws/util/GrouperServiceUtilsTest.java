@@ -9,12 +9,12 @@ import java.util.Map;
 import junit.framework.TestCase;
 import junit.textui.TestRunner;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouper.ws.coresoap.WsDeleteMemberLiteResult;
+import edu.internet2.middleware.grouper.ws.coresoap.WsResponseMeta;
+import edu.internet2.middleware.grouper.ws.coresoap.WsResultMeta;
 import edu.internet2.middleware.grouper.ws.rest.contentType.WsRestRequestContentType;
 import edu.internet2.middleware.grouper.ws.rest.member.WsRestAddMemberLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.member.WsRestGetMembersLiteRequest;
-import edu.internet2.middleware.grouper.ws.soap.WsDeleteMemberLiteResult;
-import edu.internet2.middleware.grouper.ws.soap.WsResponseMeta;
-import edu.internet2.middleware.grouper.ws.soap.WsResultMeta;
 
 /**
  *

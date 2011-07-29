@@ -4,7 +4,7 @@
  */
 package edu.internet2.middleware.grouper.ws;
 
-import edu.internet2.middleware.grouper.ws.soap.WsResultMeta;
+import edu.internet2.middleware.grouper.ws.coresoap.WsResultMeta;
 
 
 /**

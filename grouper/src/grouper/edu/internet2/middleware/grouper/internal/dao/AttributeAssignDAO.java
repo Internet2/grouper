@@ -12,6 +12,7 @@ import org.apache.commons.collections.keyvalue.MultiKey;
 
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
+import edu.internet2.middleware.grouper.attr.AttributeDefType;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignType;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValueContainer;
@@ -347,13 +348,39 @@ public interface AttributeAssignDAO extends GrouperDAO {
    * @param actions (null means all actions)
    * @param enabled (null means all, true means enabled, false means disabled)
    * @param includeAssignmentsOnAssignments if assignments on assignments should also be included
+   * @param attributeDefType null for all, or specify a type e.g. AttributeDefType.limit
    * @return the assignments
    */
   public Set<AttributeAssign> findGroupAttributeAssignments(
       Collection<String> attributeAssignIds,
       Collection<String> attributeDefIds, 
       Collection<String> attributeDefNameIds,
-      Collection<String> groupIds, Collection<String> actions, Boolean enabled, boolean includeAssignmentsOnAssignments);
+      Collection<String> groupIds, 
+      Collection<String> actions, 
+      Boolean enabled, 
+      boolean includeAssignmentsOnAssignments,
+      AttributeDefType attributeDefType);
+
+  /**
+   * securely search for assignments.  need to pass in either the assign ids, def ids, def name ids, or group ids
+   * cannot have more than 100 bind variables
+   * @param attributeAssignIds
+   * @param attributeDefIds optional
+   * @param attributeDefNameIds mutually exclusive with attributeDefIds
+   * @param groupIds optional
+   * @param actions (null means all actions)
+   * @param enabled (null means all, true means enabled, false means disabled)
+   * @param includeAssignmentsOnAssignments if assignments on assignments should also be included
+   * @return the assignments
+   */
+  public Set<AttributeAssign> findGroupAttributeAssignments(
+      Collection<String> attributeAssignIds,
+      Collection<String> attributeDefIds, 
+      Collection<String> attributeDefNameIds,
+      Collection<String> groupIds, 
+      Collection<String> actions, 
+      Boolean enabled, 
+      boolean includeAssignmentsOnAssignments);
 
   /**
    * securely search for assignments.  need to pass in either the assign ids, def ids, def name ids, or stem ids
@@ -451,15 +478,47 @@ public interface AttributeAssignDAO extends GrouperDAO {
       Boolean enabled, boolean includeAssignmentsOnAssignments);
 
   /**
+   * securely search for assignments.  need to pass in either the assign ids, def ids, def name ids, or membership ids
+   * cannot have more than 100 bind variables
+   * @param attributeAssignIds
+   * @param attributeDefIds optional
+   * @param attributeDefNameIds mutually exclusive with attributeDefIds
+   * @param groupIdsAndMemberIds optional
+   * @param actions (null means all actions)
+   * @param enabled (null means all, true means enabled, false means disabled)
+   * @param includeAssignmentsOnAssignments if assignments on assignments should also be included
+   * @param attributeDefType attr, perm, limit, or null for all
+   * @return the assignments
+   */
+  public Set<AttributeAssign> findAnyMembershipAttributeAssignments(
+      Collection<String> attributeAssignIds,
+      Collection<String> attributeDefIds, 
+      Collection<String> attributeDefNameIds,
+      Collection<MultiKey> groupIdsAndMemberIds, Collection<String> actions, 
+      Boolean enabled, boolean includeAssignmentsOnAssignments, AttributeDefType attributeDefType);
+
+  /**
    * find assignments on assignments.  Note, it is assumed the current user can read the assignments passed in (and other underlying objects),
    * so only the attributeDefs of the assignments on assignments are checked for security
    * @param attributeAssigns to find assignments on these assignments
-   * @param attributeAssignType of the assignments we are looking for
+   * @param attributeAssignType of the assignments we are looking for or null for all
    * @param enabled null for all, true for enabled only, false for disabled only
    * @return the assignments
    */
   public Set<AttributeAssign> findAssignmentsOnAssignments(Collection<AttributeAssign> attributeAssigns, 
       AttributeAssignType attributeAssignType, Boolean enabled);
+
+  /**
+   * find assignments on assignments.  Note, it is assumed the current user can read the assignments passed in (and other underlying objects),
+   * so only the attributeDefs of the assignments on assignments are checked for security
+   * @param attributeAssignIds to find assignments on these assignment ids
+   * @param attributeAssignType of the assignments we are looking for
+   * @param attributeDefType attr, perm, limit, or null for all
+   * @param enabled null for all, true for enabled only, false for disabled only
+   * @return the assignments
+   */
+  public Set<AttributeAssign> findAssignmentsOnAssignmentsByIds(Collection<String> attributeAssignIds, 
+      AttributeAssignType attributeAssignType, AttributeDefType attributeDefType, Boolean enabled);
 
   /**
    * securely search for attribute def names.  need to pass in either the assign ids, def ids, def name ids, or group ids

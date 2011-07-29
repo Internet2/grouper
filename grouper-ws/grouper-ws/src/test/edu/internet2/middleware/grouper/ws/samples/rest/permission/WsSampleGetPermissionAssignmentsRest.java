@@ -12,12 +12,12 @@ import org.apache.commons.httpclient.params.DefaultHttpParams;
 import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.commons.lang.StringUtils;
 
+import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefLookup;
+import edu.internet2.middleware.grouper.ws.coresoap.WsGetPermissionAssignmentsResults;
 import edu.internet2.middleware.grouper.ws.rest.WsRestResultProblem;
 import edu.internet2.middleware.grouper.ws.rest.permission.WsRestGetPermissionAssignmentsRequest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType;
-import edu.internet2.middleware.grouper.ws.soap.WsAttributeDefLookup;
-import edu.internet2.middleware.grouper.ws.soap.WsGetPermissionAssignmentsResults;
 import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
 
 /**

@@ -46,6 +46,16 @@ public interface AttributeAssignValueDAO extends GrouperDAO {
   public Set<AttributeAssignValue> findByAttributeAssignId(String attributeAssignId);
 
   /**
+   * find values of assignment based on ids, batched (i.e. pass in as meny ids as you want)
+   * 
+   * this assumes you are allowed to read them... doesnt check security
+   * 
+   * @param attributeAssignIds
+   * @return the attribute assign values or empty if not there
+   */
+  public Set<AttributeAssignValue> findByAttributeAssignIds(Collection<String> attributeAssignIds);
+
+  /**
    * find values of assignment
    * @param attributeAssignId
    * @param queryOptions 

@@ -511,7 +511,10 @@ public class WsRestAssignPermissionsLiteRequest implements WsRequestBean {
   private String paramName1; 
 
   /** reserved for future use */
-  private String paramValue1; 
+  private String paramValue1;
+
+  /** T or F (defaults to F), if this permission assignment is disallowed */
+  private String disallowed; 
 
   /**
    * reserved for future use
@@ -575,6 +578,22 @@ public class WsRestAssignPermissionsLiteRequest implements WsRequestBean {
    */
   public void setParamValue1(String _paramValue1) {
     this.paramValue1 = _paramValue1;
+  }
+
+  /**
+   * T or F (defaults to F), if this permission assignment is disallowed
+   * @return T or F (defaults to F), if this permission assignment is disallowed
+   */
+  public String getDisallowed() {
+    return this.disallowed;
+  }
+
+  /**
+   * T or F (defaults to F), if this permission assignment is disallowed
+   * @param disallowed1
+   */
+  public void setDisallowed(String disallowed1) {
+    this.disallowed = disallowed1;
   }
   
   

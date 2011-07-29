@@ -10,6 +10,42 @@ import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouper.ws.coresoap.GrouperService;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAddMemberLiteResult;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAddMemberResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributesLiteResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributesResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAssignGrouperPrivilegesLiteResult;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAssignGrouperPrivilegesResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAssignPermissionsLiteResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAssignPermissionsResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsDeleteMemberLiteResult;
+import edu.internet2.middleware.grouper.ws.coresoap.WsDeleteMemberResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsFindGroupsResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsFindStemsResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsGetAttributeAssignmentsResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsGetGrouperPrivilegesLiteResult;
+import edu.internet2.middleware.grouper.ws.coresoap.WsGetGroupsLiteResult;
+import edu.internet2.middleware.grouper.ws.coresoap.WsGetGroupsResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsGetMembersLiteResult;
+import edu.internet2.middleware.grouper.ws.coresoap.WsGetMembersResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsGetMembershipsResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsGetPermissionAssignmentsResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsGetSubjectsResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsGroupDeleteLiteResult;
+import edu.internet2.middleware.grouper.ws.coresoap.WsGroupDeleteResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsGroupLookup;
+import edu.internet2.middleware.grouper.ws.coresoap.WsGroupSaveLiteResult;
+import edu.internet2.middleware.grouper.ws.coresoap.WsGroupSaveResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsHasMemberLiteResult;
+import edu.internet2.middleware.grouper.ws.coresoap.WsHasMemberResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsMemberChangeSubjectLiteResult;
+import edu.internet2.middleware.grouper.ws.coresoap.WsMemberChangeSubjectResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsStemDeleteLiteResult;
+import edu.internet2.middleware.grouper.ws.coresoap.WsStemDeleteResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsStemSaveLiteResult;
+import edu.internet2.middleware.grouper.ws.coresoap.WsStemSaveResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestAssignAttributesLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestAssignAttributesRequest;
@@ -50,42 +86,6 @@ import edu.internet2.middleware.grouper.ws.rest.stem.WsRestStemSaveLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.stem.WsRestStemSaveRequest;
 import edu.internet2.middleware.grouper.ws.rest.subject.WsRestGetSubjectsLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.subject.WsRestGetSubjectsRequest;
-import edu.internet2.middleware.grouper.ws.soap.GrouperService;
-import edu.internet2.middleware.grouper.ws.soap.WsAddMemberLiteResult;
-import edu.internet2.middleware.grouper.ws.soap.WsAddMemberResults;
-import edu.internet2.middleware.grouper.ws.soap.WsAssignAttributesLiteResults;
-import edu.internet2.middleware.grouper.ws.soap.WsAssignAttributesResults;
-import edu.internet2.middleware.grouper.ws.soap.WsAssignGrouperPrivilegesLiteResult;
-import edu.internet2.middleware.grouper.ws.soap.WsAssignGrouperPrivilegesResults;
-import edu.internet2.middleware.grouper.ws.soap.WsAssignPermissionsLiteResults;
-import edu.internet2.middleware.grouper.ws.soap.WsAssignPermissionsResults;
-import edu.internet2.middleware.grouper.ws.soap.WsDeleteMemberLiteResult;
-import edu.internet2.middleware.grouper.ws.soap.WsDeleteMemberResults;
-import edu.internet2.middleware.grouper.ws.soap.WsFindGroupsResults;
-import edu.internet2.middleware.grouper.ws.soap.WsFindStemsResults;
-import edu.internet2.middleware.grouper.ws.soap.WsGetAttributeAssignmentsResults;
-import edu.internet2.middleware.grouper.ws.soap.WsGetGrouperPrivilegesLiteResult;
-import edu.internet2.middleware.grouper.ws.soap.WsGetGroupsLiteResult;
-import edu.internet2.middleware.grouper.ws.soap.WsGetGroupsResults;
-import edu.internet2.middleware.grouper.ws.soap.WsGetMembersLiteResult;
-import edu.internet2.middleware.grouper.ws.soap.WsGetMembersResults;
-import edu.internet2.middleware.grouper.ws.soap.WsGetMembershipsResults;
-import edu.internet2.middleware.grouper.ws.soap.WsGetPermissionAssignmentsResults;
-import edu.internet2.middleware.grouper.ws.soap.WsGetSubjectsResults;
-import edu.internet2.middleware.grouper.ws.soap.WsGroupDeleteLiteResult;
-import edu.internet2.middleware.grouper.ws.soap.WsGroupDeleteResults;
-import edu.internet2.middleware.grouper.ws.soap.WsGroupLookup;
-import edu.internet2.middleware.grouper.ws.soap.WsGroupSaveLiteResult;
-import edu.internet2.middleware.grouper.ws.soap.WsGroupSaveResults;
-import edu.internet2.middleware.grouper.ws.soap.WsHasMemberLiteResult;
-import edu.internet2.middleware.grouper.ws.soap.WsHasMemberResults;
-import edu.internet2.middleware.grouper.ws.soap.WsMemberChangeSubjectLiteResult;
-import edu.internet2.middleware.grouper.ws.soap.WsMemberChangeSubjectResults;
-import edu.internet2.middleware.grouper.ws.soap.WsStemDeleteLiteResult;
-import edu.internet2.middleware.grouper.ws.soap.WsStemDeleteResults;
-import edu.internet2.middleware.grouper.ws.soap.WsStemSaveLiteResult;
-import edu.internet2.middleware.grouper.ws.soap.WsStemSaveResults;
-import edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
 
 /**
@@ -107,7 +107,7 @@ public class GrouperServiceRest {
       WsRestFindGroupsRequest wsRestFindGroupsRequest) {
 
     String clientVersionString = GrouperServiceUtils.pickOne(clientVersion.toString(),
-        wsRestFindGroupsRequest.getClientVersion(), false, "clientVersion");
+        GrouperVersion.stringValueOrNull(wsRestFindGroupsRequest.getClientVersion()), false, "clientVersion");
 
     //get the results
     WsFindGroupsResults wsFindGroupsResults = new GrouperService(false).findGroups(
@@ -132,7 +132,7 @@ public class GrouperServiceRest {
       WsRestFindGroupsLiteRequest wsRestFindGroupsLiteRequest) {
 
     String clientVersionString = GrouperServiceUtils.pickOne(clientVersion.toString(),
-        wsRestFindGroupsLiteRequest.getClientVersion(), false, "clientVersion");
+        GrouperVersion.stringValueOrNull(wsRestFindGroupsLiteRequest.getClientVersion()), false, "clientVersion");
 
     //get the results
     WsFindGroupsResults wsFindGroupsResults = new GrouperService(false).findGroupsLite(
@@ -170,7 +170,7 @@ public class GrouperServiceRest {
         : wsRestGetMembersLiteRequest;
 
     String clientVersionString = GrouperServiceUtils.pickOne(clientVersion.toString(),
-        wsRestGetMembersLiteRequest.getClientVersion(), false, "clientVersion");
+        GrouperVersion.stringValueOrNull(wsRestGetMembersLiteRequest.getClientVersion()), false, "clientVersion");
     groupName = GrouperServiceUtils.pickOne(groupName, wsRestGetMembersLiteRequest
         .getGroupName(), false, "groupName");
 
@@ -216,7 +216,7 @@ public class GrouperServiceRest {
         : wsRestAddMemberLiteRequest;
 
     String clientVersionString = GrouperServiceUtils.pickOne(clientVersion.toString(),
-        wsRestAddMemberLiteRequest.getClientVersion(), false, "clientVersion");
+        GrouperVersion.stringValueOrNull(wsRestAddMemberLiteRequest.getClientVersion()), false, "clientVersion");
     groupName = GrouperServiceUtils.pickOne(groupName, wsRestAddMemberLiteRequest
         .getGroupName(), true, "groupName");
     subjectId = GrouperServiceUtils.pickOne(subjectId, wsRestAddMemberLiteRequest
@@ -263,7 +263,7 @@ public class GrouperServiceRest {
             + WsRestAddMemberRequest.class.getSimpleName() + " in xml, xhtml, json, etc");
 
     String clientVersionString = GrouperServiceUtils.pickOne(clientVersion.toString(),
-        wsRestAddMembersRequest.getClientVersion(), false, "clientVersion");
+        GrouperVersion.stringValueOrNull(wsRestAddMembersRequest.getClientVersion()), false, "clientVersion");
 
     WsGroupLookup wsGroupLookup = wsRestAddMembersRequest.getWsGroupLookup();
     if (wsGroupLookup == null) {
@@ -309,7 +309,7 @@ public class GrouperServiceRest {
             + WsRestAssignGrouperPrivilegesRequest.class.getSimpleName() + " in xml, xhtml, json, etc");
 
     String clientVersionString = GrouperServiceUtils.pickOne(clientVersion.toString(),
-        wsRestAssignGrouperPrivilegeRequest.getClientVersion(), false, "clientVersion");
+        GrouperVersion.stringValueOrNull(wsRestAssignGrouperPrivilegeRequest.getClientVersion()), false, "clientVersion");
 
     //get the results
     WsAssignGrouperPrivilegesResults wsAssignGrouperPrivilegesResults = new GrouperService(false).assignGrouperPrivileges(
@@ -346,7 +346,7 @@ public class GrouperServiceRest {
         : wsRestDeleteMemberLiteRequest;
 
     String clientVersionString = GrouperServiceUtils.pickOne(clientVersion.toString(),
-        wsRestDeleteMemberLiteRequest.getClientVersion(), false, "clientVersion");
+        GrouperVersion.stringValueOrNull(wsRestDeleteMemberLiteRequest.getClientVersion()), false, "clientVersion");
     groupName = GrouperServiceUtils.pickOne(groupName, wsRestDeleteMemberLiteRequest
         .getGroupName(), true, "groupName");
     subjectId = GrouperServiceUtils.pickOne(subjectId, wsRestDeleteMemberLiteRequest
@@ -394,7 +394,7 @@ public class GrouperServiceRest {
             + " in xml, xhtml, json, etc");
   
     String clientVersionString = GrouperServiceUtils.pickOne(clientVersion.toString(),
-        wsRestDeleteMembersRequest.getClientVersion(), false, "clientVersion");
+        GrouperVersion.stringValueOrNull(wsRestDeleteMembersRequest.getClientVersion()), false, "clientVersion");
   
     WsGroupLookup wsGroupLookup = wsRestDeleteMembersRequest.getWsGroupLookup();
     if (wsGroupLookup == null) {
@@ -439,7 +439,7 @@ public class GrouperServiceRest {
             + WsRestHasMemberRequest.class.getSimpleName() + " in xml, xhtml, json, etc");
 
     String clientVersionString = GrouperServiceUtils.pickOne(clientVersion.toString(),
-        wsRestHasMembersRequest.getClientVersion(), false, "clientVersion");
+        GrouperVersion.stringValueOrNull(wsRestHasMembersRequest.getClientVersion()), false, "clientVersion");
 
     WsGroupLookup wsGroupLookup = wsRestHasMembersRequest.getWsGroupLookup();
     if (wsGroupLookup == null) {
@@ -487,7 +487,7 @@ public class GrouperServiceRest {
                 + " in xml, xhtml, json, etc");
 
     String clientVersionString = GrouperServiceUtils.pickOne(clientVersion.toString(),
-        wsRestGetMembersRequest.getClientVersion(), false, "clientVersion");
+        GrouperVersion.stringValueOrNull(wsRestGetMembersRequest.getClientVersion()), false, "clientVersion");
 
     //get the results
     WsGetMembersResults wsGetMembersResults = new GrouperService(false).getMembers(
@@ -527,7 +527,7 @@ public class GrouperServiceRest {
         : wsRestHasMemberLiteRequest;
   
     String clientVersionString = GrouperServiceUtils.pickOne(clientVersion.toString(),
-        wsRestHasMemberLiteRequest.getClientVersion(), false, "clientVersion");
+        GrouperVersion.stringValueOrNull(wsRestHasMemberLiteRequest.getClientVersion()), false, "clientVersion");
     groupName = GrouperServiceUtils.pickOne(groupName, wsRestHasMemberLiteRequest
         .getGroupName(), false, "groupName");
     subjectId = GrouperServiceUtils.pickOne(subjectId, wsRestHasMemberLiteRequest
@@ -577,7 +577,7 @@ public class GrouperServiceRest {
             + " in xml, xhtml, json, etc");
 
     String clientVersionString = GrouperServiceUtils.pickOne(clientVersion.toString(),
-        wsRestMemberChangeSubjectRequest.getClientVersion(), false, "clientVersion");
+        GrouperVersion.stringValueOrNull(wsRestMemberChangeSubjectRequest.getClientVersion()), false, "clientVersion");
 
     //get the results
     WsMemberChangeSubjectResults wsMemberChangeSubjectResults = new GrouperService(false).memberChangeSubject(
@@ -611,7 +611,7 @@ public class GrouperServiceRest {
         : wsRestMemberChangeSubjectLiteRequest;
 
     String clientVersionString = GrouperServiceUtils.pickOne(clientVersion.toString(),
-        wsRestMemberChangeSubjectLiteRequest.getClientVersion(), false, "clientVersion");
+        GrouperVersion.stringValueOrNull(wsRestMemberChangeSubjectLiteRequest.getClientVersion()), false, "clientVersion");
     oldSubjectId = GrouperServiceUtils.pickOne(oldSubjectId, wsRestMemberChangeSubjectLiteRequest
         .getOldSubjectId(), false, "oldSubjectId");
     oldSubjectSourceId = GrouperServiceUtils.pickOne(oldSubjectSourceId, wsRestMemberChangeSubjectLiteRequest
@@ -654,7 +654,7 @@ public class GrouperServiceRest {
         : wsRestGetGrouperPrivilegesLiteRequest;
   
     String clientVersionString = GrouperServiceUtils.pickOne(clientVersion.toString(),
-        wsRestGetGrouperPrivilegesLiteRequest.getClientVersion(), false, "clientVersion");
+        GrouperVersion.stringValueOrNull(wsRestGetGrouperPrivilegesLiteRequest.getClientVersion()), false, "clientVersion");
   
     //get the results
     WsGetGrouperPrivilegesLiteResult wsGetGrouperPrivilegesLiteResult = new GrouperService(false).getGrouperPrivilegesLite(
@@ -701,7 +701,7 @@ public class GrouperServiceRest {
         : wsRestAssignGrouperPrivilegesLiteRequest;
 
     String clientVersionString = GrouperServiceUtils.pickOne(clientVersion.toString(),
-        wsRestAssignGrouperPrivilegesLiteRequest.getClientVersion(), false, "clientVersion");
+        GrouperVersion.stringValueOrNull(wsRestAssignGrouperPrivilegesLiteRequest.getClientVersion()), false, "clientVersion");
 
     //get the results
     WsAssignGrouperPrivilegesLiteResult wsAssignGrouperPrivilegesLiteResult = new GrouperService(false)
@@ -753,7 +753,7 @@ public class GrouperServiceRest {
             + WsRestGetGroupsRequest.class.getSimpleName() + " in xml, xhtml, json, etc");
 
     String clientVersionString = GrouperServiceUtils.pickOne(clientVersion.toString(),
-        wsRestGetGroupsRequest.getClientVersion(), false, "clientVersion");
+        GrouperVersion.stringValueOrNull(wsRestGetGroupsRequest.getClientVersion()), false, "clientVersion");
 
     Set<WsSubjectLookup> subjectLookups = null;
     WsSubjectLookup[] subjectLookupArray = wsRestGetGroupsRequest.getSubjectLookups();
@@ -809,7 +809,7 @@ public class GrouperServiceRest {
         : wsRestGetGroupsLiteRequest;
 
     String clientVersionString = GrouperServiceUtils.pickOne(clientVersion.toString(),
-        wsRestGetGroupsLiteRequest.getClientVersion(), false, "clientVersion");
+        GrouperVersion.stringValueOrNull(wsRestGetGroupsLiteRequest.getClientVersion()), false, "clientVersion");
     subjectId = GrouperServiceUtils.pickOne(subjectId, wsRestGetGroupsLiteRequest
         .getSubjectId(), false, "subjectId");
     sourceId = GrouperServiceUtils.pickOne(sourceId, wsRestGetGroupsLiteRequest
@@ -851,7 +851,7 @@ public class GrouperServiceRest {
       WsRestFindStemsRequest wsRestFindStemsRequest) {
 
     String clientVersionString = GrouperServiceUtils.pickOne(clientVersion.toString(),
-        wsRestFindStemsRequest.getClientVersion(), false, "clientVersion");
+        GrouperVersion.stringValueOrNull(wsRestFindStemsRequest.getClientVersion()), false, "clientVersion");
 
     //get the results
     WsFindStemsResults wsFindStemsResults = new GrouperService(false).findStems(
@@ -875,7 +875,7 @@ public class GrouperServiceRest {
       WsRestFindStemsLiteRequest wsRestFindStemsLiteRequest) {
 
     String clientVersionString = GrouperServiceUtils.pickOne(clientVersion.toString(),
-        wsRestFindStemsLiteRequest.getClientVersion(), false, "clientVersion");
+        GrouperVersion.stringValueOrNull(wsRestFindStemsLiteRequest.getClientVersion()), false, "clientVersion");
 
     //get the results
     WsFindStemsResults wsFindStemsResults = new GrouperService(false).findStemsLite(
@@ -912,7 +912,7 @@ public class GrouperServiceRest {
             + WsRestStemSaveRequest.class.getSimpleName() + " in xml, xhtml, json, etc");
 
     String clientVersionString = GrouperServiceUtils.pickOne(clientVersion.toString(),
-        wsRestStemSaveRequest.getClientVersion(), false, "clientVersion");
+        GrouperVersion.stringValueOrNull(wsRestStemSaveRequest.getClientVersion()), false, "clientVersion");
 
     //get the results
     WsStemSaveResults wsStemSaveResults = new GrouperService(false).stemSave(
@@ -945,7 +945,7 @@ public class GrouperServiceRest {
             + " in xml, xhtml, json, etc");
 
     String clientVersionString = GrouperServiceUtils.pickOne(clientVersion.toString(),
-        wsRestStemSaveLiteRequest.getClientVersion(), false, "clientVersion");
+        GrouperVersion.stringValueOrNull(wsRestStemSaveLiteRequest.getClientVersion()), false, "clientVersion");
 
     stemLookupName = GrouperServiceUtils.pickOne(stemLookupName,
         wsRestStemSaveLiteRequest.getStemLookupName(), false, "stemLookupName");
@@ -988,7 +988,7 @@ public class GrouperServiceRest {
                 + " in xml, xhtml, json, etc");
 
     String clientVersionString = GrouperServiceUtils.pickOne(clientVersion.toString(),
-        wsRestStemDeleteRequest.getClientVersion(), false, "clientVersion");
+        GrouperVersion.stringValueOrNull(wsRestStemDeleteRequest.getClientVersion()), false, "clientVersion");
 
     //get the results
     WsStemDeleteResults wsStemDeleteResults = new GrouperService(false).stemDelete(
@@ -1018,7 +1018,7 @@ public class GrouperServiceRest {
         : wsRestStemDeleteLiteRequest;
 
     String clientVersionString = GrouperServiceUtils.pickOne(clientVersion.toString(),
-        wsRestStemDeleteLiteRequest.getClientVersion(), false, "clientVersion");
+        GrouperVersion.stringValueOrNull(wsRestStemDeleteLiteRequest.getClientVersion()), false, "clientVersion");
 
     stemName = GrouperServiceUtils.pickOne(stemName, wsRestStemDeleteLiteRequest
         .getStemName(), false, "stemName");
@@ -1056,7 +1056,7 @@ public class GrouperServiceRest {
             + " in xml, xhtml, json, etc");
 
     String clientVersionString = GrouperServiceUtils.pickOne(clientVersion.toString(),
-        wsRestGroupDeleteRequest.getClientVersion(), false, "clientVersion");
+        GrouperVersion.stringValueOrNull(wsRestGroupDeleteRequest.getClientVersion()), false, "clientVersion");
 
     //get the results
     WsGroupDeleteResults wsGroupDeleteResults = new GrouperService(false).groupDelete(
@@ -1090,7 +1090,7 @@ public class GrouperServiceRest {
         : wsRestGroupDeleteLiteRequest;
 
     String clientVersionString = GrouperServiceUtils.pickOne(clientVersion.toString(),
-        wsRestGroupDeleteLiteRequest.getClientVersion(), false, "clientVersion");
+        GrouperVersion.stringValueOrNull(wsRestGroupDeleteLiteRequest.getClientVersion()), false, "clientVersion");
 
     groupName = GrouperServiceUtils.pickOne(groupName, wsRestGroupDeleteLiteRequest
         .getGroupName(), false, "groupName");
@@ -1129,7 +1129,7 @@ public class GrouperServiceRest {
             + WsRestGroupSaveRequest.class.getSimpleName() + " in xml, xhtml, json, etc");
   
     String clientVersionString = GrouperServiceUtils.pickOne(clientVersion.toString(),
-        wsRestGroupSaveRequest.getClientVersion(), false, "clientVersion");
+        GrouperVersion.stringValueOrNull(wsRestGroupSaveRequest.getClientVersion()), false, "clientVersion");
   
     //get the results
     WsGroupSaveResults wsGroupSaveResults = new GrouperService(false).groupSave(
@@ -1163,7 +1163,7 @@ public class GrouperServiceRest {
             + " in xml, xhtml, json, etc");
   
     String clientVersionString = GrouperServiceUtils.pickOne(clientVersion.toString(),
-        wsRestGroupSaveLiteRequest.getClientVersion(), false, "clientVersion");
+        GrouperVersion.stringValueOrNull(wsRestGroupSaveLiteRequest.getClientVersion()), false, "clientVersion");
   
     groupLookupName = GrouperServiceUtils.pickOne(groupLookupName,
         wsRestGroupSaveLiteRequest.getGroupLookupName(), false, "groupLookupName");
@@ -1210,7 +1210,7 @@ public class GrouperServiceRest {
       : wsRestGetMembershipsRequest;
   
     String clientVersionString = GrouperServiceUtils.pickOne(clientVersion.toString(),
-        wsRestGetMembershipsRequest.getClientVersion(), false, "clientVersion");
+        GrouperVersion.stringValueOrNull(wsRestGetMembershipsRequest.getClientVersion()), false, "clientVersion");
   
     Set<WsGroupLookup> groupLookups = null;
     WsGroupLookup[] groupLookupArray = wsRestGetMembershipsRequest.getWsGroupLookups();
@@ -1279,7 +1279,7 @@ public class GrouperServiceRest {
         : wsRestGetMembershipsLiteRequest;
   
     String clientVersionString = GrouperServiceUtils.pickOne(clientVersion.toString(),
-        wsRestGetMembershipsLiteRequest.getClientVersion(), false, "clientVersion");
+        GrouperVersion.stringValueOrNull(wsRestGetMembershipsLiteRequest.getClientVersion()), false, "clientVersion");
     groupName = GrouperServiceUtils.pickOne(groupName, wsRestGetMembershipsLiteRequest
         .getGroupName(), true, "groupName");
     subjectId = GrouperServiceUtils.pickOne(subjectId, wsRestGetMembershipsLiteRequest
@@ -1327,7 +1327,7 @@ public class GrouperServiceRest {
       : wsRestGetSubjectsRequest;
   
     String clientVersionString = GrouperServiceUtils.pickOne(clientVersion.toString(),
-        wsRestGetSubjectsRequest.getClientVersion(), false, "clientVersion");
+        GrouperVersion.stringValueOrNull(wsRestGetSubjectsRequest.getClientVersion()), false, "clientVersion");
   
     Set<WsSubjectLookup> subjectLookups = null;
     WsSubjectLookup[] subjectLookupArray = wsRestGetSubjectsRequest.getWsSubjectLookups();
@@ -1379,7 +1379,7 @@ public class GrouperServiceRest {
       : wsRestGetSubjectsLiteRequest;
   
     String clientVersionString = GrouperServiceUtils.pickOne(clientVersion.toString(),
-        wsRestGetSubjectsLiteRequest.getClientVersion(), false, "clientVersion");
+        GrouperVersion.stringValueOrNull(wsRestGetSubjectsLiteRequest.getClientVersion()), false, "clientVersion");
     
     String theSubjectId = wsRestGetSubjectsLiteRequest.getSubjectId();
     
@@ -1434,7 +1434,7 @@ public class GrouperServiceRest {
       : wsRestGetAttributesRequest;
     
     String clientVersionString = GrouperServiceUtils.pickOne(clientVersion.toString(),
-        wsRestGetAttributesRequest.getClientVersion(), false, "clientVersion");
+        GrouperVersion.stringValueOrNull(wsRestGetAttributesRequest.getClientVersion()), false, "clientVersion");
 
     WsGetAttributeAssignmentsResults wsGetAttributeAssignmentsResults = new GrouperService(false).getAttributeAssignments(
         clientVersionString, wsRestGetAttributesRequest.getAttributeAssignType(), 
@@ -1464,7 +1464,7 @@ public class GrouperServiceRest {
     wsRestGetAttributesLiteRequest = wsRestGetAttributesLiteRequest == null ? new WsRestGetAttributeAssignmentsLiteRequest() : wsRestGetAttributesLiteRequest;
 
     String clientVersionString = GrouperServiceUtils.pickOne(clientVersion.toString(),
-        wsRestGetAttributesLiteRequest.getClientVersion(), false, "clientVersion");
+        GrouperVersion.stringValueOrNull(wsRestGetAttributesLiteRequest.getClientVersion()), false, "clientVersion");
 
     WsGetAttributeAssignmentsResults wsGetAttributeAssignmentsResults = new GrouperService(false).getAttributeAssignmentsLite(
         clientVersionString, wsRestGetAttributesLiteRequest.getAttributeAssignType(), wsRestGetAttributesLiteRequest.getAttributeAssignId(), wsRestGetAttributesLiteRequest.getWsAttributeDefName(), 
@@ -1496,7 +1496,7 @@ public class GrouperServiceRest {
       : wsRestAssignAttributesRequest;
     
     String clientVersionString = GrouperServiceUtils.pickOne(clientVersion.toString(),
-        wsRestAssignAttributesRequest.getClientVersion(), false, "clientVersion");
+        GrouperVersion.stringValueOrNull(wsRestAssignAttributesRequest.getClientVersion()), false, "clientVersion");
   
     WsAssignAttributesResults wsAssignAttributesResults = new GrouperService(false).assignAttributes(
         clientVersionString, wsRestAssignAttributesRequest.getAttributeAssignType(), 
@@ -1532,7 +1532,7 @@ public class GrouperServiceRest {
     wsRestAssignAttributesLiteRequest = wsRestAssignAttributesLiteRequest == null ? new WsRestAssignAttributesLiteRequest() : wsRestAssignAttributesLiteRequest;
   
     String clientVersionString = GrouperServiceUtils.pickOne(clientVersion.toString(),
-        wsRestAssignAttributesLiteRequest.getClientVersion(), false, "clientVersion");
+        GrouperVersion.stringValueOrNull(wsRestAssignAttributesLiteRequest.getClientVersion()), false, "clientVersion");
   
     WsAssignAttributesLiteResults wsAssignAttributesLiteResults = new GrouperService(false).assignAttributesLite(
         clientVersionString, wsRestAssignAttributesLiteRequest.getAttributeAssignType(), 
@@ -1573,11 +1573,12 @@ public class GrouperServiceRest {
   public static WsGetPermissionAssignmentsResults getPermissionAssignments(GrouperVersion clientVersion,
       WsRestGetPermissionAssignmentsRequest wsRestGetPermissionAssignmentsRequest) {
     //cant be null
-    wsRestGetPermissionAssignmentsRequest = wsRestGetPermissionAssignmentsRequest == null ? new WsRestGetPermissionAssignmentsRequest()
+    wsRestGetPermissionAssignmentsRequest = wsRestGetPermissionAssignmentsRequest == null ? 
+        new WsRestGetPermissionAssignmentsRequest()
       : wsRestGetPermissionAssignmentsRequest;
     
     String clientVersionString = GrouperServiceUtils.pickOne(clientVersion.toString(),
-        wsRestGetPermissionAssignmentsRequest.getClientVersion(), false, "clientVersion");
+        GrouperVersion.stringValueOrNull(wsRestGetPermissionAssignmentsRequest.getClientVersion()), false, "clientVersion");
   
     WsGetPermissionAssignmentsResults wsGetPermissionAssignmentsResults = new GrouperService(false).getPermissionAssignments(
         clientVersionString, wsRestGetPermissionAssignmentsRequest.getWsAttributeDefLookups(), 
@@ -1589,7 +1590,10 @@ public class GrouperServiceRest {
         wsRestGetPermissionAssignmentsRequest.getIncludeSubjectDetail(), wsRestGetPermissionAssignmentsRequest.getSubjectAttributeNames(), 
         wsRestGetPermissionAssignmentsRequest.getIncludeGroupDetail(), wsRestGetPermissionAssignmentsRequest.getParams(), 
         wsRestGetPermissionAssignmentsRequest.getEnabled(),
-        wsRestGetPermissionAssignmentsRequest.getPointInTimeFrom(), wsRestGetPermissionAssignmentsRequest.getPointInTimeTo());
+        wsRestGetPermissionAssignmentsRequest.getPointInTimeFrom(), wsRestGetPermissionAssignmentsRequest.getPointInTimeTo(),
+        wsRestGetPermissionAssignmentsRequest.getImmediateOnly(), wsRestGetPermissionAssignmentsRequest.getPermissionType(),
+        wsRestGetPermissionAssignmentsRequest.getPermissionProcessor(), wsRestGetPermissionAssignmentsRequest.getLimitEnvVars(),
+        wsRestGetPermissionAssignmentsRequest.getIncludeLimits());
     
     return wsGetPermissionAssignmentsResults;
   }
@@ -1607,9 +1611,10 @@ public class GrouperServiceRest {
     wsRestGetPermissionAssignmentsLiteRequest = wsRestGetPermissionAssignmentsLiteRequest == null ? new WsRestGetPermissionAssignmentsLiteRequest() : wsRestGetPermissionAssignmentsLiteRequest;
   
     String clientVersionString = GrouperServiceUtils.pickOne(clientVersion.toString(),
-        wsRestGetPermissionAssignmentsLiteRequest.getClientVersion(), false, "clientVersion");
+        GrouperVersion.stringValueOrNull(wsRestGetPermissionAssignmentsLiteRequest.getClientVersion()), false, "clientVersion");
   
-    WsGetPermissionAssignmentsResults wsGetPermissionAssignmentsResults = new GrouperService(false).getPermissionAssignmentsLite(
+    WsGetPermissionAssignmentsResults wsGetPermissionAssignmentsResults = new GrouperService(false)
+      .getPermissionAssignmentsLite(
         clientVersionString, wsRestGetPermissionAssignmentsLiteRequest.getWsAttributeDefName(), 
         wsRestGetPermissionAssignmentsLiteRequest.getWsAttributeDefId(), wsRestGetPermissionAssignmentsLiteRequest.getWsAttributeDefNameName(), 
         wsRestGetPermissionAssignmentsLiteRequest.getWsAttributeDefNameId(), wsRestGetPermissionAssignmentsLiteRequest.getRoleName(), 
@@ -1625,7 +1630,17 @@ public class GrouperServiceRest {
         wsRestGetPermissionAssignmentsLiteRequest.getParamName0(), 
         wsRestGetPermissionAssignmentsLiteRequest.getParamValue0(), wsRestGetPermissionAssignmentsLiteRequest.getParamName1(), 
         wsRestGetPermissionAssignmentsLiteRequest.getParamValue1(), wsRestGetPermissionAssignmentsLiteRequest.getEnabled(),
-        wsRestGetPermissionAssignmentsLiteRequest.getPointInTimeFrom(), wsRestGetPermissionAssignmentsLiteRequest.getPointInTimeTo());
+        wsRestGetPermissionAssignmentsLiteRequest.getPointInTimeFrom(), 
+        wsRestGetPermissionAssignmentsLiteRequest.getPointInTimeTo(),
+        wsRestGetPermissionAssignmentsLiteRequest.getImmediateOnly(), wsRestGetPermissionAssignmentsLiteRequest.getPermissionType(),
+        wsRestGetPermissionAssignmentsLiteRequest.getPermissionProcessor(), 
+        wsRestGetPermissionAssignmentsLiteRequest.getLimitEnvVarName0(),
+        wsRestGetPermissionAssignmentsLiteRequest.getLimitEnvVarValue0(),
+        wsRestGetPermissionAssignmentsLiteRequest.getLimitEnvVarType0(),
+        wsRestGetPermissionAssignmentsLiteRequest.getLimitEnvVarName1(),
+        wsRestGetPermissionAssignmentsLiteRequest.getLimitEnvVarValue1(),
+        wsRestGetPermissionAssignmentsLiteRequest.getLimitEnvVarType1(), 
+        wsRestGetPermissionAssignmentsLiteRequest.getIncludeLimits());
     
     return wsGetPermissionAssignmentsResults;
     
@@ -1644,7 +1659,7 @@ public class GrouperServiceRest {
       : wsRestAssignPermissionsRequest;
     
     String clientVersionString = GrouperServiceUtils.pickOne(clientVersion.toString(),
-        wsRestAssignPermissionsRequest.getClientVersion(), false, "clientVersion");
+        GrouperVersion.stringValueOrNull(wsRestAssignPermissionsRequest.getClientVersion()), false, "clientVersion");
   
     WsAssignPermissionsResults wsAssignPermissionsResults = new GrouperService(false).assignPermissions(
         clientVersionString, wsRestAssignPermissionsRequest.getPermissionType(),
@@ -1659,7 +1674,8 @@ public class GrouperServiceRest {
         wsRestAssignPermissionsRequest.getActAsSubjectLookup(), 
         wsRestAssignPermissionsRequest.getIncludeSubjectDetail(), wsRestAssignPermissionsRequest.getSubjectAttributeNames(), 
         wsRestAssignPermissionsRequest.getIncludeGroupDetail(), wsRestAssignPermissionsRequest.getParams(),
-        wsRestAssignPermissionsRequest.getAttributeDefsToReplace(), wsRestAssignPermissionsRequest.getActionsToReplace());
+        wsRestAssignPermissionsRequest.getAttributeDefsToReplace(), wsRestAssignPermissionsRequest.getActionsToReplace(),
+        wsRestAssignPermissionsRequest.getDisallowed());
     
     return wsAssignPermissionsResults;
   }
@@ -1677,7 +1693,7 @@ public class GrouperServiceRest {
     wsRestAssignPermissionsLiteRequest = wsRestAssignPermissionsLiteRequest == null ? new WsRestAssignPermissionsLiteRequest() : wsRestAssignPermissionsLiteRequest;
   
     String clientVersionString = GrouperServiceUtils.pickOne(clientVersion.toString(),
-        wsRestAssignPermissionsLiteRequest.getClientVersion(), false, "clientVersion");
+        GrouperVersion.stringValueOrNull(wsRestAssignPermissionsLiteRequest.getClientVersion()), false, "clientVersion");
   
     WsAssignPermissionsLiteResults wsAssignPermissionsLiteResults = new GrouperService(false).assignPermissionsLite(
         clientVersionString, wsRestAssignPermissionsLiteRequest.getPermissionType(), 
@@ -1699,7 +1715,7 @@ public class GrouperServiceRest {
         wsRestAssignPermissionsLiteRequest.getSubjectAttributeNames(), wsRestAssignPermissionsLiteRequest.getIncludeGroupDetail(), 
         wsRestAssignPermissionsLiteRequest.getParamName0(), 
         wsRestAssignPermissionsLiteRequest.getParamValue0(), wsRestAssignPermissionsLiteRequest.getParamName1(), 
-        wsRestAssignPermissionsLiteRequest.getParamValue1());
+        wsRestAssignPermissionsLiteRequest.getParamValue1(), wsRestAssignPermissionsLiteRequest.getDisallowed());
     
     return wsAssignPermissionsLiteResults;
   }
