@@ -514,16 +514,11 @@ public class TestMemberAttributes extends GrouperTest {
     assertEquals(SubjectTestHelper.SUBJ3.getName(), members[4].getName());
     assertEquals(SubjectTestHelper.SUBJ4.getName(), members[5].getName());
     
-    // this should return just the people
+    // this should return the people and the group too
     members = GrouperDAOFactory.getFactory().getMembership().findAllMembersByOwnerAndFieldAndType(
         group.getId(), Group.getDefaultList(), null, null, null, true, 
         SortStringEnum.SORT_STRING_1, SearchStringEnum.getDefaultSearchString(), "Test").toArray(new Member[0]);
-    assertEquals(5, members.length);
-    assertEquals(SubjectTestHelper.SUBJ0.getName(), members[0].getName());
-    assertEquals(SubjectTestHelper.SUBJ1.getName(), members[1].getName());
-    assertEquals(SubjectTestHelper.SUBJ2.getName(), members[2].getName());
-    assertEquals(SubjectTestHelper.SUBJ3.getName(), members[3].getName());
-    assertEquals(SubjectTestHelper.SUBJ4.getName(), members[4].getName());
+    assertEquals(6, members.length);
     
     // this should return the people and the group too
     members = GrouperDAOFactory.getFactory().getMembership().findAllMembersByOwnerAndFieldAndType(

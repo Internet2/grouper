@@ -760,7 +760,7 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
           }
           
           querySortField.setColumn("m." + column);
-          sql.append(" and m." + column + " is not null ");
+          //sql.append(" and m." + column + " is not null ");
         }
       }
     }
