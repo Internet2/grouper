@@ -3,6 +3,9 @@ package edu.internet2.middleware.grouper.pit;
 import java.io.Serializable;
 import java.sql.Timestamp;
 
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+
 import edu.internet2.middleware.grouper.permissions.PermissionEntryBase;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
@@ -592,5 +595,58 @@ public class PITPermissionAllView extends PermissionEntryBase implements Seriali
    */
   public void setAttributeDefNameSetId(String attributeDefNameSetId) {
     this.attributeDefNameSetId = attributeDefNameSetId;
+  }
+  
+  /**
+   * @see java.lang.Object#equals(java.lang.Object)
+   */
+  @Override
+  public boolean equals(Object obj) {
+
+    if (this == obj) {
+      return true;
+    }
+    
+    if (!(obj instanceof PITPermissionAllView)) {
+      return false;
+    }
+    
+    PITPermissionAllView other = (PITPermissionAllView)obj;
+    
+    return new EqualsBuilder().append(this.getRoleId(), other.getRoleId())
+      .append(this.getMemberId(), other.getMemberId())
+      .append(this.getAction(), other.getAction())
+      .append(this.getAttributeDefNameId(), other.getAttributeDefNameId())
+      .append(this.getMembershipStartTimeDb(), other.getMembershipStartTimeDb())
+      .append(this.getGroupSetStartTimeDb(), other.getGroupSetStartTimeDb())
+      .append(this.getRoleSetStartTimeDb(), other.getRoleSetStartTimeDb())
+      .append(this.getActionSetStartTimeDb(), other.getActionSetStartTimeDb())
+      .append(this.getAttributeDefNameSetStartTimeDb(), other.getAttributeDefNameSetStartTimeDb())
+      .append(this.getAttributeAssignStartTimeDb(), other.getAttributeAssignStartTimeDb())
+      .append(this.getPermissionType(), other.getPermissionType())
+      .append(this.getAttributeAssignId(), other.getAttributeAssignId())
+      .isEquals();
+  }
+
+
+  /**
+   * @see java.lang.Object#hashCode()
+   */
+  @Override
+  public int hashCode() {
+    return new HashCodeBuilder()
+      .append(this.getRoleId())
+      .append(this.getMemberId())
+      .append(this.getAction())
+      .append(this.getAttributeDefNameId())
+      .append(this.getMembershipStartTimeDb())
+      .append(this.getGroupSetStartTimeDb())
+      .append(this.getRoleSetStartTimeDb())
+      .append(this.getActionSetStartTimeDb())
+      .append(this.getAttributeDefNameSetStartTimeDb())
+      .append(this.getAttributeAssignStartTimeDb())
+      .append(this.getPermissionType())
+      .append(this.getAttributeAssignId())
+      .toHashCode();
   }
 }

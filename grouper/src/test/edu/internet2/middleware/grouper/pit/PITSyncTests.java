@@ -101,7 +101,7 @@ public class PITSyncTests extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new PITSyncTests("testDisabledAttributeAssignment"));
+    TestRunner.run(new PITSyncTests("testNoChanges"));
   }
 
   
@@ -189,6 +189,8 @@ public class PITSyncTests extends GrouperTest {
    * 
    */
   public void testNoChanges() {
+    new SyncPITTables().showResults(false).syncAllPITTables();
+    grouperSession = GrouperSession.startRootSession();
     addData();
     
     assertEquals(0, new SyncPITTables().showResults(false).syncAllPITTables());

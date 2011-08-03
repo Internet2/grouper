@@ -27,6 +27,13 @@ import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
 import edu.internet2.middleware.subject.SubjectNotUniqueException;
 
+import edu.internet2.middleware.grouper.attr.AttributeDef;
+import edu.internet2.middleware.grouper.attr.AttributeDefName;
+import edu.internet2.middleware.grouper.attr.AttributeDefNameSave;
+import edu.internet2.middleware.grouper.attr.AttributeDefSave;
+import edu.internet2.middleware.grouper.attr.AttributeDefType;
+import edu.internet2.middleware.grouper.permissions.role.Role;
+
 /**
  * load test data (will not error if already there)
  */
@@ -65,6 +72,11 @@ public class LoadData {
     GrouperSession session = GrouperSession.start(SubjectFinder.findById("GrouperSystem", 
         "application", InternalSourceAdapter.ID, true));
 
+    Stem eduStem = Stem.saveStem(session, "edu", null, "edu", "edu", "", 
+        null, false);
+
+    AttributeDef attributeDef = new AttributeDefSave(session).assignName("edu:attributeDef").assignAttributeDefType(AttributeDefType.perm).assignToGroup(true).save();
+
     Stem dukeStem = Stem.saveStem(session, "duke", null, "duke", "Duke University", "", 
         null, false);
     Stem sissStem = Stem.saveStem(session, dukeStem.getName() + ":siss",null,  dukeStem.getName() + ":siss",  "siss","",
@@ -76,7 +88,6 @@ public class LoadData {
     int groupsCreated = 0;
     int membersAdded = 0;
 
-    //for (int subjCount = 1; subjCount <= 100; subjCount++) {
     for (int subjCount = 1; subjCount <= 100; subjCount++) {
       String subjStemName = coursesStem.getName() + ":SUBJECT" + subjCount;
       Stem subjStem = Stem.saveStem(session, subjStemName, null, subjStemName, "SUBJECT" + subjCount, "", 
@@ -113,38 +124,42 @@ public class LoadData {
                  termStem = StemFinder.findByName(session, classStem.getName() + ":" + termCount, true);
                }
                
-               Group instructors = null;
+               Role instructors = null;
                try {
-                 instructors = termStem.addChildGroup("instructors", "instructors");
+                 instructors = termStem.addChildRole("instructors", "instructors");
                  groupsCreated++;
                } catch (GroupAddException gae) {
                  //hopefully it is because the group already exists
                  instructors = GroupFinder.findByName(session, termStem.getName() + ":instructors", true);
                }
                
-               Group ta = null;
+               Role ta = null;
                try {
-                 ta = termStem.addChildGroup("TAs", "TAs");
+                 ta = termStem.addChildRole("TAs", "TAs");
                  groupsCreated++;
                } catch (GroupAddException gae) {
                  //hopefully it is because the group already exists
                  ta = GroupFinder.findByName(session, termStem.getName() + ":TAs", true);
                }
                  
-               Group students = null;
+               Role students = null;
                try {
-                 students = termStem.addChildGroup("students", "students");
+                 students = termStem.addChildRole("students", "students");
                  groupsCreated++;
                } catch (GroupAddException gae) {
                  //hopefully it is because the group already exists
                  students = GroupFinder.findByName(session, termStem.getName() + ":students", true);
                }
 
+               AttributeDefName attributeDefName = new AttributeDefNameSave(session, attributeDef).assignName(termStem.getName() + ":testAttribute").save();
+               instructors.getPermissionRoleDelegate().assignRolePermission(attributeDefName);
+               students.getPermissionRoleDelegate().assignRolePermission(attributeDefName);
+               ta.getPermissionRoleDelegate().assignRolePermission(attributeDefName);
 
                for (int memberCount = 0; memberCount <= 0; memberCount++) { 
                  Subject subject = subjectFindCreateById("0" + catelogCount + secCount + memberCount);
                  try {
-                   instructors.addMember(subject);
+                   instructors.addMember(subject, false);
                    membersAdded++;
                  } catch (MemberAddException mae) {
                    //hopefully it is because the member is already a member
