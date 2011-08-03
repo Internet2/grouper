@@ -356,11 +356,14 @@ public class SourcesXmlResolver implements SubjectResolver {
    * @param subj
    */
   private void updateMemberAttributes(Subject subj) {
-    // update member attributes
-    Member member = MemberFinder.internal_findBySubject(subj, null, false);
-
-    if (member != null) {
-      member.updateMemberAttributes(subj, true);
+    
+    if (!"g:gsa".equals(subj.getSourceId())) {
+      // update member attributes
+      Member member = MemberFinder.internal_findBySubject(subj, null, false);
+  
+      if (member != null) {
+        member.updateMemberAttributes(subj, true);
+      }
     }
   }
 }
