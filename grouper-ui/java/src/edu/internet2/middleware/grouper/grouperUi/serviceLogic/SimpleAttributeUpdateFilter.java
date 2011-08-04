@@ -78,7 +78,7 @@ public class SimpleAttributeUpdateFilter {
       } else {
         queryOptions = new QueryOptions().paging(TagUtils.mediaResourceInt("simpleAttributeUpdate.attributeDefComboboxResultSize", 200), 1, true).sortAsc("theAttributeDef.nameDb");
         attributeDefs = GrouperDAOFactory.getFactory().getAttributeDef().getAllAttributeDefsSplitScopeSecure(searchTerm, grouperSession, loggedInSubject, 
-            GrouperUtil.toSet(AttributeDefPrivilege.ATTR_ADMIN, AttributeDefPrivilege.ATTR_UPDATE), queryOptions, null, null);
+            GrouperUtil.toSet(AttributeDefPrivilege.ATTR_ADMIN), queryOptions, null, null);
         
         if (GrouperUtil.length(attributeDefs) == 0) {
           GrouperUiUtils.dhtmlxOptionAppend(xmlBuilder, "", 
@@ -184,7 +184,7 @@ public class SimpleAttributeUpdateFilter {
             .sortAsc("theAttributeDefName.displayNameDb");
           attributeDefNames = GrouperDAOFactory.getFactory().getAttributeDefName().findAllAttributeNamesSplitScopeSecure(
               searchTerm, grouperSession, attributeDefId, loggedInSubject, 
-              GrouperUtil.toSet(AccessPrivilege.ADMIN, AccessPrivilege.UPDATE), queryOptions, attributeAssignType, null);
+              GrouperUtil.toSet(AttributeDefPrivilege.ATTR_ADMIN, AttributeDefPrivilege.ATTR_UPDATE), queryOptions, attributeAssignType, null);
           
           if (GrouperUtil.length(attributeDefNames) == 0) {
             GrouperUiUtils.dhtmlxOptionAppend(xmlBuilder, "", 
@@ -269,7 +269,7 @@ public class SimpleAttributeUpdateFilter {
       } else {
         queryOptions = new QueryOptions().paging(TagUtils.mediaResourceInt("simpleAttributeUpdate.attributeDefComboboxResultSize", 200), 1, true).sortAsc("theAttributeDef.nameDb");
         attributeDefs = GrouperDAOFactory.getFactory().getAttributeDef().getAllAttributeDefsSplitScopeSecure(searchTerm, grouperSession, loggedInSubject, 
-            GrouperUtil.toSet(AccessPrivilege.ADMIN, AccessPrivilege.UPDATE), queryOptions, attributeAssignType, null);
+            GrouperUtil.toSet(AttributeDefPrivilege.ATTR_ADMIN, AttributeDefPrivilege.ATTR_UPDATE), queryOptions, attributeAssignType, null);
         
         if (GrouperUtil.length(attributeDefs) == 0) {
           GrouperUiUtils.dhtmlxOptionAppend(xmlBuilder, "", 

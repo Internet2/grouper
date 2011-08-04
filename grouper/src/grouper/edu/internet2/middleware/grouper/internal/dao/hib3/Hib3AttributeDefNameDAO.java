@@ -443,15 +443,11 @@ public class Hib3AttributeDefNameDAO extends Hib3DAO implements AttributeDefName
     }
   
     //see if we are adding more to the query
-    boolean changedQuery = grouperSession.getAttributeDefResolver().hqlFilterAttrDefsWhereClause(subject, byHqlStatic,
+    grouperSession.getAttributeDefResolver().hqlFilterAttrDefsWhereClause(subject, byHqlStatic,
         sql, whereClause, "theAttributeDefName.attributeDefId", privileges);
   
     if (whereClause.length() > 0) {
-      if (!changedQuery) {
-        sql.append(" where ");
-      } else {
-        sql.append(" and ");
-      }
+      sql.append(" where ");
       sql.append(whereClause);
     }    
     

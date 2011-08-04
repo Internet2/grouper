@@ -122,6 +122,7 @@ public class SimpleMembershipUpdateContainer implements Serializable {
   
   /**
    * subject for screen
+   * TODO make a wrapper where source is not stored in session...
    */
   private Subject subjectForDetails;
   

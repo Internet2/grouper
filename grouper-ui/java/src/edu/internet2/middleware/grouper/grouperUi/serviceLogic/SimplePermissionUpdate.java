@@ -713,7 +713,7 @@ public class SimplePermissionUpdate {
         String attributeDefNameId = matcher.group(3);
         attributeDefName = AttributeDefNameFinder.findById(attributeDefNameId, true);
         attributeDef = attributeDefName.getAttributeDef();
-        if (!attributeDef.getPrivilegeDelegate().canAttrUpdate(loggedInSubject)) {
+        if (!PrivilegeHelper.canAttrUpdate(GrouperSession.staticGrouperSession(), attributeDef, loggedInSubject)) {
           guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simplePermissionUpdate.errorCantEditAttributeDef", false)));
           return;
         }
@@ -898,7 +898,7 @@ public class SimplePermissionUpdate {
             {
               attributeDefName = AttributeDefNameFinder.findById(attributeDefNameId, true);
               attributeDef = attributeDefName.getAttributeDef();
-              if (!attributeDef.getPrivilegeDelegate().canAttrUpdate(loggedInSubject)) {
+              if (!PrivilegeHelper.canAttrUpdate(GrouperSession.staticGrouperSession(), attributeDef, loggedInSubject)) {
                 guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simplePermissionUpdate.errorCantEditAttributeDef", false)));
                 return;
               }
@@ -1029,7 +1029,7 @@ public class SimplePermissionUpdate {
         String attributeDefNameId = attributeAssign.getAttributeDefNameId();
         attributeDefName = AttributeDefNameFinder.findById(attributeDefNameId, true);
         attributeDef = attributeDefName.getAttributeDef();
-        if (!attributeDef.getPrivilegeDelegate().canAttrUpdate(loggedInSubject)) {
+        if (!PrivilegeHelper.canAttrUpdate(GrouperSession.staticGrouperSession(), attributeDef, loggedInSubject)) {
           guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simplePermissionUpdate.errorCantEditAttributeDef", false)));
           return;
         }
@@ -1264,7 +1264,7 @@ public class SimplePermissionUpdate {
         String attributeDefNameId = limitAssign.getAttributeDefNameId();
         limitAttributeDefName = AttributeDefNameFinder.findById(attributeDefNameId, true);
         limitAttributeDef = limitAttributeDefName.getAttributeDef();
-        if (!limitAttributeDef.getPrivilegeDelegate().canAttrUpdate(loggedInSubject)) {
+        if (!PrivilegeHelper.canAttrUpdate(GrouperSession.staticGrouperSession(), limitAttributeDef, loggedInSubject)) {
           guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simplePermissionUpdate.errorCantEditAttributeDef", false)));
           return;
         }
@@ -1346,7 +1346,7 @@ public class SimplePermissionUpdate {
         String attributeDefNameId = permissionAssign.getAttributeDefNameId();
         attributeDefName = AttributeDefNameFinder.findById(attributeDefNameId, true);
         attributeDef = attributeDefName.getAttributeDef();
-        if (!attributeDef.getPrivilegeDelegate().canAttrUpdate(loggedInSubject)) {
+        if (!PrivilegeHelper.canAttrUpdate(GrouperSession.staticGrouperSession(), attributeDef, loggedInSubject)) {
           guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simplePermissionUpdate.errorCantEditAttributeDef", false)));
           return;
         }
@@ -1371,7 +1371,7 @@ public class SimplePermissionUpdate {
       }
 
       AttributeDef limitDef = limitName.getAttributeDef();
-      if (!limitDef.getPrivilegeDelegate().canAttrUpdate(loggedInSubject)) {
+      if (!PrivilegeHelper.canAttrUpdate(GrouperSession.staticGrouperSession(), limitDef, loggedInSubject)) {
         guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simplePermissionUpdate.errorCantEditLimit", false)));
         return;
       }

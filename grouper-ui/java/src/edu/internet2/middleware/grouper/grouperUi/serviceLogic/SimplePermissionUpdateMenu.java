@@ -38,6 +38,7 @@ import edu.internet2.middleware.grouper.permissions.PermissionHeuristicBetter;
 import edu.internet2.middleware.grouper.permissions.PermissionHeuristics;
 import edu.internet2.middleware.grouper.permissions.PermissionEntry.PermissionType;
 import edu.internet2.middleware.grouper.permissions.role.Role;
+import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.exceptions.ControllerDone;
 import edu.internet2.middleware.grouper.ui.exceptions.NoSessionException;
@@ -150,7 +151,7 @@ public class SimplePermissionUpdateMenu {
         String attributeDefNameId = matcher.group(3);
         attributeDefName = AttributeDefNameFinder.findById(attributeDefNameId, true);
         attributeDef = attributeDefName.getAttributeDef();
-        if (!attributeDef.getPrivilegeDelegate().canAttrUpdate(loggedInSubject)) {
+        if (!PrivilegeHelper.canAttrUpdate(GrouperSession.staticGrouperSession(), attributeDef, loggedInSubject)) {
           guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simplePermissionUpdate.errorCantEditAttributeDef", false)));
           return;
         }
@@ -263,7 +264,7 @@ public class SimplePermissionUpdateMenu {
         String attributeDefNameId = matcher.group(3);
         attributeDefName = AttributeDefNameFinder.findById(attributeDefNameId, true);
         attributeDef = attributeDefName.getAttributeDef();
-        if (!attributeDef.getPrivilegeDelegate().canAttrUpdate(loggedInSubject)) {
+        if (!PrivilegeHelper.canAttrUpdate(GrouperSession.staticGrouperSession(), attributeDef, loggedInSubject)) {
           guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simplePermissionUpdate.errorCantEditAttributeDef", false)));
           return;
         }
@@ -375,7 +376,7 @@ public class SimplePermissionUpdateMenu {
         String attributeDefNameId = matcher.group(3);
         attributeDefName = AttributeDefNameFinder.findById(attributeDefNameId, true);
         attributeDef = attributeDefName.getAttributeDef();
-        if (!attributeDef.getPrivilegeDelegate().canAttrUpdate(loggedInSubject)) {
+        if (!PrivilegeHelper.canAttrUpdate(GrouperSession.staticGrouperSession(), attributeDef, loggedInSubject)) {
           guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simplePermissionUpdate.errorCantEditAttributeDef", false)));
           return;
         }

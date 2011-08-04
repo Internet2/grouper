@@ -289,7 +289,7 @@ public class Hib3AttributeDefDAO extends Hib3DAO implements AttributeDefDAO {
    * @param splitScope 
    * @param attributeAssignType
    * @param attributeDefType
-   * @return 
+   * @return  attribute defs
    * 
    */
   private Set<AttributeDef> getAllAttributeDefsSecureHelper(String scope,
@@ -392,16 +392,11 @@ public class Hib3AttributeDefDAO extends Hib3DAO implements AttributeDefDAO {
     }
 
     //see if we are adding more to the query
-    boolean changedQuery = grouperSession.getAttributeDefResolver().hqlFilterAttrDefsWhereClause(subject, byHqlStatic,
+    grouperSession.getAttributeDefResolver().hqlFilterAttrDefsWhereClause(subject, byHqlStatic,
         sql, whereClause, "theAttributeDef.id", privileges);
 
     if (whereClause.length() > 0) {
-      if (!changedQuery) {
-        sql.append(" where ");
-      } else {
-        sql.append(" and ");
-      }
-      sql.append(whereClause);
+      sql.append(" where ").append(whereClause);
     }    
     
     Set<AttributeDef> attributeDefs = byHqlStatic.createQuery(sql.toString())

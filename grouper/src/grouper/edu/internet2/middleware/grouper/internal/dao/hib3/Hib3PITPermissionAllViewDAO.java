@@ -174,14 +174,10 @@ public class Hib3PITPermissionAllViewDAO extends Hib3DAO implements PITPermissio
         sqlTables, "pea.roleId", AccessPrivilege.READ_PRIVILEGES);
 
     StringBuilder sql;
-    if (changedQuery) {
-      if (sqlWhereClause.length() > 0) {
-        sql = sqlTables.append(" and ").append(sqlWhereClause);
-      } else {
-        sql = sqlTables;
-      }
-    } else {
+    if (sqlWhereClause.length() > 0) {
       sql = sqlTables.append(" where ").append(sqlWhereClause);
+    } else {
+      sql = sqlTables;
     }
     
     if (actionsSize > 0) {
