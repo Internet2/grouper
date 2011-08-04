@@ -41,6 +41,7 @@ import edu.internet2.middleware.grouper.attr.finder.AttributeAssignFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
+import edu.internet2.middleware.grouper.exception.LimitInvalidException;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeAssign;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiMember;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiPermissionEntryActionsContainer;
@@ -57,8 +58,6 @@ import edu.internet2.middleware.grouper.permissions.PermissionRoleDelegate;
 import edu.internet2.middleware.grouper.permissions.PermissionEntry.PermissionType;
 import edu.internet2.middleware.grouper.permissions.limits.PermissionLimitBean;
 import edu.internet2.middleware.grouper.permissions.limits.PermissionLimitDocumentation;
-import edu.internet2.middleware.grouper.permissions.limits.PermissionLimitInterface;
-import edu.internet2.middleware.grouper.permissions.limits.PermissionLimitUtils;
 import edu.internet2.middleware.grouper.permissions.role.Role;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
@@ -1397,20 +1396,22 @@ public class SimplePermissionUpdate {
           AttributeAssignValue attributeAssignValue = new AttributeAssignValue();
           attributeAssignValue.setAttributeAssignId(limitAssign.getId());
           
-          Set<AttributeAssignValue> limitAssignValues = GrouperUtil.toSet(attributeAssignValue);
-          
-          if (!assignLimitValueAndValidate(guiResponseJs, limitAssign, limitDef, null, limitAssignValues, attributeAssignValue, addLimitValue)) {
+          if (!assignLimitValueAndValidate(guiResponseJs, limitDef, null, attributeAssignValue, addLimitValue)) {
             //had trouble with value, dont do the limit
             limitAssign.delete();
             return;
           }
-          attributeAssignValue.saveOrUpdate();
           screenMessage = screenMessage + "<br />" + TagUtils.navResourceString("simplePermissionUpdate.addLimitValueSuccess");
+
         } catch (Exception e) {
           LOG.info("Error assigning value: " + addLimitValue + ", to assignment: " + limitAssign.getId(), e);
 
-          //had trouble with value, dont do the limit
-          limitAssign.delete();
+          try {
+            //had trouble with value, dont do the limit
+            limitAssign.delete();
+          } catch (Exception e2) {
+            LOG.error("Cant clean up assignment", e2);
+          }
 
           guiResponseJs.addAction(GuiScreenAction.newAlert(TagUtils.navResourceString("simplePermissionUpdate.addLimitValueError") 
               + "  " + e.getClass().getSimpleName() + ": " + GrouperUiUtils.escapeHtml(e.getMessage(), true)));
@@ -1418,7 +1419,7 @@ public class SimplePermissionUpdate {
 
         }
       }
-      
+
       //clear out the add limit panel
       guiResponseJs.addAction(GuiScreenAction.newInnerHtml("#permissionAddLimitPanel", ""));
 
@@ -1896,12 +1897,10 @@ public class SimplePermissionUpdate {
           
         }
         
-        if (!assignLimitValueAndValidate(guiResponseJs, limitAssign, limitDef,
-            limitAssignValueId, limitAssignValues, attributeAssignValue, valueToEdit)) {
+        if (!assignLimitValueAndValidate(guiResponseJs, limitDef,
+            limitAssignValueId, attributeAssignValue, valueToEdit)) {
           return;
         }
-
-        attributeAssignValue.saveOrUpdate();
         
       }
       
@@ -1931,12 +1930,27 @@ public class SimplePermissionUpdate {
    * @param valueToEdit
    * @return true if ok, false if not ok
    */
-  private boolean assignLimitValueAndValidate(GuiResponseJs guiResponseJs,
-      AttributeAssign limitAssign, AttributeDef limitDef, String limitAssignValueId,
-      Set<AttributeAssignValue> limitAssignValues,
+  private boolean assignLimitValueAndValidate(GuiResponseJs guiResponseJs,AttributeDef limitDef, String limitAssignValueId,
       AttributeAssignValue attributeAssignValue, String valueToEdit) {
     try {
       attributeAssignValue.assignValue(valueToEdit);
+      attributeAssignValue.saveOrUpdate();
+    } catch (LimitInvalidException lie) {
+      
+      PermissionLimitDocumentation error = lie.getPermissionLimitDocumentation();
+      if (error != null) {
+        
+        String documentation = TagUtils.navResourceString(error.getDocumentationKey());
+        
+        for (int i=0; i<GrouperUtil.length(error.getArgs()); i++) {
+          documentation = StringUtils.replace(documentation, "{" + 0 + "}", error.getArgs().get(i));
+        }
+        guiResponseJs.addAction(GuiScreenAction.newAlert(documentation));
+        return false;
+      } else {
+        throw lie;
+      }
+
     } catch (RuntimeException re) {
       
       String error = null;
@@ -1955,27 +1969,11 @@ public class SimplePermissionUpdate {
       guiResponseJs.addAction(GuiScreenAction.newAlert(error));
       return false;
     }
-    //lets validate
-    AttributeDefName limit = limitAssign.getAttributeDefName();
-    String limitName = limit.getName();
-    PermissionLimitInterface permissionLimitInterface = PermissionLimitUtils.logicInstance(limitName);
 
-    PermissionLimitDocumentation error = permissionLimitInterface.validateLimitAssignValue(limitAssign, limitAssignValues);
-    if (error != null) {
-      
-      String documentation = TagUtils.navResourceString(error.getDocumentationKey());
-      
-      for (int i=0; i<GrouperUtil.length(error.getArgs()); i++) {
-        documentation = StringUtils.replace(documentation, "{" + 0 + "}", error.getArgs().get(i));
-      }
-      guiResponseJs.addAction(GuiScreenAction.newAlert(documentation));
-      return false;
-    }
     return true;
   }
 
 
   /** logger */
-  @SuppressWarnings("unused")
   private static final Log LOG = LogFactory.getLog(SimplePermissionUpdate.class);
 }

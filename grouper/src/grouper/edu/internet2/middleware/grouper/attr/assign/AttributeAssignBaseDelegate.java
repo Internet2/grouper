@@ -470,7 +470,7 @@ public abstract class AttributeAssignBaseDelegate {
     AttributeAssign attributeAssign = retrieveAssignment(action, attributeDefName, false, false);
     
     if (attributeAssign != null) {
-      if (permissionAllowed.isDisallowed() != attributeAssign.isDisallowed()) {
+      if (permissionAllowed != null && permissionAllowed.isDisallowed() != attributeAssign.isDisallowed()) {
         throw new RuntimeException("Assigning disallowed: " + permissionAllowed.isDisallowed() 
             + ", but the existing assignment " + attributeAssign.getId() 
             + " has: " + attributeAssign.isDisallowed() + ", you need to delete assignment and reassign.");
