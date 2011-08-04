@@ -2035,6 +2035,10 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
   
     ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
   
+    //see if we are adding more to the query
+    boolean changedQuery = grouperSession.getAccessResolver().hqlFilterGroupsWhereClause(subject, byHqlStatic,
+        sql, "theGroup.uuid", privileges);
+
     StringBuilder whereClause = new StringBuilder();
     
     if (typeOfGroup != null) {
@@ -2080,14 +2084,13 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
       }
       whereClause.append(" ) ) ");
     }
-
-    sql.append(" where ");
+    if (changedQuery) {
+      sql.append(" and ");
+    } else {
+      sql.append(" where ");
+    }
     sql.append(whereClause);
 
-    //see if we are adding more to the query
-    grouperSession.getAccessResolver().hqlFilterGroupsWhereClause(subject, byHqlStatic,
-        sql, "theGroup.uuid", privileges);
-  
     Set<Group> groups = byHqlStatic.createQuery(sql.toString())
       .setCacheable(false)
       .setCacheRegion(KLASS + ".GetAllGroupsSecure")

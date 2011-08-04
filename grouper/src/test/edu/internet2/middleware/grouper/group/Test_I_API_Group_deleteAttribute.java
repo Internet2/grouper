@@ -193,11 +193,11 @@ public class Test_I_API_Group_deleteAttribute extends GrouperTest {
     assertFalse(groupSubject.isLoadedGroupAttributes());
     assertFalse(groupSubject.isLoadedModifyCreateSubjects());
     assertEquals(gA.getName(), groupSubject.getAttributeValue("name"));
-    assertFalse(groupSubject.isLoadedGroupAttributes());
-    assertFalse(groupSubject.isLoadedModifyCreateSubjects());
+    assertTrue(groupSubject.isLoadedGroupAttributes());
+    assertTrue(groupSubject.isLoadedModifyCreateSubjects());
     assertEquals(gA.getName(), GrouperUtil.nonNull(groupSubject.getAttributes()).get("name").iterator().next());
-    assertFalse(groupSubject.isLoadedGroupAttributes());
-    assertFalse(groupSubject.isLoadedModifyCreateSubjects());
+    assertTrue(groupSubject.isLoadedGroupAttributes());
+    assertTrue(groupSubject.isLoadedModifyCreateSubjects());
     assertEquals("whatever", GrouperUtil.nonNull(groupSubject.getAttributes()).get(ATTRIBUTE1).iterator().next());
     assertTrue(groupSubject.isLoadedGroupAttributes());
     assertTrue(groupSubject.isLoadedModifyCreateSubjects());

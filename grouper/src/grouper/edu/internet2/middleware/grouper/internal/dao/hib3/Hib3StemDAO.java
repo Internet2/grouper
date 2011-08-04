@@ -1094,7 +1094,6 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
     ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
 
     //see if we are adding more to the query
-    @SuppressWarnings("unused")
     boolean changedQuery = grouperSession.getNamingResolver().hqlFilterStemsWhereClause(subject, byHqlStatic, 
         sql, "theStem.uuid", inPrivSet);
     
@@ -1109,7 +1108,12 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
         if (whereClause.length() > 0) {
           whereClause.append(" and ");
         } else {
-          whereClause.append(" where (( ");
+          if (changedQuery) {
+            whereClause.append(" and ");
+          } else {
+            whereClause.append(" where ");
+          }
+          whereClause.append(" (( ");
         }
         whereClause.append(" lower(theStem.nameDb) like :scope" + index + " ");
         if (splitScope) {

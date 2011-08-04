@@ -785,11 +785,14 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
         sqlTables, "aa.ownerGroupId", AccessPrivilege.VIEW_PRIVILEGES);
 
     StringBuilder sql;
+    
     if (changedQuery) {
-      sql = sqlTables.append(" and ").append(sqlWhereClause);
+      sqlTables.append(" and ");
     } else {
-      sql = sqlTables.append(" where ").append(sqlWhereClause);
+      sqlTables.append(" where ");
     }
+    
+    sql = sqlTables.append(sqlWhereClause);
     
     if (enabled != null && enabled) {
       sql.append(" and aa.enabledDb = 'T' ");
@@ -1299,10 +1302,12 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
 
     StringBuilder sql;
     if (changedQuery) {
-      sql = sqlTables.append(" and ").append(sqlWhereClause);
+      sqlTables.append(" where ");
     } else {
-      sql = sqlTables.append(" where ").append(sqlWhereClause);
+      sqlTables.append(" and ");
     }
+
+    sql = sqlTables.append(sqlWhereClause);
 
     if (enabled != null && enabled) {
       sql.append(" and aa.enabledDb = 'T' ");
@@ -1445,11 +1450,7 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
         sqlTables, "aa.ownerGroupId", AccessPrivilege.READ_PRIVILEGES);
 
     StringBuilder sql;
-    if (changedQuery) {
-      sql = sqlTables.append(" and ").append(sqlWhereClause);
-    } else {
-      sql = sqlTables.append(" where ").append(sqlWhereClause);
-    }
+    sql = sqlTables.append(" where ").append(sqlWhereClause);
 
     if (enabled != null && enabled) {
       sql.append(" and aa.enabledDb = 'T' ");
@@ -1717,10 +1718,11 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
   
     StringBuilder sql;
     if (changedQuery) {
-      sql = sqlTables.append(" and ").append(sqlWhereClause);
+      sqlTables.append(" where ");
     } else {
-      sql = sqlTables.append(" where ").append(sqlWhereClause);
+      sqlTables.append(" and ");
     }
+    sql = sqlTables.append(sqlWhereClause);
     
     if (enabled != null && enabled) {
       sql.append(" and aa.enabledDb = 'T' ");
@@ -1997,10 +1999,11 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
   
     StringBuilder sql;
     if (changedQuery) {
-      sql = sqlTables.append(" and ").append(sqlWhereClause);
+      sqlTables.append(" where ");
     } else {
-      sql = sqlTables.append(" where ").append(sqlWhereClause);
+      sqlTables.append(" and ");
     }
+    sql = sqlTables.append(sqlWhereClause);
   
     if (enabled != null && enabled) {
       sql.append(" and aa.enabledDb = 'T' ");
@@ -2386,11 +2389,7 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
         sqlTables, "aa.ownerGroupId", AccessPrivilege.READ_PRIVILEGES);
   
     StringBuilder sql;
-    if (changedQuery) {
-      sql = sqlTables.append(" and ").append(sqlWhereClause);
-    } else {
-      sql = sqlTables.append(" where ").append(sqlWhereClause);
-    }
+    sql = sqlTables.append(" where ").append(sqlWhereClause);
   
     if (enabled != null && enabled) {
       sql.append(" and aa.enabledDb = 'T' ");
@@ -2664,17 +2663,18 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
           sqlTables, "ime.ownerGroupId", AccessPrivilege.VIEW_PRIVILEGES);
     }
     if (attributeAssignType == AttributeAssignType.attr_def) {
-      changedQuery = grouperSession.getAttributeDefResolver().hqlFilterAttrDefsWhereClause(
+      grouperSession.getAttributeDefResolver().hqlFilterAttrDefsWhereClause(
           grouperSessionSubject, byHqlStatic, 
           sqlTables, sqlWhereClause, "aa.ownerAttributeDefId", AttributeDefPrivilege.MANAGE_PRIVILEGES);
     }
   
     StringBuilder sql;
-    if (changedQuery) {
-      sql = sqlTables.append(" and ").append(sqlWhereClause);
+    if (!changedQuery) {
+      sqlTables.append(" where ");
     } else {
-      sql = sqlTables.append(" where ").append(sqlWhereClause);
+      sqlTables.append(" and ");
     }
+    sql = sqlTables.append(sqlWhereClause);
     
     if (enabled != null && enabled) {
       sql.append(" and aa.enabledDb = 'T' ");
