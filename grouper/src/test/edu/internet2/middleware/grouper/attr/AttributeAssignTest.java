@@ -51,7 +51,7 @@ public class AttributeAssignTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new AttributeAssignTest("testFindAttrDefAttributeAssignments"));
+    TestRunner.run(new AttributeAssignTest("testFindAnyMembershipAttributeAssignments"));
   }
   
   /**
@@ -475,9 +475,10 @@ public class AttributeAssignTest extends GrouperTest {
       attributeAssign = exampleAttributeAssignDb();
       exampleAttributeAssign = exampleRetrieveAttributeAssignDb();
 
+      //this is set based on times...
       attributeAssign.setEnabledDb("F");
       
-      assertTrue(attributeAssign.xmlDifferentBusinessProperties(exampleAttributeAssign));
+      assertFalse(attributeAssign.xmlDifferentBusinessProperties(exampleAttributeAssign));
       assertFalse(attributeAssign.xmlDifferentUpdateProperties(exampleAttributeAssign));
 
       attributeAssign.setEnabledDb(exampleAttributeAssign.getEnabledDb());

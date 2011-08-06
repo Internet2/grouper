@@ -582,6 +582,13 @@ public class GrouperTest extends TestCase {
     fail( "ERROR INITIALIZING TEST: " + e.getMessage() );
   }
 
+  /**
+   * override this method to configure the configs...
+   */
+  protected void setupConfigs() {
+    
+  }
+  
   // @since   1.2.0
   protected void setUp () {
     LOG.debug("setUp");
@@ -602,6 +609,8 @@ public class GrouperTest extends TestCase {
       ApiConfig.testConfig.put("configuration.autocreate.group.subjects." + i, null);
     }
 
+    setupConfigs();
+    
     RegistryReset.internal_resetRegistryAndAddTestSubjects();
     GrouperTest.initGroupsAndAttributes();
 

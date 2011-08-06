@@ -454,6 +454,10 @@ public abstract class AttributeAssignBaseDelegate {
   public AttributeAssignResult internal_assignAttributeHelper(String action, 
       AttributeDefName attributeDefName, boolean checkSecurity, String uuid, PermissionAllowed permissionAllowed) {
     
+    if (permissionAllowed == null) {
+      permissionAllowed = PermissionAllowed.ALLOWED;
+    }
+    
     AttributeDef attributeDef = attributeDefName.getAttributeDef();
     
     if (checkSecurity) {

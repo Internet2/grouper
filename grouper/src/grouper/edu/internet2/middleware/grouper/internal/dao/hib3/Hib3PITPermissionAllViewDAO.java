@@ -175,9 +175,16 @@ public class Hib3PITPermissionAllViewDAO extends Hib3DAO implements PITPermissio
 
     StringBuilder sql;
     if (sqlWhereClause.length() > 0) {
-      sql = sqlTables.append(" where ").append(sqlWhereClause);
+      if (changedQuery) {
+        sql = sqlTables.append(" and ").append(sqlWhereClause);
+        
+      } else {
+        sql = sqlTables.append(" where ").append(sqlWhereClause);
+        
+      }
     } else {
-      sql = sqlTables;
+      //where and will be removed later on
+      sql = sqlTables.append(" where ");
     }
     
     if (actionsSize > 0) {

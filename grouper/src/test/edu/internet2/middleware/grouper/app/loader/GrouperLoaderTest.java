@@ -32,6 +32,7 @@ import edu.internet2.middleware.grouper.attr.AttributeDefNameSet;
 import edu.internet2.middleware.grouper.attr.AttributeDefSave;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignAction;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignActionSet;
+import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.cfg.ApiConfig;
 import edu.internet2.middleware.grouper.ddl.DdlUtilsChangeDatabase;
 import edu.internet2.middleware.grouper.ddl.DdlVersionBean;
@@ -69,7 +70,7 @@ public class GrouperLoaderTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new GrouperLoaderTest("testLoaderTypesGroupMeta"));
+    TestRunner.run(new GrouperLoaderTest("testLoaderAttributeDefActions"));
   }
 
   /**
@@ -1055,6 +1056,9 @@ public class GrouperLoaderTest extends GrouperTest {
       
       Hib3GrouperLoaderLog hib3GrouperLoaderLog = GrouperLoader._internal_runJobOnceForAttributeDef(this.grouperSession, orgsAttributeDef);
   
+      //its cached in the delegate, so get another
+      orgsAttributeDef = AttributeDefFinder.findById(orgsAttributeDef.getUuid(), true);
+      
       //now we should have 6 actions and 3 relationships
       List<AttributeAssignAction> attributeActionsList = new ArrayList<AttributeAssignAction>(orgsAttributeDef.getAttributeDefActionDelegate().allowedActions());
       
@@ -1100,6 +1104,9 @@ public class GrouperLoaderTest extends GrouperTest {
       
       hib3GrouperLoaderLog = GrouperLoader._internal_runJobOnceForAttributeDef(this.grouperSession, orgsAttributeDef);
   
+      //its cached in the delegate, so get another
+      orgsAttributeDef = AttributeDefFinder.findById(orgsAttributeDef.getUuid(), true);
+      
       //now we should have 6 orgs and 3 relationships
       attributeActionsList = new ArrayList<AttributeAssignAction>(orgsAttributeDef.getAttributeDefActionDelegate().allowedActions());
       
@@ -1157,6 +1164,9 @@ public class GrouperLoaderTest extends GrouperTest {
       
       hib3GrouperLoaderLog = GrouperLoader._internal_runJobOnceForAttributeDef(this.grouperSession, orgsAttributeDef);
   
+      //its cached in the delegate, so get another
+      orgsAttributeDef = AttributeDefFinder.findById(orgsAttributeDef.getUuid(), true);
+      
       //now we should have 7 orgs and 3 relationships
       attributeActionsList = new ArrayList<AttributeAssignAction>(orgsAttributeDef.getAttributeDefActionDelegate().allowedActions());
       

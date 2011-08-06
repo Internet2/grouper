@@ -417,6 +417,13 @@ public class PermissionLimitUtils {
   /** limit logic map */
   static ExpirableCache<Boolean, Map<String, Class<PermissionLimitInterface>>> limitLogicMap = new ExpirableCache<Boolean, Map<String, Class<PermissionLimitInterface>>>(5);
 
+  /**
+   * for testing, clear this to put things in the api test config
+   */
+  public static void clearLimitLogicMap() {
+    limitLogicMap.clear();
+  }
+  
   /** 
    * pattern to parse the limit configs
    * grouper.permissions.limits.logic.someName.limitName
@@ -468,7 +475,7 @@ public class PermissionLimitUtils {
                 limitMap.put(limitAttributeName, theClass);
                 
               } catch (RuntimeException runtimeException) {
-                LOG.error("Error with classname for limit, maybe class not on classpath or it is misconfigured in grouper.properties: " + className, runtimeException);
+                LOG.error("Error with classname for limit, maybe class not on classpath or it is misconfigured in grouper.properties: " + sourcePropertyName + ", classname: " + className, runtimeException);
                 //we will need to continue so one problem doesnt ruin it for all
                 continue;
               }
