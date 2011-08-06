@@ -91,7 +91,7 @@ public class Hib3ChangeLogEntryDAO extends Hib3DAO implements ChangeLogEntryDAO 
   public List<ChangeLogEntry> retrieveBatch(long afterSequenceNumber, int batchSize) {
     
     List<ChangeLogEntry> changeLogEntryList = HibernateSession.byHqlStatic().createQuery(
-        "from ChangeLogEntryEntity theEntity where theEntity.sequenceNumber > :afterSequenceNumber")
+        "from ChangeLogEntryEntity theEntity where theEntity.sequenceNumber > :afterSequenceNumber order by theEntity.sequenceNumber")
         .options(new QueryOptions().paging(batchSize, 1, false))
         .setLong("afterSequenceNumber", afterSequenceNumber).list(ChangeLogEntry.class);
     
