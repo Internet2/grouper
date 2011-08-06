@@ -22,6 +22,7 @@ import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.finder.AttributeAssignFinder;
+import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.membership.MembershipType;
@@ -1788,6 +1789,14 @@ public enum RuleCheckType {
   flattenedPermissionAssignToSubject {
 
     /**
+     * @see RuleCheckType#checkKey(RuleDefinition)
+     */
+    @Override
+    public RuleCheck checkKey(RuleDefinition ruleDefinition) {
+      return checkKeyForAttributeDefinition(ruleDefinition);
+    }
+    
+    /**
      * @see RuleCheckType#addElVariables(RuleDefinition, Map, RulesBean, boolean)
      */
     @Override
@@ -1842,6 +1851,14 @@ public enum RuleCheckType {
    */
   flattenedPermissionRemoveFromSubject {
 
+    /**
+     * @see RuleCheckType#checkKey(RuleDefinition)
+     */
+    @Override
+    public RuleCheck checkKey(RuleDefinition ruleDefinition) {
+      return checkKeyForAttributeDefinition(ruleDefinition);
+    }
+    
     /**
      * @see RuleCheckType#addElVariables(RuleDefinition, Map, RulesBean, boolean)
      */
@@ -2656,4 +2673,51 @@ public enum RuleCheckType {
 
   }
   
+  /**
+   * 
+   * @param ruleDefinition
+   * @return rule check
+   */
+  public static RuleCheck checkKeyForAttributeDefinition(RuleDefinition ruleDefinition) {
+    
+    RuleCheck ruleCheck = ruleDefinition.getCheck();
+    
+    if (!StringUtils.isBlank(ruleCheck.getCheckOwnerName())) {
+      return ruleCheck;
+    }
+
+    //clone so we dont edit the object
+    ruleCheck = ruleCheck.clone();
+
+    if (StringUtils.isBlank(ruleCheck.getCheckOwnerId()) && StringUtils.isBlank(ruleCheck.getCheckOwnerName())) {
+      //if this is assigned to a stem
+      if (!StringUtils.isBlank(ruleDefinition.getAttributeAssignType().getOwnerAttributeDefId())) {
+        
+        ruleCheck.setCheckOwnerId(ruleDefinition.getAttributeAssignType().getOwnerAttributeDefId());
+      } else {
+        LOG.error("Not sure why no check owner if not assigned to attribute definition");
+        return ruleCheck;
+      }
+    }
+    
+    //we need it by name so we can do stem matches...
+    final String attributeDefId = ruleCheck.getCheckOwnerId();
+    ruleCheck.setCheckOwnerId(null);
+    //set the owner to this stem
+    AttributeDef attributeDef = (AttributeDef)
+    GrouperSession.callbackGrouperSession(GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+      
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        return AttributeDefFinder.findById(attributeDefId, true);
+
+      }
+    });
+    String attributeDefName = attributeDef.getName();
+    
+    ruleCheck.setCheckOwnerName(attributeDefName);
+    
+    return ruleCheck;
+
+  }
+
 }
