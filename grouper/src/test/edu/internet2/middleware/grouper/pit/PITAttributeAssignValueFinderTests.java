@@ -1,8 +1,11 @@
 package edu.internet2.middleware.grouper.pit;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Set;
+
+import junit.textui.TestRunner;
 
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
@@ -11,11 +14,17 @@ import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.AttributeDefType;
 import edu.internet2.middleware.grouper.attr.AttributeDefValueType;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
+import edu.internet2.middleware.grouper.cfg.ApiConfig;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogTempToEntity;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SessionHelper;
 import edu.internet2.middleware.grouper.helper.StemHelper;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.permissions.PermissionEntry;
+import edu.internet2.middleware.grouper.permissions.PermissionFinder;
+import edu.internet2.middleware.grouper.permissions.PermissionProcessor;
+import edu.internet2.middleware.grouper.permissions.limits.PermissionLimitUtils;
+import edu.internet2.middleware.grouper.permissions.limits.impl.PermissionLimitElLogic;
 import edu.internet2.middleware.grouper.pit.finder.PITAttributeAssignValueFinder;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
@@ -80,6 +89,19 @@ public class PITAttributeAssignValueFinderTests extends GrouperTest {
     attributeDef.store();
     AttributeDefName attrDefName = edu.addChildAttributeDefName(attributeDef, "attrDefName", "attrDefName");
     AttributeDefName attrDefName2 = edu.addChildAttributeDefName(attributeDef, "attrDefName2", "attrDefName2");
+    
+    
+    
+    ApiConfig.testConfig.put("grouper.permissions.limits.logic.attrDefName.limitName", attrDefName.getName());
+    ApiConfig.testConfig.put("grouper.permissions.limits.logic.attrDefName.logicClass", PITPermissionLimit.class.getName());
+    ApiConfig.testConfig.put("grouper.permissions.limits.logic.attrDefName2.limitName", attrDefName2.getName());
+    ApiConfig.testConfig.put("grouper.permissions.limits.logic.attrDefName2.logicClass", PITPermissionLimit.class.getName());
+    
+    //clear the cache
+    PermissionLimitUtils.clearLimitLogicMap();
+
+    
+    
     AttributeAssign assign = edu.getAttributeDelegate().assignAttribute(attrDefName).getAttributeAssign();
     edu.getAttributeDelegate().assignAttribute(attrDefName2).getAttributeAssign();
 
@@ -130,5 +152,13 @@ public class PITAttributeAssignValueFinderTests extends GrouperTest {
     
     values = PITAttributeAssignValueFinder.findByPITAttributeAssign(pitAttributeAssign, beforeAll, afterDelete);
     assertEquals(2, values.size());
+  }
+
+  /**
+   * @param args
+   */
+  public static void main(String[] args) {
+    //TestRunner.run(new PITAttributeAssignValueFinderTests("testFindPermissionsWithDisallowAndRoleInheritance"));
+    TestRunner.run(PITAttributeAssignValueFinderTests.class);
   }
 }
