@@ -29,6 +29,8 @@ import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException
 import edu.internet2.middleware.grouper.exception.MemberNotFoundException;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
+import edu.internet2.middleware.grouper.member.SearchStringEnum;
+import edu.internet2.middleware.grouper.member.SortStringEnum;
 import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
@@ -117,17 +119,22 @@ public class MemberFinder {
    * @param type
    * @param sources
    * @param queryOptions 
+   * @param memberSortStringEnum 
+   * @param memberSearchStringEnum 
+   * @param memberSearchStringValue 
    * @return the members, dont return null
    */
   public static Set<Member> internal_findMembersByType(GrouperSession grouperSession, Group group, Field field, String type,
-      Set<Source> sources, QueryOptions queryOptions) {
+      Set<Source> sources, QueryOptions queryOptions, SortStringEnum memberSortStringEnum, SearchStringEnum memberSearchStringEnum, 
+      String memberSearchStringValue) {
     GrouperSession.validate(grouperSession);
 
     if (!PrivilegeHelper.canViewMembers(grouperSession, group, field)) {
       return new LinkedHashSet();
     }
     Set<Member> members = GrouperDAOFactory.getFactory().getMembership()
-      .findAllMembersByGroupOwnerAndFieldAndType(group.getUuid(), field, type, sources, queryOptions, true);
+      .findAllMembersByOwnerAndFieldAndType(group.getUuid(), field, type, sources, queryOptions, true,
+          memberSortStringEnum, memberSearchStringEnum, memberSearchStringValue);
     return members;
   }
 
