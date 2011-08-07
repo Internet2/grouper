@@ -50,7 +50,7 @@ public class PermissionLimitTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new PermissionLimitTest("testBestLimit"));
+    TestRunner.run(new PermissionLimitTest("testLimitCustom"));
   }
 
   /**
@@ -184,6 +184,7 @@ public class PermissionLimitTest extends GrouperTest {
     this.subj0 = SubjectTestHelper.SUBJ0;
     this.subj1 = SubjectTestHelper.SUBJ1;
     
+    PermissionLimitUtils.clearLimitLogicMap();
   }
 
   /**
@@ -312,10 +313,10 @@ public class PermissionLimitTest extends GrouperTest {
       .assignToEffMembershipAssn(true).save();
     AttributeDefName limitName = new AttributeDefNameSave(this.grouperSession, limitDef).assignName("top:customElLimit")
       .assignDisplayExtension("Custom EL Limit").save();
-
-    attributeAssign.getAttributeValueDelegate().assignValue(limitName.getName(), "amount < 30000");
     
     try {
+      attributeAssign.getAttributeValueDelegate().assignValue(limitName.getName(), "amount < 30000");
+
       permissionEntries = new ArrayList<PermissionEntry>(
           new PermissionFinder().addSubject(this.subj0)
           .addAction(this.readString).addPermissionName(this.english)
@@ -349,7 +350,9 @@ public class PermissionLimitTest extends GrouperTest {
     
     //clear the cache
     PermissionLimitUtils.limitLogicMap.clear();
-    
+
+    attributeAssign.getAttributeValueDelegate().assignValue(limitName.getName(), "amount < 30000");
+
     permissionEntries = new ArrayList<PermissionEntry>(
         new PermissionFinder().addSubject(this.subj0)
         .addAction(this.readString).addPermissionName(this.english)

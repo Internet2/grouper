@@ -22,6 +22,7 @@ import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.finder.AttributeAssignFinder;
+import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.membership.MembershipType;
@@ -1788,6 +1789,14 @@ public enum RuleCheckType {
   flattenedPermissionAssignToSubject {
 
     /**
+     * @see RuleCheckType#checkKey(RuleDefinition)
+     */
+    @Override
+    public RuleCheck checkKey(RuleDefinition ruleDefinition) {
+      return checkKeyForAttributeDefinition(ruleDefinition);
+    }
+    
+    /**
      * @see RuleCheckType#addElVariables(RuleDefinition, Map, RulesBean, boolean)
      */
     @Override
@@ -1842,6 +1851,14 @@ public enum RuleCheckType {
    */
   flattenedPermissionRemoveFromSubject {
 
+    /**
+     * @see RuleCheckType#checkKey(RuleDefinition)
+     */
+    @Override
+    public RuleCheck checkKey(RuleDefinition ruleDefinition) {
+      return checkKeyForAttributeDefinition(ruleDefinition);
+    }
+    
     /**
      * @see RuleCheckType#addElVariables(RuleDefinition, Map, RulesBean, boolean)
      */
@@ -1977,17 +1994,17 @@ public enum RuleCheckType {
         RulesBean rulesBean, boolean hasAccessToElApi) {
       RulesPermissionBean rulesPermissionBean = (RulesPermissionBean)rulesBean;
       if (rulesPermissionBean != null) {
-//CH this went away
-//        Role role = rulesPermissionBean.getRole();
-//        variableMap.put("roleId", role.getId());
-//        variableMap.put("roleName", role.getName());
-//        variableMap.put("roleDisplayName", role.getDisplayName());
-//        variableMap.put("roleExtension", role.getExtension());
-//        variableMap.put("roleDisplayExtension", role.getDisplayExtension());
-//        variableMap.put("roleDescription", role.getDescription());
-//        if (hasAccessToElApi) {
-//          variableMap.put("role", role);
-//        }
+        // this was taken out of change log...
+        Role role = rulesPermissionBean.getRole();
+        variableMap.put("roleId", role == null ? "" : role.getId());
+        variableMap.put("roleName", role == null ? "" : role.getName());
+        variableMap.put("roleDisplayName", role == null ? "" : role.getDisplayName());
+        variableMap.put("roleExtension", role == null ? "" : role.getExtension());
+        variableMap.put("roleDisplayExtension", role == null ? "" : role.getDisplayExtension());
+        variableMap.put("roleDescription", role == null ? "" : role.getDescription());
+        if (hasAccessToElApi) {
+          variableMap.put("role", role);
+        }
       }
       if (!StringUtils.isBlank(rulesPermissionBean.getMemberId())) {
         variableMap.put("memberId", rulesPermissionBean.getMemberId());
@@ -2033,21 +2050,23 @@ public enum RuleCheckType {
           variableMap.put("attributeDefName", attributeDefName);
         }
       }
-//CH THIS WENT AWAY
-//      AttributeAssign attributeAssign = rulesPermissionBean.getAttributeAssign();
-//      if (attributeAssign != null) {
-//        variableMap.put("attributeAssignId", attributeAssign.getId());
-//        if (attributeAssign.getDisabledTime() != null) {
-//          variableMap.put("permissionDisabledTimestamp", attributeAssign.getDisabledTime());
-//        }
-//        if (attributeAssign.getEnabledTime() != null) {
-//          variableMap.put("permissionEnabledTimestamp", attributeAssign.getEnabledTime());
-//        }
-//
-//        if (hasAccessToElApi) {
-//          variableMap.put("attributeAssign", attributeAssign);
-//        }
-//      }
+      //  why was this commented out????  CH THIS WENT AWAY FROM CHANGE LOG
+      AttributeAssign attributeAssign = rulesPermissionBean.getAttributeAssign();
+      if (attributeAssign != null) {
+        variableMap.put("attributeAssignId", attributeAssign == null ? "" : attributeAssign.getId());
+        if (attributeAssign != null) {
+          if (attributeAssign.getDisabledTime() != null) {
+            variableMap.put("permissionDisabledTimestamp", attributeAssign.getDisabledTime());
+          }
+          if (attributeAssign.getEnabledTime() != null) {
+            variableMap.put("permissionEnabledTimestamp", attributeAssign.getEnabledTime());
+          }
+        }
+        
+        if (hasAccessToElApi) {
+          variableMap.put("attributeAssign", attributeAssign);
+        }
+      }
       
     }
   
@@ -2656,4 +2675,51 @@ public enum RuleCheckType {
 
   }
   
+  /**
+   * 
+   * @param ruleDefinition
+   * @return rule check
+   */
+  public static RuleCheck checkKeyForAttributeDefinition(RuleDefinition ruleDefinition) {
+    
+    RuleCheck ruleCheck = ruleDefinition.getCheck();
+    
+    if (!StringUtils.isBlank(ruleCheck.getCheckOwnerName())) {
+      return ruleCheck;
+    }
+
+    //clone so we dont edit the object
+    ruleCheck = ruleCheck.clone();
+
+    if (StringUtils.isBlank(ruleCheck.getCheckOwnerId()) && StringUtils.isBlank(ruleCheck.getCheckOwnerName())) {
+      //if this is assigned to a stem
+      if (!StringUtils.isBlank(ruleDefinition.getAttributeAssignType().getOwnerAttributeDefId())) {
+        
+        ruleCheck.setCheckOwnerId(ruleDefinition.getAttributeAssignType().getOwnerAttributeDefId());
+      } else {
+        LOG.error("Not sure why no check owner if not assigned to attribute definition");
+        return ruleCheck;
+      }
+    }
+    
+    //we need it by name so we can do stem matches...
+    final String attributeDefId = ruleCheck.getCheckOwnerId();
+    ruleCheck.setCheckOwnerId(null);
+    //set the owner to this stem
+    AttributeDef attributeDef = (AttributeDef)
+    GrouperSession.callbackGrouperSession(GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+      
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        return AttributeDefFinder.findById(attributeDefId, true);
+
+      }
+    });
+    String attributeDefName = attributeDef.getName();
+    
+    ruleCheck.setCheckOwnerName(attributeDefName);
+    
+    return ruleCheck;
+
+  }
+
 }

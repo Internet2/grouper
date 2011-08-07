@@ -39,6 +39,7 @@ import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.SaveMode;
+import edu.internet2.middleware.grouper.permissions.PermissionAllowed;
 import edu.internet2.middleware.grouper.permissions.PermissionEntry;
 import edu.internet2.middleware.grouper.permissions.role.Role;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
@@ -71,7 +72,7 @@ public class RuleApiTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new RuleApiTest("testRuleEmailFlattenedPermissionAssign"));
+    TestRunner.run(new RuleApiTest("testRuleEmailPermissionsDisabledDate"));
   }
 
   /**
@@ -1621,11 +1622,11 @@ public class RuleApiTest extends GrouperTest {
     AttributeDefName canLogin = new AttributeDefNameSave(grouperSession, permissionDef)
       .assignName("apps:payroll:permissions:canLogin").assignCreateParentStemsIfNotExist(true).save();
     
-    payrollUser.getPermissionRoleDelegate().assignRolePermission(canLogin);
+    payrollUser.getPermissionRoleDelegate().assignRolePermission(canLogin, PermissionAllowed.ALLOWED);
     
     RuleApi.emailOnFlattenedPermissionAssign(SubjectFinder.findRootSubject(), permissionDef, 
         "a@b.c, ${safeSubject.emailAddress}", 
-        "You were assigned permission: ${attributeDefNameDisplayExtension} in role ${roleDisplayExtension}", 
+        "You were assigned permission: ${attributeDefNameDisplayExtension}", 
         "Hello ${safeSubject.name},\n\nJust letting you know you were assigned permission ${attributeDefNameDisplayExtension} in the central Groups/Permissions management system.  Please do not respond to this email.\n\nRegards.");
       
     //count rule firings
@@ -1643,7 +1644,7 @@ public class RuleApiTest extends GrouperTest {
     assertEquals(initialEmailCount+1, GrouperEmail.testingEmailCount);
 
     //assign by a different path
-    payrollGuest.getPermissionRoleDelegate().assignSubjectRolePermission(canLogin, subject0);
+    payrollGuest.getPermissionRoleDelegate().assignSubjectRolePermission(canLogin, subject0, PermissionAllowed.ALLOWED);
     
     //shouldnt fire or send email
     GrouperLoader.runOnceByJobName(grouperSession, GrouperLoaderType.GROUPER_CHANGE_LOG_TEMP_TO_CHANGE_LOG);
@@ -1653,7 +1654,7 @@ public class RuleApiTest extends GrouperTest {
     assertEquals(initialEmailCount+1, GrouperEmail.testingEmailCount);
 
     //assign a new user directly
-    payrollGuest.getPermissionRoleDelegate().assignSubjectRolePermission(canLogin, subject1);
+    payrollGuest.getPermissionRoleDelegate().assignSubjectRolePermission(canLogin, subject1, PermissionAllowed.ALLOWED);
     
     //should fire and send email
     GrouperLoader.runOnceByJobName(grouperSession, GrouperLoaderType.GROUPER_CHANGE_LOG_TEMP_TO_CHANGE_LOG);

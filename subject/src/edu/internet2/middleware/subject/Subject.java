@@ -60,6 +60,7 @@ public interface Subject extends Serializable {
 	 * Returns the value of a single-valued attribute.
 	 * If multivalued, this returns the first value.
 	 * This does not return values for internal attributes.
+   * Note, the keys are case-insensitive
 	 * @param attributeName 
 	 * @return value or null if not found
 	 */
@@ -69,6 +70,7 @@ public interface Subject extends Serializable {
 	 * Returns the values of a multi-valued attribute, or a set of size one for a single valued attribute.
 	 * Note the returned set should not be changed.
 	 * This does not return values for internal attributes.
+   * Note, the keys are case-insensitive
 	 * @param attributeName 
 	 * @return set or empty set or null if not there
 	 */
@@ -79,6 +81,7 @@ public interface Subject extends Serializable {
    * if multi-valued, throws an exception.  Implementors
    * can use the static helper in SubjectImpl.
    * This does not return values for internal attributes.
+   * Note, the keys are case-insensitive
    * @param attributeName
    * @return value or null if not there
    */
@@ -91,6 +94,7 @@ public interface Subject extends Serializable {
    * So if the values are: a b c; this would return the string: "a, b, c"
    * Implementors can use the static helper in SubjectImpl.
    * This does not return values for internal attributes.
+   * Note, the keys are case-insensitive
    * </pre>
    * @param attributeName
    * @return value or values or null if not there
@@ -102,6 +106,8 @@ public interface Subject extends Serializable {
 	 * contains the attribute name and the map's value
 	 * contains a Set of attribute value(s).
 	 * This does not return internal attributes.
+	 * Note, the keys are case-insensitive
+	 * 
 	 * @return map or empty map or null if not there
 	 */
 	public java.util.Map<String, Set<String>> getAttributes();
@@ -109,6 +115,7 @@ public interface Subject extends Serializable {
 	 /**
    * Returns the value of a single-valued attribute.
    * If multivalued, this returns the first value.
+   * Note, the keys are case-insensitive
    * @param attributeName 
 	 * @param excludeInternalAttributes if true, values for internal attributes are not returned
    * @return value or null if not found
@@ -118,6 +125,7 @@ public interface Subject extends Serializable {
   /**
    * Returns the values of a multi-valued attribute, or a set of size one for a single valued attribute.
    * Note the returned set should not be changed.
+   * Note, the keys are case-insensitive
    * @param attributeName 
    * @param excludeInternalAttributes if true, values for internal attributes are not returned
    * @return set or empty set or null if not there
@@ -128,6 +136,7 @@ public interface Subject extends Serializable {
    * Returns the attribute value if single-valued, or
    * if multi-valued, throws an exception.  Implementors
    * can use the static helper in SubjectImpl.
+   * Note, the keys are case-insensitive
    * @param attributeName
    * @param excludeInternalAttributes if true, values for internal attributes are not returned
    * @return value or null if not there
@@ -140,6 +149,7 @@ public interface Subject extends Serializable {
    * if multi-valued, returns the values comma separated (with a space too).
    * So if the values are: a b c; this would return the string: "a, b, c"
    * Implementors can use the static helper in SubjectImpl.
+   * Note, the keys are case-insensitive
    * </pre>
    * @param attributeName
    * @param excludeInternalAttributes if true, values for internal attributes are not returned
@@ -151,6 +161,7 @@ public interface Subject extends Serializable {
    * Gets a map attribute names and values. The map's key
    * contains the attribute name and the map's value
    * contains a Set of attribute value(s).  The returned Map can be augmented or changed.
+   * Note, the keys are case-insensitive
    * @param excludeInternalAttributes if true, internal attributes are not returned
    * @return map or empty map or null if not there
    */

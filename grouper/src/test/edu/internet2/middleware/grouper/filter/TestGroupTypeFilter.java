@@ -18,11 +18,14 @@
 package edu.internet2.middleware.grouper.filter;
 import java.util.Iterator;
 
+import junit.textui.TestRunner;
+
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GroupTypeFinder;
+import edu.internet2.middleware.grouper.cfg.ApiConfig;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.R;
 import edu.internet2.middleware.grouper.helper.T;
@@ -41,6 +44,17 @@ public class TestGroupTypeFilter extends GrouperTest {
   public TestGroupTypeFilter(String name) {
     super(name);
   }
+
+  /**
+   * @see GrouperTest#setupConfigs
+   */
+  @Override
+  protected void setupConfigs() {
+    super.setupConfigs();
+    ApiConfig.testConfig.put("groups.wheel.use", "false");
+
+  }
+
 
   public void testQueryByGroupTypeFilterNothing() {
     LOG.info("testQueryByGroupTypeFilterNothing");
@@ -165,6 +179,14 @@ public class TestGroupTypeFilter extends GrouperTest {
       unexpectedException(e);
     }
   } // public void testQueryByGroupTypeFilterSomethingScopedCustomType()
+
+  /**
+   * 
+   * @param args
+   */
+  public static void main(String[] args) {
+    TestRunner.run(TestGroupTypeFilter.class);
+  }
 
 } // public class TestGroupTypeFilter extends GrouperTest
 

@@ -21,6 +21,7 @@ import org.apache.commons.logging.LogFactory;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.SourceUnavailableException;
 import edu.internet2.middleware.subject.Subject;
+import edu.internet2.middleware.subject.SubjectCaseInsensitiveSetImpl;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
 import edu.internet2.middleware.subject.SubjectNotUniqueException;
 import edu.internet2.middleware.subject.SubjectType;
@@ -152,10 +153,10 @@ public abstract class BaseSourceAdapter implements Source {
   protected HashMap<String, Search> searches = new HashMap<String, Search>();
 
   /** */
-  protected Set<String> attributes = new HashSet<String>();
+  protected Set<String> attributes = new SubjectCaseInsensitiveSetImpl<String>();
 
   /** internal attributes. */
-  protected Set<String> internalAttributes = new HashSet<String>();
+  protected Set<String> internalAttributes = new SubjectCaseInsensitiveSetImpl<String>();
   
   protected Map<Integer, String> sortAttributes = null;
   
@@ -440,7 +441,7 @@ public abstract class BaseSourceAdapter implements Source {
       for (int i = 0; i < 5; i++) {
         String value = getInitParam("sortAttribute" + i);
         if (value != null) {
-          this.sortAttributes.put(i, value);
+          this.sortAttributes.put(i, value.toLowerCase());
         }        
       }
     }
@@ -459,7 +460,7 @@ public abstract class BaseSourceAdapter implements Source {
       for (int i = 0; i < 5; i++) {
         String value = getInitParam("searchAttribute" + i);
         if (value != null) {
-          this.searchAttributes.put(i, value);
+          this.searchAttributes.put(i, value.toLowerCase());
         }        
       }
     }

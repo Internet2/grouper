@@ -4,12 +4,12 @@
  */
 package edu.internet2.middleware.grouper.helper;
 
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.subject.SubjectCaseInsensitiveMapImpl;
 import edu.internet2.middleware.subject.provider.SubjectImpl;
 import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
 
@@ -50,7 +50,7 @@ public class DummySubject extends SubjectImpl {
    * @see edu.internet2.middleware.subject.Subject#getAttributes()
    */
   public Map<String, Set<String>> getAttributes() {
-    Map<String, Set<String>> map = new  HashMap<String, Set<String>>();
+    Map<String, Set<String>> map = new  SubjectCaseInsensitiveMapImpl<String, Set<String>>();
     map.put("loginid", GrouperUtil.toSet(this.getId()));
     map.put("name", GrouperUtil.toSet(this.getId()));
     map.put("description", GrouperUtil.toSet(this.getId()));

@@ -173,20 +173,23 @@ public interface Source {
   public Properties getInitParams();
   
   /**
-   * Get a set of attributes that are marked as being internal attributes
-   * @return set
+   * Get a set of attributes that are marked as being internal attributes.
+   * 
+   * Note, these will be in lower case
+   * 
+   * @return set to lower case
    */
   public Set<String> getInternalAttributes();
   
   /**
    * Get the names of attributes used for sorting.
-   * @return sort attributes
+   * @return sort attributes in lower case
    */
   public Map<Integer, String> getSortAttributes();
   
   /**
    * Get the names of attributes used for searching.
-   * @return search attributes
+   * @return search attributes in lower case
    */
   public Map<Integer, String> getSearchAttributes();
 }

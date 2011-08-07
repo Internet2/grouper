@@ -34,7 +34,8 @@ public class TestMemberAttributes extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new TestMemberAttributes("testNonDefaultSearchAndSort"));
+    //TestRunner.run(new TestMemberAttributes("testPersonMember"));
+    TestRunner.run(TestMemberAttributes.class);
   }
   
   /** top level stems */
@@ -86,8 +87,53 @@ public class TestMemberAttributes extends GrouperTest {
     assertEquals(subj.getName(), member.getName());
     assertEquals(subj.getDescription(), member.getDescription());
     
+    //not case sensitive
     assertEquals(subj.getAttributeValue("LFNAME"), member.getSortString0());
+    assertEquals(subj.getAttributeValue("lfname"), member.getSortString0());
+
+    assertEquals(subj.getAttributeValue("lfname", true), member.getSortString0());
+    assertEquals(subj.getAttributeValue("LFNAME", true), member.getSortString0());
+    
+    assertTrue(subj.getAttributes().keySet().contains("lfname"));
+    
+    assertEquals(subj.getAttributes().get("lfname").iterator().next(), member.getSortString0());
+    assertEquals(subj.getAttributes().get("LFNAME").iterator().next(), member.getSortString0());
+    
+    assertEquals(subj.getAttributes(false).get("lfname").iterator().next(), member.getSortString0());
+    assertEquals(subj.getAttributes(false).get("LFNAME").iterator().next(), member.getSortString0());
+    
+    assertEquals(subj.getAttributes(true).get("lfname").iterator().next(), member.getSortString0());
+    assertEquals(subj.getAttributes(true).get("LFNAME").iterator().next(), member.getSortString0());
+    
+    assertTrue(subj.getAttributeValues("lfname").contains(member.getSortString0()));
+    assertTrue(subj.getAttributeValues("LFNAME").contains(member.getSortString0()));
+    
+    assertTrue(subj.getAttributeValues("lfname", false).contains(member.getSortString0()));
+    assertTrue(subj.getAttributeValues("LFNAME", false).contains(member.getSortString0()));
+    
+    assertTrue(subj.getAttributeValues("lfname", true).contains(member.getSortString0()));
+    assertTrue(subj.getAttributeValues("LFNAME", true).contains(member.getSortString0()));
+    
+    assertEquals(subj.getAttributeValueOrCommaSeparated("lfname"), member.getSortString0());
+    assertEquals(subj.getAttributeValueOrCommaSeparated("LFNAME"), member.getSortString0());
+    
+    assertEquals(subj.getAttributeValueOrCommaSeparated("lfname", false), member.getSortString0());
+    assertEquals(subj.getAttributeValueOrCommaSeparated("LFNAME", false), member.getSortString0());
+    
+    assertEquals(subj.getAttributeValueOrCommaSeparated("lfname", true), member.getSortString0());
+    assertEquals(subj.getAttributeValueOrCommaSeparated("LFNAME", true), member.getSortString0());
+    
+    assertEquals(subj.getAttributeValueSingleValued("lfname"), member.getSortString0());
+    assertEquals(subj.getAttributeValueSingleValued("LFNAME"), member.getSortString0());
+    
+    assertEquals(subj.getAttributeValueSingleValued("lfname", false), member.getSortString0());
+    assertEquals(subj.getAttributeValueSingleValued("LFNAME", false), member.getSortString0());
+    
+    assertEquals(subj.getAttributeValueSingleValued("lfname", true), member.getSortString0());
+    assertEquals(subj.getAttributeValueSingleValued("LFNAME", true), member.getSortString0());
+    
     assertEquals(subj.getAttributeValue("LOGINID"), member.getSortString1());
+
     assertNull(member.getSortString2());
     assertNull(member.getSortString3());
     assertNull(member.getSortString4());

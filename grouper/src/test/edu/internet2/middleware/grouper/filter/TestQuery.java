@@ -28,6 +28,7 @@ import org.apache.commons.logging.Log;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
+import edu.internet2.middleware.grouper.cfg.ApiConfig;
 import edu.internet2.middleware.grouper.helper.DateHelper;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.R;
@@ -42,11 +43,25 @@ import edu.internet2.middleware.subject.Subject;
  */
 public class TestQuery extends GrouperTest {
 
+  /**
+   * 
+   * @param args
+   */
   public static void main(String[] args) {
     //TestRunner.run(TestQuery.class);
-    TestRunner.run(new TestQuery("testStemExtensionFilterFindSomething"));
+    TestRunner.run(TestQuery.class);
   }
   
+  /**
+   * @see GrouperTest#setupConfigs
+   */
+  @Override
+  protected void setupConfigs() {
+    super.setupConfigs();
+    ApiConfig.testConfig.put("groups.wheel.use", "false");
+
+  }
+
   private static final Log LOG = GrouperUtil.getLog(TestQuery.class);
 
   public TestQuery(String name) {
@@ -146,7 +161,7 @@ public class TestQuery extends GrouperTest {
       GrouperQuery gq = GrouperQuery.createQuery(
         r.rs, new GroupModifiedBeforeFilter(new Date(), r.root)
       );
-      T.amount( "groups"  , 0,  gq.getGroups().size()       );
+      T.amount( "groups: " + GrouperUtil.toStringForLog(gq.getGroups())  , 0,  gq.getGroups().size()       );
       T.amount( "members" , 0,  gq.getMembers().size()      );
       T.amount( "mships"  , 0,  gq.getMemberships().size()  );
       T.amount( "stems"   , 0,  gq.getStems().size()        );

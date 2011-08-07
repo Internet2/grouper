@@ -34,6 +34,8 @@ import edu.internet2.middleware.grouper.misc.E;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.SourceUnavailableException;
 import edu.internet2.middleware.subject.Subject;
+import edu.internet2.middleware.subject.SubjectCaseInsensitiveMap;
+import edu.internet2.middleware.subject.SubjectCaseInsensitiveMapImpl;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
 import edu.internet2.middleware.subject.provider.SubjectImpl;
 import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
@@ -53,10 +55,10 @@ public class GrouperSubject extends SubjectImpl {
    * @param <V> 
    */
   @SuppressWarnings("serial")
-  private class GrouperSubjectAttributeMap<K,V> implements Map<K,V>, Serializable {
+  private class GrouperSubjectAttributeMap<K,V> implements Map<K,V>, Serializable, SubjectCaseInsensitiveMap {
     
     /** underlying datastore */
-    private Map<K,V> attrs   = new HashMap<K,V>();
+    private SubjectCaseInsensitiveMapImpl<K,V> attrs   = new SubjectCaseInsensitiveMapImpl<K,V>();
 
     /**
      * @see java.util.Map#clear()
@@ -171,6 +173,10 @@ public class GrouperSubject extends SubjectImpl {
      * @see java.util.Map#size()
      */
     public int size() {
+      //there is a weird error if not initted since size is call on constructor...
+      if (!this.attrs.isInitted()) {
+        return 0;
+      }
       GrouperSubject.this._populateAttributes();
       GrouperSubject.this._populateCreateModifyTime();
       return this.attrs.size();
@@ -306,8 +312,14 @@ public class GrouperSubject extends SubjectImpl {
       count++;
     }
     this.loadedGroupAttributes = true;
-    LOG.debug("[" + this.getName() + "] attached " + count +  " new attributes: " 
-        + ((GrouperSubjectAttributeMap)GrouperUtil.nonNull(this.getAttributes(false))).attrs.size() );
+    if (LOG.isDebugEnabled()) {
+      GrouperSubjectAttributeMap grouperSubjectAttributeMap = (GrouperSubjectAttributeMap)GrouperUtil.nonNull(this.getAttributes(false));
+      
+      int attrSize = grouperSubjectAttributeMap == null ? 0 : grouperSubjectAttributeMap.attrs.size();
+      
+      LOG.debug("[" + this.getName() + "] attached " + count +  " new attributes: " 
+          + attrSize );
+    }
   }
 
   /** logger */

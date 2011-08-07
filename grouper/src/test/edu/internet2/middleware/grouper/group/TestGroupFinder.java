@@ -17,6 +17,7 @@
 
 package edu.internet2.middleware.grouper.group;
 import junit.framework.Assert;
+import junit.textui.TestRunner;
 
 import org.apache.commons.logging.Log;
 
@@ -26,8 +27,10 @@ import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GroupTypeFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.cfg.ApiConfig;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
+import edu.internet2.middleware.grouper.filter.TestGroupTypeFilter;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.R;
 import edu.internet2.middleware.grouper.helper.SessionHelper;
@@ -274,6 +277,24 @@ public class TestGroupFinder extends GrouperTest {
       Assert.fail("failed to find group");
     }
   } // public void testFindByUuid()
+
+  /**
+   * @see GrouperTest#setupConfigs
+   */
+  @Override
+  protected void setupConfigs() {
+    super.setupConfigs();
+    ApiConfig.testConfig.put("groups.wheel.use", "false");
+  
+  }
+
+  /**
+   * 
+   * @param args
+   */
+  public static void main(String[] args) {
+    TestRunner.run(TestGroupFinder.class);
+  }
 
 } // public class TestGroupFinder_FindByAttribute
 

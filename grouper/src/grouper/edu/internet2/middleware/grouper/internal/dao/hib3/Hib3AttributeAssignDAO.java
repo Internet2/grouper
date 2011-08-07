@@ -1302,9 +1302,9 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
 
     StringBuilder sql;
     if (changedQuery) {
-      sqlTables.append(" where ");
-    } else {
       sqlTables.append(" and ");
+    } else {
+      sqlTables.append(" where ");
     }
 
     sql = sqlTables.append(sqlWhereClause);
@@ -1450,7 +1450,12 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
         sqlTables, "aa.ownerGroupId", AccessPrivilege.READ_PRIVILEGES);
 
     StringBuilder sql;
-    sql = sqlTables.append(" where ").append(sqlWhereClause);
+    if (changedQuery) {
+      sqlTables.append(" and ");
+    } else {
+      sqlTables.append(" where ");
+    }
+    sql = sqlTables.append(sqlWhereClause);
 
     if (enabled != null && enabled) {
       sql.append(" and aa.enabledDb = 'T' ");

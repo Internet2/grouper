@@ -21,8 +21,10 @@ import edu.internet2.middleware.grouper.hooks.logic.GrouperHooksUtils;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.rules.RuleDefinition;
 import edu.internet2.middleware.grouper.rules.RuleEngine;
+import edu.internet2.middleware.grouper.rules.RuleSubjectActAs;
 import edu.internet2.middleware.grouper.rules.RuleUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.subject.Subject;
 
 
 /**
@@ -78,93 +80,101 @@ public class GrouperAttributeAssignValueRulesConfigHook extends AttributeAssignV
    */
   public void validateRule(final AttributeAssignValue attributeAssignValue, final boolean isDelete) {
 
-    //do this as admin
-    GrouperSession.callbackGrouperSession(GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
-
-      /**
-       * 
-       */
-      public Object callback(GrouperSession grouperSession)
-          throws GrouperSessionException {
-        //if deleting the attribute rule type, then dont worry about validations...
-        Set<AttributeAssign> attributeAssignDeletes = AttributeAssign.attributeAssignDeletes();
-
-        AttributeDefName ruleAttributeDefName = RuleUtils.ruleAttributeDefName();
-        if (ruleAttributeDefName != null) {
-
-          for (AttributeAssign attributeAssign : GrouperUtil.nonNull(attributeAssignDeletes)) {
-            if (StringUtils.equals(ruleAttributeDefName.getId(), attributeAssign.getAttributeDefNameId())) {
-              //this means we are deleting a rule type, so dont worry about validating stuff
-              return null;
+    Subject runningSubject = GrouperSession.staticGrouperSession().getSubject();
+    
+    RuleSubjectActAs.actAsThreadLocalAssign(runningSubject);
+    
+    try {
+      
+      //do this as admin
+      GrouperSession.callbackGrouperSession(GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+  
+        /**
+         * 
+         */
+        public Object callback(GrouperSession grouperSession)
+            throws GrouperSessionException {
+          //if deleting the attribute rule type, then dont worry about validations...
+          Set<AttributeAssign> attributeAssignDeletes = AttributeAssign.attributeAssignDeletes();
+  
+          AttributeDefName ruleAttributeDefName = RuleUtils.ruleAttributeDefName();
+          if (ruleAttributeDefName != null) {
+  
+            for (AttributeAssign attributeAssign : GrouperUtil.nonNull(attributeAssignDeletes)) {
+              if (StringUtils.equals(ruleAttributeDefName.getId(), attributeAssign.getAttributeDefNameId())) {
+                //this means we are deleting a rule type, so dont worry about validating stuff
+                return null;
+              }
             }
           }
-        }
-        
-        //we want to avoid circular references
-        Boolean inValidateAlready = threadLocalInValidateRule.get();
-        if (inValidateAlready == null) {
-          inValidateAlready = false;
-        }
-        
-        //no need to validate if already in validate, dont want a circular reference
-        if (inValidateAlready) {
-          return null;
-        }
-        
-        threadLocalInValidateRule.set(true);
-        
-        try {
-        
-          //see if this is a rule attribute
-          AttributeAssign attributeAssign = attributeAssignValue.getAttributeAssign();
           
-          AttributeDefName attributeDefName = attributeAssign.getAttributeDefName();
-          if (!StringUtils.equals(RuleUtils.ruleAttrAttributeDef().getId(), 
-              attributeDefName.getAttributeDefId())) {
+          //we want to avoid circular references
+          Boolean inValidateAlready = threadLocalInValidateRule.get();
+          if (inValidateAlready == null) {
+            inValidateAlready = false;
+          }
+          
+          //no need to validate if already in validate, dont want a circular reference
+          if (inValidateAlready) {
             return null;
           }
           
-          //we want the rules to refresh since something changed
-          RuleEngine.clearRuleEngineCache();
-                
-          //this is a rule attribute, lets validate
-          RuleDefinition ruleDefinition = new RuleDefinition(attributeAssign.getOwnerAttributeAssignId());
-      
-          String validReason = ruleDefinition.validate();
+          threadLocalInValidateRule.set(true);
           
-          if (StringUtils.isBlank(validReason)) {
-            validReason = "T";
-          } else {
-            validReason = "INVALID: " + validReason;
-          }
+          try {
           
-          //now, we need to assign the valid attribute if not there already
-          AttributeAssign typeAttributeAssign = attributeAssign.getOwnerAttributeAssign();
-          
-          if (isDelete && !StringUtils.equals("T", validReason)) {
-            //you are allowed to delete the valid attribute (so you can remove the whole thing..)
-            //note, the valid attribute will need to be deleted last... will this be a problem on cascade?
-            //if this isnt the valid attribute itself, if it is, it will be deleted by whatever fired the hook
-            if (!StringUtils.equals(RuleUtils.ruleValidName(), attributeDefName.getName())) {
-              //delete the valid attribute...
-              typeAttributeAssign.getAttributeDelegate().removeAttribute(RuleUtils.ruleValidAttributeDefName());
-            }        
-          } else {
-
-            typeAttributeAssign.getAttributeValueDelegate().assignValue(RuleUtils.ruleValidName(), validReason);
+            //see if this is a rule attribute
+            AttributeAssign attributeAssign = attributeAssignValue.getAttributeAssign();
             
-          }      
-
-          
-          
-        } finally {
-          threadLocalInValidateRule.set(false);
+            AttributeDefName attributeDefName = attributeAssign.getAttributeDefName();
+            if (!StringUtils.equals(RuleUtils.ruleAttrAttributeDef().getId(), 
+                attributeDefName.getAttributeDefId())) {
+              return null;
+            }
+            
+            //we want the rules to refresh since something changed
+            RuleEngine.clearRuleEngineCache();
+                  
+            //this is a rule attribute, lets validate
+            RuleDefinition ruleDefinition = new RuleDefinition(attributeAssign.getOwnerAttributeAssignId());
+        
+            String validReason = ruleDefinition.validate();
+            
+            if (StringUtils.isBlank(validReason)) {
+              validReason = "T";
+            } else {
+              validReason = "INVALID: " + validReason;
+            }
+            
+            //now, we need to assign the valid attribute if not there already
+            AttributeAssign typeAttributeAssign = attributeAssign.getOwnerAttributeAssign();
+            
+            if (isDelete && !StringUtils.equals("T", validReason)) {
+              //you are allowed to delete the valid attribute (so you can remove the whole thing..)
+              //note, the valid attribute will need to be deleted last... will this be a problem on cascade?
+              //if this isnt the valid attribute itself, if it is, it will be deleted by whatever fired the hook
+              if (!StringUtils.equals(RuleUtils.ruleValidName(), attributeDefName.getName())) {
+                //delete the valid attribute...
+                typeAttributeAssign.getAttributeDelegate().removeAttribute(RuleUtils.ruleValidAttributeDefName());
+              }        
+            } else {
+  
+              typeAttributeAssign.getAttributeValueDelegate().assignValue(RuleUtils.ruleValidName(), validReason);
+              
+            }      
+  
+            
+            
+          } finally {
+            threadLocalInValidateRule.set(false);
+          }
+          return null;
         }
-        return null;
-      }
-      
-    });
-
+        
+      });
+    } finally {
+      RuleSubjectActAs.actAsThreadLocalClear();
+    }
   }
   
   /**

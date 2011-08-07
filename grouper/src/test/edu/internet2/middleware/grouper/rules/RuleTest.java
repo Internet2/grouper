@@ -80,7 +80,7 @@ public class RuleTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new RuleTest("testRuleLonghandVetoInFolderPermission"));
+    TestRunner.run(new RuleTest("testRuleLonghandEmailFlattenedPermissionAssign"));
     //TestRunner.run(RuleTest.class);
   }
 
@@ -811,7 +811,9 @@ public class RuleTest extends GrouperTest {
     super.setUp();
     ApiConfig.testConfig.put("groups.create.grant.all.read", "false");
     ApiConfig.testConfig.put("groups.create.grant.all.view", "false");
-
+    GrouperSession rootSession = GrouperSession.startRootSession();
+    new GroupSave(rootSession).assignCreateParentStemsIfNotExist(true).assignName("etc:rulesActAsGroup").save();
+    GrouperSession.stopQuietly(rootSession);
   }
 
   /**

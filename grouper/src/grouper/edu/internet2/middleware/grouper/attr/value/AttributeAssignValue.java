@@ -18,6 +18,7 @@ import org.apache.commons.logging.Log;
 import edu.internet2.middleware.grouper.GrouperAPI;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
+import edu.internet2.middleware.grouper.attr.AttributeDefType;
 import edu.internet2.middleware.grouper.attr.AttributeDefValueType;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
@@ -25,6 +26,7 @@ import edu.internet2.middleware.grouper.audit.AuditTypeBuiltin;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogEntry;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogLabels;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogTypeBuiltin;
+import edu.internet2.middleware.grouper.exception.LimitInvalidException;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
@@ -41,6 +43,9 @@ import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperHasContext;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
+import edu.internet2.middleware.grouper.permissions.limits.PermissionLimitDocumentation;
+import edu.internet2.middleware.grouper.permissions.limits.PermissionLimitInterface;
+import edu.internet2.middleware.grouper.permissions.limits.PermissionLimitUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.xml.export.XmlExportAttributeAssignValue;
 import edu.internet2.middleware.grouper.xml.export.XmlImportableMultiple;
@@ -973,6 +978,9 @@ public class AttributeAssignValue extends GrouperAPI implements GrouperHasContex
   
     super.onPostSave(hibernateSession);
     
+    //if limit, then validate
+    this.validateLimit();
+
     GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.ATTRIBUTE_ASSIGN_VALUE, 
         AttributeAssignValueHooks.METHOD_ATTRIBUTE_ASSIGN_VALUE_POST_INSERT, HooksAttributeAssignValueBean.class, 
         this, AttributeAssignValue.class, VetoTypeGrouper.ATTRIBUTE_ASSIGN_VALUE_POST_INSERT, true, false);
@@ -994,6 +1002,9 @@ public class AttributeAssignValue extends GrouperAPI implements GrouperHasContex
     
     this.setLastUpdatedDb(System.currentTimeMillis());
 
+    //if limit, then validate
+    this.validateLimit();
+    
     GrouperHooksUtils.schedulePostCommitHooksIfRegistered(GrouperHookType.ATTRIBUTE_ASSIGN_VALUE, 
         AttributeAssignValueHooks.METHOD_ATTRIBUTE_ASSIGN_VALUE_POST_COMMIT_UPDATE, HooksAttributeAssignValueBean.class, 
         this, AttributeAssignValue.class);
@@ -1005,6 +1016,42 @@ public class AttributeAssignValue extends GrouperAPI implements GrouperHasContex
   
   }
 
+  /**
+   * 
+   */
+  private void validateLimit() {
+    
+    AttributeAssign limitAssign = this.getAttributeAssign();
+    if (limitAssign.getAttributeDef().getAttributeDefType() == AttributeDefType.limit) {
+      
+      String valueFriendly = this.getValueFriendly();
+      
+      //we dont validate blank values
+      if (!StringUtils.isBlank(valueFriendly)) {
+        AttributeAssignValue attributeAssignValue = new AttributeAssignValue();
+        attributeAssignValue.setAttributeAssignId(limitAssign.getId());
+        
+        AttributeDefName limit = limitAssign.getAttributeDefName();
+        String limitName = limit.getName();
+        PermissionLimitInterface permissionLimitInterface = PermissionLimitUtils.logicInstance(limitName);
+
+        Set<AttributeAssignValue> limitAssignValues = limitAssign.getValueDelegate().retrieveValues();
+        
+        if (GrouperUtil.length(limitAssignValues) == 0) {
+          throw new RuntimeException("Why are there no values?");
+        }
+        
+        PermissionLimitDocumentation error = permissionLimitInterface.validateLimitAssignValue(limitAssign, limitAssignValues);
+        if (error != null) {
+          
+          throw new LimitInvalidException("Invalid limit", error);
+        }
+      }
+      
+    }
+    
+  }
+  
   /**
    * @see edu.internet2.middleware.grouper.GrouperAPI#onPreDelete(edu.internet2.middleware.grouper.hibernate.HibernateSession)
    */

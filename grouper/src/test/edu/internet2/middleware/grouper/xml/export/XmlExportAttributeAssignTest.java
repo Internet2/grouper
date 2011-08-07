@@ -53,8 +53,8 @@ public class XmlExportAttributeAssignTest extends GrouperTest {
    */
   public static void main(String[] args) {
 
-    TestRunner.run(XmlExportAttributeAssignTest.class);
-    //TestRunner.run(new XmlExportAttributeAssignTest("testConvertToString"));
+    //TestRunner.run(XmlExportAttributeAssignTest.class);
+    TestRunner.run(new XmlExportAttributeAssignTest("testConvertToAttributeAssign"));
 
   }
   
@@ -140,7 +140,7 @@ public class XmlExportAttributeAssignTest extends GrouperTest {
     assertEquals("contextId", attributeAssign.getContextId());
     assertEquals(new Long(5L), attributeAssign.getCreatedOnDb());
     assertEquals(new Long(7L), attributeAssign.getDisabledTimeDb());
-    assertEquals("T", attributeAssign.getEnabledDb());
+    assertEquals("F", attributeAssign.getEnabledDb());
     assertEquals(new Long(8L), attributeAssign.getEnabledTimeDb());
     assertEquals(new Long(3L), attributeAssign.getHibernateVersionNumber());
     assertEquals(new Long(6L), attributeAssign.getLastUpdatedDb());

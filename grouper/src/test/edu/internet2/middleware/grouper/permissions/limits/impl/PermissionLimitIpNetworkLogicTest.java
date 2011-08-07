@@ -37,7 +37,7 @@ public class PermissionLimitIpNetworkLogicTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new PermissionLimitIpNetworkLogicTest("testIpNetworkRealm"));
+    TestRunner.run(new PermissionLimitIpNetworkLogicTest("testIpNetworks"));
   }
 
   /** admin role */
@@ -119,19 +119,26 @@ public class PermissionLimitIpNetworkLogicTest extends GrouperTest {
    * 
    */
   public void testIpNetworks() {
-    
+
     //
     //User subj0 is assigned Role<Admin>
     this.adminRole.addMember(this.subj0, true);
-  
+
     //
     //User subj0 is assigned permission Deny, Action<Read>, Resource<Arts and sciences>, in the context of Role<Admin>
     this.adminRole.getPermissionRoleDelegate().assignSubjectRolePermission(
         this.readString, this.artsAndSciences, this.subj0, PermissionAllowed.ALLOWED);
-    
+
     AttributeAssign attributeAssign = new PermissionFinder().addSubject(this.subj0).addAction(this.readString)
       .addPermissionName(this.artsAndSciences).addRole(this.adminRole).assignImmediateOnly(true).findPermission(true).getAttributeAssign();
-    
+
+    try {
+      attributeAssign.getAttributeValueDelegate().assignValue(
+          PermissionLimitUtils.limitIpOnNetworksName(), "1.2.3asdf");
+      fail("Shouldnt get here");
+    } catch (Exception e) {
+      //good
+    }
     attributeAssign.getAttributeValueDelegate().assignValue(
         PermissionLimitUtils.limitIpOnNetworksName(), "1.2.3.0/24, 2.3.4.0/16");
     

@@ -1,10 +1,3 @@
-//v.2.5 build 91111
-
-/*
-Copyright DHTMLX LTD. http://www.dhtmlx.com
-You allowed to use this component or parts of it under GPL terms
-To use it on other terms or get Professional edition of the component please contact us at sales@dhtmlx.com
-*/
 dhtmlx=function(obj){
 	for (var a in obj) dhtmlx[a]=obj[a];
 	return dhtmlx; //simple singleton
@@ -13,7 +6,7 @@ dhtmlx.extend_api=function(name,map,ext){
 	var t = window[name];
 	if (!t) return; //component not defined
 	window[name]=function(obj){
-		if (obj && typeof obj == "object" && !obj.tagName && !(obj instanceof Array)){
+		if (obj && typeof obj == "object" && !obj.tagName){
 			var that = t.apply(this,(map._init?map._init(obj):arguments));
 			//global settings
 			for (var a in dhtmlx)
@@ -157,18 +150,19 @@ dtmlXMLLoaderObject.prototype.getXMLTopNode=function(tagName, oldObj){
   */
 dtmlXMLLoaderObject.prototype.loadXMLString=function(xmlString){
 	{
-		try{
+		if (!_isIE){
 			var parser = new DOMParser();
 			this.xmlDoc=parser.parseFromString(xmlString, "text/xml");
-		}
-		catch (e){
+		} else {
 			this.xmlDoc=new ActiveXObject("Microsoft.XMLDOM");
 			this.xmlDoc.async=this.async;
+			this.xmlDoc.onreadystatechange = function(){};
 			this.xmlDoc["loadXM"+"L"](xmlString);
 		}
 	}
 
-	this.onloadAction(this.mainObject, null, null, null, this);
+	if (this.onloadAction)
+		this.onloadAction(this.mainObject, null, null, null, this);
 
 	if (this.waitCall){
 		this.waitCall();
@@ -191,13 +185,7 @@ dtmlXMLLoaderObject.prototype.loadXML=function(filePath, postMode, postVars, rpc
 	if ((!_isIE)&&(window.XMLHttpRequest))
 		this.xmlDoc=new XMLHttpRequest();
 	else {
-		if (document.implementation&&document.implementation.createDocument){
-			this.xmlDoc=document.implementation.createDocument("", "", null);
-			this.xmlDoc.onload=new this.waitLoadFunction(this);
-			this.xmlDoc.load(filePath);
-			return;
-		} else
-			this.xmlDoc=new ActiveXObject("Microsoft.XMLHTTP");
+		this.xmlDoc=new ActiveXObject("Microsoft.XMLHTTP");
 	}
 
 	if (this.async)
@@ -224,9 +212,26 @@ dtmlXMLLoaderObject.prototype.loadXML=function(filePath, postMode, postVars, rpc
   *     @topic: 0
   */
 dtmlXMLLoaderObject.prototype.destructor=function(){
-	this.onloadAction=null;
-	this.mainObject=null;
-	this.xmlDoc=null;
+	this._filterXPath = null;
+	this._getAllNamedChilds = null;
+	this._retry = null;
+	this.async = null;
+	this.rSeed = null;
+	this.filePath = null;
+	this.onloadAction = null;
+	this.mainObject = null;
+	this.xmlDoc = null;
+	this.doXPath = null;
+	this.doXPathOpera = null;
+	this.doXSLTransToObject = null;
+	this.doXSLTransToString = null;
+	this.loadXML = null;
+	this.loadXMLString = null;
+	// this.waitLoadFunction = null;
+	this.doSerialization = null;
+	this.xmlNodeToJSON = null;
+	this.getXMLTopNode = null;
+	this.setXSLParamValue = null;
 	return null;
 }
 
@@ -304,7 +309,7 @@ function getOffsetRect(elem) {
 	return { top: Math.round(top), left: Math.round(left) };
 }
 function getOffset(elem) {
-	if (elem.getBoundingClientRect && !_isChrome) {
+	if (elem.getBoundingClientRect) {
 		return getOffsetRect(elem);
 	} else {
 		return getOffsetSum(elem);
@@ -378,7 +383,7 @@ dhtmlDragAndDropObject.prototype.addDragLanding=function(htmlNode, dhtmlObject){
 	htmlNode.dragLanding=dhtmlObject;
 }
 dhtmlDragAndDropObject.prototype.preCreateDragCopy=function(e){
-	if ((e||event) && (e||event).button == 2)
+	if ((e||window.event) && (e||event).button == 2)
 		return;
 
 	if (window.dhtmlDragAndDrop.waitDrag){
@@ -387,6 +392,9 @@ dhtmlDragAndDropObject.prototype.preCreateDragCopy=function(e){
 		document.body.onmousemove=window.dhtmlDragAndDrop.tempDOMM;
 		return false;
 	}
+	
+	if (window.dhtmlDragAndDrop.dragNode)
+		window.dhtmlDragAndDrop.stopDrag(e);	
 
 	window.dhtmlDragAndDrop.waitDrag=1;
 	window.dhtmlDragAndDrop.tempDOMU=document.body.onmouseup;
@@ -410,25 +418,28 @@ dhtmlDragAndDropObject.prototype.callDrag=function(e){
 	dragger=window.dhtmlDragAndDrop;
 	if ((new Date()).valueOf()-dragger.downtime<100) return;
 
-	if ((e.button == 0)&&(_isIE))
-		return dragger.stopDrag();
+	//if ((e.button == 0)&&(_isIE))
+	//	return dragger.stopDrag();
 
-	if (!dragger.dragNode&&dragger.waitDrag){
-		dragger.dragNode=dragger.dragStartObject._createDragNode(dragger.dragStartNode, e);
-
-		if (!dragger.dragNode)
-			return dragger.stopDrag();
-
-		dragger.dragNode.onselectstart=function(){return false;}
-		dragger.gldragNode=dragger.dragNode;
-		document.body.appendChild(dragger.dragNode);
-		document.body.onmouseup=dragger.stopDrag;
-		dragger.waitDrag=0;
-		dragger.dragNode.pWindow=window;
-		dragger.initFrameRoute();
+	if (!dragger.dragNode){
+		if (dragger.waitDrag){
+			dragger.dragNode=dragger.dragStartObject._createDragNode(dragger.dragStartNode, e);
+	
+			if (!dragger.dragNode)
+				return dragger.stopDrag();
+	
+			dragger.dragNode.onselectstart=function(){return false;}
+			dragger.gldragNode=dragger.dragNode;
+			document.body.appendChild(dragger.dragNode);
+			document.body.onmouseup=dragger.stopDrag;
+			dragger.waitDrag=0;
+			dragger.dragNode.pWindow=window;
+			dragger.initFrameRoute();
+		} 
+		else return dragger.stopDrag(e, true);
 	}
 
-	if (dragger.dragNode.parentNode != window.document.body){
+	if (dragger.dragNode.parentNode != window.document.body && dragger.gldragNode){
 		var grd = dragger.gldragNode;
 
 		if (dragger.gldragNode.old)
@@ -438,6 +449,9 @@ dhtmlDragAndDropObject.prototype.callDrag=function(e){
 		grd.parentNode.removeChild(grd);
 		var oldBody = dragger.dragNode.pWindow;
 
+		if (grd.pWindow &&	grd.pWindow.dhtmlDragAndDrop.lastLanding)
+			grd.pWindow.dhtmlDragAndDrop.lastLanding.dragLanding._dragOut(grd.pWindow.dhtmlDragAndDrop.lastLanding);	
+			
 		//		var oldp=dragger.dragNode.parentObject;
 		if (_isIE){
 			var div = document.createElement("Div");
@@ -620,7 +634,8 @@ if ((navigator.userAgent.indexOf('Safari') != -1)||(navigator.userAgent.indexOf(
 
 else if (navigator.appName.indexOf("Microsoft") != -1){
 	_isIE=true;
-	if (navigator.appVersion.indexOf("MSIE 8.0")!= -1 && document.compatMode != "BackCompat") _isIE=8;
+	if (navigator.appVersion.indexOf("MSIE 8.0")!= -1 && document.compatMode != "BackCompat") _isIE=8;if (navigator.appVersion.indexOf("MSIE 9.0")!= -1 && document.compatMode != "BackCompat") _isIE=8;
+	if (navigator.appVersion.indexOf("MSIE 9.0")!= -1 && document.compatMode != "BackCompat") _isIE=8;
 } else {
 	_isFF=true;
 	var _FFrv = parseFloat(navigator.userAgent.split("rv:")[1])
@@ -865,7 +880,6 @@ dtmlXMLLoaderObject.prototype.doSerialization=function(xmlDoc){
 *   @type: private
 */
 dhtmlxEventable=function(obj){
-		obj.dhx_SeverCatcherPath="";
 		obj.attachEvent=function(name, catcher, callObj){
 			name='ev_'+name.toLowerCase();
 			if (!this[name])
@@ -910,6 +924,12 @@ dhtmlxEventable=function(obj){
 			if (id != false){
 				var list = id.split(':');           //get EventName and ID
 				this[list[0]].removeEvent(list[1]); //remove event
+			}
+		}
+		obj.detachAllEvents = function(){
+			for (var name in this){
+				if (name.indexOf("ev_")==0) 
+					delete this[name];
 			}
 		}
 }

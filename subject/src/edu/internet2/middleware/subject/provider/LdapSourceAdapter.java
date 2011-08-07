@@ -22,18 +22,22 @@
 
 package edu.internet2.middleware.subject.provider;
 
-import java.util.Properties;
-import java.util.Set;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Comparator;
-import java.util.TreeSet;
-
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+import java.util.TreeSet;
 
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.SearchResult;
 import javax.net.ssl.SSLSocketFactory;
 
 import org.apache.commons.logging.Log;
@@ -41,22 +45,16 @@ import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.subject.SourceUnavailableException;
 import edu.internet2.middleware.subject.Subject;
+import edu.internet2.middleware.subject.SubjectCaseInsensitiveMapImpl;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
 import edu.internet2.middleware.subject.SubjectNotUniqueException;
 import edu.internet2.middleware.subject.SubjectUtils;
-
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
-import javax.naming.directory.SearchResult;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-
 import edu.vt.middleware.ldap.Ldap;
 import edu.vt.middleware.ldap.LdapConfig;
-import edu.vt.middleware.ldap.pool.SoftLimitLdapPool;
+import edu.vt.middleware.ldap.SearchFilter;
 import edu.vt.middleware.ldap.pool.DefaultLdapFactory;
 import edu.vt.middleware.ldap.pool.LdapPoolConfig;
-import edu.vt.middleware.ldap.SearchFilter;
+import edu.vt.middleware.ldap.pool.SoftLimitLdapPool;
 
 /**
  * Ldap source adapter.  Configuration is from a properties file
@@ -325,7 +323,7 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
  
         // add the attributes
 
-        Map myAttributes = new HashMap();
+        Map myAttributes = new SubjectCaseInsensitiveMapImpl();
         try {
             for (NamingEnumeration e = attributes.getAll(); e.hasMore();) {
                 Attribute attr = (Attribute) e.next();
@@ -363,7 +361,7 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
      * @param subject
      */
     protected Map getAllAttributes(LdapSubject subject) {
-        Map attributes = new HashMap();
+        Map attributes =  new SubjectCaseInsensitiveMapImpl();
         log.debug("getAllAttributes for " + subject.getName());
         Search search = getSearch("searchSubjectAttributes");
         if (search == null) {
