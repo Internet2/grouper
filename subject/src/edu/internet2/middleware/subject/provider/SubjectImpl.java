@@ -25,6 +25,10 @@ import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
+import edu.internet2.middleware.subject.SubjectCaseInsensitiveMap;
+import edu.internet2.middleware.subject.SubjectCaseInsensitiveMapImpl;
+import edu.internet2.middleware.subject.SubjectCaseInsensitiveSet;
+import edu.internet2.middleware.subject.SubjectCaseInsensitiveSetImpl;
 import edu.internet2.middleware.subject.SubjectType;
 import edu.internet2.middleware.subject.SubjectUtils;
 import edu.internet2.middleware.subject.util.ExpirableCache;
@@ -32,6 +36,7 @@ import edu.internet2.middleware.subject.util.ExpirableCache;
 /**
  * Base Subject implementation.  Subclass this to change behavior
  */
+@SuppressWarnings("serial")
 public class SubjectImpl implements Subject {
 
   /**
@@ -40,7 +45,7 @@ public class SubjectImpl implements Subject {
    * @return the map (never null)
    */
   public static Map<String, Set<String>> toAttributeMap(String... strings) {
-    Map<String, Set<String>> map = new LinkedHashMap<String, Set<String>>();
+    Map<String, Set<String>> map = new SubjectCaseInsensitiveMapImpl<String, Set<String>>();
     if (strings != null) {
       if (strings.length % 2 != 0) {
         throw new RuntimeException("Must pass in an odd number of strings: " + strings.length);
@@ -75,7 +80,6 @@ public class SubjectImpl implements Subject {
   }
 
   /** */
-  @SuppressWarnings("unused")
   private static Log log = LogFactory.getLog(SubjectImpl.class);
 
   /** */
@@ -124,7 +128,7 @@ public class SubjectImpl implements Subject {
    */
   public SubjectImpl(String id1, String name1, String description1, String typeName1,
       String sourceId1) {
-    this(id1, name1, description1, typeName1, sourceId1, new LinkedHashMap<String, Set<String>>());
+    this(id1, name1, description1, typeName1, sourceId1, new SubjectCaseInsensitiveMapImpl<String, Set<String>>());
   }
 
   /**
@@ -143,7 +147,7 @@ public class SubjectImpl implements Subject {
     this.typeName = typeName1;
     this.description = description1;
     this.sourceId = sourceId1;
-    this.attributes = attributes1;
+    this.setAttributes(attributes1);
   }
 
   /**
@@ -416,7 +420,11 @@ public class SubjectImpl implements Subject {
    * @see edu.internet2.middleware.subject.Subject#getAttributes()
    */
   public Map<String, Set<String>> getAttributes() {
-    return getAttributes(true);
+    Map<String, Set<String>> result = getAttributes(true);
+    if (!(result instanceof SubjectCaseInsensitiveMap)) {
+      log.error("Why is attribute map not case insensitive???? " + this, new RuntimeException());
+    }
+    return result;
   }
   
   /**
@@ -430,7 +438,12 @@ public class SubjectImpl implements Subject {
     }
     
     Set<String> internalAttributes = getSource().getInternalAttributes();
-    Map<String, Set<String>> nonInternalAttributes = new LinkedHashMap<String, Set<String>>();
+    
+    if (!(internalAttributes instanceof SubjectCaseInsensitiveSet)) {
+      internalAttributes = new SubjectCaseInsensitiveSetImpl<String>(internalAttributes);
+    }
+    
+    Map<String, Set<String>> nonInternalAttributes = new SubjectCaseInsensitiveMapImpl<String, Set<String>>();
     
     for (String attribute : attributes.keySet()) {
       if (!internalAttributes.contains(attribute)) {
@@ -453,7 +466,11 @@ public class SubjectImpl implements Subject {
    * @param attributes1
    */
   public void setAttributes(Map<String, Set<String>> attributes1) {
-    this.attributes = attributes1;
+    if (attributes1 == null || attributes1 instanceof SubjectCaseInsensitiveMap) {
+      this.attributes = attributes1;
+    } else {
+      this.attributes = new SubjectCaseInsensitiveMapImpl<String, Set<String>>(attributes1);
+    }
     this.attributesInitted = false;
   }
 

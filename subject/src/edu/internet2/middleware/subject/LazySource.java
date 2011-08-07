@@ -4,6 +4,7 @@
  */
 package edu.internet2.middleware.subject;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Properties;
@@ -15,7 +16,8 @@ import edu.internet2.middleware.subject.provider.SourceManager;
 /**
  * if the id or sources might not be known, dont resolve until you need it
  */
-public class LazySource implements Source {
+@SuppressWarnings("serial")
+public class LazySource implements Source, Serializable {
 
   /** id of underlying source */
   private String underlyingSourceId = null;

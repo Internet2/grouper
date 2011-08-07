@@ -44,6 +44,7 @@ import org.apache.commons.logging.LogFactory;
 import edu.internet2.middleware.morphString.Morph;
 import edu.internet2.middleware.subject.SourceUnavailableException;
 import edu.internet2.middleware.subject.Subject;
+import edu.internet2.middleware.subject.SubjectCaseInsensitiveMapImpl;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
 import edu.internet2.middleware.subject.SubjectNotUniqueException;
 import edu.internet2.middleware.subject.SubjectUtils;
@@ -294,14 +295,14 @@ public class JNDISourceAdapter extends BaseSourceAdapter {
         .getProperty("SECURITY_AUTHENTICATION"));
     
     if (props.getProperty("SECURITY_PRINCIPAL") != null) {
-      this.environment.put(Context.SECURITY_PRINCIPAL, props.getProperty("SECURITY_PRINCIPAL"));
+    this.environment.put(Context.SECURITY_PRINCIPAL, props.getProperty("SECURITY_PRINCIPAL"));
     }
-    
+
     String password = props.getProperty("SECURITY_CREDENTIALS");
     password = Morph.decryptIfFile(password);
 
     if (password != null) {
-      this.environment.put(Context.SECURITY_CREDENTIALS, password);
+    this.environment.put(Context.SECURITY_CREDENTIALS, password);
     }
     
     if (props.getProperty("SECURITY_PROTOCOL") != null) {
@@ -350,7 +351,7 @@ public class JNDISourceAdapter extends BaseSourceAdapter {
    * @return the map
    */
   protected Map loadAttributes(SubjectImpl subject) {
-    Map<String, Set<String>> attributes1 = new HashMap<String, Set<String>>();
+    Map<String, Set<String>> attributes1 = new SubjectCaseInsensitiveMapImpl<String, Set<String>>();
     Search search = getSearch("searchSubject");
     if (search == null) {
       log.error("searchType: \"search\" not defined.");

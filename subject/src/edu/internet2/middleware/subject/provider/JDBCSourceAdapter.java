@@ -28,6 +28,7 @@ import edu.internet2.middleware.morphString.Morph;
 import edu.internet2.middleware.subject.InvalidQueryException;
 import edu.internet2.middleware.subject.SourceUnavailableException;
 import edu.internet2.middleware.subject.Subject;
+import edu.internet2.middleware.subject.SubjectCaseInsensitiveMapImpl;
 import edu.internet2.middleware.subject.SubjectCheckConfig;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
 import edu.internet2.middleware.subject.SubjectNotUniqueException;
@@ -393,7 +394,7 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
    * @return attributes
    */
   protected Map<String, Set<String>> loadAttributes(ResultSet rs) {
-    Map<String, Set<String>> attributes1 = new HashMap<String, Set<String>>();
+    Map<String, Set<String>> attributes1 = new SubjectCaseInsensitiveMapImpl<String, Set<String>>();
     try {
       ResultSetMetaData rsmd = rs.getMetaData();
       int colCount = rsmd.getColumnCount();
