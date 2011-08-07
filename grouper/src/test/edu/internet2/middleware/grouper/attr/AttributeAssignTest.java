@@ -269,7 +269,7 @@ public class AttributeAssignTest extends GrouperTest {
     attributeAssign.setContextId("contextId");
     attributeAssign.setCreatedOnDb(5L);
     attributeAssign.setDisabledTimeDb(7L);
-    attributeAssign.setEnabledDb("T");
+    attributeAssign.setDisallowedDb("T");
     attributeAssign.setEnabledTimeDb(8L);
     attributeAssign.setHibernateVersionNumber(3L);
     attributeAssign.setLastUpdatedDb(6L);

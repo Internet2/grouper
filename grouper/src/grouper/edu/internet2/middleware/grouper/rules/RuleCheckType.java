@@ -1994,14 +1994,14 @@ public enum RuleCheckType {
         RulesBean rulesBean, boolean hasAccessToElApi) {
       RulesPermissionBean rulesPermissionBean = (RulesPermissionBean)rulesBean;
       if (rulesPermissionBean != null) {
-        // why was this commented out????  CH this went away
+        // this was taken out of change log...
         Role role = rulesPermissionBean.getRole();
-        variableMap.put("roleId", role.getId());
-        variableMap.put("roleName", role.getName());
-        variableMap.put("roleDisplayName", role.getDisplayName());
-        variableMap.put("roleExtension", role.getExtension());
-        variableMap.put("roleDisplayExtension", role.getDisplayExtension());
-        variableMap.put("roleDescription", role.getDescription());
+        variableMap.put("roleId", role == null ? "" : role.getId());
+        variableMap.put("roleName", role == null ? "" : role.getName());
+        variableMap.put("roleDisplayName", role == null ? "" : role.getDisplayName());
+        variableMap.put("roleExtension", role == null ? "" : role.getExtension());
+        variableMap.put("roleDisplayExtension", role == null ? "" : role.getDisplayExtension());
+        variableMap.put("roleDescription", role == null ? "" : role.getDescription());
         if (hasAccessToElApi) {
           variableMap.put("role", role);
         }
@@ -2050,17 +2050,19 @@ public enum RuleCheckType {
           variableMap.put("attributeDefName", attributeDefName);
         }
       }
-      //  why was this commented out????  CH THIS WENT AWAY
+      //  why was this commented out????  CH THIS WENT AWAY FROM CHANGE LOG
       AttributeAssign attributeAssign = rulesPermissionBean.getAttributeAssign();
       if (attributeAssign != null) {
-        variableMap.put("attributeAssignId", attributeAssign.getId());
-        if (attributeAssign.getDisabledTime() != null) {
-          variableMap.put("permissionDisabledTimestamp", attributeAssign.getDisabledTime());
+        variableMap.put("attributeAssignId", attributeAssign == null ? "" : attributeAssign.getId());
+        if (attributeAssign != null) {
+          if (attributeAssign.getDisabledTime() != null) {
+            variableMap.put("permissionDisabledTimestamp", attributeAssign.getDisabledTime());
+          }
+          if (attributeAssign.getEnabledTime() != null) {
+            variableMap.put("permissionEnabledTimestamp", attributeAssign.getEnabledTime());
+          }
         }
-        if (attributeAssign.getEnabledTime() != null) {
-          variableMap.put("permissionEnabledTimestamp", attributeAssign.getEnabledTime());
-        }
-
+        
         if (hasAccessToElApi) {
           variableMap.put("attributeAssign", attributeAssign);
         }

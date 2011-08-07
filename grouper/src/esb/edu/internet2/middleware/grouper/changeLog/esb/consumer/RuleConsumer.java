@@ -394,6 +394,7 @@ public class RuleConsumer extends ChangeLogConsumerBase {
   private static RulesBean setupRulesBeanPermission(ChangeLogType changeLogType, ChangeLogEntry changeLogEntry, GrouperSession grouperSession) {
 
     AttributeAssign attributeAssign = null;
+// CH this went away, not in change log anymore...
 //    String attributeAssignId = changeLogEntry.retrieveValueForLabel("attributeAssignId");
 //
 //    AttributeAssign attributeAssign = AttributeAssignFinder.findById(attributeAssignId, false);
@@ -409,7 +410,7 @@ public class RuleConsumer extends ChangeLogConsumerBase {
       return null;
     }
     Role role = null;
-// CH this went away    
+// CH this went away, not in change log anymore...
 //    String roleId = changeLogEntry.retrieveValueForLabel("roleId");
 //
 //    Role role = GroupFinder.findByUuid(grouperSession, roleId, false);

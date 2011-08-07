@@ -139,6 +139,23 @@ public class RuleSubjectActAs {
     return SubjectFinder.findByOptionalArgs(this.sourceId, this.subjectId, this.subjectId, exceptionIfNotFound);
   }
   
+  /** act as thread local since it runs as GrouperSystem */
+  private static ThreadLocal<Subject> actAsThreadLocal = new ThreadLocal<Subject>();
+  
+  /**
+   * clear act as thread local
+   */
+  public static void actAsThreadLocalClear() {
+    actAsThreadLocal.remove();
+  }
+  
+  /**
+   * clear act as thread local
+   */
+  public static void actAsThreadLocalAssign(Subject subject) {
+    actAsThreadLocal.set(subject);
+  }
+  
   /**
    * validate this 
    * @param ruleDefinition 
@@ -155,7 +172,12 @@ public class RuleSubjectActAs {
     }
     
     //make sure can act as
-    if (!allowedToActAs(ruleDefinition, GrouperSession.staticGrouperSession().getSubject(), subject)) {
+    Subject currentSubject = actAsThreadLocal.get();
+    if (currentSubject == null) {
+      currentSubject = GrouperSession.staticGrouperSession().getSubject();
+    }
+    
+    if (!allowedToActAs(ruleDefinition, currentSubject, subject)) {
       return "Subject: " 
       + GrouperUtil.subjectToString(GrouperSession.staticGrouperSession().getSubject())
       + " cannot act as subject: " + GrouperUtil.subjectToString(subject) + " based on grouper.properties: "
