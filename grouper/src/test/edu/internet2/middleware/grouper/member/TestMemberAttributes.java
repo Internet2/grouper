@@ -34,7 +34,8 @@ public class TestMemberAttributes extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new TestMemberAttributes("testPersonMember"));
+    //TestRunner.run(new TestMemberAttributes("testPersonMember"));
+    TestRunner.run(TestMemberAttributes.class);
   }
   
   /** top level stems */
