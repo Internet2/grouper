@@ -496,6 +496,9 @@
         <include name="**/*"/>
         <exclude name="conf/**"/>
       </fileset>
+      <fileset dir="conf">
+        <include name="grouperRulesEmailTemplates/test*"/>
+      </fileset>
     </jar>
   </target>
   <!-- target: dist -->
