@@ -101,6 +101,8 @@ import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.internal.util.Quote;
 import edu.internet2.middleware.grouper.internal.util.U;
 import edu.internet2.middleware.grouper.log.EventLog;
+import edu.internet2.middleware.grouper.member.SearchStringEnum;
+import edu.internet2.middleware.grouper.member.SortStringEnum;
 import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.misc.CompositeType;
 import edu.internet2.middleware.grouper.misc.E;
@@ -2567,7 +2569,8 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
     throws  SchemaException
   {
     return MemberFinder.internal_findMembersByType(
-        GrouperSession.staticGrouperSession(), this, f, MembershipType.EFFECTIVE.getTypeString(), sources, queryOptions);
+        GrouperSession.staticGrouperSession(), this, f, MembershipType.EFFECTIVE.getTypeString(), sources, queryOptions,
+        null, null, null);
   }  // public Set getEffectiveMembers(f)
 
   /**
@@ -2750,9 +2753,42 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
   public Set<Member> getImmediateMembers(Field f, Set<Source> sources, QueryOptions queryOptions) 
     throws  SchemaException {
     return MemberFinder.internal_findMembersByType(
-      GrouperSession.staticGrouperSession(), this, f, MembershipType.IMMEDIATE.getTypeString(), sources, queryOptions
+      GrouperSession.staticGrouperSession(), this, f, MembershipType.IMMEDIATE.getTypeString(), sources, queryOptions,
+      null, null, null
     );
-  } // public Set getImmediateMembers(f)
+  }
+  
+  /**
+   * Get immediate members of this group.  
+   * 
+   * An immediate member is directly assigned to a group.
+   * A composite group has no immediate members.  Note that a 
+   * member can have 0 to 1 immediate memberships
+   * to a single group, and 0 to many effective memberships to a group.
+   * A group can have potentially unlimited effective 
+   * memberships
+   * 
+   * <pre class="eg">
+   * Set immediates = g.getImmediateMembers(f);
+   * </pre>
+   * @param   f Get members in this list field.
+   * @param sources to search in or null if all
+   * @param queryOptions 
+   * @param memberSortStringEnum How to sort results or null for no sorting unless specified by queryOptions
+   * @param memberSearchStringEnum Specify search string if searching for members in the group
+   * @param memberSearchStringValue Search string value.
+   * @return  A set of {@link Member} objects.
+   * @throws  SchemaException
+   */
+  public Set<Member> getImmediateMembers(Field f, Set<Source> sources, QueryOptions queryOptions, 
+      SortStringEnum memberSortStringEnum, SearchStringEnum memberSearchStringEnum, 
+      String memberSearchStringValue) 
+    throws  SchemaException {
+    return MemberFinder.internal_findMembersByType(
+      GrouperSession.staticGrouperSession(), this, f, MembershipType.IMMEDIATE.getTypeString(), sources, queryOptions,
+      memberSortStringEnum, memberSearchStringEnum, memberSearchStringValue
+    );
+  }
 
   /**
    * Get immediate memberships of this group.  
@@ -6193,7 +6229,8 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
   public Set<Member> getNonImmediateMembers(Field f, Set<Source> sources, QueryOptions queryOptions) 
     throws  SchemaException {
     return MemberFinder.internal_findMembersByType(
-      GrouperSession.staticGrouperSession(), this, f, MembershipType.NONIMMEDIATE.getTypeString(), sources, queryOptions
+      GrouperSession.staticGrouperSession(), this, f, MembershipType.NONIMMEDIATE.getTypeString(), sources, queryOptions,
+      null, null, null
     );
   } // public Set getImmediateMembers(f)
 
@@ -6348,7 +6385,7 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
 
     return MemberFinder.internal_findMembersByType(
       GrouperSession.staticGrouperSession(), this, field, 
-      MembershipType.COMPOSITE.getTypeString(), sources, queryOptions
+      MembershipType.COMPOSITE.getTypeString(), sources, queryOptions, null, null, null
     );
   } // public Set getCompositeMembers()
 
