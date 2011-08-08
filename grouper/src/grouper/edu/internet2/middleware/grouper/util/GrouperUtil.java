@@ -1905,7 +1905,7 @@ public class GrouperUtil {
    * @return the set of stem names
    */
   public static Set<String> findParentStemNames(String objectName) {
-    Set<String> result = new LinkedHashSet<String>();
+    List<String> result = new ArrayList<String>();
     String currentName = objectName;
     while(true) {
       currentName = parentStemNameFromName(currentName);
@@ -1916,8 +1916,8 @@ public class GrouperUtil {
       }
       result.add(currentName);
     }
-    
-    return result;
+    Collections.reverse(result); 
+    return new LinkedHashSet(result);
   }
 
   /**
@@ -11245,5 +11245,41 @@ public class GrouperUtil {
     
   }
 
+  /**
+   * 
+   */
+  public static final String JAVA_IO_TMPDIR = "java.io.tmpdir";
+  
+  /** original tmp dir */
+  private static final String ORIGINAL_TMP_DIR = System.getProperty(JAVA_IO_TMPDIR);
 
+  /** log it once */
+  private static boolean loggedTempDir = false;
+  
+  /**
+   * return the temp dir, either what is in the java env var, or something in the grouper conf
+   * @return the temp dir
+   */
+  public static String tmpDir() {
+    
+    String tmpDir = null;
+
+    tmpDir = GrouperConfig.getProperty("grouper.tmp.dir");
+    if (isBlank(tmpDir)) {
+      tmpDir = ORIGINAL_TMP_DIR;
+      if (isBlank(tmpDir)) {
+        //logger might not be set, lets SOP this too...
+        System.out.println("Error: Cant find tmpDir.  You should set grouper.tmp.dir in the grouper.properties!");
+        LOG.fatal("Error: Cant find tmpDir.  You should set grouper.tmp.dir in the grouper.properties!");
+      }
+    }
+    if (!isBlank(tmpDir)) {
+      if (!loggedTempDir) {
+        loggedTempDir = true;
+        LOG.info("Tmp dir is set to: '" + tmpDir + "'");
+      }
+    }
+    return tmpDir;
+  }
+ 
 }

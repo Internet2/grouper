@@ -24,8 +24,9 @@ public class GrouperKimGenerateStuff {
    */
   public static String generateEdlPermissionsDefinitions() {
     
-    StringBuilder result = new StringBuilder();
-    for (int i=0;i<50;i++) {
+    StringBuilder result = new StringBuilder("<!-- Generated from GrouperKimGenerateStuff from grouperKimConnector project -->\n");
+    int size = 50;
+    for (int i=0;i<size;i++) {
       result.append("      <fieldDef name=\"attributeDefName" + i + "\" title=\"Attribute def name" + i + "\">\n"
                   + "        <display>\n"
                   + "          <type>text</type>\n"
@@ -53,7 +54,20 @@ public class GrouperKimGenerateStuff {
           + "        </display>\n"
           + "      </fieldDef>\n");
 
+
     }
+    
+    for (int i=0;i<size;i++) {
+      result.append("    <fieldDef name=\"attributeDefNameAddRemove" + i + "\" title=\"Org add remove" + i + "\">\n"
+                  + "      <display>\n"
+                  + "        <type>radio</type>\n"
+                  + "        <values title=\"Add\">add</values>\n"
+                  + "        <values title=\"Remove\">remove</values>\n"
+                  + "      </display>\n"
+                  + "    </fieldDef>\n");
+    }
+
+    
     return result.toString();
   }
   
@@ -63,9 +77,15 @@ public class GrouperKimGenerateStuff {
    */
   public static String generateEdlPermissionsHtml() {
     
-    StringBuilder result = new StringBuilder();
+    StringBuilder result = new StringBuilder("<!-- Generated from GrouperKimGenerateStuff from grouperKimConnector project -->\n");
     for (int i=0;i<50;i++) {
-      result.append("    <tr valign=\"top\" id=\"attributeDefNameTr" + i + "Id\" style=\"display: none;\" >\n"
+      if (i==0) {
+        result.append("<xsl:template name=\"orgTableAddRemove0_9\">\n");
+      } else if (i % 10 == 0) {
+        result.append("</xsl:template>\n");
+        result.append("<xsl:template name=\"orgTableAddRemove" + i + "_" + (i+9) + "\">\n");
+      }
+      result.append("    <tr valign=\"top\" id=\"attributeDefNameTr" + i + "Id\" style=\"display: none;\" class=\"orgTableRow\">\n"
                   + "      <td class=\"fieldLabel\">Org</td>\n"
                   + "      <td valign=\"top\" class=\"fieldAsterisk\">" + (i==0 ? "*" : "") + "</td>\n"
                   + "      <td class=\"fieldInfo\" >\n"
@@ -90,6 +110,13 @@ public class GrouperKimGenerateStuff {
                   + "                      <a href=\"#\" onclick=\"assignValueByName('attributeDefName" + i + "', ''); assignValueByName('attributeDefName" + i + "extension', ''); return false;\">Clear</a>\n"
                   + "                </xsl:when>\n"
                   + "              </xsl:choose>\n"
+                  + "              <span class=\"attributeDefNameAddRemoveSpan\">\n"
+                  + "                <xsl:call-template name=\"widget_render\">\n"
+                  + "                  <xsl:with-param name=\"fieldName\" select=\"'attributeDefNameAddRemove" + i + "'\" />\n"
+                  + "                  <xsl:with-param name=\"renderCmd\" select=\"'input'\" />\n"
+                  + "                  <xsl:with-param name=\"readOnly\" select=\"$isPastInitiated\" />\n"
+                  + "                </xsl:call-template>\n"
+                  + "              </span>\n"
                   + "            </td>\n"
                   + "            <td id=\"attributeDefName" + i + "Id\" style=\"padding-left: 5px\">\n"
                   + "              <xsl:call-template name=\"widget_render\">\n"
@@ -103,6 +130,7 @@ public class GrouperKimGenerateStuff {
                   + "      </td>\n"
                   + "    </tr>\n");
     }
+    result.append("</xsl:template>\n");
     return result.toString();
   }
   
