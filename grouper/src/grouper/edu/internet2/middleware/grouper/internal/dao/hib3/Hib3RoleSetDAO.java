@@ -189,7 +189,8 @@ public class Hib3RoleSetDAO extends Hib3DAO implements RoleSetDAO {
           public Object callback(HibernateHandlerBean hibernateHandlerBean)
               throws GrouperDAOException {
                         
-            Set<RoleSet> roleSets = findByIfHasRoleId(role.getId());
+            Set<RoleSet> roleSets = HibernateSession.byHqlStatic().createQuery(
+              "from RoleSet where ifHasRoleId = :theId order by depth desc").setString("theId", role.getId()).listSet(RoleSet.class);
             for (RoleSet roleSet : roleSets) {
               if (GrouperDdlUtils.isMysql() || GrouperDdlUtils.isHsql()) {
                 //do this since mysql cant handle self-referential foreign keys
