@@ -1,3 +1,4 @@
+2011/08/08: merge 1.6.3 with 2.0
 2011/01/19: merge 1.6.3 with 2.0
 2010/11/19: merge 1.6.2 with 2.0 (api and ui only)
 2010/10/11: merge 1.6.1 with 2.0
