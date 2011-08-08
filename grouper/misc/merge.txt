@@ -1,3 +1,4 @@
+2011/08/08: merge to 2.0
 2011/03/02: merge to 2.0
 2011/01/31: branch 1.7, post fix classpath
 2010/11/19: merge 1.6.2 with 2.0 (api and ui only)
