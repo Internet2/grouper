@@ -35,6 +35,7 @@ public class GrouperCacheUtils {
             String cacheName = cacheNames[i];
             Ehcache cache = cacheManager.getEhcache(cacheName);
             if (cache.getStatus().equals(Status.STATUS_ALIVE) ) {
+              //CH 20110808: Uh, sometimes there is an underlying null pointer here, not sure why?  on Cache.memoryStore
               cache.removeAll();
             } else {
               //i dont know, maybe remove it?
