@@ -59,6 +59,32 @@
       showSummaryOrButtons="true" pagingName="simpleMemberUpdateMembers"  />
   </div>
   
+  <%-- form for sort options --%>
+  <c:if test="${! empty simpleMembershipUpdateContainer.memberSortIndexSelection}">
+
+    <%-- note that this only works if member searching is enabled if the user is performing a search --%>
+    <c:if test="${empty simpleMembershipUpdateContainer.memberFilterForScreen || ! empty simpleMembershipUpdateContainer.searchStringEnum}">
+      <c:set var="selectedSortStringIndex" value="${simpleMembershipUpdateContainer.selectedSortStringEnum.index}" />
+      <grouper:message value="${simpleMembershipUpdateContainer.text.sortBy}" />
+      <form action="whatever" id="simpleMembershipUpdateMemberSortForm" name="simpleMembershipUpdateMemberSortForm">
+        <select name="memberSortIndex" onchange="ajax('SimpleMembershipUpdate.retrieveMembers', {formIds: 'simpleMembershipUpdateMemberSortForm'}); return false;" >
+          <c:forEach items="${simpleMembershipUpdateContainer.memberSortIndexSelection}" var="index">
+            <c:set var="navId" value="member.sort.string${index}"  />
+            <c:choose>
+              <c:when test="${index == selectedSortStringIndex}">
+                <option selected="selected" value="${index}">${grouper:message(navId, true, false)}</option>
+              </c:when>
+              <c:otherwise>
+                <option value="${index}">${grouper:message(navId, true, false)}</option>
+              </c:otherwise>
+            </c:choose>
+          </c:forEach>
+        </select>
+      </form>
+      <br />
+    </c:if>
+  </c:if>
+    
   <%-- message if no members --%>  
   <c:if test="${fn:length(simpleMembershipUpdateContainer.guiMembers) == 0}">
     <grouper:message value="${simpleMembershipUpdateContainer.text.noMembersFound}" />

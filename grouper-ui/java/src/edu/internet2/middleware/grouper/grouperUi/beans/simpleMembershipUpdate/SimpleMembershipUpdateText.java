@@ -925,5 +925,10 @@ public class SimpleMembershipUpdateText {
     return text("simpleMembershipUpdate.tooltipTargetted.field.displayName.alternateName");
   }
   
-  
+  /**
+   * @return the label
+   */
+  public String getSortBy() {
+    return text("simpleMembershipUpdate.sortBy");
+  }
 }

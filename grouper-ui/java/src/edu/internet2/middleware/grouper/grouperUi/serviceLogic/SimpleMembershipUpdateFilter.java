@@ -27,6 +27,8 @@ import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
 import edu.internet2.middleware.grouper.grouperUi.beans.simpleMembershipUpdate.SimpleMembershipUpdateContainer;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.internal.dao.QueryPaging;
+import edu.internet2.middleware.grouper.member.SearchStringEnum;
+import edu.internet2.middleware.grouper.member.SortStringEnum;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
@@ -155,7 +157,7 @@ public class SimpleMembershipUpdateFilter {
       grouperSession = GrouperSession.start(loggedInSubject);
       
       group = new SimpleMembershipUpdate().retrieveGroup(grouperSession);
-      
+            
       Set<Subject> subjects = null;
       
       StringBuilder xmlBuilder = new StringBuilder(GrouperUiUtils.DHTMLX_OPTIONS_START);
@@ -360,7 +362,13 @@ public class SimpleMembershipUpdateFilter {
       guiResponseJs.addAction(GuiScreenAction.newAlert(
           simpleMembershipUpdateContainer.getText().getErrorNotEnoughFilterCharsAlert()));
       return members;
-    } 
+    }
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    int maxSubjectsSort = TagUtils.mediaResourceInt("comparator.sort.limit", 200);  // used if we're not doing sorting using member attributes
+    SortStringEnum sortStringEnum = simpleMembershipUpdateContainer.getSelectedSortStringEnum();
+    SearchStringEnum searchStringEnum = simpleMembershipUpdateContainer.getSearchStringEnum();
+    boolean useMemberSortAndSearch = sortStringEnum != null && searchStringEnum != null;
     
     Set<Subject> subjects = null;
     boolean filterByOneSubject = false;
@@ -373,11 +381,13 @@ public class SimpleMembershipUpdateFilter {
       subjects = GrouperUtil.toSet(subject);
       //show filter string on screen
       simpleMembershipUpdateContainer.setMemberFilterForScreen(GrouperUiUtils.convertSubjectToLabelConfigured(subject));
-    }
-  
-    if (!filterByOneSubject) {
+    } else {
       //show filter string on screen
-      simpleMembershipUpdateContainer.setMemberFilterForScreen(filterString);
+      simpleMembershipUpdateContainer.setMemberFilterForScreen(filterString); 
+    }
+    
+    // if we're not using member attributes for sorting/searching and the filter value isn't for a single subject
+    if (!filterByOneSubject && !useMemberSortAndSearch) {
       boolean tooManyResults = false;
       try {
         subjects = SubjectFinder.findAll(filterString);
@@ -393,14 +403,9 @@ public class SimpleMembershipUpdateFilter {
             simpleMembershipUpdateContainer.getText().getErrorMemberFilterTooManyResults()));
         return members;
       }
-      
-    }    
-      
-    //lets convert these subjects to members
-    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    }
   
     GrouperSession grouperSession = null;
-  
     String groupName = null;
     boolean startedSession = false;
     try {
@@ -412,8 +417,58 @@ public class SimpleMembershipUpdateFilter {
   
       groupName = group.getName();
       
-      members = GrouperUiUtils.convertSubjectsToMembers(grouperSession, group, subjects, true);
-    
+      if (useMemberSortAndSearch && !filterByOneSubject) {
+        QueryOptions queryOptions = new QueryOptions().retrieveCount(true).retrieveResults(false);
+        group.getImmediateMembers(Group.getDefaultList(), null, queryOptions, 
+            sortStringEnum, searchStringEnum, filterString);
+        int totalSize = queryOptions.getCount() == null ? 0 : queryOptions.getCount().intValue();
+        
+        // check if too many results...
+        if (totalSize > TagUtils.mediaResourceInt("simpleMembershipUpdate.filterMaxSearchSubjects", 1000)) {
+          if (GrouperUtil.length(tooManyResultsArray) > 0) {
+            tooManyResultsArray[0] = true;
+          }
+
+          guiResponseJs.addAction(GuiScreenAction.newAlert(simpleMembershipUpdateContainer.getText().getErrorMemberFilterTooManyResults()));
+          return members;
+        }
+        
+        int pageSize = guiPaging.getPageSize();
+        
+        guiPaging.setTotalRecordCount(totalSize);
+        
+        QueryPaging queryPaging = new QueryPaging();
+        queryPaging.setPageSize(pageSize);
+        queryPaging.setPageNumber(guiPaging.getPageNumber());
+        
+        queryOptions = new QueryOptions().paging(queryPaging);
+  
+        members = group.getImmediateMembers(Group.getDefaultList(), null, queryOptions, 
+            sortStringEnum, searchStringEnum, filterString);
+      } else {
+      
+        members = GrouperUiUtils.convertSubjectsToMembers(grouperSession, group, subjects, true);
+      
+        QueryPaging queryPaging = new QueryPaging(maxSubjectsSort, 1, true);
+        
+        int totalSize = members.size();
+        
+        int pageSize = guiPaging.getPageSize();
+        
+        guiPaging.setTotalRecordCount(totalSize);
+        guiPaging.setPageSize(pageSize);
+        
+        //if there are less than the sort limit, then just get all, no problem
+        queryPaging = new QueryPaging();
+        queryPaging.setPageSize(pageSize);
+        queryPaging.setPageNumber(guiPaging.getPageNumber());
+        
+        if (totalSize <= maxSubjectsSort) {
+          members = GrouperUiUtils.membersSortedPaged(members, queryPaging);
+        } else {
+          members = new LinkedHashSet<Member>(GrouperUtil.batchList(members, pageSize, guiPaging.getPageNumber()-1));
+        }
+      }
     } catch (Exception se) {
       throw new RuntimeException("Error searching for members: '" + filterString 
           + "', " + groupName + ", " + se.getMessage(), se);
@@ -422,29 +477,6 @@ public class SimpleMembershipUpdateFilter {
         GrouperSession.stopQuietly(grouperSession);
       }
     } 
-      
-    int maxSubjectsSort = TagUtils.mediaResourceInt("comparator.sort.limit", 200);
-  
-    QueryPaging queryPaging = new QueryPaging(maxSubjectsSort, 1, true);
-    
-    int totalSize = members.size();
-    
-    int pageSize = guiPaging.getPageSize();
-    
-    guiPaging.setTotalRecordCount(totalSize);
-    guiPaging.setPageSize(pageSize);
-    
-    //if there are less than the sort limit, then just get all, no problem
-    queryPaging = new QueryPaging();
-    queryPaging.setPageSize(pageSize);
-    queryPaging.setPageNumber(guiPaging.getPageNumber());
-    
-    if (totalSize <= maxSubjectsSort) {
-      members = GrouperUiUtils.membersSortedPaged(members, queryPaging);
-    } else {
-  
-      members = new LinkedHashSet<Member>(GrouperUtil.batchList(members, pageSize, guiPaging.getPageNumber()-1));
-    }       
     
     return members;
   }
