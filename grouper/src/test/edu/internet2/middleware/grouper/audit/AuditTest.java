@@ -65,7 +65,7 @@ public class AuditTest extends GrouperTest {
    */
   public static void main(String[] args) {
     //TestRunner.run(new AuditTest("testGroupPrivileges"));
-    TestRunner.run(new AuditTest("testAttributeAssignValue"));
+    TestRunner.run(new AuditTest("testAttributeAssignsMember"));
   }
   
   /**

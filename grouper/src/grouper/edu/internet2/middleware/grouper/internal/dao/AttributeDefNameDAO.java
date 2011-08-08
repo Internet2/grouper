@@ -44,6 +44,18 @@ public interface AttributeDefNameDAO extends GrouperDAO {
     throws GrouperDAOException, AttributeDefNameNotFoundException;
 
   /**
+   * find an attribute def name by name
+   * @param name 
+   * @param exceptionIfNotFound 
+   * @param queryOptions 
+   * @return  name
+   * @throws GrouperDAOException 
+   * @throws AttributeDefNameNotFoundException 
+   */
+  public AttributeDefName findByNameSecure(String name, boolean exceptionIfNotFound, QueryOptions queryOptions) 
+    throws GrouperDAOException, AttributeDefNameNotFoundException;
+
+  /**
    * delete this attribute def name
    * @param attributeDefName 
    */

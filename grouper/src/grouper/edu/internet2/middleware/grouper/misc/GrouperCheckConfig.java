@@ -59,6 +59,7 @@ import edu.internet2.middleware.grouper.hooks.LifecycleHooks;
 import edu.internet2.middleware.grouper.hooks.MemberHooks;
 import edu.internet2.middleware.grouper.hooks.MembershipHooks;
 import edu.internet2.middleware.grouper.hooks.StemHooks;
+import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.permissions.limits.PermissionLimitUtils;
 import edu.internet2.middleware.grouper.privs.AccessAdapter;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
@@ -1478,7 +1479,10 @@ public class GrouperCheckConfig {
    */
   private static AttributeDefName checkAttribute(Stem stem, AttributeDef attributeDef, String extension, String displayExtension, String description, boolean logAutocreate) {
     String attributeDefNameName = stem.getName() + ":" + extension;
-    AttributeDefName attributeDefName = AttributeDefNameFinder.findByName(attributeDefNameName, false);
+    
+    //dont cache since if not there, that not there will be cached
+    AttributeDefName attributeDefName = GrouperDAOFactory.getFactory().getAttributeDefName().findByNameSecure(attributeDefNameName, false, new QueryOptions().secondLevelCache(false));
+
     if (attributeDefName == null) {
       attributeDefName = stem.addChildAttributeDefName(attributeDef, extension, displayExtension);
       attributeDefName.setDescription(description);
