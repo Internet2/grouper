@@ -108,24 +108,36 @@ public class Hib3AttributeDefNameDAO extends Hib3DAO implements AttributeDefName
   }
 
   /**
-   * 
-   * @see edu.internet2.middleware.grouper.internal.dao.AttributeDefNameDAO#findByNameSecure(java.lang.String, boolean)
+   * @see edu.internet2.middleware.grouper.internal.dao.AttributeDefNameDAO#findByNameSecure(java.lang.String, boolean, edu.internet2.middleware.grouper.internal.dao.QueryOptions)
    */
-  public AttributeDefName findByNameSecure(String name, boolean exceptionIfNotFound)
-      throws GrouperDAOException, AttributeDefNameNotFoundException {
+  public AttributeDefName findByNameSecure(String name, boolean exceptionIfNotFound,
+      QueryOptions queryOptions) throws GrouperDAOException,
+      AttributeDefNameNotFoundException {
+    
     AttributeDefName attributeDefName = HibernateSession.byHqlStatic()
       .createQuery("select a from AttributeDefName as a where a.nameDb = :value")
+      .options(queryOptions)
       .setCacheable(true)
       .setCacheRegion(KLASS + ".FindByName")
       .setString("value", name).uniqueResult(AttributeDefName.class);
-
+  
     attributeDefName = filterSecurity(attributeDefName);
-
+  
     //handle exceptions out of data access method...
     if (attributeDefName == null && exceptionIfNotFound) {
       throw new AttributeDefNotFoundException("Cannot find (or not allowed to find) attribute def name with name: '" + name + "'");
     }
     return attributeDefName;
+  }
+
+
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.internal.dao.AttributeDefNameDAO#findByNameSecure(java.lang.String, boolean)
+   */
+  public AttributeDefName findByNameSecure(String name, boolean exceptionIfNotFound)
+      throws GrouperDAOException, AttributeDefNameNotFoundException {
+    return findByNameSecure(name, exceptionIfNotFound, null);
   }
 
   /**

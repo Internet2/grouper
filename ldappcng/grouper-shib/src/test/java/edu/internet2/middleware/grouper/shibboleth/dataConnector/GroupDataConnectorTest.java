@@ -14,9 +14,12 @@ import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GroupTypeFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
+import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.shibboleth.filter.GroupQueryFilter;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.shibboleth.common.attribute.BaseAttribute;
+import edu.internet2.middleware.shibboleth.common.attribute.resolver.provider.ShibbolethResolutionContext;
+import edu.internet2.middleware.shibboleth.common.attribute.resolver.provider.attributeDefinition.AttributeDefinition;
 
 public class GroupDataConnectorTest extends BaseDataConnectorTest {
 
@@ -96,6 +99,9 @@ public class GroupDataConnectorTest extends BaseDataConnectorTest {
     correctAttributesA.setAttribute("groups:immediate", groupB);
 
     correctAttributesA.setAttribute("admins", SubjectTestHelper.SUBJ3);
+    
+    groupA.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.VIEW);
+    correctAttributesA.setAttribute("viewers", SubjectTestHelper.SUBJ0);
 
     runResolveTest("testAll", groupA, correctAttributesA);
   }
@@ -418,6 +424,35 @@ public class GroupDataConnectorTest extends BaseDataConnectorTest {
     correctAttributesA.setAttribute("groupType", adminType, GroupTypeFinder.find("base", true));
 
     runResolveTest("testAttributesOnly", groupA, correctAttributesA);
+  }
+  
+  public void testHasViewer() {
+
+    groupA.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.VIEW);
+
+    AttributeMap correctMap = new AttributeMap();
+    correctMap.setAttribute("testHasViewer", SubjectTestHelper.SUBJ0.getName());
+    
+    try {     
+      GenericApplicationContext gContext = BaseDataConnectorTest.createSpringContext(RESOLVER_CONFIG);
+
+      ShibbolethResolutionContext ctx = getShibContext(groupA.getName());
+      
+      // resolve data connector dependency
+      GroupDataConnector gdc = (GroupDataConnector) gContext.getBean("testAll");      
+      gdc.resolve(ctx);
+      ctx.getResolvedPlugins().put(gdc.getId(), gdc);
+      
+      // resolve attribute definition
+      AttributeDefinition ad = (AttributeDefinition) gContext.getBean("testHasViewer");
+      BaseAttribute attr = ad.resolve(ctx);
+      AttributeMap currentMap = new AttributeMap();
+      currentMap.setAttribute(attr);
+      assertEquals(correctMap, currentMap);
+    } catch (Exception e) {
+      e.printStackTrace();
+      throw new RuntimeException(e);
+    }
   }
 
 }

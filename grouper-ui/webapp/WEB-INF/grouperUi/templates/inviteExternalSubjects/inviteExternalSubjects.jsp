@@ -116,8 +116,8 @@
           </tr>
           
 	        <tr>
-	          <td colspan="2" style="text-align: right">
-	            <div class="buttonRow">
+	          <td colspan="2">
+	            <div class="buttonRow" style="width: 600px; text-align: right">
 						    <input class="blueButton" type="submit" 
 						      onclick="ajax('InviteExternalSubjects.submit', {formIds: 'inviteExternalsFormId'}); return false;" 
 						      value="${navMap['inviteExternalSubjects.submitButtonText']}" 

@@ -4,9 +4,6 @@
  */
 package edu.internet2.middleware.grouper.ws.soap_v2_0;
 
-import edu.internet2.middleware.grouper.ws.coresoap.WsPermissionLimit;
-
-
 
 /**
  * result of permission entry query represents an assignment in the DB

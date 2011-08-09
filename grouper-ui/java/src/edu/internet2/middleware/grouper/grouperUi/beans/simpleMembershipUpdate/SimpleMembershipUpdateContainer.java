@@ -6,10 +6,13 @@ package edu.internet2.middleware.grouper.grouperUi.beans.simpleMembershipUpdate;
 
 import java.io.File;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.MissingResourceException;
 import java.util.Properties;
+import java.util.ResourceBundle;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -19,6 +22,8 @@ import org.apache.commons.lang.StringUtils;
 import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGroup;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiMember;
+import edu.internet2.middleware.grouper.member.SearchStringEnum;
+import edu.internet2.middleware.grouper.member.SortStringEnum;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.exceptions.NoSessionException;
 import edu.internet2.middleware.grouper.ui.tags.TagUtils;
@@ -136,7 +141,89 @@ public class SimpleMembershipUpdateContainer implements Serializable {
    * sourceId____subjectId, it would be friendlier
    */
   private String memberFilterForScreen;
+  
+  private List<Integer> memberSortIndexSelection = null;
 
+  /**
+   * list of sort indexes that the user can use assuming
+   * member sorting is enabled and not default sorting only
+   * @return list
+   */
+  public List<Integer> getMemberSortIndexSelection() {
+    if (memberSortIndexSelection == null) {
+      ResourceBundle mediaResource = GrouperUiFilter.retrieveSessionMediaResourceBundle();
+
+      String memberSortEnabled = mediaResource.containsKey("member.sort.enabled") ? mediaResource.getString("member.sort.enabled") : null;
+      String memberSortDefaultOnly = mediaResource.containsKey("member.sort.defaultOnly") ? mediaResource.getString("member.sort.defaultOnly") : null;
+      
+      memberSortIndexSelection = new ArrayList<Integer>();
+
+      if ("true".equals(memberSortEnabled)) {
+        if (!"true".equals(memberSortDefaultOnly)) {
+          for (int i = 0; i < 5; i++) {
+            String displayName = GrouperUiUtils.message("member.sort.string" + i, true);
+            if (!GrouperUtil.isEmpty(displayName) && SortStringEnum.newInstance(i).hasAccess()) {
+              memberSortIndexSelection.add(i);
+            }
+          }
+        }
+      }
+    }
+    
+    return memberSortIndexSelection;
+  }
+  
+  private SortStringEnum selectedSortStringEnum = null;
+  
+  /**
+   * Get the selected sort string or the default one if one is not selected or the first one that the user has access to
+   * @return SortStringEnum
+   */
+  public SortStringEnum getSelectedSortStringEnum() {
+    HttpServletRequest request = GrouperUiFilter.retrieveHttpServletRequest();
+    
+    // if we've already gone through the logic and it's not changing...
+    if (selectedSortStringEnum != null && GrouperUtil.isEmpty(request.getParameter("memberSortIndex"))) {
+      return selectedSortStringEnum;
+    }
+    
+    ResourceBundle mediaResource = GrouperUiFilter.retrieveSessionMediaResourceBundle();
+
+    String memberSortEnabled = mediaResource.containsKey("member.sort.enabled") ? mediaResource.getString("member.sort.enabled") : null;
+    String memberSortDefaultOnly = mediaResource.containsKey("member.sort.defaultOnly") ? mediaResource.getString("member.sort.defaultOnly") : null;
+    String memberSortIndex = request.getParameter("memberSortIndex");
+
+    if ("true".equals(memberSortEnabled)) {
+      if ("true".equals(memberSortDefaultOnly)) {
+        selectedSortStringEnum = SortStringEnum.getDefaultSortString();
+      } else if (GrouperUtil.isEmpty(memberSortIndex)) {
+        selectedSortStringEnum = SortStringEnum.getDefaultSortString();
+        if (selectedSortStringEnum == null && getMemberSortIndexSelection().size() > 0) {
+          // if the user doesn't have access to the default sort strings but has access to other sort strings, sort using a non-default sort string.
+          selectedSortStringEnum = SortStringEnum.newInstance(getMemberSortIndexSelection().iterator().next());
+        }
+      } else {
+        selectedSortStringEnum = SortStringEnum.newInstance(Integer.parseInt(memberSortIndex));
+      }
+    }
+    
+    return selectedSortStringEnum;
+  }
+  
+  /**
+   * Get the search string to use if it's enabled.
+   * @return SearchStringEnum
+   */
+  public SearchStringEnum getSearchStringEnum() {
+    ResourceBundle mediaResource = GrouperUiFilter.retrieveSessionMediaResourceBundle();
+    String memberSearchEnabled = mediaResource.containsKey("member.search.enabled") ? mediaResource.getString("member.search.enabled") : null;
+    if ("true".equals(memberSearchEnabled)) {
+      return SearchStringEnum.getDefaultSearchString();
+    }
+    
+    return null;
+  }
+  
   /**
    * cache of properties
    */

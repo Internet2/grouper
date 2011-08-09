@@ -460,6 +460,16 @@
               
                   if (
                   "http://soap_v2_0.ws.grouper.middleware.internet2.edu/xsd".equals(namespaceURI) &&
+                  "WsPermissionEnvVar".equals(typeName)){
+                   
+                            return  edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.WsPermissionEnvVar.Factory.parse(reader);
+                        
+
+                  }
+
+              
+                  if (
+                  "http://soap_v2_0.ws.grouper.middleware.internet2.edu/xsd".equals(namespaceURI) &&
                   "WsStemLookup".equals(typeName)){
                    
                             return  edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.WsStemLookup.Factory.parse(reader);
@@ -683,6 +693,16 @@
                   "WsResponseMeta".equals(typeName)){
                    
                             return  edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.WsResponseMeta.Factory.parse(reader);
+                        
+
+                  }
+
+              
+                  if (
+                  "http://soap_v2_0.ws.grouper.middleware.internet2.edu/xsd".equals(namespaceURI) &&
+                  "WsPermissionLimit".equals(typeName)){
+                   
+                            return  edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.WsPermissionLimit.Factory.parse(reader);
                         
 
                   }

@@ -6,6 +6,7 @@ package edu.internet2.middleware.grouper.util;
 
 import java.io.File;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -250,10 +251,12 @@ public class GrouperUtilTest extends GrouperTest {
   public void testParentStemNames() {
     Set<String> stemNames = GrouperUtil.findParentStemNames("a:b:c:d");
     assertEquals(4, stemNames.size());
-    assertTrue(stemNames.contains(":"));
-    assertTrue(stemNames.contains("a"));
-    assertTrue(stemNames.contains("a:b"));
-    assertTrue(stemNames.contains("a:b:c"));
+    List<String> stemNamesList = new ArrayList<String>(stemNames);
+
+    assertEquals(":", stemNamesList.get(0));
+    assertEquals("a", stemNamesList.get(1));
+    assertEquals("a:b", stemNamesList.get(2));
+    assertEquals("a:b:c", stemNamesList.get(3));
     
   }
 

@@ -472,6 +472,88 @@
                             
 
                         /**
+                        * field for Limits
+                        * This was an Array!
+                        */
+
+                        
+                                    protected edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.WsPermissionLimit[] localLimits ;
+                                
+                           /*  This tracker boolean wil be used to detect whether the user called the set method
+                          *   for this attribute. It will be used to determine whether to include this field
+                           *   in the serialized XML
+                           */
+                           protected boolean localLimitsTracker = false ;
+                           
+
+                           /**
+                           * Auto generated getter method
+                           * @return edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.WsPermissionLimit[]
+                           */
+                           public  edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.WsPermissionLimit[] getLimits(){
+                               return localLimits;
+                           }
+
+                           
+                        
+
+
+                               
+                              /**
+                               * validate the array for Limits
+                               */
+                              protected void validateLimits(edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.WsPermissionLimit[] param){
+                             
+                              }
+
+
+                             /**
+                              * Auto generated setter method
+                              * @param param Limits
+                              */
+                              public void setLimits(edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.WsPermissionLimit[] param){
+                              
+                                   validateLimits(param);
+
+                               
+                                          if (param != null){
+                                             //update the setting tracker
+                                             localLimitsTracker = true;
+                                          } else {
+                                             localLimitsTracker = true;
+                                                 
+                                          }
+                                      
+                                      this.localLimits=param;
+                              }
+
+                               
+                             
+                             /**
+                             * Auto generated add method for the array for convenience
+                             * @param param edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.WsPermissionLimit
+                             */
+                             public void addLimits(edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.WsPermissionLimit param){
+                                   if (localLimits == null){
+                                   localLimits = new edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.WsPermissionLimit[]{};
+                                   }
+
+                            
+                                 //update the setting tracker
+                                localLimitsTracker = true;
+                            
+
+                               java.util.List list =
+                            org.apache.axis2.databinding.utils.ConverterUtil.toList(localLimits);
+                               list.add(param);
+                               this.localLimits =
+                             (edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.WsPermissionLimit[])list.toArray(
+                            new edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.WsPermissionLimit[list.size()]);
+
+                             }
+                             
+
+                        /**
                         * field for MembershipId
                         */
 
@@ -1168,7 +1250,69 @@
                                           }
                                     
                                    xmlWriter.writeEndElement();
-                             } if (localMembershipIdTracker){
+                             } if (localLimitsTracker){
+                                       if (localLimits!=null){
+                                            for (int i = 0;i < localLimits.length;i++){
+                                                if (localLimits[i] != null){
+                                                 localLimits[i].serialize(new javax.xml.namespace.QName("http://soap_v2_0.ws.grouper.middleware.internet2.edu/xsd","limits"),
+                                                           factory,xmlWriter);
+                                                } else {
+                                                   
+                                                            // write null attribute
+                                                            java.lang.String namespace2 = "http://soap_v2_0.ws.grouper.middleware.internet2.edu/xsd";
+                                                            if (! namespace2.equals("")) {
+                                                                java.lang.String prefix2 = xmlWriter.getPrefix(namespace2);
+
+                                                                if (prefix2 == null) {
+                                                                    prefix2 = generatePrefix(namespace2);
+
+                                                                    xmlWriter.writeStartElement(prefix2,"limits", namespace2);
+                                                                    xmlWriter.writeNamespace(prefix2, namespace2);
+                                                                    xmlWriter.setPrefix(prefix2, namespace2);
+
+                                                                } else {
+                                                                    xmlWriter.writeStartElement(namespace2,"limits");
+                                                                }
+
+                                                            } else {
+                                                                xmlWriter.writeStartElement("limits");
+                                                            }
+
+                                                           // write the nil attribute
+                                                           writeAttribute("xsi","http://www.w3.org/2001/XMLSchema-instance","nil","1",xmlWriter);
+                                                           xmlWriter.writeEndElement();
+                                                    
+                                                }
+
+                                            }
+                                     } else {
+                                        
+                                                // write null attribute
+                                                java.lang.String namespace2 = "http://soap_v2_0.ws.grouper.middleware.internet2.edu/xsd";
+                                                if (! namespace2.equals("")) {
+                                                    java.lang.String prefix2 = xmlWriter.getPrefix(namespace2);
+
+                                                    if (prefix2 == null) {
+                                                        prefix2 = generatePrefix(namespace2);
+
+                                                        xmlWriter.writeStartElement(prefix2,"limits", namespace2);
+                                                        xmlWriter.writeNamespace(prefix2, namespace2);
+                                                        xmlWriter.setPrefix(prefix2, namespace2);
+
+                                                    } else {
+                                                        xmlWriter.writeStartElement(namespace2,"limits");
+                                                    }
+
+                                                } else {
+                                                    xmlWriter.writeStartElement("limits");
+                                                }
+
+                                               // write the nil attribute
+                                               writeAttribute("xsi","http://www.w3.org/2001/XMLSchema-instance","nil","1",xmlWriter);
+                                               xmlWriter.writeEndElement();
+                                        
+                                    }
+                                 } if (localMembershipIdTracker){
                                     namespace = "http://soap_v2_0.ws.grouper.middleware.internet2.edu/xsd";
                                     if (! namespace.equals("")) {
                                         prefix = xmlWriter.getPrefix(namespace);
@@ -1595,7 +1739,32 @@
                                  
                                          elementList.add(localEnabled==null?null:
                                          org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localEnabled));
-                                    } if (localMembershipIdTracker){
+                                    } if (localLimitsTracker){
+                             if (localLimits!=null) {
+                                 for (int i = 0;i < localLimits.length;i++){
+
+                                    if (localLimits[i] != null){
+                                         elementList.add(new javax.xml.namespace.QName("http://soap_v2_0.ws.grouper.middleware.internet2.edu/xsd",
+                                                                          "limits"));
+                                         elementList.add(localLimits[i]);
+                                    } else {
+                                        
+                                                elementList.add(new javax.xml.namespace.QName("http://soap_v2_0.ws.grouper.middleware.internet2.edu/xsd",
+                                                                          "limits"));
+                                                elementList.add(null);
+                                            
+                                    }
+
+                                 }
+                             } else {
+                                 
+                                        elementList.add(new javax.xml.namespace.QName("http://soap_v2_0.ws.grouper.middleware.internet2.edu/xsd",
+                                                                          "limits"));
+                                        elementList.add(localLimits);
+                                    
+                             }
+
+                        } if (localMembershipIdTracker){
                                       elementList.add(new javax.xml.namespace.QName("http://soap_v2_0.ws.grouper.middleware.internet2.edu/xsd",
                                                                       "membershipId"));
                                  
@@ -1707,6 +1876,8 @@
                     
                     reader.next();
                 
+                        java.util.ArrayList list11 = new java.util.ArrayList();
+                    
                                     
                                     while (!reader.isStartElement() && !reader.isEndElement()) reader.next();
                                 
@@ -1968,6 +2139,64 @@
                                       
                                         reader.next();
                                     
+                              }  // End of if for expected property start element
+                                
+                                    else {
+                                        
+                                    }
+                                
+                                    
+                                    while (!reader.isStartElement() && !reader.isEndElement()) reader.next();
+                                
+                                    if (reader.isStartElement() && new javax.xml.namespace.QName("http://soap_v2_0.ws.grouper.middleware.internet2.edu/xsd","limits").equals(reader.getName())){
+                                
+                                    
+                                    
+                                    // Process the array and step past its final element's end.
+                                    
+                                                          nillableValue = reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance","nil");
+                                                          if ("true".equals(nillableValue) || "1".equals(nillableValue)){
+                                                              list11.add(null);
+                                                              reader.next();
+                                                          } else {
+                                                        list11.add(edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.WsPermissionLimit.Factory.parse(reader));
+                                                                }
+                                                        //loop until we find a start element that is not part of this array
+                                                        boolean loopDone11 = false;
+                                                        while(!loopDone11){
+                                                            // We should be at the end element, but make sure
+                                                            while (!reader.isEndElement())
+                                                                reader.next();
+                                                            // Step out of this element
+                                                            reader.next();
+                                                            // Step to next element event.
+                                                            while (!reader.isStartElement() && !reader.isEndElement())
+                                                                reader.next();
+                                                            if (reader.isEndElement()){
+                                                                //two continuous end elements means we are exiting the xml structure
+                                                                loopDone11 = true;
+                                                            } else {
+                                                                if (new javax.xml.namespace.QName("http://soap_v2_0.ws.grouper.middleware.internet2.edu/xsd","limits").equals(reader.getName())){
+                                                                    
+                                                                      nillableValue = reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance","nil");
+                                                                      if ("true".equals(nillableValue) || "1".equals(nillableValue)){
+                                                                          list11.add(null);
+                                                                          reader.next();
+                                                                      } else {
+                                                                    list11.add(edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.WsPermissionLimit.Factory.parse(reader));
+                                                                        }
+                                                                }else{
+                                                                    loopDone11 = true;
+                                                                }
+                                                            }
+                                                        }
+                                                        // call the converter utility  to convert and set the array
+                                                        
+                                                        object.setLimits((edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.WsPermissionLimit[])
+                                                            org.apache.axis2.databinding.utils.ConverterUtil.convertToArray(
+                                                                edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.WsPermissionLimit.class,
+                                                                list11));
+                                                            
                               }  // End of if for expected property start element
                                 
                                     else {

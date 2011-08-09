@@ -79,7 +79,7 @@ public class ChangeLogTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new ChangeLogTest("testAttributeAssign"));
+    TestRunner.run(new ChangeLogTest("testFlatPermissionsByRoleSets"));
     //TestRunner.run(ChangeLogTest.class);
   }
   

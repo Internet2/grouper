@@ -246,6 +246,33 @@ where
    or (lower(desct.description) like '%' || ? || '%')
    or (lower(emailt.email) like '%' || ? || '%')
              
+for SQL-server:
+
+select
+   subject.subjectid as id, subject.name as name,
+   lfnamet.lfname as lfname, loginidt.loginid as loginid,
+   desct.description as description, emailt.email as email
+from
+   subject
+   left join (select subjectid, value as lfname from subjectattribute
+     where name='name') lfnamet
+     on subject.subjectid=lfnamet.subjectid
+   left join (select subjectid, value as loginid from subjectattribute
+     where name='loginid') loginidt
+     on subject.subjectid=loginidt.subjectid
+   left join (select subjectid, value as description from subjectattribute
+      where name='description') desct
+     on subject.subjectid=desct.subjectid
+   left join (select subjectid, value as email from subjectattribute
+      where name='email') emailt
+     on subject.subjectid=emailt.subjectid
+where
+   (lower(name) like '%' + ? + '%')
+   or (lower(lfnamet.lfname) like '%' + ? + '%')
+   or (lower(loginidt.loginid) like '%' + ? + '%')
+   or (lower(desct.description) like '%' + ? + '%')
+   or (lower(emailt.email) like '%' + ? + '%')
+
               -->
              
              <param-value>

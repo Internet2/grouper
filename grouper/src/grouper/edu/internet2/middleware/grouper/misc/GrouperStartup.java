@@ -57,6 +57,19 @@ public class GrouperStartup {
   /** if errors should be logged (perhaps in all cases except registry init) */
   public static boolean logErrorStatic = true;
   /**
+   * if startup has finished sucessfully
+   * @return the finishedStartupSuccessfully
+   */
+  public static boolean isFinishedStartupSuccessfully() {
+    return finishedStartupSuccessfully;
+  }
+
+  /**
+   * if startup has finished sucessfully
+   */
+  private static boolean finishedStartupSuccessfully = false;
+  
+  /**
    * call this when grouper starts up
    * @return false if already started, true if this started it
    */
@@ -115,6 +128,8 @@ public class GrouperStartup {
       
       // verify member search and sort config
       verifyMemberSortAndSearchConfig();
+      
+      finishedStartupSuccessfully = true;
       
       return true;
     } catch (RuntimeException re) {

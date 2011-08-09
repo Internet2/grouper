@@ -37,6 +37,7 @@ import edu.internet2.middleware.grouper.grouperUi.beans.simpleMembershipUpdate.S
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.internal.dao.QueryPaging;
 import edu.internet2.middleware.grouper.j2ee.GrouperRequestWrapper;
+import edu.internet2.middleware.grouper.member.SortStringEnum;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.exceptions.ControllerDone;
@@ -418,6 +419,8 @@ public class SimpleMembershipUpdate {
   @SuppressWarnings("unchecked")
   Set<Member> retrieveMembersNoFilter(GuiPaging guiPaging, Group group)
       throws SchemaException {
+    final SimpleMembershipUpdateContainer simpleMembershipUpdateContainer = SimpleMembershipUpdateContainer.retrieveFromSession();
+
     Set<Member> members;
     //get the size
     QueryOptions queryOptions = new QueryOptions().retrieveCount(true).retrieveResults(false);
@@ -429,19 +432,25 @@ public class SimpleMembershipUpdate {
     guiPaging.setTotalRecordCount(totalSize);
     guiPaging.setPageSize(pageSize);
     
-    //if there are less than the sort limit, then just get all, no problem
+    //if there are less than the sort limit, then just get all, no problem 
+    //  -- applies only if we're not doing sorting based on member attributes
     int sortLimit = TagUtils.mediaResourceInt("comparator.sort.limit", 200);
+    SortStringEnum sortStringEnum = simpleMembershipUpdateContainer.getSelectedSortStringEnum();
+    
     QueryPaging queryPaging = new QueryPaging();
     queryPaging.setPageSize(pageSize);
     queryPaging.setPageNumber(guiPaging.getPageNumber());
     
     queryOptions = new QueryOptions().paging(queryPaging);
-    if (totalSize <= sortLimit) {
+    
+    if (sortStringEnum != null) {
+      members = group.getImmediateMembers(Group.getDefaultList(), null, queryOptions, sortStringEnum, null, null);
+    } else if (totalSize <= sortLimit) {
       members = group.getImmediateMembers();
       members = GrouperUiUtils.membersSortedPaged(members, queryPaging);
     } else {
       members = group.getMembers(Group.getDefaultList(), queryOptions);
-    }       
+    }
     
     guiPaging.setPageNumber(queryPaging.getPageNumber());
     return members;

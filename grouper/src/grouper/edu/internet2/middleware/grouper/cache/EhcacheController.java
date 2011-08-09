@@ -39,11 +39,6 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 public class EhcacheController implements CacheController {
 
   /**
-   * 
-   */
-  public static final String JAVA_IO_TMPDIR = "java.io.tmpdir";
-  
-  /**
    * singleton cache controller
    */
   private static EhcacheController ehcacheController = null;
@@ -211,9 +206,6 @@ public class EhcacheController implements CacheController {
     return new EhcacheStats( c.getStatistics() );
   }
 
-  /** original tmp dir */
-  public static final String ORIGINAL_TMP_DIR = System.getProperty(JAVA_IO_TMPDIR);
-  
   /** 
    * Initialize privilege cache.
    * @since   1.2.1
@@ -229,27 +221,28 @@ public class EhcacheController implements CacheController {
           }
           
           //trying to avoid warning of using the same dir
+          String tmpDir = GrouperUtil.tmpDir();
           try {
-            String newTmpdir = StringUtils.trimToEmpty(ORIGINAL_TMP_DIR);
+            String newTmpdir = StringUtils.trimToEmpty(tmpDir);
             if (!newTmpdir.endsWith("\\") && !newTmpdir.endsWith("/")) {
               newTmpdir += File.separator;
             }
             newTmpdir += "grouper_ehcache_auto_" + GrouperUtil.uniqueId();
-            System.setProperty(JAVA_IO_TMPDIR, newTmpdir);
+            System.setProperty(GrouperUtil.JAVA_IO_TMPDIR, newTmpdir);
             
             synchronized(CacheManager.class) {
               //now it should be using a unique directory
               this.mgr = new CacheManager(url);
             }
           } finally {
+            
             //put tmpdir back
-            if (ORIGINAL_TMP_DIR == null) {
-              System.clearProperty(JAVA_IO_TMPDIR);
+            if (tmpDir == null) {
+              System.clearProperty(GrouperUtil.JAVA_IO_TMPDIR);
             } else {
-              System.setProperty(JAVA_IO_TMPDIR, ORIGINAL_TMP_DIR);
+              System.setProperty(GrouperUtil.JAVA_IO_TMPDIR, tmpDir);
             }
           }
-          
         }
       }
     }

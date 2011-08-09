@@ -1264,9 +1264,21 @@
                         <xs:element minOccurs="0" name="enabled" nillable="true" type="xs:string"/>
                         <xs:element minOccurs="0" name="pointInTimeFrom" nillable="true" type="xs:string"/>
                         <xs:element minOccurs="0" name="pointInTimeTo" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="immediateOnly" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="permissionType" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="permissionProcessor" nillable="true" type="xs:string"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="limitEnvVars" nillable="true" type="ns:WsPermissionEnvVar"/>
+                        <xs:element minOccurs="0" name="includeLimits" nillable="true" type="xs:string"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
+            <xs:complexType name="WsPermissionEnvVar">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="paramName" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="paramType" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="paramValue" nillable="true" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
             <xs:element name="getPermissionAssignmentsResponse">
                 <xs:complexType>
                     <xs:sequence>
@@ -1299,6 +1311,7 @@
                     <xs:element minOccurs="0" name="detail" nillable="true" type="ns:WsPermissionAssignDetail"/>
                     <xs:element minOccurs="0" name="disallowed" nillable="true" type="xs:string"/>
                     <xs:element minOccurs="0" name="enabled" nillable="true" type="xs:string"/>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="limits" nillable="true" type="ns:WsPermissionLimit"/>
                     <xs:element minOccurs="0" name="membershipId" nillable="true" type="xs:string"/>
                     <xs:element minOccurs="0" name="permissionType" nillable="true" type="xs:string"/>
                     <xs:element minOccurs="0" name="roleId" nillable="true" type="xs:string"/>
@@ -1322,6 +1335,14 @@
                     <xs:element minOccurs="0" name="membershipDepth" nillable="true" type="xs:string"/>
                     <xs:element minOccurs="0" name="permissionDelegatable" nillable="true" type="xs:string"/>
                     <xs:element minOccurs="0" name="roleSetDepth" nillable="true" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="WsPermissionLimit">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="attributeAssignId" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="attributeDefNameId" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="attributeDefNameName" nillable="true" type="xs:string"/>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="wsAttributeAssignValues" nillable="true" type="ns:WsAttributeAssignValue"/>
                 </xs:sequence>
             </xs:complexType>
             <xs:element name="getPermissionAssignmentsLite">
@@ -1355,6 +1376,16 @@
                         <xs:element minOccurs="0" name="enabled" nillable="true" type="xs:string"/>
                         <xs:element minOccurs="0" name="pointInTimeFrom" nillable="true" type="xs:string"/>
                         <xs:element minOccurs="0" name="pointInTimeTo" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="immediateOnly" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="permissionType" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="permissionProcessor" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="limitEnvVarName0" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="limitEnvVarValue0" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="limitEnvVarType0" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="limitEnvVarName1" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="limitEnvVarValue1" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="limitEnvVarType1" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="includeLimits" nillable="true" type="xs:string"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
