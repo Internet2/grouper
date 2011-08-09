@@ -104,6 +104,7 @@ import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.provider.SourceManager;
+import edu.internet2.middleware.subject.util.ExpirableCache;
 
 
 /**
@@ -2424,19 +2425,22 @@ public class GrouperUtil {
   /**
    * cache the properties read from resource 
    */
-  private static GrouperCache<String, Properties> resourcePropertiesCache = null;
+  private static ExpirableCache<String, Properties> resourcePropertiesCache = null;
   
   /**
    * lazy load this since it prevents the class from loading
    * @return the cache
    */
-  private static GrouperCache<String, Properties> resourcePropertiesCache() {
+  private static ExpirableCache<String, Properties> resourcePropertiesCache() {
     if (resourcePropertiesCache == null) {
       synchronized(GrouperStartup.class) {
         if (resourcePropertiesCache == null) {
-      resourcePropertiesCache = new GrouperCache<String, Properties>(
-          GrouperUtil.class.getName() + ".resourcePropertiesCache", 200, false, 300, 300, false);
-    }
+          //note, if this relies on the config file to configure, and the config file uses this, then we need a simpler cache here than an ehcache...
+          //resourcePropertiesCache = new GrouperCache<String, Properties>(
+          //  GrouperUtil.class.getName() + ".resourcePropertiesCache", 200, false, 300, 300, false);
+          resourcePropertiesCache = new ExpirableCache<String, Properties>(5);
+          
+        }
       }
     }
     return resourcePropertiesCache;
@@ -7131,7 +7135,7 @@ public class GrouperUtil {
 
     Properties properties = resourcePropertiesCache() == null ? null : resourcePropertiesCache().get(resourceName);
     
-    if (resourcePropertiesCache() == null || !useCache || !resourcePropertiesCache().containsKey(resourceName)) {
+    if (resourcePropertiesCache() == null || !useCache || resourcePropertiesCache().get(resourceName) == null) {
   
       properties = new Properties();
 
