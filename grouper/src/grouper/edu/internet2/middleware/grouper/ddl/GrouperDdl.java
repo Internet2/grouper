@@ -2334,7 +2334,173 @@ public enum GrouperDdl implements DdlVersionable {
     GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "grouper_ddl", "history", 
         "history of this object name, with most recent first (truncated after 4k)");
 
-    
+    {
+      GrouperDdlUtils.ddlutilsTableComment(ddlVersionBean,
+          AttributeAssignAction.TABLE_GROUPER_ATTR_ASSIGN_ACTION, "list of actions that are available for attributes");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          AttributeAssignAction.TABLE_GROUPER_ATTR_ASSIGN_ACTION, 
+          AttributeAssignAction.COLUMN_ATTRIBUTE_DEF_ID, "attribute definition foreign key");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          AttributeAssignAction.TABLE_GROUPER_ATTR_ASSIGN_ACTION, 
+          AttributeAssignAction.COLUMN_CONTEXT_ID, "context id in the auditing table");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          AttributeAssignAction.TABLE_GROUPER_ATTR_ASSIGN_ACTION, 
+          AttributeAssignAction.COLUMN_CREATED_ON, "number of millis since 1970 when this was created");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          AttributeAssignAction.TABLE_GROUPER_ATTR_ASSIGN_ACTION, 
+          AttributeAssignAction.COLUMN_ID, "uuid of this record");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          AttributeAssignAction.TABLE_GROUPER_ATTR_ASSIGN_ACTION, 
+          AttributeAssignAction.COLUMN_LAST_UPDATED, "number of millis since 1970 when this was created");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          AttributeAssignAction.TABLE_GROUPER_ATTR_ASSIGN_ACTION, 
+          AttributeAssignAction.COLUMN_NAME, "name of this action");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          AttributeAssignAction.TABLE_GROUPER_ATTR_ASSIGN_ACTION, 
+          AttributeAssignAction.COLUMN_HIBERNATE_VERSION_NUMBER, "optimistic locking for grouper updates/deletes");
+    }    
+
+    {
+      GrouperDdlUtils.ddlutilsTableComment(ddlVersionBean,
+          AttributeAssignActionSet.TABLE_GROUPER_ATTR_ASSIGN_ACTION_SET, 
+          "relationships in action inheritance... e.g. admin action implies read and write actions.  also holds effective relationships");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          AttributeAssignActionSet.TABLE_GROUPER_ATTR_ASSIGN_ACTION_SET, 
+          AttributeAssignActionSet.COLUMN_CONTEXT_ID, "uuid for the audit table");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          AttributeAssignActionSet.TABLE_GROUPER_ATTR_ASSIGN_ACTION_SET, 
+          AttributeAssignActionSet.COLUMN_CREATED_ON, "millis since 1970 when this row was created");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          AttributeAssignActionSet.TABLE_GROUPER_ATTR_ASSIGN_ACTION_SET, 
+          AttributeAssignActionSet.COLUMN_DEPTH, "number of hops from one node to another, immediate is one");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          AttributeAssignActionSet.TABLE_GROUPER_ATTR_ASSIGN_ACTION_SET, 
+          AttributeAssignActionSet.COLUMN_ID, "uuid of this row");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          AttributeAssignActionSet.TABLE_GROUPER_ATTR_ASSIGN_ACTION_SET, 
+          AttributeAssignActionSet.COLUMN_IF_HAS_ATTR_ASSN_ACTION_ID, "uuid foreign key of left hand side of this relationship, if you have this action, it implies the then_has action");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          AttributeAssignActionSet.TABLE_GROUPER_ATTR_ASSIGN_ACTION_SET, 
+          AttributeAssignActionSet.COLUMN_LAST_UPDATED, "millis since 1970 when this was last updated");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          AttributeAssignActionSet.TABLE_GROUPER_ATTR_ASSIGN_ACTION_SET, 
+          AttributeAssignActionSet.COLUMN_PARENT_ATTR_ASSN_ACTION_ID, "if this is not immediate, then this is the row that puts this relationship n-1 almost there");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          AttributeAssignActionSet.TABLE_GROUPER_ATTR_ASSIGN_ACTION_SET, 
+          AttributeAssignActionSet.COLUMN_THEN_HAS_ATTR_ASSN_ACTION_ID, "uuid foreign key of the right hand side of this relationship, if you have the if_has action, then you have this one");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          AttributeAssignActionSet.TABLE_GROUPER_ATTR_ASSIGN_ACTION_SET, 
+          AttributeAssignActionSet.COLUMN_TYPE, "from enum AttributeAssignActionType: self, immediate, effective");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          AttributeAssignActionSet.TABLE_GROUPER_ATTR_ASSIGN_ACTION_SET, 
+          AttributeAssignActionSet.COLUMN_HIBERNATE_VERSION_NUMBER, "hibernate optimistic locking number for updates and deletes");
+
+    }
+
+    {
+      GrouperDdlUtils.ddlutilsTableComment(ddlVersionBean,
+          AttributeAssign.TABLE_GROUPER_ATTRIBUTE_ASSIGN,
+          "table that assigns an attribute def name to an owner (one of various types), and has an action");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          AttributeAssign.TABLE_GROUPER_ATTRIBUTE_ASSIGN, 
+          AttributeAssign.COLUMN_ATTRIBUTE_ASSIGN_ACTION_ID, "foreign key to the action which is in this attribute assignment, or permissions, it could be custom, for attributes, it is assign");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          AttributeAssign.TABLE_GROUPER_ATTRIBUTE_ASSIGN, 
+          AttributeAssign.COLUMN_ATTRIBUTE_ASSIGN_DELEGATABLE, "AttributeAssignDelegatable enum, TRUE, FALSE, or GRANT (can grant to someone else)");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          AttributeAssign.TABLE_GROUPER_ATTRIBUTE_ASSIGN, 
+          AttributeAssign.COLUMN_ATTRIBUTE_ASSIGN_TYPE, 
+          "AttributeAssignType enum, what is the type of owner: any_mem, any_mem_asgn, attr_def, attr_def_asgn, group, group_asgn, imm_mem, imm_mem_asgn, mem_asgn, member, stem, stem_asgn");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          AttributeAssign.TABLE_GROUPER_ATTRIBUTE_ASSIGN, 
+          AttributeAssign.COLUMN_ATTRIBUTE_DEF_NAME_ID, "foreign key to the attribute def name is which attribute is assigned");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          AttributeAssign.TABLE_GROUPER_ATTRIBUTE_ASSIGN, 
+          AttributeAssign.COLUMN_CONTEXT_ID, "links this row to an audit record");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          AttributeAssign.TABLE_GROUPER_ATTRIBUTE_ASSIGN, 
+          AttributeAssign.COLUMN_CREATED_ON, "number of millis since 1970 when this was created");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          AttributeAssign.TABLE_GROUPER_ATTRIBUTE_ASSIGN, 
+          AttributeAssign.COLUMN_DISABLED_TIME, "null if not disabled, or the number of millis since 1970 when this was or will be disabled.  if in the future, Grouper will disable this row at that time.");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          AttributeAssign.TABLE_GROUPER_ATTRIBUTE_ASSIGN, 
+          AttributeAssign.COLUMN_DISALLOWED, "T or F for if disabled or not based on disabled or enabled time");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          AttributeAssign.TABLE_GROUPER_ATTRIBUTE_ASSIGN, 
+          AttributeAssign.COLUMN_ENABLED_TIME, "number of millis since 1970 when this was or will be enabled.  if it future then this row will not be enabled");
+
+//      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+//          AttributeAssign.TABLE_GROUPER_ATTRIBUTE_ASSIGN, 
+//          AttributeAssign.COLUMN_, "");
+//
+//      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+//          AttributeAssign.TABLE_GROUPER_ATTRIBUTE_ASSIGN, 
+//          AttributeAssign.COLUMN_, "");
+//
+//      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+//          AttributeAssign.TABLE_GROUPER_ATTRIBUTE_ASSIGN, 
+//          AttributeAssign.COLUMN_, "");
+//
+//      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+//          AttributeAssign.TABLE_GROUPER_ATTRIBUTE_ASSIGN, 
+//          AttributeAssign.COLUMN_, "");
+//
+//      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+//          AttributeAssign.TABLE_GROUPER_ATTRIBUTE_ASSIGN, 
+//          AttributeAssign.COLUMN_, "");
+//
+//      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+//          AttributeAssign.TABLE_GROUPER_ATTRIBUTE_ASSIGN, 
+//          AttributeAssign.COLUMN_, "");
+//
+//      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+//          AttributeAssign.TABLE_GROUPER_ATTRIBUTE_ASSIGN, 
+//          AttributeAssign.COLUMN_, "");
+//
+//      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+//          AttributeAssign.TABLE_GROUPER_ATTRIBUTE_ASSIGN, 
+//          AttributeAssign.COLUMN_, "");
+//
+//      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+//          AttributeAssign.TABLE_GROUPER_ATTRIBUTE_ASSIGN, 
+//          AttributeAssign.COLUMN_, "");
+//
+//      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+//          AttributeAssign.TABLE_GROUPER_ATTRIBUTE_ASSIGN, 
+//          AttributeAssign.COLUMN_, "");
+//
+//      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+//          AttributeAssign.TABLE_GROUPER_ATTRIBUTE_ASSIGN, 
+//          AttributeAssign.COLUMN_, "");
+
+    }
     
     GrouperDdlUtils.ddlutilsTableComment(ddlVersionBean,
         Attribute.TABLE_GROUPER_ATTRIBUTES, "attributes for groups, including name, extension, etc");
