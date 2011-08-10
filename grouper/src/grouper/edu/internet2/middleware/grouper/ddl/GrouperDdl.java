@@ -2456,49 +2456,45 @@ public enum GrouperDdl implements DdlVersionable {
           AttributeAssign.TABLE_GROUPER_ATTRIBUTE_ASSIGN, 
           AttributeAssign.COLUMN_ENABLED_TIME, "number of millis since 1970 when this was or will be enabled.  if it future then this row will not be enabled");
 
-//      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
-//          AttributeAssign.TABLE_GROUPER_ATTRIBUTE_ASSIGN, 
-//          AttributeAssign.COLUMN_, "");
-//
-//      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
-//          AttributeAssign.TABLE_GROUPER_ATTRIBUTE_ASSIGN, 
-//          AttributeAssign.COLUMN_, "");
-//
-//      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
-//          AttributeAssign.TABLE_GROUPER_ATTRIBUTE_ASSIGN, 
-//          AttributeAssign.COLUMN_, "");
-//
-//      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
-//          AttributeAssign.TABLE_GROUPER_ATTRIBUTE_ASSIGN, 
-//          AttributeAssign.COLUMN_, "");
-//
-//      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
-//          AttributeAssign.TABLE_GROUPER_ATTRIBUTE_ASSIGN, 
-//          AttributeAssign.COLUMN_, "");
-//
-//      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
-//          AttributeAssign.TABLE_GROUPER_ATTRIBUTE_ASSIGN, 
-//          AttributeAssign.COLUMN_, "");
-//
-//      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
-//          AttributeAssign.TABLE_GROUPER_ATTRIBUTE_ASSIGN, 
-//          AttributeAssign.COLUMN_, "");
-//
-//      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
-//          AttributeAssign.TABLE_GROUPER_ATTRIBUTE_ASSIGN, 
-//          AttributeAssign.COLUMN_, "");
-//
-//      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
-//          AttributeAssign.TABLE_GROUPER_ATTRIBUTE_ASSIGN, 
-//          AttributeAssign.COLUMN_, "");
-//
-//      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
-//          AttributeAssign.TABLE_GROUPER_ATTRIBUTE_ASSIGN, 
-//          AttributeAssign.COLUMN_, "");
-//
-//      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
-//          AttributeAssign.TABLE_GROUPER_ATTRIBUTE_ASSIGN, 
-//          AttributeAssign.COLUMN_, "");
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          AttributeAssign.TABLE_GROUPER_ATTRIBUTE_ASSIGN, 
+          AttributeAssign.COLUMN_ID, "uuid of row");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          AttributeAssign.TABLE_GROUPER_ATTRIBUTE_ASSIGN, 
+          AttributeAssign.COLUMN_LAST_UPDATED, "millis since 1970 when this row was last updated");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          AttributeAssign.TABLE_GROUPER_ATTRIBUTE_ASSIGN, 
+          AttributeAssign.COLUMN_NOTES, "notes about this assignment to describe why it exists or anything else, freeform");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          AttributeAssign.TABLE_GROUPER_ATTRIBUTE_ASSIGN, 
+          AttributeAssign.COLUMN_OWNER_ATTRIBUTE_ASSIGN_ID, "if this is an assignment on an assignment, then this is the foreign key to this table which is which assignment owns this assignment");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          AttributeAssign.TABLE_GROUPER_ATTRIBUTE_ASSIGN, 
+          AttributeAssign.COLUMN_OWNER_ATTRIBUTE_DEF_ID, "if this is an assignment on an attribute definition, then this is the foreign key to the attribute definition table");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          AttributeAssign.TABLE_GROUPER_ATTRIBUTE_ASSIGN, 
+          AttributeAssign.COLUMN_OWNER_GROUP_ID, "if this is an assignment on a group or role or effective membership then this is the foreign key to the grouper_groups table");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          AttributeAssign.TABLE_GROUPER_ATTRIBUTE_ASSIGN, 
+          AttributeAssign.COLUMN_OWNER_MEMBER_ID, "if this is an assignment on a member or effective membership, then this is the foreign key to the grouper_members table");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          AttributeAssign.TABLE_GROUPER_ATTRIBUTE_ASSIGN, 
+          AttributeAssign.COLUMN_OWNER_MEMBERSHIP_ID, "if this is an assignment on an immediate membership, then this is the foreign key to the grouper_memberships table");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          AttributeAssign.TABLE_GROUPER_ATTRIBUTE_ASSIGN, 
+          AttributeAssign.COLUMN_OWNER_STEM_ID, "if this is an assignment on a stem aka folder, then this is the foreign key to the grouper_stems table");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          AttributeAssign.TABLE_GROUPER_ATTRIBUTE_ASSIGN, 
+          AttributeAssign.COLUMN_HIBERNATE_VERSION_NUMBER, "optimistic locking column for hibernate on updates or deletes");
 
     }
     
