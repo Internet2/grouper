@@ -27,6 +27,11 @@ public class Hib3GrouperLoaderLog implements HibGrouperLifecycle {
    */
   public static final String TABLE_GROUPER_LOADER_LOG = "grouper_loader_log";
 
+  /**
+   * 
+   */
+  public static final String COLUMN_CONTEXT_ID = "context_id";
+
 
   /**
    * default constructor
