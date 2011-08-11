@@ -171,6 +171,36 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
   /** id col in db */
   public static final String COLUMN_ID = "id";
   
+  /** col in db */
+  public static final String COLUMN_PARENT_STEM = "parent_stem";
+  
+  /** col in db */
+  public static final String COLUMN_CREATOR_ID = "creator_id";
+
+  /** col in db */
+  public static final String COLUMN_CREATE_TIME = "create_time";
+
+  /** col in db */
+  public static final String COLUMN_MODIFIER_ID = "modifier_id";
+
+  /** col in db */
+  public static final String COLUMN_MODIFY_TIME = "modify_time";
+  
+  /** col in db */
+  public static final String COLUMN_NAME = "name";
+  
+  /** col in db */
+  public static final String COLUMN_DISPLAY_NAME = "display_name";
+  
+  /** col in db */
+  public static final String COLUMN_EXTENSION = "extension";
+
+  /** col in db */
+  public static final String COLUMN_DISPLAY_EXTENSION = "display_extension";
+
+  /** col in db */
+  public static final String COLUMN_DESCRIPTION = "description";
+  
   /** old id col for id conversion */
   public static final String COLUMN_OLD_ID = "old_id";
   
