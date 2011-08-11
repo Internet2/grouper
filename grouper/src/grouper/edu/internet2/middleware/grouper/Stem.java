@@ -145,9 +145,50 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
   /** uuid col in db (not used anymore) */
   public static final String COLUMN_UUID = "uuid";
   
+  /** col */
+  public static final String COLUMN_PARENT_STEM = "parent_stem";
+
+  /** col */
+  public static final String COLUMN_NAME = "name";
+  
+  /** col */
+  public static final String COLUMN_DISPLAY_NAME = "display_name";
+
+  /** col */
+  public static final String COLUMN_CREATOR_ID = "creator_id";
+
   /** id col in db */
   public static final String COLUMN_ID = "id";
 
+  /** id col in db */
+  public static final String COLUMN_CREATE_TIME = "create_time";
+
+  /** id col in db */
+  public static final String COLUMN_MODIFIER_ID = "modifier_id";
+
+  /** id col in db */
+  public static final String COLUMN_MODIFY_TIME = "modify_time";
+
+  /** id col in db */
+  public static final String COLUMN_DISPLAY_EXTENSION = "display_extension";
+
+  /** id col in db */
+  public static final String COLUMN_EXTENSION = "extension";
+
+  /** id col in db */
+  public static final String COLUMN_DESCRIPTION = "description";
+
+
+  /** column for hibernate version number */
+  public static final String COLUMN_HIBERNATE_VERSION_NUMBER = "hibernate_version_number";
+  
+  /**
+   * context id column name
+   */
+  public static final String COLUMN_CONTEXT_ID = "context_id";
+
+
+  
   /** old id col for id conversion */
   public static final String COLUMN_OLD_ID = "old_id";
   

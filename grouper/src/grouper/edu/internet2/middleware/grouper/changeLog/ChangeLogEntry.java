@@ -34,6 +34,57 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 @SuppressWarnings("serial")
 public class ChangeLogEntry extends GrouperAPI {
   
+  /** column */
+  public static final String COLUMN_ID = "id";
+
+  /** column */
+  public static final String COLUMN_CHANGE_LOG_TYPE_ID = "change_log_type_id";
+
+  /** column */
+  public static final String COLUMN_CONTEXT_ID = "context_id";
+
+  /** column */
+  public static final String COLUMN_CREATED_ON = "created_on";
+
+  /** column */
+  public static final String COLUMN_STRING01 = "string01";
+
+  /** column */
+  public static final String COLUMN_STRING02 = "string02";
+
+  /** column */
+  public static final String COLUMN_STRING03 = "string03";
+
+  /** column */
+  public static final String COLUMN_STRING04 = "string04";
+
+  /** column */
+  public static final String COLUMN_STRING05 = "string05";
+
+  /** column */
+  public static final String COLUMN_STRING06 = "string06";
+
+  /** column */
+  public static final String COLUMN_STRING07 = "string07";
+
+  /** column */
+  public static final String COLUMN_STRING08 = "string08";
+
+  /** column */
+  public static final String COLUMN_STRING09 = "string09";
+
+  /** column */
+  public static final String COLUMN_STRING10 = "string10";
+
+  /** column */
+  public static final String COLUMN_STRING11 = "string11";
+
+  /** column */
+  public static final String COLUMN_STRING12 = "string12";
+
+  /** column */
+  public static final String COLUMN_SEQUENCE_NUMBER = "sequence_number";
+
   /**
    * 
    * @param changeLogTypeIdentifier

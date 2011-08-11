@@ -751,15 +751,32 @@ public class Membership extends GrouperAPI implements
   public static final String COLUMN_PARENT_MEMBERSHIP = "parent_membership";
   
   /**
-   * 
+   * col
    */
   public static final String COLUMN_PARENT_MEMBERSHIP_BAK = "parent_membership_bak";
   
   /**
-   * 
+   * col
    */
   public static final String COLUMN_MEMBER_ID = "member_id";
 
+  /**
+   * col
+   */
+  public static final String COLUMN_MSHIP_TYPE = "mship_type";
+
+  /**
+   * col
+   */
+  public static final String COLUMN_CREATOR_ID = "creator_id";
+
+  /**
+   * col
+   */
+  public static final String COLUMN_CREATE_TIME = "create_time";
+
+  
+  
   /** 
    * Get child memberships of this membership. 
    * 

@@ -2340,31 +2340,86 @@ public enum GrouperDdl implements DdlVersionable {
 
       GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
           AttributeAssignAction.TABLE_GROUPER_ATTR_ASSIGN_ACTION, 
-          AttributeAssignAction.COLUMN_ATTRIBUTE_DEF_ID, "attribute definition foreign key");
+          AttributeAssignAction.COLUMN_ATTRIBUTE_DEF_ID, 
+          "attribute definition foreign key");
 
       GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
           AttributeAssignAction.TABLE_GROUPER_ATTR_ASSIGN_ACTION, 
-          AttributeAssignAction.COLUMN_CONTEXT_ID, "context id in the auditing table");
+          AttributeAssignAction.COLUMN_CONTEXT_ID, 
+          "context id in the auditing table");
 
       GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
           AttributeAssignAction.TABLE_GROUPER_ATTR_ASSIGN_ACTION, 
-          AttributeAssignAction.COLUMN_CREATED_ON, "number of millis since 1970 when this was created");
+          AttributeAssignAction.COLUMN_CREATED_ON, 
+          "number of millis since 1970 when this was created");
 
       GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
           AttributeAssignAction.TABLE_GROUPER_ATTR_ASSIGN_ACTION, 
-          AttributeAssignAction.COLUMN_ID, "uuid of this record");
+          AttributeAssignAction.COLUMN_ID, 
+          "uuid of this record");
 
       GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
           AttributeAssignAction.TABLE_GROUPER_ATTR_ASSIGN_ACTION, 
-          AttributeAssignAction.COLUMN_LAST_UPDATED, "number of millis since 1970 when this was created");
+          AttributeAssignAction.COLUMN_LAST_UPDATED, 
+          "number of millis since 1970 when this was created");
 
       GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
           AttributeAssignAction.TABLE_GROUPER_ATTR_ASSIGN_ACTION, 
-          AttributeAssignAction.COLUMN_NAME, "name of this action");
+          AttributeAssignAction.COLUMN_NAME, 
+          "name of this action");
 
       GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
           AttributeAssignAction.TABLE_GROUPER_ATTR_ASSIGN_ACTION, 
-          AttributeAssignAction.COLUMN_HIBERNATE_VERSION_NUMBER, "optimistic locking for grouper updates/deletes");
+          AttributeAssignAction.COLUMN_HIBERNATE_VERSION_NUMBER, 
+          "optimistic locking for grouper updates/deletes");
+    }    
+
+    {
+      GrouperDdlUtils.ddlutilsTableComment(ddlVersionBean,
+          PITAttributeAssignAction.TABLE_GROUPER_PIT_ATTR_ASSIGN_ACTION, 
+          "point in time: list of actions that are available for attributes");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITAttributeAssignAction.TABLE_GROUPER_PIT_ATTR_ASSIGN_ACTION, 
+          PITAttributeAssignAction.COLUMN_ATTRIBUTE_DEF_ID, 
+          "attribute definition foreign key");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITAttributeAssignAction.TABLE_GROUPER_PIT_ATTR_ASSIGN_ACTION, 
+          PITAttributeAssignAction.COLUMN_CONTEXT_ID, 
+          "context id in the auditing table");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITAttributeAssignAction.TABLE_GROUPER_PIT_ATTR_ASSIGN_ACTION, 
+          PITAttributeAssignAction.COLUMN_ACTIVE, 
+          "T or F for if this row is active, based on start and end time");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITAttributeAssignAction.TABLE_GROUPER_PIT_ATTR_ASSIGN_ACTION, 
+          PITAttributeAssignAction.COLUMN_START_TIME, 
+          "number of millis since 1970 when this row was inserted");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITAttributeAssignAction.TABLE_GROUPER_PIT_ATTR_ASSIGN_ACTION, 
+          PITAttributeAssignAction.COLUMN_END_TIME, 
+          "number of millis since 1970 when this row was deleted");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITAttributeAssignAction.TABLE_GROUPER_PIT_ATTR_ASSIGN_ACTION, 
+          PITAttributeAssignAction.COLUMN_ID, 
+          "uuid of this record");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITAttributeAssignAction.TABLE_GROUPER_PIT_ATTR_ASSIGN_ACTION, 
+          PITAttributeAssignAction.COLUMN_NAME, 
+          "name of this action");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITAttributeAssignAction.TABLE_GROUPER_PIT_ATTR_ASSIGN_ACTION, 
+          PITAttributeAssignAction.COLUMN_HIBERNATE_VERSION_NUMBER, 
+          "optimistic locking for grouper updates/deletes");
+
+
     }    
 
     {
@@ -2374,43 +2429,110 @@ public enum GrouperDdl implements DdlVersionable {
 
       GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
           AttributeAssignActionSet.TABLE_GROUPER_ATTR_ASSIGN_ACTION_SET, 
-          AttributeAssignActionSet.COLUMN_CONTEXT_ID, "uuid for the audit table");
+          AttributeAssignActionSet.COLUMN_CONTEXT_ID, 
+          "uuid for the audit table");
 
       GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
           AttributeAssignActionSet.TABLE_GROUPER_ATTR_ASSIGN_ACTION_SET, 
-          AttributeAssignActionSet.COLUMN_CREATED_ON, "millis since 1970 when this row was created");
+          AttributeAssignActionSet.COLUMN_CREATED_ON, 
+          "millis since 1970 when this row was created");
 
       GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
           AttributeAssignActionSet.TABLE_GROUPER_ATTR_ASSIGN_ACTION_SET, 
-          AttributeAssignActionSet.COLUMN_DEPTH, "number of hops from one node to another, immediate is one");
+          AttributeAssignActionSet.COLUMN_DEPTH, 
+          "number of hops from one node to another, immediate is one");
 
       GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
           AttributeAssignActionSet.TABLE_GROUPER_ATTR_ASSIGN_ACTION_SET, 
-          AttributeAssignActionSet.COLUMN_ID, "uuid of this row");
+          AttributeAssignActionSet.COLUMN_ID, 
+          "uuid of this row");
 
       GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
           AttributeAssignActionSet.TABLE_GROUPER_ATTR_ASSIGN_ACTION_SET, 
-          AttributeAssignActionSet.COLUMN_IF_HAS_ATTR_ASSN_ACTION_ID, "uuid foreign key of left hand side of this relationship, if you have this action, it implies the then_has action");
+          AttributeAssignActionSet.COLUMN_IF_HAS_ATTR_ASSN_ACTION_ID, 
+          "uuid foreign key of left hand side of this relationship, if you have this action, it implies the then_has action");
 
       GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
           AttributeAssignActionSet.TABLE_GROUPER_ATTR_ASSIGN_ACTION_SET, 
-          AttributeAssignActionSet.COLUMN_LAST_UPDATED, "millis since 1970 when this was last updated");
+          AttributeAssignActionSet.COLUMN_LAST_UPDATED, 
+          "millis since 1970 when this was last updated");
 
       GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
           AttributeAssignActionSet.TABLE_GROUPER_ATTR_ASSIGN_ACTION_SET, 
-          AttributeAssignActionSet.COLUMN_PARENT_ATTR_ASSN_ACTION_ID, "if this is not immediate, then this is the row that puts this relationship n-1 almost there");
+          AttributeAssignActionSet.COLUMN_PARENT_ATTR_ASSN_ACTION_ID, 
+          "if this is not immediate, then this is the row that puts this relationship n-1 almost there");
 
       GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
           AttributeAssignActionSet.TABLE_GROUPER_ATTR_ASSIGN_ACTION_SET, 
-          AttributeAssignActionSet.COLUMN_THEN_HAS_ATTR_ASSN_ACTION_ID, "uuid foreign key of the right hand side of this relationship, if you have the if_has action, then you have this one");
+          AttributeAssignActionSet.COLUMN_THEN_HAS_ATTR_ASSN_ACTION_ID, 
+          "uuid foreign key of the right hand side of this relationship, if you have the if_has action, then you have this one");
 
       GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
           AttributeAssignActionSet.TABLE_GROUPER_ATTR_ASSIGN_ACTION_SET, 
-          AttributeAssignActionSet.COLUMN_TYPE, "from enum AttributeAssignActionType: self, immediate, effective");
+          AttributeAssignActionSet.COLUMN_TYPE, 
+          "from enum AttributeAssignActionType: self, immediate, effective");
 
       GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
           AttributeAssignActionSet.TABLE_GROUPER_ATTR_ASSIGN_ACTION_SET, 
-          AttributeAssignActionSet.COLUMN_HIBERNATE_VERSION_NUMBER, "hibernate optimistic locking number for updates and deletes");
+          AttributeAssignActionSet.COLUMN_HIBERNATE_VERSION_NUMBER, 
+          "hibernate optimistic locking number for updates and deletes");
+
+    }
+
+    {
+      GrouperDdlUtils.ddlutilsTableComment(ddlVersionBean,
+          PITAttributeAssignActionSet.TABLE_GROUPER_PIT_ATTR_ASSIGN_ACTION_SET, 
+          "point in time relationships in action inheritance... e.g. admin action implies read and write actions.  also holds effective relationships");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITAttributeAssignActionSet.TABLE_GROUPER_PIT_ATTR_ASSIGN_ACTION_SET, 
+          PITAttributeAssignActionSet.COLUMN_CONTEXT_ID, 
+          "uuid for the audit table");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITAttributeAssignActionSet.TABLE_GROUPER_PIT_ATTR_ASSIGN_ACTION_SET, 
+          PITAttributeAssignActionSet.COLUMN_ACTIVE, 
+          "T or F for if this row is active based on start and end times");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITAttributeAssignActionSet.TABLE_GROUPER_PIT_ATTR_ASSIGN_ACTION_SET, 
+          PITAttributeAssignActionSet.COLUMN_START_TIME, 
+          "millis since 1970 that this row was inserted");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITAttributeAssignActionSet.TABLE_GROUPER_PIT_ATTR_ASSIGN_ACTION_SET, 
+          PITAttributeAssignActionSet.COLUMN_END_TIME, 
+          "millis since 1970 that this row was deleted");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITAttributeAssignActionSet.TABLE_GROUPER_PIT_ATTR_ASSIGN_ACTION_SET, 
+          PITAttributeAssignActionSet.COLUMN_DEPTH, 
+          "number of hops from one node to another, immediate is one");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITAttributeAssignActionSet.TABLE_GROUPER_PIT_ATTR_ASSIGN_ACTION_SET, 
+          PITAttributeAssignActionSet.COLUMN_ID, 
+          "uuid of this row");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITAttributeAssignActionSet.TABLE_GROUPER_PIT_ATTR_ASSIGN_ACTION_SET, 
+          PITAttributeAssignActionSet.COLUMN_IF_HAS_ATTR_ASSN_ACTION_ID, 
+          "uuid foreign key of left hand side of this relationship, if you have this action, it implies the then_has action");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITAttributeAssignActionSet.TABLE_GROUPER_PIT_ATTR_ASSIGN_ACTION_SET, 
+          PITAttributeAssignActionSet.COLUMN_PARENT_ATTR_ASSN_ACTION_ID, 
+          "if this is not immediate, then this is the row that puts this relationship n-1 almost there");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITAttributeAssignActionSet.TABLE_GROUPER_PIT_ATTR_ASSIGN_ACTION_SET, 
+          PITAttributeAssignActionSet.COLUMN_THEN_HAS_ATTR_ASSN_ACTION_ID, 
+          "uuid foreign key of the right hand side of this relationship, if you have the if_has action, then you have this one");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITAttributeAssignActionSet.TABLE_GROUPER_PIT_ATTR_ASSIGN_ACTION_SET, 
+          PITAttributeAssignActionSet.COLUMN_HIBERNATE_VERSION_NUMBER, 
+          "hibernate optimistic locking number for updates and deletes");
 
     }
 
@@ -2421,11 +2543,13 @@ public enum GrouperDdl implements DdlVersionable {
 
       GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
           AttributeAssign.TABLE_GROUPER_ATTRIBUTE_ASSIGN, 
-          AttributeAssign.COLUMN_ATTRIBUTE_ASSIGN_ACTION_ID, "foreign key to the action which is in this attribute assignment, or permissions, it could be custom, for attributes, it is assign");
+          AttributeAssign.COLUMN_ATTRIBUTE_ASSIGN_ACTION_ID,
+          "foreign key to the action which is in this attribute assignment, or permissions, it could be custom, for attributes, it is assign");
 
       GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
           AttributeAssign.TABLE_GROUPER_ATTRIBUTE_ASSIGN, 
-          AttributeAssign.COLUMN_ATTRIBUTE_ASSIGN_DELEGATABLE, "AttributeAssignDelegatable enum, TRUE, FALSE, or GRANT (can grant to someone else)");
+          AttributeAssign.COLUMN_ATTRIBUTE_ASSIGN_DELEGATABLE, 
+          "AttributeAssignDelegatable enum, TRUE, FALSE, or GRANT (can grant to someone else)");
 
       GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
           AttributeAssign.TABLE_GROUPER_ATTRIBUTE_ASSIGN, 
@@ -2434,67 +2558,1284 @@ public enum GrouperDdl implements DdlVersionable {
 
       GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
           AttributeAssign.TABLE_GROUPER_ATTRIBUTE_ASSIGN, 
-          AttributeAssign.COLUMN_ATTRIBUTE_DEF_NAME_ID, "foreign key to the attribute def name is which attribute is assigned");
+          AttributeAssign.COLUMN_ATTRIBUTE_DEF_NAME_ID, 
+          "foreign key to the attribute def name is which attribute is assigned");
 
       GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
           AttributeAssign.TABLE_GROUPER_ATTRIBUTE_ASSIGN, 
-          AttributeAssign.COLUMN_CONTEXT_ID, "links this row to an audit record");
+          AttributeAssign.COLUMN_CONTEXT_ID, 
+          "links this row to an audit record");
 
       GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
           AttributeAssign.TABLE_GROUPER_ATTRIBUTE_ASSIGN, 
-          AttributeAssign.COLUMN_CREATED_ON, "number of millis since 1970 when this was created");
+          AttributeAssign.COLUMN_CREATED_ON, 
+          "number of millis since 1970 when this was created");
 
       GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
           AttributeAssign.TABLE_GROUPER_ATTRIBUTE_ASSIGN, 
-          AttributeAssign.COLUMN_DISABLED_TIME, "null if not disabled, or the number of millis since 1970 when this was or will be disabled.  if in the future, Grouper will disable this row at that time.");
+          AttributeAssign.COLUMN_DISABLED_TIME, 
+          "null if not disabled, or the number of millis since 1970 when this was or will be disabled.  if in the future, Grouper will disable this row at that time.");
 
       GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
           AttributeAssign.TABLE_GROUPER_ATTRIBUTE_ASSIGN, 
-          AttributeAssign.COLUMN_DISALLOWED, "T or F for if disabled or not based on disabled or enabled time");
+          AttributeAssign.COLUMN_DISALLOWED, 
+          "T or F for if disallowed");
 
       GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
           AttributeAssign.TABLE_GROUPER_ATTRIBUTE_ASSIGN, 
-          AttributeAssign.COLUMN_ENABLED_TIME, "number of millis since 1970 when this was or will be enabled.  if it future then this row will not be enabled");
+          AttributeAssign.COLUMN_ENABLED_TIME, 
+          "number of millis since 1970 when this was or will be enabled.  if it future then this row will not be enabled");
 
       GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
           AttributeAssign.TABLE_GROUPER_ATTRIBUTE_ASSIGN, 
-          AttributeAssign.COLUMN_ID, "uuid of row");
+          AttributeAssign.COLUMN_ID, 
+          "uuid of row");
 
       GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
           AttributeAssign.TABLE_GROUPER_ATTRIBUTE_ASSIGN, 
-          AttributeAssign.COLUMN_LAST_UPDATED, "millis since 1970 when this row was last updated");
+          AttributeAssign.COLUMN_LAST_UPDATED, 
+          "millis since 1970 when this row was last updated");
 
       GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
           AttributeAssign.TABLE_GROUPER_ATTRIBUTE_ASSIGN, 
-          AttributeAssign.COLUMN_NOTES, "notes about this assignment to describe why it exists or anything else, freeform");
+          AttributeAssign.COLUMN_NOTES, 
+          "notes about this assignment to describe why it exists or anything else, freeform");
 
       GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
           AttributeAssign.TABLE_GROUPER_ATTRIBUTE_ASSIGN, 
-          AttributeAssign.COLUMN_OWNER_ATTRIBUTE_ASSIGN_ID, "if this is an assignment on an assignment, then this is the foreign key to this table which is which assignment owns this assignment");
+          AttributeAssign.COLUMN_OWNER_ATTRIBUTE_ASSIGN_ID, 
+          "if this is an assignment on an assignment, then this is the foreign key to this table which is which assignment owns this assignment");
 
       GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
           AttributeAssign.TABLE_GROUPER_ATTRIBUTE_ASSIGN, 
-          AttributeAssign.COLUMN_OWNER_ATTRIBUTE_DEF_ID, "if this is an assignment on an attribute definition, then this is the foreign key to the attribute definition table");
+          AttributeAssign.COLUMN_OWNER_ATTRIBUTE_DEF_ID, 
+          "if this is an assignment on an attribute definition, then this is the foreign key to the attribute definition table");
 
       GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
           AttributeAssign.TABLE_GROUPER_ATTRIBUTE_ASSIGN, 
-          AttributeAssign.COLUMN_OWNER_GROUP_ID, "if this is an assignment on a group or role or effective membership then this is the foreign key to the grouper_groups table");
+          AttributeAssign.COLUMN_OWNER_GROUP_ID,
+          "if this is an assignment on a group or role or effective membership then this is the foreign key to the grouper_groups table");
 
       GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
           AttributeAssign.TABLE_GROUPER_ATTRIBUTE_ASSIGN, 
-          AttributeAssign.COLUMN_OWNER_MEMBER_ID, "if this is an assignment on a member or effective membership, then this is the foreign key to the grouper_members table");
+          AttributeAssign.COLUMN_OWNER_MEMBER_ID, 
+          "if this is an assignment on a member or effective membership, then this is the foreign key to the grouper_members table");
 
       GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
           AttributeAssign.TABLE_GROUPER_ATTRIBUTE_ASSIGN, 
-          AttributeAssign.COLUMN_OWNER_MEMBERSHIP_ID, "if this is an assignment on an immediate membership, then this is the foreign key to the grouper_memberships table");
+          AttributeAssign.COLUMN_OWNER_MEMBERSHIP_ID, 
+          "if this is an assignment on an immediate membership, then this is the foreign key to the grouper_memberships table");
 
       GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
           AttributeAssign.TABLE_GROUPER_ATTRIBUTE_ASSIGN, 
-          AttributeAssign.COLUMN_OWNER_STEM_ID, "if this is an assignment on a stem aka folder, then this is the foreign key to the grouper_stems table");
+          AttributeAssign.COLUMN_OWNER_STEM_ID, 
+          "if this is an assignment on a stem aka folder, then this is the foreign key to the grouper_stems table");
 
       GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
           AttributeAssign.TABLE_GROUPER_ATTRIBUTE_ASSIGN, 
-          AttributeAssign.COLUMN_HIBERNATE_VERSION_NUMBER, "optimistic locking column for hibernate on updates or deletes");
+          AttributeAssign.COLUMN_HIBERNATE_VERSION_NUMBER, 
+          "optimistic locking column for hibernate on updates or deletes");
+
+    }
+    {
+      GrouperDdlUtils.ddlutilsTableComment(ddlVersionBean,
+         PITAttributeAssign.TABLE_GROUPER_PIT_ATTRIBUTE_ASSIGN,
+          "point in time table that assigns an attribute def name to an owner (one of various types), and has an action");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITAttributeAssign.TABLE_GROUPER_PIT_ATTRIBUTE_ASSIGN, 
+          PITAttributeAssign.COLUMN_ATTRIBUTE_ASSIGN_ACTION_ID,
+          "foreign key to the action which is in this attribute assignment, or permissions, it could be custom, for attributes, it is assign");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITAttributeAssign.TABLE_GROUPER_PIT_ATTRIBUTE_ASSIGN, 
+          PITAttributeAssign.COLUMN_ACTIVE, 
+          "T of F for if this row is active or not based on start and end dates");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITAttributeAssign.TABLE_GROUPER_PIT_ATTRIBUTE_ASSIGN, 
+          PITAttributeAssign.COLUMN_START_TIME, 
+          "number of millis since 1970 that this row was inserted");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITAttributeAssign.TABLE_GROUPER_PIT_ATTRIBUTE_ASSIGN, 
+          PITAttributeAssign.COLUMN_END_TIME, 
+          "number of millis since 1970 that this row was deleted");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITAttributeAssign.TABLE_GROUPER_PIT_ATTRIBUTE_ASSIGN, 
+          PITAttributeAssign.COLUMN_ATTRIBUTE_ASSIGN_TYPE, 
+          "AttributeAssignType enum, what is the type of owner: any_mem, any_mem_asgn, attr_def, attr_def_asgn, group, group_asgn, imm_mem, imm_mem_asgn, mem_asgn, member, stem, stem_asgn");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITAttributeAssign.TABLE_GROUPER_PIT_ATTRIBUTE_ASSIGN, 
+          PITAttributeAssign.COLUMN_ATTRIBUTE_DEF_NAME_ID, 
+          "foreign key to the attribute def name is which attribute is assigned");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITAttributeAssign.TABLE_GROUPER_PIT_ATTRIBUTE_ASSIGN, 
+          PITAttributeAssign.COLUMN_CONTEXT_ID, 
+          "links this row to an audit record");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITAttributeAssign.TABLE_GROUPER_PIT_ATTRIBUTE_ASSIGN, 
+          PITAttributeAssign.COLUMN_DISALLOWED, 
+          "T or F for if disallowed or not");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITAttributeAssign.TABLE_GROUPER_PIT_ATTRIBUTE_ASSIGN, 
+          PITAttributeAssign.COLUMN_ID, 
+          "uuid of row");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITAttributeAssign.TABLE_GROUPER_PIT_ATTRIBUTE_ASSIGN, 
+          PITAttributeAssign.COLUMN_OWNER_ATTRIBUTE_ASSIGN_ID, 
+          "if this is an assignment on an assignment, then this is the foreign key to this table which is which assignment owns this assignment");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITAttributeAssign.TABLE_GROUPER_PIT_ATTRIBUTE_ASSIGN, 
+          PITAttributeAssign.COLUMN_OWNER_ATTRIBUTE_DEF_ID, 
+          "if this is an assignment on an attribute definition, then this is the foreign key to the attribute definition table");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITAttributeAssign.TABLE_GROUPER_PIT_ATTRIBUTE_ASSIGN, 
+          PITAttributeAssign.COLUMN_OWNER_GROUP_ID,
+          "if this is an assignment on a group or role or effective membership then this is the foreign key to the grouper_groups table");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITAttributeAssign.TABLE_GROUPER_PIT_ATTRIBUTE_ASSIGN, 
+          PITAttributeAssign.COLUMN_OWNER_MEMBER_ID, 
+          "if this is an assignment on a member or effective membership, then this is the foreign key to the grouper_members table");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITAttributeAssign.TABLE_GROUPER_PIT_ATTRIBUTE_ASSIGN, 
+          PITAttributeAssign.COLUMN_OWNER_MEMBERSHIP_ID, 
+          "if this is an assignment on an immediate membership, then this is the foreign key to the grouper_memberships table");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITAttributeAssign.TABLE_GROUPER_PIT_ATTRIBUTE_ASSIGN, 
+          PITAttributeAssign.COLUMN_OWNER_STEM_ID, 
+          "if this is an assignment on a stem aka folder, then this is the foreign key to the grouper_stems table");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITAttributeAssign.TABLE_GROUPER_PIT_ATTRIBUTE_ASSIGN, 
+          PITAttributeAssign.COLUMN_HIBERNATE_VERSION_NUMBER, 
+          "optimistic locking column for hibernate on updates or deletes");
+
+    }
+
+    {
+      GrouperDdlUtils.ddlutilsTableComment(ddlVersionBean,
+          AttributeDef.TABLE_GROUPER_ATTRIBUTE_DEF,
+          "table that holds attribute definitions, which is the first part of the attribute framework");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          AttributeDef.TABLE_GROUPER_ATTRIBUTE_DEF, 
+          AttributeDef.COLUMN_ASSIGN_TO_ATTRIBUTE_DEF, "T or F if you can assign this attribute to an attribute definition");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          AttributeDef.TABLE_GROUPER_ATTRIBUTE_DEF, 
+          AttributeDef.COLUMN_ASSIGN_TO_ATTRIBUTE_DEF_ASSN, "T or F if you can assign this attribute to an assignment on an attribute definition");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          AttributeDef.TABLE_GROUPER_ATTRIBUTE_DEF, 
+          AttributeDef.COLUMN_ASSIGN_TO_EFF_MEMBERSHIP, "T or F if you you can assign this attribute to an effective membership: group/member pair");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          AttributeDef.TABLE_GROUPER_ATTRIBUTE_DEF, 
+          AttributeDef.COLUMN_ASSIGN_TO_EFF_MEMBERSHIP_ASSN, "T or F if you can assign this attribute to an effective membership attribute assignment: group/member pair");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          AttributeDef.TABLE_GROUPER_ATTRIBUTE_DEF, 
+          AttributeDef.COLUMN_ASSIGN_TO_GROUP, "T or F if you can assign this attribute to a group or role");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          AttributeDef.TABLE_GROUPER_ATTRIBUTE_DEF, 
+          AttributeDef.COLUMN_ASSIGN_TO_GROUP_ASSN, "T or F if you can assign this attribute to an assignment on a group or role");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          AttributeDef.TABLE_GROUPER_ATTRIBUTE_DEF, 
+          AttributeDef.COLUMN_ASSIGN_TO_IMM_MEMBERSHIP, "T or F if you can assign this attribute to an immediate membership");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          AttributeDef.TABLE_GROUPER_ATTRIBUTE_DEF, 
+          AttributeDef.COLUMN_ASSIGN_TO_IMM_MEMBERSHIP_ASSN, "T or F if you can assign this attribute to an attribute assignment on an immediate membership");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          AttributeDef.TABLE_GROUPER_ATTRIBUTE_DEF, 
+          AttributeDef.COLUMN_ASSIGN_TO_MEMBER, "T or F if you can assign this attribute to a member");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          AttributeDef.TABLE_GROUPER_ATTRIBUTE_DEF, 
+          AttributeDef.COLUMN_ASSIGN_TO_MEMBER_ASSN, "T or F if you can assign this attribute to an assignment on a member");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          AttributeDef.TABLE_GROUPER_ATTRIBUTE_DEF, 
+          AttributeDef.COLUMN_ASSIGN_TO_STEM, "T or F if you can assign this attribute to a stem/folder");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          AttributeDef.TABLE_GROUPER_ATTRIBUTE_DEF, 
+          AttributeDef.COLUMN_ASSIGN_TO_STEM_ASSN, "T or F if you can assign this attribute to an assignment on an attribute definition");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          AttributeDef.TABLE_GROUPER_ATTRIBUTE_DEF, 
+          AttributeDef.COLUMN_ATTRIBUTE_DEF_PUBLIC, "T or F if this is a public attribute");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          AttributeDef.TABLE_GROUPER_ATTRIBUTE_DEF, 
+          AttributeDef.COLUMN_ATTRIBUTE_DEF_TYPE, "AttributeDefType enum: attr, domain, type, limit, perm");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          AttributeDef.TABLE_GROUPER_ATTRIBUTE_DEF, 
+          AttributeDef.COLUMN_CONTEXT_ID, "links back to the grouper audit entry table");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          AttributeDef.TABLE_GROUPER_ATTRIBUTE_DEF, 
+          AttributeDef.COLUMN_CREATED_ON, "number of millis since 1970 when this row was created");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          AttributeDef.TABLE_GROUPER_ATTRIBUTE_DEF, 
+          AttributeDef.COLUMN_CREATOR_ID, "member id of the subject who created this row");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          AttributeDef.TABLE_GROUPER_ATTRIBUTE_DEF, 
+          AttributeDef.COLUMN_DESCRIPTION, "freeform text that describes this attribute definition");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          AttributeDef.TABLE_GROUPER_ATTRIBUTE_DEF, 
+          AttributeDef.COLUMN_EXTENSION, "system name in the folder of this attribute definition");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          AttributeDef.TABLE_GROUPER_ATTRIBUTE_DEF, 
+          AttributeDef.COLUMN_ID, "uuid of this record");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          AttributeDef.TABLE_GROUPER_ATTRIBUTE_DEF, 
+          AttributeDef.COLUMN_LAST_UPDATED, "number of millis since 1970 when this row was last updated");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          AttributeDef.TABLE_GROUPER_ATTRIBUTE_DEF, 
+          AttributeDef.COLUMN_MULTI_ASSIGNABLE, "T or F if you can assign this attribute to the same owner twice");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          AttributeDef.TABLE_GROUPER_ATTRIBUTE_DEF, 
+          AttributeDef.COLUMN_MULTI_VALUED, "T or F if this assignment can have multiple values");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          AttributeDef.TABLE_GROUPER_ATTRIBUTE_DEF, 
+          AttributeDef.COLUMN_NAME, "full system name including system folder names separated by colons");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          AttributeDef.TABLE_GROUPER_ATTRIBUTE_DEF, 
+          AttributeDef.COLUMN_STEM_ID, "uuid of the stem/folder where this attribute definition lives");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          AttributeDef.TABLE_GROUPER_ATTRIBUTE_DEF, 
+          AttributeDef.COLUMN_VALUE_TYPE, "AttributeAssignValueType enum: floating, integerValue, memberId, nullValue, string");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          AttributeDef.TABLE_GROUPER_ATTRIBUTE_DEF, 
+          AttributeDef.COLUMN_HIBERNATE_VERSION_NUMBER, "hibernate version number for optimistic locking during updates and deletes");
+
+    }
+
+    {
+      GrouperDdlUtils.ddlutilsTableComment(ddlVersionBean,
+          PITAttributeDef.TABLE_GROUPER_PIT_ATTRIBUTE_DEF,
+          "point in time table that holds attribute definitions, which is the first part of the attribute framework");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITAttributeDef.TABLE_GROUPER_PIT_ATTRIBUTE_DEF,
+          PITAttributeDef.COLUMN_ATTRIBUTE_DEF_TYPE, 
+          "AttributeDefType enum: attr, domain, type, limit, perm");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITAttributeDef.TABLE_GROUPER_PIT_ATTRIBUTE_DEF,
+          PITAttributeDef.COLUMN_CONTEXT_ID, 
+          "links back to the grouper audit entry table");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITAttributeDef.TABLE_GROUPER_PIT_ATTRIBUTE_DEF,
+          PITAttributeDef.COLUMN_ID, 
+          "uuid of this record");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITAttributeDef.TABLE_GROUPER_PIT_ATTRIBUTE_DEF,
+          PITAttributeDef.COLUMN_NAME, 
+          "full system name including system folder names separated by colons");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITAttributeDef.TABLE_GROUPER_PIT_ATTRIBUTE_DEF,
+          PITAttributeDef.COLUMN_STEM_ID, 
+          "uuid of the stem/folder where this attribute definition lives");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITAttributeDef.TABLE_GROUPER_PIT_ATTRIBUTE_DEF,
+          PITAttributeDef.COLUMN_HIBERNATE_VERSION_NUMBER, 
+          "hibernate version number for optimistic locking during updates and deletes");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITAttributeDef.TABLE_GROUPER_PIT_ATTRIBUTE_DEF,
+          PITAttributeDef.COLUMN_ACTIVE, 
+          "T or F if this row is active based on start and end time");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITAttributeDef.TABLE_GROUPER_PIT_ATTRIBUTE_DEF,
+          PITAttributeDef.COLUMN_START_TIME, 
+          "millis since 1970 that this row was inserted");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITAttributeDef.TABLE_GROUPER_PIT_ATTRIBUTE_DEF,
+          PITAttributeDef.COLUMN_END_TIME, 
+          "millis since 1970 that this row was deleted");
+
+    }
+
+    {
+      GrouperDdlUtils.ddlutilsTableComment(ddlVersionBean,
+          AttributeDefName.TABLE_GROUPER_ATTRIBUTE_DEF_NAME,
+          "table that holds attribute names, which is the second part of the attribute framework, along with the attribute definition");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          AttributeDefName.TABLE_GROUPER_ATTRIBUTE_DEF_NAME, 
+          AttributeDefName.COLUMN_ATTRIBUTE_DEF_ID, 
+          "uuid foreign key links back to the attribute definition");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          AttributeDefName.TABLE_GROUPER_ATTRIBUTE_DEF_NAME, 
+          AttributeDefName.COLUMN_CONTEXT_ID, 
+          "uuid that links to the audit entry table");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          AttributeDefName.TABLE_GROUPER_ATTRIBUTE_DEF_NAME, 
+          AttributeDefName.COLUMN_CREATED_ON, 
+          "number of millis since 1970 when this row was created");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          AttributeDefName.TABLE_GROUPER_ATTRIBUTE_DEF_NAME, 
+          AttributeDefName.COLUMN_DESCRIPTION, 
+          "freeform description of this attribute name");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          AttributeDefName.TABLE_GROUPER_ATTRIBUTE_DEF_NAME, 
+          AttributeDefName.COLUMN_DISPLAY_EXTENSION, 
+          "display name (can change) of this attribute name, not including the stem/folder names");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          AttributeDefName.TABLE_GROUPER_ATTRIBUTE_DEF_NAME, 
+          AttributeDefName.COLUMN_DISPLAY_NAME, 
+          "display name (can change) of this attribute name, including the display names of folders separated by colons");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          AttributeDefName.TABLE_GROUPER_ATTRIBUTE_DEF_NAME, 
+          AttributeDefName.COLUMN_EXTENSION, 
+          "system name (should not change often) of this attribute name, not including the stem/folder names");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          AttributeDefName.TABLE_GROUPER_ATTRIBUTE_DEF_NAME, 
+          AttributeDefName.COLUMN_ID, 
+          "uuid of this row");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          AttributeDefName.TABLE_GROUPER_ATTRIBUTE_DEF_NAME, 
+          AttributeDefName.COLUMN_LAST_UPDATED, 
+          "number of millis since 1970 when this row was created");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          AttributeDefName.TABLE_GROUPER_ATTRIBUTE_DEF_NAME, 
+          AttributeDefName.COLUMN_NAME, 
+          "system name (should not change often) of this attribute name, including the stem/folder system names separated by colons");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          AttributeDefName.TABLE_GROUPER_ATTRIBUTE_DEF_NAME, 
+          AttributeDefName.COLUMN_STEM_ID, 
+          "uuid of the stem where this attribute name lives");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          AttributeDefName.TABLE_GROUPER_ATTRIBUTE_DEF_NAME, 
+          AttributeDefName.COLUMN_HIBERNATE_VERSION_NUMBER, 
+          "optimistic locking column for this row for updates and deletes");
+    }
+
+    {
+      GrouperDdlUtils.ddlutilsTableComment(ddlVersionBean,
+          PITAttributeDefName.TABLE_GROUPER_PIT_ATTRIBUTE_DEF_NAME,
+          "point in time table that holds attribute names, which is the second part of the attribute framework, along with the attribute definition");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITAttributeDefName.TABLE_GROUPER_PIT_ATTRIBUTE_DEF_NAME, 
+          PITAttributeDefName.COLUMN_ATTRIBUTE_DEF_ID, 
+          "uuid foreign key links back to the attribute definition");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITAttributeDefName.TABLE_GROUPER_PIT_ATTRIBUTE_DEF_NAME, 
+          PITAttributeDefName.COLUMN_CONTEXT_ID, 
+          "uuid that links to the audit entry table");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITAttributeDefName.TABLE_GROUPER_PIT_ATTRIBUTE_DEF_NAME, 
+          PITAttributeDefName.COLUMN_ACTIVE, 
+          "T or F if this row is active based on start and end times");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITAttributeDefName.TABLE_GROUPER_PIT_ATTRIBUTE_DEF_NAME, 
+          PITAttributeDefName.COLUMN_START_TIME, 
+          "millis since 1970 that this row was inserted");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITAttributeDefName.TABLE_GROUPER_PIT_ATTRIBUTE_DEF_NAME, 
+          PITAttributeDefName.COLUMN_END_TIME, 
+          "millis since 1970 that this row was deleted");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITAttributeDefName.TABLE_GROUPER_PIT_ATTRIBUTE_DEF_NAME, 
+          PITAttributeDefName.COLUMN_ID, 
+          "uuid of this row");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITAttributeDefName.TABLE_GROUPER_PIT_ATTRIBUTE_DEF_NAME, 
+          PITAttributeDefName.COLUMN_NAME, 
+          "system name (should not change often) of this attribute name, including the stem/folder system names separated by colons");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITAttributeDefName.TABLE_GROUPER_PIT_ATTRIBUTE_DEF_NAME, 
+          PITAttributeDefName.COLUMN_STEM_ID, 
+          "uuid of the stem where this attribute name lives");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITAttributeDefName.TABLE_GROUPER_PIT_ATTRIBUTE_DEF_NAME, 
+          PITAttributeDefName.COLUMN_HIBERNATE_VERSION_NUMBER, 
+          "optimistic locking column for this row for updates and deletes");
+    }
+
+    {
+      GrouperDdlUtils.ddlutilsTableComment(ddlVersionBean,
+          AttributeDefScope.TABLE_GROUPER_ATTRIBUTE_DEF_SCOPE,
+          "table that holds rules for where attributes can be assigned (i.e. only to objects in a certain folder etc)");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          AttributeDefScope.TABLE_GROUPER_ATTRIBUTE_DEF_SCOPE,
+          AttributeDefScope.COLUMN_ATTRIBUTE_DEF_ID, "foreign key to the uuid of the attribute definition: grouper_attribute_def");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          AttributeDefScope.TABLE_GROUPER_ATTRIBUTE_DEF_SCOPE,
+          AttributeDefScope.COLUMN_ATTRIBUTE_DEF_SCOPE_TYPE, 
+          "AttributeDefScopeType enum: attributeDefNameIdAssigned, idEquals, inStem, nameEquals, nameLike, sourceId");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          AttributeDefScope.TABLE_GROUPER_ATTRIBUTE_DEF_SCOPE,
+          AttributeDefScope.COLUMN_CONTEXT_ID, "uuid of the audit entry");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          AttributeDefScope.TABLE_GROUPER_ATTRIBUTE_DEF_SCOPE,
+          AttributeDefScope.COLUMN_CREATED_ON, "number of millis since 1970 when this was created");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          AttributeDefScope.TABLE_GROUPER_ATTRIBUTE_DEF_SCOPE,
+          AttributeDefScope.COLUMN_ID, "uuid of this row");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          AttributeDefScope.TABLE_GROUPER_ATTRIBUTE_DEF_SCOPE,
+          AttributeDefScope.COLUMN_LAST_UPDATED, "number of millis since 1970 when this attribute was last updated");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          AttributeDefScope.TABLE_GROUPER_ATTRIBUTE_DEF_SCOPE,
+          AttributeDefScope.COLUMN_SCOPE_STRING, "describes where this can be assigned depending on the type of this constraint");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          AttributeDefScope.TABLE_GROUPER_ATTRIBUTE_DEF_SCOPE,
+          AttributeDefScope.COLUMN_SCOPE_STRING2, "describes where this can be assigned depending on the type of this constraint");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          AttributeDefScope.TABLE_GROUPER_ATTRIBUTE_DEF_SCOPE,
+          AttributeDefScope.COLUMN_HIBERNATE_VERSION_NUMBER, "optimistic locking column used by hibernate for updates and deletes");
+    }
+
+    {
+      GrouperDdlUtils.ddlutilsTableComment(ddlVersionBean,
+          AttributeDefNameSet.TABLE_GROUPER_ATTRIBUTE_DEF_NAME_SET,
+          "table that holds immediate and effective relationships for attribute names that are permissions for inheritance... e.g. artsAndSciences implies english");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          AttributeDefNameSet.TABLE_GROUPER_ATTRIBUTE_DEF_NAME_SET,
+          AttributeDefNameSet.COLUMN_CONTEXT_ID, 
+          "uuid of the audit entry for the last change of this record");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          AttributeDefNameSet.TABLE_GROUPER_ATTRIBUTE_DEF_NAME_SET,
+          AttributeDefNameSet.COLUMN_CREATED_ON, 
+          "number of millis since 1970 when this record was created");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          AttributeDefNameSet.TABLE_GROUPER_ATTRIBUTE_DEF_NAME_SET,
+          AttributeDefNameSet.COLUMN_DEPTH, 
+          "number of hops from one node to another: 0 is self, 1 is immediate, etc");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          AttributeDefNameSet.TABLE_GROUPER_ATTRIBUTE_DEF_NAME_SET,
+          AttributeDefNameSet.COLUMN_ID,
+          "uuid of this row");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          AttributeDefNameSet.TABLE_GROUPER_ATTRIBUTE_DEF_NAME_SET,
+          AttributeDefNameSet.COLUMN_IF_HAS_ATTRIBUTE_DEF_NAME_ID, 
+          "left hand side of this relationship: if it has this uuid of foreign key of grouper_attribute_def_name then it implies the then_has column");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          AttributeDefNameSet.TABLE_GROUPER_ATTRIBUTE_DEF_NAME_SET,
+          AttributeDefNameSet.COLUMN_LAST_UPDATED, 
+          "number of millis since 1970 when this row was last updated");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          AttributeDefNameSet.TABLE_GROUPER_ATTRIBUTE_DEF_NAME_SET,
+          AttributeDefNameSet.COLUMN_PARENT_ATTR_DEF_NAME_SET_ID, 
+          "link to the relationship above this one (hops-1)");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          AttributeDefNameSet.TABLE_GROUPER_ATTRIBUTE_DEF_NAME_SET,
+          AttributeDefNameSet.COLUMN_THEN_HAS_ATTRIBUTE_DEF_NAME_ID, 
+          "right hand side of this relationship: if it has the if_has then it implies this uuid of the foreign key of the grouper_attribute_def_name");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          AttributeDefNameSet.TABLE_GROUPER_ATTRIBUTE_DEF_NAME_SET,
+          AttributeDefNameSet.COLUMN_TYPE, 
+          "AttributeDefAssignmentType enum: effective, immediate, self");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          AttributeDefNameSet.TABLE_GROUPER_ATTRIBUTE_DEF_NAME_SET,
+          AttributeDefNameSet.COLUMN_HIBERNATE_VERSION_NUMBER, 
+          "column for hibernate optimistic locking for updates and deletes");
+    }
+
+    {
+      GrouperDdlUtils.ddlutilsTableComment(ddlVersionBean,
+          PITAttributeDefNameSet.TABLE_GROUPER_PIT_ATTRIBUTE_DEF_NAME_SET,
+          "point in time: table that holds immediate and effective relationships for attribute names that are permissions for inheritance... e.g. artsAndSciences implies english");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITAttributeDefNameSet.TABLE_GROUPER_PIT_ATTRIBUTE_DEF_NAME_SET,
+          PITAttributeDefNameSet.COLUMN_CONTEXT_ID, 
+          "uuid of the audit entry for the last change of this record");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITAttributeDefNameSet.TABLE_GROUPER_PIT_ATTRIBUTE_DEF_NAME_SET,
+          PITAttributeDefNameSet.COLUMN_ACTIVE, 
+          "T or F if this row is active based on start and end times");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITAttributeDefNameSet.TABLE_GROUPER_PIT_ATTRIBUTE_DEF_NAME_SET,
+          PITAttributeDefNameSet.COLUMN_START_TIME, 
+          "number of millis since 1970 when this row was inserted");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITAttributeDefNameSet.TABLE_GROUPER_PIT_ATTRIBUTE_DEF_NAME_SET,
+          PITAttributeDefNameSet.COLUMN_END_TIME, 
+          "number of millis since 1970 when this row was deleted");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITAttributeDefNameSet.TABLE_GROUPER_PIT_ATTRIBUTE_DEF_NAME_SET,
+          PITAttributeDefNameSet.COLUMN_DEPTH, 
+          "number of hops from one node to another: 0 is self, 1 is immediate, etc");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITAttributeDefNameSet.TABLE_GROUPER_PIT_ATTRIBUTE_DEF_NAME_SET,
+          PITAttributeDefNameSet.COLUMN_ID,
+          "uuid of this row");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITAttributeDefNameSet.TABLE_GROUPER_PIT_ATTRIBUTE_DEF_NAME_SET,
+          PITAttributeDefNameSet.COLUMN_IF_HAS_ATTRIBUTE_DEF_NAME_ID, 
+          "left hand side of this relationship: if it has this uuid of foreign key of grouper_attribute_def_name then it implies the then_has column");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITAttributeDefNameSet.TABLE_GROUPER_PIT_ATTRIBUTE_DEF_NAME_SET,
+          PITAttributeDefNameSet.COLUMN_PARENT_ATTR_DEF_NAME_SET_ID, 
+          "link to the relationship above this one (hops-1)");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITAttributeDefNameSet.TABLE_GROUPER_PIT_ATTRIBUTE_DEF_NAME_SET,
+          PITAttributeDefNameSet.COLUMN_THEN_HAS_ATTRIBUTE_DEF_NAME_ID, 
+          "right hand side of this relationship: if it has the if_has then it implies this uuid of the foreign key of the grouper_attribute_def_name");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITAttributeDefNameSet.TABLE_GROUPER_PIT_ATTRIBUTE_DEF_NAME_SET,
+          PITAttributeDefNameSet.COLUMN_HIBERNATE_VERSION_NUMBER, 
+          "column for hibernate optimistic locking for updates and deletes");
+    }
+
+    {
+      GrouperDdlUtils.ddlutilsTableComment(ddlVersionBean,
+          AttributeAssignValue.TABLE_GROUPER_ATTRIBUTE_ASSIGN_VALUE,
+          "value assignment on an attribute assignment");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          AttributeAssignValue.TABLE_GROUPER_ATTRIBUTE_ASSIGN_VALUE,
+          AttributeAssignValue.COLUMN_ATTRIBUTE_ASSIGN_ID, "foreign key to the attribute assignment grouper_attribute_assign for this assignment");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          AttributeAssignValue.TABLE_GROUPER_ATTRIBUTE_ASSIGN_VALUE,
+          AttributeAssignValue.COLUMN_CONTEXT_ID, "uuid of the audit entry for the last action on this row");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          AttributeAssignValue.TABLE_GROUPER_ATTRIBUTE_ASSIGN_VALUE,
+          AttributeAssignValue.COLUMN_CREATED_ON, "number of millis since 1970 when this row was created");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          AttributeAssignValue.TABLE_GROUPER_ATTRIBUTE_ASSIGN_VALUE,
+          AttributeAssignValue.COLUMN_ID, "uuid of this row");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          AttributeAssignValue.TABLE_GROUPER_ATTRIBUTE_ASSIGN_VALUE,
+          AttributeAssignValue.COLUMN_LAST_UPDATED, "number of millis since 1970 when this row was last updated");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          AttributeAssignValue.TABLE_GROUPER_ATTRIBUTE_ASSIGN_VALUE,
+          AttributeAssignValue.COLUMN_VALUE_FLOATING, "if this is a floating type attribute definition, this is the value");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          AttributeAssignValue.TABLE_GROUPER_ATTRIBUTE_ASSIGN_VALUE,
+          AttributeAssignValue.COLUMN_VALUE_INTEGER, "if this is an integer type attribute definition, this is the value");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          AttributeAssignValue.TABLE_GROUPER_ATTRIBUTE_ASSIGN_VALUE,
+          AttributeAssignValue.COLUMN_VALUE_MEMBER_ID, "if this is a member type attribute definition, this is the value");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          AttributeAssignValue.TABLE_GROUPER_ATTRIBUTE_ASSIGN_VALUE,
+          AttributeAssignValue.COLUMN_VALUE_STRING, "if this is a string type attribute definition, this is the value");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          AttributeAssignValue.TABLE_GROUPER_ATTRIBUTE_ASSIGN_VALUE,
+          AttributeAssignValue.COLUMN_HIBERNATE_VERSION_NUMBER, "hibernate optimistic locking column for updates and deletes");
+    }
+
+    {
+      GrouperDdlUtils.ddlutilsTableComment(ddlVersionBean,
+          PITAttributeAssignValue.TABLE_GROUPER_PIT_ATTRIBUTE_ASSIGN_VALUE,
+          "point in time history of value assignment on an attribute assignment");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITAttributeAssignValue.TABLE_GROUPER_PIT_ATTRIBUTE_ASSIGN_VALUE,
+          PITAttributeAssignValue.COLUMN_ATTRIBUTE_ASSIGN_ID, "foreign key to the attribute assignment grouper_attribute_assign for this assignment");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITAttributeAssignValue.TABLE_GROUPER_PIT_ATTRIBUTE_ASSIGN_VALUE,
+          PITAttributeAssignValue.COLUMN_CONTEXT_ID, "uuid of the audit entry for the last action on this row");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITAttributeAssignValue.TABLE_GROUPER_PIT_ATTRIBUTE_ASSIGN_VALUE,
+          PITAttributeAssignValue.COLUMN_START_TIME, "number of millis since 1970 when this row started in point in time");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITAttributeAssignValue.TABLE_GROUPER_PIT_ATTRIBUTE_ASSIGN_VALUE,
+          PITAttributeAssignValue.COLUMN_END_TIME, "number of millis since 1970 when this row ended in point in time");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITAttributeAssignValue.TABLE_GROUPER_PIT_ATTRIBUTE_ASSIGN_VALUE,  
+          PITAttributeAssignValue.COLUMN_ACTIVE, 
+            "T or F if this is an active record based on start and end dates");
+
+
+      
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITAttributeAssignValue.TABLE_GROUPER_PIT_ATTRIBUTE_ASSIGN_VALUE,
+          PITAttributeAssignValue.COLUMN_ID, "uuid of this row");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITAttributeAssignValue.TABLE_GROUPER_PIT_ATTRIBUTE_ASSIGN_VALUE,
+          PITAttributeAssignValue.COLUMN_END_TIME, "number of millis since 1970 when this row row ended in point in time");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITAttributeAssignValue.TABLE_GROUPER_PIT_ATTRIBUTE_ASSIGN_VALUE,
+          PITAttributeAssignValue.COLUMN_VALUE_FLOATING, "if this is a floating type attribute definition, this is the value");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITAttributeAssignValue.TABLE_GROUPER_PIT_ATTRIBUTE_ASSIGN_VALUE,
+          PITAttributeAssignValue.COLUMN_VALUE_INTEGER, "if this is an integer type attribute definition, this is the value");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITAttributeAssignValue.TABLE_GROUPER_PIT_ATTRIBUTE_ASSIGN_VALUE,
+          PITAttributeAssignValue.COLUMN_VALUE_MEMBER_ID, "if this is a member type attribute definition, this is the value");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITAttributeAssignValue.TABLE_GROUPER_PIT_ATTRIBUTE_ASSIGN_VALUE,
+          PITAttributeAssignValue.COLUMN_VALUE_STRING, "if this is a string type attribute definition, this is the value");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITAttributeAssignValue.TABLE_GROUPER_PIT_ATTRIBUTE_ASSIGN_VALUE,
+          PITAttributeAssignValue.COLUMN_HIBERNATE_VERSION_NUMBER, "hibernate optimistic locking column for updates and deletes");
+    }
+
+    {
+      GrouperDdlUtils.ddlutilsTableComment(ddlVersionBean,
+          ChangeLogType.TABLE_GROUPER_CHANGE_LOG_TYPE,
+          "type of this change log entry, e.g. an insert into grouper groups");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          ChangeLogType.TABLE_GROUPER_CHANGE_LOG_TYPE,
+          ChangeLogType.COLUMN_ACTION_NAME, "action name, e.g. addGroup, deleteMember");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          ChangeLogType.TABLE_GROUPER_CHANGE_LOG_TYPE,
+          ChangeLogType.COLUMN_CHANGE_LOG_CATEGORY, "action category, e.g. group, member");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          ChangeLogType.TABLE_GROUPER_CHANGE_LOG_TYPE,
+          ChangeLogType.COLUMN_CONTEXT_ID, "uuid of the change log entry for this row");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          ChangeLogType.TABLE_GROUPER_CHANGE_LOG_TYPE,
+          ChangeLogType.COLUMN_CREATED_ON, "number of millis since 1970 when this row was created");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          ChangeLogType.TABLE_GROUPER_CHANGE_LOG_TYPE,
+          ChangeLogType.COLUMN_HIBERNATE_VERSION_NUMBER, "hibernate version for optimistic locking for updates and deletes");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          ChangeLogType.TABLE_GROUPER_CHANGE_LOG_TYPE,
+          ChangeLogType.COLUMN_ID, "uuid of this row");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          ChangeLogType.TABLE_GROUPER_CHANGE_LOG_TYPE,
+          ChangeLogType.COLUMN_LABEL_STRING01, "label of the 01 string entry");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          ChangeLogType.TABLE_GROUPER_CHANGE_LOG_TYPE,
+          ChangeLogType.COLUMN_LABEL_STRING02, "label of the 02 string entry");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          ChangeLogType.TABLE_GROUPER_CHANGE_LOG_TYPE,
+          ChangeLogType.COLUMN_LABEL_STRING03, "label of the 03 string entry");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          ChangeLogType.TABLE_GROUPER_CHANGE_LOG_TYPE,
+          ChangeLogType.COLUMN_LABEL_STRING04, "label of the 04 string entry");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          ChangeLogType.TABLE_GROUPER_CHANGE_LOG_TYPE,
+          ChangeLogType.COLUMN_LABEL_STRING05, "label of the 05 string entry");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          ChangeLogType.TABLE_GROUPER_CHANGE_LOG_TYPE,
+          ChangeLogType.COLUMN_LABEL_STRING06, "label of the 06 string entry");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          ChangeLogType.TABLE_GROUPER_CHANGE_LOG_TYPE,
+          ChangeLogType.COLUMN_LABEL_STRING07, "label of the 07 string entry");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          ChangeLogType.TABLE_GROUPER_CHANGE_LOG_TYPE,
+          ChangeLogType.COLUMN_LABEL_STRING08, "label of the 08 string entry");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          ChangeLogType.TABLE_GROUPER_CHANGE_LOG_TYPE,
+          ChangeLogType.COLUMN_LABEL_STRING09, "label of the 09 string entry");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          ChangeLogType.TABLE_GROUPER_CHANGE_LOG_TYPE,
+          ChangeLogType.COLUMN_LABEL_STRING10, "label of the 10 string entry");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          ChangeLogType.TABLE_GROUPER_CHANGE_LOG_TYPE,
+          ChangeLogType.COLUMN_LABEL_STRING11, "label of the 11 string entry");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          ChangeLogType.TABLE_GROUPER_CHANGE_LOG_TYPE,
+          ChangeLogType.COLUMN_LABEL_STRING12, "label of the 12 string entry");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          ChangeLogType.TABLE_GROUPER_CHANGE_LOG_TYPE,
+          ChangeLogType.COLUMN_LAST_UPDATED, "number of millis since 1970 when this row was last changed");
+
+    }
+
+    {
+      GrouperDdlUtils.ddlutilsTableComment(ddlVersionBean,
+          ChangeLogConsumer.TABLE_GROUPER_CHANGE_LOG_CONSUMER,
+          "table keeps track of change log consumers so if they stop, they will start at the place where they left off in processing change log entries");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          ChangeLogConsumer.TABLE_GROUPER_CHANGE_LOG_CONSUMER,
+          ChangeLogConsumer.COLUMN_CREATED_ON, "number of millis since 1970 when this record was created");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          ChangeLogConsumer.TABLE_GROUPER_CHANGE_LOG_CONSUMER,
+          ChangeLogConsumer.COLUMN_HIBERNATE_VERSION_NUMBER, "hibernate optimistic locking versioning column for updates and deletes");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          ChangeLogConsumer.TABLE_GROUPER_CHANGE_LOG_CONSUMER,
+          ChangeLogConsumer.COLUMN_ID, "UUID of this row");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          ChangeLogConsumer.TABLE_GROUPER_CHANGE_LOG_CONSUMER,
+          ChangeLogConsumer.COLUMN_LAST_SEQUENCE_PROCESSED, "index of the change log row which was last processed by this consumer");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          ChangeLogConsumer.TABLE_GROUPER_CHANGE_LOG_CONSUMER,
+          ChangeLogConsumer.COLUMN_LAST_UPDATED, "millis since 1970 that this row was last updated");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          ChangeLogConsumer.TABLE_GROUPER_CHANGE_LOG_CONSUMER,
+          ChangeLogConsumer.COLUMN_NAME, "name of the consumer");
+    }
+    
+    {
+      GrouperDdlUtils.ddlutilsTableComment(ddlVersionBean,
+          ChangeLogEntry.TABLE_GROUPER_CHANGE_LOG_ENTRY_TEMP,
+          "rows are inserted here in the transaction of the actual action, e.g. an add member.  The change log daemon will move records from here to the change log entry table in order, to be processed by consumers");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          ChangeLogEntry.TABLE_GROUPER_CHANGE_LOG_ENTRY_TEMP,
+          ChangeLogEntry.COLUMN_CHANGE_LOG_TYPE_ID, "foreign key to the grouper_change_log_type table");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          ChangeLogEntry.TABLE_GROUPER_CHANGE_LOG_ENTRY_TEMP,
+          ChangeLogEntry.COLUMN_CONTEXT_ID, "uuid to the grouper_audit_entry table");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          ChangeLogEntry.TABLE_GROUPER_CHANGE_LOG_ENTRY_TEMP,
+          ChangeLogEntry.COLUMN_ID, "uuid of this row");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          ChangeLogEntry.TABLE_GROUPER_CHANGE_LOG_ENTRY_TEMP,
+          ChangeLogEntry.COLUMN_STRING01, "value of the string for value 01 which corresponds to the grouper_change_log_type table label");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          ChangeLogEntry.TABLE_GROUPER_CHANGE_LOG_ENTRY_TEMP,
+          ChangeLogEntry.COLUMN_STRING02, "value of the string for value 02 which corresponds to the grouper_change_log_type table label");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          ChangeLogEntry.TABLE_GROUPER_CHANGE_LOG_ENTRY_TEMP,
+          ChangeLogEntry.COLUMN_STRING03, "value of the string for value 03 which corresponds to the grouper_change_log_type table label");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          ChangeLogEntry.TABLE_GROUPER_CHANGE_LOG_ENTRY_TEMP,
+          ChangeLogEntry.COLUMN_STRING04, "value of the string for value 04 which corresponds to the grouper_change_log_type table label");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          ChangeLogEntry.TABLE_GROUPER_CHANGE_LOG_ENTRY_TEMP,
+          ChangeLogEntry.COLUMN_STRING05, "value of the string for value 05 which corresponds to the grouper_change_log_type table label");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          ChangeLogEntry.TABLE_GROUPER_CHANGE_LOG_ENTRY_TEMP,
+          ChangeLogEntry.COLUMN_STRING06, "value of the string for value 06 which corresponds to the grouper_change_log_type table label");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          ChangeLogEntry.TABLE_GROUPER_CHANGE_LOG_ENTRY_TEMP,
+          ChangeLogEntry.COLUMN_STRING07, "value of the string for value 07 which corresponds to the grouper_change_log_type table label");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          ChangeLogEntry.TABLE_GROUPER_CHANGE_LOG_ENTRY_TEMP,
+          ChangeLogEntry.COLUMN_STRING08, "value of the string for value 08 which corresponds to the grouper_change_log_type table label");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          ChangeLogEntry.TABLE_GROUPER_CHANGE_LOG_ENTRY_TEMP,
+          ChangeLogEntry.COLUMN_STRING09, "value of the string for value 09 which corresponds to the grouper_change_log_type table label");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          ChangeLogEntry.TABLE_GROUPER_CHANGE_LOG_ENTRY_TEMP,
+          ChangeLogEntry.COLUMN_STRING10, "value of the string for value 10 which corresponds to the grouper_change_log_type table label");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          ChangeLogEntry.TABLE_GROUPER_CHANGE_LOG_ENTRY_TEMP,
+          ChangeLogEntry.COLUMN_STRING11, "value of the string for value 11 which corresponds to the grouper_change_log_type table label");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          ChangeLogEntry.TABLE_GROUPER_CHANGE_LOG_ENTRY_TEMP,
+          ChangeLogEntry.COLUMN_STRING12, "value of the string for value 12 which corresponds to the grouper_change_log_type table label");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          ChangeLogEntry.TABLE_GROUPER_CHANGE_LOG_ENTRY_TEMP,
+          ChangeLogEntry.COLUMN_CREATED_ON, "number of thousandths of millis from 1970 when this row was created");
+    }    
+
+    {
+      GrouperDdlUtils.ddlutilsTableComment(ddlVersionBean,
+          ChangeLogEntry.TABLE_GROUPER_CHANGE_LOG_ENTRY,
+          "The change log daemon will move records from grouper_change_log_entry_temp to this table in time order, to be processed by consumers");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          ChangeLogEntry.TABLE_GROUPER_CHANGE_LOG_ENTRY,
+          ChangeLogEntry.COLUMN_CHANGE_LOG_TYPE_ID, "foreign key to the grouper_change_log_type table, the type of action");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          ChangeLogEntry.TABLE_GROUPER_CHANGE_LOG_ENTRY,
+          ChangeLogEntry.COLUMN_CONTEXT_ID, "uuid referencing the grouper_audit_entry table");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          ChangeLogEntry.TABLE_GROUPER_CHANGE_LOG_ENTRY,
+          ChangeLogEntry.COLUMN_CREATED_ON, "number of thousandths of millis from 1970 when this row was created");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          ChangeLogEntry.TABLE_GROUPER_CHANGE_LOG_ENTRY,
+          ChangeLogEntry.COLUMN_SEQUENCE_NUMBER, "integer which is in order which these records should be processed by change log consumers");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          ChangeLogEntry.TABLE_GROUPER_CHANGE_LOG_ENTRY,
+          ChangeLogEntry.COLUMN_STRING01, "value of the string for value 01 which corresponds to the grouper_change_log_type table label");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          ChangeLogEntry.TABLE_GROUPER_CHANGE_LOG_ENTRY,
+          ChangeLogEntry.COLUMN_STRING02, "value of the string for value 02 which corresponds to the grouper_change_log_type table label");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          ChangeLogEntry.TABLE_GROUPER_CHANGE_LOG_ENTRY,
+          ChangeLogEntry.COLUMN_STRING03, "value of the string for value 03 which corresponds to the grouper_change_log_type table label");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          ChangeLogEntry.TABLE_GROUPER_CHANGE_LOG_ENTRY,
+          ChangeLogEntry.COLUMN_STRING04, "value of the string for value 04 which corresponds to the grouper_change_log_type table label");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          ChangeLogEntry.TABLE_GROUPER_CHANGE_LOG_ENTRY,
+          ChangeLogEntry.COLUMN_STRING05, "value of the string for value 05 which corresponds to the grouper_change_log_type table label");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          ChangeLogEntry.TABLE_GROUPER_CHANGE_LOG_ENTRY,
+          ChangeLogEntry.COLUMN_STRING06, "value of the string for value 06 which corresponds to the grouper_change_log_type table label");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          ChangeLogEntry.TABLE_GROUPER_CHANGE_LOG_ENTRY,
+          ChangeLogEntry.COLUMN_STRING07, "value of the string for value 07 which corresponds to the grouper_change_log_type table label");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          ChangeLogEntry.TABLE_GROUPER_CHANGE_LOG_ENTRY,
+          ChangeLogEntry.COLUMN_STRING08, "value of the string for value 08 which corresponds to the grouper_change_log_type table label");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          ChangeLogEntry.TABLE_GROUPER_CHANGE_LOG_ENTRY,
+          ChangeLogEntry.COLUMN_STRING09, "value of the string for value 09 which corresponds to the grouper_change_log_type table label");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          ChangeLogEntry.TABLE_GROUPER_CHANGE_LOG_ENTRY,
+          ChangeLogEntry.COLUMN_STRING10, "value of the string for value 10 which corresponds to the grouper_change_log_type table label");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          ChangeLogEntry.TABLE_GROUPER_CHANGE_LOG_ENTRY,
+          ChangeLogEntry.COLUMN_STRING11, "value of the string for value 11 which corresponds to the grouper_change_log_type table label");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          ChangeLogEntry.TABLE_GROUPER_CHANGE_LOG_ENTRY,
+          ChangeLogEntry.COLUMN_STRING12, "value of the string for value 12 which corresponds to the grouper_change_log_type table label");
+
+    }
+
+    {
+      GrouperDdlUtils.ddlutilsTableComment(ddlVersionBean,
+          GroupSet.TABLE_GROUPER_GROUP_SET,
+          "This table holds relationships for memberships or privileges on groups, stems, attributes.  This allows quick joining of who is in a group effectively");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          GroupSet.TABLE_GROUPER_GROUP_SET,
+          GroupSet.COLUMN_CONTEXT_ID, 
+          "uuid that links to the grouper_audit_entry");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          GroupSet.TABLE_GROUPER_GROUP_SET,
+          GroupSet.COLUMN_CREATE_TIME, 
+          "number of millis since 1970 that this row was created");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          GroupSet.TABLE_GROUPER_GROUP_SET,
+          GroupSet.COLUMN_CREATOR_ID, 
+          "uuid of grouper_members of who created this row");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          GroupSet.TABLE_GROUPER_GROUP_SET,
+          GroupSet.COLUMN_DEPTH, 
+          "0 for self, 1 for immediate, or more for effective.  this is the number of hops between nodes");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          GroupSet.TABLE_GROUPER_GROUP_SET,
+          GroupSet.COLUMN_FIELD_ID, 
+          "uuid foreign key from grouper_fields which is the list of the membership, normally members or the privilege in question");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          GroupSet.TABLE_GROUPER_GROUP_SET,
+          GroupSet.COLUMN_ID, 
+          "uuid of this row");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          GroupSet.TABLE_GROUPER_GROUP_SET,
+          GroupSet.COLUMN_MEMBER_ATTR_DEF_ID, 
+          "foreign key of grouper_attribute_def of the member record");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          GroupSet.TABLE_GROUPER_GROUP_SET,
+          GroupSet.COLUMN_MEMBER_FIELD_ID, 
+          "uuid foreign key from grouper_fields which is the list of the membership, normally members");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          GroupSet.TABLE_GROUPER_GROUP_SET,
+          GroupSet.COLUMN_MEMBER_GROUP_ID, 
+          "uuid to the grouper_groups table which is the group that is a member of the owner");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          GroupSet.TABLE_GROUPER_GROUP_SET,
+          GroupSet.COLUMN_MEMBER_ID, 
+          "whether this is groups, stems, or attribute definitions, this is the member");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          GroupSet.TABLE_GROUPER_GROUP_SET,
+          GroupSet.COLUMN_MEMBER_STEM_ID, 
+          "uuid to the grouper_stems table which is the stem that is implied by the owner");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          GroupSet.TABLE_GROUPER_GROUP_SET,
+          GroupSet.COLUMN_MSHIP_TYPE, 
+          "MembershipType enum, effective or immediate");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          GroupSet.TABLE_GROUPER_GROUP_SET,
+          GroupSet.COLUMN_OWNER_ATTR_DEF_ID, 
+          "uuid to the grouper_attribute_def table which is the owner of this record, which implies a relationship to the member, if null, it will have (NULL) which helps with some DB vendors");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          GroupSet.TABLE_GROUPER_GROUP_SET,
+          GroupSet.COLUMN_OWNER_ATTR_DEF_ID_NULL, 
+          "uuid to the grouper_attribute_def table which is the owner of this record, which implies a relationship to the member, if null, it will be null");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          GroupSet.TABLE_GROUPER_GROUP_SET,
+          GroupSet.COLUMN_OWNER_GROUP_ID, 
+          "uuid to the grouper_groups table which is the owner of this record, which implies a membership to the member uuid, if null, it will be (NULL) which helps with some DB vendors");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          GroupSet.TABLE_GROUPER_GROUP_SET,
+          GroupSet.COLUMN_OWNER_GROUP_ID_NULL, 
+          "uuid to the grouper_groups table which is the owner of this record, which implies a membership to the member uuid, if null, it will be null");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          GroupSet.TABLE_GROUPER_GROUP_SET,
+          GroupSet.COLUMN_OWNER_ID, 
+          "whether this is ");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          GroupSet.TABLE_GROUPER_GROUP_SET,
+          GroupSet.COLUMN_OWNER_STEM_ID, 
+          "uuid to the grouper_stems table which is the owner of this record, which implies a privilege to the member uuid, if null, it will be (NULL) which helps with some DB vendors");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          GroupSet.TABLE_GROUPER_GROUP_SET,
+          GroupSet.COLUMN_OWNER_STEM_ID_NULL, 
+          "uuid to the grouper_stems table which is the owner of this record, which implies a privilege to the member uuid, if null, it will be null");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          GroupSet.TABLE_GROUPER_GROUP_SET,
+          GroupSet.COLUMN_PARENT_ID, 
+          "this is the link back to the grouper_group_set table which is the one one hop away and related to this one...");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          GroupSet.TABLE_GROUPER_GROUP_SET,
+          GroupSet.COLUMN_VIA_GROUP_ID, 
+          "same as member_group_id if depth is not 0 otherwise null");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          GroupSet.TABLE_GROUPER_GROUP_SET,
+          GroupSet.COLUMN_HIBERNATE_VERSION_NUMBER, 
+          "optimistic locking column for hibernate used for updates and deletes");
+
+    }
+
+    {
+      GrouperDdlUtils.ddlutilsTableComment(ddlVersionBean,
+          PITGroupSet.TABLE_GROUPER_PIT_GROUP_SET,
+          "point in time: This table holds relationships for memberships or privileges on groups, stems, attributes.  This allows quick joining of who is in a group effectively");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITGroupSet.TABLE_GROUPER_PIT_GROUP_SET,
+          PITGroupSet.COLUMN_CONTEXT_ID, 
+          "uuid that links to the grouper_audit_entry");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITGroupSet.TABLE_GROUPER_PIT_GROUP_SET,
+          PITGroupSet.COLUMN_ACTIVE, 
+          "T or F for if this is active, based on start and end time");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITGroupSet.TABLE_GROUPER_PIT_GROUP_SET,
+          PITGroupSet.COLUMN_START_TIME, 
+          "number of millis since 1970 that this row was created");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITGroupSet.TABLE_GROUPER_PIT_GROUP_SET,
+          PITGroupSet.COLUMN_END_TIME, 
+          "number of millis since 1970 that this row was deleted");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITGroupSet.TABLE_GROUPER_PIT_GROUP_SET,
+          PITGroupSet.COLUMN_DEPTH, 
+          "0 for self, 1 for immediate, or more for effective.  this is the number of hops between nodes");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITGroupSet.TABLE_GROUPER_PIT_GROUP_SET,
+          PITGroupSet.COLUMN_FIELD_ID, 
+          "uuid foreign key from grouper_fields which is the list of the membership, normally members or the privilege in question");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITGroupSet.TABLE_GROUPER_PIT_GROUP_SET,
+          PITGroupSet.COLUMN_ID, 
+          "uuid of this row");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITGroupSet.TABLE_GROUPER_PIT_GROUP_SET,
+          PITGroupSet.COLUMN_MEMBER_ATTR_DEF_ID, 
+          "foreign key of grouper_attribute_def of the member record");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITGroupSet.TABLE_GROUPER_PIT_GROUP_SET,
+          PITGroupSet.COLUMN_MEMBER_FIELD_ID, 
+          "uuid foreign key from grouper_fields which is the list of the membership, normally members");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITGroupSet.TABLE_GROUPER_PIT_GROUP_SET,
+          PITGroupSet.COLUMN_MEMBER_GROUP_ID, 
+          "uuid to the grouper_groups table which is the group that is a member of the owner");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITGroupSet.TABLE_GROUPER_PIT_GROUP_SET,
+          PITGroupSet.COLUMN_MEMBER_ID, 
+          "whether this is groups, stems, or attribute definitions, this is the member");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITGroupSet.TABLE_GROUPER_PIT_GROUP_SET,
+          PITGroupSet.COLUMN_MEMBER_STEM_ID, 
+          "uuid to the grouper_stems table which is the stem that is implied by the owner");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITGroupSet.TABLE_GROUPER_PIT_GROUP_SET,
+          PITGroupSet.COLUMN_OWNER_ATTR_DEF_ID, 
+          "uuid to the grouper_attribute_def table which is the owner of this record, which implies a relationship to the member, if null, it will have (NULL) which helps with some DB vendors");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITGroupSet.TABLE_GROUPER_PIT_GROUP_SET,
+          PITGroupSet.COLUMN_OWNER_GROUP_ID, 
+          "uuid to the grouper_groups table which is the owner of this record, which implies a membership to the member uuid, if null, it will be (NULL) which helps with some DB vendors");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITGroupSet.TABLE_GROUPER_PIT_GROUP_SET,
+          PITGroupSet.COLUMN_OWNER_ID, 
+          "whether this is ");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITGroupSet.TABLE_GROUPER_PIT_GROUP_SET,
+          PITGroupSet.COLUMN_OWNER_STEM_ID, 
+          "uuid to the grouper_stems table which is the owner of this record, which implies a privilege to the member uuid, if null, it will be (NULL) which helps with some DB vendors");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITGroupSet.TABLE_GROUPER_PIT_GROUP_SET,
+          PITGroupSet.COLUMN_PARENT_ID, 
+          "this is the link back to the grouper_group_set table which is the one one hop away and related to this one...");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITGroupSet.TABLE_GROUPER_PIT_GROUP_SET,
+          PITGroupSet.COLUMN_HIBERNATE_VERSION_NUMBER, 
+          "optimistic locking column for hibernate used for updates and deletes");
+
+    }
+
+    {
+      GrouperDdlUtils.ddlutilsTableComment(ddlVersionBean,
+          RoleSet.TABLE_GROUPER_ROLE_SET,
+          "This table holds relationships between roles if one role inherits permissions from another role");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          RoleSet.TABLE_GROUPER_ROLE_SET,
+          RoleSet.COLUMN_CONTEXT_ID, 
+          "links to the grouper_audit_entry for the last change of this row");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          RoleSet.TABLE_GROUPER_ROLE_SET,
+          RoleSet.COLUMN_CREATED_ON, 
+          "millis since 1970 that this row was created");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          RoleSet.TABLE_GROUPER_ROLE_SET,
+          RoleSet.COLUMN_DEPTH, 
+          "number of hops across the relationship, 0 means self, 1 is immediate, more is effective");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          RoleSet.TABLE_GROUPER_ROLE_SET,
+          RoleSet.COLUMN_IF_HAS_ROLE_ID, 
+          "this is the foreign key uuid in grouper_groups where if the user has this role then they get the permissions assigned to another role then_has");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          RoleSet.TABLE_GROUPER_ROLE_SET,
+          RoleSet.COLUMN_LAST_UPDATED, 
+          "millis since 1970 when this row was last updated");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          RoleSet.TABLE_GROUPER_ROLE_SET,
+          RoleSet.COLUMN_PARENT_ROLE_SET_ID, 
+          "this is the foreign key to the uuid in this table grouper_role_set which is the next closest to the underlying assignment");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          RoleSet.TABLE_GROUPER_ROLE_SET,
+          RoleSet.COLUMN_THEN_HAS_ROLE_ID, 
+          "this is the foreign key uuid in grouper_gropus where if the user has the if_has role then the user gets the permissions assigned to this then_has role");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          RoleSet.TABLE_GROUPER_ROLE_SET,
+          RoleSet.COLUMN_TYPE, 
+          "RoleHierarchyType enum: self, immediate, effective");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          RoleSet.TABLE_GROUPER_ROLE_SET,
+          RoleSet.COLUMN_HIBERNATE_VERSION_NUMBER, 
+          "optimistic logging integer used by hibernate during updates and deletes");
+
+    }
+    
+
+    {
+      GrouperDdlUtils.ddlutilsTableComment(ddlVersionBean,
+          PITRoleSet.TABLE_GROUPER_PIT_ROLE_SET,
+          "point in time: This table holds relationships between roles if one role inherits permissions from another role");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITRoleSet.TABLE_GROUPER_PIT_ROLE_SET,
+          PITRoleSet.COLUMN_CONTEXT_ID, 
+          "links to the grouper_audit_entry for the last change of this row");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITRoleSet.TABLE_GROUPER_PIT_ROLE_SET,
+          PITRoleSet.COLUMN_ACTIVE, 
+          "T or F for if this row is active based on start time and end time");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITRoleSet.TABLE_GROUPER_PIT_ROLE_SET,
+          PITRoleSet.COLUMN_START_TIME, 
+          "number of millis since 1970 that this row was inserted");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITRoleSet.TABLE_GROUPER_PIT_ROLE_SET,
+          PITRoleSet.COLUMN_END_TIME, 
+          "number of millis since 1970 that this row was deleted");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITRoleSet.TABLE_GROUPER_PIT_ROLE_SET,
+          PITRoleSet.COLUMN_DEPTH, 
+          "number of hops across the relationship, 0 means self, 1 is immediate, more is effective");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITRoleSet.TABLE_GROUPER_PIT_ROLE_SET,
+          PITRoleSet.COLUMN_IF_HAS_ROLE_ID, 
+          "this is the foreign key uuid in grouper_groups where if the user has this role then they get the permissions assigned to another role then_has");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITRoleSet.TABLE_GROUPER_PIT_ROLE_SET,
+          PITRoleSet.COLUMN_PARENT_ROLE_SET_ID, 
+          "this is the foreign key to the uuid in this table grouper_role_set which is the next closest to the underlying assignment");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITRoleSet.TABLE_GROUPER_PIT_ROLE_SET,
+          PITRoleSet.COLUMN_THEN_HAS_ROLE_ID, 
+          "this is the foreign key uuid in grouper_gropus where if the user has the if_has role then the user gets the permissions assigned to this then_has role");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITRoleSet.TABLE_GROUPER_PIT_ROLE_SET,
+          PITRoleSet.COLUMN_HIBERNATE_VERSION_NUMBER, 
+          "optimistic logging integer used by hibernate during updates and deletes");
 
     }
     
@@ -2779,88 +4120,239 @@ public enum GrouperDdl implements DdlVersionable {
     GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, ExternalSubjectAttribute.TABLE_GROUPER_EXT_SUBJ_ATTR,  ExternalSubjectAttribute.COLUMN_UUID, 
       "unique identifier for row");
       
-    
-    
-    GrouperDdlUtils.ddlutilsTableComment(ddlVersionBean, Field.TABLE_GROUPER_FIELDS, "describes fields related to types");
-
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Field.TABLE_GROUPER_FIELDS,  "id", 
-          "db id of this field record");
-
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Field.TABLE_GROUPER_FIELDS,  "grouptype_uuid", 
-          "foreign key to group type");
-
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Field.TABLE_GROUPER_FIELDS, "is_nullable", 
-          "if this is nullable");
-
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Field.TABLE_GROUPER_FIELDS, "name", 
-          "name of the field");
-
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Field.TABLE_GROUPER_FIELDS,  "read_privilege", 
-          "which privilege is required to read this field");
-
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Field.TABLE_GROUPER_FIELDS,  "type", 
-          "type of field (e.g. attribute, list, access, naming)");
-
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Field.TABLE_GROUPER_FIELDS, "write_privilege", 
-          "which privilege is required to write this attribute");
-
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Field.TABLE_GROUPER_FIELDS, 
-        COLUMN_CONTEXT_ID, "Context id links together multiple operations into one high level action");
-
-    
-    GrouperDdlUtils.ddlutilsTableComment(ddlVersionBean, 
-          Group.TABLE_GROUPER_GROUPS, "holds the groups in the grouper system");
-
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Group.TABLE_GROUPER_GROUPS,  "id", 
-          "db id of this group record");
-
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Group.TABLE_GROUPER_GROUPS,   "parent_stem", 
-          "uuid of the stem that this group refers to");
-
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Group.TABLE_GROUPER_GROUPS,   "creator_id", 
-          "member uuid of the creator of this group");
-
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Group.TABLE_GROUPER_GROUPS,   "create_time", 
-          "number of millis since 1970 that this group was created");
-
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Group.TABLE_GROUPER_GROUPS,   "modifier_id", 
-          "member uuid of the last modifier of this group");
-
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Group.TABLE_GROUPER_GROUPS,   "modify_time", 
-          "number of millis since 1970 that this group was modified");
-
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Group.TABLE_GROUPER_GROUPS, 
-        COLUMN_HIBERNATE_VERSION_NUMBER, "hibernate uses this to version rows");
-
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Group.TABLE_GROUPER_GROUPS,   "name", 
-      "group name is the fully qualified extension of group and all parent stems.  It shouldnt change much, and can be used to reference group from external systems");
-    
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Group.TABLE_GROUPER_GROUPS,   "display_name", 
-      "group display name is the fully qualified display extension of group and all parent stems.  It can change as needed, and can not be used to reference group from external systems");
+    {
+      GrouperDdlUtils.ddlutilsTableComment(ddlVersionBean, 
+          Field.TABLE_GROUPER_FIELDS, 
+          "describes fields related to types");
   
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Group.TABLE_GROUPER_GROUPS,   "extension", 
-      "group extension is the label for this group inside a stem.  It shouldnt change much, and can be used to reference group from external systems (in conjunction with parent stem id)");
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          Field.TABLE_GROUPER_FIELDS,  
+          Field.COLUMN_ID, 
+            "db id of this field record");
   
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Group.TABLE_GROUPER_GROUPS,   "display_extension", 
-      "group display extension is the display label for this group inside a stem.  It cant change as needed, and can not be used to reference group from external systems");
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          Field.TABLE_GROUPER_FIELDS,  
+          Field.COLUMN_HIBERNATE_VERSION_NUMBER, 
+            "hibernate optimistic locking version number for updates and deletes");
   
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Group.TABLE_GROUPER_GROUPS,   "description", 
-      "group description is an optional text blurb that can be used to describe the group");
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          Field.TABLE_GROUPER_FIELDS,  
+          Field.COLUMN_GROUPTYPE_UUID, 
+            "foreign key to group type");
+  
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          Field.TABLE_GROUPER_FIELDS, 
+          Field.COLUMN_IS_NULLABLE, 
+            "if this is nullable");
+  
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          Field.TABLE_GROUPER_FIELDS,
+          Field.COLUMN_NAME, 
+            "name of the field");
+  
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          Field.TABLE_GROUPER_FIELDS,  
+          Field.COLUMN_READ_PRIVILEGE, 
+            "which privilege is required to read this field");
+  
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          Field.TABLE_GROUPER_FIELDS,  
+          Field.COLUMN_TYPE,
+            "type of field (e.g. attribute, list, access, naming)");
+  
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          Field.TABLE_GROUPER_FIELDS, 
+          Field.COLUMN_WRITE_PRIVILEGE, 
+            "which privilege is required to write this attribute");
+  
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          Field.TABLE_GROUPER_FIELDS, 
+          Field.COLUMN_CONTEXT_ID, 
+          "Context id links together multiple operations into one high level action");
+
+    }
     
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Group.TABLE_GROUPER_GROUPS, 
-        Group.COLUMN_LAST_MEMBERSHIP_CHANGE, "If configured to keep track, this is the last membership change for this group");
+    {
+      GrouperDdlUtils.ddlutilsTableComment(ddlVersionBean, 
+          PITField.TABLE_GROUPER_PIT_FIELDS, 
+          "point in time history that describes fields related to types");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITField.TABLE_GROUPER_PIT_FIELDS,  
+          PITField.COLUMN_ID, 
+            "db id of this field record");
+  
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+        PITField.TABLE_GROUPER_PIT_FIELDS,  
+        PITField.COLUMN_ACTIVE, 
+          "T or F if this record is currently active");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+        PITField.TABLE_GROUPER_PIT_FIELDS,  
+        PITField.COLUMN_START_TIME, 
+          "number of millis since 1970 that this record was inserted");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+        PITField.TABLE_GROUPER_PIT_FIELDS,  
+        PITField.COLUMN_END_TIME, 
+          "number of millis since 1970 that this record was deleted");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+        PITField.TABLE_GROUPER_PIT_FIELDS,  
+        PITField.COLUMN_HIBERNATE_VERSION_NUMBER, 
+          "hibernate optimistic locking id for updates and deletes");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITField.TABLE_GROUPER_PIT_FIELDS,
+          PITField.COLUMN_NAME, 
+            "name of the field");
+  
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITField.TABLE_GROUPER_PIT_FIELDS,  
+          PITField.COLUMN_TYPE,
+            "type of field (e.g. attribute, list, access, naming)");
+  
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITField.TABLE_GROUPER_PIT_FIELDS, 
+          PITField.COLUMN_CONTEXT_ID, 
+          "Context id links together multiple operations into one high level action");
+
+    }
     
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Group.TABLE_GROUPER_GROUPS, 
-        Group.COLUMN_LAST_IMMEDIATE_MEMBERSHIP_CHANGE, "If configured to keep track, this is the last immediate membership change for this group");
+    {
+      GrouperDdlUtils.ddlutilsTableComment(ddlVersionBean, 
+            Group.TABLE_GROUPER_GROUPS, "holds the groups in the grouper system");
+  
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          Group.TABLE_GROUPER_GROUPS,  
+         Group.COLUMN_ID, 
+            "db id of this group record");
+  
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          Group.TABLE_GROUPER_GROUPS,   
+          Group.COLUMN_PARENT_STEM, 
+            "uuid of the stem that this group refers to");
+  
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          Group.TABLE_GROUPER_GROUPS,  
+          Group.COLUMN_CREATOR_ID, 
+            "member uuid of the creator of this group");
+  
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          Group.TABLE_GROUPER_GROUPS,   
+          Group.COLUMN_CREATE_TIME, 
+            "number of millis since 1970 that this group was created");
+  
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          Group.TABLE_GROUPER_GROUPS,   
+          Group.COLUMN_MODIFIER_ID, 
+            "member uuid of the last modifier of this group");
+  
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          Group.TABLE_GROUPER_GROUPS,   
+          Group.COLUMN_MODIFY_TIME, 
+            "number of millis since 1970 that this group was modified");
+  
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          Group.TABLE_GROUPER_GROUPS, 
+          COLUMN_HIBERNATE_VERSION_NUMBER, 
+          "hibernate uses this to version rows");
+  
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          Group.TABLE_GROUPER_GROUPS,   
+          Group.COLUMN_NAME, 
+        "group name is the fully qualified extension of group and all parent stems.  It shouldnt change much, and can be used to reference group from external systems");
+      
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          Group.TABLE_GROUPER_GROUPS,   
+          Group.COLUMN_DISPLAY_NAME, 
+        "group display name is the fully qualified display extension of group and all parent stems.  It can change as needed, and can not be used to reference group from external systems");
     
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Group.TABLE_GROUPER_GROUPS, 
-        Group.COLUMN_ALTERNATE_NAME, "An alternate name for this group");
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          Group.TABLE_GROUPER_GROUPS,   
+          Group.COLUMN_EXTENSION, 
+        "group extension is the label for this group inside a stem.  It shouldnt change much, and can be used to reference group from external systems (in conjunction with parent stem id)");
     
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Group.TABLE_GROUPER_GROUPS, 
-        COLUMN_CONTEXT_ID, "Context id links together multiple operations into one high level action");
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          Group.TABLE_GROUPER_GROUPS,   
+          Group.COLUMN_DISPLAY_EXTENSION, 
+        "group display extension is the display label for this group inside a stem.  It cant change as needed, and can not be used to reference group from external systems");
     
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Group.TABLE_GROUPER_GROUPS, 
-        Group.COLUMN_TYPE_OF_GROUP, "if this is a group or role");
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          Group.TABLE_GROUPER_GROUPS,  
+          Group.COLUMN_DESCRIPTION, 
+        "group description is an optional text blurb that can be used to describe the group");
+      
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          Group.TABLE_GROUPER_GROUPS, 
+          Group.COLUMN_LAST_MEMBERSHIP_CHANGE, 
+          "If configured to keep track, this is the last membership change for this group");
+      
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          Group.TABLE_GROUPER_GROUPS, 
+          Group.COLUMN_LAST_IMMEDIATE_MEMBERSHIP_CHANGE, "If configured to keep track, this is the last immediate membership change for this group");
+      
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean,
+          Group.TABLE_GROUPER_GROUPS, 
+          Group.COLUMN_ALTERNATE_NAME, 
+          "An alternate name for this group");
+      
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          Group.TABLE_GROUPER_GROUPS, 
+          COLUMN_CONTEXT_ID, 
+          "Context id links together multiple operations into one high level action");
+      
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          Group.TABLE_GROUPER_GROUPS, 
+          Group.COLUMN_TYPE_OF_GROUP, 
+          "if this is a group or role");
+    }
+    
+    {
+      GrouperDdlUtils.ddlutilsTableComment(ddlVersionBean, 
+            PITGroup.TABLE_GROUPER_PIT_GROUPS, "point in time info about groups in the grouper system");
+  
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITGroup.TABLE_GROUPER_PIT_GROUPS,  
+         PITGroup.COLUMN_ID, 
+            "db id of this group record");
+  
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITGroup.TABLE_GROUPER_PIT_GROUPS,  
+         PITGroup.COLUMN_START_TIME, 
+            "millis since 1970 when this record was inserted");
+  
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITGroup.TABLE_GROUPER_PIT_GROUPS,  
+         PITGroup.COLUMN_END_TIME, 
+            "millis since 1970 when this record was deleted");
+  
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITGroup.TABLE_GROUPER_PIT_GROUPS,  
+         PITGroup.COLUMN_ACTIVE, 
+            "T or F if this record is currently active");
+  
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITGroup.TABLE_GROUPER_PIT_GROUPS,   
+          PITGroup.COLUMN_STEM_ID, 
+            "uuid of the stem that this group refers to");
+  
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITGroup.TABLE_GROUPER_PIT_GROUPS, 
+          COLUMN_HIBERNATE_VERSION_NUMBER, 
+          "hibernate uses this to version rows");
+  
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITGroup.TABLE_GROUPER_PIT_GROUPS,   
+          PITGroup.COLUMN_NAME, 
+        "group name is the fully qualified extension of group and all parent stems.  It shouldnt change much, and can be used to reference group from external systems");
+      
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITGroup.TABLE_GROUPER_PIT_GROUPS, 
+          COLUMN_CONTEXT_ID, 
+          "Context id links together multiple operations into one high level action");
+      
+    }
     
     GrouperDdlUtils.ddlutilsTableComment(ddlVersionBean, 
         "grouper_groups_types", "holds the association between group and type");
@@ -2880,114 +4372,277 @@ public enum GrouperDdl implements DdlVersionable {
     GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "grouper_groups_types", 
         COLUMN_CONTEXT_ID, "Context id links together multiple operations into one high level action");
 
+    {
+      GrouperDdlUtils.ddlutilsTableComment(ddlVersionBean, 
+            Member.TABLE_GROUPER_MEMBERS, 
+            "keeps track of subjects used in grouper.  Records are never deleted from this table");
+  
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          Member.TABLE_GROUPER_MEMBERS,  Member.COLUMN_ID, 
+            "db id of this row");
+  
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          Member.TABLE_GROUPER_MEMBERS, Member.COLUMN_SUBJECT_ID, 
+            "subject id is the id from the subject source");
+  
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          Member.TABLE_GROUPER_MEMBERS,  Member.COLUMN_SUBJECT_SOURCE, 
+            "id of the source from sources.xml");
+  
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          Member.TABLE_GROUPER_MEMBERS,  Member.COLUMN_SUBJECT_TYPE, 
+            "type of subject, e.g. person");
+  
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          Member.TABLE_GROUPER_MEMBERS,  Member.COLUMN_SORT_STRING0, 
+            "string that can be used to sort results");
+      
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          Member.TABLE_GROUPER_MEMBERS,  Member.COLUMN_SORT_STRING1, 
+            "string that can be used to sort results");
+  
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          Member.TABLE_GROUPER_MEMBERS,  Member.COLUMN_SORT_STRING2, 
+            "string that can be used to sort results");
+  
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          Member.TABLE_GROUPER_MEMBERS,  Member.COLUMN_SORT_STRING3, 
+            "string that can be used to sort results");
+  
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean,
+          Member.TABLE_GROUPER_MEMBERS,  Member.COLUMN_SORT_STRING4, 
+            "string that can be used to sort results");
+  
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          Member.TABLE_GROUPER_MEMBERS,  Member.COLUMN_SEARCH_STRING0, 
+            "string that can be used to filter results");
+  
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          Member.TABLE_GROUPER_MEMBERS,  Member.COLUMN_SEARCH_STRING1, 
+            "string that can be used to filter results");
+      
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          Member.TABLE_GROUPER_MEMBERS,  Member.COLUMN_SEARCH_STRING2, 
+            "string that can be used to filter results");
+      
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          Member.TABLE_GROUPER_MEMBERS,  Member.COLUMN_SEARCH_STRING3, 
+            "string that can be used to filter results");
+      
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          Member.TABLE_GROUPER_MEMBERS,  Member.COLUMN_SEARCH_STRING4, 
+            "string that can be used to filter results");
+      
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          Member.TABLE_GROUPER_MEMBERS,  Member.COLUMN_NAME, 
+            "name of subject");
+      
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          Member.TABLE_GROUPER_MEMBERS,  Member.COLUMN_DESCRIPTION, 
+            "description of subject");
+  
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          Member.TABLE_GROUPER_MEMBERS, 
+          COLUMN_HIBERNATE_VERSION_NUMBER, "hibernate uses this to version rows");
+  
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          Member.TABLE_GROUPER_MEMBERS, 
+          COLUMN_CONTEXT_ID, "Context id links together multiple operations into one high level action");
+    }
     
-    GrouperDdlUtils.ddlutilsTableComment(ddlVersionBean, 
-          Member.TABLE_GROUPER_MEMBERS, "keeps track of subjects used in grouper.  Records are never deleted from this table");
+    {
+      GrouperDdlUtils.ddlutilsTableComment(ddlVersionBean, 
+            PITMember.TABLE_GROUPER_PIT_MEMBERS, 
+            "keeps track of subjects used in grouper.  Records are never deleted from this table");
+  
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITMember.TABLE_GROUPER_PIT_MEMBERS, 
+          PITMember.COLUMN_ID, 
+            "db id of this row");
+  
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITMember.TABLE_GROUPER_PIT_MEMBERS, 
+          PITMember.COLUMN_SUBJECT_ID, 
+            "subject id is the id from the subject source");
+  
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITMember.TABLE_GROUPER_PIT_MEMBERS,  
+          PITMember.COLUMN_SUBJECT_SOURCE, 
+            "id of the source from sources.xml");
+  
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITMember.TABLE_GROUPER_PIT_MEMBERS,  
+          PITMember.COLUMN_SUBJECT_TYPE, 
+            "type of subject, e.g. person");
 
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Member.TABLE_GROUPER_MEMBERS,  "id", 
-          "db id of this row");
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITMember.TABLE_GROUPER_PIT_MEMBERS,  
+          PITMember.COLUMN_ACTIVE, 
+            "T or F if this is an active record based on start and end dates");
 
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Member.TABLE_GROUPER_MEMBERS, "subject_id", 
-          "subject id is the id from the subject source");
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITMember.TABLE_GROUPER_PIT_MEMBERS,  
+          PITMember.COLUMN_START_TIME, 
+            "millis from 1970 when this record was inserted");
 
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Member.TABLE_GROUPER_MEMBERS,  "subject_source", 
-          "id of the source from sources.xml");
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITMember.TABLE_GROUPER_PIT_MEMBERS,  
+          PITMember.COLUMN_END_TIME, 
+            "millis from 1970 when this record was deleted");
 
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Member.TABLE_GROUPER_MEMBERS,  "subject_type", 
-          "type of subject, e.g. person");
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITMember.TABLE_GROUPER_PIT_MEMBERS, 
+          COLUMN_HIBERNATE_VERSION_NUMBER, "hibernate uses this to version rows");
+  
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITMember.TABLE_GROUPER_PIT_MEMBERS, 
+          COLUMN_CONTEXT_ID, "Context id links together multiple operations into one high level action");
+    }
 
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Member.TABLE_GROUPER_MEMBERS,  Member.COLUMN_SORT_STRING0, 
-          "string that can be used to sort results");
-    
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Member.TABLE_GROUPER_MEMBERS,  Member.COLUMN_SORT_STRING1, 
-          "string that can be used to sort results");
-
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Member.TABLE_GROUPER_MEMBERS,  Member.COLUMN_SORT_STRING2, 
-          "string that can be used to sort results");
-
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Member.TABLE_GROUPER_MEMBERS,  Member.COLUMN_SORT_STRING3, 
-          "string that can be used to sort results");
-
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Member.TABLE_GROUPER_MEMBERS,  Member.COLUMN_SORT_STRING4, 
-          "string that can be used to sort results");
-
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Member.TABLE_GROUPER_MEMBERS,  Member.COLUMN_SEARCH_STRING0, 
-          "string that can be used to filter results");
-
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Member.TABLE_GROUPER_MEMBERS,  Member.COLUMN_SEARCH_STRING1, 
-          "string that can be used to filter results");
-    
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Member.TABLE_GROUPER_MEMBERS,  Member.COLUMN_SEARCH_STRING2, 
-          "string that can be used to filter results");
-    
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Member.TABLE_GROUPER_MEMBERS,  Member.COLUMN_SEARCH_STRING3, 
-          "string that can be used to filter results");
-    
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Member.TABLE_GROUPER_MEMBERS,  Member.COLUMN_SEARCH_STRING4, 
-          "string that can be used to filter results");
-    
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Member.TABLE_GROUPER_MEMBERS,  Member.COLUMN_NAME, 
-          "name of subject");
-    
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Member.TABLE_GROUPER_MEMBERS,  Member.COLUMN_DESCRIPTION, 
-          "description of subject");
-
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Member.TABLE_GROUPER_MEMBERS, 
-        COLUMN_HIBERNATE_VERSION_NUMBER, "hibernate uses this to version rows");
-
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Member.TABLE_GROUPER_MEMBERS, 
-        COLUMN_CONTEXT_ID, "Context id links together multiple operations into one high level action");
-
-    
-    GrouperDdlUtils.ddlutilsTableComment(ddlVersionBean, 
-          Membership.TABLE_GROUPER_MEMBERSHIPS, "keeps track of memberships and permissions");
-
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Membership.TABLE_GROUPER_MEMBERSHIPS,  "id", 
-          "db id of this row");
-
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Membership.TABLE_GROUPER_MEMBERSHIPS, Membership.COLUMN_OWNER_GROUP_ID, 
-          "group of the membership if applicable");
-
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Membership.TABLE_GROUPER_MEMBERSHIPS, Membership.COLUMN_OWNER_STEM_ID, 
-    "stem of the membership if applicable");
-
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Membership.TABLE_GROUPER_MEMBERSHIPS, "member_id", 
-          "member of the memership");
-    
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Membership.TABLE_GROUPER_MEMBERSHIPS, Membership.COLUMN_OWNER_ID,
-          "owner of the memership");
-
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Membership.TABLE_GROUPER_MEMBERSHIPS, Membership.COLUMN_FIELD_ID, 
-            "foreign key to field by id");
-
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Membership.TABLE_GROUPER_MEMBERSHIPS, "mship_type", 
-          "type of membership, immediate or composite");
-
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Membership.TABLE_GROUPER_MEMBERSHIPS, Membership.COLUMN_VIA_COMPOSITE_ID, 
-        "for composite, this is the composite uuid");
-
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Membership.TABLE_GROUPER_MEMBERSHIPS, "creator_id", 
-          "member uuid of the creator of this record");
-
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Membership.TABLE_GROUPER_MEMBERSHIPS, "create_time", 
-          "number of millis since 1970 that this record was created");
-
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Membership.TABLE_GROUPER_MEMBERSHIPS, 
-        COLUMN_HIBERNATE_VERSION_NUMBER, "hibernate uses this to version rows");
-
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Membership.TABLE_GROUPER_MEMBERSHIPS, 
-        COLUMN_CONTEXT_ID, "Context id links together multiple operations into one high level action");
-
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Membership.TABLE_GROUPER_MEMBERSHIPS, 
-        Membership.COLUMN_ENABLED, "T or F to indicate if the membership is enabled");
-    
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Membership.TABLE_GROUPER_MEMBERSHIPS, 
-        Membership.COLUMN_ENABLED_TIMESTAMP, "When the membership will be enabled if the time is in the future.");
-
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Membership.TABLE_GROUPER_MEMBERSHIPS, 
-        Membership.COLUMN_DISABLED_TIMESTAMP, "When the membership will be disabled if the time is in the future.");
-    
-    
+    {
+      GrouperDdlUtils.ddlutilsTableComment(ddlVersionBean, 
+            Membership.TABLE_GROUPER_MEMBERSHIPS,
+            "keeps track of memberships and permissions");
+  
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          Membership.TABLE_GROUPER_MEMBERSHIPS,  
+          Membership.COLUMN_ID, 
+            "db id of this row");
+  
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          Membership.TABLE_GROUPER_MEMBERSHIPS, 
+          Membership.COLUMN_OWNER_GROUP_ID, 
+            "group of the membership if applicable");
+  
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          Membership.TABLE_GROUPER_MEMBERSHIPS, 
+          Membership.COLUMN_OWNER_STEM_ID, 
+      "stem of the membership if applicable");
+  
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          Membership.TABLE_GROUPER_MEMBERSHIPS, 
+          Membership.COLUMN_MEMBER_ID, 
+            "member of the memership");
+      
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          Membership.TABLE_GROUPER_MEMBERSHIPS, 
+          Membership.COLUMN_OWNER_ID,
+            "owner of the memership");
+  
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          Membership.TABLE_GROUPER_MEMBERSHIPS, 
+          Membership.COLUMN_FIELD_ID, 
+              "foreign key to field by id");
+  
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          Membership.TABLE_GROUPER_MEMBERSHIPS, 
+          Membership.COLUMN_MSHIP_TYPE, 
+            "type of membership, immediate or composite");
+  
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          Membership.TABLE_GROUPER_MEMBERSHIPS, 
+          Membership.COLUMN_VIA_COMPOSITE_ID, 
+          "for composite, this is the composite uuid");
+  
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          Membership.TABLE_GROUPER_MEMBERSHIPS, 
+          Membership.COLUMN_CREATOR_ID, 
+            "member uuid of the creator of this record");
+  
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          Membership.TABLE_GROUPER_MEMBERSHIPS, 
+          Membership.COLUMN_CREATE_TIME, 
+            "number of millis since 1970 that this record was created");
+  
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          Membership.TABLE_GROUPER_MEMBERSHIPS, 
+          COLUMN_HIBERNATE_VERSION_NUMBER, 
+          "hibernate uses this to version rows");
+  
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          Membership.TABLE_GROUPER_MEMBERSHIPS, 
+          COLUMN_CONTEXT_ID, 
+          "Context id links together multiple operations into one high level action");
+  
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          Membership.TABLE_GROUPER_MEMBERSHIPS, 
+          Membership.COLUMN_ENABLED, 
+          "T or F to indicate if the membership is enabled");
+      
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          Membership.TABLE_GROUPER_MEMBERSHIPS, 
+          Membership.COLUMN_ENABLED_TIMESTAMP, 
+          "When the membership will be enabled if the time is in the future.");
+  
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          Membership.TABLE_GROUPER_MEMBERSHIPS, 
+          Membership.COLUMN_DISABLED_TIMESTAMP, 
+          "When the membership will be disabled if the time is in the future.");
+      
+    }
+  
+    {
+      GrouperDdlUtils.ddlutilsTableComment(ddlVersionBean, 
+            PITMembership.TABLE_GROUPER_PIT_MEMBERSHIPS,
+            "keeps track of memberships and permissions");
+  
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITMembership.TABLE_GROUPER_PIT_MEMBERSHIPS,  
+          PITMembership.COLUMN_ID, 
+            "db id of this row");
+  
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITMembership.TABLE_GROUPER_PIT_MEMBERSHIPS, 
+          PITMembership.COLUMN_OWNER_GROUP_ID, 
+            "group of the membership if applicable");
+  
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITMembership.TABLE_GROUPER_PIT_MEMBERSHIPS, 
+          PITMembership.COLUMN_OWNER_STEM_ID, 
+            "stem of the membership if applicable");
+  
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITMembership.TABLE_GROUPER_PIT_MEMBERSHIPS, 
+          PITMembership.COLUMN_MEMBER_ID, 
+            "member of the memership");
+      
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITMembership.TABLE_GROUPER_PIT_MEMBERSHIPS, 
+          PITMembership.COLUMN_OWNER_ID,
+            "owner of the memership");
+  
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITMembership.TABLE_GROUPER_PIT_MEMBERSHIPS, 
+          PITMembership.COLUMN_FIELD_ID, 
+              "foreign key to field by id");
+  
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITMembership.TABLE_GROUPER_PIT_MEMBERSHIPS, 
+          PITMembership.COLUMN_ACTIVE, 
+            "T or F if this row is active based on start_time and end_time");
+  
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITMembership.TABLE_GROUPER_PIT_MEMBERSHIPS, 
+          PITMembership.COLUMN_START_TIME, 
+          "number of millis since 1970 when this record was inserted");
+  
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITMembership.TABLE_GROUPER_PIT_MEMBERSHIPS, 
+          PITMembership.COLUMN_END_TIME, 
+            "number of millis since 1970 when this record was deleted");
+  
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITMembership.TABLE_GROUPER_PIT_MEMBERSHIPS, 
+          PITMembership.COLUMN_HIBERNATE_VERSION_NUMBER, 
+          "hibernate uses this to version rows");
+  
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITMembership.TABLE_GROUPER_PIT_MEMBERSHIPS, 
+          PITMembership.COLUMN_CONTEXT_ID, 
+          "Context id links together multiple operations into one high level action");
+  
+    }
+  
     GrouperDdlUtils.ddlutilsTableComment(ddlVersionBean, 
         GroupSet.TABLE_GROUPER_GROUP_SET, "keeps track of the set of immediate and effective group members for all groups and stems");
 
@@ -3057,52 +4712,129 @@ public enum GrouperDdl implements DdlVersionable {
     GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean,
         GroupSet.TABLE_GROUPER_GROUP_SET, GroupSet.COLUMN_MEMBER_FIELD_ID, "used to join with the field_id column in the grouper_memberships table");
 
+    {
+      GrouperDdlUtils.ddlutilsTableComment(ddlVersionBean,
+          Stem.TABLE_GROUPER_STEMS, 
+          "entries for stems and their attributes");
+  
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          Stem.TABLE_GROUPER_STEMS,
+          Stem.COLUMN_ID, 
+            "db id of this row");
+  
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          Stem.TABLE_GROUPER_STEMS,  
+          Stem.COLUMN_PARENT_STEM, 
+            "stem uuid of parent stem or empty if under root");
+  
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          Stem.TABLE_GROUPER_STEMS,  
+          Stem.COLUMN_NAME, 
+            "full name (id) path of stem");
+  
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          Stem.TABLE_GROUPER_STEMS,  
+          Stem.COLUMN_DISPLAY_NAME, 
+            "full dislpay name path of stem");
+  
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          Stem.TABLE_GROUPER_STEMS, 
+          Stem.COLUMN_CREATOR_ID, 
+            "member_id of who created this stem");
+  
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          Stem.TABLE_GROUPER_STEMS,  
+          Stem.COLUMN_CREATE_TIME, 
+            "number of millis since 1970 since this was created");
+  
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          Stem.TABLE_GROUPER_STEMS,  
+          Stem.COLUMN_MODIFIER_ID, 
+            "member_id of modifier who last edited");
+  
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          Stem.TABLE_GROUPER_STEMS,  
+          Stem.COLUMN_MODIFY_TIME, 
+            "number of millis since 1970 since this was edited");
+  
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean,
+          Stem.TABLE_GROUPER_STEMS,  
+          Stem.COLUMN_DISPLAY_EXTENSION, 
+            "display extension (not full path) of stem");
+  
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          Stem.TABLE_GROUPER_STEMS, 
+          Stem.COLUMN_EXTENSION, 
+            "extension (id) (not full path) of this stem");
+  
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          Stem.TABLE_GROUPER_STEMS,  
+          Stem.COLUMN_DESCRIPTION, 
+            "description of stem");
+  
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          Stem.TABLE_GROUPER_STEMS, 
+          Stem.COLUMN_HIBERNATE_VERSION_NUMBER, 
+          "hibernate uses this to version rows");
+  
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          Stem.TABLE_GROUPER_STEMS, 
+          Stem.COLUMN_LAST_MEMBERSHIP_CHANGE, 
+          "If configured to keep track, this is the last membership change for this stem");
+      
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          Stem.TABLE_GROUPER_STEMS, 
+          Stem.COLUMN_CONTEXT_ID, 
+          "Context id links together multiple operations into one high level action");
+
+    }
     
-    GrouperDdlUtils.ddlutilsTableComment(ddlVersionBean,
-        Stem.TABLE_GROUPER_STEMS, "entries for stems and their attributes");
+    {
+      GrouperDdlUtils.ddlutilsTableComment(ddlVersionBean,
+          PITStem.TABLE_GROUPER_PIT_STEMS, 
+          "entries for stems and their attributes");
+  
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITStem.TABLE_GROUPER_PIT_STEMS,
+          PITStem.COLUMN_ID, 
+            "db id of this row");
+  
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITStem.TABLE_GROUPER_PIT_STEMS,  
+          PITStem.COLUMN_PARENT_STEM_ID,
+            "stem uuid of parent stem or empty if under root");
+  
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITStem.TABLE_GROUPER_PIT_STEMS,  
+          PITStem.COLUMN_NAME,
+            "full name (id) path of stem");
+  
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITStem.TABLE_GROUPER_PIT_STEMS, 
+          PITStem.COLUMN_HIBERNATE_VERSION_NUMBER,
+          "hibernate uses this to version rows");
+  
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITStem.TABLE_GROUPER_PIT_STEMS, 
+          PITStem.COLUMN_CONTEXT_ID, 
+          "Context id links together multiple operations into one high level action");
 
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Stem.TABLE_GROUPER_STEMS, "id", 
-          "db id of this row");
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITStem.TABLE_GROUPER_PIT_STEMS, 
+          PITStem.COLUMN_ACTIVE, 
+          "T or F if this row is active by start and end time");
 
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Stem.TABLE_GROUPER_STEMS,  "parent_stem", 
-          "stem uuid of parent stem or empty if under root");
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITStem.TABLE_GROUPER_PIT_STEMS, 
+          PITStem.COLUMN_START_TIME, 
+          "millis sinve 1970 that this row was inserted");
 
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Stem.TABLE_GROUPER_STEMS,  "name", 
-          "full name (id) path of stem");
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITStem.TABLE_GROUPER_PIT_STEMS, 
+          PITStem.COLUMN_END_TIME, 
+          "millis since 1970 that this row was deleted");
 
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Stem.TABLE_GROUPER_STEMS,  "display_name", 
-          "full dislpay name path of stem");
-
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Stem.TABLE_GROUPER_STEMS, "creator_id", 
-          "member_id of who created this stem");
-
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Stem.TABLE_GROUPER_STEMS,  "create_time", 
-          "number of millis since 1970 since this was created");
-
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Stem.TABLE_GROUPER_STEMS,  "modifier_id", 
-          "member_id of modifier who last edited");
-
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Stem.TABLE_GROUPER_STEMS,  "modify_time", 
-          "number of millis since 1970 since this was edited");
-
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Stem.TABLE_GROUPER_STEMS,  "display_extension", 
-          "display extension (not full path) of stem");
-
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Stem.TABLE_GROUPER_STEMS, "extension", 
-          "extension (id) (not full path) of this stem");
-
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Stem.TABLE_GROUPER_STEMS,  "description", 
-          "description of stem");
-
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Stem.TABLE_GROUPER_STEMS, 
-        COLUMN_HIBERNATE_VERSION_NUMBER, "hibernate uses this to version rows");
-
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Stem.TABLE_GROUPER_STEMS, 
-        Stem.COLUMN_LAST_MEMBERSHIP_CHANGE, "If configured to keep track, this is the last membership change for this stem");
-    
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Stem.TABLE_GROUPER_STEMS, 
-        COLUMN_CONTEXT_ID, "Context id links together multiple operations into one high level action");
-
+    }
     
     GrouperDdlUtils.ddlutilsTableComment(ddlVersionBean,
           "grouper_types", "the various types which can be assigned to groups");

@@ -24,6 +24,63 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 @SuppressWarnings("serial")
 public class ChangeLogType extends GrouperAPI implements Hib3GrouperVersioned {
 
+  /** column */
+  public static final String COLUMN_ID = "id";
+
+  /** column */
+  public static final String COLUMN_ACTION_NAME = "action_name";
+
+  /** column */
+  public static final String COLUMN_CHANGE_LOG_CATEGORY = "change_log_category";
+
+  /** column */
+  public static final String COLUMN_CONTEXT_ID = "context_id";
+
+  /** column */
+  public static final String COLUMN_CREATED_ON = "created_on";
+  
+  /** column */
+  public static final String COLUMN_LABEL_STRING01 = "label_string01";
+  
+  /** column */
+  public static final String COLUMN_LABEL_STRING02 = "label_string02";
+
+  /** column */
+  public static final String COLUMN_LABEL_STRING03 = "label_string03";
+
+  /** column */
+  public static final String COLUMN_LABEL_STRING04 = "label_string04";
+
+  /** column */
+  public static final String COLUMN_LABEL_STRING05 = "label_string05";
+
+  /** column */
+  public static final String COLUMN_LABEL_STRING06 = "label_string06";
+
+  /** column */
+  public static final String COLUMN_LABEL_STRING07 = "label_string07";
+
+  /** column */
+  public static final String COLUMN_LABEL_STRING08 = "label_string08";
+
+  /** column */
+  public static final String COLUMN_LABEL_STRING09 = "label_string09";
+
+  /** column */
+  public static final String COLUMN_LABEL_STRING10 = "label_string10";
+
+  /** column */
+  public static final String COLUMN_LABEL_STRING11 = "label_string11";
+
+  /** column */
+  public static final String COLUMN_LABEL_STRING12 = "label_string12";
+
+  /** column */
+  public static final String COLUMN_LAST_UPDATED = "last_updated";
+
+  /** column */
+  public static final String COLUMN_HIBERNATE_VERSION_NUMBER = "hibernate_version_number";
+  
   //*****  START GENERATED WITH GenerateFieldConstants.java *****//
 
   /** constant for field name for: actionName */

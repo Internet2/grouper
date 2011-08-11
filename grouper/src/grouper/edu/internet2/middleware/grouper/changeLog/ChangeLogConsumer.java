@@ -23,6 +23,26 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 @SuppressWarnings("serial")
 public class ChangeLogConsumer extends GrouperAPI implements Hib3GrouperVersioned {
 
+  /** column */
+  public static final String COLUMN_ID = "id";
+
+  /** column */
+  public static final String COLUMN_HIBERNATE_VERSION_NUMBER = "hibernate_version_number";
+
+  /** column */
+  public static final String COLUMN_LAST_SEQUENCE_PROCESSED = "last_sequence_processed";
+
+  /** column */
+  public static final String COLUMN_NAME = "name";
+
+  /** column */
+  public static final String COLUMN_CREATED_ON = "created_on";
+
+  /** column */
+  public static final String COLUMN_LAST_UPDATED = "last_updated";
+
+
+  
   //*****  START GENERATED WITH GenerateFieldConstants.java *****//
 
   /** constant for field name for: createdOnDb */

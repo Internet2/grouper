@@ -60,6 +60,31 @@ import edu.internet2.middleware.grouper.xml.export.XmlImportable;
  */
 public class Field extends GrouperAPI implements GrouperHasContext, Hib3GrouperVersioned, XmlImportable<Field> {
 
+  /** col */
+  public static final String COLUMN_ID = "id";
+
+  /** col */
+  public static final String COLUMN_GROUPTYPE_UUID = "grouptype_uuid";
+
+  /** col */
+  public static final String COLUMN_IS_NULLABLE = "is_nullable";
+  
+  /** col */
+  public static final String COLUMN_NAME = "name";
+  
+  /** col */
+  public static final String COLUMN_READ_PRIVILEGE = "read_privilege";
+  
+  /** col */
+  public static final String COLUMN_TYPE = "type";
+  
+  /** col */
+  public static final String COLUMN_WRITE_PRIVILEGE = "write_privilege";
+  
+  /** col */
+  public static final String COLUMN_CONTEXT_ID = "context_id";
+  
+  
   /**
    * print out a collection of fields
    * @param collection
