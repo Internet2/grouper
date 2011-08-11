@@ -4148,7 +4148,7 @@ public enum GrouperDdl implements DdlVersionable {
           ExternalSubjectAttribute.TABLE_GROUPER_EXT_SUBJ_ATTR,  ExternalSubjectAttribute.COLUMN_UUID, 
         "unique identifier for row");
 
-      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, ExternalSubjectAttribute.COLUMN_UUID,  
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, ExternalSubjectAttribute.TABLE_GROUPER_EXT_SUBJ_ATTR,  
           ExternalSubjectAttribute.COLUMN_HIBERNATE_VERSION_NUMBER, 
         "hibernate optimistic locking value for updates and deletes");
 
