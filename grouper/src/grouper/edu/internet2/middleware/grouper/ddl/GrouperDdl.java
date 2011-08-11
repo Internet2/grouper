@@ -3741,6 +3741,11 @@ public enum GrouperDdl implements DdlVersionable {
 
       GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
           RoleSet.TABLE_GROUPER_ROLE_SET,
+          RoleSet.COLUMN_ID, 
+          "uuid of this row");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          RoleSet.TABLE_GROUPER_ROLE_SET,
           RoleSet.COLUMN_CONTEXT_ID, 
           "links to the grouper_audit_entry for the last change of this row");
 
@@ -3796,6 +3801,11 @@ public enum GrouperDdl implements DdlVersionable {
           PITRoleSet.TABLE_GROUPER_PIT_ROLE_SET,
           PITRoleSet.COLUMN_CONTEXT_ID, 
           "links to the grouper_audit_entry for the last change of this row");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITRoleSet.TABLE_GROUPER_PIT_ROLE_SET,
+          PITRoleSet.COLUMN_ID, 
+          "uuid of this row");
 
       GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
           PITRoleSet.TABLE_GROUPER_PIT_ROLE_SET,
@@ -3869,7 +3879,7 @@ public enum GrouperDdl implements DdlVersionable {
         "act_as_member_id", "Member id (foreign key) of the user who is being acted as");
     
     GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, AuditEntry.TABLE_GROUPER_AUDIT_ENTRY,  
-        "audit_type_id", "");
+        "audit_type_id", "foreign key to the grouper_audit_type table which is the type of this entry");
     
     GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, AuditEntry.TABLE_GROUPER_AUDIT_ENTRY,  
         "context_id", "Context id links together multiple operations into one high level action");
@@ -4052,74 +4062,98 @@ public enum GrouperDdl implements DdlVersionable {
     GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Composite.TABLE_GROUPER_COMPOSITES, 
         COLUMN_CONTEXT_ID, "Context id links together multiple operations into one high level action");
 
-    
-    GrouperDdlUtils.ddlutilsTableComment(ddlVersionBean, ExternalSubject.TABLE_GROUPER_EXT_SUBJ, "external subjects stored in grouper");
-
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, ExternalSubject.TABLE_GROUPER_EXT_SUBJ,  ExternalSubject.COLUMN_CONTEXT_ID, 
-      "context id links back to an auditing record");
-    
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, ExternalSubject.TABLE_GROUPER_EXT_SUBJ,  ExternalSubject.COLUMN_CREATE_TIME, 
-      "when this record was created in millis from 1970");
-
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, ExternalSubject.TABLE_GROUPER_EXT_SUBJ,  ExternalSubject.COLUMN_CREATOR_MEMBER_ID, 
-      "member id of who created this record");
-
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, ExternalSubject.TABLE_GROUPER_EXT_SUBJ,  ExternalSubject.COLUMN_DESCRIPTION, 
-      "description field of the subject object");
-
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, ExternalSubject.TABLE_GROUPER_EXT_SUBJ,  ExternalSubject.COLUMN_EMAIL, 
-      "email address of subject (optional)");
-
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, ExternalSubject.TABLE_GROUPER_EXT_SUBJ,  ExternalSubject.COLUMN_IDENTIFIER, 
-      "identifier of subject, e.g. the eppn.");
-
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, ExternalSubject.TABLE_GROUPER_EXT_SUBJ,  ExternalSubject.COLUMN_INSTITUTION, 
-      "institution name where the subject is from");
-
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, ExternalSubject.TABLE_GROUPER_EXT_SUBJ,  ExternalSubject.COLUMN_MODIFIER_MEMBER_ID, 
-      "member id of who last edited the record");
-
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, ExternalSubject.TABLE_GROUPER_EXT_SUBJ,  ExternalSubject.COLUMN_MODIFY_TIME, 
-      "when the record was last modified");
-
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, ExternalSubject.TABLE_GROUPER_EXT_SUBJ,  ExternalSubject.COLUMN_NAME, 
-      "name field of the subject object");
-
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, ExternalSubject.TABLE_GROUPER_EXT_SUBJ,  ExternalSubject.COLUMN_SEARCH_STRING_LOWER, 
-      "subject searches will use this field, it should contain most of the other fields, lower case");
-    
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, ExternalSubject.TABLE_GROUPER_EXT_SUBJ,  ExternalSubject.COLUMN_UUID, 
-      "unique identifier for row");
-      
-    GrouperDdlUtils.ddlutilsTableComment(ddlVersionBean, ExternalSubjectAttribute.TABLE_GROUPER_EXT_SUBJ_ATTR, "external subjects stored in grouper");
-
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, ExternalSubjectAttribute.TABLE_GROUPER_EXT_SUBJ_ATTR,  ExternalSubjectAttribute.COLUMN_ATTRIBUTE_SYSTEM_NAME, 
-      "system name of the attribute, should not change, used as column name in view");
+    {
+      GrouperDdlUtils.ddlutilsTableComment(ddlVersionBean, ExternalSubject.TABLE_GROUPER_EXT_SUBJ, "external subjects stored in grouper");
   
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, ExternalSubjectAttribute.TABLE_GROUPER_EXT_SUBJ_ATTR,  ExternalSubjectAttribute.COLUMN_ATTRIBUTE_VALUE, 
-      "value of the attribute");
-  
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, ExternalSubjectAttribute.TABLE_GROUPER_EXT_SUBJ_ATTR,  ExternalSubjectAttribute.COLUMN_CONTEXT_ID, 
-      "context id links back to an auditing record");
-    
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, ExternalSubjectAttribute.TABLE_GROUPER_EXT_SUBJ_ATTR,  ExternalSubjectAttribute.COLUMN_CREATE_TIME, 
-      "when this record was created in millis from 1970");
-
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, ExternalSubjectAttribute.TABLE_GROUPER_EXT_SUBJ_ATTR,  ExternalSubjectAttribute.COLUMN_CREATOR_MEMBER_ID, 
-      "member id of who created this record");
-
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, ExternalSubjectAttribute.TABLE_GROUPER_EXT_SUBJ_ATTR,  ExternalSubjectAttribute.COLUMN_MODIFIER_MEMBER_ID, 
-      "member id of who last edited the record");
-
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, ExternalSubjectAttribute.TABLE_GROUPER_EXT_SUBJ_ATTR,  ExternalSubjectAttribute.COLUMN_MODIFY_TIME, 
-      "when the record was last modified");
-
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, ExternalSubjectAttribute.TABLE_GROUPER_EXT_SUBJ_ATTR,  ExternalSubjectAttribute.COLUMN_SUBJECT_UUID, 
-      "foreign key back to external subject");
-
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, ExternalSubjectAttribute.TABLE_GROUPER_EXT_SUBJ_ATTR,  ExternalSubjectAttribute.COLUMN_UUID, 
-      "unique identifier for row");
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, ExternalSubject.TABLE_GROUPER_EXT_SUBJ,  ExternalSubject.COLUMN_CONTEXT_ID, 
+        "context id links back to an auditing record");
       
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, ExternalSubject.TABLE_GROUPER_EXT_SUBJ,  ExternalSubject.COLUMN_CREATE_TIME, 
+        "when this record was created in millis from 1970");
+  
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, ExternalSubject.TABLE_GROUPER_EXT_SUBJ,  ExternalSubject.COLUMN_CREATOR_MEMBER_ID, 
+        "member id of who created this record");
+  
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, ExternalSubject.TABLE_GROUPER_EXT_SUBJ,  ExternalSubject.COLUMN_DESCRIPTION, 
+        "description field of the subject object");
+  
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, ExternalSubject.TABLE_GROUPER_EXT_SUBJ,  ExternalSubject.COLUMN_EMAIL, 
+        "email address of subject (optional)");
+  
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, ExternalSubject.TABLE_GROUPER_EXT_SUBJ,  ExternalSubject.COLUMN_IDENTIFIER, 
+        "identifier of subject, e.g. the eppn.");
+  
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, ExternalSubject.TABLE_GROUPER_EXT_SUBJ,  ExternalSubject.COLUMN_INSTITUTION, 
+        "institution name where the subject is from");
+  
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, ExternalSubject.TABLE_GROUPER_EXT_SUBJ,  ExternalSubject.COLUMN_MODIFIER_MEMBER_ID, 
+        "member id of who last edited the record");
+  
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, ExternalSubject.TABLE_GROUPER_EXT_SUBJ,  ExternalSubject.COLUMN_MODIFY_TIME, 
+        "when the record was last modified");
+  
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, ExternalSubject.TABLE_GROUPER_EXT_SUBJ,  ExternalSubject.COLUMN_NAME, 
+        "name field of the subject object");
+  
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, ExternalSubject.TABLE_GROUPER_EXT_SUBJ,  ExternalSubject.COLUMN_SEARCH_STRING_LOWER, 
+        "subject searches will use this field, it should contain most of the other fields, lower case");
+      
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, ExternalSubject.TABLE_GROUPER_EXT_SUBJ,  ExternalSubject.COLUMN_UUID, 
+        "unique identifier for row");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, ExternalSubject.TABLE_GROUPER_EXT_SUBJ,  ExternalSubject.COLUMN_ENABLED, 
+        "T or F for if this subject is enabled");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, ExternalSubject.TABLE_GROUPER_EXT_SUBJ,  
+          ExternalSubject.COLUMN_DISABLED_TIME, 
+        "number of millis since 1970 when this row was disabled");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, ExternalSubject.TABLE_GROUPER_EXT_SUBJ,  
+          ExternalSubject.COLUMN_HIBERNATE_VERSION_NUMBER, 
+        "hibernate optimistic locking value for updates and deletes");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, ExternalSubject.TABLE_GROUPER_EXT_SUBJ,  
+          ExternalSubject.COLUMN_VETTED_EMAIL_ADDRESSES, 
+        "comma separated email addresses that this user has responded to");
+    }
+    
+    {
+      GrouperDdlUtils.ddlutilsTableComment(ddlVersionBean, ExternalSubjectAttribute.TABLE_GROUPER_EXT_SUBJ_ATTR, "external subjects stored in grouper");
+  
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, ExternalSubjectAttribute.TABLE_GROUPER_EXT_SUBJ_ATTR,  ExternalSubjectAttribute.COLUMN_ATTRIBUTE_SYSTEM_NAME, 
+        "system name of the attribute, should not change, used as column name in view");
+    
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, ExternalSubjectAttribute.TABLE_GROUPER_EXT_SUBJ_ATTR,  ExternalSubjectAttribute.COLUMN_ATTRIBUTE_VALUE, 
+        "value of the attribute");
+    
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, ExternalSubjectAttribute.TABLE_GROUPER_EXT_SUBJ_ATTR,  ExternalSubjectAttribute.COLUMN_CONTEXT_ID, 
+        "context id links back to an auditing record");
+      
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, ExternalSubjectAttribute.TABLE_GROUPER_EXT_SUBJ_ATTR,  ExternalSubjectAttribute.COLUMN_CREATE_TIME, 
+        "when this record was created in millis from 1970");
+  
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, ExternalSubjectAttribute.TABLE_GROUPER_EXT_SUBJ_ATTR,  ExternalSubjectAttribute.COLUMN_CREATOR_MEMBER_ID, 
+        "member id of who created this record");
+  
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, ExternalSubjectAttribute.TABLE_GROUPER_EXT_SUBJ_ATTR,  ExternalSubjectAttribute.COLUMN_MODIFIER_MEMBER_ID, 
+        "member id of who last edited the record");
+  
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, ExternalSubjectAttribute.TABLE_GROUPER_EXT_SUBJ_ATTR,  ExternalSubjectAttribute.COLUMN_MODIFY_TIME, 
+        "when the record was last modified");
+  
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, ExternalSubjectAttribute.TABLE_GROUPER_EXT_SUBJ_ATTR,  ExternalSubjectAttribute.COLUMN_SUBJECT_UUID, 
+        "foreign key back to external subject");
+  
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          ExternalSubjectAttribute.TABLE_GROUPER_EXT_SUBJ_ATTR,  ExternalSubjectAttribute.COLUMN_UUID, 
+        "unique identifier for row");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, ExternalSubjectAttribute.COLUMN_UUID,  
+          ExternalSubjectAttribute.COLUMN_HIBERNATE_VERSION_NUMBER, 
+        "hibernate optimistic locking value for updates and deletes");
+
+    }
+    
     {
       GrouperDdlUtils.ddlutilsTableComment(ddlVersionBean, 
           Field.TABLE_GROUPER_FIELDS, 
@@ -4579,6 +4613,11 @@ public enum GrouperDdl implements DdlVersionable {
           Membership.COLUMN_DISABLED_TIMESTAMP, 
           "When the membership will be disabled if the time is in the future.");
       
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          Membership.TABLE_GROUPER_MEMBERSHIPS, 
+          Membership.COLUMN_OWNER_ATTR_DEF_ID, 
+          "For attribute definition privileges, this is the foreign key to the grouper_attribute_def table");
+      
     }
   
     {
@@ -4863,89 +4902,93 @@ public enum GrouperDdl implements DdlVersionable {
     GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "grouper_types", 
         COLUMN_CONTEXT_ID, "Context id links together multiple operations into one high level action");
 
-    
-    //see if the grouper_ext_loader_log table is there
-    GrouperDdlUtils.ddlutilsTableComment(ddlVersionBean, "grouper_loader_log", 
-        "log table with a row for each grouper loader job run");
-    
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "grouper_loader_log",  "id", "uuid of this log record");
-    
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "grouper_loader_log",  "job_name", 
-        "Could be group name (friendly) or just config name");
-    
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "grouper_loader_log",  "status", 
-        "STARTED, RUNNING, SUCCESS, ERROR, WARNING, CONFIG_ERROR");
+    {
+      //see if the grouper_ext_loader_log table is there
+      GrouperDdlUtils.ddlutilsTableComment(ddlVersionBean, "grouper_loader_log", 
+          "log table with a row for each grouper loader job run");
+      
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "grouper_loader_log",  "id", "uuid of this log record");
+      
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "grouper_loader_log",  "job_name", 
+          "Could be group name (friendly) or just config name");
+      
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "grouper_loader_log",  "status", 
+          "STARTED, RUNNING, SUCCESS, ERROR, WARNING, CONFIG_ERROR");
+  
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "grouper_loader_log",  "started_time", 
+          "When the job was started");
+  
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "grouper_loader_log",  "ended_time", 
+          "When the job ended (might be blank if daemon died)");
+  
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "grouper_loader_log",  "millis", 
+          "Milliseconds this process took");
+  
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "grouper_loader_log",  "millis_get_data", 
+          "Milliseconds this process took to get the data from the source");
+  
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "grouper_loader_log",  "millis_load_data", 
+          "Milliseconds this process took to load the data to grouper");
+  
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "grouper_loader_log",  "job_type", 
+          "GrouperLoaderJobType enum value");
+      
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "grouper_loader_log",  "job_schedule_type", 
+          "GrouperLoaderJobscheduleType enum value");
+      
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "grouper_loader_log",  "job_description", 
+          "More information about the job");
+      
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "grouper_loader_log",  "job_message", 
+          "Could be a status or error message or stack");
+      
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "grouper_loader_log",  "host", 
+          "Host that this job ran on");
+      
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "grouper_loader_log",  "group_uuid", 
+          "If this job involves one group, this is uuid");
+      
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "grouper_loader_log",  "job_schedule_quartz_cron", 
+          "Quartz cron string for this col");
+      
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "grouper_loader_log",  "job_schedule_interval_seconds", 
+          "How many seconds this is supposed to wait between runs");
+  
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "grouper_loader_log",  "last_updated", 
+          "When this record was last updated");
+  
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "grouper_loader_log",  "unresolvable_subject_count", 
+          "The number of records which were not subject resolvable");
+  
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "grouper_loader_log",  "insert_count", 
+          "The number of records inserted");
+  
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "grouper_loader_log",  "update_count", 
+          "The number of records updated");
+  
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "grouper_loader_log",  "delete_count", 
+          "The number of records deleted");
+  
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "grouper_loader_log",  "total_count", 
+          "The total number of records (e.g. total number of members)");
+  
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "grouper_loader_log",  "parent_job_name", 
+          "If this job is a subjob of another job, then put the parent job name here");
+  
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "grouper_loader_log",  "parent_job_id", 
+          "If this job is a subjob of another job, then put the parent job id here");
+  
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "grouper_loader_log",  "and_group_names", 
+          "If this group query is anded with another group or groups, they are listed here comma separated");
+  
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "grouper_loader_log",  "job_schedule_priority", 
+          "Priority of this job (5 is unprioritized, higher the better)");
+  
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Hib3GrouperLoaderLog.TABLE_GROUPER_LOADER_LOG,  
+          Hib3GrouperLoaderLog.COLUMN_CONTEXT_ID, 
+      "link to the audit entry table");
 
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "grouper_loader_log",  "started_time", 
-        "When the job was started");
-
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "grouper_loader_log",  "ended_time", 
-        "When the job ended (might be blank if daemon died)");
-
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "grouper_loader_log",  "millis", 
-        "Milliseconds this process took");
-
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "grouper_loader_log",  "millis_get_data", 
-        "Milliseconds this process took to get the data from the source");
-
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "grouper_loader_log",  "millis_load_data", 
-        "Milliseconds this process took to load the data to grouper");
-
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "grouper_loader_log",  "job_type", 
-        "GrouperLoaderJobType enum value");
-    
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "grouper_loader_log",  "job_schedule_type", 
-        "GrouperLoaderJobscheduleType enum value");
-    
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "grouper_loader_log",  "job_description", 
-        "More information about the job");
-    
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "grouper_loader_log",  "job_message", 
-        "Could be a status or error message or stack");
-    
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "grouper_loader_log",  "host", 
-        "Host that this job ran on");
-    
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "grouper_loader_log",  "group_uuid", 
-        "If this job involves one group, this is uuid");
-    
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "grouper_loader_log",  "job_schedule_quartz_cron", 
-        "Quartz cron string for this col");
-    
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "grouper_loader_log",  "job_schedule_interval_seconds", 
-        "How many seconds this is supposed to wait between runs");
-
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "grouper_loader_log",  "last_updated", 
-        "When this record was last updated");
-
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "grouper_loader_log",  "unresolvable_subject_count", 
-        "The number of records which were not subject resolvable");
-
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "grouper_loader_log",  "insert_count", 
-        "The number of records inserted");
-
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "grouper_loader_log",  "update_count", 
-        "The number of records updated");
-
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "grouper_loader_log",  "delete_count", 
-        "The number of records deleted");
-
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "grouper_loader_log",  "total_count", 
-        "The total number of records (e.g. total number of members)");
-
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "grouper_loader_log",  "parent_job_name", 
-        "If this job is a subjob of another job, then put the parent job name here");
-
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "grouper_loader_log",  "parent_job_id", 
-        "If this job is a subjob of another job, then put the parent job id here");
-
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "grouper_loader_log",  "and_group_names", 
-        "If this group query is anded with another group or groups, they are listed here comma separated");
-
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "grouper_loader_log",  "job_schedule_priority", 
-        "Priority of this job (5 is unprioritized, higher the better)");
-
-
+    }
     
     String groupIdCol = "id";
     
