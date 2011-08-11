@@ -2636,6 +2636,11 @@ public enum GrouperDdl implements DdlVersionable {
           AttributeAssign.COLUMN_HIBERNATE_VERSION_NUMBER, 
           "optimistic locking column for hibernate on updates or deletes");
 
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          AttributeAssign.TABLE_GROUPER_ATTRIBUTE_ASSIGN, 
+          AttributeAssign.COLUMN_ENABLED, 
+          "T or F to indicate if this assignment is enabled");
+
     }
     {
       GrouperDdlUtils.ddlutilsTableComment(ddlVersionBean,
@@ -4640,6 +4645,11 @@ public enum GrouperDdl implements DdlVersionable {
           PITMembership.COLUMN_OWNER_STEM_ID, 
             "stem of the membership if applicable");
   
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITMembership.TABLE_GROUPER_PIT_MEMBERSHIPS, 
+          PITMembership.COLUMN_OWNER_ATTR_DEF_ID, 
+            "attribute def of the membership if applicable");
+
       GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
           PITMembership.TABLE_GROUPER_PIT_MEMBERSHIPS, 
           PITMembership.COLUMN_MEMBER_ID, 
