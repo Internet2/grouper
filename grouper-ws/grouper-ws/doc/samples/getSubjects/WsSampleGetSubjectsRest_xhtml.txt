@@ -1,4 +1,4 @@
-Grouper web service sample of service: getSubjects, WsSampleGetSubjectsRest, manually written lite/rest, format: xhtml, for version: v1_6_000
+Grouper web service sample of service: getSubjects, WsSampleGetSubjectsRest, manually written lite/rest, format: xhtml, for version: 2.0.0
 
 
 #########################################
@@ -9,10 +9,10 @@ Grouper web service sample of service: getSubjects, WsSampleGetSubjectsRest, man
 #########################################
 
 
-POST /grouper-ws/servicesRest/v1_5_000/subjects HTTP/1.1
+POST /grouperWs/servicesRest/v2_0_000/subjects HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.1
+User-Agent: Jakarta Commons-HttpClient/3.0
 Host: localhost:8092
 Content-Length: 1006
 Content-Type: application/xhtml+xml; charset=UTF-8
@@ -26,6 +26,16 @@ Content-Type: application/xhtml+xml; charset=UTF-8
   <body>
     <div title="WsRestGetSubjectsRequest">
       <p class="clientVersion" />
+      <div class="actAsSubjectLookup" title="WsSubjectLookup" />
+      <p class="includeSubjectDetail" />
+      <ul class="subjectAttributeNames">
+        <li>description</li>
+        <li>loginid</li>
+        <li>name</li>
+      </ul>
+      <p class="includeGroupDetail" />
+      <div class="wsGroupLookup" title="WsGroupLookup" />
+      <p class="memberFilter" />
       <ul class="wsSubjectLookups">
         <li title="WsSubjectLookup">
           <p class="subjectSourceId" />
@@ -39,16 +49,6 @@ Content-Type: application/xhtml+xml; charset=UTF-8
         </li>
       </ul>
       <p class="searchString" />
-      <p class="includeSubjectDetail" />
-      <ul class="subjectAttributeNames">
-        <li>description</li>
-        <li>loginid</li>
-        <li>name</li>
-      </ul>
-      <div class="actAsSubjectLookup" title="WsSubjectLookup" />
-      <div class="wsGroupLookup" title="WsGroupLookup" />
-      <p class="includeGroupDetail" />
-      <p class="memberFilter" />
       <p class="fieldName" />
     </div>
   </body>
@@ -65,12 +65,12 @@ Content-Type: application/xhtml+xml; charset=UTF-8
 
 HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml;charset=UTF-8
-Date: Tue, 29 Dec 2009 07:30:12 GMT
+Date: Fri, 12 Aug 2011 22:24:11 GMT
 Connection: close
 
 <?xml version='1.0' encoding='iso-8859-1'?>
@@ -82,15 +82,15 @@ Connection: close
   <body>
     <div title="WsGetSubjectsResults">
       <div class="resultMetadata" title="WsResultMeta">
-        <p class="success">T</p>
-        <p class="resultMessage">Found 2 subjects</p>
         <p class="resultCode">SUCCESS</p>
+        <p class="success">T</p>
         <p class="resultCode2" />
+        <p class="resultMessage">Queried 2 subjects</p>
       </div>
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">109</p>
-        <p class="serverVersion">v1_6_000</p>
+        <p class="millis">76</p>
         <p class="resultWarnings" />
+        <p class="serverVersion">2.0.0</p>
       </div>
       <ul class="wsSubjects">
         <li title="WsSubject">
@@ -102,8 +102,8 @@ Connection: close
             <li>id.test.subject.0</li>
             <li>my name is test.subject.0</li>
           </ul>
-          <p class="success">T</p>
           <p class="resultCode">SUCCESS</p>
+          <p class="success">T</p>
           <p class="identifierLookup" />
         </li>
         <li title="WsSubject">
@@ -115,17 +115,17 @@ Connection: close
             <li>id.test.subject.1</li>
             <li>my name is test.subject.1</li>
           </ul>
-          <p class="success">T</p>
           <p class="resultCode">SUCCESS</p>
+          <p class="success">T</p>
           <p class="identifierLookup" />
         </li>
       </ul>
-      <div class="wsGroup" title="WsGroup" />
       <ul class="subjectAttributeNames">
         <li>description</li>
         <li>loginid</li>
         <li>name</li>
       </ul>
+      <div class="wsGroup" title="WsGroup" />
     </div>
   </body>
 </html>
@@ -156,12 +156,12 @@ import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
+import edu.internet2.middleware.grouper.ws.coresoap.WsGetSubjectsResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup;
 import edu.internet2.middleware.grouper.ws.rest.WsRestResultProblem;
 import edu.internet2.middleware.grouper.ws.rest.subject.WsRestGetSubjectsRequest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType;
-import edu.internet2.middleware.grouper.ws.soap.WsGetSubjectsResults;
-import edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup;
 import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
 
 /**
@@ -293,4 +293,4 @@ public class WsSampleGetSubjectsRest implements WsSampleRest {
 #########################################
 
 
-Server version: v1_6_000, result code: SUCCESS, result message: Found 2 subjects
+Server version: 2.0.0, result code: SUCCESS, result message: Queried 2 subjects

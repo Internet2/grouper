@@ -1,4 +1,4 @@
-Grouper web service sample of service: findStems, WsSampleFindStemsRestLite, manually written lite/rest, type: _withInput, format: xhtml, for version: v1_5_000
+Grouper web service sample of service: findStems, WsSampleFindStemsRestLite, manually written lite/rest, type: _withInput, format: xhtml, for version: 2.0.0
 
 
 #########################################
@@ -9,10 +9,10 @@ Grouper web service sample of service: findStems, WsSampleFindStemsRestLite, man
 #########################################
 
 
-POST /grouper-ws/servicesRest/v1_5_000/stems HTTP/1.1
+POST /grouperWs/servicesRest/v2_0_000/stems HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.1
+User-Agent: Jakarta Commons-HttpClient/3.0
 Host: localhost:8092
 Content-Length: 817
 Content-Type: application/xhtml+xml; charset=UTF-8
@@ -55,12 +55,12 @@ Content-Type: application/xhtml+xml; charset=UTF-8
 
 HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml;charset=UTF-8
-Date: Sat, 21 Nov 2009 21:27:19 GMT
+Date: Fri, 12 Aug 2011 22:15:47 GMT
 Connection: close
 
 <?xml version='1.0' encoding='iso-8859-1'?>
@@ -74,23 +74,24 @@ Connection: close
       <div class="resultMetadata" title="WsResultMeta">
         <p class="resultCode">SUCCESS</p>
         <p class="success">T</p>
-        <p class="resultMessage">Success for: clientVersion: v1_5_000, wsStemQueryFilter: WsStemQueryFilter[stemQueryFilterType=FIND_BY_STEM_NAME_APPROXIMATE,stemName=aSte], actAsSubject: WsSubjectLookup[subjectId=GrouperSystem]
-, params: null</p>
         <p class="resultCode2" />
+        <p class="resultMessage">Success for: clientVersion: 2.0.0, wsStemQueryFilter: WsStemQueryFilter[stemQueryFilterType=FIND_BY_STEM_NAME_APPROXIMATE,stemName=aSte], actAsSubject: WsSubjectLookup[subjectId=GrouperSystem]
+, params: null
+, wsStemLookups: null</p>
       </div>
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="serverVersion">v1_5_000</p>
-        <p class="millis">84</p>
+        <p class="millis">30</p>
         <p class="resultWarnings" />
+        <p class="serverVersion">2.0.0</p>
       </div>
       <ul class="stemResults">
         <li title="WsStem">
-          <p class="displayExtension">a stem</p>
-          <p class="uuid">27d46e259e244bdbb8918835b396b8ea</p>
-          <p class="displayName">a stem</p>
-          <p class="extension">aStem</p>
-          <p class="description">a stem description</p>
           <p class="name">aStem</p>
+          <p class="displayName">a stem</p>
+          <p class="description">a stem description</p>
+          <p class="uuid">81b42ab47f794bbbb29c7e24a25c5b19</p>
+          <p class="extension">aStem</p>
+          <p class="displayExtension">a stem</p>
         </li>
       </ul>
     </div>
@@ -122,12 +123,12 @@ import org.apache.commons.httpclient.params.DefaultHttpParams;
 import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.commons.lang.StringUtils;
 
+import edu.internet2.middleware.grouper.ws.coresoap.WsFindStemsResults;
 import edu.internet2.middleware.grouper.ws.query.WsStemQueryFilterType;
 import edu.internet2.middleware.grouper.ws.rest.WsRestResultProblem;
 import edu.internet2.middleware.grouper.ws.rest.stem.WsRestFindStemsLiteRequest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType;
-import edu.internet2.middleware.grouper.ws.soap.WsFindStemsResults;
 import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
 
 /**
@@ -256,5 +257,6 @@ public class WsSampleFindStemsRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: v1_5_000, result code: SUCCESS, result message: Success for: clientVersion: v1_5_000, wsStemQueryFilter: WsStemQueryFilter[stemQueryFilterType=FIND_BY_STEM_NAME_APPROXIMATE,stemName=aSte], actAsSubject: WsSubjectLookup[subjectId=GrouperSystem]
+Server version: 2.0.0, result code: SUCCESS, result message: Success for: clientVersion: 2.0.0, wsStemQueryFilter: WsStemQueryFilter[stemQueryFilterType=FIND_BY_STEM_NAME_APPROXIMATE,stemName=aSte], actAsSubject: WsSubjectLookup[subjectId=GrouperSystem]
 , params: null
+, wsStemLookups: null

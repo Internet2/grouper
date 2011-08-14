@@ -1,4 +1,4 @@
-Grouper web service sample of service: groupSave, WsSampleGroupDetailSave, code generated classes, type: _withDetail, format: soap, for version: v1_5_000
+Grouper web service sample of service: groupSave, WsSampleGroupDetailSave, code generated classes, type: _withDetail, format: soap, for version: 2.0.0
 
 
 #########################################
@@ -9,19 +9,19 @@ Grouper web service sample of service: groupSave, WsSampleGroupDetailSave, code 
 #########################################
 
 
-POST /grouper-ws/services/GrouperService HTTP/1.1
+POST /grouperWs/services/GrouperService_v2_0 HTTP/1.1
 Content-Type: application/soap+xml; charset=UTF-8; action="urn:groupSave"
 User-Agent: Axis2
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 Host: localhost:8092
 Transfer-Encoding: chunked
 
-969
+96e
 <?xml version='1.0' encoding='UTF-8'?>
 <soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
   <soapenv:Body>
-    <ns1:groupSave xmlns:ns1="http://soap.ws.grouper.middleware.internet2.edu/xsd">
-      <ns1:clientVersion>v1_5_000</ns1:clientVersion>
+    <ns1:groupSave xmlns:ns1="http://soap_v2_0.ws.grouper.middleware.internet2.edu/xsd">
+      <ns1:clientVersion>v2_0_000</ns1:clientVersion>
       <ns1:wsGroupToSaves>
         <ns1:wsGroup>
           <ns1:description>whateverGroupLeftDesc</ns1:description>
@@ -98,58 +98,54 @@ Transfer-Encoding: chunked
 
 HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/soap+xml; action="urn:groupSaveResponse";charset=UTF-8
 Transfer-Encoding: chunked
-Date: Sat, 21 Nov 2009 21:10:29 GMT
+Date: Fri, 12 Aug 2011 22:20:07 GMT
 
-1ee9
+1e42
 <?xml version='1.0' encoding='UTF-8'?>
 <soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
   <soapenv:Body>
-    <ns:groupSaveResponse xmlns:ns="http://soap.ws.grouper.middleware.internet2.edu/xsd">
-      <ns:return type="edu.internet2.middleware.grouper.ws.soap.WsGroupSaveResults">
-        <ns:responseMetadata type="edu.internet2.middleware.grouper.ws.soap.WsResponseMeta">
-          <ns:millis>1923</ns:millis>
+    <ns:groupSaveResponse xmlns:ns="http://soap_v2_0.ws.grouper.middleware.internet2.edu/xsd">
+      <ns:return type="edu.internet2.middleware.grouper.ws.soap_v2_0.WsGroupSaveResults">
+        <ns:responseMetadata type="edu.internet2.middleware.grouper.ws.soap_v2_0.WsResponseMeta">
+          <ns:millis xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
           <ns:resultWarnings xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
-          <ns:serverVersion>v1_5_000</ns:serverVersion>
+          <ns:serverVersion>2.0.0</ns:serverVersion>
         </ns:responseMetadata>
-        <ns:resultMetadata type="edu.internet2.middleware.grouper.ws.soap.WsResultMeta">
+        <ns:resultMetadata type="edu.internet2.middleware.grouper.ws.soap_v2_0.WsResultMeta">
           <ns:params xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
           <ns:resultCode>SUCCESS</ns:resultCode>
           <ns:resultCode2 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
-          <ns:resultMessage>Success for: clientVersion: v1_5_000, wsGroupToSaves: Array size: 3: [0]: WsGroupToSave[
-wsGroup=WsGroup[extension=whateverGroupLeft,description=whateverGroupLeftDesc,displayExtension=whateverGroupLeftDispExt,name=aStem:whateverGroupLeft],
-wsGroup...
-, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], txType: NONE, paramNames:
-, params: Empty array</ns:resultMessage>
+          <ns:resultMessage xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
           <ns:success>T</ns:success>
         </ns:resultMetadata>
-        <ns:results type="edu.internet2.middleware.grouper.ws.soap.WsGroupSaveResult">
-          <ns:resultMetadata type="edu.internet2.middleware.grouper.ws.soap.WsResultMeta">
+        <ns:results type="edu.internet2.middleware.grouper.ws.soap_v2_0.WsGroupSaveResult">
+          <ns:resultMetadata type="edu.internet2.middleware.grouper.ws.soap_v2_0.WsResultMeta">
             <ns:params xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
             <ns:resultCode>SUCCESS_INSERTED</ns:resultCode>
             <ns:resultCode2 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
             <ns:resultMessage xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
             <ns:success>T</ns:success>
           </ns:resultMetadata>
-          <ns:wsGroup type="edu.internet2.middleware.grouper.ws.soap.WsGroup">
+          <ns:wsGroup type="edu.internet2.middleware.grouper.ws.soap_v2_0.WsGroup">
             <ns:description>whateverGroupLeftDesc</ns:description>
-            <ns:detail type="edu.internet2.middleware.grouper.ws.soap.WsGroupDetail">
+            <ns:detail type="edu.internet2.middleware.grouper.ws.soap_v2_0.WsGroupDetail">
               <ns:attributeNames xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
               <ns:attributeValues xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
               <ns:compositeType xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
               <ns:createSubjectId>GrouperSystem</ns:createSubjectId>
-              <ns:createTime>2009/11/21 16:10:27.805</ns:createTime>
+              <ns:createTime>2011/08/12 18:20:06.323</ns:createTime>
               <ns:hasComposite>F</ns:hasComposite>
               <ns:isCompositeFactor>F</ns:isCompositeFactor>
               <ns:leftGroup xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
               <ns:modifySource xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
               <ns:modifySubjectId>GrouperSystem</ns:modifySubjectId>
-              <ns:modifyTime>2009/11/21 16:10:27.995</ns:modifyTime>
+              <ns:modifyTime>2011/08/12 18:20:06.521</ns:modifyTime>
               <ns:params xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
               <ns:rightGroup xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
             </ns:detail>
@@ -157,31 +153,31 @@ wsGroup...
             <ns:displayName>a stem:whateverGroupLeftDispExt</ns:displayName>
             <ns:extension>whateverGroupLeft</ns:extension>
             <ns:name>aStem:whateverGroupLeft</ns:name>
-            <ns:uuid>377c20c8a71849f4a81bf632ceb54f2a</ns:uuid>
+            <ns:uuid>bc83eb25961f45759d364d7a6ebb000d</ns:uuid>
           </ns:wsGroup>
         </ns:results>
-        <ns:results type="edu.internet2.middleware.grouper.ws.soap.WsGroupSaveResult">
-          <ns:resultMetadata type="edu.internet2.middleware.grouper.ws.soap.WsResultMeta">
+        <ns:results type="edu.internet2.middleware.grouper.ws.soap_v2_0.WsGroupSaveResult">
+          <ns:resultMetadata type="edu.internet2.middleware.grouper.ws.soap_v2_0.WsResultMeta">
             <ns:params xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
             <ns:resultCode>SUCCESS_INSERTED</ns:resultCode>
             <ns:resultCode2 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
             <ns:resultMessage xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
             <ns:success>T</ns:success>
           </ns:resultMetadata>
-          <ns:wsGroup type="edu.internet2.middleware.grouper.ws.soap.WsGroup">
+          <ns:wsGroup type="edu.internet2.middleware.grouper.ws.soap_v2_0.WsGroup">
             <ns:description>whateverGroupRightDesc</ns:description>
-            <ns:detail type="edu.internet2.middleware.grouper.ws.soap.WsGroupDetail">
+            <ns:detail type="edu.internet2.middleware.grouper.ws.soap_v2_0.WsGroupDetail">
               <ns:attributeNames xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
               <ns:attributeValues xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
               <ns:compositeType xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
               <ns:createSubjectId>GrouperSystem</ns:createSubjectId>
-              <ns:createTime>2009/11/21 16:10:28.144</ns:createTime>
+              <ns:createTime>2011/08/12 18:20:06.566</ns:createTime>
               <ns:hasComposite>F</ns:hasComposite>
               <ns:isCompositeFactor>F</ns:isCompositeFactor>
               <ns:leftGroup xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
               <ns:modifySource xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
               <ns:modifySubjectId>GrouperSystem</ns:modifySubjectId>
-              <ns:modifyTime>2009/11/21 16:10:28.565</ns:modifyTime>
+              <ns:modifyTime>2011/08/12 18:20:06.720</ns:modifyTime>
               <ns:params xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
               <ns:rightGroup xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
             </ns:detail>
@@ -189,50 +185,50 @@ wsGroup...
             <ns:displayName>a stem:whateverGroupRightDispExt</ns:displayName>
             <ns:extension>whateverGroupRight</ns:extension>
             <ns:name>aStem:whateverGroupRight</ns:name>
-            <ns:uuid>df4e1f96af204bd29af0b0f8fc36f011</ns:uuid>
+            <ns:uuid>cb5849cdf8464de09ec3a76d6250d8a5</ns:uuid>
           </ns:wsGroup>
         </ns:results>
-        <ns:results type="edu.internet2.middleware.grouper.ws.soap.WsGroupSaveResult">
-          <ns:resultMetadata type="edu.internet2.middleware.grouper.ws.soap.WsResultMeta">
+        <ns:results type="edu.internet2.middleware.grouper.ws.soap_v2_0.WsGroupSaveResult">
+          <ns:resultMetadata type="edu.internet2.middleware.grouper.ws.soap_v2_0.WsResultMeta">
             <ns:params xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
             <ns:resultCode>SUCCESS_INSERTED</ns:resultCode>
             <ns:resultCode2 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
             <ns:resultMessage xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
             <ns:success>T</ns:success>
           </ns:resultMetadata>
-          <ns:wsGroup type="edu.internet2.middleware.grouper.ws.soap.WsGroup">
+          <ns:wsGroup type="edu.internet2.middleware.grouper.ws.soap_v2_0.WsGroup">
             <ns:description>desc1</ns:description>
-            <ns:detail type="edu.internet2.middleware.grouper.ws.soap.WsGroupDetail">
+            <ns:detail type="edu.internet2.middleware.grouper.ws.soap_v2_0.WsGroupDetail">
               <ns:attributeNames>attr2_1</ns:attributeNames>
               <ns:attributeNames>attr_1</ns:attributeNames>
               <ns:attributeValues>val2_1</ns:attributeValues>
               <ns:attributeValues>val_1</ns:attributeValues>
               <ns:compositeType>intersection</ns:compositeType>
               <ns:createSubjectId>GrouperSystem</ns:createSubjectId>
-              <ns:createTime>2009/11/21 16:10:28.896</ns:createTime>
+              <ns:createTime>2011/08/12 18:20:06.765</ns:createTime>
               <ns:hasComposite>T</ns:hasComposite>
               <ns:isCompositeFactor>F</ns:isCompositeFactor>
-              <ns:leftGroup type="edu.internet2.middleware.grouper.ws.soap.WsGroup">
+              <ns:leftGroup type="edu.internet2.middleware.grouper.ws.soap_v2_0.WsGroup">
                 <ns:description>whateverGroupLeftDesc</ns:description>
                 <ns:detail xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
                 <ns:displayExtension>whateverGroupLeftDispExt</ns:displayExtension>
                 <ns:displayName>a stem:whateverGroupLeftDispExt</ns:displayName>
                 <ns:extension>whateverGroupLeft</ns:extension>
                 <ns:name>aStem:whateverGroupLeft</ns:name>
-                <ns:uuid>377c20c8a71849f4a81bf632ceb54f2a</ns:uuid>
+                <ns:uuid>bc83eb25961f45759d364d7a6ebb000d</ns:uuid>
               </ns:leftGroup>
               <ns:modifySource xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
               <ns:modifySubjectId>GrouperSystem</ns:modifySubjectId>
-              <ns:modifyTime>2009/11/21 16:10:29.300</ns:modifyTime>
+              <ns:modifyTime>2011/08/12 18:20:06.999</ns:modifyTime>
               <ns:params xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
-              <ns:rightGroup type="edu.internet2.middleware.grouper.ws.soap.WsGroup">
+              <ns:rightGroup type="edu.internet2.middleware.grouper.ws.soap_v2_0.WsGroup">
                 <ns:description>whateverGroupRightDesc</ns:description>
                 <ns:detail xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
                 <ns:displayExtension>whateverGroupRightDispExt</ns:displayExtension>
                 <ns:displayName>a stem:whateverGroupRightDispExt</ns:displayName>
                 <ns:extension>whateverGroupRight</ns:extension>
                 <ns:name>aStem:whateverGroupRight</ns:name>
-                <ns:uuid>df4e1f96af204bd29af0b0f8fc36f011</ns:uuid>
+                <ns:uuid>cb5849cdf8464de09ec3a76d6250d8a5</ns:uuid>
               </ns:rightGroup>
               <ns:typeNames>aType</ns:typeNames>
               <ns:typeNames>aType2</ns:typeNames>
@@ -241,7 +237,7 @@ wsGroup...
             <ns:displayName>a stem:disp1</ns:displayName>
             <ns:extension>whateverGroup</ns:extension>
             <ns:name>aStem:whateverGroup</ns:name>
-            <ns:uuid>08536b2b8b4641248783db588e865d86</ns:uuid>
+            <ns:uuid>298f045845be4f94bf9829b6a5c800a9</ns:uuid>
           </ns:wsGroup>
         </ns:results>
       </ns:return>
@@ -277,14 +273,14 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import edu.internet2.middleware.grouper.webservicesClient.util.GeneratedClientSettings;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGenerated;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGeneratedType;
-import edu.internet2.middleware.grouper.ws.soap.xsd.GroupSave;
-import edu.internet2.middleware.grouper.ws.soap.xsd.WsGroup;
-import edu.internet2.middleware.grouper.ws.soap.xsd.WsGroupDetail;
-import edu.internet2.middleware.grouper.ws.soap.xsd.WsGroupLookup;
-import edu.internet2.middleware.grouper.ws.soap.xsd.WsGroupSaveResult;
-import edu.internet2.middleware.grouper.ws.soap.xsd.WsGroupSaveResults;
-import edu.internet2.middleware.grouper.ws.soap.xsd.WsGroupToSave;
-import edu.internet2.middleware.grouper.ws.soap.xsd.WsSubjectLookup;
+import edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.GroupSave;
+import edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.WsGroup;
+import edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.WsGroupDetail;
+import edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.WsGroupLookup;
+import edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.WsGroupSaveResult;
+import edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.WsGroupSaveResults;
+import edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.WsGroupToSave;
+import edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.WsSubjectLookup;
 
 /**
  *
@@ -415,15 +411,15 @@ public class WsSampleGroupDetailSave implements WsSampleGenerated {
 
 
 WsGroupSaveResults[
-  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap.xsd.WsResponseMeta@bee95a,localResponseMetadataTracker=true,
-  localResultMetadata=edu.internet2.middleware.grouper.ws.soap.xsd.WsResultMeta@1ca4868,localResultMetadataTracker=true,
-  localResults={edu.internet2.middleware.grouper.ws.soap.xsd.WsGroupSaveResult@194e3fe,edu.internet2.middleware.grouper.ws.soap.xsd.WsGroupSaveResult@4563a,edu.internet2.middleware.grouper.ws.soap.xsd.WsGroupSaveResult@b92a0e},localResultsTracker=true]
+  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.WsResponseMeta@153c1e4,localResponseMetadataTracker=true,
+  localResultMetadata=edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.WsResultMeta@1de8b7f,localResultMetadataTracker=true,
+  localResults={edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.WsGroupSaveResult@b9cca7,edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.WsGroupSaveResult@2b23cf,edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.WsGroupSaveResult@3c152e},localResultsTracker=true]
 WsGroupSaveResult[
-  localResultMetadata=edu.internet2.middleware.grouper.ws.soap.xsd.WsResultMeta@7835ec,localResultMetadataTracker=true,
-  localWsGroup=edu.internet2.middleware.grouper.ws.soap.xsd.WsGroup@1c38fe,localWsGroupTracker=true]
+  localResultMetadata=edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.WsResultMeta@92864f,localResultMetadataTracker=true,
+  localWsGroup=edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.WsGroup@1afb1f5,localWsGroupTracker=true]
 WsGroupSaveResult[
-  localResultMetadata=edu.internet2.middleware.grouper.ws.soap.xsd.WsResultMeta@e1cfa7,localResultMetadataTracker=true,
-  localWsGroup=edu.internet2.middleware.grouper.ws.soap.xsd.WsGroup@10811b5,localWsGroupTracker=true]
+  localResultMetadata=edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.WsResultMeta@1cc58ff,localResultMetadataTracker=true,
+  localWsGroup=edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.WsGroup@e6fd75,localWsGroupTracker=true]
 WsGroupSaveResult[
-  localResultMetadata=edu.internet2.middleware.grouper.ws.soap.xsd.WsResultMeta@c2bd13,localResultMetadataTracker=true,
-  localWsGroup=edu.internet2.middleware.grouper.ws.soap.xsd.WsGroup@10b3611,localWsGroupTracker=true]
+  localResultMetadata=edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.WsResultMeta@10a1604,localResultMetadataTracker=true,
+  localWsGroup=edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.WsGroup@12b9fb7,localWsGroupTracker=true]

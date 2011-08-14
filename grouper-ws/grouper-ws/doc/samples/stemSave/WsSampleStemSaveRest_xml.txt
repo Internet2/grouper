@@ -1,4 +1,4 @@
-Grouper web service sample of service: stemSave, WsSampleStemSaveRest, manually written lite/rest, format: xml, for version: v1_5_000
+Grouper web service sample of service: stemSave, WsSampleStemSaveRest, manually written lite/rest, format: xml, for version: 2.0.0
 
 
 #########################################
@@ -9,10 +9,10 @@ Grouper web service sample of service: stemSave, WsSampleStemSaveRest, manually 
 #########################################
 
 
-POST /grouper-ws/servicesRest/v1_5_000/stems HTTP/1.1
+POST /grouperWs/servicesRest/v2_0_000/stems HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.1
+User-Agent: Jakarta Commons-HttpClient/3.0
 Host: localhost:8092
 Content-Length: 589
 Content-Type: text/xml; charset=UTF-8
@@ -55,57 +55,58 @@ Content-Type: text/xml; charset=UTF-8
 
 HTTP/1.1 201 Created
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/xml;charset=UTF-8
-Date: Sat, 21 Nov 2009 21:29:11 GMT
+Date: Fri, 12 Aug 2011 22:17:49 GMT
 Connection: close
 
 <WsStemSaveResults>
-  <resultMetadata>
-    <success>T</success>
-    <resultMessage>Success for: clientVersion: v1_5_000, wsStemToSaves: Array size: 2: [0]: WsStemToSave[
-wsStem=WsStem[name=aStem:whateverStem,displayExtension=disp1,extension=whateverStem,description=desc1],
-wsStemLookup=WsStemLookup[stemName=aStem:whateverStem]]...
-, actAsSubject: null, txType: NONE, paramNames:
-, params: null</resultMessage>
-    <resultCode>SUCCESS</resultCode>
-  </resultMetadata>
   <results>
     <WsStemSaveResult>
       <wsStem>
-        <name>aStem:whateverStem</name>
-        <displayName>a stem:disp1</displayName>
-        <displayExtension>disp1</displayExtension>
         <extension>whateverStem</extension>
-        <uuid>830f00890b48434eb10a8789f476be6e</uuid>
+        <displayExtension>disp1</displayExtension>
         <description>desc1</description>
+        <displayName>a stem:disp1</displayName>
+        <name>aStem:whateverStem</name>
+        <uuid>839efe95bfe64e02ad1a324d1e61702d</uuid>
       </wsStem>
       <resultMetadata>
-        <success>T</success>
         <resultCode>SUCCESS_INSERTED</resultCode>
+        <success>T</success>
       </resultMetadata>
     </WsStemSaveResult>
     <WsStemSaveResult>
       <wsStem>
-        <name>aStem:whateverStem2</name>
-        <displayName>a stem:disp2</displayName>
-        <displayExtension>disp2</displayExtension>
         <extension>whateverStem2</extension>
-        <uuid>f34aece83a434a3c8b84b7580898629c</uuid>
+        <displayExtension>disp2</displayExtension>
         <description>descs</description>
+        <displayName>a stem:disp2</displayName>
+        <name>aStem:whateverStem2</name>
+        <uuid>f165e9a68f354657bdb652358434d56a</uuid>
       </wsStem>
       <resultMetadata>
-        <success>T</success>
         <resultCode>SUCCESS_INSERTED</resultCode>
+        <success>T</success>
       </resultMetadata>
     </WsStemSaveResult>
   </results>
+  <resultMetadata>
+    <resultCode>SUCCESS</resultCode>
+    <resultMessage>Success for: clientVersion: 2.0.0, wsStemToSaves: Array size: 2: [0]: WsStemToSave[
+wsStemLookup=WsStemLookup[stemName=aStem:whateverStem],
+wsStem=WsStem[extension=whateverStem,displayExtension=disp1,description=desc1,name=aStem:whateverStem]]...
+, actAsSubject: null, txType: NONE, paramNames:
+, params: null</resultMessage>
+    <success>T</success>
+  </resultMetadata>
   <responseMetadata>
-    <millis>360</millis>
-    <serverVersion>v1_5_000</serverVersion>
+    <resultWarnings></resultWarnings>
+    <millis>185</millis>
+    <serverVersion>2.0.0</serverVersion>
   </responseMetadata>
 </WsStemSaveResults>
 
@@ -134,14 +135,14 @@ import org.apache.commons.httpclient.params.DefaultHttpParams;
 import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.commons.lang.StringUtils;
 
+import edu.internet2.middleware.grouper.ws.coresoap.WsStem;
+import edu.internet2.middleware.grouper.ws.coresoap.WsStemLookup;
+import edu.internet2.middleware.grouper.ws.coresoap.WsStemSaveResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsStemToSave;
 import edu.internet2.middleware.grouper.ws.rest.WsRestResultProblem;
 import edu.internet2.middleware.grouper.ws.rest.stem.WsRestStemSaveRequest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType;
-import edu.internet2.middleware.grouper.ws.soap.WsStem;
-import edu.internet2.middleware.grouper.ws.soap.WsStemLookup;
-import edu.internet2.middleware.grouper.ws.soap.WsStemSaveResults;
-import edu.internet2.middleware.grouper.ws.soap.WsStemToSave;
 import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
 
 /**
@@ -287,8 +288,8 @@ public class WsSampleStemSaveRest implements WsSampleRest {
 #########################################
 
 
-Server version: v1_5_000, result code: SUCCESS, result message: Success for: clientVersion: v1_5_000, wsStemToSaves: Array size: 2: [0]: WsStemToSave[
-  wsStem=WsStem[name=aStem:whateverStem,displayExtension=disp1,extension=whateverStem,description=desc1],
-  wsStemLookup=WsStemLookup[stemName=aStem:whateverStem]]...
+Server version: 2.0.0, result code: SUCCESS, result message: Success for: clientVersion: 2.0.0, wsStemToSaves: Array size: 2: [0]: WsStemToSave[
+  wsStemLookup=WsStemLookup[stemName=aStem:whateverStem],
+  wsStem=WsStem[extension=whateverStem,displayExtension=disp1,description=desc1,name=aStem:whateverStem]]...
 , actAsSubject: null, txType: NONE, paramNames: 
 , params: null

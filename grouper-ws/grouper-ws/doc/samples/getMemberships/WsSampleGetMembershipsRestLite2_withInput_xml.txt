@@ -1,4 +1,4 @@
-Grouper web service sample of service: getMemberships, WsSampleGetMembershipsRestLite2, manually written lite/rest, type: _withInput, format: xml, for version: v1_6_000
+Grouper web service sample of service: getMemberships, WsSampleGetMembershipsRestLite2, manually written lite/rest, type: _withInput, format: xml, for version: 2.0.0
 
 
 #########################################
@@ -9,10 +9,10 @@ Grouper web service sample of service: getMemberships, WsSampleGetMembershipsRes
 #########################################
 
 
-GET /grouper-ws/servicesRest/xml/v1_5_000/subjects/10021368/memberships HTTP/1.1
+GET /grouperWs/servicesRest/xml/v2_0_000/subjects/10021368/memberships HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.1
+User-Agent: Jakarta Commons-HttpClient/3.0
 Host: localhost:8092
 
 
@@ -29,117 +29,24 @@ Server: Apache-Coyote/1.1
 Pragma: No-cache
 Cache-Control: no-cache
 Expires: Wed, 31 Dec 1969 19:00:00 EST
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/xml;charset=UTF-8
-Date: Sat, 19 Dec 2009 21:34:12 GMT
+Date: Fri, 12 Aug 2011 22:23:52 GMT
 Connection: close
 
 <WsGetMembershipsResults>
-  <wsMemberships>
-    <WsMembership>
-      <membershipId>70c07cbc64994a4e895afe39a6c7f6bd:2a16e105975a4dceb8986262fe56a6f1</membershipId>
-      <listName>members</listName>
-      <listType>list</listType>
-      <membershipType>immediate</membershipType>
-      <enabled>T</enabled>
-      <memberId>971dea02747045c7a0af54f85c705a57</memberId>
-      <groupId>884e439b6e154cf5b18f1f96cd81ceb0</groupId>
-      <subjectId>10021368</subjectId>
-      <subjectSourceId>jdbc</subjectSourceId>
-      <groupName>aStem:aGroup</groupName>
-      <createTime>2009/12/19 16:34:10.829</createTime>
-    </WsMembership>
-    <WsMembership>
-      <membershipId>35d69fa7b7274193b50ef13c362c4aaf:08aec4fa18d34204ace5f38e1a341875</membershipId>
-      <listName>members</listName>
-      <listType>list</listType>
-      <membershipType>immediate</membershipType>
-      <enabled>T</enabled>
-      <memberId>971dea02747045c7a0af54f85c705a57</memberId>
-      <groupId>3af9472b96fe4054bbbbe72b1fa6be46</groupId>
-      <subjectId>10021368</subjectId>
-      <subjectSourceId>jdbc</subjectSourceId>
-      <groupName>aStem:aGroup2</groupName>
-      <createTime>2009/12/19 16:34:10.878</createTime>
-    </WsMembership>
-    <WsMembership>
-      <membershipId>82310c04a8ed4abbb815fb5700cc7d8a:a5488d03096148849fe32140af5c0510</membershipId>
-      <listName>members</listName>
-      <listType>list</listType>
-      <membershipType>immediate</membershipType>
-      <enabled>T</enabled>
-      <memberId>971dea02747045c7a0af54f85c705a57</memberId>
-      <groupId>eb98a1cd84cc461c8c112d0f23c917b8</groupId>
-      <subjectId>10021368</subjectId>
-      <subjectSourceId>jdbc</subjectSourceId>
-      <groupName>etc:sysadmingroup</groupName>
-      <createTime>2009/12/19 16:34:11.114</createTime>
-    </WsMembership>
-    <WsMembership>
-      <membershipId>5e277121af57458f81cfa70943e15f94:de1e361409684562aa4774eadd40ee6e</membershipId>
-      <listName>members</listName>
-      <listType>list</listType>
-      <membershipType>immediate</membershipType>
-      <enabled>T</enabled>
-      <memberId>971dea02747045c7a0af54f85c705a57</memberId>
-      <groupId>5de2b6e0d5be40cb8aded52195e9ef6a</groupId>
-      <subjectId>10021368</subjectId>
-      <subjectSourceId>jdbc</subjectSourceId>
-      <groupName>etc:webServiceActAsGroup</groupName>
-      <createTime>2009/12/19 16:34:11.070</createTime>
-    </WsMembership>
-  </wsMemberships>
-  <wsGroups>
-    <WsGroup>
-      <extension>aGroup</extension>
-      <displayExtension>a group</displayExtension>
-      <description>a group description</description>
-      <displayName>a stem:a group</displayName>
-      <name>aStem:aGroup</name>
-      <uuid>884e439b6e154cf5b18f1f96cd81ceb0</uuid>
-    </WsGroup>
-    <WsGroup>
-      <extension>aGroup2</extension>
-      <displayExtension>a group2</displayExtension>
-      <description>a group description2</description>
-      <displayName>a stem:a group2</displayName>
-      <name>aStem:aGroup2</name>
-      <uuid>3af9472b96fe4054bbbbe72b1fa6be46</uuid>
-    </WsGroup>
-    <WsGroup>
-      <extension>sysadmingroup</extension>
-      <displayExtension>sysadmingroup</displayExtension>
-      <displayName>etc:sysadmingroup</displayName>
-      <name>etc:sysadmingroup</name>
-      <uuid>eb98a1cd84cc461c8c112d0f23c917b8</uuid>
-    </WsGroup>
-    <WsGroup>
-      <extension>webServiceActAsGroup</extension>
-      <displayExtension>webServiceActAsGroup</displayExtension>
-      <displayName>etc:webServiceActAsGroup</displayName>
-      <name>etc:webServiceActAsGroup</name>
-      <uuid>5de2b6e0d5be40cb8aded52195e9ef6a</uuid>
-    </WsGroup>
-  </wsGroups>
-  <wsSubjects>
-    <WsSubject>
-      <resultCode>SUCCESS</resultCode>
-      <success>T</success>
-      <id>10021368</id>
-      <sourceId>jdbc</sourceId>
-    </WsSubject>
-  </wsSubjects>
   <resultMetadata>
     <resultCode>SUCCESS</resultCode>
-    <resultMessage>Found 4 results involving 4 groups and 1 subjects</resultMessage>
+    <resultMessage>Found 0 results involving 0 groups and 0 subjects</resultMessage>
     <success>T</success>
   </resultMetadata>
   <responseMetadata>
-    <millis>181</millis>
-    <serverVersion>v1_6_000</serverVersion>
+    <resultWarnings></resultWarnings>
+    <millis>8</millis>
+    <serverVersion>2.0.0</serverVersion>
   </responseMetadata>
 </WsGetMembershipsResults>
 
@@ -167,9 +74,9 @@ import org.apache.commons.httpclient.params.DefaultHttpParams;
 import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.commons.lang.StringUtils;
 
+import edu.internet2.middleware.grouper.ws.coresoap.WsGetMembershipsResults;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType;
-import edu.internet2.middleware.grouper.ws.soap.WsGetMembershipsResults;
 import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
 
 /**
@@ -274,4 +181,4 @@ public class WsSampleGetMembershipsRestLite2 implements WsSampleRest {
 #########################################
 
 
-Server version: v1_6_000, result code: SUCCESS, result message: Found 4 results involving 4 groups and 1 subjects
+Server version: 2.0.0, result code: SUCCESS, result message: Found 0 results involving 0 groups and 0 subjects

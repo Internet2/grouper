@@ -1,4 +1,6 @@
+edu.internet2.middleware.grouper.esb
 edu.internet2.middleware.grouper.ws
+edu.internet2.middleware.grouper.ws.coresoap
 edu.internet2.middleware.grouper.ws.exceptions
 edu.internet2.middleware.grouper.ws.member
 edu.internet2.middleware.grouper.ws.query
@@ -14,5 +16,5 @@ edu.internet2.middleware.grouper.ws.rest.permission
 edu.internet2.middleware.grouper.ws.rest.stem
 edu.internet2.middleware.grouper.ws.rest.subject
 edu.internet2.middleware.grouper.ws.security
-edu.internet2.middleware.grouper.ws.soap
+edu.internet2.middleware.grouper.ws.status
 edu.internet2.middleware.grouper.ws.util

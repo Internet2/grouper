@@ -331,7 +331,8 @@ public class SimpleAttributeNameUpdateFilter {
       String attributeDefNameIdThatImplies = httpServletRequest.getParameter("attributeDefNameIdForHierarchy");
       
       if (StringUtils.isBlank(attributeDefNameIdThatImplies)) {
-        throw new RuntimeException("Why is attributeDefNameIdThatImplies blank????");
+        guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simpleAttributeNameUpdate.errorCantEditAttributeDefName", false)));
+        return;
       }
       
       //if editing, then this must be there, or it has been tampered with
@@ -414,7 +415,8 @@ public class SimpleAttributeNameUpdateFilter {
         String attributeDefNameIdImpliedBy = httpServletRequest.getParameter("attributeDefNameIdForHierarchy");
         
         if (StringUtils.isBlank(attributeDefNameIdImpliedBy)) {
-          throw new RuntimeException("Why is attributeDefNameIdThatImplies blank????");
+          guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simpleAttributeNameUpdate.errorCantEditAttributeDefName", false)));
+          return;
         }
         
         //if editing, then this must be there, or it has been tampered with

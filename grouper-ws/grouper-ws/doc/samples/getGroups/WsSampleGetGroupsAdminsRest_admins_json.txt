@@ -1,4 +1,4 @@
-Grouper web service sample of service: getGroups, WsSampleGetGroupsAdminsRest, manually written lite/rest, type: _admins, format: json, for version: v1_5_000
+Grouper web service sample of service: getGroups, WsSampleGetGroupsAdminsRest, manually written lite/rest, type: _admins, format: json, for version: 2.0.0
 
 
 #########################################
@@ -9,10 +9,10 @@ Grouper web service sample of service: getGroups, WsSampleGetGroupsAdminsRest, m
 #########################################
 
 
-POST /grouper-ws/servicesRest/v1_5_000/subjects HTTP/1.1
+POST /grouperWs/servicesRest/v2_0_000/subjects HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.1
+User-Agent: Jakarta Commons-HttpClient/3.0
 Host: localhost:8092
 Content-Length: 196
 Content-Type: text/x-json; charset=UTF-8
@@ -52,24 +52,24 @@ Content-Type: text/x-json; charset=UTF-8
 
 HTTP/1.1 201 Created
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/x-json;charset=UTF-8
-Content-Length: 895
-Date: Sat, 21 Nov 2009 21:23:58 GMT
+Content-Length: 1092
+Date: Fri, 12 Aug 2011 22:12:08 GMT
 Connection: close
 
 {
   "WsGetGroupsResults":{
     "responseMetadata":{
-      "millis":"91",
-      "serverVersion":"v1_5_000"
+      "millis":"66",
+      "serverVersion":"2.0.0"
     },
     "resultMetadata":{
       "resultCode":"SUCCESS",
-      "resultMessage":"Success for: clientVersion: v1_5_000, subjectLookups: Array size: 2: [0]: WsSubjectLookup[subjectId=10021368]\n[1]: WsSubjectLookup[subjectId=10039438]\n\nmemberFilter: All, includeGroupDetail: false, actAsSubject: null\n, params: Array size: 1: [0]: WsParam[paramName=fieldName,paramValue=admins]\n, field: admins",
+      "resultMessage":"Success for: clientVersion: 2.0.0, subjectLookups: Array size: 2: [0]: WsSubjectLookup[subjectId=10021368]\n[1]: WsSubjectLookup[subjectId=10039438]\n\nmemberFilter: All, includeGroupDetail: false, actAsSubject: null\n, params: Array size: 1: [0]: WsParam[paramName=fieldName,paramValue=admins]\n\n fieldName1: null\n, scope: null, wsStemLookup: null\n, stemScope: null, enabled: null, pageSize: null, pageNumber: null, sortString: null, ascending: null\n, pointInTimeFrom: null, pointInTimeTo: null, field: admins",
       "success":"T"
     },
     "results":[
@@ -141,13 +141,13 @@ import org.apache.commons.httpclient.params.DefaultHttpParams;
 import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.commons.lang.StringUtils;
 
+import edu.internet2.middleware.grouper.ws.coresoap.WsGetGroupsResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsParam;
+import edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup;
 import edu.internet2.middleware.grouper.ws.rest.WsRestResultProblem;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestGetGroupsRequest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType;
-import edu.internet2.middleware.grouper.ws.soap.WsGetGroupsResults;
-import edu.internet2.middleware.grouper.ws.soap.WsParam;
-import edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup;
 import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
 
 /**
@@ -283,9 +283,13 @@ public class WsSampleGetGroupsAdminsRest implements WsSampleRest {
 #########################################
 
 
-Server version: v1_5_000, result code: SUCCESS, result message: Success for: clientVersion: v1_5_000, subjectLookups: Array size: 2: [0]: WsSubjectLookup[subjectId=10021368]
+Server version: 2.0.0, result code: SUCCESS, result message: Success for: clientVersion: 2.0.0, subjectLookups: Array size: 2: [0]: WsSubjectLookup[subjectId=10021368]
 [1]: WsSubjectLookup[subjectId=10039438]
 
 memberFilter: All, includeGroupDetail: false, actAsSubject: null
 , params: Array size: 1: [0]: WsParam[paramName=fieldName,paramValue=admins]
-, field: admins
+
+ fieldName1: null
+, scope: null, wsStemLookup: null
+, stemScope: null, enabled: null, pageSize: null, pageNumber: null, sortString: null, ascending: null
+, pointInTimeFrom: null, pointInTimeTo: null, field: admins

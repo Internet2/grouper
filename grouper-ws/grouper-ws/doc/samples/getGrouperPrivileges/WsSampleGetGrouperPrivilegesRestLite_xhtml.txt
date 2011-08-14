@@ -1,4 +1,4 @@
-Grouper web service sample of service: getGrouperPrivileges, WsSampleGetGrouperPrivilegesRestLite, manually written lite/rest, format: xhtml, for version: v1_5_000
+Grouper web service sample of service: getGrouperPrivileges, WsSampleGetGrouperPrivilegesRestLite, manually written lite/rest, format: xhtml, for version: 2.0.0
 
 
 #########################################
@@ -9,10 +9,10 @@ Grouper web service sample of service: getGrouperPrivileges, WsSampleGetGrouperP
 #########################################
 
 
-POST /grouper-ws/servicesRest/v1_5_000/grouperPrivileges HTTP/1.1
+POST /grouperWs/servicesRest/v2_0_000/grouperPrivileges HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.1
+User-Agent: Jakarta Commons-HttpClient/3.0
 Host: localhost:8092
 Content-Length: 974
 Content-Type: application/xhtml+xml; charset=UTF-8
@@ -27,24 +27,24 @@ Content-Type: application/xhtml+xml; charset=UTF-8
     <div title="WsRestGetGrouperPrivilegesLiteRequest">
       <p class="subjectSourceId" />
       <p class="subjectId">test.subject.0</p>
-      <p class="groupUuid" />
       <p class="groupName">aStem:aGroup</p>
-      <p class="clientVersion" />
+      <p class="groupUuid" />
       <p class="subjectIdentifier" />
-      <p class="stemName" />
-      <p class="stemUuid" />
-      <p class="privilegeType">access</p>
-      <p class="privilegeName">admin</p>
-      <p class="actAsSubjectId">GrouperSystem</p>
-      <p class="actAsSubjectSourceId" />
-      <p class="actAsSubjectIdentifier" />
+      <p class="clientVersion" />
       <p class="includeSubjectDetail" />
       <p class="subjectAttributeNames" />
       <p class="includeGroupDetail" />
+      <p class="stemName" />
+      <p class="stemUuid" />
+      <p class="actAsSubjectId">GrouperSystem</p>
+      <p class="actAsSubjectSourceId" />
+      <p class="actAsSubjectIdentifier" />
       <p class="paramName0" />
       <p class="paramValue0" />
       <p class="paramName1" />
       <p class="paramValue1" />
+      <p class="privilegeType">access</p>
+      <p class="privilegeName">admin</p>
     </div>
   </body>
 </html>
@@ -60,12 +60,12 @@ Content-Type: application/xhtml+xml; charset=UTF-8
 
 HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
 X-Grouper-resultCode: SUCCESS_NOT_ALLOWED
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml;charset=UTF-8
-Date: Sat, 21 Nov 2009 21:17:39 GMT
+Date: Fri, 12 Aug 2011 22:04:29 GMT
 Connection: close
 
 <?xml version='1.0' encoding='iso-8859-1'?>
@@ -79,13 +79,13 @@ Connection: close
       <div class="resultMetadata" title="WsResultMeta">
         <p class="resultCode">SUCCESS_NOT_ALLOWED</p>
         <p class="success">T</p>
-        <p class="resultMessage" />
         <p class="resultCode2" />
+        <p class="resultMessage" />
       </div>
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="serverVersion">v1_5_000</p>
-        <p class="millis">131</p>
+        <p class="millis">64</p>
         <p class="resultWarnings" />
+        <p class="serverVersion">2.0.0</p>
       </div>
     </div>
   </body>
@@ -116,10 +116,10 @@ import org.apache.commons.httpclient.params.DefaultHttpParams;
 import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.commons.lang.StringUtils;
 
+import edu.internet2.middleware.grouper.ws.coresoap.WsGetGrouperPrivilegesLiteResult;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestGetGrouperPrivilegesLiteRequest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType;
-import edu.internet2.middleware.grouper.ws.soap.WsGetGrouperPrivilegesLiteResult;
 import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
 
 /**
@@ -249,4 +249,4 @@ public class WsSampleGetGrouperPrivilegesRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: v1_5_000, result code: SUCCESS_NOT_ALLOWED, result message: null
+Server version: 2.0.0, result code: SUCCESS_NOT_ALLOWED, result message: null

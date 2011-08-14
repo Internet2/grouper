@@ -2235,7 +2235,9 @@ public class GrouperService {
       includeGroupDetail, 
       GrouperUtil.changeToVersion(params, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
       enabled, pointInTimeFrom, pointInTimeTo, immediateOnly, permissionType, 
-      permissionProcessor, limitEnvVars, includeLimits});
+      permissionProcessor, 
+      GrouperUtil.changeToVersion(limitEnvVars, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
+      includeLimits});
     
     return (WsGetPermissionAssignmentsResults)GrouperUtil.changeToVersion(result, THIS_VERSION_PACKAGE);
   

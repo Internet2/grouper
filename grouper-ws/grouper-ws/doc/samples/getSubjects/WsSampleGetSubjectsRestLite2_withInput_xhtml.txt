@@ -1,4 +1,4 @@
-Grouper web service sample of service: getSubjects, WsSampleGetSubjectsRestLite2, manually written lite/rest, type: _withInput, format: xhtml, for version: v1_6_000
+Grouper web service sample of service: getSubjects, WsSampleGetSubjectsRestLite2, manually written lite/rest, type: _withInput, format: xhtml, for version: 2.0.0
 
 
 #########################################
@@ -9,10 +9,10 @@ Grouper web service sample of service: getSubjects, WsSampleGetSubjectsRestLite2
 #########################################
 
 
-POST /grouper-ws/servicesRest/v1_5_000/subjects HTTP/1.1
+POST /grouperWs/servicesRest/v2_0_000/subjects HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.1
+User-Agent: Jakarta Commons-HttpClient/3.0
 Host: localhost:8092
 Content-Length: 937
 Content-Type: application/xhtml+xml; charset=UTF-8
@@ -27,15 +27,14 @@ Content-Type: application/xhtml+xml; charset=UTF-8
     <div title="WsRestGetSubjectsLiteRequest">
       <p class="subjectSourceId" />
       <p class="subjectId" />
-      <p class="groupUuid" />
       <p class="groupName" />
+      <p class="groupUuid" />
+      <p class="subjectIdentifier" />
       <p class="clientVersion" />
-      <p class="searchString">test</p>
       <p class="includeSubjectDetail" />
       <p class="subjectAttributeNames" />
-      <p class="sourceIds" />
       <p class="includeGroupDetail" />
-      <p class="subjectIdentifier" />
+      <p class="memberFilter" />
       <p class="actAsSubjectId" />
       <p class="actAsSubjectSourceId" />
       <p class="actAsSubjectIdentifier" />
@@ -43,8 +42,9 @@ Content-Type: application/xhtml+xml; charset=UTF-8
       <p class="paramValue0" />
       <p class="paramName1" />
       <p class="paramValue1" />
-      <p class="memberFilter" />
+      <p class="sourceIds" />
       <p class="retrieveSubjectDetail" />
+      <p class="searchString">test</p>
       <p class="fieldName" />
     </div>
   </body>
@@ -61,12 +61,12 @@ Content-Type: application/xhtml+xml; charset=UTF-8
 
 HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml;charset=UTF-8
-Date: Tue, 29 Dec 2009 07:30:33 GMT
+Date: Fri, 12 Aug 2011 22:24:53 GMT
 Connection: close
 
 <?xml version='1.0' encoding='iso-8859-1'?>
@@ -78,95 +78,111 @@ Connection: close
   <body>
     <div title="WsGetSubjectsResults">
       <div class="resultMetadata" title="WsResultMeta">
-        <p class="success">T</p>
-        <p class="resultMessage">Found 10 subjects</p>
         <p class="resultCode">SUCCESS</p>
+        <p class="success">T</p>
         <p class="resultCode2" />
+        <p class="resultMessage">Queried 12 subjects</p>
       </div>
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">0</p>
-        <p class="serverVersion">v1_6_000</p>
+        <p class="millis">168</p>
         <p class="resultWarnings" />
+        <p class="serverVersion">2.0.0</p>
       </div>
       <ul class="wsSubjects">
+        <li title="WsSubject">
+          <p class="name">test:groupTestAttrAssign</p>
+          <p class="id">5830c8e7c31f42f591e2012d5c2a0185</p>
+          <p class="sourceId">g:gsa</p>
+          <p class="resultCode">SUCCESS</p>
+          <p class="success">T</p>
+          <p class="identifierLookup" />
+        </li>
+        <li title="WsSubject">
+          <p class="name">test:groupTestAttrAssign2</p>
+          <p class="id">d45941295f11497fb39719ab383d5516</p>
+          <p class="sourceId">g:gsa</p>
+          <p class="resultCode">SUCCESS</p>
+          <p class="success">T</p>
+          <p class="identifierLookup" />
+        </li>
         <li title="WsSubject">
           <p class="name">my name is test.subject.0</p>
           <p class="id">test.subject.0</p>
           <p class="sourceId">jdbc</p>
-          <p class="success">T</p>
           <p class="resultCode">SUCCESS</p>
+          <p class="success">T</p>
           <p class="identifierLookup" />
         </li>
         <li title="WsSubject">
           <p class="name">my name is test.subject.1</p>
           <p class="id">test.subject.1</p>
           <p class="sourceId">jdbc</p>
-          <p class="success">T</p>
           <p class="resultCode">SUCCESS</p>
+          <p class="success">T</p>
           <p class="identifierLookup" />
         </li>
         <li title="WsSubject">
           <p class="name">my name is test.subject.2</p>
           <p class="id">test.subject.2</p>
           <p class="sourceId">jdbc</p>
-          <p class="success">T</p>
           <p class="resultCode">SUCCESS</p>
+          <p class="success">T</p>
           <p class="identifierLookup" />
         </li>
         <li title="WsSubject">
           <p class="name">my name is test.subject.3</p>
           <p class="id">test.subject.3</p>
           <p class="sourceId">jdbc</p>
-          <p class="success">T</p>
           <p class="resultCode">SUCCESS</p>
+          <p class="success">T</p>
           <p class="identifierLookup" />
         </li>
         <li title="WsSubject">
           <p class="name">my name is test.subject.4</p>
           <p class="id">test.subject.4</p>
           <p class="sourceId">jdbc</p>
-          <p class="success">T</p>
           <p class="resultCode">SUCCESS</p>
+          <p class="success">T</p>
           <p class="identifierLookup" />
         </li>
         <li title="WsSubject">
           <p class="name">my name is test.subject.5</p>
           <p class="id">test.subject.5</p>
           <p class="sourceId">jdbc</p>
-          <p class="success">T</p>
           <p class="resultCode">SUCCESS</p>
+          <p class="success">T</p>
           <p class="identifierLookup" />
         </li>
         <li title="WsSubject">
           <p class="name">my name is test.subject.6</p>
           <p class="id">test.subject.6</p>
           <p class="sourceId">jdbc</p>
-          <p class="success">T</p>
           <p class="resultCode">SUCCESS</p>
+          <p class="success">T</p>
           <p class="identifierLookup" />
         </li>
         <li title="WsSubject">
           <p class="name">my name is test.subject.7</p>
           <p class="id">test.subject.7</p>
           <p class="sourceId">jdbc</p>
-          <p class="success">T</p>
           <p class="resultCode">SUCCESS</p>
+          <p class="success">T</p>
           <p class="identifierLookup" />
         </li>
         <li title="WsSubject">
           <p class="name">my name is test.subject.8</p>
           <p class="id">test.subject.8</p>
           <p class="sourceId">jdbc</p>
-          <p class="success">T</p>
           <p class="resultCode">SUCCESS</p>
+          <p class="success">T</p>
           <p class="identifierLookup" />
         </li>
         <li title="WsSubject">
           <p class="name">my name is test.subject.9</p>
           <p class="id">test.subject.9</p>
           <p class="sourceId">jdbc</p>
-          <p class="success">T</p>
           <p class="resultCode">SUCCESS</p>
+          <p class="success">T</p>
           <p class="identifierLookup" />
         </li>
       </ul>
@@ -200,11 +216,11 @@ import org.apache.commons.httpclient.params.DefaultHttpParams;
 import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.commons.lang.StringUtils;
 
+import edu.internet2.middleware.grouper.ws.coresoap.WsGetMembershipsResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsGetSubjectsResults;
 import edu.internet2.middleware.grouper.ws.rest.subject.WsRestGetSubjectsLiteRequest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType;
-import edu.internet2.middleware.grouper.ws.soap.WsGetMembershipsResults;
-import edu.internet2.middleware.grouper.ws.soap.WsGetSubjectsResults;
 import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
 
 /**
@@ -324,4 +340,4 @@ public class WsSampleGetSubjectsRestLite2 implements WsSampleRest {
 #########################################
 
 
-Server version: v1_6_000, result code: SUCCESS, result message: Found 10 subjects
+Server version: 2.0.0, result code: SUCCESS, result message: Queried 12 subjects

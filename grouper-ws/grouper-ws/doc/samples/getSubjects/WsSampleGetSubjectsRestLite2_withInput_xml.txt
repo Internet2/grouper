@@ -1,4 +1,4 @@
-Grouper web service sample of service: getSubjects, WsSampleGetSubjectsRestLite2, manually written lite/rest, type: _withInput, format: xml, for version: v1_6_000
+Grouper web service sample of service: getSubjects, WsSampleGetSubjectsRestLite2, manually written lite/rest, type: _withInput, format: xml, for version: 2.0.0
 
 
 #########################################
@@ -9,10 +9,10 @@ Grouper web service sample of service: getSubjects, WsSampleGetSubjectsRestLite2
 #########################################
 
 
-POST /grouper-ws/servicesRest/v1_5_000/subjects HTTP/1.1
+POST /grouperWs/servicesRest/v2_0_000/subjects HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.1
+User-Agent: Jakarta Commons-HttpClient/3.0
 Host: localhost:8092
 Content-Length: 94
 Content-Type: text/xml; charset=UTF-8
@@ -32,16 +32,30 @@ Content-Type: text/xml; charset=UTF-8
 
 HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/xml;charset=UTF-8
-Date: Tue, 29 Dec 2009 07:30:40 GMT
+Date: Fri, 12 Aug 2011 22:25:11 GMT
 Connection: close
 
 <WsGetSubjectsResults>
   <wsSubjects>
+    <WsSubject>
+      <resultCode>SUCCESS</resultCode>
+      <success>T</success>
+      <id>5830c8e7c31f42f591e2012d5c2a0185</id>
+      <name>test:groupTestAttrAssign</name>
+      <sourceId>g:gsa</sourceId>
+    </WsSubject>
+    <WsSubject>
+      <resultCode>SUCCESS</resultCode>
+      <success>T</success>
+      <id>d45941295f11497fb39719ab383d5516</id>
+      <name>test:groupTestAttrAssign2</name>
+      <sourceId>g:gsa</sourceId>
+    </WsSubject>
     <WsSubject>
       <resultCode>SUCCESS</resultCode>
       <success>T</success>
@@ -115,12 +129,13 @@ Connection: close
   </wsSubjects>
   <resultMetadata>
     <resultCode>SUCCESS</resultCode>
-    <resultMessage>Found 10 subjects</resultMessage>
+    <resultMessage>Queried 12 subjects</resultMessage>
     <success>T</success>
   </resultMetadata>
   <responseMetadata>
-    <millis>16</millis>
-    <serverVersion>v1_6_000</serverVersion>
+    <resultWarnings></resultWarnings>
+    <millis>14</millis>
+    <serverVersion>2.0.0</serverVersion>
   </responseMetadata>
 </WsGetSubjectsResults>
 
@@ -149,11 +164,11 @@ import org.apache.commons.httpclient.params.DefaultHttpParams;
 import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.commons.lang.StringUtils;
 
+import edu.internet2.middleware.grouper.ws.coresoap.WsGetMembershipsResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsGetSubjectsResults;
 import edu.internet2.middleware.grouper.ws.rest.subject.WsRestGetSubjectsLiteRequest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType;
-import edu.internet2.middleware.grouper.ws.soap.WsGetMembershipsResults;
-import edu.internet2.middleware.grouper.ws.soap.WsGetSubjectsResults;
 import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
 
 /**
@@ -273,4 +288,4 @@ public class WsSampleGetSubjectsRestLite2 implements WsSampleRest {
 #########################################
 
 
-Server version: v1_6_000, result code: SUCCESS, result message: Found 10 subjects
+Server version: 2.0.0, result code: SUCCESS, result message: Queried 12 subjects

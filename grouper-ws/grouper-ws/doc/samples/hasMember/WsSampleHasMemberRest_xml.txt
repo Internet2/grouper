@@ -1,4 +1,4 @@
-Grouper web service sample of service: hasMember, WsSampleHasMemberRest, manually written lite/rest, format: xml, for version: v1_5_000
+Grouper web service sample of service: hasMember, WsSampleHasMemberRest, manually written lite/rest, format: xml, for version: 2.0.0
 
 
 #########################################
@@ -9,10 +9,10 @@ Grouper web service sample of service: hasMember, WsSampleHasMemberRest, manuall
 #########################################
 
 
-POST /grouper-ws/servicesRest/v1_5_000/groups/aStem%3AaGroup/members HTTP/1.1
+POST /grouperWs/servicesRest/v2_0_000/groups/aStem%3AaGroup/members HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.1
+User-Agent: Jakarta Commons-HttpClient/3.0
 Host: localhost:8092
 Content-Length: 291
 Content-Type: text/xml; charset=UTF-8
@@ -42,65 +42,65 @@ Content-Type: text/xml; charset=UTF-8
 
 HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/xml;charset=UTF-8
-Date: Sat, 21 Nov 2009 21:21:54 GMT
+Date: Fri, 12 Aug 2011 22:10:03 GMT
 Connection: close
 
 <WsHasMemberResults>
   <results>
     <WsHasMemberResult>
-      <resultMetadata>
-        <success>T</success>
-        <resultCode>IS_MEMBER</resultCode>
-      </resultMetadata>
       <wsSubject>
         <resultCode>SUCCESS</resultCode>
         <success>T</success>
+        <id>10021368</id>
         <name>10021368</name>
         <sourceId>jdbc</sourceId>
-        <id>10021368</id>
       </wsSubject>
+      <resultMetadata>
+        <resultCode>IS_MEMBER</resultCode>
+        <success>T</success>
+      </resultMetadata>
     </WsHasMemberResult>
     <WsHasMemberResult>
-      <resultMetadata>
-        <success>T</success>
-        <resultCode>IS_MEMBER</resultCode>
-      </resultMetadata>
       <wsSubject>
         <resultCode>SUCCESS</resultCode>
         <success>T</success>
+        <id>10039438</id>
         <name>10039438</name>
         <sourceId>jdbc</sourceId>
-        <id>10039438</id>
       </wsSubject>
+      <resultMetadata>
+        <resultCode>IS_MEMBER</resultCode>
+        <success>T</success>
+      </resultMetadata>
     </WsHasMemberResult>
   </results>
   <wsGroup>
     <extension>aGroup</extension>
-    <description>a group description</description>
     <displayExtension>a group</displayExtension>
-    <uuid>962f8f95f24c4f08aae5a6a664f58221</uuid>
-    <name>aStem:aGroup</name>
+    <description>a group description</description>
     <displayName>a stem:a group</displayName>
+    <name>aStem:aGroup</name>
+    <uuid>88597e7e1ed8474d8b9844b7c1185326</uuid>
   </wsGroup>
-  <responseMetadata>
-    <millis>142</millis>
-    <serverVersion>v1_5_000</serverVersion>
-  </responseMetadata>
   <resultMetadata>
-    <success>T</success>
-    <resultMessage>Success for: clientVersion: v1_5_000, wsGroupLookup: WsGroupLookup[groupName=aStem:aGroup], subjectLookups: Array size: 2: [0]: WsSubjectLookup[subjectId=10021368]
+    <resultCode>SUCCESS</resultCode>
+    <resultMessage>Success for: clientVersion: 2.0.0, wsGroupLookup: WsGroupLookup[pitGroups=[],groupName=aStem:aGroup], subjectLookups: Array size: 2: [0]: WsSubjectLookup[subjectId=10021368]
 [1]: WsSubjectLookup[subjectId=10039438]
-
 memberFilter: All, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], fieldName: null, includeGroupDetail: false, includeSubjectDetail: false, subjectAttributeNames: null
 ,params: null
-</resultMessage>
-    <resultCode>SUCCESS</resultCode>
+,pointInTimeFrom: null, pointInTimeTo: null</resultMessage>
+    <success>T</success>
   </resultMetadata>
+  <responseMetadata>
+    <resultWarnings></resultWarnings>
+    <millis>63</millis>
+    <serverVersion>2.0.0</serverVersion>
+  </responseMetadata>
 </WsHasMemberResults>
 
 
@@ -128,12 +128,12 @@ import org.apache.commons.httpclient.params.DefaultHttpParams;
 import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.commons.lang.StringUtils;
 
+import edu.internet2.middleware.grouper.ws.coresoap.WsHasMemberResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup;
 import edu.internet2.middleware.grouper.ws.rest.WsRestResultProblem;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestHasMemberRequest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType;
-import edu.internet2.middleware.grouper.ws.soap.WsHasMemberResults;
-import edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup;
 import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
 
 /**
@@ -269,8 +269,9 @@ public class WsSampleHasMemberRest implements WsSampleRest {
 #########################################
 
 
-Server version: v1_5_000, result code: SUCCESS, result message: Success for: clientVersion: v1_5_000, wsGroupLookup: WsGroupLookup[groupName=aStem:aGroup], subjectLookups: Array size: 2: [0]: WsSubjectLookup[subjectId=10021368]
+Server version: 2.0.0, result code: SUCCESS, result message: Success for: clientVersion: 2.0.0, wsGroupLookup: WsGroupLookup[pitGroups=[],groupName=aStem:aGroup], subjectLookups: Array size: 2: [0]: WsSubjectLookup[subjectId=10021368]
 [1]: WsSubjectLookup[subjectId=10039438]
 
  memberFilter: All, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], fieldName: null, includeGroupDetail: false, includeSubjectDetail: false, subjectAttributeNames: null
 ,params: null
+,pointInTimeFrom: null, pointInTimeTo: null

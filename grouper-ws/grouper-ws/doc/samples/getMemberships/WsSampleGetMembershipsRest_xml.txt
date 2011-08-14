@@ -1,4 +1,4 @@
-Grouper web service sample of service: getMemberships, WsSampleGetMembershipsRest, manually written lite/rest, format: xml, for version: v1_6_000
+Grouper web service sample of service: getMemberships, WsSampleGetMembershipsRest, manually written lite/rest, format: xml, for version: 2.0.0
 
 
 #########################################
@@ -9,10 +9,10 @@ Grouper web service sample of service: getMemberships, WsSampleGetMembershipsRes
 #########################################
 
 
-POST /grouper-ws/servicesRest/v1_5_000/memberships HTTP/1.1
+POST /grouperWs/servicesRest/v2_0_000/memberships HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.1
+User-Agent: Jakarta Commons-HttpClient/3.0
 Host: localhost:8092
 Content-Length: 278
 Content-Type: text/xml; charset=UTF-8
@@ -41,54 +41,57 @@ Content-Type: text/xml; charset=UTF-8
 
 HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/xml;charset=UTF-8
-Date: Sat, 19 Dec 2009 21:33:49 GMT
+Date: Fri, 12 Aug 2011 22:23:03 GMT
 Connection: close
 
 <WsGetMembershipsResults>
   <wsMemberships>
     <WsMembership>
-      <membershipId>70753da4a3bb4ae48982e2a9e2791621:e9af3ada7bbc48058eefcf922f5b4bbb</membershipId>
+      <membershipId>9da0fd9c914a4dcab276925e121d4e37:87f03b1eec544bf1baebc672151c088e</membershipId>
+      <immediateMembershipId>9da0fd9c914a4dcab276925e121d4e37</immediateMembershipId>
       <listName>members</listName>
       <listType>list</listType>
       <membershipType>immediate</membershipType>
       <enabled>T</enabled>
-      <memberId>18115df1c9b043f2bcaf58163003a276</memberId>
-      <groupId>1ff037a484cb4a4eab61da3903e542d4</groupId>
+      <memberId>6cc7bc126ac24ac98f9f9840e96fcd99</memberId>
+      <groupId>cbf79fdf322d4cb9b1fb6715c8efd728</groupId>
       <subjectId>GrouperSystem</subjectId>
       <subjectSourceId>g:isa</subjectSourceId>
       <groupName>aStem:aGroup</groupName>
-      <createTime>2009/12/19 16:33:47.521</createTime>
+      <createTime>2011/08/12 18:23:01.301</createTime>
     </WsMembership>
     <WsMembership>
-      <membershipId>93895ad8108941e3b7e0e769dbfac4f4:e9af3ada7bbc48058eefcf922f5b4bbb</membershipId>
+      <membershipId>716b8c7d8e604097b807a312d058be37:87f03b1eec544bf1baebc672151c088e</membershipId>
+      <immediateMembershipId>716b8c7d8e604097b807a312d058be37</immediateMembershipId>
       <listName>members</listName>
       <listType>list</listType>
       <membershipType>immediate</membershipType>
       <enabled>T</enabled>
-      <memberId>0e964754e22046a3bc1f7694e7edbc61</memberId>
-      <groupId>1ff037a484cb4a4eab61da3903e542d4</groupId>
+      <memberId>81eb661287eb4992ae1a3d051ca162f6</memberId>
+      <groupId>cbf79fdf322d4cb9b1fb6715c8efd728</groupId>
       <subjectId>10021368</subjectId>
       <subjectSourceId>jdbc</subjectSourceId>
       <groupName>aStem:aGroup</groupName>
-      <createTime>2009/12/19 16:33:47.558</createTime>
+      <createTime>2011/08/12 18:23:01.343</createTime>
     </WsMembership>
     <WsMembership>
-      <membershipId>64d792a894de4df9ac84ec5cca8e04a6:e9af3ada7bbc48058eefcf922f5b4bbb</membershipId>
+      <membershipId>98a74b279c8141cf8d9bc5cc90d49095:87f03b1eec544bf1baebc672151c088e</membershipId>
+      <immediateMembershipId>98a74b279c8141cf8d9bc5cc90d49095</immediateMembershipId>
       <listName>members</listName>
       <listType>list</listType>
       <membershipType>immediate</membershipType>
       <enabled>T</enabled>
-      <memberId>07433b5717ca4508ac4dbfc5f4c8ddaf</memberId>
-      <groupId>1ff037a484cb4a4eab61da3903e542d4</groupId>
+      <memberId>cc52bd4bacc14d66add64a2a866c821c</memberId>
+      <groupId>cbf79fdf322d4cb9b1fb6715c8efd728</groupId>
       <subjectId>10039438</subjectId>
       <subjectSourceId>jdbc</subjectSourceId>
       <groupName>aStem:aGroup</groupName>
-      <createTime>2009/12/19 16:33:47.540</createTime>
+      <createTime>2011/08/12 18:23:01.319</createTime>
     </WsMembership>
   </wsMemberships>
   <subjectAttributeNames>
@@ -103,7 +106,7 @@ Connection: close
       <description>a group description</description>
       <displayName>a stem:a group</displayName>
       <name>aStem:aGroup</name>
-      <uuid>1ff037a484cb4a4eab61da3903e542d4</uuid>
+      <uuid>cbf79fdf322d4cb9b1fb6715c8efd728</uuid>
     </WsGroup>
   </wsGroups>
   <wsSubjects>
@@ -150,8 +153,9 @@ Connection: close
     <success>T</success>
   </resultMetadata>
   <responseMetadata>
-    <millis>160</millis>
-    <serverVersion>v1_6_000</serverVersion>
+    <resultWarnings></resultWarnings>
+    <millis>155</millis>
+    <serverVersion>2.0.0</serverVersion>
   </responseMetadata>
 </WsGetMembershipsResults>
 
@@ -180,12 +184,12 @@ import org.apache.commons.httpclient.params.DefaultHttpParams;
 import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.commons.lang.StringUtils;
 
+import edu.internet2.middleware.grouper.ws.coresoap.WsGetMembershipsResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsGroupLookup;
 import edu.internet2.middleware.grouper.ws.rest.WsRestResultProblem;
 import edu.internet2.middleware.grouper.ws.rest.membership.WsRestGetMembershipsRequest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType;
-import edu.internet2.middleware.grouper.ws.soap.WsGetMembershipsResults;
-import edu.internet2.middleware.grouper.ws.soap.WsGroupLookup;
 import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
 
 /**
@@ -316,4 +320,4 @@ public class WsSampleGetMembershipsRest implements WsSampleRest {
 #########################################
 
 
-Server version: v1_6_000, result code: SUCCESS, result message: Found 3 results involving 1 groups and 3 subjects
+Server version: 2.0.0, result code: SUCCESS, result message: Found 3 results involving 1 groups and 3 subjects

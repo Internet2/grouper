@@ -131,7 +131,7 @@ contextZoneJqueryHandle="#advancedLink" contextMenu="true" />
 </div>
 
 <%-- grey box for the add member form --%>
-<div class="section" style="min-width: 900px">
+<div class="section" style="min-width: 750px">
   <%-- add member --%>
   <grouper:subtitle label="${simpleMembershipUpdateContainer.text.addMemberSubtitle}" />
 
@@ -140,21 +140,17 @@ contextZoneJqueryHandle="#advancedLink" contextMenu="true" />
     <%-- describe the combobox, since it doesnt look like something you would type in to --%>
     <div class="combohint"><grouper:message value="${simpleMembershipUpdateContainer.text.addMemberCombohint}"/></div>
     <%-- note, the combobox does not currently auto adjust its width, so just make it really wide --%>
-    <table width="900" cellpadding="0" cellspacing="0">
-      <tr valign="top">
-        <td style="padding: 0px" width="710">
-          <%-- show the combobox --%>
-          <grouper:combobox filterOperation="SimpleMembershipUpdateFilter.filterUsers" id="simpleMembershipUpdateAddMember" 
-            width="700"/>
-        </td>
-        <td>
+
+    <%-- show the combobox --%>
+    <grouper:combobox filterOperation="SimpleMembershipUpdateFilter.filterUsers" id="simpleMembershipUpdateAddMember" 
+      width="700"/>
+
+       <div style="margin-top: 5px;">
           <%-- add member button --%>
           <input class="blueButton" type="submit" name="addMemberButton"
           onclick="ajax('../app/SimpleMembershipUpdate.addMember', {formIds: 'simpleMembershipUpdateAddMemberForm'}); return false;" 
           value="${simpleMembershipUpdateContainer.text.addMemberButton}" style="margin-top: 2px" />
-        </td>
-      </tr>
-    </table>
+       </div>
     </form>
     <br />
   </div>

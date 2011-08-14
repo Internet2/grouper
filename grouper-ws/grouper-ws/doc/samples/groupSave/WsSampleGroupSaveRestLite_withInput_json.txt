@@ -1,4 +1,4 @@
-Grouper web service sample of service: groupSave, WsSampleGroupSaveRestLite, manually written lite/rest, type: _withInput, format: json, for version: v1_5_000
+Grouper web service sample of service: groupSave, WsSampleGroupSaveRestLite, manually written lite/rest, type: _withInput, format: json, for version: 2.0.0
 
 
 #########################################
@@ -9,10 +9,10 @@ Grouper web service sample of service: groupSave, WsSampleGroupSaveRestLite, man
 #########################################
 
 
-POST /grouper-ws/servicesRest/v1_5_000/groups/aStem%3AaGroup HTTP/1.1
+POST /grouperWs/servicesRest/v2_0_000/groups/aStem%3AaGroup HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.1
+User-Agent: Jakarta Commons-HttpClient/3.0
 Host: localhost:8092
 Content-Length: 141
 Content-Type: text/x-json; charset=UTF-8
@@ -37,24 +37,24 @@ Content-Type: text/x-json; charset=UTF-8
 
 HTTP/1.1 201 Created
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
 X-Grouper-resultCode: SUCCESS_UPDATED
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/x-json;charset=UTF-8
-Content-Length: 676
-Date: Sat, 21 Nov 2009 21:11:53 GMT
+Content-Length: 682
+Date: Fri, 12 Aug 2011 22:21:27 GMT
 Connection: close
 
 {
   "WsGroupSaveLiteResult":{
     "responseMetadata":{
-      "millis":"222",
-      "serverVersion":"v1_5_000"
+      "millis":"93",
+      "serverVersion":"2.0.0"
     },
     "resultMetadata":{
       "resultCode":"SUCCESS_UPDATED",
-      "resultMessage":"Success for: clientVersion: v1_5_000, wsGroupToSaves: Array size: 1: [0]: WsGroupToSave[\n  wsGroup=WsGroup[description=desc1,displayExtension=disp1,name=aStem:aGroup],\n  wsGroupLookup=WsGroupLookup[groupName=aStem:aGroup]]\n\n, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], txType: NONE, paramNames: \n, params: null",
+      "resultMessage":"Success for: clientVersion: 2.0.0, wsGroupToSaves: Array size: 1: [0]: WsGroupToSave[\n  wsGroupLookup=WsGroupLookup[pitGroups=[],groupName=aStem:aGroup],\n  wsGroup=WsGroup[displayExtension=disp1,description=desc1,name=aStem:aGroup]]\n\n, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], txType: NONE, paramNames: \n, params: null",
       "success":"T"
     },
     "wsGroup":{
@@ -63,7 +63,7 @@ Connection: close
       "displayName":"a stem:disp1",
       "extension":"aGroup",
       "name":"aStem:aGroup",
-      "uuid":"f3c810f8c1fc4609b6c2dc78c0b366a1"
+      "uuid":"8dd9ac830789466cae0600da65438acd"
     }
   }
 }
@@ -93,11 +93,11 @@ import org.apache.commons.httpclient.params.DefaultHttpParams;
 import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.commons.lang.StringUtils;
 
+import edu.internet2.middleware.grouper.ws.coresoap.WsGroupSaveLiteResult;
 import edu.internet2.middleware.grouper.ws.rest.WsRestResultProblem;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestGroupSaveLiteRequest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType;
-import edu.internet2.middleware.grouper.ws.soap.WsGroupSaveLiteResult;
 import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
 
 /**
@@ -226,9 +226,9 @@ public class WsSampleGroupSaveRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: v1_5_000, result code: SUCCESS_UPDATED, result message: Success for: clientVersion: v1_5_000, wsGroupToSaves: Array size: 1: [0]: WsGroupToSave[
-  wsGroup=WsGroup[description=desc1,displayExtension=disp1,name=aStem:aGroup],
-  wsGroupLookup=WsGroupLookup[groupName=aStem:aGroup]]
+Server version: 2.0.0, result code: SUCCESS_UPDATED, result message: Success for: clientVersion: 2.0.0, wsGroupToSaves: Array size: 1: [0]: WsGroupToSave[
+  wsGroupLookup=WsGroupLookup[pitGroups=[],groupName=aStem:aGroup],
+  wsGroup=WsGroup[displayExtension=disp1,description=desc1,name=aStem:aGroup]]
 
 , actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], txType: NONE, paramNames: 
 , params: null

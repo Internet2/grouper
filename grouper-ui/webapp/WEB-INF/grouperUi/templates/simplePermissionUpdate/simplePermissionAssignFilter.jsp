@@ -3,7 +3,7 @@
 
 <input type="hidden" name="limitSimulationHiddenField" value="false" />
 
-<table class="formTable formTableSpaced" cellspacing="2" style="margin-top: 0px; margin-bottom: 0px">
+<table class="formTable formTableSpaced" cellspacing="2" style="margin-top: 0px; margin-bottom: 0px" width="975">
   <tr class="formTableRow">
     <td class="formTableLeft" style="vertical-align: middle">
       <label for="attributeDefinition">

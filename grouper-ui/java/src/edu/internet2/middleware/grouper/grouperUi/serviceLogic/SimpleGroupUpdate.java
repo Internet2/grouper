@@ -934,7 +934,8 @@ public class SimpleGroupUpdate {
       String roleIdForHierarchy = httpServletRequest.getParameter("roleIdForHierarchy");
       
       if (StringUtils.isBlank(roleIdForHierarchy)) {
-        throw new RuntimeException("Why is roleIdForHierarchy blank????");
+        guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simpleGroupUpdate.errorCantEditGroup", false)));
+        return;
       }
       
       //if editing, then this must be there, or it has been tampered with
@@ -1027,7 +1028,8 @@ public class SimpleGroupUpdate {
       String roleIdForHierarchy = httpServletRequest.getParameter("roleIdForHierarchy");
       
       if (StringUtils.isBlank(roleIdForHierarchy)) {
-        throw new RuntimeException("Why is roleIdForHierarchy blank????");
+        guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simpleGroupUpdate.errorCantEditGroup", false)));
+        return;
       }
       
       //if editing, then this must be there, or it has been tampered with

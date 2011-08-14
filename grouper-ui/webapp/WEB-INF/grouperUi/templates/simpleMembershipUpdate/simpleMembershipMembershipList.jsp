@@ -1,7 +1,7 @@
 <%@ include file="../common/commonTaglib.jsp" %>
 <!-- Start: $Id: simpleMembershipMembershipList.jsp,v 1.3 2009-11-02 08:50:40 mchyzer Exp $ -->
 <%-- this is the section of the screen which shows a box and the member list inside --%>
-<div class="section">
+<div class="section" style="min-width: 750px">
   <grouper:subtitle label="${simpleMembershipUpdateContainer.text.membershipListSubtitle}" />
 <div class="sectionBody"><br />
 
@@ -13,21 +13,16 @@
     <%-- describe the combobox, since it doesnt look like something you would type in to --%>
     <div class="combohint"><grouper:message value="${simpleMembershipUpdateContainer.text.filterMemberCombohint}"/></div>
     <%-- note, the combobox does not currently auto adjust its width, so just make it really wide --%>
-    <table width="900" cellpadding="0" cellspacing="0">
-      <tr valign="top">
-        <td style="padding: 0px" width="710">
-          <%-- show the combobox --%>
-          <grouper:combobox filterOperation="SimpleMembershipUpdateFilter.filterMembers" id="simpleMembershipFilterMember" 
-            width="700"/>
-        </td>
-        <td>
+      <%-- show the combobox --%>
+      <grouper:combobox filterOperation="SimpleMembershipUpdateFilter.filterMembers" id="simpleMembershipFilterMember" 
+        width="700"/>
+
+       <div style="margin-top: 5px;">
           <%-- add member button --%>
           <input class="blueButton" type="submit" 
           onclick="ajax('../app/SimpleMembershipUpdateFilter.retrieveMembersFilterButton', {formIds: 'simpleMembershipMemberFilterForm'}); return false;" 
           value="${simpleMembershipUpdateContainer.text.filterMemberButton}" style="margin-top: 2px" />
-        </td>
-      </tr>
-    </table>
+      </div>
     </form>
     <br />
     

@@ -1,4 +1,4 @@
-Grouper web service sample of service: stemDelete, WsSampleStemDeleteRest, manually written lite/rest, format: json, for version: v1_5_000
+Grouper web service sample of service: stemDelete, WsSampleStemDeleteRest, manually written lite/rest, format: json, for version: 2.0.0
 
 
 #########################################
@@ -9,10 +9,10 @@ Grouper web service sample of service: stemDelete, WsSampleStemDeleteRest, manua
 #########################################
 
 
-POST /grouper-ws/servicesRest/v1_5_000/stems HTTP/1.1
+POST /grouperWs/servicesRest/v2_0_000/stems HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.1
+User-Agent: Jakarta Commons-HttpClient/3.0
 Host: localhost:8092
 Content-Length: 116
 Content-Type: text/x-json; charset=UTF-8
@@ -41,31 +41,31 @@ Content-Type: text/x-json; charset=UTF-8
 
 HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/x-json;charset=UTF-8
-Content-Length: 912
-Date: Sat, 21 Nov 2009 21:27:55 GMT
+Content-Length: 906
+Date: Fri, 12 Aug 2011 22:16:28 GMT
 Connection: close
 
 {
   "WsStemDeleteResults":{
     "responseMetadata":{
-      "millis":"36",
-      "serverVersion":"v1_5_000"
+      "millis":"26",
+      "serverVersion":"2.0.0"
     },
     "resultMetadata":{
       "resultCode":"SUCCESS",
-      "resultMessage":"Success for: clientVersion: v1_5_000, wsStemLookups: Array size: 2: [0]: WsStemLookup[stemName=aStem:whateverStem]\n[1]: WsStemLookup[stemName=aStem:whateverStem2]\n\n, actAsSubject: null, txType: NONE, paramNames: \n, params: null",
+      "resultMessage":"Success for: clientVersion: 2.0.0, wsStemLookups: Array size: 2: [0]: WsStemLookup[stemName=aStem:whateverStem]\n[1]: WsStemLookup[stemName=aStem:whateverStem2]\n\n, actAsSubject: null, txType: NONE, paramNames: \n, params: null",
       "success":"T"
     },
     "results":[
       {
         "resultMetadata":{
           "resultCode":"SUCCESS_STEM_NOT_FOUND",
-          "resultMessage":"Cant find stem: 'WsStemLookup[\n  stemFindResult=STEM_NOT_FOUND,stemName=aStem:whateverStem]'.",
+          "resultMessage":"Cant find stem: 'WsStemLookup[stemName=aStem:whateverStem,\n  stemFindResult=STEM_NOT_FOUND]'.",
           "success":"T"
         },
         "wsStem":{
@@ -77,7 +77,7 @@ Connection: close
       {
         "resultMetadata":{
           "resultCode":"SUCCESS_STEM_NOT_FOUND",
-          "resultMessage":"Cant find stem: 'WsStemLookup[\n  stemFindResult=STEM_NOT_FOUND,stemName=aStem:whateverStem2]'.",
+          "resultMessage":"Cant find stem: 'WsStemLookup[stemName=aStem:whateverStem2,\n  stemFindResult=STEM_NOT_FOUND]'.",
           "success":"T"
         },
         "wsStem":{
@@ -114,12 +114,12 @@ import org.apache.commons.httpclient.params.DefaultHttpParams;
 import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.commons.lang.StringUtils;
 
+import edu.internet2.middleware.grouper.ws.coresoap.WsStemDeleteResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsStemLookup;
 import edu.internet2.middleware.grouper.ws.rest.WsRestResultProblem;
 import edu.internet2.middleware.grouper.ws.rest.stem.WsRestStemDeleteRequest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType;
-import edu.internet2.middleware.grouper.ws.soap.WsStemDeleteResults;
-import edu.internet2.middleware.grouper.ws.soap.WsStemLookup;
 import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
 
 /**
@@ -248,7 +248,7 @@ public class WsSampleStemDeleteRest implements WsSampleRest {
 #########################################
 
 
-Server version: v1_5_000, result code: SUCCESS, result message: Success for: clientVersion: v1_5_000, wsStemLookups: Array size: 2: [0]: WsStemLookup[stemName=aStem:whateverStem]
+Server version: 2.0.0, result code: SUCCESS, result message: Success for: clientVersion: 2.0.0, wsStemLookups: Array size: 2: [0]: WsStemLookup[stemName=aStem:whateverStem]
 [1]: WsStemLookup[stemName=aStem:whateverStem2]
 
 , actAsSubject: null, txType: NONE, paramNames: 

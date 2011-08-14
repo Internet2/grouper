@@ -38,26 +38,20 @@
             value="${attributeNameUpdateRequestContainer.attributeDefNameToEdit.attributeDefId}" />
 
           <div class="combohint"><grouper:message key="simpleAttributeNameUpdate.selectAttributeDefNameHierarchyCombohint"/></div>
-          <table width="900" cellpadding="0" cellspacing="0">
-            <tr valign="top">
-              <td style="padding: 0px" width="710">
-                <grouper:combobox filterOperation="SimpleAttributeNameUpdateFilter.filterAttributeDefNames" id="attributeDefNameIdForHierarchy" 
-                  width="700" additionalFormElementNames="attributeDefId" />
-              </td>
-              <td>
-                <input class="blueButton" type="submit" 
-                onclick="ajax('../app/SimpleAttributeNameUpdateFilter.addAttributeNameThatImplies', {formIds: 'attributeNameHierarchiesFormId'}); return false;" 
-                value="${grouper:message('simpleAttributeNameUpdate.addAttributeNameThatImplies', true, false)} ${grouper:escapeHtml(attributeNameUpdateRequestContainer.attributeDefNameToEdit.displayExtension)}" 
-                style="margin-top: 2px; white-space: nowrap;" />
-              </td>
-              <td>
-                <input class="blueButton" type="submit" 
-                onclick="ajax('../app/SimpleAttributeNameUpdateFilter.addAttributeNameImpliedByThis', {formIds: 'attributeNameHierarchiesFormId'}); return false;" 
-                value="${grouper:message('simpleAttributeNameUpdate.addAttributeNameImpliedByThis', true, false)} ${grouper:escapeHtml(attributeNameUpdateRequestContainer.attributeDefNameToEdit.displayExtension)}"
-                style="margin-top: 2px; white-space: nowrap;" />
-              </td>
-            </tr>
-          </table>
+            <grouper:combobox filterOperation="SimpleAttributeNameUpdateFilter.filterAttributeDefNames" id="attributeDefNameIdForHierarchy" 
+              width="700" additionalFormElementNames="attributeDefId" />
+
+             <div style="margin-top: 5px;">
+              <input class="blueButton" type="submit" 
+              onclick="ajax('../app/SimpleAttributeNameUpdateFilter.addAttributeNameThatImplies', {formIds: 'attributeNameHierarchiesFormId'}); return false;" 
+              value="${grouper:message('simpleAttributeNameUpdate.addAttributeNameThatImplies', true, false)} ${grouper:escapeHtml(attributeNameUpdateRequestContainer.attributeDefNameToEdit.displayExtension)}" 
+              style="margin-top: 2px; white-space: nowrap;" />
+  
+              <input class="blueButton" type="submit" 
+              onclick="ajax('../app/SimpleAttributeNameUpdateFilter.addAttributeNameImpliedByThis', {formIds: 'attributeNameHierarchiesFormId'}); return false;" 
+              value="${grouper:message('simpleAttributeNameUpdate.addAttributeNameImpliedByThis', true, false)} ${grouper:escapeHtml(attributeNameUpdateRequestContainer.attributeDefNameToEdit.displayExtension)}"
+              style="margin-top: 2px; white-space: nowrap;" />
+            </div>
         </td>
       </tr>
       <tr class="formTableRow">

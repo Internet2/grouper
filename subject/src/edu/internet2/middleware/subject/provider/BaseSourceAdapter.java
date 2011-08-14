@@ -412,7 +412,9 @@ public abstract class BaseSourceAdapter implements Source {
    * @param search
    */
   public void loadSearch(Search search) {
-    log.debug("Loading search: " + search.getSearchType());
+    if (log.isDebugEnabled()) {
+      log.debug("Loading search: " + (search == null ? null : search.getSearchType()));
+    }
     this.searches.put(search.getSearchType(), search);
   }
   

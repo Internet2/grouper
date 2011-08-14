@@ -1,4 +1,4 @@
-Grouper web service sample of service: assignAttributes, WsSampleAssignAttributesRest, manually written lite/rest, format: json, for version: 1.6.1
+Grouper web service sample of service: assignAttributes, WsSampleAssignAttributesRest, manually written lite/rest, format: json, for version: 2.0.0
 
 
 #########################################
@@ -9,7 +9,7 @@ Grouper web service sample of service: assignAttributes, WsSampleAssignAttribute
 #########################################
 
 
-POST /grouperWs/servicesRest/v1_6_001/attributeAssignments HTTP/1.1
+POST /grouperWs/servicesRest/v2_0_000/attributeAssignments HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.0
@@ -52,15 +52,15 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/x-json;charset=UTF-8
-Content-Length: 2026
-Date: Mon, 11 Oct 2010 16:51:05 GMT
+Content-Length: 2043
+Date: Fri, 12 Aug 2011 22:01:25 GMT
 Connection: close
 
 {
   "WsAssignAttributesResults":{
     "responseMetadata":{
-      "millis":"360",
-      "serverVersion":"1.6.1"
+      "millis":"366",
+      "serverVersion":"2.0.0"
     },
     "resultMetadata":{
       "resultCode":"SUCCESS",
@@ -74,32 +74,33 @@ Connection: close
         "valuesChanged":"F",
         "wsAttributeAssigns":[
           {
-            "attributeAssignActionId":"1a6d4e9a3c9f484c8e8999c549f69d60",
+            "attributeAssignActionId":"a084e6a68ad744a5bfa70d157e0c5bb4",
             "attributeAssignActionName":"assign",
             "attributeAssignActionType":"immediate",
             "attributeAssignDelegatable":"FALSE",
             "attributeAssignType":"group",
-            "attributeDefId":"0b9e67d30ae645948004d90e1be45ace",
+            "attributeDefId":"fa5ec6c18daa4065bc48d3d2e4b8d4f3",
             "attributeDefName":"test:testAttributeAssignDefNameDef",
-            "attributeDefNameId":"b315f9e7278e4f0497c9b3fbae82a90f",
+            "attributeDefNameId":"e10d753b7d5e436e945c68cc5883b9b7",
             "attributeDefNameName":"test:testAttributeAssignDefName",
-            "createdOn":"2010/10/11 12:51:02.851",
+            "createdOn":"2011/08/12 18:01:23.213",
+            "disallowed":"F",
             "enabled":"T",
-            "id":"eb8831eebab0475db2fb62de439ea04e",
-            "lastUpdated":"2010/10/11 12:51:02.851",
-            "ownerGroupId":"2ab15a3283cd433f9610fb108e3590dc",
+            "id":"336aafadfbd245659fc2eca5b60962e1",
+            "lastUpdated":"2011/08/12 18:01:23.213",
+            "ownerGroupId":"41f8d4b05cec43b98ccf64f5fada410c",
             "ownerGroupName":"test:groupTestAttrAssign",
             "wsAttributeAssignValues":[
               {
-                "id":"2bbd35a1e4b6447f8994fb6ea4550fec",
+                "id":"67d079aa81fe465891f1e1e912e549ce",
                 "valueSystem":"15"
               },
               {
-                "id":"7df2cddbb799436e8991a3ccbad5f512",
+                "id":"23c5537bf1dc40b595101f0e0061c0ab",
                 "valueSystem":"5"
               },
               {
-                "id":"dc3e51e830224ea985cdd79240a277d2",
+                "id":"68474fdd677048fb871605fe23b52cfe",
                 "valueSystem":"5"
               }
             ]
@@ -110,13 +111,13 @@ Connection: close
     ,
     "wsAttributeDefNames":[
       {
-        "attributeDefId":"0b9e67d30ae645948004d90e1be45ace",
+        "attributeDefId":"fa5ec6c18daa4065bc48d3d2e4b8d4f3",
         "attributeDefName":"test:testAttributeAssignDefNameDef",
         "displayExtension":"testAttributeAssignDefName",
         "displayName":"test:testAttributeAssignDefName",
         "extension":"testAttributeAssignDefName",
         "name":"test:testAttributeAssignDefName",
-        "uuid":"b315f9e7278e4f0497c9b3fbae82a90f"
+        "uuid":"e10d753b7d5e436e945c68cc5883b9b7"
       }
     ]
     ,
@@ -127,7 +128,7 @@ Connection: close
         "multiAssignable":"F",
         "multiValued":"T",
         "name":"test:testAttributeAssignDefNameDef",
-        "uuid":"0b9e67d30ae645948004d90e1be45ace",
+        "uuid":"fa5ec6c18daa4065bc48d3d2e4b8d4f3",
         "valueType":"integer"
       }
     ]
@@ -139,7 +140,7 @@ Connection: close
         "displayName":"test:groupTestAttrAssign",
         "extension":"groupTestAttrAssign",
         "name":"test:groupTestAttrAssign",
-        "uuid":"2ab15a3283cd433f9610fb108e3590dc"
+        "uuid":"41f8d4b05cec43b98ccf64f5fada410c"
       }
     ]
     ,
@@ -179,13 +180,13 @@ import org.apache.commons.httpclient.params.DefaultHttpParams;
 import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.commons.lang.StringUtils;
 
+import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributesResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameLookup;
+import edu.internet2.middleware.grouper.ws.coresoap.WsGroupLookup;
 import edu.internet2.middleware.grouper.ws.rest.WsRestResultProblem;
 import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestAssignAttributesRequest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType;
-import edu.internet2.middleware.grouper.ws.soap.WsAssignAttributesResults;
-import edu.internet2.middleware.grouper.ws.soap.WsAttributeDefNameLookup;
-import edu.internet2.middleware.grouper.ws.soap.WsGroupLookup;
 import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
 
 /**
@@ -319,4 +320,4 @@ public class WsSampleAssignAttributesRest implements WsSampleRest {
 #########################################
 
 
-Server version: 1.6.1, result code: SUCCESS, result message: , Found 1 results.
+Server version: 2.0.0, result code: SUCCESS, result message: , Found 1 results.

@@ -12,26 +12,17 @@
   <div class="sectionBody">
     <form id="simpleAttributeUpdatePickAttributeDefFormId" name="simpleAttributeUpdatePickAttributeDefFormName" onsubmit="return false;" >
     <div class="combohint"><grouper:message key="simpleAttributeUpdate.selectAttributeDefCombohint"/></div>
-    <table width="900" cellpadding="0" cellspacing="0">
-      <tr valign="top">
-        <td style="padding: 0px" width="710">
-          <grouper:combobox filterOperation="SimpleAttributeUpdateFilter.filterAttributeDefs" id="simpleAttributeUpdatePickAttributeDef" 
-            comboDefaultText="${attributeUpdateRequestContainer.attributeDefToEdit.name}" comboDefaultValue="${attributeUpdateRequestContainer.attributeDefToEdit.id}"
-            width="700"/>
-          
-        </td>
-        <td>
-          <input class="blueButton" type="submit" 
-          onclick="ajax('../app/SimpleAttributeUpdateFilter.editAttributeDefsButton', {formIds: 'simpleAttributeUpdatePickAttributeDefFormId'}); return false;" 
-          value="${attributeUpdateRequestContainer.text.filterAttributeDefButton}" style="margin-top: 2px" />
-        </td>
-        <td>
-          <input class="blueButton" type="submit" 
-          onclick="ajax('../app/SimpleAttributeUpdateFilter.newAttributeDefButton'); return false;" 
-          value="${attributeUpdateRequestContainer.text.newAttributeDefButton}" style="margin-top: 2px" />
-        </td>
-      </tr>
-    </table>
+    <grouper:combobox filterOperation="SimpleAttributeUpdateFilter.filterAttributeDefs" id="simpleAttributeUpdatePickAttributeDef" 
+      comboDefaultText="${attributeUpdateRequestContainer.attributeDefToEdit.name}" comboDefaultValue="${attributeUpdateRequestContainer.attributeDefToEdit.id}"
+      width="700"/>
+       <div style="margin-top: 5px;">
+        <input class="blueButton" type="submit" 
+        onclick="ajax('../app/SimpleAttributeUpdateFilter.editAttributeDefsButton', {formIds: 'simpleAttributeUpdatePickAttributeDefFormId'}); return false;" 
+        value="${attributeUpdateRequestContainer.text.filterAttributeDefButton}" style="margin-top: 2px" />
+        <input class="blueButton" type="submit" 
+        onclick="ajax('../app/SimpleAttributeUpdateFilter.newAttributeDefButton'); return false;" 
+        value="${attributeUpdateRequestContainer.text.newAttributeDefButton}" style="margin-top: 2px" />
+       </div>
     </form>
     <br />
   </div>

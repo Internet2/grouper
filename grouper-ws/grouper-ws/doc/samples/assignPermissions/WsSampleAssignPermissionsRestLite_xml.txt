@@ -1,4 +1,4 @@
-Grouper web service sample of service: assignPermissions, WsSampleAssignPermissionsRestLite, manually written lite/rest, format: xml, for version: v1_6_000
+Grouper web service sample of service: assignPermissions, WsSampleAssignPermissionsRestLite, manually written lite/rest, format: xml, for version: 2.0.0
 
 
 #########################################
@@ -9,10 +9,10 @@ Grouper web service sample of service: assignPermissions, WsSampleAssignPermissi
 #########################################
 
 
-POST /grouperWs/servicesRest/xml/v1_6_000/permissionAssignments HTTP/1.1
+POST /grouperWs/servicesRest/xml/v2_0_000/permissionAssignments HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.1
+User-Agent: Jakarta Commons-HttpClient/3.0
 Host: localhost:8092
 Content-Length: 431
 Content-Type: text/xml; charset=UTF-8
@@ -43,7 +43,7 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/xml;charset=UTF-8
-Date: Mon, 19 Apr 2010 20:23:34 GMT
+Date: Sat, 13 Aug 2011 00:36:22 GMT
 Connection: close
 
 <WsAssignPermissionsLiteResults>
@@ -51,7 +51,7 @@ Connection: close
     <WsAttributeDef>
       <extension>permissionDef</extension>
       <name>aStem:permissionDef</name>
-      <uuid>d2b08b6985254da2b77f35ccd034c9ba</uuid>
+      <uuid>725ba11bc8664a0fb8e3f4a6b6b0d8eb</uuid>
       <attributeDefType>perm</attributeDefType>
       <multiAssignable>F</multiAssignable>
       <multiValued>F</multiValued>
@@ -63,12 +63,13 @@ Connection: close
     <displayExtension>permissionDefName</displayExtension>
     <displayName>a stem:permissionDefName</displayName>
     <name>aStem:permissionDefName</name>
-    <uuid>b23ec4f47a5443fcbdd07a7fc66b2de2</uuid>
-    <attributeDefId>d2b08b6985254da2b77f35ccd034c9ba</attributeDefId>
+    <uuid>9af89fbbc114405b9112b5e47b62a4cc</uuid>
+    <attributeDefId>725ba11bc8664a0fb8e3f4a6b6b0d8eb</attributeDefId>
     <attributeDefName>aStem:permissionDef</attributeDefName>
   </wsAttributeDefName>
   <wsPermissionAssignResult>
     <changed>F</changed>
+    <deleted>T</deleted>
   </wsPermissionAssignResult>
   <resultMetadata>
     <resultCode>SUCCESS</resultCode>
@@ -76,8 +77,9 @@ Connection: close
     <success>T</success>
   </resultMetadata>
   <responseMetadata>
-    <millis>99</millis>
-    <serverVersion>v1_6_000</serverVersion>
+    <resultWarnings></resultWarnings>
+    <millis>83</millis>
+    <serverVersion>2.0.0</serverVersion>
   </responseMetadata>
   <wsSubject>
     <resultCode>SUCCESS</resultCode>
@@ -113,10 +115,10 @@ import org.apache.commons.httpclient.params.DefaultHttpParams;
 import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.commons.lang.StringUtils;
 
+import edu.internet2.middleware.grouper.ws.coresoap.WsAssignPermissionsLiteResults;
 import edu.internet2.middleware.grouper.ws.rest.permission.WsRestAssignPermissionsLiteRequest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType;
-import edu.internet2.middleware.grouper.ws.soap.WsAssignPermissionsLiteResults;
 import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
 
 /**
@@ -243,4 +245,4 @@ public class WsSampleAssignPermissionsRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: v1_6_000, result code: SUCCESS, result message: , Found 1 results.
+Server version: 2.0.0, result code: SUCCESS, result message: , Found 1 results.

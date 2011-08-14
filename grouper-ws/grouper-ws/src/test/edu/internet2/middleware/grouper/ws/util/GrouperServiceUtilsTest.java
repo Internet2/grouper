@@ -44,7 +44,7 @@ public class GrouperServiceUtilsTest extends TestCase {
    * @throws Exception
    */
   public static void main(String[] args) throws Exception {
-    TestRunner.run(new GrouperServiceUtilsTest("testMarshal"));
+    TestRunner.run(new GrouperServiceUtilsTest("testFormatHttp"));
     //TestRunner.run(TestGroup0.class);
     //runPerfProblem();
   }
@@ -116,7 +116,7 @@ public class GrouperServiceUtilsTest extends TestCase {
     String output = GrouperServiceUtils.formatHttp(input);
     //System.out.println(output);
     //should add a bunch of whitespace here
-    assertTrue(output.length() > input.length() + 20);
+    assertTrue(output, output.length() > input.length() + 20);
   }
   
 }

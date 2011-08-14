@@ -1,4 +1,4 @@
-Grouper web service sample of service: getMembers, WsSampleGetMembersRestLite2, manually written lite/rest, type: _withInput, format: http_xhtml, for version: v1_5_000
+Grouper web service sample of service: getMembers, WsSampleGetMembersRestLite2, manually written lite/rest, type: _withInput, format: http_xhtml, for version: 2.0.0
 
 
 #########################################
@@ -9,10 +9,10 @@ Grouper web service sample of service: getMembers, WsSampleGetMembersRestLite2, 
 #########################################
 
 
-POST /grouper-ws/servicesRest/v1_5_000/groups/aStem%3AaGroup/members HTTP/1.1
+POST /grouperWs/servicesRest/v2_0_000/groups/aStem%3AaGroup/members HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.1
+User-Agent: Jakarta Commons-HttpClient/3.0
 Host: localhost:8092
 Content-Length: 73
 
@@ -29,12 +29,12 @@ wsLiteObjectType=WsRestGetMembersLiteRequest&actAsSubjectId=GrouperSystem
 
 HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml;charset=UTF-8
-Date: Sat, 21 Nov 2009 21:25:52 GMT
+Date: Fri, 12 Aug 2011 22:14:14 GMT
 Connection: close
 
 <?xml version='1.0' encoding='iso-8859-1'?>
@@ -45,55 +45,56 @@ Connection: close
   </head>
   <body>
     <div title="WsGetMembersLiteResult">
-      <ul class="wsSubjects">
-        <li title="WsSubject">
-          <p class="id">10039438</p>
-          <p class="identifierLookup" />
-          <p class="resultCode">SUCCESS</p>
-          <p class="sourceId">jdbc</p>
-          <p class="name" />
-          <p class="success">T</p>
-        </li>
-        <li title="WsSubject">
-          <p class="id">GrouperSystem</p>
-          <p class="identifierLookup" />
-          <p class="resultCode">SUCCESS</p>
-          <p class="sourceId">g:isa</p>
-          <p class="name" />
-          <p class="success">T</p>
-        </li>
-        <li title="WsSubject">
-          <p class="id">10021368</p>
-          <p class="identifierLookup" />
-          <p class="resultCode">SUCCESS</p>
-          <p class="sourceId">jdbc</p>
-          <p class="name" />
-          <p class="success">T</p>
-        </li>
-      </ul>
       <div class="resultMetadata" title="WsResultMeta">
         <p class="resultCode">SUCCESS</p>
         <p class="success">T</p>
-        <p class="resultMessage">Success for: clientVersion: v1_5_000, wsGroupLookups: Array size: 1: [0]: WsGroupLookup[groupName=aStem:aGroup]
-
+        <p class="resultCode2" />
+        <p class="resultMessage">Success for: clientVersion: 2.0.0, wsGroupLookups: Array size: 1: [0]: WsGroupLookup[pitGroups=[],groupName=aStem:aGroup]
 , memberFilter: All, includeSubjectDetail: false, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], fieldName: null, subjectAttributeNames: null
 , paramNames:
-, params: null</p>
-        <p class="resultCode2" />
+, params: null
+, sourceIds: null
+, pointInTimeFrom: null, pointInTimeTo: null</p>
       </div>
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="serverVersion">v1_5_000</p>
-        <p class="millis">113</p>
+        <p class="millis">30</p>
         <p class="resultWarnings" />
+        <p class="serverVersion">2.0.0</p>
       </div>
+      <ul class="wsSubjects">
+        <li title="WsSubject">
+          <p class="name" />
+          <p class="id">10021368</p>
+          <p class="sourceId">jdbc</p>
+          <p class="resultCode">SUCCESS</p>
+          <p class="success">T</p>
+          <p class="identifierLookup" />
+        </li>
+        <li title="WsSubject">
+          <p class="name" />
+          <p class="id">10039438</p>
+          <p class="sourceId">jdbc</p>
+          <p class="resultCode">SUCCESS</p>
+          <p class="success">T</p>
+          <p class="identifierLookup" />
+        </li>
+        <li title="WsSubject">
+          <p class="name" />
+          <p class="id">GrouperSystem</p>
+          <p class="sourceId">g:isa</p>
+          <p class="resultCode">SUCCESS</p>
+          <p class="success">T</p>
+          <p class="identifierLookup" />
+        </li>
+      </ul>
       <div class="wsGroup" title="WsGroup">
-        <div class="detail" title="WsGroupDetail" />
-        <p class="displayExtension">a group</p>
-        <p class="uuid">a8bc6bf85cf44bfba9dba9e39d74f630</p>
-        <p class="displayName">a stem:a group</p>
-        <p class="extension">aGroup</p>
-        <p class="description">a group description</p>
         <p class="name">aStem:aGroup</p>
+        <p class="displayName">a stem:a group</p>
+        <p class="description">a group description</p>
+        <p class="uuid">c99d387868b84584866739a2b50f2313</p>
+        <div class="detail" title="WsGroupDetail" />
+        <p class="extension">aGroup</p>
+        <p class="displayExtension">a group</p>
       </div>
     </div>
   </body>
@@ -124,11 +125,11 @@ import org.apache.commons.httpclient.params.DefaultHttpParams;
 import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.commons.lang.StringUtils;
 
+import edu.internet2.middleware.grouper.ws.coresoap.WsGetMembersLiteResult;
 import edu.internet2.middleware.grouper.ws.rest.WsRestResultProblem;
 import edu.internet2.middleware.grouper.ws.rest.member.WsRestGetMembersLiteRequest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType;
-import edu.internet2.middleware.grouper.ws.soap.WsGetMembersLiteResult;
 import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
 
 /**
@@ -254,8 +255,10 @@ public class WsSampleGetMembersRestLite2 implements WsSampleRest {
 #########################################
 
 
-Server version: v1_5_000, result code: SUCCESS, result message: Success for: clientVersion: v1_5_000, wsGroupLookups: Array size: 1: [0]: WsGroupLookup[groupName=aStem:aGroup]
+Server version: 2.0.0, result code: SUCCESS, result message: Success for: clientVersion: 2.0.0, wsGroupLookups: Array size: 1: [0]: WsGroupLookup[pitGroups=[],groupName=aStem:aGroup]
 
 , memberFilter: All, includeSubjectDetail: false, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], fieldName: null, subjectAttributeNames: null
 , paramNames: 
 , params: null
+, sourceIds: null
+, pointInTimeFrom: null, pointInTimeTo: null

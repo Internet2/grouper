@@ -1,4 +1,4 @@
-Grouper web service sample of service: getGroups, WsSampleGetGroupsLite, code generated classes, format: soap, for version: v1_5_000
+Grouper web service sample of service: getGroups, WsSampleGetGroupsLite, code generated classes, format: soap, for version: 2.0.0
 
 
 #########################################
@@ -9,19 +9,19 @@ Grouper web service sample of service: getGroups, WsSampleGetGroupsLite, code ge
 #########################################
 
 
-POST /grouper-ws/services/GrouperService HTTP/1.1
+POST /grouperWs/services/GrouperService_v2_0 HTTP/1.1
 Content-Type: application/soap+xml; charset=UTF-8; action="urn:getGroupsLite"
 User-Agent: Axis2
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 Host: localhost:8092
 Transfer-Encoding: chunked
 
-325
+32a
 <?xml version='1.0' encoding='UTF-8'?>
 <soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
   <soapenv:Body>
-    <ns1:getGroupsLite xmlns:ns1="http://soap.ws.grouper.middleware.internet2.edu/xsd">
-      <ns1:clientVersion>v1_5_000</ns1:clientVersion>
+    <ns1:getGroupsLite xmlns:ns1="http://soap_v2_0.ws.grouper.middleware.internet2.edu/xsd">
+      <ns1:clientVersion>v2_0_000</ns1:clientVersion>
       <ns1:subjectId>GrouperSystem</ns1:subjectId>
       <ns1:subjectSourceId></ns1:subjectSourceId>
       <ns1:subjectIdentifier></ns1:subjectIdentifier>
@@ -48,82 +48,79 @@ Transfer-Encoding: chunked
 
 HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/soap+xml; action="urn:getGroupsLiteResponse";charset=UTF-8
 Transfer-Encoding: chunked
-Date: Sat, 21 Nov 2009 21:22:55 GMT
+Date: Fri, 12 Aug 2011 22:11:09 GMT
 
-102d
+f8e
 <?xml version='1.0' encoding='UTF-8'?>
 <soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
   <soapenv:Body>
-    <ns:getGroupsLiteResponse xmlns:ns="http://soap.ws.grouper.middleware.internet2.edu/xsd">
-      <ns:return type="edu.internet2.middleware.grouper.ws.soap.WsGetGroupsLiteResult">
-        <ns:responseMetadata type="edu.internet2.middleware.grouper.ws.soap.WsResponseMeta">
-          <ns:millis>124</ns:millis>
+    <ns:getGroupsLiteResponse xmlns:ns="http://soap_v2_0.ws.grouper.middleware.internet2.edu/xsd">
+      <ns:return type="edu.internet2.middleware.grouper.ws.soap_v2_0.WsGetGroupsLiteResult">
+        <ns:responseMetadata type="edu.internet2.middleware.grouper.ws.soap_v2_0.WsResponseMeta">
+          <ns:millis xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
           <ns:resultWarnings xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
-          <ns:serverVersion>v1_5_000</ns:serverVersion>
+          <ns:serverVersion>2.0.0</ns:serverVersion>
         </ns:responseMetadata>
-        <ns:resultMetadata type="edu.internet2.middleware.grouper.ws.soap.WsResultMeta">
+        <ns:resultMetadata type="edu.internet2.middleware.grouper.ws.soap_v2_0.WsResultMeta">
           <ns:params xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
           <ns:resultCode>SUCCESS</ns:resultCode>
           <ns:resultCode2 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
-          <ns:resultMessage>Success for: clientVersion: v1_5_000, subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectIdentifier=,subjectId=GrouperSystem,subjectSourceId=]
-
-memberFilter: All, includeGroupDetail: false, actAsSubject: WsSubjectLookup[subjectIdentifier=,subjectId=,subjectSourceId=]
-, params: null</ns:resultMessage>
+          <ns:resultMessage xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
           <ns:success>T</ns:success>
         </ns:resultMetadata>
         <ns:subjectAttributeNames>description</ns:subjectAttributeNames>
-        <ns:wsGroups type="edu.internet2.middleware.grouper.ws.soap.WsGroup">
+        <ns:wsGroups type="edu.internet2.middleware.grouper.ws.soap_v2_0.WsGroup">
           <ns:description>a group description</ns:description>
           <ns:detail xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
           <ns:displayExtension>a group</ns:displayExtension>
           <ns:displayName>a stem:a group</ns:displayName>
           <ns:extension>aGroup</ns:extension>
           <ns:name>aStem:aGroup</ns:name>
-          <ns:uuid>c57520c02698446d993aed37f959a3cb</ns:uuid>
+          <ns:uuid>d95bfbfbb37f48dc8ad5ee851b9bd92f</ns:uuid>
         </ns:wsGroups>
-        <ns:wsGroups type="edu.internet2.middleware.grouper.ws.soap.WsGroup">
-          <ns:description xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
-          <ns:detail xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
-          <ns:displayExtension>webServiceClientUsers</ns:displayExtension>
-          <ns:displayName>etc:webServiceClientUsers</ns:displayName>
-          <ns:extension>webServiceClientUsers</ns:extension>
-          <ns:name>etc:webServiceClientUsers</ns:name>
-          <ns:uuid>30a14fd1516b42f3b6bf7d7a005b4429</ns:uuid>
-        </ns:wsGroups>
-        <ns:wsGroups type="edu.internet2.middleware.grouper.ws.soap.WsGroup">
-          <ns:description xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
-          <ns:detail xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
-          <ns:displayExtension>webServiceActAsGroup</ns:displayExtension>
-          <ns:displayName>etc:webServiceActAsGroup</ns:displayName>
-          <ns:extension>webServiceActAsGroup</ns:extension>
-          <ns:name>etc:webServiceActAsGroup</ns:name>
-          <ns:uuid>48b4576609014ef0a13bc2e91ffceaff</ns:uuid>
-        </ns:wsGroups>
-        <ns:wsGroups type="edu.internet2.middleware.grouper.ws.soap.WsGroup">
-          <ns:description xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
-          <ns:detail xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
-          <ns:displayExtension>sysadmingroup</ns:displayExtension>
-          <ns:displayName>etc:sysadmingroup</ns:displayName>
-          <ns:extension>sysadmingroup</ns:extension>
-          <ns:name>etc:sysadmingroup</ns:name>
-          <ns:uuid>2ba118c039e6489fbe624000ad25bc2b</ns:uuid>
-        </ns:wsGroups>
-        <ns:wsGroups type="edu.internet2.middleware.grouper.ws.soap.WsGroup">
+        <ns:wsGroups type="edu.internet2.middleware.grouper.ws.soap_v2_0.WsGroup">
           <ns:description>a group description2</ns:description>
           <ns:detail xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
           <ns:displayExtension>a group2</ns:displayExtension>
           <ns:displayName>a stem:a group2</ns:displayName>
           <ns:extension>aGroup2</ns:extension>
           <ns:name>aStem:aGroup2</ns:name>
-          <ns:uuid>fdd358ad539c4c85810ca2c5b20af555</ns:uuid>
+          <ns:uuid>6ecf6537fb54410f86ea5ee97e9bf8de</ns:uuid>
         </ns:wsGroups>
-        <ns:wsSubject type="edu.internet2.middleware.grouper.ws.soap.WsSubject">
+        <ns:wsGroups type="edu.internet2.middleware.grouper.ws.soap_v2_0.WsGroup">
+          <ns:description xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
+          <ns:detail xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
+          <ns:displayExtension>sysadmingroup</ns:displayExtension>
+          <ns:displayName>etc:sysadmingroup</ns:displayName>
+          <ns:extension>sysadmingroup</ns:extension>
+          <ns:name>etc:sysadmingroup</ns:name>
+          <ns:uuid>340032af69e844899276d5b700930fdf</ns:uuid>
+        </ns:wsGroups>
+        <ns:wsGroups type="edu.internet2.middleware.grouper.ws.soap_v2_0.WsGroup">
+          <ns:description xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
+          <ns:detail xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
+          <ns:displayExtension>webServiceActAsGroup</ns:displayExtension>
+          <ns:displayName>etc:webServiceActAsGroup</ns:displayName>
+          <ns:extension>webServiceActAsGroup</ns:extension>
+          <ns:name>etc:webServiceActAsGroup</ns:name>
+          <ns:uuid>94960e524404435d8c20ab832daefda1</ns:uuid>
+        </ns:wsGroups>
+        <ns:wsGroups type="edu.internet2.middleware.grouper.ws.soap_v2_0.WsGroup">
+          <ns:description xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
+          <ns:detail xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
+          <ns:displayExtension>webServiceUsers</ns:displayExtension>
+          <ns:displayName>etc:webServiceUsers</ns:displayName>
+          <ns:extension>webServiceUsers</ns:extension>
+          <ns:name>etc:webServiceUsers</ns:name>
+          <ns:uuid>ceab848195214bc89d889579d0eb9334</ns:uuid>
+        </ns:wsGroups>
+        <ns:wsSubject type="edu.internet2.middleware.grouper.ws.soap_v2_0.WsSubject">
           <ns:attributeValues>GrouperSysAdmin</ns:attributeValues>
           <ns:id>GrouperSystem</ns:id>
           <ns:identifierLookup xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
@@ -163,9 +160,9 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import edu.internet2.middleware.grouper.webservicesClient.util.GeneratedClientSettings;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGenerated;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGeneratedType;
-import edu.internet2.middleware.grouper.ws.soap.xsd.GetGroupsLite;
-import edu.internet2.middleware.grouper.ws.soap.xsd.WsGetGroupsLiteResult;
-import edu.internet2.middleware.grouper.ws.soap.xsd.WsGroup;
+import edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.GetGroupsLite;
+import edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.WsGetGroupsLiteResult;
+import edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.WsGroup;
 
 
 /**
@@ -260,13 +257,13 @@ public class WsSampleGetGroupsLite implements WsSampleGenerated {
 
 
 WsGetGroupsLiteResult[
-  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap.xsd.WsResponseMeta@ebc43a,localResponseMetadataTracker=true,
-  localResultMetadata=edu.internet2.middleware.grouper.ws.soap.xsd.WsResultMeta@9fd6fa,localResultMetadataTracker=true,
+  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.WsResponseMeta@b6b4e6,localResponseMetadataTracker=true,
+  localResultMetadata=edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.WsResultMeta@11e7fff,localResultMetadataTracker=true,
   localSubjectAttributeNames={description},localSubjectAttributeNamesTracker=true,
-  localWsGroups={edu.internet2.middleware.grouper.ws.soap.xsd.WsGroup@12898d9,edu.internet2.middleware.grouper.ws.soap.xsd.WsGroup@4ae9d2,edu.internet2.middleware.grouper.ws.soap.xsd.WsGroup@3d19be,edu.internet2.middleware.grouper.ws.soap.xsd.WsGroup@1651667,edu.internet2.middleware.grouper.ws.soap.xsd.WsGroup@1a1d551},localWsGroupsTracker=true,
-  localWsSubject=edu.internet2.middleware.grouper.ws.soap.xsd.WsSubject@1bbf426,localWsSubjectTracker=true]
-WsGroup[localDescription=a group description,localDescriptionTracker=true,localDetailTracker=true,localDisplayExtension=a group,localDisplayExtensionTracker=true,localDisplayName=a stem:a group,localDisplayNameTracker=true,localExtension=aGroup,localExtensionTracker=true,localName=aStem:aGroup,localNameTracker=true,localUuid=c57520c02698446d993aed37f959a3cb,localUuidTracker=true]
-WsGroup[localDescriptionTracker=false,localDetailTracker=true,localDisplayExtension=webServiceClientUsers,localDisplayExtensionTracker=true,localDisplayName=etc:webServiceClientUsers,localDisplayNameTracker=true,localExtension=webServiceClientUsers,localExtensionTracker=true,localName=etc:webServiceClientUsers,localNameTracker=true,localUuid=30a14fd1516b42f3b6bf7d7a005b4429,localUuidTracker=true]
-WsGroup[localDescriptionTracker=false,localDetailTracker=true,localDisplayExtension=webServiceActAsGroup,localDisplayExtensionTracker=true,localDisplayName=etc:webServiceActAsGroup,localDisplayNameTracker=true,localExtension=webServiceActAsGroup,localExtensionTracker=true,localName=etc:webServiceActAsGroup,localNameTracker=true,localUuid=48b4576609014ef0a13bc2e91ffceaff,localUuidTracker=true]
-WsGroup[localDescriptionTracker=false,localDetailTracker=true,localDisplayExtension=sysadmingroup,localDisplayExtensionTracker=true,localDisplayName=etc:sysadmingroup,localDisplayNameTracker=true,localExtension=sysadmingroup,localExtensionTracker=true,localName=etc:sysadmingroup,localNameTracker=true,localUuid=2ba118c039e6489fbe624000ad25bc2b,localUuidTracker=true]
-WsGroup[localDescription=a group description2,localDescriptionTracker=true,localDetailTracker=true,localDisplayExtension=a group2,localDisplayExtensionTracker=true,localDisplayName=a stem:a group2,localDisplayNameTracker=true,localExtension=aGroup2,localExtensionTracker=true,localName=aStem:aGroup2,localNameTracker=true,localUuid=fdd358ad539c4c85810ca2c5b20af555,localUuidTracker=true]
+  localWsGroups={edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.WsGroup@7f5280,edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.WsGroup@1017bd0,edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.WsGroup@67a7ab,edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.WsGroup@130cdcf,edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.WsGroup@117ea43},localWsGroupsTracker=true,
+  localWsSubject=edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.WsSubject@11513d7,localWsSubjectTracker=true]
+WsGroup[localDescription=a group description,localDescriptionTracker=true,localDetailTracker=true,localDisplayExtension=a group,localDisplayExtensionTracker=true,localDisplayName=a stem:a group,localDisplayNameTracker=true,localExtension=aGroup,localExtensionTracker=true,localName=aStem:aGroup,localNameTracker=true,localUuid=d95bfbfbb37f48dc8ad5ee851b9bd92f,localUuidTracker=true]
+WsGroup[localDescription=a group description2,localDescriptionTracker=true,localDetailTracker=true,localDisplayExtension=a group2,localDisplayExtensionTracker=true,localDisplayName=a stem:a group2,localDisplayNameTracker=true,localExtension=aGroup2,localExtensionTracker=true,localName=aStem:aGroup2,localNameTracker=true,localUuid=6ecf6537fb54410f86ea5ee97e9bf8de,localUuidTracker=true]
+WsGroup[localDescriptionTracker=false,localDetailTracker=true,localDisplayExtension=sysadmingroup,localDisplayExtensionTracker=true,localDisplayName=etc:sysadmingroup,localDisplayNameTracker=true,localExtension=sysadmingroup,localExtensionTracker=true,localName=etc:sysadmingroup,localNameTracker=true,localUuid=340032af69e844899276d5b700930fdf,localUuidTracker=true]
+WsGroup[localDescriptionTracker=false,localDetailTracker=true,localDisplayExtension=webServiceActAsGroup,localDisplayExtensionTracker=true,localDisplayName=etc:webServiceActAsGroup,localDisplayNameTracker=true,localExtension=webServiceActAsGroup,localExtensionTracker=true,localName=etc:webServiceActAsGroup,localNameTracker=true,localUuid=94960e524404435d8c20ab832daefda1,localUuidTracker=true]
+WsGroup[localDescriptionTracker=false,localDetailTracker=true,localDisplayExtension=webServiceUsers,localDisplayExtensionTracker=true,localDisplayName=etc:webServiceUsers,localDisplayNameTracker=true,localExtension=webServiceUsers,localExtensionTracker=true,localName=etc:webServiceUsers,localNameTracker=true,localUuid=ceab848195214bc89d889579d0eb9334,localUuidTracker=true]

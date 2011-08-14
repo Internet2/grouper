@@ -20,3 +20,11 @@ if (self._suggest) clearTimeout(self._suggest);
 self._suggest = setTimeout(function(){
   if (self._filter) return self.filterSelf(km);
 },500)
+
+###########################
+Add this to the css to remove the images on the drop downs
+
+/* dont show pulldown on comboboxes */
+img.dhx_combo_img {
+  display: none;
+} 

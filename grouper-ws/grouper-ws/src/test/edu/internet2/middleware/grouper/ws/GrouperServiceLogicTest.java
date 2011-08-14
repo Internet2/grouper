@@ -53,7 +53,9 @@ import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.permissions.PermissionAssignOperation;
+import edu.internet2.middleware.grouper.permissions.PermissionProcessor;
 import edu.internet2.middleware.grouper.permissions.PermissionEntry.PermissionType;
+import edu.internet2.middleware.grouper.permissions.limits.impl.PermissionLimitElLogic;
 import edu.internet2.middleware.grouper.permissions.role.Role;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
@@ -123,7 +125,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
    */
   public static void main(String[] args) {
     //TestRunner.run(GrouperServiceLogicTest.class);
-    TestRunner.run(new GrouperServiceLogicTest("testAssignPermissionsAllowDeny"));
+    TestRunner.run(new GrouperServiceLogicTest("testGetPermissionAssignmentsPIT"));
   }
 
   /**
@@ -1354,11 +1356,15 @@ public class GrouperServiceLogicTest extends GrouperTest {
     assignOnAssignDef.setAssignToEffMembershipAssn(true);
     assignOnAssignDef.setValueType(AttributeDefValueType.string);
     assignOnAssignDef.store();
+
     AttributeDefName assignOnAssignDefName = top.addChildAttributeDefName(
         assignOnAssignDef, "assignOnAssignDefName", "assignOnAssignDefName");
 
+    ApiConfig.testConfig.put("grouper.permissions.limits.logic.customEl.limitName", assignOnAssignDefName.getName());
+    ApiConfig.testConfig.put("grouper.permissions.limits.logic.customEl.logicClass", PermissionLimitElLogic.class.getName());
+    
     AttributeValueResult attributeValueResult = attributeAssignResult.getAttributeAssign()
-      .getAttributeValueDelegate().assignValueString(assignOnAssignDefName.getName(), "hey");
+      .getAttributeValueDelegate().assignValueString(assignOnAssignDefName.getName(), "amount < 50");
     
     WsGetPermissionAssignmentsResults wsGetPermissionAssignmentsResults = null;
     WsPermissionAssign wsPermissionAssign = null;
@@ -1368,7 +1374,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
     GrouperServiceUtils.testSession = GrouperSession.startRootSession();
     wsGetPermissionAssignmentsResults = GrouperServiceLogic.getPermissionAssignments(
         GROUPER_VERSION, null, null, null, null, 
-        null, false, false, false, false, null, false, null, false, null, null, null, null, false, null, null, null, false);
+        null, false, false, false, false, null, false, null, false, null, null, null, null, false, null, PermissionProcessor.FILTER_REDUNDANT_PERMISSIONS_AND_PROCESS_LIMITS, null, false);
 
     //new WsGroupLookup[]{new WsGroupLookup(group.getName(), null)}
     
@@ -1398,11 +1404,11 @@ public class GrouperServiceLogicTest extends GrouperTest {
         new String[]{"action"}, false, false, false, false, null, false, null, false, null, 
         null, null, null, false, null, null, null, false);
 
-    assertEquals("need more than action", 
-        WsGetAttributeAssignmentsResultsCode.EXCEPTION.name(), 
+    assertEquals("This is ok: " + wsGetPermissionAssignmentsResults.getResultMetadata().getResultMessage(), 
+        WsGetAttributeAssignmentsResultsCode.SUCCESS.name(), 
         wsGetPermissionAssignmentsResults.getResultMetadata().getResultCode());
 
-    assertEquals(0, GrouperUtil.length(wsGetPermissionAssignmentsResults.getWsPermissionAssigns()));
+    assertEquals(1, GrouperUtil.length(wsGetPermissionAssignmentsResults.getWsPermissionAssigns()));
     
     //#################################################
     //valid query for role assignment
@@ -1744,7 +1750,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
     assertEquals("assign", wsGetPermissionAssignmentsResults.getWsAttributeAssigns()[1].getAttributeAssignActionName());
     assertEquals(attributeValueResult.getAttributeAssignResult().getAttributeAssign().getId(), wsGetPermissionAssignmentsResults.getWsAttributeAssigns()[1].getId());
     assertEquals(1, GrouperUtil.length(wsGetPermissionAssignmentsResults.getWsAttributeAssigns()[1].getWsAttributeAssignValues()));
-    assertEquals("hey", wsGetPermissionAssignmentsResults.getWsAttributeAssigns()[1].getWsAttributeAssignValues()[0].getValueSystem());
+    assertEquals("amount < 50", wsGetPermissionAssignmentsResults.getWsAttributeAssigns()[1].getWsAttributeAssignValues()[0].getValueSystem());
     
     //#################################################
     //valid query for attrdef and action, and group detail 
@@ -1821,8 +1827,11 @@ public class GrouperServiceLogicTest extends GrouperTest {
     AttributeDefName assignOnAssignDefName = top.addChildAttributeDefName(
         assignOnAssignDef, "assignOnAssignDefName", "assignOnAssignDefName");
 
+    ApiConfig.testConfig.put("grouper.permissions.limits.logic.customEl.limitName", assignOnAssignDefName.getName());
+    ApiConfig.testConfig.put("grouper.permissions.limits.logic.customEl.logicClass", PermissionLimitElLogic.class.getName());
+
     AttributeValueResult attributeValueResult = attributeAssignResult.getAttributeAssign()
-      .getAttributeValueDelegate().assignValueString(assignOnAssignDefName.getName(), "hey");
+      .getAttributeValueDelegate().assignValueString(assignOnAssignDefName.getName(), "amount < 50");
 
     ChangeLogTempToEntity.convertRecords();
 
@@ -2220,7 +2229,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
     assertEquals("assign", wsGetPermissionAssignmentsResults.getWsAttributeAssigns()[1].getAttributeAssignActionName());
     assertEquals(attributeValueResult.getAttributeAssignResult().getAttributeAssign().getId(), wsGetPermissionAssignmentsResults.getWsAttributeAssigns()[1].getId());
     assertEquals(1, GrouperUtil.length(wsGetPermissionAssignmentsResults.getWsAttributeAssigns()[1].getWsAttributeAssignValues()));
-    assertEquals("hey", wsGetPermissionAssignmentsResults.getWsAttributeAssigns()[1].getWsAttributeAssignValues()[0].getValueSystem());
+    assertEquals("amount < 50", wsGetPermissionAssignmentsResults.getWsAttributeAssigns()[1].getWsAttributeAssignValues()[0].getValueSystem());
     
     //#################################################
     //invalid query for attrdef and action, and group detail 
