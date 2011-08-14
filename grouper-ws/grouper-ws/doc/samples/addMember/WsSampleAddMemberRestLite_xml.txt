@@ -1,4 +1,4 @@
-Grouper web service sample of service: addMember, WsSampleAddMemberRestLite, manually written lite/rest, format: xml, for version: v1_5_000
+Grouper web service sample of service: addMember, WsSampleAddMemberRestLite, manually written lite/rest, format: xml, for version: 2.0.0
 
 
 #########################################
@@ -9,10 +9,10 @@ Grouper web service sample of service: addMember, WsSampleAddMemberRestLite, man
 #########################################
 
 
-PUT /grouper-ws/servicesRest/xml/v1_5_000/groups/aStem%3AaGroup/members/10021368 HTTP/1.1
+PUT /grouperWs/servicesRest/xml/v2_0_000/groups/aStem%3AaGroup/members/10021368 HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.1
+User-Agent: Jakarta Commons-HttpClient/3.0
 Host: localhost:8092
 Content-Length: 0
 
@@ -30,42 +30,43 @@ Server: Apache-Coyote/1.1
 Pragma: No-cache
 Cache-Control: no-cache
 Expires: Wed, 31 Dec 1969 19:00:00 EST
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
 X-Grouper-resultCode: SUCCESS_ALREADY_EXISTED
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/xml;charset=UTF-8
-Date: Sat, 21 Nov 2009 21:19:44 GMT
+Date: Fri, 12 Aug 2011 22:07:52 GMT
 Connection: close
 
 <WsAddMemberLiteResult>
-  <responseMetadata>
-    <millis>77</millis>
-    <serverVersion>v1_5_000</serverVersion>
-  </responseMetadata>
+  <resultMetadata>
+    <resultCode>SUCCESS_ALREADY_EXISTED</resultCode>
+    <resultMessage>Success for: clientVersion: 2.0.0, wsGroupLookup: WsGroupLookup[pitGroups=[],groupName=aStem:aGroup], subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=10021368]
+, replaceAllExisting: false, actAsSubject: null, fieldName: null, txType: NONE, includeGroupDetail: false, includeSubjectDetail: false, subjectAttributeNames: null
+, params: null
+, disabledDate: null, enabledDate: null</resultMessage>
+    <success>T</success>
+  </resultMetadata>
   <wsGroupAssigned>
     <extension>aGroup</extension>
-    <description>a group description</description>
     <displayExtension>a group</displayExtension>
-    <uuid>e4a74b026290428b9c64bc205bef57a5</uuid>
-    <name>aStem:aGroup</name>
+    <description>a group description</description>
     <displayName>a stem:a group</displayName>
+    <name>aStem:aGroup</name>
+    <uuid>a0c9f76cddeb46b1837749ad890e1886</uuid>
   </wsGroupAssigned>
   <wsSubject>
     <resultCode>SUCCESS</resultCode>
     <success>T</success>
+    <id>10021368</id>
     <name>10021368</name>
     <sourceId>jdbc</sourceId>
-    <id>10021368</id>
   </wsSubject>
-  <resultMetadata>
-    <success>T</success>
-    <resultMessage>Success for: clientVersion: v1_5_000, wsGroupLookup: WsGroupLookup[groupName=aStem:aGroup], subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=10021368]
-
-, replaceAllExisting: false, actAsSubject: WsSubjectLookup[], fieldName: null, txType: NONE, includeGroupDetail: false, includeSubjectDetail: false, subjectAttributeNames: null
-, params: null</resultMessage>
-    <resultCode>SUCCESS_ALREADY_EXISTED</resultCode>
-  </resultMetadata>
+  <responseMetadata>
+    <resultWarnings></resultWarnings>
+    <millis>82</millis>
+    <serverVersion>2.0.0</serverVersion>
+  </responseMetadata>
 </WsAddMemberLiteResult>
 
 
@@ -92,9 +93,9 @@ import org.apache.commons.httpclient.params.DefaultHttpParams;
 import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.commons.lang.StringUtils;
 
+import edu.internet2.middleware.grouper.ws.coresoap.WsAddMemberLiteResult;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType;
-import edu.internet2.middleware.grouper.ws.soap.WsAddMemberLiteResult;
 import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
 
 /**
@@ -200,7 +201,8 @@ public class WsSampleAddMemberRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: v1_5_000, result code: SUCCESS_ALREADY_EXISTED, result message: Success for: clientVersion: v1_5_000, wsGroupLookup: WsGroupLookup[groupName=aStem:aGroup], subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=10021368]
+Server version: 2.0.0, result code: SUCCESS_ALREADY_EXISTED, result message: Success for: clientVersion: 2.0.0, wsGroupLookup: WsGroupLookup[pitGroups=[],groupName=aStem:aGroup], subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=10021368]
 
-, replaceAllExisting: false, actAsSubject: WsSubjectLookup[], fieldName: null, txType: NONE, includeGroupDetail: false, includeSubjectDetail: false, subjectAttributeNames: null
+, replaceAllExisting: false, actAsSubject: null, fieldName: null, txType: NONE, includeGroupDetail: false, includeSubjectDetail: false, subjectAttributeNames: null
 , params: null
+, disabledDate: null, enabledDate: null

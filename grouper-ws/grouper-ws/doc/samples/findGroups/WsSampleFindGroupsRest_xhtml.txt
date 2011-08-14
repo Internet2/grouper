@@ -1,4 +1,4 @@
-Grouper web service sample of service: findGroups, WsSampleFindGroupsRest, manually written lite/rest, format: xhtml, for version: v1_5_000
+Grouper web service sample of service: findGroups, WsSampleFindGroupsRest, manually written lite/rest, format: xhtml, for version: 2.0.0
 
 
 #########################################
@@ -9,10 +9,10 @@ Grouper web service sample of service: findGroups, WsSampleFindGroupsRest, manua
 #########################################
 
 
-POST /grouper-ws/servicesRest/v1_5_000/groups HTTP/1.1
+POST /grouperWs/servicesRest/v2_0_000/groups HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.1
+User-Agent: Jakarta Commons-HttpClient/3.0
 Host: localhost:8092
 Content-Length: 992
 Content-Type: application/xhtml+xml; charset=UTF-8
@@ -26,15 +26,15 @@ Content-Type: application/xhtml+xml; charset=UTF-8
   <body>
     <div title="WsRestFindGroupsRequest">
       <p class="clientVersion" />
-      <p class="includeGroupDetail" />
       <div class="actAsSubjectLookup" title="WsSubjectLookup">
         <p class="subjectSourceId" />
         <p class="subjectId">GrouperSystem</p>
         <p class="subjectIdentifier" />
       </div>
+      <p class="includeGroupDetail" />
       <div class="wsQueryFilter" title="WsQueryFilter">
-        <p class="groupUuid" />
         <p class="groupName">aGr</p>
+        <p class="groupUuid" />
         <p class="stemName">aStem</p>
         <p class="queryFilterType">FIND_BY_GROUP_NAME_APPROXIMATE</p>
         <p class="stemNameScope" />
@@ -60,12 +60,12 @@ Content-Type: application/xhtml+xml; charset=UTF-8
 
 HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml;charset=UTF-8
-Date: Sat, 21 Nov 2009 21:26:13 GMT
+Date: Fri, 12 Aug 2011 22:14:37 GMT
 Connection: close
 
 <?xml version='1.0' encoding='iso-8859-1'?>
@@ -79,34 +79,35 @@ Connection: close
       <div class="resultMetadata" title="WsResultMeta">
         <p class="resultCode">SUCCESS</p>
         <p class="success">T</p>
-        <p class="resultMessage">Success for: clientVersion: v1_5_000, wsQueryFilter: WsQueryFilter[stemName=aStem,groupName=aGr,queryFilterType=FIND_BY_GROUP_NAME_APPROXIMATE]
-, includeGroupDetail: false, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], paramNames:
-, params: null</p>
         <p class="resultCode2" />
+        <p class="resultMessage">Success for: clientVersion: 2.0.0, wsQueryFilter: WsQueryFilter[queryFilterType=FIND_BY_GROUP_NAME_APPROXIMATE,groupName=aGr,stemName=aStem]
+, includeGroupDetail: false, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], paramNames:
+, params: null
+, wsGroupLookups: null</p>
       </div>
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="serverVersion">v1_5_000</p>
-        <p class="millis">125</p>
+        <p class="millis">51</p>
         <p class="resultWarnings" />
+        <p class="serverVersion">2.0.0</p>
       </div>
       <ul class="groupResults">
         <li title="WsGroup">
+          <p class="name">aStem:aGroup</p>
+          <p class="displayName">a stem:a group</p>
+          <p class="description">a group description</p>
+          <p class="uuid">46a13546e48748f1940ba3bac2192f7d</p>
           <div class="detail" title="WsGroupDetail" />
-          <p class="displayExtension">a group2</p>
-          <p class="uuid">406ae0ae1461460bbdb0f62d8ae77ed3</p>
-          <p class="displayName">a stem:a group2</p>
-          <p class="extension">aGroup2</p>
-          <p class="description">a group description2</p>
-          <p class="name">aStem:aGroup2</p>
+          <p class="extension">aGroup</p>
+          <p class="displayExtension">a group</p>
         </li>
         <li title="WsGroup">
+          <p class="name">aStem:aGroup2</p>
+          <p class="displayName">a stem:a group2</p>
+          <p class="description">a group description2</p>
+          <p class="uuid">7bd6d1bb254c42949c32ff69f4543d70</p>
           <div class="detail" title="WsGroupDetail" />
-          <p class="displayExtension">a group</p>
-          <p class="uuid">9186bd665a9849fca542eb94031f83de</p>
-          <p class="displayName">a stem:a group</p>
-          <p class="extension">aGroup</p>
-          <p class="description">a group description</p>
-          <p class="name">aStem:aGroup</p>
+          <p class="extension">aGroup2</p>
+          <p class="displayExtension">a group2</p>
         </li>
       </ul>
     </div>
@@ -138,14 +139,14 @@ import org.apache.commons.httpclient.params.DefaultHttpParams;
 import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.commons.lang.StringUtils;
 
+import edu.internet2.middleware.grouper.ws.coresoap.WsFindGroupsResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsQueryFilter;
+import edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup;
 import edu.internet2.middleware.grouper.ws.query.WsQueryFilterType;
 import edu.internet2.middleware.grouper.ws.rest.WsRestResultProblem;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestFindGroupsRequest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType;
-import edu.internet2.middleware.grouper.ws.soap.WsFindGroupsResults;
-import edu.internet2.middleware.grouper.ws.soap.WsQueryFilter;
-import edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup;
 import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
 
 /**
@@ -280,6 +281,7 @@ public class WsSampleFindGroupsRest implements WsSampleRest {
 #########################################
 
 
-Server version: v1_5_000, result code: SUCCESS, result message: Success for: clientVersion: v1_5_000, wsQueryFilter: WsQueryFilter[stemName=aStem,groupName=aGr,queryFilterType=FIND_BY_GROUP_NAME_APPROXIMATE]
+Server version: 2.0.0, result code: SUCCESS, result message: Success for: clientVersion: 2.0.0, wsQueryFilter: WsQueryFilter[queryFilterType=FIND_BY_GROUP_NAME_APPROXIMATE,groupName=aGr,stemName=aStem]
 , includeGroupDetail: false, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], paramNames: 
 , params: null
+, wsGroupLookups: null

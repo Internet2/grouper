@@ -1,4 +1,4 @@
-Grouper web service sample of service: groupSave, WsSampleGroupSaveRestLite, manually written lite/rest, format: xml, for version: v1_5_000
+Grouper web service sample of service: groupSave, WsSampleGroupSaveRestLite, manually written lite/rest, format: xml, for version: 2.0.0
 
 
 #########################################
@@ -9,10 +9,10 @@ Grouper web service sample of service: groupSave, WsSampleGroupSaveRestLite, man
 #########################################
 
 
-POST /grouper-ws/servicesRest/v1_5_000/groups/aStem%3AaGroup HTTP/1.1
+POST /grouperWs/servicesRest/v2_0_000/groups/aStem%3AaGroup HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.1
+User-Agent: Jakarta Commons-HttpClient/3.0
 Host: localhost:8092
 Content-Length: 212
 Content-Type: text/xml; charset=UTF-8
@@ -35,37 +35,37 @@ Content-Type: text/xml; charset=UTF-8
 
 HTTP/1.1 201 Created
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
 X-Grouper-resultCode: SUCCESS_UPDATED
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/xml;charset=UTF-8
-Date: Sat, 21 Nov 2009 21:11:41 GMT
+Date: Fri, 12 Aug 2011 22:21:16 GMT
 Connection: close
 
 <WsGroupSaveLiteResult>
-  <wsGroup>
-    <extension>aGroup</extension>
-    <description>desc1</description>
-    <displayExtension>disp1</displayExtension>
-    <uuid>17b48a8f95a341bf90126c571ef5fcc9</uuid>
-    <name>aStem:aGroup</name>
-    <displayName>a stem:disp1</displayName>
-  </wsGroup>
-  <responseMetadata>
-    <millis>270</millis>
-    <serverVersion>v1_5_000</serverVersion>
-  </responseMetadata>
   <resultMetadata>
-    <success>T</success>
-    <resultMessage>Success for: clientVersion: v1_5_000, wsGroupToSaves: Array size: 1: [0]: WsGroupToSave[
-wsGroup=WsGroup[description=desc1,displayExtension=disp1,name=aStem:aGroup],
-wsGroupLookup=WsGroupLookup[groupName=aStem:aGroup]]
-
+    <resultCode>SUCCESS_UPDATED</resultCode>
+    <resultMessage>Success for: clientVersion: 2.0.0, wsGroupToSaves: Array size: 1: [0]: WsGroupToSave[
+wsGroupLookup=WsGroupLookup[pitGroups=[],groupName=aStem:aGroup],
+wsGroup=WsGroup[displayExtension=disp1,description=desc1,name=aStem:aGroup]]
 , actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], txType: NONE, paramNames:
 , params: null</resultMessage>
-    <resultCode>SUCCESS_UPDATED</resultCode>
+    <success>T</success>
   </resultMetadata>
+  <responseMetadata>
+    <resultWarnings></resultWarnings>
+    <millis>83</millis>
+    <serverVersion>2.0.0</serverVersion>
+  </responseMetadata>
+  <wsGroup>
+    <extension>aGroup</extension>
+    <displayExtension>disp1</displayExtension>
+    <description>desc1</description>
+    <displayName>a stem:disp1</displayName>
+    <name>aStem:aGroup</name>
+    <uuid>5da102ca8ba34b6cad7e97a91267a807</uuid>
+  </wsGroup>
 </WsGroupSaveLiteResult>
 
 
@@ -93,11 +93,11 @@ import org.apache.commons.httpclient.params.DefaultHttpParams;
 import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.commons.lang.StringUtils;
 
+import edu.internet2.middleware.grouper.ws.coresoap.WsGroupSaveLiteResult;
 import edu.internet2.middleware.grouper.ws.rest.WsRestResultProblem;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestGroupSaveLiteRequest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType;
-import edu.internet2.middleware.grouper.ws.soap.WsGroupSaveLiteResult;
 import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
 
 /**
@@ -226,9 +226,9 @@ public class WsSampleGroupSaveRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: v1_5_000, result code: SUCCESS_UPDATED, result message: Success for: clientVersion: v1_5_000, wsGroupToSaves: Array size: 1: [0]: WsGroupToSave[
-  wsGroup=WsGroup[description=desc1,displayExtension=disp1,name=aStem:aGroup],
-  wsGroupLookup=WsGroupLookup[groupName=aStem:aGroup]]
+Server version: 2.0.0, result code: SUCCESS_UPDATED, result message: Success for: clientVersion: 2.0.0, wsGroupToSaves: Array size: 1: [0]: WsGroupToSave[
+  wsGroupLookup=WsGroupLookup[pitGroups=[],groupName=aStem:aGroup],
+  wsGroup=WsGroup[displayExtension=disp1,description=desc1,name=aStem:aGroup]]
 
 , actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], txType: NONE, paramNames: 
 , params: null

@@ -1,4 +1,4 @@
-Grouper web service sample of service: deleteMember, WsSampleDeleteMemberRest, manually written lite/rest, format: json, for version: v1_5_000
+Grouper web service sample of service: deleteMember, WsSampleDeleteMemberRest, manually written lite/rest, format: json, for version: 2.0.0
 
 
 #########################################
@@ -9,10 +9,10 @@ Grouper web service sample of service: deleteMember, WsSampleDeleteMemberRest, m
 #########################################
 
 
-POST /grouper-ws/servicesRest/v1_5_000/groups/aStem%3AaGroup/members HTTP/1.1
+POST /grouperWs/servicesRest/v2_0_000/groups/aStem%3AaGroup/members HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.1
+User-Agent: Jakarta Commons-HttpClient/3.0
 Host: localhost:8092
 Content-Length: 151
 Content-Type: text/x-json; charset=UTF-8
@@ -44,24 +44,24 @@ Content-Type: text/x-json; charset=UTF-8
 
 HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/x-json;charset=UTF-8
-Content-Length: 1004
-Date: Sat, 21 Nov 2009 21:20:28 GMT
+Content-Length: 1011
+Date: Fri, 12 Aug 2011 22:08:39 GMT
 Connection: close
 
 {
   "WsDeleteMemberResults":{
     "responseMetadata":{
-      "millis":"392",
-      "serverVersion":"v1_5_000"
+      "millis":"145",
+      "serverVersion":"2.0.0"
     },
     "resultMetadata":{
       "resultCode":"SUCCESS",
-      "resultMessage":"Success for: clientVersion: v1_5_000, wsGroupLookup: WsGroupLookup[groupName=aStem:aGroup], subjectLookups: Array size: 2: [0]: WsSubjectLookup[subjectId=10021368]\n[1]: WsSubjectLookup[subjectId=10039438]\n\n, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], fieldName: null, txType: NONE\n, params: null",
+      "resultMessage":"Success for: clientVersion: 2.0.0, wsGroupLookup: WsGroupLookup[pitGroups=[],groupName=aStem:aGroup], subjectLookups: Array size: 2: [0]: WsSubjectLookup[subjectId=10021368]\n[1]: WsSubjectLookup[subjectId=10039438]\n\n, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], fieldName: null, txType: NONE\n, params: null",
       "success":"T"
     },
     "results":[
@@ -100,7 +100,7 @@ Connection: close
       "displayName":"a stem:a group",
       "extension":"aGroup",
       "name":"aStem:aGroup",
-      "uuid":"63c0a3bc11224b9aaced696ace8ea9a2"
+      "uuid":"9be46f236325483086953661da9291da"
     }
   }
 }
@@ -130,12 +130,12 @@ import org.apache.commons.httpclient.params.DefaultHttpParams;
 import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.commons.lang.StringUtils;
 
+import edu.internet2.middleware.grouper.ws.coresoap.WsDeleteMemberResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup;
 import edu.internet2.middleware.grouper.ws.rest.WsRestResultProblem;
 import edu.internet2.middleware.grouper.ws.rest.member.WsRestDeleteMemberRequest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType;
-import edu.internet2.middleware.grouper.ws.soap.WsDeleteMemberResults;
-import edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup;
 import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
 
 /**
@@ -270,7 +270,7 @@ public class WsSampleDeleteMemberRest implements WsSampleRest {
 #########################################
 
 
-Server version: v1_5_000, result code: SUCCESS, result message: Success for: clientVersion: v1_5_000, wsGroupLookup: WsGroupLookup[groupName=aStem:aGroup], subjectLookups: Array size: 2: [0]: WsSubjectLookup[subjectId=10021368]
+Server version: 2.0.0, result code: SUCCESS, result message: Success for: clientVersion: 2.0.0, wsGroupLookup: WsGroupLookup[pitGroups=[],groupName=aStem:aGroup], subjectLookups: Array size: 2: [0]: WsSubjectLookup[subjectId=10021368]
 [1]: WsSubjectLookup[subjectId=10039438]
 
 , actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], fieldName: null, txType: NONE

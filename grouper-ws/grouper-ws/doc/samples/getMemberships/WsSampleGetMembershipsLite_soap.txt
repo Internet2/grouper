@@ -1,4 +1,4 @@
-Grouper web service sample of service: getMemberships, WsSampleGetMembershipsLite, code generated classes, format: soap, for version: v1_6_000
+Grouper web service sample of service: getMemberships, WsSampleGetMembershipsLite, code generated classes, format: soap, for version: 2.0.0
 
 
 #########################################
@@ -9,19 +9,19 @@ Grouper web service sample of service: getMemberships, WsSampleGetMembershipsLit
 #########################################
 
 
-POST /grouper-ws/services/GrouperService HTTP/1.1
+POST /grouperWs/services/GrouperService_v2_0 HTTP/1.1
 Content-Type: application/soap+xml; charset=UTF-8; action="urn:getMembershipsLite"
 User-Agent: Axis2
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 Host: localhost:8092
 Transfer-Encoding: chunked
 
-4b8
+4bd
 <?xml version='1.0' encoding='UTF-8'?>
 <soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
   <soapenv:Body>
-    <ns1:getMembershipsLite xmlns:ns1="http://soap.ws.grouper.middleware.internet2.edu/xsd">
-      <ns1:clientVersion>v1_6_000</ns1:clientVersion>
+    <ns1:getMembershipsLite xmlns:ns1="http://soap_v2_0.ws.grouper.middleware.internet2.edu/xsd">
+      <ns1:clientVersion>v2_0_000</ns1:clientVersion>
       <ns1:groupName>aStem:aGroup</ns1:groupName>
       <ns1:groupUuid></ns1:groupUuid>
       <ns1:subjectId></ns1:subjectId>
@@ -61,114 +61,36 @@ Transfer-Encoding: chunked
 
 HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/soap+xml; action="urn:getMembershipsLiteResponse";charset=UTF-8
 Transfer-Encoding: chunked
-Date: Sat, 19 Dec 2009 21:33:40 GMT
+Date: Fri, 12 Aug 2011 22:22:46 GMT
 
-1538
+5db
 <?xml version='1.0' encoding='UTF-8'?>
 <soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
   <soapenv:Body>
-    <ns:getMembershipsLiteResponse xmlns:ns="http://soap.ws.grouper.middleware.internet2.edu/xsd">
-      <ns:return type="edu.internet2.middleware.grouper.ws.soap.WsGetMembershipsResults">
-        <ns:responseMetadata type="edu.internet2.middleware.grouper.ws.soap.WsResponseMeta">
-          <ns:millis>179</ns:millis>
+    <ns:getMembershipsLiteResponse xmlns:ns="http://soap_v2_0.ws.grouper.middleware.internet2.edu/xsd">
+      <ns:return type="edu.internet2.middleware.grouper.ws.soap_v2_0.WsGetMembershipsResults">
+        <ns:responseMetadata type="edu.internet2.middleware.grouper.ws.soap_v2_0.WsResponseMeta">
+          <ns:millis xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
           <ns:resultWarnings xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
-          <ns:serverVersion>v1_6_000</ns:serverVersion>
+          <ns:serverVersion>2.0.0</ns:serverVersion>
         </ns:responseMetadata>
-        <ns:resultMetadata type="edu.internet2.middleware.grouper.ws.soap.WsResultMeta">
+        <ns:resultMetadata type="edu.internet2.middleware.grouper.ws.soap_v2_0.WsResultMeta">
           <ns:params xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
           <ns:resultCode>SUCCESS</ns:resultCode>
           <ns:resultCode2 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
-          <ns:resultMessage>Found 3 results involving 1 groups and 3 subjects</ns:resultMessage>
+          <ns:resultMessage xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
           <ns:success>T</ns:success>
         </ns:resultMetadata>
         <ns:subjectAttributeNames xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
-        <ns:wsGroups type="edu.internet2.middleware.grouper.ws.soap.WsGroup">
-          <ns:description>a group description</ns:description>
-          <ns:detail xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
-          <ns:displayExtension>a group</ns:displayExtension>
-          <ns:displayName>a stem:a group</ns:displayName>
-          <ns:extension>aGroup</ns:extension>
-          <ns:name>aStem:aGroup</ns:name>
-          <ns:uuid>4d72ca5b890e4e088e78c593e259843a</ns:uuid>
-        </ns:wsGroups>
-        <ns:wsMemberships type="edu.internet2.middleware.grouper.ws.soap.WsMembership">
-          <ns:createTime>2009/12/19 16:33:38.359</ns:createTime>
-          <ns:disabledTime xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
-          <ns:enabled>T</ns:enabled>
-          <ns:enabledTime xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
-          <ns:groupId>4d72ca5b890e4e088e78c593e259843a</ns:groupId>
-          <ns:groupName>aStem:aGroup</ns:groupName>
-          <ns:listName>members</ns:listName>
-          <ns:listType>list</ns:listType>
-          <ns:memberId>18115df1c9b043f2bcaf58163003a276</ns:memberId>
-          <ns:membershipId>b3e57964b3214f37b6d22a7bd924ddb7:1f0dc6d868ac41568348a72c8f8ece0c</ns:membershipId>
-          <ns:membershipType>immediate</ns:membershipType>
-          <ns:subjectId>GrouperSystem</ns:subjectId>
-          <ns:subjectSourceId>g:isa</ns:subjectSourceId>
-        </ns:wsMemberships>
-        <ns:wsMemberships type="edu.internet2.middleware.grouper.ws.soap.WsMembership">
-          <ns:createTime>2009/12/19 16:33:38.396</ns:createTime>
-          <ns:disabledTime xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
-          <ns:enabled>T</ns:enabled>
-          <ns:enabledTime xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
-          <ns:groupId>4d72ca5b890e4e088e78c593e259843a</ns:groupId>
-          <ns:groupName>aStem:aGroup</ns:groupName>
-          <ns:listName>members</ns:listName>
-          <ns:listType>list</ns:listType>
-          <ns:memberId>cdf68c4e15124ae58bfaadb7af08feb2</ns:memberId>
-          <ns:membershipId>82da1fe7d7b2486ea37c69972fa01f96:1f0dc6d868ac41568348a72c8f8ece0c</ns:membershipId>
-          <ns:membershipType>immediate</ns:membershipType>
-          <ns:subjectId>10021368</ns:subjectId>
-          <ns:subjectSourceId>jdbc</ns:subjectSourceId>
-        </ns:wsMemberships>
-        <ns:wsMemberships type="edu.internet2.middleware.grouper.ws.soap.WsMembership">
-          <ns:createTime>2009/12/19 16:33:38.377</ns:createTime>
-          <ns:disabledTime xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
-          <ns:enabled>T</ns:enabled>
-          <ns:enabledTime xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
-          <ns:groupId>4d72ca5b890e4e088e78c593e259843a</ns:groupId>
-          <ns:groupName>aStem:aGroup</ns:groupName>
-          <ns:listName>members</ns:listName>
-          <ns:listType>list</ns:listType>
-          <ns:memberId>4cb4abf186cb4d2eb2a43a252391652b</ns:memberId>
-          <ns:membershipId>ea3970bc9e7a46f99b3426552e5b588a:1f0dc6d868ac41568348a72c8f8ece0c</ns:membershipId>
-          <ns:membershipType>immediate</ns:membershipType>
-          <ns:subjectId>10039438</ns:subjectId>
-          <ns:subjectSourceId>jdbc</ns:subjectSourceId>
-        </ns:wsMemberships>
-        <ns:wsSubjects type="edu.internet2.middleware.grouper.ws.soap.WsSubject">
-          <ns:attributeValues xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
-          <ns:id>GrouperSystem</ns:id>
-          <ns:identifierLookup xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
-          <ns:name xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
-          <ns:resultCode>SUCCESS</ns:resultCode>
-          <ns:sourceId>g:isa</ns:sourceId>
-          <ns:success>T</ns:success>
-        </ns:wsSubjects>
-        <ns:wsSubjects type="edu.internet2.middleware.grouper.ws.soap.WsSubject">
-          <ns:attributeValues xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
-          <ns:id>10021368</ns:id>
-          <ns:identifierLookup xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
-          <ns:name xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
-          <ns:resultCode>SUCCESS</ns:resultCode>
-          <ns:sourceId>jdbc</ns:sourceId>
-          <ns:success>T</ns:success>
-        </ns:wsSubjects>
-        <ns:wsSubjects type="edu.internet2.middleware.grouper.ws.soap.WsSubject">
-          <ns:attributeValues xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
-          <ns:id>10039438</ns:id>
-          <ns:identifierLookup xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
-          <ns:name xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
-          <ns:resultCode>SUCCESS</ns:resultCode>
-          <ns:sourceId>jdbc</ns:sourceId>
-          <ns:success>T</ns:success>
-        </ns:wsSubjects>
+        <ns:wsGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
+        <ns:wsMemberships xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
+        <ns:wsSubjects xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
       </ns:return>
     </ns:getMembershipsLiteResponse>
   </soapenv:Body>
@@ -199,9 +121,9 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import edu.internet2.middleware.grouper.webservicesClient.util.GeneratedClientSettings;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGenerated;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGeneratedType;
-import edu.internet2.middleware.grouper.ws.soap.xsd.GetMembershipsLite;
-import edu.internet2.middleware.grouper.ws.soap.xsd.WsGetMembershipsResults;
-import edu.internet2.middleware.grouper.ws.soap.xsd.WsMembership;
+import edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.GetMembershipsLite;
+import edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.WsGetMembershipsResults;
+import edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.WsMembership;
 
 
 /**
@@ -305,12 +227,10 @@ public class WsSampleGetMembershipsLite implements WsSampleGenerated {
 
 
 WsGetMembershipsResults[
-  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap.xsd.WsResponseMeta@fd2905,localResponseMetadataTracker=true,
-  localResultMetadata=edu.internet2.middleware.grouper.ws.soap.xsd.WsResultMeta@902791,localResultMetadataTracker=true,
+  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.WsResponseMeta@50c144,localResponseMetadataTracker=true,
+  localResultMetadata=edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.WsResultMeta@1c08194,localResultMetadataTracker=true,
   localSubjectAttributeNames={<null>},localSubjectAttributeNamesTracker=true,
-  localWsGroups={edu.internet2.middleware.grouper.ws.soap.xsd.WsGroup@e1c560},localWsGroupsTracker=true,
-  localWsMemberships={edu.internet2.middleware.grouper.ws.soap.xsd.WsMembership@9f0e68,edu.internet2.middleware.grouper.ws.soap.xsd.WsMembership@6afc53,edu.internet2.middleware.grouper.ws.soap.xsd.WsMembership@1dbad5b},localWsMembershipsTracker=true,
-  localWsSubjects={edu.internet2.middleware.grouper.ws.soap.xsd.WsSubject@1dd7d1e,edu.internet2.middleware.grouper.ws.soap.xsd.WsSubject@415b46,edu.internet2.middleware.grouper.ws.soap.xsd.WsSubject@cf76c0},localWsSubjectsTracker=true]
-WsMembership[localCreateTime=2009/12/19 16:33:38.359,localCreateTimeTracker=true,localDisabledTimeTracker=false,localEnabled=T,localEnabledTracker=true,localEnabledTimeTracker=false,localGroupId=4d72ca5b890e4e088e78c593e259843a,localGroupIdTracker=true,localGroupName=aStem:aGroup,localGroupNameTracker=true,localListName=members,localListNameTracker=true,localListType=list,localListTypeTracker=true,localMemberId=18115df1c9b043f2bcaf58163003a276,localMemberIdTracker=true,localMembershipId=b3e57964b3214f37b6d22a7bd924ddb7:1f0dc6d868ac41568348a72c8f8ece0c,localMembershipIdTracker=true,localMembershipType=immediate,localMembershipTypeTracker=true,localSubjectId=GrouperSystem,localSubjectIdTracker=true,localSubjectSourceId=g:isa,localSubjectSourceIdTracker=true]
-WsMembership[localCreateTime=2009/12/19 16:33:38.396,localCreateTimeTracker=true,localDisabledTimeTracker=false,localEnabled=T,localEnabledTracker=true,localEnabledTimeTracker=false,localGroupId=4d72ca5b890e4e088e78c593e259843a,localGroupIdTracker=true,localGroupName=aStem:aGroup,localGroupNameTracker=true,localListName=members,localListNameTracker=true,localListType=list,localListTypeTracker=true,localMemberId=cdf68c4e15124ae58bfaadb7af08feb2,localMemberIdTracker=true,localMembershipId=82da1fe7d7b2486ea37c69972fa01f96:1f0dc6d868ac41568348a72c8f8ece0c,localMembershipIdTracker=true,localMembershipType=immediate,localMembershipTypeTracker=true,localSubjectId=10021368,localSubjectIdTracker=true,localSubjectSourceId=jdbc,localSubjectSourceIdTracker=true]
-WsMembership[localCreateTime=2009/12/19 16:33:38.377,localCreateTimeTracker=true,localDisabledTimeTracker=false,localEnabled=T,localEnabledTracker=true,localEnabledTimeTracker=false,localGroupId=4d72ca5b890e4e088e78c593e259843a,localGroupIdTracker=true,localGroupName=aStem:aGroup,localGroupNameTracker=true,localListName=members,localListNameTracker=true,localListType=list,localListTypeTracker=true,localMemberId=4cb4abf186cb4d2eb2a43a252391652b,localMemberIdTracker=true,localMembershipId=ea3970bc9e7a46f99b3426552e5b588a:1f0dc6d868ac41568348a72c8f8ece0c,localMembershipIdTracker=true,localMembershipType=immediate,localMembershipTypeTracker=true,localSubjectId=10039438,localSubjectIdTracker=true,localSubjectSourceId=jdbc,localSubjectSourceIdTracker=true]
+  localWsGroups={<null>},localWsGroupsTracker=true,
+  localWsMemberships={<null>},localWsMembershipsTracker=true,
+  localWsSubjects={<null>},localWsSubjectsTracker=true]
+<null>

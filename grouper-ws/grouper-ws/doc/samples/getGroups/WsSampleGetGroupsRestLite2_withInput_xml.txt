@@ -1,4 +1,4 @@
-Grouper web service sample of service: getGroups, WsSampleGetGroupsRestLite2, manually written lite/rest, type: _withInput, format: xml, for version: v1_5_000
+Grouper web service sample of service: getGroups, WsSampleGetGroupsRestLite2, manually written lite/rest, type: _withInput, format: xml, for version: 2.0.0
 
 
 #########################################
@@ -9,10 +9,10 @@ Grouper web service sample of service: getGroups, WsSampleGetGroupsRestLite2, ma
 #########################################
 
 
-POST /grouper-ws/servicesRest/v1_5_000/subjects/sources/jdbc/subjectId/test.subject.0/groups HTTP/1.1
+POST /grouperWs/servicesRest/v2_0_000/subjects/sources/jdbc/subjectId/test.subject.0/groups HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.1
+User-Agent: Jakarta Commons-HttpClient/3.0
 Host: localhost:8092
 Content-Length: 191
 Content-Type: text/xml; charset=UTF-8
@@ -34,34 +34,64 @@ Content-Type: text/xml; charset=UTF-8
 
 HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/xml;charset=UTF-8
-Date: Sat, 21 Nov 2009 21:24:47 GMT
+Date: Fri, 12 Aug 2011 22:13:02 GMT
 Connection: close
 
 <WsGetGroupsLiteResult>
+  <resultMetadata>
+    <resultCode>SUCCESS</resultCode>
+    <resultMessage>Success for: clientVersion: 2.0.0, subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=test.subject.0,subjectSourceId=jdbc]
+memberFilter: All, includeGroupDetail: true, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem]
+, params: null
+fieldName1: null
+, scope: null, wsStemLookup: WsStemLookup[]
+, stemScope: null, enabled: null, pageSize: null, pageNumber: null, sortString: null, ascending: null
+, pointInTimeFrom: null, pointInTimeTo: null</resultMessage>
+    <success>T</success>
+  </resultMetadata>
+  <subjectAttributeNames>
+    <string>lfname</string>
+    <string>loginid</string>
+  </subjectAttributeNames>
   <responseMetadata>
-    <millis>128</millis>
-    <serverVersion>v1_5_000</serverVersion>
+    <resultWarnings></resultWarnings>
+    <millis>77</millis>
+    <serverVersion>2.0.0</serverVersion>
   </responseMetadata>
+  <wsGroups>
+    <WsGroup>
+      <extension>role</extension>
+      <displayExtension>role</displayExtension>
+      <displayName>a stem:role</displayName>
+      <name>aStem:role</name>
+      <uuid>4a426333ab364d0ea4c76b61f5fdd690</uuid>
+      <detail>
+        <hasComposite>F</hasComposite>
+        <typeNames/>
+        <createSubjectId>GrouperSystem</createSubjectId>
+        <createTime>2011/08/12 18:13:01.114</createTime>
+        <isCompositeFactor>F</isCompositeFactor>
+        <modifySubjectId>GrouperSystem</modifySubjectId>
+        <modifyTime>2011/08/12 18:13:01.116</modifyTime>
+      </detail>
+    </WsGroup>
+  </wsGroups>
   <wsSubject>
     <resultCode>SUCCESS</resultCode>
     <success>T</success>
+    <id>test.subject.0</id>
     <name>my name is test.subject.0</name>
     <sourceId>jdbc</sourceId>
-    <id>test.subject.0</id>
+    <attributeValues>
+      <string>name.test.subject.0</string>
+      <string>id.test.subject.0</string>
+    </attributeValues>
   </wsSubject>
-  <resultMetadata>
-    <success>T</success>
-    <resultMessage>Success for: clientVersion: v1_5_000, subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=test.subject.0,subjectSourceId=jdbc]
-
-memberFilter: All, includeGroupDetail: true, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem]
-, params: null</resultMessage>
-    <resultCode>SUCCESS</resultCode>
-  </resultMetadata>
 </WsGetGroupsLiteResult>
 
 
@@ -89,11 +119,11 @@ import org.apache.commons.httpclient.params.DefaultHttpParams;
 import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.commons.lang.StringUtils;
 
+import edu.internet2.middleware.grouper.ws.coresoap.WsGetGroupsLiteResult;
 import edu.internet2.middleware.grouper.ws.rest.WsRestResultProblem;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestGetGroupsLiteRequest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType;
-import edu.internet2.middleware.grouper.ws.soap.WsGetGroupsLiteResult;
 import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
 
 /**
@@ -222,7 +252,11 @@ public class WsSampleGetGroupsRestLite2 implements WsSampleRest {
 #########################################
 
 
-Server version: v1_5_000, result code: SUCCESS, result message: Success for: clientVersion: v1_5_000, subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=test.subject.0,subjectSourceId=jdbc]
+Server version: 2.0.0, result code: SUCCESS, result message: Success for: clientVersion: 2.0.0, subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=test.subject.0,subjectSourceId=jdbc]
 
 memberFilter: All, includeGroupDetail: true, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem]
 , params: null
+ fieldName1: null
+, scope: null, wsStemLookup: WsStemLookup[]
+, stemScope: null, enabled: null, pageSize: null, pageNumber: null, sortString: null, ascending: null
+, pointInTimeFrom: null, pointInTimeTo: null

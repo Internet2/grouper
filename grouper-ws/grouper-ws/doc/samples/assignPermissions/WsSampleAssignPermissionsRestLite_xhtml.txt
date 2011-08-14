@@ -1,4 +1,4 @@
-Grouper web service sample of service: assignPermissions, WsSampleAssignPermissionsRestLite, manually written lite/rest, format: xhtml, for version: v1_6_000
+Grouper web service sample of service: assignPermissions, WsSampleAssignPermissionsRestLite, manually written lite/rest, format: xhtml, for version: 2.0.0
 
 
 #########################################
@@ -9,12 +9,12 @@ Grouper web service sample of service: assignPermissions, WsSampleAssignPermissi
 #########################################
 
 
-POST /grouperWs/servicesRest/xhtml/v1_6_000/permissionAssignments HTTP/1.1
+POST /grouperWs/servicesRest/xhtml/v2_0_000/permissionAssignments HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.1
+User-Agent: Jakarta Commons-HttpClient/3.0
 Host: localhost:8092
-Content-Length: 1313
+Content-Length: 1337
 Content-Type: application/xhtml+xml; charset=UTF-8
 
 <?xml version='1.0' encoding='iso-8859-1'?>
@@ -26,16 +26,26 @@ Content-Type: application/xhtml+xml; charset=UTF-8
   <body>
     <div title="WsRestAssignPermissionsLiteRequest">
       <p class="roleName" />
-      <p class="action">read</p>
+      <p class="disallowed" />
       <p class="attributeAssignId" />
       <p class="assignmentNotes" />
       <p class="roleId" />
       <p class="permissionType">role_subject</p>
+      <p class="clientVersion" />
+      <p class="permissionAssignOperation">remove_permission</p>
+      <p class="assignmentEnabledTime" />
       <p class="assignmentDisabledTime" />
       <p class="delegatable" />
-      <p class="assignmentEnabledTime" />
-      <p class="permissionAssignOperation">remove_permission</p>
-      <p class="clientVersion" />
+      <p class="includeSubjectDetail" />
+      <p class="subjectAttributeNames" />
+      <p class="includeGroupDetail" />
+      <p class="actAsSubjectId">GrouperSystem</p>
+      <p class="actAsSubjectSourceId" />
+      <p class="actAsSubjectIdentifier" />
+      <p class="paramName0" />
+      <p class="paramValue0" />
+      <p class="paramName1" />
+      <p class="paramValue1" />
       <p class="permissionDefNameName">aStem:permissionDefName</p>
       <p class="permissionDefNameId" />
       <p class="subjectRoleName">aStem:role</p>
@@ -43,16 +53,7 @@ Content-Type: application/xhtml+xml; charset=UTF-8
       <p class="subjectRoleSubjectId">test.subject.4</p>
       <p class="subjectRoleSubjectSourceId" />
       <p class="subjectRoleSubjectIdentifier" />
-      <p class="actAsSubjectId">GrouperSystem</p>
-      <p class="actAsSubjectSourceId" />
-      <p class="actAsSubjectIdentifier" />
-      <p class="includeSubjectDetail" />
-      <p class="subjectAttributeNames" />
-      <p class="includeGroupDetail" />
-      <p class="paramName0" />
-      <p class="paramValue0" />
-      <p class="paramName1" />
-      <p class="paramValue1" />
+      <p class="action">read</p>
     </div>
   </body>
 </html>
@@ -73,7 +74,7 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml;charset=UTF-8
-Date: Mon, 19 Apr 2010 20:29:03 GMT
+Date: Sat, 13 Aug 2011 00:36:03 GMT
 Connection: close
 
 <?xml version='1.0' encoding='iso-8859-1'?>
@@ -85,23 +86,30 @@ Connection: close
   <body>
     <div title="WsAssignPermissionsLiteResults">
       <div class="resultMetadata" title="WsResultMeta">
-        <p class="success">T</p>
-        <p class="resultMessage">, Found 1 results.</p>
         <p class="resultCode">SUCCESS</p>
+        <p class="success">T</p>
         <p class="resultCode2" />
+        <p class="resultMessage">, Found 1 results.</p>
       </div>
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">82610</p>
-        <p class="serverVersion">v1_6_000</p>
+        <p class="millis">100</p>
         <p class="resultWarnings" />
+        <p class="serverVersion">2.0.0</p>
       </div>
-      <div class="wsGroup" title="WsGroup" />
+      <div class="wsSubject" title="WsSubject">
+        <p class="name">my name is test.subject.4</p>
+        <p class="id">test.subject.4</p>
+        <p class="sourceId">jdbc</p>
+        <p class="resultCode">SUCCESS</p>
+        <p class="success">T</p>
+        <p class="identifierLookup" />
+      </div>
       <ul class="wsAttributeDefs">
         <li title="WsAttributeDef">
           <p class="name">aStem:permissionDef</p>
           <p class="description" />
+          <p class="uuid">cf0444e84131437cbf6d2d7ba65d224d</p>
           <p class="extension">permissionDef</p>
-          <p class="uuid">4837b869177b4f9c8dc40e43f045aced</p>
           <p class="attributeDefType">perm</p>
           <p class="valueType">marker</p>
           <p class="multiAssignable">F</p>
@@ -112,22 +120,16 @@ Connection: close
         <p class="name">aStem:permissionDefName</p>
         <p class="displayName">a stem:permissionDefName</p>
         <p class="description" />
+        <p class="uuid">0d1e3cdc42294eb785a03b0abbb10a5f</p>
         <p class="extension">permissionDefName</p>
-        <p class="uuid">36ed3fa4d5c54cbeb4cc3dcda156b5c0</p>
         <p class="displayExtension">permissionDefName</p>
         <p class="attributeDefName">aStem:permissionDef</p>
-        <p class="attributeDefId">4837b869177b4f9c8dc40e43f045aced</p>
+        <p class="attributeDefId">cf0444e84131437cbf6d2d7ba65d224d</p>
       </div>
-      <div class="wsSubject" title="WsSubject">
-        <p class="name">my name is test.subject.4</p>
-        <p class="id">test.subject.4</p>
-        <p class="sourceId">jdbc</p>
-        <p class="success">T</p>
-        <p class="resultCode">SUCCESS</p>
-        <p class="identifierLookup" />
-      </div>
+      <div class="wsGroup" title="WsGroup" />
       <div class="wsPermissionAssignResult" title="WsAssignPermissionResult">
         <p class="changed">F</p>
+        <p class="deleted">T</p>
       </div>
     </div>
   </body>
@@ -158,10 +160,10 @@ import org.apache.commons.httpclient.params.DefaultHttpParams;
 import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.commons.lang.StringUtils;
 
+import edu.internet2.middleware.grouper.ws.coresoap.WsAssignPermissionsLiteResults;
 import edu.internet2.middleware.grouper.ws.rest.permission.WsRestAssignPermissionsLiteRequest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType;
-import edu.internet2.middleware.grouper.ws.soap.WsAssignPermissionsLiteResults;
 import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
 
 /**
@@ -288,4 +290,4 @@ public class WsSampleAssignPermissionsRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: v1_6_000, result code: SUCCESS, result message: , Found 1 results.
+Server version: 2.0.0, result code: SUCCESS, result message: , Found 1 results.

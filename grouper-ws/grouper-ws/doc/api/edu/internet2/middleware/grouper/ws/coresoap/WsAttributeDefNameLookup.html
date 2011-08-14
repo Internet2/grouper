@@ -1,0 +1,680 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!--NewPage-->
+<HTML>
+<HEAD>
+<TITLE>
+WsAttributeDefNameLookup
+</TITLE>
+
+
+<LINK REL ="stylesheet" TYPE="text/css" HREF="../../../../../../stylesheet.css?view=co" TITLE="Style">
+
+<SCRIPT type="text/javascript">
+function windowTitle()
+{
+    if (location.href.indexOf('is-external=true') == -1) {
+        parent.document.title="WsAttributeDefNameLookup";
+    }
+}
+</SCRIPT>
+<NOSCRIPT>
+</NOSCRIPT>
+
+</HEAD>
+
+<BODY BGCOLOR="white" onload="windowTitle();">
+<HR>
+
+
+<!-- ========= START OF TOP NAVBAR ======= -->
+<A NAME="navbar_top"><!-- --></A>
+<A HREF="#skip-navbar_top" title="Skip navigation links"></A>
+<TABLE BORDER="0" WIDTH="100%" CELLPADDING="1" CELLSPACING="0" SUMMARY="">
+<TR>
+<TD COLSPAN=2 BGCOLOR="#EEEEFF" CLASS="NavBarCell1">
+<A NAME="navbar_top_firstrow"><!-- --></A>
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="3" SUMMARY="">
+  <TR ALIGN="center" VALIGN="top">
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../overview-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Overview</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html?view=co"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../deprecated-list.html?view=co"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../index-all.html?view=co"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../help-doc.html?view=co"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>
+  </TR>
+</TABLE>
+</TD>
+<TD ALIGN="right" VALIGN="top" ROWSPAN=3><EM>
+</EM>
+</TD>
+</TR>
+
+<TR>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsAttributeDefName.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsAttributeDefNameLookup.AttributeDefNameFindResult.html?view=co" title="enum in edu.internet2.middleware.grouper.ws.coresoap"><B>NEXT CLASS</B></A></FONT></TD>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+  <A HREF="../../../../../../index.html?view=co" target="_top"><B>FRAMES</B></A>  &nbsp;
+&nbsp;<A HREF="WsAttributeDefNameLookup.html?view=co" target="_top"><B>NO FRAMES</B></A>  &nbsp;
+&nbsp;<SCRIPT type="text/javascript">
+  <!--
+  if(window==top) {
+    document.writeln('<A HREF="../../../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>');
+  }
+  //-->
+</SCRIPT>
+<NOSCRIPT>
+  <A HREF="../../../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>
+</NOSCRIPT>
+
+
+</FONT></TD>
+</TR>
+<TR>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+  SUMMARY:&nbsp;<A HREF="#nested_class_summary">NESTED</A>&nbsp;|&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#constructor_summary">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+DETAIL:&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#constructor_detail">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
+</TR>
+</TABLE>
+<A NAME="skip-navbar_top"></A>
+<!-- ========= END OF TOP NAVBAR ========= -->
+
+<HR>
+<!-- ======== START OF CLASS DATA ======== -->
+<H2>
+<FONT SIZE="-1">
+edu.internet2.middleware.grouper.ws.coresoap</FONT>
+<BR>
+Class WsAttributeDefNameLookup</H2>
+<PRE>
+java.lang.Object
+  <IMG SRC="../../../../../../resources/inherit.gif" ALT="extended by "><B>edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameLookup</B>
+</PRE>
+<HR>
+<DL>
+<DT><PRE>public class <B>WsAttributeDefNameLookup</B><DT>extends java.lang.Object</DL>
+</PRE>
+
+<P>
+<pre>
+ Class to lookup an attribute def name via web service
+ 
+ developers make sure each setter calls this.clearAttributeDefName();
+ </pre>
+<P>
+
+<P>
+<DL>
+<DT><B>Author:</B></DT>
+  <DD>mchyzer</DD>
+</DL>
+<HR>
+
+<P>
+<!-- ======== NESTED CLASS SUMMARY ======== -->
+
+<A NAME="nested_class_summary"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>Nested Class Summary</B></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;class</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsAttributeDefNameLookup.AttributeDefNameFindResult.html?view=co" title="enum in edu.internet2.middleware.grouper.ws.coresoap">WsAttributeDefNameLookup.AttributeDefNameFindResult</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;result of attribute def name find</TD>
+</TR>
+</TABLE>
+&nbsp;
+<!-- ======== CONSTRUCTOR SUMMARY ======== -->
+
+<A NAME="constructor_summary"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>Constructor Summary</B></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsAttributeDefNameLookup.html?view=co#WsAttributeDefNameLookup()">WsAttributeDefNameLookup</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsAttributeDefNameLookup.html?view=co#WsAttributeDefNameLookup(java.lang.String, java.lang.String)">WsAttributeDefNameLookup</A></B>(java.lang.String&nbsp;attributeDefNameName1,
+                         java.lang.String&nbsp;uuid1)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+</TABLE>
+&nbsp;
+<!-- ========== METHOD SUMMARY =========== -->
+
+<A NAME="method_summary"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>Method Summary</B></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsAttributeDefNameLookup.html?view=co#blank()">blank</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;see if blank</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;java.util.Set&lt;java.lang.String&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsAttributeDefNameLookup.html?view=co#convertToAttributeDefNameIds(GrouperSession, edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameLookup[], java.lang.StringBuilder, AttributeDefType, boolean, java.sql.Timestamp, java.sql.Timestamp)">convertToAttributeDefNameIds</A></B>(GrouperSession&nbsp;grouperSession,
+                             <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsAttributeDefNameLookup.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsAttributeDefNameLookup</A>[]&nbsp;wsAttributeDefNameLookups,
+                             java.lang.StringBuilder&nbsp;errorMessage,
+                             AttributeDefType&nbsp;attributeDefType,
+                             boolean&nbsp;usePIT,
+                             java.sql.Timestamp&nbsp;pointInTimeFrom,
+                             java.sql.Timestamp&nbsp;pointInTimeTo)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;convert attributeDefName lookups to attributeDefName ids</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;java.util.Set&lt;java.lang.String&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsAttributeDefNameLookup.html?view=co#convertToAttributeDefNameIds(GrouperSession, edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameLookup[], java.lang.StringBuilder, AttributeDefType, boolean, java.sql.Timestamp, java.sql.Timestamp, int[])">convertToAttributeDefNameIds</A></B>(GrouperSession&nbsp;grouperSession,
+                             <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsAttributeDefNameLookup.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsAttributeDefNameLookup</A>[]&nbsp;wsAttributeDefNameLookups,
+                             java.lang.StringBuilder&nbsp;errorMessage,
+                             AttributeDefType&nbsp;attributeDefType,
+                             boolean&nbsp;usePIT,
+                             java.sql.Timestamp&nbsp;pointInTimeFrom,
+                             java.sql.Timestamp&nbsp;pointInTimeTo,
+                             int[]&nbsp;lookupCount)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;convert attributeDefName lookups to attributeDefName ids</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;java.lang.String</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsAttributeDefNameLookup.html?view=co#getName()">getName</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;name of the attributeDefName to find (includes stems, e.g.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;java.lang.String</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsAttributeDefNameLookup.html?view=co#getUuid()">getUuid</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;uuid of the attributeDefName to find</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsAttributeDefNameLookup.html?view=co#hasData()">hasData</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;see if this attributeDefName lookup has data</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;AttributeDefName</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsAttributeDefNameLookup.html?view=co#retrieveAttributeDefName()">retrieveAttributeDefName</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+ 
+ Note: this is not a javabean property because we dont want it in the web service</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsAttributeDefNameLookup.AttributeDefNameFindResult.html?view=co" title="enum in edu.internet2.middleware.grouper.ws.coresoap">WsAttributeDefNameLookup.AttributeDefNameFindResult</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsAttributeDefNameLookup.html?view=co#retrieveAttributeDefNameFindResult()">retrieveAttributeDefNameFindResult</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+ 
+ Note: this is not a javabean property because we dont want it in the web service</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsAttributeDefNameLookup.html?view=co#retrieveAttributeDefNameIfNeeded(GrouperSession)">retrieveAttributeDefNameIfNeeded</A></B>(GrouperSession&nbsp;grouperSession)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;retrieve the attributeDefName for this lookup if not looked up yet.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;AttributeDefName</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsAttributeDefNameLookup.html?view=co#retrieveAttributeDefNameIfNeeded(GrouperSession, java.lang.String)">retrieveAttributeDefNameIfNeeded</A></B>(GrouperSession&nbsp;grouperSession,
+                                 java.lang.String&nbsp;invalidQueryReason)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;retrieve the attributeDefName for this lookup if not looked up yet.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;java.util.Set&lt;PITAttributeDefName&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsAttributeDefNameLookup.html?view=co#retrievePITAttributeDefNames()">retrievePITAttributeDefNames</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+ 
+ Note: this is not a javabean property because we dont want it in the web service</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;java.util.Set&lt;PITAttributeDefName&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsAttributeDefNameLookup.html?view=co#retrievePITAttributeDefNamesIfNeeded(java.lang.String, java.sql.Timestamp, java.sql.Timestamp)">retrievePITAttributeDefNamesIfNeeded</A></B>(java.lang.String&nbsp;invalidQueryReason,
+                                     java.sql.Timestamp&nbsp;pointInTimeFrom,
+                                     java.sql.Timestamp&nbsp;pointInTimeTo)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;retrieve the pit attribute def names for this lookup if not looked up yet.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsAttributeDefNameLookup.html?view=co#setName(java.lang.String)">setName</A></B>(java.lang.String&nbsp;theName)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;name of the attributeDefName to find (includes stems, e.g.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsAttributeDefNameLookup.html?view=co#setUuid(java.lang.String)">setUuid</A></B>(java.lang.String&nbsp;uuid1)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;uuid of the attributeDefName to find</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;java.lang.String</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsAttributeDefNameLookup.html?view=co#toString()">toString</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;make sure this is an explicit toString</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;java.lang.String</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsAttributeDefNameLookup.html?view=co#toStringCompact()">toStringCompact</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;make sure this is an explicit toString</TD>
+</TR>
+</TABLE>
+&nbsp;<A NAME="methods_inherited_from_class_java.lang.Object"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#EEEEFF" CLASS="TableSubHeadingColor">
+<TH ALIGN="left"><B>Methods inherited from class java.lang.Object</B></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE>equals, getClass, hashCode, notify, notifyAll, wait, wait, wait</CODE></TD>
+</TR>
+</TABLE>
+&nbsp;
+<P>
+
+<!-- ========= CONSTRUCTOR DETAIL ======== -->
+
+<A NAME="constructor_detail"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="1"><FONT SIZE="+2">
+<B>Constructor Detail</B></FONT></TH>
+</TR>
+</TABLE>
+
+<A NAME="WsAttributeDefNameLookup()"><!-- --></A><H3>
+WsAttributeDefNameLookup</H3>
+<PRE>
+public <B>WsAttributeDefNameLookup</B>()</PRE>
+<DL>
+</DL>
+<HR>
+
+<A NAME="WsAttributeDefNameLookup(java.lang.String, java.lang.String)"><!-- --></A><H3>
+WsAttributeDefNameLookup</H3>
+<PRE>
+public <B>WsAttributeDefNameLookup</B>(java.lang.String&nbsp;attributeDefNameName1,
+                                java.lang.String&nbsp;uuid1)</PRE>
+<DL>
+<DL>
+<DT><B>Parameters:</B><DD><CODE>attributeDefNameName1</CODE> - <DD><CODE>uuid1</CODE> - </DL>
+</DL>
+
+<!-- ============ METHOD DETAIL ========== -->
+
+<A NAME="method_detail"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="1"><FONT SIZE="+2">
+<B>Method Detail</B></FONT></TH>
+</TR>
+</TABLE>
+
+<A NAME="blank()"><!-- --></A><H3>
+blank</H3>
+<PRE>
+public boolean <B>blank</B>()</PRE>
+<DL>
+<DD>see if blank
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>true if blank</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="hasData()"><!-- --></A><H3>
+hasData</H3>
+<PRE>
+public boolean <B>hasData</B>()</PRE>
+<DL>
+<DD>see if this attributeDefName lookup has data
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>true if it has data</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="retrieveAttributeDefName()"><!-- --></A><H3>
+retrieveAttributeDefName</H3>
+<PRE>
+public AttributeDefName <B>retrieveAttributeDefName</B>()</PRE>
+<DL>
+<DD><pre>
+ 
+ Note: this is not a javabean property because we dont want it in the web service
+ </pre>
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the attributeDefName</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="retrievePITAttributeDefNames()"><!-- --></A><H3>
+retrievePITAttributeDefNames</H3>
+<PRE>
+public java.util.Set&lt;PITAttributeDefName&gt; <B>retrievePITAttributeDefNames</B>()</PRE>
+<DL>
+<DD><pre>
+ 
+ Note: this is not a javabean property because we dont want it in the web service
+ </pre>
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the pit attributeDefs</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="retrieveAttributeDefNameFindResult()"><!-- --></A><H3>
+retrieveAttributeDefNameFindResult</H3>
+<PRE>
+public <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsAttributeDefNameLookup.AttributeDefNameFindResult.html?view=co" title="enum in edu.internet2.middleware.grouper.ws.coresoap">WsAttributeDefNameLookup.AttributeDefNameFindResult</A> <B>retrieveAttributeDefNameFindResult</B>()</PRE>
+<DL>
+<DD><pre>
+ 
+ Note: this is not a javabean property because we dont want it in the web service
+ </pre>
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the attributeDefNameFindResult, this is never null</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="toString()"><!-- --></A><H3>
+toString</H3>
+<PRE>
+public java.lang.String <B>toString</B>()</PRE>
+<DL>
+<DD>make sure this is an explicit toString
+<P>
+<DD><DL>
+<DT><B>Overrides:</B><DD><CODE>toString</CODE> in class <CODE>java.lang.Object</CODE></DL>
+</DD>
+<DD><DL>
+</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="retrieveAttributeDefNameIfNeeded(GrouperSession)"><!-- --></A><H3>
+retrieveAttributeDefNameIfNeeded</H3>
+<PRE>
+public void <B>retrieveAttributeDefNameIfNeeded</B>(GrouperSession&nbsp;grouperSession)</PRE>
+<DL>
+<DD>retrieve the attributeDefName for this lookup if not looked up yet.  pass in a grouper session
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>grouperSession</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="retrieveAttributeDefNameIfNeeded(GrouperSession, java.lang.String)"><!-- --></A><H3>
+retrieveAttributeDefNameIfNeeded</H3>
+<PRE>
+public AttributeDefName <B>retrieveAttributeDefNameIfNeeded</B>(GrouperSession&nbsp;grouperSession,
+                                                         java.lang.String&nbsp;invalidQueryReason)
+                                                  throws <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/exceptions/WsInvalidQueryException.html?view=co" title="class in edu.internet2.middleware.grouper.ws.exceptions">WsInvalidQueryException</A></PRE>
+<DL>
+<DD>retrieve the attributeDefName for this lookup if not looked up yet.  pass in a grouper session
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>grouperSession</CODE> - <DD><CODE>invalidQueryReason</CODE> - is the text to go in the WsInvalidQueryException
+<DT><B>Returns:</B><DD>the attributeDefName
+<DT><B>Throws:</B>
+<DD><CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/exceptions/WsInvalidQueryException.html?view=co" title="class in edu.internet2.middleware.grouper.ws.exceptions">WsInvalidQueryException</A></CODE> - if there is a problem, and if the invalidQueryReason is set</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="retrievePITAttributeDefNamesIfNeeded(java.lang.String, java.sql.Timestamp, java.sql.Timestamp)"><!-- --></A><H3>
+retrievePITAttributeDefNamesIfNeeded</H3>
+<PRE>
+public java.util.Set&lt;PITAttributeDefName&gt; <B>retrievePITAttributeDefNamesIfNeeded</B>(java.lang.String&nbsp;invalidQueryReason,
+                                                                               java.sql.Timestamp&nbsp;pointInTimeFrom,
+                                                                               java.sql.Timestamp&nbsp;pointInTimeTo)
+                                                                        throws <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/exceptions/WsInvalidQueryException.html?view=co" title="class in edu.internet2.middleware.grouper.ws.exceptions">WsInvalidQueryException</A></PRE>
+<DL>
+<DD>retrieve the pit attribute def names for this lookup if not looked up yet.
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>invalidQueryReason</CODE> - is the text to go in the WsInvalidQueryException<DD><CODE>pointInTimeFrom</CODE> - <DD><CODE>pointInTimeTo</CODE> - 
+<DT><B>Returns:</B><DD>the pit attribute def name
+<DT><B>Throws:</B>
+<DD><CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/exceptions/WsInvalidQueryException.html?view=co" title="class in edu.internet2.middleware.grouper.ws.exceptions">WsInvalidQueryException</A></CODE> - if there is a problem, and if the invalidQueryReason is set</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getUuid()"><!-- --></A><H3>
+getUuid</H3>
+<PRE>
+public java.lang.String <B>getUuid</B>()</PRE>
+<DL>
+<DD>uuid of the attributeDefName to find
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the uuid</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setUuid(java.lang.String)"><!-- --></A><H3>
+setUuid</H3>
+<PRE>
+public void <B>setUuid</B>(java.lang.String&nbsp;uuid1)</PRE>
+<DL>
+<DD>uuid of the attributeDefName to find
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>uuid1</CODE> - the uuid to set</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getName()"><!-- --></A><H3>
+getName</H3>
+<PRE>
+public java.lang.String <B>getName</B>()</PRE>
+<DL>
+<DD>name of the attributeDefName to find (includes stems, e.g. stem1:stem2:attributeDefNameName
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the theName</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setName(java.lang.String)"><!-- --></A><H3>
+setName</H3>
+<PRE>
+public void <B>setName</B>(java.lang.String&nbsp;theName)</PRE>
+<DL>
+<DD>name of the attributeDefName to find (includes stems, e.g. stem1:stem2:attributeDefNameName
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>theName</CODE> - the theName to set</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="convertToAttributeDefNameIds(GrouperSession, edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameLookup[], java.lang.StringBuilder, AttributeDefType, boolean, java.sql.Timestamp, java.sql.Timestamp)"><!-- --></A><H3>
+convertToAttributeDefNameIds</H3>
+<PRE>
+public static java.util.Set&lt;java.lang.String&gt; <B>convertToAttributeDefNameIds</B>(GrouperSession&nbsp;grouperSession,
+                                                                           <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsAttributeDefNameLookup.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsAttributeDefNameLookup</A>[]&nbsp;wsAttributeDefNameLookups,
+                                                                           java.lang.StringBuilder&nbsp;errorMessage,
+                                                                           AttributeDefType&nbsp;attributeDefType,
+                                                                           boolean&nbsp;usePIT,
+                                                                           java.sql.Timestamp&nbsp;pointInTimeFrom,
+                                                                           java.sql.Timestamp&nbsp;pointInTimeTo)</PRE>
+<DL>
+<DD>convert attributeDefName lookups to attributeDefName ids
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>grouperSession</CODE> - <DD><CODE>wsAttributeDefNameLookups</CODE> - <DD><CODE>errorMessage</CODE> - <DD><CODE>attributeDefType</CODE> - <DD><CODE>usePIT</CODE> - <DD><CODE>pointInTimeFrom</CODE> - <DD><CODE>pointInTimeTo</CODE> - <DD><CODE>lookupCount</CODE> - is an array of size one int where 1 will be added if there are records, and no change if not
+<DT><B>Returns:</B><DD>the attributeDef ids</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="convertToAttributeDefNameIds(GrouperSession, edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameLookup[], java.lang.StringBuilder, AttributeDefType, boolean, java.sql.Timestamp, java.sql.Timestamp, int[])"><!-- --></A><H3>
+convertToAttributeDefNameIds</H3>
+<PRE>
+public static java.util.Set&lt;java.lang.String&gt; <B>convertToAttributeDefNameIds</B>(GrouperSession&nbsp;grouperSession,
+                                                                           <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsAttributeDefNameLookup.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsAttributeDefNameLookup</A>[]&nbsp;wsAttributeDefNameLookups,
+                                                                           java.lang.StringBuilder&nbsp;errorMessage,
+                                                                           AttributeDefType&nbsp;attributeDefType,
+                                                                           boolean&nbsp;usePIT,
+                                                                           java.sql.Timestamp&nbsp;pointInTimeFrom,
+                                                                           java.sql.Timestamp&nbsp;pointInTimeTo,
+                                                                           int[]&nbsp;lookupCount)</PRE>
+<DL>
+<DD>convert attributeDefName lookups to attributeDefName ids
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>grouperSession</CODE> - <DD><CODE>wsAttributeDefNameLookups</CODE> - <DD><CODE>errorMessage</CODE> - <DD><CODE>attributeDefType</CODE> - <DD><CODE>usePIT</CODE> - <DD><CODE>pointInTimeFrom</CODE> - <DD><CODE>pointInTimeTo</CODE> - <DD><CODE>lookupCount</CODE> - is an array of size one int where 1 will be added if there are records, and no change if not
+<DT><B>Returns:</B><DD>the attributeDefName ids</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="toStringCompact()"><!-- --></A><H3>
+toStringCompact</H3>
+<PRE>
+public java.lang.String <B>toStringCompact</B>()</PRE>
+<DL>
+<DD>make sure this is an explicit toString
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>return a compact to string</DL>
+</DD>
+</DL>
+<!-- ========= END OF CLASS DATA ========= -->
+<HR>
+
+
+<!-- ======= START OF BOTTOM NAVBAR ====== -->
+<A NAME="navbar_bottom"><!-- --></A>
+<A HREF="#skip-navbar_bottom" title="Skip navigation links"></A>
+<TABLE BORDER="0" WIDTH="100%" CELLPADDING="1" CELLSPACING="0" SUMMARY="">
+<TR>
+<TD COLSPAN=2 BGCOLOR="#EEEEFF" CLASS="NavBarCell1">
+<A NAME="navbar_bottom_firstrow"><!-- --></A>
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="3" SUMMARY="">
+  <TR ALIGN="center" VALIGN="top">
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../overview-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Overview</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html?view=co"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../deprecated-list.html?view=co"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../index-all.html?view=co"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../help-doc.html?view=co"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>
+  </TR>
+</TABLE>
+</TD>
+<TD ALIGN="right" VALIGN="top" ROWSPAN=3><EM>
+</EM>
+</TD>
+</TR>
+
+<TR>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsAttributeDefName.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsAttributeDefNameLookup.AttributeDefNameFindResult.html?view=co" title="enum in edu.internet2.middleware.grouper.ws.coresoap"><B>NEXT CLASS</B></A></FONT></TD>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+  <A HREF="../../../../../../index.html?view=co" target="_top"><B>FRAMES</B></A>  &nbsp;
+&nbsp;<A HREF="WsAttributeDefNameLookup.html?view=co" target="_top"><B>NO FRAMES</B></A>  &nbsp;
+&nbsp;<SCRIPT type="text/javascript">
+  <!--
+  if(window==top) {
+    document.writeln('<A HREF="../../../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>');
+  }
+  //-->
+</SCRIPT>
+<NOSCRIPT>
+  <A HREF="../../../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>
+</NOSCRIPT>
+
+
+</FONT></TD>
+</TR>
+<TR>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+  SUMMARY:&nbsp;<A HREF="#nested_class_summary">NESTED</A>&nbsp;|&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#constructor_summary">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+DETAIL:&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#constructor_detail">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
+</TR>
+</TABLE>
+<A NAME="skip-navbar_bottom"></A>
+<!-- ======== END OF BOTTOM NAVBAR ======= -->
+
+<HR>
+
+</BODY>
+</HTML>

@@ -1,4 +1,4 @@
-Grouper web service sample of service: groupDelete, WsSampleGroupDelete, code generated classes, format: soap, for version: v1_5_000
+Grouper web service sample of service: groupDelete, WsSampleGroupDelete, code generated classes, format: soap, for version: 2.0.0
 
 
 #########################################
@@ -9,19 +9,19 @@ Grouper web service sample of service: groupDelete, WsSampleGroupDelete, code ge
 #########################################
 
 
-POST /grouper-ws/services/GrouperService HTTP/1.1
+POST /grouperWs/services/GrouperService_v2_0 HTTP/1.1
 Content-Type: application/soap+xml; charset=UTF-8; action="urn:groupDelete"
 User-Agent: Axis2
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 Host: localhost:8092
 Transfer-Encoding: chunked
 
-1e1
+1e6
 <?xml version='1.0' encoding='UTF-8'?>
 <soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
   <soapenv:Body>
-    <ns1:groupDelete xmlns:ns1="http://soap.ws.grouper.middleware.internet2.edu/xsd">
-      <ns1:clientVersion>v1_5_000</ns1:clientVersion>
+    <ns1:groupDelete xmlns:ns1="http://soap_v2_0.ws.grouper.middleware.internet2.edu/xsd">
+      <ns1:clientVersion>v2_0_000</ns1:clientVersion>
       <ns1:wsGroupLookups>
         <ns1:groupName>aStem:test</ns1:groupName>
       </ns1:wsGroupLookups>
@@ -44,45 +44,41 @@ Transfer-Encoding: chunked
 
 HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/soap+xml; action="urn:groupDeleteResponse";charset=UTF-8
 Transfer-Encoding: chunked
-Date: Sat, 21 Nov 2009 21:30:01 GMT
+Date: Fri, 12 Aug 2011 22:18:44 GMT
 
-950
+8c3
 <?xml version='1.0' encoding='UTF-8'?>
 <soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
   <soapenv:Body>
-    <ns:groupDeleteResponse xmlns:ns="http://soap.ws.grouper.middleware.internet2.edu/xsd">
-      <ns:return type="edu.internet2.middleware.grouper.ws.soap.WsGroupDeleteResults">
-        <ns:responseMetadata type="edu.internet2.middleware.grouper.ws.soap.WsResponseMeta">
-          <ns:millis>97</ns:millis>
+    <ns:groupDeleteResponse xmlns:ns="http://soap_v2_0.ws.grouper.middleware.internet2.edu/xsd">
+      <ns:return type="edu.internet2.middleware.grouper.ws.soap_v2_0.WsGroupDeleteResults">
+        <ns:responseMetadata type="edu.internet2.middleware.grouper.ws.soap_v2_0.WsResponseMeta">
+          <ns:millis xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
           <ns:resultWarnings xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
-          <ns:serverVersion>v1_5_000</ns:serverVersion>
+          <ns:serverVersion>2.0.0</ns:serverVersion>
         </ns:responseMetadata>
-        <ns:resultMetadata type="edu.internet2.middleware.grouper.ws.soap.WsResultMeta">
+        <ns:resultMetadata type="edu.internet2.middleware.grouper.ws.soap_v2_0.WsResultMeta">
           <ns:params xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
           <ns:resultCode>SUCCESS</ns:resultCode>
           <ns:resultCode2 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
-          <ns:resultMessage>Success for: clientVersion: v1_5_000, wsGroupLookups: Array size: 1: [0]: WsGroupLookup[groupName=aStem:test]
-
-, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], txType: NONE, includeGroupDetail: false, paramNames:
-, params: Empty array</ns:resultMessage>
+          <ns:resultMessage xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
           <ns:success>T</ns:success>
         </ns:resultMetadata>
-        <ns:results type="edu.internet2.middleware.grouper.ws.soap.WsGroupDeleteResult">
-          <ns:resultMetadata type="edu.internet2.middleware.grouper.ws.soap.WsResultMeta">
+        <ns:results type="edu.internet2.middleware.grouper.ws.soap_v2_0.WsGroupDeleteResult">
+          <ns:resultMetadata type="edu.internet2.middleware.grouper.ws.soap_v2_0.WsResultMeta">
             <ns:params xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
             <ns:resultCode>SUCCESS_GROUP_NOT_FOUND</ns:resultCode>
             <ns:resultCode2 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
-            <ns:resultMessage>Cant find group: 'WsGroupLookup[
-groupFindResult=GROUP_NOT_FOUND,groupName=aStem:test]'.</ns:resultMessage>
+            <ns:resultMessage xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
             <ns:success>T</ns:success>
           </ns:resultMetadata>
-          <ns:wsGroup type="edu.internet2.middleware.grouper.ws.soap.WsGroup">
+          <ns:wsGroup type="edu.internet2.middleware.grouper.ws.soap_v2_0.WsGroup">
             <ns:description xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
             <ns:detail xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
             <ns:displayExtension xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
@@ -123,11 +119,11 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import edu.internet2.middleware.grouper.webservicesClient.util.GeneratedClientSettings;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGenerated;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGeneratedType;
-import edu.internet2.middleware.grouper.ws.soap.xsd.GroupDelete;
-import edu.internet2.middleware.grouper.ws.soap.xsd.WsGroupDeleteResult;
-import edu.internet2.middleware.grouper.ws.soap.xsd.WsGroupDeleteResults;
-import edu.internet2.middleware.grouper.ws.soap.xsd.WsGroupLookup;
-import edu.internet2.middleware.grouper.ws.soap.xsd.WsSubjectLookup;
+import edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.GroupDelete;
+import edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.WsGroupDeleteResult;
+import edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.WsGroupDeleteResults;
+import edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.WsGroupLookup;
+import edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.WsSubjectLookup;
 
 
 /**
@@ -216,9 +212,9 @@ public class WsSampleGroupDelete implements WsSampleGenerated {
 
 
 WsGroupDeleteResults[
-  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap.xsd.WsResponseMeta@1d0154d,localResponseMetadataTracker=true,
-  localResultMetadata=edu.internet2.middleware.grouper.ws.soap.xsd.WsResultMeta@26784a,localResultMetadataTracker=true,
-  localResults={edu.internet2.middleware.grouper.ws.soap.xsd.WsGroupDeleteResult@a9cdb0},localResultsTracker=true]
+  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.WsResponseMeta@1aa0d7f,localResponseMetadataTracker=true,
+  localResultMetadata=edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.WsResultMeta@15c35b5,localResultMetadataTracker=true,
+  localResults={edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.WsGroupDeleteResult@319f79},localResultsTracker=true]
 WsGroupDeleteResult[
-  localResultMetadata=edu.internet2.middleware.grouper.ws.soap.xsd.WsResultMeta@ecfe02,localResultMetadataTracker=true,
-  localWsGroup=edu.internet2.middleware.grouper.ws.soap.xsd.WsGroup@1185cc2,localWsGroupTracker=true]
+  localResultMetadata=edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.WsResultMeta@1c0ebf8,localResultMetadataTracker=true,
+  localWsGroup=edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.WsGroup@c4284e,localWsGroupTracker=true]

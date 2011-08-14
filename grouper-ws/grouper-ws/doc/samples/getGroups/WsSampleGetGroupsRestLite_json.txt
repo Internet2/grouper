@@ -1,4 +1,4 @@
-Grouper web service sample of service: getGroups, WsSampleGetGroupsRestLite, manually written lite/rest, format: json, for version: v1_5_000
+Grouper web service sample of service: getGroups, WsSampleGetGroupsRestLite, manually written lite/rest, format: json, for version: 2.0.0
 
 
 #########################################
@@ -9,10 +9,10 @@ Grouper web service sample of service: getGroups, WsSampleGetGroupsRestLite, man
 #########################################
 
 
-GET /grouper-ws/servicesRest/json/v1_5_000/subjects/10021368/groups HTTP/1.1
+GET /grouperWs/servicesRest/json/v2_0_000/subjects/10021368/groups HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.1
+User-Agent: Jakarta Commons-HttpClient/3.0
 Host: localhost:8092
 
 
@@ -29,33 +29,34 @@ Server: Apache-Coyote/1.1
 Pragma: No-cache
 Cache-Control: no-cache
 Expires: Wed, 31 Dec 1969 19:00:00 EST
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/x-json;charset=UTF-8
-Content-Length: 1221
-Date: Sat, 21 Nov 2009 21:23:36 GMT
+Content-Length: 1416
+Date: Fri, 12 Aug 2011 22:11:44 GMT
 Connection: close
 
 {
   "WsGetGroupsLiteResult":{
     "responseMetadata":{
-      "millis":"71",
-      "serverVersion":"v1_5_000"
+      "millis":"136",
+      "serverVersion":"2.0.0"
     },
     "resultMetadata":{
       "resultCode":"SUCCESS",
-      "resultMessage":"Success for: clientVersion: v1_5_000, subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=10021368]\n\nmemberFilter: All, includeGroupDetail: false, actAsSubject: WsSubjectLookup[]\n, params: null",
+      "resultMessage":"Success for: clientVersion: 2.0.0, subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=10021368]\n\nmemberFilter: All, includeGroupDetail: false, actAsSubject: null\n, params: null\n fieldName1: null\n, scope: null, wsStemLookup: WsStemLookup[]\n, stemScope: null, enabled: null, pageSize: null, pageNumber: null, sortString: null, ascending: null\n, pointInTimeFrom: null, pointInTimeTo: null",
       "success":"T"
     },
     "wsGroups":[
       {
-        "displayExtension":"sysadmingroup",
-        "displayName":"etc:sysadmingroup",
-        "extension":"sysadmingroup",
-        "name":"etc:sysadmingroup",
-        "uuid":"3af40e66bd6a4cd0bd5fca13a57c6871"
+        "description":"a group description",
+        "displayExtension":"a group",
+        "displayName":"a stem:a group",
+        "extension":"aGroup",
+        "name":"aStem:aGroup",
+        "uuid":"a18b308509a745ae8e4327176fdbff57"
       },
       {
         "description":"a group description2",
@@ -63,22 +64,21 @@ Connection: close
         "displayName":"a stem:a group2",
         "extension":"aGroup2",
         "name":"aStem:aGroup2",
-        "uuid":"7caea6f0873d406fbe18d3fe7c51dc70"
+        "uuid":"6d60a9bb85364918b3f7b5c8b92aa51c"
       },
       {
-        "description":"a group description",
-        "displayExtension":"a group",
-        "displayName":"a stem:a group",
-        "extension":"aGroup",
-        "name":"aStem:aGroup",
-        "uuid":"0287ffc2aa53457a8b0dd3be37975f1f"
+        "displayExtension":"sysadmingroup",
+        "displayName":"etc:sysadmingroup",
+        "extension":"sysadmingroup",
+        "name":"etc:sysadmingroup",
+        "uuid":"f09169d464ef4054b4db01815e20b61f"
       },
       {
         "displayExtension":"webServiceActAsGroup",
         "displayName":"etc:webServiceActAsGroup",
         "extension":"webServiceActAsGroup",
         "name":"etc:webServiceActAsGroup",
-        "uuid":"ba6408756c2e4b63834259cf7a5358b3"
+        "uuid":"8389a3290d6240dba86fefcd9b435592"
       }
     ]
     ,
@@ -116,9 +116,9 @@ import org.apache.commons.httpclient.params.DefaultHttpParams;
 import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.commons.lang.StringUtils;
 
+import edu.internet2.middleware.grouper.ws.coresoap.WsGetGroupsLiteResult;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType;
-import edu.internet2.middleware.grouper.ws.soap.WsGetGroupsLiteResult;
 import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
 
 /**
@@ -223,7 +223,11 @@ public class WsSampleGetGroupsRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: v1_5_000, result code: SUCCESS, result message: Success for: clientVersion: v1_5_000, subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=10021368]
+Server version: 2.0.0, result code: SUCCESS, result message: Success for: clientVersion: 2.0.0, subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=10021368]
 
-memberFilter: All, includeGroupDetail: false, actAsSubject: WsSubjectLookup[]
+memberFilter: All, includeGroupDetail: false, actAsSubject: null
 , params: null
+ fieldName1: null
+, scope: null, wsStemLookup: WsStemLookup[]
+, stemScope: null, enabled: null, pageSize: null, pageNumber: null, sortString: null, ascending: null
+, pointInTimeFrom: null, pointInTimeTo: null

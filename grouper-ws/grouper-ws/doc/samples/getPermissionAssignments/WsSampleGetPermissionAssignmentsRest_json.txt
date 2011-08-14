@@ -1,4 +1,4 @@
-Grouper web service sample of service: getPermissionAssignments, WsSampleGetPermissionAssignmentsRest, manually written lite/rest, format: json, for version: v1_6_000
+Grouper web service sample of service: getPermissionAssignments, WsSampleGetPermissionAssignmentsRest, manually written lite/rest, format: json, for version: 2.0.0
 
 
 #########################################
@@ -9,10 +9,10 @@ Grouper web service sample of service: getPermissionAssignments, WsSampleGetPerm
 #########################################
 
 
-POST /grouperWs/servicesRest/v1_6_000/permissionAssignments HTTP/1.1
+POST /grouperWs/servicesRest/v2_0_000/permissionAssignments HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.1
+User-Agent: Jakarta Commons-HttpClient/3.0
 Host: localhost:8092
 Content-Length: 110
 Content-Type: text/x-json; charset=UTF-8
@@ -44,19 +44,19 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/x-json;charset=UTF-8
-Content-Length: 1763
-Date: Sun, 18 Apr 2010 13:38:23 GMT
+Content-Length: 429
+Date: Sat, 13 Aug 2011 00:36:46 GMT
 Connection: close
 
 {
   "WsGetPermissionAssignmentsResults":{
     "responseMetadata":{
-      "millis":"443",
-      "serverVersion":"v1_6_000"
+      "millis":"99",
+      "serverVersion":"2.0.0"
     },
     "resultMetadata":{
       "resultCode":"SUCCESS",
-      "resultMessage":", Found 2 results.",
+      "resultMessage":", Found 0 results.",
       "success":"T"
     },
     "wsAttributeDefs":[
@@ -66,59 +66,12 @@ Connection: close
         "multiAssignable":"F",
         "multiValued":"F",
         "name":"aStem:permissionDef",
-        "uuid":"5f0da6b636314974af7495dc5b1816f5",
+        "uuid":"c690d9a531c9408ea2c58bd026d314fe",
         "valueType":"marker"
       }
     ]
     ,
     "wsGroups":[
-      {
-        "displayExtension":"role",
-        "displayName":"a stem:role",
-        "extension":"role",
-        "name":"aStem:role",
-        "uuid":"d0da9f64adaf49cd8e4ee0dac412a530"
-      },
-      {
-        "displayExtension":"role2",
-        "displayName":"a stem:role2",
-        "extension":"role2",
-        "name":"aStem:role2",
-        "uuid":"6fcf887da4a84565aeb850cf084eb83a"
-      }
-    ]
-    ,
-    "wsPermissionAssigns":[
-      {
-        "action":"action",
-        "attributeAssignId":"76df23fca8664e53bd7c9178208d5bc4",
-        "attributeDefId":"5f0da6b636314974af7495dc5b1816f5",
-        "attributeDefName":"aStem:permissionDef",
-        "attributeDefNameId":"f4f52092b8a74fe5ba9dc88cb3ba8b37",
-        "attributeDefNameName":"aStem:permissionDefName",
-        "enabled":"T",
-        "membershipId":"aec7eb72f8784e729e75c3335bf975f3:2c6a66cbba0d491388f42fcce8f8ec54",
-        "permissionType":"role",
-        "roleId":"d0da9f64adaf49cd8e4ee0dac412a530",
-        "roleName":"aStem:role",
-        "sourceId":"jdbc",
-        "subjectId":"test.subject.0"
-      },
-      {
-        "action":"action2",
-        "attributeAssignId":"5725b3d24f6142c6be7085c147c1bc33",
-        "attributeDefId":"5f0da6b636314974af7495dc5b1816f5",
-        "attributeDefName":"aStem:permissionDef",
-        "attributeDefNameId":"daa551be8e3b4224856b54e954de02ae",
-        "attributeDefNameName":"aStem:permissionDefName2",
-        "enabled":"T",
-        "membershipId":"3c33def1bb19487cbdf96b8cad8a8c93:277b6f4dde1740d789bb7dd760e487de",
-        "permissionType":"role_subject",
-        "roleId":"6fcf887da4a84565aeb850cf084eb83a",
-        "roleName":"aStem:role2",
-        "sourceId":"jdbc",
-        "subjectId":"test.subject.1"
-      }
     ]
     ,
     "wsSubjects":[
@@ -151,12 +104,12 @@ import org.apache.commons.httpclient.params.DefaultHttpParams;
 import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.commons.lang.StringUtils;
 
+import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefLookup;
+import edu.internet2.middleware.grouper.ws.coresoap.WsGetPermissionAssignmentsResults;
 import edu.internet2.middleware.grouper.ws.rest.WsRestResultProblem;
 import edu.internet2.middleware.grouper.ws.rest.permission.WsRestGetPermissionAssignmentsRequest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType;
-import edu.internet2.middleware.grouper.ws.soap.WsAttributeDefLookup;
-import edu.internet2.middleware.grouper.ws.soap.WsGetPermissionAssignmentsResults;
 import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
 
 /**
@@ -286,4 +239,4 @@ public class WsSampleGetPermissionAssignmentsRest implements WsSampleRest {
 #########################################
 
 
-Server version: v1_6_000, result code: SUCCESS, result message: , Found 2 results.
+Server version: 2.0.0, result code: SUCCESS, result message: , Found 0 results.

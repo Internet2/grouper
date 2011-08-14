@@ -1,4 +1,4 @@
-Grouper web service sample of service: memberChangeSubject, WsSampleMemberChangeSubjectRest, manually written lite/rest, format: xml, for version: v1_5_000
+Grouper web service sample of service: memberChangeSubject, WsSampleMemberChangeSubjectRest, manually written lite/rest, format: xml, for version: 2.0.0
 
 
 #########################################
@@ -9,10 +9,10 @@ Grouper web service sample of service: memberChangeSubject, WsSampleMemberChange
 #########################################
 
 
-POST /grouper-ws/servicesRest/v1_5_000/members HTTP/1.1
+POST /grouperWs/servicesRest/v2_0_000/members HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.1
+User-Agent: Jakarta Commons-HttpClient/3.0
 Host: localhost:8092
 Content-Length: 659
 Content-Type: text/xml; charset=UTF-8
@@ -53,74 +53,74 @@ Content-Type: text/xml; charset=UTF-8
 
 HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/xml;charset=UTF-8
-Date: Sat, 21 Nov 2009 21:12:37 GMT
+Date: Fri, 12 Aug 2011 22:22:10 GMT
 Connection: close
 
 <WsMemberChangeSubjectResults>
-  <responseMetadata>
-    <millis>286</millis>
-    <serverVersion>v1_5_000</serverVersion>
-  </responseMetadata>
   <results>
     <WsMemberChangeSubjectResult>
-      <wsSubjectOld>
-        <resultCode>SUCCESS</resultCode>
-        <identifierLookup>id.test.subject.0</identifierLookup>
-        <success>T</success>
-        <sourceId>jdbc</sourceId>
-        <id>test.subject.0</id>
-      </wsSubjectOld>
-      <resultMetadata>
-        <success>T</success>
-        <resultCode>SUCCESS</resultCode>
-      </resultMetadata>
       <wsSubjectNew>
         <resultCode>SUCCESS</resultCode>
         <success>T</success>
+        <id>test.subject.1</id>
         <name>my name is test.subject.1</name>
         <sourceId>jdbc</sourceId>
-        <id>test.subject.1</id>
       </wsSubjectNew>
+      <resultMetadata>
+        <resultCode>SUCCESS</resultCode>
+        <success>T</success>
+      </resultMetadata>
+      <wsSubjectOld>
+        <identifierLookup>id.test.subject.0</identifierLookup>
+        <resultCode>SUCCESS</resultCode>
+        <success>T</success>
+        <id>test.subject.0</id>
+        <sourceId>jdbc</sourceId>
+      </wsSubjectOld>
     </WsMemberChangeSubjectResult>
     <WsMemberChangeSubjectResult>
-      <wsSubjectOld>
-        <resultCode>SUCCESS</resultCode>
-        <identifierLookup>id.test.subject.2</identifierLookup>
-        <success>T</success>
-        <sourceId>jdbc</sourceId>
-        <id>test.subject.2</id>
-      </wsSubjectOld>
-      <resultMetadata>
-        <success>T</success>
-        <resultCode>SUCCESS</resultCode>
-      </resultMetadata>
       <wsSubjectNew>
         <resultCode>SUCCESS</resultCode>
         <success>T</success>
+        <id>test.subject.3</id>
         <name>my name is test.subject.3</name>
         <sourceId>jdbc</sourceId>
-        <id>test.subject.3</id>
       </wsSubjectNew>
+      <resultMetadata>
+        <resultCode>SUCCESS</resultCode>
+        <success>T</success>
+      </resultMetadata>
+      <wsSubjectOld>
+        <identifierLookup>id.test.subject.2</identifierLookup>
+        <resultCode>SUCCESS</resultCode>
+        <success>T</success>
+        <id>test.subject.2</id>
+        <sourceId>jdbc</sourceId>
+      </wsSubjectOld>
     </WsMemberChangeSubjectResult>
   </results>
   <resultMetadata>
-    <success>T</success>
-    <resultMessage>Success for: clientVersion: v1_5_000, wsMemberChangeSubject: Array size: 2: [0]: WsMemberChangeSubject[
+    <resultCode>SUCCESS</resultCode>
+    <resultMessage>Success for: clientVersion: 2.0.0, wsMemberChangeSubject: Array size: 2: [0]: WsMemberChangeSubject[
 oldSubjectLookup=WsSubjectLookup[subjectIdentifier=id.test.subject.0],
 newSubjectLookup=WsSubjectLookup[subjectId=test.subject.1]]
 [1]: WsMemberChangeSubject[
-oldSubjectLookup=WsSubjectLookup[subjectIdentifier=id.test.subject.2],deleteOldMember=F,
-newSubjectLookup=WsSubjectLookup[subjectId=test.subject.3]]
-
+oldSubjectLookup=WsSubjectLookup[subjectIdentifier=id.test.subject.2],
+newSubjectLookup=WsSubjectLookup[subjectId=test.subject.3],deleteOldMember=F]
 , actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], txType: NONE
 , params: null</resultMessage>
-    <resultCode>SUCCESS</resultCode>
+    <success>T</success>
   </resultMetadata>
+  <responseMetadata>
+    <resultWarnings></resultWarnings>
+    <millis>252</millis>
+    <serverVersion>2.0.0</serverVersion>
+  </responseMetadata>
 </WsMemberChangeSubjectResults>
 
 
@@ -151,12 +151,12 @@ import org.apache.commons.lang.StringUtils;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.exception.MemberNotFoundException;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.ws.coresoap.WsMemberChangeSubject;
+import edu.internet2.middleware.grouper.ws.coresoap.WsMemberChangeSubjectResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup;
 import edu.internet2.middleware.grouper.ws.rest.member.WsRestMemberChangeSubjectRequest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType;
-import edu.internet2.middleware.grouper.ws.soap.WsMemberChangeSubject;
-import edu.internet2.middleware.grouper.ws.soap.WsMemberChangeSubjectResults;
-import edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup;
 import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
 
 /**
@@ -307,12 +307,12 @@ public class WsSampleMemberChangeSubjectRest implements WsSampleRest {
 #########################################
 
 
-Server version: v1_5_000, result code: SUCCESS, result message: Success for: clientVersion: v1_5_000, wsMemberChangeSubject: Array size: 2: [0]: WsMemberChangeSubject[
+Server version: 2.0.0, result code: SUCCESS, result message: Success for: clientVersion: 2.0.0, wsMemberChangeSubject: Array size: 2: [0]: WsMemberChangeSubject[
   oldSubjectLookup=WsSubjectLookup[subjectIdentifier=id.test.subject.0],
   newSubjectLookup=WsSubjectLookup[subjectId=test.subject.1]]
 [1]: WsMemberChangeSubject[
-  oldSubjectLookup=WsSubjectLookup[subjectIdentifier=id.test.subject.2],deleteOldMember=F,
-  newSubjectLookup=WsSubjectLookup[subjectId=test.subject.3]]
+  oldSubjectLookup=WsSubjectLookup[subjectIdentifier=id.test.subject.2],
+  newSubjectLookup=WsSubjectLookup[subjectId=test.subject.3],deleteOldMember=F]
 
 , actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], txType: NONE
 , params: null

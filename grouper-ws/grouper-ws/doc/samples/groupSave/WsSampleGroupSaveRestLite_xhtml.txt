@@ -1,4 +1,4 @@
-Grouper web service sample of service: groupSave, WsSampleGroupSaveRestLite, manually written lite/rest, format: xhtml, for version: v1_5_000
+Grouper web service sample of service: groupSave, WsSampleGroupSaveRestLite, manually written lite/rest, format: xhtml, for version: 2.0.0
 
 
 #########################################
@@ -9,10 +9,10 @@ Grouper web service sample of service: groupSave, WsSampleGroupSaveRestLite, man
 #########################################
 
 
-POST /grouper-ws/servicesRest/v1_5_000/groups/aStem%3AaGroup HTTP/1.1
+POST /grouperWs/servicesRest/v2_0_000/groups/aStem%3AaGroup HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.1
+User-Agent: Jakarta Commons-HttpClient/3.0
 Host: localhost:8092
 Content-Length: 820
 Content-Type: application/xhtml+xml; charset=UTF-8
@@ -26,9 +26,8 @@ Content-Type: application/xhtml+xml; charset=UTF-8
   <body>
     <div title="WsRestGroupSaveLiteRequest">
       <p class="displayExtension">disp1</p>
-      <p class="description">desc1</p>
-      <p class="groupUuid" />
       <p class="groupName">aStem:aGroup</p>
+      <p class="groupUuid" />
       <p class="clientVersion" />
       <p class="includeGroupDetail" />
       <p class="saveMode" />
@@ -41,6 +40,7 @@ Content-Type: application/xhtml+xml; charset=UTF-8
       <p class="paramValue1" />
       <p class="groupLookupUuid" />
       <p class="groupLookupName" />
+      <p class="description">desc1</p>
     </div>
   </body>
 </html>
@@ -56,12 +56,12 @@ Content-Type: application/xhtml+xml; charset=UTF-8
 
 HTTP/1.1 201 Created
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
 X-Grouper-resultCode: SUCCESS_UPDATED
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml;charset=UTF-8
-Date: Sat, 21 Nov 2009 21:11:24 GMT
+Date: Fri, 12 Aug 2011 22:20:58 GMT
 Connection: close
 
 <?xml version='1.0' encoding='iso-8859-1'?>
@@ -75,27 +75,26 @@ Connection: close
       <div class="resultMetadata" title="WsResultMeta">
         <p class="resultCode">SUCCESS_UPDATED</p>
         <p class="success">T</p>
-        <p class="resultMessage">Success for: clientVersion: v1_5_000, wsGroupToSaves: Array size: 1: [0]: WsGroupToSave[
-wsGroup=WsGroup[description=desc1,displayExtension=disp1,name=aStem:aGroup],
-wsGroupLookup=WsGroupLookup[groupName=aStem:aGroup]]
-
+        <p class="resultCode2" />
+        <p class="resultMessage">Success for: clientVersion: 2.0.0, wsGroupToSaves: Array size: 1: [0]: WsGroupToSave[
+wsGroupLookup=WsGroupLookup[pitGroups=[],groupName=aStem:aGroup],
+wsGroup=WsGroup[displayExtension=disp1,description=desc1,name=aStem:aGroup]]
 , actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], txType: NONE, paramNames:
 , params: null</p>
-        <p class="resultCode2" />
       </div>
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="serverVersion">v1_5_000</p>
-        <p class="millis">134</p>
+        <p class="millis">102</p>
         <p class="resultWarnings" />
+        <p class="serverVersion">2.0.0</p>
       </div>
       <div class="wsGroup" title="WsGroup">
-        <div class="detail" title="WsGroupDetail" />
-        <p class="displayExtension">disp1</p>
-        <p class="uuid">70586e255f79488bae4b90bd68390ca2</p>
-        <p class="displayName">a stem:disp1</p>
-        <p class="extension">aGroup</p>
-        <p class="description">desc1</p>
         <p class="name">aStem:aGroup</p>
+        <p class="displayName">a stem:disp1</p>
+        <p class="description">desc1</p>
+        <p class="uuid">ce6a7b87806c4ee7a11a84a51565c295</p>
+        <div class="detail" title="WsGroupDetail" />
+        <p class="extension">aGroup</p>
+        <p class="displayExtension">disp1</p>
       </div>
     </div>
   </body>
@@ -126,11 +125,11 @@ import org.apache.commons.httpclient.params.DefaultHttpParams;
 import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.commons.lang.StringUtils;
 
+import edu.internet2.middleware.grouper.ws.coresoap.WsGroupSaveLiteResult;
 import edu.internet2.middleware.grouper.ws.rest.WsRestResultProblem;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestGroupSaveLiteRequest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType;
-import edu.internet2.middleware.grouper.ws.soap.WsGroupSaveLiteResult;
 import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
 
 /**
@@ -259,9 +258,9 @@ public class WsSampleGroupSaveRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: v1_5_000, result code: SUCCESS_UPDATED, result message: Success for: clientVersion: v1_5_000, wsGroupToSaves: Array size: 1: [0]: WsGroupToSave[
-  wsGroup=WsGroup[description=desc1,displayExtension=disp1,name=aStem:aGroup],
-  wsGroupLookup=WsGroupLookup[groupName=aStem:aGroup]]
+Server version: 2.0.0, result code: SUCCESS_UPDATED, result message: Success for: clientVersion: 2.0.0, wsGroupToSaves: Array size: 1: [0]: WsGroupToSave[
+  wsGroupLookup=WsGroupLookup[pitGroups=[],groupName=aStem:aGroup],
+  wsGroup=WsGroup[displayExtension=disp1,description=desc1,name=aStem:aGroup]]
 
 , actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], txType: NONE, paramNames: 
 , params: null

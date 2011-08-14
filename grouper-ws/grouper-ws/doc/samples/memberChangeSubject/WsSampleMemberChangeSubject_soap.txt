@@ -1,4 +1,4 @@
-Grouper web service sample of service: memberChangeSubject, WsSampleMemberChangeSubject, code generated classes, format: soap, for version: v1_5_000
+Grouper web service sample of service: memberChangeSubject, WsSampleMemberChangeSubject, code generated classes, format: soap, for version: 2.0.0
 
 
 #########################################
@@ -9,19 +9,19 @@ Grouper web service sample of service: memberChangeSubject, WsSampleMemberChange
 #########################################
 
 
-POST /grouper-ws/services/GrouperService HTTP/1.1
+POST /grouperWs/services/GrouperService_v2_0 HTTP/1.1
 Content-Type: application/soap+xml; charset=UTF-8; action="urn:memberChangeSubject"
 User-Agent: Axis2
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 Host: localhost:8092
 Transfer-Encoding: chunked
 
-420
+425
 <?xml version='1.0' encoding='UTF-8'?>
 <soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
   <soapenv:Body>
-    <ns1:memberChangeSubject xmlns:ns1="http://soap.ws.grouper.middleware.internet2.edu/xsd">
-      <ns1:clientVersion>v1_5_000</ns1:clientVersion>
+    <ns1:memberChangeSubject xmlns:ns1="http://soap_v2_0.ws.grouper.middleware.internet2.edu/xsd">
+      <ns1:clientVersion>v2_0_000</ns1:clientVersion>
       <ns1:wsMemberChangeSubjects>
         <ns1:newSubjectLookup>
           <ns1:subjectId>test.subject.1</ns1:subjectId>
@@ -59,50 +59,44 @@ Transfer-Encoding: chunked
 
 HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/soap+xml; action="urn:memberChangeSubjectResponse";charset=UTF-8
 Transfer-Encoding: chunked
-Date: Sat, 21 Nov 2009 21:12:11 GMT
+Date: Fri, 12 Aug 2011 22:21:45 GMT
 
-1026
+110d
 <?xml version='1.0' encoding='UTF-8'?>
 <soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
   <soapenv:Body>
-    <ns:memberChangeSubjectResponse xmlns:ns="http://soap.ws.grouper.middleware.internet2.edu/xsd">
-      <ns:return type="edu.internet2.middleware.grouper.ws.soap.WsMemberChangeSubjectResults">
-        <ns:responseMetadata type="edu.internet2.middleware.grouper.ws.soap.WsResponseMeta">
-          <ns:millis>372</ns:millis>
+    <ns:memberChangeSubjectResponse xmlns:ns="http://soap_v2_0.ws.grouper.middleware.internet2.edu/xsd">
+      <ns:return type="edu.internet2.middleware.grouper.ws.soap_v2_0.WsMemberChangeSubjectResults">
+        <ns:responseMetadata type="edu.internet2.middleware.grouper.ws.soap_v2_0.WsResponseMeta">
+          <ns:millis xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
           <ns:resultWarnings xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
-          <ns:serverVersion>v1_5_000</ns:serverVersion>
+          <ns:serverVersion>2.0.0</ns:serverVersion>
         </ns:responseMetadata>
-        <ns:resultMetadata type="edu.internet2.middleware.grouper.ws.soap.WsResultMeta">
+        <ns:resultMetadata type="edu.internet2.middleware.grouper.ws.soap_v2_0.WsResultMeta">
           <ns:params xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
           <ns:resultCode>SUCCESS</ns:resultCode>
           <ns:resultCode2 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
-          <ns:resultMessage>Success for: clientVersion: v1_5_000, wsMemberChangeSubject: Array size: 2: [0]: WsMemberChangeSubject[
-oldSubjectLookup=WsSubjectLookup[subjectIdentifier=id.test.subject.0],
-newSubjectLookup=WsSubjectLookup[subjectId=test.subject.1]]
-[1]: WsMemberChangeSubject[
-oldSubjectLookup=WsSubjectLookup[subjectIdentifier=id.test.subject.2],deleteOldMember=F,
-newSubjectLookup=WsSubjectLookup[subjectId=GrouperSystem]]
-
-, actAsSubject: WsSubjectLookup[], txType: NONE
-, params: Empty array</ns:resultMessage>
+          <ns:resultMessage xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
           <ns:success>T</ns:success>
         </ns:resultMetadata>
-        <ns:results type="edu.internet2.middleware.grouper.ws.soap.WsMemberChangeSubjectResult">
-          <ns:resultMetadata type="edu.internet2.middleware.grouper.ws.soap.WsResultMeta">
+        <ns:results type="edu.internet2.middleware.grouper.ws.soap_v2_0.WsMemberChangeSubjectResult">
+          <ns:resultMetadata type="edu.internet2.middleware.grouper.ws.soap_v2_0.WsResultMeta">
             <ns:params xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
             <ns:resultCode>SUCCESS</ns:resultCode>
             <ns:resultCode2 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
             <ns:resultMessage xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
             <ns:success>T</ns:success>
           </ns:resultMetadata>
-          <ns:wsSubjectNew type="edu.internet2.middleware.grouper.ws.soap.WsSubject">
+          <ns:wsSubjectNew type="edu.internet2.middleware.grouper.ws.soap_v2_0.WsSubject">
             <ns:attributeValues></ns:attributeValues>
+            <ns:attributeValues>name.test.subject.1</ns:attributeValues>
+            <ns:attributeValues>id.test.subject.1</ns:attributeValues>
             <ns:id>test.subject.1</ns:id>
             <ns:identifierLookup xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
             <ns:name>my name is test.subject.1</ns:name>
@@ -110,8 +104,10 @@ newSubjectLookup=WsSubjectLookup[subjectId=GrouperSystem]]
             <ns:sourceId>jdbc</ns:sourceId>
             <ns:success>T</ns:success>
           </ns:wsSubjectNew>
-          <ns:wsSubjectOld type="edu.internet2.middleware.grouper.ws.soap.WsSubject">
+          <ns:wsSubjectOld type="edu.internet2.middleware.grouper.ws.soap_v2_0.WsSubject">
             <ns:attributeValues></ns:attributeValues>
+            <ns:attributeValues>name.test.subject.0</ns:attributeValues>
+            <ns:attributeValues>id.test.subject.0</ns:attributeValues>
             <ns:id>test.subject.0</ns:id>
             <ns:identifierLookup>id.test.subject.0</ns:identifierLookup>
             <ns:name>my name is test.subject.0</ns:name>
@@ -120,15 +116,17 @@ newSubjectLookup=WsSubjectLookup[subjectId=GrouperSystem]]
             <ns:success>T</ns:success>
           </ns:wsSubjectOld>
         </ns:results>
-        <ns:results type="edu.internet2.middleware.grouper.ws.soap.WsMemberChangeSubjectResult">
-          <ns:resultMetadata type="edu.internet2.middleware.grouper.ws.soap.WsResultMeta">
+        <ns:results type="edu.internet2.middleware.grouper.ws.soap_v2_0.WsMemberChangeSubjectResult">
+          <ns:resultMetadata type="edu.internet2.middleware.grouper.ws.soap_v2_0.WsResultMeta">
             <ns:params xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
             <ns:resultCode>SUCCESS</ns:resultCode>
             <ns:resultCode2 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
             <ns:resultMessage xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
             <ns:success>T</ns:success>
           </ns:resultMetadata>
-          <ns:wsSubjectNew type="edu.internet2.middleware.grouper.ws.soap.WsSubject">
+          <ns:wsSubjectNew type="edu.internet2.middleware.grouper.ws.soap_v2_0.WsSubject">
+            <ns:attributeValues></ns:attributeValues>
+            <ns:attributeValues></ns:attributeValues>
             <ns:attributeValues></ns:attributeValues>
             <ns:id>GrouperSystem</ns:id>
             <ns:identifierLookup xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
@@ -137,8 +135,10 @@ newSubjectLookup=WsSubjectLookup[subjectId=GrouperSystem]]
             <ns:sourceId>g:isa</ns:sourceId>
             <ns:success>T</ns:success>
           </ns:wsSubjectNew>
-          <ns:wsSubjectOld type="edu.internet2.middleware.grouper.ws.soap.WsSubject">
+          <ns:wsSubjectOld type="edu.internet2.middleware.grouper.ws.soap_v2_0.WsSubject">
             <ns:attributeValues></ns:attributeValues>
+            <ns:attributeValues>name.test.subject.2</ns:attributeValues>
+            <ns:attributeValues>id.test.subject.2</ns:attributeValues>
             <ns:id>test.subject.2</ns:id>
             <ns:identifierLookup>id.test.subject.2</ns:identifierLookup>
             <ns:name>my name is test.subject.2</ns:name>
@@ -148,6 +148,8 @@ newSubjectLookup=WsSubjectLookup[subjectId=GrouperSystem]]
           </ns:wsSubjectOld>
         </ns:results>
         <ns:subjectAttributeNames>loginid,description</ns:subjectAttributeNames>
+        <ns:subjectAttributeNames>lfname</ns:subjectAttributeNames>
+        <ns:subjectAttributeNames>loginid</ns:subjectAttributeNames>
       </ns:return>
     </ns:memberChangeSubjectResponse>
   </soapenv:Body>
@@ -181,10 +183,10 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import edu.internet2.middleware.grouper.webservicesClient.util.GeneratedClientSettings;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGenerated;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGeneratedType;
-import edu.internet2.middleware.grouper.ws.soap.xsd.MemberChangeSubject;
-import edu.internet2.middleware.grouper.ws.soap.xsd.WsMemberChangeSubject;
-import edu.internet2.middleware.grouper.ws.soap.xsd.WsMemberChangeSubjectResults;
-import edu.internet2.middleware.grouper.ws.soap.xsd.WsSubjectLookup;
+import edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.MemberChangeSubject;
+import edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.WsMemberChangeSubject;
+import edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.WsMemberChangeSubjectResults;
+import edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.WsSubjectLookup;
 
 
 /**

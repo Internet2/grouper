@@ -1,4 +1,4 @@
-Grouper web service sample of service: getMemberships, WsSampleGetMembershipsRestLite2, manually written lite/rest, type: _withInput, format: http_xhtml, for version: v1_6_000
+Grouper web service sample of service: getMemberships, WsSampleGetMembershipsRestLite2, manually written lite/rest, type: _withInput, format: http_xhtml, for version: 2.0.0
 
 
 #########################################
@@ -9,10 +9,10 @@ Grouper web service sample of service: getMemberships, WsSampleGetMembershipsRes
 #########################################
 
 
-GET /grouper-ws/servicesRest/xhtml/v1_5_000/subjects/10021368/memberships HTTP/1.1
+GET /grouperWs/servicesRest/xhtml/v2_0_000/subjects/10021368/memberships HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.1
+User-Agent: Jakarta Commons-HttpClient/3.0
 Host: localhost:8092
 
 
@@ -29,12 +29,12 @@ Server: Apache-Coyote/1.1
 Pragma: No-cache
 Cache-Control: no-cache
 Expires: Wed, 31 Dec 1969 19:00:00 EST
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml;charset=UTF-8
-Date: Sat, 19 Dec 2009 21:34:09 GMT
+Date: Fri, 12 Aug 2011 22:23:46 GMT
 Connection: close
 
 <?xml version='1.0' encoding='iso-8859-1'?>
@@ -46,126 +46,16 @@ Connection: close
   <body>
     <div title="WsGetMembershipsResults">
       <div class="resultMetadata" title="WsResultMeta">
-        <p class="success">T</p>
-        <p class="resultMessage">Found 4 results involving 4 groups and 1 subjects</p>
         <p class="resultCode">SUCCESS</p>
+        <p class="success">T</p>
         <p class="resultCode2" />
+        <p class="resultMessage">Found 0 results involving 0 groups and 0 subjects</p>
       </div>
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">145</p>
-        <p class="serverVersion">v1_6_000</p>
+        <p class="millis">18</p>
         <p class="resultWarnings" />
+        <p class="serverVersion">2.0.0</p>
       </div>
-      <ul class="wsMemberships">
-        <li title="WsMembership">
-          <p class="subjectSourceId">jdbc</p>
-          <p class="subjectId">10021368</p>
-          <p class="groupName">aStem:aGroup</p>
-          <p class="createTime">2009/12/19 16:34:07.844</p>
-          <p class="enabledTime" />
-          <p class="disabledTime" />
-          <p class="memberId">0c76484e3bb8401985c86c5b12729634</p>
-          <p class="listName">members</p>
-          <p class="listType">list</p>
-          <p class="membershipType">immediate</p>
-          <p class="enabled">T</p>
-          <p class="groupId">d9c40cb43995463f81f637743e72f290</p>
-          <p class="membershipId">70da16b5adcc4bff96835d1f85cbfca0:3aa68a035a4946a59587c01258ab7408</p>
-        </li>
-        <li title="WsMembership">
-          <p class="subjectSourceId">jdbc</p>
-          <p class="subjectId">10021368</p>
-          <p class="groupName">aStem:aGroup2</p>
-          <p class="createTime">2009/12/19 16:34:07.893</p>
-          <p class="enabledTime" />
-          <p class="disabledTime" />
-          <p class="memberId">0c76484e3bb8401985c86c5b12729634</p>
-          <p class="listName">members</p>
-          <p class="listType">list</p>
-          <p class="membershipType">immediate</p>
-          <p class="enabled">T</p>
-          <p class="groupId">218d9916abf44afa9627ab93f075c988</p>
-          <p class="membershipId">129f5eade9104259a7ada64ee8fea16f:2434054293054a38bcdead79110ee61e</p>
-        </li>
-        <li title="WsMembership">
-          <p class="subjectSourceId">jdbc</p>
-          <p class="subjectId">10021368</p>
-          <p class="groupName">etc:sysadmingroup</p>
-          <p class="createTime">2009/12/19 16:34:08.068</p>
-          <p class="enabledTime" />
-          <p class="disabledTime" />
-          <p class="memberId">0c76484e3bb8401985c86c5b12729634</p>
-          <p class="listName">members</p>
-          <p class="listType">list</p>
-          <p class="membershipType">immediate</p>
-          <p class="enabled">T</p>
-          <p class="groupId">f2db1b5eb5184295b4537075f81f156f</p>
-          <p class="membershipId">1aa05abe275241dfa846eb4fe31161a4:dd2e8b50f06740fe9f7d406054bb04b9</p>
-        </li>
-        <li title="WsMembership">
-          <p class="subjectSourceId">jdbc</p>
-          <p class="subjectId">10021368</p>
-          <p class="groupName">etc:webServiceActAsGroup</p>
-          <p class="createTime">2009/12/19 16:34:08.022</p>
-          <p class="enabledTime" />
-          <p class="disabledTime" />
-          <p class="memberId">0c76484e3bb8401985c86c5b12729634</p>
-          <p class="listName">members</p>
-          <p class="listType">list</p>
-          <p class="membershipType">immediate</p>
-          <p class="enabled">T</p>
-          <p class="groupId">0ecdae65a6344c0391f6c4a3bb88f3f6</p>
-          <p class="membershipId">0bbcea07084b4cfbb7372776e276668a:f13862f6f50c4290954222bad0f0d09f</p>
-        </li>
-      </ul>
-      <ul class="wsGroups">
-        <li title="WsGroup">
-          <p class="name">aStem:aGroup</p>
-          <p class="displayName">a stem:a group</p>
-          <p class="description">a group description</p>
-          <p class="uuid">d9c40cb43995463f81f637743e72f290</p>
-          <div class="detail" title="WsGroupDetail" />
-          <p class="extension">aGroup</p>
-          <p class="displayExtension">a group</p>
-        </li>
-        <li title="WsGroup">
-          <p class="name">aStem:aGroup2</p>
-          <p class="displayName">a stem:a group2</p>
-          <p class="description">a group description2</p>
-          <p class="uuid">218d9916abf44afa9627ab93f075c988</p>
-          <div class="detail" title="WsGroupDetail" />
-          <p class="extension">aGroup2</p>
-          <p class="displayExtension">a group2</p>
-        </li>
-        <li title="WsGroup">
-          <p class="name">etc:sysadmingroup</p>
-          <p class="displayName">etc:sysadmingroup</p>
-          <p class="description" />
-          <p class="uuid">f2db1b5eb5184295b4537075f81f156f</p>
-          <div class="detail" title="WsGroupDetail" />
-          <p class="extension">sysadmingroup</p>
-          <p class="displayExtension">sysadmingroup</p>
-        </li>
-        <li title="WsGroup">
-          <p class="name">etc:webServiceActAsGroup</p>
-          <p class="displayName">etc:webServiceActAsGroup</p>
-          <p class="description" />
-          <p class="uuid">0ecdae65a6344c0391f6c4a3bb88f3f6</p>
-          <div class="detail" title="WsGroupDetail" />
-          <p class="extension">webServiceActAsGroup</p>
-          <p class="displayExtension">webServiceActAsGroup</p>
-        </li>
-      </ul>
-      <ul class="wsSubjects">
-        <li title="WsSubject">
-          <p class="name" />
-          <p class="id">10021368</p>
-          <p class="sourceId">jdbc</p>
-          <p class="success">T</p>
-          <p class="resultCode">SUCCESS</p>
-          <p class="identifierLookup" />
-        </li>
-      </ul>
     </div>
   </body>
 </html>
@@ -194,9 +84,9 @@ import org.apache.commons.httpclient.params.DefaultHttpParams;
 import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.commons.lang.StringUtils;
 
+import edu.internet2.middleware.grouper.ws.coresoap.WsGetMembershipsResults;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType;
-import edu.internet2.middleware.grouper.ws.soap.WsGetMembershipsResults;
 import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
 
 /**
@@ -301,4 +191,4 @@ public class WsSampleGetMembershipsRestLite2 implements WsSampleRest {
 #########################################
 
 
-Server version: v1_6_000, result code: SUCCESS, result message: Found 4 results involving 4 groups and 1 subjects
+Server version: 2.0.0, result code: SUCCESS, result message: Found 0 results involving 0 groups and 0 subjects

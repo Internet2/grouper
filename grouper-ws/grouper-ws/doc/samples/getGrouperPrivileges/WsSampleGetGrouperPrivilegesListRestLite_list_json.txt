@@ -1,4 +1,4 @@
-Grouper web service sample of service: getGrouperPrivileges, WsSampleGetGrouperPrivilegesListRestLite, manually written lite/rest, type: _list, format: json, for version: v1_5_000
+Grouper web service sample of service: getGrouperPrivileges, WsSampleGetGrouperPrivilegesListRestLite, manually written lite/rest, type: _list, format: json, for version: 2.0.0
 
 
 #########################################
@@ -9,10 +9,10 @@ Grouper web service sample of service: getGrouperPrivileges, WsSampleGetGrouperP
 #########################################
 
 
-POST /grouper-ws/servicesRest/v1_5_000/grouperPrivileges HTTP/1.1
+POST /grouperWs/servicesRest/v2_0_000/grouperPrivileges HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.1
+User-Agent: Jakarta Commons-HttpClient/3.0
 Host: localhost:8092
 Content-Length: 157
 Content-Type: text/x-json; charset=UTF-8
@@ -37,13 +37,13 @@ Content-Type: text/x-json; charset=UTF-8
 
 HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/x-json;charset=UTF-8
-Content-Length: 1200
-Date: Sat, 21 Nov 2009 21:18:09 GMT
+Content-Length: 1196
+Date: Fri, 12 Aug 2011 22:04:58 GMT
 Connection: close
 
 {
@@ -67,7 +67,7 @@ Connection: close
           "displayName":"a stem:a group",
           "extension":"aGroup",
           "name":"aStem:aGroup",
-          "uuid":"fa4e047f8be545ffb65f9d71789dcbd4"
+          "uuid":"795433fd43c4453bab0104d7756c7cf3"
         },
         "wsSubject":{
           "id":"test.subject.0",
@@ -96,7 +96,7 @@ Connection: close
           "displayName":"a stem:a group",
           "extension":"aGroup",
           "name":"aStem:aGroup",
-          "uuid":"fa4e047f8be545ffb65f9d71789dcbd4"
+          "uuid":"795433fd43c4453bab0104d7756c7cf3"
         },
         "wsSubject":{
           "id":"test.subject.0",
@@ -109,8 +109,8 @@ Connection: close
     ]
     ,
     "responseMetadata":{
-      "millis":"145",
-      "serverVersion":"v1_5_000"
+      "millis":"82",
+      "serverVersion":"2.0.0"
     },
     "resultMetadata":{
       "resultCode":"SUCCESS",
@@ -148,11 +148,11 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.ws.coresoap.WsGetGrouperPrivilegesLiteResult;
+import edu.internet2.middleware.grouper.ws.coresoap.WsGrouperPrivilegeResult;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestGetGrouperPrivilegesLiteRequest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType;
-import edu.internet2.middleware.grouper.ws.soap.WsGetGrouperPrivilegesLiteResult;
-import edu.internet2.middleware.grouper.ws.soap.WsGrouperPrivilegeResult;
 import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
 
 /**
@@ -305,14 +305,14 @@ public class WsSampleGetGrouperPrivilegesListRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: v1_5_000, result code: SUCCESS, result message: null
+Server version: 2.0.0, result code: SUCCESS, result message: null
 WsGetGrouperPrivilegesLiteResult[
   resultMetadata=WsResultMeta[resultCode=SUCCESS,success=T,httpStatusCode=500],
   privilegeResults={WsGrouperPrivilegeResult[allowed=T,
   ownerSubject=WsSubject[resultCode=SUCCESS,success=T,id=GrouperAll,name=EveryEntity,sourceId=g:isa],privilegeName=read,privilegeType=access,revokable=F,
-  wsGroup=WsGroup[extension=aGroup,displayExtension=a group,description=a group description,displayName=a stem:a group,name=aStem:aGroup,uuid=fa4e047f8be545ffb65f9d71789dcbd4],
+  wsGroup=WsGroup[extension=aGroup,displayExtension=a group,description=a group description,displayName=a stem:a group,name=aStem:aGroup,uuid=795433fd43c4453bab0104d7756c7cf3],
   wsSubject=WsSubject[resultCode=SUCCESS,success=T,id=test.subject.0,name=my name is test.subject.0,sourceId=jdbc]],WsGrouperPrivilegeResult[allowed=T,
   ownerSubject=WsSubject[resultCode=SUCCESS,success=T,id=GrouperAll,name=EveryEntity,sourceId=g:isa],privilegeName=view,privilegeType=access,revokable=F,
-  wsGroup=WsGroup[extension=aGroup,displayExtension=a group,description=a group description,displayName=a stem:a group,name=aStem:aGroup,uuid=fa4e047f8be545ffb65f9d71789dcbd4],
+  wsGroup=WsGroup[extension=aGroup,displayExtension=a group,description=a group description,displayName=a stem:a group,name=aStem:aGroup,uuid=795433fd43c4453bab0104d7756c7cf3],
   wsSubject=WsSubject[resultCode=SUCCESS,success=T,id=test.subject.0,name=my name is test.subject.0,sourceId=jdbc]]},
-  responseMetadata=WsResponseMeta[millis=145,millisStart=0,serverVersion=v1_5_000]]
+  responseMetadata=WsResponseMeta[resultWarnings=,millis=82,millisStart=0,serverVersion=2.0.0]]

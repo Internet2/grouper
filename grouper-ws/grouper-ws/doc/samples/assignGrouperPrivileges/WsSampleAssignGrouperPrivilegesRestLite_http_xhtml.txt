@@ -1,4 +1,4 @@
-Grouper web service sample of service: assignGrouperPrivileges, WsSampleAssignGrouperPrivilegesRestLite, manually written lite/rest, format: http_xhtml, for version: v1_6_000
+Grouper web service sample of service: assignGrouperPrivileges, WsSampleAssignGrouperPrivilegesRestLite, manually written lite/rest, format: http_xhtml, for version: 2.0.0
 
 
 #########################################
@@ -9,14 +9,14 @@ Grouper web service sample of service: assignGrouperPrivileges, WsSampleAssignGr
 #########################################
 
 
-POST /grouper-ws/servicesRest/v1_5_000/grouperPrivileges HTTP/1.1
+POST /grouperWs/servicesRest/v2_0_000/grouperPrivileges HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.1
+User-Agent: Jakarta Commons-HttpClient/3.0
 Host: localhost:8092
 Content-Length: 187
 
-wsLiteObjectType=WsRestAssignGrouperPrivilegesLiteRequest&subjectId=test.subject.0&groupName=aStem%3AaGroup&privilegeType=access&allowed=T&actAsSubjectId=GrouperSystem&privilegeName=optin
+wsLiteObjectType=WsRestAssignGrouperPrivilegesLiteRequest&subjectId=test.subject.0&groupName=aStem%3AaGroup&actAsSubjectId=GrouperSystem&privilegeType=access&privilegeName=optin&allowed=T
 
 
 #########################################
@@ -29,12 +29,12 @@ wsLiteObjectType=WsRestAssignGrouperPrivilegesLiteRequest&subjectId=test.subject
 
 HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
 X-Grouper-resultCode: SUCCESS_ALLOWED
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml;charset=UTF-8
-Date: Thu, 31 Dec 2009 17:31:57 GMT
+Date: Fri, 12 Aug 2011 22:06:53 GMT
 Connection: close
 
 <?xml version='1.0' encoding='iso-8859-1'?>
@@ -46,40 +46,40 @@ Connection: close
   <body>
     <div title="WsAssignGrouperPrivilegesLiteResult">
       <div class="resultMetadata" title="WsResultMeta">
+        <p class="resultCode">SUCCESS_ALLOWED</p>
         <p class="success">T</p>
-        <p class="resultMessage">No subjects were passed in, Success for: clientVersion: v1_5_000, wsSubjects: Array size: 1: [0]: WsSubjectLookup[subjectId=test.subject.0]
-, group: WsGroupLookup[groupName=aStem:aGroup], stem: null, privilege: ACCESS-Array size: 1: [0]: optin
+        <p class="resultCode2" />
+        <p class="resultMessage">Success for: clientVersion: 2.0.0, wsSubjects: Array size: 1: [0]: WsSubjectLookup[subjectId=test.subject.0]
+, group: WsGroupLookup[pitGroups=[],groupName=aStem:aGroup], stem: null, privilege: ACCESS-Array size: 1: [0]: optin
 , allowed? true, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], replaceAllExisting: false
 , params: null</p>
-        <p class="resultCode">SUCCESS_ALLOWED</p>
-        <p class="resultCode2" />
       </div>
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">454</p>
-        <p class="serverVersion">v1_6_000</p>
+        <p class="millis">112</p>
         <p class="resultWarnings" />
+        <p class="serverVersion">2.0.0</p>
       </div>
-      <p class="privilegeName" />
-      <div class="wsGroup" title="WsGroup">
-        <p class="name">aStem:aGroup</p>
-        <p class="displayName">a stem:a group</p>
-        <p class="description">a group description</p>
-        <p class="uuid">0ee872e5cd4a4cf686c3e70e9d60fc03</p>
-        <div class="detail" title="WsGroupDetail" />
-        <p class="extension">aGroup</p>
-        <p class="displayExtension">a group</p>
-      </div>
-      <p class="privilegeType" />
-      <p class="allowed" />
+      <p class="privilegeName">optin</p>
       <div class="wsSubject" title="WsSubject">
         <p class="name">my name is test.subject.0</p>
         <p class="id">test.subject.0</p>
         <p class="sourceId">jdbc</p>
-        <p class="success">T</p>
         <p class="resultCode">SUCCESS</p>
+        <p class="success">T</p>
         <p class="identifierLookup" />
       </div>
       <div class="wsStem" title="WsStem" />
+      <div class="wsGroup" title="WsGroup">
+        <p class="name">aStem:aGroup</p>
+        <p class="displayName">a stem:a group</p>
+        <p class="description">a group description</p>
+        <p class="uuid">9147fde30aa94590b441f429fcf2a093</p>
+        <div class="detail" title="WsGroupDetail" />
+        <p class="extension">aGroup</p>
+        <p class="displayExtension">a group</p>
+      </div>
+      <p class="allowed" />
+      <p class="privilegeType">access</p>
     </div>
   </body>
 </html>
@@ -109,10 +109,10 @@ import org.apache.commons.httpclient.params.DefaultHttpParams;
 import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.commons.lang.StringUtils;
 
+import edu.internet2.middleware.grouper.ws.coresoap.WsAssignGrouperPrivilegesLiteResult;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestAssignGrouperPrivilegesLiteRequest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType;
-import edu.internet2.middleware.grouper.ws.soap.WsAssignGrouperPrivilegesLiteResult;
 import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
 
 /**
@@ -244,7 +244,7 @@ public class WsSampleAssignGrouperPrivilegesRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: v1_6_000, result code: SUCCESS_ALLOWED, result message: No subjects were passed in, Success for: clientVersion: v1_5_000, wsSubjects: Array size: 1: [0]: WsSubjectLookup[subjectId=test.subject.0]
-, group: WsGroupLookup[groupName=aStem:aGroup], stem: null, privilege: ACCESS-Array size: 1: [0]: optin
+Server version: 2.0.0, result code: SUCCESS_ALLOWED, result message: Success for: clientVersion: 2.0.0, wsSubjects: Array size: 1: [0]: WsSubjectLookup[subjectId=test.subject.0]
+, group: WsGroupLookup[pitGroups=[],groupName=aStem:aGroup], stem: null, privilege: ACCESS-Array size: 1: [0]: optin
 , allowed? true, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], replaceAllExisting: false
 , params: null
