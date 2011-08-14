@@ -392,18 +392,9 @@ h1 .infodotImage {
 }
 
 /* dont show pulldown on comboboxes */
-div#simpleMembershipUpdateAddMemberDiv img.dhx_combo_img {
+img.dhx_combo_img {
   display: none;
 } 
-div#simpleMembershipFilterMemberDiv img.dhx_combo_img {
-  display: none;
-} 
-div#simpleMembershipUpdatePickGroupDiv img.dhx_combo_img {
-  display: none;
-} 
-div.inviteExternalSubjectsDiv img.dhx_combo_img {
-  display: none;
-}
 td.attributeAssignAssignToTd {
   white-space: nowrap;
   padding-right: 5px;	

@@ -16,7 +16,7 @@
 
       <table class="formTable formTableSpaced" cellspacing="2" style="margin-top: 0px; margin-bottom: 0px">
         <tr class="formTableRow">
-          <td class="formTableLeft" style="vertical-align: middle">
+          <td class="formTableLeft" style="vertical-align: middle; white-space: nowrap;">
             <label for="attributeDefinition">
               <grouper:message key="simplePermissionAssign.attributeDefinition" />
             </label>
@@ -30,7 +30,7 @@
           </td>
         </tr>
         <tr class="formTableRow">
-          <td class="formTableLeft" style="vertical-align: middle">
+          <td class="formTableLeft" style="vertical-align: middle; white-space: nowrap;">
             <label for="permissionResource">
               <grouper:message key="simplePermissionAssign.permissionResource" />
             </label>

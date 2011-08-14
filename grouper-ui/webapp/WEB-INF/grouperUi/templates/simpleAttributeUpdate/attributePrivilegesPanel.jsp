@@ -15,33 +15,28 @@
       
 	    <table class="formTable formTableSpaced" cellspacing="2">
 	      <tr class="formTableRow">
-	        <td class="formTableLeft" style="vertical-align: middle">
+	        <td class="formTableLeft" style="vertical-align: middle; white-space: nowrap;">
 	          <label for="folder">
 	            <grouper:message key="simpleAttributeUpdate.privilegeSubject" />
 	          </label>
 	        </td>
 	        <td class="formTableRight" style="white-space: nowrap;">
             <div class="combohint"><grouper:message key="simpleAttributeUpdate.privilegeSubjectCombohint"/></div>
-            <table width="900" cellpadding="0" cellspacing="0">
-				      <tr valign="top">
-				        <td style="padding: 0px" width="710">
-	 	             <grouper:combobox 
-                 filterOperation="SimpleAttributeUpdateFilter.filterPrivilegeUsers?attributeDefToEditId=${attributeUpdateRequestContainer.attributeDefToEdit.id}" 
-                 id="simpleAttributeUpdatePrivilegeSubject" 
-		               width="700"/>
-				        </td>
-				        <td>
-				          <input class="blueButton" type="submit" 
-				          onclick="ajax('../app/SimpleAttributeUpdateFilter.addPrivilegeSubject', {formIds: 'attributePrivilegesSubjectFormId'}); return false;" 
-				          value="${attributeUpdateRequestContainer.text.filterAttributePrivilegeSubject}" style="margin-top: 2px" />
-				        </td>
-				      </tr>
-				    </table>
+             <grouper:combobox 
+             filterOperation="SimpleAttributeUpdateFilter.filterPrivilegeUsers?attributeDefToEditId=${attributeUpdateRequestContainer.attributeDefToEdit.id}" 
+             id="simpleAttributeUpdatePrivilegeSubject" 
+               width="700"/>
+
+              <div style="margin-top: 5px;">
+			          <input class="blueButton" type="submit" 
+			          onclick="ajax('../app/SimpleAttributeUpdateFilter.addPrivilegeSubject', {formIds: 'attributePrivilegesSubjectFormId'}); return false;" 
+			          value="${attributeUpdateRequestContainer.text.filterAttributePrivilegeSubject}" style="margin-top: 2px" />
+              </div>
 	        </td>
 	      </tr>
 
         <tr class="formTableRow">
-          <td class="formTableLeft" style="vertical-align: middle">
+          <td class="formTableLeft" style="vertical-align: middle; white-space: nowrap;">
             <label for="folder">
               <grouper:message key="simpleAttributeUpdate.indirectPrivileges" />
             </label>

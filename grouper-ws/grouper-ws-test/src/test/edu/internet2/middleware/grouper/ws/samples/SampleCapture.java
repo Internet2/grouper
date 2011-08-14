@@ -48,6 +48,8 @@ import edu.internet2.middleware.grouper.webservicesClient.WsSampleAssignAttribut
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleAssignAttributesWithValueLite;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleAssignGrouperPrivileges;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleAssignGrouperPrivilegesLite;
+import edu.internet2.middleware.grouper.webservicesClient.WsSampleAssignPermissions;
+import edu.internet2.middleware.grouper.webservicesClient.WsSampleAssignPermissionsLite;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleDeleteMember;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleDeleteMemberLite;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleFindGroups;
@@ -123,6 +125,7 @@ import edu.internet2.middleware.grouper.ws.samples.rest.member.WsSampleMemberCha
 import edu.internet2.middleware.grouper.ws.samples.rest.membership.WsSampleGetMembershipsRest;
 import edu.internet2.middleware.grouper.ws.samples.rest.membership.WsSampleGetMembershipsRestLite;
 import edu.internet2.middleware.grouper.ws.samples.rest.membership.WsSampleGetMembershipsRestLite2;
+import edu.internet2.middleware.grouper.ws.samples.rest.permission.WsSampleAssignPermissionsRest;
 import edu.internet2.middleware.grouper.ws.samples.rest.permission.WsSampleAssignPermissionsRestLite;
 import edu.internet2.middleware.grouper.ws.samples.rest.permission.WsSampleGetPermissionAssignmentsRest;
 import edu.internet2.middleware.grouper.ws.samples.rest.permission.WsSampleGetPermissionAssignmentsRestLite;
@@ -164,37 +167,35 @@ public class SampleCapture {
     
     setupData();
     
-    //captureAssignAttributesWithValue();
     //
+    //captureAddMember();
     
 //  captureRampart();
 //    captureSample(WsSampleClientType.REST_BEANS,  
 //        WsSampleMemberChangeSubjectRest.class, "memberChangeSubject", null);
 
-    /*
-    captureAssignAttributes();
-    captureAssignPermissions();
-    captureGetAttributeAssignments();
-    captureGetGrouperPrivileges();
+//    captureAssignAttributes();
+//    captureAssignAttributesWithValue();
+//    captureAssignPermissions();
+//    captureGetAttributeAssignments();
+//    captureGetGrouperPrivileges();
     captureGetPermissionAssignments();
-    captureAssignGrouperPrivileges();
-    captureAddMember();
-    captureDeleteMember();
-    captureHasMember();
-    captureGetGroups();
-    captureGetMembers();
-    captureFindGroups();
-    captureFindStems();
-    captureStemDelete();
-    captureStemSave();
-    captureGroupDelete();
-    captureGroupSave();
-    captureMemberChangeSubject();
-    captureGetMemberships();
-    captureGetSubjects();
+//    captureAssignGrouperPrivileges();
+//    captureAddMember();
+//    captureDeleteMember();
+//    captureHasMember();
+//    captureGetGroups();
+//    captureGetMembers();
+//    captureFindGroups();
+//    captureFindStems();
+//    captureStemDelete();
+//    captureStemSave();
+//    captureGroupDelete();
+//    captureGroupSave();
+//    captureMemberChangeSubject();
+//    captureGetMemberships();
+//    captureGetSubjects();
 
-    */
-    
   }
 
   /** certain data has to exist for samples to run */
@@ -877,12 +878,12 @@ public class SampleCapture {
    * assign permissions captures
    */
   public static void captureAssignPermissions() {
-//    captureSample(WsSampleClientType.GENERATED_SOAP,  
-//        WsSampleAssignPermissions.class, "assignPermissions", (String)null);
-//    captureSample(WsSampleClientType.GENERATED_SOAP,  
-//        WsSampleAssignPermissionsLite.class, "assignPermissions", null);
-//    captureSample(WsSampleClientType.REST_BEANS,  
-//        WsSampleAssignPermissionsRest.class, "assignPermissions", null);
+    captureSample(WsSampleClientType.GENERATED_SOAP,  
+        WsSampleAssignPermissions.class, "assignPermissions", (String)null);
+    captureSample(WsSampleClientType.GENERATED_SOAP,  
+        WsSampleAssignPermissionsLite.class, "assignPermissions", null);
+    captureSample(WsSampleClientType.REST_BEANS,  
+        WsSampleAssignPermissionsRest.class, "assignPermissions", null);
     captureSample(WsSampleClientType.REST_BEANS,  
         WsSampleAssignPermissionsRestLite.class, "assignPermissions", null);
     

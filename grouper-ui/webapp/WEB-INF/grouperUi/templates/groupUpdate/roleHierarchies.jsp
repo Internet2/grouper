@@ -1,7 +1,7 @@
 <%@ include file="../common/commonTaglib.jsp"%>
 <!-- Start: groupUpdate/roleHierarchies.jsp -->
 
-<div class="section" style="min-width: 900px">
+<div class="section" style="min-width: 1000px">
 
   <grouper:subtitle key="simpleGroupUpdate.roleHierarchiesSectionHeader" />
 
@@ -34,26 +34,20 @@
         <td class="formTableRight" style="white-space: nowrap;">
 
           <div class="combohint"><grouper:message key="simpleGroupUpdate.selectRoleHierarchyCombohint"/></div>
-          <table width="900" cellpadding="0" cellspacing="0">
-            <tr valign="top">
-              <td style="padding: 0px" width="710">
-                <grouper:combobox filterOperation="SimpleGroupUpdateFilter.filterRoles" id="roleIdForHierarchy" 
-                  width="700" />
-              </td>
-              <td>
-                <input class="blueButton" type="submit" 
-                onclick="ajax('../app/SimpleGroupUpdate.addRoleImplies', {formIds: 'roleHierarchiesFormId'}); return false;" 
-                value="${grouper:message('simpleGroupUpdate.addRoleThatImplies', true, false)} ${grouper:escapeHtml(groupUpdateRequestContainer.groupToEdit.displayExtension)}" 
-                style="margin-top: 2px; white-space: nowrap;" />
-              </td>
-              <td>
-                <input class="blueButton" type="submit" 
-                onclick="ajax('../app/SimpleGroupUpdate.addRoleImpliedBy', {formIds: 'roleHierarchiesFormId'}); return false;" 
-                value="${grouper:message('simpleGroupUpdate.addRoleImpliedByThis', true, false)} ${grouper:escapeHtml(groupUpdateRequestContainer.groupToEdit.displayExtension)}"
-                style="margin-top: 2px; white-space: nowrap;" />
-              </td>
-            </tr>
-          </table>
+            <grouper:combobox filterOperation="SimpleGroupUpdateFilter.filterRoles" id="roleIdForHierarchy" 
+              width="700" />
+
+            <div style="margin-top: 5px;">
+              <input class="blueButton" type="submit" 
+              onclick="ajax('../app/SimpleGroupUpdate.addRoleImplies', {formIds: 'roleHierarchiesFormId'}); return false;" 
+              value="${grouper:message('simpleGroupUpdate.addRoleThatImplies', true, false)} ${grouper:escapeHtml(groupUpdateRequestContainer.groupToEdit.displayExtension)}" 
+              style="margin-top: 2px; white-space: nowrap;" />
+
+              <input class="blueButton" type="submit" 
+              onclick="ajax('../app/SimpleGroupUpdate.addRoleImpliedBy', {formIds: 'roleHierarchiesFormId'}); return false;" 
+              value="${grouper:message('simpleGroupUpdate.addRoleImpliedByThis', true, false)} ${grouper:escapeHtml(groupUpdateRequestContainer.groupToEdit.displayExtension)}"
+              style="margin-top: 2px; white-space: nowrap;" />
+            </div>
         </td>
       </tr>
       <tr class="formTableRow">
