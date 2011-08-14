@@ -22,7 +22,7 @@ public class WsResponseMeta {
    * @return any warnings
    */
   public String getResultWarnings() {
-    return StringUtils.trimToNull(this.resultWarnings.toString());
+    return this.resultWarnings;
   }
 
   /**

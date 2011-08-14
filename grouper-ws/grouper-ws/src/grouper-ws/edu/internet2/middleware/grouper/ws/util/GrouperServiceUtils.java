@@ -465,6 +465,10 @@ public final class GrouperServiceUtils {
   public static String formatHttp(String http) {
     //is newline correct?  platform independent?
     http = http.trim();
+    
+    //if there are two newlines, we need to know about it, not have the blank line removed...
+    http = StringUtils.replace(http, "\n\n", "\n \n");
+    
     String[] lines = GrouperUtil.splitTrim(http, "\n", false);
     StringBuilder result = new StringBuilder();
     boolean seenBody = false;
