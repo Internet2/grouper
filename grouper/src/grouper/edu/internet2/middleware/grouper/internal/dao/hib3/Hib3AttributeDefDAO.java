@@ -137,10 +137,20 @@ public class Hib3AttributeDefDAO extends Hib3DAO implements AttributeDefDAO {
    */
   public AttributeDef findByNameSecure(String name, boolean exceptionIfNotFound)
       throws GrouperDAOException, AttributeDefNotFoundException {
+    return findByNameSecure(name, exceptionIfNotFound, null);
+  }
+ 
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.internal.dao.AttributeDefDAO#findByNameSecure(java.lang.String, boolean)
+   */
+  public AttributeDef findByNameSecure(String name, boolean exceptionIfNotFound, QueryOptions queryOptions)
+      throws GrouperDAOException, AttributeDefNotFoundException {
     AttributeDef attributeDef = HibernateSession.byHqlStatic()
       .createQuery("select a from AttributeDef as a where a.nameDb = :value")
       .setCacheable(true)
       .setCacheRegion(KLASS + ".FindByName")
+      .options(queryOptions)
       .setString("value", name).uniqueResult(AttributeDef.class);
 
     //make sure grouper session can view the attribute def

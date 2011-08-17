@@ -38,10 +38,9 @@ import edu.internet2.middleware.grouper.StemSave;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
+import edu.internet2.middleware.grouper.attr.AttributeDefSave;
 import edu.internet2.middleware.grouper.attr.AttributeDefType;
 import edu.internet2.middleware.grouper.attr.AttributeDefValueType;
-import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
-import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.cfg.ApiConfig;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogConsumerBase;
@@ -1559,20 +1558,18 @@ public class GrouperCheckConfig {
 
         //see if attributeDef is there
         String externalSubjectInviteDefName = externalSubjectStemName + ":externalSubjectInviteDef";
-        AttributeDef externalSubjectInviteType = AttributeDefFinder.findByName(externalSubjectInviteDefName, false);
-        if (externalSubjectInviteType == null) {
-          externalSubjectInviteType = externalSubjectStem.addChildAttributeDef("externalSubjectInviteDef", AttributeDefType.type);
-          externalSubjectInviteType.setAssignToStem(true);
-          externalSubjectInviteType.setMultiAssignable(true);
-          externalSubjectInviteType.store();
-        }
         
+        AttributeDef externalSubjectInviteType = new AttributeDefSave(grouperSession).assignName(externalSubjectInviteDefName)
+          .assignToStem(true).assignMultiAssignable(true).assignAttributeDefType(AttributeDefType.type).save();
+          
         //add a name
         AttributeDefName externalSubjectInvite = checkAttribute(externalSubjectStem, externalSubjectInviteType, "externalSubjectInvite", "is an invite", wasInCheckConfig);
         
         //lets add some rule attributes
         String externalSubjectInviteAttrDefName = externalSubjectStemName + ":externalSubjectInviteAttrDef";
-        AttributeDef externalSubjectInviteAttrType = AttributeDefFinder.findByName(externalSubjectInviteAttrDefName, false);
+        AttributeDef externalSubjectInviteAttrType = GrouperDAOFactory.getFactory().getAttributeDef().findByNameSecure(
+            externalSubjectInviteAttrDefName, false, new QueryOptions().secondLevelCache(false));
+
         if (externalSubjectInviteAttrType == null) {
           externalSubjectInviteAttrType = externalSubjectStem.addChildAttributeDef("externalSubjectInviteAttrDef", AttributeDefType.attr);
           externalSubjectInviteAttrType.setAssignToStemAssn(true);
@@ -1618,7 +1615,8 @@ public class GrouperCheckConfig {
 
         //see if attributeDef is there
         String ruleTypeDefName = rulesRootStemName + ":rulesTypeDef";
-        AttributeDef ruleType = AttributeDefFinder.findByName(ruleTypeDefName, false);
+        AttributeDef ruleType = GrouperDAOFactory.getFactory().getAttributeDef().findByNameSecure(
+            ruleTypeDefName, false, new QueryOptions().secondLevelCache(false));
         if (ruleType == null) {
           ruleType = rulesStem.addChildAttributeDef("rulesTypeDef", AttributeDefType.type);
           ruleType.setAssignToGroup(true);
@@ -1633,7 +1631,8 @@ public class GrouperCheckConfig {
         
         //lets add some rule attributes
         String ruleAttrDefName = rulesRootStemName + ":rulesAttrDef";
-        AttributeDef ruleAttrType = AttributeDefFinder.findByName(ruleAttrDefName, false);
+        AttributeDef ruleAttrType = GrouperDAOFactory.getFactory().getAttributeDef().findByNameSecure(  
+            ruleAttrDefName, false, new QueryOptions().secondLevelCache(false));
         if (ruleAttrType == null) {
           ruleAttrType = rulesStem.addChildAttributeDef("rulesAttrDef", AttributeDefType.attr);
           ruleAttrType.setAssignToGroupAssn(true);
@@ -1710,7 +1709,8 @@ public class GrouperCheckConfig {
 
         //see if attributeDef is there
         String limitDefName = limitsRootStemName + ":" + PermissionLimitUtils.LIMIT_DEF;
-        AttributeDef limitDef = AttributeDefFinder.findByName(limitDefName, false);
+        AttributeDef limitDef = GrouperDAOFactory.getFactory().getAttributeDef().findByNameSecure(
+            limitDefName, false, new QueryOptions().secondLevelCache(false));
         if (limitDef == null) {
           limitDef = limitsStem.addChildAttributeDef(PermissionLimitUtils.LIMIT_DEF, AttributeDefType.limit);
           limitDef.setAssignToGroup(true);
@@ -1759,7 +1759,8 @@ public class GrouperCheckConfig {
 
         //see if attributeDef is there
         String limitDefIntName = limitsRootStemName + ":" + PermissionLimitUtils.LIMIT_DEF_INT;
-        AttributeDef limitDefInt = AttributeDefFinder.findByName(limitDefIntName, false);
+        AttributeDef limitDefInt = GrouperDAOFactory.getFactory().getAttributeDef().findByNameSecure(
+            limitDefIntName, false, new QueryOptions().secondLevelCache(false));
         if (limitDefInt == null) {
           limitDefInt = limitsStem.addChildAttributeDef(PermissionLimitUtils.LIMIT_DEF_INT, AttributeDefType.limit);
           limitDefInt.setAssignToGroup(true);
@@ -1796,7 +1797,8 @@ public class GrouperCheckConfig {
 
         //see if attributeDef is there
         String limitDefMarkerName = limitsRootStemName + ":" + PermissionLimitUtils.LIMIT_DEF_MARKER;
-        AttributeDef limitDefMarker = AttributeDefFinder.findByName(limitDefMarkerName, false);
+        AttributeDef limitDefMarker = GrouperDAOFactory.getFactory().getAttributeDef().findByNameSecure(
+            limitDefMarkerName, false, new QueryOptions().secondLevelCache(false));
         if (limitDefMarker == null) {
           limitDefMarker = limitsStem.addChildAttributeDef(PermissionLimitUtils.LIMIT_DEF_MARKER, AttributeDefType.limit);
           limitDefMarker.setAssignToGroup(true);
@@ -1837,7 +1839,8 @@ public class GrouperCheckConfig {
 
         //see if attributeDef is there
         String attributeDefLoaderTypeDefName = loaderRootStemName + ":attributeDefLoaderTypeDef";
-        AttributeDef attributeDefType = AttributeDefFinder.findByName(attributeDefLoaderTypeDefName, false);
+        AttributeDef attributeDefType = GrouperDAOFactory.getFactory().getAttributeDef().findByNameSecure(
+            attributeDefLoaderTypeDefName, false, new QueryOptions().secondLevelCache(false));
         if (attributeDefType == null) {
           attributeDefType = loaderStem.addChildAttributeDef("attributeDefLoaderTypeDef", AttributeDefType.type);
           attributeDefType.setAssignToAttributeDef(true);
@@ -1850,7 +1853,8 @@ public class GrouperCheckConfig {
         
         //see if attributeDef is there
         String attributeDefLoaderDefName = loaderRootStemName + ":attributeDefLoaderDef";
-        AttributeDef attributeDef = AttributeDefFinder.findByName(attributeDefLoaderDefName, false);
+        AttributeDef attributeDef = GrouperDAOFactory.getFactory().getAttributeDef().findByNameSecure(
+          attributeDefLoaderDefName, false, new QueryOptions().secondLevelCache(false));
         if (attributeDef == null) {
           attributeDef = loaderStem.addChildAttributeDef("attributeDefLoaderDef", AttributeDefType.attr);
           attributeDef.setAssignToAttributeDef(true);

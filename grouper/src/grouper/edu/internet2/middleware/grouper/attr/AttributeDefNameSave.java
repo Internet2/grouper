@@ -18,6 +18,8 @@ import edu.internet2.middleware.grouper.exception.StemNotFoundException;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransaction;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionHandler;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
+import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.misc.SaveResultType;
@@ -285,7 +287,8 @@ public class AttributeDefNameSave {
                         + parentStemNameLookup + "', new stem: '" + parentStemNameNew + "'"));
                   }
                 }    
-                theAttributeDefName = AttributeDefNameFinder.findByName(AttributeDefNameSave.this.attributeDefNameNameToEdit, false);
+                theAttributeDefName = GrouperDAOFactory.getFactory().getAttributeDefName().findByNameSecure(
+                    AttributeDefNameSave.this.attributeDefNameNameToEdit, false, new QueryOptions().secondLevelCache(false));
                 
                 if (theAttributeDefName != null) {
 
