@@ -1,3 +1,17 @@
+################### After downloading the grouper.ui*tar.gz file
+
+Edit the build.properties (might need to copy from template first), set the location of the grouper API, 
+and set other properties.  See a quick start document, google for this, or try these:
+
+ttps://spaces.internet2.edu/display/Grouper/Starting+with+Grouper
+https://spaces.internet2.edu/display/Grouper/Grouper+Hosted+on+a+Cloud+Server
+https://spaces.internet2.edu/display/Grouper/Customising+the+Grouper+UI
+
+Run an "ant dist", and run tomcat based on the dist directory.
+
+
+################### For developers who checked out the SVN grouper-ui project
+
 This project depends on grouper.  
 Checkout Grouper source as project name "grouper_trunk" 
 (I suggest in the same folder as grouper-ui_trunk).
