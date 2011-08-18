@@ -1,3 +1,16 @@
+################### After downloading the grouper.ui*tar.gz file
+
+Edit the build.properties (might need to copy from template first), set the location of the grouper API, 
+and set other properties.  See a quick start document, google for this, or try these:
+
+https://spaces.internet2.edu/display/Grouper/Starting+with+Grouper
+https://spaces.internet2.edu/display/Grouper/Grouper+Hosted+on+a+Cloud+Server
+
+Run an "ant dist", and run tomcat based on the build/dist directory.
+
+
+################### For developers who checked out the SVN grouper-ws project
+
 - the .project and .classpath is for Eclipse 3.3 with web tools.  This is recommended for development
 - checkout i2mi/grouper
 - checkout i2mi/grouper-ws/grouper-ws

@@ -1,13 +1,16 @@
 Grouper binary distribution:
 
 - There is no build.xml, everything is built
-- Follow these instructions to upgrade grouper from v1.3:
+- Follow these instructions to upgrade grouper from v1.6:
 
-https://wiki.internet2.edu/confluence/display/GrouperWG/Grouper+change+log+v1.3
+https://spaces.internet2.edu/display/Grouper/v2.0+Upgrade+Instructions+from+v1.6.*
+https://spaces.internet2.edu/display/Grouper/Grouper+changes+v2.0
 
-- Follow these instructions to get started with 1.4 from scratch:
+- Google for a Grouper quick start document, e.g.
 
-https://wiki.internet2.edu/confluence/display/GrouperWG/v1.4.0+Getting+Started
+https://spaces.internet2.edu/display/Grouper/Getting+Started+with+Grouper
+https://spaces.internet2.edu/display/Grouper/Starting+with+Grouper
+https://spaces.internet2.edu/display/Grouper/Grouper+Hosted+on+a+Cloud+Server
 
 - Generally:
 
