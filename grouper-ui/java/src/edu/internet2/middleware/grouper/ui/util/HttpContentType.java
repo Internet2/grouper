@@ -19,8 +19,8 @@ public enum HttpContentType {
   /** text html content type */
   TEXT_HTML("text/html"),
   
-  /** application json content type */
-  APPLICATION_JSON("application/json"),
+  /** application json content type TODO, should this be UTF-8? */
+  APPLICATION_JSON("application/json;charset=iso-8859-1"),
   
   /** text comma separated values */
   TEXT_CSV("text/csv");
