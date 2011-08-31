@@ -355,7 +355,8 @@ public class GrouperUiUtils {
   /**
    * dhtmlx option start of xml 
    */
-  public static final String DHTMLX_OPTIONS_START = "<?xml version=\"1.0\" ?>\n<complete>\n";
+  public static final String DHTMLX_OPTIONS_START = "<?xml version=\"1.0\" encoding=\"utf-8\" ?>\n<complete>\n"; 
+//utf-8, iso-8859-1
 
   /**
    * logger 

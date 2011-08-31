@@ -14,13 +14,13 @@ public enum HttpContentType {
   TEXT_PLAIN("text/plain"),
   
   /** xml content type */
-  TEXT_XML("text/xml"),
+  TEXT_XML("text/xml;charset=utf-8"),
   
   /** text html content type */
   TEXT_HTML("text/html"),
   
-  /** application json content type TODO, should this be UTF-8? */
-  APPLICATION_JSON("application/json;charset=iso-8859-1"),
+  /** application json content type */
+  APPLICATION_JSON("application/json;charset=utf-8"),
   
   /** text comma separated values */
   TEXT_CSV("text/csv");
