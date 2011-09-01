@@ -27,11 +27,8 @@
     <fileSets>
         <!-- Copy conf directory -->
         <fileSet>
-            <directory>conf</directory>
-            <outputDirectory>/conf</outputDirectory>
-            <includes>
-                <include>*.example.*</include>
-            </includes>
+            <directory>conf/examples</directory>
+            <outputDirectory>/conf/examples</outputDirectory>
         </fileSet>
 
         <!-- Documentation -->
