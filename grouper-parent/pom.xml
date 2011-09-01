@@ -221,7 +221,7 @@
             <dependency>
                 <groupId>edu.vt.middleware</groupId>
                 <artifactId>vt-ldap</artifactId>
-                <version>3.3</version>
+                <version>3.3.2</version>
             </dependency>
             <dependency>
                 <groupId>jivesoftware</groupId>
