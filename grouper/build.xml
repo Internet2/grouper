@@ -947,10 +947,8 @@
     </foreach>
 
     <!-- copy example config files -->
-    <copy todir="${grouper.ldappcng.dir}/conf">
-      <fileset dir="${ldappcng.dir}/ldappcng-${version}/conf">
-        <include name="**/*.example.*" />
-      </fileset>
+    <copy todir="${grouper.ldappcng.dir}/conf/examples">
+      <fileset dir="${ldappcng.dir}/ldappcng-${version}/conf/examples" />
     </copy>
 
     <!-- make pacakge -->
