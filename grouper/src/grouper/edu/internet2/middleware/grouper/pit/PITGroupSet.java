@@ -894,6 +894,12 @@ public class PITGroupSet extends GrouperPIT implements Hib3GrouperVersioned {
         newPITGroupSet.getOwnerId(), newPITGroupSet.getMemberId(), newPITGroupSet.getFieldId(), 
         newPITGroupSet.getParentId(), "effective", false);
     
+    if (!GrouperUtil.isEmpty(this.getContextId()) && !GrouperUtil.isEmpty(gs.getContextId()) &&
+        !this.getContextId().equals(gs.getContextId())) {
+      // this group set must have been added, deleted and then readded.  Don't add to point in time
+      return new LinkedHashSet<PITGroupSet>();
+    }
+    
     if (gs == null) {
       // either the group was deleted or it was never added (because it formed a circular path for instance)
       return new LinkedHashSet<PITGroupSet>();
@@ -968,6 +974,12 @@ public class PITGroupSet extends GrouperPIT implements Hib3GrouperVersioned {
       GroupSet gs = GrouperDAOFactory.getFactory().getGroupSet().findByOwnerMemberFieldParentAndType(
           pitGroupSet.getOwnerId(), pitGroupSet.getMemberId(), pitGroupSet.getFieldId(), 
           pitGroupSet.getParentId(), "effective", false);
+      
+      if (!GrouperUtil.isEmpty(this.getContextId()) && !GrouperUtil.isEmpty(gs.getContextId()) &&
+          !this.getContextId().equals(gs.getContextId())) {
+        // this group set must have been added, deleted and then readded.  Don't add to point in time
+        continue;
+      }
       
       if (gs == null) {
         // either the group was deleted or it was never added (because it formed a circular path for instance)

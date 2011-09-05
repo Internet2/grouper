@@ -791,6 +791,13 @@ public class PITMembership extends GrouperPIT implements Hib3GrouperVersioned {
         return;
       }
       
+      if (!GrouperUtil.isEmpty(this.getContextId()) && !GrouperUtil.isEmpty(immediateGroupSet.getContextId()) &&
+          !this.getContextId().equals(immediateGroupSet.getContextId())) {
+        // this group set must have been added, deleted and then readded.  Don't add to point in time
+        super.onPostSave(hibernateSession);
+        return;
+      }
+      
       pitImmediateGroupSet.setId(immediateGroupSet.getId());
       pitImmediateGroupSet.setFieldId(this.getFieldId());
       pitImmediateGroupSet.setMemberFieldId(Group.getDefaultList().getUuid());
