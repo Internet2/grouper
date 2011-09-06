@@ -3,6 +3,8 @@ package edu.internet2.middleware.grouper.pit;
 import java.util.Date;
 import java.util.Set;
 
+import junit.textui.TestRunner;
+
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.Group;
@@ -14,12 +16,15 @@ import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefType;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogTempToEntity;
+import edu.internet2.middleware.grouper.group.GroupSet;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SessionHelper;
 import edu.internet2.middleware.grouper.helper.StemHelper;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.misc.CompositeType;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.pit.finder.PITGroupFinder;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
@@ -42,6 +47,13 @@ public class PITMembershipTests extends GrouperTest {
   
   /** amount of time to sleep between operations */
   private long sleepTime = 100;
+  
+  /**
+   * @param args
+   */
+  public static void main(String[] args) {
+    TestRunner.run(new PITMembershipTests("testGroupSetAddDeleteAdd"));
+  }
   
   /**
    * @param name
@@ -68,6 +80,40 @@ public class PITMembershipTests extends GrouperTest {
   @Override
   protected void tearDown() {
     super.tearDown();
+  }
+  
+  /**
+   * 
+   */
+  public void testGroupSetAddDeleteAdd() {
+
+    // clear change log
+    ChangeLogTempToEntity.convertRecords();
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryEntity").executeUpdate();
+    
+    Group group1 = edu.addChildGroup("group1", "group1");    
+    Group group2 = edu.addChildGroup("group2", "group2");    
+    Group group3 = edu.addChildGroup("group3", "group3");    
+    Group group4 = edu.addChildGroup("group4", "group4");    
+
+    group2.addMember(group3.toSubject());
+    group3.addMember(group4.toSubject());
+    
+    ChangeLogTempToEntity.convertRecords();
+
+    group1.addMember(group2.toSubject());
+    group1.deleteMember(group2.toSubject());
+    group1.addMember(group2.toSubject());
+
+    ChangeLogTempToEntity.convertRecords();
+    
+    // verify
+    PITGroup pitGroup1 = PITGroupFinder.findById(group1.getId(), true);
+    assertEquals(3, pitGroup1.getMembers(Group.getDefaultList().getUuid(), null, null, null, null).size());
+    
+    GroupSet immediateGroupSet = GrouperDAOFactory.getFactory().getGroupSet().findImmediateByOwnerGroupAndMemberGroupAndField(group1.getUuid(), group2.getUuid(), Group.getDefaultList());
+    PITGroupSet pitImmediateGroupSet = GrouperDAOFactory.getFactory().getPITGroupSet().findById(immediateGroupSet.getId());
+    assertTrue(pitImmediateGroupSet.isActive());
   }
   
   /**
