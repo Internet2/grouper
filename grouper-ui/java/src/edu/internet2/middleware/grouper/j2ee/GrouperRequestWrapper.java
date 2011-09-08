@@ -376,11 +376,20 @@ public class GrouperRequestWrapper extends HttpServletRequestWrapper {
   public String getParameter(String name) {
   
     if (!this.multipart) {
-      
-      return this.wrapped.getParameter(name);
+      String param = this.wrapped.getParameter(name);
+      if (param != null && StringUtils.equals("GET", this.getMethod()) && TagUtils.mediaResourceBoolean("convertInputToUtf8", true)) {
+        try {
+          byte[] bytes = param.getBytes("ISO-8859-1");
+          param = new String(bytes, "UTF-8");
+        } catch (Exception e) {
+          throw new RuntimeException(e);
+        }
+      }
+      return param;
     }
-  
+
     Object objectSubmitted = this.parameterMap.get(name);
+
     //if not found, then return null
     if (objectSubmitted == null) {
       return null;

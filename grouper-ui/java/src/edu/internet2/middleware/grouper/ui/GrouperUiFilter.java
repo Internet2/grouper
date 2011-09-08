@@ -645,6 +645,8 @@ public class GrouperUiFilter implements Filter {
     
     try {
       
+      servletRequest.setCharacterEncoding("UTF-8");
+         
       httpServletRequest = new GrouperRequestWrapper((HttpServletRequest) servletRequest);
       
       httpServletRequest = initRequest(httpServletRequest, response);
