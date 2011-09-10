@@ -1,10 +1,8 @@
 package edu.internet2.middleware.poc_secureUserData;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import edu.internet2.middleware.grouperClient.api.GcFindGroups;
