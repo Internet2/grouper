@@ -15,9 +15,9 @@ import edu.internet2.middleware.poc_secureUserData.util.GcDbUtils.DbType;
 
 
 /**
- * holds column permissions per schema
+ * holds row permissions per schema
  */
-public class SudColPermission {
+public class SudRowPermission {
 
   /**
    * @param args
@@ -27,37 +27,37 @@ public class SudColPermission {
     //should be blank:
     
     System.out.println("Should be blank: ");
-    for (SudColPermission sudColPermission : SudColPermission.retrieveAllColPermissions()) {
-      System.out.println(sudColPermission);
+    for (SudRowPermission sudRowPermission : SudRowPermission.retrieveAllRowPermissions()) {
+      System.out.println(sudRowPermission);
     }
     
     System.out.println("Insert: ");
     
-    SudColPermission theSudColPermission = new SudColPermission();
-    theSudColPermission.setAction("write");
-    theSudColPermission.setColset("name");
-    theSudColPermission.setSchemaName("some_schema");
-    theSudColPermission.store();
+    SudRowPermission theSudRowPermission = new SudRowPermission();
+    theSudRowPermission.setAction("write");
+    theSudRowPermission.setGroupExtension("students");
+    theSudRowPermission.setSchemaName("some_schema");
+    theSudRowPermission.store();
     
-    for (SudColPermission sudColPermission : SudColPermission.retrieveAllColPermissions()) {
-      System.out.println(sudColPermission);
+    for (SudRowPermission sudRowPermission : SudRowPermission.retrieveAllRowPermissions()) {
+      System.out.println(sudRowPermission);
     }
     
     System.out.println("Update: ");
     
-    theSudColPermission.setColset("contact");
-    theSudColPermission.store();
+    theSudRowPermission.setGroupExtension("faculty");
+    theSudRowPermission.store();
     
-    for (SudColPermission sudColPermission : SudColPermission.retrieveAllColPermissions()) {
-      System.out.println(sudColPermission);
+    for (SudRowPermission sudRowPermission : SudRowPermission.retrieveAllRowPermissions()) {
+      System.out.println(sudRowPermission);
     }
 
     System.out.println("Delete (should be blank): ");
     
-    theSudColPermission.delete();
+    theSudRowPermission.delete();
     
-    for (SudColPermission sudColPermission : SudColPermission.retrieveAllColPermissions()) {
-      System.out.println(sudColPermission);
+    for (SudRowPermission sudRowPermission : SudRowPermission.retrieveAllRowPermissions()) {
+      System.out.println(sudRowPermission);
     }
 
     
@@ -69,13 +69,13 @@ public class SudColPermission {
    */
   @Override
   public boolean equals(Object obj) {
-    if (!(obj instanceof SudColPermission)) {
+    if (!(obj instanceof SudRowPermission)) {
       return false;
     }
     
-    SudColPermission other = (SudColPermission)obj;
+    SudRowPermission other = (SudRowPermission)obj;
     
-    return new GcEqualsBuilder().append(this.colset, other.colset)
+    return new GcEqualsBuilder().append(this.groupExtension, other.groupExtension)
       .append(this.action, other.action)
       .append(this.schemaName, other.schemaName).isEquals();
   }
@@ -85,30 +85,30 @@ public class SudColPermission {
    */
   @Override
   public int hashCode() {
-    return new GcHashCodeBuilder().append(this.colset).append(this.action).append(this.schemaName).toHashCode();
+    return new GcHashCodeBuilder().append(this.groupExtension).append(this.action).append(this.schemaName).toHashCode();
   }
 
   /**
-   * col permissions
-   * @return all col permissions
+   * row permissions
+   * @return all row permissions
    */
-  public static List<SudColPermission> retrieveAllColPermissions() {
+  public static List<SudRowPermission> retrieveAllRowPermissions() {
     
     List<Object[]> rows = GcDbUtils.listSelect(Object[].class, 
-        "select id, colset, schema_name, action from secureuserdata_col_permiss", 
+        "select id, group_extension, schema_name, action from secureuserdata_row_permiss", 
         GrouperClientUtils.toList(DbType.STRING, DbType.STRING, DbType.STRING, DbType.STRING));
     
-    List<SudColPermission> results = new ArrayList<SudColPermission>();
+    List<SudRowPermission> results = new ArrayList<SudRowPermission>();
     
     for (Object[] row : rows) {
       
-      SudColPermission sudColPermission = new SudColPermission();
-      results.add(sudColPermission);
+      SudRowPermission sudRowPermission = new SudRowPermission();
+      results.add(sudRowPermission);
       
-      sudColPermission.setId((String)row[0]);
-      sudColPermission.setColset((String)row[1]);
-      sudColPermission.setSchemaName((String)row[2]);
-      sudColPermission.setAction((String)row[3]);
+      sudRowPermission.setId((String)row[0]);
+      sudRowPermission.setGroupExtension((String)row[1]);
+      sudRowPermission.setSchemaName((String)row[2]);
+      sudRowPermission.setAction((String)row[3]);
       
     }
     return results;
@@ -125,14 +125,14 @@ public class SudColPermission {
       this.id = GrouperClientUtils.uniqueId();
 
       //insert
-      return GcDbUtils.executeUpdate("insert into secureuserdata_col_permiss (id, colset, schema_name, action) values (?, ?, ?, ?)", 
-          GrouperClientUtils.toList((Object)this.id, this.colset, this.schemaName, this.action)) > 0;
+      return GcDbUtils.executeUpdate("insert into secureuserdata_row_permiss (id, group_extension, schema_name, action) values (?, ?, ?, ?)", 
+          GrouperClientUtils.toList((Object)this.id, this.groupExtension, this.schemaName, this.action)) > 0;
       
     }
     
     //update
-    return GcDbUtils.executeUpdate("update secureuserdata_col_permiss set colset = ?, schema_name = ?, action = ? where id = ?", 
-        GrouperClientUtils.toList((Object)this.colset, this.schemaName, this.action, this.id)) > 0;
+    return GcDbUtils.executeUpdate("update secureuserdata_row_permiss set group_extension = ?, schema_name = ?, action = ? where id = ?", 
+        GrouperClientUtils.toList((Object)this.groupExtension, this.schemaName, this.action, this.id)) > 0;
     
   }
   
@@ -147,7 +147,7 @@ public class SudColPermission {
     }
     
     //delete
-    return GcDbUtils.executeUpdate("delete from secureuserdata_col_permiss where id = ?", 
+    return GcDbUtils.executeUpdate("delete from secureuserdata_row_permiss where id = ?", 
         GrouperClientUtils.toList((Object)this.id));
     
   }
@@ -157,7 +157,7 @@ public class SudColPermission {
    */
   @Override
   public String toString() {
-    return "SudColPermission [action=" + this.action + ", colset=" + this.colset
+    return "SudRowPermission [action=" + this.action + ", groupExtension=" + this.groupExtension
         + ", id=" + this.id + ", schemaName=" + this.schemaName + "]";
   }
 
@@ -180,25 +180,25 @@ public class SudColPermission {
     this.id = id1;
   }
   
-  /** predefined column sets, e.g. all, name, contact, ids */
-  private String colset;
+  /** group extension in a certain folder in grouper */
+  private String groupExtension;
 
   
   /**
-   * predefined column sets, e.g. all, name, contact, ids
-   * @return the colset
+   * group extension in a certain folder in grouper
+   * @return the group extension
    */
-  public String getColset() {
-    return this.colset;
+  public String getGroupExtension() {
+    return this.groupExtension;
   }
 
   
   /**
-   * predefined column sets, e.g. all, name, contact, ids
-   * @param colset1 the colset to set
+   * group extension in a certain folder in grouper
+   * @param groupExtension1 the group extension to set
    */
-  public void setColset(String colset1) {
-    this.colset = colset1;
+  public void setGroupExtension(String groupExtension1) {
+    this.groupExtension = groupExtension1;
   }
   
   /** the schema name in all caps */
