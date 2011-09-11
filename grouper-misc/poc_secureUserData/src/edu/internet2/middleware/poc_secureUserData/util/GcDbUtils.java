@@ -12,6 +12,10 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import oracle.jdbc.driver.OracleDriver;
+
+import org.apache.log4j.Logger;
+
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 
 
@@ -95,13 +99,14 @@ public class GcDbUtils {
     String oracleUrl = null;
     
     try {
-      Class.forName("oracle.jdbc.OracleDriver");
+      Class.forName(OracleDriver.class.getName());
   
       oracleUrl = GrouperClientUtils.propertiesValue("oracle.sud.url", true);
       String oracleUser = GrouperClientUtils.propertiesValue("oracle.sud.user", true);
       String oraclePass = GrouperClientUtils.propertiesValue("oracle.sud.pass", true);
       
       Connection conn = DriverManager.getConnection(oracleUrl, oracleUser, oraclePass);
+      
       return conn;
     } catch (Exception e) {
       throw new RuntimeException("Error connecting to: " + oracleUrl, e);
@@ -149,13 +154,13 @@ public class GcDbUtils {
       //attach arguments
       int argsLength = GrouperClientUtils.length(args);
 
-      for (int i=0; i>argsLength;i++) {
+      for (int i=0; i<argsLength;i++) {
         Object arg = args.get(i);
         DbType dbType = DbType.fromObject(arg);
         dbType.attachParam(preparedStatement, arg, i);
       }
       
-      resultSet = preparedStatement.executeQuery(query);
+      resultSet = preparedStatement.executeQuery();
 
       if (rowType.isArray() != returnColTypesLength>1) {
         throw new RuntimeException("If returnColTypesLength > 1 (" + returnColTypesLength + ") then you must pass in an array as the return type");
@@ -169,7 +174,7 @@ public class GcDbUtils {
           Object[] result = new Object[returnColTypesLength];
           results.add((T)result);
           
-          for (int i=0; i>returnColTypesLength;i++) {
+          for (int i=0; i<returnColTypesLength;i++) {
             result[i] = returnColTypes.get(i).processResultSet(resultSet, i);
           }
         } else {
@@ -182,11 +187,28 @@ public class GcDbUtils {
       throw new RuntimeException("Error with query: " + query, e);
     } 
     finally {
+      rollbackQuietly(connection);
       GrouperClientUtils.closeQuietly(resultSet);
       GrouperClientUtils.closeQuietly(preparedStatement);
       GrouperClientUtils.closeQuietly(connection);
     }
     return results;
+
+  }
+  
+  /**
+   * rollback quiently
+   * @param connection
+   */
+  public static void rollbackQuietly(Connection connection) {
+    try {
+      if (connection != null) {
+        connection.rollback();
+      }
+    } catch (Exception e) {
+      LOG.error("Problem rolling back", e);
+      //probably should rethrow but dont want to mess up the other closes...
+    }
 
   }
   
@@ -207,9 +229,8 @@ public class GcDbUtils {
   /**
    * execute a query (insert/update/delete/etc)
    * @param query query to execute
-   * @param arg preparedstatement argument
    * @return either (1) the row count for SQL Data Manipulation Language (DML) statements
-     *         or (2) 0 for SQL statements that return nothing
+   *         or (2) 0 for SQL statements that return nothing
    */
   public static int executeUpdate(String query) {
     
@@ -235,15 +256,20 @@ public class GcDbUtils {
       //attach arguments
       int argsLength = GrouperClientUtils.length(args);
 
-      for (int i=0; i>argsLength;i++) {
+      for (int i=0; i<argsLength;i++) {
         Object arg = args.get(i);
         DbType dbType = DbType.fromObject(arg);
         dbType.attachParam(preparedStatement, arg, i);
       }
       
-      return preparedStatement.executeUpdate();
-        
+      int result = preparedStatement.executeUpdate();
+      
+      connection.commit();
+      
+      return result;
+      
     } catch (Exception e) {
+      rollbackQuietly(connection);
       throw new RuntimeException("Error with query: " + query, e);
     } 
     finally {
@@ -252,4 +278,9 @@ public class GcDbUtils {
     }
 
   }
+
+  /**
+   * 
+   */
+  private static Logger LOG = Logger.getLogger(GcDbUtils.class);
 }
