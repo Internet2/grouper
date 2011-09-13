@@ -30,27 +30,27 @@ Insert into SECUREUSERDATA_USER
     NETID, FIRST_NAME, LAST_NAME, EMAIL, WORK_PHONE, 
     HOME_PHONE)
  Values
-   ('Q2QEIB01', '12345', 'js', 'John', 'Smith', 'js@a.edu', 
+   ('A3', '12345', 'js', 'John', 'Smith', 'js@a.edu', 
     '3-1234', '123-4567');
 Insert into SECUREUSERDATA_USER
    (ID, PERSONID, 
     NETID, FIRST_NAME, LAST_NAME, EMAIL, WORK_PHONE, 
     HOME_PHONE)
  Values
-   ('Q2QEIB13', '98765', 'sd', 'Sara', 'Davis', 'sd@a.edu', 
+   ('B4', '98765', 'sd', 'Sara', 'Davis', 'sd@a.edu', 
     '5-2345', '234-5678');
 Insert into SECUREUSERDATA_USER
    (ID, PERSONID, 
     NETID, FIRST_NAME, LAST_NAME, EMAIL, WORK_PHONE, 
     HOME_PHONE)
  Values
-   ('Q2QEIB45', '54321', 'rj', 'Ryan', 'Jones', 'rj@a.edu', 
+   ('C5', '54321', 'rj', 'Ryan', 'Jones', 'rj@a.edu', 
     '7-4567', '345-6789');
 Insert into SECUREUSERDATA_USER
    (ID, PERSONID, 
     NETID, FIRST_NAME, LAST_NAME, EMAIL, WORK_PHONE, 
     HOME_PHONE)
  Values
-   ('Q2QEIB67', '56789', 'jc', 'Julia', 'Clark', 'jc@a.edu', 
+   ('T7', '56789', 'jc', 'Julia', 'Clark', 'jc@a.edu', 
     '9-6789', '456-7890');
 COMMIT;

@@ -48,7 +48,7 @@ public class SudFullSync {
    * @param args
    */
   public static void main(String[] args) {
-    //syncMemberships();
+    syncMemberships();
     syncRowAndColumnPermissions();
   }
   
@@ -91,7 +91,7 @@ public class SudFullSync {
         
         int rows = GcDbUtils.executeUpdate("delete from secureuserdata_memberships where group_extension = ?", groupExtension);
         if (LOG.isInfoEnabled()) {
-          LOG.info("Deleting " + rows + " group memberships from DB of group_extension: " + groupExtension);
+          LOG.info("Del " + rows + " mships of group: " + groupExtension);
         }
         continue;
       }
@@ -126,8 +126,8 @@ public class SudFullSync {
               GrouperClientUtils.toList((Object)groupExtension, personIdInDb));
           
           if (LOG.isInfoEnabled()) {
-            LOG.info("Deleting " + rows + " group memberships from DB of group_extension: " 
-                + groupExtension + ", and personid: " + personIdInDb);
+            LOG.info("Del " + rows + " mships of group: " 
+                + groupExtension + ", personid: " + personIdInDb);
           }
 
         }
@@ -142,8 +142,8 @@ public class SudFullSync {
           sudMembership.store();
           
           if (LOG.isInfoEnabled()) {
-            LOG.info("Inserting group membership to DB for group_extension: " 
-                + groupExtension + ", and personid: " + personidInGrouper);
+            LOG.info("Add mship for group: " 
+                + groupExtension + ", personid: " + personidInGrouper);
           }
 
         }
@@ -286,8 +286,8 @@ public class SudFullSync {
             GrouperClientUtils.toList(multiKey.getKey(0), multiKey.getKey(1), multiKey.getKey(2)));
         
         if (LOG.isInfoEnabled()) {
-          LOG.info("Deleting " + rows + " row permissions from DB of schema_name: " 
-              + multiKey.getKey(0) + ", action: " + multiKey.getKey(1) + ", and group extension: " + multiKey.getKey(2));
+          LOG.info("Del " + rows + " row permiss schema: " 
+              + multiKey.getKey(0) + ", action: " + multiKey.getKey(1) + ", group: " + multiKey.getKey(2));
         }
 
       }
@@ -300,8 +300,8 @@ public class SudFullSync {
             GrouperClientUtils.toList(multiKey.getKey(0), multiKey.getKey(1), multiKey.getKey(2)));
         
         if (LOG.isInfoEnabled()) {
-          LOG.info("Deleting " + rows + " column permissions from DB of schema_name: " 
-              + multiKey.getKey(0) + ", action: " + multiKey.getKey(1) + ", and column set: " + multiKey.getKey(2));
+          LOG.info("Del " + rows + " col permiss schema: " 
+              + multiKey.getKey(0) + ", action: " + multiKey.getKey(1) + ", cols: " + multiKey.getKey(2));
         }
 
       }
@@ -317,8 +317,8 @@ public class SudFullSync {
         sudRowPermission.store();
           
         if (LOG.isInfoEnabled()) {
-          LOG.info("Inserting row permission to DB for schema_name: " 
-            + multiKey.getKey(0) + ", action: " + multiKey.getKey(1) + ", and group extension: " + multiKey.getKey(2));
+          LOG.info("Add row permiss schema: " 
+            + multiKey.getKey(0) + ", action: " + multiKey.getKey(1) + ", group: " + multiKey.getKey(2));
         }
 
       }
@@ -333,8 +333,8 @@ public class SudFullSync {
         sudColPermission.store();
           
         if (LOG.isInfoEnabled()) {
-          LOG.info("Inserting column permission to DB for schema_name: " 
-            + multiKey.getKey(0) + ", action: " + multiKey.getKey(1) + ", and column set: " + multiKey.getKey(2));
+          LOG.info("Add col permiss schema: " 
+            + multiKey.getKey(0) + ", action: " + multiKey.getKey(1) + ", cols: " + multiKey.getKey(2));
         }
       }
     }

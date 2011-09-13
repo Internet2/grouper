@@ -145,10 +145,10 @@ IS
      end if;
      
      return ' personid in (select sm.personid '
-       || ' from fastdev2.secureuserdata_memberships sm, fastdev2.secureuserdata_row_permiss srp '
+       || ' from fastdev1.secureuserdata_memberships sm, fastdev1.secureuserdata_row_permiss srp '
        || ' where sm.group_extension = srp.group_extension '
        || ' and srp.action = ''read'' '
-       || ' and srp.schema_name = fastdev2.secureuserdata_fgac_pkg.user_schema() ) ';
+       || ' and srp.schema_name = fastdev1.secureuserdata_fgac_pkg.user_schema() ) ';
    end;
 
    FUNCTION userdata_update_rows_predicate (
@@ -169,10 +169,10 @@ IS
      
 
      return ' personid in (select sm.personid '
-       || ' from fastdev2.secureuserdata_memberships sm, fastdev2.secureuserdata_row_permiss srp '
+       || ' from fastdev1.secureuserdata_memberships sm, fastdev1.secureuserdata_row_permiss srp '
        || ' where sm.group_extension = srp.group_extension '
        || ' and srp.action = ''write'' '
-       || ' and srp.schema_name = fastdev2.secureuserdata_fgac_pkg.user_schema() ) ';
+       || ' and srp.schema_name = fastdev1.secureuserdata_fgac_pkg.user_schema() ) ';
    end;
 
    FUNCTION userdata_select_cols_ids (
