@@ -2,7 +2,7 @@
  * @author mchyzer
  * $Id$
  */
-package edu.internet2.middleware.poc_secureUserDataChangeLog;
+package edu.internet2.middleware.poc_secureUserData;
 
 
 /**
