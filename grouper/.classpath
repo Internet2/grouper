@@ -9,7 +9,6 @@
 	<classpathentry exported="true" kind="lib" path="lib/grouper/activation.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper/antlr.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper/asm.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/grouper/asm-attrs.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper/asm-util.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper/backport-util-concurrent.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper/bsh.jar"/>
@@ -63,5 +62,8 @@
 	<classpathentry exported="true" kind="lib" path="lib/grouper/commons-httpclient.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper/ddlUtils.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper/grouperClient.jar"/>
+	<classpathentry kind="lib" path="lib/grouper/javassist.jar"/>
+	<classpathentry kind="lib" path="lib/grouper/slf4j-api.jar"/>
+	<classpathentry kind="lib" path="lib/grouper/hibernate-jpa-2.0-api.jar"/>
 	<classpathentry kind="output" path="build"/>
 </classpath>
