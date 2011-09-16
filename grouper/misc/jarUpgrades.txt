@@ -4,12 +4,13 @@ hibernate.jar: from: 3.2.6.ga, to: 3.6.7.Final
 cglib: from: 2.1.3, to: 2.2
 commons-collections: from: 0.1.0 , to: 3.2.1
 javassist: new: 3.12.0.GA
-slf4j-api: new: 1.6.1
+slf4j-api: new: 1.6.2
 asm: from: 1.5.3, to: 3.3.1
 asm-util: from: 1.5.3, to: 3.3.1
 asm-attrs: removed
 hibernate-jpa-2.0-api: new: 1.0.1.Final
-
+slf4j-log4j12: new: 1.6.2
+cglib: removed
 
 in jdbc samples:
 mysql-connector-java-bin: from: 5.1.5, to: 5.1.17
