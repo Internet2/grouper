@@ -1138,7 +1138,6 @@ public class GrouperCheckConfig {
     checkJar("backport-util-concurrent.jar", 328268, "edu.emory.mathcs.backport.java.util.AbstractCollection", "3.0");
     checkJar("bsh.jar", 281694, "bsh.BSHFormalComment", "2.0b4 2005-05-23 11:49:20");
     checkJar("c3p0.jar", 1064264, "com.mchange.lang.ByteUtils", "0.9.1.2");
-    checkJar("cglib.jar", 285644, "net.sf.cglib.beans.BeanCopier", "2.2");
     checkJar("commons-beanutils.jar", 173783, "org.apache.commons.beanutils.BasicDynaBean", "0.1.0");
     checkJar("commons-betwixt.jar", 242227, "org.apache.commons.betwixt.expression.MethodExpression", "0.8");
     checkJar("commons-cli.jar", 41123, "org.apache.commons.cli.AlreadySelectedException", "1.2");
@@ -1173,7 +1172,8 @@ public class GrouperCheckConfig {
     checkJar("odmg.jar", 42111, "org.odmg.ClassNotPersistenceCapableException", "0.1.0");
     checkJar("p6spy.jar", 389539, "com.p6spy.engine.common.FastExternalUtils", "1.1");
     checkJar("quartz.jar", 792769, "org.quartz.Calendar", "1.6.0");
-    checkJar("slf4j-api.jar", 25496, "org.slf4j.helpers.BasicMarker", "1.6.1");
+    checkJar("slf4j-api.jar", 25689, "org.slf4j.helpers.BasicMarker", "1.6.2");
+    checkJar("slf4j-log4j12.jar", 9752, "org.slf4j.impl.Log4jLoggerAdapter", "1.6.2");
     checkJar("smack.jar", 1381464, "com.jcraft.jzlib.Deflate", "3.1.0");
     checkJar("smtp.jar", 23567, "com.sun.mail.smtp.DigestMD5", "1.3.2");
     checkJar("subject.jar", 155065, "edu.internet2.middleware.subject.InvalidQueryException", "2.0.0");
