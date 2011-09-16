@@ -60,10 +60,11 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javassist.util.proxy.ProxyObject;
+
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
-import net.sf.cglib.proxy.Enhancer;
 import net.sf.json.JSONObject;
 import net.sf.json.JsonConfig;
 import net.sf.json.util.PropertyFilter;
@@ -2723,9 +2724,15 @@ public class GrouperUtil {
    */
   public static Class unenhanceClass(Class theClass) {
     try {
-      while (Enhancer.isEnhanced(theClass)) {
+//this was cglib
+//      while (Enhancer.isEnhanced(theClass)) {
+//        theClass = theClass.getSuperclass();
+//      }
+      
+      while (ProxyObject.class.isAssignableFrom(theClass)) {
         theClass = theClass.getSuperclass();
       }
+      
       return theClass;
     } catch (Exception e) {
       throw new RuntimeException("Problem unenhancing " + theClass, e);

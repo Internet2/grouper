@@ -13,7 +13,6 @@
 	<classpathentry exported="true" kind="lib" path="lib/grouper/backport-util-concurrent.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper/bsh.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper/c3p0.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/grouper/cglib.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper/commons-beanutils.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper/commons-betwixt.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper/commons-cli.jar"/>
@@ -65,5 +64,6 @@
 	<classpathentry kind="lib" path="lib/grouper/javassist.jar"/>
 	<classpathentry kind="lib" path="lib/grouper/slf4j-api.jar"/>
 	<classpathentry kind="lib" path="lib/grouper/hibernate-jpa-2.0-api.jar"/>
+	<classpathentry kind="lib" path="lib/grouper/slf4j-log4j12.jar"/>
 	<classpathentry kind="output" path="build"/>
 </classpath>
