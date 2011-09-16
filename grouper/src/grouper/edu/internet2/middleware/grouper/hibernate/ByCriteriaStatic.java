@@ -296,7 +296,7 @@ public class ByCriteriaStatic {
                 || (retrieveQueryCountNotForPaging);
               if (findQueryCount) {
                 
-                int resultSize = -1;
+                long resultSize = -1;
                 if (queryPaging != null) {
                   //see if we already know the total size (if less than page size and first page)
                   resultSize = GrouperUtil.length(list);
@@ -326,17 +326,17 @@ public class ByCriteriaStatic {
                     if (ByCriteriaStatic.this.criterions != null) {
                       countQuery.add(ByCriteriaStatic.this.criterions);
                     }
-                    resultSize = (Integer)countQuery.list().get(0);
+                    resultSize = (Long)countQuery.list().get(0);
                   }
                   
                   if (queryPaging != null) {
-                    queryPaging.setTotalRecordCount(resultSize);
+                    queryPaging.setTotalRecordCount((int)resultSize);
             
                     //calculate the page stuff like how many pages etc
                     queryPaging.calculateIndexes();
                   }
                   if (retrieveQueryCountNotForPaging) {
-                    ByCriteriaStatic.this.queryOptions.setCount((long)resultSize);
+                    ByCriteriaStatic.this.queryOptions.setCount(resultSize);
                   }
                 }
               }

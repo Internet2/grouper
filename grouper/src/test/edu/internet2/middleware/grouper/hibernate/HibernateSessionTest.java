@@ -40,7 +40,7 @@ public class HibernateSessionTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new HibernateSessionTest("testEnabledDisabledInline"));
+    TestRunner.run(new HibernateSessionTest("testResultSize"));
     //TestRunner.run(HibernateSessionTest.class);
   }
   
