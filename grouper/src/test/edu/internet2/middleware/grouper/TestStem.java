@@ -76,8 +76,8 @@ public class TestStem extends GrouperTest {
    * @param args String[]
    */
   public static void main(String[] args) {
-    //TestRunner.run(new TestStem("testStemModifyAttributesAfterDisablingMembership"));
-    TestRunner.run(TestStem.class);
+    TestRunner.run(new TestStem("testXmlInsert"));
+    //TestRunner.run(TestStem.class);
   }
 
   public TestStem(String name) {
@@ -1832,17 +1832,20 @@ public class TestStem extends GrouperTest {
     GrouperSession.startRootSession();
     
     Stem stemOriginal = new StemSave(GrouperSession.staticGrouperSession()).assignStemNameToEdit("stemInsert").assignName("stemInsert").save();
-    stemOriginal = StemFinder.findByUuid(GrouperSession.staticGrouperSession(), stemOriginal.getUuid(), true, null);
-    Stem stemCopy = StemFinder.findByUuid(GrouperSession.staticGrouperSession(), stemOriginal.getUuid(), true, null);
-    Stem stemCopy2 = StemFinder.findByUuid(GrouperSession.staticGrouperSession(), stemOriginal.getUuid(), true, null);
+    stemOriginal = StemFinder.findByUuid(GrouperSession.staticGrouperSession(), stemOriginal.getUuid(), true, new QueryOptions().secondLevelCache(false));
+    Stem stemCopy = StemFinder.findByUuid(GrouperSession.staticGrouperSession(), stemOriginal.getUuid(), true, new QueryOptions().secondLevelCache(false));
+    Stem stemCopy2 = StemFinder.findByUuid(GrouperSession.staticGrouperSession(), stemOriginal.getUuid(), true, new QueryOptions().secondLevelCache(false));
     stemCopy.delete();
     
     //lets insert the original
     stemCopy2.xmlSaveBusinessProperties(null);
+    
+    System.out.println(stemCopy2.getLastMembershipChange());
+    
     stemCopy2.xmlSaveUpdateProperties();
 
     //refresh from DB
-    stemCopy = StemFinder.findByUuid(GrouperSession.staticGrouperSession(), stemOriginal.getUuid(), true, null);
+    stemCopy = StemFinder.findByUuid(GrouperSession.staticGrouperSession(), stemOriginal.getUuid(), true, new QueryOptions().secondLevelCache(false));
     
     assertFalse(stemCopy == stemOriginal);
     assertFalse(stemCopy.xmlDifferentBusinessProperties(stemOriginal));
