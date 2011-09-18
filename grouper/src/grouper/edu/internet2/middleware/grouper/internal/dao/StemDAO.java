@@ -165,6 +165,16 @@ public interface StemDAO extends GrouperDAO {
     throws  GrouperDAOException;
 
   /**
+   * @param name 
+   * @param scope 
+   * @param queryOptions 
+   * @return set stems
+   * @throws GrouperDAOException 
+   * @since   2.1.0
+   */
+  public Set<Stem> findAllByApproximateNameAny(String name, String scope, QueryOptions queryOptions);
+
+  /**
    * @since   1.2.0
    */
   Set<Stem> findAllByCreatedAfter(Date d) 
@@ -255,6 +265,13 @@ public interface StemDAO extends GrouperDAO {
    * @since   1.2.1
    */
   Set<Stem> findAllChildStems(Stem ns, Stem.Scope scope)
+    throws  GrouperDAOException;
+  
+  /**
+   * Find all child stems within specified scope.
+   * @since   2.1
+   */
+  Set<Stem> findAllChildStems(Stem ns, Stem.Scope scope, QueryOptions queryOptions)
     throws  GrouperDAOException;
   
   /**

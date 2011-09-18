@@ -699,7 +699,7 @@ public class TestStemApi extends GrouperTest {
 
   public void test_getChildStems_PrivilegeArrayAndScope_nullArray() {
     try {
-      this.root.getChildStems(null, null);
+      this.root.getChildStems(null, (Scope)null);
       fail("failed to throw IllegalArgumentException");
     }
     catch (IllegalArgumentException eExpected) {

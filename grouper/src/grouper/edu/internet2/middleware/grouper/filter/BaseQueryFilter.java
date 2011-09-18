@@ -37,8 +37,9 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * <p/>
  * @author  blair christensen.
  * @version $Id: BaseQueryFilter.java,v 1.4 2008-11-05 16:18:46 shilen Exp $
+ * @param <ValueType> Group, Membership, Stem
  */
-public class BaseQueryFilter implements QueryFilter {
+public class BaseQueryFilter<ValueType> implements QueryFilter<ValueType> {
 
   // PRIVATE CLASS CONSTANTS //
   private static final Set RESULTS = new LinkedHashSet();

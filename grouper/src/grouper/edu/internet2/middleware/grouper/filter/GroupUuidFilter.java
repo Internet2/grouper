@@ -56,6 +56,7 @@ public class GroupUuidFilter extends BaseQueryFilter {
    * @return the set of groups (which is just going to be one or not groups)
    * @throws QueryException
    */
+  @Override
   public Set<Group> getResults(GrouperSession s) 
     throws QueryException {
 

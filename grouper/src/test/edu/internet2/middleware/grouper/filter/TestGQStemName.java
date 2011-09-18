@@ -16,11 +16,16 @@
 */
 
 package edu.internet2.middleware.grouper.filter;
+import java.util.ArrayList;
+import java.util.List;
+
 import junit.framework.Assert;
 import junit.framework.TestCase;
+import junit.textui.TestRunner;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.exception.QueryException;
 import edu.internet2.middleware.grouper.filter.GrouperQuery;
 import edu.internet2.middleware.grouper.filter.StemAnyAttributeFilter;
@@ -31,6 +36,7 @@ import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SessionHelper;
 import edu.internet2.middleware.grouper.helper.StemHelper;
 import edu.internet2.middleware.grouper.registry.RegistryReset;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * Test {@link StemNameAnyFilter}.
@@ -38,20 +44,14 @@ import edu.internet2.middleware.grouper.registry.RegistryReset;
  * @author  blair christensen.
  * @version $Id: TestGQStemName.java,v 1.2 2009-03-20 19:56:41 mchyzer Exp $
  */
-public class TestGQStemName extends TestCase {
+public class TestGQStemName extends GrouperTest {
 
+  public static void main(String[] args) {
+    TestRunner.run(new TestGQStemName("testStemInStemPaged"));
+  }
+  
   public TestGQStemName(String name) {
     super(name);
-  }
-
-  protected void setUp () {
-    RegistryReset.internal_resetRegistryAndAddTestSubjects();
-    GrouperTest.initGroupsAndAttributes();
-
-  }
-
-  protected void tearDown () {
-    // Nothing 
   }
 
   // Tests
@@ -119,6 +119,84 @@ public class TestGQStemName extends TestCase {
       Assert.assertTrue("members", gq.getMembers().size()     == 0);
       Assert.assertTrue("mships",  gq.getMemberships().size() == 0);
       Assert.assertTrue("stems",   gq.getStems().size()       == 1);
+    }
+    catch (QueryException eQ) {
+      Assert.fail("unable to query: " + eQ.getMessage());
+    }
+  } // public void testStemNameAnyFilterSomethingDisplayName()
+
+  public void testStemNameAnyFilterSomethingDisplayNamePaged() {
+    GrouperSession  s     = SessionHelper.getRootSession();
+    Stem            root  = StemHelper.findRootStem(s);
+    Stem            edu   = StemHelper.addChildStem(root, "edu", "education");
+    Stem            edu2   = StemHelper.addChildStem(root, "edu2", "education2");
+    Stem            edu3   = StemHelper.addChildStem(root, "edu3", "education3");
+    Group           i2    = StemHelper.addChildGroup(edu, "i2", "internet2");
+    Group           uofc  = StemHelper.addChildGroup(edu, "uofc", "uchicago");
+    Stem            com   = StemHelper.addChildStem(root, "com", "commercial");
+    StemHelper.addChildGroup(com, "devclue", "devclue");
+    GroupHelper.addMember(i2, uofc);
+    try {
+      GrouperQuery gq = GrouperQuery.createQuery(
+        s, new StemNameAnyFilter("education", root, "displayName", true, 1, 2)
+      );
+      Assert.assertTrue("groups",  gq.getGroups().size()      == 0);
+      Assert.assertTrue("members", gq.getMembers().size()     == 0);
+      Assert.assertTrue("mships",  gq.getMemberships().size() == 0);
+      Assert.assertTrue("stems",   gq.getStems().size()       == 2);
+
+      List<Stem> stems = new ArrayList<Stem>(gq.getStems());
+      assertEquals(2, GrouperUtil.length(stems));
+      assertEquals("education", stems.get(0).getDisplayExtension());
+      assertEquals("education2", stems.get(1).getDisplayExtension());
+
+      gq = GrouperQuery.createQuery(
+          s, new StemNameAnyFilter("education", root, "name", true, 2, 2));
+
+      stems = new ArrayList<Stem>(gq.getStems());
+      assertEquals(1, GrouperUtil.length(stems));
+      assertEquals("edu3", stems.get(0).getExtension());
+
+    
+    }
+    catch (QueryException eQ) {
+      Assert.fail("unable to query: " + eQ.getMessage());
+    }
+  } // public void testStemNameAnyFilterSomethingDisplayName()
+
+  public void testStemInStemPaged() {
+    GrouperSession  s     = SessionHelper.getRootSession();
+    Stem            root  = StemHelper.findRootStem(s);
+    Stem            edu   = StemHelper.addChildStem(root, "edu", "education");
+    Group           i2    = StemHelper.addChildGroup(edu, "i2", "internet2");
+    Group           uofc  = StemHelper.addChildGroup(edu, "uofc", "uchicago");
+    Stem            edu2   = StemHelper.addChildStem(edu, "edu2", "education2");
+    Stem            edu3   = StemHelper.addChildStem(edu, "edu3", "education3");
+    Stem            edu4   = StemHelper.addChildStem(edu, "edu4", "education4");
+    Stem            com   = StemHelper.addChildStem(root, "com", "commercial");
+    StemHelper.addChildGroup(com, "devclue", "devclue");
+    try {
+      GrouperQuery gq = GrouperQuery.createQuery(
+        s, new StemsInStemFilter("edu", Scope.SUB, false, "displayName", true, 1, 2)
+      );
+      Assert.assertTrue("groups",  gq.getGroups().size()      == 0);
+      Assert.assertTrue("members", gq.getMembers().size()     == 0);
+      Assert.assertTrue("mships",  gq.getMemberships().size() == 0);
+      Assert.assertTrue("stems",   gq.getStems().size()       == 2);
+
+      List<Stem> stems = new ArrayList<Stem>(gq.getStems());
+      assertEquals(2, GrouperUtil.length(stems));
+      assertEquals("education2", stems.get(0).getDisplayExtension());
+      assertEquals("education3", stems.get(1).getDisplayExtension());
+
+      gq = GrouperQuery.createQuery(
+          s, new StemsInStemFilter("edu", Scope.SUB, false, "name", true, 2, 2));
+
+      stems = new ArrayList<Stem>(gq.getStems());
+      assertEquals(1, GrouperUtil.length(stems));
+      assertEquals("edu4", stems.get(0).getExtension());
+
+    
     }
     catch (QueryException eQ) {
       Assert.fail("unable to query: " + eQ.getMessage());

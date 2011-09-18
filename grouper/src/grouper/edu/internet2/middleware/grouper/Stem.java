@@ -707,14 +707,26 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
    * @throws  IllegalArgumentException if null scope.
    * @since   1.2.1
    */
-  public Set<Stem> getChildStems(Scope scope) 
+  public Set<Stem> getChildStems(Scope scope) {
+    return getChildStems(scope, null);
+  }
+
+  /**
+   * Get stems that are children of this stem.
+   * @param   scope of search: <code>Scope.ONE</code> or <code>Scope.SUB</code>
+   * @param queryOptions 
+   * @return  Child stems.
+   * @throws  IllegalArgumentException if null scope.
+   * @since   1.2.1
+   */
+  public Set<Stem> getChildStems(Scope scope, QueryOptions queryOptions) 
     throws  IllegalArgumentException
   {
     if (scope == null) { // TODO 20070815 ParameterHelper
       throw new IllegalArgumentException("null Scope");
     }
     Set<Stem> stems = new LinkedHashSet();
-    for ( Stem child : GrouperDAOFactory.getFactory().getStem().findAllChildStems( this, scope ) ) {
+    for ( Stem child : GrouperDAOFactory.getFactory().getStem().findAllChildStems( this, scope, queryOptions ) ) {
       stems.add(child);
     }
     return stems;

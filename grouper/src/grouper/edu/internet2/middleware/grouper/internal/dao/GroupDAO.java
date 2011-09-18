@@ -145,6 +145,13 @@ public interface GroupDAO extends GrouperDAO {
     throws  GrouperDAOException
             ;
 
+  /**
+   * @since   2.1.0
+   */
+  Set<Group> findAllByApproximateNameSecure(String name, String scope, QueryOptions queryOptions) 
+    throws  GrouperDAOException
+            ;
+
 
   /**
    * @since   1.2.0

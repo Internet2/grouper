@@ -22,6 +22,7 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
@@ -297,9 +298,18 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
             throw new RuntimeException("failOnSearchForTesting");
           }
           
-          GrouperQuery gq = GrouperQuery.createQuery(
-            grouperSession, new GroupNameFilter(searchValue, root)
-          );
+          GrouperQuery gq = null;
+          
+          if (GrouperConfig.getPropertyBoolean("pageGroupSource", true)) {
+            gq = GrouperQuery.createQuery(
+              grouperSession, new GroupNameFilter(searchValue, root, "displayName", true, 1, 1000)
+            );
+          } else {
+            gq = GrouperQuery.createQuery(
+                grouperSession, new GroupNameFilter(searchValue, root)
+              );
+          }
+           
           Group     g;
           Iterator  iter  = gq.getGroups().iterator();
           while (iter.hasNext()){

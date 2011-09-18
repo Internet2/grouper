@@ -28,6 +28,7 @@ import edu.internet2.middleware.grouper.exception.QueryException;
  * <p/>
  * @author  blair christensen.
  * @version $Id: QueryFilter.java,v 1.3 2009-07-10 17:49:31 tzeller Exp $
+ * @param <ValueType> Group or Stem or Membership
  */
 public interface QueryFilter<ValueType> {
 
