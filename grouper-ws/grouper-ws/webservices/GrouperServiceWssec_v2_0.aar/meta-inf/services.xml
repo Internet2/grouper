@@ -27,7 +27,7 @@
                          class="org.apache.axis2.rpc.receivers.RPCMessageReceiver"/>
     </messageReceivers>
     <schema schemaNamespace="http://soap_v2_0.ws.grouper.middleware.internet2.edu/xsd"/>
-    <parameter name="ServiceClass">edu.internet2.middleware.grouper.ws.soap.GrouperService</parameter>
+    <parameter name="ServiceClass">edu.internet2.middleware.grouper.ws.soap_v2_0.GrouperService</parameter>
   
   <module ref="rampart" />
   <module ref="addressing" />
