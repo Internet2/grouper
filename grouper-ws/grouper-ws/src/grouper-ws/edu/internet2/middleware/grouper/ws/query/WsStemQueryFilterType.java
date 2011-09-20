@@ -147,7 +147,9 @@ public enum WsStemQueryFilterType {
         stem = StemFinder.findRootStem(wsStemQueryFilter.retrieveGrouperSession());
       }
       
-      return new StemNameAnyFilter(wsStemQueryFilter.getStemName(), stem);
+      return new StemNameAnyFilter(wsStemQueryFilter.getStemName(), stem, 
+          wsStemQueryFilter.getSortString(), wsStemQueryFilter.retrieveAscending(), 
+          wsStemQueryFilter.retrievePageNumber(), wsStemQueryFilter.retrievePageSize());
     }
 
   },
@@ -196,7 +198,9 @@ public enum WsStemQueryFilterType {
           .convertToScope();
 
       //fail if the stem is not found, that is probably bad
-      return new StemsInStemFilter(wsStemQueryFilter.getParentStemName(), scope, false);
+      return new StemsInStemFilter(wsStemQueryFilter.getParentStemName(), scope, false, 
+          wsStemQueryFilter.getSortString(), wsStemQueryFilter.retrieveAscending(), 
+          wsStemQueryFilter.retrievePageNumber(), wsStemQueryFilter.retrievePageSize());
     }
 
   },

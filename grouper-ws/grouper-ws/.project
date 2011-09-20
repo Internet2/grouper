@@ -16,6 +16,11 @@
 	</natures>
 	<linkedResources>
 		<link>
+			<name>GROUPER_TRUNK_CLIENT</name>
+			<type>2</type>
+			<locationURI>GROUPER_TRUNK_CLIENT</locationURI>
+		</link>
+		<link>
 			<name>GROUPER_TRUNK_CONF</name>
 			<type>2</type>
 			<locationURI>GROUPER_TRUNK_CONF</locationURI>

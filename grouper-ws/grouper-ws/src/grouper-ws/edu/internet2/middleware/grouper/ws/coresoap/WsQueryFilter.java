@@ -26,6 +26,113 @@ import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
  */
 public class WsQueryFilter {
 
+  /** page size if paging */
+  private String pageSize;
+  
+  /** page number 1 indexed if paging */
+  private String pageNumber;
+  
+  /** must be an hql query field, e.g. can sort on name, displayName, extension, displayExtension */
+  private String sortString; 
+  
+  /** true or null for ascending, false for descending.  If you pass true or false, must pass a sort string */
+  private String ascending;
+  
+  /**
+   * page size if paging
+   * @return  page size if paging
+   */
+  public Integer retrievePageSize() {
+    return GrouperServiceUtils.integerValue(this.pageSize, "pageSize");
+  }
+  
+  /**
+   * true or null for ascending, false for descending.  If you pass true or false, must pass a sort string
+   * @return true or null for ascending, false for descending.  If you pass true or false, must pass a sort string
+   */
+  public Boolean retrieveAscending() {
+    return GrouperServiceUtils.booleanObjectValue(this.ascending, "ascending");
+  }
+  
+  /**
+   * page number 1 indexed if paging
+   * @return  page number 1 indexed if paging
+   */
+  public Integer retrievePageNumber() {
+    return GrouperServiceUtils.integerValue(this.pageNumber, "pageNumber");
+  }
+  
+  /**
+   * page size if paging
+   * @return the pageSize
+   */
+  public String getPageSize() {
+    return this.pageSize;
+  }
+
+  
+  /**
+   * page size if paging
+   * @param pageSize1 the pageSize to set
+   */
+  public void setPageSize(String pageSize1) {
+    this.pageSize = pageSize1;
+  }
+
+  
+  /**
+   * page number 1 indexed if paging
+   * @return the pageNumber
+   */
+  public String getPageNumber() {
+    return this.pageNumber;
+  }
+
+  
+  /**
+   * page number 1 indexed if paging
+   * @param pageNumber1 the pageNumber to set
+   */
+  public void setPageNumber(String pageNumber1) {
+    this.pageNumber = pageNumber1;
+  }
+
+  
+  /**
+   * must be an hql query field, e.g. can sort on name, displayName, extension, displayExtension
+   * @return the sortString
+   */
+  public String getSortString() {
+    return this.sortString;
+  }
+
+  
+  /**
+   * must be an hql query field, e.g. can sort on name, displayName, extension, displayExtension
+   * @param sortString1 the sortString to set
+   */
+  public void setSortString(String sortString1) {
+    this.sortString = sortString1;
+  }
+
+  
+  /**
+   * true or null for ascending, false for descending.  If you pass true or false, must pass a sort string
+   * @return the ascending
+   */
+  public String getAscending() {
+    return this.ascending;
+  }
+
+  
+  /**
+   * true or null for ascending, false for descending.  If you pass true or false, must pass a sort string
+   * @param ascending1 the ascending to set
+   */
+  public void setAscending(String ascending1) {
+    this.ascending = ascending1;
+  }
+
   /** grouper session */
   @XStreamOmitField
   private GrouperSession grouperSession = null;
@@ -149,6 +256,38 @@ public class WsQueryFilter {
    */
   public void validateNoGroupAttributeName() {
     this.validateBlank("groupAttributeName", this.groupAttributeName);
+  }
+
+  /**
+   * if there is no attribute name, there should be
+   * @param canHavePagingSorting if can have paging/sorting
+   */
+  public void validateShouldHavePagingSorting(boolean canHavePagingSorting) {
+
+    if (!canHavePagingSorting) {
+      this.validateBlank("ascending", this.ascending);
+      this.validateBlank("sortString", this.sortString);
+      this.validateBlank("pageNumber", this.pageNumber);
+      this.validateBlank("pageSize", this.pageSize);
+      return;
+    }
+    
+    //ok, can have paging/sorting, see if there is any there...
+    boolean hasPaging = !StringUtils.isBlank(this.pageNumber)
+      || !StringUtils.isBlank(this.pageSize);
+
+    if (hasPaging) {
+      this.validateNotBlank("pageNumber", this.pageNumber);
+      this.validateNotBlank("pageSize", this.pageSize);
+    }
+
+    boolean hasSorting = !StringUtils.isBlank(this.sortString)
+      || !StringUtils.isBlank(this.ascending);
+    
+    if (hasSorting) {
+      this.validateNotBlank("sortString", this.sortString);
+      //note: ascending defaults to true
+    }
   }
 
   /**

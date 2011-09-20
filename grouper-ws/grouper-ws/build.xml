@@ -207,6 +207,23 @@
 
     </java>
 
+	   <touch file="${generated.client.project.dir}/GrouperService_v2_1.wsdl" />
+	    <delete file="${generated.client.project.dir}/GrouperService_v2_1.wsdl" />
+	    <java classname="org.apache.ws.java2wsdl.Java2WSDL" fork="true">
+	      <classpath refid="ws.class.path" />
+	      <arg value="-o" />
+	      <arg value="${generated.client.project.dir}" />
+	      <arg value="-of" />
+	      <arg value="GrouperService_v2_1.wsdl" />
+	      <arg value="-cn" />
+	      <arg value="edu.internet2.middleware.grouper.ws.soap_v2_1.GrouperService" />
+	      <arg value="-stn" />
+	      <arg value="http://soap_v2_1.ws.grouper.middleware.internet2.edu/xsd" />
+	      <arg value="-l" />
+	      <arg value="http://localhost:8090/grouper-ws/services/GrouperService_v2_1" />
+
+	    </java>
+
 	
 	</target>
 	<target name="wsdl2java" description="convert the wsdl to a java client">
@@ -516,6 +533,9 @@
         <delete file="webapp/WEB-INF/services/GrouperServiceWssec_v2_0.aar.dontuse" />
         <move file="webapp/WEB-INF/services/GrouperServiceWssec_v2_0.aar" 
           tofile="webapp/WEB-INF/services/GrouperServiceWssec_v2_0.aar.dontuse"  />
+        <delete file="webapp/WEB-INF/services/GrouperServiceWssec_v2_1.aar.dontuse" />
+        <move file="webapp/WEB-INF/services/GrouperServiceWssec_v2_1.aar" 
+          tofile="webapp/WEB-INF/services/GrouperServiceWssec_v2_1.aar.dontuse"  />
       </then>
     </if>
 
@@ -527,6 +547,8 @@
           tofile="${webapp.folder}/WEB-INF/services/GrouperService.aar.ondeck"  />
         <move file="${webapp.folder}/WEB-INF/services/GrouperService_v2_0.aar" 
           tofile="${webapp.folder}/WEB-INF/services/GrouperService_v2_0.aar.isondeck"  />
+        <move file="${webapp.folder}/WEB-INF/services/GrouperService_v2_1.aar" 
+          tofile="${webapp.folder}/WEB-INF/services/GrouperService_v2_1.aar.isondeck"  />
       </then>
       <else>
         <if>
@@ -543,6 +565,14 @@
           <then>
             <move file="${webapp.folder}/WEB-INF/services/GrouperServiceWssec_v2_0.aar" 
               tofile="${webapp.folder}/WEB-INF/services/GrouperServiceWssec_v2_0.aar.isondeck"  />
+          </then>
+        </if>
+        <if>
+          <!-- might not be there if not there all the time for steady state -->
+          <available file="${webapp.folder}/WEB-INF/services/GrouperServiceWssec_v2_1.aar" />
+          <then>
+            <move file="${webapp.folder}/WEB-INF/services/GrouperServiceWssec_v2_1.aar" 
+              tofile="${webapp.folder}/WEB-INF/services/GrouperServiceWssec_v2_1.aar.isondeck"  />
           </then>
         </if>
       </else>

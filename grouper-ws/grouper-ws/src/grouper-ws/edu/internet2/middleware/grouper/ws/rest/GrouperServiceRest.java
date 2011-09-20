@@ -147,7 +147,9 @@ public class GrouperServiceRest {
             .getActAsSubjectIdentifier(), wsRestFindGroupsLiteRequest
             .getIncludeGroupDetail(), wsRestFindGroupsLiteRequest.getParamName0(),
         wsRestFindGroupsLiteRequest.getParamValue0(), wsRestFindGroupsLiteRequest
-            .getParamName1(), wsRestFindGroupsLiteRequest.getParamValue1());
+            .getParamName1(), wsRestFindGroupsLiteRequest.getParamValue1(),
+            wsRestFindGroupsLiteRequest.getPageSize(), wsRestFindGroupsLiteRequest.getPageNumber(),
+            wsRestFindGroupsLiteRequest.getSortString(), wsRestFindGroupsLiteRequest.getAscending());
 
     //return result
     return wsFindGroupsResults;

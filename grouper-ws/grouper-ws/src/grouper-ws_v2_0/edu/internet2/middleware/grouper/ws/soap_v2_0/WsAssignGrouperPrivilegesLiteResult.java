@@ -5,6 +5,13 @@ package edu.internet2.middleware.grouper.ws.soap_v2_0;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 
+import edu.internet2.middleware.grouper.ws.soap_v2_1.WsGroup;
+import edu.internet2.middleware.grouper.ws.soap_v2_1.WsParam;
+import edu.internet2.middleware.grouper.ws.soap_v2_1.WsResponseMeta;
+import edu.internet2.middleware.grouper.ws.soap_v2_1.WsResultMeta;
+import edu.internet2.middleware.grouper.ws.soap_v2_1.WsStem;
+import edu.internet2.middleware.grouper.ws.soap_v2_1.WsSubject;
+
 /**
  * Result of assigning or removing a privilege
  * 

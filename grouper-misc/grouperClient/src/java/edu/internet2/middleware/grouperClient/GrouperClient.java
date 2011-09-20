@@ -1717,7 +1717,29 @@ public class GrouperClient {
     String stemNameScope = GrouperClientUtils.argMapString(argMap, argMapNotUsed, 
         "stemNameScope" + suffix, false);
     result.setStemNameScope(stemNameScope);
+
+    Boolean ascending = GrouperClientUtils.argMapBoolean(argMap, argMapNotUsed, 
+       "ascending" + suffix);
+    if (ascending != null) {
+      result.setAscending(ascending ? "T" : "F");
+    }
+     
+    String sortString = GrouperClientUtils.argMapString(argMap, argMapNotUsed, 
+        "sortString" + suffix, false);
+    result.setSortString(sortString);
     
+    Integer pageNumber = GrouperClientUtils.argMapInteger(argMap, argMapNotUsed, 
+        "pageNumber" + suffix, false, null);
+    if (pageNumber != null) {
+      result.setPageNumber(pageNumber.toString());
+    }
+    
+    Integer pageSize = GrouperClientUtils.argMapInteger(argMap, argMapNotUsed, 
+        "pageSize" + suffix, false, null);
+    if (pageSize != null) {
+      result.setPageSize(pageSize.toString());
+    }
+     
     return result;
   }
 
@@ -1775,6 +1797,28 @@ public class GrouperClient {
           argMapNotUsed, suffix + "1", false);
       result.setStemQueryFilter1(stemQueryFilter1);
       
+      Boolean ascending = GrouperClientUtils.argMapBoolean(argMap, argMapNotUsed, 
+         "ascending" + suffix);
+      if (ascending != null) {
+        result.setAscending(ascending ? "T" : "F");
+      }
+      
+      String sortString = GrouperClientUtils.argMapString(argMap, argMapNotUsed, 
+          "sortString" + suffix, false);
+      result.setSortString(sortString);
+      
+      Integer pageNumber = GrouperClientUtils.argMapInteger(argMap, argMapNotUsed, 
+          "pageNumber" + suffix, false, null);
+      if (pageNumber != null) {
+        result.setPageNumber(pageNumber.toString());
+      }
+      
+      Integer pageSize = GrouperClientUtils.argMapInteger(argMap, argMapNotUsed, 
+          "pageSize" + suffix, false, null);
+      if (pageSize != null) {
+        result.setPageSize(pageSize.toString());
+      }
+
       return result;
     }
     

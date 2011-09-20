@@ -79,7 +79,7 @@ public class GrouperClientWsTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new GrouperClientWsTest("testGetPermissionAssigns"));
+    TestRunner.run(new GrouperClientWsTest("testFindStems"));
     //TestRunner.run(new GrouperClientWsTest("testGroupSaveLookupNameSame"));
     //TestRunner.run(new GrouperClientWsTest("testGroupSaveNoLookup"));
   }
@@ -5050,6 +5050,106 @@ public class GrouperClientWsTest extends GrouperTest {
       assertEquals(output, "aStem:aGroup1", matcher.group(2));
       assertEquals(output, "aStem:aGroup1", matcher.group(3));
 
+      // #####################################################
+      // run again, sort and page
+
+      Group group2 = Group.saveGroup(grouperSession, "aStem:aGroup2", null, "aStem:aGroup2", null, null, null, true);
+
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+
+      GrouperClient
+          .main(GrouperClientUtils
+              .splitTrim(
+                  "--operation=findGroupsWs --queryFilterType=FIND_BY_GROUP_NAME_APPROXIMATE --groupName=aStem:a% --stemName=aStem --ascending=T --sortString=name --pageNumber=1 --pageSize=2",
+                  " "));
+      System.out.flush();
+      output = new String(baos.toByteArray());
+
+      System.setOut(systemOut);
+
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+
+      assertEquals(output, 2, outputLines.length);
+      matcher = pattern.matcher(outputLines[0]);
+
+      assertTrue(outputLines[0], matcher.matches());
+
+      assertEquals(output, "0", matcher.group(1));
+      assertEquals(output, "aStem:aGroup", matcher.group(2));
+      assertEquals(output, "aStem:aGroup", matcher.group(3));
+      
+      matcher = pattern.matcher(outputLines[1]);
+
+      assertTrue(outputLines[1], matcher.matches());
+
+      assertEquals(output, "1", matcher.group(1));
+      assertEquals(output, "aStem:aGroup1", matcher.group(2));
+      assertEquals(output, "aStem:aGroup1", matcher.group(3));
+
+      // #####################################################
+      // run again, sort and page
+
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+
+      GrouperClient
+          .main(GrouperClientUtils
+              .splitTrim(
+                  "--operation=findGroupsWs --queryFilterType=FIND_BY_GROUP_NAME_APPROXIMATE --groupName=aStem:a% --stemName=aStem --ascending=T --sortString=name --pageNumber=1 --pageSize=2",
+                  " "));
+      System.out.flush();
+      output = new String(baos.toByteArray());
+
+      System.setOut(systemOut);
+
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+
+      assertEquals(output, 2, outputLines.length);
+      matcher = pattern.matcher(outputLines[0]);
+
+      assertTrue(outputLines[0], matcher.matches());
+
+      assertEquals(output, "0", matcher.group(1));
+      assertEquals(output, "aStem:aGroup", matcher.group(2));
+      assertEquals(output, "aStem:aGroup", matcher.group(3));
+      
+      matcher = pattern.matcher(outputLines[1]);
+
+      assertTrue(outputLines[1], matcher.matches());
+
+      assertEquals(output, "1", matcher.group(1));
+      assertEquals(output, "aStem:aGroup1", matcher.group(2));
+      assertEquals(output, "aStem:aGroup1", matcher.group(3));
+
+      
+      // #####################################################
+      // run again, sort and page
+
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+
+      GrouperClient
+          .main(GrouperClientUtils
+              .splitTrim(
+                  "--operation=findGroupsWs --queryFilterType=FIND_BY_STEM_NAME --stemName=aStem --ascending=T --sortString=name --pageNumber=2 --pageSize=2",
+                  " "));
+      System.out.flush();
+      output = new String(baos.toByteArray());
+
+      System.setOut(systemOut);
+
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+
+      assertEquals(output, 1, outputLines.length);
+      matcher = pattern.matcher(outputLines[0]);
+
+      assertTrue(outputLines[0], matcher.matches());
+
+      assertEquals(output, "0", matcher.group(1));
+      assertEquals(output, "aStem:aGroup2", matcher.group(2));
+      assertEquals(output, "aStem:aGroup2", matcher.group(3));
+      
     } finally {
       System.setOut(systemOut);
     }
@@ -5351,6 +5451,75 @@ public class GrouperClientWsTest extends GrouperTest {
       assertEquals(output, "1", matcher.group(1));
       assertEquals(output, "aStem:aStem0", matcher.group(2));
       assertEquals(output, "aStem:aStem0", matcher.group(3));
+
+      // #####################################################
+      // run again, sort and page
+      
+      new StemSave(grouperSession).assignName("aStem:aStem1").save();
+      new StemSave(grouperSession).assignName("aStem:aStem2").save();
+      
+
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+
+      GrouperClient
+          .main(GrouperClientUtils
+              .splitTrim(
+                  "--operation=findStemsWs --stemQueryFilterType=FIND_BY_STEM_NAME_APPROXIMATE --stemName=aStem:a% --parentStemName=aStem  --ascending=T --sortString=name --pageNumber=1 --pageSize=2",
+                  " "));
+      System.out.flush();
+      output = new String(baos.toByteArray());
+
+      System.setOut(systemOut);
+
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+
+      assertEquals(output, 2, outputLines.length);
+      matcher = pattern.matcher(outputLines[0]);
+
+      assertTrue(outputLines[0], matcher.matches());
+
+      assertEquals(output, "0", matcher.group(1));
+      assertEquals(output, "aStem:aStem0", matcher.group(2));
+      
+      matcher = pattern.matcher(outputLines[1]);
+
+      assertTrue(outputLines[1], matcher.matches());
+
+      assertEquals(output, "1", matcher.group(1));
+      assertEquals(output, "aStem:aStem1", matcher.group(2));
+
+      
+      // #####################################################
+      // run again, sort and page
+      
+      new StemSave(grouperSession).assignName("aStem:aStem1").save();
+      new StemSave(grouperSession).assignName("aStem:aStem2").save();
+      
+
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+
+      GrouperClient
+          .main(GrouperClientUtils
+              .splitTrim(
+                  "--operation=findStemsWs --stemQueryFilterType=FIND_BY_PARENT_STEM_NAME --parentStemName=aStem  --ascending=T --sortString=name --pageNumber=2 --pageSize=2",
+                  " "));
+      System.out.flush();
+      output = new String(baos.toByteArray());
+
+      System.setOut(systemOut);
+
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+
+      assertEquals(output, 1, outputLines.length);
+      matcher = pattern.matcher(outputLines[0]);
+
+      assertTrue(outputLines[0], matcher.matches());
+
+      assertEquals(output, "0", matcher.group(1));
+      assertEquals(output, "aStem:aStem2", matcher.group(2));
+      
 
       
     } finally {

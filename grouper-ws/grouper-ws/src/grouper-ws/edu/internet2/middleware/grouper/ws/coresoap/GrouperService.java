@@ -121,6 +121,12 @@ public class GrouperService {
    *            reserved for future use
    * @param paramValue1
    *            reserved for future use
+   * @param pageSize page size if paging
+   * @param pageNumber page number 1 indexed if paging
+   * @param sortString must be an hql query field, e.g. 
+   * can sort on name, displayName, extension, displayExtension
+   * @param ascending or null for ascending, false for descending.  
+   * If you pass true or false, must pass a sort string
    * @return the groups, or no groups if none found
    */
   public WsFindGroupsResults findGroupsLite(final String clientVersion,
@@ -128,7 +134,8 @@ public class GrouperService {
       String groupUuid, String groupAttributeName, String groupAttributeValue,
       String groupTypeName, String actAsSubjectId, String actAsSubjectSourceId,
       String actAsSubjectIdentifier, String includeGroupDetail, String paramName0,
-      String paramValue0, String paramName1, String paramValue1) {
+      String paramValue0, String paramName1, String paramValue1, String pageSize, 
+      String pageNumber, String sortString, String ascending) {
 
     WsFindGroupsResults wsFindGroupsResults = new WsFindGroupsResults();
 
@@ -148,7 +155,9 @@ public class GrouperService {
       wsFindGroupsResults = GrouperServiceLogic.findGroupsLite(grouperWsVersion, wsQueryFilterType, 
           groupName, stemName, stemScope, groupUuid, groupAttributeName, groupAttributeValue,
           groupType,actAsSubjectId, actAsSubjectSourceId, actAsSubjectIdentifier, 
-          includeGroupDetailBoolean, paramName0, paramValue0, paramName1, paramValue1);
+          includeGroupDetailBoolean, paramName0, paramValue0, paramName1, paramValue1,
+          pageSize, pageNumber, sortString, ascending);
+      
     } catch (Exception e) {
       wsFindGroupsResults.assignResultCodeException(null, null, e);
     }
