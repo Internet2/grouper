@@ -80,17 +80,12 @@
             <dependency>
                 <groupId>asm</groupId>
                 <artifactId>asm</artifactId>
-                <version>1.5.3</version>
-            </dependency>
-            <dependency>
-                <groupId>asm</groupId>
-                <artifactId>asm-attrs</artifactId>
-                <version>1.5.3</version>
+                <version>3.3.1</version>
             </dependency>
             <dependency>
                 <groupId>asm</groupId>
                 <artifactId>asm-util</artifactId>
-                <version>1.5.3</version>
+                <version>3.3.1</version>
             </dependency>
             <dependency>
                 <groupId>backport-util-concurrent</groupId>
@@ -101,11 +96,6 @@
                 <groupId>c3p0</groupId>
                 <artifactId>c3p0</artifactId>
                 <version>0.9.1.2</version>
-            </dependency>
-            <dependency>
-                <groupId>cglib</groupId>
-                <artifactId>cglib</artifactId>
-                <version>2.1_3</version>
             </dependency>
             <dependency>
                 <groupId>com.jamonapi</groupId>
@@ -135,7 +125,7 @@
             <dependency>
                 <groupId>commons-collections</groupId>
                 <artifactId>commons-collections</artifactId>
-                <version>3.2</version>
+                <version>3.2.1</version>
             </dependency>
             <dependency>
                 <groupId>commons-dbcp</groupId>
@@ -223,6 +213,11 @@
                 <groupId>edu.vt.middleware</groupId>
                 <artifactId>vt-ldap</artifactId>
                 <version>3.3.2</version>
+            </dependency>
+            <dependency>
+                <groupId>javassist</groupId>
+                <artifactId>javassist</artifactId>
+                <version>3.12.0.GA</version>
             </dependency>
             <dependency>
                 <groupId>jivesoftware</groupId>
@@ -313,7 +308,12 @@
             <dependency>
                 <groupId>org.hibernate</groupId>
                 <artifactId>hibernate</artifactId>
-                <version>3.2.6.ga</version>
+                <version>3.6.7.Final</version>
+            </dependency>
+            <dependency>
+                <groupId>org.hibernate.javax.persistence</groupId>
+                <artifactId>hibernate-jpa-2.0-api</artifactId>
+                <version>1.0.1.Final</version>
             </dependency>
             <dependency>
                 <groupId>org.jdom</groupId>
@@ -348,12 +348,12 @@
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>
-                <version>1.6.1</version>
+                <version>1.6.2</version>
             </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-log4j12</artifactId>
-                <version>1.6.1</version>
+                <version>1.6.2</version>
             </dependency>
             <dependency>
                 <groupId>xom</groupId>
@@ -424,7 +424,7 @@
             <dependency>
                 <groupId>mysql</groupId>
                 <artifactId>mysql-connector-java</artifactId>
-                <version>5.1.12</version>
+                <version>5.1.17</version>
                 <scope>runtime</scope>
             </dependency>
 
