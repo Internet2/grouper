@@ -10,6 +10,7 @@ asm-attrs: removed
 hibernate-jpa-2.0-api: new: 1.0.1.Final
 slf4j-log4j12: new: 1.6.2
 cglib: removed
+ehcache: from: 1.4.0, to 2.4.5 (ehcache-core)
 
 in jdbc samples:
 mysql-connector-java-bin: from: 5.1.5, to: 5.1.17
