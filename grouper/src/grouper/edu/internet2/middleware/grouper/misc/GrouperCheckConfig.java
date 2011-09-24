@@ -36,6 +36,7 @@ import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.StemSave;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.app.loader.ldap.LoaderLdapUtils;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.AttributeDefSave;
@@ -1891,6 +1892,58 @@ public class GrouperCheckConfig {
             "SQL query with at least the following columns: if_has_action_name, then_has_action_name", wasInCheckConfig);
                 
       }
+
+      {
+        String loaderLdapRootStemName = LoaderLdapUtils.attributeLoaderLdapStemName();
+        
+        Stem loaderLdapStem = StemFinder.findByName(grouperSession, loaderLdapRootStemName, false);
+        if (loaderLdapStem == null) {
+          loaderLdapStem = new StemSave(grouperSession).assignCreateParentStemsIfNotExist(true)
+            .assignDescription("folder for built in Grouper loader ldap attributes").assignName(loaderLdapRootStemName)
+            .save();
+        }
+
+        {
+          //see if attributeDef is there
+          String loaderLdapDefName = loaderLdapRootStemName + ":" + LoaderLdapUtils.LOADER_LDAP_DEF;
+          AttributeDef loaderLdapDef = GrouperDAOFactory.getFactory().getAttributeDef().findByNameSecure(
+              loaderLdapDefName, false, new QueryOptions().secondLevelCache(false));
+          if (loaderLdapDef == null) {
+            loaderLdapDef = loaderLdapStem.addChildAttributeDef(LoaderLdapUtils.LOADER_LDAP_DEF, AttributeDefType.attr);
+            loaderLdapDef.setAssignToGroup(true);
+            loaderLdapDef.setValueType(AttributeDefValueType.marker);
+            loaderLdapDef.store();
+          }
+          
+          //add an attribute for the loader ldap marker
+          {
+            checkAttribute(loaderLdapStem, loaderLdapDef, LoaderLdapUtils.ATTR_DEF_EXTENSION_MARKER, "Grouper loader LDAP", 
+                "Marks a group to be processed by the Grouper loader as an LDAP synced job", wasInCheckConfig);
+          }
+        }
+        {
+          //see if attributeDef is there
+          String loaderLdapValueDefName = loaderLdapRootStemName + ":" + LoaderLdapUtils.LOADER_LDAP_VALUE_DEF;
+          AttributeDef loaderLdapValueDef = GrouperDAOFactory.getFactory().getAttributeDef().findByNameSecure(
+              loaderLdapValueDefName, false, new QueryOptions().secondLevelCache(false));
+          if (loaderLdapValueDef == null) {
+            loaderLdapValueDef = loaderLdapStem.addChildAttributeDef(LoaderLdapUtils.LOADER_LDAP_VALUE_DEF, AttributeDefType.attr);
+            loaderLdapValueDef.setAssignToGroupAssn(true);
+            loaderLdapValueDef.setValueType(AttributeDefValueType.string);
+            loaderLdapValueDef.store();
+          }
+          
+          //add an attribute for the loader ldap marker
+          {
+            checkAttribute(loaderLdapStem, loaderLdapValueDef, LoaderLdapUtils.ATTR_DEF_EXTENSION_TYPE, "Grouper loader LDAP type", 
+                "The type of LDAP loader job, e.g. LDAP_SIMPLE", wasInCheckConfig);
+            checkAttribute(loaderLdapStem, loaderLdapValueDef, LoaderLdapUtils.ATTR_DEF_EXTENSION_SERVER_ID, "Grouper loader LDAP server ID", 
+                "Server ID that is configured in the grouper-loader.properties that identifies the connection information to the LDAP server", wasInCheckConfig);
+          }
+        }
+      }
+      
+
       
     } catch (SessionException se) {
       throw new RuntimeException(se);

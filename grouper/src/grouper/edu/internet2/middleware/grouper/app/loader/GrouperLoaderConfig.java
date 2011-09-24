@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Properties;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.app.loader.db.GrouperLoaderDb;
 import edu.internet2.middleware.grouper.cache.GrouperCache;
@@ -188,6 +189,11 @@ public class GrouperLoaderConfig {
   }
 
   /**
+   * logger 
+   */
+  private static final Log LOG = GrouperUtil.getLog(GrouperLoaderConfig.class);
+
+  /**
    * no need to construct
    */
   private GrouperLoaderConfig() {
@@ -216,6 +222,12 @@ public class GrouperLoaderConfig {
     String driver = null;
     boolean isGrouper = StringUtils.equals(name, GROUPER_DB_NAME);
     String user = null;
+
+    if (StringUtils.isNotBlank(getPropertyString("db." + name + ".user"))) {
+      LOG.error("Cant have a database named 'grouper' in " +
+          "the grouper-loader.properties.  This is a special name for the " +
+          "grouper.hibernate.properties database");
+    }
     
     if (isGrouper) {
       
@@ -233,11 +245,63 @@ public class GrouperLoaderConfig {
       //first look in grouper-loader.properties:
       user = getPropertyString("db." + name + ".user");
       if (!StringUtils.isBlank(user)) {
-        if (isGrouper) {
-          throw new RuntimeException("Cant have a database named 'grouper' in " +
-          		"the grouper-loader.properties.  This is a special name for the " +
-          		"grouper.hibernate.properties database");
-        }
+        pass = getPropertyString("db." + name + ".pass");
+        url = getPropertyString("db." + name + ".url");
+        driver = getPropertyString("db." + name + ".driver");
+      
+      } else {
+        throw new RuntimeException("Cant find the db connection named: '" + name + "' in " +
+        		"the grouper-loader.properties.  Should have entries: db." + name + ".user, db." + name 
+        		+ ".pass, db." + name + ".url, db." + name + ".driver");
+      }
+    }
+    //might be in external file
+    pass = Morph.decryptIfFile(pass);
+    GrouperLoaderDb grouperLoaderDb = new GrouperLoaderDb(user, pass, url, driver);
+    return grouperLoaderDb;
+  }
+
+  /**
+   * get a profile by name
+   * specify the ldap connection with user, pass, url, etc
+   * the string after "ldap." is the name of the connection, and it should not have
+   * spaces or other special chars in it
+   * ldap.personLdap.user
+   * ldap.personLdap.pass
+   * ldap.personLdap.url
+   * @param name
+   * @return the db
+   */
+  public static GrouperLoaderDb retrieveLdapProfile(String name) {
+    
+    String pass = null;
+    String url = null;
+    String driver = null;
+    boolean isGrouper = StringUtils.equals(name, GROUPER_DB_NAME);
+    String user = null;
+  
+    if (StringUtils.isNotBlank(getPropertyString("db." + name + ".user"))) {
+      LOG.error("Cant have a database named 'grouper' in " +
+          "the grouper-loader.properties.  This is a special name for the " +
+          "grouper.hibernate.properties database");
+    }
+    
+    if (isGrouper) {
+      
+      //the name "hibernate" is a special term, which could be in the grouper-loader.properties, 
+      //but defaults to grouper.hibernate.properties
+      Properties properties = GrouperUtil.propertiesFromResourceName(
+        "grouper.hibernate.properties");
+      
+      user = properties.getProperty("hibernate.connection.username");
+      pass = properties.getProperty("hibernate.connection.password");
+      url = properties.getProperty("hibernate.connection.url");
+      driver = properties.getProperty("hibernate.connection.driver_class");
+    } else {      
+      
+      //first look in grouper-loader.properties:
+      user = getPropertyString("db." + name + ".user");
+      if (!StringUtils.isBlank(user)) {
         pass = getPropertyString("db." + name + ".pass");
         url = getPropertyString("db." + name + ".url");
         driver = getPropertyString("db." + name + ".driver");
