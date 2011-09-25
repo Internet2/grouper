@@ -27,6 +27,7 @@ import edu.internet2.middleware.grouper.GroupTypeFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.app.loader.db.GrouperLoaderDb;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
+import edu.internet2.middleware.grouper.app.loader.ldap.LoaderLdapUtils;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.hooks.LoaderHooks;
@@ -279,6 +280,7 @@ public class GrouperLoaderJob implements Job, StatefulJob {
       List<Group> andGroups = new ArrayList<Group>();
   
       //find the groups whose membership we "and" with the dynamic group
+      //CH 20110925: why is this not retrieved from the jobGroup???
       String grouperLoaderAndGroupNames = hib3GrouploaderLog.getAndGroupNames();
       if (!StringUtils.isBlank(grouperLoaderAndGroupNames)) {
         
@@ -368,6 +370,100 @@ public class GrouperLoaderJob implements Job, StatefulJob {
   /**
    * run a job (either from quartz or outside)
    * @param hib3GrouploaderLog will get information, most importantly the job name
+   * @param jobGroup group that this ldap job is about
+   * @param grouperSession 
+   */
+  public static void runJobLdap(Hib3GrouperLoaderLog hib3GrouploaderLog, Group jobGroup, GrouperSession grouperSession) {
+    long startTime = System.currentTimeMillis();
+    boolean throwExceptionsInFinally = true;
+    String jobName = null;
+    try {
+      
+      jobName = hib3GrouploaderLog.getJobName();
+      
+      GrouperLoaderType grouperLoaderTypeEnum = GrouperLoaderType.typeForThisName(jobName);
+      
+      //log that we are starting a job
+      hib3GrouploaderLog.setHost(GrouperUtil.hostname());
+      hib3GrouploaderLog.setStartedTime(new Timestamp(System.currentTimeMillis()));
+      hib3GrouploaderLog.setStatus(GrouperLoaderStatus.STARTED.name());
+      
+      hib3GrouploaderLog.store();
+      
+      String grouperLoaderLdapType = null;
+      String grouperLoaderLdapServerId = null;
+      String grouperLoaderLdapFilter = null;
+      String grouperLoaderLdapSubjectAttribute = null;
+      String grouperLoaderLdapSearchDn = null;
+      String grouperLoaderLdapSourceId = null;
+      String grouperLoaderLdapSubjectIdType = null;
+      String grouperLoaderLdapSearchScope = null;
+      String grouperLoaderLdapAndGroups = null;
+      
+      grouperLoaderLdapType = GrouperLoaderType.attributeValueOrDefaultOrNull(jobGroup, LoaderLdapUtils.grouperLoaderLdapTypeName());
+      grouperLoaderLdapServerId = GrouperLoaderType.attributeValueOrDefaultOrNull(jobGroup, LoaderLdapUtils.grouperLoaderLdapServerIdName());
+      grouperLoaderLdapFilter = GrouperLoaderType.attributeValueOrDefaultOrNull(jobGroup, LoaderLdapUtils.grouperLoaderLdapFilterName());
+      grouperLoaderLdapSubjectAttribute = GrouperLoaderType.attributeValueOrDefaultOrNull(jobGroup, LoaderLdapUtils.grouperLoaderLdapSubjectAttributeName());
+      grouperLoaderLdapSearchDn = GrouperLoaderType.attributeValueOrDefaultOrNull(jobGroup, LoaderLdapUtils.grouperLoaderLdapSearchDnName());
+      grouperLoaderLdapSourceId = GrouperLoaderType.attributeValueOrDefaultOrNull(jobGroup, LoaderLdapUtils.grouperLoaderLdapSourceIdName());
+      grouperLoaderLdapSubjectIdType = GrouperLoaderType.attributeValueOrDefaultOrNull(jobGroup, LoaderLdapUtils.grouperLoaderLdapSubjectIdTypeName());
+      grouperLoaderLdapSearchScope = GrouperLoaderType.attributeValueOrDefaultOrNull(jobGroup, LoaderLdapUtils.grouperLoaderLdapSearchScopeName());
+      grouperLoaderLdapAndGroups = GrouperLoaderType.attributeValueOrDefaultOrNull(jobGroup, LoaderLdapUtils.grouperLoaderLdapAndGroupsName());
+      String groupName = jobGroup.getName();
+      hib3GrouploaderLog.setGroupUuid(jobGroup.getUuid());
+      
+      List<Group> andGroups = new ArrayList<Group>();
+      
+      //find the groups whose membership we "and" with the dynamic group
+      if (!StringUtils.isBlank(grouperLoaderLdapAndGroups)) {
+        
+        hib3GrouploaderLog.setAndGroupNames(grouperLoaderLdapAndGroups);
+        
+        //there are groups to and with, get the list
+        String[] groupNames = GrouperUtil.splitTrim(grouperLoaderLdapAndGroups, ",");
+        
+        for (String andGroupName : groupNames) {
+          Group group = GroupFinder.findByName(grouperSession, andGroupName, true);
+          andGroups.add(group);
+        }
+      }
+      
+      LoaderJobBean loaderJobBean = new LoaderJobBean(grouperLoaderLdapType, grouperLoaderLdapServerId, grouperLoaderLdapFilter, 
+          grouperLoaderLdapSubjectAttribute, grouperLoaderLdapSearchDn, grouperLoaderLdapSourceId, grouperLoaderLdapSubjectIdType, 
+          grouperLoaderLdapSearchScope, startTime, grouperLoaderTypeEnum, groupName, hib3GrouploaderLog, grouperSession, andGroups);
+      
+      //call hooks if registered
+      GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.LOADER, 
+          LoaderHooks.METHOD_LOADER_PRE_RUN, HooksLoaderBean.class, loaderJobBean, 
+          LoaderJobBean.class, VetoTypeGrouper.LOADER_PRE_RUN);
+
+      //based on type, run query from the db and sync members
+      grouperLoaderTypeEnum.runJob(loaderJobBean);
+
+      //call hooks if registered
+      GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.LOADER, 
+          LoaderHooks.METHOD_LOADER_POST_RUN, HooksLoaderBean.class, loaderJobBean, 
+          LoaderJobBean.class, VetoTypeGrouper.LOADER_POST_RUN);
+      
+    } catch (Exception t) {
+      LOG.error("Error on job: " + jobName, t);
+      
+      hib3GrouploaderLog.setStatus(GrouperLoaderStatus.ERROR.name());
+      hib3GrouploaderLog.appendJobMessage(ExceptionUtils.getFullStackTrace(t));
+      throwExceptionsInFinally = false;
+      if (t instanceof RuntimeException) {
+        throw (RuntimeException)t;
+      }
+      throw new RuntimeException(t.getMessage(), t);
+    } finally {
+      
+      storeLogInDb(hib3GrouploaderLog, throwExceptionsInFinally, startTime);
+    }
+  }
+
+  /**
+   * run a job (either from quartz or outside)
+   * @param hib3GrouploaderLog will get information, most importantly the job name
    * @param jobAttributeDef if a attributeDef job, this is the attributeDef object
    * @param grouperSession 
    */
@@ -398,6 +494,7 @@ public class GrouperLoaderJob implements Job, StatefulJob {
       String attributeLoaderAttrQuery = null;
       String attributeLoaderAttrSetQuery = null;
       
+      //why are we checking for null?
       if (jobAttributeDef != null) {
         attributeLoaderActionQuery = GrouperLoaderType.attributeValueOrDefaultOrNullAttrDef(jobAttributeDef, GrouperLoader.ATTRIBUTE_LOADER_ACTION_QUERY);
         attributeLoaderActionSetQuery = GrouperLoaderType.attributeValueOrDefaultOrNullAttrDef(jobAttributeDef, GrouperLoader.ATTRIBUTE_LOADER_ACTION_SET_QUERY);

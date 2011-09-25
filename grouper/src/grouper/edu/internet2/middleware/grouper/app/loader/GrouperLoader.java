@@ -27,7 +27,10 @@ import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GroupTypeFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
+import edu.internet2.middleware.grouper.app.loader.ldap.LoaderLdapUtils;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
+import edu.internet2.middleware.grouper.attr.AttributeDefName;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.audit.GrouperEngineBuiltin;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
@@ -36,6 +39,7 @@ import edu.internet2.middleware.grouper.client.ClientConfig;
 import edu.internet2.middleware.grouper.client.ClientConfig.ClientGroupConfigBean;
 import edu.internet2.middleware.grouper.hibernate.GrouperContext;
 import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
@@ -77,6 +81,8 @@ public class GrouperLoader {
     
     GrouperLoaderType.scheduleAttributeLoads();
     
+    GrouperLoaderType.scheduleLdapLoads();
+
     scheduleMaintenanceJobs();
     scheduleChangeLogJobs();
     //this will schedule ESB listener jobs if enabled
@@ -933,11 +939,26 @@ public class GrouperLoader {
     try {
       Hib3GrouperLoaderLog hib3GrouperLoaderLog = new Hib3GrouperLoaderLog();
       hib3GrouperLoaderLog.setJobScheduleType("MANUAL_FROM_GSH");
-      
-      String grouperLoaderTypeString = GrouperLoaderType.attributeValueOrDefaultOrNull(group, GROUPER_LOADER_TYPE);
   
-      if (!group.hasType(GroupTypeFinder.find("grouperLoader", true)) 
-          || StringUtils.isBlank(grouperLoaderTypeString)) {
+      boolean isSqlLoader = group.hasType(GroupTypeFinder.find("grouperLoader", false));
+      
+      String grouperLoaderTypeString = null;
+        
+      if (!isSqlLoader) {
+        AttributeDefName grouperLoaderLdapTypeAttributeDefName = GrouperDAOFactory.getFactory()
+          .getAttributeDefName().findByNameSecure(LoaderLdapUtils.grouperLoaderLdapName(), false);
+        AttributeAssign attributeAssign = grouperLoaderLdapTypeAttributeDefName == null ? null : 
+          group.getAttributeDelegate().retrieveAssignment(
+            "assign", grouperLoaderLdapTypeAttributeDefName, false, false);
+        if (attributeAssign != null) {
+          grouperLoaderTypeString = attributeAssign.getAttributeValueDelegate().retrieveValueString(LoaderLdapUtils.grouperLoaderLdapTypeName());
+        }
+      } else {
+        grouperLoaderTypeString = GrouperLoaderType.attributeValueOrDefaultOrNull(group, GROUPER_LOADER_TYPE);
+      }
+      
+      if (StringUtils.isBlank(grouperLoaderTypeString)) {
+        
         throw new RuntimeException("Cant find grouper loader type of group: " + group.getName());
       }
       

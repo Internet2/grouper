@@ -1939,6 +1939,37 @@ public class GrouperCheckConfig {
                 "The type of LDAP loader job, e.g. LDAP_SIMPLE", wasInCheckConfig);
             checkAttribute(loaderLdapStem, loaderLdapValueDef, LoaderLdapUtils.ATTR_DEF_EXTENSION_SERVER_ID, "Grouper loader LDAP server ID", 
                 "Server ID that is configured in the grouper-loader.properties that identifies the connection information to the LDAP server", wasInCheckConfig);
+            checkAttribute(loaderLdapStem, loaderLdapValueDef, LoaderLdapUtils.ATTR_DEF_EXTENSION_LDAP_FILTER, "Grouper loader LDAP filter", 
+                "LDAP filter returns objects that have subjectIds or subjectIdentifiers and group name (if LDAP_GROUP_LIST)", wasInCheckConfig);
+            checkAttribute(loaderLdapStem, loaderLdapValueDef, LoaderLdapUtils.ATTR_DEF_EXTENSION_QUARTZ_CRON, 
+                "Grouper loader LDAP quartz cron", 
+                "Quartz cron config string, e.g. every day at 8am is: 0 0 8 * * ?", wasInCheckConfig);
+            checkAttribute(loaderLdapStem, loaderLdapValueDef, LoaderLdapUtils.ATTR_DEF_EXTENSION_LDAP_SEARCH_DN, "Grouper loader LDAP search base DN", 
+                "Location that constrains the subtree where the filter is applicable", wasInCheckConfig);
+            checkAttribute(loaderLdapStem, loaderLdapValueDef, LoaderLdapUtils.ATTR_DEF_EXTENSION_SUBJECT_ATTRIBUTE, 
+                "Grouper loader LDAP subject attribute name", 
+                "Attribute name of the filter object result that holds the subject id.  Note, if you use 'dn', and " +
+                "dn is not an attribute of the object, then the fully qualified object name will be used", wasInCheckConfig);
+            checkAttribute(loaderLdapStem, loaderLdapValueDef, LoaderLdapUtils.ATTR_DEF_EXTENSION_SOURCE_ID, 
+                "Grouper loader LDAP source ID", 
+                "Source ID from the sources.xml that narrows the search for subjects.  This is optional though makes the loader job more efficient", wasInCheckConfig);
+            checkAttribute(loaderLdapStem, loaderLdapValueDef, LoaderLdapUtils.ATTR_DEF_EXTENSION_SUBJECT_ID_TYPE, 
+                "Grouper loader LDAP subject ID type", 
+                "The type of subject ID.  This can be either: subjectId (most efficient), subjectIdentifier (2nd most efficient), or subjectIdOrIdentifier", wasInCheckConfig);
+            checkAttribute(loaderLdapStem, loaderLdapValueDef, LoaderLdapUtils.ATTR_DEF_EXTENSION_LDAP_AND_GROUPS, 
+                "Grouper loader LDAP require in groups", 
+                "If you want to restrict membership in the dynamic group based on other group(s), put the list of group names " +
+                "here comma-separated.  The require groups means if you put a group names in there (e.g. school:community:employee) " +
+                "then it will 'and' that group with the member list from the loader.  So only members of the group from the loader " +
+                "query who are also employees will be in the resulting group", wasInCheckConfig);
+            checkAttribute(loaderLdapStem, loaderLdapValueDef, LoaderLdapUtils.ATTR_DEF_EXTENSION_SEARCH_SCOPE, 
+                "Grouper loader LDAP search scope", 
+                "How the deep in the subtree the search will take place.  Can be OBJECT_SCOPE, ONELEVEL_SCOPE, or SUBTREE_SCOPE (default)", wasInCheckConfig);
+            checkAttribute(loaderLdapStem, loaderLdapValueDef, LoaderLdapUtils.ATTR_DEF_EXTENSION_LDAP_PRIORITY, 
+                "Grouper loader LDAP scheduling priority", 
+                "Quartz has a fixed threadpool (max configured in the grouper-loader.properties), and when the max is reached, " +
+                "then jobs are prioritized by this integer.  The higher the better, and the default if not set is 5.", wasInCheckConfig);
+            
           }
         }
       }

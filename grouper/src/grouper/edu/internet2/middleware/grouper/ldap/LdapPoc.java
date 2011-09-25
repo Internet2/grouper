@@ -5,6 +5,7 @@
 package edu.internet2.middleware.grouper.ldap;
 
 import java.util.Iterator;
+import java.util.List;
 
 import javax.naming.directory.SearchResult;
 
@@ -13,6 +14,7 @@ import edu.vt.middleware.ldap.LdapConfig;
 import edu.vt.middleware.ldap.SearchFilter;
 import edu.vt.middleware.ldap.pool.BlockingLdapPool;
 import edu.vt.middleware.ldap.pool.DefaultLdapFactory;
+import edu.vt.middleware.ldap.pool.LdapPoolConfig;
 
 
 /**
@@ -25,10 +27,19 @@ public class LdapPoc {
    * @throws Exception 
    */
   public static void main(String[] args) throws Exception {
-    manyObjectsOneAttribute();
+    //manyObjectsOneAttribute();
+    
+    for (int i=0;i<100;i++) {
+      manyObjectsOneAttributeFramework();
+    }
+    
 
   }
 
+  /**
+   * 
+   * @throws Exception
+   */
   public static void manyObjectsOneAttribute() throws Exception {
     LdapConfig ldapConfig = new LdapConfig("ldaps://ldap.school.edu", "dc=school,dc=edu");
     
@@ -36,7 +47,9 @@ public class LdapPoc {
     ldapConfig.setBindCredential("xxxxxx");
 
     DefaultLdapFactory factory = new DefaultLdapFactory(ldapConfig);
-
+    
+    LdapPoolConfig ldapPoolConfig = null;
+    
     BlockingLdapPool pool = new BlockingLdapPool(factory);
     
     Ldap ldap = pool.checkOut();
@@ -48,6 +61,7 @@ public class LdapPoc {
     while (results.hasNext()) {
       
       SearchResult searchResult = results.next();
+      searchResult.getAttributes().get("whatever").size();
       System.out.println(searchResult.getAttributes().get("personid"));
     }
     
@@ -57,6 +71,35 @@ public class LdapPoc {
     
       //pool.getLdapPoolConfig().se
 
+  }
+  
+  /**
+   * 
+   */
+  public static void manyObjectsOneAttributeFramework() {
+    
+    List<String> results = LdapSession.list(String.class, "personLdap", "ou=pennnames", 
+        null, "(|(pennname=mchyzer)(pennname=choate))", "pennid");
+    
+    for (String result : results) {
+      System.out.println(result);
+    }
+    
+    results = LdapSession.list(String.class, "personLdap", "ou=groups", 
+        null, "(|(cn=test:testGroup)(cn=test:ldaptesting:test1))", "hasMember");
+    
+    for (String result : results) {
+      System.out.println(result);
+    }
+    
+    results = LdapSession.list(String.class, "personLdap", "ou=groups", 
+        null, "(|(cn=test:testGroup)(cn=test:ldaptesting:test1))", "dn");
+
+    for (String result : results) {
+      System.out.println(result);
+    }
+
+    
   }
   
 }

@@ -17,70 +17,285 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
 /**
- * bean to hold objects for group low level hooks
+ * bean to hold objects for loader job
  */
 @GrouperIgnoreDbVersion
 public class LoaderJobBean {
   
   //*****  START GENERATED WITH GenerateFieldConstants.java *****//
 
-  /** constant for field name for: andGroups */
-  public static final String FIELD_AND_GROUPS = "andGroups";
+    /** constant for field name for: andGroups */
+    public static final String FIELD_AND_GROUPS = "andGroups";
 
-  /** constant for field name for: attributeDefName */
-  public static final String FIELD_ATTRIBUTE_DEF_NAME = "attributeDefName";
+    /** constant for field name for: attributeDefName */
+    public static final String FIELD_ATTRIBUTE_DEF_NAME = "attributeDefName";
 
-  /** constant for field name for: attributeLoaderAttrQuery */
-  public static final String FIELD_ATTRIBUTE_LOADER_ATTR_QUERY = "attributeLoaderAttrQuery";
+    /** constant for field name for: attributeLoaderActionQuery */
+    public static final String FIELD_ATTRIBUTE_LOADER_ACTION_QUERY = "attributeLoaderActionQuery";
 
-  /** constant for field name for: attributeLoaderAttrSetQuery */
-  public static final String FIELD_ATTRIBUTE_LOADER_ATTR_SET_QUERY = "attributeLoaderAttrSetQuery";
+    /** constant for field name for: attributeLoaderActionSetQuery */
+    public static final String FIELD_ATTRIBUTE_LOADER_ACTION_SET_QUERY = "attributeLoaderActionSetQuery";
 
-  /** constant for field name for: attributeLoaderAttrsLike */
-  public static final String FIELD_ATTRIBUTE_LOADER_ATTRS_LIKE = "attributeLoaderAttrsLike";
+    /** constant for field name for: attributeLoaderAttrQuery */
+    public static final String FIELD_ATTRIBUTE_LOADER_ATTR_QUERY = "attributeLoaderAttrQuery";
 
-  /** constant for field name for: groupLikeString */
-  public static final String FIELD_GROUP_LIKE_STRING = "groupLikeString";
+    /** constant for field name for: attributeLoaderAttrSetQuery */
+    public static final String FIELD_ATTRIBUTE_LOADER_ATTR_SET_QUERY = "attributeLoaderAttrSetQuery";
 
-  /** constant for field name for: groupNameOverall */
-  public static final String FIELD_GROUP_NAME_OVERALL = "groupNameOverall";
+    /** constant for field name for: attributeLoaderAttrsLike */
+    public static final String FIELD_ATTRIBUTE_LOADER_ATTRS_LIKE = "attributeLoaderAttrsLike";
 
-  /** constant for field name for: groupQuery */
-  public static final String FIELD_GROUP_QUERY = "groupQuery";
+    /** constant for field name for: groupLikeString */
+    public static final String FIELD_GROUP_LIKE_STRING = "groupLikeString";
 
-  /** constant for field name for: groupTypes */
-  public static final String FIELD_GROUP_TYPES = "groupTypes";
+    /** constant for field name for: groupNameOverall */
+    public static final String FIELD_GROUP_NAME_OVERALL = "groupNameOverall";
 
-  /** constant for field name for: grouperLoaderDb */
-  public static final String FIELD_GROUPER_LOADER_DB = "grouperLoaderDb";
+    /** constant for field name for: groupQuery */
+    public static final String FIELD_GROUP_QUERY = "groupQuery";
 
-  /** constant for field name for: grouperLoaderType */
-  public static final String FIELD_GROUPER_LOADER_TYPE = "grouperLoaderType";
+    /** constant for field name for: groupTypes */
+    public static final String FIELD_GROUP_TYPES = "groupTypes";
 
-  /** constant for field name for: grouperSession */
-  public static final String FIELD_GROUPER_SESSION = "grouperSession";
+    /** constant for field name for: grouperLoaderDb */
+    public static final String FIELD_GROUPER_LOADER_DB = "grouperLoaderDb";
 
-  /** constant for field name for: hib3GrouploaderLogOverall */
-  public static final String FIELD_HIB3_GROUPLOADER_LOG_OVERALL = "hib3GrouploaderLogOverall";
+    /** constant for field name for: grouperLoaderType */
+    public static final String FIELD_GROUPER_LOADER_TYPE = "grouperLoaderType";
 
-  /** constant for field name for: query */
-  public static final String FIELD_QUERY = "query";
+    /** constant for field name for: grouperSession */
+    public static final String FIELD_GROUPER_SESSION = "grouperSession";
 
-  /** constant for field name for: startTime */
-  public static final String FIELD_START_TIME = "startTime";
+    /** constant for field name for: hib3GrouploaderLogOverall */
+    public static final String FIELD_HIB3_GROUPLOADER_LOG_OVERALL = "hib3GrouploaderLogOverall";
+
+    /** constant for field name for: ldapFilter */
+    public static final String FIELD_LDAP_FILTER = "ldapFilter";
+
+    /** constant for field name for: ldapQuartzCron */
+    public static final String FIELD_LDAP_QUARTZ_CRON = "ldapQuartzCron";
+
+    /** constant for field name for: ldapSearchDn */
+    public static final String FIELD_LDAP_SEARCH_DN = "ldapSearchDn";
+
+    /** constant for field name for: ldapSearchScope */
+    public static final String FIELD_LDAP_SEARCH_SCOPE = "ldapSearchScope";
+
+    /** constant for field name for: ldapServerId */
+    public static final String FIELD_LDAP_SERVER_ID = "ldapServerId";
+
+    /** constant for field name for: ldapSourceId */
+    public static final String FIELD_LDAP_SOURCE_ID = "ldapSourceId";
+
+    /** constant for field name for: ldapSubjectAttribute */
+    public static final String FIELD_LDAP_SUBJECT_ATTRIBUTE = "ldapSubjectAttribute";
+
+    /** constant for field name for: ldapSubjectIdType */
+    public static final String FIELD_LDAP_SUBJECT_ID_TYPE = "ldapSubjectIdType";
+
+    /** constant for field name for: ldapType */
+    public static final String FIELD_LDAP_TYPE = "ldapType";
+
+    /** constant for field name for: query */
+    public static final String FIELD_QUERY = "query";
+
+    /** constant for field name for: startTime */
+    public static final String FIELD_START_TIME = "startTime";
+
+    /**
+     * fields which are included in clone method
+     */
+    private static final Set<String> CLONE_FIELDS = GrouperUtil.toSet(
+        FIELD_AND_GROUPS, FIELD_ATTRIBUTE_DEF_NAME, FIELD_ATTRIBUTE_LOADER_ACTION_QUERY, FIELD_ATTRIBUTE_LOADER_ACTION_SET_QUERY, 
+        FIELD_ATTRIBUTE_LOADER_ATTR_QUERY, FIELD_ATTRIBUTE_LOADER_ATTR_SET_QUERY, FIELD_ATTRIBUTE_LOADER_ATTRS_LIKE, FIELD_GROUP_LIKE_STRING, 
+        FIELD_GROUP_NAME_OVERALL, FIELD_GROUP_QUERY, FIELD_GROUP_TYPES, FIELD_GROUPER_LOADER_DB, 
+        FIELD_GROUPER_LOADER_TYPE, FIELD_GROUPER_SESSION, FIELD_HIB3_GROUPLOADER_LOG_OVERALL, FIELD_LDAP_FILTER, 
+        FIELD_LDAP_QUARTZ_CRON, FIELD_LDAP_SEARCH_DN, FIELD_LDAP_SEARCH_SCOPE, FIELD_LDAP_SERVER_ID, 
+        FIELD_LDAP_SOURCE_ID, FIELD_LDAP_SUBJECT_ATTRIBUTE, FIELD_LDAP_SUBJECT_ID_TYPE, FIELD_LDAP_TYPE, 
+        FIELD_QUERY, FIELD_START_TIME);
+
+    //*****  END GENERATED WITH GenerateFieldConstants.java *****//
 
   /**
-   * fields which are included in clone method
+   * Like the SQL loader, this holds the type of job from the GrouperLoaderType enum, currently the only valid values are LDAP_SIMPLE, LDAP_GROUP_LIST 
    */
-  private static final Set<String> CLONE_FIELDS = GrouperUtil.toSet(
-      FIELD_AND_GROUPS, FIELD_ATTRIBUTE_DEF_NAME, FIELD_ATTRIBUTE_LOADER_ATTR_QUERY, FIELD_ATTRIBUTE_LOADER_ATTR_SET_QUERY, 
-      FIELD_ATTRIBUTE_LOADER_ATTRS_LIKE, FIELD_GROUP_LIKE_STRING, FIELD_GROUP_NAME_OVERALL, FIELD_GROUP_QUERY, 
-      FIELD_GROUP_TYPES, FIELD_GROUPER_LOADER_DB, FIELD_GROUPER_LOADER_TYPE, FIELD_GROUPER_SESSION, 
-      FIELD_HIB3_GROUPLOADER_LOG_OVERALL, FIELD_QUERY, FIELD_START_TIME);
+  private String ldapType;
+  
+  /**
+   * Like the SQL loader, this holds the type of job from the GrouperLoaderType enum, currently the only valid values are LDAP_SIMPLE, LDAP_GROUP_LIST 
+   * @return type
+   */
+  public String getLdapType() {
+    return this.ldapType;
+  }
 
-  //*****  END GENERATED WITH GenerateFieldConstants.java *****//
+  /**
+   * Like the SQL loader, this holds the type of job from the GrouperLoaderType enum, currently the only valid values are LDAP_SIMPLE, LDAP_GROUP_LIST 
+   * @param ldapType1
+   */
+  public void setLdapType(String ldapType1) {
+    this.ldapType = ldapType1;
+  }
+
+  /** Server ID that is configured in the grouper-loader.properties that identifies the connection information to the LDAP server */
+  private String ldapServerId;
+  
+  /**
+   * Server ID that is configured in the grouper-loader.properties that identifies the connection information to the LDAP server 
+   * @return server id
+   */
+  public String getLdapServerId() {
+    return this.ldapServerId;
+  }
+
+  /**
+   * Server ID that is configured in the grouper-loader.properties that identifies the connection information to the LDAP server 
+   * @param ldapServerId1
+   */
+  public void setLdapServerId(String ldapServerId1) {
+    this.ldapServerId = ldapServerId1;
+  }
+
+  /** LDAP filter returns objects that have subjectIds or subjectIdentifiers and group name (if LDAP_GROUP_LIST)  */
+  private String ldapFilter;
+  
+  /**
+   * LDAP filter returns objects that have subjectIds or subjectIdentifiers and group name (if LDAP_GROUP_LIST) 
+   * @return filter
+   */
+  public String getLdapFilter() {
+    return this.ldapFilter;
+  }
+
+  /**
+   * LDAP filter returns objects that have subjectIds or subjectIdentifiers and group name (if LDAP_GROUP_LIST) 
+   * @param ldapFilter1
+   */
+  public void setLdapFilter(String ldapFilter1) {
+    this.ldapFilter = ldapFilter1;
+  }
+
+  /** Attribute name of the filter object result that holds the subject id.  */
+  private String ldapSubjectAttribute;
+  
+  /**
+   * Attribute name of the filter object result that holds the subject id. 
+   * @return attribute name
+   */
+  public String getLdapSubjectAttribute() {
+    return this.ldapSubjectAttribute;
+  }
+
+  /**
+   * Attribute name of the filter object result that holds the subject id. 
+   * @param ldapSubjectAttribute1
+   */
+  public void setLdapSubjectAttribute(String ldapSubjectAttribute1) {
+    this.ldapSubjectAttribute = ldapSubjectAttribute1;
+  }
+
+  /** Location that constrains the subtree where the filter is applicable.  Note, this is relative 
+   * to the base DN in the ldap server config in the grouper-loader.properties for this server.  
+   * This makes the query more efficient  */
+  private String ldapSearchDn;
+  
+  /**
+   * Location that constrains the subtree where the filter is applicable.  
+   * Note, this is relative to the base DN in the ldap server config in the 
+   * grouper-loader.properties for this server.  This makes the query more efficient 
+   * @return search dn
+   */
+  public String getLdapSearchDn() {
+    return this.ldapSearchDn;
+  }
+
+  /**
+   * Location that constrains the subtree where the filter is applicable.  
+   * Note, this is relative to the base DN in the ldap server config in the 
+   * grouper-loader.properties for this server.  This makes the query more efficient 
+   * @param ldapSearchDn1
+   */
+  public void setLdapSearchDn(String ldapSearchDn1) {
+    this.ldapSearchDn = ldapSearchDn1;
+  }
+
+  /** Quartz cron config string, e.g. every day at 8am is: 0 0 8 * * ?  */
+  private String ldapQuartzCron;
+  
+  /**
+   * Quartz cron config string, e.g. every day at 8am is: 0 0 8 * * ? 
+   * @return quartz cron
+   */
+  public String getLdapQuartzCron() {
+    return this.ldapQuartzCron;
+  }
+
+  /**
+   * Quartz cron config string, e.g. every day at 8am is: 0 0 8 * * ? 
+   * @param ldapQuartzCron1
+   */
+  public void setLdapQuartzCron(String ldapQuartzCron1) {
+    this.ldapQuartzCron = ldapQuartzCron1;
+  }
+
+  /** Source ID from the sources.xml that narrows the search for subjects.  This is optional though makes the loader job more efficient */
+  private String ldapSourceId;
+  
+  /**
+   * Source ID from the sources.xml that narrows the search for subjects.  This is optional though makes the loader job more efficient
+   * @return source id
+   */
+  public String getLdapSourceId() {
+    return this.ldapSourceId;
+  }
+
+  /**
+   * Source ID from the sources.xml that narrows the search for subjects.  This is optional though makes the loader job more efficient
+   * @param ldapSourceId1
+   */
+  public void setLdapSourceId(String ldapSourceId1) {
+    this.ldapSourceId = ldapSourceId1;
+  }
+
+  /**The type of subject ID.  This can be either: subjectId (most efficient, default), subjectIdentifier (2nd most efficient), or subjectIdOrIdentifier   */
+  private String ldapSubjectIdType;
+  
+  /**
+   * The type of subject ID.  This can be either: subjectId (most efficient, default), subjectIdentifier (2nd most efficient), or subjectIdOrIdentifier 
+   * @return subject id type
+   */
+  public String getLdapSubjectIdType() {
+    return this.ldapSubjectIdType;
+  }
+
+  /**
+   * The type of subject ID.  This can be either: subjectId (most efficient, default), subjectIdentifier (2nd most efficient), or subjectIdOrIdentifier 
+   * @param ldapSubjectIdType1
+   */
+  public void setLdapSubjectIdType(String ldapSubjectIdType1) {
+    this.ldapSubjectIdType = ldapSubjectIdType1;
+  }
+
+  /** How the deep in the subtree the search will take place.  Can be OBJECT_SCOPE, ONELEVEL_SCOPE, or SUBTREE_SCOPE (default)  */
+  private String ldapSearchScope;
 
   
+  /**
+   * How the deep in the subtree the search will take place.  Can be OBJECT_SCOPE, ONELEVEL_SCOPE, or SUBTREE_SCOPE (default) 
+   * @return search scope
+   */
+  public String getLdapSearchScope() {
+    return this.ldapSearchScope;
+  }
+
+  /**
+   * How the deep in the subtree the search will take place.  Can be OBJECT_SCOPE, ONELEVEL_SCOPE, or SUBTREE_SCOPE (default) 
+   * @param ldapSearchScope1
+   */
+  public void setLdapSearchScope(String ldapSearchScope1) {
+    this.ldapSearchScope = ldapSearchScope1;
+  }
+
   /**
    * start time of job
    */
@@ -387,6 +602,45 @@ public class LoaderJobBean {
     this.groupLikeString = groupLikeString1;
     this.groupQuery = groupQuery1;
     this.startTime = startTime1;
+  }
+
+  /**
+   * constructor for ldap jobs
+   * @param ldapType1
+   * @param ldapServerId1
+   * @param ldapFilter1
+   * @param ldapSubjectAttribute1
+   * @param ldapSearchDn1
+   * @param ldapSourceId1
+   * @param ldapSubjectIdType1
+   * @param ldapSearchScope1
+   * @param startTime1
+   * @param grouperLoaderType1
+   * @param groupNameOverall1
+   * @param hib3GrouploaderLogOverall1
+   * @param grouperSession1
+   * @param andGroups1
+   */
+  public LoaderJobBean(String ldapType1, String ldapServerId1, String ldapFilter1,
+      String ldapSubjectAttribute1, String ldapSearchDn1, String ldapSourceId1,
+      String ldapSubjectIdType1, String ldapSearchScope1, long startTime1,
+      GrouperLoaderType grouperLoaderType1, String groupNameOverall1,
+      Hib3GrouperLoaderLog hib3GrouploaderLogOverall1, GrouperSession grouperSession1, List<Group> andGroups1) {
+    super();
+    this.ldapType = ldapType1;
+    this.ldapServerId = ldapServerId1;
+    this.ldapFilter = ldapFilter1;
+    this.ldapSubjectAttribute = ldapSubjectAttribute1;
+    this.ldapSearchDn = ldapSearchDn1;
+    this.ldapSourceId = ldapSourceId1;
+    this.ldapSubjectIdType = ldapSubjectIdType1;
+    this.ldapSearchScope = ldapSearchScope1;
+    this.startTime = startTime1;
+    this.grouperLoaderType = grouperLoaderType1;
+    this.groupNameOverall = groupNameOverall1;
+    this.hib3GrouploaderLogOverall = hib3GrouploaderLogOverall1;
+    this.grouperSession = grouperSession1;
+    this.andGroups = andGroups1;
   }
 
   /**

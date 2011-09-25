@@ -43,6 +43,7 @@ import edu.internet2.middleware.grouper.app.loader.db.GrouperLoaderDb;
 import edu.internet2.middleware.grouper.app.loader.db.GrouperLoaderResultset;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.app.loader.db.GrouperLoaderResultset.Row;
+import edu.internet2.middleware.grouper.app.loader.ldap.LoaderLdapUtils;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.AttributeDefNameSave;
@@ -902,7 +903,64 @@ public enum GrouperLoaderType {
             loaderJobBean.getAttributeLoaderActionSetQuery());
         
       }
-        };
+    }, 
+    
+    /** 
+     * simple ldap query where all results are all members of group.
+     * must have a subject id attribute
+     */
+    LDAP_SIMPLE {
+      
+      /**
+       * 
+       * @see edu.internet2.middleware.grouper.app.loader.GrouperLoaderType#attributeRequired(java.lang.String)
+       */
+      @Override
+      public boolean attributeRequired(String attributeName) {
+        return StringUtils.equals(LoaderLdapUtils.ATTR_DEF_EXTENSION_SERVER_ID, attributeName)
+            || StringUtils.equals(LoaderLdapUtils.ATTR_DEF_EXTENSION_LDAP_FILTER, attributeName)
+            || StringUtils.equals(LoaderLdapUtils.ATTR_DEF_EXTENSION_QUARTZ_CRON, attributeName)
+            || StringUtils.equals(LoaderLdapUtils.ATTR_DEF_EXTENSION_SUBJECT_ATTRIBUTE, attributeName)
+            || StringUtils.equals(LoaderLdapUtils.ATTR_DEF_EXTENSION_TYPE, attributeName);
+      }
+    
+      /**
+       * 
+       * @see edu.internet2.middleware.grouper.app.loader.GrouperLoaderType#attributeOptional(java.lang.String)
+       */
+      @Override
+      public boolean attributeOptional(String attributeName) {
+        return StringUtils.equals(LoaderLdapUtils.ATTR_DEF_EXTENSION_LDAP_SEARCH_DN, attributeName)
+            || StringUtils.equals(LoaderLdapUtils.ATTR_DEF_EXTENSION_SEARCH_SCOPE, attributeName)
+            || StringUtils.equals(LoaderLdapUtils.ATTR_DEF_EXTENSION_SOURCE_ID, attributeName)
+            || StringUtils.equals(LoaderLdapUtils.ATTR_DEF_EXTENSION_LDAP_AND_GROUPS, attributeName)
+            || StringUtils.equals(LoaderLdapUtils.ATTR_DEF_EXTENSION_SUBJECT_ID_TYPE, attributeName);
+      }
+      
+      /**
+       * sync up an attributeDefinition membership based on query and db
+       */
+      @SuppressWarnings("unchecked")
+      @Override
+      public void runJob(LoaderJobBean loaderJobBean) {
+    
+        GrouperContext.createNewDefaultContext(GrouperEngineBuiltin.LOADER, false, true);
+    
+        //      GrouperLoaderDb grouperLoaderDb, attributeDefName
+        //      Hib3GrouperLoaderLog hib3GrouploaderLog, long startTime, GrouperSession grouperSession, 
+        //      attributeLoaderAttrQuery, attributeLoaderAttrSetQuery, attributeLoaderAttrsLike
+        //   attributeLoaderActionQuery, attributeLoaderActionSetQuery
+        
+        final GrouperLoaderResultset grouperLoaderResultset = new GrouperLoaderResultset(loaderJobBean.getLdapServerId(), 
+            loaderJobBean.getLdapFilter(), loaderJobBean.getLdapSearchDn(), loaderJobBean.getLdapSubjectAttribute(), 
+            loaderJobBean.getLdapSourceId(), loaderJobBean.getLdapSubjectIdType(), loaderJobBean.getLdapSearchScope());
+        
+        syncOneGroupMembership(loaderJobBean.getGroupNameOverall(), null, null, 
+            loaderJobBean.getHib3GrouploaderLogOverall(), loaderJobBean.getStartTime(), 
+            grouperLoaderResultset, false, loaderJobBean.getGrouperSession(), loaderJobBean.getAndGroups(), null, null, null);
+        
+      }
+    };
   
   /**
    * if this job name is for this type
@@ -1218,6 +1276,48 @@ public enum GrouperLoaderType {
     return false;
   }
   
+  /**
+   * make sure if an attribute is required that it exists (non blank).  throw exception if problem
+   * @param attributeAssign attribute assignment to get the attribute from (attribute assigned to assignment)
+   * @param underlyingObjectName for errors, to clarify
+   * @param attributeName attribute def name
+   * @return the attribute value
+   */
+  String attributeValueValidateRequiredAttributeAssign(AttributeAssign attributeAssign, String underlyingObjectName, String attributeName) {
+    
+    String attributeValue = attributeAssign.getAttributeValueDelegate().retrieveValueString(attributeName);
+    
+    boolean hasValue = StringUtils.isNotBlank(attributeValue);
+    boolean isRequired = this.attributeRequired(attributeName);
+    boolean isOptional = this.attributeOptional(attributeName);
+    
+    //must have value if required
+    if (!hasValue && isRequired) {
+      throw new RuntimeException("Attribute '" + attributeName + "' is required, but is not set for loader type: " 
+          + this.name() + ", object name: " + underlyingObjectName);
+    }
+    
+    // must not have value if not required or optional
+    if (hasValue && !isRequired && !isOptional) {
+      LOG.error("Attribute '" + attributeName + "' is not required or optional, " +
+          "but is set to '" + attributeValue + "' for loader type: " 
+          + this.name() + ", object name: " + underlyingObjectName);
+    }
+    return attributeValue;
+  }
+
+  /**
+   * make sure if an attribute is required that it exists (non blank).  throw exception if problem
+   * @param attributeAssign attribute assignment to get the attribute from (attribute assigned to assignment)
+   * @param underlyingObjectName for errors, to clarify
+   * @param attributeName attribute def name
+   * @return the attribute value
+   */
+  Integer attributeValueValidateRequiredAttributeAssignInteger(AttributeAssign attributeAssign, String underlyingObjectName, String attributeName) {
+    String attributeValueString = StringUtils.trim(attributeValueValidateRequiredAttributeAssign(attributeAssign, underlyingObjectName, attributeName));
+    return GrouperUtil.intObjectValue(attributeValueString, true);
+  }
+
   /**
    * for all jobs in this loader type, schedule them with quartz
    */
@@ -2597,6 +2697,117 @@ public enum GrouperLoaderType {
             hib3GrouploaderLog.setJobSchedulePriority(grouperLoaderPriority);
             hib3GrouploaderLog.setJobScheduleQuartzCron(grouperLoaderQuartzCron);
             hib3GrouploaderLog.setJobScheduleType(grouperLoaderScheduleType);
+            hib3GrouploaderLog.setJobType(grouperLoaderType);
+            hib3GrouploaderLog.setStatus(GrouperLoaderStatus.CONFIG_ERROR.name());
+            hib3GrouploaderLog.store();
+            
+          } catch (Exception e2) {
+            LOG.error("Problem logging to loader db log", e2);
+          }
+        }
+        
+        
+      }
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+
+  /**
+   * for all ldap jobs in this loader type, schedule them with quartz
+   */
+  public static void scheduleLdapLoads() {
+    
+    GrouperSession grouperSession = null;
+    try {
+      grouperSession = GrouperSession.start(
+          SubjectFinder.findById("GrouperSystem", true)
+        );
+
+      //lets see if there is configuration
+      String attrRootStem = GrouperConfig.getProperty("grouper.attribute.rootStem");
+      if (StringUtils.isBlank(attrRootStem)) {
+        return;
+      }
+      
+      AttributeDefName attributeDefName = AttributeDefNameFinder.findByName(LoaderLdapUtils.grouperLoaderLdapName(), false);
+      
+      //see if attributeDef
+      if (attributeDefName == null) {
+        return;
+      }
+      
+      //lets get the attribute assignments of load type
+      Set<AttributeAssign> attributeAssigns = GrouperDAOFactory.getFactory().getAttributeAssign()
+        .findGroupAttributeAssignments(null, null, GrouperUtil.toSet(attributeDefName.getId()), null, null, true, false);
+
+      for (AttributeAssign attributeAssign : attributeAssigns) {
+        
+        String jobName = null;
+        String groupId = null;
+        String grouperLoaderAndGroups = null;
+        String grouperLoaderQuartzCron = null;
+        Integer grouperLoaderPriority = null;
+        String grouperLoaderType = null;
+        String groupName = null;
+
+        try {
+          
+          Group group = attributeAssign.getOwnerGroup();
+          groupId = group.getId();
+          
+          //lets get all attribute values
+          grouperLoaderType = attributeAssign.getAttributeValueDelegate().retrieveValueString(LoaderLdapUtils.grouperLoaderLdapTypeName());
+          
+          GrouperLoaderType grouperLoaderTypeEnum = GrouperLoaderType.valueOfIgnoreCase(grouperLoaderType, true);
+  
+          groupName = group.getName();
+          jobName = grouperLoaderTypeEnum.name() + "__" + groupName + "__" + group.getUuid();
+          
+          //get the real attributes
+          grouperLoaderTypeEnum.attributeValueValidateRequiredAttributeAssign(attributeAssign, groupName, LoaderLdapUtils.grouperLoaderLdapFilterName());
+          grouperLoaderQuartzCron = grouperLoaderTypeEnum.attributeValueValidateRequiredAttributeAssign(attributeAssign, groupName, LoaderLdapUtils.grouperLoaderLdapQuartzCronName());
+          grouperLoaderTypeEnum.attributeValueValidateRequiredAttributeAssign(attributeAssign, groupName, LoaderLdapUtils.grouperLoaderLdapServerIdName());
+          grouperLoaderTypeEnum.attributeValueValidateRequiredAttributeAssign(attributeAssign, groupName, LoaderLdapUtils.grouperLoaderLdapSubjectAttributeName());
+          
+          grouperLoaderTypeEnum.attributeValueValidateRequiredAttributeAssign(attributeAssign, groupName, LoaderLdapUtils.grouperLoaderLdapAndGroupsName());
+          grouperLoaderPriority = grouperLoaderTypeEnum.attributeValueValidateRequiredAttributeAssignInteger(attributeAssign, groupName, LoaderLdapUtils.grouperLoaderLdapPriorityName());
+          grouperLoaderTypeEnum.attributeValueValidateRequiredAttributeAssign(attributeAssign, groupName, LoaderLdapUtils.grouperLoaderLdapSearchDnName());
+          grouperLoaderTypeEnum.attributeValueValidateRequiredAttributeAssign(attributeAssign, groupName, LoaderLdapUtils.grouperLoaderLdapSearchScopeName());
+          grouperLoaderTypeEnum.attributeValueValidateRequiredAttributeAssign(attributeAssign, groupName, LoaderLdapUtils.grouperLoaderLdapSourceIdName());
+          grouperLoaderTypeEnum.attributeValueValidateRequiredAttributeAssign(attributeAssign, groupName, LoaderLdapUtils.grouperLoaderLdapSubjectIdTypeName());
+          
+          scheduleJob(jobName, false, "CRON", grouperLoaderQuartzCron,
+              null, grouperLoaderPriority);
+          
+        } catch (Exception e) {
+          String errorMessage = null;
+          
+          //dont fail on all if any fail
+          try {
+            errorMessage = "Could not schedule group: '" + groupName + "', groupId: '" + groupId + "', attributeAssignId: " + attributeAssign.getId();
+            LOG.error(errorMessage, e);
+            errorMessage += "\n" + ExceptionUtils.getFullStackTrace(e);
+          } catch (Exception e2) {
+            errorMessage = "Could not schedule group.";
+            //dont let error message mess us up
+            LOG.error(errorMessage, e);
+            LOG.error(e2);
+            errorMessage += "\n" + ExceptionUtils.getFullStackTrace(e) + "\n" + ExceptionUtils.getFullStackTrace(e2);
+          }
+          try {
+            //lets enter a log entry so it shows up as error in the db
+            Hib3GrouperLoaderLog hib3GrouploaderLog = new Hib3GrouperLoaderLog();
+            hib3GrouploaderLog.setGroupUuid(groupId);
+            hib3GrouploaderLog.setHost(GrouperUtil.hostname());
+            hib3GrouploaderLog.setJobMessage(errorMessage);
+            hib3GrouploaderLog.setJobName(jobName);
+            hib3GrouploaderLog.setAndGroupNames(grouperLoaderAndGroups);
+            hib3GrouploaderLog.setJobSchedulePriority(grouperLoaderPriority);
+            hib3GrouploaderLog.setJobScheduleQuartzCron(grouperLoaderQuartzCron);
+            hib3GrouploaderLog.setJobScheduleType("CRON");
             hib3GrouploaderLog.setJobType(grouperLoaderType);
             hib3GrouploaderLog.setStatus(GrouperLoaderStatus.CONFIG_ERROR.name());
             hib3GrouploaderLog.store();
