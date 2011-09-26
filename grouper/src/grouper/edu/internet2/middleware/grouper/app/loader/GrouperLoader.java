@@ -941,6 +941,7 @@ public class GrouperLoader {
       hib3GrouperLoaderLog.setJobScheduleType("MANUAL_FROM_GSH");
   
       boolean isSqlLoader = group.hasType(GroupTypeFinder.find("grouperLoader", false));
+      boolean isLdapLoader = false;
       
       String grouperLoaderTypeString = null;
         
@@ -949,12 +950,16 @@ public class GrouperLoader {
           .getAttributeDefName().findByNameSecure(LoaderLdapUtils.grouperLoaderLdapName(), false);
         AttributeAssign attributeAssign = grouperLoaderLdapTypeAttributeDefName == null ? null : 
           group.getAttributeDelegate().retrieveAssignment(
-            "assign", grouperLoaderLdapTypeAttributeDefName, false, false);
+            null, grouperLoaderLdapTypeAttributeDefName, false, false);
         if (attributeAssign != null) {
           grouperLoaderTypeString = attributeAssign.getAttributeValueDelegate().retrieveValueString(LoaderLdapUtils.grouperLoaderLdapTypeName());
+          isLdapLoader = true;
         }
       } else {
         grouperLoaderTypeString = GrouperLoaderType.attributeValueOrDefaultOrNull(group, GROUPER_LOADER_TYPE);
+        if (!StringUtils.isBlank(grouperLoaderTypeString)) {
+          isSqlLoader = true;
+        }
       }
       
       if (StringUtils.isBlank(grouperLoaderTypeString)) {
@@ -966,8 +971,14 @@ public class GrouperLoader {
       
       hib3GrouperLoaderLog.setJobName(grouperLoaderType.name() + "__" + group.getName() + "__" + group.getUuid());
       hib3GrouperLoaderLog.setJobType(grouperLoaderTypeString);
-  
-      GrouperLoaderJob.runJob(hib3GrouperLoaderLog, group, grouperSession);
+      
+      if (isSqlLoader) {
+        GrouperLoaderJob.runJob(hib3GrouperLoaderLog, group, grouperSession);
+      }
+      
+      if (isLdapLoader) {
+        GrouperLoaderJob.runJobLdap(hib3GrouperLoaderLog, group, grouperSession);
+      }
       
       return "loader ran successfully, inserted " + hib3GrouperLoaderLog.getInsertCount()
         + " memberships, deleted " + hib3GrouperLoaderLog.getDeleteCount() + " memberships, total membership count: "

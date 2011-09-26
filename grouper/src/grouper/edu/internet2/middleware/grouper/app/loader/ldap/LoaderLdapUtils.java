@@ -24,7 +24,7 @@ public class LoaderLdapUtils {
    */
   public static String grouperLoaderLdapStemName() {
     if (grouperLoaderLdapStemName == null) {
-      grouperLoaderLdapStemName = GrouperCheckConfig.attributeRootStemName() + ":attrLoader";
+      grouperLoaderLdapStemName = GrouperCheckConfig.attributeRootStemName() + ":loaderLdap";
     }
     return grouperLoaderLdapStemName;
   }

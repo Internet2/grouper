@@ -175,8 +175,10 @@ public class GrouperLoaderResultset {
    * get a resultset based on a db and query
    * @param grouperLoaderDb
    * @param query
+   * @param jobName 
+   * @param hib3GrouperLoaderLog 
    */
-  public GrouperLoaderResultset(GrouperLoaderDb grouperLoaderDb, String query) {
+  public GrouperLoaderResultset(GrouperLoaderDb grouperLoaderDb, String query, String jobName, Hib3GrouperLoaderLog hib3GrouperLoaderLog) {
 
     //small security check (not failsafe, but better than nothing)
     if (!query.toLowerCase().trim().startsWith("select")) {
@@ -227,7 +229,8 @@ public class GrouperLoaderResultset {
       GrouperUtil.closeQuietly(statement);
       GrouperUtil.closeQuietly(connection);
     }
-    
+    this.convertToSubjectIdIfNeeded(jobName, hib3GrouperLoaderLog);
+
   }
   
   /**
@@ -239,10 +242,12 @@ public class GrouperLoaderResultset {
    * @param sourceId if all subjects come from one source, put the sourceId here
    * @param subjectIdType the type of the subjectId, either: subjectId, subjectIdentifier, or subjectIdOrIdentifier
    * @param ldapSearchScope either OBJECT_SCOPE, ONELEVEL_SCOPE, SUBTREE_SCOPE
+   * @param jobName for logging if problem
+   * @param hib3GrouperLoaderLog 
    */
   public GrouperLoaderResultset(String ldapServerId, String filter, 
       String searchDn, String subjectAttribute, String sourceId, 
-      String subjectIdType, String ldapSearchScope) {
+      String subjectIdType, String ldapSearchScope, String jobName, Hib3GrouperLoaderLog hib3GrouperLoaderLog) {
     
     //run the query
     LdapSearchScope ldapSearchScopeEnum = LdapSearchScope.valueOfIgnoreCase(ldapSearchScope, false);
@@ -287,8 +292,70 @@ public class GrouperLoaderResultset {
         rowData[1] = sourceId;
       }
     }
-          
+    this.convertToSubjectIdIfNeeded(jobName, hib3GrouperLoaderLog);
   }
+  
+  /**
+   * if there is no subject id col, then make one and resolve the subjects
+   * @param jobName for logging
+   * @param hib3GrouperLoaderLog 
+   */
+  private void convertToSubjectIdIfNeeded(String jobName, Hib3GrouperLoaderLog hib3GrouperLoaderLog) {
+    
+    if (this.hasColumnName("SUBJECT_ID")) {
+      return;
+    }
+    int subjectIdColIndex = this.columnIndex("SUBJECT_IDENTIFIER", false);
+    subjectIdColIndex = subjectIdColIndex == -1 ? this.columnIndex("SUBJECT_ID_OR_IDENTIFIER", false) : subjectIdColIndex;
+    
+    int subjectSourceIdIndex = this.columnIndex("SUBJECT_SOURCE_ID", false);
+    boolean addedSourceCol = subjectSourceIdIndex == -1;
+    
+    //there is no subject id, dont try to find one
+    if (subjectIdColIndex == -1) {
+      return;
+    }
+    
+    if (this.data != null) {
+      //lets resolve each row and replace the subject_identifier or subject_id_or_identifier with subject_id
+      Iterator<Row> iterator = this.data.iterator();
+      
+      while (iterator.hasNext()) {
+        
+        Row row = iterator.next();
+        Subject subject = row.getSubject(jobName);
+        if (subject == null) {
+          //subject error
+          hib3GrouperLoaderLog.appendJobMessage(row.getSubjectError());
+          hib3GrouperLoaderLog.addUnresolvableSubjectCount(1);
+          iterator.remove();
+          continue;
+        }
+        Object[] rowData = row.getRowData();
+        rowData[subjectIdColIndex] = subject.getId();
+        
+        if (addedSourceCol) {
+          //add a col for source id since we just resolved it...
+          Object[] newRowData = new Object[rowData.length + 1];
+          System.arraycopy(rowData, 0, newRowData, 0, rowData.length);
+          newRowData[rowData.length] = subject.getSourceId();
+          row.setRowData(newRowData);
+        }
+        
+      }
+    }  
+    
+    //lets change the column names
+    if (addedSourceCol) {
+      this.columnNames.add("SUBJECT_SOURCE_ID");
+      this.columnTypes.add(Types.VARCHAR);
+    }
+    this.columnNames.set(subjectIdColIndex, "SUBJECT_ID");
+    //i assume it is varchar already, if not, it should be
+    this.columnTypes.set(subjectIdColIndex, Types.VARCHAR);
+    
+  }
+  
   
   /** column names (toUpper) */
   private List<String> columnNames = new ArrayList<String>(); 
@@ -336,6 +403,7 @@ public class GrouperLoaderResultset {
     
     /**
      * @param jobName for logging
+     * @param hib3GrouperLoaderLog
      * @return the subject
      */
     public Subject getSubject(String jobName) {
@@ -446,6 +514,16 @@ public class GrouperLoaderResultset {
    * @return the column index
    */
   public int columnIndex(String columnNameInput) {
+    return columnIndex(columnNameInput, true);
+  }
+
+  /**
+   * find a column index in the resultset
+   * @param columnNameInput
+   * @param throwErrorIfNotFound if should throw error if not found
+   * @return the column index or -1 if not found or exception
+   */
+  public int columnIndex(String columnNameInput, boolean throwErrorIfNotFound) {
     int i = 0; 
     for(String columnName : this.columnNames) {
       if (StringUtils.equalsIgnoreCase(columnName, columnNameInput)) {
@@ -453,7 +531,10 @@ public class GrouperLoaderResultset {
       }
       i++;
     }
-    throw new RuntimeException("Cant find column: " + columnNameInput);
+    if (throwErrorIfNotFound) {
+      throw new RuntimeException("Cant find column: " + columnNameInput);
+    }
+    return -1;
   }
 
   /**

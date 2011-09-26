@@ -29,12 +29,16 @@ import edu.internet2.middleware.grouper.app.loader.db.GrouperLoaderDb;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.app.loader.ldap.LoaderLdapUtils;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
+import edu.internet2.middleware.grouper.attr.AttributeDefName;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
+import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.hooks.LoaderHooks;
 import edu.internet2.middleware.grouper.hooks.beans.HooksLoaderBean;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHookType;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHooksUtils;
 import edu.internet2.middleware.grouper.hooks.logic.VetoTypeGrouper;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
@@ -92,9 +96,6 @@ public class GrouperLoaderJob implements Job, StatefulJob {
               GrouperLoader.GROUPER_LOADER_SCHEDULE_TYPE);
           grouperLoaderTypeFromOwner = GrouperLoaderType.attributeValueOrDefaultOrNull(group, 
               GrouperLoader.GROUPER_LOADER_TYPE);
-          grouperLoaderIntervalSecondsFromOwner = GrouperUtil.intObjectValue(
-              GrouperLoaderType.attributeValueOrDefaultOrNull(group,
-              GrouperLoader.GROUPER_LOADER_INTERVAL_SECONDS), true);
           grouperLoaderPriorityFromOwner = GrouperUtil.intObjectValue(
               GrouperLoaderType.attributeValueOrDefaultOrNull(group,
               GrouperLoader.GROUPER_LOADER_PRIORITY), true);
@@ -130,6 +131,35 @@ public class GrouperLoaderJob implements Job, StatefulJob {
           grouperLoaderPriorityFromOwner = GrouperUtil.intObjectValue(
               GrouperLoaderType.attributeValueOrDefaultOrNullAttrDef(attributeDef,
               GrouperLoader.ATTRIBUTE_LOADER_PRIORITY), true);
+          
+          //lets reset the job name in case the name has changed
+          jobName = grouperLoaderTypeFromOwner + "__" + attributeDef.getName() + "__" + attributeDef.getId();
+          hib3GrouploaderLog.setJobName(jobName);
+          
+        }
+      }
+      
+      if (grouperLoaderType.equals(GrouperLoaderType.LDAP_SIMPLE)) {
+        
+        int uuidIndexStart = jobName.lastIndexOf("__");
+        
+        if (uuidIndexStart >= 0) {
+          String grouperLoaderGroupUuid = null;
+          grouperLoaderGroupUuid = jobName.substring(uuidIndexStart+2, jobName.length());
+          hib3GrouploaderLog.setGroupUuid(grouperLoaderGroupUuid);
+
+          
+          group = GroupFinder.findByUuid(grouperSession, grouperLoaderGroupUuid, true);
+          
+          AttributeDefName attributeDefName = AttributeDefNameFinder.findByName(LoaderLdapUtils.grouperLoaderLdapName(), false);
+          
+          AttributeAssign attributeAssign = group.getAttributeDelegate().retrieveAssignment(AttributeDef.ACTION_DEFAULT, attributeDefName, false, true);
+          
+          grouperLoaderQuartzCronFromOwner = attributeAssign.getAttributeValueDelegate().retrieveValueString(LoaderLdapUtils.grouperLoaderLdapQuartzCronName());
+          
+          grouperLoaderTypeFromOwner = attributeAssign.getAttributeValueDelegate().retrieveValueString(LoaderLdapUtils.grouperLoaderLdapTypeName());
+          grouperLoaderPriorityFromOwner = GrouperUtil.intObjectValue(attributeAssign.getAttributeValueDelegate()
+              .retrieveValueInteger(LoaderLdapUtils.grouperLoaderLdapPriorityName()), true);
           
           //lets reset the job name in case the name has changed
           jobName = grouperLoaderTypeFromOwner + "__" + attributeDef.getName() + "__" + attributeDef.getId();
@@ -243,6 +273,9 @@ public class GrouperLoaderJob implements Job, StatefulJob {
       if (grouperLoaderType.equals(GrouperLoaderType.ATTR_SQL_SIMPLE)) {
         
         runJobAttrDef(hib3GrouploaderLog, attributeDef, grouperSession);
+      } else if (grouperLoaderType.equals(GrouperLoaderType.LDAP_SIMPLE)) {
+        
+        runJobLdap(hib3GrouploaderLog, group, grouperSession);
       } else {
         //all other jobs go through here
         runJob(hib3GrouploaderLog, group, grouperSession);
@@ -400,15 +433,21 @@ public class GrouperLoaderJob implements Job, StatefulJob {
       String grouperLoaderLdapSearchScope = null;
       String grouperLoaderLdapAndGroups = null;
       
-      grouperLoaderLdapType = GrouperLoaderType.attributeValueOrDefaultOrNull(jobGroup, LoaderLdapUtils.grouperLoaderLdapTypeName());
-      grouperLoaderLdapServerId = GrouperLoaderType.attributeValueOrDefaultOrNull(jobGroup, LoaderLdapUtils.grouperLoaderLdapServerIdName());
-      grouperLoaderLdapFilter = GrouperLoaderType.attributeValueOrDefaultOrNull(jobGroup, LoaderLdapUtils.grouperLoaderLdapFilterName());
-      grouperLoaderLdapSubjectAttribute = GrouperLoaderType.attributeValueOrDefaultOrNull(jobGroup, LoaderLdapUtils.grouperLoaderLdapSubjectAttributeName());
-      grouperLoaderLdapSearchDn = GrouperLoaderType.attributeValueOrDefaultOrNull(jobGroup, LoaderLdapUtils.grouperLoaderLdapSearchDnName());
-      grouperLoaderLdapSourceId = GrouperLoaderType.attributeValueOrDefaultOrNull(jobGroup, LoaderLdapUtils.grouperLoaderLdapSourceIdName());
-      grouperLoaderLdapSubjectIdType = GrouperLoaderType.attributeValueOrDefaultOrNull(jobGroup, LoaderLdapUtils.grouperLoaderLdapSubjectIdTypeName());
-      grouperLoaderLdapSearchScope = GrouperLoaderType.attributeValueOrDefaultOrNull(jobGroup, LoaderLdapUtils.grouperLoaderLdapSearchScopeName());
-      grouperLoaderLdapAndGroups = GrouperLoaderType.attributeValueOrDefaultOrNull(jobGroup, LoaderLdapUtils.grouperLoaderLdapAndGroupsName());
+      AttributeDefName grouperLoaderLdapTypeAttributeDefName = GrouperDAOFactory.getFactory()
+      .getAttributeDefName().findByNameSecure(LoaderLdapUtils.grouperLoaderLdapName(), false);
+      AttributeAssign attributeAssign = grouperLoaderLdapTypeAttributeDefName == null ? null : 
+        jobGroup.getAttributeDelegate().retrieveAssignment(
+          null, grouperLoaderLdapTypeAttributeDefName, false, false);
+
+      grouperLoaderLdapType = GrouperLoaderType.attributeValueOrDefaultOrNull(attributeAssign, LoaderLdapUtils.grouperLoaderLdapTypeName());
+      grouperLoaderLdapServerId = GrouperLoaderType.attributeValueOrDefaultOrNull(attributeAssign, LoaderLdapUtils.grouperLoaderLdapServerIdName());
+      grouperLoaderLdapFilter = GrouperLoaderType.attributeValueOrDefaultOrNull(attributeAssign, LoaderLdapUtils.grouperLoaderLdapFilterName());
+      grouperLoaderLdapSubjectAttribute = GrouperLoaderType.attributeValueOrDefaultOrNull(attributeAssign, LoaderLdapUtils.grouperLoaderLdapSubjectAttributeName());
+      grouperLoaderLdapSearchDn = GrouperLoaderType.attributeValueOrDefaultOrNull(attributeAssign, LoaderLdapUtils.grouperLoaderLdapSearchDnName());
+      grouperLoaderLdapSourceId = GrouperLoaderType.attributeValueOrDefaultOrNull(attributeAssign, LoaderLdapUtils.grouperLoaderLdapSourceIdName());
+      grouperLoaderLdapSubjectIdType = GrouperLoaderType.attributeValueOrDefaultOrNull(attributeAssign, LoaderLdapUtils.grouperLoaderLdapSubjectIdTypeName());
+      grouperLoaderLdapSearchScope = GrouperLoaderType.attributeValueOrDefaultOrNull(attributeAssign, LoaderLdapUtils.grouperLoaderLdapSearchScopeName());
+      grouperLoaderLdapAndGroups = GrouperLoaderType.attributeValueOrDefaultOrNull(attributeAssign, LoaderLdapUtils.grouperLoaderLdapAndGroupsName());
       String groupName = jobGroup.getName();
       hib3GrouploaderLog.setGroupUuid(jobGroup.getUuid());
       

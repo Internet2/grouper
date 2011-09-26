@@ -133,7 +133,8 @@ public enum GrouperLoaderType {
       
       //get a resultset from the db
       final GrouperLoaderResultset grouperLoaderResultset = new GrouperLoaderResultset(
-          loaderJobBean.getGrouperLoaderDb(), loaderJobBean.getQuery());
+          loaderJobBean.getGrouperLoaderDb(), loaderJobBean.getQuery(), loaderJobBean.getHib3GrouploaderLogOverall().getJobName(), 
+          loaderJobBean.getHib3GrouploaderLogOverall());
       
       syncOneGroupMembership(loaderJobBean.getGroupNameOverall(), null, null, 
           loaderJobBean.getHib3GrouploaderLogOverall(), loaderJobBean.getStartTime(),
@@ -382,7 +383,8 @@ public enum GrouperLoaderType {
         try {
           //get a resultset from the db
           final GrouperLoaderResultset grouperLoaderResultsetOverall = new GrouperLoaderResultset(grouperLoaderDb, 
-              query + " order by group_name");
+              query + " order by group_name", loaderJobBean.getHib3GrouploaderLogOverall().getJobName(), 
+              loaderJobBean.getHib3GrouploaderLogOverall());
           
           if (LOG.isDebugEnabled()) {
             LOG.debug(groupNameOverall + ": found " + grouperLoaderResultsetOverall + " members overall");
@@ -409,7 +411,8 @@ public enum GrouperLoaderType {
           if (!StringUtils.isBlank(groupQuery)) {
             //get a resultset from the db
             final GrouperLoaderResultset grouperLoaderGroupsResultset = new GrouperLoaderResultset(
-                grouperLoaderDb, groupQuery + " order by group_name");
+                grouperLoaderDb, groupQuery + " order by group_name", loaderJobBean.getHib3GrouploaderLogOverall().getJobName(), 
+                loaderJobBean.getHib3GrouploaderLogOverall());
             
             groupMetadataNumberOfRows = grouperLoaderGroupsResultset.numberOfRows();
             for (int i=0;i<groupMetadataNumberOfRows;i++) {
@@ -953,7 +956,9 @@ public enum GrouperLoaderType {
         
         final GrouperLoaderResultset grouperLoaderResultset = new GrouperLoaderResultset(loaderJobBean.getLdapServerId(), 
             loaderJobBean.getLdapFilter(), loaderJobBean.getLdapSearchDn(), loaderJobBean.getLdapSubjectAttribute(), 
-            loaderJobBean.getLdapSourceId(), loaderJobBean.getLdapSubjectIdType(), loaderJobBean.getLdapSearchScope());
+            loaderJobBean.getLdapSourceId(), loaderJobBean.getLdapSubjectIdType(), loaderJobBean.getLdapSearchScope(), 
+            loaderJobBean.getHib3GrouploaderLogOverall().getJobName(), 
+            loaderJobBean.getHib3GrouploaderLogOverall());
         
         syncOneGroupMembership(loaderJobBean.getGroupNameOverall(), null, null, 
             loaderJobBean.getHib3GrouploaderLogOverall(), loaderJobBean.getStartTime(), 
@@ -1809,6 +1814,19 @@ public enum GrouperLoaderType {
 
   /**
    * get an attribute value, or null, or a default if exists
+   * @param attributeAssign
+   * @param attributeDefName
+   * @return the attribute value
+   */
+  public static String attributeValueOrDefaultOrNull(AttributeAssign attributeAssign, String attributeDefName) {
+    
+    String attributeValue = attributeAssign.getAttributeValueDelegate().retrieveValueString(
+        attributeDefName);
+    return attributeValue;
+  }
+  
+  /**
+   * get an attribute value, or null, or a default if exists
    * @param attributeDef
    * @param attributeName
    * @return the attribute value
@@ -2042,7 +2060,8 @@ public enum GrouperLoaderType {
       }
       
       GrouperLoaderResultset attributeActionSetResultset = new GrouperLoaderResultset(
-          grouperLoaderDb, attributeLoaderActionSetQuery);
+          grouperLoaderDb, attributeLoaderActionSetQuery, hib3GrouploaderLog.getJobName(), 
+          hib3GrouploaderLog);
       
       int numberOfRows = attributeActionSetResultset.numberOfRows();
       hib3GrouploaderLog.addTotalCount(numberOfRows);
@@ -2186,7 +2205,8 @@ public enum GrouperLoaderType {
       Map<String, AttributeAssignAction> actionsToRemove = new HashMap<String, AttributeAssignAction>(actionsByName);
       
       GrouperLoaderResultset attributeActionResultset = new GrouperLoaderResultset(
-          grouperLoaderDb, attributeLoaderActionQuery);
+          grouperLoaderDb, attributeLoaderActionQuery, hib3GrouploaderLog.getJobName(), 
+          hib3GrouploaderLog);
       int numberOfRows = attributeActionResultset.numberOfRows();
       hib3GrouploaderLog.addTotalCount(numberOfRows);
 
@@ -2294,7 +2314,8 @@ public enum GrouperLoaderType {
     if (!StringUtils.isBlank(attributeLoaderAttrSetQuery)) {
       
       GrouperLoaderResultset attributeDefNameSetResultset = new GrouperLoaderResultset(
-          grouperLoaderDb, attributeLoaderAttrSetQuery);
+          grouperLoaderDb, attributeLoaderAttrSetQuery, hib3GrouploaderLog.getJobName(), 
+          hib3GrouploaderLog);
       Set<AttributeDefNameSet> existingAttributeDefNameSets = GrouperDAOFactory.getFactory()
         .getAttributeDefNameSet().findByDepthOneForAttributeDef(theAttributeDef.getId());
       
@@ -2488,7 +2509,8 @@ public enum GrouperLoaderType {
       
       if (!StringUtils.isBlank(attributeLoaderAttrQuery)) {
         attributeDefNameResultset = new GrouperLoaderResultset(
-            grouperLoaderDb, attributeLoaderAttrQuery);
+            grouperLoaderDb, attributeLoaderAttrQuery, hib3GrouploaderLog.getJobName(), 
+            hib3GrouploaderLog);
       }
       
       int numberOfRows = attributeDefNameResultset.numberOfRows();
