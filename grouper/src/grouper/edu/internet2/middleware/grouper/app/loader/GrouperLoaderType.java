@@ -926,7 +926,7 @@ public enum GrouperLoaderType {
             || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapSubjectAttributeName(), attributeName)
             || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapTypeName(), attributeName);
       }
-    
+
       /**
        * 
        * @see edu.internet2.middleware.grouper.app.loader.GrouperLoaderType#attributeOptional(java.lang.String)
@@ -938,7 +938,16 @@ public enum GrouperLoaderType {
             || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapSourceIdName(), attributeName)
             || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapAndGroupsName(), attributeName)
             || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapPriorityName(), attributeName)
-            || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapSubjectIdTypeName(), attributeName);
+            || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapSubjectIdTypeName(), attributeName)
+            || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapErrorUnresolvableName(), attributeName)
+            || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapSubjectExpressionName(), attributeName)
+            ;
+        // not allowed: || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapGroupAttributeName(), attributeName)
+        // not allowed: || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapExtraAttributesName(), attributeName)
+        // not allowed: || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapGroupNameExpressionName(), attributeName)
+        // not allowed: || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapGroupDisplayExtensionExpressionName(), attributeName)
+        // not allowed: || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapGroupDescriptionExpressionName(), attributeName)
+
       }
       
       /**
@@ -980,11 +989,82 @@ public enum GrouperLoaderType {
        */
       @Override
       public boolean attributeRequired(String attributeName) {
+        
         return StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapServerIdName(), attributeName)
             || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapFilterName(), attributeName)
             || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapQuartzCronName(), attributeName)
             || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapSubjectAttributeName(), attributeName)
             || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapTypeName(), attributeName);
+      }
+
+      /**
+       * 
+       * @see edu.internet2.middleware.grouper.app.loader.GrouperLoaderType#attributeOptional(java.lang.String)
+       */
+      @Override
+      public boolean attributeOptional(String attributeName) {
+        return StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapSearchDnName(), attributeName)
+            || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapSearchScopeName(), attributeName)
+            || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapSourceIdName(), attributeName)
+            || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapAndGroupsName(), attributeName)
+            || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapPriorityName(), attributeName)
+            || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapGroupsLikeName(), attributeName)
+            || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapSubjectIdTypeName(), attributeName)
+            || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapExtraAttributesName(), attributeName)
+            || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapErrorUnresolvableName(), attributeName)
+            || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapGroupNameExpressionName(), attributeName)
+            || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapGroupDisplayExtensionExpressionName(), attributeName)
+            || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapGroupDescriptionExpressionName(), attributeName)
+            || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapSubjectExpressionName(), attributeName)
+            ;
+        
+        //not allowed: StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapGroupAttributeName(), attributeName)
+      }
+
+      /**
+       * sync up an attributeDefinition membership based on query and db
+       */
+      @SuppressWarnings("unchecked")
+      @Override
+      public void runJob(LoaderJobBean loaderJobBean) {
+    
+        GrouperContext.createNewDefaultContext(GrouperEngineBuiltin.LOADER, false, true);
+    
+        //      GrouperLoaderDb grouperLoaderDb, attributeDefName
+        //      Hib3GrouperLoaderLog hib3GrouploaderLog, long startTime, GrouperSession grouperSession, 
+        //      attributeLoaderAttrQuery, attributeLoaderAttrSetQuery, attributeLoaderAttrsLike
+        //   attributeLoaderActionQuery, attributeLoaderActionSetQuery
+        
+        final GrouperLoaderResultset grouperLoaderResultset = new GrouperLoaderResultset(loaderJobBean.getLdapServerId(), 
+            loaderJobBean.getLdapFilter(), loaderJobBean.getLdapSearchDn(), loaderJobBean.getLdapSubjectAttribute(), 
+            loaderJobBean.getLdapSourceId(), loaderJobBean.getLdapSubjectIdType(), loaderJobBean.getLdapSearchScope(), 
+            loaderJobBean.getHib3GrouploaderLogOverall().getJobName(), 
+            loaderJobBean.getHib3GrouploaderLogOverall(), loaderJobBean.getGroupLikeString());
+        
+        syncOneGroupMembership(loaderJobBean.getGroupNameOverall(), null, null, 
+            loaderJobBean.getHib3GrouploaderLogOverall(), loaderJobBean.getStartTime(), 
+            grouperLoaderResultset, false, loaderJobBean.getGrouperSession(), loaderJobBean.getAndGroups(), null, null, null);
+        
+      }
+    },
+    /** 
+     * ldap query where objects are users, and filter is for multi-valued object where all results are affiliations or 
+     * something that represents the groups of users.
+     */
+    LDAP_GROUPS_FROM_ATTRIBUTES {
+      
+      /**
+       * 
+       * @see edu.internet2.middleware.grouper.app.loader.GrouperLoaderType#attributeRequired(java.lang.String)
+       */
+      @Override
+      public boolean attributeRequired(String attributeName) {
+        
+        return StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapServerIdName(), attributeName)
+            || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapFilterName(), attributeName)
+            || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapQuartzCronName(), attributeName)
+            || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapTypeName(), attributeName)
+            || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapGroupAttributeName(), attributeName);
       }
     
       /**
@@ -999,7 +1079,18 @@ public enum GrouperLoaderType {
             || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapAndGroupsName(), attributeName)
             || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapPriorityName(), attributeName)
             || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapGroupsLikeName(), attributeName)
-            || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapSubjectIdTypeName(), attributeName);
+            || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapSubjectIdTypeName(), attributeName)
+            || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapSubjectAttributeName(), attributeName)
+            || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapErrorUnresolvableName(), attributeName)
+            || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapGroupNameExpressionName(), attributeName)
+            || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapGroupDisplayExtensionExpressionName(), attributeName)
+            || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapGroupDescriptionExpressionName(), attributeName)
+            || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapSubjectExpressionName(), attributeName)
+            ;
+        
+        //not allowed: || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapExtraAttributesName(), attributeName)
+
+        
       }
       
       /**
@@ -2851,17 +2942,39 @@ public enum GrouperLoaderType {
           jobName = grouperLoaderTypeEnum.name() + "__" + groupName + "__" + group.getUuid();
           
           //get the real attributes
-          grouperLoaderTypeEnum.attributeValueValidateRequiredAttributeAssign(attributeAssign, groupName, LoaderLdapUtils.grouperLoaderLdapFilterName());
+          grouperLoaderTypeEnum.attributeValueValidateRequiredAttributeAssign(attributeAssign, groupName, 
+              LoaderLdapUtils.grouperLoaderLdapFilterName());
           grouperLoaderQuartzCron = grouperLoaderTypeEnum.attributeValueValidateRequiredAttributeAssign(attributeAssign, groupName, LoaderLdapUtils.grouperLoaderLdapQuartzCronName());
-          grouperLoaderTypeEnum.attributeValueValidateRequiredAttributeAssign(attributeAssign, groupName, LoaderLdapUtils.grouperLoaderLdapServerIdName());
-          grouperLoaderTypeEnum.attributeValueValidateRequiredAttributeAssign(attributeAssign, groupName, LoaderLdapUtils.grouperLoaderLdapSubjectAttributeName());
+          grouperLoaderTypeEnum.attributeValueValidateRequiredAttributeAssign(attributeAssign, groupName,
+              LoaderLdapUtils.grouperLoaderLdapServerIdName());
+          grouperLoaderTypeEnum.attributeValueValidateRequiredAttributeAssign(attributeAssign, groupName, 
+              LoaderLdapUtils.grouperLoaderLdapSubjectAttributeName());
           
-          grouperLoaderTypeEnum.attributeValueValidateRequiredAttributeAssign(attributeAssign, groupName, LoaderLdapUtils.grouperLoaderLdapAndGroupsName());
+          grouperLoaderTypeEnum.attributeValueValidateRequiredAttributeAssign(attributeAssign, groupName,
+              LoaderLdapUtils.grouperLoaderLdapAndGroupsName());
           grouperLoaderPriority = grouperLoaderTypeEnum.attributeValueValidateRequiredAttributeAssignInteger(attributeAssign, groupName, LoaderLdapUtils.grouperLoaderLdapPriorityName());
-          grouperLoaderTypeEnum.attributeValueValidateRequiredAttributeAssign(attributeAssign, groupName, LoaderLdapUtils.grouperLoaderLdapSearchDnName());
-          grouperLoaderTypeEnum.attributeValueValidateRequiredAttributeAssign(attributeAssign, groupName, LoaderLdapUtils.grouperLoaderLdapSearchScopeName());
-          grouperLoaderTypeEnum.attributeValueValidateRequiredAttributeAssign(attributeAssign, groupName, LoaderLdapUtils.grouperLoaderLdapSourceIdName());
-          grouperLoaderTypeEnum.attributeValueValidateRequiredAttributeAssign(attributeAssign, groupName, LoaderLdapUtils.grouperLoaderLdapSubjectIdTypeName());
+          grouperLoaderTypeEnum.attributeValueValidateRequiredAttributeAssign(attributeAssign, groupName, 
+              LoaderLdapUtils.grouperLoaderLdapSearchDnName());
+          grouperLoaderTypeEnum.attributeValueValidateRequiredAttributeAssign(attributeAssign, groupName, 
+              LoaderLdapUtils.grouperLoaderLdapSearchScopeName());
+          grouperLoaderTypeEnum.attributeValueValidateRequiredAttributeAssign(attributeAssign, groupName, 
+              LoaderLdapUtils.grouperLoaderLdapSourceIdName());
+          grouperLoaderTypeEnum.attributeValueValidateRequiredAttributeAssign(attributeAssign, groupName, 
+              LoaderLdapUtils.grouperLoaderLdapSubjectIdTypeName());
+          grouperLoaderTypeEnum.attributeValueValidateRequiredAttributeAssign(attributeAssign, groupName, 
+              LoaderLdapUtils.grouperLoaderLdapGroupAttributeName());
+          grouperLoaderTypeEnum.attributeValueValidateRequiredAttributeAssign(attributeAssign, groupName, 
+              LoaderLdapUtils.grouperLoaderLdapExtraAttributesName());
+          grouperLoaderTypeEnum.attributeValueValidateRequiredAttributeAssign(attributeAssign, groupName, 
+              LoaderLdapUtils.grouperLoaderLdapErrorUnresolvableName());
+          grouperLoaderTypeEnum.attributeValueValidateRequiredAttributeAssign(attributeAssign, groupName, 
+              LoaderLdapUtils.grouperLoaderLdapGroupNameExpressionName());
+          grouperLoaderTypeEnum.attributeValueValidateRequiredAttributeAssign(attributeAssign, groupName, 
+              LoaderLdapUtils.grouperLoaderLdapGroupDisplayExtensionExpressionName());
+          grouperLoaderTypeEnum.attributeValueValidateRequiredAttributeAssign(attributeAssign, groupName, 
+              LoaderLdapUtils.grouperLoaderLdapGroupDescriptionExpressionName());
+          grouperLoaderTypeEnum.attributeValueValidateRequiredAttributeAssign(attributeAssign, groupName, 
+              LoaderLdapUtils.grouperLoaderLdapSubjectExpressionName());
           
           scheduleJob(jobName, false, "CRON", grouperLoaderQuartzCron,
               null, grouperLoaderPriority);

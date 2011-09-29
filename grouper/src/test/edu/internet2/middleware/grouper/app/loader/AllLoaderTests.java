@@ -7,6 +7,7 @@ package edu.internet2.middleware.grouper.app.loader;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 import edu.internet2.middleware.grouper.app.loader.db.AllLoaderDbTests;
+import edu.internet2.middleware.grouper.app.loader.ldap.AllLoaderLdapTests;
 
 /**
  *
@@ -25,6 +26,7 @@ public class AllLoaderTests {
     suite.addTestSuite(GrouperLoaderSecurityTest.class);
     //$JUnit-END$
     suite.addTest(AllLoaderDbTests.suite());
+    suite.addTest(AllLoaderLdapTests.suite());
     return suite;
   }
 

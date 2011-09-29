@@ -124,6 +124,9 @@ public class LdapPoc {
     }
   }
   
+  /**
+   * 
+   */
   public static void assignLoaderLdapAttributes() {
     GrouperSession grouperSession = GrouperSession.startRootSession();
     Group group = new GroupSave(grouperSession).assignName("someStem:myLdapGroup").assignCreateParentStemsIfNotExist(true).save();

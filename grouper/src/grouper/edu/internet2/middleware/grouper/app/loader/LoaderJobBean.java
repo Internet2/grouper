@@ -117,12 +117,26 @@ public class LoaderJobBean {
     //*****  END GENERATED WITH GenerateFieldConstants.java *****//
 
   /**
-   * Like the SQL loader, this holds the type of job from the GrouperLoaderType enum, currently the only valid values are LDAP_SIMPLE, LDAP_GROUP_LIST 
+   * extension of the attribute def name for type of ldap loader (e.g. LDAP_SIMPLE).
+   * Like the SQL loader, this holds the type of job from the GrouperLoaderType enum,
+   * currently the only valid values are LDAP_SIMPLE, LDAP_GROUP_LIST, LDAP_GROUPS_FROM_ATTRIBUTES.
+   * Simple is a group loaded from LDAP filter which returns subject ids or identifiers.
+   * Group list is an LDAP filter which returns group objects, and the group objects
+   * have a list of subjects.  Groups from attributes is an LDAP filter that returns
+   * subjects which have a multi-valued attribute e.g. affiliations where groups will
+   * be created based on subject who have each attribute value
    */
   private String ldapType;
   
   /**
-   * Like the SQL loader, this holds the type of job from the GrouperLoaderType enum, currently the only valid values are LDAP_SIMPLE, LDAP_GROUP_LIST 
+   * extension of the attribute def name for type of ldap loader (e.g. LDAP_SIMPLE).
+   * Like the SQL loader, this holds the type of job from the GrouperLoaderType enum,
+   * currently the only valid values are LDAP_SIMPLE, LDAP_GROUP_LIST, LDAP_GROUPS_FROM_ATTRIBUTES.
+   * Simple is a group loaded from LDAP filter which returns subject ids or identifiers.
+   * Group list is an LDAP filter which returns group objects, and the group objects
+   * have a list of subjects.  Groups from attributes is an LDAP filter that returns
+   * subjects which have a multi-valued attribute e.g. affiliations where groups will
+   * be created based on subject who have each attribute value
    * @return type
    */
   public String getLdapType() {
@@ -130,11 +144,194 @@ public class LoaderJobBean {
   }
 
   /**
-   * Like the SQL loader, this holds the type of job from the GrouperLoaderType enum, currently the only valid values are LDAP_SIMPLE, LDAP_GROUP_LIST 
+   * extension of the attribute def name for type of ldap loader (e.g. LDAP_SIMPLE).
+   * Like the SQL loader, this holds the type of job from the GrouperLoaderType enum,
+   * currently the only valid values are LDAP_SIMPLE, LDAP_GROUP_LIST, LDAP_GROUPS_FROM_ATTRIBUTES.
+   * Simple is a group loaded from LDAP filter which returns subject ids or identifiers.
+   * Group list is an LDAP filter which returns group objects, and the group objects
+   * have a list of subjects.  Groups from attributes is an LDAP filter that returns
+   * subjects which have a multi-valued attribute e.g. affiliations where groups will
+   * be created based on subject who have each attribute value
    * @param ldapType1
    */
   public void setLdapType(String ldapType1) {
     this.ldapType = ldapType1;
+  }
+
+  /**
+   * required for LDAP_GROUPS_FROM_ATTRIBUTE 
+   * Attribute name of the filter object result that holds the group name 
+   */
+  private String ldapGroupAttribute;
+  
+  /**
+   * Attribute names (comma separated) to get LDAP data for expressions in group name, 
+   * displayExtension, description, optional, for LDAP_GROUP_LIST
+   */
+  private String ldapExtraAttributes;
+  
+  /**
+   * Attribute names (comma separated) to get LDAP data for expressions in group name, 
+   * displayExtension, description, optional, for LDAP_GROUP_LIST
+   * @return the ldapExtraAttributes
+   */
+  public String getLdapExtraAttributes() {
+    return this.ldapExtraAttributes;
+  }
+
+  /**
+   * Attribute names (comma separated) to get LDAP data for expressions in group name, 
+   * displayExtension, description, optional, for LDAP_GROUP_LIST
+   * @param ldapExtraAttributes1 the ldapExtraAttributes to set
+   */
+  public void setLdapExtraAttributes(String ldapExtraAttributes1) {
+    this.ldapExtraAttributes = ldapExtraAttributes1;
+  }
+
+  /**
+   * Value could be true or false (default to true).  If true, then there will be 
+   * an error if there are unresolvable subjects in the results.  If you know there
+   * are subjects in LDAP which are not resolvable by Grouper, set to false, they will be ignored
+   */
+  private String ldapErrorUnresolvable;
+  
+  
+  /**
+   * Value could be true or false (default to true).  If true, then there will be 
+   * an error if there are unresolvable subjects in the results.  If you know there
+   * are subjects in LDAP which are not resolvable by Grouper, set to false, they will be ignored
+   * @return the ldapErrorUnresolvable
+   */
+  public String getLdapErrorUnresolvable() {
+    return this.ldapErrorUnresolvable;
+  }
+
+  
+  /**
+   * Value could be true or false (default to true).  If true, then there will be 
+   * an error if there are unresolvable subjects in the results.  If you know there
+   * are subjects in LDAP which are not resolvable by Grouper, set to false, they will be ignored
+   * @param ldapErrorUnresolvable1 the ldapErrorUnresolvable to set
+   */
+  public void setLdapErrorUnresolvable(String ldapErrorUnresolvable1) {
+    this.ldapErrorUnresolvable = ldapErrorUnresolvable1;
+  }
+
+  /**
+   * optional, for LDAP_GROUP_LIST, or LDAP_GROUPS_FROM_ATTRIBUTES   
+   * JEXL expression language fragment that evaluates to the group name (relative 
+   * in the stem as the group which has the loader definition)
+   */
+  private String ldapGroupNameExpression;
+  
+  /**
+   * optional, for LDAP_GROUP_LIST, or LDAP_GROUPS_FROM_ATTRIBUTES   
+   * JEXL expression language fragment that evaluates to the group name (relative 
+   * in the stem as the group which has the loader definition)
+   * @return the ldapGroupNameExpression
+   */
+  public String getLdapGroupNameExpression() {
+    return this.ldapGroupNameExpression;
+  }
+  
+  /**
+   * optional, for LDAP_GROUP_LIST, or LDAP_GROUPS_FROM_ATTRIBUTES   
+   * JEXL expression language fragment that evaluates to the group name (relative 
+   * in the stem as the group which has the loader definition)
+   * @param ldapGroupNameExpression1 the ldapGroupNameExpression to set
+   */
+  public void setLdapGroupNameExpression(String ldapGroupNameExpression1) {
+    this.ldapGroupNameExpression = ldapGroupNameExpression1;
+  }
+
+  /**
+   * JEXL expression language fragment that evaluates to the group display 
+   * extension, optional for LDAP_GROUP_LIST or LDAP_GROUPS_FROM_ATTRIBUTES
+   */
+  private String ldapGroupDisplayExtensionExpression;
+
+  
+  /**
+   * JEXL expression language fragment that evaluates to the group display 
+   * extension, optional for LDAP_GROUP_LIST or LDAP_GROUPS_FROM_ATTRIBUTES
+   * @return the ldapGroupDisplayExtensionExpression
+   */
+  public String getLdapGroupDisplayExtensionExpression() {
+    return this.ldapGroupDisplayExtensionExpression;
+  }
+
+  
+  /**
+   * JEXL expression language fragment that evaluates to the group display 
+   * extension, optional for LDAP_GROUP_LIST or LDAP_GROUPS_FROM_ATTRIBUTES
+   * @param ldapGroupDisplayExtensionExpression1 the ldapGroupDisplayExtensionExpression to set
+   */
+  public void setLdapGroupDisplayExtensionExpression(
+      String ldapGroupDisplayExtensionExpression1) {
+    this.ldapGroupDisplayExtensionExpression = ldapGroupDisplayExtensionExpression1;
+  }
+
+  /**
+   * JEXL expression language fragment that evaluates to the group description, optional for LDAP_GROUP_LIST or LDAP_GROUPS_FROM_ATTRIBUTES
+   */
+  private String ldapGroupDescriptionExpression;
+  
+  /**
+   * JEXL expression language fragment that evaluates to the group description, optional 
+   * for LDAP_GROUP_LIST or LDAP_GROUPS_FROM_ATTRIBUTES
+   * @return the ldapGroupDescriptionExpression
+   */
+  public String getLdapGroupDescriptionExpression() {
+    return this.ldapGroupDescriptionExpression;
+  }
+  
+  /**
+   * JEXL expression language fragment that evaluates to the group description, optional 
+   * for LDAP_GROUP_LIST or LDAP_GROUPS_FROM_ATTRIBUTES
+   * @param ldapGroupDescriptionExpression1 the ldapGroupDescriptionExpression to set
+   */
+  public void setLdapGroupDescriptionExpression(String ldapGroupDescriptionExpression1) {
+    this.ldapGroupDescriptionExpression = ldapGroupDescriptionExpression1;
+  }
+
+  /**
+   * JEXL expression language fragment that processes the subject string before passing it to the subject API
+   */
+  private String ldapSubjectExpression;
+  
+  /**
+   * JEXL expression language fragment that processes the subject string before passing it to the subject API
+   * @return the ldapSubjectExpression
+   */
+  public String getLdapSubjectExpression() {
+    return this.ldapSubjectExpression;
+  }
+  
+  /**
+   * JEXL expression language fragment that processes the subject string before passing it to the subject API
+   * @param ldapSubjectExpression1 the ldapSubjectExpression to set
+   */
+  public void setLdapSubjectExpression(String ldapSubjectExpression1) {
+    this.ldapSubjectExpression = ldapSubjectExpression1;
+  }
+
+  /**
+   * required for LDAP_GROUPS_FROM_ATTRIBUTE 
+   * Attribute name of the filter object result that holds the group name 
+   * @return the ldapGroupAttribute
+   */
+  public String getLdapGroupAttribute() {
+    return this.ldapGroupAttribute;
+  }
+
+  
+  /**
+   * required for LDAP_GROUPS_FROM_ATTRIBUTE 
+   * Attribute name of the filter object result that holds the group name 
+   * @param ldapGroupAttribute1 the ldapGroupAttribute to set
+   */
+  public void setLdapGroupAttribute(String ldapGroupAttribute1) {
+    this.ldapGroupAttribute = ldapGroupAttribute1;
   }
 
   /** Server ID that is configured in the grouper-loader.properties that identifies the connection information to the LDAP server */
@@ -620,12 +817,24 @@ public class LoaderJobBean {
    * @param hib3GrouploaderLogOverall1
    * @param grouperSession1
    * @param andGroups1
+   * @param ldapGroupAttribute1 
+   * @param extraAttributes1 
+   * @param errorUnresolvable1
+   * @param ldapGroupNameExpression1 
+   * @param ldapGroupDisplayExtensionExpression1 
+   * @param ldapGroupDescriptionExpression1 
+   * @param ldapSubjectExpression1
    */
   public LoaderJobBean(String ldapType1, String ldapServerId1, String ldapFilter1,
       String ldapSubjectAttribute1, String ldapSearchDn1, String ldapSourceId1,
       String ldapSubjectIdType1, String ldapSearchScope1, long startTime1,
       GrouperLoaderType grouperLoaderType1, String groupNameOverall1,
-      Hib3GrouperLoaderLog hib3GrouploaderLogOverall1, GrouperSession grouperSession1, List<Group> andGroups1) {
+      Hib3GrouperLoaderLog hib3GrouploaderLogOverall1, GrouperSession grouperSession1, List<Group> andGroups1,
+      String ldapGroupAttribute1, String extraAttributes1, 
+      String errorUnresolvable1, String ldapGroupNameExpression1, 
+      String ldapGroupDisplayExtensionExpression1, String ldapGroupDescriptionExpression1,
+      String ldapSubjectExpression1
+      ) {
     super();
     this.ldapType = ldapType1;
     this.ldapServerId = ldapServerId1;
@@ -641,22 +850,21 @@ public class LoaderJobBean {
     this.hib3GrouploaderLogOverall = hib3GrouploaderLogOverall1;
     this.grouperSession = grouperSession1;
     this.andGroups = andGroups1;
+    this.ldapGroupAttribute = ldapGroupAttribute1;
+    this.ldapExtraAttributes = extraAttributes1;
+    this.ldapErrorUnresolvable = errorUnresolvable1;
+    this.ldapGroupNameExpression = ldapGroupNameExpression1;
+    this.ldapGroupDisplayExtensionExpression = ldapGroupDisplayExtensionExpression1;
+    this.ldapGroupDescriptionExpression = ldapGroupDescriptionExpression1;
+    this.ldapSubjectExpression = ldapSubjectExpression1;
   }
 
   /**
    * @param grouperLoaderType1
    * @param attributeDefName 
-   * @param groupNameOverall1
    * @param grouperLoaderDb1
-   * @param query1
    * @param hib3GrouploaderLogOverall1
    * @param grouperSession1
-   * @param andGroups1
-   * @param groupTypes1
-   * @param groupLikeString1 groups with this like DB sql string are managed by the loader.
-   * Any group in this list with no memberships and not in the group
-   * metadata query will be emptied and if configured deleted
-   * @param groupQuery1
    * @param startTime1 
    * @param attributeLoaderAttrQuery1
    * @param attributeLoaderAttrSetQuery1

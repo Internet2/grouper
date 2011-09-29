@@ -1936,7 +1936,12 @@ public class GrouperCheckConfig {
           //add an attribute for the loader ldap marker
           {
             checkAttribute(loaderLdapStem, loaderLdapValueDef, LoaderLdapUtils.ATTR_DEF_EXTENSION_TYPE, "Grouper loader LDAP type", 
-                "The type of LDAP loader job, e.g. LDAP_SIMPLE", wasInCheckConfig);
+                "This holds the type of job from the GrouperLoaderType enum, currently the only valid values are " +
+                "LDAP_SIMPLE, LDAP_GROUP_LIST, LDAP_GROUPS_FROM_ATTRIBUTES. Simple is a group loaded from LDAP " +
+                "filter which returns subject ids or identifiers.  Group list is an LDAP filter which returns " +
+                "group objects, and the group objects have a list of subjects.  Groups from attributes is an LDAP " +
+                "filter that returns subjects which have a multi-valued attribute e.g. affiliations where groups " +
+                "will be created based on subject who have each attribute value  ", wasInCheckConfig);
             checkAttribute(loaderLdapStem, loaderLdapValueDef, LoaderLdapUtils.ATTR_DEF_EXTENSION_SERVER_ID, "Grouper loader LDAP server ID", 
                 "Server ID that is configured in the grouper-loader.properties that identifies the connection information to the LDAP server", wasInCheckConfig);
             checkAttribute(loaderLdapStem, loaderLdapValueDef, LoaderLdapUtils.ATTR_DEF_EXTENSION_LDAP_FILTER, "Grouper loader LDAP filter", 
@@ -1979,7 +1984,38 @@ public class GrouperCheckConfig {
                 "#if using a sql table, and specifying the name like string, then shoudl the group (in addition to memberships)" +
                 "# be removed if not used anywhere else?" +
                 "loader.sqlTable.likeString.removeGroupIfNotUsed = true", wasInCheckConfig);
-            
+            checkAttribute(loaderLdapStem, loaderLdapValueDef, LoaderLdapUtils.ATTR_DEF_EXTENSION_LDAP_GROUP_ATTRIBUTE, 
+                "Grouper loader LDAP group attribute name", 
+                "Attribute name of the filter object result that holds the group name (required for " +
+                "loader ldap type: LDAP_GROUPS_FROM_ATTRIBUTE)", wasInCheckConfig);
+            checkAttribute(loaderLdapStem, loaderLdapValueDef, LoaderLdapUtils.ATTR_DEF_EXTENSION_LDAP_EXTRA_ATTRIBUTES, 
+                "Grouper loader LDAP extra attributes", 
+                "Attribute names (comma separated) to get LDAP data for expressions in group name, displayExtension, description, " +
+                "optional, for LDAP_GROUP_LIST", wasInCheckConfig);
+            checkAttribute(loaderLdapStem, loaderLdapValueDef, LoaderLdapUtils.ATTR_DEF_EXTENSION_LDAP_ERROR_UNRESOLVABLE, 
+                "Grouper loader LDAP error unresolvable", 
+                "Value could be true or false (default to true).  If true, then there will be an error if there are unresolvable " +
+                "subjects in the results.  If you know there are subjects in LDAP which are not resolvable by Grouper, " +
+                "set to false, they will be ignored", wasInCheckConfig);
+            checkAttribute(loaderLdapStem, loaderLdapValueDef, LoaderLdapUtils.ATTR_DEF_EXTENSION_LDAP_GROUP_NAME_EXPRESSION, 
+                "Grouper loader LDAP group name expression", 
+                "JEXL expression language fragment that evaluates to the group name (relative in the stem as the " +
+                "group which has the loader definition), optional, for LDAP_GROUP_LIST, or LDAP_GROUPS_FROM_ATTRIBUTES", 
+                wasInCheckConfig);
+            checkAttribute(loaderLdapStem, loaderLdapValueDef, LoaderLdapUtils.ATTR_DEF_EXTENSION_LDAP_GROUP_DISPLAY_EXTENSION_EXPRESSION, 
+                "Grouper loader LDAP group display extension expression", 
+                "JEXL expression language fragment that evaluates to the group display extension, optional for " +
+                "LDAP_GROUP_LIST or LDAP_GROUPS_FROM_ATTRIBUTES", 
+                wasInCheckConfig);
+            checkAttribute(loaderLdapStem, loaderLdapValueDef, LoaderLdapUtils.ATTR_DEF_EXTENSION_LDAP_GROUP_DESCRIPTION_EXPRESSION, 
+                "Grouper loader LDAP group description expression", 
+                "JEXL expression language fragment that evaluates to the group description, " +
+                "optional for LDAP_GROUP_LIST or LDAP_GROUPS_FROM_ATTRIBUTES", 
+                wasInCheckConfig);
+            checkAttribute(loaderLdapStem, loaderLdapValueDef, LoaderLdapUtils.ATTR_DEF_EXTENSION_LDAP_SUBJECT_EXPRESSION, 
+                "Grouper loader LDAP subject expression", 
+                "JEXL expression language fragment that processes the subject string before passing it to the subject API (optional)", 
+                wasInCheckConfig);
           }
         }
       }

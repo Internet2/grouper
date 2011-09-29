@@ -432,6 +432,13 @@ public class GrouperLoaderJob implements Job, StatefulJob {
       String grouperLoaderLdapSubjectIdType = null;
       String grouperLoaderLdapSearchScope = null;
       String grouperLoaderLdapAndGroups = null;
+      String grouperLoaderLdapGroupAttributeName = null;
+      String grouperLoaderLdapExtraAttributes = null;
+      String grouperLoaderLdapErrorUnresolvable = null;
+      String grouperLoaderLdapGroupNameExpression = null;
+      String grouperLoaderLdapGroupDisplayExtensionExpression = null;
+      String grouperLoaderLdapGroupDescriptionExpression = null;
+      String grouperLoaderLdapSubjectExpression = null;
       
       AttributeDefName grouperLoaderLdapTypeAttributeDefName = GrouperDAOFactory.getFactory()
       .getAttributeDefName().findByNameSecure(LoaderLdapUtils.grouperLoaderLdapName(), false);
@@ -448,6 +455,14 @@ public class GrouperLoaderJob implements Job, StatefulJob {
       grouperLoaderLdapSubjectIdType = GrouperLoaderType.attributeValueOrDefaultOrNull(attributeAssign, LoaderLdapUtils.grouperLoaderLdapSubjectIdTypeName());
       grouperLoaderLdapSearchScope = GrouperLoaderType.attributeValueOrDefaultOrNull(attributeAssign, LoaderLdapUtils.grouperLoaderLdapSearchScopeName());
       grouperLoaderLdapAndGroups = GrouperLoaderType.attributeValueOrDefaultOrNull(attributeAssign, LoaderLdapUtils.grouperLoaderLdapAndGroupsName());
+      grouperLoaderLdapGroupAttributeName = GrouperLoaderType.attributeValueOrDefaultOrNull(attributeAssign, LoaderLdapUtils.grouperLoaderLdapGroupAttributeName());
+      grouperLoaderLdapExtraAttributes = GrouperLoaderType.attributeValueOrDefaultOrNull(attributeAssign, LoaderLdapUtils.grouperLoaderLdapExtraAttributesName());
+      grouperLoaderLdapErrorUnresolvable = GrouperLoaderType.attributeValueOrDefaultOrNull(attributeAssign, LoaderLdapUtils.grouperLoaderLdapErrorUnresolvableName());
+      grouperLoaderLdapGroupNameExpression = GrouperLoaderType.attributeValueOrDefaultOrNull(attributeAssign, LoaderLdapUtils.grouperLoaderLdapGroupNameExpressionName());
+      grouperLoaderLdapGroupDisplayExtensionExpression = GrouperLoaderType.attributeValueOrDefaultOrNull(attributeAssign, LoaderLdapUtils.grouperLoaderLdapGroupDisplayExtensionExpressionName());
+      grouperLoaderLdapGroupDescriptionExpression = GrouperLoaderType.attributeValueOrDefaultOrNull(attributeAssign, LoaderLdapUtils.grouperLoaderLdapGroupDescriptionExpressionName());
+      grouperLoaderLdapSubjectAttribute = GrouperLoaderType.attributeValueOrDefaultOrNull(attributeAssign, LoaderLdapUtils.grouperLoaderLdapSubjectExpressionName());
+      
       String groupName = jobGroup.getName();
       hib3GrouploaderLog.setGroupUuid(jobGroup.getUuid());
       
@@ -466,11 +481,17 @@ public class GrouperLoaderJob implements Job, StatefulJob {
           andGroups.add(group);
         }
       }
-      
-      LoaderJobBean loaderJobBean = new LoaderJobBean(grouperLoaderLdapType, grouperLoaderLdapServerId, grouperLoaderLdapFilter, 
-          grouperLoaderLdapSubjectAttribute, grouperLoaderLdapSearchDn, grouperLoaderLdapSourceId, grouperLoaderLdapSubjectIdType, 
-          grouperLoaderLdapSearchScope, startTime, grouperLoaderTypeEnum, groupName, hib3GrouploaderLog, grouperSession, andGroups);
-      
+
+      LoaderJobBean loaderJobBean = new LoaderJobBean(grouperLoaderLdapType, grouperLoaderLdapServerId, 
+          grouperLoaderLdapFilter, 
+          grouperLoaderLdapSubjectAttribute, grouperLoaderLdapSearchDn, grouperLoaderLdapSourceId, 
+          grouperLoaderLdapSubjectIdType, 
+          grouperLoaderLdapSearchScope, startTime, grouperLoaderTypeEnum, groupName, hib3GrouploaderLog, 
+          grouperSession, andGroups, grouperLoaderLdapGroupAttributeName, grouperLoaderLdapExtraAttributes,
+          grouperLoaderLdapErrorUnresolvable, grouperLoaderLdapGroupNameExpression,
+          grouperLoaderLdapGroupDisplayExtensionExpression, grouperLoaderLdapGroupDescriptionExpression,
+          grouperLoaderLdapSubjectExpression);
+
       //call hooks if registered
       GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.LOADER, 
           LoaderHooks.METHOD_LOADER_PRE_RUN, HooksLoaderBean.class, loaderJobBean, 

@@ -4,9 +4,20 @@
  */
 package edu.internet2.middleware.grouper.app.loader.ldap;
 
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
+import org.apache.commons.lang.StringUtils;
+
+import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.permissions.limits.PermissionLimitUtils;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.subject.util.ExpirableCache;
 
 
 /**
@@ -85,7 +96,16 @@ public class LoaderLdapUtils {
   /** loader ldap value def extension */
   public static final String LOADER_LDAP_VALUE_DEF = "grouperLoaderLdapValueDef";
 
-  /** extension of the attribute def name for type of ldap loader (e.g. LDAP_SIMPLE) */
+  /** 
+   * extension of the attribute def name for type of ldap loader (e.g. LDAP_SIMPLE).
+   * Like the SQL loader, this holds the type of job from the GrouperLoaderType enum, 
+   * currently the only valid values are LDAP_SIMPLE, LDAP_GROUP_LIST, LDAP_GROUPS_FROM_ATTRIBUTES.  
+   * Simple is a group loaded from LDAP filter which returns subject ids or identifiers.  
+   * Group list is an LDAP filter which returns group objects, and the group objects 
+   * have a list of subjects.  Groups from attributes is an LDAP filter that returns 
+   * subjects which have a multi-valued attribute e.g. affiliations where groups will 
+   * be created based on subject who have each attribute value  
+   */
   public static final String ATTR_DEF_EXTENSION_TYPE = "grouperLoaderLdapType";
 
   /** attribute def name of type name */
@@ -376,4 +396,283 @@ public class LoaderLdapUtils {
   }
 
 
+  /** Attribute name of the filter object result that holds the group name  */
+  public static final String ATTR_DEF_EXTENSION_LDAP_GROUP_ATTRIBUTE = "grouperLoaderLdapGroupAttribute";
+
+  /** attribute def name of group attribute */
+  private static String grouperLoaderLdapGroupAttributeName;
+
+  /**
+   * attribute def name of group attribute
+   * @return name
+   */
+  public static String grouperLoaderLdapGroupAttributeName() {
+    if (grouperLoaderLdapGroupAttributeName == null) {
+      grouperLoaderLdapGroupAttributeName = grouperLoaderLdapStemName() + ":" + ATTR_DEF_EXTENSION_LDAP_GROUP_ATTRIBUTE;
+    }
+    return grouperLoaderLdapGroupAttributeName;
+  }
+  
+  /**
+   * return attribute def name for attribute group attribute
+   * @return attribute def name
+   */
+  public static AttributeDefName grouperLoaderLdapGroupAttributeAttributeDefName() {
+    return GrouperDAOFactory.getFactory().getAttributeDefName().findByNameSecure(grouperLoaderLdapGroupAttributeName(), true);
+  }
+
+
+  /** Attribute name of the filter object result that holds the extra attributes  */
+  public static final String ATTR_DEF_EXTENSION_LDAP_EXTRA_ATTRIBUTES = "grouperLoaderLdapExtraAttributes";
+
+  /** attribute def name of extra attributes */
+  private static String grouperLoaderLdapExtraAttributesName;
+
+  /**
+   * attribute def name of extra attributes
+   * @return name
+   */
+  public static String grouperLoaderLdapExtraAttributesName() {
+    if (grouperLoaderLdapExtraAttributesName == null) {
+      grouperLoaderLdapExtraAttributesName = grouperLoaderLdapStemName() + ":" + ATTR_DEF_EXTENSION_LDAP_EXTRA_ATTRIBUTES;
+    }
+    return grouperLoaderLdapExtraAttributesName;
+  }
+  
+  /**
+   * return attribute def name for attribute extra attributes
+   * @return attribute def name
+   */
+  public static AttributeDefName grouperLoaderLdapExtraAttributesAttributeDefName() {
+    return GrouperDAOFactory.getFactory().getAttributeDefName().findByNameSecure(grouperLoaderLdapExtraAttributesName(), true);
+  }
+  
+
+  
+  
+  /** Attribute name of true/false for error unresolvable  */
+  public static final String ATTR_DEF_EXTENSION_LDAP_ERROR_UNRESOLVABLE = "grouperLoaderLdapErrorUnresolvable";
+
+  /** attribute def name of error unresolvable */
+  private static String grouperLoaderLdapErrorUnresolvableName;
+
+  /**
+   * attribute def name of error unresolvable
+   * @return name
+   */
+  public static String grouperLoaderLdapErrorUnresolvableName() {
+    if (grouperLoaderLdapErrorUnresolvableName == null) {
+      grouperLoaderLdapErrorUnresolvableName = grouperLoaderLdapStemName() + ":" + ATTR_DEF_EXTENSION_LDAP_ERROR_UNRESOLVABLE;
+    }
+    return grouperLoaderLdapErrorUnresolvableName;
+  }
+  
+  /**
+   * return attribute def name for attribute error unresolvable
+   * @return attribute def name
+   */
+  public static AttributeDefName grouperLoaderLdapErrorUnresolvableAttributeDefName() {
+    return GrouperDAOFactory.getFactory().getAttributeDefName().findByNameSecure(grouperLoaderLdapErrorUnresolvableName(), true);
+  }
+
+
+  
+
+  
+  
+  /** Attribute name of name expression  */
+  public static final String ATTR_DEF_EXTENSION_LDAP_GROUP_NAME_EXPRESSION = "grouperLoaderLdapGroupNameExpression";
+
+  /** attribute def name of name expression */
+  private static String grouperLoaderLdapGroupNameExpressionName;
+
+  /**
+   * attribute def name of group name expression
+   * @return name
+   */
+  public static String grouperLoaderLdapGroupNameExpressionName() {
+    if (grouperLoaderLdapGroupNameExpressionName == null) {
+      grouperLoaderLdapGroupNameExpressionName = grouperLoaderLdapStemName() + ":" + ATTR_DEF_EXTENSION_LDAP_GROUP_NAME_EXPRESSION;
+    }
+    return grouperLoaderLdapGroupNameExpressionName;
+  }
+  
+  /**
+   * return attribute def name for group name expression
+   * @return attribute def name
+   */
+  public static AttributeDefName grouperLoaderLdapGroupNameExpressionAttributeDefName() {
+    return GrouperDAOFactory.getFactory().getAttributeDefName().findByNameSecure(grouperLoaderLdapGroupNameExpressionName(), true);
+  }
+
+  
+  
+
+  
+  
+  /** Attribute name of display extension expression  */
+  public static final String ATTR_DEF_EXTENSION_LDAP_GROUP_DISPLAY_EXTENSION_EXPRESSION = "grouperLoaderLdapGroupDisplayExtensionExpression";
+
+  /** attribute def name of display extension expression */
+  private static String grouperLoaderLdapGroupDisplayExtensionExpressionName;
+
+  /**
+   * attribute def name of group display extension expression
+   * @return name
+   */
+  public static String grouperLoaderLdapGroupDisplayExtensionExpressionName() {
+    if (grouperLoaderLdapGroupDisplayExtensionExpressionName == null) {
+      grouperLoaderLdapGroupDisplayExtensionExpressionName = grouperLoaderLdapStemName() + ":" + ATTR_DEF_EXTENSION_LDAP_GROUP_DISPLAY_EXTENSION_EXPRESSION;
+    }
+    return grouperLoaderLdapGroupDisplayExtensionExpressionName;
+  }
+  
+  /**
+   * return attribute def name for group dislpay extension expression
+   * @return attribute def name
+   */
+  public static AttributeDefName grouperLoaderLdapGroupDisplayExtensionExpressionAttributeDefName() {
+    return GrouperDAOFactory.getFactory().getAttributeDefName().findByNameSecure(grouperLoaderLdapGroupDisplayExtensionExpressionName(), true);
+  }
+
+  
+  
+  
+  
+  /** Attribute name of description expression  */
+  public static final String ATTR_DEF_EXTENSION_LDAP_GROUP_DESCRIPTION_EXPRESSION = "grouperLoaderLdapGroupDescriptionExpression";
+
+  /** attribute def name of description expression */
+  private static String grouperLoaderLdapGroupDescriptionExpressionName;
+
+  /**
+   * attribute def name of group description expression
+   * @return name
+   */
+  public static String grouperLoaderLdapGroupDescriptionExpressionName() {
+    if (grouperLoaderLdapGroupDescriptionExpressionName == null) {
+      grouperLoaderLdapGroupDescriptionExpressionName = grouperLoaderLdapStemName() + ":" + ATTR_DEF_EXTENSION_LDAP_GROUP_DESCRIPTION_EXPRESSION;
+    }
+    return grouperLoaderLdapGroupDescriptionExpressionName;
+  }
+  
+  /**
+   * return attribute def name for group description expression
+   * @return attribute def name
+   */
+  public static AttributeDefName grouperLoaderLdapGroupDescriptionExpressionAttributeDefName() {
+    return GrouperDAOFactory.getFactory().getAttributeDefName().findByNameSecure(grouperLoaderLdapGroupDescriptionExpressionName(), true);
+  }
+
+  
+  
+  /** limit logic map */
+  static ExpirableCache<Boolean, Set<Class<?>>> ldapLoaderElClassesMap = new ExpirableCache<Boolean, Set<Class<?>>>(5);
+
+  /**
+   * custom el instances to add to the variable map for ldap loader EL
+   * @return the map
+   */
+  public static Map<String, Object> limitLoaderElClasses() {
+
+    //grouper.permissions.limits.el.classes
+
+    Set<Class<?>> ldapLoaderElClasses = ldapLoaderElClassesMap.get(Boolean.TRUE);
+
+    if (ldapLoaderElClasses == null) {
+
+      synchronized (PermissionLimitUtils.class) {
+
+        ldapLoaderElClasses = ldapLoaderElClassesMap.get(Boolean.TRUE);
+
+        if (ldapLoaderElClasses == null) {
+
+          ldapLoaderElClasses = new HashSet<Class<?>>();
+
+          //middleware.grouper.rules.MyRuleUtils
+          String customElClasses = GrouperLoaderConfig.getPropertyString("loader.ldap.el.classes", false);
+
+          if (!StringUtils.isBlank(customElClasses)) {
+            String[] customElClassesArray = GrouperUtil.splitTrim(customElClasses, ",");
+            for (String customElClass : customElClassesArray) {
+              Class<?> customClassClass = GrouperUtil.forName(customElClass);
+              ldapLoaderElClasses.add(customClassClass);
+            }
+          }
+
+
+          //lets add standard entries, do this first so they can be overridden
+          ldapLoaderElClassesMap.put(Boolean.TRUE, ldapLoaderElClasses);
+
+        }
+      }
+    }
+    
+    //get new instances each time
+    Map<String,Object> result = new HashMap<String, Object>();
+    for (Class<?> customClassClass : ldapLoaderElClasses) {
+      String simpleName = StringUtils.uncapitalize(customClassClass.getSimpleName());
+      result.put(simpleName, GrouperUtil.newInstance(customClassClass));
+      
+    }
+
+    return result;
+    
+  }
+
+  /**
+   * substitute expression
+   * @param expression
+   * @param loaderEnvVars 
+   * @return the evaluation
+   */
+  public static String substituteEl(String expression, Map<String, Object> loaderEnvVars) {
+    
+    if (StringUtils.isBlank(expression)) {
+      return expression;
+    }
+    
+    loaderEnvVars.put("loaderLdapElUtils", new LoaderLdapElUtils());
+    
+    //get custom el classes to add
+    Map<String, Object> customElClasses = limitLoaderElClasses();
+    
+    loaderEnvVars.putAll(GrouperUtil.nonNull(customElClasses));
+    
+    //dont be lenient on undefined variables
+    String result = GrouperUtil.substituteExpressionLanguage(expression, loaderEnvVars, false, false, false);
+    
+    return result;
+  }
+  
+  
+  /** Attribute name of subject expression  */
+  public static final String ATTR_DEF_EXTENSION_LDAP_SUBJECT_EXPRESSION = "grouperLoaderLdapSubjectExpression";
+
+  /** attribute def name of subject expression */
+  private static String grouperLoaderLdapSubjectExpressionName;
+
+  /**
+   * attribute def name of subject expression
+   * @return name
+   */
+  public static String grouperLoaderLdapSubjectExpressionName() {
+    if (grouperLoaderLdapSubjectExpressionName == null) {
+      grouperLoaderLdapSubjectExpressionName = grouperLoaderLdapStemName() + ":" + ATTR_DEF_EXTENSION_LDAP_SUBJECT_EXPRESSION;
+    }
+    return grouperLoaderLdapSubjectExpressionName;
+  }
+  
+  /**
+   * return attribute def name for subject expression
+   * @return attribute def name
+   */
+  public static AttributeDefName grouperLoaderLdapSubjectExpressionAttributeDefName() {
+    return GrouperDAOFactory.getFactory().getAttributeDefName().findByNameSecure(grouperLoaderLdapSubjectExpressionName(), true);
+  }
+
+  
+  
+
+  
 }
