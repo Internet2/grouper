@@ -338,6 +338,31 @@ public class LoaderLdapUtils {
     return GrouperDAOFactory.getFactory().getAttributeDefName().findByNameSecure(grouperLoaderLdapSearchScopeName(), true);
   }
   
+  /** extension of the attribute def name for groups like string for sql to remove orphans of LDAP_GROUP_LIST */
+  public static final String ATTR_DEF_EXTENSION_GROUPS_LIKE = "grouperLoaderLdapGroupsLike";
+
+  /** attribute def name of groups like string for sql to remove orphans of LDAP_GROUP_LIST */
+  private static String grouperLoaderLdapGroupsLikeName;
+
+  /**
+   * attribute def name of groups like string for sql to remove orphans of LDAP_GROUP_LIST
+   * @return name
+   */
+  public static String grouperLoaderLdapGroupsLikeName() {
+    if (grouperLoaderLdapGroupsLikeName == null) {
+      grouperLoaderLdapGroupsLikeName = grouperLoaderLdapStemName() + ":" + ATTR_DEF_EXTENSION_GROUPS_LIKE;
+    }
+    return grouperLoaderLdapGroupsLikeName;
+  }
+  
+  /**
+   * return attribute def name for attribute groups like string for sql to remove orphans of LDAP_GROUP_LIST
+   * @return attribute def name
+   */
+  public static AttributeDefName grouperLoaderLdapGroupsLikeAttributeDefName() {
+    return GrouperDAOFactory.getFactory().getAttributeDefName().findByNameSecure(grouperLoaderLdapGroupsLikeName(), true);
+  }
+  
   /**
    * return the stem name where the limit attributes go, without colon on end
    * @return stem name

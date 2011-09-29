@@ -162,7 +162,7 @@ public class GrouperLoaderJob implements Job, StatefulJob {
               .retrieveValueInteger(LoaderLdapUtils.grouperLoaderLdapPriorityName()), true);
           
           //lets reset the job name in case the name has changed
-          jobName = grouperLoaderTypeFromOwner + "__" + attributeDef.getName() + "__" + attributeDef.getId();
+          jobName = grouperLoaderTypeFromOwner + "__" + group.getName() + "__" + group.getId();
           hib3GrouploaderLog.setJobName(jobName);
           
         }

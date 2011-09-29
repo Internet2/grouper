@@ -14,15 +14,18 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
+import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.ldap.LdapSearchScope;
 import edu.internet2.middleware.grouper.ldap.LdapSession;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.SourceUnavailableException;
 import edu.internet2.middleware.subject.Subject;
@@ -296,6 +299,91 @@ public class GrouperLoaderResultset {
   }
   
   /**
+   * get a resultset based on an ldap server and filter
+   * @param ldapServerId server id in grouper-loader.properties
+   * @param filter ldap filter query
+   * @param searchDn place in ldap where search starts from
+   * @param subjectAttribute attribute where the subjectId, or subjectIdentifier, or subjectIdOrIdentifier is
+   * @param sourceId if all subjects come from one source, put the sourceId here
+   * @param subjectIdType the type of the subjectId, either: subjectId, subjectIdentifier, or subjectIdOrIdentifier
+   * @param ldapSearchScope either OBJECT_SCOPE, ONELEVEL_SCOPE, SUBTREE_SCOPE
+   * @param jobName for logging if problem
+   * @param hib3GrouperLoaderLog 
+   * @param groupsLikeString this is the sql string to identify groups in registry like the loader groups to delete orphans
+   */
+  public GrouperLoaderResultset(String ldapServerId, String filter, 
+      String searchDn, String subjectAttribute, String sourceId, 
+      String subjectIdType, String ldapSearchScope, String jobName, Hib3GrouperLoaderLog hib3GrouperLoaderLog,
+      String groupsLikeString) {
+    
+    //run the query
+    LdapSearchScope ldapSearchScopeEnum = LdapSearchScope.valueOfIgnoreCase(ldapSearchScope, false);
+    
+    boolean hasSourceId = !StringUtils.isBlank(sourceId);
+    
+    String subjectIdCol = "SUBJECT_ID";
+  
+    if(!StringUtils.isBlank(subjectIdType)) {
+     
+      if (StringUtils.equalsIgnoreCase(subjectIdType, "SUBJECT_ID") || StringUtils.equalsIgnoreCase(subjectIdType, "subjectId")) {
+        subjectIdCol = "SUBJECT_ID";
+      } else if (StringUtils.equalsIgnoreCase(subjectIdType, "SUBJECT_IDENTIFIER") || StringUtils.equalsIgnoreCase(subjectIdType, "subjectIdentifier")) {
+        subjectIdCol = "SUBJECT_IDENTIFIER";
+      } else if (StringUtils.equalsIgnoreCase(subjectIdType, "SUBJECT_ID_OR_IDENTIFIER") || StringUtils.equalsIgnoreCase(subjectIdType, "subjectIdOrIdentifier")) {
+        subjectIdCol = "SUBJECT_ID_OR_IDENTIFIER";
+      } else {
+        throw new RuntimeException("Not expecting subjectIdType: '" + subjectIdType + "', should be subjectId, subjectIdentifier, or subjectIdOrIdentifier");
+      }      
+    }
+    
+    this.columnNames.add("GROUP_NAME");
+    this.columnTypes.add(Types.VARCHAR);
+    
+    this.columnNames.add(subjectIdCol);
+    this.columnTypes.add(Types.VARCHAR);
+    
+    if (hasSourceId) {
+      
+      this.columnNames.add("SUBJECT_SOURCE_ID");
+      this.columnTypes.add(Types.VARCHAR);
+      
+    }
+    
+    Map<String, List<String>> resultMap = LdapSession.listInObjects(String.class, ldapServerId, searchDn, ldapSearchScopeEnum, filter, subjectAttribute);
+  
+    for (String dn : resultMap.keySet()) {
+      List<String> results = resultMap.get(dn);
+      for (String result : results) {
+        Row row = new Row();
+        Object[] rowData = new Object[hasSourceId ? 3 : 2];
+        row.setRowData(rowData);
+        this.data.add(row);
+        rowData[1] = result;
+        if (hasSourceId) {
+          rowData[2] = sourceId;
+        }
+      }
+    }
+    this.convertToSubjectIdIfNeeded(jobName, hib3GrouperLoaderLog);
+  }
+
+  /**
+   * get the group name from dn
+   * @param dn
+   * @return the group name
+   */
+  private static String groupNameFromDn(String dn, String groupId) {
+    Group group = GrouperDAOFactory.getFactory().getGroup().findByUuid(groupId, true);
+    String groupName = group.getName();
+    String parentFolder = GrouperUtil.parentStemNameFromName(groupName);
+    if (StringUtils.equals(parentFolder, ":")) {
+      //parentFolder
+    }
+    //TODO fix this
+    return null;
+  }
+  
+  /**
    * if there is no subject id col, then make one and resolve the subjects
    * @param jobName for logging
    * @param hib3GrouperLoaderLog 
@@ -425,12 +513,16 @@ public class GrouperLoaderResultset {
       String defaultSubjectSourceId = GrouperLoaderConfig.getPropertyString(
           GrouperLoaderConfig.DEFAULT_SUBJECT_SOURCE_ID);
       
+      String subjectIdForLog = null;
+      String subjectColForLog = null;
+      
       //maybe get the sourceId from config file
       subjectSourceId = StringUtils.defaultString(subjectSourceId, defaultSubjectSourceId);
       try {
         
         if (!StringUtils.isBlank(subjectId)) {
-        
+          subjectIdForLog = subjectId;
+          subjectColForLog = "subjectId";
           if (!StringUtils.isBlank(subjectSourceId)) {
             this.subject = SubjectFinder.getSource(subjectSourceId).getSubject(subjectId, true);
             //CH 20091013: we need the loader to be based on subjectId to eliminate lookups...
@@ -443,6 +535,8 @@ public class GrouperLoaderResultset {
             //this.subject = SubjectFinder.findByIdOrIdentifier(subjectId, true);
           }
         } else if (!StringUtils.isBlank(subjectIdentifier)) {
+          subjectIdForLog = subjectIdentifier;
+          subjectColForLog = "subjectIdentifier";
           if (!StringUtils.isBlank(subjectSourceId)) {
             this.subject = SubjectFinder.findByIdentifierAndSource(subjectIdentifier, subjectSourceId, true);
           } else {
@@ -450,6 +544,8 @@ public class GrouperLoaderResultset {
           }
           
         } else if (!StringUtils.isBlank(subjectIdOrIdentifier)) {
+          subjectIdForLog = subjectIdOrIdentifier;
+          subjectColForLog = "subjectIdOrIdentifier";
           if (!StringUtils.isBlank(subjectSourceId)) {
             this.subject = SubjectFinder.findByIdOrIdentifierAndSource(subjectIdOrIdentifier, subjectSourceId, true);
           } else {
@@ -461,8 +557,8 @@ public class GrouperLoaderResultset {
               + jobName + ", " + GrouperUtil.toStringForLog(GrouperLoaderResultset.this.getColumnNames()));
         }
       } catch (Exception e) {
-        this.subjectError = "Problem with subjectId: " 
-            + subjectId + ", subjectSourceId: " + subjectSourceId + ", in jobName: " + jobName;
+        this.subjectError = "Problem with " + subjectColForLog + ": " 
+            + subjectIdForLog + ", subjectSourceId: " + subjectSourceId + ", in jobName: " + jobName;
         LOG.error(this.subjectError, e); 
         if (e instanceof SubjectNotFoundException
             || e instanceof SubjectNotUniqueException

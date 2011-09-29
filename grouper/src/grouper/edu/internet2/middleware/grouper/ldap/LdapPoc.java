@@ -6,6 +6,7 @@ package edu.internet2.middleware.grouper.ldap;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import javax.naming.directory.SearchResult;
 
@@ -34,10 +35,10 @@ public class LdapPoc {
   public static void main(String[] args) throws Exception {
     //manyObjectsOneAttribute();
     
-    for (int i=0;i<100;i++) {
-      manyObjectsOneAttributeFramework();
-    }
-    
+    //for (int i=0;i<100;i++) {
+    //  manyObjectsListMapAttributeFramework();
+    //}
+    manyObjectsListMapAttributeFramework();
 
   }
 
@@ -105,11 +106,29 @@ public class LdapPoc {
     }
 
   }
+
+  /**
+   * 
+   */
+  public static void manyObjectsListMapAttributeFramework() {
+    Map<String, List<String>> resultMap = LdapSession.listInObjects(String.class, "personLdap", "ou=groups", 
+        null, "(|(cn=test:testGroup)(cn=test:ldaptesting:test1))", "hasMember");
+  
+    for (String key : resultMap.keySet()) {
+      List<String> resultList = resultMap.get(key);
+      System.out.print(key + ": ");
+      for (String result : resultList) {
+        System.out.print(result + ",");
+      }
+      System.out.println();
+    }
+  }
   
   public static void assignLoaderLdapAttributes() {
     GrouperSession grouperSession = GrouperSession.startRootSession();
     Group group = new GroupSave(grouperSession).assignName("someStem:myLdapGroup").assignCreateParentStemsIfNotExist(true).save();
     AttributeAssign attributeAssign = group.getAttributeDelegate().assignAttribute(LoaderLdapUtils.grouperLoaderLdapAttributeDefName()).getAttributeAssign();
+    attributeAssign = group.getAttributeDelegate().retrieveAssignment(null, LoaderLdapUtils.grouperLoaderLdapAttributeDefName(), false, true);
     attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapTypeName(), "LDAP_SIMPLE");
     attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapFilterName(), "(|(cn=test:testGroup)(cn=test:ldaptesting:test1))");
     attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapQuartzCronName(), "* * * * * ?");

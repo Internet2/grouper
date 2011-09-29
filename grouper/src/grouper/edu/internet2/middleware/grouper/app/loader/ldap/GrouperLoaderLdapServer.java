@@ -12,6 +12,21 @@ import org.apache.commons.lang.StringUtils;
  * db profile from grouper.properties (or possibly grouper.hibernate.properties)
  */
 public class GrouperLoaderLdapServer {
+
+  /**
+   * get the base dn from the URL, e.g. ldaps://server/baseDn would return baseDn
+   * @return base dn or null if none
+   */
+  public String getBaseDn() {
+    String baseDn = null;
+    //must have three slashes, e.g. ldaps://something/baseDn
+    if (this.url != null && StringUtils.countMatches(this.url, "/") == 3 && !this.url.endsWith("/")) {
+      //get the string after the last slash
+      int indexOfLastSlash = this.url.lastIndexOf('/');
+      baseDn = StringUtils.trimToNull(this.url.substring(indexOfLastSlash+1, this.url.length()));
+    }
+    return baseDn;
+  }
   
   /** user to login to ldap, e.g. uid=someapp,ou=people,dc=myschool,dc=edu */
   private String user;

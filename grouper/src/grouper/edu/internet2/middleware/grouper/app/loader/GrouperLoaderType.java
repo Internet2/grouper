@@ -920,11 +920,11 @@ public enum GrouperLoaderType {
        */
       @Override
       public boolean attributeRequired(String attributeName) {
-        return StringUtils.equals(LoaderLdapUtils.ATTR_DEF_EXTENSION_SERVER_ID, attributeName)
-            || StringUtils.equals(LoaderLdapUtils.ATTR_DEF_EXTENSION_LDAP_FILTER, attributeName)
-            || StringUtils.equals(LoaderLdapUtils.ATTR_DEF_EXTENSION_QUARTZ_CRON, attributeName)
-            || StringUtils.equals(LoaderLdapUtils.ATTR_DEF_EXTENSION_SUBJECT_ATTRIBUTE, attributeName)
-            || StringUtils.equals(LoaderLdapUtils.ATTR_DEF_EXTENSION_TYPE, attributeName);
+        return StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapServerIdName(), attributeName)
+            || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapFilterName(), attributeName)
+            || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapQuartzCronName(), attributeName)
+            || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapSubjectAttributeName(), attributeName)
+            || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapTypeName(), attributeName);
       }
     
       /**
@@ -933,11 +933,12 @@ public enum GrouperLoaderType {
        */
       @Override
       public boolean attributeOptional(String attributeName) {
-        return StringUtils.equals(LoaderLdapUtils.ATTR_DEF_EXTENSION_LDAP_SEARCH_DN, attributeName)
-            || StringUtils.equals(LoaderLdapUtils.ATTR_DEF_EXTENSION_SEARCH_SCOPE, attributeName)
-            || StringUtils.equals(LoaderLdapUtils.ATTR_DEF_EXTENSION_SOURCE_ID, attributeName)
-            || StringUtils.equals(LoaderLdapUtils.ATTR_DEF_EXTENSION_LDAP_AND_GROUPS, attributeName)
-            || StringUtils.equals(LoaderLdapUtils.ATTR_DEF_EXTENSION_SUBJECT_ID_TYPE, attributeName);
+        return StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapSearchDnName(), attributeName)
+            || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapSearchScopeName(), attributeName)
+            || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapSourceIdName(), attributeName)
+            || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapAndGroupsName(), attributeName)
+            || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapPriorityName(), attributeName)
+            || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapSubjectIdTypeName(), attributeName);
       }
       
       /**
@@ -959,6 +960,67 @@ public enum GrouperLoaderType {
             loaderJobBean.getLdapSourceId(), loaderJobBean.getLdapSubjectIdType(), loaderJobBean.getLdapSearchScope(), 
             loaderJobBean.getHib3GrouploaderLogOverall().getJobName(), 
             loaderJobBean.getHib3GrouploaderLogOverall());
+        
+        syncOneGroupMembership(loaderJobBean.getGroupNameOverall(), null, null, 
+            loaderJobBean.getHib3GrouploaderLogOverall(), loaderJobBean.getStartTime(), 
+            grouperLoaderResultset, false, loaderJobBean.getGrouperSession(), loaderJobBean.getAndGroups(), null, null, null);
+        
+      }
+    }, 
+    
+    /** 
+     * ldap query where objects are group, and filter is for multi-valued object where all results are all members of group.
+     * must have a subject id attribute
+     */
+    LDAP_GROUP_LIST {
+      
+      /**
+       * 
+       * @see edu.internet2.middleware.grouper.app.loader.GrouperLoaderType#attributeRequired(java.lang.String)
+       */
+      @Override
+      public boolean attributeRequired(String attributeName) {
+        return StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapServerIdName(), attributeName)
+            || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapFilterName(), attributeName)
+            || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapQuartzCronName(), attributeName)
+            || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapSubjectAttributeName(), attributeName)
+            || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapTypeName(), attributeName);
+      }
+    
+      /**
+       * 
+       * @see edu.internet2.middleware.grouper.app.loader.GrouperLoaderType#attributeOptional(java.lang.String)
+       */
+      @Override
+      public boolean attributeOptional(String attributeName) {
+        return StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapSearchDnName(), attributeName)
+            || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapSearchScopeName(), attributeName)
+            || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapSourceIdName(), attributeName)
+            || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapAndGroupsName(), attributeName)
+            || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapPriorityName(), attributeName)
+            || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapGroupsLikeName(), attributeName)
+            || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapSubjectIdTypeName(), attributeName);
+      }
+      
+      /**
+       * sync up an attributeDefinition membership based on query and db
+       */
+      @SuppressWarnings("unchecked")
+      @Override
+      public void runJob(LoaderJobBean loaderJobBean) {
+    
+        GrouperContext.createNewDefaultContext(GrouperEngineBuiltin.LOADER, false, true);
+    
+        //      GrouperLoaderDb grouperLoaderDb, attributeDefName
+        //      Hib3GrouperLoaderLog hib3GrouploaderLog, long startTime, GrouperSession grouperSession, 
+        //      attributeLoaderAttrQuery, attributeLoaderAttrSetQuery, attributeLoaderAttrsLike
+        //   attributeLoaderActionQuery, attributeLoaderActionSetQuery
+        
+        final GrouperLoaderResultset grouperLoaderResultset = new GrouperLoaderResultset(loaderJobBean.getLdapServerId(), 
+            loaderJobBean.getLdapFilter(), loaderJobBean.getLdapSearchDn(), loaderJobBean.getLdapSubjectAttribute(), 
+            loaderJobBean.getLdapSourceId(), loaderJobBean.getLdapSubjectIdType(), loaderJobBean.getLdapSearchScope(), 
+            loaderJobBean.getHib3GrouploaderLogOverall().getJobName(), 
+            loaderJobBean.getHib3GrouploaderLogOverall(), loaderJobBean.getGroupLikeString());
         
         syncOneGroupMembership(loaderJobBean.getGroupNameOverall(), null, null, 
             loaderJobBean.getHib3GrouploaderLogOverall(), loaderJobBean.getStartTime(), 

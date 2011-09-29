@@ -292,6 +292,103 @@ public class LdapSession {
    */
   private static final Log LOG = GrouperUtil.getLog(LdapSession.class);
 
+  /**
+   * run a filter, for one attribute, and return a map of the DN key to the value of list of that attribute typecast as a certain type
+   * @param <R>
+   * @param returnType note, only String.class is currently supported
+   * @param ldapServerId
+   * @param searchDn
+   * @param ldapSearchScope 
+   * @param filter
+   * @param attributeName
+   * @return the list of results, never null
+   */
+  public static <R> Map<String, List<R>> listInObjects(final Class<R> returnType, final String ldapServerId, 
+      final String searchDn, final LdapSearchScope ldapSearchScope, final String filter, final String attributeName) {
+    
+    try {
+      
+      return (Map<String, List<R>>)callbackLdapSession(ldapServerId, new LdapHandler() {
+        
+        public Object callback(LdapHandlerBean ldapHandlerBean) throws NamingException {
+  
+          Ldap ldap = ldapHandlerBean.getLdap();
+          
+          Iterator<SearchResult> searchResultIterator = null;
+          
+          SearchFilter searchFilterObject = new SearchFilter(filter);
+          String[] attributeArray = new String[]{attributeName};
+          
+          SearchControls searchControls = ldap.getLdapConfig().getSearchControls(attributeArray);
+          
+          if (ldapSearchScope != null) {
+            searchControls.setSearchScope(ldapSearchScope.getSeachControlsConstant());
+          }
+          
+          if (StringUtils.isBlank(searchDn)) {
+            searchResultIterator = ldap.search(
+                searchFilterObject, searchControls);
+          } else {
+            searchResultIterator = ldap.search(searchDn,
+                searchFilterObject, searchControls);
+          }
+          
+          Map<String, List<R>> result = new HashMap<String, List<R>>();
+          int subObjectCount = 0;
+          while (searchResultIterator.hasNext()) {
+
+            SearchResult searchResult = searchResultIterator.next();
+            
+            List<R> valueResults = new ArrayList<R>();
+            String nameInNamespace = searchResult.getName();
+            //for some reason this returns: cn=test:testGroup,dc=upenn,dc=edu
+            // instead of cn=test:testGroup,ou=groups,dc=upenn,dc=edu
+            if (nameInNamespace != null && !StringUtils.isBlank(searchDn)) {
+              GrouperLoaderLdapServer grouperLoaderLdapServer = GrouperLoaderConfig.retrieveLdapProfile(ldapServerId);
+              String baseDn = grouperLoaderLdapServer.getBaseDn();
+              if (!StringUtils.isBlank(baseDn) && nameInNamespace.endsWith("," + baseDn)) {
+                
+                //sub one to get the comma out of there
+                nameInNamespace = nameInNamespace.substring(0, nameInNamespace.length() - (baseDn.length()+1));
+                nameInNamespace += "," + searchDn + "," + baseDn;
+              }
+            }
+            
+            
+            result.put(nameInNamespace, valueResults);
+            
+            Attribute attribute = searchResult.getAttributes().get(attributeName);
+            
+            if (attribute != null) {
+              for (int i=0;i<attribute.size();i++) {
+                
+                Object attributeValue = attribute.get(i);
+                attributeValue = GrouperUtil.typeCast(attributeValue, returnType);
+                if (attributeValue != null) {
+                  subObjectCount++;
+                  valueResults.add((R)attributeValue);
+                }
+              }
+            }
+          }
+  
+          if (LOG.isDebugEnabled()) {
+            LOG.debug("Found " + result.size() + " results, (" + subObjectCount + " sub-results) for serverId: " + ldapServerId + ", searchDn: " + searchDn
+              + ", filter: '" + filter + "', returning attribute: " 
+              + attributeName + ", some results: " + GrouperUtil.toStringForLog(result, 100) );
+          }
+          
+          return result;
+        }
+      });
+    } catch (RuntimeException re) {
+      GrouperUtil.injectInException(re, "Error querying ldap server id: " + ldapServerId + ", searchDn: " + searchDn
+          + ", filter: '" + filter + "', returning attribute: " + attributeName);
+      throw re;
+    }
+    
+  }
+
 
   
 }

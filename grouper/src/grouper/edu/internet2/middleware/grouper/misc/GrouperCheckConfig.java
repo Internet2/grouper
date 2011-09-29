@@ -1969,6 +1969,16 @@ public class GrouperCheckConfig {
                 "Grouper loader LDAP scheduling priority", 
                 "Quartz has a fixed threadpool (max configured in the grouper-loader.properties), and when the max is reached, " +
                 "then jobs are prioritized by this integer.  The higher the better, and the default if not set is 5.", wasInCheckConfig);
+            checkAttribute(loaderLdapStem, loaderLdapValueDef, LoaderLdapUtils.ATTR_DEF_EXTENSION_GROUPS_LIKE, 
+                "Grouper loader LDAP groups like", 
+                "This should be a sql like string (e.g. school:orgs:%org%_systemOfRecord), and the loader should be able to query group names to " +
+                "see which names are managed by this loader job.  So if a group falls off the loader resultset (or is moved), this will help the " +
+                "loader remove the members from this group.  Note, if the group is used anywhere as a member or composite member, it wont be removed.  " +
+                "All include/exclude/requireGroups will be removed.  Though the two groups, include and exclude, will not be removed if they have members.  " +
+                "There is a grouper-loader.properties setting to note remove loader groups if empty and not used: " +
+                "#if using a sql table, and specifying the name like string, then shoudl the group (in addition to memberships)" +
+                "# be removed if not used anywhere else?" +
+                "loader.sqlTable.likeString.removeGroupIfNotUsed = true", wasInCheckConfig);
             
           }
         }
