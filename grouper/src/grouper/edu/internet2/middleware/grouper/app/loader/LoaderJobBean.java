@@ -69,8 +69,26 @@ public class LoaderJobBean {
     /** constant for field name for: hib3GrouploaderLogOverall */
     public static final String FIELD_HIB3_GROUPLOADER_LOG_OVERALL = "hib3GrouploaderLogOverall";
 
+    /** constant for field name for: ldapErrorUnresolvable */
+    public static final String FIELD_LDAP_ERROR_UNRESOLVABLE = "ldapErrorUnresolvable";
+
+    /** constant for field name for: ldapExtraAttributes */
+    public static final String FIELD_LDAP_EXTRA_ATTRIBUTES = "ldapExtraAttributes";
+
     /** constant for field name for: ldapFilter */
     public static final String FIELD_LDAP_FILTER = "ldapFilter";
+
+    /** constant for field name for: ldapGroupAttribute */
+    public static final String FIELD_LDAP_GROUP_ATTRIBUTE = "ldapGroupAttribute";
+
+    /** constant for field name for: ldapGroupDescriptionExpression */
+    public static final String FIELD_LDAP_GROUP_DESCRIPTION_EXPRESSION = "ldapGroupDescriptionExpression";
+
+    /** constant for field name for: ldapGroupDisplayExtensionExpression */
+    public static final String FIELD_LDAP_GROUP_DISPLAY_EXTENSION_EXPRESSION = "ldapGroupDisplayExtensionExpression";
+
+    /** constant for field name for: ldapGroupNameExpression */
+    public static final String FIELD_LDAP_GROUP_NAME_EXPRESSION = "ldapGroupNameExpression";
 
     /** constant for field name for: ldapQuartzCron */
     public static final String FIELD_LDAP_QUARTZ_CRON = "ldapQuartzCron";
@@ -89,6 +107,9 @@ public class LoaderJobBean {
 
     /** constant for field name for: ldapSubjectAttribute */
     public static final String FIELD_LDAP_SUBJECT_ATTRIBUTE = "ldapSubjectAttribute";
+
+    /** constant for field name for: ldapSubjectExpression */
+    public static final String FIELD_LDAP_SUBJECT_EXPRESSION = "ldapSubjectExpression";
 
     /** constant for field name for: ldapSubjectIdType */
     public static final String FIELD_LDAP_SUBJECT_ID_TYPE = "ldapSubjectIdType";
@@ -109,10 +130,12 @@ public class LoaderJobBean {
         FIELD_AND_GROUPS, FIELD_ATTRIBUTE_DEF_NAME, FIELD_ATTRIBUTE_LOADER_ACTION_QUERY, FIELD_ATTRIBUTE_LOADER_ACTION_SET_QUERY, 
         FIELD_ATTRIBUTE_LOADER_ATTR_QUERY, FIELD_ATTRIBUTE_LOADER_ATTR_SET_QUERY, FIELD_ATTRIBUTE_LOADER_ATTRS_LIKE, FIELD_GROUP_LIKE_STRING, 
         FIELD_GROUP_NAME_OVERALL, FIELD_GROUP_QUERY, FIELD_GROUP_TYPES, FIELD_GROUPER_LOADER_DB, 
-        FIELD_GROUPER_LOADER_TYPE, FIELD_GROUPER_SESSION, FIELD_HIB3_GROUPLOADER_LOG_OVERALL, FIELD_LDAP_FILTER, 
-        FIELD_LDAP_QUARTZ_CRON, FIELD_LDAP_SEARCH_DN, FIELD_LDAP_SEARCH_SCOPE, FIELD_LDAP_SERVER_ID, 
-        FIELD_LDAP_SOURCE_ID, FIELD_LDAP_SUBJECT_ATTRIBUTE, FIELD_LDAP_SUBJECT_ID_TYPE, FIELD_LDAP_TYPE, 
-        FIELD_QUERY, FIELD_START_TIME);
+        FIELD_GROUPER_LOADER_TYPE, FIELD_GROUPER_SESSION, FIELD_HIB3_GROUPLOADER_LOG_OVERALL, FIELD_LDAP_ERROR_UNRESOLVABLE, 
+        FIELD_LDAP_EXTRA_ATTRIBUTES, FIELD_LDAP_FILTER, FIELD_LDAP_GROUP_ATTRIBUTE, FIELD_LDAP_GROUP_DESCRIPTION_EXPRESSION, 
+        FIELD_LDAP_GROUP_DISPLAY_EXTENSION_EXPRESSION, FIELD_LDAP_GROUP_NAME_EXPRESSION, FIELD_LDAP_QUARTZ_CRON, FIELD_LDAP_SEARCH_DN, 
+        FIELD_LDAP_SEARCH_SCOPE, FIELD_LDAP_SERVER_ID, FIELD_LDAP_SOURCE_ID, FIELD_LDAP_SUBJECT_ATTRIBUTE, 
+        FIELD_LDAP_SUBJECT_EXPRESSION, FIELD_LDAP_SUBJECT_ID_TYPE, FIELD_LDAP_TYPE, FIELD_QUERY, 
+        FIELD_START_TIME);
 
     //*****  END GENERATED WITH GenerateFieldConstants.java *****//
 
