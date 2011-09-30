@@ -672,7 +672,33 @@ public class LoaderLdapUtils {
   }
 
   
+  /** Attribute name of group types  */
+  public static final String ATTR_DEF_EXTENSION_LDAP_GROUP_TYPES = "grouperLoaderLdapGroupTypes";
+
+  /** attribute def name of group types */
+  private static String grouperLoaderLdapGroupTypesName;
+
+  /**
+   * attribute def name of group types
+   * @return name
+   */
+  public static String grouperLoaderLdapGroupTypesName() {
+    if (grouperLoaderLdapGroupTypesName == null) {
+      grouperLoaderLdapGroupTypesName = grouperLoaderLdapStemName() + ":" + ATTR_DEF_EXTENSION_LDAP_GROUP_TYPES;
+    }
+    return grouperLoaderLdapGroupTypesName;
+  }
+  
+  /**
+   * return attribute def name for group types
+   * @return attribute def name
+   */
+  public static AttributeDefName grouperLoaderLdapGroupTypesAttributeDefName() {
+    return GrouperDAOFactory.getFactory().getAttributeDefName().findByNameSecure(grouperLoaderLdapGroupTypesName(), true);
+  }
+
   
 
+    
   
 }

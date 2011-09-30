@@ -21,7 +21,7 @@ public class LoaderLdapElUtilsTest extends TestCase {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new LoaderLdapElUtilsTest("testConvertDnToSpecificValue"));
+    TestRunner.run(new LoaderLdapElUtilsTest("testConvertGroupNameAttributes"));
   }
   
   /**
@@ -43,5 +43,23 @@ public class LoaderLdapElUtilsTest extends TestCase {
     assertEquals("someapp", LoaderLdapUtils.substituteEl("${loaderLdapElUtils.convertDnToSpecificValue(subjectId)}", envVars));
     
   }
+  
+  /**
+   * 
+   */
+  public static void testConvertGroupNameAttributes() {
+    
+    Map<String, Object> envVars = new HashMap<String, Object>();
+    
+    Map<String, String> groupAttributes = new HashMap<String, String>();
+    groupAttributes.put("cn", "test:testGroup");
+    
+    envVars.put("groupAttributes", groupAttributes);
+    
+    assertEquals("groups:test:testGroup", LoaderLdapUtils.substituteEl("groups:${groupAttributes['cn']}", envVars));
+    
+  }
+  
+  
   
 }

@@ -847,6 +847,7 @@ public class LoaderJobBean {
    * @param ldapGroupDisplayExtensionExpression1 
    * @param ldapGroupDescriptionExpression1 
    * @param ldapSubjectExpression1
+   * @param groupTypes1 
    */
   public LoaderJobBean(String ldapType1, String ldapServerId1, String ldapFilter1,
       String ldapSubjectAttribute1, String ldapSearchDn1, String ldapSourceId1,
@@ -856,7 +857,7 @@ public class LoaderJobBean {
       String ldapGroupAttribute1, String extraAttributes1, 
       String errorUnresolvable1, String ldapGroupNameExpression1, 
       String ldapGroupDisplayExtensionExpression1, String ldapGroupDescriptionExpression1,
-      String ldapSubjectExpression1
+      String ldapSubjectExpression1, List<GroupType> groupTypes1
       ) {
     super();
     this.ldapType = ldapType1;
@@ -880,6 +881,7 @@ public class LoaderJobBean {
     this.ldapGroupDisplayExtensionExpression = ldapGroupDisplayExtensionExpression1;
     this.ldapGroupDescriptionExpression = ldapGroupDescriptionExpression1;
     this.ldapSubjectExpression = ldapSubjectExpression1;
+    this.groupTypes = groupTypes1;
   }
 
   /**

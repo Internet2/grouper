@@ -439,6 +439,7 @@ public class GrouperLoaderJob implements Job, StatefulJob {
       String grouperLoaderLdapGroupDisplayExtensionExpression = null;
       String grouperLoaderLdapGroupDescriptionExpression = null;
       String grouperLoaderLdapSubjectExpression = null;
+      String groupTypesString = null;
       
       AttributeDefName grouperLoaderLdapTypeAttributeDefName = GrouperDAOFactory.getFactory()
       .getAttributeDefName().findByNameSecure(LoaderLdapUtils.grouperLoaderLdapName(), false);
@@ -461,7 +462,10 @@ public class GrouperLoaderJob implements Job, StatefulJob {
       grouperLoaderLdapGroupNameExpression = GrouperLoaderType.attributeValueOrDefaultOrNull(attributeAssign, LoaderLdapUtils.grouperLoaderLdapGroupNameExpressionName());
       grouperLoaderLdapGroupDisplayExtensionExpression = GrouperLoaderType.attributeValueOrDefaultOrNull(attributeAssign, LoaderLdapUtils.grouperLoaderLdapGroupDisplayExtensionExpressionName());
       grouperLoaderLdapGroupDescriptionExpression = GrouperLoaderType.attributeValueOrDefaultOrNull(attributeAssign, LoaderLdapUtils.grouperLoaderLdapGroupDescriptionExpressionName());
-      grouperLoaderLdapSubjectAttribute = GrouperLoaderType.attributeValueOrDefaultOrNull(attributeAssign, LoaderLdapUtils.grouperLoaderLdapSubjectExpressionName());
+      grouperLoaderLdapSubjectExpression = GrouperLoaderType.attributeValueOrDefaultOrNull(attributeAssign, LoaderLdapUtils.grouperLoaderLdapSubjectExpressionName());
+      groupTypesString = GrouperLoaderType.attributeValueOrDefaultOrNull(attributeAssign, LoaderLdapUtils.grouperLoaderLdapGroupTypesName());
+
+
       
       String groupName = jobGroup.getName();
       hib3GrouploaderLog.setGroupUuid(jobGroup.getUuid());
@@ -481,6 +485,17 @@ public class GrouperLoaderJob implements Job, StatefulJob {
           andGroups.add(group);
         }
       }
+      
+      List<GroupType> groupTypes = null;
+      if (!StringUtils.isBlank(groupTypesString)) {
+        String[] groupTypeArray = GrouperUtil.splitTrim(groupTypesString, ",");
+        groupTypes = new ArrayList<GroupType>();
+        for (String groupType : groupTypeArray) {
+          //this better find the type!
+          groupTypes.add(GroupTypeFinder.find(groupType, true));
+        }
+      }
+
 
       LoaderJobBean loaderJobBean = new LoaderJobBean(grouperLoaderLdapType, grouperLoaderLdapServerId, 
           grouperLoaderLdapFilter, 
@@ -490,7 +505,7 @@ public class GrouperLoaderJob implements Job, StatefulJob {
           grouperSession, andGroups, grouperLoaderLdapGroupAttributeName, grouperLoaderLdapExtraAttributes,
           grouperLoaderLdapErrorUnresolvable, grouperLoaderLdapGroupNameExpression,
           grouperLoaderLdapGroupDisplayExtensionExpression, grouperLoaderLdapGroupDescriptionExpression,
-          grouperLoaderLdapSubjectExpression);
+          grouperLoaderLdapSubjectExpression, groupTypes);
 
       //call hooks if registered
       GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.LOADER, 

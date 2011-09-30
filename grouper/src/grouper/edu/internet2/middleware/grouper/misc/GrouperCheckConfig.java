@@ -2016,6 +2016,13 @@ public class GrouperCheckConfig {
                 "Grouper loader LDAP subject expression", 
                 "JEXL expression language fragment that processes the subject string before passing it to the subject API (optional)", 
                 wasInCheckConfig);
+            checkAttribute(loaderLdapStem, loaderLdapValueDef, LoaderLdapUtils.ATTR_DEF_EXTENSION_LDAP_GROUP_TYPES, 
+                "Grouper loader LDAP group types", 
+                "Comma separated GroupTypes which will be applied to the loaded groups.  The reason this enhancement " +
+                "exists is so we can do a group list filter and attach addIncludeExclude to the groups.  Note, if you " +
+                "do this (or use some requireGroups), the group name in the loader query should end in the system of " +
+                "record suffix, which by default is _systemOfRecord. optional for LDAP_GROUP_LIST or LDAP_GROUPS_FROM_ATTRIBUTES", 
+                wasInCheckConfig);
           }
         }
       }
