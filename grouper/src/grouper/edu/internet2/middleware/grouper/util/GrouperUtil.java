@@ -8852,6 +8852,8 @@ public class GrouperUtil {
     if (GrouperUtil.isBlank(stringToParse)) {
       return stringToParse;
     }
+    String overallResult = null;
+    Exception exception = null;
     try {
       JexlContext jc = allowStaticClasses ? new GrouperMapContext() : new MapContext();
         
@@ -8864,7 +8866,8 @@ public class GrouperUtil {
       }
       
       //allow utility methods
-      jc.set("grouperUtil", new GrouperUtil());
+      jc.set("grouperUtil", new GrouperUtilElSafe());
+      //if you add another one here, add it in the logs below
       
       // matching ${ exp }   (non-greedy)
       Pattern pattern = Pattern.compile("\\$\\{(.*?)\\}");
@@ -8946,15 +8949,41 @@ public class GrouperUtil {
       }
       
       result.append(stringToParse.substring(index, stringToParse.length()));
-      return result.toString();
+      overallResult = result.toString();
+      return overallResult;
       
     } catch (HookVeto hv) {
+      exception = hv;
       throw hv;
     } catch (Exception e) {
+      exception = e;
       if (e instanceof ExpressionLanguageMissingVariableException) {
         throw (ExpressionLanguageMissingVariableException)e;
       }
       throw new RuntimeException("Error substituting string: '" + stringToParse + "'", e);
+    } finally {
+      if (LOG.isDebugEnabled()) {
+        Set<String> keysSet = GrouperUtil.nonNull(variableMap).keySet();
+        keysSet.add("grouperUtil");
+        StringBuilder logMessage = new StringBuilder();
+        logMessage.append("Subsituting EL: '").append(stringToParse).append("', and with env vars: ");
+        String[] keys = keysSet.toArray(new String[]{});
+        for (int i=0;i<keys.length;i++) {
+          logMessage.append(keys[i]);
+          if (i != keys.length-1) {
+            logMessage.append(", ");
+          }
+        }
+        logMessage.append(" with result: '" + overallResult + "'");
+        if (exception != null) {
+          if (exception instanceof HookVeto) {
+            logMessage.append(", it was vetoed: " + exception);
+          } else {
+            logMessage.append(", and exception: " + exception + ", " + ExceptionUtils.getFullStackTrace(exception));
+          }
+        }
+        LOG.debug(logMessage.toString());
+      }
     }
   }
 

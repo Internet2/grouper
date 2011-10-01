@@ -2002,9 +2002,9 @@ public class GrouperCheckConfig {
                 "JEXL expression language fragment that evaluates to the group name (relative in the stem as the " +
                 "group which has the loader definition), optional, for LDAP_GROUP_LIST, or LDAP_GROUPS_FROM_ATTRIBUTES", 
                 wasInCheckConfig);
-            checkAttribute(loaderLdapStem, loaderLdapValueDef, LoaderLdapUtils.ATTR_DEF_EXTENSION_LDAP_GROUP_DISPLAY_EXTENSION_EXPRESSION, 
-                "Grouper loader LDAP group display extension expression", 
-                "JEXL expression language fragment that evaluates to the group display extension, optional for " +
+            checkAttribute(loaderLdapStem, loaderLdapValueDef, LoaderLdapUtils.ATTR_DEF_EXTENSION_LDAP_GROUP_DISPLAY_NAME_EXPRESSION, 
+                "Grouper loader LDAP group display name expression", 
+                "JEXL expression language fragment that evaluates to the group display name, optional for " +
                 "LDAP_GROUP_LIST or LDAP_GROUPS_FROM_ATTRIBUTES", 
                 wasInCheckConfig);
             checkAttribute(loaderLdapStem, loaderLdapValueDef, LoaderLdapUtils.ATTR_DEF_EXTENSION_LDAP_GROUP_DESCRIPTION_EXPRESSION, 
@@ -2022,6 +2022,37 @@ public class GrouperCheckConfig {
                 "exists is so we can do a group list filter and attach addIncludeExclude to the groups.  Note, if you " +
                 "do this (or use some requireGroups), the group name in the loader query should end in the system of " +
                 "record suffix, which by default is _systemOfRecord. optional for LDAP_GROUP_LIST or LDAP_GROUPS_FROM_ATTRIBUTES", 
+                wasInCheckConfig);
+
+            checkAttribute(loaderLdapStem, loaderLdapValueDef, LoaderLdapUtils.ATTR_DEF_EXTENSION_LDAP_READERS, 
+                "Grouper loader LDAP group readers", 
+                "Comma separated subjectIds or subjectIdentifiers who will be allowed to READ the group membership.  " +
+                "optional for LDAP_GROUP_LIST or LDAP_GROUPS_FROM_ATTRIBUTES", 
+                wasInCheckConfig);
+            checkAttribute(loaderLdapStem, loaderLdapValueDef, LoaderLdapUtils.ATTR_DEF_EXTENSION_LDAP_VIEWERS, 
+                "Grouper loader LDAP group viewers", 
+                "Comma separated subjectIds or subjectIdentifiers who will be allowed to VIEW the group.  " +
+                "optional for LDAP_GROUP_LIST or LDAP_GROUPS_FROM_ATTRIBUTES", 
+                wasInCheckConfig);
+            checkAttribute(loaderLdapStem, loaderLdapValueDef, LoaderLdapUtils.ATTR_DEF_EXTENSION_LDAP_ADMINS, 
+                "Grouper loader LDAP group admins", 
+                "Comma separated subjectIds or subjectIdentifiers who will be allowed to ADMIN the group.  " +
+                "optional for LDAP_GROUP_LIST or LDAP_GROUPS_FROM_ATTRIBUTES", 
+                wasInCheckConfig);
+            checkAttribute(loaderLdapStem, loaderLdapValueDef, LoaderLdapUtils.ATTR_DEF_EXTENSION_LDAP_UPDATERS, 
+                "Grouper loader LDAP group updaters", 
+                "Comma separated subjectIds or subjectIdentifiers who will be allowed to UPDATE the group memberships.  " +
+                "optional for LDAP_GROUP_LIST or LDAP_GROUPS_FROM_ATTRIBUTES", 
+                wasInCheckConfig);
+            checkAttribute(loaderLdapStem, loaderLdapValueDef, LoaderLdapUtils.ATTR_DEF_EXTENSION_LDAP_OPTINS, 
+                "Grouper loader LDAP group optins", 
+                "Comma separated subjectIds or subjectIdentifiers who will be allowed to OPT IN to the group membership list.  " +
+                "optional for LDAP_GROUP_LIST or LDAP_GROUPS_FROM_ATTRIBUTES", 
+                wasInCheckConfig);
+            checkAttribute(loaderLdapStem, loaderLdapValueDef, LoaderLdapUtils.ATTR_DEF_EXTENSION_LDAP_OPTOUTS, 
+                "Grouper loader LDAP group optouts", 
+                "Comma separated subjectIds or subjectIdentifiers who will be allowed to OPT OUT of the group membership list.  " +
+                "optional for LDAP_GROUP_LIST or LDAP_GROUPS_FROM_ATTRIBUTES", 
                 wasInCheckConfig);
           }
         }

@@ -510,29 +510,29 @@ public class LoaderLdapUtils {
 
   
   
-  /** Attribute name of display extension expression  */
-  public static final String ATTR_DEF_EXTENSION_LDAP_GROUP_DISPLAY_EXTENSION_EXPRESSION = "grouperLoaderLdapGroupDisplayExtensionExpression";
+  /** Attribute name of display name expression  */
+  public static final String ATTR_DEF_EXTENSION_LDAP_GROUP_DISPLAY_NAME_EXPRESSION = "grouperLoaderLdapGroupDisplayNameExpression";
 
-  /** attribute def name of display extension expression */
-  private static String grouperLoaderLdapGroupDisplayExtensionExpressionName;
+  /** attribute def name of display name expression */
+  private static String grouperLoaderLdapGroupDisplayNameExpressionName;
 
   /**
-   * attribute def name of group display extension expression
+   * attribute def name of group display name expression
    * @return name
    */
-  public static String grouperLoaderLdapGroupDisplayExtensionExpressionName() {
-    if (grouperLoaderLdapGroupDisplayExtensionExpressionName == null) {
-      grouperLoaderLdapGroupDisplayExtensionExpressionName = grouperLoaderLdapStemName() + ":" + ATTR_DEF_EXTENSION_LDAP_GROUP_DISPLAY_EXTENSION_EXPRESSION;
+  public static String grouperLoaderLdapGroupDisplayNameExpressionName() {
+    if (grouperLoaderLdapGroupDisplayNameExpressionName == null) {
+      grouperLoaderLdapGroupDisplayNameExpressionName = grouperLoaderLdapStemName() + ":" + ATTR_DEF_EXTENSION_LDAP_GROUP_DISPLAY_NAME_EXPRESSION;
     }
-    return grouperLoaderLdapGroupDisplayExtensionExpressionName;
+    return grouperLoaderLdapGroupDisplayNameExpressionName;
   }
   
   /**
-   * return attribute def name for group dislpay extension expression
+   * return attribute def name for group dislpay name expression
    * @return attribute def name
    */
-  public static AttributeDefName grouperLoaderLdapGroupDisplayExtensionExpressionAttributeDefName() {
-    return GrouperDAOFactory.getFactory().getAttributeDefName().findByNameSecure(grouperLoaderLdapGroupDisplayExtensionExpressionName(), true);
+  public static AttributeDefName grouperLoaderLdapGroupDisplayNameExpressionAttributeDefName() {
+    return GrouperDAOFactory.getFactory().getAttributeDefName().findByNameSecure(grouperLoaderLdapGroupDisplayNameExpressionName(), true);
   }
 
   
@@ -639,8 +639,9 @@ public class LoaderLdapUtils {
     
     loaderEnvVars.putAll(GrouperUtil.nonNull(customElClasses));
     
+    String result = null;
     //dont be lenient on undefined variables
-    String result = GrouperUtil.substituteExpressionLanguage(expression, loaderEnvVars, false, false, false);
+    result = GrouperUtil.substituteExpressionLanguage(expression, loaderEnvVars, false, false, false);
     
     return result;
   }
@@ -699,6 +700,167 @@ public class LoaderLdapUtils {
 
   
 
+  /** Attribute name of readers  */
+  public static final String ATTR_DEF_EXTENSION_LDAP_READERS = "grouperLoaderLdapReaders";
+
+  /** attribute def name of readers */
+  private static String grouperLoaderLdapReadersName;
+
+  /**
+   * attribute def name of readers
+   * @return name
+   */
+  public static String grouperLoaderLdapReadersName() {
+    if (grouperLoaderLdapReadersName == null) {
+      grouperLoaderLdapReadersName = grouperLoaderLdapStemName() + ":" + ATTR_DEF_EXTENSION_LDAP_READERS;
+    }
+    return grouperLoaderLdapReadersName;
+  }
+  
+  /**
+   * return attribute def name for readers
+   * @return attribute def name
+   */
+  public static AttributeDefName grouperLoaderLdapReadersAttributeDefName() {
+    return GrouperDAOFactory.getFactory().getAttributeDefName().findByNameSecure(grouperLoaderLdapReadersName(), true);
+  }
+
+  
+  /** Attribute name of viewers  */
+  public static final String ATTR_DEF_EXTENSION_LDAP_VIEWERS = "grouperLoaderLdapViewers";
+
+  /** attribute def name of viewers */
+  private static String grouperLoaderLdapViewersName;
+
+  /**
+   * attribute def name of viewers
+   * @return name
+   */
+  public static String grouperLoaderLdapViewersName() {
+    if (grouperLoaderLdapViewersName == null) {
+      grouperLoaderLdapViewersName = grouperLoaderLdapStemName() + ":" + ATTR_DEF_EXTENSION_LDAP_VIEWERS;
+    }
+    return grouperLoaderLdapViewersName;
+  }
+  
+  /**
+   * return attribute def name for viewers
+   * @return attribute def name
+   */
+  public static AttributeDefName grouperLoaderLdapViewersAttributeDefName() {
+    return GrouperDAOFactory.getFactory().getAttributeDefName().findByNameSecure(grouperLoaderLdapViewersName(), true);
+  }
+
+  
     
+  /** Attribute name of updaters  */
+  public static final String ATTR_DEF_EXTENSION_LDAP_UPDATERS = "grouperLoaderLdapUpdaters";
+
+  /** attribute def name of udpaters */
+  private static String grouperLoaderLdapUpdatersName;
+
+  /**
+   * attribute def name of updaters
+   * @return name
+   */
+  public static String grouperLoaderLdapUpdatersName() {
+    if (grouperLoaderLdapUpdatersName == null) {
+      grouperLoaderLdapUpdatersName = grouperLoaderLdapStemName() + ":" + ATTR_DEF_EXTENSION_LDAP_UPDATERS;
+    }
+    return grouperLoaderLdapUpdatersName;
+  }
+  
+  /**
+   * return attribute def name for updaters
+   * @return attribute def name
+   */
+  public static AttributeDefName grouperLoaderLdapUpdatersAttributeDefName() {
+    return GrouperDAOFactory.getFactory().getAttributeDefName().findByNameSecure(grouperLoaderLdapUpdatersName(), true);
+  }
+
+  
+    
+  
+  /** Attribute name of admins  */
+  public static final String ATTR_DEF_EXTENSION_LDAP_ADMINS = "grouperLoaderLdapAdmins";
+
+  /** attribute def name of admins */
+  private static String grouperLoaderLdapAdminsName;
+
+  /**
+   * attribute def name of admins
+   * @return name
+   */
+  public static String grouperLoaderLdapAdminsName() {
+    if (grouperLoaderLdapAdminsName == null) {
+      grouperLoaderLdapAdminsName = grouperLoaderLdapStemName() + ":" + ATTR_DEF_EXTENSION_LDAP_ADMINS;
+    }
+    return grouperLoaderLdapAdminsName;
+  }
+  
+  /**
+   * return attribute def name for admins
+   * @return attribute def name
+   */
+  public static AttributeDefName grouperLoaderLdapAdminsAttributeDefName() {
+    return GrouperDAOFactory.getFactory().getAttributeDefName().findByNameSecure(grouperLoaderLdapAdminsName(), true);
+  }
+
+  
+    
+  
+  /** Attribute name of optins  */
+  public static final String ATTR_DEF_EXTENSION_LDAP_OPTINS = "grouperLoaderLdapOptins";
+
+  /** attribute def name of optins */
+  private static String grouperLoaderLdapOptinsName;
+
+  /**
+   * attribute def name of optins
+   * @return name
+   */
+  public static String grouperLoaderLdapOptinsName() {
+    if (grouperLoaderLdapOptinsName == null) {
+      grouperLoaderLdapOptinsName = grouperLoaderLdapStemName() + ":" + ATTR_DEF_EXTENSION_LDAP_OPTINS;
+    }
+    return grouperLoaderLdapOptinsName;
+  }
+  
+  /**
+   * return attribute def name for optins
+   * @return attribute def name
+   */
+  public static AttributeDefName grouperLoaderLdapOptinsAttributeDefName() {
+    return GrouperDAOFactory.getFactory().getAttributeDefName().findByNameSecure(grouperLoaderLdapOptinsName(), true);
+  }
+
+  
+    
+  /** Attribute name of optouts  */
+  public static final String ATTR_DEF_EXTENSION_LDAP_OPTOUTS = "grouperLoaderLdapOptouts";
+
+  /** attribute def name of optouts */
+  private static String grouperLoaderLdapOptoutsName;
+
+  /**
+   * attribute def name of optouts
+   * @return name
+   */
+  public static String grouperLoaderLdapOptoutsName() {
+    if (grouperLoaderLdapOptoutsName == null) {
+      grouperLoaderLdapOptoutsName = grouperLoaderLdapStemName() + ":" + ATTR_DEF_EXTENSION_LDAP_OPTOUTS;
+    }
+    return grouperLoaderLdapOptoutsName;
+  }
+  
+  /**
+   * return attribute def name for optouts
+   * @return attribute def name
+   */
+  public static AttributeDefName grouperLoaderLdapOptoutsAttributeDefName() {
+    return GrouperDAOFactory.getFactory().getAttributeDefName().findByNameSecure(grouperLoaderLdapOptoutsName(), true);
+  }
+
+  
   
 }

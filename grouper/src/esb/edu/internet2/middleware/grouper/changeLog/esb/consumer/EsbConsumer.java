@@ -572,11 +572,12 @@ public class EsbConsumer extends ChangeLogConsumerBase {
    * @return true if matches, false if doesnt
    */
   public static boolean matchesFilter(EsbEvent esbEvent, String filterString) {
+    //TODO: use the GrouperUtil.substituteExpressionLanguage() instead
     JexlEngine jexl = new JexlEngine();
     Expression e = jexl.createExpression(filterString);
     JexlContext jc = new MapContext();
     jc.set("event", esbEvent);
-    jc.set("grouperUtil", new GrouperUtil());
+    jc.set("grouperUtilElSafe", new GrouperUtil());
     return (Boolean) e.evaluate(jc);
   }
 }

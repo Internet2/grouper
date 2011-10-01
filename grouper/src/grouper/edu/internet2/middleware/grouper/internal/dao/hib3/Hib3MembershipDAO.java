@@ -776,6 +776,7 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
   } 
   
   /**
+   * note, dont change this signature, Arnaud is using it
    * @param ownerStemId 
    * @param f 
    * @param type 

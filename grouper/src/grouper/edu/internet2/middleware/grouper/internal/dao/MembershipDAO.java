@@ -299,6 +299,7 @@ TODO update for 1.5
       SortStringEnum memberSortStringEnum, SearchStringEnum memberSearchStringEnum, String memberSearchStringValue) throws GrouperDAOException;
   
   /**
+   * note, dont change this signature, Arnaud is using it
    * @param ownerStemId
    * @param f
    * @param type
