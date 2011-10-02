@@ -417,7 +417,7 @@ public class LoaderJobBean {
    * JEXL expression language fragment that evaluates to the group display 
    * extension, optional for LDAP_GROUP_LIST or LDAP_GROUPS_FROM_ATTRIBUTES
    */
-  private String ldapGroupDisplayExtensionExpression;
+  private String ldapGroupDisplayNameExpression;
 
   
   /**
@@ -425,8 +425,8 @@ public class LoaderJobBean {
    * extension, optional for LDAP_GROUP_LIST or LDAP_GROUPS_FROM_ATTRIBUTES
    * @return the ldapGroupDisplayExtensionExpression
    */
-  public String getLdapGroupDisplayExtensionExpression() {
-    return this.ldapGroupDisplayExtensionExpression;
+  public String getLdapGroupDisplayNameExpression() {
+    return this.ldapGroupDisplayNameExpression;
   }
 
   
@@ -435,9 +435,9 @@ public class LoaderJobBean {
    * extension, optional for LDAP_GROUP_LIST or LDAP_GROUPS_FROM_ATTRIBUTES
    * @param ldapGroupDisplayExtensionExpression1 the ldapGroupDisplayExtensionExpression to set
    */
-  public void setLdapGroupDisplayExtensionExpression(
+  public void setLdapGroupDisplayNameExpression(
       String ldapGroupDisplayExtensionExpression1) {
-    this.ldapGroupDisplayExtensionExpression = ldapGroupDisplayExtensionExpression1;
+    this.ldapGroupDisplayNameExpression = ldapGroupDisplayExtensionExpression1;
   }
 
   /**
@@ -1032,7 +1032,7 @@ public class LoaderJobBean {
     this.ldapExtraAttributes = extraAttributes1;
     this.ldapErrorUnresolvable = errorUnresolvable1;
     this.ldapGroupNameExpression = ldapGroupNameExpression1;
-    this.ldapGroupDisplayExtensionExpression = ldapGroupDisplayExtensionExpression1;
+    this.ldapGroupDisplayNameExpression = ldapGroupDisplayExtensionExpression1;
     this.ldapGroupDescriptionExpression = ldapGroupDescriptionExpression1;
     this.ldapSubjectExpression = ldapSubjectExpression1;
     this.groupTypes = groupTypes1;

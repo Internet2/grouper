@@ -21,7 +21,7 @@ public class LoaderLdapElUtilsTest extends TestCase {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new LoaderLdapElUtilsTest("testConvertGroupNameAttributes"));
+    TestRunner.run(new LoaderLdapElUtilsTest("testConvertDnToSubpath"));
   }
   
   /**
@@ -60,6 +60,14 @@ public class LoaderLdapElUtilsTest extends TestCase {
     
   }
   
+  /**
+   * 
+   */
+  public static void testConvertDnToSubpath() {
+    assertEquals("a:b:c", LoaderLdapElUtils.convertDnToSubPath("cn=a:b:c,ou=groups,dc=upenn,dc=edu", "dc=upenn,dc=edu", "ou=groups"));
+    assertEquals("groups:a:b:c", LoaderLdapElUtils.convertDnToSubPath("cn=a:b:c,ou=groups,dc=upenn,dc=edu", "dc=edu", "dc=upenn"));
+    
+  }
   
   
 }

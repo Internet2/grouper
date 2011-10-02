@@ -746,20 +746,24 @@ public enum GrouperLoaderType {
           
           boolean errorUnresolvable = GrouperUtil.booleanValue(loaderJobBean.getLdapErrorUnresolvable(), true);
   
-          String ldapSubjectOrGroupAttribute = loaderJobBean.getLdapSubjectAttribute();
+          String ldapSubjectAttribute = loaderJobBean.getLdapSubjectAttribute();
 
           Map<String, String> groupNameToDisplayName = new LinkedHashMap<String, String>();
           Map<String, String> groupNameToDescription = new LinkedHashMap<String, String>();
-
           
-          final GrouperLoaderResultset grouperLoaderResultsetOverall = new GrouperLoaderResultset(
+          final GrouperLoaderResultset grouperLoaderResultsetOverall = new GrouperLoaderResultset();
+          
+          grouperLoaderResultsetOverall.initForLdapListOfGroups(
               loaderJobBean.getLdapServerId(), 
-              loaderJobBean.getLdapFilter(), loaderJobBean.getLdapSearchDn(), ldapSubjectOrGroupAttribute, 
+              loaderJobBean.getLdapFilter(), loaderJobBean.getLdapSearchDn(), ldapSubjectAttribute, 
               loaderJobBean.getLdapSourceId(), loaderJobBean.getLdapSubjectIdType(), loaderJobBean.getLdapSearchScope(), 
               hib3GrouploaderLogOverall.getJobName(), 
-              hib3GrouploaderLogOverall, loaderJobBean.getGroupLikeString(), 
+              hib3GrouploaderLogOverall, 
               loaderJobBean.getLdapSubjectExpression(), errorUnresolvable, loaderJobBean.getLdapExtraAttributes(),
-              loaderJobBean.getLdapGroupNameExpression());
+              loaderJobBean.getLdapGroupNameExpression(), loaderJobBean.getLdapGroupDisplayNameExpression(),
+              loaderJobBean.getLdapGroupDescriptionExpression(), groupNameToDisplayName, 
+              groupNameToDescription);
+          
           
           String groupNameOverall = hib3GrouploaderLogOverall.getGroupNameFromJobName();
   
@@ -770,7 +774,6 @@ public enum GrouperLoaderType {
           List<Group> andGroups = loaderJobBean.getAndGroups();
           List<GroupType> groupTypes = GrouperUtil.nonNull(loaderJobBean.getGroupTypes());
           String groupLikeString = loaderJobBean.getGroupLikeString();
-          String groupQuery = loaderJobBean.getGroupQuery();
 
           Map<String, Subject> subjectCache = new HashMap<String, Subject>();
           Map<String, Map<Privilege, List<Subject>>> privsToAdd = new LinkedHashMap<String, Map<Privilege, List<Subject>>>();
@@ -876,15 +879,23 @@ public enum GrouperLoaderType {
           
           boolean errorUnresolvable = GrouperUtil.booleanValue(loaderJobBean.getLdapErrorUnresolvable(), true);
   
-          final GrouperLoaderResultset grouperLoaderResultsetOverall = new GrouperLoaderResultset(
+          Map<String, String> groupNameToDisplayName = new LinkedHashMap<String, String>();
+          Map<String, String> groupNameToDescription = new LinkedHashMap<String, String>();
+
+          final GrouperLoaderResultset grouperLoaderResultsetOverall = new GrouperLoaderResultset();
+          grouperLoaderResultsetOverall.initForLdapGroupsFromAttributes(
               loaderJobBean.getLdapServerId(), 
               loaderJobBean.getLdapFilter(), loaderJobBean.getLdapSearchDn(), loaderJobBean.getLdapSubjectAttribute(), 
               loaderJobBean.getLdapGroupAttribute(), 
               loaderJobBean.getLdapSourceId(), loaderJobBean.getLdapSubjectIdType(), loaderJobBean.getLdapSearchScope(), 
               hib3GrouploaderLogOverall.getJobName(), 
-              hib3GrouploaderLogOverall, loaderJobBean.getGroupLikeString(), 
+              hib3GrouploaderLogOverall, 
               loaderJobBean.getLdapSubjectExpression(), errorUnresolvable, loaderJobBean.getLdapExtraAttributes(),
-              loaderJobBean.getLdapGroupNameExpression(), loaderJobBean.getLdapSubjectExpression());
+              loaderJobBean.getLdapGroupNameExpression(), 
+              loaderJobBean.getLdapGroupDisplayNameExpression(),
+              loaderJobBean.getLdapGroupDescriptionExpression(), loaderJobBean.getLdapSubjectExpression(),
+              groupNameToDisplayName, groupNameToDescription);
+          
           
           String groupNameOverall = hib3GrouploaderLogOverall.getGroupNameFromJobName();
   
@@ -895,7 +906,6 @@ public enum GrouperLoaderType {
           List<Group> andGroups = loaderJobBean.getAndGroups();
           List<GroupType> groupTypes = GrouperUtil.nonNull(loaderJobBean.getGroupTypes());
           String groupLikeString = loaderJobBean.getGroupLikeString();
-          String groupQuery = loaderJobBean.getGroupQuery();
           
           Map<String, Subject> subjectCache = new HashMap<String, Subject>();
           Map<String, Map<Privilege, List<Subject>>> privsToAdd = new LinkedHashMap<String, Map<Privilege, List<Subject>>>();
@@ -912,9 +922,10 @@ public enum GrouperLoaderType {
           }
         
           
-//          syncGroupList(grouperLoaderResultsetOverall, startTime, grouperSession, 
-//              andGroups, groupTypes, groupLikeString, groupQuery, groupNameOverall, hib3GrouploaderLogOverall,
-//              statusOverall, loaderJobBean.getGrouperLoaderDb());
+          syncGroupList(grouperLoaderResultsetOverall, startTime, grouperSession, 
+              andGroups, groupTypes, groupLikeString, groupNameOverall, hib3GrouploaderLogOverall,
+              statusOverall, loaderJobBean.getGrouperLoaderDb(), groupNameToDisplayName, 
+              groupNameToDescription, privsToAdd, null);
           
         } finally {
           hib3GrouploaderLogOverall.setStatus(statusOverall[0].name());

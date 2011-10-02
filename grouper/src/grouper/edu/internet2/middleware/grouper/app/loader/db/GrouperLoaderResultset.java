@@ -29,6 +29,7 @@ import org.apache.commons.logging.Log;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.loader.ldap.GrouperLoaderLdapServer;
+import edu.internet2.middleware.grouper.app.loader.ldap.LoaderLdapElUtils;
 import edu.internet2.middleware.grouper.app.loader.ldap.LoaderLdapUtils;
 import edu.internet2.middleware.grouper.ldap.LdapHandler;
 import edu.internet2.middleware.grouper.ldap.LdapHandlerBean;
@@ -334,6 +335,13 @@ public class GrouperLoaderResultset {
   }
 
   /**
+   * 
+   */
+  public GrouperLoaderResultset() {
+    
+  }
+  
+  /**
    * get a resultset based on an ldap server and filter for ldap list of groups
    * @param ldapServerId server id in grouper-loader.properties
    * @param filter ldap filter query
@@ -344,19 +352,25 @@ public class GrouperLoaderResultset {
    * @param ldapSearchScope either OBJECT_SCOPE, ONELEVEL_SCOPE, SUBTREE_SCOPE
    * @param jobName for logging if problem
    * @param hib3GrouperLoaderLog 
-   * @param groupsLikeString this is the sql string to identify groups in registry like the loader groups to delete orphans
    * @param subjectExpression 
    * @param errorUnresolvable 
    * @param extraAttributes 
    * @param groupNameExpression 
+   * @param groupDisplayNameExpression 
+   * @param groupDescriptionExpression 
+   * @param groupNameToDisplayName map to translate group name to display name
+   * @param groupNameToDescription map to translate group name to description
    */
-  public GrouperLoaderResultset(final String ldapServerId, final String filter,
+  public void initForLdapListOfGroups(final String ldapServerId, final String filter,
       final String searchDn, final String subjectAttributeName, final String sourceId,
       final String subjectIdType, final String ldapSearchScope, final String jobName,
       final Hib3GrouperLoaderLog hib3GrouperLoaderLog,
-      final String groupsLikeString, final String subjectExpression,
+      final String subjectExpression,
       final boolean errorUnresolvable, final String extraAttributes,
-      final String groupNameExpression) {
+      final String groupNameExpression, final String groupDisplayNameExpression, 
+      final String groupDescriptionExpression,  
+      final Map<String, String> groupNameToDisplayName,
+      final Map<String, String> groupNameToDescription) {
 
     //run the query
     final LdapSearchScope ldapSearchScopeEnum = LdapSearchScope.valueOfIgnoreCase(
@@ -442,9 +456,9 @@ public class GrouperLoaderResultset {
                 String nameInNamespace = searchResult.getName();
                 //for some reason this returns: cn=test:testGroup,dc=upenn,dc=edu
                 // instead of cn=test:testGroup,ou=groups,dc=upenn,dc=edu
+                GrouperLoaderLdapServer grouperLoaderLdapServer = GrouperLoaderConfig
+                  .retrieveLdapProfile(ldapServerId);
                 if (nameInNamespace != null && !StringUtils.isBlank(searchDn)) {
-                  GrouperLoaderLdapServer grouperLoaderLdapServer = GrouperLoaderConfig
-                      .retrieveLdapProfile(ldapServerId);
                   String baseDn = grouperLoaderLdapServer.getBaseDn();
                   if (!StringUtils.isBlank(baseDn)
                       && nameInNamespace.endsWith("," + baseDn)) {
@@ -456,9 +470,16 @@ public class GrouperLoaderResultset {
                     nameInNamespace += "," + searchDn + "," + baseDn;
                   }
                 }
-                String loaderGroupName = null;
-                //TODO allow null group name expression
-                if (!StringUtils.isBlank(groupNameExpression)) {
+                String loaderGroupName = "groups:" + LoaderLdapElUtils.convertDnToSubPath(nameInNamespace, 
+                    grouperLoaderLdapServer.getBaseDn(), searchDn);
+                
+                String loaderGroupDisplayName = null;
+                String loaderGroupDescription = null;
+                
+                if (!StringUtils.isBlank(groupNameExpression)
+                    || !StringUtils.isBlank(groupDisplayNameExpression)
+                    || !StringUtils.isBlank(groupDescriptionExpression)) {
+                  
                   Map<String, Object> envVars = new HashMap<String, Object>();
 
                   Map<String, Object> groupAttributes = new HashMap<String, Object>();
@@ -484,12 +505,32 @@ public class GrouperLoaderResultset {
                     }
                   }
                   envVars.put("groupAttributes", groupAttributes);
-                  String elGroupName = LoaderLdapUtils.substituteEl(groupNameExpression,
-                      envVars);
-                  loaderGroupName = groupParentFolderName + ":" + elGroupName;
+                  if (!StringUtils.isBlank(groupNameExpression)) {
+                    String elGroupName = LoaderLdapUtils.substituteEl(groupNameExpression,
+                        envVars);
+                    loaderGroupName = groupParentFolderName + ":" + elGroupName;
+                  }
+                  if (!StringUtils.isBlank(groupDisplayNameExpression)) {
+                    String elGroupDisplayName = LoaderLdapUtils.substituteEl(groupDisplayNameExpression,
+                        envVars);
+                    loaderGroupDisplayName = groupParentFolderName + ":" + elGroupDisplayName;
+                  }
+                  if (!StringUtils.isBlank(groupDescriptionExpression)) {
+                    String elGroupDescription = LoaderLdapUtils.substituteEl(groupDescriptionExpression,
+                        envVars);
+                    loaderGroupDescription = groupParentFolderName + ":" + elGroupDescription;
+                  }
                 }
                 result.put(loaderGroupName, valueResults);
 
+                if (!StringUtils.isBlank(loaderGroupDisplayName)) {
+                  groupNameToDisplayName.put(loaderGroupName, loaderGroupDisplayName);
+                }
+                
+                if (!StringUtils.isBlank(loaderGroupDescription)) {
+                  groupNameToDescription.put(loaderGroupName, loaderGroupDescription);
+                }
+                
                 Attribute subjectAttribute = searchResult.getAttributes().get(
                     subjectAttributeName);
 
@@ -556,21 +597,28 @@ public class GrouperLoaderResultset {
    * @param ldapSearchScope either OBJECT_SCOPE, ONELEVEL_SCOPE, SUBTREE_SCOPE
    * @param jobName for logging if problem
    * @param hib3GrouperLoaderLog 
-   * @param groupsLikeString this is the sql string to identify groups in registry like the loader groups to delete orphans
    * @param subjectExpression 
    * @param errorUnresolvable 
    * @param extraAttributes 
    * @param groupNameExpression 
    * @param subjectNameExpression 
+   * @param groupDisplayNameExpression 
+   * @param groupDescriptionExpression 
+   * @param groupNameToDisplayName map to translate group name to display name
+   * @param groupNameToDescription map to translate group name to description
    */
-  public GrouperLoaderResultset(final String ldapServerId, final String filter,
+  public void initForLdapGroupsFromAttributes(final String ldapServerId, final String filter,
       final String searchDn, final String subjectAttributeName,
       final String groupAttributeName, final String sourceId,
       final String subjectIdType, final String ldapSearchScope, final String jobName,
       final Hib3GrouperLoaderLog hib3GrouperLoaderLog,
-      final String groupsLikeString, final String subjectExpression,
+      final String subjectExpression,
       final boolean errorUnresolvable, final String extraAttributes,
-      final String groupNameExpression, final String subjectNameExpression) {
+      final String groupNameExpression, final String subjectNameExpression, 
+      final String groupDisplayNameExpression, 
+      final String groupDescriptionExpression,  
+      final Map<String, String> groupNameToDisplayName,
+      final Map<String, String> groupNameToDescription) {
 
     //run the query
     final LdapSearchScope ldapSearchScopeEnum = LdapSearchScope.valueOfIgnoreCase(
@@ -735,21 +783,50 @@ public class GrouperLoaderResultset {
                       if (StringUtils.isBlank(groupName)) {
                         groupName = "groups:" + attributeValue;
                         
-                        if (!StringUtils.isBlank(groupNameExpression)) {
+                        
+                        String loaderGroupDisplayName = null;
+                        String loaderGroupDescription = null;
+                        
+                        if (!StringUtils.isBlank(groupNameExpression)
+                            || !StringUtils.isBlank(groupDisplayNameExpression)
+                            || !StringUtils.isBlank(groupDescriptionExpression)) {
+                          
                           //calculate it
 
                           Map<String, Object> envVars = new HashMap<String, Object>();
 
                           envVars.put("groupAttribute", attributeValue);
-                          groupName = LoaderLdapUtils.substituteEl(groupNameExpression,
-                              envVars);
                           
+                          if (!StringUtils.isBlank(groupNameExpression)) {
+                            groupName = LoaderLdapUtils.substituteEl(groupNameExpression,
+                                envVars);
+                          }
+                          if (!StringUtils.isBlank(groupDisplayNameExpression)) {
+                            String elGroupDisplayName = LoaderLdapUtils.substituteEl(groupDisplayNameExpression,
+                                envVars);
+                            loaderGroupDisplayName = groupParentFolderName + ":" + elGroupDisplayName;
+                          }
+                          if (!StringUtils.isBlank(groupDescriptionExpression)) {
+                            String elGroupDescription = LoaderLdapUtils.substituteEl(groupDescriptionExpression,
+                                envVars);
+                            loaderGroupDescription = groupParentFolderName + ":" + elGroupDescription;
+                          }
                         }
+                        
                         groupName = groupParentFolderName + ":"+ groupName;
+                        
+                        if (!StringUtils.isBlank(loaderGroupDisplayName)) {
+                          groupNameToDisplayName.put(groupName, loaderGroupDisplayName);
+                        }
+                        
+                        if (!StringUtils.isBlank(loaderGroupDescription)) {
+                          groupNameToDescription.put(groupName, loaderGroupDescription);
+                        }
+                        
+                        //cache this
                         attributeNameToGroupNameMap.put((String)attributeValue, groupName);
-                        //attributeNameToGroupNameMap
-                        //subjectGroupName = groupParentFolderName + ":" + elSubjectId;
-                        //result.put(loaderGroupName, valueResults);
+                        
+                        //init the subject list
                         result.put(groupName, new ArrayList<String>());
                       }
                       //get the "row" for the group
