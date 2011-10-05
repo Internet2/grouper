@@ -199,7 +199,7 @@ public abstract class BasePSPProvisioningTest extends BaseProvisioningTest {
     }
 
     // TODO make configurable, probably an env variable
-    String PARENT = "/Users/tzeller/workspaces/grouper/ldappcng_trunk/src/test/resources";
+    String PARENT = System.getProperty("user.dir") + "/src/test/resources";
 
     String newFilePath = PARENT + File.separator + correctXMLFileName;
     try {
