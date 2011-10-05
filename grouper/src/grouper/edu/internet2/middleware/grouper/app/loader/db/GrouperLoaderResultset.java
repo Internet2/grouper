@@ -601,7 +601,6 @@ public class GrouperLoaderResultset {
    * @param errorUnresolvable 
    * @param extraAttributes 
    * @param groupNameExpression 
-   * @param subjectNameExpression 
    * @param groupDisplayNameExpression 
    * @param groupDescriptionExpression 
    * @param groupNameToDisplayName map to translate group name to display name
@@ -614,7 +613,7 @@ public class GrouperLoaderResultset {
       final Hib3GrouperLoaderLog hib3GrouperLoaderLog,
       final String subjectExpression,
       final boolean errorUnresolvable, final String extraAttributes,
-      final String groupNameExpression, final String subjectNameExpression, 
+      final String groupNameExpression, 
       final String groupDisplayNameExpression, 
       final String groupDescriptionExpression,  
       final Map<String, String> groupNameToDisplayName,
@@ -732,7 +731,7 @@ public class GrouperLoaderResultset {
                   subjectId = (String) subjectAttributeObject.get(0);
                 }
 
-                if (!StringUtils.isBlank(subjectNameExpression)) {
+                if (!StringUtils.isBlank(subjectExpression)) {
                   Map<String, Object> envVars = new HashMap<String, Object>();
 
                   Map<String, Object> subjectAttributes = new HashMap<String, Object>();
@@ -763,10 +762,14 @@ public class GrouperLoaderResultset {
                     }
                   }
                   envVars.put("subjectAttributes", subjectAttributes);
-                  subjectId = LoaderLdapUtils.substituteEl(subjectNameExpression,
+                  subjectId = LoaderLdapUtils.substituteEl(subjectExpression,
                       envVars);
                 }
 
+                if (StringUtils.isBlank(groupAttributeName)) {
+                  throw new RuntimeException("LDAP_GROUPS_FROM_ATTRIBUTES loader type requires group attribute name");
+                }
+                
                 Attribute groupAttribute = searchResult.getAttributes().get(
                     groupAttributeName);
 
@@ -873,7 +876,7 @@ public class GrouperLoaderResultset {
         }
       }
     }
-    this.convertToSubjectIdIfNeeded(jobName, hib3GrouperLoaderLog, subjectExpression,
+    this.convertToSubjectIdIfNeeded(jobName, hib3GrouperLoaderLog, null,
         errorUnresolvable);
   }
 

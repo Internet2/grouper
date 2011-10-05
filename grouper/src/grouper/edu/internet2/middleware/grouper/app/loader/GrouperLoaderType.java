@@ -893,7 +893,7 @@ public enum GrouperLoaderType {
               loaderJobBean.getLdapSubjectExpression(), errorUnresolvable, loaderJobBean.getLdapExtraAttributes(),
               loaderJobBean.getLdapGroupNameExpression(), 
               loaderJobBean.getLdapGroupDisplayNameExpression(),
-              loaderJobBean.getLdapGroupDescriptionExpression(), loaderJobBean.getLdapSubjectExpression(),
+              loaderJobBean.getLdapGroupDescriptionExpression(),
               groupNameToDisplayName, groupNameToDescription);
           
           
