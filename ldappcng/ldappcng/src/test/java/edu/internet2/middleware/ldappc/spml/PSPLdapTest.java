@@ -21,6 +21,9 @@ import org.openspml.v2.msg.spml.PSOIdentifier;
 import org.openspml.v2.msg.spml.Response;
 import org.openspml.v2.msg.spml.ReturnData;
 import org.openspml.v2.msg.spml.SchemaEntityRef;
+import org.openspml.v2.msg.spmlref.HasReference;
+import org.openspml.v2.msg.spmlsearch.Query;
+import org.openspml.v2.msg.spmlsearch.Scope;
 import org.openspml.v2.msg.spmlsearch.SearchRequest;
 import org.openspml.v2.msg.spmlsearch.SearchResponse;
 
@@ -640,6 +643,36 @@ public class PSPLdapTest extends BasePSPProvisioningTest {
     verifySpml(response, DATA_PATH + "PSPTest.testSearchRequestNotFound.response.xml");
   }
 
+  public void testSearchRequestHasReference() throws Exception {
+    
+    loadLdif(DATA_PATH + "PSPTest.testSearchRequestHasReference.before.ldif");
+    
+    PSOIdentifier memberID = new PSOIdentifier();
+    memberID.setID("cn=test.subject.0,ou=testpeople," + base);
+    
+    HasReference hasReference = new HasReference();
+    hasReference.setToPsoID(memberID);
+    hasReference.setTypeOfReference("member");
+
+    Query query = new Query();
+    PSOIdentifier groupID = new PSOIdentifier();
+    groupID.setID("cn=groupB,ou=testgroups," + base);
+    // TODO not necessary ? groupID.setTargetID("ldap");
+    query.setBasePsoID(groupID);
+    query.setTargetID("ldap");
+    query.addQueryClause(hasReference);
+    query.setScope(Scope.PSO);
+
+    SearchRequest searchRequest = new SearchRequest();
+    searchRequest.setReturnData(ReturnData.EVERYTHING);
+    searchRequest.setQuery(query);
+
+    SearchResponse response = psp.execute(searchRequest);
+    System.out.println(response.toXML(psp.getXMLMarshaller()));
+    
+    verifySpml(response, DATA_PATH + "PSPTest.testSearchRequestHasReference.response.xml");    
+  }
+  
   public void testSyncBushyModifyDescription() throws Exception {
 
     loadLdif(DATA_PATH + "PSPTest.testModifyMemberBushy.before.ldif");

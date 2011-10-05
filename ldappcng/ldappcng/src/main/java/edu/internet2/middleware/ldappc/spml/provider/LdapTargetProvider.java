@@ -52,6 +52,7 @@ import org.openspml.v2.msg.spml.QueryClause;
 import org.openspml.v2.msg.spml.Response;
 import org.openspml.v2.msg.spml.ReturnData;
 import org.openspml.v2.msg.spml.StatusCode;
+import org.openspml.v2.msg.spmlref.HasReference;
 import org.openspml.v2.msg.spmlref.Reference;
 import org.openspml.v2.msg.spmlsearch.Query;
 import org.openspml.v2.msg.spmlsearch.Scope;
@@ -611,6 +612,14 @@ public class LdapTargetProvider extends BaseSpmlTargetProvider {
       if (queryClause instanceof LdapFilterQueryClause) {
         filter = ((LdapFilterQueryClause) queryClause).getFilter();
       }
+      if (queryClause instanceof HasReference) {
+        HasReference hasReference = (HasReference) queryClause;
+        if (hasReference.getTypeOfReference() != null && hasReference.getToPsoID() != null
+            && hasReference.getToPsoID().getID() != null) {
+          filter = "(" + hasReference.getTypeOfReference() + "=" + hasReference.getToPsoID().getID() + ")";
+          // TODO what do we do with hasReference.getReferenceData(); ?
+        }
+      }
     }
     if (GrouperUtil.isBlank(filter)) {
       fail(searchResponse, ErrorCode.MALFORMED_REQUEST, "A filter is required.");
@@ -755,11 +764,10 @@ public class LdapTargetProvider extends BaseSpmlTargetProvider {
 
         if (data.getOpenContentElements().length > 0) {
           pso.setData(data);
-        }
-
-        if (returnData.equals(ReturnData.EVERYTHING)) {
-          PSPUtil.setReferences(pso, references);
-        }
+        }      
+      }      
+      if (returnData.equals(ReturnData.EVERYTHING)) {
+        PSPUtil.setReferences(pso, references);
       }
     }
 
