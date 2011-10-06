@@ -44,7 +44,7 @@ public class ChangeLogTempToEntity {
 
   /**
    * convert the temps to regulars, assign id's
-   * @param hib3GrouperLoaderLog is the log object to post updates, can be null
+   * hib3GrouperLoaderLog is the log object to post updates, can be null
    * @return the number of records converted
    */
   public static int convertRecords() {
