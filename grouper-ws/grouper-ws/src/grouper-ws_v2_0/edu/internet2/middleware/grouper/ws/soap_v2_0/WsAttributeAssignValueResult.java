@@ -4,9 +4,6 @@
  */
 package edu.internet2.middleware.grouper.ws.soap_v2_0;
 
-import edu.internet2.middleware.grouper.ws.soap_v2_1.WsAttributeAssignValue;
-
-
 /**
  * holds an attribute assign result.  Also holds value results (if value operations were performed).
  * note if attribute assignments have values and the attribute is removed, the values will not be in 

@@ -5,8 +5,6 @@ package edu.internet2.middleware.grouper.ws.soap_v2_0;
 
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 
-import edu.internet2.middleware.grouper.ws.soap_v2_1.WsStemQueryFilter;
-
 /**
  * this represents a query which can be and'ed or or'ed
  */

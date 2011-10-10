@@ -1,11 +1,5 @@
 package edu.internet2.middleware.grouper.ws.soap_v2_0;
 
-import edu.internet2.middleware.grouper.ws.soap_v2_1.WsGroup;
-import edu.internet2.middleware.grouper.ws.soap_v2_1.WsMembership;
-import edu.internet2.middleware.grouper.ws.soap_v2_1.WsResponseMeta;
-import edu.internet2.middleware.grouper.ws.soap_v2_1.WsResultMeta;
-import edu.internet2.middleware.grouper.ws.soap_v2_1.WsSubject;
-
 
 /**
  * <pre>

@@ -3,6 +3,8 @@
  */
 package edu.internet2.middleware.grouper.ws.status;
 
+import org.apache.commons.lang.builder.HashCodeBuilder;
+
 import edu.internet2.middleware.grouper.audit.AuditType;
 import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
@@ -64,6 +66,22 @@ public class DiagnosticDbTest extends DiagnosticTask {
   @Override
   public String retrieveNameFriendly() {
     return "Database test";
+  }
+
+  /**
+   * 
+   */
+  @Override
+  public boolean equals(Object obj) {
+    return obj instanceof DiagnosticDbTest;
+  }
+  
+  /**
+   * 
+   */
+  @Override
+  public int hashCode() {
+    return new HashCodeBuilder().toHashCode();
   }
 
 }

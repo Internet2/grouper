@@ -5,6 +5,9 @@ package edu.internet2.middleware.grouper.ws.status;
 
 import java.sql.Timestamp;
 
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderType;
 import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
@@ -18,6 +21,26 @@ import edu.internet2.middleware.grouper.ws.GrouperWsConfig;
  *
  */
 public class DiagnosticLoaderJobTest extends DiagnosticTask {
+
+  /**
+   * 
+   */
+  @Override
+  public boolean equals(Object obj) {
+    if (obj instanceof DiagnosticLoaderJobTest) {
+      DiagnosticLoaderJobTest other = (DiagnosticLoaderJobTest)obj;
+      return new EqualsBuilder().append(this.grouperLoaderType, other.grouperLoaderType).append(this.jobName, other.jobName).isEquals();
+    }
+    return false;
+  }
+  
+  /**
+   * 
+   */
+  @Override
+  public int hashCode() {
+    return new HashCodeBuilder().append(this.grouperLoaderType).append(this.jobName).toHashCode();
+  }
 
   /** */
   private static final String INVALID_PROPERTIES_REGEX = "[^a-zA-Z0-9._-]";

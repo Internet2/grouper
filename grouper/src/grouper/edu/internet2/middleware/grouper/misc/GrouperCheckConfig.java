@@ -1980,7 +1980,7 @@ public class GrouperCheckConfig {
                 "see which names are managed by this loader job.  So if a group falls off the loader resultset (or is moved), this will help the " +
                 "loader remove the members from this group.  Note, if the group is used anywhere as a member or composite member, it wont be removed.  " +
                 "All include/exclude/requireGroups will be removed.  Though the two groups, include and exclude, will not be removed if they have members.  " +
-                "There is a grouper-loader.properties setting to note remove loader groups if empty and not used: " +
+                "There is a grouper-loader.properties setting to remove loader groups if empty and not used: " +
                 "#if using a sql table, and specifying the name like string, then shoudl the group (in addition to memberships)" +
                 "# be removed if not used anywhere else?" +
                 "loader.sqlTable.likeString.removeGroupIfNotUsed = true", wasInCheckConfig);

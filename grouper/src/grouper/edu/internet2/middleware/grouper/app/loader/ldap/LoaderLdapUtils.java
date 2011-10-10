@@ -62,7 +62,16 @@ public class LoaderLdapUtils {
    * @return attribute def name
    */
   public static AttributeDefName grouperLoaderLdapAttributeDefName() {
-    return GrouperDAOFactory.getFactory().getAttributeDefName().findByNameSecure(grouperLoaderLdapName(), true);
+    return grouperLoaderLdapAttributeDefName(true);
+    
+  }
+  /**
+   * return attribute def name for attribute type marker
+   * @param exceptionIfNotFound 
+   * @return attribute def name
+   */
+  public static AttributeDefName grouperLoaderLdapAttributeDefName(boolean exceptionIfNotFound) {
+    return GrouperDAOFactory.getFactory().getAttributeDefName().findByNameSecure(grouperLoaderLdapName(), exceptionIfNotFound);
   }
 
   /** extension of the attribute def name for the quartz cron configuration */

@@ -1094,7 +1094,7 @@ public enum GrouperLoaderType {
   
             //see if we are deleting group.  It must not be in the group query (if exists), and it 
             //must be configured to do this in the grouper loader properties
-            if (!groupNamesFromGroupQuery.contains(groupNameEmpty) && GrouperLoaderConfig.getPropertyBoolean(
+            if (!GrouperUtil.nonNull(groupNamesFromGroupQuery).contains(groupNameEmpty) && GrouperLoaderConfig.getPropertyBoolean(
                 "loader.sqlTable.likeString.removeGroupIfNotUsed", true)) {
   
               //see if we need to log
@@ -1811,7 +1811,17 @@ public enum GrouperLoaderType {
     
     final String[] jobStatus = new String[1];
     
-    hib3GrouploaderLog.setStatus(GrouperLoaderStatus.RUNNING.name());
+    //assume success
+    GrouperLoaderStatus status = GrouperLoaderStatus.SUCCESS;
+    if (!StringUtils.isBlank(hib3GrouploaderLog.getStatus()) 
+        && !StringUtils.equals(GrouperLoaderStatus.STARTED.toString(), hib3GrouploaderLog.getStatus())
+        && !StringUtils.equals(GrouperLoaderStatus.RUNNING.toString(), hib3GrouploaderLog.getStatus())) {
+      status = GrouperLoaderStatus.valueOfIgnoreCase(hib3GrouploaderLog.getStatus(), true);
+    }
+
+    if (StringUtils.isBlank(hib3GrouploaderLog.getStatus()) || StringUtils.equals(GrouperLoaderStatus.STARTED.toString(), hib3GrouploaderLog.getStatus())) {
+      hib3GrouploaderLog.setStatus(GrouperLoaderStatus.RUNNING.name());
+    }
     if (LOG.isDebugEnabled()) {
       LOG.debug(groupName + " start syncing membership");
     }
@@ -1822,8 +1832,6 @@ public enum GrouperLoaderType {
     
     int totalCount = 0;
     
-    //assume success
-    GrouperLoaderStatus status = GrouperLoaderStatus.SUCCESS;
     
     try {
 
@@ -1969,7 +1977,7 @@ public enum GrouperLoaderType {
         if (row != null) {
           boolean andGroupsDoesntHaveSubject = false;
           if (GrouperUtil.nonNull(andGroups).size() > 0) {
-            Subject subject = row.getSubject(groupName);
+            Subject subject = row.getSubject(groupName, true);
             if (subject == null) {
               if (LOG.isDebugEnabled()) {
                 LOG.debug(groupName + " found unresolvable subject: " + row.getSubjectError() + ", " + count + " of " + numberOfRows + " subjects");
@@ -2018,7 +2026,7 @@ public enum GrouperLoaderType {
       for (int i=0;i<numberOfRows;i++) {
         
         Row row = grouperLoaderResultset.retrieveRow(i);
-        Subject subject = row.getSubject(groupName);
+        Subject subject = row.getSubject(groupName, true);
         if (subject != null) {
           //make sure it is not in the restricted list
           boolean andGroupsDoesntHaveSubject = false;

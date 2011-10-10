@@ -6,7 +6,6 @@ package edu.internet2.middleware.grouper.ws.soap_v2_0;
 import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.ws.WsResultCode;
-import edu.internet2.middleware.grouper.ws.soap_v2_1.WsParam;
 
 /**
  * result metadata (if success, result code, etc) for one result

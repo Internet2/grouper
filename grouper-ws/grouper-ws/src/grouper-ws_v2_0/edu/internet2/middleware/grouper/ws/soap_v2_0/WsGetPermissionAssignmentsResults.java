@@ -1,14 +1,5 @@
 package edu.internet2.middleware.grouper.ws.soap_v2_0;
 
-import edu.internet2.middleware.grouper.ws.soap_v2_1.WsAttributeAssign;
-import edu.internet2.middleware.grouper.ws.soap_v2_1.WsAttributeDef;
-import edu.internet2.middleware.grouper.ws.soap_v2_1.WsAttributeDefName;
-import edu.internet2.middleware.grouper.ws.soap_v2_1.WsGroup;
-import edu.internet2.middleware.grouper.ws.soap_v2_1.WsPermissionAssign;
-import edu.internet2.middleware.grouper.ws.soap_v2_1.WsResponseMeta;
-import edu.internet2.middleware.grouper.ws.soap_v2_1.WsResultMeta;
-import edu.internet2.middleware.grouper.ws.soap_v2_1.WsSubject;
-
 
 /**
  * <pre>

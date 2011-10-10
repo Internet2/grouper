@@ -1011,7 +1011,7 @@ public class LoaderJobBean {
       String ldapGroupDisplayExtensionExpression1, String ldapGroupDescriptionExpression1,
       String ldapSubjectExpression1, List<GroupType> groupTypes1, String ldapGroupReaders1,
       String ldapGroupViewers1, String ldapGroupAdmins1, String ldapGroupUpdaters1, String ldapGroupOptins1,
-      String ldapGroupOptouts1
+      String ldapGroupOptouts1, String groupsLike1
       ) {
     super();
     this.ldapType = ldapType1;
@@ -1042,6 +1042,7 @@ public class LoaderJobBean {
     this.ldapGroupReaders = ldapGroupReaders1;
     this.ldapGroupAdmins = ldapGroupAdmins1;
     this.ldapGroupUpdaters = ldapGroupUpdaters1;
+    this.groupLikeString = groupsLike1;
   }
 
   /**

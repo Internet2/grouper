@@ -16,6 +16,18 @@ import edu.internet2.middleware.grouper.ws.GrouperWsConfig;
 public abstract class DiagnosticTask {
 
   /**
+   * 
+   */
+  @Override
+  public abstract boolean equals(Object obj);
+
+  /**
+   * 
+   */
+  @Override
+  public abstract int hashCode();
+
+  /**
    * Text to use in the event of a failure.
    */
   private StringBuilder failureText = new StringBuilder();
@@ -41,6 +53,8 @@ public abstract class DiagnosticTask {
     if (ignoringDiagnostic()){
       return true;
     }
+    this.failureText = new StringBuilder();
+    this.successText = new StringBuilder();
     return doTask();
   }
 

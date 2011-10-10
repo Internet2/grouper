@@ -3,6 +3,9 @@
  */
 package edu.internet2.middleware.grouper.ws.status;
 
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+
 import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -15,6 +18,27 @@ import edu.internet2.middleware.grouper.ws.GrouperWsConfig;
  *
  */
 public class DiagnosticMinGroupSize extends DiagnosticTask {
+
+  /**
+   * 
+   */
+  @Override
+  public boolean equals(Object obj) {
+    if (obj instanceof DiagnosticMinGroupSize) {
+      DiagnosticMinGroupSize other = (DiagnosticMinGroupSize)obj;
+      return new EqualsBuilder().append(this.groupName, other.groupName).append(this.minSize, other.minSize).isEquals();
+    }
+    return false;
+  }
+  
+  /**
+   * 
+   */
+  @Override
+  public int hashCode() {
+    return new HashCodeBuilder().append(this.groupName).append(this.minSize).toHashCode();
+  }
+
 
   /** sourceId */
   private String groupName;

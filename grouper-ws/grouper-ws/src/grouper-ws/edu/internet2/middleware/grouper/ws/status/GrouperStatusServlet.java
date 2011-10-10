@@ -6,9 +6,9 @@ package edu.internet2.middleware.grouper.ws.status;
 import java.io.IOException;
 import java.io.Writer;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -109,7 +109,7 @@ public class GrouperStatusServlet extends HttpServlet {
       result.append(" requests\n");
       
       // List all of the diagnostic tasks to execute.
-      List<DiagnosticTask> tasksToExecute = new ArrayList<DiagnosticTask>();
+      Set<DiagnosticTask> tasksToExecute = new LinkedHashSet<DiagnosticTask>();
 
       String diagnosticTypeString = request.getParameter("diagnosticType");
       

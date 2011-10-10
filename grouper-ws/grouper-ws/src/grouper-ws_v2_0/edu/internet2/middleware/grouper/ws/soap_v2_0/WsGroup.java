@@ -3,8 +3,6 @@
  */
 package edu.internet2.middleware.grouper.ws.soap_v2_0;
 
-import edu.internet2.middleware.grouper.ws.soap_v2_1.WsGroupDetail;
-
 
 /**
  * Result of one group being retrieved since a user is a member of it.  The number of
