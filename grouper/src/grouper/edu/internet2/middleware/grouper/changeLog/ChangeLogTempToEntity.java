@@ -206,6 +206,10 @@ public class ChangeLogTempToEntity {
    */
   private static void processGroupAdd(ChangeLogEntry changeLogEntry) {
     
+    assertNotEmpty(changeLogEntry, ChangeLogLabels.GROUP_ADD.id.name());
+    assertNotEmpty(changeLogEntry, ChangeLogLabels.GROUP_ADD.name.name());
+    assertNotEmpty(changeLogEntry, ChangeLogLabels.GROUP_ADD.parentStemId.name());
+
     String id = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.GROUP_ADD.id);
     String contextId = GrouperUtil.isEmpty(changeLogEntry.getContextId()) ? null : changeLogEntry.getContextId();
     Long time = changeLogEntry.getCreatedOnDb();
@@ -233,12 +237,18 @@ public class ChangeLogTempToEntity {
     String contextId = GrouperUtil.isEmpty(changeLogEntry.getContextId()) ? null : changeLogEntry.getContextId();
     
     if (changeLogEntry.retrieveValueForLabel(ChangeLogLabels.GROUP_UPDATE.propertyChanged).equals("name")) {
+      assertNotEmpty(changeLogEntry, ChangeLogLabels.GROUP_UPDATE.id.name());
+      assertNotEmpty(changeLogEntry, ChangeLogLabels.GROUP_UPDATE.name.name());
+
       PITGroup pitGroup = GrouperDAOFactory.getFactory().getPITGroup().findById(
           changeLogEntry.retrieveValueForLabel(ChangeLogLabels.GROUP_UPDATE.id));
       pitGroup.setNameDb(changeLogEntry.retrieveValueForLabel(ChangeLogLabels.GROUP_UPDATE.name));
       pitGroup.setContextId(contextId);
       pitGroup.saveOrUpdate();
     } else if (changeLogEntry.retrieveValueForLabel(ChangeLogLabels.GROUP_UPDATE.propertyChanged).equals("parentStemId")) {
+      assertNotEmpty(changeLogEntry, ChangeLogLabels.GROUP_UPDATE.id.name());
+      assertNotEmpty(changeLogEntry, ChangeLogLabels.GROUP_UPDATE.parentStemId.name());
+
       PITGroup pitGroup = GrouperDAOFactory.getFactory().getPITGroup().findById(
           changeLogEntry.retrieveValueForLabel(ChangeLogLabels.GROUP_UPDATE.id));
       pitGroup.setStemId(changeLogEntry.retrieveValueForLabel(ChangeLogLabels.GROUP_UPDATE.parentStemId));
@@ -252,6 +262,8 @@ public class ChangeLogTempToEntity {
    * @param changeLogEntry
    */
   private static void processGroupDelete(ChangeLogEntry changeLogEntry) {
+    assertNotEmpty(changeLogEntry, ChangeLogLabels.GROUP_DELETE.id.name());
+
     String id = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.GROUP_DELETE.id);
     String contextId = GrouperUtil.isEmpty(changeLogEntry.getContextId()) ? null : changeLogEntry.getContextId();
     Long endTime = changeLogEntry.getCreatedOnDb();
@@ -270,6 +282,8 @@ public class ChangeLogTempToEntity {
    * @param changeLogEntry
    */
   private static void processStemAdd(ChangeLogEntry changeLogEntry) {
+    assertNotEmpty(changeLogEntry, ChangeLogLabels.STEM_ADD.id.name());
+
     PITStem pitStem = new PITStem();
     
     String id = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.STEM_ADD.id);
@@ -310,12 +324,18 @@ public class ChangeLogTempToEntity {
     String contextId = GrouperUtil.isEmpty(changeLogEntry.getContextId()) ? null : changeLogEntry.getContextId();
 
     if (changeLogEntry.retrieveValueForLabel(ChangeLogLabels.STEM_UPDATE.propertyChanged).equals("name")) {
+      assertNotEmpty(changeLogEntry, ChangeLogLabels.STEM_UPDATE.id.name());
+      assertNotEmpty(changeLogEntry, ChangeLogLabels.STEM_UPDATE.name.name());
+
       PITStem pitStem = GrouperDAOFactory.getFactory().getPITStem().findById(
           changeLogEntry.retrieveValueForLabel(ChangeLogLabels.STEM_UPDATE.id));
       pitStem.setNameDb(changeLogEntry.retrieveValueForLabel(ChangeLogLabels.STEM_UPDATE.name));
       pitStem.setContextId(contextId);
       pitStem.saveOrUpdate();
     } else if (changeLogEntry.retrieveValueForLabel(ChangeLogLabels.STEM_UPDATE.propertyChanged).equals("parentStemId")) {
+      assertNotEmpty(changeLogEntry, ChangeLogLabels.STEM_UPDATE.id.name());
+      assertNotEmpty(changeLogEntry, ChangeLogLabels.STEM_UPDATE.parentStemId.name());
+      
       PITStem pitStem = GrouperDAOFactory.getFactory().getPITStem().findById(
           changeLogEntry.retrieveValueForLabel(ChangeLogLabels.STEM_UPDATE.id));
       pitStem.setParentStemId(changeLogEntry.retrieveValueForLabel(ChangeLogLabels.STEM_UPDATE.parentStemId));
@@ -329,6 +349,8 @@ public class ChangeLogTempToEntity {
    * @param changeLogEntry
    */
   private static void processStemDelete(ChangeLogEntry changeLogEntry) {
+    assertNotEmpty(changeLogEntry, ChangeLogLabels.STEM_DELETE.id.name());
+
     String id = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.STEM_DELETE.id);
     String contextId = GrouperUtil.isEmpty(changeLogEntry.getContextId()) ? null : changeLogEntry.getContextId();
     Long endTime = changeLogEntry.getCreatedOnDb();
@@ -347,7 +369,11 @@ public class ChangeLogTempToEntity {
    * @param changeLogEntry
    */
   private static void processAttributeDefAdd(ChangeLogEntry changeLogEntry) {
-    
+    assertNotEmpty(changeLogEntry, ChangeLogLabels.ATTRIBUTE_DEF_ADD.id.name());
+    assertNotEmpty(changeLogEntry, ChangeLogLabels.ATTRIBUTE_DEF_ADD.name.name());
+    assertNotEmpty(changeLogEntry, ChangeLogLabels.ATTRIBUTE_DEF_ADD.stemId.name());
+    assertNotEmpty(changeLogEntry, ChangeLogLabels.ATTRIBUTE_DEF_ADD.attributeDefType.name());
+
     String id = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_DEF_ADD.id);
     String contextId = GrouperUtil.isEmpty(changeLogEntry.getContextId()) ? null : changeLogEntry.getContextId();
     Long time = changeLogEntry.getCreatedOnDb();
@@ -376,12 +402,18 @@ public class ChangeLogTempToEntity {
     String contextId = GrouperUtil.isEmpty(changeLogEntry.getContextId()) ? null : changeLogEntry.getContextId();
 
     if (changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_DEF_UPDATE.propertyChanged).equals("name")) {
+      assertNotEmpty(changeLogEntry, ChangeLogLabels.ATTRIBUTE_DEF_UPDATE.id.name());
+      assertNotEmpty(changeLogEntry, ChangeLogLabels.ATTRIBUTE_DEF_UPDATE.name.name());
+
       PITAttributeDef pitAttributeDef = GrouperDAOFactory.getFactory().getPITAttributeDef().findById(
           changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_DEF_UPDATE.id));
       pitAttributeDef.setNameDb(changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_DEF_UPDATE.name));
       pitAttributeDef.setContextId(contextId);
       pitAttributeDef.saveOrUpdate();
     } else if (changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_DEF_UPDATE.propertyChanged).equals("stemId")) {
+      assertNotEmpty(changeLogEntry, ChangeLogLabels.ATTRIBUTE_DEF_UPDATE.id.name());
+      assertNotEmpty(changeLogEntry, ChangeLogLabels.ATTRIBUTE_DEF_UPDATE.stemId.name());
+
       PITAttributeDef pitAttributeDef = GrouperDAOFactory.getFactory().getPITAttributeDef().findById(
           changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_DEF_UPDATE.id));
       pitAttributeDef.setStemId(changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_DEF_UPDATE.stemId));
@@ -395,6 +427,8 @@ public class ChangeLogTempToEntity {
    * @param changeLogEntry
    */
   private static void processAttributeDefDelete(ChangeLogEntry changeLogEntry) {
+    assertNotEmpty(changeLogEntry, ChangeLogLabels.ATTRIBUTE_DEF_DELETE.id.name());
+
     String id = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_DEF_DELETE.id);
     String contextId = GrouperUtil.isEmpty(changeLogEntry.getContextId()) ? null : changeLogEntry.getContextId();
     Long endTime = changeLogEntry.getCreatedOnDb();
@@ -413,6 +447,10 @@ public class ChangeLogTempToEntity {
    * @param changeLogEntry
    */
   private static void processFieldAdd(ChangeLogEntry changeLogEntry) {
+    assertNotEmpty(changeLogEntry, ChangeLogLabels.GROUP_FIELD_ADD.id.name());
+    assertNotEmpty(changeLogEntry, ChangeLogLabels.GROUP_FIELD_ADD.name.name());
+    assertNotEmpty(changeLogEntry, ChangeLogLabels.GROUP_FIELD_ADD.type.name());
+
     PITField pitField = new PITField();
     
     String id = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.GROUP_FIELD_ADD.id);
@@ -438,7 +476,8 @@ public class ChangeLogTempToEntity {
   }
   
   private static void processFieldDelete(ChangeLogEntry changeLogEntry) {
-    
+    assertNotEmpty(changeLogEntry, ChangeLogLabels.GROUP_FIELD_DELETE.id.name());
+
     String id = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.GROUP_FIELD_DELETE.id);
     String contextId = GrouperUtil.isEmpty(changeLogEntry.getContextId()) ? null : changeLogEntry.getContextId();
     Long endTime = changeLogEntry.getCreatedOnDb();
@@ -462,6 +501,10 @@ public class ChangeLogTempToEntity {
 
     if (changeLogEntry.retrieveValueForLabel(ChangeLogLabels.GROUP_FIELD_UPDATE.propertyChanged).equals("name") ||
         changeLogEntry.retrieveValueForLabel(ChangeLogLabels.GROUP_FIELD_UPDATE.propertyChanged).equals("type")) {
+      assertNotEmpty(changeLogEntry, ChangeLogLabels.GROUP_FIELD_UPDATE.id.name());
+      assertNotEmpty(changeLogEntry, ChangeLogLabels.GROUP_FIELD_UPDATE.name.name());
+      assertNotEmpty(changeLogEntry, ChangeLogLabels.GROUP_FIELD_UPDATE.type.name());
+
       PITField pitField = GrouperDAOFactory.getFactory().getPITField().findById(
           changeLogEntry.retrieveValueForLabel(ChangeLogLabels.GROUP_FIELD_UPDATE.id));
       pitField.setNameDb(changeLogEntry.retrieveValueForLabel(ChangeLogLabels.GROUP_FIELD_UPDATE.name));
@@ -475,6 +518,8 @@ public class ChangeLogTempToEntity {
    * @param changeLogEntry
    */
   private static void processGroupTypeAssign(ChangeLogEntry changeLogEntry) {
+    assertNotEmpty(changeLogEntry, ChangeLogLabels.GROUP_TYPE_ASSIGN.groupId.name());
+
     String groupId = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.GROUP_TYPE_ASSIGN.groupId);
     String contextId = GrouperUtil.isEmpty(changeLogEntry.getContextId()) ? null : changeLogEntry.getContextId();
     
@@ -486,9 +531,11 @@ public class ChangeLogTempToEntity {
    * @param changeLogEntry
    */
   private static void processGroupTypeUnassign(ChangeLogEntry changeLogEntry) {
-    
-    String typeId = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.GROUP_TYPE_ASSIGN.typeId);
-    String groupId = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.GROUP_TYPE_ASSIGN.groupId);
+    assertNotEmpty(changeLogEntry, ChangeLogLabels.GROUP_TYPE_UNASSIGN.groupId.name());
+    assertNotEmpty(changeLogEntry, ChangeLogLabels.GROUP_TYPE_UNASSIGN.typeId.name());
+
+    String typeId = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.GROUP_TYPE_UNASSIGN.typeId);
+    String groupId = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.GROUP_TYPE_UNASSIGN.groupId);
     String contextId = GrouperUtil.isEmpty(changeLogEntry.getContextId()) ? null : changeLogEntry.getContextId();
     Long endTime = changeLogEntry.getCreatedOnDb();
 
@@ -509,6 +556,11 @@ public class ChangeLogTempToEntity {
    * @param changeLogEntry
    */
   private static void processMemberAdd(ChangeLogEntry changeLogEntry) {
+    assertNotEmpty(changeLogEntry, ChangeLogLabels.MEMBER_ADD.id.name());
+    assertNotEmpty(changeLogEntry, ChangeLogLabels.MEMBER_ADD.subjectId.name());
+    assertNotEmpty(changeLogEntry, ChangeLogLabels.MEMBER_ADD.subjectSourceId.name());
+    assertNotEmpty(changeLogEntry, ChangeLogLabels.MEMBER_ADD.subjectTypeId.name());
+
     PITMember pitMember = new PITMember();
     
     String id = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_ADD.id);
@@ -542,6 +594,11 @@ public class ChangeLogTempToEntity {
     if (changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.propertyChanged).equals("subjectId") ||
         changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.propertyChanged).equals("subjectSourceId") ||
         changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.propertyChanged).equals("subjectTypeId")) {
+      assertNotEmpty(changeLogEntry, ChangeLogLabels.MEMBER_UPDATE.id.name());
+      assertNotEmpty(changeLogEntry, ChangeLogLabels.MEMBER_UPDATE.subjectId.name());
+      assertNotEmpty(changeLogEntry, ChangeLogLabels.MEMBER_UPDATE.subjectSourceId.name());
+      assertNotEmpty(changeLogEntry, ChangeLogLabels.MEMBER_UPDATE.subjectTypeId.name());
+      
       PITMember pitMember = GrouperDAOFactory.getFactory().getPITMember().findById(
           changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.id));
       pitMember.setSubjectId(changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.subjectId));
@@ -553,7 +610,8 @@ public class ChangeLogTempToEntity {
   }
   
   private static void processMemberDelete(ChangeLogEntry changeLogEntry) {
-    
+    assertNotEmpty(changeLogEntry, ChangeLogLabels.MEMBER_DELETE.id.name());
+
     String id = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_DELETE.id);
     String contextId = GrouperUtil.isEmpty(changeLogEntry.getContextId()) ? null : changeLogEntry.getContextId();
     Long endTime = changeLogEntry.getCreatedOnDb();
@@ -571,6 +629,11 @@ public class ChangeLogTempToEntity {
    * @param changeLogEntry
    */
   private static void processMembershipAdd(ChangeLogEntry changeLogEntry) {
+    assertNotEmpty(changeLogEntry, ChangeLogLabels.MEMBERSHIP_ADD.id.name());
+    assertNotEmpty(changeLogEntry, ChangeLogLabels.MEMBERSHIP_ADD.groupId.name());
+    assertNotEmpty(changeLogEntry, ChangeLogLabels.MEMBERSHIP_ADD.fieldId.name());
+    assertNotEmpty(changeLogEntry, ChangeLogLabels.MEMBERSHIP_ADD.memberId.name());
+
     String id = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.id);
     String groupId = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.groupId);
     String fieldId = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.fieldId);
@@ -605,6 +668,8 @@ public class ChangeLogTempToEntity {
    * @param changeLogEntry
    */
   private static void processMembershipDelete(ChangeLogEntry changeLogEntry) {
+    assertNotEmpty(changeLogEntry, ChangeLogLabels.MEMBERSHIP_DELETE.id.name());
+
     String id = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.id);
     Long time = changeLogEntry.getCreatedOnDb();
 
@@ -632,6 +697,12 @@ public class ChangeLogTempToEntity {
    * @param changeLogEntry
    */
   private static void processPrivilegeAdd(ChangeLogEntry changeLogEntry) {
+    assertNotEmpty(changeLogEntry, ChangeLogLabels.PRIVILEGE_ADD.id.name());
+    assertNotEmpty(changeLogEntry, ChangeLogLabels.PRIVILEGE_ADD.ownerType.name());
+    assertNotEmpty(changeLogEntry, ChangeLogLabels.PRIVILEGE_ADD.ownerId.name());
+    assertNotEmpty(changeLogEntry, ChangeLogLabels.PRIVILEGE_ADD.fieldId.name());
+    assertNotEmpty(changeLogEntry, ChangeLogLabels.PRIVILEGE_ADD.memberId.name());
+
     String id = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_ADD.id);
     String ownerType = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_ADD.ownerType);
     String ownerId = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_ADD.ownerId);
@@ -677,6 +748,8 @@ public class ChangeLogTempToEntity {
    * @param changeLogEntry
    */
   private static void processPrivilegeDelete(ChangeLogEntry changeLogEntry) {
+    assertNotEmpty(changeLogEntry, ChangeLogLabels.PRIVILEGE_DELETE.id.name());
+
     String id = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_DELETE.id);
     Long time = changeLogEntry.getCreatedOnDb();
 
@@ -703,6 +776,13 @@ public class ChangeLogTempToEntity {
    * @param changeLogEntry
    */
   private static void processAttributeAssignAdd(ChangeLogEntry changeLogEntry) {
+    assertNotEmpty(changeLogEntry, ChangeLogLabels.ATTRIBUTE_ASSIGN_ADD.id.name());
+    assertNotEmpty(changeLogEntry, ChangeLogLabels.ATTRIBUTE_ASSIGN_ADD.attributeDefNameId.name());
+    assertNotEmpty(changeLogEntry, ChangeLogLabels.ATTRIBUTE_ASSIGN_ADD.attributeAssignActionId.name());
+    assertNotEmpty(changeLogEntry, ChangeLogLabels.ATTRIBUTE_ASSIGN_ADD.assignType.name());
+    assertNotEmpty(changeLogEntry, ChangeLogLabels.ATTRIBUTE_ASSIGN_ADD.ownerId1.name());
+    assertNotEmpty(changeLogEntry, ChangeLogLabels.ATTRIBUTE_ASSIGN_ADD.disallowed.name());
+
     String id = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_ASSIGN_ADD.id);
     String attributeDefNameId = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_ASSIGN_ADD.attributeDefNameId);
     String actionId = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_ASSIGN_ADD.attributeAssignActionId);
@@ -752,6 +832,8 @@ public class ChangeLogTempToEntity {
    * @param changeLogEntry
    */
   private static void processAttributeAssignDelete(ChangeLogEntry changeLogEntry) {
+    assertNotEmpty(changeLogEntry, ChangeLogLabels.ATTRIBUTE_ASSIGN_DELETE.id.name());
+
     String id = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_ASSIGN_DELETE.id);
     Long time = changeLogEntry.getCreatedOnDb();
     String contextId = GrouperUtil.isEmpty(changeLogEntry.getContextId()) ? null : changeLogEntry.getContextId();
@@ -772,6 +854,10 @@ public class ChangeLogTempToEntity {
    * @param changeLogEntry
    */
   private static void processAttributeAssignValueAdd(ChangeLogEntry changeLogEntry) {
+    assertNotEmpty(changeLogEntry, ChangeLogLabels.ATTRIBUTE_ASSIGN_VALUE_ADD.id.name());
+    assertNotEmpty(changeLogEntry, ChangeLogLabels.ATTRIBUTE_ASSIGN_VALUE_ADD.attributeAssignId.name());
+    assertNotEmpty(changeLogEntry, ChangeLogLabels.ATTRIBUTE_ASSIGN_VALUE_ADD.valueType.name());
+
     String id = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_ASSIGN_VALUE_ADD.id);
     String attributeAssignId = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_ASSIGN_VALUE_ADD.attributeAssignId);
     String value = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_ASSIGN_VALUE_ADD.value);
@@ -807,6 +893,8 @@ public class ChangeLogTempToEntity {
    * @param changeLogEntry
    */
   private static void processAttributeAssignValueDelete(ChangeLogEntry changeLogEntry) {
+    assertNotEmpty(changeLogEntry, ChangeLogLabels.ATTRIBUTE_ASSIGN_VALUE_DELETE.id.name());
+
     String id = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_ASSIGN_VALUE_DELETE.id);
     Long time = changeLogEntry.getCreatedOnDb();
     String contextId = GrouperUtil.isEmpty(changeLogEntry.getContextId()) ? null : changeLogEntry.getContextId();
@@ -824,6 +912,11 @@ public class ChangeLogTempToEntity {
    * @param changeLogEntry
    */
   private static void processAttributeDefNameAdd(ChangeLogEntry changeLogEntry) {
+    assertNotEmpty(changeLogEntry, ChangeLogLabels.ATTRIBUTE_DEF_NAME_ADD.id.name());
+    assertNotEmpty(changeLogEntry, ChangeLogLabels.ATTRIBUTE_DEF_NAME_ADD.attributeDefId.name());
+    assertNotEmpty(changeLogEntry, ChangeLogLabels.ATTRIBUTE_DEF_NAME_ADD.stemId.name());
+    assertNotEmpty(changeLogEntry, ChangeLogLabels.ATTRIBUTE_DEF_NAME_ADD.name.name());
+
     String id = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_DEF_NAME_ADD.id);
     String attributeDefId = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_DEF_NAME_ADD.attributeDefId);
     String stemId = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_DEF_NAME_ADD.stemId);
@@ -852,6 +945,9 @@ public class ChangeLogTempToEntity {
     String contextId = GrouperUtil.isEmpty(changeLogEntry.getContextId()) ? null : changeLogEntry.getContextId();
 
     if (changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_DEF_NAME_UPDATE.propertyChanged).equals("name")) {
+      assertNotEmpty(changeLogEntry, ChangeLogLabels.ATTRIBUTE_DEF_NAME_UPDATE.id.name());
+      assertNotEmpty(changeLogEntry, ChangeLogLabels.ATTRIBUTE_DEF_NAME_UPDATE.name.name());
+
       PITAttributeDefName pitAttributeDefName = GrouperDAOFactory.getFactory().getPITAttributeDefName().findById(
           changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_DEF_NAME_UPDATE.id));
       pitAttributeDefName.setNameDb(changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_DEF_NAME_UPDATE.name));
@@ -865,6 +961,8 @@ public class ChangeLogTempToEntity {
    * @param changeLogEntry
    */
   private static void processAttributeDefNameDelete(ChangeLogEntry changeLogEntry) {
+    assertNotEmpty(changeLogEntry, ChangeLogLabels.ATTRIBUTE_DEF_NAME_DELETE.id.name());
+
     String id = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_DEF_NAME_DELETE.id);
     Long time = changeLogEntry.getCreatedOnDb();
     String contextId = GrouperUtil.isEmpty(changeLogEntry.getContextId()) ? null : changeLogEntry.getContextId();
@@ -882,6 +980,9 @@ public class ChangeLogTempToEntity {
    * @param changeLogEntry
    */
   private static void processAttributeAssignActionAdd(ChangeLogEntry changeLogEntry) {
+    assertNotEmpty(changeLogEntry, ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_ADD.id.name());
+    assertNotEmpty(changeLogEntry, ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_ADD.attributeDefId.name());
+
     String id = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_ADD.id);
     String attributeDefId = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_ADD.attributeDefId);
     String name = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_ADD.name);
@@ -908,6 +1009,8 @@ public class ChangeLogTempToEntity {
     String contextId = GrouperUtil.isEmpty(changeLogEntry.getContextId()) ? null : changeLogEntry.getContextId();
 
     if (changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_UPDATE.propertyChanged).equals("name")) {
+      assertNotEmpty(changeLogEntry, ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_UPDATE.id.name());
+
       PITAttributeAssignAction pitAttributeAssignAction = GrouperDAOFactory.getFactory().getPITAttributeAssignAction().findById(
           changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_UPDATE.id));
       pitAttributeAssignAction.setNameDb(changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_UPDATE.name));
@@ -921,6 +1024,8 @@ public class ChangeLogTempToEntity {
    * @param changeLogEntry
    */
   private static void processAttributeAssignActionDelete(ChangeLogEntry changeLogEntry) {
+    assertNotEmpty(changeLogEntry, ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_DELETE.id.name());
+
     String id = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_DELETE.id);
     Long time = changeLogEntry.getCreatedOnDb();
     String contextId = GrouperUtil.isEmpty(changeLogEntry.getContextId()) ? null : changeLogEntry.getContextId();
@@ -938,6 +1043,12 @@ public class ChangeLogTempToEntity {
    * @param changeLogEntry
    */
   private static void processAttributeAssignActionSetAdd(ChangeLogEntry changeLogEntry) {
+    assertNotEmpty(changeLogEntry, ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_SET_ADD.id.name());
+    assertNotEmpty(changeLogEntry, ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_SET_ADD.depth.name());
+    assertNotEmpty(changeLogEntry, ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_SET_ADD.ifHasAttrAssnActionId.name());
+    assertNotEmpty(changeLogEntry, ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_SET_ADD.thenHasAttrAssnActionId.name());
+    assertNotEmpty(changeLogEntry, ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_SET_ADD.parentAttrAssignActionSetId.name());
+
     String id = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_SET_ADD.id);
     String depth = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_SET_ADD.depth);
     String ifHas = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_SET_ADD.ifHasAttrAssnActionId);
@@ -967,6 +1078,8 @@ public class ChangeLogTempToEntity {
    * @param changeLogEntry
    */
   private static void processAttributeAssignActionSetDelete(ChangeLogEntry changeLogEntry) {
+    assertNotEmpty(changeLogEntry, ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_SET_DELETE.id.name());
+
     String id = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_SET_DELETE.id);
     Long time = changeLogEntry.getCreatedOnDb();
     String contextId = GrouperUtil.isEmpty(changeLogEntry.getContextId()) ? null : changeLogEntry.getContextId();
@@ -987,6 +1100,12 @@ public class ChangeLogTempToEntity {
    * @param changeLogEntry
    */
   private static void processAttributeDefNameSetAdd(ChangeLogEntry changeLogEntry) {
+    assertNotEmpty(changeLogEntry, ChangeLogLabels.ATTRIBUTE_DEF_NAME_SET_ADD.id.name());
+    assertNotEmpty(changeLogEntry, ChangeLogLabels.ATTRIBUTE_DEF_NAME_SET_ADD.depth.name());
+    assertNotEmpty(changeLogEntry, ChangeLogLabels.ATTRIBUTE_DEF_NAME_SET_ADD.ifHasAttributeDefNameId.name());
+    assertNotEmpty(changeLogEntry, ChangeLogLabels.ATTRIBUTE_DEF_NAME_SET_ADD.thenHasAttributeDefNameId.name());
+    assertNotEmpty(changeLogEntry, ChangeLogLabels.ATTRIBUTE_DEF_NAME_SET_ADD.parentAttrDefNameSetId.name());
+
     String id = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_DEF_NAME_SET_ADD.id);
     String depth = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_DEF_NAME_SET_ADD.depth);
     String ifHas = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_DEF_NAME_SET_ADD.ifHasAttributeDefNameId);
@@ -1016,6 +1135,8 @@ public class ChangeLogTempToEntity {
    * @param changeLogEntry
    */
   private static void processAttributeDefNameSetDelete(ChangeLogEntry changeLogEntry) {
+    assertNotEmpty(changeLogEntry, ChangeLogLabels.ATTRIBUTE_DEF_NAME_SET_DELETE.id.name());
+
     String id = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_DEF_NAME_SET_DELETE.id);
     Long time = changeLogEntry.getCreatedOnDb();
     String contextId = GrouperUtil.isEmpty(changeLogEntry.getContextId()) ? null : changeLogEntry.getContextId();
@@ -1036,6 +1157,12 @@ public class ChangeLogTempToEntity {
    * @param changeLogEntry
    */
   private static void processRoleSetAdd(ChangeLogEntry changeLogEntry) {
+    assertNotEmpty(changeLogEntry, ChangeLogLabels.ROLE_SET_ADD.id.name());
+    assertNotEmpty(changeLogEntry, ChangeLogLabels.ROLE_SET_ADD.depth.name());
+    assertNotEmpty(changeLogEntry, ChangeLogLabels.ROLE_SET_ADD.ifHasRoleId.name());
+    assertNotEmpty(changeLogEntry, ChangeLogLabels.ROLE_SET_ADD.thenHasRoleId.name());
+    assertNotEmpty(changeLogEntry, ChangeLogLabels.ROLE_SET_ADD.parentRoleSetId.name());
+
     String id = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ROLE_SET_ADD.id);
     String depth = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ROLE_SET_ADD.depth);
     String ifHas = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ROLE_SET_ADD.ifHasRoleId);
@@ -1065,6 +1192,8 @@ public class ChangeLogTempToEntity {
    * @param changeLogEntry
    */
   private static void processRoleSetDelete(ChangeLogEntry changeLogEntry) {
+    assertNotEmpty(changeLogEntry, ChangeLogLabels.ROLE_SET_DELETE.id.name());
+
     String id = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ROLE_SET_DELETE.id);
     Long time = changeLogEntry.getCreatedOnDb();
     String contextId = GrouperUtil.isEmpty(changeLogEntry.getContextId()) ? null : changeLogEntry.getContextId();
@@ -1078,5 +1207,16 @@ public class ChangeLogTempToEntity {
     pitRoleSet.setFlatPermissionNotificationsOnSaveOrUpdate(includeFlattenedPermissions);
     
     pitRoleSet.saveOrUpdate();
+  }
+  
+  /**
+   * Verify that field is not empty
+   * @param s
+   */
+  private static void assertNotEmpty(ChangeLogEntry changeLogEntry, String label) {
+    String value = changeLogEntry.retrieveValueForLabel(label);
+    if (GrouperUtil.isEmpty(value)) {
+      throw new RuntimeException(label + " is empty for change log entry: " + changeLogEntry.toStringDeep());
+    }
   }
 }
