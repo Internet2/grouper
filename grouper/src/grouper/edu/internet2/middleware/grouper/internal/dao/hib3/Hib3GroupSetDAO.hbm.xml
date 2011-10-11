@@ -28,6 +28,8 @@
     based on the grouper.properties, so dont remove that attribute  -->
   <class name="GroupSet" table="grouper_group_set" optimistic-lock="version">
 
+    <cache usage="read-write"/>
+
     <!-- id -->
     <id name="id" column="id" type="string" unsaved-value="none" length="128">
       <generator class="assigned" />

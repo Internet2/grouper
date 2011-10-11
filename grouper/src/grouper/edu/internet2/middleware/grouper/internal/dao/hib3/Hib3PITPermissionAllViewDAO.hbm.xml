@@ -28,6 +28,8 @@
     based on the grouper.properties, so dont remove that attribute  -->
   <class name="PITPermissionAllView" table="grouper_pit_perms_all_v" optimistic-lock="version">
 
+    <cache usage="read-write"/>
+
     <composite-id >
       <key-property name="actionId" column="action_id"/>
       <key-property name="roleId" column="role_id"/>

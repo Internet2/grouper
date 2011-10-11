@@ -107,7 +107,7 @@ public class Hib3PITAttributeAssignValueDAO extends Hib3DAO implements PITAttrib
       .createQuery("from PITAttributeAssignValue as theAttributeAssignValue where " +
           "theAttributeAssignValue.attributeAssignId = :theAttributeAssignId")
       .options(queryOptions)
-      .setCacheable(true)
+      .setCacheable(false)
       .setCacheRegion(KLASS + ".FindByAttributeAssignId")
       .setString("theAttributeAssignId", attributeAssignId)
       .listSet(PITAttributeAssignValue.class);

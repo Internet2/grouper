@@ -28,6 +28,8 @@
     based on the grouper.properties, so dont remove that attribute  -->
   <class name="PITRoleSet" table="grouper_pit_role_set" optimistic-lock="version">
 
+    <cache usage="read-write"/>
+
     <!-- id -->
     <id name="id" column="id" type="string" unsaved-value="none" length="40">
       <generator class="assigned" />
