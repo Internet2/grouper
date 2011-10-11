@@ -9,21 +9,30 @@ import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupType;
+import edu.internet2.middleware.grouper.GroupTypeFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefType;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogTempToEntity;
 import edu.internet2.middleware.grouper.group.GroupSet;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SessionHelper;
 import edu.internet2.middleware.grouper.helper.StemHelper;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
+import edu.internet2.middleware.grouper.hibernate.AuditControl;
+import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
+import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
+import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
+import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.misc.CompositeType;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.misc.GrouperStartup;
+import edu.internet2.middleware.grouper.misc.SyncPITTables;
 import edu.internet2.middleware.grouper.pit.finder.PITGroupFinder;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
@@ -52,7 +61,7 @@ public class PITMembershipTests extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new PITMembershipTests("testGroupSetAddDeleteAdd"));
+    TestRunner.run(new PITMembershipTests("testGroupSetAddDeleteAddSameTransaction"));
   }
   
   /**
@@ -1692,5 +1701,78 @@ public class PITMembershipTests extends GrouperTest {
       .execute();
     
     assertEquals(0, results.size());
+  }
+  
+  /**
+   * requireInGroups have this odd issue where an unassign causes the system of record group
+   * to be added, deleted, and added again all in one transaction with the same context id.
+   */
+  public void testRequireInGroups() {
+
+    // clear change log
+    ChangeLogTempToEntity.convertRecords();
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryEntity").executeUpdate();
+
+    setupTestConfigForIncludeExclude();
+    GrouperStartup.initIncludeExcludeType();
+    String requireInGroupsTypeName = GrouperConfig.getProperty("grouperIncludeExclude.requireGroups.type.name");
+    String requireInGroupsAttributeName = GrouperConfig.getProperty("grouperIncludeExclude.requireGroups.attributeName");
+    
+    GroupType type = GroupTypeFinder.find(requireInGroupsTypeName, true);
+    
+    Group group1 = edu.addChildGroup("group1", "group1");
+    Group requireGroup = edu.addChildGroup("requireGroup", "requireGroup");
+    group1.addType(type);
+    group1.setAttribute(requireInGroupsAttributeName, requireGroup.getName());
+    ChangeLogTempToEntity.convertRecords();
+    
+    group1.deleteType(type);
+    
+    ChangeLogTempToEntity.convertRecords();
+    
+    // sync script shouldn't see any reason to sync anything..
+    assertEquals(0, new SyncPITTables().showResults(false).syncAllPITTables());
+  }
+  
+  /**
+   * 
+   */
+  public void testGroupSetAddDeleteAddSameTransaction() {
+
+    // clear change log
+    ChangeLogTempToEntity.convertRecords();
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryEntity").executeUpdate();
+    
+    final Group group1 = edu.addChildGroup("group1", "group1");    
+    final Group group2 = edu.addChildGroup("group2", "group2");    
+    final Group group3 = edu.addChildGroup("group3", "group3");    
+    final Group group4 = edu.addChildGroup("group4", "group4");    
+    final Group group5 = edu.addChildGroup("group5", "group5");    
+    final Group group6 = edu.addChildGroup("group6", "group6");    
+
+    group1.addMember(group2.toSubject());
+    group2.addMember(group3.toSubject());
+    group4.addMember(group5.toSubject());
+    group5.addMember(group6.toSubject());
+    
+    ChangeLogTempToEntity.convertRecords();
+
+    HibernateSession.callbackHibernateSession(
+        GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT, new HibernateHandler() {
+
+      public Object callback(HibernateHandlerBean hibernateHandlerBean) throws GrouperDAOException {
+
+        group3.addMember(group4.toSubject());
+        group3.deleteMember(group4.toSubject());
+        group3.addMember(group4.toSubject());
+        
+        return null;
+      }
+    });
+
+    ChangeLogTempToEntity.convertRecords();
+    
+    // sync script shouldn't see any reason to sync anything..
+    assertEquals(0, new SyncPITTables().showResults(false).syncAllPITTables());
   }
 }
