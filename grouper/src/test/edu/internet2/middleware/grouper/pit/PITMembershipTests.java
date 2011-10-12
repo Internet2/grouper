@@ -1708,7 +1708,9 @@ public class PITMembershipTests extends GrouperTest {
    * to be added, deleted, and added again all in one transaction with the same context id.
    */
   public void testRequireInGroups() {
-
+    new SyncPITTables().showResults(false).syncAllPITTables();
+    GrouperSession.startRootSession();
+    
     // clear change log
     ChangeLogTempToEntity.convertRecords();
     HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryEntity").executeUpdate();
@@ -1738,6 +1740,8 @@ public class PITMembershipTests extends GrouperTest {
    * 
    */
   public void testGroupSetAddDeleteAddSameTransaction() {
+    new SyncPITTables().showResults(false).syncAllPITTables();
+    GrouperSession.startRootSession();
 
     // clear change log
     ChangeLogTempToEntity.convertRecords();
