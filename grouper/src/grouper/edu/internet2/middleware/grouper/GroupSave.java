@@ -352,6 +352,10 @@ public class GroupSave {
                     theGroup = parentStem.internal_addChildGroup(extensionNew, theDisplayExtension, GroupSave.this.uuid);
                   } else if (typeOfGroup == TypeOfGroup.role) {
                     theGroup = (Group)parentStem.internal_addChildRole(extensionNew, theDisplayExtension, GroupSave.this.uuid);
+                  } else if (typeOfGroup == TypeOfGroup.entity) {
+                    theGroup = (Group)parentStem.internal_addChildEntity(extensionNew, theDisplayExtension, GroupSave.this.uuid);
+                  } else {
+                    throw new RuntimeException("Not expecting type of group: " + typeOfGroup);
                   }
                 } else {
                   //check if different so it doesnt make unneeded queries

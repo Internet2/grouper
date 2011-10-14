@@ -497,14 +497,14 @@ public class TestStemApi extends GrouperTest {
     GrouperDAOFactory.getFactory().getMembership().update(ms);
     
     ms = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(
-        group1.getUuid(), MemberFinder.findBySubject(r.rs, b, true).getUuid(), FieldFinder.find("updaters", true), MembershipType.IMMEDIATE.getTypeString(), true, true);
+        group1.getUuid(), MemberFinder.findBySubject(r.rs, b, true).getUuid(), FieldFinder.find(Field.FIELD_NAME_UPDATERS, true), MembershipType.IMMEDIATE.getTypeString(), true, true);
     ms.setEnabled(false);
     ms.setEnabledTime(enabledTime);
     ms.setDisabledTime(disabledTime);
     GrouperDAOFactory.getFactory().getMembership().update(ms);
     
     ms = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(
-        otherGroup.getUuid(), group1.toMember().getUuid(), FieldFinder.find("updaters", true), MembershipType.IMMEDIATE.getTypeString(), true, true);
+        otherGroup.getUuid(), group1.toMember().getUuid(), FieldFinder.find(Field.FIELD_NAME_UPDATERS, true), MembershipType.IMMEDIATE.getTypeString(), true, true);
     ms.setEnabled(false);
     ms.setEnabledTime(enabledTime);
     ms.setDisabledTime(disabledTime);
@@ -518,14 +518,14 @@ public class TestStemApi extends GrouperTest {
     GrouperDAOFactory.getFactory().getMembership().update(ms);
     
     ms = GrouperDAOFactory.getFactory().getMembership().findByStemOwnerAndMemberAndFieldAndType(
-        otherStem.getUuid(), group1.toMember().getUuid(), FieldFinder.find("creators", true), MembershipType.IMMEDIATE.getTypeString(), true, true);
+        otherStem.getUuid(), group1.toMember().getUuid(), FieldFinder.find(Field.FIELD_NAME_CREATORS, true), MembershipType.IMMEDIATE.getTypeString(), true, true);
     ms.setEnabled(false);
     ms.setEnabledTime(enabledTime);
     ms.setDisabledTime(disabledTime);
     GrouperDAOFactory.getFactory().getMembership().update(ms);
     
     ms = GrouperDAOFactory.getFactory().getMembership().findByStemOwnerAndMemberAndFieldAndType(
-        source.getUuid(), group2.toMember().getUuid(), FieldFinder.find("creators", true), MembershipType.IMMEDIATE.getTypeString(), true, true);
+        source.getUuid(), group2.toMember().getUuid(), FieldFinder.find(Field.FIELD_NAME_CREATORS, true), MembershipType.IMMEDIATE.getTypeString(), true, true);
     ms.setEnabled(false);
     ms.setEnabledTime(enabledTime);
     ms.setDisabledTime(disabledTime);
@@ -539,12 +539,12 @@ public class TestStemApi extends GrouperTest {
     Group newGroup = (Group) newStem.getChildGroups().iterator().next();
     
     assertEquals(1, GrouperDAOFactory.getFactory().getMembership().findAllByCreatedAfter(pre, Group.getDefaultList(), true).size());
-    assertEquals(0, GrouperDAOFactory.getFactory().getMembership().findAllByCreatedAfter(pre, FieldFinder.find("updaters", true), true).size());
-    assertEquals(0, GrouperDAOFactory.getFactory().getMembership().findAllByCreatedAfter(pre, FieldFinder.find("creators", true), true).size());
+    assertEquals(0, GrouperDAOFactory.getFactory().getMembership().findAllByCreatedAfter(pre, FieldFinder.find(Field.FIELD_NAME_UPDATERS, true), true).size());
+    assertEquals(0, GrouperDAOFactory.getFactory().getMembership().findAllByCreatedAfter(pre, FieldFinder.find(Field.FIELD_NAME_CREATORS, true), true).size());
     
     assertEquals(3, GrouperDAOFactory.getFactory().getMembership().findAllByCreatedAfter(pre, Group.getDefaultList(), false).size());
-    assertEquals(2, GrouperDAOFactory.getFactory().getMembership().findAllByCreatedAfter(pre, FieldFinder.find("updaters", true), false).size());
-    assertEquals(2, GrouperDAOFactory.getFactory().getMembership().findAllByCreatedAfter(pre, FieldFinder.find("creators", true), false).size());
+    assertEquals(2, GrouperDAOFactory.getFactory().getMembership().findAllByCreatedAfter(pre, FieldFinder.find(Field.FIELD_NAME_UPDATERS, true), false).size());
+    assertEquals(2, GrouperDAOFactory.getFactory().getMembership().findAllByCreatedAfter(pre, FieldFinder.find(Field.FIELD_NAME_CREATORS, true), false).size());
 
   }
 

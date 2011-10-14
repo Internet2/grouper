@@ -353,15 +353,18 @@ public class GroupTypeTuple extends GrouperAPI implements GrouperHasContext, Hib
       Field field = iter.next();
       
       if (field.isGroupListField()) {
-        GroupSet groupSet = new GroupSet();
-        groupSet.setId(GrouperUuid.getUuid());
-        groupSet.setCreatorId(GrouperSession.staticGrouperSession().getMemberUuid());
-        groupSet.setDepth(0);
-        groupSet.setMemberGroupId(this.getGroupUuid());
-        groupSet.setOwnerGroupId(this.getGroupUuid());
-        groupSet.setParentId(groupSet.getId());
-        groupSet.setFieldId(field.getUuid());
-        GrouperDAOFactory.getFactory().getGroupSet().save(groupSet);
+        if (GroupTypeTuple.this.group != null && GroupTypeTuple.this.group.getTypeOfGroup() != null
+            && GroupTypeTuple.this.group.getTypeOfGroup().supportsField(field)) {
+          GroupSet groupSet = new GroupSet();
+          groupSet.setId(GrouperUuid.getUuid());
+          groupSet.setCreatorId(GrouperSession.staticGrouperSession().getMemberUuid());
+          groupSet.setDepth(0);
+          groupSet.setMemberGroupId(this.getGroupUuid());
+          groupSet.setOwnerGroupId(this.getGroupUuid());
+          groupSet.setParentId(groupSet.getId());
+          groupSet.setFieldId(field.getUuid());
+          GrouperDAOFactory.getFactory().getGroupSet().save(groupSet);
+        }
       }
     }
     

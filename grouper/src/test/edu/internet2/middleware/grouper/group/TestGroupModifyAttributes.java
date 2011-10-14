@@ -20,6 +20,7 @@ import junit.textui.TestRunner;
 
 import org.apache.commons.logging.Log;
 
+import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
@@ -762,7 +763,7 @@ public class TestGroupModifyAttributes extends GrouperTest {
       GrouperUtil.sleep(100);
       
       Membership ms = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(
-          gC.getUuid(), gD.toMember().getUuid(), FieldFinder.find("admins", true), MembershipType.IMMEDIATE.getTypeString(), true, true);
+          gC.getUuid(), gD.toMember().getUuid(), FieldFinder.find(Field.FIELD_NAME_ADMINS, true), MembershipType.IMMEDIATE.getTypeString(), true, true);
       ms.setEnabled(false);
       GrouperDAOFactory.getFactory().getMembership().update(ms);
 
@@ -869,7 +870,7 @@ public class TestGroupModifyAttributes extends GrouperTest {
       gB.grantPriv(gC.toSubject(), AccessPrivilege.ADMIN);
 
       Membership ms = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(
-          gC.getUuid(), gD.toMember().getUuid(), FieldFinder.find("admins", true), MembershipType.IMMEDIATE.getTypeString(), true, true);
+          gC.getUuid(), gD.toMember().getUuid(), FieldFinder.find(Field.FIELD_NAME_ADMINS, true), MembershipType.IMMEDIATE.getTypeString(), true, true);
       ms.setEnabled(false);
       GrouperDAOFactory.getFactory().getMembership().update(ms);
       

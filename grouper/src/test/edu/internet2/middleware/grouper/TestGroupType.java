@@ -781,7 +781,7 @@ public class TestGroupType extends GrouperTest {
   public void testDeleteFromNaming() {
     GrouperSession  s     = null;
     String          type  = "naming";
-    String          name  = "creators";
+    String          name  = Field.FIELD_NAME_CREATORS;
     try {
       s = SessionHelper.getRootSession();
       GroupType naming = GroupTypeFinder.find(type, true);

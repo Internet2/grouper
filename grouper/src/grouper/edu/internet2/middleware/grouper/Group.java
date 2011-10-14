@@ -54,6 +54,7 @@ import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogEntry;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogLabels;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogTypeBuiltin;
+import edu.internet2.middleware.grouper.entity.Entity;
 import edu.internet2.middleware.grouper.exception.AttributeNotFoundException;
 import edu.internet2.middleware.grouper.exception.CompositeNotFoundException;
 import edu.internet2.middleware.grouper.exception.GrantPrivilegeAlreadyExistsException;
@@ -160,7 +161,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  */
 @SuppressWarnings("serial")
 public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner, 
-    Hib3GrouperVersioned, Comparable, XmlImportable<Group>, AttributeAssignable {
+    Hib3GrouperVersioned, Comparable, XmlImportable<Group>, AttributeAssignable, Entity {
 
   /** name of the groups table in the db */
   public static final String TABLE_GROUPER_GROUPS = "grouper_groups";

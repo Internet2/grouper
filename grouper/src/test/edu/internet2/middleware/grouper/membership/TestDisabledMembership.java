@@ -413,7 +413,7 @@ public class TestDisabledMembership extends GrouperTest {
     
     // disable owner -> top2 (update priv)
     ms = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(
-        top2.getUuid(), owner.toMember().getUuid(), FieldFinder.find("updaters", true), MembershipType.IMMEDIATE.getTypeString(), true, true);
+        top2.getUuid(), owner.toMember().getUuid(), FieldFinder.find(Field.FIELD_NAME_UPDATERS, true), MembershipType.IMMEDIATE.getTypeString(), true, true);
     ms.setEnabled(false);
     ms.setEnabledTime(enabledTime);
     ms.setDisabledTime(disabledTime);
@@ -423,7 +423,7 @@ public class TestDisabledMembership extends GrouperTest {
     verifyMemberships(16, 4, 0, true, false, true, true, true, true);
     
     ms = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(
-        top2.getUuid(), owner.toMember().getUuid(), FieldFinder.find("updaters", true), MembershipType.IMMEDIATE.getTypeString(), true, false);
+        top2.getUuid(), owner.toMember().getUuid(), FieldFinder.find(Field.FIELD_NAME_UPDATERS, true), MembershipType.IMMEDIATE.getTypeString(), true, false);
     ms.setEnabled(true);
     ms.setEnabledTime(null);
     ms.setDisabledTime(null);
@@ -434,7 +434,7 @@ public class TestDisabledMembership extends GrouperTest {
     
     // disable owner -> stem (create priv)
     ms = GrouperDAOFactory.getFactory().getMembership().findByStemOwnerAndMemberAndFieldAndType(
-        stem.getUuid(), owner.toMember().getUuid(), FieldFinder.find("creators", true), MembershipType.IMMEDIATE.getTypeString(), true, true);
+        stem.getUuid(), owner.toMember().getUuid(), FieldFinder.find(Field.FIELD_NAME_CREATORS, true), MembershipType.IMMEDIATE.getTypeString(), true, true);
     ms.setEnabled(false);
     ms.setEnabledTime(enabledTime);
     ms.setDisabledTime(disabledTime);
@@ -444,7 +444,7 @@ public class TestDisabledMembership extends GrouperTest {
     verifyMemberships(16, 0, 4, true, true, false, true, true, true);
     
     ms = GrouperDAOFactory.getFactory().getMembership().findByStemOwnerAndMemberAndFieldAndType(
-        stem.getUuid(), owner.toMember().getUuid(), FieldFinder.find("creators", true), MembershipType.IMMEDIATE.getTypeString(), true, false);
+        stem.getUuid(), owner.toMember().getUuid(), FieldFinder.find(Field.FIELD_NAME_CREATORS, true), MembershipType.IMMEDIATE.getTypeString(), true, false);
     ms.setEnabled(true);
     ms.setEnabledTime(null);
     ms.setDisabledTime(null);
@@ -538,8 +538,8 @@ public class TestDisabledMembership extends GrouperTest {
     Member b = MemberFinder.findBySubject(r.rs, r.getSubject("b"), true);
     Member c = MemberFinder.findBySubject(r.rs, r.getSubject("c"), true);
     
-    Field updatersField = FieldFinder.find("updaters", true);
-    Field creatorsField = FieldFinder.find("creators", true);
+    Field updatersField = FieldFinder.find(Field.FIELD_NAME_UPDATERS, true);
+    Field creatorsField = FieldFinder.find(Field.FIELD_NAME_CREATORS, true);
     Field membersField = Group.getDefaultList();
     
     Set<Membership> allEnabledMemberships = GrouperDAOFactory.getFactory().getMembership().findAll(true);
@@ -759,7 +759,7 @@ public class TestDisabledMembership extends GrouperTest {
 
     // now disable group -> top (create priv)
     Membership ms = GrouperDAOFactory.getFactory().getMembership().findByStemOwnerAndMemberAndFieldAndType(
-        top.getUuid(), group.toMember().getUuid(), FieldFinder.find("creators", true), MembershipType.IMMEDIATE.getTypeString(), true, true);
+        top.getUuid(), group.toMember().getUuid(), FieldFinder.find(Field.FIELD_NAME_CREATORS, true), MembershipType.IMMEDIATE.getTypeString(), true, true);
     ms.setEnabled(false);
     ms.setEnabledTime(enabledTime);
     ms.setDisabledTime(disabledTime);
@@ -791,7 +791,7 @@ public class TestDisabledMembership extends GrouperTest {
 
     // now disable group -> top (create priv)
     Membership ms = GrouperDAOFactory.getFactory().getMembership().findByStemOwnerAndMemberAndFieldAndType(
-        top.getUuid(), group.toMember().getUuid(), FieldFinder.find("creators", true), MembershipType.IMMEDIATE.getTypeString(), true, true);
+        top.getUuid(), group.toMember().getUuid(), FieldFinder.find(Field.FIELD_NAME_CREATORS, true), MembershipType.IMMEDIATE.getTypeString(), true, true);
     ms.setEnabled(false);
     ms.setEnabledTime(enabledTime);
     ms.setDisabledTime(disabledTime);
@@ -806,7 +806,7 @@ public class TestDisabledMembership extends GrouperTest {
     assertFalse(top.hasCreate(group.toSubject()));
     
     ms = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(
-        top.getUuid(), group.toMember().getUuid(), FieldFinder.find("creators", true), MembershipType.IMMEDIATE.getTypeString(), false, false);
+        top.getUuid(), group.toMember().getUuid(), FieldFinder.find(Field.FIELD_NAME_CREATORS, true), MembershipType.IMMEDIATE.getTypeString(), false, false);
     
     assertNull(ms);
   }
@@ -863,7 +863,7 @@ public class TestDisabledMembership extends GrouperTest {
     // now disable SA -> group
     Membership ms = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(
         group.getUuid(), MemberFinder.findBySubject(r.rs, a, true).getUuid(), 
-        FieldFinder.find("admins", true), MembershipType.IMMEDIATE.getTypeString(), true, true);
+        FieldFinder.find(Field.FIELD_NAME_ADMINS, true), MembershipType.IMMEDIATE.getTypeString(), true, true);
     ms.setEnabled(false);
     ms.setEnabledTime(enabledTime);
     ms.setDisabledTime(disabledTime);
@@ -896,7 +896,7 @@ public class TestDisabledMembership extends GrouperTest {
     // now disable SA -> group1
     Membership ms = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(
         group1.getUuid(), MemberFinder.findBySubject(r.rs, a, true).getUuid(), 
-        FieldFinder.find("admins", true), MembershipType.IMMEDIATE.getTypeString(), true, true);
+        FieldFinder.find(Field.FIELD_NAME_ADMINS, true), MembershipType.IMMEDIATE.getTypeString(), true, true);
     ms.setEnabled(false);
     ms.setEnabledTime(enabledTime);
     ms.setDisabledTime(disabledTime);
@@ -939,7 +939,7 @@ public class TestDisabledMembership extends GrouperTest {
     // now disable SA -> group
     Membership ms = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(
         group.getUuid(), MemberFinder.findBySubject(r.rs, a, true).getUuid(), 
-        FieldFinder.find("admins", true), MembershipType.IMMEDIATE.getTypeString(), true, true);
+        FieldFinder.find(Field.FIELD_NAME_ADMINS, true), MembershipType.IMMEDIATE.getTypeString(), true, true);
     ms.setEnabled(false);
     ms.setEnabledTime(enabledTime);
     ms.setDisabledTime(disabledTime);
@@ -972,10 +972,10 @@ public class TestDisabledMembership extends GrouperTest {
     
     assertEquals(1, group1.getEffectiveMembers().size());
     assertEquals(1, group1.getEffectiveMemberships().size());
-    assertEquals(1, group1.getEffectiveMembers(FieldFinder.find("admins", true)).size());
-    assertEquals(1, group1.getEffectiveMemberships(FieldFinder.find("admins", true)).size());
+    assertEquals(1, group1.getEffectiveMembers(FieldFinder.find(Field.FIELD_NAME_ADMINS, true)).size());
+    assertEquals(1, group1.getEffectiveMemberships(FieldFinder.find(Field.FIELD_NAME_ADMINS, true)).size());
     assertTrue(group1.hasEffectiveMember(a));
-    assertTrue(group1.hasEffectiveMember(a, FieldFinder.find("admins", true)));
+    assertTrue(group1.hasEffectiveMember(a, FieldFinder.find(Field.FIELD_NAME_ADMINS, true)));
     assertTrue(member.isEffectiveMember(group1));
     
     // now disable SA -> group2
@@ -991,10 +991,10 @@ public class TestDisabledMembership extends GrouperTest {
     
     assertEquals(0, group1.getEffectiveMembers().size());
     assertEquals(0, group1.getEffectiveMemberships().size());
-    assertEquals(0, group1.getEffectiveMembers(FieldFinder.find("admins", true)).size());
-    assertEquals(0, group1.getEffectiveMemberships(FieldFinder.find("admins", true)).size());
+    assertEquals(0, group1.getEffectiveMembers(FieldFinder.find(Field.FIELD_NAME_ADMINS, true)).size());
+    assertEquals(0, group1.getEffectiveMemberships(FieldFinder.find(Field.FIELD_NAME_ADMINS, true)).size());
     assertFalse(group1.hasEffectiveMember(a));
-    assertFalse(group1.hasEffectiveMember(a, FieldFinder.find("admins", true)));
+    assertFalse(group1.hasEffectiveMember(a, FieldFinder.find(Field.FIELD_NAME_ADMINS, true)));
     assertFalse(member.isEffectiveMember(group1));
   }
   
@@ -1018,10 +1018,10 @@ public class TestDisabledMembership extends GrouperTest {
     
     assertEquals(1, group.getImmediateMembers().size());
     assertEquals(1, group.getImmediateMemberships().size());
-    assertEquals(2, group.getImmediateMembers(FieldFinder.find("admins", true)).size());
-    assertEquals(2, group.getImmediateMemberships(FieldFinder.find("admins", true)).size());
+    assertEquals(2, group.getImmediateMembers(FieldFinder.find(Field.FIELD_NAME_ADMINS, true)).size());
+    assertEquals(2, group.getImmediateMemberships(FieldFinder.find(Field.FIELD_NAME_ADMINS, true)).size());
     assertTrue(group.hasImmediateMember(a));
-    assertTrue(group.hasImmediateMember(a, FieldFinder.find("admins", true)));
+    assertTrue(group.hasImmediateMember(a, FieldFinder.find(Field.FIELD_NAME_ADMINS, true)));
     assertTrue(member.isImmediateMember(group));
     
     // now disable SA -> group2
@@ -1035,7 +1035,7 @@ public class TestDisabledMembership extends GrouperTest {
     
     ms = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(
         group.getUuid(), MemberFinder.findBySubject(r.rs, a, true).getUuid(), 
-        FieldFinder.find("admins", true), MembershipType.IMMEDIATE.getTypeString(), true, true);
+        FieldFinder.find(Field.FIELD_NAME_ADMINS, true), MembershipType.IMMEDIATE.getTypeString(), true, true);
     ms.setEnabled(false);
     ms.setEnabledTime(enabledTime);
     ms.setDisabledTime(disabledTime);
@@ -1045,10 +1045,10 @@ public class TestDisabledMembership extends GrouperTest {
     
     assertEquals(0, group.getImmediateMembers().size());
     assertEquals(0, group.getImmediateMemberships().size());
-    assertEquals(1, group.getImmediateMembers(FieldFinder.find("admins", true)).size());
-    assertEquals(1, group.getImmediateMemberships(FieldFinder.find("admins", true)).size());
+    assertEquals(1, group.getImmediateMembers(FieldFinder.find(Field.FIELD_NAME_ADMINS, true)).size());
+    assertEquals(1, group.getImmediateMemberships(FieldFinder.find(Field.FIELD_NAME_ADMINS, true)).size());
     assertFalse(group.hasImmediateMember(a));
-    assertFalse(group.hasImmediateMember(a, FieldFinder.find("admins", true)));
+    assertFalse(group.hasImmediateMember(a, FieldFinder.find(Field.FIELD_NAME_ADMINS, true)));
     assertFalse(member.isImmediateMember(group));
   }
   
@@ -1073,10 +1073,10 @@ public class TestDisabledMembership extends GrouperTest {
     
     assertEquals(1, group.getMembers().size());
     assertEquals(1, group.getMemberships().size());
-    assertEquals(2, group.getMembers(FieldFinder.find("admins", true)).size());
-    assertEquals(2, group.getMemberships(FieldFinder.find("admins", true)).size());
+    assertEquals(2, group.getMembers(FieldFinder.find(Field.FIELD_NAME_ADMINS, true)).size());
+    assertEquals(2, group.getMemberships(FieldFinder.find(Field.FIELD_NAME_ADMINS, true)).size());
     assertTrue(group.hasMember(a));
-    assertTrue(group.hasMember(a, FieldFinder.find("admins", true)));
+    assertTrue(group.hasMember(a, FieldFinder.find(Field.FIELD_NAME_ADMINS, true)));
     assertTrue(member.isMember(group));
     
     // now disable SA -> group2
@@ -1090,7 +1090,7 @@ public class TestDisabledMembership extends GrouperTest {
     
     ms = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(
         group.getUuid(), MemberFinder.findBySubject(r.rs, a, true).getUuid(), 
-        FieldFinder.find("admins", true), MembershipType.IMMEDIATE.getTypeString(), true, true);
+        FieldFinder.find(Field.FIELD_NAME_ADMINS, true), MembershipType.IMMEDIATE.getTypeString(), true, true);
     ms.setEnabled(false);
     ms.setEnabledTime(enabledTime);
     ms.setDisabledTime(disabledTime);
@@ -1100,10 +1100,10 @@ public class TestDisabledMembership extends GrouperTest {
     
     assertEquals(0, group.getMembers().size());
     assertEquals(0, group.getMemberships().size());
-    assertEquals(1, group.getMembers(FieldFinder.find("admins", true)).size());
-    assertEquals(1, group.getMemberships(FieldFinder.find("admins", true)).size());
+    assertEquals(1, group.getMembers(FieldFinder.find(Field.FIELD_NAME_ADMINS, true)).size());
+    assertEquals(1, group.getMemberships(FieldFinder.find(Field.FIELD_NAME_ADMINS, true)).size());
     assertFalse(group.hasMember(a));
-    assertFalse(group.hasMember(a, FieldFinder.find("admins", true)));
+    assertFalse(group.hasMember(a, FieldFinder.find(Field.FIELD_NAME_ADMINS, true)));
     assertFalse(member.isMember(group));
   }
   
@@ -1128,7 +1128,7 @@ public class TestDisabledMembership extends GrouperTest {
     // now disable SA -> group
     Membership ms = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(
         group.getUuid(), MemberFinder.findBySubject(r.rs, a, true).getUuid(), 
-        FieldFinder.find("admins", true), MembershipType.IMMEDIATE.getTypeString(), true, true);
+        FieldFinder.find(Field.FIELD_NAME_ADMINS, true), MembershipType.IMMEDIATE.getTypeString(), true, true);
     ms.setEnabled(false);
     ms.setEnabledTime(enabledTime);
     ms.setDisabledTime(disabledTime);
@@ -1160,7 +1160,7 @@ public class TestDisabledMembership extends GrouperTest {
     // now disable SA -> group
     Membership ms = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(
         group.getUuid(), MemberFinder.findBySubject(r.rs, a, true).getUuid(), 
-        FieldFinder.find("admins", true), MembershipType.IMMEDIATE.getTypeString(), true, true);
+        FieldFinder.find(Field.FIELD_NAME_ADMINS, true), MembershipType.IMMEDIATE.getTypeString(), true, true);
     ms.setEnabled(false);
     ms.setEnabledTime(enabledTime);
     ms.setDisabledTime(disabledTime);
@@ -1191,7 +1191,7 @@ public class TestDisabledMembership extends GrouperTest {
     // now disable SA -> top1
     Membership ms = GrouperDAOFactory.getFactory().getMembership().findByStemOwnerAndMemberAndFieldAndType(
         top1.getUuid(), MemberFinder.findBySubject(r.rs, a, true).getUuid(), 
-        FieldFinder.find("stemmers", true), MembershipType.IMMEDIATE.getTypeString(), true, true);
+        FieldFinder.find(Field.FIELD_NAME_STEMMERS, true), MembershipType.IMMEDIATE.getTypeString(), true, true);
     ms.setEnabled(false);
     ms.setEnabledTime(enabledTime);
     ms.setDisabledTime(disabledTime);
@@ -1270,7 +1270,7 @@ public class TestDisabledMembership extends GrouperTest {
     // now disable SA -> group (admin priv)
     ms = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(
         group.getUuid(), MemberFinder.findBySubject(r.rs, a, true).getUuid(), 
-        FieldFinder.find("admins", true), MembershipType.IMMEDIATE.getTypeString(), true, true);
+        FieldFinder.find(Field.FIELD_NAME_ADMINS, true), MembershipType.IMMEDIATE.getTypeString(), true, true);
     ms.setEnabled(false);
     ms.setEnabledTime(enabledTime);
     ms.setDisabledTime(disabledTime);
@@ -1302,7 +1302,7 @@ public class TestDisabledMembership extends GrouperTest {
     // now disable SA -> top
     Membership ms = GrouperDAOFactory.getFactory().getMembership().findByStemOwnerAndMemberAndFieldAndType(
         top.getUuid(), MemberFinder.findBySubject(r.rs, a, true).getUuid(), 
-        FieldFinder.find("creators", true), MembershipType.IMMEDIATE.getTypeString(), true, true);
+        FieldFinder.find(Field.FIELD_NAME_CREATORS, true), MembershipType.IMMEDIATE.getTypeString(), true, true);
     ms.setEnabled(false);
     ms.setEnabledTime(enabledTime);
     ms.setDisabledTime(disabledTime);
@@ -1333,7 +1333,7 @@ public class TestDisabledMembership extends GrouperTest {
     // now disable SA -> top
     Membership ms = GrouperDAOFactory.getFactory().getMembership().findByStemOwnerAndMemberAndFieldAndType(
         top.getUuid(), MemberFinder.findBySubject(r.rs, a, true).getUuid(), 
-        FieldFinder.find("creators", true), MembershipType.IMMEDIATE.getTypeString(), true, true);
+        FieldFinder.find(Field.FIELD_NAME_CREATORS, true), MembershipType.IMMEDIATE.getTypeString(), true, true);
     ms.setEnabled(false);
     ms.setEnabledTime(enabledTime);
     ms.setDisabledTime(disabledTime);
@@ -1364,7 +1364,7 @@ public class TestDisabledMembership extends GrouperTest {
     // now disable SA -> top
     Membership ms = GrouperDAOFactory.getFactory().getMembership().findByStemOwnerAndMemberAndFieldAndType(
         top.getUuid(), MemberFinder.findBySubject(r.rs, a, true).getUuid(), 
-        FieldFinder.find("creators", true), MembershipType.IMMEDIATE.getTypeString(), true, true);
+        FieldFinder.find(Field.FIELD_NAME_CREATORS, true), MembershipType.IMMEDIATE.getTypeString(), true, true);
     ms.setEnabled(false);
     ms.setEnabledTime(enabledTime);
     ms.setDisabledTime(disabledTime);

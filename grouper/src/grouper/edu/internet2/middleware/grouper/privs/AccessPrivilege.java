@@ -28,6 +28,7 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
+import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperAPI;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -87,28 +88,33 @@ public class AccessPrivilege implements GrouperPrivilege, Comparable {
   public static Set<Privilege> VIEW_PRIVILEGES = Collections.unmodifiableSet(
       GrouperUtil.toSet(VIEW, READ, ADMIN, UPDATE, OPTIN, OPTOUT));
 
+  /** any of these constitutes VIEW on an entity
+   * note, keep most common/likely privs toward the front  */
+  public static Set<Privilege> VIEW_ENTITY_PRIVILEGES = Collections.unmodifiableSet(
+      GrouperUtil.toSet(VIEW, ADMIN));
+
   /** convert a list to priv */
   private static Map<String,Privilege> list2priv = new HashMap<String, Privilege>();
 
   static {
-    list2priv.put( "admins",  AccessPrivilege.ADMIN);
-    list2priv.put( "optins",  AccessPrivilege.OPTIN);
-    list2priv.put( "optouts", AccessPrivilege.OPTOUT);
-    list2priv.put( "readers", AccessPrivilege.READ);
-    list2priv.put( "updaters", AccessPrivilege.UPDATE);
-    list2priv.put( "viewers", AccessPrivilege.VIEW);
+    list2priv.put( Field.FIELD_NAME_ADMINS,  AccessPrivilege.ADMIN);
+    list2priv.put( Field.FIELD_NAME_OPTINS,  AccessPrivilege.OPTIN);
+    list2priv.put( Field.FIELD_NAME_OPTOUTS, AccessPrivilege.OPTOUT);
+    list2priv.put( Field.FIELD_NAME_READERS, AccessPrivilege.READ);
+    list2priv.put( Field.FIELD_NAME_UPDATERS, AccessPrivilege.UPDATE);
+    list2priv.put( Field.FIELD_NAME_VIEWERS, AccessPrivilege.VIEW);
   }
 
   /** convert a list to a priv */
   private static Map<Privilege, String> priv2list = new HashMap<Privilege, String>();
 
   static {
-    priv2list.put(  AccessPrivilege.ADMIN , "admins"    );
-    priv2list.put(  AccessPrivilege.OPTIN , "optins"    );
-    priv2list.put(  AccessPrivilege.OPTOUT, "optouts"   );
-    priv2list.put(  AccessPrivilege.READ  , "readers"   );
-    priv2list.put(  AccessPrivilege.UPDATE, "updaters"  );
-    priv2list.put(  AccessPrivilege.VIEW  , "viewers"   );
+    priv2list.put(  AccessPrivilege.ADMIN , Field.FIELD_NAME_ADMINS    );
+    priv2list.put(  AccessPrivilege.OPTIN , Field.FIELD_NAME_OPTINS    );
+    priv2list.put(  AccessPrivilege.OPTOUT, Field.FIELD_NAME_OPTOUTS   );
+    priv2list.put(  AccessPrivilege.READ  , Field.FIELD_NAME_READERS   );
+    priv2list.put(  AccessPrivilege.UPDATE, Field.FIELD_NAME_UPDATERS  );
+    priv2list.put(  AccessPrivilege.VIEW  , Field.FIELD_NAME_VIEWERS   );
   }
   
   /**

@@ -87,8 +87,8 @@ public class TestMembership7 extends GrouperTest {
       subjA = r.getSubject("a");
 
       fieldMembers = Group.getDefaultList();
-      fieldUpdaters = FieldFinder.find("updaters", true);
-      fieldOptIns = FieldFinder.find("optins", true);
+      fieldUpdaters = FieldFinder.find(Field.FIELD_NAME_UPDATERS, true);
+      fieldOptIns = FieldFinder.find(Field.FIELD_NAME_OPTINS, true);
 
       Set<Group> goodGroups = new LinkedHashSet<Group>();
       Set<Group> badGroups = new LinkedHashSet<Group>();

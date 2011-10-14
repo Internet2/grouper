@@ -248,7 +248,7 @@ public class PITMembershipTests extends GrouperTest {
     
     Group group1 = edu.addChildGroup("group1", "group1");    
     Member member0 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ0, true);
-    String fieldId = FieldFinder.find("updaters", true).getUuid();
+    String fieldId = FieldFinder.find(Field.FIELD_NAME_UPDATERS, true).getUuid();
 
     Date beforeAddTime = new Date();
     GrouperUtil.sleep(sleepTime);
@@ -377,7 +377,7 @@ public class PITMembershipTests extends GrouperTest {
     
     Stem stem1 = edu.addChildStem("stem1", "stem1");    
     Member member0 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ0, true);
-    String fieldId = FieldFinder.find("creators", true).getUuid();
+    String fieldId = FieldFinder.find(Field.FIELD_NAME_CREATORS, true).getUuid();
 
     Date beforeAddTime = new Date();
     GrouperUtil.sleep(sleepTime);
@@ -772,7 +772,7 @@ public class PITMembershipTests extends GrouperTest {
     Group group3 = edu.addChildGroup("group3", "group3");    
     Member member0 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ0, true);
     Member member1 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ1, true);
-    String fieldId = FieldFinder.find("updaters", true).getUuid();
+    String fieldId = FieldFinder.find(Field.FIELD_NAME_UPDATERS, true).getUuid();
 
     group2.addMember(group3.toSubject());
     group3.addMember(member0.getSubject());
@@ -928,7 +928,7 @@ public class PITMembershipTests extends GrouperTest {
     Group group2 = edu.addChildGroup("group2", "group2");    
     Member member0 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ0, true);
     Member member1 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ1, true);
-    String fieldId = FieldFinder.find("creators", true).getUuid();
+    String fieldId = FieldFinder.find(Field.FIELD_NAME_CREATORS, true).getUuid();
 
     group1.addMember(group2.toSubject());
     group2.addMember(member0.getSubject());

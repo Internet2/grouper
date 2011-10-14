@@ -154,7 +154,7 @@ public class TestStem extends GrouperTest {
       GrouperUtil.sleep(100);
 
       Membership ms = GrouperDAOFactory.getFactory().getMembership().findByStemOwnerAndMemberAndFieldAndType(
-          nsA.getUuid(), gA.toMember().getUuid(), FieldFinder.find("stemmers", true), MembershipType.IMMEDIATE.getTypeString(), true, true);
+          nsA.getUuid(), gA.toMember().getUuid(), FieldFinder.find(Field.FIELD_NAME_STEMMERS, true), MembershipType.IMMEDIATE.getTypeString(), true, true);
       ms.setEnabled(false);
       GrouperDAOFactory.getFactory().getMembership().update(ms);
       
@@ -194,7 +194,7 @@ public class TestStem extends GrouperTest {
       gB.addMember(gC.toSubject());
       
       Membership ms = GrouperDAOFactory.getFactory().getMembership().findByStemOwnerAndMemberAndFieldAndType(
-          nsA.getUuid(), gA.toMember().getUuid(), FieldFinder.find("stemmers", true), MembershipType.IMMEDIATE.getTypeString(), true, true);
+          nsA.getUuid(), gA.toMember().getUuid(), FieldFinder.find(Field.FIELD_NAME_STEMMERS, true), MembershipType.IMMEDIATE.getTypeString(), true, true);
       ms.setEnabled(false);
       GrouperDAOFactory.getFactory().getMembership().update(ms);
       

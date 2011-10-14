@@ -310,6 +310,12 @@ public interface StemDAO extends GrouperDAO {
   Stem findByUuid(String uuid, boolean exceptionIfNull, QueryOptions queryOptions) throws GrouperDAOException, StemNotFoundException;
 
   /**
+   * note, dont pass more than 100 ids
+   * @since   2.1
+   */
+  Set<Stem> findByUuids(Collection<String> uuids, QueryOptions queryOptions);
+
+  /**
    * @since   1.2.0
    */
   Stem findByName(String name, boolean exceptionIfNull) throws GrouperDAOException, StemNotFoundException;

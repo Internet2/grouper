@@ -147,8 +147,8 @@ public class AddMissingGroupSetsTest extends GrouperTest {
     // now let's remove some group sets
     GroupSet gs1 = GrouperDAOFactory.getFactory().getGroupSet().findSelfGroup(composite1Owner.getUuid(), Group.getDefaultList().getUuid());
     GroupSet gs2 = GrouperDAOFactory.getFactory().getGroupSet().findSelfGroup(customFieldTest.getUuid(), FieldFinder.find("testList", true).getUuid());
-    GroupSet gs3 = GrouperDAOFactory.getFactory().getGroupSet().findSelfStem(top.getUuid(), FieldFinder.find("stemmers", true).getUuid());
-    GroupSet gs4 = GrouperDAOFactory.getFactory().getGroupSet().findSelfStem(top.getUuid(), FieldFinder.find("creators", true).getUuid());
+    GroupSet gs3 = GrouperDAOFactory.getFactory().getGroupSet().findSelfStem(top.getUuid(), FieldFinder.find(Field.FIELD_NAME_STEMMERS, true).getUuid());
+    GroupSet gs4 = GrouperDAOFactory.getFactory().getGroupSet().findSelfStem(top.getUuid(), FieldFinder.find(Field.FIELD_NAME_CREATORS, true).getUuid());
     GrouperDAOFactory.getFactory().getGroupSet().delete(GrouperDAOFactory.getFactory().getGroupSet().findAllChildren(gs1));
     GrouperDAOFactory.getFactory().getGroupSet().delete(GrouperDAOFactory.getFactory().getGroupSet().findAllChildren(gs2));
     GrouperDAOFactory.getFactory().getGroupSet().delete(GrouperDAOFactory.getFactory().getGroupSet().findAllChildren(gs3));

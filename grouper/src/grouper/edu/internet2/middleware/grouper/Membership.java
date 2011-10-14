@@ -1183,6 +1183,12 @@ public class Membership extends GrouperAPI implements
       + ", field: " + (f == null ? null : f.getName());
     try {
       GrouperSession.validate(s);
+      
+      if (g.getTypeOfGroup() != null && !g.getTypeOfGroup().supportsField(f)) {
+        throw new RuntimeException("Cannot assign membership for field: " + f.getName() + " for typeOfGroup: " + g.getTypeOfGroup()
+            + ", group: " + g.getName() + ", " + g.getUuid());
+      }
+      
       Member member = MemberFinder.internal_findReadableMemberBySubject(s, subj, true);
       
       Membership ms = new Membership();

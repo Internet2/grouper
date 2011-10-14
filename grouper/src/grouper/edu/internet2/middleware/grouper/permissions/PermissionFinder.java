@@ -577,7 +577,7 @@ public class PermissionFinder {
   }
 
   /**
-   * find a list of permissions
+   * find a permission
    * @param exceptionIfNotFound true if exception should be thrown if permission not found
    * @return the permission or null
    */
@@ -585,7 +585,7 @@ public class PermissionFinder {
 
     Set<PermissionEntry> permissions = findPermissions();
     
-    //this should find the immediate one if it is there...
+    //this should find one if it is there...
     PermissionEntry permissionEntry = null;
     
     if (GrouperUtil.length(permissions) > 1) {

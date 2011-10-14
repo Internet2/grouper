@@ -38,6 +38,7 @@ import edu.internet2.middleware.grouper.internal.dao.ChangeLogConsumerDAO;
 import edu.internet2.middleware.grouper.internal.dao.ChangeLogEntryDAO;
 import edu.internet2.middleware.grouper.internal.dao.ChangeLogTypeDAO;
 import edu.internet2.middleware.grouper.internal.dao.CompositeDAO;
+import edu.internet2.middleware.grouper.internal.dao.EntityDAO;
 import edu.internet2.middleware.grouper.internal.dao.ExternalSubjectAttributeDAO;
 import edu.internet2.middleware.grouper.internal.dao.ExternalSubjectDAO;
 import edu.internet2.middleware.grouper.internal.dao.FieldDAO;
@@ -253,6 +254,12 @@ public abstract class GrouperDAOFactory {
    * @since   1.2.0
    */
   public abstract GroupDAO getGroup();
+
+  /**
+   * @return entity dao
+   * @since   2.1.0
+   */
+  public abstract EntityDAO getEntity();
 
   /**
    * @return group type dao

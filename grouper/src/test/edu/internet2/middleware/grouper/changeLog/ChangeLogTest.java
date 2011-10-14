@@ -5229,16 +5229,16 @@ public class ChangeLogTest extends GrouperTest {
           Group.getDefaultList(), "effective", true, true);
     Membership g1g4Priv = GrouperDAOFactory.getFactory().getMembership()
       .findByGroupOwnerAndMemberAndFieldAndType(g1.getUuid(), g4.toMember().getUuid(), 
-          FieldFinder.find("updaters", true), "effective", true, true);
+          FieldFinder.find(Field.FIELD_NAME_UPDATERS, true), "effective", true, true);
     Membership g1g5Priv = GrouperDAOFactory.getFactory().getMembership()
       .findByGroupOwnerAndMemberAndFieldAndType(g1.getUuid(), g5.toMember().getUuid(), 
-          FieldFinder.find("updaters", true), "effective", true, true);
+          FieldFinder.find(Field.FIELD_NAME_UPDATERS, true), "effective", true, true);
     Membership s0g4Priv = GrouperDAOFactory.getFactory().getMembership()
       .findByStemOwnerAndMemberAndFieldAndType(s0.getUuid(), g4.toMember().getUuid(), 
-          FieldFinder.find("creators", true), "effective", true, true);
+          FieldFinder.find(Field.FIELD_NAME_CREATORS, true), "effective", true, true);
     Membership s0g5Priv = GrouperDAOFactory.getFactory().getMembership()
       .findByStemOwnerAndMemberAndFieldAndType(s0.getUuid(), g5.toMember().getUuid(), 
-          FieldFinder.find("creators", true), "effective", true, true);
+          FieldFinder.find(Field.FIELD_NAME_CREATORS, true), "effective", true, true);
     Membership a0g4Priv = GrouperDAOFactory.getFactory().getMembership()
       .findByAttrDefOwnerAndMemberAndFieldAndType(a0.getUuid(), g4.toMember().getUuid(), 
           FieldFinder.find("attrUpdaters", true), "effective", true, true);
@@ -5384,16 +5384,16 @@ public class ChangeLogTest extends GrouperTest {
           Group.getDefaultList(), "effective", true, true);
     g1g4Priv = GrouperDAOFactory.getFactory().getMembership()
       .findByGroupOwnerAndMemberAndFieldAndType(g1.getUuid(), g4.toMember().getUuid(), 
-          FieldFinder.find("updaters", true), "effective", true, true);
+          FieldFinder.find(Field.FIELD_NAME_UPDATERS, true), "effective", true, true);
     g1g5Priv = GrouperDAOFactory.getFactory().getMembership()
       .findByGroupOwnerAndMemberAndFieldAndType(g1.getUuid(), g5.toMember().getUuid(), 
-          FieldFinder.find("updaters", true), "effective", true, true);
+          FieldFinder.find(Field.FIELD_NAME_UPDATERS, true), "effective", true, true);
     s0g4Priv = GrouperDAOFactory.getFactory().getMembership()
       .findByStemOwnerAndMemberAndFieldAndType(s0.getUuid(), g4.toMember().getUuid(), 
-          FieldFinder.find("creators", true), "effective", true, true);
+          FieldFinder.find(Field.FIELD_NAME_CREATORS, true), "effective", true, true);
     s0g5Priv = GrouperDAOFactory.getFactory().getMembership()
       .findByStemOwnerAndMemberAndFieldAndType(s0.getUuid(), g5.toMember().getUuid(), 
-          FieldFinder.find("creators", true), "effective", true, true);
+          FieldFinder.find(Field.FIELD_NAME_CREATORS, true), "effective", true, true);
     a0g4Priv = GrouperDAOFactory.getFactory().getMembership()
       .findByAttrDefOwnerAndMemberAndFieldAndType(a0.getUuid(), g4.toMember().getUuid(), 
           FieldFinder.find("attrUpdaters", true), "effective", true, true);
@@ -5488,16 +5488,16 @@ public class ChangeLogTest extends GrouperTest {
           Group.getDefaultList(), "effective", true, true);
     g1g4Priv = GrouperDAOFactory.getFactory().getMembership()
       .findByGroupOwnerAndMemberAndFieldAndType(g1.getUuid(), g4.toMember().getUuid(), 
-          FieldFinder.find("updaters", true), "effective", true, true);
+          FieldFinder.find(Field.FIELD_NAME_UPDATERS, true), "effective", true, true);
     g1g5Priv = GrouperDAOFactory.getFactory().getMembership()
       .findByGroupOwnerAndMemberAndFieldAndType(g1.getUuid(), g5.toMember().getUuid(), 
-          FieldFinder.find("updaters", true), "effective", true, true);
+          FieldFinder.find(Field.FIELD_NAME_UPDATERS, true), "effective", true, true);
     s0g4Priv = GrouperDAOFactory.getFactory().getMembership()
       .findByStemOwnerAndMemberAndFieldAndType(s0.getUuid(), g4.toMember().getUuid(), 
-          FieldFinder.find("creators", true), "effective", true, true);
+          FieldFinder.find(Field.FIELD_NAME_CREATORS, true), "effective", true, true);
     s0g5Priv = GrouperDAOFactory.getFactory().getMembership()
       .findByStemOwnerAndMemberAndFieldAndType(s0.getUuid(), g5.toMember().getUuid(), 
-          FieldFinder.find("creators", true), "effective", true, true);
+          FieldFinder.find(Field.FIELD_NAME_CREATORS, true), "effective", true, true);
     a0g4Priv = GrouperDAOFactory.getFactory().getMembership()
       .findByAttrDefOwnerAndMemberAndFieldAndType(a0.getUuid(), g4.toMember().getUuid(), 
           FieldFinder.find("attrUpdaters", true), "effective", true, true);
@@ -5618,10 +5618,10 @@ public class ChangeLogTest extends GrouperTest {
 
     Membership g3g4Priv = GrouperDAOFactory.getFactory().getMembership()
       .findByGroupOwnerAndMemberAndFieldAndType(g3.getUuid(), g4.toMember().getUuid(), 
-          FieldFinder.find("optins", true), "immediate", true, true);
+          FieldFinder.find(Field.FIELD_NAME_OPTINS, true), "immediate", true, true);
     Membership g3g5Priv = GrouperDAOFactory.getFactory().getMembership()
       .findByGroupOwnerAndMemberAndFieldAndType(g3.getUuid(), g5.toMember().getUuid(), 
-          FieldFinder.find("optins", true), "effective", true, true);
+          FieldFinder.find(Field.FIELD_NAME_OPTINS, true), "effective", true, true);
 
 
     ChangeLogTempToEntity.convertRecords();
@@ -5750,10 +5750,10 @@ public class ChangeLogTest extends GrouperTest {
 
     g3g4Priv = GrouperDAOFactory.getFactory().getMembership()
       .findByGroupOwnerAndMemberAndFieldAndType(g3.getUuid(), g4.toMember().getUuid(), 
-          FieldFinder.find("optins", true), "immediate", true, true);
+          FieldFinder.find(Field.FIELD_NAME_OPTINS, true), "immediate", true, true);
     g3g5Priv = GrouperDAOFactory.getFactory().getMembership()
       .findByGroupOwnerAndMemberAndFieldAndType(g3.getUuid(), g5.toMember().getUuid(), 
-          FieldFinder.find("optins", true), "effective", true, true);
+          FieldFinder.find(Field.FIELD_NAME_OPTINS, true), "effective", true, true);
   
     ChangeLogTempToEntity.convertRecords();
 
@@ -5774,7 +5774,7 @@ public class ChangeLogTest extends GrouperTest {
 
     Membership immediate = GrouperDAOFactory.getFactory().getMembership()
       .findByGroupOwnerAndMemberAndFieldAndType(g3.getUuid(), g4.toMember().getUuid(), 
-          FieldFinder.find("optins", true), "immediate", true, true);
+          FieldFinder.find(Field.FIELD_NAME_OPTINS, true), "immediate", true, true);
     immediate.setMember(rootMember);
 
     final Membership MEMBERSHIP5 = immediate;
@@ -5826,10 +5826,10 @@ public class ChangeLogTest extends GrouperTest {
     
     g3g4Priv = GrouperDAOFactory.getFactory().getMembership()
       .findByGroupOwnerAndMemberAndFieldAndType(g3.getUuid(), g4.toMember().getUuid(), 
-          FieldFinder.find("optins", true), "immediate", true, true);
+          FieldFinder.find(Field.FIELD_NAME_OPTINS, true), "immediate", true, true);
     g3g5Priv = GrouperDAOFactory.getFactory().getMembership()
       .findByGroupOwnerAndMemberAndFieldAndType(g3.getUuid(), g5.toMember().getUuid(), 
-          FieldFinder.find("optins", true), "effective", true, true);
+          FieldFinder.find(Field.FIELD_NAME_OPTINS, true), "effective", true, true);
     
     ChangeLogTempToEntity.convertRecords();
 
@@ -5938,10 +5938,10 @@ public class ChangeLogTest extends GrouperTest {
 
     Membership s3g4Priv = GrouperDAOFactory.getFactory().getMembership()
       .findByStemOwnerAndMemberAndFieldAndType(s3.getUuid(), g4.toMember().getUuid(), 
-          FieldFinder.find("stemmers", true), "immediate", true, true);
+          FieldFinder.find(Field.FIELD_NAME_STEMMERS, true), "immediate", true, true);
     Membership s3g5Priv = GrouperDAOFactory.getFactory().getMembership()
       .findByStemOwnerAndMemberAndFieldAndType(s3.getUuid(), g5.toMember().getUuid(), 
-          FieldFinder.find("stemmers", true), "effective", true, true);
+          FieldFinder.find(Field.FIELD_NAME_STEMMERS, true), "effective", true, true);
 
 
     ChangeLogTempToEntity.convertRecords();
@@ -6070,10 +6070,10 @@ public class ChangeLogTest extends GrouperTest {
 
     s3g4Priv = GrouperDAOFactory.getFactory().getMembership()
       .findByStemOwnerAndMemberAndFieldAndType(s3.getUuid(), g4.toMember().getUuid(), 
-          FieldFinder.find("stemmers", true), "immediate", true, true);
+          FieldFinder.find(Field.FIELD_NAME_STEMMERS, true), "immediate", true, true);
     s3g5Priv = GrouperDAOFactory.getFactory().getMembership()
       .findByStemOwnerAndMemberAndFieldAndType(s3.getUuid(), g5.toMember().getUuid(), 
-          FieldFinder.find("stemmers", true), "effective", true, true);
+          FieldFinder.find(Field.FIELD_NAME_STEMMERS, true), "effective", true, true);
   
     ChangeLogTempToEntity.convertRecords();
 
@@ -6094,7 +6094,7 @@ public class ChangeLogTest extends GrouperTest {
 
     Membership immediate = GrouperDAOFactory.getFactory().getMembership()
       .findByStemOwnerAndMemberAndFieldAndType(s3.getUuid(), g4.toMember().getUuid(), 
-          FieldFinder.find("stemmers", true), "immediate", true, true);
+          FieldFinder.find(Field.FIELD_NAME_STEMMERS, true), "immediate", true, true);
     immediate.setMember(newMember1);
 
     final Membership MEMBERSHIP5 = immediate;
@@ -6146,10 +6146,10 @@ public class ChangeLogTest extends GrouperTest {
     
     s3g4Priv = GrouperDAOFactory.getFactory().getMembership()
       .findByStemOwnerAndMemberAndFieldAndType(s3.getUuid(), g4.toMember().getUuid(), 
-          FieldFinder.find("stemmers", true), "immediate", true, true);
+          FieldFinder.find(Field.FIELD_NAME_STEMMERS, true), "immediate", true, true);
     s3g5Priv = GrouperDAOFactory.getFactory().getMembership()
       .findByStemOwnerAndMemberAndFieldAndType(s3.getUuid(), g5.toMember().getUuid(), 
-          FieldFinder.find("stemmers", true), "effective", true, true);
+          FieldFinder.find(Field.FIELD_NAME_STEMMERS, true), "effective", true, true);
     
     ChangeLogTempToEntity.convertRecords();
 
@@ -7333,7 +7333,7 @@ public class ChangeLogTest extends GrouperTest {
     assertEquals("update", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_ADD.privilegeName));
     assertEquals("access", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_ADD.privilegeType));
     assertEquals("group", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_ADD.ownerType));
-    assertEquals(FieldFinder.find("updaters", true).getUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_ADD.fieldId));
+    assertEquals(FieldFinder.find(Field.FIELD_NAME_UPDATERS, true).getUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_ADD.fieldId));
     assertEquals(member1.getUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_ADD.memberId));
     assertEquals(member1.getSubjectId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_ADD.subjectId));
     assertEquals(member1.getSubjectSourceId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_ADD.sourceId));
@@ -7361,7 +7361,7 @@ public class ChangeLogTest extends GrouperTest {
     assertEquals("update", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_ADD.privilegeName));
     assertEquals("access", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_ADD.privilegeType));
     assertEquals("group", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_ADD.ownerType));
-    assertEquals(FieldFinder.find("updaters", true).getUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_ADD.fieldId));
+    assertEquals(FieldFinder.find(Field.FIELD_NAME_UPDATERS, true).getUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_ADD.fieldId));
     assertEquals(member2.getUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_ADD.memberId));
     assertEquals(member2.getSubjectId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_ADD.subjectId));
     assertEquals(member2.getSubjectSourceId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_ADD.sourceId));
@@ -7388,7 +7388,7 @@ public class ChangeLogTest extends GrouperTest {
     assertEquals("update", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_DELETE.privilegeName));
     assertEquals("access", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_DELETE.privilegeType));
     assertEquals("group", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_DELETE.ownerType));
-    assertEquals(FieldFinder.find("updaters", true).getUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_DELETE.fieldId));
+    assertEquals(FieldFinder.find(Field.FIELD_NAME_UPDATERS, true).getUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_DELETE.fieldId));
     assertEquals(member2.getUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_DELETE.memberId));
     assertEquals(member2.getSubjectId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_DELETE.subjectId));
     assertEquals(member2.getSubjectSourceId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_DELETE.sourceId));
@@ -7416,7 +7416,7 @@ public class ChangeLogTest extends GrouperTest {
     assertEquals("update", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_DELETE.privilegeName));
     assertEquals("access", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_DELETE.privilegeType));
     assertEquals("group", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_DELETE.ownerType));
-    assertEquals(FieldFinder.find("updaters", true).getUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_DELETE.fieldId));
+    assertEquals(FieldFinder.find(Field.FIELD_NAME_UPDATERS, true).getUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_DELETE.fieldId));
     assertEquals(member1.getUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_DELETE.memberId));
     assertEquals(member1.getSubjectId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_DELETE.subjectId));
     assertEquals(member1.getSubjectSourceId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_DELETE.sourceId));
@@ -7670,7 +7670,7 @@ public class ChangeLogTest extends GrouperTest {
     assertEquals("create", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_ADD.privilegeName));
     assertEquals("naming", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_ADD.privilegeType));
     assertEquals("stem", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_ADD.ownerType));
-    assertEquals(FieldFinder.find("creators", true).getUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_ADD.fieldId));
+    assertEquals(FieldFinder.find(Field.FIELD_NAME_CREATORS, true).getUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_ADD.fieldId));
     assertEquals(member1.getUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_ADD.memberId));
     assertEquals(member1.getSubjectId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_ADD.subjectId));
     assertEquals(member1.getSubjectSourceId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_ADD.sourceId));
@@ -7698,7 +7698,7 @@ public class ChangeLogTest extends GrouperTest {
     assertEquals("create", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_ADD.privilegeName));
     assertEquals("naming", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_ADD.privilegeType));
     assertEquals("stem", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_ADD.ownerType));
-    assertEquals(FieldFinder.find("creators", true).getUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_ADD.fieldId));
+    assertEquals(FieldFinder.find(Field.FIELD_NAME_CREATORS, true).getUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_ADD.fieldId));
     assertEquals(member2.getUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_ADD.memberId));
     assertEquals(member2.getSubjectId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_ADD.subjectId));
     assertEquals(member2.getSubjectSourceId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_ADD.sourceId));
@@ -7725,7 +7725,7 @@ public class ChangeLogTest extends GrouperTest {
     assertEquals("create", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_DELETE.privilegeName));
     assertEquals("naming", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_DELETE.privilegeType));
     assertEquals("stem", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_DELETE.ownerType));
-    assertEquals(FieldFinder.find("creators", true).getUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_DELETE.fieldId));
+    assertEquals(FieldFinder.find(Field.FIELD_NAME_CREATORS, true).getUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_DELETE.fieldId));
     assertEquals(member2.getUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_DELETE.memberId));
     assertEquals(member2.getSubjectId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_DELETE.subjectId));
     assertEquals(member2.getSubjectSourceId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_DELETE.sourceId));
@@ -7753,7 +7753,7 @@ public class ChangeLogTest extends GrouperTest {
     assertEquals("create", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_DELETE.privilegeName));
     assertEquals("naming", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_DELETE.privilegeType));
     assertEquals("stem", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_DELETE.ownerType));
-    assertEquals(FieldFinder.find("creators", true).getUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_DELETE.fieldId));
+    assertEquals(FieldFinder.find(Field.FIELD_NAME_CREATORS, true).getUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_DELETE.fieldId));
     assertEquals(member1.getUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_DELETE.memberId));
     assertEquals(member1.getSubjectId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_DELETE.subjectId));
     assertEquals(member1.getSubjectSourceId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_DELETE.sourceId));

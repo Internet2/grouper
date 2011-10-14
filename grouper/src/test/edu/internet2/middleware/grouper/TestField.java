@@ -76,7 +76,7 @@ public class TestField extends TestCase {
     Iterator  iter    = fields.iterator();
     FieldHelper.testField( 
       (Field) iter.next()   , 
-      "admins"              , FieldType.ACCESS,
+      Field.FIELD_NAME_ADMINS              , FieldType.ACCESS,
       AccessPrivilege.ADMIN , AccessPrivilege.ADMIN
     );
     FieldHelper.testField( 
@@ -111,7 +111,7 @@ public class TestField extends TestCase {
       );
     FieldHelper.testField( 
       (Field) iter.next()   , 
-      "creators"            , FieldType.NAMING,
+      Field.FIELD_NAME_CREATORS            , FieldType.NAMING,
       NamingPrivilege.STEM  , NamingPrivilege.STEM
     );
     FieldHelper.testField( 
@@ -121,12 +121,12 @@ public class TestField extends TestCase {
     );
     FieldHelper.testField( 
       (Field) iter.next()   , 
-      "optins"              , FieldType.ACCESS,
+      Field.FIELD_NAME_OPTINS              , FieldType.ACCESS,
       AccessPrivilege.UPDATE, AccessPrivilege.UPDATE
     );
     FieldHelper.testField( 
       (Field) iter.next()   , 
-      "optouts"             , FieldType.ACCESS,
+      Field.FIELD_NAME_OPTOUTS             , FieldType.ACCESS,
       AccessPrivilege.UPDATE, AccessPrivilege.UPDATE
     );
     FieldHelper.testField( 
@@ -136,12 +136,12 @@ public class TestField extends TestCase {
     );
     FieldHelper.testField( 
       (Field) iter.next()   , 
-      "stemmers"            , FieldType.NAMING,
+      Field.FIELD_NAME_STEMMERS            , FieldType.NAMING,
       NamingPrivilege.STEM  , NamingPrivilege.STEM
     );
     FieldHelper.testField( 
       (Field) iter.next()   , 
-      "updaters"            , FieldType.ACCESS,
+      Field.FIELD_NAME_UPDATERS            , FieldType.ACCESS,
       AccessPrivilege.ADMIN , AccessPrivilege.ADMIN
     );
     FieldHelper.testField( 
@@ -198,7 +198,7 @@ public class TestField extends TestCase {
       
       theLastRefreshed = FieldFinder.lastTimeRefreshed;
       
-      Field field = FieldFinder.find("updaters");
+      Field field = FieldFinder.find(Field.FIELD_NAME_UPDATERS);
       FieldFinder.findById(field.getUuid());
       
       assertEquals(theLastRefreshed, FieldFinder.lastTimeRefreshed);

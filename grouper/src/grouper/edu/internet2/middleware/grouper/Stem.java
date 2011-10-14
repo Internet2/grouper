@@ -1786,7 +1786,9 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
   public Group internal_addChildGroup(final String extn, final String dExtn, final String uuid, final TypeOfGroup typeOfGroup) 
     throws GroupAddException, InsufficientPrivilegeException {
 
-    Set types = new LinkedHashSet<GroupType>();
+    Set types = null;
+    
+    types = new LinkedHashSet<GroupType>();
     try {
       types.add(GroupTypeFinder.find("base", true));
     } catch (SchemaException e) {
@@ -2232,12 +2234,17 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
       );
 
       // Now optionally grant other privs
-      this._grantOptionalPrivUponCreate( g, AccessPrivilege.ADMIN, GrouperConfig.GCGAA );
-      this._grantOptionalPrivUponCreate( g, AccessPrivilege.OPTIN, GrouperConfig.GCGAOI );
-      this._grantOptionalPrivUponCreate( g, AccessPrivilege.OPTOUT, GrouperConfig.GCGAOO );
-      this._grantOptionalPrivUponCreate( g, AccessPrivilege.READ, GrouperConfig.GCGAR );
-      this._grantOptionalPrivUponCreate( g, AccessPrivilege.UPDATE, GrouperConfig.GCGAU );
-      this._grantOptionalPrivUponCreate( g, AccessPrivilege.VIEW, GrouperConfig.GCGAV );
+      if (g.getTypeOfGroup() != TypeOfGroup.entity) {
+        this._grantOptionalPrivUponCreate( g, AccessPrivilege.ADMIN, GrouperConfig.GCGAA );
+        this._grantOptionalPrivUponCreate( g, AccessPrivilege.VIEW, GrouperConfig.GCGAV );
+        this._grantOptionalPrivUponCreate( g, AccessPrivilege.OPTIN, GrouperConfig.GCGAOI );
+        this._grantOptionalPrivUponCreate( g, AccessPrivilege.OPTOUT, GrouperConfig.GCGAOO );
+        this._grantOptionalPrivUponCreate( g, AccessPrivilege.READ, GrouperConfig.GCGAR );
+        this._grantOptionalPrivUponCreate( g, AccessPrivilege.UPDATE, GrouperConfig.GCGAU );
+      }
+      if (g.getTypeOfGroup() == TypeOfGroup.entity) {
+        this._grantOptionalPrivUponCreate( g, AccessPrivilege.VIEW, "entities.create.grant.all.view" );
+      }
     }
     catch (GrantPrivilegeException eGP)         {
       throw new GroupAddException(eGP.getMessage(), eGP);
@@ -3560,6 +3567,47 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
         roleSet.setType(RoleHierarchyType.self);
         roleSet.setParentRoleSetId(roleSet.getId());
         roleSet.saveOrUpdate();
+        
+        return group;
+      }
+      
+    });
+      
+  }
+
+  /**
+   * Add a new role to the registry.
+   * <pre class="eg">
+   * // Add a role with the extension "edu" beneath this stem.
+   * try {
+   *   Group edu = ns.addChildEntity("edu", "edu domain");
+   * }
+   * catch (GroupAddException eGA) {
+   *   // Group not added
+   * }
+   * catch (InsufficientPrivilegeException eIP) {
+   *   // Not privileged to add group
+   * }
+   * </pre>
+   * @param   extension         Entity extension
+   * @param   displayExtension  Entity displayExtension
+   * @param uuid is uuid or null if generated
+   * @return  The added {@link Role}
+   * @throws  GroupAddException 
+   * @throws  InsufficientPrivilegeException
+   */
+  public Role internal_addChildEntity(final String extension, final String displayExtension, final String uuid) 
+    throws  GroupAddException,
+            InsufficientPrivilegeException  {
+    
+    return (Group)HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
+      public Object callback(HibernateHandlerBean hibernateHandlerBean)
+          throws GrouperDAOException {
+
+        hibernateHandlerBean.getHibernateSession().setCachingEnabled(false);
+
+        //note, roles are modeled as groups
+        Group group = Stem.this.internal_addChildGroup(extension, displayExtension, uuid, TypeOfGroup.entity);
         
         return group;
       }

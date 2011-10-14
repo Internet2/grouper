@@ -8,6 +8,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.logging.Log;
 
+import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GroupTypeFinder;
@@ -374,7 +375,7 @@ public class GrouperStartup {
       }
       try {
         needsInit = StemFinder.findRootStem(grouperSession) == null;
-        needsInit = needsInit || FieldFinder.find("admins", true) == null ;
+        needsInit = needsInit || FieldFinder.find(Field.FIELD_NAME_ADMINS, true) == null ;
         needsInit = needsInit || GroupTypeFinder.find("base", true) == null ;
       } catch (Exception e) {
         if (logError && logErrorStatic) {

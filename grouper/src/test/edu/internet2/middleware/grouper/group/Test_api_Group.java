@@ -282,7 +282,7 @@ public class Test_api_Group extends GrouperTest {
     GrouperDAOFactory.getFactory().getMembership().update(ms);
     
     ms = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(
-        group1.getUuid(), MemberFinder.findBySubject(r.rs, b, true).getUuid(), FieldFinder.find("updaters", true), MembershipType.IMMEDIATE.getTypeString(), true, true);
+        group1.getUuid(), MemberFinder.findBySubject(r.rs, b, true).getUuid(), FieldFinder.find(Field.FIELD_NAME_UPDATERS, true), MembershipType.IMMEDIATE.getTypeString(), true, true);
     ms.setEnabled(false);
     ms.setEnabledTime(enabledTime);
     ms.setDisabledTime(disabledTime);
@@ -295,10 +295,10 @@ public class Test_api_Group extends GrouperTest {
     Group newGroup = group1.copy(target);
     
     assertEquals(1, GrouperDAOFactory.getFactory().getMembership().findAllByCreatedAfter(pre, Group.getDefaultList(), true).size());
-    assertEquals(0, GrouperDAOFactory.getFactory().getMembership().findAllByCreatedAfter(pre, FieldFinder.find("updaters", true), true).size());
+    assertEquals(0, GrouperDAOFactory.getFactory().getMembership().findAllByCreatedAfter(pre, FieldFinder.find(Field.FIELD_NAME_UPDATERS, true), true).size());
     
     assertEquals(2, GrouperDAOFactory.getFactory().getMembership().findAllByCreatedAfter(pre, Group.getDefaultList(), false).size());
-    assertEquals(1, GrouperDAOFactory.getFactory().getMembership().findAllByCreatedAfter(pre, FieldFinder.find("updaters", true), false).size());
+    assertEquals(1, GrouperDAOFactory.getFactory().getMembership().findAllByCreatedAfter(pre, FieldFinder.find(Field.FIELD_NAME_UPDATERS, true), false).size());
     
 
     Membership disabled1 = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(
@@ -308,7 +308,7 @@ public class Test_api_Group extends GrouperTest {
     assertTrue(disabled1.getDisabledTime().getTime() == disabledTime.getTime());
     
     Membership disabled2 = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(
-        newGroup.getUuid(), MemberFinder.findBySubject(r.rs, b, true).getUuid(), FieldFinder.find("updaters", true), MembershipType.IMMEDIATE.getTypeString(), true, false);
+        newGroup.getUuid(), MemberFinder.findBySubject(r.rs, b, true).getUuid(), FieldFinder.find(Field.FIELD_NAME_UPDATERS, true), MembershipType.IMMEDIATE.getTypeString(), true, false);
     assertTrue(disabled2.getEnabledDb().equals("F"));
     assertTrue(disabled2.getEnabledTime().getTime() == enabledTime.getTime());
     assertTrue(disabled2.getDisabledTime().getTime() == disabledTime.getTime());
@@ -1288,7 +1288,7 @@ public class Test_api_Group extends GrouperTest {
     // subject can read child_group and can create in top stem, but cannot write privileges to top_group.
     nrs.stop();
     nrs = GrouperSession.start(SubjectFinder.findRootSubject());
-    Field admins = FieldFinder.find("admins", true);
+    Field admins = FieldFinder.find(Field.FIELD_NAME_ADMINS, true);
     admins.setReadPrivilege(AccessPrivilege.VIEW);
     GrouperDAOFactory.getFactory().getField().createOrUpdate(admins);
     nrs.stop();
@@ -1333,7 +1333,7 @@ public class Test_api_Group extends GrouperTest {
     // subject can read child_group and can create in top stem, but cannot write privileges to top.
     nrs.stop();
     nrs = GrouperSession.start(SubjectFinder.findRootSubject());
-    Field stemmers = FieldFinder.find("stemmers", true);
+    Field stemmers = FieldFinder.find(Field.FIELD_NAME_STEMMERS, true);
     stemmers.setReadPrivilege(NamingPrivilege.CREATE);
     GrouperDAOFactory.getFactory().getField().createOrUpdate(stemmers);
     nrs.stop();

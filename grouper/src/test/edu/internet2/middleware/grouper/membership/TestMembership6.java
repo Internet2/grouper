@@ -92,8 +92,8 @@ public class TestMembership6 extends GrouperTest {
       nsA   = r.getStem("a");
 
       fieldMembers = Group.getDefaultList();
-      fieldUpdaters = FieldFinder.find("updaters", true);
-      fieldCreators = FieldFinder.find("creators", true);
+      fieldUpdaters = FieldFinder.find(Field.FIELD_NAME_UPDATERS, true);
+      fieldCreators = FieldFinder.find(Field.FIELD_NAME_CREATORS, true);
 
 
       // Test 1:  Test when the last operations are adding update privileges for gH and gJ.

@@ -518,7 +518,7 @@ public class PITSyncTests extends GrouperTest {
     
     // check group set (depth=1)
     {
-      GroupSet groupSet = GrouperDAOFactory.getFactory().getGroupSet().findImmediateByOwnerStemAndMemberGroupAndField(edu.getUuid(), role.getId(), FieldFinder.find("creators", true));
+      GroupSet groupSet = GrouperDAOFactory.getFactory().getGroupSet().findImmediateByOwnerStemAndMemberGroupAndField(edu.getUuid(), role.getId(), FieldFinder.find(Field.FIELD_NAME_CREATORS, true));
       PITGroupSet pitGroupSet = GrouperDAOFactory.getFactory().getPITGroupSet().findById(groupSet.getId());
       assertNotNull(pitGroupSet);
       assertEquals(groupSet.getOwnerId(), pitGroupSet.getOwnerId());
@@ -616,7 +616,7 @@ public class PITSyncTests extends GrouperTest {
     AttributeAssignActionSet action1Set = GrouperDAOFactory.getFactory().getAttributeAssignActionSet().findByIfHasAttributeAssignActionId(action1.getId()).iterator().next();
     AttributeDefNameSet attributeDefName1Set = GrouperDAOFactory.getFactory().getAttributeDefNameSet().findByIfHasAttributeDefNameId(attributeDefName1.getId()).iterator().next();
     GroupSet groupSet1 = GrouperDAOFactory.getFactory().getGroupSet().findSelfGroup(role.getId(), Group.getDefaultList().getUuid());
-    GroupSet groupSet2 = GrouperDAOFactory.getFactory().getGroupSet().findImmediateByOwnerStemAndMemberGroupAndField(edu.getUuid(), role.getId(), FieldFinder.find("creators", true));
+    GroupSet groupSet2 = GrouperDAOFactory.getFactory().getGroupSet().findImmediateByOwnerStemAndMemberGroupAndField(edu.getUuid(), role.getId(), FieldFinder.find(Field.FIELD_NAME_CREATORS, true));
     Membership membership = MembershipFinder.findImmediateMembership(grouperSession, (Group)role, newMember1.getSubject(), Group.getDefaultList(), true);
     RoleSet roleSet = GrouperDAOFactory.getFactory().getRoleSet().findByIfHasRoleId(role.getId()).iterator().next();
 

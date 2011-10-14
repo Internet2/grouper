@@ -19,6 +19,7 @@ package edu.internet2.middleware.grouper.registry;
 
 import org.apache.commons.logging.Log;
 
+import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.FieldType;
 import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GrouperSession;
@@ -124,22 +125,22 @@ public class RegistryInstall {
         AccessPrivilege.UPDATE, false, false, false , changedArray, null);
     changed = changed || changedArray[0];
     // reserve access privs
-    base.internal_addField( s, "admins",   FieldType.ACCESS, AccessPrivilege.ADMIN,  
+    base.internal_addField( s, Field.FIELD_NAME_ADMINS,   FieldType.ACCESS, AccessPrivilege.ADMIN,  
         AccessPrivilege.ADMIN,  false, false, false , changedArray, null);
     changed = changed || changedArray[0];
-    base.internal_addField( s, "optouts",  FieldType.ACCESS, AccessPrivilege.UPDATE,
+    base.internal_addField( s, Field.FIELD_NAME_OPTOUTS,  FieldType.ACCESS, AccessPrivilege.UPDATE,
         AccessPrivilege.UPDATE, false, false, false , changedArray, null);
     changed = changed || changedArray[0];
-    base.internal_addField( s, "optins",   FieldType.ACCESS, AccessPrivilege.UPDATE, 
+    base.internal_addField( s, Field.FIELD_NAME_OPTINS,   FieldType.ACCESS, AccessPrivilege.UPDATE, 
         AccessPrivilege.UPDATE, false, false, false , changedArray, null);
     changed = changed || changedArray[0];
-    base.internal_addField( s, "readers",  FieldType.ACCESS, AccessPrivilege.ADMIN,  
+    base.internal_addField( s, Field.FIELD_NAME_READERS,  FieldType.ACCESS, AccessPrivilege.ADMIN,  
         AccessPrivilege.ADMIN,  false, false, false , changedArray, null);
     changed = changed || changedArray[0];
-    base.internal_addField( s, "updaters", FieldType.ACCESS, AccessPrivilege.ADMIN,  
+    base.internal_addField( s, Field.FIELD_NAME_UPDATERS, FieldType.ACCESS, AccessPrivilege.ADMIN,  
         AccessPrivilege.ADMIN,  false, false, false, changedArray , null);
     changed = changed || changedArray[0];
-    base.internal_addField( s, "viewers",  FieldType.ACCESS, AccessPrivilege.ADMIN,  
+    base.internal_addField( s, Field.FIELD_NAME_VIEWERS,  FieldType.ACCESS, AccessPrivilege.ADMIN,  
         AccessPrivilege.ADMIN,  false, false, false, changedArray, null );
     changed = changed || changedArray[0];
 
@@ -167,10 +168,10 @@ public class RegistryInstall {
     GroupType naming  = GroupType.internal_createType(s, "naming", false, true, false, changedArray, null);
     changed = changed || changedArray[0];
     // reserve naming privs
-    naming.internal_addField( s, "creators", FieldType.NAMING, NamingPrivilege.STEM, 
+    naming.internal_addField( s, Field.FIELD_NAME_CREATORS, FieldType.NAMING, NamingPrivilege.STEM, 
         NamingPrivilege.STEM, false, false, false, changedArray, null);
     changed = changed || changedArray[0];
-    naming.internal_addField( s, "stemmers", FieldType.NAMING, 
+    naming.internal_addField( s, Field.FIELD_NAME_STEMMERS, FieldType.NAMING, 
         NamingPrivilege.STEM, NamingPrivilege.STEM, false, false, false, changedArray, null);
     changed = changed || changedArray[0];
     return changed;

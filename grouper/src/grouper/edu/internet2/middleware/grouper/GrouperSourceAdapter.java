@@ -267,10 +267,10 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
    * </p>
    * <pre class="eg">
    * // Use it within the Grouper API
-   * Set subjects = SubjectFactory.search("admins");
+   * Set subjects = SubjectFactory.search(Field.FIELD_NAME_ADMINS);
    *
    * // Use it directly
-   * Set subjects = source.search("admins");
+   * Set subjects = source.search(Field.FIELD_NAME_ADMINS);
    * </pre>
    * @throws  IllegalArgumentException if <i>searchValue</i> is null.
    */

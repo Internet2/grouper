@@ -79,7 +79,7 @@ public class TestMembershipDeletes5 extends GrouperTest {
     fieldCustom1 = customType.addList(r.rs, "customField1", AccessPrivilege.READ, AccessPrivilege.UPDATE);
     fieldCustom2 = customType.addList(r.rs, "customField2", AccessPrivilege.READ, AccessPrivilege.UPDATE);
     fieldMembers = Group.getDefaultList();
-    fieldUpdaters = FieldFinder.find("updaters", true);
+    fieldUpdaters = FieldFinder.find(Field.FIELD_NAME_UPDATERS, true);
   }
 
   protected void tearDown () {

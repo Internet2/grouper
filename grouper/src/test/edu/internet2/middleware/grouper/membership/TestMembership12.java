@@ -96,7 +96,7 @@ public class TestMembership12 extends GrouperTest {
       gD.addMember(subjC);
 
       fieldMembers = Group.getDefaultList();
-      fieldUpdaters = FieldFinder.find("updaters", true);
+      fieldUpdaters = FieldFinder.find(Field.FIELD_NAME_UPDATERS, true);
 
       // Test 1
       gA.addCompositeMember(CompositeType.UNION, gB, gC);
