@@ -4,11 +4,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 import junit.textui.TestRunner;
+import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
+import edu.internet2.middleware.grouper.StemSave;
+import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
+import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
@@ -32,9 +36,73 @@ public class EntityFinderTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new EntityFinderTest("testFinder"));
+    TestRunner.run(new EntityFinderTest("testEntityAudits"));
   }
 
+  /**
+   * test the finder
+   */
+  public void testEntityAudits() {
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    new StemSave(grouperSession).assignName("test").save();
+    
+    //lets see whats in the audit log
+    HibernateSession.bySqlStatic().executeSql("delete from grouper_audit_entry");
+
+    int auditCount = HibernateSession.bySqlStatic().select(int.class, 
+        "select count(1) from grouper_audit_entry");
+    
+    assertEquals(0, auditCount);
+    
+    Entity testEntity = new EntitySave(grouperSession).assignCreateParentStemsIfNotExist(true)
+      .assignName("test:testEntity").save();
+    
+    int newAuditCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_audit_entry");
+    
+    assertEquals("Should have added exactly one audit", 1, newAuditCount);
+    
+    AuditEntry auditEntry = HibernateSession.byHqlStatic()
+      .createQuery("from AuditEntry").uniqueResult(AuditEntry.class);
+    
+    assertEquals("entity", auditEntry.getAuditType().getAuditCategory());
+    assertEquals("addEntity", auditEntry.getAuditType().getActionName());
+
+    //lets see whats in the audit log
+    HibernateSession.bySqlStatic().executeSql("delete from grouper_audit_entry");
+    
+    testEntity.setDescription("something else");
+    testEntity.store();
+    
+    newAuditCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_audit_entry");
+  
+    assertEquals("Should have added exactly one audit", 1, newAuditCount);
+    
+    auditEntry = HibernateSession.byHqlStatic()
+      .createQuery("from AuditEntry").uniqueResult(AuditEntry.class);
+    
+    assertEquals("entity", auditEntry.getAuditType().getAuditCategory());
+    assertEquals("updateEntity", auditEntry.getAuditType().getActionName());
+
+    HibernateSession.bySqlStatic().executeSql("delete from grouper_audit_entry");
+    testEntity.delete();
+    
+    newAuditCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_audit_entry");
+  
+    assertEquals("Should have added exactly one audit", 1, newAuditCount);
+    
+    auditEntry = HibernateSession.byHqlStatic()
+      .createQuery("from AuditEntry").uniqueResult(AuditEntry.class);
+    
+    assertEquals("entity", auditEntry.getAuditType().getAuditCategory());
+    assertEquals("deleteEntity", auditEntry.getAuditType().getActionName());
+    
+  }
+  
   /**
    * test the finder
    */

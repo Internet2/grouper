@@ -1394,10 +1394,21 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
               GrouperDAOFactory.getFactory().getGroup().delete(Group.this);
 
               if (!hibernateHandlerBean.isCallerWillCreateAudit()) {
-                AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.GROUP_DELETE, "id", 
-                    Group.this.getUuid(), "name", Group.this.getName(), "parentStemId", Group.this.getParentUuid(), 
-                    "displayName", Group.this.getDisplayName(), "description", Group.this.getDescription());
-                auditEntry.setDescription("Deleted group: " + Group.this.getName());
+                AuditEntry auditEntry = null;
+                if (Group.this.typeOfGroup == TypeOfGroup.entity) {
+                  
+                  auditEntry = new AuditEntry(AuditTypeBuiltin.ENTITY_DELETE, "id", 
+                      Group.this.getUuid(), "name", Group.this.getName(), "parentStemId", Group.this.getParentUuid(), 
+                      "displayName", Group.this.getDisplayName(), "description", Group.this.getDescription());
+                  auditEntry.setDescription("Deleted entity: " + Group.this.getName());
+
+                } else {
+                  auditEntry = new AuditEntry(AuditTypeBuiltin.ENTITY_DELETE, "id", 
+                      Group.this.getUuid(), "name", Group.this.getName(), "parentStemId", Group.this.getParentUuid(), 
+                      "displayName", Group.this.getDisplayName(), "description", Group.this.getDescription());
+                  auditEntry.setDescription("Deleted group: " + Group.this.getName());
+                  
+                }
                 auditEntry.saveOrUpdate(true);
               }
               
@@ -4406,11 +4417,23 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
               GrouperDAOFactory.getFactory().getGroup().update( Group.this );
               
               if (!hibernateHandlerBean.isCallerWillCreateAudit()) {
-                AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.GROUP_UPDATE, "id", 
-                    Group.this.getUuid(), "name", Group.this.getName(), "parentStemId", Group.this.getParentUuid(), 
-                    "displayName", Group.this.getDisplayName(), "description", Group.this.getDescription());
+                AuditEntry auditEntry = null;
                 
-                auditEntry.setDescription("Updated group: " + Group.this.getName() + ", " + differences);
+                if (Group.this.typeOfGroup == TypeOfGroup.entity) {
+                  
+                  auditEntry = new AuditEntry(AuditTypeBuiltin.ENTITY_UPDATE, "id", 
+                      Group.this.getUuid(), "name", Group.this.getName(), "parentStemId", Group.this.getParentUuid(), 
+                      "displayName", Group.this.getDisplayName(), "description", Group.this.getDescription());
+                  auditEntry.setDescription("Updated entity: " + Group.this.getName() + ", " + differences);
+
+                } else {
+                  auditEntry = new AuditEntry(AuditTypeBuiltin.GROUP_UPDATE, "id", 
+                      Group.this.getUuid(), "name", Group.this.getName(), "parentStemId", Group.this.getParentUuid(), 
+                      "displayName", Group.this.getDisplayName(), "description", Group.this.getDescription());
+                  auditEntry.setDescription("Updated group: " + Group.this.getName() + ", " + differences);
+
+                }
+                
                 auditEntry.saveOrUpdate(true);
               }
               

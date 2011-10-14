@@ -1904,10 +1904,21 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
 
               
               if (!hibernateHandlerBean.isCallerWillCreateAudit()) {
-                AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.GROUP_ADD, "id", 
-                    _g.getUuid(), "name", _g.getName(), "parentStemId", Stem.this.getUuid(), "displayName", 
-                    _g.getDisplayName(), "description", _g.getDescription());
-                auditEntry.setDescription("Added group: " + _g.getName());
+                AuditEntry auditEntry = null;
+                
+                if (typeOfGroup == TypeOfGroup.entity) {
+                  auditEntry = new AuditEntry(AuditTypeBuiltin.ENTITY_ADD, "id", 
+                      _g.getUuid(), "name", _g.getName(), "parentStemId", Stem.this.getUuid(), "displayName", 
+                      _g.getDisplayName(), "description", _g.getDescription());
+                  auditEntry.setDescription("Added entity: " + _g.getName());
+                  
+                } else {
+                  auditEntry = new AuditEntry(AuditTypeBuiltin.GROUP_ADD, "id", 
+                      _g.getUuid(), "name", _g.getName(), "parentStemId", Stem.this.getUuid(), "displayName", 
+                      _g.getDisplayName(), "description", _g.getDescription());
+                  auditEntry.setDescription("Added group: " + _g.getName());
+                  
+                }
                 auditEntry.saveOrUpdate(true);
               }
               
