@@ -37,6 +37,7 @@ import edu.internet2.middleware.grouper.StemSave;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.cfg.ApiConfig;
 import edu.internet2.middleware.grouper.entity.Entity;
+import edu.internet2.middleware.grouper.entity.EntityFinder;
 import edu.internet2.middleware.grouper.entity.EntitySave;
 import edu.internet2.middleware.grouper.exception.GroupAddException;
 import edu.internet2.middleware.grouper.exception.GroupModifyAlreadyExistsException;
@@ -57,6 +58,7 @@ import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3DAO;
 import edu.internet2.middleware.grouper.misc.AddMissingGroupSets;
+import edu.internet2.middleware.grouper.misc.CompositeType;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
@@ -193,8 +195,51 @@ public class TestGroup extends GrouperTest {
       //good
     }
     
+    ((Group)entity).setTypeOfGroup(TypeOfGroup.group);
+    try {
+      entity.store();
+      fail("Shouldnt be able to change type of group");
+    } catch (Exception e) {
+      //good
+    }
+    
+    //reset the fields
+    entity = new EntityFinder().addName(entity.getName()).findEntity(true);
+    
+    Group group = new GroupSave(s).assignName("test:anotherGroup").assignCreateParentStemsIfNotExist(true).save();
+    group.setTypeOfGroup(TypeOfGroup.entity);
+    try {
+      group.store();
+      fail("Shouldnt be able to change type of entity");
+    } catch (Exception e) {
+      //good
+    }
+    
+    Group group1 = new GroupSave(s).assignName("test:anotherGroup1").assignCreateParentStemsIfNotExist(true).save();
+    Group group2 = new GroupSave(s).assignName("test:anotherGroup2").assignCreateParentStemsIfNotExist(true).save();
     
     
+    try {
+      
+      ((Group)entity).addCompositeMember(CompositeType.COMPLEMENT, group1, group2);
+      
+      fail("Cannot change an entity to composite");
+    } catch (Exception e) {
+      //good
+    }
+    
+    Group group1a = new GroupSave(s).assignName("test:anotherGroup1a").assignCreateParentStemsIfNotExist(true).save();
+    Group group2a = new GroupSave(s).assignName("test:anotherGroup2a").assignCreateParentStemsIfNotExist(true).save();
+    
+    
+    try {
+      
+      group1a.addCompositeMember(CompositeType.COMPLEMENT, (Group)entity, group2a);
+      
+      fail("Cannot change an entity to composite");
+    } catch (Exception e) {
+      //good
+    }
     
   }
   

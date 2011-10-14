@@ -4737,6 +4737,12 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
   public Composite internal_addCompositeMember(final GrouperSession session, final CompositeType type,
       final Group left, final Group right, final String uuid) throws InsufficientPrivilegeException, MemberAddException {
 
+    //dont allow anything to be an entity... can only be a group or role
+    if (this.getTypeOfGroup() == TypeOfGroup.entity || left.getTypeOfGroup() == TypeOfGroup.entity 
+        || right.getTypeOfGroup() == TypeOfGroup.entity) {
+      throw new RuntimeException("Cannot add composite to an entity");
+    }
+    
     final String errorMessageSuffix = ", group name: " + this.name + ", compositeType: " + type
       + ", left group name: " + (left == null ? "null" : left.getName()) 
       + ", right group name: " + (right == null ? "null" : right.getName());
@@ -5564,7 +5570,14 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
    */
   @Override
   public void onPreUpdate(HibernateSession hibernateSession) {
+    
     super.onPreUpdate(hibernateSession);
+    
+    //if the type of group was changed, and it went to or from entity, that is bad
+    if (this.dbVersionDifferentFields().contains(FIELD_TYPE_OF_GROUP) 
+        && this.dbVersion != null && (this.typeOfGroup == TypeOfGroup.entity || ((Group)this.dbVersion).getTypeOfGroup() == TypeOfGroup.entity)) {
+      throw new RuntimeException("Cannot change typeOfGroup, you need to delete and create the object");
+    }
     
     this.internal_setModifiedIfNeeded();
 
