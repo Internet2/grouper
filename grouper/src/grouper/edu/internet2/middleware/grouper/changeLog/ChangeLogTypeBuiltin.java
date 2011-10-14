@@ -216,6 +216,29 @@ public enum ChangeLogTypeBuiltin implements ChangeLogTypeIdentifier {
       ChangeLogLabels.GROUP_DELETE.displayName, ChangeLogLabels.GROUP_DELETE.description)),
   
   /**
+   * add entity
+   */
+  ENTITY_ADD(new ChangeLogType("entity", "addEntity", 
+      ChangeLogLabels.ENTITY_ADD.id, ChangeLogLabels.ENTITY_ADD.name, ChangeLogLabels.ENTITY_ADD.parentStemId,
+      ChangeLogLabels.ENTITY_ADD.displayName, ChangeLogLabels.ENTITY_ADD.description)),
+  
+  /**
+   * update entity
+   */
+  ENTITY_UPDATE(new ChangeLogType("entity", "updateEntity", 
+      ChangeLogLabels.ENTITY_UPDATE.id, ChangeLogLabels.ENTITY_UPDATE.name, ChangeLogLabels.ENTITY_UPDATE.parentStemId,
+      ChangeLogLabels.ENTITY_UPDATE.displayName, ChangeLogLabels.ENTITY_UPDATE.description, 
+      ChangeLogLabels.ENTITY_UPDATE.propertyChanged, ChangeLogLabels.ENTITY_UPDATE.propertyOldValue, 
+      ChangeLogLabels.ENTITY_UPDATE.propertyNewValue)),
+  
+  /**
+   * delete entity
+   */
+  ENTITY_DELETE(new ChangeLogType("entity", "deleteEntity", 
+      ChangeLogLabels.ENTITY_DELETE.id, ChangeLogLabels.ENTITY_DELETE.name, ChangeLogLabels.ENTITY_DELETE.parentStemId,
+      ChangeLogLabels.ENTITY_DELETE.displayName, ChangeLogLabels.ENTITY_DELETE.description)),
+    
+  /**
    * attribute def add
    */
   ATTRIBUTE_DEF_ADD(new ChangeLogType("attributeDef", "addAttributeDef", 

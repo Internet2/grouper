@@ -90,6 +90,38 @@ public class EsbConsumer extends ChangeLogConsumerBase {
           event.setDescription(this.getLabelValue(changeLogEntry,
               ChangeLogLabels.GROUP_DELETE.description));
 
+        } else if (changeLogEntry.equalsCategoryAndAction(ChangeLogTypeBuiltin.ENTITY_ADD)) {
+          if (LOG.isDebugEnabled()) {
+            LOG.debug("Event is ENTITY_ADD");
+          }
+          event.setEventType(EsbEvent.EsbEventType.ENTITY_ADD.name());
+          event.setId(this.getLabelValue(changeLogEntry, ChangeLogLabels.ENTITY_ADD.id));
+          event.setName(this
+              .getLabelValue(changeLogEntry, ChangeLogLabels.ENTITY_ADD.name));
+          event.setParentStemId(this.getLabelValue(changeLogEntry,
+              ChangeLogLabels.ENTITY_ADD.parentStemId));
+          event.setDisplayName(this.getLabelValue(changeLogEntry,
+              ChangeLogLabels.ENTITY_ADD.displayName));
+          event.setDescription(this.getLabelValue(changeLogEntry,
+              ChangeLogLabels.ENTITY_ADD.description));
+
+        } else if (changeLogEntry
+            .equalsCategoryAndAction(ChangeLogTypeBuiltin.ENTITY_DELETE)) {
+          if (LOG.isDebugEnabled()) {
+            LOG.debug("Event is ENTITY_DELETE");
+          }
+          event.setEventType(EsbEvent.EsbEventType.ENTITY_DELETE.name());
+          event
+              .setId(this.getLabelValue(changeLogEntry, ChangeLogLabels.ENTITY_DELETE.id));
+          event.setName(this.getLabelValue(changeLogEntry,
+              ChangeLogLabels.ENTITY_DELETE.name));
+          event.setParentStemId(this.getLabelValue(changeLogEntry,
+              ChangeLogLabels.ENTITY_DELETE.parentStemId));
+          event.setDisplayName(this.getLabelValue(changeLogEntry,
+              ChangeLogLabels.ENTITY_DELETE.displayName));
+          event.setDescription(this.getLabelValue(changeLogEntry,
+              ChangeLogLabels.ENTITY_DELETE.description));
+
         } else if (changeLogEntry
             .equalsCategoryAndAction(ChangeLogTypeBuiltin.GROUP_FIELD_ADD)) {
           if (LOG.isDebugEnabled()) {
@@ -215,6 +247,31 @@ public class EsbConsumer extends ChangeLogConsumerBase {
               ChangeLogLabels.GROUP_UPDATE.propertyOldValue));
           event.setPropertyNewValue(this.getLabelValue(changeLogEntry,
               ChangeLogLabels.GROUP_UPDATE.propertyNewValue));
+
+        } else if (changeLogEntry
+            .equalsCategoryAndAction(ChangeLogTypeBuiltin.ENTITY_UPDATE)) {
+          if (LOG.isDebugEnabled()) {
+            LOG.debug("Event is ENTITY_UPDATE");
+          }
+          event.setEventType(EsbEvent.EsbEventType.ENTITY_UPDATE.name());
+          event
+              .setId(this.getLabelValue(changeLogEntry, ChangeLogLabels.ENTITY_UPDATE.id));
+          event.setName(this.getLabelValue(changeLogEntry,
+              ChangeLogLabels.ENTITY_UPDATE.name));
+          event.setParentStemId(this.getLabelValue(changeLogEntry,
+              ChangeLogLabels.ENTITY_UPDATE.parentStemId));
+          event.setDisplayName(this.getLabelValue(changeLogEntry,
+              ChangeLogLabels.ENTITY_UPDATE.displayName));
+          event.setDisplayExtension(this.getLabelValue(changeLogEntry,
+              ChangeLogLabels.ENTITY_UPDATE.displayExtension));
+          event.setDescription(this.getLabelValue(changeLogEntry,
+              ChangeLogLabels.ENTITY_UPDATE.description));
+          event.setPropertyChanged(this.getLabelValue(changeLogEntry,
+              ChangeLogLabels.ENTITY_UPDATE.propertyChanged));
+          event.setPropertyOldValue(this.getLabelValue(changeLogEntry,
+              ChangeLogLabels.ENTITY_UPDATE.propertyOldValue));
+          event.setPropertyNewValue(this.getLabelValue(changeLogEntry,
+              ChangeLogLabels.ENTITY_UPDATE.propertyNewValue));
 
         } else if (changeLogEntry
             .equalsCategoryAndAction(ChangeLogTypeBuiltin.MEMBERSHIP_ADD)) {

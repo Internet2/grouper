@@ -5377,13 +5377,27 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
         GroupHooks.METHOD_GROUP_PRE_INSERT, HooksGroupBean.class, 
         this, Group.class, VetoTypeGrouper.GROUP_PRE_INSERT, false, false);
     
-    //change log into temp table
-    new ChangeLogEntry(true, ChangeLogTypeBuiltin.GROUP_ADD, 
-        ChangeLogLabels.GROUP_ADD.id.name(), 
-        this.getUuid(), ChangeLogLabels.GROUP_ADD.name.name(), 
-        this.getName(), ChangeLogLabels.GROUP_ADD.parentStemId.name(), this.getParentUuid(),
-        ChangeLogLabels.GROUP_ADD.displayName.name(), this.getDisplayName(),
-        ChangeLogLabels.GROUP_ADD.description.name(), this.getDescription()).save();
+    if (this.getTypeOfGroup() == TypeOfGroup.entity) {
+      
+      //change log into temp table
+      new ChangeLogEntry(true, ChangeLogTypeBuiltin.ENTITY_ADD, 
+          ChangeLogLabels.ENTITY_ADD.id.name(), 
+          this.getUuid(), ChangeLogLabels.ENTITY_ADD.name.name(), 
+          this.getName(), ChangeLogLabels.ENTITY_ADD.parentStemId.name(), this.getParentUuid(),
+          ChangeLogLabels.ENTITY_ADD.displayName.name(), this.getDisplayName(),
+          ChangeLogLabels.ENTITY_ADD.description.name(), this.getDescription()).save();
+
+    } else {
+      
+      //change log into temp table
+      new ChangeLogEntry(true, ChangeLogTypeBuiltin.GROUP_ADD, 
+          ChangeLogLabels.GROUP_ADD.id.name(), 
+          this.getUuid(), ChangeLogLabels.GROUP_ADD.name.name(), 
+          this.getName(), ChangeLogLabels.GROUP_ADD.parentStemId.name(), this.getParentUuid(),
+          ChangeLogLabels.GROUP_ADD.displayName.name(), this.getDisplayName(),
+          ChangeLogLabels.GROUP_ADD.description.name(), this.getDescription()).save();
+      
+    }
     
   }
 
@@ -5511,13 +5525,27 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
         GroupHooks.METHOD_GROUP_PRE_DELETE, HooksGroupBean.class, 
         this, Group.class, VetoTypeGrouper.GROUP_PRE_DELETE, false, false);
 
-    //change log into temp table
-    new ChangeLogEntry(true, ChangeLogTypeBuiltin.GROUP_DELETE, 
-        ChangeLogLabels.GROUP_DELETE.id.name(), 
-        this.getUuid(), ChangeLogLabels.GROUP_DELETE.name.name(), 
-        this.getName(), ChangeLogLabels.GROUP_DELETE.parentStemId.name(), this.getParentUuid(),
-        ChangeLogLabels.GROUP_DELETE.displayName.name(), this.getDisplayName(),
-        ChangeLogLabels.GROUP_DELETE.description.name(), this.getDescription()).save();
+    if (this.getTypeOfGroup() == TypeOfGroup.entity) {
+
+      //change log into temp table
+      new ChangeLogEntry(true, ChangeLogTypeBuiltin.ENTITY_DELETE, 
+          ChangeLogLabels.ENTITY_DELETE.id.name(), 
+          this.getUuid(), ChangeLogLabels.ENTITY_DELETE.name.name(), 
+          this.getName(), ChangeLogLabels.ENTITY_DELETE.parentStemId.name(), this.getParentUuid(),
+          ChangeLogLabels.ENTITY_DELETE.displayName.name(), this.getDisplayName(),
+          ChangeLogLabels.ENTITY_DELETE.description.name(), this.getDescription()).save();
+
+    } else {
+
+      //change log into temp table
+      new ChangeLogEntry(true, ChangeLogTypeBuiltin.GROUP_DELETE, 
+          ChangeLogLabels.GROUP_DELETE.id.name(), 
+          this.getUuid(), ChangeLogLabels.GROUP_DELETE.name.name(), 
+          this.getName(), ChangeLogLabels.GROUP_DELETE.parentStemId.name(), this.getParentUuid(),
+          ChangeLogLabels.GROUP_DELETE.displayName.name(), this.getDisplayName(),
+          ChangeLogLabels.GROUP_DELETE.description.name(), this.getDescription()).save();
+
+    }
 
   }
   
@@ -5543,20 +5571,37 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
     GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.GROUP, 
         GroupHooks.METHOD_GROUP_PRE_UPDATE, HooksGroupBean.class, 
         this, Group.class, VetoTypeGrouper.GROUP_PRE_UPDATE, false, false);
-
-    //change log into temp table
-    ChangeLogEntry.saveTempUpdates(ChangeLogTypeBuiltin.GROUP_UPDATE, 
-        this, this.dbVersion(),
-        GrouperUtil.toList(ChangeLogLabels.GROUP_UPDATE.id.name(),this.getUuid(), 
-            ChangeLogLabels.GROUP_UPDATE.name.name(), this.getName(),
-            ChangeLogLabels.GROUP_UPDATE.parentStemId.name(), this.getParentUuid(),
-            ChangeLogLabels.GROUP_UPDATE.displayName.name(), this.getDisplayName(),
-            ChangeLogLabels.GROUP_UPDATE.description.name(), this.getDescription()),
-        GrouperUtil.toList(FIELD_NAME, FIELD_PARENT_UUID, FIELD_DESCRIPTION, FIELD_DISPLAY_EXTENSION),
-        GrouperUtil.toList(ChangeLogLabels.GROUP_UPDATE.name.name(),
-            ChangeLogLabels.GROUP_UPDATE.parentStemId.name(), 
-            ChangeLogLabels.GROUP_UPDATE.description.name(), 
-            ChangeLogLabels.GROUP_UPDATE.displayExtension.name()));    
+    
+    if (this.getTypeOfGroup() == TypeOfGroup.entity) {
+      //change log into temp table
+      ChangeLogEntry.saveTempUpdates(ChangeLogTypeBuiltin.ENTITY_UPDATE, 
+          this, this.dbVersion(),
+          GrouperUtil.toList(ChangeLogLabels.ENTITY_UPDATE.id.name(),this.getUuid(), 
+              ChangeLogLabels.ENTITY_UPDATE.name.name(), this.getName(),
+              ChangeLogLabels.ENTITY_UPDATE.parentStemId.name(), this.getParentUuid(),
+              ChangeLogLabels.ENTITY_UPDATE.displayName.name(), this.getDisplayName(),
+              ChangeLogLabels.ENTITY_UPDATE.description.name(), this.getDescription()),
+          GrouperUtil.toList(FIELD_NAME, FIELD_PARENT_UUID, FIELD_DESCRIPTION, FIELD_DISPLAY_EXTENSION),
+          GrouperUtil.toList(ChangeLogLabels.GROUP_UPDATE.name.name(),
+              ChangeLogLabels.ENTITY_UPDATE.parentStemId.name(), 
+              ChangeLogLabels.ENTITY_UPDATE.description.name(), 
+              ChangeLogLabels.ENTITY_UPDATE.displayExtension.name()));    
+    } else {
+      //change log into temp table
+      ChangeLogEntry.saveTempUpdates(ChangeLogTypeBuiltin.GROUP_UPDATE, 
+          this, this.dbVersion(),
+          GrouperUtil.toList(ChangeLogLabels.GROUP_UPDATE.id.name(),this.getUuid(), 
+              ChangeLogLabels.GROUP_UPDATE.name.name(), this.getName(),
+              ChangeLogLabels.GROUP_UPDATE.parentStemId.name(), this.getParentUuid(),
+              ChangeLogLabels.GROUP_UPDATE.displayName.name(), this.getDisplayName(),
+              ChangeLogLabels.GROUP_UPDATE.description.name(), this.getDescription()),
+          GrouperUtil.toList(FIELD_NAME, FIELD_PARENT_UUID, FIELD_DESCRIPTION, FIELD_DISPLAY_EXTENSION),
+          GrouperUtil.toList(ChangeLogLabels.GROUP_UPDATE.name.name(),
+              ChangeLogLabels.GROUP_UPDATE.parentStemId.name(), 
+              ChangeLogLabels.GROUP_UPDATE.description.name(), 
+              ChangeLogLabels.GROUP_UPDATE.displayExtension.name()));    
+      
+    }
   }
 
   /**

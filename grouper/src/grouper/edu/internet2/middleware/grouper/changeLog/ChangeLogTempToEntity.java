@@ -78,11 +78,14 @@ public class ChangeLogTempToEntity {
             public Object callback(HibernateHandlerBean hibernateHandlerBean)
                 throws GrouperDAOException {
               
-              if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.GROUP_ADD)) {
+              if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.GROUP_ADD)
+                  || CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.ENTITY_ADD)) {
                 ChangeLogTempToEntity.processGroupAdd(CHANGE_LOG_ENTRY);
-              } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.GROUP_UPDATE)) {
+              } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.GROUP_UPDATE)
+                  || CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.ENTITY_UPDATE)) {
                 ChangeLogTempToEntity.processGroupUpdate(CHANGE_LOG_ENTRY);
-              } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.GROUP_DELETE)) {
+              } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.GROUP_DELETE)
+                  || CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.ENTITY_DELETE)) {
                 ChangeLogTempToEntity.processGroupDelete(CHANGE_LOG_ENTRY);
               } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.STEM_ADD)) {
                 ChangeLogTempToEntity.processStemAdd(CHANGE_LOG_ENTRY);

@@ -25,8 +25,10 @@ import edu.internet2.middleware.grouper.attr.value.AttributeValueDelegate;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.audit.AuditTypeBuiltin;
 import edu.internet2.middleware.grouper.exception.GrantPrivilegeException;
+import edu.internet2.middleware.grouper.exception.GroupAddException;
 import edu.internet2.middleware.grouper.exception.GroupDeleteException;
 import edu.internet2.middleware.grouper.exception.GroupModifyAlreadyExistsException;
+import edu.internet2.middleware.grouper.exception.GroupModifyException;
 import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.MemberAddException;
@@ -293,6 +295,32 @@ public interface Entity extends GrouperSetElement, Comparable {
    * @throws  GrouperException
    */
   public Subject toSubject() 
-    throws  GrouperException;  
+    throws  GrouperException;
+
+  /**
+   * context id of the transaction
+   * @return context id
+   */
+  public String getContextId();
+
+  /**
+   * Copy this group to another Stem.  If you want to specify options
+   * for the copy, use GroupCopy.  This will use the default options.
+   * @param stem
+   * @return the new group
+   * @throws InsufficientPrivilegeException 
+   * @throws GroupAddException 
+   */
+  public Group copy(Stem stem);
   
+
+  /**
+   * Move this group to another Stem.  If you would like to specify options for the move, 
+   * use GroupMove instead.  This will use the default options.
+   * @param stem 
+   * @throws GroupModifyException 
+   * @throws InsufficientPrivilegeException 
+   */
+  public void move(Stem stem);
+
 }

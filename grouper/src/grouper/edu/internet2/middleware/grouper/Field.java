@@ -277,6 +277,16 @@ public class Field extends GrouperAPI implements GrouperHasContext, Hib3GrouperV
   }
   
   /**
+   * see if this is a list of members field for groups
+   * @return true if group list field
+   */
+  public boolean isEntityListField() {
+    return StringUtils.equals("access", this.type)
+      && (StringUtils.equals(Field.FIELD_NAME_ADMINS, this.name)
+          || StringUtils.equals(Field.FIELD_NAME_VIEWERS, this.name));
+  }
+  
+  /**
    * @return field type
    */
   public FieldType getType() {
