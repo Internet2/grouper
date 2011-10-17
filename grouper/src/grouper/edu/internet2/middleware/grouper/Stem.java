@@ -604,7 +604,22 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
    * @throws  IllegalArgumentException if null scope.
    * @since   1.2.1
    */
-  public Set<Group> getChildGroups(Scope scope, Set<Privilege> inPrivSet, QueryOptions queryOptions) 
+  public Set<Group> getChildGroups(Scope scope, Set<Privilege> inPrivSet, QueryOptions queryOptions) {
+    return this.getChildGroups(scope, inPrivSet, queryOptions, null);
+  }
+
+  /**
+   * Get groups that are children of this stem.
+   * @param   scope of search: <code>Scope.ONE</code> or <code>Scope.SUB</code>
+   * @param inPrivSet set of privileges that the grouper session needs one of for the row to be returned.
+   * AccessPrivilege has some pre-baked constant sets for use here
+   * @param typeOfGroups is the type of groups to get, or null for all
+   * @param queryOptions 
+   * @return  Child groups.
+   * @throws  IllegalArgumentException if null scope.
+   * @since   1.2.1
+   */
+  public Set<Group> getChildGroups(Scope scope, Set<Privilege> inPrivSet, QueryOptions queryOptions, Set<TypeOfGroup> typeOfGroups) 
     throws  IllegalArgumentException {
     if (scope == null) { // TODO 20070815 ParameterHelper
       throw new IllegalArgumentException("null Scope");
@@ -621,7 +636,7 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
     Subject     subj    = grouperSession.getSubject();
     Set<Group> findAllChildGroups = 
       GrouperDAOFactory.getFactory().getStem().findAllChildGroupsSecure( this, scope, 
-          grouperSession, subj, inPrivSet, queryOptions );
+          grouperSession, subj, inPrivSet, queryOptions, typeOfGroups );
     return findAllChildGroups;
   }
 

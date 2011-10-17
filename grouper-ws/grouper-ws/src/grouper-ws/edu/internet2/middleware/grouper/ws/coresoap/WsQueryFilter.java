@@ -3,6 +3,9 @@
  */
 package edu.internet2.middleware.grouper.ws.coresoap;
 
+import java.util.LinkedHashSet;
+import java.util.Set;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 
@@ -14,6 +17,7 @@ import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.exception.StemNotFoundException;
 import edu.internet2.middleware.grouper.filter.QueryFilter;
+import edu.internet2.middleware.grouper.group.TypeOfGroup;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
@@ -26,6 +30,26 @@ import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
  */
 public class WsQueryFilter {
 
+  /** comma separated type of groups can be an enum of TypeOfGroup, e.g. group, role, entity */
+  private String typeOfGroups;
+  
+  /**
+   * comma separated type of groups can be an enum of TypeOfGroup, e.g. group, role, entity
+   * @return type of group
+   */
+  public String getTypeOfGroups() {
+    return this.typeOfGroups;
+  }
+
+  /**
+   * comma separated type of groups can be an enum of TypeOfGroup, e.g. group, role, entity
+   * @param typeOfGroups1
+   */
+  public void setTypeOfGroups(String typeOfGroups1) {
+    this.typeOfGroups = typeOfGroups1;
+  }
+
+  
   /** page size if paging */
   private String pageSize;
   
@@ -163,6 +187,13 @@ public class WsQueryFilter {
    */
   public void validateHasGroupName() {
     this.validateNotBlank("groupName", this.groupName);
+  }
+
+  /**
+   * if there is a typeOfGroup name, there shouldnt be
+   */
+  public void validateNoTypeOfGroups() {
+    this.validateBlank("typeOfGroups", this.typeOfGroups);
   }
 
   /**
@@ -597,6 +628,22 @@ public class WsQueryFilter {
       throw new WsInvalidQueryException("Query filter type is required");
     }
     return WsQueryFilterType.valueOfIgnoreCase(this.queryFilterType);
+  }
+
+  /**
+   * 
+   * @return type of group
+   */
+  public Set<TypeOfGroup> retrieveTypeOfGroups() {
+    Set<TypeOfGroup> typeOfGroupsResult = null;
+    if (!StringUtils.isBlank(this.typeOfGroups)) {
+      Set<String> typeOfGroupsStringSet = GrouperUtil.splitTrimToSet(this.typeOfGroups, ",");
+      typeOfGroupsResult = new LinkedHashSet<TypeOfGroup>();
+      for (String typeOfGroupString : typeOfGroupsStringSet) {
+        typeOfGroupsResult.add(TypeOfGroup.valueOfIgnoreCase(typeOfGroupString, false));
+      }
+    }
+    return typeOfGroupsResult;
   }
 
   /**

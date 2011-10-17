@@ -235,12 +235,13 @@
         <include name="src/edu/internet2/middleware/grouper/webservicesClient/GrouperService.java" />
         <include name="test/edu/internet2/middleware/grouper/ws/soap/xsd/*.java" />
         <include name="test/edu/internet2/middleware/grouper/ws/soap_v2_0/xsd/*.java" />
+        <include name="test/edu/internet2/middleware/grouper/ws/soap_v2_1/xsd/*.java" />
 			</fileset>
 		</delete>
 		<java classname="org.apache.axis2.wsdl.WSDL2Java" fork="true">
 			<classpath refid="ws.class.path" />
 			<arg value="-uri" />
-			<arg file="${generated.client.project.dir}/GrouperService_v2_0.wsdl" />
+			<arg file="${generated.client.project.dir}/GrouperService_v2_1.wsdl" />
 			<arg value="-t" />
       <arg value="-u" />
 			<arg value="-p" />
@@ -281,6 +282,17 @@
     <jar destfile="${basedir}/webapp/WEB-INF/services/GrouperServiceWssec_v2_0.aar">
       <fileset excludes="edu/internet2/middleware/grouper/ws/**/*Test.class" dir="${webservice.folder}/classes" />
       <fileset dir="webservices/GrouperServiceWssec_v2_0.aar" />
+    </jar>
+
+    <!-- normal axis -->
+    <jar destfile="${basedir}/webapp/WEB-INF/services/GrouperService_v2_1.aar">
+      <fileset excludes="edu/internet2/middleware/grouper/ws/**/*Test.class" dir="${webservice.folder}/classes" />
+      <fileset dir="webservices/GrouperService_v2_1.aar" />
+    </jar>
+    <!-- for rampart -->
+    <jar destfile="${basedir}/webapp/WEB-INF/services/GrouperServiceWssec_v2_1.aar">
+      <fileset excludes="edu/internet2/middleware/grouper/ws/**/*Test.class" dir="${webservice.folder}/classes" />
+      <fileset dir="webservices/GrouperServiceWssec_v2_1.aar" />
     </jar>
 
 	</target>
@@ -354,6 +366,10 @@
       destdir="${build.dir.grouper-ws}" 
       classpathref="ws.class.path" debug="true">
     </javac>
+    <javac srcdir="${basedir}/src/grouper-ws_v2_1" 
+      destdir="${build.dir.grouper-ws}" 
+      classpathref="ws.class.path" debug="true">
+    </javac>
 	</target>
 	<!-- 
     Builds the entire webapp 
@@ -407,6 +423,9 @@
       <fileset dir="${grouper.lib.dir}">
         <include name="*.jar"/>
         <exclude name="grouper*.jar"/>
+      </fileset>
+      <fileset dir="${grouper.lib.dir}">
+        <include name="grouperClient.jar"/>
       </fileset>
       <fileset dir="${basedir}/lib/grouper-ws" includes="*.jar" />
       <fileset dir="${basedir}/lib/custom" includes="*.jar" />

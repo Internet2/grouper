@@ -27,6 +27,7 @@ import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.exception.QueryException;
 import edu.internet2.middleware.grouper.exception.StemNotFoundException;
+import edu.internet2.middleware.grouper.group.TypeOfGroup;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
@@ -39,6 +40,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * @version $Id: GroupsInStemFilter.java,v 1.3 2009-11-17 02:52:29 mchyzer Exp $
  */
 public class GroupsInStemFilter extends BaseQueryFilter {
+  
   
   /** stem name to use */
   private String  stemName;
@@ -60,6 +62,9 @@ public class GroupsInStemFilter extends BaseQueryFilter {
 
   /** must be an hql query field, e.g. can sort on name, displayName, extension, displayExtension */
   private String sortString;
+
+  /** if querying by group, role, entity */
+  private Set<TypeOfGroup> typeOfGroups;
 
   /**
    * {@link QueryFilter} that returns stems matching the specified
@@ -92,10 +97,11 @@ public class GroupsInStemFilter extends BaseQueryFilter {
    * @param theAscending 
    * @param thePageNumber 
    * @param thePageSize 
+   * @param typeOfGroups1
    */
   public GroupsInStemFilter(String theStemName, Scope theScope,
       boolean theFailOnStemNotFound, String theSortString, 
-      Boolean theAscending, Integer thePageNumber, Integer thePageSize) {
+      Boolean theAscending, Integer thePageNumber, Integer thePageSize, Set<TypeOfGroup> typeOfGroups1) {
     this.stemName = theStemName;
     this.scope = GrouperUtil.defaultIfNull(theScope, 
         Scope.ONE);
@@ -104,6 +110,7 @@ public class GroupsInStemFilter extends BaseQueryFilter {
     this.ascending = theAscending;
     this.pageNumber = thePageNumber;
     this.pageSize = thePageSize;
+    this.typeOfGroups = typeOfGroups1;
   }
   
   /**
@@ -134,7 +141,7 @@ public class GroupsInStemFilter extends BaseQueryFilter {
           throws GrouperSessionException {
         
         //based on which children, find them
-        Set<Group> groups = stem.getChildGroups(GroupsInStemFilter.this.scope, AccessPrivilege.VIEW_PRIVILEGES, queryOptions);
+        Set<Group> groups = stem.getChildGroups(GroupsInStemFilter.this.scope, AccessPrivilege.VIEW_PRIVILEGES, queryOptions, GroupsInStemFilter.this.typeOfGroups);
         return groups;
       }
       
@@ -205,6 +212,24 @@ public class GroupsInStemFilter extends BaseQueryFilter {
    */
   public void setSortString(String sortString1) {
     this.sortString = sortString1;
+  }
+
+  // Public Instance Methods
+  
+  /**
+   * type of group
+   * @return type of group
+   */
+  public Set<TypeOfGroup> getTypeOfGroups() {
+    return this.typeOfGroups;
+  }
+
+  /**
+   * type of group
+   * @param typeOfGroups1
+   */
+  public void setTypeOfGroup(Set<TypeOfGroup> typeOfGroups1) {
+    this.typeOfGroups = typeOfGroups1;
   }
 
 }

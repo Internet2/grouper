@@ -45,6 +45,7 @@ public enum WsQueryFilterType {
     public void validate(WsQueryFilter wsQueryFilter) throws WsInvalidQueryException {
 
       //for a uuid, needs the uuid and nothing else
+      wsQueryFilter.validateNoTypeOfGroups();
       wsQueryFilter.validateNoGroupName();
       wsQueryFilter.validateHasGroupUuid();
       wsQueryFilter.validateNoGroupAttributeName();
@@ -84,6 +85,7 @@ public enum WsQueryFilterType {
     public void validate(WsQueryFilter wsQueryFilter) throws WsInvalidQueryException {
 
       //for a name, needs the name and nothing else
+      wsQueryFilter.validateNoTypeOfGroups();
       wsQueryFilter.validateHasGroupName();
       wsQueryFilter.validateNoGroupUuid();
       wsQueryFilter.validateNoGroupAttributeName();
@@ -123,6 +125,7 @@ public enum WsQueryFilterType {
     public void validate(WsQueryFilter wsQueryFilter) throws WsInvalidQueryException {
 
       //for a name, needs the name and nothing else
+      //optional wsQueryFilter.validateNoTypeOfGroup();
       wsQueryFilter.validateHasGroupName();
       wsQueryFilter.validateNoGroupUuid();
       wsQueryFilter.validateNoGroupAttributeName();
@@ -156,7 +159,7 @@ public enum WsQueryFilterType {
       Integer retrievePageSize = wsQueryFilter.retrievePageSize();
       return new GroupNameFilter(groupName, stem, 
           sortString, retrieveAscending, 
-          retrievePageNumber, retrievePageSize);
+          retrievePageNumber, retrievePageSize, wsQueryFilter.retrieveTypeOfGroups());
 
     }
 
@@ -176,6 +179,7 @@ public enum WsQueryFilterType {
     public void validate(WsQueryFilter wsQueryFilter) throws WsInvalidQueryException {
 
       //for a stem name, needs the stem name and optional scope
+      //optional wsQueryFilter.validateNoTypeOfGroup();
       wsQueryFilter.validateNoGroupName();
       wsQueryFilter.validateNoGroupUuid();
       wsQueryFilter.validateNoGroupAttributeName();
@@ -202,7 +206,8 @@ public enum WsQueryFilterType {
       //fail if the stem is not found, that is probably bad
       return new GroupsInStemFilter(wsQueryFilter.getStemName(), scope, false, 
           wsQueryFilter.getSortString(), wsQueryFilter.retrieveAscending(), 
-          wsQueryFilter.retrievePageNumber(), wsQueryFilter.retrievePageSize());
+          wsQueryFilter.retrievePageNumber(), wsQueryFilter.retrievePageSize(), 
+          wsQueryFilter.retrieveTypeOfGroups());
     }
 
   },
@@ -220,6 +225,7 @@ public enum WsQueryFilterType {
       public void validate(WsQueryFilter wsQueryFilter) throws WsInvalidQueryException {
   
         //for a attribute, need value, optional name, and optional stem name
+        wsQueryFilter.validateNoTypeOfGroups();
         wsQueryFilter.validateNoGroupName();
         wsQueryFilter.validateNoGroupUuid();
         // optional wsQueryFilter.validateHasGroupAttributeName();
@@ -266,6 +272,7 @@ public enum WsQueryFilterType {
     public void validate(WsQueryFilter wsQueryFilter) throws WsInvalidQueryException {
 
       //for a attribute, need value, name, and optional stem name
+      wsQueryFilter.validateNoTypeOfGroups();
       wsQueryFilter.validateNoGroupName();
       wsQueryFilter.validateNoGroupUuid();
       wsQueryFilter.validateHasGroupAttributeName();
@@ -311,6 +318,7 @@ public enum WsQueryFilterType {
 
       //for a type, needs type and optional stem
       wsQueryFilter.validateNoGroupName();
+      wsQueryFilter.validateNoTypeOfGroups();
       wsQueryFilter.validateNoGroupUuid();
       wsQueryFilter.validateNoGroupAttributeName();
       wsQueryFilter.validateNoGroupAttributeValue();
@@ -357,6 +365,7 @@ public enum WsQueryFilterType {
     public void validate(WsQueryFilter wsQueryFilter) throws WsInvalidQueryException {
 
       //for an and, needs almost nothing, but needs the queryFilter0 and queryFilter1
+      wsQueryFilter.validateNoTypeOfGroups();
       wsQueryFilter.validateNoGroupName();
       wsQueryFilter.validateNoGroupUuid();
       wsQueryFilter.validateNoGroupAttributeName();
@@ -397,6 +406,7 @@ public enum WsQueryFilterType {
     public void validate(WsQueryFilter wsQueryFilter) throws WsInvalidQueryException {
 
       //for an or, needs nothing but queryFilter0 and queryFilter1
+      wsQueryFilter.validateNoTypeOfGroups();
       wsQueryFilter.validateNoGroupName();
       wsQueryFilter.validateNoGroupUuid();
       wsQueryFilter.validateNoGroupAttributeName();
@@ -438,6 +448,7 @@ public enum WsQueryFilterType {
     public void validate(WsQueryFilter wsQueryFilter) throws WsInvalidQueryException {
 
       //for a minus, needs nothing but queryFilter0 and queryFilter1
+      wsQueryFilter.validateNoTypeOfGroups();
       wsQueryFilter.validateNoGroupName();
       wsQueryFilter.validateNoGroupUuid();
       wsQueryFilter.validateNoGroupAttributeName();

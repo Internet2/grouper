@@ -498,7 +498,7 @@ public class TestGQGroupName extends TestCase {
       s = GrouperSession.start(SubjectTestHelper.SUBJ0);
       
       GrouperQuery gq = GrouperQuery.createQuery(
-        s, new GroupNameFilter("edu:uofc", root, "displayName", true, 1, 2));
+        s, new GroupNameFilter("edu:uofc", root, "displayName", true, 1, 2, null));
 
       List<Group> groups = new ArrayList<Group>(gq.getGroups());
       assertEquals(2, GrouperUtil.length(groups));
@@ -506,7 +506,7 @@ public class TestGQGroupName extends TestCase {
       assertEquals("uchicago3", groups.get(1).getDisplayExtension());
 
       gq = GrouperQuery.createQuery(
-          s, new GroupNameFilter("edu:uofc", root, "name", true, 2, 2));
+          s, new GroupNameFilter("edu:uofc", root, "name", true, 2, 2, null));
 
       groups = new ArrayList<Group>(gq.getGroups());
       assertEquals(1, GrouperUtil.length(groups));
@@ -565,7 +565,7 @@ public class TestGQGroupName extends TestCase {
       s = GrouperSession.start(SubjectTestHelper.SUBJ0);
       
       GrouperQuery gq = GrouperQuery.createQuery(
-        s, new GroupsInStemFilter("edu", Scope.SUB, false, "displayName", true, 1, 2));
+        s, new GroupsInStemFilter("edu", Scope.SUB, false, "displayName", true, 1, 2, null));
   
       List<Group> groups = new ArrayList<Group>(gq.getGroups());
       assertEquals(2, GrouperUtil.length(groups));
@@ -573,7 +573,7 @@ public class TestGQGroupName extends TestCase {
       assertEquals("uchicago3", groups.get(1).getDisplayExtension());
   
       gq = GrouperQuery.createQuery(
-          s, new GroupNameFilter("edu:uofc", root, "name", true, 2, 2));
+          s, new GroupNameFilter("edu:uofc", root, "name", true, 2, 2, null));
   
       groups = new ArrayList<Group>(gq.getGroups());
       assertEquals(1, GrouperUtil.length(groups));

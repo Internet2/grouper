@@ -24,6 +24,7 @@ import org.apache.commons.lang.StringUtils;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.exception.QueryException;
+import edu.internet2.middleware.grouper.group.TypeOfGroup;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.internal.dao.QueryPaging;
 import edu.internet2.middleware.grouper.internal.dao.QuerySort;
@@ -53,7 +54,8 @@ public class GroupNameFilter extends BaseQueryFilter {
   /** must be an hql query field, e.g. can sort on name, displayName, extension, displayExtension */
   private String sortString;
 
-  
+  /** if querying by group, role, entity */
+  private Set<TypeOfGroup> typeOfGroups;
 
   // Constructors
 
@@ -87,18 +89,37 @@ public class GroupNameFilter extends BaseQueryFilter {
    * @param theAscending 
    * @param thePageNumber 
    * @param thePageSize 
+   * @param typeOfGroups1 
    */
-  public GroupNameFilter(String name, Stem ns, String theSortString, Boolean theAscending, Integer thePageNumber, Integer thePageSize) {
+  public GroupNameFilter(String name, Stem ns, String theSortString, Boolean theAscending, 
+      Integer thePageNumber, Integer thePageSize, Set<TypeOfGroup> typeOfGroups1) {
     this.name = name;
     this.ns   = ns;
     this.sortString = theSortString;
     this.ascending = theAscending;
     this.pageNumber = thePageNumber;
     this.pageSize = thePageSize;
+    this.typeOfGroups = typeOfGroups1;
   } // public GroupNameFilter(name, ns)
 
 
   // Public Instance Methods
+
+  /**
+   * type of group
+   * @return type of group
+   */
+  public Set<TypeOfGroup> getTypeOfGroups() {
+    return this.typeOfGroups;
+  }
+
+  /**
+   * type of group
+   * @param typeOfGroups1
+   */
+  public void setTypeOfGroup(Set<TypeOfGroup> typeOfGroups1) {
+    this.typeOfGroups = typeOfGroups1;
+  }
 
   public Set getResults(GrouperSession s) 
     throws QueryException
@@ -110,9 +131,9 @@ public class GroupNameFilter extends BaseQueryFilter {
     QueryOptions queryOptions = QueryOptions.create(this.sortString, this.ascending, this.pageNumber, this.pageSize);
     
     if (ns.isRootStem()) {
-      results = GrouperDAOFactory.getFactory().getGroup().findAllByApproximateNameSecure(this.name, null, queryOptions);
+      results = GrouperDAOFactory.getFactory().getGroup().findAllByApproximateNameSecure(this.name, null, queryOptions, this.typeOfGroups);
     } else {
-      results = GrouperDAOFactory.getFactory().getGroup().findAllByApproximateNameSecure(this.name, getStringForScope(this.ns), queryOptions);
+      results = GrouperDAOFactory.getFactory().getGroup().findAllByApproximateNameSecure(this.name, getStringForScope(this.ns), queryOptions, this.typeOfGroups);
     }
     return results;
   } // public Set getResults(s)

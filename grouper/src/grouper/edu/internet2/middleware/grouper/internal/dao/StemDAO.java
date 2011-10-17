@@ -32,6 +32,7 @@ import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.StemNotFoundException;
+import edu.internet2.middleware.grouper.group.TypeOfGroup;
 import edu.internet2.middleware.grouper.hibernate.ByHqlStatic;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.privs.Privilege;
@@ -221,6 +222,26 @@ public interface StemDAO extends GrouperDAO {
    */
   Set<Group> findAllChildGroupsSecure(
       Stem ns, Stem.Scope scope, GrouperSession grouperSession, Subject subject, Set<Privilege> inPrivSet, QueryOptions queryOptions)
+    throws  GrouperDAOException;
+
+  /**
+   * Find all child groups within specified scope, and make sure the
+   * grouper session can see them
+   * @param ns 
+   * @param scope 
+   * @param grouperSession 
+   * @param subject 
+   * @param queryOptions 
+   * @param inPrivSet is a set of privs that the subject must have one of to display a row.  AccessPrivilege
+   * has some pre-baked set constants available
+   * @param typeOfGroups type of groups to return or null for all
+   * @return the groups
+   * @throws GrouperDAOException 
+   * @since   1.2.1
+   */
+  Set<Group> findAllChildGroupsSecure(
+      Stem ns, Stem.Scope scope, GrouperSession grouperSession, Subject subject, 
+      Set<Privilege> inPrivSet, QueryOptions queryOptions, Set<TypeOfGroup> typeOfGroups)
     throws  GrouperDAOException;
 
   /**

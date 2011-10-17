@@ -8,6 +8,26 @@ package edu.internet2.middleware.grouperClient.ws.beans;
  */
 public class WsQueryFilter {
 
+  /** comma separated type of groups can be an enum of TypeOfGroup, e.g. group, role, entity */
+  private String typeOfGroups;
+  
+  /**
+   * comma separated type of groups can be an enum of TypeOfGroup, e.g. group, role, entity
+   * @return type of group
+   */
+  public String getTypeOfGroups() {
+    return this.typeOfGroups;
+  }
+
+  /**
+   * comma separated type of groups can be an enum of TypeOfGroup, e.g. group, role, entity
+   * @param typeOfGroups1
+   */
+  public void setTypeOfGroups(String typeOfGroups1) {
+    this.typeOfGroups = typeOfGroups1;
+  }
+
+
   /**
    * findGroupType is the WsQueryFilterType enum for which type of find is happening:  e.g.
    * FIND_BY_GROUP_UUID, FIND_BY_GROUP_NAME_EXACT, FIND_BY_STEM_NAME, 

@@ -11,6 +11,25 @@ package edu.internet2.middleware.grouperClient.ws.beans;
  */
 public class WsGroup {
 
+  /** type of group can be an enum of TypeOfGroup, e.g. group, role, entity */
+  private String typeOfGroup;
+  
+  /**
+   * type of group can be an enum of TypeOfGroup, e.g. group, role, entity
+   * @return type of group
+   */
+  public String getTypeOfGroup() {
+    return this.typeOfGroup;
+  }
+
+  /**
+   * type of group can be an enum of TypeOfGroup, e.g. group, role, entity
+   * @param typeOfGroup1
+   */
+  public void setTypeOfGroup(String typeOfGroup1) {
+    this.typeOfGroup = typeOfGroup1;
+  }
+
   /** extension of group, the part to the right of last colon in name */
   private String extension;
 

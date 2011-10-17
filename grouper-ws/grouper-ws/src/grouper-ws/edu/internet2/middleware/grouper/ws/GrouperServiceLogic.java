@@ -839,6 +839,7 @@ public class GrouperServiceLogic {
    * can sort on name, displayName, extension, displayExtension
    * @param ascending or null for ascending, false for descending.  
    * If you pass true or false, must pass a sort string
+   * @param typeOfGroups is comma separated TypeOfGroups to find, e.g. group, role, entity
    * @return the groups, or no groups if none found
    */
   public static WsFindGroupsResults findGroupsLite(final GrouperVersion clientVersion,
@@ -847,7 +848,7 @@ public class GrouperServiceLogic {
       GroupType groupTypeName, String actAsSubjectId, String actAsSubjectSourceId,
       String actAsSubjectIdentifier, boolean includeGroupDetail, String paramName0,
       String paramValue0, String paramName1, String paramValue1, String pageSize, 
-      String pageNumber, String sortString, String ascending) {
+      String pageNumber, String sortString, String ascending, String typeOfGroups) {
   
     WsSubjectLookup actAsSubjectLookup = WsSubjectLookup.createIfNeeded(actAsSubjectId,
         actAsSubjectSourceId, actAsSubjectIdentifier);
@@ -868,6 +869,7 @@ public class GrouperServiceLogic {
     wsQueryFilter.setPageNumber(pageNumber);
     wsQueryFilter.setSortString(sortString);
     wsQueryFilter.setAscending(ascending);
+    wsQueryFilter.setTypeOfGroups(typeOfGroups);
     
     // pass through to the more comprehensive method
     WsFindGroupsResults wsFindGroupsResults = findGroups(clientVersion, wsQueryFilter,

@@ -12,12 +12,12 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import edu.internet2.middleware.grouper.webservicesClient.util.GeneratedClientSettings;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGenerated;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGeneratedType;
-import edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.GetGroups;
-import edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.WsGetGroupsResult;
-import edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.WsGetGroupsResults;
-import edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.WsGroup;
-import edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.WsParam;
-import edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.WsSubjectLookup;
+import edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.GetGroups;
+import edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsGetGroupsResult;
+import edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsGetGroupsResults;
+import edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsGroup;
+import edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsParam;
+import edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsSubjectLookup;
 
 
 /**

@@ -79,7 +79,7 @@ public class GrouperClientWsTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new GrouperClientWsTest("testFindStems"));
+    TestRunner.run(new GrouperClientWsTest("testFindGroups"));
     //TestRunner.run(new GrouperClientWsTest("testGroupSaveLookupNameSame"));
     //TestRunner.run(new GrouperClientWsTest("testGroupSaveNoLookup"));
   }
@@ -5149,6 +5149,73 @@ public class GrouperClientWsTest extends GrouperTest {
       assertEquals(output, "0", matcher.group(1));
       assertEquals(output, "aStem:aGroup2", matcher.group(2));
       assertEquals(output, "aStem:aGroup2", matcher.group(3));
+
+      // #####################################################
+      // run again, with typeOfGroup = group
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+
+      GrouperClient
+          .main(GrouperClientUtils
+              .splitTrim(
+                  "--operation=findGroupsWs --queryFilterType=FIND_BY_GROUP_NAME_APPROXIMATE --groupName=aStem:aGroup --stemName=aStem --typeOfGroups=group",
+                  " "));
+      System.out.flush();
+      output = new String(baos.toByteArray());
+
+      System.setOut(systemOut);
+
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+
+      matcher = pattern.matcher(outputLines[0]);
+
+      assertEquals(output, 3, outputLines.length);
+      assertTrue(outputLines[0], matcher.matches());
+
+      assertEquals(output, "0", matcher.group(1));
+      assertEquals(output, "aStem:aGroup", matcher.group(2));
+      assertEquals(output, "aStem:aGroup", matcher.group(3));
+
+      matcher = pattern.matcher(outputLines[1]);
+      assertTrue(outputLines[1], matcher.matches());
+
+      assertEquals(output, "1", matcher.group(1));
+      assertEquals(output, "aStem:aGroup1", matcher.group(2));
+      assertEquals(output, "aStem:aGroup1", matcher.group(3));
+
+      matcher = pattern.matcher(outputLines[2]);
+      assertTrue(outputLines[2], matcher.matches());
+
+      assertEquals(output, "2", matcher.group(1));
+      assertEquals(output, "aStem:aGroup2", matcher.group(2));
+      assertEquals(output, "aStem:aGroup2", matcher.group(3));
+
+      assertTrue(GrouperClientWs.mostRecentRequest.contains("typeOfGroups")
+          && GrouperClientWs.mostRecentRequest.contains(">group<"));
+
+      // #####################################################
+      // run again, with typeOfGroup = role
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+
+      GrouperClient
+          .main(GrouperClientUtils
+              .splitTrim(
+                  "--operation=findGroupsWs --queryFilterType=FIND_BY_GROUP_NAME_APPROXIMATE --groupName=aStem:aGroup --stemName=aStem --typeOfGroups=role",
+                  " "));
+      System.out.flush();
+      output = new String(baos.toByteArray());
+
+      System.setOut(systemOut);
+
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+
+      assertEquals(output, 0, GrouperUtil.length(outputLines));
+
+      assertTrue(GrouperClientWs.mostRecentRequest.contains("typeOfGroups")
+          && GrouperClientWs.mostRecentRequest.contains(">role<"));
+
+      
       
     } finally {
       System.setOut(systemOut);

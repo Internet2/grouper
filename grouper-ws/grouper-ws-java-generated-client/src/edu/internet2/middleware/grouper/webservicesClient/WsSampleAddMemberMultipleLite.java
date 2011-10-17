@@ -15,8 +15,8 @@ import org.apache.commons.lang.builder.ToStringStyle;
 
 import edu.internet2.middleware.grouper.webservicesClient.util.GeneratedClientSettings;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGeneratedType;
-import edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.AddMemberLite;
-import edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.WsAddMemberLiteResult;
+import edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.AddMemberLite;
+import edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsAddMemberLiteResult;
 
 /**
  *

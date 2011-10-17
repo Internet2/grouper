@@ -76,6 +76,9 @@ public class WsRestFindGroupsLiteRequest implements WsRequestBean {
 
   /** must be an hql query field, e.g. can sort on name, displayName, extension, displayExtension */
   private String sortString;
+
+  /** comma separated type of groups can be an enum of TypeOfGroup, e.g. group, role, entity */
+  private String typeOfGroups;
   
   /**
    * field
@@ -402,6 +405,20 @@ public class WsRestFindGroupsLiteRequest implements WsRequestBean {
    */
   public void setSortString(String sortString1) {
     this.sortString = sortString1;
+  }
+  /**
+   * comma separated type of groups can be an enum of TypeOfGroup, e.g. group, role, entity
+   * @return type of group
+   */
+  public String getTypeOfGroups() {
+    return this.typeOfGroups;
+  }
+  /**
+   * comma separated type of groups can be an enum of TypeOfGroup, e.g. group, role, entity
+   * @param typeOfGroups1
+   */
+  public void setTypeOfGroups(String typeOfGroups1) {
+    this.typeOfGroups = typeOfGroups1;
   }
 
 }

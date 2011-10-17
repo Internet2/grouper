@@ -29,6 +29,7 @@ import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.exception.SessionException;
 import edu.internet2.middleware.grouper.filter.GroupNameFilter;
 import edu.internet2.middleware.grouper.filter.GrouperQuery;
+import edu.internet2.middleware.grouper.group.TypeOfGroup;
 import edu.internet2.middleware.grouper.misc.E;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
@@ -301,8 +302,9 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
           GrouperQuery gq = null;
           
           if (GrouperConfig.getPropertyBoolean("pageGroupSource", true)) {
+            //only search for groups and roles, entitys have their own source
             gq = GrouperQuery.createQuery(
-              grouperSession, new GroupNameFilter(searchValue, root, "displayName", true, 1, 1000)
+              grouperSession, new GroupNameFilter(searchValue, root, "displayName", true, 1, 1000, GrouperUtil.toSet(TypeOfGroup.group, TypeOfGroup.role))
             );
           } else {
             gq = GrouperQuery.createQuery(

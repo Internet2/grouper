@@ -1702,6 +1702,10 @@ public class GrouperClient {
         "groupUuid" + suffix, false);
     result.setGroupUuid(groupUuid);
   
+    String typeOfGroups = GrouperClientUtils.argMapString(argMap, argMapNotUsed, 
+        "typeOfGroups" + suffix, false);
+    result.setTypeOfGroups(typeOfGroups);
+  
     WsQueryFilter queryFilter0 = retrieveQueryFilterFromArgs(argMap, 
         argMapNotUsed, suffix + "0", false);
     result.setQueryFilter0(queryFilter0);

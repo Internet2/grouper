@@ -127,6 +127,7 @@ public class GrouperService {
    * can sort on name, displayName, extension, displayExtension
    * @param ascending or null for ascending, false for descending.  
    * If you pass true or false, must pass a sort string
+   * @param typeOfGroups is the comma separated TypeOfGroups to find, e.g. group, role, entity
    * @return the groups, or no groups if none found
    */
   public WsFindGroupsResults findGroupsLite(final String clientVersion,
@@ -135,7 +136,7 @@ public class GrouperService {
       String groupTypeName, String actAsSubjectId, String actAsSubjectSourceId,
       String actAsSubjectIdentifier, String includeGroupDetail, String paramName0,
       String paramValue0, String paramName1, String paramValue1, String pageSize, 
-      String pageNumber, String sortString, String ascending) {
+      String pageNumber, String sortString, String ascending, String typeOfGroups) {
 
     WsFindGroupsResults wsFindGroupsResults = new WsFindGroupsResults();
 
@@ -156,7 +157,7 @@ public class GrouperService {
           groupName, stemName, stemScope, groupUuid, groupAttributeName, groupAttributeValue,
           groupType,actAsSubjectId, actAsSubjectSourceId, actAsSubjectIdentifier, 
           includeGroupDetailBoolean, paramName0, paramValue0, paramName1, paramValue1,
-          pageSize, pageNumber, sortString, ascending);
+          pageSize, pageNumber, sortString, ascending, typeOfGroups);
       
     } catch (Exception e) {
       wsFindGroupsResults.assignResultCodeException(null, null, e);

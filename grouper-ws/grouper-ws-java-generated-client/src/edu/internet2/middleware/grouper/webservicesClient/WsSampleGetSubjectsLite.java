@@ -13,9 +13,9 @@ import edu.internet2.middleware.grouper.webservicesClient.util.GeneratedClientSe
 import edu.internet2.middleware.grouper.webservicesClient.util.GeneratedUtils;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGenerated;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGeneratedType;
-import edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.GetSubjectsLite;
-import edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.WsGetSubjectsResults;
-import edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.WsSubject;
+import edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.GetSubjectsLite;
+import edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsGetSubjectsResults;
+import edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsSubject;
 
 
 /**

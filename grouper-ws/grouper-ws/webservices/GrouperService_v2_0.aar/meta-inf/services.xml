@@ -16,9 +16,9 @@
   ~ specific language governing permissions and limitations
   ~ under the License.
   -->
-<service name="GrouperService_v2_1" scope="application" targetNamespace="http://soap_v2_1.ws.grouper.middleware.internet2.edu/">
+<service name="GrouperService_v2_0" scope="application" targetNamespace="http://soap_v2_0.ws.grouper.middleware.internet2.edu/">
     <description>
-        Grouper Service v2_1
+        Grouper Service v2_0
     </description>
     <messageReceivers>
         <messageReceiver mep="http://www.w3.org/2004/08/wsdl/in-only"
@@ -26,6 +26,6 @@
         <messageReceiver mep="http://www.w3.org/2004/08/wsdl/in-out"
                          class="org.apache.axis2.rpc.receivers.RPCMessageReceiver"/>
     </messageReceivers>
-    <schema schemaNamespace="http://soap_v2_1.ws.grouper.middleware.internet2.edu/xsd"/>
-    <parameter name="ServiceClass">edu.internet2.middleware.grouper.ws.soap_v2_1.GrouperService</parameter>
+    <schema schemaNamespace="http://soap_v2_0.ws.grouper.middleware.internet2.edu/xsd"/>
+    <parameter name="ServiceClass">edu.internet2.middleware.grouper.ws.soap_v2_0.GrouperService</parameter>
 </service>

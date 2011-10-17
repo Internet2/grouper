@@ -37,6 +37,7 @@ import edu.internet2.middleware.grouper.exception.StemAddException;
 import edu.internet2.middleware.grouper.exception.StemDeleteException;
 import edu.internet2.middleware.grouper.exception.StemModifyException;
 import edu.internet2.middleware.grouper.exception.StemNotFoundException;
+import edu.internet2.middleware.grouper.group.TypeOfGroup;
 import edu.internet2.middleware.grouper.helper.GroupHelper;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.PrivHelper;
@@ -48,6 +49,7 @@ import edu.internet2.middleware.grouper.helper.T;
 import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
+import edu.internet2.middleware.grouper.internal.dao.QuerySort;
 import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.misc.E;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
@@ -76,7 +78,7 @@ public class TestStem extends GrouperTest {
    * @param args String[]
    */
   public static void main(String[] args) {
-    TestRunner.run(new TestStem("testXmlInsert"));
+    TestRunner.run(new TestStem("testGetChildGroups2"));
     //TestRunner.run(TestStem.class);
   }
 
@@ -457,6 +459,114 @@ public class TestStem extends GrouperTest {
     }
   } // public void testGetChildStems()
 
+  /**
+   * 
+   */
+  public void testGetChildGroups2() {
+    
+    ApiConfig.testConfig.put("groups.create.grant.all.read", "false");
+    ApiConfig.testConfig.put("groups.create.grant.all.view", "false");
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    
+    Stem testStem = new StemSave(grouperSession).assignName("test").save();
+    Stem testSubStem = new StemSave(grouperSession).assignName("test:sub").save();
+    Stem rootStem = StemFinder.findRootStem(grouperSession);
+    
+    Group testGroup = new GroupSave(grouperSession).assignName("test:group").save();
+    Group testRole = new GroupSave(grouperSession).assignName("test:role").assignTypeOfGroup(TypeOfGroup.role).save();
+    Group testEntity = new GroupSave(grouperSession).assignName("test:entity").assignTypeOfGroup(TypeOfGroup.entity).save();
+    
+    Group testGroup2 = new GroupSave(grouperSession).assignName("test:sub:group2").save();
+    Group testRole2 = new GroupSave(grouperSession).assignName("test:sub:role2").assignTypeOfGroup(TypeOfGroup.role).save();
+    Group testEntity2 = new GroupSave(grouperSession).assignName("test:sub:entity2").assignTypeOfGroup(TypeOfGroup.entity).save();
+    
+    testGroup.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.READ);
+    testGroup.grantPriv(SubjectTestHelper.SUBJ1, AccessPrivilege.ADMIN);
+    
+    testRole.grantPriv(SubjectTestHelper.SUBJ3, AccessPrivilege.UPDATE);
+    testEntity.grantPriv(SubjectTestHelper.SUBJ4, AccessPrivilege.VIEW);
+
+    testGroup2.grantPriv(SubjectTestHelper.SUBJ1, AccessPrivilege.READ);
+    testRole2.grantPriv(SubjectTestHelper.SUBJ2, AccessPrivilege.ADMIN);
+    testEntity2.grantPriv(SubjectTestHelper.SUBJ3, AccessPrivilege.ADMIN);
+ 
+    QueryOptions queryOptions = new QueryOptions();
+    queryOptions.sort(QuerySort.asc("theGroup.nameDb"));
+    Set<Group> groups = rootStem.getChildGroups(Scope.ONE, AccessPrivilege.VIEW_PRIVILEGES, queryOptions, null);
+    assertEquals(0, GrouperUtil.length(groups));
+    
+    groups = rootStem.getChildGroups(Scope.SUB, AccessPrivilege.VIEW_PRIVILEGES, queryOptions, null);
+    assertGroupSetsAndOrder(GrouperUtil.toSet(testEntity, testGroup, testRole, testEntity2, testGroup2, testRole2), groups);
+    
+    groups = testStem.getChildGroups(Scope.SUB, AccessPrivilege.VIEW_PRIVILEGES, queryOptions, null);
+    assertGroupSetsAndOrder(GrouperUtil.toSet(testEntity, testGroup, testRole, testEntity2, testGroup2, testRole2), groups);
+    
+    groups = testStem.getChildGroups(Scope.ONE, AccessPrivilege.VIEW_PRIVILEGES, queryOptions, null);
+    assertGroupSetsAndOrder(GrouperUtil.toSet(testEntity, testGroup, testRole), groups);
+    
+    groups = rootStem.getChildGroups(Scope.SUB, AccessPrivilege.VIEW_PRIVILEGES, queryOptions, GrouperUtil.toSet(TypeOfGroup.group));
+    assertGroupSetsAndOrder(GrouperUtil.toSet(testGroup, testGroup2), groups);
+    
+    groups = testStem.getChildGroups(Scope.SUB, AccessPrivilege.VIEW_PRIVILEGES, queryOptions, GrouperUtil.toSet(TypeOfGroup.role, TypeOfGroup.entity));
+    assertGroupSetsAndOrder(GrouperUtil.toSet(testEntity, testRole, testEntity2, testRole2), groups);
+    
+    groups = testStem.getChildGroups(Scope.ONE, AccessPrivilege.VIEW_PRIVILEGES, queryOptions, GrouperUtil.toSet(TypeOfGroup.entity));
+    assertGroupSetsAndOrder(GrouperUtil.toSet(testEntity), groups);
+
+    groups = GrouperDAOFactory.getFactory().getGroup().findAllByApproximateNameSecure(
+        "tes", "test:%", queryOptions, null);
+    assertGroupSetsAndOrder(GrouperUtil.toSet(testEntity, testGroup, testRole, testEntity2, testGroup2, testRole2), groups);
+
+    groups = GrouperDAOFactory.getFactory().getGroup().findAllByApproximateNameSecure(
+        "tes", "test:%", queryOptions, GrouperUtil.toSet(TypeOfGroup.role, TypeOfGroup.entity));
+    assertGroupSetsAndOrder(GrouperUtil.toSet(testEntity, testRole, testEntity2, testRole2), groups);
+
+    groups = GrouperDAOFactory.getFactory().getGroup().findAllByApproximateNameSecure(
+        "abc", "test:%", queryOptions, GrouperUtil.toSet(TypeOfGroup.role, TypeOfGroup.entity));
+    assertGroupSetsAndOrder(null, groups);
+
+    GrouperSession.stopQuietly(grouperSession);
+    grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ3);
+
+    groups = rootStem.getChildGroups(Scope.SUB, AccessPrivilege.VIEW_PRIVILEGES, queryOptions, null);
+    assertGroupSetsAndOrder(GrouperUtil.toSet(testRole, testEntity2), groups);
+    
+    groups = testStem.getChildGroups(Scope.SUB, AccessPrivilege.VIEW_PRIVILEGES, queryOptions, null);
+    assertGroupSetsAndOrder(GrouperUtil.toSet(testRole, testEntity2), groups);
+    
+    groups = testStem.getChildGroups(Scope.ONE, AccessPrivilege.VIEW_PRIVILEGES, queryOptions, null);
+    assertGroupSetsAndOrder(GrouperUtil.toSet(testRole), groups);
+    
+    groups = rootStem.getChildGroups(Scope.SUB, AccessPrivilege.VIEW_PRIVILEGES, queryOptions, GrouperUtil.toSet(TypeOfGroup.group));
+    assertGroupSetsAndOrder(null, groups);
+    
+    groups = testStem.getChildGroups(Scope.SUB, AccessPrivilege.VIEW_PRIVILEGES, queryOptions, GrouperUtil.toSet(TypeOfGroup.role, TypeOfGroup.entity));
+    assertGroupSetsAndOrder(GrouperUtil.toSet(testRole, testEntity2), groups);
+    
+    groups = testStem.getChildGroups(Scope.ONE, AccessPrivilege.VIEW_PRIVILEGES, queryOptions, GrouperUtil.toSet(TypeOfGroup.entity));
+    assertGroupSetsAndOrder(null, groups);
+    
+    groups = GrouperDAOFactory.getFactory().getGroup().findAllByApproximateNameSecure(
+        "tes", "test:%", queryOptions, null);
+    assertGroupSetsAndOrder(GrouperUtil.toSet(testRole, testEntity2), groups);
+
+    groups = GrouperDAOFactory.getFactory().getGroup().findAllByApproximateNameSecure(
+        "tes", "test:%", queryOptions, GrouperUtil.toSet(TypeOfGroup.group, TypeOfGroup.entity));
+    assertGroupSetsAndOrder(GrouperUtil.toSet(testEntity2), groups);
+
+    groups = GrouperDAOFactory.getFactory().getGroup().findAllByApproximateNameSecure(
+        "abc", "test:%", queryOptions, GrouperUtil.toSet(TypeOfGroup.role, TypeOfGroup.entity));
+    assertGroupSetsAndOrder(null, groups);
+
+    
+    GrouperSession.stopQuietly(grouperSession);
+    
+  }
+  
+  /**
+   * 
+   */
   public void testGetChildGroups() {
     LOG.info("testGetChildGroups");
     try {
