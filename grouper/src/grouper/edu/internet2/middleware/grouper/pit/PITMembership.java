@@ -810,6 +810,12 @@ public class PITMembership extends GrouperPIT implements Hib3GrouperVersioned {
       pitImmediateGroupSet.setFlatMembershipNotificationsOnSaveOrUpdate(this.getFlatMembershipNotificationsOnSaveOrUpdate());
       pitImmediateGroupSet.setFlatPrivilegeNotificationsOnSaveOrUpdate(this.getFlatPrivilegeNotificationsOnSaveOrUpdate());
       pitImmediateGroupSet.setFlatPermissionNotificationsOnSaveOrUpdate(this.getFlatPermissionNotificationsOnSaveOrUpdate());
+      
+      // see if group set with this id already exists.  if it does, delete it..
+      PITGroupSet existing = GrouperDAOFactory.getFactory().getPITGroupSet().findById(pitImmediateGroupSet.getId());
+      if (existing != null && !existing.isActive()) {
+        existing.delete();
+      }
       pitImmediateGroupSet.saveOrUpdate();
     }
     

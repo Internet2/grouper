@@ -811,6 +811,12 @@ public class PITGroupSet extends GrouperPIT implements Hib3GrouperVersioned {
         pitGroupSet.setFlatMembershipNotificationsOnSaveOrUpdate(this.getFlatMembershipNotificationsOnSaveOrUpdate());
         pitGroupSet.setFlatPrivilegeNotificationsOnSaveOrUpdate(this.getFlatPrivilegeNotificationsOnSaveOrUpdate());
         pitGroupSet.setFlatPermissionNotificationsOnSaveOrUpdate(this.getFlatPermissionNotificationsOnSaveOrUpdate());
+
+        // see if group set with this id already exists.  if it does, delete it..
+        PITGroupSet existing = GrouperDAOFactory.getFactory().getPITGroupSet().findById(pitGroupSet.getId());
+        if (existing != null && !existing.isActive()) {
+          existing.delete();
+        }
         pitGroupSet.saveOrUpdate();
       }
     }
@@ -894,14 +900,14 @@ public class PITGroupSet extends GrouperPIT implements Hib3GrouperVersioned {
         newPITGroupSet.getOwnerId(), newPITGroupSet.getMemberId(), newPITGroupSet.getFieldId(), 
         newPITGroupSet.getParentId(), "effective", false);
     
-    if (!GrouperUtil.isEmpty(this.getContextId()) && !GrouperUtil.isEmpty(gs.getContextId()) &&
-        !this.getContextId().equals(gs.getContextId())) {
-      // this group set must have been added, deleted and then readded.  Don't add to point in time
+    if (gs == null) {
+      // either the group was deleted or it was never added (because it formed a circular path for instance)
       return new LinkedHashSet<PITGroupSet>();
     }
     
-    if (gs == null) {
-      // either the group was deleted or it was never added (because it formed a circular path for instance)
+    if (!GrouperUtil.isEmpty(this.getContextId()) && !GrouperUtil.isEmpty(gs.getContextId()) &&
+        !this.getContextId().equals(gs.getContextId())) {
+      // this group set must have been added, deleted and then readded.  Don't add to point in time
       return new LinkedHashSet<PITGroupSet>();
     }
     
@@ -975,14 +981,14 @@ public class PITGroupSet extends GrouperPIT implements Hib3GrouperVersioned {
           pitGroupSet.getOwnerId(), pitGroupSet.getMemberId(), pitGroupSet.getFieldId(), 
           pitGroupSet.getParentId(), "effective", false);
       
-      if (!GrouperUtil.isEmpty(this.getContextId()) && !GrouperUtil.isEmpty(gs.getContextId()) &&
-          !this.getContextId().equals(gs.getContextId())) {
-        // this group set must have been added, deleted and then readded.  Don't add to point in time
+      if (gs == null) {
+        // either the group was deleted or it was never added (because it formed a circular path for instance)
         continue;
       }
       
-      if (gs == null) {
-        // either the group was deleted or it was never added (because it formed a circular path for instance)
+      if (!GrouperUtil.isEmpty(this.getContextId()) && !GrouperUtil.isEmpty(gs.getContextId()) &&
+          !this.getContextId().equals(gs.getContextId())) {
+        // this group set must have been added, deleted and then readded.  Don't add to point in time
         continue;
       }
 
