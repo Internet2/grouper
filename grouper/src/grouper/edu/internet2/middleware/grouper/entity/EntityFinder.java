@@ -4,17 +4,19 @@
 package edu.internet2.middleware.grouper.entity;
 
 import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 
+import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
-import edu.internet2.middleware.grouper.permissions.PermissionEntry;
-import edu.internet2.middleware.grouper.permissions.PermissionEntry.PermissionType;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
@@ -186,8 +188,49 @@ public class EntityFinder {
   public Set<Entity> findEntities() {
     
     
-    Set<Entity> entities = GrouperDAOFactory.getFactory().getEntity().findEntitiesSecure(GrouperSession.staticGrouperSession(),this.ancestorFolderIds, this.ancestorFolderNames, this.ids, this.names, this.parentFolderIds, this.parentFolderNames, this.terms, AccessPrivilege.VIEW_ENTITY_PRIVILEGES, this.queryOptions);
+    Set<Entity> entities = GrouperDAOFactory.getFactory().getEntity().findEntitiesSecure(
+        GrouperSession.staticGrouperSession(),this.ancestorFolderIds, this.ancestorFolderNames, 
+        this.ids, this.names, this.parentFolderIds, this.parentFolderNames, this.terms, 
+        AccessPrivilege.VIEW_ENTITY_PRIVILEGES, this.queryOptions);
+    
     return entities;
+    
+  }
+
+  /**
+   * find a list of entities, and the String subjectIdentifier
+   * @return the list of entities never null, if there is a subjectIdentifier for the entity, that will be next in the array, else null
+   */
+  public List<Object[]> findEntitiesAndSubjectIdentifier() {
+    
+    Set<Entity> entities = this.findEntities();
+    
+    List<Object[]> results = new ArrayList<Object[]>();
+    
+    if (GrouperUtil.length(entities) == 0) {
+      return results;
+    }
+    
+    Set<String> entityIds = new LinkedHashSet<String>();
+    
+    for (Entity entity : entities) {
+      entityIds.add(entity.getId());
+    }
+    
+    List<Object[]> entityAndAttributeValues = GrouperDAOFactory.getFactory().getEntity().findEntitiesByGroupIds(entityIds);
+    
+    //add to map from group id to entityId
+    Map<String, String> attributeValueLookupMap = new HashMap<String, String>();
+    for (Object[] row : entityAndAttributeValues) {
+      attributeValueLookupMap.put(((Group)row[0]).getId(), ((AttributeAssignValue)row[1]).valueString());
+    }
+
+    for (Entity entity : entities) {
+      Object[] result = new Object[]{entity, attributeValueLookupMap.get(entity.getId())};
+      results.add(result);
+    }
+    
+    return results;
     
   }
 

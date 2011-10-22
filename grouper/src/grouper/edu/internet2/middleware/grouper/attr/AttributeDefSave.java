@@ -294,7 +294,7 @@ public class AttributeDefSave {
    * @return this for chaining
    */
   public AttributeDefSave assignAttributeDefPublic(boolean theBoolean) {
-    this.assignAttributeDefPublic(theBoolean);
+    this.attributeDefPublic = theBoolean;
     return this;
   }
 

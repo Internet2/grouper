@@ -16,6 +16,7 @@
 */
 
 package edu.internet2.middleware.grouper.internal.dao;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
@@ -51,5 +52,15 @@ public interface EntityDAO extends GrouperDAO {
       List<String> ancestorFolderIds, List<String> ancestorFolderNames, 
       List<String> ids, List<String> names, List<String> parentFolderIds,
       List<String> parentFolderNames, String terms, Set<Privilege> inPrivSet, QueryOptions queryOptions);
+
+  /**
+   * find entities secure by group id
+   * @param grouperSession 
+   * @param groupIds  (note, can be any amount of group ids, will batch)
+   * @return the group, and attribute value tuple
+   * @throws GrouperDAOException
+   */
+  List<Object[]> findEntitiesByGroupIds(Collection<String> groupIds);
+
 } 
 

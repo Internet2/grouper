@@ -1,0 +1,54 @@
+package edu.internet2.middleware.grouper.entity;
+
+import edu.internet2.middleware.grouper.attr.AttributeDefName;
+import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+
+/**
+ * utility methods for grouper entities
+ * @author mchyzer
+ *
+ */
+public class EntityUtils {
+
+  /**
+   * return the stem name where the entity attributes go, without colon on end
+   * @return stem name
+   */
+  public static String attributeEntityStemName() {
+    String rootStemName = GrouperCheckConfig.attributeRootStemName();
+    
+    //namespace this separate from other builtins
+    rootStemName += ":entities";
+    return rootStemName;
+  }
+
+  /** Attribute name of entity subject identifier  */
+  public static final String ATTR_DEF_EXTENSION_ENTITY_SUBJECT_IDENTIFIER = "entitySubjectIdentifier";
+
+  /** attribute def name of entity subject identifier */
+  private static String entitySubjectIdentifierName;
+
+  /**
+   * attribute def name of entity subject identifier
+   * @return name
+   */
+  public static String entitySubjectIdentifierName() {
+    if (entitySubjectIdentifierName == null) {
+      entitySubjectIdentifierName = attributeEntityStemName() + ":" + ATTR_DEF_EXTENSION_ENTITY_SUBJECT_IDENTIFIER;
+    }
+    return entitySubjectIdentifierName;
+  }
+  
+  /**
+   * return attribute def name for entity subject identifier
+   * @return attribute def name
+   */
+  public static AttributeDefName entitySubjectIdentifierAttributeDefName() {
+    return GrouperDAOFactory.getFactory().getAttributeDefName().findByNameSecure(entitySubjectIdentifierName(), true);
+  }
+
+
+  
+  
+}

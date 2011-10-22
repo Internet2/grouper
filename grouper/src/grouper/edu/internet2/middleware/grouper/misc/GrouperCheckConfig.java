@@ -45,6 +45,7 @@ import edu.internet2.middleware.grouper.attr.AttributeDefValueType;
 import edu.internet2.middleware.grouper.cfg.ApiConfig;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogConsumerBase;
+import edu.internet2.middleware.grouper.entity.EntityUtils;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.MemberAddException;
 import edu.internet2.middleware.grouper.exception.SessionException;
@@ -2057,7 +2058,30 @@ public class GrouperCheckConfig {
           }
         }
       }
-      
+      {
+        String entitiesRootStemName = EntityUtils.attributeEntityStemName();
+        
+        Stem entitiesStem = StemFinder.findByName(grouperSession, entitiesRootStemName, false);
+        if (entitiesStem == null) {
+          entitiesStem = new StemSave(grouperSession).assignCreateParentStemsIfNotExist(true)
+            .assignDescription("folder for built in Grouper entities attributes").assignName(entitiesRootStemName)
+            .save();
+        }
+
+        //see if attributeDef is there
+        String entityIdDefName = entitiesRootStemName + ":entitySubjectIdentifierDef";
+        AttributeDef entityIdDef = new AttributeDefSave(grouperSession).assignName(entityIdDefName)
+          .assignAttributeDefPublic(true).assignAttributeDefType(AttributeDefType.attr)
+          .assignMultiAssignable(false).assignMultiValued(false).assignToGroup(true).assignValueType(AttributeDefValueType.string).save();
+        
+        //this is publicly assignable and readable
+        entityIdDef.getPrivilegeDelegate().grantPriv(SubjectFinder.findAllSubject(), AttributeDefPrivilege.ATTR_READ, false);
+        entityIdDef.getPrivilegeDelegate().grantPriv(SubjectFinder.findAllSubject(), AttributeDefPrivilege.ATTR_UPDATE, false);
+        
+        //add the only name
+        checkAttribute(entitiesStem, entityIdDef, EntityUtils.ATTR_DEF_EXTENSION_ENTITY_SUBJECT_IDENTIFIER, "This overrides the subjectId of the entity", wasInCheckConfig);
+        
+      }
 
       
     } catch (SessionException se) {

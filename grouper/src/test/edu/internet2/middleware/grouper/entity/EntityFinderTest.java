@@ -4,15 +4,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 import junit.textui.TestRunner;
-import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.StemSave;
+import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
@@ -36,7 +37,7 @@ public class EntityFinderTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new EntityFinderTest("testEntityAudits"));
+    TestRunner.run(new EntityFinderTest("testFinderByName"));
   }
 
   /**
@@ -211,5 +212,78 @@ public class EntityFinderTest extends GrouperTest {
     GrouperSession.stopQuietly(grouperSession);
 
   }
+
+  
+  /**
+   * test the finder by id
+   */
+  public void testFinderByName() {
+    
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    
+    Entity testEntity = new EntitySave(grouperSession).assignCreateParentStemsIfNotExist(true)
+      .assignName("test:testEntity").save();
+    Entity testEntity2 = new EntitySave(grouperSession).assignCreateParentStemsIfNotExist(true)
+      .assignName("test:testEntity2").save();
+    Entity testEntity3 = new EntitySave(grouperSession).assignCreateParentStemsIfNotExist(true)
+      .assignName("test:tesvA:testEntity3").save();
+    Entity testEntity4 = new EntitySave(grouperSession).assignCreateParentStemsIfNotExist(true)
+      .assignName("test:tesvA:testEntity4").save();
+    
+    testEntity.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.VIEW, false);
+    testEntity3.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.VIEW, false);
+    testEntity2.grantPriv(SubjectTestHelper.SUBJ1, AccessPrivilege.ADMIN, false);
+    testEntity4.grantPriv(SubjectTestHelper.SUBJ1, AccessPrivilege.ADMIN, false);
+
+    GrouperSession.stopQuietly(grouperSession);
+    
+    grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ0);
+    
+    //lets assign an entity id... note this should be able to be done by any admin of the entity
+    try {
+      
+      testEntity.getAttributeValueDelegate().assignValue(EntityUtils.entitySubjectIdentifierName(), "test:some/weird:id");
+      
+      fail("Viewers cant assign an entity subject id");
+    } catch (Exception e) {
+      //good
+    }
+
+    GrouperSession.stopQuietly(grouperSession);
+    
+    //admins can assign the attribute
+    grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ1);
+
+    testEntity2.getAttributeValueDelegate().assignValue(EntityUtils.entitySubjectIdentifierName(), "test:some/weird:id2");
+
+    List<Object[]> groupAttributeAssignValues = new EntityFinder().addName("test:some/weird:id2").findEntitiesAndSubjectIdentifier();
+
+    assertEquals(1, GrouperUtil.length(groupAttributeAssignValues));
+    assertEquals(testEntity2.getName() , ((Entity)groupAttributeAssignValues.get(0)[0]).getName());
+    assertEquals("test:some/weird:id2" , groupAttributeAssignValues.get(0)[1]);
+    
+    
+    Entity entity = new EntityFinder().addName("test:some/weird:id2").findEntity(true);
+
+    assertNotNull(entity);
+    
+    assertEquals(testEntity2.getName(), entity.getName());
+    
+    //search by term in identifier, should find
+    entity = new EntityFinder().assignTerms("me/we id2").findEntity(true);
+    
+    assertNotNull(entity);
+    
+    assertEquals(testEntity2.getName(), entity.getName());
+    
+    GrouperSession.stopQuietly(grouperSession);
+
+    
+//    assertEquals(2, GrouperUtil.length(entities));
+//    assertEquals("test:testEntity", entities.get(0).getName());
+//    assertEquals("test:testEntity2", entities.get(1).getName());
+
+  }
+
   
 }

@@ -17,6 +17,7 @@
 
 package edu.internet2.middleware.grouper.internal.dao.hib3;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
@@ -26,6 +27,7 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.entity.Entity;
+import edu.internet2.middleware.grouper.entity.EntityUtils;
 import edu.internet2.middleware.grouper.hibernate.ByHqlStatic;
 import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
@@ -163,7 +165,28 @@ public class Hib3EntityDAO extends Hib3DAO implements EntityDAO {
       sql.append(HibUtils.convertToInClause(names, byHqlStatic));
 
       sql.append(" ) ");
+      
+      //also allow attribute value
+      
+      sql.append(" or exists ( select theAttributeAssignValue from AttributeAssign theAttributeAssign, " +
+      		" AttributeAssignValue theAttributeAssignValue, AttributeDefName theAttributeDefName ");
 
+      sql.append(" where theGroup.uuid = theAttributeAssign.ownerGroupId ");
+      sql.append(" and theAttributeAssign.attributeDefNameId = theAttributeDefName.id ");
+
+      sql.append(" and theAttributeDefName.nameDb = :entitySubjectIdDefName ");
+      byHqlStatic.setString("entitySubjectIdDefName", EntityUtils.entitySubjectIdentifierName());
+
+      sql.append(" and theAttributeAssignValue.attributeAssignId = theAttributeAssign.id ");
+
+      sql.append(" and ");
+      sql.append(" theAttributeAssignValue.valueString in ( ");
+    
+      sql.append(HibUtils.convertToInClause(names, byHqlStatic));
+
+      sql.append(" ) ");
+
+      sql.append(" ) ");
       sql.append(" ) ");
     }
 
@@ -194,7 +217,7 @@ public class Hib3EntityDAO extends Hib3DAO implements EntityDAO {
 
       String[] scopes = GrouperUtil.splitTrim(terms, " ");
 
-      sql.append(" and ");
+      sql.append(" and ( ");
 
       if (GrouperUtil.length(scopes) == 1) {
         sql.append(" ( theGroup.id = :theGroupIdScope or ( ");
@@ -216,6 +239,27 @@ public class Hib3EntityDAO extends Hib3DAO implements EntityDAO {
         index++;
       }
       sql.append(" ) ) ");
+      //also allow attribute value
+      
+      sql.append(" or exists ( select theAttributeAssignValue from AttributeAssign theAttributeAssign, " +
+          " AttributeAssignValue theAttributeAssignValue, AttributeDefName theAttributeDefName ");
+
+      sql.append(" where theGroup.uuid = theAttributeAssign.ownerGroupId ");
+      sql.append(" and theAttributeAssign.attributeDefNameId = theAttributeDefName.id ");
+
+      sql.append(" and theAttributeDefName.nameDb = :entitySubjectIdDefName ");
+      byHqlStatic.setString("entitySubjectIdDefName", EntityUtils.entitySubjectIdentifierName());
+
+      sql.append(" and theAttributeAssignValue.attributeAssignId = theAttributeAssign.id ");
+
+      for (int i = 0; i < scopes.length; i++) {
+        sql.append(" and lower(theAttributeAssignValue.valueString) like :scope").append(i).append(" ");
+        index++;
+      }
+
+      sql.append(" ) ");
+
+      sql.append(" ) ");
     }
 
     Set<Group> groups = byHqlStatic.createQuery(sql.toString())
@@ -230,6 +274,52 @@ public class Hib3EntityDAO extends Hib3DAO implements EntityDAO {
   /** */
   private static final String KLASS = Hib3EntityDAO.class.getName();
 
+  /**
+   * @see EntityDAO#findEntitiesByGroupIds(List)
+   */
+  public List<Object[]> findEntitiesByGroupIds(Collection<String> groupIds) {
 
+    List<Object[]> results = new ArrayList<Object[]>();
+    
+    if (GrouperUtil.length(groupIds) == 0) {
+      return results;
+    }
+
+    //lets page through these
+    int batchSize = 180;
+    int pages = GrouperUtil.batchNumberOfBatches(groupIds, batchSize);
+
+    for (int i=0; i<pages; i++) {
+      List<String> groupIdPageList = GrouperUtil.batchList(groupIds, batchSize, i);
+
+      StringBuilder sql = new StringBuilder(
+          "select distinct theGroup, theAttributeAssignValue from Group theGroup, AttributeAssign theAttributeAssign, AttributeAssignValue theAttributeAssignValue, AttributeDefName theAttributeDefName ");
+    
+      ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
+    
+      sql.append(" where theGroup.typeOfGroupDb = 'entity' ");
+      sql.append(" and theGroup.uuid = theAttributeAssign.ownerGroupId ");
+      sql.append(" and theAttributeAssign.attributeDefNameId = theAttributeDefName.id ");
+  
+      sql.append(" and theAttributeDefName.nameDb = :entitySubjectIdDefName ");
+      byHqlStatic.setString("entitySubjectIdDefName", EntityUtils.entitySubjectIdentifierName());
+  
+      sql.append(" and theAttributeAssignValue.attributeAssignId = theAttributeAssign.id ");
+
+      sql.append(" and theGroup.uuid in ( ");
+      
+      sql.append(HibUtils.convertToInClause(groupIdPageList, byHqlStatic));
+
+      sql.append(" ) ");
+      
+      List<Object[]> resultPage = byHqlStatic.createQuery(sql.toString())
+        .setCacheable(false)
+        .setCacheRegion(KLASS + ".FindEntitiesByGroupIds")
+        .list(Object[].class);
+      results.addAll(GrouperUtil.nonNull(resultPage));
+    }
+
+    return results;
+  }
 } 
 
