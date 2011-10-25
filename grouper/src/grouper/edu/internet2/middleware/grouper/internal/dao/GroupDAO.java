@@ -288,6 +288,15 @@ public interface GroupDAO extends GrouperDAO {
     throws  GrouperDAOException,
             GroupNotFoundException
             ;
+
+  /**
+   * @since   2.1.0
+   */
+  Group findByName(String name, boolean exceptionIfNotFound, QueryOptions queryOptions, Set<TypeOfGroup> typeOfGroups) 
+    throws  GrouperDAOException,
+            GroupNotFoundException
+            ;
+  
   /**
    * @since   1.2.0
    * @deprecated use overload
@@ -312,6 +321,19 @@ public interface GroupDAO extends GrouperDAO {
    * @throws GroupNotFoundException
    */
   Group findByUuid(String uuid, boolean exceptionIfNotFound, QueryOptions queryOptions) 
+    throws  GrouperDAOException, GroupNotFoundException;
+
+  /**
+   * 
+   * @param uuid
+   * @param exceptionIfNotFound
+   * @param queryOptions
+   * @param typeOfGroups to search in or null for all
+   * @return the group or null or exception
+   * @throws GrouperDAOException
+   * @throws GroupNotFoundException
+   */
+  Group findByUuid(String uuid, boolean exceptionIfNotFound, QueryOptions queryOptions, Set<TypeOfGroup> typeOfGroups) 
     throws  GrouperDAOException, GroupNotFoundException;
 
   /**

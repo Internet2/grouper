@@ -42,6 +42,7 @@ import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.cache.GrouperCache;
+import edu.internet2.middleware.grouper.entity.EntityUtils;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.group.TypeOfGroup;
@@ -955,7 +956,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
       throws GrouperDAOException, GroupNotFoundException {
     return findByName(name, exceptionIfNotFound, null);
   }
-  
+
   /**
    * @param name
    * @param exceptionIfNotFound exception if cant find group
@@ -968,11 +969,30 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
   public Group findByName(final String name, boolean exceptionIfNotFound, QueryOptions queryOptions) 
     throws  GrouperDAOException,
             GroupNotFoundException {
-    
-    ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic()
-    .createQuery("select g from Group as g where g.nameDb = :value or g.alternateNameDb = :value")
-    .setCacheable(true).setCacheRegion(KLASS + ".FindByName").options(queryOptions);
+    return findByName(name, exceptionIfNotFound, queryOptions, null);
+  }
 
+  /**
+   * @param name
+   * @param exceptionIfNotFound exception if cant find group
+   * @param queryOptions if we should use cache or not
+   * @return group
+   * @throws GrouperDAOException
+   * @throws GroupNotFoundException
+   * @since   @HEAD@
+   */
+  public Group findByName(final String name, boolean exceptionIfNotFound, QueryOptions queryOptions, Set<TypeOfGroup> typeOfGroups) 
+    throws  GrouperDAOException,
+            GroupNotFoundException {
+    
+    StringBuilder hql = new StringBuilder("select theGroup from Group as theGroup where (theGroup.nameDb = :value or theGroup.alternateNameDb = :value)");
+    ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic()
+      .setCacheable(true).setCacheRegion(KLASS + ".FindByName").options(queryOptions);
+    
+    TypeOfGroup.appendHqlQuery("theGroup", typeOfGroups, hql, byHqlStatic);
+    
+    byHqlStatic.createQuery(hql.toString());
+    
     Group group = byHqlStatic.setString("value", name).uniqueResult(Group.class);
 
     //System.out.println("Group: " + name + ", found? " + (group!=null));
@@ -1076,8 +1096,23 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
    */
   public Group findByUuid(String uuid, boolean exceptionIfNotFound, QueryOptions queryOptions)
       throws GrouperDAOException, GroupNotFoundException {
-    Group group = HibernateSession.byHqlStatic()
-      .createQuery("from Group as g where g.uuid = :uuid")
+    return findByUuid(uuid, exceptionIfNotFound, queryOptions, null);
+  }
+
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.internal.dao.GroupDAO#findByUuid(java.lang.String, boolean, QueryOptions, Set)
+   */
+  public Group findByUuid(String uuid, boolean exceptionIfNotFound, QueryOptions queryOptions, Set<TypeOfGroup> typeOfGroups)
+        throws GrouperDAOException, GroupNotFoundException {
+    StringBuilder hql = new StringBuilder("from Group as theGroup where theGroup.uuid = :uuid ");
+    
+    ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
+
+    TypeOfGroup.appendHqlQuery("theGroup", typeOfGroups, hql, byHqlStatic);
+
+    Group group = byHqlStatic
+      .createQuery(hql.toString())
       .setCacheable(true)
       .options(queryOptions)
       .setCacheRegion(KLASS + ".FindByUuid")
@@ -2270,6 +2305,24 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
               }
               hql.append(" theGroup.alternateNameDb like :theAlternateName ");
               byHqlStatic.setString("theAlternateName", "%" + lowerName + "%");
+            }
+            
+            //if entities, then also allow entity identifier
+            if (typeOfGroups != null && typeOfGroups.contains(TypeOfGroup.entity)) {
+              
+              hql.append(" or exists ( select theAttributeAssignValue from AttributeAssign theAttributeAssign, " +
+                  " AttributeAssignValue theAttributeAssignValue, AttributeDefName theAttributeDefName ");
+    
+              hql.append(" where theGroup.uuid = theAttributeAssign.ownerGroupId ");
+              hql.append(" and theAttributeAssign.attributeDefNameId = theAttributeDefName.id ");
+    
+              hql.append(" and theAttributeDefName.nameDb = :entitySubjectIdDefName ");
+              byHqlStatic.setString("entitySubjectIdDefName", EntityUtils.entitySubjectIdentifierName());
+    
+              hql.append(" and theAttributeAssignValue.attributeAssignId = theAttributeAssign.id ");
+    
+              hql.append(" and theAttributeAssignValue.valueString like :theName ) ");
+              
             }
             
             hql.append(" ) ");

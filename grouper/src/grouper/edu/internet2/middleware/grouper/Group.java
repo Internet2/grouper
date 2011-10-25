@@ -4630,9 +4630,16 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
       return this.subjectCache.get(KEY_SUBJECT);
     }
     try {
-      this.subjectCache.put(
-        KEY_SUBJECT, SubjectFinder.findByIdAndSource( this.getUuid(), SubjectFinder.internal_getGSA().getId(), true )
-      );
+      if (this.getTypeOfGroup() == TypeOfGroup.entity) {
+        this.subjectCache.put(
+            KEY_SUBJECT, SubjectFinder.findByIdAndSource( this.getUuid(), SubjectFinder.internal_getEntitySourceAdapter().getId(), true )
+          );
+        
+      } else {
+        this.subjectCache.put(
+            KEY_SUBJECT, SubjectFinder.findByIdAndSource( this.getUuid(), SubjectFinder.internal_getGSA().getId(), true )
+          );
+      }
       return this.subjectCache.get(KEY_SUBJECT);
     }
     catch (SourceUnavailableException eShouldNeverHappen0)  {

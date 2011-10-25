@@ -8,6 +8,7 @@ import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 
+import edu.emory.mathcs.backport.java.util.Collections;
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.FieldType;
 import edu.internet2.middleware.grouper.hibernate.HibUtils;
@@ -57,6 +58,12 @@ public enum TypeOfGroup {
       return field.getType() == FieldType.ACCESS && (StringUtils.equals(Field.FIELD_NAME_ADMINS, field.getName()) || StringUtils.equals(Field.FIELD_NAME_VIEWERS, field.getName()));
     }
   };
+
+  /** set with group or role */
+  public final static Set<TypeOfGroup> GROUP_OR_ROLE_SET = Collections.unmodifiableSet(GrouperUtil.toSet(group, role));
+  
+  /** set with entity */
+  public final static Set<TypeOfGroup> ENTITY_SET = Collections.unmodifiableSet(GrouperUtil.toSet(entity));
   
   /**
    * append the typeOfGroup part into an hql group query

@@ -147,7 +147,7 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
    */
   public Subject getSubject(String id, boolean exceptionIfNotFound) throws SubjectNotFoundException {
     try {
-      Group group = GrouperDAOFactory.getFactory().getGroup().findByUuid(id, exceptionIfNotFound);
+      Group group = GrouperDAOFactory.getFactory().getGroup().findByUuid(id, exceptionIfNotFound, null, typeOfGroups());
       if (group == null && !exceptionIfNotFound) {
         return null;
       }
@@ -217,7 +217,7 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
     throws SubjectNotFoundException 
   {
     try {
-      Group group = GrouperDAOFactory.getFactory().getGroup().findByName(name, exceptionIfNull);
+      Group group = GrouperDAOFactory.getFactory().getGroup().findByName(name, exceptionIfNull, null, typeOfGroups());
       if (group == null && !exceptionIfNull) {
         return null;
       }
@@ -257,6 +257,14 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
 
   /** for testing if we should fail on testing */
   public static boolean failOnSearchForTesting = false;
+  
+  /**
+   * type of groups to search on
+   * @return type of groups
+   */
+  public Set<TypeOfGroup> typeOfGroups() {
+    return TypeOfGroup.GROUP_OR_ROLE_SET;
+  }
   
   /**
    * Searches for {@link Group} subjects by naming attributes.
@@ -304,11 +312,11 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
           if (GrouperConfig.getPropertyBoolean("pageGroupSource", true)) {
             //only search for groups and roles, entitys have their own source
             gq = GrouperQuery.createQuery(
-              grouperSession, new GroupNameFilter(searchValue, root, "displayName", true, 1, 1000, GrouperUtil.toSet(TypeOfGroup.group, TypeOfGroup.role))
+              grouperSession, new GroupNameFilter(searchValue, root, "displayName", true, 1, 1000, typeOfGroups())
             );
           } else {
             gq = GrouperQuery.createQuery(
-                grouperSession, new GroupNameFilter(searchValue, root)
+                grouperSession, new GroupNameFilter(searchValue, root, null, null, null, null, typeOfGroups())
               );
           }
            

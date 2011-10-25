@@ -2,20 +2,21 @@ package edu.internet2.middleware.grouper.entity;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import junit.textui.TestRunner;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.StemSave;
-import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
+import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
-import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.subject.Subject;
 
 /**
  * 
@@ -37,7 +38,7 @@ public class EntityFinderTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new EntityFinderTest("testFinderByName"));
+    TestRunner.run(new EntityFinderTest("testSubjectFinder"));
   }
 
   /**
@@ -275,6 +276,84 @@ public class EntityFinderTest extends GrouperTest {
     assertNotNull(entity);
     
     assertEquals(testEntity2.getName(), entity.getName());
+    
+    GrouperSession.stopQuietly(grouperSession);
+
+    
+//    assertEquals(2, GrouperUtil.length(entities));
+//    assertEquals("test:testEntity", entities.get(0).getName());
+//    assertEquals("test:testEntity2", entities.get(1).getName());
+
+  }
+
+  /**
+   * test the finder by id
+   */
+  public void testSubjectFinder() {
+    
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    
+    Entity testEntity = new EntitySave(grouperSession).assignCreateParentStemsIfNotExist(true)
+      .assignName("test:testEntity").save();
+    Entity testEntity2 = new EntitySave(grouperSession).assignCreateParentStemsIfNotExist(true)
+      .assignName("test:testEntity2").save();
+    Entity testEntity3 = new EntitySave(grouperSession).assignCreateParentStemsIfNotExist(true)
+      .assignName("test:tesvA:testEntity3").save();
+    Entity testEntity4 = new EntitySave(grouperSession).assignCreateParentStemsIfNotExist(true)
+      .assignName("test:tesvA:testEntity4").save();
+    
+    testEntity.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.VIEW, false);
+    testEntity3.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.VIEW, false);
+    testEntity2.grantPriv(SubjectTestHelper.SUBJ1, AccessPrivilege.ADMIN, false);
+    testEntity4.grantPriv(SubjectTestHelper.SUBJ1, AccessPrivilege.ADMIN, false);
+
+    testEntity2.getAttributeValueDelegate().assignValue(EntityUtils.entitySubjectIdentifierName(), "test:some/weird:id2");
+
+    //try subjectfinder from g:gsa
+    
+    Subject subject = SubjectFinder.findByIdAndSource(testEntity.getId(), "g:gsa",  false);
+    
+    assertNull(subject);
+    
+    subject = SubjectFinder.findByIdAndSource(testEntity.getId(), "grouperEntities",  false);
+    
+    assertNotNull(subject);
+    
+    subject = SubjectFinder.findByIdentifierAndSource(testEntity.getName(), "g:gsa",  false);
+    
+    assertNull(subject); 
+    
+    subject = SubjectFinder.findByIdentifierAndSource(testEntity.getName(), "grouperEntities",  false);
+    
+    assertNotNull(subject);
+    
+    Set<Subject> subjects = SubjectFinder.findAll("st:testE", "g:gsa");
+    
+    assertEquals(0, GrouperUtil.length(subjects)); 
+    
+    subjects = SubjectFinder.findAll("st:testE", "grouperEntities");
+    
+    assertEquals(2, GrouperUtil.length(subjects)); 
+    
+    subjects = SubjectFinder.findAll("some/weird", "g:gsa");
+    
+    assertEquals(0, GrouperUtil.length(subjects)); 
+    
+    subjects = SubjectFinder.findAll("some/weird", "grouperEntities");
+    
+    assertEquals(1, GrouperUtil.length(subjects)); 
+    
+    
+    GrouperSession.stopQuietly(grouperSession);
+    
+    grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ0);
+    
+    GrouperSession.stopQuietly(grouperSession);
+    
+    //admins can assign the attribute
+    grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ1);
+
+
     
     GrouperSession.stopQuietly(grouperSession);
 

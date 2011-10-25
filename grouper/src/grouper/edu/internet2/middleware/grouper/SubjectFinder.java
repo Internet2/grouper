@@ -25,6 +25,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.entity.EntitySourceAdapter;
 import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.membership.MembershipType;
@@ -70,6 +71,8 @@ public class SubjectFinder {
   private static        SubjectResolver resolver;
   /** */
   static                Source          gsa;
+  /** */
+  static                Source          esa;
 
   /**
    * find by id or identifier
@@ -615,6 +618,26 @@ public class SubjectFinder {
       }
     }
     return gsa;
+  } 
+
+  /**
+   * TODO 20070803 what is the point of this method?
+   * @return source
+   * @since   1.2.0
+   */
+  public static Source internal_getEntitySourceAdapter() {
+    if (esa == null) {
+      for ( Source sa : getResolver().getSources() ) {
+        if (sa instanceof EntitySourceAdapter) {
+          esa = sa;
+          break;
+        }
+      }
+      if (esa == null) {
+        throw new RuntimeException("No entity source configured");
+      }
+    }
+    return esa;
   } 
 
   /**

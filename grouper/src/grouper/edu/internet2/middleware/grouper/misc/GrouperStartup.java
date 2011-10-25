@@ -19,6 +19,7 @@ import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.cfg.ApiConfig;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
+import edu.internet2.middleware.grouper.entity.EntitySourceAdapter;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.exception.SessionException;
 import edu.internet2.middleware.grouper.externalSubjects.ExternalSubjectAutoSourceAdapter;
@@ -90,6 +91,12 @@ public class GrouperStartup {
         SourceManager.getInstance().loadSource(ExternalSubjectAutoSourceAdapter.instance());
         
       }
+      
+//      if (GrouperConfig.getPropertyBoolean("entities.autoCreateSource", true)) {
+//        
+//        SourceManager.getInstance().loadSource(EntitySourceAdapter.instance());
+//        
+//      }
       
       //dont print big classname, dont print nulls
       ToStringBuilder.setDefaultStyle(new GrouperToStringStyle());

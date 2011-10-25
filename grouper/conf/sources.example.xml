@@ -72,6 +72,32 @@ $Id: sources.example.xml,v 1.8 2009-08-11 20:18:09 mchyzer Exp $
   </source>
   <!-- Group Subject Resolver -->
 
+  <!-- 
+    NOTE: It is recommended that you **not** change the default
+          values for this source adapter.
+  -->
+  <source adapterClass="edu.internet2.middleware.grouper.entity.EntitySourceAdapter">
+    <id>grouperEntities</id>
+    <name>Grouper: Entity Source Adapter</name>
+    <type>application</type>
+
+    <init-param>
+      <param-name>subjectVirtualAttribute_0_searchAttribute0</param-name>
+      <!-- TODO add attribute for subject identifier -->
+      <param-value>${subject.getAttributeValue('name')},${subject.getAttributeValue('displayName')},${subject.getAttributeValue('alternateName')}</param-value>
+    </init-param>
+    <init-param>
+      <param-name>sortAttribute0</param-name>
+      <param-value>name</param-value>
+    </init-param>
+    <init-param>
+      <param-name>searchAttribute0</param-name>
+      <param-value>searchAttribute0</param-value>
+    </init-param>
+    <internal-attribute>searchAttribute0</internal-attribute>
+  </source>
+  <!-- Entity Subject Resolver -->
+
  <source adapterClass="edu.internet2.middleware.grouper.subj.GrouperJdbcSourceAdapter">
     <id>jdbc</id>
     <name>Example JDBC Source Adapter</name>
