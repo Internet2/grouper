@@ -538,7 +538,7 @@ function guiProcessAction(guiScreenAction) {
           label = guiReplaceString(label, '>', '&gt;');
           
           optionString += '<option value="' + value + '"';
-          if (!fastIsEmpty(css)) {
+          if (!guiIsEmpty(css)) {
             optionString += ' class="' + css + '"';
           }
           optionString += '>' + label + '</option>';
@@ -1024,7 +1024,7 @@ function guiFieldValue(theField) {
       }
       return theField.options[selectedIndex].value;
    } else if (theField.nodeName.toUpperCase() == "TEXTAREA"
-        && theField.innerText && fastIsEmpty(theField.value)) {
+        && theField.innerText && guiIsEmpty(theField.value)) {
      return theField.innerText;
    } else if (theField.type.toUpperCase() == "CHECKBOX") {      
      var checkboxes = guiGetElementsByName(theField.name);
