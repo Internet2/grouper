@@ -184,5 +184,12 @@
           timeToLiveSeconds="1200"
           overflowToDisk="false"
   />
+  <cache  name="edu.internet2.middleware.grouper.entity.EntitySubject.EntityAttributeIdCache"
+          maxElementsInMemory="5000"
+          eternal="false"
+          timeToIdleSeconds="30"
+          timeToLiveSeconds="30"
+          overflowToDisk="false"
+  />
 
 </ehcache>

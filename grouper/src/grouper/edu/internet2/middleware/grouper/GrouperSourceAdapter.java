@@ -16,13 +16,18 @@
 */
 
 package edu.internet2.middleware.grouper;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.logging.Log;
 
+import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.entity.EntitySourceAdapter;
+import edu.internet2.middleware.grouper.entity.EntitySubject;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
@@ -320,8 +325,28 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
               );
           }
            
+          
           Group     g;
-          Iterator  iter  = gq.getGroups().iterator();
+          Set<Group> groups = gq.getGroups();
+          
+          //lets get the entityIds in one query, and put in cache so we dont have to do one query per row
+          if (GrouperSourceAdapter.this instanceof EntitySourceAdapter) {
+            
+            Set<String> groupIds = new HashSet<String>();
+            for (Group group : groups) {
+              groupIds.add(group.getId());
+            }
+            
+            List<Object[]> results = GrouperDAOFactory.getFactory().getEntity().findEntitiesByGroupIds(groupIds);
+            
+            for (Object[] resultLine : GrouperUtil.nonNull(results)) {
+              Group group = (Group)resultLine[0];
+              AttributeAssignValue attributeAssignValue = (AttributeAssignValue)resultLine[1];
+              EntitySubject.assignEntityIdInCache(group.getId(), attributeAssignValue.valueString());
+            }
+          }
+          
+          Iterator  iter  = groups.iterator();
           while (iter.hasNext()){
             g = (Group) iter.next();
             subjs.add(g.toSubject()); 

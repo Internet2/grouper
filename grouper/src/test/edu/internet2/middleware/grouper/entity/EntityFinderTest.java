@@ -343,6 +343,11 @@ public class EntityFinderTest extends GrouperTest {
     
     assertEquals(1, GrouperUtil.length(subjects)); 
     
+    subject = subjects.iterator().next();
+    
+    assertEquals("test:some/weird:id2", subject.getAttributeValue("entityIdAttribute"));
+    assertEquals("test:some/weird:id2", subject.getAttributeValue("entityId"));
+    assertEquals("some/weird:id2", subject.getAttributeValue("entityExtension"));
     
     GrouperSession.stopQuietly(grouperSession);
     
