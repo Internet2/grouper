@@ -57,6 +57,7 @@ import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.tags.TagUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.SourceUnavailableException;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
@@ -939,7 +940,11 @@ public class GrouperUiUtils {
    */
   public static String convertSubjectToLabel(Subject subject) {
     String label = null;
-    if ("g:gsa".equals(subject.getSource().getId())) {
+    
+    Source entitySource = SubjectFinder.internal_getEntitySourceAdapter(false);
+    boolean isEntitySource = entitySource != null && StringUtils.equals(subject.getSourceId(), entitySource.getId());
+    
+    if (isEntitySource || SubjectFinder.internal_getGSA().getId().equals(subject.getSourceId())) {
       
       label = subject.getAttributeValue(GrouperConfig.ATTRIBUTE_DISPLAY_NAME);
       if (!StringUtils.isBlank(label)) {
@@ -951,7 +956,7 @@ public class GrouperUiUtils {
     label = subject.getDescription();
     if (StringUtils.isBlank(label)) {
       
-      label = subject.getSource().getId() + " - " + subject.getId() + " - " + subject.getName();
+      label = subject.getSourceId() + " - " + subject.getId() + " - " + subject.getName();
     }
     return label;
   }

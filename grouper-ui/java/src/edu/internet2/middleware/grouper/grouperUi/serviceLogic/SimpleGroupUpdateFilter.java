@@ -453,6 +453,17 @@ public class SimpleGroupUpdateFilter {
    * @param httpServletResponse
    */
   public void filterGroups(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
+  
+    filterGroupsRolesEntitiesHelper(httpServletRequest, httpServletResponse, TypeOfGroup.GROUP_OR_ROLE_SET);
+  }
+
+  /**
+   * filter groups to pick one to edit
+   * @param httpServletRequest
+   * @param httpServletResponse
+   * @param typeOfGroups
+   */
+  private void filterGroupsRolesEntitiesHelper(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Set<TypeOfGroup> typeOfGroups) {
     final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
     
     GrouperSession grouperSession = null;
@@ -475,7 +486,7 @@ public class SimpleGroupUpdateFilter {
       } else {
         queryOptions = new QueryOptions().paging(TagUtils.mediaResourceInt("simpleGroupUpdate.groupComboboxResultSize", 200), 1, true).sortAsc("theGroup.displayNameDb");
         groups = GrouperDAOFactory.getFactory().getGroup().getAllGroupsSplitScopeSecure(searchTerm, grouperSession, loggedInSubject, 
-            GrouperUtil.toSet(AccessPrivilege.ADMIN), queryOptions, null);
+            GrouperUtil.toSet(AccessPrivilege.ADMIN), queryOptions, typeOfGroups);
         
         if (GrouperUtil.length(groups) == 0) {
           GrouperUiUtils.dhtmlxOptionAppend(xmlBuilder, "", 
@@ -490,6 +501,8 @@ public class SimpleGroupUpdateFilter {
         String imageName = null;
         if (group.getTypeOfGroup() == TypeOfGroup.role) {
           imageName = GrouperUiUtils.imageFromSubjectSource("g:rsa");
+        } else if (group.getTypeOfGroup() == TypeOfGroup.entity && SubjectFinder.internal_getEntitySourceAdapter(false) != null) {
+          imageName = GrouperUiUtils.imageFromSubjectSource(SubjectFinder.internal_getEntitySourceAdapter(true).getId());
         } else {
           imageName = GrouperUiUtils.imageFromSubjectSource("g:gsa");
         }
@@ -523,7 +536,16 @@ public class SimpleGroupUpdateFilter {
   
     //dont print the regular JSON
     throw new ControllerDone();
-  
+
+  }
+
+  /**
+   * filter groups to pick one to edit
+   * @param httpServletRequest
+   * @param httpServletResponse
+   */
+  public void filterGroupsRolesEntities(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
+    filterGroupsRolesEntitiesHelper(httpServletRequest, httpServletResponse, null);
   }
   
 }

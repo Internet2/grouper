@@ -621,10 +621,11 @@ public class SubjectFinder {
   } 
 
   /**
+   * @param failIfError 
    * @return source
    * @since   2.1.0
    */
-  public static Source internal_getEntitySourceAdapter() {
+  public static Source internal_getEntitySourceAdapter(boolean failIfError) {
     if (esa == null) {
       for ( Source sa : getResolver().getSources() ) {
         if (sa instanceof EntitySourceAdapter) {
@@ -632,7 +633,7 @@ public class SubjectFinder {
           break;
         }
       }
-      if (esa == null) {
+      if (esa == null && failIfError) {
         throw new RuntimeException("No entity source configured in sources.xml, see sources.example.xml for an example");
       }
     }

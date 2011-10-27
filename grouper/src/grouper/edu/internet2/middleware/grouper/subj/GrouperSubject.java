@@ -228,7 +228,7 @@ public class GrouperSubject extends SubjectImpl {
     
     super(g.getUuid(), g.getName(), null, 
         g.getTypeOfGroup() == TypeOfGroup.entity ? SubjectTypeEnum.APPLICATION.getName() : SubjectTypeEnum.GROUP.getName(), 
-            g.getTypeOfGroup() == TypeOfGroup.entity ? SubjectFinder.internal_getEntitySourceAdapter().getId() : SubjectFinder.internal_getGSA().getId(), 
+            g.getTypeOfGroup() == TypeOfGroup.entity ? SubjectFinder.internal_getEntitySourceAdapter(true).getId() : SubjectFinder.internal_getGSA().getId(), 
                 null);
     
     this.group = g;

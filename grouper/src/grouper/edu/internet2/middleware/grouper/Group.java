@@ -4633,7 +4633,7 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
     try {
       if (this.getTypeOfGroup() == TypeOfGroup.entity) {
         this.subjectCache.put(
-            KEY_SUBJECT, SubjectFinder.findByIdAndSource( this.getUuid(), SubjectFinder.internal_getEntitySourceAdapter().getId(), true )
+            KEY_SUBJECT, SubjectFinder.findByIdAndSource( this.getUuid(), SubjectFinder.internal_getEntitySourceAdapter(true).getId(), true )
           );
         
       } else {
