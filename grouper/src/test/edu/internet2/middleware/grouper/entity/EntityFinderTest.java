@@ -356,6 +356,19 @@ public class EntityFinderTest extends GrouperTest {
       //ignore
     }
     
+    testEntity3 = new EntityFinder().addId(testEntity3.getId()).findEntity(true);
+
+    //lets set the entity id to something not in the folder
+    
+    try {
+      testEntity4.getAttributeValueDelegate().assignValue(EntityUtils.entitySubjectIdentifierName(), "testa:some/weird:id2");
+      fail("shouldnt get here");
+    } catch (Exception e) {
+      //ignore
+    }
+    
+    testEntity4.getAttributeValueDelegate().assignValue(EntityUtils.entitySubjectIdentifierName(), "test:tesvA:some/weird4:id4");
+    
     GrouperSession.stopQuietly(grouperSession);
     
     grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ0);

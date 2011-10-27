@@ -26,6 +26,7 @@ import edu.internet2.middleware.grouper.audit.AuditTypeBuiltin;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogEntry;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogLabels;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogTypeBuiltin;
+import edu.internet2.middleware.grouper.entity.Entity;
 import edu.internet2.middleware.grouper.entity.EntityUtils;
 import edu.internet2.middleware.grouper.exception.LimitInvalidException;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
@@ -566,6 +567,7 @@ public class AttributeAssignValue extends GrouperAPI implements GrouperHasContex
    */
   public void setAttributeAssignId(String attributeAssignId1) {
     this.attributeAssignId = attributeAssignId1;
+    this.attributeAssign = null;
   }
   
   /**
@@ -1085,13 +1087,23 @@ public class AttributeAssignValue extends GrouperAPI implements GrouperHasContex
   /**
    * check that entity id does not exist
    */
-  private void checkEntityIdNotExists() {
+  private void checkEntityValidations() {
     
     //if this is an entity id
-    if (StringUtils.equals(this.getAttributeAssign().getAttributeDefName().getName(), EntityUtils.entitySubjectIdentifierName())) {
+    AttributeAssign theAttributeAssign = this.getAttributeAssign();
+    if (StringUtils.equals(theAttributeAssign.getAttributeDefName().getName(), EntityUtils.entitySubjectIdentifierName())) {
       
       if (StringUtils.isBlank(this.valueString)) {
         throw new RuntimeException("valueString cannot be blank");
+      }
+
+      //make sure its the same folder as the entity
+      Entity entity =  theAttributeAssign.getOwnerGroup();
+      
+      String folderNameWithColon = GrouperUtil.parentStemNameFromName(entity.getName()) + ":";
+      
+      if (!this.valueString.startsWith(folderNameWithColon)) {
+        throw new RuntimeException("Value must start with the entity's folder name: '" + folderNameWithColon + "'" );
       }
       
       Set<AttributeAssignValue> attributeAssignValues = GrouperDAOFactory.getFactory().getAttributeAssignValue().findByValueString(this.valueString);
@@ -1115,7 +1127,7 @@ public class AttributeAssignValue extends GrouperAPI implements GrouperHasContex
   public void onPreSave(HibernateSession hibernateSession) {
     super.onPreSave(hibernateSession);
 
-    checkEntityIdNotExists();
+    checkEntityValidations();
     
     long now = System.currentTimeMillis();
     if (this.createdOnDb == null) {
@@ -1144,7 +1156,7 @@ public class AttributeAssignValue extends GrouperAPI implements GrouperHasContex
   public void onPreUpdate(HibernateSession hibernateSession) {
     super.onPreUpdate(hibernateSession);
     
-    checkEntityIdNotExists();
+    checkEntityValidations();
 
     this.setLastUpdatedDb(System.currentTimeMillis());
     

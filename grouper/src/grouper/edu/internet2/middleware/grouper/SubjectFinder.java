@@ -621,9 +621,8 @@ public class SubjectFinder {
   } 
 
   /**
-   * TODO 20070803 what is the point of this method?
    * @return source
-   * @since   1.2.0
+   * @since   2.1.0
    */
   public static Source internal_getEntitySourceAdapter() {
     if (esa == null) {
@@ -634,7 +633,7 @@ public class SubjectFinder {
         }
       }
       if (esa == null) {
-        throw new RuntimeException("No entity source configured");
+        throw new RuntimeException("No entity source configured in sources.xml, see sources.example.xml for an example");
       }
     }
     return esa;
