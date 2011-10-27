@@ -55,6 +55,7 @@ import edu.internet2.middleware.grouper.changeLog.ChangeLogEntry;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogLabels;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogTypeBuiltin;
 import edu.internet2.middleware.grouper.entity.Entity;
+import edu.internet2.middleware.grouper.entity.EntityUtils;
 import edu.internet2.middleware.grouper.exception.AttributeNotFoundException;
 import edu.internet2.middleware.grouper.exception.CompositeNotFoundException;
 import edu.internet2.middleware.grouper.exception.GrantPrivilegeAlreadyExistsException;
@@ -5180,6 +5181,20 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
          */
         public Object callback(GrouperSession rootSession) throws GrouperSessionException {
 
+          // if this is an entity, need to potentially update the subject identifier.
+          if (Group.this.getTypeOfGroup() == TypeOfGroup.entity) {
+            String oldPrefix = GrouperUtil.parentStemNameFromName(Group.this.dbVersion().getName()) + ":";
+            String newPrefix = GrouperUtil.parentStemNameFromName(Group.this.getName()) + ":";
+            
+            if (!oldPrefix.equals(newPrefix)) {
+              String subjectIdentifier = Group.this.getAttributeValueDelegate().retrieveValueString(EntityUtils.entitySubjectIdentifierName());
+              if (subjectIdentifier != null && subjectIdentifier.startsWith(oldPrefix)) {
+                subjectIdentifier = newPrefix + subjectIdentifier.substring(oldPrefix.length());
+                Group.this.getAttributeValueDelegate().assignValue(EntityUtils.entitySubjectIdentifierName(), subjectIdentifier);
+              }
+            }
+          }
+          
           // need to potentially update group name in rules
           Set<RuleDefinition> definitions = RuleEngine.ruleEngine().getRuleDefinitions();
           for (RuleDefinition definition : definitions) {
@@ -5877,7 +5892,7 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
                   newGroup = stem.internal_addChildGroup(actAs, Group.this.getExtension(),
                       Group.this.getDisplayExtensionDb(), null, Group.this
                           .description, Group.this.getTypesDb(), attributesMap,
-                      addDefaultGroupPrivileges, null);
+                      addDefaultGroupPrivileges, Group.this.typeOfGroup);
                 } catch (GroupAddException e) {
                   Group test = GroupFinder.findByName(GrouperSession
                       .staticGrouperSession().internal_getRootSession(), stem.getName()
@@ -5906,7 +5921,7 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
                   newGroup = stem.internal_addChildGroup(actAs, newGroupExtension,
                       Group.this.getDisplayExtensionDb(), null, Group.this
                           .description, Group.this.getTypesDb(), attributesMap,
-                addDefaultGroupPrivileges, null);
+                addDefaultGroupPrivileges, Group.this.typeOfGroup);
                 }
             
             if (composite) {
@@ -5943,6 +5958,33 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
             if (listGroupAsMember == true) {
               newGroup.internal_copyGroupAsMember(GrouperSession.staticGrouperSession(), Group.this);
             }
+            
+            final Group NEW_GROUP = newGroup;
+            
+            GrouperSession.callbackGrouperSession(GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+              
+              /**
+               * @see edu.internet2.middleware.grouper.misc.GrouperSessionHandler#callback(edu.internet2.middleware.grouper.GrouperSession)
+               */
+              public Object callback(GrouperSession rootSession) throws GrouperSessionException {
+
+                // may need to copy over the subject identifier if this is an entity
+                if (TypeOfGroup.entity == NEW_GROUP.getTypeOfGroup()) {
+                  String oldPrefix = GrouperUtil.parentStemNameFromName(Group.this.getName()) + ":";
+                  String newPrefix = GrouperUtil.parentStemNameFromName(NEW_GROUP.getName()) + ":";
+                  
+                  if (!oldPrefix.equals(newPrefix)) {
+                    String subjectIdentifier = Group.this.getAttributeValueDelegate().retrieveValueString(EntityUtils.entitySubjectIdentifierName());
+                    if (subjectIdentifier != null && subjectIdentifier.startsWith(oldPrefix)) {
+                      subjectIdentifier = newPrefix + subjectIdentifier.substring(oldPrefix.length());
+                      NEW_GROUP.getAttributeValueDelegate().assignValue(EntityUtils.entitySubjectIdentifierName(), subjectIdentifier);
+                    }
+                  }
+                }
+                
+                return null;
+              }
+            });
             
             //if not a smaller operation of a larger auditable call
             if (!hibernateHandlerBean.isCallerWillCreateAudit()) {

@@ -43,15 +43,20 @@ import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.AttributeDefType;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.cfg.ApiConfig;
+import edu.internet2.middleware.grouper.entity.Entity;
+import edu.internet2.middleware.grouper.entity.EntitySave;
+import edu.internet2.middleware.grouper.entity.EntityUtils;
 import edu.internet2.middleware.grouper.exception.GroupAddException;
 import edu.internet2.middleware.grouper.exception.GroupModifyAlreadyExistsException;
 import edu.internet2.middleware.grouper.exception.GroupModifyException;
+import edu.internet2.middleware.grouper.exception.GroupSetNotFoundException;
 import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.RevokePrivilegeException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.R;
+import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.misc.CompositeType;
@@ -85,7 +90,7 @@ public class Test_api_Group extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new Test_api_Group("test_copy_all_as_nonadmin"));
+    TestRunner.run(new Test_api_Group("test_copy_entity"));
   }
   
   private Group           top_group, child_group;
@@ -1006,6 +1011,97 @@ public class Test_api_Group extends GrouperTest {
     verify_copy(r, newGroup, false, false, false, false, false);
     
     r.rs.stop();
+  }
+  
+  /**
+   * 
+   */
+  public void test_copy_role_with_members() {
+    Stem stem1 = root.addChildStem("stem1", "stem1");
+    Stem stem2 = root.addChildStem("stem2", "stem2");
+    Role role = stem1.addChildRole("role", "role");
+    role.addMember(SubjectTestHelper.SUBJ0, true);
+    
+    Group roleCopy = ((Group)role).copy(stem2);
+    assertEquals(TypeOfGroup.role, roleCopy.getTypeOfGroup());
+    assertTrue(roleCopy.hasMember(SubjectTestHelper.SUBJ0));
+    
+    assertNotNull(GrouperDAOFactory.getFactory().getRoleSet().findByIfHasRoleId(roleCopy.getUuid()));
+  }
+  
+  /**
+   * 
+   */
+  public void test_copy_entity() {
+    Stem stem1 = root.addChildStem("stem1", "stem1");
+    Stem stem2 = root.addChildStem("stem2", "stem2");
+    Entity entity = new EntitySave(this.s).assignName(stem1.getName() + ":entity").save();
+    
+    entity.grantPriv(SubjectTestHelper.SUBJ1, AccessPrivilege.ADMIN, true);
+    stem1.grantPriv(SubjectTestHelper.SUBJ1, NamingPrivilege.CREATE);
+    stem2.grantPriv(SubjectTestHelper.SUBJ1, NamingPrivilege.CREATE);
+    
+    GrouperSession.start(SubjectTestHelper.SUBJ1);
+    
+    Entity entityCopy = entity.copy(stem1);
+    assertNull(entityCopy.getAttributeValueDelegate().retrieveValueString(EntityUtils.entitySubjectIdentifierName()));
+    entityCopy.delete();
+    
+    entityCopy = entity.copy(stem2);
+    assertEquals(TypeOfGroup.entity, ((Group)entityCopy).getTypeOfGroup());
+    assertNull(entityCopy.getAttributeValueDelegate().retrieveValueString(EntityUtils.entitySubjectIdentifierName()));
+
+    // verify a couple of group sets
+    assertNotNull(GrouperDAOFactory.getFactory().getGroupSet().findSelfGroup(entityCopy.getId(), FieldFinder.find(Field.FIELD_NAME_ADMINS, true).getUuid()));
+    
+    try {
+      GrouperDAOFactory.getFactory().getGroupSet().findSelfGroup(entityCopy.getId(), Group.getDefaultList().getUuid());
+      fail("Group set should not exist");
+    } catch (GroupSetNotFoundException e) {
+      // good
+    }
+    
+    entityCopy.delete();
+    
+    entity.getAttributeValueDelegate().assignValue(EntityUtils.entitySubjectIdentifierName(), "stem1:x:y:z");
+    entityCopy = entity.copy(stem2);
+    assertEquals("stem2:x:y:z", entityCopy.getAttributeValueDelegate().retrieveValueString(EntityUtils.entitySubjectIdentifierName()));
+    
+    Entity entityCopyCopy = entityCopy.copy(stem2);
+    
+    // this is null because it was copied in the same stem so it would be a duplicate..
+    assertNull(entityCopyCopy.getAttributeValueDelegate().retrieveValueString(EntityUtils.entitySubjectIdentifierName()));
+  }
+  
+  /**
+   * 
+   */
+  public void test_move_entity() {
+    Stem stem1 = root.addChildStem("stem1", "stem1");
+    Stem stem2 = root.addChildStem("stem2", "stem2");
+    Stem stem3 = root.addChildStem("stem3", "stem3");
+    Entity entity = new EntitySave(this.s).assignName(stem1.getName() + ":entity").save();
+    
+    entity.grantPriv(SubjectTestHelper.SUBJ1, AccessPrivilege.ADMIN, true);
+    stem2.grantPriv(SubjectTestHelper.SUBJ1, NamingPrivilege.CREATE);
+    stem3.grantPriv(SubjectTestHelper.SUBJ1, NamingPrivilege.CREATE);
+    
+    GrouperSession.start(SubjectTestHelper.SUBJ1);
+    
+    entity.setExtension("entity2");
+    entity.store();
+    assertNull(entity.getAttributeValueDelegate().retrieveValueString(EntityUtils.entitySubjectIdentifierName()));
+    
+    entity.move(stem2);
+    assertNull(entity.getAttributeValueDelegate().retrieveValueString(EntityUtils.entitySubjectIdentifierName()));
+    
+    entity.getAttributeValueDelegate().assignValue(EntityUtils.entitySubjectIdentifierName(), "stem2:x:y:z");
+    entity.move(stem3);
+    assertEquals("stem3:x:y:z", entity.getAttributeValueDelegate().retrieveValueString(EntityUtils.entitySubjectIdentifierName()));
+    
+    entity.setExtension("entity3");
+    entity.store();
+    assertEquals("stem3:x:y:z", entity.getAttributeValueDelegate().retrieveValueString(EntityUtils.entitySubjectIdentifierName()));
   }
   
   /**

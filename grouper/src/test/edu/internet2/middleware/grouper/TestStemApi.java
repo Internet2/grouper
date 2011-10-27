@@ -30,19 +30,25 @@ import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.AttributeDefType;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.cfg.ApiConfig;
+import edu.internet2.middleware.grouper.entity.Entity;
+import edu.internet2.middleware.grouper.entity.EntityFinder;
+import edu.internet2.middleware.grouper.entity.EntitySave;
+import edu.internet2.middleware.grouper.entity.EntityUtils;
 import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.RevokePrivilegeException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.exception.StemAddException;
 import edu.internet2.middleware.grouper.exception.StemModifyException;
+import edu.internet2.middleware.grouper.group.TypeOfGroup;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.R;
+import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.misc.CompositeType;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
-import edu.internet2.middleware.grouper.misc.SaveMode;
+import edu.internet2.middleware.grouper.permissions.role.Role;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.privs.Privilege;
@@ -86,8 +92,7 @@ public class TestStemApi extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    //TestRunner.run(new TestStemApi("test_rename_insufficientPrivileges_with_admin_group"));
-    TestRunner.run(TestStemApi.class);
+    TestRunner.run(new TestStemApi("test_copy_with_entities"));
   }
 
   /** size before getting started */
@@ -1759,6 +1764,71 @@ public class TestStemApi extends GrouperTest {
     nrs.stop();
     
     r.rs.stop();
+  }
+  
+  /**
+   * @throws Exception
+   */
+  public void test_copy_with_roles() throws Exception {
+    Stem stem1 = root.addChildStem("stem1", "stem1");
+    Stem stem2 = root.addChildStem("stem2", "stem2");
+    Role role = stem1.addChildRole("role", "role");
+    role.addMember(SubjectTestHelper.SUBJ0, true);    
+
+    stem1.copy(stem2);
+    
+    assertEquals(TypeOfGroup.role, GroupFinder.findByName(s, "stem2:stem1:role", true).getTypeOfGroup());
+  }
+  
+  /**
+   * @throws Exception
+   */
+  public void test_copy_with_entities() throws Exception {
+    Stem stem1 = root.addChildStem("stem1", "stem1");
+    Stem stem2 = root.addChildStem("stem2", "stem2");
+    Entity entity = new EntitySave(this.s).assignName(stem1.getName() + ":entity").save();
+    entity.getAttributeValueDelegate().assignValue(EntityUtils.entitySubjectIdentifierName(), "stem1:x:y:z");
+
+    stem1.grantPriv(SubjectTestHelper.SUBJ1, NamingPrivilege.STEM);
+    stem2.grantPriv(SubjectTestHelper.SUBJ1, NamingPrivilege.STEM);
+
+    GrouperSession session = null;
+    try {
+      session = GrouperSession.start(SubjectTestHelper.SUBJ1);
+      stem1.copy(stem2);
+    } finally {
+      GrouperSession.stopQuietly(session);
+    }
+    
+    GrouperSession.startRootSession();
+    Entity entityCopy = new EntityFinder().addName("stem2:stem1:entity").findEntity(true);
+    
+    assertEquals(TypeOfGroup.entity, ((Group)entityCopy).getTypeOfGroup());
+    assertEquals("stem2:stem1:x:y:z", entityCopy.getAttributeValueDelegate().retrieveValueString(EntityUtils.entitySubjectIdentifierName()));
+  }
+  
+  /**
+   * 
+   */
+  public void test_move_with_entities() {
+    Stem stem1 = root.addChildStem("stem1", "stem1");
+    Stem stem2 = root.addChildStem("stem2", "stem2");
+    Stem stem3 = root.addChildStem("stem3", "stem3");
+    Entity entity = new EntitySave(this.s).assignName(stem1.getName() + ":entity").save();
+    
+    entity.grantPriv(SubjectTestHelper.SUBJ1, AccessPrivilege.ADMIN, true);
+    stem1.grantPriv(SubjectTestHelper.SUBJ1, NamingPrivilege.STEM);
+    stem2.grantPriv(SubjectTestHelper.SUBJ1, NamingPrivilege.STEM);
+    stem3.grantPriv(SubjectTestHelper.SUBJ1, NamingPrivilege.STEM);
+    
+    GrouperSession.start(SubjectTestHelper.SUBJ1);
+    
+    stem1.move(stem2);
+    assertNull(entity.getAttributeValueDelegate().retrieveValueString(EntityUtils.entitySubjectIdentifierName()));
+    
+    entity.getAttributeValueDelegate().assignValue(EntityUtils.entitySubjectIdentifierName(), "stem2:stem1:x:y:z");
+    stem2.move(stem3);
+    assertEquals("stem3:stem2:stem1:x:y:z", entity.getAttributeValueDelegate().retrieveValueString(EntityUtils.entitySubjectIdentifierName()));
   }
   
   /**
