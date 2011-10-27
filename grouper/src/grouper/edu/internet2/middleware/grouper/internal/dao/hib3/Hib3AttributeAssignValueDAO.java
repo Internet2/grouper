@@ -350,5 +350,32 @@ public class Hib3AttributeAssignValueDAO extends Hib3DAO implements AttributeAss
     return results;
   }
 
+  /**
+   * @see AttributeAssignValueDAO#findByValueString(String)
+   */
+  public Set<AttributeAssignValue> findByValueString(String value) {
+    
+    if (StringUtils.isBlank(value)) {
+      throw new RuntimeException("value cant be blank");
+    }
+    
+    Set<AttributeAssignValue> results = new LinkedHashSet<AttributeAssignValue>();
+    
+    ByHqlStatic byHqlStatic =  HibernateSession.byHqlStatic();
+      
+    StringBuilder sql = new StringBuilder("select distinct theAttributeAssignValue " +
+    		"from AttributeAssignValue as theAttributeAssignValue where ");
+    sql.append(" theAttributeAssignValue.valueString = :theValueString");
+    byHqlStatic.setString("theValueString", value);
+    
+    Set<AttributeAssignValue> attributeAssignValues = byHqlStatic.createQuery(sql.toString())
+      .setCacheable(false)
+      .setCacheRegion(KLASS + ".FindByValueString")
+      .listSet(AttributeAssignValue.class);
+        
+    //return attributeAssignValues
+    return attributeAssignValues;
+  }
+
 } 
 

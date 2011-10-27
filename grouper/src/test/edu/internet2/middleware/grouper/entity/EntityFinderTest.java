@@ -348,6 +348,13 @@ public class EntityFinderTest extends GrouperTest {
     assertEquals("test:some/weird:id2", subject.getAttributeValue("entityIdAttribute"));
     assertEquals("test:some/weird:id2", subject.getAttributeValue("entityId"));
     assertEquals("some/weird:id2", subject.getAttributeValue("entityExtension"));
+
+    try {
+      testEntity3.getAttributeValueDelegate().assignValue(EntityUtils.entitySubjectIdentifierName(), "test:some/weird:id2");
+      fail("shouldnt get here");
+    } catch (Exception e) {
+      //ignore
+    }
     
     GrouperSession.stopQuietly(grouperSession);
     

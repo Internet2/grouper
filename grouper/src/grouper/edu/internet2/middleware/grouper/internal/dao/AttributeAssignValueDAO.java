@@ -86,6 +86,13 @@ public interface AttributeAssignValueDAO extends GrouperDAO {
       Long valueInteger, String valueMemberId, String valueString) throws GrouperDAOException;
 
   /**
+   * find values by value string
+   * @param value
+   * @return the values
+   */
+  public Set<AttributeAssignValue> findByValueString(String value);
+  
+  /**
    * securely search for assignments.  need to pass in member ids
    * cannot have more than 100 bind variables
    * @param memberIds optional
