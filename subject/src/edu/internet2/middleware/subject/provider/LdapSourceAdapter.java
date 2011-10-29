@@ -37,12 +37,15 @@ import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
+import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.net.ssl.SSLSocketFactory;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import edu.internet2.middleware.subject.SearchPageResult;
 import edu.internet2.middleware.subject.SourceUnavailableException;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectCaseInsensitiveMapImpl;
@@ -79,6 +82,9 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
 
     private boolean throwErrorOnFindAllFailure;
 
+    /** if there is a limit to the number of results */
+    private Integer maxPage;
+
     public LdapSourceAdapter() {
         super();
     }
@@ -114,6 +120,19 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
   
         String throwErrorOnFindAllFailureString = this.getInitParam("throwErrorOnFindAllFailure");
         throwErrorOnFindAllFailure = SubjectUtils.booleanValue(throwErrorOnFindAllFailureString, true);
+        
+        
+        {
+          String maxPageString = props.getProperty("maxPageSize");
+          if (!StringUtils.isBlank(maxPageString)) {
+            try {
+              this.maxPage = Integer.parseInt(maxPageString);
+            } catch (NumberFormatException nfe) {
+              throw new SourceUnavailableException("Cant parse maxPage: " + maxPageString, nfe);
+            }
+          }
+        }
+
    }
 
    private void initializeLdap() {
@@ -242,25 +261,42 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
     } 
 
     /**
+     * @see edu.internet2.middleware.subject.provider.BaseSourceAdapter#searchPage(java.lang.String)
+     */
+    @Override
+    public SearchPageResult searchPage(String searchValue) {
+      return searchHelper(searchValue, true);
+    }
+
+    /**
      * {@inheritDoc}
      */
     @Override
     public Set<Subject> search(String searchValue) {
+      return searchHelper(searchValue, false).getResults();
+    }
+
+    /**
+     * @param searchValue 
+     * @return the set
+     */
+   private SearchPageResult searchHelper(String searchValue, boolean firstPageOnly) {
+     boolean tooManyResults = false;
         Comparator cp = new LdapComparator();
         TreeSet result = new TreeSet(cp);
         Search search = getSearch("search");
         if (search == null) {
             log.error("searchType: \"search\" not defined.");
-            return result;
+            return new SearchPageResult(tooManyResults, result);
         }
         Search searchA = getSearch("searchAttributes");
         boolean noAttrSearch = true;
         if (searchA!=null) noAttrSearch = false;
 
         try {
-           Iterator<SearchResult> ldapResults = getLdapResults(search,searchValue, allAttributeNames);
+           Iterator<SearchResult> ldapResults = getLdapResultsHelper(search,searchValue, allAttributeNames, firstPageOnly);
            if (ldapResults == null) {
-               return result;
+             return new SearchPageResult(tooManyResults, result);
            }
            while ( ldapResults.hasNext()) {
                SearchResult si = (SearchResult) ldapResults.next();
@@ -268,6 +304,13 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
                Subject subject = createSubject(attributes);
                if (noAttrSearch) ((LdapSubject)subject).setAttributesGotten(true);
                result.add(subject);
+               
+               //if we are at the end of the page
+               if (firstPageOnly && this.maxPage != null && result.size() >= this.maxPage) {
+                 tooManyResults = true;
+                 break;
+               }
+
            }
 
            log.debug("set has " + result.size() + " subjects");
@@ -282,7 +325,7 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
            }
         }
 
-        return result;
+        return new SearchPageResult(tooManyResults, result);
     }
     
     /**
@@ -401,7 +444,11 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
         return attributes;
     }
     
-   protected Iterator<SearchResult> getLdapResults(Search search, String searchValue, String[] attributeNames) {
+    protected Iterator<SearchResult> getLdapResults(Search search, String searchValue, String[] attributeNames) {
+      return getLdapResultsHelper(search, searchValue, attributeNames, false); 
+    }
+   
+    private Iterator<SearchResult> getLdapResultsHelper(Search search, String searchValue, String[] attributeNames, boolean firstPageOnly ) {
         Ldap ldap = null;
         String filter = null;
         Iterator<SearchResult> results = null;
@@ -443,6 +490,12 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
 
         try  {
             ldap =  (Ldap) ldapPool.checkOut();
+            SearchControls searchControls = new SearchControls();
+            searchControls.setReturningAttributes(attributeNames);
+            //if we are at the end of the page
+            if (firstPageOnly && this.maxPage != null) {
+              searchControls.setCountLimit(this.maxPage+1);
+            }
             results = ldap.search(new SearchFilter(filter), attributeNames );
         } catch (NamingException ex) {
             log.error("Ldap NamingException: " + ex.getMessage(), ex);
@@ -529,5 +582,13 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
     public String printConfig() {
       String message = "sources.xml ldap source id:   " + this.getId() + ": " + propertiesFile;
       return message;
+    }
+
+    /**
+     * max Page size
+     * @return the maxPage
+     */
+    public Integer getMaxPage() {
+      return this.maxPage;
     }
 }

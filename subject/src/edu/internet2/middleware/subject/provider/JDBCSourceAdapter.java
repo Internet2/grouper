@@ -13,8 +13,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -26,6 +26,7 @@ import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.morphString.Morph;
 import edu.internet2.middleware.subject.InvalidQueryException;
+import edu.internet2.middleware.subject.SearchPageResult;
 import edu.internet2.middleware.subject.SourceUnavailableException;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectCaseInsensitiveMapImpl;
@@ -57,6 +58,9 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
 
   /** if there is a limit to the number of results */
   protected Integer maxResults;
+  
+  /** if there is a limit to the number of results */
+  private Integer maxPage;
   
   /** keep a reference to the object which gets our connections for us */
   protected JdbcConnectionProvider jdbcConnectionProvider = null;
@@ -168,11 +172,30 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
    */
   @Override
   public Set<Subject> search(String searchValue) {
-    Set<Subject> result = new HashSet<Subject>();
+    return searchHelper(searchValue, false).getResults();
+  }
+
+  /**
+   * @see edu.internet2.middleware.subject.provider.BaseSourceAdapter#searchPage(java.lang.String)
+   */
+  @Override
+  public SearchPageResult searchPage(String searchValue) {
+    return searchHelper(searchValue, true);
+  }
+
+  /**
+   * helper for query
+   * @param searchValue 
+   * @param firstPageOnly 
+   * @return the result object, never null
+   */
+  private SearchPageResult searchHelper(String searchValue, boolean firstPageOnly) {
+    Set<Subject> result = new LinkedHashSet<Subject>();
+    boolean tooManyResults = false;
     Search search = getSearch("search");
     if (search == null) {
       log.error("searchType: \"search\" not defined.");
-      return result;
+      return new SearchPageResult(false, result);
     }
     String throwErrorOnFindAllFailureString = this.getInitParam("throwErrorOnFindAllFailure");
     boolean throwErrorOnFindAllFailure = SubjectUtils.booleanValue(throwErrorOnFindAllFailureString, true);
@@ -190,11 +213,16 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
       stmt = prepareStatement(search, conn);
       ResultSet rs = getSqlResults(searchValue, stmt, search);
       if (rs == null) {
-        return result;
+        return new SearchPageResult(false, result);
       }
       while (rs.next()) {
         Subject subject = createSubject(rs, search.getParam("sql"));
         result.add(subject);
+        //if we are at the end of the page
+        if (firstPageOnly && this.maxPage != null && result.size() >= this.maxPage) {
+          tooManyResults = true;
+          break;
+        }
         if (this.maxResults != null && result.size() > this.maxResults) {
           throw new SubjectTooManyResults(
               "More results than allowed: " + this.maxResults 
@@ -206,7 +234,12 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
       try {
         jdbcConnectionBean.doneWithConnectionError(ex);
       } catch (RuntimeException re) {
-        log.error(re);
+        if (!(ex instanceof SubjectTooManyResults)) {
+          log.error(re);
+        }
+      }
+      if (ex instanceof SubjectTooManyResults) {
+        throw (SubjectTooManyResults)ex;
       }
       if (!throwErrorOnFindAllFailure) {
         log.error(ex.getMessage() + ", source: " + this.getId() + ", sql: "
@@ -221,7 +254,7 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
         jdbcConnectionBean.doneWithConnectionFinally();
       }
     }
-    return result;
+    return new SearchPageResult(tooManyResults, result);
   }
 
   /**
@@ -536,14 +569,36 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
           "Description_AttributeType not defined, source: " + this.getId());
     }
     
-    String maxResultsString = props.getProperty("maxResults");
-    if (!StringUtils.isBlank(maxResultsString)) {
-      try {
-        this.maxResults = Integer.parseInt(maxResultsString);
-      } catch (NumberFormatException nfe) {
-        throw new SourceUnavailableException("Cant parse maxResults: " + maxResultsString, nfe);
+    {
+      String maxResultsString = props.getProperty("maxResults");
+      if (!StringUtils.isBlank(maxResultsString)) {
+        try {
+          this.maxResults = Integer.parseInt(maxResultsString);
+        } catch (NumberFormatException nfe) {
+          throw new SourceUnavailableException("Cant parse maxResults: " + maxResultsString, nfe);
+        }
       }
     }
+    
+    {
+      String maxPageString = props.getProperty("maxPageSize");
+      if (!StringUtils.isBlank(maxPageString)) {
+        try {
+          this.maxPage = Integer.parseInt(maxPageString);
+        } catch (NumberFormatException nfe) {
+          throw new SourceUnavailableException("Cant parse maxPage: " + maxPageString, nfe);
+        }
+      }
+    }
+  }
+
+  
+  /**
+   * max Page size
+   * @return the maxPage
+   */
+  public Integer getMaxPage() {
+    return this.maxPage;
   }
 
   /**

@@ -18,6 +18,7 @@ import java.util.Set;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import edu.internet2.middleware.subject.SearchPageResult;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.SourceUnavailableException;
 import edu.internet2.middleware.subject.Subject;
@@ -37,6 +38,15 @@ import edu.internet2.middleware.subject.SubjectType;
  * </pre>
  */
 public abstract class BaseSourceAdapter implements Source {
+
+  /**
+   * @see edu.internet2.middleware.subject.Source#searchPage(java.lang.String)
+   */
+  @Override
+  public SearchPageResult searchPage(String searchValue) {
+    Set<Subject> results = this.search(searchValue);
+    return new SearchPageResult(false, results);
+  }
 
   /**
    * @see edu.internet2.middleware.subject.Source#getSubjectsByIdentifiers(java.util.Collection)
