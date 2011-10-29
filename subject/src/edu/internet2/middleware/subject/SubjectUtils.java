@@ -46,7 +46,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.hsqldb.Session;
 
 
 
@@ -1626,20 +1625,6 @@ public class SubjectUtils {
     if (resultSet != null) {
       try {
         resultSet.close();
-      } catch (Exception e) {
-        //ignore
-      }
-    }
-  }
-
-  /**
-   * close a session null safe and dont throw exception
-   * @param session
-   */
-  public static void closeQuietly(Session session) {
-    if (session != null) {
-      try {
-        session.close();
       } catch (Exception e) {
         //ignore
       }
