@@ -353,7 +353,7 @@ public class SimplePermissionUpdateFilter {
         try {
           
           //TODO there should be a better performance way to do this
-          subjects = SubjectFinder.findAll(searchTerm);            
+          subjects = SubjectFinder.findPage(searchTerm).getResults();            
           
           if (group != null) {
             

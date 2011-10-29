@@ -305,7 +305,7 @@ public class SearchNewMembersAction extends GrouperCapableAction {
       try {
   			if ((query != null) && (!query.equals(""))) {
   				if("all".equals(subjectSource)) {
-  					results = SubjectFinder.findAllInStem(stemName, query);
+  					results = SubjectFinder.findPageInStem(stemName, query).getResults();
   				}else{
   					SourceManager sm= SourceManager.getInstance();
   					Source personSourceImpl = sm.getSource(subjectSource);
@@ -313,7 +313,7 @@ public class SearchNewMembersAction extends GrouperCapableAction {
   					ProcessSearchTerm processSearchTerm = new ProcessSearchTerm();
   					String processedSearchTerm = processSearchTerm.processSearchTerm(personSourceImpl, query, request);
   					
-  					results = SubjectFinder.findAll(processedSearchTerm, GrouperUtil.toSet(personSourceImpl));
+  					results = SubjectFinder.findPage(processedSearchTerm, GrouperUtil.toSet(personSourceImpl)).getResults();
   				}
   		  }
       } catch (SubjectTooManyResults stmr) {

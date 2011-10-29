@@ -16,13 +16,15 @@
 */
 
 package edu.internet2.middleware.grouper.subj;
-import  edu.internet2.middleware.grouper.internal.util.ParameterHelper;
-import  edu.internet2.middleware.subject.Source;
-import  edu.internet2.middleware.subject.SourceUnavailableException;
-import  edu.internet2.middleware.subject.Subject;
-import  edu.internet2.middleware.subject.SubjectNotFoundException;
-import  edu.internet2.middleware.subject.SubjectNotUniqueException;
-import  java.util.Set;
+import java.util.Set;
+
+import edu.internet2.middleware.grouper.internal.util.ParameterHelper;
+import edu.internet2.middleware.subject.SearchPageResult;
+import edu.internet2.middleware.subject.Source;
+import edu.internet2.middleware.subject.SourceUnavailableException;
+import edu.internet2.middleware.subject.Subject;
+import edu.internet2.middleware.subject.SubjectNotFoundException;
+import edu.internet2.middleware.subject.SubjectNotUniqueException;
 
 
 /**
@@ -182,6 +184,42 @@ public class ValidatingResolver extends SubjectResolverDecorator {
     this.param.notNullString(query, "null query string");
     this.param.notNullString(stemName, "null stem name");
     return super.getDecoratedResolver().findAllInStem(stemName, query);
+  }
+
+
+  /**
+   * @see     SubjectResolver#findPage(String)
+   * @since   2.0.2
+   */
+  public SearchPageResult findPage(String query)
+    throws  IllegalArgumentException
+  {
+    this.param.notNullString(query, "null query string");
+    return super.getDecoratedResolver().findPage(query);
+  }
+
+
+  /**
+   * @see     SubjectResolver#findPage(String, String)
+   * @since   2.0.2
+   */
+  public SearchPageResult findPage(String query, String source)
+    throws  IllegalArgumentException,
+            SourceUnavailableException
+  {
+    this.param.notNullString(query, "null query string").notNullString(source, "null Source Id");
+    return super.getDecoratedResolver().findPage(query, source);
+  }
+
+
+  /**
+   * @see SubjectResolver#findPageInStem(String, String)
+   */
+  public SearchPageResult findPageInStem(String stemName, String query)
+      throws IllegalArgumentException {
+    this.param.notNullString(query, "null query string");
+    this.param.notNullString(stemName, "null stem name");
+    return super.getDecoratedResolver().findPageInStem(stemName, query);
   }
 
 }

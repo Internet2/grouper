@@ -58,6 +58,7 @@ import edu.internet2.middleware.grouper.internal.dao.GroupDAO;
 import edu.internet2.middleware.grouper.internal.dao.GroupTypeDAO;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
+import edu.internet2.middleware.grouper.internal.dao.QuerySort;
 import edu.internet2.middleware.grouper.internal.dao.QuerySortField;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.membership.MembershipType;
@@ -352,6 +353,110 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
   /**
    * <p><b>Implementation Notes.</b></p>
    * <ol>
+   * <li>This method will generate a full table scan of the groups table.  It will not
+   * perform well if there are a large number of groups.</li>
+   * <li>Hibernate caching is <b>not</b> enabled.</li>
+   * </ol>
+   * @param name 
+   * @param scope 
+   * @param queryOptions 
+   * @param typeOfGroups
+   * @return the groups
+   * @throws GrouperDAOException 
+   * @see     GroupDAO#findAllByApproximateName(String, String)
+   * @since   @HEAD@
+   */
+  public Set<Group> findAllByApproximateNameSecure(final String name, final String scope, QueryOptions queryOptions, Set<TypeOfGroup> typeOfGroups) {
+    return findAllByApproximateNameSecureHelper(name, scope, true, true, queryOptions, typeOfGroups);
+  }
+
+  /**
+   * Helper for find by approximate name queries
+   * @param name
+   * @param scope
+   * @param currentNames
+   * @param alternateNames
+   * @param queryOptions 
+   * @param typeOfGroups
+   * @return set
+   * @throws GrouperDAOException
+   * @throws IllegalStateException
+   */
+  private Set<Group> findAllByApproximateNameSecureHelper(final String name, final String scope,
+      final boolean currentNames, final boolean alternateNames, final QueryOptions queryOptions, final Set<TypeOfGroup> typeOfGroups)
+      throws GrouperDAOException {
+    Set resultGroups = (Set)HibernateSession.callbackHibernateSession(
+        GrouperTransactionType.READONLY_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT,
+        new HibernateHandler() {
+  
+          public Object callback(HibernateHandlerBean hibernateHandlerBean)
+              throws GrouperDAOException {
+
+            StringBuilder hql = new StringBuilder("select distinct theGroup from Group theGroup ");
+      
+            ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
+          
+            GrouperSession grouperSession = GrouperSession.staticGrouperSession();
+            
+            //see if we are adding more to the query
+            boolean changedQuery = grouperSession.getAccessResolver().hqlFilterGroupsWhereClause(
+                grouperSession.getSubject(), byHqlStatic, 
+                hql, "theGroup.uuid", AccessPrivilege.VIEW_PRIVILEGES);
+          
+            if (!changedQuery) {
+              hql.append(" where ");
+            } else {
+              hql.append(" and ");
+            }
+            String lowerName = StringUtils.defaultString(name).toLowerCase();
+            hql.append(" ( ");
+            if (currentNames) {
+              hql.append(" lower(theGroup.nameDb) like :theName or lower(theGroup.displayNameDb) like :theDisplayName ");
+              byHqlStatic.setString("theName", "%" + lowerName + "%");
+              byHqlStatic.setString("theDisplayName", "%" + lowerName + "%");
+            } 
+  
+            if (alternateNames) {
+              if (currentNames) {
+                hql.append(" or ");
+              }
+              hql.append(" theGroup.alternateNameDb like :theAlternateName ");
+              byHqlStatic.setString("theAlternateName", "%" + lowerName + "%");
+            }
+            
+            hql.append(" ) ");
+            
+            if (scope != null) {
+              hql.append(" and theGroup.nameDb like :theStemScope ");
+              byHqlStatic.setString("theStemScope", scope + "%");
+            }
+
+            //add in the typeOfGroups part
+            TypeOfGroup.appendHqlQuery("theGroup", typeOfGroups, hql, byHqlStatic);
+            
+            byHqlStatic.setCacheable(false);
+            byHqlStatic.setCacheRegion(KLASS + ".FindAllByApproximateNameSecure");
+
+            //reset sorting
+            if (queryOptions != null) {
+              
+              massageSortFields(queryOptions.getQuerySort());
+              
+              byHqlStatic.options(queryOptions);
+            }
+            
+            byHqlStatic.createQuery(hql.toString());
+            Set<Group> groups = byHqlStatic.listSet(Group.class);
+            
+            return groups;
+          }
+    });
+    return resultGroups;
+  }
+
+  /**
+   * <p><b>Implementation Notes.</b></p>
+   * <ol>
    * <li>This method will generate a full table scan of the attributes table.  It will not
    * perform well if there are a large number of groups.</li>
    * <li>Hibernate caching is <b>not</b> enabled.</li>
@@ -525,7 +630,33 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
     return findAllByApproximateNameHelper(name, scope, false, true);
   }
 
-  
+  /**
+   * if there are sort fields, go through them, and replace name with nameDb, etc,
+   * extension for extensionDb, displayName with displayNameDb, and displayExtension with displayExtensionDb
+   * @param querySort
+   */
+  private static void massageSortFields(QuerySort querySort) {
+    if (querySort == null) {
+      return;
+    }
+    for (QuerySortField querySortField : GrouperUtil.nonNull(querySort.getQuerySortFields())) {
+      if (StringUtils.equals("extension", querySortField.getColumn())) {
+//        querySortField.setColumn("extensionDb");
+      }
+      if (StringUtils.equals("name", querySortField.getColumn())) {
+//        querySortField.setColumn("nameDb");
+      }
+      if (StringUtils.equals("displayExtension", querySortField.getColumn())) {
+        querySortField.setColumn("display_extension");
+      }
+      if (StringUtils.equals("displayName", querySortField.getColumn())) {
+        querySortField.setColumn("display_name");
+      }
+    }
+
+  }
+
+
   /**
    * Helper for find by approximate name queries
    * @param name

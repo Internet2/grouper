@@ -403,6 +403,19 @@ public interface GroupDAO extends GrouperDAO {
   Set<Group> findByCreatorOrModifier(Member member);
   
   /**
+   * @param name 
+   * @param scope 
+   * @param queryOptions 
+   * @param typeOfGroups 
+   * @return the set of groups
+   * @throws GrouperDAOException 
+   * @since   2.1.0
+   */
+  Set<Group> findAllByApproximateNameSecure(String name, String scope, 
+      QueryOptions queryOptions, Set<TypeOfGroup> typeOfGroups) 
+    throws  GrouperDAOException;
+
+  /**
    * Find a group by its alternate name only.
    * @param name
    * @param exceptionIfNotFound

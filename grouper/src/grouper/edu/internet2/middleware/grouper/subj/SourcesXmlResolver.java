@@ -32,11 +32,13 @@ import edu.internet2.middleware.grouper.SubjectFinder.RestrictSourceForGroup;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.internal.util.ParameterHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.subject.SearchPageResult;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.SourceUnavailableException;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
 import edu.internet2.middleware.subject.SubjectNotUniqueException;
+import edu.internet2.middleware.subject.SubjectTooManyResults;
 import edu.internet2.middleware.subject.SubjectUtils;
 import edu.internet2.middleware.subject.provider.SourceManager;
 import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
@@ -119,8 +121,11 @@ public class SourcesXmlResolver implements SubjectResolver {
     Set<Subject> subjects = new LinkedHashSet();
     for ( Source sa : this.getSources() ) {
       try {
-        subjects.addAll( sa.search(query) );
+        subjects.addAll( GrouperUtil.nonNull(sa.search(query)) );
       } catch (RuntimeException re) {
+        if (re instanceof SubjectTooManyResults) {
+          throw (SubjectTooManyResults)re;
+        }
         String throwErrorOnFindAllFailureString = sa.getInitParam("throwErrorOnFindAllFailure");
         boolean throwErrorOnFindAllFailure = SubjectUtils.booleanValue(throwErrorOnFindAllFailureString, true);
 
@@ -156,6 +161,9 @@ public class SourcesXmlResolver implements SubjectResolver {
       }
       return subjects;
     } catch (RuntimeException re) {
+      if (re instanceof SubjectTooManyResults) {
+        throw (SubjectTooManyResults)re;
+      }
       String throwErrorOnFindAllFailureString = sourceObject.getInitParam("throwErrorOnFindAllFailure");
       boolean throwErrorOnFindAllFailure = SubjectUtils.booleanValue(throwErrorOnFindAllFailureString, true);
 
@@ -365,6 +373,126 @@ public class SourcesXmlResolver implements SubjectResolver {
         member.updateMemberAttributes(subj, true);
       }
     }
+  }
+
+
+  /**
+   * @see     SubjectResolver#findAll(String)
+   * @since   1.2.1
+   */
+  public SearchPageResult findPage(String query)
+    throws  IllegalArgumentException
+  {
+    SearchPageResult searchPageResult = new SearchPageResult();
+    searchPageResult.setTooManyResults(false);
+    Set<Subject> subjects = new LinkedHashSet();
+    searchPageResult.setResults(subjects);
+    for ( Source sa : this.getSources() ) {
+      try {
+        SearchPageResult searchPage = sa.searchPage(query);
+        subjects.addAll( GrouperUtil.nonNull(searchPage.getResults()) );
+        if (searchPage.isTooManyResults()) {
+          searchPageResult.setTooManyResults(true);
+        }
+      } catch (RuntimeException re) {
+        String throwErrorOnFindAllFailureString = sa.getInitParam("throwErrorOnFindAllFailure");
+        boolean throwErrorOnFindAllFailure = SubjectUtils.booleanValue(throwErrorOnFindAllFailureString, true);
+  
+        if (!throwErrorOnFindAllFailure) {
+          LOG.error("Exception with source: " + sa.getId() + ", on query: '" + query + "'", re);
+        } else {
+          throw new SourceUnavailableException(
+              "Exception with source: " + sa.getId() + ", on query: '" + query + "'", re);
+        }
+      }
+    }
+    
+    if (GrouperConfig.getPropertyBoolean("grouper.sort.subjectSets.exactOnTop", true)) {
+      subjects = SubjectHelper.sortSetForSearch(subjects, query);
+      searchPageResult.setResults(subjects);
+    }
+  
+    return searchPageResult;
+  }
+
+
+  /**
+   * @see     SubjectResolver#findAll(String, String)
+   * @since   1.2.1
+   */
+  public SearchPageResult findPage(String query, String source)
+    throws  IllegalArgumentException,
+            SourceUnavailableException
+  {
+    Source sourceObject = this.getSource(source);
+    SearchPageResult searchPage = null; 
+    try {
+      searchPage = sourceObject.searchPage(query);
+      Set<Subject> subjects = searchPage.getResults();
+      if (GrouperConfig.getPropertyBoolean("grouper.sort.subjectSets.exactOnTop", true)) {
+        subjects = SubjectHelper.sortSetForSearch(subjects, query);
+        searchPage.setResults(subjects);
+      }
+      return searchPage;
+    } catch (RuntimeException re) {
+      String throwErrorOnFindAllFailureString = sourceObject.getInitParam("throwErrorOnFindAllFailure");
+      boolean throwErrorOnFindAllFailure = SubjectUtils.booleanValue(throwErrorOnFindAllFailureString, true);
+  
+      if (!throwErrorOnFindAllFailure) {
+        LOG.error("Exception with source: " + sourceObject.getId() + ", on query: '" + query + "'", re);
+        return new SearchPageResult(false, new HashSet<Subject>());
+      } 
+      throw new SourceUnavailableException(
+          "Exception with source: " + sourceObject.getId() + ", on query: '" + query + "'", re);
+    }
+  }
+
+
+  /**
+   * note if stem name is blank, it means root
+   * @see edu.internet2.middleware.grouper.subj.SubjectResolver#findAllInStem(java.lang.String, java.lang.String)
+   */
+  public SearchPageResult findPageInStem(String stemName, String query)
+      throws IllegalArgumentException {
+    
+    //if stem name is blank, they mean root
+    if (StringUtils.isBlank(stemName)) {
+      stemName = ":";
+    }
+    SearchPageResult searchPageResult = new SearchPageResult();
+    searchPageResult.setTooManyResults(false);
+    Set<Subject> subjects = new LinkedHashSet();
+    searchPageResult.setResults(subjects);
+    //loop through sources
+    for ( Source sa : this.getSources() ) {
+      
+      try {
+        //see if it is restricted
+        RestrictSourceForGroup restrictSourceForGroup = SubjectFinder.restrictSourceForGroup(stemName, sa.getId());
+        if (!restrictSourceForGroup.isRestrict() || restrictSourceForGroup.getGroup() != null) {
+          subjects.addAll( sa.search(query) );
+        }
+      } catch (RuntimeException re) {
+  
+        String throwErrorOnFindAllFailureString = sa.getInitParam("throwErrorOnFindAllFailure");
+        boolean throwErrorOnFindAllFailure = SubjectUtils.booleanValue(throwErrorOnFindAllFailureString, true);
+  
+        if (!throwErrorOnFindAllFailure) {
+          LOG.error("Exception with source: " + sa.getId() + ", on query: '" + query + "'", re);
+        } else {
+          throw new SourceUnavailableException(
+              "Exception with source: " + sa.getId() + ", on query: '" + query + "'", re);
+        }
+  
+      }
+    }
+    
+    if (GrouperConfig.getPropertyBoolean("grouper.sort.subjectSets.exactOnTop", true)) {
+      subjects = SubjectHelper.sortSetForSearch(subjects, query);
+      searchPageResult.setResults(subjects);
+    }
+  
+    return searchPageResult;
   }
 }
 

@@ -388,7 +388,7 @@ public class SimpleGroupUpdateFilter {
         } else {
           try {
             
-            subjects = SubjectFinder.findAllInStem(group.getParentStemName(), searchTerm);            
+            subjects = SubjectFinder.findPageInStem(group.getParentStemName(), searchTerm).getResults();            
             
             int maxSubjectsDropDown = TagUtils.mediaResourceInt("simpleGroupUpdate.groupPrivilegeUserComboboxResultSize", 50);
   

@@ -24,9 +24,9 @@ import org.apache.commons.collections.keyvalue.MultiKey;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
-import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.subject.SearchPageResult;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.SourceUnavailableException;
 import edu.internet2.middleware.subject.Subject;
@@ -54,6 +54,11 @@ public class CachingResolver extends SubjectResolverDecorator {
    * cache of multikey including query to subjects
    */
   static GrouperCache<MultiKey, Set<Subject>> findAllCache = new GrouperCache<MultiKey, Set<Subject>>(CachingResolver.class.getName() + ".FindAll", 5000, false, 30, 120, false);
+  
+  /**
+   * cache of multikey including query to subjects
+   */
+  static GrouperCache<MultiKey, SearchPageResult> findPageCache = new GrouperCache<MultiKey, SearchPageResult>(CachingResolver.class.getName() + ".FindPage", 5000, false, 30, 120, false);
   
   /**
    * cache of multikey, to subject
@@ -352,6 +357,91 @@ public class CachingResolver extends SubjectResolverDecorator {
       LOG.debug(GrouperUtil.mapToString(debugMap));
     }
     return subjects;
+  }
+
+  /**
+   * @see     SubjectResolver#findPage(String)
+   * @since   1.2.1
+   */
+  public SearchPageResult findPage(String query)
+    throws  IllegalArgumentException
+  {
+    SearchPageResult searchPageResult = this.getFromFindPageCache(null, query, null);
+    if (searchPageResult == null) {
+      searchPageResult = super.getDecoratedResolver().findPage(query);
+      this.putInFindPageCache(null, query, null, searchPageResult);
+    }
+    return searchPageResult;
+  }
+
+  /**
+   * @see     SubjectResolver#findPage(String, String)
+   * @since   2.0.2
+   */
+  public SearchPageResult findPage(String query, String source)
+    throws  IllegalArgumentException,
+            SourceUnavailableException
+  {
+    SearchPageResult subjects = this.getFromFindPageCache(null, query, source);
+    if (subjects == null) {
+      subjects = super.getDecoratedResolver().findPage(query, source);
+      this.putInFindPageCache(null, query, source, subjects);
+    }
+    return subjects;
+  }
+
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.subj.SubjectResolver#findAllInStem(java.lang.String, java.lang.String)
+   */
+  public SearchPageResult findPageInStem(String stemName, String query)
+      throws IllegalArgumentException {
+  
+    Map<String, Object> debugMap = LOG.isDebugEnabled() ? new LinkedHashMap<String, Object>() : null;
+    if (LOG.isDebugEnabled()) {
+      debugMap.put("operation", "findAllInStem");
+      debugMap.put("stemName", stemName);
+      debugMap.put("query", query);
+    }
+  
+    SearchPageResult subjects = this.getFromFindPageCache(stemName, query, null);
+    
+    //TODO do this caching better... need to clear when group changes???
+    //for now dont cache if finding in stem name
+    if (subjects == null || !StringUtils.isBlank(stemName)) {
+      if (LOG.isDebugEnabled()) {
+        debugMap.put("foundInCache", Boolean.FALSE);
+      }
+      subjects = super.getDecoratedResolver().findPageInStem(stemName, query);
+      this.putInFindPageCache(stemName, query, null, subjects);
+    } else {
+      if (LOG.isDebugEnabled()) {
+        debugMap.put("foundInCache", Boolean.TRUE);
+      }
+  
+    }
+    if (LOG.isDebugEnabled()) {
+      debugMap.put("resultSize", GrouperUtil.length(subjects.getResults()));
+      LOG.debug(GrouperUtil.mapToString(debugMap));
+    }
+    return subjects;
+  }
+
+  /**
+   * Retrieve set of subjects from cache for <code>findPage(...)</code>.
+   * @return  Cached set of subjects or null.
+   * @since   2.0.2
+   */
+  private SearchPageResult getFromFindPageCache(String stemName, String query, String source) {
+    return findPageCache.get( new MultiKey(stemName, query, source) );
+  }
+
+  /**
+   * Put set of subjects into cache for <code>findAll(...)</code>.
+   * @since   2.0.2
+   */
+  private void putInFindPageCache(String stemName, String query, String source, SearchPageResult searchPageResult) {
+    findPageCache.put( new MultiKey(stemName, query, source), searchPageResult );
   }
 
 }

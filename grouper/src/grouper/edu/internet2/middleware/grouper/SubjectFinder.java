@@ -43,6 +43,7 @@ import edu.internet2.middleware.grouper.subj.SubjectResolver;
 import edu.internet2.middleware.grouper.subj.SubjectResolverFactory;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.validator.NotNullValidator;
+import edu.internet2.middleware.subject.SearchPageResult;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.SourceUnavailableException;
 import edu.internet2.middleware.subject.Subject;
@@ -1054,6 +1055,123 @@ public class SubjectFinder {
       LOG.debug(GrouperUtil.mapToString(debugMap));
     }
     return new RestrictSourceForGroup(false, null);
+  }
+
+  /**
+   * Find a page of subjects matching the query.
+   * <p>
+   * The query string specification is currently unique to each subject
+   * source adapter.  Queries may not work or may lead to erratic
+   * results across different source adapters.  Consult the
+   * documentation for each source adapter for more information on the
+   * query language supported by each adapter.
+   * </p>
+   * <p>
+   * <b>NOTE:</b> This method does not perform any caching.
+   * </p>
+   * <pre class="eg">
+   * // Find all subjects matching the given query string.
+   * SearchPageResult subjects = SubjectFinder.findPage(query);
+   * </pre>
+   * @param   query     Subject query string.
+   * @return  A {@link Set} of {@link Subject} objects and if there are too many.
+   * @throws SubjectTooManyResults if more results than configured
+   */
+  public static SearchPageResult findPage(String query) {
+    return getResolver().findPage(query);
+  }
+
+  /**
+   * Find a page of subjects matching the query within the specified {@link Source}s.
+   * <p>
+   * <b>NOTE:</b> This method does not perform any caching.
+   * </p>
+   * <pre class="eg">
+   * try {
+   *   SearchPageResult subjects = SubjectFinder.findPage(query, sources);
+   * }
+   * catch (SourceUnavailableException eSU) {
+   *   // unable to query source
+   * }
+   *  </pre>
+   * @param   query   Subject query string.
+   * @param   sources  {@link Source} adapters to search.
+   * @return  A {@link Set} of {@link Subject}s and if there are too many.
+   * @throws  SourceUnavailableException
+   */
+  public static SearchPageResult findPage(String query, Set<Source> sources)
+      throws  SourceUnavailableException {
+    if (sources == null || sources.isEmpty()) {
+      return findPage(query);
+    }
+    SearchPageResult searchPageResult = new SearchPageResult();
+    searchPageResult.setTooManyResults(false);
+    Set<Subject> subjects = new LinkedHashSet<Subject>();
+    searchPageResult.setResults(subjects);
+
+    for (Source source: sources) {
+      SearchPageResult current = findPage(query, source.getId());
+      if (current != null && GrouperUtil.length(current.getResults()) > 0) {
+        subjects.addAll(current.getResults());
+        if (current.isTooManyResults()) {
+          searchPageResult.setTooManyResults(true);
+        }
+      }
+      
+    }
+    return searchPageResult;
+  }
+
+  /**
+   * Find a page of subjects matching the query within the specified {@link Source}.
+   * <p>
+   * <b>NOTE:</b> This method does not perform any caching.
+   * </p>
+   * <pre class="eg">
+   * try {
+   *   Set subjects = SubjectFinder.findPage(query, source);
+   * }
+   * catch (SourceUnavailableException eSU) {
+   *   // unable to query source
+   * }
+   *  </pre>
+   * @param   query   Subject query string.r.
+   * @param   source  {@link Source} adapter to search.
+   * @return  A {@link Set} of {@link Subject}s and if too many.
+   * @throws  SourceUnavailableException
+   */
+  public static SearchPageResult findPage(String query, String source)
+    throws  SourceUnavailableException
+  {
+    return getResolver().findPage(query, source);
+  }
+
+  /**
+   * Find a page of subjects matching the query, in a certain folder.  If there are
+   * rules restricting subjects, then dont search those folders
+   * <p>
+   * The query string specification is currently unique to each subject
+   * source adapter.  Queries may not work or may lead to erratic
+   * results across different source adapters.  Consult the
+   * documentation for each source adapter for more information on the
+   * query language supported by each adapter.
+   * </p>
+   * <p>
+   * <b>NOTE:</b> This method does not perform any caching.
+   * </p>
+   * <pre class="eg">
+   * // Find all subjects matching the given query string.
+   * Set subjects = SubjectFinder.findAll(query);
+   * </pre>
+   * @param stemName stem name to search in
+   * @param   query     Subject query string.
+   * @return  A {@link Set} of {@link Subject} objects.
+   * @throws SubjectTooManyResults if more results than configured
+   */
+  public static SearchPageResult findPageInStem(String stemName, String query) {
+    
+    return getResolver().findPageInStem(stemName, query);
+    
   }
 
 }

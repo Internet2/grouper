@@ -16,18 +16,19 @@
 */
 
 package edu.internet2.middleware.grouper;
-import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.Properties;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.exception.SessionException;
-import edu.internet2.middleware.grouper.filter.GroupNameFilter;
-import edu.internet2.middleware.grouper.filter.GrouperQuery;
+import edu.internet2.middleware.grouper.group.TypeOfGroup;
+import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.misc.E;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
@@ -35,9 +36,11 @@ import edu.internet2.middleware.grouper.subj.GrouperSubject;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.validator.GrouperValidator;
 import edu.internet2.middleware.grouper.validator.NotNullValidator;
+import edu.internet2.middleware.subject.SearchPageResult;
 import edu.internet2.middleware.subject.SourceUnavailableException;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
+import edu.internet2.middleware.subject.SubjectTooManyResults;
 import edu.internet2.middleware.subject.SubjectUtils;
 import edu.internet2.middleware.subject.provider.BaseSourceAdapter;
 import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
@@ -70,6 +73,11 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
   /** root grouper session */
   private GrouperSession  rootSession      = null;
 
+  /** if there is a limit to the number of results */
+  private Integer maxPage;
+
+  /** if there is a limit to the number of results */
+  private Integer maxResults;
 
   // CONSTRUCTORS //
 
@@ -82,6 +90,8 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
 
   /**
    * Allocates new GrouperSourceAdapter.
+   * @param id 
+   * @param name 
    */
   public GrouperSourceAdapter(String id, String name) {
     super(id, name);
@@ -250,6 +260,35 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
    * @throws  SourceUnavailableException
    */
   public void init() throws SourceUnavailableException {
+    try {
+      Properties props = getInitParams();
+      
+      {
+        String maxResultsString = props.getProperty("maxResults");
+        if (!StringUtils.isBlank(maxResultsString)) {
+          try {
+            this.maxResults = Integer.parseInt(maxResultsString);
+          } catch (NumberFormatException nfe) {
+            throw new SourceUnavailableException("Cant parse maxResults: " + maxResultsString, nfe);
+          }
+        }
+      }
+      
+      {
+        String maxPageString = props.getProperty("maxPageSize");
+        if (!StringUtils.isBlank(maxPageString)) {
+          try {
+            this.maxPage = Integer.parseInt(maxPageString);
+          } catch (NumberFormatException nfe) {
+            throw new SourceUnavailableException("Cant parse maxPage: " + maxPageString, nfe);
+          }
+        }
+      }
+
+    } catch (Exception ex) {
+      throw new SourceUnavailableException(
+          "Unable to init sources.xml JDBC source, source: " + this.getId(), ex);
+    }
     // Nothing
   } // public void init()
 
@@ -271,16 +310,21 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
    * // Use it directly
    * Set subjects = source.search("admins");
    * </pre>
+   * @param searchValue 
+   * @param firstPageOnly 
+   * @return  the search page result
    * @throws  IllegalArgumentException if <i>searchValue</i> is null.
    */
-  public Set<Subject> search(final String searchValue) 
+  private SearchPageResult searchHelper(final String searchValue, final boolean firstPageOnly) 
     throws  IllegalArgumentException
   {
     
+    final Set<Subject> result = new LinkedHashSet<Subject>();
+    final boolean[] tooManyResultsArray = new boolean[]{false};
+
     String throwErrorOnFindAllFailureString = this.getInitParam("throwErrorOnFindAllFailure");
     final boolean throwErrorOnFindAllFailure = SubjectUtils.booleanValue(throwErrorOnFindAllFailureString, true);
 
-    final Set<Subject>   subjs  = new LinkedHashSet();
     GrouperSession.callbackGrouperSession(this._getSession(), new GrouperSessionHandler() {
 
       public Object callback(GrouperSession grouperSession)
@@ -290,25 +334,49 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
           throw new IllegalArgumentException( v.getErrorMessage() );
         }
         
-        Stem  root   = StemFinder.findRootStem(grouperSession);
         try {
           
           if (failOnSearchForTesting) {
             throw new RuntimeException("failOnSearchForTesting");
           }
           
-          GrouperQuery gq = GrouperQuery.createQuery(
-            grouperSession, new GroupNameFilter(searchValue, root)
-          );
-          Group     g;
-          Iterator  iter  = gq.getGroups().iterator();
-          while (iter.hasNext()){
-            g = (Group) iter.next();
-            subjs.add(g.toSubject()); 
+          QueryOptions queryOptions = null;
+          
+          if ((firstPageOnly && GrouperSourceAdapter.this.maxPage != null) || GrouperSourceAdapter.this.maxResults != null) {
+            int pagesize = 1+ ((firstPageOnly && GrouperSourceAdapter.this.maxPage != null) ? GrouperSourceAdapter.this.maxPage : -1);
+            if (pagesize == -1) {
+              pagesize = GrouperSourceAdapter.this.maxResults + 1;
+            } else if (GrouperSourceAdapter.this.maxResults != null){
+              pagesize = Math.min(pagesize, GrouperSourceAdapter.this.maxResults) + 1;
+            }
+            queryOptions = new QueryOptions();
+            queryOptions.paging(pagesize, 1, false);
           }
+          
+          Set<Group> groups = GrouperDAOFactory.getFactory().getGroup()
+            .findAllByApproximateNameSecure(searchValue, null, queryOptions ,TypeOfGroup.GROUP_OR_ROLE_SET);
+          
+          for (Group group : GrouperUtil.nonNull(groups)) {
+            result.add(group.toSubject()); 
+            //if we are at the end of the page
+            if (firstPageOnly && GrouperSourceAdapter.this.maxPage != null 
+                && result.size() == GrouperSourceAdapter.this.maxPage && groups.size() > GrouperSourceAdapter.this.maxPage) {
+              tooManyResultsArray[0] = true;
+              break;
+            }
+          }
+          if (!tooManyResultsArray[0] && GrouperSourceAdapter.this.maxResults != null && result.size() > GrouperSourceAdapter.this.maxResults) {
+            throw new SubjectTooManyResults(
+                "More results than allowed: " + GrouperSourceAdapter.this.maxResults 
+                + " for search '" + searchValue + "'");
+          }
+          
         }
         catch (Exception ex) {
  
+          if (ex instanceof SubjectTooManyResults) {
+            throw (SubjectTooManyResults)ex;
+          }
           if (!throwErrorOnFindAllFailure) {
             LOG.error(ex.getMessage() + ", source: " + GrouperSourceAdapter.this.getId() + ", searchValue: "
               + searchValue, ex);
@@ -324,7 +392,7 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
       
     });
     
-    return subjs;
+    return new SearchPageResult(tooManyResultsArray[0], result);
   } // public Set search(searchValue)
 
   /** logger */
@@ -334,6 +402,9 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
   // PRIVATE INSTANCE METHODS //
 
   // @since   1.1.0
+  /**
+   * @return session
+   */
   private GrouperSession _getSession() {
 	//If we have a thread local session then let's use it to ensure 
 	//proper VIEW privilege enforcement
@@ -357,6 +428,7 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
    * @see edu.internet2.middleware.subject.Source#checkConfig()
    */
   public void checkConfig() {
+    
   }
 
   /**
@@ -365,6 +437,30 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
   public String printConfig() {
     String message = "sources.xml groupersource id: " + this.getId();
     return message;
+  }
+
+  /**
+   * max Page size
+   * @return the maxPage
+   */
+  public Integer getMaxPage() {
+    return this.maxPage;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public Set<Subject> search(String searchValue) {
+    return searchHelper(searchValue, false).getResults();
+  }
+
+  /**
+   * @see edu.internet2.middleware.subject.provider.BaseSourceAdapter#searchPage(java.lang.String)
+   */
+  @Override
+  public SearchPageResult searchPage(String searchValue) {
+    return searchHelper(searchValue, true);
   }
 }
 

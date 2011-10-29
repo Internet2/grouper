@@ -385,7 +385,7 @@ public class SimpleAttributeUpdateFilter {
         } else {
           try {
             
-            subjects = SubjectFinder.findAllInStem(attributeDef.getStem().getName(), searchTerm);            
+            subjects = SubjectFinder.findPageInStem(attributeDef.getStem().getName(), searchTerm).getResults();            
             
             int maxSubjectsDropDown = TagUtils.mediaResourceInt("simpleAttributeUpdate.attributeDefPrivilegeUserComboboxResultSize", 50);
 
@@ -832,7 +832,7 @@ public class SimpleAttributeUpdateFilter {
       } else {
         try {
           
-          subjects = SubjectFinder.findAll(searchTerm);            
+          subjects = SubjectFinder.findPage(searchTerm).getResults();            
           
           int maxSubjectsDropDown = TagUtils.mediaResourceInt("simpleAttributeUpdate.attributeDefPrivilegeUserComboboxResultSize", 50);
 

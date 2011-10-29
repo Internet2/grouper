@@ -68,6 +68,11 @@ $Id: sources.example.xml,v 1.8 2009-08-11 20:18:09 mchyzer Exp $
       <param-name>searchAttribute0</param-name>
       <param-value>searchAttribute0</param-value>
     </init-param>
+    <!-- on a findPage() this is the most results returned --> 
+    <init-param>
+      <param-name>maxPageSize</param-name>
+      <param-value>100</param-value>
+    </init-param>
     <internal-attribute>searchAttribute0</internal-attribute>
   </source>
   <!-- Group Subject Resolver -->
@@ -97,6 +102,12 @@ $Id: sources.example.xml,v 1.8 2009-08-11 20:18:09 mchyzer Exp $
        <param-name>maxResults</param-name>
        <param-value>1000</param-value>
      </init-param>
+
+    <!-- on a findPage() this is the most results returned --> 
+    <init-param>
+      <param-name>maxPageSize</param-name>
+      <param-value>100</param-value>
+    </init-param>
 
      <!-- note: again, if you use GrouperJdbcConnectionProvider, then you should not fill out maxActive, maxIdle,
        maxWait, dbDriver, dbUrl, dbUser, dbPwd, since it will use the grouper.hibernate.properties db settings -->

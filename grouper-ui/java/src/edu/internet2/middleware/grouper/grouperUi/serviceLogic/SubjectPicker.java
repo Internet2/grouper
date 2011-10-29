@@ -301,10 +301,10 @@ public class SubjectPicker {
         //if clamping down on sources in config
         if (restrictingSourcesBoolean) {
           sourcesToSearchInSourceSet = GrouperUtil.convertSources(searchInSourceIdsString);
-          subjects = SubjectFinder.findAll(searchField, sourcesToSearchInSourceSet);
+          subjects = SubjectFinder.findPage(searchField, sourcesToSearchInSourceSet).getResults();
         } else {
           sourcesToSearchInSourceSet = new HashSet<Source>(SourceManager.getInstance().getSources());
-          subjects = SubjectFinder.findAll(searchField);
+          subjects = SubjectFinder.findPage(searchField).getResults();
         }
         
       } catch (SubjectTooManyResults stmr) {

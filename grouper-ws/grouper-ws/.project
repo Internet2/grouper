@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>grouper-ws_trunk</name>
+	<name>grouper-ws</name>
 	<comment></comment>
 	<projects>
 	</projects>
@@ -18,12 +18,22 @@
 		<link>
 			<name>GROUPER_TRUNK_CONF</name>
 			<type>2</type>
-			<locationURI>GROUPER_TRUNK_CONF</locationURI>
+			<location>C:/mchyzer/grouper/trunk/grouper/conf</location>
 		</link>
 		<link>
 			<name>GROUPER_TRUNK_SOURCE</name>
 			<type>2</type>
-			<locationURI>GROUPER_TRUNK_SOURCE</locationURI>
+			<location>C:/mchyzer/grouper/trunk/grouper/src/grouper</location>
+		</link>
+		<link>
+			<name>GROUPER_V2_0_CONF</name>
+			<type>2</type>
+			<locationURI>GROUPER_V2_0_CONF</locationURI>
+		</link>
+		<link>
+			<name>GROUPER_V2_0_SOURCE</name>
+			<type>2</type>
+			<locationURI>GROUPER_V2_0_SOURCE</locationURI>
 		</link>
 	</linkedResources>
 </projectDescription>

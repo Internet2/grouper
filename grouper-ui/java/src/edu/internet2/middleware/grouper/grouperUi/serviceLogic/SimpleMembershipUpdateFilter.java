@@ -261,9 +261,9 @@ public class SimpleMembershipUpdateFilter {
           
           if (!StringUtils.isBlank(requireSources)) {
             Set<Source> sources = GrouperUtil.convertSources(requireSources);
-            subjects = SubjectFinder.findAll(searchTerm, sources);
+            subjects = SubjectFinder.findPage(searchTerm, sources).getResults();
           } else {
-            subjects = SubjectFinder.findAllInStem(stemName, searchTerm);            
+            subjects = SubjectFinder.findPageInStem(stemName, searchTerm).getResults();            
           }
           
           
@@ -390,7 +390,7 @@ public class SimpleMembershipUpdateFilter {
     if (!filterByOneSubject && !useMemberSortAndSearch) {
       boolean tooManyResults = false;
       try {
-        subjects = SubjectFinder.findAll(filterString);
+        subjects = SubjectFinder.findPage(filterString).getResults();
       } catch (SubjectTooManyResults stmr) {
         tooManyResults = true;
       }

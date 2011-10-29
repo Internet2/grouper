@@ -170,7 +170,7 @@ public class DoSearchSubjectsAction extends GrouperCapableAction {
 		try {
   		if ((searchTerm != null) && (!searchTerm.equals(""))) {
   			if("all".equals(sourceId)) {
-  				results=SubjectFinder.findAll(searchTerm);
+  				results=SubjectFinder.findPage(searchTerm).getResults();
   			}else{
   				
   					Source source = sm.getSource(sourceId);

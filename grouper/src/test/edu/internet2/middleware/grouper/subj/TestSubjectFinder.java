@@ -36,10 +36,12 @@ import edu.internet2.middleware.grouper.helper.StemHelper;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.helper.T;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.subject.SearchPageResult;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.SourceUnavailableException;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
+import edu.internet2.middleware.subject.SubjectTooManyResults;
 import edu.internet2.middleware.subject.provider.JDBCSourceAdapter;
 import edu.internet2.middleware.subject.provider.JDBCSourceAdapter2;
 import edu.internet2.middleware.subject.provider.JNDISourceAdapter;
@@ -68,7 +70,7 @@ public class TestSubjectFinder extends GrouperTest {
    */
   public static void main(String[] args) {
     //TestRunner.run(TestSubjectFinder.class);
-    TestRunner.run(new TestSubjectFinder("testFindAllSourceException"));
+    TestRunner.run(new TestSubjectFinder("testSearchPageMax"));
   }
   
   /**
@@ -339,9 +341,150 @@ public class TestSubjectFinder extends GrouperTest {
     Stem            com   = StemHelper.addChildStem(root, "com", "commercial");
     StemHelper.addChildGroup(com, "dc", "devclue");
     Set             subjs = SubjectFinder.findAll("educational");
-    Assert.assertTrue("subjs == 2", subjs.size() == 2);
+    Assert.assertTrue("subjs == 2", subjs.size() == 2);    
   } // public void testSearchGood()
 
+  public void testSearchPageMax() {
+
+    StemHelper.addChildGroup(edu, "uofc2", "uchicago2");
+    StemHelper.addChildGroup(edu, "uofc3", "uchicago3");
+    StemHelper.addChildGroup(edu, "uofc4", "uchicago4");
+    StemHelper.addChildGroup(edu, "uofc5", "uchicago5");
+    StemHelper.addChildGroup(edu, "uofc6", "uchicago6");
+    StemHelper.addChildGroup(edu, "uofc7", "uchicago7");
+
+    {
+      Set<Subject> subjects = SubjectFinder.findAll("test.subject");
+      
+      assertTrue(subjects.size() > 5);
+      
+      SubjectFinder.flushCache();
+      
+      //lets change the jdbc source
+      Source jdbc = SubjectFinder.getSource("jdbc");
+      
+      //assign with reflection
+      Integer maxResults = (Integer)GrouperUtil.fieldValue(jdbc, "maxResults");
+      GrouperUtil.assignField(jdbc, "maxResults", 2);
+      
+      try {
+        try {
+          subjects = SubjectFinder.findAll("test.subject", "jdbc");
+          fail("Should be past max results");
+        } catch (SubjectTooManyResults stmr) {
+          //good
+        }
+        try {
+          subjects = SubjectFinder.findAll("test.subject");
+          fail("Should be past max results");
+        } catch (SubjectTooManyResults stmr) {
+          //good
+        }
+      } finally {
+        GrouperUtil.assignField(jdbc, "maxResults", maxResults);
+      }
+  
+      Integer maxPage = (Integer)GrouperUtil.fieldValue(jdbc, "maxPage");
+      GrouperUtil.assignField(jdbc, "maxPage", 2);
+      
+      SearchPageResult searchPageResult = null;
+        
+      try {
+        searchPageResult = SubjectFinder.findPage("test.subject", "jdbc");
+        
+        assertTrue(searchPageResult.isTooManyResults());
+        assertEquals(2, searchPageResult.getResults().size());
+        
+        searchPageResult = SubjectFinder.findPage("test.subject");
+  
+        assertTrue(searchPageResult.isTooManyResults());
+        assertEquals(2, searchPageResult.getResults().size());
+  
+        //try one that fits
+        searchPageResult = SubjectFinder.findPage("test.subject.0", "jdbc");
+        
+        assertFalse(searchPageResult.isTooManyResults());
+        assertEquals(1, searchPageResult.getResults().size());
+        
+        searchPageResult = SubjectFinder.findPage("test.subject.0");
+  
+        assertFalse(searchPageResult.isTooManyResults());
+        assertEquals(1, searchPageResult.getResults().size());
+        
+        
+      } finally {
+        GrouperUtil.assignField(jdbc, "maxPage", maxPage);
+      }
+    }
+    
+    {
+      
+      Set<Subject> subjects = SubjectFinder.findAll("chic");
+      
+      assertTrue(subjects.size() > 5);
+      
+      SubjectFinder.flushCache();
+      
+      //lets change the jdbc source
+      Source groupSource = SubjectFinder.getSource("g:gsa");
+      
+      //assign with reflection
+      Integer maxResults = (Integer)GrouperUtil.fieldValue(groupSource, "maxResults");
+      GrouperUtil.assignField(groupSource, "maxResults", 2);
+      
+      try {
+        try {
+          subjects = SubjectFinder.findAll("chic", "g:gsa");
+          fail("Should be past max results");
+        } catch (SubjectTooManyResults stmr) {
+          //good
+        }
+        try {
+          subjects = SubjectFinder.findAll("chic");
+          fail("Should be past max results");
+        } catch (SubjectTooManyResults stmr) {
+          //good
+        }
+      } finally {
+        GrouperUtil.assignField(groupSource, "maxResults", maxResults);
+      }
+  
+      Integer maxPage = (Integer)GrouperUtil.fieldValue(groupSource, "maxPage");
+      GrouperUtil.assignField(groupSource, "maxPage", 2);
+      
+      SearchPageResult searchPageResult = null;
+        
+      try {
+        searchPageResult = SubjectFinder.findPage("chic", "g:gsa");
+        
+        assertTrue(searchPageResult.isTooManyResults());
+        assertEquals(2, searchPageResult.getResults().size());
+        
+        searchPageResult = SubjectFinder.findPage("chic");
+  
+        assertTrue(searchPageResult.isTooManyResults());
+        assertEquals(2, searchPageResult.getResults().size());
+  
+        //try one that fits
+        searchPageResult = SubjectFinder.findPage("chicago6", "g:gsa");
+        
+        assertFalse(searchPageResult.isTooManyResults());
+        assertEquals(1, searchPageResult.getResults().size());
+        
+        searchPageResult = SubjectFinder.findPage("chicago6");
+  
+        assertFalse(searchPageResult.isTooManyResults());
+        assertEquals(1, searchPageResult.getResults().size());
+        
+        
+      } finally {
+        GrouperUtil.assignField(groupSource, "maxPage", maxPage);
+      }
+
+    }
+  
+  }
+  
   public void testSearchGoodAllId() {
     LOG.info("testSearchGoodAllId");
     Set subjs = SubjectFinder.findAll(SubjectTestHelper.SUBJA.getId());
