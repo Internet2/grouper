@@ -117,14 +117,20 @@ public class SubjectHelper {
       boolean foundMatch = false;
       if (valuesObject instanceof Collection) {
         Collection values = (Collection)valuesObject;
+        
+        //do a case insensitive match to be more accurate
         for (Object attributeValues: values) {
           if (attributeValues instanceof Set) {
             Set<String> attributeValuesSet = (Set<String>)attributeValues;
-            if (attributeValuesSet != null && attributeValuesSet.contains(searchTerm)) {
-              foundMatch = true;
+            if (attributeValuesSet != null) {
+              for (String value : attributeValuesSet) {
+                if (StringUtils.equalsIgnoreCase(value, searchTerm)) {
+                  foundMatch = true;
+                }
+              }
             }
           } else if (attributeValues instanceof String) {
-            if (StringUtils.equals(searchTerm, (String)attributeValues)) {
+            if (StringUtils.equalsIgnoreCase(searchTerm, (String)attributeValues)) {
               foundMatch = true;
             }
           }

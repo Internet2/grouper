@@ -81,6 +81,26 @@ public interface SubjectResolver {
     throws  IllegalArgumentException;
 
   /**
+   * find subjects in a set of sources
+   * @param query
+   * @param sources
+   * @return the subjects
+   * @throws IllegalArgumentException
+   */
+  public Set<Subject> findAll(String query, Set<Source> sources) throws  IllegalArgumentException;
+  
+  /**
+   * find a page of subjects in a set of sources
+   * @param query
+   * @param sources
+   * @return the page of subjects
+   * @throws SourceUnavailableException
+   */
+  public SearchPageResult findPage(String query, Set<Source> sources)
+    throws  SourceUnavailableException;
+
+  
+  /**
    * @param stemName name of stem we are querying
    * @param   query   A source-appropriate query string.
    * @return  All subjects matching <i>query</i>.

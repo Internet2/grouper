@@ -99,6 +99,25 @@ public class ValidatingResolver extends SubjectResolverDecorator {
   }
 
   /**
+   * @see SubjectResolver#findAll(String, Set)
+   */
+  public Set<Subject> findAll(String query, Set<Source> sources)
+      throws IllegalArgumentException {
+    this.param.notNullString(query, "null query string");
+    return super.getDecoratedResolver().findAll(query, sources);
+  }
+
+  /**
+   * @see SubjectResolver#findPage(String, Set)
+   */
+  public SearchPageResult findPage(String query, Set<Source> sources)
+      throws SourceUnavailableException {
+    this.param.notNullString(query, "null query string");
+    return super.getDecoratedResolver().findPage(query, sources);
+  }
+
+
+  /**
    * @see     SubjectResolver#findAll(String, String)
    * @since   1.2.1
    */

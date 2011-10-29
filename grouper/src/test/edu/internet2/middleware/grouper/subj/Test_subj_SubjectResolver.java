@@ -111,7 +111,7 @@ public class Test_subj_SubjectResolver extends GrouperTest {
     throws  SourceUnavailableException
   {
     try {
-      this.resolver.findAll(null, null);
+      this.resolver.findAll(null, (String)null);
       fail("failed to throw IllegalArgumentException");
     }
     catch (IllegalArgumentException eExpected) {
@@ -123,7 +123,7 @@ public class Test_subj_SubjectResolver extends GrouperTest {
     throws  SourceUnavailableException
   {
     try {
-      this.resolver.findAll("%", null);
+      this.resolver.findAll("%", (String)null);
       fail("failed to throw IllegalArgumentException");
     }
     catch (IllegalArgumentException eExpected) {

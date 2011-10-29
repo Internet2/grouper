@@ -516,6 +516,7 @@ public class JDBCSourceAdapter2 extends JDBCSourceAdapter {
     try {
       boolean[] tooManyResultHelper = new boolean[]{false};
       results = this.search(query.toString(), args, false, true, firstPageOnly, tooManyResultHelper);
+      tooManyResults = tooManyResultHelper[0];
     } catch (Exception ex) {
       if (ex instanceof SubjectTooManyResults) {
         throw (SubjectTooManyResults)ex;
@@ -618,9 +619,6 @@ public class JDBCSourceAdapter2 extends JDBCSourceAdapter {
       rs = stmt.executeQuery();
 
       while (rs.next()) {
-        Subject subject = createSubject(rs, query);
-        results.add(subject);
-        
         //if we are at the end of the page
         if (firstPageOnly && this.getMaxPage() != null && results.size() >= this.getMaxPage()) {
           tooManyResults[0] = true;
@@ -632,6 +630,10 @@ public class JDBCSourceAdapter2 extends JDBCSourceAdapter {
               "More results than allowed: " + this.maxResults 
               + " for search '" + query + "'");
         }
+
+        Subject subject = createSubject(rs, query);
+        results.add(subject);
+        
 
       }
 

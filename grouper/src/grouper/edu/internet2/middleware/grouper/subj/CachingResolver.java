@@ -16,6 +16,7 @@
 */
 
 package edu.internet2.middleware.grouper.subj;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
@@ -56,7 +57,7 @@ public class CachingResolver extends SubjectResolverDecorator {
   static GrouperCache<MultiKey, Set<Subject>> findAllCache = new GrouperCache<MultiKey, Set<Subject>>(CachingResolver.class.getName() + ".FindAll", 5000, false, 30, 120, false);
   
   /**
-   * cache of multikey including query to subjects
+   * cache of multikey including query to subjects, and source ids
    */
   static GrouperCache<MultiKey, SearchPageResult> findPageCache = new GrouperCache<MultiKey, SearchPageResult>(CachingResolver.class.getName() + ".FindPage", 5000, false, 30, 120, false);
   
@@ -132,10 +133,10 @@ public class CachingResolver extends SubjectResolverDecorator {
   public Set<Subject> findAll(String query)
     throws  IllegalArgumentException
   {
-    Set<Subject> subjects = this.getFromFindAllCache(null, query, null);
+    Set<Subject> subjects = this.getFromFindAllCache(null, query, (String)null);
     if (subjects == null) {
       subjects = super.getDecoratedResolver().findAll(query);
-      this.putInFindAllCache(null, query, null, subjects);
+      this.putInFindAllCache(null, query, (String)null, subjects);
     }
     return subjects;
   }
@@ -336,7 +337,7 @@ public class CachingResolver extends SubjectResolverDecorator {
       debugMap.put("query", query);
     }
 
-    Set<Subject> subjects = this.getFromFindAllCache(stemName, query, null);
+    Set<Subject> subjects = this.getFromFindAllCache(stemName, query, (String)null);
     
     //TODO do this caching better... need to clear when group changes???
     //for now dont cache if finding in stem name
@@ -345,7 +346,7 @@ public class CachingResolver extends SubjectResolverDecorator {
         debugMap.put("foundInCache", Boolean.FALSE);
       }
       subjects = super.getDecoratedResolver().findAllInStem(stemName, query);
-      this.putInFindAllCache(stemName, query, null, subjects);
+      this.putInFindAllCache(stemName, query, (String)null, subjects);
     } else {
       if (LOG.isDebugEnabled()) {
         debugMap.put("foundInCache", Boolean.TRUE);
@@ -366,10 +367,49 @@ public class CachingResolver extends SubjectResolverDecorator {
   public SearchPageResult findPage(String query)
     throws  IllegalArgumentException
   {
-    SearchPageResult searchPageResult = this.getFromFindPageCache(null, query, null);
+    SearchPageResult searchPageResult = this.getFromFindPageCache(null, query, (String)null);
     if (searchPageResult == null) {
       searchPageResult = super.getDecoratedResolver().findPage(query);
-      this.putInFindPageCache(null, query, null, searchPageResult);
+      this.putInFindPageCache(null, query, (String)null, searchPageResult);
+    }
+    return searchPageResult;
+  }
+
+  /**
+   * @see SubjectResolver#findAll(String, Set)
+   */
+  public Set<Subject> findAll(String query, Set<Source> sources)
+      throws IllegalArgumentException {
+
+    //search all
+    if (GrouperUtil.length(sources) == 0) {
+      return findAll(query);
+    }
+
+    Set<Subject> subjects = this.getFromFindAllCache(null, query, sources);
+    if (subjects == null) {
+      subjects = super.getDecoratedResolver().findAll(query, sources);
+      this.putInFindAllCache(null, query, sources, subjects);
+    }
+    return subjects;
+
+  }
+
+  /**
+   * @see SubjectResolver#findPage(String)
+   */
+  public SearchPageResult findPage(String query, Set<Source> sources)
+      throws SourceUnavailableException {
+    
+    //search all
+    if (GrouperUtil.length(sources) == 0) {
+      return findPage(query);
+    }
+    
+    SearchPageResult searchPageResult = this.getFromFindPageCache(null, query, sources);
+    if (searchPageResult == null) {
+      searchPageResult = super.getDecoratedResolver().findPage(query, sources);
+      this.putInFindPageCache(null, query, sources, searchPageResult);
     }
     return searchPageResult;
   }
@@ -404,7 +444,7 @@ public class CachingResolver extends SubjectResolverDecorator {
       debugMap.put("query", query);
     }
   
-    SearchPageResult subjects = this.getFromFindPageCache(stemName, query, null);
+    SearchPageResult subjects = this.getFromFindPageCache(stemName, query, (String)null);
     
     //TODO do this caching better... need to clear when group changes???
     //for now dont cache if finding in stem name
@@ -413,7 +453,7 @@ public class CachingResolver extends SubjectResolverDecorator {
         debugMap.put("foundInCache", Boolean.FALSE);
       }
       subjects = super.getDecoratedResolver().findPageInStem(stemName, query);
-      this.putInFindPageCache(stemName, query, null, subjects);
+      this.putInFindPageCache(stemName, query, (String)null, subjects);
     } else {
       if (LOG.isDebugEnabled()) {
         debugMap.put("foundInCache", Boolean.TRUE);
@@ -425,6 +465,72 @@ public class CachingResolver extends SubjectResolverDecorator {
       LOG.debug(GrouperUtil.mapToString(debugMap));
     }
     return subjects;
+  }
+
+  /**
+   * Retrieve set of subjects from cache for <code>findPage(...)</code>.
+   * @return  Cached set of subjects or null.
+   * @since   2.0.2
+   */
+  private SearchPageResult getFromFindPageCache(String stemName, String query, Set<Source> sources) {
+    MultiKey multiKey = sourcesMultiKey(stemName, query, sources);
+    
+    return findPageCache.get(multiKey);
+  }
+
+  /**
+   * Put set of subjects into cache for <code>findPage(...)</code>.
+   * @since   2.0.2
+   */
+  private void putInFindPageCache(String stemName, String query, Set<Source> sources, SearchPageResult searchPageResult) {
+    MultiKey multiKey = sourcesMultiKey(stemName, query, sources);
+    findPageCache.put(multiKey, searchPageResult );
+  }
+
+  /**
+   * Retrieve set of subjects from cache for <code>findAll(...)</code>.
+   * @return  Cached set of subjects or null.
+   * @since   2.0.2
+   */
+  private Set<Subject> getFromFindAllCache(String stemName, String query, Set<Source> sources) {
+    MultiKey multiKey = sourcesMultiKey(stemName, query, sources);
+    
+    return findAllCache.get(multiKey);
+  }
+
+  /**
+   * Put set of subjects into cache for <code>findAll(...)</code>.
+   * @since   2.0.2
+   */
+  private void putInFindAllCache(String stemName, String query, Set<Source> sources, Set<Subject> subjects) {
+    MultiKey multiKey = sourcesMultiKey(stemName, query, sources);
+    findAllCache.put(multiKey, subjects );
+  }
+
+
+  /**
+   * get a multikey based on all the arguments
+   * @param stemName
+   * @param query
+   * @param sources
+   * @return the multikey
+   */
+  private MultiKey sourcesMultiKey(String stemName, String query, Set<Source> sources) {
+    if (GrouperUtil.length(sources) == 0) {
+      return new MultiKey(stemName, query, null);
+    }
+    Object[] sourcesArray = sources.toArray();
+    //convert to ids
+    for (int i=0;i<sourcesArray.length;i++) {
+      sourcesArray[i] = ((Source)sourcesArray[i]).getId();
+    }
+    Arrays.sort(sourcesArray);
+    Object[] fullKey = new Object[sourcesArray.length+2];
+    fullKey[0] = stemName;
+    fullKey[1] = query;
+    System.arraycopy(sourcesArray, 0, fullKey, 2, sourcesArray.length);
+    MultiKey multiKey = new MultiKey(fullKey);
+    return multiKey;
   }
 
   /**

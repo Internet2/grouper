@@ -30,6 +30,8 @@ import edu.internet2.middleware.grouper.GrouperSourceAdapter;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
+import edu.internet2.middleware.grouper.externalSubjects.ExternalSubject;
+import edu.internet2.middleware.grouper.externalSubjects.ExternalSubjectTest;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SessionHelper;
 import edu.internet2.middleware.grouper.helper.StemHelper;
@@ -88,6 +90,7 @@ public class TestSubjectFinder extends GrouperTest {
     root  = StemHelper.findRootStem(s);
     edu   = StemHelper.addChildStem(root, "edu", "educational");
     i2    = StemHelper.addChildGroup(edu, "i2", "internet2");
+    ExternalSubjectTest.setupHelper();
   }
 
   protected void tearDown () {
@@ -482,6 +485,86 @@ public class TestSubjectFinder extends GrouperTest {
       }
 
     }
+    
+
+    {
+      for (int i=0;i<8;i++) {
+        ExternalSubject externalSubject = new ExternalSubject();
+        externalSubject.setEmail("a" + i + "@b.c");
+        externalSubject.setIdentifier("a" + i + "@id.b.c");
+        externalSubject.setInstitution("My Institution" + i);
+        externalSubject.setName("My Name" + i);
+        externalSubject.store();
+
+      }
+      
+      
+      //this tests the jdbc2 source
+      Set<Subject> subjects = SubjectFinder.findAll("id.b.c");
+      
+      assertTrue(subjects.size() > 5);
+      
+      SubjectFinder.flushCache();
+      
+      //lets change the jdbc source
+      Source externalSource = SubjectFinder.getSource(ExternalSubject.sourceId());
+      
+      //assign with reflection
+      Integer maxResults = (Integer)GrouperUtil.fieldValue(externalSource, "maxResults");
+      GrouperUtil.assignField(externalSource, "maxResults", 2);
+      
+      try {
+        try {
+          subjects = SubjectFinder.findAll("id.b.c", ExternalSubject.sourceId());
+          fail("Should be past max results");
+        } catch (SubjectTooManyResults stmr) {
+          //good
+        }
+        try {
+          subjects = SubjectFinder.findAll("id.b.c");
+          fail("Should be past max results");
+        } catch (SubjectTooManyResults stmr) {
+          //good
+        }
+      } finally {
+        GrouperUtil.assignField(externalSource, "maxResults", maxResults);
+      }
+  
+      Integer maxPage = (Integer)GrouperUtil.fieldValue(externalSource, "maxPage");
+      GrouperUtil.assignField(externalSource, "maxPage", 2);
+      
+      SearchPageResult searchPageResult = null;
+        
+      try {
+        searchPageResult = SubjectFinder.findPage("id.b.c", ExternalSubject.sourceId());
+        
+        assertEquals(2, searchPageResult.getResults().size());
+        assertTrue(searchPageResult.isTooManyResults());
+        
+        searchPageResult = SubjectFinder.findPage("id.b.c");
+  
+        assertTrue(searchPageResult.isTooManyResults());
+        assertEquals(2, searchPageResult.getResults().size());
+  
+        //try one that fits
+        searchPageResult = SubjectFinder.findPage("a2@id", ExternalSubject.sourceId());
+        
+        assertFalse(searchPageResult.isTooManyResults());
+        assertEquals(1, searchPageResult.getResults().size());
+        
+        searchPageResult = SubjectFinder.findPage("a2@id");
+  
+        assertFalse(searchPageResult.isTooManyResults());
+        assertEquals(1, searchPageResult.getResults().size());
+        
+        
+      } finally {
+        GrouperUtil.assignField(externalSource, "maxPage", maxPage);
+      }
+
+    }
+    
+    
   
   }
   

@@ -204,11 +204,12 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
     PreparedStatement stmt = null;
     JdbcConnectionBean jdbcConnectionBean = null;
     try {
+      jdbcConnectionBean = this.jdbcConnectionProvider.connectionBean();
+
       if (failOnSearchForTesting) {
         throw new RuntimeException("failOnSearchForTesting");
       }
       
-      jdbcConnectionBean = this.jdbcConnectionProvider.connectionBean();
       conn = jdbcConnectionBean.connection();
       stmt = prepareStatement(search, conn);
       ResultSet rs = getSqlResults(searchValue, stmt, search);
@@ -216,8 +217,6 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
         return new SearchPageResult(false, result);
       }
       while (rs.next()) {
-        Subject subject = createSubject(rs, search.getParam("sql"));
-        result.add(subject);
         //if we are at the end of the page
         if (firstPageOnly && this.maxPage != null && result.size() >= this.maxPage) {
           tooManyResults = true;
@@ -228,6 +227,8 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
               "More results than allowed: " + this.maxResults 
               + " for search '" + search + "'");
         }
+        Subject subject = createSubject(rs, search.getParam("sql"));
+        result.add(subject);
       }
       jdbcConnectionBean.doneWithConnection();
     } catch (Exception ex) {
@@ -235,7 +236,7 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
         jdbcConnectionBean.doneWithConnectionError(ex);
       } catch (RuntimeException re) {
         if (!(ex instanceof SubjectTooManyResults)) {
-          log.error(re);
+          log.error("Problem with source: " + this.getId() + ", and query: '" + searchValue + "'", re);
         }
       }
       if (ex instanceof SubjectTooManyResults) {

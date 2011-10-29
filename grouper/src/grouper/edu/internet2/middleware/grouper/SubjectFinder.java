@@ -60,6 +60,26 @@ import edu.internet2.middleware.subject.SubjectTooManyResults;
  */
 public class SubjectFinder {
 
+  /** if we should use threads when doing searches (if grouper.properties allows), this must be used in a try/finally */
+  private static ThreadLocal<Boolean> useThreads = new ThreadLocal<Boolean>();
+
+  /**
+   * if we should use threads when doing searches (if grouper.properties allows), this must be used in a try/finally
+   * @param ifUseThreads
+   */
+  public static void useThreads(boolean ifUseThreads) {
+    useThreads.set(ifUseThreads);
+  }
+
+  /**
+   * if we should use threads when doing searches (if grouper.properties allows)
+   * @return
+   */
+  public static boolean isUseThreadsBasedOnThreadLocal() {
+    Boolean isUseThreads = useThreads.get();
+    return GrouperUtil.booleanValue(isUseThreads, true);
+  }
+  
   /** logger */
   private static final Log LOG = GrouperUtil.getLog(SubjectFinder.class);
 
@@ -489,17 +509,13 @@ public class SubjectFinder {
    */
   public static Set<Subject> findAll(String query, Set<Source> sources)
       throws  SourceUnavailableException {
+
     if (sources == null || sources.isEmpty()) {
       return findAll(query);
     }
-    Set<Subject> results = new LinkedHashSet<Subject>();
-    for (Source source: sources) {
-      Set<Subject> current = findAll(query, source.getId());
-      if (current != null) {
-        results.addAll(current);
-      }
-    }
-    return results;
+    
+    return getResolver().findAll(query, sources);
+    
   } 
 
   
@@ -597,7 +613,6 @@ public class SubjectFinder {
   }
 
   /**
-   * TODO 20070803 what is the point of this method?
    * @return source
    * @since   1.2.0
    */
@@ -609,7 +624,6 @@ public class SubjectFinder {
           break;
         }
       }
-      // TODO 20070803 go away.  the exception is wrong as well.
       NotNullValidator v = NotNullValidator.validate(gsa);
       if (v.isInvalid()) {
         throw new IllegalArgumentException(E.SF_GETSA); 
@@ -623,7 +637,7 @@ public class SubjectFinder {
    * @since   1.2.1
    */
   public static void reset() {
-    resolver = null; // TODO 20070807 this could definitely be improved    
+    resolver = null;    
     HibernateSession.bySqlStatic().executeSql("delete from subject where subjectId = 'GrouperSystem'");
   }
 
@@ -1101,25 +1115,12 @@ public class SubjectFinder {
    */
   public static SearchPageResult findPage(String query, Set<Source> sources)
       throws  SourceUnavailableException {
+
     if (sources == null || sources.isEmpty()) {
       return findPage(query);
     }
-    SearchPageResult searchPageResult = new SearchPageResult();
-    searchPageResult.setTooManyResults(false);
-    Set<Subject> subjects = new LinkedHashSet<Subject>();
-    searchPageResult.setResults(subjects);
+    return getResolver().findPage(query, sources);
 
-    for (Source source: sources) {
-      SearchPageResult current = findPage(query, source.getId());
-      if (current != null && GrouperUtil.length(current.getResults()) > 0) {
-        subjects.addAll(current.getResults());
-        if (current.isTooManyResults()) {
-          searchPageResult.setTooManyResults(true);
-        }
-      }
-      
-    }
-    return searchPageResult;
   }
 
   /**

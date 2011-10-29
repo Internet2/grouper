@@ -25,7 +25,6 @@ package edu.internet2.middleware.subject.provider;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
@@ -141,21 +140,30 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
         
       try {
          // all ldap config from the ldap properties file
-         log.debug("reading properties file " + propertiesFile);
+         if (log.isDebugEnabled()) {
+           log.debug("reading properties file " + propertiesFile);
+         }
          LdapConfig ldapConfig = LdapConfig.createFromProperties(new FileInputStream(propertiesFile));
-         log.debug("from properties file " + propertiesFile + " got " + ldapConfig);
-
+         if (log.isDebugEnabled()) {
+           log.debug("from properties file " + propertiesFile + " got " + ldapConfig);
+         }
+         
          // including config for the pem cert mode
          Map<String, Object> props = ldapConfig.getEnvironmentProperties();
        
          Set<String> ps = props.keySet();
-         for (Iterator it = ps.iterator(); it.hasNext(); log.debug(".. key = " + it.next()));
-     
+         
+         if (log.isDebugEnabled()) {
+           for (Iterator it = ps.iterator(); it.hasNext(); log.debug(".. key = " + it.next()));
+         }
+         
          String cafile = (String)props.get("pemCaFile");
          String certfile = (String)props.get("pemCertFile");
          String keyfile = (String)props.get("pemKeyFile");
          if (cafile!=null && certfile!=null && keyfile!=null) {
-            log.debug("using the PEM socketfactory: ca=" + cafile + ", cert=" + certfile + ", key=" + keyfile);
+            if (log.isDebugEnabled()) {
+              log.debug("using the PEM socketfactory: ca=" + cafile + ", cert=" + certfile + ", key=" + keyfile);
+            }
             LdapPEMSocketFactory sf = new LdapPEMSocketFactory(cafile, certfile, keyfile);
             SSLSocketFactory ldapSocketFactory = sf.getSocketFactory();
             ldapConfig.setSslSocketFactory(ldapSocketFactory);
@@ -171,10 +179,11 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
             ldapPool.initialize();
             initialized = true;
          } catch (Exception e) {
-            log.debug("ldappool error = " + e);
+            //why swallow???
+            log.debug("ldappool error = " + e, e);
          }
       } catch (FileNotFoundException e) {
-         log.error("ldap properties not found: " + e);
+         log.error("ldap properties not found: " + e, e);
       }
       log.debug("ldap initialize done");
    }
@@ -231,9 +240,13 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
         if (localDomain != null) {
            int atpos;
            if ((atpos=id.indexOf("@" + localDomain))>0) {
-              log.debug("looking at id=" + id);
+              if (log.isDebugEnabled()) {
+                log.debug("looking at id=" + id);
+              }
               id = id.substring(0, atpos);
-              log.debug("converted to id=" + id);
+              if (log.isDebugEnabled()) {
+                log.debug("converted to id=" + id);
+              }
            }
         }
         try {
@@ -299,22 +312,25 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
              return new SearchPageResult(tooManyResults, result);
            }
            while ( ldapResults.hasNext()) {
-               SearchResult si = (SearchResult) ldapResults.next();
-               Attributes attributes = si.getAttributes();
-               Subject subject = createSubject(attributes);
-               if (noAttrSearch) ((LdapSubject)subject).setAttributesGotten(true);
-               result.add(subject);
-               
                //if we are at the end of the page
                if (firstPageOnly && this.maxPage != null && result.size() >= this.maxPage) {
                  tooManyResults = true;
                  break;
                }
 
+               SearchResult si = (SearchResult) ldapResults.next();
+               Attributes attributes = si.getAttributes();
+               Subject subject = createSubject(attributes);
+               if (noAttrSearch) ((LdapSubject)subject).setAttributesGotten(true);
+               result.add(subject);
+               
+
            }
 
-           log.debug("set has " + result.size() + " subjects");
-           if (result.size()>0) log.debug("first is " + ((Subject)result.first()).getName());
+           if (log.isDebugEnabled()) {
+             log.debug("set has " + result.size() + " subjects");
+             if (result.size()>0) log.debug("first is " + ((Subject)result.first()).getName());
+           }
 
         } catch (Exception ex) {
 
@@ -337,7 +353,9 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
         String description = "";
 
         if (attributes==null) {
-           log.debug("ldap create subject with null attrs");
+           if (log.isDebugEnabled()) {
+             log.debug("ldap create subject with null attrs");
+           }
            return (null);
         }
         try {
@@ -349,13 +367,17 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
             subjectID   = ((String)attribute.get()).toLowerCase();
             attribute = attributes.get(nameAttributeName);
             if (attribute == null) {
-                log.debug("No immedaite value for attribute \"" + nameAttributeName + "\". Will look later.");
+                if (log.isDebugEnabled()) {
+                  log.debug("No immedaite value for attribute \"" + nameAttributeName + "\". Will look later.");
+                }
             } else {
                 name = (String) attribute.get();
             }
             attribute = attributes.get(descriptionAttributeName);
             if (attribute == null) {
-                log.debug("No immedaite value for attribute \"" + descriptionAttributeName + "\". Will look later.");
+                if (log.isDebugEnabled()) {
+                  log.debug("No immediate value for attribute \"" + descriptionAttributeName + "\". Will look later.");
+                }
             } else {
                 description   = (String) attribute.get();
             }
@@ -405,7 +427,9 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
      */
     protected Map getAllAttributes(LdapSubject subject) {
         Map attributes =  new SubjectCaseInsensitiveMapImpl();
-        log.debug("getAllAttributes for " + subject.getName());
+        if (log.isDebugEnabled()) {
+          log.debug("getAllAttributes for " + subject.getName());
+        }
         Search search = getSearch("searchSubjectAttributes");
         if (search == null) {
             log.error("searchType: \"searchSubjectAttributes\" not defined.");
@@ -486,7 +510,9 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
             }
             filter = filter.replaceAll("%TERM%", escapeSearchFilter(searchValue));
         }
-        log.debug("searchType: " + search.getSearchType() + " filter: " + filter);
+        if (log.isDebugEnabled()) {
+          log.debug("searchType: " + search.getSearchType() + " filter: " + filter);
+        }
 
         try  {
             ldap =  (Ldap) ldapPool.checkOut();
@@ -539,9 +565,13 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
           try {
             while (n.hasMore()) {
                Attribute a = n.next();
-               log.debug("checking attribute " + a.getID());
+               if (log.isDebugEnabled()) {
+                 log.debug("checking attribute " + a.getID());
+               }
                if (attributes.get(a.getID())==null) {
-                  log.debug("adding " + a.getID());
+                  if (log.isDebugEnabled()) {
+                    log.debug("adding " + a.getID());
+                  }
                   attributes.put(a);
                }
             }

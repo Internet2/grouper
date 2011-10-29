@@ -343,11 +343,11 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
           QueryOptions queryOptions = null;
           
           if ((firstPageOnly && GrouperSourceAdapter.this.maxPage != null) || GrouperSourceAdapter.this.maxResults != null) {
-            int pagesize = 1+ ((firstPageOnly && GrouperSourceAdapter.this.maxPage != null) ? GrouperSourceAdapter.this.maxPage : -1);
+            int pagesize = (firstPageOnly && GrouperSourceAdapter.this.maxPage != null) ? (GrouperSourceAdapter.this.maxPage+1) : -1;
             if (pagesize == -1) {
               pagesize = GrouperSourceAdapter.this.maxResults + 1;
             } else if (GrouperSourceAdapter.this.maxResults != null){
-              pagesize = Math.min(pagesize, GrouperSourceAdapter.this.maxResults) + 1;
+              pagesize = Math.min(pagesize, GrouperSourceAdapter.this.maxResults+1);
             }
             queryOptions = new QueryOptions();
             queryOptions.paging(pagesize, 1, false);
@@ -357,18 +357,18 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
             .findAllByApproximateNameSecure(searchValue, null, queryOptions ,TypeOfGroup.GROUP_OR_ROLE_SET);
           
           for (Group group : GrouperUtil.nonNull(groups)) {
-            result.add(group.toSubject()); 
             //if we are at the end of the page
             if (firstPageOnly && GrouperSourceAdapter.this.maxPage != null 
-                && result.size() == GrouperSourceAdapter.this.maxPage && groups.size() > GrouperSourceAdapter.this.maxPage) {
+                && result.size() >= GrouperSourceAdapter.this.maxPage) {
               tooManyResultsArray[0] = true;
               break;
             }
-          }
-          if (!tooManyResultsArray[0] && GrouperSourceAdapter.this.maxResults != null && result.size() > GrouperSourceAdapter.this.maxResults) {
-            throw new SubjectTooManyResults(
-                "More results than allowed: " + GrouperSourceAdapter.this.maxResults 
-                + " for search '" + searchValue + "'");
+            if (GrouperSourceAdapter.this.maxResults != null && result.size() >= GrouperSourceAdapter.this.maxResults) {
+              throw new SubjectTooManyResults(
+                  "More results than allowed: " + GrouperSourceAdapter.this.maxResults 
+                  + " for search '" + searchValue + "'");
+            }
+            result.add(group.toSubject()); 
           }
           
         }

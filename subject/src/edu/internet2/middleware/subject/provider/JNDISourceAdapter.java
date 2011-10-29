@@ -207,7 +207,7 @@ public class JNDISourceAdapter extends BaseSourceAdapter {
     try {
       String[] attributeNames = { this.nameAttributeName, this.subjectIDAttributeName,
           this.descriptionAttributeName };
-      NamingEnumeration ldapResults = getLdapResults(search, searchValue, attributeNames);
+      NamingEnumeration ldapResults = getLdapResults(search, searchValue, attributeNames, firstPageOnly);
       if (ldapResults == null) {
         return new SearchPageResult(tooManyResults, result);
       }
@@ -217,20 +217,20 @@ public class JNDISourceAdapter extends BaseSourceAdapter {
       }
       
       while (ldapResults.hasMore()) {
-        SearchResult si = (SearchResult) ldapResults.next();
-        Attributes attributes1 = si.getAttributes();
-        Subject subject = createSubject(attributes1);
-        result.add(subject);
         //if we are at the end of the page
         if (firstPageOnly && this.maxPage != null && result.size() >= this.maxPage) {
           tooManyResults = true;
           break;
         }
-        if (this.maxResults != null && result.size() > this.maxResults) {
+        if (this.maxResults != null && result.size() >= this.maxResults) {
           throw new SubjectTooManyResults(
               "More results than allowed: " + this.maxResults 
               + " for search '" + search + "'");
         }
+        SearchResult si = (SearchResult) ldapResults.next();
+        Attributes attributes1 = si.getAttributes();
+        Subject subject = createSubject(attributes1);
+        result.add(subject);
       }
     } catch (Exception ex) {
       if (ex instanceof SubjectTooManyResults) {
@@ -462,6 +462,18 @@ public class JNDISourceAdapter extends BaseSourceAdapter {
    */
   protected NamingEnumeration getLdapResults(Search search, String searchValue,
       String[] attributeNames) {
+    return getLdapResults(search, searchValue, attributeNames, false);
+  }
+
+  /**
+   * 
+   * @param search
+   * @param searchValue
+   * @param attributeNames
+   * @return naming enumeration
+   */
+  protected NamingEnumeration getLdapResults(Search search, String searchValue,
+      String[] attributeNames, boolean firstPageOnly) {
     DirContext context = null;
     NamingEnumeration results = null;
     String filter = search.getParam("filter");
@@ -492,6 +504,17 @@ public class JNDISourceAdapter extends BaseSourceAdapter {
     try {
       context = new InitialDirContext(this.environment);
       SearchControls constraints = new SearchControls();
+      
+      if ((firstPageOnly && this.maxPage != null) || this.maxResults != null) {
+        int pagesize = (firstPageOnly && this.maxPage != null) ? (this.maxPage+1) : -1;
+        if (pagesize == -1) {
+          pagesize = this.maxResults + 1;
+        } else if (this.maxResults != null){
+          pagesize = Math.min(pagesize, this.maxResults+1);
+        }
+        constraints.setCountLimit(pagesize);
+      }
+
       constraints.setSearchScope(scopeNum);
       constraints.setReturningAttributes(attributeNames);
       results = context.search(base, filter, constraints);

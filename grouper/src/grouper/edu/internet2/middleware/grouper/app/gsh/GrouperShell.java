@@ -38,7 +38,6 @@ import edu.internet2.middleware.grouper.xml.importXml.XmlImportGsh;
  * @since   0.0.1
  */
 public class GrouperShell {
-
   
   /** if we should exist on failure */ 
   static boolean exitOnFailure = false;
@@ -119,7 +118,6 @@ public class GrouperShell {
    * @since 0.0.1
    */
   public static void main(String args[]) {
-
     //set this and leave it...
     @SuppressWarnings("unused")
     GrouperContext grouperContext = GrouperContext.createNewDefaultContext(
