@@ -1560,6 +1560,7 @@
                         <xs:element minOccurs="0" name="paramValue0" nillable="true" type="xs:string"/>
                         <xs:element minOccurs="0" name="paramName1" nillable="true" type="xs:string"/>
                         <xs:element minOccurs="0" name="paramValue1" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="typeOfGroup" nillable="true" type="xs:string"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>

@@ -15,6 +15,7 @@ import edu.internet2.middleware.grouper.attr.assign.AttributeAssignDelegatable;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignOperation;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignType;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValueOperation;
+import edu.internet2.middleware.grouper.group.TypeOfGroup;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.misc.SaveMode;
@@ -854,6 +855,7 @@ public class GrouperService {
    *            reserved for future use
    * @param paramValue1
    *            reserved for future use
+   * @param typeOfGroup1 type of group can be an enum of TypeOfGroup, e.g. group, role, entity
    * @return the result of one member add
    */
   public WsGroupSaveLiteResult groupSaveLite(final String clientVersion,
@@ -861,7 +863,7 @@ public class GrouperService {
       String displayExtension,String description,  String saveMode,
       String actAsSubjectId, String actAsSubjectSourceId,
       String actAsSubjectIdentifier, String includeGroupDetail, String paramName0, String paramValue0,
-      String paramName1, String paramValue1) {
+      String paramName1, String paramValue1, String typeOfGroup1) {
 
     WsGroupSaveLiteResult wsGroupSaveLiteResult = new WsGroupSaveLiteResult();
     GrouperVersion grouperWsVersion = null;
@@ -875,10 +877,12 @@ public class GrouperService {
       
       SaveMode saveModeEnum = SaveMode.valueOfIgnoreCase(saveMode);
       
+      TypeOfGroup typeOfGroup = TypeOfGroup.valueOfIgnoreCase(typeOfGroup1, false);
+      
       wsGroupSaveLiteResult = GrouperServiceLogic.groupSaveLite(grouperWsVersion, groupLookupUuid,
           groupLookupName, groupUuid, groupName, displayExtension, description, saveModeEnum,
           actAsSubjectId, actAsSubjectSourceId, actAsSubjectIdentifier, includeGroupDetailBoolean,  
-          paramName0, paramValue0, paramName1, paramValue1);
+          paramName0, paramValue0, paramName1, paramValue1, typeOfGroup);
     } catch (Exception e) {
       wsGroupSaveLiteResult.assignResultCodeException(null, null, e, grouperWsVersion);
     }

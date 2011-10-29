@@ -17,6 +17,25 @@ import edu.internet2.middleware.grouper.ws.rest.method.GrouperRestHttpMethod;
  */
 public class WsRestGroupSaveLiteRequest implements WsRequestBean {
 
+  /** type of group can be an enum of TypeOfGroup, e.g. group, role, entity */
+  private String typeOfGroup;
+  
+  
+  
+  /**
+   * @return type of group can be an enum of TypeOfGroup, e.g. group, role, entity
+   */
+  public String getTypeOfGroup() {
+    return this.typeOfGroup;
+  }
+  
+  /**
+   * @param typeOfGroup1 type of group can be an enum of TypeOfGroup, e.g. group, role, entity
+   */
+  public void setTypeOfGroup(String typeOfGroup1) {
+    this.typeOfGroup = typeOfGroup1;
+  }
+  
   /** field */
   private String groupLookupUuid;
   

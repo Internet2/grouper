@@ -2504,6 +2504,34 @@ public class GrouperClientWsTest extends GrouperTest {
             && GrouperClientWs.mostRecentRequest.contains("aStem:leftGroup")
             && GrouperClientWs.mostRecentRequest.contains("aStem:rightGroup"));
 
+        
+        // #####################################################
+        // run again, with typeOfGroup
+        baos = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(baos));
+
+        GrouperClient
+            .main(GrouperClientUtils
+                .splitTrim(
+                    "--operation=groupSaveWs --name=aStem:newGroup4 --typeOfGroup=entity",
+                    " "));
+        System.out.flush();
+        output = new String(baos.toByteArray());
+
+        System.setOut(systemOut);
+
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
+
+        matcher = pattern.matcher(outputLines[0]);
+
+        assertTrue(outputLines[0], matcher.matches());
+
+        assertEquals("SUCCESS_INSERTED", matcher.group(1));
+        assertEquals("aStem:newGroup4", matcher.group(2));
+
+        assertTrue(GrouperClientWs.mostRecentRequest, GrouperClientWs.mostRecentRequest.contains("<typeOfGroup>entity</typeOfGroup>"));
+
+        
       } finally {
       }
     } finally {

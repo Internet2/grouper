@@ -33,6 +33,7 @@ import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException
 import edu.internet2.middleware.grouper.exception.MemberDeleteException;
 import edu.internet2.middleware.grouper.exception.StemAddException;
 import edu.internet2.middleware.grouper.exception.StemNotFoundException;
+import edu.internet2.middleware.grouper.group.TypeOfGroup;
 import edu.internet2.middleware.grouper.misc.CompositeType;
 import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.misc.SaveResultType;
@@ -167,6 +168,7 @@ public class WsGroupToSave {
       String groupNameLookup = groupLookedup == null ? null : groupLookedup.getName();
   
       GroupSave groupSave = new GroupSave(grouperSession);
+      groupSave.assignTypeOfGroup(TypeOfGroup.valueOfIgnoreCase(this.getWsGroup().getTypeOfGroup(), false));
       groupSave.assignGroupNameToEdit(groupNameLookup);
       groupSave.assignUuid(this.getWsGroup().getUuid()).assignName(this.getWsGroup().getName());
       groupSave.assignDisplayExtension(this.getWsGroup().getDisplayExtension());

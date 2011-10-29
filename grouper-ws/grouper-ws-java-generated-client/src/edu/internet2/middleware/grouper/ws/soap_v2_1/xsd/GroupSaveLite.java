@@ -736,6 +736,50 @@
                                }
                             
 
+                        /**
+                        * field for TypeOfGroup
+                        */
+
+                        
+                                    protected java.lang.String localTypeOfGroup ;
+                                
+                           /*  This tracker boolean wil be used to detect whether the user called the set method
+                          *   for this attribute. It will be used to determine whether to include this field
+                           *   in the serialized XML
+                           */
+                           protected boolean localTypeOfGroupTracker = false ;
+                           
+
+                           /**
+                           * Auto generated getter method
+                           * @return java.lang.String
+                           */
+                           public  java.lang.String getTypeOfGroup(){
+                               return localTypeOfGroup;
+                           }
+
+                           
+                        
+                            /**
+                               * Auto generated setter method
+                               * @param param TypeOfGroup
+                               */
+                               public void setTypeOfGroup(java.lang.String param){
+                            
+                                       if (param != null){
+                                          //update the setting tracker
+                                          localTypeOfGroupTracker = true;
+                                       } else {
+                                          localTypeOfGroupTracker = true;
+                                              
+                                       }
+                                   
+                                            this.localTypeOfGroup=param;
+                                    
+
+                               }
+                            
+
      /**
      * isReaderMTOMAware
      * @return true if the reader supports MTOM
@@ -1376,6 +1420,40 @@
                                           }
                                     
                                    xmlWriter.writeEndElement();
+                             } if (localTypeOfGroupTracker){
+                                    namespace = "http://soap_v2_1.ws.grouper.middleware.internet2.edu/xsd";
+                                    if (! namespace.equals("")) {
+                                        prefix = xmlWriter.getPrefix(namespace);
+
+                                        if (prefix == null) {
+                                            prefix = generatePrefix(namespace);
+
+                                            xmlWriter.writeStartElement(prefix,"typeOfGroup", namespace);
+                                            xmlWriter.writeNamespace(prefix, namespace);
+                                            xmlWriter.setPrefix(prefix, namespace);
+
+                                        } else {
+                                            xmlWriter.writeStartElement(namespace,"typeOfGroup");
+                                        }
+
+                                    } else {
+                                        xmlWriter.writeStartElement("typeOfGroup");
+                                    }
+                                
+
+                                          if (localTypeOfGroup==null){
+                                              // write the nil attribute
+                                              
+                                                     writeAttribute("xsi","http://www.w3.org/2001/XMLSchema-instance","nil","1",xmlWriter);
+                                                  
+                                          }else{
+
+                                        
+                                                   xmlWriter.writeCharacters(localTypeOfGroup);
+                                            
+                                          }
+                                    
+                                   xmlWriter.writeEndElement();
                              }
                     xmlWriter.writeEndElement();
                
@@ -1634,6 +1712,12 @@
                                  
                                          elementList.add(localParamValue1==null?null:
                                          org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localParamValue1));
+                                    } if (localTypeOfGroupTracker){
+                                      elementList.add(new javax.xml.namespace.QName("http://soap_v2_1.ws.grouper.middleware.internet2.edu/xsd",
+                                                                      "typeOfGroup"));
+                                 
+                                         elementList.add(localTypeOfGroup==null?null:
+                                         org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localTypeOfGroup));
                                     }
 
                 return new org.apache.axis2.databinding.utils.reader.ADBXMLStreamReaderImpl(qName, elementList.toArray(), attribList.toArray());
@@ -2126,6 +2210,33 @@
                                     java.lang.String content = reader.getElementText();
                                     
                                               object.setParamValue1(
+                                                    org.apache.axis2.databinding.utils.ConverterUtil.convertToString(content));
+                                            
+                                       } else {
+                                           
+                                           
+                                           reader.getElementText(); // throw away text nodes if any.
+                                       }
+                                      
+                                        reader.next();
+                                    
+                              }  // End of if for expected property start element
+                                
+                                    else {
+                                        
+                                    }
+                                
+                                    
+                                    while (!reader.isStartElement() && !reader.isEndElement()) reader.next();
+                                
+                                    if (reader.isStartElement() && new javax.xml.namespace.QName("http://soap_v2_1.ws.grouper.middleware.internet2.edu/xsd","typeOfGroup").equals(reader.getName())){
+                                
+                                       nillableValue = reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance","nil");
+                                       if (!"true".equals(nillableValue) && !"1".equals(nillableValue)){
+                                    
+                                    java.lang.String content = reader.getElementText();
+                                    
+                                              object.setTypeOfGroup(
                                                     org.apache.axis2.databinding.utils.ConverterUtil.convertToString(content));
                                             
                                        } else {

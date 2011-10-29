@@ -579,6 +579,7 @@ public class GrouperService {
    *            reserved for future use
    * @param paramValue1
    *            reserved for future use
+   * @param typeOfGroup type of group can be an enum of TypeOfGroup, e.g. group, role, entity
    * @return the result of one member add
    */
   public WsGroupSaveLiteResult groupSaveLite(final String clientVersion,
@@ -586,7 +587,7 @@ public class GrouperService {
       String displayExtension,String description,  String saveMode,
       String actAsSubjectId, String actAsSubjectSourceId,
       String actAsSubjectIdentifier, String includeGroupDetail, String paramName0, String paramValue0,
-      String paramName1, String paramValue1) {
+      String paramName1, String paramValue1, String typeOfGroup) {
     Object result = GrouperUtil.callMethodWithMoreParams(GrouperUtil.newInstance(GrouperServiceUtils.currentServiceClass()), 
         GrouperServiceUtils.currentServiceClass(), "groupSaveLite",
         new Object[]{clientVersion,
@@ -594,7 +595,7 @@ public class GrouperService {
       displayExtension,description,  saveMode,
       actAsSubjectId, actAsSubjectSourceId,
       actAsSubjectIdentifier, includeGroupDetail, paramName0, paramValue0,
-      paramName1, paramValue1});
+      paramName1, paramValue1, typeOfGroup});
     
     return (WsGroupSaveLiteResult)GrouperUtil.changeToVersion(result, THIS_VERSION_PACKAGE);
 

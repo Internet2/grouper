@@ -1172,6 +1172,13 @@ public class GrouperClient {
       wsGroupToSave.setSaveMode(saveMode);
     }
     
+    //save mode
+    String typeOfGroup = GrouperClientUtils.argMapString(argMap, 
+        argMapNotUsed, "typeOfGroup", false);
+    if (typeOfGroup != null) {
+      wsGroup.setTypeOfGroup(typeOfGroup);
+    }
+    
     String description = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "description", false);
     if (!GrouperClientUtils.isBlank(description)) {
       wsGroup.setDescription(description);

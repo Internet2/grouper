@@ -321,7 +321,7 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
             );
           } else {
             gq = GrouperQuery.createQuery(
-                grouperSession, new GroupNameFilter(searchValue, root, null, null, null, null, typeOfGroups())
+                grouperSession, new GroupNameFilter(searchValue, root, "displayName", null, null, null, typeOfGroups())
               );
           }
            
