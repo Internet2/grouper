@@ -87,7 +87,7 @@ public class SourcesXmlResolver implements SubjectResolver {
             SubjectNotUniqueException {
     List<Subject> subjects = new ArrayList();
     
-    List<Callable<Subject>> callables = new ArrayList<Callable<Subject>>();
+    List<LogLabelCallable<Subject>> callables = new ArrayList<LogLabelCallable<Subject>>();
     
     Set<Source> sources = this.getSources();
     
@@ -95,9 +95,9 @@ public class SourcesXmlResolver implements SubjectResolver {
     
     for ( Source sa : sources ) {
       final Source SOURCE = sa;
-      callables.add(new Callable<Subject>() {
+      callables.add(new LogLabelCallable<Subject>("find on source: " + sa.getId() + ", '" + id + "'") {
 
-        public Subject call() throws Exception {
+        public Subject callLogic() throws Exception {
           return SOURCE.getSubject(id, false);
         }
         
@@ -121,13 +121,76 @@ public class SourcesXmlResolver implements SubjectResolver {
   private static ExecutorService executorService = Executors.newCachedThreadPool();
 
   /**
+   * 
+   *
+   * @param <T>
+   */
+  public static abstract class LogLabelCallable<T> implements Callable<T> {
+    
+    /** loglabel */
+    private String logLabel;
+    
+    /**
+     * @return the logLabel
+     */
+    public String getLogLabel() {
+      return this.logLabel;
+    }
+    
+    /**
+     * @see java.util.concurrent.Callable#call()
+     */
+    public final T call() throws Exception {
+      
+      long subStartNanos = -1;
+      if (LOG.isDebugEnabled()) {
+        subStartNanos = System.nanoTime();
+      }
+      try {
+        return this.callLogic();
+      } finally {
+        if (LOG.isDebugEnabled()) {
+          long nanos = System.nanoTime() - subStartNanos;
+          long millis = nanos / 1000000;
+          LOG.debug(this.getLogLabel() + ", time in millis: " + millis);
+        }
+      }
+      
+    }
+
+    /**
+     * Computes a result, or throws an exception if unable to do so.
+     *
+     * @return computed result
+     * @throws Exception if unable to compute a result
+     */
+    public abstract T callLogic() throws Exception;
+
+    
+    /**
+     * @param logLabel the logLabel to set
+     */
+    public void setLogLabel(String logLabel) {
+      this.logLabel = logLabel;
+    }
+    
+    /**
+     * 
+     * @param theLogLabel
+     */
+    public LogLabelCallable(String theLogLabel) {
+      this.logLabel = theLogLabel;
+    }
+  }
+  
+  /**
    * execute callables either in threads or not
    * @param <T>
    * @param callables
    * @param useThreads
    * @return the results of each
    */
-  private static <T> List<T> executeCallables(List<Callable<T>> callables, boolean useThreads) {
+  private static <T> List<T> executeCallables(List<LogLabelCallable<T>> callables, boolean useThreads) {
     
     //if threadlocal says not to, dont
     if (!SubjectFinder.isUseThreadsBasedOnThreadLocal()) {
@@ -143,9 +206,10 @@ public class SourcesXmlResolver implements SubjectResolver {
     try {
       //maybe dont use threads
       if (!useThreads) {
-        for (Callable<T> callable : callables) {
+        for (LogLabelCallable<T> callable : callables) {
           try {
             results.add(callable.call());
+            
           } catch (RuntimeException runtimeException1) {
             throw runtimeException1;
           } catch (Exception e) {
@@ -281,7 +345,7 @@ public class SourcesXmlResolver implements SubjectResolver {
     
     List<Subject> subjects = new ArrayList();
     
-    List<Callable<Subject>> callables = new ArrayList<Callable<Subject>>();
+    List<LogLabelCallable<Subject>> callables = new ArrayList<LogLabelCallable<Subject>>();
     
     Set<Source> sources = this.getSources();
     
@@ -289,9 +353,9 @@ public class SourcesXmlResolver implements SubjectResolver {
     
     for ( Source sa : sources ) {
       final Source SOURCE = sa;
-      callables.add(new Callable<Subject>() {
+      callables.add(new LogLabelCallable<Subject>("findByIdentifier on source: " + sa.getId() + ", '" + id + "'") {
 
-        public Subject call() throws Exception {
+        public Subject callLogic() throws Exception {
           return SOURCE.getSubjectByIdentifier(id, false);
         }
         
@@ -405,7 +469,7 @@ public class SourcesXmlResolver implements SubjectResolver {
     
     List<Subject> subjects = new ArrayList();
     
-    List<Callable<Subject>> callables = new ArrayList<Callable<Subject>>();
+    List<LogLabelCallable<Subject>> callables = new ArrayList<LogLabelCallable<Subject>>();
     
     Set<Source> sources = this.getSources();
     
@@ -413,9 +477,9 @@ public class SourcesXmlResolver implements SubjectResolver {
     
     for ( Source sa : sources ) {
       final Source SOURCE = sa;
-      callables.add(new Callable<Subject>() {
+      callables.add(new LogLabelCallable<Subject>("findByIdOrIdentifier on source: " + sa.getId() + ", '" + idOrIdentifier + "'") {
 
-        public Subject call() throws Exception {
+        public Subject callLogic() throws Exception {
           return SOURCE.getSubjectByIdOrIdentifier(idOrIdentifier, false);
         }
         
@@ -625,16 +689,16 @@ public class SourcesXmlResolver implements SubjectResolver {
     
     Set<Subject> subjects = new LinkedHashSet();
     
-    List<Callable<Set<Subject>>> callables = new ArrayList<Callable<Set<Subject>>>();
+    List<LogLabelCallable<Set<Subject>>> callables = new ArrayList<LogLabelCallable<Set<Subject>>>();
     
     boolean needsThreads = needsThreads(sources, false);
     
     //get all the jobs ready to go
     for ( Source sa : sources ) {
       final Source SOURCE = sa;
-      callables.add(new Callable<Set<Subject>>() {
+      callables.add(new LogLabelCallable<Set<Subject>>("findAll on source: " + sa.getId() + ", '" + query + "'") {
 
-        public Set<Subject> call() throws Exception {
+        public Set<Subject> callLogic() throws Exception {
           try {
             return SOURCE.search(query);
           } catch (RuntimeException re) {
@@ -689,16 +753,16 @@ public class SourcesXmlResolver implements SubjectResolver {
     Set<Subject> subjects = new LinkedHashSet();
     searchPageResult.setResults(subjects);
     
-    List<Callable<SearchPageResult>> callables = new ArrayList<Callable<SearchPageResult>>();
+    List<LogLabelCallable<SearchPageResult>> callables = new ArrayList<LogLabelCallable<SearchPageResult>>();
     
     boolean needsThreads = needsThreads(sources, false);
     
     //get all the jobs ready to go
     for ( Source sa : sources ) {
       final Source SOURCE = sa;
-      callables.add(new Callable<SearchPageResult>() {
+      callables.add(new LogLabelCallable<SearchPageResult>("findPage on source: " + sa.getId() + ", '" + query + "'") {
 
-        public SearchPageResult call() throws Exception {
+        public SearchPageResult callLogic() throws Exception {
           try {
             SearchPageResult searchPage = SOURCE.searchPage(query);
 
