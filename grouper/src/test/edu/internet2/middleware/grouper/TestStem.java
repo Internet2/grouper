@@ -27,6 +27,9 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Stem.Scope;
+import edu.internet2.middleware.grouper.attr.AttributeDef;
+import edu.internet2.middleware.grouper.attr.AttributeDefNameSave;
+import edu.internet2.middleware.grouper.attr.AttributeDefSave;
 import edu.internet2.middleware.grouper.cfg.ApiConfig;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GrantPrivilegeException;
@@ -84,6 +87,79 @@ public class TestStem extends GrouperTest {
     super(name);
   }
 
+  /**
+   * make sure obliterate works
+   */
+  public void testObliterate() {
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    Stem stem = new StemSave(grouperSession).assignName("test").save();
+    new StemSave(grouperSession).assignName("test:sub1").save();
+    new StemSave(grouperSession).assignName("test:sub2").save();
+    new StemSave(grouperSession).assignName("test:sub1:sub12").save();
+    new StemSave(grouperSession).assignName("test:sub2:sub22").save();
+    
+    new GroupSave(grouperSession).assignName("test:testGroup").save();
+    new GroupSave(grouperSession).assignName("test:testGroup2").save();
+    new GroupSave(grouperSession).assignName("test:testGroup3").save();
+    new GroupSave(grouperSession).assignName("test:sub1:testGroup").save();
+    new GroupSave(grouperSession).assignName("test:sub1:testGroup2").save();
+    new GroupSave(grouperSession).assignName("test:sub1:testGroup3").save();
+    new GroupSave(grouperSession).assignName("test:sub2:testGroup").save();
+    new GroupSave(grouperSession).assignName("test:sub2:testGroup2").save();
+    new GroupSave(grouperSession).assignName("test:sub2:testGroup3").save();
+    new GroupSave(grouperSession).assignName("test:sub1:sub12:testGroup").save();
+    new GroupSave(grouperSession).assignName("test:sub1:sub12:testGroup2").save();
+    new GroupSave(grouperSession).assignName("test:sub1:sub12:testGroup3").save();
+    new GroupSave(grouperSession).assignName("test:sub2:sub22:testGroup").save();
+    new GroupSave(grouperSession).assignName("test:sub2:sub22:testGroup2").save();
+    new GroupSave(grouperSession).assignName("test:sub2:sub22:testGroup3").save();
+
+    AttributeDef testTestAttributeDef = new AttributeDefSave(grouperSession).assignName("test:testAttributeDef").save();
+    AttributeDef testTest2AttributeDef = new AttributeDefSave(grouperSession).assignName("test:testAttributeDef2").save();
+    AttributeDef testTest3AttributeDef = new AttributeDefSave(grouperSession).assignName("test:testAttributeDef3").save();
+    AttributeDef testTestSub1AttributeDef = new AttributeDefSave(grouperSession).assignName("test:sub1:testAttributeDef").save();
+    AttributeDef testTestSub12AttributeDef = new AttributeDefSave(grouperSession).assignName("test:sub1:testAttributeDef2").save();
+    AttributeDef testTestSub13AttributeDef = new AttributeDefSave(grouperSession).assignName("test:sub1:testAttributeDef3").save();
+    AttributeDef testTestSub2AttributeDef = new AttributeDefSave(grouperSession).assignName("test:sub2:testAttributeDef").save();
+    AttributeDef testTestSub22AttributeDef = new AttributeDefSave(grouperSession).assignName("test:sub2:testAttributeDef2").save();
+    AttributeDef testTestSub23AttributeDef = new AttributeDefSave(grouperSession).assignName("test:sub2:testAttributeDef3").save();
+    AttributeDef testTestSub112AttributeDef = new AttributeDefSave(grouperSession).assignName("test:sub1:sub12:testAttributeDef").save();
+    AttributeDef testTestSub122AttributeDef = new AttributeDefSave(grouperSession).assignName("test:sub1:sub12:testAttributeDef2").save();
+    AttributeDef testTestSub123AttributeDef = new AttributeDefSave(grouperSession).assignName("test:sub1:sub12:testAttributeDef3").save();
+    AttributeDef testTestSub222AttributeDef = new AttributeDefSave(grouperSession).assignName("test:sub2:sub22:testAttributeDef").save();
+    AttributeDef testTestSub2222AttributeDef = new AttributeDefSave(grouperSession).assignName("test:sub2:sub22:testAttributeDef2").save();
+    AttributeDef testTestSub2223AttributeDef = new AttributeDefSave(grouperSession).assignName("test:sub2:sub22:testAttributeDef3").save();
+
+    new AttributeDefNameSave(grouperSession, testTestAttributeDef).assignName("test:testAttributeDefName").save();
+    new AttributeDefNameSave(grouperSession, testTest2AttributeDef).assignName("test:testAttributeDefName2").save();
+    new AttributeDefNameSave(grouperSession, testTest3AttributeDef).assignName("test:testAttributeDefName3").save();
+    new AttributeDefNameSave(grouperSession, testTestSub1AttributeDef).assignName("test:testSub1AttributeDefName").save();
+    new AttributeDefNameSave(grouperSession, testTestSub12AttributeDef).assignName("test:testSub12AttributeDefName").save();
+    new AttributeDefNameSave(grouperSession, testTestSub13AttributeDef).assignName("test:testSub13AttributeDefName").save();
+    new AttributeDefNameSave(grouperSession, testTestSub2AttributeDef).assignName("test:testSub2AttributeDefName").save();
+    new AttributeDefNameSave(grouperSession, testTestSub22AttributeDef).assignName("test:testSub22AttributeDefName").save();
+    new AttributeDefNameSave(grouperSession, testTestSub23AttributeDef).assignName("test:testSub23AttributeDefName").save();
+    new AttributeDefNameSave(grouperSession, testTestSub112AttributeDef).assignName("test:testSub112AttributeDefName").save();
+    new AttributeDefNameSave(grouperSession, testTestSub122AttributeDef).assignName("test:testSub122AttributeDefName").save();
+    new AttributeDefNameSave(grouperSession, testTestSub123AttributeDef).assignName("test:testSub123AttributeDefName").save();
+    new AttributeDefNameSave(grouperSession, testTestSub222AttributeDef).assignName("test:testSub222AttributeDefName").save();
+    new AttributeDefNameSave(grouperSession, testTestSub2222AttributeDef).assignName("test:testSub2222AttributeDefName").save();
+    new AttributeDefNameSave(grouperSession, testTestSub2223AttributeDef).assignName("test:testSub2223AttributeDefName").save();
+
+    stem.obliterate(true, true);
+    
+    stem = StemFinder.findByName(grouperSession, "test", true);
+    
+    assertNotNull(stem);
+    
+    stem.obliterate(false, false);
+    
+    stem = StemFinder.findByName(grouperSession, "test", false);
+    
+    assertNull(stem);
+    
+  }
+  
   /**
    * 
    */
