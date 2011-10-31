@@ -62,7 +62,7 @@ $Id: sources.example.xml,v 1.8 2009-08-11 20:18:09 mchyzer Exp $
     </init-param>
     <init-param>
       <param-name>sortAttribute0</param-name>
-      <param-value>name</param-value>
+      <param-value>displayExtension</param-value>
     </init-param>
     <init-param>
       <param-name>searchAttribute0</param-name>
