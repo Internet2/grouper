@@ -56,6 +56,9 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
   /** subject type string */
   protected String subjectTypeString;
 
+  /** the database type will try to be detected by URL, though if you want to specify in sources.xml, you can */
+  private String databaseType;
+  
   /** if there is a limit to the number of results */
   protected Integer maxResults;
   
@@ -64,6 +67,35 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
   
   /** keep a reference to the object which gets our connections for us */
   protected JdbcConnectionProvider jdbcConnectionProvider = null;
+
+  /** if we should change the search query for max results */
+  private boolean changeSearchQueryForMaxResults = true;
+
+  /**
+   * try to change a paging query
+   * @param query
+   * @param conn
+   * @param resultSetLimit
+   * @return the query
+   */
+  public String tryToChangeQuery(String query, Connection conn, int resultSetLimit) {
+    return null;
+  }
+  
+  /**
+   * @return the databaseType
+   */
+  public String getDatabaseType() {
+    return this.databaseType;
+  }
+
+  /**
+   * if we should change the query based on max resuuls or page
+   * @return the changeSearchQueryForMaxResults
+   */
+  public boolean isChangeSearchQueryForMaxResults() {
+    return this.changeSearchQueryForMaxResults;
+  }
 
   /**
    * Allocates new JDBCSourceAdapter;
@@ -591,6 +623,17 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
         }
       }
     }
+
+    {
+      String changeSearchQueryForMaxResultsString = props.getProperty("changeSearchQueryForMaxResults");
+      if (!StringUtils.isBlank(changeSearchQueryForMaxResultsString)) {
+        try {
+          this.changeSearchQueryForMaxResults = SubjectUtils.booleanValue(changeSearchQueryForMaxResultsString);
+        } catch (Exception e) {
+          throw new SourceUnavailableException("Cant parse changeSearchQueryForMaxResults: " + changeSearchQueryForMaxResultsString, e);
+        }
+      }
+    }
   }
 
   
@@ -671,6 +714,48 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
         log.error(error + ", dbUser param is required");
         return;
       }
+      
+      {
+        String maxResultsString = props.getProperty("maxResults");
+        if (!StringUtils.isBlank(maxResultsString)) {
+          try {
+            Integer.parseInt(maxResultsString);
+          } catch (Exception e) {
+            System.err.println("Cant parse maxResults: " + maxResultsString);
+            log.error("Cant parse maxResults: " + maxResultsString);
+            return;
+          }
+        }
+      }
+      
+      {
+        String maxPageString = props.getProperty("maxPageSize");
+        if (!StringUtils.isBlank(maxPageString)) {
+          try {
+            Integer.parseInt(maxPageString);
+          } catch (Exception e) {
+            System.err.println("Cant parse maxPageSize: " + maxPageString);
+            log.error("Cant parse maxPageSize: " + maxPageString);
+            return;
+          }
+        }
+      }
+
+      {
+        String changeSearchQueryForMaxResultsString = props.getProperty("changeSearchQueryForMaxResults");
+        if (!StringUtils.isBlank(changeSearchQueryForMaxResultsString)) {
+          try {
+            SubjectUtils.booleanValue(changeSearchQueryForMaxResultsString);
+          } catch (Exception e) {
+            System.err.println("Cant parse changeSearchQueryForMaxResults: " + changeSearchQueryForMaxResultsString);
+            log.error("Cant parse changeSearchQueryForMaxResults: " + changeSearchQueryForMaxResultsString);
+            return;
+          }
+        }
+      }
+
+      
+      
       String dbPwd = StringUtils.defaultString(props.getProperty("dbPwd"));
       //      if (StringUtils.isBlank(dbPwd)) {
       //        System.err.println("Subject API error: " + error + ", dbPwd param is required");

@@ -88,9 +88,6 @@ public class JDBCSourceAdapter2 extends JDBCSourceAdapter {
    */
   private Set<String> selectCols = new LinkedHashSet<String>();
 
-  /** if there is a limit to the number of results */
-  private Integer maxResults;
-
   /**
    * map of col to attribute name
    * //<param-name>subjectAttributeCol0</param-name>
@@ -569,6 +566,26 @@ public class JDBCSourceAdapter2 extends JDBCSourceAdapter {
   }
 
   /**
+   * see what the result set limit should be (dont add one yet)
+   * @param firstPageOnly
+   * @param pageSize
+   * @param theMaxResults
+   * @return the limit or null if none
+   */
+  private static Integer resultSetLimit(boolean firstPageOnly, Integer pageSize, Integer theMaxResults) {
+    Integer result = null;
+    if ((firstPageOnly && pageSize != null) || theMaxResults != null) {
+      result = (firstPageOnly && pageSize != null) ? (theMaxResults) : null;
+      if (result == null) {
+        result = theMaxResults;
+      } else if (theMaxResults != null){
+        result = Math.min(result, theMaxResults);
+      }
+    }
+    return result;
+  }
+  
+  /**
    * Perform a search for subjects
    * 
    * @param query is query to run, prepared statement args should be question marks
@@ -599,6 +616,15 @@ public class JDBCSourceAdapter2 extends JDBCSourceAdapter {
     try {
       jdbcConnectionBean = this.jdbcConnectionProvider.connectionBean();
       conn = jdbcConnectionBean.connection();
+      
+      String dbUrl = conn.getMetaData().getURL();
+      
+      Integer resultSetLimit = resultSetLimit(firstPageOnly, this.getMaxPage(), this.maxResults);
+      
+      if (resultSetLimit != null && this.isChangeSearchQueryForMaxResults()) {
+        query = tryToChangeQuery(query, conn, resultSetLimit);
+      }
+      
       stmt = conn.prepareStatement(query);
       ResultSet rs = null;
 

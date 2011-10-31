@@ -19,10 +19,14 @@ public class SubjectFinderBenchmark {
   public static void main(String[] args) {
 
     GrouperSession.startRootSession();
-    SubjectFinder.findAll("abcsd");
-    SubjectFinder.findById("sdf", false);
     
-    runTest();
+    SubjectFinder.findAll("mchyzer", "pennperson");
+    
+    
+//    SubjectFinder.findAll("abcsd");
+//    SubjectFinder.findById("sdf", false);
+//    
+//    runTest();
   }
 
   /**
