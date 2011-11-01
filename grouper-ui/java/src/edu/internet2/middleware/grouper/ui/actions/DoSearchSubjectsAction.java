@@ -187,17 +187,18 @@ public class DoSearchSubjectsAction extends GrouperCapableAction {
 		
 		Iterator it = results.iterator();
 		Subject subj;
-		
-		while(it.hasNext()) {
-			subj=(Subject)it.next();
-			if(subj.getSource().getId().equals("g:gsa")) {
-				try {
-					Group g = GroupFinder.findByUuid(grouperSession, subj.getId(), true);
-				}catch(Exception e) {
-					it.remove();
-				}
-			}
-		}
+
+//  not sure why we need this		
+//		while(it.hasNext()) {
+//			subj=(Subject)it.next();
+//			if(subj.getSource().getId().equals("g:gsa")) {
+//				try {
+//					Group g = GroupFinder.findByUuid(grouperSession, subj.getId(), true);
+//				}catch(Exception e) {
+//					it.remove();
+//				}
+//			}
+//		}
 		
 		Map addAttr = new HashMap();
 		addAttr.put("returnTo","/doSearchSubjects.do");

@@ -115,6 +115,21 @@ public interface GroupDAO extends GrouperDAO {
             ;
 
   /**
+   * @param attr attribute name
+   * @param val value
+   * @param scope some folder or null for all
+   * @return  the grops
+   * @throws GrouperDAOException 
+   * @throws IllegalStateException 
+   * @since   2.0.2
+   * 
+   */
+  Set<Group> findAllByApproximateAttrSecure(String attr, String val, String scope) 
+    throws  GrouperDAOException,
+            IllegalStateException
+            ;
+
+  /**
    * @since   1.3
    */
   Set<Group> findAllByAttr(String attr, String val) 
