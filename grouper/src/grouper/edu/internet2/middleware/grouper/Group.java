@@ -5373,11 +5373,19 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
   }
 
   /**
+   * set the attributes if computed in one query
+   * @param theAttributes
+   */
+  public void internal_setAttributes(Map<String, Attribute> theAttributes) {
+    this.attributes = theAttributes;
+  }
+  
+  /**
    * 
    * @param attributes
    */
   public void setAttributes(Map<String, String> attributes) {
-    
+
     attributes = GrouperUtil.nonNull(attributes);
     
     //make a copy of existing attributes

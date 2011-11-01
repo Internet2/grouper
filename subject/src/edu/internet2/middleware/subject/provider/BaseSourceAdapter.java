@@ -40,9 +40,29 @@ import edu.internet2.middleware.subject.SubjectType;
 public abstract class BaseSourceAdapter implements Source {
 
   /**
+   * see what the result set limit should be (dont add one yet)
+   * @param firstPageOnly
+   * @param pageSize
+   * @param theMaxResults
+   * @return the limit or null if none
+   */
+  public static Integer resultSetLimit(boolean firstPageOnly, Integer pageSize, Integer theMaxResults) {
+    Integer result = null;
+    if ((firstPageOnly && pageSize != null) || theMaxResults != null) {
+      result = (firstPageOnly && pageSize != null) ? (pageSize) : null;
+      if (result == null) {
+        result = theMaxResults;
+      } else if (theMaxResults != null){
+        result = Math.min(result, theMaxResults);
+      }
+    }
+    return result;
+  }
+  
+
+  /**
    * @see edu.internet2.middleware.subject.Source#searchPage(java.lang.String)
    */
-  @Override
   public SearchPageResult searchPage(String searchValue) {
     Set<Subject> results = this.search(searchValue);
     return new SearchPageResult(false, results);

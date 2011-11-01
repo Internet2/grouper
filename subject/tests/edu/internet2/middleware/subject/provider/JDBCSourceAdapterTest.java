@@ -150,11 +150,19 @@ public class JDBCSourceAdapterTest extends TestCase {
     TestRunner.run(new JDBCSourceAdapterTest("testPageQuery"));
   }
 
+  /**
+   * 
+   */
   public void testPageQuery() {
     
     assertEquals("select penn_id, pennname, name, description, description_lower, first_name, last_name, affiliation_id, person_active, email, email_public from (select penn_id, pennname, name, description, description_lower, first_name, last_name, affiliation_id, person_active, email, email_public from person_source ps where PS.DESCRIPTION_LOWER like '%hyz%' order by description) where rownum <= 5",
         JdbcDatabaseType.oracle.pageQuery("select penn_id, pennname, name, description, description_lower, first_name, last_name, affiliation_id, person_active, email, email_public from person_source ps where PS.DESCRIPTION_LOWER like '%hyz%' order by description", 5));
 
+    assertEquals("select penn_id, pennname, name, description, description_lower, first_name, last_name, affiliation_id, person_active, email, email_public from person_source ps where PS.DESCRIPTION_LOWER like '%hyz%' order by description limit 0,5",
+        JdbcDatabaseType.mysql.pageQuery("select penn_id, pennname, name, description, description_lower, first_name, last_name, affiliation_id, person_active, email, email_public from person_source ps where PS.DESCRIPTION_LOWER like '%hyz%' order by description", 5));
+    
+    assertEquals("select penn_id, pennname, name, description, description_lower, first_name, last_name, affiliation_id, person_active, email, email_public from person_source ps where PS.DESCRIPTION_LOWER like '%hyz%' order by description limit 5",
+        JdbcDatabaseType.postgres.pageQuery("select penn_id, pennname, name, description, description_lower, first_name, last_name, affiliation_id, person_active, email, email_public from person_source ps where PS.DESCRIPTION_LOWER like '%hyz%' order by description", 5));
     
   }
   

@@ -20,13 +20,14 @@ public class SubjectFinderBenchmark {
 
     GrouperSession.startRootSession();
     
-    SubjectFinder.findAll("mchyzer", "pennperson");
+    //SubjectFinder.findPage("ach");
+    //SubjectFinder.findPage("mch");
     
     
 //    SubjectFinder.findAll("abcsd");
 //    SubjectFinder.findById("sdf", false);
 //    
-//    runTest();
+    runTest();
   }
 
   /**
@@ -38,23 +39,23 @@ public class SubjectFinderBenchmark {
     long startNanos = System.nanoTime();
     long overallStartNanos = startNanos;
     
-    for (char i = 'a'; i<='b'; i++) {
-      for (char j = 'a'; j<='z'; j++) {
-
-        SubjectFinder.findAll("a" + i + "" + j);
-        
-      }
-      System.out.print(".");
-    }
-    System.out.println("");
-
-    System.out.println((2*26) + " findAlls took " + ((System.nanoTime() - startNanos)/1000000) + "ms");
+//    for (char i = 'a'; i<='b'; i++) {
+//      for (char j = 'a'; j<='z'; j++) {
+//
+//        SubjectFinder.findAll(i + "" + j);
+//        
+//      }
+//      System.out.print(".");
+//    }
+//    System.out.println("");
+//
+//    System.out.println((2*26) + " findAlls took " + ((System.nanoTime() - startNanos)/1000000) + "ms");
     startNanos = System.nanoTime();
 
-    for (char i = 'a'; i<='b'; i++) {
+    for (char i = 'c'; i<='d'; i++) {
       for (char j = 'a'; j<='z'; j++) {
 
-        SubjectFinder.findPage("b" + i + "" + j);
+        SubjectFinder.findPage(i + "" + j);
         
       }
       System.out.print(".");
@@ -65,10 +66,10 @@ public class SubjectFinderBenchmark {
     
     startNanos = System.nanoTime();
 
-    for (char i = 'a'; i<='b'; i++) {
+    for (char i = 'e'; i<='f'; i++) {
       for (char j = 'a'; j<='z'; j++) {
 
-        SubjectFinder.findById("abc" + i + "" + j, false);
+        SubjectFinder.findById(i + "" + j, false);
         
       }
       System.out.print(".");
@@ -79,7 +80,7 @@ public class SubjectFinderBenchmark {
     
     startNanos = System.nanoTime();
 
-    for (char i = 'a'; i<='b'; i++) {
+    for (char i = 'g'; i<='h'; i++) {
       for (char j = 'a'; j<='z'; j++) {
 
         SubjectFinder.findByIdentifier("abd" + i + "" + j, false);
@@ -93,7 +94,7 @@ public class SubjectFinderBenchmark {
     
     startNanos = System.nanoTime();
 
-    for (char i = 'a'; i<='b'; i++) {
+    for (char i = 'i'; i<='j'; i++) {
       for (char j = 'a'; j<='z'; j++) {
 
         SubjectFinder.findByIdOrIdentifier("abe" + i + "" + j, false);

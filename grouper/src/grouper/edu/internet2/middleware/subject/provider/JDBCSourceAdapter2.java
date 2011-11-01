@@ -566,26 +566,6 @@ public class JDBCSourceAdapter2 extends JDBCSourceAdapter {
   }
 
   /**
-   * see what the result set limit should be (dont add one yet)
-   * @param firstPageOnly
-   * @param pageSize
-   * @param theMaxResults
-   * @return the limit or null if none
-   */
-  private static Integer resultSetLimit(boolean firstPageOnly, Integer pageSize, Integer theMaxResults) {
-    Integer result = null;
-    if ((firstPageOnly && pageSize != null) || theMaxResults != null) {
-      result = (firstPageOnly && pageSize != null) ? (theMaxResults) : null;
-      if (result == null) {
-        result = theMaxResults;
-      } else if (theMaxResults != null){
-        result = Math.min(result, theMaxResults);
-      }
-    }
-    return result;
-  }
-  
-  /**
    * Perform a search for subjects
    * 
    * @param query is query to run, prepared statement args should be question marks
@@ -616,8 +596,6 @@ public class JDBCSourceAdapter2 extends JDBCSourceAdapter {
     try {
       jdbcConnectionBean = this.jdbcConnectionProvider.connectionBean();
       conn = jdbcConnectionBean.connection();
-      
-      String dbUrl = conn.getMetaData().getURL();
       
       Integer resultSetLimit = resultSetLimit(firstPageOnly, this.getMaxPage(), this.maxResults);
       

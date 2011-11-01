@@ -4,6 +4,7 @@
  */
 package edu.internet2.middleware.grouper.internal.dao.hib3;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -12,7 +13,9 @@ import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Attribute;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
+import edu.internet2.middleware.grouper.hibernate.ByHqlStatic;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
+import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.AttributeDAO;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
@@ -52,6 +55,50 @@ public class Hib3AttributeDAO implements AttributeDAO {
       attrs.put( attribute.getAttrName(), attribute );
     }
     return attrs;
+  } 
+
+  /**
+   * @see AttributeDAO#findAllAttributesByGroups(Collection)
+   */
+  public Map<String, Map<String, Attribute>> findAllAttributesByGroups(final Collection<String> uuids) throws  GrouperDAOException {
+    
+    final Map<String, Map<String, Attribute>> result = new HashMap<String, Map<String, Attribute>>();
+
+    for (String uuid : GrouperUtil.nonNull(uuids)) {
+        result.put(uuid, new HashMap<String, Attribute>());
+    }
+    
+    //lets page through these
+    int batchSize = 150;
+    int pages = GrouperUtil.batchNumberOfBatches(uuids, batchSize);
+
+    //break into pages
+    for (int i=0; i<pages; i++) {
+      List<String> uuidPageList = GrouperUtil.batchList(uuids, batchSize, i);
+      
+      ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
+      
+      //do an in clause with bind vars
+      String inClause = HibUtils.convertToInClause(uuidPageList, byHqlStatic);
+      
+      StringBuilder hql = new StringBuilder("from Attribute as a where a.groupUuid in (").append(inClause).append(")");
+
+      List<Attribute> hib3Attributes = byHqlStatic
+        .setGrouperTransactionType(GrouperTransactionType.READONLY_OR_USE_EXISTING)
+        .createQuery(hql.toString())
+        .setCacheable(false).setCacheRegion(KLASS + ".FindAllAttributesByGroups")
+        .list(Attribute.class);
+      
+      //put into a map of maps
+      for (Attribute attribute : GrouperUtil.nonNull(hib3Attributes)) {
+        
+        Map<String, Attribute> attributeMap = result.get(attribute.getGroupUuid());
+        attributeMap.put(attribute.getGroupUuid(), attribute);
+      }
+      
+    }
+    
+    return result;
   } 
 
   /**

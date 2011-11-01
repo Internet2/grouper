@@ -76,10 +76,28 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
    * @param query
    * @param conn
    * @param resultSetLimit
-   * @return the query
+   * @return the query with paging or original query if cant change it
    */
   public String tryToChangeQuery(String query, Connection conn, int resultSetLimit) {
-    return null;
+    
+    //lets see if we are restricted
+    if (!this.changeSearchQueryForMaxResults || resultSetLimit < 0) {
+      return query;
+    }
+    
+    JdbcDatabaseType jdbcDatabaseType = JdbcDatabaseType.resolveDatabaseType(conn);
+
+    if (jdbcDatabaseType == null) {
+      return query;
+    }
+    
+    String newQuery = jdbcDatabaseType.pageQuery(query, resultSetLimit);
+    
+    if (StringUtils.isBlank(newQuery)) {
+      return query;
+    }
+    
+    return newQuery;
   }
   
   /**
@@ -171,7 +189,7 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
     try {
       jdbcConnectionBean = this.jdbcConnectionProvider.connectionBean();
       conn = jdbcConnectionBean.connection();
-      stmt = prepareStatement(search, conn);
+      stmt = prepareStatement(search, conn, false, false);
       ResultSet rs = getSqlResults(id1, stmt, search);
       subject = createUniqueSubject(rs, search, id1, search.getParam("sql"));
       jdbcConnectionBean.doneWithConnection();
@@ -243,7 +261,8 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
       }
       
       conn = jdbcConnectionBean.connection();
-      stmt = prepareStatement(search, conn);
+      
+      stmt = prepareStatement(search, conn, true, firstPageOnly);
       ResultSet rs = getSqlResults(searchValue, stmt, search);
       if (rs == null) {
         return new SearchPageResult(false, result);
@@ -381,11 +400,12 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
    * 
    * @param search
    * @param conn
+   * @param searchAll true if a searchAll method
    * @return the prepared statement
    * @throws InvalidQueryException
    * @throws SQLException
    */
-  protected PreparedStatement prepareStatement(Search search, Connection conn)
+  protected PreparedStatement prepareStatement(Search search, Connection conn, boolean searchAll, boolean firstPageOnly)
       throws InvalidQueryException, SQLException {
     String sql = search.getParam("sql");
     if (sql == null) {
@@ -407,6 +427,15 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
                 + ", sql: " + sql);
       }
     }
+    
+    if (searchAll) {
+      Integer pageSize = resultSetLimit(firstPageOnly, this.getMaxPage(), this.maxResults);
+      if (pageSize != null && pageSize > 0) {
+        
+        sql = this.tryToChangeQuery(sql, conn, pageSize);
+      }
+    }
+    
     PreparedStatement stmt = conn.prepareStatement(sql);
     return stmt;
   }
@@ -503,6 +532,41 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
       Properties props = getInitParams();
       //this might not exist if it is Grouper source and no driver...
       setupDataSource(props);
+      
+      
+      {
+        String maxResultsString = props.getProperty("maxResults");
+        if (!StringUtils.isBlank(maxResultsString)) {
+          try {
+            this.maxResults = Integer.parseInt(maxResultsString);
+          } catch (NumberFormatException nfe) {
+            throw new SourceUnavailableException("Cant parse maxResults: " + maxResultsString, nfe);
+          }
+        }
+      }
+      
+      {
+        String maxPageString = props.getProperty("maxPageSize");
+        if (!StringUtils.isBlank(maxPageString)) {
+          try {
+            this.maxPage = Integer.parseInt(maxPageString);
+          } catch (NumberFormatException nfe) {
+            throw new SourceUnavailableException("Cant parse maxPage: " + maxPageString, nfe);
+          }
+        }
+      }
+
+      {
+        String changeSearchQueryForMaxResultsString = props.getProperty("changeSearchQueryForMaxResults");
+        if (!StringUtils.isBlank(changeSearchQueryForMaxResultsString)) {
+          try {
+            this.changeSearchQueryForMaxResults = SubjectUtils.booleanValue(changeSearchQueryForMaxResultsString);
+          } catch (Exception e) {
+            throw new SourceUnavailableException("Cant parse changeSearchQueryForMaxResults: " + changeSearchQueryForMaxResultsString, e);
+          }
+        }
+      }
+
     } catch (Exception ex) {
       throw new SourceUnavailableException(
           "Unable to init sources.xml JDBC source, source: " + this.getId(), ex);
@@ -600,39 +664,6 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
     if (this.descriptionAttributeName == null) {
       throw new SourceUnavailableException(
           "Description_AttributeType not defined, source: " + this.getId());
-    }
-    
-    {
-      String maxResultsString = props.getProperty("maxResults");
-      if (!StringUtils.isBlank(maxResultsString)) {
-        try {
-          this.maxResults = Integer.parseInt(maxResultsString);
-        } catch (NumberFormatException nfe) {
-          throw new SourceUnavailableException("Cant parse maxResults: " + maxResultsString, nfe);
-        }
-      }
-    }
-    
-    {
-      String maxPageString = props.getProperty("maxPageSize");
-      if (!StringUtils.isBlank(maxPageString)) {
-        try {
-          this.maxPage = Integer.parseInt(maxPageString);
-        } catch (NumberFormatException nfe) {
-          throw new SourceUnavailableException("Cant parse maxPage: " + maxPageString, nfe);
-        }
-      }
-    }
-
-    {
-      String changeSearchQueryForMaxResultsString = props.getProperty("changeSearchQueryForMaxResults");
-      if (!StringUtils.isBlank(changeSearchQueryForMaxResultsString)) {
-        try {
-          this.changeSearchQueryForMaxResults = SubjectUtils.booleanValue(changeSearchQueryForMaxResultsString);
-        } catch (Exception e) {
-          throw new SourceUnavailableException("Cant parse changeSearchQueryForMaxResults: " + changeSearchQueryForMaxResultsString, e);
-        }
-      }
     }
   }
 

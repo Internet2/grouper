@@ -293,6 +293,14 @@ public class GrouperSubject extends SubjectImpl {
     this.loadedModifyCreateSubjects = true;
 
   }
+
+  /**
+   * get the group inside
+   * @return the group
+   */
+  public Group internal_getGroup() {
+    return this.group;
+  }
   
   /**
    * 

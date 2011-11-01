@@ -4,6 +4,8 @@
  */
 package edu.internet2.middleware.subject.provider;
 
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -46,13 +48,33 @@ public enum JdbcDatabaseType {
       
       for (int i=0;i<aliases.size();i++) {
         result.append(aliases.get(i));
-        if (i < aliases.size()-1) {
+        if (i < (aliases.size()-1)) {
           result.append(", ");
         }
       }
       result.append(" from (").append(query).append(") where rownum <= ").append(pageSize);
       return result.toString();
     }
+
+
+    /**
+     * 
+     * @see edu.internet2.middleware.subject.provider.JdbcDatabaseType#matchesUrlDefinitely(java.lang.String)
+     */
+    @Override
+    public boolean matchesUrlDefinitely(String url) {
+      return url != null && url.toLowerCase().startsWith("jdbc:oracle:");
+    }
+
+    /**
+     * 
+     * @see edu.internet2.middleware.subject.provider.JdbcDatabaseType#matchesUrlMaybe(java.lang.String)
+     */
+    @Override
+    public boolean matchesUrlMaybe(String url) {
+      return url != null && url.toLowerCase().contains("oracle");
+    }
+
   },
   
   /** mysql db */
@@ -64,7 +86,25 @@ public enum JdbcDatabaseType {
      */
     @Override
     public String pageQuery(String query, int pageSize) {
-      return null;
+      return query + " limit 0," + pageSize;//
+    }
+
+    /**
+     * 
+     * @see edu.internet2.middleware.subject.provider.JdbcDatabaseType#matchesUrlDefinitely(java.lang.String)
+     */
+    @Override
+    public boolean matchesUrlDefinitely(String url) {
+      return url != null && url.toLowerCase().startsWith("jdbc:mysql:");
+    }
+
+    /**
+     * 
+     * @see edu.internet2.middleware.subject.provider.JdbcDatabaseType#matchesUrlMaybe(java.lang.String)
+     */
+    @Override
+    public boolean matchesUrlMaybe(String url) {
+      return url != null && url.toLowerCase().contains("mysql");
     }
   },
   
@@ -77,21 +117,27 @@ public enum JdbcDatabaseType {
      */
     @Override
     public String pageQuery(String query, int pageSize) {
-      return null;
+      return query + " limit " + pageSize;//
     }
-  },
-  
-  /** sqlserver */
-  sqlserver {
 
     /**
      * 
-     * @see edu.internet2.middleware.subject.provider.JdbcDatabaseType#pageQuery(java.lang.String, int)
+     * @see edu.internet2.middleware.subject.provider.JdbcDatabaseType#matchesUrlDefinitely(java.lang.String)
      */
     @Override
-    public String pageQuery(String query, int pageSize) {
-      return null;
+    public boolean matchesUrlDefinitely(String url) {
+      return url != null && url.toLowerCase().startsWith("jdbc:postgresql:");
     }
+
+    /**
+     * 
+     * @see edu.internet2.middleware.subject.provider.JdbcDatabaseType#matchesUrlMaybe(java.lang.String)
+     */
+    @Override
+    public boolean matchesUrlMaybe(String url) {
+      return url != null && url.toLowerCase().contains("postgres");
+    }
+
   },
   
   /** hsql */
@@ -105,8 +151,55 @@ public enum JdbcDatabaseType {
     public String pageQuery(String query, int pageSize) {
       return null;
     }
+
+    /**
+     * 
+     * @see edu.internet2.middleware.subject.provider.JdbcDatabaseType#matchesUrlDefinitely(java.lang.String)
+     */
+    @Override
+    public boolean matchesUrlDefinitely(String url) {
+      return url != null && url.toLowerCase().startsWith("jdbc:hsqldb:");
+    }
+
+    /**
+     * 
+     * @see edu.internet2.middleware.subject.provider.JdbcDatabaseType#matchesUrlMaybe(java.lang.String)
+     */
+    @Override
+    public boolean matchesUrlMaybe(String url) {
+      return url != null && url.toLowerCase().contains("hsql");
+    }
   };
 
+  /**
+   * return the database type for this connection or null
+   * @param connection
+   * @return the database type
+   */
+  public static JdbcDatabaseType resolveDatabaseType(Connection connection) {
+    String url = null;
+    
+    try {
+      url = connection.getMetaData().getURL();
+    } catch (SQLException sqle) {
+      return null;
+    }
+    
+    for (JdbcDatabaseType jdbcDatabaseType : JdbcDatabaseType.values()) {
+      if (jdbcDatabaseType.matchesUrlDefinitely(url)) {
+        return jdbcDatabaseType;
+      }
+    }
+    
+    for (JdbcDatabaseType jdbcDatabaseType : JdbcDatabaseType.values()) {
+      if (jdbcDatabaseType.matchesUrlMaybe(url)) {
+        return jdbcDatabaseType;
+      }
+    }
+    
+    return null;
+   }
+  
   /** get the select part of a SQL */
   private static Pattern selectClausePattern = Pattern.compile("^(.*?\\s)(from\\s.*)$", Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
 
@@ -185,6 +278,22 @@ public enum JdbcDatabaseType {
    * @return the new query
    */
   public abstract String pageQuery(String query, int pageSize);
+  
+  /**
+   * 
+   * @param url
+   * @return true if this is definitely this db type
+   */
+  public abstract boolean matchesUrlDefinitely(String url);
+
+  /**
+   * 
+   * @param url
+   * @return true if this is maybe this db type
+   */
+  public abstract boolean matchesUrlMaybe(String url);
+
+  
   
   /**
    * do a case-insensitive matching

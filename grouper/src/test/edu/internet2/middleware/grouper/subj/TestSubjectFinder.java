@@ -25,6 +25,7 @@ import junit.textui.TestRunner;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.GrouperSourceAdapter;
 import edu.internet2.middleware.grouper.Stem;
@@ -37,6 +38,7 @@ import edu.internet2.middleware.grouper.helper.SessionHelper;
 import edu.internet2.middleware.grouper.helper.StemHelper;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.helper.T;
+import edu.internet2.middleware.grouper.hibernate.GrouperContext;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.SearchPageResult;
 import edu.internet2.middleware.subject.Source;
@@ -72,7 +74,8 @@ public class TestSubjectFinder extends GrouperTest {
    */
   public static void main(String[] args) {
     //TestRunner.run(TestSubjectFinder.class);
-    TestRunner.run(new TestSubjectFinder("testSearchPageMax"));
+    //TestRunner.run(new TestSubjectFinder("testSearchPageMax"));
+    TestRunner.run(new TestSubjectFinder("testGroupQueries"));
   }
   
   /**
@@ -97,6 +100,26 @@ public class TestSubjectFinder extends GrouperTest {
     LOG.debug("tearDown");
   }
 
+  /**
+   * 
+   */
+  public void testGroupQueries() {
+    
+    for (int i=0;i<200;i++) {
+      new GroupSave(s).assignName("test:test" + i).save();
+    }
+    
+    long queryCount = GrouperContext.totalQueryCount;
+    
+    SubjectFinder.findPage("te");
+    
+    int diffQueryCount = (int)(GrouperContext.totalQueryCount - queryCount);
+    
+    //shouldnt be more than 10 queries to do this... 
+    assertTrue("diff query count: " + diffQueryCount, diffQueryCount < 20);
+    
+  }
+  
   public void testFindByIdentifierGoodId() {
     LOG.info("testFindByIdentifierGoodId");
     SubjectTestHelper.getSubjectByIdentifier(i2.getName());

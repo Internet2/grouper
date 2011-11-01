@@ -17,9 +17,11 @@
 
 package edu.internet2.middleware.grouper.subj;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -30,12 +32,14 @@ import java.util.concurrent.Future;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
+import edu.internet2.middleware.grouper.Attribute;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.SubjectFinder.RestrictSourceForGroup;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.SearchPageResult;
 import edu.internet2.middleware.subject.Source;
@@ -313,6 +317,9 @@ public class SourcesXmlResolver implements SubjectResolver {
     Source sourceObject = this.getSource(source);
     try {
       Set<Subject> subjects = sourceObject.search(query);
+      
+      this.initGroupAttributes(subjects);
+      
       if (GrouperConfig.getPropertyBoolean("grouper.sort.subjectSets.exactOnTop", true)) {
         subjects = SubjectHelper.sortSetForSearch(subjects, query);
       }
@@ -594,6 +601,9 @@ public class SourcesXmlResolver implements SubjectResolver {
         }
         
       }
+      
+      this.initGroupAttributes(subjects);
+      
       if (GrouperConfig.getPropertyBoolean("grouper.sort.subjectSets.exactOnTop", true)) {
         subjects = SubjectHelper.sortSetForSearch(subjects, query);
         searchPage.setResults(subjects);
@@ -615,12 +625,14 @@ public class SourcesXmlResolver implements SubjectResolver {
   /**
    * 
    * @param sources
+   * @param isSearchPage is the call for a general or paged search
    * @return if we need threads
    */
   private boolean needsThreads(Set<Source> sources, boolean isSearchPage) {
     
+    //default to false since threading doesnt really help
     boolean useThreadsFromConfig = GrouperConfig.getPropertyBoolean(
-        isSearchPage ? "subjects.allPage.useThreadForkJoin" : "subjects.idOrIdentifier.useThreadForkJoin", true);
+        isSearchPage ? "subjects.allPage.useThreadForkJoin" : "subjects.idOrIdentifier.useThreadForkJoin", false);
     
     if (!useThreadsFromConfig) {
       return false;
@@ -730,6 +742,9 @@ public class SourcesXmlResolver implements SubjectResolver {
       }
     }
     
+    //lets init the group attributes
+    this.initGroupAttributes(subjects);
+    
     if (GrouperConfig.getPropertyBoolean("grouper.sort.subjectSets.exactOnTop", true)) {
       subjects = SubjectHelper.sortSetForSearch(subjects, query);
     }
@@ -806,6 +821,9 @@ public class SourcesXmlResolver implements SubjectResolver {
       }
     }
     
+    //lets init the group attributes
+    this.initGroupAttributes(subjects);
+    
     if (GrouperConfig.getPropertyBoolean("grouper.sort.subjectSets.exactOnTop", true)) {
       subjects = SubjectHelper.sortSetForSearch(subjects, query);
       searchPageResult.setResults(subjects);
@@ -814,5 +832,47 @@ public class SourcesXmlResolver implements SubjectResolver {
     return searchPageResult;
 
   }
+  
+  /**
+   * init group attributes in few queries
+   * @param subjects
+   */
+  private void initGroupAttributes(Set<Subject> subjects) {
+
+    //if there are none, or if this isnt the group source
+    if (GrouperUtil.length(subjects) == 0) {
+      return;
+    }
+    Set<String> groupIds = new HashSet<String>();
+    
+    Map<String, GrouperSubject> grouperSubjectMap = new HashMap<String, GrouperSubject>();
+    
+    //get the grouper subjects
+    for (Subject subject : subjects) {
+      if (subject instanceof GrouperSubject) {
+        groupIds.add(subject.getId());
+        grouperSubjectMap.put(subject.getId(), (GrouperSubject)subject);
+      }
+    }
+    if (GrouperUtil.length(groupIds) == 0) {
+      return;
+    }
+    
+    Map<String, Map<String, Attribute>> groupIdToAttributeMap = GrouperDAOFactory.getFactory()
+      .getAttribute().findAllAttributesByGroups(groupIds);
+    
+    //go through the groups in results
+    for (String groupId : GrouperUtil.nonNull(groupIdToAttributeMap).keySet()) {
+      Map<String, Attribute> attributeMap = groupIdToAttributeMap.get(groupId);
+      
+      //if there are attributes, add them to the group so they dont have to be fetched later.
+      if (attributeMap != null) {
+        GrouperSubject grouperSubject = grouperSubjectMap.get(groupId);
+        grouperSubject.internal_getGroup().internal_setAttributes(attributeMap);
+      }
+    }
+    
+  }
+  
 }
 

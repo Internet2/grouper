@@ -368,7 +368,8 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
                   "More results than allowed: " + GrouperSourceAdapter.this.maxResults 
                   + " for search '" + searchValue + "'");
             }
-            result.add(group.toSubject()); 
+            //dont call group.toSubject() since that causes a query
+            result.add(new GrouperSubject(group)); 
           }
           
         }
@@ -460,6 +461,9 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
    */
   @Override
   public SearchPageResult searchPage(String searchValue) {
+    if (LOG.isDebugEnabled()) {
+      LOG.debug("searchPaging for: " + searchValue);
+    }
     return searchHelper(searchValue, true);
   }
 }
