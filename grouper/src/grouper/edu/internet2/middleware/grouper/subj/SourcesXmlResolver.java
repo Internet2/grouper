@@ -33,6 +33,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Attribute;
+import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
@@ -843,35 +844,16 @@ public class SourcesXmlResolver implements SubjectResolver {
     if (GrouperUtil.length(subjects) == 0) {
       return;
     }
-    Set<String> groupIds = new HashSet<String>();
     
-    Map<String, GrouperSubject> grouperSubjectMap = new HashMap<String, GrouperSubject>();
+    Set<Group> groups = new HashSet<Group>();
     
     //get the grouper subjects
     for (Subject subject : subjects) {
       if (subject instanceof GrouperSubject) {
-        groupIds.add(subject.getId());
-        grouperSubjectMap.put(subject.getId(), (GrouperSubject)subject);
+        groups.add(((GrouperSubject)subject).internal_getGroup());
       }
     }
-    if (GrouperUtil.length(groupIds) == 0) {
-      return;
-    }
-    
-    Map<String, Map<String, Attribute>> groupIdToAttributeMap = GrouperDAOFactory.getFactory()
-      .getAttribute().findAllAttributesByGroups(groupIds);
-    
-    //go through the groups in results
-    for (String groupId : GrouperUtil.nonNull(groupIdToAttributeMap).keySet()) {
-      Map<String, Attribute> attributeMap = groupIdToAttributeMap.get(groupId);
-      
-      //if there are attributes, add them to the group so they dont have to be fetched later.
-      if (attributeMap != null) {
-        GrouperSubject grouperSubject = grouperSubjectMap.get(groupId);
-        grouperSubject.internal_getGroup().internal_setAttributes(attributeMap);
-      }
-    }
-    
+    Group.initGroupAttributes(groups);
   }
   
 }

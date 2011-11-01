@@ -538,6 +538,9 @@ public abstract class AbstractRepositoryBrowser implements RepositoryBrowser {
 			obj=results.get(i);
 			if(isValidSearchResult(obj)) filtered.add(obj);
 		}
+		
+		Group.initGroupObjectAttributes(filtered);
+		
 		return filtered;
 	}
 	

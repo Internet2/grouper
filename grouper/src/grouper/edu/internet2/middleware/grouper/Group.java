@@ -229,6 +229,68 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
   public Composite getComposite() throws CompositeNotFoundException {
     return this.getComposite(true);
   }
+
+  /**
+   * init group attributes in one query (old style attributes)
+   * @param objects could be groups
+   */
+  public static void initGroupObjectAttributes(Collection<Object> objects) {
+    
+    Set<Group> groups = new HashSet<Group>();
+    
+    for (Object object : objects) {
+      
+      if (object instanceof Group) {
+        groups.add((Group)object);
+      }
+      
+    }
+    
+    initGroupAttributes(groups);
+  }
+  
+  /**
+   * init group attributes in one query (old style attributes)
+   * @param groups
+   */
+  public static void initGroupAttributes(Collection<Group> groups) {
+
+    //if there are none, or if this isnt the group source
+    if (GrouperUtil.length(groups) == 0) {
+      return;
+    }
+    Set<String> groupIds = new HashSet<String>();
+    
+    Map<String, Group> grouperGroupMap = new HashMap<String, Group>();
+    
+    //get the grouper subjects
+    for (Group group : groups) {
+      
+      if (group.attributes == null) {
+      
+        groupIds.add(group.getId());
+        grouperGroupMap.put(group.getId(), group);
+      }
+    }
+    if (GrouperUtil.length(groupIds) == 0) {
+      return;
+    }
+    
+    Map<String, Map<String, Attribute>> groupIdToAttributeMap = GrouperDAOFactory.getFactory()
+      .getAttribute().findAllAttributesByGroups(groupIds);
+    
+    //go through the groups in results
+    for (String groupId : GrouperUtil.nonNull(groupIdToAttributeMap).keySet()) {
+      Map<String, Attribute> attributeMap = groupIdToAttributeMap.get(groupId);
+      
+      //if there are attributes, add them to the group so they dont have to be fetched later.
+      if (attributeMap != null) {
+        Group group = grouperGroupMap.get(groupId);
+        group.internal_setAttributes(attributeMap);
+      }
+    }
+    
+  }
   
   /**
    * if this is a composite group, get the composite object for this group
