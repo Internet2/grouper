@@ -30,6 +30,7 @@ import edu.internet2.middleware.grouper.Attribute;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSourceAdapter;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.misc.E;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.SourceUnavailableException;
@@ -267,28 +268,29 @@ public class GrouperSubject extends SubjectImpl {
     if (this.loadedModifyCreateSubjects) {
       return;
     }
-    
-    try {
-      // Don't bother with any of the create* attrs unless we can find
-      // the creating subject
-      Subject creator = group.getCreateSubject();
-      ((GrouperSubjectAttributeMap)this.getAttributes(false)).put( "createSubjectId",   GrouperUtil.toSet(creator.getId()), false);
-      ((GrouperSubjectAttributeMap)this.getAttributes(false)).put( "createSubjectType", GrouperUtil.toSet(creator.getType().getName()), false);
-    }
-    catch (SubjectNotFoundException eSNF0) {
-      LOG.error(E.GSUBJ_NOCREATOR + eSNF0.getMessage());
-    }
-    try {
-      // Don't bother with any of the modify* attrs unless we can find
-      // the modifying subject
-      Subject modifier = group.getModifySubject();
-      ((GrouperSubjectAttributeMap)this.getAttributes(false)).put( "modifySubjectId",   
-          GrouperUtil.toSet(modifier.getId()), false);
-      ((GrouperSubjectAttributeMap)this.getAttributes(false)).put( "modifySubjectType", 
-          GrouperUtil.toSet(modifier.getType().getName()), false);
-    }
-    catch (SubjectNotFoundException eSNF1) {
-      // No modifier
+    if (GrouperConfig.getPropertyBoolean("subjects.group.useCreatorAndModifierAsSubjectAttributes", true)) {
+      try {
+        // Don't bother with any of the create* attrs unless we can find
+        // the creating subject
+        Subject creator = group.getCreateSubject();
+        ((GrouperSubjectAttributeMap)this.getAttributes(false)).put( "createSubjectId",   GrouperUtil.toSet(creator.getId()), false);
+        ((GrouperSubjectAttributeMap)this.getAttributes(false)).put( "createSubjectType", GrouperUtil.toSet(creator.getType().getName()), false);
+      }
+      catch (SubjectNotFoundException eSNF0) {
+        LOG.error(E.GSUBJ_NOCREATOR + eSNF0.getMessage());
+      }
+      try {
+        // Don't bother with any of the modify* attrs unless we can find
+        // the modifying subject
+        Subject modifier = group.getModifySubject();
+        ((GrouperSubjectAttributeMap)this.getAttributes(false)).put( "modifySubjectId",   
+            GrouperUtil.toSet(modifier.getId()), false);
+        ((GrouperSubjectAttributeMap)this.getAttributes(false)).put( "modifySubjectType", 
+            GrouperUtil.toSet(modifier.getType().getName()), false);
+      }
+      catch (SubjectNotFoundException eSNF1) {
+        // No modifier
+      }
     }
     this.loadedModifyCreateSubjects = true;
 

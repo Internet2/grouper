@@ -515,7 +515,6 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
             if (!Group._internal_fieldAttribute(attr)) {
               hql.append(", Field field, Attribute as a ");
             }
-            ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
           
             GrouperSession grouperSession = GrouperSession.staticGrouperSession();
             
@@ -524,7 +523,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
             
             if (secureQuery) {
               changedQuery = grouperSession.getAccessResolver().hqlFilterGroupsWhereClause(
-                  grouperSession.getSubject(), byHqlStatic, 
+                  grouperSession.getSubject(), byHql, 
                   hql, "g.uuid", AccessPrivilege.VIEW_PRIVILEGES);
             }
             
