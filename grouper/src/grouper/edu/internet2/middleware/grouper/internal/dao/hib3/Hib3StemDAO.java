@@ -873,7 +873,7 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
    * @throws GrouperDAOException 
    * @since   @HEAD@
    */
-  public void renameStemAndChildren(final Stem _ns, final Set children)
+  public void renameStemAndChildren(final Set children)
     throws  GrouperDAOException {
     try {
       HibernateSession.callbackHibernateSession(
@@ -885,15 +885,13 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
               HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
               ByObject byObject = hibernateSession.byObject();
               byObject.update(children);
-              byObject.update( _ns );
               return null;
             }
         
       });
     }
     catch (GrouperDAOException e) {
-      String error = "Problem revoking priv: " + GrouperUtil.toStringSafe(_ns)
-        + ", children: " + GrouperUtil.toStringSafe(children) + ", " + e.getMessage();
+      String error = "Problem saving children of stem: children: " + GrouperUtil.toStringSafe(children) + ", " + e.getMessage();
       throw new GrouperDAOException( error, e );
     }
   } 

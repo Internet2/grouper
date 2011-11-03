@@ -81,7 +81,7 @@ public class ChangeLogTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new ChangeLogTest("testEntities"));
+    TestRunner.run(new ChangeLogTest("testStemRenameOrder"));
     //TestRunner.run(ChangeLogTest.class);
   }
   
@@ -107,6 +107,139 @@ public class ChangeLogTest extends GrouperTest {
     super.tearDown();
     ApiConfig.testConfig.remove("grouper.env.name");
 
+  }
+  
+  /**
+   * 
+   */
+  public void testStemRenameOrder() {
+
+    // initialize some data
+    Stem one = root.addChildStem("one", "ONE");
+    Stem two = one.addChildStem("two", "TWO");
+    Stem three = two.addChildStem("three", "THREE");
+    Stem four = three.addChildStem("four", "FOUR");
+    
+    two.addChildGroup("two-group", "TWO-GROUP");
+    three.addChildGroup("three-group", "THREE-GROUP");
+    
+    AttributeDef attributeDef = three.addChildAttributeDef("three-attrDef", AttributeDefType.attr);    
+    AttributeDefName attributeDefName = three.addChildAttributeDefName(attributeDef, "three-attr", "THREE-ATTR");
+    
+    //move the temp objects to the regular change log table and delete them
+    ChangeLogTempToEntity.convertRecords();
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryEntity").executeUpdate();
+    
+    // now rename
+    one.setExtension("oneNew");
+    one.store();
+    ChangeLogTempToEntity.convertRecords();
+
+    // order should be ..
+    //
+    // one
+    // one:two
+    // one:two:two-group
+    // one:two:three
+    // one:two:three:three-attr
+    // one:two:three:three-attrDef
+    // one:two:three:three-group
+    // one:two:three:four
+    
+    int newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_change_log_entry");
+    assertEquals("Should have added 8 change log entries", 8, newChangeLogCount);
+
+    List<ChangeLogEntry> changeLogEntries = HibernateSession.byHqlStatic()
+      .createQuery("from ChangeLogEntryEntity order by sequenceNumber")
+      .list(ChangeLogEntry.class);
+
+    {
+      ChangeLogEntry entry = changeLogEntries.get(0);
+      assertTrue("contextId should exist", StringUtils.isNotBlank(entry.getContextId()));
+      assertEquals("verify contextId", one.getContextId(), entry.getContextId());
+      assertEquals(ChangeLogTypeBuiltin.STEM_UPDATE.getChangeLogType(), entry.getChangeLogType());
+      assertEquals(ChangeLogLabels.STEM_UPDATE.name.name(), entry.retrieveValueForLabel(ChangeLogLabels.STEM_UPDATE.propertyChanged));
+      assertEquals("oneNew", entry.retrieveValueForLabel(ChangeLogLabels.STEM_UPDATE.name));
+      assertEquals("one", entry.retrieveValueForLabel(ChangeLogLabels.STEM_UPDATE.propertyOldValue));
+      assertEquals("oneNew", entry.retrieveValueForLabel(ChangeLogLabels.STEM_UPDATE.propertyNewValue));
+    }
+    
+    {
+      ChangeLogEntry entry = changeLogEntries.get(1);
+      assertTrue("contextId should exist", StringUtils.isNotBlank(entry.getContextId()));
+      assertEquals("verify contextId", one.getContextId(), entry.getContextId());
+      assertEquals(ChangeLogTypeBuiltin.STEM_UPDATE.getChangeLogType(), entry.getChangeLogType());
+      assertEquals(ChangeLogLabels.STEM_UPDATE.name.name(), entry.retrieveValueForLabel(ChangeLogLabels.STEM_UPDATE.propertyChanged));
+      assertEquals("oneNew:two", entry.retrieveValueForLabel(ChangeLogLabels.STEM_UPDATE.name));
+      assertEquals("one:two", entry.retrieveValueForLabel(ChangeLogLabels.STEM_UPDATE.propertyOldValue));
+      assertEquals("oneNew:two", entry.retrieveValueForLabel(ChangeLogLabels.STEM_UPDATE.propertyNewValue));
+    }
+    
+    {
+      ChangeLogEntry entry = changeLogEntries.get(2);
+      assertTrue("contextId should exist", StringUtils.isNotBlank(entry.getContextId()));
+      assertEquals("verify contextId", one.getContextId(), entry.getContextId());
+      assertEquals(ChangeLogTypeBuiltin.GROUP_UPDATE.getChangeLogType(), entry.getChangeLogType());
+      assertEquals(ChangeLogLabels.GROUP_UPDATE.name.name(), entry.retrieveValueForLabel(ChangeLogLabels.GROUP_UPDATE.propertyChanged));
+      assertEquals("oneNew:two:two-group", entry.retrieveValueForLabel(ChangeLogLabels.GROUP_UPDATE.name));
+      assertEquals("one:two:two-group", entry.retrieveValueForLabel(ChangeLogLabels.GROUP_UPDATE.propertyOldValue));
+      assertEquals("oneNew:two:two-group", entry.retrieveValueForLabel(ChangeLogLabels.GROUP_UPDATE.propertyNewValue));
+    }
+    
+    {
+      ChangeLogEntry entry = changeLogEntries.get(3);
+      assertTrue("contextId should exist", StringUtils.isNotBlank(entry.getContextId()));
+      assertEquals("verify contextId", one.getContextId(), entry.getContextId());
+      assertEquals(ChangeLogTypeBuiltin.STEM_UPDATE.getChangeLogType(), entry.getChangeLogType());
+      assertEquals(ChangeLogLabels.STEM_UPDATE.name.name(), entry.retrieveValueForLabel(ChangeLogLabels.STEM_UPDATE.propertyChanged));
+      assertEquals("oneNew:two:three", entry.retrieveValueForLabel(ChangeLogLabels.STEM_UPDATE.name));
+      assertEquals("one:two:three", entry.retrieveValueForLabel(ChangeLogLabels.STEM_UPDATE.propertyOldValue));
+      assertEquals("oneNew:two:three", entry.retrieveValueForLabel(ChangeLogLabels.STEM_UPDATE.propertyNewValue));
+    }
+    
+    {
+      ChangeLogEntry entry = changeLogEntries.get(4);
+      assertTrue("contextId should exist", StringUtils.isNotBlank(entry.getContextId()));
+      assertEquals("verify contextId", one.getContextId(), entry.getContextId());
+      assertEquals(ChangeLogTypeBuiltin.ATTRIBUTE_DEF_NAME_UPDATE.getChangeLogType(), entry.getChangeLogType());
+      assertEquals(ChangeLogLabels.ATTRIBUTE_DEF_NAME_UPDATE.name.name(), entry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_DEF_NAME_UPDATE.propertyChanged));
+      assertEquals("oneNew:two:three:three-attr", entry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_DEF_NAME_UPDATE.name));
+      assertEquals("one:two:three:three-attr", entry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_DEF_NAME_UPDATE.propertyOldValue));
+      assertEquals("oneNew:two:three:three-attr", entry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_DEF_NAME_UPDATE.propertyNewValue));
+    }
+    
+    {
+      ChangeLogEntry entry = changeLogEntries.get(5);
+      assertTrue("contextId should exist", StringUtils.isNotBlank(entry.getContextId()));
+      assertEquals("verify contextId", one.getContextId(), entry.getContextId());
+      assertEquals(ChangeLogTypeBuiltin.ATTRIBUTE_DEF_UPDATE.getChangeLogType(), entry.getChangeLogType());
+      assertEquals(ChangeLogLabels.ATTRIBUTE_DEF_UPDATE.name.name(), entry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_DEF_UPDATE.propertyChanged));
+      assertEquals("oneNew:two:three:three-attrDef", entry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_DEF_UPDATE.name));
+      assertEquals("one:two:three:three-attrDef", entry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_DEF_UPDATE.propertyOldValue));
+      assertEquals("oneNew:two:three:three-attrDef", entry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_DEF_UPDATE.propertyNewValue));
+    }
+    
+    {
+      ChangeLogEntry entry = changeLogEntries.get(6);
+      assertTrue("contextId should exist", StringUtils.isNotBlank(entry.getContextId()));
+      assertEquals("verify contextId", one.getContextId(), entry.getContextId());
+      assertEquals(ChangeLogTypeBuiltin.GROUP_UPDATE.getChangeLogType(), entry.getChangeLogType());
+      assertEquals(ChangeLogLabels.GROUP_UPDATE.name.name(), entry.retrieveValueForLabel(ChangeLogLabels.GROUP_UPDATE.propertyChanged));
+      assertEquals("oneNew:two:three:three-group", entry.retrieveValueForLabel(ChangeLogLabels.GROUP_UPDATE.name));
+      assertEquals("one:two:three:three-group", entry.retrieveValueForLabel(ChangeLogLabels.GROUP_UPDATE.propertyOldValue));
+      assertEquals("oneNew:two:three:three-group", entry.retrieveValueForLabel(ChangeLogLabels.GROUP_UPDATE.propertyNewValue));
+    }
+    
+    {
+      ChangeLogEntry entry = changeLogEntries.get(7);
+      assertTrue("contextId should exist", StringUtils.isNotBlank(entry.getContextId()));
+      assertEquals("verify contextId", one.getContextId(), entry.getContextId());
+      assertEquals(ChangeLogTypeBuiltin.STEM_UPDATE.getChangeLogType(), entry.getChangeLogType());
+      assertEquals(ChangeLogLabels.STEM_UPDATE.name.name(), entry.retrieveValueForLabel(ChangeLogLabels.STEM_UPDATE.propertyChanged));
+      assertEquals("oneNew:two:three:four", entry.retrieveValueForLabel(ChangeLogLabels.STEM_UPDATE.name));
+      assertEquals("one:two:three:four", entry.retrieveValueForLabel(ChangeLogLabels.STEM_UPDATE.propertyOldValue));
+      assertEquals("oneNew:two:three:four", entry.retrieveValueForLabel(ChangeLogLabels.STEM_UPDATE.propertyNewValue));
+    }
   }
   
   /**

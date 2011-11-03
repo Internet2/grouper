@@ -2480,15 +2480,13 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
   private Set _renameChildren(boolean nameChange, boolean displayNameChange, boolean setAlternateName)
     throws  StemModifyException {
     
-    // rename attributeDef and attributeDefName
-    _renameAttr(nameChange, displayNameChange);
-    
-    // rename child groups and stems
+    // rename child groups, stems, attributeDefs, and attributeDefNames
     Set     children    = new LinkedHashSet();
     String  modifier    = GrouperSession.staticGrouperSession().getMember().getUuid();
     long    modifyTime  = new Date().getTime();
-    children.addAll(this._renameChildStemsAndGroups(nameChange, displayNameChange, modifier, modifyTime, setAlternateName));
+    children.addAll(this._renameAttr(nameChange, displayNameChange));
     children.addAll(this._renameChildGroups(nameChange, displayNameChange, modifier, modifyTime, setAlternateName));
+    children.addAll(this._renameChildStemsAndGroups(nameChange, displayNameChange, modifier, modifyTime, setAlternateName));
     return children;
   } 
 
@@ -2519,13 +2517,15 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
         child.setNameDb(U.constructName(this.getNameDb(), child.getExtensionDb()));
       }
       
-      // rename attributeDef and attributeDefName
-      child._renameAttr(nameChange, displayNameChange);
-
-      children.addAll(child._renameChildGroups(nameChange, displayNameChange, modifier, modifyTime, setAlternateName));
+      // rename child stem
       child.setModifierUuid(modifier);
       child.setModifyTimeLong(modifyTime);
       children.add(child);
+      
+      // rename attributeDef and attributeDefName
+      children.addAll(child._renameAttr(nameChange, displayNameChange));
+
+      children.addAll(child._renameChildGroups(nameChange, displayNameChange, modifier, modifyTime, setAlternateName));
       children.addAll(child._renameChildStemsAndGroups(nameChange, displayNameChange, modifier, modifyTime, setAlternateName));
     }
     return children;
@@ -2536,9 +2536,11 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
    * @param nameChange
    * @param displayNameChange
    */
-  private void _renameAttr(boolean nameChange, boolean displayNameChange) {
+  private Set<GrouperAPI> _renameAttr(boolean nameChange, boolean displayNameChange) {
+    Set<GrouperAPI> children  = new LinkedHashSet();
+
     if (!nameChange && !displayNameChange) {
-      return;
+      return children;
     }
     
     Set<AttributeDefName> attributeDefNames = GrouperDAOFactory.getFactory().getAttributeDefName().findByStem(this.getUuid());
@@ -2554,7 +2556,7 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
         attributeDefName.setDisplayNameDb(this.getDisplayName() + ":" + attributeDefName.getDisplayExtensionDb());
       }
       
-      GrouperDAOFactory.getFactory().getAttributeDefName().saveOrUpdate(attributeDefName);
+      children.add(attributeDefName);
     }
     
     if (nameChange) {
@@ -2563,9 +2565,11 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
       while (attributeDefIter.hasNext()) {
         AttributeDef attributeDef = attributeDefIter.next();
         attributeDef.setNameDb(this.getName() + ":" + attributeDef.getExtensionDb());
-        GrouperDAOFactory.getFactory().getAttributeDef().saveOrUpdate(attributeDef);
+        children.add(attributeDef);
       }
     }
+    
+    return children;
   }
 
 
@@ -3002,6 +3006,24 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
   public void onPreUpdate(HibernateSession hibernateSession) {
     super.onPreUpdate(hibernateSession);
     
+    GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.STEM, 
+        StemHooks.METHOD_STEM_PRE_UPDATE, HooksStemBean.class, 
+        this, Stem.class, VetoTypeGrouper.STEM_PRE_UPDATE, false, false);
+    
+    //change log into temp table
+    ChangeLogEntry.saveTempUpdates(ChangeLogTypeBuiltin.STEM_UPDATE, 
+        this, this.dbVersion(),
+        GrouperUtil.toList(ChangeLogLabels.STEM_UPDATE.id.name(),this.getUuid(), 
+            ChangeLogLabels.STEM_UPDATE.name.name(), this.getName(),
+            ChangeLogLabels.STEM_UPDATE.parentStemId.name(), this.getParentUuid(),
+            ChangeLogLabels.STEM_UPDATE.displayName.name(), this.getDisplayName(),
+            ChangeLogLabels.STEM_UPDATE.description.name(), this.getDescription()),
+        GrouperUtil.toList(FIELD_NAME, FIELD_PARENT_UUID, FIELD_DESCRIPTION, FIELD_DISPLAY_EXTENSION),
+        GrouperUtil.toList(ChangeLogLabels.STEM_UPDATE.name.name(),
+            ChangeLogLabels.STEM_UPDATE.parentStemId.name(), 
+            ChangeLogLabels.STEM_UPDATE.description.name(), 
+            ChangeLogLabels.STEM_UPDATE.displayExtension.name()));
+    
     //if supposed to not have setters do queries
     Boolean inOnPreUpdateBoolean = inOnPreUpdate.get();
     try {
@@ -3024,7 +3046,7 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
         
         if (nameChange || displayNameChange) {
           // Now iterate through all child groups and stems, renaming each.
-          GrouperDAOFactory.getFactory().getStem().renameStemAndChildren(Stem.this, 
+          GrouperDAOFactory.getFactory().getStem().renameStemAndChildren(
               Stem.this._renameChildren(nameChange, displayNameChange, Stem.this.setAlternateNameOnMovesAndRenames));
         }
         
@@ -3040,25 +3062,6 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
         inOnPreUpdate.remove();
       }
     }
-    
-    GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.STEM, 
-        StemHooks.METHOD_STEM_PRE_UPDATE, HooksStemBean.class, 
-        this, Stem.class, VetoTypeGrouper.STEM_PRE_UPDATE, false, false);
-    
-    //change log into temp table
-    ChangeLogEntry.saveTempUpdates(ChangeLogTypeBuiltin.STEM_UPDATE, 
-        this, this.dbVersion(),
-        GrouperUtil.toList(ChangeLogLabels.STEM_UPDATE.id.name(),this.getUuid(), 
-            ChangeLogLabels.STEM_UPDATE.name.name(), this.getName(),
-            ChangeLogLabels.STEM_UPDATE.parentStemId.name(), this.getParentUuid(),
-            ChangeLogLabels.STEM_UPDATE.displayName.name(), this.getDisplayName(),
-            ChangeLogLabels.STEM_UPDATE.description.name(), this.getDescription()),
-        GrouperUtil.toList(FIELD_NAME, FIELD_PARENT_UUID, FIELD_DESCRIPTION, FIELD_DISPLAY_EXTENSION),
-        GrouperUtil.toList(ChangeLogLabels.STEM_UPDATE.name.name(),
-            ChangeLogLabels.STEM_UPDATE.parentStemId.name(), 
-            ChangeLogLabels.STEM_UPDATE.description.name(), 
-            ChangeLogLabels.STEM_UPDATE.displayExtension.name()));    
-    
   }
 
   /**

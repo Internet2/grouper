@@ -366,7 +366,7 @@ public interface StemDAO extends GrouperDAO {
   /**
    * @since   1.2.0
    */
-  void renameStemAndChildren(Stem _ns, Set children)
+  void renameStemAndChildren(Set children)
     throws  GrouperDAOException;
 
   /**
