@@ -72,7 +72,8 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
   private boolean changeSearchQueryForMaxResults = true;
 
   /**
-   * try to change a paging query
+   * try to change a paging query, note it will add one to the resultSetLimit so that
+   * the caller can see if there are too many records
    * @param query
    * @param conn
    * @param resultSetLimit
@@ -81,7 +82,7 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
   public String tryToChangeQuery(String query, Connection conn, int resultSetLimit) {
     
     //lets see if we are restricted
-    if (!this.changeSearchQueryForMaxResults || resultSetLimit < 0) {
+    if (!this.changeSearchQueryForMaxResults || resultSetLimit <= 0) {
       return query;
     }
     
@@ -90,6 +91,9 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
     if (jdbcDatabaseType == null) {
       return query;
     }
+    
+    //we need to add one so we know if there are too many results...
+    resultSetLimit++;
     
     String newQuery = jdbcDatabaseType.pageQuery(query, resultSetLimit);
     
@@ -401,6 +405,7 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
    * @param search
    * @param conn
    * @param searchAll true if a searchAll method
+   * @param firstPageOnly 
    * @return the prepared statement
    * @throws InvalidQueryException
    * @throws SQLException
