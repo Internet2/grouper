@@ -596,7 +596,7 @@ public class PopulateGroupMembersAction extends GrouperCapableAction {
 			nMemberCount++;
 		}
 		if(nMemberCount <= pageSize && sortStringEnum == null) {
-			membershipMaps=sort(membershipMaps,request,"members", nMemberCount);
+			membershipMaps=sort(membershipMaps,request,"members", nMemberCount, null);
 		}
 		CollectionPager pager = new CollectionPager(null, membershipMaps,nMemberCount,
 				null, start, null, pageSize);

@@ -196,7 +196,7 @@ public class PopulateGroupPriviligeesAction extends GrouperCapableAction {
 		//Determine who has privilege selected by user
 		group = GroupFinder.findByUuid(grouperSession, groupId, true);
 		Set subjects = GrouperHelper.getSubjectsWithPriv(group,privilege);
-		List subjectPrivilegeMaps = GrouperHelper.subjects2SubjectPrivilegeMaps(grouperSession,sort(subjects,request,"privilegees", -1),group,privilege);
+		List subjectPrivilegeMaps = GrouperHelper.subjects2SubjectPrivilegeMaps(grouperSession,sort(subjects,request,"privilegees", -1, null),group,privilege);
 		//Set up CollectionPager for the view
 		String startStr = request.getParameter("start");
 		if (startStr == null || "".equals(startStr))

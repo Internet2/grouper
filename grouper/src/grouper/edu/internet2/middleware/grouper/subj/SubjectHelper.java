@@ -31,7 +31,9 @@ import org.apache.commons.lang.StringUtils;
 
 import edu.emory.mathcs.backport.java.util.Collections;
 import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.internal.util.Quote;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.provider.SubjectImpl;
 
@@ -86,35 +88,163 @@ public class SubjectHelper {
   }
   
   /**
+   * sort subjects with best on top
+   */
+  private static class SubjectSorterBean implements Comparable<SubjectSorterBean> {
+    
+    /** subject */
+    private Subject subject = null;
+    
+    /** how many attribute matches there are */
+    private int attributeMatches = 0;
+    
+    /** if the id or identifier match */
+    private boolean subjectIdOrIdentifierMatches = false;
+
+    /** keep the original order */
+    private int order = 0;
+
+    /**
+     * subject
+     * @return the subject
+     */
+    public Subject getSubject() {
+      return this.subject;
+    }
+
+    
+    /**
+     * subject
+     * @param subject1 the subject to set
+     */
+    public void setSubject(Subject subject1) {
+      this.subject = subject1;
+    }
+
+    
+    /**
+     * how many attribute matches there are
+     * @return the attributeMatches
+     */
+    public int getAttributeMatches() {
+      return this.attributeMatches;
+    }
+
+    
+    /**
+     * how many attribute matches there are
+     * @param attributeMatches1 the attributeMatches to set
+     */
+    public void setAttributeMatches(int attributeMatches1) {
+      this.attributeMatches = attributeMatches1;
+    }
+
+    
+    /**
+     * if the id or identifier match
+     * @return the subjectIdOrIdentifierMatches
+     */
+    public boolean isSubjectIdOrIdentifierMatches() {
+      return this.subjectIdOrIdentifierMatches;
+    }
+
+    
+    /**
+     * if the id or identifier match
+     * @param subjectIdOrIdentifierMatches the subjectIdOrIdentifierMatches to set
+     */
+    public void setSubjectIdOrIdentifierMatches(boolean subjectIdOrIdentifierMatches) {
+      this.subjectIdOrIdentifierMatches = subjectIdOrIdentifierMatches;
+    }
+
+    
+    /**
+     * keep the original order
+     * @return the order
+     */
+    public int getOrder() {
+      return this.order;
+    }
+
+    
+    /**
+     * keep the original order
+     * @param order the order to set
+     */
+    public void setOrder(int order) {
+      this.order = order;
+    }
+
+
+    /**
+     * @see java.lang.Comparable#compareTo(java.lang.Object)
+     */
+    public int compareTo(SubjectSorterBean other) {
+      
+      //if id or identifier, that is better
+      if (this.isSubjectIdOrIdentifierMatches() != other.isSubjectIdOrIdentifierMatches()) {
+        return this.isSubjectIdOrIdentifierMatches() ? -1 : 1;
+      }
+      
+      //if different number of attribute matches use that
+      if (this.getAttributeMatches() != other.getAttributeMatches()) {
+        return this.getAttributeMatches() > other.getAttributeMatches() ? -1 : 1;
+      }
+      
+      //go back to original order
+      if (this.getOrder() < other.getOrder()) {
+        return -1;
+      }
+      if (this.getOrder() > other.getOrder()) {
+        return 1;
+      }
+      return 0;
+    }
+    
+    
+    
+  }
+  
+  /**
    * sort a set of subjects for a search, match id's and identifiers at top
    * @param subjectsIn
    * @param searchTerm
    * @return the set with close matches at top
    */
-  public static Set<Subject> sortSetForSearch(Set<Subject> subjectsIn, String searchTerm) {
+  public static Set<Subject> sortSetForSearch(Collection<Subject> subjectsIn, String searchTerm) {
+    return sortSetForSearch(subjectsIn, searchTerm, null);
+  }
+  
+  /**
+   * sort a set of subjects for a search, match id's and identifiers at top
+   * @param subjectsIn
+   * @param searchTerm
+   * @param idOrIdentifierMatches null if not known, but if you know of some, pass that in here
+   * @return the set with close matches at top
+   */
+  public static Set<Subject> sortSetForSearch(Collection<Subject> subjectsIn, String searchTerm, Set<Subject> idOrIdentifierMatches) {
     
-    if (subjectsIn == null) {
+    //if there is no search term and no idOrIdentifierMatches, then not much to do
+    if (subjectsIn == null || (StringUtils.isBlank(searchTerm) && GrouperUtil.length(idOrIdentifierMatches) == 0)) {
       return null;
     }
-    Set<Subject> subjectsOut = new LinkedHashSet<Subject>(subjectsIn.size());
-    //look for subjectId's
-    Iterator<Subject> iterator = subjectsIn.iterator();
-    while (iterator.hasNext()) {
-      Subject subject = iterator.next();
-      if (StringUtils.equals(searchTerm, subject.getId())) {
-        subjectsOut.add(subject);
-        iterator.remove();
-      }
-    }
     
-    //look for any attribute
-    iterator = subjectsIn.iterator();
-    Set<Subject> subjectsInExtra = new LinkedHashSet<Subject>();
-    while (iterator.hasNext()) {
-      Subject subject = iterator.next();
+    List<SubjectSorterBean> subjectSorterBeans = new ArrayList<SubjectSorterBean>(subjectsIn.size());
+    int index=0;
+    for (Subject subject : subjectsIn) {
+      
+      SubjectSorterBean subjectSorterBean = new SubjectSorterBean();
+      subjectSorterBean.setSubject(subject);
+      subjectSorterBeans.add(subjectSorterBean);
+      subjectSorterBean.setOrder(index++);
+      //see if we know the id or identifier matches
+      if (inList(idOrIdentifierMatches, subject) || (!StringUtils.isBlank(searchTerm) && StringUtils.equals(searchTerm, subject.getId()))) {
+        subjectSorterBean.setSubjectIdOrIdentifierMatches(true);
+      }
+      
       Map<String, Set<String>> attributes = subject.getAttributes();
       Object valuesObject = attributes == null ? null : attributes.values();
-      boolean foundMatch = false;
+      int matches = 0;
       if (valuesObject instanceof Collection) {
         Collection values = (Collection)valuesObject;
         
@@ -124,28 +254,63 @@ public class SubjectHelper {
             Set<String> attributeValuesSet = (Set<String>)attributeValues;
             if (attributeValuesSet != null) {
               for (String value : attributeValuesSet) {
-                if (StringUtils.equalsIgnoreCase(value, searchTerm)) {
-                  foundMatch = true;
+                if (!StringUtils.isBlank(searchTerm) && StringUtils.equalsIgnoreCase(value, searchTerm)) {
+                  matches++;
                 }
               }
             }
           } else if (attributeValues instanceof String) {
-            if (StringUtils.equalsIgnoreCase(searchTerm, (String)attributeValues)) {
-              foundMatch = true;
+            if (!StringUtils.isBlank(searchTerm) && StringUtils.equalsIgnoreCase(searchTerm, (String)attributeValues)) {
+              matches++;
             }
           }
         }
       }
-      //lets not remove from result set... 
-      if (foundMatch) {
-        subjectsOut.add(subject);
-      } else {
-        subjectsInExtra.add(subject);
+      subjectSorterBean.setAttributeMatches(matches);
+    }
+    
+    //now we need to filter out too many partial matches...
+    int maxMatches = 0;
+    for (SubjectSorterBean subjectSorterBean : subjectSorterBeans) {
+      maxMatches = Math.max(subjectSorterBean.getAttributeMatches(), maxMatches);
+    }
+
+    if (maxMatches > 0) {
+      
+      int[] matchHistogram = new int[maxMatches+1];
+      for (SubjectSorterBean subjectSorterBean : subjectSorterBeans) {
+        matchHistogram[subjectSorterBean.getAttributeMatches()]++;
+      }
+      int totalAttributeMatches = 0;
+      int attributeMatchesToRemove = -1;
+      for (int i=maxMatches; i>0; i--) {
+        totalAttributeMatches += matchHistogram[i];
+        //too many to put at top
+        if (totalAttributeMatches > 5) {
+          attributeMatchesToRemove = i;
+          break;
+        }
+      }
+      if (attributeMatchesToRemove > 0) {
+        for (SubjectSorterBean subjectSorterBean : subjectSorterBeans) {
+          if (subjectSorterBean.getAttributeMatches() <= attributeMatchesToRemove) {
+            subjectSorterBean.setAttributeMatches(0);
+          }
+        }
       }
     }
     
-    //add the rest
-    subjectsOut.addAll(subjectsInExtra);
+    //sort them
+    Collections.sort(subjectSorterBeans);
+
+    Set<Subject> subjectsOut = new LinkedHashSet<Subject>(subjectsIn.size());
+
+
+    for (SubjectSorterBean subjectSorterBean : subjectSorterBeans) {
+      //add the rest
+      subjectsOut.add(subjectSorterBean.getSubject());
+    }
+    
     return subjectsOut;
     
   }

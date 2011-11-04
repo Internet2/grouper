@@ -392,7 +392,7 @@ public class SimpleAttributeUpdateFilter {
             queryPaging = new QueryPaging(maxSubjectsDropDown, 1, true);
           
             //sort and page the results
-            subjects = GrouperUiUtils.subjectsSortedPaged(subjects, queryPaging);
+            subjects = GrouperUiUtils.subjectsSortedPaged(subjects, queryPaging, searchTerm);
 
           } catch (SubjectTooManyResults stmr) {
             tooManyResults = true;
@@ -839,7 +839,7 @@ public class SimpleAttributeUpdateFilter {
           queryPaging = new QueryPaging(maxSubjectsDropDown, 1, true);
         
           //sort and page the results
-          subjects = GrouperUiUtils.subjectsSortedPaged(subjects, queryPaging);
+          subjects = GrouperUiUtils.subjectsSortedPaged(subjects, queryPaging, searchTerm);
 
         } catch (SubjectTooManyResults stmr) {
           tooManyResults = true;
