@@ -286,12 +286,12 @@ public class SimpleMembershipUpdateFilter {
           }
           
           String maxSubjectsDropDownString = TagUtils.mediaResourceString("simpleMembershipUpdate.subjectComboboxResultSize");
-          int maxSubjectsDropDown = GrouperUtil.intValue(maxSubjectsDropDownString, 50);
+          int maxSubjectsDropDown = GrouperUtil.intValue(maxSubjectsDropDownString, 250);
     
           queryPaging = new QueryPaging(maxSubjectsDropDown, 1, true);
         
           //sort and page the results
-          subjects = GrouperUiUtils.subjectsSortedPaged(subjects, queryPaging);
+          subjects = GrouperUiUtils.subjectsSortedPaged(subjects, queryPaging, searchTerm);
         } catch (SubjectTooManyResults stmr) {
           tooManyResults = true;
         }

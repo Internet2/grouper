@@ -203,7 +203,7 @@ public class DoSearchSubjectsAction extends GrouperCapableAction {
 		Map addAttr = new HashMap();
 		addAttr.put("returnTo","/doSearchSubjects.do");
 		addAttr.put("returnToLinkKey","subject.action.return-results");
-		List mapResults = GrouperHelper.subjects2Maps(sort(results,request,"search:"  +groupSearchResultField, -1).toArray(),addAttr);
+		List mapResults = GrouperHelper.subjects2Maps(sort(results,request,"search:"  +groupSearchResultField, -1, searchTerm).toArray(),addAttr);
 		
 		String startStr = request.getParameter("start");
 		if (startStr == null || "".equals(startStr))

@@ -17,11 +17,10 @@
 
 package edu.internet2.middleware.grouper.subj;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -32,7 +31,6 @@ import java.util.concurrent.Future;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
-import edu.internet2.middleware.grouper.Attribute;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
@@ -40,7 +38,6 @@ import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.SubjectFinder.RestrictSourceForGroup;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
-import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.SearchPageResult;
 import edu.internet2.middleware.subject.Source;
@@ -588,6 +585,8 @@ public class SourcesXmlResolver implements SubjectResolver {
   {
     Source sourceObject = this.getSource(source);
     SearchPageResult searchPage = null; 
+    final Set<Subject> subjectsMatchIdentifier = Collections.synchronizedSet(new HashSet<Subject>());
+
     try {
       searchPage = sourceObject.searchPage(query);
       Set<Subject> subjects = searchPage.getResults();
@@ -600,13 +599,15 @@ public class SourcesXmlResolver implements SubjectResolver {
         if (subject != null && !SubjectHelper.inList(searchPage.getResults(), subject)) {
           subjects.add(subject);
         }
-        
+        if (subject != null) {
+          subjectsMatchIdentifier.add(subject);
+        }
       }
       
       this.initGroupAttributes(subjects);
       
       if (GrouperConfig.getPropertyBoolean("grouper.sort.subjectSets.exactOnTop", true)) {
-        subjects = SubjectHelper.sortSetForSearch(subjects, query);
+        subjects = SubjectHelper.sortSetForSearch(subjects, query, subjectsMatchIdentifier);
         searchPage.setResults(subjects);
       }
       return searchPage;
@@ -700,7 +701,7 @@ public class SourcesXmlResolver implements SubjectResolver {
       return findAll(query);
     }
     
-    Set<Subject> subjects = new LinkedHashSet();
+    Set<Subject> subjects = new LinkedHashSet<Subject>();
     
     List<LogLabelCallable<Set<Subject>>> callables = new ArrayList<LogLabelCallable<Set<Subject>>>();
     
@@ -766,12 +767,14 @@ public class SourcesXmlResolver implements SubjectResolver {
     
     SearchPageResult searchPageResult = new SearchPageResult();
     searchPageResult.setTooManyResults(false);
-    Set<Subject> subjects = new LinkedHashSet();
+    Set<Subject> subjects = new LinkedHashSet<Subject>();
     searchPageResult.setResults(subjects);
     
     List<LogLabelCallable<SearchPageResult>> callables = new ArrayList<LogLabelCallable<SearchPageResult>>();
     
     boolean needsThreads = needsThreads(sources, false);
+    
+    final Set<Subject> subjectsMatchIdentifier = Collections.synchronizedSet(new HashSet<Subject>());
     
     //get all the jobs ready to go
     for ( Source sa : sources ) {
@@ -792,7 +795,10 @@ public class SourcesXmlResolver implements SubjectResolver {
                 //assume this is not unmodifiable...
                 searchPage.getResults().add(subject);
               }
-              
+              if (subject != null) {
+                subjectsMatchIdentifier.add(subject);
+              }
+
             }
             return searchPage;
           } catch (RuntimeException re) {
@@ -826,7 +832,7 @@ public class SourcesXmlResolver implements SubjectResolver {
     this.initGroupAttributes(subjects);
     
     if (GrouperConfig.getPropertyBoolean("grouper.sort.subjectSets.exactOnTop", true)) {
-      subjects = SubjectHelper.sortSetForSearch(subjects, query);
+      subjects = SubjectHelper.sortSetForSearch(subjects, query, subjectsMatchIdentifier);
       searchPageResult.setResults(subjects);
     }
 

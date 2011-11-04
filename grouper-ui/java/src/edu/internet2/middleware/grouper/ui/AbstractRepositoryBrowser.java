@@ -236,14 +236,14 @@ public abstract class AbstractRepositoryBrowser implements RepositoryBrowser {
 			List l = GrouperHelper.stems2Maps(s,LowLevelGrouperCapableAction.sort(GrouperHelper.getStemsForPrivileges(
 		
 				s, flatPrivs, start, pageSize,
-        totalCount),request,context, -1));
+        totalCount),request,context, -1, null));
 			return new LinkedHashSet(l);
 		}
 		if(flatPrivs.length==1 && flatPrivs[0].equals("MEMBER")) {
 			/*Set tmp = GrouperHelper.getMembershipsSet(getGrouperSession(),start, pageSize, totalCount);*/
 			Set tmp = GrouperHelper.getMembershipsSet(getGrouperSession());
 			totalCount.append("" + tmp.size());
-      List tmpList = LowLevelGrouperCapableAction.sort(tmp,request,context, -1);
+      List tmpList = LowLevelGrouperCapableAction.sort(tmp,request,context, -1, null);
 			int end = start + pageSize;
 			if (end > tmpList.size())
 				end = tmpList.size();
@@ -253,7 +253,7 @@ public abstract class AbstractRepositoryBrowser implements RepositoryBrowser {
 		Set groupsForPrivileges = GrouperHelper.getGroupsForPrivileges(
 				s, flatPrivs, start, pageSize,
 				totalCount);
-    List l=GrouperHelper.groups2Maps(s,LowLevelGrouperCapableAction.sort( groupsForPrivileges,request,context, -1));
+    List l=GrouperHelper.groups2Maps(s,LowLevelGrouperCapableAction.sort( groupsForPrivileges,request,context, -1, null));
 		return new LinkedHashSet(l);
 	}
 	
@@ -286,7 +286,7 @@ public abstract class AbstractRepositoryBrowser implements RepositoryBrowser {
         allChildren = MembershipFinder.internal_findAllImmediateByGroupAndFieldAndPage(
             group, field, start, pageSize, sortLimit, resultSizeArray);
         resultSize = resultSizeArray[0];
-        sortedChildren=LowLevelGrouperCapableAction.sort(allChildren,request,context, resultSize);
+        sortedChildren=LowLevelGrouperCapableAction.sort(allChildren,request,context, resultSize, null);
 
         int groupList2SubjectStart = (start >= sortedChildren.size()) ? 0 : start;
         
@@ -318,7 +318,7 @@ public abstract class AbstractRepositoryBrowser implements RepositoryBrowser {
         }
         
         if (sortedQuery()){  
-          listOfMaps = LowLevelGrouperCapableAction.sort(listOfMaps,request,context, -1);
+          listOfMaps = LowLevelGrouperCapableAction.sort(listOfMaps,request,context, -1, null);
 				}
         
         allChildren.addAll(listOfMaps);

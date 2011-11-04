@@ -486,7 +486,7 @@ public class PopulateSubjectSummaryAction extends GrouperCapableAction {
 		//This is a hack to force sorting by Group/Stem rather than Subject - which is generally what happens with Memberships
 		//DefaultComparatorImpl has been updated to read the TheadLocal
 		UIThreadLocal.put("GrouperComparatorHelperOverrideClass",sortOverrideClass);
-		subjectScopeMaps = sort(subjectScopeMaps,request,"subjectSummary", -1);
+		subjectScopeMaps = sort(subjectScopeMaps,request,"subjectSummary", -1, null);
 		UIThreadLocal.replace("GrouperComparatorHelperOverrideClass",null);
 		String startStr = (String)subjectForm.get("start");
 		if (startStr == null || "".equals(startStr))
