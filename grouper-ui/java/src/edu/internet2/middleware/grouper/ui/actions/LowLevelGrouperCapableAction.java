@@ -71,6 +71,7 @@ import edu.internet2.middleware.grouper.ui.SessionInitialiser;
 import edu.internet2.middleware.grouper.ui.UIThreadLocal;
 import edu.internet2.middleware.grouper.ui.UnrecoverableErrorException;
 import edu.internet2.middleware.grouper.ui.util.NavExceptionHelper;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
 /**
@@ -622,7 +623,8 @@ public abstract class LowLevelGrouperCapableAction
     }
     if (isSubjects) {
       Set<Subject> subjectsOut = SubjectHelper.sortSetForSearch(toSort, searchTerm);
-      toSort = new ArrayList<Subject>(subjectsOut);
+      //avoid a null pointer...
+      toSort = GrouperUtil.length(subjectsOut) > 0 ? new ArrayList<Subject>(subjectsOut) : toSort;
     }
 		return toSort;
 	}
