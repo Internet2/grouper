@@ -541,7 +541,7 @@ public class SubjectFinder {
         all = getResolver().find( GrouperConfig.ALL, InternalSourceAdapter.ID );
       }
       catch (Exception e) {
-        throw new GrouperException( "unable to retrieve GrouperAll: " + e.getMessage() );
+        throw new GrouperException( "unable to retrieve GrouperAll: " + e.getMessage(), e );
       }
     }
     return all;
@@ -564,7 +564,7 @@ public class SubjectFinder {
         root = getResolver().find( GrouperConfig.ROOT, InternalSourceAdapter.ID );
       }
       catch (Exception e) {
-        throw new GrouperException( "unable to retrieve GrouperSystem: " + e.getMessage() );
+        throw new GrouperException( "unable to retrieve GrouperSystem: " + e.getMessage(), e );
       }
     }
     return root;

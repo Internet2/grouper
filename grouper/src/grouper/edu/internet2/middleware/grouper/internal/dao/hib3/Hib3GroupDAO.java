@@ -1047,6 +1047,49 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
 
   }
   
+  /**
+   * @param name
+   * @param exceptionIfNotFound exception if cant find group
+   * @param queryOptions if we should use cache or not
+   * @return group
+   * @throws GrouperDAOException
+   * @throws GroupNotFoundException
+   * @since   @HEAD@
+   */
+  public Group findByNameSecure(final String name, boolean exceptionIfNotFound, QueryOptions queryOptions) {
+    
+    ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
+    GrouperSession grouperSession = GrouperSession.staticGrouperSession();
+    
+    StringBuilder hql = new StringBuilder("select distinct theGroup from Group as theGroup ");
+    
+    //see if we are adding more to the query
+    boolean changedQuery = grouperSession.getAccessResolver().hqlFilterGroupsWhereClause(grouperSession.getSubject(), byHqlStatic, 
+        hql, "theGroup.uuid", AccessPrivilege.VIEW_PRIVILEGES);
+
+    if (changedQuery) {
+      hql.append(" and ");
+    } else {
+      hql.append(" where ");
+    }
+    
+    hql.append(" theGroup.nameDb = :value or theGroup.alternateNameDb = :value ");
+    
+    byHqlStatic.createQuery(hql.toString())
+      .setCacheable(true).setCacheRegion(KLASS + ".FindByNameSecure").options(queryOptions);
+
+    Group group = byHqlStatic.setString("value", name).uniqueResult(Group.class);
+
+    //System.out.println("Group: " + name + ", found? " + (group!=null));
+    
+    //handle exceptions out of data access method...
+    if (group == null && exceptionIfNotFound) {
+      throw new GroupNotFoundException("Cannot find group with name: '" + name + "'");
+    }
+    return group;
+
+  }
+  
   
   /**
    * Find a group by its current name only.
@@ -1144,6 +1187,42 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
       .options(queryOptions)
       .setCacheRegion(KLASS + ".FindByUuid")
       .setString("uuid", uuid).uniqueResult(Group.class);
+    if (group == null && exceptionIfNotFound) {
+       throw new GroupNotFoundException("Cant find group by uuid: " + uuid);
+    }
+    return group;
+  }
+
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.internal.dao.GroupDAO#findByUuid(java.lang.String, boolean, QueryOptions)
+   */
+  public Group findByUuidSecure(String uuid, boolean exceptionIfNotFound, QueryOptions queryOptions)
+      throws GrouperDAOException, GroupNotFoundException {
+    
+    GrouperSession grouperSession = GrouperSession.staticGrouperSession();
+    
+    ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
+
+    StringBuilder sql = new StringBuilder("select distinct theGroup from Group as theGroup ");
+    
+    //see if we are adding more to the query
+    boolean changedQuery = grouperSession.getAccessResolver().hqlFilterGroupsWhereClause(grouperSession.getSubject(), byHqlStatic, 
+        sql, "theGroup.uuid", AccessPrivilege.VIEW_PRIVILEGES);
+
+    if (changedQuery) {
+      sql.append(" and ");
+    } else {
+      sql.append(" where ");
+    }
+    sql.append(" theGroup.uuid = :uuid ");
+    byHqlStatic
+      .createQuery(sql.toString())
+      .setCacheable(true)
+      .options(queryOptions)
+      .setCacheRegion(KLASS + ".FindByUuidSecure")
+      .setString("uuid", uuid);
+    Group group = byHqlStatic.uniqueResult(Group.class);
     if (group == null && exceptionIfNotFound) {
        throw new GroupNotFoundException("Cant find group by uuid: " + uuid);
     }
@@ -1259,7 +1338,6 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
   protected static void reset(HibernateSession hibernateSession) 
     throws  HibernateException
   {
-    // TODO 20070307 ideally i would just put hooks for associated tables into "onDelete()" 
     //               but right now that is blowing up due to the session being flushed.
     hibernateSession.byHql().createQuery("delete from GroupTypeTuple").executeUpdate();
     hibernateSession.byHql().createQuery("delete from Attribute").executeUpdate(); 

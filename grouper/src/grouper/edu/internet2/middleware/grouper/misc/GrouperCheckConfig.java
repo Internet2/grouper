@@ -44,6 +44,7 @@ import edu.internet2.middleware.grouper.attr.AttributeDefValueType;
 import edu.internet2.middleware.grouper.cfg.ApiConfig;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogConsumerBase;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.MemberAddException;
 import edu.internet2.middleware.grouper.exception.SessionException;
@@ -417,9 +418,16 @@ public class GrouperCheckConfig {
       checkGroups();
       
       checkAttributes();
-      
-      //delegate to subject APIconfigs
-      SubjectCheckConfig.checkConfig();
+      GrouperSession grouperSession = GrouperSession.startRootSession(false);
+      GrouperSession.callbackGrouperSession(grouperSession, new GrouperSessionHandler() {
+        
+        public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+          //delegate to subject APIconfigs
+          SubjectCheckConfig.checkConfig();
+          return null;
+        }
+      });
+      GrouperSession.stopQuietly(grouperSession);
     } finally {
       inCheckConfig = false;
     }

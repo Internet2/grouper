@@ -39,6 +39,7 @@ import edu.internet2.middleware.grouper.helper.StemHelper;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.helper.T;
 import edu.internet2.middleware.grouper.hibernate.GrouperContext;
+import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.SearchPageResult;
 import edu.internet2.middleware.subject.Source;
@@ -75,7 +76,7 @@ public class TestSubjectFinder extends GrouperTest {
   public static void main(String[] args) {
     //TestRunner.run(TestSubjectFinder.class);
     //TestRunner.run(new TestSubjectFinder("testSearchPageMax"));
-    TestRunner.run(new TestSubjectFinder("testGroupQueries"));
+    TestRunner.run(new TestSubjectFinder("testSubjectCachePrivileges"));
   }
   
   /**
@@ -98,6 +99,63 @@ public class TestSubjectFinder extends GrouperTest {
 
   protected void tearDown () {
     LOG.debug("tearDown");
+  }
+
+  /**
+   * 
+   */
+  public void testSubjectCachePrivileges() {
+    
+    //make a group that test1 can view, but test2 cannot
+    Group group = new GroupSave(this.s).assignName("test:testGroup").assignCreateParentStemsIfNotExist(true).save();
+    group.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.VIEW, false);
+    group.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.VIEW, false);
+    group.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ, false);
+    
+    GrouperSession grouperSession = null;
+    Subject groupSubject = null;
+    Set<Subject> groupSubjects = null;
+    
+    grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ0);
+
+    groupSubject = SubjectFinder.findById(group.getId(), true);
+    
+    assertNotNull(groupSubject);
+    
+    groupSubject = SubjectFinder.findByIdentifier(group.getName(), true);
+    
+    assertNotNull(groupSubject);
+    
+    groupSubjects = SubjectFinder.findAll(group.getName());
+    
+    assertTrue(GrouperUtil.length(groupSubjects) > 0);
+
+    groupSubjects = SubjectFinder.findPage(group.getName()).getResults();
+    
+    assertTrue(GrouperUtil.length(groupSubjects) > 0);
+
+    GrouperSession.stopQuietly(grouperSession);
+    
+    grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ1);
+
+    groupSubject = SubjectFinder.findById(group.getId(), false);
+    
+    assertNull(groupSubject);
+    
+    groupSubject = SubjectFinder.findByIdentifier(group.getName(), false);
+    
+    assertNull(groupSubject);
+    
+    groupSubjects = SubjectFinder.findAll(group.getName());
+    
+    assertTrue(GrouperUtil.length(groupSubjects) == 0);
+
+    groupSubjects = SubjectFinder.findPage(group.getName()).getResults();
+    
+    assertTrue(GrouperUtil.length(groupSubjects) == 0);
+
+    GrouperSession.stopQuietly(grouperSession);
+    //lets set the subject customizer to a test one
   }
 
   /**

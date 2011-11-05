@@ -28,7 +28,6 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.Stem.Scope;
-import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.group.TypeOfGroup;
 import edu.internet2.middleware.grouper.membership.MembershipType;
@@ -285,10 +284,13 @@ public interface GroupDAO extends GrouperDAO {
   /**
    * @since   1.2.0
    */
-  Group findByName(String name, boolean exceptionIfNotFound, QueryOptions queryOptions) 
-    throws  GrouperDAOException,
-            GroupNotFoundException
-            ;
+  Group findByName(String name, boolean exceptionIfNotFound, QueryOptions queryOptions);
+
+  /**
+   * @since   2.0.2
+   */
+  Group findByNameSecure(String name, boolean exceptionIfNotFound, QueryOptions queryOptions);
+
   /**
    * @since   1.2.0
    * @deprecated use overload
@@ -314,6 +316,17 @@ public interface GroupDAO extends GrouperDAO {
    */
   Group findByUuid(String uuid, boolean exceptionIfNotFound, QueryOptions queryOptions) 
     throws  GrouperDAOException, GroupNotFoundException;
+
+  /**
+   * find by uuid secure
+   * @param uuid
+   * @param exceptionIfNotFound
+   * @param queryOptions
+   * @return the group or null or exception
+   * @throws GrouperDAOException
+   * @throws GroupNotFoundException
+   */
+  Group findByUuidSecure(String uuid, boolean exceptionIfNotFound, QueryOptions queryOptions);
 
   /**
    * find all groups which have these uuids
