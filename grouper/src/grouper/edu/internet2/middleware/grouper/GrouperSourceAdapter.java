@@ -155,7 +155,7 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
    */
   public Subject getSubject(String id, boolean exceptionIfNotFound) throws SubjectNotFoundException {
     try {
-      Group group = GrouperDAOFactory.getFactory().getGroup().findByUuid(id, exceptionIfNotFound);
+      Group group = GrouperDAOFactory.getFactory().getGroup().findByUuidSecure(id, exceptionIfNotFound, null);
       if (group == null && !exceptionIfNotFound) {
         return null;
       }
@@ -225,7 +225,7 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
     throws SubjectNotFoundException 
   {
     try {
-      Group group = GrouperDAOFactory.getFactory().getGroup().findByName(name, exceptionIfNull);
+      Group group = GrouperDAOFactory.getFactory().getGroup().findByNameSecure(name, exceptionIfNull, null);
       if (group == null && !exceptionIfNull) {
         return null;
       }
