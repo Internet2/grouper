@@ -1144,7 +1144,7 @@ public class SubjectFinder {
    * @param subjects
    * @param attributeNamesRequested 
    */
-  public static void decorateSubjects(GrouperSession grouperSession, Collection<Subject> subjects, Collection<String> attributeNamesRequested) {
+  public static void decorateSubjects(GrouperSession grouperSession, Set<Subject> subjects, Collection<String> attributeNamesRequested) {
     
     SubjectCustomizerCacheBean subjectCustomizerCacheBean = subjectCustomizerClassCache.get(Boolean.TRUE);
     
