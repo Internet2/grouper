@@ -16,6 +16,7 @@
 */
 
 package edu.internet2.middleware.grouper;
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -40,10 +41,12 @@ import edu.internet2.middleware.grouper.rules.RuleIfConditionEnum;
 import edu.internet2.middleware.grouper.rules.RuleThen;
 import edu.internet2.middleware.grouper.rules.RuleThenEnum;
 import edu.internet2.middleware.grouper.subj.InternalSourceAdapter;
+import edu.internet2.middleware.grouper.subj.SubjectCustomizer;
 import edu.internet2.middleware.grouper.subj.SubjectResolver;
 import edu.internet2.middleware.grouper.subj.SubjectResolverFactory;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.validator.NotNullValidator;
+import edu.internet2.middleware.grouperClient.util.ExpirableCache;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.SourceUnavailableException;
 import edu.internet2.middleware.subject.Subject;
@@ -1079,5 +1082,94 @@ public class SubjectFinder {
     return new RestrictSourceForGroup(false, null);
   }
 
+  private static class SubjectCustomizerCacheBean {
+    
+    /** if it has a subject customizer */
+    private boolean hasSubjectCustomizer = false;
+    
+    /** an instance of it */
+    private SubjectCustomizer subjectCustomizer;
+
+    /**
+     * if it has a subject customizer
+     * @return if it has a subject customizer
+     */
+    public boolean isHasSubjectCustomizer() {
+      return this.hasSubjectCustomizer;
+    }
+
+    /**
+     * if it has a subject customizer
+     * @param hasSubjectCustomizer1
+     */
+    public void setHasSubjectCustomizer(boolean hasSubjectCustomizer1) {
+      this.hasSubjectCustomizer = hasSubjectCustomizer1;
+    }
+
+    /**
+     * an instance of it
+     * @return the instance
+     */
+    public SubjectCustomizer getSubjectCustomizer() {
+      return this.subjectCustomizer;
+    }
+
+    /**
+     * an instance of it
+     * @param subjectCustomizer1
+     */
+    public void setSubjectCustomizer(SubjectCustomizer subjectCustomizer1) {
+      this.subjectCustomizer = subjectCustomizer1;
+    }
+    
+    
+    
+  }
+  
+  /**
+   * cache the instance so we dont have to keep looking it up
+   */
+  private static ExpirableCache<Boolean, SubjectCustomizerCacheBean> subjectCustomizerClassCache = new ExpirableCache<Boolean, SubjectCustomizerCacheBean>(5);
+
+  /**
+   * clear this for testing
+   */
+  public static void internalClearSubjectCustomizer() {
+    subjectCustomizerClassCache.clear();
+  }
+  
+  /**
+   * decorate subjects based on subject customizer in grouper.properties
+   * @param grouperSession
+   * @param subjects
+   * @param attributeNamesRequested 
+   */
+  public static void decorateSubjects(GrouperSession grouperSession, Collection<Subject> subjects, Collection<String> attributeNamesRequested) {
+    
+    SubjectCustomizerCacheBean subjectCustomizerCacheBean = subjectCustomizerClassCache.get(Boolean.TRUE);
+    
+    if (subjectCustomizerCacheBean == null) {
+      
+      SubjectCustomizerCacheBean newBean = new SubjectCustomizerCacheBean();
+      
+      String subjectCustomizerClassName = GrouperConfig.getProperty("subjects.customizer.className");
+      
+      if (!StringUtils.isBlank(subjectCustomizerClassName)) {
+        Class<SubjectCustomizer> theClass = GrouperUtil.forName(subjectCustomizerClassName);
+        SubjectCustomizer subjectCustomizer = GrouperUtil.newInstance(theClass);
+        newBean.setSubjectCustomizer(subjectCustomizer);
+        newBean.setHasSubjectCustomizer(true);
+      } else {
+        newBean.setHasSubjectCustomizer(false);
+      }
+      subjectCustomizerCacheBean = newBean;
+    }
+    
+    if (subjectCustomizerCacheBean.isHasSubjectCustomizer()) {
+      subjectCustomizerCacheBean.getSubjectCustomizer().decorateSubjects(grouperSession, subjects, attributeNamesRequested );
+    }
+    
+  }
+  
 }
 

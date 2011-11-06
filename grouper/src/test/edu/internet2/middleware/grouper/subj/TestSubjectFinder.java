@@ -25,6 +25,7 @@ import junit.textui.TestRunner;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.GrouperSourceAdapter;
 import edu.internet2.middleware.grouper.Stem;
@@ -35,6 +36,7 @@ import edu.internet2.middleware.grouper.helper.SessionHelper;
 import edu.internet2.middleware.grouper.helper.StemHelper;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.helper.T;
+import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.SourceUnavailableException;
@@ -68,7 +70,7 @@ public class TestSubjectFinder extends GrouperTest {
    */
   public static void main(String[] args) {
     //TestRunner.run(TestSubjectFinder.class);
-    TestRunner.run(new TestSubjectFinder("testFindAllSourceException"));
+    TestRunner.run(new TestSubjectFinder("testSubjectCachePrivileges"));
   }
   
   /**
@@ -92,12 +94,79 @@ public class TestSubjectFinder extends GrouperTest {
     LOG.debug("tearDown");
   }
 
+
+  
+  /**
+   * 
+   */
+  public void testSubjectDecorator() {
+    
+    SubjectFinder.internalClearSubjectCustomizer();
+    
+    
+    try {
+
+      //make a group that test1 can view, but test2 cannot
+      Group group = new GroupSave(this.s).assignName("test:testGroup").assignCreateParentStemsIfNotExist(true).save();
+      group.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.VIEW, false);
+      group.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.VIEW, false);
+      group.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ, false);
+      
+      GrouperSession grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ0);
+
+      Subject groupSubject = SubjectFinder.findById(group.getId(), true);
+      
+      assertNotNull(groupSubject);
+      
+      
+      
+      //lets set the subject customizer to a test one
+      
+    } finally {
+      SubjectFinder.internalClearSubjectCustomizer();
+    }
+  }
+  
+  /**
+   * 
+   */
+  public void testSubjectCachePrivileges() {
+    
+    //make a group that test1 can view, but test2 cannot
+    Group group = new GroupSave(this.s).assignName("test:testGroup").assignCreateParentStemsIfNotExist(true).save();
+    group.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.VIEW, false);
+    group.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.VIEW, false);
+    group.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ, false);
+    
+    GrouperSession grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ0);
+
+    Subject groupSubject = SubjectFinder.findById(group.getId(), true);
+    
+    assertNotNull(groupSubject);
+    
+    GrouperSession.stopQuietly(grouperSession);
+    
+    grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ1);
+
+    groupSubject = SubjectFinder.findById(group.getId(), false);
+    
+    assertNull(groupSubject);
+    
+    //lets set the subject customizer to a test one
+  }
+  
+  /**
+   * 
+   */
   public void testFindByIdentifierGoodId() {
     LOG.info("testFindByIdentifierGoodId");
     SubjectTestHelper.getSubjectByIdentifier(i2.getName());
     Assert.assertTrue("found subject", true);
   } // public void testFindByIdentifierGoodId()
 
+  /**
+   * 
+   */
   public void testFindByIdentifierGoodIdGoodType() {
     LOG.info("testFindByIdentifierGoodIdGoodType");
     Subject subj = SubjectTestHelper.getSubjectByIdentifierType(i2.getName(), "group");
