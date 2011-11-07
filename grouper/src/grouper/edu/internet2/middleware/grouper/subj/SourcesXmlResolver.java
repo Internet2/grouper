@@ -38,6 +38,7 @@ import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.SubjectFinder.RestrictSourceForGroup;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.SearchPageResult;
 import edu.internet2.middleware.subject.Source;
@@ -554,7 +555,8 @@ public class SourcesXmlResolver implements SubjectResolver {
    */
   private void updateMemberAttributes(Subject subj) {
     
-    if (!"g:gsa".equals(subj.getSourceId())) {
+    //if not started, then maybe not initted...
+    if (GrouperStartup.isFinishedStartupSuccessfully() && !"g:gsa".equals(subj.getSourceId())) {
       // update member attributes
       Member member = MemberFinder.internal_findBySubject(subj, null, false);
   

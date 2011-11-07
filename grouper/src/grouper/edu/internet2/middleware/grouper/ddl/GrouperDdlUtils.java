@@ -65,6 +65,7 @@ import edu.internet2.middleware.grouper.hooks.beans.HooksLifecycleDdlInitBean;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHookType;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHooksUtils;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
+import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3DAO;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.registry.RegistryInitializeSchema;
@@ -699,6 +700,8 @@ public class GrouperDdlUtils {
       }
       if (installDefaultGrouperData && !dropOnly && (upToDate || theWriteAndRunScript)) {
         try {
+          //lets reset the hibernate configuration so it can get properly configured
+          Hib3DAO.hibernateInitted = false;
           RegistryInstall.install();
         } catch (RuntimeException e) {
           if (!GrouperShell.runFromGsh && callFromCommandLine && !theWriteAndRunScript) {
