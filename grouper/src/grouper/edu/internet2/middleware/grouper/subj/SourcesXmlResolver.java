@@ -118,10 +118,6 @@ public class SourcesXmlResolver implements SubjectResolver {
     return this.thereCanOnlyBeOne(subjects, id);
   }            
   
-  /**
-   * threadpool
-   */
-  private static ExecutorService executorService = Executors.newCachedThreadPool();
 
   /**
    * 
@@ -227,7 +223,7 @@ public class SourcesXmlResolver implements SubjectResolver {
         
         for (Callable<T> callable : callables) {
           final Callable<T> CALLABLE = callable;
-          Future<T> future = executorService.submit(new Callable<T>() {
+          Future<T> future = GrouperUtil.retrieveExecutorService().submit(new Callable<T>() {
   
             public T call() throws Exception {
               

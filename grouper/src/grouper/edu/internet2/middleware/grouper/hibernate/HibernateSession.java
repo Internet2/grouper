@@ -610,6 +610,14 @@ public class HibernateSession {
   }
 
   /**
+   * hql action for hibernate
+   * @return the byhql
+   */
+  public BySql bySql(){
+    return new BySql(this);
+  }
+
+  /**
    * see if this is a new hibernate session
    * 
    * @return the newHibernateSession

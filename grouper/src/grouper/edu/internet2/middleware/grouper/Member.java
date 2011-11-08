@@ -20,8 +20,10 @@ import java.io.StringWriter;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.Callable;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.EqualsBuilder;
@@ -53,7 +55,9 @@ import edu.internet2.middleware.grouper.exception.MemberNotFoundException;
 import edu.internet2.middleware.grouper.exception.MembershipNotFoundException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.group.GroupSet;
+import edu.internet2.middleware.grouper.helper.T;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
+import edu.internet2.middleware.grouper.hibernate.GrouperCommitType;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
@@ -67,6 +71,7 @@ import edu.internet2.middleware.grouper.hooks.logic.VetoTypeGrouper;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.MembershipDAO;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
+import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3DAO;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
 import edu.internet2.middleware.grouper.internal.util.Quote;
 import edu.internet2.middleware.grouper.log.EventLog;
@@ -74,6 +79,7 @@ import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.misc.E;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperHasContext;
+import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.misc.M;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
@@ -3737,9 +3743,41 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
     this.searchString2 = GrouperUtil.isEmpty(this.searchString2) ? null : GrouperUtil.truncateAscii(this.searchString2.toLowerCase(), 2048);
     this.searchString3 = GrouperUtil.isEmpty(this.searchString3) ? null : GrouperUtil.truncateAscii(this.searchString3.toLowerCase(), 2048);
     this.searchString4 = GrouperUtil.isEmpty(this.searchString4) ? null : GrouperUtil.truncateAscii(this.searchString4.toLowerCase(), 2048);
-    
-    if (storeChanges && this.dbVersionIsDifferent()) {
-      this.store();
+
+    //dont do this if hibernate is not initted, since the two threads will deadlock...
+    if (storeChanges && this.dbVersionIsDifferent() && GrouperStartup.isFinishedStartupSuccessfully() && !StringUtils.isBlank(this.getUuid())) {
+      
+      //run in new thread, out of the Grouper thread pool
+      //note, this should not affect or deadlock the current transaction, and should not have grouper stale state exception
+      GrouperUtil.retrieveExecutorService().submit(new Callable<Object>() {
+        
+        public Object call() throws Exception {
+          
+          try {
+            
+            HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_NEW, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
+
+              public Object callback(HibernateHandlerBean hibernateHandlerBean)
+                  throws GrouperDAOException {
+                String query = "update grouper_members set sort_string0 = ?, sort_string1 = ?, sort_string2 = ?, sort_string3 = ?, " +
+                  "sort_string4 = ?, search_string0 = ?, search_string1 = ?, search_string2 = ?, " +
+                  "search_string3 = ?, search_string4 = ? where id = ?";
+                List<Object> bindVars = GrouperUtil.toList((Object)Member.this.sortString0, Member.this.sortString1,
+                    Member.this.sortString2, Member.this.sortString3, Member.this.sortString4, Member.this.searchString0,
+                    Member.this.searchString1, Member.this.searchString2, Member.this.searchString3, Member.this.searchString4, Member.this.getUuid());
+                hibernateHandlerBean.getHibernateSession().bySql().executeSql(query, bindVars);
+                hibernateHandlerBean.getHibernateSession().commit(GrouperCommitType.COMMIT_NOW);
+                return null;
+              }
+            });
+          } catch (Exception e) {
+            LOG.error("Error updating member attributes: ", e);
+          }
+          return null;
+        }
+      });
+
+
     }
   }
 } 
