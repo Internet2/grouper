@@ -131,6 +131,7 @@ import edu.internet2.middleware.grouper.rules.beans.RulesMembershipBean;
 import edu.internet2.middleware.grouper.rules.beans.RulesPrivilegeBean;
 import edu.internet2.middleware.grouper.subj.GrouperSubject;
 import edu.internet2.middleware.grouper.subj.LazySubject;
+import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.validator.AddAlternateGroupNameValidator;
 import edu.internet2.middleware.grouper.validator.AddCompositeMemberValidator;
@@ -4668,19 +4669,27 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
       return this.subjectCache.get(KEY_SUBJECT);
     }
     try {
-      this.subjectCache.put(
-        KEY_SUBJECT, SubjectFinder.findByIdAndSource( this.getUuid(), SubjectFinder.internal_getGSA().getId(), true )
-      );
+      
+      GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+        
+        public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+          Group.this.subjectCache.put(
+              KEY_SUBJECT, SubjectFinder.findByIdAndSource( Group.this.getUuid(), SubjectFinder.internal_getGSA().getId(), true )
+            );
+          return null;
+        }
+      });
+        
       return this.subjectCache.get(KEY_SUBJECT);
     }
     catch (SourceUnavailableException eShouldNeverHappen0)  {
       String msg = E.GROUP_G2S + eShouldNeverHappen0.getMessage();
-      LOG.fatal(msg);
+      LOG.fatal(msg, eShouldNeverHappen0);
       throw new GrouperException(msg, eShouldNeverHappen0);
     }
     catch (SubjectNotFoundException eShouldNeverHappen1)    {
       String msg = E.GROUP_G2S + eShouldNeverHappen1.getMessage();
-      LOG.fatal(msg);
+      LOG.fatal(msg, eShouldNeverHappen1);
       throw new GrouperException(msg, eShouldNeverHappen1);
     }
     catch (SubjectNotUniqueException eShouldNeverHappen2)   {

@@ -38,10 +38,12 @@ import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.audit.GrouperEngineBuiltin;
 import edu.internet2.middleware.grouper.cache.GrouperCache;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.exception.SessionException;
 import edu.internet2.middleware.grouper.hibernate.GrouperContext;
 import edu.internet2.middleware.grouper.hooks.beans.GrouperContextTypeBuiltIn;
 import edu.internet2.middleware.grouper.hooks.beans.HooksContext;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.coresoap.GrouperService;
@@ -50,7 +52,6 @@ import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 import edu.internet2.middleware.grouper.ws.security.WsCustomAuthentication;
 import edu.internet2.middleware.grouper.ws.security.WsGrouperDefaultAuthentication;
 import edu.internet2.middleware.subject.Subject;
-import edu.internet2.middleware.subject.SubjectNotFoundException;
 
 /**
  * Extend the servlet to get user info
@@ -218,43 +219,38 @@ public class GrouperServiceJ2ee implements Filter {
     }
     
     Subject caller = null;
+    GrouperSession grouperSession = GrouperSession.startRootSession(false);
     try {
-      //see if across all sources
-      if (sourceId == null) {
-        try {
-          caller = SubjectFinder.findById(userIdLoggedIn);
-        } catch (SubjectNotFoundException snfe) {
-          // if not found, then try any identifier
-          caller = SubjectFinder.findByIdentifier(userIdLoggedIn);
-        }
-      } else {
-        //see if only in one source
-        try {
-          caller = SubjectFinder.getSource(sourceId).getSubject(userIdLoggedIn);
-        } catch (SubjectNotFoundException snfe) {
-          // if not found, then try any identifier
-          caller = SubjectFinder.getSource(sourceId).getSubjectByIdentifier(
-              userIdLoggedIn);
-        }
+      final String SOURCE_ID = sourceId;
+      final String USER_ID_LOGGED_IN = userIdLoggedIn;
+      caller = (Subject)GrouperSession.callbackGrouperSession(grouperSession, new GrouperSessionHandler() {
 
-      }
+        public Object callback(GrouperSession theGrouperSession)
+            throws GrouperSessionException {
 
-    } catch (Exception e) {
-      //this is probably a system error...  not a user error
-      throw new RuntimeException("Cant find subject from login id: " + userIdLoggedIn, e);
+          try {
+            //see if across all sources
+            if (SOURCE_ID == null) {
+              return SubjectFinder.findByIdOrIdentifier(USER_ID_LOGGED_IN, true);
+            }
+            //see if only in one source
+            return SubjectFinder.findByIdOrIdentifierAndSource(USER_ID_LOGGED_IN, SOURCE_ID, true);
+      
+          } catch (Exception e) {
+            //this is probably a system error...  not a user error
+            throw new RuntimeException("Cant find subject from login id: " + USER_ID_LOGGED_IN, e);
+          }
+        }
+      });
+      //this is set in filter
+      GrouperContext grouperContext = GrouperContext.retrieveDefaultContext();
+      
+      Member member = MemberFinder.findBySubject(grouperSession, caller, true);
+      
+      grouperContext.setLoggedInMemberId(member.getUuid());
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
     }
-    
-    //this is set in filter
-    GrouperContext grouperContext = GrouperContext.retrieveDefaultContext();
-
-    GrouperSession grouperSession = GrouperSession.staticGrouperSession(false);
-    GrouperSession rootSession = grouperSession == null ? 
-        GrouperSession.startRootSession(false) : grouperSession.internal_getRootSession();
-
-    
-    Member member = MemberFinder.findBySubject(rootSession, caller, true);
-    
-    grouperContext.setLoggedInMemberId(member.getUuid());
 
     
     return caller;

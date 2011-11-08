@@ -86,8 +86,8 @@ public class TestStemApi extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    //TestRunner.run(new TestStemApi("test_rename_insufficientPrivileges_with_admin_group"));
-    TestRunner.run(TestStemApi.class);
+    TestRunner.run(new TestStemApi("test_copy_insufficient_privilege_listGroupAsMember"));
+    //TestRunner.run(TestStemApi.class);
   }
 
   /** size before getting started */
