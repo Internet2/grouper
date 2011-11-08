@@ -26,6 +26,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.GrouperSourceAdapter;
 import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.SearchPageResult;
@@ -199,7 +200,7 @@ public class CachingResolver extends SubjectResolverDecorator {
    * @since   1.2.1
    */
   private Set<Subject> getFromFindAllCache(String stemName, String query, String source) {
-    GrouperSession staticGrouperSession = GrouperSession.staticGrouperSession(false);
+    GrouperSession staticGrouperSession = GrouperSourceAdapter.internal_getSessionOrRootForSubjectFinder();
     if (staticGrouperSession == null) {
       return null;
     }
@@ -214,7 +215,7 @@ public class CachingResolver extends SubjectResolverDecorator {
    * @since   1.2.1
    */
   private Subject getFromFindByIdentifierCache(String id, String source) {
-    GrouperSession staticGrouperSession = GrouperSession.staticGrouperSession(false);
+    GrouperSession staticGrouperSession = GrouperSourceAdapter.internal_getSessionOrRootForSubjectFinder();
     if (staticGrouperSession == null) {
       return null;
     }
@@ -229,7 +230,7 @@ public class CachingResolver extends SubjectResolverDecorator {
    * @since   1.2.1
    */
   private Subject getFromFindCache(String id, String source) {
-    GrouperSession staticGrouperSession = GrouperSession.staticGrouperSession(false);
+    GrouperSession staticGrouperSession = GrouperSourceAdapter.internal_getSessionOrRootForSubjectFinder();
     if (staticGrouperSession == null) {
       return null;
     }
@@ -262,7 +263,7 @@ public class CachingResolver extends SubjectResolverDecorator {
    * @since   1.2.1
    */
   private void putInFindAllCache(String stemName, String query, String source, Set<Subject> subjects) {
-    GrouperSession staticGrouperSession = GrouperSession.staticGrouperSession(false);
+    GrouperSession staticGrouperSession = GrouperSourceAdapter.internal_getSessionOrRootForSubjectFinder();
     if (staticGrouperSession == null) {
       return;
     }
@@ -276,7 +277,7 @@ public class CachingResolver extends SubjectResolverDecorator {
    * @since   1.2.1
    */
   private void putInFindByIdentifierCache(String idfr, Subject subj) {
-    GrouperSession staticGrouperSession = GrouperSession.staticGrouperSession(false);
+    GrouperSession staticGrouperSession = GrouperSourceAdapter.internal_getSessionOrRootForSubjectFinder();
     if (staticGrouperSession == null) {
       return;
     }
@@ -297,7 +298,7 @@ public class CachingResolver extends SubjectResolverDecorator {
    * @since   1.2.1
    */
   private void putInFindCache(Subject subj) {
-    GrouperSession staticGrouperSession = GrouperSession.staticGrouperSession(false);
+    GrouperSession staticGrouperSession = GrouperSourceAdapter.internal_getSessionOrRootForSubjectFinder();
     if (staticGrouperSession == null) {
       return;
     }
@@ -318,7 +319,7 @@ public class CachingResolver extends SubjectResolverDecorator {
    * @since   1.2.1
    */
   private Subject getFromFindByIdOrIdentifierCache(String identifier, String source) {
-    GrouperSession staticGrouperSession = GrouperSession.staticGrouperSession(false);
+    GrouperSession staticGrouperSession = GrouperSourceAdapter.internal_getSessionOrRootForSubjectFinder();
     if (staticGrouperSession == null) {
       return null;
     }
@@ -332,7 +333,7 @@ public class CachingResolver extends SubjectResolverDecorator {
    * @since   1.2.1
    */
   private void putInFindByIdOrIdentifierCache(String idfr, Subject subj) {
-    GrouperSession staticGrouperSession = GrouperSession.staticGrouperSession(false);
+    GrouperSession staticGrouperSession = GrouperSourceAdapter.internal_getSessionOrRootForSubjectFinder();
     if (staticGrouperSession == null) {
       return;
     }
@@ -525,7 +526,7 @@ public class CachingResolver extends SubjectResolverDecorator {
    * @since   2.0.2
    */
   private SearchPageResult getFromFindPageCache(String stemName, String query, Set<Source> sources) {
-    GrouperSession staticGrouperSession = GrouperSession.staticGrouperSession(false);
+    GrouperSession staticGrouperSession = GrouperSourceAdapter.internal_getSessionOrRootForSubjectFinder();
     if (staticGrouperSession == null) {
       return null;
     }
@@ -539,7 +540,7 @@ public class CachingResolver extends SubjectResolverDecorator {
    * @since   2.0.2
    */
   private void putInFindPageCache(String stemName, String query, Set<Source> sources, SearchPageResult searchPageResult) {
-    GrouperSession staticGrouperSession = GrouperSession.staticGrouperSession(false);
+    GrouperSession staticGrouperSession = GrouperSourceAdapter.internal_getSessionOrRootForSubjectFinder();
     if (staticGrouperSession == null) {
       return;
     }
@@ -553,7 +554,7 @@ public class CachingResolver extends SubjectResolverDecorator {
    * @since   2.0.2
    */
   private Set<Subject> getFromFindAllCache(String stemName, String query, Set<Source> sources) {
-    GrouperSession staticGrouperSession = GrouperSession.staticGrouperSession(false);
+    GrouperSession staticGrouperSession = GrouperSourceAdapter.internal_getSessionOrRootForSubjectFinder();
     if (staticGrouperSession == null) {
       return null;
     }
@@ -567,7 +568,7 @@ public class CachingResolver extends SubjectResolverDecorator {
    * @since   2.0.2
    */
   private void putInFindAllCache(String stemName, String query, Set<Source> sources, Set<Subject> subjects) {
-    GrouperSession staticGrouperSession = GrouperSession.staticGrouperSession(false);
+    GrouperSession staticGrouperSession = GrouperSourceAdapter.internal_getSessionOrRootForSubjectFinder();
     if (staticGrouperSession == null) {
       return;
     }
@@ -584,7 +585,7 @@ public class CachingResolver extends SubjectResolverDecorator {
    * @return the multikey
    */
   private MultiKey sourcesMultiKey(String stemName, String query, Set<Source> sources) {
-    GrouperSession staticGrouperSession = GrouperSession.staticGrouperSession(false);
+    GrouperSession staticGrouperSession = GrouperSourceAdapter.internal_getSessionOrRootForSubjectFinder();
     if (staticGrouperSession == null) {
       throw new RuntimeException("If there is no grouper session you should not call this method!");
     }
@@ -615,7 +616,7 @@ public class CachingResolver extends SubjectResolverDecorator {
    * @since   2.0.2
    */
   private SearchPageResult getFromFindPageCache(String stemName, String query, String source) {
-    GrouperSession staticGrouperSession = GrouperSession.staticGrouperSession(false);
+    GrouperSession staticGrouperSession = GrouperSourceAdapter.internal_getSessionOrRootForSubjectFinder();
     if (staticGrouperSession == null) {
       return null;
     }
@@ -629,7 +630,7 @@ public class CachingResolver extends SubjectResolverDecorator {
    * @since   2.0.2
    */
   private void putInFindPageCache(String stemName, String query, String source, SearchPageResult searchPageResult) {
-    GrouperSession staticGrouperSession = GrouperSession.staticGrouperSession(false);
+    GrouperSession staticGrouperSession = GrouperSourceAdapter.internal_getSessionOrRootForSubjectFinder();
     if (staticGrouperSession == null) {
       return;
     }

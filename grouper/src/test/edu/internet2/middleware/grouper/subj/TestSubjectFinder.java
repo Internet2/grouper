@@ -76,7 +76,7 @@ public class TestSubjectFinder extends GrouperTest {
   public static void main(String[] args) {
     //TestRunner.run(TestSubjectFinder.class);
     //TestRunner.run(new TestSubjectFinder("testSearchPageMax"));
-    TestRunner.run(new TestSubjectFinder("testSubjectCachePrivileges"));
+    TestRunner.run(new TestSubjectFinder("testGroupQueries"));
   }
   
   /**
@@ -164,7 +164,7 @@ public class TestSubjectFinder extends GrouperTest {
   public void testGroupQueries() {
     
     for (int i=0;i<200;i++) {
-      new GroupSave(s).assignName("test:test" + i).save();
+      new GroupSave(s).assignName("test:test" + i).assignCreateParentStemsIfNotExist(true).save();
     }
     
     long queryCount = GrouperContext.totalQueryCount;
@@ -173,7 +173,7 @@ public class TestSubjectFinder extends GrouperTest {
     
     int diffQueryCount = (int)(GrouperContext.totalQueryCount - queryCount);
     
-    //shouldnt be more than 10 queries to do this... 
+    //shouldnt be more than 20 queries to do this... 
     assertTrue("diff query count: " + diffQueryCount, diffQueryCount < 20);
     
   }

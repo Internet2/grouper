@@ -23,6 +23,7 @@ import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
@@ -33,6 +34,7 @@ import edu.internet2.middleware.grouper.misc.E;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.subj.GrouperSubject;
+import edu.internet2.middleware.grouper.subj.InternalSourceAdapter;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.validator.GrouperValidator;
 import edu.internet2.middleware.grouper.validator.NotNullValidator;
@@ -43,6 +45,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
 import edu.internet2.middleware.subject.SubjectTooManyResults;
 import edu.internet2.middleware.subject.SubjectUtils;
 import edu.internet2.middleware.subject.provider.BaseSourceAdapter;
+import edu.internet2.middleware.subject.provider.SourceManager;
 import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
 
 /** 
@@ -69,18 +72,16 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
 
   /** types */
   private Set _types  = new LinkedHashSet();
-  
+
   /** root grouper session */
-  private GrouperSession  rootSession      = null;
+  private static GrouperSession  rootSession      = null;
 
   /** if there is a limit to the number of results */
   private Integer maxPage;
 
   /** if there is a limit to the number of results */
   private Integer maxResults;
-
-  // CONSTRUCTORS //
-
+  
   /**
    * Allocates new GrouperSourceAdapter.
    */
@@ -153,9 +154,19 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
    * @return  A {@link Subject}
    * @throws  SubjectNotFoundException
    */
-  public Subject getSubject(String id, boolean exceptionIfNotFound) throws SubjectNotFoundException {
+  public Subject getSubject(final String id, final boolean exceptionIfNotFound) throws SubjectNotFoundException {
     try {
-      Group group = GrouperDAOFactory.getFactory().getGroup().findByUuidSecure(id, exceptionIfNotFound, null);
+      Group group = null;
+      
+      group = (Group)GrouperSession.callbackGrouperSession(GrouperSourceAdapter.internal_getSessionOrRootForSubjectFinder(), new GrouperSessionHandler() {
+
+        public Object callback(GrouperSession grouperSession)
+            throws GrouperSessionException {
+          return GrouperDAOFactory.getFactory().getGroup().findByUuidSecure(id, exceptionIfNotFound, null);
+        }
+      });
+
+        
       if (group == null && !exceptionIfNotFound) {
         return null;
       }
@@ -221,11 +232,18 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
    * @return  A {@link Subject}
    * @throws  SubjectNotFoundException
    */
-  public Subject getSubjectByIdentifier(String name, boolean exceptionIfNull) 
+  public Subject getSubjectByIdentifier(final String name, final boolean exceptionIfNull) 
     throws SubjectNotFoundException 
   {
     try {
-      Group group = GrouperDAOFactory.getFactory().getGroup().findByNameSecure(name, exceptionIfNull, null);
+      Group group = (Group)    GrouperSession.callbackGrouperSession(GrouperSourceAdapter.internal_getSessionOrRootForSubjectFinder(), new GrouperSessionHandler() {
+
+        public Object callback(GrouperSession grouperSession)
+            throws GrouperSessionException {
+          return (Group)GrouperDAOFactory.getFactory().getGroup().findByNameSecure(name, exceptionIfNull, null);
+        }
+      });
+
       if (group == null && !exceptionIfNull) {
         return null;
       }
@@ -325,7 +343,7 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
     String throwErrorOnFindAllFailureString = this.getInitParam("throwErrorOnFindAllFailure");
     final boolean throwErrorOnFindAllFailure = SubjectUtils.booleanValue(throwErrorOnFindAllFailureString, true);
 
-    GrouperSession.callbackGrouperSession(this._getSession(), new GrouperSessionHandler() {
+    GrouperSession.callbackGrouperSession(GrouperSourceAdapter.internal_getSessionOrRootForSubjectFinder(), new GrouperSessionHandler() {
 
       public Object callback(GrouperSession grouperSession)
           throws GrouperSessionException {
@@ -406,23 +424,34 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
   /**
    * @return session
    */
-  private GrouperSession _getSession() {
-	//If we have a thread local session then let's use it to ensure 
-	//proper VIEW privilege enforcement
-	GrouperSession activeSession = GrouperSession.staticGrouperSession(false);
-	if(activeSession !=null) {
-		return activeSession;
-	}
-    if (this.rootSession == null) {
-      try {
-        //dont replace the currently active session
-        this.rootSession = GrouperSession.start( SubjectFinder.findRootSubject(), false );
-      }
-      catch (SessionException eS) {
-        throw new GrouperException(E.S_NOSTARTROOT + eS.getMessage());
-      }
+  public static GrouperSession internal_getSessionOrRootForSubjectFinder() {
+  	//If we have a thread local session then let's use it to ensure 
+  	//proper VIEW privilege enforcement
+  	GrouperSession activeSession = GrouperSession.staticGrouperSession(false);
+  	if(activeSession !=null) {
+  		return activeSession;
+  	}
+
+  	if (!GrouperConfig.getPropertyBoolean("subjects.startRootSessionIfOneIsntStarted", true)) {
+  	  return null;
+  	}
+  	
+    if (rootSession == null) {
+    	synchronized(GrouperSourceAdapter.class) {
+        if (rootSession == null) {
+          try {
+            //dont replace the currently active session
+            //dont use find root subject or it wont be found...
+            rootSession = GrouperSession.start( SourceManager.getInstance().getSource(InternalSourceAdapter.ID).getSubject(GrouperConfig.ROOT, true), false );
+          }
+          catch (SessionException eS) {
+            throw new GrouperException(E.S_NOSTARTROOT + eS.getMessage(), eS);
+          }
+          
+        }
+    	}
     }
-    return this.rootSession;
+    return rootSession;
   } // private GrouperSession _getSession()
 
   /**

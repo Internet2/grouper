@@ -24,8 +24,12 @@ import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
+import edu.internet2.middleware.grouper.annotations.GrouperIgnoreClone;
+import edu.internet2.middleware.grouper.annotations.GrouperIgnoreDbVersion;
+import edu.internet2.middleware.grouper.annotations.GrouperIgnoreFieldConstant;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GrouperException;
+import edu.internet2.middleware.grouper.exception.SessionException;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.misc.E;
@@ -59,6 +63,35 @@ import edu.internet2.middleware.subject.SubjectTooManyResults;
  * @version $Id: SubjectFinder.java,v 1.47 2009-12-28 06:08:37 mchyzer Exp $
  */
 public class SubjectFinder {
+
+
+  /** */
+  private static GrouperSession  rootSession;
+
+  // PRIVATE INSTANCE METHODS //
+
+  // @since   1.1.0
+  /**
+   * @return session
+   */
+  public static GrouperSession grouperSessionOrRootForSubjectFinder() {
+    //If we have a thread local session then let's use it to ensure 
+    //proper VIEW privilege enforcement
+    GrouperSession activeSession = GrouperSession.staticGrouperSession(false);
+    if(activeSession !=null) {
+      return activeSession;
+    }
+    if (rootSession == null) {
+      try {
+        //dont replace the currently active session
+        rootSession = GrouperSession.start( SubjectFinder.findRootSubject(), false );
+      }
+      catch (SessionException eS) {
+        throw new GrouperException(E.S_NOSTARTROOT + eS.getMessage(), eS);
+      }
+    }
+    return rootSession;
+  } // private GrouperSession _getSession()
 
   /** if we should use threads when doing searches (if grouper.properties allows), this must be used in a try/finally */
   private static ThreadLocal<Boolean> useThreads = new ThreadLocal<Boolean>();

@@ -18,10 +18,9 @@ limitations under the License.
 package edu.internet2.middleware.grouper.ui;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.LinkedHashSet;
 import java.util.Map;
+
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -33,6 +32,7 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -42,7 +42,7 @@ import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
-import edu.internet2.middleware.grouper.ui.actions.LowLevelGrouperCapableAction;
+import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
 import edu.internet2.middleware.subject.SubjectNotUniqueException;
 
@@ -206,17 +206,24 @@ public class LoginCheckFilter implements Filter {
 			return;
 		}
 
-		String remoteUser = GrouperUiFilter.remoteUser(request);
+		final String remoteUser = GrouperUiFilter.remoteUser(request);
 		if (remoteUser == null || remoteUser.length() == 0 || (!"*".equals(grouperRole) && !request.isUserInRole(grouperRole) && !"y".equals(request.getParameter("badRole")))) {
 			response.sendRedirect(request.getContextPath() + failureUrl + "?badRole=y"
 					+ moduleStr);
 			return;
 		}
 
-		edu.internet2.middleware.subject.Subject subj = null;
+		Subject subj = null;
 		UnrecoverableErrorException unrecov = null;
+    GrouperSession grouperSession = GrouperSession.startRootSession(false);
 		try {
-			subj = SubjectFinder.findByIdOrIdentifier(remoteUser, true);
+		  subj = (Subject)GrouperSession.callbackGrouperSession(grouperSession, new GrouperSessionHandler() {
+        
+        @Override
+        public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
+          return SubjectFinder.findByIdOrIdentifier(remoteUser, true);
+        }
+      });
 		} catch (SubjectNotFoundException e) {
 			LOG.error(remoteUser + " is not recognised",e);
 			unrecov = new UnrecoverableErrorException("error.login.not-recognised",e);		
@@ -226,6 +233,8 @@ public class LoginCheckFilter implements Filter {
 		} catch (Exception e) {
 			LOG.error("Problem looking up remote user: " + remoteUser,e);
 			unrecov = new UnrecoverableErrorException("error.login.serious-error",e);
+		} finally {
+		  GrouperSession.stopQuietly(grouperSession);
 		}
 		if(unrecov!=null) {
 			throw unrecov;

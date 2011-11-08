@@ -50,6 +50,7 @@ import edu.internet2.middleware.grouper.privs.AttributeDefResolverFactory;
 import edu.internet2.middleware.grouper.privs.NamingAdapter;
 import edu.internet2.middleware.grouper.privs.NamingResolver;
 import edu.internet2.middleware.grouper.privs.NamingResolverFactory;
+import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.validator.GrouperValidator;
 import edu.internet2.middleware.grouper.validator.NotNullValidator;
@@ -651,6 +652,40 @@ public class GrouperSession implements Serializable {
     }
     return ret;
   
+  }
+
+  /**
+   * call this to send a callback for the root grouper session object. 
+   * Any method in the inverse of
+   * control can access the grouper session in a threadlocal
+   * 
+   * @param grouperSessionHandler
+   *          will get the callback
+   * @return the object returned from the callback
+   * @throws GrouperSessionException
+   *           if there is a problem, will preserve runtime exceptions so they are
+   *           thrown to the caller.  The GrouperSessionException wraps the underlying exception
+   */
+  public static Object internal_callbackRootGrouperSession(GrouperSessionHandler grouperSessionHandler)
+      throws GrouperSessionException {
+
+    //this needs to run as root
+    boolean startedGrouperSession = false;
+    GrouperSession grouperSession = GrouperSession.staticGrouperSession();
+    if (grouperSession == null) {
+      grouperSession = GrouperSession.startRootSession(false);
+      startedGrouperSession = true;
+    }
+    if (!PrivilegeHelper.isWheelOrRoot(grouperSession.getSubject())) {
+      grouperSession = grouperSession.internal_getRootSession();
+    }
+    try {
+      return callbackGrouperSession(grouperSession, grouperSessionHandler);
+    } finally {
+      if (startedGrouperSession) {
+        GrouperSession.stopQuietly(grouperSession);
+      }
+    }
   }
 
   /**
