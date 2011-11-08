@@ -15,6 +15,7 @@ import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.MembershipFinder;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.AttributeDefNameSet;
@@ -33,6 +34,7 @@ import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.SyncPITTables;
+import edu.internet2.middleware.grouper.permissions.PermissionAllowed;
 import edu.internet2.middleware.grouper.permissions.role.Role;
 import edu.internet2.middleware.grouper.permissions.role.RoleSet;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
@@ -114,6 +116,8 @@ public class PITSyncTests extends GrouperTest {
     
     grouperSession     = SessionHelper.getRootSession();
     root  = StemHelper.findRootStem(grouperSession);
+    
+    GrouperLoaderConfig.testConfig.put("changeLog.includeRolesWithPermissionChanges", "true");
   }
 
   /**
@@ -136,7 +140,7 @@ public class PITSyncTests extends GrouperTest {
     attributeDef1.store();
     attributeDefName1 = edu.addChildAttributeDefName(attributeDef1, "testAttribute1", "testAttribute1");
     action1 = attributeDef1.getAttributeDefActionDelegate().addAction("testAction1");
-    assign1 = role.getPermissionRoleDelegate().assignRolePermission("testAction1", attributeDefName1).getAttributeAssign();
+    assign1 = role.getPermissionRoleDelegate().assignRolePermission("testAction1", attributeDefName1, PermissionAllowed.ALLOWED).getAttributeAssign();
     
     attributeDef2 = edu.addChildAttributeDef("attributeDef2", AttributeDefType.attr);
     attributeDef2.setAssignToGroup(true);
@@ -263,7 +267,7 @@ public class PITSyncTests extends GrouperTest {
     HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryTemp").executeUpdate();
     
     // let's sync and make sure there's nothing in the change log
-    long updates = new SyncPITTables().showResults(false).sendFlattenedNotifications(false).syncAllPITTables();
+    long updates = new SyncPITTables().showResults(false).sendFlattenedNotifications(false).sendPermissionNotifications(false).syncAllPITTables();
     assertTrue(updates > 0);
     
     int changeLogTempCount = HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_change_log_entry_temp");
@@ -277,7 +281,7 @@ public class PITSyncTests extends GrouperTest {
     deleteData();
     HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryTemp").executeUpdate();
   
-    updates = new SyncPITTables().showResults(false).sendFlattenedNotifications(false).syncAllPITTables();
+    updates = new SyncPITTables().showResults(false).sendFlattenedNotifications(false).sendPermissionNotifications(false).syncAllPITTables();
     assertTrue(updates > 0);
 
     changeLogTempCount = HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_change_log_entry_temp");

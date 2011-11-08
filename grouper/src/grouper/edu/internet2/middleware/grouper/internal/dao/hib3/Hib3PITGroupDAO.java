@@ -1,6 +1,7 @@
 package edu.internet2.middleware.grouper.internal.dao.hib3;
 
 import java.sql.Timestamp;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -16,7 +17,12 @@ import edu.internet2.middleware.grouper.internal.dao.PITGroupDAO;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.internal.dao.QuerySortField;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.pit.PITAttributeAssign;
+import edu.internet2.middleware.grouper.pit.PITAttributeAssignActionSet;
+import edu.internet2.middleware.grouper.pit.PITAttributeDefNameSet;
 import edu.internet2.middleware.grouper.pit.PITGroup;
+import edu.internet2.middleware.grouper.pit.PITMembership;
+import edu.internet2.middleware.grouper.pit.PITRoleSet;
 import edu.internet2.middleware.grouper.pit.PITStem;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.Privilege;
@@ -295,6 +301,117 @@ public class Hib3PITGroupDAO extends Hib3DAO implements PITGroupDAO {
       .listSet(PITGroup.class);
     
     return groups;
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.PITGroupDAO#findRolesWithPermissionsContainingObject(edu.internet2.middleware.grouper.pit.PITAttributeAssign)
+   */
+  public Set<PITGroup> findRolesWithPermissionsContainingObject(PITAttributeAssign assign) {
+    Set<PITGroup> roles = new HashSet<PITGroup>();
+    
+    if ("any_mem".equals(assign.getAttributeAssignTypeDb())) {
+      // need to make sure that the assignment is for a permission..
+      PITGroup foundRole = HibernateSession.byHqlStatic().setCacheable(false)
+        .createQuery("select gg from PITGroup gg, PITAttributeAssign gaa, PITAttributeDefName gadn, PITAttributeDef gad " +
+        		"where gaa.attributeDefNameId = gadn.id and gadn.attributeDefId = gad.id and gaa.ownerGroupId = gg.id " +
+        		"and gad.attributeDefTypeDb = 'perm' and gaa.id = :assignId")
+        .setString("assignId", assign.getId())
+        .uniqueResult(PITGroup.class);
+      
+      if (foundRole != null) {
+        roles.add(foundRole);
+      }
+    
+    } else if ("group".equals(assign.getAttributeAssignTypeDb())) {
+      // need to make sure that the assignment is for a permission and join with role sets
+      Set<PITGroup> foundRoles = HibernateSession.byHqlStatic().setCacheable(false)
+        .createQuery("select distinct gg from PITGroup gg, PITAttributeAssign gaa, PITAttributeDefName gadn, PITAttributeDef gad, PITRoleSet grs " +
+            "where gaa.attributeDefNameId = gadn.id and gadn.attributeDefId = gad.id and gaa.ownerGroupId = grs.thenHasRoleId and gg.id = grs.ifHasRoleId " +
+            "and grs.activeDb = 'T' and gad.attributeDefTypeDb = 'perm' and gaa.id = :assignId")
+        .setString("assignId", assign.getId())
+        .listSet(PITGroup.class);
+      
+      roles.addAll(foundRoles);
+    }
+    
+    return roles;
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.PITGroupDAO#findRolesWithPermissionsContainingObject(edu.internet2.middleware.grouper.pit.PITAttributeAssignActionSet)
+   */
+  public Set<PITGroup> findRolesWithPermissionsContainingObject(PITAttributeAssignActionSet actionSet) {
+
+    Set<PITGroup> roles = HibernateSession.byHqlStatic().setCacheable(false)
+      .createQuery("select distinct gg from PITGroup gg, PITAttributeAssign gaa, PITAttributeDefName gadn, PITAttributeDef gad, PITRoleSet grs, PITAttributeAssignActionSet gaaas " +
+          "where gaa.attributeDefNameId = gadn.id and gadn.attributeDefId = gad.id " +
+          "and ((gaa.attributeAssignTypeDb = 'group' and gaa.ownerGroupId = grs.thenHasRoleId and gg.id = grs.ifHasRoleId) " +
+          "  or (gaa.attributeAssignTypeDb = 'any_mem' and grs.ifHasRoleId = gaa.ownerGroupId and grs.depth ='0' and gg.id = grs.ifHasRoleId)) " +
+          "and gaaas.ifHasAttrAssignActionId = gaa.attributeAssignActionId and gaaas.thenHasAttrAssignActionId = :actionId " +
+          "and grs.activeDb = 'T' and gaaas.activeDb = 'T' and gaa.activeDb = 'T' and gad.attributeDefTypeDb = 'perm'")
+      .setString("actionId", actionSet.getIfHasAttrAssignActionId())
+      .listSet(PITGroup.class);
+    
+    return roles;
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.PITGroupDAO#findRolesWithPermissionsContainingObject(edu.internet2.middleware.grouper.pit.PITAttributeDefNameSet)
+   */
+  public Set<PITGroup> findRolesWithPermissionsContainingObject(PITAttributeDefNameSet attributeDefNameSet) {
+
+    Set<PITGroup> roles = HibernateSession.byHqlStatic().setCacheable(false)
+      .createQuery("select distinct gg from PITGroup gg, PITAttributeAssign gaa, PITAttributeDefName gadn, PITAttributeDef gad, PITRoleSet grs, PITAttributeDefNameSet gadns " +
+          "where gaa.attributeDefNameId = gadn.id and gadn.attributeDefId = gad.id " +
+          "and ((gaa.attributeAssignTypeDb = 'group' and gaa.ownerGroupId = grs.thenHasRoleId and gg.id = grs.ifHasRoleId) " +
+          "  or (gaa.attributeAssignTypeDb = 'any_mem' and grs.ifHasRoleId = gaa.ownerGroupId and grs.depth ='0' and gg.id = grs.ifHasRoleId)) " +
+          "and gadns.ifHasAttributeDefNameId = gaa.attributeDefNameId and gadns.thenHasAttributeDefNameId = :attributeDefNameId " +
+          "and grs.activeDb = 'T' and gadns.activeDb = 'T' and gaa.activeDb = 'T' and gad.attributeDefTypeDb = 'perm'")
+      .setString("attributeDefNameId", attributeDefNameSet.getIfHasAttributeDefNameId())
+      .listSet(PITGroup.class);
+    
+    return roles;
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.PITGroupDAO#findRolesWithPermissionsContainingObject(edu.internet2.middleware.grouper.pit.PITRoleSet)
+   */
+  public Set<PITGroup> findRolesWithPermissionsContainingObject(PITRoleSet roleSet) {
+
+    Set<PITGroup> roles = HibernateSession.byHqlStatic().setCacheable(false)
+      .createQuery("select distinct gg from PITGroup gg, PITAttributeAssign gaa, PITAttributeDefName gadn, PITAttributeDef gad, PITRoleSet grs, PITRoleSet grs2 " +
+          "where gaa.attributeDefNameId = gadn.id and gadn.attributeDefId = gad.id " +
+          "and gaa.attributeAssignTypeDb = 'group' and gaa.ownerGroupId = grs.thenHasRoleId and grs.ifHasRoleId = :thenRoleId " +
+          "and grs2.ifHasRoleId = gg.id and grs2.thenHasRoleId = :ifRoleId " +
+          "and grs.activeDb = 'T' and grs2.activeDb = 'T' and gaa.activeDb = 'T' and gad.attributeDefTypeDb = 'perm'")
+      .setString("ifRoleId", roleSet.getIfHasRoleId())
+      .setString("thenRoleId", roleSet.getThenHasRoleId())
+      .listSet(PITGroup.class);
+    
+    return roles;
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.PITGroupDAO#findRolesWithPermissionsContainingObject(edu.internet2.middleware.grouper.pit.PITMembership)
+   */
+  public Set<PITGroup> findRolesWithPermissionsContainingObject(PITMembership membership) {
+
+    if (!Group.getDefaultList().getUuid().equals(membership.getFieldId())) {
+      return new HashSet<PITGroup>();
+    }
+    
+    Set<PITGroup> roles = HibernateSession.byHqlStatic().setCacheable(false)
+      .createQuery("select distinct gg from PITGroup gg, PITAttributeAssign gaa, PITAttributeDefName gadn, PITAttributeDef gad, PITRoleSet grs, PITGroupSet ggs " +
+          "where gaa.attributeDefNameId = gadn.id and gadn.attributeDefId = gad.id " +
+          "and ((gaa.attributeAssignTypeDb = 'group' and gaa.ownerGroupId = grs.thenHasRoleId and gg.id = grs.ifHasRoleId) " +
+          "  or (gaa.attributeAssignTypeDb = 'any_mem' and grs.ifHasRoleId = gaa.ownerGroupId and grs.depth ='0' and gg.id = grs.ifHasRoleId)) " +
+          "and ggs.ownerId = grs.ifHasRoleId and ggs.memberId = :groupId and ggs.fieldId = :fieldId " +
+          "and grs.activeDb = 'T' and ggs.activeDb = 'T' and gaa.activeDb = 'T' and gad.attributeDefTypeDb = 'perm'")
+      .setString("groupId", membership.getOwnerGroupId())
+      .setString("fieldId", Group.getDefaultList().getUuid())
+      .listSet(PITGroup.class);
+    
+    return roles;
   }
 }
 

@@ -525,26 +525,9 @@ public enum ChangeLogTypeBuiltin implements ChangeLogTypeIdentifier {
   /**
    * permission add
    */
-  PERMISSION_ADD(new ChangeLogType("permission", "addPermission",
-      ChangeLogLabels.PERMISSION_ADD.attributeDefNameName,
-      ChangeLogLabels.PERMISSION_ADD.attributeDefNameId,
-      ChangeLogLabels.PERMISSION_ADD.action,
-      ChangeLogLabels.PERMISSION_ADD.actionId,
-      ChangeLogLabels.PERMISSION_ADD.subjectId,
-      ChangeLogLabels.PERMISSION_ADD.subjectSourceId,
-      ChangeLogLabels.PERMISSION_ADD.memberId)),
-  
-  /**
-   * permission delete
-   */
-  PERMISSION_DELETE(new ChangeLogType("permission", "deletePermission",
-      ChangeLogLabels.PERMISSION_DELETE.attributeDefNameName,
-      ChangeLogLabels.PERMISSION_DELETE.attributeDefNameId,
-      ChangeLogLabels.PERMISSION_DELETE.action,
-      ChangeLogLabels.PERMISSION_DELETE.actionId,
-      ChangeLogLabels.PERMISSION_DELETE.subjectId,
-      ChangeLogLabels.PERMISSION_DELETE.subjectSourceId,
-      ChangeLogLabels.PERMISSION_DELETE.memberId));   
+  PERMISSION_CHANGE_ON_ROLE(new ChangeLogType("permission", "permissionChangeOnRole",
+      ChangeLogLabels.PERMISSION_CHANGE_ON_ROLE.roleId,
+      ChangeLogLabels.PERMISSION_CHANGE_ON_ROLE.roleName));
       
   /**
    * defaults for audit type, though doesnt hold the id

@@ -1364,6 +1364,13 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
               // Revoke all access privs
               Group.this._revokeAllAccessPrivs();
               
+              //delete any attributes on this group
+              Set<AttributeAssign> attributeAssigns = GrouperDAOFactory.getFactory().getAttributeAssign().findByOwnerGroupId(Group.this.getId());
+              
+              for (AttributeAssign attributeAssign : attributeAssigns) {
+                attributeAssign.delete();
+              }
+
               // ... And delete composite mship if it exists
               if (Group.this.hasComposite()) {
                 Group.this.deleteCompositeMember();
@@ -1383,13 +1390,6 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
               GrouperSession.staticGrouperSession().internal_getRootSession()
                 .getAttributeDefResolver().revokeAllPrivilegesForSubject(groupSubject);
               
-              //delete any attributes on this group
-              Set<AttributeAssign> attributeAssigns = GrouperDAOFactory.getFactory().getAttributeAssign().findByOwnerGroupId(Group.this.getId());
-              
-              for (AttributeAssign attributeAssign : attributeAssigns) {
-                attributeAssign.delete();
-              }
-
               //deletes.add(this);            // ... And add the group last for good luck    
               String name = Group.this.getName(); // Preserve name for logging
               GrouperDAOFactory.getFactory().getGroup().delete(Group.this);

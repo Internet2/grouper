@@ -657,8 +657,8 @@ public class ChangeLogTempToEntity {
     
     boolean includeFlattenedMemberships = GrouperLoaderConfig.getPropertyBoolean("changeLog.includeFlattenedMemberships", true);
     boolean includeFlattenedPrivileges = GrouperLoaderConfig.getPropertyBoolean("changeLog.includeFlattenedPrivileges", true);
-    boolean includeFlattenedPermissions = GrouperLoaderConfig.getPropertyBoolean("changeLog.includeFlattenedPermissions", true);
-    pitMembership.setFlatPermissionNotificationsOnSaveOrUpdate(includeFlattenedPermissions);
+    boolean includeRolesWithPermissionChanges = GrouperLoaderConfig.getPropertyBoolean("changeLog.includeRolesWithPermissionChanges", true);
+    pitMembership.setNotificationsForRolesWithPermissionChangesOnSaveOrUpdate(includeRolesWithPermissionChanges);
     pitMembership.setFlatMembershipNotificationsOnSaveOrUpdate(includeFlattenedMemberships);
     pitMembership.setFlatPrivilegeNotificationsOnSaveOrUpdate(includeFlattenedPrivileges);
     
@@ -686,8 +686,8 @@ public class ChangeLogTempToEntity {
     
     boolean includeFlattenedMemberships = GrouperLoaderConfig.getPropertyBoolean("changeLog.includeFlattenedMemberships", true);
     boolean includeFlattenedPrivileges = GrouperLoaderConfig.getPropertyBoolean("changeLog.includeFlattenedPrivileges", true);
-    boolean includeFlattenedPermissions = GrouperLoaderConfig.getPropertyBoolean("changeLog.includeFlattenedPermissions", true);
-    pitMembership.setFlatPermissionNotificationsOnSaveOrUpdate(includeFlattenedPermissions);
+    boolean includeRolesWithPermissionChanges = GrouperLoaderConfig.getPropertyBoolean("changeLog.includeRolesWithPermissionChanges", true);
+    pitMembership.setNotificationsForRolesWithPermissionChangesOnSaveOrUpdate(includeRolesWithPermissionChanges);
     pitMembership.setFlatMembershipNotificationsOnSaveOrUpdate(includeFlattenedMemberships);
     pitMembership.setFlatPrivilegeNotificationsOnSaveOrUpdate(includeFlattenedPrivileges);
     
@@ -736,8 +736,8 @@ public class ChangeLogTempToEntity {
     
     boolean includeFlattenedMemberships = GrouperLoaderConfig.getPropertyBoolean("changeLog.includeFlattenedMemberships", true);
     boolean includeFlattenedPrivileges = GrouperLoaderConfig.getPropertyBoolean("changeLog.includeFlattenedPrivileges", true);
-    boolean includeFlattenedPermissions = GrouperLoaderConfig.getPropertyBoolean("changeLog.includeFlattenedPermissions", true);
-    pitMembership.setFlatPermissionNotificationsOnSaveOrUpdate(includeFlattenedPermissions);
+    boolean includeRolesWithPermissionChanges = GrouperLoaderConfig.getPropertyBoolean("changeLog.includeRolesWithPermissionChanges", true);
+    pitMembership.setNotificationsForRolesWithPermissionChangesOnSaveOrUpdate(includeRolesWithPermissionChanges);
     pitMembership.setFlatMembershipNotificationsOnSaveOrUpdate(includeFlattenedMemberships);
     pitMembership.setFlatPrivilegeNotificationsOnSaveOrUpdate(includeFlattenedPrivileges);
     
@@ -766,8 +766,8 @@ public class ChangeLogTempToEntity {
     
     boolean includeFlattenedMemberships = GrouperLoaderConfig.getPropertyBoolean("changeLog.includeFlattenedMemberships", true);
     boolean includeFlattenedPrivileges = GrouperLoaderConfig.getPropertyBoolean("changeLog.includeFlattenedPrivileges", true);
-    boolean includeFlattenedPermissions = GrouperLoaderConfig.getPropertyBoolean("changeLog.includeFlattenedPermissions", true);
-    pitMembership.setFlatPermissionNotificationsOnSaveOrUpdate(includeFlattenedPermissions);
+    boolean includeRolesWithPermissionChanges = GrouperLoaderConfig.getPropertyBoolean("changeLog.includeRolesWithPermissionChanges", true);
+    pitMembership.setNotificationsForRolesWithPermissionChangesOnSaveOrUpdate(includeRolesWithPermissionChanges);
     pitMembership.setFlatMembershipNotificationsOnSaveOrUpdate(includeFlattenedMemberships);
     pitMembership.setFlatPrivilegeNotificationsOnSaveOrUpdate(includeFlattenedPrivileges);
     
@@ -824,8 +824,8 @@ public class ChangeLogTempToEntity {
       pitAttributeAssign.setOwnerAttributeAssignId(ownerId1);
     }
     
-    boolean includeFlattenedPermissions = GrouperLoaderConfig.getPropertyBoolean("changeLog.includeFlattenedPermissions", true);
-    pitAttributeAssign.setFlatPermissionNotificationsOnSaveOrUpdate(includeFlattenedPermissions);
+    boolean includeRolesWithPermissionChanges = GrouperLoaderConfig.getPropertyBoolean("changeLog.includeRolesWithPermissionChanges", true);
+    pitAttributeAssign.setNotificationsForRolesWithPermissionChangesOnSaveOrUpdate(includeRolesWithPermissionChanges);
 
     pitAttributeAssign.save();
   }
@@ -846,8 +846,8 @@ public class ChangeLogTempToEntity {
     pitAttributeAssign.setActiveDb("F");
     pitAttributeAssign.setContextId(contextId);
     
-    boolean includeFlattenedPermissions = GrouperLoaderConfig.getPropertyBoolean("changeLog.includeFlattenedPermissions", true);
-    pitAttributeAssign.setFlatPermissionNotificationsOnSaveOrUpdate(includeFlattenedPermissions);
+    boolean includeRolesWithPermissionChanges = GrouperLoaderConfig.getPropertyBoolean("changeLog.includeRolesWithPermissionChanges", true);
+    pitAttributeAssign.setNotificationsForRolesWithPermissionChangesOnSaveOrUpdate(includeRolesWithPermissionChanges);
     
     pitAttributeAssign.update();
   }
@@ -1070,8 +1070,8 @@ public class ChangeLogTempToEntity {
     pitAttributeAssignActionSet.setStartTimeDb(time);
     pitAttributeAssignActionSet.setContextId(contextId);
 
-    boolean includeFlattenedPermissions = GrouperLoaderConfig.getPropertyBoolean("changeLog.includeFlattenedPermissions", true);
-    pitAttributeAssignActionSet.setFlatPermissionNotificationsOnSaveOrUpdate(includeFlattenedPermissions);
+    boolean includeRolesWithPermissionChanges = GrouperLoaderConfig.getPropertyBoolean("changeLog.includeRolesWithPermissionChanges", true);
+    pitAttributeAssignActionSet.setNotificationsForRolesWithPermissionChangesOnSaveOrUpdate(includeRolesWithPermissionChanges);
     
     pitAttributeAssignActionSet.saveOrUpdate();
   }
@@ -1092,8 +1092,8 @@ public class ChangeLogTempToEntity {
     pitAttributeAssignActionSet.setActiveDb("F");
     pitAttributeAssignActionSet.setContextId(contextId);
     
-    boolean includeFlattenedPermissions = GrouperLoaderConfig.getPropertyBoolean("changeLog.includeFlattenedPermissions", true);
-    pitAttributeAssignActionSet.setFlatPermissionNotificationsOnSaveOrUpdate(includeFlattenedPermissions);
+    boolean includeRolesWithPermissionChanges = GrouperLoaderConfig.getPropertyBoolean("changeLog.includeRolesWithPermissionChanges", true);
+    pitAttributeAssignActionSet.setNotificationsForRolesWithPermissionChangesOnSaveOrUpdate(includeRolesWithPermissionChanges);
     
     pitAttributeAssignActionSet.saveOrUpdate();
   }
@@ -1127,8 +1127,8 @@ public class ChangeLogTempToEntity {
     pitAttributeDefNameSet.setStartTimeDb(time);
     pitAttributeDefNameSet.setContextId(contextId);
 
-    boolean includeFlattenedPermissions = GrouperLoaderConfig.getPropertyBoolean("changeLog.includeFlattenedPermissions", true);
-    pitAttributeDefNameSet.setFlatPermissionNotificationsOnSaveOrUpdate(includeFlattenedPermissions);
+    boolean includeRolesWithPermissionChanges = GrouperLoaderConfig.getPropertyBoolean("changeLog.includeRolesWithPermissionChanges", true);
+    pitAttributeDefNameSet.setNotificationsForRolesWithPermissionChangesOnSaveOrUpdate(includeRolesWithPermissionChanges);
     
     pitAttributeDefNameSet.saveOrUpdate();
   }
@@ -1149,8 +1149,8 @@ public class ChangeLogTempToEntity {
     pitAttributeDefNameSet.setActiveDb("F");
     pitAttributeDefNameSet.setContextId(contextId);
     
-    boolean includeFlattenedPermissions = GrouperLoaderConfig.getPropertyBoolean("changeLog.includeFlattenedPermissions", true);
-    pitAttributeDefNameSet.setFlatPermissionNotificationsOnSaveOrUpdate(includeFlattenedPermissions);
+    boolean includeRolesWithPermissionChanges = GrouperLoaderConfig.getPropertyBoolean("changeLog.includeRolesWithPermissionChanges", true);
+    pitAttributeDefNameSet.setNotificationsForRolesWithPermissionChangesOnSaveOrUpdate(includeRolesWithPermissionChanges);
     
     pitAttributeDefNameSet.saveOrUpdate();
   }
@@ -1184,8 +1184,8 @@ public class ChangeLogTempToEntity {
     pitRoleSet.setStartTimeDb(time);
     pitRoleSet.setContextId(contextId);
 
-    boolean includeFlattenedPermissions = GrouperLoaderConfig.getPropertyBoolean("changeLog.includeFlattenedPermissions", true);
-    pitRoleSet.setFlatPermissionNotificationsOnSaveOrUpdate(includeFlattenedPermissions);
+    boolean includeRolesWithPermissionChanges = GrouperLoaderConfig.getPropertyBoolean("changeLog.includeRolesWithPermissionChanges", true);
+    pitRoleSet.setNotificationsForRolesWithPermissionChangesOnSaveOrUpdate(includeRolesWithPermissionChanges);
     
     pitRoleSet.saveOrUpdate();
   }
@@ -1206,8 +1206,8 @@ public class ChangeLogTempToEntity {
     pitRoleSet.setActiveDb("F");
     pitRoleSet.setContextId(contextId);
     
-    boolean includeFlattenedPermissions = GrouperLoaderConfig.getPropertyBoolean("changeLog.includeFlattenedPermissions", true);
-    pitRoleSet.setFlatPermissionNotificationsOnSaveOrUpdate(includeFlattenedPermissions);
+    boolean includeRolesWithPermissionChanges = GrouperLoaderConfig.getPropertyBoolean("changeLog.includeRolesWithPermissionChanges", true);
+    pitRoleSet.setNotificationsForRolesWithPermissionChangesOnSaveOrUpdate(includeRolesWithPermissionChanges);
     
     pitRoleSet.saveOrUpdate();
   }

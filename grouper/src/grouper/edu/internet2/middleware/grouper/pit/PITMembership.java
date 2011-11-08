@@ -1,11 +1,8 @@
 package edu.internet2.middleware.grouper.pit;
 
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Set;
-
-import org.apache.commons.collections.keyvalue.MultiKey;
 
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.FieldFinder;
@@ -139,21 +136,21 @@ public class PITMembership extends GrouperPIT implements Hib3GrouperVersioned {
   /** whether there will be flat privilege notifications when this object is saved or updated */ 
   private boolean flatPrivilegeNotificationsOnSaveOrUpdate = false;
   
-  /** whether there will be flat permission notifications when this object is saved or updated */ 
-  private boolean flatPermissionNotificationsOnSaveOrUpdate = false;
+  /** whether there will be notifications for roles with permission changes when this object is saved or updated */ 
+  private boolean notificationsForRolesWithPermissionChangesOnSaveOrUpdate = false;
   
   /**
    * @return boolean
    */
-  public boolean getFlatPermissionNotificationsOnSaveOrUpdate() {
-    return flatPermissionNotificationsOnSaveOrUpdate;
+  public boolean getNotificationsForRolesWithPermissionChangesOnSaveOrUpdate() {
+    return notificationsForRolesWithPermissionChangesOnSaveOrUpdate;
   }
   
   /**
-   * @param flatPermissionNotificationsOnSaveOrUpdate
+   * @param notificationsForRolesWithPermissionChangesOnSaveOrUpdate
    */
-  public void setFlatPermissionNotificationsOnSaveOrUpdate(boolean flatPermissionNotificationsOnSaveOrUpdate) {
-    this.flatPermissionNotificationsOnSaveOrUpdate = flatPermissionNotificationsOnSaveOrUpdate;
+  public void setNotificationsForRolesWithPermissionChangesOnSaveOrUpdate(boolean notificationsForRolesWithPermissionChangesOnSaveOrUpdate) {
+    this.notificationsForRolesWithPermissionChangesOnSaveOrUpdate = notificationsForRolesWithPermissionChangesOnSaveOrUpdate;
   }
   
   /**
@@ -567,40 +564,27 @@ public class PITMembership extends GrouperPIT implements Hib3GrouperVersioned {
   public void onPreUpdate(HibernateSession hibernateSession) {
     super.onPreUpdate(hibernateSession);
     
-    // add change log entry for flat permissions
-    if (!this.isActive() && this.dbVersion().isActive() && this.getFlatPermissionNotificationsOnSaveOrUpdate()) {
+    // add change log entry for permissions
+    if (!this.isActive() && this.dbVersion().isActive() && this.getNotificationsForRolesWithPermissionChangesOnSaveOrUpdate()) {
       Set<ChangeLogEntry> changeLogEntryBatch = new LinkedHashSet<ChangeLogEntry>();
       int batchSize = GrouperConfig.getHibernatePropertyInt("hibernate.jdbc.batch_size", 20);
       if (batchSize <= 0) {
         batchSize = 1;
       }
 
-      Set<PITPermissionAllView> perms = GrouperDAOFactory.getFactory().getPITPermissionAllView().findNewOrDeletedFlatPermissionsAfterMembershipAddOrDelete(this.id);
-      Iterator<PITPermissionAllView> iter = perms.iterator();
-      
-      Set<MultiKey> processed = new HashSet<MultiKey>();
-      
-      while (iter.hasNext()) {
-        PITPermissionAllView perm = iter.next();
-        
-        MultiKey key = new MultiKey(perm.getAttributeDefNameId(), perm.getActionId(), perm.getMemberId());
-        if (processed.add(key)) {
-          ChangeLogEntry changeLogEntry = new ChangeLogEntry(false, ChangeLogTypeBuiltin.PERMISSION_DELETE,
-              ChangeLogLabels.PERMISSION_DELETE.attributeDefNameName.name(), perm.getAttributeDefNameName(),
-              ChangeLogLabels.PERMISSION_DELETE.attributeDefNameId.name(), perm.getAttributeDefNameId(),
-              ChangeLogLabels.PERMISSION_DELETE.action.name(), perm.getAction(),
-              ChangeLogLabels.PERMISSION_DELETE.actionId.name(), perm.getActionId(),
-              ChangeLogLabels.PERMISSION_DELETE.subjectId.name(), perm.getSubjectId(),
-              ChangeLogLabels.PERMISSION_DELETE.subjectSourceId.name(), perm.getSubjectSourceId(),
-              ChangeLogLabels.PERMISSION_DELETE.memberId.name(), perm.getMemberId());
-              
-          changeLogEntry.setContextId(this.getContextId());
-          changeLogEntry.setCreatedOnDb(this.getStartTimeDb());
-          changeLogEntryBatch.add(changeLogEntry);
-          if (changeLogEntryBatch.size() % batchSize == 0) {
-            GrouperDAOFactory.getFactory().getChangeLogEntry().saveBatch(changeLogEntryBatch, false);
-            changeLogEntryBatch.clear();
-          }
+      Set<PITGroup> roles = GrouperDAOFactory.getFactory().getPITGroup().findRolesWithPermissionsContainingObject(this);
+
+      for (PITGroup role : roles) {
+        ChangeLogEntry changeLogEntry = new ChangeLogEntry(false, ChangeLogTypeBuiltin.PERMISSION_CHANGE_ON_ROLE,
+            ChangeLogLabels.PERMISSION_CHANGE_ON_ROLE.roleId.name(), role.getId(),
+            ChangeLogLabels.PERMISSION_CHANGE_ON_ROLE.roleName.name(), role.getName());
+            
+        changeLogEntry.setContextId(this.getContextId());
+        changeLogEntry.setCreatedOnDb(this.getStartTimeDb());
+        changeLogEntryBatch.add(changeLogEntry);
+        if (changeLogEntryBatch.size() % batchSize == 0) {
+          GrouperDAOFactory.getFactory().getChangeLogEntry().saveBatch(changeLogEntryBatch, false);
+          changeLogEntryBatch.clear();
         }
       }
       
@@ -714,40 +698,27 @@ public class PITMembership extends GrouperPIT implements Hib3GrouperVersioned {
   @Override
   public void onPostSave(HibernateSession hibernateSession) {
 
-    // add change log entry for flat permissions
-    if (this.isActive() && this.getFlatPermissionNotificationsOnSaveOrUpdate()) {
+    // add change log entry for permissions
+    if (this.isActive() && this.getNotificationsForRolesWithPermissionChangesOnSaveOrUpdate()) {
       Set<ChangeLogEntry> changeLogEntryBatch = new LinkedHashSet<ChangeLogEntry>();
       int batchSize = GrouperConfig.getHibernatePropertyInt("hibernate.jdbc.batch_size", 20);
       if (batchSize <= 0) {
         batchSize = 1;
       }
 
-      Set<PITPermissionAllView> perms = GrouperDAOFactory.getFactory().getPITPermissionAllView().findNewOrDeletedFlatPermissionsAfterMembershipAddOrDelete(this.id);
-      Iterator<PITPermissionAllView> iter = perms.iterator();
-      
-      Set<MultiKey> processed = new HashSet<MultiKey>();
-      
-      while (iter.hasNext()) {
-        PITPermissionAllView perm = iter.next();
-        
-        MultiKey key = new MultiKey(perm.getAttributeDefNameId(), perm.getActionId(), perm.getMemberId());
-        if (processed.add(key)) {
-          ChangeLogEntry changeLogEntry = new ChangeLogEntry(false, ChangeLogTypeBuiltin.PERMISSION_ADD,
-              ChangeLogLabels.PERMISSION_ADD.attributeDefNameName.name(), perm.getAttributeDefNameName(),
-              ChangeLogLabels.PERMISSION_ADD.attributeDefNameId.name(), perm.getAttributeDefNameId(),
-              ChangeLogLabels.PERMISSION_ADD.action.name(), perm.getAction(),
-              ChangeLogLabels.PERMISSION_ADD.actionId.name(), perm.getActionId(),
-              ChangeLogLabels.PERMISSION_ADD.subjectId.name(), perm.getSubjectId(),
-              ChangeLogLabels.PERMISSION_ADD.subjectSourceId.name(), perm.getSubjectSourceId(),
-              ChangeLogLabels.PERMISSION_ADD.memberId.name(), perm.getMemberId());
-              
-          changeLogEntry.setContextId(this.getContextId());
-          changeLogEntry.setCreatedOnDb(this.getStartTimeDb());
-          changeLogEntryBatch.add(changeLogEntry);
-          if (changeLogEntryBatch.size() % batchSize == 0) {
-            GrouperDAOFactory.getFactory().getChangeLogEntry().saveBatch(changeLogEntryBatch, false);
-            changeLogEntryBatch.clear();
-          }
+      Set<PITGroup> roles = GrouperDAOFactory.getFactory().getPITGroup().findRolesWithPermissionsContainingObject(this);
+
+      for (PITGroup role : roles) {
+        ChangeLogEntry changeLogEntry = new ChangeLogEntry(false, ChangeLogTypeBuiltin.PERMISSION_CHANGE_ON_ROLE,
+            ChangeLogLabels.PERMISSION_CHANGE_ON_ROLE.roleId.name(), role.getId(),
+            ChangeLogLabels.PERMISSION_CHANGE_ON_ROLE.roleName.name(), role.getName());
+            
+        changeLogEntry.setContextId(this.getContextId());
+        changeLogEntry.setCreatedOnDb(this.getStartTimeDb());
+        changeLogEntryBatch.add(changeLogEntry);
+        if (changeLogEntryBatch.size() % batchSize == 0) {
+          GrouperDAOFactory.getFactory().getChangeLogEntry().saveBatch(changeLogEntryBatch, false);
+          changeLogEntryBatch.clear();
         }
       }
       
@@ -809,7 +780,6 @@ public class PITMembership extends GrouperPIT implements Hib3GrouperVersioned {
       pitImmediateGroupSet.setContextId(this.getContextId());
       pitImmediateGroupSet.setFlatMembershipNotificationsOnSaveOrUpdate(this.getFlatMembershipNotificationsOnSaveOrUpdate());
       pitImmediateGroupSet.setFlatPrivilegeNotificationsOnSaveOrUpdate(this.getFlatPrivilegeNotificationsOnSaveOrUpdate());
-      pitImmediateGroupSet.setFlatPermissionNotificationsOnSaveOrUpdate(this.getFlatPermissionNotificationsOnSaveOrUpdate());
       
       // see if group set with this id already exists.  if it does, delete it..
       PITGroupSet existing = GrouperDAOFactory.getFactory().getPITGroupSet().findById(pitImmediateGroupSet.getId());
@@ -848,7 +818,6 @@ public class PITMembership extends GrouperPIT implements Hib3GrouperVersioned {
       pitImmediateGroupSet.setContextId(this.getContextId());
       pitImmediateGroupSet.setFlatMembershipNotificationsOnSaveOrUpdate(this.getFlatMembershipNotificationsOnSaveOrUpdate());
       pitImmediateGroupSet.setFlatPrivilegeNotificationsOnSaveOrUpdate(this.getFlatPrivilegeNotificationsOnSaveOrUpdate());
-      pitImmediateGroupSet.setFlatPermissionNotificationsOnSaveOrUpdate(this.getFlatPermissionNotificationsOnSaveOrUpdate());
       pitImmediateGroupSet.saveOrUpdate();
     }
     

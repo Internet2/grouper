@@ -9,7 +9,12 @@ import java.util.Set;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.Stem.Scope;
+import edu.internet2.middleware.grouper.pit.PITAttributeAssign;
+import edu.internet2.middleware.grouper.pit.PITAttributeAssignActionSet;
+import edu.internet2.middleware.grouper.pit.PITAttributeDefNameSet;
 import edu.internet2.middleware.grouper.pit.PITGroup;
+import edu.internet2.middleware.grouper.pit.PITMembership;
+import edu.internet2.middleware.grouper.pit.PITRoleSet;
 import edu.internet2.middleware.grouper.pit.PITStem;
 
 /**
@@ -84,4 +89,39 @@ public interface PITGroupDAO extends GrouperDAO {
    * @return active point in time groups that should be inactive
    */
   public Set<PITGroup> findMissingInactivePITGroups();
+  
+  /**
+   * Find the roles that have permissions containing the specified object
+   * @param assign
+   * @return set of pit groups
+   */
+  public Set<PITGroup> findRolesWithPermissionsContainingObject(PITAttributeAssign assign);
+  
+  /**
+   * Find the roles that have permissions containing the specified object
+   * @param actionSet
+   * @return set of pit groups
+   */
+  public Set<PITGroup> findRolesWithPermissionsContainingObject(PITAttributeAssignActionSet actionSet);
+  
+  /**
+   * Find the roles that have permissions containing the specified object
+   * @param attributeDefNameSet
+   * @return set of pit groups
+   */
+  public Set<PITGroup> findRolesWithPermissionsContainingObject(PITAttributeDefNameSet attributeDefNameSet);
+  
+  /**
+   * Find the roles that have permissions containing the specified object
+   * @param roleSet
+   * @return set of pit groups
+   */
+  public Set<PITGroup> findRolesWithPermissionsContainingObject(PITRoleSet roleSet);
+  
+  /**
+   * Find the roles that have permissions containing the specified object
+   * @param membership
+   * @return set of pit groups
+   */
+  public Set<PITGroup> findRolesWithPermissionsContainingObject(PITMembership membership);
 }

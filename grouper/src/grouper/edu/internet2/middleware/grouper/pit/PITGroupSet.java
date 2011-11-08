@@ -1,13 +1,10 @@
 package edu.internet2.middleware.grouper.pit;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
-
-import org.apache.commons.collections.keyvalue.MultiKey;
 
 import edu.internet2.middleware.grouper.FieldType;
 import edu.internet2.middleware.grouper.Group;
@@ -194,23 +191,6 @@ public class PITGroupSet extends GrouperPIT implements Hib3GrouperVersioned {
 
   /** whether there will be flat privilege notifications when this object is saved or updated */ 
   private boolean flatPrivilegeNotificationsOnSaveOrUpdate = false;
-  
-  /** whether there will be flat permission notifications when this object is saved or updated */ 
-  private boolean flatPermissionNotificationsOnSaveOrUpdate = false;
-  
-  /**
-   * @return boolean
-   */
-  public boolean getFlatPermissionNotificationsOnSaveOrUpdate() {
-    return flatPermissionNotificationsOnSaveOrUpdate;
-  }
-  
-  /**
-   * @param flatPermissionNotificationsOnSaveOrUpdate
-   */
-  public void setFlatPermissionNotificationsOnSaveOrUpdate(boolean flatPermissionNotificationsOnSaveOrUpdate) {
-    this.flatPermissionNotificationsOnSaveOrUpdate = flatPermissionNotificationsOnSaveOrUpdate;
-  }
   
   /**
    * @return boolean
@@ -593,50 +573,6 @@ public class PITGroupSet extends GrouperPIT implements Hib3GrouperVersioned {
   public void onPreUpdate(HibernateSession hibernateSession) {
     super.onPreUpdate(hibernateSession);
     
-    // add change log entry for flat permissions
-    if (!this.isActive() && this.dbVersion().isActive() && this.getFlatPermissionNotificationsOnSaveOrUpdate()) {
-      Set<ChangeLogEntry> changeLogEntryBatch = new LinkedHashSet<ChangeLogEntry>();
-      int batchSize = GrouperConfig.getHibernatePropertyInt("hibernate.jdbc.batch_size", 20);
-      if (batchSize <= 0) {
-        batchSize = 1;
-      }
-
-      Set<PITPermissionAllView> perms = GrouperDAOFactory.getFactory().getPITPermissionAllView().findNewOrDeletedFlatPermissionsAfterGroupSetAddOrDelete(this.id);
-      Iterator<PITPermissionAllView> iter = perms.iterator();
-      
-      Set<MultiKey> processed = new HashSet<MultiKey>();
-      
-      while (iter.hasNext()) {
-        PITPermissionAllView perm = iter.next();
-        
-        MultiKey key = new MultiKey(perm.getAttributeDefNameId(), perm.getActionId(), perm.getMemberId());
-        if (processed.add(key)) {
-          ChangeLogEntry changeLogEntry = new ChangeLogEntry(false, ChangeLogTypeBuiltin.PERMISSION_DELETE,
-              ChangeLogLabels.PERMISSION_DELETE.attributeDefNameName.name(), perm.getAttributeDefNameName(),
-              ChangeLogLabels.PERMISSION_DELETE.attributeDefNameId.name(), perm.getAttributeDefNameId(),
-              ChangeLogLabels.PERMISSION_DELETE.action.name(), perm.getAction(),
-              ChangeLogLabels.PERMISSION_DELETE.actionId.name(), perm.getActionId(),
-              ChangeLogLabels.PERMISSION_DELETE.subjectId.name(), perm.getSubjectId(),
-              ChangeLogLabels.PERMISSION_DELETE.subjectSourceId.name(), perm.getSubjectSourceId(),
-              ChangeLogLabels.PERMISSION_DELETE.memberId.name(), perm.getMemberId());
-              
-          changeLogEntry.setContextId(this.getContextId());
-          changeLogEntry.setCreatedOnDb(this.getStartTimeDb());
-          changeLogEntryBatch.add(changeLogEntry);
-          if (changeLogEntryBatch.size() % batchSize == 0) {
-            GrouperDAOFactory.getFactory().getChangeLogEntry().saveBatch(changeLogEntryBatch, false);
-            changeLogEntryBatch.clear();
-          }
-        }
-      }
-      
-      // make sure all changes get made      
-      if (changeLogEntryBatch.size() > 0) {
-        GrouperDAOFactory.getFactory().getChangeLogEntry().saveBatch(changeLogEntryBatch, false);
-        changeLogEntryBatch.clear();
-      }
-    }
-    
     // add change log entry for flat memberships
     if (!this.isActive() && this.dbVersion().isActive() && (this.getFlatMembershipNotificationsOnSaveOrUpdate() || this.getFlatPrivilegeNotificationsOnSaveOrUpdate())) {
       Set<ChangeLogEntry> changeLogEntryBatch = new LinkedHashSet<ChangeLogEntry>();
@@ -744,50 +680,6 @@ public class PITGroupSet extends GrouperPIT implements Hib3GrouperVersioned {
   @Override
   public void onPostSave(HibernateSession hibernateSession) {
     
-    // add change log entry for flat permissions
-    if (this.isActive() && this.getFlatPermissionNotificationsOnSaveOrUpdate()) {
-      Set<ChangeLogEntry> changeLogEntryBatch = new LinkedHashSet<ChangeLogEntry>();
-      int batchSize = GrouperConfig.getHibernatePropertyInt("hibernate.jdbc.batch_size", 20);
-      if (batchSize <= 0) {
-        batchSize = 1;
-      }
-
-      Set<PITPermissionAllView> perms = GrouperDAOFactory.getFactory().getPITPermissionAllView().findNewOrDeletedFlatPermissionsAfterGroupSetAddOrDelete(this.id);
-      Iterator<PITPermissionAllView> iter = perms.iterator();
-      
-      Set<MultiKey> processed = new HashSet<MultiKey>();
-      
-      while (iter.hasNext()) {
-        PITPermissionAllView perm = iter.next();
-        
-        MultiKey key = new MultiKey(perm.getAttributeDefNameId(), perm.getActionId(), perm.getMemberId());
-        if (processed.add(key)) {
-          ChangeLogEntry changeLogEntry = new ChangeLogEntry(false, ChangeLogTypeBuiltin.PERMISSION_ADD,
-              ChangeLogLabels.PERMISSION_ADD.attributeDefNameName.name(), perm.getAttributeDefNameName(),
-              ChangeLogLabels.PERMISSION_ADD.attributeDefNameId.name(), perm.getAttributeDefNameId(),
-              ChangeLogLabels.PERMISSION_ADD.action.name(), perm.getAction(),
-              ChangeLogLabels.PERMISSION_ADD.actionId.name(), perm.getActionId(),
-              ChangeLogLabels.PERMISSION_ADD.subjectId.name(), perm.getSubjectId(),
-              ChangeLogLabels.PERMISSION_ADD.subjectSourceId.name(), perm.getSubjectSourceId(),
-              ChangeLogLabels.PERMISSION_ADD.memberId.name(), perm.getMemberId());
-              
-          changeLogEntry.setContextId(this.getContextId());
-          changeLogEntry.setCreatedOnDb(this.getStartTimeDb());
-          changeLogEntryBatch.add(changeLogEntry);
-          if (changeLogEntryBatch.size() % batchSize == 0) {
-            GrouperDAOFactory.getFactory().getChangeLogEntry().saveBatch(changeLogEntryBatch, false);
-            changeLogEntryBatch.clear();
-          }
-        }
-      }
-      
-      // make sure all changes get made      
-      if (changeLogEntryBatch.size() > 0) {
-        GrouperDAOFactory.getFactory().getChangeLogEntry().saveBatch(changeLogEntryBatch, false);
-        changeLogEntryBatch.clear();
-      }
-    }
-    
     // take care of effective PIT group sets
     if (this.getDepth() == 1 && this.getMemberGroupId() != null) {
       Set<PITGroupSet> results = new LinkedHashSet<PITGroupSet>();
@@ -810,7 +702,6 @@ public class PITGroupSet extends GrouperPIT implements Hib3GrouperVersioned {
         PITGroupSet pitGroupSet = iter.next();
         pitGroupSet.setFlatMembershipNotificationsOnSaveOrUpdate(this.getFlatMembershipNotificationsOnSaveOrUpdate());
         pitGroupSet.setFlatPrivilegeNotificationsOnSaveOrUpdate(this.getFlatPrivilegeNotificationsOnSaveOrUpdate());
-        pitGroupSet.setFlatPermissionNotificationsOnSaveOrUpdate(this.getFlatPermissionNotificationsOnSaveOrUpdate());
 
         // see if group set with this id already exists.  if it does, delete it..
         PITGroupSet existing = GrouperDAOFactory.getFactory().getPITGroupSet().findById(pitGroupSet.getId());
@@ -1047,7 +938,6 @@ public class PITGroupSet extends GrouperPIT implements Hib3GrouperVersioned {
         pitGroupSet.setContextId(this.getContextId());
         pitGroupSet.setFlatMembershipNotificationsOnSaveOrUpdate(this.getFlatMembershipNotificationsOnSaveOrUpdate());
         pitGroupSet.setFlatPrivilegeNotificationsOnSaveOrUpdate(this.getFlatPrivilegeNotificationsOnSaveOrUpdate());
-        pitGroupSet.setFlatPermissionNotificationsOnSaveOrUpdate(this.getFlatPermissionNotificationsOnSaveOrUpdate());
         pitGroupSet.saveOrUpdate();
       }
     }

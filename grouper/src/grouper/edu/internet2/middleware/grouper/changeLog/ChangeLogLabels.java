@@ -1125,56 +1125,14 @@ public class ChangeLogLabels {
   }
   
   /**
-   * label for permission add
+   * label for permission changes on roles
    */
-  public static enum PERMISSION_ADD implements ChangeLogLabel {
+  public static enum PERMISSION_CHANGE_ON_ROLE implements ChangeLogLabel {
   
-    /** attributeDefNameName */
-    attributeDefNameName,
+    /** roleId */
+    roleId,
     
-    /** attributeDefNameId */
-    attributeDefNameId,
-    
-    /** action */
-    action,
-    
-    /** actionId */    
-    actionId,
-    
-    /** subjectId */
-    subjectId,
-    
-    /** subjectSourceId */
-    subjectSourceId,
-    
-    /** memberId */
-    memberId;
-  }
-  
-  /**
-   * label for permission delete
-   */
-  public static enum PERMISSION_DELETE implements ChangeLogLabel {
-  
-    /** attributeDefNameName */
-    attributeDefNameName,
-    
-    /** attributeDefNameId */
-    attributeDefNameId,
-    
-    /** action */
-    action,
-    
-    /** actionId */    
-    actionId,
-    
-    /** subjectId */
-    subjectId,
-    
-    /** subjectSourceId */
-    subjectSourceId,
-    
-    /** memberId */
-    memberId;
+    /** roleName */
+    roleName;
   }
 }
