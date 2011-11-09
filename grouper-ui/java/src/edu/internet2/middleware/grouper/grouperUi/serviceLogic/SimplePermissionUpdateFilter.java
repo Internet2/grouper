@@ -364,15 +364,16 @@ public class SimplePermissionUpdateFilter {
           }
           
           //dont allow groups here...  its too confusing, why would you do this?
-          Iterator<Subject> iterator = subjects.iterator();
-          while (iterator.hasNext()) {
-            Subject subject = iterator.next();
-            if (StringUtils.equals(subject.getSourceId(), "g:gsa")) {
-              iterator.remove();
+          if (!TagUtils.mediaResourceBoolean("simplePermissionUpdate.allowGroupsInSubjectResults", false)) {
+            Iterator<Subject> iterator = subjects.iterator();
+            while (iterator.hasNext()) {
+              Subject subject = iterator.next();
+              if (StringUtils.equals(subject.getSourceId(), "g:gsa")) {
+                iterator.remove();
+              }
+                  
             }
-                
           }
-          
           int maxSubjectsDropDown = TagUtils.mediaResourceInt("simplePermissionUpdate.subjectComboboxResultSize", 50);
   
           queryPaging = new QueryPaging(maxSubjectsDropDown, 1, true);
