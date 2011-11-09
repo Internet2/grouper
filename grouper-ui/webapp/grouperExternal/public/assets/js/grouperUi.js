@@ -360,6 +360,14 @@ function ajax(theUrl, options) {
     }
   }
   
+  //make sure combos have the right state
+  //for(var combo in allComboboxes) {
+  //  alert('here: ' + combo + ", " + allComboboxes.length);
+  //  
+  //  allComboboxes[combo].confirmValue();
+  //}
+  //alert('here');
+  
   //for(var requestParam in options.requestParams) {
   //  alert(requestParam + ", " + options.requestParams[requestParam]);
   //}
@@ -725,7 +733,8 @@ function eventCancelBubble(event) {
 function grouperTooltip(message) {
   //NOTE, we need to unescape the HTML, since it is in a javascript call...
   message = guiEscapeHtml(message, false);
-  Tip(message, WIDTH, 400, FOLLOWMOUSE, false);
+  //not sure why this was max width 400, now it is 0 so it doesnt truncate...
+  Tip(message, WIDTH, 0, FOLLOWMOUSE, false);
 } 
 
 /** call this from button to hide/show some text */

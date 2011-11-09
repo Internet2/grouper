@@ -108,8 +108,10 @@
         &nbsp;
         <%-- show an icon for the subject --%>
         <grouper:subjectIcon guiSubject="${guiMember.guiSubject}" /> 
-        <%-- the screen representation of the subject --%>
-        <span class="simpleMembershipUpdateMemberDescription">${fn:escapeXml(guiMember.guiSubject.screenLabel)}
+        <%-- the string representation of the subject --%>
+        <span class="simpleMembershipUpdateMemberDescription">
+          <grouper:message valueTooltip="${grouper:escapeHtml(guiMember.guiSubject.screenLabelLongIfDifferent)}" 
+             value="${grouper:escapeHtml(guiMember.guiSubject.screenLabel)}"  />
           <c:if test="${guiMember.hasDisabledString}">
             <span class="simpleMembershipUpdateDisabled">${guiMember.disabledDateString}</span>
           </c:if>

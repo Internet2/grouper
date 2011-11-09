@@ -945,9 +945,10 @@ public class GrouperUiUtils {
    */
   public static String convertSubjectToLabel(Subject subject) {
     String label = null;
-    if ("g:gsa".equals(subject.getSource().getId())) {
+    //TODO also add external entities from the SubjectFinder method
+    if (SubjectFinder.internal_getGSA().getId().equals(subject.getSourceId()) || StringUtils.equals("grouperEntities", subject.getSourceId())) {
       
-      label = subject.getAttributeValue(GrouperConfig.ATTRIBUTE_DISPLAY_NAME);
+      label = subject.getAttributeValue(GrouperConfig.ATTRIBUTE_DISPLAY_EXTENSION);
       if (!StringUtils.isBlank(label)) {
         return label;
       }
@@ -960,6 +961,26 @@ public class GrouperUiUtils {
       label = subject.getSource().getId() + " - " + subject.getId() + " - " + subject.getName();
     }
     return label;
+  }
+
+  /**
+   * convert a subject to string for screen e.g. for tooltip
+   * @param subject
+   * @return the string
+   */
+  public static String convertSubjectToLabelLong(Subject subject) {
+    String label = null;
+    //TODO also add external entities from the SubjectFinder method
+    if (SubjectFinder.internal_getGSA().getId().equals(subject.getSourceId()) || StringUtils.equals("grouperEntities", subject.getSourceId())) {
+      
+      label = subject.getAttributeValue(GrouperConfig.ATTRIBUTE_DISPLAY_NAME);
+      if (!StringUtils.isBlank(label)) {
+        return label;
+      }
+      
+    }
+    
+    return convertSubjectToLabel(subject);
   }
 
 
@@ -1181,7 +1202,7 @@ public class GrouperUiUtils {
     
     //see if it is already computed
     if (subject instanceof SubjectSortWrapper) {
-      return ((SubjectSortWrapper)subject).getScreenLabel();
+      return ((SubjectSortWrapper)subject).getScreenLabelLong();
     }
   
     if (subjectToScreenEl == null) {
@@ -1209,7 +1230,7 @@ public class GrouperUiUtils {
     }
     String screenEl = subjectToScreenEl.get(subject.getSource().getId());
     if (StringUtils.isBlank(screenEl)) {
-      return convertSubjectToLabel(subject);
+      return convertSubjectToLabelLong(subject);
     }
     //run the screen EL
     Map<String, Object> variableMap = new HashMap<String, Object>();
