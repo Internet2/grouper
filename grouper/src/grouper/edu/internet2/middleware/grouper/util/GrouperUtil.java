@@ -57,6 +57,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -115,6 +117,19 @@ import edu.internet2.middleware.subject.util.ExpirableCache;
  */
 public class GrouperUtil {
 
+  /**
+   * threadpool
+   */
+  private static ExecutorService executorService = Executors.newCachedThreadPool();
+
+  /**
+   * 
+   * @return executor service
+   */
+  public static ExecutorService retrieveExecutorService() {
+    return executorService;
+  }
+  
   /** override map for properties in thread local to be used in a web server or the like */
   private static ThreadLocal<Map<String, Map<String, String>>> propertiesThreadLocalOverrideMap = new ThreadLocal<Map<String, Map<String, String>>>();
 

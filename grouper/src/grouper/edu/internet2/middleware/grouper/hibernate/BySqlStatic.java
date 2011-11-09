@@ -262,7 +262,7 @@ public class BySqlStatic {
    * @throws SQLException
    */
   @SuppressWarnings("unchecked")
-  public void attachParams(PreparedStatement statement, Object params)
+  public static void attachParams(PreparedStatement statement, Object params)
       throws HibernateException, SQLException {
     if (GrouperUtil.length(params) == 0) {
       return;
@@ -282,7 +282,7 @@ public class BySqlStatic {
    * @throws HibernateException
    * @throws SQLException
    */
-  public void attachParams(PreparedStatement statement, Object params, Object types)
+  public static void attachParams(PreparedStatement statement, Object params, Object types)
       throws HibernateException, SQLException {
     int paramLength = GrouperUtil.length(params);
     int typeLength = GrouperUtil.length(types);
