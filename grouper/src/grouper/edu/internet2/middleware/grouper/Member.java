@@ -3759,10 +3759,12 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
                   throws GrouperDAOException {
                 String query = "update grouper_members set sort_string0 = ?, sort_string1 = ?, sort_string2 = ?, sort_string3 = ?, " +
                   "sort_string4 = ?, search_string0 = ?, search_string1 = ?, search_string2 = ?, " +
-                  "search_string3 = ?, search_string4 = ? where id = ?";
+                  "search_string3 = ?, search_string4 = ?, name = ?, description = ? where id = ?";
                 List<Object> bindVars = GrouperUtil.toList((Object)Member.this.sortString0, Member.this.sortString1,
                     Member.this.sortString2, Member.this.sortString3, Member.this.sortString4, Member.this.searchString0,
-                    Member.this.searchString1, Member.this.searchString2, Member.this.searchString3, Member.this.searchString4, Member.this.getUuid());
+                    Member.this.searchString1, Member.this.searchString2, Member.this.searchString3, Member.this.searchString4, 
+                    Member.this.name, Member.this.description,
+                    Member.this.getUuid());
                 hibernateHandlerBean.getHibernateSession().bySql().executeSql(query, bindVars);
                 hibernateHandlerBean.getHibernateSession().commit(GrouperCommitType.COMMIT_NOW);
                 return null;

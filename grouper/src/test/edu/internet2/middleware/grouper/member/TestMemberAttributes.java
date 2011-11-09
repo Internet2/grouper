@@ -6,6 +6,7 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.cache.GrouperCacheUtils;
 import edu.internet2.middleware.grouper.cfg.ApiConfig;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
@@ -34,8 +35,8 @@ public class TestMemberAttributes extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    //TestRunner.run(new TestMemberAttributes("testPersonMember"));
-    TestRunner.run(TestMemberAttributes.class);
+    TestRunner.run(new TestMemberAttributes("testPersonMember"));
+    //TestRunner.run(TestMemberAttributes.class);
   }
   
   /** top level stems */
@@ -155,6 +156,14 @@ public class TestMemberAttributes extends GrouperTest {
     // member record should get corrected by this
     SubjectFinder.flushCache();
     SubjectFinder.findById(subj.getId(), true);
+    
+    try {
+      Thread.sleep(100);
+    } catch (InterruptedException e) {
+      // ignore
+    }
+    
+    GrouperCacheUtils.clearAllCaches();
     
     member = GrouperDAOFactory.getFactory().getMember().findBySubject(subj, true);
     assertEquals(subj.getAttributeValue("LFNAME"), member.getSortString0());
