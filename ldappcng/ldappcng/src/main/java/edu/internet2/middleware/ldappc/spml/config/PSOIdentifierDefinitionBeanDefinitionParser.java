@@ -32,16 +32,21 @@ import org.w3c.dom.Element;
 import edu.internet2.middleware.ldappc.spml.definitions.PSOIdentifierDefinition;
 import edu.internet2.middleware.shibboleth.common.config.SpringConfigurationUtils;
 
+/** Spring bean definition parser for configuring a {@link PSOIdentifierDefinition}. */
 public class PSOIdentifierDefinitionBeanDefinitionParser extends AbstractSingleBeanDefinitionParser {
 
+  /** Logger. */
   private static final Logger LOG = LoggerFactory.getLogger(PSOIdentifierDefinitionBeanDefinitionParser.class);
 
+  /** Schema type name. */
   public static final QName TYPE_NAME = new QName(LdappcNamespaceHandler.NAMESPACE, "identifier");
 
+  /** {@inheritDoc} */
   protected Class getBeanClass(Element element) {
     return PSOIdentifierDefinition.class;
   }
 
+  /** {@inheritDoc} */
   protected void doParse(Element element, ParserContext parserContext, BeanDefinitionBuilder builder) {
     super.doParse(element, builder);
 
@@ -60,8 +65,17 @@ public class PSOIdentifierDefinitionBeanDefinitionParser extends AbstractSingleB
 
     Map<QName, List<Element>> configChildren = XMLHelper.getChildElements(element);
 
-    builder.addPropertyValue("identifyingAttribute", SpringConfigurationUtils.parseInnerCustomElement(configChildren
-        .get(IdentifyingAttributeBeanDefinitionParser.TYPE_NAME).get(0), parserContext));
+    if (configChildren.get(IdentifyingAttributeBeanDefinitionParser.TYPE_NAME) != null) {
+      builder.addPropertyValue(
+          "identifyingAttribute",
+          SpringConfigurationUtils.parseInnerCustomElement(
+              configChildren.get(IdentifyingAttributeBeanDefinitionParser.TYPE_NAME).get(0), parserContext));
+    }
+
+    builder.addPropertyValue(
+        "alternateIdentifierDefinitions",
+        SpringConfigurationUtils.parseInnerCustomElements(
+            configChildren.get(AlternateIdentifierDefinitionBeanDefinitionParser.TYPE_NAME), parserContext));
   }
 
   /**
@@ -78,6 +92,7 @@ public class PSOIdentifierDefinitionBeanDefinitionParser extends AbstractSingleB
     return PSODefinitionBeanDefinitionParser.resolveId(objectElement) + ConfigBeanDefinitionParser.ID_DELIMITER + ref;
   }
 
+  /** {@inheritDoc} */
   protected String resolveId(Element element, AbstractBeanDefinition definition, ParserContext parserContext)
       throws BeanDefinitionStoreException {
     return resolveId(element);
