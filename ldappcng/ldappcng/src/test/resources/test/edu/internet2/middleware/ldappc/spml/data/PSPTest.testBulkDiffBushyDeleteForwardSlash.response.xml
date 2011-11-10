@@ -1,20 +1,38 @@
 <ldappc:bulkDiffResponse xmlns:ldappc='http://grouper.internet2.edu/ldappc' status='success' requestID='REQUESTID_TEST'>
-  <ldappc:diffResponse>
-    <deleteRequest xmlns='urn:oasis:names:tc:SPML:2:0' recursive='false' requestID='REQUESTID_TEST'>
-      <psoID ID='cn=group/F,ou=edu,ou=testgroups,${base}' targetID='ldap'/>
-    </deleteRequest>
-    <ldappc:id ID='cn=group/F,ou=edu,ou=testgroups,${base}'/>
+  <ldappc:diffResponse status='success' requestID='2011/10/18-19:38:35.330_Q37VPY1J'>
+    <ldappc:synchronizedResponse xmlns:ldappc='http://grouper.internet2.edu/ldappc'>
+      <ldappc:psoID ID='ou=edu,ou=testgroups,${base}' targetID='ldap'/>
+    </ldappc:synchronizedResponse>
+    <ldappc:id ID='edu'/>
+  </ldappc:diffResponse>
+  <ldappc:diffResponse status='success' requestID='2011/10/18-19:38:35.405_Q37VPY1M'>
+    <ldappc:synchronizedResponse xmlns:ldappc='http://grouper.internet2.edu/ldappc'>
+      <ldappc:psoID ID='cn=test.subject.0,ou=testpeople,${base}' targetID='ldap'/>
+    </ldappc:synchronizedResponse>
+    <ldappc:id ID='test.subject.0'/>
+  </ldappc:diffResponse>
+  <ldappc:diffResponse status='success' requestID='2011/10/18-19:38:35.457_Q37VPY1Q'>
+    <ldappc:synchronizedResponse xmlns:ldappc='http://grouper.internet2.edu/ldappc'>
+      <ldappc:psoID ID='cn=test.subject.1,ou=testpeople,${base}' targetID='ldap'/>
+    </ldappc:synchronizedResponse>
+    <ldappc:id ID='test.subject.1'/>
   </ldappc:diffResponse>
   <ldappc:diffResponse>
-    <deleteRequest xmlns='urn:oasis:names:tc:SPML:2:0' recursive='false' requestID='REQUESTID_TEST'>
+    <deleteRequest xmlns='urn:oasis:names:tc:SPML:2:0' requestID='REQUESTID_TEST' recursive='false'>
+      <psoID ID='cn=groupB,ou=edu,ou=testgroups,${base}' targetID='ldap'/>
+    </deleteRequest>
+    <ldappc:id ID='cn=groupB,ou=edu,ou=testgroups,${base}'/>
+  </ldappc:diffResponse>
+  <ldappc:diffResponse>
+    <deleteRequest xmlns='urn:oasis:names:tc:SPML:2:0' requestID='REQUESTID_TEST' recursive='false'>
       <psoID ID='cn=groupA,ou=edu,ou=testgroups,${base}' targetID='ldap'/>
     </deleteRequest>
     <ldappc:id ID='cn=groupA,ou=edu,ou=testgroups,${base}'/>
   </ldappc:diffResponse>
   <ldappc:diffResponse>
-    <deleteRequest xmlns='urn:oasis:names:tc:SPML:2:0' recursive='false' requestID='REQUESTID_TEST'>
-      <psoID ID='cn=groupB,ou=edu,ou=testgroups,${base}' targetID='ldap'/>
+    <deleteRequest xmlns='urn:oasis:names:tc:SPML:2:0' requestID='REQUESTID_TEST' recursive='false'>
+      <psoID ID='cn=group/F,ou=edu,ou=testgroups,${base}' targetID='ldap'/>
     </deleteRequest>
-    <ldappc:id ID='cn=groupB,ou=edu,ou=testgroups,${base}'/>
+    <ldappc:id ID='cn=group/F,ou=edu,ou=testgroups,${base}'/>
   </ldappc:diffResponse>
 </ldappc:bulkDiffResponse>

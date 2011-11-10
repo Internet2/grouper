@@ -1,0 +1,476 @@
+
+<ldappc:syncRequest xmlns:ldappc='http://grouper.internet2.edu/ldappc' requestID='2011/11/08-23:14:18.481_Q415TDG4' returnData='everything'>
+  <ldappc:id ID='edu:child2:child1'/>
+</ldappc:syncRequest>
+
+<ldappc:diffRequest xmlns:ldappc='http://grouper.internet2.edu/ldappc' requestID='2011/11/08-23:14:18.490_Q415TDG5' returnData='everything'>
+  <ldappc:id ID='edu:child2:child1'/>
+</ldappc:diffRequest>
+
+<ldappc:calcRequest xmlns:ldappc='http://grouper.internet2.edu/ldappc' requestID='2011/11/08-23:14:18.493_Q415TDG6' returnData='everything'>
+  <ldappc:id ID='edu:child2:child1'/>
+</ldappc:calcRequest>
+
+<ldappc:calcResponse xmlns:ldappc='http://grouper.internet2.edu/ldappc' status='success' requestID='2011/11/08-23:14:18.493_Q415TDG6'>
+  <ldappc:id ID='edu:child2:child1'/>
+  <ldappc:pso entityName='stem'>
+    <psoID ID='ou=child1,ou=child2,ou=edu,ou=testgroups,${base}' targetID='ldap'/>
+    <data>
+      <dsml:attr xmlns:dsml='urn:oasis:names:tc:DSML:2:0:core' name='objectClass'>
+        <dsml:value>top</dsml:value>
+        <dsml:value>organizationalUnit</dsml:value>
+      </dsml:attr>
+      <dsml:attr xmlns:dsml='urn:oasis:names:tc:DSML:2:0:core' name='ou'>
+        <dsml:value>child1</dsml:value>
+      </dsml:attr>
+    </data>
+  </ldappc:pso>
+</ldappc:calcResponse>
+
+<lookupRequest xmlns='urn:oasis:names:tc:SPML:2:0' requestID='2011/11/08-23:14:18.534_Q415TDG9' returnData='everything'>
+  <psoID ID='ou=child1,ou=child2,ou=edu,ou=testgroups,${base}' targetID='ldap'/>
+</lookupRequest>
+
+<lookupResponse xmlns='urn:oasis:names:tc:SPML:2:0' status='failure' requestID='2011/11/08-23:14:18.534_Q415TDG9' error='noSuchIdentifier'/>
+
+<ldappc:diffResponse xmlns:ldappc='http://grouper.internet2.edu/ldappc' status='success' requestID='2011/11/08-23:14:18.490_Q415TDG5'>
+  <addRequest xmlns='urn:oasis:names:tc:SPML:2:0' entityName='stem' requestID='2011/11/08-23:14:18.547_Q415TDHA' targetId='ldap' returnData='everything'>
+    <psoID ID='ou=child1,ou=child2,ou=edu,ou=testgroups,${base}' targetID='ldap'/>
+    <data>
+      <dsml:attr xmlns:dsml='urn:oasis:names:tc:DSML:2:0:core' name='objectClass'>
+        <dsml:value>top</dsml:value>
+        <dsml:value>organizationalUnit</dsml:value>
+      </dsml:attr>
+      <dsml:attr xmlns:dsml='urn:oasis:names:tc:DSML:2:0:core' name='ou'>
+        <dsml:value>child1</dsml:value>
+      </dsml:attr>
+    </data>
+  </addRequest>
+  <ldappc:id ID='edu:child2:child1'/>
+</ldappc:diffResponse>
+
+<addRequest xmlns='urn:oasis:names:tc:SPML:2:0' entityName='stem' requestID='2011/11/08-23:14:18.547_Q415TDHA' targetId='ldap' returnData='everything'>
+  <psoID ID='ou=child1,ou=child2,ou=edu,ou=testgroups,${base}' targetID='ldap'/>
+  <data>
+    <dsml:attr xmlns:dsml='urn:oasis:names:tc:DSML:2:0:core' name='objectClass'>
+      <dsml:value>top</dsml:value>
+      <dsml:value>organizationalUnit</dsml:value>
+    </dsml:attr>
+    <dsml:attr xmlns:dsml='urn:oasis:names:tc:DSML:2:0:core' name='ou'>
+      <dsml:value>child1</dsml:value>
+    </dsml:attr>
+  </data>
+</addRequest>
+
+<addResponse xmlns='urn:oasis:names:tc:SPML:2:0' status='success' requestID='2011/11/08-23:14:18.547_Q415TDHA'>
+  <pso entityName='stem'>
+    <psoID ID='ou=child1,ou=child2,ou=edu,ou=testgroups,${base}' targetID='ldap'/>
+    <data>
+      <dsml:attr xmlns:dsml='urn:oasis:names:tc:DSML:2:0:core' name='objectClass'>
+        <dsml:value>organizationalUnit</dsml:value>
+        <dsml:value>top</dsml:value>
+      </dsml:attr>
+      <dsml:attr xmlns:dsml='urn:oasis:names:tc:DSML:2:0:core' name='ou'>
+        <dsml:value>child1</dsml:value>
+      </dsml:attr>
+    </data>
+  </pso>
+</addResponse>
+
+<ldappc:syncResponse xmlns:ldappc='http://grouper.internet2.edu/ldappc' status='success' requestID='2011/11/08-23:14:18.481_Q415TDG4'>
+  <addResponse xmlns='urn:oasis:names:tc:SPML:2:0' status='success' requestID='2011/11/08-23:14:18.547_Q415TDHA'>
+    <pso entityName='stem'>
+      <psoID ID='ou=child1,ou=child2,ou=edu,ou=testgroups,${base}' targetID='ldap'/>
+      <data>
+        <dsml:attr xmlns:dsml='urn:oasis:names:tc:DSML:2:0:core' name='objectClass'>
+          <dsml:value>organizationalUnit</dsml:value>
+          <dsml:value>top</dsml:value>
+        </dsml:attr>
+        <dsml:attr xmlns:dsml='urn:oasis:names:tc:DSML:2:0:core' name='ou'>
+          <dsml:value>child1</dsml:value>
+        </dsml:attr>
+      </data>
+    </pso>
+  </addResponse>
+  <ldappc:id ID='edu:child2:child1'/>
+</ldappc:syncResponse>
+
+<ldappc:syncRequest xmlns:ldappc='http://grouper.internet2.edu/ldappc' requestID='2011/11/08-23:14:18.570_Q415TDHC' returnData='everything'>
+  <ldappc:id ID='edu:child2:child1:group1'/>
+</ldappc:syncRequest>
+
+<ldappc:diffRequest xmlns:ldappc='http://grouper.internet2.edu/ldappc' requestID='2011/11/08-23:14:18.570_Q415TDHD' returnData='everything'>
+  <ldappc:id ID='edu:child2:child1:group1'/>
+</ldappc:diffRequest>
+
+<ldappc:calcRequest xmlns:ldappc='http://grouper.internet2.edu/ldappc' requestID='2011/11/08-23:14:18.571_Q415TDHE' returnData='everything'>
+  <ldappc:id ID='edu:child2:child1:group1'/>
+</ldappc:calcRequest>
+
+<ldappc:calcRequest xmlns:ldappc='http://grouper.internet2.edu/ldappc' returnData='identifier'>
+  <ldappc:id ID='test.subject.0'/>
+  <ldappc:schemaEntity targetID='ldap' entityName='member'/>
+</ldappc:calcRequest>
+
+<ldappc:calcResponse xmlns:ldappc='http://grouper.internet2.edu/ldappc' status='success' requestID='2011/11/08-23:14:18.627_Q415TDHJ'>
+  <ldappc:id ID='test.subject.0'/>
+  <ldappc:pso entityName='member'>
+    <psoID ID='cn=test.subject.0,ou=testpeople,${base}' targetID='ldap'/>
+  </ldappc:pso>
+</ldappc:calcResponse>
+
+<ldappc:calcResponse xmlns:ldappc='http://grouper.internet2.edu/ldappc' status='success' requestID='2011/11/08-23:14:18.571_Q415TDHE'>
+  <ldappc:id ID='edu:child2:child1:group1'/>
+  <ldappc:pso entityName='group'>
+    <psoID ID='cn=group1,ou=child1,ou=child2,ou=edu,ou=testgroups,${base}' targetID='ldap'/>
+    <data>
+      <dsml:attr xmlns:dsml='urn:oasis:names:tc:DSML:2:0:core' name='objectClass'>
+        <dsml:value>top</dsml:value>
+        <dsml:value>${groupObjectClass}</dsml:value>
+      </dsml:attr>
+      <dsml:attr xmlns:dsml='urn:oasis:names:tc:DSML:2:0:core' name='cn'>
+        <dsml:value>group1</dsml:value>
+      </dsml:attr>
+    </data>
+    <capabilityData mustUnderstand='true' capabilityURI='urn:oasis:names:tc:SPML:2:0:reference'>
+      <spmlref:reference xmlns='urn:oasis:names:tc:SPML:2:0' xmlns:spmlref='urn:oasis:names:tc:SPML:2:0:reference' typeOfReference='member'>
+        <spmlref:toPsoID ID='cn=test.subject.0,ou=testpeople,${base}' targetID='ldap'/>
+      </spmlref:reference>
+    </capabilityData>
+  </ldappc:pso>
+</ldappc:calcResponse>
+
+<lookupRequest xmlns='urn:oasis:names:tc:SPML:2:0' requestID='2011/11/08-23:14:18.650_Q415TDHM' returnData='everything'>
+  <psoID ID='cn=group1,ou=child1,ou=child2,ou=edu,ou=testgroups,${base}' targetID='ldap'/>
+</lookupRequest>
+
+<lookupResponse xmlns='urn:oasis:names:tc:SPML:2:0' status='failure' requestID='2011/11/08-23:14:18.650_Q415TDHM' error='noSuchIdentifier'/>
+
+<ldappc:diffResponse xmlns:ldappc='http://grouper.internet2.edu/ldappc' status='success' requestID='2011/11/08-23:14:18.570_Q415TDHD'>
+  <addRequest xmlns='urn:oasis:names:tc:SPML:2:0' entityName='group' requestID='2011/11/08-23:14:18.654_Q415TDHN' targetId='ldap' returnData='everything'>
+    <psoID ID='cn=group1,ou=child1,ou=child2,ou=edu,ou=testgroups,${base}' targetID='ldap'/>
+    <data>
+      <dsml:attr xmlns:dsml='urn:oasis:names:tc:DSML:2:0:core' name='objectClass'>
+        <dsml:value>top</dsml:value>
+        <dsml:value>${groupObjectClass}</dsml:value>
+      </dsml:attr>
+      <dsml:attr xmlns:dsml='urn:oasis:names:tc:DSML:2:0:core' name='cn'>
+        <dsml:value>group1</dsml:value>
+      </dsml:attr>
+    </data>
+    <capabilityData mustUnderstand='true' capabilityURI='urn:oasis:names:tc:SPML:2:0:reference'>
+      <spmlref:reference xmlns='urn:oasis:names:tc:SPML:2:0' xmlns:spmlref='urn:oasis:names:tc:SPML:2:0:reference' typeOfReference='member'>
+        <spmlref:toPsoID ID='cn=test.subject.0,ou=testpeople,${base}' targetID='ldap'/>
+      </spmlref:reference>
+    </capabilityData>
+  </addRequest>
+  <ldappc:id ID='edu:child2:child1:group1'/>
+</ldappc:diffResponse>
+
+<addRequest xmlns='urn:oasis:names:tc:SPML:2:0' entityName='group' requestID='2011/11/08-23:14:18.654_Q415TDHN' targetId='ldap' returnData='everything'>
+  <psoID ID='cn=group1,ou=child1,ou=child2,ou=edu,ou=testgroups,${base}' targetID='ldap'/>
+  <data>
+    <dsml:attr xmlns:dsml='urn:oasis:names:tc:DSML:2:0:core' name='objectClass'>
+      <dsml:value>top</dsml:value>
+      <dsml:value>${groupObjectClass}</dsml:value>
+    </dsml:attr>
+    <dsml:attr xmlns:dsml='urn:oasis:names:tc:DSML:2:0:core' name='cn'>
+      <dsml:value>group1</dsml:value>
+    </dsml:attr>
+  </data>
+  <capabilityData mustUnderstand='true' capabilityURI='urn:oasis:names:tc:SPML:2:0:reference'>
+    <spmlref:reference xmlns='urn:oasis:names:tc:SPML:2:0' xmlns:spmlref='urn:oasis:names:tc:SPML:2:0:reference' typeOfReference='member'>
+      <spmlref:toPsoID ID='cn=test.subject.0,ou=testpeople,${base}' targetID='ldap'/>
+    </spmlref:reference>
+  </capabilityData>
+</addRequest>
+
+<addResponse xmlns='urn:oasis:names:tc:SPML:2:0' status='success' requestID='2011/11/08-23:14:18.654_Q415TDHN'>
+  <pso entityName='group'>
+    <psoID ID='cn=group1,ou=child1,ou=child2,ou=edu,ou=testgroups,${base}' targetID='ldap'/>
+    <data>
+      <dsml:attr xmlns:dsml='urn:oasis:names:tc:DSML:2:0:core' name='objectClass'>
+        <dsml:value>${groupObjectClass}</dsml:value>
+        <dsml:value>top</dsml:value>
+      </dsml:attr>
+      <dsml:attr xmlns:dsml='urn:oasis:names:tc:DSML:2:0:core' name='cn'>
+        <dsml:value>group1</dsml:value>
+      </dsml:attr>
+    </data>
+    <capabilityData mustUnderstand='true' capabilityURI='urn:oasis:names:tc:SPML:2:0:reference'>
+      <spmlref:reference xmlns='urn:oasis:names:tc:SPML:2:0' xmlns:spmlref='urn:oasis:names:tc:SPML:2:0:reference' typeOfReference='member'>
+        <spmlref:toPsoID ID='cn=test.subject.0,ou=testpeople,${base}' targetID='ldap'/>
+      </spmlref:reference>
+    </capabilityData>
+  </pso>
+</addResponse>
+
+<ldappc:syncResponse xmlns:ldappc='http://grouper.internet2.edu/ldappc' status='success' requestID='2011/11/08-23:14:18.570_Q415TDHC'>
+  <addResponse xmlns='urn:oasis:names:tc:SPML:2:0' status='success' requestID='2011/11/08-23:14:18.654_Q415TDHN'>
+    <pso entityName='group'>
+      <psoID ID='cn=group1,ou=child1,ou=child2,ou=edu,ou=testgroups,${base}' targetID='ldap'/>
+      <data>
+        <dsml:attr xmlns:dsml='urn:oasis:names:tc:DSML:2:0:core' name='objectClass'>
+          <dsml:value>${groupObjectClass}</dsml:value>
+          <dsml:value>top</dsml:value>
+        </dsml:attr>
+        <dsml:attr xmlns:dsml='urn:oasis:names:tc:DSML:2:0:core' name='cn'>
+          <dsml:value>group1</dsml:value>
+        </dsml:attr>
+      </data>
+      <capabilityData mustUnderstand='true' capabilityURI='urn:oasis:names:tc:SPML:2:0:reference'>
+        <spmlref:reference xmlns='urn:oasis:names:tc:SPML:2:0' xmlns:spmlref='urn:oasis:names:tc:SPML:2:0:reference' typeOfReference='member'>
+          <spmlref:toPsoID ID='cn=test.subject.0,ou=testpeople,${base}' targetID='ldap'/>
+        </spmlref:reference>
+      </capabilityData>
+    </pso>
+  </addResponse>
+  <ldappc:id ID='edu:child2:child1:group1'/>
+</ldappc:syncResponse>
+
+<ldappc:calcRequest xmlns:ldappc='http://grouper.internet2.edu/ldappc' requestID='2011/11/08-23:14:18.677_Q415TDHP' returnData='everything'>
+  <ldappc:id ID='change_log_sequence_number:309'/>
+</ldappc:calcRequest>
+
+<ldappc:calcRequest xmlns:ldappc='http://grouper.internet2.edu/ldappc' returnData='identifier'>
+  <ldappc:id ID='test.subject.0'/>
+  <ldappc:schemaEntity targetID='ldap' entityName='member'/>
+</ldappc:calcRequest>
+
+<ldappc:calcResponse xmlns:ldappc='http://grouper.internet2.edu/ldappc' status='success' requestID='2011/11/08-23:14:18.698_Q415TDHR'>
+  <ldappc:id ID='test.subject.0'/>
+  <ldappc:pso entityName='member'>
+    <psoID ID='cn=test.subject.0,ou=testpeople,${base}' targetID='ldap'/>
+  </ldappc:pso>
+</ldappc:calcResponse>
+
+<ldappc:calcResponse xmlns:ldappc='http://grouper.internet2.edu/ldappc' status='success' requestID='2011/11/08-23:14:18.677_Q415TDHP'>
+  <ldappc:id ID='change_log_sequence_number:309'/>
+  <ldappc:pso entityName='groupMembership'>
+    <psoID ID='cn=group1,ou=child1,ou=child2,ou=edu,ou=testgroups,${base}' targetID='ldap'/>
+    <capabilityData mustUnderstand='true' capabilityURI='urn:oasis:names:tc:SPML:2:0:reference'>
+      <spmlref:reference xmlns='urn:oasis:names:tc:SPML:2:0' xmlns:spmlref='urn:oasis:names:tc:SPML:2:0:reference' typeOfReference='member'>
+        <spmlref:toPsoID ID='cn=test.subject.0,ou=testpeople,${base}' targetID='ldap'/>
+      </spmlref:reference>
+    </capabilityData>
+  </ldappc:pso>
+</ldappc:calcResponse>
+
+<spmlsearch:SearchRequest xmlns='urn:oasis:names:tc:SPML:2:0' xmlns:spmlref='urn:oasis:names:tc:SPML:2:0:reference' xmlns:spmlsearch='urn:oasis:names:tc:SPML:2:0:search' requestID='2011/11/08-23:14:18.706_Q415TDHS' returnData='everything'>
+  <spmlsearch:query targetID='ldap' scope='pso'>
+    <spmlref:hasReference typeOfReference='member'>
+      <spmlref:toPsoID ID='cn=test.subject.0,ou=testpeople,${base}' targetID='ldap'/>
+    </spmlref:hasReference>
+    <spmlsearch:basePsoID ID='cn=group1,ou=child1,ou=child2,ou=edu,ou=testgroups,${base}' targetID='ldap'/>
+  </spmlsearch:query>
+</spmlsearch:SearchRequest>
+
+<spmlsearch:searchResponse xmlns='urn:oasis:names:tc:SPML:2:0' xmlns:spmlsearch='urn:oasis:names:tc:SPML:2:0:search' status='success' requestID='2011/11/08-23:14:18.706_Q415TDHS'>
+  <spmlsearch:pso entityName='group'>
+    <psoID ID='cn=group1,ou=child1,ou=child2,ou=edu,ou=testgroups,${base}' targetID='ldap'/>
+    <data>
+      <dsml:attr xmlns:dsml='urn:oasis:names:tc:DSML:2:0:core' name='cn'>
+        <dsml:value>group1</dsml:value>
+      </dsml:attr>
+      <dsml:attr xmlns:dsml='urn:oasis:names:tc:DSML:2:0:core' name='objectClass'>
+        <dsml:value>${groupObjectClass}</dsml:value>
+        <dsml:value>top</dsml:value>
+      </dsml:attr>
+    </data>
+    <capabilityData mustUnderstand='true' capabilityURI='urn:oasis:names:tc:SPML:2:0:reference'>
+      <spmlref:reference xmlns='urn:oasis:names:tc:SPML:2:0' xmlns:spmlref='urn:oasis:names:tc:SPML:2:0:reference' typeOfReference='member'>
+        <spmlref:toPsoID ID='cn=test.subject.0,ou=testpeople,${base}' targetID='ldap'/>
+      </spmlref:reference>
+    </capabilityData>
+  </spmlsearch:pso>
+</spmlsearch:searchResponse>
+
+<ldappc:syncRequest xmlns:ldappc='http://grouper.internet2.edu/ldappc' requestID='2011/11/08-23:14:18.722_Q415TDHT' returnData='everything'>
+  <ldappc:id ID='edu:child2:child1:group2'/>
+</ldappc:syncRequest>
+
+<ldappc:diffRequest xmlns:ldappc='http://grouper.internet2.edu/ldappc' requestID='2011/11/08-23:14:18.723_Q415TDHU' returnData='everything'>
+  <ldappc:id ID='edu:child2:child1:group2'/>
+</ldappc:diffRequest>
+
+<ldappc:calcRequest xmlns:ldappc='http://grouper.internet2.edu/ldappc' requestID='2011/11/08-23:14:18.724_Q415TDHV' returnData='everything'>
+  <ldappc:id ID='edu:child2:child1:group2'/>
+</ldappc:calcRequest>
+
+<ldappc:calcRequest xmlns:ldappc='http://grouper.internet2.edu/ldappc' returnData='identifier'>
+  <ldappc:id ID='test.subject.1'/>
+  <ldappc:schemaEntity targetID='ldap' entityName='member'/>
+</ldappc:calcRequest>
+
+<ldappc:calcResponse xmlns:ldappc='http://grouper.internet2.edu/ldappc' status='success' requestID='2011/11/08-23:14:18.756_Q415TDHZ'>
+  <ldappc:id ID='test.subject.1'/>
+  <ldappc:pso entityName='member'>
+    <psoID ID='cn=test.subject.1,ou=testpeople,${base}' targetID='ldap'/>
+  </ldappc:pso>
+</ldappc:calcResponse>
+
+<ldappc:calcResponse xmlns:ldappc='http://grouper.internet2.edu/ldappc' status='success' requestID='2011/11/08-23:14:18.724_Q415TDHV'>
+  <ldappc:id ID='edu:child2:child1:group2'/>
+  <ldappc:pso entityName='group'>
+    <psoID ID='cn=group2,ou=child1,ou=child2,ou=edu,ou=testgroups,${base}' targetID='ldap'/>
+    <data>
+      <dsml:attr xmlns:dsml='urn:oasis:names:tc:DSML:2:0:core' name='objectClass'>
+        <dsml:value>top</dsml:value>
+        <dsml:value>${groupObjectClass}</dsml:value>
+      </dsml:attr>
+      <dsml:attr xmlns:dsml='urn:oasis:names:tc:DSML:2:0:core' name='cn'>
+        <dsml:value>group2</dsml:value>
+      </dsml:attr>
+    </data>
+    <capabilityData mustUnderstand='true' capabilityURI='urn:oasis:names:tc:SPML:2:0:reference'>
+      <spmlref:reference xmlns='urn:oasis:names:tc:SPML:2:0' xmlns:spmlref='urn:oasis:names:tc:SPML:2:0:reference' typeOfReference='member'>
+        <spmlref:toPsoID ID='cn=test.subject.1,ou=testpeople,${base}' targetID='ldap'/>
+      </spmlref:reference>
+    </capabilityData>
+  </ldappc:pso>
+</ldappc:calcResponse>
+
+<lookupRequest xmlns='urn:oasis:names:tc:SPML:2:0' requestID='2011/11/08-23:14:18.776_Q415TDH2' returnData='everything'>
+  <psoID ID='cn=group2,ou=child1,ou=child2,ou=edu,ou=testgroups,${base}' targetID='ldap'/>
+</lookupRequest>
+
+<lookupResponse xmlns='urn:oasis:names:tc:SPML:2:0' status='failure' requestID='2011/11/08-23:14:18.776_Q415TDH2' error='noSuchIdentifier'/>
+
+<ldappc:diffResponse xmlns:ldappc='http://grouper.internet2.edu/ldappc' status='success' requestID='2011/11/08-23:14:18.723_Q415TDHU'>
+  <addRequest xmlns='urn:oasis:names:tc:SPML:2:0' entityName='group' requestID='2011/11/08-23:14:18.780_Q415TDH3' targetId='ldap' returnData='everything'>
+    <psoID ID='cn=group2,ou=child1,ou=child2,ou=edu,ou=testgroups,${base}' targetID='ldap'/>
+    <data>
+      <dsml:attr xmlns:dsml='urn:oasis:names:tc:DSML:2:0:core' name='objectClass'>
+        <dsml:value>top</dsml:value>
+        <dsml:value>${groupObjectClass}</dsml:value>
+      </dsml:attr>
+      <dsml:attr xmlns:dsml='urn:oasis:names:tc:DSML:2:0:core' name='cn'>
+        <dsml:value>group2</dsml:value>
+      </dsml:attr>
+    </data>
+    <capabilityData mustUnderstand='true' capabilityURI='urn:oasis:names:tc:SPML:2:0:reference'>
+      <spmlref:reference xmlns='urn:oasis:names:tc:SPML:2:0' xmlns:spmlref='urn:oasis:names:tc:SPML:2:0:reference' typeOfReference='member'>
+        <spmlref:toPsoID ID='cn=test.subject.1,ou=testpeople,${base}' targetID='ldap'/>
+      </spmlref:reference>
+    </capabilityData>
+  </addRequest>
+  <ldappc:id ID='edu:child2:child1:group2'/>
+</ldappc:diffResponse>
+
+<addRequest xmlns='urn:oasis:names:tc:SPML:2:0' entityName='group' requestID='2011/11/08-23:14:18.780_Q415TDH3' targetId='ldap' returnData='everything'>
+  <psoID ID='cn=group2,ou=child1,ou=child2,ou=edu,ou=testgroups,${base}' targetID='ldap'/>
+  <data>
+    <dsml:attr xmlns:dsml='urn:oasis:names:tc:DSML:2:0:core' name='objectClass'>
+      <dsml:value>top</dsml:value>
+      <dsml:value>${groupObjectClass}</dsml:value>
+    </dsml:attr>
+    <dsml:attr xmlns:dsml='urn:oasis:names:tc:DSML:2:0:core' name='cn'>
+      <dsml:value>group2</dsml:value>
+    </dsml:attr>
+  </data>
+  <capabilityData mustUnderstand='true' capabilityURI='urn:oasis:names:tc:SPML:2:0:reference'>
+    <spmlref:reference xmlns='urn:oasis:names:tc:SPML:2:0' xmlns:spmlref='urn:oasis:names:tc:SPML:2:0:reference' typeOfReference='member'>
+      <spmlref:toPsoID ID='cn=test.subject.1,ou=testpeople,${base}' targetID='ldap'/>
+    </spmlref:reference>
+  </capabilityData>
+</addRequest>
+
+<addResponse xmlns='urn:oasis:names:tc:SPML:2:0' status='success' requestID='2011/11/08-23:14:18.780_Q415TDH3'>
+  <pso entityName='group'>
+    <psoID ID='cn=group2,ou=child1,ou=child2,ou=edu,ou=testgroups,${base}' targetID='ldap'/>
+    <data>
+      <dsml:attr xmlns:dsml='urn:oasis:names:tc:DSML:2:0:core' name='objectClass'>
+        <dsml:value>${groupObjectClass}</dsml:value>
+        <dsml:value>top</dsml:value>
+      </dsml:attr>
+      <dsml:attr xmlns:dsml='urn:oasis:names:tc:DSML:2:0:core' name='cn'>
+        <dsml:value>group2</dsml:value>
+      </dsml:attr>
+    </data>
+    <capabilityData mustUnderstand='true' capabilityURI='urn:oasis:names:tc:SPML:2:0:reference'>
+      <spmlref:reference xmlns='urn:oasis:names:tc:SPML:2:0' xmlns:spmlref='urn:oasis:names:tc:SPML:2:0:reference' typeOfReference='member'>
+        <spmlref:toPsoID ID='cn=test.subject.1,ou=testpeople,${base}' targetID='ldap'/>
+      </spmlref:reference>
+    </capabilityData>
+  </pso>
+</addResponse>
+
+<ldappc:syncResponse xmlns:ldappc='http://grouper.internet2.edu/ldappc' status='success' requestID='2011/11/08-23:14:18.722_Q415TDHT'>
+  <addResponse xmlns='urn:oasis:names:tc:SPML:2:0' status='success' requestID='2011/11/08-23:14:18.780_Q415TDH3'>
+    <pso entityName='group'>
+      <psoID ID='cn=group2,ou=child1,ou=child2,ou=edu,ou=testgroups,${base}' targetID='ldap'/>
+      <data>
+        <dsml:attr xmlns:dsml='urn:oasis:names:tc:DSML:2:0:core' name='objectClass'>
+          <dsml:value>${groupObjectClass}</dsml:value>
+          <dsml:value>top</dsml:value>
+        </dsml:attr>
+        <dsml:attr xmlns:dsml='urn:oasis:names:tc:DSML:2:0:core' name='cn'>
+          <dsml:value>group2</dsml:value>
+        </dsml:attr>
+      </data>
+      <capabilityData mustUnderstand='true' capabilityURI='urn:oasis:names:tc:SPML:2:0:reference'>
+        <spmlref:reference xmlns='urn:oasis:names:tc:SPML:2:0' xmlns:spmlref='urn:oasis:names:tc:SPML:2:0:reference' typeOfReference='member'>
+          <spmlref:toPsoID ID='cn=test.subject.1,ou=testpeople,${base}' targetID='ldap'/>
+        </spmlref:reference>
+      </capabilityData>
+    </pso>
+  </addResponse>
+  <ldappc:id ID='edu:child2:child1:group2'/>
+</ldappc:syncResponse>
+
+<ldappc:calcRequest xmlns:ldappc='http://grouper.internet2.edu/ldappc' requestID='2011/11/08-23:14:18.796_Q415TDH5' returnData='everything'>
+  <ldappc:id ID='change_log_sequence_number:313'/>
+</ldappc:calcRequest>
+
+<ldappc:calcRequest xmlns:ldappc='http://grouper.internet2.edu/ldappc' returnData='identifier'>
+  <ldappc:id ID='test.subject.1'/>
+  <ldappc:schemaEntity targetID='ldap' entityName='member'/>
+</ldappc:calcRequest>
+
+<ldappc:calcResponse xmlns:ldappc='http://grouper.internet2.edu/ldappc' status='success' requestID='2011/11/08-23:14:18.810_Q415TDH7'>
+  <ldappc:id ID='test.subject.1'/>
+  <ldappc:pso entityName='member'>
+    <psoID ID='cn=test.subject.1,ou=testpeople,${base}' targetID='ldap'/>
+  </ldappc:pso>
+</ldappc:calcResponse>
+
+<ldappc:calcResponse xmlns:ldappc='http://grouper.internet2.edu/ldappc' status='success' requestID='2011/11/08-23:14:18.796_Q415TDH5'>
+  <ldappc:id ID='change_log_sequence_number:313'/>
+  <ldappc:pso entityName='groupMembership'>
+    <psoID ID='cn=group2,ou=child1,ou=child2,ou=edu,ou=testgroups,${base}' targetID='ldap'/>
+    <capabilityData mustUnderstand='true' capabilityURI='urn:oasis:names:tc:SPML:2:0:reference'>
+      <spmlref:reference xmlns='urn:oasis:names:tc:SPML:2:0' xmlns:spmlref='urn:oasis:names:tc:SPML:2:0:reference' typeOfReference='member'>
+        <spmlref:toPsoID ID='cn=test.subject.1,ou=testpeople,${base}' targetID='ldap'/>
+      </spmlref:reference>
+    </capabilityData>
+  </ldappc:pso>
+</ldappc:calcResponse>
+
+<spmlsearch:SearchRequest xmlns='urn:oasis:names:tc:SPML:2:0' xmlns:spmlref='urn:oasis:names:tc:SPML:2:0:reference' xmlns:spmlsearch='urn:oasis:names:tc:SPML:2:0:search' requestID='2011/11/08-23:14:18.815_Q415TDH8' returnData='everything'>
+  <spmlsearch:query targetID='ldap' scope='pso'>
+    <spmlref:hasReference typeOfReference='member'>
+      <spmlref:toPsoID ID='cn=test.subject.1,ou=testpeople,${base}' targetID='ldap'/>
+    </spmlref:hasReference>
+    <spmlsearch:basePsoID ID='cn=group2,ou=child1,ou=child2,ou=edu,ou=testgroups,${base}' targetID='ldap'/>
+  </spmlsearch:query>
+</spmlsearch:SearchRequest>
+
+<spmlsearch:searchResponse xmlns='urn:oasis:names:tc:SPML:2:0' xmlns:spmlsearch='urn:oasis:names:tc:SPML:2:0:search' status='success' requestID='2011/11/08-23:14:18.815_Q415TDH8'>
+  <spmlsearch:pso entityName='group'>
+    <psoID ID='cn=group2,ou=child1,ou=child2,ou=edu,ou=testgroups,${base}' targetID='ldap'/>
+    <data>
+      <dsml:attr xmlns:dsml='urn:oasis:names:tc:DSML:2:0:core' name='cn'>
+        <dsml:value>group2</dsml:value>
+      </dsml:attr>
+      <dsml:attr xmlns:dsml='urn:oasis:names:tc:DSML:2:0:core' name='objectClass'>
+        <dsml:value>${groupObjectClass}</dsml:value>
+        <dsml:value>top</dsml:value>
+      </dsml:attr>
+    </data>
+    <capabilityData mustUnderstand='true' capabilityURI='urn:oasis:names:tc:SPML:2:0:reference'>
+      <spmlref:reference xmlns='urn:oasis:names:tc:SPML:2:0' xmlns:spmlref='urn:oasis:names:tc:SPML:2:0:reference' typeOfReference='member'>
+        <spmlref:toPsoID ID='cn=test.subject.1,ou=testpeople,${base}' targetID='ldap'/>
+      </spmlref:reference>
+    </capabilityData>
+  </spmlsearch:pso>
+</spmlsearch:searchResponse>

@@ -1,28 +1,3 @@
-dn: ou=testpeople,${base}
-objectclass: top
-objectclass: organizationalUnit
-description: people
-ou: testpeople
-
-dn: cn=test.subject.0,ou=testpeople,${base}
-objectclass: top
-objectclass: person
-objectclass: organizationalPerson
-cn: test.subject.0
-sn: subject.0
-
-dn: cn=test.subject.1,ou=testpeople,${base}
-objectclass: top
-objectclass: person
-objectclass: organizationalPerson
-cn: test.subject.1
-sn: subject.1
-
-dn: ou=testgroups,${base}
-objectclass: top
-objectclass: organizationalUnit
-ou: testgroups
-
 dn: cn=groupB,ou=testgroups,${base}
 objectclass: top
 objectclass: ${groupObjectClass}
@@ -30,4 +5,4 @@ objectclass: eduMember
 cn: groupB
 member: cn=test.subject.1,ou=testpeople,${base}
 description: descriptionB
-hasMember: my name is test.subject.1
+hasMember: test.subject.1

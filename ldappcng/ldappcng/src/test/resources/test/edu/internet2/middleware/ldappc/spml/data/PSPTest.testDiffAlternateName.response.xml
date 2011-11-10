@@ -1,0 +1,9 @@
+<ldappc:diffResponse xmlns:ldappc='http://grouper.internet2.edu/ldappc' status='success' requestID='REQUESTID_TEST'>
+  <modifyRequest xmlns='urn:oasis:names:tc:SPML:2:0' requestID='2011/11/10-11:39:55.180_Q44BV2CR' returnData='everything'>
+    <psoID ID='cn=groupB,ou=edu,ou=testgroups,${base}' targetID='ldap'/>
+    <modification modificationMode='replace'>
+      <ldappc:alternateIdentifier xmlns:ldappc='http://grouper.internet2.edu/ldappc' ID='cn=newExtensionGroupB,ou=edu,ou=testgroups,${base}' targetID='ldap'/>
+    </modification>
+  </modifyRequest>
+  <ldappc:id ID='edu:newExtensionGroupB'/>
+</ldappc:diffResponse>

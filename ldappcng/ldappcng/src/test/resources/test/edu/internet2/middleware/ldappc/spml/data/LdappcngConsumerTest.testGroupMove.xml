@@ -1,0 +1,70 @@
+
+<ldappc:calcRequest xmlns:ldappc='http://grouper.internet2.edu/ldappc' requestID='2011/11/08-23:11:52.138_Q415P8LZ' returnData='everything'>
+  <ldappc:id ID='change_log_sequence_number:299'/>
+</ldappc:calcRequest>
+
+<ldappc:calcResponse xmlns:ldappc='http://grouper.internet2.edu/ldappc' status='success' requestID='2011/11/08-23:11:52.138_Q415P8LZ'>
+  <ldappc:id ID='change_log_sequence_number:299'/>
+  <ldappc:pso entityName='group'>
+    <ldappc:alternateIdentifier xmlns:ldappc='http://grouper.internet2.edu/ldappc' ID='cn=groupA,ou=edu,ou=testgroups,${base}' targetID='ldap'/>
+    <psoID ID='cn=groupA,ou=child,ou=edu,ou=testgroups,${base}' targetID='ldap'/>
+    <data>
+      <dsml:attr xmlns:dsml='urn:oasis:names:tc:DSML:2:0:core' name='objectClass'>
+        <dsml:value>top</dsml:value>
+        <dsml:value>${groupObjectClass}</dsml:value>
+      </dsml:attr>
+    </data>
+  </ldappc:pso>
+</ldappc:calcResponse>
+
+<lookupRequest xmlns='urn:oasis:names:tc:SPML:2:0' requestID='2011/11/08-23:11:52.174_Q415P8L0' returnData='identifier'>
+  <psoID ID='cn=groupA,ou=child,ou=edu,ou=testgroups,${base}' targetID='ldap'/>
+</lookupRequest>
+
+<lookupResponse xmlns='urn:oasis:names:tc:SPML:2:0' status='failure' requestID='2011/11/08-23:11:52.174_Q415P8L0' error='noSuchIdentifier'/>
+
+<lookupRequest xmlns='urn:oasis:names:tc:SPML:2:0' requestID='2011/11/08-23:11:52.178_Q415P8L1' returnData='identifier'>
+  <psoID ID='cn=groupA,ou=edu,ou=testgroups,${base}' targetID='ldap'/>
+</lookupRequest>
+
+<lookupResponse xmlns='urn:oasis:names:tc:SPML:2:0' status='success' requestID='2011/11/08-23:11:52.178_Q415P8L1'>
+  <pso entityName='group'>
+    <psoID ID='cn=groupA,ou=edu,ou=testgroups,${base}' targetID='ldap'/>
+  </pso>
+</lookupResponse>
+
+<modifyRequest xmlns='urn:oasis:names:tc:SPML:2:0' requestID='2011/11/08-23:11:52.207_Q415P8L2' returnData='everything'>
+  <psoID ID='cn=groupA,ou=edu,ou=testgroups,${base}' targetID='ldap'/>
+  <modification modificationMode='replace'>
+    <ldappc:alternateIdentifier xmlns:ldappc='http://grouper.internet2.edu/ldappc' ID='cn=groupA,ou=child,ou=edu,ou=testgroups,${base}' targetID='ldap'/>
+  </modification>
+</modifyRequest>
+
+<modifyResponse xmlns='urn:oasis:names:tc:SPML:2:0' status='success' requestID='2011/11/08-23:11:52.207_Q415P8L2'>
+  <pso entityName='group'>
+    <psoID ID='cn=groupA,ou=child,ou=edu,ou=testgroups,${base}' targetID='ldap'/>
+    <data>
+      <dsml:attr xmlns:dsml='urn:oasis:names:tc:DSML:2:0:core' name='objectClass'>
+        <dsml:value>${groupObjectClass}</dsml:value>
+        <dsml:value>top</dsml:value>
+      </dsml:attr>
+      <dsml:attr xmlns:dsml='urn:oasis:names:tc:DSML:2:0:core' name='cn'>
+        <dsml:value>groupA</dsml:value>
+      </dsml:attr>
+    </data>
+    <capabilityData mustUnderstand='true' capabilityURI='urn:oasis:names:tc:SPML:2:0:reference'>
+      <spmlref:reference xmlns='urn:oasis:names:tc:SPML:2:0' xmlns:spmlref='urn:oasis:names:tc:SPML:2:0:reference' typeOfReference='member'>
+        <spmlref:toPsoID ID='cn=test.subject.0,ou=testpeople,${base}' targetID='ldap'/>
+      </spmlref:reference>
+    </capabilityData>
+  </pso>
+</modifyResponse>
+
+<ldappc:calcRequest xmlns:ldappc='http://grouper.internet2.edu/ldappc' requestID='2011/11/08-23:11:52.225_Q415P8L4' returnData='everything'>
+  <ldappc:id ID='change_log_sequence_number:300'/>
+</ldappc:calcRequest>
+
+<ldappc:calcResponse xmlns:ldappc='http://grouper.internet2.edu/ldappc' status='failure' requestID='2011/11/08-23:11:52.225_Q415P8L4' error='noSuchIdentifier'>
+  <errorMessage>Unable to calculate provisioned object.</errorMessage>
+  <ldappc:id ID='change_log_sequence_number:300'/>
+</ldappc:calcResponse>

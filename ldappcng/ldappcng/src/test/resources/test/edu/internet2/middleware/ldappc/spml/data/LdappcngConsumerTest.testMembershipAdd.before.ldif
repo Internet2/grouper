@@ -1,0 +1,10 @@
+dn: ou=edu,ou=testgroups,${base}
+objectClass: organizationalUnit
+objectClass: top
+ou: edu
+
+dn: cn=groupA,ou=edu,ou=testgroups,${base}
+cn: groupA
+member: cn=test.subject.0,ou=testpeople,${base}
+objectClass: groupOfNames
+objectClass: top

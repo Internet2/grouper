@@ -17,13 +17,11 @@ package edu.internet2.middleware.ldappc.spml;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Timer;
 
 import junit.textui.TestRunner;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.ldappc.spml.request.BulkSyncRequest;
 
 /**
  * Basic test for the PSP CLI.
@@ -41,6 +39,13 @@ public class PSPCLITest extends BasePSPProvisioningTest {
 
   public PSPCLITest(String name) {
     super(name, CONFIG_PATH);
+  }
+  
+  public void setUp() {
+    super.setUp();
+    setUpEduStem();
+    setUpGroupA();
+    setUpGroupB();
   }
 
   private List<String> getCmds() {
@@ -125,6 +130,8 @@ public class PSPCLITest extends BasePSPProvisioningTest {
 
     PSPCLI pspCLI = new PSPCLI(options);
 
+    psp = pspCLI.getPSP();
+    
     pspCLI.schedule();
 
     Timer timer = pspCLI.getTimer();
@@ -137,8 +144,6 @@ public class PSPCLITest extends BasePSPProvisioningTest {
 
   public void testIntervalBulkSync() throws Exception {
 
-    loadLdif(DATA_PATH + "PSPTest.before.ldif");
-
     List<String> cmds = getCmds();
 
     // tmp file output
@@ -152,83 +157,6 @@ public class PSPCLITest extends BasePSPProvisioningTest {
     // calc ID=edu:groupB
     cmds.add("-" + PSPOptions.Opts.interval.getOpt());
     cmds.add("2");
-
-    bulkSync(cmds.toArray(new String[] {}));
-
-    // TODO test output file for correctness
-    verifyLdif(DATA_PATH + "PSPTest.testBulkSyncBushyAdd.after.ldif");
-  }
-
-  public void testIntervalBulkSyncWithLastModifyTime() throws Exception {
-
-    loadLdif(DATA_PATH + "PSPTest.before.ldif");
-
-    List<String> cmds = getCmds();
-
-    // tmp file output
-    File tmpFile = getTmpFile();
-    cmds.add("-" + PSPOptions.Opts.output.getOpt());
-    cmds.add(tmpFile.getAbsolutePath());
-
-    // calc ID=edu:groupB
-    cmds.add("-" + PSPOptions.Mode.bulkSync.getOpt());
-
-    // calc ID=edu:groupB
-    cmds.add("-" + PSPOptions.Opts.interval.getOpt());
-    cmds.add("2");
-
-    bulkSync(cmds.toArray(new String[] {}));
-
-    // TODO test output file for correctness
-    verifyLdif(DATA_PATH + "PSPTest.testBulkSyncBushyAdd.after.ldif");
-
-    // run again with last modify time set
-    // updated since, use bulk request for date formatting, ugly
-    BulkSyncRequest request = new BulkSyncRequest();
-    request.setUpdatedSince(new Date());
-    cmds.add("-" + PSPOptions.Opts.lastModifyTime.getOpt());
-    cmds.add(request.getUpdatedSince());
-
-    bulkSync(cmds.toArray(new String[] {}));
-
-    // TODO test output file for correctness
-    verifyLdif(DATA_PATH + "PSPTest.testBulkSyncBushyAdd.after.ldif");
-  }
-
-  public void testIntervalBulkSyncFullSync() throws Exception {
-
-    loadLdif(DATA_PATH + "PSPTest.before.ldif");
-
-    List<String> cmds = getCmds();
-
-    // tmp file output
-    File tmpFile = getTmpFile();
-    cmds.add("-" + PSPOptions.Opts.output.getOpt());
-    cmds.add(tmpFile.getAbsolutePath());
-
-    // bulkSync
-    cmds.add("-" + PSPOptions.Mode.bulkSync.getOpt());
-
-    // interval 2
-    cmds.add("-" + PSPOptions.Opts.interval.getOpt());
-    cmds.add("2");
-
-    // full sync interval 2
-    cmds.add("-" + PSPOptions.Opts.intervalFullSync.getOpt());
-    cmds.add("4");
-
-    // iterations e
-    cmds.add("-" + PSPOptions.Opts.iterations.getOpt());
-    cmds.add("3");
-
-    if (true) {
-      // run again with last modify time set
-      // updated since, use bulk request for date formatting, ugly
-      BulkSyncRequest request = new BulkSyncRequest();
-      request.setUpdatedSince(new Date());
-      cmds.add("-" + PSPOptions.Opts.lastModifyTime.getOpt());
-      cmds.add(request.getUpdatedSince());
-    }
 
     bulkSync(cmds.toArray(new String[] {}));
 

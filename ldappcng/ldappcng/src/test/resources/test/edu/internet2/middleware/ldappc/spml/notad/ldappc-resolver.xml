@@ -1,0 +1,265 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<AttributeResolver
+  xmlns="urn:mace:shibboleth:2.0:resolver"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:resolver="urn:mace:shibboleth:2.0:resolver"
+  xmlns:ad="urn:mace:shibboleth:2.0:resolver:ad"
+  xmlns:dc="urn:mace:shibboleth:2.0:resolver:dc"
+  xmlns:grouper="http://grouper.internet2.edu/shibboleth/2.0"
+  xmlns:ldappc="http://grouper.internet2.edu/ldappc"
+  xsi:schemaLocation="
+   urn:mace:shibboleth:2.0:resolver classpath:/schema/shibboleth-2.0-attribute-resolver.xsd
+   urn:mace:shibboleth:2.0:resolver:dc classpath:/schema/shibboleth-2.0-attribute-resolver-dc.xsd
+   urn:mace:shibboleth:2.0:resolver:ad classpath:/schema/shibboleth-2.0-attribute-resolver-ad.xsd
+   http://grouper.internet2.edu/shibboleth/2.0 classpath:/schema/shibboleth-2.0-grouper.xsd
+   http://grouper.internet2.edu/ldappc classpath:/schema/ldappc.xsd">
+
+  <!-- Grouper data connectors. -->
+
+  <!-- The GroupDataConnector returns attributes representing the group whose name is the principal name. -->
+  <!-- The returned group must be a child, at any depth, of the "edu" stem. -->
+  <resolver:DataConnector id="GroupDataConnector" xsi:type="grouper:GroupDataConnector">
+    <!-- The GroupInStem filter matches groups which are children of the given stem. -->
+    <grouper:Filter xsi:type="grouper:GroupInStem" name="edu" scope="SUB" />
+    <!-- The "members" attribute values are equivalent to group.getMembers(). -->
+    <grouper:Attribute id="members" />
+    <!-- The "groups" attribute values are equivalent to group.getGroups(). -->
+    <grouper:Attribute id="groups" />
+  </resolver:DataConnector>
+
+  <!-- The StemDataConnector returns attributes representing the stem whose name is the principal name. -->
+  <!-- The returned stem must be the "edu" stem, or at any depth, a child of the "edu" stem. -->
+  <resolver:DataConnector id="StemDataConnector" xsi:type="grouper:StemDataConnector">
+    <!-- The OR filter matches either child filter. -->
+    <grouper:Filter xsi:type="grouper:OR">
+      <!-- The StemNameExact filter matches the stem with the given name. -->
+      <grouper:Filter xsi:type="grouper:StemNameExact" name="edu" />
+      <!-- The StemInStem filter matches stems which are children of the given stem. -->
+      <grouper:Filter xsi:type="grouper:StemInStem" name="edu" scope="SUB" />
+    </grouper:Filter>
+  </resolver:DataConnector>
+
+  <!-- The MemberDataConnector returns attributes representing the member whose subject id or identifier is the principal name. -->
+  <resolver:DataConnector id="MemberDataConnector" xsi:type="grouper:MemberDataConnector">
+    <!-- Return the "dn" attribute of members whose subject source id is "ldap". -->
+    <grouper:Attribute id="dn" source="ldap" />
+    <!-- The "groups" attribute values are equivalent to member.getGroups(). -->
+    <grouper:Attribute id="groups" />
+  </resolver:DataConnector>
+
+
+  <!-- ChangeLogDataConnectors return attributes representing the change log entry whose sequence number is the principal name. -->
+
+  <!-- Returns change log attributes representing the deletion of a stem. -->
+  <resolver:DataConnector id="DeleteStemChangeLogDataConnector" xsi:type="grouper:ChangeLogDataConnector">
+    <!-- The ChangeLogEntry filter matches change log entries with the given category and action. -->
+    <grouper:Filter xsi:type="grouper:ChangeLogEntry" category="stem" action="deleteStem" />
+  </resolver:DataConnector>
+
+  <!-- Returns change log attributes representing the changing of a stem's name. -->
+  <resolver:DataConnector id="UpdateStemChangeLogDataConnector" xsi:type="grouper:ChangeLogDataConnector">
+    <!-- The AND filter matches both child filters. -->
+    <grouper:Filter xsi:type="grouper:AND">
+      <!-- The ChangeLogEntry filter matches change log entries with the given category and action. -->
+      <grouper:Filter xsi:type="grouper:ChangeLogEntry" category="stem" action="updateStem" />
+      <!-- The ChangeLogExactAttribute filter matches change log entries with the given attribute and value. -->
+      <grouper:Filter xsi:type="grouper:ChangeLogExactAttribute" name="propertyChanged" value="name" />
+    </grouper:Filter>
+  </resolver:DataConnector>
+
+  <!-- Returns change log attributes representing the deletion of a group. -->
+  <resolver:DataConnector id="DeleteGroupChangeLogDataConnector" xsi:type="grouper:ChangeLogDataConnector">
+    <!-- The ChangeLogEntry filter matches change log entries with the given category and action. -->
+    <grouper:Filter xsi:type="grouper:ChangeLogEntry" category="group" action="deleteGroup" />
+  </resolver:DataConnector>
+
+  <!-- Returns change log attributes representing the changing of a group's name. -->
+  <resolver:DataConnector id="UpdateGroupChangeLogDataConnector" xsi:type="grouper:ChangeLogDataConnector">
+    <!-- The AND filter matches both child filters. -->
+    <grouper:Filter xsi:type="grouper:AND">
+      <!-- The ChangeLogEntry filter matches change log entries with the given category and action. -->
+      <grouper:Filter xsi:type="grouper:ChangeLogEntry" category="group" action="updateGroup" />
+      <!-- The ChangeLogExactAttribute filter matches change log entries with the given attribute and value. -->
+      <grouper:Filter xsi:type="grouper:ChangeLogExactAttribute" name="propertyChanged" value="name" />
+    </grouper:Filter>
+  </resolver:DataConnector>
+
+  <!-- Returns change log attributes representing a membership addition. -->
+  <resolver:DataConnector id="AddMembershipChangeLogDataConnector" xsi:type="grouper:ChangeLogDataConnector">
+    <!-- The ChangeLogEntry filter matches change log entries with the given category and action. -->
+    <grouper:Filter xsi:type="grouper:ChangeLogEntry" category="membership" action="addMembership" />
+  </resolver:DataConnector>
+
+  <!-- Returns change log attributes representing a membership deletion. -->
+  <resolver:DataConnector id="DeleteMembershipChangeLogDataConnector" xsi:type="grouper:ChangeLogDataConnector">
+    <!-- The ChangeLogEntry filter matches change log entries with the given category and action. -->
+    <grouper:Filter xsi:type="grouper:ChangeLogEntry" category="membership" action="deleteMembership" />
+  </resolver:DataConnector>
+
+
+  <!-- Static data connector. -->
+  <resolver:DataConnector id="StaticDataConnector" xsi:type="dc:Static">
+    <dc:Attribute id="groupObjectclass">
+      <dc:Value>top</dc:Value>
+      <dc:Value>${groupObjectClass}</dc:Value>
+    </dc:Attribute>
+    <dc:Attribute id="groupObjectclassEduMember">
+      <dc:Value>top</dc:Value>
+      <dc:Value>groupOfNames</dc:Value>
+      <dc:Value>eduMember</dc:Value>
+    </dc:Attribute>
+    <dc:Attribute id="stemObjectclass">
+      <dc:Value>top</dc:Value>
+      <dc:Value>organizationalUnit</dc:Value>
+    </dc:Attribute>
+    <dc:Attribute id="memberObjectclass">
+      <dc:Value>eduMember</dc:Value>
+    </dc:Attribute>
+  </resolver:DataConnector>
+
+
+  <!-- Stem identifier and attributes. -->
+
+  <!-- The LDAP DN of a stem. For example, "ou=stemExtension,ou=testgroups,dc=edu". -->
+  <resolver:AttributeDefinition id="stemDn" xsi:type="ldappc:LdapDnPSOIdentifier"
+    structure="bushy" sourceAttributeID="name" rdnAttributeName="ou" base="ou=testgroups,${base}">
+    <!-- Dependencies which return a "name" attribute whose value is the stem name. -->
+    <resolver:Dependency ref="StemDataConnector" />
+    <resolver:Dependency ref="DeleteStemChangeLogDataConnector" />
+    <resolver:Dependency ref="UpdateStemChangeLogDataConnector" />
+  </resolver:AttributeDefinition>
+
+  <!-- The alternate LDAP DN of a stem via the change log. For example, the DN of a stem before it is renamed. -->
+  <resolver:AttributeDefinition id="stemDnAlternateChangeLog" xsi:type="ldappc:LdapDnPSOIdentifier"
+    structure="bushy" sourceAttributeID="propertyOldValue" rdnAttributeName="ou" base="ou=testgroups,${base}">
+    <!-- Dependency which returns a "propertyOldValue" attribute whose value is the old stem name. -->
+    <resolver:Dependency ref="UpdateStemChangeLogDataConnector" />
+  </resolver:AttributeDefinition>
+
+  <!-- The stem objectclass attribute. -->
+  <resolver:AttributeDefinition id="stemObjectclass" xsi:type="ad:Simple">
+    <resolver:Dependency ref="StaticDataConnector" />
+  </resolver:AttributeDefinition>
+
+  <!-- The value of stem "stemOu" attribute is the stem extension. -->
+  <resolver:AttributeDefinition id="stemOu" xsi:type="ad:Simple" sourceAttributeID="extension">
+    <resolver:Dependency ref="StemDataConnector" />
+  </resolver:AttributeDefinition>
+
+  <!-- The value of stem "stemDescription" attribute is the stem description. -->
+  <resolver:AttributeDefinition id="stemDescription" xsi:type="ad:Simple" sourceAttributeID="description">
+    <resolver:Dependency ref="StemDataConnector" />
+  </resolver:AttributeDefinition>
+
+
+  <!-- Group identifier and attributes. -->
+
+  <!-- The LDAP DN of a group. For example, "cn=groupExtension,ou=stem,ou=testgroups,dc=edu". -->
+  <resolver:AttributeDefinition id="groupDn" xsi:type="ldappc:LdapDnPSOIdentifier"
+    structure="bushy" sourceAttributeID="name" rdnAttributeName="cn" base="ou=testgroups,${base}">
+    <!-- Dependencies which return a "name" attribute whose value is the group name. -->
+    <resolver:Dependency ref="GroupDataConnector" />
+    <resolver:Dependency ref="DeleteGroupChangeLogDataConnector" />
+    <resolver:Dependency ref="UpdateGroupChangeLogDataConnector" />
+  </resolver:AttributeDefinition>
+
+  <!-- The alternate LDAP DN of a group. For example, the DN of a group before it is renamed. -->
+  <resolver:AttributeDefinition id="groupDnAlternate" xsi:type="ldappc:LdapDnPSOIdentifier"
+    structure="bushy" sourceAttributeID="alternateName" rdnAttributeName="cn" base="ou=testgroups,${base}">
+    <!-- Dependency which returns an "alternateName" attribute whose value is the old group name. -->
+    <resolver:Dependency ref="GroupDataConnector" />
+  </resolver:AttributeDefinition>
+
+  <!-- The alternate LDAP DN of a group via the change log. For example, the DN of a group before it is renamed. -->
+  <resolver:AttributeDefinition id="groupDnAlternateChangeLog" xsi:type="ldappc:LdapDnPSOIdentifier"
+    structure="bushy" sourceAttributeID="propertyOldValue" rdnAttributeName="cn" base="ou=testgroups,${base}">
+    <!-- Dependency which returns a "propertyOldValue" attribute whose value is the old group name. -->
+    <resolver:Dependency ref="UpdateGroupChangeLogDataConnector" />
+  </resolver:AttributeDefinition>
+  
+  <!-- The group objectclass attribute. -->
+  <resolver:AttributeDefinition id="groupObjectclass" xsi:type="ad:Simple">
+    <resolver:Dependency ref="StaticDataConnector" />
+  </resolver:AttributeDefinition>
+
+  <!-- The group objectclass attribute. -->
+  <resolver:AttributeDefinition id="groupObjectclassEduMember" xsi:type="ad:Simple">
+    <resolver:Dependency ref="StaticDataConnector" />
+  </resolver:AttributeDefinition>
+
+  <!-- The value of the group "cn" attribute is the group extension. -->
+  <resolver:AttributeDefinition id="cn" xsi:type="ad:Simple" sourceAttributeID="extension">
+    <resolver:Dependency ref="GroupDataConnector" />
+  </resolver:AttributeDefinition>
+
+  <!-- The value of the group "description" attribute is the group description. -->
+  <resolver:AttributeDefinition id="description" xsi:type="ad:Simple">
+    <resolver:Dependency ref="GroupDataConnector" />
+  </resolver:AttributeDefinition>
+
+  <!-- The values of the group "hasMember" attribute include the names of the groups which are members of the group. -->
+  <!-- The values of the group "hasMember" attribute include the ids of the subjects which are members of the group. -->
+  <resolver:AttributeDefinition id="hasMember" xsi:type="grouper:Member" sourceAttributeID="members">
+    <resolver:Dependency ref="GroupDataConnector" />
+    <grouper:Attribute id="id" source="ldap" />
+    <grouper:Attribute id="name" source="g:gsa" />
+  </resolver:AttributeDefinition>
+
+  <!-- The values of the group "groupIsMemberOf" attribute are the names of the groups that the group is a member of. -->
+  <resolver:AttributeDefinition id="groupIsMemberOf" xsi:type="grouper:Group" sourceAttributeID="groups">
+    <resolver:Dependency ref="GroupDataConnector" />
+    <grouper:Attribute id="name" />
+  </resolver:AttributeDefinition>
+
+  <!-- The values of the "membersLdap" attribute are the subject ids of group members from the "ldap" source. -->
+  <resolver:AttributeDefinition id="membersLdap" xsi:type="grouper:Member" sourceAttributeID="members">
+    <resolver:Dependency ref="GroupDataConnector" />
+    <!-- The values of the "id" attribute are the identifiers of subjects whose source id is "ldap". -->
+    <grouper:Attribute id="id" source="ldap" />
+  </resolver:AttributeDefinition>
+
+  <!-- The values of the "membersGsa" attribute are the names of group members which are grouper groups. -->
+  <resolver:AttributeDefinition id="membersGsa" xsi:type="grouper:Member" sourceAttributeID="members">
+    <resolver:Dependency ref="GroupDataConnector" />
+    <!-- The values of the "name" attribute are the names of groups whose source is "g:gsa". -->
+    <grouper:Attribute id="name" source="g:gsa" />
+  </resolver:AttributeDefinition>
+  
+
+  <!-- Member identifier. -->
+  
+  <!-- The LDAP DN of a member. The value of this attribute is the "dn" of subjects whose source id is "ldap". -->
+  <resolver:AttributeDefinition id="memberDn" xsi:type="ldappc:PSOIdentifier" sourceAttributeID="dn">
+    <resolver:Dependency ref="MemberDataConnector" />
+  </resolver:AttributeDefinition>
+  
+  <!-- The group objectclass attribute. -->
+  <resolver:AttributeDefinition id="memberObjectclass" xsi:type="ad:Simple">
+    <resolver:Dependency ref="StaticDataConnector" />
+  </resolver:AttributeDefinition>
+  
+  <!-- The values of the member "memberIsMemberOf" attribute are the names of the groups that the member is a member of. -->
+  <resolver:AttributeDefinition id="memberIsMemberOf" xsi:type="grouper:Group" sourceAttributeID="groups">
+    <resolver:Dependency ref="MemberDataConnector" />
+    <grouper:Attribute id="name" />
+  </resolver:AttributeDefinition>
+
+
+  <!-- Group membership identifiers. -->
+
+  <!-- The value of the "changeLogMembershipGroupDn" attribute is the LDAP DN of the group of a membership change log entry. -->
+  <resolver:AttributeDefinition id="changeLogMembershipGroupDn" xsi:type="ldappc:LdapDnPSOIdentifier"
+    structure="bushy" sourceAttributeID="groupName" rdnAttributeName="cn" base="ou=testgroups,${base}">
+    <!-- Dependencies which return a "groupName" attribute whose value is the name of the group of a membership change log entry. -->
+    <resolver:Dependency ref="AddMembershipChangeLogDataConnector" />
+    <resolver:Dependency ref="DeleteMembershipChangeLogDataConnector" />
+  </resolver:AttributeDefinition>
+
+  <!-- The value of the "changeLogMembershipSubjectId" attribute is the subject identifier of a membership change log entry. -->
+  <resolver:AttributeDefinition id="changeLogMembershipSubjectId" xsi:type="ad:Simple" sourceAttributeID="subjectId">
+    <!-- Dependencies which return a "subjectId" attribute whose value is the subject id of the member of a membership change log entry. -->
+    <resolver:Dependency ref="AddMembershipChangeLogDataConnector" />
+    <resolver:Dependency ref="DeleteMembershipChangeLogDataConnector" />
+  </resolver:AttributeDefinition>
+
+</AttributeResolver>

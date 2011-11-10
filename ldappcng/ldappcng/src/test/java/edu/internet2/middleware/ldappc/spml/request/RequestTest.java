@@ -16,6 +16,7 @@ package edu.internet2.middleware.ldappc.spml.request;
 
 import java.io.File;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.custommonkey.xmlunit.XMLTestCase;
@@ -42,6 +43,7 @@ import org.openspml.v2.msg.spmlsearch.Query;
 import org.openspml.v2.msg.spmlsearch.Scope;
 import org.openspml.v2.msg.spmlsearch.SearchRequest;
 
+import edu.emory.mathcs.backport.java.util.Arrays;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.ldappc.LdappcTestHelper;
 import edu.internet2.middleware.ldappc.spml.BasePSPProvisioningTest;
@@ -82,7 +84,7 @@ public class RequestTest extends XMLTestCase {
   }
 
   public static void main(String[] args) {
-    // TestRunner.run(new RequestTest("testCalculateRequest"));
+    // TestRunner.run(new RequestTest("testAlternateIdentifier"));
   }
 
   public void setUp() {
@@ -386,6 +388,37 @@ public class RequestTest extends XMLTestCase {
     assertEquals(syncResponse1, map.get("id1"));
     assertEquals(syncResponse2, map.get("id2"));
     assertEquals(syncResponse3, map.get("id3"));
+  }
+
+  public void testAlternateIdentifier() {
+
+    AlternateIdentifier alternateIdentifier = new AlternateIdentifier();
+    alternateIdentifier.setID("altID");
+    alternateIdentifier.setTargetID("targetID");
+
+    PSOIdentifier psoIdentifier = new PSOIdentifier();
+    psoIdentifier.setID("ID");
+    psoIdentifier.setTargetID("targetID");
+
+    PSO pso = new PSO();
+    pso.setPsoID(psoIdentifier);
+    pso.addOpenContentElement(alternateIdentifier);
+
+    CalcResponse calcResponse = new CalcResponse();
+    calcResponse.setPSOs(Arrays.asList(new PSO[] { pso }));
+
+    Marshallable object = verifySpml(calcResponse, "RequestTests.testAlternateIdentifier.xml", false);
+
+    assertTrue(object instanceof CalcResponse);
+    CalcResponse that = (CalcResponse) object;
+
+    List<AlternateIdentifier> fromResponse = calcResponse.getPSOs().get(0)
+        .getOpenContentElements(AlternateIdentifier.class);
+    List<AlternateIdentifier> fromMarshall = that.getPSOs().get(0).getOpenContentElements(AlternateIdentifier.class);
+
+    assertEquals(alternateIdentifier, fromResponse.get(0));
+    assertEquals(alternateIdentifier, fromMarshall.get(0));
+    assertEquals(fromResponse.get(0), fromMarshall.get(0));
   }
 
   private File getFile(String resourceName) {

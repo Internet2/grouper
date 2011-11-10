@@ -16,34 +16,39 @@
                               http://grouper.internet2.edu/shibboleth/2.0 classpath:/schema/shibboleth-2.0-grouper.xsd
                               http://grouper.internet2.edu/ldappc classpath:/schema/ldappc.xsd">
 
-  <!-- the attribute resolver id must be grouper.AttributeResolver -->
+  <!-- The attribute resolver id must be grouper.AttributeResolver. -->
   <Service id="grouper.AttributeResolver" xsi:type="attribute-resolver:ShibbolethAttributeResolver">
-    <ConfigurationResource file="/test/edu/internet2/middleware/ldappc/spml/ldappc-resolver.xml"
-      xsi:type="resource:ClasspathResource">
+    <ConfigurationResource file="/test/edu/internet2/middleware/ldappc/spml/ldappc-resolver.xml" xsi:type="resource:ClasspathResource">
       <ResourceFilter xsi:type="grouper:ClasspathPropertyReplacement" xmlns="urn:mace:shibboleth:2.0:resource"
-        propertyFile="/test/edu/internet2/middleware/ldappc/spml/ldappc.test.properties" />
+                      propertyFile="/test/edu/internet2/middleware/ldappc/spml/ldappc.test.properties" />
     </ConfigurationResource>
   </Service>
 
-  <!-- the attribute authority id must be grouper.AttributeAuthority -->
-  <Service id="grouper.AttributeAuthority" xsi:type="grouper:SimpleAttributeAuthority" depends-on="grouper.AttributeResolver"
-    resolver="grouper.AttributeResolver" />
+  <!-- The attribute authority id must be grouper.AttributeAuthority. -->
+  <Service id="grouper.AttributeAuthority" xsi:type="grouper:SimpleAttributeAuthority" depends-on="grouper.AttributeResolver" resolver="grouper.AttributeResolver" />
 
-  <Service id="ldappc" xsi:type="ldappc:ProvisioningServiceProvider" depends-on="grouper.AttributeAuthority"
-    authority="grouper.AttributeAuthority">
-    <ConfigurationResource file="/test/edu/internet2/middleware/ldappc/spml/ldappc.xml"
-      xsi:type="resource:ClasspathResource">
+  <Service id="ldappc" xsi:type="ldappc:ProvisioningServiceProvider" depends-on="grouper.AttributeAuthority" authority="grouper.AttributeAuthority"
+           logSpml="true" writeRequests="true" writeResponses="true" pathToOutputFile="">
+    <ConfigurationResource file="/test/edu/internet2/middleware/ldappc/spml/ldappc.xml" xsi:type="resource:ClasspathResource">
       <ResourceFilter xsi:type="grouper:ClasspathPropertyReplacement" xmlns="urn:mace:shibboleth:2.0:resource"
-        propertyFile="/test/edu/internet2/middleware/ldappc/spml/ldappc.test.properties" />
+                      propertyFile="/test/edu/internet2/middleware/ldappc/spml/ldappc.test.properties" />
     </ConfigurationResource>
   </Service>
 
+  <!-- Reuse the LdapPool from the LdapSourceAdapter whose <id/> in sources.xml matches ldapPoolId. -->
+  <Service id="ldap-provider" xsi:type="ldappc:LdapPoolProvider" ldapPoolId="ldap">
+    <!-- A <ConfigurationResource/> is required to instantiate the <Service/>, so supply a do-nothing resource. -->
+    <ConfigurationResource file="/edu/internet2/middleware/ldappc/util/empty-bean.xml" xsi:type="resource:ClasspathResource" /> 
+  </Service>
+
+  <!-- This LdapPoolProvider uses vt-ldap to connect to an LDAP server.
+  <ConfigurationResource file="/test/edu/internet2/middleware/ldappc/spml/empty-bean.xml" xsi:type="resource:ClasspathResource" /> 
   <Service id="ldap-provider" xsi:type="ldappc:LdapPoolProvider" ldapPoolId="ldapPool">
-    <ConfigurationResource file="/test/edu/internet2/middleware/ldappc/spml/ldappc-ldap.xml"
-      xsi:type="resource:ClasspathResource">
+    <ConfigurationResource file="/test/edu/internet2/middleware/ldappc/spml/ldappc-ldap.xml" xsi:type="resource:ClasspathResource">
       <ResourceFilter xsi:type="grouper:ClasspathPropertyReplacement" xmlns="urn:mace:shibboleth:2.0:resource"
-        propertyFile="/test/edu/internet2/middleware/ldappc/spml/ldappc.test.properties" />
+                      propertyFile="/test/edu/internet2/middleware/ldappc/spml/ldappc.test.properties" />
     </ConfigurationResource>
   </Service>
+  -->
  
 </Services>

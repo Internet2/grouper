@@ -47,6 +47,11 @@ public class PSPTest extends BasePSPProvisioningTest {
     super(name, CONFIG_PATH);
   }
 
+  public void setUp() {
+    super.setUp();
+    setUpPSP();
+  }
+  
   public void testAddRequestNoPSOId() throws Exception {
 
     AddRequest request = new AddRequest();

@@ -28,9 +28,11 @@ import org.openspml.v2.msg.spmlsearch.SearchRequest;
 import org.openspml.v2.msg.spmlsearch.SearchResponse;
 
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.helper.StemHelper;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.shibboleth.util.OnNotFound;
+import edu.internet2.middleware.ldappc.LdappcTestHelper;
 import edu.internet2.middleware.ldappc.spml.request.BulkCalcRequest;
 import edu.internet2.middleware.ldappc.spml.request.BulkCalcResponse;
 import edu.internet2.middleware.ldappc.spml.request.BulkDiffRequest;
@@ -54,16 +56,22 @@ public class PSPLdapTest extends BasePSPProvisioningTest {
 
   public static void main(String[] args) {
     // TestRunner.run(PSPLdapTest.class);
-    TestRunner.run(new PSPLdapTest("testLookupNoSuchIdentifier"));
+    TestRunner.run(new PSPLdapTest("testSyncAlternateName"));
   }
 
   public PSPLdapTest(String name) {
     super(name, CONFIG_PATH);
   }
 
-  public void testBulkCalcBushyAdd() throws Exception {
+  public void setUp() {
+    super.setUp();
+    setUpPSP();
+    setUpEduStem();
+    setUpGroupA();
+    setUpGroupB();
+  }
 
-    loadLdif(DATA_PATH + "PSPTest.before.ldif");
+  public void testBulkCalcBushyAdd() throws Exception {
 
     BulkCalcRequest request = new BulkCalcRequest();
     request.setRequestID(REQUESTID_TEST);
@@ -75,8 +83,6 @@ public class PSPLdapTest extends BasePSPProvisioningTest {
   public void testBulkCalcBushyAddChildStems() throws Exception {
 
     this.setUpCourseTest();
-
-    loadLdif(DATA_PATH + "PSPTest.before.ldif");
 
     BulkCalcRequest request = new BulkCalcRequest();
     request.setRequestID(REQUESTID_TEST);
@@ -91,8 +97,6 @@ public class PSPLdapTest extends BasePSPProvisioningTest {
     groupF.addMember(SubjectTestHelper.SUBJ1);
     groupB.addMember(groupF.toSubject());
 
-    loadLdif(DATA_PATH + "PSPTest.before.ldif");
-
     BulkCalcRequest request = new BulkCalcRequest();
     request.setRequestID(REQUESTID_TEST);
     BulkCalcResponse response = psp.execute(request);
@@ -101,8 +105,6 @@ public class PSPLdapTest extends BasePSPProvisioningTest {
   }
 
   public void testBulkCalcBushyAddSubgroup() throws Exception {
-
-    loadLdif(DATA_PATH + "PSPTest.before.ldif");
 
     groupB.addMember(groupA.toSubject());
 
@@ -116,11 +118,11 @@ public class PSPLdapTest extends BasePSPProvisioningTest {
   public void testBulkCalcBushyAddSubjectNotFoundFail() throws Exception {
 
     psp.getTargetDefinitions().get("ldap").getPSODefinition("group").getReferencesDefinition("member")
-        .getReferenceDefinition("members-jdbc").setOnNotFound(OnNotFound.fail);
+        .getReferenceDefinition("membersLdap").setOnNotFound(OnNotFound.fail);
 
     groupA.addMember(SubjectTestHelper.SUBJ2);
 
-    loadLdif(DATA_PATH + "PSPTest.before.ldif");
+    LdappcTestHelper.deleteCn(SubjectTestHelper.SUBJ2_ID, ldap);
 
     BulkCalcRequest request = new BulkCalcRequest();
     request.setRequestID(REQUESTID_TEST);
@@ -132,11 +134,11 @@ public class PSPLdapTest extends BasePSPProvisioningTest {
   public void testBulkCalcBushyAddSubjectNotFoundIgnore() throws Exception {
 
     psp.getTargetDefinitions().get("ldap").getPSODefinition("group").getReferencesDefinition("member")
-        .getReferenceDefinition("members-jdbc").setOnNotFound(OnNotFound.ignore);
+        .getReferenceDefinition("membersLdap").setOnNotFound(OnNotFound.ignore);
 
     groupA.addMember(SubjectTestHelper.SUBJ2);
 
-    loadLdif(DATA_PATH + "PSPTest.before.ldif");
+    LdappcTestHelper.deleteCn(SubjectTestHelper.SUBJ2_ID, ldap);
 
     BulkCalcRequest request = new BulkCalcRequest();
     request.setRequestID(REQUESTID_TEST);
@@ -149,7 +151,7 @@ public class PSPLdapTest extends BasePSPProvisioningTest {
 
     groupA.addMember(SubjectTestHelper.SUBJ2);
 
-    loadLdif(DATA_PATH + "PSPTest.before.ldif");
+    LdappcTestHelper.deleteCn(SubjectTestHelper.SUBJ2_ID, ldap);
 
     BulkCalcRequest request = new BulkCalcRequest();
     request.setRequestID(REQUESTID_TEST);
@@ -160,10 +162,10 @@ public class PSPLdapTest extends BasePSPProvisioningTest {
 
   public void testBulkCalcBushyAddSubjectWhitespace() throws Exception {
 
+    loadLdif(DATA_PATH + "PSPTest.subjectWhitespace.before.ldif");
+
     Subject subjA = this.createSubject("test subject a", "my name is test subject a");
     groupA.addMember(subjA);
-
-    loadLdif(DATA_PATH + "PSPTest.subjectWhitespace.before.ldif");
 
     BulkCalcRequest request = new BulkCalcRequest();
     request.setRequestID(REQUESTID_TEST);
@@ -177,18 +179,16 @@ public class PSPLdapTest extends BasePSPProvisioningTest {
     groupA.delete();
     groupB.delete();
 
-    loadLdif(DATA_PATH + "PSPTest.testBulkSyncBushyAddForwardSlash.after.ldif");
+    loadLdif(DATA_PATH + "PSPTest.testBulkCalcBushyDeleteForwardSlash.before.ldif");
 
     BulkCalcRequest request = new BulkCalcRequest();
     request.setRequestID(REQUESTID_TEST);
     BulkCalcResponse response = psp.execute(request);
 
-    verifySpml(response, DATA_PATH + "PSPTest.emptyBulkCalc.response.xml");
+    verifySpml(response, DATA_PATH + "PSPTest.testBulkCalcBushyDeleteForwardSlash.response.xml");
   }
 
   public void testBulkDiffBushyAdd() throws Exception {
-
-    loadLdif(DATA_PATH + "PSPTest.before.ldif");
 
     BulkDiffRequest request = new BulkDiffRequest();
     request.setRequestID(REQUESTID_TEST);
@@ -200,8 +200,6 @@ public class PSPLdapTest extends BasePSPProvisioningTest {
   public void testBulkDiffBushyAddChildStems() throws Exception {
 
     this.setUpCourseTest();
-
-    loadLdif(DATA_PATH + "PSPTest.before.ldif");
 
     BulkDiffRequest request = new BulkDiffRequest();
     request.setRequestID(REQUESTID_TEST);
@@ -216,8 +214,6 @@ public class PSPLdapTest extends BasePSPProvisioningTest {
     groupF.addMember(SubjectTestHelper.SUBJ1);
     groupB.addMember(groupF.toSubject());
 
-    loadLdif(DATA_PATH + "PSPTest.before.ldif");
-
     BulkDiffRequest request = new BulkDiffRequest();
     request.setRequestID(REQUESTID_TEST);
     BulkDiffResponse response = psp.execute(request);
@@ -226,8 +222,6 @@ public class PSPLdapTest extends BasePSPProvisioningTest {
   }
 
   public void testBulkDiffBushyAddSubgroup() throws Exception {
-
-    loadLdif(DATA_PATH + "PSPTest.before.ldif");
 
     groupB.addMember(groupA.toSubject());
 
@@ -240,10 +234,10 @@ public class PSPLdapTest extends BasePSPProvisioningTest {
 
   public void testBulkDiffBushyAddSubjectWhitespace() throws Exception {
 
+    loadLdif(DATA_PATH + "PSPTest.subjectWhitespace.before.ldif");
+
     Subject subjA = this.createSubject("test subject a", "my name is test subject a");
     groupA.addMember(subjA);
-
-    loadLdif(DATA_PATH + "PSPTest.subjectWhitespace.before.ldif");
 
     BulkDiffRequest request = new BulkDiffRequest();
     request.setRequestID(REQUESTID_TEST);
@@ -257,7 +251,7 @@ public class PSPLdapTest extends BasePSPProvisioningTest {
     groupA.delete();
     groupB.delete();
 
-    loadLdif(DATA_PATH + "PSPTest.testBulkSyncBushyAddForwardSlash.after.ldif");
+    loadLdif(DATA_PATH + "PSPTest.testBulkCalcBushyDeleteForwardSlash.before.ldif");
 
     BulkDiffRequest request = new BulkDiffRequest();
     request.setRequestID(REQUESTID_TEST);
@@ -267,8 +261,6 @@ public class PSPLdapTest extends BasePSPProvisioningTest {
   }
 
   public void testBulkSyncBushyAdd() throws Exception {
-
-    loadLdif(DATA_PATH + "PSPTest.before.ldif");
 
     BulkSyncRequest request = new BulkSyncRequest();
     request.setRequestID(REQUESTID_TEST);
@@ -281,8 +273,6 @@ public class PSPLdapTest extends BasePSPProvisioningTest {
   public void testBulkSyncBushyAddChildStems() throws Exception {
 
     this.setUpCourseTest();
-
-    loadLdif(DATA_PATH + "PSPTest.before.ldif");
 
     BulkSyncRequest request = new BulkSyncRequest();
     request.setRequestID(REQUESTID_TEST);
@@ -298,8 +288,6 @@ public class PSPLdapTest extends BasePSPProvisioningTest {
     groupF.addMember(SubjectTestHelper.SUBJ1);
     groupB.addMember(groupF.toSubject());
 
-    loadLdif(DATA_PATH + "PSPTest.before.ldif");
-
     BulkSyncRequest request = new BulkSyncRequest();
     request.setRequestID(REQUESTID_TEST);
     BulkSyncResponse response = psp.execute(request);
@@ -309,8 +297,6 @@ public class PSPLdapTest extends BasePSPProvisioningTest {
   }
 
   public void testBulkSyncBushyAddSubgroup() throws Exception {
-
-    loadLdif(DATA_PATH + "PSPTest.before.ldif");
 
     groupB.addMember(groupA.toSubject());
 
@@ -324,10 +310,10 @@ public class PSPLdapTest extends BasePSPProvisioningTest {
 
   public void testBulkSyncBushyAddSubjectWhitespace() throws Exception {
 
+    loadLdif(DATA_PATH + "PSPTest.subjectWhitespace.before.ldif");
+
     Subject subjA = this.createSubject("test subject a", "my name is test subject a");
     groupA.addMember(subjA);
-
-    loadLdif(DATA_PATH + "PSPTest.subjectWhitespace.before.ldif");
 
     BulkSyncRequest request = new BulkSyncRequest();
     request.setRequestID(REQUESTID_TEST);
@@ -342,7 +328,7 @@ public class PSPLdapTest extends BasePSPProvisioningTest {
     groupA.delete();
     groupB.delete();
 
-    loadLdif(DATA_PATH + "PSPTest.testBulkSyncBushyAddForwardSlash.after.ldif");
+    loadLdif(DATA_PATH + "PSPTest.testBulkCalcBushyDeleteForwardSlash.before.ldif");
 
     BulkSyncRequest request = new BulkSyncRequest();
     request.setRequestID(REQUESTID_TEST);
@@ -351,10 +337,8 @@ public class PSPLdapTest extends BasePSPProvisioningTest {
     verifySpml(response, DATA_PATH + "PSPTest.testBulkSyncBushyDeleteForwardSlash.response.xml");
     verifyLdif(DATA_PATH + "PSPTest.testBulkSyncBushyDeleteForwardSlash.after.ldif");
   }
-
+  
   public void testCalcBushyAdd() throws Exception {
-
-    loadLdif(DATA_PATH + "PSPTest.before.ldif");
 
     CalcRequest request = new CalcRequest();
     request.setRequestID(REQUESTID_TEST);
@@ -363,24 +347,24 @@ public class PSPLdapTest extends BasePSPProvisioningTest {
 
     verifySpml(response, DATA_PATH + "PSPTest.testCalcBushyAdd.response.xml");
   }
-  
-	public void testCalcBushyAddScoped() throws Exception {
 
-		loadLdif(DATA_PATH + "PSPTest.testCalcBushyAddScoped.before.ldif");
+  public void testCalcBushyAddScoped() throws Exception {
 
-		CalcRequest request = new CalcRequest();
-		request.setRequestID(REQUESTID_TEST);
-		request.setId(groupB.getName());
-		CalcResponse response = psp.execute(request);
+    loadLdif(DATA_PATH + "PSPTest.testCalcBushyAddScoped.before.ldif");
 
-		verifySpml(response, DATA_PATH + "PSPTest.testCalcBushyAddScoped.response.xml");
-	}
+    groupB.addMember(SubjectFinder.findById("test.subject.10", true));
+
+    CalcRequest request = new CalcRequest();
+    request.setRequestID(REQUESTID_TEST);
+    request.setId(groupB.getName());
+    CalcResponse response = psp.execute(request);
+
+    verifySpml(response, DATA_PATH + "PSPTest.testCalcBushyAddScoped.response.xml");
+  }
 
   public void testCalcFlatAdd() throws Exception {
 
     this.makeGroupDNStructureFlat();
-
-    loadLdif(DATA_PATH + "PSPTest.before.ldif");
 
     CalcRequest request = new CalcRequest();
     request.setRequestID(REQUESTID_TEST);
@@ -393,8 +377,6 @@ public class PSPLdapTest extends BasePSPProvisioningTest {
   public void testCalcFlatAddSchemaEntity() throws Exception {
 
     this.makeGroupDNStructureFlat();
-
-    loadLdif(DATA_PATH + "PSPTest.before.ldif");
 
     CalcRequest request = new CalcRequest();
     request.setRequestID(REQUESTID_TEST);
@@ -566,7 +548,7 @@ public class PSPLdapTest extends BasePSPProvisioningTest {
 
   public void testSearchRequest() throws Exception {
 
-    loadLdif(DATA_PATH + "PSPTest.testSyncFlatAdd.after.ldif");
+    loadLdif(DATA_PATH + "PSPTest.testSearchRequest.before.ldif");
 
     LdapSearchRequest ldapSearchRequest = new LdapSearchRequest();
     ldapSearchRequest.setBase("ou=testgroups," + base);
@@ -581,7 +563,7 @@ public class PSPLdapTest extends BasePSPProvisioningTest {
 
   public void testSearchRequestData() throws Exception {
 
-    loadLdif(DATA_PATH + "PSPTest.testSyncFlatAdd.after.ldif");
+    loadLdif(DATA_PATH + "PSPTest.testSearchRequest.before.ldif");
 
     LdapSearchRequest ldapSearchRequest = new LdapSearchRequest();
     ldapSearchRequest.setBase("ou=testgroups," + base);
@@ -597,7 +579,7 @@ public class PSPLdapTest extends BasePSPProvisioningTest {
 
   public void testSearchRequestEverything() throws Exception {
 
-    loadLdif(DATA_PATH + "PSPTest.testSyncFlatAdd.after.ldif");
+    loadLdif(DATA_PATH + "PSPTest.testSearchRequest.before.ldif");
 
     LdapSearchRequest ldapSearchRequest = new LdapSearchRequest();
     ldapSearchRequest.setBase("ou=testgroups," + base);
@@ -613,7 +595,7 @@ public class PSPLdapTest extends BasePSPProvisioningTest {
 
   public void testSearchRequestIdentifier() throws Exception {
 
-    loadLdif(DATA_PATH + "PSPTest.testSyncFlatAdd.after.ldif");
+    loadLdif(DATA_PATH + "PSPTest.testSearchRequest.before.ldif");
 
     LdapSearchRequest ldapSearchRequest = new LdapSearchRequest();
     ldapSearchRequest.setBase("ou=testgroups," + base);
@@ -629,7 +611,7 @@ public class PSPLdapTest extends BasePSPProvisioningTest {
 
   public void testSearchRequestNotFound() throws Exception {
 
-    loadLdif(DATA_PATH + "PSPTest.testSyncFlatAdd.after.ldif");
+    loadLdif(DATA_PATH + "PSPTest.testSearchRequest.before.ldif");
 
     LdapSearchRequest ldapSearchRequest = new LdapSearchRequest();
     ldapSearchRequest.setBase("ou=testgroups," + base);
@@ -644,12 +626,12 @@ public class PSPLdapTest extends BasePSPProvisioningTest {
   }
 
   public void testSearchRequestHasReference() throws Exception {
-    
+
     loadLdif(DATA_PATH + "PSPTest.testSearchRequestHasReference.before.ldif");
-    
+
     PSOIdentifier memberID = new PSOIdentifier();
     memberID.setID("cn=test.subject.0,ou=testpeople," + base);
-    
+
     HasReference hasReference = new HasReference();
     hasReference.setToPsoID(memberID);
     hasReference.setTypeOfReference("member");
@@ -669,10 +651,10 @@ public class PSPLdapTest extends BasePSPProvisioningTest {
 
     SearchResponse response = psp.execute(searchRequest);
     System.out.println(response.toXML(psp.getXMLMarshaller()));
-    
-    verifySpml(response, DATA_PATH + "PSPTest.testSearchRequestHasReference.response.xml");    
+
+    verifySpml(response, DATA_PATH + "PSPTest.testSearchRequestHasReference.response.xml");
   }
-  
+
   public void testSyncBushyModifyDescription() throws Exception {
 
     loadLdif(DATA_PATH + "PSPTest.testModifyMemberBushy.before.ldif");
@@ -749,8 +731,6 @@ public class PSPLdapTest extends BasePSPProvisioningTest {
 
     this.makeGroupDNStructureFlat();
 
-    loadLdif(DATA_PATH + "PSPTest.before.ldif");
-
     SyncRequest request = new SyncRequest();
     request.setRequestID(REQUESTID_TEST);
     request.setId(groupB.getName());
@@ -758,6 +738,55 @@ public class PSPLdapTest extends BasePSPProvisioningTest {
 
     verifySpml(response, DATA_PATH + "PSPTest.testSyncFlatAdd.response.xml");
     verifyLdif(DATA_PATH + "PSPTest.testSyncFlatAdd.after.ldif");
+  }
+
+  public void testCalcAlternateName() throws Exception {
+  
+    groupB.setExtension("newExtensionGroupB");
+    groupB.store();
+    
+    CalcRequest request = new CalcRequest();
+    request.setRequestID(REQUESTID_TEST);
+    request.setId(groupB.getName());
+    CalcResponse response = psp.execute(request);
+  
+    verifySpml(response, DATA_PATH + "PSPTest.testCalcAlternateName.response.xml");
+  }
+  
+  public void testDiffAlternateName() throws Exception {
+    
+    loadLdif(DATA_PATH + "PSPTest.testDiffAlternateName.before.ldif");
+    
+    psp.setLogSpml(true);
+    
+    groupB.setExtension("newExtensionGroupB");
+    groupB.store();
+    
+    DiffRequest request = new DiffRequest();
+    request.setRequestID(REQUESTID_TEST);
+    request.setId(groupB.getName());
+    DiffResponse response = psp.execute(request);
+          
+    verifySpml(response, DATA_PATH + "PSPTest.testDiffAlternateName.response.xml");
+  }
+  
+  public void testSyncAlternateName() throws Exception {
+    
+    loadLdif(DATA_PATH + "PSPTest.testDiffAlternateName.before.ldif");
+    
+    psp.setLogSpml(true);
+    
+    groupB.setExtension("newExtensionGroupB");
+    groupB.store();
+    
+    SyncRequest request = new SyncRequest();
+    request.setRequestID(REQUESTID_TEST);
+    request.setId(groupB.getName());
+    SyncResponse response = psp.execute(request);
+  
+    verifySpml(response, DATA_PATH + "PSPTest.testSyncAlternateName.response.xml");
+    
+    verifyLdif(DATA_PATH + "PSPTest.testSyncAlternateName.after.ldif");
   }
 
 }

@@ -5,38 +5,101 @@
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="http://grouper.internet2.edu/ldappc classpath:/schema/ldappc.xsd">
 
+  <!-- The targets element allows more than one target to be provisioned using the same configuration. -->
   <targets id="LDAP">
 
+    <!-- Each target requires a unique identifier and a provider identifier. Multiple target elements are allowed. -->
     <target id="ldap" provider="ldap-provider" />
 
-    <object id="stem">
-      <identifier ref="stem-dn" baseId="ou=testgroups,${base}">
+    <!-- Provision a grouper stem as an ldap organizationalUnit. -->
+    <!-- If authoritative="true", orphan objects under the baseId matching the identifyingAttribute will be deleted. -->
+    <object id="stem" authoritative="true">
+      
+      <!-- The OU DN. -->
+      <identifier ref="stemDn" baseId="ou=testgroups,${base}">
+        
+        <!-- Identifies stem objects which exist on the target by objectclass attribute value. -->
         <identifyingAttribute name="objectclass" value="organizationalUnit" />
+        
+        <!-- The "old" OU DN calculated from stem update change log events. -->
+        <alternateIdentifier ref="stemDnAlternateChangeLog" />
+        
       </identifier>
-      <attribute name="objectClass" ref="stem-objectclass" />
-      <attribute name="ou" ref="stem-ou" />
-      <!-- TODO tests fail because of ordering
-      <attribute name="description" ref="stem-description" />
-      -->
+      
+      <!-- The OU "objectClass" attribute. -->
+      <attribute name="objectClass" ref="stemObjectclass" />
+      <!-- The OU "ou" attribute. -->
+      
+      <attribute name="ou" ref="stemOu" />
+      <!-- TODO tests fail because of ordering <attribute name="description" ref="stemDescription" /> -->
+      
     </object>
 
+    <!-- Provision a grouper group as an ldap group. -->
+    <!-- If authoritative="true", orphan objects under the baseId matching the identifyingAttribute will be deleted. -->
     <object id="group" authoritative="true">
-      <identifier ref="group-dn" baseId="ou=testgroups,${base}">
+      
+      <!-- The group DN. -->
+      <identifier ref="groupDn" baseId="ou=testgroups,${base}">
+        
+        <!-- Identifies group objects which exist on the target by objectClass attribute value. -->
         <identifyingAttribute name="objectClass" value="${groupObjectClass}" />
+        
+        <!-- The "old" group DN if a group has been renamed. -->
+        <alternateIdentifier ref="groupDnAlternate" />
+        
+        <!-- The "old" group DN calculated from group update change log events. -->
+        <alternateIdentifier ref="groupDnAlternateChangeLog" />
+        
       </identifier>
-      <attribute name="objectClass" ref="group-objectclass" />
+      
+      <!-- The group "objectClass" attribute. -->
+      <attribute name="objectClass" ref="groupObjectclass" />
+      
+      <!-- The group "cn" attribute. -->
       <attribute name="cn" />
+      
+      <!-- The group "description" attribute. -->
       <attribute name="description" />
-      <references name="member" >
-        <reference ref="members-jdbc" toObject="member" />
-        <reference ref="members-g:gsa" toObject="group" />
+      
+      <!-- The group "member" attribute. -->      
+      <references name="member">
+       
+        <!-- Each <resolver:AttributeDefinition/> value referred to is resolved to an <ldappc:identifier/>. -->
+        <reference ref="membersLdap" toObject="member" />
+        <reference ref="membersGsa" toObject="group" />
+        
       </references>
+      
     </object>
 
+    <!-- Do not provision grouper members, but enable lookup. -->
     <object id="member">
-      <identifier ref="member-dn" baseId="ou=testpeople,${base}">
+     
+      <!-- The member DN. -->
+      <identifier ref="memberDn" baseId="ou=testpeople,${base}">
+        
+        <!-- Identifies member objects which exist on the target by objectclass attribute value. -->
         <identifyingAttribute name="objectclass" value="person" />
+        
       </identifier>
+      
+    </object>
+
+    <!-- Provision a group membership triggered by the grouper change log. -->
+    <object id="groupMembership">
+      
+      <!-- The group DN calculated from membership change log events. -->
+      <identifier ref="changeLogMembershipGroupDn" baseId="ou=testgroups,${base}" />
+      
+      <!-- The group "member" attribute. -->      
+      <references name="member">
+        
+        <!-- Each <resolver:AttributeDefinition/> value is resolved to an <ldappc:identifier/>. -->
+        <reference ref="changeLogMembershipSubjectId" toObject="member" />
+        
+      </references>
+      
     </object>
 
   </targets>
