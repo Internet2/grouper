@@ -12,27 +12,138 @@
   xmlns:spmldsml="urn:oasis:names:tc:SPML:2:0:DSML"
   elementFormDefault="qualified">
 
-  <import namespace="http://www.springframework.org/schema/beans" />
-
   <import namespace="urn:mace:shibboleth:2.0:services" schemaLocation="classpath:/schema/shibboleth-2.0-services.xsd" />
   <import namespace="urn:mace:shibboleth:2.0:resolver" schemaLocation="classpath:/schema/shibboleth-2.0-attribute-resolver.xsd" />
   <import namespace="urn:mace:shibboleth:2.0:resolver:dc" schemaLocation="classpath:/schema/shibboleth-2.0-attribute-resolver-dc.xsd" />
   <import namespace="urn:oasis:names:tc:SPML:2:0" schemaLocation="classpath:/schema/pstc_spmlv2_core.xsd" />
   <import namespace="http://grouper.internet2.edu/shibboleth/2.0" schemaLocation="classpath:/schema/shibboleth-2.0-grouper.xsd" />
-  <!--
-    <import namespace="urn:oasis:names:tc:SPML:2:0:DSML" schemaLocation="classpath:/schema/pstc_spmlv2_dsml.xsd" />
-  -->
 
   <annotation>
-    <documentation>Experimental Schema for the next version of LDAPPC</documentation>
+    <documentation>LDAPPCNG Schema</documentation>
   </annotation>
 
-  <complexType name="ProvisioningServiceProvider">
+  <!-- My first attempt, improvements should be forthcoming ;-) -->
+
+  <complexType name="AlternateIdentifierType">
+    <annotation>
+      <documentation>Defines an alternate PSO Identifier.</documentation>
+    </annotation>
+    <attribute name="ref" type="string" use="required">
+      <annotation>
+        <documentation>The id of the Shibboleth Attribute Definition which returns a PSO Identifier.</documentation>
+      </annotation>
+    </attribute>
+  </complexType>
+
+  <complexType name="AttributeDefinitionType">
+    <annotation>
+      <documentation>Defines an attribute of a provisioned object.</documentation>
+    </annotation>
+    <attribute name="name" type="string" use="required">
+      <annotation>
+        <documentation>The attribute name.</documentation>
+      </annotation>
+    </attribute>
+    <attribute name="ref" type="string">
+      <annotation>
+        <documentation>The id of the Shibboleth Attribute Definition which returns attribute values.</documentation>
+      </annotation>
+    </attribute>
+    <attribute name="isMultiValued" type="string" default="true">
+      <annotation>
+        <documentation>Not implemented.</documentation>
+      </annotation>
+    </attribute>
+    <attribute name="retainAll" type="boolean" default="false">
+      <annotation>
+        <documentation>If true will not delete any existing values on a target.</documentation>
+      </annotation>
+    </attribute>
+  </complexType>
+
+  <complexType name="BaseSpmlProviderType">
+    <annotation>
+      <documentation>A base type for SPMLv2 Provisioning Service Providers.</documentation>
+    </annotation>
     <complexContent>
       <extension base="service:ServiceType">
-        <attribute name="authority" type="string" use="required">
+        <attribute name="logSpml" type="boolean" default="false">
           <annotation>
-            <documentation>TODO</documentation>
+            <documentation>If true will log SPML messages.</documentation>
+          </annotation>
+        </attribute>
+        <attribute name="pathToOutputFile" type="string">
+          <annotation>
+            <documentation>Path to file to which SPML requests and or responses are written.</documentation>
+          </annotation>
+        </attribute>
+        <attribute name="writeRequests" type="boolean" default="false">
+          <annotation>
+            <documentation>If true will write SPML requests to output file or STDOUT.</documentation>
+          </annotation>
+        </attribute>
+        <attribute name="writeResponses" type="boolean" default="false">
+          <annotation>
+            <documentation>If true will write SPML responses to output file or STDOUT.</documentation>
+          </annotation>
+        </attribute>
+      </extension>
+    </complexContent>
+  </complexType>
+
+  <complexType name="IdentifyingAttributeType">
+    <annotation>
+      <documentation>
+        Defines the provisioned object attribute which maps the object to the corresponding schema entity.
+      </documentation>
+    </annotation>
+    <attribute name="name" type="string" use="required">
+      <annotation>
+        <documentation>The attribute name. For example, ""objectclass".</documentation>
+      </annotation>
+    </attribute>
+    <attribute name="value" type="string" use="required">
+      <annotation>
+        <documentation>The attribute value. For example, "groupOfNames".</documentation>
+      </annotation>
+    </attribute>
+  </complexType>
+
+  <complexType name="LdapDnPSOIdentifier">
+    <annotation>
+      <documentation>
+        A Shibboleth Attribute Definition extension which returns a PSO Identifier whose ID is an LDAP DN.
+      </documentation>
+    </annotation>
+    <complexContent>
+      <extension base="resolver:BaseAttributeDefinitionType">
+        <attribute name="structure" use="required">
+          <annotation>
+            <documentation>The Grouper DN structure.</documentation>
+          </annotation>
+          <simpleType>
+            <restriction base="string">
+              <enumeration value="flat">
+                <annotation>
+                  <documentation>Provisions objects to a single container.</documentation>
+                </annotation>
+              </enumeration>
+              <enumeration value="bushy">
+                <annotation>
+                  <documentation>Provisions objects to a tree hierarchy.</documentation>
+                </annotation>
+              </enumeration>
+            </restriction>
+          </simpleType>
+        </attribute>
+        <attribute name="base" type="string" use="required">
+          <annotation>
+            <documentation>The LDAP DN base.</documentation>
+          </annotation>
+        </attribute>
+        <attribute name="rdnAttributeName" type="string" use="required">
+          <annotation>
+            <documentation>The LDAP RDN attribute name.</documentation>
           </annotation>
         </attribute>
       </extension>
@@ -46,134 +157,123 @@
     </sequence>
   </complexType>
 
-  <element name="targets" type="ldappc:TargetsType" />
-  <complexType name="TargetsType">
+  <complexType name="LdapPoolProvider">
+    <complexContent>
+      <extension base="ldappc:BaseSpmlProviderType">
+        <attribute name="ldapPoolId" type="string" use="required">
+          <annotation>
+            <documentation>TODO</documentation>
+          </annotation>
+        </attribute>
+      </extension>
+    </complexContent>
+  </complexType>
+
+  <complexType name="ProvisioningServiceProvider">
+    <annotation>
+      <documentation>Defines an incomplete SPMLv2 Provisioning Service Provider (PSP).</documentation>
+    </annotation>
+    <complexContent>
+      <extension base="ldappc:BaseSpmlProviderType">
+        <attribute name="authority" type="string" use="required">
+          <annotation>
+            <documentation>The id of the Shibboleth Attribute Authority</documentation>
+          </annotation>
+        </attribute>
+      </extension>
+    </complexContent>
+  </complexType>
+
+  <complexType name="PSOIdentifier">
+    <annotation>
+      <documentation>A Shibboleth Attribute Definition extension which returns PSO Identifiers.</documentation>
+    </annotation>
+    <complexContent>
+      <extension base="resolver:BaseAttributeDefinitionType" />
+    </complexContent>
+  </complexType>
+
+  <complexType name="PSOIdentifierType">
+    <annotation>
+      <documentation>Defines an SPMLv2 Provisioning Service Object Identifier (PSO Identifier).</documentation>
+    </annotation>
     <sequence>
-      <element name="target" type="ldappc:TargetType" minOccurs="1" maxOccurs="unbounded" />
-      <element name="object" type="ldappc:PSOType" minOccurs="1" maxOccurs="unbounded" />
+      <element name="identifyingAttribute" type="ldappc:IdentifyingAttributeType" minOccurs="0" maxOccurs="unbounded">
+        <annotation>
+          <documentation>An attribute of a provisioned object which identifies the SPMLv2 schema entity.</documentation>
+        </annotation>
+      </element>
+      <element name="alternateIdentifier" type="ldappc:AlternateIdentifierType" minOccurs="0" maxOccurs="unbounded">
+        <annotation>
+          <documentation>
+            An alternate identifier. For example, the previous value of a renamed identifier.
+          </documentation>
+        </annotation>
+      </element>
     </sequence>
-    <attribute name="id" type="string" use="required">
+    <attribute name="ref" type="string" use="required">
       <annotation>
-        <documentation>TODO</documentation>
+        <documentation>The id of the Shibboleth Attribute Definition which returns a PSO Identifier.</documentation>
       </annotation>
     </attribute>
-  </complexType>
-
-  <complexType name="TargetType">
-    <!--
-      <sequence> <element name="object" type="ldappc:PSOType" minOccurs="1" maxOccurs="unbounded" /> </sequence>
-    -->
-    <attribute name="id" type="string" use="required">
+    <attribute name="baseId" type="string">
       <annotation>
-        <documentation>TODO</documentation>
-      </annotation>
-    </attribute>
-    <attribute name="provider" type="string" use="required">
-      <annotation>
-        <documentation>TODO</documentation>
-      </annotation>
-    </attribute>
-    <attribute name="bundleModifications" type="boolean" default="true">
-      <annotation>
-        <documentation>TODO</documentation>
-      </annotation>
-    </attribute>
-  </complexType>
-
-  <complexType name="ConnectionType">
-    <attribute name="id" type="string" use="required">
-      <annotation>
-        <documentation>TODO</documentation>
+        <documentation>The id of the container.</documentation>
       </annotation>
     </attribute>
   </complexType>
 
   <complexType name="PSOType">
+    <annotation>
+      <documentation>Defines an SPMLv2 Provisioning Service Object (PSO).</documentation>
+    </annotation>
     <sequence>
-      <element name="identifier" type="ldappc:PSOIdentifierType" />
-      <element name="attribute" type="ldappc:AttributeDefinitionType" minOccurs="0" maxOccurs="unbounded" />
-      <element name="references" type="ldappc:ReferencesDefinitionType" minOccurs="0" maxOccurs="unbounded" />
+      <element name="identifier" type="ldappc:PSOIdentifierType">
+        <annotation>
+          <documentation>Defines the identifier of a provisioned object.</documentation>
+        </annotation>
+      </element>
+      <element name="attribute" type="ldappc:AttributeDefinitionType" minOccurs="0" maxOccurs="unbounded">
+        <annotation>
+          <documentation>Defines an attribute of a provisioned object.</documentation>
+        </annotation>
+      </element>
+      <element name="references" type="ldappc:ReferencesDefinitionType" minOccurs="0" maxOccurs="unbounded">
+        <annotation>
+          <documentation>Defines references of a provisioned object.</documentation>
+        </annotation>
+      </element>
     </sequence>
     <attribute name="id" type="string" use="required">
       <annotation>
-        <documentation>TODO</documentation>
+        <documentation>The id of the provisioning service object.</documentation>
       </annotation>
     </attribute>
     <attribute name="authoritative" type="boolean" use="optional" default="false">
       <annotation>
-        <documentation>TODO</documentation>
-      </annotation>
-    </attribute>
-
-  </complexType>
-
-  <complexType name="PSOIdentifierType">
-    <sequence>
-      <element name="identifyingAttribute" type="ldappc:IdentifyingAttributeType" />
-    </sequence>
-    <attribute name="ref" type="string" use="required">
-      <annotation>
-        <documentation>TODO</documentation>
-      </annotation>
-    </attribute>
-    <attribute name="baseId" type="string">
-      <annotation>
-        <documentation>TODO</documentation>
-      </annotation>
-    </attribute>
-  </complexType>
-
-  <complexType name="AttributeDefinitionType">
-    <attribute name="name" type="string" use="required">
-      <annotation>
-        <documentation>TODO</documentation>
-      </annotation>
-    </attribute>
-    <attribute name="ref" type="string">
-      <annotation>
-        <documentation>TODO</documentation>
-      </annotation>
-    </attribute>
-    <attribute name="isMultiValued" type="string" default="true">
-      <annotation>
-        <documentation>TODO</documentation>
-      </annotation>
-    </attribute>
-    <attribute name="retainAll" type="boolean" default="false">
-      <annotation>
-        <documentation>TODO</documentation>
-      </annotation>
-    </attribute>
-  </complexType>
-
-  <complexType name="ReferencesDefinitionType">
-    <sequence>
-      <element name="reference" type="ldappc:ReferenceDefinitionType" minOccurs="1" maxOccurs="unbounded" />
-    </sequence>
-    <attribute name="name" type="string" use="required">
-      <annotation>
-        <documentation>v</documentation>
-      </annotation>
-    </attribute>
-    <attribute name="emptyValue" type="string">
-      <annotation>
-        <documentation>TODO</documentation>
+        <documentation>If true, delete orphan objects.</documentation>
       </annotation>
     </attribute>
   </complexType>
 
   <complexType name="ReferenceDefinitionType">
+    <annotation>
+      <documentation>Defines an SPMLv2 Reference, a reference to a provisioned object.</documentation>
+    </annotation>
     <attribute name="toObject" type="string" use="required">
       <annotation>
-        <documentation>TODO</documentation>
+        <documentation>The id of the provisioned object referred to.</documentation>
       </annotation>
     </attribute>
     <attribute name="ref" type="string">
       <annotation>
-        <documentation>TODO</documentation>
+        <documentation>The id of the Shibboleth Attribute Definition which returns PSO Identifiers.</documentation>
       </annotation>
     </attribute>
     <attribute name="onNotFound" default="warn">
+      <annotation>
+        <documentation>Defines the action to be performed when the reference is not found.</documentation>
+      </annotation>
       <simpleType>
         <restriction base="string">
           <enumeration value="fail" />
@@ -182,37 +282,37 @@
         </restriction>
       </simpleType>
     </attribute>
-    <attribute name="multipleResults" type="boolean" default="false" />
+    <attribute name="multipleResults" type="boolean" default="false">
+      <annotation>
+        <documentation>If true, a reference may refer to multiple identifiers.</documentation>
+      </annotation>
+    </attribute>
   </complexType>
 
-  <complexType name="LdapPoolProvider">
-    <complexContent>
-      <extension base="service:ServiceType">
-        <attribute name="ldapPoolId" type="string" use="required">
-          <annotation>
-            <documentation>TODO</documentation>
-          </annotation>
-        </attribute>
-        <attribute name="logLdif" type="boolean" default="false" />
-        <attribute name="logSpml" type="boolean" default="false" />
-      </extension>
-    </complexContent>
-  </complexType>
-
-  <complexType name="IdentifyingAttributeType">
+  <complexType name="ReferencesDefinitionType">
+    <annotation>
+      <documentation>Defines references of a provisioned object.</documentation>
+    </annotation>
+    <sequence>
+      <element name="reference" type="ldappc:ReferenceDefinitionType" minOccurs="1" maxOccurs="unbounded">
+        <annotation>
+          <documentation>Defines a SPMLv2 referenc.</documentation>
+        </annotation>
+      </element>
+    </sequence>
     <attribute name="name" type="string" use="required">
       <annotation>
-        <documentation>TODO</documentation>
+        <documentation>The name of the reference, the SPMLv2 reference type.</documentation>
       </annotation>
     </attribute>
-    <attribute name="value" type="string" use="required">
+    <attribute name="emptyValue" type="string">
       <annotation>
-        <documentation>TODO</documentation>
+        <documentation>An optional value provisioned if no references exist.</documentation>
       </annotation>
     </attribute>
   </complexType>
-  
-   <complexType name="SPMLDataConnector">
+
+  <complexType name="SPMLDataConnector">
     <annotation>
       <documentation>
         A data connector that can returns information from an SPML provider.
@@ -223,59 +323,86 @@
         <sequence>
           <element name="FilterTemplate" type="string">
             <annotation>
-              <documentation>TODO</documentation>
+              <documentation>The LDAP filter template.</documentation>
             </annotation>
           </element>
           <element name="ResultCache" type="dc:CacheConfigType" minOccurs="0" />
         </sequence>
-        <attribute name="provider" type="string" use="required" />
-        <attribute name="base" type="string" use="required" />
-        <attribute name="scope" type="grouper:ScopeType" use="optional" default="subTree" />
-        <attribute name="returnData" type="grouper:ReturnDataType" use="optional" default="everything" />
-        <attribute name="templateEngine" type="string" fixed="shibboleth.TemplateEngine">
+        <attribute name="provider" type="string" use="required">
           <annotation>
-            <documentation>TODO</documentation>
+            <documentation>The id of the SPMLv2 provisioning service provider.</documentation>
           </annotation>
-        </attribute>
-      </extension>
-    </complexContent>
-  </complexType>
-  
-  <complexType name="LdapDnPSOIdentifier">
-    <complexContent>
-      <extension base="resolver:BaseAttributeDefinitionType">
-        <attribute name="structure" use="required">
-          <annotation>
-            <documentation>
-              An SPML PSOIdentifier which is an LDAP DN.
-            </documentation>
-          </annotation>
-          <simpleType>
-            <restriction base="string">
-              <enumeration value="flat" />
-              <enumeration value="bushy" />
-            </restriction>
-          </simpleType>
         </attribute>
         <attribute name="base" type="string" use="required">
           <annotation>
-            <documentation>TODO</documentation>
+            <documentation>The base at which to search for objects.</documentation>
           </annotation>
         </attribute>
-        <attribute name="rdnAttributeName" type="string" use="required">
+        <attribute name="scope" type="grouper:ScopeType" use="optional" default="subTree">
           <annotation>
-            <documentation>TODO</documentation>
+            <documentation>The search scope.</documentation>
+          </annotation>
+        </attribute>
+        <attribute name="returnData" type="grouper:ReturnDataType" use="optional" default="everything">
+          <annotation>
+            <documentation>The SPMLv2 data to return.</documentation>
+          </annotation>
+        </attribute>
+        <attribute name="templateEngine" type="string" fixed="shibboleth.TemplateEngine">
+          <annotation>
+            <documentation>The template engine.</documentation>
           </annotation>
         </attribute>
       </extension>
     </complexContent>
   </complexType>
 
-  <complexType name="PSOIdentifier">
-    <complexContent>
-      <extension base="resolver:BaseAttributeDefinitionType">
-      </extension>
-    </complexContent>
+  <element name="targets" type="ldappc:TargetsType" />
+  <annotation>
+    <documentation>Defines SPMLv2 Provisioning Service Targets sharing the same configuration.</documentation>
+  </annotation>
+  <complexType name="TargetsType">
+    <annotation>
+      <documentation>Defines an SPMLv2 Provisioning Service Target.</documentation>
+    </annotation>
+    <sequence>
+      <element name="target" type="ldappc:TargetType" minOccurs="1" maxOccurs="unbounded">
+        <annotation>
+          <documentation>The provisioned targets.</documentation>
+        </annotation>
+      </element>
+      <element name="object" type="ldappc:PSOType" minOccurs="1" maxOccurs="unbounded">
+        <annotation>
+          <documentation>The provisioned objects of a target.</documentation>
+        </annotation>
+      </element>
+    </sequence>
+    <attribute name="id" type="string" use="required">
+      <annotation>
+        <documentation>The target id.</documentation>
+      </annotation>
+    </attribute>
   </complexType>
 
+  <complexType name="TargetType">
+    <annotation>
+      <documentation>Defines an SPMLv2 Provisioning Service Targets.</documentation>
+    </annotation>
+    <attribute name="id" type="string" use="required">
+      <annotation>
+        <documentation>The id of the target.</documentation>
+      </annotation>
+    </attribute>
+    <attribute name="provider" type="string" use="required">
+      <annotation>
+        <documentation>The id of the SPML provider.</documentation>
+      </annotation>
+    </attribute>
+    <attribute name="bundleModifications" type="boolean" default="true">
+      <annotation>
+        <documentation>Whether or not to bundle modifications into a single modify operation.</documentation>
+      </annotation>
+    </attribute>
+  </complexType>
+  
 </schema>
