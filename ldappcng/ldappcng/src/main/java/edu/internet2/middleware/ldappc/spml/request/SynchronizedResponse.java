@@ -22,6 +22,8 @@ import org.openspml.v2.msg.spml.Response;
 
 import edu.internet2.middleware.ldappc.util.PSPUtil;
 
+// TODO there is a bug here with regards to xml format, see tests
+
 public class SynchronizedResponse extends Response {
 
   private PSOIdentifier m_psoID = null;
