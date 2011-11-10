@@ -51,14 +51,17 @@ public class LdappcNamespaceHandler extends BaseSpringNamespaceHandler {
 
     registerBeanDefinitionParser(IdentifyingAttributeBeanDefinitionParser.TYPE_NAME,
         new IdentifyingAttributeBeanDefinitionParser());
-    
+
     registerBeanDefinitionParser(PSOIdentifierAttributeDefinitionBeanDefinitionParser.TYPE_NAME,
-            new PSOIdentifierAttributeDefinitionBeanDefinitionParser());
-    
+        new PSOIdentifierAttributeDefinitionBeanDefinitionParser());
+
     registerBeanDefinitionParser(LdapDnPSOIdentifierAttributeDefinitionBeanDefinitionParser.TYPE_NAME,
-            new LdapDnPSOIdentifierAttributeDefinitionBeanDefinitionParser());
-    
+        new LdapDnPSOIdentifierAttributeDefinitionBeanDefinitionParser());
+
     registerBeanDefinitionParser(SPMLDataConnectorBeanDefinitionParser.TYPE_NAME,
-            new SPMLDataConnectorBeanDefinitionParser());
+        new SPMLDataConnectorBeanDefinitionParser());
+
+    registerBeanDefinitionParser(AlternateIdentifierDefinitionBeanDefinitionParser.TYPE_NAME,
+        new AlternateIdentifierDefinitionBeanDefinitionParser());
   }
 }
