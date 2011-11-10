@@ -46,4 +46,6 @@ public class PSPConstants {
   public static final String ERROR_UNSUPPORTED_STATUS = "Unsupported status code.";
 
   public static final String MDC_REQUESTID = "requestID";
+
+  public static final String ERROR_MULTIPLE_ALTERNATE_IDENTIFIERS = "Only one alternate identifier is supported.";
 }
