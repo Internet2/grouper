@@ -16,42 +16,29 @@ package edu.internet2.middleware.grouper.shibboleth.filter.provider;
 
 import java.util.List;
 
-import javax.xml.namespace.QName;
-
 import org.opensaml.xml.util.XMLHelper;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
-import org.springframework.beans.factory.xml.AbstractSingleBeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.w3c.dom.Element;
 
 import edu.internet2.middleware.grouper.shibboleth.config.GrouperNamespaceHandler;
-import edu.internet2.middleware.grouper.shibboleth.filter.MinusGroupFilter;
+import edu.internet2.middleware.grouper.shibboleth.filter.AbstractSetOperationFilter;
 import edu.internet2.middleware.shibboleth.common.config.SpringConfigurationUtils;
 
-public class MinusGroupQueryFilterBeanDefinitionParser extends AbstractSingleBeanDefinitionParser {
+/** Spring bean definition parser for configuring a {@link AbstractSetOperationFilter}. */
+public abstract class AbstractSetOperationFilterBeanDefinitionParser extends AbstractFilterBeanDefinitionParser {
 
-  public static final QName TYPE_NAME = new QName(GrouperNamespaceHandler.NAMESPACE, "Minus");
-
-  public static final QName GROUP_FILTER = new QName(GrouperNamespaceHandler.NAMESPACE, "GroupFilter");
-
-  protected Class getBeanClass(Element element) {
-    return MinusGroupFilter.class;
-  }
-
+  /** {@inheritDoc} */
   protected void doParse(Element element, ParserContext parserContext, BeanDefinitionBuilder builder) {
     super.doParse(element, parserContext, builder);
 
-    List<Element> groupFilterElements = XMLHelper.getChildElementsByTagNameNS(element,
-        GrouperNamespaceHandler.NAMESPACE, "GroupFilter");
+    List<Element> filterElements = XMLHelper.getChildElementsByTagNameNS(element, GrouperNamespaceHandler.NAMESPACE,
+        "Filter");
 
-    builder.addConstructorArgValue(SpringConfigurationUtils.parseInnerCustomElement(groupFilterElements.get(0),
+    builder.addConstructorArgValue(SpringConfigurationUtils.parseInnerCustomElement(filterElements.get(0),
         parserContext));
 
-    builder.addConstructorArgValue(SpringConfigurationUtils.parseInnerCustomElement(groupFilterElements.get(1),
+    builder.addConstructorArgValue(SpringConfigurationUtils.parseInnerCustomElement(filterElements.get(1),
         parserContext));
-  }
-
-  protected boolean shouldGenerateId() {
-    return true;
   }
 }

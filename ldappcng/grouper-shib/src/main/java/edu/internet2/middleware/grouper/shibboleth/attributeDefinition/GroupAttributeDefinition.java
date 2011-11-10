@@ -15,7 +15,6 @@
 package edu.internet2.middleware.grouper.shibboleth.attributeDefinition;
 
 import java.util.Collection;
-import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,78 +26,66 @@ import edu.internet2.middleware.shibboleth.common.attribute.BaseAttribute;
 import edu.internet2.middleware.shibboleth.common.attribute.provider.BasicAttribute;
 import edu.internet2.middleware.shibboleth.common.attribute.resolver.AttributeResolutionException;
 import edu.internet2.middleware.shibboleth.common.attribute.resolver.provider.ShibbolethResolutionContext;
-import edu.internet2.middleware.shibboleth.common.attribute.resolver.provider.attributeDefinition.BaseAttributeDefinition;
+import edu.internet2.middleware.shibboleth.common.attribute.resolver.provider.attributeDefinition.AttributeDefinition;
 
-public class GroupAttributeDefinition extends BaseAttributeDefinition {
+/** An {@link AttributeDefinition} which returns {@link Group} attributes. */
+public class GroupAttributeDefinition extends BaseGrouperAttributeDefinition {
 
-	private static Logger LOG = LoggerFactory
-			.getLogger(GroupAttributeDefinition.class);
+  /** The logger. */
+  private static Logger LOG = LoggerFactory.getLogger(GroupAttributeDefinition.class);
 
-	private List<AttributeIdentifier> attributes;
+  /** {@inheritDoc} */
+  protected BaseAttribute doResolve(ShibbolethResolutionContext resolutionContext) throws AttributeResolutionException {
 
-	public void setAttributes(List<AttributeIdentifier> attributes) {
-		this.attributes = attributes;
-	}
+    String principalName = resolutionContext.getAttributeRequestContext().getPrincipalName();
 
-	protected BaseAttribute doResolve(
-			ShibbolethResolutionContext resolutionContext)
-			throws AttributeResolutionException {
+    LOG.debug("Group attribute definition '{}' - Resolve principal '{}'", getId(), principalName);
 
-		String principalName = resolutionContext.getAttributeRequestContext()
-				.getPrincipalName();
-		String msg = "resolve '" + principalName + "' ad '" + this.getId()
-				+ "'";
-		LOG.debug("{}", msg);
+    Collection<?> dependencyValues = getValuesFromAllDependencies(resolutionContext);
 
-		BasicAttribute<String> attribute = new BasicAttribute<String>(this
-				.getId());
+    if (LOG.isTraceEnabled()) {
+      for (Object dependencyValue : dependencyValues) {
+        LOG.trace("Group attribute definition '{}' - Resolve principal '{}' dependency value '{}'", new Object[] {
+            getId(), principalName, dependencyValue });
+      }
+    }
 
-		Collection<?> values = this
-				.getValuesFromAllDependencies(resolutionContext);
-		if (LOG.isDebugEnabled()) {
-			for (Object value : values) {
-				LOG.debug("{} values from dependencies '{}'", msg, value);
-			}
-		}
+    BaseAttribute attribute = new BasicAttribute(getId());
 
-		if (values == null) {
-			LOG.debug("{} no dependency values", msg);
-			return attribute;
-		}
+    for (Object dependencyValue : dependencyValues) {
+      if (dependencyValue instanceof Group) {
+        BaseAttribute groupAttribute = buildAttribute((Group) dependencyValue);
+        attribute.getValues().addAll(groupAttribute.getValues());
+      }
+    }
 
-		for (Object value : values) {
-			if (!(value instanceof Group)) {
-				LOG
-						.error(
-								"{} Unable to resolve attribute, dependency value is not a Group : {}",
-								msg, value.getClass());
-				throw new AttributeResolutionException(
-						"Unable to resolve attribute, dependency value is not a Group");
-			}
+    if (LOG.isTraceEnabled()) {
+      for (Object value : attribute.getValues()) {
+        LOG.trace("Group attribute definition '{}' - Resolve principal '{}' value '{}'", new Object[] { getId(),
+            principalName, value });
+      }
+    }
 
-			Group group = (Group) value;
+    return attribute;
+  }
 
-			for (AttributeIdentifier attr : attributes) {
-				if (attr.getSource().equals(
-						SubjectFinder.internal_getGSA().getId())) {
-					attribute.getValues().add(
-							group.getAttributeOrFieldValue(attr.getId(), false,
-									false));
-				}
-			}
-		}
+  /**
+   * Return an attribute representing the {@link group}.
+   * 
+   * @param member the member
+   * @return the attribute
+   */
+  protected BaseAttribute buildAttribute(Group group) {
 
-		if (LOG.isDebugEnabled()) {
-			LOG.debug("{} values {}", msg, attribute.getValues().size());
-			for (Object value : attribute.getValues()) {
-				LOG.debug("{} value '{}'", msg, value);
-			}
-		}
+    BaseAttribute attribute = new BasicAttribute(getId());
 
-		return attribute;
-	}
+    for (AttributeIdentifier attributeIdentifier : getAttributeIdentifiers()) {
+      if (attributeIdentifier.getSource().equals(SubjectFinder.internal_getGSA().getId())) {
+        attribute.getValues().add(group.getAttributeOrFieldValue(attributeIdentifier.getId(), false, false));
+      }
+    }
 
-	public void validate() throws AttributeResolutionException {
+    return attribute;
+  }
 
-	}
 }

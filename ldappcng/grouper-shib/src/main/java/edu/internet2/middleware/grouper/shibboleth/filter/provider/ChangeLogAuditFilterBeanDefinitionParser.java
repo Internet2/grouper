@@ -14,44 +14,35 @@
 
 package edu.internet2.middleware.grouper.shibboleth.filter.provider;
 
-import java.util.List;
-
 import javax.xml.namespace.QName;
 
-import org.opensaml.xml.util.XMLHelper;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
-import org.springframework.beans.factory.xml.AbstractSingleBeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.w3c.dom.Element;
 
 import edu.internet2.middleware.grouper.shibboleth.config.GrouperNamespaceHandler;
-import edu.internet2.middleware.grouper.shibboleth.filter.OrGroupFilter;
-import edu.internet2.middleware.shibboleth.common.config.SpringConfigurationUtils;
+import edu.internet2.middleware.grouper.shibboleth.filter.ChangeLogAuditFilter;
 
-public class OrGroupQueryFilterBeanDefinitionParser extends AbstractSingleBeanDefinitionParser {
+/** Spring bean definition parser for configuring a {@link ChangeLogAuditFilter}. */
+public class ChangeLogAuditFilterBeanDefinitionParser extends AbstractFilterBeanDefinitionParser {
 
-  public static final QName TYPE_NAME = new QName(GrouperNamespaceHandler.NAMESPACE, "OR");
+  /** The {@link ChangeLogAuditFilter} type name. */
+  public static final QName TYPE_NAME = new QName(GrouperNamespaceHandler.NAMESPACE, "ChangeLogAudit");
 
-  public static final QName GROUP_FILTER = new QName(GrouperNamespaceHandler.NAMESPACE, "GroupFilter");
-
+  /**
+   * Return {@link ChangeLogAuditFilter}.
+   * 
+   * {@inheritDoc}
+   */
   protected Class getBeanClass(Element element) {
-    return OrGroupFilter.class;
+    return ChangeLogAuditFilter.class;
   }
 
+  /** {@inheritDoc} */
   protected void doParse(Element element, ParserContext parserContext, BeanDefinitionBuilder builder) {
     super.doParse(element, parserContext, builder);
 
-    List<Element> groupFilterElements = XMLHelper.getChildElementsByTagNameNS(element,
-        GrouperNamespaceHandler.NAMESPACE, "GroupFilter");
-
-    builder.addConstructorArgValue(SpringConfigurationUtils.parseInnerCustomElement(groupFilterElements.get(0),
-        parserContext));
-
-    builder.addConstructorArgValue(SpringConfigurationUtils.parseInnerCustomElement(groupFilterElements.get(1),
-        parserContext));
-  }
-
-  protected boolean shouldGenerateId() {
-    return true;
+    builder.addConstructorArgValue(element.getAttributeNS(null, "category"));
+    builder.addConstructorArgValue(element.getAttributeNS(null, "action"));
   }
 }

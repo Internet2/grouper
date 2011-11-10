@@ -106,7 +106,6 @@ public abstract class BaseDataConnectorTest extends GrouperTest {
     correctAttributesChildStem.setAttribute("displayExtension", "Child Stem");
     correctAttributesChildStem.setAttribute("name", "parentStem:childStem");
     correctAttributesChildStem.setAttribute("displayName", "Parent Stem:Child Stem");
-    correctAttributesChildStem.setAttribute(BaseGrouperDataConnector.PARENT_STEM_NAME_ATTR, "parentStem");
 
     // custom list
     GroupType type = GroupType.createType(grouperSession, "groupType");
@@ -123,8 +122,7 @@ public abstract class BaseDataConnectorTest extends GrouperTest {
     correctAttributesA.setAttribute("displayExtension", "Group A");
     correctAttributesA.setAttribute("name", "parentStem:groupA");
     correctAttributesA.setAttribute("displayName", "Parent Stem:Group A");
-    correctAttributesA.setAttribute(BaseGrouperDataConnector.PARENT_STEM_NAME_ATTR, "parentStem");
-    correctAttributesA.setAttribute(BaseGrouperDataConnector.GROUP_TYPE_ATTR,
+    correctAttributesA.setAttribute("groupType",
         new ArrayList<GroupType>(groupA.getTypes()).toArray(new GroupType[] {}));
 
     // group B
@@ -143,9 +141,8 @@ public abstract class BaseDataConnectorTest extends GrouperTest {
     correctAttributesB.setAttribute("name", "parentStem:groupB");
     correctAttributesB.setAttribute("displayName", "Parent Stem:Group B");
     correctAttributesB.setAttribute("description", "Group B Description");
-    correctAttributesB.setAttribute(BaseGrouperDataConnector.PARENT_STEM_NAME_ATTR, "parentStem");
     correctAttributesB.setAttribute("attr1", "value1");
-    correctAttributesB.setAttribute(BaseGrouperDataConnector.GROUP_TYPE_ATTR,
+    correctAttributesB.setAttribute("groupType",
         new ArrayList<GroupType>(groupB.getTypes()).toArray(new GroupType[] {}));
 
     // group C
@@ -156,8 +153,7 @@ public abstract class BaseDataConnectorTest extends GrouperTest {
     correctAttributesC.setAttribute("displayExtension", "Group C");
     correctAttributesC.setAttribute("name", "parentStem:childStem:groupC");
     correctAttributesC.setAttribute("displayName", "Parent Stem:Child Stem:Group C");
-    correctAttributesC.setAttribute(BaseGrouperDataConnector.PARENT_STEM_NAME_ATTR, "parentStem:childStem");
-    correctAttributesC.setAttribute(BaseGrouperDataConnector.GROUP_TYPE_ATTR,
+    correctAttributesC.setAttribute("groupType",
         new ArrayList<GroupType>(groupC.getTypes()).toArray(new GroupType[] {}));
 
     memberSubj0 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ0, false);
@@ -165,7 +161,7 @@ public abstract class BaseDataConnectorTest extends GrouperTest {
     memberSubj2 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ2, false);
     memberSubj3 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ3, false);
     memberAll = MemberFinder.findBySubject(grouperSession, SubjectFinder.findAllSubject(), false);
-    
+
     AttributeDef attributeDef = parentStem.addChildAttributeDef("attrDef", AttributeDefType.attr);
     attributeDef.setAssignToGroup(true);
     attributeDef.setAssignToStem(true);
@@ -281,7 +277,12 @@ public abstract class BaseDataConnectorTest extends GrouperTest {
       }
       ArrayList<String> list = new ArrayList<String>();
       for (String value : values) {
-        list.add(value);
+        if (value != null) {
+          list.add(value);
+        }
+      }
+      if (list.isEmpty()) {
+        return;
       }
       BasicAttribute attr = new BasicAttribute(name);
       attr.setValues(list);
@@ -339,12 +340,12 @@ public abstract class BaseDataConnectorTest extends GrouperTest {
       attr.setValues(list);
       map.put(attr.getId(), attr);
     }
-    
+
     public void setAttribute(BaseAttribute baseAttribute) {
       if (baseAttribute == null) {
         return;
       }
-      map.put(baseAttribute.getId(), baseAttribute);      
+      map.put(baseAttribute.getId(), baseAttribute);
     }
 
     /**

@@ -15,7 +15,7 @@
 package edu.internet2.middleware.grouper.shibboleth.dataConnector;
 
 import java.util.Arrays;
-import java.util.Date;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,11 +31,14 @@ import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.Stem.Scope;
+import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.shibboleth.dataConnector.field.GroupsField;
 import edu.internet2.middleware.grouper.shibboleth.dataConnector.field.MembersField;
 import edu.internet2.middleware.grouper.shibboleth.dataConnector.field.PrivilegeField;
+import edu.internet2.middleware.grouper.shibboleth.filter.Filter;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.shibboleth.common.attribute.BaseAttribute;
 import edu.internet2.middleware.shibboleth.common.attribute.provider.BasicAttribute;
@@ -44,14 +47,17 @@ import edu.internet2.middleware.shibboleth.common.attribute.resolver.provider.Sh
 import edu.internet2.middleware.shibboleth.common.attribute.resolver.provider.dataConnector.DataConnector;
 import edu.internet2.middleware.subject.Subject;
 
-/**
- * A {@link DataConnector} which returns {@link Group}s. The attributes of the returned groups may be limited in order
- * to avoid unnecessary queries to the Grouper database.
- */
-public class GroupDataConnector extends BaseGrouperDataConnector {
+/** A {@link DataConnector} which returns {@link Group} attributes. */
+public class GroupDataConnector extends BaseGrouperDataConnector<Group> implements DataConnector, SourceDataConnector {
 
-  /** logger */
+  /** The logger. */
   private static final Logger LOG = LoggerFactory.getLogger(GroupDataConnector.class);
+
+  /** The name of the attribute whose values are {@link GroupType}s.s */
+  public static final String GROUP_TYPE_ATTR = "groupType";
+
+  /** The name of the attribute whose values are alternate names. */
+  public static final String ALTERNATE_NAME_ATTR = "alternateName";
 
   /** {@inheritDoc} */
   public Map<String, BaseAttribute> resolve(final ShibbolethResolutionContext resolutionContext)
@@ -63,107 +69,45 @@ public class GroupDataConnector extends BaseGrouperDataConnector {
           public Map<String, BaseAttribute> callback(GrouperSession grouperSession) throws GrouperSessionException {
 
             String principalName = resolutionContext.getAttributeRequestContext().getPrincipalName();
-            String msg = "'" + principalName + "' dc '" + getId() + "'";
-            LOG.debug("resolve {}", msg);
-            if (LOG.isTraceEnabled()) {
-              LOG.trace("resolve {} requested attribute ids {}", msg, resolutionContext.getAttributeRequestContext()
-                  .getRequestedAttributesIds());
-              if (resolutionContext.getAttributeRequestContext().getRequestedAttributesIds() != null) {
-                for (String attrId : resolutionContext.getAttributeRequestContext().getRequestedAttributesIds()) {
-                  LOG.trace("resolve {} requested attribute '{}'", msg, attrId);
-                }
-              }
-            }
 
-            Map<String, BaseAttribute> attributes = new LinkedHashMap<String, BaseAttribute>();
+            LOG.debug("Group data connector '{}' - Resolve principal '{}'", getId(), principalName);
+            LOG.trace("Group data connector '{}' - Resolve principal '{}' requested attributes {}", new Object[] {
+                getId(), principalName, resolutionContext.getAttributeRequestContext().getRequestedAttributesIds() });
+
+            if (principalName.startsWith(ChangeLogDataConnector.PRINCIPAL_NAME_PREFIX)) {
+              LOG.debug("Group data connector '{}' - Ignoring principal name '{}'", getId(), principalName);
+              return Collections.EMPTY_MAP;
+            }
 
             // find group
             Group group = GroupFinder.findByName(getGrouperSession(), principalName, false);
             if (group == null) {
-              LOG.debug("resolve {} group not found", msg);
-              return attributes;
+              LOG.debug("Group data connector '{}' - Resolve principal '{}' unable to find group.", getId(),
+                  principalName);
+              return Collections.EMPTY_MAP;
             }
-            LOG.debug("resolve {} found group '{}'", msg, group);
+            LOG.debug("Group data connector '{}' - Resolve principal '{}' found group '{}'", new Object[] { getId(),
+                principalName, group });
 
-            // does group match query filter
-            if (getGroupQueryFilter() != null) {
-              if (!getGroupQueryFilter().matchesGroup(group)) {
-                LOG.debug("resolve {} group {} does not match filter", msg, group);
-                return attributes;
-              }
-              LOG.debug("resolve {} group {} matches filter", msg, group);
-            }
-
-            // internal attributes
-            for (String attributeName : Group.INTERNAL_FIELD_ATTRIBUTES) {
-              String value = (String) GrouperUtil.fieldValue(group, attributeName);
-              if (value != null) {
-                BasicAttribute<String> basicAttribute = new BasicAttribute<String>(attributeName);
-                basicAttribute.setValues(Arrays.asList(new String[] { value }));
-                attributes.put(attributeName, basicAttribute);
-              }
+            // match filter
+            Filter<Group> matchQueryFilter = getFilter();
+            if (matchQueryFilter != null && !matchQueryFilter.matches(group)) {
+              LOG.debug("Group data connector '{}' - Resolve principal '{}' group '{}' does not match filter.",
+                  new Object[] { getId(), principalName, group });
+              return Collections.EMPTY_MAP;
             }
 
-            // attribute defs
-            for (String attributeDefName : getAttributeDefNames()) {
-              List<String> values = group.getAttributeValueDelegate().retrieveValuesString(attributeDefName);
-              if (values != null && !values.isEmpty()) {
-                BasicAttribute<String> basicAttribute = new BasicAttribute<String>(attributeDefName);
-                basicAttribute.setValues(values);
-                attributes.put(attributeDefName, basicAttribute);
-              }
-            }
+            // build attributes
+            Map<String, BaseAttribute> attributes = buildAttributes(group);
 
-            // custom attributes
-            Map<String, Attribute> customAttributes = group.getAttributesMap(false);
-            for (String attributeName : customAttributes.keySet()) {
-              String value = customAttributes.get(attributeName).getValue();
-              if (value != null) {
-                BasicAttribute<String> basicAttribute = new BasicAttribute<String>(attributeName);
-                basicAttribute.setValues(Arrays.asList(new String[] { value }));
-                attributes.put(attributeName, basicAttribute);
-              }
-            }
+            LOG.debug("Group data connector '{}' - Resolve principal '{}' attributes {}", new Object[] { getId(),
+                principalName, attributes });
 
-            // members
-            for (MembersField membersField : getMembersFields()) {
-              BaseAttribute<Member> attr = membersField.getAttribute(group);
-              if (attr != null) {
-                attributes.put(membersField.getId(), attr);
-              }
-            }
-
-            // groups
-            for (GroupsField groupsField : getGroupsFields()) {
-              BaseAttribute<Group> attr = groupsField.getAttribute(group.toMember());
-              if (attr != null) {
-                attributes.put(groupsField.getId(), attr);
-              }
-            }
-
-            // privs
-            for (PrivilegeField privilegeField : getPrivilegeFields()) {
-              BaseAttribute<Subject> attr = privilegeField.getAttribute(group);
-              if (attr != null) {
-                attributes.put(privilegeField.getId(), attr);
-              }
-            }
-
-            // stem attribute
-            BasicAttribute<String> stem = new BasicAttribute<String>(PARENT_STEM_NAME_ATTR);
-            stem.setValues(Arrays.asList(new String[] { group.getParentStemName() }));
-            attributes.put(stem.getId(), stem);
-
-            // groupType
-            BasicAttribute<GroupType> groupTypes = new BasicAttribute<GroupType>(GROUP_TYPE_ATTR);
-            groupTypes.setValues(group.getTypes());
-            attributes.put(groupTypes.getId(), groupTypes);
-
-            if (LOG.isDebugEnabled()) {
-              LOG.debug("resolve {} attributes {}", msg, attributes.size());
+            if (LOG.isTraceEnabled()) {
               for (String key : attributes.keySet()) {
                 for (Object value : attributes.get(key).getValues()) {
-                  LOG.debug("resolve {} '{}' : {}", new Object[] { msg, key, value });
+                  LOG.trace("Group data connector '{}' - Resolve principal '{}' attribute {} : '{}'", new Object[] {
+                      getId(), principalName, key, value });
                 }
               }
             }
@@ -175,6 +119,87 @@ public class GroupDataConnector extends BaseGrouperDataConnector {
     return attributes;
   }
 
+  /**
+   * Return attributes for the given {@link Group}.
+   * 
+   * @param group the group
+   * @return the attributes
+   */
+  protected Map<String, BaseAttribute> buildAttributes(Group group) {
+
+    Map<String, BaseAttribute> attributes = new LinkedHashMap<String, BaseAttribute>();
+
+    // internal attributes
+    for (String attributeName : Group.INTERNAL_FIELD_ATTRIBUTES) {
+      String value = (String) GrouperUtil.fieldValue(group, attributeName);
+      if (value != null) {
+        BasicAttribute<String> basicAttribute = new BasicAttribute<String>(attributeName);
+        basicAttribute.setValues(Arrays.asList(new String[] { value }));
+        attributes.put(attributeName, basicAttribute);
+      }
+    }
+
+    // attribute defs
+    for (String attributeDefName : getAttributeDefNames()) {
+      List<String> values = group.getAttributeValueDelegate().retrieveValuesString(attributeDefName);
+      if (values != null && !values.isEmpty()) {
+        BasicAttribute<String> basicAttribute = new BasicAttribute<String>(attributeDefName);
+        basicAttribute.setValues(values);
+        attributes.put(attributeDefName, basicAttribute);
+      }
+    }
+
+    // custom attributes
+    Map<String, Attribute> customAttributes = group.getAttributesMap(false);
+    for (String attributeName : customAttributes.keySet()) {
+      String value = customAttributes.get(attributeName).getValue();
+      if (value != null) {
+        BasicAttribute<String> basicAttribute = new BasicAttribute<String>(attributeName);
+        basicAttribute.setValues(Arrays.asList(new String[] { value }));
+        attributes.put(attributeName, basicAttribute);
+      }
+    }
+
+    // members
+    for (MembersField membersField : getMembersFields()) {
+      BaseAttribute<Member> attr = membersField.getAttribute(group);
+      if (attr != null) {
+        attributes.put(membersField.getId(), attr);
+      }
+    }
+
+    // groups
+    for (GroupsField groupsField : getGroupsFields()) {
+      BaseAttribute<Group> attr = groupsField.getAttribute(group.toMember());
+      if (attr != null) {
+        attributes.put(groupsField.getId(), attr);
+      }
+    }
+
+    // privs
+    for (PrivilegeField privilegeField : getPrivilegeFields()) {
+      BaseAttribute<Subject> attr = privilegeField.getAttribute(group);
+      if (attr != null) {
+        attributes.put(privilegeField.getId(), attr);
+      }
+    }
+
+    // groupType
+    BasicAttribute<GroupType> groupTypes = new BasicAttribute<GroupType>(GROUP_TYPE_ATTR);
+    groupTypes.setValues(group.getTypes());
+    attributes.put(groupTypes.getId(), groupTypes);
+
+    // alternate names
+    Set<String> alternateNames = group.getAlternateNames();
+    if (alternateNames != null && !alternateNames.isEmpty()) {
+      BasicAttribute<String> basicAttribute = new BasicAttribute<String>(ALTERNATE_NAME_ATTR);
+      basicAttribute.setValues(alternateNames);
+      attributes.put(basicAttribute.getId(), basicAttribute);
+    }
+
+    return attributes;
+  }
+
   /** {@inheritDoc} */
   public void validate() throws AttributeResolutionException {
 
@@ -182,15 +207,29 @@ public class GroupDataConnector extends BaseGrouperDataConnector {
 
   /** {@inheritDoc} */
   public Set<String> getAllIdentifiers() {
-    return this.getAllIdentifiers(null);
-  }
 
-  /** {@inheritDoc} */
-  public Set<String> getAllIdentifiers(Date updatedSince) {
-    Set<String> identifiers = new TreeSet<String>();
-    for (Group group : this.getGroups(updatedSince)) {
-      identifiers.add(group.getName());
-    }
+    Set<String> identifiers = (Set<String>) GrouperSession.callbackGrouperSession(getGrouperSession(),
+        new GrouperSessionHandler() {
+
+          public Set<String> callback(GrouperSession grouperSession) throws GrouperSessionException {
+            LOG.debug("Group data connector '{}' - Get all identifiers", getId());
+            Set<Group> groups = new TreeSet<Group>();
+            Filter<Group> filter = getFilter();
+            if (filter == null) {
+              groups.addAll(StemFinder.findRootStem(grouperSession).getChildGroups(Scope.SUB));
+            } else {
+              groups.addAll(getFilter().getResults(grouperSession));
+            }
+
+            Set<String> identifiers = new TreeSet<String>();
+            for (Group group : groups) {
+              identifiers.add(group.getName());
+            }
+            LOG.debug("Group data connector '{}' - Get all identifiers found {}.", getId(), identifiers.size());
+            return identifiers;
+          }
+        });
+
     return identifiers;
   }
 }

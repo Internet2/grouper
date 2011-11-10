@@ -63,48 +63,66 @@
   </resolver:DataConnector>
 
   <resolver:DataConnector id="testFilterExactAttribute" xsi:type="grouper:GroupDataConnector">
-    <grouper:GroupFilter xsi:type="grouper:ExactAttribute" name="name" value="parentStem:groupA" />
+    <grouper:Filter xsi:type="grouper:GroupExactAttribute" name="name" value="parentStem:groupA" />
   </resolver:DataConnector>
 
   <resolver:DataConnector id="testFilterStemNameONE" xsi:type="grouper:GroupDataConnector">
-    <grouper:GroupFilter xsi:type="grouper:StemName" name="parentStem" scope="ONE" />
+    <grouper:Filter xsi:type="grouper:GroupInStem" name="parentStem" scope="ONE" />
   </resolver:DataConnector>
 
   <resolver:DataConnector id="testFilterStemNameSUB" xsi:type="grouper:GroupDataConnector">
-    <grouper:GroupFilter xsi:type="grouper:StemName" name="parentStem" scope="SUB" />
+    <grouper:Filter xsi:type="grouper:GroupInStem" name="parentStem" scope="SUB" />
   </resolver:DataConnector>
 
   <resolver:DataConnector id="testFilterAnd" xsi:type="grouper:GroupDataConnector">
-    <grouper:GroupFilter xsi:type="grouper:AND">
-      <grouper:GroupFilter xsi:type="grouper:ExactAttribute" name="name" value="parentStem:groupB" />
-      <grouper:GroupFilter xsi:type="grouper:StemName" name="parentStem" scope="ONE" />
-    </grouper:GroupFilter>
+    <grouper:Filter xsi:type="grouper:AND">
+      <grouper:Filter xsi:type="grouper:GroupExactAttribute" name="name" value="parentStem:groupB" />
+      <grouper:Filter xsi:type="grouper:GroupInStem" name="parentStem" scope="ONE" />
+    </grouper:Filter>
   </resolver:DataConnector>
 
   <resolver:DataConnector id="testFilterOr" xsi:type="grouper:GroupDataConnector">
-    <grouper:GroupFilter xsi:type="grouper:OR">
-      <grouper:GroupFilter xsi:type="grouper:ExactAttribute" name="name" value="parentStem:groupB" />
-      <grouper:GroupFilter xsi:type="grouper:StemName" name="parentStem:childStem" scope="ONE" />
-    </grouper:GroupFilter>
+    <grouper:Filter xsi:type="grouper:OR">
+      <grouper:Filter xsi:type="grouper:GroupExactAttribute" name="name" value="parentStem:groupB" />
+      <grouper:Filter xsi:type="grouper:GroupInStem" name="parentStem:childStem" scope="ONE" />
+    </grouper:Filter>
   </resolver:DataConnector>
   
   <resolver:DataConnector id="testFilterMinus" xsi:type="grouper:GroupDataConnector">
-    <grouper:GroupFilter xsi:type="grouper:Minus">
-      <grouper:GroupFilter xsi:type="grouper:StemName" name="parentStem" scope="ONE" />
-      <grouper:GroupFilter xsi:type="grouper:ExactAttribute" name="name" value="parentStem:groupB" />      
-    </grouper:GroupFilter>
+    <grouper:Filter xsi:type="grouper:MINUS">
+      <grouper:Filter xsi:type="grouper:GroupInStem" name="parentStem" scope="ONE" />
+      <grouper:Filter xsi:type="grouper:GroupExactAttribute" name="name" value="parentStem:groupB" />      
+    </grouper:Filter>
   </resolver:DataConnector>
   
   <resolver:DataConnector id="testFilterMinusAttributeNotFound" xsi:type="grouper:GroupDataConnector">
-    <grouper:GroupFilter xsi:type="grouper:Minus">
-      <grouper:GroupFilter xsi:type="grouper:StemName" name="parentStem" scope="ONE" />
-      <grouper:GroupFilter xsi:type="grouper:ExactAttribute" name="notFound" value="notFound" />      
-    </grouper:GroupFilter>
+    <grouper:Filter xsi:type="grouper:MINUS">
+      <grouper:Filter xsi:type="grouper:GroupInStem" name="parentStem" scope="ONE" />
+      <grouper:Filter xsi:type="grouper:GroupExactAttribute" name="notFound" value="notFound" />      
+    </grouper:Filter>
   </resolver:DataConnector>
 
-  <resolver:AttributeDefinition id="testHasViewer" xsi:type="grouper:Subject" sourceAttributeID="viewers">
+  <resolver:AttributeDefinition id="testSubjectAttributeDefinitionHasViewer" xsi:type="grouper:Subject" sourceAttributeID="viewers">
     <resolver:Dependency ref="testAll" />
     <grouper:Attribute id="name" source="jdbc" />
   </resolver:AttributeDefinition>
+  
+  <resolver:AttributeDefinition id="testGroupAttributeDefinition" xsi:type="grouper:Group" sourceAttributeID="groups">
+    <resolver:Dependency ref="testAll" />
+    <grouper:Attribute id="name" />
+  </resolver:AttributeDefinition>
+
+  <resolver:AttributeDefinition id="testMemberAttributeDefinition" xsi:type="grouper:Member" sourceAttributeID="members">
+    <resolver:Dependency ref="testAll" />
+    <grouper:Attribute id="id" source="jdbc" />
+    <grouper:Attribute id="name" source="g:gsa" />
+  </resolver:AttributeDefinition>
+
+  <resolver:AttributeDefinition id="testMemberAttributeDefinitionJDBC" xsi:type="grouper:Member" sourceAttributeID="members">
+    <resolver:Dependency ref="testAll" />
+    <grouper:Attribute id="id" source="jdbc" />
+  </resolver:AttributeDefinition>
+
+
   
 </AttributeResolver>

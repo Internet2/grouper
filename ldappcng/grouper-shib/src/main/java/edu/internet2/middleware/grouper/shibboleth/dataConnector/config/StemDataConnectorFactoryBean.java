@@ -15,17 +15,17 @@ package edu.internet2.middleware.grouper.shibboleth.dataConnector.config;
 
 import edu.internet2.middleware.grouper.shibboleth.dataConnector.StemDataConnector;
 
-/**
- * Spring bean factory that produces {@link StemDataConnector}s.
- */
+/** Spring bean factory that produces {@link StemDataConnector}s. */
 public class StemDataConnectorFactoryBean extends BaseGrouperDataConnectorFactoryBean {
 
+  /** {@inheritDoc} */
   protected Object createInstance() throws Exception {
     StemDataConnector connector = new StemDataConnector();
-    populateDataConnector(connector);   
+    populateDataConnector(connector);
     return connector;
   }
 
+  /** {@inheritDoc} */
   public Class getObjectType() {
     return StemDataConnector.class;
   }

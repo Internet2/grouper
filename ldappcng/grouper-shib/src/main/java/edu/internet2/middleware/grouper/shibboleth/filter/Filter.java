@@ -19,25 +19,25 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.filter.QueryFilter;
 
 /**
- * An extension to QueryFilter which provides the ability to determine if a Group matches
- * (would be returned by) the filter.
+ * An extension to {@link QueryFilter} which adds the ability to determine if a Group matches (would be returned by) the
+ * filter.
+ * 
+ * @param <T> type of Grouper object to be matched, for example, a {@link Group}.
  */
-public interface GroupQueryFilter extends QueryFilter<Group> {
+public interface Filter<T> extends QueryFilter<T> {
 
   /**
-   * Returns true if the Group would be returned by the filter. False otherwise.
+   * Returns true if the Grouper object would be returned by the filter. False otherwise.
    * 
-   * @param group
-   *          the Group
-   * @return if the group matches or not
+   * @param t the Grouper object
+   * @return if the Grouper object matches or not
    */
-  public boolean matchesGroup(Group group);
+  public boolean matches(T t);
 
   /**
    * Set the grouper session
    * 
-   * @param grouperSession
-   *          the {@link GrouperSession}
+   * @param grouperSession the {@link GrouperSession}
    */
   public void setGrouperSession(GrouperSession grouperSession);
 

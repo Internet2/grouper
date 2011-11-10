@@ -18,23 +18,35 @@ import edu.internet2.middleware.grouper.shibboleth.attribute.config.SimpleAttrib
 import edu.internet2.middleware.grouper.shibboleth.attributeDefinition.config.GroupAttributeDefinitionBeanDefinitionParser;
 import edu.internet2.middleware.grouper.shibboleth.attributeDefinition.config.MemberAttributeDefinitionBeanDefinitionParser;
 import edu.internet2.middleware.grouper.shibboleth.attributeDefinition.config.SubjectAttributeDefinitionBeanDefinitionParser;
+import edu.internet2.middleware.grouper.shibboleth.dataConnector.config.ChangeLogDataConnectorBeanDefinitionParser;
 import edu.internet2.middleware.grouper.shibboleth.dataConnector.config.GroupDataConnectorBeanDefinitionParser;
 import edu.internet2.middleware.grouper.shibboleth.dataConnector.config.MemberDataConnectorBeanDefinitionParser;
 import edu.internet2.middleware.grouper.shibboleth.dataConnector.config.StemDataConnectorBeanDefinitionParser;
-import edu.internet2.middleware.grouper.shibboleth.filter.provider.AndGroupQueryFilterBeanDefinitionParser;
-import edu.internet2.middleware.grouper.shibboleth.filter.provider.ExactAttributeGroupQueryFilterBeanDefinitionParser;
-import edu.internet2.middleware.grouper.shibboleth.filter.provider.MinusGroupQueryFilterBeanDefinitionParser;
-import edu.internet2.middleware.grouper.shibboleth.filter.provider.OrGroupQueryFilterBeanDefinitionParser;
-import edu.internet2.middleware.grouper.shibboleth.filter.provider.StemNameGroupQueryFilterBeanDefinitionParser;
+import edu.internet2.middleware.grouper.shibboleth.filter.provider.AndFilterBeanDefinitionParser;
+import edu.internet2.middleware.grouper.shibboleth.filter.provider.ChangeLogAuditFilterBeanDefinitionParser;
+import edu.internet2.middleware.grouper.shibboleth.filter.provider.ChangeLogEntryFilterBeanDefinitionParser;
+import edu.internet2.middleware.grouper.shibboleth.filter.provider.ChangeLogExactAttributeFilterBeanDefinitionParser;
+import edu.internet2.middleware.grouper.shibboleth.filter.provider.GroupExactAttributeFilterBeanDefinitionParser;
+import edu.internet2.middleware.grouper.shibboleth.filter.provider.GroupInStemFilterBeanDefinitionParser;
+import edu.internet2.middleware.grouper.shibboleth.filter.provider.MemberSourceFilterBeanDefinitionParser;
+import edu.internet2.middleware.grouper.shibboleth.filter.provider.MinusFilterBeanDefinitionParser;
+import edu.internet2.middleware.grouper.shibboleth.filter.provider.OrFilterBeanDefinitionParser;
+import edu.internet2.middleware.grouper.shibboleth.filter.provider.StemInStemFilterBeanDefinitionParser;
+import edu.internet2.middleware.grouper.shibboleth.filter.provider.StemNameExactFilterBeanDefinitionParser;
 import edu.internet2.middleware.grouper.shibboleth.util.AttributeIdentifierBeanDefinitionParser;
 import edu.internet2.middleware.grouper.shibboleth.util.ClasspathPropertyReplacementResourceFilterBeanDefinitionParser;
-import edu.internet2.middleware.grouper.shibboleth.util.SourceIdentifierBeanDefinitionParser;
+import edu.internet2.middleware.grouper.shibboleth.util.SubjectIdentifierBeanDefinitionParser;
 import edu.internet2.middleware.shibboleth.common.config.BaseSpringNamespaceHandler;
 
+/**
+ * Spring namespace handler for the Grouper attribute resolver namespace.
+ */
 public class GrouperNamespaceHandler extends BaseSpringNamespaceHandler {
 
+  /** Namespace for this handler. */
   public static final String NAMESPACE = "http://grouper.internet2.edu/shibboleth/2.0";
 
+  /** {@inheritDoc} */
   public void init() {
 
     registerBeanDefinitionParser(GroupDataConnectorBeanDefinitionParser.TYPE_NAME,
@@ -46,11 +58,14 @@ public class GrouperNamespaceHandler extends BaseSpringNamespaceHandler {
     registerBeanDefinitionParser(StemDataConnectorBeanDefinitionParser.TYPE_NAME,
         new StemDataConnectorBeanDefinitionParser());
 
+    registerBeanDefinitionParser(ChangeLogDataConnectorBeanDefinitionParser.TYPE_NAME,
+        new ChangeLogDataConnectorBeanDefinitionParser());
+
     registerBeanDefinitionParser(AttributeIdentifierBeanDefinitionParser.TYPE_NAME,
         new AttributeIdentifierBeanDefinitionParser());
 
-    registerBeanDefinitionParser(AttributeIdentifierBeanDefinitionParser.SUBJECT_ID_TYPE_NAME,
-        new AttributeIdentifierBeanDefinitionParser());
+    registerBeanDefinitionParser(SubjectIdentifierBeanDefinitionParser.TYPE_NAME,
+        new SubjectIdentifierBeanDefinitionParser());
 
     registerBeanDefinitionParser(MemberAttributeDefinitionBeanDefinitionParser.TYPE_NAME,
         new MemberAttributeDefinitionBeanDefinitionParser());
@@ -61,28 +76,41 @@ public class GrouperNamespaceHandler extends BaseSpringNamespaceHandler {
     registerBeanDefinitionParser(SubjectAttributeDefinitionBeanDefinitionParser.TYPE_NAME,
         new SubjectAttributeDefinitionBeanDefinitionParser());
 
-    registerBeanDefinitionParser(AndGroupQueryFilterBeanDefinitionParser.TYPE_NAME,
-        new AndGroupQueryFilterBeanDefinitionParser());
+    registerBeanDefinitionParser(AndFilterBeanDefinitionParser.TYPE_NAME, new AndFilterBeanDefinitionParser());
 
-    registerBeanDefinitionParser(ExactAttributeGroupQueryFilterBeanDefinitionParser.TYPE_NAME,
-        new ExactAttributeGroupQueryFilterBeanDefinitionParser());
+    registerBeanDefinitionParser(GroupExactAttributeFilterBeanDefinitionParser.TYPE_NAME,
+        new GroupExactAttributeFilterBeanDefinitionParser());
 
-    registerBeanDefinitionParser(OrGroupQueryFilterBeanDefinitionParser.TYPE_NAME,
-        new OrGroupQueryFilterBeanDefinitionParser());
+    registerBeanDefinitionParser(OrFilterBeanDefinitionParser.TYPE_NAME, new OrFilterBeanDefinitionParser());
 
-    registerBeanDefinitionParser(StemNameGroupQueryFilterBeanDefinitionParser.TYPE_NAME,
-        new StemNameGroupQueryFilterBeanDefinitionParser());
+    registerBeanDefinitionParser(GroupInStemFilterBeanDefinitionParser.TYPE_NAME,
+        new GroupInStemFilterBeanDefinitionParser());
+
+    registerBeanDefinitionParser(StemInStemFilterBeanDefinitionParser.TYPE_NAME,
+        new StemInStemFilterBeanDefinitionParser());
+
+    registerBeanDefinitionParser(StemNameExactFilterBeanDefinitionParser.TYPE_NAME,
+        new StemNameExactFilterBeanDefinitionParser());
 
     registerBeanDefinitionParser(SimpleAttributeAuthorityBeanDefinitionParser.TYPE_NAME,
         new SimpleAttributeAuthorityBeanDefinitionParser());
 
-    registerBeanDefinitionParser(SourceIdentifierBeanDefinitionParser.TYPE_NAME,
-        new SourceIdentifierBeanDefinitionParser());
-
-    registerBeanDefinitionParser(MinusGroupQueryFilterBeanDefinitionParser.TYPE_NAME,
-        new MinusGroupQueryFilterBeanDefinitionParser());
+    registerBeanDefinitionParser(MinusFilterBeanDefinitionParser.TYPE_NAME, new MinusFilterBeanDefinitionParser());
 
     registerBeanDefinitionParser(ClasspathPropertyReplacementResourceFilterBeanDefinitionParser.TYPE_NAME,
         new ClasspathPropertyReplacementResourceFilterBeanDefinitionParser());
+
+    registerBeanDefinitionParser(ChangeLogAuditFilterBeanDefinitionParser.TYPE_NAME,
+        new ChangeLogAuditFilterBeanDefinitionParser());
+
+    registerBeanDefinitionParser(ChangeLogEntryFilterBeanDefinitionParser.TYPE_NAME,
+        new ChangeLogEntryFilterBeanDefinitionParser());
+
+    registerBeanDefinitionParser(MemberSourceFilterBeanDefinitionParser.TYPE_NAME,
+        new MemberSourceFilterBeanDefinitionParser());
+
+    registerBeanDefinitionParser(ChangeLogExactAttributeFilterBeanDefinitionParser.TYPE_NAME,
+        new ChangeLogExactAttributeFilterBeanDefinitionParser());
+
   }
 }

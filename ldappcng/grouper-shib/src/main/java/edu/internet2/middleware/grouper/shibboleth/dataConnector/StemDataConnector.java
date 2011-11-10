@@ -14,8 +14,8 @@
 
 package edu.internet2.middleware.grouper.shibboleth.dataConnector;
 
-import java.util.Date;
-import java.util.HashMap;
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -26,10 +26,12 @@ import org.slf4j.LoggerFactory;
 
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
+import edu.internet2.middleware.grouper.shibboleth.filter.Filter;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.shibboleth.common.attribute.BaseAttribute;
 import edu.internet2.middleware.shibboleth.common.attribute.provider.BasicAttribute;
@@ -38,13 +40,14 @@ import edu.internet2.middleware.shibboleth.common.attribute.resolver.provider.Sh
 import edu.internet2.middleware.shibboleth.common.attribute.resolver.provider.dataConnector.DataConnector;
 
 /**
- * A {@link DataConnector} which returns {@link Stem}s.
+ * A {@link DataConnector} which returns {@link Stem} attributes.
  */
-public class StemDataConnector extends BaseGrouperDataConnector {
+public class StemDataConnector extends BaseGrouperDataConnector<Stem> implements SourceDataConnector {
 
-  /** logger */
+  /** Logger, */
   private static final Logger LOG = LoggerFactory.getLogger(StemDataConnector.class);
 
+  /** The root stem. */
   private Stem rootStem;
 
   /** {@inheritDoc} */
@@ -57,90 +60,52 @@ public class StemDataConnector extends BaseGrouperDataConnector {
           public Map<String, BaseAttribute> callback(GrouperSession grouperSession) throws GrouperSessionException {
 
             String principalName = resolutionContext.getAttributeRequestContext().getPrincipalName();
-            String msg = "'" + principalName + "' dc '" + getId() + "'";
-            LOG.debug("resolve {}", msg);
-            if (LOG.isTraceEnabled()) {
-              LOG.trace("resolve {} requested attribute ids {}", msg, resolutionContext.getAttributeRequestContext()
-                  .getRequestedAttributesIds());
-              if (resolutionContext.getAttributeRequestContext().getRequestedAttributesIds() != null) {
-                for (String attrId : resolutionContext.getAttributeRequestContext().getRequestedAttributesIds()) {
-                  LOG.trace("resolve {} requested attribute '{}'", msg, attrId);
-                }
-              }
-            }
 
-            Map<String, BaseAttribute> attributes = new HashMap<String, BaseAttribute>();
+            LOG.debug("Stem data connector '{}' - Resolve principal '{}'", getId(), principalName);
+            LOG.trace("Stem data connector '{}' - Resolve principal '{}' requested attributes {}", new Object[] {
+                getId(), principalName, resolutionContext.getAttributeRequestContext().getRequestedAttributesIds() });
+
+            if (principalName.startsWith(ChangeLogDataConnector.PRINCIPAL_NAME_PREFIX)) {
+              LOG.debug("Stem data connector '{}' - Ignoring principal name '{}'", getId(), principalName);
+              return Collections.EMPTY_MAP;
+            }
 
             // find stem
             Stem stem = StemFinder.findByName(getGrouperSession(), principalName, false);
             if (stem == null) {
-              LOG.debug("resolve {} stem not found", msg);
-              return attributes;
+              LOG.debug("Stem data connector '{}' - Resolve principal '{}' unable to find stem.", getId(),
+                  principalName);
+              return Collections.EMPTY_MAP;
             }
-            LOG.debug("resolve {} found stem '{}'", msg, stem);
+            LOG.debug("Stem data connector '{}' - Resolve principal '{}' found stem '{}'", new Object[] { getId(),
+                principalName, stem });
 
             // root stem ?
             if (stem.equals(getRootStem())) {
-              LOG.debug("resolve {} returning empty map for root stem", msg);
-              return attributes;
+              LOG.debug("Stem data connector '{}' - Resolve principal '{}' returning emtpy map for root stem.",
+                  getId(), principalName);
+              return Collections.EMPTY_MAP;
             }
 
-            // FUTURE match filter ?
-
-            // FUTURE return attributes, child groups, etc ?
-
-            // extension
-            BasicAttribute<String> extension = new BasicAttribute<String>(GrouperConfig.ATTRIBUTE_EXTENSION);
-            extension.setValues(GrouperUtil.toList(stem.getExtension()));
-            attributes.put(extension.getId(), extension);
-
-            // display extension
-            BasicAttribute<String> displayExtension = new BasicAttribute<String>(
-                GrouperConfig.ATTRIBUTE_DISPLAY_EXTENSION);
-            displayExtension.setValues(GrouperUtil.toList(stem.getDisplayExtension()));
-            attributes.put(displayExtension.getId(), displayExtension);
-
-            // name
-            BasicAttribute<String> name = new BasicAttribute<String>(GrouperConfig.ATTRIBUTE_NAME);
-            name.setValues(GrouperUtil.toList(stem.getName()));
-            attributes.put(name.getId(), name);
-
-            // displayName
-            BasicAttribute<String> displayName = new BasicAttribute<String>(GrouperConfig.ATTRIBUTE_DISPLAY_NAME);
-            displayName.setValues(GrouperUtil.toList(stem.getDisplayName()));
-            attributes.put(displayName.getId(), displayName);
-
-            // description
-            String description = stem.getDescription();
-            if (description != null && !description.equals(GrouperConfig.EMPTY_STRING)) {
-              BasicAttribute<String> descriptionAttr = new BasicAttribute<String>(GrouperConfig.ATTRIBUTE_DESCRIPTION);
-              descriptionAttr.setValues(GrouperUtil.toList(description));
-              attributes.put(descriptionAttr.getId(), descriptionAttr);
+            // match filter
+            Filter<Stem> matchQueryFilter = getFilter();
+            if (matchQueryFilter != null && !matchQueryFilter.matches(stem)) {
+              LOG.debug("Stem data connector '{}' - Resolve principal '{}' stem '{}' does not match filter.",
+                  new Object[] { getId(), principalName, stem });
+              return Collections.EMPTY_MAP;
             }
 
-            // parent stem
-            Stem parentStem = stem.getParentStem();
-            if (!parentStem.equals(getRootStem())) {
-              BasicAttribute<String> parentStemNameAttr = new BasicAttribute<String>(PARENT_STEM_NAME_ATTR);
-              parentStemNameAttr.setValues(GrouperUtil.toList(parentStem.getName()));
-              attributes.put(parentStemNameAttr.getId(), parentStemNameAttr);
-            }
+            // build attributes
+            Map<String, BaseAttribute> attributes = buildAttributes(stem);
 
-            // attribute defs
-            for (String attributeDefName : getAttributeDefNames()) {
-              List<String> values = stem.getAttributeValueDelegate().retrieveValuesString(attributeDefName);
-              if (values != null && !values.isEmpty()) {
-                BasicAttribute<String> basicAttribute = new BasicAttribute<String>(attributeDefName);
-                basicAttribute.setValues(values);
-                attributes.put(attributeDefName, basicAttribute);
-              }
-            }
+            LOG.debug("Stem data connector '{}' - Resolve principal '{}' attributes {}", new Object[] { getId(),
+                principalName, attributes });
 
-            if (LOG.isDebugEnabled()) {
-              LOG.debug("resolve {} attributes {}", msg, attributes.size());
+            if (LOG.isTraceEnabled()) {
               for (String key : attributes.keySet()) {
                 for (Object value : attributes.get(key).getValues()) {
-                  LOG.debug("resolve {} '{}' : {}", new Object[] { msg, key, value });
+                  LOG.trace("Stem data connector '{}' - Resolve principal '{}' attribute {} : '{}'", new Object[] {
+                      getId(), principalName, key, value });
                 }
               }
             }
@@ -152,8 +117,87 @@ public class StemDataConnector extends BaseGrouperDataConnector {
     return attributes;
   }
 
+  /**
+   * Return attributes for the given {@link Stem}.
+   * 
+   * @param stem the stem
+   * @return the attributes
+   */
+  protected Map<String, BaseAttribute> buildAttributes(Stem stem) {
+
+    Map<String, BaseAttribute> attributes = new LinkedHashMap<String, BaseAttribute>();
+
+    // extension
+    BasicAttribute<String> extension = new BasicAttribute<String>(GrouperConfig.ATTRIBUTE_EXTENSION);
+    extension.setValues(GrouperUtil.toList(stem.getExtension()));
+    attributes.put(extension.getId(), extension);
+
+    // display extension
+    BasicAttribute<String> displayExtension = new BasicAttribute<String>(GrouperConfig.ATTRIBUTE_DISPLAY_EXTENSION);
+    displayExtension.setValues(GrouperUtil.toList(stem.getDisplayExtension()));
+    attributes.put(displayExtension.getId(), displayExtension);
+
+    // name
+    BasicAttribute<String> name = new BasicAttribute<String>(GrouperConfig.ATTRIBUTE_NAME);
+    name.setValues(GrouperUtil.toList(stem.getName()));
+    attributes.put(name.getId(), name);
+
+    // displayName
+    BasicAttribute<String> displayName = new BasicAttribute<String>(GrouperConfig.ATTRIBUTE_DISPLAY_NAME);
+    displayName.setValues(GrouperUtil.toList(stem.getDisplayName()));
+    attributes.put(displayName.getId(), displayName);
+
+    // description
+    String description = stem.getDescription();
+    if (description != null && !description.equals(GrouperConfig.EMPTY_STRING)) {
+      BasicAttribute<String> descriptionAttr = new BasicAttribute<String>(GrouperConfig.ATTRIBUTE_DESCRIPTION);
+      descriptionAttr.setValues(GrouperUtil.toList(description));
+      attributes.put(descriptionAttr.getId(), descriptionAttr);
+    }
+
+    // attribute defs
+    for (String attributeDefName : getAttributeDefNames()) {
+      List<String> values = stem.getAttributeValueDelegate().retrieveValuesString(attributeDefName);
+      if (values != null && !values.isEmpty()) {
+        BasicAttribute<String> basicAttribute = new BasicAttribute<String>(attributeDefName);
+        basicAttribute.setValues(values);
+        attributes.put(attributeDefName, basicAttribute);
+      }
+    }
+
+    return attributes;
+  }
+
   public void validate() throws AttributeResolutionException {
 
+  }
+
+  /** {@inheritDoc} */
+  public Set<String> getAllIdentifiers() {
+
+    Set<String> identifiers = (Set<String>) GrouperSession.callbackGrouperSession(getGrouperSession(),
+        new GrouperSessionHandler() {
+
+          public Set<String> callback(GrouperSession grouperSession) throws GrouperSessionException {
+            LOG.debug("Stem data connector '{}' - Get all identifiers", getId());
+            Set<Stem> stems = new TreeSet<Stem>();
+            Filter<Stem> filter = getFilter();
+            if (filter == null) {
+              stems.addAll(getRootStem().getChildStems(Scope.SUB));
+            } else {
+              stems.addAll(filter.getResults(grouperSession));
+            }
+
+            Set<String> identifiers = new TreeSet<String>();
+            for (Stem stem : stems) {
+              identifiers.add(stem.getName());
+            }
+            LOG.debug("Stem data connector '{}' - Get all identifiers found {}.", getId(), identifiers.size());
+            return identifiers;
+          }
+        });
+
+    return identifiers;
   }
 
   /**
@@ -173,32 +217,5 @@ public class StemDataConnector extends BaseGrouperDataConnector {
     }
 
     return rootStem;
-  }
-
-  /**
-   * {@inheritDoc}
-   * 
-   * Stems which are parent to all groups returned from {@link BaseGrouperDataConnector#getGroups()} are returned. The
-   * root stem is omitted.
-   */
-  public Set<String> getAllIdentifiers() {
-    return this.getAllIdentifiers(null);
-  }
-
-  /**
-   * {@inheritDoc}
-   * 
-   * see {@link StemDataConnector#getAllIdentifiers()}
-   * 
-   */
-  public Set<String> getAllIdentifiers(Date updatedSince) {
-    Set<String> identifiers = new TreeSet<String>();
-    for (String stemName : GrouperUtil.findParentStemNames(this.getGroups(updatedSince))) {
-      // omit root
-      if (!stemName.equals(Stem.DELIM)) {
-        identifiers.add(stemName);
-      }
-    }
-    return identifiers;
   }
 }

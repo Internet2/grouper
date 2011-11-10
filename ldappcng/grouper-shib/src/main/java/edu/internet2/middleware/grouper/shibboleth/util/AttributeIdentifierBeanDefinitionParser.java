@@ -16,46 +16,19 @@ package edu.internet2.middleware.grouper.shibboleth.util;
 
 import javax.xml.namespace.QName;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.support.BeanDefinitionBuilder;
-import org.springframework.beans.factory.xml.AbstractSingleBeanDefinitionParser;
-import org.springframework.beans.factory.xml.ParserContext;
 import org.w3c.dom.Element;
 
 import edu.internet2.middleware.grouper.shibboleth.config.GrouperNamespaceHandler;
 
-/** attribute identifier bean definition parser */
-public class AttributeIdentifierBeanDefinitionParser extends AbstractSingleBeanDefinitionParser {
+/** Spring bean definition parser for configuring a {@link AttributeIdentifier}. */
+public class AttributeIdentifierBeanDefinitionParser extends AbstractIdentifierBeanDefinitionParser {
 
-  /** logger */
-  private static final Logger LOG = LoggerFactory.getLogger(AttributeIdentifierBeanDefinitionParser.class);
-
-  /** schema type name. */
+  /** The attribute identifier type name. */
   public static final QName TYPE_NAME = new QName(GrouperNamespaceHandler.NAMESPACE, "Attribute");
-
-  public static final QName SUBJECT_ID_TYPE_NAME = new QName(GrouperNamespaceHandler.NAMESPACE, "SubjectIdentifier");
 
   /** {@inheritDoc} */
   protected Class getBeanClass(Element element) {
     return AttributeIdentifier.class;
   }
 
-  /** {@inheritDoc} */
-  protected void doParse(Element element, ParserContext parserContext, BeanDefinitionBuilder builder) {
-    super.doParse(element, parserContext, builder);
-
-    String id = element.getAttributeNS(null, "id");
-    LOG.debug("Setting id of element '{}' to '{}'", element.getLocalName(), id);
-    builder.addPropertyValue("id", id);
-
-    String source = element.getAttributeNS(null, "source");
-    LOG.debug("Setting source of element '{}' to '{}'", element.getLocalName(), source);
-    builder.addPropertyValue("source", source);
-  }
-
-  /** {@inheritDoc} */
-  protected boolean shouldGenerateId() {
-    return true;
-  }
 }
