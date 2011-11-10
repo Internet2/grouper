@@ -18,38 +18,73 @@ import edu.internet2.middleware.grouper.shibboleth.attributeDefinition.LdapDnPSO
 import edu.internet2.middleware.ldappc.LdappcConfig.GroupDNStructure;
 import edu.internet2.middleware.shibboleth.common.config.attribute.resolver.attributeDefinition.BaseAttributeDefinitionFactoryBean;
 
+/** Spring bean factory that produces {@link LdapDnPSOIdentifierAttributeDefinition}s. */
 public class LdapDnPSOIdentifierAttributeDefinitionFactoryBean extends BaseAttributeDefinitionFactoryBean {
 
+  /** The LDAP DN base. */
   private String base;
 
-  private GroupDNStructure structure;
-
+  /** The LDAP RDN attribute name. */
   private String rdnAttributeName;
 
-  public String getRdnAttributeName() {
-    return rdnAttributeName;
-  }
+  /** The Grouper DN structure. */
+  private GroupDNStructure structure;
 
-  public void setRdnAttributeName(String rdnAttributeName) {
-    this.rdnAttributeName = rdnAttributeName;
-  }
-
+  /**
+   * Get the LDAP DN base.
+   * 
+   * @return the base DN
+   */
   public String getBase() {
     return base;
   }
 
+  /**
+   * Set the LDAP DN base.
+   * 
+   * @param base the base DN
+   */
   public void setBase(String base) {
     this.base = base;
   }
 
+  /**
+   * Get the LDAP RDN attribute name.
+   * 
+   * @return the RDN attribute name
+   */
+  public String getRdnAttributeName() {
+    return rdnAttributeName;
+  }
+
+  /**
+   * Set the LDAP RDN attribute name.
+   * 
+   * @param rdnAttributeName the RDN attribute name
+   */
+  public void setRdnAttributeName(String rdnAttributeName) {
+    this.rdnAttributeName = rdnAttributeName;
+  }
+
+  /**
+   * Get the Grouper DN structure.
+   * 
+   * @return the DN structure
+   */
   public GroupDNStructure getStructure() {
     return structure;
   }
 
+  /**
+   * Set the Grouper DN structure.
+   * 
+   * @param structure the DN structure
+   */
   public void setStructure(GroupDNStructure structure) {
     this.structure = structure;
   }
 
+  /** {@inheritDoc} */
   protected Object createInstance() throws Exception {
     LdapDnPSOIdentifierAttributeDefinition definition = new LdapDnPSOIdentifierAttributeDefinition();
     populateAttributeDefinition(definition);
@@ -59,6 +94,7 @@ public class LdapDnPSOIdentifierAttributeDefinitionFactoryBean extends BaseAttri
     return definition;
   }
 
+  /** {@inheritDoc} */
   public Class getObjectType() {
     return LdapDnPSOIdentifierAttributeDefinition.class;
   }

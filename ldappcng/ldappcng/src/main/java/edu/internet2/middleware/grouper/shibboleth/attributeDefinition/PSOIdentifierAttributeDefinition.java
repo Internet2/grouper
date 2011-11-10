@@ -14,7 +14,6 @@
 
 package edu.internet2.middleware.grouper.shibboleth.attributeDefinition;
 
-import java.util.Arrays;
 import java.util.Collection;
 
 import org.openspml.v2.msg.spml.PSOIdentifier;
@@ -30,14 +29,13 @@ import edu.internet2.middleware.shibboleth.common.attribute.resolver.provider.at
 import edu.internet2.middleware.shibboleth.common.attribute.resolver.provider.attributeDefinition.BaseAttributeDefinition;
 
 /**
- * An {@link AttributeDefinition} whose values are {@link PSOIdentifier}s which are
- * computed from dependencies.
+ * An {@link AttributeDefinition} whose values are {@link PSOIdentifier}s which are computed from dependencies.
  */
 public class PSOIdentifierAttributeDefinition extends BaseAttributeDefinition {
 
   // TODO containerID ? targetID ?
 
-  /** logger */
+  /** The logger. */
   private static final Logger LOG = LoggerFactory.getLogger(PSOIdentifierAttributeDefinition.class);
 
   /** {@inheritDoc} */
@@ -45,31 +43,27 @@ public class PSOIdentifierAttributeDefinition extends BaseAttributeDefinition {
       throws AttributeResolutionException {
 
     String principalName = resolutionContext.getAttributeRequestContext().getPrincipalName();
-    String msg = "resolve '" + principalName + "' ad '" + this.getId() + "'";
-    LOG.debug("{}", msg);
 
-    BasicAttribute<PSOIdentifier> attribute = new BasicAttribute<PSOIdentifier>(this.getId());
+    LOG.debug("PSOIdentifier attribute definition '{}' - Resolve principal '{}'", getId(), principalName);
 
-    Collection<Object> values = this.getValuesFromAllDependencies(resolutionContext, this.getSourceAttributeID());
+    BasicAttribute<PSOIdentifier> attribute = new BasicAttribute<PSOIdentifier>(getId());
+
+    Collection<Object> values = getValuesFromAllDependencies(resolutionContext, getSourceAttributeID());
 
     if (values == null || values.isEmpty()) {
       return attribute;
     }
 
-    if (values.size() != 1) {
-      throw new AttributeResolutionException("Expected a single dependency.");
+    for (Object value : values) {
+      PSOIdentifier psoIdentifier = new PSOIdentifier();
+      psoIdentifier.setID(value.toString());
+      attribute.getValues().add(psoIdentifier);
     }
 
-    PSOIdentifier psoIdentifier = new PSOIdentifier();
-
-    psoIdentifier.setID(values.iterator().next().toString());
-
-    attribute.setValues(Arrays.asList(new PSOIdentifier[] { psoIdentifier }));
-
-    if (LOG.isDebugEnabled()) {
-      LOG.debug("{} values {}", msg, attribute.getValues().size());
+    if (LOG.isTraceEnabled()) {
       for (Object value : attribute.getValues()) {
-        LOG.debug("{} value '{}'", msg, PSPUtil.getString(value));
+        LOG.trace("PSOIdentifier attribute definition '{}' - Resolve principal '{}' value '{}'", new Object[] {
+            getId(), principalName, PSPUtil.getString(value) });
       }
     }
 

@@ -17,14 +17,17 @@ package edu.internet2.middleware.grouper.shibboleth.attributeDefinition.config;
 import edu.internet2.middleware.grouper.shibboleth.attributeDefinition.PSOIdentifierAttributeDefinition;
 import edu.internet2.middleware.shibboleth.common.config.attribute.resolver.attributeDefinition.BaseAttributeDefinitionFactoryBean;
 
+/** Spring bean factory that produces {@link PSOIdentifierAttributeDefinition}s. */
 public class PSOIdentifierAttributeDefinitionFactoryBean extends BaseAttributeDefinitionFactoryBean {
 
+  /** {@inheritDoc} */
   protected Object createInstance() throws Exception {
     PSOIdentifierAttributeDefinition definition = new PSOIdentifierAttributeDefinition();
-    populateAttributeDefinition(definition);   
+    populateAttributeDefinition(definition);
     return definition;
   }
 
+  /** {@inheritDoc} */
   public Class getObjectType() {
     return PSOIdentifierAttributeDefinition.class;
   }
