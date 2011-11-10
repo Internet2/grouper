@@ -126,18 +126,14 @@
                         /><c:set var="confirmNavName" value="simplePermissionUpdate.permissionImageConfirm${guiPermissionEntryChecked ? 'Allow' : 'Deny'}" />
                         <a href="#" style="margin-left: 5px"
                         onclick="if (confirm('${grouper:message(confirmNavName, true, true) }')) {ajax('../app/SimplePermissionUpdate.permissionPanelImageClick?guiPermissionId=${guiPermissionId}&allow=${guiPermissionEntryChecked ? 'false' : 'true'}', {formIds: 'attributePermissionsFormId'});} return false;"
-                        ><c:choose>
-                          <c:when test="${guiPermissionEntry.allowed}"
+                        ><c:choose><c:when test="${guiPermissionEntry.allowed}"
                           ><img src="../../grouperExternal/public/assets/images/accept.png" height="14px" border="0" 
                             onmouseover="Tip('${grouper:escapeJavascript(navMap[tooltipName])}')" 
                             onmouseout="UnTip()"
-                            /></c:when>
-                          <c:otherwise><img src="../../grouperExternal/public/assets/images/cancel.png" height="14px" border="0" 
+                            /></c:when><c:otherwise><img src="../../grouperExternal/public/assets/images/cancel.png" height="14px" border="0" 
                               onmouseover="Tip('${grouper:escapeJavascript(navMap['simplePermissionAssign.unassignedTooltip'])}')" 
                               onmouseout="UnTip()"
-                            /></c:otherwise>
-                        
-                        </c:choose></a>
+                            /></c:otherwise></c:choose></a>
                         <a class="permissionMenuButton" href="#"
                           ><img src="../../grouperExternal/public/assets/images/bullet_arrow_down.png" border="0" 
                           id="permissionMenuButton_${guiPermissionId}__${permissionUpdateRequestContainer.permissionType.name}" 

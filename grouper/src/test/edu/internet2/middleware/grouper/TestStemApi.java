@@ -2275,7 +2275,8 @@ public class TestStemApi extends GrouperTest {
   public void test_option_to_disable_last_membership_change() throws Exception {
     ApiConfig.testConfig.put("stems.updateLastMembershipTime", "false");
     ApiConfig.testConfig.put("groups.updateLastMembershipTime", "true");
-    
+    ApiConfig.testConfig.put("groups.updateLastImmediateMembershipTime", "true");
+
     R r = R.populateRegistry(0, 0, 2);
     Subject a = r.getSubject("a");
     Subject b = r.getSubject("b");

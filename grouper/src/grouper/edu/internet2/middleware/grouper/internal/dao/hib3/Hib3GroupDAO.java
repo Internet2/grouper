@@ -1586,13 +1586,14 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
     } else {
       sql.append(" and ");
     }
-
-    sql.append("  theGroup.nameDb like :scope");
+    
+    //this should be lower to make it easier to search for stuff
+    sql.append("  lower(theGroup.nameDb) like :scope");
     
     try {
 
       Set<Group> groups = byHqlStatic.createQuery(sql.toString())
-        .setString("scope", scope + "%")
+        .setString("scope", StringUtils.defaultString(scope).toLowerCase() + "%")
         .setCacheable(false)
         .setCacheRegion(KLASS + ".GetAllGroupsSecureScope")
         .options(queryOptions)

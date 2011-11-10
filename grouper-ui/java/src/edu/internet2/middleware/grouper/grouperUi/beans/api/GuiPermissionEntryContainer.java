@@ -242,9 +242,12 @@ public class GuiPermissionEntryContainer implements Serializable, Comparable<Gui
   private void initScreenLabels() {
     if (this.screenLabelLong == null && this.screenLabelShort == null && this.guiSubject != null) {
       
-      String screenLabel = this.guiSubject.getScreenLabel();
+      String screenLabel = this.guiSubject.getScreenLabelLong();
             
       this.screenLabelLong = screenLabel;
+      
+      screenLabel = this.guiSubject.getScreenLabel();
+      
       int maxWidth = TagUtils.mediaResourceInt("simplePermissionUpdate.maxOwnerSubjectChars", 50);
       if (maxWidth == -1) {
         this.screenLabelShort = screenLabel;
