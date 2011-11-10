@@ -87,6 +87,8 @@ public class GrouperLoader {
     scheduleChangeLogJobs();
     //this will schedule ESB listener jobs if enabled
     scheduleEsbListenerJobs();
+    
+    scheduleLdappcFullSyncJob();
   }
 
   /**
@@ -1131,6 +1133,71 @@ public class GrouperLoader {
       
     }
     
+  
+  }
+
+  /**
+   * schedule ldappcng full sync job
+   */
+  public static void scheduleLdappcFullSyncJob() {
+  
+    String cronString = null;
+    
+    //this is a medium priority job
+    int priority = 5;
+  
+    //schedule the job
+    try {
+      
+      cronString = GrouperLoaderConfig.getPropertyString("changeLog.ldappcng.fullSync.quartzCron");
+      
+      if (StringUtils.isEmpty(cronString)) {
+        LOG.warn("grouper-loader.properties key: changeLog.ldappcng.fullSync.quartzCron is not " +
+            "filled in or false so the ldappcng full sync job will not run");
+          return;
+      }
+      
+      LOG.info("Scheduling " + GrouperLoaderType.LDAPPCNG_FULL_SYNC.name());
+        
+      //at this point we have all the attributes and we know the required ones are there, and logged when 
+      //forbidden ones are there
+      Scheduler scheduler = GrouperLoader.schedulerFactory().getScheduler();
+  
+      //the name of the job must be unique
+      JobDetail jobDetail = new JobDetail(GrouperLoaderType.LDAPPCNG_FULL_SYNC.name(), null, GrouperLoaderJob.class);
+  
+      //schedule this job
+      GrouperLoaderScheduleType grouperLoaderScheduleType = GrouperLoaderScheduleType.CRON;
+  
+      Trigger trigger = grouperLoaderScheduleType.createTrigger(cronString, null);
+  
+      trigger.setName("trigger_" + GrouperLoaderType.LDAPPCNG_FULL_SYNC.name());
+  
+      trigger.setPriority(priority);
+  
+      scheduler.scheduleJob(jobDetail, trigger);
+  
+    } catch (Exception e) {
+      String errorMessage = "Could not schedule job: '" + GrouperLoaderType.LDAPPCNG_FULL_SYNC.name() + "'";
+      LOG.error(errorMessage, e);
+      errorMessage += "\n" + ExceptionUtils.getFullStackTrace(e);
+      try {
+        //lets enter a log entry so it shows up as error in the db
+        Hib3GrouperLoaderLog hib3GrouploaderLog = new Hib3GrouperLoaderLog();
+        hib3GrouploaderLog.setHost(GrouperUtil.hostname());
+        hib3GrouploaderLog.setJobMessage(errorMessage);
+        hib3GrouploaderLog.setJobName(GrouperLoaderType.LDAPPCNG_FULL_SYNC.name());
+        hib3GrouploaderLog.setJobSchedulePriority(priority);
+        hib3GrouploaderLog.setJobScheduleQuartzCron(cronString);
+        hib3GrouploaderLog.setJobScheduleType(GrouperLoaderScheduleType.CRON.name());
+        hib3GrouploaderLog.setJobType(GrouperLoaderType.LDAPPCNG_FULL_SYNC.name());
+        hib3GrouploaderLog.setStatus(GrouperLoaderStatus.CONFIG_ERROR.name());
+        hib3GrouploaderLog.store();
+        
+      } catch (Exception e2) {
+        LOG.error("Problem logging to loader db log", e2);
+      }
+    }
   
   }
   

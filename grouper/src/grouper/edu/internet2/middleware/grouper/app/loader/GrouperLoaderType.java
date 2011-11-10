@@ -41,8 +41,8 @@ import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.app.loader.db.GrouperLoaderDb;
 import edu.internet2.middleware.grouper.app.loader.db.GrouperLoaderResultset;
-import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.app.loader.db.GrouperLoaderResultset.Row;
+import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.app.loader.ldap.LoaderLdapUtils;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
@@ -930,7 +930,32 @@ public enum GrouperLoaderType {
         } finally {
           hib3GrouploaderLogOverall.setStatus(statusOverall[0].name());
         }
-        
+       
+      }
+    },
+    
+    /** 
+     * Run an ldappcng full sync.
+     */
+    LDAPPCNG_FULL_SYNC {
+
+      /** {@inheritDoc} */
+      public boolean attributeRequired(String attributeName) {
+        return false;
+      }
+
+      /** {@inheritDoc} */
+      public boolean attributeOptional(String attributeName) {
+        return false;
+      }
+
+      /** {@inheritDoc} */
+      public void runJob(LoaderJobBean loaderJobBean) {        
+        GrouperContext.createNewDefaultContext(GrouperEngineBuiltin.LOADER, false, true);        
+        String theClassName = GrouperLoaderConfig.getPropertyString("changeLog.ldappcng.fullSync.class");
+        Class<?> theClass = GrouperUtil.forName(theClassName);
+        Object theClassInstance = GrouperUtil.newInstance(theClass);        
+        GrouperUtil.callMethod(theClassInstance, "fullSync");                         
       }
     };
   
