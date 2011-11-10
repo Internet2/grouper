@@ -213,6 +213,7 @@ public class TestStem extends GrouperTest {
   public void testStemModifyAttributesAfterDisablingMembership() {    
     ApiConfig.testConfig.put("stems.updateLastMembershipTime", "true");
     ApiConfig.testConfig.put("groups.updateLastMembershipTime", "true");
+    ApiConfig.testConfig.put("groups.updateLastImmediateMembershipTime", "true");
 
     try {
       R       r     = R.populateRegistry(1, 3, 3);
@@ -257,6 +258,7 @@ public class TestStem extends GrouperTest {
   public void testStemModifyAttributesAfterEnablingMembership() {    
     ApiConfig.testConfig.put("stems.updateLastMembershipTime", "true");
     ApiConfig.testConfig.put("groups.updateLastMembershipTime", "true");
+    ApiConfig.testConfig.put("groups.updateLastImmediateMembershipTime", "true");
 
     try {
       R       r     = R.populateRegistry(1, 3, 3);
@@ -304,6 +306,7 @@ public class TestStem extends GrouperTest {
   public void testStemModifyAttributesAfterDisablingMembership2() {    
     ApiConfig.testConfig.put("stems.updateLastMembershipTime", "true");
     ApiConfig.testConfig.put("groups.updateLastMembershipTime", "true");
+    ApiConfig.testConfig.put("groups.updateLastImmediateMembershipTime", "true");
 
     try {
       R       r     = R.populateRegistry(1, 3, 3);
@@ -348,6 +351,7 @@ public class TestStem extends GrouperTest {
   public void testStemModifyAttributesAfterEnablingMembership2() {    
     ApiConfig.testConfig.put("stems.updateLastMembershipTime", "true");
     ApiConfig.testConfig.put("groups.updateLastMembershipTime", "true");
+    ApiConfig.testConfig.put("groups.updateLastImmediateMembershipTime", "true");
 
     try {
       R       r     = R.populateRegistry(1, 3, 3);
@@ -395,6 +399,7 @@ public class TestStem extends GrouperTest {
   public void testStemModifyAttributesAfterDisablingMembership3() {    
     ApiConfig.testConfig.put("stems.updateLastMembershipTime", "true");
     ApiConfig.testConfig.put("groups.updateLastMembershipTime", "true");
+    ApiConfig.testConfig.put("groups.updateLastImmediateMembershipTime", "true");
 
     try {
       R       r     = R.populateRegistry(1, 3, 3);
@@ -439,6 +444,7 @@ public class TestStem extends GrouperTest {
   public void testStemModifyAttributesAfterEnablingMembership3() {    
     ApiConfig.testConfig.put("stems.updateLastMembershipTime", "true");
     ApiConfig.testConfig.put("groups.updateLastMembershipTime", "true");
+    ApiConfig.testConfig.put("groups.updateLastImmediateMembershipTime", "true");
 
     try {
       R       r     = R.populateRegistry(1, 3, 3);
@@ -1025,6 +1031,7 @@ public class TestStem extends GrouperTest {
     LOG.info("testGetModifyAttrsModified");
     ApiConfig.testConfig.put("stems.updateLastMembershipTime", "true");
     ApiConfig.testConfig.put("groups.updateLastMembershipTime", "true");
+    ApiConfig.testConfig.put("groups.updateLastImmediateMembershipTime", "true");
 
     GrouperSession  s     = SessionHelper.getRootSession();
     Stem            root  = StemHelper.findRootStem(s);
@@ -1061,6 +1068,7 @@ public class TestStem extends GrouperTest {
 
     ApiConfig.testConfig.put("stems.updateLastMembershipTime", "true");
     ApiConfig.testConfig.put("groups.updateLastMembershipTime", "true");
+    ApiConfig.testConfig.put("groups.updateLastImmediateMembershipTime", "true");
 
     GrouperSession  s     = SessionHelper.getRootSession();
     Stem            root  = StemHelper.findRootStem(s);
@@ -1228,6 +1236,7 @@ public class TestStem extends GrouperTest {
     
     ApiConfig.testConfig.put("stems.updateLastMembershipTime", "true");
     ApiConfig.testConfig.put("groups.updateLastMembershipTime", "true");
+    ApiConfig.testConfig.put("groups.updateLastImmediateMembershipTime", "true");
 
     try {
       R       r     = R.populateRegistry(1, 1, 1);
@@ -1259,6 +1268,7 @@ public class TestStem extends GrouperTest {
     
     ApiConfig.testConfig.put("stems.updateLastMembershipTime", "true");
     ApiConfig.testConfig.put("groups.updateLastMembershipTime", "true");
+    ApiConfig.testConfig.put("groups.updateLastImmediateMembershipTime", "true");
 
     try {
       R       r     = R.populateRegistry(1, 1, 1);
@@ -1299,6 +1309,7 @@ public class TestStem extends GrouperTest {
 
     ApiConfig.testConfig.put("stems.updateLastMembershipTime", "true");
     ApiConfig.testConfig.put("groups.updateLastMembershipTime", "true");
+    ApiConfig.testConfig.put("groups.updateLastImmediateMembershipTime", "true");
 
     try {
       R       r     = R.populateRegistry(1, 0, 1);
@@ -1338,6 +1349,7 @@ public class TestStem extends GrouperTest {
 
     ApiConfig.testConfig.put("stems.updateLastMembershipTime", "true");
     ApiConfig.testConfig.put("groups.updateLastMembershipTime", "true");
+    ApiConfig.testConfig.put("groups.updateLastImmediateMembershipTime", "true");
 
     try {
       R       r     = R.populateRegistry(1, 1, 1);
@@ -1376,6 +1388,7 @@ public class TestStem extends GrouperTest {
 
     ApiConfig.testConfig.put("stems.updateLastMembershipTime", "true");
     ApiConfig.testConfig.put("groups.updateLastMembershipTime", "true");
+    ApiConfig.testConfig.put("groups.updateLastImmediateMembershipTime", "true");
 
     try {
       R       r     = R.populateRegistry(1, 0, 1);
