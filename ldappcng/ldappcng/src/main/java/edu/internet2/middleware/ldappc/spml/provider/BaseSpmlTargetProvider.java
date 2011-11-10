@@ -17,24 +17,31 @@ package edu.internet2.middleware.ldappc.spml.provider;
 import edu.internet2.middleware.ldappc.spml.PSP;
 import edu.internet2.middleware.ldappc.spml.definitions.TargetDefinition;
 
+/** Base class for a {@link SpmlTargetProvider}. */
 public abstract class BaseSpmlTargetProvider extends BaseSpmlProvider implements SpmlTargetProvider {
 
+  /** The target definition. */
   private TargetDefinition targetDefinition;
 
+  /** The provisioning service provider. */
   private PSP psp;
 
+  /** {@inheritDoc} */
   public PSP getPSP() {
     return psp;
   }
 
+  /** {@inheritDoc} */
   public void setPSP(PSP psp) {
     this.psp = psp;
   }
 
+  /** {@inheritDoc} */
   public TargetDefinition getTargetDefinition() {
     return targetDefinition;
   }
 
+  /** {@inheritDoc} */
   public void setTargetDefinition(TargetDefinition targetDefinition) {
     this.targetDefinition = targetDefinition;
   }

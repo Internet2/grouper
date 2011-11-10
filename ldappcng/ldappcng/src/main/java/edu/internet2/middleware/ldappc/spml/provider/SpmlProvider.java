@@ -23,7 +23,7 @@ import org.openspml.v2.msg.spml.Response;
 public interface SpmlProvider {
 
   /**
-   * Execute a <code>Request</code> and return the <code>Response</code>.
+   * Execute a {@link Request} and return the {@link Response}.
    * 
    * @param request
    *          the SPML request
