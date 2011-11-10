@@ -18,49 +18,47 @@
 /*
  * Simple subject comparator
  * @author fox
-*/
+ */
 
 package edu.internet2.middleware.subject.provider;
 
-
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Comparator;
-
-import edu.internet2.middleware.subject.Subject;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import edu.internet2.middleware.subject.Subject;
 
-public class LdapComparator implements Comparator {
+public class LdapComparator implements Comparator<Subject> {
 
-   private static Log log = LogFactory.getLog(LdapComparator.class);
+	private static Log log = LogFactory.getLog(LdapComparator.class);
 
-   public LdapComparator() {
-	super();
-   }
+	public LdapComparator() {
+		super();
+	}
 
-   /**
-    * Compares two subjects.
-    *
-    * @param so0 first subject
-    * @param so1 second subject
-    */
-   public int compare(Object so0, Object so1) {
-   
-       try {
+	/**
+	 * Compares two subjects.
+	 * 
+	 * @param so0
+	 *            first subject
+	 * @param so1
+	 *            second subject
+	 */
+	public int compare(Subject so0, Subject so1) {
 
-           Subject s0 = (Subject) so0;
-           Subject s1 = (Subject) so1;
-           String s0d = s0.getDescription();
-           String s1d = s1.getDescription();
+		try {
 
-           // log.debug("comparing " + s0d + " to " + s1d);
-           return s0d.compareTo(s1d);
-	} catch (Exception e) {
-           log.debug("exception " + e);
-        }
-        return (1);
-   }
+			Subject s0 = (Subject) so0;
+			Subject s1 = (Subject) so1;
+			String s0d = s0.getDescription();
+			String s1d = s1.getDescription();
+
+			// log.debug("comparing " + s0d + " to " + s1d);
+			return s0d.compareTo(s1d);
+		} catch (Exception e) {
+			log.debug("exception " + e);
+		}
+		return (1);
+	}
 }

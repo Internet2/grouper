@@ -22,10 +22,10 @@
 
 package edu.internet2.middleware.subject.provider;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
@@ -37,6 +37,7 @@ import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
+import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.SearchResult;
 import javax.net.ssl.SSLSocketFactory;
 
@@ -53,7 +54,7 @@ import edu.vt.middleware.ldap.Ldap;
 import edu.vt.middleware.ldap.LdapConfig;
 import edu.vt.middleware.ldap.SearchFilter;
 import edu.vt.middleware.ldap.pool.DefaultLdapFactory;
-import edu.vt.middleware.ldap.pool.LdapPoolConfig;
+import edu.vt.middleware.ldap.pool.LdapPool;
 import edu.vt.middleware.ldap.pool.SoftLimitLdapPool;
 
 /**
@@ -67,7 +68,7 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
     private String nameAttributeName = null;
     private String subjectIDAttributeName = null;
     private String descriptionAttributeName = null;
-    private String subjectTypeString = null;
+    // private String subjectTypeString = null;
     private String localDomain = null;
     private String propertiesFile = null;
     private SoftLimitLdapPool ldapPool;
@@ -102,13 +103,13 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
         String mr = getStringProperty(props,"Multiple_Results");
         if (mr!=null && (mr.equalsIgnoreCase("yes")||mr.equalsIgnoreCase("true"))) multipleResults = true;
 
-        Set attributeNameSet = this.getAttributes();
+        Set<?> attributeNameSet = this.getAttributes();
         allAttributeNames = new String[3+attributeNameSet.size()];
         allAttributeNames[0] = nameAttributeName;
         allAttributeNames[1] = subjectIDAttributeName;
         allAttributeNames[2] = descriptionAttributeName;
         int i = 0;
-        for (Iterator it = attributeNameSet.iterator(); it.hasNext(); allAttributeNames[3+i++]= (String) it.next());
+        for (Iterator<?> it = attributeNameSet.iterator(); it.hasNext(); allAttributeNames[3+i++]= (String) it.next());
 
         initializeLdap();
   
@@ -123,14 +124,15 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
       try {
          // all ldap config from the ldap properties file
          log.debug("reading properties file " + propertiesFile);
-         LdapConfig ldapConfig = LdapConfig.createFromProperties(new FileInputStream(propertiesFile));
+	     File theFile = SubjectUtils.fileFromResourceName(propertiesFile);
+		 LdapConfig ldapConfig = LdapConfig.createFromProperties(new FileInputStream(theFile));
          log.debug("from properties file " + propertiesFile + " got " + ldapConfig);
 
          // including config for the pem cert mode
          Map<String, Object> props = ldapConfig.getEnvironmentProperties();
        
          Set<String> ps = props.keySet();
-         for (Iterator it = ps.iterator(); it.hasNext(); log.debug(".. key = " + it.next()));
+         for (Iterator<String> it = ps.iterator(); it.hasNext(); log.debug(".. key = " + it.next()));
      
          String cafile = (String)props.get("pemCaFile");
          String certfile = (String)props.get("pemCertFile");
@@ -145,7 +147,7 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
          }
 
 	 DefaultLdapFactory factory = new DefaultLdapFactory(ldapConfig);
-	 LdapPoolConfig poolConfig = new LdapPoolConfig();
+	 // LdapPoolConfig poolConfig = new LdapPoolConfig();
      
          try {
 	    ldapPool = new SoftLimitLdapPool(factory);
@@ -224,7 +226,12 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
                throw new SubjectNotFoundException("Subject " + id + " not found.");
            }
         } catch (SubjectNotFoundException e) {
-          if (exceptionIfNull) throw e;
+            // if (exceptionIfNull) throw e;
+        	if (exceptionIfNull) {
+        		throw e;
+        	} else {
+        		return null;
+        	}
         }
         search = getSearch("searchSubjectByIdentifierAttributes");
         if (search==null) ((LdapSubject)subject).setAttributesGotten(true);
@@ -246,8 +253,8 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
      */
     @Override
     public Set<Subject> search(String searchValue) {
-        Comparator cp = new LdapComparator();
-        TreeSet result = new TreeSet(cp);
+        Comparator<Subject> cp = new LdapComparator();
+        TreeSet<Subject> result = new TreeSet<Subject>(cp);
         Search search = getSearch("search");
         if (search == null) {
             log.error("searchType: \"search\" not defined.");
@@ -323,17 +330,17 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
  
         // add the attributes
 
-        Map myAttributes = new SubjectCaseInsensitiveMapImpl();
+        Map<String, Set<String>> myAttributes = new  SubjectCaseInsensitiveMapImpl<String, Set<String>>();
         try {
-            for (NamingEnumeration e = attributes.getAll(); e.hasMore();) {
+            for (NamingEnumeration<?> e = attributes.getAll(); e.hasMore();) {
                 Attribute attr = (Attribute) e.next();
                 String attrName = attr.getID();
                 // skip the basic ones
                 if (attrName.equals(nameAttributeName)) continue;
                 if (attrName.equals(subjectIDAttributeName)) continue;
                 if (attrName.equals(descriptionAttributeName)) continue;
-                Set values = new HashSet();
-                for (NamingEnumeration en = attr.getAll(); en.hasMore(); ) {
+                Set<String> values = new HashSet<String>();
+                for (NamingEnumeration<?> en = attr.getAll(); en.hasMore(); ) {
                     Object value =  en.next();
                     values.add(value.toString());
                 }
@@ -360,8 +367,8 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
      * Try to get more attributes for the subject.
      * @param subject
      */
-    protected Map getAllAttributes(LdapSubject subject) {
-        Map attributes =  new SubjectCaseInsensitiveMapImpl();
+    protected Map<String, Set<String>> getAllAttributes(LdapSubject subject) {
+    	Map<String, Set<String>> attributes = new  SubjectCaseInsensitiveMapImpl<String, Set<String>>();
         log.debug("getAllAttributes for " + subject.getName());
         Search search = getSearch("searchSubjectAttributes");
         if (search == null) {
@@ -371,7 +378,7 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
 
         try {
             Attributes ldapAttributes = getLdapUnique(search,subject.getName(), allAttributeNames);
-            for (NamingEnumeration e = ldapAttributes.getAll(); e.hasMore();) {
+            for (NamingEnumeration<?> e = ldapAttributes.getAll(); e.hasMore();) {
                 Attribute attr = (Attribute) e.next();
                 String attrName = attr.getID();
 
@@ -383,8 +390,8 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
                    continue;
                 }
                    
-                Set values = new HashSet();
-                for (NamingEnumeration en = attr.getAll(); en.hasMore(); ) {
+                Set<String> values = new HashSet<String>();
+                for (NamingEnumeration<?> en = attr.getAll(); en.hasMore(); ) {
                     Object value =  en.next();
                     values.add(value.toString());
                 }
@@ -475,6 +482,10 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
             
         SearchResult si = ( SearchResult )results.next( );
         attributes = si.getAttributes();
+        
+        // Add the DN to the returned attributes.
+        attributes.put(new BasicAttribute("dn", si.getName()));
+        
         if ( results.hasNext()) {
             si = (SearchResult) results.next();
             if (!multipleResults) {
@@ -496,6 +507,9 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
               log.error("ldap excp: " + e);
               throw new SourceUnavailableException("Ldap Exception: " + e.getMessage(), e);
           }
+          
+          // Add the DN to the returned attributes.
+       	  attributes.get("dn").add(si.getName());
         }
         return attributes;
     }
@@ -530,4 +544,22 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
       String message = "sources.xml ldap source id:   " + this.getId() + ": " + propertiesFile;
       return message;
     }
+    
+	/**
+	 * Return the underlying {@link LdapPool}.
+	 * 
+	 * @return the ldap pool
+	 */
+	public LdapPool<Ldap> getLdapPool() {
+		return ldapPool;
+	}
+
+	/**
+	 * Set whether or not multiple results are allowed. Primarily for tests.
+	 * 
+	 * @param multipleResults
+	 */
+	public void setMultipleResults(boolean multipleResults) {
+		this.multipleResults = multipleResults;
+	}
 }
