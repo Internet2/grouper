@@ -22,6 +22,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Node;
 
+import edu.internet2.middleware.grouper.shibboleth.dataConnector.ChangeLogDataConnector;
+
 public class IgnoreRequestIDDifferenceListener implements DifferenceListener {
 
   private static final Logger LOG = LoggerFactory.getLogger(IgnoreRequestIDDifferenceListener.class);
@@ -46,6 +48,17 @@ public class IgnoreRequestIDDifferenceListener implements DifferenceListener {
           LOG.debug("ignoring difference {}", difference);
           return DifferenceListener.RETURN_IGNORE_DIFFERENCE_NODES_IDENTICAL;
         }
+      }
+
+      // ignore principal names that start with the change log data connector prefix
+      if (difference.getTestNodeDetail().getNode().getNodeName().equals("ID")
+          && difference.getControlNodeDetail().getNode().getNodeName().equals("ID")
+          && difference.getTestNodeDetail().getNode().getNodeValue()
+              .startsWith(ChangeLogDataConnector.PRINCIPAL_NAME_PREFIX)
+          && difference.getControlNodeDetail().getNode().getNodeValue()
+              .startsWith(ChangeLogDataConnector.PRINCIPAL_NAME_PREFIX)) {
+        LOG.debug("ignoring changelog ID difference {}", difference);
+        return DifferenceListener.RETURN_IGNORE_DIFFERENCE_NODES_IDENTICAL;
       }
     }
     return DifferenceListener.RETURN_ACCEPT_DIFFERENCE;
