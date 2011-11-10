@@ -23,24 +23,24 @@ import org.springframework.beans.factory.xml.ParserContext;
 import org.w3c.dom.Element;
 
 import edu.internet2.middleware.ldappc.spml.PSP;
-import edu.internet2.middleware.shibboleth.common.config.service.AbstractReloadableServiceBeanDefinitionParser;
 
-public class PSPBeanDefinitionParser extends AbstractReloadableServiceBeanDefinitionParser {
+/** Spring bean definition parser for configuring a {@link PSP}. */
+public class PSPBeanDefinitionParser extends BaseSpmlProviderBeanDefinitionParser {
 
+  /** Logger. */
   private static final Logger LOG = LoggerFactory.getLogger(PSPBeanDefinitionParser.class);
 
+  /** Schema type name. */
   public static final QName TYPE_NAME = new QName(LdappcNamespaceHandler.NAMESPACE, "ProvisioningServiceProvider");
 
+  /** {@inheritDoc} */
   protected Class getBeanClass(Element element) {
     return PSP.class;
   }
 
+  /** {@inheritDoc} */
   protected void doParse(Element configElement, ParserContext parserContext, BeanDefinitionBuilder builder) {
     super.doParse(configElement, parserContext, builder);
-
-    String id = configElement.getAttributeNS(null, "id");
-    LOG.debug("Setting id to '{}'", id);
-    builder.addPropertyValue("id", id);
 
     String attributeAuthorityId = configElement.getAttributeNS(null, "authority");
     LOG.debug("Setting attributeAuthority to '{}'", attributeAuthorityId);
