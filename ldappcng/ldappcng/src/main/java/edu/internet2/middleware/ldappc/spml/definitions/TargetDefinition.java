@@ -100,7 +100,10 @@ public class TargetDefinition {
   public Set<String> getNames(ReturnData returnData) {
     Set<String> names = new LinkedHashSet<String>();
     for (PSODefinition psoDefinition : psoDefinitions) {
-      names.add(psoDefinition.getPsoIdentifierDefinition().getIdentifyingAttribute().getName());
+      IdentifyingAttribute ia = psoDefinition.getPsoIdentifierDefinition().getIdentifyingAttribute();
+      if (ia != null) {
+        names.add(ia.getName());
+      }
       if (returnData.equals(ReturnData.DATA) || returnData.equals(ReturnData.EVERYTHING)) {
         names.addAll(psoDefinition.getAttributeNames());
       }
