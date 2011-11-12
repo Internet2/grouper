@@ -871,19 +871,11 @@ public class Membership extends GrouperAPI implements
    * </pre>
    * @return  A {@link Group}
    * @throws GroupNotFoundException if group not found
+   * @deprecated use getOwnerGroup() instead
    */
+  @Deprecated
   public Group getGroup() throws GroupNotFoundException {
-    String groupUuid = this.getOwnerGroupId();
-    if (groupUuid == null) {
-      throw new GroupNotFoundException();
-    }
-    Group g = getGroupFromCache(groupUuid);
-    if (g != null) {
-      return g;
-    }
-    g = GrouperDAOFactory.getFactory().getGroup().findByUuid(groupUuid, true);
-    putGroupInCache(g);
-    return g;
+    return this.getOwnerGroup();
   }
 
   /**
@@ -949,7 +941,7 @@ public class Membership extends GrouperAPI implements
         if (group == null) {
           group = GrouperUtil.retrieveByProperty(groupsFromDb, Group.FIELD_UUID, uuid);
           if (group == null && !FieldType.NAMING.equals(membership.getField().getType())) {
-            group = membership.getGroup();
+            group = membership.getOwnerGroup();
           } else {
             if (group != null) {
               //add to local cache
@@ -2494,6 +2486,41 @@ public class Membership extends GrouperAPI implements
     this.ownerGroupId = groupId1;
   }
 
+  /**
+   * Get this membership's group.  To get the groups of a bunch of membership, might want to try
+   * retrieveGroups()
+   * <pre class="eg">
+   * Group g = ms.getGroup();
+   * </pre>
+   * @return  A {@link Group}
+   * @throws GroupNotFoundException if group not found
+   * @return the group
+   */
+  public Group getOwnerGroup() {
+    String groupUuid = this.getOwnerGroupId();
+    if (groupUuid == null) {
+      throw new GroupNotFoundException();
+    }
+    Group g = getGroupFromCache(groupUuid);
+    if (g != null) {
+      return g;
+    }
+    g = GrouperDAOFactory.getFactory().getGroup().findByUuid(groupUuid, true);
+    putGroupInCache(g);
+    return g;
+    
+  }
+  
+  /**
+   * set the owner group
+   * @param group
+   */
+  public void setOwnerGroup(Group group) {
+    this.ownerGroupId = group == null ? null : group.getId();
+    putGroupInCache(group);
+
+  }
+  
   /**
    * if this is an attrDef membership, this is the attrDef id
    * @param attrDefId1

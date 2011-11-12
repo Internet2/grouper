@@ -16,6 +16,7 @@
 */
 
 package edu.internet2.middleware.grouper;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -172,6 +173,23 @@ public class MemberFinder {
   }
 
   /**
+   * convert a set of subjects to a set of members
+   * @param subjects to convert to members
+   * @param createIfNotExists 
+   * @param group that subjects must be in
+   * @param field that they must be in in the group (null will default to eh members list
+   * @param membershipType that they must be in in the group or null for any
+   * @return the members in the group
+   */
+  public static Set<Member> findBySubjects(
+      Collection<Subject> subjects, boolean createIfNotExists) {
+
+    return GrouperDAOFactory.getFactory().getMember().findBySubjects(
+        subjects, createIfNotExists);
+
+  }
+
+  /**
    * Convert a {@link Subject} to a {@link Member}.
    * <pre class="eg">
    * // Convert a subject to a Member object, create if not exist
@@ -318,18 +336,29 @@ public class MemberFinder {
           throw new RuntimeException("That uuid already exists: " + memberUuidIfCreate + ", " + member);
         }
         
-        Member _m = new Member();
-        _m.setSubjectIdDb(subj.getId());
-        _m.setSubjectSourceIdDb(sourceId);
-        _m.setSubjectTypeId(subj.getType().getName());
-        _m.setUuid( StringUtils.isEmpty(memberUuidIfCreate) ? GrouperUuid.getUuid() : memberUuidIfCreate);
-        _m.updateMemberAttributes(subj, false);
-        
-        GrouperDAOFactory.getFactory().getMember().create(_m);
+        Member _m = internal_createMember(subj, memberUuidIfCreate);
         return _m;
       }
       return null;
     }
+  }
+
+  /**
+   * create a member
+   * @param subj
+   * @param memberUuidIfCreate
+   * @return the member object
+   */
+  public static Member internal_createMember(Subject subj, String memberUuidIfCreate) {
+    Member _m = new Member();
+    _m.setSubjectIdDb(subj.getId());
+    _m.setSubjectSourceIdDb(subj.getSourceId());
+    _m.setSubjectTypeId(subj.getType().getName());
+    _m.setUuid( StringUtils.isEmpty(memberUuidIfCreate) ? GrouperUuid.getUuid() : memberUuidIfCreate);
+    _m.updateMemberAttributes(subj, false);
+    
+    GrouperDAOFactory.getFactory().getMember().create(_m);
+    return _m;
   }
   
   /**

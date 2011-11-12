@@ -32,9 +32,11 @@ public interface SubjectCustomizer {
    * you can edit the subjects (or replace), but you shouldnt remove them
    * @param grouperSession
    * @param subjects
+   * @param findSubjectsInStemName if this is a findSubjectsInStem call, this is the stem name.  This is useful
+   * to filter when searching for subjects to add to a certain group
    * @return the subjects if same set, or make a new set
    */
-  public Set<Subject> filterSubjects(GrouperSession grouperSession, Set<Subject> subjects);
+  public Set<Subject> filterSubjects(GrouperSession grouperSession, Set<Subject> subjects, String findSubjectsInStemName);
  
   
 }

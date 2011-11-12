@@ -17,6 +17,7 @@
 
 package edu.internet2.middleware.grouper;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -30,7 +31,6 @@ import edu.internet2.middleware.grouper.entity.EntitySourceAdapter;
 import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.membership.MembershipType;
-import edu.internet2.middleware.grouper.misc.E;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.rules.RuleCheck;
 import edu.internet2.middleware.grouper.rules.RuleCheckType;
@@ -553,7 +553,7 @@ public class SubjectFinder {
         root = getResolver().find( GrouperConfig.ROOT, InternalSourceAdapter.ID );
       }
       catch (Exception e) {
-        throw new GrouperException( "unable to retrieve GrouperSystem: " + e.getMessage() );
+        throw new GrouperException( "unable to retrieve GrouperSystem: " + e.getMessage(), e );
       }
     }
     return root;
@@ -602,7 +602,6 @@ public class SubjectFinder {
   }
 
   /**
-   * TODO 20070803 what is the point of this method?
    * @return source
    * @since   1.2.0
    */
@@ -614,10 +613,9 @@ public class SubjectFinder {
           break;
         }
       }
-      // TODO 20070803 go away.  the exception is wrong as well.
       NotNullValidator v = NotNullValidator.validate(gsa);
       if (v.isInvalid()) {
-        throw new IllegalArgumentException(E.SF_GETSA); 
+        throw new RuntimeException("Why cant we find the group source adapter???");
       }
     }
     return gsa;
@@ -648,7 +646,7 @@ public class SubjectFinder {
    * @since   1.2.1
    */
   public static void reset() {
-    resolver = null; // TODO 20070807 this could definitely be improved    
+    resolver = null;  
     HibernateSession.bySqlStatic().executeSql("delete from subject where subjectId = 'GrouperSystem'");
   }
 
@@ -1082,29 +1080,15 @@ public class SubjectFinder {
     return new RestrictSourceForGroup(false, null);
   }
 
+  /**
+   * hold a customizer
+   * @author mchyzer
+   *
+   */
   private static class SubjectCustomizerCacheBean {
-    
-    /** if it has a subject customizer */
-    private boolean hasSubjectCustomizer = false;
     
     /** an instance of it */
     private SubjectCustomizer subjectCustomizer;
-
-    /**
-     * if it has a subject customizer
-     * @return if it has a subject customizer
-     */
-    public boolean isHasSubjectCustomizer() {
-      return this.hasSubjectCustomizer;
-    }
-
-    /**
-     * if it has a subject customizer
-     * @param hasSubjectCustomizer1
-     */
-    public void setHasSubjectCustomizer(boolean hasSubjectCustomizer1) {
-      this.hasSubjectCustomizer = hasSubjectCustomizer1;
-    }
 
     /**
      * an instance of it
@@ -1122,8 +1106,6 @@ public class SubjectFinder {
       this.subjectCustomizer = subjectCustomizer1;
     }
     
-    
-    
   }
   
   /**
@@ -1132,13 +1114,6 @@ public class SubjectFinder {
   private static ExpirableCache<Boolean, SubjectCustomizerCacheBean> subjectCustomizerClassCache = new ExpirableCache<Boolean, SubjectCustomizerCacheBean>(5);
 
   /**
-   * clear this for testing
-   */
-  public static void internalClearSubjectCustomizer() {
-    subjectCustomizerClassCache.clear();
-  }
-  
-  /**
    * decorate subjects based on subject customizer in grouper.properties
    * @param grouperSession
    * @param subjects
@@ -1146,6 +1121,82 @@ public class SubjectFinder {
    */
   public static void decorateSubjects(GrouperSession grouperSession, Set<Subject> subjects, Collection<String> attributeNamesRequested) {
     
+    SubjectCustomizer subjectCustomizer = subjectCustomizer();
+    if (subjectCustomizer != null) {
+      subjectCustomizer.decorateSubjects(grouperSession, subjects, attributeNamesRequested );
+    }    
+  }
+
+  /**
+   * filter subjects based on subject customizer in grouper.properties
+   * @param grouperSession
+   * @param subjects
+   * @param filterSubjectsInStemName 
+   * @param attributeNamesRequested 
+   * @return subjects
+   */
+  public static Set<Subject> filterSubjects(GrouperSession grouperSession, Set<Subject> subjects, String filterSubjectsInStemName) {
+    
+    //if nothing to do
+    if (GrouperUtil.length(subjects) == 0) {
+      return subjects;
+    }
+    
+    SubjectCustomizer subjectCustomizer = subjectCustomizer();
+    if (subjectCustomizer != null) {
+      return subjectCustomizer.filterSubjects(grouperSession, subjects, filterSubjectsInStemName);
+    }    
+    return subjects;
+  }
+
+  /**
+   * filter subjects based on subject customizer in grouper.properties
+   * @param grouperSession
+   * @param subject
+   * @param filterSubjectsInStemName 
+   * @param attributeNamesRequested 
+   * @return subjects
+   */
+  public static Subject filterSubject(GrouperSession grouperSession, Subject subject, String filterSubjectsInStemName) {
+    
+    if (subject == null) {
+      return null;
+    }
+    
+    SubjectCustomizer subjectCustomizer = subjectCustomizer();
+    if (subjectCustomizer == null) {
+      return subject;
+    }
+    
+    Set<Subject> subjects = new HashSet<Subject>();
+    subjects.add(subject);
+     
+    subjectCustomizer.filterSubjects(grouperSession, subjects, filterSubjectsInStemName);
+    
+    int subjectsLength = GrouperUtil.length(subjects);
+    if (subjectsLength == 0) {
+      return null;
+    }
+    
+    if (subjectsLength > 1) {
+      throw new RuntimeException("Why would number of subjects be greater than 1??? " + subjectsLength);
+    }
+    
+    return subjects.iterator().next();
+  }
+
+  /**
+   * clea the subject customizer cache
+   */
+  public static void internalClearSubjectCustomizerCache() {
+    subjectCustomizerClassCache.clear();
+  }
+  
+  /**
+   * get the subject customizer
+   * @return subject customizer or null
+   */
+  public static SubjectCustomizer subjectCustomizer() {
     SubjectCustomizerCacheBean subjectCustomizerCacheBean = subjectCustomizerClassCache.get(Boolean.TRUE);
     
     if (subjectCustomizerCacheBean == null) {
@@ -1158,17 +1209,11 @@ public class SubjectFinder {
         Class<SubjectCustomizer> theClass = GrouperUtil.forName(subjectCustomizerClassName);
         SubjectCustomizer subjectCustomizer = GrouperUtil.newInstance(theClass);
         newBean.setSubjectCustomizer(subjectCustomizer);
-        newBean.setHasSubjectCustomizer(true);
-      } else {
-        newBean.setHasSubjectCustomizer(false);
       }
+      subjectCustomizerClassCache.put(Boolean.TRUE, newBean);
       subjectCustomizerCacheBean = newBean;
     }
-    
-    if (subjectCustomizerCacheBean.isHasSubjectCustomizer()) {
-      subjectCustomizerCacheBean.getSubjectCustomizer().decorateSubjects(grouperSession, subjects, attributeNamesRequested );
-    }
-    
+    return subjectCustomizerCacheBean.getSubjectCustomizer();
   }
   
 }

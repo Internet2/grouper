@@ -25,12 +25,13 @@ import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
+import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.SubjectFinder.RestrictSourceForGroup;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
-import edu.internet2.middleware.grouper.internal.util.ParameterHelper;
+import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.SourceUnavailableException;
@@ -62,9 +63,6 @@ public class SourcesXmlResolver implements SubjectResolver {
    */
   private static final Log LOG = GrouperUtil.getLog(SourcesXmlResolver.class);
   
-  
-  private static  ParameterHelper param = new ParameterHelper();
-
   /**
    * Initialize a new <i>SourcesXmlResolver</i>.
    * @since   1.2.1
@@ -91,7 +89,9 @@ public class SourcesXmlResolver implements SubjectResolver {
         // ignore.  subject might be in another source.
       }
     }    
-    return this.thereCanOnlyBeOne(subjects, id);
+    Subject subject = this.thereCanOnlyBeOne(subjects, id);
+    subject = SubjectFinder.filterSubject(GrouperSession.staticGrouperSession(), subject, null);
+    return subject;
   }            
 
   /**
@@ -106,6 +106,12 @@ public class SourcesXmlResolver implements SubjectResolver {
   {
     Subject subj = this.getSource(source).getSubject(id, true);
     updateMemberAttributes(subj);
+    
+    //before we have started up, it wont find the session :)
+    if (GrouperStartup.isFinishedStartupSuccessfully() || !StringUtils.equals( GrouperConfig.ROOT, id) 
+        || !StringUtils.equals(InternalSourceAdapter.ID, source)) {
+      subj = SubjectFinder.filterSubject(GrouperSession.staticGrouperSession(), subj, null);
+    }
     return subj;
   }
 
@@ -132,6 +138,9 @@ public class SourcesXmlResolver implements SubjectResolver {
         }
       }
     }
+
+    //filter if necessary
+    subjects = SubjectFinder.filterSubjects(GrouperSession.staticGrouperSession(), subjects, null);
     
     if (GrouperConfig.getPropertyBoolean("grouper.sort.subjectSets.exactOnTop", true)) {
       subjects = SubjectHelper.sortSetForSearch(subjects, query);
@@ -151,6 +160,9 @@ public class SourcesXmlResolver implements SubjectResolver {
     Source sourceObject = this.getSource(source);
     try {
       Set<Subject> subjects = sourceObject.search(query);
+      
+      subjects = SubjectFinder.filterSubjects(GrouperSession.staticGrouperSession(), subjects, null);
+      
       if (GrouperConfig.getPropertyBoolean("grouper.sort.subjectSets.exactOnTop", true)) {
         subjects = SubjectHelper.sortSetForSearch(subjects, query);
       }
@@ -186,7 +198,9 @@ public class SourcesXmlResolver implements SubjectResolver {
         // ignore.  subject might be in another source.
       }
     }    
-    return this.thereCanOnlyBeOne(subjects, id);
+    Subject subject = this.thereCanOnlyBeOne(subjects, id);
+    subject = SubjectFinder.filterSubject(GrouperSession.staticGrouperSession(), subject, null);
+    return subject;
   }            
 
   /**
@@ -201,6 +215,7 @@ public class SourcesXmlResolver implements SubjectResolver {
   {
     Subject subj = this.getSource(source).getSubjectByIdentifier(id, true);
     updateMemberAttributes(subj);
+    subj = SubjectFinder.filterSubject(GrouperSession.staticGrouperSession(), subj, null);
     return subj;
   }
 
@@ -246,6 +261,9 @@ public class SourcesXmlResolver implements SubjectResolver {
   }
   
   /**
+   * @param subjectType 
+   * @return the sources
+   * @throws IllegalArgumentException 
    * @see     SubjectResolver#getSources(String)
    * @since   1.2.1
    */
@@ -264,12 +282,10 @@ public class SourcesXmlResolver implements SubjectResolver {
    */
   private Subject thereCanOnlyBeOne(List<Subject> subjects, String id) 
     throws  SubjectNotFoundException,
-            SubjectNotUniqueException
-  {
-    if      (subjects.size() == 0) {
+            SubjectNotUniqueException {
+    if (subjects.size() == 0) {
       throw new SubjectNotFoundException("subject not found: " + id);
-    }
-    else if (subjects.size() == 1) {
+    } else if (subjects.size() == 1) {
       Subject subj = subjects.get(0);
       updateMemberAttributes(subj);
       return subj;
@@ -292,7 +308,9 @@ public class SourcesXmlResolver implements SubjectResolver {
         // ignore.  subject might be in another source.
       }
     }    
-    return this.thereCanOnlyBeOne(subjects, idOrIdentifier);
+    Subject subject = this.thereCanOnlyBeOne(subjects, idOrIdentifier);
+    subject = SubjectFinder.filterSubject(GrouperSession.staticGrouperSession(), subject, null);
+    return subject;
   }
 
   /**
@@ -304,6 +322,7 @@ public class SourcesXmlResolver implements SubjectResolver {
     
     Subject subj = this.getSource(source).getSubjectByIdOrIdentifier(id, true);
     updateMemberAttributes(subj);
+    subj = SubjectFinder.filterSubject(GrouperSession.staticGrouperSession(), subj, null);
     return subj;
   }
   
@@ -344,6 +363,8 @@ public class SourcesXmlResolver implements SubjectResolver {
 
       }
     }
+    
+    subjects = SubjectFinder.filterSubjects(GrouperSession.staticGrouperSession(), subjects, stemName);
     
     if (GrouperConfig.getPropertyBoolean("grouper.sort.subjectSets.exactOnTop", true)) {
       subjects = SubjectHelper.sortSetForSearch(subjects, query);

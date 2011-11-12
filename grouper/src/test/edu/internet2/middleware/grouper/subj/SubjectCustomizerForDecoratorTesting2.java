@@ -7,7 +7,11 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.GrouperSession;
-import edu.internet2.middleware.grouper.membership.GroupMembershipResult;
+import edu.internet2.middleware.grouper.MembershipFinder;
+import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.StemFinder;
+import edu.internet2.middleware.grouper.Stem.Scope;
+import edu.internet2.middleware.grouper.membership.MembershipResult;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
@@ -28,22 +32,25 @@ public class SubjectCustomizerForDecoratorTesting2 extends SubjectCustomizerBase
   private static final String SOURCE_ID = "jdbc";
 
   /**
-   * @see SubjectCustomizer#filterSubjects(GrouperSession, Set)
+   * @see SubjectCustomizer#filterSubjects(GrouperSession, Set, String)
    */
   @Override
-  public Set<Subject> filterSubjects(GrouperSession grouperSession, Set<Subject> subjects) {
+  public Set<Subject> filterSubjects(GrouperSession grouperSession, Set<Subject> subjects, String findSubjectsInStemName) {
     
     //nothing to do if no results
     if (GrouperUtil.length(subjects) == 0) {
       return subjects;
     }
     
-    //get results in one query
-    GroupMembershipResult groupMembershipResult = calculateMembershipsInStems(subjects, IncludeGrouperSessionSubject.TRUE, 
-        GrouperUtil.toSet(PRIVILEGED_ADMIN_GROUP_NAME), GrouperUtil.toSet(COLLAB_STEM_NAME));
+    Stem stem = StemFinder.findByName(grouperSession.internal_getRootSession(), COLLAB_STEM_NAME, true);
     
+    //get results in one query
+    MembershipResult groupMembershipResult = new MembershipFinder().assignCheckSecurity(false).addGroup(PRIVILEGED_ADMIN_GROUP_NAME)
+      .addSubjects(subjects).addSubject(grouperSession.getSubject()).assignStem(stem).assignStemScope(Scope.SUB)
+      .findMembershipResult(); 
+        
     //see if the user is privileged
-    boolean grouperSessionIsPrivileged = groupMembershipResult.hasMembership(PRIVILEGED_ADMIN_GROUP_NAME, grouperSession.getSubject());
+    boolean grouperSessionIsPrivileged = groupMembershipResult.hasGroupMembership(PRIVILEGED_ADMIN_GROUP_NAME, grouperSession.getSubject());
     
     //if so, we are done, they can see stuff
     if (grouperSessionIsPrivileged) {

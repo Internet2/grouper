@@ -480,6 +480,17 @@ public class PermissionFinder {
     
     return permissionLimitBeanMap;
   }
+
+  /**
+   * permission result gives helper methods in processing the results
+   * @return the permission result
+   */
+  public PermissionResult findPermissionResult() {
+    
+    Set<PermissionEntry> permissionEntries = this.findPermissions();
+    
+    return new PermissionResult(permissionEntries);
+  }
   
   /**
    * find a list of permissions

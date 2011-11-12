@@ -497,6 +497,24 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
       Field field,  
       Set<Source> sources, String scope, Stem stem, Scope stemScope, Boolean enabled) {
     
+    return findAllByGroupOwnerOptions(totalGroupIds, totalMemberIds, totalMembershipIds, membershipType, field, sources, scope, stem, stemScope, enabled, null);
+    
+  }
+    
+    
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.internal.dao.MembershipDAO#findAllByGroupOwnerOptions(java.util.Collection, java.util.Collection, java.util.Collection, edu.internet2.middleware.grouper.membership.MembershipType, edu.internet2.middleware.grouper.Field, Set, java.lang.String, edu.internet2.middleware.grouper.Stem, edu.internet2.middleware.grouper.Stem.Scope, java.lang.Boolean, Boolean)
+   */
+  public Set<Object[]> findAllByGroupOwnerOptions(Collection<String> totalGroupIds, Collection<String> totalMemberIds,
+      Collection<String> totalMembershipIds, MembershipType membershipType,
+      Field field,  
+      Set<Source> sources, String scope, Stem stem, Scope stemScope, Boolean enabled, Boolean checkSecurity) {
+    
+    if (checkSecurity == null) {
+      checkSecurity = Boolean.TRUE;
+    }
+    
     if ((stem == null) != (stemScope == null)) {
       throw new RuntimeException("If stem is set, then stem scope must be set.  If stem isnt set, then stem scope must not be set: " + stem + ", " + stemScope);
     }
@@ -544,10 +562,15 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
             sql.append(", Field f ");
           }
           
-          boolean changedQuery = grouperSession.getAccessResolver().hqlFilterGroupsWhereClause(
+          //maybe we are checking security, maybe not
+          boolean changedQuery = false;
+          
+          if (checkSecurity) { 
+            changedQuery = grouperSession.getAccessResolver().hqlFilterGroupsWhereClause(
               grouperSessionSubject, byHqlStatic, 
               sql, "ms.ownerGroupId", AccessPrivilege.READ_PRIVILEGES);
-
+          }
+          
           if (!changedQuery) {
             sql.append(" where ");
           } else {

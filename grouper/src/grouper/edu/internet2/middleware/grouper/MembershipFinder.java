@@ -16,12 +16,14 @@
 */
 
 package edu.internet2.middleware.grouper;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Stem.Scope;
@@ -36,6 +38,7 @@ import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.internal.dao.MembershipDAO;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.internal.dao.QueryPaging;
+import edu.internet2.middleware.grouper.membership.MembershipResult;
 import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.misc.E;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
@@ -58,8 +61,285 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  */
 public class MembershipFinder {
   
+
+  /** membership ids to search for */
+  private Collection<String> membershipIds;
+
+  /** membership type to look for */
+  private MembershipType membershipType;
+
+  /** field to look for */
+  private Field field;
+
+  /** sources to look in */
+  private Set<Source> sources;
+
+  /** stem to look in */
+  private Stem stem;
+
+  /** stem scope to look in */
+  private Scope stemScope;
+  
+  /** if we should check security */
+  private boolean checkSecurity = true;
+
+  /**
+   * assign a stem scope to look in
+   * @param theStemScope
+   * @return this for chaining
+   */
+  public MembershipFinder assignStemScope(Scope theStemScope) {
+    this.stemScope = theStemScope;
+    return this;
+  }
+  
+  /**
+   * assign a stem to search in
+   * @param theStem
+   * @return this for chaining
+   */
+  public MembershipFinder assignStem(Stem theStem) {
+    this.stem = theStem;
+    return this;
+  }
+  
+  /**
+   * assign if this should check security or run as grouper system
+   * @param shouldCheckSecurity
+   * @return this for chaining
+   */
+  public MembershipFinder assignCheckSecurity(boolean shouldCheckSecurity) {
+    this.checkSecurity = shouldCheckSecurity;
+    return this;
+  }
   
   
+  /**
+   * 
+   */
+  private Collection<String> memberIds = null;
+  
+  /**
+   * add a member id to the search criteria
+   * @param memberId
+   * @return this for chaining
+   */
+  public MembershipFinder addMemberId(String memberId) {
+    if (this.memberIds == null) {
+      this.memberIds = new ArrayList<String>();
+    }
+    //no need to look for dupes
+    if (!this.memberIds.contains(memberId)) {
+      this.memberIds.add(memberId);
+    }
+    return this;
+  }
+
+  /**
+   * add subjects
+   * @param subjects
+   * @return this for chaining
+   */
+  public MembershipFinder addSubjects(Collection<Subject> subjects) {
+    
+    Set<Member> members = MemberFinder.findBySubjects(subjects, false);
+    
+    for (Member member : GrouperUtil.nonNull(members)) {
+      this.addMemberId(member.getUuid());
+    }
+    return this;
+  }
+  
+  /**
+   * add a collection of member ids to look for
+   * @param theMemberIds
+   * @return this for chaining
+   */
+  public MembershipFinder assignMemberIds(Collection<String> theMemberIds) {
+    this.memberIds = theMemberIds;
+    return this;
+  }
+  
+  /**
+   * add a subject to look for.
+   * @param subject
+   * @return this for chaining
+   */
+  public MembershipFinder addSubject(Subject subject) {
+    
+    //note, since we are chaining, we need to add if not found, since if we dont, it will find for
+    //all subjects if no more are added
+    Member member = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), subject, true);
+    return this.addMemberId(member.getUuid());
+  }
+  
+  /**
+   * 
+   */
+  private Collection<String> groupIds = null;
+  
+  /**
+   * add a role id to the search criteria
+   * @param groupId
+   * @return this for chaining
+   */
+  public MembershipFinder addGroupId(String groupId) {
+    if (!StringUtils.isBlank(groupId)) {
+      if (this.groupIds == null) {
+        this.groupIds = new ArrayList<String>();
+      }
+      //no need to look for dupes
+      if (!this.groupIds.contains(groupId)) {
+        this.groupIds.add(groupId);
+      }
+    }
+    return this;
+  }
+
+  /**
+   * assign a collection of role ids to look for
+   * @param theRoleIds
+   * @return this for chaining
+   */
+  public MembershipFinder assignRoleIds(Collection<String> theRoleIds) {
+    this.groupIds = theRoleIds;
+    return this;
+  }
+  
+  /**
+   * add a role to look for.
+   * @param group
+   * @return this for chaining
+   */
+  public MembershipFinder addGroup(Group group) {
+    
+    return this.addGroupId(group.getId());
+  }
+  
+  /**
+   * add a role to look for by name.
+   * @param name
+   * @return this for chaining
+   */
+  public MembershipFinder addGroup(String name) {
+    
+    Group group = GroupFinder.findByName(GrouperSession.staticGrouperSession(), name, true);
+    
+    return this.addGroupId(group.getId());
+  }
+  
+  
+  /** if we should look for all, or enabled only.  default is all */
+  private Boolean enabled;
+  
+  /**
+   * true means enabled only, false, means disabled only, and null means all
+   * @param theEnabled
+   * @return this for chaining
+   */
+  public MembershipFinder assignEnabled(Boolean theEnabled) {
+    this.enabled = theEnabled;
+    return this;
+  }
+  
+  /**
+   * based on what you are querying for, see if has membership.
+   * Note, you should be looking for one subject, 
+   * one group, one field, etc
+   * If you are looking for multiple, it will see if anyone has that membership or any group
+   * @return true if has membership, false if not
+   */
+  public boolean hasMembership() {
+    
+    return GrouperUtil.length(findMembershipsGroupsMembers()) > 0;
+  }
+  
+  /**
+   * membership result gives helper methods in processing the results
+   * @return the membership result
+   */
+  public MembershipResult findMembershipResult() {
+    
+    Set<Object[]> membershipsGroupsMembers = this.findMembershipsGroupsMembers();
+    String theFieldId = this.field == null ? null : this.field.getUuid();
+    return new MembershipResult(membershipsGroupsMembers, theFieldId);
+  }
+  
+  /**
+   * find a set of object arrays which have a membership, group, and member inside
+   * @return the set of arrays never null
+   */
+  public Set<Object[]> findMembershipsGroupsMembers() {
+
+    return edu.internet2.middleware.grouper.MembershipFinder.findMemberships(this.groupIds, this.memberIds, 
+        this.membershipIds, this.membershipType, this.field, this.sources, null, this.stem, this.stemScope, this.enabled, this.checkSecurity);
+    
+  }
+
+  /**
+   * find a permission
+   * @param exceptionIfNotFound true if exception should be thrown if permission not found
+   * @return the permission or null
+   */
+  public Membership findMembership(boolean exceptionIfNotFound) {
+
+    Set<Object[]> memberships = findMembershipsGroupsMembers();
+    
+    //this should find one if it is there...
+    Membership membership = null;
+    
+    if (GrouperUtil.length(memberships) > 1) {
+      throw new RuntimeException("Why is there more than one membership found? " + this);
+    }
+    
+    if (GrouperUtil.length(memberships) == 1) {
+      membership = (Membership)memberships.iterator().next()[0];
+    }
+    
+    if (membership == null && exceptionIfNotFound) {
+      throw new RuntimeException("could not find membership: " 
+          + this);
+    }
+    return membership;
+    
+  }
+
+  /**
+   * @see Object#toString()
+   */
+  @Override
+  public String toString() {
+    StringBuilder result = new StringBuilder();
+    if (enabled != null) {
+      result.append("enabled: ").append(this.enabled);
+    }
+    if (GrouperUtil.length(this.memberIds) > 0) {
+      result.append("memberIds: ").append(GrouperUtil.toStringForLog(this.memberIds, 100));
+    }
+    if (this.field != null) {
+      result.append("field: ").append(this.field);
+    }
+    if (GrouperUtil.length(this.groupIds) > 0) {
+      result.append("groupIds: ").append(GrouperUtil.toStringForLog(this.groupIds, 100));
+    }
+    if (GrouperUtil.length(this.membershipIds) > 0) {
+      result.append("membershipIds: ").append(GrouperUtil.toStringForLog(this.membershipIds, 100));
+    }
+    if (GrouperUtil.length(this.membershipType) > 0) {
+      result.append("membershipType: ").append(this.membershipType);
+    }
+    if (GrouperUtil.length(this.sources) > 0) {
+      result.append("sources: ").append(GrouperUtil.toStringForLog(this.sources, 100));
+    }
+    if (GrouperUtil.length(this.stem) > 0) {
+      result.append("stem: ").append(this.stem);
+    }
+    if (GrouperUtil.length(this.stemScope) > 0) {
+      result.append("membershipType: ").append(this.membershipType);
+    }
+    return result.toString();
+  }
+
   /**
    * @see edu.internet2.middleware.grouper.internal.dao.MembershipDAO#findAllByGroupOwnerOptions(java.util.Collection, java.util.Collection, java.util.Collection, edu.internet2.middleware.grouper.membership.MembershipType, edu.internet2.middleware.grouper.Field, Set, java.lang.String, edu.internet2.middleware.grouper.Stem, edu.internet2.middleware.grouper.Stem.Scope, java.lang.Boolean)
    * @param groupIds to limit memberships to (cant have more than 100 bind variables)
@@ -78,8 +358,32 @@ public class MembershipFinder {
       Collection<String> membershipIds, MembershipType membershipType,
       Field field,  
       Set<Source> sources, String scope, Stem stem, Scope stemScope, Boolean enabled) {
+    
+    return findMemberships(groupIds, memberIds, membershipIds, membershipType, field, sources, scope, stem, stemScope, enabled, null);
+    
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.MembershipDAO#findAllByGroupOwnerOptions(java.util.Collection, java.util.Collection, java.util.Collection, edu.internet2.middleware.grouper.membership.MembershipType, edu.internet2.middleware.grouper.Field, Set, java.lang.String, edu.internet2.middleware.grouper.Stem, edu.internet2.middleware.grouper.Stem.Scope, java.lang.Boolean)
+   * @param groupIds to limit memberships to (cant have more than 100 bind variables)
+   * @param memberIds to limit memberships to (cant have more than 100 bind variables)
+   * @param membershipIds to limit memberships to (cant have more than 100 bind variables)
+   * @param membershipType Immediate, NonImmediate, etc
+   * @param field if finding one field, list here, otherwise all list fields will be returned
+   * @param sources if limiting memberships of members in certain sources, list here
+   * @param scope sql like string which will have a % appended to it
+   * @param stem if looking in a certain stem
+   * @param stemScope if looking only in this stem, or all substems
+   * @param enabled null for all, true for enabled only, false for disabled only
+   * @param shouldCheckSecurity if we should check security, default to true
+   * @return the set of arrays of Membership, Group, and Member
+   */
+  public static Set<Object[]> findMemberships(Collection<String> groupIds, Collection<String> memberIds,
+      Collection<String> membershipIds, MembershipType membershipType,
+      Field field,  
+      Set<Source> sources, String scope, Stem stem, Scope stemScope, Boolean enabled, Boolean shouldCheckSecurity) {
     return GrouperDAOFactory.getFactory().getMembership().findAllByGroupOwnerOptions(groupIds, memberIds,
-        membershipIds, membershipType, field, sources, scope, stem, stemScope, enabled);  
+        membershipIds, membershipType, field, sources, scope, stem, stemScope, enabled, shouldCheckSecurity);  
   }
   
   /**
@@ -142,7 +446,7 @@ public class MembershipFinder {
       Member      m   = MemberFinder.findBySubject(s, subj, true);
       Membership  ms  = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType( 
           g.getUuid(), m.getUuid(), f, MembershipType.COMPOSITE.getTypeString(), true, true);
-      PrivilegeHelper.dispatch( s, ms.getGroup(), s.getSubject(), f.getReadPriv() );
+      PrivilegeHelper.dispatch( s, ms.getOwnerGroup(), s.getSubject(), f.getReadPriv() );
       return ms;
     } catch (MembershipNotFoundException mnfe)  {
       if (exceptionOnNull) {
@@ -300,7 +604,7 @@ public class MembershipFinder {
       Member      m   = MemberFinder.findBySubject(s, subj, true);
       Membership  ms  = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType( 
           g.getUuid(), m.getUuid(), f, MembershipType.IMMEDIATE.getTypeString(), true, true);
-      PrivilegeHelper.dispatch( s, ms.getGroup(), s.getSubject(), f.getReadPriv() );
+      PrivilegeHelper.dispatch( s, ms.getOwnerGroup(), s.getSubject(), f.getReadPriv() );
       return ms;
     } catch (MembershipNotFoundException mnfe)         {
       if (exceptionIfNotFound) {

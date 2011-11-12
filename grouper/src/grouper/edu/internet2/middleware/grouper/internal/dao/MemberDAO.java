@@ -16,13 +16,13 @@
 */
 
 package edu.internet2.middleware.grouper.internal.dao;
+import java.util.Collection;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
-import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.exception.MemberNotFoundException;
 import edu.internet2.middleware.grouper.exception.MemberNotUniqueException;
 import edu.internet2.middleware.grouper.membership.MembershipType;
@@ -236,6 +236,15 @@ public interface MemberDAO extends GrouperDAO {
   public abstract Set<Member> findBySubjectsInGroup(GrouperSession grouperSession,
       Set<Subject> subjects, Group group, Field field, MembershipType membershipType);
 
+  /**
+   * find members by subjects and create if not exist possibly
+   * @param subjects
+   * @param createIfNotExists
+   * @return the members
+   */
+  public Set<Member> findBySubjects(
+      Collection<Subject> subjects, boolean createIfNotExists);
+  
   /**
    * find a member by uuid or subject id
    * @param uuid

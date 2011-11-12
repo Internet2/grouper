@@ -101,7 +101,7 @@ public class TestSubjectFinder extends GrouperTest {
    */
   public void testSubjectDecorator() {
     
-    SubjectFinder.internalClearSubjectCustomizer();
+    SubjectFinder.internalClearSubjectCustomizerCache();
     
     
     try {
@@ -123,7 +123,7 @@ public class TestSubjectFinder extends GrouperTest {
       //lets set the subject customizer to a test one
       
     } finally {
-      SubjectFinder.internalClearSubjectCustomizer();
+      SubjectFinder.internalClearSubjectCustomizerCache();
     }
   }
   

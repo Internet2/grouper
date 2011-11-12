@@ -5314,7 +5314,11 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
    */
   public void setAlternateNameDb(String alternateName) {
     this.alternateNameDb = alternateName;
+    this.alternateNames = null;
   }
+  
+  /** alternate names */
+  private Set<String> alternateNames = null;
   
   /**
    * Returns the alternate names for the group.  Only one alternate name is supported
@@ -5322,11 +5326,16 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
    * @return Set of alternate names.
    */
   public Set<String> getAlternateNames() {
-    Set<String> alternateNames = new LinkedHashSet<String>();
-    if (alternateNameDb != null) {
-      alternateNames.add(this.alternateNameDb);
+    
+    //lazy load this set
+    if (this.alternateNames == null) {
+      this.alternateNames = new LinkedHashSet<String>();
+      if (!StringUtils.isBlank(this.alternateNameDb)) {
+        this.alternateNames.add(this.alternateNameDb);
+      }
+      this.alternateNames = Collections.unmodifiableSet(this.alternateNames);
     }
-    return alternateNames;
+    return this.alternateNames;
   }
 
   /**

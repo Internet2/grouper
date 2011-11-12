@@ -60,7 +60,7 @@ public interface PermissionEntryDAO extends GrouperDAO {
   
   /**
    * securely search for assignments.  need to pass in either the assign ids, def ids, def name ids, or group ids
-   * cannot have more than 100 bind variables
+   * cannot have more than 100 bind variables.  well, you can pass more than 100 members... it will batch
    * @param attributeDefIds optional
    * @param attributeDefNameIds mutually exclusive with attributeDefIds
    * @param roleIds optional

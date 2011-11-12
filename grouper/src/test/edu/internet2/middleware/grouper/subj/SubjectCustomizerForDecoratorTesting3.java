@@ -11,11 +11,12 @@ import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.MembershipFinder;
 import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
-import edu.internet2.middleware.grouper.membership.GroupMembershipResult;
-import edu.internet2.middleware.grouper.membership.PermissionResult;
+import edu.internet2.middleware.grouper.membership.MembershipResult;
+import edu.internet2.middleware.grouper.permissions.PermissionResult;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
@@ -49,12 +50,12 @@ public class SubjectCustomizerForDecoratorTesting3 extends SubjectCustomizerBase
     }
     
     //get results in one query
-    GroupMembershipResult groupMembershipResult = calculateMemberships(subjects, IncludeGrouperSessionSubject.TRUE, 
-        GrouperUtil.toSet(PRIVILEGED_ADMIN_GROUP_NAME));
-
-    
+    MembershipResult groupMembershipResult = new MembershipFinder().assignCheckSecurity(false)
+      .addGroup(PRIVILEGED_ADMIN_GROUP_NAME).addSubject(grouperSession.getSubject())
+      .findMembershipResult();
+          
     //see if the user is privileged
-    boolean grouperSessionIsPrivileged = groupMembershipResult.hasMembership(PRIVILEGED_ADMIN_GROUP_NAME, grouperSession.getSubject());
+    boolean grouperSessionIsPrivileged = groupMembershipResult.hasGroupMembership(PRIVILEGED_ADMIN_GROUP_NAME, grouperSession.getSubject());
     
     //if so, we are done, they can see stuff
     if (grouperSessionIsPrivileged) {
@@ -62,11 +63,12 @@ public class SubjectCustomizerForDecoratorTesting3 extends SubjectCustomizerBase
     }
 
     //see which attributes the user has access to based on permissions
-    PermissionResult permissionResult =  calculatePermissionsInStem(null, 
-        IncludeGrouperSessionSubject.TRUE, PERMISSIONS_STEM_NAME, Scope.ONE);
+    PermissionResult permissionResult =  //calculatePermissionsInStem(null, 
+        //IncludeGrouperSessionSubject.TRUE, PERMISSIONS_STEM_NAME, Scope.ONE);
+      null;
     
     //see which columns the user can see
-    Set<String> columnsSet = permissionResult.permissionNameExtensions(PERMISSIONS_STEM_NAME, grouperSession.getSubject(), Scope.ONE);
+    Set<String> columnsSet = permissionResult.permissionNameExtensions(PERMISSIONS_STEM_NAME, "read", grouperSession.getSubject(), Scope.ONE);
     //intersect the columns the user can see with the ones requested
     columnsSet.retainAll(attributeNamesRequested);
 
