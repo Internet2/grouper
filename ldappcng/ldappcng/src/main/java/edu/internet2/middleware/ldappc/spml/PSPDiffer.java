@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.openspml.v2.msg.spml.AddRequest;
 import org.openspml.v2.msg.spml.CapabilityData;
 import org.openspml.v2.msg.spml.ErrorCode;
 import org.openspml.v2.msg.spml.LookupRequest;
@@ -53,12 +54,10 @@ import edu.internet2.middleware.ldappc.synchronize.AttributeModifier;
 import edu.internet2.middleware.ldappc.util.PSPUtil;
 
 /**
- * This class, which diffs SPML Provisioning Service Objects, suffers from a lack of a
- * thoroughly considered design. Most methods existed previously in the Provisioning
- * Service Provider, but were moved into their own class once the number of method
- * arguments exceeded three. Easy to read diff logic is a must for a provisioner; this is
- * an incomplete attempt. Perhaps the objects should diff themselves, since only they know
- * their data.
+ * This class, which diffs SPML Provisioning Service Objects, suffers from a lack of a thoroughly considered design.
+ * Most methods existed previously in the Provisioning Service Provider, but were moved into their own class once the
+ * number of method arguments exceeded three. Easy to read diff logic is a must for a provisioner; this is an incomplete
+ * attempt. Perhaps the objects should diff themselves, since only they know their data.
  */
 
 // TODO Most of these methods assume an <code>PSODefinition.ENTITY_NAME_ATTRIBUTE</code>
@@ -79,15 +78,11 @@ public class PSPDiffer {
   private DiffResponse diffResponse;
 
   /**
-   * Calculate the changes necessary to provision an object specified in the given
-   * <code>DiffRequest</code>.
+   * Calculate the changes necessary to provision an object specified in the given <code>DiffRequest</code>.
    * 
-   * @param psp
-   *          the <code>ProvisioningServiceProvider</code>
-   * @param diffRequest
-   *          the <code>DiffRequest</code> to be processed
-   * @param diffResponse
-   *          the result of the processing of the <code>DiffRequest</code>
+   * @param psp the <code>ProvisioningServiceProvider</code>
+   * @param diffRequest the <code>DiffRequest</code> to be processed
+   * @param diffResponse the result of the processing of the <code>DiffRequest</code>
    * 
    */
   public PSPDiffer(PSP psp, DiffRequest diffRequest, DiffResponse diffResponse) {
@@ -117,7 +112,8 @@ public class PSPDiffer {
     }
 
     for (PSO correctPSO : calcResponse.getPSOs()) {
-      // Lookup a PSO Identifier to see if and/or how it is provisioned.
+
+      // Lookup a PSO Identifier to see how it is provisioned.
       LookupRequest lookupRequest = new LookupRequest();
       lookupRequest.setPsoID(correctPSO.getPsoID());
       lookupRequest.setRequestID(psp.generateRequestID());
@@ -125,34 +121,48 @@ public class PSPDiffer {
 
       LookupResponse lookupResponse = psp.execute(lookupRequest);
 
-      if (lookupResponse.getStatus().equals(StatusCode.FAILURE)
-          && lookupResponse.getError().equals(ErrorCode.NO_SUCH_IDENTIFIER)) {
-        // pso should be added to target
-        diffResponse.addRequest(psp.add(correctPSO, diffRequest.getReturnData()));
-      } else if (lookupResponse.getStatus().equals(StatusCode.FAILURE)) {
-        // any other error is a failure
-        psp.fail(diffResponse, lookupResponse.getError(), "Lookup request failed.");
-        // FUTURE do we ever continue on failure ?
-        return;
-      } else {
-        try {
+      try {
+        if (PSP.doesIdentifierExist(lookupResponse)) {
+          // if identifier exists, diff
           PSO currentPSO = lookupResponse.getPso();
-          List<ModifyRequest> modifyRequests = this.diff(correctPSO, currentPSO);
-          if (modifyRequests.isEmpty()) {
-            SynchronizedResponse synchronizedResponse = new SynchronizedResponse();
-            synchronizedResponse.setPsoID(currentPSO.getPsoID());
-            diffResponse.addResponse(synchronizedResponse);
+          diff(correctPSO, currentPSO);
+
+        } else {
+          // if identifier does not exist, do we need to rename ?
+          ModifyRequest modifyRequest = psp.renameRequest(correctPSO);
+
+          // if modify request is not null, rename
+          if (modifyRequest != null) {
+            diffResponse.addRequest(modifyRequest);
           } else {
-            for (ModifyRequest modifyRequest : modifyRequests) {
-              modifyRequest.setReturnData(diffRequest.getReturnData());
-              diffResponse.addRequest(modifyRequest);
-            }
+            // if not renaming, add
+            AddRequest addRequest = psp.add(correctPSO, diffRequest.getReturnData());
+            diffResponse.addRequest(addRequest);
           }
-        } catch (LdappcException e) {
-          psp.fail(diffResponse, ErrorCode.CUSTOM_ERROR, e);
-        } catch (Spml2Exception e) {
-          psp.fail(diffResponse, ErrorCode.CUSTOM_ERROR, e);
         }
+      } catch (Spml2Exception e) {
+        psp.fail(diffResponse, ErrorCode.CUSTOM_ERROR, e);
+      } catch (LdappcException e) {
+        psp.fail(diffResponse, ErrorCode.CUSTOM_ERROR, e);
+      }
+    }
+  }
+
+  private void diff(PSO correctPSO, PSO currentPSO) throws LdappcException, Spml2Exception {
+
+    List<ModifyRequest> modifyRequests = diff(correctPSO, currentPSO, true);
+
+    if (modifyRequests.isEmpty()) {
+
+      SynchronizedResponse synchronizedResponse = new SynchronizedResponse();
+      synchronizedResponse.setPsoID(currentPSO.getPsoID());
+      diffResponse.addResponse(synchronizedResponse);
+
+    } else {
+
+      for (ModifyRequest modifyRequest : modifyRequests) {
+        modifyRequest.setReturnData(diffRequest.getReturnData());
+        diffResponse.addRequest(modifyRequest);
       }
     }
   }
@@ -160,26 +170,21 @@ public class PSPDiffer {
   /**
    * Diff the data and reference capability data of two Provisioning Service Objects.
    * 
-   * @param correctPSO
-   *          the representation of the PSO as it should be
-   * @param currentPSO
-   *          the representation of the PSO as it is
-   * @return the <code>ModifyRequests</code> which would make the currentPSO identical to
-   *         the correctPSO
-   * @throws LdappcException
-   *           if the Provisioning Service Objects do not have the same identifier or
-   *           schema entity name, the latter requires a
-   *           <code>PSODefinition.ENTITY_NAME_ATTRIBUTE</code>. This is not ideal.
+   * @param correctPSO the representation of the PSO as it should be
+   * @param currentPSO the representation of the PSO as it is
+   * @return the <code>ModifyRequests</code> which would make the currentPSO identical to the correctPSO
+   * @throws LdappcException if the Provisioning Service Objects do not have the same identifier or schema entity name,
+   *           the latter requires a <code>PSODefinition.ENTITY_NAME_ATTRIBUTE</code>. This is not ideal.
    * @throws Spml2Exception
    */
-  private List<ModifyRequest> diff(PSO correctPSO, PSO currentPSO) throws LdappcException,
+  private List<ModifyRequest> diff(PSO correctPSO, PSO currentPSO, boolean psoIDMustMatch) throws LdappcException,
       Spml2Exception {
 
     List<ModifyRequest> modifyRequests = new ArrayList<ModifyRequest>();
 
-    if (!correctPSO.getPsoID().equals(currentPSO.getPsoID())) {
-      LOG.error("Unable to diff objects with different identifiers : '{}' and '{}'", PSPUtil.getString(correctPSO
-                .getPsoID()), PSPUtil.toString(currentPSO.getPsoID()));
+    if (psoIDMustMatch && !correctPSO.getPsoID().equals(currentPSO.getPsoID())) {
+      LOG.error("Unable to diff objects with different identifiers : '{}' and '{}'",
+          PSPUtil.getString(correctPSO.getPsoID()), PSPUtil.toString(currentPSO.getPsoID()));
       throw new LdappcException("Unable to diff objects with different identifiers.");
     }
 
@@ -188,7 +193,7 @@ public class PSPDiffer {
     String currentEntityName = currentPSO.findOpenContentAttrValueByName(PSODefinition.ENTITY_NAME_ATTRIBUTE);
     if (!correctEntityName.equals(currentEntityName)) {
       LOG.error("Unable to diff objects with different entityNames : '{}' and '{}'", correctEntityName,
-                currentEntityName);
+          currentEntityName);
       throw new LdappcException("Unable to diff objects with different entityNames.");
     }
 
@@ -216,8 +221,8 @@ public class PSPDiffer {
       modifyRequests.add(modifyRequest);
     } else {
       modifyRequests.addAll(this.unbundleDataModifications(dataMods, correctPSO.getPsoID(), correctEntityName));
-      modifyRequests.addAll(this.unbundleReferenceModifications(referenceMods, correctPSO.getPsoID(),
-                correctEntityName));
+      modifyRequests
+          .addAll(this.unbundleReferenceModifications(referenceMods, correctPSO.getPsoID(), correctEntityName));
     }
 
     return modifyRequests;
@@ -226,16 +231,11 @@ public class PSPDiffer {
   /**
    * Diff the data of two Provisioning Service Objects. @see #diff(PSO, PSO)
    * 
-   * @param correctPSO
-   *          the representation of the PSO as it should be
-   * @param currentPSO
-   *          the representation of the PSO as it is
-   * @return the <code>ModifyRequests</code> which would make the currentPSO identical to
-   *         the correctPSO
-   * @throws DSMLProfileException
-   *           if an error occurs determining the <code>ModifyRequest</code>s
-   * @throws LdappcException
-   *           if the Provisioning Service Objects do not have an
+   * @param correctPSO the representation of the PSO as it should be
+   * @param currentPSO the representation of the PSO as it is
+   * @return the <code>ModifyRequests</code> which would make the currentPSO identical to the correctPSO
+   * @throws DSMLProfileException if an error occurs determining the <code>ModifyRequest</code>s
+   * @throws LdappcException if the Provisioning Service Objects do not have an
    *           <code>PSODefinition.ENTITY_NAME_ATTRIBUTE</code>
    */
   private List<Modification> diffData(PSO correctPSO, PSO currentPSO) throws DSMLProfileException {
@@ -294,17 +294,12 @@ public class PSPDiffer {
   }
 
   /**
-   * Diff the reference capability data of two Provisioning Service Objects. @see
-   * #diff(PSO, PSO)
+   * Diff the reference capability data of two Provisioning Service Objects. @see #diff(PSO, PSO)
    * 
-   * @param correctPSO
-   *          the representation of the PSO as it should be
-   * @param currentPSO
-   *          the representation of the PSO as it is
-   * @return the <code>ModifyRequests</code> which would make the currentPSO identical to
-   *         the correctPSO
-   * @throws Spml2Exception
-   *           if an error occurs determining the <code>ModifyRequest</code>s
+   * @param correctPSO the representation of the PSO as it should be
+   * @param currentPSO the representation of the PSO as it is
+   * @return the <code>ModifyRequests</code> which would make the currentPSO identical to the correctPSO
+   * @throws Spml2Exception if an error occurs determining the <code>ModifyRequest</code>s
    */
   private List<Modification> diffReferences(PSO correctPSO, PSO currentPSO) throws Spml2Exception {
     List<Modification> modifications = new ArrayList<Modification>();
@@ -342,15 +337,11 @@ public class PSPDiffer {
   /**
    * Return a <code>ModifyRequest</code> for every data <code>Modification</code>.
    * 
-   * @param dataMods
-   *          the <code>Modification</code>s
-   * @param psoID
-   *          the PSO Identifier
-   * @param entityName
-   *          the schema entity name
+   * @param dataMods the <code>Modification</code>s
+   * @param psoID the PSO Identifier
+   * @param entityName the schema entity name
    * @return the <code>ModifyRequest</code>s
-   * @throws Spml2Exception
-   *           if an error occurs creating the <code>DSMLModification</code>s
+   * @throws Spml2Exception if an error occurs creating the <code>DSMLModification</code>s
    * 
    */
   private List<ModifyRequest> unbundleDataModifications(List<Modification> dataMods, PSOIdentifier psoID,
@@ -369,8 +360,8 @@ public class PSPDiffer {
           if (entityName != null) {
             unbundledModifyRequest.addOpenContentAttr(PSODefinition.ENTITY_NAME_ATTRIBUTE, entityName);
           }
-          DSMLModification dsmlMod = new DSMLModification(dsmlModification.getName(),
-                      new DSMLValue[] { dsmlValue }, dsmlModification.getOperation());
+          DSMLModification dsmlMod = new DSMLModification(dsmlModification.getName(), new DSMLValue[] { dsmlValue },
+              dsmlModification.getOperation());
           Modification unbundledModification = new Modification();
           unbundledModification.setModificationMode(modification.getModificationMode());
           unbundledModification.addOpenContentElement(dsmlMod);
@@ -384,21 +375,15 @@ public class PSPDiffer {
   }
 
   /**
-   * Return a <code>ModifyRequest</code> for every reference capability data
-   * <code>Modification</code>.
+   * Return a <code>ModifyRequest</code> for every reference capability data <code>Modification</code>.
    * 
-   * @param referenceMods
-   *          the <code>Modification</code>s
-   * @param psoID
-   *          the PSO Identifier
-   * @param the
-   *          schema entity name
+   * @param referenceMods the <code>Modification</code>s
+   * @param psoID the PSO Identifier
+   * @param the schema entity name
    * @return the <code>ModifyRequest</code>s
-   * @throws Spml2Exception
-   *           if an error occurs creating the <code>DSMLModification</code>s
+   * @throws Spml2Exception if an error occurs creating the <code>DSMLModification</code>s
    */
-  private List<ModifyRequest> unbundleReferenceModifications(List<Modification> referenceMods,
-      PSOIdentifier psoID,
+  private List<ModifyRequest> unbundleReferenceModifications(List<Modification> referenceMods, PSOIdentifier psoID,
       String entityName) throws Spml2Exception {
     List<ModifyRequest> unbundledModifyRequests = new ArrayList<ModifyRequest>();
 
@@ -412,8 +397,7 @@ public class PSPDiffer {
           if (entityName != null) {
             unbundledModifyRequest.addOpenContentAttr(PSODefinition.ENTITY_NAME_ATTRIBUTE, entityName);
           }
-          CapabilityData capabilityData = PSPUtil
-                      .fromReferences(Arrays.asList(new Reference[] { reference }));
+          CapabilityData capabilityData = PSPUtil.fromReferences(Arrays.asList(new Reference[] { reference }));
           Modification unbundledModification = new Modification();
           unbundledModification.addCapabilityData(capabilityData);
           unbundledModification.setModificationMode(modification.getModificationMode());
@@ -425,5 +409,4 @@ public class PSPDiffer {
 
     return unbundledModifyRequests;
   }
-
 }

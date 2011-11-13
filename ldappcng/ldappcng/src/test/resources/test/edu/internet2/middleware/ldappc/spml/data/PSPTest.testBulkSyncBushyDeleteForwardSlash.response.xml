@@ -1,7 +1,25 @@
 <ldappc:bulkSyncResponse xmlns:ldappc='http://grouper.internet2.edu/ldappc' status='success' requestID='REQUESTID_TEST'>
   <ldappc:syncResponse>
+    <ldappc:synchronizedResponse xmlns:ldappc='http://grouper.internet2.edu/ldappc'>
+      <ldappc:psoID ID='ou=edu,ou=testgroups,${base}' targetID='ldap'/>
+    </ldappc:synchronizedResponse>
+    <ldappc:id ID='edu'/>
+  </ldappc:syncResponse>
+  <ldappc:syncResponse>
+    <ldappc:synchronizedResponse xmlns:ldappc='http://grouper.internet2.edu/ldappc'>
+      <ldappc:psoID ID='cn=test.subject.0,ou=testpeople,${base}' targetID='ldap'/>
+    </ldappc:synchronizedResponse>
+    <ldappc:id ID='test.subject.0'/>
+  </ldappc:syncResponse>
+  <ldappc:syncResponse>
+    <ldappc:synchronizedResponse xmlns:ldappc='http://grouper.internet2.edu/ldappc'>
+      <ldappc:psoID ID='cn=test.subject.1,ou=testpeople,${base}' targetID='ldap'/>
+    </ldappc:synchronizedResponse>
+    <ldappc:id ID='test.subject.1'/>
+  </ldappc:syncResponse>
+  <ldappc:syncResponse>
     <deleteResponse xmlns='urn:oasis:names:tc:SPML:2:0' status='success' requestID='REQUEST_ID'/>
-    <ldappc:id ID='cn=group/F,ou=edu,ou=testgroups,${base}'/>
+    <ldappc:id ID='cn=groupB,ou=edu,ou=testgroups,${base}'/>
   </ldappc:syncResponse>
   <ldappc:syncResponse>
     <deleteResponse xmlns='urn:oasis:names:tc:SPML:2:0' status='success' requestID='REQUEST_ID'/>
@@ -9,6 +27,6 @@
   </ldappc:syncResponse>
   <ldappc:syncResponse>
     <deleteResponse xmlns='urn:oasis:names:tc:SPML:2:0' status='success' requestID='REQUEST_ID'/>
-    <ldappc:id ID='cn=groupB,ou=edu,ou=testgroups,${base}'/>
+    <ldappc:id ID='cn=group/F,ou=edu,ou=testgroups,${base}'/>
   </ldappc:syncResponse>
 </ldappc:bulkSyncResponse>

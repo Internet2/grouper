@@ -1110,25 +1110,9 @@ public class GrouperHelper {
 	 */
 	public static List searchGroupsByAttribute(GrouperSession s, String query, String from,String attr) throws QueryException,StemNotFoundException{
 
-		GrouperQuery q = GrouperQuery.createQuery(s,new GroupAttributeFilter(attr,query,StemFinder.findByName(s,from)));
+		GrouperQuery q = GrouperQuery.createQuery(s,new GroupAttributeFilter(attr,query,StemFinder.findByName(s,from, true)));
 		Set res = q.getGroups();
 		return new ArrayList(res);
-			/*String type = null;
-
-			GrouperQuery grouperQuery = new GrouperQuery(s);
-			
-
-			if (from == null && !grouperQuery.groupAttr(attr,query)) {
-				List empty = new ArrayList();
-				return empty;
-			}
-			if (from != null && !grouperQuery.groupAttr(from,attr,query)) {
-				List empty = new ArrayList();
-				return empty;
-			}
-
-			List res = grouperQuery.getGroups();
-			return res;*/
 		
 	}
 	
@@ -1183,6 +1167,27 @@ public class GrouperHelper {
 		
 	}
 
+  /**
+   * Given simple query, scoping stem and ui browseMode return list of
+   * matching groups, pruned to give results relevant to browseMode.<p/>
+   * The browseMode filtering needs to be factored into a new Class with interface
+   * so that new browse modes can be added easily
+   * 
+   * @param s GrouperSession for authenticated user
+   * @param query to search for
+   * @param from Stem which scopes search
+   * @param searchInDisplayNameOrExtension name=displayName / extension=displayExtension
+   * @param searchInNameOrExtension name=name / extension=extension
+   * @param browseMode UI browse mode to filter results by
+   * @return List of GrouperGroups matched
+   */
+  public static List<Group> searchGroups(GrouperSession s, String query,
+      String from, String searchInDisplayNameOrExtension,
+      String searchInNameOrExtension,String browseMode) throws Exception{
+    List<Group> groups = searchGroupsHelper(s, query, from, searchInDisplayNameOrExtension, searchInNameOrExtension, browseMode);
+    Group.initGroupAttributes(groups);
+    return groups;
+  }
 	
 	/**
 	 * Given simple query, scoping stem and ui browseMode return list of
@@ -1198,7 +1203,7 @@ public class GrouperHelper {
 	 * @param browseMode UI browse mode to filter results by
 	 * @return List of GrouperGroups matched
 	 */
-	public static List searchGroups(GrouperSession s, String query,
+	private static List<Group> searchGroupsHelper(GrouperSession s, String query,
 			String from, String searchInDisplayNameOrExtension,
 			String searchInNameOrExtension,String browseMode) throws Exception{
 		String type = null;
@@ -1325,7 +1330,7 @@ public class GrouperHelper {
 	 * @param s GrouperSession for authenticated user
 	 * @return Set of GrouperGroups
 	 */
-	public static Set getMembershipsSet(GrouperSession s) {
+	public static Set<Group> getMembershipsSet(GrouperSession s) {
 		return getMembershipsSet(s, 0, 100000, null);
 
 	}
@@ -1374,7 +1379,7 @@ public class GrouperHelper {
 	 * @param totalCount number of overall results
 	 * @return Set - subset of groups
 	 */
-	public static Set getMembershipsSet(GrouperSession s, int start,
+	public static Set<Group> getMembershipsSet(GrouperSession s, int start,
 			int pageSize, StringBuffer totalCount) {
 		Set memberships = new LinkedHashSet();
 		Member member = null;
@@ -1411,9 +1416,9 @@ public class GrouperHelper {
 	 * @param privs privileges to test
 	 * @return Set of Grouper Groups 
 	 */
-	public static Set getGroupsForPrivileges(GrouperSession s, String[] privs) throws MemberNotFoundException{
+	public static Set<Group> getGroupsForPrivileges(GrouperSession s, String[] privs) throws MemberNotFoundException{
 
-		Set groups = getGroupsForPrivileges(s, privs, 0, 100000, null);
+		Set<Group> groups = getGroupsForPrivileges(s, privs, 0, 100000, null);
 		
 		return groups;
 	}
@@ -1432,7 +1437,7 @@ public class GrouperHelper {
 	 * @param resultCount overall number of GrouperGroups
 	 * @return Set - subset of GrouperGroups
 	 */
-	public static Set getGroupsForPrivileges(GrouperSession s, String[] privs,
+	public static Set<Group> getGroupsForPrivileges(GrouperSession s, String[] privs,
 			int start, int pageSize, StringBuffer resultCount) throws MemberNotFoundException{
 		
 		Set groupSet = new LinkedHashSet();

@@ -31,6 +31,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.regex.Matcher;
@@ -46,7 +47,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.hsqldb.Session;
 
 
 
@@ -117,6 +117,220 @@ public class SubjectUtils {
    * cache the properties read from resource 
    */
   private static Map<String, Properties> resourcePropertiesCache = new HashMap<String, Properties>();
+
+  /**
+   * do a case-insensitive matching
+   * @param theEnumClass class of the enum
+   * @param <E> generic type
+   * 
+   * @param string
+   * @param exceptionOnNotFound true if exception should be thrown on not found
+   * @return the enum or null or exception if not found
+   * @throws RuntimeException if there is a problem
+   */
+  public static <E extends Enum<?>> E enumValueOfIgnoreCase(Class<E> theEnumClass, String string, 
+      boolean exceptionOnNotFound) throws RuntimeException {
+    return enumValueOfIgnoreCase(theEnumClass, string, exceptionOnNotFound, true);
+  }
+    
+  /**
+   * equalsignorecase
+   * @param str1
+   * @param str2
+   * @return true if the strings are equal ignore case
+   */
+  public static boolean equalsIgnoreCase(String str1, String str2) {
+    return str1 == null ? str2 == null : str1.equalsIgnoreCase(str2);
+  }
+  
+  /**
+   * split a string based on a separator into an array, and trim each entry (see
+   * the Commons Util trim() for more details)
+   * 
+   * @param input
+   *          is the delimited input to split and trim
+   * @param separator
+   *          is what to split on
+   * 
+   * @return the array of items after split and trimmed, or null if input is null.  will be trimmed to empty
+   */
+  public static String[] splitTrim(String input, String separator) {
+    return splitTrim(input, separator, true);
+  }
+
+  /**
+   * split a string based on a separator into an array, and trim each entry (see
+   * the Commons Util trim() for more details)
+   * 
+   * @param input
+   *          is the delimited input to split and trim
+   * @param separator
+   *          is what to split on
+   * @param treatAdjacentSeparatorsAsOne
+   * @return the array of items after split and trimmed, or null if input is null.  will be trimmed to empty
+   */
+  public static String[] splitTrim(String input, String separator, boolean treatAdjacentSeparatorsAsOne) {
+    if (isBlank(input)) {
+      return null;
+    }
+
+    //first split
+    String[] items = treatAdjacentSeparatorsAsOne ? splitByWholeSeparator(input, separator) : 
+      split(input, separator);
+
+    //then trim
+    for (int i = 0; (items != null) && (i < items.length); i++) {
+      items[i] = trim(items[i]);
+    }
+
+    //return the array
+    return items;
+  }
+  /**
+   * <p>Splits the provided text into an array, separator string specified.</p>
+   *
+   * <p>The separator(s) will not be included in the returned String array.
+   * Adjacent separators are treated as one separator.</p>
+   *
+   * <p>A <code>null</code> input String returns <code>null</code>.
+   * A <code>null</code> separator splits on whitespace.</p>
+   *
+   * <pre>
+   * StringUtils.split(null, *)            = null
+   * StringUtils.split("", *)              = []
+   * StringUtils.split("ab de fg", null)   = ["ab", "de", "fg"]
+   * StringUtils.split("ab   de fg", null) = ["ab", "de", "fg"]
+   * StringUtils.split("ab:cd:ef", ":")    = ["ab", "cd", "ef"]
+   * StringUtils.split("abstemiouslyaeiouyabstemiously", "aeiouy")  = ["bst", "m", "sl", "bst", "m", "sl"]
+   * StringUtils.split("abstemiouslyaeiouyabstemiously", "aeiouy")  = ["abstemiously", "abstemiously"]
+   * </pre>
+   *
+   * @param str  the String to parse, may be null
+   * @param separator  String containing the String to be used as a delimiter,
+   *  <code>null</code> splits on whitespace
+   * @return an array of parsed Strings, <code>null</code> if null String was input
+   */
+  public static String[] splitByWholeSeparator(String str, String separator) {
+    return splitByWholeSeparator(str, separator, -1);
+  }
+
+  /**
+   * <p>Splits the provided text into an array, separator string specified.
+   * Returns a maximum of <code>max</code> substrings.</p>
+   *
+   * <p>The separator(s) will not be included in the returned String array.
+   * Adjacent separators are treated as one separator.</p>
+   *
+   * <p>A <code>null</code> input String returns <code>null</code>.
+   * A <code>null</code> separator splits on whitespace.</p>
+   *
+   * <pre>
+   * StringUtils.splitByWholeSeparator(null, *, *)               = null
+   * StringUtils.splitByWholeSeparator("", *, *)                 = []
+   * StringUtils.splitByWholeSeparator("ab de fg", null, 0)      = ["ab", "de", "fg"]
+   * StringUtils.splitByWholeSeparator("ab   de fg", null, 0)    = ["ab", "de", "fg"]
+   * StringUtils.splitByWholeSeparator("ab:cd:ef", ":", 2)       = ["ab", "cd"]
+   * StringUtils.splitByWholeSeparator("abstemiouslyaeiouyabstemiously", "aeiouy", 2) = ["bst", "m"]
+   * StringUtils.splitByWholeSeparator("abstemiouslyaeiouyabstemiously", "aeiouy", 2)  = ["abstemiously", "abstemiously"]
+   * </pre>
+   *
+   * @param str  the String to parse, may be null
+   * @param separator  String containing the String to be used as a delimiter,
+   *  <code>null</code> splits on whitespace
+   * @param max  the maximum number of elements to include in the returned
+   *  array. A zero or negative value implies no limit.
+   * @return an array of parsed Strings, <code>null</code> if null String was input
+   */
+  public static String[] splitByWholeSeparator(String str, String separator, int max) {
+    if (str == null) {
+      return null;
+    }
+
+    int len = str.length();
+
+    if (len == 0) {
+      return EMPTY_STRING_ARRAY;
+    }
+
+    if ((separator == null) || ("".equals(separator))) {
+      // Split on whitespace.
+      return split(str, null, max);
+    }
+
+    int separatorLength = separator.length();
+
+    ArrayList substrings = new ArrayList();
+    int numberOfSubstrings = 0;
+    int beg = 0;
+    int end = 0;
+    while (end < len) {
+      end = str.indexOf(separator, beg);
+
+      if (end > -1) {
+        if (end > beg) {
+          numberOfSubstrings += 1;
+
+          if (numberOfSubstrings == max) {
+            end = len;
+            substrings.add(str.substring(beg));
+          } else {
+            // The following is OK, because String.substring( beg, end ) excludes
+            // the character at the position 'end'.
+            substrings.add(str.substring(beg, end));
+
+            // Set the starting point for the next search.
+            // The following is equivalent to beg = end + (separatorLength - 1) + 1,
+            // which is the right calculation:
+            beg = end + separatorLength;
+          }
+        } else {
+          // We found a consecutive occurrence of the separator, so skip it.
+          beg = end + separatorLength;
+        }
+      } else {
+        // String.substring( beg ) goes from 'beg' to the end of the String.
+        substrings.add(str.substring(beg));
+        end = len;
+      }
+    }
+
+    return (String[]) substrings.toArray(new String[substrings.size()]);
+  }
+
+  /**
+   * do a case-insensitive matching
+   * @param theEnumClass class of the enum
+   * @param <E> generic type
+   * 
+   * @param string
+   * @param exceptionOnNotFound true if exception should be thrown on not found
+   * @param exceptionIfInvalid if there is a string, but it is invalid, if should throw exception
+   * @return the enum or null or exception if not found
+   * @throws RuntimeException if there is a problem
+   */
+  public static <E extends Enum<?>> E enumValueOfIgnoreCase(Class<E> theEnumClass, String string, 
+      boolean exceptionOnNotFound, boolean exceptionIfInvalid) throws RuntimeException {
+    
+    if (!exceptionOnNotFound && isBlank(string)) {
+      return null;
+    }
+    for (E e : theEnumClass.getEnumConstants()) {
+      if (equalsIgnoreCase(string, e.name())) {
+        return e;
+      }
+    }
+    if (!exceptionIfInvalid) {
+      return null;
+    }
+    StringBuilder error = new StringBuilder(
+        "Cant find " + theEnumClass.getSimpleName() + " from string: '").append(string);
+    error.append("', expecting one of: ");
+    for (E e : theEnumClass.getEnumConstants()) {
+      error.append(e.name()).append(", ");
+    }
+    throw new RuntimeException(error.toString());
+  
+  }
 
   /**
    * If we can, inject this into the exception, else return false
@@ -1633,20 +1847,6 @@ public class SubjectUtils {
   }
 
   /**
-   * close a session null safe and dont throw exception
-   * @param session
-   */
-  public static void closeQuietly(Session session) {
-    if (session != null) {
-      try {
-        session.close();
-      } catch (Exception e) {
-        //ignore
-      }
-    }
-  }
-
-  /**
    * close a statement null safe and dont throw exception
    * @param statement
    */
@@ -1782,6 +1982,288 @@ public class SubjectUtils {
       throw new RuntimeException(reason);
     }
 
+  }
+
+  // Splitting
+  //-----------------------------------------------------------------------
+  /**
+   * <p>Splits the provided text into an array, using whitespace as the
+   * separator.
+   * Whitespace is defined by {@link Character#isWhitespace(char)}.</p>
+   *
+   * <p>The separator is not included in the returned String array.
+   * Adjacent separators are treated as one separator.
+   * For more control over the split use the StrTokenizer class.</p>
+   *
+   * <p>A <code>null</code> input String returns <code>null</code>.</p>
+   *
+   * <pre>
+   * StringUtils.split(null)       = null
+   * StringUtils.split("")         = []
+   * StringUtils.split("abc def")  = ["abc", "def"]
+   * StringUtils.split("abc  def") = ["abc", "def"]
+   * StringUtils.split(" abc ")    = ["abc"]
+   * </pre>
+   *
+   * @param str  the String to parse, may be null
+   * @return an array of parsed Strings, <code>null</code> if null String input
+   */
+  public static String[] split(String str) {
+    return split(str, null, -1);
+  }
+
+  /**
+   * <p>Splits the provided text into an array, separator specified.
+   * This is an alternative to using StringTokenizer.</p>
+   *
+   * <p>The separator is not included in the returned String array.
+   * Adjacent separators are treated as one separator.
+   * For more control over the split use the StrTokenizer class.</p>
+   *
+   * <p>A <code>null</code> input String returns <code>null</code>.</p>
+   *
+   * <pre>
+   * StringUtils.split(null, *)         = null
+   * StringUtils.split("", *)           = []
+   * StringUtils.split("a.b.c", '.')    = ["a", "b", "c"]
+   * StringUtils.split("a..b.c", '.')   = ["a", "b", "c"]
+   * StringUtils.split("a:b:c", '.')    = ["a:b:c"]
+   * StringUtils.split("a\tb\nc", null) = ["a", "b", "c"]
+   * StringUtils.split("a b c", ' ')    = ["a", "b", "c"]
+   * </pre>
+   *
+   * @param str  the String to parse, may be null
+   * @param separatorChar  the character used as the delimiter,
+   *  <code>null</code> splits on whitespace
+   * @return an array of parsed Strings, <code>null</code> if null String input
+   * @since 2.0
+   */
+  public static String[] split(String str, char separatorChar) {
+    return splitWorker(str, separatorChar, false);
+  }
+
+  /**
+   * <p>Splits the provided text into an array, separators specified.
+   * This is an alternative to using StringTokenizer.</p>
+   *
+   * <p>The separator is not included in the returned String array.
+   * Adjacent separators are treated as one separator.
+   * For more control over the split use the StrTokenizer class.</p>
+   *
+   * <p>A <code>null</code> input String returns <code>null</code>.
+   * A <code>null</code> separatorChars splits on whitespace.</p>
+   *
+   * <pre>
+   * StringUtils.split(null, *)         = null
+   * StringUtils.split("", *)           = []
+   * StringUtils.split("abc def", null) = ["abc", "def"]
+   * StringUtils.split("abc def", " ")  = ["abc", "def"]
+   * StringUtils.split("abc  def", " ") = ["abc", "def"]
+   * StringUtils.split("ab:cd:ef", ":") = ["ab", "cd", "ef"]
+   * </pre>
+   *
+   * @param str  the String to parse, may be null
+   * @param separatorChars  the characters used as the delimiters,
+   *  <code>null</code> splits on whitespace
+   * @return an array of parsed Strings, <code>null</code> if null String input
+   */
+  public static String[] split(String str, String separatorChars) {
+    return splitWorker(str, separatorChars, -1, false);
+  }
+
+  /**
+   * <p>Splits the provided text into an array with a maximum length,
+   * separators specified.</p>
+   *
+   * <p>The separator is not included in the returned String array.
+   * Adjacent separators are treated as one separator.</p>
+   *
+   * <p>A <code>null</code> input String returns <code>null</code>.
+   * A <code>null</code> separatorChars splits on whitespace.</p>
+   *
+   * <p>If more than <code>max</code> delimited substrings are found, the last
+   * returned string includes all characters after the first <code>max - 1</code>
+   * returned strings (including separator characters).</p>
+   *
+   * <pre>
+   * StringUtils.split(null, *, *)            = null
+   * StringUtils.split("", *, *)              = []
+   * StringUtils.split("ab de fg", null, 0)   = ["ab", "cd", "ef"]
+   * StringUtils.split("ab   de fg", null, 0) = ["ab", "cd", "ef"]
+   * StringUtils.split("ab:cd:ef", ":", 0)    = ["ab", "cd", "ef"]
+   * StringUtils.split("ab:cd:ef", ":", 2)    = ["ab", "cd:ef"]
+   * </pre>
+   *
+   * @param str  the String to parse, may be null
+   * @param separatorChars  the characters used as the delimiters,
+   *  <code>null</code> splits on whitespace
+   * @param max  the maximum number of elements to include in the
+   *  array. A zero or negative value implies no limit
+   * @return an array of parsed Strings, <code>null</code> if null String input
+   */
+  public static String[] split(String str, String separatorChars, int max) {
+    return splitWorker(str, separatorChars, max, false);
+  }
+
+  /**
+   * An empty immutable <code>String</code> array.
+   */
+  public static final String[] EMPTY_STRING_ARRAY = new String[0];
+
+  /**
+   * Performs the logic for the <code>split</code> and 
+   * <code>splitPreserveAllTokens</code> methods that do not return a
+   * maximum array length.
+   *
+   * @param str  the String to parse, may be <code>null</code>
+   * @param separatorChar the separate character
+   * @param preserveAllTokens if <code>true</code>, adjacent separators are
+   * treated as empty token separators; if <code>false</code>, adjacent
+   * separators are treated as one separator.
+   * @return an array of parsed Strings, <code>null</code> if null String input
+   */
+  private static String[] splitWorker(String str, char separatorChar,
+      boolean preserveAllTokens) {
+    // Performance tuned for 2.0 (JDK1.4)
+  
+    if (str == null) {
+      return null;
+    }
+    int len = str.length();
+    if (len == 0) {
+      return EMPTY_STRING_ARRAY;
+    }
+    List list = new ArrayList();
+    int i = 0, start = 0;
+    boolean match = false;
+    boolean lastMatch = false;
+    while (i < len) {
+      if (str.charAt(i) == separatorChar) {
+        if (match || preserveAllTokens) {
+          list.add(str.substring(start, i));
+          match = false;
+          lastMatch = true;
+        }
+        start = ++i;
+        continue;
+      }
+      lastMatch = false;
+      match = true;
+      i++;
+    }
+    if (match || (preserveAllTokens && lastMatch)) {
+      list.add(str.substring(start, i));
+    }
+    return (String[]) list.toArray(new String[list.size()]);
+  }
+
+  /**
+   * Performs the logic for the <code>split</code> and 
+   * <code>splitPreserveAllTokens</code> methods that return a maximum array 
+   * length.
+   *
+   * @param str  the String to parse, may be <code>null</code>
+   * @param separatorChars the separate character
+   * @param max  the maximum number of elements to include in the
+   *  array. A zero or negative value implies no limit.
+   * @param preserveAllTokens if <code>true</code>, adjacent separators are
+   * treated as empty token separators; if <code>false</code>, adjacent
+   * separators are treated as one separator.
+   * @return an array of parsed Strings, <code>null</code> if null String input
+   */
+  private static String[] splitWorker(String str, String separatorChars, int max,
+      boolean preserveAllTokens) {
+    // Performance tuned for 2.0 (JDK1.4)
+    // Direct code is quicker than StringTokenizer.
+    // Also, StringTokenizer uses isSpace() not isWhitespace()
+  
+    if (str == null) {
+      return null;
+    }
+    int len = str.length();
+    if (len == 0) {
+      return EMPTY_STRING_ARRAY;
+    }
+    List list = new ArrayList();
+    int sizePlus1 = 1;
+    int i = 0, start = 0;
+    boolean match = false;
+    boolean lastMatch = false;
+    if (separatorChars == null) {
+      // Null separator means use whitespace
+      while (i < len) {
+        if (Character.isWhitespace(str.charAt(i))) {
+          if (match || preserveAllTokens) {
+            lastMatch = true;
+            if (sizePlus1++ == max) {
+              i = len;
+              lastMatch = false;
+            }
+            list.add(str.substring(start, i));
+            match = false;
+          }
+          start = ++i;
+          continue;
+        }
+        lastMatch = false;
+        match = true;
+        i++;
+      }
+    } else if (separatorChars.length() == 1) {
+      // Optimise 1 character case
+      char sep = separatorChars.charAt(0);
+      while (i < len) {
+        if (str.charAt(i) == sep) {
+          if (match || preserveAllTokens) {
+            lastMatch = true;
+            if (sizePlus1++ == max) {
+              i = len;
+              lastMatch = false;
+            }
+            list.add(str.substring(start, i));
+            match = false;
+          }
+          start = ++i;
+          continue;
+        }
+        lastMatch = false;
+        match = true;
+        i++;
+      }
+    } else {
+      // standard case
+      while (i < len) {
+        if (separatorChars.indexOf(str.charAt(i)) >= 0) {
+          if (match || preserveAllTokens) {
+            lastMatch = true;
+            if (sizePlus1++ == max) {
+              i = len;
+              lastMatch = false;
+            }
+            list.add(str.substring(start, i));
+            match = false;
+          }
+          start = ++i;
+          continue;
+        }
+        lastMatch = false;
+        match = true;
+        i++;
+      }
+    }
+    if (match || (preserveAllTokens && lastMatch)) {
+      list.add(str.substring(start, i));
+    }
+    return (String[]) list.toArray(new String[list.size()]);
+  }
+
+  /**
+   * trim whitespace from string
+   * @param str
+   * @return trimmed string
+   */
+  public static String trim(String str) {
+    return str == null ? null : str.trim();
   }
 
 

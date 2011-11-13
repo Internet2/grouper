@@ -54,6 +54,8 @@ import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogEntry;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogLabels;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogTypeBuiltin;
+import edu.internet2.middleware.grouper.entity.Entity;
+import edu.internet2.middleware.grouper.entity.EntityUtils;
 import edu.internet2.middleware.grouper.exception.AttributeNotFoundException;
 import edu.internet2.middleware.grouper.exception.CompositeNotFoundException;
 import edu.internet2.middleware.grouper.exception.GrantPrivilegeAlreadyExistsException;
@@ -131,6 +133,7 @@ import edu.internet2.middleware.grouper.rules.beans.RulesMembershipBean;
 import edu.internet2.middleware.grouper.rules.beans.RulesPrivilegeBean;
 import edu.internet2.middleware.grouper.subj.GrouperSubject;
 import edu.internet2.middleware.grouper.subj.LazySubject;
+import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.validator.AddAlternateGroupNameValidator;
 import edu.internet2.middleware.grouper.validator.AddCompositeMemberValidator;
@@ -160,7 +163,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  */
 @SuppressWarnings("serial")
 public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner, 
-    Hib3GrouperVersioned, Comparable, XmlImportable<Group>, AttributeAssignable {
+    Hib3GrouperVersioned, Comparable, XmlImportable<Group>, AttributeAssignable, Entity {
 
   /** name of the groups table in the db */
   public static final String TABLE_GROUPER_GROUPS = "grouper_groups";
@@ -228,6 +231,68 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
   @Deprecated
   public Composite getComposite() throws CompositeNotFoundException {
     return this.getComposite(true);
+  }
+  
+  /**
+   * init group attributes in one query (old style attributes)
+   * @param objects could be groups
+   */
+  public static void initGroupObjectAttributes(Collection<Object> objects) {
+    
+    Set<Group> groups = new HashSet<Group>();
+    
+    for (Object object : objects) {
+      
+      if (object instanceof Group) {
+        groups.add((Group)object);
+      }
+      
+    }
+    
+    initGroupAttributes(groups);
+  }
+  
+  /**
+   * init group attributes in one query (old style attributes)
+   * @param groups
+   */
+  public static void initGroupAttributes(Collection<Group> groups) {
+
+    //if there are none, or if this isnt the group source
+    if (GrouperUtil.length(groups) == 0) {
+      return;
+    }
+    Set<String> groupIds = new HashSet<String>();
+    
+    Map<String, Group> grouperGroupMap = new HashMap<String, Group>();
+    
+    //get the grouper subjects
+    for (Group group : groups) {
+      
+      if (group.attributes == null) {
+      
+        groupIds.add(group.getId());
+        grouperGroupMap.put(group.getId(), group);
+      }
+    }
+    if (GrouperUtil.length(groupIds) == 0) {
+      return;
+    }
+    
+    Map<String, Map<String, Attribute>> groupIdToAttributeMap = GrouperDAOFactory.getFactory()
+      .getAttribute().findAllAttributesByGroups(groupIds);
+    
+    //go through the groups in results
+    for (String groupId : GrouperUtil.nonNull(groupIdToAttributeMap).keySet()) {
+      Map<String, Attribute> attributeMap = groupIdToAttributeMap.get(groupId);
+      
+      //if there are attributes, add them to the group so they dont have to be fetched later.
+      if (attributeMap != null) {
+        Group group = grouperGroupMap.get(groupId);
+        group.internal_setAttributes(attributeMap);
+      }
+    }
+    
   }
   
   /**
@@ -1362,6 +1427,13 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
               // Revoke all access privs
               Group.this._revokeAllAccessPrivs();
               
+              //delete any attributes on this group
+              Set<AttributeAssign> attributeAssigns = GrouperDAOFactory.getFactory().getAttributeAssign().findByOwnerGroupId(Group.this.getId());
+              
+              for (AttributeAssign attributeAssign : attributeAssigns) {
+                attributeAssign.delete();
+              }
+
               // ... And delete composite mship if it exists
               if (Group.this.hasComposite()) {
                 Group.this.deleteCompositeMember();
@@ -1381,22 +1453,26 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
               GrouperSession.staticGrouperSession().internal_getRootSession()
                 .getAttributeDefResolver().revokeAllPrivilegesForSubject(groupSubject);
               
-              //delete any attributes on this group
-              Set<AttributeAssign> attributeAssigns = GrouperDAOFactory.getFactory().getAttributeAssign().findByOwnerGroupId(Group.this.getId());
-              
-              for (AttributeAssign attributeAssign : attributeAssigns) {
-                attributeAssign.delete();
-              }
-
               //deletes.add(this);            // ... And add the group last for good luck    
               String name = Group.this.getName(); // Preserve name for logging
               GrouperDAOFactory.getFactory().getGroup().delete(Group.this);
 
               if (!hibernateHandlerBean.isCallerWillCreateAudit()) {
-                AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.GROUP_DELETE, "id", 
-                    Group.this.getUuid(), "name", Group.this.getName(), "parentStemId", Group.this.getParentUuid(), 
-                    "displayName", Group.this.getDisplayName(), "description", Group.this.getDescription());
-                auditEntry.setDescription("Deleted group: " + Group.this.getName());
+                AuditEntry auditEntry = null;
+                if (Group.this.typeOfGroup == TypeOfGroup.entity) {
+                  
+                  auditEntry = new AuditEntry(AuditTypeBuiltin.ENTITY_DELETE, "id", 
+                      Group.this.getUuid(), "name", Group.this.getName(), "parentStemId", Group.this.getParentUuid(), 
+                      "displayName", Group.this.getDisplayName(), "description", Group.this.getDescription());
+                  auditEntry.setDescription("Deleted entity: " + Group.this.getName());
+
+                } else {
+                  auditEntry = new AuditEntry(AuditTypeBuiltin.GROUP_DELETE, "id", 
+                      Group.this.getUuid(), "name", Group.this.getName(), "parentStemId", Group.this.getParentUuid(), 
+                      "displayName", Group.this.getDisplayName(), "description", Group.this.getDescription());
+                  auditEntry.setDescription("Deleted group: " + Group.this.getName());
+                  
+                }
                 auditEntry.saveOrUpdate(true);
               }
               
@@ -4405,11 +4481,23 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
               GrouperDAOFactory.getFactory().getGroup().update( Group.this );
               
               if (!hibernateHandlerBean.isCallerWillCreateAudit()) {
-                AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.GROUP_UPDATE, "id", 
-                    Group.this.getUuid(), "name", Group.this.getName(), "parentStemId", Group.this.getParentUuid(), 
-                    "displayName", Group.this.getDisplayName(), "description", Group.this.getDescription());
+                AuditEntry auditEntry = null;
                 
-                auditEntry.setDescription("Updated group: " + Group.this.getName() + ", " + differences);
+                if (Group.this.typeOfGroup == TypeOfGroup.entity) {
+                  
+                  auditEntry = new AuditEntry(AuditTypeBuiltin.ENTITY_UPDATE, "id", 
+                      Group.this.getUuid(), "name", Group.this.getName(), "parentStemId", Group.this.getParentUuid(), 
+                      "displayName", Group.this.getDisplayName(), "description", Group.this.getDescription());
+                  auditEntry.setDescription("Updated entity: " + Group.this.getName() + ", " + differences);
+
+                } else {
+                  auditEntry = new AuditEntry(AuditTypeBuiltin.GROUP_UPDATE, "id", 
+                      Group.this.getUuid(), "name", Group.this.getName(), "parentStemId", Group.this.getParentUuid(), 
+                      "displayName", Group.this.getDisplayName(), "description", Group.this.getDescription());
+                  auditEntry.setDescription("Updated group: " + Group.this.getName() + ", " + differences);
+
+                }
+                
                 auditEntry.saveOrUpdate(true);
               }
               
@@ -4606,19 +4694,35 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
       return this.subjectCache.get(KEY_SUBJECT);
     }
     try {
-      this.subjectCache.put(
-        KEY_SUBJECT, SubjectFinder.findByIdAndSource( this.getUuid(), SubjectFinder.internal_getGSA().getId(), true )
-      );
+      
+      GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+        
+        public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+    
+         if (Group.this.getTypeOfGroup() == TypeOfGroup.entity) {
+           Group.this.subjectCache.put(
+               KEY_SUBJECT, SubjectFinder.findByIdAndSource( Group.this.getUuid(), SubjectFinder.internal_getEntitySourceAdapter(true).getId(), true )
+             );
+        
+          } else {
+           Group.this.subjectCache.put(
+             KEY_SUBJECT, SubjectFinder.findByIdAndSource( Group.this.getUuid(), SubjectFinder.internal_getGSA().getId(), true )
+           );
+          }
+        return null;
+        }
+      });
+        
       return this.subjectCache.get(KEY_SUBJECT);
     }
     catch (SourceUnavailableException eShouldNeverHappen0)  {
       String msg = E.GROUP_G2S + eShouldNeverHappen0.getMessage();
-      LOG.fatal(msg);
+      LOG.fatal(msg, eShouldNeverHappen0);
       throw new GrouperException(msg, eShouldNeverHappen0);
     }
     catch (SubjectNotFoundException eShouldNeverHappen1)    {
       String msg = E.GROUP_G2S + eShouldNeverHappen1.getMessage();
-      LOG.fatal(msg);
+      LOG.fatal(msg, eShouldNeverHappen1);
       throw new GrouperException(msg, eShouldNeverHappen1);
     }
     catch (SubjectNotUniqueException eShouldNeverHappen2)   {
@@ -4713,6 +4817,12 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
   public Composite internal_addCompositeMember(final GrouperSession session, final CompositeType type,
       final Group left, final Group right, final String uuid) throws InsufficientPrivilegeException, MemberAddException {
 
+    //dont allow anything to be an entity... can only be a group or role
+    if (this.getTypeOfGroup() == TypeOfGroup.entity || left.getTypeOfGroup() == TypeOfGroup.entity 
+        || right.getTypeOfGroup() == TypeOfGroup.entity) {
+      throw new RuntimeException("Cannot add composite to an entity");
+    }
+    
     final String errorMessageSuffix = ", group name: " + this.name + ", compositeType: " + type
       + ", left group name: " + (left == null ? "null" : left.getName()) 
       + ", right group name: " + (right == null ? "null" : right.getName());
@@ -5143,6 +5253,20 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
          */
         public Object callback(GrouperSession rootSession) throws GrouperSessionException {
 
+          // if this is an entity, need to potentially update the subject identifier.
+          if (Group.this.getTypeOfGroup() == TypeOfGroup.entity) {
+            String oldPrefix = GrouperUtil.parentStemNameFromName(Group.this.dbVersion().getName()) + ":";
+            String newPrefix = GrouperUtil.parentStemNameFromName(Group.this.getName()) + ":";
+            
+            if (!oldPrefix.equals(newPrefix)) {
+              String subjectIdentifier = Group.this.getAttributeValueDelegate().retrieveValueString(EntityUtils.entitySubjectIdentifierName());
+              if (subjectIdentifier != null && subjectIdentifier.startsWith(oldPrefix)) {
+                subjectIdentifier = newPrefix + subjectIdentifier.substring(oldPrefix.length());
+                Group.this.getAttributeValueDelegate().assignValue(EntityUtils.entitySubjectIdentifierName(), subjectIdentifier);
+              }
+            }
+          }
+          
           // need to potentially update group name in rules
           Set<RuleDefinition> definitions = RuleEngine.ruleEngine().getRuleDefinitions();
           for (RuleDefinition definition : definitions) {
@@ -5262,7 +5386,11 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
    */
   public void setAlternateNameDb(String alternateName) {
     this.alternateNameDb = alternateName;
+    this.alternateNames = null;
   }
+  
+  /** alternate names */
+  private Set<String> alternateNames = null;
   
   /**
    * Returns the alternate names for the group.  Only one alternate name is supported
@@ -5270,11 +5398,16 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
    * @return Set of alternate names.
    */
   public Set<String> getAlternateNames() {
-    Set<String> alternateNames = new LinkedHashSet<String>();
-    if (alternateNameDb != null) {
-      alternateNames.add(this.alternateNameDb);
+    
+    //lazy load this set
+    if (this.alternateNames == null) {
+      this.alternateNames = new LinkedHashSet<String>();
+      if (!StringUtils.isBlank(this.alternateNameDb)) {
+        this.alternateNames.add(this.alternateNameDb);
+      }
+      this.alternateNames = Collections.unmodifiableSet(this.alternateNames);
     }
-    return alternateNames;
+    return this.alternateNames;
   }
 
   /**
@@ -5353,13 +5486,27 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
         GroupHooks.METHOD_GROUP_PRE_INSERT, HooksGroupBean.class, 
         this, Group.class, VetoTypeGrouper.GROUP_PRE_INSERT, false, false);
     
-    //change log into temp table
-    new ChangeLogEntry(true, ChangeLogTypeBuiltin.GROUP_ADD, 
-        ChangeLogLabels.GROUP_ADD.id.name(), 
-        this.getUuid(), ChangeLogLabels.GROUP_ADD.name.name(), 
-        this.getName(), ChangeLogLabels.GROUP_ADD.parentStemId.name(), this.getParentUuid(),
-        ChangeLogLabels.GROUP_ADD.displayName.name(), this.getDisplayName(),
-        ChangeLogLabels.GROUP_ADD.description.name(), this.getDescription()).save();
+    if (this.getTypeOfGroup() == TypeOfGroup.entity) {
+      
+      //change log into temp table
+      new ChangeLogEntry(true, ChangeLogTypeBuiltin.ENTITY_ADD, 
+          ChangeLogLabels.ENTITY_ADD.id.name(), 
+          this.getUuid(), ChangeLogLabels.ENTITY_ADD.name.name(), 
+          this.getName(), ChangeLogLabels.ENTITY_ADD.parentStemId.name(), this.getParentUuid(),
+          ChangeLogLabels.ENTITY_ADD.displayName.name(), this.getDisplayName(),
+          ChangeLogLabels.ENTITY_ADD.description.name(), this.getDescription()).save();
+
+    } else {
+      
+      //change log into temp table
+      new ChangeLogEntry(true, ChangeLogTypeBuiltin.GROUP_ADD, 
+          ChangeLogLabels.GROUP_ADD.id.name(), 
+          this.getUuid(), ChangeLogLabels.GROUP_ADD.name.name(), 
+          this.getName(), ChangeLogLabels.GROUP_ADD.parentStemId.name(), this.getParentUuid(),
+          ChangeLogLabels.GROUP_ADD.displayName.name(), this.getDisplayName(),
+          ChangeLogLabels.GROUP_ADD.description.name(), this.getDescription()).save();
+      
+    }
     
   }
 
@@ -5372,6 +5519,14 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
     return Lifecycle.NO_VETO;
   }
 
+  /**
+   * set the attributes if computed in one query
+   * @param theAttributes
+   */
+  public void internal_setAttributes(Map<String, Attribute> theAttributes) {
+    this.attributes = theAttributes;
+  }
+  
   /**
    * 
    * @param attributes
@@ -5487,13 +5642,27 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
         GroupHooks.METHOD_GROUP_PRE_DELETE, HooksGroupBean.class, 
         this, Group.class, VetoTypeGrouper.GROUP_PRE_DELETE, false, false);
 
-    //change log into temp table
-    new ChangeLogEntry(true, ChangeLogTypeBuiltin.GROUP_DELETE, 
-        ChangeLogLabels.GROUP_DELETE.id.name(), 
-        this.getUuid(), ChangeLogLabels.GROUP_DELETE.name.name(), 
-        this.getName(), ChangeLogLabels.GROUP_DELETE.parentStemId.name(), this.getParentUuid(),
-        ChangeLogLabels.GROUP_DELETE.displayName.name(), this.getDisplayName(),
-        ChangeLogLabels.GROUP_DELETE.description.name(), this.getDescription()).save();
+    if (this.getTypeOfGroup() == TypeOfGroup.entity) {
+
+      //change log into temp table
+      new ChangeLogEntry(true, ChangeLogTypeBuiltin.ENTITY_DELETE, 
+          ChangeLogLabels.ENTITY_DELETE.id.name(), 
+          this.getUuid(), ChangeLogLabels.ENTITY_DELETE.name.name(), 
+          this.getName(), ChangeLogLabels.ENTITY_DELETE.parentStemId.name(), this.getParentUuid(),
+          ChangeLogLabels.ENTITY_DELETE.displayName.name(), this.getDisplayName(),
+          ChangeLogLabels.ENTITY_DELETE.description.name(), this.getDescription()).save();
+
+    } else {
+
+      //change log into temp table
+      new ChangeLogEntry(true, ChangeLogTypeBuiltin.GROUP_DELETE, 
+          ChangeLogLabels.GROUP_DELETE.id.name(), 
+          this.getUuid(), ChangeLogLabels.GROUP_DELETE.name.name(), 
+          this.getName(), ChangeLogLabels.GROUP_DELETE.parentStemId.name(), this.getParentUuid(),
+          ChangeLogLabels.GROUP_DELETE.displayName.name(), this.getDisplayName(),
+          ChangeLogLabels.GROUP_DELETE.description.name(), this.getDescription()).save();
+
+    }
 
   }
   
@@ -5512,27 +5681,51 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
    */
   @Override
   public void onPreUpdate(HibernateSession hibernateSession) {
+    
     super.onPreUpdate(hibernateSession);
+    
+    //if the type of group was changed, and it went to or from entity, that is bad
+    if (this.dbVersionDifferentFields().contains(FIELD_TYPE_OF_GROUP) 
+        && this.dbVersion != null && (this.typeOfGroup == TypeOfGroup.entity || ((Group)this.dbVersion).getTypeOfGroup() == TypeOfGroup.entity)) {
+      throw new RuntimeException("Cannot change typeOfGroup, you need to delete and create the object");
+    }
     
     this.internal_setModifiedIfNeeded();
 
     GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.GROUP, 
         GroupHooks.METHOD_GROUP_PRE_UPDATE, HooksGroupBean.class, 
         this, Group.class, VetoTypeGrouper.GROUP_PRE_UPDATE, false, false);
-
-    //change log into temp table
-    ChangeLogEntry.saveTempUpdates(ChangeLogTypeBuiltin.GROUP_UPDATE, 
-        this, this.dbVersion(),
-        GrouperUtil.toList(ChangeLogLabels.GROUP_UPDATE.id.name(),this.getUuid(), 
-            ChangeLogLabels.GROUP_UPDATE.name.name(), this.getName(),
-            ChangeLogLabels.GROUP_UPDATE.parentStemId.name(), this.getParentUuid(),
-            ChangeLogLabels.GROUP_UPDATE.displayName.name(), this.getDisplayName(),
-            ChangeLogLabels.GROUP_UPDATE.description.name(), this.getDescription()),
-        GrouperUtil.toList(FIELD_NAME, FIELD_PARENT_UUID, FIELD_DESCRIPTION, FIELD_DISPLAY_EXTENSION),
-        GrouperUtil.toList(ChangeLogLabels.GROUP_UPDATE.name.name(),
-            ChangeLogLabels.GROUP_UPDATE.parentStemId.name(), 
-            ChangeLogLabels.GROUP_UPDATE.description.name(), 
-            ChangeLogLabels.GROUP_UPDATE.displayExtension.name()));    
+    
+    if (this.getTypeOfGroup() == TypeOfGroup.entity) {
+      //change log into temp table
+      ChangeLogEntry.saveTempUpdates(ChangeLogTypeBuiltin.ENTITY_UPDATE, 
+          this, this.dbVersion(),
+          GrouperUtil.toList(ChangeLogLabels.ENTITY_UPDATE.id.name(),this.getUuid(), 
+              ChangeLogLabels.ENTITY_UPDATE.name.name(), this.getName(),
+              ChangeLogLabels.ENTITY_UPDATE.parentStemId.name(), this.getParentUuid(),
+              ChangeLogLabels.ENTITY_UPDATE.displayName.name(), this.getDisplayName(),
+              ChangeLogLabels.ENTITY_UPDATE.description.name(), this.getDescription()),
+          GrouperUtil.toList(FIELD_NAME, FIELD_PARENT_UUID, FIELD_DESCRIPTION, FIELD_DISPLAY_EXTENSION),
+          GrouperUtil.toList(ChangeLogLabels.GROUP_UPDATE.name.name(),
+              ChangeLogLabels.ENTITY_UPDATE.parentStemId.name(), 
+              ChangeLogLabels.ENTITY_UPDATE.description.name(), 
+              ChangeLogLabels.ENTITY_UPDATE.displayExtension.name()));    
+    } else {
+      //change log into temp table
+      ChangeLogEntry.saveTempUpdates(ChangeLogTypeBuiltin.GROUP_UPDATE, 
+          this, this.dbVersion(),
+          GrouperUtil.toList(ChangeLogLabels.GROUP_UPDATE.id.name(),this.getUuid(), 
+              ChangeLogLabels.GROUP_UPDATE.name.name(), this.getName(),
+              ChangeLogLabels.GROUP_UPDATE.parentStemId.name(), this.getParentUuid(),
+              ChangeLogLabels.GROUP_UPDATE.displayName.name(), this.getDisplayName(),
+              ChangeLogLabels.GROUP_UPDATE.description.name(), this.getDescription()),
+          GrouperUtil.toList(FIELD_NAME, FIELD_PARENT_UUID, FIELD_DESCRIPTION, FIELD_DISPLAY_EXTENSION),
+          GrouperUtil.toList(ChangeLogLabels.GROUP_UPDATE.name.name(),
+              ChangeLogLabels.GROUP_UPDATE.parentStemId.name(), 
+              ChangeLogLabels.GROUP_UPDATE.description.name(), 
+              ChangeLogLabels.GROUP_UPDATE.displayExtension.name()));    
+      
+    }
   }
 
   /**
@@ -5788,7 +5981,7 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
                   newGroup = stem.internal_addChildGroup(actAs, Group.this.getExtension(),
                       Group.this.getDisplayExtensionDb(), null, Group.this
                           .description, Group.this.getTypesDb(), attributesMap,
-                      addDefaultGroupPrivileges, null);
+                      addDefaultGroupPrivileges, Group.this.typeOfGroup);
                 } catch (GroupAddException e) {
                   Group test = GroupFinder.findByName(GrouperSession
                       .staticGrouperSession().internal_getRootSession(), stem.getName()
@@ -5817,7 +6010,7 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
                   newGroup = stem.internal_addChildGroup(actAs, newGroupExtension,
                       Group.this.getDisplayExtensionDb(), null, Group.this
                           .description, Group.this.getTypesDb(), attributesMap,
-                addDefaultGroupPrivileges, null);
+                addDefaultGroupPrivileges, Group.this.typeOfGroup);
                 }
             
             if (composite) {
@@ -5854,6 +6047,33 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
             if (listGroupAsMember == true) {
               newGroup.internal_copyGroupAsMember(GrouperSession.staticGrouperSession(), Group.this);
             }
+            
+            final Group NEW_GROUP = newGroup;
+            
+            GrouperSession.callbackGrouperSession(GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+              
+              /**
+               * @see edu.internet2.middleware.grouper.misc.GrouperSessionHandler#callback(edu.internet2.middleware.grouper.GrouperSession)
+               */
+              public Object callback(GrouperSession rootSession) throws GrouperSessionException {
+
+                // may need to copy over the subject identifier if this is an entity
+                if (TypeOfGroup.entity == NEW_GROUP.getTypeOfGroup()) {
+                  String oldPrefix = GrouperUtil.parentStemNameFromName(Group.this.getName()) + ":";
+                  String newPrefix = GrouperUtil.parentStemNameFromName(NEW_GROUP.getName()) + ":";
+                  
+                  if (!oldPrefix.equals(newPrefix)) {
+                    String subjectIdentifier = Group.this.getAttributeValueDelegate().retrieveValueString(EntityUtils.entitySubjectIdentifierName());
+                    if (subjectIdentifier != null && subjectIdentifier.startsWith(oldPrefix)) {
+                      subjectIdentifier = newPrefix + subjectIdentifier.substring(oldPrefix.length());
+                      NEW_GROUP.getAttributeValueDelegate().assignValue(EntityUtils.entitySubjectIdentifierName(), subjectIdentifier);
+                    }
+                  }
+                }
+                
+                return null;
+              }
+            });
             
             //if not a smaller operation of a larger auditable call
             if (!hibernateHandlerBean.isCallerWillCreateAudit()) {

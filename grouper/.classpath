@@ -61,9 +61,10 @@
 	<classpathentry exported="true" kind="lib" path="lib/grouper/commons-httpclient.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper/ddlUtils.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper/grouperClient.jar"/>
-	<classpathentry kind="lib" path="lib/grouper/javassist.jar"/>
-	<classpathentry kind="lib" path="lib/grouper/slf4j-api.jar"/>
-	<classpathentry kind="lib" path="lib/grouper/hibernate-jpa-2.0-api.jar"/>
-	<classpathentry kind="lib" path="lib/grouper/slf4j-log4j12.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/grouper/javassist.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/grouper/slf4j-api.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/grouper/hibernate-jpa-2.0-api.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/grouper/slf4j-log4j12.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/grouper/vt-ldap.jar"/>
 	<classpathentry kind="output" path="build"/>
 </classpath>

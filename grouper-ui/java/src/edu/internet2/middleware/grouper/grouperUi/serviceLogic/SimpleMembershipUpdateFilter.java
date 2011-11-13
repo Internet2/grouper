@@ -21,6 +21,7 @@ import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
+import edu.internet2.middleware.grouper.group.TypeOfGroup;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiPaging;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
@@ -93,7 +94,7 @@ public class SimpleMembershipUpdateFilter {
       } else {
         queryOptions = new QueryOptions().paging(TagUtils.mediaResourceInt("simpleMembershipUpdate.groupComboboxResultSize", 200), 1, true).sortAsc("theGroup.displayNameDb");
         groups = GrouperDAOFactory.getFactory().getGroup().getAllGroupsSecure("%" + searchTerm + "%", grouperSession, loggedInSubject, 
-            GrouperUtil.toSet(AccessPrivilege.ADMIN, AccessPrivilege.UPDATE), queryOptions);
+            GrouperUtil.toSet(AccessPrivilege.ADMIN, AccessPrivilege.UPDATE), queryOptions, TypeOfGroup.GROUP_OR_ROLE_SET);
         
         if (GrouperUtil.length(groups) == 0) {
           GrouperUiUtils.dhtmlxOptionAppend(xmlBuilder, "", 
@@ -105,7 +106,12 @@ public class SimpleMembershipUpdateFilter {
   
         String value = group.getUuid();
         String label = GrouperUiUtils.escapeHtml(group.getDisplayName(), true);
-        String imageName = GrouperUiUtils.imageFromSubjectSource("g:gsa");
+        String imageName = null;
+        if (group.getTypeOfGroup() == TypeOfGroup.role) {
+          imageName = GrouperUiUtils.imageFromSubjectSource("g:rsa");
+        } else {
+          imageName = GrouperUiUtils.imageFromSubjectSource("g:gsa");
+        }
   
         GrouperUiUtils.dhtmlxOptionAppend(xmlBuilder, value, label, imageName);
       }
@@ -261,9 +267,9 @@ public class SimpleMembershipUpdateFilter {
           
           if (!StringUtils.isBlank(requireSources)) {
             Set<Source> sources = GrouperUtil.convertSources(requireSources);
-            subjects = SubjectFinder.findAll(searchTerm, sources);
+            subjects = SubjectFinder.findPage(searchTerm, sources).getResults();
           } else {
-            subjects = SubjectFinder.findAllInStem(stemName, searchTerm);            
+            subjects = SubjectFinder.findPageInStem(stemName, searchTerm).getResults();            
           }
           
           
@@ -286,12 +292,12 @@ public class SimpleMembershipUpdateFilter {
           }
           
           String maxSubjectsDropDownString = TagUtils.mediaResourceString("simpleMembershipUpdate.subjectComboboxResultSize");
-          int maxSubjectsDropDown = GrouperUtil.intValue(maxSubjectsDropDownString, 50);
+          int maxSubjectsDropDown = GrouperUtil.intValue(maxSubjectsDropDownString, 250);
     
           queryPaging = new QueryPaging(maxSubjectsDropDown, 1, true);
         
           //sort and page the results
-          subjects = GrouperUiUtils.subjectsSortedPaged(subjects, queryPaging);
+          subjects = GrouperUiUtils.subjectsSortedPaged(subjects, queryPaging, searchTerm);
         } catch (SubjectTooManyResults stmr) {
           tooManyResults = true;
         }
@@ -390,7 +396,7 @@ public class SimpleMembershipUpdateFilter {
     if (!filterByOneSubject && !useMemberSortAndSearch) {
       boolean tooManyResults = false;
       try {
-        subjects = SubjectFinder.findAll(filterString);
+        subjects = SubjectFinder.findPage(filterString).getResults();
       } catch (SubjectTooManyResults stmr) {
         tooManyResults = true;
       }

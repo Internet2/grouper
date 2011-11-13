@@ -16,7 +16,9 @@
 */
 
 package edu.internet2.middleware.grouper.helper;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Set;
 
 import junit.framework.TestCase;
@@ -619,6 +621,8 @@ public class GrouperTest extends TestCase {
     ApiConfig.testConfig.put("configuration.autocreate.system.groups", "false");
     ApiConfig.testConfig.put("groups.create.grant.all.read", "true");
     ApiConfig.testConfig.put("groups.create.grant.all.view", "true");
+
+    ApiConfig.testConfig.put("entities.create.grant.all.view", "false");
     
     ApiConfig.testConfig.put("attributeDefs.create.grant.all.attrRead", "false");
     ApiConfig.testConfig.put("attributeDefs.create.grant.all.attrView", "false");
@@ -629,6 +633,35 @@ public class GrouperTest extends TestCase {
 
   }
 
+  /**
+   * make sure a set of groups is similar to another by group name including order
+   * @param set1 expected set
+   * @param set2 received set
+   */
+  public void assertGroupSetsAndOrder(Set<Group> set1, Set<Group> set2) {
+    int set1length = GrouperUtil.length(set1);
+    int set2length = GrouperUtil.length(set2);
+    if (set1length != set2length) {
+      fail("Expecting groups of size: " + set1length + " but received size: " + set2length + ", expecting: "
+          + GrouperUtil.toStringForLog(set1, 200) + ", but received: " + GrouperUtil.toStringForLog(set2, 200));
+    }
+    
+    if (set1length == 0) {
+      return;
+    }
+    
+    List<Group> list2 = new ArrayList<Group>(set2);
+    int i=0;
+    for (Group group : set1) {
+      if (!StringUtils.equals(group.getName(), list2.get(i).getName())) {
+        fail("Expecting index of set: " + i + " to be: " + group.getName() + ", but received: "
+            + list2.get(i).getName() + ", expecting: " 
+            + GrouperUtil.toStringForLog(set1, 200) + ", but received: " + GrouperUtil.toStringForLog(set2, 200));
+      }
+      i++;
+    }
+  }
+  
   /**
    * init groups and attributes after reset
    */

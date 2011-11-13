@@ -36,18 +36,13 @@
   <resolver:DataConnector id="testGroupsCustomList" xsi:type="grouper:MemberDataConnector">
     <grouper:Attribute id="groups:all:customList" />
   </resolver:DataConnector>
-
-  <resolver:DataConnector id="testGroupsFilterExactAttribute" xsi:type="grouper:MemberDataConnector">
-    <grouper:GroupFilter xsi:type="grouper:ExactAttribute" name="name" value="parentStem:groupA" />
-    <grouper:Attribute id="groups" />
-  </resolver:DataConnector>
   
   <resolver:DataConnector id="testAdmins" xsi:type="grouper:MemberDataConnector">
     <grouper:Attribute id="admins" />
   </resolver:DataConnector>
   
   <resolver:DataConnector id="testIdOnlySource" xsi:type="grouper:MemberDataConnector" >
-    <grouper:Source id="jdbc" />
+    <grouper:Filter xsi:type="grouper:MemberSource" sourceId="jdbc" />
   </resolver:DataConnector>
   
 </AttributeResolver>

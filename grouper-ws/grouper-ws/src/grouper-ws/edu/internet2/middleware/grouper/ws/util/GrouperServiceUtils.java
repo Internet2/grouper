@@ -1008,6 +1008,25 @@ public final class GrouperServiceUtils {
   }
 
   /**
+   * parse an integer or null
+   * 
+   * @param input
+   * @param paramName to put in the invalid query exception
+   * @return the Integer
+   * @throws WsInvalidQueryException if there is a problem
+   */
+  public static Integer integerValue(String input, String paramName)
+      throws WsInvalidQueryException {
+    try {
+      return GrouperUtil.intObjectValue(input, true);
+    } catch (Exception e) {
+      //all info is in the message
+      throw new WsInvalidQueryException("Problem with Integer '" + paramName + "', "
+          + e.getMessage());
+    }
+  }
+
+  /**
    * convert a fieldName into a Field
    * @param fieldName name of field
    * @return the field, or throw invalid query exception, or null if not there

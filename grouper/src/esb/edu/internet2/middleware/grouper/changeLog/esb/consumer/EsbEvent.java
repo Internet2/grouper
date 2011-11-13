@@ -24,12 +24,22 @@ public class EsbEvent {
    *
    */
   public static enum EsbEventType {
+    
+    /** ENTITY_ADD event */
+    ENTITY_ADD, 
+    
+    /** ENTITY_DELETE event */
+    ENTITY_DELETE,
+    
+    /** ENTITY_UPDATE event */
+    ENTITY_UPDATE,
+
     /** GROUP_ADD event */
     GROUP_ADD, 
     
     /** GROUP_DELETE event */
     GROUP_DELETE,
-    
+
     /** GROUP_FIELD_ADD event */
     GROUP_FIELD_ADD,
     

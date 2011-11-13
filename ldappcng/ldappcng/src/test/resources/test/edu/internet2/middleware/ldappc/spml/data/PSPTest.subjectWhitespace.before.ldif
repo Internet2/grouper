@@ -1,31 +1,6 @@
-dn: ou=testpeople,${base}
-objectclass: top
-objectclass: organizationalUnit
-description: people
-ou: testpeople
-
-dn: cn=test.subject.0,ou=testpeople,${base}
-objectclass: top
-objectclass: person
-objectclass: organizationalPerson
-cn: test.subject.0
-sn: subject.0
-
-dn: cn=test.subject.1,ou=testpeople,${base}
-objectclass: top
-objectclass: person
-objectclass: organizationalPerson
-cn: test.subject.1
-sn: subject.1
-
 dn: cn=test subject a,ou=testpeople,${base}
 objectclass: top
 objectclass: person
 objectclass: organizationalPerson
 cn: test subject a
 sn: subject.0
-
-dn: ou=testgroups,${base}
-objectclass: top
-objectclass: organizationalUnit
-ou: testgroups

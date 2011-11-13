@@ -15,10 +15,10 @@
 package edu.internet2.middleware.grouper.shibboleth.attributeDefinition;
 
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
+import org.opensaml.xml.util.DatatypeHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,82 +27,101 @@ import edu.internet2.middleware.shibboleth.common.attribute.BaseAttribute;
 import edu.internet2.middleware.shibboleth.common.attribute.provider.BasicAttribute;
 import edu.internet2.middleware.shibboleth.common.attribute.resolver.AttributeResolutionException;
 import edu.internet2.middleware.shibboleth.common.attribute.resolver.provider.ShibbolethResolutionContext;
-import edu.internet2.middleware.shibboleth.common.attribute.resolver.provider.attributeDefinition.BaseAttributeDefinition;
+import edu.internet2.middleware.shibboleth.common.attribute.resolver.provider.attributeDefinition.AttributeDefinition;
 import edu.internet2.middleware.subject.Subject;
 
-public class SubjectAttributeDefinition extends BaseAttributeDefinition {
+/** An {@link AttributeDefinition} which returns {@link Subject} attributes. */
+public class SubjectAttributeDefinition extends BaseGrouperAttributeDefinition {
 
+  /** The logger. */
   private static Logger LOG = LoggerFactory.getLogger(SubjectAttributeDefinition.class);
 
-  private List<AttributeIdentifier> attributes;
-
-  public void setAttributes(List<AttributeIdentifier> attributes) {
-    this.attributes = attributes;
-  }
-
+  /** {@inheritDoc} */
   protected BaseAttribute doResolve(ShibbolethResolutionContext resolutionContext) throws AttributeResolutionException {
 
     String principalName = resolutionContext.getAttributeRequestContext().getPrincipalName();
-    String msg = "resolve '" + principalName + "' ad '" + this.getId() + "'";
-    LOG.debug("{}", msg);
 
-    BasicAttribute<String> attribute = new BasicAttribute<String>(this.getId());
+    LOG.debug("Subject attribute definition '{}' - Resolve principal '{}'", getId(), principalName);
 
-    Collection<?> values = this.getValuesFromAllDependencies(resolutionContext);
-    if (LOG.isDebugEnabled()) {
-      for (Object value : values) {
-        LOG.debug("{} values from dependencies '{}'", msg, value);
+    Collection<?> dependencyValues = getValuesFromAllDependencies(resolutionContext);
+
+    if (LOG.isTraceEnabled()) {
+      for (Object dependencyValue : dependencyValues) {
+        LOG.trace("Subject attribute definition '{}' - Resolve principal '{}' dependency value '{}'", new Object[] {
+            getId(), principalName, dependencyValue });
       }
     }
 
-    if (values == null) {
-      LOG.debug("{} no dependency values", msg);
-      return attribute;
-    }
+    BaseAttribute<String> attribute = new BasicAttribute<String>(getId());
 
-    for (Object value : values) {
-      if (!(value instanceof Subject)) {
-        LOG.error("{} Unable to resolve attribute, dependency value is not a Subject : {}", msg, value.getClass());
-        throw new AttributeResolutionException("Unable to resolve attribute, dependency value is not a Subject");
-      }
-
-      Subject subject = (Subject) value;
-
-      String sourceId = subject.getSource().getId();
-
-      for (AttributeIdentifier attr : attributes) {
-        if (sourceId.equals(attr.getSource())) {
-          Set<String> subjectValues = null;
-          // TODO this should be fixed
-          if (attr.getId().equalsIgnoreCase("id")) {
-            subjectValues = new HashSet<String>();
-            subjectValues.add(subject.getId());
-          } else if (attr.getId().equalsIgnoreCase("name")) {
-            subjectValues = new HashSet<String>();
-            subjectValues.add(subject.getName());
-          } else if (attr.getId().equalsIgnoreCase("description")) {
-            subjectValues = new HashSet<String>();
-            subjectValues.add(subject.getDescription());
-          } else {
-            subjectValues = subject.getAttributeValues(attr.getId());
-          }
-          if (subjectValues != null) {
-            attribute.getValues().addAll(subjectValues);
-          }
-        }
+    for (Object dependencyValue : dependencyValues) {
+      if (dependencyValue instanceof Subject) {
+        BaseAttribute subjectAttribute = buildAttribute((Subject) dependencyValue);
+        attribute.getValues().addAll(subjectAttribute.getValues());
       }
     }
 
-    if (LOG.isDebugEnabled()) {
-      LOG.debug("{} values {}", msg, attribute.getValues().size());
+    if (LOG.isTraceEnabled()) {
       for (Object value : attribute.getValues()) {
-        LOG.debug("{} value '{}'", msg, value);
+        LOG.trace("Subject attribute definition '{}' - Resolve principal '{}' value '{}'", new Object[] { getId(),
+            principalName, value });
       }
     }
 
     return attribute;
   }
 
-  public void validate() throws AttributeResolutionException {
+  /**
+   * Return an attribute representing the {@link Subject}.
+   * 
+   * @param member the member
+   * @return the attribute
+   */
+  protected BaseAttribute<String> buildAttribute(Subject subject) {
+
+    BaseAttribute<String> attribute = new BasicAttribute<String>(getId());
+
+    for (AttributeIdentifier attributeIdentifier : getAttributeIdentifiers()) {
+      if (subject.getSourceId().equals(attributeIdentifier.getSource())) {
+        attribute.getValues().addAll(SubjectAttributeDefinition.getValues(subject, attributeIdentifier.getId()));
+      }
+    }
+
+    return attribute;
+  }
+
+  /**
+   * Return the possibly empty values of a {@link Subject} attribute.
+   * 
+   * @param subject the subject
+   * @param attributeName the name of the attribute
+   * @return the possibly empty values
+   */
+  public static Set<String> getValues(Subject subject, String attributeName) {
+
+    Set<String> values = new LinkedHashSet<String>();
+
+    if (attributeName.equalsIgnoreCase("id")) {
+      values.add(subject.getId());
+    } else if (attributeName.equalsIgnoreCase("name")) {
+      if (!DatatypeHelper.isEmpty(subject.getName())) {
+        values.add(subject.getName());
+      }
+    } else if (attributeName.equalsIgnoreCase("description")) {
+      if (!DatatypeHelper.isEmpty(subject.getDescription())) {
+        values.add(subject.getDescription());
+      }
+    } else {
+      Set<String> subjectValues = subject.getAttributeValues(attributeName);
+      if (subjectValues != null) {
+        for (String subjectValue : subjectValues) {
+          if (!DatatypeHelper.isEmpty(subjectValue)) {
+            values.add(subjectValue);
+          }
+        }
+      }
+    }
+
+    return values;
   }
 }

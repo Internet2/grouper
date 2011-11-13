@@ -88,6 +88,15 @@
           overflowToDisk="false"
   />
 
+  <!-- @see   CachingResolver#findPage(...) -->
+  <cache  name="edu.internet2.middleware.grouper.subj.CachingResolver.FindPage"
+          maxElementsInMemory="5000"
+          eternal="false"
+          timeToIdleSeconds="30"
+          timeToLiveSeconds="120"
+          overflowToDisk="false"
+  />
+
   <!-- @see   CachingResolver#findByIdentifier(...) -->
   <cache  name="edu.internet2.middleware.grouper.subj.CachingResolver.FindByIdentifier"
           maxElementsInMemory="5000"
@@ -182,6 +191,13 @@
           eternal="false"
           timeToIdleSeconds="1200"
           timeToLiveSeconds="1200"
+          overflowToDisk="false"
+  />
+  <cache  name="edu.internet2.middleware.grouper.entity.EntitySubject.EntityAttributeIdCache"
+          maxElementsInMemory="5000"
+          eternal="false"
+          timeToIdleSeconds="30"
+          timeToLiveSeconds="30"
           overflowToDisk="false"
   />
 

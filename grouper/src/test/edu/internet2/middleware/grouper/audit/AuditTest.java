@@ -578,7 +578,7 @@ public class AuditTest extends GrouperTest {
     assertTrue("contextId should exist", StringUtils.isNotBlank(auditEntry.getContextId()));
     
     Membership membership = MembershipFinder.findImmediateMembership(this.grouperSession, group, subject, 
-        FieldFinder.find("optins", true), true);
+        FieldFinder.find(Field.FIELD_NAME_OPTINS, true), true);
     
     assertEquals("Context id's should match", auditEntry.getContextId(), membership.getContextId());
     
@@ -590,7 +590,7 @@ public class AuditTest extends GrouperTest {
     group2.grantPriv(subject, AccessPrivilege.OPTIN);
 
     Membership membership2 = MembershipFinder.findImmediateMembership(this.grouperSession, group2, subject, 
-        FieldFinder.find("optins", true), true);
+        FieldFinder.find(Field.FIELD_NAME_OPTINS, true), true);
     
     newAuditCount = HibernateSession.bySqlStatic().select(int.class, 
       "select count(1) from grouper_audit_entry");
@@ -659,7 +659,7 @@ public class AuditTest extends GrouperTest {
     Member member = MemberFinder.findBySubject(this.grouperSession, subject, false);
     
     Membership membership = GrouperDAOFactory.getFactory().getMembership().findByStemOwnerAndMemberAndFieldAndType(stem.getUuid(), 
-        member.getUuid(), FieldFinder.find("creators", true), "immediate", true, true);
+        member.getUuid(), FieldFinder.find(Field.FIELD_NAME_CREATORS, true), "immediate", true, true);
     
     assertEquals("Context id's should match", auditEntry.getContextId(), membership.getContextId());
     
@@ -671,7 +671,7 @@ public class AuditTest extends GrouperTest {
     stem2.grantPriv(subject, NamingPrivilege.CREATE);
 
     Membership membership2 = GrouperDAOFactory.getFactory().getMembership().findByStemOwnerAndMemberAndFieldAndType(stem2.getUuid(), 
-        member.getUuid(), FieldFinder.find("creators", true), "immediate", true, true);
+        member.getUuid(), FieldFinder.find(Field.FIELD_NAME_CREATORS, true), "immediate", true, true);
     
     newAuditCount = HibernateSession.bySqlStatic().select(int.class, 
       "select count(1) from grouper_audit_entry");

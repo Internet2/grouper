@@ -1,6 +1,5 @@
 package edu.internet2.middleware.grouper.ws.soap_v2_0;
 
-
 /**
  * <pre>
  * results for assigning attributes call.

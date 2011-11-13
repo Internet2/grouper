@@ -848,6 +848,32 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
   /** cache the attribute def name */
   @GrouperIgnoreClone @GrouperIgnoreDbVersion @GrouperIgnoreFieldConstant
   private AttributeDefName attributeDefName;
+
+  /**
+   * set this for caching
+   * @param attributeDefName1
+   */
+  public void internalSetAttributeDefName(AttributeDefName attributeDefName1) {
+    
+    if (attributeDefName1 != null) {
+      if (!StringUtils.equals(this.attributeDefNameId, attributeDefName1.getId())) {
+        throw new RuntimeException("Why does the attributeDefName id " 
+            + this.attributeDefNameId + " not equal the param id: " + attributeDefName1.getId());
+      }
+    }
+    
+    this.attributeDefName = attributeDefName1;
+  }
+  
+
+  /**
+   * set this for caching
+   * @param attributeDef1
+   */
+  public void internalSetAttributeDef(AttributeDef attributeDef1) {
+    
+    this.attributeDef = attributeDef1;
+  }
   
   /**
    * 

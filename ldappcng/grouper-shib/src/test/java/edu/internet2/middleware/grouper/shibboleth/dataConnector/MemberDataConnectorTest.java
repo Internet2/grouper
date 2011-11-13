@@ -1,6 +1,7 @@
 package edu.internet2.middleware.grouper.shibboleth.dataConnector;
 
 import java.util.Map;
+import java.util.Set;
 
 import junit.textui.TestRunner;
 
@@ -16,25 +17,48 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.shibboleth.common.attribute.BaseAttribute;
 import edu.internet2.middleware.subject.Subject;
 
+/**
+ * Test for {@link MemberDataConnector}.
+ */
 public class MemberDataConnectorTest extends BaseDataConnectorTest {
 
+  /** Logger. */
   private static final Logger LOG = LoggerFactory.getLogger(MemberDataConnectorTest.class);
 
+  /** Path to attribute resolver configuration. */
   public static final String RESOLVER_CONFIG = TEST_PATH + "MemberDataConnectorTest-resolver.xml";
 
+  /**
+   * 
+   * Constructor
+   * 
+   * @param name
+   */
   public MemberDataConnectorTest(String name) {
     super(name);
   }
 
+  /**
+   * Run tests.
+   * 
+   * @param args
+   */
   public static void main(String[] args) {
-    TestRunner.run(MemberDataConnectorTest.class);
-    // TestRunner.run(new MemberDataConnectorTest("testAttributeDef"));
+    // TestRunner.run(MemberDataConnectorTest.class);
+    TestRunner.run(new MemberDataConnectorTest("testMemberSourceFilter"));
   }
 
-  private void runResolveTest(String groupDataConnectorName, Subject subject, AttributeMap correctMap) {
+  /**
+   * Assert that the attributes returned from the data connector match the provided attributes.
+   * 
+   * @param dataConnectorName the data connector name
+   * @param subject the subject
+   * @param correctMap the correct attributes
+   */
+  private void runResolveTest(String dataConnectorName, Subject subject, AttributeMap correctMap) {
     try {
       GenericApplicationContext gContext = BaseDataConnectorTest.createSpringContext(RESOLVER_CONFIG);
-      MemberDataConnector mdc = (MemberDataConnector) gContext.getBean(groupDataConnectorName);
+      MemberDataConnector mdc = (MemberDataConnector) gContext.getBean(dataConnectorName);
       AttributeMap currentMap = new AttributeMap(mdc.resolve(getShibContext(subject.getId())));
       if (LOG.isDebugEnabled()) {
         LOG.debug("correct\n{}", correctMap);
@@ -56,7 +80,7 @@ public class MemberDataConnectorTest extends BaseDataConnectorTest {
       throw new RuntimeException(e);
     }
   }
-  
+
   public void testUnknownSourceIdentifier() {
     try {
       BaseDataConnectorTest.createSpringContext(TEST_PATH + "MemberDataConnectorTest-unknownSourceIdentifier.xml");
@@ -108,7 +132,7 @@ public class MemberDataConnectorTest extends BaseDataConnectorTest {
 
     runResolveTest("testIdOnly", SubjectTestHelper.SUBJ0, correct);
   }
-  
+
   public void testIdOnlySource() {
     AttributeMap correct = new AttributeMap();
     correct.setAttribute("id", SubjectTestHelper.SUBJ0_ID);
@@ -179,14 +203,6 @@ public class MemberDataConnectorTest extends BaseDataConnectorTest {
 
     runResolveTest("testGroupsCustomList", SubjectTestHelper.SUBJ2, correct);
   }
-  
-  public void testGroupsFilterExactAttributeSubj0() {
-    AttributeMap correct = new AttributeMap();
-    correct.setAttribute("id", SubjectTestHelper.SUBJ0_ID);
-    correct.addAttribute("groups", groupA);
-
-    runResolveTest("testGroupsFilterExactAttribute", SubjectTestHelper.SUBJ0, correct);
-  }
 
   public void testAdminsSubj3() {
     AttributeMap correct = new AttributeMap();
@@ -195,7 +211,7 @@ public class MemberDataConnectorTest extends BaseDataConnectorTest {
 
     runResolveTest("testAdmins", SubjectTestHelper.SUBJ3, correct);
   }
-  
+
   public void testAttributeDef() {
     memberSubj0.getAttributeValueDelegate().assignValuesString("parentStem:mailAlternateAddress",
         GrouperUtil.toSet("foo@memphis.edu", "bar@memphis.edu"), true);
@@ -203,10 +219,51 @@ public class MemberDataConnectorTest extends BaseDataConnectorTest {
     AttributeMap correct = new AttributeMap();
     correct.setAttribute("id", SubjectTestHelper.SUBJ0_ID);
     correct.setAttribute("name", SubjectTestHelper.SUBJ0_NAME);
-    correct.setAttribute("description", "description." + SubjectTestHelper.SUBJ0_ID);   
+    correct.setAttribute("description", "description." + SubjectTestHelper.SUBJ0_ID);
     correct.setAttribute("parentStem:mailAlternateAddress", "foo@memphis.edu", "bar@memphis.edu");
 
-    runResolveTest("testAttributesAndAttributeDefs", SubjectTestHelper.SUBJ0, correct);      
+    runResolveTest("testAttributesAndAttributeDefs", SubjectTestHelper.SUBJ0, correct);
+  }
+
+  public void testGetAllIdentifiers() {
+
+    try {
+      GenericApplicationContext gContext = BaseDataConnectorTest.createSpringContext(RESOLVER_CONFIG);
+      MemberDataConnector mdc = (MemberDataConnector) gContext.getBean("testIdOnly");
+
+      Set<String> identifiers = mdc.getAllIdentifiers();
+
+      assertEquals(4, identifiers.size());
+
+      assertTrue(identifiers.contains(SubjectTestHelper.SUBJ0_ID));
+      assertTrue(identifiers.contains(SubjectTestHelper.SUBJ1_ID));
+      assertTrue(identifiers.contains(SubjectTestHelper.SUBJ2_ID));
+      assertTrue(identifiers.contains(SubjectTestHelper.SUBJ3_ID));
+
+    } catch (Exception e) {
+      e.printStackTrace();
+      throw new RuntimeException(e);
+    }
+  }
+  
+  public void testMemberSourceFilter() {    
+    try {
+      GenericApplicationContext gContext = BaseDataConnectorTest.createSpringContext(RESOLVER_CONFIG);
+      MemberDataConnector mdc = (MemberDataConnector) gContext.getBean("testIdOnlySource");
+
+      Set<String> identifiers = mdc.getAllIdentifiers();
+
+      assertEquals(4, identifiers.size());
+
+      assertTrue(identifiers.contains(SubjectTestHelper.SUBJ0_ID));
+      assertTrue(identifiers.contains(SubjectTestHelper.SUBJ1_ID));
+      assertTrue(identifiers.contains(SubjectTestHelper.SUBJ2_ID));
+      assertTrue(identifiers.contains(SubjectTestHelper.SUBJ3_ID));
+
+    } catch (Exception e) {
+      e.printStackTrace();
+      throw new RuntimeException(e);
+    }
   }
 
 }

@@ -33,7 +33,12 @@ import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.StemSave;
+import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.cfg.ApiConfig;
+import edu.internet2.middleware.grouper.entity.Entity;
+import edu.internet2.middleware.grouper.entity.EntityFinder;
+import edu.internet2.middleware.grouper.entity.EntitySave;
 import edu.internet2.middleware.grouper.exception.GroupAddException;
 import edu.internet2.middleware.grouper.exception.GroupModifyAlreadyExistsException;
 import edu.internet2.middleware.grouper.exception.GrouperStaleObjectStateException;
@@ -48,9 +53,12 @@ import edu.internet2.middleware.grouper.helper.T;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransaction;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionHandler;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
+import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3DAO;
+import edu.internet2.middleware.grouper.misc.AddMissingGroupSets;
+import edu.internet2.middleware.grouper.misc.CompositeType;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
@@ -72,7 +80,7 @@ public class TestGroup extends GrouperTest {
   public static void main(String[] args) {
     //TestRunner.run(new TestGroup("testNoLocking"));
     //TestRunner.run(TestGroup.class);
-    TestRunner.run(new TestGroup("testXmlDifferentUpdateProperties"));
+    TestRunner.run(new TestGroup("testEntity"));
     //TestRunner.run(TestGroup.class);
   }
   
@@ -104,6 +112,137 @@ public class TestGroup extends GrouperTest {
     LOG.debug("tearDown");
   }
 
+  /**
+   * make sure there are no group sets for group members, or read, update, optin, optout.
+   * should only be admin, and view.
+   */
+  public void testEntity() {
+    
+    //init the stem
+    new StemSave(s).assignCreateParentStemsIfNotExist(true)
+      .assignName("test")
+      .save();
+
+
+    //count the groupsets
+    int originalGroupSetCount = HibernateSession.bySqlStatic().select(int.class, "select count(*) from grouper_group_set");
+
+    Entity entity = new EntitySave(s).assignCreateParentStemsIfNotExist(true)
+      .assignName("test:testEntity")
+      .save();
+    
+    int newGroupSetCount = HibernateSession.bySqlStatic().select(int.class, "select count(*) from grouper_group_set");
+    
+    assertEquals(originalGroupSetCount + 2, newGroupSetCount);
+        
+    //fix group sets, should still be same
+    new AddMissingGroupSets().showResults(true).addAllMissingGroupSets();
+    newGroupSetCount = HibernateSession.bySqlStatic().select(int.class, "select count(*) from grouper_group_set");
+    
+    assertEquals(originalGroupSetCount + 2, newGroupSetCount);
+    
+    Group entityGroup = (Group)entity;
+    
+    try {
+      entityGroup.addMember(SubjectFinder.findAllSubject());
+      fail("shouldnt get here");
+    } catch (Exception e) {
+      //good
+    }
+    
+    assertFalse(entity.hasView(SubjectFinder.findAllSubject()));
+    
+    //make one where default is view
+    ApiConfig.testConfig.put("entities.create.grant.all.view", "true");
+    try {
+      
+      Entity entity2 = new EntitySave(s).assignCreateParentStemsIfNotExist(true)
+        .assignName("test:testEntity2")
+        .save();
+      
+      assertTrue(entity2.hasView(SubjectFinder.findAllSubject()));
+      
+    } finally {
+      ApiConfig.testConfig.put("entities.create.grant.all.view", "false");
+    }
+
+    entity.grantPriv(SubjectFinder.findAllSubject(), AccessPrivilege.VIEW, false);
+    entity.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.VIEW, false);
+    entity.grantPriv(SubjectFinder.findAllSubject(), AccessPrivilege.ADMIN, false);
+    entity.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.ADMIN, false);
+    try {
+      entity.grantPriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ, false);
+      fail("shouldnt get here");
+    } catch (Exception e) {
+      //good
+    }
+    try {
+      entity.grantPriv(SubjectFinder.findAllSubject(), AccessPrivilege.UPDATE, false);
+      fail("shouldnt get here");
+    } catch (Exception e) {
+      //good
+    }
+    try {
+      entity.grantPriv(SubjectFinder.findAllSubject(), AccessPrivilege.OPTIN, false);
+      fail("shouldnt get here");
+    } catch (Exception e) {
+      //good
+    }
+    try {
+      entity.grantPriv(SubjectFinder.findAllSubject(), AccessPrivilege.OPTOUT, false);
+      fail("shouldnt get here");
+    } catch (Exception e) {
+      //good
+    }
+    
+    ((Group)entity).setTypeOfGroup(TypeOfGroup.group);
+    try {
+      entity.store();
+      fail("Shouldnt be able to change type of group");
+    } catch (Exception e) {
+      //good
+    }
+    
+    //reset the fields
+    entity = new EntityFinder().addName(entity.getName()).findEntity(true);
+    
+    Group group = new GroupSave(s).assignName("test:anotherGroup").assignCreateParentStemsIfNotExist(true).save();
+    group.setTypeOfGroup(TypeOfGroup.entity);
+    try {
+      group.store();
+      fail("Shouldnt be able to change type of entity");
+    } catch (Exception e) {
+      //good
+    }
+    
+    Group group1 = new GroupSave(s).assignName("test:anotherGroup1").assignCreateParentStemsIfNotExist(true).save();
+    Group group2 = new GroupSave(s).assignName("test:anotherGroup2").assignCreateParentStemsIfNotExist(true).save();
+    
+    
+    try {
+      
+      ((Group)entity).addCompositeMember(CompositeType.COMPLEMENT, group1, group2);
+      
+      fail("Cannot change an entity to composite");
+    } catch (Exception e) {
+      //good
+    }
+    
+    Group group1a = new GroupSave(s).assignName("test:anotherGroup1a").assignCreateParentStemsIfNotExist(true).save();
+    Group group2a = new GroupSave(s).assignName("test:anotherGroup2a").assignCreateParentStemsIfNotExist(true).save();
+    
+    
+    try {
+      
+      group1a.addCompositeMember(CompositeType.COMPLEMENT, (Group)entity, group2a);
+      
+      fail("Cannot change an entity to composite");
+    } catch (Exception e) {
+      //good
+    }
+    
+  }
+  
   /**
    * 
    */
@@ -253,7 +392,7 @@ public class TestGroup extends GrouperTest {
       Iterator  fIter = fields.iterator();
       FieldHelper.testField( 
         (Field) fIter.next()   , 
-        "admins"              , FieldType.ACCESS,
+        Field.FIELD_NAME_ADMINS              , FieldType.ACCESS,
         AccessPrivilege.ADMIN , AccessPrivilege.ADMIN
       );
       FieldHelper.testField( 
@@ -263,12 +402,12 @@ public class TestGroup extends GrouperTest {
       );
       FieldHelper.testField( 
         (Field) fIter.next()   , 
-        "optins"              , FieldType.ACCESS,
+        Field.FIELD_NAME_OPTINS              , FieldType.ACCESS,
         AccessPrivilege.UPDATE, AccessPrivilege.UPDATE
       );
       FieldHelper.testField( 
         (Field) fIter.next()   , 
-        "optouts"             , FieldType.ACCESS,
+        Field.FIELD_NAME_OPTOUTS             , FieldType.ACCESS,
         AccessPrivilege.UPDATE, AccessPrivilege.UPDATE
       );
       FieldHelper.testField( 
@@ -278,7 +417,7 @@ public class TestGroup extends GrouperTest {
       );
       FieldHelper.testField( 
         (Field) fIter.next()   , 
-        "updaters"            , FieldType.ACCESS,
+        Field.FIELD_NAME_UPDATERS            , FieldType.ACCESS,
         AccessPrivilege.ADMIN , AccessPrivilege.ADMIN
       );
       FieldHelper.testField( 

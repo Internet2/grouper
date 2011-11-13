@@ -24,15 +24,20 @@ import org.springframework.beans.factory.xml.ParserContext;
 import org.w3c.dom.Element;
 
 import edu.internet2.middleware.grouper.shibboleth.config.GrouperNamespaceHandler;
+import edu.internet2.middleware.grouper.shibboleth.dataConnector.GroupDataConnector;
 
+/** Spring bean definition parser for configuring a {@link GroupDataConnector}. */
 public class GroupDataConnectorBeanDefinitionParser extends BaseGrouperDataConnectorBeanDefinitionParser {
 
+  /** Schema type name. */
   public static final QName TYPE_NAME = new QName(GrouperNamespaceHandler.NAMESPACE, "GroupDataConnector");
 
+  /** {@inheritDoc} */
   protected Class getBeanClass(Element element) {
     return GroupDataConnectorFactoryBean.class;
   }
 
+  /** {@inheritDoc} */
   protected void doParse(String pluginId, Element pluginConfig, Map<QName, List<Element>> pluginConfigChildren,
       BeanDefinitionBuilder pluginBuilder, ParserContext parserContext) {
     super.doParse(pluginId, pluginConfig, pluginConfigChildren, pluginBuilder, parserContext);

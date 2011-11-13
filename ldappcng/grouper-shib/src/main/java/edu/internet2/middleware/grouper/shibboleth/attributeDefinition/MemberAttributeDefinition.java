@@ -15,9 +15,6 @@
 package edu.internet2.middleware.grouper.shibboleth.attributeDefinition;
 
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,94 +25,68 @@ import edu.internet2.middleware.shibboleth.common.attribute.BaseAttribute;
 import edu.internet2.middleware.shibboleth.common.attribute.provider.BasicAttribute;
 import edu.internet2.middleware.shibboleth.common.attribute.resolver.AttributeResolutionException;
 import edu.internet2.middleware.shibboleth.common.attribute.resolver.provider.ShibbolethResolutionContext;
-import edu.internet2.middleware.shibboleth.common.attribute.resolver.provider.attributeDefinition.BaseAttributeDefinition;
+import edu.internet2.middleware.shibboleth.common.attribute.resolver.provider.attributeDefinition.AttributeDefinition;
 import edu.internet2.middleware.subject.Subject;
 
-public class MemberAttributeDefinition extends BaseAttributeDefinition {
+/** An {@link AttributeDefinition} which returns {@link Member} attributes. */
+public class MemberAttributeDefinition extends BaseGrouperAttributeDefinition {
 
-	private static Logger LOG = LoggerFactory
-			.getLogger(MemberAttributeDefinition.class);
+  /** The logger. */
+  private static Logger LOG = LoggerFactory.getLogger(MemberAttributeDefinition.class);
 
-	private List<AttributeIdentifier> attributes;
+  /** {@inheritDoc} */
+  protected BaseAttribute doResolve(ShibbolethResolutionContext resolutionContext) throws AttributeResolutionException {
 
-	public void setAttributes(List<AttributeIdentifier> attributes) {
-		this.attributes = attributes;
-	}
+    String principalName = resolutionContext.getAttributeRequestContext().getPrincipalName();
 
-	protected BaseAttribute doResolve(
-			ShibbolethResolutionContext resolutionContext)
-			throws AttributeResolutionException {
+    LOG.debug("Member attribute definition '{}' - Resolve principal '{}'", getId(), principalName);
 
-		String principalName = resolutionContext.getAttributeRequestContext()
-				.getPrincipalName();
-		String msg = "resolve '" + principalName + "' ad '" + this.getId()
-				+ "'";
-		LOG.debug("{}", msg);
+    Collection<?> dependencyValues = getValuesFromAllDependencies(resolutionContext);
 
-		BasicAttribute<String> attribute = new BasicAttribute<String>(this
-				.getId());
+    if (LOG.isTraceEnabled()) {
+      for (Object dependencyValue : dependencyValues) {
+        LOG.trace("Subject attribute definition '{}' - Resolve principal '{}' dependency value '{}'", new Object[] {
+            getId(), principalName, dependencyValue });
+      }
+    }
 
-		Collection<?> values = this
-				.getValuesFromAllDependencies(resolutionContext);
-		if (LOG.isDebugEnabled()) {
-			for (Object value : values) {
-				LOG.debug("{} values from dependencies '{}'", msg, value);
-			}
-		}
+    BaseAttribute attribute = new BasicAttribute(getId());
 
-		if (values == null) {
-			LOG.debug("{} no dependency values", msg);
-			return attribute;
-		}
+    for (Object dependencyValue : dependencyValues) {
+      if (dependencyValue instanceof Member) {
+        BaseAttribute memberAttribute = buildAttribute((Member) dependencyValue);
+        attribute.getValues().addAll(memberAttribute.getValues());
+      }
+    }
 
-		for (Object value : values) {
-			if (!(value instanceof Member)) {
-				LOG
-						.error(
-								"{} Unable to resolve attribute, dependency value is not a Member : {}",
-								msg, value.getClass());
-				throw new AttributeResolutionException(
-						"Unable to resolve attribute, dependency value is not a Member");
-			}
+    if (LOG.isTraceEnabled()) {
+      for (Object value : attribute.getValues()) {
+        LOG.trace("Member attribute definition '{}' - Resolve principal '{}' value '{}'", new Object[] { getId(),
+            principalName, value });
+      }
+    }
 
-			Member member = (Member) value;
-			Subject subject = member.getSubject();
+    return attribute;
+  }
 
-			for (AttributeIdentifier attr : attributes) {
-				if (member.getSubjectSourceId().equals(attr.getSource())) {
-					Set<String> subjectValues = null;
-					// TODO this should be fixed
-					if (attr.getId().equalsIgnoreCase("id")) {
-						subjectValues = new HashSet<String>();
-						subjectValues.add(subject.getId());
-					} else if (attr.getId().equalsIgnoreCase("name")) {
-						subjectValues = new HashSet<String>();
-						subjectValues.add(subject.getName());
-					} else if (attr.getId().equalsIgnoreCase("description")) {
-						subjectValues = new HashSet<String>();
-						subjectValues.add(subject.getDescription());
-					} else {
-						subjectValues = subject
-								.getAttributeValues(attr.getId());
-					}
-					if (subjectValues != null) {
-						attribute.getValues().addAll(subjectValues);
-					}
-				}
-			}
-		}
+  /**
+   * Return an attribute representing the {@link Member}.
+   * 
+   * @param member the member
+   * @return the attribute
+   */
+  protected BaseAttribute buildAttribute(Member member) {
 
-		if (LOG.isDebugEnabled()) {
-			LOG.debug("{} values {}", msg, attribute.getValues().size());
-			for (Object value : attribute.getValues()) {
-				LOG.debug("{} value '{}'", msg, value);
-			}
-		}
+    BaseAttribute attribute = new BasicAttribute(getId());
 
-		return attribute;
-	}
+    for (AttributeIdentifier attributeIdentifer : getAttributeIdentifiers()) {
+      // subject attributes
+      Subject subject = member.getSubject();
+      if (subject.getSourceId().equals(attributeIdentifer.getSource())) {
+        attribute.getValues().addAll(SubjectAttributeDefinition.getValues(subject, attributeIdentifer.getId()));
+      }
+    }
 
-	public void validate() throws AttributeResolutionException {
-
-	}
+    return attribute;
+  }
 }

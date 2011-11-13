@@ -38,7 +38,6 @@ import edu.internet2.middleware.grouper.xml.importXml.XmlImportGsh;
  * @since   0.0.1
  */
 public class GrouperShell {
-
   
   /** if we should exist on failure */ 
   static boolean exitOnFailure = false;
@@ -119,7 +118,6 @@ public class GrouperShell {
    * @since 0.0.1
    */
   public static void main(String args[]) {
-
     //set this and leave it...
     @SuppressWarnings("unused")
     GrouperContext grouperContext = GrouperContext.createNewDefaultContext(
@@ -359,14 +357,17 @@ private static boolean handleSpecialCase(String[] args) {
       this.interpreter.eval(  "importCommands(\"edu.internet2.middleware.subject\")");
       this.interpreter.eval(  "importCommands(\"edu.internet2.middleware.subject.provider\")");
       this.interpreter.eval(  "import edu.internet2.middleware.grouper.*;");
+      this.interpreter.eval(  "import edu.internet2.middleware.grouper.app.loader.ldap.*;");
       this.interpreter.eval(  "import edu.internet2.middleware.grouper.attr.*;");
       this.interpreter.eval(  "import edu.internet2.middleware.grouper.attr.assign.*;");
       this.interpreter.eval(  "import edu.internet2.middleware.grouper.attr.finder.*;");
       this.interpreter.eval(  "import edu.internet2.middleware.grouper.attr.value.*;");
       this.interpreter.eval(  "import edu.internet2.middleware.grouper.audit.*;");
       this.interpreter.eval(  "import edu.internet2.middleware.grouper.client.*;");
+      this.interpreter.eval(  "import edu.internet2.middleware.grouper.entity.*;");
       this.interpreter.eval(  "import edu.internet2.middleware.grouper.externalSubjects.*;");
       this.interpreter.eval(  "import edu.internet2.middleware.grouper.group.*;");
+      this.interpreter.eval(  "import edu.internet2.middleware.grouper.ldap.*;");
       this.interpreter.eval(  "import edu.internet2.middleware.grouper.app.loader.*;");
       this.interpreter.eval(  "import edu.internet2.middleware.grouper.xml.*;");
       this.interpreter.eval(  "import edu.internet2.middleware.grouper.registry.*;");

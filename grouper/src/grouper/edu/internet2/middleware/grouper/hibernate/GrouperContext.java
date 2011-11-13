@@ -30,6 +30,9 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  */
 public class GrouperContext {
   
+  /** for testing, see how many queries */
+  public static long totalQueryCount = 0;
+  
   /**
    * grouper engine, e.g. grouperUI
    */
@@ -245,6 +248,9 @@ public class GrouperContext {
    * tell the context another query occurred
    */
   public static void incrementQueryCount() {
+    
+    totalQueryCount++;
+    
     GrouperContext grouperContextInner = currentInnerContext.get();
     if (grouperContextInner != null) {
       grouperContextInner.queryCount++;

@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
 
 import edu.internet2.middleware.ldappc.exception.LdappcException;
 import edu.internet2.middleware.ldappc.spml.PSPContext;
+import edu.internet2.middleware.ldappc.spml.request.AlternateIdentifier;
 import edu.internet2.middleware.ldappc.util.PSPUtil;
 import edu.internet2.middleware.shibboleth.common.attribute.BaseAttribute;
 
@@ -40,6 +41,22 @@ public class PSOIdentifierDefinition {
   private TargetDefinition targetDefinition;
 
   private IdentifyingAttribute identifyingAttribute;
+
+  private List<AlternateIdentifierDefinition> alternateIdentifierDefinitions;
+
+  /**
+   * @return Returns the alternateIdentifierDefinitions.
+   */
+  public List<AlternateIdentifierDefinition> getAlternateIdentifierDefinitions() {
+    return alternateIdentifierDefinitions;
+  }
+
+  /**
+   * @param alternateIdentifierDefinitions The alternateIdentifierDefinitions to set.
+   */
+  public void setAlternateIdentifierDefinitions(List<AlternateIdentifierDefinition> alternateIdentifierDefinitions) {
+    this.alternateIdentifierDefinitions = alternateIdentifierDefinitions;
+  }
 
   public String getBaseId() {
     return baseId;
@@ -75,19 +92,24 @@ public class PSOIdentifierDefinition {
 
   public List<PSOIdentifier> getPSOIdentifier(PSPContext context) throws LdappcException {
 
+    return getPSOIdentifier(context, ref);
+  }
+
+  protected List<PSOIdentifier> getPSOIdentifier(PSPContext context, String attributeID) throws LdappcException {
+
     List<PSOIdentifier> psoIDs = new ArrayList<PSOIdentifier>();
 
-    String msg = "get psoId for '" + context.getProvisioningRequest().getId() + "' ref '" + ref + "'";
+    String msg = "get psoId for '" + context.getProvisioningRequest().getId() + "' attributeID '" + attributeID + "'";
     LOG.debug("{}", msg);
 
     Map<String, BaseAttribute<?>> attributes = context.getAttributes();
 
-    if (!attributes.containsKey(ref)) {
-      LOG.debug("{} source attribute does not exist", msg);
+    if (!attributes.containsKey(attributeID)) {
+      LOG.debug("{} source attribute '{}' does not exist", msg, attributeID);
       return psoIDs;
     }
 
-    BaseAttribute<?> attribute = attributes.get(ref);
+    BaseAttribute<?> attribute = attributes.get(attributeID);
 
     if (attribute.getValues().isEmpty()) {
       LOG.debug("{} no dependency values", msg);
@@ -108,6 +130,27 @@ public class PSOIdentifierDefinition {
     }
 
     return psoIDs;
+  }
+
+  public List<AlternateIdentifier> getAlternateIdentifier(PSPContext context) throws LdappcException {
+
+    List<AlternateIdentifier> alternateIdentifiers = new ArrayList<AlternateIdentifier>();
+
+    if (alternateIdentifierDefinitions != null) {
+      for (AlternateIdentifierDefinition alternateIdentifierDefinition : alternateIdentifierDefinitions) {
+        if (alternateIdentifierDefinition.getRef() != null) {
+          List<PSOIdentifier> psoIdentifiers = getPSOIdentifier(context, alternateIdentifierDefinition.getRef());
+          for (PSOIdentifier psoIdentifier : psoIdentifiers) {
+            AlternateIdentifier alternateIdentifier = new AlternateIdentifier();
+            alternateIdentifier.setID(psoIdentifier.getID());
+            alternateIdentifier.setTargetID(psoIdentifier.getTargetID());
+            alternateIdentifiers.add(alternateIdentifier);
+          }
+        }
+      }
+    }
+
+    return alternateIdentifiers;
   }
 
   /**

@@ -15,6 +15,7 @@
 
 package edu.internet2.middleware.subject.provider;
 
+import java.util.List;
 import java.util.Set;
 
 import junit.framework.TestCase;
@@ -146,9 +147,83 @@ public class JDBCSourceAdapterTest extends TestCase {
    */
   public static void main(String args[]) {
     //TestRunner.run(JDBCSourceAdapterTest.class);
-    TestRunner.run(new JDBCSourceAdapterTest("testVirtualAttribute2"));
+    TestRunner.run(new JDBCSourceAdapterTest("testPageQuery"));
   }
 
+  /**
+   * 
+   */
+  public void testPageQuery() {
+    
+    assertEquals("select penn_id, pennname, name, description, description_lower, first_name, last_name, affiliation_id, person_active, email, email_public from (select penn_id, pennname, name, description, description_lower, first_name, last_name, affiliation_id, person_active, email, email_public from person_source ps where PS.DESCRIPTION_LOWER like '%hyz%' order by description) where rownum <= 5",
+        JdbcDatabaseType.oracle.pageQuery("select penn_id, pennname, name, description, description_lower, first_name, last_name, affiliation_id, person_active, email, email_public from person_source ps where PS.DESCRIPTION_LOWER like '%hyz%' order by description", 5));
+
+    assertEquals("select penn_id, pennname, name, description, description_lower, first_name, last_name, affiliation_id, person_active, email, email_public from person_source ps where PS.DESCRIPTION_LOWER like '%hyz%' order by description limit 0,5",
+        JdbcDatabaseType.mysql.pageQuery("select penn_id, pennname, name, description, description_lower, first_name, last_name, affiliation_id, person_active, email, email_public from person_source ps where PS.DESCRIPTION_LOWER like '%hyz%' order by description", 5));
+    
+    assertEquals("select penn_id, pennname, name, description, description_lower, first_name, last_name, affiliation_id, person_active, email, email_public from person_source ps where PS.DESCRIPTION_LOWER like '%hyz%' order by description limit 5",
+        JdbcDatabaseType.postgres.pageQuery("select penn_id, pennname, name, description, description_lower, first_name, last_name, affiliation_id, person_active, email, email_public from person_source ps where PS.DESCRIPTION_LOWER like '%hyz%' order by description", 5));
+    
+  }
+  
+  /**
+   * 
+   */
+  public void testColumnAliases() {
+    
+    List<String> aliases = JdbcDatabaseType.columnAliases("select a, c as b, this as that");
+    
+    assertEquals(3, aliases.size());
+    assertEquals("a", aliases.get(0));
+    assertEquals("b", aliases.get(1));
+    assertEquals("that", aliases.get(2));
+    
+    assertEquals("select * ", JdbcDatabaseType.selectPart("select * from whatever"));
+    assertNull(JdbcDatabaseType.selectPart("select *, this, that"));
+    aliases = JdbcDatabaseType.columnAliases("select\n" +
+        "   s.subjectid as id, s.name as name,\n" +
+        "   (select sa2.value from subjectattribute sa2 where name='name' and sa2.SUBJECTID = s.subjectid) as lfname,\n" +
+        "   (select sa3.value from subjectattribute sa3 where name='loginid' and sa3.SUBJECTID = s.subjectid) as loginid,\n" +
+        "   (select sa4.value from subjectattribute sa4 where name='description' and sa4.SUBJECTID = s.subjectid) as description,\n" +
+        "   (select sa5.value from subjectattribute sa5 where name='email' and sa5.SUBJECTID = s.subjectid) as email\n");
+    
+    assertEquals(6, aliases.size());
+    assertEquals("id", aliases.get(0));
+    assertEquals("name", aliases.get(1));
+    assertEquals("lfname", aliases.get(2));
+    assertEquals("loginid", aliases.get(3));
+    assertEquals("description", aliases.get(4));
+    assertEquals("email", aliases.get(5));
+    
+    
+  }
+  
+  /**
+   * 
+   */
+  public void testSqlFromPart() {
+    assertEquals("select * ", JdbcDatabaseType.selectPart("select * from whatever"));
+    assertNull(JdbcDatabaseType.selectPart("select * fram whatever"));
+    assertEquals("select\n" +
+        "   s.subjectid as id, s.name as name,\n" +
+        "   (select sa2.value from subjectattribute sa2 where name='name' and sa2.SUBJECTID = s.subjectid) as lfname,\n" +
+        "   (select sa3.value from subjectattribute sa3 where name='loginid' and sa3.SUBJECTID = s.subjectid) as loginid,\n" +
+        "   (select sa4.value from subjectattribute sa4 where name='description' and sa4.SUBJECTID = s.subjectid) as description,\n" +
+        "   (select sa5.value from subjectattribute sa5 where name='email' and sa5.SUBJECTID = s.subjectid) as email\n", JdbcDatabaseType.selectPart("select\n" +
+"   s.subjectid as id, s.name as name,\n" +
+"   (select sa2.value from subjectattribute sa2 where name='name' and sa2.SUBJECTID = s.subjectid) as lfname,\n" +
+"   (select sa3.value from subjectattribute sa3 where name='loginid' and sa3.SUBJECTID = s.subjectid) as loginid,\n" +
+"   (select sa4.value from subjectattribute sa4 where name='description' and sa4.SUBJECTID = s.subjectid) as description,\n" +
+"   (select sa5.value from subjectattribute sa5 where name='email' and sa5.SUBJECTID = s.subjectid) as email\n" +
+"from \n" +
+"   subject s\n" +
+"where\n" +
+"   s.subjectid in (\n" +
+"      select subjectid from subject where lower(name) like concat('%',concat(?,'%')) union\n" +
+"      select subjectid from subjectattribute where searchvalue like concat('%',concat(?,'%'))\n" +
+"   )\n"));
+  }
+  
   /**
    * A test of Subject ID search capability.
    */

@@ -147,7 +147,10 @@ public class GrouperServiceRest {
             .getActAsSubjectIdentifier(), wsRestFindGroupsLiteRequest
             .getIncludeGroupDetail(), wsRestFindGroupsLiteRequest.getParamName0(),
         wsRestFindGroupsLiteRequest.getParamValue0(), wsRestFindGroupsLiteRequest
-            .getParamName1(), wsRestFindGroupsLiteRequest.getParamValue1());
+            .getParamName1(), wsRestFindGroupsLiteRequest.getParamValue1(),
+            wsRestFindGroupsLiteRequest.getPageSize(), wsRestFindGroupsLiteRequest.getPageNumber(),
+            wsRestFindGroupsLiteRequest.getSortString(), wsRestFindGroupsLiteRequest.getAscending(),
+            wsRestFindGroupsLiteRequest.getTypeOfGroups());
 
     //return result
     return wsFindGroupsResults;
@@ -1180,7 +1183,7 @@ public class GrouperServiceRest {
         wsRestGroupSaveLiteRequest.getIncludeGroupDetail(), wsRestGroupSaveLiteRequest
             .getParamName0(), wsRestGroupSaveLiteRequest.getParamValue0(),
         wsRestGroupSaveLiteRequest.getParamName1(), wsRestGroupSaveLiteRequest
-            .getParamValue1());
+            .getParamValue1(), wsRestGroupSaveLiteRequest.getTypeOfGroup());
   
     //return result
     return wsGroupSaveLiteResult;

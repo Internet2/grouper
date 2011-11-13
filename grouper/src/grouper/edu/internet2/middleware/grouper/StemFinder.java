@@ -16,6 +16,7 @@
 */
 
 package edu.internet2.middleware.grouper;
+import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -165,6 +166,7 @@ public class StemFinder {
     throws StemNotFoundException {
     return findByUuid(s, uuid, exceptionIfNull, null);
   }
+  
   /**
    * Get stem by uuid.
    * <pre class="eg">
@@ -191,6 +193,31 @@ public class StemFinder {
     return ns;
   } // public static Stem findByUuid(s, uuid)
 
+  /**
+   * Get stems by uuids.
+   * <pre class="eg">
+   * // Get the specified stems by uuids.
+   * try {
+   *   Set<Stem> stems = StemFinder.findByUuids(s, uuids, null);
+   * }
+   * catch (StemNotFoundException e) {
+   *   // Stem not found
+   * }
+   * </pre>
+   * @param   s     Search within this {@link GrouperSession} context
+   * @param   uuid  Get stem with this UUID.
+   * @param exceptionIfNull
+   * @param queryOptions
+   * @return  A {@link Stem} object
+   * @throws  StemNotFoundException
+   */
+  public static Set<Stem> findByUuids(GrouperSession s, Collection<String> uuids, QueryOptions queryOptions) 
+    throws StemNotFoundException {
+    //note, no need for GrouperSession inverse of control
+    GrouperSession.validate(s);
+    Set<Stem> ns = GrouperDAOFactory.getFactory().getStem().findByUuids(uuids, queryOptions) ;
+    return ns;
+  } // public static Stem findByUuid(s, uuid)
 
   // @since   1.2.0
   public static Set internal_findAllByApproximateDisplayExtension(GrouperSession s, String val) 

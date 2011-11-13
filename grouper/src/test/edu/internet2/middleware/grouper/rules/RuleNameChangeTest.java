@@ -4,6 +4,7 @@
  */
 package edu.internet2.middleware.grouper.rules;
 
+import junit.textui.TestRunner;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
@@ -17,6 +18,7 @@ import edu.internet2.middleware.grouper.attr.AttributeDefType;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValueContainer;
 import edu.internet2.middleware.grouper.attr.value.AttributeValueDelegate;
+import edu.internet2.middleware.grouper.cache.GrouperCacheUtils;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SessionHelper;
 import edu.internet2.middleware.grouper.helper.StemHelper;
@@ -40,6 +42,13 @@ public class RuleNameChangeTest extends GrouperTest {
   
   /** root stem */
   private Stem root;
+  
+  /**
+   * @param args
+   */
+  public static void main(String[] args) {
+    TestRunner.run(new RuleNameChangeTest("testPackedSubjectUpdateOnGroupNameChange"));
+  }
   
   /**
    * 
@@ -336,6 +345,7 @@ public class RuleNameChangeTest extends GrouperTest {
     edu.move(edu2);
     
     // make sure rule is still working
+    GrouperCacheUtils.clearAllCaches();
     newStem = edu.addChildStem("test2", "test2");   
     assertTrue(newStem.hasCreate(adminGroup.toSubject()));
     assertEquals(initialFirings + 2, RuleEngine.ruleFirings);

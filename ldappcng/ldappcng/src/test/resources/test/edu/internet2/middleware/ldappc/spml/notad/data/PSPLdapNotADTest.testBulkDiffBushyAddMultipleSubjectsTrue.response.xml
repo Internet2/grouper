@@ -27,7 +27,7 @@
           <dsml:value>groupA</dsml:value>
         </dsml:attr>
         <dsml:attr xmlns:dsml='urn:oasis:names:tc:DSML:2:0:core' name='hasMember'>
-          <dsml:value>my name is test.subject.0</dsml:value>
+          <dsml:value>test.subject.0</dsml:value>
         </dsml:attr>
       </data>
       <capabilityData mustUnderstand='true' capabilityURI='urn:oasis:names:tc:SPML:2:0:reference'>
@@ -54,7 +54,7 @@
           <dsml:value>descriptionB</dsml:value>
         </dsml:attr>
         <dsml:attr xmlns:dsml='urn:oasis:names:tc:DSML:2:0:core' name='hasMember'>
-          <dsml:value>my name is test.subject.1</dsml:value>
+          <dsml:value>test.subject.1</dsml:value>
         </dsml:attr>
       </data>
       <capabilityData mustUnderstand='true' capabilityURI='urn:oasis:names:tc:SPML:2:0:reference'>
@@ -62,7 +62,7 @@
           <spmlref:toPsoID ID='cn=test.subject.1,ou=testpeople,${base}' targetID='ldap'/>
         </spmlref:reference>
         <spmlref:reference xmlns='urn:oasis:names:tc:SPML:2:0' xmlns:spmlref='urn:oasis:names:tc:SPML:2:0:reference' typeOfReference='member'>
-          <spmlref:toPsoID ID='cn=test.subject.2,ou=testpeople,${base}' targetID='ldap'/>
+          <spmlref:toPsoID ID='cn=test.subject.10,ou=testpeople,${base}' targetID='ldap'/>
         </spmlref:reference>
       </capabilityData>
     </addRequest>
@@ -99,7 +99,7 @@
       </modification>
     </modifyRequest>
     <modifyRequest xmlns='urn:oasis:names:tc:SPML:2:0' entityName='member' returnData='everything' requestID='REQUESTID_TEST'>
-      <psoID ID='cn=test.subject.2,ou=testpeople,${base}' targetID='ldap'/>
+      <psoID ID='cn=test.subject.10,ou=testpeople,${base}' targetID='ldap'/>
       <modification modificationMode='add'>
         <dsml:modification xmlns:dsml='urn:oasis:names:tc:DSML:2:0:core' name='objectClass' operation='add'>
           <dsml:value>eduMember</dsml:value>

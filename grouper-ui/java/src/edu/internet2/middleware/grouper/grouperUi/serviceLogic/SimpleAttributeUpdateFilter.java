@@ -385,14 +385,14 @@ public class SimpleAttributeUpdateFilter {
         } else {
           try {
             
-            subjects = SubjectFinder.findAllInStem(attributeDef.getStem().getName(), searchTerm);            
+            subjects = SubjectFinder.findPageInStem(attributeDef.getStem().getName(), searchTerm).getResults();            
             
             int maxSubjectsDropDown = TagUtils.mediaResourceInt("simpleAttributeUpdate.attributeDefPrivilegeUserComboboxResultSize", 50);
 
             queryPaging = new QueryPaging(maxSubjectsDropDown, 1, true);
           
             //sort and page the results
-            subjects = GrouperUiUtils.subjectsSortedPaged(subjects, queryPaging);
+            subjects = GrouperUiUtils.subjectsSortedPaged(subjects, queryPaging, searchTerm);
 
           } catch (SubjectTooManyResults stmr) {
             tooManyResults = true;
@@ -739,7 +739,7 @@ public class SimpleAttributeUpdateFilter {
       } else {
         queryOptions = new QueryOptions().paging(TagUtils.mediaResourceInt("simpleGroupUpdate.groupComboboxResultSize", 200), 1, true).sortAsc("theGroup.displayNameDb");
         groups = GrouperDAOFactory.getFactory().getGroup().getAllGroupsSplitScopeSecure(searchTerm, grouperSession, loggedInSubject, 
-            GrouperUtil.toSet(AccessPrivilege.ADMIN), queryOptions, null);
+            GrouperUtil.toSet(AccessPrivilege.ADMIN), queryOptions, (TypeOfGroup)null);
         
         if (GrouperUtil.length(groups) == 0) {
           GrouperUiUtils.dhtmlxOptionAppend(xmlBuilder, "", 
@@ -832,14 +832,14 @@ public class SimpleAttributeUpdateFilter {
       } else {
         try {
           
-          subjects = SubjectFinder.findAll(searchTerm);            
+          subjects = SubjectFinder.findPage(searchTerm).getResults();            
           
           int maxSubjectsDropDown = TagUtils.mediaResourceInt("simpleAttributeUpdate.attributeDefPrivilegeUserComboboxResultSize", 50);
 
           queryPaging = new QueryPaging(maxSubjectsDropDown, 1, true);
         
           //sort and page the results
-          subjects = GrouperUiUtils.subjectsSortedPaged(subjects, queryPaging);
+          subjects = GrouperUiUtils.subjectsSortedPaged(subjects, queryPaging, searchTerm);
 
         } catch (SubjectTooManyResults stmr) {
           tooManyResults = true;

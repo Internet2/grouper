@@ -16,7 +16,10 @@
     </data>
     <capabilityData mustUnderstand='true' capabilityURI='urn:oasis:names:tc:SPML:2:0:reference'>
       <spmlref:reference xmlns='urn:oasis:names:tc:SPML:2:0' xmlns:spmlref='urn:oasis:names:tc:SPML:2:0:reference' typeOfReference='member'>
-        <spmlref:toPsoID ID='cn=test.subject.1,ou=org,ou=testpeople,${base}' targetID='ldap'/>
+        <spmlref:toPsoID ID='cn=test.subject.1,ou=testpeople,${base}' targetID='ldap'/>
+      </spmlref:reference>
+      <spmlref:reference xmlns='urn:oasis:names:tc:SPML:2:0' xmlns:spmlref='urn:oasis:names:tc:SPML:2:0:reference' typeOfReference='member'>
+        <spmlref:toPsoID ID='cn=test.subject.10,ou=org,ou=testpeople,${base}' targetID='ldap'/>
       </spmlref:reference>
     </capabilityData>
   </ldappc:pso>

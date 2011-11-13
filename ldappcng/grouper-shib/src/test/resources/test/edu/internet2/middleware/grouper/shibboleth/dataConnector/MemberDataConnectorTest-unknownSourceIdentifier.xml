@@ -10,7 +10,7 @@
    http://grouper.internet2.edu/shibboleth/2.0 classpath:/schema/shibboleth-2.0-grouper.xsd">
 
   <resolver:DataConnector id="testUnknownSource" xsi:type="grouper:MemberDataConnector">
-    <grouper:Source id="unknown" />
+    <grouper:Filter xsi:type="grouper:MemberSource" sourceId="unknown" />
   </resolver:DataConnector>
  
 </AttributeResolver>

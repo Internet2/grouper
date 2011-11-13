@@ -15,6 +15,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 import edu.internet2.middleware.grouper.ws.query.StemScope;
 import edu.internet2.middleware.grouper.ws.query.WsStemQueryFilterType;
+import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
 
 /**
  * this represents a query which can be and'ed or or'ed
@@ -182,6 +183,18 @@ public class WsStemQueryFilter {
    * if 'and' or 'or', this is the second stem
    */
   private WsStemQueryFilter stemQueryFilter1;
+
+  /** true or null for ascending, false for descending.  If you pass true or false, must pass a sort string */
+  private String ascending;
+
+  /** page number 1 indexed if paging */
+  private String pageNumber;
+
+  /** page size if paging */
+  private String pageSize;
+
+  /** must be an hql query field, e.g. can sort on name, displayName, extension, displayExtension */
+  private String sortString;
 
   /**
    * if there is a stem query filter 1, there shouldnt be
@@ -492,6 +505,94 @@ public class WsStemQueryFilter {
    */
   public void setStemAttributeValue(String stemAttributeValue1) {
     this.stemAttributeValue = stemAttributeValue1;
+  }
+
+  /**
+   * true or null for ascending, false for descending.  If you pass true or false, must pass a sort string
+   * @return the ascending
+   */
+  public String getAscending() {
+    return this.ascending;
+  }
+
+  /**
+   * page number 1 indexed if paging
+   * @return the pageNumber
+   */
+  public String getPageNumber() {
+    return this.pageNumber;
+  }
+
+  /**
+   * page size if paging
+   * @return the pageSize
+   */
+  public String getPageSize() {
+    return this.pageSize;
+  }
+
+  /**
+   * must be an hql query field, e.g. can sort on name, displayName, extension, displayExtension
+   * @return the sortString
+   */
+  public String getSortString() {
+    return this.sortString;
+  }
+
+  /**
+   * true or null for ascending, false for descending.  If you pass true or false, must pass a sort string
+   * @param ascending1 the ascending to set
+   */
+  public void setAscending(String ascending1) {
+    this.ascending = ascending1;
+  }
+
+  /**
+   * page number 1 indexed if paging
+   * @param pageNumber1 the pageNumber to set
+   */
+  public void setPageNumber(String pageNumber1) {
+    this.pageNumber = pageNumber1;
+  }
+
+  /**
+   * page size if paging
+   * @param pageSize1 the pageSize to set
+   */
+  public void setPageSize(String pageSize1) {
+    this.pageSize = pageSize1;
+  }
+
+  /**
+   * must be an hql query field, e.g. can sort on name, displayName, extension, displayExtension
+   * @param sortString1 the sortString to set
+   */
+  public void setSortString(String sortString1) {
+    this.sortString = sortString1;
+  }
+
+  /**
+   * true or null for ascending, false for descending.  If you pass true or false, must pass a sort string
+   * @return true or null for ascending, false for descending.  If you pass true or false, must pass a sort string
+   */
+  public Boolean retrieveAscending() {
+    return GrouperServiceUtils.booleanObjectValue(this.ascending, "ascending");
+  }
+
+  /**
+   * page number 1 indexed if paging
+   * @return  page number 1 indexed if paging
+   */
+  public Integer retrievePageNumber() {
+    return GrouperServiceUtils.integerValue(this.pageNumber, "pageNumber");
+  }
+
+  /**
+   * page size if paging
+   * @return  page size if paging
+   */
+  public Integer retrievePageSize() {
+    return GrouperServiceUtils.integerValue(this.pageSize, "pageSize");
   }
 
 }

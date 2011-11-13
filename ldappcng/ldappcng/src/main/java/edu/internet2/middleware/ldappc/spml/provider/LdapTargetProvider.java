@@ -17,9 +17,12 @@ package edu.internet2.middleware.ldappc.spml.provider;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 
 import javax.naming.InvalidNameException;
@@ -31,8 +34,10 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.ModificationItem;
+import javax.naming.directory.SchemaViolationException;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
+import javax.naming.ldap.LdapName;
 
 import org.openspml.v2.msg.spml.AddRequest;
 import org.openspml.v2.msg.spml.AddResponse;
@@ -52,6 +57,7 @@ import org.openspml.v2.msg.spml.QueryClause;
 import org.openspml.v2.msg.spml.Response;
 import org.openspml.v2.msg.spml.ReturnData;
 import org.openspml.v2.msg.spml.StatusCode;
+import org.openspml.v2.msg.spmlref.HasReference;
 import org.openspml.v2.msg.spmlref.Reference;
 import org.openspml.v2.msg.spmlsearch.Query;
 import org.openspml.v2.msg.spmlsearch.Scope;
@@ -70,12 +76,17 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.ldappc.exception.LdappcException;
 import edu.internet2.middleware.ldappc.spml.PSP;
 import edu.internet2.middleware.ldappc.spml.PSPConstants;
+import edu.internet2.middleware.ldappc.spml.definitions.IdentifyingAttribute;
 import edu.internet2.middleware.ldappc.spml.definitions.PSODefinition;
 import edu.internet2.middleware.ldappc.spml.definitions.PSOReferencesDefinition;
+import edu.internet2.middleware.ldappc.spml.request.AlternateIdentifier;
 import edu.internet2.middleware.ldappc.spml.request.LdapFilterQueryClause;
 import edu.internet2.middleware.ldappc.util.LdapUtil;
 import edu.internet2.middleware.ldappc.util.PSPUtil;
 import edu.internet2.middleware.shibboleth.common.service.ServiceException;
+import edu.internet2.middleware.subject.Source;
+import edu.internet2.middleware.subject.provider.LdapSourceAdapter;
+import edu.internet2.middleware.subject.provider.SourceManager;
 import edu.vt.middleware.ldap.Ldap;
 import edu.vt.middleware.ldap.SearchFilter;
 import edu.vt.middleware.ldap.bean.LdapAttribute;
@@ -101,6 +112,12 @@ public class LdapTargetProvider extends BaseSpmlTargetProvider {
 
   private boolean logSpml;
 
+  /** The OpenLDAP error code returned when removing the last value of the groupOfNames attribute. */
+  public static final String GROUP_OF_NAMES_ERROR = "[LDAP: error code 65 - object class 'groupOfNames' requires attribute 'member']";
+
+  /** The OpenLDAP error code returned when removing the last value of the groupOfUniqueNames attribute. */
+  public static final String GROUP_OF_UNIQUE_NAMES_ERROR = "[LDAP: error code 65 - object class 'groupOfUniqueNames' requires attribute 'uniqueMember']";
+
   public LdapTargetProvider() {
   }
 
@@ -124,8 +141,7 @@ public class LdapTargetProvider extends BaseSpmlTargetProvider {
   }
 
   /**
-   * @param logLdif
-   *          The logLdif to set.
+   * @param logLdif The logLdif to set.
    */
   public void setLogLdif(boolean logLdif) {
     this.logLdif = logLdif;
@@ -139,8 +155,7 @@ public class LdapTargetProvider extends BaseSpmlTargetProvider {
   }
 
   /**
-   * @param logSpml
-   *          The logSpml to set.
+   * @param logSpml The logSpml to set.
    */
   public void setLogSpml(boolean logSpml) {
     this.logSpml = logSpml;
@@ -150,7 +165,15 @@ public class LdapTargetProvider extends BaseSpmlTargetProvider {
     LdapPool<Ldap> oldPool = ldapPool;
     try {
       LOG.debug("Loading ldap pool '{}'", getLdapPoolId());
-      ldapPool = (LdapPool<Ldap>) newServiceContext.getBean(getLdapPoolId());
+      if (newServiceContext.containsBean(getLdapPoolId())) {
+        LOG.debug("Loading ldap pool '{}' from Spring", getLdapPoolId());
+        ldapPool = (LdapPool<Ldap>) newServiceContext.getBean(getLdapPoolId());
+      } else {
+        LOG.debug("Loading ldap pool '{}' from Grouper", getLdapPoolId());
+        Source source = SourceManager.getInstance().getSource(getLdapPoolId());
+        LdapSourceAdapter lsa = (LdapSourceAdapter) source;
+        ldapPool = lsa.getLdapPool();
+      }
     } catch (Exception e) {
       ldapPool = oldPool;
       LOG.error(getId() + " configuration is not valid, retaining old configuration", e);
@@ -162,20 +185,23 @@ public class LdapTargetProvider extends BaseSpmlTargetProvider {
 
     String msg = PSPUtil.toString(addRequest);
     LOG.info("{}", msg);
-    if (this.isLogSpml()) LOG.info("\n{}", this.toXML(addRequest));
+    if (this.isLogSpml())
+      LOG.info("\n{}", this.toXML(addRequest));
 
     AddResponse addResponse = new AddResponse();
     addResponse.setRequestID(this.getOrGenerateRequestID(addRequest));
 
     if (!this.getPSP().isValid(addRequest, addResponse)) {
       LOG.error(PSPUtil.toString(addResponse));
-      if (this.isLogSpml()) LOG.info("\n{}", this.toXML(addResponse));
+      if (this.isLogSpml())
+        LOG.info("\n{}", this.toXML(addResponse));
       return addResponse;
     }
 
     if (!this.isValidTargetId(addRequest.getPsoID(), addResponse)) {
       LOG.error(PSPUtil.toString(addResponse));
-      if (this.isLogSpml()) LOG.info("\n{}", this.toXML(addResponse));
+      if (this.isLogSpml())
+        LOG.info("\n{}", this.toXML(addResponse));
       return addResponse;
     }
 
@@ -187,7 +213,8 @@ public class LdapTargetProvider extends BaseSpmlTargetProvider {
     } catch (DSMLProfileException e) {
       fail(addResponse, ErrorCode.CUSTOM_ERROR, e);
       LOG.error(PSPUtil.toString(addResponse), e);
-      if (this.isLogSpml()) LOG.info("\n{}", this.toXML(addResponse));
+      if (this.isLogSpml())
+        LOG.info("\n{}", this.toXML(addResponse));
       return addResponse;
     }
 
@@ -263,7 +290,8 @@ public class LdapTargetProvider extends BaseSpmlTargetProvider {
         } else {
           fail(addResponse, lookupResponse.getError(), "Unable to lookup object after create.");
           LOG.error(PSPUtil.toString(addResponse));
-          if (this.isLogSpml()) LOG.info("\n{}", this.toXML(addResponse));
+          if (this.isLogSpml())
+            LOG.info("\n{}", this.toXML(addResponse));
           return addResponse;
         }
       }
@@ -272,23 +300,27 @@ public class LdapTargetProvider extends BaseSpmlTargetProvider {
     } catch (LdapPoolException e) {
       fail(addResponse, ErrorCode.CUSTOM_ERROR, e);
       LOG.error(PSPUtil.toString(addResponse), e);
-      if (this.isLogSpml()) LOG.info("\n{}", this.toXML(addResponse));
+      if (this.isLogSpml())
+        LOG.info("\n{}", this.toXML(addResponse));
       return addResponse;
     } catch (NameAlreadyBoundException e) {
       fail(addResponse, ErrorCode.ALREADY_EXISTS, e);
       LOG.error(PSPUtil.toString(addResponse), e);
-      if (this.isLogSpml()) LOG.info("\n{}", this.toXML(addResponse));
+      if (this.isLogSpml())
+        LOG.info("\n{}", this.toXML(addResponse));
       return addResponse;
     } catch (NamingException e) {
       fail(addResponse, ErrorCode.CUSTOM_ERROR, e);
       LOG.error(PSPUtil.toString(addResponse), e);
-      if (this.isLogSpml()) LOG.info("\n{}", this.toXML(addResponse));
+      if (this.isLogSpml())
+        LOG.info("\n{}", this.toXML(addResponse));
       return addResponse;
     } catch (LdappcException e) {
       // from PSO.getReferences, an unhandled capability data
       fail(addResponse, ErrorCode.CUSTOM_ERROR, e);
       LOG.error(PSPUtil.toString(addResponse), e);
-      if (this.isLogSpml()) LOG.info("\n{}", this.toXML(addResponse));
+      if (this.isLogSpml())
+        LOG.info("\n{}", this.toXML(addResponse));
       return addResponse;
     } finally {
       ldapPool.checkIn(ldap);
@@ -296,7 +328,8 @@ public class LdapTargetProvider extends BaseSpmlTargetProvider {
 
     addResponse.setStatus(StatusCode.SUCCESS);
     LOG.info(PSPUtil.toString(addResponse));
-    if (this.isLogSpml()) LOG.info("\n{}", this.toXML(addResponse));
+    if (this.isLogSpml())
+      LOG.info("\n{}", this.toXML(addResponse));
     return addResponse;
   }
 
@@ -304,14 +337,25 @@ public class LdapTargetProvider extends BaseSpmlTargetProvider {
 
     String msg = PSPUtil.toString(deleteRequest);
     LOG.info("{}", msg);
-    if (this.isLogSpml()) LOG.info("\n{}", this.toXML(deleteRequest));
+    if (this.isLogSpml())
+      LOG.info("\n{}", this.toXML(deleteRequest));
 
     DeleteResponse deleteResponse = new DeleteResponse();
     deleteResponse.setRequestID(this.getOrGenerateRequestID(deleteRequest));
 
     if (!this.isValidTargetId(deleteRequest.getPsoID(), deleteResponse)) {
       LOG.error(PSPUtil.toString(deleteResponse));
-      if (this.isLogSpml()) LOG.info("\n{}", this.toXML(deleteResponse));
+      if (this.isLogSpml())
+        LOG.info("\n{}", this.toXML(deleteResponse));
+      return deleteResponse;
+    }
+
+    // TODO support recursive delete requests
+    if (deleteRequest.isRecursive()) {
+      fail(deleteResponse, ErrorCode.UNSUPPORTED_OPERATION, "Recursive delete requests are not yet supported.");
+      LOG.error(PSPUtil.toString(deleteResponse));
+      if (this.isLogSpml())
+        LOG.info("\n{}", this.toXML(deleteResponse));
       return deleteResponse;
     }
 
@@ -329,24 +373,28 @@ public class LdapTargetProvider extends BaseSpmlTargetProvider {
     } catch (LdapPoolException e) {
       fail(deleteResponse, ErrorCode.CUSTOM_ERROR, e);
       LOG.error(PSPUtil.toString(deleteResponse), e);
-      if (this.isLogSpml()) LOG.info("\n{}", this.toXML(deleteResponse));
+      if (this.isLogSpml())
+        LOG.info("\n{}", this.toXML(deleteResponse));
       return deleteResponse;
     } catch (NameNotFoundException e) {
       fail(deleteResponse, ErrorCode.NO_SUCH_IDENTIFIER, e);
       LOG.error(PSPUtil.toString(deleteResponse), e);
-      if (this.isLogSpml()) LOG.info("\n{}", this.toXML(deleteResponse));
+      if (this.isLogSpml())
+        LOG.info("\n{}", this.toXML(deleteResponse));
       return deleteResponse;
     } catch (NamingException e) {
       fail(deleteResponse, ErrorCode.CUSTOM_ERROR, e);
       LOG.error(PSPUtil.toString(deleteResponse), e);
-      if (this.isLogSpml()) LOG.info("\n{}", this.toXML(deleteResponse));
+      if (this.isLogSpml())
+        LOG.info("\n{}", this.toXML(deleteResponse));
       return deleteResponse;
     } finally {
       ldapPool.checkIn(ldap);
     }
 
     deleteResponse.setStatus(StatusCode.SUCCESS);
-    if (this.isLogSpml()) LOG.info("\n{}", this.toXML(deleteResponse));
+    if (this.isLogSpml())
+      LOG.info("\n{}", this.toXML(deleteResponse));
     return deleteResponse;
   }
 
@@ -354,7 +402,8 @@ public class LdapTargetProvider extends BaseSpmlTargetProvider {
 
     String msg = PSPUtil.toString(lookupRequest);
     LOG.info("{}", msg);
-    if (this.isLogSpml()) LOG.info("\n{}", this.toXML(lookupRequest));
+    if (this.isLogSpml())
+      LOG.info("\n{}", this.toXML(lookupRequest));
 
     LookupResponse lookupResponse = new LookupResponse();
     lookupResponse.setRequestID(this.getOrGenerateRequestID(lookupRequest));
@@ -362,7 +411,8 @@ public class LdapTargetProvider extends BaseSpmlTargetProvider {
     if (lookupRequest.getPsoID() == null || lookupRequest.getPsoID().getID() == null) {
       fail(lookupResponse, ErrorCode.MALFORMED_REQUEST, PSPConstants.ERROR_NULL_PSO_ID);
       LOG.error("{}", PSPUtil.toString(lookupResponse));
-      if (this.isLogSpml()) LOG.info("\n{}", this.toXML(lookupResponse));
+      if (this.isLogSpml())
+        LOG.info("\n{}", this.toXML(lookupResponse));
       return lookupResponse;
     }
 
@@ -370,14 +420,16 @@ public class LdapTargetProvider extends BaseSpmlTargetProvider {
     if (GrouperUtil.isBlank(targetId)) {
       fail(lookupResponse, ErrorCode.MALFORMED_REQUEST, PSPConstants.ERROR_NULL_TARGET_ID);
       LOG.error("{}", PSPUtil.toString(lookupResponse));
-      if (this.isLogSpml()) LOG.info("\n{}", this.toXML(lookupResponse));
+      if (this.isLogSpml())
+        LOG.info("\n{}", this.toXML(lookupResponse));
       return lookupResponse;
     }
 
     if (!targetId.equals(this.getTargetDefinition().getId())) {
       fail(lookupResponse, ErrorCode.INVALID_IDENTIFIER);
       LOG.error("{}", PSPUtil.toString(lookupResponse));
-      if (this.isLogSpml()) LOG.info("\n{}", this.toXML(lookupResponse));
+      if (this.isLogSpml())
+        LOG.info("\n{}", this.toXML(lookupResponse));
       return lookupResponse;
     }
 
@@ -409,7 +461,8 @@ public class LdapTargetProvider extends BaseSpmlTargetProvider {
       if (!searchResults.hasNext()) {
         fail(lookupResponse, ErrorCode.NO_SUCH_IDENTIFIER);
         LOG.error("{}", PSPUtil.toString(lookupResponse));
-        if (this.isLogSpml()) LOG.info("\n{}", this.toXML(lookupResponse));
+        if (this.isLogSpml())
+          LOG.info("\n{}", this.toXML(lookupResponse));
         return lookupResponse;
       }
 
@@ -418,7 +471,8 @@ public class LdapTargetProvider extends BaseSpmlTargetProvider {
       if (searchResults.hasNext()) {
         fail(lookupResponse, ErrorCode.CUSTOM_ERROR, "More than one result found.");
         LOG.error("{}", PSPUtil.toString(lookupResponse));
-        if (this.isLogSpml()) LOG.info("\n{}", this.toXML(lookupResponse));
+        if (this.isLogSpml())
+          LOG.info("\n{}", this.toXML(lookupResponse));
         return lookupResponse;
       }
       Attributes attributes = result.getAttributes();
@@ -456,32 +510,38 @@ public class LdapTargetProvider extends BaseSpmlTargetProvider {
       fail(lookupResponse, ErrorCode.NO_SUCH_IDENTIFIER);
       LOG.error(PSPUtil.toString(lookupResponse));
       LOG.debug(PSPUtil.toString(lookupResponse), e);
-      if (this.isLogSpml()) LOG.info("\n{}", this.toXML(lookupResponse));
+      if (this.isLogSpml())
+        LOG.info("\n{}", this.toXML(lookupResponse));
       return lookupResponse;
     } catch (LdapPoolException e) {
       fail(lookupResponse, ErrorCode.CUSTOM_ERROR, e);
       LOG.error(PSPUtil.toString(lookupResponse), e);
-      if (this.isLogSpml()) LOG.info("\n{}", this.toXML(lookupResponse));
+      if (this.isLogSpml())
+        LOG.info("\n{}", this.toXML(lookupResponse));
       return lookupResponse;
     } catch (InvalidNameException e) {
       fail(lookupResponse, ErrorCode.CUSTOM_ERROR, e);
       LOG.error(PSPUtil.toString(lookupResponse), e);
-      if (this.isLogSpml()) LOG.info("\n{}", this.toXML(lookupResponse));
+      if (this.isLogSpml())
+        LOG.info("\n{}", this.toXML(lookupResponse));
       return lookupResponse;
     } catch (NamingException e) {
       fail(lookupResponse, ErrorCode.CUSTOM_ERROR, e);
       LOG.error(PSPUtil.toString(lookupResponse), e);
-      if (this.isLogSpml()) LOG.info("\n{}", this.toXML(lookupResponse));
+      if (this.isLogSpml())
+        LOG.info("\n{}", this.toXML(lookupResponse));
       return lookupResponse;
     } catch (DSMLProfileException e) {
       fail(lookupResponse, ErrorCode.CUSTOM_ERROR, e);
       LOG.error(PSPUtil.toString(lookupResponse), e);
-      if (this.isLogSpml()) LOG.info("\n{}", this.toXML(lookupResponse));
+      if (this.isLogSpml())
+        LOG.info("\n{}", this.toXML(lookupResponse));
       return lookupResponse;
     } catch (Spml2Exception e) {
       fail(lookupResponse, ErrorCode.CUSTOM_ERROR, e);
       LOG.error(PSPUtil.toString(lookupResponse), e);
-      if (this.isLogSpml()) LOG.info("\n{}", this.toXML(lookupResponse));
+      if (this.isLogSpml())
+        LOG.info("\n{}", this.toXML(lookupResponse));
       return lookupResponse;
     } finally {
       ldapPool.checkIn(ldap);
@@ -489,42 +549,75 @@ public class LdapTargetProvider extends BaseSpmlTargetProvider {
 
     lookupResponse.setStatus(StatusCode.SUCCESS);
     LOG.info("{}", PSPUtil.toString(lookupResponse));
-    if (this.isLogSpml()) LOG.info("\n{}", this.toXML(lookupResponse));
+    if (this.isLogSpml())
+      LOG.info("\n{}", this.toXML(lookupResponse));
     return lookupResponse;
   }
 
   public ModifyResponse execute(ModifyRequest modifyRequest) {
+    return execute(modifyRequest, true);
+  }
+
+  public ModifyResponse execute(ModifyRequest modifyRequest, boolean retry) {
 
     String msg = PSPUtil.toString(modifyRequest);
     LOG.info("{}", msg);
-    if (this.isLogSpml()) LOG.info("\n{}", this.toXML(modifyRequest));
+    if (this.isLogSpml())
+      LOG.info("\n{}", this.toXML(modifyRequest));
 
     ModifyResponse response = new ModifyResponse();
     response.setRequestID(this.getOrGenerateRequestID(modifyRequest));
 
     if (!this.getPSP().isValid(modifyRequest, response)) {
       LOG.error(PSPUtil.toString(response));
-      if (this.isLogSpml()) LOG.info("\n{}", this.toXML(response));
+      if (this.isLogSpml())
+        LOG.info("\n{}", this.toXML(response));
       return response;
     }
 
     if (!this.isValidTargetId(modifyRequest.getPsoID(), response)) {
       LOG.error(PSPUtil.toString(response));
-      if (this.isLogSpml()) LOG.info("\n{}", this.toXML(response));
+      if (this.isLogSpml())
+        LOG.info("\n{}", this.toXML(response));
       return response;
     }
 
     String dn = modifyRequest.getPsoID().getID();
 
+    List<AlternateIdentifier> alternateIdentifiers = new ArrayList<AlternateIdentifier>();
+    List<ModificationItem> modificationItems = new ArrayList<ModificationItem>();
+    for (Modification modification : modifyRequest.getModifications()) {
+      modificationItems.addAll(this.getDsmlMods(modification));
+      modificationItems.addAll(this.getReferenceMods(modification));
+      alternateIdentifiers.addAll(PSPUtil.getAlternateIdentifiers(modification));
+    }
+
+    if (alternateIdentifiers.size() == 1) {
+      AlternateIdentifier alternateIdentifier = alternateIdentifiers.get(0);
+      if (!alternateIdentifier.getTargetID().equals(this.getTargetDefinition().getId())) {
+        fail(response, ErrorCode.CUSTOM_ERROR, "Unable to rename object with a different target ID.");
+        LOG.error(PSPUtil.toString(response));
+        if (this.isLogSpml())
+          LOG.info("\n{}", this.toXML(response));
+        return response;
+      }
+    }
+
     Ldap ldap = null;
     try {
-      List<ModificationItem> modificationItems = new ArrayList<ModificationItem>();
-      for (Modification modification : modifyRequest.getModifications()) {
-        modificationItems.addAll(this.getDsmlMods(modification));
-        modificationItems.addAll(this.getReferenceMods(modification));
-      }
-
       ldap = ldapPool.checkOut();
+
+      PSOIdentifier responseLookupPsoID = modifyRequest.getPsoID();
+
+      // rename
+      if (alternateIdentifiers.size() == 1) {
+        String oldDn = LdapUtil.escapeForwardSlash(dn);
+        String newDn = LdapUtil.escapeForwardSlash(alternateIdentifiers.get(0).getID());
+        LOG.debug("{} renaming from '{}' to '{}'", new Object[] { msg, oldDn, newDn });
+        ldap.rename(oldDn, newDn);
+        dn = newDn;
+        responseLookupPsoID = alternateIdentifiers.get(0).getPSOIdentifier();
+      }
 
       LOG.debug("{} mods {}", msg, modificationItems);
       String escapedDn = LdapUtil.escapeForwardSlash(dn);
@@ -534,11 +627,11 @@ public class LdapTargetProvider extends BaseSpmlTargetProvider {
       // response PSO
       if (modifyRequest.getReturnData().equals(ReturnData.IDENTIFIER)) {
         PSO responsePSO = new PSO();
-        responsePSO.setPsoID(modifyRequest.getPsoID());
+        responsePSO.setPsoID(responseLookupPsoID);
         response.setPso(responsePSO);
       } else {
         LookupRequest lookupRequest = new LookupRequest();
-        lookupRequest.setPsoID(modifyRequest.getPsoID());
+        lookupRequest.setPsoID(responseLookupPsoID);
         lookupRequest.setReturnData(modifyRequest.getReturnData());
 
         LookupResponse lookupResponse = this.execute(lookupRequest);
@@ -547,25 +640,49 @@ public class LdapTargetProvider extends BaseSpmlTargetProvider {
         } else {
           fail(response, lookupResponse.getError());
           LOG.error(PSPUtil.toString(response));
-          if (this.isLogSpml()) LOG.info("\n{}", this.toXML(response));
+          if (this.isLogSpml())
+            LOG.info("\n{}", this.toXML(response));
           return response;
         }
       }
+    } catch (SchemaViolationException e) {
+
+      // optionally retry after adding an empty reference if this is an openldap schema violation
+      if (retry) {
+        LOG.error("{} A schema violation occurred {}", msg, e);
+        if (GROUP_OF_NAMES_ERROR.equals(e.getMessage()) || GROUP_OF_UNIQUE_NAMES_ERROR.equals(e.getMessage())) {
+          ModifyRequest emptyReference = handleEmptyReferences(modifyRequest);
+          if (emptyReference != null) {
+            LOG.info("{} Retrying modify request", msg, PSPUtil.toString(emptyReference));
+            return execute(emptyReference, false);
+          }
+        }
+      }
+
+      // return the failure response
+      fail(response, ErrorCode.CUSTOM_ERROR, e);
+      LOG.error(PSPUtil.toString(response), e);
+      if (this.isLogSpml())
+        LOG.info("\n{}", this.toXML(response));
+      return response;
 
     } catch (LdapPoolException e) {
       fail(response, ErrorCode.CUSTOM_ERROR, e);
       LOG.error(PSPUtil.toString(response), e);
-      if (this.isLogSpml()) LOG.info("\n{}", this.toXML(response));
+      if (this.isLogSpml())
+        LOG.info("\n{}", this.toXML(response));
       return response;
     } catch (LdappcException e) {
       fail(response, ErrorCode.CUSTOM_ERROR, e);
       LOG.error(PSPUtil.toString(response), e);
-      if (this.isLogSpml()) LOG.info("\n{}", this.toXML(response));
+      if (this.isLogSpml())
+        LOG.info("\n{}", this.toXML(response));
       return response;
     } catch (NamingException e) {
       fail(response, ErrorCode.CUSTOM_ERROR, e);
       LOG.error(PSPUtil.toString(response), e);
-      if (this.isLogSpml()) LOG.info("\n{}", this.toXML(response));
+      if (this.isLogSpml())
+        LOG.info("\n{}", this.toXML(response));
       return response;
     } finally {
       ldapPool.checkIn(ldap);
@@ -573,7 +690,8 @@ public class LdapTargetProvider extends BaseSpmlTargetProvider {
 
     response.setStatus(StatusCode.SUCCESS);
     LOG.info(PSPUtil.toString(response));
-    if (this.isLogSpml()) LOG.info("\n{}", this.toXML(response));
+    if (this.isLogSpml())
+      LOG.info("\n{}", this.toXML(response));
     return response;
   }
 
@@ -581,7 +699,8 @@ public class LdapTargetProvider extends BaseSpmlTargetProvider {
 
     String msg = PSPUtil.toString(searchRequest);
     LOG.info("{}", msg);
-    if (this.isLogSpml()) LOG.info("\n{}", this.toXML(searchRequest));
+    if (this.isLogSpml())
+      LOG.info("\n{}", this.toXML(searchRequest));
 
     SearchResponse searchResponse = new SearchResponse();
     searchResponse.setRequestID(this.getOrGenerateRequestID(searchRequest));
@@ -591,7 +710,8 @@ public class LdapTargetProvider extends BaseSpmlTargetProvider {
     if (GrouperUtil.isBlank(query)) {
       fail(searchResponse, ErrorCode.MALFORMED_REQUEST, "A query is required.");
       LOG.error("{}", searchResponse);
-      if (this.isLogSpml()) LOG.info("\n{}", this.toXML(searchResponse));
+      if (this.isLogSpml())
+        LOG.info("\n{}", this.toXML(searchResponse));
       return searchResponse;
     }
 
@@ -600,7 +720,8 @@ public class LdapTargetProvider extends BaseSpmlTargetProvider {
       fail(searchResponse, ErrorCode.MALFORMED_REQUEST, "Target ID " + query.getTargetID()
           + " does not match this target " + this.getTargetDefinition().getId());
       LOG.error("{}", searchResponse);
-      if (this.isLogSpml()) LOG.info("\n{}", this.toXML(searchResponse));
+      if (this.isLogSpml())
+        LOG.info("\n{}", this.toXML(searchResponse));
       return searchResponse;
     }
 
@@ -611,11 +732,20 @@ public class LdapTargetProvider extends BaseSpmlTargetProvider {
       if (queryClause instanceof LdapFilterQueryClause) {
         filter = ((LdapFilterQueryClause) queryClause).getFilter();
       }
+      if (queryClause instanceof HasReference) {
+        HasReference hasReference = (HasReference) queryClause;
+        if (hasReference.getTypeOfReference() != null && hasReference.getToPsoID() != null
+            && hasReference.getToPsoID().getID() != null) {
+          filter = "(" + hasReference.getTypeOfReference() + "=" + hasReference.getToPsoID().getID() + ")";
+          // TODO what do we do with hasReference.getReferenceData(); ?
+        }
+      }
     }
     if (GrouperUtil.isBlank(filter)) {
       fail(searchResponse, ErrorCode.MALFORMED_REQUEST, "A filter is required.");
       LOG.error("{}", searchResponse);
-      if (this.isLogSpml()) LOG.info("\n{}", this.toXML(searchResponse));
+      if (this.isLogSpml())
+        LOG.info("\n{}", this.toXML(searchResponse));
       return searchResponse;
     }
 
@@ -623,7 +753,8 @@ public class LdapTargetProvider extends BaseSpmlTargetProvider {
     if (query.getBasePsoID() == null || query.getBasePsoID().getID() == null) {
       fail(searchResponse, ErrorCode.MALFORMED_REQUEST, "A basePsoID is required.");
       LOG.error("{}", searchResponse);
-      if (this.isLogSpml()) LOG.info("\n{}", this.toXML(searchResponse));
+      if (this.isLogSpml())
+        LOG.info("\n{}", this.toXML(searchResponse));
       return searchResponse;
     }
     String base = query.getBasePsoID().getID();
@@ -665,22 +796,26 @@ public class LdapTargetProvider extends BaseSpmlTargetProvider {
     } catch (NameNotFoundException e) {
       fail(searchResponse, ErrorCode.NO_SUCH_IDENTIFIER, e);
       LOG.error(PSPUtil.toString(searchResponse), e);
-      if (this.isLogSpml()) LOG.info("\n{}", this.toXML(searchResponse));
+      if (this.isLogSpml())
+        LOG.info("\n{}", this.toXML(searchResponse));
       return searchResponse;
     } catch (NamingException e) {
       fail(searchResponse, ErrorCode.CUSTOM_ERROR, e);
       LOG.error(PSPUtil.toString(searchResponse), e);
-      if (this.isLogSpml()) LOG.info("\n{}", this.toXML(searchResponse));
+      if (this.isLogSpml())
+        LOG.info("\n{}", this.toXML(searchResponse));
       return searchResponse;
     } catch (LdapPoolException e) {
       fail(searchResponse, ErrorCode.CUSTOM_ERROR, e);
       LOG.error(PSPUtil.toString(searchResponse), e);
-      if (this.isLogSpml()) LOG.info("\n{}", this.toXML(searchResponse));
+      if (this.isLogSpml())
+        LOG.info("\n{}", this.toXML(searchResponse));
       return searchResponse;
     } catch (Spml2Exception e) {
       fail(searchResponse, ErrorCode.CUSTOM_ERROR, e);
       LOG.error(PSPUtil.toString(searchResponse), e);
-      if (this.isLogSpml()) LOG.info("\n{}", this.toXML(searchResponse));
+      if (this.isLogSpml())
+        LOG.info("\n{}", this.toXML(searchResponse));
       return searchResponse;
     } finally {
       ldapPool.checkIn(ldap);
@@ -688,7 +823,8 @@ public class LdapTargetProvider extends BaseSpmlTargetProvider {
 
     searchResponse.setStatus(StatusCode.SUCCESS);
     LOG.info("{}", PSPUtil.toString(searchResponse));
-    if (this.isLogSpml()) LOG.info("\n{}", this.toXML(searchResponse));
+    if (this.isLogSpml())
+      LOG.info("\n{}", this.toXML(searchResponse));
     return searchResponse;
   }
 
@@ -744,11 +880,11 @@ public class LdapTargetProvider extends BaseSpmlTargetProvider {
 
       for (LdapAttribute ldapAttribute : ldapAttributes.getAttributes()) {
         if (attributeNameMap.containsKey(ldapAttribute.getName())) {
-          data.addOpenContentElement(this.getDsmlAttr(attributeNameMap.get(ldapAttribute.getName()), ldapAttribute
-              .getStringValues()));
+          data.addOpenContentElement(this.getDsmlAttr(attributeNameMap.get(ldapAttribute.getName()),
+              ldapAttribute.getStringValues()));
         } else if (returnData.equals(ReturnData.EVERYTHING) && referenceNameMap.containsKey(ldapAttribute.getName())) {
-          references.addAll(this
-              .getReferences(referenceNameMap.get(ldapAttribute.getName()), ldapAttribute.getStringValues()));
+          references.addAll(this.getReferences(referenceNameMap.get(ldapAttribute.getName()),
+              ldapAttribute.getStringValues()));
         } else {
           LOG.trace("{} ignoring attribute '{}'", msg, ldapAttribute.getName());
         }
@@ -756,10 +892,9 @@ public class LdapTargetProvider extends BaseSpmlTargetProvider {
         if (data.getOpenContentElements().length > 0) {
           pso.setData(data);
         }
-
-        if (returnData.equals(ReturnData.EVERYTHING)) {
-          PSPUtil.setReferences(pso, references);
-        }
+      }
+      if (returnData.equals(ReturnData.EVERYTHING)) {
+        PSPUtil.setReferences(pso, references);
       }
     }
 
@@ -769,11 +904,9 @@ public class LdapTargetProvider extends BaseSpmlTargetProvider {
   /**
    * Determine the schema entity appropriate for the given <code>LdapEntry</code>.
    * 
-   * @param entry
-   *          the <code>LdapEntry</code>
+   * @param entry the <code>LdapEntry</code>
    * @return the <code>PSODefintion</code>
-   * @throws LdappcException
-   *           if the schema entity cannot be determined.
+   * @throws LdappcException if the schema entity cannot be determined.
    */
   protected PSODefinition getPSODefinition(LdapEntry entry) throws LdappcException {
 
@@ -782,8 +915,12 @@ public class LdapTargetProvider extends BaseSpmlTargetProvider {
     PSODefinition definition = null;
 
     for (PSODefinition psoDefinition : this.getTargetDefinition().getPsoDefinitions()) {
-      String idAttrName = psoDefinition.getPsoIdentifierDefinition().getIdentifyingAttribute().getName();
-      String idAttrValue = psoDefinition.getPsoIdentifierDefinition().getIdentifyingAttribute().getValue();
+      IdentifyingAttribute ia = psoDefinition.getPsoIdentifierDefinition().getIdentifyingAttribute();
+      if (ia == null) {
+        continue;
+      }
+      String idAttrName = ia.getName();
+      String idAttrValue = ia.getValue();
       Attribute attribute = attributes.get(idAttrName);
       if (attribute != null && attribute.contains(idAttrValue)) {
         if (definition != null) {
@@ -957,6 +1094,95 @@ public class LdapTargetProvider extends BaseSpmlTargetProvider {
     LOG.trace("add request after:\n{}", this.toXML(addRequest));
   }
 
+  /**
+   * Handle modify requests which attempt to delete the last value of the member or uniqueMember attribute of the
+   * OpenLDAP groupOfNames and groupOfUniqueNames objectClass. If the modify request comprises one delete modification
+   * of a reference attribute configured with an emptyValue, then first add a new reference whose ID is the empty value
+   * before deleting the last value of the attribute.
+   * 
+   * @param modifyRequest the modify request
+   * @return the modified request suitable for retry or null if all preconditions are not met
+   */
+  protected ModifyRequest handleEmptyReferences(ModifyRequest modifyRequest) {
+
+    LOG.debug("Modify request before:\n{}", toXML(modifyRequest));
+
+    // determine the pso definition name
+    String entityName = modifyRequest.findOpenContentAttrValueByName(PSODefinition.ENTITY_NAME_ATTRIBUTE);
+    if (entityName == null) {
+      LOG.error("Unable to determine entity " + PSPUtil.toString(modifyRequest));
+      return null;
+    }
+
+    // the pso definition
+    PSODefinition psoDefinition = getTargetDefinition().getPSODefinition(entityName);
+    if (psoDefinition == null) {
+      LOG.error("Unable to determine provisioned object " + PSPUtil.toString(modifyRequest));
+      return null;
+    }
+
+    // the original modification, should be a delete
+    Modification[] modifications = modifyRequest.getModifications();
+    if (modifications.length != 1) {
+      LOG.debug("Only one modification is supported " + PSPUtil.toString(modifyRequest));
+      return null;
+    }
+    Modification originalModification = modifications[0];
+    if (!originalModification.getModificationMode().equals(ModificationMode.DELETE)) {
+      LOG.debug("Only the delete modification mode is supported " + PSPUtil.toString(modifyRequest));
+      return null;
+    }
+
+    // convert the modification into reference modifications
+    List<ModificationItem> modificationItems = getReferenceMods(originalModification);
+    if (modificationItems.size() != 1) {
+      LOG.debug("Only one reference modification is supported " + PSPUtil.toString(modifyRequest));
+      return null;
+    }
+
+    // the reference modification item
+    ModificationItem modItem = modificationItems.get(0);
+
+    // the references definition matching the reference modification
+    PSOReferencesDefinition refsDef = psoDefinition.getReferencesDefinition(modItem.getAttribute().getID());
+    if (refsDef == null) {
+      LOG.debug("Unable to determine references definition " + PSPUtil.toString(modifyRequest));
+      return null;
+    }
+
+    // the configured empty value
+    String emptyValue = refsDef.getEmptyValue();
+    if (emptyValue == null) {
+      LOG.debug("An empty value is not configured for references definition '" + refsDef.getName() + "' "
+          + PSPUtil.toString(modifyRequest));
+      return null;
+    }
+
+    // a reference to the empty value
+    Reference reference = new Reference();
+    reference.setToPsoID(new PSOIdentifier(emptyValue, null, getTargetDefinition().getId()));
+    reference.setTypeOfReference(refsDef.getName());
+
+    // a modification adding the reference to the empty value
+    Modification newModification = new Modification();
+    try {
+      newModification.addCapabilityData(PSPUtil.fromReferences(Arrays.asList(new Reference[] { reference })));
+    } catch (Spml2Exception e) {
+      LOG.error("Unable to add reference capability data " + PSPUtil.toString(modifyRequest), e);
+      return null;
+    }
+    newModification.setModificationMode(ModificationMode.ADD);
+
+    // clear modifications, add the reference to the empty value, and then re-add the original modification
+    modifyRequest.clearModifications();
+    modifyRequest.addModification(newModification);
+    modifyRequest.addModification(originalModification);
+
+    LOG.debug("Modify request after:\n{}", toXML(modifyRequest));
+
+    return modifyRequest;
+  }
+
   public boolean isValidTargetId(PSOIdentifier psoID, Response response) {
 
     if (!psoID.getTargetID().equals(this.getTargetDefinition().getId())) {
@@ -965,5 +1191,101 @@ public class LdapTargetProvider extends BaseSpmlTargetProvider {
     }
 
     return true;
+  }
+
+  /** {@inheritDoc} */
+  public Set<PSOIdentifier> getPsoIdentifiers(PSODefinition psoDefinition) throws LdappcException {
+
+    // return an empty set if there is no <identifyingAttribute />
+    IdentifyingAttribute identifyingAttribute = psoDefinition.getPsoIdentifierDefinition().getIdentifyingAttribute();
+    if (identifyingAttribute == null) {
+      return Collections.EMPTY_SET;
+    }
+
+    // the SPML query
+    Query query = new Query();
+    // query.setTargetID(targetDefinition.getId());
+
+    // the query base
+    PSOIdentifier basePsoId = new PSOIdentifier();
+    basePsoId.setID(psoDefinition.getPsoIdentifierDefinition().getBaseId());
+    basePsoId.setTargetID(getTargetDefinition().getId());
+    query.setBasePsoID(basePsoId);
+
+    // the custom query clause
+    LdapFilterQueryClause filterQueryClause = new LdapFilterQueryClause();
+    String filter = identifyingAttribute.getName() + "=" + identifyingAttribute.getValue();
+    filterQueryClause.setFilter(filter);
+    query.addQueryClause(filterQueryClause);
+
+    // the query scope
+    query.setScope(org.openspml.v2.msg.spmlsearch.Scope.SUBTREE);
+
+    // the search request
+    SearchRequest searchRequest = new SearchRequest();
+    searchRequest.setReturnData(ReturnData.IDENTIFIER);
+    searchRequest.setQuery(query);
+
+    SearchResponse response = execute(searchRequest);
+
+    if (!(response.getStatus() == StatusCode.SUCCESS)) {
+      LOG.error("Unable to search for PSO identifiers on target '{}' : {}", this.getTargetDefinition().getId(),
+          PSPUtil.toString(response));
+      throw new LdappcException("Unable to search for PSO identifiers.");
+    }
+
+    Set<PSOIdentifier> psoIds = new LinkedHashSet<PSOIdentifier>();
+
+    for (PSO pso : response.getPSOs()) {
+      psoIds.add(pso.getPsoID());
+    }
+
+    // omit base psoId from returned psoIds
+    psoIds.remove(basePsoId);
+
+    if (LOG.isTraceEnabled()) {
+      for (PSOIdentifier psoId : psoIds) {
+        LOG.trace("correct pso id '{}'", PSPUtil.toString(psoId));
+      }
+    }
+
+    return psoIds;
+  }
+
+  /** {@inheritDoc} */
+  public Set<PSOIdentifier> orderForDeletion(final Set<PSOIdentifier> psoIdentifiers) throws LdappcException {
+
+    // tree map keys are in ascending order, this will need to be reversed
+    Map<LdapName, PSOIdentifier> map = new TreeMap<LdapName, PSOIdentifier>();
+
+    try {
+      for (PSOIdentifier psoIdentifier : psoIdentifiers) {
+        LdapName ldapName = new LdapName(psoIdentifier.getID());
+        map.put(ldapName, psoIdentifier);
+      }
+    } catch (InvalidNameException e) {
+      LOG.error("An error occurred ordering the PSO identifiers.", e);
+      throw new LdappcException(e);
+    }
+
+    // linked hash set to preserver insertion order
+    Set<PSOIdentifier> psoIdsOrderedForDeletion = new LinkedHashSet<PSOIdentifier>();
+
+    ArrayList<LdapName> ldapNames = new ArrayList<LdapName>(map.keySet());
+
+    // reverse the order of the keys, suitable for deletion
+    Collections.reverse(ldapNames);
+
+    for (LdapName ldapName : ldapNames) {
+      psoIdsOrderedForDeletion.add(map.get(ldapName));
+    }
+
+    if (LOG.isTraceEnabled()) {
+      for (PSOIdentifier psoId : psoIdsOrderedForDeletion) {
+        LOG.trace("correct pso id '{}'", PSPUtil.toString(psoId));
+      }
+    }
+
+    return psoIdsOrderedForDeletion;
   }
 }

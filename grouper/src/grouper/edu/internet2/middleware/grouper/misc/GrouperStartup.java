@@ -8,6 +8,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.logging.Log;
 
+import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GroupTypeFinder;
@@ -18,6 +19,7 @@ import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.cfg.ApiConfig;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
+import edu.internet2.middleware.grouper.entity.EntitySourceAdapter;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.exception.SessionException;
 import edu.internet2.middleware.grouper.externalSubjects.ExternalSubjectAutoSourceAdapter;
@@ -89,6 +91,12 @@ public class GrouperStartup {
         SourceManager.getInstance().loadSource(ExternalSubjectAutoSourceAdapter.instance());
         
       }
+      
+//      if (GrouperConfig.getPropertyBoolean("entities.autoCreateSource", true)) {
+//        
+//        SourceManager.getInstance().loadSource(EntitySourceAdapter.instance());
+//        
+//      }
       
       //dont print big classname, dont print nulls
       ToStringBuilder.setDefaultStyle(new GrouperToStringStyle());
@@ -374,7 +382,7 @@ public class GrouperStartup {
       }
       try {
         needsInit = StemFinder.findRootStem(grouperSession) == null;
-        needsInit = needsInit || FieldFinder.find("admins", true) == null ;
+        needsInit = needsInit || FieldFinder.find(Field.FIELD_NAME_ADMINS, true) == null ;
         needsInit = needsInit || GroupTypeFinder.find("base", true) == null ;
       } catch (Exception e) {
         if (logError && logErrorStatic) {

@@ -127,6 +127,79 @@ public class ChangeLogLabels {
   };
   
   /**
+   * label for entity add
+   */
+  public static enum ENTITY_ADD implements ChangeLogLabel {
+
+    /** id of the entity */
+    id, 
+    
+    /** name */
+    name,
+    
+    /** parent stem id */
+    parentStemId,
+    
+    /** display name */
+    displayName,
+    
+    /** description */
+    description;
+  };
+  
+  /** labels for a entity update */
+  public static enum ENTITY_UPDATE implements ChangeLogLabel {
+    
+    /** id */
+    id, 
+    
+    /** name */
+    name, 
+    
+    /** parent stem id */
+    parentStemId,
+    
+    /** display name */
+    displayName,
+    
+    /** display extension (not stored in col, but yes stored in diffs on update */
+    displayExtension,
+    
+    /** description */
+    description,
+    
+    /** property which changed */
+    propertyChanged, 
+    
+    /** old value of the property */
+    propertyOldValue,
+    
+    /** new value of the property */
+    propertyNewValue;
+  };
+      
+  /**
+   * labels for entity delete
+   */
+  public static enum ENTITY_DELETE implements ChangeLogLabel {
+    
+    /** id of the entity */
+    id,
+    
+    /** name */
+    name,
+    
+    /** parent stem id */
+    parentStemId, 
+
+    /** display name */
+    displayName, 
+    
+    /** description */
+    description;
+  };
+  
+  /**
    * label for group field add
    */
   public static enum GROUP_FIELD_ADD implements ChangeLogLabel {
@@ -1052,56 +1125,14 @@ public class ChangeLogLabels {
   }
   
   /**
-   * label for permission add
+   * label for permission changes on roles
    */
-  public static enum PERMISSION_ADD implements ChangeLogLabel {
+  public static enum PERMISSION_CHANGE_ON_ROLE implements ChangeLogLabel {
   
-    /** attributeDefNameName */
-    attributeDefNameName,
+    /** roleId */
+    roleId,
     
-    /** attributeDefNameId */
-    attributeDefNameId,
-    
-    /** action */
-    action,
-    
-    /** actionId */    
-    actionId,
-    
-    /** subjectId */
-    subjectId,
-    
-    /** subjectSourceId */
-    subjectSourceId,
-    
-    /** memberId */
-    memberId;
-  }
-  
-  /**
-   * label for permission delete
-   */
-  public static enum PERMISSION_DELETE implements ChangeLogLabel {
-  
-    /** attributeDefNameName */
-    attributeDefNameName,
-    
-    /** attributeDefNameId */
-    attributeDefNameId,
-    
-    /** action */
-    action,
-    
-    /** actionId */    
-    actionId,
-    
-    /** subjectId */
-    subjectId,
-    
-    /** subjectSourceId */
-    subjectSourceId,
-    
-    /** memberId */
-    memberId;
+    /** roleName */
+    roleName;
   }
 }

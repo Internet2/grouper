@@ -374,7 +374,6 @@ public class PermissionLimitUtils {
 
   /**
    * get a logic instance based on attributeDefName of the limit
-   * @param limitName name of the attribute def name
    * @return an instance of the interface
    */
   @SuppressWarnings("unchecked")
@@ -506,19 +505,19 @@ public class PermissionLimitUtils {
   public static Map<String, Object> limitElClasses() {
     
     //grouper.permissions.limits.el.classes
-    
+
     Set<Class<?>> limitElClasses = limitElClassesMap.get(Boolean.TRUE);
 
     if (limitElClasses == null) {
-      
+
       synchronized (PermissionLimitUtils.class) {
-        
+
         limitElClasses = limitElClassesMap.get(Boolean.TRUE);
-        
+
         if (limitElClasses == null) {
 
           limitElClasses = new HashSet<Class<?>>();
-          
+
           //middleware.grouper.rules.MyRuleUtils
           String customElClasses = GrouperConfig.getProperty("grouper.permissions.limits.el.classes");
 
@@ -530,10 +529,10 @@ public class PermissionLimitUtils {
             }
           }
 
-          
+
           //lets add standard entries, do this first so they can be overridden
           limitElClassesMap.put(Boolean.TRUE, limitElClasses);
-                    
+
         }
       }
     }

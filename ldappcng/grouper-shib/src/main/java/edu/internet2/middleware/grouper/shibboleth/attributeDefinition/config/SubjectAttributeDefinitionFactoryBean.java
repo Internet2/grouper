@@ -14,33 +14,20 @@
 
 package edu.internet2.middleware.grouper.shibboleth.attributeDefinition.config;
 
-import java.util.List;
-
 import edu.internet2.middleware.grouper.shibboleth.attributeDefinition.SubjectAttributeDefinition;
-import edu.internet2.middleware.grouper.shibboleth.util.AttributeIdentifier;
-import edu.internet2.middleware.shibboleth.common.config.attribute.resolver.attributeDefinition.BaseAttributeDefinitionFactoryBean;
 
-public class SubjectAttributeDefinitionFactoryBean extends BaseAttributeDefinitionFactoryBean {
+/** Spring factory bean for {@link SubjectAttributeDefinition}s. */
+public class SubjectAttributeDefinitionFactoryBean extends BaseGrouperAttributeDefinitionFactoryBean {
 
-  private List<AttributeIdentifier> attributes;
-
-  public List<AttributeIdentifier> getAttributes() {
-    return attributes;
-  }
-
-  public void setAttributes(List<AttributeIdentifier> attributes) {
-    this.attributes = attributes;
-  }
-
+  /** {@inheritDoc} */
   protected Object createInstance() throws Exception {
     SubjectAttributeDefinition definition = new SubjectAttributeDefinition();
     populateAttributeDefinition(definition);
-    definition.setAttributes(attributes);
     return definition;
   }
 
+  /** {@inheritDoc} */
   public Class getObjectType() {
     return SubjectAttributeDefinition.class;
   }
-
 }

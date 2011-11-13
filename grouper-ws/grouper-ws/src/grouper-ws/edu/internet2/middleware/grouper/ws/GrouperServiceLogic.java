@@ -833,6 +833,13 @@ public class GrouperServiceLogic {
    *            reserved for future use
    * @param paramValue1
    *            reserved for future use
+   * @param pageSize page size if paging
+   * @param pageNumber page number 1 indexed if paging
+   * @param sortString must be an hql query field, e.g. 
+   * can sort on name, displayName, extension, displayExtension
+   * @param ascending or null for ascending, false for descending.  
+   * If you pass true or false, must pass a sort string
+   * @param typeOfGroups is comma separated TypeOfGroups to find, e.g. group, role, entity
    * @return the groups, or no groups if none found
    */
   public static WsFindGroupsResults findGroupsLite(final GrouperVersion clientVersion,
@@ -840,7 +847,8 @@ public class GrouperServiceLogic {
       String groupUuid, String groupAttributeName, String groupAttributeValue,
       GroupType groupTypeName, String actAsSubjectId, String actAsSubjectSourceId,
       String actAsSubjectIdentifier, boolean includeGroupDetail, String paramName0,
-      String paramValue0, String paramName1, String paramValue1) {
+      String paramValue0, String paramName1, String paramValue1, String pageSize, 
+      String pageNumber, String sortString, String ascending, String typeOfGroups) {
   
     WsSubjectLookup actAsSubjectLookup = WsSubjectLookup.createIfNeeded(actAsSubjectId,
         actAsSubjectSourceId, actAsSubjectIdentifier);
@@ -857,7 +865,12 @@ public class GrouperServiceLogic {
     wsQueryFilter.setGroupAttributeName(groupAttributeName);
     wsQueryFilter.setGroupAttributeValue(groupAttributeValue);
     wsQueryFilter.setGroupTypeName(groupTypeName == null ? null : groupTypeName.getName());
-  
+    wsQueryFilter.setPageSize(pageSize);
+    wsQueryFilter.setPageNumber(pageNumber);
+    wsQueryFilter.setSortString(sortString);
+    wsQueryFilter.setAscending(ascending);
+    wsQueryFilter.setTypeOfGroups(typeOfGroups);
+    
     // pass through to the more comprehensive method
     WsFindGroupsResults wsFindGroupsResults = findGroups(clientVersion, wsQueryFilter,
         actAsSubjectLookup, includeGroupDetail, params, null);
@@ -2963,6 +2976,7 @@ public class GrouperServiceLogic {
    *            reserved for future use
    * @param paramValue1
    *            reserved for future use
+   * @param typeOfGroup type of group can be an enum of TypeOfGroup, e.g. group, role, entity
    * @return the result of one member add
    */
   public static WsGroupSaveLiteResult groupSaveLite(final GrouperVersion clientVersion,
@@ -2970,7 +2984,7 @@ public class GrouperServiceLogic {
       String displayExtension, String description, SaveMode saveMode,
       String actAsSubjectId, String actAsSubjectSourceId,
       String actAsSubjectIdentifier, boolean includeGroupDetail, String paramName0, String paramValue0,
-      String paramName1, String paramValue1) {
+      String paramName1, String paramValue1, TypeOfGroup typeOfGroup) {
   
     // setup the group lookup
     WsGroupToSave wsGroupToSave = new WsGroupToSave();
@@ -2980,6 +2994,7 @@ public class GrouperServiceLogic {
     wsGroup.setDisplayExtension(displayExtension);
     wsGroup.setName(groupName);
     wsGroup.setUuid(groupUuid);
+    wsGroup.setTypeOfGroup(typeOfGroup == null ? null : typeOfGroup.name());
   
     wsGroupToSave.setWsGroup(wsGroup);
   
@@ -4274,7 +4289,7 @@ public class GrouperServiceLogic {
           //if filtering by stem, and stem not found, then dont find any memberships
           Set<Source> sources = GrouperUtil.convertSources(sourceIds);
           
-          Set<Subject> subjects = SubjectFinder.findAll(searchString, sources);
+          Set<Subject> subjects = SubjectFinder.findPage(searchString, sources).getResults();
           
           for (Subject subject: GrouperUtil.nonNull(subjects)) {
             resultSubjects.add(subject);

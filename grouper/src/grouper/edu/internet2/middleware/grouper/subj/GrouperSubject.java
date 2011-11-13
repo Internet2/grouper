@@ -30,6 +30,9 @@ import edu.internet2.middleware.grouper.Attribute;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSourceAdapter;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.entity.EntitySubject;
+import edu.internet2.middleware.grouper.group.TypeOfGroup;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.misc.E;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.SourceUnavailableException;
@@ -224,8 +227,10 @@ public class GrouperSubject extends SubjectImpl {
   public GrouperSubject(Group g) 
     throws  SourceUnavailableException {
     
-    super(g.getUuid(), g.getName(), null, SubjectTypeEnum.GROUP.getName(), 
-        SubjectFinder.internal_getGSA().getId(), null);
+    super(g.getUuid(), g.getName(), null, 
+        g.getTypeOfGroup() == TypeOfGroup.entity ? SubjectTypeEnum.APPLICATION.getName() : SubjectTypeEnum.GROUP.getName(), 
+            g.getTypeOfGroup() == TypeOfGroup.entity ? SubjectFinder.internal_getEntitySourceAdapter(true).getId() : SubjectFinder.internal_getGSA().getId(), 
+                null);
     
     this.group = g;
     
@@ -241,6 +246,21 @@ public class GrouperSubject extends SubjectImpl {
     attrs.put( "description",   GrouperUtil.toSet(g.getDescription()), false);
     attrs.put( "modifyTime",        GrouperUtil.toSet(g.getModifyTime().toString()), false ); 
     attrs.put( "createTime",        GrouperUtil.toSet(g.getCreateTime().toString()), false ); 
+    
+    if (g.getTypeOfGroup() == TypeOfGroup.entity) {
+      
+      String entityAttributeId = EntitySubject.entityIdAttributeValue(g.getUuid());
+      attrs.put( "entityIdAttribute", GrouperUtil.toSet(entityAttributeId), false ); 
+      String entityName = StringUtils.isBlank(entityAttributeId) ? g.getName() : entityAttributeId;
+      attrs.put( "entityId", GrouperUtil.toSet(entityName), false ); 
+      //get the stem
+      String stem = GrouperUtil.parentStemNameFromName(g.getName());
+      //subtract
+      String extension = entityName.substring(stem.length()+1);
+      attrs.put( "entityExtension", GrouperUtil.toSet(extension), false ); 
+      
+    }
+    
     super.setAttributes(attrs);
   }
 
@@ -267,7 +287,7 @@ public class GrouperSubject extends SubjectImpl {
     if (this.loadedModifyCreateSubjects) {
       return;
     }
-    
+    if (GrouperConfig.getPropertyBoolean("subjects.group.useCreatorAndModifierAsSubjectAttributes", true)) {
     try {
       // Don't bother with any of the create* attrs unless we can find
       // the creating subject
@@ -290,8 +310,17 @@ public class GrouperSubject extends SubjectImpl {
     catch (SubjectNotFoundException eSNF1) {
       // No modifier
     }
+    }
     this.loadedModifyCreateSubjects = true;
 
+  }
+  
+  /**
+   * get the group inside
+   * @return the group
+   */
+  public Group internal_getGroup() {
+    return this.group;
   }
   
   /**

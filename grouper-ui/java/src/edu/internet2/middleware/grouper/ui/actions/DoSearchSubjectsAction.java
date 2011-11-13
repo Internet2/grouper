@@ -170,7 +170,7 @@ public class DoSearchSubjectsAction extends GrouperCapableAction {
 		try {
   		if ((searchTerm != null) && (!searchTerm.equals(""))) {
   			if("all".equals(sourceId)) {
-  				results=SubjectFinder.findAll(searchTerm);
+  				results=SubjectFinder.findPage(searchTerm).getResults();
   			}else{
   				
   					Source source = sm.getSource(sourceId);
@@ -187,22 +187,23 @@ public class DoSearchSubjectsAction extends GrouperCapableAction {
 		
 		Iterator it = results.iterator();
 		Subject subj;
-		
-		while(it.hasNext()) {
-			subj=(Subject)it.next();
-			if(subj.getSource().getId().equals("g:gsa")) {
-				try {
-					Group g = GroupFinder.findByUuid(grouperSession, subj.getId(), true);
-				}catch(Exception e) {
-					it.remove();
-				}
-			}
-		}
+
+//  not sure why we need this		
+//		while(it.hasNext()) {
+//			subj=(Subject)it.next();
+//			if(subj.getSource().getId().equals("g:gsa")) {
+//				try {
+//					Group g = GroupFinder.findByUuid(grouperSession, subj.getId(), true);
+//				}catch(Exception e) {
+//					it.remove();
+//				}
+//			}
+//		}
 		
 		Map addAttr = new HashMap();
 		addAttr.put("returnTo","/doSearchSubjects.do");
 		addAttr.put("returnToLinkKey","subject.action.return-results");
-		List mapResults = GrouperHelper.subjects2Maps(sort(results,request,"search:"  +groupSearchResultField, -1).toArray(),addAttr);
+		List mapResults = GrouperHelper.subjects2Maps(sort(results,request,"search:"  +groupSearchResultField, -1, searchTerm).toArray(),addAttr);
 		
 		String startStr = request.getParameter("start");
 		if (startStr == null || "".equals(startStr))

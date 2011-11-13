@@ -67,14 +67,11 @@ public class GroupAttributeFilter extends BaseQueryFilter {
     //note, no need for GrouperSession inverse of control
     GrouperSession.validate(s);
     Set results;
+    
+    String scope = ns.isRootStem() ? null : getStringForScope(ns);
 
-    if (ns.isRootStem()) {
-      results = PrivilegeHelper.canViewGroups( 
-        s, GrouperDAOFactory.getFactory().getGroup().findAllByApproximateAttr(this.attr, this.val));
-    } else {
-      results = PrivilegeHelper.canViewGroups( 
-        s, GrouperDAOFactory.getFactory().getGroup().findAllByApproximateAttr(this.attr, this.val, getStringForScope(ns)));
-    }
+    results = GrouperDAOFactory.getFactory().getGroup().findAllByApproximateAttrSecure(this.attr, this.val, scope);
+
     return results;
   } // public Set getResults(s)
 

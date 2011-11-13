@@ -3,6 +3,8 @@
  */
 package edu.internet2.middleware.grouper.ws.status;
 
+import org.apache.commons.lang.builder.HashCodeBuilder;
+
 import edu.internet2.middleware.grouper.ws.GrouperWsConfig;
 
 
@@ -12,6 +14,22 @@ import edu.internet2.middleware.grouper.ws.GrouperWsConfig;
  *
  */
 public class DiagnosticMemoryTest extends DiagnosticTask {
+
+  /**
+   * 
+   */
+  @Override
+  public boolean equals(Object obj) {
+    return obj instanceof DiagnosticMemoryTest;
+  }
+  
+  /**
+   * 
+   */
+  @Override
+  public int hashCode() {
+    return new HashCodeBuilder().toHashCode();
+  }
 
   /**
    * @see edu.internet2.middleware.grouper.ws.status.DiagnosticTask#doTask()

@@ -14,61 +14,7 @@
 
 package edu.internet2.middleware.grouper.shibboleth.util;
 
-/**
- * Defines a subject attribute id and source.
- */
-// TODO rename generically, as it is reused for the SubjectIdentifier of DataConnectors
-public class AttributeIdentifier {
-
-  /** the attribute id */
-  private String id;
-
-  /** the attribute's source */
-  private String source;
-
-  /**
-   * Get the attribute id.
-   * 
-   * @return id
-   */
-  public String getId() {
-    return id;
-  }
-
-  /**
-   * Set the attribute id.
-   * 
-   * @param id
-   */
-  public void setId(String id) {
-    this.id = id;
-  }
-
-  /**
-   * Get the source id.
-   * 
-   * @return source id
-   */
-  public String getSource() {
-    return source;
-  }
-
-  /**
-   * Set the source id.
-   * 
-   * @param source
-   * 
-   */
-  public void setSource(String source) {
-    this.source = source;
-  }
-
-  /**
-   * 
-   * @see java.lang.Object#toString()
-   */
-  public String toString() {
-    return "id '" + id + "' source '" + source + "'";
-  }
+/** Defines an attribute id and source. */
+public class AttributeIdentifier extends AbstractIdentifier {
 
 }

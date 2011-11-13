@@ -107,7 +107,7 @@ public class GrouperQuery {
    * @return  Set of matching {@link Group} objects.
    * @throws  QueryException
    */
-  public Set getGroups() 
+  public Set<Group> getGroups() 
     throws QueryException
   {
     //note, no need for GrouperSession inverse of control

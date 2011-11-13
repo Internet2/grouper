@@ -28,7 +28,6 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.Stem.Scope;
-import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.group.TypeOfGroup;
 import edu.internet2.middleware.grouper.membership.MembershipType;
@@ -115,6 +114,21 @@ public interface GroupDAO extends GrouperDAO {
             ;
 
   /**
+   * @param attr attribute name
+   * @param val value
+   * @param scope some folder or null for all
+   * @return  the grops
+   * @throws GrouperDAOException 
+   * @throws IllegalStateException 
+   * @since   2.0.2
+   * 
+   */
+  Set<Group> findAllByApproximateAttrSecure(String attr, String val, String scope) 
+    throws  GrouperDAOException,
+            IllegalStateException
+            ;
+
+  /**
    * @since   1.3
    */
   Set<Group> findAllByAttr(String attr, String val) 
@@ -142,6 +156,13 @@ public interface GroupDAO extends GrouperDAO {
    * @since   1.4.0
    */
   Set<Group> findAllByApproximateName(String name, String scope) 
+    throws  GrouperDAOException
+            ;
+
+  /**
+   * @since   2.1.0
+   */
+  Set<Group> findAllByApproximateNameSecure(String name, String scope, QueryOptions queryOptions) 
     throws  GrouperDAOException
             ;
 
@@ -274,6 +295,20 @@ public interface GroupDAO extends GrouperDAO {
     throws  GrouperDAOException,
             GroupNotFoundException
             ;
+
+  /**
+   * @since   2.0.2
+   */
+  Group findByNameSecure(String name, boolean exceptionIfNotFound, QueryOptions queryOptions, Set<TypeOfGroup> typeOfGroups);
+
+  /**
+   * @since   2.1.0
+   */
+  Group findByName(String name, boolean exceptionIfNotFound, QueryOptions queryOptions, Set<TypeOfGroup> typeOfGroups) 
+    throws  GrouperDAOException,
+            GroupNotFoundException
+            ;
+  
   /**
    * @since   1.2.0
    * @deprecated use overload
@@ -298,6 +333,31 @@ public interface GroupDAO extends GrouperDAO {
    * @throws GroupNotFoundException
    */
   Group findByUuid(String uuid, boolean exceptionIfNotFound, QueryOptions queryOptions) 
+    throws  GrouperDAOException, GroupNotFoundException;
+
+  /**
+   * find by uuid secure
+   * @param uuid
+   * @param exceptionIfNotFound
+   * @param queryOptions
+   * @param typeOfGroups
+   * @return the group or null or exception
+   * @throws GrouperDAOException
+   * @throws GroupNotFoundException
+   */
+  Group findByUuidSecure(String uuid, boolean exceptionIfNotFound, QueryOptions queryOptions, Set<TypeOfGroup> typeOfGroups);
+
+  /**
+   * 
+   * @param uuid
+   * @param exceptionIfNotFound
+   * @param queryOptions
+   * @param typeOfGroups to search in or null for all
+   * @return the group or null or exception
+   * @throws GrouperDAOException
+   * @throws GroupNotFoundException
+   */
+  Group findByUuid(String uuid, boolean exceptionIfNotFound, QueryOptions queryOptions, Set<TypeOfGroup> typeOfGroups) 
     throws  GrouperDAOException, GroupNotFoundException;
 
   /**
@@ -331,6 +391,21 @@ public interface GroupDAO extends GrouperDAO {
 
   /**
    * 
+   * @param grouperSession
+   * @param subject
+   * @param queryOptions
+   * @param inPrivSet means that each row must have a matching priv in this set to user or GrouperAll.
+   * There are some constants in AccessPrivilege of pre-canned sets
+   * @param typeOfGroups type of groups to return, or null for all
+   * @return groups
+   * @throws GrouperDAOException
+   */
+  Set<Group> getAllGroupsSecure(GrouperSession grouperSession, 
+      Subject subject, Set<Privilege> inPrivSet, QueryOptions queryOptions, Set<TypeOfGroup> typeOfGroups)
+    throws  GrouperDAOException;
+
+  /**
+   * 
    * @param scope
    * @param grouperSession
    * @param subject
@@ -342,6 +417,22 @@ public interface GroupDAO extends GrouperDAO {
    */
   Set<Group> getAllGroupsSecure(String scope, GrouperSession grouperSession, 
       Subject subject, Set<Privilege> inPrivSet, QueryOptions queryOptions)
+    throws  GrouperDAOException;
+
+  /**
+   * 
+   * @param scope
+   * @param grouperSession
+   * @param subject
+   * @param queryOptions
+   * @param inPrivSet means that each row must have a matching priv in this set to user or GrouperAll.
+   * There are some constants in AccessPrivilege of pre-canned sets
+   * @param typeOfGroups type of groups to return or null for all
+   * @return the groups
+   * @throws GrouperDAOException
+   */
+  Set<Group> getAllGroupsSecure(String scope, GrouperSession grouperSession, 
+      Subject subject, Set<Privilege> inPrivSet, QueryOptions queryOptions, Set<TypeOfGroup> typeOfGroups)
     throws  GrouperDAOException;
 
 
@@ -358,6 +449,22 @@ public interface GroupDAO extends GrouperDAO {
    */
   Set<Group> getImmediateChildrenSecure(GrouperSession grouperSession, 
       Stem stem, Subject subject, Set<Privilege> inPrivSet, QueryOptions queryOptions)
+    throws  GrouperDAOException;
+
+  /**
+   * get immediate children secure
+   * @param grouperSession
+   * @param stem
+   * @param subject
+   * @param queryOptions
+   * @param inPrivSet means that each row must have a matching priv in this set to user or GrouperAll.
+   * There are some constants in AccessPrivilege of pre-canned sets
+   * @param typeOfGroups type of groups to return, or null for all
+   * @return the set of groups
+   * @throws GrouperDAOException
+   */
+  Set<Group> getImmediateChildrenSecure(GrouperSession grouperSession, 
+      Stem stem, Subject subject, Set<Privilege> inPrivSet, QueryOptions queryOptions, Set<TypeOfGroup> typeOfGroups)
     throws  GrouperDAOException;
 
   /**
@@ -402,6 +509,19 @@ public interface GroupDAO extends GrouperDAO {
    */
   Set<Group> findByCreatorOrModifier(Member member);
   
+  /**
+   * @param name 
+   * @param scope 
+   * @param queryOptions 
+   * @param typeOfGroups 
+   * @return the set of groups
+   * @throws GrouperDAOException 
+   * @since   2.1.0
+   */
+  Set<Group> findAllByApproximateNameSecure(String name, String scope, 
+      QueryOptions queryOptions, Set<TypeOfGroup> typeOfGroups) 
+    throws  GrouperDAOException;
+
   /**
    * Find a group by its alternate name only.
    * @param name
@@ -592,6 +712,20 @@ public interface GroupDAO extends GrouperDAO {
    */
   public Set<Group> getAllGroupsSplitScopeSecure(String scope, GrouperSession grouperSession, 
       Subject subject, Set<Privilege> privileges, QueryOptions queryOptions, TypeOfGroup typeOfGroup);
+  
+
+  /**
+   * get all groups secure, split the scope by whitespace
+   * @param scope
+   * @param grouperSession
+   * @param subject
+   * @param privileges
+   * @param queryOptions
+   * @param typeOfGroups or null for all
+   * @return set of group
+   */
+  public Set<Group> getAllGroupsSplitScopeSecure(String scope, GrouperSession grouperSession, 
+      Subject subject, Set<Privilege> privileges, QueryOptions queryOptions, Set<TypeOfGroup> typeOfGroups);
   
 
 } 

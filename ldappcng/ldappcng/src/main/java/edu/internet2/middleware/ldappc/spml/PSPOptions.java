@@ -15,7 +15,6 @@
 package edu.internet2.middleware.ldappc.spml;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.cli.CommandLine;
@@ -33,7 +32,6 @@ import org.openspml.v2.msg.spml.SchemaEntityRef;
 
 import edu.internet2.middleware.ldappc.spml.request.BulkCalcRequest;
 import edu.internet2.middleware.ldappc.spml.request.BulkDiffRequest;
-import edu.internet2.middleware.ldappc.spml.request.BulkProvisioningRequest;
 import edu.internet2.middleware.ldappc.spml.request.BulkSyncRequest;
 import edu.internet2.middleware.ldappc.spml.request.CalcRequest;
 import edu.internet2.middleware.ldappc.spml.request.DiffRequest;
@@ -282,27 +280,6 @@ public class PSPOptions {
       }
     },
 
-    /** full synchronization interval */
-    intervalFullSync {
-
-      /**
-       * {@inheritDoc}
-       */
-      public Option getOption() {
-        Option option = new Option("intervalFullSync", true,
-            "Number of seconds between the start of full synchronizations. If omitted, full synchronizations are never performed.");
-        option.setArgName("seconds");
-        return option;
-      }
-
-      /**
-       * {@inheritDoc}
-       */
-      public void handle(PSPOptions pspOptions, CommandLine line) {
-        pspOptions.setIntervalFullSync(Integer.parseInt(line.getOptionValue(this.getOpt())));
-      }
-    },
-
     /** iterations */
     iterations {
 
@@ -321,38 +298,6 @@ public class PSPOptions {
        */
       public void handle(PSPOptions pspOptions, CommandLine line) {
         pspOptions.setIterations(Integer.parseInt(line.getOptionValue(this.getOpt())));
-      }
-    },
-
-    /** polling interval */
-    lastModifyTime {
-
-      /**
-       * {@inheritDoc}
-       */
-      public Option getOption() {
-        Option option = new Option("lastModifyTime", true, "Select objects changed since this time.");
-        option.setArgName("yyyy-MM-dd[_hh:mm:ss]");
-        return option;
-      }
-
-      /**
-       * {@inheritDoc}
-       */
-      public void handle(PSPOptions pspOptions, CommandLine line) {
-
-        for (ProvisioningRequest request : pspOptions.getRequests()) {
-          if (request instanceof BulkProvisioningRequest) {
-            try {
-              ((BulkProvisioningRequest) request).setUpdatedSince(line.getOptionValue(this.getOpt()));
-              if (pspOptions.getLastModifyTime() == null) {
-                pspOptions.setLastModifyTime(((BulkProvisioningRequest) request).getUpdatedSinceAsDate());
-              }
-            } catch (java.text.ParseException e) {
-              throw new IllegalArgumentException(e);
-            }
-          }
-        }
       }
     },
 
@@ -568,14 +513,8 @@ public class PSPOptions {
   /** The interval in seconds between polling actions. */
   private int interval = 0;
 
-  /** The interval in seconds between full synchronizations. */
-  private int intervalFullSync = 0;
-
   /** The number of provisioning iterations to perform. */
   private int iterations = 0;
-
-  /** The lastModifyTime. */
-  private Date lastModifyTime;
 
   /** Whether or not to log SPML requests and responses */
   private boolean logSpml;
@@ -624,24 +563,10 @@ public class PSPOptions {
   }
 
   /**
-   * @return Returns the full sync interval.
-   */
-  public int getIntervalFullSync() {
-    return intervalFullSync;
-  }
-
-  /**
    * @return Returns the number of iterations.
    */
   public int getIterations() {
     return iterations;
-  }
-
-  /**
-   * @return Returns the lastModifyTime.
-   */
-  public Date getLastModifyTime() {
-    return lastModifyTime;
   }
 
   /**
@@ -688,9 +613,7 @@ public class PSPOptions {
     options.addOption(Opts.conf.getOption());
     options.addOption(Opts.entityName.getOption());
     options.addOption(Opts.interval.getOption());
-    options.addOption(Opts.intervalFullSync.getOption());
     options.addOption(Opts.iterations.getOption());
-    options.addOption(Opts.lastModifyTime.getOption());
     options.addOption(Opts.logSpml.getOption());
     options.addOption(Opts.output.getOption());
     options.addOption(Opts.requestID.getOption());
@@ -772,24 +695,10 @@ public class PSPOptions {
   }
 
   /**
-   * @param full sync interval The full sync interval to set.
-   */
-  public void setIntervalFullSync(int intervalFullSync) {
-    this.intervalFullSync = intervalFullSync;
-  }
-
-  /**
    * @param iterations The number of iterations to set.
    */
   public void setIterations(int iterations) {
     this.iterations = iterations;
-  }
-
-  /**
-   * @param lastModifyTime The lastModifyTime to set.
-   */
-  public void setLastModifyTime(Date lastModifyTime) {
-    this.lastModifyTime = lastModifyTime;
   }
 
   /**
@@ -826,7 +735,6 @@ public class PSPOptions {
     toStringBuilder.append("beanName", beanName);
     toStringBuilder.append("confDir", confDir);
     toStringBuilder.append("interval", interval);
-    toStringBuilder.append("intervalFullSync", intervalFullSync);
     toStringBuilder.append("iterations", iterations);
     toStringBuilder.append("logSpml", logSpml);
     toStringBuilder.append("outputFile", outputFile);

@@ -11,6 +11,7 @@ import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 
+import edu.internet2.middleware.grouper.ui.tags.TagUtils;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
@@ -25,22 +26,62 @@ public class GuiSubject implements Serializable {
   private Subject subject;
   
   /**
+   * init screen labels
+   */
+  private void initScreenLabels() {
+    if (this.screenLabelLong == null && this.screenLabelShort == null) {
+      
+      String screenLabel = GrouperUiUtils.convertSubjectToLabelLong(this.subject);
+            
+      this.screenLabelLong = screenLabel;
+      
+      screenLabel = GrouperUiUtils.convertSubjectToLabel(this.subject);
+      
+      int maxWidth = TagUtils.mediaResourceInt("subject.maxChars", 100);
+      if (maxWidth == -1) {
+        this.screenLabelShort = screenLabel;
+      } else {
+        this.screenLabelShort = StringUtils.abbreviate(screenLabel, maxWidth);
+      }
+    }
+  }
+
+  /**
    * construct with subject
    * @param subject1
    */
   public GuiSubject(Subject subject1) {
     this.subject = subject1;
   }
+  
   /**
    * get screen label
    * @return screen label
    */
   public String getScreenLabel() {
-    return GrouperUiUtils.convertSubjectToLabel(this.subject);
+    this.initScreenLabels();
+    return this.screenLabelShort;
+  }
+  
+  /**
+   * get screen label
+   * @return screen label
+   */
+  public String getScreenLabelLong() {
+    this.initScreenLabels();
+    return this.screenLabelLong;
   }
   
   /** attributes in string - string format */
   private Map<String, String> attributes = null;
+  /**
+   * long screen label
+   */
+  private String screenLabelLong = null;
+  /**
+   * short screen label
+   */
+  private String screenLabelShort = null;
 
   /**
    * subject
@@ -79,6 +120,28 @@ public class GuiSubject implements Serializable {
     }
     return this.attributes;
   }
+
+  /**
+   * 
+   * @return long label if different than the short one
+   */
+  public String getScreenLabelLongIfDifferent() {
+    this.initScreenLabels();
+    if (this.isNeedsTooltip()) {
+      return this.screenLabelLong;
+    }
+    return null;
+  }
+
+  /**
+   * get short screen label 
+   * @return short screen label
+   */
+  public boolean isNeedsTooltip() {
+    this.initScreenLabels();
+    return !StringUtils.equals(this.screenLabelLong, this.screenLabelShort);
+  }
+
 
   /**
    * 

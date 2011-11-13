@@ -6,6 +6,8 @@ import java.util.Set;
 import junit.textui.TestRunner;
 
 import org.opensaml.util.resource.ResourceException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.context.support.GenericApplicationContext;
 
@@ -15,32 +17,93 @@ import edu.internet2.middleware.grouper.GroupTypeFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
-import edu.internet2.middleware.grouper.shibboleth.filter.GroupQueryFilter;
+import edu.internet2.middleware.grouper.shibboleth.filter.Filter;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.shibboleth.common.attribute.BaseAttribute;
 import edu.internet2.middleware.shibboleth.common.attribute.resolver.provider.ShibbolethResolutionContext;
 import edu.internet2.middleware.shibboleth.common.attribute.resolver.provider.attributeDefinition.AttributeDefinition;
 
+/**
+ * Test for {@link GroupDataConnector}.
+ */
 public class GroupDataConnectorTest extends BaseDataConnectorTest {
 
+  /** Logger. */
+  private static final Logger LOG = LoggerFactory.getLogger(GroupDataConnectorTest.class);
+
+  /** Path to attribute resolver configuration. */
   public static final String RESOLVER_CONFIG = TEST_PATH + "GroupDataConnectorTest-resolver.xml";
 
+  /**
+   * 
+   * Constructor
+   * 
+   * @param name
+   */
   public GroupDataConnectorTest(String name) {
     super(name);
   }
 
+  /**
+   * Run tests.
+   * 
+   * @param args
+   */
   public static void main(String[] args) {
-    TestRunner.run(GroupDataConnectorTest.class);
-    // TestRunner.run(new GroupDataConnectorTest("testAttributeDef"));
+    // TestRunner.run(GroupDataConnectorTest.class);
+    TestRunner.run(new GroupDataConnectorTest("testMemberAttributeDefinition"));
   }
 
-  private void runResolveTest(String groupDataConnectorName, Group group, AttributeMap correctMap) {
+  /**
+   * Assert that the attributes returned from the data connector match the provided attributes.
+   * 
+   * @param dataConnectorName the data connector name
+   * @param group the group
+   * @param correctMap the correct attributes
+   */
+  private void runResolveTest(String dataConnectorName, Group group, AttributeMap correctMap) {
     try {
       GenericApplicationContext gContext = BaseDataConnectorTest.createSpringContext(RESOLVER_CONFIG);
-      GroupDataConnector gdc = (GroupDataConnector) gContext.getBean(groupDataConnectorName);
+      GroupDataConnector gdc = (GroupDataConnector) gContext.getBean(dataConnectorName);
       AttributeMap currentMap = new AttributeMap(gdc.resolve(getShibContext(group.getName())));
+      LOG.debug("correctMap\n{}", correctMap);
+      LOG.debug("currentMap\n{}", currentMap);
       assertEquals(correctMap, currentMap);
     } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  /**
+   * Assert that the attributes returned from the data connector match the provided attributes.
+   * 
+   * @param dataConnectorName the data connector name
+   * @param group the group
+   * @param correctMap the correct attributes
+   */
+  private void runAttributeDefinitionTest(String dataConnectorName, Group group, AttributeMap correctMap,
+      String attributeDefinitionName) {
+    try {
+      GenericApplicationContext gContext = BaseDataConnectorTest.createSpringContext(RESOLVER_CONFIG);
+      ShibbolethResolutionContext ctx = getShibContext(group.getName());
+
+      // resolve data connector dependency
+      GroupDataConnector gdc = (GroupDataConnector) gContext.getBean(dataConnectorName);
+      gdc.resolve(ctx);
+      ctx.getResolvedPlugins().put(gdc.getId(), gdc);
+
+      // resolve attribute definition
+      AttributeDefinition ad = (AttributeDefinition) gContext.getBean(attributeDefinitionName);
+      BaseAttribute attr = ad.resolve(ctx);
+
+      // assert equality
+      AttributeMap currentMap = new AttributeMap();
+      currentMap.setAttribute(attr);
+      LOG.debug("correctMap\n{}", correctMap);
+      LOG.debug("currentMap\n{}", currentMap);
+      assertEquals(correctMap, currentMap);
+    } catch (Exception e) {
+      e.printStackTrace();
       throw new RuntimeException(e);
     }
   }
@@ -52,6 +115,7 @@ public class GroupDataConnectorTest extends BaseDataConnectorTest {
     } catch (BeanCreationException e) {
       // OK
     } catch (ResourceException e) {
+
       throw new RuntimeException(e);
     }
   }
@@ -99,11 +163,31 @@ public class GroupDataConnectorTest extends BaseDataConnectorTest {
     correctAttributesA.setAttribute("groups:immediate", groupB);
 
     correctAttributesA.setAttribute("admins", SubjectTestHelper.SUBJ3);
-    
+
     groupA.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.VIEW);
     correctAttributesA.setAttribute("viewers", SubjectTestHelper.SUBJ0);
 
     runResolveTest("testAll", groupA, correctAttributesA);
+  }
+
+  public void testAllB() {
+    correctAttributesB.addAttribute("members", groupA.toMember());
+    correctAttributesB.addAttribute("members", memberSubj0);
+    correctAttributesB.addAttribute("members", memberSubj1);
+
+    correctAttributesB.addAttribute("members:all", groupA.toMember());
+    correctAttributesB.addAttribute("members:all", memberSubj0);
+    correctAttributesB.addAttribute("members:all", memberSubj1);
+
+    correctAttributesB.addAttribute("members:effective", memberSubj0);
+
+    correctAttributesB.addAttribute("members:immediate", groupA.toMember());
+    correctAttributesB.addAttribute("members:immediate", memberSubj1);
+
+    correctAttributesB.addAttribute("members:all:customList", memberSubj2);
+    correctAttributesB.addAttribute("members:immediate:customList", memberSubj2);
+
+    runResolveTest("testAll", groupB, correctAttributesB);
   }
 
   public void testAttributesOnlyA() {
@@ -159,7 +243,7 @@ public class GroupDataConnectorTest extends BaseDataConnectorTest {
       GenericApplicationContext gContext = BaseDataConnectorTest.createSpringContext(RESOLVER_CONFIG);
       GroupDataConnector gdc = (GroupDataConnector) gContext.getBean("testFilterExactAttribute");
 
-      GroupQueryFilter filter = gdc.getGroupQueryFilter();
+      Filter filter = gdc.getFilter();
 
       Set<Group> groups = filter.getResults(grouperSession);
 
@@ -169,10 +253,11 @@ public class GroupDataConnectorTest extends BaseDataConnectorTest {
       assertFalse(groups.contains(groupB));
       assertFalse(groups.contains(groupC));
 
-      assertTrue(filter.matchesGroup(groupA));
-      assertFalse(filter.matchesGroup(groupB));
-      assertFalse(filter.matchesGroup(groupC));
+      assertTrue(filter.matches(groupA));
+      assertFalse(filter.matches(groupB));
+      assertFalse(filter.matches(groupC));
     } catch (Exception e) {
+      e.printStackTrace();
       throw new RuntimeException(e);
     }
   }
@@ -182,7 +267,7 @@ public class GroupDataConnectorTest extends BaseDataConnectorTest {
       GenericApplicationContext gContext = BaseDataConnectorTest.createSpringContext(RESOLVER_CONFIG);
       GroupDataConnector gdc = (GroupDataConnector) gContext.getBean("testFilterStemNameSUB");
 
-      GroupQueryFilter filter = gdc.getGroupQueryFilter();
+      Filter filter = gdc.getFilter();
 
       Set<Group> groups = filter.getResults(grouperSession);
 
@@ -192,9 +277,9 @@ public class GroupDataConnectorTest extends BaseDataConnectorTest {
       assertTrue(groups.contains(groupB));
       assertTrue(groups.contains(groupC));
 
-      assertTrue(filter.matchesGroup(groupA));
-      assertTrue(filter.matchesGroup(groupB));
-      assertTrue(filter.matchesGroup(groupC));
+      assertTrue(filter.matches(groupA));
+      assertTrue(filter.matches(groupB));
+      assertTrue(filter.matches(groupC));
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
@@ -205,7 +290,7 @@ public class GroupDataConnectorTest extends BaseDataConnectorTest {
       GenericApplicationContext gContext = BaseDataConnectorTest.createSpringContext(RESOLVER_CONFIG);
       GroupDataConnector gdc = (GroupDataConnector) gContext.getBean("testFilterStemNameONE");
 
-      GroupQueryFilter filter = gdc.getGroupQueryFilter();
+      Filter filter = gdc.getFilter();
 
       Set<Group> groups = filter.getResults(grouperSession);
 
@@ -215,8 +300,8 @@ public class GroupDataConnectorTest extends BaseDataConnectorTest {
       assertTrue(groups.contains(groupB));
       assertFalse(groups.contains(groupC));
 
-      assertTrue(filter.matchesGroup(groupA));
-      assertTrue(filter.matchesGroup(groupB));
+      assertTrue(filter.matches(groupA));
+      assertTrue(filter.matches(groupB));
       assertFalse(groups.contains(groupC));
     } catch (Exception e) {
       throw new RuntimeException(e);
@@ -228,7 +313,7 @@ public class GroupDataConnectorTest extends BaseDataConnectorTest {
       GenericApplicationContext gContext = BaseDataConnectorTest.createSpringContext(RESOLVER_CONFIG);
       GroupDataConnector gdc = (GroupDataConnector) gContext.getBean("testFilterAnd");
 
-      GroupQueryFilter filter = gdc.getGroupQueryFilter();
+      Filter filter = gdc.getFilter();
 
       Set<Group> groups = filter.getResults(grouperSession);
 
@@ -238,9 +323,9 @@ public class GroupDataConnectorTest extends BaseDataConnectorTest {
       assertTrue(groups.contains(groupB));
       assertFalse(groups.contains(groupC));
 
-      assertFalse(filter.matchesGroup(groupA));
-      assertTrue(filter.matchesGroup(groupB));
-      assertFalse(filter.matchesGroup(groupC));
+      assertFalse(filter.matches(groupA));
+      assertTrue(filter.matches(groupB));
+      assertFalse(filter.matches(groupC));
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
@@ -251,7 +336,7 @@ public class GroupDataConnectorTest extends BaseDataConnectorTest {
       GenericApplicationContext gContext = BaseDataConnectorTest.createSpringContext(RESOLVER_CONFIG);
       GroupDataConnector gdc = (GroupDataConnector) gContext.getBean("testFilterOr");
 
-      GroupQueryFilter filter = gdc.getGroupQueryFilter();
+      Filter filter = gdc.getFilter();
 
       Set<Group> groups = filter.getResults(grouperSession);
 
@@ -261,9 +346,9 @@ public class GroupDataConnectorTest extends BaseDataConnectorTest {
       assertTrue(groups.contains(groupB));
       assertTrue(groups.contains(groupC));
 
-      assertFalse(filter.matchesGroup(groupA));
-      assertTrue(filter.matchesGroup(groupB));
-      assertTrue(filter.matchesGroup(groupC));
+      assertFalse(filter.matches(groupA));
+      assertTrue(filter.matches(groupB));
+      assertTrue(filter.matches(groupC));
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
@@ -274,7 +359,7 @@ public class GroupDataConnectorTest extends BaseDataConnectorTest {
       GenericApplicationContext gContext = BaseDataConnectorTest.createSpringContext(RESOLVER_CONFIG);
       GroupDataConnector gdc = (GroupDataConnector) gContext.getBean("testFilterMinus");
 
-      GroupQueryFilter filter = gdc.getGroupQueryFilter();
+      Filter filter = gdc.getFilter();
 
       Set<Group> groups = filter.getResults(grouperSession);
 
@@ -284,9 +369,9 @@ public class GroupDataConnectorTest extends BaseDataConnectorTest {
       assertFalse(groups.contains(groupB));
       assertFalse(groups.contains(groupC));
 
-      assertTrue(filter.matchesGroup(groupA));
-      assertFalse(filter.matchesGroup(groupB));
-      assertFalse(filter.matchesGroup(groupC));
+      assertTrue(filter.matches(groupA));
+      assertFalse(filter.matches(groupB));
+      assertFalse(filter.matches(groupC));
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
@@ -297,7 +382,7 @@ public class GroupDataConnectorTest extends BaseDataConnectorTest {
       GenericApplicationContext gContext = BaseDataConnectorTest.createSpringContext(RESOLVER_CONFIG);
       GroupDataConnector gdc = (GroupDataConnector) gContext.getBean("testFilterMinusAttributeNotFound");
 
-      GroupQueryFilter filter = gdc.getGroupQueryFilter();
+      Filter filter = gdc.getFilter();
 
       Set<Group> groups = filter.getResults(grouperSession);
 
@@ -307,9 +392,9 @@ public class GroupDataConnectorTest extends BaseDataConnectorTest {
       assertTrue(groups.contains(groupB));
       assertFalse(groups.contains(groupC));
 
-      assertTrue(filter.matchesGroup(groupA));
-      assertTrue(filter.matchesGroup(groupB));
-      assertFalse(filter.matchesGroup(groupC));
+      assertTrue(filter.matches(groupA));
+      assertTrue(filter.matches(groupB));
+      assertFalse(filter.matches(groupC));
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
@@ -415,7 +500,7 @@ public class GroupDataConnectorTest extends BaseDataConnectorTest {
 
     runResolveTest("testAttributesAndAttributeDefs", groupA, correctAttributesA);
   }
-  
+
   public void testGroupType() {
 
     GroupType adminType = GroupType.createType(GrouperSession.staticGrouperSession(), "adminType");
@@ -425,34 +510,59 @@ public class GroupDataConnectorTest extends BaseDataConnectorTest {
 
     runResolveTest("testAttributesOnly", groupA, correctAttributesA);
   }
-  
-  public void testHasViewer() {
+
+  public void testGroupAttributeDefinition() {
+
+    AttributeMap correctMap = new AttributeMap();
+    correctMap.setAttribute("testGroupAttributeDefinition", groupB.getName());
+
+    runAttributeDefinitionTest("testAll", groupA, correctMap, "testGroupAttributeDefinition");
+  }
+
+  public void testMemberAttributeDefinition() {
+
+    AttributeMap correctMap = new AttributeMap();
+    correctMap.setAttribute("testMemberAttributeDefinition", SubjectTestHelper.SUBJ1.getId(),
+        SubjectTestHelper.SUBJ0.getId(), groupA.getName());
+
+    runAttributeDefinitionTest("testAll", groupB, correctMap, "testMemberAttributeDefinition");
+  }
+
+  public void testMemberAttributeDefinitionJDBC() {
+
+    AttributeMap correctMap = new AttributeMap();
+    correctMap.setAttribute("testMemberAttributeDefinitionJDBC", SubjectTestHelper.SUBJ0.getId());
+
+    runAttributeDefinitionTest("testAll", groupA, correctMap, "testMemberAttributeDefinitionJDBC");
+  }
+
+  public void testSubjectAttributeDefinitionHasViewer() {
 
     groupA.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.VIEW);
 
     AttributeMap correctMap = new AttributeMap();
-    correctMap.setAttribute("testHasViewer", SubjectTestHelper.SUBJ0.getName());
-    
-    try {     
-      GenericApplicationContext gContext = BaseDataConnectorTest.createSpringContext(RESOLVER_CONFIG);
+    correctMap.setAttribute("testSubjectAttributeDefinitionHasViewer", SubjectTestHelper.SUBJ0.getName());
 
-      ShibbolethResolutionContext ctx = getShibContext(groupA.getName());
-      
-      // resolve data connector dependency
-      GroupDataConnector gdc = (GroupDataConnector) gContext.getBean("testAll");      
-      gdc.resolve(ctx);
-      ctx.getResolvedPlugins().put(gdc.getId(), gdc);
-      
-      // resolve attribute definition
-      AttributeDefinition ad = (AttributeDefinition) gContext.getBean("testHasViewer");
-      BaseAttribute attr = ad.resolve(ctx);
-      AttributeMap currentMap = new AttributeMap();
-      currentMap.setAttribute(attr);
-      assertEquals(correctMap, currentMap);
+    runAttributeDefinitionTest("testAll", groupA, correctMap, "testSubjectAttributeDefinitionHasViewer");
+  }
+
+  public void testGetAllIdentifiers() {
+
+    try {
+      GenericApplicationContext gContext = BaseDataConnectorTest.createSpringContext(RESOLVER_CONFIG);
+      GroupDataConnector gdc = (GroupDataConnector) gContext.getBean("testAttributesOnly");
+
+      Set<String> identifiers = gdc.getAllIdentifiers();
+
+      assertEquals(3, identifiers.size());
+
+      assertTrue(identifiers.contains(groupA.getName()));
+      assertTrue(identifiers.contains(groupB.getName()));
+      assertTrue(identifiers.contains(groupC.getName()));
+
     } catch (Exception e) {
       e.printStackTrace();
       throw new RuntimeException(e);
     }
   }
-
 }

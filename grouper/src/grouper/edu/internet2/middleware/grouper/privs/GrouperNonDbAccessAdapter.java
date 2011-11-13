@@ -87,12 +87,12 @@ public class GrouperNonDbAccessAdapter extends BaseAccessAdapter implements Acce
   // STATIC //
   static {
     Map<Privilege, String> map = new HashMap<Privilege, String>();
-    map.put(  AccessPrivilege.ADMIN , "admins"    );
-    map.put(  AccessPrivilege.OPTIN , "optins"    );
-    map.put(  AccessPrivilege.OPTOUT, "optouts"   );
-    map.put(  AccessPrivilege.READ  , "readers"   );
-    map.put(  AccessPrivilege.UPDATE, "updaters"  );
-    map.put(  AccessPrivilege.VIEW  , "viewers"   );
+    map.put(  AccessPrivilege.ADMIN , Field.FIELD_NAME_ADMINS    );
+    map.put(  AccessPrivilege.OPTIN , Field.FIELD_NAME_OPTINS    );
+    map.put(  AccessPrivilege.OPTOUT, Field.FIELD_NAME_OPTOUTS   );
+    map.put(  AccessPrivilege.READ  , Field.FIELD_NAME_READERS   );
+    map.put(  AccessPrivilege.UPDATE, Field.FIELD_NAME_UPDATERS  );
+    map.put(  AccessPrivilege.VIEW  , Field.FIELD_NAME_VIEWERS   );
     priv2list = Collections.unmodifiableMap(new HashMap(map));
   } // static
 

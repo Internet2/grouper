@@ -14,33 +14,19 @@
 
 package edu.internet2.middleware.grouper.shibboleth.dataConnector.config;
 
-import java.util.Set;
-
 import edu.internet2.middleware.grouper.shibboleth.dataConnector.MemberDataConnector;
-import edu.internet2.middleware.grouper.shibboleth.util.SourceIdentifier;
 
-/**
- * Spring bean factory that produces {@link MemberDataConnector}s.
- */
+/** Spring bean factory that produces {@link MemberDataConnector}s. */
 public class MemberDataConnectorFactoryBean extends BaseGrouperDataConnectorFactoryBean {
 
-  private Set<SourceIdentifier> sourceIdentifiers;
-
-  public Set<SourceIdentifier> getSourceIdentifiers() {
-    return sourceIdentifiers;
-  }
-
-  public void setSourceIdentifiers(Set<SourceIdentifier> sourceIdentifiers) {
-    this.sourceIdentifiers = sourceIdentifiers;
-  }
-
+  /** {@inheritDoc} */
   protected Object createInstance() throws Exception {
     MemberDataConnector connector = new MemberDataConnector();
-    connector.setSourceIdentifiers(getSourceIdentifiers());
-    populateDataConnector(connector);    
+    populateDataConnector(connector);
     return connector;
   }
 
+  /** {@inheritDoc} */
   public Class getObjectType() {
     return MemberDataConnector.class;
   }

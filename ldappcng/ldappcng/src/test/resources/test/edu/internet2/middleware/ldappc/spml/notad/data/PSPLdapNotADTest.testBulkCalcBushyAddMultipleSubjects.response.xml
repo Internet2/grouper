@@ -28,7 +28,7 @@
           <dsml:value>groupA</dsml:value>
         </dsml:attr>
         <dsml:attr xmlns:dsml='urn:oasis:names:tc:DSML:2:0:core' name='hasMember'>
-          <dsml:value>my name is test.subject.0</dsml:value>
+          <dsml:value>test.subject.0</dsml:value>
         </dsml:attr>
       </data>
       <capabilityData mustUnderstand='true' capabilityURI='urn:oasis:names:tc:SPML:2:0:reference'>
@@ -70,7 +70,7 @@
       </data>
     </ldappc:pso>
     <ldappc:pso entityName='member'>
-      <psoID ID='cn=test.subject.2,ou=testpeople,${base}' targetID='ldap'/>
+      <psoID ID='cn=test.subject.10,ou=testpeople,${base}' targetID='ldap'/>
       <data>
         <dsml:attr xmlns:dsml='urn:oasis:names:tc:DSML:2:0:core' name='objectClass'>
           <dsml:value>eduMember</dsml:value>

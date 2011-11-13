@@ -3,6 +3,9 @@
  */
 package edu.internet2.middleware.grouper.ws.status;
 
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+
 import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.SubjectCheckConfig;
@@ -16,6 +19,26 @@ import edu.internet2.middleware.subject.provider.SourceManager;
  *
  */
 public class DiagnosticSourceTest extends DiagnosticTask {
+
+  /**
+   * 
+   */
+  @Override
+  public boolean equals(Object obj) {
+    if (obj instanceof DiagnosticSourceTest) {
+      DiagnosticSourceTest other = (DiagnosticSourceTest)obj;
+      return new EqualsBuilder().append(this.sourceId, other.sourceId).isEquals();
+    }
+    return false;
+  }
+  
+  /**
+   * 
+   */
+  @Override
+  public int hashCode() {
+    return new HashCodeBuilder().append(this.sourceId).toHashCode();
+  }
 
   /** sourceId */
   private String sourceId;

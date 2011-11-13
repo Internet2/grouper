@@ -14,33 +14,21 @@
 
 package edu.internet2.middleware.grouper.shibboleth.attributeDefinition.config;
 
-import java.util.List;
-import java.util.Map;
-
 import javax.xml.namespace.QName;
 
-import org.springframework.beans.factory.support.BeanDefinitionBuilder;
-import org.springframework.beans.factory.xml.ParserContext;
 import org.w3c.dom.Element;
 
+import edu.internet2.middleware.grouper.shibboleth.attributeDefinition.SubjectAttributeDefinition;
 import edu.internet2.middleware.grouper.shibboleth.config.GrouperNamespaceHandler;
-import edu.internet2.middleware.grouper.shibboleth.util.AttributeIdentifierBeanDefinitionParser;
-import edu.internet2.middleware.shibboleth.common.config.SpringConfigurationUtils;
-import edu.internet2.middleware.shibboleth.common.config.attribute.resolver.attributeDefinition.BaseAttributeDefinitionBeanDefinitionParser;
 
-public class SubjectAttributeDefinitionBeanDefinitionParser extends BaseAttributeDefinitionBeanDefinitionParser {
+/** Spring bean definition parser for configuring a {@link SubjectAttributeDefinition}. */
+public class SubjectAttributeDefinitionBeanDefinitionParser extends BaseGrouperAttributeDefinitionBeanDefinitionParser {
 
+  /** Schema type name. */
   public static final QName TYPE_NAME = new QName(GrouperNamespaceHandler.NAMESPACE, "Subject");
 
+  /** {@inheritDoc} */
   protected Class getBeanClass(Element element) {
     return SubjectAttributeDefinitionFactoryBean.class;
-  }
-
-  protected void doParse(String pluginId, Element pluginConfig, Map<QName, List<Element>> pluginConfigChildren,
-      BeanDefinitionBuilder pluginBuilder, ParserContext parserContext) {
-    super.doParse(pluginId, pluginConfig, pluginConfigChildren, pluginBuilder, parserContext);
-
-    pluginBuilder.addPropertyValue("attributes", SpringConfigurationUtils.parseInnerCustomElements(pluginConfigChildren
-        .get(AttributeIdentifierBeanDefinitionParser.TYPE_NAME), parserContext));
   }
 }

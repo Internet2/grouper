@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <beans xmlns="http://www.springframework.org/schema/beans"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xmlns:util="http://www.springframework.org/schema/util"
-    xsi:schemaLocation="
-      http://www.springframework.org/schema/beans classpath:/schema/spring-beans-2.5.xsd
-      http://www.springframework.org/schema/util classpath:/schema/spring-util-2.5.xsd">
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:util="http://www.springframework.org/schema/util"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans classpath:/schema/spring-beans-2.5.xsd
+                      http://www.springframework.org/schema/util classpath:/schema/spring-util-2.5.xsd">
 
   <bean id="shibboleth.VelocityEngine" class="org.springframework.ui.velocity.VelocityEngineFactoryBean">
     <property name="velocityProperties">
@@ -24,7 +23,7 @@
   <bean id="shibboleth.TemplateEngine" class="edu.internet2.middleware.shibboleth.common.attribute.resolver.provider.dataConnector.TemplateEngine">
     <constructor-arg ref="shibboleth.VelocityEngine" />
   </bean>
-  
+
   <!-- workaround logback requirement -->
   <bean id="shibboleth.LogbackLogging" class="edu.internet2.middleware.ldappc.util.EmptyBean" />
 

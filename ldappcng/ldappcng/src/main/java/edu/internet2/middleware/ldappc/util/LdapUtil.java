@@ -23,6 +23,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -39,6 +40,7 @@ import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
+import javax.naming.ldap.LdapName;
 
 import org.apache.directory.shared.ldap.entry.client.ClientModification;
 import org.apache.directory.shared.ldap.entry.client.DefaultClientAttribute;
@@ -545,23 +547,48 @@ public final class LdapUtil {
    * @throws NamingException
    */
   public static List<String> getChildDNs(String dn, Ldap ldap) throws NamingException {
+    return getChildDNs(dn, ldap, true);
+  }
+  
+  /**
+   * Return a list of child DNs under the given DN either in ascending or descending order (suitable for deletion). This
+   * method requires the use of the FqdnSearchResultHandler.
+   * 
+   * @param baseDn the base DN to include as well as child DNs
+   * @param ldap the ldap connection
+   * @param decendingOrder true to indicate descending order, false to indicate ascending order
+   * @return
+   * @throws NamingException
+   */
+  public static List<String> getChildDNs(String baseDn, Ldap ldap, boolean decendingOrder) throws NamingException {
 
-    ArrayList<String> tree = new ArrayList<String>();
+    ArrayList<LdapName> ldapNames = new ArrayList<LdapName>();
 
     SearchControls searchControls = new SearchControls();
-    searchControls.setSearchScope(SearchControls.ONELEVEL_SCOPE);
+    searchControls.setSearchScope(SearchControls.SUBTREE_SCOPE);
     searchControls.setReturningAttributes(new String[] {});
 
-    Iterator<SearchResult> results = ldap.search(LdapUtil.escapeForwardSlash(dn), new SearchFilter("objectclass=*"),
-        searchControls);
+    Iterator<SearchResult> results = ldap.search(LdapUtil.escapeForwardSlash(baseDn),
+        new SearchFilter("objectclass=*"), searchControls);
+
     while (results.hasNext()) {
-      SearchResult sr = results.next();
-      String name = sr.getName();
-      tree.addAll(getChildDNs(name, ldap));
-      tree.add(name);
+      ldapNames.add(new LdapName(results.next().getName()));
     }
 
-    return tree;
+    ldapNames.remove(new LdapName(baseDn));
+
+    Collections.sort(ldapNames);
+
+    if (!decendingOrder) {
+      Collections.reverse(ldapNames);
+    }
+
+    ArrayList<String> dns = new ArrayList<String>();
+    for (LdapName ldapName : ldapNames) {
+      dns.add(ldapName.toString());
+    }
+
+    return dns;
   }
 
   /**

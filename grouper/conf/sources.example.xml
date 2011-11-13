@@ -62,6 +62,37 @@ $Id: sources.example.xml,v 1.8 2009-08-11 20:18:09 mchyzer Exp $
     </init-param>
     <init-param>
       <param-name>sortAttribute0</param-name>
+      <param-value>displayExtension</param-value>
+    </init-param>
+    <init-param>
+      <param-name>searchAttribute0</param-name>
+      <param-value>searchAttribute0</param-value>
+    </init-param>
+    <!-- on a findPage() this is the most results returned --> 
+    <init-param>
+      <param-name>maxPageSize</param-name>
+      <param-value>100</param-value>
+    </init-param>
+    <internal-attribute>searchAttribute0</internal-attribute>
+  </source>
+  <!-- Group Subject Resolver -->
+
+  <!-- 
+    NOTE: It is recommended that you **not** change the default
+          values for this source adapter.
+  -->
+  <source adapterClass="edu.internet2.middleware.grouper.entity.EntitySourceAdapter">
+    <id>grouperEntities</id>
+    <name>Grouper: Entity Source Adapter</name>
+    <type>application</type>
+
+    <init-param>
+      <param-name>subjectVirtualAttribute_0_searchAttribute0</param-name>
+      <!-- TODO add attribute for subject identifier -->
+      <param-value>${subject.getAttributeValue('name')},${subject.getAttributeValue('displayName')},${subject.getAttributeValue('alternateName')}</param-value>
+    </init-param>
+    <init-param>
+      <param-name>sortAttribute0</param-name>
       <param-value>name</param-value>
     </init-param>
     <init-param>
@@ -70,7 +101,7 @@ $Id: sources.example.xml,v 1.8 2009-08-11 20:18:09 mchyzer Exp $
     </init-param>
     <internal-attribute>searchAttribute0</internal-attribute>
   </source>
-  <!-- Group Subject Resolver -->
+  <!-- Entity Subject Resolver -->
 
  <source adapterClass="edu.internet2.middleware.grouper.subj.GrouperJdbcSourceAdapter">
     <id>jdbc</id>
@@ -97,6 +128,12 @@ $Id: sources.example.xml,v 1.8 2009-08-11 20:18:09 mchyzer Exp $
        <param-name>maxResults</param-name>
        <param-value>1000</param-value>
      </init-param>
+
+    <!-- on a findPage() this is the most results returned --> 
+    <init-param>
+      <param-name>maxPageSize</param-name>
+      <param-value>100</param-value>
+    </init-param>
 
      <!-- note: again, if you use GrouperJdbcConnectionProvider, then you should not fill out maxActive, maxIdle,
        maxWait, dbDriver, dbUrl, dbUser, dbPwd, since it will use the grouper.hibernate.properties db settings -->

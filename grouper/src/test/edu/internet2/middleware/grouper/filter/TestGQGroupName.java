@@ -16,6 +16,9 @@
 */
 
 package edu.internet2.middleware.grouper.filter;
+import java.util.ArrayList;
+import java.util.List;
+
 import junit.framework.Assert;
 import junit.framework.TestCase;
 import junit.textui.TestRunner;
@@ -23,15 +26,17 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.exception.QueryException;
-import edu.internet2.middleware.grouper.filter.GroupNameFilter;
-import edu.internet2.middleware.grouper.filter.GrouperQuery;
 import edu.internet2.middleware.grouper.helper.GroupHelper;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SessionHelper;
 import edu.internet2.middleware.grouper.helper.StemHelper;
+import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.registry.RegistryReset;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * Test {@link GroupNameFilter}.
@@ -46,7 +51,7 @@ public class TestGQGroupName extends TestCase {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new TestGQGroupName("testGroupNameFilterSomethingNameScoped"));
+    TestRunner.run(new TestGQGroupName("testGroupsInStemFilterSomethingNamePaged"));
   }
   
   public TestGQGroupName(String name) {
@@ -448,6 +453,137 @@ public class TestGQGroupName extends TestCase {
       Assert.fail("unable to query: " + eQ.getMessage());
     }
   }
+
+  /**
+   * 
+   */
+  public void testGroupNameFilterSomethingNamePaged() {
+    GrouperSession  s     = SessionHelper.getRootSession();
+    Stem            root  = StemHelper.findRootStem(s);
+    Stem            edu   = StemHelper.addChildStem(root, "edu", "education");
+    Group           i2    = StemHelper.addChildGroup(edu, "i2", "internet2");
+    Group           uofc  = StemHelper.addChildGroup(edu, "uofc", "uchicago");
+    Group           uofc2  = StemHelper.addChildGroup(edu, "uofc6", "uchicago2");
+    Group           uofc3  = StemHelper.addChildGroup(edu, "uofc5", "uchicago3");
+    Group           uofc4  = StemHelper.addChildGroup(edu, "uofc4", "uchicago4");
+    Group           uofc5  = StemHelper.addChildGroup(edu, "uofc3", "uchicago5");
+    Group           uofc6  = StemHelper.addChildGroup(edu, "uofc2", "uchicago6");
+    Stem            com   = StemHelper.addChildStem(root, "com", "commercial");
+    
+    uofc.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.VIEW, false);
+    uofc.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ, false);
+    
+    uofc2.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.VIEW, false);
+    uofc2.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ, false);
+    uofc2.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.VIEW, false);
+    
+    uofc3.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.VIEW, false);
+    uofc3.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ, false);
+    uofc3.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.VIEW, false);
+    
+    uofc4.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.VIEW, false);
+    uofc4.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ, false);
+    uofc4.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.VIEW, false);
+    
+    uofc5.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.VIEW, false);
+    uofc5.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ, false);
+    
+    uofc6.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.VIEW, false);
+    uofc6.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ, false);
+
+    StemHelper.addChildGroup(com, "devclue", "devclue");
+    GroupHelper.addMember(i2, uofc);
+    try {
+      GrouperSession.stopQuietly(s);
+      s = GrouperSession.start(SubjectTestHelper.SUBJ0);
+      
+      GrouperQuery gq = GrouperQuery.createQuery(
+        s, new GroupNameFilter("edu:uofc", root, "displayName", true, 1, 2, null));
+
+      List<Group> groups = new ArrayList<Group>(gq.getGroups());
+      assertEquals(2, GrouperUtil.length(groups));
+      assertEquals("uchicago2", groups.get(0).getDisplayExtension());
+      assertEquals("uchicago3", groups.get(1).getDisplayExtension());
+
+      gq = GrouperQuery.createQuery(
+          s, new GroupNameFilter("edu:uofc", root, "name", true, 2, 2, null));
+
+      groups = new ArrayList<Group>(gq.getGroups());
+      assertEquals(1, GrouperUtil.length(groups));
+      assertEquals("uofc6", groups.get(0).getExtension());
+    } catch (QueryException eQ) {
+      Assert.fail("unable to query: " + eQ.getMessage());
+    } finally {
+      GrouperSession.stopQuietly(s);
+    }
+  } // public void testGroupNameFilterSomethingName()
+
+  /**
+   * 
+   */
+  public void testGroupsInStemFilterSomethingNamePaged() {
+    GrouperSession  s     = SessionHelper.getRootSession();
+    Stem            root  = StemHelper.findRootStem(s);
+    Stem            edu   = StemHelper.addChildStem(root, "edu", "education");
+    Group           i2    = StemHelper.addChildGroup(edu, "i2", "internet2");
+    Group           uofc  = StemHelper.addChildGroup(edu, "uofc", "uchicago");
+    Group           uofc2  = StemHelper.addChildGroup(edu, "uofc6", "uchicago2");
+    Group           uofc3  = StemHelper.addChildGroup(edu, "uofc5", "uchicago3");
+    Group           uofc4  = StemHelper.addChildGroup(edu, "uofc4", "uchicago4");
+    Group           uofc5  = StemHelper.addChildGroup(edu, "uofc3", "uchicago5");
+    Group           uofc6  = StemHelper.addChildGroup(edu, "uofc2", "uchicago6");
+    Stem            com   = StemHelper.addChildStem(root, "com", "commercial");
+    
+    i2.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.VIEW, false);
+    i2.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ, false);
+    
+    uofc.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.VIEW, false);
+    uofc.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ, false);
+    
+    uofc2.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.VIEW, false);
+    uofc2.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ, false);
+    uofc2.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.VIEW, false);
+    
+    uofc3.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.VIEW, false);
+    uofc3.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ, false);
+    uofc3.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.VIEW, false);
+    
+    uofc4.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.VIEW, false);
+    uofc4.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ, false);
+    uofc4.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.VIEW, false);
+    
+    uofc5.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.VIEW, false);
+    uofc5.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ, false);
+    
+    uofc6.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.VIEW, false);
+    uofc6.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ, false);
+  
+    StemHelper.addChildGroup(com, "devclue", "devclue");
+    GroupHelper.addMember(i2, uofc);
+    try {
+      GrouperSession.stopQuietly(s);
+      s = GrouperSession.start(SubjectTestHelper.SUBJ0);
+      
+      GrouperQuery gq = GrouperQuery.createQuery(
+        s, new GroupsInStemFilter("edu", Scope.SUB, false, "displayName", true, 1, 2, null));
+  
+      List<Group> groups = new ArrayList<Group>(gq.getGroups());
+      assertEquals(2, GrouperUtil.length(groups));
+      assertEquals("uchicago2", groups.get(0).getDisplayExtension());
+      assertEquals("uchicago3", groups.get(1).getDisplayExtension());
+  
+      gq = GrouperQuery.createQuery(
+          s, new GroupNameFilter("edu:uofc", root, "name", true, 2, 2, null));
+  
+      groups = new ArrayList<Group>(gq.getGroups());
+      assertEquals(1, GrouperUtil.length(groups));
+      assertEquals("uofc6", groups.get(0).getExtension());
+    } catch (QueryException eQ) {
+      Assert.fail("unable to query: " + eQ.getMessage());
+    } finally {
+      GrouperSession.stopQuietly(s);
+    }
+  } // public void testGroupNameFilterSomethingName()
 
 }
 

@@ -26,6 +26,8 @@ import edu.internet2.middleware.grouper.audit.AuditTypeBuiltin;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogEntry;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogLabels;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogTypeBuiltin;
+import edu.internet2.middleware.grouper.entity.Entity;
+import edu.internet2.middleware.grouper.entity.EntityUtils;
 import edu.internet2.middleware.grouper.exception.LimitInvalidException;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
@@ -149,6 +151,9 @@ public class AttributeAssignValue extends GrouperAPI implements GrouperHasContex
     return GrouperUtil.clone(this, CLONE_FIELDS);
   }
 
+  /** the cached assignment */
+  private AttributeAssign attributeAssign;
+  
   /** attribute assignment in this value assignment */
   private String attributeAssignId;
 
@@ -543,11 +548,17 @@ public class AttributeAssignValue extends GrouperAPI implements GrouperHasContex
    * @return the attribute assign
    */
   public AttributeAssign getAttributeAssign() {
+    
+    if (this.attributeAssign != null) {
+      return this.attributeAssign;
+    }
+    
     if (StringUtils.isBlank(this.attributeAssignId)) {
       return null;
     }
     //hopefully this is cached
-    return GrouperDAOFactory.getFactory().getAttributeAssign().findById(this.attributeAssignId, true);
+    this.attributeAssign = GrouperDAOFactory.getFactory().getAttributeAssign().findById(this.attributeAssignId, true);
+    return this.attributeAssign;
   }
   
   /**
@@ -556,6 +567,7 @@ public class AttributeAssignValue extends GrouperAPI implements GrouperHasContex
    */
   public void setAttributeAssignId(String attributeAssignId1) {
     this.attributeAssignId = attributeAssignId1;
+    this.attributeAssign = null;
   }
   
   /**
@@ -1073,12 +1085,50 @@ public class AttributeAssignValue extends GrouperAPI implements GrouperHasContex
   }
 
   /**
+   * check that entity id does not exist
+   */
+  private void checkEntityValidations() {
+    
+    //if this is an entity id
+    AttributeAssign theAttributeAssign = this.getAttributeAssign();
+    if (StringUtils.equals(theAttributeAssign.getAttributeDefName().getName(), EntityUtils.entitySubjectIdentifierName())) {
+      
+      if (StringUtils.isBlank(this.valueString)) {
+        throw new RuntimeException("valueString cannot be blank");
+      }
+
+      //make sure its the same folder as the entity
+      Entity entity =  theAttributeAssign.getOwnerGroup();
+      
+      String folderNameWithColon = GrouperUtil.parentStemNameFromName(entity.getName()) + ":";
+      
+      if (!this.valueString.startsWith(folderNameWithColon)) {
+        throw new RuntimeException("Value must start with the entity's folder name: '" + folderNameWithColon + "'" );
+      }
+      
+      Set<AttributeAssignValue> attributeAssignValues = GrouperDAOFactory.getFactory().getAttributeAssignValue().findByValueString(this.valueString);
+      
+      for (AttributeAssignValue attributeAssignValue : GrouperUtil.nonNull(attributeAssignValues)) {
+        
+        if (!StringUtils.equals(this.id, attributeAssignValue.getId())) {
+          throw new RuntimeException("Value is same as another entity subject id: " + this.id + ", " + attributeAssignValue.getId() + ": " + this.valueString);
+        }
+        
+      }
+      
+    }
+  }
+  
+  /**
    * 
    * @see edu.internet2.middleware.grouper.GrouperAPI#onPreSave(edu.internet2.middleware.grouper.hibernate.HibernateSession)
    */
   @Override
   public void onPreSave(HibernateSession hibernateSession) {
     super.onPreSave(hibernateSession);
+
+    checkEntityValidations();
+    
     long now = System.currentTimeMillis();
     if (this.createdOnDb == null) {
       this.setCreatedOnDb(now);
@@ -1106,6 +1156,8 @@ public class AttributeAssignValue extends GrouperAPI implements GrouperHasContex
   public void onPreUpdate(HibernateSession hibernateSession) {
     super.onPreUpdate(hibernateSession);
     
+    checkEntityValidations();
+
     this.setLastUpdatedDb(System.currentTimeMillis());
     
     if (AttributeAssignValue.this.dbVersionDifferentFields().contains(FIELD_VALUE_INTEGER) ||

@@ -27,7 +27,7 @@
           <dsml:value>groupA</dsml:value>
         </dsml:attr>
         <dsml:attr xmlns:dsml='urn:oasis:names:tc:DSML:2:0:core' name='hasMember'>
-          <dsml:value>my name is test.subject.0</dsml:value>
+          <dsml:value>test.subject.0</dsml:value>
         </dsml:attr>
       </data>
       <capabilityData mustUnderstand='true' capabilityURI='urn:oasis:names:tc:SPML:2:0:reference'>
@@ -73,7 +73,7 @@
       </modification>
     </modifyRequest>
     <modifyRequest xmlns='urn:oasis:names:tc:SPML:2:0' entityName='member' returnData='everything' requestID='REQUESTID_TEST'>
-      <psoID ID='cn=test.subject.2,ou=testpeople,${base}' targetID='ldap'/>
+      <psoID ID='cn=test.subject.10,ou=testpeople,${base}' targetID='ldap'/>
       <modification modificationMode='add'>
         <dsml:modification xmlns:dsml='urn:oasis:names:tc:DSML:2:0:core' name='objectClass' operation='add'>
           <dsml:value>eduMember</dsml:value>

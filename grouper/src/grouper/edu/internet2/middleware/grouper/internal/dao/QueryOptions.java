@@ -4,6 +4,10 @@
  */
 package edu.internet2.middleware.grouper.internal.dao;
 
+import org.apache.commons.lang.StringUtils;
+
+import edu.internet2.middleware.grouper.util.GrouperUtil;
+
 /**
  * <pre>
  * options on a query (e.g. sorting, paging, total result size, etc)
@@ -32,6 +36,48 @@ package edu.internet2.middleware.grouper.internal.dao;
  */
 public class QueryOptions {
 
+  /**
+   * 
+   */
+  public QueryOptions() {
+    
+  }
+  
+  /**
+   * @param sortString 
+   * @param ascending 
+   * @param pageNumber 
+   * @param pageSize 
+   * @return the query options if needed
+   * 
+   */
+  public static QueryOptions create(String sortString, Boolean ascending, Integer pageNumber, Integer pageSize) {
+    QueryOptions queryOptions = null;
+    
+    if (ascending != null || !StringUtils.isBlank(sortString) 
+        || pageNumber != null || pageSize != null) {
+      
+      queryOptions = new QueryOptions();
+      
+      if (ascending != null || !StringUtils.isBlank(sortString)) {
+        
+        QuerySort querySort = new QuerySort(sortString, GrouperUtil.defaultIfNull(ascending, Boolean.TRUE));
+        queryOptions.sort(querySort);
+        
+      }
+
+      if (pageNumber != null || pageSize != null) {
+        
+        QueryPaging queryPaging = new QueryPaging();
+        queryPaging.setPageNumber(pageNumber);
+        queryPaging.setPageSize(pageSize);
+        queryOptions.paging(queryPaging);
+      }
+      
+    }
+    return queryOptions;
+  }
+  
   /**
    * if this query is sorted (by options), and what the col(s) are
    */

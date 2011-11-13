@@ -16,12 +16,14 @@
 */
 
 package edu.internet2.middleware.grouper.subj;
-import  edu.internet2.middleware.subject.Source;
-import  edu.internet2.middleware.subject.SourceUnavailableException;
-import  edu.internet2.middleware.subject.Subject;
-import  edu.internet2.middleware.subject.SubjectNotFoundException;
-import  edu.internet2.middleware.subject.SubjectNotUniqueException;
-import  java.util.Set;
+import java.util.Set;
+
+import edu.internet2.middleware.subject.SearchPageResult;
+import edu.internet2.middleware.subject.Source;
+import edu.internet2.middleware.subject.SourceUnavailableException;
+import edu.internet2.middleware.subject.Subject;
+import edu.internet2.middleware.subject.SubjectNotFoundException;
+import edu.internet2.middleware.subject.SubjectNotUniqueException;
 
 
 /**
@@ -78,6 +80,26 @@ public interface SubjectResolver {
   Set<Subject> findAll(String query)
     throws  IllegalArgumentException;
 
+  /**
+   * find subjects in a set of sources
+   * @param query
+   * @param sources
+   * @return the subjects
+   * @throws IllegalArgumentException
+   */
+  public Set<Subject> findAll(String query, Set<Source> sources) throws  IllegalArgumentException;
+  
+  /**
+   * find a page of subjects in a set of sources
+   * @param query
+   * @param sources
+   * @return the page of subjects
+   * @throws SourceUnavailableException
+   */
+  public SearchPageResult findPage(String query, Set<Source> sources)
+    throws  SourceUnavailableException;
+
+  
   /**
    * @param stemName name of stem we are querying
    * @param   query   A source-appropriate query string.
@@ -181,6 +203,38 @@ public interface SubjectResolver {
             SubjectNotFoundException,
             SubjectNotUniqueException
             ;
+
+  /**
+   * @param   query   A source-appropraite query string.
+   * @return  Paged subjects matching <i>query</i>.
+   * @throws  IllegalArgumentException if any parameter is null.
+   * @since   2.0.2
+   */
+  SearchPageResult findPage(String query)
+    throws  IllegalArgumentException;
+
+  /**
+   * @param   query   A source-appropriate query string.
+   * @param   source  Restrict query to within this source.
+   * @return  Page of subjects matching <i>query</i>.
+   * @throws  IllegalArgumentException if any parameter is null.
+   * @throws  SourceUnavailableException if source is unavailable.
+   * @since   2.0.2
+   */
+  SearchPageResult findPage(String query, String source)
+    throws  IllegalArgumentException,
+            SourceUnavailableException
+            ;
+
+  /**
+   * @param stemName name of stem we are querying
+   * @param   query   A source-appropriate query string.
+   * @return  All subjects matching <i>query</i>.
+   * @throws  IllegalArgumentException if any parameter is null.
+   * @since   2.0.2
+   */
+  SearchPageResult findPageInStem(String stemName, String query)
+    throws  IllegalArgumentException;
   
 }
 

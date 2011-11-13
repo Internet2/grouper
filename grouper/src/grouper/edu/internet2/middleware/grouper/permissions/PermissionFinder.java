@@ -457,6 +457,7 @@ public class PermissionFinder {
     this.assignPermissionProcessor(originalProcessor);
     
     //get limits from permissions
+    //CH 20111005: pass PIT to this method, to get limit attribute assignments at a certain point in time
     Map<PermissionEntry, Set<PermissionLimitBean>> permissionLimitBeanMap = GrouperUtil.nonNull(PermissionLimitBean.findPermissionLimits(permissionEntrySet));
     
     //if (GrouperUtil.length(permissionLimitBeanMap) > 0) {
@@ -478,6 +479,17 @@ public class PermissionFinder {
     }
     
     return permissionLimitBeanMap;
+  }
+
+  /**
+   * permission result gives helper methods in processing the results
+   * @return the permission result
+   */
+  public PermissionResult findPermissionResult() {
+    
+    Set<PermissionEntry> permissionEntries = this.findPermissions();
+    
+    return new PermissionResult(permissionEntries);
   }
   
   /**
@@ -576,7 +588,7 @@ public class PermissionFinder {
   }
 
   /**
-   * find a list of permissions
+   * find a permission
    * @param exceptionIfNotFound true if exception should be thrown if permission not found
    * @return the permission or null
    */
@@ -584,7 +596,7 @@ public class PermissionFinder {
 
     Set<PermissionEntry> permissions = findPermissions();
     
-    //this should find the immediate one if it is there...
+    //this should find one if it is there...
     PermissionEntry permissionEntry = null;
     
     if (GrouperUtil.length(permissions) > 1) {

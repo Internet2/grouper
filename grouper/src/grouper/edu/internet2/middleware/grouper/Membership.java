@@ -871,19 +871,11 @@ public class Membership extends GrouperAPI implements
    * </pre>
    * @return  A {@link Group}
    * @throws GroupNotFoundException if group not found
+   * @deprecated use getOwnerGroup() instead
    */
+  @Deprecated
   public Group getGroup() throws GroupNotFoundException {
-    String groupUuid = this.getOwnerGroupId();
-    if (groupUuid == null) {
-      throw new GroupNotFoundException();
-    }
-    Group g = getGroupFromCache(groupUuid);
-    if (g != null) {
-      return g;
-    }
-    g = GrouperDAOFactory.getFactory().getGroup().findByUuid(groupUuid, true);
-    putGroupInCache(g);
-    return g;
+    return this.getOwnerGroup();
   }
 
   /**
@@ -949,7 +941,7 @@ public class Membership extends GrouperAPI implements
         if (group == null) {
           group = GrouperUtil.retrieveByProperty(groupsFromDb, Group.FIELD_UUID, uuid);
           if (group == null && !FieldType.NAMING.equals(membership.getField().getType())) {
-            group = membership.getGroup();
+            group = membership.getOwnerGroup();
           } else {
             if (group != null) {
               //add to local cache
@@ -1183,6 +1175,12 @@ public class Membership extends GrouperAPI implements
       + ", field: " + (f == null ? null : f.getName());
     try {
       GrouperSession.validate(s);
+      
+      if (g.getTypeOfGroup() != null && !g.getTypeOfGroup().supportsField(f)) {
+        throw new RuntimeException("Cannot assign membership for field: " + f.getName() + " for typeOfGroup: " + g.getTypeOfGroup()
+            + ", group: " + g.getName() + ", " + g.getUuid());
+      }
+      
       Member member = MemberFinder.internal_findReadableMemberBySubject(s, subj, true);
       
       Membership ms = new Membership();
@@ -2106,7 +2104,7 @@ public class Membership extends GrouperAPI implements
    * Update the last_imm_membership_change for the group that's getting a change to an immediate privilege or membership
    */
   private void updateLastImmediateMembershipChange() {
-    if (GrouperConfig.getPropertyBoolean("groups.updateLastImmediateMembershipTime", true) && this.getOwnerGroupId() != null) {
+    if (GrouperConfig.getPropertyBoolean("groups.updateLastImmediateMembershipTime", false) && this.getOwnerGroupId() != null) {
       GrouperDAOFactory.getFactory().getGroup().updateLastImmediateMembershipChange(this.getOwnerGroupId());
     }
   }
@@ -2115,11 +2113,11 @@ public class Membership extends GrouperAPI implements
    * Update the last_membership_change for the group or stem that's getting a new privilege or custom list membership.
    */
   private void updateLastMembershipChangeDuringNonMembersListUpdate() {
-    if (GrouperConfig.getPropertyBoolean("groups.updateLastMembershipTime", true) && this.getOwnerGroupId() != null) {
+    if (GrouperConfig.getPropertyBoolean("groups.updateLastMembershipTime", false) && this.getOwnerGroupId() != null) {
       GrouperDAOFactory.getFactory().getGroup().updateLastMembershipChange(this.getOwnerGroupId());
     }
     
-    if (GrouperConfig.getPropertyBoolean("stems.updateLastMembershipTime", true) && this.getOwnerStemId() != null) {
+    if (GrouperConfig.getPropertyBoolean("stems.updateLastMembershipTime", false) && this.getOwnerStemId() != null) {
       GrouperDAOFactory.getFactory().getStem().updateLastMembershipChange(this.getOwnerStemId());
     }
   }
@@ -2129,14 +2127,14 @@ public class Membership extends GrouperAPI implements
    * @param groupIds
    */
   protected static void updateLastMembershipChangeDuringMembersListUpdate(Set<String> groupIds) {
-    if (GrouperConfig.getPropertyBoolean("groups.updateLastMembershipTime", true)) {
+    if (GrouperConfig.getPropertyBoolean("groups.updateLastMembershipTime", false)) {
       Iterator<String> iter = groupIds.iterator();
       while (iter.hasNext()) {
         GrouperDAOFactory.getFactory().getGroup().updateLastMembershipChangeIncludeAncestorGroups(iter.next());
       }
     }
     
-    if (GrouperConfig.getPropertyBoolean("stems.updateLastMembershipTime", true)) {
+    if (GrouperConfig.getPropertyBoolean("stems.updateLastMembershipTime", false)) {
       Iterator<String> iter = groupIds.iterator();
       while (iter.hasNext()) {
         GrouperDAOFactory.getFactory().getStem().updateLastMembershipChangeIncludeAncestorGroups(iter.next());
@@ -2488,6 +2486,41 @@ public class Membership extends GrouperAPI implements
     this.ownerGroupId = groupId1;
   }
 
+  /**
+   * Get this membership's group.  To get the groups of a bunch of membership, might want to try
+   * retrieveGroups()
+   * <pre class="eg">
+   * Group g = ms.getGroup();
+   * </pre>
+   * @return  A {@link Group}
+   * @throws GroupNotFoundException if group not found
+   * @return the group
+   */
+  public Group getOwnerGroup() {
+    String groupUuid = this.getOwnerGroupId();
+    if (groupUuid == null) {
+      throw new GroupNotFoundException();
+    }
+    Group g = getGroupFromCache(groupUuid);
+    if (g != null) {
+      return g;
+    }
+    g = GrouperDAOFactory.getFactory().getGroup().findByUuid(groupUuid, true);
+    putGroupInCache(g);
+    return g;
+    
+  }
+  
+  /**
+   * set the owner group
+   * @param group
+   */
+  public void setOwnerGroup(Group group) {
+    this.ownerGroupId = group == null ? null : group.getId();
+    putGroupInCache(group);
+
+  }
+  
   /**
    * if this is an attrDef membership, this is the attrDef id
    * @param attrDefId1

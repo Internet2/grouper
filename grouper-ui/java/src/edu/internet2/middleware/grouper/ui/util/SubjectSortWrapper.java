@@ -43,6 +43,21 @@ public class SubjectSortWrapper implements Subject, Comparable {
   }
   
   /**
+   * screen label (sort by this)
+   * @return the screen label
+   */
+  public String getScreenLabelLong() {
+    
+    if (this.screenLabel == null) {
+      
+      this.screenLabel = GrouperUiUtils.convertSubjectToLabelConfigured(this.wrappedSubject);
+      this.screenLabel = StringUtils.defaultString(this.screenLabel);
+    }
+    
+    return this.screenLabel;
+  }
+  
+  /**
    * wrapped subject
    * @param subject
    */

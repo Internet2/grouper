@@ -31,8 +31,8 @@
           </dsml:attr>
           <dsml:attr xmlns:dsml='urn:oasis:names:tc:DSML:2:0:core' name='hasMember'>
             <dsml:value>edu:groupB</dsml:value>
-            <dsml:value>my name is test.subject.0</dsml:value>
-            <dsml:value>my name is test.subject.1</dsml:value>
+            <dsml:value>test.subject.0</dsml:value>
+            <dsml:value>test.subject.1</dsml:value>
           </dsml:attr>
         </data>
         <capabilityData mustUnderstand='true' capabilityURI='urn:oasis:names:tc:SPML:2:0:reference'>
@@ -67,7 +67,7 @@
             <dsml:value>descriptionB</dsml:value>
           </dsml:attr>
           <dsml:attr xmlns:dsml='urn:oasis:names:tc:DSML:2:0:core' name='hasMember'>
-            <dsml:value>my name is test.subject.1</dsml:value>
+            <dsml:value>test.subject.1</dsml:value>
           </dsml:attr>
           <dsml:attr xmlns:dsml='urn:oasis:names:tc:DSML:2:0:core' name='isMemberOf'>
             <dsml:value>edu:groupA</dsml:value>

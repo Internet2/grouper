@@ -33,6 +33,7 @@ import org.slf4j.LoggerFactory;
 
 import edu.internet2.middleware.ldappc.exception.LdappcException;
 import edu.internet2.middleware.ldappc.spml.PSPContext;
+import edu.internet2.middleware.ldappc.spml.request.AlternateIdentifier;
 import edu.internet2.middleware.ldappc.util.PSPUtil;
 
 public class PSODefinition {
@@ -165,6 +166,14 @@ public class PSODefinition {
   public Set<String> getSourceIds(ReturnData returnData) {
     Set<String> set = new LinkedHashSet<String>();
     set.add(this.getPsoIdentifierDefinition().getRef());
+    // TODO should alternate identifier be IDENTIFIER or DATA ... not sure
+    if (getPsoIdentifierDefinition().getAlternateIdentifierDefinitions() != null) {
+      for (AlternateIdentifierDefinition altIdDef : getPsoIdentifierDefinition().getAlternateIdentifierDefinitions()) {
+        if (altIdDef.getRef() != null) {
+          set.add(altIdDef.getRef());
+        }
+      }
+    }
     if (returnData.equals(ReturnData.DATA) || returnData.equals(ReturnData.EVERYTHING)) {
       set.addAll(this.getAttributeSourceIds());
     }
@@ -216,6 +225,9 @@ public class PSODefinition {
       }
     }
 
+    // alternate identifier
+    List<AlternateIdentifier> alternateIdentifiers = this.getPsoIdentifierDefinition().getAlternateIdentifier(context);
+
     for (PSOIdentifier psoIdentifier : psoIdentifiers) {
       // pso
       PSO pso = new PSO();
@@ -229,6 +241,10 @@ public class PSODefinition {
 
       if (references != null && !references.isEmpty()) {
         PSPUtil.setReferences(pso, references);
+      }
+
+      for (AlternateIdentifier alternateIdentifier : alternateIdentifiers) {
+        pso.addOpenContentElement(alternateIdentifier);
       }
 
       psos.add(pso);

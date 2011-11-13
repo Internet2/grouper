@@ -3,7 +3,7 @@
     <psoID ID='cn=groupB,ou=testgroups,${base}' targetID='ldap'/>
     <modification modificationMode='delete'>
       <dsml:modification xmlns:dsml='urn:oasis:names:tc:DSML:2:0:core' name='hasMember' operation='delete'>
-        <dsml:value>my name is test.subject.1</dsml:value>
+        <dsml:value>test.subject.1</dsml:value>
       </dsml:modification>
     </modification>
     <modification modificationMode='add'>

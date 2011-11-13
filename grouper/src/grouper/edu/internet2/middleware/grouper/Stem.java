@@ -604,7 +604,22 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
    * @throws  IllegalArgumentException if null scope.
    * @since   1.2.1
    */
-  public Set<Group> getChildGroups(Scope scope, Set<Privilege> inPrivSet, QueryOptions queryOptions) 
+  public Set<Group> getChildGroups(Scope scope, Set<Privilege> inPrivSet, QueryOptions queryOptions) {
+    return this.getChildGroups(scope, inPrivSet, queryOptions, null);
+  }
+
+  /**
+   * Get groups that are children of this stem.
+   * @param   scope of search: <code>Scope.ONE</code> or <code>Scope.SUB</code>
+   * @param inPrivSet set of privileges that the grouper session needs one of for the row to be returned.
+   * AccessPrivilege has some pre-baked constant sets for use here
+   * @param typeOfGroups is the type of groups to get, or null for all
+   * @param queryOptions 
+   * @return  Child groups.
+   * @throws  IllegalArgumentException if null scope.
+   * @since   1.2.1
+   */
+  public Set<Group> getChildGroups(Scope scope, Set<Privilege> inPrivSet, QueryOptions queryOptions, Set<TypeOfGroup> typeOfGroups) 
     throws  IllegalArgumentException {
     if (scope == null) { // TODO 20070815 ParameterHelper
       throw new IllegalArgumentException("null Scope");
@@ -621,7 +636,7 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
     Subject     subj    = grouperSession.getSubject();
     Set<Group> findAllChildGroups = 
       GrouperDAOFactory.getFactory().getStem().findAllChildGroupsSecure( this, scope, 
-          grouperSession, subj, inPrivSet, queryOptions );
+          grouperSession, subj, inPrivSet, queryOptions, typeOfGroups );
     return findAllChildGroups;
   }
 
@@ -707,14 +722,26 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
    * @throws  IllegalArgumentException if null scope.
    * @since   1.2.1
    */
-  public Set<Stem> getChildStems(Scope scope) 
+  public Set<Stem> getChildStems(Scope scope) {
+    return getChildStems(scope, null);
+  }
+
+  /**
+   * Get stems that are children of this stem.
+   * @param   scope of search: <code>Scope.ONE</code> or <code>Scope.SUB</code>
+   * @param queryOptions 
+   * @return  Child stems.
+   * @throws  IllegalArgumentException if null scope.
+   * @since   1.2.1
+   */
+  public Set<Stem> getChildStems(Scope scope, QueryOptions queryOptions) 
     throws  IllegalArgumentException
   {
     if (scope == null) { // TODO 20070815 ParameterHelper
       throw new IllegalArgumentException("null Scope");
     }
     Set<Stem> stems = new LinkedHashSet();
-    for ( Stem child : GrouperDAOFactory.getFactory().getStem().findAllChildStems( this, scope ) ) {
+    for ( Stem child : GrouperDAOFactory.getFactory().getStem().findAllChildStems( this, scope, queryOptions ) ) {
       stems.add(child);
     }
     return stems;
@@ -1774,7 +1801,9 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
   public Group internal_addChildGroup(final String extn, final String dExtn, final String uuid, final TypeOfGroup typeOfGroup) 
     throws GroupAddException, InsufficientPrivilegeException {
 
-    Set types = new LinkedHashSet<GroupType>();
+    Set types = null;
+    
+    types = new LinkedHashSet<GroupType>();
     try {
       types.add(GroupTypeFinder.find("base", true));
     } catch (SchemaException e) {
@@ -1890,10 +1919,21 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
 
               
               if (!hibernateHandlerBean.isCallerWillCreateAudit()) {
-                AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.GROUP_ADD, "id", 
-                    _g.getUuid(), "name", _g.getName(), "parentStemId", Stem.this.getUuid(), "displayName", 
-                    _g.getDisplayName(), "description", _g.getDescription());
-                auditEntry.setDescription("Added group: " + _g.getName());
+                AuditEntry auditEntry = null;
+                
+                if (typeOfGroup == TypeOfGroup.entity) {
+                  auditEntry = new AuditEntry(AuditTypeBuiltin.ENTITY_ADD, "id", 
+                      _g.getUuid(), "name", _g.getName(), "parentStemId", Stem.this.getUuid(), "displayName", 
+                      _g.getDisplayName(), "description", _g.getDescription());
+                  auditEntry.setDescription("Added entity: " + _g.getName());
+                  
+                } else {
+                  auditEntry = new AuditEntry(AuditTypeBuiltin.GROUP_ADD, "id", 
+                      _g.getUuid(), "name", _g.getName(), "parentStemId", Stem.this.getUuid(), "displayName", 
+                      _g.getDisplayName(), "description", _g.getDescription());
+                  auditEntry.setDescription("Added group: " + _g.getName());
+                  
+                }
                 auditEntry.saveOrUpdate(true);
               }
               
@@ -2220,12 +2260,17 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
       );
 
       // Now optionally grant other privs
-      this._grantOptionalPrivUponCreate( g, AccessPrivilege.ADMIN, GrouperConfig.GCGAA );
-      this._grantOptionalPrivUponCreate( g, AccessPrivilege.OPTIN, GrouperConfig.GCGAOI );
-      this._grantOptionalPrivUponCreate( g, AccessPrivilege.OPTOUT, GrouperConfig.GCGAOO );
-      this._grantOptionalPrivUponCreate( g, AccessPrivilege.READ, GrouperConfig.GCGAR );
-      this._grantOptionalPrivUponCreate( g, AccessPrivilege.UPDATE, GrouperConfig.GCGAU );
-      this._grantOptionalPrivUponCreate( g, AccessPrivilege.VIEW, GrouperConfig.GCGAV );
+      if (g.getTypeOfGroup() != TypeOfGroup.entity) {
+        this._grantOptionalPrivUponCreate( g, AccessPrivilege.ADMIN, GrouperConfig.GCGAA );
+        this._grantOptionalPrivUponCreate( g, AccessPrivilege.VIEW, GrouperConfig.GCGAV );
+        this._grantOptionalPrivUponCreate( g, AccessPrivilege.OPTIN, GrouperConfig.GCGAOI );
+        this._grantOptionalPrivUponCreate( g, AccessPrivilege.OPTOUT, GrouperConfig.GCGAOO );
+        this._grantOptionalPrivUponCreate( g, AccessPrivilege.READ, GrouperConfig.GCGAR );
+        this._grantOptionalPrivUponCreate( g, AccessPrivilege.UPDATE, GrouperConfig.GCGAU );
+      }
+      if (g.getTypeOfGroup() == TypeOfGroup.entity) {
+        this._grantOptionalPrivUponCreate( g, AccessPrivilege.VIEW, "entities.create.grant.all.view" );
+      }
     }
     catch (GrantPrivilegeException eGP)         {
       throw new GroupAddException(eGP.getMessage(), eGP);
@@ -2435,15 +2480,13 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
   private Set _renameChildren(boolean nameChange, boolean displayNameChange, boolean setAlternateName)
     throws  StemModifyException {
     
-    // rename attributeDef and attributeDefName
-    _renameAttr(nameChange, displayNameChange);
-    
-    // rename child groups and stems
+    // rename child groups, stems, attributeDefs, and attributeDefNames
     Set     children    = new LinkedHashSet();
     String  modifier    = GrouperSession.staticGrouperSession().getMember().getUuid();
     long    modifyTime  = new Date().getTime();
-    children.addAll(this._renameChildStemsAndGroups(nameChange, displayNameChange, modifier, modifyTime, setAlternateName));
+    children.addAll(this._renameAttr(nameChange, displayNameChange));
     children.addAll(this._renameChildGroups(nameChange, displayNameChange, modifier, modifyTime, setAlternateName));
+    children.addAll(this._renameChildStemsAndGroups(nameChange, displayNameChange, modifier, modifyTime, setAlternateName));
     return children;
   } 
 
@@ -2474,13 +2517,15 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
         child.setNameDb(U.constructName(this.getNameDb(), child.getExtensionDb()));
       }
       
-      // rename attributeDef and attributeDefName
-      child._renameAttr(nameChange, displayNameChange);
-
-      children.addAll(child._renameChildGroups(nameChange, displayNameChange, modifier, modifyTime, setAlternateName));
+      // rename child stem
       child.setModifierUuid(modifier);
       child.setModifyTimeLong(modifyTime);
       children.add(child);
+      
+      // rename attributeDef and attributeDefName
+      children.addAll(child._renameAttr(nameChange, displayNameChange));
+
+      children.addAll(child._renameChildGroups(nameChange, displayNameChange, modifier, modifyTime, setAlternateName));
       children.addAll(child._renameChildStemsAndGroups(nameChange, displayNameChange, modifier, modifyTime, setAlternateName));
     }
     return children;
@@ -2491,9 +2536,11 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
    * @param nameChange
    * @param displayNameChange
    */
-  private void _renameAttr(boolean nameChange, boolean displayNameChange) {
+  private Set<GrouperAPI> _renameAttr(boolean nameChange, boolean displayNameChange) {
+    Set<GrouperAPI> children  = new LinkedHashSet();
+
     if (!nameChange && !displayNameChange) {
-      return;
+      return children;
     }
     
     Set<AttributeDefName> attributeDefNames = GrouperDAOFactory.getFactory().getAttributeDefName().findByStem(this.getUuid());
@@ -2509,7 +2556,7 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
         attributeDefName.setDisplayNameDb(this.getDisplayName() + ":" + attributeDefName.getDisplayExtensionDb());
       }
       
-      GrouperDAOFactory.getFactory().getAttributeDefName().saveOrUpdate(attributeDefName);
+      children.add(attributeDefName);
     }
     
     if (nameChange) {
@@ -2518,9 +2565,11 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
       while (attributeDefIter.hasNext()) {
         AttributeDef attributeDef = attributeDefIter.next();
         attributeDef.setNameDb(this.getName() + ":" + attributeDef.getExtensionDb());
-        GrouperDAOFactory.getFactory().getAttributeDef().saveOrUpdate(attributeDef);
+        children.add(attributeDef);
       }
     }
+    
+    return children;
   }
 
 
@@ -2957,6 +3006,24 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
   public void onPreUpdate(HibernateSession hibernateSession) {
     super.onPreUpdate(hibernateSession);
     
+    GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.STEM, 
+        StemHooks.METHOD_STEM_PRE_UPDATE, HooksStemBean.class, 
+        this, Stem.class, VetoTypeGrouper.STEM_PRE_UPDATE, false, false);
+    
+    //change log into temp table
+    ChangeLogEntry.saveTempUpdates(ChangeLogTypeBuiltin.STEM_UPDATE, 
+        this, this.dbVersion(),
+        GrouperUtil.toList(ChangeLogLabels.STEM_UPDATE.id.name(),this.getUuid(), 
+            ChangeLogLabels.STEM_UPDATE.name.name(), this.getName(),
+            ChangeLogLabels.STEM_UPDATE.parentStemId.name(), this.getParentUuid(),
+            ChangeLogLabels.STEM_UPDATE.displayName.name(), this.getDisplayName(),
+            ChangeLogLabels.STEM_UPDATE.description.name(), this.getDescription()),
+        GrouperUtil.toList(FIELD_NAME, FIELD_PARENT_UUID, FIELD_DESCRIPTION, FIELD_DISPLAY_EXTENSION),
+        GrouperUtil.toList(ChangeLogLabels.STEM_UPDATE.name.name(),
+            ChangeLogLabels.STEM_UPDATE.parentStemId.name(), 
+            ChangeLogLabels.STEM_UPDATE.description.name(), 
+            ChangeLogLabels.STEM_UPDATE.displayExtension.name()));
+    
     //if supposed to not have setters do queries
     Boolean inOnPreUpdateBoolean = inOnPreUpdate.get();
     try {
@@ -2979,7 +3046,7 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
         
         if (nameChange || displayNameChange) {
           // Now iterate through all child groups and stems, renaming each.
-          GrouperDAOFactory.getFactory().getStem().renameStemAndChildren(Stem.this, 
+          GrouperDAOFactory.getFactory().getStem().renameStemAndChildren(
               Stem.this._renameChildren(nameChange, displayNameChange, Stem.this.setAlternateNameOnMovesAndRenames));
         }
         
@@ -2995,25 +3062,6 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
         inOnPreUpdate.remove();
       }
     }
-    
-    GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.STEM, 
-        StemHooks.METHOD_STEM_PRE_UPDATE, HooksStemBean.class, 
-        this, Stem.class, VetoTypeGrouper.STEM_PRE_UPDATE, false, false);
-    
-    //change log into temp table
-    ChangeLogEntry.saveTempUpdates(ChangeLogTypeBuiltin.STEM_UPDATE, 
-        this, this.dbVersion(),
-        GrouperUtil.toList(ChangeLogLabels.STEM_UPDATE.id.name(),this.getUuid(), 
-            ChangeLogLabels.STEM_UPDATE.name.name(), this.getName(),
-            ChangeLogLabels.STEM_UPDATE.parentStemId.name(), this.getParentUuid(),
-            ChangeLogLabels.STEM_UPDATE.displayName.name(), this.getDisplayName(),
-            ChangeLogLabels.STEM_UPDATE.description.name(), this.getDescription()),
-        GrouperUtil.toList(FIELD_NAME, FIELD_PARENT_UUID, FIELD_DESCRIPTION, FIELD_DISPLAY_EXTENSION),
-        GrouperUtil.toList(ChangeLogLabels.STEM_UPDATE.name.name(),
-            ChangeLogLabels.STEM_UPDATE.parentStemId.name(), 
-            ChangeLogLabels.STEM_UPDATE.description.name(), 
-            ChangeLogLabels.STEM_UPDATE.displayExtension.name()));    
-    
   }
 
   /**
@@ -3556,6 +3604,47 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
       
   }
 
+  /**
+   * Add a new role to the registry.
+   * <pre class="eg">
+   * // Add a role with the extension "edu" beneath this stem.
+   * try {
+   *   Group edu = ns.addChildEntity("edu", "edu domain");
+   * }
+   * catch (GroupAddException eGA) {
+   *   // Group not added
+   * }
+   * catch (InsufficientPrivilegeException eIP) {
+   *   // Not privileged to add group
+   * }
+   * </pre>
+   * @param   extension         Entity extension
+   * @param   displayExtension  Entity displayExtension
+   * @param uuid is uuid or null if generated
+   * @return  The added {@link Role}
+   * @throws  GroupAddException 
+   * @throws  InsufficientPrivilegeException
+   */
+  public Role internal_addChildEntity(final String extension, final String displayExtension, final String uuid) 
+    throws  GroupAddException,
+            InsufficientPrivilegeException  {
+    
+    return (Group)HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
+      public Object callback(HibernateHandlerBean hibernateHandlerBean)
+          throws GrouperDAOException {
+
+        hibernateHandlerBean.getHibernateSession().setCachingEnabled(false);
+
+        //note, roles are modeled as groups
+        Group group = Stem.this.internal_addChildGroup(extension, displayExtension, uuid, TypeOfGroup.entity);
+        
+        return group;
+      }
+      
+    });
+      
+  }
+
 
   /**
    * 
@@ -3723,6 +3812,115 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
    */
   public String xmlToString() {
     return "Stem: " + this.uuid + ", " + this.name;
+  }
+
+
+  /**
+   * Delete this stem from the Groups Registry including all sub objects.
+   * <pre class="eg">
+   * try {
+   *   ns.delete();
+   * }
+   * catch (InsufficientPrivilegeException eIP) {
+   *   // not privileged to delete stem
+   * }
+   * catch (StemDeleteException eSD) {
+   *   // unable to delete stem
+   * }
+   * </pre>
+   * @param printOutput 
+   * @param testOnly 
+   * @throws  InsufficientPrivilegeException
+   * @throws  StemDeleteException
+   */
+  public void obliterate(final boolean printOutput, final boolean testOnly) throws InsufficientPrivilegeException, StemDeleteException {
+    
+    if (printOutput) {
+      if (testOnly) {
+        System.out.println("Would obliterate stem: " + this.getName());
+      } else {
+        System.out.println("Obliterating stem: " + this.getName());
+      }
+    }
+    HibernateSession.callbackHibernateSession(
+        GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT,
+        new HibernateHandler() {
+  
+          public Object callback(HibernateHandlerBean hibernateHandlerBean)
+              throws GrouperDAOException {
+  
+            hibernateHandlerBean.getHibernateSession().setCachingEnabled(false);
+            
+            //obliterate all child stems
+            Set<Stem> stems = GrouperDAOFactory.getFactory().getStem().findAllChildStems(Stem.this, Scope.ONE);
+            
+            for (Stem stem : GrouperUtil.nonNull(stems)) {
+              stem.obliterate(printOutput, testOnly);
+            }
+
+            //delete all objects
+            //groups
+            Set<Group> groups = GrouperDAOFactory.getFactory().getStem().findAllChildGroups(Stem.this, Scope.ONE);
+            
+            for (Group group : GrouperUtil.nonNull(groups)) {
+              if (!testOnly) {
+                group.delete();
+              }
+              if (printOutput) {
+                if (testOnly) {
+                  System.out.println("Would be done deleting " + group.getTypeOfGroup() + ": " + group.getName());
+                } else {
+                  System.out.println("Done deleting " + group.getTypeOfGroup() + ": " + group.getName());
+                }
+              }              
+            }
+
+            Set<AttributeDefName> attributeDefNames = GrouperDAOFactory.getFactory().getAttributeDefName().findByStem(Stem.this.getUuid());
+            
+            for (AttributeDefName attributeDefName : GrouperUtil.nonNull(attributeDefNames)) {
+              if (!testOnly) {
+                attributeDefName.delete();
+              }
+              if (printOutput) {
+                if (testOnly) {
+                  System.out.println("Would be done deleting attributeDefName: " + attributeDefName.getName());
+                } else {
+                  System.out.println("Done deleting attributeDefName: " + attributeDefName.getName());
+                }
+              }              
+            }
+
+            Set<AttributeDef> attributeDefs = GrouperDAOFactory.getFactory().getAttributeDef().findByStem(Stem.this.getUuid());
+            
+            for (AttributeDef attributeDef : GrouperUtil.nonNull(attributeDefs)) {
+              if (!testOnly) {
+                attributeDef.delete();
+              }
+              if (printOutput) {
+                if (testOnly) {
+                  System.out.println("Would be done deleting attributeDef: " + attributeDef.getName());
+                } else {
+                  System.out.println("Done deleting attributeDef: " + attributeDef.getName());
+                }
+              }              
+            }
+
+            //delete stem
+            if (!testOnly) {
+              Stem.this.delete();
+            }
+            
+            return null;
+         }
+    });
+  
+    if (printOutput) {
+      if (testOnly) {
+        System.out.println("Would be done obliterating stem: " + this.getName());
+      } else {
+        System.out.println("Done obliterating stem: " + this.getName());
+      }
+    }    
   }
   
 

@@ -26,6 +26,7 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
+import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.GrouperAPI;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -54,16 +55,16 @@ public class NamingPrivilege implements GrouperPrivilege, Comparable {
   private static Map<String,Privilege> list2priv = new HashMap<String, Privilege>();
 
   static {
-    list2priv.put( "creators",  NamingPrivilege.CREATE);
-    list2priv.put( "stemmers",  NamingPrivilege.STEM);
+    list2priv.put( Field.FIELD_NAME_CREATORS,  NamingPrivilege.CREATE);
+    list2priv.put( Field.FIELD_NAME_STEMMERS,  NamingPrivilege.STEM);
   }
 
   /** convert a list to a priv */
   private static Map<Privilege, String> priv2list = new HashMap<Privilege, String>();
 
   static {
-    priv2list.put(  NamingPrivilege.CREATE , "creators"    );
-    priv2list.put(  NamingPrivilege.STEM , "stemmers"    );
+    priv2list.put(  NamingPrivilege.CREATE , Field.FIELD_NAME_CREATORS    );
+    priv2list.put(  NamingPrivilege.STEM , Field.FIELD_NAME_STEMMERS    );
   }
  
   /**

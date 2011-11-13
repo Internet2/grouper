@@ -67,7 +67,10 @@ public class SyncPITTables {
   private boolean logDetails = true;
   
   /** Whether or not to send flattened notifications */
-  private boolean sendNotifications = true;
+  private boolean sendFlattenedNotifications = true;
+
+  /** Whether or not to send permission notifications */
+  private boolean sendPermissionNotifications = true;
   
   /** Whether or not to create a report for GrouperReport */
   private boolean createReport = false;
@@ -84,8 +87,8 @@ public class SyncPITTables {
   /** whether or not to send flattened notifications for privileges */
   private boolean includeFlattenedPrivileges = GrouperLoaderConfig.getPropertyBoolean("changeLog.includeFlattenedPrivileges", true);
   
-  /** whether or not to send flattened notifications for permissions */
-  private boolean includeFlattenedPermissions = GrouperLoaderConfig.getPropertyBoolean("changeLog.includeFlattenedPermissions", true);
+  /** whether there will be notifications for roles with permission changes */ 
+  private boolean includeRolesWithPermissionChanges = GrouperLoaderConfig.getPropertyBoolean("changeLog.includeRolesWithPermissionChanges", false);
   
   /**
    * Whether or not to print out results of what's being done.  Defaults to true.
@@ -128,14 +131,26 @@ public class SyncPITTables {
   }
   
   /**
-   * Whether or not to send flattened notifications for memberships, privileges, and permissions.  
+   * Whether or not to send flattened notifications for memberships and privileges.  
    * If true, notifications will be based on configuration.  If false, notifications will not be sent
    * regardless of configuration.  Defaults to true.
    * @param sendNotifications
    * @return SyncPITTables
    */
   public SyncPITTables sendFlattenedNotifications(boolean sendNotifications) {
-    this.sendNotifications = sendNotifications;
+    this.sendFlattenedNotifications = sendNotifications;
+    return this;
+  }
+  
+  /**
+   * Whether or not to send notifications for permissions.  
+   * If true, notifications will be based on configuration.  If false, notifications will not be sent
+   * regardless of configuration.  Defaults to true.
+   * @param sendNotifications
+   * @return SyncPITTables
+   */
+  public SyncPITTables sendPermissionNotifications(boolean sendNotifications) {
+    this.sendPermissionNotifications = sendNotifications;
     return this;
   }
 
@@ -234,10 +249,13 @@ public class SyncPITTables {
           pitMembership.setContextId(mship.getContextId());
         }
         
-        if (sendNotifications) {
-          pitMembership.setFlatPermissionNotificationsOnSaveOrUpdate(includeFlattenedPermissions);
+        if (sendFlattenedNotifications) {
           pitMembership.setFlatMembershipNotificationsOnSaveOrUpdate(includeFlattenedMemberships);
           pitMembership.setFlatPrivilegeNotificationsOnSaveOrUpdate(includeFlattenedPrivileges);
+        }
+        
+        if (sendPermissionNotifications) {
+          pitMembership.setNotificationsForRolesWithPermissionChangesOnSaveOrUpdate(includeRolesWithPermissionChanges);
         }
 
         pitMembership.save();
@@ -304,8 +322,8 @@ public class SyncPITTables {
           pitAttributeAssign.setContextId(assign.getContextId());
         }
                 
-        if (sendNotifications) {
-          pitAttributeAssign.setFlatPermissionNotificationsOnSaveOrUpdate(includeFlattenedPermissions);
+        if (sendPermissionNotifications) {
+          pitAttributeAssign.setNotificationsForRolesWithPermissionChangesOnSaveOrUpdate(includeRolesWithPermissionChanges);
         }
 
         pitAttributeAssign.save();
@@ -494,8 +512,8 @@ public class SyncPITTables {
           pitAttributeDefNameSet.setContextId(attrSet.getContextId());
         }
         
-        if (sendNotifications) {
-          pitAttributeDefNameSet.setFlatPermissionNotificationsOnSaveOrUpdate(includeFlattenedPermissions);
+        if (sendPermissionNotifications) {
+          pitAttributeDefNameSet.setNotificationsForRolesWithPermissionChangesOnSaveOrUpdate(includeRolesWithPermissionChanges);
         }
         
         pitAttributeDefNameSet.saveOrUpdate();
@@ -595,8 +613,7 @@ public class SyncPITTables {
           pitGroupSet.setContextId(groupSet.getContextId());
         }
         
-        if (sendNotifications) {
-          pitGroupSet.setFlatPermissionNotificationsOnSaveOrUpdate(includeFlattenedPermissions);
+        if (sendFlattenedNotifications) {
           pitGroupSet.setFlatMembershipNotificationsOnSaveOrUpdate(includeFlattenedMemberships);
           pitGroupSet.setFlatPrivilegeNotificationsOnSaveOrUpdate(includeFlattenedPrivileges);
         }
@@ -644,8 +661,8 @@ public class SyncPITTables {
           pitRoleSet.setContextId(roleSet.getContextId());
         }
         
-        if (sendNotifications) {
-          pitRoleSet.setFlatPermissionNotificationsOnSaveOrUpdate(includeFlattenedPermissions);
+        if (sendPermissionNotifications) {
+          pitRoleSet.setNotificationsForRolesWithPermissionChangesOnSaveOrUpdate(includeRolesWithPermissionChanges);
         }
         
         pitRoleSet.saveOrUpdate();
@@ -898,8 +915,8 @@ public class SyncPITTables {
           pitAttributeAssignActionSet.setContextId(actionSet.getContextId());
         }
                 
-        if (sendNotifications) {
-          pitAttributeAssignActionSet.setFlatPermissionNotificationsOnSaveOrUpdate(includeFlattenedPermissions);
+        if (sendPermissionNotifications) {
+          pitAttributeAssignActionSet.setNotificationsForRolesWithPermissionChangesOnSaveOrUpdate(includeRolesWithPermissionChanges);
         }
 
         pitAttributeAssignActionSet.saveOrUpdate();
@@ -937,10 +954,13 @@ public class SyncPITTables {
         mship.setActiveDb("F");
         mship.setContextId(null);
 
-        if (sendNotifications) {
-          mship.setFlatPermissionNotificationsOnSaveOrUpdate(includeFlattenedPermissions);
+        if (sendFlattenedNotifications) {
           mship.setFlatMembershipNotificationsOnSaveOrUpdate(includeFlattenedMemberships);
           mship.setFlatPrivilegeNotificationsOnSaveOrUpdate(includeFlattenedPrivileges);
+        }
+        
+        if (sendPermissionNotifications) {
+          mship.setNotificationsForRolesWithPermissionChangesOnSaveOrUpdate(includeRolesWithPermissionChanges);
         }
         
         mship.update();
@@ -977,8 +997,8 @@ public class SyncPITTables {
         assign.setActiveDb("F");
         assign.setContextId(null);
 
-        if (sendNotifications) {
-          assign.setFlatPermissionNotificationsOnSaveOrUpdate(includeFlattenedPermissions);
+        if (sendPermissionNotifications) {
+          assign.setNotificationsForRolesWithPermissionChangesOnSaveOrUpdate(includeRolesWithPermissionChanges);
         }
         
         assign.update();
@@ -1117,8 +1137,8 @@ public class SyncPITTables {
         attrSet.setActiveDb("F");
         attrSet.setContextId(null);
         
-        if (sendNotifications) {
-          attrSet.setFlatPermissionNotificationsOnSaveOrUpdate(includeFlattenedPermissions);
+        if (sendPermissionNotifications) {
+          attrSet.setNotificationsForRolesWithPermissionChangesOnSaveOrUpdate(includeRolesWithPermissionChanges);
         }
         
         attrSet.saveOrUpdate();        
@@ -1190,8 +1210,7 @@ public class SyncPITTables {
         groupSet.setContextId(null);
         
         
-        if (sendNotifications) {
-          groupSet.setFlatPermissionNotificationsOnSaveOrUpdate(includeFlattenedPermissions);
+        if (sendFlattenedNotifications) {
           groupSet.setFlatMembershipNotificationsOnSaveOrUpdate(includeFlattenedMemberships);
           groupSet.setFlatPrivilegeNotificationsOnSaveOrUpdate(includeFlattenedPrivileges);
         }
@@ -1230,8 +1249,8 @@ public class SyncPITTables {
         roleSet.setActiveDb("F");
         roleSet.setContextId(null);
         
-        if (sendNotifications) {
-          roleSet.setFlatPermissionNotificationsOnSaveOrUpdate(includeFlattenedPermissions);
+        if (sendPermissionNotifications) {
+          roleSet.setNotificationsForRolesWithPermissionChangesOnSaveOrUpdate(includeRolesWithPermissionChanges);
         }
         
         roleSet.saveOrUpdate();     
@@ -1404,8 +1423,8 @@ public class SyncPITTables {
         actionSet.setActiveDb("F");
         actionSet.setContextId(null);
 
-        if (sendNotifications) {
-          actionSet.setFlatPermissionNotificationsOnSaveOrUpdate(includeFlattenedPermissions);
+        if (sendPermissionNotifications) {
+          actionSet.setNotificationsForRolesWithPermissionChangesOnSaveOrUpdate(includeRolesWithPermissionChanges);
         }
         
         actionSet.saveOrUpdate();

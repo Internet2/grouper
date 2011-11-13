@@ -467,6 +467,8 @@ return groupSets;
                  "where g.uuid = gtt.groupUuid " +
                  "and gtt.typeUuid = f.groupTypeUuid " +
                  "and (f.typeString = 'list' or f.typeString = 'access') " +
+                 //for entities, dont put in group sets for members, optins, optouts, updaters, readers
+                 "and (g.typeOfGroupDb != 'entity' or (f.name = 'admins' or f.name = 'viewers')) " +
                  "and not exists " +
                  "(select gs.ownerGroupId from GroupSet as gs where gs.ownerGroupId = g.id and gs.fieldId = f.uuid and gs.depth='0')";
     

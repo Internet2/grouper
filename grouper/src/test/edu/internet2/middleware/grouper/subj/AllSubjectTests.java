@@ -20,6 +20,7 @@ public class AllSubjectTests {
     suite.addTestSuite(Test_subj_CachingResolver.class);
     suite.addTestSuite(Test_subj_SubjectResolver.class);
     suite.addTestSuite(Test_I_API_RegistrySubject_delete.class);
+    suite.addTestSuite(TestSubjectDecorator.class);
     suite.addTestSuite(TestSubjectFinder.class);
     suite.addTestSuite(TestSubject.class);
     suite.addTestSuite(TestInternalSourceAdapter.class);

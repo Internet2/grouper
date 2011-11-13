@@ -1,6 +1,8 @@
 package edu.internet2.middleware.grouper.ws.status;
 
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -16,14 +18,18 @@ import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GroupTypeFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
+import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderType;
+import edu.internet2.middleware.grouper.app.loader.ldap.LoaderLdapUtils;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.GrouperWsConfig;
 import edu.internet2.middleware.grouper.ws.rest.GrouperRestInvalidRequest;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
@@ -46,7 +52,7 @@ public enum DiagnosticType {
      * @see DiagnosticType#appendDiagnostics(List)
      */
     @Override
-    public void appendDiagnostics(List<DiagnosticTask> diagnosticsTasks) {
+    public void appendDiagnostics(Set<DiagnosticTask> diagnosticsTasks) {
       diagnosticsTasks.add(new DiagnosticMemoryTest());
     }
   },
@@ -60,7 +66,7 @@ public enum DiagnosticType {
      * @see DiagnosticType#appendDiagnostics(List)
      */
     @Override
-    public void appendDiagnostics(List<DiagnosticTask> diagnosticsTasks) {
+    public void appendDiagnostics(Set<DiagnosticTask> diagnosticsTasks) {
       TRIVIAL.appendDiagnostics(diagnosticsTasks);
       diagnosticsTasks.add(new DiagnosticDbTest());
     }
@@ -75,7 +81,7 @@ public enum DiagnosticType {
      * @see DiagnosticType#appendDiagnostics(List)
      */
     @Override
-    public void appendDiagnostics(List<DiagnosticTask> diagnosticsTasks) {
+    public void appendDiagnostics(Set<DiagnosticTask> diagnosticsTasks) {
       DB.appendDiagnostics(diagnosticsTasks);
 
       Collection<Source> sources = SourceManager.getInstance().getSources();
@@ -99,12 +105,17 @@ public enum DiagnosticType {
      */
     @SuppressWarnings("unchecked")
     @Override
-    public void appendDiagnostics(List<DiagnosticTask> diagnosticsTasks) {
+    public void appendDiagnostics(Set<DiagnosticTask> diagnosticsTasks) {
       SOURCES.appendDiagnostics(diagnosticsTasks);
       
       diagnosticsTasks.add(new DiagnosticLoaderJobTest("CHANGE_LOG_changeLogTempToChangeLog", GrouperLoaderType.CHANGE_LOG));
 
-      diagnosticsTasks.add(new DiagnosticLoaderJobTest("MAINTENANCE__grouperReport", GrouperLoaderType.MAINTENANCE));
+      String emailTo = GrouperLoaderConfig.getPropertyString("daily.report.emailTo");
+      String reportDirectory = GrouperLoaderConfig.getPropertyString("daily.report.saveInDirectory");
+      
+      if (!StringUtils.isBlank(emailTo) ||  !StringUtils.isBlank(reportDirectory)) {
+        diagnosticsTasks.add(new DiagnosticLoaderJobTest("MAINTENANCE__grouperReport", GrouperLoaderType.MAINTENANCE));
+      }
       diagnosticsTasks.add(new DiagnosticLoaderJobTest("MAINTENANCE_cleanLogs", GrouperLoaderType.MAINTENANCE));
 
       {
@@ -195,6 +206,47 @@ public enum DiagnosticType {
       }
       
       {
+        AttributeDefName ldapLoaderAttributeDefName = LoaderLdapUtils.grouperLoaderLdapAttributeDefName(false);
+        if (ldapLoaderAttributeDefName != null) {
+          
+          //lets get the groups which have this type
+          Set<DiagnosticLoaderJobTest> diagnosticLoaderJobTests = sourceCache.get(GrouperLoaderType.LDAP_SIMPLE);
+          
+          if (diagnosticLoaderJobTests == null) {
+  
+            diagnosticLoaderJobTests = new LinkedHashSet<DiagnosticLoaderJobTest>();
+            Set<AttributeAssign> attributeAssigns = GrouperDAOFactory.getFactory().getAttributeAssign().findGroupAttributeAssignments(null, null, GrouperUtil.toSet(ldapLoaderAttributeDefName.getId()), null, null, true, false);
+  
+            for (AttributeAssign attributeAssign : attributeAssigns) {
+              
+              Group group = attributeAssign.getOwnerGroup();
+
+              //lets get all attribute values
+              String grouperLoaderType = attributeAssign.getAttributeValueDelegate().retrieveValueString(LoaderLdapUtils.grouperLoaderLdapTypeName());
+               
+              GrouperLoaderType grouperLoaderTypeEnum = GrouperLoaderType.valueOfIgnoreCase(grouperLoaderType, true);
+       
+              String jobName = grouperLoaderTypeEnum.name() + "__" + group.getName() + "__" + group.getUuid();
+              
+              DiagnosticLoaderJobTest diagnosticLoaderJobTest = new DiagnosticLoaderJobTest(jobName, grouperLoaderTypeEnum);
+              
+              diagnosticLoaderJobTests.add(diagnosticLoaderJobTest);
+              
+            }
+ 
+            //diagnosticsTasks.add(new DiagnosticLoaderJobTest("ATTR_SQL_SIMPLE__penn:community:employee:orgPermissions:orgs__092bd6259d814b5db665f2f0f4ca7dc6", GrouperLoaderType.ATTR_SQL_SIMPLE));
+            sourceCache.put(GrouperLoaderType.LDAP_SIMPLE, diagnosticLoaderJobTests);
+            
+          }
+  
+          for (DiagnosticLoaderJobTest diagnosticLoaderJobTest : diagnosticLoaderJobTests) {
+            
+             diagnosticsTasks.add(diagnosticLoaderJobTest);
+          }
+        }
+      }
+      
+      {
         //do min size groups
         Pattern groupNamePattern = Pattern.compile("^ws\\.diagnostic\\.checkGroupSize\\.(.+)\\.groupName$");
         
@@ -224,7 +276,7 @@ public enum DiagnosticType {
    * append the diagnostics for this tasks
    * @param diagnosticsTasks
    */
-  public abstract void appendDiagnostics(List<DiagnosticTask> diagnosticsTasks);
+  public abstract void appendDiagnostics(Set<DiagnosticTask> diagnosticsTasks);
   
   /**
    * do a case-insensitive matching

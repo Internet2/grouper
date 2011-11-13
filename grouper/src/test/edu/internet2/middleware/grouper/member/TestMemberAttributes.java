@@ -6,6 +6,7 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.cache.GrouperCacheUtils;
 import edu.internet2.middleware.grouper.cfg.ApiConfig;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
@@ -34,8 +35,8 @@ public class TestMemberAttributes extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    //TestRunner.run(new TestMemberAttributes("testPersonMember"));
-    TestRunner.run(TestMemberAttributes.class);
+    TestRunner.run(new TestMemberAttributes("testPersonMember"));
+    //TestRunner.run(TestMemberAttributes.class);
   }
   
   /** top level stems */
@@ -155,6 +156,14 @@ public class TestMemberAttributes extends GrouperTest {
     // member record should get corrected by this
     SubjectFinder.flushCache();
     SubjectFinder.findById(subj.getId(), true);
+    
+    try {
+      Thread.sleep(100);
+    } catch (InterruptedException e) {
+      // ignore
+    }
+    
+    GrouperCacheUtils.clearAllCaches();
     
     member = GrouperDAOFactory.getFactory().getMember().findBySubject(subj, true);
     assertEquals(subj.getAttributeValue("LFNAME"), member.getSortString0());
@@ -311,7 +320,7 @@ public class TestMemberAttributes extends GrouperTest {
     assertEquals(group.getName(), member.getName());
     assertNull(member.getDescription());
     
-    assertEquals(group.getName(), member.getSortString0());
+    assertEquals(group.getDisplayExtension(), member.getSortString0());
     assertNull(member.getSortString1());
     assertNull(member.getSortString2());
     assertNull(member.getSortString3());
@@ -358,7 +367,7 @@ public class TestMemberAttributes extends GrouperTest {
     assertEquals(group.getName(), member.getName());
     assertNull(member.getDescription());
     
-    assertEquals(group.getName(), member.getSortString0());
+    assertEquals(group.getDisplayExtension(), member.getSortString0());
     assertEquals("test1", member.getSortString1());
     assertEquals("test2", member.getSortString2());
     assertEquals("test3", member.getSortString3());
@@ -403,7 +412,7 @@ public class TestMemberAttributes extends GrouperTest {
     assertEquals(group.getName(), member.getName());
     assertEquals(group.getDescription(), member.getDescription());
     
-    assertEquals(group.getName(), member.getSortString0());
+    assertEquals(group.getDisplayExtension(), member.getSortString0());
     assertNull(member.getSortString1());
     assertNull(member.getSortString2());
     assertNull(member.getSortString3());
@@ -427,7 +436,7 @@ public class TestMemberAttributes extends GrouperTest {
     assertEquals(group.getName(), member.getName());
     assertNull(member.getDescription());
     
-    assertEquals(group.getName(), member.getSortString0());
+    assertEquals(group.getDisplayExtension(), member.getSortString0());
     assertNull(member.getSortString1());
     assertNull(member.getSortString2());
     assertNull(member.getSortString3());
@@ -451,7 +460,7 @@ public class TestMemberAttributes extends GrouperTest {
     assertEquals(group.getName(), member.getName());
     assertNull(member.getDescription());
     
-    assertEquals(group.getName(), member.getSortString0());
+    assertEquals(group.getDisplayExtension(), member.getSortString0());
     assertNull(member.getSortString1());
     assertNull(member.getSortString2());
     assertNull(member.getSortString3());
@@ -474,7 +483,7 @@ public class TestMemberAttributes extends GrouperTest {
     assertEquals(group.getName(), member.getName());
     assertNull(member.getDescription());
     
-    assertEquals(group.getName(), member.getSortString0());
+    assertEquals(group.getDisplayExtension(), member.getSortString0());
     assertNull(member.getSortString1());
     assertNull(member.getSortString2());
     assertNull(member.getSortString3());
@@ -499,12 +508,37 @@ public class TestMemberAttributes extends GrouperTest {
     assertEquals(group.getName(), member.getName());
     assertNull(member.getDescription());
     
-    assertEquals(group.getName(), member.getSortString0());
+    assertEquals(group.getDisplayExtension(), member.getSortString0());
     assertNull(member.getSortString1());
     assertNull(member.getSortString2());
     assertNull(member.getSortString3());
     assertNull(member.getSortString4());
     assertEquals(group.getName().toLowerCase() + "," + group.getDisplayName().toLowerCase() + "," + group.getAlternateNameDb().toLowerCase(), member.getSearchString0());
+    assertNull(member.getSearchString1());
+    assertNull(member.getSearchString2());
+    assertNull(member.getSearchString3());
+    assertNull(member.getSearchString4());
+  }
+
+  /**
+   * 
+   */
+  public void testStemDisplayExtensionUpdate() {
+    Group group = edu.addChildGroup("Test", "Test Display");
+    edu.setDisplayExtension("edu3");
+    edu.store();
+    group = GrouperDAOFactory.getFactory().getGroup().findByUuid(group.getId(), true);
+    Member member = GrouperDAOFactory.getFactory().getMember().findBySubject(group.getId(), true);
+    
+    assertEquals(group.getName(), member.getName());
+    assertNull(member.getDescription());
+    
+    assertEquals(group.getDisplayExtension(), member.getSortString0());
+    assertNull(member.getSortString1());
+    assertNull(member.getSortString2());
+    assertNull(member.getSortString3());
+    assertNull(member.getSortString4());
+    assertEquals(group.getName().toLowerCase() + "," + group.getDisplayName().toLowerCase() + ",", member.getSearchString0());
     assertNull(member.getSearchString1());
     assertNull(member.getSearchString2());
     assertNull(member.getSearchString3());
@@ -553,12 +587,12 @@ public class TestMemberAttributes extends GrouperTest {
         group.getId(), Group.getDefaultList(), null, null, null, true, 
         SortStringEnum.getDefaultSortString(), SearchStringEnum.getDefaultSearchString(), "Test").toArray(new Member[0]);
     assertEquals(6, members.length);
-    assertEquals(group2.getName(), members[0].getName());
-    assertEquals(SubjectTestHelper.SUBJ0.getName(), members[1].getName());
-    assertEquals(SubjectTestHelper.SUBJ1.getName(), members[2].getName());
-    assertEquals(SubjectTestHelper.SUBJ2.getName(), members[3].getName());
-    assertEquals(SubjectTestHelper.SUBJ3.getName(), members[4].getName());
-    assertEquals(SubjectTestHelper.SUBJ4.getName(), members[5].getName());
+    assertEquals(group2.getName(), members[5].getName());
+    assertEquals(SubjectTestHelper.SUBJ0.getName(), members[0].getName());
+    assertEquals(SubjectTestHelper.SUBJ1.getName(), members[1].getName());
+    assertEquals(SubjectTestHelper.SUBJ2.getName(), members[2].getName());
+    assertEquals(SubjectTestHelper.SUBJ3.getName(), members[3].getName());
+    assertEquals(SubjectTestHelper.SUBJ4.getName(), members[4].getName());
     
     // this should return the people and the group too
     members = GrouperDAOFactory.getFactory().getMembership().findAllMembersByOwnerAndFieldAndType(
@@ -571,12 +605,12 @@ public class TestMemberAttributes extends GrouperTest {
         group.getId(), Group.getDefaultList(), null, null, null, true, 
         SortStringEnum.getDefaultSortString(), SearchStringEnum.SEARCH_STRING_1, null).toArray(new Member[0]);
     assertEquals(6, members.length);
-    assertEquals(group2.getName(), members[0].getName());
-    assertEquals(SubjectTestHelper.SUBJ0.getName(), members[1].getName());
-    assertEquals(SubjectTestHelper.SUBJ1.getName(), members[2].getName());
-    assertEquals(SubjectTestHelper.SUBJ2.getName(), members[3].getName());
-    assertEquals(SubjectTestHelper.SUBJ3.getName(), members[4].getName());
-    assertEquals(SubjectTestHelper.SUBJ4.getName(), members[5].getName());
+    assertEquals(group2.getName(), members[5].getName());
+    assertEquals(SubjectTestHelper.SUBJ0.getName(), members[0].getName());
+    assertEquals(SubjectTestHelper.SUBJ1.getName(), members[1].getName());
+    assertEquals(SubjectTestHelper.SUBJ2.getName(), members[2].getName());
+    assertEquals(SubjectTestHelper.SUBJ3.getName(), members[3].getName());
+    assertEquals(SubjectTestHelper.SUBJ4.getName(), members[4].getName());
     
     // use query sort this time - asc
     QueryOptions queryOptions = new QueryOptions();
@@ -586,12 +620,12 @@ public class TestMemberAttributes extends GrouperTest {
         group.getId(), Group.getDefaultList(), null, null, queryOptions, true, 
         null, SearchStringEnum.getDefaultSearchString(), "Test").toArray(new Member[0]);
     assertEquals(6, members.length);
-    assertEquals(group2.getName(), members[0].getName());
-    assertEquals(SubjectTestHelper.SUBJ0.getName(), members[1].getName());
-    assertEquals(SubjectTestHelper.SUBJ1.getName(), members[2].getName());
-    assertEquals(SubjectTestHelper.SUBJ2.getName(), members[3].getName());
-    assertEquals(SubjectTestHelper.SUBJ3.getName(), members[4].getName());
-    assertEquals(SubjectTestHelper.SUBJ4.getName(), members[5].getName());
+    assertEquals(group2.getName(), members[5].getName());
+    assertEquals(SubjectTestHelper.SUBJ0.getName(), members[0].getName());
+    assertEquals(SubjectTestHelper.SUBJ1.getName(), members[1].getName());
+    assertEquals(SubjectTestHelper.SUBJ2.getName(), members[2].getName());
+    assertEquals(SubjectTestHelper.SUBJ3.getName(), members[3].getName());
+    assertEquals(SubjectTestHelper.SUBJ4.getName(), members[4].getName());
     
     // use query sort this time - desc
     queryOptions = new QueryOptions();
@@ -601,12 +635,12 @@ public class TestMemberAttributes extends GrouperTest {
         group.getId(), Group.getDefaultList(), null, null, queryOptions, true, 
         null, SearchStringEnum.getDefaultSearchString(), "Test").toArray(new Member[0]);
     assertEquals(6, members.length);
-    assertEquals(group2.getName(), members[5].getName());
-    assertEquals(SubjectTestHelper.SUBJ0.getName(), members[4].getName());
-    assertEquals(SubjectTestHelper.SUBJ1.getName(), members[3].getName());
-    assertEquals(SubjectTestHelper.SUBJ2.getName(), members[2].getName());
-    assertEquals(SubjectTestHelper.SUBJ3.getName(), members[1].getName());
-    assertEquals(SubjectTestHelper.SUBJ4.getName(), members[0].getName());
+    assertEquals(group2.getName(), members[0].getName());
+    assertEquals(SubjectTestHelper.SUBJ0.getName(), members[5].getName());
+    assertEquals(SubjectTestHelper.SUBJ1.getName(), members[4].getName());
+    assertEquals(SubjectTestHelper.SUBJ2.getName(), members[3].getName());
+    assertEquals(SubjectTestHelper.SUBJ3.getName(), members[2].getName());
+    assertEquals(SubjectTestHelper.SUBJ4.getName(), members[1].getName());
   }
   
   /**

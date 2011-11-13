@@ -17,10 +17,10 @@
 
   <!-- filtered group data connector -->
   <resolver:DataConnector id="filteredGroupDataConnector" xsi:type="grouper:GroupDataConnector">
-    <grouper:GroupFilter xsi:type="grouper:Minus">
-      <grouper:GroupFilter xsi:type="grouper:StemName" name="edu" scope="SUB" />
-      <grouper:GroupFilter xsi:type="grouper:ExactAttribute" name="extension" value="groupD" />
-    </grouper:GroupFilter>
+    <grouper:Filter xsi:type="grouper:Minus">
+      <grouper:Filter xsi:type="grouper:GroupInStem" name="edu" scope="SUB" />
+      <grouper:Filter xsi:type="grouper:GroupExactAttribute" name="extension" value="groupD" />
+    </grouper:Filter>
   </resolver:DataConnector>
 
   <resolver:AttributeDefinition xsi:type="Script" xmlns="urn:mace:shibboleth:2.0:resolver:ad" id="sAMAccountName" sourceAttributeID="name">

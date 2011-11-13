@@ -1172,6 +1172,13 @@ public class GrouperClient {
       wsGroupToSave.setSaveMode(saveMode);
     }
     
+    //save mode
+    String typeOfGroup = GrouperClientUtils.argMapString(argMap, 
+        argMapNotUsed, "typeOfGroup", false);
+    if (typeOfGroup != null) {
+      wsGroup.setTypeOfGroup(typeOfGroup);
+    }
+    
     String description = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "description", false);
     if (!GrouperClientUtils.isBlank(description)) {
       wsGroup.setDescription(description);
@@ -1702,6 +1709,10 @@ public class GrouperClient {
         "groupUuid" + suffix, false);
     result.setGroupUuid(groupUuid);
   
+    String typeOfGroups = GrouperClientUtils.argMapString(argMap, argMapNotUsed, 
+        "typeOfGroups" + suffix, false);
+    result.setTypeOfGroups(typeOfGroups);
+  
     WsQueryFilter queryFilter0 = retrieveQueryFilterFromArgs(argMap, 
         argMapNotUsed, suffix + "0", false);
     result.setQueryFilter0(queryFilter0);
@@ -1717,7 +1728,29 @@ public class GrouperClient {
     String stemNameScope = GrouperClientUtils.argMapString(argMap, argMapNotUsed, 
         "stemNameScope" + suffix, false);
     result.setStemNameScope(stemNameScope);
+
+    Boolean ascending = GrouperClientUtils.argMapBoolean(argMap, argMapNotUsed, 
+       "ascending" + suffix);
+    if (ascending != null) {
+      result.setAscending(ascending ? "T" : "F");
+    }
+     
+    String sortString = GrouperClientUtils.argMapString(argMap, argMapNotUsed, 
+        "sortString" + suffix, false);
+    result.setSortString(sortString);
     
+    Integer pageNumber = GrouperClientUtils.argMapInteger(argMap, argMapNotUsed, 
+        "pageNumber" + suffix, false, null);
+    if (pageNumber != null) {
+      result.setPageNumber(pageNumber.toString());
+    }
+    
+    Integer pageSize = GrouperClientUtils.argMapInteger(argMap, argMapNotUsed, 
+        "pageSize" + suffix, false, null);
+    if (pageSize != null) {
+      result.setPageSize(pageSize.toString());
+    }
+     
     return result;
   }
 
@@ -1775,6 +1808,28 @@ public class GrouperClient {
           argMapNotUsed, suffix + "1", false);
       result.setStemQueryFilter1(stemQueryFilter1);
       
+      Boolean ascending = GrouperClientUtils.argMapBoolean(argMap, argMapNotUsed, 
+         "ascending" + suffix);
+      if (ascending != null) {
+        result.setAscending(ascending ? "T" : "F");
+      }
+      
+      String sortString = GrouperClientUtils.argMapString(argMap, argMapNotUsed, 
+          "sortString" + suffix, false);
+      result.setSortString(sortString);
+      
+      Integer pageNumber = GrouperClientUtils.argMapInteger(argMap, argMapNotUsed, 
+          "pageNumber" + suffix, false, null);
+      if (pageNumber != null) {
+        result.setPageNumber(pageNumber.toString());
+      }
+      
+      Integer pageSize = GrouperClientUtils.argMapInteger(argMap, argMapNotUsed, 
+          "pageSize" + suffix, false, null);
+      if (pageSize != null) {
+        result.setPageSize(pageSize.toString());
+      }
+
       return result;
     }
     

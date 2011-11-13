@@ -25,20 +25,26 @@ import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.w3c.dom.Element;
 
+import edu.internet2.middleware.grouper.shibboleth.attributeDefinition.LdapDnPSOIdentifierAttributeDefinition;
 import edu.internet2.middleware.ldappc.spml.config.LdappcNamespaceHandler;
 import edu.internet2.middleware.shibboleth.common.config.attribute.resolver.attributeDefinition.BaseAttributeDefinitionBeanDefinitionParser;
 
+/** Spring bean definition parser for configuring a {@link LdapDnPSOIdentifierAttributeDefinition}. */
 public class LdapDnPSOIdentifierAttributeDefinitionBeanDefinitionParser extends
     BaseAttributeDefinitionBeanDefinitionParser {
 
+  /** Schema type name. */
   public static final QName TYPE_NAME = new QName(LdappcNamespaceHandler.NAMESPACE, "LdapDnPSOIdentifier");
 
+  /** The logger. */
   private final Logger LOG = LoggerFactory.getLogger(LdapDnPSOIdentifierAttributeDefinitionBeanDefinitionParser.class);
 
+  /** {@inheritDoc} */
   protected Class getBeanClass(Element element) {
     return LdapDnPSOIdentifierAttributeDefinitionFactoryBean.class;
   }
 
+  /** {@inheritDoc} */
   protected void doParse(String pluginId, Element pluginConfig, Map<QName, List<Element>> pluginConfigChildren,
       BeanDefinitionBuilder pluginBuilder, ParserContext parserContext) {
     super.doParse(pluginId, pluginConfig, pluginConfigChildren, pluginBuilder, parserContext);

@@ -20,7 +20,6 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.text.MessageFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Timer;
@@ -39,7 +38,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.ldappc.spml.request.BulkProvisioningRequest;
 
 /**
  * Run the <code>ProvisioningServiceProvider</code> from the command line.
@@ -57,12 +55,6 @@ public class PSPCLI extends TimerTask {
 
   /** Where output is written to. */
   private BufferedWriter writer;
-
-  /** The lastModifyTime. */
-  private Date lastModifyTime;
-
-  /** When a full sync was last run. */
-  private Date lastFullSyncTime;
 
   /** The number of provisioning iterations performed. */
   private int iterations = 0;
@@ -132,42 +124,10 @@ public class PSPCLI extends TimerTask {
       LOG.info("Starting {}", PSPOptions.NAME);
       LOG.debug("Starting {} with options {}", PSPOptions.NAME, psp.getPspOptions());
 
-      Date now = new Date();
-
       StopWatch sw = new StopWatch();
       sw.start();
 
-      // initialize lastModifyTime if supplied as option
-      if (lastModifyTime == null && psp.getPspOptions().getLastModifyTime() != null) {
-        lastModifyTime = psp.getPspOptions().getLastModifyTime();
-      }
-
-      // initialize lastFullSyncTime to now
-      if (lastFullSyncTime == null) {
-        lastFullSyncTime = now;
-      }
-
-      // perform partial sync
-      boolean partial = true;
-
-      // if full sync interval is specified as an option
-      if (psp.getPspOptions().getIntervalFullSync() > 0) {
-        // perform full sync if the time since the last full sync is greater than the supplied full sync interval
-        if ((now.getTime() - lastFullSyncTime.getTime()) > psp.getPspOptions().getIntervalFullSync() * 1000) {
-          partial = false;
-        }
-      }
-
       for (Request request : psp.getPspOptions().getRequests()) {
-        // set updated since for bulk requests
-        if (request instanceof BulkProvisioningRequest) {
-          if (!partial || lastModifyTime == null) {
-            LOG.info("Performing full synchronization. Time since last full sync {} ms", now.getTime()
-                - lastFullSyncTime.getTime());
-          }
-          Date updatedSince = partial ? lastModifyTime : null;
-          ((BulkProvisioningRequest) request).setUpdatedSince(updatedSince);
-        }
         // print requests if so configured
         if (psp.getPspOptions().isPrintRequests()) {
           writer.write(psp.toXML(request));
@@ -179,14 +139,6 @@ public class PSPCLI extends TimerTask {
       }
 
       writer.flush();
-
-      // update last full sync time if a full sync was performed
-      if (!partial) {
-        lastFullSyncTime = now;
-      }
-
-      // update last modified time
-      lastModifyTime = now;
 
       sw.stop();
       LOG.info("End of {} execution : {} ms", PSPOptions.NAME, sw.getTime());
@@ -248,7 +200,7 @@ public class PSPCLI extends TimerTask {
   public static List<String> getAllCacheStats() {
 
     Map<String, String> name2stats = new TreeMap<String, String>();
-    
+
     // sort cache managers by name
     List<CacheManager> cacheManagers = new ArrayList<CacheManager>(CacheManager.ALL_CACHE_MANAGERS);
     for (CacheManager cacheManager : cacheManagers) {

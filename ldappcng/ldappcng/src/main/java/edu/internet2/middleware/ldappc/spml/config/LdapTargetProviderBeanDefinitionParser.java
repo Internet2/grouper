@@ -23,35 +23,27 @@ import org.springframework.beans.factory.xml.ParserContext;
 import org.w3c.dom.Element;
 
 import edu.internet2.middleware.ldappc.spml.provider.LdapTargetProvider;
-import edu.internet2.middleware.shibboleth.common.config.service.AbstractServiceBeanDefinitionParser;
 
-public class LdapTargetProviderBeanDefinitionParser extends AbstractServiceBeanDefinitionParser {
+/** Spring bean definition parser for configuring a {@link LdapTargetProvider}. */
+public class LdapTargetProviderBeanDefinitionParser extends BaseSpmlProviderBeanDefinitionParser {
 
+  /** Logger. */
   private static final Logger LOG = LoggerFactory.getLogger(LdapTargetProviderBeanDefinitionParser.class);
 
+  /** Schema type name. */
   public static final QName TYPE_NAME = new QName(LdappcNamespaceHandler.NAMESPACE, "LdapPoolProvider");
 
+  /** {@inheritDoc} */
   protected Class getBeanClass(Element element) {
     return LdapTargetProvider.class;
   }
 
+  /** {@inheritDoc} */
   protected void doParse(Element configElement, ParserContext parserContext, BeanDefinitionBuilder builder) {
     super.doParse(configElement, parserContext, builder);
-
-    String id = configElement.getAttributeNS(null, "id");
-    LOG.debug("Setting id to '{}'", id);
-    builder.addPropertyValue("id", id);
 
     String ldapPoolId = configElement.getAttributeNS(null, "ldapPoolId");
     LOG.debug("Setting ldapPoolId to '{}'", ldapPoolId);
     builder.addPropertyValue("ldapPoolId", ldapPoolId);
-    
-    String logLdif = configElement.getAttributeNS(null, "logLdif");
-    LOG.debug("Setting logLdif to '{}'", logLdif);
-    builder.addPropertyValue("logLdif", logLdif);
-    
-    String logSpml = configElement.getAttributeNS(null, "logSpml");
-    LOG.debug("Setting logSpml to '{}'", logSpml);
-    builder.addPropertyValue("logSpml", logSpml);
   }
 }

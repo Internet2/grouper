@@ -1,25 +1,10 @@
-dn: ou=testpeople,${base}
-objectclass: organizationalUnit
-description: people
-ou: testpeople
-
-dn: cn=test.subject.0,ou=testpeople,${base}
-objectclass: person
-objectclass: organizationalPerson
-cn: test.subject.0
-sn: subject.0
-
-dn: cn=test.subject.1,ou=testpeople,${base}
-objectclass: person
-objectclass: organizationalPerson
-cn: test.subject.1
-sn: subject.1
-
 dn: ou=testgroups,${base}
-objectclass: organizationalUnit
+objectclass: top
+objectClass: organizationalUnit
 ou: testgroups
 
 dn: ou=edu,ou=testgroups,${base}
+objectclass: top
 objectclass: organizationalUnit
 ou: edu
 
@@ -43,3 +28,78 @@ member: cn=group/F,ou=edu,ou=testgroups,${base}
 member: cn=test.subject.1,ou=testpeople,${base}
 description: descriptionB
 
+dn: ou=testpeople,${base}
+objectclass: top
+objectclass: organizationalUnit
+description: people
+ou: testpeople
+
+dn: cn=test.subject.0,ou=testpeople,${base}
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+cn: test.subject.0
+sn: subject.0
+
+dn: cn=test.subject.1,ou=testpeople,${base}
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+cn: test.subject.1
+sn: subject.1
+
+dn: cn=test.subject.2,ou=testpeople,${base}
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+cn: test.subject.2
+sn: subject.2
+
+dn: cn=test.subject.3,ou=testpeople,${base}
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+cn: test.subject.3
+sn: subject.3
+
+dn: cn=test.subject.4,ou=testpeople,${base}
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+cn: test.subject.4
+sn: subject.4
+
+dn: cn=test.subject.5,ou=testpeople,${base}
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+cn: test.subject.5
+sn: subject.5
+
+dn: cn=test.subject.6,ou=testpeople,${base}
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+cn: test.subject.6
+sn: subject.6
+
+dn: cn=test.subject.7,ou=testpeople,${base}
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+cn: test.subject.7
+sn: subject.7
+
+dn: cn=test.subject.8,ou=testpeople,${base}
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+cn: test.subject.8
+sn: subject.8
+
+dn: cn=test.subject.9,ou=testpeople,${base}
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+cn: test.subject.9
+sn: subject.9

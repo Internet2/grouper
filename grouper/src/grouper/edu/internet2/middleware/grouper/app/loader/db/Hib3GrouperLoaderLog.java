@@ -6,6 +6,8 @@ package edu.internet2.middleware.grouper.app.loader.db;
 
 import java.sql.Timestamp;
 
+import org.apache.commons.lang.StringUtils;
+
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.hibernate.HibGrouperLifecycle;
@@ -587,6 +589,27 @@ public class Hib3GrouperLoaderLog implements HibGrouperLifecycle {
     this.host = host1;
   }
 
+  /**
+   * get group name from job name 
+   * @return group name
+   */
+  public String getGroupNameFromJobName() {
+    //LDAP_SIMPLE__someStem:myLdapGroup__aa8f3a245d1947509d347fee0f6a80b2
+    
+    String jobName = this.getJobName();
+    if (StringUtils.isBlank(jobName)) {
+      return null;
+    }
+
+    int firstIndex = jobName.indexOf("__") + 2;
+    int lastIndex = jobName.lastIndexOf("__");
+    if (firstIndex < 0 || lastIndex == 0) {
+      return null;
+    }
+    return jobName.substring(firstIndex, lastIndex);
+    
+  }
+  
   
   /**
    * if this is a group related job, then this is the group uuid

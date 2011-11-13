@@ -96,7 +96,7 @@ public class TestMembership8 extends GrouperTest {
       fieldCustom2 = customType.addList(r.rs, "customField2", AccessPrivilege.READ, AccessPrivilege.UPDATE);
 
       fieldMembers = Group.getDefaultList();
-      fieldUpdaters = FieldFinder.find("updaters", true);
+      fieldUpdaters = FieldFinder.find(Field.FIELD_NAME_UPDATERS, true);
       Set<Membership> listMemberships;
       Set<Membership> updateMemberships;
       Set<Membership> custom1Memberships;

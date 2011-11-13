@@ -9,8 +9,10 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.pit.PITGroup;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouper.ws.util.GrouperWsVersionUtils;
 
 /**
  * Result of one group being retrieved since a user is a member of it.  The number of
@@ -30,6 +32,25 @@ public class WsGroup implements Comparable<WsGroup> {
 
   /** extension of group, the part to the right of last colon in name */
   private String extension;
+
+  /** type of group can be an enum of TypeOfGroup, e.g. group, role, entity */
+  private String typeOfGroup;
+  
+  /**
+   * type of group can be an enum of TypeOfGroup, e.g. group, role, entity
+   * @return type of group
+   */
+  public String getTypeOfGroup() {
+    return this.typeOfGroup;
+  }
+
+  /**
+   * type of group can be an enum of TypeOfGroup, e.g. group, role, entity
+   * @param typeOfGroup1
+   */
+  public void setTypeOfGroup(String typeOfGroup1) {
+    this.typeOfGroup = typeOfGroup1;
+  }
 
   /** display extension, the part to the right of the last colon in display name */
   private String displayExtension;
@@ -125,6 +146,12 @@ public class WsGroup implements Comparable<WsGroup> {
       this.setExtension(group.getExtension());
       this.setDisplayExtension(group.getDisplayExtension());
 
+      //if greater then 2.1 then set type of group
+      if (GrouperWsVersionUtils.retrieveCurrentClientVersion()
+          .greaterOrEqualToArg(GrouperVersion.valueOfIgnoreCase("v2_1_000"))) {
+        this.setTypeOfGroup(group.getTypeOfGroupDb());
+      }
+      
       //see if detail info is needed
       if (includeDetail) {
         this.setDetail(new WsGroupDetail(group));

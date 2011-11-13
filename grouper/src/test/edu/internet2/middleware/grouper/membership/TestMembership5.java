@@ -104,7 +104,7 @@ public class TestMembership5 extends GrouperTest {
       subjD = r.getSubject("d");
 
       fieldMembers = Group.getDefaultList();
-      fieldUpdaters = FieldFinder.find("updaters", true);
+      fieldUpdaters = FieldFinder.find(Field.FIELD_NAME_UPDATERS, true);
 
 
       // Test 1:  Test when the last operations are adding update privileges for gA.

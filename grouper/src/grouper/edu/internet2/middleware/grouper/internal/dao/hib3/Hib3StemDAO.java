@@ -46,6 +46,7 @@ import edu.internet2.middleware.grouper.attr.AttributeDefNameSet;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.StemNotFoundException;
 import edu.internet2.middleware.grouper.group.GroupSet;
+import edu.internet2.middleware.grouper.group.TypeOfGroup;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.ByHqlStatic;
 import edu.internet2.middleware.grouper.hibernate.ByObject;
@@ -56,6 +57,8 @@ import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
+import edu.internet2.middleware.grouper.internal.dao.QuerySort;
+import edu.internet2.middleware.grouper.internal.dao.QuerySortField;
 import edu.internet2.middleware.grouper.internal.dao.StemDAO;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
@@ -497,24 +500,34 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
    */
   public Set<Stem> findAllByApproximateNameAny(String name) 
     throws  GrouperDAOException {
-    try {
-      return HibernateSession.byHqlStatic()
-        .createQuery(
-        "from Stem as ns where "
-        + "   lower(ns.nameDb)            like :name "
-        + "or lower(ns.displayNameDb)       like :name "
-        + "or lower(ns.extensionDb)         like :name "
-        + "or lower(ns.displayExtensionDb)  like :name" )
-        .setCacheable(false)
-        .setCacheRegion(KLASS + ".FindAllByApproximateNameAny")
-        .setString("name", "%" + name.toLowerCase() + "%")
-        .listSet(Stem.class);
-    }
-    catch (GrouperDAOException e) {
-      String error = "Problem find all stem by approximate any: '" + name + "', " + e.getMessage();
-      throw new GrouperDAOException( error, e );
-    }
+    return findAllByApproximateNameAny(name, null, null);
   } 
+
+  /**
+   * if there are sort fields, go through them, and replace name with nameDb, etc,
+   * extension for extensionDb, displayName with displayNameDb, and displayExtension with displayExtensionDb
+   * @param querySort
+   */
+  private static void massageSortFields(QuerySort querySort) {
+    if (querySort == null) {
+      return;
+    }
+    for (QuerySortField querySortField : GrouperUtil.nonNull(querySort.getQuerySortFields())) {
+      if (StringUtils.equals("extension", querySortField.getColumn())) {
+//        querySortField.setColumn("extensionDb");
+      }
+      if (StringUtils.equals("name", querySortField.getColumn())) {
+//        querySortField.setColumn("nameDb");
+      }
+      if (StringUtils.equals("displayExtension", querySortField.getColumn())) {
+        querySortField.setColumn("display_extension");
+      }
+      if (StringUtils.equals("displayName", querySortField.getColumn())) {
+        querySortField.setColumn("display_name");
+      }
+    }
+
+  }
 
   /**
    * @param name 
@@ -523,21 +536,43 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
    * @throws GrouperDAOException 
    * @since   @HEAD@
    */
-  public Set<Stem> findAllByApproximateNameAny(String name, String scope)
+  public Set<Stem> findAllByApproximateNameAny(String name, String scope) {
+    return findAllByApproximateNameAny(name, scope, null);
+  }
+  
+  /**
+   * @param name 
+   * @param scope 
+   * @param queryOptions 
+   * @return set stems
+   * @throws GrouperDAOException 
+   * @since   @HEAD@
+   */
+  public Set<Stem> findAllByApproximateNameAny(String name, String scope, QueryOptions queryOptions)
     throws  GrouperDAOException {
     try {
-      return HibernateSession.byHqlStatic()
-        .createQuery(
-        "from Stem as ns where "
-        + "(   lower(ns.nameDb)            like :name "
-        + " or lower(ns.displayNameDb)       like :name "
-        + " or lower(ns.extensionDb)         like :name "
-        + " or lower(ns.displayExtensionDb)  like :name ) "
-        + "and ns.nameDb like :scope ")
+      
+      if (queryOptions != null) {
+        massageSortFields(queryOptions.getQuerySort());
+      }
+      
+      ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
+      
+      StringBuilder hql = new StringBuilder("from Stem as ns where "
+          + "(   lower(ns.nameDb)            like :name "
+          + " or lower(ns.displayNameDb)       like :name ) ");
+      
+      if (!StringUtils.isBlank(scope)) {
+        hql.append("and ns.nameDb like :scope ");
+        byHqlStatic.setString("scope", scope + "%");
+      }
+      
+      return byHqlStatic
+        .createQuery(hql.toString())
+        .options(queryOptions)
         .setCacheable(false)
         .setCacheRegion(KLASS + ".FindAllByApproximateNameAny")
-        .setString("name", "%" + name.toLowerCase() + "%")
-        .setString("scope", scope + "%")
+        .setString("name", "%" + StringUtils.defaultString(name).toLowerCase() + "%")
         .listSet(Stem.class);
     }
     catch (GrouperDAOException e) {
@@ -673,7 +708,7 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
   public Set<Stem> findAllChildStems(Stem ns, Stem.Scope scope)
     throws  GrouperDAOException,
             IllegalStateException {
-    return findAllChildStems(ns, scope, false);
+    return findAllChildStems(ns, scope, null);
   }
   
   /**
@@ -686,40 +721,60 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
    * @throws  IllegalStateException if unknown scope.
    * @since   @HEAD@
    */
-  public Set<Stem> findAllChildStems(Stem ns, Stem.Scope scope, boolean orderByName)
+  public Set<Stem> findAllChildStems(Stem ns, Stem.Scope scope, boolean orderByName) {
+    QueryOptions queryOptions = null;
+    if (orderByName) {
+      queryOptions = new QueryOptions();
+      queryOptions.sortAsc("name");
+    }
+    return findAllChildStems(ns, scope, queryOptions);
+  }
+
+  /**
+   * @param ns 
+   * @param scope 
+   * @param queryOptions 
+   * @return set stem
+   * @throws GrouperDAOException 
+   * @see     StemDAO#findAllChildStems(Stem, Stem.Scope)
+   * @throws  IllegalStateException if unknown scope.
+   * @since   @HEAD@
+   */
+  public Set<Stem> findAllChildStems(Stem ns, Stem.Scope scope, QueryOptions queryOptions)
     throws  GrouperDAOException,
             IllegalStateException {
+
     Set<Stem> stemsSet;
     try {
+      if (queryOptions != null) {
+        
+        massageSortFields(queryOptions.getQuerySort());
+        
+      }
+
       if (Stem.Scope.ONE == scope) {
         String sql = "from Stem as ns where ns.parentUuid = :parent";
-        if (orderByName) {
-          sql += " order by ns.nameDb";
-        }
         stemsSet = HibernateSession.byHqlStatic()
           .createQuery(sql)
           .setCacheable(false)
           .setCacheRegion(KLASS + ".FindChildStems")
+          .options(queryOptions)
           .setString("parent", ns.getUuid())
           .listSet(Stem.class);
       } else if (Stem.Scope.SUB == scope && ns.isRootStem()) {
         String sql = "from Stem as ns where ns.nameDb not like :stem";
-        if (orderByName) {
-          sql += " order by ns.nameDb";
-        }
         stemsSet = HibernateSession.byHqlStatic()
           .createQuery(sql)
+          .options(queryOptions)
           .setCacheable(false)
           .setCacheRegion(KLASS + ".FindChildStems")
           .setString("stem", Stem.DELIM)
           .listSet(Stem.class);
       } else if (Stem.Scope.SUB == scope) {
         String sql = "from Stem as ns where ns.nameDb like :scope";
-        if (orderByName) {
-          sql += " order by ns.nameDb";
-        }
         stemsSet = HibernateSession.byHqlStatic()
           .createQuery(sql)
+          .options(queryOptions)
           .setCacheable(false)
           .setCacheRegion(KLASS + ".FindChildStems")
           .setString("scope", ns.getNameDb() + Stem.DELIM + "%")
@@ -818,7 +873,7 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
    * @throws GrouperDAOException 
    * @since   @HEAD@
    */
-  public void renameStemAndChildren(final Stem _ns, final Set children)
+  public void renameStemAndChildren(final Set children)
     throws  GrouperDAOException {
     try {
       HibernateSession.callbackHibernateSession(
@@ -830,15 +885,13 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
               HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
               ByObject byObject = hibernateSession.byObject();
               byObject.update(children);
-              byObject.update( _ns );
               return null;
             }
         
       });
     }
     catch (GrouperDAOException e) {
-      String error = "Problem revoking priv: " + GrouperUtil.toStringSafe(_ns)
-        + ", children: " + GrouperUtil.toStringSafe(children) + ", " + e.getMessage();
+      String error = "Problem saving children of stem: children: " + GrouperUtil.toStringSafe(children) + ", " + e.getMessage();
       throw new GrouperDAOException( error, e );
     }
   } 
@@ -918,18 +971,30 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
    * @see edu.internet2.middleware.grouper.internal.dao.StemDAO#findAllChildGroupsSecure(edu.internet2.middleware.grouper.Stem, edu.internet2.middleware.grouper.Stem.Scope, edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.subject.Subject, java.util.Set, edu.internet2.middleware.grouper.internal.dao.QueryOptions)
    */
   public Set<Group> findAllChildGroupsSecure(Stem ns, Scope scope,
-      GrouperSession grouperSession, Subject subject, Set<Privilege> inPrivSet, QueryOptions queryOptions) throws GrouperDAOException {
+      GrouperSession grouperSession, Subject subject, Set<Privilege> inPrivSet,
+      QueryOptions queryOptions)
+      throws GrouperDAOException {
+    return findAllChildGroupsSecure(ns, scope, grouperSession, subject, inPrivSet, queryOptions, null);
+  }
+
+
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.internal.dao.StemDAO#findAllChildGroupsSecure(edu.internet2.middleware.grouper.Stem, edu.internet2.middleware.grouper.Stem.Scope, edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.subject.Subject, java.util.Set, edu.internet2.middleware.grouper.internal.dao.QueryOptions, Set)
+   */
+  public Set<Group> findAllChildGroupsSecure(Stem ns, Scope scope,
+      GrouperSession grouperSession, Subject subject, Set<Privilege> inPrivSet, QueryOptions queryOptions, Set<TypeOfGroup> typeOfGroups) throws GrouperDAOException {
     
     Set<Group> groupsSet;
     try {
       if (Stem.Scope.ONE == scope) {
         groupsSet = GrouperDAOFactory.getFactory().getGroup().getImmediateChildrenSecure(
-            grouperSession, ns, subject, inPrivSet, queryOptions);
+            grouperSession, ns, subject, inPrivSet, queryOptions, typeOfGroups);
       } else if (Stem.Scope.SUB == scope && ns.isRootStem()) {
-        groupsSet = GrouperDAOFactory.getFactory().getGroup().getAllGroupsSecure(grouperSession, subject, inPrivSet, queryOptions);
+        groupsSet = GrouperDAOFactory.getFactory().getGroup().getAllGroupsSecure(grouperSession, subject, inPrivSet, queryOptions, typeOfGroups);
       } else if (Stem.Scope.SUB == scope) {
         groupsSet = GrouperDAOFactory.getFactory().getGroup().getAllGroupsSecure(ns.getNameDb() + Stem.DELIM, grouperSession, 
-            subject, inPrivSet, queryOptions);
+            subject, inPrivSet, queryOptions, typeOfGroups);
       } else {
         throw new IllegalStateException("unknown search scope: " + scope);
       }
@@ -981,6 +1046,13 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
       GrouperSession grouperSession, Subject subject, Set<Privilege> inPrivSet, QueryOptions queryOptions) throws GrouperDAOException {
     
     Set<Stem> stemsSet;
+    
+    if (queryOptions != null) {
+      
+      massageSortFields(queryOptions.getQuerySort());
+      
+    }
+    
     try {
       if (Stem.Scope.ONE == scope) {
         stemsSet = GrouperDAOFactory.getFactory().getStem().getImmediateChildrenSecure(
@@ -1536,6 +1608,40 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
       GrouperSession grouperSession, Subject subject, Set<Privilege> privileges,
       QueryOptions queryOptions) {
     return this.getAllStemsSecureHelper(scope, grouperSession, subject, privileges, queryOptions, true);
+  }
+
+  /**
+   * @see StemDAO#findByUuids(Collection, QueryOptions)
+   */
+  public Set<Stem> findByUuids(Collection<String> uuids, QueryOptions queryOptions) {
+    int uuidsLength = GrouperUtil.length(uuids);
+    if (uuidsLength > 100) {
+      throw new RuntimeException("Dont pass more than 100 ids: " + uuidsLength);
+    }
+    
+    Set<Stem> results = new LinkedHashSet<Stem>();
+    
+    if (uuidsLength == 0) {
+      return results;
+    }
+
+    ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
+
+    StringBuilder sql = new StringBuilder();
+    
+    sql.append("from Stem as ns where ns.uuid in (");
+    
+    sql.append(HibUtils.convertToInClause(uuids, byHqlStatic));
+    sql.append(") ");
+   
+    Set<Stem> stems = byHqlStatic
+      .createQuery(sql.toString())
+      .setCacheable(true)
+      .setCacheRegion(KLASS + ".FindByUuids")
+      .options(queryOptions)
+      .listSet(Stem.class);
+
+    return stems;
   }
 
 } 

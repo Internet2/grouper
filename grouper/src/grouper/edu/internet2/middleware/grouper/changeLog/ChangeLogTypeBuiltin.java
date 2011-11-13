@@ -54,21 +54,6 @@ public enum ChangeLogTypeBuiltin implements ChangeLogTypeIdentifier {
       ChangeLogLabels.GROUP_FIELD_DELETE.groupTypeName, ChangeLogLabels.GROUP_FIELD_DELETE.type)),
   
   /**
-   * add group attribute
-   */
-  GROUP_ATTRIBUTE_ADD(new ChangeLogType("groupAttribute", "addGroupAttribute", "id", "name", "groupId", "groupName", "fieldId", "fieldName", "value")),
-  
-  /**
-   * update group attribute
-   */
-  GROUP_ATTRIBUTE_UPDATE(new ChangeLogType("groupAttribute", "updateGroupAttribute", "id", "name", "groupId", "groupName", "fieldId", "fieldName", "value", "oldValue")),
-
-  /**
-   * delete group attribute
-   */
-  GROUP_ATTRIBUTE_DELETE(new ChangeLogType("groupAttribute", "deleteGroupAttribute", "id", "name", "groupId", "groupName", "fieldId", "fieldName", "value")),
-
-  /**
    * add group composite
    */
   GROUP_COMPOSITE_ADD(new ChangeLogType("groupComposite", "addGroupComposite", "id", "ownerId", "ownerName", "leftFactorId", "leftFactorName", "rightFactorId", "rightFactorName", "type")),
@@ -216,6 +201,29 @@ public enum ChangeLogTypeBuiltin implements ChangeLogTypeIdentifier {
       ChangeLogLabels.GROUP_DELETE.displayName, ChangeLogLabels.GROUP_DELETE.description)),
   
   /**
+   * add entity
+   */
+  ENTITY_ADD(new ChangeLogType("entity", "addEntity", 
+      ChangeLogLabels.ENTITY_ADD.id, ChangeLogLabels.ENTITY_ADD.name, ChangeLogLabels.ENTITY_ADD.parentStemId,
+      ChangeLogLabels.ENTITY_ADD.displayName, ChangeLogLabels.ENTITY_ADD.description)),
+  
+  /**
+   * update entity
+   */
+  ENTITY_UPDATE(new ChangeLogType("entity", "updateEntity", 
+      ChangeLogLabels.ENTITY_UPDATE.id, ChangeLogLabels.ENTITY_UPDATE.name, ChangeLogLabels.ENTITY_UPDATE.parentStemId,
+      ChangeLogLabels.ENTITY_UPDATE.displayName, ChangeLogLabels.ENTITY_UPDATE.description, 
+      ChangeLogLabels.ENTITY_UPDATE.propertyChanged, ChangeLogLabels.ENTITY_UPDATE.propertyOldValue, 
+      ChangeLogLabels.ENTITY_UPDATE.propertyNewValue)),
+  
+  /**
+   * delete entity
+   */
+  ENTITY_DELETE(new ChangeLogType("entity", "deleteEntity", 
+      ChangeLogLabels.ENTITY_DELETE.id, ChangeLogLabels.ENTITY_DELETE.name, ChangeLogLabels.ENTITY_DELETE.parentStemId,
+      ChangeLogLabels.ENTITY_DELETE.displayName, ChangeLogLabels.ENTITY_DELETE.description)),
+    
+  /**
    * attribute def add
    */
   ATTRIBUTE_DEF_ADD(new ChangeLogType("attributeDef", "addAttributeDef", 
@@ -298,30 +306,6 @@ public enum ChangeLogTypeBuiltin implements ChangeLogTypeIdentifier {
    * member change subject
    */
   MEMBER_CHANGE_SUBJECT(new ChangeLogType("member", "changeSubject", "oldMemberId", "oldSubjectId", "oldSourceId", "newMemberId", "newSubjectId", "newSourceId", "deleteOldMember", "memberIdChanged")),
-  
-  /**
-   * copy a group to another stem
-   */
-  GROUP_COPY(new ChangeLogType("group", "copy", "attributes", "oldGroupId", "oldGroupName", "newGroupId", "newGroupName", 
-      "privilegesOfGroup", "groupAsPrivilege", "listMembersOfGroup", "listGroupAsMember")),
-  
-  /**
-   * move a group to another stem
-   */
-  GROUP_MOVE(new ChangeLogType("group", "move", "groupId", "oldGroupName", "newGroupName", "newStemId", 
-      "assignAlternateName")),
-  
-  /**
-   * copy a stem to another stem
-   */
-  STEM_COPY(new ChangeLogType("stem", "copy", "attributes", "oldStemId", "oldStemName", "newStemName", "newStemId", 
-      "privilegesOfStem", "privilegesOfGroup", "listMembersOfGroup", "listGroupAsMember")),
-  
-  /**
-   * move a stem to another stem
-   */
-  STEM_MOVE(new ChangeLogType("stem", "move", "stemId", "oldStemName", "newStemName", "newParentStemId", 
-      "assignAlternateName")),
   
   /**
    * attribute assign action add
@@ -502,26 +486,9 @@ public enum ChangeLogTypeBuiltin implements ChangeLogTypeIdentifier {
   /**
    * permission add
    */
-  PERMISSION_ADD(new ChangeLogType("permission", "addPermission",
-      ChangeLogLabels.PERMISSION_ADD.attributeDefNameName,
-      ChangeLogLabels.PERMISSION_ADD.attributeDefNameId,
-      ChangeLogLabels.PERMISSION_ADD.action,
-      ChangeLogLabels.PERMISSION_ADD.actionId,
-      ChangeLogLabels.PERMISSION_ADD.subjectId,
-      ChangeLogLabels.PERMISSION_ADD.subjectSourceId,
-      ChangeLogLabels.PERMISSION_ADD.memberId)),
-  
-  /**
-   * permission delete
-   */
-  PERMISSION_DELETE(new ChangeLogType("permission", "deletePermission",
-      ChangeLogLabels.PERMISSION_DELETE.attributeDefNameName,
-      ChangeLogLabels.PERMISSION_DELETE.attributeDefNameId,
-      ChangeLogLabels.PERMISSION_DELETE.action,
-      ChangeLogLabels.PERMISSION_DELETE.actionId,
-      ChangeLogLabels.PERMISSION_DELETE.subjectId,
-      ChangeLogLabels.PERMISSION_DELETE.subjectSourceId,
-      ChangeLogLabels.PERMISSION_DELETE.memberId));   
+  PERMISSION_CHANGE_ON_ROLE(new ChangeLogType("permission", "permissionChangeOnRole",
+      ChangeLogLabels.PERMISSION_CHANGE_ON_ROLE.roleId,
+      ChangeLogLabels.PERMISSION_CHANGE_ON_ROLE.roleName));
       
   /**
    * defaults for audit type, though doesnt hold the id

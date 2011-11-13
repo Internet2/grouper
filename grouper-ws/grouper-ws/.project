@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>grouper-ws_trunk</name>
+	<name>grouper-ws</name>
 	<comment></comment>
 	<projects>
 	</projects>
@@ -15,6 +15,11 @@
 		<nature>org.eclipse.jdt.core.javanature</nature>
 	</natures>
 	<linkedResources>
+		<link>
+			<name>GROUPER_TRUNK_CLIENT</name>
+			<type>2</type>
+			<locationURI>GROUPER_TRUNK_CLIENT</locationURI>
+		</link>
 		<link>
 			<name>GROUPER_TRUNK_CONF</name>
 			<type>2</type>

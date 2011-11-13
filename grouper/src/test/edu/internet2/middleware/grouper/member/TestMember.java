@@ -270,7 +270,7 @@ public class TestMember extends GrouperTest {
     assertEquals(1, groups.size());
     assertEquals(group2.getUuid(), groups.iterator().next().getUuid());
 
-    groups = member0.getGroups(FieldFinder.find("updaters", true));
+    groups = member0.getGroups(FieldFinder.find(Field.FIELD_NAME_UPDATERS, true));
     assertEquals(1, groups.size());
     assertEquals(group3.getUuid(), groups.iterator().next().getUuid());
     

@@ -218,7 +218,7 @@ public class SearchGroupsAction extends GrouperCapableAction {
 			}else{
 				session.setAttribute("subtitle", "groups.action.search");
 			}
-			groupRes=sort(groupRes,request,sortContext, -1);
+			groupRes=sort(groupRes,request,sortContext, -1, null);
 		}catch(IllegalArgumentException e) {
 			request.setAttribute("message",new Message("find.results.empty-search",true));
 			return new ActionForward("/populate" + getBrowseMode(session) + "Groups.do");

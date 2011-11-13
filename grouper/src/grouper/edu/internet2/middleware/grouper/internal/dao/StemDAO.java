@@ -32,6 +32,7 @@ import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.StemNotFoundException;
+import edu.internet2.middleware.grouper.group.TypeOfGroup;
 import edu.internet2.middleware.grouper.hibernate.ByHqlStatic;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.privs.Privilege;
@@ -165,6 +166,16 @@ public interface StemDAO extends GrouperDAO {
     throws  GrouperDAOException;
 
   /**
+   * @param name 
+   * @param scope 
+   * @param queryOptions 
+   * @return set stems
+   * @throws GrouperDAOException 
+   * @since   2.1.0
+   */
+  public Set<Stem> findAllByApproximateNameAny(String name, String scope, QueryOptions queryOptions);
+
+  /**
    * @since   1.2.0
    */
   Set<Stem> findAllByCreatedAfter(Date d) 
@@ -223,6 +234,26 @@ public interface StemDAO extends GrouperDAO {
    * @param queryOptions 
    * @param inPrivSet is a set of privs that the subject must have one of to display a row.  AccessPrivilege
    * has some pre-baked set constants available
+   * @param typeOfGroups type of groups to return or null for all
+   * @return the groups
+   * @throws GrouperDAOException 
+   * @since   1.2.1
+   */
+  Set<Group> findAllChildGroupsSecure(
+      Stem ns, Stem.Scope scope, GrouperSession grouperSession, Subject subject, 
+      Set<Privilege> inPrivSet, QueryOptions queryOptions, Set<TypeOfGroup> typeOfGroups)
+    throws  GrouperDAOException;
+
+  /**
+   * Find all child groups within specified scope, and make sure the
+   * grouper session can see them
+   * @param ns 
+   * @param scope 
+   * @param grouperSession 
+   * @param subject 
+   * @param queryOptions 
+   * @param inPrivSet is a set of privs that the subject must have one of to display a row.  AccessPrivilege
+   * has some pre-baked set constants available
    * @return the groups
    * @throws GrouperDAOException 
    * @since   1.2.1
@@ -255,6 +286,13 @@ public interface StemDAO extends GrouperDAO {
    * @since   1.2.1
    */
   Set<Stem> findAllChildStems(Stem ns, Stem.Scope scope)
+    throws  GrouperDAOException;
+  
+  /**
+   * Find all child stems within specified scope.
+   * @since   2.1
+   */
+  Set<Stem> findAllChildStems(Stem ns, Stem.Scope scope, QueryOptions queryOptions)
     throws  GrouperDAOException;
   
   /**
@@ -293,6 +331,12 @@ public interface StemDAO extends GrouperDAO {
   Stem findByUuid(String uuid, boolean exceptionIfNull, QueryOptions queryOptions) throws GrouperDAOException, StemNotFoundException;
 
   /**
+   * note, dont pass more than 100 ids
+   * @since   2.1
+   */
+  Set<Stem> findByUuids(Collection<String> uuids, QueryOptions queryOptions);
+
+  /**
    * @since   1.2.0
    */
   Stem findByName(String name, boolean exceptionIfNull) throws GrouperDAOException, StemNotFoundException;
@@ -322,7 +366,7 @@ public interface StemDAO extends GrouperDAO {
   /**
    * @since   1.2.0
    */
-  void renameStemAndChildren(Stem _ns, Set children)
+  void renameStemAndChildren(Set children)
     throws  GrouperDAOException;
 
   /**

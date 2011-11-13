@@ -22,10 +22,10 @@
 
 package edu.internet2.middleware.subject.provider;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
@@ -37,12 +37,16 @@ import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
+import javax.naming.directory.SearchControls;
+import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.SearchResult;
 import javax.net.ssl.SSLSocketFactory;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import edu.internet2.middleware.subject.SearchPageResult;
 import edu.internet2.middleware.subject.SourceUnavailableException;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectCaseInsensitiveMapImpl;
@@ -54,6 +58,7 @@ import edu.vt.middleware.ldap.LdapConfig;
 import edu.vt.middleware.ldap.SearchFilter;
 import edu.vt.middleware.ldap.pool.DefaultLdapFactory;
 import edu.vt.middleware.ldap.pool.LdapPoolConfig;
+import edu.vt.middleware.ldap.pool.LdapPool;
 import edu.vt.middleware.ldap.pool.SoftLimitLdapPool;
 
 /**
@@ -67,7 +72,7 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
     private String nameAttributeName = null;
     private String subjectIDAttributeName = null;
     private String descriptionAttributeName = null;
-    private String subjectTypeString = null;
+    // private String subjectTypeString = null;
     private String localDomain = null;
     private String propertiesFile = null;
     private SoftLimitLdapPool ldapPool;
@@ -78,6 +83,9 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
     private String[] allAttributeNames;
 
     private boolean throwErrorOnFindAllFailure;
+
+    /** if there is a limit to the number of results */
+    private Integer maxPage;
 
     public LdapSourceAdapter() {
         super();
@@ -102,18 +110,31 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
         String mr = getStringProperty(props,"Multiple_Results");
         if (mr!=null && (mr.equalsIgnoreCase("yes")||mr.equalsIgnoreCase("true"))) multipleResults = true;
 
-        Set attributeNameSet = this.getAttributes();
+        Set<?> attributeNameSet = this.getAttributes();
         allAttributeNames = new String[3+attributeNameSet.size()];
         allAttributeNames[0] = nameAttributeName;
         allAttributeNames[1] = subjectIDAttributeName;
         allAttributeNames[2] = descriptionAttributeName;
         int i = 0;
-        for (Iterator it = attributeNameSet.iterator(); it.hasNext(); allAttributeNames[3+i++]= (String) it.next());
+        for (Iterator<?> it = attributeNameSet.iterator(); it.hasNext(); allAttributeNames[3+i++]= (String) it.next());
 
         initializeLdap();
   
         String throwErrorOnFindAllFailureString = this.getInitParam("throwErrorOnFindAllFailure");
         throwErrorOnFindAllFailure = SubjectUtils.booleanValue(throwErrorOnFindAllFailureString, true);
+        
+        
+        {
+          String maxPageString = props.getProperty("maxPageSize");
+          if (!StringUtils.isBlank(maxPageString)) {
+            try {
+              this.maxPage = Integer.parseInt(maxPageString);
+            } catch (NumberFormatException nfe) {
+              throw new SourceUnavailableException("Cant parse maxPage: " + maxPageString, nfe);
+            }
+          }
+        }
+
    }
 
    private void initializeLdap() {
@@ -122,21 +143,32 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
         
       try {
          // all ldap config from the ldap properties file
-         log.debug("reading properties file " + propertiesFile);
-         LdapConfig ldapConfig = LdapConfig.createFromProperties(new FileInputStream(propertiesFile));
-         log.debug("from properties file " + propertiesFile + " got " + ldapConfig);
+         if (log.isDebugEnabled()) {
+           log.debug("reading properties file " + propertiesFile);
+         }
+	     File theFile = SubjectUtils.fileFromResourceName(propertiesFile);
+		 LdapConfig ldapConfig = LdapConfig.createFromProperties(new FileInputStream(theFile));
+         if (log.isDebugEnabled()) {
+           log.debug("from properties file " + propertiesFile + " got " + ldapConfig);
+         }
 
          // including config for the pem cert mode
          Map<String, Object> props = ldapConfig.getEnvironmentProperties();
        
          Set<String> ps = props.keySet();
-         for (Iterator it = ps.iterator(); it.hasNext(); log.debug(".. key = " + it.next()));
-     
+                  
+         if (log.isDebugEnabled()) {
+         
+           for (Iterator<String> it = ps.iterator(); it.hasNext(); log.debug(".. key = " + it.next()));
+         }
+         
          String cafile = (String)props.get("pemCaFile");
          String certfile = (String)props.get("pemCertFile");
          String keyfile = (String)props.get("pemKeyFile");
          if (cafile!=null && certfile!=null && keyfile!=null) {
+            if (log.isDebugEnabled()) {
             log.debug("using the PEM socketfactory: ca=" + cafile + ", cert=" + certfile + ", key=" + keyfile);
+            }
             LdapPEMSocketFactory sf = new LdapPEMSocketFactory(cafile, certfile, keyfile);
             SSLSocketFactory ldapSocketFactory = sf.getSocketFactory();
             ldapConfig.setSslSocketFactory(ldapSocketFactory);
@@ -145,17 +177,18 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
          }
 
 	 DefaultLdapFactory factory = new DefaultLdapFactory(ldapConfig);
-	 LdapPoolConfig poolConfig = new LdapPoolConfig();
+	 // LdapPoolConfig poolConfig = new LdapPoolConfig();
      
          try {
 	    ldapPool = new SoftLimitLdapPool(factory);
             ldapPool.initialize();
             initialized = true;
          } catch (Exception e) {
-            log.debug("ldappool error = " + e);
+            //why swallow???
+            log.debug("ldappool error = " + e, e);
          }
       } catch (FileNotFoundException e) {
-         log.error("ldap properties not found: " + e);
+         log.error("ldap properties not found: " + e, e);
       }
       log.debug("ldap initialize done");
    }
@@ -212,10 +245,14 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
         if (localDomain != null) {
            int atpos;
            if ((atpos=id.indexOf("@" + localDomain))>0) {
+              if (log.isDebugEnabled()) {
               log.debug("looking at id=" + id);
+              }
               id = id.substring(0, atpos);
+              if (log.isDebugEnabled()) {
               log.debug("converted to id=" + id);
            }
+        }
         }
         try {
            Attributes attributes = getLdapUnique( search, id, allAttributeNames );
@@ -224,7 +261,12 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
                throw new SubjectNotFoundException("Subject " + id + " not found.");
            }
         } catch (SubjectNotFoundException e) {
-          if (exceptionIfNull) throw e;
+            // if (exceptionIfNull) throw e;
+        	if (exceptionIfNull) {
+        		throw e;
+        	} else {
+        		return null;
+        	}
         }
         search = getSearch("searchSubjectByIdentifierAttributes");
         if (search==null) ((LdapSubject)subject).setAttributesGotten(true);
@@ -242,27 +284,50 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
     } 
 
     /**
+     * @see edu.internet2.middleware.subject.provider.BaseSourceAdapter#searchPage(java.lang.String)
+     */
+    @Override
+    public SearchPageResult searchPage(String searchValue) {
+      return searchHelper(searchValue, true);
+    }
+
+    /**
      * {@inheritDoc}
      */
     @Override
     public Set<Subject> search(String searchValue) {
+      return searchHelper(searchValue, false).getResults();
+    }
+
+    /**
+     * @param searchValue 
+     * @return the set
+     */
+   private SearchPageResult searchHelper(String searchValue, boolean firstPageOnly) {
+     boolean tooManyResults = false;
         Comparator cp = new LdapComparator();
         TreeSet result = new TreeSet(cp);
         Search search = getSearch("search");
         if (search == null) {
             log.error("searchType: \"search\" not defined.");
-            return result;
+            return new SearchPageResult(tooManyResults, result);
         }
         Search searchA = getSearch("searchAttributes");
         boolean noAttrSearch = true;
         if (searchA!=null) noAttrSearch = false;
 
         try {
-           Iterator<SearchResult> ldapResults = getLdapResults(search,searchValue, allAttributeNames);
+           Iterator<SearchResult> ldapResults = getLdapResultsHelper(search,searchValue, allAttributeNames, firstPageOnly);
            if (ldapResults == null) {
-               return result;
+             return new SearchPageResult(tooManyResults, result);
            }
            while ( ldapResults.hasNext()) {
+               //if we are at the end of the page
+               if (firstPageOnly && this.maxPage != null && result.size() >= this.maxPage) {
+                 tooManyResults = true;
+                 break;
+               }
+
                SearchResult si = (SearchResult) ldapResults.next();
                Attributes attributes = si.getAttributes();
                Subject subject = createSubject(attributes);
@@ -270,8 +335,10 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
                result.add(subject);
            }
 
+           if (log.isDebugEnabled()) {
            log.debug("set has " + result.size() + " subjects");
            if (result.size()>0) log.debug("first is " + ((Subject)result.first()).getName());
+           }
 
         } catch (Exception ex) {
 
@@ -282,7 +349,7 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
            }
         }
 
-        return result;
+        return new SearchPageResult(tooManyResults, result);
     }
     
     /**
@@ -294,7 +361,9 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
         String description = "";
 
         if (attributes==null) {
+           if (log.isDebugEnabled()) {
            log.debug("ldap create subject with null attrs");
+           }
            return (null);
         }
         try {
@@ -306,13 +375,17 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
             subjectID   = ((String)attribute.get()).toLowerCase();
             attribute = attributes.get(nameAttributeName);
             if (attribute == null) {
+                if (log.isDebugEnabled()) {
                 log.debug("No immedaite value for attribute \"" + nameAttributeName + "\". Will look later.");
+                }
             } else {
                 name = (String) attribute.get();
             }
             attribute = attributes.get(descriptionAttributeName);
             if (attribute == null) {
-                log.debug("No immedaite value for attribute \"" + descriptionAttributeName + "\". Will look later.");
+                if (log.isDebugEnabled()) {
+                  log.debug("No immediate value for attribute \"" + descriptionAttributeName + "\". Will look later.");
+                }
             } else {
                 description   = (String) attribute.get();
             }
@@ -323,17 +396,17 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
  
         // add the attributes
 
-        Map myAttributes = new SubjectCaseInsensitiveMapImpl();
+        Map<String, Set<String>> myAttributes = new  SubjectCaseInsensitiveMapImpl<String, Set<String>>();
         try {
-            for (NamingEnumeration e = attributes.getAll(); e.hasMore();) {
+            for (NamingEnumeration<?> e = attributes.getAll(); e.hasMore();) {
                 Attribute attr = (Attribute) e.next();
                 String attrName = attr.getID();
                 // skip the basic ones
                 if (attrName.equals(nameAttributeName)) continue;
                 if (attrName.equals(subjectIDAttributeName)) continue;
                 if (attrName.equals(descriptionAttributeName)) continue;
-                Set values = new HashSet();
-                for (NamingEnumeration en = attr.getAll(); en.hasMore(); ) {
+                Set<String> values = new HashSet<String>();
+                for (NamingEnumeration<?> en = attr.getAll(); en.hasMore(); ) {
                     Object value =  en.next();
                     values.add(value.toString());
                 }
@@ -360,9 +433,11 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
      * Try to get more attributes for the subject.
      * @param subject
      */
-    protected Map getAllAttributes(LdapSubject subject) {
-        Map attributes =  new SubjectCaseInsensitiveMapImpl();
-        log.debug("getAllAttributes for " + subject.getName());
+    protected Map<String, Set<String>> getAllAttributes(LdapSubject subject) {
+    	Map<String, Set<String>> attributes = new  SubjectCaseInsensitiveMapImpl<String, Set<String>>();
+        if (log.isDebugEnabled()) {
+          log.debug("getAllAttributes for " + subject.getName());
+        }
         Search search = getSearch("searchSubjectAttributes");
         if (search == null) {
             log.error("searchType: \"searchSubjectAttributes\" not defined.");
@@ -371,7 +446,7 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
 
         try {
             Attributes ldapAttributes = getLdapUnique(search,subject.getName(), allAttributeNames);
-            for (NamingEnumeration e = ldapAttributes.getAll(); e.hasMore();) {
+            for (NamingEnumeration<?> e = ldapAttributes.getAll(); e.hasMore();) {
                 Attribute attr = (Attribute) e.next();
                 String attrName = attr.getID();
 
@@ -383,8 +458,8 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
                    continue;
                 }
                    
-                Set values = new HashSet();
-                for (NamingEnumeration en = attr.getAll(); en.hasMore(); ) {
+                Set<String> values = new HashSet<String>();
+                for (NamingEnumeration<?> en = attr.getAll(); en.hasMore(); ) {
                     Object value =  en.next();
                     values.add(value.toString());
                 }
@@ -402,6 +477,10 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
     }
     
    protected Iterator<SearchResult> getLdapResults(Search search, String searchValue, String[] attributeNames) {
+      return getLdapResultsHelper(search, searchValue, attributeNames, false); 
+    }
+   
+    private Iterator<SearchResult> getLdapResultsHelper(Search search, String searchValue, String[] attributeNames, boolean firstPageOnly ) {
         Ldap ldap = null;
         String filter = null;
         Iterator<SearchResult> results = null;
@@ -439,10 +518,18 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
             }
             filter = filter.replaceAll("%TERM%", escapeSearchFilter(searchValue));
         }
+        if (log.isDebugEnabled()) {
         log.debug("searchType: " + search.getSearchType() + " filter: " + filter);
+        }
 
         try  {
             ldap =  (Ldap) ldapPool.checkOut();
+            SearchControls searchControls = new SearchControls();
+            searchControls.setReturningAttributes(attributeNames);
+            //if we are at the end of the page
+            if (firstPageOnly && this.maxPage != null) {
+              searchControls.setCountLimit(this.maxPage+1);
+            }
             results = ldap.search(new SearchFilter(filter), attributeNames );
         } catch (NamingException ex) {
             log.error("Ldap NamingException: " + ex.getMessage(), ex);
@@ -475,6 +562,10 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
             
         SearchResult si = ( SearchResult )results.next( );
         attributes = si.getAttributes();
+        
+        // Add the DN to the returned attributes.
+        attributes.put(new BasicAttribute("dn", si.getName()));
+        
         if ( results.hasNext()) {
             si = (SearchResult) results.next();
             if (!multipleResults) {
@@ -486,9 +577,13 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
           try {
             while (n.hasMore()) {
                Attribute a = n.next();
+               if (log.isDebugEnabled()) {
                log.debug("checking attribute " + a.getID());
+               }
                if (attributes.get(a.getID())==null) {
+                  if (log.isDebugEnabled()) {
                   log.debug("adding " + a.getID());
+                  }
                   attributes.put(a);
                }
             }
@@ -496,6 +591,9 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
               log.error("ldap excp: " + e);
               throw new SourceUnavailableException("Ldap Exception: " + e.getMessage(), e);
           }
+          
+          // Add the DN to the returned attributes.
+       	  attributes.get("dn").add(si.getName());
         }
         return attributes;
     }
@@ -529,5 +627,31 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
     public String printConfig() {
       String message = "sources.xml ldap source id:   " + this.getId() + ": " + propertiesFile;
       return message;
+    }
+    
+	/**
+	 * Return the underlying {@link LdapPool}.
+	 * 
+	 * @return the ldap pool
+	 */
+	public LdapPool<Ldap> getLdapPool() {
+		return ldapPool;
+	}
+
+	/**
+	 * Set whether or not multiple results are allowed. Primarily for tests.
+	 * 
+	 * @param multipleResults
+	 */
+	public void setMultipleResults(boolean multipleResults) {
+		this.multipleResults = multipleResults;
+	}
+
+    /**
+     * max Page size
+     * @return the maxPage
+     */
+    public Integer getMaxPage() {
+      return this.maxPage;
     }
 }

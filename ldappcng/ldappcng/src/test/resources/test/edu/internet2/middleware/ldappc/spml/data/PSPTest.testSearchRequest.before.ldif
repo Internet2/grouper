@@ -1,0 +1,6 @@
+dn: cn=groupB,ou=testgroups,${base}
+objectclass: top
+objectclass: ${groupObjectClass}
+cn: groupB
+member: cn=test.subject.1,ou=testpeople,${base}
+description: descriptionB

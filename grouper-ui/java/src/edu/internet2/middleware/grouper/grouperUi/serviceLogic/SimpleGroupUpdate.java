@@ -24,6 +24,7 @@ import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
+import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
@@ -229,13 +230,23 @@ public class SimpleGroupUpdate {
         guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simpleGroupUpdate.errorDisplayExtensionRequired", false)));
         return;
       }
+      TypeOfGroup typeOfGroup = null;
+      {
+        String groupTypeString = httpServletRequest.getParameter("groupToEditType");
+        
+        if (StringUtils.isBlank(groupTypeString)) {
+          throw new RuntimeException("Why is groupType null?");
+        }
+  
+        typeOfGroup = TypeOfGroup.valueOfIgnoreCase(groupTypeString, true);
+      }
 
       //create it... all validation should be done at this point, so we dont create, then give an error, and have a partial create
       if (isCreate) {
         
-        group = stem.addChildGroup(extension, displayExtension);
-  
         stemName = stem.getName();
+        group = new GroupSave(grouperSession).assignName(stemName + ":" + extension).assignDisplayExtension(displayExtension).assignTypeOfGroup(typeOfGroup).save();
+        
   
       } else {
         group.setDisplayExtension(displayExtension);
@@ -247,44 +258,73 @@ public class SimpleGroupUpdate {
         group.setDescription(description);
       }
       
-      {
-        String groupTypeString = httpServletRequest.getParameter("groupToEditType");
-        
-        if (StringUtils.isBlank(groupTypeString)) {
-          throw new RuntimeException("Why is groupType null?");
-        }
-  
-        TypeOfGroup typeOfGroup = TypeOfGroup.valueOfIgnoreCase(groupTypeString, true);
-  
-        group.setTypeOfGroup(typeOfGroup);
-      }
+      group.setTypeOfGroup(typeOfGroup);
       
       group.store();
   
       Subject everyEntitySubject = SubjectFinder.findAllSubject();
       
+      //entities only have VIEW or ADMIN
+      if (group.getTypeOfGroup() != TypeOfGroup.entity) {
+
+
+        {
+          boolean groupToEditAllowAllOptin = GrouperUtil.booleanValue(httpServletRequest.getParameter("groupToEditAllowAllOptin"), false);
+          groupUpdateRequestContainer.setAllowAllOptin(groupToEditAllowAllOptin);
+          if (groupToEditAllowAllOptin != group.hasOptin(everyEntitySubject)) {
+            if (groupToEditAllowAllOptin) {
+              group.grantPriv(everyEntitySubject, AccessPrivilege.OPTIN, false);
+            } else{
+              group.revokePriv(everyEntitySubject, AccessPrivilege.OPTIN, false);
+            }
+          }
+        }
+        {
+          boolean groupToEditAllowAllOptout = GrouperUtil.booleanValue(httpServletRequest.getParameter("groupToEditAllowAllOptout"), false);
+          groupUpdateRequestContainer.setAllowAllOptout(groupToEditAllowAllOptout);
+          if (groupToEditAllowAllOptout != group.hasOptout(everyEntitySubject)) {
+            if (groupToEditAllowAllOptout) {
+              group.grantPriv(everyEntitySubject, AccessPrivilege.OPTOUT, false);
+            } else{
+              group.revokePriv(everyEntitySubject, AccessPrivilege.OPTOUT, false);
+            }
+          }
+        }
+        {
+          boolean groupToEditAllowAllUpdate = GrouperUtil.booleanValue(httpServletRequest.getParameter("groupToEditAllowAllUpdate"), false);
+          groupUpdateRequestContainer.setAllowAllUpdate(groupToEditAllowAllUpdate);
+          if (groupToEditAllowAllUpdate != group.hasUpdate(everyEntitySubject)) {
+            if (groupToEditAllowAllUpdate) {
+              group.grantPriv(everyEntitySubject, AccessPrivilege.UPDATE, false);
+            } else{
+              group.revokePriv(everyEntitySubject, AccessPrivilege.UPDATE, false);
+            }
+          }
+        }
+        {
+          boolean groupToEditAllowAllRead = GrouperUtil.booleanValue(httpServletRequest.getParameter("groupToEditAllowAllRead"), false);
+          groupUpdateRequestContainer.setAllowAllRead(groupToEditAllowAllRead);
+          if (groupToEditAllowAllRead != group.hasRead(everyEntitySubject)) {
+            if (groupToEditAllowAllRead) {
+              group.grantPriv(everyEntitySubject, AccessPrivilege.READ, false);
+            } else{
+              group.revokePriv(everyEntitySubject, AccessPrivilege.READ, false);
+            }
+          }
+        }
+      }      
       {
-        boolean groupToEditAllowAllOptin = GrouperUtil.booleanValue(httpServletRequest.getParameter("groupToEditAllowAllOptin"), false);
-        groupUpdateRequestContainer.setAllowAllOptin(groupToEditAllowAllOptin);
-        if (groupToEditAllowAllOptin != group.hasOptin(everyEntitySubject)) {
-          if (groupToEditAllowAllOptin) {
-            group.grantPriv(everyEntitySubject, AccessPrivilege.OPTIN, false);
+        boolean groupToEditAllowAllView = GrouperUtil.booleanValue(httpServletRequest.getParameter("groupToEditAllowAllView"), false);
+        groupUpdateRequestContainer.setAllowAllView(groupToEditAllowAllView);
+        if (groupToEditAllowAllView != group.hasView(everyEntitySubject)) {
+          if (groupToEditAllowAllView) {
+            group.grantPriv(everyEntitySubject, AccessPrivilege.VIEW, false);
           } else{
-            group.revokePriv(everyEntitySubject, AccessPrivilege.OPTIN, false);
+            group.revokePriv(everyEntitySubject, AccessPrivilege.VIEW, false);
           }
         }
       }
-      {
-        boolean groupToEditAllowAllOptout = GrouperUtil.booleanValue(httpServletRequest.getParameter("groupToEditAllowAllOptout"), false);
-        groupUpdateRequestContainer.setAllowAllOptout(groupToEditAllowAllOptout);
-        if (groupToEditAllowAllOptout != group.hasOptout(everyEntitySubject)) {
-          if (groupToEditAllowAllOptout) {
-            group.grantPriv(everyEntitySubject, AccessPrivilege.OPTOUT, false);
-          } else{
-            group.revokePriv(everyEntitySubject, AccessPrivilege.OPTOUT, false);
-          }
-        }
-      }
+        
       {
         boolean groupToEditAllowAllAdmin = GrouperUtil.booleanValue(httpServletRequest.getParameter("groupToEditAllowAllAdmin"), false);
         groupUpdateRequestContainer.setAllowAllAdmin(groupToEditAllowAllAdmin);
@@ -297,41 +337,6 @@ public class SimpleGroupUpdate {
           }
         }
       }
-      {
-        boolean groupToEditAllowAllUpdate = GrouperUtil.booleanValue(httpServletRequest.getParameter("groupToEditAllowAllUpdate"), false);
-        groupUpdateRequestContainer.setAllowAllUpdate(groupToEditAllowAllUpdate);
-        if (groupToEditAllowAllUpdate != group.hasUpdate(everyEntitySubject)) {
-          if (groupToEditAllowAllUpdate) {
-            group.grantPriv(everyEntitySubject, AccessPrivilege.UPDATE, false);
-          } else{
-            group.revokePriv(everyEntitySubject, AccessPrivilege.UPDATE, false);
-          }
-        }
-      }
-      {
-        boolean groupToEditAllowAllRead = GrouperUtil.booleanValue(httpServletRequest.getParameter("groupToEditAllowAllRead"), false);
-        groupUpdateRequestContainer.setAllowAllRead(groupToEditAllowAllRead);
-        if (groupToEditAllowAllRead != group.hasRead(everyEntitySubject)) {
-          if (groupToEditAllowAllRead) {
-            group.grantPriv(everyEntitySubject, AccessPrivilege.READ, false);
-          } else{
-            group.revokePriv(everyEntitySubject, AccessPrivilege.READ, false);
-          }
-        }
-      }
-      {
-        boolean groupToEditAllowAllView = GrouperUtil.booleanValue(httpServletRequest.getParameter("groupToEditAllowAllView"), false);
-        groupUpdateRequestContainer.setAllowAllView(groupToEditAllowAllView);
-        if (groupToEditAllowAllView != group.hasView(everyEntitySubject)) {
-          if (groupToEditAllowAllView) {
-            group.grantPriv(everyEntitySubject, AccessPrivilege.VIEW, false);
-          } else{
-            group.revokePriv(everyEntitySubject, AccessPrivilege.VIEW, false);
-          }
-        }
-      }
-      
-      
       
       guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message(
           "simpleGroupUpdate.groupSaved", false, true, stemName + ":" + extension)));

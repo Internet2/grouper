@@ -16,17 +16,17 @@ package edu.internet2.middleware.grouper.shibboleth.dataConnector.config;
 
 import edu.internet2.middleware.grouper.shibboleth.dataConnector.GroupDataConnector;
 
-/**
- * Spring bean factory that produces {@link GroupDataConnector}s.
- */
+/** Spring bean factory that produces {@link GroupDataConnector}s. */
 public class GroupDataConnectorFactoryBean extends BaseGrouperDataConnectorFactoryBean {
 
+  /** {@inheritDoc} */
   protected Object createInstance() throws Exception {
     GroupDataConnector connector = new GroupDataConnector();
     populateDataConnector(connector);
     return connector;
   }
 
+  /** {@inheritDoc} */
   public Class getObjectType() {
     return GroupDataConnector.class;
   }

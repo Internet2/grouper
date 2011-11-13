@@ -110,7 +110,7 @@ public class TestMembershipDeletes1 extends GrouperTest {
       memberD = MemberFinder.findBySubject(r.rs, subjD, true);
 
       fieldMembers = Group.getDefaultList();
-      fieldUpdaters = FieldFinder.find("updaters", true);
+      fieldUpdaters = FieldFinder.find(Field.FIELD_NAME_UPDATERS, true);
 
       // initial data
       gA.addCompositeMember(CompositeType.INTERSECTION, gB, gC);

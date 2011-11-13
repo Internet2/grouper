@@ -43,15 +43,20 @@ import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.AttributeDefType;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.cfg.ApiConfig;
+import edu.internet2.middleware.grouper.entity.Entity;
+import edu.internet2.middleware.grouper.entity.EntitySave;
+import edu.internet2.middleware.grouper.entity.EntityUtils;
 import edu.internet2.middleware.grouper.exception.GroupAddException;
 import edu.internet2.middleware.grouper.exception.GroupModifyAlreadyExistsException;
 import edu.internet2.middleware.grouper.exception.GroupModifyException;
+import edu.internet2.middleware.grouper.exception.GroupSetNotFoundException;
 import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.RevokePrivilegeException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.R;
+import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.misc.CompositeType;
@@ -85,7 +90,7 @@ public class Test_api_Group extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new Test_api_Group("test_copy_all_as_nonadmin"));
+    TestRunner.run(new Test_api_Group("test_copy_entity"));
   }
   
   private Group           top_group, child_group;
@@ -282,7 +287,7 @@ public class Test_api_Group extends GrouperTest {
     GrouperDAOFactory.getFactory().getMembership().update(ms);
     
     ms = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(
-        group1.getUuid(), MemberFinder.findBySubject(r.rs, b, true).getUuid(), FieldFinder.find("updaters", true), MembershipType.IMMEDIATE.getTypeString(), true, true);
+        group1.getUuid(), MemberFinder.findBySubject(r.rs, b, true).getUuid(), FieldFinder.find(Field.FIELD_NAME_UPDATERS, true), MembershipType.IMMEDIATE.getTypeString(), true, true);
     ms.setEnabled(false);
     ms.setEnabledTime(enabledTime);
     ms.setDisabledTime(disabledTime);
@@ -295,10 +300,10 @@ public class Test_api_Group extends GrouperTest {
     Group newGroup = group1.copy(target);
     
     assertEquals(1, GrouperDAOFactory.getFactory().getMembership().findAllByCreatedAfter(pre, Group.getDefaultList(), true).size());
-    assertEquals(0, GrouperDAOFactory.getFactory().getMembership().findAllByCreatedAfter(pre, FieldFinder.find("updaters", true), true).size());
+    assertEquals(0, GrouperDAOFactory.getFactory().getMembership().findAllByCreatedAfter(pre, FieldFinder.find(Field.FIELD_NAME_UPDATERS, true), true).size());
     
     assertEquals(2, GrouperDAOFactory.getFactory().getMembership().findAllByCreatedAfter(pre, Group.getDefaultList(), false).size());
-    assertEquals(1, GrouperDAOFactory.getFactory().getMembership().findAllByCreatedAfter(pre, FieldFinder.find("updaters", true), false).size());
+    assertEquals(1, GrouperDAOFactory.getFactory().getMembership().findAllByCreatedAfter(pre, FieldFinder.find(Field.FIELD_NAME_UPDATERS, true), false).size());
     
 
     Membership disabled1 = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(
@@ -308,7 +313,7 @@ public class Test_api_Group extends GrouperTest {
     assertTrue(disabled1.getDisabledTime().getTime() == disabledTime.getTime());
     
     Membership disabled2 = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(
-        newGroup.getUuid(), MemberFinder.findBySubject(r.rs, b, true).getUuid(), FieldFinder.find("updaters", true), MembershipType.IMMEDIATE.getTypeString(), true, false);
+        newGroup.getUuid(), MemberFinder.findBySubject(r.rs, b, true).getUuid(), FieldFinder.find(Field.FIELD_NAME_UPDATERS, true), MembershipType.IMMEDIATE.getTypeString(), true, false);
     assertTrue(disabled2.getEnabledDb().equals("F"));
     assertTrue(disabled2.getEnabledTime().getTime() == enabledTime.getTime());
     assertTrue(disabled2.getDisabledTime().getTime() == disabledTime.getTime());
@@ -1009,6 +1014,97 @@ public class Test_api_Group extends GrouperTest {
   }
   
   /**
+   * 
+   */
+  public void test_copy_role_with_members() {
+    Stem stem1 = root.addChildStem("stem1", "stem1");
+    Stem stem2 = root.addChildStem("stem2", "stem2");
+    Role role = stem1.addChildRole("role", "role");
+    role.addMember(SubjectTestHelper.SUBJ0, true);
+    
+    Group roleCopy = ((Group)role).copy(stem2);
+    assertEquals(TypeOfGroup.role, roleCopy.getTypeOfGroup());
+    assertTrue(roleCopy.hasMember(SubjectTestHelper.SUBJ0));
+    
+    assertNotNull(GrouperDAOFactory.getFactory().getRoleSet().findByIfHasRoleId(roleCopy.getUuid()));
+  }
+  
+  /**
+   * 
+   */
+  public void test_copy_entity() {
+    Stem stem1 = root.addChildStem("stem1", "stem1");
+    Stem stem2 = root.addChildStem("stem2", "stem2");
+    Entity entity = new EntitySave(this.s).assignName(stem1.getName() + ":entity").save();
+    
+    entity.grantPriv(SubjectTestHelper.SUBJ1, AccessPrivilege.ADMIN, true);
+    stem1.grantPriv(SubjectTestHelper.SUBJ1, NamingPrivilege.CREATE);
+    stem2.grantPriv(SubjectTestHelper.SUBJ1, NamingPrivilege.CREATE);
+    
+    GrouperSession.start(SubjectTestHelper.SUBJ1);
+    
+    Entity entityCopy = entity.copy(stem1);
+    assertNull(entityCopy.getAttributeValueDelegate().retrieveValueString(EntityUtils.entitySubjectIdentifierName()));
+    entityCopy.delete();
+    
+    entityCopy = entity.copy(stem2);
+    assertEquals(TypeOfGroup.entity, ((Group)entityCopy).getTypeOfGroup());
+    assertNull(entityCopy.getAttributeValueDelegate().retrieveValueString(EntityUtils.entitySubjectIdentifierName()));
+
+    // verify a couple of group sets
+    assertNotNull(GrouperDAOFactory.getFactory().getGroupSet().findSelfGroup(entityCopy.getId(), FieldFinder.find(Field.FIELD_NAME_ADMINS, true).getUuid()));
+    
+    try {
+      GrouperDAOFactory.getFactory().getGroupSet().findSelfGroup(entityCopy.getId(), Group.getDefaultList().getUuid());
+      fail("Group set should not exist");
+    } catch (GroupSetNotFoundException e) {
+      // good
+    }
+    
+    entityCopy.delete();
+    
+    entity.getAttributeValueDelegate().assignValue(EntityUtils.entitySubjectIdentifierName(), "stem1:x:y:z");
+    entityCopy = entity.copy(stem2);
+    assertEquals("stem2:x:y:z", entityCopy.getAttributeValueDelegate().retrieveValueString(EntityUtils.entitySubjectIdentifierName()));
+    
+    Entity entityCopyCopy = entityCopy.copy(stem2);
+    
+    // this is null because it was copied in the same stem so it would be a duplicate..
+    assertNull(entityCopyCopy.getAttributeValueDelegate().retrieveValueString(EntityUtils.entitySubjectIdentifierName()));
+  }
+  
+  /**
+   * 
+   */
+  public void test_move_entity() {
+    Stem stem1 = root.addChildStem("stem1", "stem1");
+    Stem stem2 = root.addChildStem("stem2", "stem2");
+    Stem stem3 = root.addChildStem("stem3", "stem3");
+    Entity entity = new EntitySave(this.s).assignName(stem1.getName() + ":entity").save();
+    
+    entity.grantPriv(SubjectTestHelper.SUBJ1, AccessPrivilege.ADMIN, true);
+    stem2.grantPriv(SubjectTestHelper.SUBJ1, NamingPrivilege.CREATE);
+    stem3.grantPriv(SubjectTestHelper.SUBJ1, NamingPrivilege.CREATE);
+    
+    GrouperSession.start(SubjectTestHelper.SUBJ1);
+    
+    entity.setExtension("entity2");
+    entity.store();
+    assertNull(entity.getAttributeValueDelegate().retrieveValueString(EntityUtils.entitySubjectIdentifierName()));
+    
+    entity.move(stem2);
+    assertNull(entity.getAttributeValueDelegate().retrieveValueString(EntityUtils.entitySubjectIdentifierName()));
+    
+    entity.getAttributeValueDelegate().assignValue(EntityUtils.entitySubjectIdentifierName(), "stem2:x:y:z");
+    entity.move(stem3);
+    assertEquals("stem3:x:y:z", entity.getAttributeValueDelegate().retrieveValueString(EntityUtils.entitySubjectIdentifierName()));
+    
+    entity.setExtension("entity3");
+    entity.store();
+    assertEquals("stem3:x:y:z", entity.getAttributeValueDelegate().retrieveValueString(EntityUtils.entitySubjectIdentifierName()));
+  }
+  
+  /**
    * @throws Exception
    */
   public void test_copy_members_only() throws Exception {
@@ -1288,7 +1384,7 @@ public class Test_api_Group extends GrouperTest {
     // subject can read child_group and can create in top stem, but cannot write privileges to top_group.
     nrs.stop();
     nrs = GrouperSession.start(SubjectFinder.findRootSubject());
-    Field admins = FieldFinder.find("admins", true);
+    Field admins = FieldFinder.find(Field.FIELD_NAME_ADMINS, true);
     admins.setReadPrivilege(AccessPrivilege.VIEW);
     GrouperDAOFactory.getFactory().getField().createOrUpdate(admins);
     nrs.stop();
@@ -1333,7 +1429,7 @@ public class Test_api_Group extends GrouperTest {
     // subject can read child_group and can create in top stem, but cannot write privileges to top.
     nrs.stop();
     nrs = GrouperSession.start(SubjectFinder.findRootSubject());
-    Field stemmers = FieldFinder.find("stemmers", true);
+    Field stemmers = FieldFinder.find(Field.FIELD_NAME_STEMMERS, true);
     stemmers.setReadPrivilege(NamingPrivilege.CREATE);
     GrouperDAOFactory.getFactory().getField().createOrUpdate(stemmers);
     nrs.stop();
@@ -1666,6 +1762,7 @@ public class Test_api_Group extends GrouperTest {
   public void test_option_to_disable_last_membership_change() throws Exception {
     ApiConfig.testConfig.put("groups.updateLastMembershipTime", "false");
     ApiConfig.testConfig.put("stems.updateLastMembershipTime", "true");
+    ApiConfig.testConfig.put("groups.updateLastImmediateMembershipTime", "true");
     
     R r = R.populateRegistry(0, 0, 2);
     Subject a = r.getSubject("a");
@@ -1714,6 +1811,7 @@ public class Test_api_Group extends GrouperTest {
   public void test_option_to_disable_last_imm_membership_change() throws Exception {
     ApiConfig.testConfig.put("groups.updateLastImmediateMembershipTime", "false");
     ApiConfig.testConfig.put("stems.updateLastMembershipTime", "true");
+    ApiConfig.testConfig.put("groups.updateLastMembershipTime", "true");
     
     R r = R.populateRegistry(0, 0, 2);
     Subject a = r.getSubject("a");

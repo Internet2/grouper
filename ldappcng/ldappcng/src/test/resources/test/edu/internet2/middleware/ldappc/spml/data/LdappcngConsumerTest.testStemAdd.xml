@@ -1,0 +1,96 @@
+
+<ldappc:syncRequest xmlns:ldappc='http://grouper.internet2.edu/ldappc' requestID='2011/10/26-11:15:20.999_Q4IS9KQ5' returnData='everything'>
+  <ldappc:id ID='edu'/>
+</ldappc:syncRequest>
+
+<ldappc:diffRequest xmlns:ldappc='http://grouper.internet2.edu/ldappc' requestID='2011/10/26-11:15:21.007_Q4IS9KQ6' returnData='everything'>
+  <ldappc:id ID='edu'/>
+</ldappc:diffRequest>
+
+<ldappc:calcRequest xmlns:ldappc='http://grouper.internet2.edu/ldappc' requestID='2011/10/26-11:15:21.010_Q4IS9KQ7' returnData='everything'>
+  <ldappc:id ID='edu'/>
+</ldappc:calcRequest>
+
+<ldappc:calcResponse xmlns:ldappc='http://grouper.internet2.edu/ldappc' status='success' requestID='2011/10/26-11:15:21.010_Q4IS9KQ7'>
+  <ldappc:id ID='edu'/>
+  <ldappc:pso entityName='stem'>
+    <psoID ID='ou=edu,ou=testgroups,${base}' targetID='ldap'/>
+    <data>
+      <dsml:attr xmlns:dsml='urn:oasis:names:tc:DSML:2:0:core' name='objectClass'>
+        <dsml:value>top</dsml:value>
+        <dsml:value>organizationalUnit</dsml:value>
+      </dsml:attr>
+      <dsml:attr xmlns:dsml='urn:oasis:names:tc:DSML:2:0:core' name='ou'>
+        <dsml:value>edu</dsml:value>
+      </dsml:attr>
+    </data>
+  </ldappc:pso>
+</ldappc:calcResponse>
+
+<lookupRequest xmlns='urn:oasis:names:tc:SPML:2:0' requestID='2011/10/26-11:15:21.054_Q4IS9KQ8' returnData='everything'>
+  <psoID ID='ou=edu,ou=testgroups,${base}' targetID='ldap'/>
+</lookupRequest>
+
+<lookupResponse xmlns='urn:oasis:names:tc:SPML:2:0' status='failure' requestID='2011/10/26-11:15:21.054_Q4IS9KQ8' error='noSuchIdentifier'/>
+
+<ldappc:diffResponse xmlns:ldappc='http://grouper.internet2.edu/ldappc' status='success' requestID='2011/10/26-11:15:21.007_Q4IS9KQ6'>
+  <addRequest xmlns='urn:oasis:names:tc:SPML:2:0' entityName='stem' requestID='2011/10/26-11:15:21.061_Q4IS9KQ9' targetId='ldap' returnData='everything'>
+    <psoID ID='ou=edu,ou=testgroups,${base}' targetID='ldap'/>
+    <data>
+      <dsml:attr xmlns:dsml='urn:oasis:names:tc:DSML:2:0:core' name='objectClass'>
+        <dsml:value>top</dsml:value>
+        <dsml:value>organizationalUnit</dsml:value>
+      </dsml:attr>
+      <dsml:attr xmlns:dsml='urn:oasis:names:tc:DSML:2:0:core' name='ou'>
+        <dsml:value>edu</dsml:value>
+      </dsml:attr>
+    </data>
+  </addRequest>
+  <ldappc:id ID='edu'/>
+</ldappc:diffResponse>
+
+<addRequest xmlns='urn:oasis:names:tc:SPML:2:0' entityName='stem' requestID='2011/10/26-11:15:21.061_Q4IS9KQ9' targetId='ldap' returnData='everything'>
+  <psoID ID='ou=edu,ou=testgroups,${base}' targetID='ldap'/>
+  <data>
+    <dsml:attr xmlns:dsml='urn:oasis:names:tc:DSML:2:0:core' name='objectClass'>
+      <dsml:value>top</dsml:value>
+      <dsml:value>organizationalUnit</dsml:value>
+    </dsml:attr>
+    <dsml:attr xmlns:dsml='urn:oasis:names:tc:DSML:2:0:core' name='ou'>
+      <dsml:value>edu</dsml:value>
+    </dsml:attr>
+  </data>
+</addRequest>
+
+<addResponse xmlns='urn:oasis:names:tc:SPML:2:0' status='success' requestID='2011/10/26-11:15:21.061_Q4IS9KQ9'>
+  <pso entityName='stem'>
+    <psoID ID='ou=edu,ou=testgroups,${base}' targetID='ldap'/>
+    <data>
+      <dsml:attr xmlns:dsml='urn:oasis:names:tc:DSML:2:0:core' name='objectClass'>
+        <dsml:value>organizationalUnit</dsml:value>
+        <dsml:value>top</dsml:value>
+      </dsml:attr>
+      <dsml:attr xmlns:dsml='urn:oasis:names:tc:DSML:2:0:core' name='ou'>
+        <dsml:value>edu</dsml:value>
+      </dsml:attr>
+    </data>
+  </pso>
+</addResponse>
+
+<ldappc:syncResponse xmlns:ldappc='http://grouper.internet2.edu/ldappc' status='success' requestID='2011/10/26-11:15:20.999_Q4IS9KQ5'>
+  <addResponse xmlns='urn:oasis:names:tc:SPML:2:0' status='success' requestID='2011/10/26-11:15:21.061_Q4IS9KQ9'>
+    <pso entityName='stem'>
+      <psoID ID='ou=edu,ou=testgroups,${base}' targetID='ldap'/>
+      <data>
+        <dsml:attr xmlns:dsml='urn:oasis:names:tc:DSML:2:0:core' name='objectClass'>
+          <dsml:value>organizationalUnit</dsml:value>
+          <dsml:value>top</dsml:value>
+        </dsml:attr>
+        <dsml:attr xmlns:dsml='urn:oasis:names:tc:DSML:2:0:core' name='ou'>
+          <dsml:value>edu</dsml:value>
+        </dsml:attr>
+      </data>
+    </pso>
+  </addResponse>
+  <ldappc:id ID='edu'/>
+</ldappc:syncResponse>

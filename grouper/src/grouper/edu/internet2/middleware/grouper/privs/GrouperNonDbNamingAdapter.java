@@ -90,8 +90,8 @@ public class GrouperNonDbNamingAdapter extends BaseNamingAdapter {
 
   // STATIC //
   static {
-    priv2list.put(  NamingPrivilege.CREATE, "creators"  );
-    priv2list.put(  NamingPrivilege.STEM  , "stemmers"  );
+    priv2list.put(  NamingPrivilege.CREATE, Field.FIELD_NAME_CREATORS  );
+    priv2list.put(  NamingPrivilege.STEM  , Field.FIELD_NAME_STEMMERS  );
   } // static
 
   /**

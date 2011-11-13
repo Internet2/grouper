@@ -13,8 +13,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -26,6 +26,7 @@ import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.morphString.Morph;
 import edu.internet2.middleware.subject.InvalidQueryException;
+import edu.internet2.middleware.subject.SearchPageResult;
 import edu.internet2.middleware.subject.SourceUnavailableException;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectCaseInsensitiveMapImpl;
@@ -55,11 +56,68 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
   /** subject type string */
   protected String subjectTypeString;
 
+  /** the database type will try to be detected by URL, though if you want to specify in sources.xml, you can */
+  private String databaseType;
+  
   /** if there is a limit to the number of results */
   protected Integer maxResults;
   
+  /** if there is a limit to the number of results */
+  private Integer maxPage;
+  
   /** keep a reference to the object which gets our connections for us */
   protected JdbcConnectionProvider jdbcConnectionProvider = null;
+
+  /** if we should change the search query for max results */
+  private boolean changeSearchQueryForMaxResults = true;
+
+  /**
+   * try to change a paging query, note it will add one to the resultSetLimit so that
+   * the caller can see if there are too many records
+   * @param query
+   * @param conn
+   * @param resultSetLimit
+   * @return the query with paging or original query if cant change it
+   */
+  public String tryToChangeQuery(String query, Connection conn, int resultSetLimit) {
+    
+    //lets see if we are restricted
+    if (!this.changeSearchQueryForMaxResults || resultSetLimit <= 0) {
+      return query;
+    }
+    
+    JdbcDatabaseType jdbcDatabaseType = JdbcDatabaseType.resolveDatabaseType(conn);
+
+    if (jdbcDatabaseType == null) {
+      return query;
+    }
+    
+    //we need to add one so we know if there are too many results...
+    resultSetLimit++;
+    
+    String newQuery = jdbcDatabaseType.pageQuery(query, resultSetLimit);
+    
+    if (StringUtils.isBlank(newQuery)) {
+      return query;
+    }
+    
+    return newQuery;
+  }
+  
+  /**
+   * @return the databaseType
+   */
+  public String getDatabaseType() {
+    return this.databaseType;
+  }
+
+  /**
+   * if we should change the query based on max resuuls or page
+   * @return the changeSearchQueryForMaxResults
+   */
+  public boolean isChangeSearchQueryForMaxResults() {
+    return this.changeSearchQueryForMaxResults;
+  }
 
   /**
    * Allocates new JDBCSourceAdapter;
@@ -135,7 +193,7 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
     try {
       jdbcConnectionBean = this.jdbcConnectionProvider.connectionBean();
       conn = jdbcConnectionBean.connection();
-      stmt = prepareStatement(search, conn);
+      stmt = prepareStatement(search, conn, false, false);
       ResultSet rs = getSqlResults(id1, stmt, search);
       subject = createUniqueSubject(rs, search, id1, search.getParam("sql"));
       jdbcConnectionBean.doneWithConnection();
@@ -168,11 +226,30 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
    */
   @Override
   public Set<Subject> search(String searchValue) {
-    Set<Subject> result = new HashSet<Subject>();
+    return searchHelper(searchValue, false).getResults();
+  }
+
+  /**
+   * @see edu.internet2.middleware.subject.provider.BaseSourceAdapter#searchPage(java.lang.String)
+   */
+  @Override
+  public SearchPageResult searchPage(String searchValue) {
+    return searchHelper(searchValue, true);
+  }
+
+  /**
+   * helper for query
+   * @param searchValue 
+   * @param firstPageOnly 
+   * @return the result object, never null
+   */
+  private SearchPageResult searchHelper(String searchValue, boolean firstPageOnly) {
+    Set<Subject> result = new LinkedHashSet<Subject>();
+    boolean tooManyResults = false;
     Search search = getSearch("search");
     if (search == null) {
       log.error("searchType: \"search\" not defined.");
-      return result;
+      return new SearchPageResult(false, result);
     }
     String throwErrorOnFindAllFailureString = this.getInitParam("throwErrorOnFindAllFailure");
     boolean throwErrorOnFindAllFailure = SubjectUtils.booleanValue(throwErrorOnFindAllFailureString, true);
@@ -181,32 +258,44 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
     PreparedStatement stmt = null;
     JdbcConnectionBean jdbcConnectionBean = null;
     try {
+      jdbcConnectionBean = this.jdbcConnectionProvider.connectionBean();
+
       if (failOnSearchForTesting) {
         throw new RuntimeException("failOnSearchForTesting");
       }
       
-      jdbcConnectionBean = this.jdbcConnectionProvider.connectionBean();
       conn = jdbcConnectionBean.connection();
-      stmt = prepareStatement(search, conn);
+      
+      stmt = prepareStatement(search, conn, true, firstPageOnly);
       ResultSet rs = getSqlResults(searchValue, stmt, search);
       if (rs == null) {
-        return result;
+        return new SearchPageResult(false, result);
       }
       while (rs.next()) {
-        Subject subject = createSubject(rs, search.getParam("sql"));
-        result.add(subject);
+        //if we are at the end of the page
+        if (firstPageOnly && this.maxPage != null && result.size() >= this.maxPage) {
+          tooManyResults = true;
+          break;
+        }
         if (this.maxResults != null && result.size() > this.maxResults) {
           throw new SubjectTooManyResults(
               "More results than allowed: " + this.maxResults 
               + " for search '" + search + "'");
         }
+        Subject subject = createSubject(rs, search.getParam("sql"));
+        result.add(subject);
       }
       jdbcConnectionBean.doneWithConnection();
     } catch (Exception ex) {
       try {
         jdbcConnectionBean.doneWithConnectionError(ex);
       } catch (RuntimeException re) {
-        log.error(re);
+        if (!(ex instanceof SubjectTooManyResults)) {
+          log.error("Problem with source: " + this.getId() + ", and query: '" + searchValue + "'", re);
+        }
+      }
+      if (ex instanceof SubjectTooManyResults) {
+        throw (SubjectTooManyResults)ex;
       }
       if (!throwErrorOnFindAllFailure) {
         log.error(ex.getMessage() + ", source: " + this.getId() + ", sql: "
@@ -221,7 +310,7 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
         jdbcConnectionBean.doneWithConnectionFinally();
       }
     }
-    return result;
+    return new SearchPageResult(tooManyResults, result);
   }
 
   /**
@@ -315,11 +404,13 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
    * 
    * @param search
    * @param conn
+   * @param searchAll true if a searchAll method
+   * @param firstPageOnly 
    * @return the prepared statement
    * @throws InvalidQueryException
    * @throws SQLException
    */
-  protected PreparedStatement prepareStatement(Search search, Connection conn)
+  protected PreparedStatement prepareStatement(Search search, Connection conn, boolean searchAll, boolean firstPageOnly)
       throws InvalidQueryException, SQLException {
     String sql = search.getParam("sql");
     if (sql == null) {
@@ -341,6 +432,15 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
                 + ", sql: " + sql);
       }
     }
+    
+    if (searchAll) {
+      Integer pageSize = resultSetLimit(firstPageOnly, this.getMaxPage(), this.maxResults);
+      if (pageSize != null && pageSize > 0) {
+        
+        sql = this.tryToChangeQuery(sql, conn, pageSize);
+      }
+    }
+    
     PreparedStatement stmt = conn.prepareStatement(sql);
     return stmt;
   }
@@ -437,6 +537,41 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
       Properties props = getInitParams();
       //this might not exist if it is Grouper source and no driver...
       setupDataSource(props);
+      
+      
+      {
+        String maxResultsString = props.getProperty("maxResults");
+        if (!StringUtils.isBlank(maxResultsString)) {
+          try {
+            this.maxResults = Integer.parseInt(maxResultsString);
+          } catch (NumberFormatException nfe) {
+            throw new SourceUnavailableException("Cant parse maxResults: " + maxResultsString, nfe);
+          }
+        }
+      }
+      
+      {
+        String maxPageString = props.getProperty("maxPageSize");
+        if (!StringUtils.isBlank(maxPageString)) {
+          try {
+            this.maxPage = Integer.parseInt(maxPageString);
+          } catch (NumberFormatException nfe) {
+            throw new SourceUnavailableException("Cant parse maxPage: " + maxPageString, nfe);
+          }
+        }
+      }
+
+      {
+        String changeSearchQueryForMaxResultsString = props.getProperty("changeSearchQueryForMaxResults");
+        if (!StringUtils.isBlank(changeSearchQueryForMaxResultsString)) {
+          try {
+            this.changeSearchQueryForMaxResults = SubjectUtils.booleanValue(changeSearchQueryForMaxResultsString);
+          } catch (Exception e) {
+            throw new SourceUnavailableException("Cant parse changeSearchQueryForMaxResults: " + changeSearchQueryForMaxResultsString, e);
+          }
+        }
+      }
+
     } catch (Exception ex) {
       throw new SourceUnavailableException(
           "Unable to init sources.xml JDBC source, source: " + this.getId(), ex);
@@ -535,15 +670,15 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
       throw new SourceUnavailableException(
           "Description_AttributeType not defined, source: " + this.getId());
     }
-    
-    String maxResultsString = props.getProperty("maxResults");
-    if (!StringUtils.isBlank(maxResultsString)) {
-      try {
-        this.maxResults = Integer.parseInt(maxResultsString);
-      } catch (NumberFormatException nfe) {
-        throw new SourceUnavailableException("Cant parse maxResults: " + maxResultsString, nfe);
-      }
-    }
+  }
+
+  
+  /**
+   * max Page size
+   * @return the maxPage
+   */
+  public Integer getMaxPage() {
+    return this.maxPage;
   }
 
   /**
@@ -615,6 +750,48 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
         log.error(error + ", dbUser param is required");
         return;
       }
+      
+      {
+        String maxResultsString = props.getProperty("maxResults");
+        if (!StringUtils.isBlank(maxResultsString)) {
+          try {
+            Integer.parseInt(maxResultsString);
+          } catch (Exception e) {
+            System.err.println("Cant parse maxResults: " + maxResultsString);
+            log.error("Cant parse maxResults: " + maxResultsString);
+            return;
+          }
+        }
+      }
+      
+      {
+        String maxPageString = props.getProperty("maxPageSize");
+        if (!StringUtils.isBlank(maxPageString)) {
+          try {
+            Integer.parseInt(maxPageString);
+          } catch (Exception e) {
+            System.err.println("Cant parse maxPageSize: " + maxPageString);
+            log.error("Cant parse maxPageSize: " + maxPageString);
+            return;
+          }
+        }
+      }
+
+      {
+        String changeSearchQueryForMaxResultsString = props.getProperty("changeSearchQueryForMaxResults");
+        if (!StringUtils.isBlank(changeSearchQueryForMaxResultsString)) {
+          try {
+            SubjectUtils.booleanValue(changeSearchQueryForMaxResultsString);
+          } catch (Exception e) {
+            System.err.println("Cant parse changeSearchQueryForMaxResults: " + changeSearchQueryForMaxResultsString);
+            log.error("Cant parse changeSearchQueryForMaxResults: " + changeSearchQueryForMaxResultsString);
+            return;
+          }
+        }
+      }
+
+      
+      
       String dbPwd = StringUtils.defaultString(props.getProperty("dbPwd"));
       //      if (StringUtils.isBlank(dbPwd)) {
       //        System.err.println("Subject API error: " + error + ", dbPwd param is required");

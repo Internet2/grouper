@@ -68,14 +68,14 @@ public class USDU {
   /** map list names to corresponding privileges, a better way probably exists */
   private static Map<String, Privilege> list2priv = new HashMap<String, Privilege>();
   static {
-    list2priv.put("admins", AccessPrivilege.ADMIN);
-    list2priv.put("optins", AccessPrivilege.OPTIN);
-    list2priv.put("optouts", AccessPrivilege.OPTOUT);
-    list2priv.put("readers", AccessPrivilege.READ);
-    list2priv.put("updaters", AccessPrivilege.UPDATE);
-    list2priv.put("viewers", AccessPrivilege.VIEW);
-    list2priv.put("creators", NamingPrivilege.CREATE);
-    list2priv.put("stemmers", NamingPrivilege.STEM);
+    list2priv.put(Field.FIELD_NAME_ADMINS, AccessPrivilege.ADMIN);
+    list2priv.put(Field.FIELD_NAME_OPTINS, AccessPrivilege.OPTIN);
+    list2priv.put(Field.FIELD_NAME_OPTOUTS, AccessPrivilege.OPTOUT);
+    list2priv.put(Field.FIELD_NAME_READERS, AccessPrivilege.READ);
+    list2priv.put(Field.FIELD_NAME_UPDATERS, AccessPrivilege.UPDATE);
+    list2priv.put(Field.FIELD_NAME_VIEWERS, AccessPrivilege.VIEW);
+    list2priv.put(Field.FIELD_NAME_CREATORS, NamingPrivilege.CREATE);
+    list2priv.put(Field.FIELD_NAME_STEMMERS, NamingPrivilege.STEM);
   }
 
   /**

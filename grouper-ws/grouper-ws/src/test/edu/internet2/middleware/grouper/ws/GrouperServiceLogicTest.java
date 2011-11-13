@@ -5,6 +5,7 @@
 package edu.internet2.middleware.grouper.ws;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -27,6 +28,7 @@ import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.StemSave;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.AttributeDefNameTest;
@@ -49,6 +51,8 @@ import edu.internet2.middleware.grouper.group.TypeOfGroup;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
+import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
+import edu.internet2.middleware.grouper.internal.dao.QuerySort;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.misc.SaveMode;
@@ -69,6 +73,7 @@ import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeAssignLookup;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeAssignValue;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefLookup;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameLookup;
+import edu.internet2.middleware.grouper.ws.coresoap.WsFindGroupsResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsGetAttributeAssignmentsResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsGetGroupsResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsGetMembersResults;
@@ -83,6 +88,7 @@ import edu.internet2.middleware.grouper.ws.coresoap.WsHasMemberResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsMembershipAnyLookup;
 import edu.internet2.middleware.grouper.ws.coresoap.WsMembershipLookup;
 import edu.internet2.middleware.grouper.ws.coresoap.WsPermissionAssign;
+import edu.internet2.middleware.grouper.ws.coresoap.WsQueryFilter;
 import edu.internet2.middleware.grouper.ws.coresoap.WsStemLookup;
 import edu.internet2.middleware.grouper.ws.coresoap.WsSubject;
 import edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup;
@@ -95,6 +101,7 @@ import edu.internet2.middleware.grouper.ws.coresoap.WsHasMemberResult.WsHasMembe
 import edu.internet2.middleware.grouper.ws.coresoap.WsHasMemberResults.WsHasMemberResultsCode;
 import edu.internet2.middleware.grouper.ws.member.WsMemberFilter;
 import edu.internet2.middleware.grouper.ws.query.StemScope;
+import edu.internet2.middleware.grouper.ws.query.WsQueryFilterType;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
 import edu.internet2.middleware.grouper.ws.util.GrouperWsVersionUtils;
 import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
@@ -125,7 +132,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
    */
   public static void main(String[] args) {
     //TestRunner.run(GrouperServiceLogicTest.class);
-    TestRunner.run(new GrouperServiceLogicTest("testGetPermissionAssignmentsPIT"));
+    TestRunner.run(new GrouperServiceLogicTest("testFindGroups"));
   }
 
   /**
@@ -168,6 +175,123 @@ public class GrouperServiceLogicTest extends GrouperTest {
     //clear out
     GrouperServiceUtils.testSession = null;
   }
+  
+  /**
+   * make sure a set of groups is similar to another by group name including order
+   * @param set1 expected set
+   * @param groupResultArray received set
+   */
+  public void assertGroupSetsAndOrder(Set<Group> set1, WsGroup[] groupResultArray) {
+    int set1length = GrouperUtil.length(set1);
+    int set2length = GrouperUtil.length(groupResultArray);
+    if (set1length != set2length) {
+      fail("Expecting groups of size: " + set1length + " but received size: " + set2length + ", expecting: "
+          + GrouperUtil.toStringForLog(set1, 200) + ", but received: " + GrouperUtil.toStringForLog(groupResultArray, 200));
+    }
+    
+    if (set1length == 0) {
+      return;
+    }
+    
+    int i=0;
+    for (Group group : set1) {
+      if (!StringUtils.equals(group.getName(), groupResultArray[i].getName())) {
+        fail("Expecting index of set: " + i + " to be: " + group.getName() + ", but received: "
+            + groupResultArray[i].getName() + ", expecting: " 
+            + GrouperUtil.toStringForLog(set1, 200) 
+            + ", but received: " + GrouperUtil.toStringForLog(groupResultArray, 200));
+      }
+      i++;
+    }
+  }
+
+  
+  /**
+   * test find groups with TypeOfGroup
+   */
+  public void testFindGroups() {
+
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+
+    ApiConfig.testConfig.put("groups.create.grant.all.read", "false");
+    ApiConfig.testConfig.put("groups.create.grant.all.view", "false");
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    
+    Stem testStem = new StemSave(grouperSession).assignName("test").save();
+    Stem testSubStem = new StemSave(grouperSession).assignName("test:sub").save();
+    Stem rootStem = StemFinder.findRootStem(grouperSession);
+    
+    Group testGroup = new GroupSave(grouperSession).assignName("test:group").save();
+    Group testRole = new GroupSave(grouperSession).assignName("test:role").assignTypeOfGroup(TypeOfGroup.role).save();
+    Group testEntity = new GroupSave(grouperSession).assignName("test:entity").assignTypeOfGroup(TypeOfGroup.entity).save();
+    
+    Group testGroup2 = new GroupSave(grouperSession).assignName("test:sub:group2").save();
+    Group testRole2 = new GroupSave(grouperSession).assignName("test:sub:role2").assignTypeOfGroup(TypeOfGroup.role).save();
+    Group testEntity2 = new GroupSave(grouperSession).assignName("test:sub:entity2").assignTypeOfGroup(TypeOfGroup.entity).save();
+    
+    testGroup.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.READ);
+    testGroup.grantPriv(SubjectTestHelper.SUBJ1, AccessPrivilege.ADMIN);
+    
+    testRole.grantPriv(SubjectTestHelper.SUBJ3, AccessPrivilege.UPDATE);
+    testEntity.grantPriv(SubjectTestHelper.SUBJ4, AccessPrivilege.VIEW);
+
+    testGroup2.grantPriv(SubjectTestHelper.SUBJ1, AccessPrivilege.READ);
+    testRole2.grantPriv(SubjectTestHelper.SUBJ2, AccessPrivilege.ADMIN);
+    testEntity2.grantPriv(SubjectTestHelper.SUBJ3, AccessPrivilege.ADMIN);
+
+    WsQueryFilter wsQueryFilter = new WsQueryFilter();
+    wsQueryFilter.setAscending("T");
+    wsQueryFilter.setSortString("name");
+    wsQueryFilter.setStemName(":");
+    wsQueryFilter.setStemNameScope(StemScope.ONE_LEVEL.name());
+    wsQueryFilter.setQueryFilterType(WsQueryFilterType.FIND_BY_STEM_NAME.name());
+    
+    WsFindGroupsResults wsFindGroupsResults = GrouperServiceLogic.findGroups(
+        GROUPER_VERSION, wsQueryFilter, null, false, null, null);
+
+    assertEquals(wsFindGroupsResults.getResultMetadata().getResultMessage(),
+        WsGetGroupsResultsCode.SUCCESS.name(), 
+        wsFindGroupsResults.getResultMetadata().getResultCode());
+
+    assertEquals(0, GrouperUtil.length(wsFindGroupsResults.getGroupResults()));
+
+    wsQueryFilter.setStemNameScope(StemScope.ALL_IN_SUBTREE.name());
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+    wsQueryFilter.assignGrouperSession(null);
+    
+    WsGroup[] wsGroups = GrouperServiceLogic.findGroups(
+        GROUPER_VERSION, wsQueryFilter, null, false, null, null).getGroupResults();
+    
+    assertTrue(GrouperUtil.length(wsGroups) >= 6);
+
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+    wsQueryFilter.assignGrouperSession(null);
+    wsQueryFilter.setStemName("test");
+    wsQueryFilter.setTypeOfGroups("entity, role");
+    wsGroups = GrouperServiceLogic.findGroups(
+        GROUPER_VERSION, wsQueryFilter, null, false, null, null).getGroupResults();
+    
+    assertGroupSetsAndOrder(GrouperUtil.toSet(testEntity, testRole, testEntity2, testRole2), wsGroups);    
+    
+    assertEquals("entity", wsGroups[0].getTypeOfGroup());
+    
+    //try again with previous version
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+    wsQueryFilter.assignGrouperSession(null);
+
+    GrouperVersion v2_0_000 = GrouperVersion.valueOfIgnoreCase("v2_0_000");
+        
+    wsGroups = GrouperServiceLogic.findGroups(
+        v2_0_000, wsQueryFilter, null, false, null, null).getGroupResults();
+   
+    assertGroupSetsAndOrder(GrouperUtil.toSet(testEntity, testRole, testEntity2, testRole2), wsGroups);    
+    
+    assertTrue(StringUtils.isBlank(wsGroups[0].getTypeOfGroup()));
+    
+    
+  }
+  
   
   /**
    * test get groups

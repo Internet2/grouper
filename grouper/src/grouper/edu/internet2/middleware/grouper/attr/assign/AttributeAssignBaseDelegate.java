@@ -494,7 +494,8 @@ public abstract class AttributeAssignBaseDelegate {
     this.assertScopeOk(attributeDef);
 
     attributeAssign.saveOrUpdate();
-
+    attributeAssign.internalSetAttributeDef(attributeDef);
+    attributeAssign.internalSetAttributeDefName(attributeDefName);
     return new AttributeAssignResult(true, attributeAssign);
 
   }

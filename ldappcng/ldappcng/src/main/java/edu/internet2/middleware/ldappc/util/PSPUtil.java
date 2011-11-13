@@ -58,6 +58,7 @@ import org.springframework.context.support.GenericApplicationContext;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.ldappc.spml.PSP;
 import edu.internet2.middleware.ldappc.spml.definitions.PSOReferencesDefinition;
+import edu.internet2.middleware.ldappc.spml.request.AlternateIdentifier;
 import edu.internet2.middleware.ldappc.spml.request.LdapFilterQueryClause;
 import edu.internet2.middleware.shibboleth.common.config.SpringConfigurationUtils;
 import edu.internet2.middleware.subject.Subject;
@@ -101,18 +102,24 @@ public class PSPUtil {
   }
 
   /**
-   * Returns {@link Resource}s with the given names. If the path is {@code null},
-   * resources will be found using the classpath.
+   * Returns a possible empty list of {@link AlternateIdentifier} elements of the given {@link Modification}.
    * 
-   * @param path
-   *          the directory containing resources
-   * @param resourceNames
-   *          the names of the resource files
+   * @param modification the spml modification
+   * @return the possibly empty list of alternate identifiers
+   */
+  public static List<AlternateIdentifier> getAlternateIdentifiers(Modification modification) {
+    return modification.getOpenContentElements(AlternateIdentifier.class);
+  }
+
+  /**
+   * Returns {@link Resource}s with the given names. If the path is {@code null}, resources will be found using the
+   * classpath.
+   * 
+   * @param path the directory containing resources
+   * @param resourceNames the names of the resource files
    * @return the resources
-   * @throws ResourceException
-   *           if an error occurs loading the resource
-   * @throws IllegalArgumentException
-   *           if the resources are not files or are not readable
+   * @throws ResourceException if an error occurs loading the resource
+   * @throws IllegalArgumentException if the resources are not files or are not readable
    */
   public static List<Resource> getResources(String path, String... resourceNames) throws ResourceException {
     ArrayList<Resource> resources = new ArrayList<Resource>();
@@ -137,8 +144,7 @@ public class PSPUtil {
   /**
    * Return <code>SearchControls</code> search scope from an SPML <code>Scope</code>.
    * 
-   * @param scope
-   *          the SPML scope
+   * @param scope the SPML scope
    * @return the javax.naming.directory search scope as an int
    */
   public static int getScope(Scope scope) {
@@ -265,6 +271,10 @@ public class PSPUtil {
       toStringBuilder.append("psoID", PSPUtil.toString(pso.getPsoID()));
       // TODO data ? or leave for trace xml
       // TODO capability ?
+      List<AlternateIdentifier> altIds = pso.getOpenContentElements(AlternateIdentifier.class);
+      if (!altIds.isEmpty()) {
+        toStringBuilder.append("alternateIdentifiers", altIds);
+      }
     }
     return toStringBuilder.toString();
   }

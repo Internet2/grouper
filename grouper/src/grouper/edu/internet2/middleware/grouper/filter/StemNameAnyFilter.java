@@ -22,6 +22,7 @@ import java.util.Set;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.exception.QueryException;
+import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 
 
@@ -36,6 +37,14 @@ public class StemNameAnyFilter extends BaseQueryFilter {
   // Private Instance Variables
   private String  name;
   private Stem    ns;
+  /** true or null for ascending, false for descending.  If you pass true or false, must pass a sort string */
+  private Boolean ascending;
+  /** page number 1 indexed if paging */
+  private Integer pageNumber;
+  /** page size if paging */
+  private Integer pageSize;
+  /** must be an hql query field, e.g. can sort on name, displayName, extension, displayExtension */
+  private String sortString;
 
 
   // Constructors
@@ -55,8 +64,33 @@ public class StemNameAnyFilter extends BaseQueryFilter {
     this.ns   = ns;
   } // public StemNameAnyFilter(name, ns)
 
+  /**
+   * {@link QueryFilter} that returns stems matching the specified
+   * name.
+   * <p>
+   * This performs a substring, lowercased query against <i>name</i>,
+   * <i>displayName</i>, <i>extension</i> and <i>displayExtension</i>.
+   * </p>
+   * @param   name  Find stems matching this name.
+   * @param   ns    Restrict results to within this stem.
+   * @param theSortString 
+   * @param theAscending 
+   * @param thePageNumber 
+   * @param thePageSize 
+   */
+  public StemNameAnyFilter(String name, Stem ns, String theSortString, Boolean theAscending, Integer thePageNumber, Integer thePageSize) {
+    this.name = name;
+    this.ns   = ns;
+    this.sortString = theSortString;
+    this.ascending = theAscending;
+    this.pageNumber = thePageNumber;
+    this.pageSize = thePageSize;
+  } // public StemNameAnyFilter(name, ns)
+
 
   // Public Instance Methods
+
+
 
   public Set getResults(GrouperSession s) 
     throws QueryException
@@ -64,13 +98,88 @@ public class StemNameAnyFilter extends BaseQueryFilter {
     //note, no need for GrouperSession inverse of control
     GrouperSession.validate(s);
     Set results;
+
+    QueryOptions queryOptions = QueryOptions.create(this.sortString, this.ascending, this.pageNumber, this.pageSize);
+    
     if (ns.isRootStem()) {
-      results = removeRootStem(GrouperDAOFactory.getFactory().getStem().findAllByApproximateNameAny(this.name));
+      results = removeRootStem(GrouperDAOFactory.getFactory().getStem().findAllByApproximateNameAny(this.name, null, queryOptions));
     } else {
-      results = GrouperDAOFactory.getFactory().getStem().findAllByApproximateNameAny(this.name, getStringForScope(ns));
+      results = GrouperDAOFactory.getFactory().getStem().findAllByApproximateNameAny(this.name, getStringForScope(ns), queryOptions);
     }
     return results;
   } // public Set getResults(s)
+
+
+  /**
+   * true or null for ascending, false for descending.  If you pass true or false, must pass a sort string
+   * @return the ascending
+   */
+  public Boolean getAscending() {
+    return this.ascending;
+  }
+
+
+  /**
+   * page number 1 indexed if paging
+   * @return the pageNumber
+   */
+  public Integer getPageNumber() {
+    return this.pageNumber;
+  }
+
+
+  /**
+   * page size if paging
+   * @return the pageSize
+   */
+  public Integer getPageSize() {
+    return this.pageSize;
+  }
+
+
+  /**
+   * must be an hql query field, e.g. can sort on name, displayName, extension, displayExtension
+   * @return the sortString
+   */
+  public String getSortString() {
+    return this.sortString;
+  }
+
+
+  /**
+   * true or null for ascending, false for descending.  If you pass true or false, must pass a sort string
+   * @param ascending1 the ascending to set
+   */
+  public void setAscending(Boolean ascending1) {
+    this.ascending = ascending1;
+  }
+
+
+  /**
+   * page number 1 indexed if paging
+   * @param pageNumber1 the pageNumber to set
+   */
+  public void setPageNumber(Integer pageNumber1) {
+    this.pageNumber = pageNumber1;
+  }
+
+
+  /**
+   * page size if paging
+   * @param pageSize1 the pageSize to set
+   */
+  public void setPageSize(Integer pageSize1) {
+    this.pageSize = pageSize1;
+  }
+
+
+  /**
+   * must be an hql query field, e.g. can sort on name, displayName, extension, displayExtension
+   * @param sortString1 the sortString to set
+   */
+  public void setSortString(String sortString1) {
+    this.sortString = sortString1;
+  }
 
 }
 

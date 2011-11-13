@@ -33,6 +33,7 @@ import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.changeLog.AllChangeLogTests;
 import edu.internet2.middleware.grouper.client.AllClientTests;
 import edu.internet2.middleware.grouper.ddl.AllDdlTests;
+import edu.internet2.middleware.grouper.entity.AllEntityTests;
 import edu.internet2.middleware.grouper.externalSubjects.AllExternalSubjectTests;
 import edu.internet2.middleware.grouper.filter.AllFilterTests;
 import edu.internet2.middleware.grouper.group.AllGroupTests;
@@ -190,6 +191,7 @@ public class AllTests extends GrouperTest {
     suite.addTest(AllChangeLogTests.suite());
     suite.addTest(AllClientTests.suite());
     suite.addTest(AllConfigTests.suite());
+    suite.addTest(AllEntityTests.suite());
 
     if (GrouperConfig.getPropertyBoolean("junit.test.ddl", true)) {
       //do this first so all tests are done on new ddl
@@ -197,7 +199,7 @@ public class AllTests extends GrouperTest {
     }
 
     
-    if (GrouperConfig.getPropertyBoolean("junit.test.externalSubjects", false)) {
+    if (GrouperConfig.getPropertyBoolean("junit.test.externalSubjects", true)) {
       suite.addTest(AllExternalSubjectTests.suite());
     }
     

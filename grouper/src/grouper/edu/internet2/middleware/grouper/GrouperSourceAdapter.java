@@ -16,30 +16,44 @@
 */
 
 package edu.internet2.middleware.grouper;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.Properties;
+import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
+import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.entity.EntitySourceAdapter;
+import edu.internet2.middleware.grouper.entity.EntitySubject;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.exception.SessionException;
 import edu.internet2.middleware.grouper.filter.GroupNameFilter;
 import edu.internet2.middleware.grouper.filter.GrouperQuery;
+import edu.internet2.middleware.grouper.group.TypeOfGroup;
+import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.misc.E;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.subj.GrouperSubject;
+import edu.internet2.middleware.grouper.subj.InternalSourceAdapter;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.validator.GrouperValidator;
 import edu.internet2.middleware.grouper.validator.NotNullValidator;
+import edu.internet2.middleware.subject.SearchPageResult;
 import edu.internet2.middleware.subject.SourceUnavailableException;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
+import edu.internet2.middleware.subject.SubjectTooManyResults;
 import edu.internet2.middleware.subject.SubjectUtils;
 import edu.internet2.middleware.subject.provider.BaseSourceAdapter;
+import edu.internet2.middleware.subject.provider.SourceManager;
 import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
 
 /** 
@@ -68,10 +82,13 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
   private Set _types  = new LinkedHashSet();
   
   /** root grouper session */
-  private GrouperSession  rootSession      = null;
+  private static GrouperSession  rootSession      = null;
 
+  /** if there is a limit to the number of results */
+  private Integer maxPage;
 
-  // CONSTRUCTORS //
+  /** if there is a limit to the number of results */
+  private Integer maxResults;
 
   /**
    * Allocates new GrouperSourceAdapter.
@@ -82,6 +99,8 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
 
   /**
    * Allocates new GrouperSourceAdapter.
+   * @param id 
+   * @param name 
    */
   public GrouperSourceAdapter(String id, String name) {
     super(id, name);
@@ -143,9 +162,18 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
    * @return  A {@link Subject}
    * @throws  SubjectNotFoundException
    */
-  public Subject getSubject(String id, boolean exceptionIfNotFound) throws SubjectNotFoundException {
+  public Subject getSubject(final String id, final boolean exceptionIfNotFound) throws SubjectNotFoundException {
     try {
-      Group group = GrouperDAOFactory.getFactory().getGroup().findByUuid(id, exceptionIfNotFound);
+      Group group = null;
+      
+      group = (Group)GrouperSession.callbackGrouperSession(GrouperSourceAdapter.internal_getSessionOrRootForSubjectFinder(), new GrouperSessionHandler() {
+
+        public Object callback(GrouperSession grouperSession)
+            throws GrouperSessionException {
+          return GrouperDAOFactory.getFactory().getGroup().findByUuidSecure(id, exceptionIfNotFound, null, typeOfGroups());
+        }
+      });
+
       if (group == null && !exceptionIfNotFound) {
         return null;
       }
@@ -211,11 +239,18 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
    * @return  A {@link Subject}
    * @throws  SubjectNotFoundException
    */
-  public Subject getSubjectByIdentifier(String name, boolean exceptionIfNull) 
+  public Subject getSubjectByIdentifier(final String name, final boolean exceptionIfNull) 
     throws SubjectNotFoundException 
   {
     try {
-      Group group = GrouperDAOFactory.getFactory().getGroup().findByName(name, exceptionIfNull);
+     Group group = (Group)    GrouperSession.callbackGrouperSession(GrouperSourceAdapter.internal_getSessionOrRootForSubjectFinder(), new GrouperSessionHandler() {
+
+        public Object callback(GrouperSession grouperSession)
+            throws GrouperSessionException {
+          return (Group)GrouperDAOFactory.getFactory().getGroup().findByNameSecure(name, exceptionIfNull, null, typeOfGroups());
+        }
+      });
+    
       if (group == null && !exceptionIfNull) {
         return null;
       }
@@ -250,11 +285,48 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
    * @throws  SourceUnavailableException
    */
   public void init() throws SourceUnavailableException {
+    try {
+      Properties props = getInitParams();
+      
+      {
+        String maxResultsString = props.getProperty("maxResults");
+        if (!StringUtils.isBlank(maxResultsString)) {
+          try {
+            this.maxResults = Integer.parseInt(maxResultsString);
+          } catch (NumberFormatException nfe) {
+            throw new SourceUnavailableException("Cant parse maxResults: " + maxResultsString, nfe);
+          }
+        }
+      }
+      
+      {
+        String maxPageString = props.getProperty("maxPageSize");
+        if (!StringUtils.isBlank(maxPageString)) {
+          try {
+            this.maxPage = Integer.parseInt(maxPageString);
+          } catch (NumberFormatException nfe) {
+            throw new SourceUnavailableException("Cant parse maxPage: " + maxPageString, nfe);
+          }
+        }
+      }
+
+    } catch (Exception ex) {
+      throw new SourceUnavailableException(
+          "Unable to init sources.xml JDBC source, source: " + this.getId(), ex);
+    }
     // Nothing
   } // public void init()
 
   /** for testing if we should fail on testing */
   public static boolean failOnSearchForTesting = false;
+  
+  /**
+   * type of groups to search on
+   * @return type of groups
+   */
+  public Set<TypeOfGroup> typeOfGroups() {
+    return TypeOfGroup.GROUP_OR_ROLE_SET;
+  }
   
   /**
    * Searches for {@link Group} subjects by naming attributes.
@@ -266,22 +338,27 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
    * </p>
    * <pre class="eg">
    * // Use it within the Grouper API
-   * Set subjects = SubjectFactory.search("admins");
+   * Set subjects = SubjectFactory.search(Field.FIELD_NAME_ADMINS);
    *
    * // Use it directly
-   * Set subjects = source.search("admins");
+   * Set subjects = source.search(Field.FIELD_NAME_ADMINS);
    * </pre>
+   * @param searchValue 
+   * @param firstPageOnly 
+   * @return  the search page result
    * @throws  IllegalArgumentException if <i>searchValue</i> is null.
    */
-  public Set<Subject> search(final String searchValue) 
+  private SearchPageResult searchHelper(final String searchValue, final boolean firstPageOnly) 
     throws  IllegalArgumentException
   {
     
+    final Set<Subject> result = new LinkedHashSet<Subject>();
+    final boolean[] tooManyResultsArray = new boolean[]{false};
+
     String throwErrorOnFindAllFailureString = this.getInitParam("throwErrorOnFindAllFailure");
     final boolean throwErrorOnFindAllFailure = SubjectUtils.booleanValue(throwErrorOnFindAllFailureString, true);
 
-    final Set<Subject>   subjs  = new LinkedHashSet();
-    GrouperSession.callbackGrouperSession(this._getSession(), new GrouperSessionHandler() {
+    GrouperSession.callbackGrouperSession(GrouperSourceAdapter.internal_getSessionOrRootForSubjectFinder(), new GrouperSessionHandler() {
 
       public Object callback(GrouperSession grouperSession)
           throws GrouperSessionException {
@@ -290,25 +367,67 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
           throw new IllegalArgumentException( v.getErrorMessage() );
         }
         
-        Stem  root   = StemFinder.findRootStem(grouperSession);
         try {
           
           if (failOnSearchForTesting) {
             throw new RuntimeException("failOnSearchForTesting");
           }
           
-          GrouperQuery gq = GrouperQuery.createQuery(
-            grouperSession, new GroupNameFilter(searchValue, root)
-          );
-          Group     g;
-          Iterator  iter  = gq.getGroups().iterator();
-          while (iter.hasNext()){
-            g = (Group) iter.next();
-            subjs.add(g.toSubject()); 
+          QueryOptions queryOptions = null;
+          
+          if ((firstPageOnly && GrouperSourceAdapter.this.maxPage != null) || GrouperSourceAdapter.this.maxResults != null) {
+            int pagesize = (firstPageOnly && GrouperSourceAdapter.this.maxPage != null) ? (GrouperSourceAdapter.this.maxPage+1) : -1;
+            if (pagesize == -1) {
+              pagesize = GrouperSourceAdapter.this.maxResults + 1;
+            } else if (GrouperSourceAdapter.this.maxResults != null){
+              pagesize = Math.min(pagesize, GrouperSourceAdapter.this.maxResults+1);
+            }
+            queryOptions = new QueryOptions();
+            queryOptions.paging(pagesize, 1, false);
           }
+          
+          Set<Group> groups = GrouperDAOFactory.getFactory().getGroup()
+            .findAllByApproximateNameSecure(searchValue, null, queryOptions ,TypeOfGroup.GROUP_OR_ROLE_SET);
+          
+          for (Group group : GrouperUtil.nonNull(groups)) {
+            //if we are at the end of the page
+            if (firstPageOnly && GrouperSourceAdapter.this.maxPage != null 
+                && result.size() >= GrouperSourceAdapter.this.maxPage) {
+              tooManyResultsArray[0] = true;
+              break;
+            }
+            if (GrouperSourceAdapter.this.maxResults != null && result.size() >= GrouperSourceAdapter.this.maxResults) {
+              throw new SubjectTooManyResults(
+                  "More results than allowed: " + GrouperSourceAdapter.this.maxResults 
+                  + " for search '" + searchValue + "'");
+            }
+            //dont call group.toSubject() since that causes a query
+            result.add(new GrouperSubject(group)); 
+          }
+          
+          //lets get the entityIds in one query, and put in cache so we dont have to do one query per row
+          if (GrouperSourceAdapter.this instanceof EntitySourceAdapter) {
+            
+            Set<String> groupIds = new HashSet<String>();
+            for (Group group : groups) {
+              groupIds.add(group.getId());
+            }
+            
+            List<Object[]> results = GrouperDAOFactory.getFactory().getEntity().findEntitiesByGroupIds(groupIds);
+            
+            for (Object[] resultLine : GrouperUtil.nonNull(results)) {
+              Group group = (Group)resultLine[0];
+              AttributeAssignValue attributeAssignValue = (AttributeAssignValue)resultLine[1];
+              EntitySubject.assignEntityIdInCache(group.getId(), attributeAssignValue.valueString());
+            }
+          }
+          
         }
         catch (Exception ex) {
  
+          if (ex instanceof SubjectTooManyResults) {
+            throw (SubjectTooManyResults)ex;
+          }
           if (!throwErrorOnFindAllFailure) {
             LOG.error(ex.getMessage() + ", source: " + GrouperSourceAdapter.this.getId() + ", searchValue: "
               + searchValue, ex);
@@ -324,7 +443,7 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
       
     });
     
-    return subjs;
+    return new SearchPageResult(tooManyResultsArray[0], result);
   } // public Set search(searchValue)
 
   /** logger */
@@ -334,23 +453,37 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
   // PRIVATE INSTANCE METHODS //
 
   // @since   1.1.0
-  private GrouperSession _getSession() {
+  /**
+   * @return session
+   */
+  public static GrouperSession internal_getSessionOrRootForSubjectFinder() {
 	//If we have a thread local session then let's use it to ensure 
 	//proper VIEW privilege enforcement
 	GrouperSession activeSession = GrouperSession.staticGrouperSession(false);
 	if(activeSession !=null) {
 		return activeSession;
 	}
-    if (this.rootSession == null) {
+
+  	if (!GrouperConfig.getPropertyBoolean("subjects.startRootSessionIfOneIsntStarted", true)) {
+  	  return null;
+  	}
+  	
+    if (rootSession == null) {
+    	synchronized(GrouperSourceAdapter.class) {
+        if (rootSession == null) {
       try {
         //dont replace the currently active session
-        this.rootSession = GrouperSession.start( SubjectFinder.findRootSubject(), false );
+            //dont use find root subject or it wont be found...
+            rootSession = GrouperSession.start( SourceManager.getInstance().getSource(InternalSourceAdapter.ID).getSubject(GrouperConfig.ROOT, true), false );
       }
       catch (SessionException eS) {
-        throw new GrouperException(E.S_NOSTARTROOT + eS.getMessage());
+            throw new GrouperException(E.S_NOSTARTROOT + eS.getMessage(), eS);
+          }
+          
+        }
       }
     }
-    return this.rootSession;
+    return rootSession;
   } // private GrouperSession _getSession()
 
   /**
@@ -365,6 +498,33 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
   public String printConfig() {
     String message = "sources.xml groupersource id: " + this.getId();
     return message;
+  }
+
+  /**
+   * max Page size
+   * @return the maxPage
+   */
+  public Integer getMaxPage() {
+    return this.maxPage;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public Set<Subject> search(String searchValue) {
+    return searchHelper(searchValue, false).getResults();
+  }
+
+  /**
+   * @see edu.internet2.middleware.subject.provider.BaseSourceAdapter#searchPage(java.lang.String)
+   */
+  @Override
+  public SearchPageResult searchPage(String searchValue) {
+    if (LOG.isDebugEnabled()) {
+      LOG.debug("searchPaging for: " + searchValue);
+    }
+    return searchHelper(searchValue, true);
   }
 }
 

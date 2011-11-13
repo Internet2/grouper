@@ -1,0 +1,91 @@
+dn: ou=testgroups,${base}
+objectClass: organizationalUnit
+objectClass: top
+ou: testgroups
+
+dn: ou=edu,ou=testgroups,${base}
+objectClass: organizationalUnit
+objectClass: top
+ou: edu
+
+dn: cn=groupA,ou=edu,ou=testgroups,${base}
+cn: groupA
+member: cn=test.subject.0,ou=testpeople,${base}
+objectClass: groupOfNames
+objectClass: top
+
+dn: ou=testpeople,${base}
+description: people
+objectClass: organizationalUnit
+objectClass: top
+ou: testpeople
+
+dn: cn=test.subject.0,ou=testpeople,${base}
+cn: test.subject.0
+objectClass: organizationalPerson
+objectClass: person
+objectClass: top
+sn: subject.0
+
+dn: cn=test.subject.1,ou=testpeople,${base}
+cn: test.subject.1
+objectClass: organizationalPerson
+objectClass: person
+objectClass: top
+sn: subject.1
+
+dn: cn=test.subject.2,ou=testpeople,${base}
+cn: test.subject.2
+objectClass: organizationalPerson
+objectClass: person
+objectClass: top
+sn: subject.2
+
+dn: cn=test.subject.3,ou=testpeople,${base}
+cn: test.subject.3
+objectClass: organizationalPerson
+objectClass: person
+objectClass: top
+sn: subject.3
+
+dn: cn=test.subject.4,ou=testpeople,${base}
+cn: test.subject.4
+objectClass: organizationalPerson
+objectClass: person
+objectClass: top
+sn: subject.4
+
+dn: cn=test.subject.5,ou=testpeople,${base}
+cn: test.subject.5
+objectClass: organizationalPerson
+objectClass: person
+objectClass: top
+sn: subject.5
+
+dn: cn=test.subject.6,ou=testpeople,${base}
+cn: test.subject.6
+objectClass: organizationalPerson
+objectClass: person
+objectClass: top
+sn: subject.6
+
+dn: cn=test.subject.7,ou=testpeople,${base}
+cn: test.subject.7
+objectClass: organizationalPerson
+objectClass: person
+objectClass: top
+sn: subject.7
+
+dn: cn=test.subject.8,ou=testpeople,${base}
+cn: test.subject.8
+objectClass: organizationalPerson
+objectClass: person
+objectClass: top
+sn: subject.8
+
+dn: cn=test.subject.9,ou=testpeople,${base}
+cn: test.subject.9
+objectClass: organizationalPerson
+objectClass: person
+objectClass: top
+sn: subject.9

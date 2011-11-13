@@ -20,7 +20,6 @@ import java.util.Properties;
 import java.util.Set;
 
 import junit.framework.Assert;
-import junit.framework.TestCase;
 import junit.textui.TestRunner;
 
 import org.apache.commons.lang.StringUtils;
@@ -31,6 +30,7 @@ import com.jamonapi.Monitor;
 import com.jamonapi.MonitorFactory;
 
 import edu.internet2.middleware.grouper.Composite;
+import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
@@ -49,7 +49,6 @@ import edu.internet2.middleware.grouper.exception.CompositeNotFoundException;
 import edu.internet2.middleware.grouper.exception.GrantPrivilegeException;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
-import edu.internet2.middleware.grouper.exception.MemberAddException;
 import edu.internet2.middleware.grouper.exception.QueryException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.exception.StemNotFoundException;
@@ -71,7 +70,6 @@ import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.misc.SaveResultType;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
-import edu.internet2.middleware.grouper.registry.RegistryReset;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
@@ -283,7 +281,7 @@ public class TestGroup1 extends GrouperTest {
       Group   a     = r.getGroup("a", "a");
   
       try {
-        a.canReadField(null, FieldFinder.find("stemmers", true));
+        a.canReadField(null, FieldFinder.find(Field.FIELD_NAME_STEMMERS, true));
         Assert.fail("IllegalArgumentException not thrown");
       }
       catch (IllegalArgumentException eIA) {
@@ -359,7 +357,7 @@ public class TestGroup1 extends GrouperTest {
       GrouperSession s = GrouperSession.start(subjA);
       Assert.assertFalse(
         "cannot read", 
-        a.canReadField(subjA, FieldFinder.find("admins", true))
+        a.canReadField(subjA, FieldFinder.find(Field.FIELD_NAME_ADMINS, true))
       );
       s.stop();
   
@@ -377,7 +375,7 @@ public class TestGroup1 extends GrouperTest {
       Group   a     = r.getGroup("a", "a");
   
       try {
-        a.canWriteField(FieldFinder.find("stemmers", true));
+        a.canWriteField(FieldFinder.find(Field.FIELD_NAME_STEMMERS, true));
         Assert.fail("SchemaException not thrown");
       }
       catch (SchemaException eS) {
@@ -419,7 +417,7 @@ public class TestGroup1 extends GrouperTest {
       Group   a     = r.getGroup("a", "a");
   
       try {
-        a.canWriteField(r.rs.getSubject(), FieldFinder.find("stemmers", true));
+        a.canWriteField(r.rs.getSubject(), FieldFinder.find(Field.FIELD_NAME_STEMMERS, true));
         Assert.fail("SchemaException not thrown");
       }
       catch (SchemaException eS) {
@@ -557,7 +555,7 @@ public class TestGroup1 extends GrouperTest {
       Group   a     = r.getGroup("a", "a");
   
       try {
-        a.canReadField(FieldFinder.find("stemmers", true));
+        a.canReadField(FieldFinder.find(Field.FIELD_NAME_STEMMERS, true));
         Assert.fail("SchemaException not thrown");
       }
       catch (SchemaException eS) {
@@ -599,7 +597,7 @@ public class TestGroup1 extends GrouperTest {
       Group   a     = r.getGroup("a", "a");
   
       try {
-        a.canReadField(r.rs.getSubject(), FieldFinder.find("stemmers", true));
+        a.canReadField(r.rs.getSubject(), FieldFinder.find(Field.FIELD_NAME_STEMMERS, true));
         Assert.fail("SchemaException not thrown");
       }
       catch (SchemaException eS) {
@@ -641,7 +639,7 @@ public class TestGroup1 extends GrouperTest {
       Group   a     = r.getGroup("a", "a");
   
       try {
-        a.canWriteField(null, FieldFinder.find("stemmers", true));
+        a.canWriteField(null, FieldFinder.find(Field.FIELD_NAME_STEMMERS, true));
         Assert.fail("IllegalArgumentException not thrown");
       }
       catch (IllegalArgumentException eIA) {
@@ -715,7 +713,7 @@ public class TestGroup1 extends GrouperTest {
       Subject subjA = r.getSubject("a");
   
       GrouperSession s = GrouperSession.start(subjA);
-      Assert.assertFalse("cannot write", a.canWriteField(FieldFinder.find("admins", true)));
+      Assert.assertFalse("cannot write", a.canWriteField(FieldFinder.find(Field.FIELD_NAME_ADMINS, true)));
       s.stop();
   
       r.rs.stop();
@@ -735,7 +733,7 @@ public class TestGroup1 extends GrouperTest {
       GrouperSession s = GrouperSession.start(subjA);
       Assert.assertFalse(
         "cannot write", 
-        a.canWriteField(subjA, FieldFinder.find("admins", true))
+        a.canWriteField(subjA, FieldFinder.find(Field.FIELD_NAME_ADMINS, true))
       );
       s.stop();
   
@@ -1061,7 +1059,7 @@ public class TestGroup1 extends GrouperTest {
       Subject subjA = r.getSubject("a");
   
       GrouperSession s = GrouperSession.start(subjA);
-      Assert.assertFalse("cannot read", a.canReadField(FieldFinder.find("admins", true)));
+      Assert.assertFalse("cannot read", a.canReadField(FieldFinder.find(Field.FIELD_NAME_ADMINS, true)));
       s.stop();
   
       r.rs.stop();

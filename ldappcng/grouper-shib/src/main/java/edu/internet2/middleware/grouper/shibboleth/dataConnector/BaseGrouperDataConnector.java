@@ -15,58 +15,50 @@
 package edu.internet2.middleware.grouper.shibboleth.dataConnector;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.TreeSet;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import edu.internet2.middleware.grouper.Group;
-import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GrouperSession;
-import edu.internet2.middleware.grouper.Stem;
-import edu.internet2.middleware.grouper.Stem.Scope;
-import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.exception.GrouperException;
-import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
-import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.shibboleth.dataConnector.field.BaseField;
 import edu.internet2.middleware.grouper.shibboleth.dataConnector.field.GroupsField;
 import edu.internet2.middleware.grouper.shibboleth.dataConnector.field.MembersField;
 import edu.internet2.middleware.grouper.shibboleth.dataConnector.field.PrivilegeField;
-import edu.internet2.middleware.grouper.shibboleth.filter.ConditionalGroupQueryFilter;
-import edu.internet2.middleware.grouper.shibboleth.filter.GroupQueryFilter;
+import edu.internet2.middleware.grouper.shibboleth.filter.AbstractSetOperationFilter;
+import edu.internet2.middleware.grouper.shibboleth.filter.Filter;
 import edu.internet2.middleware.grouper.shibboleth.util.AttributeIdentifier;
+import edu.internet2.middleware.grouper.shibboleth.util.SubjectIdentifier;
 import edu.internet2.middleware.shibboleth.common.attribute.resolver.provider.dataConnector.BaseDataConnector;
-import edu.internet2.middleware.subject.Source;
+import edu.internet2.middleware.shibboleth.common.attribute.resolver.provider.dataConnector.DataConnector;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
 
-public abstract class BaseGrouperDataConnector extends BaseDataConnector implements SourceDataConnector {
+/** A {@link DataConnector} which returns Grouper objects. */
+public abstract class BaseGrouperDataConnector<T> extends BaseDataConnector {
 
   /** logger */
   private static final Logger LOG = LoggerFactory.getLogger(BaseGrouperDataConnector.class);
-
-  /** the name of the attribute whose values are {@link GroupType}s */
-  public static final String GROUP_TYPE_ATTR = "groupType";
-
-  /** the name of the attribute whose value is the name of the parent stem */
-  public static final String PARENT_STEM_NAME_ATTR = "parentStemName";
 
   /** the grouper session, initialized for each grouper data connector */
   private GrouperSession grouperSession;
 
   /** the attributes which should be returned by this data connector */
-  private List<AttributeIdentifier> fieldIdentifiers;
+  private List<AttributeIdentifier> attributeIdentifiers;
+
+  /** The subject identifier used to start a <code>GrouperSession</code>. */
+  private SubjectIdentifier subjectIdentifier;
+
+  /** The query which filters the objects returned by this data connector. */
+  private Filter<T> filter;
 
   /** the groups to return as attributes */
   private ArrayList<GroupsField> groupsFields = new ArrayList<GroupsField>();
@@ -77,20 +69,8 @@ public abstract class BaseGrouperDataConnector extends BaseDataConnector impleme
   /** the privileges to return as attributes */
   private ArrayList<PrivilegeField> privilegeFields = new ArrayList<PrivilegeField>();
 
-  /** the subject attributes which should be returned by this data connector */
-  private List<AttributeIdentifier> subjectAttributeIdentifiers = new ArrayList<AttributeIdentifier>();
-
-  /** the ids of all sources */
-  private Set<String> sourceIds;
-
-  /** the query which filters the groups returned by this data connector */
-  private GroupQueryFilter groupQueryFilter;
-
   /** a set of valid names for the first element of an attribute identifier */
   private Set<String> validFirstIdElements = new HashSet<String>();
-
-  /** The subject identifier used to start a <code>GrouperSession</code>. */
-  private AttributeIdentifier subjectIdentifier;
 
   /** The possibly empty set of attribute definition names defined in the resolver configuration. */
   private Set<String> attributeDefNames = new LinkedHashSet<String>();
@@ -113,16 +93,16 @@ public abstract class BaseGrouperDataConnector extends BaseDataConnector impleme
 
     // make sure the session can be instantiated
     this.getGrouperSession();
-    LOG.info("started grouper session '" + this.getGrouperSession() + "' for '" + this.getId() + "'");
+    LOG.debug("Grouper data connector '{}' - Started grouper session '{}'", getId(), getGrouperSession());
 
     validFirstIdElements.add(GroupsField.NAME);
     validFirstIdElements.add(MembersField.NAME);
     validFirstIdElements.addAll(AccessPrivilege.getAllPrivilegeNames());
     validFirstIdElements.addAll(getAllAttributeDefNames());
 
-    for (AttributeIdentifier fieldIdentifier : fieldIdentifiers) {
+    for (AttributeIdentifier fieldIdentifier : attributeIdentifiers) {
 
-      LOG.debug("attribute identifier '{}' for dc '{}'", fieldIdentifier, this.getId());
+      LOG.debug("Grouper data connector '{}' - Attribute identifier '{}'", getId(), fieldIdentifier);
 
       // internal grouper fields
       if (fieldIdentifier.getSource().equals(SubjectFinder.internal_getGSA().getId())) {
@@ -131,8 +111,8 @@ public abstract class BaseGrouperDataConnector extends BaseDataConnector impleme
 
         if (!validFirstIdElements.contains(bf.getFirstIdElement())
             && !validFirstIdElements.contains(fieldIdentifier.getId())) {
-          LOG.error("Invalid identifer '" + fieldIdentifier.getId() + "', should start with one of "
-              + validFirstIdElements);
+          LOG.error("Grouper data connector '{}' - Invalid identifer '{}' should start with one of {}", new Object[] {
+              getId(), fieldIdentifier.getId(), validFirstIdElements });
           throw new GrouperException("Invalid identifer '" + fieldIdentifier.getId() + "', should start with one of "
               + validFirstIdElements);
         }
@@ -154,16 +134,12 @@ public abstract class BaseGrouperDataConnector extends BaseDataConnector impleme
           attributeDefNames.add(fieldIdentifier.getId());
 
         } else {
-          LOG.error("Unknown field identifier {}", fieldIdentifier.getId());
+          LOG.error("Grouper data connector '{}' - Unknown field identifier '{}'", getId(), fieldIdentifier.getId());
           throw new GrouperException("Unknown field identifier " + fieldIdentifier.getId());
         }
       } else {
-        // subject source attributes
-        if (!this.getSourceIds().contains(fieldIdentifier.getSource())) {
-          LOG.error("Unknown source '" + fieldIdentifier.getSource() + "'");
-          throw new GrouperException("Unknown source '" + fieldIdentifier.getSource() + "'");
-        }
-        subjectAttributeIdentifiers.add(fieldIdentifier);
+        // make sure the source is defined and available
+        SubjectFinder.getSource(fieldIdentifier.getSource());
       }
     }
 
@@ -172,12 +148,22 @@ public abstract class BaseGrouperDataConnector extends BaseDataConnector impleme
     groupsFields.trimToSize();
 
     // FUTURE improve session handling
-    if (groupQueryFilter != null) {
-      groupQueryFilter.setGrouperSession(grouperSession);
-      if (groupQueryFilter instanceof ConditionalGroupQueryFilter) {
-        ((ConditionalGroupQueryFilter) groupQueryFilter).getGroupFilter0().setGrouperSession(grouperSession);
-        ((ConditionalGroupQueryFilter) groupQueryFilter).getGroupFilter1().setGrouperSession(grouperSession);
-      }
+    initGrouperSessionRecursively(filter);
+  }
+
+  /**
+   * Set the {@link GrouperSession} for any configured {@link Filter} recursively.
+   * 
+   * @param filter the filter
+   */
+  protected void initGrouperSessionRecursively(Filter filter) {
+    if (filter == null) {
+      return;
+    }
+    filter.setGrouperSession(grouperSession);
+    if (filter instanceof AbstractSetOperationFilter) {
+      initGrouperSessionRecursively(((AbstractSetOperationFilter) filter).getFilter0());
+      initGrouperSessionRecursively(((AbstractSetOperationFilter) filter).getFilter1());
     }
   }
 
@@ -197,37 +183,64 @@ public abstract class BaseGrouperDataConnector extends BaseDataConnector impleme
             true);
         grouperSession = GrouperSession.start(subject, false);
       }
-      LOG.debug("started grouper session {}", grouperSession);
+      LOG.debug("Grouper data connector '{}' - Started grouper session '{}'", getId(), grouperSession);
     }
 
     return grouperSession;
   }
 
   /**
-   * Get the filter which determines the groups which will be considered by this data connector.
+   * Get the filter which determines the objects which will be considered by this data connector.
    * 
-   * @return the GroupQueryFilter or <tt>null</tt> if all groups should be considered
+   * @return the filter or <tt>null</tt> if all groups should be considered
    */
-  public GroupQueryFilter getGroupQueryFilter() {
-    return groupQueryFilter;
+  public Filter<T> getFilter() {
+    return filter;
   }
 
   /**
-   * Set the group query filter
+   * Set the match query filter.
    * 
-   * @param groupQueryFilter the GroupQueryFilter
+   * @param filter the Filter
    */
-  public void setGroupQueryFilter(GroupQueryFilter groupQueryFilter) {
-    this.groupQueryFilter = groupQueryFilter;
+  public void setFilter(Filter filter) {
+    this.filter = filter;
   }
 
   /**
    * Set the identifiers of the attributes to return.
    * 
-   * @param fieldIdentifiers
+   * @param attributeIdentifiers
    */
-  public void setFieldIdentifiers(List<AttributeIdentifier> fieldIdentifiers) {
-    this.fieldIdentifiers = fieldIdentifiers;
+  public void setAttributeIdentifiers(List<AttributeIdentifier> attributeIdentifiers) {
+    this.attributeIdentifiers = attributeIdentifiers;
+  }
+
+  /**
+   * Return the identifiers of the attributes to return.
+   * 
+   * @return the attribute identifiers
+   */
+  public List<AttributeIdentifier> getAttributeIdentifiers() {
+    return attributeIdentifiers;
+  }
+
+  /**
+   * Get the subject and source identifier used to start {@link GrouperSession}s.
+   * 
+   * @return Returns the source and subject identifier.
+   */
+  public SubjectIdentifier getSubjectIdentifier() {
+    return subjectIdentifier;
+  }
+
+  /**
+   * Set the subject and source identifier used to start {@link GrouperSession}s.
+   * 
+   * @param subjectIdentifier The source and subject identifier to set.
+   */
+  public void setSubjectIdentifier(SubjectIdentifier subjectIdentifier) {
+    this.subjectIdentifier = subjectIdentifier;
   }
 
   /**
@@ -255,101 +268,6 @@ public abstract class BaseGrouperDataConnector extends BaseDataConnector impleme
    */
   public List<PrivilegeField> getPrivilegeFields() {
     return privilegeFields;
-  }
-
-  /**
-   * Get all source ids.
-   * 
-   * @return the ids of all sources
-   */
-  private Set<String> getSourceIds() {
-    if (sourceIds == null) {
-      sourceIds = new HashSet<String>();
-      for (Source source : SubjectFinder.getSources()) {
-        sourceIds.add(source.getId());
-      }
-    }
-
-    return sourceIds;
-  }
-
-  /**
-   * The {@link AttributeIdentifier}s for subject attributes.
-   * 
-   * @return the attribute identifiers
-   */
-  public List<AttributeIdentifier> getSubjectAttributeIdentifiers() {
-    return subjectAttributeIdentifiers;
-  }
-
-  /**
-   * Get the subject and source identifier used to start {@link GrouperSession}s.
-   * 
-   * @return Returns the source and subject identifier.
-   */
-  public AttributeIdentifier getSubjectIdentifier() {
-    return subjectIdentifier;
-  }
-
-  /**
-   * Set the subject and source identifier used to start {@link GrouperSession}s.
-   * 
-   * @param subjectIdentifier The source and subject identifier to set.
-   */
-  public void setSubjectIdentifier(AttributeIdentifier subjectIdentifier) {
-    this.subjectIdentifier = subjectIdentifier;
-  }
-
-  /**
-   * Query for all groups matching the group query filter. If no group query filter has been configured, then return all
-   * groups.
-   * 
-   * @return the groups returned from the group query filter or all groups
-   */
-  public Set<Group> getGroups(final Date lastModifyTime) {
-
-    Set<Group> groups = (Set<Group>) GrouperSession.callbackGrouperSession(getGrouperSession(),
-        new GrouperSessionHandler() {
-
-          public Set<Group> callback(GrouperSession grouperSession) throws GrouperSessionException {
-            String msg = "get groups since '" + lastModifyTime + "' for '" + getId() + "'";
-            LOG.debug(msg);
-
-            Set<Group> groups = new TreeSet<Group>();
-            GroupQueryFilter filter = getGroupQueryFilter();
-            if (filter == null) {
-              Stem root = StemFinder.findRootStem(grouperSession);
-              groups.addAll(root.getChildGroups(Scope.SUB));
-            } else {
-              groups.addAll(getGroupQueryFilter().getResults(grouperSession));
-            }
-
-            LOG.debug("{} found {} before filtering", msg, groups.size());
-            // filter by lastModifyTime
-            if (lastModifyTime != null) {
-              Iterator<Group> iterator = groups.iterator();
-              while (iterator.hasNext()) {
-                Group group = iterator.next();
-                if (group.getCreateTime().after(lastModifyTime))
-                  continue;
-                if (group.getModifyTime().after(lastModifyTime))
-                  continue;
-                if (group.getLastMembershipChange() != null) {
-                  Date memberModifyTime = new Date(group.getLastMembershipChange().getTime());
-                  if (memberModifyTime.after(lastModifyTime)) {
-                    continue;
-                  }
-                }
-                // remove from selection
-                iterator.remove();
-              }
-            }
-            LOG.debug("{} found {}", msg, groups.size());
-            return groups;
-          }
-        });
-
-    return groups;
   }
 
   /**

@@ -122,7 +122,7 @@ public class TestMembership11 extends GrouperTest {
       all   = SubjectFinder.findAllSubject();
 
       fieldMembers = Group.getDefaultList();
-      fieldUpdaters = FieldFinder.find("updaters", true);
+      fieldUpdaters = FieldFinder.find(Field.FIELD_NAME_UPDATERS, true);
 
       // Test 1
       gA.addCompositeMember(CompositeType.INTERSECTION, gB, gC);

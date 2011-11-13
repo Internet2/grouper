@@ -1,0 +1,29 @@
+<ldappc:bulkCalcResponse xmlns:ldappc='http://grouper.internet2.edu/ldappc' status='success' requestID='REQUESTID_TEST'>
+  <ldappc:calcResponse status='success' requestID='REQUEST_ID'>
+    <ldappc:id ID='edu'/>
+    <ldappc:pso entityName='stem'>
+      <psoID ID='ou=edu,ou=testgroups,${base}' targetID='ldap'/>
+      <data>
+        <dsml:attr xmlns:dsml='urn:oasis:names:tc:DSML:2:0:core' name='objectClass'>
+          <dsml:value>top</dsml:value>
+          <dsml:value>organizationalUnit</dsml:value>
+        </dsml:attr>
+        <dsml:attr xmlns:dsml='urn:oasis:names:tc:DSML:2:0:core' name='ou'>
+          <dsml:value>edu</dsml:value>
+        </dsml:attr>
+      </data>
+    </ldappc:pso>
+  </ldappc:calcResponse>
+  <ldappc:calcResponse status='success' requestID='REQUEST_ID'>
+    <ldappc:id ID='test.subject.0'/>
+    <ldappc:pso entityName='member'>
+      <psoID ID='cn=test.subject.0,ou=testpeople,${base}' targetID='ldap'/>
+    </ldappc:pso>
+  </ldappc:calcResponse>
+  <ldappc:calcResponse status='success' requestID='REQUEST_ID'>
+    <ldappc:id ID='test.subject.1'/>
+    <ldappc:pso entityName='member'>
+      <psoID ID='cn=test.subject.1,ou=testpeople,${base}' targetID='ldap'/>
+    </ldappc:pso>
+  </ldappc:calcResponse>
+</ldappc:bulkCalcResponse>

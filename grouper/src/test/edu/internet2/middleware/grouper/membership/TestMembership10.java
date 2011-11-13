@@ -98,8 +98,8 @@ public class TestMembership10 extends GrouperTest {
       nsA   = r.getStem("a");
 
       fieldMembers = Group.getDefaultList();
-      fieldUpdaters = FieldFinder.find("updaters", true);
-      fieldCreators = FieldFinder.find("creators", true);
+      fieldUpdaters = FieldFinder.find(Field.FIELD_NAME_UPDATERS, true);
+      fieldCreators = FieldFinder.find(Field.FIELD_NAME_CREATORS, true);
 
       Set<Membership> listMemberships;
       Set<Membership> updateMemberships;

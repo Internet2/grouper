@@ -36,6 +36,7 @@ import edu.internet2.middleware.grouper.internal.dao.ChangeLogConsumerDAO;
 import edu.internet2.middleware.grouper.internal.dao.ChangeLogEntryDAO;
 import edu.internet2.middleware.grouper.internal.dao.ChangeLogTypeDAO;
 import edu.internet2.middleware.grouper.internal.dao.CompositeDAO;
+import edu.internet2.middleware.grouper.internal.dao.EntityDAO;
 import edu.internet2.middleware.grouper.internal.dao.ExternalSubjectAttributeDAO;
 import edu.internet2.middleware.grouper.internal.dao.ExternalSubjectDAO;
 import edu.internet2.middleware.grouper.internal.dao.FieldDAO;
@@ -499,6 +500,14 @@ public class Hib3DAOFactory extends GrouperDAOFactory {
   @Override
   public ExternalSubjectAttributeDAO getExternalSubjectAttribute() {
     return new Hib3ExternalSubjectAttributeDAO();
+  }
+
+  /**
+   * @see GrouperDAOFactory#getEntity()
+   */
+  @Override
+  public EntityDAO getEntity() {
+    return new Hib3EntityDAO();
   }
 } 
 

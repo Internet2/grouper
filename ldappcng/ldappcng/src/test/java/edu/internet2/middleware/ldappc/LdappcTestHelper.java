@@ -15,11 +15,13 @@
 package edu.internet2.middleware.ldappc;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
@@ -34,6 +36,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 
 import javax.naming.InvalidNameException;
@@ -56,6 +59,7 @@ import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.AttributeUtils;
+import org.apache.log4j.spi.LoggingEvent;
 import org.custommonkey.xmlunit.DetailedDiff;
 import org.custommonkey.xmlunit.Diff;
 import org.custommonkey.xmlunit.DifferenceListener;
@@ -65,15 +69,19 @@ import org.opensaml.xml.util.DatatypeHelper;
 import org.openspml.v2.msg.Marshallable;
 import org.openspml.v2.msg.XMLMarshaller;
 import org.openspml.v2.msg.XMLUnmarshaller;
+import org.openspml.v2.util.Spml2Exception;
 import org.openspml.v2.util.xml.UnknownSpml2TypeException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.ldappc.exception.LdappcException;
+import edu.internet2.middleware.ldappc.spml.PSP;
 import edu.internet2.middleware.ldappc.util.IgnoreRequestIDDifferenceListener;
 import edu.internet2.middleware.ldappc.util.LdapUtil;
+import edu.internet2.middleware.ldappc.util.SortedOrderedResultLdapBeanFactory;
 import edu.vt.middleware.ldap.Ldap;
+import edu.vt.middleware.ldap.SearchFilter;
 import edu.vt.middleware.ldap.bean.LdapResult;
 import edu.vt.middleware.ldap.bean.SortedLdapBeanFactory;
 import edu.vt.middleware.ldap.ldif.Ldif;
@@ -174,11 +182,27 @@ public class LdappcTestHelper {
    */
   public static void deleteChildren(String baseDn, Ldap ldap) throws NamingException {
     LOG.debug("base " + baseDn);
-    List<String> toDelete = LdapUtil.getChildDNs(baseDn, ldap);
+    List<String> toDelete = LdapUtil.getChildDNs(baseDn, ldap, false);
     LOG.debug("childs " + toDelete);
     for (String dn : toDelete) {
       LOG.info("delete '{}'", dn);
       ldap.delete(LdapUtil.escapeForwardSlash(dn));
+    }
+  }
+
+  /**
+   * Delete the ldap entry with the given cn.
+   * 
+   * @param cn the cn
+   * @param ldap the ldap connection
+   * @throws NamingException
+   */
+  public static void deleteCn(String cn, Ldap ldap) throws NamingException {
+
+    Iterator<SearchResult> results = ldap.search(new SearchFilter("cn=" + cn));
+    while (results.hasNext()) {
+      SearchResult result = results.next();
+      ldap.delete(result.getName());
     }
   }
 
@@ -194,6 +218,22 @@ public class LdappcTestHelper {
    */
   public static String getCurrentLdif(String baseDn, Ldap ldap) throws NamingException {
     return getCurrentLdif(baseDn, null, ldap);
+  }
+
+  /**
+   * Return an LDIF representation of the LDAP DIT starting at the given base DN.
+   * 
+   * @param baseDn
+   *          the base of the LDAP DIT
+   * @param ldap
+   *          <code>Ldap</code>
+   * @param descendingOrder
+   *          true to indicate descending order, false to indicate ascending order
+   * @return LDIF
+   * @throws NamingException
+   */
+  public static String getCurrentLdif(String baseDn, Ldap ldap, boolean descendingOrder) throws NamingException {
+    return getCurrentLdif(baseDn, null, ldap, descendingOrder);
   }
 
   /**
@@ -215,6 +255,42 @@ public class LdappcTestHelper {
     List<String> currentDns = LdapUtil.getChildDNs(baseDn, ldap);
 
     SortedLdapBeanFactory factory = new SortedLdapBeanFactory();
+    LdapResult result = factory.newLdapResult();
+
+    for (String currentDn : currentDns) {
+      // LOG.debug("currentDn '{}'", currentDn);
+
+      Iterator<SearchResult> rs = (LdapUtil.searchEntryDn(ldap, LdapUtil.escapeForwardSlash(currentDn), attrIds));
+      while (rs.hasNext()) {
+        SearchResult r = rs.next();
+        // TODO must be a better way to handle cn=group\/F,
+        r.setName(LdapUtil.unescapeForwardSlash(r.getName()));
+        result.addEntry(r);
+      }
+    }
+
+    Ldif l = new Ldif();
+    l.setLdapBeanFactory(factory);
+    return l.createLdif(result);
+  }
+  
+  /**
+   * Return an LDIF representation of the LDAP DIT starting at the given base DN and consisting of the specified
+   * attributes.
+   * 
+   * @param baseDn the base of the LDAP DIT
+   * @param attrIds the names of the attributes to be included
+   * @param ldap the ldap connection
+   * @param descendingOrder true to indicate descending order, false to indicate ascending order
+   * @return the LDIF
+   * @throws NamingException
+   */
+  public static String getCurrentLdif(String baseDn, String[] attrIds, Ldap ldap, boolean descendingOrder)
+      throws NamingException {
+
+    List<String> currentDns = LdapUtil.getChildDNs(baseDn, ldap, descendingOrder);
+
+    SortedOrderedResultLdapBeanFactory factory = new SortedOrderedResultLdapBeanFactory();
     LdapResult result = factory.newLdapResult();
 
     for (String currentDn : currentDns) {
@@ -620,6 +696,9 @@ public class LdappcTestHelper {
     // get current ldif using requested attribute ids
     String currentLdif = LdappcTestHelper.getCurrentLdif(base, requestedAttributes, ldap);
 
+    LOG.debug("currentLdif\n{}", currentLdif);
+    LOG.debug("correctLdif\n{}", correctLdif);
+    
     // verify ldif
     LdappcTestHelper.verifyLdif(correctLdif, currentLdif, propertiesFile, normalizeDnAttributes, purgeAttributes);
   }
@@ -716,7 +795,7 @@ public class LdappcTestHelper {
     LdifReader reader = new LdifReader();
 
     Collection<LdifEntry> correctEntries = reader.parseLdif(correctLdif);
-    LOG.debug("cur ldif\n{}", currentLdif);
+    // LOG.debug("cur ldif\n{}", currentLdif);
     Collection<LdifEntry> currentEntries = reader.parseLdif(currentLdif);
 
     // remove objectclass: top
@@ -806,6 +885,7 @@ public class LdappcTestHelper {
       if (LOG.isDebugEnabled()) {
         LOG.debug("current:\n{}", testXML);
         LOG.debug("correct:\n{}", correctXML);
+        LOG.debug("unmarshalledTestXML:\n{}", unmarshalledTestXML);
       }
 
       // test objects
@@ -868,6 +948,177 @@ public class LdappcTestHelper {
       e.printStackTrace();
       Assert.fail("An error occurred : " + e.getMessage());
       return null;
+    }
+  }
+  
+  public static void verifySpml(XMLMarshaller m, XMLUnmarshaller u, InputStream correctXMLStream,
+      InputStream currentXMLStream, boolean testEquality, File propertiesFile) {
+
+    try {
+      String correctXML = null;
+      String currentXML = null;
+      if (propertiesFile != null) {
+        // replace macros
+        PropertyReplacementResourceFilter filter = new PropertyReplacementResourceFilter(propertiesFile);
+        correctXML = DatatypeHelper.inputstreamToString(filter.applyFilter(correctXMLStream), null);
+        currentXML = DatatypeHelper.inputstreamToString(filter.applyFilter(currentXMLStream), null);
+      } else {
+        correctXML = DatatypeHelper.inputstreamToString(correctXMLStream, null);
+        currentXML = DatatypeHelper.inputstreamToString(currentXMLStream, null);
+      }
+
+      Marshallable unmarshalledFromCorrectXMLFile = u.unmarshall(correctXML);
+      Marshallable unmarshalledFromCurrentXMLFile = u.unmarshall(currentXML);
+
+      if (LOG.isDebugEnabled()) {
+        LOG.debug("current:\n{}", currentXML);
+        LOG.debug("correct:\n{}", correctXML);
+      }
+
+      // test objects
+      if (testEquality) {
+        // Assert.assertEquals(testObject, unmarshalledObject);
+        Assert.assertEquals(unmarshalledFromCorrectXMLFile, unmarshalledFromCurrentXMLFile);
+      }
+
+      // ignore requestID, must test similar not identical
+      DifferenceListener ignoreRequestID = new IgnoreRequestIDDifferenceListener();
+
+      // test testXML against correctXML
+      Diff correctDiff = new Diff(new StringReader(correctXML), new StringReader(currentXML));
+
+      correctDiff.overrideDifferenceListener(ignoreRequestID);
+      // // TODO ignore order ?
+      // correctDiff.overrideElementQualifier(new RecursiveElementNameAndTextQualifier());
+
+      DetailedDiff correctDetailedDiff = new DetailedDiff(correctDiff);
+      // TODO ignore order ?
+      // correctDetailedDiff.overrideElementQualifier(new
+      // RecursiveElementNameAndTextQualifier());
+      correctDetailedDiff.overrideDifferenceListener(ignoreRequestID);
+
+      if (!correctDetailedDiff.getAllDifferences().isEmpty()) {
+        LOG.debug("differences   \n'{}'", correctDetailedDiff.getAllDifferences());
+        LOG.debug("diff to string\n'{}'", correctDetailedDiff.toString());
+      }
+      Assert.assertTrue("SPML diff should be empty", correctDetailedDiff.getAllDifferences().isEmpty());
+      Assert.assertTrue("SPML diff should be similar", correctDetailedDiff.similar());
+
+    } catch (Exception e) {
+      e.printStackTrace();
+      Assert.fail("An error occurred : " + e.getMessage());
+    }
+  }
+  
+  public static void verifySpmlLoggingEvents(File propertiesFile, PSP psp, List<LoggingEvent> loggingEvents,
+      String correctXMLFileName) {
+
+    LdappcTestHelper.verifySpmlLoggingEvents(psp.getXMLMarshaller(), psp.getXmlUnmarshaller(), loggingEvents,
+        correctXMLFileName, propertiesFile);
+  }
+
+  public static void verifySpmlLoggingEvents(XMLMarshaller m, XMLUnmarshaller u, List<LoggingEvent> loggingEvents,
+      String correctXMLFileName, File propertiesFile) {
+
+    try {
+      // build list of string messages
+      List<String> stringLoggingEvents = new ArrayList<String>();
+      for (LoggingEvent loggingEvent : loggingEvents) {
+        stringLoggingEvents.add(loggingEvent.getMessage().toString());
+      }
+
+      // read correct newline separated spml messages from file
+      InputStream correctXMLInputStream = new FileInputStream(LdappcTestHelper.getFile(correctXMLFileName));
+      String correctXML = DatatypeHelper.inputstreamToString(correctXMLInputStream, null);
+      List<String> correctXMLMessages = new ArrayList<String>();
+      String[] toks = correctXML.split("\\n\\n");
+      for (int i = 0; i < toks.length; i++) {
+        if (toks[i].startsWith("\n")) {
+          correctXMLMessages.add(toks[i]);
+        } else {
+          correctXMLMessages.add("\n" + toks[i]);
+        }
+      }
+
+      Assert.assertEquals("Number of messages mismatch", correctXMLMessages.size(), stringLoggingEvents.size());
+
+      // verify each message in order
+      for (int i = 0; i < toks.length; i++) {
+        InputStream correctInputStream = new ByteArrayInputStream(correctXMLMessages.get(i).getBytes("UTF-8"));
+        InputStream currentInputStream = new ByteArrayInputStream(stringLoggingEvents.get(i).getBytes("UTF-8"));
+
+        LdappcTestHelper.verifySpml(m, u, correctInputStream, currentInputStream, false, propertiesFile);
+      }
+
+    } catch (FileNotFoundException e) {
+      e.printStackTrace();
+      Assert.fail("An error occurred : " + e.getMessage());
+    } catch (IOException e) {
+      e.printStackTrace();
+      Assert.fail("An error occurred : " + e.getMessage());
+    }
+  }
+
+  public static void verifySpmlLoggingEventsWrite(List<LoggingEvent> loggingEvents, String correctXMLFileName,
+      File propertiesFile) {
+
+    List<String> strings = new ArrayList<String>();
+    for (LoggingEvent loggingEvent : loggingEvents) {
+      strings.add(loggingEvent.getMessage().toString());
+    }
+
+    writeCorrectTestFile(propertiesFile, correctXMLFileName, strings.toArray(new String[] {}));
+  }
+
+  public static void verifySpmlWrite(File propertiesFile, PSP psp, Marshallable testObject, String correctXMLFileName) {
+
+    try {
+      String xml = testObject.toXML(psp.getXMLMarshaller());
+      writeCorrectTestFile(propertiesFile, correctXMLFileName, xml);
+    } catch (Spml2Exception e) {
+      e.printStackTrace();
+      throw new RuntimeException(e);
+    }
+  }
+  
+  public static void writeCorrectTestFile(File propertiesFile, String fileName, String... strings) {
+    try {
+
+      File file = GrouperUtil.fileFromResourceName(fileName);
+      if (file != null) {
+        throw new RuntimeException("File already exists " + fileName);
+      }
+
+      String path = System.getProperty("user.dir") + File.separator + "src" + File.separator + "test" + File.separator
+          + "resources" + File.separator + fileName;
+
+      Properties props = new Properties();
+      props.load(new FileInputStream(propertiesFile));
+
+      BufferedWriter out = new BufferedWriter(new FileWriter(path));
+
+      for (String string : strings) {
+
+        if (!DatatypeHelper.isEmpty(string)) {
+          string = string.replace(props.getProperty("base"), "${base}");
+
+          string = string.replace("<dsml:value>" + props.getProperty("groupObjectClass") + "</dsml:value>",
+              "<dsml:value>${groupObjectClass}</dsml:value>");
+                  
+          // xml = xml.replaceAll("requestID='2.*?'", "requestID='REQUEST_ID'");
+          
+          if (!string.endsWith(System.getProperty("line.separator"))) {
+            string = string + System.getProperty("line.separator");
+          }
+        }
+        out.write(string);
+      }
+
+      out.close();
+
+    } catch (IOException e) {
+      e.printStackTrace();
+      throw new RuntimeException(e);
     }
   }
 }

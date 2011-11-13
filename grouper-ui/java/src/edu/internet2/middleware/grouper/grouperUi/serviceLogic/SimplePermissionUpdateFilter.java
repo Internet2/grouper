@@ -353,7 +353,7 @@ public class SimplePermissionUpdateFilter {
         try {
           
           //TODO there should be a better performance way to do this
-          subjects = SubjectFinder.findAll(searchTerm);            
+          subjects = SubjectFinder.findPage(searchTerm).getResults();            
           
           if (group != null) {
             
@@ -364,21 +364,22 @@ public class SimplePermissionUpdateFilter {
           }
           
           //dont allow groups here...  its too confusing, why would you do this?
-          Iterator<Subject> iterator = subjects.iterator();
-          while (iterator.hasNext()) {
-            Subject subject = iterator.next();
-            if (StringUtils.equals(subject.getSourceId(), "g:gsa")) {
-              iterator.remove();
+          if (!TagUtils.mediaResourceBoolean("simplePermissionUpdate.allowGroupsInSubjectResults", false)) {
+            Iterator<Subject> iterator = subjects.iterator();
+            while (iterator.hasNext()) {
+              Subject subject = iterator.next();
+              if (StringUtils.equals(subject.getSourceId(), "g:gsa")) {
+                iterator.remove();
+              }
+                  
             }
-                
           }
-          
           int maxSubjectsDropDown = TagUtils.mediaResourceInt("simplePermissionUpdate.subjectComboboxResultSize", 50);
   
           queryPaging = new QueryPaging(maxSubjectsDropDown, 1, true);
         
           //sort and page the results
-          subjects = GrouperUiUtils.subjectsSortedPaged(subjects, queryPaging);
+          subjects = GrouperUiUtils.subjectsSortedPaged(subjects, queryPaging, searchTerm);
   
         } catch (SubjectTooManyResults stmr) {
           tooManyResults = true;

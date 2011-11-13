@@ -16,10 +16,13 @@
 */
 
 package edu.internet2.middleware.grouper.internal.dao.hib3;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
+import org.apache.commons.collections.keyvalue.MultiKey;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.hibernate.HibernateException;
@@ -28,6 +31,7 @@ import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
@@ -467,6 +471,79 @@ public class Hib3MemberDAO extends Hib3DAO implements MemberDAO {
     return memberUuids;
   }
 
+  /**
+   * find members by subjects and create if not exist possibly
+   * @param subjects
+   * @param createIfNotExists
+   * @return the members
+   */
+  public Set<Member> findBySubjects(
+      Collection<Subject> subjects, boolean createIfNotExists) {
+    
+    Set<Member> result = new TreeSet<Member>();
+    
+    if (GrouperUtil.length(subjects) == 0) {
+      return result;
+    }
+    
+    //lets do this in batches
+    int numberOfBatches = GrouperUtil.batchNumberOfBatches(subjects, MEMBER_SUBJECT_BATCH_SIZE);
+    
+    for (int i=0;i<numberOfBatches;i++) {
+
+      List<Subject> subjectBatch = GrouperUtil.batchList(subjects, MEMBER_SUBJECT_BATCH_SIZE, i);
+
+//      select distinct gm.* 
+//      from grouper_members gm
+//      where (gm.subject_id = '123' and gm.subject_source = 'jdbc') 
+//          or (gm.subject_id = '234' and gm.subject_source = 'jdbc' )
+
+      //lets turn the subjects into subjectIds
+      if (GrouperUtil.length(subjectBatch) == 0) {
+        continue;
+      }
+
+      ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
+      StringBuilder query = new StringBuilder("select distinct gm " +
+          "from Member gm " +
+          "where ");
+      
+      //add all the uuids
+      query.append(HibUtils.convertToSubjectInClause(subjectBatch, byHqlStatic, "gm"));
+      List<Member> currentMemberList = byHqlStatic.createQuery(query.toString())
+        .list(Member.class);
+      result.addAll(currentMemberList);
+      
+      if (createIfNotExists) {
+        
+        //see which ones we've got
+        Set<MultiKey> subjectsRetrieved = new HashSet<MultiKey>();
+        
+        for (Member member : currentMemberList) {
+          MultiKey multiKey = new MultiKey(member.getSubjectSourceId(), member.getSubjectId());
+          subjectsRetrieved.add(multiKey);
+        }
+        
+        //loop through what we were supposed to get
+        for (Subject subject : subjectBatch) {
+          MultiKey multiKey = new MultiKey(subject.getSourceId(), subject.getId());
+          if (!subjectsRetrieved.contains(multiKey)) {
+            //create and add to results
+            Member member = MemberFinder.internal_createMember(subject, null);
+            result.add(member);
+          }
+        }
+      }
+      
+      
+    }
+    return result;
+
+    
+  }
+  
+
+  
   /**
    * convert a set of subjects to a set of members
    * @param grouperSession 

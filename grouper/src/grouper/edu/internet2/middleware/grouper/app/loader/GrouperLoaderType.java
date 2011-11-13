@@ -41,8 +41,9 @@ import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.app.loader.db.GrouperLoaderDb;
 import edu.internet2.middleware.grouper.app.loader.db.GrouperLoaderResultset;
-import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.app.loader.db.GrouperLoaderResultset.Row;
+import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
+import edu.internet2.middleware.grouper.app.loader.ldap.LoaderLdapUtils;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.AttributeDefNameSave;
@@ -132,7 +133,8 @@ public enum GrouperLoaderType {
       
       //get a resultset from the db
       final GrouperLoaderResultset grouperLoaderResultset = new GrouperLoaderResultset(
-          loaderJobBean.getGrouperLoaderDb(), loaderJobBean.getQuery());
+          loaderJobBean.getGrouperLoaderDb(), loaderJobBean.getQuery(), loaderJobBean.getHib3GrouploaderLogOverall().getJobName(), 
+          loaderJobBean.getHib3GrouploaderLogOverall());
       
       syncOneGroupMembership(loaderJobBean.getGroupNameOverall(), null, null, 
           loaderJobBean.getHib3GrouploaderLogOverall(), loaderJobBean.getStartTime(),
@@ -364,38 +366,25 @@ public enum GrouperLoaderType {
         GrouperLoaderDb grouperLoaderDb = loaderJobBean.getGrouperLoaderDb();
         String query = loaderJobBean.getQuery();
         Hib3GrouperLoaderLog hib3GrouploaderLogOverall = loaderJobBean.getHib3GrouploaderLogOverall();
+        long startTime = loaderJobBean.getStartTime();
+        
         GrouperSession grouperSession = loaderJobBean.getGrouperSession();
         List<Group> andGroups = loaderJobBean.getAndGroups();
         List<GroupType> groupTypes = GrouperUtil.nonNull(loaderJobBean.getGroupTypes());
         String groupLikeString = loaderJobBean.getGroupLikeString();
         String groupQuery = loaderJobBean.getGroupQuery();
-        long startTime = loaderJobBean.getStartTime();
-        
+
         if (LOG.isDebugEnabled()) {
           LOG.debug(groupNameOverall + ": start syncing membership");
         }
         
-        long startTimeLoadData = 0;
-        GrouperLoaderStatus statusOverall = GrouperLoaderStatus.SUCCESS;
+        GrouperLoaderStatus[] statusOverall = new GrouperLoaderStatus[]{GrouperLoaderStatus.SUCCESS};
         
         try {
           //get a resultset from the db
           final GrouperLoaderResultset grouperLoaderResultsetOverall = new GrouperLoaderResultset(grouperLoaderDb, 
-              query + " order by group_name");
-          
-          if (LOG.isDebugEnabled()) {
-            LOG.debug(groupNameOverall + ": found " + grouperLoaderResultsetOverall + " members overall");
-          }
-          
-          hib3GrouploaderLogOverall.setMillisGetData((int)(System.currentTimeMillis()-startTime));
-
-          startTimeLoadData =  System.currentTimeMillis();
-
-          Set<String> groupNames = grouperLoaderResultsetOverall.groupNames();
-          
-          if (LOG.isDebugEnabled()) {
-            LOG.debug(groupNameOverall + ": syncing membership for " + groupNames.size() + " groups");
-          }
+              query + " order by group_name", loaderJobBean.getHib3GrouploaderLogOverall().getJobName(), 
+              loaderJobBean.getHib3GrouploaderLogOverall());
           
           //#######################################
           //Get group metadata
@@ -404,11 +393,14 @@ public enum GrouperLoaderType {
           Map<String, String> groupNameToDescription = new LinkedHashMap<String, String>();
           Map<String, Subject> subjectCache = new HashMap<String, Subject>();
           Map<String, Map<Privilege, List<Subject>>> privsToAdd = new LinkedHashMap<String, Map<Privilege, List<Subject>>>();
-          Set<String> groupNamesFromGroupQuery = new LinkedHashSet<String>();
+          Set<String> groupNamesFromGroupQuery = null;
           if (!StringUtils.isBlank(groupQuery)) {
+            
+            groupNamesFromGroupQuery = new LinkedHashSet<String>();
             //get a resultset from the db
             final GrouperLoaderResultset grouperLoaderGroupsResultset = new GrouperLoaderResultset(
-                grouperLoaderDb, groupQuery + " order by group_name");
+                grouperLoaderDb, groupQuery + " order by group_name", hib3GrouploaderLogOverall.getJobName(), 
+                hib3GrouploaderLogOverall);
             
             groupMetadataNumberOfRows = grouperLoaderGroupsResultset.numberOfRows();
             for (int i=0;i<groupMetadataNumberOfRows;i++) {
@@ -466,322 +458,21 @@ public enum GrouperLoaderType {
             }
             
           }
-
+      
           if (LOG.isDebugEnabled()) {
             LOG.debug(groupNameOverall + ": found " + groupMetadataNumberOfRows + " number of metadata rows");
           }
-
+      
           //End group metadata
           //#######################################
-          
-          //#######################################
-          //Delete records in groups not there anymore.  maybe delete group too
-          if (!StringUtils.isBlank(groupLikeString)) {
-            
-            //lets see which names are not in that list
-            Set<String> groupNamesManaged = HibernateSession.byHqlStatic()
-              .createQuery("select g.nameDb from Group g where g.nameDb like :thePattern")
-              .setString("thePattern", groupLikeString).listSet(String.class);
-          
-            //take out the ones which exist
-            groupNamesManaged.removeAll(groupNames);
-            
-            Boolean isIncludeExclude = null;
-            
-            for (String groupNameEmpty : groupNamesManaged) {
-              
-              //if we need to figure this out
-              if (isIncludeExclude == null) {
-                isIncludeExclude = false;
-                //if it ends in a suffix
-                if (GroupTypeTupleIncludeExcludeHook.nameIsIncludeExcludeRequireGroup(groupNameEmpty)) {
-                  isIncludeExclude = true;
-                } else {
-                  //else if there is a system of record for it
-                  if (GroupFinder.findByName(grouperSession, groupNameEmpty 
-                      + GroupTypeTupleIncludeExcludeHook.systemOfRecordExtensionSuffix(), false) != null) {
-                    isIncludeExclude = true;
-                  }
-                }
-              }
 
-              //now... if it is includeExclude
-              if (isIncludeExclude) {
-                //make sure this is the system of record group
-                if (!groupNameEmpty.endsWith(GroupTypeTupleIncludeExcludeHook.systemOfRecordExtensionSuffix())) {
-                  continue;
-                }
-              }
-              
-              long groupStartedMillis = System.currentTimeMillis();
-              int memberCount = 0;
-              GrouperLoaderStatus status = GrouperLoaderStatus.SUCCESS;
-              StringBuilder jobDescription = new StringBuilder();
-              boolean didSomething = false;
-              long millisGetData = 0;
-              long millisSetData = 0;
-              try {
-                
-                //first of all remove members
-                Group groupEmpty = GroupFinder.findByName(grouperSession, groupNameEmpty, false);
-  
-                //not sure why it would be null
-                if (groupEmpty == null) {
-                  continue;
-                }
-                millisGetData = System.currentTimeMillis();
-                Set<Member> members = GrouperUtil.nonNull(groupEmpty.getImmediateMembers());
-                millisGetData = System.currentTimeMillis() - millisGetData;
-                
-                millisSetData = System.currentTimeMillis();
-                memberCount = members.size();
-                for (Member member : members) {
-                  didSomething = true;
-                  groupEmpty.deleteMember(member);
-                }
-  
-                //see if we are deleting group.  It must not be in the group query (if exists), and it 
-                //must be configured to do this in the grouper loader properties
-                if (!groupNamesFromGroupQuery.contains(groupNameEmpty) && GrouperLoaderConfig.getPropertyBoolean(
-                    "loader.sqlTable.likeString.removeGroupIfNotUsed", true)) {
-
-                  //see if we need to log
-                  didSomething = true;
-                  StringBuilder theLog = new StringBuilder();
-                  int groupsDeleted = GroupTypeTupleIncludeExcludeHook.deleteGroupsIfNotUsed(grouperSession, 
-                      groupNameEmpty, theLog, true);
-                  GrouperUtil.append(jobDescription, "\n", theLog.toString());
-                  if (groupsDeleted == 0) {
-                    //this is a problem, something is being used...  warning
-                    status = GrouperLoaderStatus.WARNING;
-                  }
-                }
-                millisSetData = System.currentTimeMillis() - millisSetData;
-              } catch (Exception e) {
-                didSomething = true;
-                status = GrouperLoaderStatus.ERROR;
-                LOG.error("Error on group: " + groupNameEmpty, e);
-                GrouperUtil.append(jobDescription, "\n", "Error: " + ExceptionUtils.getFullStackTrace(e));
-              }
-              
-              //if we did something, log it
-              if (didSomething) {
-                Hib3GrouperLoaderLog hib3GrouploaderLog = new Hib3GrouperLoaderLog();
-                //make a new log object for this one subgroup
-                hib3GrouploaderLog.setHost(GrouperUtil.hostname());
-                hib3GrouploaderLog.setJobName("subjobFor_" + groupNameEmpty);
-                hib3GrouploaderLog.setStartedTime(new Timestamp(groupStartedMillis));
-                hib3GrouploaderLog.setStatus(status.name());
-                hib3GrouploaderLog.setParentJobId(hib3GrouploaderLogOverall.getId());
-                hib3GrouploaderLog.setParentJobName(hib3GrouploaderLogOverall.getJobName());
-                hib3GrouploaderLog.setJobDescription(jobDescription.toString());
-                hib3GrouploaderLog.setDeleteCount(memberCount);
-                long endTime = System.currentTimeMillis();
-                hib3GrouploaderLog.setEndedTime(new Timestamp(endTime));
-                hib3GrouploaderLog.setMillis((int)(endTime-groupStartedMillis));
-                hib3GrouploaderLog.setMillisGetData(new Integer((int)millisGetData));
-                hib3GrouploaderLog.setMillisLoadData(new Integer((int)millisSetData));
-                
-                hib3GrouploaderLog.setJobType(hib3GrouploaderLogOverall.getJobType());
-                hib3GrouploaderLog.setJobScheduleType(hib3GrouploaderLogOverall.getJobScheduleType());
-                hib3GrouploaderLog.setJobScheduleIntervalSeconds(hib3GrouploaderLogOverall.getJobScheduleIntervalSeconds());
-                hib3GrouploaderLog.setJobSchedulePriority(hib3GrouploaderLogOverall.getJobSchedulePriority());
-                hib3GrouploaderLog.setJobScheduleQuartzCron(hib3GrouploaderLogOverall.getJobScheduleQuartzCron());
-                
-                
-                hib3GrouploaderLog.store();
-                
-                hib3GrouploaderLogOverall.addDeleteCount(memberCount);
-                hib3GrouploaderLogOverall.store();
-                
-              }
-            }
-            
-          }
-          //End delete records in groups not there anymore.  maybe delete group too
-          //#######################################
-
-          int count=1;
+          syncGroupList(grouperLoaderResultsetOverall, startTime, grouperSession, 
+              andGroups, groupTypes, groupLikeString, groupNameOverall, hib3GrouploaderLogOverall,
+              statusOverall, loaderJobBean.getGrouperLoaderDb(), groupNameToDisplayName, 
+              groupNameToDescription, privsToAdd, groupNamesFromGroupQuery);
           
-          long groupStartedMillis = System.currentTimeMillis();
-          
-          //if we are configured to, get the group names in one fell swoop
-          // && GrouperLoaderConfig.getPropertyBoolean(
-          // "loader.getAllGroupListMembershipsAtOnce", false);
-          //2010/05/02 I think this didnt pan out as a performance gain...
-          boolean getMembershipsAtOnce = false;
-          
-          
-          //set of immediate memberships in the regsitry, key is group name, multikey by subjectId, and optionally sourceId
-          Map<String, Set<MultiKey>> membershipsInRegistry = new HashMap<String, Set<MultiKey>>();
-          
-          if (getMembershipsAtOnce) {
-            
-            String queryPrefix = "select distinct a.value, gm.subjectIdDb, gm.subjectSourceIdDb "
-              + "from Attribute a, Field f, Membership gms, Member gm, Field mf "
-              + "where f.name = 'name' and a.fieldId = f.uuid "
-              + "and gms.ownerUuid = a.groupUuid and gms.memberUuid = gm.uuid "
-              + "and gms.fieldId = mf.uuid and mf.name = 'members' and mf.typeString = 'list' "
-              + "and gms.type = 'immediate' and a.value  ";
-            
-            List<Object[]> result = null;
-            //lets see which type to do
-            if (!StringUtils.isBlank(groupLikeString)) {
-              
-              result = HibernateSession.byHqlStatic()
-                .createQuery(queryPrefix + " like :thePattern")
-                .setString("thePattern", groupLikeString).list(Object[].class);
-                            
-            } else {
-              //just batch up the group names to get the results, in size of 100
-              int numberOfBatches = GrouperUtil.batchNumberOfBatches(groupNames, 100);
-              result = new ArrayList<Object[]>();
-              for (int i=0;i<numberOfBatches;i++) {
-                
-                List<String> groupNamesInBatch = GrouperUtil.batchList(groupNames, 100, i);
-                
-                ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
-                String queryInClause = HibUtils.convertToInClause(groupNamesInBatch, byHqlStatic);
-                byHqlStatic.createQuery(queryPrefix + " in (" + queryInClause + ")");
-                result.addAll(byHqlStatic.list(Object[].class));
-                
-              }
-              
-              
-            }
-            
-            for (Object[] resultLine : GrouperUtil.nonNull(result)) {
-              String groupName = (String)resultLine[0];
-              String subjectId = (String)resultLine[1];
-              String sourceId = (String)resultLine[2];
-              
-              Set<MultiKey> members = membershipsInRegistry.get(groupName);
-              
-              if (members == null) {
-                members = new HashSet<MultiKey>();
-                membershipsInRegistry.put(groupName, members);
-              }
-               
-              //here is the exact
-              members.add(new MultiKey(subjectId, sourceId));
-              
-              //put in the subjectId, lets hope there arent duplicates going on
-              //members.add(new MultiKey(new Object[]{subjectId}));
-              
-            }
-
-            
-          }
-          
-          Set<String> groupNamesToSync = new LinkedHashSet<String>();
-          if (!StringUtils.isBlank(groupQuery)) {
-            groupNamesToSync.addAll(groupNamesFromGroupQuery);
-          } else {
-            groupNamesToSync.addAll(groupNames);
-          }
-          
-          for (String groupName : groupNamesToSync) {
-            
-            if (LOG.isDebugEnabled()) {
-              LOG.debug(groupNameOverall + ": syncing membership for " + groupName + " " + count + " out of " + groupNamesToSync.size() + " groups");
-            }
-            
-            Hib3GrouperLoaderLog hib3GrouploaderLog = new Hib3GrouperLoaderLog();
-            try {
-              GrouperLoaderResultset grouperLoaderResultset = new GrouperLoaderResultset(
-                  grouperLoaderResultsetOverall, groupName);
-              //make a new log object for this one subgroup
-              
-              hib3GrouploaderLog.setHost(GrouperUtil.hostname());
-              hib3GrouploaderLog.setJobName("subjobFor_" + groupName);
-              hib3GrouploaderLog.setStartedTime(new Timestamp(groupStartedMillis));
-              hib3GrouploaderLog.setStatus(GrouperLoaderStatus.STARTED.name());
-              hib3GrouploaderLog.setParentJobId(hib3GrouploaderLogOverall.getId());
-              hib3GrouploaderLog.setParentJobName(hib3GrouploaderLogOverall.getJobName());
-
-              hib3GrouploaderLog.setJobType(hib3GrouploaderLogOverall.getJobType());
-              hib3GrouploaderLog.setJobScheduleType(hib3GrouploaderLogOverall.getJobScheduleType());
-              hib3GrouploaderLog.setJobScheduleIntervalSeconds(hib3GrouploaderLogOverall.getJobScheduleIntervalSeconds());
-              hib3GrouploaderLog.setJobSchedulePriority(hib3GrouploaderLogOverall.getJobSchedulePriority());
-              hib3GrouploaderLog.setJobScheduleQuartzCron(hib3GrouploaderLogOverall.getJobScheduleQuartzCron());
-
-              hib3GrouploaderLog.store();
-              
-              //based on type, run query from the db and sync members
-              syncOneGroupMembership(groupName, groupNameToDisplayName.get(groupName), 
-                  groupNameToDescription.get(groupName), hib3GrouploaderLog, groupStartedMillis,
-                  grouperLoaderResultset, true, grouperSession, andGroups, groupTypes, privsToAdd.get(groupName), membershipsInRegistry.get(groupName));
-              
-              long endTime = System.currentTimeMillis();
-              hib3GrouploaderLog.setEndedTime(new Timestamp(endTime));
-              hib3GrouploaderLog.setMillis((int)(endTime-groupStartedMillis));
-              
-            } catch (Exception e) {
-              hib3GrouploaderLog.setStatus(GrouperLoaderStatus.ERROR.name());
-              LOG.error("Error in job for group: " + groupName, e);
-            }
-            //start next one now (so we dont lose time)
-            groupStartedMillis = System.currentTimeMillis();
-            hib3GrouploaderLog.store();
-            
-            //reconcile overall status
-            //just take the first non-success code, but error trumps all
-            GrouperLoaderStatus groupStatus = GrouperLoaderStatus.valueOfIgnoreCase(hib3GrouploaderLog.getStatus(), true);
-            //default to error
-            groupStatus = GrouperUtil.defaultIfNull(groupStatus, GrouperLoaderStatus.ERROR);
-            if (GrouperLoaderStatus.ERROR.equals(groupStatus) 
-                || statusOverall == GrouperLoaderStatus.SUCCESS) {
-              statusOverall = groupStatus;
-            }
-            
-            //count all the stats
-            hib3GrouploaderLogOverall.addDeleteCount(hib3GrouploaderLog.getDeleteCount());
-            hib3GrouploaderLogOverall.addInsertCount(hib3GrouploaderLog.getInsertCount());
-            hib3GrouploaderLogOverall.addUpdateCount(hib3GrouploaderLog.getUpdateCount());
-            hib3GrouploaderLogOverall.addTotalCount(hib3GrouploaderLog.getTotalCount());
-            hib3GrouploaderLogOverall.addUnresolvableSubjectCount(hib3GrouploaderLog.getUnresolvableSubjectCount());
-            //store after each group to get progress
-            hib3GrouploaderLogOverall.store();
-            count++;
-          }
-          
-          //lets go through and create groups which arent there
-          
-          // The above code should be taking care of these group creates..
-          /*
-          for (String groupName : groupNamesFromGroupQuery) {
-            
-            Group group = GroupFinder.findByName(grouperSession, groupName, false);
-            if (group == null) {
-              
-              String groupDisplayName = groupNameToDisplayName.get(groupName);
-              groupDisplayName = StringUtils.defaultIfEmpty(groupDisplayName, groupName);
-              String groupDescription = groupNameToDescription.get(groupName);
-              
-              Group newGroup = new GroupSave(grouperSession).assignSaveMode(SaveMode.INSERT)
-                .assignCreateParentStemsIfNotExist(true)
-                .assignName(groupName).assignDisplayName(groupDisplayName)
-                .assignDescription(groupDescription).save();
-              
-              for (GroupType groupType : groupTypes) {
-                try {
-                  newGroup.addType(groupType, false);
-                  
-                } catch (Exception se) {
-                  //TODO remove this catch block in 1.5 when we have unchecked exceptions
-                  throw new RuntimeException(se.getMessage(), se);
-                }
-              }
-            }
-          }*/
-          
-          if (LOG.isDebugEnabled()) {
-            LOG.debug(groupNameOverall + ": done syncing membership");
-          }
-
         } finally {
-          hib3GrouploaderLogOverall.setMillisLoadData((int)(System.currentTimeMillis()-startTimeLoadData));
-          hib3GrouploaderLogOverall.setStatus(statusOverall.name());
+          hib3GrouploaderLogOverall.setStatus(statusOverall[0].name());
         }
       }
     }, 
@@ -902,8 +593,775 @@ public enum GrouperLoaderType {
             loaderJobBean.getAttributeLoaderActionSetQuery());
         
       }
-        };
+    }, 
+    
+    /** 
+     * simple ldap query where all results are all members of group.
+     * must have a subject id attribute
+     */
+    LDAP_SIMPLE {
+      
+      /**
+       * 
+       * @see edu.internet2.middleware.grouper.app.loader.GrouperLoaderType#attributeRequired(java.lang.String)
+       */
+      @Override
+      public boolean attributeRequired(String attributeName) {
+        return StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapServerIdName(), attributeName)
+            || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapFilterName(), attributeName)
+            || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapQuartzCronName(), attributeName)
+            || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapSubjectAttributeName(), attributeName)
+            || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapTypeName(), attributeName);
+      }
+
+      /**
+       * 
+       * @see edu.internet2.middleware.grouper.app.loader.GrouperLoaderType#attributeOptional(java.lang.String)
+       */
+      @Override
+      public boolean attributeOptional(String attributeName) {
+        return StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapSearchDnName(), attributeName)
+            || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapSearchScopeName(), attributeName)
+            || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapSourceIdName(), attributeName)
+            || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapAndGroupsName(), attributeName)
+            || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapPriorityName(), attributeName)
+            || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapSubjectIdTypeName(), attributeName)
+            || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapErrorUnresolvableName(), attributeName)
+            || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapSubjectExpressionName(), attributeName)
+            ;
+        // not allowed: || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapGroupAttributeName(), attributeName)
+        // not allowed: || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapExtraAttributesName(), attributeName)
+        // not allowed: || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapGroupNameExpressionName(), attributeName)
+        // not allowed: || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapGroupDisplayExtensionExpressionName(), attributeName)
+        // not allowed: || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapGroupDescriptionExpressionName(), attributeName)
+        // not allowed: || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapReadersName(), attributeName)
+        // not allowed: || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapViewersName(), attributeName)
+        // not allowed: || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapAdminsName(), attributeName)
+        // not allowed: || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapUpdatersName(), attributeName)
+        // not allowed: || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapOptinsName(), attributeName)
+        // not allowed: || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapOptoutsName(), attributeName)
+
+      }
+      
+      /**
+       * sync up an attributeDefinition membership based on query and db
+       */
+      @SuppressWarnings("unchecked")
+      @Override
+      public void runJob(LoaderJobBean loaderJobBean) {
+    
+        GrouperContext.createNewDefaultContext(GrouperEngineBuiltin.LOADER, false, true);
+    
+        //      GrouperLoaderDb grouperLoaderDb, attributeDefName
+        //      Hib3GrouperLoaderLog hib3GrouploaderLog, long startTime, GrouperSession grouperSession, 
+        //      attributeLoaderAttrQuery, attributeLoaderAttrSetQuery, attributeLoaderAttrsLike
+        //   attributeLoaderActionQuery, attributeLoaderActionSetQuery
+        
+        boolean errorUnresolvable = GrouperUtil.booleanValue(loaderJobBean.getLdapErrorUnresolvable(), true);
+        
+        final GrouperLoaderResultset grouperLoaderResultset = new GrouperLoaderResultset(loaderJobBean.getLdapServerId(), 
+            loaderJobBean.getLdapFilter(), loaderJobBean.getLdapSearchDn(), loaderJobBean.getLdapSubjectAttribute(), 
+            loaderJobBean.getLdapSourceId(), loaderJobBean.getLdapSubjectIdType(), loaderJobBean.getLdapSearchScope(), 
+            loaderJobBean.getHib3GrouploaderLogOverall().getJobName(), 
+            loaderJobBean.getHib3GrouploaderLogOverall(), loaderJobBean.getLdapSubjectExpression(), errorUnresolvable);
+        
+        syncOneGroupMembership(loaderJobBean.getGroupNameOverall(), null, null, 
+            loaderJobBean.getHib3GrouploaderLogOverall(), loaderJobBean.getStartTime(), 
+            grouperLoaderResultset, false, loaderJobBean.getGrouperSession(), loaderJobBean.getAndGroups(), null, null, null);
+        
+      }
+    }, 
+    
+    /** 
+     * ldap query where objects are group, and filter is for multi-valued object where all results are all members of group.
+     * must have a subject id attribute
+     */
+    LDAP_GROUP_LIST {
+      
+      /**
+       * 
+       * @see edu.internet2.middleware.grouper.app.loader.GrouperLoaderType#attributeRequired(java.lang.String)
+       */
+      @Override
+      public boolean attributeRequired(String attributeName) {
+        
+        return StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapServerIdName(), attributeName)
+            || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapFilterName(), attributeName)
+            || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapQuartzCronName(), attributeName)
+            || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapSubjectAttributeName(), attributeName)
+            || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapTypeName(), attributeName);
+      }
+
+      /**
+       * 
+       * @see edu.internet2.middleware.grouper.app.loader.GrouperLoaderType#attributeOptional(java.lang.String)
+       */
+      @Override
+      public boolean attributeOptional(String attributeName) {
+        return StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapSearchDnName(), attributeName)
+            || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapSearchScopeName(), attributeName)
+            || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapSourceIdName(), attributeName)
+            || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapAndGroupsName(), attributeName)
+            || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapPriorityName(), attributeName)
+            || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapGroupsLikeName(), attributeName)
+            || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapSubjectIdTypeName(), attributeName)
+            || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapExtraAttributesName(), attributeName)
+            || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapErrorUnresolvableName(), attributeName)
+            || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapGroupNameExpressionName(), attributeName)
+            || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapGroupDisplayNameExpressionName(), attributeName)
+            || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapGroupDescriptionExpressionName(), attributeName)
+            || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapSubjectExpressionName(), attributeName)
+            || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapReadersName(), attributeName)
+            || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapViewersName(), attributeName)
+            || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapAdminsName(), attributeName)
+            || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapUpdatersName(), attributeName)
+            || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapOptinsName(), attributeName)
+            || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapOptoutsName(), attributeName)
+            ;
+        
+        //not allowed: StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapGroupAttributeName(), attributeName)
+      }
+
+      /**
+       * sync up an attributeDefinition membership based on query and db
+       */
+      @SuppressWarnings("unchecked")
+      @Override
+      public void runJob(LoaderJobBean loaderJobBean) {
+    
+        GrouperContext.createNewDefaultContext(GrouperEngineBuiltin.LOADER, false, true);
+    
+        GrouperSession grouperSession = loaderJobBean.getGrouperSession();
+
+        Hib3GrouperLoaderLog hib3GrouploaderLogOverall = loaderJobBean.getHib3GrouploaderLogOverall();
+        GrouperLoaderStatus[] statusOverall = new GrouperLoaderStatus[]{GrouperLoaderStatus.SUCCESS};
+        
+
+        try {
+        
+          //      GrouperLoaderDb grouperLoaderDb, attributeDefName
+          //      Hib3GrouperLoaderLog hib3GrouploaderLog, long startTime, GrouperSession grouperSession, 
+          //      attributeLoaderAttrQuery, attributeLoaderAttrSetQuery, attributeLoaderAttrsLike
+          //   attributeLoaderActionQuery, attributeLoaderActionSetQuery
+          
+          boolean errorUnresolvable = GrouperUtil.booleanValue(loaderJobBean.getLdapErrorUnresolvable(), true);
   
+          String ldapSubjectAttribute = loaderJobBean.getLdapSubjectAttribute();
+
+          Map<String, String> groupNameToDisplayName = new LinkedHashMap<String, String>();
+          Map<String, String> groupNameToDescription = new LinkedHashMap<String, String>();
+          
+          final GrouperLoaderResultset grouperLoaderResultsetOverall = new GrouperLoaderResultset();
+          
+          grouperLoaderResultsetOverall.initForLdapListOfGroups(
+              loaderJobBean.getLdapServerId(), 
+              loaderJobBean.getLdapFilter(), loaderJobBean.getLdapSearchDn(), ldapSubjectAttribute, 
+              loaderJobBean.getLdapSourceId(), loaderJobBean.getLdapSubjectIdType(), loaderJobBean.getLdapSearchScope(), 
+              hib3GrouploaderLogOverall.getJobName(), 
+              hib3GrouploaderLogOverall, 
+              loaderJobBean.getLdapSubjectExpression(), errorUnresolvable, loaderJobBean.getLdapExtraAttributes(),
+              loaderJobBean.getLdapGroupNameExpression(), loaderJobBean.getLdapGroupDisplayNameExpression(),
+              loaderJobBean.getLdapGroupDescriptionExpression(), groupNameToDisplayName, 
+              groupNameToDescription);
+          
+          
+          String groupNameOverall = hib3GrouploaderLogOverall.getGroupNameFromJobName();
+  
+          GrouperContext.createNewDefaultContext(GrouperEngineBuiltin.LOADER, false, true);
+  
+          long startTime = loaderJobBean.getStartTime();
+          
+          List<Group> andGroups = loaderJobBean.getAndGroups();
+          List<GroupType> groupTypes = GrouperUtil.nonNull(loaderJobBean.getGroupTypes());
+          String groupLikeString = loaderJobBean.getGroupLikeString();
+
+          Map<String, Subject> subjectCache = new HashMap<String, Subject>();
+          Map<String, Map<Privilege, List<Subject>>> privsToAdd = new LinkedHashMap<String, Map<Privilege, List<Subject>>>();
+          
+          initPrivilegesForGroup(grouperLoaderResultsetOverall, privsToAdd, subjectCache, AccessPrivilege.VIEW, loaderJobBean.getLdapGroupViewers());
+          initPrivilegesForGroup(grouperLoaderResultsetOverall, privsToAdd, subjectCache, AccessPrivilege.READ, loaderJobBean.getLdapGroupReaders());
+          initPrivilegesForGroup(grouperLoaderResultsetOverall, privsToAdd, subjectCache, AccessPrivilege.ADMIN, loaderJobBean.getLdapGroupAdmins());
+          initPrivilegesForGroup(grouperLoaderResultsetOverall, privsToAdd, subjectCache, AccessPrivilege.UPDATE, loaderJobBean.getLdapGroupUpdaters());
+          initPrivilegesForGroup(grouperLoaderResultsetOverall, privsToAdd, subjectCache, AccessPrivilege.OPTIN, loaderJobBean.getLdapGroupOptins());
+          initPrivilegesForGroup(grouperLoaderResultsetOverall, privsToAdd, subjectCache, AccessPrivilege.OPTOUT, loaderJobBean.getLdapGroupOptouts());
+          
+          if (LOG.isDebugEnabled()) {
+            LOG.debug(groupNameOverall + ": start syncing membership");
+          }
+        
+          
+          syncGroupList(grouperLoaderResultsetOverall, startTime, grouperSession, 
+              andGroups, groupTypes, groupLikeString, groupNameOverall, hib3GrouploaderLogOverall,
+              statusOverall, loaderJobBean.getGrouperLoaderDb(), groupNameToDisplayName, groupNameToDescription, privsToAdd, null);
+          
+        } finally {
+          hib3GrouploaderLogOverall.setStatus(statusOverall[0].name());
+        }
+
+
+        
+        
+      }
+    },
+    /** 
+     * ldap query where objects are users, and filter is for multi-valued object where all results are affiliations or 
+     * something that represents the groups of users.
+     */
+    LDAP_GROUPS_FROM_ATTRIBUTES {
+      
+      /**
+       * 
+       * @see edu.internet2.middleware.grouper.app.loader.GrouperLoaderType#attributeRequired(java.lang.String)
+       */
+      @Override
+      public boolean attributeRequired(String attributeName) {
+        
+        return StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapServerIdName(), attributeName)
+            || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapFilterName(), attributeName)
+            || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapQuartzCronName(), attributeName)
+            || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapTypeName(), attributeName)
+            || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapGroupAttributeName(), attributeName);
+      }
+    
+      /**
+       * 
+       * @see edu.internet2.middleware.grouper.app.loader.GrouperLoaderType#attributeOptional(java.lang.String)
+       */
+      @Override
+      public boolean attributeOptional(String attributeName) {
+        return StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapSearchDnName(), attributeName)
+            || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapSearchScopeName(), attributeName)
+            || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapSourceIdName(), attributeName)
+            || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapAndGroupsName(), attributeName)
+            || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapPriorityName(), attributeName)
+            || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapGroupsLikeName(), attributeName)
+            || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapSubjectIdTypeName(), attributeName)
+            || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapSubjectAttributeName(), attributeName)
+            || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapErrorUnresolvableName(), attributeName)
+            || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapGroupNameExpressionName(), attributeName)
+            || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapGroupDisplayNameExpressionName(), attributeName)
+            || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapGroupDescriptionExpressionName(), attributeName)
+            || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapSubjectExpressionName(), attributeName)
+            || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapReadersName(), attributeName)
+            || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapViewersName(), attributeName)
+            || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapAdminsName(), attributeName)
+            || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapUpdatersName(), attributeName)
+            || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapOptinsName(), attributeName)
+            || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapOptoutsName(), attributeName)
+            ;
+        
+        //not allowed: || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapExtraAttributesName(), attributeName)
+
+        
+      }
+      
+      /**
+       * sync up an attributeDefinition membership based on query and db
+       */
+      @SuppressWarnings("unchecked")
+      @Override
+      public void runJob(LoaderJobBean loaderJobBean) {
+    
+        GrouperContext.createNewDefaultContext(GrouperEngineBuiltin.LOADER, false, true);
+        
+        GrouperSession grouperSession = loaderJobBean.getGrouperSession();
+
+        Hib3GrouperLoaderLog hib3GrouploaderLogOverall = loaderJobBean.getHib3GrouploaderLogOverall();
+        GrouperLoaderStatus[] statusOverall = new GrouperLoaderStatus[]{GrouperLoaderStatus.SUCCESS};
+        
+
+        try {
+        
+          //      GrouperLoaderDb grouperLoaderDb, attributeDefName
+          //      Hib3GrouperLoaderLog hib3GrouploaderLog, long startTime, GrouperSession grouperSession, 
+          //      attributeLoaderAttrQuery, attributeLoaderAttrSetQuery, attributeLoaderAttrsLike
+          //   attributeLoaderActionQuery, attributeLoaderActionSetQuery
+          
+          boolean errorUnresolvable = GrouperUtil.booleanValue(loaderJobBean.getLdapErrorUnresolvable(), true);
+  
+          Map<String, String> groupNameToDisplayName = new LinkedHashMap<String, String>();
+          Map<String, String> groupNameToDescription = new LinkedHashMap<String, String>();
+
+          final GrouperLoaderResultset grouperLoaderResultsetOverall = new GrouperLoaderResultset();
+          grouperLoaderResultsetOverall.initForLdapGroupsFromAttributes(
+              loaderJobBean.getLdapServerId(), 
+              loaderJobBean.getLdapFilter(), loaderJobBean.getLdapSearchDn(), loaderJobBean.getLdapSubjectAttribute(), 
+              loaderJobBean.getLdapGroupAttribute(), 
+              loaderJobBean.getLdapSourceId(), loaderJobBean.getLdapSubjectIdType(), loaderJobBean.getLdapSearchScope(), 
+              hib3GrouploaderLogOverall.getJobName(), 
+              hib3GrouploaderLogOverall, 
+              loaderJobBean.getLdapSubjectExpression(), errorUnresolvable, loaderJobBean.getLdapExtraAttributes(),
+              loaderJobBean.getLdapGroupNameExpression(), 
+              loaderJobBean.getLdapGroupDisplayNameExpression(),
+              loaderJobBean.getLdapGroupDescriptionExpression(),
+              groupNameToDisplayName, groupNameToDescription);
+          
+          
+          String groupNameOverall = hib3GrouploaderLogOverall.getGroupNameFromJobName();
+  
+          GrouperContext.createNewDefaultContext(GrouperEngineBuiltin.LOADER, false, true);
+  
+          long startTime = loaderJobBean.getStartTime();
+          
+          List<Group> andGroups = loaderJobBean.getAndGroups();
+          List<GroupType> groupTypes = GrouperUtil.nonNull(loaderJobBean.getGroupTypes());
+          String groupLikeString = loaderJobBean.getGroupLikeString();
+          
+          Map<String, Subject> subjectCache = new HashMap<String, Subject>();
+          Map<String, Map<Privilege, List<Subject>>> privsToAdd = new LinkedHashMap<String, Map<Privilege, List<Subject>>>();
+          
+          initPrivilegesForGroup(grouperLoaderResultsetOverall, privsToAdd, subjectCache, AccessPrivilege.VIEW, loaderJobBean.getLdapGroupViewers());
+          initPrivilegesForGroup(grouperLoaderResultsetOverall, privsToAdd, subjectCache, AccessPrivilege.READ, loaderJobBean.getLdapGroupReaders());
+          initPrivilegesForGroup(grouperLoaderResultsetOverall, privsToAdd, subjectCache, AccessPrivilege.ADMIN, loaderJobBean.getLdapGroupAdmins());
+          initPrivilegesForGroup(grouperLoaderResultsetOverall, privsToAdd, subjectCache, AccessPrivilege.UPDATE, loaderJobBean.getLdapGroupUpdaters());
+          initPrivilegesForGroup(grouperLoaderResultsetOverall, privsToAdd, subjectCache, AccessPrivilege.OPTIN, loaderJobBean.getLdapGroupOptins());
+          initPrivilegesForGroup(grouperLoaderResultsetOverall, privsToAdd, subjectCache, AccessPrivilege.OPTOUT, loaderJobBean.getLdapGroupOptouts());
+
+          if (LOG.isDebugEnabled()) {
+            LOG.debug(groupNameOverall + ": start syncing membership");
+          }
+        
+          
+          syncGroupList(grouperLoaderResultsetOverall, startTime, grouperSession, 
+              andGroups, groupTypes, groupLikeString, groupNameOverall, hib3GrouploaderLogOverall,
+              statusOverall, loaderJobBean.getGrouperLoaderDb(), groupNameToDisplayName, 
+              groupNameToDescription, privsToAdd, null);
+          
+        } finally {
+          hib3GrouploaderLogOverall.setStatus(statusOverall[0].name());
+        }
+       
+      }
+    },
+    
+    /** 
+     * Run an ldappcng full sync.
+     */
+    LDAPPCNG_FULL_SYNC {
+
+      /** {@inheritDoc} */
+      public boolean attributeRequired(String attributeName) {
+        return false;
+      }
+
+      /** {@inheritDoc} */
+      public boolean attributeOptional(String attributeName) {
+        return false;
+      }
+
+      /** {@inheritDoc} */
+      public void runJob(LoaderJobBean loaderJobBean) {        
+        GrouperContext.createNewDefaultContext(GrouperEngineBuiltin.LOADER, false, true);        
+        String theClassName = GrouperLoaderConfig.getPropertyString("changeLog.ldappcng.fullSync.class");
+        Class<?> theClass = GrouperUtil.forName(theClassName);
+        Object theClassInstance = GrouperUtil.newInstance(theClass);        
+        GrouperUtil.callMethod(theClassInstance, "fullSync");                         
+      }
+    };
+  
+  /**
+   * init the privilege for a group, add entries to the privsToAdd method
+   * @param grouperLoaderResultsetOverall result set with groups
+   * @param privsToAddForGroup map to add results to
+   * @param subjectCache to help with resolving
+   * @param privilege to add
+   * @param subjectsWithPrivilege the subjects who have the privilege
+   */
+  public static void initPrivilegesForGroup(GrouperLoaderResultset grouperLoaderResultsetOverall, 
+      Map<String, Map<Privilege, List<Subject>>> privsToAddForGroup, Map<String, Subject> subjectCache, 
+      Privilege privilege, String subjectsWithPrivilege) {
+    
+    if (!StringUtils.isBlank(subjectsWithPrivilege)) {
+      
+      //same list for all groups
+      List<Subject> subjectsWithPrivilegeList = lookupSubject(subjectCache, subjectsWithPrivilege);
+      
+      //first get the list of group names
+      Set<String> groupNames = new LinkedHashSet<String>();
+      for (int i = 0; i < grouperLoaderResultsetOverall.numberOfRows(); i++) {
+        
+        String groupName = (String)grouperLoaderResultsetOverall.retrieveRow(i).getCell("GROUP_NAME", true);
+        
+        if (StringUtils.isBlank(groupName)) {
+          throw new RuntimeException("Why is group name blank???");
+        }
+        
+        groupNames.add(groupName);
+      }
+      
+      for (String groupName : groupNames) {
+        
+        //privs for a group
+        Map<Privilege, List<Subject>> privsToAdd = privsToAddForGroup.get(groupName);
+        if (privsToAdd == null) {
+          privsToAdd = new HashMap<Privilege, List<Subject>>();
+          privsToAddForGroup.put(groupName, privsToAdd);
+          
+        }
+        //clone list just in case
+        privsToAdd.put(privilege, new ArrayList<Subject>(subjectsWithPrivilegeList));
+        
+      }
+    }
+
+      
+  }
+  
+  /**
+   * sync a group list  
+   * @param grouperLoaderResultsetOverall
+   * @param startTime
+   * @param grouperSession 
+   * @param andGroups 
+   * @param groupTypes 
+   * @param groupLikeString 
+   * @param groupQuery 
+   * @param groupNameOverall 
+   * @param hib3GrouploaderLogOverall 
+   * @param statusOverall 
+   * @param grouperLoaderDb 
+   * @param groupNameToDisplayName 
+   * @param groupNameToDescription 
+   * @param privsToAdd 
+   * @param groupNamesFromGroupQuery if not null, this is the list of groups to sync
+   * @return the status
+   */
+  public static void syncGroupList(GrouperLoaderResultset grouperLoaderResultsetOverall, long startTime,
+      GrouperSession grouperSession, List<Group> andGroups, List<GroupType> groupTypes, String groupLikeString,
+      String groupNameOverall, Hib3GrouperLoaderLog hib3GrouploaderLogOverall,
+      GrouperLoaderStatus[] statusOverall, GrouperLoaderDb grouperLoaderDb,
+      Map<String, String> groupNameToDisplayName, Map<String, String> groupNameToDescription,
+      Map<String, Map<Privilege, List<Subject>>> privsToAdd, Set<String> groupNamesFromGroupQuery) {
+        
+    long startTimeLoadData = 0;
+    try {
+    
+      if (LOG.isDebugEnabled()) {
+        LOG.debug(groupNameOverall + ": found " + grouperLoaderResultsetOverall.numberOfRows() + " members overall");
+      }
+      
+      hib3GrouploaderLogOverall.setMillisGetData((int)(System.currentTimeMillis()-startTime));
+  
+      startTimeLoadData =  System.currentTimeMillis();
+  
+      Set<String> groupNames = grouperLoaderResultsetOverall.groupNames();
+      
+      if (LOG.isDebugEnabled()) {
+        LOG.debug(groupNameOverall + ": syncing membership for " + groupNames.size() + " groups");
+      }
+      
+      
+      //#######################################
+      //Delete records in groups not there anymore.  maybe delete group too
+      if (!StringUtils.isBlank(groupLikeString)) {
+        
+        //lets see which names are not in that list
+        Set<String> groupNamesManaged = HibernateSession.byHqlStatic()
+          .createQuery("select g.nameDb from Group g where g.nameDb like :thePattern")
+          .setString("thePattern", groupLikeString).listSet(String.class);
+      
+        //take out the ones which exist
+        groupNamesManaged.removeAll(groupNames);
+        
+        Boolean isIncludeExclude = null;
+        
+        for (String groupNameEmpty : groupNamesManaged) {
+          
+          //if we need to figure this out
+          if (isIncludeExclude == null) {
+            isIncludeExclude = false;
+            //if it ends in a suffix
+            if (GroupTypeTupleIncludeExcludeHook.nameIsIncludeExcludeRequireGroup(groupNameEmpty)) {
+              isIncludeExclude = true;
+            } else {
+              //else if there is a system of record for it
+              if (GroupFinder.findByName(grouperSession, groupNameEmpty 
+                  + GroupTypeTupleIncludeExcludeHook.systemOfRecordExtensionSuffix(), false) != null) {
+                isIncludeExclude = true;
+              }
+            }
+          }
+  
+          //now... if it is includeExclude
+          if (isIncludeExclude) {
+            //make sure this is the system of record group
+            if (!groupNameEmpty.endsWith(GroupTypeTupleIncludeExcludeHook.systemOfRecordExtensionSuffix())) {
+              continue;
+            }
+          }
+          
+          long groupStartedMillis = System.currentTimeMillis();
+          int memberCount = 0;
+          GrouperLoaderStatus status = GrouperLoaderStatus.SUCCESS;
+          StringBuilder jobDescription = new StringBuilder();
+          boolean didSomething = false;
+          long millisGetData = 0;
+          long millisSetData = 0;
+          try {
+            
+            //first of all remove members
+            Group groupEmpty = GroupFinder.findByName(grouperSession, groupNameEmpty, false);
+  
+            //not sure why it would be null
+            if (groupEmpty == null) {
+              continue;
+            }
+            millisGetData = System.currentTimeMillis();
+            Set<Member> members = GrouperUtil.nonNull(groupEmpty.getImmediateMembers());
+            millisGetData = System.currentTimeMillis() - millisGetData;
+            
+            millisSetData = System.currentTimeMillis();
+            memberCount = members.size();
+            for (Member member : members) {
+              didSomething = true;
+              groupEmpty.deleteMember(member);
+            }
+  
+            //see if we are deleting group.  It must not be in the group query (if exists), and it 
+            //must be configured to do this in the grouper loader properties
+            if (!GrouperUtil.nonNull(groupNamesFromGroupQuery).contains(groupNameEmpty) && GrouperLoaderConfig.getPropertyBoolean(
+                "loader.sqlTable.likeString.removeGroupIfNotUsed", true)) {
+  
+              //see if we need to log
+              didSomething = true;
+              StringBuilder theLog = new StringBuilder();
+              int groupsDeleted = GroupTypeTupleIncludeExcludeHook.deleteGroupsIfNotUsed(grouperSession, 
+                  groupNameEmpty, theLog, true);
+              GrouperUtil.append(jobDescription, "\n", theLog.toString());
+              if (groupsDeleted == 0) {
+                //this is a problem, something is being used...  warning
+                status = GrouperLoaderStatus.WARNING;
+              }
+            }
+            millisSetData = System.currentTimeMillis() - millisSetData;
+          } catch (Exception e) {
+            didSomething = true;
+            status = GrouperLoaderStatus.ERROR;
+            LOG.error("Error on group: " + groupNameEmpty, e);
+            GrouperUtil.append(jobDescription, "\n", "Error: " + ExceptionUtils.getFullStackTrace(e));
+          }
+          
+          //if we did something, log it
+          if (didSomething) {
+            Hib3GrouperLoaderLog hib3GrouploaderLog = new Hib3GrouperLoaderLog();
+            //make a new log object for this one subgroup
+            hib3GrouploaderLog.setHost(GrouperUtil.hostname());
+            hib3GrouploaderLog.setJobName("subjobFor_" + groupNameEmpty);
+            hib3GrouploaderLog.setStartedTime(new Timestamp(groupStartedMillis));
+            hib3GrouploaderLog.setStatus(status.name());
+            hib3GrouploaderLog.setParentJobId(hib3GrouploaderLogOverall.getId());
+            hib3GrouploaderLog.setParentJobName(hib3GrouploaderLogOverall.getJobName());
+            hib3GrouploaderLog.setJobDescription(jobDescription.toString());
+            hib3GrouploaderLog.setDeleteCount(memberCount);
+            long endTime = System.currentTimeMillis();
+            hib3GrouploaderLog.setEndedTime(new Timestamp(endTime));
+            hib3GrouploaderLog.setMillis((int)(endTime-groupStartedMillis));
+            hib3GrouploaderLog.setMillisGetData(new Integer((int)millisGetData));
+            hib3GrouploaderLog.setMillisLoadData(new Integer((int)millisSetData));
+            
+            hib3GrouploaderLog.setJobType(hib3GrouploaderLogOverall.getJobType());
+            hib3GrouploaderLog.setJobScheduleType(hib3GrouploaderLogOverall.getJobScheduleType());
+            hib3GrouploaderLog.setJobScheduleIntervalSeconds(hib3GrouploaderLogOverall.getJobScheduleIntervalSeconds());
+            hib3GrouploaderLog.setJobSchedulePriority(hib3GrouploaderLogOverall.getJobSchedulePriority());
+            hib3GrouploaderLog.setJobScheduleQuartzCron(hib3GrouploaderLogOverall.getJobScheduleQuartzCron());
+            
+            
+            hib3GrouploaderLog.store();
+            
+            hib3GrouploaderLogOverall.addDeleteCount(memberCount);
+            hib3GrouploaderLogOverall.store();
+            
+          }
+        }
+        
+      }
+      //End delete records in groups not there anymore.  maybe delete group too
+      //#######################################
+  
+      int count=1;
+      
+      long groupStartedMillis = System.currentTimeMillis();
+      
+      //if we are configured to, get the group names in one fell swoop
+      // && GrouperLoaderConfig.getPropertyBoolean(
+      // "loader.getAllGroupListMembershipsAtOnce", false);
+      //2010/05/02 I think this didnt pan out as a performance gain...
+      boolean getMembershipsAtOnce = false;
+      
+      
+      //set of immediate memberships in the regsitry, key is group name, multikey by subjectId, and optionally sourceId
+      Map<String, Set<MultiKey>> membershipsInRegistry = new HashMap<String, Set<MultiKey>>();
+      
+      if (getMembershipsAtOnce) {
+        
+        String queryPrefix = "select distinct a.value, gm.subjectIdDb, gm.subjectSourceIdDb "
+          + "from Attribute a, Field f, Membership gms, Member gm, Field mf "
+          + "where f.name = 'name' and a.fieldId = f.uuid "
+          + "and gms.ownerUuid = a.groupUuid and gms.memberUuid = gm.uuid "
+          + "and gms.fieldId = mf.uuid and mf.name = 'members' and mf.typeString = 'list' "
+          + "and gms.type = 'immediate' and a.value  ";
+        
+        List<Object[]> result = null;
+        //lets see which type to do
+        if (!StringUtils.isBlank(groupLikeString)) {
+          
+          result = HibernateSession.byHqlStatic()
+            .createQuery(queryPrefix + " like :thePattern")
+            .setString("thePattern", groupLikeString).list(Object[].class);
+                        
+        } else {
+          //just batch up the group names to get the results, in size of 100
+          int numberOfBatches = GrouperUtil.batchNumberOfBatches(groupNames, 100);
+          result = new ArrayList<Object[]>();
+          for (int i=0;i<numberOfBatches;i++) {
+            
+            List<String> groupNamesInBatch = GrouperUtil.batchList(groupNames, 100, i);
+            
+            ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
+            String queryInClause = HibUtils.convertToInClause(groupNamesInBatch, byHqlStatic);
+            byHqlStatic.createQuery(queryPrefix + " in (" + queryInClause + ")");
+            result.addAll(byHqlStatic.list(Object[].class));
+            
+          }
+          
+          
+        }
+        
+        for (Object[] resultLine : GrouperUtil.nonNull(result)) {
+          String groupName = (String)resultLine[0];
+          String subjectId = (String)resultLine[1];
+          String sourceId = (String)resultLine[2];
+          
+          Set<MultiKey> members = membershipsInRegistry.get(groupName);
+          
+          if (members == null) {
+            members = new HashSet<MultiKey>();
+            membershipsInRegistry.put(groupName, members);
+          }
+           
+          //here is the exact
+          members.add(new MultiKey(subjectId, sourceId));
+          
+          //put in the subjectId, lets hope there arent duplicates going on
+          //members.add(new MultiKey(new Object[]{subjectId}));
+          
+        }
+  
+        
+      }
+      
+      Set<String> groupNamesToSync = new LinkedHashSet<String>();
+      if (groupNamesFromGroupQuery != null) {
+        groupNamesToSync.addAll(groupNamesFromGroupQuery);
+      } else {
+        groupNamesToSync.addAll(groupNames);
+      }
+      
+      for (String groupName : groupNamesToSync) {
+        
+        if (LOG.isDebugEnabled()) {
+          LOG.debug(groupNameOverall + ": syncing membership for " + groupName + " " + count + " out of " + groupNamesToSync.size() + " groups");
+        }
+        
+        Hib3GrouperLoaderLog hib3GrouploaderLog = new Hib3GrouperLoaderLog();
+        try {
+          GrouperLoaderResultset grouperLoaderResultset = new GrouperLoaderResultset(
+              grouperLoaderResultsetOverall, groupName);
+          //make a new log object for this one subgroup
+          
+          hib3GrouploaderLog.setHost(GrouperUtil.hostname());
+          hib3GrouploaderLog.setJobName("subjobFor_" + groupName);
+          hib3GrouploaderLog.setStartedTime(new Timestamp(groupStartedMillis));
+          hib3GrouploaderLog.setStatus(GrouperLoaderStatus.STARTED.name());
+          hib3GrouploaderLog.setParentJobId(hib3GrouploaderLogOverall.getId());
+          hib3GrouploaderLog.setParentJobName(hib3GrouploaderLogOverall.getJobName());
+  
+          hib3GrouploaderLog.setJobType(hib3GrouploaderLogOverall.getJobType());
+          hib3GrouploaderLog.setJobScheduleType(hib3GrouploaderLogOverall.getJobScheduleType());
+          hib3GrouploaderLog.setJobScheduleIntervalSeconds(hib3GrouploaderLogOverall.getJobScheduleIntervalSeconds());
+          hib3GrouploaderLog.setJobSchedulePriority(hib3GrouploaderLogOverall.getJobSchedulePriority());
+          hib3GrouploaderLog.setJobScheduleQuartzCron(hib3GrouploaderLogOverall.getJobScheduleQuartzCron());
+  
+          hib3GrouploaderLog.store();
+          
+          //based on type, run query from the db and sync members
+          syncOneGroupMembership(groupName, groupNameToDisplayName.get(groupName), 
+              groupNameToDescription.get(groupName), hib3GrouploaderLog, groupStartedMillis,
+              grouperLoaderResultset, true, grouperSession, andGroups, groupTypes, privsToAdd.get(groupName), membershipsInRegistry.get(groupName));
+          
+          long endTime = System.currentTimeMillis();
+          hib3GrouploaderLog.setEndedTime(new Timestamp(endTime));
+          hib3GrouploaderLog.setMillis((int)(endTime-groupStartedMillis));
+          
+        } catch (Exception e) {
+          hib3GrouploaderLog.setStatus(GrouperLoaderStatus.ERROR.name());
+          LOG.error("Error in job for group: " + groupName, e);
+        }
+        //start next one now (so we dont lose time)
+        groupStartedMillis = System.currentTimeMillis();
+        hib3GrouploaderLog.store();
+        
+        //reconcile overall status
+        //just take the first non-success code, but error trumps all
+        GrouperLoaderStatus groupStatus = GrouperLoaderStatus.valueOfIgnoreCase(hib3GrouploaderLog.getStatus(), true);
+        //default to error
+        groupStatus = GrouperUtil.defaultIfNull(groupStatus, GrouperLoaderStatus.ERROR);
+        if (GrouperLoaderStatus.ERROR.equals(groupStatus) 
+            || statusOverall[0] == GrouperLoaderStatus.SUCCESS) {
+          statusOverall[0] = groupStatus;
+        }
+        
+        //count all the stats
+        hib3GrouploaderLogOverall.addDeleteCount(hib3GrouploaderLog.getDeleteCount());
+        hib3GrouploaderLogOverall.addInsertCount(hib3GrouploaderLog.getInsertCount());
+        hib3GrouploaderLogOverall.addUpdateCount(hib3GrouploaderLog.getUpdateCount());
+        hib3GrouploaderLogOverall.addTotalCount(hib3GrouploaderLog.getTotalCount());
+        hib3GrouploaderLogOverall.addUnresolvableSubjectCount(hib3GrouploaderLog.getUnresolvableSubjectCount());
+        //store after each group to get progress
+        hib3GrouploaderLogOverall.store();
+        count++;
+      }
+      
+      //lets go through and create groups which arent there
+      
+      // The above code should be taking care of these group creates..
+      /*
+      for (String groupName : groupNamesFromGroupQuery) {
+        
+        Group group = GroupFinder.findByName(grouperSession, groupName, false);
+        if (group == null) {
+          
+          String groupDisplayName = groupNameToDisplayName.get(groupName);
+          groupDisplayName = StringUtils.defaultIfEmpty(groupDisplayName, groupName);
+          String groupDescription = groupNameToDescription.get(groupName);
+          
+          Group newGroup = new GroupSave(grouperSession).assignSaveMode(SaveMode.INSERT)
+            .assignCreateParentStemsIfNotExist(true)
+            .assignName(groupName).assignDisplayName(groupDisplayName)
+            .assignDescription(groupDescription).save();
+          
+          for (GroupType groupType : groupTypes) {
+            try {
+              newGroup.addType(groupType, false);
+              
+            } catch (Exception se) {
+              //TODO remove this catch block in 1.5 when we have unchecked exceptions
+              throw new RuntimeException(se.getMessage(), se);
+            }
+          }
+        }
+      }*/
+      
+      if (LOG.isDebugEnabled()) {
+        LOG.debug(groupNameOverall + ": done syncing membership");
+      }
+
+    } finally {
+      hib3GrouploaderLogOverall.setMillisLoadData((int)(System.currentTimeMillis()-startTimeLoadData));
+    }
+    
+  }
+    
   /**
    * if this job name is for this type
    * @param jobName
@@ -1219,6 +1677,48 @@ public enum GrouperLoaderType {
   }
   
   /**
+   * make sure if an attribute is required that it exists (non blank).  throw exception if problem
+   * @param attributeAssign attribute assignment to get the attribute from (attribute assigned to assignment)
+   * @param underlyingObjectName for errors, to clarify
+   * @param attributeName attribute def name
+   * @return the attribute value
+   */
+  String attributeValueValidateRequiredAttributeAssign(AttributeAssign attributeAssign, String underlyingObjectName, String attributeName) {
+    
+    String attributeValue = attributeAssign.getAttributeValueDelegate().retrieveValueString(attributeName);
+    
+    boolean hasValue = StringUtils.isNotBlank(attributeValue);
+    boolean isRequired = this.attributeRequired(attributeName);
+    boolean isOptional = this.attributeOptional(attributeName);
+    
+    //must have value if required
+    if (!hasValue && isRequired) {
+      throw new RuntimeException("Attribute '" + attributeName + "' is required, but is not set for loader type: " 
+          + this.name() + ", object name: " + underlyingObjectName);
+    }
+    
+    // must not have value if not required or optional
+    if (hasValue && !isRequired && !isOptional) {
+      LOG.error("Attribute '" + attributeName + "' is not required or optional, " +
+          "but is set to '" + attributeValue + "' for loader type: " 
+          + this.name() + ", object name: " + underlyingObjectName);
+    }
+    return attributeValue;
+  }
+
+  /**
+   * make sure if an attribute is required that it exists (non blank).  throw exception if problem
+   * @param attributeAssign attribute assignment to get the attribute from (attribute assigned to assignment)
+   * @param underlyingObjectName for errors, to clarify
+   * @param attributeName attribute def name
+   * @return the attribute value
+   */
+  Integer attributeValueValidateRequiredAttributeAssignInteger(AttributeAssign attributeAssign, String underlyingObjectName, String attributeName) {
+    String attributeValueString = StringUtils.trim(attributeValueValidateRequiredAttributeAssign(attributeAssign, underlyingObjectName, attributeName));
+    return GrouperUtil.intObjectValue(attributeValueString, true);
+  }
+
+  /**
    * for all jobs in this loader type, schedule them with quartz
    */
   public static void scheduleLoads() {
@@ -1336,7 +1836,17 @@ public enum GrouperLoaderType {
     
     final String[] jobStatus = new String[1];
     
-    hib3GrouploaderLog.setStatus(GrouperLoaderStatus.RUNNING.name());
+    //assume success
+    GrouperLoaderStatus status = GrouperLoaderStatus.SUCCESS;
+    if (!StringUtils.isBlank(hib3GrouploaderLog.getStatus()) 
+        && !StringUtils.equals(GrouperLoaderStatus.STARTED.toString(), hib3GrouploaderLog.getStatus())
+        && !StringUtils.equals(GrouperLoaderStatus.RUNNING.toString(), hib3GrouploaderLog.getStatus())) {
+      status = GrouperLoaderStatus.valueOfIgnoreCase(hib3GrouploaderLog.getStatus(), true);
+    }
+
+    if (StringUtils.isBlank(hib3GrouploaderLog.getStatus()) || StringUtils.equals(GrouperLoaderStatus.STARTED.toString(), hib3GrouploaderLog.getStatus())) {
+      hib3GrouploaderLog.setStatus(GrouperLoaderStatus.RUNNING.name());
+    }
     if (LOG.isDebugEnabled()) {
       LOG.debug(groupName + " start syncing membership");
     }
@@ -1347,8 +1857,6 @@ public enum GrouperLoaderType {
     
     int totalCount = 0;
     
-    //assume success
-    GrouperLoaderStatus status = GrouperLoaderStatus.SUCCESS;
     
     try {
 
@@ -1493,8 +2001,8 @@ public enum GrouperLoaderType {
         //this means the member exists in query, and in membership, so maybe do nothing
         if (row != null) {
           boolean andGroupsDoesntHaveSubject = false;
-          if (andGroups.size() > 0) {
-            Subject subject = row.getSubject(groupName);
+          if (GrouperUtil.nonNull(andGroups).size() > 0) {
+            Subject subject = row.getSubject(groupName, true);
             if (subject == null) {
               if (LOG.isDebugEnabled()) {
                 LOG.debug(groupName + " found unresolvable subject: " + row.getSubjectError() + ", " + count + " of " + numberOfRows + " subjects");
@@ -1543,11 +2051,11 @@ public enum GrouperLoaderType {
       for (int i=0;i<numberOfRows;i++) {
         
         Row row = grouperLoaderResultset.retrieveRow(i);
-        Subject subject = row.getSubject(groupName);
+        Subject subject = row.getSubject(groupName, true);
         if (subject != null) {
           //make sure it is not in the restricted list
           boolean andGroupsDoesntHaveSubject = false;
-          for (Group andGroup : andGroups) {
+          for (Group andGroup : GrouperUtil.nonNull(andGroups)) {
             if (!andGroup.hasMember(subject)) {
               andGroupsDoesntHaveSubject = true;
               hib3GrouploaderLog.addTotalCount(-1);
@@ -1707,6 +2215,19 @@ public enum GrouperLoaderType {
     }
   }
 
+  /**
+   * get an attribute value, or null, or a default if exists
+   * @param attributeAssign
+   * @param attributeDefName
+   * @return the attribute value
+   */
+  public static String attributeValueOrDefaultOrNull(AttributeAssign attributeAssign, String attributeDefName) {
+    
+    String attributeValue = attributeAssign.getAttributeValueDelegate().retrieveValueString(
+        attributeDefName);
+    return attributeValue;
+  }
+  
   /**
    * get an attribute value, or null, or a default if exists
    * @param attributeDef
@@ -1942,7 +2463,8 @@ public enum GrouperLoaderType {
       }
       
       GrouperLoaderResultset attributeActionSetResultset = new GrouperLoaderResultset(
-          grouperLoaderDb, attributeLoaderActionSetQuery);
+          grouperLoaderDb, attributeLoaderActionSetQuery, hib3GrouploaderLog.getJobName(), 
+          hib3GrouploaderLog);
       
       int numberOfRows = attributeActionSetResultset.numberOfRows();
       hib3GrouploaderLog.addTotalCount(numberOfRows);
@@ -2086,7 +2608,8 @@ public enum GrouperLoaderType {
       Map<String, AttributeAssignAction> actionsToRemove = new HashMap<String, AttributeAssignAction>(actionsByName);
       
       GrouperLoaderResultset attributeActionResultset = new GrouperLoaderResultset(
-          grouperLoaderDb, attributeLoaderActionQuery);
+          grouperLoaderDb, attributeLoaderActionQuery, hib3GrouploaderLog.getJobName(), 
+          hib3GrouploaderLog);
       int numberOfRows = attributeActionResultset.numberOfRows();
       hib3GrouploaderLog.addTotalCount(numberOfRows);
 
@@ -2194,7 +2717,8 @@ public enum GrouperLoaderType {
     if (!StringUtils.isBlank(attributeLoaderAttrSetQuery)) {
       
       GrouperLoaderResultset attributeDefNameSetResultset = new GrouperLoaderResultset(
-          grouperLoaderDb, attributeLoaderAttrSetQuery);
+          grouperLoaderDb, attributeLoaderAttrSetQuery, hib3GrouploaderLog.getJobName(), 
+          hib3GrouploaderLog);
       Set<AttributeDefNameSet> existingAttributeDefNameSets = GrouperDAOFactory.getFactory()
         .getAttributeDefNameSet().findByDepthOneForAttributeDef(theAttributeDef.getId());
       
@@ -2388,7 +2912,8 @@ public enum GrouperLoaderType {
       
       if (!StringUtils.isBlank(attributeLoaderAttrQuery)) {
         attributeDefNameResultset = new GrouperLoaderResultset(
-            grouperLoaderDb, attributeLoaderAttrQuery);
+            grouperLoaderDb, attributeLoaderAttrQuery, hib3GrouploaderLog.getJobName(), 
+            hib3GrouploaderLog);
       }
       
       int numberOfRows = attributeDefNameResultset.numberOfRows();
@@ -2597,6 +3122,154 @@ public enum GrouperLoaderType {
             hib3GrouploaderLog.setJobSchedulePriority(grouperLoaderPriority);
             hib3GrouploaderLog.setJobScheduleQuartzCron(grouperLoaderQuartzCron);
             hib3GrouploaderLog.setJobScheduleType(grouperLoaderScheduleType);
+            hib3GrouploaderLog.setJobType(grouperLoaderType);
+            hib3GrouploaderLog.setStatus(GrouperLoaderStatus.CONFIG_ERROR.name());
+            hib3GrouploaderLog.store();
+            
+          } catch (Exception e2) {
+            LOG.error("Problem logging to loader db log", e2);
+          }
+        }
+        
+        
+      }
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+
+  /**
+   * for all ldap jobs in this loader type, schedule them with quartz
+   */
+  public static void scheduleLdapLoads() {
+    
+    GrouperSession grouperSession = null;
+    try {
+      grouperSession = GrouperSession.start(
+          SubjectFinder.findById("GrouperSystem", true)
+        );
+
+      //lets see if there is configuration
+      String attrRootStem = GrouperConfig.getProperty("grouper.attribute.rootStem");
+      if (StringUtils.isBlank(attrRootStem)) {
+        return;
+      }
+      
+      AttributeDefName attributeDefName = AttributeDefNameFinder.findByName(LoaderLdapUtils.grouperLoaderLdapName(), false);
+      
+      //see if attributeDef
+      if (attributeDefName == null) {
+        return;
+      }
+      
+      //lets get the attribute assignments of load type
+      Set<AttributeAssign> attributeAssigns = GrouperDAOFactory.getFactory().getAttributeAssign()
+        .findGroupAttributeAssignments(null, null, GrouperUtil.toSet(attributeDefName.getId()), null, null, true, false);
+
+      for (AttributeAssign attributeAssign : attributeAssigns) {
+        
+        String jobName = null;
+        String groupId = null;
+        String grouperLoaderAndGroups = null;
+        String grouperLoaderQuartzCron = null;
+        Integer grouperLoaderPriority = null;
+        String grouperLoaderType = null;
+        String groupName = null;
+
+        try {
+          
+          Group group = attributeAssign.getOwnerGroup();
+          groupId = group.getId();
+          
+          //lets get all attribute values
+          grouperLoaderType = attributeAssign.getAttributeValueDelegate().retrieveValueString(LoaderLdapUtils.grouperLoaderLdapTypeName());
+          
+          GrouperLoaderType grouperLoaderTypeEnum = GrouperLoaderType.valueOfIgnoreCase(grouperLoaderType, true);
+  
+          groupName = group.getName();
+          jobName = grouperLoaderTypeEnum.name() + "__" + groupName + "__" + group.getUuid();
+          
+          //get the real attributes
+          grouperLoaderTypeEnum.attributeValueValidateRequiredAttributeAssign(attributeAssign, groupName, 
+              LoaderLdapUtils.grouperLoaderLdapFilterName());
+          grouperLoaderQuartzCron = grouperLoaderTypeEnum.attributeValueValidateRequiredAttributeAssign(attributeAssign, groupName, LoaderLdapUtils.grouperLoaderLdapQuartzCronName());
+          grouperLoaderTypeEnum.attributeValueValidateRequiredAttributeAssign(attributeAssign, groupName,
+              LoaderLdapUtils.grouperLoaderLdapServerIdName());
+          grouperLoaderTypeEnum.attributeValueValidateRequiredAttributeAssign(attributeAssign, groupName, 
+              LoaderLdapUtils.grouperLoaderLdapSubjectAttributeName());
+          
+          grouperLoaderTypeEnum.attributeValueValidateRequiredAttributeAssign(attributeAssign, groupName,
+              LoaderLdapUtils.grouperLoaderLdapAndGroupsName());
+          grouperLoaderPriority = grouperLoaderTypeEnum.attributeValueValidateRequiredAttributeAssignInteger(
+              attributeAssign, groupName, LoaderLdapUtils.grouperLoaderLdapPriorityName());
+          grouperLoaderTypeEnum.attributeValueValidateRequiredAttributeAssign(attributeAssign, groupName, 
+              LoaderLdapUtils.grouperLoaderLdapSearchDnName());
+          grouperLoaderTypeEnum.attributeValueValidateRequiredAttributeAssign(attributeAssign, groupName, 
+              LoaderLdapUtils.grouperLoaderLdapSearchScopeName());
+          grouperLoaderTypeEnum.attributeValueValidateRequiredAttributeAssign(attributeAssign, groupName, 
+              LoaderLdapUtils.grouperLoaderLdapSourceIdName());
+          grouperLoaderTypeEnum.attributeValueValidateRequiredAttributeAssign(attributeAssign, groupName, 
+              LoaderLdapUtils.grouperLoaderLdapSubjectIdTypeName());
+          grouperLoaderTypeEnum.attributeValueValidateRequiredAttributeAssign(attributeAssign, groupName, 
+              LoaderLdapUtils.grouperLoaderLdapGroupAttributeName());
+          grouperLoaderTypeEnum.attributeValueValidateRequiredAttributeAssign(attributeAssign, groupName, 
+              LoaderLdapUtils.grouperLoaderLdapExtraAttributesName());
+          grouperLoaderTypeEnum.attributeValueValidateRequiredAttributeAssign(attributeAssign, groupName, 
+              LoaderLdapUtils.grouperLoaderLdapErrorUnresolvableName());
+          grouperLoaderTypeEnum.attributeValueValidateRequiredAttributeAssign(attributeAssign, groupName, 
+              LoaderLdapUtils.grouperLoaderLdapGroupNameExpressionName());
+          grouperLoaderTypeEnum.attributeValueValidateRequiredAttributeAssign(attributeAssign, groupName, 
+              LoaderLdapUtils.grouperLoaderLdapGroupDisplayNameExpressionName());
+          grouperLoaderTypeEnum.attributeValueValidateRequiredAttributeAssign(attributeAssign, groupName, 
+              LoaderLdapUtils.grouperLoaderLdapGroupDescriptionExpressionName());
+          grouperLoaderTypeEnum.attributeValueValidateRequiredAttributeAssign(attributeAssign, groupName, 
+              LoaderLdapUtils.grouperLoaderLdapSubjectExpressionName());
+          grouperLoaderTypeEnum.attributeValueValidateRequiredAttributeAssign(attributeAssign, groupName, 
+              LoaderLdapUtils.grouperLoaderLdapGroupTypesName());
+          grouperLoaderTypeEnum.attributeValueValidateRequiredAttributeAssign(attributeAssign, groupName, 
+              LoaderLdapUtils.grouperLoaderLdapReadersName());
+          grouperLoaderTypeEnum.attributeValueValidateRequiredAttributeAssign(attributeAssign, groupName, 
+              LoaderLdapUtils.grouperLoaderLdapAdminsName());
+          grouperLoaderTypeEnum.attributeValueValidateRequiredAttributeAssign(attributeAssign, groupName, 
+              LoaderLdapUtils.grouperLoaderLdapUpdatersName());
+          grouperLoaderTypeEnum.attributeValueValidateRequiredAttributeAssign(attributeAssign, groupName, 
+              LoaderLdapUtils.grouperLoaderLdapViewersName());
+          grouperLoaderTypeEnum.attributeValueValidateRequiredAttributeAssign(attributeAssign, groupName, 
+              LoaderLdapUtils.grouperLoaderLdapOptinsName());
+          grouperLoaderTypeEnum.attributeValueValidateRequiredAttributeAssign(attributeAssign, groupName, 
+              LoaderLdapUtils.grouperLoaderLdapOptoutsName());
+          
+          scheduleJob(jobName, false, "CRON", grouperLoaderQuartzCron,
+              null, grouperLoaderPriority);
+          
+        } catch (Exception e) {
+          String errorMessage = null;
+          
+          //dont fail on all if any fail
+          try {
+            errorMessage = "Could not schedule group: '" + groupName + "', groupId: '" + groupId + "', attributeAssignId: " + attributeAssign.getId();
+            LOG.error(errorMessage, e);
+            errorMessage += "\n" + ExceptionUtils.getFullStackTrace(e);
+          } catch (Exception e2) {
+            errorMessage = "Could not schedule group.";
+            //dont let error message mess us up
+            LOG.error(errorMessage, e);
+            LOG.error(e2);
+            errorMessage += "\n" + ExceptionUtils.getFullStackTrace(e) + "\n" + ExceptionUtils.getFullStackTrace(e2);
+          }
+          try {
+            //lets enter a log entry so it shows up as error in the db
+            Hib3GrouperLoaderLog hib3GrouploaderLog = new Hib3GrouperLoaderLog();
+            hib3GrouploaderLog.setGroupUuid(groupId);
+            hib3GrouploaderLog.setHost(GrouperUtil.hostname());
+            hib3GrouploaderLog.setJobMessage(errorMessage);
+            hib3GrouploaderLog.setJobName(jobName);
+            hib3GrouploaderLog.setAndGroupNames(grouperLoaderAndGroups);
+            hib3GrouploaderLog.setJobSchedulePriority(grouperLoaderPriority);
+            hib3GrouploaderLog.setJobScheduleQuartzCron(grouperLoaderQuartzCron);
+            hib3GrouploaderLog.setJobScheduleType("CRON");
             hib3GrouploaderLog.setJobType(grouperLoaderType);
             hib3GrouploaderLog.setStatus(GrouperLoaderStatus.CONFIG_ERROR.name());
             hib3GrouploaderLog.store();

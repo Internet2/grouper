@@ -27,6 +27,7 @@ import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.subj.InvalidQueryRuntimeException;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.morphString.Morph;
+import edu.internet2.middleware.subject.SearchPageResult;
 import edu.internet2.middleware.subject.SourceUnavailableException;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectCheckConfig;
@@ -86,9 +87,6 @@ public class JDBCSourceAdapter2 extends JDBCSourceAdapter {
    * cols which are selected in queries
    */
   private Set<String> selectCols = new LinkedHashSet<String>();
-
-  /** if there is a limit to the number of results */
-  private Integer maxResults;
 
   /**
    * map of col to attribute name
@@ -447,11 +445,19 @@ public class JDBCSourceAdapter2 extends JDBCSourceAdapter {
 
     List<String> args = new ArrayList<String>();
     args.add(id);
-    Set<Subject> subject = this.search(query.toString(), args, true, exceptionIfNull);
+    Set<Subject> subject = this.search(query.toString(), args, true, exceptionIfNull, false, null);
 
     //I know there is exactly one at this point
     return subject == null ? null : subject.iterator().next();
 
+  }
+
+  /**
+   * @see edu.internet2.middleware.subject.provider.BaseSourceAdapter#searchPage(java.lang.String)
+   */
+  @Override
+  public SearchPageResult searchPage(String searchValue) {
+    return searchHelper(searchValue, true);
   }
 
   /**
@@ -460,6 +466,19 @@ public class JDBCSourceAdapter2 extends JDBCSourceAdapter {
    */
   @Override
   public Set<Subject> search(String searchValue) {
+    return searchHelper(searchValue, false).getResults();
+  }
+
+  /**
+   * @param searchValue 
+   * @param firstPageOnly 
+   * @return result
+   * 
+   */
+  private SearchPageResult searchHelper(String searchValue, boolean firstPageOnly) {
+
+    Set<Subject> results = new LinkedHashSet<Subject>();
+    boolean tooManyResults = false;
 
     //if there is nothing, what are we searching on?
     if (StringUtils.isBlank(searchValue)) {
@@ -491,10 +510,14 @@ public class JDBCSourceAdapter2 extends JDBCSourceAdapter {
     String throwErrorOnFindAllFailureString = this.getInitParam("throwErrorOnFindAllFailure");
     boolean throwErrorOnFindAllFailure = SubjectUtils.booleanValue(throwErrorOnFindAllFailureString, true);
 
-    Set<Subject> results = null;
     try {
-      results = this.search(query.toString(), args, false, true);
+      boolean[] tooManyResultHelper = new boolean[]{false};
+      results = this.search(query.toString(), args, false, true, firstPageOnly, tooManyResultHelper);
+      tooManyResults = tooManyResultHelper[0];
     } catch (Exception ex) {
+      if (ex instanceof SubjectTooManyResults) {
+        throw (SubjectTooManyResults)ex;
+      }
       if (!throwErrorOnFindAllFailure) {
         log.error(ex.getMessage() + ", source: " + this.getId() + ", searchValue: "
           + searchValue, ex);
@@ -504,7 +527,7 @@ public class JDBCSourceAdapter2 extends JDBCSourceAdapter {
       }
     }
 
-    return results;
+    return new SearchPageResult(tooManyResults, results);
 
   }
 
@@ -536,7 +559,7 @@ public class JDBCSourceAdapter2 extends JDBCSourceAdapter {
       index++;
     }
 
-    Set<Subject> subject = this.search(query.toString(), args, true, exceptionIfNull);
+    Set<Subject> subject = this.search(query.toString(), args, true, exceptionIfNull, false, null);
 
     //I know there is exactly one at this point
     return subject == null ? null : subject.iterator().next();
@@ -549,15 +572,22 @@ public class JDBCSourceAdapter2 extends JDBCSourceAdapter {
    * @param args are the prepared statement args
    * @param expectSingle true if expecting one answer
    * @param exceptionIfNull 
+   * @param firstPageOnly if we should only get first page
+   * @param tooManyResults flag to return for too many results
    * @return subjects or empty set if none or null if expect one and no results and not exception on null
    * @throws SubjectNotFoundException if expecting one and not found
    * @throws SubjectNotUniqueException
    * @throws InvalidQueryRuntimeException 
    */
-  private Set<Subject> search(String query, List<String> args, boolean expectSingle, boolean exceptionIfNull)
+  private Set<Subject> search(String query, List<String> args, boolean expectSingle, boolean exceptionIfNull, boolean firstPageOnly, boolean[] tooManyResults)
       throws SubjectNotFoundException, SubjectNotUniqueException,
       InvalidQueryRuntimeException {
 
+    //no npes
+    if (tooManyResults == null || tooManyResults.length == 0) {
+      tooManyResults = new boolean[1];
+    }
+    
     Connection conn = null;
     PreparedStatement stmt = null;
     JdbcConnectionBean jdbcConnectionBean = null;
@@ -566,6 +596,13 @@ public class JDBCSourceAdapter2 extends JDBCSourceAdapter {
     try {
       jdbcConnectionBean = this.jdbcConnectionProvider.connectionBean();
       conn = jdbcConnectionBean.connection();
+      
+      Integer resultSetLimit = resultSetLimit(firstPageOnly, this.getMaxPage(), this.maxResults);
+      
+      if (resultSetLimit != null && this.isChangeSearchQueryForMaxResults()) {
+        query = tryToChangeQuery(query, conn, resultSetLimit);
+      }
+      
       stmt = conn.prepareStatement(query);
       ResultSet rs = null;
 
@@ -586,14 +623,21 @@ public class JDBCSourceAdapter2 extends JDBCSourceAdapter {
       rs = stmt.executeQuery();
 
       while (rs.next()) {
-        Subject subject = createSubject(rs, query);
-        results.add(subject);
-        
+        //if we are at the end of the page
+        if (firstPageOnly && this.getMaxPage() != null && results.size() >= this.getMaxPage()) {
+          tooManyResults[0] = true;
+          break;
+        }
+
         if (this.maxResults != null && results.size() > this.maxResults) {
           throw new SubjectTooManyResults(
               "More results than allowed: " + this.maxResults 
               + " for search '" + query + "'");
         }
+
+        Subject subject = createSubject(rs, query);
+        results.add(subject);
+        
 
       }
 
