@@ -3813,6 +3813,115 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
   public String xmlToString() {
     return "Stem: " + this.uuid + ", " + this.name;
   }
+
+
+  /**
+   * Delete this stem from the Groups Registry including all sub objects.
+   * <pre class="eg">
+   * try {
+   *   ns.delete();
+   * }
+   * catch (InsufficientPrivilegeException eIP) {
+   *   // not privileged to delete stem
+   * }
+   * catch (StemDeleteException eSD) {
+   *   // unable to delete stem
+   * }
+   * </pre>
+   * @param printOutput 
+   * @param testOnly 
+   * @throws  InsufficientPrivilegeException
+   * @throws  StemDeleteException
+   */
+  public void obliterate(final boolean printOutput, final boolean testOnly) throws InsufficientPrivilegeException, StemDeleteException {
+    
+    if (printOutput) {
+      if (testOnly) {
+        System.out.println("Would obliterate stem: " + this.getName());
+      } else {
+        System.out.println("Obliterating stem: " + this.getName());
+      }
+    }
+    HibernateSession.callbackHibernateSession(
+        GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT,
+        new HibernateHandler() {
+  
+          public Object callback(HibernateHandlerBean hibernateHandlerBean)
+              throws GrouperDAOException {
+  
+            hibernateHandlerBean.getHibernateSession().setCachingEnabled(false);
+            
+            //obliterate all child stems
+            Set<Stem> stems = GrouperDAOFactory.getFactory().getStem().findAllChildStems(Stem.this, Scope.ONE);
+            
+            for (Stem stem : GrouperUtil.nonNull(stems)) {
+              stem.obliterate(printOutput, testOnly);
+            }
+
+            //delete all objects
+            //groups
+            Set<Group> groups = GrouperDAOFactory.getFactory().getStem().findAllChildGroups(Stem.this, Scope.ONE);
+            
+            for (Group group : GrouperUtil.nonNull(groups)) {
+              if (!testOnly) {
+                group.delete();
+              }
+              if (printOutput) {
+                if (testOnly) {
+                  System.out.println("Would be done deleting " + group.getTypeOfGroup() + ": " + group.getName());
+                } else {
+                  System.out.println("Done deleting " + group.getTypeOfGroup() + ": " + group.getName());
+                }
+              }              
+            }
+
+            Set<AttributeDefName> attributeDefNames = GrouperDAOFactory.getFactory().getAttributeDefName().findByStem(Stem.this.getUuid());
+            
+            for (AttributeDefName attributeDefName : GrouperUtil.nonNull(attributeDefNames)) {
+              if (!testOnly) {
+                attributeDefName.delete();
+              }
+              if (printOutput) {
+                if (testOnly) {
+                  System.out.println("Would be done deleting attributeDefName: " + attributeDefName.getName());
+                } else {
+                  System.out.println("Done deleting attributeDefName: " + attributeDefName.getName());
+                }
+              }              
+            }
+
+            Set<AttributeDef> attributeDefs = GrouperDAOFactory.getFactory().getAttributeDef().findByStem(Stem.this.getUuid());
+            
+            for (AttributeDef attributeDef : GrouperUtil.nonNull(attributeDefs)) {
+              if (!testOnly) {
+                attributeDef.delete();
+              }
+              if (printOutput) {
+                if (testOnly) {
+                  System.out.println("Would be done deleting attributeDef: " + attributeDef.getName());
+                } else {
+                  System.out.println("Done deleting attributeDef: " + attributeDef.getName());
+                }
+              }              
+            }
+
+            //delete stem
+            if (!testOnly) {
+              Stem.this.delete();
+            }
+            
+            return null;
+         }
+    });
+  
+    if (printOutput) {
+      if (testOnly) {
+        System.out.println("Would be done obliterating stem: " + this.getName());
+      } else {
+        System.out.println("Done obliterating stem: " + this.getName());
+      }
+    }    
+  }
   
 
 }

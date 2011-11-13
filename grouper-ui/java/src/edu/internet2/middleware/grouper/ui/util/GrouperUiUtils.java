@@ -54,6 +54,7 @@ import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.QueryPaging;
 import edu.internet2.middleware.grouper.j2ee.GenericServletResponseWrapper;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
+import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.tags.TagUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -813,10 +814,11 @@ public class GrouperUiUtils {
    * 
    * @param subjects to sort and page
    * @param queryPaging
+   * @param searchTerm 
    * @return the set of subject, or empty set (never null)
    */
   @SuppressWarnings("unchecked")
-  public static Set<Subject> subjectsSortedPaged(Set<Subject> subjects, QueryPaging queryPaging) {
+  public static Set<Subject> subjectsSortedPaged(Set<Subject> subjects, QueryPaging queryPaging, String searchTerm) {
     
     subjects = GrouperUtil.nonNull(subjects);
     
@@ -830,7 +832,7 @@ public class GrouperUiUtils {
       return subjects;
     }
     
-    int maxSubjectSortSize = TagUtils.mediaResourceInt("comparator.sort.limit", 200);
+    int maxSubjectSortSize = TagUtils.mediaResourceInt("comparator.sort.limit", 400);
     
     //see if we should sort
     if (subjects.size() < maxSubjectSortSize) {
@@ -846,6 +848,10 @@ public class GrouperUiUtils {
       
       //convert back to set
       subjects = new LinkedHashSet<Subject>(subjectsSorted);
+      
+      //lets bring more important things to the top
+      subjects = SubjectHelper.sortSetForSearch(subjects, searchTerm);
+      
     }
     
     //get the page
@@ -946,7 +952,7 @@ public class GrouperUiUtils {
     
     if (isEntitySource || SubjectFinder.internal_getGSA().getId().equals(subject.getSourceId())) {
       
-      label = subject.getAttributeValue(GrouperConfig.ATTRIBUTE_DISPLAY_NAME);
+      label = subject.getAttributeValue(GrouperConfig.ATTRIBUTE_DISPLAY_EXTENSION);
       if (!StringUtils.isBlank(label)) {
         return label;
       }
@@ -959,6 +965,26 @@ public class GrouperUiUtils {
       label = subject.getSourceId() + " - " + subject.getId() + " - " + subject.getName();
     }
     return label;
+  }
+
+  /**
+   * convert a subject to string for screen e.g. for tooltip
+   * @param subject
+   * @return the string
+   */
+  public static String convertSubjectToLabelLong(Subject subject) {
+    String label = null;
+    //TODO also add external entities from the SubjectFinder method
+    if (SubjectFinder.internal_getGSA().getId().equals(subject.getSourceId()) || StringUtils.equals("grouperEntities", subject.getSourceId())) {
+      
+      label = subject.getAttributeValue(GrouperConfig.ATTRIBUTE_DISPLAY_NAME);
+      if (!StringUtils.isBlank(label)) {
+        return label;
+      }
+
+    }
+    
+    return convertSubjectToLabel(subject);
   }
 
 
@@ -1180,7 +1206,7 @@ public class GrouperUiUtils {
     
     //see if it is already computed
     if (subject instanceof SubjectSortWrapper) {
-      return ((SubjectSortWrapper)subject).getScreenLabel();
+      return ((SubjectSortWrapper)subject).getScreenLabelLong();
     }
   
     if (subjectToScreenEl == null) {
@@ -1208,7 +1234,7 @@ public class GrouperUiUtils {
     }
     String screenEl = subjectToScreenEl.get(subject.getSource().getId());
     if (StringUtils.isBlank(screenEl)) {
-      return convertSubjectToLabel(subject);
+      return convertSubjectToLabelLong(subject);
     }
     //run the screen EL
     Map<String, Object> variableMap = new HashMap<String, Object>();

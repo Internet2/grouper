@@ -32,6 +32,7 @@ import edu.internet2.middleware.grouper.GrouperSourceAdapter;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.entity.EntitySubject;
 import edu.internet2.middleware.grouper.group.TypeOfGroup;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.misc.E;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.SourceUnavailableException;
@@ -286,7 +287,7 @@ public class GrouperSubject extends SubjectImpl {
     if (this.loadedModifyCreateSubjects) {
       return;
     }
-    
+    if (GrouperConfig.getPropertyBoolean("subjects.group.useCreatorAndModifierAsSubjectAttributes", true)) {
     try {
       // Don't bother with any of the create* attrs unless we can find
       // the creating subject
@@ -309,8 +310,17 @@ public class GrouperSubject extends SubjectImpl {
     catch (SubjectNotFoundException eSNF1) {
       // No modifier
     }
+    }
     this.loadedModifyCreateSubjects = true;
 
+  }
+  
+  /**
+   * get the group inside
+   * @return the group
+   */
+  public Group internal_getGroup() {
+    return this.group;
   }
   
   /**

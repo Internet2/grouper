@@ -45,6 +45,7 @@ import edu.internet2.middleware.grouper.hooks.logic.GrouperHookType;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHooksUtils;
 import edu.internet2.middleware.grouper.hooks.logic.VetoTypeGrouper;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
+import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperHasContext;
@@ -1371,6 +1372,13 @@ public class AttributeDef extends GrouperAPI implements GrouperHasContext,
         for (AttributeDefName attributeDefName : attributeDefNames) {
           attributeDefName.delete();
         }
+        
+        Set<AttributeDefScope> attributeDefScopes = GrouperDAOFactory.getFactory().getAttributeDefScope().findByAttributeDefId(AttributeDef.this.getId(), new QueryOptions().secondLevelCache(false));
+        
+        for (AttributeDefScope attributeDefScope : attributeDefScopes) {
+          attributeDefScope.delete();
+        }
+        
         
         GrouperDAOFactory.getFactory().getAttributeDef().delete(AttributeDef.this);
 

@@ -26,9 +26,13 @@ import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
+import edu.internet2.middleware.grouper.annotations.GrouperIgnoreClone;
+import edu.internet2.middleware.grouper.annotations.GrouperIgnoreDbVersion;
+import edu.internet2.middleware.grouper.annotations.GrouperIgnoreFieldConstant;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.entity.EntitySourceAdapter;
 import edu.internet2.middleware.grouper.exception.GrouperException;
+import edu.internet2.middleware.grouper.exception.SessionException;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
@@ -46,6 +50,7 @@ import edu.internet2.middleware.grouper.subj.SubjectResolver;
 import edu.internet2.middleware.grouper.subj.SubjectResolverFactory;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.validator.NotNullValidator;
+import edu.internet2.middleware.subject.SearchPageResult;
 import edu.internet2.middleware.grouperClient.util.ExpirableCache;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.SourceUnavailableException;
@@ -63,6 +68,55 @@ import edu.internet2.middleware.subject.SubjectTooManyResults;
  */
 public class SubjectFinder {
 
+
+  /** */
+  private static GrouperSession  rootSession;
+
+  // PRIVATE INSTANCE METHODS //
+
+  // @since   1.1.0
+  /**
+   * @return session
+   */
+  public static GrouperSession grouperSessionOrRootForSubjectFinder() {
+    //If we have a thread local session then let's use it to ensure 
+    //proper VIEW privilege enforcement
+    GrouperSession activeSession = GrouperSession.staticGrouperSession(false);
+    if(activeSession !=null) {
+      return activeSession;
+    }
+    if (rootSession == null) {
+      try {
+        //dont replace the currently active session
+        rootSession = GrouperSession.start( SubjectFinder.findRootSubject(), false );
+      }
+      catch (SessionException eS) {
+        throw new GrouperException(E.S_NOSTARTROOT + eS.getMessage(), eS);
+      }
+    }
+    return rootSession;
+  } // private GrouperSession _getSession()
+
+  /** if we should use threads when doing searches (if grouper.properties allows), this must be used in a try/finally */
+  private static ThreadLocal<Boolean> useThreads = new ThreadLocal<Boolean>();
+
+  /**
+   * if we should use threads when doing searches (if grouper.properties allows), this must be used in a try/finally
+   * @param ifUseThreads
+   */
+  public static void useThreads(boolean ifUseThreads) {
+    useThreads.set(ifUseThreads);
+  }
+
+  /**
+   * if we should use threads when doing searches (if grouper.properties allows)
+   * @return
+   */
+  public static boolean isUseThreadsBasedOnThreadLocal() {
+    Boolean isUseThreads = useThreads.get();
+    return GrouperUtil.booleanValue(isUseThreads, true);
+  }
+  
   /** logger */
   private static final Log LOG = GrouperUtil.getLog(SubjectFinder.class);
 
@@ -497,15 +551,10 @@ public class SubjectFinder {
     if (sources == null || sources.isEmpty()) {
       return findAll(query);
     }
-    Set<Subject> results = new LinkedHashSet<Subject>();
-    for (Source source: sources) {
-      Set<Subject> current = findAll(query, source.getId());
-      if (current != null) {
-        results.addAll(current);
+    
+    return getResolver().findAll(query, sources);
+    
       }
-    }
-    return results;
-  } 
 
   
   
@@ -530,7 +579,7 @@ public class SubjectFinder {
         all = getResolver().find( GrouperConfig.ALL, InternalSourceAdapter.ID );
       }
       catch (Exception e) {
-        throw new GrouperException( "unable to retrieve GrouperAll: " + e.getMessage() );
+        throw new GrouperException( "unable to retrieve GrouperAll: " + e.getMessage(), e );
       }
     }
     return all;
@@ -1078,6 +1127,110 @@ public class SubjectFinder {
       LOG.debug(GrouperUtil.mapToString(debugMap));
     }
     return new RestrictSourceForGroup(false, null);
+  }
+
+  /**
+   * Find a page of subjects matching the query.
+   * <p>
+   * The query string specification is currently unique to each subject
+   * source adapter.  Queries may not work or may lead to erratic
+   * results across different source adapters.  Consult the
+   * documentation for each source adapter for more information on the
+   * query language supported by each adapter.
+   * </p>
+   * <p>
+   * <b>NOTE:</b> This method does not perform any caching.
+   * </p>
+   * <pre class="eg">
+   * // Find all subjects matching the given query string.
+   * SearchPageResult subjects = SubjectFinder.findPage(query);
+   * </pre>
+   * @param   query     Subject query string.
+   * @return  A {@link Set} of {@link Subject} objects and if there are too many.
+   * @throws SubjectTooManyResults if more results than configured
+   */
+  public static SearchPageResult findPage(String query) {
+    return getResolver().findPage(query);
+  }
+
+  /**
+   * Find a page of subjects matching the query within the specified {@link Source}s.
+   * <p>
+   * <b>NOTE:</b> This method does not perform any caching.
+   * </p>
+   * <pre class="eg">
+   * try {
+   *   SearchPageResult subjects = SubjectFinder.findPage(query, sources);
+   * }
+   * catch (SourceUnavailableException eSU) {
+   *   // unable to query source
+   * }
+   *  </pre>
+   * @param   query   Subject query string.
+   * @param   sources  {@link Source} adapters to search.
+   * @return  A {@link Set} of {@link Subject}s and if there are too many.
+   * @throws  SourceUnavailableException
+   */
+  public static SearchPageResult findPage(String query, Set<Source> sources)
+      throws  SourceUnavailableException {
+
+    if (sources == null || sources.isEmpty()) {
+      return findPage(query);
+    }
+    return getResolver().findPage(query, sources);
+
+  }
+
+  /**
+   * Find a page of subjects matching the query within the specified {@link Source}.
+   * <p>
+   * <b>NOTE:</b> This method does not perform any caching.
+   * </p>
+   * <pre class="eg">
+   * try {
+   *   Set subjects = SubjectFinder.findPage(query, source);
+   * }
+   * catch (SourceUnavailableException eSU) {
+   *   // unable to query source
+   * }
+   *  </pre>
+   * @param   query   Subject query string.r.
+   * @param   source  {@link Source} adapter to search.
+   * @return  A {@link Set} of {@link Subject}s and if too many.
+   * @throws  SourceUnavailableException
+   */
+  public static SearchPageResult findPage(String query, String source)
+    throws  SourceUnavailableException
+  {
+    return getResolver().findPage(query, source);
+  }
+
+  /**
+   * Find a page of subjects matching the query, in a certain folder.  If there are
+   * rules restricting subjects, then dont search those folders
+   * <p>
+   * The query string specification is currently unique to each subject
+   * source adapter.  Queries may not work or may lead to erratic
+   * results across different source adapters.  Consult the
+   * documentation for each source adapter for more information on the
+   * query language supported by each adapter.
+   * </p>
+   * <p>
+   * <b>NOTE:</b> This method does not perform any caching.
+   * </p>
+   * <pre class="eg">
+   * // Find all subjects matching the given query string.
+   * Set subjects = SubjectFinder.findAll(query);
+   * </pre>
+   * @param stemName stem name to search in
+   * @param   query     Subject query string.
+   * @return  A {@link Set} of {@link Subject} objects.
+   * @throws SubjectTooManyResults if more results than configured
+   */
+  public static SearchPageResult findPageInStem(String stemName, String query) {
+    
+    return getResolver().findPageInStem(stemName, query);
+    
   }
 
   /**

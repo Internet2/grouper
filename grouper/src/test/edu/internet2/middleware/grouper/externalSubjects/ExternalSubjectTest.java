@@ -22,6 +22,7 @@ import edu.internet2.middleware.grouper.cfg.ApiConfig;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
+import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.provider.SourceManager;
@@ -45,7 +46,7 @@ public class ExternalSubjectTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new ExternalSubjectTest("testPersistence"));
+    TestRunner.run(new ExternalSubjectTest("testDynamicFieldsDaemon"));
     //TestRunner.run(ExternalSubjectTest.class);
   }
 
@@ -56,9 +57,17 @@ public class ExternalSubjectTest extends GrouperTest {
   protected void setUp() {
     super.setUp();
     
-    if (!StringUtils.equals(GrouperConfig.getProperty("externalSubjects.attributes.jabber.systemName"), "jabber")) {
-      fail("You need the external subject attribute jabber set in grouper.properties");
-    }
+    setupHelper();
+  }
+
+  /** if we are testing jabber */
+  private static boolean hasJabber = false;
+  
+  /**
+   * 
+   */
+  public static void setupHelper() {
+    hasJabber = StringUtils.equals(GrouperConfig.getProperty("externalSubjects.attributes.jabber.systemName"), "jabber");
     
     ApiConfig.testConfig.put("externalSubjects.desc.el", 
         "${grouperUtil.appendIfNotBlankString(externalSubject.name, ' - ', externalSubject.institution)}");
@@ -68,9 +77,11 @@ public class ExternalSubjectTest extends GrouperTest {
     ApiConfig.testConfig.put("externalSubjects.email.enabled", "true");
     ApiConfig.testConfig.put("externalSubjects.institution.required", "false");
     ApiConfig.testConfig.put("externalSubjects.institution.enabled", "true");
-    ApiConfig.testConfig.put("externalSubjects.attributes.jabber.friendlyName", "Jabber ID");
-    ApiConfig.testConfig.put("externalSubjects.attributes.jabber.systemName", "jabber");
-    ApiConfig.testConfig.put("externalSubjects.attributes.jabber.required", "false");
+    if (hasJabber) {
+      ApiConfig.testConfig.put("externalSubjects.attributes.jabber.friendlyName", "Jabber ID");
+      ApiConfig.testConfig.put("externalSubjects.attributes.jabber.systemName", "jabber");
+      ApiConfig.testConfig.put("externalSubjects.attributes.jabber.required", "false");
+    }
     ApiConfig.testConfig.put("externalSubjects.wheelOrRootCanEdit", "true");
     ApiConfig.testConfig.remove("externalSubjects.groupAllowedForEdit");
     ApiConfig.testConfig.put("externalSubjects.validateIndentiferLikeEmail", "true");
@@ -475,6 +486,9 @@ public class ExternalSubjectTest extends GrouperTest {
    */
   public void testRequiredFieldsAttributesJabber() {
   
+    if (!hasJabber) {
+      return;
+    }
     //###########################################
     //externalSubjects.institution.required = true
     ApiConfig.testConfig.put("externalSubjects.attributes.jabber.required", "true");
@@ -541,7 +555,7 @@ public class ExternalSubjectTest extends GrouperTest {
 
     //externalSubjects.desc.el = ${grouperUtil.appendIfNotBlankString(externalSubject.name, ' - ', externalSubject.institution)}
     ApiConfig.testConfig.put("externalSubjects.desc.el", 
-        "${grouperUtil.appendIfNotBlankString(externalSubject.name, ' - ', externalSubject.institution)}");
+        "${grouperUtil.appendIfNotBlankString(externalSubject.getName(), ' - ', externalSubject.getInstitution())}");
     ExternalSubjectConfig.clearCache();
 
     ExternalSubject externalSubject = new ExternalSubject();
@@ -577,10 +591,15 @@ public class ExternalSubjectTest extends GrouperTest {
   public void testDynamicSearchString() {
 
     //externalSubjects.searchStringFields = name, institution, identifier, uuid, email, jabber, description
-    ApiConfig.testConfig.put("externalSubjects.searchStringFields", 
-        "name, institution, identifier, uuid, email, jabber, description");
+    if (hasJabber) {
+      ApiConfig.testConfig.put("externalSubjects.searchStringFields", 
+          "name, institution, identifier, uuid, email, jabber, description");
+    } else {
+      ApiConfig.testConfig.put("externalSubjects.searchStringFields", 
+        "name, institution, identifier, uuid, email, description");
+    }
     ApiConfig.testConfig.put("externalSubjects.desc.el", 
-      "${grouperUtil.appendIfNotBlankString(externalSubject.name, ' - ', externalSubject.institution)}");
+      "${grouperUtil.appendIfNotBlankString(externalSubject.getName(), ' - ', externalSubject.getInstitution())}");
     ExternalSubjectConfig.clearCache();
 
     ExternalSubject externalSubject = new ExternalSubject();
@@ -591,14 +610,25 @@ public class ExternalSubjectTest extends GrouperTest {
 
     externalSubject.setEmail("a@b.c");
     externalSubject.store();
-    externalSubject.assignAttribute("jabber", "e@r.t");
+    if (hasJabber) {
+      externalSubject.assignAttribute("jabber", "e@r.t");
+    }
     
     externalSubject = ExternalSubjectStorageController.findByIdentifier("a@idp.b.c", true, null);
     
-    assertEquals("my name, my institution, a@idp.b.c, " + externalSubject.getUuid() + ", a@b.c, e@r.t, my name - my institution", externalSubject.getSearchStringLower());
-
+    if (hasJabber) {
+      assertEquals("my name, my institution, a@idp.b.c, " + externalSubject.getUuid() + ", a@b.c, e@r.t, my name - my institution", externalSubject.getSearchStringLower());
+    } else {
+      assertEquals("my name, my institution, a@idp.b.c, " + externalSubject.getUuid() + ", a@b.c, my name - my institution", externalSubject.getSearchStringLower());
+    }
     //make sure searches work
-    Set<Subject> subjects = SubjectFinder.findAll("e@r instit");
+    Set<Subject> subjects = null;
+    
+    if (hasJabber) {
+      subjects = SubjectFinder.findAll("e@r instit");
+    } else {
+      subjects = SubjectFinder.findAll("ion instit");
+    }
     assertEquals(1, GrouperUtil.length(subjects));
     assertEquals("My Name", subjects.iterator().next().getName());
     
@@ -648,10 +678,15 @@ public class ExternalSubjectTest extends GrouperTest {
     GrouperSession grouperSession = GrouperSession.startRootSession();
     
     //externalSubjects.desc.el = ${grouperUtil.appendIfNotBlankString(externalSubject.name, ' - ', externalSubject.institution)}
-    ApiConfig.testConfig.put("externalSubjects.searchStringFields", 
-      "name, institution, identifier, uuid, email, jabber, description");
+    if (hasJabber) {
+      ApiConfig.testConfig.put("externalSubjects.searchStringFields", 
+        "name, institution, identifier, uuid, email, jabber, description");
+    } else {
+      ApiConfig.testConfig.put("externalSubjects.searchStringFields", 
+        "name, institution, identifier, uuid, email, description");
+    }
     ApiConfig.testConfig.put("externalSubjects.desc.el", 
-      "${grouperUtil.appendIfNotBlankString(externalSubject.name, ' - ', externalSubject.institution)}");
+      "${grouperUtil.appendIfNotBlankString(externalSubject.getName(), ' - ', externalSubject.getInstitution())}");
     ExternalSubjectConfig.clearCache();
 
     ExternalSubject externalSubject = new ExternalSubject();
@@ -660,8 +695,10 @@ public class ExternalSubjectTest extends GrouperTest {
     externalSubject.setName("My Name");
     externalSubject.setEmail("a@b.c");
     externalSubject.store();
-    externalSubject.assignAttribute("jabber", "e@r.t");
-
+    if (hasJabber) {
+      externalSubject.assignAttribute("jabber", "e@r.t");
+    }
+    
     HibernateSession.bySqlStatic().executeSql("update grouper_ext_subj set description = 'a', search_string_lower = 'b' where identifier = 'a@idp.b.c'");
 
     externalSubject = ExternalSubjectStorageController.findByIdentifier("a@idp.b.c", true, null);
@@ -673,11 +710,14 @@ public class ExternalSubjectTest extends GrouperTest {
     String status = GrouperLoader.runOnceByJobName(grouperSession, GrouperLoaderType.GROUPER_EXTERNAL_SUBJ_CALC_FIELDS);
     assertTrue(status.toLowerCase().contains("success"));
 
-    externalSubject = ExternalSubjectStorageController.findByIdentifier("a@idp.b.c", true, null);
+    externalSubject = ExternalSubjectStorageController.findByIdentifier("a@idp.b.c", true, new QueryOptions().secondLevelCache(false));
 
     assertEquals("My Name - My Institution", externalSubject.getDescription());
-    assertEquals("my name, my institution, a@idp.b.c, " + externalSubject.getUuid() + ", a@b.c, e@r.t, my name - my institution", externalSubject.getSearchStringLower());
-
+    if (hasJabber) {
+      assertEquals("my name, my institution, a@idp.b.c, " + externalSubject.getUuid() + ", a@b.c, e@r.t, my name - my institution", externalSubject.getSearchStringLower());
+    } else {
+      assertEquals("my name, my institution, a@idp.b.c, " + externalSubject.getUuid() + ", a@b.c, my name - my institution", externalSubject.getSearchStringLower());
+    }
 
     ApiConfig.testConfig.remove("externalSubjects.searchStringFields");
     ApiConfig.testConfig.remove("externalSubjects.desc.el");

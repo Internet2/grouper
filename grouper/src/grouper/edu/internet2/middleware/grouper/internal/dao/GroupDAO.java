@@ -28,7 +28,6 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.Stem.Scope;
-import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.group.TypeOfGroup;
 import edu.internet2.middleware.grouper.membership.MembershipType;
@@ -110,6 +109,21 @@ public interface GroupDAO extends GrouperDAO {
    * @since   1.4.0
    */
   Set<Group> findAllByApproximateAttr(String attr, String val, String scope) 
+    throws  GrouperDAOException,
+            IllegalStateException
+            ;
+
+  /**
+   * @param attr attribute name
+   * @param val value
+   * @param scope some folder or null for all
+   * @return  the grops
+   * @throws GrouperDAOException 
+   * @throws IllegalStateException 
+   * @since   2.0.2
+   * 
+   */
+  Set<Group> findAllByApproximateAttrSecure(String attr, String val, String scope) 
     throws  GrouperDAOException,
             IllegalStateException
             ;
@@ -290,6 +304,11 @@ public interface GroupDAO extends GrouperDAO {
             ;
 
   /**
+   * @since   2.0.2
+   */
+  Group findByNameSecure(String name, boolean exceptionIfNotFound, QueryOptions queryOptions);
+
+  /**
    * @since   2.1.0
    */
   Group findByName(String name, boolean exceptionIfNotFound, QueryOptions queryOptions, Set<TypeOfGroup> typeOfGroups) 
@@ -322,6 +341,17 @@ public interface GroupDAO extends GrouperDAO {
    */
   Group findByUuid(String uuid, boolean exceptionIfNotFound, QueryOptions queryOptions) 
     throws  GrouperDAOException, GroupNotFoundException;
+
+  /**
+   * find by uuid secure
+   * @param uuid
+   * @param exceptionIfNotFound
+   * @param queryOptions
+   * @return the group or null or exception
+   * @throws GrouperDAOException
+   * @throws GroupNotFoundException
+   */
+  Group findByUuidSecure(String uuid, boolean exceptionIfNotFound, QueryOptions queryOptions);
 
   /**
    * 
@@ -485,6 +515,19 @@ public interface GroupDAO extends GrouperDAO {
    */
   Set<Group> findByCreatorOrModifier(Member member);
   
+  /**
+   * @param name 
+   * @param scope 
+   * @param queryOptions 
+   * @param typeOfGroups 
+   * @return the set of groups
+   * @throws GrouperDAOException 
+   * @since   2.1.0
+   */
+  Set<Group> findAllByApproximateNameSecure(String name, String scope, 
+      QueryOptions queryOptions, Set<TypeOfGroup> typeOfGroups) 
+    throws  GrouperDAOException;
+
   /**
    * Find a group by its alternate name only.
    * @param name

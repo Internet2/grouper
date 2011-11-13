@@ -708,6 +708,12 @@ public class PITGroupSet extends GrouperPIT implements Hib3GrouperVersioned {
         if (existing != null && !existing.isActive()) {
           existing.delete();
         }
+
+        // see if group set with this id already exists.  if it does, delete it..
+        PITGroupSet existing = GrouperDAOFactory.getFactory().getPITGroupSet().findById(pitGroupSet.getId());
+        if (existing != null && !existing.isActive()) {
+          existing.delete();
+        }
         pitGroupSet.saveOrUpdate();
       }
     }

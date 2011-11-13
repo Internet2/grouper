@@ -4289,7 +4289,7 @@ public class GrouperServiceLogic {
           //if filtering by stem, and stem not found, then dont find any memberships
           Set<Source> sources = GrouperUtil.convertSources(sourceIds);
           
-          Set<Subject> subjects = SubjectFinder.findAll(searchString, sources);
+          Set<Subject> subjects = SubjectFinder.findPage(searchString, sources).getResults();
           
           for (Subject subject: GrouperUtil.nonNull(subjects)) {
             resultSubjects.add(subject);

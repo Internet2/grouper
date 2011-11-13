@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -38,15 +39,18 @@ import javax.naming.directory.InitialDirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.morphString.Morph;
+import edu.internet2.middleware.subject.SearchPageResult;
 import edu.internet2.middleware.subject.SourceUnavailableException;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectCaseInsensitiveMapImpl;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
 import edu.internet2.middleware.subject.SubjectNotUniqueException;
+import edu.internet2.middleware.subject.SubjectTooManyResults;
 import edu.internet2.middleware.subject.SubjectUtils;
 
 /**
@@ -72,6 +76,12 @@ public class JNDISourceAdapter extends BaseSourceAdapter {
 
   /** */
   String subjectTypeString = null;
+
+  /** if there is a limit to the number of results */
+  private Integer maxPage;
+
+  /** if there is a limit to the number of results */
+  protected Integer maxResults;
 
   /** Return scope for searching as a int - associate the string with the int */
   protected static HashMap<String, Integer> scopeStrings = new HashMap<String, Integer>();
@@ -178,15 +188,18 @@ public class JNDISourceAdapter extends BaseSourceAdapter {
 
   /**
    * 
+   * @param searchValue 
+   * @param firstPageOnly 
+   * @return  the result and if too many
    * @see edu.internet2.middleware.subject.provider.BaseSourceAdapter#search(java.lang.String)
    */
-  @Override
-  public Set<Subject> search(String searchValue) {
-    Set<Subject> result = new HashSet<Subject>();
+  private SearchPageResult searchHelper(String searchValue, boolean firstPageOnly) {
+    Set<Subject> result = new LinkedHashSet<Subject>();
+    boolean tooManyResults = false;
     Search search = getSearch("search");
     if (search == null) {
       log.error("searchType: \"search\" not defined.");
-      return result;
+      return new SearchPageResult(tooManyResults, result);
     }
     String throwErrorOnFindAllFailureString = this.getInitParam("throwErrorOnFindAllFailure");
     boolean throwErrorOnFindAllFailure = SubjectUtils.booleanValue(throwErrorOnFindAllFailureString, true);
@@ -194,9 +207,9 @@ public class JNDISourceAdapter extends BaseSourceAdapter {
     try {
       String[] attributeNames = { this.nameAttributeName, this.subjectIDAttributeName,
           this.descriptionAttributeName };
-      NamingEnumeration ldapResults = getLdapResults(search, searchValue, attributeNames);
+      NamingEnumeration ldapResults = getLdapResults(search, searchValue, attributeNames, firstPageOnly);
       if (ldapResults == null) {
-        return result;
+        return new SearchPageResult(tooManyResults, result);
       }
 
       if (failOnSearchForTesting) {
@@ -204,12 +217,25 @@ public class JNDISourceAdapter extends BaseSourceAdapter {
       }
       
       while (ldapResults.hasMore()) {
+        //if we are at the end of the page
+        if (firstPageOnly && this.maxPage != null && result.size() >= this.maxPage) {
+          tooManyResults = true;
+          break;
+        }
+        if (this.maxResults != null && result.size() >= this.maxResults) {
+          throw new SubjectTooManyResults(
+              "More results than allowed: " + this.maxResults 
+              + " for search '" + search + "'");
+        }
         SearchResult si = (SearchResult) ldapResults.next();
         Attributes attributes1 = si.getAttributes();
         Subject subject = createSubject(attributes1);
         result.add(subject);
       }
     } catch (Exception ex) {
+      if (ex instanceof SubjectTooManyResults) {
+        throw (SubjectTooManyResults)ex;
+      }
       if (!throwErrorOnFindAllFailure) {
         log.error("LDAP Naming Except: " 
             + ex.getMessage() + ", " + this.id + ", " + searchValue, ex);
@@ -219,7 +245,7 @@ public class JNDISourceAdapter extends BaseSourceAdapter {
       }
     }
 
-    return result;
+    return new SearchPageResult(tooManyResults, result);
   }
 
   /**
@@ -268,6 +294,22 @@ public class JNDISourceAdapter extends BaseSourceAdapter {
   }
 
   /**
+   * {@inheritDoc}
+   */
+  @Override
+  public Set<Subject> search(String searchValue) {
+    return searchHelper(searchValue, false).getResults();
+  }
+
+  /**
+   * @see edu.internet2.middleware.subject.provider.BaseSourceAdapter#searchPage(java.lang.String)
+   */
+  @Override
+  public SearchPageResult searchPage(String searchValue) {
+    return searchHelper(searchValue, true);
+  }
+
+  /**
    * 
    * @see edu.internet2.middleware.subject.provider.BaseSourceAdapter#init()
    */
@@ -276,6 +318,29 @@ public class JNDISourceAdapter extends BaseSourceAdapter {
     try {
       Properties props = getInitParams();
       setupEnvironment(props);
+      
+      {
+        String maxResultsString = props.getProperty("maxResults");
+        if (!StringUtils.isBlank(maxResultsString)) {
+          try {
+            this.maxResults = Integer.parseInt(maxResultsString);
+          } catch (NumberFormatException nfe) {
+            throw new SourceUnavailableException("Cant parse maxResults: " + maxResultsString, nfe);
+          }
+        }
+      }
+      
+      {
+        String maxPageString = props.getProperty("maxPageSize");
+        if (!StringUtils.isBlank(maxPageString)) {
+          try {
+            this.maxPage = Integer.parseInt(maxPageString);
+          } catch (NumberFormatException nfe) {
+            throw new SourceUnavailableException("Cant parse maxPage: " + maxPageString, nfe);
+          }
+        }
+      }
+
     } catch (Exception ex) {
       throw new SourceUnavailableException("Unable to init JNDI source", ex);
     }
@@ -397,6 +462,18 @@ public class JNDISourceAdapter extends BaseSourceAdapter {
    */
   protected NamingEnumeration getLdapResults(Search search, String searchValue,
       String[] attributeNames) {
+    return getLdapResults(search, searchValue, attributeNames, false);
+  }
+
+  /**
+   * 
+   * @param search
+   * @param searchValue
+   * @param attributeNames
+   * @return naming enumeration
+   */
+  protected NamingEnumeration getLdapResults(Search search, String searchValue,
+      String[] attributeNames, boolean firstPageOnly) {
     DirContext context = null;
     NamingEnumeration results = null;
     String filter = search.getParam("filter");
@@ -427,6 +504,17 @@ public class JNDISourceAdapter extends BaseSourceAdapter {
     try {
       context = new InitialDirContext(this.environment);
       SearchControls constraints = new SearchControls();
+      
+      if ((firstPageOnly && this.maxPage != null) || this.maxResults != null) {
+        int pagesize = (firstPageOnly && this.maxPage != null) ? (this.maxPage+1) : -1;
+        if (pagesize == -1) {
+          pagesize = this.maxResults + 1;
+        } else if (this.maxResults != null){
+          pagesize = Math.min(pagesize, this.maxResults+1);
+        }
+        constraints.setCountLimit(pagesize);
+      }
+
       constraints.setSearchScope(scopeNum);
       constraints.setReturningAttributes(attributeNames);
       results = context.search(base, filter, constraints);
@@ -541,6 +629,14 @@ public class JNDISourceAdapter extends BaseSourceAdapter {
   public Subject getSubjectByIdentifier(String id1) throws SubjectNotFoundException,
       SubjectNotUniqueException {
     return this.getSubjectByIdentifier(id1, true);
+  }
+
+  /**
+   * max Page size
+   * @return the maxPage
+   */
+  public Integer getMaxPage() {
+    return this.maxPage;
   }
 
 }

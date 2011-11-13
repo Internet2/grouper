@@ -192,4 +192,17 @@ public interface Source {
    * @return search attributes in lower case
    */
   public Map<Integer, String> getSearchAttributes();
+  
+  /**
+   * Unstructured search for Subjects. Each implementation
+   * utilizes its own search algorithm tailored to
+   * the Subject repository and schema.  Note if config param:
+   * throwErrorOnFindAllFailure is false, then swallow and log exceptions
+   * if maxPageSize is set in sources.xml, then only return max that many, and
+   * if there are more, set the tooManyResults flag
+   * @param searchValue 
+   * @return results and if there are too many, never return null!!!
+   */
+  public SearchPageResult searchPage(String searchValue);
+  
 }

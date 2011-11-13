@@ -173,7 +173,7 @@ public class SearchStemsAction extends GrouperCapableAction {
 		List outTerms = new ArrayList();
 		List stemRes = repositoryBrowser.search(grouperSession, query,
 				searchFrom, request.getParameterMap(),outTerms);
-		stemRes=sort(stemRes,request,sortContext, -1);
+		stemRes=sort(stemRes,request,sortContext, -1, null);
 		//Page results
 		int total = stemRes.size();
 		String startStr = request.getParameter("start");

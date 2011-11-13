@@ -388,14 +388,14 @@ public class SimpleGroupUpdateFilter {
         } else {
           try {
             
-            subjects = SubjectFinder.findAllInStem(group.getParentStemName(), searchTerm);            
+            subjects = SubjectFinder.findPageInStem(group.getParentStemName(), searchTerm).getResults();            
             
             int maxSubjectsDropDown = TagUtils.mediaResourceInt("simpleGroupUpdate.groupPrivilegeUserComboboxResultSize", 50);
   
             queryPaging = new QueryPaging(maxSubjectsDropDown, 1, true);
           
             //sort and page the results
-            subjects = GrouperUiUtils.subjectsSortedPaged(subjects, queryPaging);
+            subjects = GrouperUiUtils.subjectsSortedPaged(subjects, queryPaging, searchTerm);
   
           } catch (SubjectTooManyResults stmr) {
             tooManyResults = true;

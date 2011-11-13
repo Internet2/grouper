@@ -2,7 +2,7 @@
 package edu.internet2.middleware.subject;
 
 /**
- * Indicates that a Subject is not found within a Source.
+ * Indicates that too many results where found in findAll search in Source.
  */
 public class SubjectTooManyResults extends RuntimeException {
 

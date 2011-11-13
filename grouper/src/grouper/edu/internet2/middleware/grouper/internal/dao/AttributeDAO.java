@@ -16,6 +16,7 @@
 */
 
 package edu.internet2.middleware.grouper.internal.dao;
+import java.util.Collection;
 import java.util.Map;
 
 import edu.internet2.middleware.grouper.Attribute;
@@ -40,6 +41,16 @@ public interface AttributeDAO extends GrouperDAO {
    * @throws GrouperDAOException
    */
   Map<String, Attribute> findAllAttributesByGroup(String uuid)
+    throws  GrouperDAOException;
+
+  /**
+   * 
+   * @param uuids
+   * @return map of grouper uuid to map of attribute names to attribute
+   * note, if there is no attributes, return an empty map anyways
+   * @throws GrouperDAOException
+   */
+  Map<String,Map<String, Attribute>> findAllAttributesByGroups(Collection<String> uuids)
     throws  GrouperDAOException;
 
   /**

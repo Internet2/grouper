@@ -235,7 +235,7 @@ public class PopulateStemPriviligeesAction extends GrouperCapableAction {
 		//Retrieve privilegees
 		Set subjects = GrouperHelper.getSubjectsWithPriv(stem,privilege);
 		List subjectPrivilegeMaps = GrouperHelper.subjects2SubjectPrivilegeMaps(
-					grouperSession,sort(subjects,request,"privilegees", -1),stem,privilege);
+					grouperSession,sort(subjects,request,"privilegees", -1, null),stem,privilege);
 		
 
 		//Set up CollectionPager for view

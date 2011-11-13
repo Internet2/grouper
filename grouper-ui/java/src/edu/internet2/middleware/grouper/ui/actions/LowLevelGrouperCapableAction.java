@@ -60,6 +60,7 @@ import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.StemNotFoundException;
 import edu.internet2.middleware.grouper.j2ee.GrouperRequestWrapper;
+import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.grouper.ui.GroupOrStem;
 import edu.internet2.middleware.grouper.ui.GrouperComparator;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
@@ -70,6 +71,7 @@ import edu.internet2.middleware.grouper.ui.SessionInitialiser;
 import edu.internet2.middleware.grouper.ui.UIThreadLocal;
 import edu.internet2.middleware.grouper.ui.UnrecoverableErrorException;
 import edu.internet2.middleware.grouper.ui.util.NavExceptionHelper;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
 /**
@@ -469,7 +471,7 @@ public abstract class LowLevelGrouperCapableAction
 		if(field !=null) {
 			sortContext="search:" + field;
 		}
-		savedAsMaps=sort(savedAsMaps,request,sortContext, -1);
+		savedAsMaps=sort(savedAsMaps,request,sortContext, -1, null);
 		request.setAttribute("savedSubjects",new ArrayList(savedAsMaps));
 		request.setAttribute("savedSubjectsSize",new Integer(savedAsMaps.size()));	
 	}
@@ -482,7 +484,7 @@ public abstract class LowLevelGrouperCapableAction
 			sortContext="search:" + field;
 		}
 		List savedAsMaps =  GrouperHelper.subjects2Maps(getSavedSubjects(session).toArray());
-		savedAsMaps=sort(savedAsMaps,request,sortContext, -1);
+		savedAsMaps=sort(savedAsMaps,request,sortContext, -1, null);
 		request.setAttribute("savedSubjects",new ArrayList(savedAsMaps));
 		request.setAttribute("savedSubjectsSize",new Integer(savedAsMaps.size()));	
 	}
@@ -533,7 +535,7 @@ public abstract class LowLevelGrouperCapableAction
 		if(field !=null) {
 			sortContext="search:" + field;
 		}
-		savedAsMaps=sort(savedAsMaps,request,sortContext, -1);
+		savedAsMaps=sort(savedAsMaps,request,sortContext, -1, null);
 		request.setAttribute("savedStems",new ArrayList(savedAsMaps));
 		request.setAttribute("savedStemsSize",new Integer(savedAsMaps.size()));	
 	}
@@ -577,10 +579,11 @@ public abstract class LowLevelGrouperCapableAction
 	 * @param request the current request object
 	 * @param context the context in which sorting is taking place
 	 * @param collectionSize is the total size of the collection, or -1 if the collection is the entire thing
+	 * @param searchTerm is the term to search for or null if not applicable
 	 * @return the input Collection as a sorted List
 	 */
 	public static List sort(Collection input,HttpServletRequest request,
-	    String context, int collectionSize) {
+	    String context, int collectionSize, String searchTerm) {
 		HttpSession session = request.getSession();
 		GrouperComparator gc = (GrouperComparator)session.getAttribute("GrouperComparator");
 		ResourceBundle config = GrouperUiFilter.retrieveSessionMediaResourceBundle();
@@ -610,6 +613,19 @@ public abstract class LowLevelGrouperCapableAction
 		}
 		int toSortSize = collectionSize == -1 ? toSort.size() : collectionSize;
     if(toSortSize<=max) Collections.sort(toSort,gc);
+    
+    //we need to bring important matches to the top
+    boolean isSubjects = true;
+    for (Object item : toSort) {
+      if (!(item instanceof Subject)) {
+        isSubjects = false;
+      }
+    }
+    if (isSubjects) {
+      Set<Subject> subjectsOut = SubjectHelper.sortSetForSearch(toSort, searchTerm);
+      //avoid a null pointer...
+      toSort = GrouperUtil.length(subjectsOut) > 0 ? new ArrayList<Subject>(subjectsOut) : toSort;
+    }
 		return toSort;
 	}
 	

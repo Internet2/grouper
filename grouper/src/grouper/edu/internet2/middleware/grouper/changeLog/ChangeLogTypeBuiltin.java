@@ -54,21 +54,6 @@ public enum ChangeLogTypeBuiltin implements ChangeLogTypeIdentifier {
       ChangeLogLabels.GROUP_FIELD_DELETE.groupTypeName, ChangeLogLabels.GROUP_FIELD_DELETE.type)),
   
   /**
-   * add group attribute
-   */
-  GROUP_ATTRIBUTE_ADD(new ChangeLogType("groupAttribute", "addGroupAttribute", "id", "name", "groupId", "groupName", "fieldId", "fieldName", "value")),
-  
-  /**
-   * update group attribute
-   */
-  GROUP_ATTRIBUTE_UPDATE(new ChangeLogType("groupAttribute", "updateGroupAttribute", "id", "name", "groupId", "groupName", "fieldId", "fieldName", "value", "oldValue")),
-
-  /**
-   * delete group attribute
-   */
-  GROUP_ATTRIBUTE_DELETE(new ChangeLogType("groupAttribute", "deleteGroupAttribute", "id", "name", "groupId", "groupName", "fieldId", "fieldName", "value")),
-
-  /**
    * add group composite
    */
   GROUP_COMPOSITE_ADD(new ChangeLogType("groupComposite", "addGroupComposite", "id", "ownerId", "ownerName", "leftFactorId", "leftFactorName", "rightFactorId", "rightFactorName", "type")),
@@ -321,30 +306,6 @@ public enum ChangeLogTypeBuiltin implements ChangeLogTypeIdentifier {
    * member change subject
    */
   MEMBER_CHANGE_SUBJECT(new ChangeLogType("member", "changeSubject", "oldMemberId", "oldSubjectId", "oldSourceId", "newMemberId", "newSubjectId", "newSourceId", "deleteOldMember", "memberIdChanged")),
-  
-  /**
-   * copy a group to another stem
-   */
-  GROUP_COPY(new ChangeLogType("group", "copy", "attributes", "oldGroupId", "oldGroupName", "newGroupId", "newGroupName", 
-      "privilegesOfGroup", "groupAsPrivilege", "listMembersOfGroup", "listGroupAsMember")),
-  
-  /**
-   * move a group to another stem
-   */
-  GROUP_MOVE(new ChangeLogType("group", "move", "groupId", "oldGroupName", "newGroupName", "newStemId", 
-      "assignAlternateName")),
-  
-  /**
-   * copy a stem to another stem
-   */
-  STEM_COPY(new ChangeLogType("stem", "copy", "attributes", "oldStemId", "oldStemName", "newStemName", "newStemId", 
-      "privilegesOfStem", "privilegesOfGroup", "listMembersOfGroup", "listGroupAsMember")),
-  
-  /**
-   * move a stem to another stem
-   */
-  STEM_MOVE(new ChangeLogType("stem", "move", "stemId", "oldStemName", "newStemName", "newParentStemId", 
-      "assignAlternateName")),
   
   /**
    * attribute assign action add

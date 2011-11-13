@@ -179,6 +179,14 @@ public class LazySource implements Source, Serializable {
   }
 
   /**
+   * @see edu.internet2.middleware.subject.Source#searchPage(java.lang.String)
+   */
+  @Override
+  public SearchPageResult searchPage(String searchValue) {
+    return this.getSource().searchPage(searchValue);
+  }
+
+  /**
    * @see edu.internet2.middleware.subject.Source#search(java.lang.String)
    */
   public Set<Subject> search(String searchValue) {

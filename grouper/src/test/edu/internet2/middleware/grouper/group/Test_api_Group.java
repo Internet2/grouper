@@ -1762,6 +1762,7 @@ public class Test_api_Group extends GrouperTest {
   public void test_option_to_disable_last_membership_change() throws Exception {
     ApiConfig.testConfig.put("groups.updateLastMembershipTime", "false");
     ApiConfig.testConfig.put("stems.updateLastMembershipTime", "true");
+    ApiConfig.testConfig.put("groups.updateLastImmediateMembershipTime", "true");
     
     R r = R.populateRegistry(0, 0, 2);
     Subject a = r.getSubject("a");
@@ -1810,6 +1811,7 @@ public class Test_api_Group extends GrouperTest {
   public void test_option_to_disable_last_imm_membership_change() throws Exception {
     ApiConfig.testConfig.put("groups.updateLastImmediateMembershipTime", "false");
     ApiConfig.testConfig.put("stems.updateLastMembershipTime", "true");
+    ApiConfig.testConfig.put("groups.updateLastMembershipTime", "true");
     
     R r = R.populateRegistry(0, 0, 2);
     Subject a = r.getSubject("a");

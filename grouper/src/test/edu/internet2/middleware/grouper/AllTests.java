@@ -199,7 +199,7 @@ public class AllTests extends GrouperTest {
     }
 
     
-    if (GrouperConfig.getPropertyBoolean("junit.test.externalSubjects", false)) {
+    if (GrouperConfig.getPropertyBoolean("junit.test.externalSubjects", true)) {
       suite.addTest(AllExternalSubjectTests.suite());
     }
     

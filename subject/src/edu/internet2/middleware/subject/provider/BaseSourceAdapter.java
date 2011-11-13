@@ -18,6 +18,7 @@ import java.util.Set;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import edu.internet2.middleware.subject.SearchPageResult;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.SourceUnavailableException;
 import edu.internet2.middleware.subject.Subject;
@@ -37,6 +38,35 @@ import edu.internet2.middleware.subject.SubjectType;
  * </pre>
  */
 public abstract class BaseSourceAdapter implements Source {
+
+  /**
+   * see what the result set limit should be (dont add one yet)
+   * @param firstPageOnly
+   * @param pageSize
+   * @param theMaxResults
+   * @return the limit or null if none
+   */
+  public static Integer resultSetLimit(boolean firstPageOnly, Integer pageSize, Integer theMaxResults) {
+    Integer result = null;
+    if ((firstPageOnly && pageSize != null) || theMaxResults != null) {
+      result = (firstPageOnly && pageSize != null) ? (pageSize) : null;
+      if (result == null) {
+        result = theMaxResults;
+      } else if (theMaxResults != null){
+        result = Math.min(result, theMaxResults);
+      }
+    }
+    return result;
+  }
+  
+
+  /**
+   * @see edu.internet2.middleware.subject.Source#searchPage(java.lang.String)
+   */
+  public SearchPageResult searchPage(String searchValue) {
+    Set<Subject> results = this.search(searchValue);
+    return new SearchPageResult(false, results);
+  }
 
   /**
    * @see edu.internet2.middleware.subject.Source#getSubjectsByIdentifiers(java.util.Collection)

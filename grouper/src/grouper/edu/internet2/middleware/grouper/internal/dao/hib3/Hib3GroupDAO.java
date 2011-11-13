@@ -355,6 +355,110 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
   /**
    * <p><b>Implementation Notes.</b></p>
    * <ol>
+   * <li>This method will generate a full table scan of the groups table.  It will not
+   * perform well if there are a large number of groups.</li>
+   * <li>Hibernate caching is <b>not</b> enabled.</li>
+   * </ol>
+   * @param name 
+   * @param scope 
+   * @param queryOptions 
+   * @param typeOfGroups
+   * @return the groups
+   * @throws GrouperDAOException 
+   * @see     GroupDAO#findAllByApproximateName(String, String)
+   * @since   @HEAD@
+   */
+  public Set<Group> findAllByApproximateNameSecure(final String name, final String scope, QueryOptions queryOptions, Set<TypeOfGroup> typeOfGroups) {
+    return findAllByApproximateNameSecureHelper(name, scope, true, true, queryOptions, typeOfGroups);
+  }
+
+  /**
+   * Helper for find by approximate name queries
+   * @param name
+   * @param scope
+   * @param currentNames
+   * @param alternateNames
+   * @param queryOptions 
+   * @param typeOfGroups
+   * @return set
+   * @throws GrouperDAOException
+   * @throws IllegalStateException
+   */
+  private Set<Group> findAllByApproximateNameSecureHelper(final String name, final String scope,
+      final boolean currentNames, final boolean alternateNames, final QueryOptions queryOptions, final Set<TypeOfGroup> typeOfGroups)
+      throws GrouperDAOException {
+    Set resultGroups = (Set)HibernateSession.callbackHibernateSession(
+        GrouperTransactionType.READONLY_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT,
+        new HibernateHandler() {
+
+          public Object callback(HibernateHandlerBean hibernateHandlerBean)
+              throws GrouperDAOException {
+            
+            StringBuilder hql = new StringBuilder("select distinct theGroup from Group theGroup ");
+      
+            ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
+          
+            GrouperSession grouperSession = GrouperSession.staticGrouperSession();
+            
+            //see if we are adding more to the query
+            boolean changedQuery = grouperSession.getAccessResolver().hqlFilterGroupsWhereClause(
+                grouperSession.getSubject(), byHqlStatic, 
+                hql, "theGroup.uuid", AccessPrivilege.VIEW_PRIVILEGES);
+            
+            if (!changedQuery) {
+              hql.append(" where ");
+            } else {
+              hql.append(" and ");
+            }
+            String lowerName = StringUtils.defaultString(name).toLowerCase();
+            hql.append(" ( ");
+            if (currentNames) {
+              hql.append(" lower(theGroup.nameDb) like :theName or lower(theGroup.displayNameDb) like :theDisplayName ");
+              byHqlStatic.setString("theName", "%" + lowerName + "%");
+              byHqlStatic.setString("theDisplayName", "%" + lowerName + "%");
+            } 
+  
+            if (alternateNames) {
+              if (currentNames) {
+                hql.append(" or ");
+              }
+              hql.append(" theGroup.alternateNameDb like :theAlternateName ");
+              byHqlStatic.setString("theAlternateName", "%" + lowerName + "%");
+            }
+            
+            hql.append(" ) ");
+            
+            if (scope != null) {
+              hql.append(" and theGroup.nameDb like :theStemScope ");
+              byHqlStatic.setString("theStemScope", scope + "%");
+            }
+
+            //add in the typeOfGroups part
+            TypeOfGroup.appendHqlQuery("theGroup", typeOfGroups, hql, byHqlStatic);
+            
+            byHqlStatic.setCacheable(false);
+            byHqlStatic.setCacheRegion(KLASS + ".FindAllByApproximateNameSecure");
+
+            //reset sorting
+            if (queryOptions != null) {
+              
+              massageSortFields(queryOptions.getQuerySort());
+              
+              byHqlStatic.options(queryOptions);
+            }
+
+            byHqlStatic.createQuery(hql.toString());
+            Set<Group> groups = byHqlStatic.listSet(Group.class);
+ 
+            return groups;
+          }
+    });
+    return resultGroups;
+  }
+
+  /**
+   * <p><b>Implementation Notes.</b></p>
+   * <ol>
    * <li>This method will generate a full table scan of the attributes table.  It will not
    * perform well if there are a large number of groups.</li>
    * <li>Hibernate caching is <b>not</b> enabled.</li>
@@ -366,36 +470,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
     throws  GrouperDAOException,
             IllegalStateException
   {
-    Set resultGroups = (Set)HibernateSession.callbackHibernateSession(
-        GrouperTransactionType.READONLY_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT,
-        new HibernateHandler() {
-
-          public Object callback(HibernateHandlerBean hibernateHandlerBean)
-              throws GrouperDAOException {
-            
-            String attributeHql = null;
-            
-            ByHqlStatic byHql = HibernateSession.byHqlStatic();
-            
-            if (Group._internal_fieldAttribute(attr)) {
-              attributeHql = "select g from Group as g where lower(g." + attr + "Db) like :value";
-              byHql.createQuery(attributeHql);
-            } else {
-              attributeHql = "select g from Group as g, Field field, " +
-                "Attribute as a where a.groupUuid = g.uuid " +
-                "and field.name = :field and lower(a.value) like :value " +
-                "and field.uuid = a.fieldId and field.typeString = 'attribute'";
-              byHql.createQuery(attributeHql).setString("field", attr);
-            }
-
-            Set<Group> groups = byHql.setCacheable(false).setCacheRegion(KLASS + ".FindAllByApproximateAttr")
-              .setString( "value", "%" + val.toLowerCase() + "%" ).listSet(Group.class);
- 
-            return groups;
-          }
-    });
-
-    return resultGroups;
+    return findAllByApproximateAttrHelper(attr, val, null, false);
   }
 
   /**
@@ -410,8 +485,24 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
    */
   public Set<Group> findAllByApproximateAttr(final String attr, final String val, final String scope)
     throws  GrouperDAOException,
-            IllegalStateException
-  {
+            IllegalStateException {
+    return findAllByApproximateAttrHelper(attr, val, scope, false);
+  }
+
+  /**
+   * <p><b>Implementation Notes.</b></p>
+   * <ol>
+   * <li>This method will generate a full table scan of the attributes table.  It will not
+   * perform well if there are a large number of groups.</li>
+   * <li>Hibernate caching is <b>not</b> enabled.</li>
+   * </ol>
+   * @param attr attr name
+   * @param val value
+   * @param scope folder to search in
+   * @param secureQuery if restrict to who can view
+   * @return  groups
+   */
+  private Set<Group> findAllByApproximateAttrHelper(final String attr, final String val, final String scope, final boolean secureQuery) {
     Set resultGroups = (Set)HibernateSession.callbackHibernateSession(
         GrouperTransactionType.READONLY_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT,
         new HibernateHandler() {
@@ -419,25 +510,46 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
           public Object callback(HibernateHandlerBean hibernateHandlerBean)
               throws GrouperDAOException {
 
-            String attributeHql = null;
-            
             ByHqlStatic byHql = HibernateSession.byHqlStatic();
             
-            if (Group._internal_fieldAttribute(attr)) {
-              attributeHql = "select g from Group as g where lower(g." + attr + "Db) like :value " +
-              		"and g.nameDb like :scope";
-              byHql.createQuery(attributeHql);
+            
+            StringBuilder hql = new StringBuilder("select distinct g from Group as g ");
+            if (!Group._internal_fieldAttribute(attr)) {
+              hql.append(", Field field, Attribute as a ");
+            }
+          
+            GrouperSession grouperSession = GrouperSession.staticGrouperSession();
+            
+            //see if we are adding more to the query
+            boolean changedQuery = false;
+            
+            if (secureQuery) {
+              changedQuery = grouperSession.getAccessResolver().hqlFilterGroupsWhereClause(
+                  grouperSession.getSubject(), byHql, 
+                  hql, "g.uuid", AccessPrivilege.VIEW_PRIVILEGES);
+            }
+            
+            if (!changedQuery) {
+              hql.append(" where ");
             } else {
-              attributeHql = "select g from Group as g, Field field, " +
-                "Attribute as a where a.groupUuid = g.uuid " +
+              hql.append(" and ");
+            }
+            
+            if (Group._internal_fieldAttribute(attr)) {
+              hql.append(" lower(g." + attr + "Db) like :value ");
+            } else {
+              hql.append(" a.groupUuid = g.uuid " +
                 "and field.name = :field and lower(a.value) like :value " +
-                "and field.uuid = a.fieldId and field.typeString = 'attribute' " +
-                "and g.nameDb like :scope";
-              byHql.createQuery(attributeHql).setString("field", attr);
+                "and field.uuid = a.fieldId and field.typeString = 'attribute' ");
+              byHql.setString("field", attr);
+            }
+            if (!StringUtils.isBlank(scope)) {
+              hql.append(" and g.nameDb like :scope");
+              byHql.setString("scope", scope + "%");
             }
 
+            byHql.createQuery(hql.toString());
             Set<Group> groups = byHql.setCacheable(false).setCacheRegion(KLASS + ".FindAllByApproximateAttr")
-              .setString("scope", scope + "%")
               .setString( "value", "%" + val.toLowerCase() + "%" ).listSet(Group.class);
  
             return groups;
@@ -566,6 +678,32 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
   public Set<Group> findAllByApproximateAlternateName(final String name,
       final String scope) throws GrouperDAOException {
     return findAllByApproximateNameHelper(name, scope, false, true, null);
+  }
+
+  /**
+   * if there are sort fields, go through them, and replace name with nameDb, etc,
+   * extension for extensionDb, displayName with displayNameDb, and displayExtension with displayExtensionDb
+   * @param querySort
+   */
+  private static void massageSortFields(QuerySort querySort) {
+    if (querySort == null) {
+      return;
+    }
+    for (QuerySortField querySortField : GrouperUtil.nonNull(querySort.getQuerySortFields())) {
+      if (StringUtils.equals("extension", querySortField.getColumn())) {
+//        querySortField.setColumn("extensionDb");
+      }
+      if (StringUtils.equals("name", querySortField.getColumn())) {
+//        querySortField.setColumn("nameDb");
+      }
+      if (StringUtils.equals("displayExtension", querySortField.getColumn())) {
+        querySortField.setColumn("display_extension");
+      }
+      if (StringUtils.equals("displayName", querySortField.getColumn())) {
+        querySortField.setColumn("display_name");
+      }
+    }
+
   }
 
   
@@ -1005,6 +1143,49 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
 
   }
   
+  /**
+   * @param name
+   * @param exceptionIfNotFound exception if cant find group
+   * @param queryOptions if we should use cache or not
+   * @return group
+   * @throws GrouperDAOException
+   * @throws GroupNotFoundException
+   * @since   @HEAD@
+   */
+  public Group findByNameSecure(final String name, boolean exceptionIfNotFound, QueryOptions queryOptions) {
+    
+    ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
+    GrouperSession grouperSession = GrouperSession.staticGrouperSession();
+    
+    StringBuilder hql = new StringBuilder("select distinct theGroup from Group as theGroup ");
+    
+    //see if we are adding more to the query
+    boolean changedQuery = grouperSession.getAccessResolver().hqlFilterGroupsWhereClause(grouperSession.getSubject(), byHqlStatic, 
+        hql, "theGroup.uuid", AccessPrivilege.VIEW_PRIVILEGES);
+
+    if (changedQuery) {
+      hql.append(" and ");
+    } else {
+      hql.append(" where ");
+    }
+    
+    hql.append(" theGroup.nameDb = :value or theGroup.alternateNameDb = :value ");
+    
+    byHqlStatic.createQuery(hql.toString())
+      .setCacheable(true).setCacheRegion(KLASS + ".FindByNameSecure").options(queryOptions);
+
+    Group group = byHqlStatic.setString("value", name).uniqueResult(Group.class);
+
+    //System.out.println("Group: " + name + ", found? " + (group!=null));
+    
+    //handle exceptions out of data access method...
+    if (group == null && exceptionIfNotFound) {
+      throw new GroupNotFoundException("Cannot find group with name: '" + name + "'");
+    }
+    return group;
+
+  }
+  
   
   /**
    * Find a group by its current name only.
@@ -1124,6 +1305,42 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
   }
 
   /**
+   * 
+   * @see edu.internet2.middleware.grouper.internal.dao.GroupDAO#findByUuid(java.lang.String, boolean, QueryOptions)
+   */
+  public Group findByUuidSecure(String uuid, boolean exceptionIfNotFound, QueryOptions queryOptions)
+      throws GrouperDAOException, GroupNotFoundException {
+    
+    GrouperSession grouperSession = GrouperSession.staticGrouperSession();
+    
+    ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
+
+    StringBuilder sql = new StringBuilder("select distinct theGroup from Group as theGroup ");
+    
+    //see if we are adding more to the query
+    boolean changedQuery = grouperSession.getAccessResolver().hqlFilterGroupsWhereClause(grouperSession.getSubject(), byHqlStatic, 
+        sql, "theGroup.uuid", AccessPrivilege.VIEW_PRIVILEGES);
+
+    if (changedQuery) {
+      sql.append(" and ");
+    } else {
+      sql.append(" where ");
+    }
+    sql.append(" theGroup.uuid = :uuid ");
+    byHqlStatic
+      .createQuery(sql.toString())
+      .setCacheable(true)
+      .options(queryOptions)
+      .setCacheRegion(KLASS + ".FindByUuidSecure")
+      .setString("uuid", uuid);
+    Group group = byHqlStatic.uniqueResult(Group.class);
+    if (group == null && exceptionIfNotFound) {
+       throw new GroupNotFoundException("Cant find group by uuid: " + uuid);
+    }
+    return group;
+  }
+
+  /**
    * @return set
    * @throws GrouperDAOException
    * @since   @HEAD@
@@ -1232,7 +1449,6 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
   protected static void reset(HibernateSession hibernateSession) 
     throws  HibernateException
   {
-    // TODO 20070307 ideally i would just put hooks for associated tables into "onDelete()" 
     //               but right now that is blowing up due to the session being flushed.
     hibernateSession.byHql().createQuery("delete from GroupTypeTuple").executeUpdate();
     hibernateSession.byHql().createQuery("delete from Attribute").executeUpdate(); 
@@ -1505,7 +1721,8 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
       sql.append(" and ");
     }
 
-    sql.append("  theGroup.nameDb like :scope");
+    //this should be lower to make it easier to search for stuff
+    sql.append("  lower(theGroup.nameDb) like :scope");
     
     TypeOfGroup.appendHqlQuery("theGroup", typeOfGroups, sql, byHqlStatic);
     
@@ -1516,7 +1733,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
       }
       
       Set<Group> groups = byHqlStatic.createQuery(sql.toString())
-        .setString("scope", scope + "%")
+        .setString("scope", StringUtils.defaultString(scope).toLowerCase() + "%")
         .setCacheable(false)
         .setCacheRegion(KLASS + ".GetAllGroupsSecureScope")
         .options(queryOptions)
