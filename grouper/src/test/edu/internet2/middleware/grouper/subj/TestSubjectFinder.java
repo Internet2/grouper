@@ -132,35 +132,6 @@ public class TestSubjectFinder extends GrouperTest {
       SubjectFinder.internalClearSubjectCustomizerCache();
     }
   }
-  
-  /**
-   * 
-   */
-  public void testSubjectCachePrivileges() {
-    
-    //make a group that test1 can view, but test2 cannot
-    Group group = new GroupSave(this.s).assignName("test:testGroup").assignCreateParentStemsIfNotExist(true).save();
-    group.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.VIEW, false);
-    group.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.VIEW, false);
-    group.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ, false);
-    
-    GrouperSession grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ0);
-
-    Subject groupSubject = SubjectFinder.findById(group.getId(), true);
-    
-    assertNotNull(groupSubject);
-    
-    GrouperSession.stopQuietly(grouperSession);
-    
-    grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ1);
-
-    groupSubject = SubjectFinder.findById(group.getId(), false);
-    
-    assertNull(groupSubject);
-    
-    //lets set the subject customizer to a test one
-  }
-  
 
   /**
    * 

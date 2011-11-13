@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src/grouper-ws"/>
-	<classpathentry kind="src" path="GROUPER_TRUNK_CLIENT"/>
+	<classpathentry kind="src" path="GROUPER_CLIENT_TRUNK_SOURCE"/>
 	<classpathentry kind="src" path="conf"/>
 	<classpathentry kind="src" path="src/test"/>
 	<classpathentry kind="src" path="GROUPER_TRUNK_CONF"/>
 	<classpathentry kind="src" path="GROUPER_TRUNK_SOURCE"/>
+	<classpathentry kind="src" path="src/grouper-ws_v2_0"/>
 	<classpathentry kind="src" path="src/grouper-ws_v2_1"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper-ws-non-webapp/servlet.jar"/>

@@ -758,7 +758,7 @@ public class SourcesXmlResolver implements SubjectResolver {
     //lets init the group attributes
     this.initGroupAttributes(subjects);
     
-    subjects = SubjectFinder.filterSubjects(GrouperSession.staticGrouperSession(), subjects, stemName);
+    subjects = SubjectFinder.filterSubjects(GrouperSession.staticGrouperSession(), subjects, null);
     
     if (GrouperConfig.getPropertyBoolean("grouper.sort.subjectSets.exactOnTop", true)) {
       subjects = SubjectHelper.sortSetForSearch(subjects, query);

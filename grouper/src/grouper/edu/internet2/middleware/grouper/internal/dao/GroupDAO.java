@@ -166,13 +166,6 @@ public interface GroupDAO extends GrouperDAO {
     throws  GrouperDAOException
             ;
 
-  /**
-   * @since   2.1.0
-   */
-  Set<Group> findAllByApproximateNameSecure(String name, String scope, QueryOptions queryOptions, Set<TypeOfGroup> typeOfGroups) 
-    throws  GrouperDAOException
-            ;
-
 
   /**
    * @since   1.2.0
@@ -306,7 +299,7 @@ public interface GroupDAO extends GrouperDAO {
   /**
    * @since   2.0.2
    */
-  Group findByNameSecure(String name, boolean exceptionIfNotFound, QueryOptions queryOptions);
+  Group findByNameSecure(String name, boolean exceptionIfNotFound, QueryOptions queryOptions, Set<TypeOfGroup> typeOfGroups);
 
   /**
    * @since   2.1.0
@@ -347,11 +340,12 @@ public interface GroupDAO extends GrouperDAO {
    * @param uuid
    * @param exceptionIfNotFound
    * @param queryOptions
+   * @param typeOfGroups
    * @return the group or null or exception
    * @throws GrouperDAOException
    * @throws GroupNotFoundException
    */
-  Group findByUuidSecure(String uuid, boolean exceptionIfNotFound, QueryOptions queryOptions);
+  Group findByUuidSecure(String uuid, boolean exceptionIfNotFound, QueryOptions queryOptions, Set<TypeOfGroup> typeOfGroups);
 
   /**
    * 
