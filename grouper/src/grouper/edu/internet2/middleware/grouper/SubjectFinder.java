@@ -1322,7 +1322,7 @@ public class SubjectFinder {
     Set<Subject> subjects = new HashSet<Subject>();
     subjects.add(subject);
      
-    subjectCustomizer.filterSubjects(grouperSession, subjects, filterSubjectsInStemName);
+    subjects = subjectCustomizer.filterSubjects(grouperSession, subjects, filterSubjectsInStemName);
     
     int subjectsLength = GrouperUtil.length(subjects);
     if (subjectsLength == 0) {

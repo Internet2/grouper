@@ -88,6 +88,12 @@ public class TestSubjectDecorator extends GrouperTest {
     subject = SubjectFinder.findById(SubjectTestHelper.SUBJ3_ID, true);
     assertEquals("Should see proper name for student", SubjectTestHelper.SUBJ3_NAME, subject.getName());
 
+    subject = SubjectFinder.findByIdentifier(SubjectTestHelper.SUBJ2_IDENTIFIER, true);
+    assertEquals("Should see proper name for non-student", SubjectTestHelper.SUBJ2_NAME, subject.getName());
+    
+    subject = SubjectFinder.findByIdentifier(SubjectTestHelper.SUBJ3_IDENTIFIER, true);
+    assertEquals("Should see proper name for student", SubjectTestHelper.SUBJ3_NAME, subject.getName());
+
     GrouperSession.stopQuietly(grouperSession);
     
     //####################################
@@ -99,6 +105,12 @@ public class TestSubjectDecorator extends GrouperTest {
     assertEquals("Should see proper name for non-student", SubjectTestHelper.SUBJ2_NAME, subject.getName());
     
     subject = SubjectFinder.findById(SubjectTestHelper.SUBJ3_ID, true);
+    assertEquals("Should see loginid for student", "id.test.subject.3", subject.getName());
+
+    subject = SubjectFinder.findByIdentifier(SubjectTestHelper.SUBJ2_IDENTIFIER, true);
+    assertEquals("Should see proper name for non-student", SubjectTestHelper.SUBJ2_NAME, subject.getName());
+    
+    subject = SubjectFinder.findByIdentifier(SubjectTestHelper.SUBJ3_IDENTIFIER, true);
     assertEquals("Should see loginid for student", "id.test.subject.3", subject.getName());
 
     GrouperSession.stopQuietly(grouperSession);

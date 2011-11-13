@@ -24,8 +24,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import org.apache.commons.lang.StringUtils;
@@ -115,7 +113,12 @@ public class SourcesXmlResolver implements SubjectResolver {
       }
     }
     
-    return this.thereCanOnlyBeOne(subjects, id);
+    Subject subject = this.thereCanOnlyBeOne(subjects, id);
+    
+    //filter if necessary
+    subject = SubjectFinder.filterSubject(GrouperSession.staticGrouperSession(), subject, null);
+    
+    return subject;
   }            
   
 
@@ -553,7 +556,7 @@ public class SourcesXmlResolver implements SubjectResolver {
     
     //if zero it will look in all
     if (GrouperUtil.length(sourcesToLookIn) > 0) {
-      subjects = findAll(query, sourcesToLookIn);
+      subjects = findAllHelper(query, sourcesToLookIn, stemName);
     }
     
     return subjects;
@@ -616,6 +619,9 @@ public class SourcesXmlResolver implements SubjectResolver {
       }
       
       this.initGroupAttributes(subjects);
+      
+      //filter if necessary
+      subjects = SubjectFinder.filterSubjects(GrouperSession.staticGrouperSession(), subjects, null);
       
       if (GrouperConfig.getPropertyBoolean("grouper.sort.subjectSets.exactOnTop", true)) {
         subjects = SubjectHelper.sortSetForSearch(subjects, query, subjectsMatchIdentifier);
@@ -696,7 +702,7 @@ public class SourcesXmlResolver implements SubjectResolver {
     
     //if zero it will look in all
     if (GrouperUtil.length(sourcesToLookIn) > 0) {
-      searchPageResult = findPage(query, sourcesToLookIn);
+      searchPageResult = findPageHelper(query, sourcesToLookIn, stemName);
     }
     
     return searchPageResult;
@@ -705,7 +711,18 @@ public class SourcesXmlResolver implements SubjectResolver {
   /**
    * @see SubjectResolver#findAll(String, Set)
    */
-  public Set<Subject> findAll(final String query, Set<Source> sources)
+  public Set<Subject> findAll(final String query, Set<Source> sources) {
+    return findAllHelper(query, sources, null);
+  }
+
+  /**
+   * @param query 
+   * @param sources 
+   * @param stemName 
+   * @return  subjects
+   * @throws IllegalArgumentException 
+   */
+  private Set<Subject> findAllHelper(final String query, Set<Source> sources, String stemName)
       throws IllegalArgumentException {
     
     if (GrouperUtil.length(sources) == 0) {
@@ -752,13 +769,13 @@ public class SourcesXmlResolver implements SubjectResolver {
     for (Set<Subject> subjectSet : subjectResults) {
       if (subjectSet != null) {
         subjects.addAll(subjectSet);
-    }
+      }
     }
     
     //lets init the group attributes
     this.initGroupAttributes(subjects);
     
-    subjects = SubjectFinder.filterSubjects(GrouperSession.staticGrouperSession(), subjects, null);
+    subjects = SubjectFinder.filterSubjects(GrouperSession.staticGrouperSession(), subjects, stemName);
     
     if (GrouperConfig.getPropertyBoolean("grouper.sort.subjectSets.exactOnTop", true)) {
       subjects = SubjectHelper.sortSetForSearch(subjects, query);
@@ -771,6 +788,22 @@ public class SourcesXmlResolver implements SubjectResolver {
    * @see SubjectResolver#findPage(String, Set)
    */
   public SearchPageResult findPage(final String query, Set<Source> sources)
+      throws SourceUnavailableException {
+    
+    return findPageHelper(query, sources, null);
+    
+  }
+  
+  
+  
+  /**
+   * @param query 
+   * @param sources 
+   * @param stemName 
+   * @return search page result
+   * @throws SourceUnavailableException 
+   */
+  private SearchPageResult findPageHelper(final String query, Set<Source> sources, String stemName)
       throws SourceUnavailableException {
     
     if (GrouperUtil.length(sources) == 0) {
@@ -842,6 +875,9 @@ public class SourcesXmlResolver implements SubjectResolver {
     
     //lets init the group attributes
     this.initGroupAttributes(subjects);
+    
+    //filter if necessary
+    subjects = SubjectFinder.filterSubjects(GrouperSession.staticGrouperSession(), subjects, stemName);
     
     if (GrouperConfig.getPropertyBoolean("grouper.sort.subjectSets.exactOnTop", true)) {
       subjects = SubjectHelper.sortSetForSearch(subjects, query, subjectsMatchIdentifier);
