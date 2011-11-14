@@ -546,8 +546,8 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
           int memberIdsSize = GrouperUtil.length(memberIds);
           int membershipIdsSize = GrouperUtil.length(membershipIds);
           
-          if (groupIdsSize == 0 && memberIdsSize == 0 && membershipIdsSize == 0) {
-            throw new RuntimeException("Must pass in group(s), member(s), and/or membership(s)");
+          if (groupIdsSize == 0 && memberIdsSize == 0 && membershipIdsSize == 0 && stem == null) {
+            throw new RuntimeException("Must pass in group(s), member(s), stem, and/or membership(s)");
           }
 
           ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();

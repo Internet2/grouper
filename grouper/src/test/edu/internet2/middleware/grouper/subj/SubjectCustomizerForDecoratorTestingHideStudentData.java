@@ -13,7 +13,7 @@ import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.provider.SubjectImpl;
 
 /**
- * filter students out from people who cant see them
+ * filter students private information out from people who cant see them
  * @author mchyzer
  *
  */
@@ -64,7 +64,4 @@ public class SubjectCustomizerForDecoratorTestingHideStudentData extends Subject
     }
     return results;
   }
-
-  
-  
 }

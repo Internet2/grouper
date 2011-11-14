@@ -20,13 +20,13 @@ import edu.internet2.middleware.subject.Subject;
  * @author mchyzer
  *
  */
-public class SubjectCustomizerForDecoratorTesting2 extends SubjectCustomizerBase {
+public class SubjectCustomizerForDecoratorTestingCollabGroup extends SubjectCustomizerBase {
 
-  /** student (protected data) group name */
-  private static final String COLLAB_STEM_NAME = "collaboration:collabGroups";
+  /** collab groups */
+  public static final String COLLAB_STEM_NAME = "collaboration:collabGroups";
 
   /** privileged employee group name */
-  private static final String PRIVILEGED_ADMIN_GROUP_NAME = "collaboration:etc:privilegedAdmin";
+  public static final String PRIVILEGED_ADMIN_GROUP_NAME = "collaboration:etc:privilegedAdmin";
 
   /** source id we care about */
   private static final String SOURCE_ID = "jdbc";
@@ -43,20 +43,20 @@ public class SubjectCustomizerForDecoratorTesting2 extends SubjectCustomizerBase
     }
     
     Stem stem = StemFinder.findByName(grouperSession.internal_getRootSession(), COLLAB_STEM_NAME, true);
+
+    //see if admin
+    boolean isAdmin = new MembershipFinder().assignCheckSecurity(false).addGroup(PRIVILEGED_ADMIN_GROUP_NAME)
+      .addSubject(grouperSession.getSubject()).hasMembership();
     
-    //get results in one query
-    MembershipResult groupMembershipResult = new MembershipFinder().assignCheckSecurity(false).addGroup(PRIVILEGED_ADMIN_GROUP_NAME)
-      .addSubjects(subjects).addSubject(grouperSession.getSubject()).assignStem(stem).assignStemScope(Scope.SUB)
-      .findMembershipResult(); 
-        
-    //see if the user is privileged
-    boolean grouperSessionIsPrivileged = groupMembershipResult.hasGroupMembership(PRIVILEGED_ADMIN_GROUP_NAME, grouperSession.getSubject());
-    
-    //if so, we are done, they can see stuff
-    if (grouperSessionIsPrivileged) {
+    if (isAdmin) {
       return subjects;
     }
     
+    //get results in one query
+    MembershipResult groupMembershipResult = new MembershipFinder().assignCheckSecurity(false).addSubject(grouperSession.getSubject())
+      .addSubjects(subjects).assignStem(stem).assignStemScope(Scope.SUB)
+      .findMembershipResult(); 
+        
     //get the group names that the grouper session subject is in
     Set<String> grouperSessionGroupNames = groupMembershipResult.groupNamesInStem(grouperSession.getSubject(), COLLAB_STEM_NAME);
     
@@ -68,6 +68,7 @@ public class SubjectCustomizerForDecoratorTesting2 extends SubjectCustomizerBase
         results.add(subject);
       } else {
         Set<String> subjectGroupNames = groupMembershipResult.groupNamesInStem(subject, COLLAB_STEM_NAME);
+        //if they share a group, add them
         if (CollectionUtils.containsAny(grouperSessionGroupNames, subjectGroupNames)) {
           results.add(subject);
         }
