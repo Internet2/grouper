@@ -27,7 +27,7 @@ public class TestSubjectDecorator extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new TestSubjectDecorator("testFilterAnotherCollabGroup"));
+    TestRunner.run(new TestSubjectDecorator("testDecoratorExtraAttributes"));
   }
 
   /**
@@ -280,5 +280,11 @@ public class TestSubjectDecorator extends GrouperTest {
     
   }
   
+  /**
+   * 
+   */
+  public void testDecoratorExtraAttributes() {
+    
+  }
   
 }
