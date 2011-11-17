@@ -28,10 +28,10 @@ import edu.internet2.middleware.subject.Subject;
 public class SubjectCustomizerForDecoratorExtraAttributes extends SubjectCustomizerBase {
 
   /** stem name of the permission resources which represent columns in the attribute table */
-  private static final String PERMISSIONS_STEM_NAME = "subjectAttributes:permissions:columnNames";
+  public static final String PERMISSIONS_STEM_NAME = "subjectAttributes:permissions:columnNames";
 
   /** privileged employee group name */
-  private static final String PRIVILEGED_ADMIN_GROUP_NAME = "etc:privilegedAdmin";
+  public static final String PRIVILEGED_ADMIN_GROUP_NAME = "etc:privilegedAdmin";
 
   /** source id we care about */
   private static final String SOURCE_ID = "jdbc";
@@ -82,7 +82,7 @@ public class SubjectCustomizerForDecoratorExtraAttributes extends SubjectCustomi
     //make query
     StringBuilder sql = new StringBuilder("select id, ");
     sql.append(GrouperUtil.join(columns.iterator(), ','));
-    sql.append(" from subject_attribute_table where id in( ");
+    sql.append(" from testgrouper_subj_attr where id in( ");
     sql.append(HibUtils.convertToInClauseForSqlStatic(subjectIds));
     sql.append(")");
     

@@ -3,16 +3,26 @@
  */
 package edu.internet2.middleware.grouper.subj;
 
+import java.sql.Types;
 import java.util.Set;
+
+import org.apache.ddlutils.model.Database;
+import org.apache.ddlutils.model.Table;
 
 import junit.textui.TestRunner;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.app.loader.TestgrouperLoader;
 import edu.internet2.middleware.grouper.cfg.ApiConfig;
+import edu.internet2.middleware.grouper.ddl.DdlUtilsChangeDatabase;
+import edu.internet2.middleware.grouper.ddl.DdlVersionBean;
+import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
+import edu.internet2.middleware.grouper.ddl.GrouperTestDdl;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
+import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
@@ -52,6 +62,7 @@ public class TestSubjectDecorator extends GrouperTest {
   protected void tearDown() {
     super.tearDown();
     ApiConfig.testConfig.remove("subjects.customizer.className");
+    dropExtraAttributeTables();
   }
 
   /**
@@ -285,6 +296,112 @@ public class TestSubjectDecorator extends GrouperTest {
    */
   public void testDecoratorExtraAttributes() {
     
+    //create a table which has the extra attributes
+    ensureExtraAttributeTables();
+    
+    HibernateSession.byHqlStatic().createQuery("delete from TestgrouperSubjAttr").executeUpdate();
+
+    TestgrouperSubjAttr test1attr = new TestgrouperSubjAttr(SubjectTestHelper.SUBJ0_ID, "major1", "title1");
+    
+    HibernateSession.byObjectStatic().save(test1attr);
+    
+  }
+
+  /**
+   * 
+   */
+  public void dropExtraAttributeTables() {
+    //we need to delete the test table if it is there, and create a new one
+    //drop field id col, first drop foreign keys
+    GrouperDdlUtils.changeDatabase(GrouperTestDdl.V1.getObjectName(), new DdlUtilsChangeDatabase() {
+  
+      public void changeDatabase(DdlVersionBean ddlVersionBean) {
+        
+        Database database = ddlVersionBean.getDatabase();
+  
+        {
+          Table subjectAttributeTable = database.findTable("testgrouper_subj_attr");
+          
+          if (subjectAttributeTable != null) {
+            database.removeTable(subjectAttributeTable);
+          }
+        }
+        
+      }
+      
+    });
+  }
+
+  /**
+   * 
+   */
+  public void ensureExtraAttributeTables() {
+    //we need to delete the test table if it is there, and create a new one
+    //drop field id col, first drop foreign keys
+    GrouperDdlUtils.changeDatabase(GrouperTestDdl.V1.getObjectName(), new DdlUtilsChangeDatabase() {
+  
+      public void changeDatabase(DdlVersionBean ddlVersionBean) {
+        
+        Database database = ddlVersionBean.getDatabase();
+  
+        {
+          Table loaderTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database,"testgrouper_subj_attr");
+          
+          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "id", 
+              Types.VARCHAR, "255", true, true);
+  
+          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "hibernate_version_number", 
+              Types.BIGINT, "12", false, true);
+  
+          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "title", 
+              Types.VARCHAR, "255", false, false);
+      
+          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "major", 
+              Types.VARCHAR, "255", false, false);
+      
+          GrouperDdlUtils.ddlutilsTableComment(ddlVersionBean, 
+              "testgrouper_subj_attr", "sample table that can be used by attribute decorator");
+      
+          GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "testgrouper_subj_attr", "title", 
+              "job title");
+      
+          GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "testgrouper_loader", "col2", 
+              "col2");
+          GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "testgrouper_loader", "col3", 
+              "col3");
+        }
+        {      
+          Table loaderGroupsTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database,"testgrouper_loader_groups");
+          
+          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderGroupsTable, "id", 
+              Types.VARCHAR, "255", true, true);
+  
+          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderGroupsTable, "hibernate_version_number", 
+              Types.BIGINT, "12", false, true);
+  
+          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderGroupsTable, "group_name", 
+              Types.VARCHAR, "255", false, false);
+      
+          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderGroupsTable, "group_display_name", 
+              Types.VARCHAR, "255", false, false);
+      
+          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderGroupsTable, "group_description", 
+              Types.VARCHAR, "255", false, false);
+      
+          GrouperDdlUtils.ddlutilsTableComment(ddlVersionBean, 
+              "testgrouper_loader_groups", "sample group metadata table that can be used by loader");
+      
+          GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "testgrouper_loader_groups", "group_name", 
+              "name of a group in loader");
+      
+          GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "testgrouper_loader_groups", "group_display_name", 
+              "display name of group in loader");
+          GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "testgrouper_loader_groups", "group_description", 
+              "description of group in loader");
+        }
+      }
+      
+    });
   }
   
 }

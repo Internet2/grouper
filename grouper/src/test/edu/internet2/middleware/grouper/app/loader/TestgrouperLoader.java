@@ -4,8 +4,6 @@
  */
 package edu.internet2.middleware.grouper.app.loader;
 
-import java.io.Serializable;
-
 import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.GrouperAPI;
@@ -18,7 +16,7 @@ import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
  * maps to test testgrouper_loader table
  */
 @SuppressWarnings("serial")
-public class TestgrouperLoader extends GrouperAPI implements Serializable, Hib3GrouperVersioned {
+public class TestgrouperLoader extends GrouperAPI implements Hib3GrouperVersioned {
   
   /** id col */
   private String id;

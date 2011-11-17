@@ -159,10 +159,14 @@ public abstract class Hib3DAO {
       
       //if we are testing, map these classes to the table (which may or may not exist)
       try {
-        Class<?> testgrouperLoaderClass = Class.forName("edu.internet2.middleware.grouper.app.loader.TestgrouperLoader");
-        addClass(CFG, testgrouperLoaderClass);
-        testgrouperLoaderClass = Class.forName("edu.internet2.middleware.grouper.app.loader.TestgrouperLoaderGroups");
-        addClass(CFG, testgrouperLoaderClass);
+        Class<?> hibernatableClass = Class.forName("edu.internet2.middleware.grouper.app.loader.TestgrouperLoader");
+        addClass(CFG, hibernatableClass);
+        hibernatableClass = Class.forName("edu.internet2.middleware.grouper.app.loader.TestgrouperLoaderGroups");
+        addClass(CFG, hibernatableClass);
+        
+        hibernatableClass = Class.forName("edu.internet2.middleware.grouper.subj.TestgrouperSubjAttr");
+        addClass(CFG, hibernatableClass);
+        
       } catch (ClassNotFoundException cnfe) {
         //this is ok
       }
