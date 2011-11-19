@@ -188,6 +188,20 @@ $Id: sources.example.xml,v 1.8 2009-08-11 20:18:09 mchyzer Exp $
        <param-value>searchAttribute0</param-value>
      </init-param>
      <internal-attribute>searchAttribute0</internal-attribute>
+     
+     <!-- if you are going to use the inclause attribute
+       on the search to make the queries batchable when searching
+       by id or identifier -->
+     <init-param>
+       <param-name>useInClauseForIdAndIdentifier</param-name>
+       <param-value>true</param-value>
+     </init-param>
+     
+     <!-- comma separate the identifiers for this row, this is for the findByIdentifiers if using an in clause -->
+     <init-param>
+       <param-name>identifierAttributes</param-name>
+       <param-value>LOGINID</param-value>
+     </init-param>
 
      <search>
          <searchType>searchSubject</searchType>
@@ -203,7 +217,13 @@ select
 from
    subject s
 where
-   s.subjectid = ?
+   {inclause}
+            </param-value>
+         </param>
+         <param>
+             <param-name>inclause</param-name>
+             <param-value>
+s.subjectid = ?
             </param-value>
          </param>
      </search>
@@ -221,8 +241,14 @@ select
 from
    subject s, subjectattribute a
 where
-   a.value = ? and a.name='loginid' and s.subjectid = a.subjectid
+   a.name='loginid' and s.subjectid = a.subjectid and {inclause}
              </param-value>
+         </param>
+         <param>
+             <param-name>inclause</param-name>
+             <param-value>
+   a.value = ? 
+            </param-value>
          </param>
      </search>
      <search>

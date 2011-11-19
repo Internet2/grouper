@@ -31,9 +31,11 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -989,37 +991,37 @@ public class SubjectUtils {
    * @return the boolean
    */
   public static boolean booleanValue(Object object) {
-  	// first handle blanks
-  	if (nullOrBlank(object)) {
-  		throw new RuntimeException(
-  				"Expecting something which can be converted to boolean, but is null or blank: '"
-  						+ object + "'");
-  	}
-  	// its not blank, just convert
-  	if (object instanceof Boolean) {
-  		return (Boolean) object;
-  	}
-  	if (object instanceof String) {
-  		String string = (String) object;
-  		if (StringUtils.equalsIgnoreCase(string, "true")
-  				|| StringUtils.equalsIgnoreCase(string, "t")
-  				|| StringUtils.equalsIgnoreCase(string, "yes")
-  				|| StringUtils.equalsIgnoreCase(string, "y")) {
-  			return true;
-  		}
-  		if (StringUtils.equalsIgnoreCase(string, "false")
-  				|| StringUtils.equalsIgnoreCase(string, "f")
-  				|| StringUtils.equalsIgnoreCase(string, "no")
-  				|| StringUtils.equalsIgnoreCase(string, "n")) {
-  			return false;
-  		}
-  		throw new RuntimeException(
-  				"Invalid string to boolean conversion: '" + string
-  						+ "' expecting true|false or t|f or yes|no or y|n case insensitive");
+    // first handle blanks
+    if (nullOrBlank(object)) {
+      throw new RuntimeException(
+          "Expecting something which can be converted to boolean, but is null or blank: '"
+              + object + "'");
+    }
+    // its not blank, just convert
+    if (object instanceof Boolean) {
+      return (Boolean) object;
+    }
+    if (object instanceof String) {
+      String string = (String) object;
+      if (StringUtils.equalsIgnoreCase(string, "true")
+          || StringUtils.equalsIgnoreCase(string, "t")
+          || StringUtils.equalsIgnoreCase(string, "yes")
+          || StringUtils.equalsIgnoreCase(string, "y")) {
+        return true;
+      }
+      if (StringUtils.equalsIgnoreCase(string, "false")
+          || StringUtils.equalsIgnoreCase(string, "f")
+          || StringUtils.equalsIgnoreCase(string, "no")
+          || StringUtils.equalsIgnoreCase(string, "n")) {
+        return false;
+      }
+      throw new RuntimeException(
+          "Invalid string to boolean conversion: '" + string
+              + "' expecting true|false or t|f or yes|no or y|n case insensitive");
   
-  	}
-  	throw new RuntimeException("Cant convert object to boolean: "
-  			+ object.getClass());
+    }
+    throw new RuntimeException("Cant convert object to boolean: "
+        + object.getClass());
   
   }
 
@@ -1032,10 +1034,10 @@ public class SubjectUtils {
    * @return the boolean
    */
   public static boolean booleanValue(Object object, boolean defaultBoolean) {
-  	if (nullOrBlank(object)) {
-  		return defaultBoolean;
-  	}
-  	return booleanValue(object);
+    if (nullOrBlank(object)) {
+      return defaultBoolean;
+    }
+    return booleanValue(object);
   }
 
   /**
@@ -1674,14 +1676,14 @@ public class SubjectUtils {
    * @return true if null or blank
    */
   public static boolean nullOrBlank(Object object) {
-  	// first handle blanks and nulls
-  	if (object == null) {
-  		return true;
-  	}
-  	if (object instanceof String && StringUtils.isBlank(((String) object))) {
-  		return true;
-  	}
-  	return false;
+    // first handle blanks and nulls
+    if (object == null) {
+      return true;
+    }
+    if (object instanceof String && StringUtils.isBlank(((String) object))) {
+      return true;
+    }
+    return false;
   
   }
 
@@ -2266,6 +2268,160 @@ public class SubjectUtils {
     return str == null ? null : str.trim();
   }
 
+  /**
+   * convert an element to a set
+   * @param <M>
+   * @param m
+   * @return
+   */
+  public static <M> Set<M> toSet(M... inputs) {
+    if (inputs == null) {
+      return null;
+    }
+    Set<M> result = new LinkedHashSet<M>();
+    for (M m : inputs) {
+      result.add(m);
+    }
+    return result;
+  }
 
+  /**
+   * If batching this is the number of batches
+   * @param collection
+   * @param batchSize
+   * @return the number of batches
+   */
+  public static int batchNumberOfBatches(Collection<?> collection, int batchSize) {
+    int arrraySize = length(collection);
+    return batchNumberOfBatches(arrraySize, batchSize);
   
+  }
+
+  /**
+   * If batching this is the number of batches
+   * @param count is size of set
+   * @param batchSize
+   * @return the number of batches
+   */
+  public static int batchNumberOfBatches(int count, int batchSize) {
+    //not sure why this would be 0...
+    if (batchSize == 0) {
+      return 0;
+    }
+    int batches = 1 + ((count - 1) / batchSize);
+    return batches;
+  
+  }
+
+  /**
+   * retrieve a batch by 0 index. Will return an array of size batchSize or
+   * the remainder. the array will be full of elements. Note, this requires an
+   * ordered input (so use linkedhashset not hashset if doing sets)
+   * @param <T> template type
+   * @param collection
+   * @param batchSize
+   * @param batchIndex
+   * @return the list
+   *         This never returns null, only empty list
+   */
+  @SuppressWarnings("unchecked")
+  public static <T> List<T> batchList(Collection<T> collection, int batchSize,
+      int batchIndex) {
+
+    int numberOfBatches = batchNumberOfBatches(collection, batchSize);
+    int arraySize = length(collection);
+
+    // short circuit
+    if (arraySize == 0) {
+      return new ArrayList<T>();
+    }
+
+    List<T> theBatchObjects = new ArrayList<T>();
+
+    // lets get the type of the first element if possible
+    //    Object first = get(arrayOrCollection, 0);
+    //
+    //    Class theType = first == null ? Object.class : first.getClass();
+  
+    // if last batch
+    if (batchIndex == numberOfBatches - 1) {
+
+      // needs to work to 1-n
+      //int thisBatchSize = 1 + ((arraySize - 1) % batchSize);
+
+      int collectionIndex = 0;
+      for (T t : collection) {
+        if (collectionIndex++ < batchIndex * batchSize) {
+          continue;
+        }
+        //just copy the rest
+        //if (collectionIndex >= (batchIndex * batchSize) + arraySize) {
+        //  break;
+        //}
+        //we are in the copy mode
+        theBatchObjects.add(t);
+      }
+
+    } else {
+      // if non-last batch
+      //int newIndex = 0;
+      int collectionIndex = 0;
+      for (T t : collection) {
+        if (collectionIndex < batchIndex * batchSize) {
+          collectionIndex++;
+          continue;
+        }
+        //done with batch
+        if (collectionIndex >= (batchIndex + 1) * batchSize) {
+          break;
+        }
+        theBatchObjects.add(t);
+        collectionIndex++;
+      }
+    }
+    return theBatchObjects;
+  }
+
+  /**
+   * return a list of objects from varargs.  Though if there is one
+   * object, and it is a list, return it.
+   * 
+   * @param <T>
+   *            template type of the objects
+   * @param objects
+   * @return the list or null if objects is null
+   */
+  @SuppressWarnings("unchecked")
+  public static <T> List<T> toList(T... objects) {
+    if (objects == null) {
+      return null;
+    }
+    if (objects.length == 1 && objects[0] instanceof List) {
+      return (List<T>)objects[0];
+    }
+    
+    List<T> result = new ArrayList<T>();
+    for (T object : objects) {
+      result.add(object);
+    }
+    return result;
+  }
+  
+  /**
+   * convert a subject to string safely
+   * @param subject
+   * @return the string value of subject (might be null)
+   */
+  public static String subjectToString(Subject subject) {
+    if (subject == null) {
+      return null;
+    }
+    try {
+      return "Subject id: " + subject.getId() + ", sourceId: " + subject.getSource().getId();
+    } catch (RuntimeException e) {
+      //might be subject not found if lazy subject
+      return subject.toString();
+    }
+  }
+
 }

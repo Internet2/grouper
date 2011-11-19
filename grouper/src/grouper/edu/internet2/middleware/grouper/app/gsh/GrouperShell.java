@@ -39,7 +39,7 @@ import edu.internet2.middleware.grouper.xml.importXml.XmlImportGsh;
  */
 public class GrouperShell {
   
-  /** if we should exist on failure */ 
+  /** if we should exit on failure */ 
   static boolean exitOnFailure = false;
   
   private static Map<String, String> mainLookups = new HashMap<String, String>();
