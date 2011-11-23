@@ -16,6 +16,7 @@
 */
 
 package edu.internet2.middleware.grouper;
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -24,9 +25,6 @@ import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
-import edu.internet2.middleware.grouper.annotations.GrouperIgnoreClone;
-import edu.internet2.middleware.grouper.annotations.GrouperIgnoreDbVersion;
-import edu.internet2.middleware.grouper.annotations.GrouperIgnoreFieldConstant;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.exception.SessionException;
@@ -296,6 +294,16 @@ public class SubjectFinder {
     
   } 
 
+  /**
+   * find subjects by ids
+   * @param ids
+   * @return the map of id to subject.  If a subject is not found, it will
+   * not be in the result
+   */
+  public static Map<String, Subject> findByIds(Collection<String> ids) {
+    return null;
+  }
+  
   /**
    * flush the cache (e.g. for testing)
    */

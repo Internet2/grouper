@@ -639,5 +639,102 @@ public class CachingResolver extends SubjectResolverDecorator {
         grouperSessionSubject.getId(), stemName, query, source), searchPageResult );
   }
 
+//  /**
+//   * @see     SubjectResolver#find(String, String)
+//   * @since   1.2.1
+//   */
+//  public Subject find(String id, String source)
+//    throws  IllegalArgumentException,
+//            SourceUnavailableException,
+//            SubjectNotFoundException,
+//            SubjectNotUniqueException
+//  {
+//    Subject subj = this.getFromFindCache(id, source);
+//    if (subj == null) {
+//      subj = super.getDecoratedResolver().find(id, source);
+//      this.putInFindCache(subj);
+//    }
+//    return subj;
+//  }
+//
+//  /**
+//   * @see     SubjectResolver#findByIdentifier(String, String)
+//   * @since   1.2.1
+//   */
+//  public Subject findByIdentifier(String id, String source)
+//    throws  IllegalArgumentException,
+//            SourceUnavailableException,
+//            SubjectNotFoundException,
+//            SubjectNotUniqueException
+//  {
+//    Subject subj = this.getFromFindByIdentifierCache(id, source);
+//    if (subj == null) {
+//      subj = super.getDecoratedResolver().findByIdentifier(id, source);
+//      this.putInFindByIdentifierCache(id, subj);
+//    }
+//    return subj;
+//  }
+//
+//  /**
+//   * @see     SubjectResolver#find(String)
+//   * @since   1.2.1
+//   */
+//  public Subject find(String id)
+//    throws  IllegalArgumentException,
+//            SubjectNotFoundException,
+//            SubjectNotUniqueException
+//  {
+//    Subject subj = this.getFromFindCache(id, null);
+//    if (subj == null) {
+//      subj = super.getDecoratedResolver().find(id);
+//      this.putInFindCache(subj);
+//    }
+//    return subj;
+//  }
+//
+//  /**
+//   * @see     SubjectResolver#findByIdentifier(String)
+//   * @since   1.2.1
+//   */
+//  public Subject findByIdentifier(String id)
+//    throws  IllegalArgumentException,
+//            SubjectNotFoundException,
+//            SubjectNotUniqueException
+//  {
+//    Subject subj = this.getFromFindByIdentifierCache(id, null);
+//    if (subj == null) {
+//      subj = super.getDecoratedResolver().findByIdentifier(id);
+//      this.putInFindByIdentifierCache(id, subj);
+//    }
+//    return subj;
+//  }
+//
+//  /**
+//   * 
+//   */
+//  public Subject findByIdOrIdentifier(String id) throws IllegalArgumentException,
+//      SubjectNotFoundException, SubjectNotUniqueException {
+//    Subject subj = this.getFromFindByIdOrIdentifierCache(id, null);
+//    if (subj == null) {
+//      subj = super.getDecoratedResolver().findByIdOrIdentifier(id);
+//      this.putInFindByIdOrIdentifierCache(id, subj);
+//    }
+//    return subj;
+//  }
+//
+//  /**
+//   * @see SubjectResolver#findByIdOrIdentifier(String, String)
+//   */
+//  public Subject findByIdOrIdentifier(String id, String source)
+//      throws IllegalArgumentException, SourceUnavailableException,
+//      SubjectNotFoundException, SubjectNotUniqueException {
+//    Subject subj = this.getFromFindByIdOrIdentifierCache(id, source);
+//    if (subj == null) {
+//      subj = super.getDecoratedResolver().findByIdOrIdentifier(id, source);
+//      this.putInFindByIdOrIdentifierCache(id, subj);
+//    }
+//    return subj;
+//  }
+
 }
 
