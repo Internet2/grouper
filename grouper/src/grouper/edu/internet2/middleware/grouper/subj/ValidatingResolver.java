@@ -16,6 +16,8 @@
 */
 
 package edu.internet2.middleware.grouper.subj;
+import java.util.Collection;
+import java.util.Map;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.internal.util.ParameterHelper;
@@ -241,5 +243,70 @@ public class ValidatingResolver extends SubjectResolverDecorator {
     return super.getDecoratedResolver().findPageInStem(stemName, query);
   }
 
+  /**
+   * @see SubjectResolver#findByIdentifiers(Collection)
+   */
+  public Map<String, Subject> findByIdentifiers(Collection<String> identifiers)
+      throws IllegalArgumentException {
+    
+    this.param.notNullCollectionString(identifiers, "null Subject Identifiers");
+    return super.getDecoratedResolver().findByIdentifiers(identifiers);
+
+  }
+
+  /**
+   * @see SubjectResolver#findByIdentifiers(Collection, String)
+   */
+  public Map<String, Subject> findByIdentifiers(Collection<String> identifiers, String source)
+      throws IllegalArgumentException, SourceUnavailableException {
+
+    this.param.notNullCollectionString(identifiers, "null Subject Identifiers");
+    return super.getDecoratedResolver().findByIdentifiers(identifiers, source);
+  }
+
+  /**
+   * @see SubjectResolver#findByIds(Collection)
+   */
+  public Map<String, Subject> findByIds(Collection<String> ids)
+      throws IllegalArgumentException {
+
+    this.param.notNullCollectionString(ids, "null Subject Ids");
+    return super.getDecoratedResolver().findByIds(ids);
+
+  }
+  
+  /**
+   * @see SubjectResolver#findByIds(Collection, String)
+   */
+  public Map<String, Subject> findByIds(Collection<String> ids, String source)
+      throws IllegalArgumentException, SourceUnavailableException {
+
+    this.param.notNullCollectionString(ids, "null Subject Ids");
+    return super.getDecoratedResolver().findByIds(ids, source);
+
+  }
+  
+  /**
+   * @see SubjectResolver#findByIdsOrIdentifiers(Collection)
+   */
+  public Map<String, Subject> findByIdsOrIdentifiers(Collection<String> idsOrIdentifiers)
+      throws IllegalArgumentException {
+
+    this.param.notNullCollectionString(idsOrIdentifiers, "null Subject IdsOrIdentifiers");
+    return super.getDecoratedResolver().findByIdsOrIdentifiers(idsOrIdentifiers);
+  }
+  
+  /**
+   * @see SubjectResolver#findByIdsOrIdentifiers(Collection, String)
+   */
+  public Map<String, Subject> findByIdsOrIdentifiers(Collection<String> idsOrIdentifiers, String source)
+      throws IllegalArgumentException, SourceUnavailableException {
+
+    this.param.notNullCollectionString(idsOrIdentifiers, "null Subject Ids");
+    return super.getDecoratedResolver().findByIdsOrIdentifiers(idsOrIdentifiers, source);
+  }
+
+
+  
 }
 

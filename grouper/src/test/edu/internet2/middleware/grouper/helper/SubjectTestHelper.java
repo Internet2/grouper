@@ -79,18 +79,18 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
 
   static {
     try {
-      SUBJ0 = SubjectFinder.findById(SUBJ0_ID, true);
-      SUBJ1 = SubjectFinder.findById(SUBJ1_ID, true);
-      SUBJ2 = SubjectFinder.findById(SUBJ2_ID, true);
-      SUBJ3 = SubjectFinder.findById(SUBJ3_ID, true);
-      SUBJ4 = SubjectFinder.findById(SUBJ4_ID, true);
-      SUBJ5 = SubjectFinder.findById(SUBJ5_ID, true);
-      SUBJ6 = SubjectFinder.findById(SUBJ6_ID, true);
-      SUBJ7 = SubjectFinder.findById(SUBJ7_ID, true);
-      SUBJ8 = SubjectFinder.findById(SUBJ8_ID, true);
-      SUBJ9 = SubjectFinder.findById(SUBJ9_ID, true);
-      SUBJA = SubjectFinder.findById(SUBJ_ALL, true);
-      SUBJR = SubjectFinder.findById(SUBJ_ROOT, true);
+      SUBJ0 = SubjectFinder.findByIdAndSource(SUBJ0_ID, "jdbc", true);
+      SUBJ1 = SubjectFinder.findByIdAndSource(SUBJ1_ID, "jdbc", true);
+      SUBJ2 = SubjectFinder.findByIdAndSource(SUBJ2_ID, "jdbc", true);
+      SUBJ3 = SubjectFinder.findByIdAndSource(SUBJ3_ID, "jdbc", true);
+      SUBJ4 = SubjectFinder.findByIdAndSource(SUBJ4_ID, "jdbc", true);
+      SUBJ5 = SubjectFinder.findByIdAndSource(SUBJ5_ID, "jdbc", true);
+      SUBJ6 = SubjectFinder.findByIdAndSource(SUBJ6_ID, "jdbc", true);
+      SUBJ7 = SubjectFinder.findByIdAndSource(SUBJ7_ID, "jdbc", true);
+      SUBJ8 = SubjectFinder.findByIdAndSource(SUBJ8_ID, "jdbc", true);
+      SUBJ9 = SubjectFinder.findByIdAndSource(SUBJ9_ID, "jdbc", true);
+      SUBJA = SubjectFinder.findAllSubject();
+      SUBJR = SubjectFinder.findRootSubject();
     }
     catch (Exception e) {
       throw new RuntimeException(

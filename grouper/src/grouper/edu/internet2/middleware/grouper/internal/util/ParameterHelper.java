@@ -17,6 +17,7 @@
 
 package edu.internet2.middleware.grouper.internal.util;
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.Group;
@@ -221,6 +222,17 @@ public class ParameterHelper implements Serializable {
    */
   public ParameterHelper notNullString(String string, String msg) {
     return this.notNull(string, msg);
+  }
+
+  /**
+   * @param string s
+   * @param msg 
+   * @return  Self for chained calling.
+   * @throws  IllegalArgumentException if any parameter is null.
+   * @since   2.0.2
+   */
+  public ParameterHelper notNullCollectionString(Collection<String> strings, String msg) {
+    return this.notNull(strings, msg);
   }
 
   /**

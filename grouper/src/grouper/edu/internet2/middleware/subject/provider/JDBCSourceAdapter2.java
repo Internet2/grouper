@@ -25,6 +25,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.hibernate.GrouperContext;
 import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.subj.InvalidQueryRuntimeException;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
@@ -513,8 +514,8 @@ public class JDBCSourceAdapter2 extends JDBCSourceAdapter {
     
     if (ids.size() > 0) {
       String query = "select " + StringUtils.join(this.selectCols.iterator(), ",")
-        + " from " + this.dbTableOrView + " where " + this.subjectIdCol + " in "
-        + HibUtils.convertToInClauseForSqlStatic(ids);
+        + " from " + this.dbTableOrView + " where " + this.subjectIdCol + " in ("
+        + HibUtils.convertToInClauseForSqlStatic(ids) + ")";
   
       List<String> args = new ArrayList<String>(ids);
 
@@ -726,6 +727,8 @@ public class JDBCSourceAdapter2 extends JDBCSourceAdapter {
         }
       }
 
+      GrouperContext.incrementQueryCount();
+      
       rs = stmt.executeQuery();
 
       while (rs.next()) {

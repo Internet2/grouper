@@ -246,6 +246,9 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
     try {
       jdbcConnectionBean = this.jdbcConnectionProvider.connectionBean();
       conn = jdbcConnectionBean.connection();
+      
+      queryCountforTesting++;
+      
       stmt = prepareStatement(search, conn, false, false);
       ResultSet rs = getSqlResults(id1, stmt, search);
       subject = createUniqueSubject(rs, search, id1, search.getParam("sql"));
@@ -290,6 +293,9 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
     return searchHelper(searchValue, true);
   }
 
+  /** increment a query count for testing */
+  public static int queryCountforTesting = 0;
+  
   /**
    * helper for query
    * @param searchValue 
@@ -318,6 +324,8 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
       }
       
       conn = jdbcConnectionBean.connection();
+      
+      queryCountforTesting++;
       
       stmt = prepareStatement(search, conn, true, firstPageOnly);
       ResultSet rs = getSqlResults(searchValue, stmt, search);
@@ -1028,7 +1036,7 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
 
       try {
 
-        Class driverClass = null;
+        Class<?> driverClass = null;
         try {
           driverClass = Class.forName(driver);
         } catch (Exception e) {
@@ -1212,6 +1220,7 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
           jdbcConnectionBean = this.jdbcConnectionProvider.connectionBean();
           conn = jdbcConnectionBean.connection();
           
+          queryCountforTesting++;
           aggregateSql = uniqueSearchBatchSql(sql, inclause, batchIdsOrIdentifiers);
           
           stmt = conn.prepareStatement(aggregateSql);
@@ -1260,7 +1269,7 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
 
       result.append(" ( ");
       result.append(inclause);
-      result.append(" ( ");
+      result.append(" ) ");
     }
     result.append(" ) ");
     String aggregateInclause = result.toString();

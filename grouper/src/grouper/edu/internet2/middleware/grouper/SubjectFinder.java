@@ -301,7 +301,7 @@ public class SubjectFinder {
    * not be in the result
    */
   public static Map<String, Subject> findByIds(Collection<String> ids) {
-    return null;
+    return getResolver().findByIds(ids);
   }
   
   /**

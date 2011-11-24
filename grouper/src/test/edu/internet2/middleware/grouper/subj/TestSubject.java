@@ -51,22 +51,13 @@ public class TestSubject extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new TestSubject("testFindMultiple"));
+    TestRunner.run(new TestSubject("testFindAllInternal"));
   }
   
   public TestSubject(String name) {
     super(name);
   }
 
-  /**
-   * test find multiple in jdbc and jdbc2
-   */
-  public void testFindMultiple() {
-    
-//    SubjectFinder.f
-    
-  }
-  
   /**
    * 
    */
