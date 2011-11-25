@@ -472,14 +472,14 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
    * @throws SubjectNotUniqueException
    */
   private Map<String, Subject> createUniqueSubjects(ResultSet rs, Search search, List<String> searchValues,
-      String sql) throws SubjectNotFoundException, SubjectNotUniqueException {
+      String sql, boolean useIdentifiersInMatch) throws SubjectNotFoundException, SubjectNotUniqueException {
 
     Map<String, Subject> results = new HashMap<String, Subject>();
     Set<String> searchValuesSet = new HashSet<String>(searchValues);
 
     if (rs != null) {
       try {
-        while (rs.next()) {
+        RESULT_SET_LOOP: while (rs.next()) {
           
           Subject subject = createSubject(rs, sql);
 
@@ -498,7 +498,7 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
                     results.put(value, subject);
                     //dont want dupes
                     searchValuesSet.remove(value);
-                    continue;
+                    continue RESULT_SET_LOOP;
                   }
                 }
               }
@@ -665,7 +665,7 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
       return super.getSubjectsByIdentifiers(identifiers);
     }
 
-    return uniqueSearchBatch(identifiers, "searchSubjectByIdentifier");
+    return uniqueSearchBatch(identifiers, "searchSubjectByIdentifier", true);
     
   }
 
@@ -679,7 +679,7 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
       return super.getSubjectsByIds(ids);
     }
     
-    return uniqueSearchBatch(ids, "searchSubject");
+    return uniqueSearchBatch(ids, "searchSubject", false);
     
   }
 
@@ -1154,7 +1154,7 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
    * @throws SubjectNotUniqueException
    * @throws InvalidQueryException 
    */
-  private Map<String, Subject> uniqueSearchBatch(Collection<String> idsOrIdentifiers, String searchType)
+  private Map<String, Subject> uniqueSearchBatch(Collection<String> idsOrIdentifiers, String searchType, boolean useIdentifiersInMatch)
       throws SubjectNotFoundException, SubjectNotUniqueException, InvalidQueryException {
 
     Map<String, Subject> results = new LinkedHashMap<String, Subject>();
@@ -1228,7 +1228,7 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
           stmt = conn.prepareStatement(aggregateSql);
           
           ResultSet rs = getSqlResults(batchIdsOrIdentifiers, stmt, numParameters, aggregateSql);
-          Map<String, Subject> resultBatch = createUniqueSubjects(rs, search, batchIdsOrIdentifiers, aggregateSql);
+          Map<String, Subject> resultBatch = createUniqueSubjects(rs, search, batchIdsOrIdentifiers, aggregateSql, useIdentifiersInMatch);
           results.putAll(resultBatch);
 
           jdbcConnectionBean.doneWithConnection();

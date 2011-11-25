@@ -81,7 +81,7 @@ public class TestSubjectFinder extends GrouperTest {
   public static void main(String[] args) {
     //TestRunner.run(TestSubjectFinder.class);
     //TestRunner.run(new TestSubjectFinder("testSearchPageMax"));
-    TestRunner.run(new TestSubjectFinder("testFindByIds"));
+    TestRunner.run(new TestSubjectFinder("testFindByIdsOrIdentifiers"));
   }
   
   /**
@@ -231,6 +231,22 @@ public class TestSubjectFinder extends GrouperTest {
     
     GrouperSession.stopQuietly(grouperSession);
     
+    //################ DO IT AGAIN BY SOURCE IN CACHE
+
+    grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ0);
+
+    initialQueryCount = GrouperContext.totalQueryCount + JDBCSourceAdapter.queryCountforTesting;
+    subjectMap = SubjectFinder.findByIds(idsExist, "jdbc");
+
+    assertEquals(10, subjectMap.size());
+    assertEquals(SubjectTestHelper.SUBJ0_NAME, subjectMap.get(SubjectTestHelper.SUBJ0_ID).getName());
+    
+    numberOfQueries = (GrouperContext.totalQueryCount + JDBCSourceAdapter.queryCountforTesting) - initialQueryCount;
+    
+    //one for subjects in other sources
+    assertEquals("queries: " + numberOfQueries, 1, numberOfQueries);
+    
+    GrouperSession.stopQuietly(grouperSession);
     
   }
   
@@ -1163,6 +1179,307 @@ public class TestSubjectFinder extends GrouperTest {
 
     subject = SubjectFinder.findByPackedSubjectString("g:gsa :::::::: abc", false);
     assertNull(subject);
+    
+    
+  }
+
+  /**
+   * test find multiple in jdbc and jdbc2
+   */
+  public void testFindByIdentifiers() {
+    
+    ApiConfig.testConfig.put("groups.create.grant.all.read", "false");
+    ApiConfig.testConfig.put("groups.create.grant.all.view", "false");
+    
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+        
+    List<Group> groups = new ArrayList<Group>();
+    
+    for (int i=0;i<10;i++) {
+      
+      Group group = new GroupSave(grouperSession)
+        .assignName("test:testGroup" + i)
+        .assignCreateParentStemsIfNotExist(true).save();
+      groups.add(group);
+    }
+    
+    groups.get(0).grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.VIEW);
+    groups.get(1).grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.VIEW);
+    groups.get(2).grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.VIEW);
+    groups.get(0).grantPriv(SubjectTestHelper.SUBJ1, AccessPrivilege.READ);
+    groups.get(1).grantPriv(SubjectTestHelper.SUBJ1, AccessPrivilege.ADMIN);
+    
+    Set<String> identifiers = GrouperUtil.toSet(
+        SubjectTestHelper.SUBJ0_IDENTIFIER, 
+        SubjectTestHelper.SUBJ1_IDENTIFIER,
+        SubjectTestHelper.SUBJ2_IDENTIFIER, 
+        SubjectTestHelper.SUBJ3_IDENTIFIER, 
+        SubjectTestHelper.SUBJ4_IDENTIFIER, 
+        SubjectTestHelper.SUBJ5_IDENTIFIER, 
+        SubjectTestHelper.SUBJ6_IDENTIFIER, 
+        SubjectTestHelper.SUBJ7_IDENTIFIER, 
+        SubjectTestHelper.SUBJ8_IDENTIFIER, 
+        SubjectTestHelper.SUBJ9_IDENTIFIER);
+    
+    identifiers.add(SubjectFinder.findAllSubject().getId());
+    identifiers.add(SubjectFinder.findRootSubject().getId());
+    
+    List<ExternalSubject> externalSubjects = new ArrayList<ExternalSubject>();
+    
+    for (int i=0;i<8;i++) {
+      ExternalSubject externalSubject = new ExternalSubject();
+      externalSubject.setEmail("a" + i + "@b.c");
+      externalSubject.setIdentifier("a" + i + "@id.b.c");
+      externalSubject.setInstitution("My Institution" + i);
+      externalSubject.setName("My Name" + i);
+      externalSubject.store();
+      externalSubjects.add(externalSubject);
+      identifiers.add(externalSubject.getIdentifier());
+    }
+  
+    Set<String> identifiersExist = new HashSet<String>(identifiers);
+    
+    for (Group group : groups) {
+      identifiers.add(group.getName());
+    }
+    
+    identifiersExist.add(groups.get(0).getName());
+    identifiersExist.add(groups.get(1).getName());
+    identifiersExist.add(groups.get(2).getName());
+  
+    //one it wont find, thats ok
+    identifiers.add("abc");
+    
+    EhcacheController.ehcacheController().flushCache();
+    //clear cache so we can see it work
+    SubjectFinder.flushCache();
+    
+    long initialQueryCount = GrouperContext.totalQueryCount + JDBCSourceAdapter.queryCountforTesting;
+    Map<String, Subject> subjectMap = SubjectFinder.findByIdentifiers(identifiers);
+    
+    assertEquals(identifiers.size()-1, subjectMap.size());
+    assertEquals(SubjectTestHelper.SUBJ0_NAME, subjectMap.get(SubjectTestHelper.SUBJ0_IDENTIFIER).getName());
+    
+    long numberOfQueries = (GrouperContext.totalQueryCount + JDBCSourceAdapter.queryCountforTesting) - initialQueryCount;
+    
+    assertTrue("queries: " + numberOfQueries, numberOfQueries < 10);
+    assertTrue("queries: " + numberOfQueries, numberOfQueries > 0);
+    
+    GrouperSession.stopQuietly(grouperSession);
+    
+    //################ TRY AS SUBJ0
+    
+    long start = System.nanoTime();
+    grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ0);
+    
+    EhcacheController.ehcacheController().flushCache();
+    //clear cache so we can see it work
+    SubjectFinder.flushCache();
+    
+  
+    initialQueryCount = GrouperContext.totalQueryCount + JDBCSourceAdapter.queryCountforTesting;
+    subjectMap = SubjectFinder.findByIdentifiers(identifiers);
+    
+    assertEquals((identifiers.size()-1) - 7, subjectMap.size());
+    assertEquals(SubjectTestHelper.SUBJ0_NAME, subjectMap.get(SubjectTestHelper.SUBJ0_IDENTIFIER).getName());
+    
+    numberOfQueries = (GrouperContext.totalQueryCount + JDBCSourceAdapter.queryCountforTesting) - initialQueryCount;
+    
+    assertTrue("queries: " + numberOfQueries, numberOfQueries < 10);
+    assertTrue("queries: " + numberOfQueries, numberOfQueries > 0);
+    
+    System.out.println("Took: " + ((System.nanoTime() - start) / 1000000) + "ms");
+    
+    GrouperSession.stopQuietly(grouperSession);
+    
+    //################ DO IT AGAIN IN CACHE
+    
+    grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ0);
+    
+    initialQueryCount = GrouperContext.totalQueryCount + JDBCSourceAdapter.queryCountforTesting;
+    subjectMap = SubjectFinder.findByIdentifiers(identifiersExist);
+    
+    assertEquals(identifiersExist.size(), subjectMap.size());
+    assertEquals(SubjectTestHelper.SUBJ0_NAME, subjectMap.get(SubjectTestHelper.SUBJ0_IDENTIFIER).getName());
+    
+    numberOfQueries = (GrouperContext.totalQueryCount + JDBCSourceAdapter.queryCountforTesting) - initialQueryCount;
+    
+    assertEquals("queries: " + numberOfQueries, 0, numberOfQueries);
+    
+    GrouperSession.stopQuietly(grouperSession);
+    
+    //################ DO IT AGAIN BY SOURCE IN CACHE
+
+    grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ0);
+
+    initialQueryCount = GrouperContext.totalQueryCount + JDBCSourceAdapter.queryCountforTesting;
+    subjectMap = SubjectFinder.findByIdentifiers(identifiersExist, "jdbc");
+
+    assertEquals(10, subjectMap.size());
+    assertEquals(SubjectTestHelper.SUBJ0_NAME, subjectMap.get(SubjectTestHelper.SUBJ0_IDENTIFIER).getName());
+    
+    numberOfQueries = (GrouperContext.totalQueryCount + JDBCSourceAdapter.queryCountforTesting) - initialQueryCount;
+    
+    //all the ones from other sources will be searched here...
+    assertEquals("queries: " + numberOfQueries, 1, numberOfQueries);
+    
+    GrouperSession.stopQuietly(grouperSession);
+    
+    
+  }
+
+  /**
+   * test find multiple in jdbc and jdbc2
+   */
+  public void testFindByIdsOrIdentifiers() {
+    
+    ApiConfig.testConfig.put("groups.create.grant.all.read", "false");
+    ApiConfig.testConfig.put("groups.create.grant.all.view", "false");
+    
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+        
+    List<Group> groups = new ArrayList<Group>();
+    
+    for (int i=0;i<10;i++) {
+      
+      Group group = new GroupSave(grouperSession)
+        .assignName("test:testGroup" + i)
+        .assignCreateParentStemsIfNotExist(true).save();
+      groups.add(group);
+    }
+    
+    groups.get(0).grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.VIEW);
+    groups.get(1).grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.VIEW);
+    groups.get(2).grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.VIEW);
+    groups.get(0).grantPriv(SubjectTestHelper.SUBJ1, AccessPrivilege.READ);
+    groups.get(1).grantPriv(SubjectTestHelper.SUBJ1, AccessPrivilege.ADMIN);
+    
+    Set<String> identifiers = GrouperUtil.toSet(
+        SubjectTestHelper.SUBJ0_ID, 
+        SubjectTestHelper.SUBJ1_IDENTIFIER,
+        SubjectTestHelper.SUBJ2_ID, 
+        SubjectTestHelper.SUBJ3_IDENTIFIER, 
+        SubjectTestHelper.SUBJ4_ID, 
+        SubjectTestHelper.SUBJ5_IDENTIFIER, 
+        SubjectTestHelper.SUBJ6_ID, 
+        SubjectTestHelper.SUBJ7_IDENTIFIER, 
+        SubjectTestHelper.SUBJ8_ID, 
+        SubjectTestHelper.SUBJ9_IDENTIFIER);
+    
+    identifiers.add(SubjectFinder.findAllSubject().getId());
+    identifiers.add(SubjectFinder.findRootSubject().getId());
+    
+    List<ExternalSubject> externalSubjects = new ArrayList<ExternalSubject>();
+    
+    for (int i=0;i<8;i++) {
+      ExternalSubject externalSubject = new ExternalSubject();
+      externalSubject.setEmail("a" + i + "@b.c");
+      externalSubject.setIdentifier("a" + i + "@id.b.c");
+      externalSubject.setInstitution("My Institution" + i);
+      externalSubject.setName("My Name" + i);
+      externalSubject.store();
+      externalSubjects.add(externalSubject);
+      if (i%2==0) {
+        identifiers.add(externalSubject.getIdentifier());
+      } else {
+        identifiers.add(externalSubject.getUuid());
+      }
+    }
+  
+    Set<String> identifiersExist = new HashSet<String>(identifiers);
+    
+    int index=0;
+    for (Group group : groups) {
+      if (index%2==0) {
+        identifiers.add(group.getName());
+      } else {
+        identifiers.add(group.getUuid());
+      }
+      index++;
+    }
+    
+    identifiersExist.add(groups.get(0).getName());
+    identifiersExist.add(groups.get(1).getUuid());
+    identifiersExist.add(groups.get(2).getName());
+  
+    //one it wont find, thats ok
+    identifiers.add("abc");
+    
+    EhcacheController.ehcacheController().flushCache();
+    //clear cache so we can see it work
+    SubjectFinder.flushCache();
+    
+    long initialQueryCount = GrouperContext.totalQueryCount + JDBCSourceAdapter.queryCountforTesting;
+    Map<String, Subject> subjectMap = SubjectFinder.findByIdsOrIdentifiers(identifiers);
+    
+    assertEquals(identifiers.size()-1, subjectMap.size());
+    assertEquals(SubjectTestHelper.SUBJ0_NAME, subjectMap.get(SubjectTestHelper.SUBJ0_ID).getName());
+    assertEquals(SubjectTestHelper.SUBJ1_NAME, subjectMap.get(SubjectTestHelper.SUBJ1_IDENTIFIER).getName());
+    
+    long numberOfQueries = (GrouperContext.totalQueryCount + JDBCSourceAdapter.queryCountforTesting) - initialQueryCount;
+    
+    assertTrue("queries: " + numberOfQueries, numberOfQueries < 10);
+    assertTrue("queries: " + numberOfQueries, numberOfQueries > 0);
+    
+    GrouperSession.stopQuietly(grouperSession);
+    
+    //################ TRY AS SUBJ0
+    
+    long start = System.nanoTime();
+    grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ0);
+    
+    EhcacheController.ehcacheController().flushCache();
+    //clear cache so we can see it work
+    SubjectFinder.flushCache();
+    
+  
+    initialQueryCount = GrouperContext.totalQueryCount + JDBCSourceAdapter.queryCountforTesting;
+    subjectMap = SubjectFinder.findByIdsOrIdentifiers(identifiers);
+    
+    assertEquals((identifiers.size()-1) - 7, subjectMap.size());
+    assertEquals(SubjectTestHelper.SUBJ0_NAME, subjectMap.get(SubjectTestHelper.SUBJ0_ID).getName());
+    
+    numberOfQueries = (GrouperContext.totalQueryCount + JDBCSourceAdapter.queryCountforTesting) - initialQueryCount;
+    
+    assertTrue("queries: " + numberOfQueries, numberOfQueries < 20);
+    assertTrue("queries: " + numberOfQueries, numberOfQueries > 0);
+    
+    System.out.println("Took: " + ((System.nanoTime() - start) / 1000000) + "ms");
+    
+    GrouperSession.stopQuietly(grouperSession);
+    
+    //################ DO IT AGAIN IN CACHE
+    
+    grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ0);
+    
+    initialQueryCount = GrouperContext.totalQueryCount + JDBCSourceAdapter.queryCountforTesting;
+    subjectMap = SubjectFinder.findByIdsOrIdentifiers(identifiersExist);
+    
+    assertEquals(identifiersExist.size(), subjectMap.size());
+    assertEquals(SubjectTestHelper.SUBJ0_NAME, subjectMap.get(SubjectTestHelper.SUBJ0_ID).getName());
+    
+    numberOfQueries = (GrouperContext.totalQueryCount + JDBCSourceAdapter.queryCountforTesting) - initialQueryCount;
+    
+    assertEquals("queries: " + numberOfQueries, 0, numberOfQueries);
+    
+    GrouperSession.stopQuietly(grouperSession);
+    
+    //################ DO IT AGAIN BY SOURCE IN CACHE
+  
+    grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ0);
+  
+    initialQueryCount = GrouperContext.totalQueryCount + JDBCSourceAdapter.queryCountforTesting;
+    subjectMap = SubjectFinder.findByIdsOrIdentifiers(identifiersExist, "jdbc");
+  
+    assertEquals(10, subjectMap.size());
+    assertEquals(SubjectTestHelper.SUBJ0_NAME, subjectMap.get(SubjectTestHelper.SUBJ0_ID).getName());
+    
+    numberOfQueries = (GrouperContext.totalQueryCount + JDBCSourceAdapter.queryCountforTesting) - initialQueryCount;
+    
+    //all the ones from other sources will be searched here for id and for identifier...
+    assertEquals("queries: " + numberOfQueries, 2, numberOfQueries);
+    
+    GrouperSession.stopQuietly(grouperSession);
     
     
   }

@@ -305,6 +305,37 @@ public class SubjectFinder {
   }
   
   /**
+   * find subjects by idsOrIdentifiers
+   * @param idsOrIdentifiers
+   * @return the map of id or identifier to subject.  If a subject is not found, it will
+   * not be in the result
+   */
+  public static Map<String, Subject> findByIdsOrIdentifiers(Collection<String> idsOrIdentifiers) {
+    return getResolver().findByIdsOrIdentifiers(idsOrIdentifiers);
+  }
+  
+  /**
+   * find subjects by idsOrIdentifiers
+   * @param idsOrIdentifiers
+   * @param source
+   * @return the map of id or identifier to subject.  If a subject is not found, it will
+   * not be in the result
+   */
+  public static Map<String, Subject> findByIdsOrIdentifiers(Collection<String> idsOrIdentifiers, String source) {
+    return getResolver().findByIdsOrIdentifiers(idsOrIdentifiers, source);
+  }
+  
+  /**
+   * find subjects by identifiers
+   * @param identifiers
+   * @return the map of identifier to subject.  If a subject is not found, it will
+   * not be in the result
+   */
+  public static Map<String, Subject> findByIdentifiers(Collection<String> identifiers) {
+    return getResolver().findByIdentifiers(identifiers);
+  }
+  
+  /**
    * flush the cache (e.g. for testing)
    */
   public static void flushCache() {
@@ -1214,6 +1245,28 @@ public class SubjectFinder {
     
     return getResolver().findPageInStem(stemName, query);
     
+  }
+
+  /**
+   * find subjects by identifiers
+   * @param identifiers
+   * @param source
+   * @return the map of identifier to subject.  If a subject is not found, it will
+   * not be in the result
+   */
+  public static Map<String, Subject> findByIdentifiers(Collection<String> identifiers, String source) {
+    return getResolver().findByIdentifiers(identifiers, source);
+  }
+
+  /**
+   * find subjects by ids
+   * @param ids
+   * @param source
+   * @return the map of id to subject.  If a subject is not found, it will
+   * not be in the result
+   */
+  public static Map<String, Subject> findByIds(Collection<String> ids, String source) {
+    return getResolver().findByIds(ids, source);
   }
 
 }
