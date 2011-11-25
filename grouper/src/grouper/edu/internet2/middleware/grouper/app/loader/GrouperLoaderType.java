@@ -635,10 +635,11 @@ public enum GrouperLoaderType {
             } else {
               //just batch up the group names to get the results, in size of 100
               int numberOfBatches = GrouperUtil.batchNumberOfBatches(groupNames, 100);
+              List<String> groupNamesList = GrouperUtil.listFromCollection(groupNames);
               result = new ArrayList<Object[]>();
               for (int i=0;i<numberOfBatches;i++) {
                 
-                List<String> groupNamesInBatch = GrouperUtil.batchList(groupNames, 100, i);
+                List<String> groupNamesInBatch = GrouperUtil.batchList(groupNamesList, 100, i);
                 
                 ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
                 String queryInClause = HibUtils.convertToInClause(groupNamesInBatch, byHqlStatic);

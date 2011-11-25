@@ -4,6 +4,7 @@
  */
 package edu.internet2.middleware.grouper.internal.dao.hib3;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -70,11 +71,12 @@ public class Hib3AttributeDAO implements AttributeDAO {
     
     //lets page through these
     int batchSize = 150;
-    int pages = GrouperUtil.batchNumberOfBatches(uuids, batchSize);
+    List<String> uuidsList = GrouperUtil.listFromCollection(uuids);
+    int pages = GrouperUtil.batchNumberOfBatches(uuidsList, batchSize);
 
     //break into pages
     for (int i=0; i<pages; i++) {
-      List<String> uuidPageList = GrouperUtil.batchList(uuids, batchSize, i);
+      List<String> uuidPageList = GrouperUtil.batchList(uuidsList, batchSize, i);
       
       ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
       

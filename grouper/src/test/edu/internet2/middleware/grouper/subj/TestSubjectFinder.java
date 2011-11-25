@@ -17,6 +17,7 @@
 
 package edu.internet2.middleware.grouper.subj;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -143,10 +144,6 @@ public class TestSubjectFinder extends GrouperTest {
         SubjectTestHelper.SUBJ8_ID, 
         SubjectTestHelper.SUBJ9_ID);
     
-    for (Group group : groups) {
-      ids.add(group.getId());
-    }
-    
     ids.add(SubjectFinder.findAllSubject().getId());
     ids.add(SubjectFinder.findRootSubject().getId());
     
@@ -162,7 +159,17 @@ public class TestSubjectFinder extends GrouperTest {
       externalSubjects.add(externalSubject);
       ids.add(externalSubject.getUuid());
     }
+
+    Set<String> idsExist = new HashSet<String>(ids);
     
+    for (Group group : groups) {
+      ids.add(group.getId());
+    }
+    
+    idsExist.add(groups.get(0).getId());
+    idsExist.add(groups.get(1).getId());
+    idsExist.add(groups.get(2).getId());
+
     //one it wont find, thats ok
     ids.add("abc");
     
@@ -185,6 +192,7 @@ public class TestSubjectFinder extends GrouperTest {
     
     //################ TRY AS SUBJ0
     
+    long start = System.nanoTime();
     grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ0);
     
     EhcacheController.ehcacheController().flushCache();
@@ -203,6 +211,8 @@ public class TestSubjectFinder extends GrouperTest {
     assertTrue("queries: " + numberOfQueries, numberOfQueries < 10);
     assertTrue("queries: " + numberOfQueries, numberOfQueries > 0);
     
+    System.out.println("Took: " + ((System.nanoTime() - start) / 1000000) + "ms");
+    
     GrouperSession.stopQuietly(grouperSession);
     
     //################ DO IT AGAIN IN CACHE
@@ -210,9 +220,9 @@ public class TestSubjectFinder extends GrouperTest {
     grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ0);
     
     initialQueryCount = GrouperContext.totalQueryCount + JDBCSourceAdapter.queryCountforTesting;
-    subjectMap = SubjectFinder.findByIds(ids);
+    subjectMap = SubjectFinder.findByIds(idsExist);
     
-    assertEquals((ids.size()-1) - 7, subjectMap.size());
+    assertEquals(idsExist.size(), subjectMap.size());
     assertEquals(SubjectTestHelper.SUBJ0_NAME, subjectMap.get(SubjectTestHelper.SUBJ0_ID).getName());
     
     numberOfQueries = (GrouperContext.totalQueryCount + JDBCSourceAdapter.queryCountforTesting) - initialQueryCount;
