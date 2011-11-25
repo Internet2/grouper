@@ -1206,11 +1206,13 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
       //we dont want more than 180 bind variables per batch
       int batchSize = 180 / numParameters;
       
-      int numberOfBatches = SubjectUtils.batchNumberOfBatches(idsOrIdentifiers, batchSize);
+      List<String> idsOrIdentifiersList = SubjectUtils.listFromCollection(idsOrIdentifiers);
+      
+      int numberOfBatches = SubjectUtils.batchNumberOfBatches(idsOrIdentifiersList, batchSize);
       
       for (int i=0;i<numberOfBatches;i++) {
 
-        List<String> batchIdsOrIdentifiers = SubjectUtils.batchList(idsOrIdentifiers, batchSize, i);
+        List<String> batchIdsOrIdentifiers = SubjectUtils.batchList(idsOrIdentifiersList, batchSize, i);
         
         Connection conn = null;
         PreparedStatement stmt = null;

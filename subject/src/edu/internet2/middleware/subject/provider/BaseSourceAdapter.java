@@ -26,6 +26,7 @@ import edu.internet2.middleware.subject.SubjectCaseInsensitiveSetImpl;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
 import edu.internet2.middleware.subject.SubjectNotUniqueException;
 import edu.internet2.middleware.subject.SubjectType;
+import edu.internet2.middleware.subject.SubjectUtils;
 
 /**
  * <pre>
@@ -145,17 +146,15 @@ public abstract class BaseSourceAdapter implements Source {
       Collection<String> idsOrIdentifiers) {
     Map<String, Subject> result = new LinkedHashMap<String, Subject>();
     
-    Subject subject = null;
-    for (String theIdOrIdentifier : idsOrIdentifiers) {
-      try {
-        subject = getSubjectByIdOrIdentifier(theIdOrIdentifier, true);
-        result.put(theIdOrIdentifier, subject);
-      } catch (SubjectNotFoundException snfe) {
-        //ignore
-      } catch (SubjectNotUniqueException snue) {
-        //ignore
-      }
-    }
+    //do these in batches so they have the batched performance...
+    result.putAll(SubjectUtils.nonNull(this.getSubjectsByIdentifiers(idsOrIdentifiers)));
+    
+    //take out the ones that were found
+    Set<String> identifiers = new HashSet<String>(idsOrIdentifiers);
+    identifiers.removeAll(result.keySet());
+    
+    result.putAll(SubjectUtils.nonNull(this.getSubjectsByIds(identifiers)));
+    
     return result;
   }
 

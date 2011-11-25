@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -2325,7 +2326,7 @@ public class SubjectUtils {
    *         This never returns null, only empty list
    */
   @SuppressWarnings("unchecked")
-  public static <T> List<T> batchList(Collection<T> collection, int batchSize,
+  public static <T> List<T> batchList(List<T> collection, int batchSize,
       int batchIndex) {
 
     int numberOfBatches = batchNumberOfBatches(collection, batchSize);
@@ -2422,6 +2423,94 @@ public class SubjectUtils {
       //might be subject not found if lazy subject
       return subject.toString();
     }
+  }
+
+  /**
+   * null safe convert collection to list
+   * @param <T>
+   * @param collection
+   * @return the list
+   */
+  public static <T> List<T> listFromCollection(Collection<T> collection) {
+    return collection == null ? null : new ArrayList<T>(collection);
+  }
+
+  /**
+   * make sure a collection is non null.  If null, then return an empty list
+   * @param <T>
+   * @param list
+   * @return the list or empty list if null
+   */
+  public static <T> Collection<T> nonNull(Collection<T> list) {
+    return list == null ? new ArrayList<T>() : list;
+  }
+
+  /**
+   * make sure a list is non null.  If null, then return an empty list
+   * @param <T>
+   * @param list
+   * @return the list or empty list if null
+   */
+  public static <T> List<T> nonNull(List<T> list) {
+    return list == null ? new ArrayList<T>() : list;
+  }
+
+  /**
+   * make sure it is non null, if null, then give new map
+   * 
+   * @param <K> key of map
+   * @param <V> value of map
+   * @param map is map
+   * @return set non null
+   */
+  public static <K,V> Map<K,V> nonNull(Map<K,V> map) {
+    return map == null ? new HashMap<K,V>() : map;
+  }
+
+  /**
+   * make sure a list is non null.  If null, then return an empty set
+   * @param <T>
+   * @param set
+   * @return the set or empty set if null
+   */
+  public static <T> Set<T> nonNull(Set<T> set) {
+    return set == null ? new HashSet<T>() : set;
+  }
+
+  /**
+   * make sure a array is non null.  If null, then return an empty array.
+   * @param <T>
+   * @param array
+   * @param theClass to make array from
+   * @return the list or empty list if null
+   */
+  @SuppressWarnings({ "unchecked", "cast" })
+  public static <T> T[] nonNull(T[] array, Class<?> theClass) {
+    if (int.class.equals(theClass)) {
+      return (T[])(Object)new int[0];
+    }
+    if (float.class.equals(theClass)) {
+      return (T[])(Object)new float[0];
+    }
+    if (double.class.equals(theClass)) {
+      return (T[])(Object)new double[0];
+    }
+    if (short.class.equals(theClass)) {
+      return (T[])(Object)new short[0];
+    }
+    if (long.class.equals(theClass)) {
+      return (T[])(Object)new long[0];
+    }
+    if (byte.class.equals(theClass)) {
+      return (T[])(Object)new byte[0];
+    }
+    if (boolean.class.equals(theClass)) {
+      return (T[])(Object)new boolean[0];
+    }
+    if (char.class.equals(theClass)) {
+      return (T[])(Object)new char[0];
+    }
+    return array == null ? ((T[])Array.newInstance(theClass, 0)) : array;
   }
 
 }
