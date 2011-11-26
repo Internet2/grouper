@@ -16,16 +16,6 @@
 	</natures>
 	<linkedResources>
 		<link>
-			<name>GROUPER_TRUNK_CONF</name>
-			<type>2</type>
-			<location>C:/mchyzer/grouper/trunk/grouper/conf</location>
-		</link>
-		<link>
-			<name>GROUPER_TRUNK_SOURCE</name>
-			<type>2</type>
-			<location>C:/mchyzer/grouper/trunk/grouper/src/grouper</location>
-		</link>
-		<link>
 			<name>GROUPER_V2_0_CONF</name>
 			<type>2</type>
 			<locationURI>GROUPER_V2_0_CONF</locationURI>

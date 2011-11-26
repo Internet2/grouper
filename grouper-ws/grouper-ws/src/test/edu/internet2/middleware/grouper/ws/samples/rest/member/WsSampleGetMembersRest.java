@@ -21,6 +21,24 @@ import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType;
 import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
 
 /**
+ * <pre>
+ * Setup:
+ * 
+ * new GroupSave(grouperSession).assignName("aStem:aGroup").assignCreateParentStemsIfNotExist(true).save();
+ * 
+ * addMember("aStem:aGroup", "test.subject.0");
+ * addMember("aStem:aGroup", "test.subject.1");
+ * addMember("aStem:aGroup", "test.subject.2");
+ * addMember("aStem:aGroup", "test.subject.3");
+ * addMember("aStem:aGroup", "test.subject.4");
+ * addMember("aStem:aGroup", "test.subject.5");
+ * addMember("aStem:aGroup", "test.subject.6");
+ * addMember("aStem:aGroup", "test.subject.7");
+ * addMember("aStem:aGroup", "test.subject.8");
+ * addMember("aStem:aGroup", "test.subject.9");
+ * 
+ * 
+ * </pre>
  * @author mchyzer
  */
 public class WsSampleGetMembersRest implements WsSampleRest {
@@ -58,7 +76,7 @@ public class WsSampleGetMembersRest implements WsSampleRest {
       //your request document in whatever language or way you want
       WsRestGetMembersRequest getMembers = new WsRestGetMembersRequest();
 
-      // seeif two subjects are in the group
+      // see if two subjects are in the group
       WsGroupLookup[] groupLookups = new WsGroupLookup[1];
       groupLookups[0] = new WsGroupLookup("aStem:aGroup", null);
 
