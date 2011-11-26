@@ -907,11 +907,12 @@ public class SourcesXmlResolver implements SubjectResolver {
       throws IllegalArgumentException, SourceUnavailableException {
 
     Map<String, Subject> subjectMap = this.getSource(source).getSubjectsByIdentifiers(identifiers);
-    if (subjectMap != null) {
-      for (Subject subject : subjectMap.values()) {
-        updateMemberAttributes(subject);
-      }
-    }
+//if you are going to do this, do it in a batch!!!!
+//    if (subjectMap != null) {
+//      for (Subject subject : subjectMap.values()) {
+//        updateMemberAttributes(subject);
+//      }
+//    }
     return subjectMap;
   }
 
@@ -961,9 +962,10 @@ public class SourcesXmlResolver implements SubjectResolver {
 
     Map<String, Subject> subjectMap = this.getSource(source).getSubjectsByIds(ids);
     if (subjectMap != null) {
-      for (Subject subject : subjectMap.values()) {
-        updateMemberAttributes(subject);
-      }
+//if you are going to do this, do it in a batch!!!!
+//      for (Subject subject : subjectMap.values()) {
+//        updateMemberAttributes(subject);
+//      }
     }
     return subjectMap;
 
@@ -1015,11 +1017,13 @@ public class SourcesXmlResolver implements SubjectResolver {
       throws IllegalArgumentException, SourceUnavailableException {
 
     Map<String, Subject> subjectMap = this.getSource(source).getSubjectsByIdsOrIdentifiers(idsOrIdentifiers);
-    if (subjectMap != null) {
-      for (Subject subject : subjectMap.values()) {
-        updateMemberAttributes(subject);
-      }
-    }
+
+//if you are going to do this, do it in a batch!!!!
+//    if (subjectMap != null) {
+//      for (Subject subject : subjectMap.values()) {
+//        updateMemberAttributes(subject);
+//      }
+//    }
     return subjectMap;
 
   }

@@ -677,6 +677,13 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
       }
     }
     
+    //lets assign the members to the memberships so they dont have to be queried later
+    for (Object[] row : totalResults) {
+      Membership membership = (Membership)row[0];
+      Member member = (Member)row[2];
+      membership.setMember(member);
+    }
+    
     //we should be down to the cesure list
     return totalResults;
     

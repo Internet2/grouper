@@ -17,6 +17,8 @@
 
 package edu.internet2.middleware.grouper;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -41,6 +43,7 @@ import edu.internet2.middleware.grouper.rules.RuleIfConditionEnum;
 import edu.internet2.middleware.grouper.rules.RuleThen;
 import edu.internet2.middleware.grouper.rules.RuleThenEnum;
 import edu.internet2.middleware.grouper.subj.InternalSourceAdapter;
+import edu.internet2.middleware.grouper.subj.SubjectBean;
 import edu.internet2.middleware.grouper.subj.SubjectResolver;
 import edu.internet2.middleware.grouper.subj.SubjectResolverFactory;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -294,6 +297,58 @@ public class SubjectFinder {
     
   } 
 
+  /**
+   * find by subject beans
+   * @param subjectBeans
+   * @return the subjects
+   */
+  public static Map<SubjectBean, Subject> findBySubjectBeans(Collection<SubjectBean> subjectBeans) {
+    
+    if (subjectBeans == null) {
+      return null;
+    }
+    
+    Map<SubjectBean, Subject> result = new HashMap<SubjectBean, Subject>();
+    
+    Map<String, Set<String>> mapOfSourceToSubjectIds = new HashMap<String, Set<String>>();
+    Map<String, Set<SubjectBean>> mapOfSourceToSubjectBeans = new HashMap<String, Set<SubjectBean>>();
+    
+    //separated out by source
+    for (SubjectBean subjectBean : subjectBeans) {
+      
+      Set<String> subjectIds = mapOfSourceToSubjectIds.get(subjectBean.getSourceId());
+      Set<SubjectBean> subjectBeanSet = mapOfSourceToSubjectBeans.get(subjectBean.getSourceId());
+      if (subjectIds == null) {
+        
+        subjectIds = new HashSet<String>();
+        subjectBeanSet = new HashSet<SubjectBean>();
+        mapOfSourceToSubjectIds.put(subjectBean.getSourceId(), subjectIds);
+        mapOfSourceToSubjectBeans.put(subjectBean.getSourceId(), subjectBeanSet);
+        
+      }
+      
+      subjectIds.add(subjectBean.getId());
+      subjectBeanSet.add(subjectBean);
+    }
+    
+    //loop through sources and get results
+    for (String sourceId : mapOfSourceToSubjectIds.keySet()) {
+      Set<String> subjectIds = mapOfSourceToSubjectIds.get(sourceId);
+      Set<SubjectBean> subjectBeanSet = mapOfSourceToSubjectBeans.get(sourceId);
+      Map<String, Subject> subjectsForSource = GrouperUtil.nonNull(findByIds(subjectIds, sourceId));
+      for (SubjectBean subjectBean : subjectBeanSet) {
+        
+        Subject subject = subjectsForSource.get(subjectBean.getId());
+        if (subject != null) {
+          result.put(subjectBean, subject);
+        }
+        
+      }
+    }
+    return result;
+    
+  }
+  
   /**
    * find subjects by ids
    * @param ids

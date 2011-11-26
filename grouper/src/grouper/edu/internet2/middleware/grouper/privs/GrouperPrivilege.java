@@ -53,4 +53,9 @@ public interface GrouperPrivilege {
    */
   public boolean isRevokable();
   
+  /**
+   * if we are caching subject objects, then set it here...  do not change the subject here
+   * @param subject
+   */
+  public void internalSetSubject(Subject subject);
 }
