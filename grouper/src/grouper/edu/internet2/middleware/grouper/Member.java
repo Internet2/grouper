@@ -17,7 +17,9 @@
 
 package edu.internet2.middleware.grouper;
 import java.io.StringWriter;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -45,6 +47,7 @@ import edu.internet2.middleware.grouper.attr.assign.AttributeAssignable;
 import edu.internet2.middleware.grouper.attr.value.AttributeValueDelegate;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.audit.AuditTypeBuiltin;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogEntry;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogLabels;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogTypeBuiltin;
@@ -86,6 +89,7 @@ import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.subj.LazySubject;
+import edu.internet2.middleware.grouper.subj.SubjectBean;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.validator.GrouperValidator;
@@ -113,6 +117,58 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
   /** */
   @GrouperIgnoreClone @GrouperIgnoreDbVersion @GrouperIgnoreFieldConstant
   private AttributeAssignMemberDelegate attributeAssignMemberDelegate;
+  
+  /**
+   * resolve subjects in one batch
+   * @param members
+   * @param resolveAllAlways true to always resolve all no matter how many, false
+   * if there are more than 2000 or however many (e.g. for UI)
+   */
+  public static void resolveSubjects(Collection<Member> members, boolean resolveAllAlways) {
+    
+    if (GrouperUtil.length(members) == 0) {
+      return;
+    }
+    
+    //find the ones which are Lazy
+    List<Member> membersNeedResolved = new ArrayList<Member>();
+    for (Member member : members) {
+      if (member.subj == null || member.subj instanceof LazySubject) {
+        membersNeedResolved.add(member);
+      }
+    }
+    
+    if (GrouperUtil.length(membersNeedResolved) == 0) {
+      return;
+    }
+
+    //if there are more than 2000, forget it, leave them lazy
+    if (!resolveAllAlways 
+        && GrouperUtil.length(membersNeedResolved) > GrouperConfig.getPropertyInt("memberLengthAboveWhichDontResolveBatch", 2000)) {
+      return;
+    }
+    
+    //lets resolve these
+    Map<SubjectBean, Member> subjectBeanToMember = new HashMap<SubjectBean, Member>();
+    Set<SubjectBean> subjectBeans = new HashSet<SubjectBean>();
+    
+    for (Member member : membersNeedResolved) {
+      
+      SubjectBean subjectBean = new SubjectBean(member.getSubjectId(), member.getSubjectSourceId());
+      subjectBeans.add(subjectBean);
+      subjectBeanToMember.put(subjectBean, member);
+      
+    }
+    
+    //resolve all members
+    Map<SubjectBean, Subject> subjectBeanToSubject = SubjectFinder.findBySubjectBeans(subjectBeans);
+    
+    for (SubjectBean subjectBean : subjectBeanToSubject.keySet()) {
+      Subject subject = subjectBeanToSubject.get(subjectBean);
+      Member member = subjectBeanToMember.get(subjectBean);
+      member.subj = subject;
+    }
+  }
   
   /**
    * 

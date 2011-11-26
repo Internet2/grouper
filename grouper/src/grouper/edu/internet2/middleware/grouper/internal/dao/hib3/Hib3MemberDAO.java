@@ -489,9 +489,9 @@ public class Hib3MemberDAO extends Hib3DAO implements MemberDAO {
       return result;
     }
     
-    //TODO see what the max prepared statement variables are
     //lets do this in batches
-    int numberOfBatches = GrouperUtil.batchNumberOfBatches(subjects, MEMBER_SUBJECT_BATCH_SIZE);
+    List<Subject> subjectsList = GrouperUtil.listFromCollection(subjects);
+    int numberOfBatches = GrouperUtil.batchNumberOfBatches(subjectsList, MEMBER_SUBJECT_BATCH_SIZE);
     
     if (!StringUtils.equals("list", field.getTypeString())) {
       throw new RuntimeException("Can only call this method with a list field: " + field);
@@ -504,7 +504,7 @@ public class Hib3MemberDAO extends Hib3DAO implements MemberDAO {
 
     for (int i=0;i<numberOfBatches;i++) {
 
-      List<Subject> subjectBatch = GrouperUtil.batchList(subjects, MEMBER_SUBJECT_BATCH_SIZE, i);
+      List<Subject> subjectBatch = GrouperUtil.batchList(subjectsList, MEMBER_SUBJECT_BATCH_SIZE, i);
 
 //      select distinct gm.* 
 //      from grouper_members gm, grouper_memberships gms

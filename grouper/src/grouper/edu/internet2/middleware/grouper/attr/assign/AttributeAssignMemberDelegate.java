@@ -56,11 +56,12 @@ public class AttributeAssignMemberDelegate extends AttributeAssignBaseDelegate {
     
     //lets go through in batches
     int numberOfBatches = GrouperUtil.batchNumberOfBatches(members, 100);
+    List<Member> membersList = GrouperUtil.listFromCollection(members);
     
     Map<String, Member> memberMap = new LinkedHashMap<String, Member>(); 
     for (int i=0;i<numberOfBatches;i++) {
       
-      List<Member> membersInBatch = GrouperUtil.batchList(members, 100, i);
+      List<Member> membersInBatch = GrouperUtil.batchList(membersList, 100, i);
       List<String> memberIdsInBatch = new ArrayList<String>();
       for (Member member : membersInBatch) {
         memberIdsInBatch.add(member.getUuid());

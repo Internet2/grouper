@@ -466,7 +466,8 @@ public class SimpleMembershipUpdateFilter {
         if (totalSize <= maxSubjectsSort) {
           members = GrouperUiUtils.membersSortedPaged(members, queryPaging);
         } else {
-          members = new LinkedHashSet<Member>(GrouperUtil.batchList(members, pageSize, guiPaging.getPageNumber()-1));
+          members = new LinkedHashSet<Member>(GrouperUtil.batchList(GrouperUtil.listFromCollection(members), 
+              pageSize, guiPaging.getPageNumber()-1));
         }
       }
     } catch (Exception se) {

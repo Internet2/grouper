@@ -76,6 +76,7 @@ import edu.internet2.middleware.grouper.privs.GrouperPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingResolver;
 import edu.internet2.middleware.grouper.privs.Privilege;
+import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.privs.PrivilegeType;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -1438,7 +1439,7 @@ public class GrouperServiceLogic {
             
             // lets get the members, cant be null
             Set<Member> members = memberFilter.getMembers(group, fieldName, sources);
-        
+            Member.resolveSubjects(members, true);
             wsGetMembersResult.assignSubjectResult(members, subjectAttributeNamesToRetrieve, includeSubjectDetail);
           } else {            
             Set<PITGroup> pitGroups = wsGroupLookup.retrievePITGroupsIfNeeded("wsGroupLookup", pointInTimeFrom, pointInTimeTo);
@@ -1631,6 +1632,7 @@ public class GrouperServiceLogic {
         // lets get the members, cant be null
         Set<Object[]> membershipObjects = MembershipFinder.findMemberships(groupIds, memberIds, membershipIdSet, 
             membershipType, fieldName, sources, scope, stem, stemScope == null ? null : stemScope.convertToScope(), enabledBoolean);
+        Membership.resolveSubjects(membershipObjects);
         
         //calculate and return the results
         wsGetMembershipsResults.assignResult(membershipObjects, includeGroupDetail, includeSubjectDetail, subjectAttributeNames);
@@ -3646,6 +3648,10 @@ public class GrouperServiceLogic {
         }
         
         int i=0;
+        
+        //init subjects
+        PrivilegeHelper.resolveSubjects(privileges, true);
+        
         for (GrouperPrivilege grouperPrivilege : privileges) {
           
           WsGrouperPrivilegeResult wsGrouperPrivilegeResult = new WsGrouperPrivilegeResult();
@@ -3681,7 +3687,7 @@ public class GrouperServiceLogic {
                 + GrouperUtil.subjectToString(privilegeSubject) + ", " 
                 + GrouperUtil.subjectToString(subject));
           }
-          }
+        }
 
         //only pass in the subject lookup if it wasnt null
         wsGrouperPrivilegeResult.setWsSubject(new WsSubject(privilegeSubject, subjectAttributeArray, 

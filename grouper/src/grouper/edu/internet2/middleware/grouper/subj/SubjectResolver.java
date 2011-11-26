@@ -16,6 +16,8 @@
 */
 
 package edu.internet2.middleware.grouper.subj;
+import java.util.Collection;
+import java.util.Map;
 import java.util.Set;
 
 import edu.internet2.middleware.subject.SearchPageResult;
@@ -235,6 +237,82 @@ public interface SubjectResolver {
    */
   SearchPageResult findPageInStem(String stemName, String query)
     throws  IllegalArgumentException;
+
+  /**
+   * @return  map of search param to subject
+   * @param   idsOrIdentifiers    Subject identifiers to search on.
+   * @throws  IllegalArgumentException if any parameter is null.
+   * @throws  SubjectNotFoundException if no matching subject is found.
+   * @throws  SubjectNotUniqueException if more than one matching subject is found.
+   * @since   2.0.2
+   */
+  Map<String,Subject> findByIdsOrIdentifiers(Collection<String> idsOrIdentifiers)
+    throws  IllegalArgumentException;
+
+  /**
+   * @return  map of search param to subject
+   * @param   id      Subject identifier to search on.
+   * @param   type    Subject type to search on.
+   * @param   source  Source adapter to search within.
+   * @throws  IllegalArgumentException if any parameter is null.
+   * @throws  SourceUnavailableException if source is unavailable.
+   * @throws  SubjectNotFoundException if no matching subject is found.
+   * @throws  SubjectNotUniqueException if more than one matching subject is found.
+   * @since   2.0.2
+   */
+  Map<String,Subject> findByIdsOrIdentifiers(Collection<String> idsOrIdentifiers, String source)
+    throws  IllegalArgumentException,
+            SourceUnavailableException;
+
+  /**
+   * @return  map of search param to subject
+   * @param   ids    Subject id to search on.
+   * @throws  IllegalArgumentException if any parameter is null.
+   * @throws  SubjectNotFoundException if no matching subject is found.
+   * @throws  SubjectNotUniqueException if more than one matching subject is found.
+   * @since   2.0.2
+   */
+  Map<String,Subject> findByIds(Collection<String> ids)
+    throws  IllegalArgumentException;
+
+  /**
+   * @return  map of search param to subject
+   * @param   id      Subject id to search on.
+   * @param   source  Source adapter to search within.
+   * @throws  IllegalArgumentException if any parameter is null.
+   * @throws  SourceUnavailableException if source is unavailable.
+   * @throws  SubjectNotFoundException if no matching subject is found.
+   * @throws  SubjectNotUniqueException if more than one matching subject is found.
+   * @since   2.0.2
+   */
+  Map<String,Subject> findByIds(Collection<String> ids, String source)
+    throws  IllegalArgumentException,
+            SourceUnavailableException;
+
+  /**
+   * @return  map of search param to subject
+   * @param   id    Subject identifier to search on.
+   * @throws  IllegalArgumentException if any parameter is null.
+   * @throws  SubjectNotFoundException if no matching subject is found.
+   * @throws  SubjectNotUniqueException if more than one matching subject is found.
+   * @since   2.0.2
+   */
+  Map<String,Subject> findByIdentifiers(Collection<String> identifiers)
+    throws  IllegalArgumentException;
+
+  /**
+   * @return  map of search param to subject
+   * @param   id      Subject identifier to search on.
+   * @param   source  Source adapter to search within.
+   * @throws  IllegalArgumentException if any parameter is null.
+   * @throws  SourceUnavailableException if source is unavailable.
+   * @throws  SubjectNotFoundException if no matching subject is found.
+   * @throws  SubjectNotUniqueException if more than one matching subject is found.
+   * @since   2.0.2
+   */
+  Map<String,Subject> findByIdentifiers(Collection<String> identifiers, String source)
+    throws  IllegalArgumentException,
+            SourceUnavailableException;
   
 }
 

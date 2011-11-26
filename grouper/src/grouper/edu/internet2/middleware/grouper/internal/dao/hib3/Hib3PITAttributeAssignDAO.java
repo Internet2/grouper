@@ -221,7 +221,9 @@ public class Hib3PITAttributeAssignDAO extends Hib3DAO implements PITAttributeAs
   public Set<PITAttributeAssign> findAssignmentsOnAssignments(Collection<PITAttributeAssign> attributeAssigns, 
       Timestamp pointInTimeFrom, Timestamp pointInTimeTo) {
     
-    int attributeAssignsSize = GrouperUtil.length(attributeAssigns);
+    List<PITAttributeAssign> attributeAssignsList = GrouperUtil.listFromCollection(attributeAssigns);
+    
+    int attributeAssignsSize = GrouperUtil.length(attributeAssignsList);
 
     Set<PITAttributeAssign> results = new LinkedHashSet<PITAttributeAssign>();
     
@@ -235,7 +237,7 @@ public class Hib3PITAttributeAssignDAO extends Hib3DAO implements PITAttributeAs
 
     for (int i = 0; i < numberOfBatches; i++) {
       
-      List<PITAttributeAssign> currentBatch = GrouperUtil.batchList(attributeAssigns, 100, i);
+      List<PITAttributeAssign> currentBatch = GrouperUtil.batchList(attributeAssignsList, 100, i);
       
       int currentBatchSize = GrouperUtil.length(currentBatch);
       if (currentBatchSize == 0) {

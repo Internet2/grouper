@@ -1205,7 +1205,7 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
     // note that i'm not doing this all in one update statement with a subquery due to
     // a mysql bug:  http://bugs.mysql.com/bug.php?id=8139
     
-    Set<String> stemIds = GrouperDAOFactory.getFactory().getGroupSet().findAllOwnerStemsByMemberGroup(groupId);
+    List<String> stemIds = GrouperUtil.listFromCollection(GrouperDAOFactory.getFactory().getGroupSet().findAllOwnerStemsByMemberGroup(groupId));
     if (stemIds.size() == 0) {
       return;
     }
@@ -1364,15 +1364,18 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
     if (names == null) {
       return null;
     }
+    
+    List<String> namesList = GrouperUtil.listFromCollection(names);
+    
     Set<Stem> stems = new LinkedHashSet<Stem>();
     if (GrouperUtil.length(names) == 0) {
       return stems;
     }
     //lets page through these
-    int pages = GrouperUtil.batchNumberOfBatches(names, batchSize);
+    int pages = GrouperUtil.batchNumberOfBatches(namesList, batchSize);
 
     for (int i=0; i<pages; i++) {
-      List<String> namePageList = GrouperUtil.batchList(names, batchSize, i);
+      List<String> namePageList = GrouperUtil.batchList(namesList, batchSize, i);
 
       ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
       StringBuilder query = new StringBuilder("select theStem from Stem as theStem "

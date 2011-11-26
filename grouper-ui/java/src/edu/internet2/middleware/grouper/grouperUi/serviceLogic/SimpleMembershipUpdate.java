@@ -451,7 +451,7 @@ public class SimpleMembershipUpdate {
     } else {
       members = group.getMembers(Group.getDefaultList(), queryOptions);
     }
-    
+    Member.resolveSubjects(members, false);
     guiPaging.setPageNumber(queryPaging.getPageNumber());
     return members;
   }

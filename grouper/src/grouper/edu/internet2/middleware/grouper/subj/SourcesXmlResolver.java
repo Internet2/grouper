@@ -17,15 +17,16 @@
 
 package edu.internet2.middleware.grouper.subj;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import org.apache.commons.lang.StringUtils;
@@ -859,6 +860,176 @@ public class SourcesXmlResolver implements SubjectResolver {
     }
     Group.initGroupAttributes(groups);
   }
+  
+  /**
+   * @see SubjectResolver#findByIdentifiers(Collection)
+   */
+  public Map<String, Subject> findByIdentifiers(final Collection<String> identifiers)
+      throws IllegalArgumentException {
+    
+    Map<String, Subject> subjectMapResults = new HashMap<String, Subject>();
+    
+    List<LogLabelCallable<Map<String, Subject>>> callables = new ArrayList<LogLabelCallable<Map<String, Subject>>>();
+    
+    Set<Source> sources = this.getSources();
+    
+    boolean needsThreads = needsThreads(sources, false);
+    
+    for ( Source sa : sources ) {
+      final Source SOURCE = sa;
+      callables.add(new LogLabelCallable<Map<String, Subject>>(
+          "find by identifiers on source: " + sa.getId() + ", '" + GrouperUtil.toStringForLog(identifiers, 100) + "'") {
+
+        public Map<String, Subject> callLogic() throws Exception {
+          return SOURCE.getSubjectsByIdentifiers(identifiers);
+        }
+        
+      });
+    }    
+    
+    List<Map<String, Subject>> subjectResults = executeCallables(callables, needsThreads);
+    
+    for (Map<String, Subject> subjectMap : subjectResults) {
+      if (subjectMap != null) {
+        subjectMapResults.putAll(subjectMap);
+      }
+    }
+    
+    return subjectMapResults;
+
+    
+  }
+
+  /**
+   * @see SubjectResolver#findByIdentifiers(Collection, String)
+   */
+  public Map<String, Subject> findByIdentifiers(Collection<String> identifiers, String source)
+      throws IllegalArgumentException, SourceUnavailableException {
+
+    Map<String, Subject> subjectMap = this.getSource(source).getSubjectsByIdentifiers(identifiers);
+//if you are going to do this, do it in a batch!!!!
+//    if (subjectMap != null) {
+//      for (Subject subject : subjectMap.values()) {
+//        updateMemberAttributes(subject);
+//      }
+//    }
+    return subjectMap;
+  }
+
+  /**
+   * @see SubjectResolver#findByIds(Collection)
+   */
+  public Map<String, Subject> findByIds(final Collection<String> ids)
+      throws IllegalArgumentException {
+
+    Map<String, Subject> subjectMapResults = new HashMap<String, Subject>();
+    
+    List<LogLabelCallable<Map<String, Subject>>> callables = new ArrayList<LogLabelCallable<Map<String, Subject>>>();
+    
+    Set<Source> sources = this.getSources();
+    
+    boolean needsThreads = needsThreads(sources, false);
+    
+    for ( Source sa : sources ) {
+      final Source SOURCE = sa;
+      callables.add(new LogLabelCallable<Map<String, Subject>>(
+          "find on source: " + sa.getId() + ", '" + GrouperUtil.toStringForLog(ids, 100) + "'") {
+
+        public Map<String, Subject> callLogic() throws Exception {
+          return SOURCE.getSubjectsByIds(ids);
+        }
+        
+      });
+    }    
+    
+    List<Map<String, Subject>> subjectResults = executeCallables(callables, needsThreads);
+    
+    for (Map<String, Subject> subjectMap : subjectResults) {
+      if (subjectMap != null) {
+        subjectMapResults.putAll(subjectMap);
+      }
+    }
+    
+    return subjectMapResults;
+    
+  }
+  
+  /**
+   * @see SubjectResolver#findByIds(Collection, String)
+   */
+  public Map<String, Subject> findByIds(Collection<String> ids, String source)
+      throws IllegalArgumentException, SourceUnavailableException {
+
+    Map<String, Subject> subjectMap = this.getSource(source).getSubjectsByIds(ids);
+    if (subjectMap != null) {
+//if you are going to do this, do it in a batch!!!!
+//      for (Subject subject : subjectMap.values()) {
+//        updateMemberAttributes(subject);
+//      }
+    }
+    return subjectMap;
+
+  }
+  
+  /**
+   * @see SubjectResolver#findByIdsOrIdentifiers(Collection)
+   */
+  public Map<String, Subject> findByIdsOrIdentifiers(final Collection<String> idsOrIdentifiers)
+      throws IllegalArgumentException {
+
+    Map<String, Subject> subjectMapResults = new HashMap<String, Subject>();
+    
+    List<LogLabelCallable<Map<String, Subject>>> callables = new ArrayList<LogLabelCallable<Map<String, Subject>>>();
+    
+    Set<Source> sources = this.getSources();
+    
+    boolean needsThreads = needsThreads(sources, false);
+    
+    for ( Source sa : sources ) {
+      final Source SOURCE = sa;
+      callables.add(new LogLabelCallable<Map<String, Subject>>(
+          "find by id or identifier on source: " + sa.getId() + ", '" + GrouperUtil.toStringForLog(idsOrIdentifiers, 100) + "'") {
+
+        public Map<String, Subject> callLogic() throws Exception {
+          return SOURCE.getSubjectsByIdsOrIdentifiers(idsOrIdentifiers);
+        }
+        
+      });
+    }    
+    
+    List<Map<String, Subject>> subjectResults = executeCallables(callables, needsThreads);
+    
+    for (Map<String, Subject> subjectMap : subjectResults) {
+      if (subjectMap != null) {
+        subjectMapResults.putAll(subjectMap);
+      }
+    }
+    
+    return subjectMapResults;
+
+    
+  }
+  
+  /**
+   * @see SubjectResolver#findByIdsOrIdentifiers(Collection, String)
+   */
+  public Map<String, Subject> findByIdsOrIdentifiers(Collection<String> idsOrIdentifiers, String source)
+      throws IllegalArgumentException, SourceUnavailableException {
+
+    Map<String, Subject> subjectMap = this.getSource(source).getSubjectsByIdsOrIdentifiers(idsOrIdentifiers);
+
+//if you are going to do this, do it in a batch!!!!
+//    if (subjectMap != null) {
+//      for (Subject subject : subjectMap.values()) {
+//        updateMemberAttributes(subject);
+//      }
+//    }
+    return subjectMap;
+
+  }
+
+
+
   
 }
 

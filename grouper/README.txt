@@ -118,13 +118,13 @@ start the hsqldb server (since hsqldb in file mode does not work well).
 
 Run from the GROUPER_HOME directory:
 
-    % java -cp lib/jdbcSamples/hsqldb.jar org.hsqldb.Server -database.0 file:grouperHSQL -dbname.0 grouper
+    % java -cp lib/jdbcSamples/hsqldb.jar org.hsqldb.Server -port 9001 -database.0 file:grouperHSQL -dbname.0 grouper
 
 Note, you either need to run that command in the background, or use a terminal window that will wait for the server to exit.
 
 If you want to start the hsql database manager, run this command in a new terminal:
  
-    % java -cp lib/jdbcSamples/hsqldb.jar org.hsqldb.util.DatabaseManager -url jdbc:hsqldb:hsql://localhost/grouper
+    % java -cp lib/jdbcSamples/hsqldb.jar org.hsqldb.util.DatabaseManager -url jdbc:hsqldb:hsql://localhost:9001/grouper
     
 
 ## 4.b Initializing The Database

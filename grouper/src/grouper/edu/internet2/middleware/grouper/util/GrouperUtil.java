@@ -1948,7 +1948,7 @@ public class GrouperUtil {
    *         This never returns null, only empty list
    */
   @SuppressWarnings("unchecked")
-  public static <T> List<T> batchList(Collection<T> collection, int batchSize,
+  public static <T> List<T> batchList(List<T> collection, int batchSize,
       int batchIndex) {
 
     int numberOfBatches = batchNumberOfBatches(collection, batchSize);
@@ -11301,4 +11301,14 @@ public class GrouperUtil {
     return tmpDir;
   }
  
+  /**
+   * null safe convert collection to list
+   * @param <T>
+   * @param collection
+   * @return the list
+   */
+  public static <T> List<T> listFromCollection(Collection<T> collection) {
+    return collection == null ? null : new ArrayList<T>(collection);
+  }
+  
 }
