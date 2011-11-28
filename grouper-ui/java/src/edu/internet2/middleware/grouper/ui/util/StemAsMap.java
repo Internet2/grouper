@@ -17,6 +17,7 @@ limitations under the License.
 
 package edu.internet2.middleware.grouper.ui.util;
 
+import java.util.Iterator;
 
 import org.apache.commons.beanutils.WrapDynaBean;
 
@@ -73,6 +74,15 @@ public class StemAsMap extends ObjectAsMap {
 	 * @see java.util.Map#get(java.lang.Object)
 	 */
 	public Object get(Object key) {
+ 		if (key.equals("alternateName")) {
+ 			Iterator<String> alternateNamesIterator = stem.getAlternateNames().iterator();
+ 			if (alternateNamesIterator.hasNext()) {
+ 				return alternateNamesIterator.next();
+ 			} else {
+ 				return null;
+ 			}
+ 		}
+
 		//Map would override GrouperGroup values
 		Object obj = super.get(key);
 		if (obj == null) {

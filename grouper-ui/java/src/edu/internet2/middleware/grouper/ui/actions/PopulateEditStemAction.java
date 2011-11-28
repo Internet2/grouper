@@ -148,6 +148,7 @@ public class PopulateEditStemAction extends GrouperCapableAction {
 				stem.getName().lastIndexOf(HIER_DELIM) + 1));
 		stemForm.set("stemDisplayName", stemMap.get("displayExtension"));
 		stemForm.set("stemDescription", stemMap.get("description"));
+		stemForm.set("stemAlternateName", stemMap.get("alternateName"));
 		//TODO: check this
 		session.setAttribute("isNewStem", Boolean.FALSE);
 

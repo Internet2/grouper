@@ -34,7 +34,7 @@
         <grouper:message key="field.displayName.alternateName" />
         </label></td>
         <td class="formTableRight"><html:text property="groupAlternateName" size="50"
-          maxlength="50" styleId="groupAlternateName"
+          maxlength="1024" styleId="groupAlternateName"
         /></td>
       </tr>
     </c:if>

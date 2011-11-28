@@ -125,6 +125,7 @@
                type="org.apache.struts.action.DynaActionForm">
       <form-property name="stemName" type="java.lang.String"/>
       <form-property name="stemDescription" type="java.lang.String"/>
+      <form-property name="stemAlternateName" type="java.lang.String"/>
       <form-property name="stemDisplayName" type="java.lang.String"/>
 	  <form-property name="listField" type="java.lang.String"/>
       <form-property name="stemId" type="java.lang.String"/>
