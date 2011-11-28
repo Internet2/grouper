@@ -436,6 +436,10 @@ public class JDBCSourceAdapter2 extends JDBCSourceAdapter {
     return this.dbTableOrView;
   }
 
+  /**
+   * 
+   * @see edu.internet2.middleware.subject.provider.JDBCSourceAdapter#getSubjectsByIdentifiers(java.util.Collection)
+   */
   @Override
   public Map<String, Subject> getSubjectsByIdentifiers(Collection<String> identifiers) {
 
@@ -461,48 +465,61 @@ public class JDBCSourceAdapter2 extends JDBCSourceAdapter {
         }
         
       }
+
+      int batchSize = 180 / this.subjectIdentifierCols.size();
+      int numberOfBatches = GrouperUtil.batchNumberOfBatches(identifiers, batchSize);
       
-      //we need the select cols, and the identifier cols so we can match the results with the identifiers
-      StringBuilder query = new StringBuilder("select "
-          + theSelectCols.toString() + " from "
-          + this.dbTableOrView + " where ");
+      List<String> identifiersList = new ArrayList<String>(identifiers);
+      
+      for (int i=0;i<numberOfBatches;i++) {
+        
+        List<String> identifiersBatch = GrouperUtil.batchList(identifiersList, batchSize, i);        
 
-      List<String> args = new ArrayList<String>();
-
-      int identifierIndex = 0;
-      for (String identifier : identifiers) {
-        
-        if (identifierIndex > 0) {
+      
+        //we need the select cols, and the identifier cols so we can match the results with the identifiers
+        StringBuilder query = new StringBuilder("select "
+            + theSelectCols.toString() + " from "
+            + this.dbTableOrView + " where ");
+  
+        List<String> args = new ArrayList<String>();
+  
+        int identifierIndex = 0;
+        for (String identifier : identifiersBatch) {
           
-          query.append(" or ");
-          
-        }
-        
-        query.append(" ( ");
-        
-        int index = 0;
-        for (String subjectIdentifierCol : this.subjectIdentifierCols) {
-          query.append(subjectIdentifierCol + " = ?");
-          if (index != this.subjectIdentifierCols.size() - 1) {
+          if (identifierIndex > 0) {
+            
             query.append(" or ");
+            
           }
-          args.add(identifier);
-          index++;
+          
+          query.append(" ( ");
+          
+          int index = 0;
+          for (String subjectIdentifierCol : this.subjectIdentifierCols) {
+            query.append(subjectIdentifierCol + " = ?");
+            if (index != this.subjectIdentifierCols.size() - 1) {
+              query.append(" or ");
+            }
+            args.add(identifier);
+            index++;
+          }
+          
+          query.append(" ) ");
+          identifierIndex++;
         }
         
-        query.append(" ) ");
-        identifierIndex++;
-      }
-      
-      
-      this.search(query.toString(), args, false, false, false, null, identifiers, results);
-      
-      
+        
+        this.search(query.toString(), args, false, false, false, null, identifiersBatch, results);
+        
+      }      
       
     }
     return results;
   }
 
+  /**
+   * @see edu.internet2.middleware.subject.provider.JDBCSourceAdapter#getSubjectsByIds(java.util.Collection)
+   */
   @Override
   public Map<String, Subject> getSubjectsByIds(Collection<String> ids) {
     
@@ -513,17 +530,29 @@ public class JDBCSourceAdapter2 extends JDBCSourceAdapter {
     Map<String, Subject> results = new HashMap<String, Subject>();
     
     if (ids.size() > 0) {
-      String query = "select " + StringUtils.join(this.selectCols.iterator(), ",")
-        + " from " + this.dbTableOrView + " where " + this.subjectIdCol + " in ("
-        + HibUtils.convertToInClauseForSqlStatic(ids) + ")";
-  
-      List<String> args = new ArrayList<String>(ids);
-
-      Set<Subject> subjects = this.search(query.toString(), args, false, false, false, null, null, null);
       
-      for (Subject subject : GrouperUtil.nonNull(subjects)) {
-        results.put(subject.getId(), subject);
+      int batchSize = 180;
+      int numberOfBatches = GrouperUtil.batchNumberOfBatches(ids, batchSize);
+      
+      List<String> idsList = new ArrayList<String>(ids);
+      
+      for (int i=0;i<numberOfBatches;i++) {
+        
+        List<String> idsBatch = GrouperUtil.batchList(idsList, batchSize, i);        
+
+        String query = "select " + StringUtils.join(this.selectCols.iterator(), ",")
+          + " from " + this.dbTableOrView + " where " + this.subjectIdCol + " in ("
+          + HibUtils.convertToInClauseForSqlStatic(idsBatch) + ")";
+    
+        List<String> args = new ArrayList<String>(idsBatch);
+  
+        Set<Subject> subjects = this.search(query.toString(), args, false, false, false, null, null, null);
+        
+        for (Subject subject : GrouperUtil.nonNull(subjects)) {
+          results.put(subject.getId(), subject);
+        }
       }
+      
       
     }
     return results;
