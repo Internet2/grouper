@@ -467,7 +467,7 @@ public enum GrouperDdl implements DdlVersionable {
       Table groupsTable = GrouperDdlUtils.ddlutilsFindTable(database, 
           Group.TABLE_GROUPER_GROUPS, true);
 
-      addAlternateNameCol(database, ddlVersionBean, groupsTable);
+      addGroupAlternateNameCol(database, ddlVersionBean, groupsTable);
     }
 
   },
@@ -719,6 +719,29 @@ public enum GrouperDdl implements DdlVersionable {
       addAttributeAssignPitDisallowed(database, ddlVersionBean);
       
     }
+  },
+  
+  /**
+   * <pre>
+   * Grouper 2.1: add alternate name for stems
+   * </pre>
+   */
+  V26 {
+    
+    /**
+     * 
+     * @see edu.internet2.middleware.grouper.ddl.DdlVersionable#updateVersionFromPrevious(org.apache.ddlutils.model.Database, DdlVersionBean)
+     */
+    @Override
+    public void updateVersionFromPrevious(Database database, 
+        DdlVersionBean ddlVersionBean) {
+
+      Table stemsTable = GrouperDdlUtils.ddlutilsFindTable(database, 
+          Stem.TABLE_GROUPER_STEMS, true);
+
+      addStemAlternateNameCol(database, ddlVersionBean, stemsTable);
+    }
+
   },
   
   /**
@@ -1562,7 +1585,7 @@ public enum GrouperDdl implements DdlVersionable {
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupsTable, Group.COLUMN_LAST_IMMEDIATE_MEMBERSHIP_CHANGE, 
             Types.BIGINT, "20", false, false); 
 
-        addAlternateNameCol(database, ddlVersionBean, groupsTable);
+        addGroupAlternateNameCol(database, ddlVersionBean, groupsTable);
         
         GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, Group.TABLE_GROUPER_GROUPS,
             "group_last_membership_idx", false, Group.COLUMN_LAST_MEMBERSHIP_CHANGE);
@@ -1817,6 +1840,8 @@ public enum GrouperDdl implements DdlVersionable {
   
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(stemsTable, Stem.COLUMN_LAST_MEMBERSHIP_CHANGE, 
             Types.BIGINT, "20", false, false); 
+
+        addStemAlternateNameCol(database, ddlVersionBean, stemsTable);
 
         GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, Stem.TABLE_GROUPER_STEMS,
             "stem_last_membership_idx", false, Stem.COLUMN_LAST_MEMBERSHIP_CHANGE);
@@ -2164,12 +2189,12 @@ public enum GrouperDdl implements DdlVersionable {
   }  
 
   /**
-   * add alternate name col
+   * add group alternate name col
    * @param database
    * @param ddlVersionBean
    * @param groupsTable
    */
-  private static void addAlternateNameCol(Database database,
+  private static void addGroupAlternateNameCol(Database database,
       DdlVersionBean ddlVersionBean, Table groupsTable) {
     
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupsTable, Group.COLUMN_ALTERNATE_NAME, Types.VARCHAR, 
@@ -2182,6 +2207,22 @@ public enum GrouperDdl implements DdlVersionable {
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, ddlVersionBean, Group.TABLE_GROUPER_GROUPS,
           "group_alternate_name_idx", scriptOverride, false, Group.COLUMN_ALTERNATE_NAME);
     } 
+  }
+  
+  /**
+   * add stem alternate name col
+   * @param database
+   * @param ddlVersionBean
+   * @param groupsTable
+   */
+  private static void addStemAlternateNameCol(Database database,
+      DdlVersionBean ddlVersionBean, Table stemsTable) {
+    
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(stemsTable, Stem.COLUMN_ALTERNATE_NAME, Types.VARCHAR, 
+        "255", false, false); 
+    
+    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, stemsTable.getName(), 
+        "stem_alternate_name_idx", false, Stem.COLUMN_ALTERNATE_NAME);
   }
 
   

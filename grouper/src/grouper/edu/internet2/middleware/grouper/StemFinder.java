@@ -101,6 +101,54 @@ public class StemFinder {
     Stem ns = GrouperDAOFactory.getFactory().getStem().findByName(name, exceptionOnNotFound, queryOptions) ;
     return ns;
   }
+  
+  /**
+   * Find stem by its alternate name.
+   * <pre class="eg">
+   *   Stem stem = StemFinder.findByAlternateName(s, name, false);
+   * </pre>
+   * @param   s     Search within this {@link GrouperSession} context
+   * @param   name  Find stem with this alternate name.
+   * @param exceptionOnNotFound
+   * @param queryOptions
+   * @return  A {@link Stem} object
+   * @throws  StemNotFoundException
+   */
+  public static Stem findByAlternateName(GrouperSession s, String name, boolean exceptionOnNotFound, QueryOptions queryOptions)
+      throws StemNotFoundException {
+    //note, no need for GrouperSession inverse of control
+    GrouperSession.validate(s);
+    // TODO 20070314 bah.  should be in dao if it exists at all.
+    if ( name.equals(Stem.ROOT_NAME) ) {
+      name = Stem.ROOT_INT;
+    }
+    Stem ns = GrouperDAOFactory.getFactory().getStem().findByAlternateName(name, exceptionOnNotFound, queryOptions) ;
+    return ns;
+  }
+  
+  /**
+   * Find stem by its current name.
+   * <pre class="eg">
+   *   Stem stem = StemFinder.findByCurrentName(s, name, false);
+   * </pre>
+   * @param   s     Search within this {@link GrouperSession} context
+   * @param   name  Find stem with this name.
+   * @param exceptionOnNotFound
+   * @param queryOptions
+   * @return  A {@link Stem} object
+   * @throws  StemNotFoundException
+   */
+  public static Stem findByCurrentName(GrouperSession s, String name, boolean exceptionOnNotFound, QueryOptions queryOptions)
+      throws StemNotFoundException {
+    //note, no need for GrouperSession inverse of control
+    GrouperSession.validate(s);
+    // TODO 20070314 bah.  should be in dao if it exists at all.
+    if ( name.equals(Stem.ROOT_NAME) ) {
+      name = Stem.ROOT_INT;
+    }
+    Stem ns = GrouperDAOFactory.getFactory().getStem().findByCurrentName(name, exceptionOnNotFound, queryOptions) ;
+    return ns;
+  }
 
   /**
    * Find root stem of the Groups Registry.

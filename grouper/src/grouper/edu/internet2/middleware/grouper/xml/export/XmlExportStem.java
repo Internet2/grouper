@@ -49,6 +49,9 @@ public class XmlExportStem {
    */
   private static final String STEMS_XPATH = "/grouperExport/stems";
 
+  /** alternate name */
+  private String alternateName;
+  
   /** uuid */
   private String uuid;
   
@@ -103,6 +106,21 @@ public class XmlExportStem {
     
   }
 
+  /**
+   * alternate name
+   * @return alternate name
+   */
+  public String getAlternateName() {
+    return this.alternateName;
+  }
+
+  /**
+   * alternateName
+   * @param alternateName1
+   */
+  public void setAlternateName(String alternateName1) {
+    this.alternateName = alternateName1;
+  }
 
   /**
    * uuid
@@ -335,6 +353,7 @@ public class XmlExportStem {
   public Stem toStem() {
     Stem stem = new Stem();
     
+    stem.setAlternateNameDb(this.alternateName);
     stem.setContextId(this.contextId);
     stem.setCreateTimeLong(GrouperUtil.dateLongValue(this.createTime));
     stem.setCreatorUuid(this.creatorId);

@@ -158,7 +158,7 @@ public class help {
           + "There is an object: StemMove which has various chaining methods, \n" +
               "which should be ended with a save() method.\n\n"
           + "StemMove stemMove = new StemMove(stemToMove, destinationStem)  Create a new instance.\n"
-          + "StemMove stemMove.assignAlternateName(boolean)  Whether to add the current names of the affected groups to the groups' alternate names list.  Default is true.\n"
+          + "StemMove stemMove.assignAlternateName(boolean)  Whether to add the current names of the affected stems and groups to their alternate name lists.  Default is true.\n"
           + "void stemMove.save()  Moves the stem.\n"
           + "\n"
           + " Examples:\n"
@@ -335,6 +335,8 @@ public class help {
     i.println("* group.manageIncludesExcludes(grouperSession, isIncludeExclude, setOfGroupsThatMembersMustAlsoBeIn)");
     i.println("* StemCopy: type   help(\"StemCopy\")   for info on copying a stem");
     i.println("* StemMove: type   help(\"StemMove\")   for info on moving a stem");
+    i.println("* stem = StemFinder.findByAlternateName(grouperSession, name, exceptionOnNotFound, queryOptions)");
+    i.println("* stem = StemFinder.findByCurrentName(grouperSession, name, exceptionOnNotFound, queryOptions)");
     i.println("* stem = StemFinder.findByName(grouperSession, name)");
     i.println("* stem = StemFinder.findByUuid(grouperSession, uuid)");
     i.println("* grantPriv(name, subject id, Privilege)"              );

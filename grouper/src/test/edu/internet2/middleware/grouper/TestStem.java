@@ -81,7 +81,7 @@ public class TestStem extends GrouperTest {
    * @param args String[]
    */
   public static void main(String[] args) {
-    TestRunner.run(new TestStem("testGetChildGroups2"));
+    TestRunner.run(new TestStem("testXmlDifferentUpdateProperties"));
     //TestRunner.run(TestStem.class);
   }
 
@@ -1983,6 +1983,7 @@ public class TestStem extends GrouperTest {
    */
   public static Stem exampleStem() {
     Stem stem = new Stem();
+    stem.setAlternateNameDb("alternateName");
     stem.setContextId("contextId");
     stem.setCreateTimeLong(5L);
     stem.setCreatorUuid("creatorId");
@@ -2308,6 +2309,26 @@ public class TestStem extends GrouperTest {
       assertFalse(stem.xmlDifferentUpdateProperties(exampleStem));
 
       stem.setUuid(exampleStem.getUuid());
+      stem.xmlSaveBusinessProperties(exampleStem.clone());
+      stem.xmlSaveUpdateProperties();
+      
+      stem = exampleRetrieveStemDb();
+      
+      assertFalse(stem.xmlDifferentBusinessProperties(exampleStem));
+      assertFalse(stem.xmlDifferentUpdateProperties(exampleStem));
+    
+    }
+    
+    {
+      stem = exampleStemDb();
+      exampleStem = stem.clone();
+
+      stem.setAlternateNameDb("abc");
+      
+      assertTrue(stem.xmlDifferentBusinessProperties(exampleStem));
+      assertFalse(stem.xmlDifferentUpdateProperties(exampleStem));
+
+      stem.setAlternateNameDb(exampleStem.getAlternateNameDb());
       stem.xmlSaveBusinessProperties(exampleStem.clone());
       stem.xmlSaveUpdateProperties();
       

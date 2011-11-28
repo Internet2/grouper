@@ -38,6 +38,7 @@ import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.RevokePrivilegeException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
+import edu.internet2.middleware.grouper.exception.StemAddAlreadyExistsException;
 import edu.internet2.middleware.grouper.exception.StemAddException;
 import edu.internet2.middleware.grouper.exception.StemModifyException;
 import edu.internet2.middleware.grouper.group.TypeOfGroup;
@@ -92,7 +93,7 @@ public class TestStemApi extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new TestStemApi("test_copy_with_entities"));
+    TestRunner.run(new TestStemApi("test_alternateNameSecurityCheck"));
   }
 
   /** size before getting started */
@@ -845,11 +846,11 @@ public class TestStemApi extends GrouperTest {
   /**
    * 
    */
-  public void test_copy_name_exists() {
+  public void test_copy_group_name_exists() {
     
     Stem one = this.root.addChildStem("one", "one");
     Stem two = this.root.addChildStem("two", "two");
-    Group oneGroup = one.addChildGroup("group", "group");
+    one.addChildGroup("group", "group");
     Group twoGroup = two.addChildGroup("group", "group");
     
     twoGroup.addAlternateName("two:one:group");
@@ -865,11 +866,31 @@ public class TestStemApi extends GrouperTest {
   /**
    * 
    */
-  public void test_move_name_exists() {
+  public void test_copy_stem_name_exists() {
     
     Stem one = this.root.addChildStem("one", "one");
     Stem two = this.root.addChildStem("two", "two");
-    Group oneGroup = one.addChildGroup("group", "group");
+    Stem three = this.root.addChildStem("three", "three");
+    
+    three.addAlternateName("two:one");
+    three.store();
+
+    try {
+      one.copy(two);
+      fail("failed to throw RuntimeException");
+    } catch (RuntimeException e) {
+      assertTrue(true);
+    }
+  }
+  
+  /**
+   * 
+   */
+  public void test_move_group_name_exists() {
+    
+    Stem one = this.root.addChildStem("one", "one");
+    Stem two = this.root.addChildStem("two", "two");
+    one.addChildGroup("group", "group");
     Group twoGroup = two.addChildGroup("group", "group");
     
     twoGroup.addAlternateName("two:one:group");
@@ -882,6 +903,26 @@ public class TestStemApi extends GrouperTest {
       assertTrue(true);
     }
   } 
+  
+  /**
+   * 
+   */
+  public void test_move_stem_name_exists() {
+    
+    Stem one = this.root.addChildStem("one", "one");
+    Stem two = this.root.addChildStem("two", "two");
+    Stem three = this.root.addChildStem("three", "three");
+    
+    three.addAlternateName("two:one");
+    three.store();
+
+    try {
+      one.move(two);
+      fail("failed to throw RuntimeException");
+    } catch (RuntimeException e) {
+      assertTrue(true);
+    }
+  }
   
   /**
    * @throws InsufficientPrivilegeException 
@@ -1349,8 +1390,12 @@ public class TestStemApi extends GrouperTest {
     top.move(top2);
     nrs.stop();
     nrs = GrouperSession.startRootSession();
+    top = StemFinder.findByName(s, "top2:top", true);
+    child = StemFinder.findByName(s, "top2:top:child", true);
     child_group = GroupFinder.findByName(s, "top2:top:child:child group", true);
     top_group = GroupFinder.findByName(s, "top2:top:top group", true);
+    assertTrue(top.getAlternateNameDb().equals("top"));
+    assertTrue(child.getAlternateNameDb().equals("top:child"));
     assertTrue(top_group.getAlternateNameDb().equals("top:top group"));
     assertTrue(child_group.getAlternateNameDb().equals("top:child:child group"));
     nrs.stop();
@@ -1374,8 +1419,12 @@ public class TestStemApi extends GrouperTest {
     new StemMove(top, top2).assignAlternateName(false).save();
     nrs.stop();
     nrs = GrouperSession.startRootSession();
+    top = StemFinder.findByName(s, "top2:top", true);
+    child = StemFinder.findByName(s, "top2:top:child", true);
     child_group = GroupFinder.findByName(s, "top2:top:child:child group", true);
     top_group = GroupFinder.findByName(s, "top2:top:top group", true);
+    assertNull(top.getAlternateNameDb());
+    assertNull(child.getAlternateNameDb());
     assertNull(top_group.getAlternateNameDb());
     assertNull(child_group.getAlternateNameDb());
     nrs.stop();
@@ -1391,6 +1440,10 @@ public class TestStemApi extends GrouperTest {
     GrouperSession nrs;
     Subject a = r.getSubject("a");
     Stem top2 = root.addChildStem("top2", "top2");
+    top.addAlternateName("stem1");
+    top.store();
+    child.addAlternateName("stem1:stem2");
+    child.store();
     child_group.addAlternateName("test1:test2");
     child_group.store();
     top_group.addAlternateName("test1a:test2a");
@@ -1403,8 +1456,12 @@ public class TestStemApi extends GrouperTest {
     new StemMove(top, top2).assignAlternateName(true).save();
     nrs.stop();
     nrs = GrouperSession.startRootSession();
+    top = StemFinder.findByName(s, "top2:top", true);
+    child = StemFinder.findByName(s, "top2:top:child", true);
     child_group = GroupFinder.findByName(s, "top2:top:child:child group", true);
     top_group = GroupFinder.findByName(s, "top2:top:top group", true);
+    assertTrue(top.getAlternateNameDb().equals("top"));
+    assertTrue(child.getAlternateNameDb().equals("top:child"));
     assertTrue(top_group.getAlternateNameDb().equals("top:top group"));
     assertTrue(child_group.getAlternateNameDb().equals("top:child:child group"));
     nrs.stop();
@@ -1420,6 +1477,10 @@ public class TestStemApi extends GrouperTest {
     GrouperSession nrs;
     Subject a = r.getSubject("a");
     Stem top2 = root.addChildStem("top2", "top2");
+    top.addAlternateName("stem1");
+    top.store();
+    child.addAlternateName("stem1:stem2");
+    child.store();
     child_group.addAlternateName("test1:test2");
     child_group.store();
     top_group.addAlternateName("test1a:test2a");
@@ -1432,8 +1493,12 @@ public class TestStemApi extends GrouperTest {
     new StemMove(top, top2).assignAlternateName(false).save();
     nrs.stop();
     nrs = GrouperSession.startRootSession();
+    top = StemFinder.findByName(s, "top2:top", true);
+    child = StemFinder.findByName(s, "top2:top:child", true);
     child_group = GroupFinder.findByName(s, "top2:top:child:child group", true);
     top_group = GroupFinder.findByName(s, "top2:top:top group", true);
+    assertTrue(top.getAlternateNameDb().equals("stem1"));
+    assertTrue(child.getAlternateNameDb().equals("stem1:stem2"));
     assertTrue(top_group.getAlternateNameDb().equals("test1a:test2a"));
     assertTrue(child_group.getAlternateNameDb().equals("test1:test2"));
     nrs.stop();
@@ -1456,10 +1521,64 @@ public class TestStemApi extends GrouperTest {
     top.store();
     nrs.stop();
     nrs = GrouperSession.startRootSession();
+    top = StemFinder.findByName(s, "top2", true);
+    child = StemFinder.findByName(s, "top2:child", true);
     child_group = GroupFinder.findByName(s, "top2:child:child group", true);
     top_group = GroupFinder.findByName(s, "top2:top group", true);
+    assertTrue(top.getAlternateNameDb().equals("top"));
+    assertTrue(child.getAlternateNameDb().equals("top:child"));
     assertTrue(top_group.getAlternateNameDb().equals("top:top group"));
     assertTrue(child_group.getAlternateNameDb().equals("top:child:child group"));
+    nrs.stop();
+    
+    r.rs.stop();
+  }
+  
+  /**
+   * @throws Exception
+   */
+  public void test_rename_alternate_name_same_name() throws Exception {
+    R r = R.populateRegistry(0, 0, 2);
+    GrouperSession nrs;
+    Subject a = r.getSubject("a");
+
+    // verify alternate name does not get added
+    top.grantPriv(a, NamingPrivilege.STEM);
+    nrs = GrouperSession.start(a);
+    top.setExtension("top");
+    top.store();
+    nrs.stop();
+    nrs = GrouperSession.startRootSession();
+    top = StemFinder.findByName(s, "top", true);
+    child = StemFinder.findByName(s, "top:child", true);
+    child_group = GroupFinder.findByName(s, "top:child:child group", true);
+    top_group = GroupFinder.findByName(s, "top:top group", true);
+    assertNull(top.getAlternateNameDb());
+    assertNull(child.getAlternateNameDb());
+    assertNull(top_group.getAlternateNameDb());
+    assertNull(child_group.getAlternateNameDb());
+    nrs.stop();
+    
+    nrs = GrouperSession.startRootSession();
+    top.addAlternateName("stem1");
+    top.store();
+    child.addAlternateName("stem1:stem2");
+    child.store();
+    
+    // verify again
+    nrs = GrouperSession.start(a);
+    top.setExtension("top");
+    top.store();
+    nrs.stop();
+    nrs = GrouperSession.startRootSession();
+    top = StemFinder.findByName(s, "top", true);
+    child = StemFinder.findByName(s, "top:child", true);
+    child_group = GroupFinder.findByName(s, "top:child:child group", true);
+    top_group = GroupFinder.findByName(s, "top:top group", true);
+    assertTrue(top.getAlternateNameDb().equals("stem1"));
+    assertTrue(child.getAlternateNameDb().equals("stem1:stem2"));
+    assertNull(top_group.getAlternateNameDb());
+    assertNull(child_group.getAlternateNameDb());
     nrs.stop();
     
     r.rs.stop();
@@ -1481,10 +1600,16 @@ public class TestStemApi extends GrouperTest {
     top.store();
     nrs.stop();
     nrs = GrouperSession.startRootSession();
+    top = StemFinder.findByName(s, "top2", true);
+    child = StemFinder.findByName(s, "top2:child", true);
     child_group = GroupFinder.findByCurrentName(s, "top2:child:child group", true);
     top_group = GroupFinder.findByCurrentName(s, "top2:top group", true);
+    assertTrue(top.getAlternateNameDb().equals("top"));
+    assertTrue(child.getAlternateNameDb().equals("top:child"));
     assertTrue(top_group.getAlternateNameDb().equals("top:top group"));
     assertTrue(child_group.getAlternateNameDb().equals("top:child:child group"));
+    assertTrue(top.getDisplayName().equals("top2 display name"));
+    assertTrue(child.getDisplayName().equals("top2 display name:child display name"));
     assertTrue(top_group.getDisplayName().equals("top2 display name:top group display name"));
     assertTrue(child_group.getDisplayName().equals("top2 display name:child display name:child group display name"));
     nrs.stop();
@@ -1508,10 +1633,16 @@ public class TestStemApi extends GrouperTest {
     top.store();
     nrs.stop();
     nrs = GrouperSession.startRootSession();
+    top = StemFinder.findByName(s, "top2", true);
+    child = StemFinder.findByName(s, "top2:child", true);
     child_group = GroupFinder.findByCurrentName(s, "top2:child:child group", true);
     top_group = GroupFinder.findByCurrentName(s, "top2:top group", true);
+    assertNull(top.getAlternateNameDb());
+    assertNull(child.getAlternateNameDb());
     assertNull(top_group.getAlternateNameDb());
     assertNull(child_group.getAlternateNameDb());
+    assertTrue(top.getDisplayName().equals("top2 display name"));
+    assertTrue(child.getDisplayName().equals("top2 display name:child display name"));
     assertTrue(top_group.getDisplayName().equals("top2 display name:top group display name"));
     assertTrue(child_group.getDisplayName().equals("top2 display name:child display name:child group display name"));
     nrs.stop();
@@ -1534,8 +1665,12 @@ public class TestStemApi extends GrouperTest {
     top.store();
     nrs.stop();
     nrs = GrouperSession.startRootSession();
+    top = StemFinder.findByName(s, "top2", true);
+    child = StemFinder.findByName(s, "top2:child", true);
     child_group = GroupFinder.findByName(s, "top2:child:child group", true);
     top_group = GroupFinder.findByName(s, "top2:top group", true);
+    assertNull(top.getAlternateNameDb());
+    assertNull(child.getAlternateNameDb());
     assertNull(top_group.getAlternateNameDb());
     assertNull(child_group.getAlternateNameDb());
     nrs.stop();
@@ -1550,6 +1685,10 @@ public class TestStemApi extends GrouperTest {
     R r = R.populateRegistry(0, 0, 2);
     GrouperSession nrs;
     Subject a = r.getSubject("a");
+    top.addAlternateName("stem1");
+    top.store();
+    child.addAlternateName("stem1:stem2");
+    child.store();
     child_group.addAlternateName("test1:test2");
     child_group.store();
     top_group.addAlternateName("test1a:test2a");
@@ -1562,8 +1701,12 @@ public class TestStemApi extends GrouperTest {
     top.store();
     nrs.stop();
     nrs = GrouperSession.startRootSession();
+    top = StemFinder.findByName(s, "top2", true);
+    child = StemFinder.findByName(s, "top2:child", true);
     child_group = GroupFinder.findByName(s, "top2:child:child group", true);
     top_group = GroupFinder.findByName(s, "top2:top group", true);
+    assertTrue(top.getAlternateNameDb().equals("top"));
+    assertTrue(child.getAlternateNameDb().equals("top:child"));
     assertTrue(top_group.getAlternateNameDb().equals("top:top group"));
     assertTrue(child_group.getAlternateNameDb().equals("top:child:child group"));
     nrs.stop();
@@ -1578,6 +1721,10 @@ public class TestStemApi extends GrouperTest {
     R r = R.populateRegistry(0, 0, 2);
     GrouperSession nrs;
     Subject a = r.getSubject("a");
+    top.addAlternateName("stem1");
+    top.store();
+    child.addAlternateName("stem1:stem2");
+    child.store();
     child_group.addAlternateName("test1:test2");
     child_group.store();
     top_group.addAlternateName("test1a:test2a");
@@ -1590,13 +1737,49 @@ public class TestStemApi extends GrouperTest {
     top.store();
     nrs.stop();
     nrs = GrouperSession.startRootSession();
+    top = StemFinder.findByName(s, "top2", true);
+    child = StemFinder.findByName(s, "top2:child", true);
     child_group = GroupFinder.findByName(s, "top2:child:child group", true);
     top_group = GroupFinder.findByName(s, "top2:top group", true);
+    assertTrue(top.getAlternateNameDb().equals("stem1"));
+    assertTrue(child.getAlternateNameDb().equals("stem1:stem2"));
     assertTrue(top_group.getAlternateNameDb().equals("test1a:test2a"));
     assertTrue(child_group.getAlternateNameDb().equals("test1:test2"));
     nrs.stop();
     
     r.rs.stop();
+  }
+  
+  /**
+   * 
+   */
+  public void test_rename_with_duplicate_name() {
+
+    Stem test1 = top.addChildStem("test1", "test1");
+    Stem test2 = top.addChildStem("test2", "test2");
+    
+    test1.addAlternateName("top:altname");
+    test1.store();
+    test2.addAlternateName("top:conflict");
+    test2.store();
+    
+    try {
+      // this should fail because "test2" is in use.
+      test1.setExtension("test2");
+      test1.store();
+      fail("failed to throw StemModifyException");
+    } catch (StemModifyException e) {
+      assertTrue(true);
+    }
+    
+    try {
+      // this should fail because "conflict" is in use.
+      test1.setExtension("conflict");
+      test1.store();
+      fail("failed to throw StemModifyException");
+    } catch (StemModifyException e) {
+      assertTrue(true);
+    }
   }
   
   /**
@@ -1616,6 +1799,8 @@ public class TestStemApi extends GrouperTest {
    * @throws Exception
    */
   public void test_copy_should_not_copy_alternate_name() throws Exception {
+    child.addAlternateName("test1");
+    child.store();
     child_group.addAlternateName("test1:test2");
     child_group.store();
     
@@ -1626,6 +1811,12 @@ public class TestStemApi extends GrouperTest {
     
     Group newGroup = GroupFinder.findByName(s, "child:child group", true);
     assertNull(newGroup.getAlternateNameDb());
+    
+    Stem existingStem = StemFinder.findByName(s, "top:child", true);
+    assertTrue(existingStem.getAlternateNameDb().equals("test1"));
+    
+    Stem newStem = StemFinder.findByName(s, "child", true);
+    assertNull(newStem.getAlternateNameDb());
   }
   
   /**
@@ -2374,6 +2565,372 @@ public class TestStemApi extends GrouperTest {
     assertNotNull(first.getLastMembershipChange());
     assertNotNull(second.getLastMembershipChange());
     assertNull(test.getLastMembershipChange());
+  }
+  
+  /**
+   * @throws Exception
+   */
+  public void test_alternateName() throws Exception {
+    assertTrue(top.getAlternateNames().size() == 0);
+
+    // add invalid stem name
+    try {
+      top.addAlternateName(null);
+      top.store();
+      fail("failed to throw StemModifyException");
+    } catch (StemModifyException e) {
+      assertTrue(true);
+    }
+    
+    // add invalid stem name
+    try {
+      top.addAlternateName("");
+      top.store();
+      fail("failed to throw StemModifyException");
+    } catch (StemModifyException e) {
+      assertTrue(true);
+    }
+    
+    // add invalid stem name
+    try {
+      top.addAlternateName("top:");
+      top.store();
+      fail("failed to throw StemModifyException");
+    } catch (StemModifyException e) {
+      assertTrue(true);
+    }
+    
+    // add invalid stem name
+    try {
+      top.addAlternateName("top::top2");
+      top.store();
+      fail("failed to throw StemModifyException");
+    } catch (StemModifyException e) {
+      assertTrue(true);
+    }
+    
+    // add invalid stem name
+    try {
+      top.addAlternateName("top:  :top2");
+      top.store();
+      fail("failed to throw StemModifyException");
+    } catch (StemModifyException e) {
+      assertTrue(true);
+    }
+    
+    assertTrue(top.getAlternateNames().size() == 0);
+    
+    // add an alternate name and verify it gets stored in the db
+    top.addAlternateName("top:top2");
+    top.store();
+    assertTrue(top.getAlternateNames().size() == 1);
+    assertTrue(top.getAlternateNames().contains("top:top2"));
+    top = StemFinder.findByName(s, "top", true);
+    assertTrue(top.getAlternateNames().size() == 1);
+    assertTrue(top.getAlternateNames().contains("top:top2"));
+    
+    // add another alternate name.  it should overwrite the last one.
+    top.addAlternateName("top:top3");
+    top.store();
+    assertTrue(top.getAlternateNames().size() == 1);
+    assertTrue(top.getAlternateNames().contains("top:top3"));
+    top = StemFinder.findByName(s, "top", true);
+    assertTrue(top.getAlternateNames().size() == 1);
+    assertTrue(top.getAlternateNames().contains("top:top3"));
+    
+    // try deleting first alternate name
+    assertFalse(top.deleteAlternateName("top:top2"));
+    top.store();
+    assertTrue(top.getAlternateNames().size() == 1);
+    assertTrue(top.getAlternateNames().contains("top:top3"));
+    top = StemFinder.findByName(s, "top", true);
+    assertTrue(top.getAlternateNames().size() == 1);
+    assertTrue(top.getAlternateNames().contains("top:top3"));
+    
+    // delete alternate name
+    assertTrue(top.deleteAlternateName("top:top3"));
+    top.store();
+    assertTrue(top.getAlternateNames().size() == 0);
+    top = StemFinder.findByName(s, "top", true);
+    assertTrue(top.getAlternateNames().size() == 0);
+    
+    // add an alternate name using a location that doesn't exist.
+    top.addAlternateName("top2:top3");
+    top.store();
+    assertTrue(top.getAlternateNames().size() == 1);
+    assertTrue(top.getAlternateNames().contains("top2:top3"));
+    top = StemFinder.findByName(s, "top", true);
+    assertTrue(top.getAlternateNames().size() == 1);
+    assertTrue(top.getAlternateNames().contains("top2:top3"));
+    
+    // delete alternate name
+    assertTrue(top.deleteAlternateName("top2:top3"));
+    top.store();
+    assertTrue(top.getAlternateNames().size() == 0);
+    top = StemFinder.findByName(s, "top", true);
+    assertTrue(top.getAlternateNames().size() == 0);
+    
+    // add alternate name again so we can verify that the name cannot be used again for a stem.
+    top.addAlternateName("top:test");
+    top.store();
+    
+    // add alternate name that already exists
+    try {
+      assertTrue(child.getAlternateNames().size() == 0);
+      child.addAlternateName("top:test");
+      child.store();
+      fail("failed to throw StemModifyException");
+    } catch (StemModifyException e) {
+      assertTrue(true);
+    }
+    
+    // add stem name that already exists
+    try {
+      top.addChildStem("test", "test");
+      fail("failed to throw StemAddAlreadyExistsException");
+    } catch (StemAddAlreadyExistsException e) {
+      assertTrue(true);
+    }
+    
+    // now try adding an alternate name where the name is an existing stem name
+    try {
+      top.addAlternateName("top:child");
+      top.store();
+      fail("failed to throw StemModifyException");
+    } catch (StemModifyException e) {
+      assertTrue(true);
+    }
+  }
+  
+
+  /**
+   * @throws Exception
+   */
+  public void test_alternateNameSecurityCheck() throws Exception {
+    
+    Stem top2 = root.addChildStem("top2", "top2");
+    Group securityGroup = top.addChildGroup("securityGroup", "securityGroup");
+
+    GrouperSession session;
+    R r = R.populateRegistry(0, 0, 1);
+    Subject subjA = r.getSubject("a");
+
+    session = GrouperSession.start(subjA);
+
+    // subjA doesn't have stem access to top or top2
+    try {
+      top.addAlternateName("top2:test");
+      top.store();
+      fail("failed to throw InsufficientPrivilegeException");
+    } catch (InsufficientPrivilegeException e) {
+      assertTrue(true);
+    }
+    
+    session.stop();
+    session = GrouperSession.start(SubjectFinder.findRootSubject());
+    top.grantPriv(subjA, NamingPrivilege.STEM);
+    session.stop();
+    session = GrouperSession.start(subjA);
+
+    // subjA doesn't have stem access to top2
+    try {
+      top.addAlternateName("top2:test");
+      top.store();
+      fail("failed to throw InsufficientPrivilegeException");
+    } catch (InsufficientPrivilegeException e) {
+      assertTrue(true);
+    }
+    
+    session.stop();
+    session = GrouperSession.start(SubjectFinder.findRootSubject());
+    top.revokePriv(subjA, NamingPrivilege.STEM);
+    top2.grantPriv(subjA, NamingPrivilege.STEM);
+    session.stop();
+    session = GrouperSession.start(subjA);
+    
+    // subjA doesn't have stem access to top
+    try {
+      top.addAlternateName("top2:test");
+      top.store();
+      fail("failed to throw InsufficientPrivilegeException");
+    } catch (InsufficientPrivilegeException e) {
+      assertTrue(true);
+    }
+    
+    session.stop();
+    session = GrouperSession.start(SubjectFinder.findRootSubject());
+    top.grantPriv(subjA, NamingPrivilege.STEM);
+    session.stop();
+    session = GrouperSession.start(subjA);
+    
+    // subjA has the appropriate privileges now
+    top.addAlternateName("top2:test");
+    top.store();
+    assertTrue(true);
+    
+    // now we're requiring that the user must be a member of a group that's allowed to do renames
+    ApiConfig.testConfig.put("security.stem.groupAllowedToRenameStem", "top:securityGroup");
+    
+    // subjA is not in the security group
+    try {
+      top.addAlternateName("top2:test2");
+      top.store();
+      fail("failed to throw InsufficientPrivilegeException");
+    } catch (InsufficientPrivilegeException e) {
+      assertTrue(true);
+    }
+    
+    // add subjA to the security group and try again
+    session.stop();
+    session = GrouperSession.start(SubjectFinder.findRootSubject());
+    securityGroup.addMember(subjA);
+    session.stop();
+    session = GrouperSession.start(subjA);
+    
+    // subjA has the appropriate privileges now
+    top.addAlternateName("top2:test2");
+    top.store();
+    assertTrue(true);
+
+    session.stop();
+    session = GrouperSession.start(SubjectFinder.findRootSubject());
+    top.revokePriv(subjA, NamingPrivilege.STEM);
+    top2.revokePriv(subjA, NamingPrivilege.STEM);
+    session.stop();
+    session = GrouperSession.start(subjA);
+    
+    // subjA doesn't have access to delete the alternate name
+    try {
+      top.deleteAlternateName("top2:test2");
+      top.store();
+      fail("failed to throw InsufficientPrivilegeException");
+    } catch (InsufficientPrivilegeException e) {
+      assertTrue(true);
+    }
+    
+    session.stop();
+    session = GrouperSession.start(SubjectFinder.findRootSubject());
+    top.grantPriv(subjA, NamingPrivilege.STEM);
+    session.stop();
+    session = GrouperSession.start(subjA);
+    
+    // subjA can delete the alternate name now
+    top.deleteAlternateName("top2:test2");
+    top.store();
+    assertTrue(true);
+    
+    // remove subjA from the security group and try again
+    session.stop();
+    session = GrouperSession.start(SubjectFinder.findRootSubject());
+    securityGroup.deleteMember(subjA);
+    session.stop();
+    session = GrouperSession.start(subjA);
+    
+    // subjA doesn't have access to delete the alternate name (alternate name doesn't exist but should still get exception)
+    try {
+      top.deleteAlternateName("top2:test2");
+      top.store();
+      fail("failed to throw InsufficientPrivilegeException");
+    } catch (InsufficientPrivilegeException e) {
+      assertTrue(true);
+    }
+    
+    // done using security group
+    ApiConfig.testConfig.remove("security.stem.groupAllowedToRenameStem");
+    
+    session.stop();
+    session = GrouperSession.start(SubjectFinder.findRootSubject());
+    Stem test1 = child.addChildStem("test1", "test1");
+    session.stop();
+    session = GrouperSession.start(subjA);
+    
+    // subjA doesn't have stem access on top:child:test1
+    try {
+      top.addAlternateName("top:child:test1:test2");
+      top.store();
+      fail("failed to throw InsufficientPrivilegeException");
+    } catch (InsufficientPrivilegeException e) {
+      assertTrue(true);
+    }
+    
+    session.stop();
+    session = GrouperSession.start(SubjectFinder.findRootSubject());
+    test1.grantPriv(subjA, NamingPrivilege.STEM);
+    session.stop();
+    session = GrouperSession.start(subjA);
+    
+    // subjA has stem access on top:child:test1
+    top.addAlternateName("top:child:test1:test2");
+    top.store();
+    top.deleteAlternateName("top:child:test1:test2");
+    top.store();
+    assertTrue(true);
+    
+    session.stop();
+    session = GrouperSession.start(SubjectFinder.findRootSubject());
+    test1.delete();
+    session.stop();
+    session = GrouperSession.start(subjA);
+    
+    // subjA doesn't have stem access on top:child
+    try {
+      top.addAlternateName("top:child:test1:test2");
+      top.store();
+      fail("failed to throw InsufficientPrivilegeException");
+    } catch (InsufficientPrivilegeException e) {
+      assertTrue(true);
+    }
+    
+    session.stop();
+    session = GrouperSession.start(SubjectFinder.findRootSubject());
+    child.grantPriv(subjA, NamingPrivilege.STEM);
+    session.stop();
+    session = GrouperSession.start(subjA);
+    
+    // subjA has stem access on child
+    top.addAlternateName("top:child:test1:test2");
+    top.store();
+    top.deleteAlternateName("top:child:test1:test2");
+    top.store();
+    assertTrue(true);
+    
+    // subjA should be able to set an alternate name of a stem at the same level without having access to the parent
+    session.stop();
+    session = GrouperSession.start(SubjectFinder.findRootSubject());
+    top.revokePriv(subjA, NamingPrivilege.STEM);
+    session.stop();
+    session = GrouperSession.start(subjA);
+    child.addAlternateName("top:child2");
+    child.store();
+    session.stop();
+    session = GrouperSession.start(SubjectFinder.findRootSubject());
+    top.grantPriv(subjA, NamingPrivilege.STEM);
+    session.stop();
+    session = GrouperSession.start(subjA);
+    top.addAlternateName("top3");
+    top.store();
+    
+    // subjA doesn't have stem access on the root stem
+    try {
+      top.addAlternateName("test3:test4:test5");
+      top.store();
+      fail("failed to throw InsufficientPrivilegeException");
+    } catch (InsufficientPrivilegeException e) {
+      assertTrue(true);
+    }
+    
+    session.stop();
+    session = GrouperSession.start(SubjectFinder.findRootSubject());
+    root.grantPriv(subjA, NamingPrivilege.STEM);
+    session.stop();
+    session = GrouperSession.start(subjA);
+    
+    // subjA has stem access on the root stem
+    top.addAlternateName("test3:test4:test5");
+    top.store();
+    top.deleteAlternateName("test3:test4:test5");
+    top.store();
+    assertTrue(true);
   }
 }
 

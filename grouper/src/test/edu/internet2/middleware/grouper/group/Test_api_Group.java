@@ -447,8 +447,8 @@ public class Test_api_Group extends GrouperTest {
     // you shouldn't be able to move a group to a location if another group is using that name
     try {
       child_group.move(top);
-      fail("failed to throw GroupModifyException");
-    } catch (GroupModifyException e) {
+      fail("failed to throw Exception");
+    } catch (Exception e) {
       assertTrue(true);
     }
     
@@ -1988,7 +1988,6 @@ public class Test_api_Group extends GrouperTest {
     // add group name that already exists
     try {
       top.addChildGroup("top group2", "test");
-      top_group.store();
       fail("failed to throw GroupAddException");
     } catch (GroupAddException e) {
       assertTrue(true);
