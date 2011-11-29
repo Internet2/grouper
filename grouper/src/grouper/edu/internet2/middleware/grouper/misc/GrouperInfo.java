@@ -25,6 +25,7 @@ import org.apache.commons.logging.Log;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.cfg.ApiConfig;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
 import edu.internet2.middleware.grouper.internal.dao.hibernate.HibernateDaoConfig;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Source;
@@ -146,8 +147,11 @@ public class GrouperInfo {
     }
     key = "hibernate.dialect";
     this._print( key, this.hib.getProperty(key) );
+    
+    String connectionUrl = this.hib.getProperty("hibernate.connection.url");
+    
     key = "hibernate.connection.driver_class";
-    this._print( key, this.hib.getProperty(key) );
+    this._print( key, GrouperDdlUtils.convertUrlToDriverClassIfNeeded(connectionUrl, this.hib.getProperty(key)));
     if (this.printSensitiveInfo) {
       key = "hibernate.connection.url";
       this._print( key, this.hib.getProperty(key) );

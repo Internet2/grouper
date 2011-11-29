@@ -25,6 +25,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
 import edu.internet2.middleware.grouper.hibernate.GrouperContext;
 import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.subj.InvalidQueryRuntimeException;
@@ -128,16 +129,16 @@ public class JDBCSourceAdapter2 extends JDBCSourceAdapter {
     //see if has jdbc in provider
     if (this.jdbcConnectionProvider.requiresJdbcConfigInSourcesXml()) {
 
-      String driver = props.getProperty("dbDriver");
-      if (StringUtils.isBlank(driver)) {
-        System.err.println("Subject API error: " + error + ", driver param is required");
-        log.error(error + ", driver param is required");
-        return;
-      }
       String dbUrl = props.getProperty("dbUrl");
       if (StringUtils.isBlank(dbUrl)) {
         System.err.println("Subject API error: " + error + ", dbUrl param is required");
         log.error(error + ", dbUrl param is required");
+        return;
+      }
+      String driver = GrouperDdlUtils.convertUrlToDriverClassIfNeeded(dbUrl, props.getProperty("dbDriver"));
+      if (StringUtils.isBlank(driver)) {
+        System.err.println("Subject API error: " + error + ", driver param is required");
+        log.error(error + ", driver param is required");
         return;
       }
       String dbUser = props.getProperty("dbUser");
