@@ -149,12 +149,36 @@ public class PITStem extends GrouperPIT implements Hib3GrouperVersioned {
   public void saveOrUpdate() {
     GrouperDAOFactory.getFactory().getPITStem().saveOrUpdate(this);
   }
+  
+  /** if we are printing results during delete */
+  private static ThreadLocal<Boolean> printOutputOnDelete = new ThreadLocal<Boolean>();
 
   /**
    * delete this object
+   * @param printOutput
    */
-  public void delete() {
-    GrouperDAOFactory.getFactory().getPITStem().delete(this);
+  public void delete(boolean printOutput) {
+    printOutputOnDelete.set(printOutput);
+
+    try {
+      GrouperDAOFactory.getFactory().getPITStem().delete(this);
+    } finally {
+      printOutputOnDelete.remove();
+    }
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.GrouperAPI#onPostDelete(edu.internet2.middleware.grouper.hibernate.HibernateSession)
+   */
+  @Override
+  public void onPostDelete(HibernateSession hibernateSession) {
+    super.onPostDelete(hibernateSession);
+    
+    boolean printOutput = printOutputOnDelete != null && printOutputOnDelete.get() != null && printOutputOnDelete.get() == true ? true : false;
+
+    if (printOutput) {
+      System.out.println("Done obliterating stem from point in time: " + this.getName() + ", ID=" + this.getId());
+    }
   }
   
   /**
@@ -164,8 +188,14 @@ public class PITStem extends GrouperPIT implements Hib3GrouperVersioned {
   public void onPreDelete(HibernateSession hibernateSession) {
     super.onPreDelete(hibernateSession);
 
+    boolean printOutput = printOutputOnDelete != null && printOutputOnDelete.get() != null && printOutputOnDelete.get() == true ? true : false;
+    
     if (this.isActive()) {
       throw new RuntimeException("Cannot delete active point in time stem object with id=" + this.getId());
+    }
+    
+    if (printOutput) {
+      System.out.println("Obliterating stem from point in time: " + this.getName() + ", ID=" + this.getId());
     }
     
     // delete memberships
@@ -187,18 +217,27 @@ public class PITStem extends GrouperPIT implements Hib3GrouperVersioned {
     Set<PITGroup> groups = GrouperDAOFactory.getFactory().getPITGroup().findByStemId(this.getId());
     for (PITGroup group : groups) {
       GrouperDAOFactory.getFactory().getPITGroup().delete(group);
+      if (printOutput) {
+        System.out.println("Done deleting group from point in time: " + group.getName() + ", ID=" + group.getId());
+      }
     }
     
     // delete attribute def names
     Set<PITAttributeDefName> attrs = GrouperDAOFactory.getFactory().getPITAttributeDefName().findByStemId(this.getId());
     for (PITAttributeDefName attr : attrs) {
       GrouperDAOFactory.getFactory().getPITAttributeDefName().delete(attr);
+      if (printOutput) {
+        System.out.println("Done deleting attributeDefName from point in time: " + attr.getName() + ", ID=" + attr.getId());
+      }
     }
     
     // delete attribute defs
     Set<PITAttributeDef> defs = GrouperDAOFactory.getFactory().getPITAttributeDef().findByStemId(this.getId());
     for (PITAttributeDef def : defs) {
       GrouperDAOFactory.getFactory().getPITAttributeDef().delete(def);
+      if (printOutput) {
+        System.out.println("Done deleting attributeDef from point in time: " + def.getName() + ", ID=" + def.getId());
+      }
     }
     
     // delete child stems
