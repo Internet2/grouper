@@ -760,6 +760,16 @@ public class SubjectFinder {
   } 
 
   /**
+   * this is a placeholder in 2.0.2
+   * @param failIfError 
+   * @return source
+   * @since   2.1.0
+   */
+  public static Source internal_getEntitySourceAdapter(boolean failIfError) {
+    return null;
+  }
+  
+  /**
    * Reset <code>SubjectResolver</code>.
    * @since   1.2.1
    */
