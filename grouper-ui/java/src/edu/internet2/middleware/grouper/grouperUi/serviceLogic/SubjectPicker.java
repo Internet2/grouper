@@ -48,6 +48,7 @@ import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.tags.TagUtils;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.subject.SearchPageResult;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectTooManyResults;
@@ -329,10 +330,14 @@ public class SubjectPicker {
           //if clamping down on sources in config
           if (restrictingSourcesBoolean) {
             sourcesToSearchInSourceSet = GrouperUtil.convertSources(searchInSourceIdsString);
-            subjects = SubjectFinder.findAll(searchField, sourcesToSearchInSourceSet);
+            SearchPageResult findPageResult = SubjectFinder.findPage(searchField, sourcesToSearchInSourceSet);
+            subjects = findPageResult.getResults();
+            tooManyResults = findPageResult.isTooManyResults();
           } else {
             sourcesToSearchInSourceSet = new HashSet<Source>(SourceManager.getInstance().getSources());
-            subjects = SubjectFinder.findAll(searchField);
+            SearchPageResult findPageResult = SubjectFinder.findPage(searchField);
+            subjects = findPageResult.getResults();
+            tooManyResults = findPageResult.isTooManyResults();
           }
           
         } catch (SubjectTooManyResults stmr) {
