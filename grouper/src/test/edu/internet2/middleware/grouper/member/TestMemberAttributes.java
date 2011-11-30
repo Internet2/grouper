@@ -19,6 +19,7 @@ import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.subj.InternalSourceAdapter;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.provider.BaseSourceAdapter;
 import edu.internet2.middleware.subject.provider.SourceManager;
@@ -673,6 +674,24 @@ public class TestMemberAttributes extends GrouperTest {
         SortStringEnum.getDefaultSortString(), SearchStringEnum.getDefaultSearchString(), "Test").toArray(new Member[0]);
     assertEquals(6, members.length);
     assertEquals(group2.getName(), members[5].getName());
+    assertEquals(SubjectTestHelper.SUBJ0.getName(), members[0].getName());
+    assertEquals(SubjectTestHelper.SUBJ1.getName(), members[1].getName());
+    assertEquals(SubjectTestHelper.SUBJ2.getName(), members[2].getName());
+    assertEquals(SubjectTestHelper.SUBJ3.getName(), members[3].getName());
+    assertEquals(SubjectTestHelper.SUBJ4.getName(), members[4].getName());
+
+    //search only secure sources
+    members = GrouperDAOFactory.getFactory().getMembership().findAllMembersByOwnerAndFieldAndType(
+        group.getId(), Group.getDefaultList(), null, GrouperUtil.toSet(SubjectFinder.internal_getGSA()), null, true, 
+        SortStringEnum.getDefaultSortString(), SearchStringEnum.getDefaultSearchString(), "Test").toArray(new Member[0]);
+    assertEquals(1, members.length);
+    assertEquals(group2.getName(), members[0].getName());
+
+    //search only nonsecure sources
+    members = GrouperDAOFactory.getFactory().getMembership().findAllMembersByOwnerAndFieldAndType(
+        group.getId(), Group.getDefaultList(), null, GrouperUtil.toSet(SourceManager.getInstance().getSource("jdbc")), null, true, 
+        SortStringEnum.getDefaultSortString(), SearchStringEnum.getDefaultSearchString(), "Test").toArray(new Member[0]);
+    assertEquals(5, members.length);
     assertEquals(SubjectTestHelper.SUBJ0.getName(), members[0].getName());
     assertEquals(SubjectTestHelper.SUBJ1.getName(), members[1].getName());
     assertEquals(SubjectTestHelper.SUBJ2.getName(), members[2].getName());
