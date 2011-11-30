@@ -76,7 +76,7 @@ public class AttributeHooksImplExampleEmail extends AttributeHooks {
           
           //next see if a subject has that attribute value.  note, this will only work if the subject adapter is 
           //conducive to it
-          Set<Subject> subjects = SubjectFinder.findAll(emailAddress);
+          Set<Subject> subjects = SubjectFinder.findPage(emailAddress).getResults();
           if (GrouperUtil.length(subjects) > 0) {
             //note, dont show the user who is using it if that is a security problem
             throw new HookVeto("memphis.group.email.attribute.usedBySubjectEmail", "The email address: " + emailAddress
