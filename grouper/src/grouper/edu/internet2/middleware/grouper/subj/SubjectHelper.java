@@ -31,9 +31,9 @@ import org.apache.commons.lang.StringUtils;
 
 import edu.emory.mathcs.backport.java.util.Collections;
 import edu.internet2.middleware.grouper.Member;
-import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.internal.util.Quote;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.provider.SubjectImpl;
 
@@ -338,6 +338,28 @@ public class SubjectHelper {
   } 
 
   /**
+   * @param a 
+   * @param b 
+   * @return  True if both objects are <code>Source</code>s and equal.
+   * @since   2.0.2
+   */
+  public static boolean eqSource(Object a, Object b) {
+    if (a==b) {
+      return true;
+    }
+    if ( (a == null) || (b == null) ) {
+      return false;
+    }
+    if ( !(a instanceof Source) ) {
+      return false;
+    }
+    if ( !(b instanceof Source) ) {
+      return false;
+    }
+    return StringUtils.equals(((Source)a).getId(), ((Source)b).getId());
+  } 
+
+  /**
    * 
    * @param _m
    * @return string
@@ -456,6 +478,24 @@ public class SubjectHelper {
     for (Subject current : collection) {
       if (StringUtils.equals(current.getSourceId(), sourceId)
           && StringUtils.equals(current.getId(), subjectId)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
+   * see if a source is in a list
+   * @param collection
+   * @param source
+   * @return true if in list
+   */
+  public static boolean inSourceList(Collection<Source> collection, Source source) {
+    if (collection == null) {
+      return false;
+    }
+    for (Source current : collection) {
+      if (eqSource(current, source)) {
         return true;
       }
     }

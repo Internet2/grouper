@@ -44,6 +44,7 @@ import edu.internet2.middleware.grouper.attr.AttributeDefValueType;
 import edu.internet2.middleware.grouper.cfg.ApiConfig;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogConsumerBase;
+import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.MemberAddException;
@@ -647,9 +648,12 @@ public class GrouperCheckConfig {
     String dbPassword = GrouperUtil.propertiesValue(
         grouperHibernateProperties, "hibernate.connection.password");
     
+        
     if (!checkDatabase(driverClassName, connectionUrl, dbUser, dbPassword, "grouper.hibernate.properties")) {
       return;
     }
+    
+    driverClassName = GrouperDdlUtils.convertUrlToDriverClassIfNeeded(connectionUrl, driverClassName);
     
     String realDriverClass = driverClassName;
 
@@ -667,18 +671,23 @@ public class GrouperCheckConfig {
     boolean isDriverPostgres = realDriverClass.toLowerCase().contains("postgres");
     boolean isDriverMysql = realDriverClass.toLowerCase().contains("mysql");
     boolean isDriverHsql = realDriverClass.toLowerCase().contains("hsql");
+    boolean isDriverSqlServer = realDriverClass.toLowerCase().contains("sqlserver");
     
     String dialect = StringUtils.defaultString(GrouperUtil.propertiesValue(grouperHibernateProperties,"hibernate.dialect"));
+    
+    dialect = GrouperDdlUtils.convertUrlToHibernateDialectIfNeeded(connectionUrl, dialect);
     
     boolean isDialectOracle = dialect.toLowerCase().contains("oracle");
     boolean isDialectPostgres = dialect.toLowerCase().contains("postgres");
     boolean isDialectMysql = dialect.toLowerCase().contains("mysql");
     boolean isDialectHsql = dialect.toLowerCase().contains("hsql");
+    boolean isDialectSqlServer = dialect.toLowerCase().contains("sqlserver");
     
     if ((isDriverOracle && !isDialectOracle) || (isDriverPostgres && !isDialectPostgres) 
         || (isDriverMysql && !isDialectMysql) || (isDriverHsql && !isDialectHsql)
         || (!isDriverOracle && isDialectOracle) || (!isDriverPostgres && isDialectPostgres) 
-        || (!isDriverMysql && isDialectMysql) || (!isDriverHsql && isDialectHsql)) {
+        || (!isDriverMysql && isDialectMysql) || (!isDriverHsql && isDialectHsql)
+        || (!isDriverSqlServer && isDialectSqlServer) || (isDriverSqlServer && !isDialectSqlServer)) {
       String error = "Grouper error: detected mismatch in hibernate.connection.driver_class ("
               + realDriverClass + ") and hibernate.dialect (" + dialect 
               + ") in grouper.hibernate.properties" + spySuffix;
@@ -701,7 +710,18 @@ public class GrouperCheckConfig {
       String databaseDescription) {
     try {
       
+      if (StringUtils.isBlank(connectionUrl)) {
+        String error = "Error finding connection url from " + databaseDescription;
+        System.err.println("Grouper error: " + error);
+        LOG.error(error);
+        return false;
+        
+      }
+      
       dbPassword = Morph.decryptIfFile(dbPassword);
+      
+      driverClassName = GrouperDdlUtils.convertUrlToDriverClassIfNeeded(connectionUrl, driverClassName);
+      
       Class driverClass = null;
       try {
         driverClass = GrouperUtil.forName(driverClassName);
@@ -820,10 +840,15 @@ public class GrouperCheckConfig {
       }
       String driverKey = "db." + dbName + ".driver";
       if (!dbMap.containsKey(driverKey)) {
-        String error = "cannot find grouper-loader.properties key: " + driverKey; 
-        System.out.println("Grouper error: " + error);
-        LOG.error(error);
-        missingOne = true;
+        
+        //its ok unless we cant convert from url...
+        if (!StringUtils.isBlank(urlKey) && StringUtils.isBlank(GrouperDdlUtils.convertUrlToDriverClassIfNeeded(dbMap.get(urlKey), null))) {
+        
+          String error = "cannot find grouper-loader.properties key: " + driverKey; 
+          System.out.println("Grouper error: " + error);
+          LOG.error(error);
+          missingOne = true;
+        }
       }
       if (missingOne) {
         return;

@@ -323,7 +323,7 @@ public class SubjectPicker {
       //if filtering by group, do that here
       final String groupFilterName = subjectPickerContainer.configValue("resultsMustBeInGroup");
       
-      if (!StringUtils.isBlank(groupFilterName) && GrouperUtil.length(subjects) > 0) {
+      if (StringUtils.isBlank(groupFilterName)) {
         try {
           
           //if clamping down on sources in config
@@ -366,8 +366,8 @@ public class SubjectPicker {
         Group group = (Group)GrouperSession.callbackGrouperSession(grouperSession.internal_getRootSession(), new GrouperSessionHandler() {
           
           @Override
-          public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
-            return GroupFinder.findByName(grouperSession, groupFilterName, true);
+          public Object callback(GrouperSession grouperSession2) throws GrouperSessionException {
+            return GroupFinder.findByName(grouperSession2, groupFilterName, true);
           }
         });
         

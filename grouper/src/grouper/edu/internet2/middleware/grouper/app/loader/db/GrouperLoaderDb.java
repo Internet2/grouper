@@ -7,6 +7,8 @@ package edu.internet2.middleware.grouper.app.loader.db;
 import java.sql.Connection;
 import java.sql.DriverManager;
 
+import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
+
 
 /**
  * db profile from grouper.properties (or possibly grouper.hibernate.properties)
@@ -141,7 +143,7 @@ public class GrouperLoaderDb {
     this.user = user1;
     this.pass = pass1;
     this.url = url1;
-    this.driver = driver1;
+    this.driver = GrouperDdlUtils.convertUrlToDriverClassIfNeeded(url1, driver1);
   }
 
   
