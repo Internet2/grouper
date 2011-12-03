@@ -28,6 +28,7 @@ import org.apache.commons.logging.Log;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.hibernate.ByHqlStatic;
 import edu.internet2.middleware.grouper.hibernate.HibUtils;
@@ -118,6 +119,16 @@ public class Hib3PermissionEntryDAO extends Hib3DAO implements PermissionEntryDA
   public Set<PermissionEntry> findPermissions(Collection<String> attributeDefIds,
       Collection<String> attributeDefNameIds, Collection<String> roleIds,
       Collection<String> actions, Boolean enabled, Collection<String> memberIdsTotal, boolean noEndDate) {
+    return findPermissions(attributeDefIds, attributeDefNameIds, roleIds, actions, enabled, memberIdsTotal, false, null, null);
+  }
+    
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.PermissionEntryDAO#findPermissions(java.util.Collection, java.util.Collection, java.util.Collection, java.util.Collection, java.lang.Boolean, java.util.Collection, boolean, Stem, Scope)
+   */
+  public Set<PermissionEntry> findPermissions(Collection<String> attributeDefIds,
+      Collection<String> attributeDefNameIds, Collection<String> roleIds,
+      Collection<String> actions, Boolean enabled, Collection<String> memberIdsTotal, 
+      boolean noEndDate, Stem permissionNameInStem, Scope permissionNameInStemScope) {
     
     Set<PermissionEntry> totalResults = new LinkedHashSet<PermissionEntry>();
 
@@ -159,6 +170,10 @@ public class Hib3PermissionEntryDAO extends Hib3DAO implements PermissionEntryDA
       //String countPrefix = "select count(distinct pea) ";
       
       StringBuilder sqlTables = new StringBuilder(" from PermissionEntryAll pea ");
+
+      if (permissionNameInStem != null && permissionNameInStemScope == Scope.ONE) {
+        sqlTables.append(" , AttributeDefName adn ");
+      }
       
       StringBuilder sqlWhereClause = new StringBuilder("");
       
@@ -191,6 +206,24 @@ public class Hib3PermissionEntryDAO extends Hib3DAO implements PermissionEntryDA
       if (enabled != null && !enabled) {
         sql.append(" and pea.enabledDb = 'F' ");
       }
+      
+      if (permissionNameInStem != null) {
+        switch (permissionNameInStemScope) {
+          case ONE:
+            sql.append(" and pea.attributeDefNameId = adn.id and adn.stemId = :stemId ");
+            byHqlStatic.setString("stemId", permissionNameInStem.getUuid());
+            break;
+          case SUB:
+            
+            sql.append(" and pea.attributeDefNameName like :stemSub ");
+            byHqlStatic.setString("stemSub", permissionNameInStem.getName() + ":%");
+            
+            break;
+          default:
+            throw new RuntimeException("Not expecting permissionNameInStemScope: " + permissionNameInStemScope);
+        }
+      }
+
       
       if (noEndDate) {
         sql.append(" and pea.immediateMshipDisabledTimeDb is null ");
@@ -677,11 +710,21 @@ public class Hib3PermissionEntryDAO extends Hib3DAO implements PermissionEntryDA
   public Set<PermissionEntry> findRolePermissions(Collection<String> attributeDefIds,
       Collection<String> attributeDefNameIds, Collection<String> roleIds,
       Collection<String> actions, Boolean enabled, boolean noEndDate) {
+    return findRolePermissions(attributeDefIds, attributeDefNameIds, roleIds, actions, enabled, noEndDate, null, null);
+  }
+
+  /**
+   * @see PermissionEntryDAO#findRolePermissions(Collection, Collection, Collection, Collection, Boolean, boolean, Stem, Scope)
+   */
+  public Set<PermissionEntry> findRolePermissions(Collection<String> attributeDefIds,
+      Collection<String> attributeDefNameIds, Collection<String> roleIds,
+      Collection<String> actions, Boolean enabled, boolean noEndDate, 
+      Stem permissionNameInStem, Scope permissionNameInStemScope) {
     int roleIdsSize = GrouperUtil.length(roleIds);
     int actionsSize = GrouperUtil.length(actions);
     int attributeDefIdsSize = GrouperUtil.length(attributeDefIds);
     int attributeDefNameIdsSize = GrouperUtil.length(attributeDefNameIds);
-    
+
     //too many bind vars
     if (roleIdsSize + attributeDefIdsSize + attributeDefNameIdsSize + actionsSize > 100) {
       throw new RuntimeException("Too many roleIdsSize " + roleIdsSize + " or attributeDefIdsSize " 
@@ -691,18 +734,22 @@ public class Hib3PermissionEntryDAO extends Hib3DAO implements PermissionEntryDA
     ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
 
     String selectPrefix = "select distinct pea ";
-    
+
     //doesnt work due to composite key, hibernate puts parens around it and mysql fails
     //String countPrefix = "select count(distinct pea) ";
-    
+
     StringBuilder sqlTables = new StringBuilder(" from PermissionEntryRoleAssigned pea ");
-    
+
+    if (permissionNameInStem != null && permissionNameInStemScope == Scope.ONE) {
+      sqlTables.append(" , AttributeDefName adn ");
+    }
+
     StringBuilder sqlWhereClause = new StringBuilder("");
-    
+
     GrouperSession grouperSession = GrouperSession.staticGrouperSession();
-    
+
     Subject grouperSessionSubject = grouperSession.getSubject();
-    
+
     grouperSession.getAttributeDefResolver().hqlFilterAttrDefsWhereClause(
       grouperSessionSubject, byHqlStatic, 
       sqlTables, sqlWhereClause, "pea.attributeDefId", AttributeDefPrivilege.READ_PRIVILEGES);
@@ -732,6 +779,24 @@ public class Hib3PermissionEntryDAO extends Hib3DAO implements PermissionEntryDA
     if (noEndDate) {
       sql.append(" and pea.disabledTimeDb is null ");
     }
+
+    if (permissionNameInStem != null) {
+      switch (permissionNameInStemScope) {
+        case ONE:
+          sql.append(" and pea.attributeDefNameId = adn.id and adn.stemId = :stemId ");
+          byHqlStatic.setString("stemId", permissionNameInStem.getUuid());
+          break;
+        case SUB:
+          
+          sql.append(" and pea.attributeDefNameName like :stemSub ");
+          byHqlStatic.setString("stemSub", permissionNameInStem.getName() + ":%");
+          
+          break;
+        default:
+          throw new RuntimeException("Not expecting permissionNameInStemScope: " + permissionNameInStemScope);
+      }
+    }
+
     
     if (actionsSize > 0) {
       sql.append(" and pea.action in (");

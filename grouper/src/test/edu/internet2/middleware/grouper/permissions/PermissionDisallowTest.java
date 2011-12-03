@@ -14,6 +14,7 @@ import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.StemSave;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.AttributeDefNameSave;
@@ -25,6 +26,7 @@ import edu.internet2.middleware.grouper.cfg.ApiConfig;
 import edu.internet2.middleware.grouper.group.TypeOfGroup;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
+import edu.internet2.middleware.grouper.permissions.PermissionEntry.PermissionType;
 import edu.internet2.middleware.grouper.permissions.role.Role;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
@@ -39,7 +41,7 @@ public class PermissionDisallowTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new PermissionDisallowTest("testActionDirectedGraphPriority"));
+    TestRunner.run(new PermissionDisallowTest("testFindPermissionsInStem"));
   }
 
   /**
@@ -61,9 +63,11 @@ public class PermissionDisallowTest extends GrouperTest {
   private GrouperSession grouperSession;
 
   /** root stem */
+  @SuppressWarnings("unused")
   private Stem root;
 
   /** top stem */
+  @SuppressWarnings("unused")
   private Stem top;
 
   /** admin role */
@@ -144,13 +148,20 @@ public class PermissionDisallowTest extends GrouperTest {
     
     this.permissionDef = new AttributeDefSave(this.grouperSession).assignName("top:permissionDef")
       .assignAttributeDefType(AttributeDefType.perm).assignToEffMembership(true).assignToGroup(true).save();
-    this.english = new AttributeDefNameSave(this.grouperSession, this.permissionDef).assignName("top:english").assignDisplayExtension("English").save();
-    this.math = new AttributeDefNameSave(this.grouperSession, this.permissionDef).assignName("top:math").assignDisplayExtension("Math").save();
-    this.electricalEngineering = new AttributeDefNameSave(this.grouperSession, this.permissionDef).assignName("top:electricalEngineering").assignDisplayExtension("Electrical Engineering").save();
-    this.chemicalEngineering = new AttributeDefNameSave(this.grouperSession, this.permissionDef).assignName("top:chemicalEngineering").assignDisplayExtension("Chemical Engineering").save();
-    this.artsAndSciences = new AttributeDefNameSave(this.grouperSession, this.permissionDef).assignName("top:artsAndSciences").assignDisplayExtension("Arts and Sciences").save();
-    this.engineering = new AttributeDefNameSave(this.grouperSession, this.permissionDef).assignName("top:engineering").assignDisplayExtension("Engineering").save();
-    this.all = new AttributeDefNameSave(this.grouperSession, this.permissionDef).assignName("top:all").assignDisplayExtension("All").save();
+    this.english = new AttributeDefNameSave(this.grouperSession, this.permissionDef)
+      .assignCreateParentStemsIfNotExist(true).assignName("top:artsAndSciences:english").assignDisplayExtension("English").save();
+    this.math = new AttributeDefNameSave(this.grouperSession, this.permissionDef)
+      .assignCreateParentStemsIfNotExist(true).assignName("top:artsAndSciences:math").assignDisplayExtension("Math").save();
+    this.electricalEngineering = new AttributeDefNameSave(this.grouperSession, this.permissionDef)
+      .assignCreateParentStemsIfNotExist(true).assignName("top:engineering:electrical:engineering").assignDisplayExtension("Electrical Engineering").save();
+    this.chemicalEngineering = new AttributeDefNameSave(this.grouperSession, this.permissionDef)
+      .assignCreateParentStemsIfNotExist(true).assignName("top:engineering:chemicalEngineering").assignDisplayExtension("Chemical Engineering").save();
+    this.artsAndSciences = new AttributeDefNameSave(this.grouperSession, this.permissionDef)
+      .assignCreateParentStemsIfNotExist(true).assignName("top:artsAndSciences").assignDisplayExtension("Arts and Sciences").save();
+    this.engineering = new AttributeDefNameSave(this.grouperSession, this.permissionDef)
+      .assignCreateParentStemsIfNotExist(true).assignName("top:engineering").assignDisplayExtension("Engineering").save();
+    this.all = new AttributeDefNameSave(this.grouperSession, this.permissionDef)
+      .assignCreateParentStemsIfNotExist(true).assignName("top:all").assignDisplayExtension("All").save();
 
     this.all.getAttributeDefNameSetDelegate().addToAttributeDefNameSet(this.engineering);
     this.all.getAttributeDefNameSetDelegate().addToAttributeDefNameSet(this.artsAndSciences);
@@ -625,7 +636,95 @@ public class PermissionDisallowTest extends GrouperTest {
         .addPermissionName(this.math).hasPermission());
         
   }
-  //TODO do 
+
+  /**
+   * 
+   */
+  public void testFindPermissionsInStem() {
+
+    //      Assignments:
+    //
+    //      Role<Admin> allows: Action<Read> of Resource<All>
+    this.adminRole.getPermissionRoleDelegate().assignRolePermission(this.readString, this.all, PermissionAllowed.ALLOWED);
+    //
+    //User subj0 is assigned Role<Admin>
+    this.adminRole.addMember(this.subj0, true);
+
+    {
+      //################# SUBJECT PERMISSIONS
+      List<PermissionEntry> permissionEntries = new ArrayList<PermissionEntry>(new PermissionFinder().addSubject(this.subj0)
+          .addAction(this.readString).assignPermissionProcessor(PermissionProcessor.FILTER_REDUNDANT_PERMISSIONS_AND_ROLES_AND_PROCESS_LIMITS)
+          .addPermissionDef(this.permissionDef).findPermissions());
+      
+      //this is all
+      assertTrue(GrouperUtil.length(permissionEntries) + "", GrouperUtil.length(permissionEntries) >= 7);
+      
+      Stem engineering = StemFinder.findByName(grouperSession, "top:engineering", true);
+      
+      //find in a stem
+      permissionEntries = new ArrayList<PermissionEntry>(new PermissionFinder().addSubject(this.subj0)
+          .addAction(this.readString).assignPermissionProcessor(PermissionProcessor.FILTER_REDUNDANT_PERMISSIONS_AND_ROLES_AND_PROCESS_LIMITS)
+          .assignPermissionNameFolder(engineering).assignPermissionNameFolderScope(Scope.ONE)
+          .addPermissionDef(this.permissionDef).findPermissions());
+      
+      //only chemical
+      assertEquals(1, GrouperUtil.length(permissionEntries));
+      
+      assertTrue(permissionEntries.get(0).getAttributeDefNameName(), permissionEntries.get(0).getAttributeDefNameName().toLowerCase().contains("chemical"));
+      
+      //find in a stem sub
+      permissionEntries = new ArrayList<PermissionEntry>(new PermissionFinder().addSubject(this.subj0)
+          .addAction(this.readString).assignPermissionProcessor(PermissionProcessor.FILTER_REDUNDANT_PERMISSIONS_AND_ROLES_AND_PROCESS_LIMITS)
+          .assignPermissionNameFolder(engineering).assignPermissionNameFolderScope(Scope.SUB)
+          .addPermissionDef(this.permissionDef).findPermissions());
+      
+      //only chemical and electrical
+      assertEquals(2, GrouperUtil.length(permissionEntries));
+      
+      assertTrue(permissionEntries.get(0).getAttributeDefNameName(), permissionEntries.get(0).getAttributeDefNameName().toLowerCase().contains("electrical"));
+      assertTrue(permissionEntries.get(1).getAttributeDefNameName(), permissionEntries.get(1).getAttributeDefNameName().toLowerCase().contains("chemical"));
+    }
+
+    {
+      //################# ROLE PERMISSIONS
+      List<PermissionEntry> permissionEntries = new ArrayList<PermissionEntry>(new PermissionFinder()
+        .addRole(this.adminRole).assignPermissionType(PermissionType.role)
+        .addAction(this.readString)
+        .assignPermissionProcessor(PermissionProcessor.FILTER_REDUNDANT_PERMISSIONS_AND_ROLES_AND_PROCESS_LIMITS)
+        .addPermissionDef(this.permissionDef).findPermissions());
+      
+      //this is all
+      assertTrue(GrouperUtil.length(permissionEntries) + "", GrouperUtil.length(permissionEntries) >= 7);
+      
+      Stem engineering = StemFinder.findByName(grouperSession, "top:engineering", true);
+      
+      //find in a stem
+      permissionEntries = new ArrayList<PermissionEntry>(new PermissionFinder()
+          .addAction(this.readString).assignPermissionType(PermissionType.role)
+          .assignPermissionProcessor(PermissionProcessor.FILTER_REDUNDANT_PERMISSIONS_AND_ROLES_AND_PROCESS_LIMITS)
+          .assignPermissionNameFolder(engineering).assignPermissionNameFolderScope(Scope.ONE)
+          .addPermissionDef(this.permissionDef).findPermissions());
+      
+      //only chemical
+      assertEquals(1, GrouperUtil.length(permissionEntries));
+      
+      assertTrue(permissionEntries.get(0).getAttributeDefNameName(), permissionEntries.get(0).getAttributeDefNameName().toLowerCase().contains("chemical"));
+      
+      //find in a stem sub
+      permissionEntries = new ArrayList<PermissionEntry>(new PermissionFinder()
+          .addRole(this.adminRole).addAction(this.readString).assignPermissionType(PermissionType.role)
+          .assignPermissionProcessor(PermissionProcessor.FILTER_REDUNDANT_PERMISSIONS_AND_ROLES_AND_PROCESS_LIMITS)
+          .assignPermissionNameFolder(engineering).assignPermissionNameFolderScope(Scope.SUB)
+          .addPermissionDef(this.permissionDef).findPermissions());
+      
+      //only chemical and electrical
+      assertEquals(2, GrouperUtil.length(permissionEntries));
+      
+      assertTrue(permissionEntries.get(0).getAttributeDefNameName(), permissionEntries.get(0).getAttributeDefNameName().toLowerCase().contains("electrical"));
+      assertTrue(permissionEntries.get(1).getAttributeDefNameName(), permissionEntries.get(1).getAttributeDefNameName().toLowerCase().contains("chemical"));
+    }
+    
+  }
   
 //  Role assignment vs individual assignment
 //

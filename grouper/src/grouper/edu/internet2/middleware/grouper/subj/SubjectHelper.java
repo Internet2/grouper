@@ -31,7 +31,6 @@ import org.apache.commons.lang.StringUtils;
 
 import edu.emory.mathcs.backport.java.util.Collections;
 import edu.internet2.middleware.grouper.Member;
-import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.internal.util.Quote;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
@@ -450,16 +449,37 @@ public class SubjectHelper {
    * @return true if in list
    */
   public static boolean inList(Collection<Subject> collection, String sourceId, String subjectId) {
-    if (collection == null) {
-      return false;
-    }
-    for (Subject current : collection) {
-      if (StringUtils.equals(current.getSourceId(), sourceId)
-          && StringUtils.equals(current.getId(), subjectId)) {
-        return true;
+    Subject subject = findInList(collection, sourceId, subjectId, false);
+    return subject != null;
+  }
+  
+  /**
+   * see if a subject is in a list, if so return it
+   * @param collection
+   * @param sourceId 
+   * @param subjectId 
+   * @param exceptionIfNotFound true if an exception should be thrown if not found
+   * @return subject or null if not found or exception
+   */
+  public static Subject findInList(Collection<Subject> collection, String sourceId, String subjectId, boolean exceptionIfNotFound) {
+    
+    Subject subject = null;
+    
+    if (collection != null) {
+      for (Subject current : collection) {
+        if (StringUtils.equals(current.getSourceId(), sourceId)
+            && StringUtils.equals(current.getId(), subjectId)) {
+          subject = current;
+          break;
+        }
       }
     }
-    return false;
+    
+    if (subject != null || !exceptionIfNotFound) {
+      return subject;
+    }
+    
+    throw new RuntimeException("Cant find subject in list: '" + sourceId + "', '" + subjectId + "', list size: " + GrouperUtil.length(collection) );
   }
   
 } // class SubjectHelper
