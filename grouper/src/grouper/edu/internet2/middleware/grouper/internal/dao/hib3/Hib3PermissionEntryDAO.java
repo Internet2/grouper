@@ -35,6 +35,7 @@ import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.PermissionEntryDAO;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
+import edu.internet2.middleware.grouper.internal.dao.QuerySort;
 import edu.internet2.middleware.grouper.permissions.PermissionEntry;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
@@ -255,9 +256,17 @@ public class Hib3PermissionEntryDAO extends Hib3DAO implements PermissionEntryDA
         sql.append(HibUtils.convertToInClause(memberIds, byHqlStatic));
         sql.append(") ");
       }
+      
+      QueryOptions queryOptions = new QueryOptions();
+      QuerySort querySort = new QuerySort("pea.subjectId", true);
+      querySort.insertSortToBeginning("pea.action", true);
+      querySort.insertSortToBeginning("pea.roleDisplayName", true);
+      querySort.insertSortToBeginning("pea.attributeDefNameDispName", true);
+      queryOptions.sort(querySort);
+      
       byHqlStatic
         .setCacheable(false)
-        .setCacheRegion(KLASS + ".findPermissions");
+        .setCacheRegion(KLASS + ".findPermissions").options(queryOptions);
 
       int maxAssignments = GrouperConfig.getPropertyInt("ws.findPermissions.maxResultSize", 30000);
       
@@ -818,8 +827,15 @@ public class Hib3PermissionEntryDAO extends Hib3DAO implements PermissionEntryDA
       sql.append(HibUtils.convertToInClause(attributeDefNameIds, byHqlStatic));
       sql.append(") ");
     }
+    
+    QueryOptions queryOptions = new QueryOptions();
+    QuerySort querySort = new QuerySort("pea.action", true);
+    querySort.insertSortToBeginning("pea.roleDisplayName", true);
+    querySort.insertSortToBeginning("pea.attributeDefNameDispName", true);
+    queryOptions.sort(querySort);
+    
     byHqlStatic
-      .setCacheable(false)
+      .setCacheable(false).options(queryOptions)
       .setCacheRegion(KLASS + ".findRolePermissions");
 
     int maxAssignments = GrouperConfig.getPropertyInt("ws.findPermissions.maxResultSize", 30000);

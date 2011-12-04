@@ -681,8 +681,8 @@ public class PermissionDisallowTest extends GrouperTest {
       //only chemical and electrical
       assertEquals(2, GrouperUtil.length(permissionEntries));
       
-      assertTrue(permissionEntries.get(0).getAttributeDefNameName(), permissionEntries.get(0).getAttributeDefNameName().toLowerCase().contains("electrical"));
-      assertTrue(permissionEntries.get(1).getAttributeDefNameName(), permissionEntries.get(1).getAttributeDefNameName().toLowerCase().contains("chemical"));
+      assertTrue(permissionEntries.get(0).getAttributeDefNameName(), permissionEntries.get(0).getAttributeDefNameName().toLowerCase().contains("chemical"));
+      assertTrue(permissionEntries.get(1).getAttributeDefNameName(), permissionEntries.get(1).getAttributeDefNameName().toLowerCase().contains("electrical"));
     }
 
     {
@@ -720,8 +720,8 @@ public class PermissionDisallowTest extends GrouperTest {
       //only chemical and electrical
       assertEquals(2, GrouperUtil.length(permissionEntries));
       
-      assertTrue(permissionEntries.get(0).getAttributeDefNameName(), permissionEntries.get(0).getAttributeDefNameName().toLowerCase().contains("electrical"));
-      assertTrue(permissionEntries.get(1).getAttributeDefNameName(), permissionEntries.get(1).getAttributeDefNameName().toLowerCase().contains("chemical"));
+      assertTrue(permissionEntries.get(0).getAttributeDefNameName(), permissionEntries.get(0).getAttributeDefNameName().toLowerCase().contains("chemical"));
+      assertTrue(permissionEntries.get(1).getAttributeDefNameName(), permissionEntries.get(1).getAttributeDefNameName().toLowerCase().contains("electrical"));
     }
     
   }

@@ -1,4 +1,4 @@
-package edu.internet2.middleware.grouper.subj;
+package edu.internet2.middleware.grouper.subj.decoratorExamples;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -22,8 +22,11 @@ import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.permissions.PermissionFinder;
 import edu.internet2.middleware.grouper.permissions.PermissionResult;
+import edu.internet2.middleware.grouper.subj.SubjectCustomizer;
+import edu.internet2.middleware.grouper.subj.SubjectCustomizerBase;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
+import edu.internet2.middleware.subject.provider.SubjectImpl;
 
 /**
  * add attributes securely to the subject
@@ -66,7 +69,7 @@ public class SubjectCustomizerForDecoratorExtraAttributes extends SubjectCustomi
 
         //see if admin
         boolean isAdmin = new MembershipFinder().assignCheckSecurity(false).addGroup(PRIVILEGED_ADMIN_GROUP_NAME)
-          .addSubject(theGrouperSession.getSubject()).hasMembership();
+          .addSubject(subjectChecking).hasMembership();
         
         //see which attributes the user has access to based on permissions
         PermissionResult permissionResult = null;
@@ -95,46 +98,81 @@ public class SubjectCustomizerForDecoratorExtraAttributes extends SubjectCustomi
 
         List<String> columns = new ArrayList<String>(columnsSet);
 
-        //TODO add batching
+        List<Subject> subjectList = new ArrayList<Subject>(subjects);
         
-        //get the list of subject ids
-        Set<String> subjectIds = new LinkedHashSet<String>();
-        for (Subject subject : subjects) {
-          if (StringUtils.equals(SOURCE_ID, subject.getSourceId())) {
-            subjectIds.add(subject.getId());
-          }
-        }
+        int batchSize = 180;
+        int numberOfBatches = GrouperUtil.batchNumberOfBatches(subjectList, batchSize);
         
-        //get the results of these columns for these subjects (by id)
-        //make query
-        StringBuilder sql = new StringBuilder("select id, ");
-        sql.append(GrouperUtil.join(columns.iterator(), ','));
-        sql.append(" from testgrouper_subj_attr where subject_id in( ");
-        sql.append(HibUtils.convertToInClauseForSqlStatic(subjectIds));
-        sql.append(")");
-        
-        //get the results from the DB
-        List<String[]> dbResults = HibernateSession.bySqlStatic().listSelect(String[].class, sql.toString(), GrouperUtil.toListObject(subjectIds.toArray()));
-        
-        //index the results by id of row
-        Map<String, String[]> dbResultLookup = new HashMap<String, String[]>();
-        
-        for(String[] row : dbResults) {
-          dbResultLookup.put(row[0], row);
-        }
-        
-        //loop through the subjects and match everything up
-        for (Subject subject : subjects) {
-          if (StringUtils.equals(SOURCE_ID, subject.getSourceId())) {
-            String[] row = dbResultLookup.get(subject.getId());
-            if (row != null) {
-              //look through the attributes
-              for (int i=0;i<columns.size();i++) {
-                //add one to row index since first is id.  add if null or not, we need the attribute set
-                subject.getAttributes().put(columns.get(0), GrouperUtil.toSet(row[i+1]));
-              }
+        subjects.clear();
+
+        //batch these since you dont know if there will be more than 180 to resolve
+        for (int i=0; i<numberOfBatches; i++) {
+          
+          List<Subject> subjectsBatch = GrouperUtil.batchList(subjectList, batchSize, i);
+          
+          //get the list of subject ids
+          Set<String> subjectIds = new LinkedHashSet<String>();
+          for (Subject subject : subjectsBatch) {
+            if (StringUtils.equals(SOURCE_ID, subject.getSourceId())) {
+              subjectIds.add(subject.getId());
             }
           }
+          
+          //get the results of these columns for these subjects (by id)
+          //make query
+          StringBuilder sql = new StringBuilder("select subject_id, ");
+          sql.append(GrouperUtil.join(columns.iterator(), ','));
+          sql.append(" from testgrouper_subj_attr where subject_id in( ");
+          sql.append(HibUtils.convertToInClauseForSqlStatic(subjectIds));
+          sql.append(")");
+          
+          //get the results from the DB
+          List<String[]> dbResults = HibernateSession.bySqlStatic().listSelect(String[].class, sql.toString(), GrouperUtil.toListObject(subjectIds.toArray()));
+          
+          //index the results by id of row
+          Map<String, String[]> dbResultLookup = new HashMap<String, String[]>();
+          
+          Set<String> subjectIdsRelated = new HashSet<String>();
+          
+          for(String[] row : dbResults) {
+            dbResultLookup.put(row[0], row);
+            subjectIdsRelated.add(row[0]);
+          }
+          
+          {
+            //copy over the subjects since we need new objects...
+            for (Subject subject : subjectsBatch) {
+              
+              //if it is a subject impl or doesnt have new attributes, we are all good...
+              if (StringUtils.equals("jdbc", subject.getSourceId()) && subjectIdsRelated.contains(subject.getId())) {
+                
+                if (!(subject instanceof SubjectImpl)) {
+                  subject = new SubjectImpl(subject.getId(), subject.getName(), 
+                      subject.getDescription(), subject.getTypeName(), subject.getSourceId(), 
+                      subject.getAttributes(false));
+                }
+                String[] row = dbResultLookup.get(subject.getId());
+                //shouldnt be null at this point
+                if (row != null) {
+                  //look through the attributes
+                  for (int j=0;j<columns.size();j++) {
+                    
+                    //add one to row index since first is id.  add if null or not, we need the attribute set
+                    String columnName = columns.get(j);
+                    String value = row[j+1];
+
+                    //this should return a modifiable map of attributes for us to work with
+                    subject.getAttributes(false).put(columnName, GrouperUtil.toSet(value));
+                  }
+                }
+              }
+              
+              subjects.add(subject);
+              
+            }
+          
+          }
+          
         }
         return null;
       }

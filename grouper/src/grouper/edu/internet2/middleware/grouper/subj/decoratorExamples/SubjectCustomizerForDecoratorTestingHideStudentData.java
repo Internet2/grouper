@@ -1,4 +1,4 @@
-package edu.internet2.middleware.grouper.subj;
+package edu.internet2.middleware.grouper.subj.decoratorExamples;
 
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -8,6 +8,8 @@ import org.apache.commons.lang.StringUtils;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.MembershipFinder;
 import edu.internet2.middleware.grouper.membership.MembershipResult;
+import edu.internet2.middleware.grouper.subj.SubjectCustomizer;
+import edu.internet2.middleware.grouper.subj.SubjectCustomizerBase;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.provider.SubjectImpl;

@@ -1,4 +1,4 @@
-package edu.internet2.middleware.grouper.subj;
+package edu.internet2.middleware.grouper.subj.decoratorExamples;
 
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -12,6 +12,8 @@ import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.membership.MembershipResult;
+import edu.internet2.middleware.grouper.subj.SubjectCustomizer;
+import edu.internet2.middleware.grouper.subj.SubjectCustomizerBase;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 

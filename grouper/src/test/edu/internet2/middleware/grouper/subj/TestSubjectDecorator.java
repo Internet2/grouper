@@ -32,6 +32,9 @@ import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.permissions.PermissionAllowed;
 import edu.internet2.middleware.grouper.permissions.role.Role;
+import edu.internet2.middleware.grouper.subj.decoratorExamples.SubjectCustomizerForDecoratorExtraAttributes;
+import edu.internet2.middleware.grouper.subj.decoratorExamples.SubjectCustomizerForDecoratorTestingCollabGroup;
+import edu.internet2.middleware.grouper.subj.decoratorExamples.SubjectCustomizerForDecoratorTestingHideStudentData;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
@@ -69,9 +72,9 @@ public class TestSubjectDecorator extends GrouperTest {
    */
   @Override
   protected void tearDown() {
-    super.tearDown();
-    ApiConfig.testConfig.remove("subjects.customizer.className");
-    dropExtraAttributeTables();
+//    super.tearDown();
+//    ApiConfig.testConfig.remove("subjects.customizer.className");
+//    dropExtraAttributeTables();
   }
 
   /**
