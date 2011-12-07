@@ -40,7 +40,6 @@ import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.Stem;
-import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.MembershipNotFoundException;
@@ -57,11 +56,9 @@ import edu.internet2.middleware.grouper.member.SortStringEnum;
 import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
-import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
-import edu.internet2.middleware.subject.provider.SourceManager;
 
 /**
  * Basic Hibernate <code>Membership</code> DAO interface.
@@ -718,7 +715,6 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
       SearchStringEnum memberSearchStringEnum, String memberSearchStringValue)
       throws GrouperDAOException {
 
-    GrouperSession grouperSession = GrouperSession.staticGrouperSession();
     ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
     
     StringBuilder sql = new StringBuilder("select distinct m "
@@ -734,53 +730,10 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
     if (enabledOnly) {
       sql.append(" and ms.enabledDb = 'T'");
     }
-    if (GrouperUtil.length(sources) == 0) {
-      
-      sources = new HashSet<Source>(SourceManager.getInstance().getSources());
-      
-    }
-    Set<Source> nonSecureSources = new HashSet<Source>();
-    Set<Source> secureSources = new HashSet<Source>();
-
-    for (Source source : sources) {
-      if (SubjectHelper.eqSource(source, SubjectFinder.internal_getGSA())
-          || SubjectHelper.eqSource(source, SubjectFinder.internal_getEntitySourceAdapter(false))) {
-        secureSources.add(source);
-      } else {
-        nonSecureSources.add(source);
+    if (sources != null && sources.size() > 0) {
+      sql.append(" and m.subjectSourceIdDb in ").append(HibUtils.convertSourcesToSqlInString(sources));
       }
-    }
     
-    sql.append(" and ( ");
-    
-    //there are three cases, nonsecure only, secure only, and both.
-    if (GrouperUtil.length(nonSecureSources) > 0) {
-      
-      sql.append(" ( m.subjectSourceIdDb in ").append(HibUtils.convertSourcesToSqlInString(nonSecureSources)).append(" ) ");
-
-      if (GrouperUtil.length(secureSources) > 0) { 
-        sql.append(" or ");
-      }
-      
-    }
-    if (GrouperUtil.length(secureSources) > 0) { 
-      sql.append(" ( m.subjectSourceIdDb in ").append(HibUtils.convertSourcesToSqlInString(secureSources));
-      
-      StringBuilder secureQuery = new StringBuilder("select secureGroup.uuid from Group secureGroup ");
-      boolean changedQuery = grouperSession.getAccessResolver().hqlFilterGroupsWhereClause(
-          grouperSession.getSubject(), byHqlStatic, 
-          secureQuery, "secureGroup.uuid", AccessPrivilege.VIEW_PRIVILEGES);
-      
-      if (changedQuery) {
-        
-        sql.append(" and m.subjectIdDb in ( ").append(secureQuery).append(" ) ");
-      }
-      
-      
-      sql.append(" ) ");
-      
-    }
-    sql.append(" ) ");
     
     if (memberSearchStringEnum != null) {
       if (!memberSearchStringEnum.hasAccess()) {
