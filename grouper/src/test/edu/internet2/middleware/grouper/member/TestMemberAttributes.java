@@ -19,7 +19,6 @@ import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.subj.InternalSourceAdapter;
-import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.provider.BaseSourceAdapter;
 import edu.internet2.middleware.subject.provider.SourceManager;
@@ -36,7 +35,7 @@ public class TestMemberAttributes extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new TestMemberAttributes("testBasicNonSecureSearchAndSort"));
+    TestRunner.run(new TestMemberAttributes("testPersonMember"));
     //TestRunner.run(TestMemberAttributes.class);
   }
   
@@ -642,64 +641,6 @@ public class TestMemberAttributes extends GrouperTest {
     assertEquals(SubjectTestHelper.SUBJ2.getName(), members[3].getName());
     assertEquals(SubjectTestHelper.SUBJ3.getName(), members[2].getName());
     assertEquals(SubjectTestHelper.SUBJ4.getName(), members[1].getName());
-
-    //do a secure query:
-    group2.revokePriv(AccessPrivilege.READ);
-    group2.revokePriv(AccessPrivilege.VIEW);
-
-    group2.grantPriv(SubjectTestHelper.SUBJ1, AccessPrivilege.READ, true);
-    
-    GrouperSession.stopQuietly(this.grouperSession);
-    
-    this.grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ0);
-    
-    // this should return the people and NOT the group
-    members = GrouperDAOFactory.getFactory().getMembership().findAllMembersByOwnerAndFieldAndType(
-        group.getId(), Group.getDefaultList(), null, null, null, true, 
-        SortStringEnum.getDefaultSortString(), SearchStringEnum.getDefaultSearchString(), "Test").toArray(new Member[0]);
-    assertEquals(5, members.length);
-    assertEquals(SubjectTestHelper.SUBJ0.getName(), members[0].getName());
-    assertEquals(SubjectTestHelper.SUBJ1.getName(), members[1].getName());
-    assertEquals(SubjectTestHelper.SUBJ2.getName(), members[2].getName());
-    assertEquals(SubjectTestHelper.SUBJ3.getName(), members[3].getName());
-    assertEquals(SubjectTestHelper.SUBJ4.getName(), members[4].getName());
-
-    GrouperSession.stopQuietly(this.grouperSession);
-    
-    this.grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ1);
-
-    // this should return the people and the group
-    members = GrouperDAOFactory.getFactory().getMembership().findAllMembersByOwnerAndFieldAndType(
-        group.getId(), Group.getDefaultList(), null, null, null, true, 
-        SortStringEnum.getDefaultSortString(), SearchStringEnum.getDefaultSearchString(), "Test").toArray(new Member[0]);
-    assertEquals(6, members.length);
-    assertEquals(group2.getName(), members[5].getName());
-    assertEquals(SubjectTestHelper.SUBJ0.getName(), members[0].getName());
-    assertEquals(SubjectTestHelper.SUBJ1.getName(), members[1].getName());
-    assertEquals(SubjectTestHelper.SUBJ2.getName(), members[2].getName());
-    assertEquals(SubjectTestHelper.SUBJ3.getName(), members[3].getName());
-    assertEquals(SubjectTestHelper.SUBJ4.getName(), members[4].getName());
-
-    //search only secure sources
-    members = GrouperDAOFactory.getFactory().getMembership().findAllMembersByOwnerAndFieldAndType(
-        group.getId(), Group.getDefaultList(), null, GrouperUtil.toSet(SubjectFinder.internal_getGSA()), null, true, 
-        SortStringEnum.getDefaultSortString(), SearchStringEnum.getDefaultSearchString(), "Test").toArray(new Member[0]);
-    assertEquals(1, members.length);
-    assertEquals(group2.getName(), members[0].getName());
-
-    //search only nonsecure sources
-    members = GrouperDAOFactory.getFactory().getMembership().findAllMembersByOwnerAndFieldAndType(
-        group.getId(), Group.getDefaultList(), null, GrouperUtil.toSet(SourceManager.getInstance().getSource("jdbc")), null, true, 
-        SortStringEnum.getDefaultSortString(), SearchStringEnum.getDefaultSearchString(), "Test").toArray(new Member[0]);
-    assertEquals(5, members.length);
-    assertEquals(SubjectTestHelper.SUBJ0.getName(), members[0].getName());
-    assertEquals(SubjectTestHelper.SUBJ1.getName(), members[1].getName());
-    assertEquals(SubjectTestHelper.SUBJ2.getName(), members[2].getName());
-    assertEquals(SubjectTestHelper.SUBJ3.getName(), members[3].getName());
-    assertEquals(SubjectTestHelper.SUBJ4.getName(), members[4].getName());
-
-    
-    
   }
   
   /**

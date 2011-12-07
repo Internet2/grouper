@@ -107,7 +107,7 @@ public class SubjectFinder {
 
   /**
    * if we should use threads when doing searches (if grouper.properties allows)
-   * @return
+   * @return isUseThreadsBasedOnThreadLocal
    */
   public static boolean isUseThreadsBasedOnThreadLocal() {
     Boolean isUseThreads = useThreads.get();
@@ -759,16 +759,6 @@ public class SubjectFinder {
     return gsa;
   } 
 
-  /**
-   * this is a placeholder in 2.0.2
-   * @param failIfError 
-   * @return source
-   * @since   2.1.0
-   */
-  public static Source internal_getEntitySourceAdapter(boolean failIfError) {
-    return null;
-  }
-  
   /**
    * Reset <code>SubjectResolver</code>.
    * @since   1.2.1
