@@ -80,7 +80,7 @@
 			<grouper:param value="${pager.start1}"/>
 			<grouper:param value="${pager.last}"/>
 			<grouper:param value="${pager.count}"/>
-		</grouper:message>
+		</grouper:message><c:if test="${isTruncatedResults}"> <grouper:message key="error.too.many.subject.results.for.source.reminder"/></c:if>
 		</div>
     <div class="genericListHeader">
   		<c:if test="${!empty listInstruction}">

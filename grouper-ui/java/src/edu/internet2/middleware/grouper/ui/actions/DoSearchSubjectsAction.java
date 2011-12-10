@@ -41,6 +41,7 @@ import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.ui.Message;
 import edu.internet2.middleware.grouper.ui.util.CollectionPager;
 import edu.internet2.middleware.grouper.ui.util.ProcessSearchTerm;
+import edu.internet2.middleware.subject.SearchPageResult;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectTooManyResults;
@@ -169,19 +170,25 @@ public class DoSearchSubjectsAction extends GrouperCapableAction {
 		
 		try {
   		if ((searchTerm != null) && (!searchTerm.equals(""))) {
+  			SearchPageResult searchPageResult = null;
   			if("all".equals(sourceId)) {
-  				results=SubjectFinder.findPage(searchTerm).getResults();
+  					searchPageResult = SubjectFinder.findPage(searchTerm);
   			}else{
   				
   					Source source = sm.getSource(sourceId);
   					ProcessSearchTerm processSearchTerm = new ProcessSearchTerm();
   					String processedSearchTerm = processSearchTerm.processSearchTerm(source, searchTerm, request);
-  					results = source.search(processedSearchTerm);
-  				
+  					//results = source.search(processedSearchTerm);
+  					searchPageResult = SubjectFinder.findPage(processedSearchTerm,sourceId);  				
+  			}
+  			results = searchPageResult.getResults();
+  			if(searchPageResult.isTooManyResults()) {
+  				request.setAttribute("message",new Message("error.too.many.subject.results.for.source",true));
+  				request.setAttribute("isTruncatedResults",true);
   			}
   		}
 		} catch (SubjectTooManyResults stmr) {
-		  session.setAttribute("sessionMessage",new Message("error.too.many.subject.results",true));
+		  session.setAttribute("sessionMessage",new Message("error.too.many.subject.results.for.source",true));
 		  return redirectToCaller((DynaActionForm)form);
 		}
 		
