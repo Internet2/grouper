@@ -22,6 +22,7 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.ResourceBundle;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
@@ -38,9 +39,11 @@ import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperHelper;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.Message;
 import edu.internet2.middleware.grouper.ui.util.CollectionPager;
 import edu.internet2.middleware.grouper.ui.util.ProcessSearchTerm;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.SearchPageResult;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
@@ -231,6 +234,12 @@ public class DoSearchSubjectsAction extends GrouperCapableAction {
 		pager.setTarget(mapping.getPath());
 		request.setAttribute("pager", pager);
 		
+		//put this in the request since it is a common inlucde shared by many pagers
+		ResourceBundle mediaResources = GrouperUiFilter.retrieveSessionMediaResourceBundle();
+    String removeFromSubjectSearch = mediaResources.getString("pager.removeFromSubjectSearch");
+		request.setAttribute("pager_removeFromSubjectSearch", removeFromSubjectSearch);
+    
+    
 		return mapping.findForward(FORWARD_SearchResults);
 
 	}
