@@ -23,6 +23,7 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.ResourceBundle;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
@@ -209,6 +210,12 @@ public class SearchNewMembersAction extends GrouperCapableAction {
 			HttpServletRequest request, HttpServletResponse response,
 			HttpSession session, GrouperSession grouperSession)
 			throws Exception {
+	  
+    //put this in the request since it is a common inlucde shared by many pagers
+    ResourceBundle mediaResources = GrouperUiFilter.retrieveSessionMediaResourceBundle();
+    String removeFromSubjectSearch = mediaResources.getString("pager.removeFromSubjectSearch");
+    request.setAttribute("pager_removeFromSubjectSearch", removeFromSubjectSearch);
+    
 		DynaActionForm searchForm = (DynaActionForm)form;
 		saveAsCallerPage(request,searchForm,"findForNode searchObj");
 		String browseMode = getBrowseMode(session);
