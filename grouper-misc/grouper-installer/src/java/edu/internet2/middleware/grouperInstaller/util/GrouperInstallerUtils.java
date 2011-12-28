@@ -6,6 +6,8 @@ package edu.internet2.middleware.grouperInstaller.util;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -24,7 +26,9 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.math.BigDecimal;
+import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.ServerSocket;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.net.URLDecoder;
@@ -66,6 +70,18 @@ import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpression;
+import javax.xml.xpath.XPathFactory;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import edu.internet2.middleware.grouperInstallerExt.org.apache.commons.httpclient.HttpMethodBase;
 import edu.internet2.middleware.grouperInstallerExt.org.apache.commons.logging.Log;
@@ -8788,7 +8804,7 @@ public class GrouperInstallerUtils  {
   private static boolean configuredLogs = false;
 
   /** log level */
-  public static String theLogLevel = "warn";
+  public static String theLogLevel = "WARNING";
   
   /**
    * @param theClass
@@ -8809,6 +8825,7 @@ public class GrouperInstallerUtils  {
         if (theLog instanceof Jdk14Logger) {
           Jdk14Logger jdkLogger = (Jdk14Logger) theLog;
           Logger logger = jdkLogger.getLogger();
+          
           long timeToLive = 60;
           while (logger.getParent() != null && timeToLive-- > 0) {
             //this should be root logger
@@ -9043,7 +9060,7 @@ public class GrouperInstallerUtils  {
    * @author mchyzer
    * @param <V> 
    */
-  private static class StreamGobbler<V> implements Callable<V> {
+  private static class StreamGobbler implements Runnable {
     
     /** stream to read */
     InputStream inputStream;
@@ -9056,16 +9073,21 @@ public class GrouperInstallerUtils  {
     
     /** command to log */
     String command;
+    
+    /** if print to stdout */
+    File printToFile;
+    
     /**
      * construct
      * @param is
      * @param theType 
      * @param theCommand
      */
-    StreamGobbler(InputStream is, String theType, String theCommand) {
+    StreamGobbler(InputStream is, String theType, String theCommand, File thePrintToFile) {
       this.inputStream = is;
       this.type = theType;
       this.command = theCommand;
+      this.printToFile = thePrintToFile;
     }
 
     /**
@@ -9077,21 +9099,36 @@ public class GrouperInstallerUtils  {
     }
 
     @Override
-    public V call() throws Exception {
+    public void run() {
+      
+      
+      FileOutputStream fileOutputStream = null;
+      
+      try {
+        fileOutputStream = this.printToFile == null ? null : new FileOutputStream(this.printToFile);
+      } catch (IOException ioe) {
+        throw new RuntimeException(ioe);
+      }
+      
       try {
         
-        StringWriter stringWriter = new StringWriter();
-        copy(this.inputStream, stringWriter);
-        this.resultString = stringWriter.toString();
-
+        if (this.printToFile  != null) {
+          copy(this.inputStream, fileOutputStream);
+          
+        } else {
+          StringWriter stringWriter = new StringWriter();
+          copy(this.inputStream, stringWriter);
+          this.resultString = stringWriter.toString();
+        }
       } catch (Exception e) {
 
         LOG.warn("Error saving output of executable: " + (this.resultString)
             + ", " + this.type + ", " + this.command, e);
         throw new RuntimeException(e);
 
+      } finally {
+        closeQuietly(fileOutputStream);
       }
-      return null;
     }
   }
   
@@ -9170,6 +9207,27 @@ public class GrouperInstallerUtils  {
    * @return the output text of the command, and the error and return code if exceptionOnExitValueNeZero is false.
    */
   public static CommandResult execCommand(String[] arguments, boolean exceptionOnExitValueNeZero, boolean waitFor) {
+    return execCommand(arguments, exceptionOnExitValueNeZero, waitFor, null,  null, null);
+  }
+
+  /**
+   * <pre>This will execute a command (with args). Under normal operation, 
+   * if the exit code of the command is not zero, an exception will be thrown.
+   * If the parameter exceptionOnExitValueNeZero is set to true, the 
+   * results of the call will be returned regardless of the exit status.
+   * Example call: execCommand(new String[]{"/bin/bash", "-c", "cd /someFolder; runSomeScript.sh"}, true);
+   * </pre>
+   * @param arguments are the commands
+   * @param exceptionOnExitValueNeZero if this is set to false, the 
+   * results of the call will be returned regardless of the exit status
+   * @param waitFor if we should wait for this process to end
+   * @param workingDirectory 
+   * @param envVariables are env vars with name=val
+   * @param outputFilePrefix will be the file prefix and Out.log and Err.log will be added to them
+   * @return the output text of the command, and the error and return code if exceptionOnExitValueNeZero is false.
+   */
+  public static CommandResult execCommand(String[] arguments, boolean exceptionOnExitValueNeZero, boolean waitFor, 
+      String[] envVariables, File workingDirectory, String outputFilePrefix) {
     Process process = null;
 
     StringBuilder commandBuilder = new StringBuilder();
@@ -9180,34 +9238,39 @@ public class GrouperInstallerUtils  {
     if (LOG.isDebugEnabled()) {
       LOG.debug("Running command: " + command);
     }
-    StreamGobbler<Object> outputGobbler = null;
-    StreamGobbler<Object> errorGobbler = null;
+    StreamGobbler outputGobbler = null;
+    StreamGobbler errorGobbler = null;
     try {
-      process = Runtime.getRuntime().exec(arguments);
+      process = Runtime.getRuntime().exec(arguments, envVariables, workingDirectory);
 
       if (!waitFor) {
         return new CommandResult(null, null, -1);
       }
-      outputGobbler = new StreamGobbler<Object>(process.getInputStream(), ".out", command);
-      errorGobbler = new StreamGobbler<Object>(process.getErrorStream(), ".err", command);
+      outputGobbler = new StreamGobbler(process.getInputStream(), ".out", command, outputFilePrefix == null ? null : new File(outputFilePrefix + "Out.log"));
+      errorGobbler = new StreamGobbler(process.getErrorStream(), ".err", command, outputFilePrefix == null ? null : new File(outputFilePrefix + "Err.log"));
 
-      Future<Object> futureOutput = retrieveExecutorService().submit(outputGobbler);
-      Future<Object> futureError = retrieveExecutorService().submit(errorGobbler);
-    
+      Thread outputThread = new Thread(outputGobbler);
+      outputThread.setDaemon(true);
+      outputThread.start();
+
+      Thread errorThread = new Thread(errorGobbler);
+      errorThread.setDaemon(true);
+      errorThread.start();
+
       try {
         process.waitFor();
       } finally {
         
         //finish running these threads
         try {
-          futureOutput.get();
-        } finally {
-          //ignore if cant get
+          outputThread.join();
+        } catch (Exception e) {
+          
         }
         try {
-          futureError.get();
-        } finally {
-          //ignore if cant get
+          errorThread.join();
+        } catch (Exception e) {
+          
         }
       }
     } catch (Exception e) {
@@ -9225,7 +9288,7 @@ public class GrouperInstallerUtils  {
       String message = "Process exit status=" + process.exitValue() + ": out: " + 
         (outputGobbler == null ? null : outputGobbler.getResultString())
         + ", err: " + (errorGobbler == null ? null : errorGobbler.getResultString());
-      LOG.error(message + ", on command: " + command);
+      LOG.error(message + ", on command: " + command + (workingDirectory == null ? "" : (", workingDir: " + workingDirectory.getAbsolutePath())));
       throw new RuntimeException(message);
     }
 
@@ -9308,14 +9371,71 @@ public class GrouperInstallerUtils  {
     return javaHome() + File.separator + "bin" + File.separator + "java";
   }
   
+  /** */
+  private static String JAVA_HOME = null;
+  
   /**
    * 
    * @return the java home location without slash afterward
    */
   public static String javaHome() {
-    return System.getProperty("java.home"); 
+    if (isBlank(JAVA_HOME)) {
+      
+      //try to get a jdk
+      JAVA_HOME = System.getProperty("java.home"); 
+      
+      if (JAVA_HOME.endsWith("jre")) {
+        String newJavaHome = JAVA_HOME.substring(0,JAVA_HOME.length()-4);
+        File javac = new File(newJavaHome + File.separator + "bin" + File.separator + "javac");
+        if (javac.exists()) {
+          JAVA_HOME = newJavaHome;
+        }
+        javac = new File(newJavaHome + File.separator + "bin" + File.separator + "javac.exe");
+        if (javac.exists()) {
+          JAVA_HOME = newJavaHome;
+        }
+      }
+    }
+    return JAVA_HOME;
   }
 
+  /**
+   * Checks to see if a specific port is available.
+   *
+   * @param port the port to check for availability
+   * @return true if available
+   */
+  public static boolean portAvailable(int port) {
+
+    ServerSocket ss = null;
+    try {
+      
+//      byte[] b = new byte[4];
+//      b[ 0] = new Integer(127).byteValue();
+//      b[ 1] = new Integer(0).byteValue();
+//      b[ 2] = new Integer(0).byteValue();
+//      b[ 3] = new Integer(1).byteValue();
+//      //Returns an InetAddress object given the raw IP address .
+//      InetAddress inetAddress = InetAddress.getByAddress(b);
+      
+      ss = new ServerSocket(port);
+      ss.setReuseAddress(true);
+      return true;
+    } catch (IOException e) {
+    } finally {
+      if (ss != null) {
+        try {
+          ss.close();
+        } catch (IOException e) {
+          /* should not be thrown */
+        }
+      }
+    }
+
+    return false;
+  }
+
+  
   /**
    * add a jar to classpath
    * @param file
@@ -9378,4 +9498,192 @@ public class GrouperInstallerUtils  {
         + " was returned when only one was expected. (size:" + size +")" );
   }
 
+  /**
+   * Copy a file to another file.  this perserves the file date
+   * 
+   * @param sourceFile
+   * @param destinationFile
+   */
+  public static void copyFile(File sourceFile, File destinationFile) {
+
+    copyFile(sourceFile, destinationFile, true);
+  }
+
+  /**
+   * Copy a file to another file.  this perserves the file date
+   * 
+   * @param sourceFile
+   * @param destinationFile
+   * @param onlyIfDifferentContents true if only saving due to different contents
+   * @param ignoreWhitespace true to ignore whitespace in comparisons
+   * @return true if contents were saved (thus different if param set)
+   */
+  public static boolean copyFile(File sourceFile, File destinationFile, boolean onlyIfDifferentContents,
+      boolean ignoreWhitespace) {
+    if (onlyIfDifferentContents) {
+      String sourceContents = readFileIntoString(sourceFile);
+      return saveStringIntoFile(destinationFile, sourceContents, 
+          onlyIfDifferentContents, ignoreWhitespace);
+    }
+    copyFile(sourceFile, destinationFile);
+    return true;
+  }
+
+  /**
+   * Copies a file to a new location.
+   * <p>
+   * This method copies the contents of the specified source file
+   * to the specified destination file.
+   * The directory holding the destination file is created if it does not exist.
+   * If the destination file exists, then this method will overwrite it.
+   *
+   * @param srcFile  an existing file to copy, must not be <code>null</code>
+   * @param destFile  the new file, must not be <code>null</code>
+   * @param preserveFileDate  true if the file date of the copy
+   *  should be the same as the original
+   *
+   * @throws NullPointerException if source or destination is <code>null</code>
+   * @throws IOException if source or destination is invalid
+   * @throws IOException if an IO error occurs during copying
+   * @see #copyFileToDirectory(File, File, boolean)
+   */
+  public static void copyFile(File srcFile, File destFile,
+          boolean preserveFileDate) {
+    
+    try {
+      if (srcFile == null) {
+        throw new NullPointerException("Source must not be null");
+      }
+      if (destFile == null) {
+        throw new NullPointerException("Destination must not be null");
+      }
+      if (srcFile.exists() == false) {
+        throw new FileNotFoundException("Source '" + srcFile + "' does not exist");
+      }
+      if (srcFile.isDirectory()) {
+        throw new IOException("Source '" + srcFile + "' exists but is a directory");
+      }
+      if (srcFile.getCanonicalPath().equals(destFile.getCanonicalPath())) {
+        throw new IOException("Source '" + srcFile + "' and destination '" + destFile
+            + "' are the same");
+      }
+      if (destFile.getParentFile() != null && destFile.getParentFile().exists() == false) {
+        if (destFile.getParentFile().mkdirs() == false) {
+          throw new IOException("Destination '" + destFile
+              + "' directory cannot be created");
+        }
+      }
+      if (destFile.exists() && destFile.canWrite() == false) {
+        throw new IOException("Destination '" + destFile + "' exists but is read-only");
+      }
+      doCopyFile(srcFile, destFile, preserveFileDate);
+    } catch (IOException ioe) {
+      throw new RuntimeException(ioe);
+    }
+  }
+
+  /**
+   * Internal copy file method.
+   * 
+   * @param srcFile  the validated source file, must not be <code>null</code>
+   * @param destFile  the validated destination file, must not be <code>null</code>
+   * @param preserveFileDate  whether to preserve the file date
+   * @throws IOException if an error occurs
+   */
+  private static void doCopyFile(File srcFile, File destFile, boolean preserveFileDate)
+      throws IOException {
+    if (destFile.exists() && destFile.isDirectory()) {
+      throw new IOException("Destination '" + destFile + "' exists but is a directory");
+    }
+
+    FileInputStream input = new FileInputStream(srcFile);
+    try {
+      FileOutputStream output = new FileOutputStream(destFile);
+      try {
+        copy(input, output);
+      } finally {
+        closeQuietly(output);
+      }
+    } finally {
+      closeQuietly(input);
+    }
+
+    if (srcFile.length() != destFile.length()) {
+      throw new IOException("Failed to copy full contents from '" +
+                  srcFile + "' to '" + destFile + "'");
+    }
+    if (preserveFileDate) {
+      destFile.setLastModified(srcFile.lastModified());
+    }
+  }
+
+  /**
+   * 
+   * @param xmlFile
+   * @param xpathExpression
+   * @return the nodelist
+   */
+  public static NodeList xpathEvaluate(File xmlFile, String xpathExpression) {
+    
+    try {
+      DocumentBuilderFactory domFactory = DocumentBuilderFactory.newInstance();
+      domFactory.setNamespaceAware(true); 
+      DocumentBuilder builder = domFactory.newDocumentBuilder();
+      Document doc = builder.parse(xmlFile);
+      XPath xpath = XPathFactory.newInstance().newXPath();
+       // XPath Query for showing all nodes value
+      XPathExpression expr = xpath.compile(xpathExpression);
+  
+      Object result = expr.evaluate(doc, XPathConstants.NODESET);
+      NodeList nodes = (NodeList) result;
+      return nodes;
+    } catch (Exception e) {
+      throw new RuntimeException("Problem evaluating xpath on file: " + xmlFile + ", expression: '" + xpathExpression + "'");
+    }
+
+  }
+  
+  /**
+   * 
+   * @param xmlFile
+   * @param xpathExpression
+   * @param attributeName 
+   * @return the nodelist
+   */
+  public static String xpathEvaluateAttribute(File xmlFile, String xpathExpression, String attributeName) {
+    NodeList nodes = GrouperInstallerUtils.xpathEvaluate(xmlFile, xpathExpression);
+    if (nodes == null || nodes.getLength() == 0) {
+      return null;
+    }
+    if (nodes.getLength() != 1) {
+      throw new RuntimeException("There is more than 1 Server element in server.xml: " + xmlFile.getAbsolutePath());
+    }
+    
+    
+    NamedNodeMap attributes = nodes.item(0).getAttributes();
+    if (attributes == null || attributes.getLength() == 0 ) {
+      return null;
+    }
+    Node attribute = attributes.getNamedItem(attributeName);
+    if (attribute == null) {
+      return null;
+    }
+    
+    String nodeValue = attribute.getNodeValue();
+    return nodeValue;
+  }  
+
+  /**
+   * 
+   * @param xmlFile
+   * @param xpathExpression
+   * @param attributeName 
+   * @param defaultValue 
+   * @return the nodelist
+   */
+  public static Integer xpathEvaluateAttributeInt(File xmlFile, String xpathExpression, String attributeName, Integer defaultValue) {
+    String nodeValue = xpathEvaluateAttribute(xmlFile, xpathExpression, attributeName);
+    Integer intValue = GrouperInstallerUtils.intValue(nodeValue, defaultValue);
+    return intValue;
+  }  
 }

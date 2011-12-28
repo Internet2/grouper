@@ -20,10 +20,14 @@ package edu.internet2.middleware.grouperInstallerExt.org.apache.commons.logging.
 
 import java.io.Serializable;
 
+import org.apache.log4j.Appender;
+import org.apache.log4j.ConsoleAppender;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.log4j.Priority;
+import org.apache.log4j.SimpleLayout;
 
+import edu.internet2.middleware.grouperInstaller.util.GrouperInstallerUtils;
 import edu.internet2.middleware.grouperInstallerExt.org.apache.commons.logging.Log;
 
 /**
@@ -100,15 +104,41 @@ public class Log4JLogger implements Log, Serializable {
     // ------------------------------------------------------------ Constructor
 
     public Log4JLogger() {
+      this.initLogger();
     }
 
+    private void initLogger() {
+      
+      boolean hasLog4jProperties = false;
+      try {
+        hasLog4jProperties = GrouperInstallerUtils.fileFromResourceName("log4j.properties") != null;
+      } catch (Exception e) {
+        
+      }
 
+      //avoid warning, just go to console
+      if (!hasLog4jProperties) {
+        Appender myAppender;  
+        this.logger.setLevel(Level.WARN);  
+          
+        // Define Appender     
+        myAppender = new ConsoleAppender(new SimpleLayout());  
+  
+        //myAppender.setLayout(new SimpleLayout());  
+        this.logger.addAppender(myAppender);  
+      }
+      
+
+     }
+    
     /**
      * Base constructor.
      */
     public Log4JLogger(String name) {
         this.name = name;
         this.logger = getLogger();
+        this.initLogger();
+
     }
 
     /** 
@@ -121,6 +151,8 @@ public class Log4JLogger implements Log, Serializable {
         }
         this.name = logger.getName();
         this.logger=logger;
+        this.initLogger();
+
     }
 
 

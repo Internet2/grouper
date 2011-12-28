@@ -12,7 +12,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import edu.internet2.middleware.grouperInstallerExt.org.apache.commons.logging.Log;
 
 
 /**
@@ -534,5 +534,5 @@ public class GiDbUtils {
   /**
    * 
    */
-  private static Logger LOG = Logger.getLogger(GiDbUtils.class);
+  private static Log LOG = GrouperInstallerUtils.retrieveLog(GiDbUtils.class);
 }
