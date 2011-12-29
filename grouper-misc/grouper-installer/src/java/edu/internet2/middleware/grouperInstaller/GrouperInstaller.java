@@ -210,7 +210,7 @@ public class GrouperInstaller {
    * @return the tag
    */
   private String tag() {
-    if (this.version == null) {
+    if (GrouperInstallerUtils.isBlank(this.version)) {
       throw new RuntimeException("tag is null!");
     }
     
@@ -559,8 +559,8 @@ public class GrouperInstaller {
     //####################################
     //System.out.println("Grouper install directory is: " + grouperInstallDirectoryFile.getAbsolutePath());
 
-    System.out.println("Installing grouper version: " + GrouperInstallerUtils.propertiesValue("grouper.version", true));
-    
+    this.version = GrouperInstallerUtils.propertiesValue("grouper.version", true);
+    System.out.println("Installing grouper version: " + this.version);
     //see if it is already downloaded
     
     
@@ -688,7 +688,9 @@ public class GrouperInstaller {
     
     //####################################
     //tell user to go to url
+    System.out.println("##################################\n");
     System.out.println("Go here for the Grouper UI (change hostname if on different host): http://localhost:" + this.tomcatHttpPort + "/" + this.tomcatUiPath + "/");
+    System.out.println("\n##################################\n");
     
     //####################################
     //download the ws
@@ -740,6 +742,13 @@ public class GrouperInstaller {
     //run a client command
     this.runClientCommand();
     
+    //####################################
+    //run a client command
+    System.out.println("##################################\n");
+    System.out.println("Installation success!");
+    System.out.println("\nGo here for the Grouper UI (change hostname if on different host): http://localhost:" + this.tomcatHttpPort + "/" + this.tomcatUiPath + "/");
+    System.out.println("\nThis is the Grouper WS URL (change hostname if on different host): http://localhost:" + this.tomcatHttpPort + "/" + this.tomcatWsPath + "/");
+    System.out.println("\n##################################\n");
     
   }
 

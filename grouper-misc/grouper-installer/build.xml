@@ -113,7 +113,7 @@
         <attribute name="Implementation-Vendor"   value="Internet2"/>
         <attribute name="Implementation-Title"    value="grouperInstaller"/>
         <attribute name="Implementation-Version"  value="${version}"/>
-        <attribute name="Implementation-URL"      value="https://wiki.internet2.edu/confluence/display/GrouperWG/Grouper+Installer"/>
+        <attribute name="Implementation-URL"      value="https://wiki.internet2.edu/confluence/display/Grouper/Grouper+Installer"/>
         <attribute name="Build-Timestamp"         value="${the.timestamp}"/>
       </manifest>
      </jar>
