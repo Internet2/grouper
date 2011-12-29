@@ -10,9 +10,10 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Callable;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import org.w3c.dom.NodeList;
 
 import edu.internet2.middleware.grouperInstaller.util.GiDbUtils;
 import edu.internet2.middleware.grouperInstaller.util.GrouperInstallerUtils;
@@ -120,62 +121,82 @@ public class GrouperInstaller {
    */
   public static void main(String[] args) {
     
-    //mainLogic(args);
-  
     GrouperInstaller grouperInstaller = new GrouperInstaller();
-    
-    //grouperInstaller.mainLogic(args);
-    
-    grouperInstaller.dbUrl = "jdbc:hsqldb:hsql://localhost:9001/grouper";
-    grouperInstaller.dbUser = "sa";
-    grouperInstaller.dbPass = "";
-    grouperInstaller.giDbUtils = new GiDbUtils(grouperInstaller.dbUrl, grouperInstaller.dbUser, grouperInstaller.dbPass);
-    grouperInstaller.untarredApiDir = new File("c:/mchyzer/grouper/trunk/grouper-installer/grouper.apiBinary-2.0.2");
-    grouperInstaller.grouperInstallDirectoryString = "C:/mchyzer/grouper/trunk/grouper-installer/";
-    
-    grouperInstaller.version = "2.0.2";
-    
-    grouperInstaller.addDriverJarToClasspath();
-//      
-    grouperInstaller.startHsqlDb();
-    grouperInstaller.checkDatabaseConnection();
-//      grouperInstaller.initDb();
-//      
-//      grouperInstaller.addQuickstartSubjects();
-//      grouperInstaller.addQuickstartData();
-    
-    File uiDir = grouperInstaller.downloadUi();
-    File unzippedUiFile = unzip(uiDir.getAbsolutePath());
-    grouperInstaller.untarredUiDir = untar(unzippedUiFile.getAbsolutePath());
-
-//      grouperInstaller.configureUi();
+    grouperInstaller.mainLogic(args);
+  
+//    
+//    
+//    grouperInstaller.dbUrl = "jdbc:hsqldb:hsql://localhost:9001/grouper";
+//    grouperInstaller.dbUser = "sa";
+//    grouperInstaller.dbPass = "";
+//    grouperInstaller.giDbUtils = new GiDbUtils(grouperInstaller.dbUrl, grouperInstaller.dbUser, grouperInstaller.dbPass);
+//    grouperInstaller.untarredApiDir = new File("c:/mchyzer/grouper/trunk/grouper-installer/grouper.apiBinary-2.0.2");
+//    grouperInstaller.grouperInstallDirectoryString = "C:/mchyzer/grouper/trunk/grouper-installer/";
+//    
+//    grouperInstaller.version = "2.0.2";
+//    grouperInstaller.grouperSystemPassword = "myNewPass";
+//    
+//    grouperInstaller.addDriverJarToClasspath();
+////      
+//    grouperInstaller.startHsqlDb();
+//    grouperInstaller.checkDatabaseConnection();
+////      grouperInstaller.initDb();
+////      
+////      grouperInstaller.addQuickstartSubjects();
+////      grouperInstaller.addQuickstartData();
+//    
+////    File uiDir = grouperInstaller.downloadUi();
+////    File unzippedUiFile = unzip(uiDir.getAbsolutePath());
+////    grouperInstaller.untarredUiDir = untar(unzippedUiFile.getAbsolutePath());
 //
+////      grouperInstaller.configureUi();
+////
 //      File antDir = grouperInstaller.downloadAnt();
 //      File unzippedAntFile = unzip(antDir.getAbsolutePath());
 //      grouperInstaller.untarredAntDir = untar(unzippedAntFile.getAbsolutePath());
+////
+////      grouperInstaller.buildUi();
 //
-//      grouperInstaller.buildUi();
-
-    File tomcatDir = grouperInstaller.downloadTomcat();
-    File unzippedTomcatFile = unzip(tomcatDir.getAbsolutePath());
-    grouperInstaller.untarredTomcatDir = untar(unzippedTomcatFile.getAbsolutePath());
-
-    grouperInstaller.configureTomcat();
-    
-    grouperInstaller.configureTomcatUiWebapp();
-    
-    grouperInstaller.tomcatConfigureGrouperSystem();
-    
-    grouperInstaller.tomcatBounce("restart");
-    
-    //CommandResult commandResult = GrouperInstallerUtils.execCommand("cmd /c cd");
-    //String result = commandResult.getOutputText();
-    //
-    //System.out.println(result);
-
-
-    //editPropertiesFile(new File("C:\\mchyzer\\grouper\\trunk\\grouper-installer\\grouper.apiBinary-2.1.0\\conf\\grouper.hibernate.properties"), 
-    //    "hibernate.connection.password", "sdf");
+//    File tomcatDir = grouperInstaller.downloadTomcat();
+//    File unzippedTomcatFile = unzip(tomcatDir.getAbsolutePath());
+//    grouperInstaller.untarredTomcatDir = untar(unzippedTomcatFile.getAbsolutePath());
+//
+//    grouperInstaller.configureTomcat();
+//    
+////    grouperInstaller.configureTomcatUiWebapp();
+////    
+//    grouperInstaller.tomcatConfigureGrouperSystem();
+//    
+////    grouperInstaller.tomcatBounce("restart");
+//
+//    File wsDir = grouperInstaller.downloadWs();
+//
+//    File unzippedWsFile = unzip(wsDir.getAbsolutePath());
+//    grouperInstaller.untarredWsDir = untar(unzippedWsFile.getAbsolutePath());
+//    grouperInstaller.configureWs();
+//    grouperInstaller.buildWs();
+//    
+//    grouperInstaller.configureTomcatWsWebapp();
+//    grouperInstaller.tomcatBounce("restart");
+//
+//    File clientDir = grouperInstaller.downloadClient();
+//    
+//    File unzippedClientFile = unzip(clientDir.getAbsolutePath());
+//    grouperInstaller.untarredClientDir = untar(unzippedClientFile.getAbsolutePath());
+//    grouperInstaller.configureClient();
+//
+//    grouperInstaller.addGrouperSystemWsGroup();
+//    
+//    grouperInstaller.runClientCommand();
+//    
+//    //CommandResult commandResult = GrouperInstallerUtils.execCommand("cmd /c cd");
+//    //String result = commandResult.getOutputText();
+//    //
+//    //System.out.println(result);
+//
+//
+//    //editPropertiesFile(new File("C:\\mchyzer\\grouper\\trunk\\grouper-installer\\grouper.apiBinary-2.1.0\\conf\\grouper.hibernate.properties"), 
+//    //    "hibernate.connection.password", "sdf");
       
     //if started hsql, then we need to exit since that thread will not stop
     System.exit(0);
@@ -414,6 +435,9 @@ public class GrouperInstaller {
   private File untarredUiDir;
 
   /** untarred dir */
+  private File untarredWsDir;
+
+  /** untarred dir */
   private File untarredAntDir;
 
   /** untarred dir */
@@ -421,6 +445,9 @@ public class GrouperInstaller {
 
   /** main install dir, must end in file separator */
   private String grouperInstallDirectoryString;
+  
+  /** grouper system password */
+  private String grouperSystemPassword;
   
   /**
    * 
@@ -430,32 +457,49 @@ public class GrouperInstaller {
     boolean setGrouperSystemPassword = readFromStdInBoolean(true);
     if (setGrouperSystemPassword) {
       System.out.print("Enter the GrouperSystem password: ");
-      String grouperSystemPassword = readFromStdIn();
-      grouperSystemPassword = GrouperInstallerUtils.defaultString(grouperSystemPassword);
+      this.grouperSystemPassword = readFromStdIn();
+      this.grouperSystemPassword = GrouperInstallerUtils.defaultString(this.grouperSystemPassword);
       //write to the tomcat_users file
       //get the password
-      File serverXmlFile = new File(this.untarredTomcatDir.getAbsolutePath() + File.separator + "conf" + File.separator + "tomcat-users.xml");
-      String existingPassword = GrouperInstallerUtils.xpathEvaluateAttribute(serverXmlFile, "tomcat-users/user[@username='GrouperSystem']", "password");
+      File tomcatUsersXmlFile = new File(this.untarredTomcatDir.getAbsolutePath() + File.separator + "conf" + File.separator + "tomcat-users.xml");
+      String existingPassword = GrouperInstallerUtils.xpathEvaluateAttribute(tomcatUsersXmlFile, "tomcat-users/user[@username='GrouperSystem']", "password");
       
-      System.out.println("Editing file: " + serverXmlFile.getAbsolutePath());
+      System.out.println("Editing file: " + tomcatUsersXmlFile.getAbsolutePath());
+
+      NodeList existingRole = GrouperInstallerUtils.xpathEvaluate(tomcatUsersXmlFile, "tomcat-users/role");
+      
+      //<role rolename="grouper_user"/>
+      //<user username="GrouperSystem" password="chang3m3" roles="grouper_user"/>
+
       
       if (existingPassword == null) {
 
-        addToXmlFile(serverXmlFile, ">",  new String[]{"<tomcat-users"}, "<user username=\"GrouperSystem\" password=\"" 
-            + grouperSystemPassword + "\" />", "Tomcat user GrouperSystem");
+        addToXmlFile(tomcatUsersXmlFile, ">",  new String[]{"<tomcat-users"}, "<user username=\"GrouperSystem\" password=\"" 
+            + this.grouperSystemPassword + "\" roles=\"grouper_user\"/>", "Tomcat user GrouperSystem");
          
       } else {
         
-        if (GrouperInstallerUtils.equals(existingPassword, grouperSystemPassword)) {
+        if (GrouperInstallerUtils.equals(existingPassword, this.grouperSystemPassword)) {
           System.out.println("  - password is already set to that value, leaving file unchanged...");
+
         } else {
           
-          editXmlFile(serverXmlFile, "password=\"([^\"]+)\"", new String[]{"<user", "username=\"GrouperSystem\""}, 
-              null, grouperSystemPassword, "Tomcat password for user GrouperSystem");
+          editXmlFile(tomcatUsersXmlFile, "password=\"([^\"]+)\"", new String[]{"<user", "username=\"GrouperSystem\""}, 
+              null, this.grouperSystemPassword, "Tomcat password for user GrouperSystem");
           
         }
         
       }
+
+      if (existingRole == null || existingRole.getLength() == 0) {
+        
+        //add the role
+        addToXmlFile(tomcatUsersXmlFile, ">",  new String[]{"<tomcat-users"}, "<role rolename=\"grouper_user\"/>", "Tomcat role grouper_user");
+        
+      }
+      
+      
+
     }
     
   }
@@ -483,6 +527,27 @@ public class GrouperInstaller {
   
   /**
    * 
+   */
+  private void configureWs() {
+    //build properties file
+    File buildPropertiesFile = new File(this.untarredWsDir.getAbsolutePath() + File.separator 
+        + "grouper-ws" + File.separator + "build.properties");
+//    if (!buildPropertiesFile.exists()) {
+//      File buildPropertiesTemplateFile = new File(this.untarredUiDir.getAbsolutePath() + File.separator + "build.properties.template");
+//      System.out.println("Copying file: " + buildPropertiesTemplateFile.getAbsolutePath() + " to file: " + buildPropertiesFile);
+//      GrouperInstallerUtils.copyFile(buildPropertiesTemplateFile, buildPropertiesFile);
+//    }
+    
+    //set the grouper property
+    System.out.println("Editing " + buildPropertiesFile.getAbsolutePath() + ": ");
+    String apiDir = GrouperInstallerUtils.replace(this.untarredApiDir.getAbsolutePath(),"\\\\", "/");
+    apiDir = GrouperInstallerUtils.replace(apiDir, "\\", "/");
+    editPropertiesFile(buildPropertiesFile, "grouper.dir", apiDir);
+    
+  }
+  
+  /**
+   * 
    * @param args
    */
   private void mainLogic(String[] args) {
@@ -494,12 +559,7 @@ public class GrouperInstaller {
     //####################################
     //System.out.println("Grouper install directory is: " + grouperInstallDirectoryFile.getAbsolutePath());
 
-    System.out.print("Enter the Grouper version to install [" + GrouperInstallerUtils.propertiesValue("default.version", true) + "]: ");
-    this.version = readFromStdIn();
-    
-    if (GrouperInstallerUtils.isBlank(this.version)) {
-      this.version = GrouperInstallerUtils.propertiesValue("default.version", true);
-    }
+    System.out.println("Installing grouper version: " + GrouperInstallerUtils.propertiesValue("grouper.version", true));
     
     //see if it is already downloaded
     
@@ -632,31 +692,53 @@ public class GrouperInstaller {
     
     //####################################
     //download the ws
-    
+    File wsDir = downloadWs();
+
+    //####################################
+    //unzip/untar the ws file
+    File unzippedWsFile = unzip(wsDir.getAbsolutePath());
+    this.untarredWsDir = untar(unzippedWsFile.getAbsolutePath());
+
     //####################################
     //configure where api is
+    this.configureWs();
     
     //####################################
-    //build
+    //build WS
+    buildWs();
     
     //####################################
     //copy to tomcat
+    configureTomcatWsWebapp();
     
     //####################################
     //bounce tomcat
-    
+    tomcatBounce("restart");
+
     //####################################
-    //download client
-    
+    //tell user to go to url
+    System.out.println("This is the Grouper WS URL (change hostname if on different host): http://localhost:" + this.tomcatHttpPort + "/" + this.tomcatWsPath + "/");
+
     //####################################
-    //configure the url
-    
+    //download the client
+    File clientDir = downloadClient();
+
     //####################################
-    //add a user to tomcat users (ask for password?)
+    //unzip/untar the ws file
+    File unzippedClientFile = unzip(clientDir.getAbsolutePath());
+    this.untarredClientDir = untar(unzippedClientFile.getAbsolutePath());
+
+    //####################################
+    //configure where WS is
+    this.configureClient();
+
+    //####################################
+    //add grouper system to WS group
+    this.addGrouperSystemWsGroup();
     
     //####################################
     //run a client command
-    
+    this.runClientCommand();
     
     
   }
@@ -757,7 +839,7 @@ public class GrouperInstaller {
   /**
    * 
    * @param grouperInstallDirectoryString
-   * @return the file of the directory of API
+   * @return the file of the directory of UI
    */
   private File downloadUi() {
     String urlToDownload = GrouperInstallerUtils.propertiesValue("download.server.url", true);
@@ -784,6 +866,38 @@ public class GrouperInstaller {
       downloadFile(urlToDownload, uiFile.getAbsolutePath());
     }
     return uiFile;
+  }
+
+  /**
+   * 
+   * @param grouperInstallDirectoryString
+   * @return the file of the directory of WS
+   */
+  private File downloadWs() {
+    String urlToDownload = GrouperInstallerUtils.propertiesValue("download.server.url", true);
+    
+    if (!urlToDownload.endsWith("/")) {
+      urlToDownload += "/";
+    }
+    urlToDownload += "release/";
+
+    String wsFileName = "grouper.ws-" + this.version + ".tar.gz";
+    urlToDownload += this.version + "/" + wsFileName;
+
+    File wsFile = new File(this.grouperInstallDirectoryString + wsFileName);
+    
+    boolean useLocalWs = false;
+    
+    if (wsFile.exists()) {
+      System.out.print("File exists: " + wsFile.getAbsolutePath() + ", should we use the local file (t|f)? [t]: ");
+      useLocalWs = readFromStdInBoolean(true);
+      
+    }
+    
+    if (!useLocalWs) {
+      downloadFile(urlToDownload, wsFile.getAbsolutePath());
+    }
+    return wsFile;
   }
 
   /**
@@ -1129,6 +1243,236 @@ public class GrouperInstaller {
   }
 
   /**
+   * 
+   */
+  private void buildWs() {
+    
+    List<String> commands = new ArrayList<String>();
+    
+    commands.add("cmd");
+    commands.add("/c");
+    commands.add(this.untarredAntDir.getAbsolutePath() + File.separator + "bin" + File.separator + "ant.bat");
+    commands.add("dist");
+    
+    System.out.println("\n##################################");
+    System.out.println("Building WS with command:\n" + this.untarredWsDir.getAbsolutePath() + File.separator + "grouper-ws" + "> " 
+        + GrouperInstallerUtils.join(commands.iterator(), ' ') + "\n");
+    
+    CommandResult commandResult = GrouperInstallerUtils.execCommand(GrouperInstallerUtils.toArray(commands, String.class),
+        true, true, null, new File(this.untarredWsDir.getAbsolutePath() + File.separator + "grouper-ws"), null);
+    
+    if (!GrouperInstallerUtils.isBlank(commandResult.getErrorText())) {
+      System.out.println("stderr: " + commandResult.getErrorText());
+    }
+    if (!GrouperInstallerUtils.isBlank(commandResult.getOutputText())) {
+      System.out.println("stdout: " + commandResult.getOutputText());
+    }
+    
+    System.out.println("\nEnd building Ws");
+    System.out.println("##################################\n");
+  
+    
+  }
+
+  /**
+   * 
+   */
+  private void configureTomcatWsWebapp() {
+    
+    File serverXmlFile = new File(this.untarredTomcatDir.getAbsolutePath() 
+        + File.separator + "conf" + File.separator + "server.xml");
+    
+    //C:\mchyzer\grouper\trunk\grouper-installer\grouper.ui-2.0.2\dist\grouper
+    //
+    //<Context docBase="C:\mchyzer\grouper\trunk\grouper-ws_trunk\webapp" path="/grouper-ws" reloadable="false"/>
+    //Server
+    //Service
+    //Engine
+    //Host
+  
+    System.out.print("Enter the URL path for the WS [grouper-ws]: ");
+    this.tomcatWsPath = readFromStdIn();
+    
+    if (GrouperInstallerUtils.isBlank(this.tomcatWsPath)) {
+      this.tomcatWsPath = "grouper-ws";
+    }
+  
+    if (this.tomcatWsPath.endsWith("/") || this.tomcatWsPath.endsWith("\\")) {
+      this.tomcatWsPath = this.tomcatWsPath.substring(0, this.tomcatWsPath.length()-1);
+    }
+    if (this.tomcatWsPath.startsWith("/") || this.tomcatWsPath.startsWith("\\")) {
+      this.tomcatWsPath = this.tomcatWsPath.substring(1);
+    }
+    
+    String currentDocBase = GrouperInstallerUtils.xpathEvaluateAttribute(serverXmlFile, 
+        "Server/Service/Engine/Host/Context[@path='/" + this.tomcatWsPath + "']", "docBase");
+  
+    //grouper.ws-2.0.2\grouper-ws\build\dist\grouper-ws
+    
+    String shouldBeDocBase = this.untarredWsDir.getAbsolutePath() + File.separator + "grouper-ws" + File.separator 
+      + "build" + File.separator + "dist" + File.separator + this.tomcatWsPath;
+  
+    System.out.println("Editing tomcat config file: " + serverXmlFile.getAbsolutePath());
+    
+    if (GrouperInstallerUtils.isBlank(currentDocBase)) {
+  
+      //need to add it
+      //<Host appBase="webapps" autoDeploy="true" name="localhost" unpackWARs="true" xmlNamespaceAware="false" xmlValidation="false">
+      //<Context docBase="C:\mchyzer\grouper\trunk\grouper-ws_trunk\webapp" path="/grouper-ws" reloadable="false"/>
+      addToXmlFile(serverXmlFile, ">", new String[]{"<Host "}, 
+          "<Context docBase=\"" + shouldBeDocBase + "\" path=\"/" + this.tomcatWsPath + "\" reloadable=\"false\"/>", "tomcat context for WS");
+  
+    } else {
+  
+      if (!GrouperInstallerUtils.equals(currentDocBase, shouldBeDocBase)) {
+        
+        //lets edit the file
+        //<Context docBase="C:\mchyzer\grouper\trunk\grouper-ws_trunk\webapp" path="/grouper-ws" reloadable="false"/>
+        editXmlFile(serverXmlFile, "docBase=\"([^\"]+)\"", new String[]{"<Context", "path=\"/" + this.tomcatWsPath + "\""}, 
+            null, shouldBeDocBase, "tomcat context for WS");
+  
+      } else {
+        
+        System.out.println("  - Context is already set for Grouper WS");
+        
+      }
+      
+      
+    }
+    
+    currentDocBase = GrouperInstallerUtils.xpathEvaluateAttribute(serverXmlFile, 
+        "Server/Service/Engine/Host/Context[@path='/" + this.tomcatWsPath + "']", "docBase");
+    
+    if (!GrouperInstallerUtils.equals(currentDocBase, shouldBeDocBase)) {
+      System.out.println("Tried to edit server.xml but it didnt work, should have context of: '" 
+          + shouldBeDocBase + "', but was: '" + currentDocBase + "'");
+    }
+    
+  }
+
+  /**
+     * 
+     */
+    private void configureClient() {
+      //properties file
+      File grouperClientPropertiesFile = new File(this.untarredClientDir.getAbsolutePath() + File.separator 
+          + "grouper.client.properties");
+      
+      //set the grouper property
+      System.out.println("Editing " + grouperClientPropertiesFile.getAbsolutePath() + ": ");
+      editPropertiesFile(grouperClientPropertiesFile, "grouperClient.webService.url", "http://localhost:" 
+          + this.tomcatHttpPort + "/" + this.tomcatWsPath + "/servicesRest");
+      editPropertiesFile(grouperClientPropertiesFile, "grouperClient.webService.login", "GrouperSystem");
+      editPropertiesFile(grouperClientPropertiesFile, "grouperClient.webService.password", this.grouperSystemPassword);
+      
+      
+//      grouperClient.webService.url = http://localhost:8200/grouper-ws/servicesRest
+//
+//      # kerberos principal used to connect to web service
+//      grouperClient.webService.login = GrouperSystem
+//
+//      # password for shared secret authentication to web service
+//      # or you can put a filename with an encrypted password
+//      grouperClient.webService.password = myNewPass
+
+      
+    }
+
+  /**
+   * 
+   * @param grouperInstallDirectoryString
+   * @return the file of the directory of WS
+   */
+  private File downloadClient() {
+    String urlToDownload = GrouperInstallerUtils.propertiesValue("download.server.url", true);
+    
+    if (!urlToDownload.endsWith("/")) {
+      urlToDownload += "/";
+    }
+    urlToDownload += "release/";
+  
+    String clientFileName = "grouper.clientBinary-" + this.version + ".tar.gz";
+    urlToDownload += this.version + "/" + clientFileName;
+  
+    File clientFile = new File(this.grouperInstallDirectoryString + clientFileName);
+    
+    boolean useLocalClient = false;
+    
+    if (clientFile.exists()) {
+      System.out.print("File exists: " + clientFile.getAbsolutePath() + ", should we use the local file (t|f)? [t]: ");
+      useLocalClient = readFromStdInBoolean(true);
+      
+    }
+    
+    if (!useLocalClient) {
+      downloadFile(urlToDownload, clientFile.getAbsolutePath());
+    }
+    return clientFile;
+  }
+
+  /**
+   * 
+   */
+  private void addGrouperSystemWsGroup() {
+    
+    //C:\mchyzer\grouper\trunk\grouper-installer\grouper.apiBinary-2.0.2\bin>gsh -runarg "grouperSession = GrouperSession.startRootSession();\nwsGroup = new GroupSave(grouperSession).assignName(\"etc:webServiceClientUsers\").assignCreateParentStemsIfNotExist(true).save();\nwsGroup.addMember(SubjectFinder.findRootSubject(), false);"
+    
+    List<String> commands = new ArrayList<String>();
+    
+    commands.add("cmd");
+    commands.add("/c");
+    commands.add(gshCommand());
+    commands.add("-runarg");
+    commands.add("grouperSession = GrouperSession.startRootSession();\\nwsGroup = new GroupSave(grouperSession).assignName(\\\"etc:webServiceClientUsers\\\").assignCreateParentStemsIfNotExist(true).save();\\nwsGroup.addMember(SubjectFinder.findRootSubject(), false);");
+    
+    System.out.println("\n##################################");
+    System.out.println("Adding user GrouperSystem to grouper-ws users group with command:\n  " + GrouperInstallerUtils.join(commands.iterator(), ' ') + "\n");
+    
+    CommandResult commandResult = GrouperInstallerUtils.execCommand(GrouperInstallerUtils.toArray(commands, String.class));
+    
+    if (!GrouperInstallerUtils.isBlank(commandResult.getErrorText())) {
+      System.out.println("stderr: " + commandResult.getErrorText());
+    }
+    if (!GrouperInstallerUtils.isBlank(commandResult.getOutputText())) {
+      System.out.println("stdout: " + commandResult.getOutputText());
+    }
+
+    
+  }
+  
+  /**
+   * 
+   */
+  private void runClientCommand() {
+    System.out.println("##################################");
+    System.out.println("Running client command:");
+    System.out.println(this.untarredClientDir.getAbsolutePath() + "> " + GrouperInstallerUtils.javaCommand() 
+        + " -jar grouperClient.jar --operation=getMembersWs --groupNames=etc:webServiceClientUsers");
+    
+    final List<String> command = new ArrayList<String>();
+    //command.add("cmd");
+    //command.add("/a");
+    //command.add("start");
+    //command.add("/b");
+    command.add(GrouperInstallerUtils.javaCommand());
+    command.add("-jar");
+    command.addAll(GrouperInstallerUtils.splitTrimToList(
+        "-jar grouperClient.jar --operation=getMembersWs --groupNames=etc:webServiceClientUsers", " "));
+            
+    CommandResult commandResult = GrouperInstallerUtils.execCommand(GrouperInstallerUtils.toArray(command, String.class), true, true, null, this.untarredClientDir, null);
+
+    if (!GrouperInstallerUtils.isBlank(commandResult.getErrorText())) {
+      System.out.println("stderr: " + commandResult.getErrorText());
+    }
+    if (!GrouperInstallerUtils.isBlank(commandResult.getOutputText())) {
+      System.out.println("stdout: " + commandResult.getOutputText());
+    }
+    System.out.println("Success running client command:");
+    System.out.println("##################################");
+
+  }
+
+  /**
    * edit a property in a property file
    * @param file
    * @param valueRegex 
@@ -1232,6 +1576,12 @@ public class GrouperInstaller {
 
   /** tomcat ui path */
   private String tomcatUiPath = null;
+
+  /** tomcat ws path */
+  private String tomcatWsPath = null;
+
+  /** untarred dir */
+  private File untarredClientDir;
   
   /**
    * 
@@ -1413,6 +1763,8 @@ public class GrouperInstaller {
       throw new RuntimeException("Why does " + file.getName() + " not exist and have contents? " 
           + file.getAbsolutePath());
     }
+    
+    propertyValue = GrouperInstallerUtils.defaultString(propertyValue);
     
     String fileContents = GrouperInstallerUtils.readFileIntoString(file);
     

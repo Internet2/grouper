@@ -27,8 +27,8 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.Priority;
 import org.apache.log4j.SimpleLayout;
 
-import edu.internet2.middleware.grouperInstaller.util.GrouperInstallerUtils;
 import edu.internet2.middleware.grouperInstallerExt.org.apache.commons.logging.Log;
+import edu.internet2.middleware.grouperInstallerExt.util.ExtInstallerUtils;
 
 /**
  * Implementation of {@link Log} that maps directly to a
@@ -111,7 +111,7 @@ public class Log4JLogger implements Log, Serializable {
       
       boolean hasLog4jProperties = false;
       try {
-        hasLog4jProperties = GrouperInstallerUtils.fileFromResourceName("log4j.properties") != null;
+        hasLog4jProperties = ExtInstallerUtils.fileFromResourceName("log4j.properties") != null;
       } catch (Exception e) {
         
       }
