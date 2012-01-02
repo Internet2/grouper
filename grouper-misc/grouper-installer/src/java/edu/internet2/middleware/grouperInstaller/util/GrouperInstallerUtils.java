@@ -5262,6 +5262,19 @@ public class GrouperInstallerUtils  {
   }
 
   /**
+   * see if we are running on windows
+   * @return true if windows
+   */
+  public static boolean isWindows() {
+    String osname = defaultString(System.getProperty("os.name"));
+
+    if (contains(osname.toLowerCase(), "windows")) {
+      return true;
+    }
+    return false;
+  }
+
+  /**
    * Increment a string with A-Z and 0-9 (no lower case so case insensitive apps
    * like windows IE will still work)
    * 
@@ -5314,6 +5327,26 @@ public class GrouperInstallerUtils  {
    */
   public static void propertiesCacheClear() {
     resourcePropertiesCache.clear();
+  }
+  
+  /**
+   * properties from file
+   * @param propertiesFile
+   * @return properties
+   */
+  public static Properties propertiesFromFile(File propertiesFile) {
+    Properties properties = new Properties();
+    FileInputStream fileInputStream = null;
+    try {
+      fileInputStream = new FileInputStream(propertiesFile);
+      properties.load(fileInputStream);
+      return properties;
+    } catch (IOException ioe) {
+      throw new  RuntimeException("Probably reading properties from file: " 
+          + (propertiesFile == null ? null : propertiesFile.getAbsolutePath()), ioe);
+    } finally {
+      closeQuietly(fileInputStream);
+    }
   }
   
   /**
@@ -9406,19 +9439,43 @@ public class GrouperInstallerUtils  {
    * @return true if available
    */
   public static boolean portAvailable(int port) {
+    return portAvailable(port, null);
+  }
+  
+  /**
+   * Checks to see if a specific port is available.
+   *
+   * @param port the port to check for availability
+   * @param ipAddress
+   * @return true if available
+   */
+  public static boolean portAvailable(int port, String ipAddress) {
 
     ServerSocket ss = null;
     try {
-      
-//      byte[] b = new byte[4];
-//      b[ 0] = new Integer(127).byteValue();
-//      b[ 1] = new Integer(0).byteValue();
-//      b[ 2] = new Integer(0).byteValue();
-//      b[ 3] = new Integer(1).byteValue();
-//      //Returns an InetAddress object given the raw IP address .
-//      InetAddress inetAddress = InetAddress.getByAddress(b);
-      
-      ss = new ServerSocket(port);
+
+      if (isBlank(ipAddress)) {
+        ss = new ServerSocket(port);
+      } else {
+        
+        Pattern pattern = Pattern.compile("(\\d+)\\.(\\d+)\\.(\\d+)\\.(\\d+)");
+        
+        Matcher matcher = pattern.matcher(ipAddress);
+        
+        if (!matcher.matches()) {
+          throw new RuntimeException("IP address not valid! '" + ipAddress + "'");
+        }
+        
+        byte[] b = new byte[4];
+        b[0] = Byte.parseByte(matcher.group(1));
+        b[1] = Byte.parseByte(matcher.group(2));
+        b[2] = Byte.parseByte(matcher.group(3));
+        b[3] = Byte.parseByte(matcher.group(4));
+        //Returns an InetAddress object given the raw IP address .
+        InetAddress inetAddress = InetAddress.getByAddress(b);
+        
+        ss = new ServerSocket(port, 50, inetAddress);
+      }
       ss.setReuseAddress(true);
       return true;
     } catch (IOException e) {

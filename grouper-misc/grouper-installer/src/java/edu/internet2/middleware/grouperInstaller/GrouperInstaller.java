@@ -10,6 +10,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -223,6 +224,20 @@ public class GrouperInstaller {
    * 
    */
   private void buildUi() {
+    
+    File grouperUiBuildToDir = new File(this.grouperUiBuildToDirName());
+    
+    boolean rebuildUi = true;
+    
+    if (grouperUiBuildToDir.exists()) {
+      
+      System.out.print("The Grouper UI has been built in the past, do you want it rebuilt? (t|f) [t]: ");
+      rebuildUi =readFromStdInBoolean(true);
+    }
+    
+    if (!rebuildUi) {
+      return;
+    }
     
     List<String> commands = new ArrayList<String>();
     
@@ -573,28 +588,46 @@ public class GrouperInstaller {
     
     //####################################
     //ask about database
-    this.dbUrl = "jdbc:hsqldb:hsql://localhost:9001/grouper";
-    this.dbUser = "sa";
-    this.dbPass = "";
+
+    File grouperHibernatePropertiesFile = new File(untarredApiDir.getAbsoluteFile() + File.separator + "conf" 
+        + File.separator + "grouper.hibernate.properties");
+
+    Properties grouperHibernateProperties = GrouperInstallerUtils.propertiesFromFile(grouperHibernatePropertiesFile);
     
-    System.out.print("Do you want to use the default and included hsqldb database (t|f)? [t]: ");
-    boolean useHsqldb = readFromStdInBoolean(true);
+    this.dbUrl = GrouperInstallerUtils.defaultString(grouperHibernateProperties.getProperty("hibernate.connection.url"), "jdbc:hsqldb:hsql://localhost:9001/grouper");
+    this.dbUser = GrouperInstallerUtils.defaultString(grouperHibernateProperties.getProperty("hibernate.connection.username"));
+    this.dbPass = GrouperInstallerUtils.defaultString(grouperHibernateProperties.getProperty("hibernate.connection.password"));
+    
+    boolean useHsqldb = false;
+    
+    if (this.dbUrl.contains(":hsqldb:")) {
+      System.out.print("Do you want to use the default and included hsqldb database (t|f)? [t]: ");
+      useHsqldb = readFromStdInBoolean(true);
+    }
 
     if (!useHsqldb) {
-      System.out.print("Database URL [jdbc:hsqldb:hsql://localhost:9001/grouper]: ");
-      dbUrl = readFromStdIn();
-      if (GrouperInstallerUtils.isBlank(dbUrl)) {
-        dbUrl = "jdbc:hsqldb:hsql://localhost:9001/grouper";
+      
+      System.out.println("\n##################################\n");
+      System.out.println("Example mysql URL: jdbc:mysql://localhost:3306/grouper");
+      System.out.println("Example oracle URL: jdbc:oracle:thin:@server.school.edu:1521:sid");
+      System.out.println("Example hsqldb URL: jdbc:hsqldb:hsql://localhost:9001/grouper");
+      System.out.println("Example postgres URL: jdbc:postgresql://localhost:5432/database");
+      System.out.println("Example mssql URL: jdbc:sqlserver://localhost:3280");
+      System.out.print("\nEnter the database URL [" + this.dbUrl + "]: ");
+      String newDbUrl = readFromStdIn();
+      if (!GrouperInstallerUtils.isBlank(newDbUrl)) {
+        this.dbUrl = newDbUrl;
       }
-      System.out.print("Database user [sa]: ");
-      dbUser = readFromStdIn();
-      if (GrouperInstallerUtils.isBlank(dbUser)) {
-        dbUser = "sa";
+      System.out.print("Database user [" + this.dbUser + "]: ");
+      String newDbUser = readFromStdIn();
+      if (!GrouperInstallerUtils.isBlank(newDbUser)) {
+        this.dbUser = newDbUser;
       }
-      System.out.print("Database password (note, you aren't setting the pass here, you are using an existing pass, this will be echoed back) [<blank>]: ");
-      dbPass = readFromStdIn();
-      if (GrouperInstallerUtils.isBlank(dbPass)) {
-        dbPass = "";
+      System.out.print("Database password (note, you aren't setting the pass here, you are using an existing pass, this will be echoed back) [" 
+          + GrouperInstallerUtils.defaultIfEmpty(this.dbPass, "<blank>") + "]: ");
+      String newDbPass = readFromStdIn();
+      if (!GrouperInstallerUtils.isBlank(newDbPass)) {
+        this.dbPass = newDbPass;
       }
     }
     
@@ -603,8 +636,6 @@ public class GrouperInstaller {
     //####################################
     //change the config file
     //get the config file    
-    File grouperHibernatePropertiesFile = new File(untarredApiDir.getAbsoluteFile() + File.separator + "conf" 
-        + File.separator + "grouper.hibernate.properties");
     
     //lets edit the three properties:
     System.out.println("Editing " + grouperHibernatePropertiesFile.getAbsolutePath() + ": ");
@@ -799,6 +830,21 @@ public class GrouperInstaller {
         this.tomcatHttpPort = GrouperInstallerUtils.intValue(portsArray[0]);
         jkPort = GrouperInstallerUtils.intValue(portsArray[1]);
         shutdownPort = GrouperInstallerUtils.intValue(portsArray[2]);
+        
+        if (!GrouperInstallerUtils.portAvailable(this.tomcatHttpPort)) {
+          System.out.print("The tomcat HTTP port is in use or unavailable: " + this.tomcatHttpPort + ", do you want to pick different ports? (t|f): ");
+          boolean pickDifferentPorts = readFromStdInBoolean(null);
+          if (pickDifferentPorts) {
+            continue;
+          }
+        }
+        if (!GrouperInstallerUtils.portAvailable(jkPort)) {
+          System.out.print("The tomcat JK port is in use or unavailable: " + this.tomcatHttpPort + ", do you want to pick different ports? (t|f): ");
+          boolean pickDifferentPorts = readFromStdInBoolean(null);
+          if (pickDifferentPorts) {
+            continue;
+          }
+        }
         
         System.out.println("Editing tomcat config file: " + serverXmlFile.getAbsolutePath());
         //lets edit the file
@@ -1113,6 +1159,23 @@ public class GrouperInstaller {
   }
 
   /**
+   * get hsql port
+   * @return port
+   */
+  private int hsqlPort() {
+    //get right port
+    int port = 9001;
+    
+    //match this, get the port: jdbc:hsqldb:hsql://localhost:9001/grouper
+    Pattern pattern = Pattern.compile("jdbc:hsqldb:.*:(\\d+)/.*");
+    Matcher matcher = pattern.matcher(this.dbUrl);
+    if (matcher.matches()) {
+      port = GrouperInstallerUtils.intValue(matcher.group(1));
+    }
+    return port;
+  }
+  
+  /**
    * 
    * @param untarredApiDir
    */
@@ -1123,7 +1186,13 @@ public class GrouperInstaller {
       
       shutdownHsql();
 
-      //TODO get right port
+      //get right port
+      int port = hsqlPort();
+      
+      if (!GrouperInstallerUtils.portAvailable(port)) {
+        throw new RuntimeException("This port is not available, even after trying to stop the DB! " + port);
+      }
+      
       final List<String> command = new ArrayList<String>();
       //command.add("cmd");
       //command.add("/a");
@@ -1133,9 +1202,9 @@ public class GrouperInstaller {
       command.add("-cp");
       command.add(untarredApiDir + File.separator + "lib" + File.separator + "jdbcSamples" + File.separator 
           + "hsqldb.jar");
-      //-cp lib\jdbcSamples\hsqldb.jar org.hsqldb.Server -database.0 file:grouper -dbname.0 grouper
-      command.addAll(GrouperInstallerUtils.splitTrimToList("org.hsqldb.Server -database.0 file:" + untarredApiDir + File.separator + "grouper -dbname.0 grouper", " "));
-      
+      //-cp lib\jdbcSamples\hsqldb.jar org.hsqldb.Server -database.0 file:grouper -dbname.0 grouper -port 9001
+      command.addAll(GrouperInstallerUtils.splitTrimToList("org.hsqldb.Server -database.0 file:" + untarredApiDir + File.separator + "grouper -dbname.0 grouper -port " + port, " "));
+
 //        System.out.println("Starting DB with command: java -cp grouper.apiBinary-" + this.version + File.separator 
 //            + "lib" + File.separator + "jdbcSamples" + File.separator 
 //            + "hsqldb.jar org.hsqldb.Server -database.0 file:grouper -dbname.0 grouper");
@@ -1169,6 +1238,7 @@ public class GrouperInstaller {
    * 
    */
   private void shutdownHsql() {
+    
     try {
       this.giDbUtils.executeUpdate("SHUTDOWN", null, false);
       System.out.println("Shutting down HSQL before starting it by sending the SQL: SHUTDOWN");
@@ -1211,7 +1281,7 @@ public class GrouperInstaller {
     String currentDocBase = GrouperInstallerUtils.xpathEvaluateAttribute(serverXmlFile, 
         "Server/Service/Engine/Host/Context[@path='/" + this.tomcatUiPath + "']", "docBase");
 
-    String shouldBeDocBase = this.untarredUiDir.getAbsolutePath() + File.separator + "dist" + File.separator + this.tomcatUiPath;
+    String shouldBeDocBase = grouperUiBuildToDirName();
 
     System.out.println("Editing tomcat config file: " + serverXmlFile.getAbsolutePath());
     
@@ -1251,10 +1321,16 @@ public class GrouperInstaller {
     
   }
 
+  private String grouperUiBuildToDirName() {
+    return this.untarredUiDir.getAbsolutePath() + File.separator + "dist" + File.separator + "grouper";
+  }
+
   /**
    * 
    */
   private void buildWs() {
+    
+    //TODO if biult maybe not rebuild
     
     List<String> commands = new ArrayList<String>();
     
