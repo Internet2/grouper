@@ -53,6 +53,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -8741,6 +8745,240 @@ public class GrouperClientCommonUtils  {
       overrideMap.put(propertiesFileName, propertiesOverrideMap);
     }
     return propertiesOverrideMap;
+  }
+
+  
+  /**
+   * This will execute a command, and split spaces for args (might not be what
+   * you want if you are using quotes)
+   * 
+   * @param command
+   */
+  public static void execCommand(String command) {
+    String[] args = splitTrim(command, " ");
+    execCommand(args);
+  }
+
+  /**
+   * Gobble up a stream from a runtime
+   * @author mchyzer
+   * @param <V> 
+   */
+  private static class StreamGobbler<V> implements Callable<V> {
+    
+    /** stream to read */
+    InputStream inputStream;
+    
+    /** where to put the result */
+    String resultString;
+
+    /** type of the output for logging purposes */
+    String type;
+    
+    /** command to log */
+    String command;
+    /**
+     * construct
+     * @param is
+     * @param theType 
+     * @param theCommand
+     */
+    StreamGobbler(InputStream is, String theType, String theCommand) {
+      this.inputStream = is;
+      this.type = theType;
+      this.command = theCommand;
+    }
+
+    /**
+     * get the string result
+     * @return the result
+     */
+    public String getResultString() {
+      return this.resultString;
+    }
+
+    @Override
+    public V call() throws Exception {
+      try {
+        
+        StringWriter stringWriter = new StringWriter();
+        copy(this.inputStream, stringWriter);
+        this.resultString = stringWriter.toString();
+
+      } catch (Exception e) {
+
+        LOG.warn("Error saving output of executable: " + (this.resultString)
+            + ", " + this.type + ", " + this.command, e);
+        throw new RuntimeException(e);
+
+      }
+      return null;
+    }
+  }
+  
+  /**
+   * <pre>This will execute a command (with args). In this method, 
+   * if the exit code of the command is not zero, an exception will be thrown.
+   * Example call: execCommand(new String[]{"/bin/bash", "-c", "cd /someFolder; runSomeScript.sh"}, true);
+   * </pre>
+   * @param arguments are the commands
+   * @return the output text of the command.
+   */
+  public static CommandResult execCommand(String[] arguments) {
+    return execCommand(arguments, true);
+  }
+  
+  /**
+   * threadpool
+   */
+  private static ExecutorService executorService = Executors.newCachedThreadPool();
+
+  /**
+   * 
+   * @return executor service
+   */
+  public static ExecutorService retrieveExecutorService() {
+    return executorService;
+  }
+  
+  /**
+   * <pre>This will execute a command (with args). Under normal operation, 
+   * if the exit code of the command is not zero, an exception will be thrown.
+   * If the parameter exceptionOnExitValueNeZero is set to true, the 
+   * results of the call will be returned regardless of the exit status.
+   * Example call: execCommand(new String[]{"/bin/bash", "-c", "cd /someFolder; runSomeScript.sh"}, true);
+   * </pre>
+   * @param arguments are the commands
+   * @param exceptionOnExitValueNeZero if this is set to false, the 
+   * results of the call will be returned regardless of the exit status
+   * @return the output text of the command, and the error and return code if exceptionOnExitValueNeZero is false.
+   */
+  public static CommandResult execCommand(String[] arguments, boolean exceptionOnExitValueNeZero) {
+    Process process = null;
+
+    StringBuilder commandBuilder = new StringBuilder();
+    for (int i = 0; i < arguments.length; i++) {
+      commandBuilder.append(arguments[i]).append(" ");
+    }
+    String command = commandBuilder.toString();
+    if (LOG.isDebugEnabled()) {
+      LOG.debug("Running command: " + command);
+    }
+    StreamGobbler<Object> outputGobbler = null;
+    StreamGobbler<Object> errorGobbler = null;
+    try {
+      process = Runtime.getRuntime().exec(arguments);
+
+      outputGobbler = new StreamGobbler<Object>(process.getInputStream(), ".out", command);
+      errorGobbler = new StreamGobbler<Object>(process.getErrorStream(), ".err", command);
+
+      Future<Object> futureOutput = GrouperClientUtils.retrieveExecutorService().submit(outputGobbler);
+      Future<Object> futureError = GrouperClientUtils.retrieveExecutorService().submit(errorGobbler);
+      
+      try {
+        process.waitFor();
+      } finally {
+        
+        //finish running these threads
+        try {
+          futureOutput.get();
+        } finally {
+          //ignore if cant get
+        }
+        try {
+          futureError.get();
+        } finally {
+          //ignore if cant get
+        }
+      }
+    } catch (Exception e) {
+      LOG.error("Error running command: " + command, e);
+      throw new RuntimeException("Error running command", e);
+    } finally {
+      try {
+        process.destroy();
+      } catch (Exception e) {
+      }
+    }
+    
+    //was not successful???
+    if (process.exitValue() != 0 && exceptionOnExitValueNeZero) {
+      String message = "Process exit status=" + process.exitValue() + ": out: " + 
+        (outputGobbler == null ? null : outputGobbler.getResultString())
+        + ", err: " + (errorGobbler == null ? null : errorGobbler.getResultString());
+      LOG.error(message + ", on command: " + command);
+      throw new RuntimeException(message);
+    }
+
+    int exitValue = process.exitValue();
+    return new CommandResult(outputGobbler.getResultString(), errorGobbler.getResultString(), exitValue);
+  }
+
+  
+  /**
+   * The results of executing a command.
+   */
+  public static class CommandResult{
+    /**
+     * If any error text was generated by the call, it will be set here.
+     */
+    private String errorText;
+    
+    /**
+     * If any output text was generated by the call, it will be set here.
+     */
+    private String outputText;
+    
+    /**
+     * If any exit code was generated by the call, it will be set here.
+     */
+    private int exitCode;
+    
+    
+    /**
+     * Create a container to hold the results of an execution.
+     * @param _errorText
+     * @param _outputText
+     * @param _exitCode
+     */
+    public CommandResult(String _errorText, String _outputText, int _exitCode){
+      this.errorText = _errorText;
+      this.outputText = _outputText;
+      this.exitCode = _exitCode;
+    }
+
+
+    
+    /**
+     * If any error text was generated by the call, it will be set here.
+     * @return the errorText
+     */
+    public String getErrorText() {
+      return this.errorText;
+    }
+
+
+    
+    /**
+     * If any output text was generated by the call, it will be set here.
+     * @return the outputText
+     */
+    public String getOutputText() {
+      return this.outputText;
+    }
+
+
+    
+    /**
+     * If any exit code was generated by the call, it will be set here.
+     * @return the exitCode
+     */
+    public int getExitCode() {
+      return this.exitCode;
+    }
+    
+    
+    
   }
 
 }
