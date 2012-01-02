@@ -579,34 +579,34 @@ public class GrouperServiceLogic {
                 wsDeleteMemberResults.getResults()[resultIndex++] = wsDeleteMemberResult;
                 try {
   
-                  Subject subject = wsSubjectLookup.retrieveSubject();
-                  wsDeleteMemberResult.processSubject(wsSubjectLookup, subjectAttributeNamesToRetrieve);
-  
-                  if (subject == null) {
-                    continue;
-                  }
+                  //NOTE: deal with member here so unresolvables can be removed
+                  Member member = wsSubjectLookup.retrieveMember();
+                  wsDeleteMemberResult.processSubject(wsSubjectLookup, subjectAttributeNamesToRetrieve, false);
   
                   try {
   
                     boolean hasImmediate = false;
                     boolean hasEffective = false;
-                    if (fieldName == null) {
-                      // dont fail if already a direct member
-                      hasEffective = group.hasEffectiveMember(subject);
-                      hasImmediate = group.hasImmediateMember(subject);
-                      if (hasImmediate) {
-                        group.deleteMember(subject);
+                    if (member != null) {
+                      if (fieldName == null) {
+                        // dont fail if already a direct member
+                        hasEffective = member.isEffectiveMember(group);
+                        hasImmediate = member.isImmediateMember(group);
+                        if (hasImmediate) {
+                          group.deleteMember(member);
+                        }
+                      } else {
+                        // dont fail if already a direct member
+                        hasEffective = member.isEffectiveMember(group, fieldName);
+                        hasImmediate = member.isImmediateMember(group, fieldName);
+                        if (hasImmediate) {
+                          group.deleteMember(member, fieldName);
+                        }
                       }
-                    } else {
-                      // dont fail if already a direct member
-                      hasEffective = group.hasEffectiveMember(subject, fieldName);
-                      hasImmediate = group.hasImmediateMember(subject, fieldName);
-                      if (hasImmediate) {
-                        group.deleteMember(subject, fieldName);
-                      }
-                      }
+                    }
                     if (LOG.isDebugEnabled()) {
-                      LOG.debug("deleteMember: " + group.getName() + ", " + subject.getId() + ", eff? " + hasEffective + ", imm? " + hasImmediate);
+                      LOG.debug("deleteMember: " + group.getName() + ", " + member.getSubjectSourceId() 
+                          + ", " + member.getSubjectId() + ", eff? " + hasEffective + ", imm? " + hasImmediate);
                     }
   
                     //assign one of 4 success codes
