@@ -17,13 +17,12 @@
         <module>../grouperClient</module>
         <module>../grouper</module>
         <module>../grouper-shib</module>
-        <module>../ldappcng</module>
     </modules>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-	<maven.compiler.source>1.6</maven.compiler.source>
-	<maven.compiler.target>1.6</maven.compiler.target>
+        <maven.compiler.source>1.6</maven.compiler.source>
+        <maven.compiler.target>1.6</maven.compiler.target>
     </properties>
 
     <repositories>
