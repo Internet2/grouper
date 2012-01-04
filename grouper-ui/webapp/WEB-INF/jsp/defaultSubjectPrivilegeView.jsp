@@ -7,7 +7,7 @@
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <tiles:importAttribute ignore="true"/>
-<div class="privilegeLink">
+<span class="privilegeLink">
 	<c:set target="${linkParams}" property="callerPageId" value="${thisPageId}"/>
 	<c:set target="${linkParams}" property="groupId" value="${viewObject.groupOrStem.id}"/>
 	<c:set target="${linkParams}" property="subjectId" value="${viewObject.subject.id}"/>
@@ -32,4 +32,4 @@
 		  <tiles:put name="view" value="privilegesLink"/>
 		  <tiles:put name="params" beanName="linkParams"/>
 	</tiles:insert>
-</div>
+</span>
