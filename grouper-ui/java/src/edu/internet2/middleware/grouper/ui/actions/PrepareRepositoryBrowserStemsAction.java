@@ -375,6 +375,7 @@ public class PrepareRepositoryBrowserStemsAction extends LowLevelGrouperCapableA
 		}else{
 			if(curGroupOrStem.isGroup() && findForNode ==null) {
 				curGroupOrStem = GroupOrStem.findByStem(grouperSession,curGroupOrStem.getGroup().getParentStem());
+				setBrowseNode(curGroupOrStem.getId(), session);
 			}else if(curGroupOrStem.isGroup()) {
 				curNodeGroup = curGroupOrStem.getGroup();
 				currentNodeIsGroup=true;

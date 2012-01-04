@@ -18,7 +18,7 @@
 	<c:set target="${linkParams}" property="subjectId" value="${actor.id}"/>
 	<c:set target="${linkParams}" property="subjectType" value="${actor.subjectType}"/>
 	<c:set target="${linkParams}" property="sourceId" value="${actor.sourceId}"/>
-    <c:set var="linkTitle"><grouper:message key="audit.result.label.logged-in-member.link.title"/></c:set>
+    <c:set var="linkTitle"><grouper:message key="audit.result.label.logged-in-member.link.title" tooltipDisable="true"/></c:set>
     <tiles:insert definition="dynamicTileDef" flush="false">
 		  <tiles:put name="viewObject" beanName="actor"/>
 		  <tiles:put name="view" value="subjectSummaryLink"/>
@@ -35,7 +35,7 @@
 		<c:set target="${linkParams}" property="subjectId" value="${actAsMember.id}"/>
 		<c:set target="${linkParams}" property="subjectType" value="${actAsMember.subjectType}"/>
 		<c:set target="${linkParams}" property="sourceId" value="${actAsMember.sourceId}"/>
-    	<c:set var="linkTitle"><grouper:message key="audit.result.label.act-as-member.link.title"/></c:set>
+    	<c:set var="linkTitle"><grouper:message key="audit.result.label.act-as-member.link.title" tooltipDisable="true"/></c:set>
     	<tiles:insert definition="dynamicTileDef" flush="false">
 		  <tiles:put name="viewObject" beanName="actAsMember"/>
 		  <tiles:put name="view" value="subjectSummaryLink"/>
