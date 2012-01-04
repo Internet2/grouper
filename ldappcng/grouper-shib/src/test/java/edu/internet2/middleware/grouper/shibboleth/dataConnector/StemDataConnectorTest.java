@@ -312,31 +312,4 @@ public class StemDataConnectorTest extends BaseDataConnectorTest {
     }
   }
 
-  public void testGetAllIdentifiers() {
-
-    try {
-      GenericApplicationContext gContext = BaseDataConnectorTest.createSpringContext(RESOLVER_CONFIG);
-      StemDataConnector sdc = (StemDataConnector) gContext.getBean("testAll");
-
-      Set<String> identifiers = sdc.getAllIdentifiers();
-
-      Stem etc = StemFinder.findByName(grouperSession, "etc", true);
-      Set<Stem> etcChildStems = etc.getChildStems(Scope.SUB);
-
-      // parent, child, etc, and etc children
-      assertEquals(2 + 1 + etcChildStems.size(), identifiers.size());
-
-      assertTrue(identifiers.contains(parentStem.getName()));
-      assertTrue(identifiers.contains(childStem.getName()));
-
-      assertTrue(identifiers.contains(etc.getName()));
-      for (Stem stem : etcChildStems) {
-        assertTrue(identifiers.contains(stem.getName()));
-      }
-
-    } catch (Exception e) {
-      e.printStackTrace();
-      throw new RuntimeException(e);
-    }
-  }
 }

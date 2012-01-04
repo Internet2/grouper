@@ -14,18 +14,13 @@
 
 package edu.internet2.middleware.grouper.shibboleth.config;
 
-import edu.internet2.middleware.grouper.shibboleth.attribute.config.SimpleAttributeAuthorityBeanDefinitionParser;
 import edu.internet2.middleware.grouper.shibboleth.attributeDefinition.config.GroupAttributeDefinitionBeanDefinitionParser;
 import edu.internet2.middleware.grouper.shibboleth.attributeDefinition.config.MemberAttributeDefinitionBeanDefinitionParser;
 import edu.internet2.middleware.grouper.shibboleth.attributeDefinition.config.SubjectAttributeDefinitionBeanDefinitionParser;
-import edu.internet2.middleware.grouper.shibboleth.dataConnector.config.ChangeLogDataConnectorBeanDefinitionParser;
 import edu.internet2.middleware.grouper.shibboleth.dataConnector.config.GroupDataConnectorBeanDefinitionParser;
 import edu.internet2.middleware.grouper.shibboleth.dataConnector.config.MemberDataConnectorBeanDefinitionParser;
 import edu.internet2.middleware.grouper.shibboleth.dataConnector.config.StemDataConnectorBeanDefinitionParser;
 import edu.internet2.middleware.grouper.shibboleth.filter.provider.AndFilterBeanDefinitionParser;
-import edu.internet2.middleware.grouper.shibboleth.filter.provider.ChangeLogAuditFilterBeanDefinitionParser;
-import edu.internet2.middleware.grouper.shibboleth.filter.provider.ChangeLogEntryFilterBeanDefinitionParser;
-import edu.internet2.middleware.grouper.shibboleth.filter.provider.ChangeLogExactAttributeFilterBeanDefinitionParser;
 import edu.internet2.middleware.grouper.shibboleth.filter.provider.GroupExactAttributeFilterBeanDefinitionParser;
 import edu.internet2.middleware.grouper.shibboleth.filter.provider.GroupInStemFilterBeanDefinitionParser;
 import edu.internet2.middleware.grouper.shibboleth.filter.provider.MemberSourceFilterBeanDefinitionParser;
@@ -38,9 +33,7 @@ import edu.internet2.middleware.grouper.shibboleth.util.ClasspathPropertyReplace
 import edu.internet2.middleware.grouper.shibboleth.util.SubjectIdentifierBeanDefinitionParser;
 import edu.internet2.middleware.shibboleth.common.config.BaseSpringNamespaceHandler;
 
-/**
- * Spring namespace handler for the Grouper attribute resolver namespace.
- */
+/** Spring namespace handler for the Grouper attribute resolver namespace. */
 public class GrouperNamespaceHandler extends BaseSpringNamespaceHandler {
 
   /** Namespace for this handler. */
@@ -57,9 +50,6 @@ public class GrouperNamespaceHandler extends BaseSpringNamespaceHandler {
 
     registerBeanDefinitionParser(StemDataConnectorBeanDefinitionParser.TYPE_NAME,
         new StemDataConnectorBeanDefinitionParser());
-
-    registerBeanDefinitionParser(ChangeLogDataConnectorBeanDefinitionParser.TYPE_NAME,
-        new ChangeLogDataConnectorBeanDefinitionParser());
 
     registerBeanDefinitionParser(AttributeIdentifierBeanDefinitionParser.TYPE_NAME,
         new AttributeIdentifierBeanDefinitionParser());
@@ -92,25 +82,13 @@ public class GrouperNamespaceHandler extends BaseSpringNamespaceHandler {
     registerBeanDefinitionParser(StemNameExactFilterBeanDefinitionParser.TYPE_NAME,
         new StemNameExactFilterBeanDefinitionParser());
 
-    registerBeanDefinitionParser(SimpleAttributeAuthorityBeanDefinitionParser.TYPE_NAME,
-        new SimpleAttributeAuthorityBeanDefinitionParser());
-
     registerBeanDefinitionParser(MinusFilterBeanDefinitionParser.TYPE_NAME, new MinusFilterBeanDefinitionParser());
 
     registerBeanDefinitionParser(ClasspathPropertyReplacementResourceFilterBeanDefinitionParser.TYPE_NAME,
         new ClasspathPropertyReplacementResourceFilterBeanDefinitionParser());
 
-    registerBeanDefinitionParser(ChangeLogAuditFilterBeanDefinitionParser.TYPE_NAME,
-        new ChangeLogAuditFilterBeanDefinitionParser());
-
-    registerBeanDefinitionParser(ChangeLogEntryFilterBeanDefinitionParser.TYPE_NAME,
-        new ChangeLogEntryFilterBeanDefinitionParser());
-
     registerBeanDefinitionParser(MemberSourceFilterBeanDefinitionParser.TYPE_NAME,
         new MemberSourceFilterBeanDefinitionParser());
-
-    registerBeanDefinitionParser(ChangeLogExactAttributeFilterBeanDefinitionParser.TYPE_NAME,
-        new ChangeLogExactAttributeFilterBeanDefinitionParser());
 
   }
 }

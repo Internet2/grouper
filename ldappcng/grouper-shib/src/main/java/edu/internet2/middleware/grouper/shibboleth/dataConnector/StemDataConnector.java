@@ -18,15 +18,12 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
-import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
@@ -42,7 +39,7 @@ import edu.internet2.middleware.shibboleth.common.attribute.resolver.provider.da
 /**
  * A {@link DataConnector} which returns {@link Stem} attributes.
  */
-public class StemDataConnector extends BaseGrouperDataConnector<Stem> implements SourceDataConnector {
+public class StemDataConnector extends BaseGrouperDataConnector<Stem> {
 
   /** Logger, */
   private static final Logger LOG = LoggerFactory.getLogger(StemDataConnector.class);
@@ -65,7 +62,7 @@ public class StemDataConnector extends BaseGrouperDataConnector<Stem> implements
             LOG.trace("Stem data connector '{}' - Resolve principal '{}' requested attributes {}", new Object[] {
                 getId(), principalName, resolutionContext.getAttributeRequestContext().getRequestedAttributesIds() });
 
-            if (principalName.startsWith(ChangeLogDataConnector.PRINCIPAL_NAME_PREFIX)) {
+            if (principalName.startsWith(CHANGELOG_PRINCIPAL_NAME_PREFIX)) {
               LOG.debug("Stem data connector '{}' - Ignoring principal name '{}'", getId(), principalName);
               return Collections.EMPTY_MAP;
             }
@@ -172,40 +169,12 @@ public class StemDataConnector extends BaseGrouperDataConnector<Stem> implements
 
   }
 
-  /** {@inheritDoc} */
-  public Set<String> getAllIdentifiers() {
-
-    Set<String> identifiers = (Set<String>) GrouperSession.callbackGrouperSession(getGrouperSession(),
-        new GrouperSessionHandler() {
-
-          public Set<String> callback(GrouperSession grouperSession) throws GrouperSessionException {
-            LOG.debug("Stem data connector '{}' - Get all identifiers", getId());
-            Set<Stem> stems = new TreeSet<Stem>();
-            Filter<Stem> filter = getFilter();
-            if (filter == null) {
-              stems.addAll(getRootStem().getChildStems(Scope.SUB));
-            } else {
-              stems.addAll(filter.getResults(grouperSession));
-            }
-
-            Set<String> identifiers = new TreeSet<String>();
-            for (Stem stem : stems) {
-              identifiers.add(stem.getName());
-            }
-            LOG.debug("Stem data connector '{}' - Get all identifiers found {}.", getId(), identifiers.size());
-            return identifiers;
-          }
-        });
-
-    return identifiers;
-  }
-
   /**
    * Get the root stem. Re-uses the stem object.
    * 
    * @return the root stem
    */
-  private Stem getRootStem() {
+  public Stem getRootStem() {
     if (rootStem == null) {
 
       rootStem = (Stem) GrouperSession.callbackGrouperSession(getGrouperSession(), new GrouperSessionHandler() {

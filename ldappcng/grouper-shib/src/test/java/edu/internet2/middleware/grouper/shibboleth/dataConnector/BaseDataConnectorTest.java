@@ -43,7 +43,7 @@ import edu.internet2.middleware.subject.Subject;
 
 public abstract class BaseDataConnectorTest extends GrouperTest {
 
-  public static final String TEST_PATH = "/test/edu/internet2/middleware/grouper/shibboleth/dataConnector/";
+  public static final String TEST_PATH = "/test/";
 
   protected Group groupA;
 

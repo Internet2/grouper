@@ -53,7 +53,8 @@ public class ClasspathPropertyReplacementResourceFilterBeanDefinitionParser exte
     }
 
     File propertyFile = new File(url.getPath());
-
+    log.debug("Property path: {}", propertyFile.getAbsolutePath());
+    
     builder.addConstructorArgValue(propertyFile);
   }
 }
