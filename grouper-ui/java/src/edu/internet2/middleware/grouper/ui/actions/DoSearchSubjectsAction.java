@@ -221,6 +221,7 @@ public class DoSearchSubjectsAction extends GrouperCapableAction {
 
 		int start = Integer.parseInt(startStr);
 		int pageSize = getPageSize(session);
+		searchForm.set("pageSize", "" + pageSize);
 		int end = start + pageSize;
 		if (end > mapResults.size())
 			end = mapResults.size();
