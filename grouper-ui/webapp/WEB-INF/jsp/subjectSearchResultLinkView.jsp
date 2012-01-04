@@ -14,4 +14,4 @@
 	  <tiles:put name="viewObject" beanName="viewObject"/>
 	  <tiles:put name="view" value="subjectSearchResult"/>
   </tiles:insert>
-</html:link>xx
+</html:link>
