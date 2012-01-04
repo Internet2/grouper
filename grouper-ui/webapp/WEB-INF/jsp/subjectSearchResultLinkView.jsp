@@ -6,7 +6,7 @@
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <tiles:importAttribute name="viewObject"/>
-<c:set var="linkTitle"><grouper:message key="browse.to.subject.summary">
+<c:set var="linkTitle"><grouper:message key="browse.to.subject.summary" tooltipDisable="true">
 		 		<grouper:param value="${viewObject.description}"/>
 		</grouper:message></c:set>
 <html:link page="/populateSubjectSummary.do" name="viewObject" title="${linkTitle}">
@@ -14,4 +14,4 @@
 	  <tiles:put name="viewObject" beanName="viewObject"/>
 	  <tiles:put name="view" value="subjectSearchResult"/>
   </tiles:insert>
-</html:link>
+</html:link>xx
