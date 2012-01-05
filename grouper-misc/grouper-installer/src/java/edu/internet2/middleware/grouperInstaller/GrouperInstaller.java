@@ -254,7 +254,7 @@ public class GrouperInstaller {
     
     System.out.println("\n##################################");
     System.out.println("Building UI with command:\n" + this.untarredUiDir.getAbsolutePath() + "> " 
-        + GrouperInstallerUtils.join(commands.iterator(), ' ') + "\n");
+        + convertCommandsIntoCommand(commands) + "\n");
     
     CommandResult commandResult = GrouperInstallerUtils.execCommand(GrouperInstallerUtils.toArray(commands, String.class),
         true, true, null, this.untarredUiDir, null);
@@ -351,7 +351,8 @@ public class GrouperInstaller {
       commands.add("/c");
       commands.add(gshCommand());
     } else {
-      commands.add(shCommand());
+      //if you add this it messes up when args have spaces
+      //commands.add(shCommand());
       commands.add(gshCommand());
     }
   }
@@ -367,7 +368,7 @@ public class GrouperInstaller {
       commands.add(this.untarredAntDir.getAbsolutePath() + File.separator + "bin" + File.separator + "ant.bat");
     } else {
       commands.add(shCommand());
-      commands.add(this.untarredAntDir.getAbsolutePath() + File.separator + "bin" + File.separator + "ant.sh");
+      commands.add(this.untarredAntDir.getAbsolutePath() + File.separator + "bin" + File.separator + "ant");
     }
   }
 
@@ -388,7 +389,7 @@ public class GrouperInstaller {
 //    
 //    System.out.println("\n##################################");
 //    System.out.println("Tomcat " + arg + " with command:"
-//        + GrouperInstallerUtils.join(commands.iterator(), ' ') + "\n");
+//        + convertCommandsIntoCommand(commands) + "\n");
 //    
 //    DOESNT WORK WITH ENV VARS!!!!!
 //    CommandResult commandResult = GrouperInstallerUtils.execCommand(GrouperInstallerUtils.toArray(commands, String.class),
@@ -697,6 +698,23 @@ public class GrouperInstaller {
     //unzip/untar the api file
     File unzippedApiFile = unzip(apiFile.getAbsolutePath());
     this.untarredApiDir = untar(unzippedApiFile.getAbsolutePath());
+    
+    //lts make sure gsh.sh is executable
+    if (!GrouperInstallerUtils.isWindows()) {
+      List<String> commands = GrouperInstallerUtils.toList("chmod", "+x", 
+          this.untarredApiDir.getAbsolutePath() + File.separator + "bin" + File.separator + "gsh.sh");
+      System.out.println("Making sure gsh.sh is executable with command: " + convertCommandsIntoCommand(commands) + "\n");
+      CommandResult commandResult = GrouperInstallerUtils.execCommand(
+          GrouperInstallerUtils.toArray(commands, String.class));
+      
+      if (!GrouperInstallerUtils.isBlank(commandResult.getErrorText())) {
+        System.out.println("stderr: " + commandResult.getErrorText());
+      }
+      if (!GrouperInstallerUtils.isBlank(commandResult.getOutputText())) {
+        System.out.println("stdout: " + commandResult.getOutputText());
+      }
+
+    }
     
     //####################################
     //ask about database
@@ -1102,9 +1120,11 @@ public class GrouperInstaller {
       commands.add("-noprompt");
       
       System.out.println("\n##################################");
-      System.out.println("Adding sample subjects with command: " + GrouperInstallerUtils.join(commands.iterator(), ' ') + "\n");
+      System.out.println("Adding sample subjects with command: " + convertCommandsIntoCommand(commands) + "\n");
       
-      CommandResult commandResult = GrouperInstallerUtils.execCommand(GrouperInstallerUtils.toArray(commands, String.class));
+      CommandResult commandResult = GrouperInstallerUtils.execCommand(
+          GrouperInstallerUtils.toArray(commands, String.class), true, true, null, 
+          this.untarredApiDir, null);
       
       if (!GrouperInstallerUtils.isBlank(commandResult.getErrorText())) {
         System.out.println("stderr: " + commandResult.getErrorText());
@@ -1143,9 +1163,11 @@ public class GrouperInstaller {
       commands.add("-noprompt");
       
       System.out.println("\n##################################");
-      System.out.println("Adding quickstart data with command: " + GrouperInstallerUtils.join(commands.iterator(), ' ') + "\n");
+      System.out.println("Adding quickstart data with command: " + convertCommandsIntoCommand(commands) + "\n");
       
-      CommandResult commandResult = GrouperInstallerUtils.execCommand(GrouperInstallerUtils.toArray(commands, String.class));
+      CommandResult commandResult = GrouperInstallerUtils.execCommand(
+          GrouperInstallerUtils.toArray(commands, String.class), true, true, null, 
+          this.untarredApiDir, null);
       
       if (!GrouperInstallerUtils.isBlank(commandResult.getErrorText())) {
         System.out.println("stderr: " + commandResult.getErrorText());
@@ -1158,6 +1180,29 @@ public class GrouperInstaller {
       System.out.println("##################################\n");
 
     }
+  }
+  
+  /**
+   * if commands have spaces, put quotes around...
+   * @param commands
+   * @return the command
+   */
+  private static String convertCommandsIntoCommand(List<String> commands) {
+    StringBuilder result = new StringBuilder();
+    for (int i=0;i<GrouperInstallerUtils.length(commands); i++) {
+      String command = GrouperInstallerUtils.defaultString(commands.get(i));
+      
+      //if there is a space, put quotes around command
+      if (command.contains(" ")) {
+        result.append("\"").append(command).append("\"");
+      } else {
+        result.append(command);
+      }
+      if (i != GrouperInstallerUtils.length(commands)-1) {
+        result.append(" ");
+      }
+    }
+    return result.toString();
   }
   
   /**
@@ -1177,9 +1222,11 @@ public class GrouperInstaller {
       commands.add("-noprompt");
       
       System.out.println("\n##################################");
-      System.out.println("Initting DB with command: " + GrouperInstallerUtils.join(commands.iterator(), ' ') + "\n");
+      System.out.println("Initting DB with command: " + convertCommandsIntoCommand(commands) + "\n");
       
-      CommandResult commandResult = GrouperInstallerUtils.execCommand(GrouperInstallerUtils.toArray(commands, String.class));
+      CommandResult commandResult = GrouperInstallerUtils.execCommand(
+          GrouperInstallerUtils.toArray(commands, String.class), true, true, null, 
+          this.untarredApiDir, null);
       
       if (!GrouperInstallerUtils.isBlank(commandResult.getErrorText())) {
         System.out.println("stderr: " + commandResult.getErrorText());
@@ -1211,7 +1258,7 @@ public class GrouperInstaller {
       commands.add("-loader");
 
       System.out.println("\n##################################");
-      System.out.println("Starting the Grouper loader (daemons): " + GrouperInstallerUtils.join(commands.iterator(), ' ') + "\n");
+      System.out.println("Starting the Grouper loader (daemons): " + convertCommandsIntoCommand(commands) + "\n");
 
       //start in new thread
       Thread thread = new Thread(new Runnable() {
@@ -1219,7 +1266,7 @@ public class GrouperInstaller {
         @Override
         public void run() {
           GrouperInstallerUtils.execCommand(GrouperInstallerUtils.toArray(commands, String.class),
-              true, true, null, null, 
+              true, true, null, GrouperInstaller.this.untarredApiDir, 
               GrouperInstaller.this.grouperInstallDirectoryString + "grouperLoader");
         }
       });
@@ -1437,7 +1484,7 @@ public class GrouperInstaller {
     
     if (grouperWsBuildToDir.exists()) {
       
-      System.out.print("The Grouper WS has been built in the past, do you want it rebuilt? (t|f) [t]: ");
+      System.out.print("Do you want to build the Grouper WS? (t|f) [t]: ");
       rebuildWs =readFromStdInBoolean(true);
     }
     
@@ -1453,7 +1500,7 @@ public class GrouperInstaller {
     
     System.out.println("\n##################################");
     System.out.println("Building WS with command:\n" + this.untarredWsDir.getAbsolutePath() + File.separator + "grouper-ws" + "> " 
-        + GrouperInstallerUtils.join(commands.iterator(), ' ') + "\n");
+        + convertCommandsIntoCommand(commands) + "\n");
     
     CommandResult commandResult = GrouperInstallerUtils.execCommand(GrouperInstallerUtils.toArray(commands, String.class),
         true, true, null, new File(this.untarredWsDir.getAbsolutePath() + File.separator + "grouper-ws"), null);
@@ -1611,16 +1658,27 @@ public class GrouperInstaller {
 
     //C:\mchyzer\grouper\trunk\grouper-installer\grouper.apiBinary-2.0.2\bin>gsh -runarg "grouperSession = GrouperSession.startRootSession();\nwsGroup = new GroupSave(grouperSession).assignName(\"etc:webServiceClientUsers\").assignCreateParentStemsIfNotExist(true).save();\nwsGroup.addMember(SubjectFinder.findRootSubject(), false);"
 
+    //running with command on command line doenst work on linux since the args with whitespace translate to 
+    //save the commands to a file, and runt he file
+    StringBuilder gshCommands = new StringBuilder();
+    gshCommands.append("grouperSession = GrouperSession.startRootSession();\n");
+    gshCommands.append("wsGroup = new GroupSave(grouperSession).assignName(\"etc:webServiceClientUsers\").assignCreateParentStemsIfNotExist(true).save();\n");
+    gshCommands.append("wsGroup.addMember(SubjectFinder.findRootSubject(), false);\n");
+    
+    File gshFile = new File(this.untarredApiDir.getAbsolutePath() + File.separator + "addGrouperSystemWsGroup.gsh");
+    GrouperInstallerUtils.saveStringIntoFile(gshFile, gshCommands.toString());
+    
     List<String> commands = new ArrayList<String>();
 
     addGshCommands(commands);
-    commands.add("-runarg");
-    commands.add("grouperSession = GrouperSession.startRootSession();\\nwsGroup = new GroupSave(grouperSession).assignName(\\\"etc:webServiceClientUsers\\\").assignCreateParentStemsIfNotExist(true).save();\\nwsGroup.addMember(SubjectFinder.findRootSubject(), false);");
+    commands.add(gshFile.getAbsolutePath());
 
     System.out.println("\n##################################");
-    System.out.println("Adding user GrouperSystem to grouper-ws users group with command:\n  " + GrouperInstallerUtils.join(commands.iterator(), ' ') + "\n");
+    System.out.println("Adding user GrouperSystem to grouper-ws users group with command:\n  " + convertCommandsIntoCommand(commands) + "\n");
 
-    CommandResult commandResult = GrouperInstallerUtils.execCommand(GrouperInstallerUtils.toArray(commands, String.class));
+    CommandResult commandResult = GrouperInstallerUtils.execCommand(
+        GrouperInstallerUtils.toArray(commands, String.class), true, true, null, 
+        this.untarredApiDir, null);
 
     if (!GrouperInstallerUtils.isBlank(commandResult.getErrorText())) {
       System.out.println("stderr: " + commandResult.getErrorText());
