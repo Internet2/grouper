@@ -326,7 +326,7 @@ public class JDBCSourceAdapter2 extends JDBCSourceAdapter {
               "Valid built-in options are: "
                   + C3p0JdbcConnectionProvider.class.getName()
                   + " (default) [note: its a zero, not a capital O], "
-                  + DbcpJdbcConnectionProvider.class.getName()
+                  // + DbcpJdbcConnectionProvider.class.getName()
                   + ", edu.internet2.middleware.grouper.subj.GrouperJdbcConnectionProvider (if using Grouper).  "
                   + "Note, these are the built-ins for the Subject API or Grouper, there might be other valid choices.");
       throw re;

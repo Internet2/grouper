@@ -320,7 +320,7 @@ public class JDBCSourceAdapterTest extends TestCase {
    */
   public void testGenericSearchThread() throws Throwable {
     String[] jdbcConnectionProviders = new String[] {
-        DbcpJdbcConnectionProvider.class.getName(),
+        // DbcpJdbcConnectionProvider.class.getName(),
         C3p0JdbcConnectionProvider.class.getName() };
     int numberOfThreads = 50;
     Thread[] threads = new Thread[numberOfThreads];
@@ -367,7 +367,7 @@ public class JDBCSourceAdapterTest extends TestCase {
    */
   public void testGenericSearch() throws Throwable {
     String[] jdbcConnectionProviders = new String[] {
-        DbcpJdbcConnectionProvider.class.getName(),
+        // DbcpJdbcConnectionProvider.class.getName(),
         C3p0JdbcConnectionProvider.class.getName() };
     for (String jdbcConnectionProvider : jdbcConnectionProviders) {
 
