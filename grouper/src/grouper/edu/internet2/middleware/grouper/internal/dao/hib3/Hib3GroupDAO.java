@@ -1074,7 +1074,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
       hql.append(" where ");
     }
     
-    hql.append(" theGroup.nameDb = :value or theGroup.alternateNameDb = :value ");
+    hql.append(" ( theGroup.nameDb = :value or theGroup.alternateNameDb = :value ) ");
     
     byHqlStatic.createQuery(hql.toString())
       .setCacheable(true).setCacheRegion(KLASS + ".FindByNameSecure").options(queryOptions);
@@ -2360,13 +2360,13 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
       } else {
         sql.append(" where ");
       }
-      sql.append(" theGroup.nameDb in ( ");
+      sql.append(" ( theGroup.nameDb in ( ");
       
       sql.append(HibUtils.convertToInClause(namesBatch, byHqlStatic)).append(" ) ");
 
       sql.append(" or theGroup.alternateNameDb in ( ");
       
-      sql.append(HibUtils.convertToInClause(namesBatch, byHqlStatic)).append(" ) ");
+      sql.append(HibUtils.convertToInClause(namesBatch, byHqlStatic)).append(" ) )");
 
       byHqlStatic
         .createQuery(sql.toString())
