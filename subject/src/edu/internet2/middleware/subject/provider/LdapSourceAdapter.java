@@ -146,7 +146,22 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
          if (log.isDebugEnabled()) {
            log.debug("reading properties file " + propertiesFile);
          }
-	     File theFile = SubjectUtils.fileFromResourceName(propertiesFile);
+         
+         // Try opening the properties file from the file system
+         File theFile = new File(propertiesFile);
+         
+         // If the file does not exist on the file system
+         if (!theFile.exists()) {
+        	 // Try opening the file from the classpath
+        	 theFile = SubjectUtils.fileFromResourceName(propertiesFile);
+         }
+         
+         // If not successfull, throw runtime exception.
+         if (theFile == null) {
+        	 log.error("Unable to open properties file '" + propertiesFile + "'");
+        	 throw new IllegalArgumentException("Unable to open properties file '" + propertiesFile + "'");
+         }         
+	     
 		 LdapConfig ldapConfig = LdapConfig.createFromProperties(new FileInputStream(theFile));
          if (log.isDebugEnabled()) {
            log.debug("from properties file " + propertiesFile + " got " + ldapConfig);
