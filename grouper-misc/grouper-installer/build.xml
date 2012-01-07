@@ -125,7 +125,7 @@
     <delete dir="doc" />
 
     <copy todir="${basedir}/../grouper.installer-${version}">
-      <fileset dir="${basedir}/../grouperInstaller" />
+      <fileset dir="${basedir}/../grouper-installer" />
     </copy>
     
     <!-- this assumes that everything was checked out to the right place, and no other dirs exist -->
