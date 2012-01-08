@@ -1248,7 +1248,7 @@ public class GrouperInstaller {
    */
   private void startLoader() {
     System.out.print("Do you want to start the Grouper loader (daemons)?\n  (note, if it is already running, you need to stop it now, check " 
-        + (GrouperInstallerUtils.isWindows() ? "the task manager for java.exe" : "ps -ef | grep gsh | grep loader") + " (t|f)? [f]: ");
+        + (GrouperInstallerUtils.isWindows() ? "the task manager for java.exe" : "ps -ef | grep gsh | grep loader") + ") (t|f)? [f]: ");
     boolean startLoader = readFromStdInBoolean(false);
     
     if (startLoader) {
