@@ -2,17 +2,19 @@ package edu.internet2.middleware.grouperClient.failover;
 
 
 /**
- * Database logic to run in multiple connection if problem
+ * Logic to run.  If there is a problem or timeout, try a different connection
  * @author mchyzer
+ * @param <V> return type of logic
  *
  */
-public interface FailoverLogic<K,V> {
+public interface FailoverLogic<V> {
 
   /**
-   * Database logic to run in multiple connection if problem
+   * Logic to run.  If there is a problem or timeout, try a different connection
    * @param config is the name to run the code in or some part of the config for this connection
+   * @param connectionName is one of the connection names from the config
    * @return whatever it returns
    */
-  public abstract V logic(K config);
+  public abstract V logic(String connectionName);
 
 }

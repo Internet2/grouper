@@ -4,6 +4,18 @@
 * $Id: FailoverDatabaseLogic.java,v 1.8 2011/12/03 06:59:05 mchyzer Exp $
 */
 package edu.internet2.middleware.grouperClient.failover;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+import java.util.Set;
+import java.util.TreeSet;
+
+import edu.internet2.middleware.grouperClient.util.ExpirableCache;
+import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
  
  
 /**
@@ -11,111 +23,110 @@ package edu.internet2.middleware.grouperClient.failover;
 */
 public class FailoverClient {
  
-//  /**
-//   * key is the connection name, then an expirable map of minute in question (minute since 1970) to number of errors
-//   */
-//  static Map<String, ExpirableCache<Long, Long>> errorCountPerMinute = new HashMap<String, ExpirableCache<Long, Long>>();
-// 
-// 
-//  /**
-//   * key is the pool name, then the cache has Boolean.TRUE, and the connection which has affinity... affinity is only for the first
-//   * one chosen
-//   */
-//  static Map<String, ExpirableCache<Boolean, String>> connectionPoolAffinityCache = new HashMap<String, ExpirableCache<Boolean, String>>();
-// 
-//  /**
-//   * minutes since 1970
-//   * @return the minutes since 1970
-//   */
-//  private static long minutesSince1970() {
-//    return (System.currentTimeMillis()  / 1000) / 60;
-//  }
-// 
-//  /**
-//   * increment number of errors in the database connection
-//   * @param databaseConnection
-//   */
-//  private static void incrementErrorForConnection(String databaseConnection) {
-//    int minutesToCheck = minutesToKeepErrors(databaseConnection);
-//    ExpirableCache<Long, Long> errorCount = errorCountPerMinute(databaseConnection, minutesToCheck);
-//    Long minutesSince1970 = minutesSince1970();
-//    Long currentCount = FastObjectUtils.defaultIfNull(errorCount.get(minutesSince1970), 0L);
-//    currentCount++;
-//    errorCount.put(minutesSince1970, currentCount);
-//  }
-// 
-// 
-//  /**
-//   * see how many errors in the database connection
-//   * @param databaseConnection
-//   * @param minutesSince1970
-//   * @return the number of errors
-//   */
-//  private static long errorsForConnection(String databaseConnection, long minutesSince1970) {
-//   
-//    long errors = 0;
-//   
-//    //minutes to keep errors
-//    final int minutesToCheck = minutesToKeepErrors(databaseConnection);
-// 
-// 
-//    ExpirableCache<Long, Long> errorCache = errorCountPerMinute(databaseConnection, minutesToCheck);
-// 
-//    //get the errors from the last X minutes
-//    for (int i=0;i<minutesToCheck+1;i++) {
-//     
-//      Long currentErrors = errorCache.get(minutesSince1970-i);
-//     
-//      if (currentErrors != null) {
-//        errors += currentErrors;
-//      }
-//    }
-//    return errors;
-//  }
-// 
-// 
-// 
-//  /**
-//   * @param databaseConnection
-//   * @param minutesToCheck
-//   * @return the cache
-//   */
-//  private static ExpirableCache<Long, Long> errorCountPerMinute(String databaseConnection, int minutesToCheck) {
-//    ExpirableCache<Long, Long> errorCache = errorCountPerMinute.get(databaseConnection);
-//    //doesnt really need to be synchronized...
-//    if (errorCache == null) {
-//      errorCache = new ExpirableCache<Long, Long>(minutesToCheck+1, "errorsInDatabaseFailoverPool", true);
-//      errorCountPerMinute.put(databaseConnection, errorCache);
-//    }
-//    return errorCache;
-// 
-//  }
-// 
-//  /** fatal problem count for testing */
-// static long fatalProblemCountForTesting = 0;
-// 
-//  /** timeout count for testing */
-//  static long timeoutCountForTesting = 0;
-// 
-//  /** error count for testing */
-//  static long errorCountForTesting = 0;
-// 
-//  /** random generator, note this is threadsafe */
-//  private static Random random = new Random();
-// 
+  /**
+   * key is the connection type, two underscores, connection name, 
+   * then an expirable map of minute in question (minute since 1970) to number of errors
+   */
+  static Map<String, ExpirableCache<Long, Long>> errorCountPerMinute = new HashMap<String, ExpirableCache<Long, Long>>();
+ 
+ 
+  /**
+   * key is the connection type, then the cache has Boolean.TRUE, and the connection name which has affinity... 
+   * affinity is only for the first one chosen
+   */
+  static Map<String, ExpirableCache<Boolean, String>> connectionPoolAffinityCache = new HashMap<String, ExpirableCache<Boolean, String>>();
+ 
+  /**
+   * minutes since 1970
+   * @return the minutes since 1970
+   */
+  private static long minutesSince1970() {
+    return (System.currentTimeMillis()  / 1000) / 60;
+  }
+ 
+  /**
+   * increment number of errors in the database connection
+   * @param connectionType 
+   * @param connectionName
+   * @param minutesToKeepErrors 
+   */
+  private static void incrementErrorForConnection(String connectionType, String connectionName, int minutesToKeepErrors) {
+    ExpirableCache<Long, Long> errorCount = errorCountPerMinute(connectionName, minutesToKeepErrors);
+    Long minutesSince1970 = minutesSince1970();
+    Long currentCount = GrouperClientUtils.defaultIfNull(errorCount.get(minutesSince1970), 0L);
+    currentCount++;
+    errorCount.put(minutesSince1970, currentCount);
+  }
+
+
+  /**
+   * see how many errors in the database connection
+   * @param connectionName
+   * @param minutesSince1970
+   * @param minutesToCheck 
+   * @return the number of errors
+   */
+  private static long errorsForConnection(String connectionName, long minutesSince1970, int minutesToCheck) {
+
+    long errors = 0;
+
+    ExpirableCache<Long, Long> errorCache = errorCountPerMinute(connectionName, minutesToCheck);
+
+    //get the errors from the last X minutes
+    for (int i=0;i<minutesToCheck+1;i++) {
+     
+      Long currentErrors = errorCache.get(minutesSince1970-i);
+     
+      if (currentErrors != null) {
+        errors += currentErrors;
+      }
+    }
+    return errors;
+  }
+ 
+ 
+ 
+  /**
+   * @param connectionName
+   * @param minutesToCheck
+   * @return the cache
+   */
+  private static ExpirableCache<Long, Long> errorCountPerMinute(String connectionName, int minutesToCheck) {
+    ExpirableCache<Long, Long> errorCache = errorCountPerMinute.get(connectionName);
+    //doesnt really need to be synchronized...
+    if (errorCache == null) {
+      errorCache = new ExpirableCache<Long, Long>(minutesToCheck+1);
+      errorCountPerMinute.put(connectionName, errorCache);
+    }
+    return errorCache;
+ 
+  }
+ 
+  /** fatal problem count for testing */
+ static long fatalProblemCountForTesting = 0;
+ 
+  /** timeout count for testing */
+  static long timeoutCountForTesting = 0;
+ 
+  /** error count for testing */
+  static long errorCountForTesting = 0;
+ 
+  /** random generator, note this is threadsafe */
+  private static Random random = new Random();
+ 
 //  /**
 //   * based on the database name, get the list of database connections to try
-//   * @param oneDatabaseName
+//   * @param connectionType
 //   * @return the list, if not pooled, just return list of size one
 //   */
-//  private static List<String> orderedListOfDatabaseConnectionNames(String oneDatabaseName) {
+//  private static List<String> orderedListOfConnectionTypes(String connectionType) {
 //   
 //    List<String> databaseNames = new ArrayList<String>();
 //   
-//    DatabaseFailoverPool databaseFailoverPool = DatabaseConfiguration.databaseToPool().get(oneDatabaseName);
+//    DatabaseFailoverPool databaseFailoverPool = DatabaseConfiguration.databaseToPool().get(connectionType);
 //   
 //    if (databaseFailoverPool == null) {
-//      databaseNames.add(oneDatabaseName);
+//      databaseNames.add(connectionType);
 //      return databaseNames;
 //    }
 // 
@@ -187,10 +198,10 @@ public class FailoverClient {
 //        boolean activeActive = false;
 //        {
 //          String loadBalancingMethod = FastContext.fastContext().getParamStringSafe("readonlyDatabaseSetLoadBalancing_" + databaseFailoverPool.getName());
-//          if (StringUtils.isBlank(loadBalancingMethod) || StringUtils.equals(loadBalancingMethod, "active/active")) {
+//          if (GrouperClientUtils.isBlank(loadBalancingMethod) || GrouperClientUtils.equals(loadBalancingMethod, "active/active")) {
 //            activeActive = true;
 //          } else {
-//            if (!StringUtils.equals(loadBalancingMethod, "active/standby")) {
+//            if (!GrouperClientUtils.equals(loadBalancingMethod, "active/standby")) {
 //              throw new RuntimeException("readonlyDatabaseSetLoadBalancing_" + databaseFailoverPool.getName()
 //                  + " needs to be active/active or active/standby, but is :'" + loadBalancingMethod + "'");
 //            }
@@ -243,7 +254,7 @@ public class FailoverClient {
 //    }
 //    return availableConnectionsFewestErrorsFirst;
 //  }
-// 
+//
 //  /**
 //   * @param oneDatabaseName
 //   * @return the number of minutes
@@ -287,7 +298,7 @@ public class FailoverClient {
 //      String timeoutSecondsString = FastConfig.getParamStringSafe(
 //          "readonlyDatabaseSetLoadBalancingTimeoutSeconds_" + databaseFailoverPool.getName());
 //     
-//      if (!StringUtils.isBlank(timeoutSecondsString)) {
+//      if (!GrouperClientUtils.isBlank(timeoutSecondsString)) {
 //        timeoutSeconds = FastNumberUtils.intValue(timeoutSecondsString);
 //      }
 //     
@@ -345,7 +356,7 @@ public class FailoverClient {
 //        
 //        
 //      } else {
-//        final String id = log.isDebug() ? FastStringUtils.uniqueId() : null;
+//        final String id = log.isDebug() ? GrouperClientUtils.uniqueId() : null;
 //       
 //        Callable callable = new Callable() {
 // 
@@ -492,7 +503,7 @@ public class FailoverClient {
 //  public static void testSituations(String connectionName) {
 //    String propertiesFileLocation = FastContext.fastContext().getParamStringSafe("readonlyDatabaseSetTestingPropertiesFile");
 //    if (!FastContext.fastContext().isProduction()) {
-//      if (!StringUtils.isBlank(propertiesFileLocation) ) {
+//      if (!GrouperClientUtils.isBlank(propertiesFileLocation) ) {
 //        URL url = FastExternalUtils.computeUrl(propertiesFileLocation, false);
 //        InputStream inputStream = null;
 //        Properties properties = new Properties();
@@ -505,10 +516,10 @@ public class FailoverClient {
 //          FastExternalUtils.closeQuietly(inputStream);
 // 
 //        }
-//        if (FastBooleanUtils.booleanValue(StringUtils.trimToNull((String)properties.get(connectionName + "_error")), false)) {
+//        if (FastBooleanUtils.booleanValue(GrouperClientUtils.trimToNull((String)properties.get(connectionName + "_error")), false)) {
 //          throw new RuntimeException("TESTING ERROR on " + connectionName);
 //        }
-//        Integer timeoutSeconds = FastNumberUtils.intObjectValue(StringUtils.trimToNull((String)properties.get(connectionName + "_timeoutSeconds")), true);
+//        Integer timeoutSeconds = FastNumberUtils.intObjectValue(GrouperClientUtils.trimToNull((String)properties.get(connectionName + "_timeoutSeconds")), true);
 //        if (timeoutSeconds != null) {
 //          FastThreadUtils.sleep(timeoutSeconds * 1000);
 //        }
