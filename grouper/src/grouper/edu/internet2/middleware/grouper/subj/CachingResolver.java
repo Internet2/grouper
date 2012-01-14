@@ -608,7 +608,7 @@ public class CachingResolver extends SubjectResolverDecorator {
     fullKey[1] = grouperSessionSubject.getId(); 
     fullKey[2] = stemName;
     fullKey[3] = query;
-    System.arraycopy(sourcesArray, 0, fullKey, 2, sourcesArray.length);
+    System.arraycopy(sourcesArray, 0, fullKey, fullKey.length, sourcesArray.length);
     MultiKey multiKey = new MultiKey(fullKey);
     return multiKey;
   }
