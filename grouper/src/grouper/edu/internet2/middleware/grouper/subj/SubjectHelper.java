@@ -49,6 +49,32 @@ public class SubjectHelper {
   private static final String SUBJECT_DELIM = "/";
 
   /**
+   * convert sources to id's comma separated
+   * @param sources
+   * @return the string or null if none
+   */
+  public static String sourcesToIdsString(Collection<Source> sources) {
+    if (GrouperUtil.length(sources) == 0) {
+      return null;
+    }
+    
+    StringBuilder result = new StringBuilder();
+    
+    int index = 0;
+    
+    for (Source source : sources) {
+      
+      if (index > 0) {
+        result.append(",");
+      }
+      
+      result.append(source.getId());
+      index++;
+    }
+    return result.toString();
+  }
+
+  /**
    * if keeping the subjects in a map where the subject is the key, this
    * multikey will identify the subject
    * @param subject

@@ -530,12 +530,44 @@ public class CachingResolver extends SubjectResolverDecorator {
    */
   private SearchPageResult getFromFindPageCache(String stemName, String query, Set<Source> sources) {
     GrouperSession staticGrouperSession = GrouperSourceAdapter.internal_getSessionOrRootForSubjectFinder();
+    
+    Map<String, Object> debugMap = LOG.isDebugEnabled() ? new LinkedHashMap<String, Object>() : null;
+
     if (staticGrouperSession == null) {
+      
+      if (LOG.isDebugEnabled()) {
+        LOG.debug("staticGrouperSession is null");
+      }
       return null;
     }
     MultiKey multiKey = sourcesMultiKey(stemName, query, sources);
     
-    return findPageCache.get(multiKey);
+    SearchPageResult searchPageResult = findPageCache.get(multiKey);
+
+    if (LOG.isDebugEnabled()) {
+      debugMap.put("query", query);
+      if (!StringUtils.isBlank(stemName)) {
+        debugMap.put("stemName", stemName);
+      }
+      String sourceIds = SubjectHelper.sourcesToIdsString(sources);
+      if (!StringUtils.isBlank(sourceIds)) {
+        debugMap.put("sourceIds", sourceIds);
+      }
+      debugMap.put("multiKey", multiKey.toString());
+      
+      if (searchPageResult == null) {
+        debugMap.put("searchPageResult", "null");
+      } else {
+        debugMap.put("isTooManyResults", searchPageResult.isTooManyResults());
+        
+        if (GrouperUtil.length(searchPageResult.getResults()) > 0) {
+          debugMap.put("firstResult", searchPageResult.getResults().iterator().next().getDescription());
+        }
+      }      
+      LOG.debug(GrouperUtil.mapToString(debugMap));
+    }
+  
+    return searchPageResult;
   }
 
   /**
@@ -548,6 +580,28 @@ public class CachingResolver extends SubjectResolverDecorator {
       return;
     }
     MultiKey multiKey = sourcesMultiKey(stemName, query, sources);
+    
+    if (LOG.isDebugEnabled()) {
+      Map<String, Object> debugMap = LOG.isDebugEnabled() ? new LinkedHashMap<String, Object>() : null;
+      debugMap.put("query", query);
+      if (!StringUtils.isBlank(stemName)) {
+        debugMap.put("stemName", stemName);
+      }
+      String sourceIds = SubjectHelper.sourcesToIdsString(sources);
+      if (!StringUtils.isBlank(sourceIds)) {
+        debugMap.put("sourceIds", sourceIds);
+      }
+      debugMap.put("multiKey", multiKey.toString());
+      
+      debugMap.put("isTooManyResults", searchPageResult.isTooManyResults());
+      
+      if (GrouperUtil.length(searchPageResult.getResults()) > 0) {
+        debugMap.put("firstResult", searchPageResult.getResults().iterator().next().getDescription());
+      }
+      
+      LOG.debug(GrouperUtil.mapToString(debugMap));
+    }
+
     findPageCache.put(multiKey, searchPageResult );
   }
 
@@ -608,7 +662,7 @@ public class CachingResolver extends SubjectResolverDecorator {
     fullKey[1] = grouperSessionSubject.getId(); 
     fullKey[2] = stemName;
     fullKey[3] = query;
-    System.arraycopy(sourcesArray, 0, fullKey, fullKey.length, sourcesArray.length);
+    System.arraycopy(sourcesArray, 0, fullKey, 4, sourcesArray.length);
     MultiKey multiKey = new MultiKey(fullKey);
     return multiKey;
   }
@@ -624,8 +678,36 @@ public class CachingResolver extends SubjectResolverDecorator {
       return null;
     }
     Subject grouperSessionSubject = staticGrouperSession.getSubject();
-    return findPageCache.get( new MultiKey(grouperSessionSubject.getSourceId(), 
-        grouperSessionSubject.getId(), stemName, query, source) );
+    MultiKey multiKey = new MultiKey(grouperSessionSubject.getSourceId(), 
+        grouperSessionSubject.getId(), stemName, query, source);
+    SearchPageResult searchPageResult = findPageCache.get( multiKey );
+    
+    if (LOG.isDebugEnabled()) {
+      Map<String, Object> debugMap = LOG.isDebugEnabled() ? new LinkedHashMap<String, Object>() : null;
+      debugMap.put("query", query);
+      if (!StringUtils.isBlank(stemName)) {
+        debugMap.put("stemName", stemName);
+      }
+
+      if (!StringUtils.isBlank(source)) {
+        debugMap.put("source", source);
+      }
+      debugMap.put("multiKey", multiKey.toString());
+      
+      if (searchPageResult == null) {
+        debugMap.put("searchPageResult", "null");
+      } else {
+        debugMap.put("isTooManyResults", searchPageResult.isTooManyResults());
+        
+        if (GrouperUtil.length(searchPageResult.getResults()) > 0) {
+          debugMap.put("firstResult", searchPageResult.getResults().iterator().next().getDescription());
+        }
+      }      
+      LOG.debug(GrouperUtil.mapToString(debugMap));
+    }
+
+    
+    return searchPageResult;
   }
 
   /**
@@ -638,8 +720,31 @@ public class CachingResolver extends SubjectResolverDecorator {
       return;
     }
     Subject grouperSessionSubject = staticGrouperSession.getSubject();
-    findPageCache.put( new MultiKey(grouperSessionSubject.getSourceId(), 
-        grouperSessionSubject.getId(), stemName, query, source), searchPageResult );
+    MultiKey multiKey = new MultiKey(grouperSessionSubject.getSourceId(), 
+        grouperSessionSubject.getId(), stemName, query, source);
+    
+    if (LOG.isDebugEnabled()) {
+      Map<String, Object> debugMap = LOG.isDebugEnabled() ? new LinkedHashMap<String, Object>() : null;
+      debugMap.put("query", query);
+      if (!StringUtils.isBlank(stemName)) {
+        debugMap.put("stemName", stemName);
+      }
+
+      if (!StringUtils.isBlank(source)) {
+        debugMap.put("source", source);
+      }
+      debugMap.put("multiKey", multiKey.toString());
+      
+      debugMap.put("isTooManyResults", searchPageResult.isTooManyResults());
+      
+      if (GrouperUtil.length(searchPageResult.getResults()) > 0) {
+        debugMap.put("firstResult", searchPageResult.getResults().iterator().next().getDescription());
+      }
+      
+      LOG.debug(GrouperUtil.mapToString(debugMap));
+    }
+
+    findPageCache.put( multiKey, searchPageResult );
   }
 
   /**

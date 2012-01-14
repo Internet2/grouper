@@ -81,7 +81,7 @@ public class TestSubjectFinder extends GrouperTest {
   public static void main(String[] args) {
     //TestRunner.run(TestSubjectFinder.class);
     //TestRunner.run(new TestSubjectFinder("testSearchPageMax"));
-    TestRunner.run(new TestSubjectFinder("testFindByIdsOrIdentifiers"));
+    TestRunner.run(new TestSubjectFinder("testSubjectCachePage"));
   }
   
   /**
@@ -304,6 +304,45 @@ public class TestSubjectFinder extends GrouperTest {
     
     assertTrue(GrouperUtil.length(groupSubjects) == 0);
 
+    GrouperSession.stopQuietly(grouperSession);
+    //lets set the subject customizer to a test one
+  }
+
+  /**
+   * 
+   */
+  public void testSubjectCachePage() {
+    
+    //make a group that test1 can view, but test2 cannot
+    Group group = new GroupSave(this.s).assignName("test:testGroup").assignCreateParentStemsIfNotExist(true).save();
+    Group group1 = new GroupSave(this.s).assignName("test:testGroup1").assignCreateParentStemsIfNotExist(true).save();
+    Group group2 = new GroupSave(this.s).assignName("test:testGroup2").assignCreateParentStemsIfNotExist(true).save();
+    Group group3 = new GroupSave(this.s).assignName("test:testGroup3").assignCreateParentStemsIfNotExist(true).save();
+    Group group4 = new GroupSave(this.s).assignName("test:testGroup4").assignCreateParentStemsIfNotExist(true).save();
+    Group group5 = new GroupSave(this.s).assignName("test:testGroup5").assignCreateParentStemsIfNotExist(true).save();
+    Group group6 = new GroupSave(this.s).assignName("test:testGroup6").assignCreateParentStemsIfNotExist(true).save();
+    Group group7 = new GroupSave(this.s).assignName("test:testGroup7").assignCreateParentStemsIfNotExist(true).save();
+    Group group8 = new GroupSave(this.s).assignName("test:testGroup8").assignCreateParentStemsIfNotExist(true).save();
+    Group group9 = new GroupSave(this.s).assignName("test:testGroup9").assignCreateParentStemsIfNotExist(true).save();
+    Group group10 = new GroupSave(this.s).assignName("test:testGroup10").assignCreateParentStemsIfNotExist(true).save();
+    
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    Set<Subject> groupSubjects = SubjectFinder.findPage("test:testGroup", 
+        GrouperUtil.toSet(SubjectFinder.internal_getGSA(), SourceManager.getInstance().getSource("jdbc"))).getResults();
+    
+    assertEquals(11, GrouperUtil.length(groupSubjects));
+
+    groupSubjects = SubjectFinder.findPage("test:testGroupwerwerwerwer", 
+        GrouperUtil.toSet(SubjectFinder.internal_getGSA(), SourceManager.getInstance().getSource("jdbc"))).getResults();
+
+    assertEquals(0, GrouperUtil.length(groupSubjects));
+
+    groupSubjects = SubjectFinder.findPage("test:testGroup1", 
+        GrouperUtil.toSet(SubjectFinder.internal_getGSA(), SourceManager.getInstance().getSource("jdbc"))).getResults();
+    
+    assertEquals(2, GrouperUtil.length(groupSubjects));
+    
     GrouperSession.stopQuietly(grouperSession);
     //lets set the subject customizer to a test one
   }
