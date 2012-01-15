@@ -9083,7 +9083,7 @@ public class GrouperClientCommonUtils  {
    */
   public static void deleteFile(File file) {
     //delete and create
-    if (file.exists()) {
+    if (file != null && file.exists()) {
 
       if (file.isDirectory()) {
         deleteRecursiveDirectory(file.getAbsolutePath());

@@ -10,6 +10,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -32,8 +33,8 @@ import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
  
  
 /**
-* logic for hitting multiple databases in readonly queries.
-*/
+ * logic for hitting multiple resources checking for errors and timeouts for always availability.
+ */
 @SuppressWarnings("serial")
 public class FailoverClient implements Serializable {
  
@@ -198,7 +199,7 @@ public class FailoverClient implements Serializable {
   }
  
   /**
-   * increment number of errors in the database connection
+   * increment number of errors in the failover connection
    * @param connectionType 
    * @param connectionName
    * @param minutesToKeepErrors 
@@ -215,7 +216,7 @@ public class FailoverClient implements Serializable {
 
 
   /**
-   * see how many errors in the database connection
+   * see how many errors in the failover connection
    * @param connectionName
    * @param minutesSince1970
    * @param minutesToCheck 
@@ -351,13 +352,17 @@ public class FailoverClient implements Serializable {
      
       if (connectionNames == null) {
        
-        connectionNames = new HashSet<String>();
+        connectionNames = new LinkedHashSet<String>();
         connectionsForErrorCount.put(errors, connectionNames);
        
       }
      
       connectionNames.add(connectionName);
-     
+      
+      if (LOG.isDebugEnabled()) {
+        LOG.debug("Failover client: connection name: " + connectionName + ", errors: " + errors);
+
+      }
     }
    
     //for each number of errors, pick the best one
@@ -376,6 +381,10 @@ public class FailoverClient implements Serializable {
        
         //see if there is affinity
         if (!GrouperClientUtils.isBlank(affinityConnectionName) && connectionNames.contains(affinityConnectionName)) {
+          if (LOG.isDebugEnabled()) {
+
+            LOG.debug("Failover client: found affinity: " + affinityConnectionName);
+          }
           availableConnectionsFewestErrorsFirst.add(affinityConnectionName);
           connectionNames.remove(affinityConnectionName);
           availableConnectionsFewestErrorsFirst.addAll(connectionNames);
@@ -415,7 +424,9 @@ public class FailoverClient implements Serializable {
          
           //if we have affinity, set it
           this.connectionAffinityCache.put(Boolean.TRUE, bestConnection);
-         
+          if (LOG.isDebugEnabled()) {
+            LOG.debug("Failover client: best connection setting affinity: " + bestConnection);
+          }
         } else {
           //if not active/active, then use the primary one... or the one furthest from right
           for (String connectionName : connectionNamesInPool) {
@@ -423,6 +434,10 @@ public class FailoverClient implements Serializable {
             if (connectionNames.contains(connectionName)) {
  
               if (availableConnectionsFewestErrorsFirst.size() == 0) {
+                //affinity in active/standby
+                if (LOG.isDebugEnabled()) {
+                  LOG.debug("Failover client: best connection setting affinity: " + connectionName);
+                }
                 //i guess these have affinity too, not sure if it is best, maybe it should always just be preferred... hmmm
                 this.connectionAffinityCache.put(Boolean.TRUE, connectionName);
               }
@@ -519,7 +534,7 @@ public class FailoverClient implements Serializable {
    * @param failoverLogic
    * @return the result from the logic
    */
-  public <T> T internal_failoverLogic(boolean useThreads, final FailoverLogic<T> failoverLogic) {
+  private <T> T internal_failoverLogic(boolean useThreads, final FailoverLogic<T> failoverLogic) {
 
     final List<String> orderedConnections = this.orderedListOfConnectionNames();
 
@@ -543,11 +558,11 @@ public class FailoverClient implements Serializable {
     }
     
     if (GrouperClientUtils.length(orderedConnections) == 1) {
-      String theDatabaseConnectionName = orderedConnections.get(0);
+      String theFailoverConnectionName = orderedConnections.get(0);
       if (LOG.isDebugEnabled()) {
-        LOG.debug("Not load balancing connection type: " + this.failoverConfig.getConnectionType() + ", name: " + theDatabaseConnectionName);
+        LOG.debug("Not load balancing connection type: " + this.failoverConfig.getConnectionType() + ", name: " + theFailoverConnectionName);
       }
-      return failoverLogic.logic(new FailoverLogicBean(false, theDatabaseConnectionName));
+      return failoverLogic.logic(new FailoverLogicBean(false, theFailoverConnectionName));
     }
  
     final Object[] results = new Object[orderedConnections.size()];
@@ -567,12 +582,12 @@ public class FailoverClient implements Serializable {
           }
           results[I] = failoverLogic.logic(new FailoverLogicBean(false, connectionName));
           if (LOG.isDebugEnabled()) {
-            LOG.debug("Finished database connection (init): " + connectionName);
+            LOG.debug("Finished failover connection (init): " + connectionName);
           }
           successes[I] = true;
         } catch (Throwable e) {
           if (LOG.isDebugEnabled()) {
-            LOG.debug("Error database connection (init): " + connectionName + ", " + e.getMessage());
+            LOG.debug("Error failover connection (init): " + connectionName + ", " + e.getMessage());
           }
           results[I] = e;
           successes[I] = false;
@@ -590,16 +605,16 @@ public class FailoverClient implements Serializable {
             try {
 
               if (LOG.isDebugEnabled()) {
-                LOG.debug("Trying database connection: " + connectionName + ", id: " + id);
+                LOG.debug("Trying failover connection: " + connectionName + ", id: " + id);
               }
               results[I] = failoverLogic.logic(new FailoverLogicBean(true, connectionName));
               if (LOG.isDebugEnabled()) {
-                LOG.debug("Finished database connection: " + connectionName + ", " + id);
+                LOG.debug("Finished failover connection: " + connectionName + ", " + id);
               }
               successes[I] = true;
             } catch (Throwable e) {
               if (LOG.isDebugEnabled()) {
-                LOG.debug("Error database connection: " + connectionName + ", " + e.getMessage() + ", id: " + id);
+                LOG.debug("Error failover connection: " + connectionName + ", " + e.getMessage() + ", id: " + id);
               }
               results[I] = e;
               successes[I] = false;
@@ -619,8 +634,10 @@ public class FailoverClient implements Serializable {
      
       if (successes[i] != null && successes[i]) {
         if (LOG.isDebugEnabled()) {
-          LOG.debug("Success for database connection: " + connectionName);
+          LOG.debug("Success for failover connection: " + connectionName);
+          LOG.debug("Success for connection, setting to affinity cache: " + connectionName);
         }
+        this.connectionAffinityCache.put(Boolean.TRUE, connectionName);
         return (T)results[i];
       }
  
@@ -680,7 +697,7 @@ public class FailoverClient implements Serializable {
       RuntimeException thisStack = new RuntimeException("this stack");
      
       //log everything
-      String objectToLog = severityString + " " + typeString + " in database connection: " + connectionName
+      String objectToLog = severityString + " " + typeString + " in failover connection: " + connectionName
           + "," + (isFatal ? "" : " will try others in pool") + " (" + errorCountForTesting
           + " total errors, "
           + timeoutCountForTesting + " total timeouts, "
@@ -711,6 +728,10 @@ public class FailoverClient implements Serializable {
       //see if any work
       for (int index = 0; index < successes.length; index++) {
         if (successes[index] != null && successes[index]) {
+          if (LOG.isDebugEnabled()) {
+            LOG.debug("Success for connection, setting to affinity cache: " + orderedConnections.get(index));
+          }
+          this.connectionAffinityCache.put(Boolean.TRUE, orderedConnections.get(index));
           return (T)results[index];
         }
       }

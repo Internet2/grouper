@@ -3,6 +3,7 @@ package edu.internet2.middleware.grouperClient.failover;
 import java.io.File;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import junit.framework.TestCase;
@@ -12,6 +13,7 @@ import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.failover.FailoverConfig.FailoverStrategy;
+import edu.internet2.middleware.grouperClient.util.GrouperClientCommonUtils;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 
 /**
@@ -24,6 +26,10 @@ import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
  * test serialize state to file
  * test unserialize state from file
  * test active/standby
+ * test errors
+ * 
+ * 
+ * test threads on startup
  * 
  * </pre>
  * @author mchyzer
@@ -37,7 +43,7 @@ public class FailoverClientTest extends TestCase {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new FailoverClientTest("testFailoverActiveStandbyLogicAffinity"));
+    TestRunner.run(new FailoverClientTest("testFailoverLogicAffinityWithErrors"));
   }
 
   /**
@@ -52,6 +58,16 @@ public class FailoverClientTest extends TestCase {
   private FailoverConfig failoverConfig = null;
 
   /**
+   * 
+   */
+  private List<String> firstTierConnections = GrouperUtil.toList("test1", "test2", "test3");
+  
+  /**
+   * 
+   */
+  private List<String> secondTierConnections = GrouperUtil.toList("testTier2_1", "testTier2_2", "testTier2_3");
+  
+  /**
    * set up
    */
   @Override
@@ -63,8 +79,8 @@ public class FailoverClientTest extends TestCase {
     
     this.failoverConfig = new FailoverConfig();
     this.failoverConfig.setAffinitySeconds(10);
-    this.failoverConfig.setConnectionNames(GrouperUtil.toList("test1", "test2", "test3"));
-    this.failoverConfig.setConnectionNamesSecondTier(GrouperUtil.toList("testTier2_1", "testTier2_2", "testTier2_3"));
+    this.failoverConfig.setConnectionNames(this.firstTierConnections);
+    this.failoverConfig.setConnectionNamesSecondTier(this.secondTierConnections);
     this.failoverConfig.setConnectionType("testConnectionType");
     this.failoverConfig.setExtraTimeoutSeconds(10);
     this.failoverConfig.setFailoverStrategy(FailoverStrategy.activeActive);
@@ -72,6 +88,10 @@ public class FailoverClientTest extends TestCase {
     this.failoverConfig.setTimeoutSeconds(15);
 
     GrouperClientUtils.grouperClientOverrideMap().put("grouperClient.saveFailoverStateEverySeconds", "1");
+    
+    //lets delete the cached state file
+    GrouperClientCommonUtils.deleteFile(FailoverClient.fileSaveFailoverClientState());
+    FailoverClient.instanceMapFromType = null;
     
   }
 
@@ -82,6 +102,8 @@ public class FailoverClientTest extends TestCase {
   protected void tearDown() throws Exception {
     super.tearDown();
     GrouperClientUtils.grouperClientOverrideMap().clear();
+    GrouperClientCommonUtils.deleteFile(FailoverClient.fileSaveFailoverClientState());
+    FailoverClient.instanceMapFromType = null;
   }
 
   /**
@@ -107,10 +129,12 @@ public class FailoverClientTest extends TestCase {
          */
         @Override
         public String logic(FailoverLogicBean failoverLogicBean) {
+          assertTrue(failoverLogicBean.getConnectionName(), FailoverClientTest.this.firstTierConnections.contains(failoverLogicBean.getConnectionName()));
           return failoverLogicBean.getConnectionName();
         }
       });
 
+      
       assertTrue(!StringUtils.isBlank(currentConnectionName));
       if (!StringUtils.isBlank(previousConnectionName)) {
         //System.out.println("Current connection name: " + currentConnectionName);
@@ -163,9 +187,11 @@ public class FailoverClientTest extends TestCase {
            */
           @Override
           public String logic(FailoverLogicBean failoverLogicBean) {
+            assertTrue(failoverLogicBean.getConnectionName(), FailoverClientTest.this.firstTierConnections.contains(failoverLogicBean.getConnectionName()));
             return failoverLogicBean.getConnectionName();
           }
         });
+        
         connectionNames.add(currentConnectionName);
         assertTrue(!StringUtils.isBlank(currentConnectionName));
         if (!StringUtils.isBlank(previousConnectionName)) {
@@ -183,6 +209,110 @@ public class FailoverClientTest extends TestCase {
     assertTrue("make sure each are there", connectionNames.contains("test1"));
     assertTrue("make sure each are there", connectionNames.contains("test2"));
     assertTrue("make sure each are there", connectionNames.contains("test3"));
+
+  }
+
+  /**
+   * 
+   */
+  public void testFailoverLogicAffinityWithErrors() {
+
+    FailoverClient.initFailoverClient(this.failoverConfig);
+
+    final String[] firstConnection = new String[1];
+    final String[] secondConnection = new String[1];
+    final String[] thirdConnection = new String[1];
+
+    String firstConnectionResult = FailoverClient.failoverLogic(this.failoverConfig.getConnectionType(), new FailoverLogic<String>() {
+
+      /**
+       * @see FailoverLogic#logic
+       */
+      @Override
+      public String logic(FailoverLogicBean failoverLogicBean) {
+
+        assertTrue(failoverLogicBean.getConnectionName(), FailoverClientTest.this.firstTierConnections.contains(failoverLogicBean.getConnectionName()));
+
+        if (firstConnection[0] == null) {
+          firstConnection[0] = failoverLogicBean.getConnectionName();
+          throw new RuntimeException("Error on first connection!");
+        }
+        
+        return failoverLogicBean.getConnectionName();
+      }
+    });
+
+    assertTrue(!StringUtils.equals(firstConnection[0], firstConnectionResult));
+    
+    //try again
+    
+    String secondConnectionResult = FailoverClient.failoverLogic(this.failoverConfig.getConnectionType(), new FailoverLogic<String>() {
+      
+      /**
+       * @see FailoverLogic#logic
+       */
+      @Override
+      public String logic(FailoverLogicBean failoverLogicBean) {
+        
+        assertTrue(failoverLogicBean.getConnectionName(), FailoverClientTest.this.firstTierConnections.contains(failoverLogicBean.getConnectionName()));
+
+        if (secondConnection[0] == null) {
+          secondConnection[0] = failoverLogicBean.getConnectionName();
+          throw new RuntimeException("Error on second connection!");
+        }
+        
+        return failoverLogicBean.getConnectionName();
+      }
+    });
+    
+    //none of the results should equal each other
+    assertTrue(!StringUtils.equals(secondConnection[0], secondConnectionResult));
+    assertTrue(firstConnectionResult + ", " + secondConnectionResult, !StringUtils.equals(firstConnectionResult, secondConnectionResult));
+
+    String thirdConnectionResult = FailoverClient.failoverLogic(this.failoverConfig.getConnectionType(), new FailoverLogic<String>() {
+      
+      /**
+       * @see FailoverLogic#logic
+       */
+      @Override
+      public String logic(FailoverLogicBean failoverLogicBean) {
+        
+        if (thirdConnection[0] == null) {
+          assertTrue(failoverLogicBean.getConnectionName(), FailoverClientTest.this.firstTierConnections.contains(failoverLogicBean.getConnectionName()));
+
+          thirdConnection[0] = failoverLogicBean.getConnectionName();
+          throw new RuntimeException("Error on third connection!");
+        }
+
+        //after the first round, then all first tiers are used up, we are to the second tier now...
+        assertTrue(failoverLogicBean.getConnectionName(), FailoverClientTest.this.secondTierConnections.contains(failoverLogicBean.getConnectionName()));
+
+        return failoverLogicBean.getConnectionName();
+      }
+    });
+
+    //none of the results should equal each other
+    assertTrue(secondConnectionResult + ", " + thirdConnectionResult, !StringUtils.equals(secondConnectionResult, thirdConnectionResult));
+    assertTrue(thirdConnectionResult + ", " + firstConnectionResult, !StringUtils.equals(thirdConnectionResult, firstConnectionResult));
+    assertTrue(thirdConnectionResult + ", " + thirdConnection[0], !StringUtils.equals(thirdConnectionResult, thirdConnection[0]));
+    
+    //now we have affinity
+    for (int i=0;i<10;i++) {
+      String currentConnectionName = FailoverClient.failoverLogic(this.failoverConfig.getConnectionType(), new FailoverLogic<String>() {
+        
+        /**
+         * @see FailoverLogic#logic
+         */
+        @Override
+        public String logic(FailoverLogicBean failoverLogicBean) {
+          
+          assertTrue(failoverLogicBean.getConnectionName(), FailoverClientTest.this.secondTierConnections.contains(failoverLogicBean.getConnectionName()));
+
+          return failoverLogicBean.getConnectionName();
+        }
+      });
+      assertEquals(thirdConnectionResult, currentConnectionName);
+    }
     
   }
   
@@ -213,6 +343,7 @@ public class FailoverClientTest extends TestCase {
            */
           @Override
           public String logic(FailoverLogicBean failoverLogicBean) {
+            assertTrue(failoverLogicBean.getConnectionName(), FailoverClientTest.this.firstTierConnections.contains(failoverLogicBean.getConnectionName()));
             return failoverLogicBean.getConnectionName();
           }
         });
