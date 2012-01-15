@@ -22,6 +22,7 @@ import java.util.Set;
  * @param <K> key type
  * @param <V> value type
  */
+@SuppressWarnings("serial")
 public class ExpirableCache<K,V> implements Serializable {
 
   /** max time to live in millis */
@@ -86,6 +87,59 @@ public class ExpirableCache<K,V> implements Serializable {
     GrouperClientUtils.assertion(defaultTimeToLiveInMinutes > 0, "Time to live in minutes must be greater than 0");
     //make sure this is less than the max
     long newTimeToLiveMillis = defaultTimeToLiveInMinutes * 60 * 1000;
+    if (newTimeToLiveMillis < MAX_TIME_TO_LIVE_MILLIS) {
+      this.defaultTimeToLiveInMillis = newTimeToLiveMillis;
+    }
+  }
+
+  /**
+   * unit of time for expirable cache
+   * @author mchyzer
+   *
+   */
+  public static enum ExpirableCacheUnit {
+    /** minutes */
+    MINUTE {
+
+      /** 
+       * @see ExpirableCacheUnit#defaultTimeToLiveMillis(int)
+       */
+      @Override
+      public long defaultTimeToLiveMillis(int input) {
+        return input * 60 * 1000;
+      }
+    },
+    
+    /** seconds */
+    SECOND {
+
+      /** 
+       * @see ExpirableCacheUnit#defaultTimeToLiveMillis(int)
+       */
+      @Override
+      public long defaultTimeToLiveMillis(int input) {
+        return input * 1000;
+      }
+    };
+    
+    /** 
+     * default time to live based on units
+     * @param input
+     * @return the millis
+     */
+    public abstract long defaultTimeToLiveMillis(int input);
+    
+  }
+  
+  /**
+   * @param defaultTimeToLive time in whatever unit is the default cache time to live for content
+   * @param expirableCacheUnit is minutes or seconds
+   */
+  public ExpirableCache(ExpirableCacheUnit expirableCacheUnit, int defaultTimeToLive) {
+    super();
+    GrouperClientUtils.assertion(defaultTimeToLive > 0, "Time to live in minutes must be greater than 0");
+    //make sure this is less than the max
+    long newTimeToLiveMillis = expirableCacheUnit.defaultTimeToLiveMillis(defaultTimeToLive);
     if (newTimeToLiveMillis < MAX_TIME_TO_LIVE_MILLIS) {
       this.defaultTimeToLiveInMillis = newTimeToLiveMillis;
     }

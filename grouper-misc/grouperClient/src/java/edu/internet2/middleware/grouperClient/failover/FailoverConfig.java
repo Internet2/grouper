@@ -10,10 +10,34 @@ import java.util.List;
 public class FailoverConfig {
 
   /**
+   * if your app has a slow startup time, and the initial connections are timing out
+   * esp if you arent just using the command line client (e.g. if using it as a jar), then add more time here
+   */
+  private int secondsForClassesToLoad = 20;
+  
+  /**
+   * if your app has a slow startup time, and the initial connections are timing out
+   * esp if you arent just using the command line client (e.g. if using it as a jar), then add more time here
+   * @return seconds for classes to load
+   */
+  public int getSecondsForClassesToLoad() {
+    return this.secondsForClassesToLoad;
+  }
+  
+  /**
+   * if your app has a slow startup time, and the initial connections are timing out
+   * esp if you arent just using the command line client (e.g. if using it as a jar), then add more time here
+   * @param secondsForClassesToLoad1
+   */
+  public void setSecondsForClassesToLoad(int secondsForClassesToLoad1) {
+    this.secondsForClassesToLoad = secondsForClassesToLoad1;
+  }
+
+  /**
    * string that identifies this failover config from other failover config, e.g. webServiceReadOnlyPool
    */
   private String connectionType;
-  
+
   /**
    * string that identifies this failover config from other failover config, e.g. webServiceReadOnlyPool
    * @return the connection type
@@ -81,24 +105,24 @@ public class FailoverConfig {
   }
 
   /**
-   * seconds to remember that there was an error for a connection name of a connection type
+   * minutes to remember that there was an error for a connection name of a connection type
    */
-  private int secondsToKeepErrors = 5;
+  private int minutesToKeepErrors = 5;
 
   /**
-   * seconds to remember that there was an error for a connection name of a connection type
+   * minutes to remember that there was an error for a connection name of a connection type
    * @return minutes to keep errors
    */
-  public int getSecondsToKeepErrors() {
-    return this.secondsToKeepErrors;
+  public int getMinutesToKeepErrors() {
+    return this.minutesToKeepErrors;
   }
 
   /**
-   * seconds to remember that there was an error for a connection name of a connection type
+   * minutes to remember that there was an error for a connection name of a connection type
    * @param minutesToKeepErrors1
    */
-  public void setSecondsToKeepErrors(int minutesToKeepErrors1) {
-    this.secondsToKeepErrors = minutesToKeepErrors1;
+  public void setMinutesToKeepErrors(int minutesToKeepErrors1) {
+    this.minutesToKeepErrors = minutesToKeepErrors1;
   }
 
   /** actice/active or active/standby */

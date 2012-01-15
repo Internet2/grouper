@@ -6,13 +6,17 @@ package edu.internet2.middleware.grouperClient.util;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.PushbackInputStream;
 import java.io.Reader;
+import java.io.Serializable;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
@@ -8980,5 +8984,171 @@ public class GrouperClientCommonUtils  {
     
     
   }
+
+  /**
+   * serialize an object to a file (create parent dir if necessary)
+   * @param object
+   * @param file
+   */
+  public static void serializeObjectToFile(Serializable object, File file) {
+
+    //delete, make sure parents are there
+    deleteCreateFile(file);
+
+    FileOutputStream fos = null;
+    ObjectOutputStream out = null;
+    try {
+      fos = new FileOutputStream(file);
+      out = new ObjectOutputStream(fos);
+      out.writeObject(object);
+    } catch(IOException ex) {
+      //we had a problem, dont leave the file partway created...
+      closeQuietly(out);
+      out = null;
+      deleteFile(file);
+      throw new RuntimeException("Error writing file: " + absolutePath(file)
+          + ", " + className(object), ex);
+    } finally {
+      closeQuietly(out);
+    }
+    
+  }
+
+  /**
+   * unserialize an object from a file if it exists
+   * @param file
+   * @param nullIfException true if null should be returned instead of exception
+   * @param deleteFileOnException true if file should be deleted on exception
+   * @return the object or null
+   */
+  public static Serializable unserializeObjectFromFile(File file, boolean nullIfException,
+      boolean deleteFileOnException) {
+    
+    if (!file.exists() || file.length() == 0) {
+      return null;
+    }
+    
+    FileInputStream fis = null;
+    ObjectInputStream ois = null;
+    try {
+      fis = new FileInputStream(file);
+      ois = new ObjectInputStream(fis);
+      return (Serializable)ois.readObject();
+    } catch(Exception ex) {
+      String error = "Error writing file: " + absolutePath(file);
+      if (!nullIfException) {
+        throw new RuntimeException(error, ex);
+      }
+      //return null and not an exception
+      LOG.error(ex);
+      //maybe clear the file if problem
+      if (deleteFileOnException) {
+        //close before deleting
+        closeQuietly(ois);
+        ois = null;
+        deleteFile(file);
+      }
+      return null;
+    } finally {
+      closeQuietly(ois);
+    }
+    
+  }
+  
+  /**
+   * delete and create a new file.  If its a directory, delete, and create a new dir.
+   * 
+   * @param file
+   *          is the file to delete and create
+   */
+  public static void deleteCreateFile(File file) {
+
+    deleteFile(file);
+
+    createParentDirectories(file);
+
+    try {
+      if (!file.createNewFile()) {
+        throw new IOException("createNewFile returned false: ");
+      }
+    } catch (IOException ioe) {
+      throw new RuntimeException("Couldnt create new file: " + file.toString(), ioe);
+    }
+
+  }
+
+  /**
+   * Delete a file, throw exception if cannot
+   * @param file
+   */
+  public static void deleteFile(File file) {
+    //delete and create
+    if (file.exists()) {
+
+      if (file.isDirectory()) {
+        deleteRecursiveDirectory(file.getAbsolutePath());
+      } else if (!file.delete()) {
+        throw new RuntimeException("Couldnt delete file: " + file.toString());
+      }
+    }
+  }
+
+  /**
+   * clear out all files recursively in a directory, including the directory
+   * itself
+   * @param dirName
+   * 
+   * @throws RuntimeException
+   *           when something goes wrong
+   */
+  public static void deleteRecursiveDirectory(String dirName) {
+    //delete all files in the directory
+    File dir = new File(dirName);
+
+    //if it doesnt exist then we are done
+    if (!dir.exists()) {
+      return;
+    }
+
+    //see if its a directory
+    if (!dir.isDirectory()) {
+      throw new RuntimeException("The directory: " + dirName + " is not a directory");
+    }
+
+    //get the files into a vector
+    File[] allFiles = dir.listFiles();
+
+    //loop through the array
+    for (int i = 0; i < allFiles.length; i++) {
+      if (-1 < allFiles[i].getName().indexOf("..")) {
+        continue; //dont go to the parent directory
+      }
+
+      if (allFiles[i].isFile()) {
+        //delete the file
+        if (!allFiles[i].delete()) {
+          throw new RuntimeException("Could not delete file: " + allFiles[i].getPath());
+        }
+      } else {
+        //its a directory
+        deleteRecursiveDirectory(allFiles[i].getPath());
+      }
+    }
+
+    //delete the directory itself
+    if (!dir.delete()) {
+      throw new RuntimeException("Could not delete directory: " + dir.getPath());
+    }
+  }
+
+  /**
+   * absolute path null safe
+   * @param file
+   * @return absolute path null safe
+   */
+  public static String absolutePath(File file) {
+    return file == null ? null : file.getAbsolutePath();
+  }
+
 
 }

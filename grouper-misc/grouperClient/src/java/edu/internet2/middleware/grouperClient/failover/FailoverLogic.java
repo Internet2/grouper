@@ -11,10 +11,10 @@ public interface FailoverLogic<V> {
 
   /**
    * Logic to run.  If there is a problem or timeout, try a different connection
-   * @param config is the name to run the code in or some part of the config for this connection
-   * @param connectionName is one of the connection names from the config
+   * Note, if there are threadlocal things to set, make sure to set them in the logic
+   * @param failoverLogicBean if running in new thread, and connection name
    * @return whatever it returns
    */
-  public abstract V logic(String connectionName);
+  public abstract V logic(FailoverLogicBean failoverLogicBean);
 
 }
