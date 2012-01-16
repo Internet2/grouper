@@ -10,6 +10,7 @@ import org.apache.commons.logging.LogFactory;
 import edu.internet2.middleware.grouper.ws.ResultMetadataHolder;
 import edu.internet2.middleware.grouper.ws.coresoap.WsDeleteMemberLiteResult.WsDeleteMemberLiteResultCode;
 import edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup.SubjectFindResult;
+import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
 
 /**
@@ -353,11 +354,27 @@ public class WsDeleteMemberResult  implements ResultMetadataHolder {
    */
   public void processSubject(WsSubjectLookup wsSubjectLookup1,
       String[] subjectAttributeNames) {
+    processSubject(wsSubjectLookup1, subjectAttributeNames, true);
+  }
+
+  /**
+   * assign the code from the enum
+   * @param wsSubjectLookup1
+   * @param subjectAttributeNames
+   * @param exceptionIfNotFound 
+   */
+  public void processSubject(WsSubjectLookup wsSubjectLookup1,
+      String[] subjectAttributeNames, boolean exceptionIfNotFound) {
 
     this.setWsSubject(new WsSubject(wsSubjectLookup1));
-    this.setWsSubject(new WsSubject(wsSubjectLookup1.retrieveSubject("Subject"),
-        subjectAttributeNames, wsSubjectLookup1));
-
+    try {
+      this.setWsSubject(new WsSubject(wsSubjectLookup1.retrieveSubject("Subject"),
+          subjectAttributeNames, wsSubjectLookup1));
+    } catch (WsInvalidQueryException wsiqe) {
+      if (exceptionIfNotFound) {
+        throw wsiqe;
+      }
+    }
     SubjectFindResult subjectFindResult = wsSubjectLookup1.retrieveSubjectFindResult();
 
     switch (subjectFindResult) {

@@ -14,6 +14,7 @@ import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.StemDeleteException;
 import edu.internet2.middleware.grouper.exception.StemNotFoundException;
+import edu.internet2.middleware.grouper.pit.PITUtils;
 
 /**
  * Obliterate a stem no matter what is in there.
@@ -32,20 +33,29 @@ public class obliterateStem {
    * @param   i     BeanShell interpreter.
    * @param   stack BeanShell call stack.
    * @param   name  <i>name</i> of {@link Stem} to delete.
-   * @param testOnly true if just seeing what it would do...
+   * @param testOnly true if just seeing what it would do.  This is not supported if deleting from point in time.
+   * @param deleteFromPointInTime true if you want to delete from point in time only.  False if you don't want to delete from point in time.
    * @return  True if {@link Stem} was deleted.
    * @throws  GrouperShellException
    * @since   0.0.1
    */
-  public static boolean invoke(Interpreter i, CallStack stack, String name, boolean testOnly) 
+  public static boolean invoke(Interpreter i, CallStack stack, String name, boolean testOnly, boolean deleteFromPointInTime) 
     throws  GrouperShellException
   {
     GrouperShell.setOurCommand(i, true);
     try {
       GrouperSession  s   = GrouperShell.getSession(i);
-      Stem            ns  = StemFinder.findByName(s, name, true);
       
-      ns.obliterate(true, testOnly);
+      if (deleteFromPointInTime && testOnly) {
+        throw new RuntimeException("testOnly option is not supported when deleting from point in time.");
+      }
+      
+      if (deleteFromPointInTime) {
+        PITUtils.deleteInactiveStem(name, true);
+      } else {
+        Stem ns  = StemFinder.findByName(s, name, true);
+        ns.obliterate(true, testOnly);
+      }
       
       return true;
     }

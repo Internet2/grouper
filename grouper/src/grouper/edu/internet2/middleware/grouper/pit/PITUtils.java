@@ -21,8 +21,9 @@ public class PITUtils {
   /**
    * Delete point in time records that ended before the given date.
    * @param date
+   * @param printOutput
    */
-  public static void deleteInactiveRecords(Date date) {
+  public static void deleteInactiveRecords(Date date, final boolean printOutput) {
     
     final Timestamp time = new Timestamp(date.getTime());
 
@@ -35,20 +36,75 @@ public class PITUtils {
             hibernateHandlerBean.getHibernateSession().setCachingEnabled(false);
 
             GrouperDAOFactory.getFactory().getPITAttributeAssignValue().deleteInactiveRecords(time);
+            if (printOutput) {
+              System.out.println("Done deleting attributeAssignValues from point in time that ended before: " + time.toString());
+            }
+            
             GrouperDAOFactory.getFactory().getPITRoleSet().deleteInactiveRecords(time);
+            if (printOutput) {
+              System.out.println("Done deleting roleSets from point in time that ended before: " + time.toString());
+            }
+            
             GrouperDAOFactory.getFactory().getPITAttributeAssignActionSet().deleteInactiveRecords(time);
+            if (printOutput) {
+              System.out.println("Done deleting attributeAssignActionSets from point in time that ended before: " + time.toString());
+            }
+            
             GrouperDAOFactory.getFactory().getPITAttributeAssign().deleteInactiveRecords(time);
+            if (printOutput) {
+              System.out.println("Done deleting attributeAssigns from point in time that ended before: " + time.toString());
+            }
+            
             GrouperDAOFactory.getFactory().getPITAttributeAssignAction().deleteInactiveRecords(time);
+            if (printOutput) {
+              System.out.println("Done deleting attributeAssignActions from point in time that ended before: " + time.toString());
+            }
+            
             GrouperDAOFactory.getFactory().getPITAttributeDefNameSet().deleteInactiveRecords(time);
+            if (printOutput) {
+              System.out.println("Done deleting attributeDefNameSets from point in time that ended before: " + time.toString());
+            }
+            
             GrouperDAOFactory.getFactory().getPITAttributeDefName().deleteInactiveRecords(time);
+            if (printOutput) {
+              System.out.println("Done deleting attributeDefNames from point in time that ended before: " + time.toString());
+            }
+            
             GrouperDAOFactory.getFactory().getPITMembership().deleteInactiveRecords(time);
+            if (printOutput) {
+              System.out.println("Done deleting memberships from point in time that ended before: " + time.toString());
+            }
+            
             GrouperDAOFactory.getFactory().getPITGroupSet().deleteInactiveRecords(time);
+            if (printOutput) {
+              System.out.println("Done deleting groupSets from point in time that ended before: " + time.toString());
+            }
+            
             GrouperDAOFactory.getFactory().getPITGroup().deleteInactiveRecords(time);
-            GrouperDAOFactory.getFactory().getPITStem().deleteInactiveRecords(time);
+            if (printOutput) {
+              System.out.println("Done deleting groups from point in time that ended before: " + time.toString());
+            }
+            
             GrouperDAOFactory.getFactory().getPITAttributeDef().deleteInactiveRecords(time);
+            if (printOutput) {
+              System.out.println("Done deleting attributeDefs from point in time that ended before: " + time.toString());
+            }
+            
+            GrouperDAOFactory.getFactory().getPITStem().deleteInactiveRecords(time);
+            if (printOutput) {
+              System.out.println("Done deleting stems from point in time that ended before: " + time.toString());
+            }
+            
             GrouperDAOFactory.getFactory().getPITField().deleteInactiveRecords(time);
+            if (printOutput) {
+              System.out.println("Done deleting fields from point in time that ended before: " + time.toString());
+            }
+            
             GrouperDAOFactory.getFactory().getPITMember().deleteInactiveRecords(time);
-
+            if (printOutput) {
+              System.out.println("Done deleting members from point in time that ended before: " + time.toString());
+            }
+            
             return null;
           }
         });
@@ -106,8 +162,9 @@ public class PITUtils {
    * Delete point in time stem by stem name.  If multiple inactive stems exist by this stem name,
    * they will all be deleted.
    * @param stemName
+   * @param printOutput 
    */
-  public static void deleteInactiveStem(final String stemName) {
+  public static void deleteInactiveStem(final String stemName, final boolean printOutput) {
     
     HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING,
         AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
@@ -120,7 +177,11 @@ public class PITUtils {
             Set<PITStem> stems = GrouperDAOFactory.getFactory().getPITStem().findByName(stemName, false);
             for (PITStem stem : stems) {
               if (!stem.isActive()) {
-                deleteInactiveStem(stem);
+                deleteInactiveStem(stem, printOutput);
+              } else {
+                if (printOutput) {
+                  System.out.println("Skipping " + stem.getName() + " (ID=" + stem.getId() + ") since it is active in point in time.");
+                }
               }
             }
 
@@ -132,8 +193,9 @@ public class PITUtils {
   /**
    * Delete point in time stem.
    * @param pitStem
+   * @param printOutput 
    */
-  public static void deleteInactiveStem(final PITStem pitStem) {
+  public static void deleteInactiveStem(final PITStem pitStem, final boolean printOutput) {
     
     HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING,
         AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
@@ -143,7 +205,7 @@ public class PITUtils {
             
             hibernateHandlerBean.getHibernateSession().setCachingEnabled(false);
 
-            pitStem.delete();
+            pitStem.delete(printOutput);
 
             return null;
           }
@@ -154,8 +216,9 @@ public class PITUtils {
    * Delete point in time objects in a stem by stem name.  This includes child stems, groups, attribute def names,
    * and attribute defs.  If multiple stems exist by this stem name, inactive objects in all of them will be deleted.
    * @param stemName
+   * @param printOutput 
    */
-  public static void deleteInactiveObjectsInStem(final String stemName) {
+  public static void deleteInactiveObjectsInStem(final String stemName, final boolean printOutput) {
     
     HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING,
         AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
@@ -167,7 +230,7 @@ public class PITUtils {
 
             Set<PITStem> stems = GrouperDAOFactory.getFactory().getPITStem().findByName(stemName, false);
             for (PITStem stem : stems) {
-              deleteInactiveObjectsInStem(stem);
+              deleteInactiveObjectsInStem(stem, printOutput);
             }
 
             return null;
@@ -179,8 +242,9 @@ public class PITUtils {
    * Delete point in time objects in a stem.  This includes child stems, groups, attribute def names,
    * and attribute defs.
    * @param pitStem
+   * @param printOutput 
    */
-  public static void deleteInactiveObjectsInStem(final PITStem pitStem) {
+  public static void deleteInactiveObjectsInStem(final PITStem pitStem, final boolean printOutput) {
     
     HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING,
         AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
@@ -195,6 +259,9 @@ public class PITUtils {
             for (PITGroup group : groups) {
               if (!group.isActive()) {
                 GrouperDAOFactory.getFactory().getPITGroup().delete(group);
+                if (printOutput) {
+                  System.out.println("Done deleting group from point in time: " + group.getName() + ", ID=" + group.getId());
+                }
               }
             }
             
@@ -203,6 +270,9 @@ public class PITUtils {
             for (PITAttributeDefName attr : attrs) {
               if (!attr.isActive()) {
                 GrouperDAOFactory.getFactory().getPITAttributeDefName().delete(attr);
+                if (printOutput) {
+                  System.out.println("Done deleting attributeDefName from point in time: " + attr.getName() + ", ID=" + attr.getId());
+                }
               }
             }
             
@@ -211,6 +281,9 @@ public class PITUtils {
             for (PITAttributeDef def : defs) {
               if (!def.isActive()) {
                 GrouperDAOFactory.getFactory().getPITAttributeDef().delete(def);
+                if (printOutput) {
+                  System.out.println("Done deleting attributeDef from point in time: " + def.getName() + ", ID=" + def.getId());
+                }
               }
             }
             
@@ -218,7 +291,7 @@ public class PITUtils {
             Set<PITStem> childStems = GrouperDAOFactory.getFactory().getPITStem().findByParentStemId(pitStem.getId());
             for (PITStem childStem : childStems) {
               if (!childStem.isActive()) {
-                GrouperDAOFactory.getFactory().getPITStem().delete(childStem);
+                childStem.delete(printOutput);
               }
             }
 

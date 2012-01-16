@@ -34,6 +34,7 @@ import org.apache.ddlutils.platform.SqlBuilder;
 import org.hibernate.HibernateException;
 import org.hibernate.tool.hbm2ddl.SchemaExport;
 
+import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
@@ -192,7 +193,12 @@ class Hib3RegistryDAO implements RegistryDAO {
     try {
       Hib3DaoConfig config = new Hib3DaoConfig();
 
-      Platform platform = PlatformFactory.createNewPlatformInstance(config.getProperty("hibernate.connection.driver_class"), config.getProperty("hibernate.connection.url"));
+      String driverClass = config.getProperty("hibernate.connection.driver_class");
+      String connectionUrl = config.getProperty("hibernate.connection.url");
+      
+      driverClass = GrouperDdlUtils.convertUrlToDriverClassIfNeeded(connectionUrl, driverClass);
+      
+      Platform platform = PlatformFactory.createNewPlatformInstance(driverClass, connectionUrl);
       platform.setUsername(config.getProperty("hibernate.connection.username"));
       platform.setPassword(config.getProperty("hibernate.connection.password"));
 
@@ -227,8 +233,14 @@ class Hib3RegistryDAO implements RegistryDAO {
     try {
       Hib3DaoConfig config = new Hib3DaoConfig();
       
-      Platform platform = PlatformFactory.createNewPlatformInstance(config.getProperty("hibernate.connection.driver_class"), 
-          config.getProperty("hibernate.connection.url"));
+      String driverClass = config.getProperty("hibernate.connection.driver_class");
+      String connectionUrl = config.getProperty("hibernate.connection.url");
+      
+      driverClass = GrouperDdlUtils.convertUrlToDriverClassIfNeeded(connectionUrl, driverClass);
+      
+      Platform platform = PlatformFactory.createNewPlatformInstance(driverClass, connectionUrl);
+
+      
       platform.setUsername(config.getProperty("hibernate.connection.username"));
       
       //TODO MCH 20090102: decrypt this password if encrypted... though is this even used anymore???

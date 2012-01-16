@@ -163,25 +163,23 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
    * @throws  SubjectNotFoundException
    */
   public Subject getSubject(final String id, final boolean exceptionIfNotFound) throws SubjectNotFoundException {
-    try {
-      Group group = null;
-      
-      group = (Group)GrouperSession.callbackGrouperSession(GrouperSourceAdapter.internal_getSessionOrRootForSubjectFinder(), new GrouperSessionHandler() {
 
-        public Object callback(GrouperSession grouperSession)
-            throws GrouperSessionException {
-          return GrouperDAOFactory.getFactory().getGroup().findByUuidSecure(id, exceptionIfNotFound, null, typeOfGroups());
-        }
-      });
-
-      if (group == null && !exceptionIfNotFound) {
-        return null;
-      }
-      return new GrouperSubject(group);
+    Map<String, Subject> subjectMap = getSubjectsByIds(GrouperUtil.toSet(id));
+    
+    if (GrouperUtil.length(subjectMap) > 1) {
+      throw new RuntimeException("Why are there more than one result??? " + id + ", " + GrouperUtil.length(subjectMap));
     }
-    catch (GroupNotFoundException eGNF) {
-      throw new SubjectNotFoundException( "subject not found: " + eGNF.getMessage(), eGNF );
+    
+    Subject subject = null;
+    
+    if (GrouperUtil.length(subjectMap) == 1) {
+      subject = subjectMap.values().iterator().next();
     }
+    
+    if (subject == null && exceptionIfNotFound) {
+      throw new SubjectNotFoundException("Subject not found by id: " + id);
+    }
+    return subject;
   }
   
   /**
@@ -214,6 +212,60 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
   {
     return getSubjectByIdentifier(name, true);
   }
+  
+  
+  /**
+   * @see Source#getSubjectsByIdentifiers(Collection)
+   */
+  @Override
+  public Map<String, Subject> getSubjectsByIdentifiers(final Collection<String> identifiers) {
+    Set<Group> groups = null;
+    
+    groups = (Set<Group>)GrouperSession.callbackGrouperSession(
+        GrouperSourceAdapter.internal_getSessionOrRootForSubjectFinder(), new GrouperSessionHandler() {
+
+      public Object callback(GrouperSession grouperSession)
+          throws GrouperSessionException {
+        return GrouperDAOFactory.getFactory().getGroup().findByNamesSecure(identifiers, null);
+      }
+    });
+
+    Map<String, Subject> result = new HashMap<String, Subject>();
+    
+    for (Group group : GrouperUtil.nonNull(groups)) {
+      GrouperSubject grouperSubject = new GrouperSubject(group);
+      result.put(group.getName(), grouperSubject);
+    }
+    
+    return result;
+  }
+
+  /**
+   * @see Source#getSubjectsByIds(Collection)
+   */
+  @Override
+  public Map<String, Subject> getSubjectsByIds(final Collection<String> ids) {
+    Set<Group> groups = null;
+    
+    groups = (Set<Group>)GrouperSession.callbackGrouperSession(
+        GrouperSourceAdapter.internal_getSessionOrRootForSubjectFinder(), new GrouperSessionHandler() {
+
+      public Object callback(GrouperSession grouperSession)
+          throws GrouperSessionException {
+        return GrouperDAOFactory.getFactory().getGroup().findByUuidsSecure(ids, null);
+      }
+    });
+
+    Map<String, Subject> result = new HashMap<String, Subject>();
+    
+    for (Group group : GrouperUtil.nonNull(groups)) {
+      GrouperSubject grouperSubject = new GrouperSubject(group);
+      result.put(group.getUuid(), grouperSubject);
+    }
+    
+    return result;
+  }
+
   /**
    * Gets a {@link Group} subject by its name.
    * <p/>
@@ -240,28 +292,27 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
    * @throws  SubjectNotFoundException
    */
   public Subject getSubjectByIdentifier(final String name, final boolean exceptionIfNull) 
-    throws SubjectNotFoundException 
-  {
-    try {
-     Group group = (Group)    GrouperSession.callbackGrouperSession(GrouperSourceAdapter.internal_getSessionOrRootForSubjectFinder(), new GrouperSessionHandler() {
+    throws SubjectNotFoundException {
 
-        public Object callback(GrouperSession grouperSession)
-            throws GrouperSessionException {
-          return (Group)GrouperDAOFactory.getFactory().getGroup().findByNameSecure(name, exceptionIfNull, null, typeOfGroups());
-        }
-      });
-    
-      if (group == null && !exceptionIfNull) {
-        return null;
-      }
-      return new GrouperSubject(group);
-    }
-    catch (GroupNotFoundException eGNF) {
-      throw new SubjectNotFoundException( "subject not found: " + eGNF.getMessage(), eGNF );
-    }
-  } // public Subject getSubjectByIdentifier(name)
+    Map<String, Subject> subjectMap = getSubjectsByIdentifiers(GrouperUtil.toSet(name));
 
-  /**
+    if (GrouperUtil.length(subjectMap) > 1) {
+      throw new RuntimeException("Why are there more than one result??? " + name + ", " + GrouperUtil.length(subjectMap));
+    }
+
+    Subject subject = null;
+
+    if (GrouperUtil.length(subjectMap) == 1) {
+      subject = subjectMap.values().iterator().next();
+    }
+
+    if (subject == null && exceptionIfNull) {
+      throw new SubjectNotFoundException("Subject not found by identifier: " + name);
+    }
+    return subject;
+
+
+  }  /**
    * Gets the SubjectTypes supported by this source.
    * <pre class="eg">
    * SourceAdapter  sa    = new GrouperSourceAdapter();

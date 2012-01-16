@@ -65,7 +65,7 @@ if exist "%GROUPER_HOME%\bin\setenv.bat" call "%GROUPER_HOME%\bin\setenv.bat"
 
 if  "%MEM_START%" == "" set MEM_START=64m
 
-if  "%MEM_MAX%" == "" set MEM_MAX=512m
+if  "%MEM_MAX%" == "" set MEM_MAX=750m
 
 if "%GROUPER_CONF%" == "" set GROUPER_CONF=%GROUPER_HOME%/conf
 

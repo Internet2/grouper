@@ -76,6 +76,7 @@ import edu.internet2.middleware.grouper.privs.GrouperPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingResolver;
 import edu.internet2.middleware.grouper.privs.Privilege;
+import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.privs.PrivilegeType;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -578,34 +579,34 @@ public class GrouperServiceLogic {
                 wsDeleteMemberResults.getResults()[resultIndex++] = wsDeleteMemberResult;
                 try {
   
-                  Subject subject = wsSubjectLookup.retrieveSubject();
-                  wsDeleteMemberResult.processSubject(wsSubjectLookup, subjectAttributeNamesToRetrieve);
-  
-                  if (subject == null) {
-                    continue;
-                  }
+                  //NOTE: deal with member here so unresolvables can be removed
+                  Member member = wsSubjectLookup.retrieveMember();
+                  wsDeleteMemberResult.processSubject(wsSubjectLookup, subjectAttributeNamesToRetrieve, false);
   
                   try {
   
                     boolean hasImmediate = false;
                     boolean hasEffective = false;
-                    if (fieldName == null) {
-                      // dont fail if already a direct member
-                      hasEffective = group.hasEffectiveMember(subject);
-                      hasImmediate = group.hasImmediateMember(subject);
-                      if (hasImmediate) {
-                        group.deleteMember(subject);
+                    if (member != null) {
+                      if (fieldName == null) {
+                        // dont fail if already a direct member
+                        hasEffective = member.isEffectiveMember(group);
+                        hasImmediate = member.isImmediateMember(group);
+                        if (hasImmediate) {
+                          group.deleteMember(member);
+                        }
+                      } else {
+                        // dont fail if already a direct member
+                        hasEffective = member.isEffectiveMember(group, fieldName);
+                        hasImmediate = member.isImmediateMember(group, fieldName);
+                        if (hasImmediate) {
+                          group.deleteMember(member, fieldName);
+                        }
                       }
-                    } else {
-                      // dont fail if already a direct member
-                      hasEffective = group.hasEffectiveMember(subject, fieldName);
-                      hasImmediate = group.hasImmediateMember(subject, fieldName);
-                      if (hasImmediate) {
-                        group.deleteMember(subject, fieldName);
-                      }
-                      }
+                    }
                     if (LOG.isDebugEnabled()) {
-                      LOG.debug("deleteMember: " + group.getName() + ", " + subject.getId() + ", eff? " + hasEffective + ", imm? " + hasImmediate);
+                      LOG.debug("deleteMember: " + group.getName() + ", " + member.getSubjectSourceId() 
+                          + ", " + member.getSubjectId() + ", eff? " + hasEffective + ", imm? " + hasImmediate);
                     }
   
                     //assign one of 4 success codes
@@ -1451,7 +1452,7 @@ public class GrouperServiceLogic {
             
             // lets get the members, cant be null
             Set<Member> members = memberFilter.getMembers(group, fieldName, sources);
-        
+            Member.resolveSubjects(members, true);
             wsGetMembersResult.assignSubjectResult(members, subjectAttributeNamesToRetrieve, includeSubjectDetail);
           } else {            
             Set<PITGroup> pitGroups = wsGroupLookup.retrievePITGroupsIfNeeded("wsGroupLookup", pointInTimeFrom, pointInTimeTo);
@@ -1644,6 +1645,7 @@ public class GrouperServiceLogic {
         // lets get the members, cant be null
         Set<Object[]> membershipObjects = MembershipFinder.findMemberships(groupIds, memberIds, membershipIdSet, 
             membershipType, fieldName, sources, scope, stem, stemScope == null ? null : stemScope.convertToScope(), enabledBoolean);
+        Membership.resolveSubjects(membershipObjects);
         
         //calculate and return the results
         wsGetMembershipsResults.assignResult(membershipObjects, includeGroupDetail, includeSubjectDetail, subjectAttributeNames);
@@ -3661,6 +3663,10 @@ public class GrouperServiceLogic {
         }
         
         int i=0;
+        
+        //init subjects
+        PrivilegeHelper.resolveSubjects(privileges, true);
+        
         for (GrouperPrivilege grouperPrivilege : privileges) {
           
           WsGrouperPrivilegeResult wsGrouperPrivilegeResult = new WsGrouperPrivilegeResult();
@@ -3696,7 +3702,7 @@ public class GrouperServiceLogic {
                 + GrouperUtil.subjectToString(privilegeSubject) + ", " 
                 + GrouperUtil.subjectToString(subject));
           }
-          }
+        }
 
         //only pass in the subject lookup if it wasnt null
         wsGrouperPrivilegeResult.setWsSubject(new WsSubject(privilegeSubject, subjectAttributeArray, 

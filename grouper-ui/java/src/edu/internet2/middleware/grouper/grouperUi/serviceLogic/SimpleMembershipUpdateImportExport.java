@@ -92,6 +92,8 @@ public class SimpleMembershipUpdateImportExport {
       
       Set<Member> members = group.getImmediateMembers();
       
+      Member.resolveSubjects(members, true);
+      
       HttpServletResponse response = GrouperUiFilter.retrieveHttpServletResponse(); 
       
       String[] headers = GrouperUtil.splitTrim(simpleMembershipUpdateContainer.configValue(
@@ -220,7 +222,7 @@ public class SimpleMembershipUpdateImportExport {
         } else if ("screenLabel".equalsIgnoreCase(header)) {
           result[i] = GrouperUiUtils.convertSubjectToLabelConfigured(subject);
         } else if (isAttribute[i]) {
-          result[i] = subject.getAttributeValue(header);
+          result[i] = subject.getAttributeValueOrCommaSeparated(header);
         }
       }
       

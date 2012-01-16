@@ -8,6 +8,7 @@
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <tiles:importAttribute />
+<c:if test="${pager_removeFromSubjectSearch != 'true'}">
 <c:if test="${pager.count>0}"><div class="linkButton">
 	<c:if test="${pager.prev}">
 		<html:link page="${pager.target}.do" name="pager" property="prevParams"><grouper:message key="find.previous-page"/></html:link>&#160;&#160;		
@@ -16,6 +17,7 @@
 		<html:link page="${pager.target}.do" name="pager" property="nextParams"><grouper:message key="find.next-page"/></html:link>&#160;&#160;		
 	</c:if>
 	</div>
+</c:if>
 </c:if>
 <div class="linkButton">
 <c:if test="${pager.count>0}">

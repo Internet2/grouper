@@ -466,12 +466,14 @@ public class GrouperUiUtils {
       }
       
       //lets do this in batches
-      int numberOfBatches = GrouperUtil.batchNumberOfBatches(subjects, 100);
+      List<Subject> subjectsList = GrouperUtil.listFromCollection(subjects);
+      
+      int numberOfBatches = GrouperUtil.batchNumberOfBatches(subjectsList, 100);
       
       Set<Member> result = new LinkedHashSet<Member>();
       
       for (int i=0;i<numberOfBatches;i++) {
-        List<Subject> subjectBatch = GrouperUtil.batchList(subjects, 100, i);
+        List<Subject> subjectBatch = GrouperUtil.batchList(subjectsList, 100, i);
         
         //      select distinct gm.* 
         //      from grouper_members gm, grouper_memberships gms
@@ -861,7 +863,9 @@ public class GrouperUiUtils {
     //dont let a dynamic query let the page number go off the screen
     int pageNumber = numberOfPages >= queryPaging.getPageNumber() ? queryPaging.getPageNumber() : numberOfPages;
     
-    List<Subject> subjectsList = GrouperUtil.batchList(subjects, queryPaging.getPageSize(), pageNumber-1);
+    List<Subject> subjectsList = GrouperUtil.batchList(GrouperUtil.listFromCollection(subjects), 
+        queryPaging.getPageSize(), pageNumber-1);
+    
     //convert yet again back to set
     subjects = new LinkedHashSet<Subject>(subjectsList);
     
@@ -919,7 +923,7 @@ public class GrouperUiUtils {
     //dont let a dynamic query let the page number go off the screen
     int pageNumber = numberOfPages >= queryPaging.getPageNumber() ? queryPaging.getPageNumber() : numberOfPages;
     
-    List<Member> membersList = GrouperUtil.batchList(members, queryPaging.getPageSize(), pageNumber-1);
+    List<Member> membersList = GrouperUtil.batchList(new ArrayList<Member>(members), queryPaging.getPageSize(), pageNumber-1);
     //convert yet again back to set
     members = new LinkedHashSet<Member>(membersList);
     

@@ -330,6 +330,15 @@ public class AttributeDefPrivilege implements GrouperPrivilege, Comparable {
   public String getContextId() {
     return this.contextId;
   }
+
+  /**
+   * @see GrouperPrivilege#internalSetSubject(Subject)
+   */
+  public void internalSetSubject(Subject subject) {
+    this.subj = subject;
+  }
+  
+  
   
   
 

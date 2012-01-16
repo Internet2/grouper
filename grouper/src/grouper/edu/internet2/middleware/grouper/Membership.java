@@ -113,6 +113,22 @@ public class Membership extends GrouperAPI implements
     GrouperHasContext, Hib3GrouperVersioned, XmlImportable<Membership>, AttributeAssignable {
 
   /**
+   * resolve subjects from a collection of arrays of rows of object (typically members are the 3rd index)
+   * @param rows
+   */
+  public static void resolveSubjects(Collection<Object[]> rows) {
+    Set<Member> members = new HashSet<Member>();
+    for(Object[] objects : rows) {
+      for (Object object : objects) {
+        if (object instanceof Member) {
+          members.add((Member)object);
+        }
+      }
+    }
+    Member.resolveSubjects(members, false);
+  }
+  
+  /**
    * 
    */
   private static final long serialVersionUID = 1L;
@@ -1770,10 +1786,11 @@ public class Membership extends GrouperAPI implements
   }
   
   /**
+   * this can be called to set the member object even though the memberuuid is not
+   * changing
    * @param member 
    * @since   1.3.0
    */
-  
   public void setMember(Member member) {
     this.member = member;
     this.memberUUID = member.getUuid();

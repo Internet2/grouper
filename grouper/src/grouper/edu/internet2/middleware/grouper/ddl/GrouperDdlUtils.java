@@ -83,7 +83,16 @@ public class GrouperDdlUtils {
    * @return see if hsql
    */
   public static boolean isHsql() {
-    return GrouperConfig.getHibernateProperty("hibernate.connection.url").toLowerCase().contains(":hsqldb:");
+    return isHsql(GrouperConfig.getHibernateProperty("hibernate.connection.url"));
+  }
+
+  /**
+   * see if the config file seems to be hsql
+   * @param connectionUrl url to check against
+   * @return see if hsql
+   */
+  public static boolean isHsql(String connectionUrl) {
+    return StringUtils.defaultString(connectionUrl).toLowerCase().contains(":hsqldb:");
   }
   
   /**
@@ -91,7 +100,16 @@ public class GrouperDdlUtils {
    * @return see if postgres
    */
   public static boolean isPostgres() {
-    return GrouperConfig.getHibernateProperty("hibernate.connection.url").toLowerCase().contains(":postgresql:");
+    return isPostgres(GrouperConfig.getHibernateProperty("hibernate.connection.url"));
+  }
+  
+  /**
+   * see if the config file seems to be postgres
+   * @param connectionUrl
+   * @return see if postgres
+   */
+  public static boolean isPostgres(String connectionUrl) {
+    return StringUtils.defaultString(connectionUrl).toLowerCase().contains(":postgresql:");
   }
   
   /**
@@ -99,7 +117,16 @@ public class GrouperDdlUtils {
    * @return see if oracle
    */
   public static boolean isOracle() {
-    return GrouperConfig.getHibernateProperty("hibernate.connection.url").toLowerCase().contains(":oracle:");
+    return isOracle(GrouperConfig.getHibernateProperty("hibernate.connection.url"));
+  }
+  
+  /**
+   * see if the config file seems to be oracle
+   * @param connectionUrl
+   * @return see if oracle
+   */
+  public static boolean isOracle(String connectionUrl) {
+    return StringUtils.defaultString(connectionUrl).toLowerCase().contains(":oracle:");
   }
   
   /**
@@ -107,7 +134,16 @@ public class GrouperDdlUtils {
    * @return see if mysql
    */
   public static boolean isMysql() {
-    return GrouperConfig.getHibernateProperty("hibernate.connection.url").toLowerCase().contains(":mysql:");
+    return isMysql(GrouperConfig.getHibernateProperty("hibernate.connection.url"));
+  }
+  
+  /**
+   * see if the config file seems to be mysql
+   * @param connectionUrl
+   * @return see if mysql
+   */
+  public static boolean isMysql(String connectionUrl) {
+    return StringUtils.defaultString(connectionUrl).toLowerCase().contains(":mysql:");
   }
   
   /**
@@ -115,7 +151,16 @@ public class GrouperDdlUtils {
    * @return see if sql server
    */
   public static boolean isSQLServer() {
-    return GrouperConfig.getHibernateProperty("hibernate.connection.url").toLowerCase().contains(":sqlserver:");
+    return isSQLServer(GrouperConfig.getHibernateProperty("hibernate.connection.url"));
+  }
+  
+  /**
+   * see if the config file seems to be sql server
+   * @param connectionUrl
+   * @return see if sql server
+   */
+  public static boolean isSQLServer(String connectionUrl) {
+    return StringUtils.defaultString(connectionUrl).toLowerCase().contains(":sqlserver:");
   }
   
   /**
@@ -741,8 +786,80 @@ public class GrouperDdlUtils {
    String url = properties.getProperty("hibernate.connection.url");
    String driver = properties.getProperty("hibernate.connection.driver_class");
    pass = Morph.decryptIfFile(pass);
-
+   driver = GrouperDdlUtils.convertUrlToDriverClassIfNeeded(url, driver);
    return GrouperDdlUtils.sqlRun(scriptFile, driver, url, user, pass, fromUnitTest, printErrorToStdOut);
+
+  }
+  
+  /**
+   * if there is no driver class specified, then try to derive it from the URL
+   * @param connectionUrl
+   * @param driverClassName
+   * @return the driver class
+   */
+  public static String convertUrlToDriverClassIfNeeded(String connectionUrl, String driverClassName) {
+    //default some of the stuff
+    if (StringUtils.isBlank(driverClassName)) {
+      
+      if (GrouperDdlUtils.isHsql(connectionUrl)) {
+        driverClassName = "org.hsqldb.jdbcDriver";
+      } else if (GrouperDdlUtils.isMysql(connectionUrl)) {
+        driverClassName = "com.mysql.jdbc.Driver";
+      } else if (GrouperDdlUtils.isOracle(connectionUrl)) {
+        driverClassName = "oracle.jdbc.driver.OracleDriver";
+      } else if (GrouperDdlUtils.isPostgres(connectionUrl)) { 
+        driverClassName = "org.postgresql.Driver";
+      } else if (GrouperDdlUtils.isSQLServer(connectionUrl)) {
+        driverClassName = "com.microsoft.sqlserver.jdbc.SQLServerDriver";
+      } else {
+        
+        //if this is blank we will figure it out later
+        if (!StringUtils.isBlank(connectionUrl)) {
+        
+          String error = "Cannot determine the driver class from database URL: " + connectionUrl;
+          System.err.println(error);
+          LOG.error(error);
+          return null;
+        }
+      }
+    }
+    return driverClassName;
+
+  }
+  
+  /**
+   * if there is no driver class specified, then try to derive it from the URL
+   * @param connectionUrl
+   * @param hibernateDialect
+   * @return the driver class
+   */
+  public static String convertUrlToHibernateDialectIfNeeded(String connectionUrl, String hibernateDialect) {
+    //default some of the stuff
+    if (StringUtils.isBlank(hibernateDialect)) {
+      
+      if (GrouperDdlUtils.isHsql()) {
+        hibernateDialect = "org.hibernate.dialect.HSQLDialect";
+      } else if (GrouperDdlUtils.isMysql()) {
+        hibernateDialect = "org.hibernate.dialect.MySQL5Dialect";
+      } else if (GrouperDdlUtils.isOracle()) {
+        hibernateDialect = "org.hibernate.dialect.Oracle10gDialect";
+      } else if (GrouperDdlUtils.isPostgres()) { 
+        hibernateDialect = "org.hibernate.dialect.PostgreSQLDialect";
+      } else if (GrouperDdlUtils.isSQLServer()) {
+        hibernateDialect = "org.hibernate.dialect.SQLServerDialect";
+      } else {
+        
+        //if this is blank we will figure it out later
+        if (!StringUtils.isBlank(connectionUrl)) {
+        
+          String error = "Cannot determine the hibernate dialect from database URL: " + connectionUrl;
+          System.err.println(error);
+          LOG.error(error);
+          return null;
+        }
+      }
+    }
+    return hibernateDialect;
 
   }
   

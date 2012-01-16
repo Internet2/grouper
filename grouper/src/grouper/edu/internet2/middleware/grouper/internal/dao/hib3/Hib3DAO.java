@@ -29,6 +29,7 @@ import org.hibernate.cfg.Configuration;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperDdl;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
 import edu.internet2.middleware.grouper.hooks.LifecycleHooks;
 import edu.internet2.middleware.grouper.hooks.beans.HooksLifecycleHibInitBean;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHookType;
@@ -95,6 +96,20 @@ public abstract class Hib3DAO {
         String newPass = Morph.decryptIfFile(p.getProperty("hibernate.connection.password"));
         p.setProperty("hibernate.connection.password", newPass);
       }
+      
+      String connectionUrl = StringUtils.defaultString(GrouperUtil.propertiesValue(p,"hibernate.connection.url"));
+
+      {
+        String dialect = StringUtils.defaultString(GrouperUtil.propertiesValue(p,"hibernate.dialect"));
+        dialect = GrouperDdlUtils.convertUrlToHibernateDialectIfNeeded(connectionUrl, dialect);
+        p.setProperty("hibernate.dialect", dialect);
+      }
+      
+      {
+        String driver = StringUtils.defaultString(GrouperUtil.propertiesValue(p,"hibernate.connection.driver_class"));
+        driver = GrouperDdlUtils.convertUrlToDriverClassIfNeeded(connectionUrl, driver);
+        p.setProperty("hibernate.connection.driver_class", driver);
+      }      
       
       // And now load all configuration information
       CFG = new Configuration()

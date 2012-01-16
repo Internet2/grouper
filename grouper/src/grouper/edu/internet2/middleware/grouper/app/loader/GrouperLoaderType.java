@@ -378,6 +378,7 @@ public enum GrouperLoaderType {
           LOG.debug(groupNameOverall + ": start syncing membership");
         }
         
+        long startTimeLoadData = 0;
         GrouperLoaderStatus[] statusOverall = new GrouperLoaderStatus[]{GrouperLoaderStatus.SUCCESS};
         
         try {
@@ -386,6 +387,16 @@ public enum GrouperLoaderType {
               query + " order by group_name", loaderJobBean.getHib3GrouploaderLogOverall().getJobName(), 
               loaderJobBean.getHib3GrouploaderLogOverall());
           
+          if (LOG.isDebugEnabled()) {
+            LOG.debug(groupNameOverall + ": found " + grouperLoaderResultsetOverall + " members overall");
+          }
+
+          hib3GrouploaderLogOverall.setMillisGetData((int)(System.currentTimeMillis()-startTime));
+
+          if (LOG.isDebugEnabled()) {
+            LOG.debug(groupNameOverall + ": syncing membership for " + groupNames.size() + " groups");
+          }
+
           //#######################################
           //Get group metadata
           int groupMetadataNumberOfRows = 0;

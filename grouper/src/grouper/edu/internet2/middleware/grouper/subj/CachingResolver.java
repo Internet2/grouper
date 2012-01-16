@@ -17,6 +17,9 @@
 
 package edu.internet2.middleware.grouper.subj;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
@@ -527,12 +530,44 @@ public class CachingResolver extends SubjectResolverDecorator {
    */
   private SearchPageResult getFromFindPageCache(String stemName, String query, Set<Source> sources) {
     GrouperSession staticGrouperSession = GrouperSourceAdapter.internal_getSessionOrRootForSubjectFinder();
+    
+    Map<String, Object> debugMap = LOG.isDebugEnabled() ? new LinkedHashMap<String, Object>() : null;
+
     if (staticGrouperSession == null) {
+      
+      if (LOG.isDebugEnabled()) {
+        LOG.debug("staticGrouperSession is null");
+      }
       return null;
     }
     MultiKey multiKey = sourcesMultiKey(stemName, query, sources);
     
-    return findPageCache.get(multiKey);
+    SearchPageResult searchPageResult = findPageCache.get(multiKey);
+
+    if (LOG.isDebugEnabled()) {
+      debugMap.put("query", query);
+      if (!StringUtils.isBlank(stemName)) {
+        debugMap.put("stemName", stemName);
+      }
+      String sourceIds = SubjectHelper.sourcesToIdsString(sources);
+      if (!StringUtils.isBlank(sourceIds)) {
+        debugMap.put("sourceIds", sourceIds);
+      }
+      debugMap.put("multiKey", multiKey.toString());
+      
+      if (searchPageResult == null) {
+        debugMap.put("searchPageResult", "null");
+      } else {
+        debugMap.put("isTooManyResults", searchPageResult.isTooManyResults());
+        
+        if (GrouperUtil.length(searchPageResult.getResults()) > 0) {
+          debugMap.put("firstResult", searchPageResult.getResults().iterator().next().getDescription());
+        }
+      }      
+      LOG.debug(GrouperUtil.mapToString(debugMap));
+    }
+  
+    return searchPageResult;
   }
 
   /**
@@ -545,6 +580,28 @@ public class CachingResolver extends SubjectResolverDecorator {
       return;
     }
     MultiKey multiKey = sourcesMultiKey(stemName, query, sources);
+    
+    if (LOG.isDebugEnabled()) {
+      Map<String, Object> debugMap = LOG.isDebugEnabled() ? new LinkedHashMap<String, Object>() : null;
+      debugMap.put("query", query);
+      if (!StringUtils.isBlank(stemName)) {
+        debugMap.put("stemName", stemName);
+      }
+      String sourceIds = SubjectHelper.sourcesToIdsString(sources);
+      if (!StringUtils.isBlank(sourceIds)) {
+        debugMap.put("sourceIds", sourceIds);
+      }
+      debugMap.put("multiKey", multiKey.toString());
+      
+      debugMap.put("isTooManyResults", searchPageResult.isTooManyResults());
+      
+      if (GrouperUtil.length(searchPageResult.getResults()) > 0) {
+        debugMap.put("firstResult", searchPageResult.getResults().iterator().next().getDescription());
+      }
+      
+      LOG.debug(GrouperUtil.mapToString(debugMap));
+    }
+
     findPageCache.put(multiKey, searchPageResult );
   }
 
@@ -605,7 +662,7 @@ public class CachingResolver extends SubjectResolverDecorator {
     fullKey[1] = grouperSessionSubject.getId(); 
     fullKey[2] = stemName;
     fullKey[3] = query;
-    System.arraycopy(sourcesArray, 0, fullKey, 2, sourcesArray.length);
+    System.arraycopy(sourcesArray, 0, fullKey, 4, sourcesArray.length);
     MultiKey multiKey = new MultiKey(fullKey);
     return multiKey;
   }
@@ -621,8 +678,36 @@ public class CachingResolver extends SubjectResolverDecorator {
       return null;
     }
     Subject grouperSessionSubject = staticGrouperSession.getSubject();
-    return findPageCache.get( new MultiKey(grouperSessionSubject.getSourceId(), 
-        grouperSessionSubject.getId(), stemName, query, source) );
+    MultiKey multiKey = new MultiKey(grouperSessionSubject.getSourceId(), 
+        grouperSessionSubject.getId(), stemName, query, source);
+    SearchPageResult searchPageResult = findPageCache.get( multiKey );
+    
+    if (LOG.isDebugEnabled()) {
+      Map<String, Object> debugMap = LOG.isDebugEnabled() ? new LinkedHashMap<String, Object>() : null;
+      debugMap.put("query", query);
+      if (!StringUtils.isBlank(stemName)) {
+        debugMap.put("stemName", stemName);
+      }
+
+      if (!StringUtils.isBlank(source)) {
+        debugMap.put("source", source);
+      }
+      debugMap.put("multiKey", multiKey.toString());
+      
+      if (searchPageResult == null) {
+        debugMap.put("searchPageResult", "null");
+      } else {
+        debugMap.put("isTooManyResults", searchPageResult.isTooManyResults());
+        
+        if (GrouperUtil.length(searchPageResult.getResults()) > 0) {
+          debugMap.put("firstResult", searchPageResult.getResults().iterator().next().getDescription());
+        }
+      }      
+      LOG.debug(GrouperUtil.mapToString(debugMap));
+    }
+
+    
+    return searchPageResult;
   }
 
   /**
@@ -635,9 +720,274 @@ public class CachingResolver extends SubjectResolverDecorator {
       return;
     }
     Subject grouperSessionSubject = staticGrouperSession.getSubject();
-    findPageCache.put( new MultiKey(grouperSessionSubject.getSourceId(), 
-        grouperSessionSubject.getId(), stemName, query, source), searchPageResult );
+    MultiKey multiKey = new MultiKey(grouperSessionSubject.getSourceId(), 
+        grouperSessionSubject.getId(), stemName, query, source);
+    
+    if (LOG.isDebugEnabled()) {
+      Map<String, Object> debugMap = LOG.isDebugEnabled() ? new LinkedHashMap<String, Object>() : null;
+      debugMap.put("query", query);
+      if (!StringUtils.isBlank(stemName)) {
+        debugMap.put("stemName", stemName);
+      }
+
+      if (!StringUtils.isBlank(source)) {
+        debugMap.put("source", source);
+      }
+      debugMap.put("multiKey", multiKey.toString());
+      
+      debugMap.put("isTooManyResults", searchPageResult.isTooManyResults());
+      
+      if (GrouperUtil.length(searchPageResult.getResults()) > 0) {
+        debugMap.put("firstResult", searchPageResult.getResults().iterator().next().getDescription());
+      }
+      
+      LOG.debug(GrouperUtil.mapToString(debugMap));
+    }
+
+    findPageCache.put( multiKey, searchPageResult );
   }
+
+  /**
+   * @see SubjectResolver#findByIdentifiers(Collection)
+   */
+  public Map<String, Subject> findByIdentifiers(Collection<String> identifiers)
+      throws IllegalArgumentException {
+    
+    Map<String, Subject> result = new HashMap<String, Subject>();
+    
+    Set<String> identifiersNotFoundInCache = new HashSet<String>();
+    
+    //lets get from cache
+    for (String identifier : identifiers) {
+      Subject subject = this.getFromFindByIdentifierCache(identifier, null);
+      if (subject == null) {
+        //if not found, batch these up
+        identifiersNotFoundInCache.add(identifier);
+      } else {
+        result.put(identifier, subject);
+      }
+    }
+
+    //if not everything in cache, get the batch
+    if (GrouperUtil.length(identifiersNotFoundInCache) > 0) {
+      
+      Map<String, Subject> nonCachedResult = super.getDecoratedResolver().findByIdentifiers(identifiersNotFoundInCache);
+      
+      for (String identifier : nonCachedResult.keySet()) {
+
+        //put each of these in the cache
+        this.putInFindByIdentifierCache(identifier, nonCachedResult.get(identifier));
+        
+      }
+      
+      result.putAll(nonCachedResult);
+      
+    }
+    return result;
+  }
+
+  /**
+   * @see SubjectResolver#findByIdentifiers(Collection, String)
+   */
+  public Map<String, Subject> findByIdentifiers(Collection<String> identifiers, String source)
+      throws IllegalArgumentException, SourceUnavailableException {
+
+    Map<String, Subject> result = new HashMap<String, Subject>();
+    
+    Set<String> identifiersNotFoundInCache = new HashSet<String>();
+    
+    //lets get from cache
+    for (String identifier : identifiers) {
+      Subject subject = this.getFromFindByIdentifierCache(identifier, source);
+      if (subject == null) {
+        //if not found, batch these up
+        identifiersNotFoundInCache.add(identifier);
+      } else {
+        result.put(identifier, subject);
+      }
+    }
+
+    //if not everything in cache, get the batch
+    if (GrouperUtil.length(identifiersNotFoundInCache) > 0) {
+      
+      Map<String, Subject> nonCachedResult = super.getDecoratedResolver().findByIdentifiers(identifiersNotFoundInCache, source);
+      
+      for (String identifier : nonCachedResult.keySet()) {
+
+        //put each of these in the cache
+        this.putInFindByIdentifierCache(identifier, nonCachedResult.get(identifier));
+        
+      }
+      
+      result.putAll(nonCachedResult);
+      
+    }
+    return result;
+
+  }
+
+  /**
+   * @see SubjectResolver#findByIds(Collection)
+   */
+  public Map<String, Subject> findByIds(Collection<String> ids)
+      throws IllegalArgumentException {
+    Map<String, Subject> result = new HashMap<String, Subject>();
+    
+    Set<String> idsNotFoundInCache = new HashSet<String>();
+    
+    //lets get from cache
+    for (String id : ids) {
+      Subject subject = this.getFromFindCache(id, null);
+      if (subject == null) {
+        //if not found, batch these up
+        idsNotFoundInCache.add(id);
+      } else {
+        result.put(id, subject);
+      }
+    }
+
+    //if not everything in cache, get the batch
+    if (GrouperUtil.length(idsNotFoundInCache) > 0) {
+
+      Map<String, Subject> nonCachedResult = super.getDecoratedResolver().findByIds(idsNotFoundInCache);
+
+      for (Subject subject : nonCachedResult.values()) {
+
+        //put each of these in the cache
+        this.putInFindCache(subject);
+
+      }
+
+      result.putAll(nonCachedResult);
+
+    }
+    return result;
+
+  }
+
+  /**
+   * @see SubjectResolver#findByIds(Collection, String)
+   */
+  public Map<String, Subject> findByIds(Collection<String> ids, String source)
+      throws IllegalArgumentException, SourceUnavailableException {
+
+    Map<String, Subject> result = new HashMap<String, Subject>();
+    
+    Set<String> idsNotFoundInCache = new HashSet<String>();
+    
+    //lets get from cache
+    for (String id : ids) {
+      Subject subject = this.getFromFindCache(id, source);
+      if (subject == null) {
+        //if not found, batch these up
+        idsNotFoundInCache.add(id);
+      } else {
+        result.put(id, subject);
+      }
+    }
+
+    //if not everything in cache, get the batch
+    if (GrouperUtil.length(idsNotFoundInCache) > 0) {
+
+      Map<String, Subject> nonCachedResult = super.getDecoratedResolver().findByIds(idsNotFoundInCache, source);
+
+      for (Subject subject : nonCachedResult.values()) {
+
+        //put each of these in the cache
+        this.putInFindCache(subject);
+
+      }
+
+      result.putAll(nonCachedResult);
+
+    }
+    return result;
+
+
+    
+  }
+  
+  /**
+   * @see SubjectResolver#findByIdsOrIdentifiers(Collection)
+   */
+  public Map<String, Subject> findByIdsOrIdentifiers(Collection<String> idsOrIdentifiers)
+      throws IllegalArgumentException {
+
+    Map<String, Subject> result = new HashMap<String, Subject>();
+
+    Set<String> idsOrIdentifiersNotFoundInCache = new HashSet<String>();
+
+    //lets get from cache
+    for (String idOrIdentifier : idsOrIdentifiers) {
+      Subject subject = this.getFromFindByIdOrIdentifierCache(idOrIdentifier, null);
+      if (subject == null) {
+        //if not found, batch these up
+        idsOrIdentifiersNotFoundInCache.add(idOrIdentifier);
+      } else {
+        result.put(idOrIdentifier, subject);
+      }
+    }
+
+    //if not everything in cache, get the batch
+    if (GrouperUtil.length(idsOrIdentifiersNotFoundInCache) > 0) {
+
+      Map<String, Subject> nonCachedResult = super.getDecoratedResolver().findByIdsOrIdentifiers(idsOrIdentifiersNotFoundInCache);
+
+      for (String idOrIdentifier : nonCachedResult.keySet()) {
+
+        //put each of these in the cache
+        this.putInFindByIdOrIdentifierCache(idOrIdentifier, nonCachedResult.get(idOrIdentifier));
+
+      }
+
+      result.putAll(nonCachedResult);
+
+    }
+    return result;
+
+    
+  }
+  
+  /**
+   * @see SubjectResolver#findByIdsOrIdentifiers(Collection, String)
+   */
+  public Map<String, Subject> findByIdsOrIdentifiers(Collection<String> idsOrIdentifiers, String source)
+      throws IllegalArgumentException, SourceUnavailableException {
+
+    Map<String, Subject> result = new HashMap<String, Subject>();
+
+    Set<String> idsOrIdentifiersNotFoundInCache = new HashSet<String>();
+
+    //lets get from cache
+    for (String idOrIdentifier : idsOrIdentifiers) {
+      Subject subject = this.getFromFindByIdOrIdentifierCache(idOrIdentifier, source);
+      if (subject == null) {
+        //if not found, batch these up
+        idsOrIdentifiersNotFoundInCache.add(idOrIdentifier);
+      } else {
+        result.put(idOrIdentifier, subject);
+      }
+    }
+
+    //if not everything in cache, get the batch
+    if (GrouperUtil.length(idsOrIdentifiersNotFoundInCache) > 0) {
+
+      Map<String, Subject> nonCachedResult = super.getDecoratedResolver().findByIdsOrIdentifiers(idsOrIdentifiersNotFoundInCache, source);
+
+      for (String idOrIdentifier : nonCachedResult.keySet()) {
+
+        //put each of these in the cache
+        this.putInFindByIdOrIdentifierCache(idOrIdentifier, nonCachedResult.get(idOrIdentifier));
+
+      }
+
+      result.putAll(nonCachedResult);
+
+    }
+    return result;
+
+  }
+
 
 }
 

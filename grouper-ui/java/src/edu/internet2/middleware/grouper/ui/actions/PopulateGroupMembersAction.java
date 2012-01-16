@@ -578,6 +578,7 @@ public class PopulateGroupMembersAction extends GrouperCapableAction {
   			}
   			pathCount.put(memberId, newCount);
   		}
+  		Membership.resolveSubjects(res);
 		}
 		
 		for(Member m : nMembers) {

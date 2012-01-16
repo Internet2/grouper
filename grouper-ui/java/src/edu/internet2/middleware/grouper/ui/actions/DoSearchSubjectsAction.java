@@ -22,6 +22,7 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.ResourceBundle;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
@@ -38,9 +39,12 @@ import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperHelper;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.Message;
 import edu.internet2.middleware.grouper.ui.util.CollectionPager;
 import edu.internet2.middleware.grouper.ui.util.ProcessSearchTerm;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.subject.SearchPageResult;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectTooManyResults;
@@ -169,19 +173,25 @@ public class DoSearchSubjectsAction extends GrouperCapableAction {
 		
 		try {
   		if ((searchTerm != null) && (!searchTerm.equals(""))) {
+  			SearchPageResult searchPageResult = null;
   			if("all".equals(sourceId)) {
-  				results=SubjectFinder.findPage(searchTerm).getResults();
+  					searchPageResult = SubjectFinder.findPage(searchTerm);
   			}else{
   				
   					Source source = sm.getSource(sourceId);
   					ProcessSearchTerm processSearchTerm = new ProcessSearchTerm();
   					String processedSearchTerm = processSearchTerm.processSearchTerm(source, searchTerm, request);
-  					results = source.search(processedSearchTerm);
-  				
+  					//results = source.search(processedSearchTerm);
+  					searchPageResult = SubjectFinder.findPage(processedSearchTerm,sourceId);  				
+  			}
+  			results = searchPageResult.getResults();
+  			if(searchPageResult.isTooManyResults()) {
+  				request.setAttribute("message",new Message("error.too.many.subject.results.for.source",true));
+  				request.setAttribute("isTruncatedResults",true);
   			}
   		}
 		} catch (SubjectTooManyResults stmr) {
-		  session.setAttribute("sessionMessage",new Message("error.too.many.subject.results",true));
+		  session.setAttribute("sessionMessage",new Message("error.too.many.subject.results.for.source",true));
 		  return redirectToCaller((DynaActionForm)form);
 		}
 		
@@ -211,6 +221,7 @@ public class DoSearchSubjectsAction extends GrouperCapableAction {
 
 		int start = Integer.parseInt(startStr);
 		int pageSize = getPageSize(session);
+		searchForm.set("pageSize", "" + pageSize);
 		int end = start + pageSize;
 		if (end > mapResults.size())
 			end = mapResults.size();
@@ -224,6 +235,12 @@ public class DoSearchSubjectsAction extends GrouperCapableAction {
 		pager.setTarget(mapping.getPath());
 		request.setAttribute("pager", pager);
 		
+		//put this in the request since it is a common inlucde shared by many pagers
+		ResourceBundle mediaResources = GrouperUiFilter.retrieveSessionMediaResourceBundle();
+    String removeFromSubjectSearch = mediaResources.getString("pager.removeFromSubjectSearch");
+		request.setAttribute("pager_removeFromSubjectSearch", removeFromSubjectSearch);
+    
+    
 		return mapping.findForward(FORWARD_SearchResults);
 
 	}

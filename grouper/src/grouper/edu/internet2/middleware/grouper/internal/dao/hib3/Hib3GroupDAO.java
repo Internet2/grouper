@@ -19,6 +19,7 @@ package edu.internet2.middleware.grouper.internal.dao.hib3;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -1039,7 +1040,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
       hql.append(" where ");
     }
     
-    hql.append(" theGroup.nameDb = :value or theGroup.alternateNameDb = :value ");
+    hql.append(" ( theGroup.nameDb = :value or theGroup.alternateNameDb = :value ) ");
 
     TypeOfGroup.appendHqlQuery("theGroup", typeOfGroups, hql, byHqlStatic);
 
@@ -1706,8 +1707,10 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
     //lets page through these
     int pages = GrouperUtil.batchNumberOfBatches(uuids, batchSize);
 
+    List<String> uuidsList = GrouperUtil.listFromCollection(uuids);
+    
     for (int i=0; i<pages; i++) {
-      List<String> uuidPageList = GrouperUtil.batchList(uuids, batchSize, i);
+      List<String> uuidPageList = GrouperUtil.batchList(uuidsList, batchSize, i);
 
       ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
       StringBuilder query = new StringBuilder("select g from Group as g "
@@ -1937,7 +1940,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
     // note that i'm not doing this all in one update statement with a subquery due to
     // a mysql bug:  http://bugs.mysql.com/bug.php?id=8139
     
-    Set<String> groupIds = GrouperDAOFactory.getFactory().getGroupSet().findAllOwnerGroupsByMemberGroup(groupId);
+    List<String> groupIds = GrouperUtil.listFromCollection(GrouperDAOFactory.getFactory().getGroupSet().findAllOwnerGroupsByMemberGroup(groupId));
     if (groupIds.size() == 0) {
       return;
     }
