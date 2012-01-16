@@ -519,6 +519,10 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
       throw new RuntimeException("If stem is set, then stem scope must be set.  If stem isnt set, then stem scope must not be set: " + stem + ", " + stemScope);
     }
 
+    List<String> totalGroupIdsList = GrouperUtil.listFromCollection(totalGroupIds);
+    List<String> totalMemberIdsList = GrouperUtil.listFromCollection(totalMemberIds);
+    List<String> totalMembershipIdsList = GrouperUtil.listFromCollection(totalMembershipIds);
+    
     GrouperSession grouperSession = GrouperSession.staticGrouperSession();
     
     Subject grouperSessionSubject = grouperSession.getSubject();
@@ -529,25 +533,25 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
 
     for (int groupIndex = 0; groupIndex < groupBatches; groupIndex++) {
       
-      List<String> groupIds = GrouperUtil.batchList(totalGroupIds, 100, groupIndex);
+      List<String> groupIds = GrouperUtil.batchList(totalGroupIdsList, 100, groupIndex);
       
       int memberBatches = GrouperUtil.batchNumberOfBatches(totalMemberIds, 100);
 
       for (int memberIndex = 0; memberIndex < memberBatches; memberIndex++) {
         
-        List<String> memberIds = GrouperUtil.batchList(totalMemberIds, 100, memberIndex);
+        List<String> memberIds = GrouperUtil.batchList(totalMemberIdsList, 100, memberIndex);
         int membershipBatches = GrouperUtil.batchNumberOfBatches(totalMembershipIds, 100);
         
         for (int membershipIndex = 0; membershipIndex < membershipBatches; membershipIndex++) {
           
-          List<String> membershipIds = GrouperUtil.batchList(totalMembershipIds, 100, membershipIndex);
+          List<String> membershipIds = GrouperUtil.batchList(totalMembershipIdsList, 100, membershipIndex);
           
           int groupIdsSize = GrouperUtil.length(groupIds);
           int memberIdsSize = GrouperUtil.length(memberIds);
           int membershipIdsSize = GrouperUtil.length(membershipIds);
           
-          if (groupIdsSize == 0 && memberIdsSize == 0 && membershipIdsSize == 0) {
-            throw new RuntimeException("Must pass in group(s), member(s), and/or membership(s)");
+          if (groupIdsSize == 0 && memberIdsSize == 0 && membershipIdsSize == 0 && stem == null) {
+            throw new RuntimeException("Must pass in group(s), member(s), stem, and/or membership(s)");
           }
 
           ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
@@ -696,6 +700,13 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
       }
     }
     
+    //lets assign the members to the memberships so they dont have to be queried later
+    for (Object[] row : totalResults) {
+      Membership membership = (Membership)row[0];
+      Member member = (Member)row[2];
+      membership.setMember(member);
+    }
+    
     //we should be down to the cesure list
     return totalResults;
     
@@ -744,7 +755,7 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
     }
     if (sources != null && sources.size() > 0) {
       sql.append(" and m.subjectSourceIdDb in ").append(HibUtils.convertSourcesToSqlInString(sources));
-    }
+      }
     
     
     if (memberSearchStringEnum != null) {
@@ -861,6 +872,8 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
       return new LinkedHashSet<Membership>();
     }
 
+    List<String> memberIdsList = GrouperUtil.listFromCollection(memberIds);
+    
     //lets page through these
     int pages = GrouperUtil.batchNumberOfBatches(memberIds, batchSize);
     
@@ -869,7 +882,7 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
     MembershipType membershipType = MembershipType.valueOfIgnoreCase(type, false);
     
     for (int i=0; i<pages; i++) {
-      List<String> currentMemberIdList = GrouperUtil.batchList(memberIds, batchSize, i);
+      List<String> currentMemberIdList = GrouperUtil.batchList(memberIdsList, batchSize, i);
       
       ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
       StringBuilder query = new StringBuilder("select ms"
@@ -917,12 +930,13 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
     }
 
     //lets page through these
-    int pages = GrouperUtil.batchNumberOfBatches(members, batchSize);
+    List<Member> totalMembersList = GrouperUtil.listFromCollection(members);
+    int pages = GrouperUtil.batchNumberOfBatches(totalMembersList, batchSize);
     
     Set<Membership> memberships = new LinkedHashSet<Membership>();
     
     for (int i=0; i<pages; i++) {
-      List<Member> memberList = GrouperUtil.batchList(members, batchSize, i);
+      List<Member> memberList = GrouperUtil.batchList(totalMembersList, batchSize, i);
       
       List<String> uuids = GrouperUtil.propertyList(memberList, Member.PROPERTY_UUID, String.class);
       
@@ -967,12 +981,13 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
     }
     
     //lets page through these
-    int pages = GrouperUtil.batchNumberOfBatches(members, batchSize);
+    List<Member> totalMembersList = GrouperUtil.listFromCollection(members);
+    int pages = GrouperUtil.batchNumberOfBatches(totalMembersList, batchSize);
     
     Set<Membership> memberships = new LinkedHashSet<Membership>();
     
     for (int i=0; i<pages; i++) {
-      List<Member> memberList = GrouperUtil.batchList(members, batchSize, i);
+      List<Member> memberList = GrouperUtil.batchList(totalMembersList, batchSize, i);
       
       List<String> uuids = GrouperUtil.propertyList(memberList, Member.PROPERTY_UUID, String.class);
       
@@ -2494,17 +2509,19 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
     
     Set<Object[]> totalResults = new LinkedHashSet<Object[]>();
 
+    List<String> totalMemberIdsList = GrouperUtil.listFromCollection(totalMemberIds);
+    
     int memberIdsSize = GrouperUtil.length(totalMemberIds);
 
     if (memberIdsSize == 0) {
       throw new RuntimeException("Must pass in group(s), member(s), and/or membership(s)");
     }
     
-    int memberBatches = GrouperUtil.batchNumberOfBatches(totalMemberIds, 100);
+    int memberBatches = GrouperUtil.batchNumberOfBatches(totalMemberIdsList, 100);
 
     for (int memberIndex = 0; memberIndex < memberBatches; memberIndex++) {
       
-      List<String> memberIds = GrouperUtil.batchList(totalMemberIds, 100, memberIndex);
+      List<String> memberIds = GrouperUtil.batchList(totalMemberIdsList, 100, memberIndex);
 
       StringBuilder sql = new StringBuilder("select ms, m from MembershipEntry as ms, Member as m where  "
           + " ms.ownerAttrDefId   = :owner "
@@ -2635,11 +2652,13 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
       throw new RuntimeException("Must pass in group(s), member(s), and/or membership(s)");
     }
     
-    int memberBatches = GrouperUtil.batchNumberOfBatches(totalMemberIds, 100);
+    List<String> totalMemberIdsList = GrouperUtil.listFromCollection(totalMemberIds);
+    
+    int memberBatches = GrouperUtil.batchNumberOfBatches(totalMemberIdsList, 100);
   
     for (int memberIndex = 0; memberIndex < memberBatches; memberIndex++) {
       
-      List<String> memberIds = GrouperUtil.batchList(totalMemberIds, 100, memberIndex);
+      List<String> memberIds = GrouperUtil.batchList(totalMemberIdsList, 100, memberIndex);
   
       StringBuilder sql = new StringBuilder("select ms, m from MembershipEntry as ms, Member as m, Field as f where  "
           + " ms.ownerGroupId   = :owner "

@@ -74,6 +74,9 @@ public abstract class BaseGrouperDataConnector<T> extends BaseDataConnector {
 
   /** The possibly empty set of attribute definition names defined in the resolver configuration. */
   private Set<String> attributeDefNames = new LinkedHashSet<String>();
+  
+  /** The principal name prefix required for processing of a change log entry. A terrible hack. */
+  public static final String CHANGELOG_PRINCIPAL_NAME_PREFIX = "change_log_sequence_number:";
 
   /**
    * Constructor.

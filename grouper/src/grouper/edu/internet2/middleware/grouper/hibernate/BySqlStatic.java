@@ -3,6 +3,7 @@
  */
 package edu.internet2.middleware.grouper.hibernate;
 
+import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -217,27 +218,38 @@ public class BySqlStatic {
           attachParams(preparedStatement, params);
           
           resultSet = preparedStatement.executeQuery();
-
+          
+          int columnCount = resultSet.getMetaData().getColumnCount();
+          
           while (resultSet.next()) {
           
             T result = null;
-            boolean isInt = int.class.equals(returnClassType);
-            boolean isPrimitive = isInt;
-            if (isInt || Integer.class.equals(returnClassType)) {
-              BigDecimal bigDecimal = resultSet.getBigDecimal(1);
-              if (bigDecimal != null) {
-                result = (T)(Object)bigDecimal.intValue();
+            
+            if (returnClassType.isArray()) {
+              result = (T)Array.newInstance(String.class, columnCount);
+              for (int i=0;i<columnCount;i++) {
+                Array.set(result, i, resultSet.getString(1+i));
               }
-            } else if (String.class.equals(returnClassType)) {
-              result = (T)resultSet.getString(1);
             } else {
-              throw new RuntimeException("Unexpected type: " + returnClassType);
+            
+              boolean isInt = int.class.equals(returnClassType);
+              boolean isPrimitive = isInt;
+              if (isInt || Integer.class.equals(returnClassType)) {
+                BigDecimal bigDecimal = resultSet.getBigDecimal(1);
+                if (bigDecimal != null) {
+                  result = (T)(Object)bigDecimal.intValue();
+                }
+              } else if (String.class.equals(returnClassType)) {
+                result = (T)resultSet.getString(1);
+              } else {
+                throw new RuntimeException("Unexpected type: " + returnClassType);
+              }
+              if (result == null && isPrimitive) {
+                throw new NullPointerException("expecting primitive (" + returnClassType.getSimpleName() 
+                    + "), but received null");
+              }
             }
             
-            if (result == null && isPrimitive) {
-              throw new NullPointerException("expecting primitive (" + returnClassType.getSimpleName() 
-                  + "), but received null");
-            }
             resultList.add(result);
           }          
           return resultList;

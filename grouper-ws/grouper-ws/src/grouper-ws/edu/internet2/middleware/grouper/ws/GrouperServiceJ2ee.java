@@ -62,7 +62,6 @@ import edu.internet2.middleware.subject.Subject;
 public class GrouperServiceJ2ee implements Filter {
 
   /** logger */
-  @SuppressWarnings("unused")
   private static final Log LOG = LogFactory.getLog(GrouperService.class);
 
   /**
@@ -355,9 +354,7 @@ public class GrouperServiceJ2ee implements Filter {
 
         //if not in cache
         if (allowedInCache == null) {
-          grouperSession = GrouperSession.start(
-              SubjectFinder.findById("GrouperSystem", true)
-            );
+          grouperSession = GrouperSession.startRootSession();
 
           Group group = GroupFinder.findByName(grouperSession, userGroupName, true);
           if (!group.hasMember(loggedInSubject)) {

@@ -433,6 +433,8 @@ public class SubjectImpl implements Subject {
   public Map<String, Set<String>> getAttributes(boolean excludeInternalAttributes) {
     this.initAttributesIfNeeded();
     
+    //note, it is assume that if not excluding that the actual
+    //map will be returned so it can be modified
     if (!excludeInternalAttributes || StringUtils.isBlank(this.sourceId)) {
       return this.attributes;
     }

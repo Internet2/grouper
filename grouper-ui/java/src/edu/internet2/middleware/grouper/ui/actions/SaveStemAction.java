@@ -17,6 +17,8 @@ limitations under the License.
 
 package edu.internet2.middleware.grouper.ui.actions;
 
+import java.util.Iterator;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -236,7 +238,20 @@ public class SaveStemAction extends GrouperCapableAction {
 		if(!stem.getDisplayExtension().equals(stemForm.get("stemDisplayName"))) {
 			stem.setDisplayExtension((String) stemForm.get("stemDisplayName"));
 		}
-		
+
+		String alternateName = (String) stemForm.get("stemAlternateName");
+
+		String oldAlternateName = null;
+		Iterator<String> alternateNames = stem.getAlternateNames().iterator();
+		if (alternateNames.hasNext()) {
+			oldAlternateName = alternateNames.next();
+		}
+
+		if (isEmpty(alternateName) && oldAlternateName != null) {
+			stem.deleteAlternateName(oldAlternateName);
+		} else if (!isEmpty(alternateName) && (oldAlternateName == null || !oldAlternateName.equals(alternateName))) {
+			stem.addAlternateName(alternateName);
+		}
 		
 		if(!stem.getExtension().equals(stemForm.get("stemName"))) 
 			stem.setExtension((String) stemForm.get("stemName"));

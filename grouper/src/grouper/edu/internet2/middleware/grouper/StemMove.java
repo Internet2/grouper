@@ -33,10 +33,10 @@ public class StemMove {
   }
 
   /**
-   * Whether to add the current name of the affected groups to the groups' alternate names list.  
+   * Whether to add the current names of the affected stems and groups to their alternate name lists.
    * Certain operations like group name queries (GroupFinder.findByName()) will find 
    * groups by their current and alternate names.  Currently, Grouper only supports one
-   * alternate name per group, so if groups are moved/renamed multiple times, only the last name
+   * alternate name per group or stem, so if they are moved/renamed multiple times, only the last name
    * will be kept as an alternate name.  Default is true.
    * @param value
    * @return StemMove

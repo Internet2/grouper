@@ -110,11 +110,11 @@ public class PITUtilsTests extends GrouperTest {
     Group role1 = (Group) stem1.addChildRole("role1", "role1");
     GroupSet groupSet1 = GrouperDAOFactory.getFactory().getGroupSet().findSelfGroup(role1.getId(), Group.getDefaultList().getUuid());
     RoleSet roleSet1 = GrouperDAOFactory.getFactory().getRoleSet().findByIfHasRoleId(role1.getId()).iterator().next();
-    AttributeDef attributeDef1 = edu.addChildAttributeDef("attributeDef1", AttributeDefType.attr);
+    AttributeDef attributeDef1 = stem1.addChildAttributeDef("attributeDef1", AttributeDefType.attr);
     attributeDef1.setAssignToGroup(true);
     attributeDef1.setValueType(AttributeDefValueType.string);
     attributeDef1.store();
-    AttributeDefName attributeDefName1 = edu.addChildAttributeDefName(attributeDef1, "testAttribute1", "testAttribute1");
+    AttributeDefName attributeDefName1 = stem1.addChildAttributeDefName(attributeDef1, "testAttribute1", "testAttribute1");
     AttributeDefNameSet attributeDefNameSet1 = GrouperDAOFactory.getFactory().getAttributeDefNameSet().findByIfHasAttributeDefNameId(attributeDefName1.getId()).iterator().next();
     AttributeAssignAction action1 = attributeDef1.getAttributeDefActionDelegate().addAction("testAction1");
     AttributeAssignActionSet actionSet1 = GrouperDAOFactory.getFactory().getAttributeAssignActionSet().findByIfHasAttributeAssignActionId(action1.getId()).iterator().next();
@@ -133,11 +133,11 @@ public class PITUtilsTests extends GrouperTest {
     Group role2 = (Group) stem2.addChildRole("role2", "role2");
     GroupSet groupSet2 = GrouperDAOFactory.getFactory().getGroupSet().findSelfGroup(role2.getId(), Group.getDefaultList().getUuid());
     RoleSet roleSet2 = GrouperDAOFactory.getFactory().getRoleSet().findByIfHasRoleId(role2.getId()).iterator().next();
-    AttributeDef attributeDef2 = edu.addChildAttributeDef("attributeDef2", AttributeDefType.attr);
+    AttributeDef attributeDef2 = stem2.addChildAttributeDef("attributeDef2", AttributeDefType.attr);
     attributeDef2.setAssignToGroup(true);
     attributeDef2.setValueType(AttributeDefValueType.string);
     attributeDef2.store();
-    AttributeDefName attributeDefName2 = edu.addChildAttributeDefName(attributeDef2, "testAttribute2", "testAttribute2");
+    AttributeDefName attributeDefName2 = stem2.addChildAttributeDefName(attributeDef2, "testAttribute2", "testAttribute2");
     AttributeDefNameSet attributeDefNameSet2 = GrouperDAOFactory.getFactory().getAttributeDefNameSet().findByIfHasAttributeDefNameId(attributeDefName2.getId()).iterator().next();
     AttributeAssignAction action2 = attributeDef2.getAttributeDefActionDelegate().addAction("testAction2");
     AttributeAssignActionSet actionSet2 = GrouperDAOFactory.getFactory().getAttributeAssignActionSet().findByIfHasAttributeAssignActionId(action2.getId()).iterator().next();
@@ -174,11 +174,11 @@ public class PITUtilsTests extends GrouperTest {
     Group role3 = (Group) stem3.addChildRole("role3", "role3");
     GroupSet groupSet3 = GrouperDAOFactory.getFactory().getGroupSet().findSelfGroup(role3.getId(), Group.getDefaultList().getUuid());
     RoleSet roleSet3 = GrouperDAOFactory.getFactory().getRoleSet().findByIfHasRoleId(role3.getId()).iterator().next();
-    AttributeDef attributeDef3 = edu.addChildAttributeDef("attributeDef3", AttributeDefType.attr);
+    AttributeDef attributeDef3 = stem3.addChildAttributeDef("attributeDef3", AttributeDefType.attr);
     attributeDef3.setAssignToGroup(true);
     attributeDef3.setValueType(AttributeDefValueType.string);
     attributeDef3.store();
-    AttributeDefName attributeDefName3 = edu.addChildAttributeDefName(attributeDef3, "testAttribute3", "testAttribute3");
+    AttributeDefName attributeDefName3 = stem3.addChildAttributeDefName(attributeDef3, "testAttribute3", "testAttribute3");
     AttributeDefNameSet attributeDefNameSet3 = GrouperDAOFactory.getFactory().getAttributeDefNameSet().findByIfHasAttributeDefNameId(attributeDefName3.getId()).iterator().next();
     AttributeAssignAction action3 = attributeDef3.getAttributeDefActionDelegate().addAction("testAction3");
     AttributeAssignActionSet actionSet3 = GrouperDAOFactory.getFactory().getAttributeAssignActionSet().findByIfHasAttributeAssignActionId(action3.getId()).iterator().next();
@@ -197,11 +197,11 @@ public class PITUtilsTests extends GrouperTest {
     Group role4 = (Group) stem4.addChildRole("role4", "role4");
     GroupSet groupSet4 = GrouperDAOFactory.getFactory().getGroupSet().findSelfGroup(role4.getId(), Group.getDefaultList().getUuid());
     RoleSet roleSet4 = GrouperDAOFactory.getFactory().getRoleSet().findByIfHasRoleId(role4.getId()).iterator().next();
-    AttributeDef attributeDef4 = edu.addChildAttributeDef("attributeDef4", AttributeDefType.attr);
+    AttributeDef attributeDef4 = stem4.addChildAttributeDef("attributeDef4", AttributeDefType.attr);
     attributeDef4.setAssignToGroup(true);
     attributeDef4.setValueType(AttributeDefValueType.string);
     attributeDef4.store();
-    AttributeDefName attributeDefName4 = edu.addChildAttributeDefName(attributeDef4, "testAttribute4", "testAttribute4");
+    AttributeDefName attributeDefName4 = stem4.addChildAttributeDefName(attributeDef4, "testAttribute4", "testAttribute4");
     AttributeDefNameSet attributeDefNameSet4 = GrouperDAOFactory.getFactory().getAttributeDefNameSet().findByIfHasAttributeDefNameId(attributeDefName4.getId()).iterator().next();
     AttributeAssignAction action4 = attributeDef4.getAttributeDefActionDelegate().addAction("testAction4");
     AttributeAssignActionSet actionSet4 = GrouperDAOFactory.getFactory().getAttributeAssignActionSet().findByIfHasAttributeAssignActionId(action4.getId()).iterator().next();
@@ -233,7 +233,7 @@ public class PITUtilsTests extends GrouperTest {
     GrouperUtil.sleep(sleepTime);
     
     // now delete old PIT records
-    PITUtils.deleteInactiveRecords(cleanupDate);
+    PITUtils.deleteInactiveRecords(cleanupDate, false);
 
     // verify that data set 1 was not deleted from PIT tables...
     assertNotNull(GrouperDAOFactory.getFactory().getPITAttributeAssign().findById(attributeAssign1.getId()));
@@ -650,7 +650,7 @@ public class PITUtilsTests extends GrouperTest {
     ChangeLogTempToEntity.convertRecords();
     
     // now delete old PIT data
-    PITUtils.deleteInactiveStem(edu2.getName());
+    PITUtils.deleteInactiveStem(edu2.getName(), false);
 
     // verify data set 1...
     assertNotNull(GrouperDAOFactory.getFactory().getPITAttributeAssign().findById(attributeAssign1.getId()));
@@ -863,7 +863,7 @@ public class PITUtilsTests extends GrouperTest {
     ChangeLogTempToEntity.convertRecords();
     
     // now delete old PIT data
-    PITUtils.deleteInactiveObjectsInStem(edu2.getName());
+    PITUtils.deleteInactiveObjectsInStem(edu2.getName(), false);
 
     // verify data set 1...
     assertNotNull(GrouperDAOFactory.getFactory().getPITAttributeAssign().findById(attributeAssign1.getId()));

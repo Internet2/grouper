@@ -225,45 +225,6 @@ public class MemberDataConnectorTest extends BaseDataConnectorTest {
     runResolveTest("testAttributesAndAttributeDefs", SubjectTestHelper.SUBJ0, correct);
   }
 
-  public void testGetAllIdentifiers() {
-
-    try {
-      GenericApplicationContext gContext = BaseDataConnectorTest.createSpringContext(RESOLVER_CONFIG);
-      MemberDataConnector mdc = (MemberDataConnector) gContext.getBean("testIdOnly");
-
-      Set<String> identifiers = mdc.getAllIdentifiers();
-
-      assertEquals(4, identifiers.size());
-
-      assertTrue(identifiers.contains(SubjectTestHelper.SUBJ0_ID));
-      assertTrue(identifiers.contains(SubjectTestHelper.SUBJ1_ID));
-      assertTrue(identifiers.contains(SubjectTestHelper.SUBJ2_ID));
-      assertTrue(identifiers.contains(SubjectTestHelper.SUBJ3_ID));
-
-    } catch (Exception e) {
-      e.printStackTrace();
-      throw new RuntimeException(e);
-    }
-  }
   
-  public void testMemberSourceFilter() {    
-    try {
-      GenericApplicationContext gContext = BaseDataConnectorTest.createSpringContext(RESOLVER_CONFIG);
-      MemberDataConnector mdc = (MemberDataConnector) gContext.getBean("testIdOnlySource");
-
-      Set<String> identifiers = mdc.getAllIdentifiers();
-
-      assertEquals(4, identifiers.size());
-
-      assertTrue(identifiers.contains(SubjectTestHelper.SUBJ0_ID));
-      assertTrue(identifiers.contains(SubjectTestHelper.SUBJ1_ID));
-      assertTrue(identifiers.contains(SubjectTestHelper.SUBJ2_ID));
-      assertTrue(identifiers.contains(SubjectTestHelper.SUBJ3_ID));
-
-    } catch (Exception e) {
-      e.printStackTrace();
-      throw new RuntimeException(e);
-    }
-  }
 
 }

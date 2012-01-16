@@ -55,6 +55,79 @@ public class TestGQStemName extends GrouperTest {
   }
 
   // Tests
+  
+  /**
+   * 
+   */
+  public void testStemNameAnyFilterAlternateName() {
+    GrouperSession  s     = SessionHelper.getRootSession();
+    Stem            root  = StemHelper.findRootStem(s);
+    Stem            edu   = StemHelper.addChildStem(root, "edu", "education");
+    Stem            edu2  = StemHelper.addChildStem(edu, "edu2", "education");
+    Group           i2    = StemHelper.addChildGroup(edu, "i2", "internet2");
+    Group           uofc  = StemHelper.addChildGroup(edu, "uofc", "uchicago");
+    Stem            com   = StemHelper.addChildStem(root, "com", "commercial");
+    StemHelper.addChildGroup(com, "devclue", "devclue");
+    GroupHelper.addMember(i2, uofc);
+    edu2.addAlternateName("test:Alternate:NAME");
+    edu2.store();
+    
+    try {
+      GrouperQuery gq = GrouperQuery.createQuery(
+        s, new StemNameAnyFilter("aLTERNATE", root)
+      );
+      Assert.assertTrue("groups",  gq.getGroups().size()      == 0);
+      Assert.assertTrue("members", gq.getMembers().size()     == 0);
+      Assert.assertTrue("mships",  gq.getMemberships().size() == 0);
+      Assert.assertTrue("stems",   gq.getStems().size()       == 1);
+    }
+    catch (QueryException eQ) {
+      Assert.fail("unable to query: " + eQ.getMessage());
+    }
+  }
+  
+  /**
+   * 
+   */
+  public void testStemAttributeFilterAlternateName() {
+    GrouperSession  s     = SessionHelper.getRootSession();
+    Stem            root  = StemHelper.findRootStem(s);
+    Stem            edu   = StemHelper.addChildStem(root, "edu", "education");
+    Stem            edu2  = StemHelper.addChildStem(edu, "edu2", "education");
+    Group           i2    = StemHelper.addChildGroup(edu, "i2", "internet2");
+    Group           uofc  = StemHelper.addChildGroup(edu, "uofc", "uchicago");
+    Stem            com   = StemHelper.addChildStem(root, "com", "commercial");
+    StemHelper.addChildGroup(com, "devclue", "devclue");
+    GroupHelper.addMember(i2, uofc);
+    edu2.addAlternateName("test:Alternate:NAME");
+    edu2.store();
+    
+    try {
+      GrouperQuery gq = GrouperQuery.createQuery(
+        s, new StemAttributeFilter("name", "aLTERNATE", root)
+      );
+      Assert.assertTrue("groups",  gq.getGroups().size()      == 0);
+      Assert.assertTrue("members", gq.getMembers().size()     == 0);
+      Assert.assertTrue("mships",  gq.getMemberships().size() == 0);
+      Assert.assertTrue("stems",   gq.getStems().size()       == 1);
+    }
+    catch (QueryException eQ) {
+      Assert.fail("unable to query: " + eQ.getMessage());
+    }
+    
+    try {
+      GrouperQuery gq = GrouperQuery.createQuery(
+        s, new StemAttributeFilter("name", "aLTERNATE", edu)
+      );
+      Assert.assertTrue("groups",  gq.getGroups().size()      == 0);
+      Assert.assertTrue("members", gq.getMembers().size()     == 0);
+      Assert.assertTrue("mships",  gq.getMemberships().size() == 0);
+      Assert.assertTrue("stems",   gq.getStems().size()       == 1);
+    }
+    catch (QueryException eQ) {
+      Assert.fail("unable to query: " + eQ.getMessage());
+    }
+  }
 
   public void testStemNameAnyFilterNothing() {
     GrouperSession  s     = SessionHelper.getRootSession();

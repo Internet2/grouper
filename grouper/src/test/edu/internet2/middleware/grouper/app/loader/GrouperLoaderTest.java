@@ -219,7 +219,7 @@ public class GrouperLoaderTest extends GrouperTest {
     
     //lets make sure the security groups dont exist
     new StemSave(this.grouperSession).assignName("loaderSecurity")
-      .assignSaveMode(SaveMode.INSERT).saveUnchecked();
+      .assignSaveMode(SaveMode.INSERT).save();
     
     Group admins = GroupFinder.findByName(this.grouperSession, "loaderSecurity:admins", false);
     assertNull(admins);

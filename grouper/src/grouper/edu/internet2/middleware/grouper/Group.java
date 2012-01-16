@@ -133,7 +133,6 @@ import edu.internet2.middleware.grouper.rules.beans.RulesMembershipBean;
 import edu.internet2.middleware.grouper.rules.beans.RulesPrivilegeBean;
 import edu.internet2.middleware.grouper.subj.GrouperSubject;
 import edu.internet2.middleware.grouper.subj.LazySubject;
-import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.validator.AddAlternateGroupNameValidator;
 import edu.internet2.middleware.grouper.validator.AddCompositeMemberValidator;
@@ -4392,37 +4391,7 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
                         + " cannot create in stem: " + stem.getName());
                   }
                 }
-
-                // If the group name is not changing OR
-                // if the group name is changing and the alternate name is not the old group name, THEN
-                // we need to verify the alternate name isn't already taken.
-                String oldName = Group.this.dbVersion().getNameDb();
-                if (!Group.this.dbVersionDifferentFields().contains(FIELD_NAME) || 
-                    (Group.this.dbVersionDifferentFields().contains(FIELD_NAME) && 
-                        !oldName.equals(Group.this.getAlternateNameDb()))) {
-                  Group check = GrouperDAOFactory.getFactory().getGroup().findByName(
-                      Group.this.getAlternateNameDb(), false);
-                  if (check != null) {
-                    throw new GroupModifyAlreadyExistsException("Group with name " + 
-                        Group.this.getAlternateNameDb() + " already exists.");
-                  }
-                }
               }
-              
-              // If the group name is changing, verify that the new name is not in use.
-              // (The new name could be an alternate name).
-              if (Group.this.dbVersionDifferentFields().contains(FIELD_NAME)) {
-                Group check = GrouperDAOFactory.getFactory().getGroup().findByName(
-                    Group.this.getNameDb(), false);
-                if (check != null && 
-                    (!check.getUuid().equals(Group.this.getUuid()) || 
-                        (Group.this.getAlternateNameDb() != null && 
-                            Group.this.getAlternateNameDb().equals(Group.this.getNameDb())))) {
-                  throw new GroupModifyAlreadyExistsException("Group with name " + 
-                      Group.this.getNameDb() + " already exists.");
-                }
-              }
-              
               
               if (Group.this.dbVersionDifferentFields().contains(FIELD_TYPE_OF_GROUP)) {
                 TypeOfGroup oldTypeOfGroup = Group.this.dbVersion().getTypeOfGroup();
@@ -5690,6 +5659,36 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
       throw new RuntimeException("Cannot change typeOfGroup, you need to delete and create the object");
     }
     
+    // If the group name is changing, verify that the new name is not in use.
+    // (The new name could be an alternate name).
+    if (this.dbVersionDifferentFields().contains(FIELD_NAME)) {
+      Group check = GrouperDAOFactory.getFactory().getGroup().findByName(this.getNameDb(), false);
+      if (check != null && 
+          (!check.getUuid().equals(this.getUuid()) || 
+              (this.getAlternateNameDb() != null && 
+                  this.getAlternateNameDb().equals(this.getNameDb())))) {
+        throw new GroupModifyAlreadyExistsException("Group with name " + this.getNameDb() + " already exists.");
+      }
+    }
+    
+    // If the alternate name is changing, do the following check...
+    // If the group name is not changing OR
+    // if the group name is changing and the alternate name is not the old group name, THEN
+    // we need to verify the alternate name isn't already taken.
+    if (this.dbVersionDifferentFields().contains(FIELD_ALTERNATE_NAME_DB) &&
+        this.getAlternateNameDb() != null) {
+      
+      String oldName = this.dbVersion().getNameDb();
+      if (!this.dbVersionDifferentFields().contains(FIELD_NAME) || 
+          (this.dbVersionDifferentFields().contains(FIELD_NAME) && 
+              !oldName.equals(this.getAlternateNameDb()))) {
+        Group check = GrouperDAOFactory.getFactory().getGroup().findByName(this.getAlternateNameDb(), false);
+        if (check != null) {
+          throw new GroupModifyAlreadyExistsException("Group with name " + this.getAlternateNameDb() + " already exists.");
+        }
+      }
+    }
+    
     this.internal_setModifiedIfNeeded();
 
     GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.GROUP, 
@@ -5880,17 +5879,6 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
             
             if (assignAlternateName) {
               Group.this.internal_addAlternateName(oldName, false);
-            }
-            
-            // verify that the new group name doesn't already exist.
-            Group check = GrouperDAOFactory.getFactory().getGroup().findByName(
-                Group.this.getNameDb(), false);
-            if (check != null && 
-                (!check.getUuid().equals(Group.this.getUuid()) || 
-                    (Group.this.getAlternateNameDb() != null && 
-                        Group.this.getAlternateNameDb().equals(Group.this.getNameDb())))) {
-              throw new GroupModifyException("Group with name " + 
-                  Group.this.getNameDb() + " already exists.");
             }
             
             GrouperDAOFactory.getFactory().getGroup().update(Group.this);

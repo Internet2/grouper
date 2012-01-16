@@ -17,6 +17,7 @@
 
 package edu.internet2.middleware.grouper;
 import java.sql.Timestamp;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -53,7 +54,6 @@ import edu.internet2.middleware.grouper.exception.GrantPrivilegeAlreadyExistsExc
 import edu.internet2.middleware.grouper.exception.GrantPrivilegeException;
 import edu.internet2.middleware.grouper.exception.GroupAddAlreadyExistsException;
 import edu.internet2.middleware.grouper.exception.GroupAddException;
-import edu.internet2.middleware.grouper.exception.GroupModifyException;
 import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
@@ -115,6 +115,7 @@ import edu.internet2.middleware.grouper.rules.beans.RulesPrivilegeBean;
 import edu.internet2.middleware.grouper.rules.beans.RulesStemBean;
 import edu.internet2.middleware.grouper.subj.GrouperSubject;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouper.validator.AddAlternateStemNameValidator;
 import edu.internet2.middleware.grouper.validator.AddAttributeDefNameValidator;
 import edu.internet2.middleware.grouper.validator.AddAttributeDefValidator;
 import edu.internet2.middleware.grouper.validator.AddGroupValidator;
@@ -178,6 +179,8 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
   /** id col in db */
   public static final String COLUMN_DESCRIPTION = "description";
 
+  /** an alternate name for this stem */
+  public static final String COLUMN_ALTERNATE_NAME = "alternate_name";
 
   /** column for hibernate version number */
   public static final String COLUMN_HIBERNATE_VERSION_NUMBER = "hibernate_version_number";
@@ -207,6 +210,9 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
 
   //*****  START GENERATED WITH GenerateFieldConstants.java *****//
 
+  /** constant for field name for: alternateNameDb */
+  public static final String FIELD_ALTERNATE_NAME_DB = "alternateNameDb";
+  
   /** constant for field name for: createTime */
   public static final String FIELD_CREATE_TIME = "createTime";
 
@@ -253,7 +259,7 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
       FIELD_CREATE_TIME, FIELD_CREATOR_UUID, FIELD_DESCRIPTION, 
       FIELD_DISPLAY_EXTENSION, FIELD_DISPLAY_NAME, FIELD_EXTENSION, FIELD_MODIFIER_UUID, 
       FIELD_MODIFY_TIME, FIELD_NAME, FIELD_PARENT_UUID, 
-      FIELD_UUID, FIELD_LAST_MEMBERSHIP_CHANGE_DB);
+      FIELD_UUID, FIELD_LAST_MEMBERSHIP_CHANGE_DB, FIELD_ALTERNATE_NAME_DB);
 
   /**
    * fields which are included in clone method
@@ -262,7 +268,8 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
       FIELD_CREATE_TIME, FIELD_CREATOR_UUID, FIELD_DB_VERSION, 
       FIELD_DESCRIPTION, FIELD_DISPLAY_EXTENSION, FIELD_DISPLAY_NAME, FIELD_EXTENSION, 
       FIELD_HIBERNATE_VERSION_NUMBER, FIELD_MODIFIER_UUID, FIELD_MODIFY_TIME, 
-      FIELD_NAME, FIELD_PARENT_UUID, FIELD_UUID, FIELD_LAST_MEMBERSHIP_CHANGE_DB);
+      FIELD_NAME, FIELD_PARENT_UUID, FIELD_UUID, FIELD_LAST_MEMBERSHIP_CHANGE_DB,
+      FIELD_ALTERNATE_NAME_DB);
 
   //*****  END GENERATED WITH GenerateFieldConstants.java *****//
 
@@ -362,6 +369,9 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
   private String  parentUuid;
   /** */
   private String  uuid;
+  
+  /** alternate name of stem */
+  private String alternateNameDb;
 
   /** context id of the transaction */
   private String contextId;
@@ -988,6 +998,122 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
     Stem parent = GrouperDAOFactory.getFactory().getStem().findByUuid(uuid, true);
     return parent;
   } // public Stem getParentStem()
+  
+  
+  /**
+   * Returns the alternate name for the stem.  Used by hibernate.
+   * @return the alternate name
+   */
+  public String getAlternateNameDb() {
+    return this.alternateNameDb;
+  }
+  
+  /**
+   * Set the group's alternate name  Used by hibernate.
+   * @param alternateName
+   */
+  public void setAlternateNameDb(String alternateName) {
+    this.alternateNameDb = alternateName;
+    this.alternateNames = null;
+  }
+  
+  /** alternate names */
+  private Set<String> alternateNames = null;
+  
+  /**
+   * Returns the alternate names for the stem.  Only one alternate name is supported
+   * currently, so a Set of size 0 or 1 will be returned.
+   * @return Set of alternate names.
+   */
+  public Set<String> getAlternateNames() {
+    
+    //lazy load this set
+    if (this.alternateNames == null) {
+      this.alternateNames = new LinkedHashSet<String>();
+      if (!StringUtils.isBlank(this.alternateNameDb)) {
+        this.alternateNames.add(this.alternateNameDb);
+      }
+      this.alternateNames = Collections.unmodifiableSet(this.alternateNames);
+    }
+    return this.alternateNames;
+  }
+
+  /**
+   * Add an alternate name for this stem.  Only one alternate name is supported
+   * currently, so this will replace any existing alternate name.
+   * This won't get saved until you call store().
+   * @param alternateName
+   */
+  public void addAlternateName(String alternateName) {
+    
+    if (!PrivilegeHelper.canStem(this, GrouperSession.staticGrouperSession().getSubject())) {
+      throw new InsufficientPrivilegeException(E.CANNOT_STEM);
+    }
+    
+    // verify that if the property security.stem.groupAllowedToRenameStem is set,
+    // then the user is a member of that group.
+    if (!PrivilegeHelper.canRenameStems(GrouperSession.staticGrouperSession().getSubject())) {
+      throw new InsufficientPrivilegeException("User cannot rename stems.");      
+    }
+    
+    // verify name
+    GrouperValidator v = AddAlternateStemNameValidator.validate(alternateName);
+    if (v.isInvalid()) {
+      throw new StemModifyException(v.getErrorMessage() + ": " + alternateName);
+    }
+    
+    // Checking stem privilege on the parent stem if the alternate name is for another stem
+    String parentStemName = GrouperUtil.parentStemNameFromName(alternateName);
+    if (GrouperUtil.isEmpty(parentStemName)) {
+      parentStemName = Stem.ROOT_NAME;
+    }
+    
+    if (this.isRootStem() || !parentStemName.equals(this.getParentStem().getName())) {
+      Stem stem = GrouperUtil.getFirstParentStemOfName(alternateName);
+
+      if (!stem.hasStem(GrouperSession.staticGrouperSession().getSubject())) {
+        throw new InsufficientPrivilegeException(E.CANNOT_STEM);
+      }
+    }
+    
+    internal_addAlternateName(alternateName);
+  }
+  
+  /**
+   * Add an alternate name for this stem.  Only one alternate name is supported
+   * currently, so this will replace any existing alternate name.
+   * This won't get saved until you call store().
+   * @param alternateName
+   */
+  protected void internal_addAlternateName(String alternateName) {
+
+    this.alternateNameDb = alternateName;
+  }
+  
+  /**
+   * Delete the specified alternate name.  This won't get saved until you call store().
+   * @param alternateName
+   * @return false if the stem does not have the specified alternate name
+   */
+  public boolean deleteAlternateName(String alternateName) {
+    
+    if (!PrivilegeHelper.canStem(this, GrouperSession.staticGrouperSession().getSubject())) {
+      throw new InsufficientPrivilegeException(E.CANNOT_STEM);
+    }
+    
+    // verify that if the property security.stem.groupAllowedToRenameStem is set,
+    // then the user is a member of that group.
+    if (!PrivilegeHelper.canRenameStems(GrouperSession.staticGrouperSession().getSubject())) {
+      throw new InsufficientPrivilegeException("User cannot rename stems.");      
+    }
+    
+    if (alternateName.equals(this.alternateNameDb)) {
+      this.alternateNameDb = null;
+      return true;
+    }
+    
+    return false;
+  }
 
   /**
    * Get privileges that the specified subject has on this stem.
@@ -1605,8 +1731,8 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
    * }
    * </pre>
    * @param   value   Set <i>extension</i> to this value.
-   * @param   assignAlternateName   Whether to add the old group names as 
-   *                                alternate names for any renamed groups.
+   * @param   assignAlternateName   Whether to add the old group and stem names as 
+   *                                alternate names for any renamed groups and stems.
    * @throws  InsufficientPrivilegeException
    * @throws  StemModifyException
    */
@@ -1643,6 +1769,15 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
     // then the user is a member of that group.
     if (!PrivilegeHelper.canRenameStems(GrouperSession.staticGrouperSession().getSubject())) {
       throw new InsufficientPrivilegeException("User cannot rename stems.");      
+    }
+    
+    String oldExtension = null;
+    if (this.dbVersion() != null) {
+      oldExtension = this.dbVersion().getExtensionDb();
+    }
+    
+    if (assignAlternateName && oldExtension != null && !oldExtension.equals(value)) {
+      internal_addAlternateName(this.dbVersion().getNameDb());
     }
     
     try {
@@ -2448,16 +2583,6 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
         }
         
         _g.setNameDb(U.constructName(this.getName(), _g.getExtension()));
-        
-        Group check = GrouperDAOFactory.getFactory().getGroup().findByName(
-            _g.getNameDb(), false);
-        if (check != null && 
-            (!check.getUuid().equals(_g.getUuid()) || 
-                (_g.getAlternateNameDb() != null && 
-                    _g.getAlternateNameDb().equals(_g.getNameDb())))) {
-          throw new GroupModifyException("Group with name " + 
-              _g.getNameDb() + " already exists.");
-        }
       }
       
       _g.setModifierUuid(modifier);
@@ -2514,6 +2639,10 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
       }
     
       if (nameChange) {
+        if (setAlternateName) {
+          child.internal_addAlternateName(child.dbVersion().getNameDb());
+        }
+        
         child.setNameDb(U.constructName(this.getNameDb(), child.getExtensionDb()));
       }
       
@@ -3006,6 +3135,36 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
   public void onPreUpdate(HibernateSession hibernateSession) {
     super.onPreUpdate(hibernateSession);
     
+    // If the stem name is changing, verify that the new name is not in use.
+    // (The new name could be an alternate name).
+    if (this.dbVersionDifferentFields().contains(FIELD_NAME)) {
+      Stem check = GrouperDAOFactory.getFactory().getStem().findByName(this.getNameDb(), false);
+      if (check != null && 
+          (!check.getUuid().equals(this.getUuid()) || 
+              (this.getAlternateNameDb() != null && 
+                  this.getAlternateNameDb().equals(this.getNameDb())))) {
+        throw new StemModifyException("Stem with name " + this.getNameDb() + " already exists.");
+      }
+    }
+    
+    // If the alternate name is changing, do the following check...
+    // If the stem name is not changing OR
+    // if the stem name is changing and the alternate name is not the old group name, THEN
+    // we need to verify the alternate name isn't already taken.
+    if (this.dbVersionDifferentFields().contains(FIELD_ALTERNATE_NAME_DB) &&
+        this.getAlternateNameDb() != null) {
+      
+      String oldName = this.dbVersion().getNameDb();
+      if (!this.dbVersionDifferentFields().contains(FIELD_NAME) || 
+          (this.dbVersionDifferentFields().contains(FIELD_NAME) && 
+              !oldName.equals(this.getAlternateNameDb()))) {
+        Stem check = GrouperDAOFactory.getFactory().getStem().findByName(this.getAlternateNameDb(), false);
+        if (check != null) {
+          throw new StemModifyException("Stem with name " + this.getAlternateNameDb() + " already exists.");
+        }
+      }
+    }
+    
     GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.STEM, 
         StemHooks.METHOD_STEM_PRE_UPDATE, HooksStemBean.class, 
         this, Stem.class, VetoTypeGrouper.STEM_PRE_UPDATE, false, false);
@@ -3288,6 +3447,10 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
               Stem.this.setNameDb(stem.getName() + Stem.DELIM + Stem.this.getExtension());
               Stem.this.setDisplayNameDb(stem.getDisplayName() + Stem.DELIM
                   + Stem.this.getDisplayExtension());
+            }
+            
+            if (assignAlternateName) {
+              Stem.this.internal_addAlternateName(oldName);
             }
             
             Stem.this.setAlternateNameOnMovesAndRenames = assignAlternateName;
@@ -3652,6 +3815,9 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
    */
   public boolean xmlDifferentBusinessProperties(Stem other) {
     
+    if (!StringUtils.equals(this.alternateNameDb, other.alternateNameDb)) {
+      return true;
+    }
     if (!StringUtils.equals(StringUtils.trimToNull(this.description), StringUtils.trimToNull(other.description))) {
       return true;
     }
@@ -3711,6 +3877,7 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
    * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlCopyBusinessPropertiesToExisting(java.lang.Object)
    */
   public void xmlCopyBusinessPropertiesToExisting(Stem existingRecord) {
+    existingRecord.setAlternateNameDb(this.alternateNameDb);
     existingRecord.setDescriptionDb(this.getDescriptionDb());
     existingRecord.setDisplayExtensionDb(this.getDisplayExtensionDb());
     existingRecord.setDisplayNameDb(this.getDisplayNameDb());
@@ -3774,6 +3941,7 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
     }
     XmlExportStem xmlExportStem = new XmlExportStem();
     
+    xmlExportStem.setAlternateName(this.getAlternateNameDb());
     xmlExportStem.setContextId(this.getContextId());
     xmlExportStem.setCreateTime(GrouperUtil.dateStringValue(this.getCreateTime()));
     xmlExportStem.setCreatorId(this.getCreatorUuid());

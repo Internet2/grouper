@@ -13,8 +13,13 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -27,6 +32,7 @@ import org.apache.commons.logging.LogFactory;
 import edu.internet2.middleware.morphString.Morph;
 import edu.internet2.middleware.subject.InvalidQueryException;
 import edu.internet2.middleware.subject.SearchPageResult;
+import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.SourceUnavailableException;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectCaseInsensitiveMapImpl;
@@ -65,12 +71,18 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
   /** if there is a limit to the number of results */
   private Integer maxPage;
   
+  /** if we should batch up ids and identifiers */
+  private boolean useInClauseForIdAndIdentifier = false;
+  
   /** keep a reference to the object which gets our connections for us */
   protected JdbcConnectionProvider jdbcConnectionProvider = null;
 
   /** if we should change the search query for max results */
   private boolean changeSearchQueryForMaxResults = true;
 
+  /** comma separate the identifiers for this row, this is for the findByIdentifiers if using an in clause */
+  private List<String> identifierAttributes = new ArrayList<String>();
+  
   /**
    * try to change a paging query, note it will add one to the resultSetLimit so that
    * the caller can see if there are too many records
@@ -142,6 +154,26 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
   @Override
   public Subject getSubject(String id1, boolean exceptionIfNull)
       throws SubjectNotFoundException, SubjectNotUniqueException {
+    
+    //do the batched one
+    if (this.useInClauseForIdAndIdentifier) {
+      
+      Map<String, Subject> result = this.getSubjectsByIds(SubjectUtils.toSet(id1));
+      
+      if (SubjectUtils.length(result) == 1) {
+        return result.get(id1);
+      }
+      
+      if (SubjectUtils.length(result) > 1) {
+        throw new SubjectNotUniqueException("Not unique by id: " + id1);
+      }
+      
+      if (exceptionIfNull) {
+        throw new SubjectNotFoundException("Cant find subject by id: " + id1);
+      }
+      
+      return null;
+    }
     try {
       return uniqueSearch(id1, "searchSubject");
     } catch (SubjectNotFoundException snfe) {
@@ -150,6 +182,7 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
       }
       return null;
     }
+    
   }
 
   /**
@@ -159,6 +192,25 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
   @Override
   public Subject getSubjectByIdentifier(String id1, boolean exceptionIfNull) throws SubjectNotFoundException,
       SubjectNotUniqueException {
+    //do the batched one
+    if (this.useInClauseForIdAndIdentifier) {
+      
+      Map<String, Subject> result = this.getSubjectsByIdentifiers(SubjectUtils.toSet(id1));
+      
+      if (SubjectUtils.length(result) == 1) {
+        return result.get(id1);
+      }
+      
+      if (SubjectUtils.length(result) > 1) {
+        throw new SubjectNotUniqueException("Not unique by id: " + id1);
+      }
+
+      if (exceptionIfNull) {
+        throw new SubjectNotFoundException("Cant find subject by id: " + id1);
+      }
+      
+      return null;
+    }
     try {
       return uniqueSearch(id1, "searchSubjectByIdentifier");
     } catch (SubjectNotFoundException snfe) {
@@ -182,6 +234,7 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
   private Subject uniqueSearch(String id1, String searchType)
       throws SubjectNotFoundException, SubjectNotUniqueException, InvalidQueryException {
     Subject subject = null;
+    
     Search search = getSearch(searchType);
     if (search == null) {
       log.error("searchType: \"" + searchType + "\" not defined.");
@@ -193,6 +246,9 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
     try {
       jdbcConnectionBean = this.jdbcConnectionProvider.connectionBean();
       conn = jdbcConnectionBean.connection();
+      
+      queryCountforTesting++;
+      
       stmt = prepareStatement(search, conn, false, false);
       ResultSet rs = getSqlResults(id1, stmt, search);
       subject = createUniqueSubject(rs, search, id1, search.getParam("sql"));
@@ -237,6 +293,9 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
     return searchHelper(searchValue, true);
   }
 
+  /** increment a query count for testing */
+  public static int queryCountforTesting = 0;
+  
   /**
    * helper for query
    * @param searchValue 
@@ -265,6 +324,8 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
       }
       
       conn = jdbcConnectionBean.connection();
+      
+      queryCountforTesting++;
       
       stmt = prepareStatement(search, conn, true, firstPageOnly);
       ResultSet rs = getSqlResults(searchValue, stmt, search);
@@ -400,6 +461,68 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
   }
 
   /**
+   * Create unique subjects from the resultSet.
+   * 
+   * @param rs
+   * @param search
+   * @param searchValue
+   * @param sql 
+   * @return subject
+   * @throws SubjectNotFoundException
+   * @throws SubjectNotUniqueException
+   */
+  private Map<String, Subject> createUniqueSubjects(ResultSet rs, Search search, List<String> searchValues,
+      String sql, boolean useIdentifiersInMatch) throws SubjectNotFoundException, SubjectNotUniqueException {
+
+    Map<String, Subject> results = new HashMap<String, Subject>();
+    Set<String> searchValuesSet = new HashSet<String>(searchValues);
+
+    if (rs != null) {
+      try {
+        RESULT_SET_LOOP: while (rs.next()) {
+          
+          Subject subject = createSubject(rs, sql);
+
+          //maybe id match
+          if (searchValues.contains(subject.getId())) {
+            results.put(subject.getId(), subject);
+          } else {
+            
+            //find out which id or identifier found this one
+            for (String identifierAttribute : this.identifierAttributes) {
+              Set<String> values = subject.getAttributeValues(identifierAttribute);
+              if (SubjectUtils.length(values) > 0) {
+                for (String value: values) {
+                  //we found a match
+                  if (searchValuesSet.contains(value)) {
+                    results.put(value, subject);
+                    //dont want dupes
+                    searchValuesSet.remove(value);
+                    continue RESULT_SET_LOOP;
+                  }
+                }
+              }
+              
+              //if we made it this far there is a problem
+              throw new InvalidQueryException("Why is this subject not able to be " +
+                  "referenced by id or identifier (do you need to add " +
+                  "identifierAttributes to your sources.xml???) " + SubjectUtils.subjectToString(subject) );
+              
+            }
+            
+          }
+          
+        }
+      } catch (SQLException ex) {
+        throw new SourceUnavailableException("SQLException occurred: " + ex.getMessage() + ": " + sql, ex);
+      }
+
+    }
+    return results;
+
+  }
+
+  /**
    * Prepare a statement handle from the search object.
    * 
    * @param search
@@ -489,6 +612,78 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
   }
 
   /**
+   * Set the parameters in the prepared statement and execute the query.
+   * 
+   * @param searchValue
+   * @param stmt
+   * @param search
+   * @return resultSet
+   * @throws SQLException 
+   */
+  protected ResultSet getSqlResults(List<String> batchIdsOrIdentifiers, PreparedStatement stmt, 
+      int numParameters, String sql) throws SQLException {
+
+    ResultSet rs = null;
+    int paramIndex = 1;
+    for (String idOrIdentifier : batchIdsOrIdentifiers) {
+      
+      //there might be more than one param for the same value
+      for (int i = 1; i <= numParameters; i++) {
+        try {
+          stmt.setString(paramIndex++, idOrIdentifier);
+        } catch (SQLException e) {
+          SubjectUtils
+              .injectInException(
+                  e,
+                  "Error setting param: "
+                      + i
+                      + " in source: "
+                      + this.getId()
+                      + ", in query: "
+                      + sql
+                      + ", "
+                      + e.getMessage()
+                      + ", maybe not enough question marks "
+                      + "(bind variables) are in query, or the number of question marks in the query is "
+                      + "not the same as the number of parameters (might need to set the optional param numParameters), "
+                      + "or the param 'numParameters' in sources.xml for that query is incorrect, " + this.getId());
+          throw e;
+        }
+      }
+    }
+    rs = stmt.executeQuery();
+    return rs;
+  }
+
+  /**
+   * @see Source#getSubjectsByIdentifiers(Collection)
+   */
+  @Override
+  public Map<String, Subject> getSubjectsByIdentifiers(Collection<String> identifiers) {
+    //if not the batched one
+    if (!this.useInClauseForIdAndIdentifier) {
+      return super.getSubjectsByIdentifiers(identifiers);
+    }
+
+    return uniqueSearchBatch(identifiers, "searchSubjectByIdentifier", true);
+    
+  }
+
+  /**
+   * @see Source#getSubjectsByIds(Collection)
+   */
+  @Override
+  public Map<String, Subject> getSubjectsByIds(Collection<String> ids) {
+    //if not the batched one
+    if (!this.useInClauseForIdAndIdentifier) {
+      return super.getSubjectsByIds(ids);
+    }
+    
+    return uniqueSearchBatch(ids, "searchSubject", false);
+    
+  }
+
+  /**
    * Loads attributes for the argument subject.
    * @param rs 
    * @return attributes
@@ -558,6 +753,24 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
           } catch (NumberFormatException nfe) {
             throw new SourceUnavailableException("Cant parse maxPage: " + maxPageString, nfe);
           }
+        }
+      }
+
+      {
+        String useInClauseForIdAndIdentifierString = props.getProperty("useInClauseForIdAndIdentifier");
+        if (!StringUtils.isBlank(useInClauseForIdAndIdentifierString)) {
+          try {
+            this.useInClauseForIdAndIdentifier = SubjectUtils.booleanValue(useInClauseForIdAndIdentifierString);
+          } catch (Exception e) {
+            throw new SourceUnavailableException("Cant parse useInClauseForIdAndIdentifier: " + useInClauseForIdAndIdentifierString, e);
+          }
+        }
+      }
+
+      {
+        String identifierAttributesString = props.getProperty("identifierAttributes");
+        if (!StringUtils.isBlank(identifierAttributesString)) {
+          this.identifierAttributes = SubjectUtils.toList(SubjectUtils.splitTrim(identifierAttributesString, ","));
         }
       }
 
@@ -644,7 +857,7 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
               "Valid built-in options are: "
                   + C3p0JdbcConnectionProvider.class.getName()
                   + " (default) [note: its a zero, not a capital O], "
-                  + DbcpJdbcConnectionProvider.class.getName()
+                  //+ DbcpJdbcConnectionProvider.class.getName()
                   + ", edu.internet2.middleware.grouper.subj.GrouperJdbcConnectionProvider (if using Grouper).  "
                   + "Note, these are the built-ins for the Subject API or Grouper, there might be other valid choices.");
       throw re;
@@ -679,6 +892,14 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
    */
   public Integer getMaxPage() {
     return this.maxPage;
+  }
+
+  /**
+   * if we should use an in clause for id or identifier searches
+   * @return true if should
+   */
+  public boolean isUseInClauseForIdAndIdentifier() {
+    return this.useInClauseForIdAndIdentifier;
   }
 
   /**
@@ -778,6 +999,19 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
       }
 
       {
+        String useInClauseForIdAndIdentifierString = props.getProperty("useInClauseForIdAndIdentifier");
+        if (!StringUtils.isBlank(useInClauseForIdAndIdentifierString)) {
+          try {
+            Integer.parseInt(useInClauseForIdAndIdentifierString);
+          } catch (Exception e) {
+            System.err.println("Cant parse useInClauseForIdAndIdentifier: " + useInClauseForIdAndIdentifier);
+            log.error("Cant parse useInClauseForIdAndIdentifier: " + useInClauseForIdAndIdentifier);
+            return;
+          }
+        }
+      }
+
+      {
         String changeSearchQueryForMaxResultsString = props.getProperty("changeSearchQueryForMaxResults");
         if (!StringUtils.isBlank(changeSearchQueryForMaxResultsString)) {
           try {
@@ -802,7 +1036,7 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
 
       try {
 
-        Class driverClass = null;
+        Class<?> driverClass = null;
         try {
           driverClass = Class.forName(driver);
         } catch (Exception e) {
@@ -909,4 +1143,142 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
       SubjectNotUniqueException {
     return this.getSubjectByIdentifier(id1, true);
   }
+
+  /**
+   * Perform a search for a unique subject.
+   * 
+   * @param id1
+   * @param searchType
+   * @return subjects
+   * @throws SubjectNotFoundException
+   * @throws SubjectNotUniqueException
+   * @throws InvalidQueryException 
+   */
+  private Map<String, Subject> uniqueSearchBatch(Collection<String> idsOrIdentifiers, String searchType, boolean useIdentifiersInMatch)
+      throws SubjectNotFoundException, SubjectNotUniqueException, InvalidQueryException {
+
+    Map<String, Subject> results = new LinkedHashMap<String, Subject>();
+    
+    if (SubjectUtils.length(idsOrIdentifiers) > 0) {
+      
+      Search search = getSearch(searchType);
+
+      if (search == null) {
+        log.error("searchType: \"" + searchType + "\" not defined.");
+        return results;
+      }
+
+      String sql = search.getParam("sql");
+      
+      if (StringUtils.isBlank(sql)) {
+        throw new SourceUnavailableException("Why is there no sql for sourceId: " + this.getId());
+      }
+
+      if (StringUtils.countMatches(sql, "?") > 0) {
+        throw new SourceUnavailableException("Why are there parameters in the sql? " + this.getId());
+      }
+
+      if (!StringUtils.contains(sql, "{inclause}")) {
+        throw new SourceUnavailableException("Why does the SQL not have an {inclause} param? " + this.getId() + ", " + sql);
+      }
+      
+      if (sql.contains("%TERM%")) {
+        throw new InvalidQueryException("%TERM%. Possibly old style SQL query, source: "
+            + this.getId() + ", sql: " + sql);
+      }
+
+      String inclause = search.getParam("inclause");
+      
+      if (StringUtils.isBlank(inclause)) {
+        throw new SourceUnavailableException("Why is there no inclause? " + this.getId());
+      }
+      
+      String numParametersString = search.getParam("numParameters");
+
+      //default to the number of question marks
+      int numParameters = StringUtils.isBlank(numParametersString) ? StringUtils
+          .countMatches(inclause, "?") : Integer.parseInt(numParametersString);
+          
+      if (numParameters == 0) {
+        throw new SourceUnavailableException("Why are there no parameters in the inclause? " + this.getId());
+      }
+          
+      //we dont want more than 180 bind variables per batch
+      int batchSize = 180 / numParameters;
+      
+      List<String> idsOrIdentifiersList = SubjectUtils.listFromCollection(idsOrIdentifiers);
+      
+      int numberOfBatches = SubjectUtils.batchNumberOfBatches(idsOrIdentifiersList, batchSize);
+      
+      for (int i=0;i<numberOfBatches;i++) {
+
+        List<String> batchIdsOrIdentifiers = SubjectUtils.batchList(idsOrIdentifiersList, batchSize, i);
+        
+        Connection conn = null;
+        PreparedStatement stmt = null;
+        JdbcConnectionBean jdbcConnectionBean = null;
+        String aggregateSql = sql;
+        try {
+          jdbcConnectionBean = this.jdbcConnectionProvider.connectionBean();
+          conn = jdbcConnectionBean.connection();
+          
+          queryCountforTesting++;
+          aggregateSql = uniqueSearchBatchSql(sql, inclause, batchIdsOrIdentifiers);
+          
+          stmt = conn.prepareStatement(aggregateSql);
+          
+          ResultSet rs = getSqlResults(batchIdsOrIdentifiers, stmt, numParameters, aggregateSql);
+          Map<String, Subject> resultBatch = createUniqueSubjects(rs, search, batchIdsOrIdentifiers, aggregateSql, useIdentifiersInMatch);
+          results.putAll(resultBatch);
+
+          jdbcConnectionBean.doneWithConnection();
+        } catch (SQLException ex) {
+          String error = "problem in sources.xml source: " + this.getId() + ", sql: "
+              + aggregateSql + ", id size: " + SubjectUtils.length(idsOrIdentifiers) + ", " + searchType;
+          try {
+            jdbcConnectionBean.doneWithConnectionError(ex);
+          } catch (RuntimeException e) {
+            log.error(error, e);
+          }
+          throw new SourceUnavailableException(error, ex);
+        } finally {
+          closeStatement(stmt);
+          if (jdbcConnectionBean != null) {
+            jdbcConnectionBean.doneWithConnectionFinally();
+          }
+        }
+        
+      }
+    }
+    return results;
+  }
+
+  /**
+   * turn a sql, and inclause, and batch, into a sql statement
+   * @param sql
+   * @param inclause
+   * @param numParameters
+   * @param batchIdsOrIdentifiers
+   * @return unique search sql
+   */
+  private String uniqueSearchBatchSql(String sql, String inclause, List<String> batchIdsOrIdentifiers) {
+    StringBuilder result = new StringBuilder();
+    result.append(" ( ");
+    for (int i=0;i<SubjectUtils.length(batchIdsOrIdentifiers);i++) {
+      if (i != 0) {
+        result.append(" or ");
+      }
+
+      result.append(" ( ");
+      result.append(inclause);
+      result.append(" ) ");
+    }
+    result.append(" ) ");
+    String aggregateInclause = result.toString();
+    
+    String aggregateSql = StringUtils.replace(sql, "{inclause}", aggregateInclause);
+    
+    return aggregateSql;
+  }
+  
 }

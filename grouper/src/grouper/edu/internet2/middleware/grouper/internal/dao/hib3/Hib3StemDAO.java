@@ -456,7 +456,7 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
     throws  GrouperDAOException {
     try {
       return HibernateSession.byHqlStatic()
-        .createQuery("from Stem as ns where lower(ns.nameDb) like lower(:value)")
+        .createQuery("from Stem as ns where lower(ns.nameDb) like lower(:value) or lower(ns.alternateNameDb) like lower(:value)")
         .setCacheable(false)
         .setCacheRegion(KLASS + ".FindByApproximateName")
         .setString(  "value" , "%" + val.toLowerCase() + "%" )
@@ -479,7 +479,7 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
     throws  GrouperDAOException {
     try {
       return HibernateSession.byHqlStatic()
-        .createQuery("from Stem as ns where lower(ns.nameDb) like lower(:value) and ns.nameDb like :scope")
+        .createQuery("from Stem as ns where (lower(ns.nameDb) like lower(:value) or lower(ns.alternateNameDb) like lower(:value)) and ns.nameDb like :scope")
         .setCacheable(false)
         .setCacheRegion(KLASS + ".FindByApproximateName")
         .setString(  "value" , "%" + val.toLowerCase() + "%" )
@@ -559,7 +559,8 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
       ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
       
       StringBuilder hql = new StringBuilder("from Stem as ns where "
-          + "(   lower(ns.nameDb)            like :name "
+          + "(   lower(ns.nameDb)            like :name  "
+          + " or lower(ns.alternateNameDb)     like :name  "
           + " or lower(ns.displayNameDb)       like :name ) ");
       
       if (!StringUtils.isBlank(scope)) {
@@ -1277,7 +1278,7 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
     // note that i'm not doing this all in one update statement with a subquery due to
     // a mysql bug:  http://bugs.mysql.com/bug.php?id=8139
     
-    Set<String> stemIds = GrouperDAOFactory.getFactory().getGroupSet().findAllOwnerStemsByMemberGroup(groupId);
+    List<String> stemIds = GrouperUtil.listFromCollection(GrouperDAOFactory.getFactory().getGroupSet().findAllOwnerStemsByMemberGroup(groupId));
     if (stemIds.size() == 0) {
       return;
     }
@@ -1310,7 +1311,7 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
             StemNotFoundException {
     try {
       Stem stemDto = HibernateSession.byHqlStatic()
-        .createQuery("from Stem as ns where ns.nameDb = :name")
+        .createQuery("from Stem as ns where ns.nameDb = :name or ns.alternateNameDb = :name")
         .setCacheable(true)
         .setCacheRegion(KLASS + ".FindByName")
         .options(queryOptions)
@@ -1323,6 +1324,68 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
     }
     catch (GrouperDAOException e) {
       String error = "Problem find stem by name: '" 
+        + name + "', " + e.getMessage();
+      throw new GrouperDAOException( error, e );
+    }
+  }
+  
+  /**
+   * @param name
+   * @param exceptionIfNull
+   * @param queryOptions 
+   * @return stem
+   * @throws GrouperDAOException 
+   * @throws StemNotFoundException 
+   */
+  public Stem findByCurrentName(String name, boolean exceptionIfNull, QueryOptions queryOptions) 
+    throws  GrouperDAOException,
+            StemNotFoundException {
+    try {
+      Stem stemDto = HibernateSession.byHqlStatic()
+        .createQuery("from Stem as ns where ns.nameDb = :name")
+        .setCacheable(true)
+        .setCacheRegion(KLASS + ".FindByCurrentName")
+        .options(queryOptions)
+        .setString("name", name)
+        .uniqueResult(Stem.class);
+      if (stemDto == null && exceptionIfNull) {
+        throw new StemNotFoundException("Can't find stem by current name: '" + name + "'");
+      }
+      return stemDto;
+    }
+    catch (GrouperDAOException e) {
+      String error = "Problem find stem by current name: '" 
+        + name + "', " + e.getMessage();
+      throw new GrouperDAOException( error, e );
+    }
+  }
+  
+  /**
+   * @param name
+   * @param exceptionIfNull
+   * @param queryOptions 
+   * @return stem
+   * @throws GrouperDAOException 
+   * @throws StemNotFoundException 
+   */
+  public Stem findByAlternateName(String name, boolean exceptionIfNull, QueryOptions queryOptions) 
+    throws  GrouperDAOException,
+            StemNotFoundException {
+    try {
+      Stem stemDto = HibernateSession.byHqlStatic()
+        .createQuery("from Stem as ns where ns.alternateNameDb = :name")
+        .setCacheable(true)
+        .setCacheRegion(KLASS + ".FindByAlternateName")
+        .options(queryOptions)
+        .setString("name", name)
+        .uniqueResult(Stem.class);
+      if (stemDto == null && exceptionIfNull) {
+        throw new StemNotFoundException("Can't find stem by alternate name: '" + name + "'");
+      }
+      return stemDto;
+    }
+    catch (GrouperDAOException e) {
+      String error = "Problem find stem by alternate name: '" 
         + name + "', " + e.getMessage();
       throw new GrouperDAOException( error, e );
     }
@@ -1436,15 +1499,18 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
     if (names == null) {
       return null;
     }
+    
+    List<String> namesList = GrouperUtil.listFromCollection(names);
+    
     Set<Stem> stems = new LinkedHashSet<Stem>();
     if (GrouperUtil.length(names) == 0) {
       return stems;
     }
     //lets page through these
-    int pages = GrouperUtil.batchNumberOfBatches(names, batchSize);
+    int pages = GrouperUtil.batchNumberOfBatches(namesList, batchSize);
 
     for (int i=0; i<pages; i++) {
-      List<String> namePageList = GrouperUtil.batchList(names, batchSize, i);
+      List<String> namePageList = GrouperUtil.batchList(namesList, batchSize, i);
 
       ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
       StringBuilder query = new StringBuilder("select theStem from Stem as theStem "

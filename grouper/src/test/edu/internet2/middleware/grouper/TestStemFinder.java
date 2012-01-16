@@ -59,6 +59,45 @@ public class TestStemFinder extends GrouperTest {
 
   // Tests
 
+  /**
+   * 
+   */
+  public void testFindByName() {
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    Stem stem = new StemSave(grouperSession).assignName("stem").assignCreateParentStemsIfNotExist(true).save();
+    stem.addAlternateName("alternate");
+    stem.store();
+    
+    assertNotNull(StemFinder.findByName(grouperSession, "stem", false));
+    assertNotNull(StemFinder.findByName(grouperSession, "alternate", false));
+  }
+  
+  /**
+   * 
+   */
+  public void testFindByCurrentName() {
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    Stem stem = new StemSave(grouperSession).assignName("stem").assignCreateParentStemsIfNotExist(true).save();
+    stem.addAlternateName("alternate");
+    stem.store();
+    
+    assertNotNull(StemFinder.findByCurrentName(grouperSession, "stem", false, null));
+    assertNull(StemFinder.findByCurrentName(grouperSession, "alternate", false, null));
+  }
+  
+  /**
+   * 
+   */
+  public void testFindByAlternateName() {
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    Stem stem = new StemSave(grouperSession).assignName("stem").assignCreateParentStemsIfNotExist(true).save();
+    stem.addAlternateName("alternate");
+    stem.store();
+    
+    assertNull(StemFinder.findByAlternateName(grouperSession, "stem", false, null));
+    assertNotNull(StemFinder.findByAlternateName(grouperSession, "alternate", false, null));
+  }
+  
   public void testFindRootStem() {
     LOG.info("testFindRootStem");
     StemHelper.findRootStem(

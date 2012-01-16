@@ -27,6 +27,8 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * Use this class to insert or update a group
+ * e.g.
+ * group = new GroupSave(grouperSession).assignName("test:testGroup").assignCreateParentStemsIfNotExist(true).save();
  */
 public class GroupSave {
   

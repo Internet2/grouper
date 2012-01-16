@@ -23,17 +23,18 @@ public class DbMetadataPoc {
   /**
    * 
    */
-  private static final String DRIVER = GrouperConfig.getHibernateProperty("hibernate.connection.driver_class");
-
-  /**
-   * 
-   */
   private static final String PASS = GrouperConfig.getHibernateProperty("hibernate.connection.password");
 
   /**
    * 
    */
   private static final String URL = GrouperConfig.getHibernateProperty("hibernate.connection.url");
+
+  /**
+   * 
+   */
+  private static final String DRIVER = GrouperDdlUtils.convertUrlToDriverClassIfNeeded(URL, 
+      GrouperConfig.getHibernateProperty("hibernate.connection.driver_class"));
 
   /**
    * 

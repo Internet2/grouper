@@ -1,12 +1,16 @@
 package edu.internet2.middleware.grouper.ws.coresoap;
 
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
+import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouper.ws.GrouperWsConfig;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
 import edu.internet2.middleware.subject.SourceUnavailableException;
 import edu.internet2.middleware.subject.Subject;
@@ -232,6 +236,33 @@ public class WsSubject implements Comparable<WsSubject> {
     
     int attributesLength = GrouperUtil.length(subjectAttributeNames);
 
+    String subjectAttributesForDecorator = GrouperWsConfig.getPropertyString("ws.subject.attributes.for.decorator");
+    Set<String> subjectAttributesForDecoratorSet = null;
+    
+    //see if there are any attributes which need to be sent to the subject customizer
+    if (!StringUtils.isBlank(subjectAttributesForDecorator) && GrouperUtil.length(subjectAttributeNames) > 0) {
+      
+      Set<String> subjectAttributesForDecoratorSetFromConfig = GrouperUtil.splitTrimToSet(subjectAttributesForDecorator, ",");
+      
+      for (String subjectAttributeName : subjectAttributeNames) {
+        
+        if (subjectAttributesForDecoratorSetFromConfig.contains(subjectAttributeName)) {
+          if(subjectAttributesForDecoratorSet == null) {
+            subjectAttributesForDecoratorSet = new LinkedHashSet<String>();
+          }
+          subjectAttributesForDecoratorSet.add(subjectAttributeName);
+        }
+      }
+    }
+    
+    //if there are customizer attributes, then run the customizer
+    if (GrouperUtil.length(subjectAttributesForDecoratorSet) > 0) {
+      
+      Set<Subject> subjects = GrouperUtil.toSet(subject);
+      SubjectFinder.decorateSubjects(GrouperSession.staticGrouperSession(), subjects, subjectAttributesForDecoratorSet);
+      
+    }
+    
     // if getting the subject data (extra queries)
     if (attributesLength > 0) {
 

@@ -6,13 +6,17 @@ package edu.internet2.middleware.grouperClient.util;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.PushbackInputStream;
 import java.io.Reader;
+import java.io.Serializable;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
@@ -53,6 +57,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -8742,5 +8750,405 @@ public class GrouperClientCommonUtils  {
     }
     return propertiesOverrideMap;
   }
+
+  
+  /**
+   * This will execute a command, and split spaces for args (might not be what
+   * you want if you are using quotes)
+   * 
+   * @param command
+   */
+  public static void execCommand(String command) {
+    String[] args = splitTrim(command, " ");
+    execCommand(args);
+  }
+
+  /**
+   * Gobble up a stream from a runtime
+   * @author mchyzer
+   * @param <V> 
+   */
+  private static class StreamGobbler<V> implements Callable<V> {
+    
+    /** stream to read */
+    InputStream inputStream;
+    
+    /** where to put the result */
+    String resultString;
+
+    /** type of the output for logging purposes */
+    String type;
+    
+    /** command to log */
+    String command;
+    /**
+     * construct
+     * @param is
+     * @param theType 
+     * @param theCommand
+     */
+    StreamGobbler(InputStream is, String theType, String theCommand) {
+      this.inputStream = is;
+      this.type = theType;
+      this.command = theCommand;
+    }
+
+    /**
+     * get the string result
+     * @return the result
+     */
+    public String getResultString() {
+      return this.resultString;
+    }
+
+    // @Override
+    public V call() throws Exception {
+      try {
+        
+        StringWriter stringWriter = new StringWriter();
+        copy(this.inputStream, stringWriter);
+        this.resultString = stringWriter.toString();
+
+      } catch (Exception e) {
+
+        LOG.warn("Error saving output of executable: " + (this.resultString)
+            + ", " + this.type + ", " + this.command, e);
+        throw new RuntimeException(e);
+
+      }
+      return null;
+    }
+  }
+  
+  /**
+   * <pre>This will execute a command (with args). In this method, 
+   * if the exit code of the command is not zero, an exception will be thrown.
+   * Example call: execCommand(new String[]{"/bin/bash", "-c", "cd /someFolder; runSomeScript.sh"}, true);
+   * </pre>
+   * @param arguments are the commands
+   * @return the output text of the command.
+   */
+  public static CommandResult execCommand(String[] arguments) {
+    return execCommand(arguments, true);
+  }
+  
+  /**
+   * threadpool
+   */
+  private static ExecutorService executorService = Executors.newCachedThreadPool();
+
+  /**
+   * 
+   * @return executor service
+   */
+  public static ExecutorService retrieveExecutorService() {
+    return executorService;
+  }
+  
+  /**
+   * <pre>This will execute a command (with args). Under normal operation, 
+   * if the exit code of the command is not zero, an exception will be thrown.
+   * If the parameter exceptionOnExitValueNeZero is set to true, the 
+   * results of the call will be returned regardless of the exit status.
+   * Example call: execCommand(new String[]{"/bin/bash", "-c", "cd /someFolder; runSomeScript.sh"}, true);
+   * </pre>
+   * @param arguments are the commands
+   * @param exceptionOnExitValueNeZero if this is set to false, the 
+   * results of the call will be returned regardless of the exit status
+   * @return the output text of the command, and the error and return code if exceptionOnExitValueNeZero is false.
+   */
+  public static CommandResult execCommand(String[] arguments, boolean exceptionOnExitValueNeZero) {
+    Process process = null;
+
+    StringBuilder commandBuilder = new StringBuilder();
+    for (int i = 0; i < arguments.length; i++) {
+      commandBuilder.append(arguments[i]).append(" ");
+    }
+    String command = commandBuilder.toString();
+    if (LOG.isDebugEnabled()) {
+      LOG.debug("Running command: " + command);
+    }
+    StreamGobbler<Object> outputGobbler = null;
+    StreamGobbler<Object> errorGobbler = null;
+    try {
+      process = Runtime.getRuntime().exec(arguments);
+
+      outputGobbler = new StreamGobbler<Object>(process.getInputStream(), ".out", command);
+      errorGobbler = new StreamGobbler<Object>(process.getErrorStream(), ".err", command);
+
+      Future<Object> futureOutput = GrouperClientUtils.retrieveExecutorService().submit(outputGobbler);
+      Future<Object> futureError = GrouperClientUtils.retrieveExecutorService().submit(errorGobbler);
+      
+      try {
+        process.waitFor();
+      } finally {
+        
+        //finish running these threads
+        try {
+          futureOutput.get();
+        } finally {
+          //ignore if cant get
+        }
+        try {
+          futureError.get();
+        } finally {
+          //ignore if cant get
+        }
+      }
+    } catch (Exception e) {
+      LOG.error("Error running command: " + command, e);
+      throw new RuntimeException("Error running command", e);
+    } finally {
+      try {
+        process.destroy();
+      } catch (Exception e) {
+      }
+    }
+    
+    //was not successful???
+    if (process.exitValue() != 0 && exceptionOnExitValueNeZero) {
+      String message = "Process exit status=" + process.exitValue() + ": out: " + 
+        (outputGobbler == null ? null : outputGobbler.getResultString())
+        + ", err: " + (errorGobbler == null ? null : errorGobbler.getResultString());
+      LOG.error(message + ", on command: " + command);
+      throw new RuntimeException(message);
+    }
+
+    int exitValue = process.exitValue();
+    return new CommandResult(outputGobbler.getResultString(), errorGobbler.getResultString(), exitValue);
+  }
+
+  
+  /**
+   * The results of executing a command.
+   */
+  public static class CommandResult{
+    /**
+     * If any error text was generated by the call, it will be set here.
+     */
+    private String errorText;
+    
+    /**
+     * If any output text was generated by the call, it will be set here.
+     */
+    private String outputText;
+    
+    /**
+     * If any exit code was generated by the call, it will be set here.
+     */
+    private int exitCode;
+    
+    
+    /**
+     * Create a container to hold the results of an execution.
+     * @param _errorText
+     * @param _outputText
+     * @param _exitCode
+     */
+    public CommandResult(String _errorText, String _outputText, int _exitCode){
+      this.errorText = _errorText;
+      this.outputText = _outputText;
+      this.exitCode = _exitCode;
+    }
+
+
+    
+    /**
+     * If any error text was generated by the call, it will be set here.
+     * @return the errorText
+     */
+    public String getErrorText() {
+      return this.errorText;
+    }
+
+
+    
+    /**
+     * If any output text was generated by the call, it will be set here.
+     * @return the outputText
+     */
+    public String getOutputText() {
+      return this.outputText;
+    }
+
+
+    
+    /**
+     * If any exit code was generated by the call, it will be set here.
+     * @return the exitCode
+     */
+    public int getExitCode() {
+      return this.exitCode;
+    }
+    
+    
+    
+  }
+
+  /**
+   * serialize an object to a file (create parent dir if necessary)
+   * @param object
+   * @param file
+   */
+  public static void serializeObjectToFile(Serializable object, File file) {
+
+    //delete, make sure parents are there
+    deleteCreateFile(file);
+
+    FileOutputStream fos = null;
+    ObjectOutputStream out = null;
+    try {
+      fos = new FileOutputStream(file);
+      out = new ObjectOutputStream(fos);
+      out.writeObject(object);
+    } catch(IOException ex) {
+      //we had a problem, dont leave the file partway created...
+      closeQuietly(out);
+      out = null;
+      deleteFile(file);
+      throw new RuntimeException("Error writing file: " + absolutePath(file)
+          + ", " + className(object), ex);
+    } finally {
+      closeQuietly(out);
+    }
+    
+  }
+
+  /**
+   * unserialize an object from a file if it exists
+   * @param file
+   * @param nullIfException true if null should be returned instead of exception
+   * @param deleteFileOnException true if file should be deleted on exception
+   * @return the object or null
+   */
+  public static Serializable unserializeObjectFromFile(File file, boolean nullIfException,
+      boolean deleteFileOnException) {
+    
+    if (!file.exists() || file.length() == 0) {
+      return null;
+    }
+    
+    FileInputStream fis = null;
+    ObjectInputStream ois = null;
+    try {
+      fis = new FileInputStream(file);
+      ois = new ObjectInputStream(fis);
+      return (Serializable)ois.readObject();
+    } catch(Exception ex) {
+      String error = "Error writing file: " + absolutePath(file);
+      if (!nullIfException) {
+        throw new RuntimeException(error, ex);
+      }
+      //return null and not an exception
+      LOG.error(ex);
+      //maybe clear the file if problem
+      if (deleteFileOnException) {
+        //close before deleting
+        closeQuietly(ois);
+        ois = null;
+        deleteFile(file);
+      }
+      return null;
+    } finally {
+      closeQuietly(ois);
+    }
+    
+  }
+  
+  /**
+   * delete and create a new file.  If its a directory, delete, and create a new dir.
+   * 
+   * @param file
+   *          is the file to delete and create
+   */
+  public static void deleteCreateFile(File file) {
+
+    deleteFile(file);
+
+    createParentDirectories(file);
+
+    try {
+      if (!file.createNewFile()) {
+        throw new IOException("createNewFile returned false: ");
+      }
+    } catch (IOException ioe) {
+      throw new RuntimeException("Couldnt create new file: " + file.toString(), ioe);
+    }
+
+  }
+
+  /**
+   * Delete a file, throw exception if cannot
+   * @param file
+   */
+  public static void deleteFile(File file) {
+    //delete and create
+    if (file != null && file.exists()) {
+
+      if (file.isDirectory()) {
+        deleteRecursiveDirectory(file.getAbsolutePath());
+      } else if (!file.delete()) {
+        throw new RuntimeException("Couldnt delete file: " + file.toString());
+      }
+    }
+  }
+
+  /**
+   * clear out all files recursively in a directory, including the directory
+   * itself
+   * @param dirName
+   * 
+   * @throws RuntimeException
+   *           when something goes wrong
+   */
+  public static void deleteRecursiveDirectory(String dirName) {
+    //delete all files in the directory
+    File dir = new File(dirName);
+
+    //if it doesnt exist then we are done
+    if (!dir.exists()) {
+      return;
+    }
+
+    //see if its a directory
+    if (!dir.isDirectory()) {
+      throw new RuntimeException("The directory: " + dirName + " is not a directory");
+    }
+
+    //get the files into a vector
+    File[] allFiles = dir.listFiles();
+
+    //loop through the array
+    for (int i = 0; i < allFiles.length; i++) {
+      if (-1 < allFiles[i].getName().indexOf("..")) {
+        continue; //dont go to the parent directory
+      }
+
+      if (allFiles[i].isFile()) {
+        //delete the file
+        if (!allFiles[i].delete()) {
+          throw new RuntimeException("Could not delete file: " + allFiles[i].getPath());
+        }
+      } else {
+        //its a directory
+        deleteRecursiveDirectory(allFiles[i].getPath());
+      }
+    }
+
+    //delete the directory itself
+    if (!dir.delete()) {
+      throw new RuntimeException("Could not delete directory: " + dir.getPath());
+    }
+  }
+
+  /**
+   * absolute path null safe
+   * @param file
+   * @return absolute path null safe
+   */
+  public static String absolutePath(File file) {
+    return file == null ? null : file.getAbsolutePath();
+  }
+
 
 }

@@ -23,6 +23,7 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.ResourceBundle;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
@@ -54,6 +55,7 @@ import edu.internet2.middleware.grouper.ui.UIGroupPrivilegeResolverFactory;
 import edu.internet2.middleware.grouper.ui.UnrecoverableErrorException;
 import edu.internet2.middleware.grouper.ui.util.ProcessSearchTerm;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.subject.SearchPageResult;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.SubjectTooManyResults;
 import edu.internet2.middleware.subject.provider.SourceManager;
@@ -208,6 +210,12 @@ public class SearchNewMembersAction extends GrouperCapableAction {
 			HttpServletRequest request, HttpServletResponse response,
 			HttpSession session, GrouperSession grouperSession)
 			throws Exception {
+	  
+    //put this in the request since it is a common inlucde shared by many pagers
+    ResourceBundle mediaResources = GrouperUiFilter.retrieveSessionMediaResourceBundle();
+    String removeFromSubjectSearch = mediaResources.getString("pager.removeFromSubjectSearch");
+    request.setAttribute("pager_removeFromSubjectSearch", removeFromSubjectSearch);
+    
 		DynaActionForm searchForm = (DynaActionForm)form;
 		saveAsCallerPage(request,searchForm,"findForNode searchObj");
 		String browseMode = getBrowseMode(session);
@@ -304,8 +312,10 @@ public class SearchNewMembersAction extends GrouperCapableAction {
       results = new LinkedHashSet();
       try {
   			if ((query != null) && (!query.equals(""))) {
+  				SearchPageResult searchPageResult = null;
   				if("all".equals(subjectSource)) {
-  					results = SubjectFinder.findPageInStem(stemName, query).getResults();
+  					searchPageResult=SubjectFinder.findPageInStem(stemName, query);
+  					
   				}else{
   					SourceManager sm= SourceManager.getInstance();
   					Source personSourceImpl = sm.getSource(subjectSource);
@@ -313,8 +323,13 @@ public class SearchNewMembersAction extends GrouperCapableAction {
   					ProcessSearchTerm processSearchTerm = new ProcessSearchTerm();
   					String processedSearchTerm = processSearchTerm.processSearchTerm(personSourceImpl, query, request);
   					
-  					results = SubjectFinder.findPage(processedSearchTerm, GrouperUtil.toSet(personSourceImpl)).getResults();
+  					searchPageResult = SubjectFinder.findPage(processedSearchTerm, GrouperUtil.toSet(personSourceImpl));
   				}
+  				results = searchPageResult.getResults();
+  	  			if(searchPageResult.isTooManyResults()) {
+  	  				request.setAttribute("message",new Message("error.too.many.subject.results.for.source",true));
+  	  				request.setAttribute("isTruncatedResults",true);
+  	  			}
   		  }
       } catch (SubjectTooManyResults stmr) {
         session.setAttribute("sessionMessage",new Message("error.too.many.subject.results",true));

@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<AttributeResolver xmlns="urn:mace:shibboleth:2.0:resolver"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:resolver="urn:mace:shibboleth:2.0:resolver"
+  xmlns:grouper="http://grouper.internet2.edu/shibboleth/2.0"
+  xsi:schemaLocation="
+   urn:mace:shibboleth:2.0:resolver classpath:/schema/shibboleth-2.0-attribute-resolver.xsd
+   http://grouper.internet2.edu/shibboleth/2.0 classpath:/schema/shibboleth-2.0-grouper.xsd">
+
+  <resolver:DataConnector id="testAll" xsi:type="grouper:GroupDataConnector">
+    <grouper:Attribute id="admins" />
+    <grouper:Attribute id="optins" />
+    <grouper:Attribute id="optouts" />
+    <grouper:Attribute id="readers" />
+    <grouper:Attribute id="updaters" />
+    <grouper:Attribute id="viewers" />
+    <grouper:Attribute id="members" />
+    <grouper:Attribute id="members:all" />
+    <grouper:Attribute id="members:immediate" />
+    <grouper:Attribute id="members:effective" />
+    <!--  <grouper:Attribute id="members:composite" /> -->
+    <grouper:Attribute id="members:all:customList" />
+    <grouper:Attribute id="members:immediate:customList" />
+    <grouper:Attribute id="members:effective:customList" />
+    <!--   <grouper:Attribute id="members:composite:customList" /> -->
+    <grouper:Attribute id="groups" />
+    <grouper:Attribute id="groups:all" />
+    <grouper:Attribute id="groups:immediate" />
+    <grouper:Attribute id="groups:effective" />
+    <!--  <grouper:Attribute id="groups:composite" /> -->
+    <grouper:Attribute id="groups:all:customList" />
+    <grouper:Attribute id="groups:immediate:customList" />
+    <grouper:Attribute id="groups:effective:customList" />
+    <!-- <grouper:Attribute id="groups:composite:customList" /> -->
+  </resolver:DataConnector>
+
+  <resolver:DataConnector id="testAttributesOnly" xsi:type="grouper:GroupDataConnector" />
+  
+  <resolver:DataConnector id="testAttributesAndAttributeDefs" xsi:type="grouper:GroupDataConnector">
+    <grouper:Attribute id="parentStem:mailAlternateAddress" />
+  </resolver:DataConnector>
+
+  <resolver:DataConnector id="testAttributesAndMembers" xsi:type="grouper:GroupDataConnector">
+    <grouper:Attribute id="members" />
+  </resolver:DataConnector>
+
+  <resolver:DataConnector id="testAttributesAndImmediateMembers" xsi:type="grouper:GroupDataConnector">
+    <grouper:Attribute id="members:immediate" />
+  </resolver:DataConnector>
+
+  <resolver:DataConnector id="testAttributesAndEffectiveMembers" xsi:type="grouper:GroupDataConnector">
+    <grouper:Attribute id="members:effective" />
+  </resolver:DataConnector>
+
+  <resolver:DataConnector id="testAttributesAndAllMembers" xsi:type="grouper:GroupDataConnector">
+    <grouper:Attribute id="members:all" />
+  </resolver:DataConnector>
+
+  <resolver:DataConnector id="testAttributesAndMembersCustomList" xsi:type="grouper:GroupDataConnector">
+    <grouper:Attribute id="members:all:customList" />
+  </resolver:DataConnector>
+
+  <resolver:DataConnector id="testFilterExactAttribute" xsi:type="grouper:GroupDataConnector">
+    <grouper:Filter xsi:type="grouper:GroupExactAttribute" name="name" value="parentStem:groupA" />
+  </resolver:DataConnector>
+
+  <resolver:DataConnector id="testFilterStemNameONE" xsi:type="grouper:GroupDataConnector">
+    <grouper:Filter xsi:type="grouper:GroupInStem" name="parentStem" scope="ONE" />
+  </resolver:DataConnector>
+
+  <resolver:DataConnector id="testFilterStemNameSUB" xsi:type="grouper:GroupDataConnector">
+    <grouper:Filter xsi:type="grouper:GroupInStem" name="parentStem" scope="SUB" />
+  </resolver:DataConnector>
+
+  <resolver:DataConnector id="testFilterAnd" xsi:type="grouper:GroupDataConnector">
+    <grouper:Filter xsi:type="grouper:AND">
+      <grouper:Filter xsi:type="grouper:GroupExactAttribute" name="name" value="parentStem:groupB" />
+      <grouper:Filter xsi:type="grouper:GroupInStem" name="parentStem" scope="ONE" />
+    </grouper:Filter>
+  </resolver:DataConnector>
+
+  <resolver:DataConnector id="testFilterOr" xsi:type="grouper:GroupDataConnector">
+    <grouper:Filter xsi:type="grouper:OR">
+      <grouper:Filter xsi:type="grouper:GroupExactAttribute" name="name" value="parentStem:groupB" />
+      <grouper:Filter xsi:type="grouper:GroupInStem" name="parentStem:childStem" scope="ONE" />
+    </grouper:Filter>
+  </resolver:DataConnector>
+  
+  <resolver:DataConnector id="testFilterMinus" xsi:type="grouper:GroupDataConnector">
+    <grouper:Filter xsi:type="grouper:MINUS">
+      <grouper:Filter xsi:type="grouper:GroupInStem" name="parentStem" scope="ONE" />
+      <grouper:Filter xsi:type="grouper:GroupExactAttribute" name="name" value="parentStem:groupB" />      
+    </grouper:Filter>
+  </resolver:DataConnector>
+  
+  <resolver:DataConnector id="testFilterMinusAttributeNotFound" xsi:type="grouper:GroupDataConnector">
+    <grouper:Filter xsi:type="grouper:MINUS">
+      <grouper:Filter xsi:type="grouper:GroupInStem" name="parentStem" scope="ONE" />
+      <grouper:Filter xsi:type="grouper:GroupExactAttribute" name="notFound" value="notFound" />      
+    </grouper:Filter>
+  </resolver:DataConnector>
+
+  <resolver:AttributeDefinition id="testSubjectAttributeDefinitionHasViewer" xsi:type="grouper:Subject" sourceAttributeID="viewers">
+    <resolver:Dependency ref="testAll" />
+    <grouper:Attribute id="name" source="jdbc" />
+  </resolver:AttributeDefinition>
+  
+  <resolver:AttributeDefinition id="testGroupAttributeDefinition" xsi:type="grouper:Group" sourceAttributeID="groups">
+    <resolver:Dependency ref="testAll" />
+    <grouper:Attribute id="name" />
+  </resolver:AttributeDefinition>
+
+  <resolver:AttributeDefinition id="testMemberAttributeDefinition" xsi:type="grouper:Member" sourceAttributeID="members">
+    <resolver:Dependency ref="testAll" />
+    <grouper:Attribute id="id" source="jdbc" />
+    <grouper:Attribute id="name" source="g:gsa" />
+  </resolver:AttributeDefinition>
+
+  <resolver:AttributeDefinition id="testMemberAttributeDefinitionJDBC" xsi:type="grouper:Member" sourceAttributeID="members">
+    <resolver:Dependency ref="testAll" />
+    <grouper:Attribute id="id" source="jdbc" />
+  </resolver:AttributeDefinition>
+  
+</AttributeResolver>

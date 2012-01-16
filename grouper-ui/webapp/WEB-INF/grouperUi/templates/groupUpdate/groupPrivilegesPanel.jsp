@@ -94,7 +94,9 @@
               <c:if test="${groupUpdateRequestContainer.showPrivilegeHeader[row]}">
                 <tr>
                   <c:forTokens var="privilegeName" items="admin read update optin optout view" delims=" ">
-                    <th class="privilegeHeader"><grouper:message key="priv.${privilegeName}" /></grou></th>
+                    <c:if test="${groupUpdateRequestContainer.groupToEdit.typeOfGroupDb != 'entity' || privilegeName == 'admin' || privilegeName == 'view'}" >
+                      <th class="privilegeHeader"><grouper:message key="priv.${privilegeName}" /></grou></th>
+                    </c:if>
                   </c:forTokens>
                   <th class="privilegeHeader" style="text-align: left">
                     &nbsp; &nbsp; <grouper:message key="simpleGroupUpdate.entityHeader" /> 
@@ -103,34 +105,38 @@
               </c:if>
               <tr  ${row % 2 == 1 ? 'class="alternate"' : ''}>
                 <c:forTokens var="privilegeName" items="admin read update optin optout view" delims=" ">
-                  <c:set var="privilegeAssignType" value="${privilegeSubjectContainer.privilegeContainers[privilegeName].privilegeAssignType}" />
-                  <td class="privilegeRow">
-                    <%-- keep the previous state so we know what the user changed --%>
-                    <input  name="previousState__${guiMember.member.uuid}__${privilegeName}"
-                      type="hidden" value="${privilegeAssignType.immediate ? 'true' : 'false'}" />
-                    <%-- note, too much space between elements, move it over 3px --%>
-                    <input  style="margin-right: -3px" name="privilegeCheckbox__${guiMember.member.uuid}__${privilegeName}" value="true"
-                      type="checkbox" ${privilegeAssignType.immediate ? 'checked="checked"' : '' } 
-                    /><c:set var="confirmNavName" value="simpleGroupUpdate.privilegeImageConfirm${privilegeAssignType.immediate ? 'Deny' : 'Allow'}" /><a href="#" 
-                    onclick="if (confirm('${grouper:message(confirmNavName, true, true) }')) {ajax('../app/SimpleGroupUpdate.privilegePanelImageClick?memberId=${guiMember.member.uuid}&privilegeName=${privilegeName}&allow=${privilegeAssignType.immediate ? 'false' : 'true'}', {formIds: 'groupPrivilegesSubjectFormId'});} return false;"
-                    ><c:choose>
-                      <c:when test="${privilegeAssignType != null}"
+                
+                  <c:if test="${groupUpdateRequestContainer.groupToEdit.typeOfGroupDb != 'entity' || privilegeName == 'admin' || privilegeName == 'view'}" >
+                  
+                    <c:set var="privilegeAssignType" value="${privilegeSubjectContainer.privilegeContainers[privilegeName].privilegeAssignType}" />
+                    <td class="privilegeRow">
+                      <%-- keep the previous state so we know what the user changed --%>
+                      <input  name="previousState__${guiMember.member.uuid}__${privilegeName}"
+                        type="hidden" value="${privilegeAssignType.immediate ? 'true' : 'false'}" />
+                      <%-- note, too much space between elements, move it over 3px --%>
+                      <input  style="margin-right: -3px" name="privilegeCheckbox__${guiMember.member.uuid}__${privilegeName}" value="true"
+                        type="checkbox" ${privilegeAssignType.immediate ? 'checked="checked"' : '' } 
+                      /><c:set var="confirmNavName" value="simpleGroupUpdate.privilegeImageConfirm${privilegeAssignType.immediate ? 'Deny' : 'Allow'}" /><a href="#" 
+                      onclick="if (confirm('${grouper:message(confirmNavName, true, true) }')) {ajax('../app/SimpleGroupUpdate.privilegePanelImageClick?memberId=${guiMember.member.uuid}&privilegeName=${privilegeName}&allow=${privilegeAssignType.immediate ? 'false' : 'true'}', {formIds: 'groupPrivilegesSubjectFormId'});} return false;"
                       ><c:choose>
-                        <c:when test="${privilegeAssignType.name == 'IMMEDIATE'}"
-                          ><c:set var="tooltipName" value="simpleGroupUpdate.immediateTooltip" /></c:when
-                          ><c:when test="${privilegeAssignType.name == 'EFFECTIVE'}"
-                          ><c:set var="tooltipName" value="simpleGroupUpdate.effectiveTooltip" /></c:when
-                          ><c:otherwise><c:set var="tooltipName" value="simpleGroupUpdate.immediateAndEffectiveTooltip" /></c:otherwise></c:choose
-                          ><img src="../../grouperExternal/public/assets/images/accept.png" height="14px" border="0" 
-                        onmouseover="Tip('${grouper:escapeJavascript(navMap[tooltipName])}')" 
-                        onmouseout="UnTip()"
-                      /></c:when>
-                      <c:otherwise><img src="../../grouperExternal/public/assets/images/cancel.png" height="14px" border="0" 
-                        onmouseover="Tip('${grouper:escapeJavascript(navMap['simpleGroupUpdate.unassignedTooltip'])}')" 
-                        onmouseout="UnTip()"
-                      /></c:otherwise>
-                    </c:choose></a>
-                  </td>
+                        <c:when test="${privilegeAssignType != null}"
+                        ><c:choose>
+                          <c:when test="${privilegeAssignType.name == 'IMMEDIATE'}"
+                            ><c:set var="tooltipName" value="simpleGroupUpdate.immediateTooltip" /></c:when
+                            ><c:when test="${privilegeAssignType.name == 'EFFECTIVE'}"
+                            ><c:set var="tooltipName" value="simpleGroupUpdate.effectiveTooltip" /></c:when
+                            ><c:otherwise><c:set var="tooltipName" value="simpleGroupUpdate.immediateAndEffectiveTooltip" /></c:otherwise></c:choose
+                            ><img src="../../grouperExternal/public/assets/images/accept.png" height="14px" border="0" 
+                          onmouseover="Tip('${grouper:escapeJavascript(navMap[tooltipName])}')" 
+                          onmouseout="UnTip()"
+                        /></c:when>
+                        <c:otherwise><img src="../../grouperExternal/public/assets/images/cancel.png" height="14px" border="0" 
+                          onmouseover="Tip('${grouper:escapeJavascript(navMap['simpleGroupUpdate.unassignedTooltip'])}')" 
+                          onmouseout="UnTip()"
+                        /></c:otherwise>
+                      </c:choose></a>
+                    </td>
+                  </c:if>
                 </c:forTokens>
                 <td width="1000">
                   <%-- show an icon for the subject --%>

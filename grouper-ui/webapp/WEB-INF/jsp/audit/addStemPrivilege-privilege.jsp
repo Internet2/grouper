@@ -17,7 +17,7 @@
 	<c:set target="${linkParams}" property="subjectId" value="${subject.id}"/>
 	<c:set target="${linkParams}" property="subjectType" value="${subject.subjectType}"/>
 	<c:set target="${linkParams}" property="sourceId" value="${subject.sourceId}"/>
-    <c:set var="linkTitle"><grouper:message key="audit.result.label.subject"/></c:set>
+    <c:set var="linkTitle"><grouper:message key="audit.result.label.subject" tooltipDisable="true"/></c:set>
     <tiles:insert definition="dynamicTileDef" flush="false">
 		  <tiles:put name="viewObject" beanName="subject"/>
 		  <tiles:put name="view" value="subjectSummaryLink"/>

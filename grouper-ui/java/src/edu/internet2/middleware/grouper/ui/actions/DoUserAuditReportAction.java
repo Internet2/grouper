@@ -350,6 +350,7 @@ public class DoUserAuditReportAction extends GrouperCapableAction {
         	startDate = cal.getTime();
         	auditForm.set("date1", sdf.format(startDate));
         	auditForm.set("dateQualifier","after"); 
+        	dateQualifier="after";
         	
         }
         
@@ -424,6 +425,9 @@ public class DoUserAuditReportAction extends GrouperCapableAction {
 	      startStr = "0";
 
 	    int start = Integer.parseInt(startStr);
+	    if(start <0) {
+	    	start=0;
+	    }
 	    
 	    int pageSize = getPageSize(session);
 	    

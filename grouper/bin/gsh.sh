@@ -83,7 +83,7 @@ if [ "$MEM_START" = "" ];then
 fi
 
 if [ "$MEM_MAX" = "" ]; then
- MEM_MAX=512m
+ MEM_MAX=750m
 fi
 
 if [ "$GROUPER_CONF" = "" ]; then

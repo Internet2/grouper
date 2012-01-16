@@ -2785,10 +2785,11 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
   
     int maxAssignments = GrouperConfig.getPropertyInt("ws.findAttrAssignments.maxResultSize", 30000);
     
+    List<AttributeAssign> attributeAssignsList = GrouperUtil.listFromCollection(attributeAssigns);
   
     for (int i=0;i<numberOfBatches; i++) {
       
-      List<AttributeAssign> currentBatch = GrouperUtil.batchList(attributeAssigns, 100, i);
+      List<AttributeAssign> currentBatch = GrouperUtil.batchList(attributeAssignsList, 100, i);
       
       int currentBatchSize = GrouperUtil.length(currentBatch);
       

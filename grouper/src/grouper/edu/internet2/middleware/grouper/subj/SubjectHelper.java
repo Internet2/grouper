@@ -31,9 +31,9 @@ import org.apache.commons.lang.StringUtils;
 
 import edu.emory.mathcs.backport.java.util.Collections;
 import edu.internet2.middleware.grouper.Member;
-import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.internal.util.Quote;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.provider.SubjectImpl;
 
@@ -47,6 +47,32 @@ public class SubjectHelper {
 
   /** */
   private static final String SUBJECT_DELIM = "/";
+
+  /**
+   * convert sources to id's comma separated
+   * @param sources
+   * @return the string or null if none
+   */
+  public static String sourcesToIdsString(Collection<Source> sources) {
+    if (GrouperUtil.length(sources) == 0) {
+      return null;
+    }
+    
+    StringBuilder result = new StringBuilder();
+    
+    int index = 0;
+    
+    for (Source source : sources) {
+      
+      if (index > 0) {
+        result.append(",");
+      }
+      
+      result.append(source.getId());
+      index++;
+    }
+    return result.toString();
+  }
 
   /**
    * if keeping the subjects in a map where the subject is the key, this
@@ -338,6 +364,28 @@ public class SubjectHelper {
   } 
 
   /**
+   * @param a 
+   * @param b 
+   * @return  True if both objects are <code>Source</code>s and equal.
+   * @since   2.0.2
+   */
+  public static boolean eqSource(Object a, Object b) {
+    if (a==b) {
+      return true;
+    }
+    if ( (a == null) || (b == null) ) {
+      return false;
+    }
+    if ( !(a instanceof Source) ) {
+      return false;
+    }
+    if ( !(b instanceof Source) ) {
+      return false;
+    }
+    return StringUtils.equals(((Source)a).getId(), ((Source)b).getId());
+  } 
+
+  /**
    * 
    * @param _m
    * @return string
@@ -450,12 +498,51 @@ public class SubjectHelper {
    * @return true if in list
    */
   public static boolean inList(Collection<Subject> collection, String sourceId, String subjectId) {
+    Subject subject = findInList(collection, sourceId, subjectId, false);
+    return subject != null;
+  }
+  
+  /**
+   * see if a subject is in a list, if so return it
+   * @param collection
+   * @param sourceId 
+   * @param subjectId 
+   * @param exceptionIfNotFound true if an exception should be thrown if not found
+   * @return subject or null if not found or exception
+   */
+  public static Subject findInList(Collection<Subject> collection, String sourceId, String subjectId, boolean exceptionIfNotFound) {
+    
+    Subject subject = null;
+    
+    if (collection != null) {
+      for (Subject current : collection) {
+        if (StringUtils.equals(current.getSourceId(), sourceId)
+            && StringUtils.equals(current.getId(), subjectId)) {
+          subject = current;
+          break;
+        }
+      }
+    }
+    
+    if (subject != null || !exceptionIfNotFound) {
+      return subject;
+    }
+    
+    throw new RuntimeException("Cant find subject in list: '" + sourceId + "', '" + subjectId + "', list size: " + GrouperUtil.length(collection) );
+  }
+
+  /**
+   * see if a source is in a list
+   * @param collection
+   * @param source
+   * @return true if in list
+   */
+  public static boolean inSourceList(Collection<Source> collection, Source source) {
     if (collection == null) {
       return false;
     }
-    for (Subject current : collection) {
-      if (StringUtils.equals(current.getSourceId(), sourceId)
-          && StringUtils.equals(current.getId(), subjectId)) {
+    for (Source current : collection) {
+      if (eqSource(current, source)) {
         return true;
       }
     }

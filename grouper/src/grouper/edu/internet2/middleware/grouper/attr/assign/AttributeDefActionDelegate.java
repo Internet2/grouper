@@ -110,8 +110,16 @@ public class AttributeDefActionDelegate {
       }
     }
     if (exceptionWhenNotFound) {
-      throw new AttributeAssignActionNotFoundException("Cant find action: '" + action 
-          + "' in attributeDef: " + this.attributeDef.getName());
+      StringBuilder error = new StringBuilder("Cant find action: '" + action 
+          + "' in attributeDef: " + this.attributeDef.getName() + ".  ");
+      if (StringUtils.equals("assign", action)) {
+        error.append("Note: 'assign' is the default action if not specified.  ");
+      }
+      error.append("Available actions: ");
+      for (AttributeAssignAction attributeAssignAction : actions) {
+        error.append(attributeAssignAction.getName()).append(", ");
+      }
+      throw new AttributeAssignActionNotFoundException(error.toString());
     }
     return null;
   }

@@ -6,9 +6,9 @@ package edu.internet2.middleware.grouper.grouperUi.serviceLogic;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.MissingResourceException;
@@ -24,10 +24,10 @@ import org.apache.commons.collections.keyvalue.MultiKey;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 
-import edu.emory.mathcs.backport.java.util.Collections;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
@@ -38,12 +38,17 @@ import edu.internet2.middleware.grouper.grouperUi.beans.subjectPicker.PickerResu
 import edu.internet2.middleware.grouper.grouperUi.beans.subjectPicker.SubjectPickerConfigNotFoundException;
 import edu.internet2.middleware.grouper.grouperUi.beans.subjectPicker.SubjectPickerContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.subjectPicker.SubjectPickerJavascriptBean;
+import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
+import edu.internet2.middleware.grouper.member.SearchStringEnum;
+import edu.internet2.middleware.grouper.member.SortStringEnum;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.tags.TagUtils;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.subject.SearchPageResult;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectTooManyResults;
@@ -51,7 +56,26 @@ import edu.internet2.middleware.subject.provider.SourceManager;
 
 
 /**
+ * <pre>
+ * http://localhost:8088/grouper/grouperUi/appHtml/grouper.html?operation=SubjectPicker.index&subjectPickerName=kimSupervisorPicker&subjectPickerElementName=supervisorPennId
+ * 
+ * conf/subjectPicker/kimSupervisorPicker.properties
+ * 
+ * 
+ * resultsMustBeInGroup = penn:community:employeeIncludingUphs
+ *
+ * # put a URL here where the result (subjectId, sourceId, name, description) will be submitted back
+ * # blank if same domain and just call opener directly
+ * submitResultToUrl = @kualiRiceUrl@/penn/grouperSubjectPicker.html
+ * 
+ * nav.properties:
+ * subjectPicker.kimSupervisorPicker.title = Find your supervisor
+ * subjectPicker.kimSupervisorPicker.header = Find your supervisor
+ * subjectPicker.kimSupervisorPicker.searchSectionTitle = Enter search term (e.g. name, PennKey, etc)
+
+ * 
  * logic for subject picker module
+ * </pre>
  */
 public class SubjectPicker {
 
@@ -293,59 +317,108 @@ public class SubjectPicker {
       String searchInSourceIdsString = subjectPickerContainer.configValue("searchInSourceIds");
       
       boolean restrictingSourcesBoolean = !StringUtils.isBlank(searchInSourceIdsString);
-      boolean tooManyResults = false;
       
       Set<Source> sourcesToSearchInSourceSet = null;
-      try {
+      boolean tooManyResults = false;
+
+      //if filtering by group, do that here
+      final String groupFilterName = subjectPickerContainer.configValue("resultsMustBeInGroup");
+      
+      if (StringUtils.isBlank(groupFilterName)) {
+        try {
+          
+          //if clamping down on sources in config
+          if (restrictingSourcesBoolean) {
+            sourcesToSearchInSourceSet = GrouperUtil.convertSources(searchInSourceIdsString);
+            SearchPageResult findPageResult = SubjectFinder.findPage(searchField, sourcesToSearchInSourceSet);
+            subjects = findPageResult.getResults();
+            tooManyResults = findPageResult.isTooManyResults();
+          } else {
+            sourcesToSearchInSourceSet = new HashSet<Source>(SourceManager.getInstance().getSources());
+            SearchPageResult findPageResult = SubjectFinder.findPage(searchField);
+            subjects = findPageResult.getResults();
+            tooManyResults = findPageResult.isTooManyResults();
+          }
+          
+        } catch (SubjectTooManyResults stmr) {
+          tooManyResults = true;
+        }
+      } else {
         
-        //if clamping down on sources in config
-        if (restrictingSourcesBoolean) {
-          sourcesToSearchInSourceSet = GrouperUtil.convertSources(searchInSourceIdsString);
-          subjects = SubjectFinder.findPage(searchField, sourcesToSearchInSourceSet).getResults();
-        } else {
-          sourcesToSearchInSourceSet = new HashSet<Source>(SourceManager.getInstance().getSources());
-          subjects = SubjectFinder.findPage(searchField).getResults();
+        Subject actAsSubject = null;
+        
+        String actAsSourceId = subjectPickerContainer.configValue("actAsSourceId");
+        String actAsSubjectId = subjectPickerContainer.configValue("actAsSubjectId");
+        
+        if (!StringUtils.isBlank(actAsSubjectId)) {
+          
+          if (!StringUtils.isBlank(actAsSourceId)) {
+            
+            Source source = SourceManager.getInstance().getSource(actAsSourceId);
+            actAsSubject = source.getSubject(actAsSubjectId, true);
+            
+          } else {
+            actAsSubject = SubjectFinder.findById(actAsSubjectId, true);
+          }
+          
+        }
+       
+        if (actAsSubject == null) {
+          actAsSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
         }
         
-      } catch (SubjectTooManyResults stmr) {
-        tooManyResults = true;
-      }
-  
-      //add in the ids and identifiers if not there already
-      if (subjects == null) {
-        subjects = new LinkedHashSet<Subject>();
-      }
-  
+        //get the group as system
+        Group group = (Group)GrouperSession.callbackGrouperSession(grouperSession.internal_getRootSession(), new GrouperSessionHandler() {
+          
+          @Override
+          public Object callback(GrouperSession grouperSession2) throws GrouperSessionException {
+            return GroupFinder.findByName(grouperSession2, groupFilterName, true);
+          }
+        });
+        
+        //get group, and get id
+        QueryOptions queryOptions = new QueryOptions();
+        int pageSize = 200;
+        queryOptions.paging(pageSize, 1, false);
+        
+        Set<Member> members = GrouperDAOFactory.getFactory().getMembership().findAllMembersByOwnerAndFieldAndType(
+            group.getId(), Group.getDefaultList(), null, null, queryOptions, true, 
+            SortStringEnum.getDefaultSortString(), SearchStringEnum.SEARCH_STRING_0, searchField);
+        
+        //load all subjects in few queries
+        Member.resolveSubjects(members, false);
+        
+        subjects = new HashSet<Subject>();
+        for (Member member : members) {
+          subjects.add(member.getSubject());
+        }
+        
+        tooManyResults = members.size() == pageSize;
+      }  
+      
       //see if any match subjectIdentifier, this is the set of all subject identifier matches
       Set<Subject> idOrIdentifierSubjects = new HashSet<Subject>();
-      for (Source source : sourcesToSearchInSourceSet) {
-        Subject subject = source.getSubjectByIdOrIdentifier(searchField, false);
+      if (GrouperUtil.length(sourcesToSearchInSourceSet) > 0) {
+        for (Source source : sourcesToSearchInSourceSet) {
+          Subject subject = SubjectFinder.findByIdOrIdentifierAndSource(searchField, source.getId(), false);
+          if (subject != null) {
+            idOrIdentifierSubjects.add(subject);
+          }
+        }
+      } else {
+        Subject subject = SubjectFinder.findByIdOrIdentifier(searchField, false);
         if (subject != null) {
           idOrIdentifierSubjects.add(subject);
         }
       }
+        
       
-      //lets add the ids or identifiers to the front
-      if (idOrIdentifierSubjects.size() > 0) {
-        Set<Subject> newSet = new LinkedHashSet<Subject>();
-        newSet.addAll(idOrIdentifierSubjects);
-        for (Subject subject : GrouperUtil.nonNull(subjects)) {
-          if (!SubjectHelper.inList(idOrIdentifierSubjects, subject)) {
-            newSet.add(subject);
-          }
-        }
-        subjects = newSet;
-      }
-          
       int maxResults = subjectPickerContainer.configValueInt("maxSubjectsResultsBeforeGroupSearch");
       
       if (maxResults < GrouperUtil.length(subjects)) {
         tooManyResults = true;
         subjects = GrouperUtil.setShorten(subjects, maxResults);
       }
-      
-      //if filtering by group, do that here
-      subjects = filterByGroupHelper(subjects);
       
       if (GrouperUtil.length(subjects) == 0) {
         
@@ -370,6 +443,8 @@ public class SubjectPicker {
         guiResponseJs.addAction(GuiScreenAction.newInnerHtml("#searchResultsDiv", ""));
         //dont return, show what we got
       }
+      
+      subjects = SubjectHelper.sortSetForSearch(subjects, searchField);
       
       List<PickerResultSubject> pickerResultSubjectList = new ArrayList<PickerResultSubject>();
       for (Subject subject : subjects) {
@@ -433,60 +508,6 @@ public class SubjectPicker {
     }
   }
 
-  /**
-   * if there is a filter by group on the subject results, do that here
-   * @param subjects are the results against the subject source(s)
-   * @return the subjects
-   */
-  @SuppressWarnings("unchecked")
-  private static Set<Subject> filterByGroupHelper(Set<Subject> subjects) {
-
-    SubjectPickerContainer subjectPickerContainer = SubjectPickerContainer.retrieveFromRequest();
-    final String groupFilterName = subjectPickerContainer.configValue("resultsMustBeInGroup");
-    
-    if (!StringUtils.isBlank(groupFilterName) && GrouperUtil.length(subjects) > 0) {
-      
-      Subject actAsSubject = null;
-      
-      String actAsSourceId = subjectPickerContainer.configValue("actAsSourceId");
-      String actAsSubjectId = subjectPickerContainer.configValue("actAsSubjectId");
-      
-      if (!StringUtils.isBlank(actAsSubjectId)) {
-        
-        if (!StringUtils.isBlank(actAsSourceId)) {
-          
-          Source source = SourceManager.getInstance().getSource(actAsSourceId);
-          actAsSubject = source.getSubject(actAsSubjectId, true);
-          
-        } else {
-          actAsSubject = SubjectFinder.findById(actAsSubjectId, true);
-        }
-        
-      }
-     
-      if (actAsSubject == null) {
-        actAsSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
-      }
-      
-      GrouperSession grouperSession = GrouperSession.start(actAsSubject, false);
-      final Set<Subject> SUBJECTS = subjects;
-      subjects = (Set<Subject>)GrouperSession.callbackGrouperSession(grouperSession, new GrouperSessionHandler() {
-        
-        /**
-         * 
-         */
-        @Override
-        public Object callback(GrouperSession grouperSession2) throws GrouperSessionException {
-          
-          Group groupFilter = GroupFinder.findByName(grouperSession2, groupFilterName, true);
-          
-          return SubjectFinder.findBySubjectsInGroup(grouperSession2, SUBJECTS, groupFilter, Group.getDefaultList(), null);
-        }
-      });
-    }    
-    return subjects;
-  }
-  
   /**
    * 
    * @param subject

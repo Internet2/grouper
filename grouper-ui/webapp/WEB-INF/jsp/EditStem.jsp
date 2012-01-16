@@ -31,6 +31,12 @@
 			<html:text property="stemName" size="50" maxlength="50" styleId="stemName"/>
     	</td>
 	</tr>
+        <c:if test="${!isNewStem}">
+          <tr class="formTableRow">
+            <td class="formTableLeft"><label for="stemAlternateName"><grouper:message key="stems.edit.alternateName" /></label></td>
+            <td class="formTableRight"><html:text property="stemAlternateName" size="50" maxlength="255" styleId="stemAlternateName" /></td>
+          </tr>
+        </c:if>
 	<tr class="formTableRow">
 		<td class="formTableLeft">
 			<label for="stemDescriptionName"><grouper:message key="stems.edit.description" /></label>
@@ -39,7 +45,6 @@
 			<html:text property="stemDescription" size="50" maxlength="100" styleId="stemDescription"/> 
 		</td>
 	</tr>
-	
 </fieldset>
 </table>
 

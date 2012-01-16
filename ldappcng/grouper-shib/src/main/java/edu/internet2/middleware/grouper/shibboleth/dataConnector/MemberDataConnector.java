@@ -20,7 +20,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeSet;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,7 +48,7 @@ import edu.internet2.middleware.shibboleth.common.attribute.resolver.provider.da
 import edu.internet2.middleware.subject.Subject;
 
 /** A {@link DataConnector} which returns {@link Member} attributes. */
-public class MemberDataConnector extends BaseGrouperDataConnector<Member> implements SourceDataConnector {
+public class MemberDataConnector extends BaseGrouperDataConnector<Member> {
 
   /** The logger. */
   private static final Logger LOG = LoggerFactory.getLogger(MemberDataConnector.class);
@@ -69,7 +68,7 @@ public class MemberDataConnector extends BaseGrouperDataConnector<Member> implem
             LOG.trace("Member data connector '{}' - Resolve principal '{}' requested attributes {}", new Object[] {
                 getId(), principalName, resolutionContext.getAttributeRequestContext().getRequestedAttributesIds() });
 
-            if (principalName.startsWith(ChangeLogDataConnector.PRINCIPAL_NAME_PREFIX)) {
+            if (principalName.startsWith(CHANGELOG_PRINCIPAL_NAME_PREFIX)) {
               LOG.debug("Group data connector '{}' - Ignoring principal name '{}'", getId(), principalName);
               return Collections.EMPTY_MAP;
             }
@@ -159,7 +158,7 @@ public class MemberDataConnector extends BaseGrouperDataConnector<Member> implem
     BasicAttribute<String> id = new BasicAttribute<String>("id");
     id.setValues(Arrays.asList(new String[] { subject.getId() }));
     attributes.put(id.getId(), id);
-    
+
     // defined subject attributes
     for (AttributeIdentifier attributeIdentifier : getAttributeIdentifiers()) {
       Set<String> values = SubjectAttributeDefinition.getValues(subject, attributeIdentifier.getId());
@@ -194,8 +193,8 @@ public class MemberDataConnector extends BaseGrouperDataConnector<Member> implem
         basicAttribute.setValues(values);
         attributes.put(attributeDefName, basicAttribute);
       }
-    }    
-    
+    }
+
     return attributes;
   }
 
@@ -222,34 +221,4 @@ public class MemberDataConnector extends BaseGrouperDataConnector<Member> implem
 
     return false;
   }
-
-  /** {@inheritDoc} */
-  public Set<String> getAllIdentifiers() {
-    Set<String> identifiers = (Set<String>) GrouperSession.callbackGrouperSession(getGrouperSession(),
-        new GrouperSessionHandler() {
-
-          public Set<String> callback(GrouperSession grouperSession) throws GrouperSessionException {
-            LOG.debug("Member data connector '{}' - Get all identifiers", getId());
-            Set<Member> members = new TreeSet<Member>();
-            Filter<Member> filter = getFilter();
-            if (filter == null) {
-              members.addAll(MemberFinder.findAll(grouperSession));
-            } else {
-              members.addAll(getFilter().getResults(grouperSession));
-            }
-
-            Set<String> identifiers = new TreeSet<String>();
-            for (Member member : members) {
-              if (!isInternal(member.getSubject())) {
-                identifiers.add(member.getSubjectId());
-              }
-            }
-            LOG.debug("Member data connector '{}' - Get all identifiers found {}.", getId(), identifiers.size());
-            return identifiers;
-          }
-        });
-
-    return identifiers;
-  }
-
 }

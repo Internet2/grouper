@@ -251,5 +251,14 @@ public class NamingPrivilege implements GrouperPrivilege, Comparable {
     return this.contextId;
   }
 
+  /**
+   * @see GrouperPrivilege#internalSetSubject(Subject)
+   */
+  public void internalSetSubject(Subject subject) {
+    this.subj = subject;
+  }
+  
+  
+
 }
 

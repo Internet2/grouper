@@ -340,6 +340,13 @@ public class AccessPrivilege implements GrouperPrivilege, Comparable {
   }
   
   /**
+   * @see GrouperPrivilege#internalSetSubject(Subject)
+   */
+  public void internalSetSubject(Subject subject) {
+    this.subj = subject;
+  }
+
+  /**
    * Get all privilege names.
    * 
    * @return the set of privilege names

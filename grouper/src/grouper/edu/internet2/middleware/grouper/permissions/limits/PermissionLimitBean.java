@@ -236,11 +236,12 @@ public class PermissionLimitBean {
           
           //find assignments on role
           {
-            int numberOfBatches = GrouperUtil.batchNumberOfBatches(GrouperUtil.length(roleIds), 100);
+            List<String> roleIdsList = GrouperUtil.listFromCollection(roleIds);
+            int numberOfBatches = GrouperUtil.batchNumberOfBatches(GrouperUtil.length(roleIdsList), 100);
             Set<AttributeAssign> roleAssigns = new HashSet<AttributeAssign>();
             for (int i=0;i<numberOfBatches; i++) {
               
-              List<String> currentBatch = GrouperUtil.batchList(roleIds, 100, i);
+              List<String> currentBatch = GrouperUtil.batchList(roleIdsList, 100, i);
               Set<AttributeAssign> currentAttributeAssignSet = GrouperUtil.nonNull(GrouperDAOFactory.getFactory().getAttributeAssign().findGroupAttributeAssignments(null, null, null, currentBatch, null, true, false, AttributeDefType.limit));
               roleAssigns.addAll(GrouperUtil.nonNull(currentAttributeAssignSet));
             }
@@ -258,11 +259,12 @@ public class PermissionLimitBean {
           
           //find assignments on role/member (any membership)
           {
-            int numberOfBatches = GrouperUtil.batchNumberOfBatches(GrouperUtil.length(roleMemberIds), 50);
+            List<MultiKey> roleMemberIdsList = GrouperUtil.listFromCollection(roleMemberIds);
+            int numberOfBatches = GrouperUtil.batchNumberOfBatches(GrouperUtil.length(roleMemberIdsList), 50);
             Set<AttributeAssign> roleMemberAssigns = new HashSet<AttributeAssign>();
             for (int i=0;i<numberOfBatches; i++) {
               
-              List<MultiKey> currentBatch = GrouperUtil.batchList(roleMemberIds,50, i);
+              List<MultiKey> currentBatch = GrouperUtil.batchList(roleMemberIdsList,50, i);
               Set<AttributeAssign> currentAttributeAssignSet = GrouperUtil.nonNull(GrouperDAOFactory.getFactory().getAttributeAssign().findAnyMembershipAttributeAssignments(null, null, null, currentBatch, null, true, false, AttributeDefType.limit));
               roleMemberAssigns.addAll(GrouperUtil.nonNull(currentAttributeAssignSet));
             }

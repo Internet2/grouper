@@ -16,9 +16,14 @@
 */
 
 package edu.internet2.middleware.grouper.privs;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
@@ -44,6 +49,8 @@ import edu.internet2.middleware.grouper.misc.E;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.permissions.PermissionEntry;
 import edu.internet2.middleware.grouper.pit.PITAttributeAssign;
+import edu.internet2.middleware.grouper.subj.LazySubject;
+import edu.internet2.middleware.grouper.subj.SubjectBean;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
@@ -58,6 +65,60 @@ import edu.internet2.middleware.subject.Subject;
  */
 public class PrivilegeHelper {
 
+  /**
+   * resolve subjects in one batch
+   * @param grouperPrivileges
+   * @param resolveAllAlways true to always resolve all no matter how many, false
+   * if there are more than 2000 or however many (e.g. for UI)
+   */
+  public static void resolveSubjects(Collection<GrouperPrivilege> grouperPrivileges, boolean resolveAllAlways) {
+    
+    if (GrouperUtil.length(grouperPrivileges) == 0) {
+      return;
+    }
+    
+    //find the ones which are Lazy
+    List<GrouperPrivilege> privilegesNeedResolved = new ArrayList<GrouperPrivilege>();
+    for (GrouperPrivilege grouperPrivilege : grouperPrivileges) {
+      Subject subject = grouperPrivilege.getSubject();
+      if (subject instanceof LazySubject) {
+        privilegesNeedResolved.add(grouperPrivilege);
+      }
+    }
+    
+    if (GrouperUtil.length(privilegesNeedResolved) == 0) {
+      return;
+    }
+
+    //if there are more than 2000, forget it, leave them lazy
+    if (!resolveAllAlways 
+        && GrouperUtil.length(privilegesNeedResolved) > GrouperConfig.getPropertyInt("memberLengthAboveWhichDontResolveBatch", 2000)) {
+      return;
+    }
+    
+    //lets resolve these
+    Map<SubjectBean, GrouperPrivilege> subjectBeanToGrouperPrivilege = new HashMap<SubjectBean, GrouperPrivilege>();
+    Set<SubjectBean> subjectBeans = new HashSet<SubjectBean>();
+    
+    for (GrouperPrivilege grouperPrivilege : privilegesNeedResolved) {
+
+      Subject subject = grouperPrivilege.getSubject();
+      
+      SubjectBean subjectBean = new SubjectBean(subject.getId(), subject.getSourceId());
+      subjectBeans.add(subjectBean);
+      subjectBeanToGrouperPrivilege.put(subjectBean, grouperPrivilege);
+      
+    }
+    
+    //resolve all members
+    Map<SubjectBean, Subject> subjectBeanToSubject = SubjectFinder.findBySubjectBeans(subjectBeans);
+    
+    for (SubjectBean subjectBean : subjectBeanToSubject.keySet()) {
+      Subject subject = subjectBeanToSubject.get(subjectBean);
+      GrouperPrivilege grouperPrivilege = subjectBeanToGrouperPrivilege.get(subjectBean);
+      grouperPrivilege.internalSetSubject(subject);
+    }
+  }
 
   /**
    * @param s 

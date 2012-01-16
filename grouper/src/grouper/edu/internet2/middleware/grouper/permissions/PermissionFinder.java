@@ -18,6 +18,8 @@ import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
+import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
@@ -207,6 +209,26 @@ public class PermissionFinder {
   }
   
   /**
+   * if narrowing search for permissions in a certain folder only
+   * @param permissionNameFolder1
+   * @return this for chaining
+   */
+  public PermissionFinder assignPermissionNameFolder(Stem permissionNameFolder1) {
+    this.permissionNameFolder = permissionNameFolder1;
+    return this;
+  }
+  
+  /**
+   * if searching in a folder, this is the scope: only in this folder, or also in subfolders
+   * @param scope
+   * @return this for chaining
+   */
+  public PermissionFinder assignPermissionNameFolderScope(Scope scope) {
+    this.permissionNameFolderScope = scope;
+    return this;
+  }
+  
+  /**
    * add a attribute def to look for.
    * @param attributeDef
    * @return this for chaining
@@ -233,6 +255,16 @@ public class PermissionFinder {
    * 
    */
   private Collection<String> permissionNameIds = null;
+  
+  /**
+   * if looking for permissions in a certain folder
+   */
+  private Stem permissionNameFolder = null;
+
+  /**
+   * if looking for permissions in any subfolder, or just in this folder directly
+   */
+  private Scope permissionNameFolderScope = null;
   
   /**
    * add an attribute def name id to the search criteria
@@ -505,15 +537,20 @@ public class PermissionFinder {
     if (pointInTimeFrom == null && pointInTimeTo == null) {
       if (this.permissionType == PermissionType.role_subject) {
         permissionEntries = GrouperDAOFactory.getFactory().getPermissionEntry().findPermissions(
-            this.permissionDefIds, this.permissionNameIds, this.roleIds, this.actions, this.enabled, this.memberIds);
+            this.permissionDefIds, this.permissionNameIds, this.roleIds, this.actions, this.enabled, 
+            this.memberIds, false, this.permissionNameFolder, this.permissionNameFolderScope);
       } else if (this.permissionType == PermissionType.role) {
         permissionEntries = GrouperDAOFactory.getFactory().getPermissionEntry().findRolePermissions(
-            this.permissionDefIds, this.permissionNameIds, this.roleIds, this.actions, this.enabled, false);
+            this.permissionDefIds, this.permissionNameIds, this.roleIds, this.actions, 
+            this.enabled, false, this.permissionNameFolder, this.permissionNameFolderScope);
       } else {
         throw new RuntimeException("Not expecting permission type: " + this.permissionType);
       }
     } else {
       if (this.permissionType == PermissionType.role_subject) {
+        if (this.permissionNameFolder != null) {
+          throw new RuntimeException("Not implemented looking for permissions by folder and point in time");
+        }
         permissionEntries = GrouperDAOFactory.getFactory().getPITPermissionAllView().findPermissions(
             permissionDefIds, permissionNameIds, roleIds, actions, memberIds, pointInTimeFrom, pointInTimeTo);
       } else {

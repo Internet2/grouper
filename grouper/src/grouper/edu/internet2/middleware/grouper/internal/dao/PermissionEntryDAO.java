@@ -22,6 +22,7 @@ import java.util.Collection;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.permissions.PermissionEntry;
 
 /** 
@@ -78,6 +79,29 @@ public interface PermissionEntryDAO extends GrouperDAO {
       Boolean enabled,
       Collection<String> memberIds,
       boolean noEndDate);
+
+  /**
+   * securely search for assignments.  need to pass in either the assign ids, def ids, def name ids, or group ids
+   * cannot have more than 100 bind variables.  well, you can pass more than 100 members... it will batch
+   * @param attributeDefIds optional
+   * @param attributeDefNameIds mutually exclusive with attributeDefIds
+   * @param roleIds optional
+   * @param actions (null means all actions)
+   * @param enabled (null means all, true means enabled, false means disabled)
+   * @param memberIds
+   * @param noEndDate true if no end date on memberships
+   * @param permissionNameInStem if looking for permission names in a certain stem, put it here
+   * @param permissionNameInStemScope if looking for permission names in a certain stem, put scope here
+   * @return the permissions
+   */
+  public Set<PermissionEntry> findPermissions(
+      Collection<String> attributeDefIds, 
+      Collection<String> attributeDefNameIds,
+      Collection<String> roleIds, 
+      Collection<String> actions, 
+      Boolean enabled,
+      Collection<String> memberIds,
+      boolean noEndDate, Stem permissionNameInStem, Scope permissionNameInStemScope);
 
 
   /**
@@ -196,6 +220,28 @@ public interface PermissionEntryDAO extends GrouperDAO {
       Collection<String> actions, 
       Boolean enabled,
       boolean noEndDate);
+
+  /**
+   * securely search for role assignments.  need to pass in either the assign ids, def ids, def name ids, or group ids
+   * cannot have more than 100 bind variables
+   * @param attributeDefIds optional
+   * @param attributeDefNameIds mutually exclusive with attributeDefIds
+   * @param roleIds optional
+   * @param actions (null means all actions)
+   * @param enabled (null means all, true means enabled, false means disabled)
+   * @param memberIds
+   * @param noEndDate true if no end date on memberships
+   * @param permissionNameInStem if looking for permission names in a certain stem, put it here
+   * @param permissionNameInStemScope if looking for permission names in a certain stem, put scope here
+   * @return the permissions
+   */
+  public Set<PermissionEntry> findRolePermissions(
+      Collection<String> attributeDefIds, 
+      Collection<String> attributeDefNameIds,
+      Collection<String> roleIds, 
+      Collection<String> actions, 
+      Boolean enabled,
+      boolean noEndDate, Stem permissionNameInStem, Scope permissionNameInStemScope);
 
 } 
 

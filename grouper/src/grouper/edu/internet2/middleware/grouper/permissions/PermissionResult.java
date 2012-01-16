@@ -38,6 +38,25 @@ public class PermissionResult {
 
   /**
    * get allowed extensions for this action
+   * @return the extensions allowed, never null
+   */
+  public Set<String> permissionNameExtensions() {
+    
+    Set<String> extensions = new TreeSet<String>();
+    if (this.permissionEntries != null) {
+      
+      for (PermissionEntry permissionEntry : this.permissionEntries) {
+        
+        if (permissionEntry.isAllowedOverall()) {
+          extensions.add(GrouperUtil.extensionFromName(permissionEntry.getAttributeDefNameName()));
+        }
+      }
+    }
+    return extensions;
+  }
+
+  /**
+   * get allowed extensions for this action
    * @param stemName
    * @param action
    * @param subject

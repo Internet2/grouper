@@ -22,7 +22,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
-import org.hamcrest.core.IsEqual;
 
 /**
  * Top level Strut's action which forwards to a URL which is a login screen, 

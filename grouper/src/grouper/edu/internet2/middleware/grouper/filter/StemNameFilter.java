@@ -42,7 +42,7 @@ public class StemNameFilter extends BaseQueryFilter {
    * {@link QueryFilter} that returns stems matching the specified
    * <i>name</i> value.
    * <p>
-   * This performs a substring, lowercased query on <i>name</i>.
+   * This performs a substring, lowercased query on <i>name</i> and <i>alternateName</i>.
    * </p>
    * @param   value Search for this value.
    * @param   ns    Restrict results to within this stem.

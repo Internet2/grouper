@@ -321,11 +321,11 @@ public class Hib3AttributeAssignValueDAO extends Hib3DAO implements AttributeAss
     Set<AttributeAssignValue> results = new LinkedHashSet<AttributeAssignValue>();
     
     int attributeAssignBatches = GrouperUtil.batchNumberOfBatches(totalAttributeAssignIds, 100);
-
+    List<String> totalAttributeAssignIdsList = GrouperUtil.listFromCollection(totalAttributeAssignIds);
     //could be more than 100 so batch them up
     for (int index = 0; index < attributeAssignBatches; index++) {
       
-      List<String> currentAttributeAssignIds = GrouperUtil.batchList(totalAttributeAssignIds, 100, index);
+      List<String> currentAttributeAssignIds = GrouperUtil.batchList(totalAttributeAssignIdsList, 100, index);
 
     
       ByHqlStatic byHqlStatic =  HibernateSession.byHqlStatic();

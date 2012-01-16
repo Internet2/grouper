@@ -39,9 +39,10 @@ import edu.internet2.middleware.grouper.MembershipFinder;
 import edu.internet2.middleware.grouper.RegistrySubject;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
-import edu.internet2.middleware.grouper.StemSave;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.Stem.Scope;
+import edu.internet2.middleware.grouper.cache.EhcacheController;
+import edu.internet2.middleware.grouper.cfg.ApiConfig;
 import edu.internet2.middleware.grouper.exception.GrantPrivilegeException;
 import edu.internet2.middleware.grouper.exception.GroupAddException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
@@ -55,6 +56,7 @@ import edu.internet2.middleware.grouper.helper.R;
 import edu.internet2.middleware.grouper.helper.SessionHelper;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.helper.T;
+import edu.internet2.middleware.grouper.hibernate.GrouperContext;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
@@ -66,6 +68,7 @@ import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
+import edu.internet2.middleware.subject.provider.JDBCSourceAdapter;
 import edu.internet2.middleware.subject.provider.SourceManager;
 
 /**
@@ -81,7 +84,7 @@ public class TestMember extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new TestMember(""));
+    TestRunner.run(new TestMember("testResolveSubjects"));
   }
   
   /** logger */
@@ -95,8 +98,60 @@ public class TestMember extends GrouperTest {
     super(name);
   }
 
-  // Tests
+  /**
+   * 
+   */
+  public void testResolveSubjects() {
+    ApiConfig.testConfig.put("groups.create.grant.all.read", "false");
+    ApiConfig.testConfig.put("groups.create.grant.all.view", "false");
+    
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+        
+    Group group = new GroupSave(grouperSession)
+      .assignName("test:testGroup")
+      .assignCreateParentStemsIfNotExist(true).save();
 
+    group.addMember(SubjectTestHelper.SUBJ0);
+    group.addMember(SubjectTestHelper.SUBJ1);
+    group.addMember(SubjectTestHelper.SUBJ2);
+    group.addMember(SubjectTestHelper.SUBJ3);
+    group.addMember(SubjectTestHelper.SUBJ4);
+    group.addMember(SubjectTestHelper.SUBJ5);
+    group.addMember(SubjectTestHelper.SUBJ6);
+    group.addMember(SubjectTestHelper.SUBJ7);
+    group.addMember(SubjectTestHelper.SUBJ8);
+    group.addMember(SubjectTestHelper.SUBJ9);
+    
+    EhcacheController.ehcacheController().flushCache();
+    //clear cache so we can see it work
+    SubjectFinder.flushCache();
+    
+    long initialQueryCount = GrouperContext.totalQueryCount + JDBCSourceAdapter.queryCountforTesting;
+
+    Set<Member> members = group.getMembers();
+    
+    Member.resolveSubjects(members, false);
+    
+    //should be one query
+    long queryCount = GrouperContext.totalQueryCount + JDBCSourceAdapter.queryCountforTesting;
+    //3, one for members, fields, subjects
+    assertEquals("Query count: " + (queryCount - initialQueryCount), initialQueryCount+3, queryCount);
+
+    //###################  SHOULD BE THERE
+    EhcacheController.ehcacheController().flushCache();
+    //clear cache so we can see it work
+    SubjectFinder.flushCache();
+
+    initialQueryCount = GrouperContext.totalQueryCount + JDBCSourceAdapter.queryCountforTesting;
+    
+    for (Member member : members) {
+      member.getSubject().getName();
+    }
+    
+    queryCount = GrouperContext.totalQueryCount + JDBCSourceAdapter.queryCountforTesting;
+    assertEquals("Query count: " + (queryCount - initialQueryCount), initialQueryCount, queryCount);
+  }
+  
   public void testGetSource() {
     LOG.info("testGetSource");
     GrouperSession s = SessionHelper.getRootSession();

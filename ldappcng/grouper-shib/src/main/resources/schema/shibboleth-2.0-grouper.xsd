@@ -9,7 +9,6 @@
   xmlns:service="urn:mace:shibboleth:2.0:services"
   xmlns:dc="urn:mace:shibboleth:2.0:resolver:dc"
   xmlns:ad="urn:mace:shibboleth:2.0:resolver:ad"
-  xmlns:authority="urn:mace:shibboleth:2.0:attribute:authority"
   elementFormDefault="qualified">
 
   <import namespace="urn:mace:shibboleth:2.0:services" schemaLocation="classpath:/schema/shibboleth-2.0-services.xsd" />
@@ -17,7 +16,6 @@
   <import namespace="urn:mace:shibboleth:2.0:resolver:ad" schemaLocation="classpath:/schema/shibboleth-2.0-attribute-resolver-ad.xsd" />
   <import namespace="urn:mace:shibboleth:2.0:resolver:dc" schemaLocation="classpath:/schema/shibboleth-2.0-attribute-resolver-dc.xsd" />
   <import namespace="urn:mace:shibboleth:2.0:resource" schemaLocation="classpath:/schema/shibboleth-2.0-resource.xsd" />
-  <import namespace="urn:mace:shibboleth:2.0:attribute:authority" schemaLocation="classpath:/schema/shibboleth-2.0-attribute-authority.xsd" />
 
   <annotation>
     <documentation>Grouper support for the Shibboleth 2.0 Attribute Resolver</documentation>
@@ -50,18 +48,6 @@
     <annotation>
       <documentation>
         A data connector that can returns Stem attributes.
-      </documentation>
-    </annotation>
-    <complexContent>
-      <extension base="grouper:BaseGrouperDataConnectorType">
-      </extension>
-    </complexContent>
-  </complexType>
-
-  <complexType name="ChangeLogDataConnector">
-    <annotation>
-      <documentation>
-        A data connector that returns change log entry attributes.
       </documentation>
     </annotation>
     <complexContent>
@@ -375,96 +361,6 @@
             </documentation>
           </annotation>
         </attribute>
-      </extension>
-    </complexContent>
-  </complexType>
-
-  <complexType name="ChangeLogEntry">
-    <annotation>
-      <documentation>
-        Filter change log entries by change log category and action name.
-      </documentation>
-    </annotation>
-    <complexContent>
-      <extension base="grouper:BaseFilterType">
-        <attribute name="category" type="string">
-          <annotation>
-            <documentation>
-              The change log category.
-            </documentation>
-          </annotation>
-        </attribute>
-        <attribute name="action" type="string">
-          <annotation>
-            <documentation>
-              The change log action name.
-            </documentation>
-          </annotation>
-        </attribute>
-      </extension>
-    </complexContent>
-  </complexType>
-
-  <complexType name="ChangeLogAudit">
-    <annotation>
-      <documentation>
-        Filter by change log entries by audit category and action name.
-      </documentation>
-    </annotation>
-    <complexContent>
-      <extension base="grouper:BaseFilterType">
-        <attribute name="category" type="string">
-          <annotation>
-            <documentation>
-              The audit category.
-            </documentation>
-          </annotation>
-        </attribute>
-        <attribute name="action" type="string">
-          <annotation>
-            <documentation>
-              The audit action name.
-            </documentation>
-          </annotation>
-        </attribute>
-      </extension>
-    </complexContent>
-  </complexType>
-  
-  <complexType name="ChangeLogExactAttribute">
-    <annotation>
-      <documentation>
-        Filter by exact attribute name and value.
-      </documentation>
-    </annotation>
-    <complexContent>
-      <extension base="grouper:BaseFilterType">
-        <attribute name="name" type="string" use="required">
-          <annotation>
-            <documentation>
-              The name of the attribute.
-            </documentation>
-          </annotation>
-        </attribute>
-        <attribute name="value" type="string" use="required">
-          <annotation>
-            <documentation>
-              The value of the attribute.
-            </documentation>
-          </annotation>
-        </attribute>
-      </extension>
-    </complexContent>
-  </complexType>
-
-  <complexType name="SimpleAttributeAuthority">
-    <annotation>
-      <documentation>
-        A Shibboleth 2.0 Attribute Authority which supports filtering. Does not encode attributes.
-      </documentation>
-    </annotation>
-    <complexContent>
-      <extension base="authority:AttributeAuthorityType">
       </extension>
     </complexContent>
   </complexType>

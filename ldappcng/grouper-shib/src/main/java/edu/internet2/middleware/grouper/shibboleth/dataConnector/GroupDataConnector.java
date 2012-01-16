@@ -20,7 +20,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeSet;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,8 +30,6 @@ import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
-import edu.internet2.middleware.grouper.Stem.Scope;
-import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.shibboleth.dataConnector.field.GroupsField;
@@ -48,7 +45,7 @@ import edu.internet2.middleware.shibboleth.common.attribute.resolver.provider.da
 import edu.internet2.middleware.subject.Subject;
 
 /** A {@link DataConnector} which returns {@link Group} attributes. */
-public class GroupDataConnector extends BaseGrouperDataConnector<Group> implements DataConnector, SourceDataConnector {
+public class GroupDataConnector extends BaseGrouperDataConnector<Group> implements DataConnector {
 
   /** The logger. */
   private static final Logger LOG = LoggerFactory.getLogger(GroupDataConnector.class);
@@ -74,7 +71,7 @@ public class GroupDataConnector extends BaseGrouperDataConnector<Group> implemen
             LOG.trace("Group data connector '{}' - Resolve principal '{}' requested attributes {}", new Object[] {
                 getId(), principalName, resolutionContext.getAttributeRequestContext().getRequestedAttributesIds() });
 
-            if (principalName.startsWith(ChangeLogDataConnector.PRINCIPAL_NAME_PREFIX)) {
+            if (principalName.startsWith(CHANGELOG_PRINCIPAL_NAME_PREFIX)) {
               LOG.debug("Group data connector '{}' - Ignoring principal name '{}'", getId(), principalName);
               return Collections.EMPTY_MAP;
             }
@@ -203,33 +200,5 @@ public class GroupDataConnector extends BaseGrouperDataConnector<Group> implemen
   /** {@inheritDoc} */
   public void validate() throws AttributeResolutionException {
 
-  }
-
-  /** {@inheritDoc} */
-  public Set<String> getAllIdentifiers() {
-
-    Set<String> identifiers = (Set<String>) GrouperSession.callbackGrouperSession(getGrouperSession(),
-        new GrouperSessionHandler() {
-
-          public Set<String> callback(GrouperSession grouperSession) throws GrouperSessionException {
-            LOG.debug("Group data connector '{}' - Get all identifiers", getId());
-            Set<Group> groups = new TreeSet<Group>();
-            Filter<Group> filter = getFilter();
-            if (filter == null) {
-              groups.addAll(StemFinder.findRootStem(grouperSession).getChildGroups(Scope.SUB));
-            } else {
-              groups.addAll(getFilter().getResults(grouperSession));
-            }
-
-            Set<String> identifiers = new TreeSet<String>();
-            for (Group group : groups) {
-              identifiers.add(group.getName());
-            }
-            LOG.debug("Group data connector '{}' - Get all identifiers found {}.", getId(), identifiers.size());
-            return identifiers;
-          }
-        });
-
-    return identifiers;
   }
 }

@@ -71,6 +71,7 @@ public class XmlExportStemTest extends GrouperTest {
     
     XmlExportStem xmlExportStem = new XmlExportStem();
     
+    xmlExportStem.setAlternateName("alternateName");
     xmlExportStem.setContextId("contextId");
     xmlExportStem.setCreateTime("createTime");
     xmlExportStem.setCreatorId("creatorId");
@@ -90,6 +91,7 @@ public class XmlExportStemTest extends GrouperTest {
     
     xmlExportStem = XmlExportStem.fromXml(new GrouperVersion(GrouperVersion.GROUPER_VERSION), xml);
     
+    assertEquals("alternateName", xmlExportStem.getAlternateName());
     assertEquals("contextId", xmlExportStem.getContextId());
     assertEquals("createTime", xmlExportStem.getCreateTime());
     assertEquals("creatorId", xmlExportStem.getCreatorId());
@@ -118,6 +120,7 @@ public class XmlExportStemTest extends GrouperTest {
     //now go back
     stem = xmlExportStem.toStem();
     
+    assertEquals("alternateName", stem.getAlternateNameDb());
     assertEquals("contextId", stem.getContextId());
     assertEquals(5L, stem.getCreateTimeLong());
     assertEquals("creatorId", stem.getCreatorUuid());

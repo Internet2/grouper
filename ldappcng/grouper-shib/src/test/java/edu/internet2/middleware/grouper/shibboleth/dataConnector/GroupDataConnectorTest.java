@@ -545,24 +545,4 @@ public class GroupDataConnectorTest extends BaseDataConnectorTest {
 
     runAttributeDefinitionTest("testAll", groupA, correctMap, "testSubjectAttributeDefinitionHasViewer");
   }
-
-  public void testGetAllIdentifiers() {
-
-    try {
-      GenericApplicationContext gContext = BaseDataConnectorTest.createSpringContext(RESOLVER_CONFIG);
-      GroupDataConnector gdc = (GroupDataConnector) gContext.getBean("testAttributesOnly");
-
-      Set<String> identifiers = gdc.getAllIdentifiers();
-
-      assertEquals(3, identifiers.size());
-
-      assertTrue(identifiers.contains(groupA.getName()));
-      assertTrue(identifiers.contains(groupB.getName()));
-      assertTrue(identifiers.contains(groupC.getName()));
-
-    } catch (Exception e) {
-      e.printStackTrace();
-      throw new RuntimeException(e);
-    }
-  }
 }

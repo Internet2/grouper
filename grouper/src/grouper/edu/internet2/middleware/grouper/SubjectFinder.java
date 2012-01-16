@@ -17,6 +17,7 @@
 
 package edu.internet2.middleware.grouper;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -43,6 +44,7 @@ import edu.internet2.middleware.grouper.rules.RuleIfConditionEnum;
 import edu.internet2.middleware.grouper.rules.RuleThen;
 import edu.internet2.middleware.grouper.rules.RuleThenEnum;
 import edu.internet2.middleware.grouper.subj.InternalSourceAdapter;
+import edu.internet2.middleware.grouper.subj.SubjectBean;
 import edu.internet2.middleware.grouper.subj.SubjectCustomizer;
 import edu.internet2.middleware.grouper.subj.SubjectResolver;
 import edu.internet2.middleware.grouper.subj.SubjectResolverFactory;
@@ -108,7 +110,7 @@ public class SubjectFinder {
 
   /**
    * if we should use threads when doing searches (if grouper.properties allows)
-   * @return
+   * @return isUseThreadsBasedOnThreadLocal
    */
   public static boolean isUseThreadsBasedOnThreadLocal() {
     Boolean isUseThreads = useThreads.get();
@@ -300,6 +302,99 @@ public class SubjectFinder {
     
   } 
 
+  /**
+   * find by subject beans
+   * @param subjectBeans
+   * @return the subjects
+   */
+  public static Map<SubjectBean, Subject> findBySubjectBeans(Collection<SubjectBean> subjectBeans) {
+    
+    if (subjectBeans == null) {
+      return null;
+    }
+    
+    Map<SubjectBean, Subject> result = new HashMap<SubjectBean, Subject>();
+    
+    Map<String, Set<String>> mapOfSourceToSubjectIds = new HashMap<String, Set<String>>();
+    Map<String, Set<SubjectBean>> mapOfSourceToSubjectBeans = new HashMap<String, Set<SubjectBean>>();
+    
+    //separated out by source
+    for (SubjectBean subjectBean : subjectBeans) {
+      
+      Set<String> subjectIds = mapOfSourceToSubjectIds.get(subjectBean.getSourceId());
+      Set<SubjectBean> subjectBeanSet = mapOfSourceToSubjectBeans.get(subjectBean.getSourceId());
+      if (subjectIds == null) {
+        
+        subjectIds = new HashSet<String>();
+        subjectBeanSet = new HashSet<SubjectBean>();
+        mapOfSourceToSubjectIds.put(subjectBean.getSourceId(), subjectIds);
+        mapOfSourceToSubjectBeans.put(subjectBean.getSourceId(), subjectBeanSet);
+        
+      }
+      
+      subjectIds.add(subjectBean.getId());
+      subjectBeanSet.add(subjectBean);
+    }
+    
+    //loop through sources and get results
+    for (String sourceId : mapOfSourceToSubjectIds.keySet()) {
+      Set<String> subjectIds = mapOfSourceToSubjectIds.get(sourceId);
+      Set<SubjectBean> subjectBeanSet = mapOfSourceToSubjectBeans.get(sourceId);
+      Map<String, Subject> subjectsForSource = GrouperUtil.nonNull(findByIds(subjectIds, sourceId));
+      for (SubjectBean subjectBean : subjectBeanSet) {
+        
+        Subject subject = subjectsForSource.get(subjectBean.getId());
+        if (subject != null) {
+          result.put(subjectBean, subject);
+        }
+        
+      }
+    }
+    return result;
+    
+  }
+  
+  /**
+   * find subjects by ids
+   * @param ids
+   * @return the map of id to subject.  If a subject is not found, it will
+   * not be in the result
+   */
+  public static Map<String, Subject> findByIds(Collection<String> ids) {
+    return getResolver().findByIds(ids);
+  }
+  
+  /**
+   * find subjects by idsOrIdentifiers
+   * @param idsOrIdentifiers
+   * @return the map of id or identifier to subject.  If a subject is not found, it will
+   * not be in the result
+   */
+  public static Map<String, Subject> findByIdsOrIdentifiers(Collection<String> idsOrIdentifiers) {
+    return getResolver().findByIdsOrIdentifiers(idsOrIdentifiers);
+  }
+  
+  /**
+   * find subjects by idsOrIdentifiers
+   * @param idsOrIdentifiers
+   * @param source
+   * @return the map of id or identifier to subject.  If a subject is not found, it will
+   * not be in the result
+   */
+  public static Map<String, Subject> findByIdsOrIdentifiers(Collection<String> idsOrIdentifiers, String source) {
+    return getResolver().findByIdsOrIdentifiers(idsOrIdentifiers, source);
+  }
+  
+  /**
+   * find subjects by identifiers
+   * @param identifiers
+   * @return the map of identifier to subject.  If a subject is not found, it will
+   * not be in the result
+   */
+  public static Map<String, Subject> findByIdentifiers(Collection<String> identifiers) {
+    return getResolver().findByIdentifiers(identifiers);
+  }
+  
   /**
    * flush the cache (e.g. for testing)
    */
@@ -1232,6 +1327,28 @@ public class SubjectFinder {
   }
 
   /**
+   * find subjects by identifiers
+   * @param identifiers
+   * @param source
+   * @return the map of identifier to subject.  If a subject is not found, it will
+   * not be in the result
+   */
+  public static Map<String, Subject> findByIdentifiers(Collection<String> identifiers, String source) {
+    return getResolver().findByIdentifiers(identifiers, source);
+  }
+
+  /**
+   * find subjects by ids
+   * @param ids
+   * @param source
+   * @return the map of id to subject.  If a subject is not found, it will
+   * not be in the result
+   */
+  public static Map<String, Subject> findByIds(Collection<String> ids, String source) {
+    return getResolver().findByIds(ids, source);
+  }
+
+  /**
    * hold a customizer
    * @author mchyzer
    *
@@ -1322,7 +1439,7 @@ public class SubjectFinder {
     Set<Subject> subjects = new HashSet<Subject>();
     subjects.add(subject);
      
-    subjectCustomizer.filterSubjects(grouperSession, subjects, filterSubjectsInStemName);
+    subjects = subjectCustomizer.filterSubjects(grouperSession, subjects, filterSubjectsInStemName);
     
     int subjectsLength = GrouperUtil.length(subjects);
     if (subjectsLength == 0) {
