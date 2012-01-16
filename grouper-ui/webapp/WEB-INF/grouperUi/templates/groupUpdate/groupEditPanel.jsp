@@ -11,7 +11,7 @@
       <grouper:subtitle key="simpleGroupUpdate.editSectionGroupRoleHeader" />
     </c:when>
     <c:otherwise>
-      <grouper:subtitle key="${groupUpdateRequestContainer.groupToEdit.typeOfGroupDb == 'role' ? 'simpleGroupUpdate.editSectionRoleHeader' : 'simpleGroupUpdate.editSectionGroupHeader'}" />
+      <grouper:subtitle key="${groupUpdateRequestContainer.groupToEdit.typeOfGroupDb == 'role' ? 'simpleGroupUpdate.editSectionRoleHeader' : (groupUpdateRequestContainer.groupToEdit.typeOfGroupDb == 'entity' ? 'simpleGroupUpdate.editSectionEntityHeader' : 'simpleGroupUpdate.editSectionGroupHeader')}" />
     </c:otherwise>
   </c:choose>
 
@@ -109,6 +109,8 @@
            <input type="radio" name="groupToEditType" value="group" ${groupUpdateRequestContainer.groupToEdit.typeOfGroupDb == 'group' ? 'checked="checked"' : '' } /><grouper:message key="simpleGroupUpdate.type.group" />
            &nbsp;
            <input type="radio" name="groupToEditType" value="role" ${groupUpdateRequestContainer.groupToEdit.typeOfGroupDb == 'role' ? 'checked="checked"' : '' } /><grouper:message key="simpleGroupUpdate.type.role" />
+           &nbsp;
+           <input type="radio" name="groupToEditType" value="entity" ${groupUpdateRequestContainer.groupToEdit.typeOfGroupDb == 'entity' ? 'checked="checked"' : '' } /><grouper:message key="simpleGroupUpdate.type.entity" />
          </td>
        </tr>
        
@@ -150,45 +152,48 @@
              <grouper:message key="priv.admin" /> 
              
              &nbsp;
-             
-            <input type="checkbox" name="groupToEditAllowAllUpdate" 
-              value="true" 
-              ${groupUpdateRequestContainer.allowAllUpdate ? 'checked="checked"' : '' } />
+
+            <c:if test="${groupUpdateRequestContainer.groupToEdit.typeOfGroupDb != 'entity'}" >
               
-             <grouper:message key="priv.update" /> 
-             
-             &nbsp;
-             
-             <input type="checkbox" name="groupToEditAllowAllRead" 
-              value="true" 
-              ${groupUpdateRequestContainer.allowAllRead ? 'checked="checked"' : '' } />
-              
-             <grouper:message key="priv.read" /> 
-             
-             &nbsp;
-             
+              <input type="checkbox" name="groupToEditAllowAllUpdate" 
+                value="true" 
+                ${groupUpdateRequestContainer.allowAllUpdate ? 'checked="checked"' : '' } />
+                
+               <grouper:message key="priv.update" /> 
+               
+               &nbsp;
+               
+               <input type="checkbox" name="groupToEditAllowAllRead" 
+                value="true" 
+                ${groupUpdateRequestContainer.allowAllRead ? 'checked="checked"' : '' } />
+                
+               <grouper:message key="priv.read" /> 
+               
+               &nbsp;
+            </c:if>             
             <input type="checkbox" name="groupToEditAllowAllView" 
               value="true" 
               ${groupUpdateRequestContainer.allowAllView ? 'checked="checked"' : '' } />
               
              <grouper:message key="priv.view" /> 
              
-             &nbsp;
-             
-            <input type="checkbox" name="groupToEditAllowAllOptin" 
-              value="true" 
-              ${groupUpdateRequestContainer.allowAllOptin ? 'checked="checked"' : '' } />
-              
-             <grouper:message key="priv.optin" /> 
-             
-             &nbsp;
-             
-            <input type="checkbox" name="groupToEditAllowAllOptout" 
-              value="true" 
-              ${groupUpdateRequestContainer.allowAllOptout ? 'checked="checked"' : '' } />
-              
-             <grouper:message key="priv.optout" /> 
-                          
+            <c:if test="${groupUpdateRequestContainer.groupToEdit.typeOfGroupDb != 'entity'}" >
+               &nbsp;
+               
+              <input type="checkbox" name="groupToEditAllowAllOptin" 
+                value="true" 
+                ${groupUpdateRequestContainer.allowAllOptin ? 'checked="checked"' : '' } />
+                
+               <grouper:message key="priv.optin" /> 
+               
+               &nbsp;
+               
+              <input type="checkbox" name="groupToEditAllowAllOptout" 
+                value="true" 
+                ${groupUpdateRequestContainer.allowAllOptout ? 'checked="checked"' : '' } />
+                
+               <grouper:message key="priv.optout" /> 
+            </c:if>                          
          </td>
        </tr>
        <tr>
@@ -221,9 +226,11 @@
 
            </c:if>
 
+          <c:if test="${groupUpdateRequestContainer.groupToEdit.typeOfGroupDb != 'entity'}" >
            <input class="blueButton" type="submit" 
             onclick="location.href = 'grouper.html?operation=SimpleMembershipUpdate.init&groupId=${groupUpdateRequestContainer.groupToEdit.id}'; return false;" 
             value="${grouper:message('simpleGroupUpdate.memberships', true, false)}" style="margin-top: 2px" />
+          </c:if>
          </c:if>
          <input class="blueButton" type="submit" 
           onclick="ajax('../app/SimpleGroupUpdate.groupEditPanelSubmit', {formIds: 'groupEditFormId'}); return false;" 

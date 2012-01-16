@@ -11,7 +11,7 @@
     <form id="simpleGroupUpdatePickGroupFormId" name="simpleGroupUpdatePickGroupFormName" onsubmit="return false;" >
       <div class="combohint"><grouper:message key="simpleGroupUpdate.selectGroupCombohint"/></div>
   
-      <grouper:combobox filterOperation="SimpleGroupUpdateFilter.filterGroups" id="simpleGroupUpdatePickGroup" 
+      <grouper:combobox filterOperation="SimpleGroupUpdateFilter.filterGroupsRolesEntities" id="simpleGroupUpdatePickGroup" 
         comboDefaultText="${groupUpdateRequestContainer.groupToEdit.name}" comboDefaultValue="${groupUpdateRequestContainer.groupToEdit.uuid}"
         width="700"/>
       
