@@ -26,7 +26,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.math.BigDecimal;
-import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.URL;
@@ -58,10 +57,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.FileHandler;
 import java.util.logging.Handler;
@@ -4915,10 +4912,6 @@ public class GrouperInstallerUtils  {
    *
    * @param file the file to write.
    * @param data The content to write to the file.
-   * @param encoding encoding to use
-   * @throws IOException in case of an I/O error
-   * @throws UnsupportedEncodingException if the encoding is not supported
-   *   by the VM
    */
   public static void writeStringToFile(File file, String data) {
     try {
@@ -9091,7 +9084,6 @@ public class GrouperInstallerUtils  {
   /**
    * Gobble up a stream from a runtime
    * @author mchyzer
-   * @param <V> 
    */
   private static class StreamGobbler implements Runnable {
     
@@ -9115,6 +9107,7 @@ public class GrouperInstallerUtils  {
      * @param is
      * @param theType 
      * @param theCommand
+     * @param thePrintToFile 
      */
     StreamGobbler(InputStream is, String theType, String theCommand, File thePrintToFile) {
       this.inputStream = is;
@@ -9131,6 +9124,10 @@ public class GrouperInstallerUtils  {
       return this.resultString;
     }
 
+    /**
+     * 
+     * @see java.lang.Runnable#run()
+     */
     @Override
     public void run() {
       
@@ -9496,7 +9493,6 @@ public class GrouperInstallerUtils  {
   /**
    * add a jar to classpath
    * @param file
-   * @throws IOException
    */
   public static void classpathAddFile(File file) {
     try {
@@ -9514,7 +9510,6 @@ public class GrouperInstallerUtils  {
   /**
    * use reflection to add a jar to the classpath
    * @param url
-   * @throws IOException
    */
   public static void classpathAddUrl(URL url) {
     
@@ -9600,9 +9595,6 @@ public class GrouperInstallerUtils  {
    *  should be the same as the original
    *
    * @throws NullPointerException if source or destination is <code>null</code>
-   * @throws IOException if source or destination is invalid
-   * @throws IOException if an IO error occurs during copying
-   * @see #copyFileToDirectory(File, File, boolean)
    */
   public static void copyFile(File srcFile, File destFile,
           boolean preserveFileDate) {
