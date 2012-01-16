@@ -2465,5 +2465,106 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
     return findAllByApproximateAttrHelper(attr, val, scope, true);
   }
 
+  /**
+   * @see GroupDAO#findByNamesSecure(Collection, QueryOptions)
+   */
+  public Set<Group> findByNamesSecure(Collection<String> names, QueryOptions queryOptions) {
+    
+    GrouperSession grouperSession = GrouperSession.staticGrouperSession();
+    
+    int numberOfBatches = GrouperUtil.batchNumberOfBatches(names, 90);
+    
+    Set<Group> groups = new HashSet<Group>();
+    
+    List<String> namesList = GrouperUtil.listFromCollection(names);
+    
+    for (int i=0;i<numberOfBatches;i++) {
+      
+      List<String> namesBatch = GrouperUtil.batchList(namesList, 90, i);
+      
+      ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
+
+      StringBuilder sql = new StringBuilder("select distinct theGroup from Group as theGroup ");
+      
+      //see if we are adding more to the query
+      boolean changedQuery = grouperSession.getAccessResolver().hqlFilterGroupsWhereClause(grouperSession.getSubject(), byHqlStatic, 
+          sql, "theGroup.uuid", AccessPrivilege.VIEW_PRIVILEGES);
+
+      if (changedQuery) {
+        sql.append(" and ");
+      } else {
+        sql.append(" where ");
+      }
+      sql.append(" ( theGroup.nameDb in ( ");
+      
+      sql.append(HibUtils.convertToInClause(namesBatch, byHqlStatic)).append(" ) ");
+
+      sql.append(" or theGroup.alternateNameDb in ( ");
+      
+      sql.append(HibUtils.convertToInClause(namesBatch, byHqlStatic)).append(" ) )");
+
+      byHqlStatic
+        .createQuery(sql.toString())
+        .setCacheable(true)
+        .options(queryOptions)
+        .setCacheRegion(KLASS + ".FindByNamesSecure");
+      
+      Set<Group> groupsBatch = byHqlStatic.listSet(Group.class);
+      
+      groups.addAll(GrouperUtil.nonNull(groupsBatch));
+      
+    }
+    
+    return groups;
+
+  }
+
+  /**
+   * @see GroupDAO#findByUuidsSecure(Collection, QueryOptions)
+   */
+  public Set<Group> findByUuidsSecure(Collection<String> uuids, QueryOptions queryOptions) {
+    GrouperSession grouperSession = GrouperSession.staticGrouperSession();
+    
+    int numberOfBatches = GrouperUtil.batchNumberOfBatches(uuids, 180);
+    
+    Set<Group> groups = new HashSet<Group>();
+    
+    List<String> uuidsList = GrouperUtil.listFromCollection(uuids);
+    
+    for (int i=0;i<numberOfBatches;i++) {
+      
+      List<String> uuidsBatch = GrouperUtil.batchList(uuidsList, 180, i);
+      
+      ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
+
+      StringBuilder sql = new StringBuilder("select distinct theGroup from Group as theGroup ");
+      
+      //see if we are adding more to the query
+      boolean changedQuery = grouperSession.getAccessResolver().hqlFilterGroupsWhereClause(grouperSession.getSubject(), byHqlStatic, 
+          sql, "theGroup.uuid", AccessPrivilege.VIEW_PRIVILEGES);
+
+      if (changedQuery) {
+        sql.append(" and ");
+      } else {
+        sql.append(" where ");
+      }
+      sql.append(" theGroup.uuid in ( ");
+      
+      sql.append(HibUtils.convertToInClause(uuidsBatch, byHqlStatic)).append(" ) ");
+      
+      byHqlStatic
+        .createQuery(sql.toString())
+        .setCacheable(true)
+        .options(queryOptions)
+        .setCacheRegion(KLASS + ".FindByUuidsSecure");
+      
+      Set<Group> groupsBatch = byHqlStatic.listSet(Group.class);
+      
+      groups.addAll(GrouperUtil.nonNull(groupsBatch));
+      
+    }
+    
+    return groups;
+  }
 } 
 

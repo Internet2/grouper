@@ -16,6 +16,7 @@
 */
 
 package edu.internet2.middleware.grouper.internal.dao.hib3;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -488,10 +489,12 @@ public class Hib3MemberDAO extends Hib3DAO implements MemberDAO {
     
     //lets do this in batches
     int numberOfBatches = GrouperUtil.batchNumberOfBatches(subjects, MEMBER_SUBJECT_BATCH_SIZE);
+
+    List<Subject> subjectsList = subjects instanceof List ? (List)subjects : new ArrayList<Subject>(subjects);
     
     for (int i=0;i<numberOfBatches;i++) {
 
-      List<Subject> subjectBatch = GrouperUtil.batchList(subjects, MEMBER_SUBJECT_BATCH_SIZE, i);
+      List<Subject> subjectBatch = GrouperUtil.batchList(subjectsList, MEMBER_SUBJECT_BATCH_SIZE, i);
 
 //      select distinct gm.* 
 //      from grouper_members gm

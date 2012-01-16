@@ -393,10 +393,6 @@ public enum GrouperLoaderType {
 
           hib3GrouploaderLogOverall.setMillisGetData((int)(System.currentTimeMillis()-startTime));
 
-          if (LOG.isDebugEnabled()) {
-            LOG.debug(groupNameOverall + ": syncing membership for " + groupNames.size() + " groups");
-          }
-
           //#######################################
           //Get group metadata
           int groupMetadataNumberOfRows = 0;
@@ -1224,9 +1220,12 @@ public enum GrouperLoaderType {
           //just batch up the group names to get the results, in size of 100
           int numberOfBatches = GrouperUtil.batchNumberOfBatches(groupNames, 100);
           result = new ArrayList<Object[]>();
+
+          List<String> groupNamesList = groupNames instanceof List ? (List)groupNames : new ArrayList<String>(groupNames);
+
           for (int i=0;i<numberOfBatches;i++) {
             
-            List<String> groupNamesInBatch = GrouperUtil.batchList(groupNames, 100, i);
+            List<String> groupNamesInBatch = GrouperUtil.batchList(groupNamesList, 100, i);
             
             ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
             String queryInClause = HibUtils.convertToInClause(groupNamesInBatch, byHqlStatic);

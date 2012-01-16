@@ -17,6 +17,7 @@
 
 package edu.internet2.middleware.grouper.internal.dao.hib3;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -139,10 +140,13 @@ public class Hib3PermissionEntryDAO extends Hib3DAO implements PermissionEntryDA
     //there needs to be at least one batch
     numberOfMemberBatches = numberOfMemberBatches == 0 ? 1 : numberOfMemberBatches;
     
+    List<String> membersIdsTotalList = memberIdsTotal instanceof List ? (List)memberIdsTotal 
+        : new ArrayList<String>(memberIdsTotal);
+    
     for (int memberBatchIndex=0;memberBatchIndex<numberOfMemberBatches;memberBatchIndex++) {
       
       //if no batches, just use null
-      List<String> memberIds = hasMemberBatches ? GrouperUtil.batchList(memberIdsTotal, 100, memberBatchIndex) : null;
+      List<String> memberIds = hasMemberBatches ? GrouperUtil.batchList(membersIdsTotalList, 100, memberBatchIndex) : null;
       
       int memberIdsSize = GrouperUtil.length(memberIds);
       int roleIdsSize = GrouperUtil.length(roleIds);

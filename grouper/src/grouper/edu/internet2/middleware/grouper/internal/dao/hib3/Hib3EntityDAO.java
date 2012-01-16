@@ -285,12 +285,13 @@ public class Hib3EntityDAO extends Hib3DAO implements EntityDAO {
       return results;
     }
 
+    List<String> groupIdList = groupIds instanceof List ? (List)groupIds : new ArrayList<String>(groupIds);
     //lets page through these
     int batchSize = 180;
     int pages = GrouperUtil.batchNumberOfBatches(groupIds, batchSize);
 
     for (int i=0; i<pages; i++) {
-      List<String> groupIdPageList = GrouperUtil.batchList(groupIds, batchSize, i);
+      List<String> groupIdPageList = GrouperUtil.batchList(groupIdList, batchSize, i);
 
       StringBuilder sql = new StringBuilder(
           "select distinct theGroup, theAttributeAssignValue from Group theGroup, AttributeAssign theAttributeAssign, AttributeAssignValue theAttributeAssignValue, AttributeDefName theAttributeDefName ");

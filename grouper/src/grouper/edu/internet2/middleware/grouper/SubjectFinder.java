@@ -17,6 +17,7 @@
 
 package edu.internet2.middleware.grouper;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -43,6 +44,7 @@ import edu.internet2.middleware.grouper.rules.RuleIfConditionEnum;
 import edu.internet2.middleware.grouper.rules.RuleThen;
 import edu.internet2.middleware.grouper.rules.RuleThenEnum;
 import edu.internet2.middleware.grouper.subj.InternalSourceAdapter;
+import edu.internet2.middleware.grouper.subj.SubjectBean;
 import edu.internet2.middleware.grouper.subj.SubjectCustomizer;
 import edu.internet2.middleware.grouper.subj.SubjectResolver;
 import edu.internet2.middleware.grouper.subj.SubjectResolverFactory;
@@ -1322,6 +1324,28 @@ public class SubjectFinder {
     
     return getResolver().findPageInStem(stemName, query);
     
+  }
+
+  /**
+   * find subjects by identifiers
+   * @param identifiers
+   * @param source
+   * @return the map of identifier to subject.  If a subject is not found, it will
+   * not be in the result
+   */
+  public static Map<String, Subject> findByIdentifiers(Collection<String> identifiers, String source) {
+    return getResolver().findByIdentifiers(identifiers, source);
+  }
+
+  /**
+   * find subjects by ids
+   * @param ids
+   * @param source
+   * @return the map of id to subject.  If a subject is not found, it will
+   * not be in the result
+   */
+  public static Map<String, Subject> findByIds(Collection<String> ids, String source) {
+    return getResolver().findByIds(ids, source);
   }
 
   /**
