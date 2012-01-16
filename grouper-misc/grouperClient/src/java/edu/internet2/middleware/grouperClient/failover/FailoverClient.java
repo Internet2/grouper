@@ -625,6 +625,9 @@ public class FailoverClient implements Serializable {
        
         Future<T> future = executorService.submit(callable);
         try {
+          if (LOG.isDebugEnabled()) {
+            LOG.debug("Waiting for " + timeoutSeconds + " " + TimeUnit.SECONDS + " for the job: " + id + " to finish");
+          }
           future.get(timeoutSeconds, TimeUnit.SECONDS);
         } catch (Exception e) {
           LOG.debug("error:", e);
@@ -685,7 +688,7 @@ public class FailoverClient implements Serializable {
               }
             }
             //wait for a second at a time so we can end as soon as possible
-            GrouperClientUtils.sleep(1000);
+            GrouperClientCommonUtils.sleep(1000);
           }
         }
        
