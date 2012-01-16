@@ -455,7 +455,7 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
         }
         Search search = getSearch("searchSubjectAttributes");
         if (search == null) {
-            log.error("searchType: \"searchSubjectAttributes\" not defined.");
+            log.debug("searchType: \"searchSubjectAttributes\" not defined.");
             return attributes;
         }
 
