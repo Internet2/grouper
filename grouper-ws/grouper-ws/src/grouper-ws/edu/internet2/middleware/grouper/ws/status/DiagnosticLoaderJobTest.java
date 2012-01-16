@@ -72,11 +72,12 @@ public class DiagnosticLoaderJobTest extends DiagnosticTask {
   @Override
   protected boolean doTask() {
     
-    int defaultMinutesSinceLastSuccess = 60*25;
+    //we will give it 52 hours... 48 (two days), plus 4 hours to run...
+    int defaultMinutesSinceLastSuccess = GrouperWsConfig.getPropertyInt("ws.diagnostic.defaultMinutesSinceLastSuccess", 60*52);
     
     //change logs should go every minute
     if (this.grouperLoaderType == GrouperLoaderType.CHANGE_LOG) {
-      defaultMinutesSinceLastSuccess = 30;
+      defaultMinutesSinceLastSuccess = GrouperWsConfig.getPropertyInt("ws.diagnostic.defaultMinutesChangeLog", 30);
     }
     
     //default of last success is usually 25 hours, but can be less for change log jobs
@@ -86,6 +87,7 @@ public class DiagnosticLoaderJobTest extends DiagnosticTask {
 
     //for these, also accept with no uuid
     if (this.grouperLoaderType == GrouperLoaderType.ATTR_SQL_SIMPLE 
+        || this.grouperLoaderType == GrouperLoaderType.LDAP_SIMPLE
         || this.grouperLoaderType == GrouperLoaderType.SQL_SIMPLE
         || this.grouperLoaderType == GrouperLoaderType.SQL_GROUP_LIST) {
       
