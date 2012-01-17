@@ -247,6 +247,13 @@ public class GrouperInstaller {
       return;
     }
     
+    //stop tomcat
+    try {
+      tomcatBounce("stop");
+    } catch (Exception e) {
+      System.out.println("Couldnt stop tomcat, ignoring...");
+    }
+
     List<String> commands = new ArrayList<String>();
     
     addAntCommands(commands);
@@ -265,6 +272,51 @@ public class GrouperInstaller {
     if (!GrouperInstallerUtils.isBlank(commandResult.getOutputText())) {
       System.out.println("stdout: " + commandResult.getOutputText());
     }
+    
+    System.out.print("Do you want to set the log dir of UI (t|f)? [t]: ");
+    boolean setLogDir = readFromStdInBoolean(true);
+    
+    if (setLogDir) {
+      
+      ////set the log dir
+      //C:\apps\grouperInstallerTest\grouper.ws-2.0.2\grouper-ws\build\dist\grouper-ws\WEB-INF\classes\log4j.properties
+      //
+      //${grouper.home}logs
+
+      String defaultLogDir = this.untarredTomcatDir.getAbsolutePath() + File.separator + "logs" + File.separator + "grouperUi";
+      System.out.print("Enter the UI log dir: [" + defaultLogDir + "]: ");
+      String logDir = readFromStdIn();
+      logDir = GrouperInstallerUtils.defaultIfBlank(logDir, defaultLogDir);
+      
+      //lets replace \\ with /
+      logDir = GrouperInstallerUtils.replace(logDir, "\\\\", "/");
+      //lets replace \ with /
+      logDir = GrouperInstallerUtils.replace(logDir, "\\", "/");
+
+      File log4jFile = new File(grouperUiBuildToDirName() + File.separator + "WEB-INF" + File.separator + "classes"
+          + File.separator + "log4j.properties");
+
+      System.out.println("Editing file: " + log4jFile.getAbsolutePath());
+
+      //log4j.appender.grouper_event.File = c:/apps/grouperInstallerTest/grouper.apiBinary-2.0.2/logs/grouper_event.log
+      editFile(log4jFile, "log4j\\.\\S+\\.File\\s*=\\s*([^\\s]+/logs)/grouper_[^\\s]+\\.log", null, 
+          null, logDir, "UI log directory");
+
+      File logDirFile = new File(defaultLogDir);
+      if (!logDirFile.exists()) {
+        System.out.println("Creating log directory: " + logDirFile.getAbsolutePath());
+        GrouperInstallerUtils.mkdirs(logDirFile);
+      }
+      //test log dir
+      File testLogDirFile = new File(logDirFile.getAbsolutePath() + File.separator + "testFile" + GrouperInstallerUtils.uniqueId() + ".txt");
+      GrouperInstallerUtils.saveStringIntoFile(testLogDirFile, "test");
+      if (!testLogDirFile.delete()) {
+        throw new RuntimeException("Cant delete file: " +  testLogDirFile.getAbsolutePath());
+      }
+      System.out.println("Created and deleted a test file successfully in dir: " + logDirFile.getAbsolutePath());
+    }
+    
+
     
     System.out.println("\nEnd building UI");
     System.out.println("##################################\n");
@@ -455,6 +507,9 @@ public class GrouperInstaller {
 //    11      </java>
     
     commands.add(GrouperInstallerUtils.javaCommand());
+    commands.add("-XX:MaxPermSize=150m");
+    commands.add("-Xmx640m");
+    
     commands.add("-Dcatalina.home=" + this.untarredTomcatDir.getAbsolutePath());
     //commands.add("-Djava.util.logging.config.file=" + this.untarredTomcatDir.getAbsolutePath() + File.separator + "conf" + File.separator + "logging.properties");
     
@@ -466,9 +521,12 @@ public class GrouperInstaller {
     }
     
     System.out.println("\n##################################");
+    
+    String command = "start".equals(arg) ? "startup" : "shutdown";
+    
     System.out.println("Tomcat " + arg + " with command (note you need CATALINA_HOME and JAVA_HOME set):\n  "
-        + this.untarredTomcatDir.getAbsolutePath() + File.separator + "bin" + File.separator 
-        + (GrouperInstallerUtils.isWindows() ? "startup.bat" : "startup.sh") + "\n");
+        + this.untarredTomcatDir.getAbsolutePath() + File.separator + "bin" + File.separator + command
+        + (GrouperInstallerUtils.isWindows() ? ".bat" : ".sh") + "\n");
     
     //dont wait
     boolean waitFor = GrouperInstallerUtils.equals("stop", arg) ? true : false;
@@ -615,7 +673,7 @@ public class GrouperInstaller {
 
         } else {
           
-          editXmlFile(tomcatUsersXmlFile, "password=\"([^\"]*)\"", new String[]{"<user", "username=\"GrouperSystem\""}, 
+          editFile(tomcatUsersXmlFile, "password=\"([^\"]*)\"", new String[]{"<user", "username=\"GrouperSystem\""}, 
               null, this.grouperSystemPassword, "Tomcat password for user GrouperSystem");
           
         }
@@ -696,26 +754,56 @@ public class GrouperInstaller {
     
     //####################################
     //unzip/untar the api file
+    
     File unzippedApiFile = unzip(apiFile.getAbsolutePath());
     this.untarredApiDir = untar(unzippedApiFile.getAbsolutePath());
     
-    //lts make sure gsh.sh is executable
-    if (!GrouperInstallerUtils.isWindows()) {
-      List<String> commands = GrouperInstallerUtils.toList("chmod", "+x", 
-          this.untarredApiDir.getAbsolutePath() + File.separator + "bin" + File.separator + "gsh.sh");
-      System.out.println("Making sure gsh.sh is executable with command: " + convertCommandsIntoCommand(commands) + "\n");
-      CommandResult commandResult = GrouperInstallerUtils.execCommand(
-          GrouperInstallerUtils.toArray(commands, String.class));
-      
-      if (!GrouperInstallerUtils.isBlank(commandResult.getErrorText())) {
-        System.out.println("stderr: " + commandResult.getErrorText());
-      }
-      if (!GrouperInstallerUtils.isBlank(commandResult.getOutputText())) {
-        System.out.println("stdout: " + commandResult.getOutputText());
-      }
+    //lts make sure gsh.sh is executable and in unix format
 
+    if (!GrouperInstallerUtils.isWindows()) {
+
+      System.out.print("Do you want to set gsh script to executable (t|f)? [t]: ");
+      boolean setGshFile = readFromStdInBoolean(true);
+      
+      if (setGshFile) {
+      
+        List<String> commands = GrouperInstallerUtils.toList("chmod", "+x", 
+            this.untarredApiDir.getAbsolutePath() + File.separator + "bin" + File.separator + "gsh.sh");
+  
+        System.out.println("Making sure gsh.sh is executable with command: " + convertCommandsIntoCommand(commands) + "\n");
+  
+        CommandResult commandResult = GrouperInstallerUtils.execCommand(
+            GrouperInstallerUtils.toArray(commands, String.class), true, true, null, 
+            new File(this.untarredApiDir.getAbsolutePath() + File.separator + "bin"), null);
+        
+        if (!GrouperInstallerUtils.isBlank(commandResult.getErrorText())) {
+          System.out.println("stderr: " + commandResult.getErrorText());
+        }
+        if (!GrouperInstallerUtils.isBlank(commandResult.getOutputText())) {
+          System.out.println("stdout: " + commandResult.getOutputText());
+        }
+
+          
+        commands = GrouperInstallerUtils.toList("dos2unix", 
+            this.untarredApiDir.getAbsolutePath() + File.separator + "bin" + File.separator + "gsh.sh");
+  
+        System.out.println("Making sure gsh.sh is in unix format: " + convertCommandsIntoCommand(commands) + "\n");
+  
+        commandResult = GrouperInstallerUtils.execCommand(
+            GrouperInstallerUtils.toArray(commands, String.class), true, true, null, 
+            new File(this.untarredApiDir.getAbsolutePath() + File.separator + "bin"), null);
+        
+        if (!GrouperInstallerUtils.isBlank(commandResult.getErrorText())) {
+          System.out.println("stderr: " + commandResult.getErrorText());
+        }
+        if (!GrouperInstallerUtils.isBlank(commandResult.getOutputText())) {
+          System.out.println("stdout: " + commandResult.getOutputText());
+        }
+
+      }
+      
     }
-    
+
     //####################################
     //ask about database
 
@@ -826,10 +914,6 @@ public class GrouperInstaller {
     this.untarredAntDir = untar(unzippedAntFile.getAbsolutePath());
     
     //####################################
-    //build UI
-    buildUi();
-
-    //####################################
     //look for or ask or download tomcat
     File tomcatDir = downloadTomcat();
     File unzippedTomcatFile = unzip(tomcatDir.getAbsolutePath());
@@ -839,6 +923,10 @@ public class GrouperInstaller {
     //ask for tomcat port
     configureTomcat();
     
+    //####################################
+    //build UI
+    buildUi();
+
     //####################################
     //configureTomcatUiWebapp
     configureTomcatUiWebapp();
@@ -927,6 +1015,95 @@ public class GrouperInstaller {
    */
   private void configureTomcat() {
     
+    System.out.print("Do you want to set the tomcat memory limit (t|f)? [t]: ");
+    boolean setTomcatMemory = readFromStdInBoolean(true);
+    
+    if (setTomcatMemory) {
+      
+      {
+        File catalinaBatFile = new File(this.untarredTomcatDir.getAbsolutePath() + File.separator + "bin" + File.separator + "catalina.bat");
+        
+        System.out.println("Editing file: " + catalinaBatFile.getAbsolutePath());
+        
+        Boolean edited = editFile(catalinaBatFile, "^\\s*set\\s+\"JAVA_OPTS\\s*=.*-Xmx([0-9mMgG]+)", null, null, "512M", "max memory");
+        if (edited == null) {
+          addToFile(catalinaBatFile, "\nset \"JAVA_OPTS=-server -Xmx512M -XX:MaxPermSize=256M\"\n", 65, "max memory");
+        }
+        if (null == editFile(catalinaBatFile, "^\\s*set\\s+\"JAVA_OPTS\\s*=.*-XX:MaxPermSize=([0-9mMgG]+)", null, null, "256M", "permgen memory")) {
+          throw new RuntimeException("Why not edit permgen in file " + catalinaBatFile);
+        }
+      }
+      
+      {
+        File catalinaShFile = new File(this.untarredTomcatDir.getAbsolutePath() + File.separator + "bin" + File.separator + "catalina.sh");
+        
+        System.out.println("Editing file: " + catalinaShFile.getAbsolutePath());
+
+        Boolean edited = editFile(catalinaShFile, "^\\s*JAVA_OPTS\\s*=\".*-Xmx([0-9mMgG]+)", null, null, "512M", "max memory");
+        if (edited == null) {
+          addToFile(catalinaShFile, "\nJAVA_OPTS=\"-server -Xmx512M -XX:MaxPermSize=256M\"\n", 65, "max memory");
+        }
+        if (null == editFile(catalinaShFile, "^\\s*JAVA_OPTS\\s*=\".*-XX:MaxPermSize=([0-9mMgG]+)", null, null, "256M", "permgen memory")) {
+          throw new RuntimeException("Why not edit permgen in file " + catalinaShFile);
+        }
+      }
+    }      
+    
+    
+    if (!GrouperInstallerUtils.isWindows()) {
+
+      System.out.print("Do you want to set tomcat scripts to executable (t|f)? [t]: ");
+      boolean setTomcatFiles = readFromStdInBoolean(true);
+      
+      if (setTomcatFiles) {
+      
+        for (String command : GrouperInstallerUtils.toSet("catalina.sh", "startup.sh", "shutdown.sh")) {
+          
+          List<String> commands = new ArrayList<String>();
+          
+          commands.add("chmod");
+          commands.add("+x");
+          commands.add(this.untarredTomcatDir.getAbsolutePath() + File.separator + "bin" + File.separator + command);
+    
+          System.out.println("Making tomcat file executable with command: " + convertCommandsIntoCommand(commands) + "\n");
+    
+          CommandResult commandResult = GrouperInstallerUtils.execCommand(
+              GrouperInstallerUtils.toArray(commands, String.class), true, true, null, 
+              new File(this.untarredTomcatDir.getAbsolutePath() + File.separator + "bin"), null);
+          
+          if (!GrouperInstallerUtils.isBlank(commandResult.getErrorText())) {
+            System.out.println("stderr: " + commandResult.getErrorText());
+          }
+          if (!GrouperInstallerUtils.isBlank(commandResult.getOutputText())) {
+            System.out.println("stdout: " + commandResult.getOutputText());
+          }
+        }
+
+        for (String command : GrouperInstallerUtils.toSet("catalina.sh", "startup.sh", "shutdown.sh")) {
+          
+          List<String> commands = new ArrayList<String>();
+          
+          commands.add("dos2unix");
+          commands.add(this.untarredTomcatDir.getAbsolutePath() + File.separator + "bin" + File.separator + command);
+    
+          System.out.println("Making tomcat file in unix format: " + convertCommandsIntoCommand(commands) + "\n");
+    
+          CommandResult commandResult = GrouperInstallerUtils.execCommand(
+              GrouperInstallerUtils.toArray(commands, String.class), true, true, null, 
+              new File(this.untarredTomcatDir.getAbsolutePath() + File.separator + "bin"), null);
+          
+          if (!GrouperInstallerUtils.isBlank(commandResult.getErrorText())) {
+            System.out.println("stderr: " + commandResult.getErrorText());
+          }
+          if (!GrouperInstallerUtils.isBlank(commandResult.getOutputText())) {
+            System.out.println("stdout: " + commandResult.getOutputText());
+          }
+        }
+
+      }
+      
+    }
+      
     //see what the current ports are
     this.tomcatHttpPort = -1;
     
@@ -982,12 +1159,12 @@ public class GrouperInstaller {
       System.out.println("Editing tomcat config file: " + serverXmlFile.getAbsolutePath());
       //lets edit the file
       //<Connector port="8080" protocol="HTTP/1.1" 
-      editXmlFile(serverXmlFile, "port=\"([\\d]+)\"", new String[]{"<Connector", "protocol=\"HTTP/1.1\""}, 
+      editFile(serverXmlFile, "port=\"([\\d]+)\"", new String[]{"<Connector", "protocol=\"HTTP/1.1\""}, 
           new String[]{"SSLEnabled=\"true\""}, Integer.toString(this.tomcatHttpPort), "tomcat HTTP port");
       //<Connector port="8009" protocol="AJP/1.3" redirectPort="8443" />
-      editXmlFile(serverXmlFile, "port=\"([\\d]+)\"", new String[]{"<Connector", "protocol=\"AJP/1.3\""}, null, Integer.toString(jkPort), "tomcat JK port");
+      editFile(serverXmlFile, "port=\"([\\d]+)\"", new String[]{"<Connector", "protocol=\"AJP/1.3\""}, null, Integer.toString(jkPort), "tomcat JK port");
       //<Server port="8005" shutdown="SHUTDOWN">
-      editXmlFile(serverXmlFile, "port=\"([\\d]+)\"", new String[]{"<Server", "shutdown=\"SHUTDOWN\""}, null, Integer.toString(shutdownPort), "tomcat shutdown port");
+      editFile(serverXmlFile, "port=\"([\\d]+)\"", new String[]{"<Server", "shutdown=\"SHUTDOWN\""}, null, Integer.toString(shutdownPort), "tomcat shutdown port");
       break;
     }
   }
@@ -1102,7 +1279,7 @@ public class GrouperInstaller {
    */
   private void addQuickstartSubjects() {
     
-    System.out.print("Do you want to add quickstart subjects to DB (t|f)? [t] ");
+    System.out.print("Do you want to add quickstart subjects to DB (t|f)? [t]: ");
     boolean addQuickstartSubjects = readFromStdInBoolean(true);
     
     if (addQuickstartSubjects) {
@@ -1443,7 +1620,7 @@ public class GrouperInstaller {
         
         //lets edit the file
         //<Context docBase="C:\mchyzer\grouper\trunk\grouper-ws_trunk\webapp" path="/grouper-ws" reloadable="false"/>
-        editXmlFile(serverXmlFile, "docBase=\"([^\"]+)\"", new String[]{"<Context", "path=\"/" + this.tomcatUiPath + "\""}, 
+        editFile(serverXmlFile, "docBase=\"([^\"]+)\"", new String[]{"<Context", "path=\"/" + this.tomcatUiPath + "\""}, 
             null, shouldBeDocBase, "tomcat context for UI");
 
       } else {
@@ -1492,6 +1669,12 @@ public class GrouperInstaller {
       return;
     }
 
+    //stop tomcat
+    try {
+      tomcatBounce("stop");
+    } catch (Exception e) {
+    	System.out.println("Couldnt stop tomcat, ignoring...");
+    }
     
     List<String> commands = new ArrayList<String>();
     
@@ -1510,6 +1693,48 @@ public class GrouperInstaller {
     }
     if (!GrouperInstallerUtils.isBlank(commandResult.getOutputText())) {
       System.out.println("stdout: " + commandResult.getOutputText());
+    }
+
+    System.out.print("Do you want to set the log dir of WS (t|f)? [t]: ");
+    boolean setLogDir = readFromStdInBoolean(true);
+    
+    if (setLogDir) {
+      
+      ////set the log dir
+      //C:\apps\grouperInstallerTest\grouper.ws-2.0.2\grouper-ws\build\dist\grouper-ws\WEB-INF\classes\log4j.properties
+      //
+      //${grouper.home}logs
+
+      String defaultLogDir = this.untarredTomcatDir.getAbsolutePath() + File.separator + "logs" + File.separator + "grouperWs";
+      System.out.print("Enter the WS log dir: [" + defaultLogDir + "]: ");
+      String logDir = readFromStdIn();
+      logDir = GrouperInstallerUtils.defaultIfBlank(logDir, defaultLogDir);
+      
+      //lets replace \\ with /
+      logDir = GrouperInstallerUtils.replace(logDir, "\\\\", "/");
+      //lets replace \ with /
+      logDir = GrouperInstallerUtils.replace(logDir, "\\", "/");
+
+      File log4jFile = new File(grouperWsBuildToDirName() + File.separator + "WEB-INF" + File.separator + "classes"
+          + File.separator + "log4j.properties");
+      
+      System.out.println("Editing file: " + log4jFile.getAbsolutePath());
+      
+      editFile(log4jFile, "log4j\\.\\S+\\.File\\s*=\\s*([^\\s]+/logs)/grouper_[^\\s]+\\.log", null, 
+          null, logDir, "WS log directory");
+      
+      File logDirFile = new File(defaultLogDir);
+      if (!logDirFile.exists()) {
+        System.out.println("Creating log directory: " + logDirFile.getAbsolutePath());
+        GrouperInstallerUtils.mkdirs(logDirFile);
+      }
+      //test log dir
+      File testLogDirFile = new File(logDirFile.getAbsolutePath() + File.separator + "testFile" + GrouperInstallerUtils.uniqueId() + ".txt");
+      GrouperInstallerUtils.saveStringIntoFile(testLogDirFile, "test");
+      if (!testLogDirFile.delete()) {
+        throw new RuntimeException("Cant delete file: " +  testLogDirFile.getAbsolutePath());
+      }
+      System.out.println("Created and deleted a test file successfully in dir: " + logDirFile.getAbsolutePath());
     }
     
     System.out.println("\nEnd building Ws");
@@ -1571,7 +1796,7 @@ public class GrouperInstaller {
         
         //lets edit the file
         //<Context docBase="C:\mchyzer\grouper\trunk\grouper-ws_trunk\webapp" path="/grouper-ws" reloadable="false"/>
-        editXmlFile(serverXmlFile, "docBase=\"([^\"]+)\"", new String[]{"<Context", "path=\"/" + this.tomcatWsPath + "\""}, 
+        editFile(serverXmlFile, "docBase=\"([^\"]+)\"", new String[]{"<Context", "path=\"/" + this.tomcatWsPath + "\""}, 
             null, shouldBeDocBase, "tomcat context for WS");
   
       } else {
@@ -1727,8 +1952,9 @@ public class GrouperInstaller {
    * @param lineCantHaveRegexes 
    * @param newValue 
    * @param description of change for sys out print
+   * @return true if edited file, or false if not but didnt need to, null if not found
    */
-  public static void editXmlFile(File file, String valueRegex, String[] lineMustHaveRegexes, String[] lineCantHaveRegexes, String newValue, String description) {
+  public static Boolean editFile(File file, String valueRegex, String[] lineMustHaveRegexes, String[] lineCantHaveRegexes, String newValue, String description) {
     if (!file.exists() || file.length() == 0) {
       throw new RuntimeException("Why does " + file.getName() + " not exist and have contents? " 
           + file.getAbsolutePath());
@@ -1738,7 +1964,16 @@ public class GrouperInstaller {
     
     String newline = newlineFromFile(fileContents);
     
-    String[] lines = fileContents.split("[\\r\\n]+");
+    String[] lines = null;
+    if ("\n".equals(newline)) {
+      lines = fileContents.split("[\\n]");
+    } else if ("\r".equals(newline)) {
+      lines = fileContents.split("[\\r]");
+    } else if ("\r\n".equals(newline)) {
+      lines = fileContents.split("[\\r\\n]");
+    } else {
+      lines = fileContents.split("[\\r\\n]+");
+    }
     
     Pattern pattern = Pattern.compile(valueRegex);
     
@@ -1769,6 +2004,7 @@ public class GrouperInstaller {
     StringBuilder newfile = new StringBuilder();
     
     boolean madeChange = false;
+    boolean noChangeNeeded = false;
     
     OUTER: for (String line : lines) {
       line = GrouperInstallerUtils.defaultString(line);
@@ -1799,6 +2035,7 @@ public class GrouperInstaller {
       String oldValue = matcher.group(1);
       if (GrouperInstallerUtils.equals(newValue, oldValue)) {
         System.out.println(" - old " + description + " value is same as new value: " + newValue);
+        noChangeNeeded = true;
         newfile.append(line).append(newline);
         continue;
       }
@@ -1814,7 +2051,73 @@ public class GrouperInstaller {
     }
     
     if (!madeChange) {
-      return;
+      //true if edited file, or false if not but didnt need to, null if not found
+      if (noChangeNeeded) {
+        return false;
+      }
+      return null;
+    }
+    
+    GrouperInstallerUtils.writeStringToFile(file, newfile.toString());
+    
+    return true;
+  }
+
+  /**
+   * add a line to a file.  will replace \n with whatever newline is
+   * @param file
+   * @param line (not ending in newline)
+   * @param lineNumber 1 indexed.  If not exist, add to end of file
+   * @param description is a description of what was just changed
+   */
+  public static void addToFile(File file, String line, int lineNumber, String description) {
+    if (!file.exists() || file.length() == 0) {
+      throw new RuntimeException("Why does " + file.getName() + " not exist and have contents? " 
+          + file.getAbsolutePath());
+    }
+    
+    String fileContents = GrouperInstallerUtils.readFileIntoString(file);
+    
+    String newline = newlineFromFile(fileContents);
+    
+    String[] lines = null;
+    if ("\n".equals(newline)) {
+      lines = fileContents.split("[\\n]");
+    } else if ("\r".equals(newline)) {
+      lines = fileContents.split("[\\r]");
+    } else if ("\r\n".equals(newline)) {
+      lines = fileContents.split("[\\r\\n]");
+    } else {
+      lines = fileContents.split("[\\r\\n]+");
+    }
+
+    line = GrouperInstallerUtils.replace(line, "\n", newline);
+    
+    line += newline;
+    
+    StringBuilder newfile = new StringBuilder();
+    
+    boolean madeChange = false;
+    
+    int index = 0;
+    
+    for (String fileLine : lines) {
+      fileLine = GrouperInstallerUtils.defaultString(fileLine);
+      newfile.append(fileLine).append(newline);
+      index++;
+      
+      if (index >= lineNumber  && !madeChange) {
+
+        System.out.println("Adding " + description + " to file at line number: " + lineNumber);        
+        
+        newfile.append(line);
+        madeChange = true;
+      }
+    }
+    
+    if (!madeChange) {
+      System.out.println("Appending " + description + " to end of file");        
+      newfile.append(line);
     }
     
     GrouperInstallerUtils.writeStringToFile(file, newfile.toString());
