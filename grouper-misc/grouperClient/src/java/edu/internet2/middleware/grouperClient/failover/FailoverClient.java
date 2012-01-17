@@ -22,8 +22,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.commons.lang.exception.ExceptionUtils;
-
 import edu.internet2.middleware.grouperClient.failover.FailoverConfig.FailoverStrategy;
 import edu.internet2.middleware.grouperClient.util.ExpirableCache;
 import edu.internet2.middleware.grouperClient.util.GrouperClientCommonUtils;
@@ -704,7 +702,7 @@ public class FailoverClient implements Serializable {
           + "," + (isFatal ? "" : " will try others in pool") + " (" + errorCountForTesting
           + " total errors, "
           + timeoutCountForTesting + " total timeouts, "
-          + fatalProblemCountForTesting + " total fatal errors): [THIS STACK]: " + ExceptionUtils.getFullStackTrace(thisStack);
+          + fatalProblemCountForTesting + " total fatal errors): [THIS STACK]: " + GrouperClientUtils.getFullStackTrace(thisStack);
       if (isException) {
         if (isFatal) {
           LOG.error(objectToLog, re);
