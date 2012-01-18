@@ -818,8 +818,8 @@ public class TestStem extends GrouperTest {
       String          uofc  = "uofc";
       String          bsd   = "bsd";
 
+      GrouperSession  s     = GrouperSession.startRootSession();
       Subject         subj  = SubjectFinder.findById("GrouperSystem", true);
-      GrouperSession  s     = GrouperSession.start(subj);
       Stem            root  = StemFinder.findRootStem(s);
       Stem            ns0   = root.addChildStem(edu, edu);
       Stem            ns1   = ns0.addChildStem(uofc, uofc);
@@ -859,8 +859,9 @@ public class TestStem extends GrouperTest {
     String          uofcStemName  = "uofc";
     String          uofcGroupBsdName   = "bsd";
 
+    GrouperSession  grouperSession     = GrouperSession.startRootSession();
     Subject         subj  = SubjectFinder.findById("GrouperSystem", true);
-    GrouperSession  grouperSession     = GrouperSession.start(subj);
+
     Stem            rootStem  = StemFinder.findRootStem(grouperSession);
     Stem            eduStem   = rootStem.addChildStem(eduStemName, eduStemName);
     Stem            uofcStem   = eduStem.addChildStem(uofcStemName, uofcStemName);
@@ -1718,8 +1719,9 @@ public class TestStem extends GrouperTest {
   public void testChildStemsLazyInitializationException() {
     LOG.info("testChildStemsLazyInitializationException");
     try {
+      GrouperSession  s     = GrouperSession.startRootSession();
       Subject         subj  = SubjectFinder.findById("GrouperSystem", true);
-      GrouperSession  s     = GrouperSession.start(subj);
+
       Stem  root  = StemFinder.findRootStem(s);
       root.addChildStem("qsuob", "qsuob");
       s.stop();

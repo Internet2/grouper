@@ -7,6 +7,7 @@ import junit.textui.TestRunner;
 
 import org.apache.commons.lang.StringUtils;
 
+import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
@@ -81,6 +82,7 @@ public class EsbConsumerTest extends GrouperTest {
    */
   public void testJsonSubject() {
     EsbEvent esbEvent = new EsbEvent();
+    GrouperSession.startRootSession();
     Subject subject = SubjectFinder.findById("GrouperSystem", true);
     esbEvent.setSourceId(subject.getSourceId());
     esbEvent.setSubjectId(subject.getId());

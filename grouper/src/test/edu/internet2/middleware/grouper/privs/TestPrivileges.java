@@ -109,9 +109,7 @@ public class TestPrivileges extends GrouperTest {
   public void testGrantStemToGroup() {
     try {
       // Setup
-      GrouperSession  s     = GrouperSession.start(
-        SubjectFinder.findById("GrouperSystem", "application", true)
-      );
+      GrouperSession  s     = GrouperSession.startRootSession();
       Stem            root  = StemFinder.findRootStem(s);
       Stem            edu   = root.addChildStem("edu", "educational");
       Group           i2    = edu.addChildGroup("i2", "internet2");

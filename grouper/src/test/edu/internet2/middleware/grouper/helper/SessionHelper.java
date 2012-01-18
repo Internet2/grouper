@@ -16,6 +16,8 @@
 */
 
 package edu.internet2.middleware.grouper.helper;
+import org.apache.commons.lang.StringUtils;
+
 import junit.framework.Assert;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
@@ -45,7 +47,9 @@ public class SessionHelper {
   // @return  A {@link GrouperSession}
   public static GrouperSession getSession(String id) {
     try {
-      GrouperSession s = GrouperSession.start(
+      
+      GrouperSession s = StringUtils.equals(id, "GrouperSession") ?
+          GrouperSession.startRootSession() : GrouperSession.start(
         SubjectFinder.findById(id, true)
       );
       Assert.assertNotNull("s !null", s);

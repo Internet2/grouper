@@ -3046,9 +3046,7 @@ public enum GrouperLoaderType {
     
     GrouperSession grouperSession = null;
     try {
-      grouperSession = GrouperSession.start(
-          SubjectFinder.findById("GrouperSystem", true)
-        );
+      grouperSession = GrouperSession.startRootSession();
 
       //lets see if there is configuration
       String attrRootStem = GrouperConfig.getProperty("grouper.attribute.rootStem");
@@ -3155,9 +3153,7 @@ public enum GrouperLoaderType {
     
     GrouperSession grouperSession = null;
     try {
-      grouperSession = GrouperSession.start(
-          SubjectFinder.findById("GrouperSystem", true)
-        );
+      grouperSession = GrouperSession.startRootSession();
 
       //lets see if there is configuration
       String attrRootStem = GrouperConfig.getProperty("grouper.attribute.rootStem");

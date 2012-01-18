@@ -62,7 +62,7 @@ public class TestSubject extends GrouperTest {
    * 
    */
   public void testFindAllInternal() {
-    
+    GrouperSession.startRootSession();
     //grouper sys admin
     Subject grouperSystem = SubjectFinder.findById("GrouperSystem", true);
     Subject everyEntity = SubjectFinder.findById("GrouperAll", true);
