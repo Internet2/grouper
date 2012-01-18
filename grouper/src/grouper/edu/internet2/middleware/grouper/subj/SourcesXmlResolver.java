@@ -296,8 +296,8 @@ public class SourcesXmlResolver implements SubjectResolver {
     updateMemberAttributes(subj);
     
     //before we have started up, it wont find the session :)
-    if (GrouperStartup.isFinishedStartupSuccessfully() || !StringUtils.equals( GrouperConfig.ROOT, id) 
-        || !StringUtils.equals(InternalSourceAdapter.ID, source)) {
+    if (GrouperStartup.isFinishedStartupSuccessfully() && (!(StringUtils.equals( GrouperConfig.ROOT, id) 
+        && StringUtils.equals(InternalSourceAdapter.ID, source)))) {
       subj = SubjectFinder.filterSubject(GrouperSession.staticGrouperSession(), subj, null);
     }
     return subj;
