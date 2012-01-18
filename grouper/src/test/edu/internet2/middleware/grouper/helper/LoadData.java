@@ -69,8 +69,7 @@ public class LoadData {
    * @throws Exception
    */
   public static void loadDukeData() throws Exception {
-    GrouperSession session = GrouperSession.start(SubjectFinder.findById("GrouperSystem", 
-        "application", InternalSourceAdapter.ID, true));
+    GrouperSession session = GrouperSession.startRootSession();
 
     Stem eduStem = Stem.saveStem(session, "edu", null, "edu", "edu", "", 
         null, false);

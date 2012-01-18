@@ -175,8 +175,8 @@ public class TestMembership extends TestCase {
       Subject iawi = SubjectTestHelper.SUBJ2;
   
       LOG.debug("testBadEffMshipDepthCalcExposedByGroupDelete.0");
+      GrouperSession s = GrouperSession.startRootSession();
       Subject subj = SubjectFinder.findById("GrouperSystem", true);
-      GrouperSession s = GrouperSession.start(subj);
       Stem root = StemFinder.findRootStem(s);
   		Stem qsuob = root.addChildStem("qsuob","qsuob");
       Group admins = qsuob.addChildGroup(Field.FIELD_NAME_ADMINS,Field.FIELD_NAME_ADMINS);
