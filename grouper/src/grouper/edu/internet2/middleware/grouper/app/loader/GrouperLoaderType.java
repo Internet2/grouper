@@ -1735,9 +1735,7 @@ public enum GrouperLoaderType {
     
     GrouperSession grouperSession = null;
     try {
-      grouperSession = GrouperSession.start(
-          SubjectFinder.findById("GrouperSystem", true)
-        );
+      grouperSession = GrouperSession.startRootSession();
   
       Set<Group> groups = retrieveGroups(grouperSession);
       
