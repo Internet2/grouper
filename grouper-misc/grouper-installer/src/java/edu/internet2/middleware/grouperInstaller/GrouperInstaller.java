@@ -299,7 +299,7 @@ public class GrouperInstaller {
       System.out.println("Editing file: " + log4jFile.getAbsolutePath());
 
       //log4j.appender.grouper_event.File = c:/apps/grouperInstallerTest/grouper.apiBinary-2.0.2/logs/grouper_event.log
-      editFile(log4jFile, "log4j\\.\\S+\\.File\\s*=\\s*([^\\s]+/logs)/grouper_[^\\s]+\\.log", null, 
+      editFile(log4jFile, "log4j\\.\\S+\\.File\\s*=\\s*([^\\s]+logs)/grouper_[^\\s]+\\.log", null, 
           null, logDir, "UI log directory");
 
       File logDirFile = new File(defaultLogDir);
@@ -1057,13 +1057,13 @@ public class GrouperInstaller {
       
       if (setTomcatFiles) {
       
-        for (String command : GrouperInstallerUtils.toSet("catalina.sh", "startup.sh", "shutdown.sh")) {
-          
+        {
           List<String> commands = new ArrayList<String>();
           
           commands.add("chmod");
           commands.add("+x");
-          commands.add(this.untarredTomcatDir.getAbsolutePath() + File.separator + "bin" + File.separator + command);
+          //have to do * since all the  sh files need chmod
+          commands.add(this.untarredTomcatDir.getAbsolutePath() + File.separator + "bin" + File.separator + "*.sh");
     
           System.out.println("Making tomcat file executable with command: " + convertCommandsIntoCommand(commands) + "\n");
     
@@ -1078,7 +1078,6 @@ public class GrouperInstaller {
             System.out.println("stdout: " + commandResult.getOutputText());
           }
         }
-
         for (String command : GrouperInstallerUtils.toSet("catalina.sh", "startup.sh", "shutdown.sh")) {
           
           List<String> commands = new ArrayList<String>();
@@ -1720,7 +1719,7 @@ public class GrouperInstaller {
       
       System.out.println("Editing file: " + log4jFile.getAbsolutePath());
       
-      editFile(log4jFile, "log4j\\.\\S+\\.File\\s*=\\s*([^\\s]+/logs)/grouper_[^\\s]+\\.log", null, 
+      editFile(log4jFile, "log4j\\.\\S+\\.File\\s*=\\s*([^\\s]+logs)/grouper_[^\\s]+\\.log", null, 
           null, logDir, "WS log directory");
       
       File logDirFile = new File(defaultLogDir);
