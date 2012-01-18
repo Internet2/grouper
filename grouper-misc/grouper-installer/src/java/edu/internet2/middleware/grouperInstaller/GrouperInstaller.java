@@ -9,8 +9,10 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -1057,13 +1059,25 @@ public class GrouperInstaller {
       
       if (setTomcatFiles) {
       
-        {
+        File binDir = new File(this.untarredTomcatDir.getAbsolutePath() + File.separator + "bin");
+        //GrouperInstallerUtils.toSet("catalina.sh", "startup.sh", "shutdown.sh");
+        Set<String> shFileNames = new HashSet<String>();
+        
+        //get all sh files, doing wildcards doesnt work
+        for (File file : binDir.listFiles()) {
+          String fileName = GrouperInstallerUtils.defaultString(file.getName());
+          if (file.isFile() && fileName.endsWith(".sh")) {
+            shFileNames.add(fileName);
+          }
+        }
+        
+        for (String command : shFileNames) {
           List<String> commands = new ArrayList<String>();
           
           commands.add("chmod");
           commands.add("+x");
           //have to do * since all the  sh files need chmod
-          commands.add(this.untarredTomcatDir.getAbsolutePath() + File.separator + "bin" + File.separator + "*.sh");
+          commands.add(this.untarredTomcatDir.getAbsolutePath() + File.separator + "bin" + File.separator + command);
     
           System.out.println("Making tomcat file executable with command: " + convertCommandsIntoCommand(commands) + "\n");
     
@@ -1078,7 +1092,8 @@ public class GrouperInstaller {
             System.out.println("stdout: " + commandResult.getOutputText());
           }
         }
-        for (String command : GrouperInstallerUtils.toSet("catalina.sh", "startup.sh", "shutdown.sh")) {
+
+        for (String command : shFileNames) {
           
           List<String> commands = new ArrayList<String>();
           
@@ -1672,7 +1687,7 @@ public class GrouperInstaller {
     try {
       tomcatBounce("stop");
     } catch (Exception e) {
-    	System.out.println("Couldnt stop tomcat, ignoring...");
+      System.out.println("Couldnt stop tomcat, ignoring...");
     }
     
     List<String> commands = new ArrayList<String>();
