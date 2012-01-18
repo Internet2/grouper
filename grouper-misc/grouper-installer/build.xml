@@ -53,10 +53,10 @@
         tofile="${main.confDir}/grouper.installer.properties" /></then>
     </if> 
 
-    <if><not><available file="misc/README.txt" /></not>
+    <!-- if><not><available file="misc/README.txt" /></not>
       <then><copy file="misc/README.example.txt" 
         tofile="misc/README.txt" /></then>
-    </if> 
+    </if --> 
 
   </target>
 
