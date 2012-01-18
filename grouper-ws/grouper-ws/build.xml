@@ -516,6 +516,9 @@
 			  <include name="*.jar"/>
         <exclude name="grouper*.jar"/>
 			</fileset>
+      <fileset dir="${grouper.lib.dir}">
+        <include name="grouperClient.jar"/>
+      </fileset>
       <fileset file="${grouper.jar.name}" />
 			<fileset dir="${basedir}/lib/grouper-ws" includes="*.jar" />
       <fileset dir="${basedir}/lib/custom" includes="*.jar" />
