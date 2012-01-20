@@ -77,6 +77,9 @@ public class GrouperShell {
     
     mainLookups.put("-ldappcng",
         "edu.internet2.middleware.ldappc.spml.PSPCLI");
+    
+    mainLookups.put("-psp",
+        "edu.internet2.middleware.psp.PspCLI");
 
   }
   
