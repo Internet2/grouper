@@ -942,9 +942,9 @@ public enum GrouperLoaderType {
     },
     
     /** 
-     * Run an ldappcng full sync.
+     * Run a psp full sync.
      */
-    LDAPPCNG_FULL_SYNC {
+    PSP_FULL_SYNC {
 
       /** {@inheritDoc} */
       public boolean attributeRequired(String attributeName) {
@@ -958,11 +958,12 @@ public enum GrouperLoaderType {
 
       /** {@inheritDoc} */
       public void runJob(LoaderJobBean loaderJobBean) {        
+        LOG.info("Running " + PSP_FULL_SYNC.name());
         GrouperContext.createNewDefaultContext(GrouperEngineBuiltin.LOADER, false, true);        
-        String theClassName = GrouperLoaderConfig.getPropertyString("changeLog.ldappcng.fullSync.class");
+        String theClassName = GrouperLoaderConfig.getPropertyString("changeLog.psp.fullSync.class");
         Class<?> theClass = GrouperUtil.forName(theClassName);
-        Object theClassInstance = GrouperUtil.newInstance(theClass);        
-        GrouperUtil.callMethod(theClassInstance, "fullSync");                         
+        Object theClassInstance = GrouperUtil.newInstance(theClass);
+        GrouperUtil.callMethod(theClassInstance, "fullSync");
       }
     };
   
