@@ -46,21 +46,61 @@ public class Hib3PITAttributeAssignValueDAO extends Hib3DAO implements PITAttrib
    * @param hibernateSession
    */
   public static void reset(HibernateSession hibernateSession) {
-    hibernateSession.byHql().createQuery("delete from PITAttributeAssignValue where id not in (select v.id from AttributeAssignValue as v)").executeUpdate();
+    hibernateSession.byHql().createQuery("delete from PITAttributeAssignValue where sourceId not in (select v.id from AttributeAssignValue as v)").executeUpdate();
   }
 
   /**
-   * @see edu.internet2.middleware.grouper.internal.dao.PITAttributeAssignValueDAO#findById(java.lang.String)
+   * @see edu.internet2.middleware.grouper.internal.dao.PITAttributeAssignValueDAO#findBySourceIdActive(java.lang.String, boolean)
    */
-  public PITAttributeAssignValue findById(String id) {
+  public PITAttributeAssignValue findBySourceIdActive(String id, boolean exceptionIfNotFound) {
     PITAttributeAssignValue pitAttributeAssignValue = HibernateSession
       .byHqlStatic()
-      .createQuery("select attrAssignValue from PITAttributeAssignValue as attrAssignValue where attrAssignValue.id = :id")
+      .createQuery("select attrAssignValue from PITAttributeAssignValue as attrAssignValue where attrAssignValue.sourceId = :id and activeDb = 'T'")
+      .setCacheable(false).setCacheRegion(KLASS + ".FindBySourceIdActive")
+      .setString("id", id)
+      .uniqueResult(PITAttributeAssignValue.class);
+    
+    if (pitAttributeAssignValue == null && exceptionIfNotFound) {
+      throw new RuntimeException("Active PITAttributeAssignValue with sourceId=" + id + " not found");
+    }
+    
+    return pitAttributeAssignValue;
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.PITAttributeAssignValueDAO#findBySourceIdUnique(java.lang.String, boolean)
+   */
+  public PITAttributeAssignValue findBySourceIdUnique(String id, boolean exceptionIfNotFound) {
+    PITAttributeAssignValue pitAttributeAssignValue = HibernateSession
+      .byHqlStatic()
+      .createQuery("select attrAssignValue from PITAttributeAssignValue as attrAssignValue where attrAssignValue.sourceId = :id")
+      .setCacheable(false).setCacheRegion(KLASS + ".FindBySourceIdUnique")
+      .setString("id", id)
+      .uniqueResult(PITAttributeAssignValue.class);
+    
+    if (pitAttributeAssignValue == null && exceptionIfNotFound) {
+      throw new RuntimeException("PITAttributeAssignValue with sourceId=" + id + " not found");
+    }
+    
+    return pitAttributeAssignValue;
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.PITAttributeAssignValueDAO#findById(java.lang.String, boolean)
+   */
+  public PITAttributeAssignValue findById(String id, boolean exceptionIfNotFound) {
+    PITAttributeAssignValue pit = HibernateSession
+      .byHqlStatic()
+      .createQuery("select pit from PITAttributeAssignValue as pit where pit.id = :id")
       .setCacheable(false).setCacheRegion(KLASS + ".FindById")
       .setString("id", id)
       .uniqueResult(PITAttributeAssignValue.class);
     
-    return pitAttributeAssignValue;
+    if (pit == null && exceptionIfNotFound) {
+      throw new RuntimeException("PITAttributeAssignValue with id=" + id + " not found");
+    }
+    
+    return pit;
   }
   
   /**
@@ -124,7 +164,7 @@ public class Hib3PITAttributeAssignValueDAO extends Hib3DAO implements PITAttrib
     Set<AttributeAssignValue> values = HibernateSession
       .byHqlStatic()
       .createQuery("select value from AttributeAssignValue value where " +
-          "not exists (select 1 from PITAttributeAssignValue pit where value.id = pit.id) " +
+          "not exists (select 1 from PITAttributeAssignValue pit where value.id = pit.sourceId) " +
           "and not exists (select 1 from ChangeLogEntryTemp temp, ChangeLogType type " +
           "    where temp.string01 = value.id " +
           "    and type.actionName='addAttributeAssignValue' and type.changeLogCategory='attributeAssignValue' and type.id=temp.changeLogTypeId)")
@@ -142,9 +182,9 @@ public class Hib3PITAttributeAssignValueDAO extends Hib3DAO implements PITAttrib
     Set<PITAttributeAssignValue> values = HibernateSession
       .byHqlStatic()
       .createQuery("select pit from PITAttributeAssignValue pit where activeDb = 'T' and " +
-          "not exists (select 1 from AttributeAssignValue value where value.id = pit.id) " +
+          "not exists (select 1 from AttributeAssignValue value where value.id = pit.sourceId) " +
           "and not exists (select 1 from ChangeLogEntryTemp temp, ChangeLogType type " +
-          "    where temp.string01 = pit.id " +
+          "    where temp.string01 = pit.sourceId " +
           "    and type.actionName='deleteAttributeAssignValue' and type.changeLogCategory='attributeAssignValue' and type.id=temp.changeLogTypeId)")
       .setCacheable(false).setCacheRegion(KLASS + ".FindMissingInactivePITAttributeAssignValues")
       .listSet(PITAttributeAssignValue.class);

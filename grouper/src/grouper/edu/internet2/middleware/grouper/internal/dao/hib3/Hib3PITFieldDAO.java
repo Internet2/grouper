@@ -45,21 +45,79 @@ public class Hib3PITFieldDAO extends Hib3DAO implements PITFieldDAO {
    * @param hibernateSession
    */
   public static void reset(HibernateSession hibernateSession) {
-    hibernateSession.byHql().createQuery("delete from PITField where id not in (select f.uuid from Field as f)").executeUpdate();
+    hibernateSession.byHql().createQuery("delete from PITField where sourceId not in (select f.uuid from Field as f)").executeUpdate();
   }
 
   /**
-   * @see edu.internet2.middleware.grouper.internal.dao.PITFieldDAO#findById(java.lang.String)
+   * @see edu.internet2.middleware.grouper.internal.dao.PITFieldDAO#findBySourceIdActive(java.lang.String, boolean)
    */
-  public PITField findById(String pitFieldId) {
+  public PITField findBySourceIdActive(String id, boolean exceptionIfNotFound) {
     PITField pitField = HibernateSession
       .byHqlStatic()
-      .createQuery("select pitField from PITField as pitField where pitField.id = :id")
-      .setCacheable(true).setCacheRegion(KLASS + ".FindById")
-      .setString("id", pitFieldId)
+      .createQuery("select pitField from PITField as pitField where pitField.sourceId = :id and activeDb = 'T'")
+      .setCacheable(true).setCacheRegion(KLASS + ".FindBySourceIdActive")
+      .setString("id", id)
       .uniqueResult(PITField.class);
     
+    if (pitField == null && exceptionIfNotFound) {
+      throw new RuntimeException("Active PITField with sourceId=" + id + " not found");
+    }
+    
     return pitField;
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.PITFieldDAO#findBySourceIdUnique(java.lang.String, boolean)
+   */
+  public PITField findBySourceIdUnique(String id, boolean exceptionIfNotFound) {
+    PITField pitField = HibernateSession
+      .byHqlStatic()
+      .createQuery("select pitField from PITField as pitField where pitField.sourceId = :id")
+      .setCacheable(true).setCacheRegion(KLASS + ".FindBySourceIdUnique")
+      .setString("id", id)
+      .uniqueResult(PITField.class);
+    
+    if (pitField == null && exceptionIfNotFound) {
+      throw new RuntimeException("PITField with sourceId=" + id + " not found");
+    }
+    
+    return pitField;
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.PITFieldDAO#findBySourceId(java.lang.String, boolean)
+   */
+  public Set<PITField> findBySourceId(String id, boolean exceptionIfNotFound) {
+    Set<PITField> pitFields = HibernateSession
+      .byHqlStatic()
+      .createQuery("select pitField from PITField as pitField where pitField.sourceId = :id")
+      .setCacheable(true).setCacheRegion(KLASS + ".FindBySourceId")
+      .setString("id", id)
+      .listSet(PITField.class);
+    
+    if (pitFields.size() == 0 && exceptionIfNotFound) {
+      throw new RuntimeException("PITField with sourceId=" + id + " not found");
+    }
+    
+    return pitFields;
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.PITFieldDAO#findById(java.lang.String, boolean)
+   */
+  public PITField findById(String id, boolean exceptionIfNotFound) {
+    PITField pit = HibernateSession
+      .byHqlStatic()
+      .createQuery("select pit from PITField as pit where pit.id = :id")
+      .setCacheable(false).setCacheRegion(KLASS + ".FindById")
+      .setString("id", id)
+      .uniqueResult(PITField.class);
+    
+    if (pit == null && exceptionIfNotFound) {
+      throw new RuntimeException("PITField with id=" + id + " not found");
+    }
+    
+    return pit;
   }
   
   /**
@@ -80,7 +138,7 @@ public class Hib3PITFieldDAO extends Hib3DAO implements PITFieldDAO {
     Set<Field> fields = HibernateSession
       .byHqlStatic()
       .createQuery("select f from Field f where " +
-          "not exists (select 1 from PITField pit where f.uuid = pit.id and f.name = pit.nameDb and f.typeString = pit.typeDb) " +
+          "not exists (select 1 from PITField pit where f.uuid = pit.sourceId and f.name = pit.nameDb and f.typeString = pit.typeDb) " +
           "and not exists (select 1 from ChangeLogEntryTemp temp, ChangeLogType type " +
           "    where temp.string01 = f.uuid " +
           "    and type.actionName='addGroupField' and type.changeLogCategory='groupField' and type.id=temp.changeLogTypeId) " +
@@ -101,9 +159,9 @@ public class Hib3PITFieldDAO extends Hib3DAO implements PITFieldDAO {
     Set<PITField> fields = HibernateSession
       .byHqlStatic()
       .createQuery("select pit from PITField pit where activeDb = 'T' and " +
-          "not exists (select 1 from Field f where f.uuid = pit.id) " +
+          "not exists (select 1 from Field f where f.uuid = pit.sourceId) " +
           "and not exists (select 1 from ChangeLogEntryTemp temp, ChangeLogType type " +
-          "    where temp.string01 = pit.id " +
+          "    where temp.string01 = pit.sourceId " +
           "    and type.actionName='deleteGroupField' and type.changeLogCategory='groupField' and type.id=temp.changeLogTypeId)")
       .setCacheable(false).setCacheRegion(KLASS + ".FindMissingInactivePITFields")
       .listSet(PITField.class);

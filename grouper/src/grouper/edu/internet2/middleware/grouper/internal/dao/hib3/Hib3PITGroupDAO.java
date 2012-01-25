@@ -20,6 +20,7 @@ import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.pit.PITAttributeAssign;
 import edu.internet2.middleware.grouper.pit.PITAttributeAssignActionSet;
 import edu.internet2.middleware.grouper.pit.PITAttributeDefNameSet;
+import edu.internet2.middleware.grouper.pit.PITField;
 import edu.internet2.middleware.grouper.pit.PITGroup;
 import edu.internet2.middleware.grouper.pit.PITMembership;
 import edu.internet2.middleware.grouper.pit.PITRoleSet;
@@ -66,21 +67,79 @@ public class Hib3PITGroupDAO extends Hib3DAO implements PITGroupDAO {
    * @param hibernateSession
    */
   public static void reset(HibernateSession hibernateSession) {
-    hibernateSession.byHql().createQuery("delete from PITGroup where id not in (select g.uuid from Group as g)").executeUpdate();
+    hibernateSession.byHql().createQuery("delete from PITGroup where sourceId not in (select g.uuid from Group as g)").executeUpdate();
   }
 
   /**
-   * @see edu.internet2.middleware.grouper.internal.dao.PITGroupDAO#findById(java.lang.String)
+   * @see edu.internet2.middleware.grouper.internal.dao.PITGroupDAO#findBySourceIdActive(java.lang.String, boolean)
    */
-  public PITGroup findById(String pitGroupId) {
+  public PITGroup findBySourceIdActive(String id, boolean exceptionIfNotFound) {
     PITGroup pitGroup = HibernateSession
       .byHqlStatic()
-      .createQuery("select pitGroup from PITGroup as pitGroup where pitGroup.id = :id")
-      .setCacheable(false).setCacheRegion(KLASS + ".FindById")
-      .setString("id", pitGroupId)
+      .createQuery("select pitGroup from PITGroup as pitGroup where pitGroup.sourceId = :id and activeDb = 'T'")
+      .setCacheable(false).setCacheRegion(KLASS + ".FindBySourceIdActive")
+      .setString("id", id)
       .uniqueResult(PITGroup.class);
     
+    if (pitGroup == null && exceptionIfNotFound) {
+      throw new RuntimeException("Active PITGroup with sourceId=" + id + " not found");
+    }
+    
     return pitGroup;
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.PITGroupDAO#findBySourceIdUnique(java.lang.String, boolean)
+   */
+  public PITGroup findBySourceIdUnique(String id, boolean exceptionIfNotFound) {
+    PITGroup pitGroup = HibernateSession
+      .byHqlStatic()
+      .createQuery("select pitGroup from PITGroup as pitGroup where pitGroup.sourceId = :id")
+      .setCacheable(false).setCacheRegion(KLASS + ".FindBySourceIdUnique")
+      .setString("id", id)
+      .uniqueResult(PITGroup.class);
+    
+    if (pitGroup == null && exceptionIfNotFound) {
+      throw new RuntimeException("PITGroup with sourceId=" + id + " not found");
+    }
+    
+    return pitGroup;
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.PITGroupDAO#findBySourceId(java.lang.String, boolean)
+   */
+  public Set<PITGroup> findBySourceId(String id, boolean exceptionIfNotFound) {
+    Set<PITGroup> pitGroups = HibernateSession
+      .byHqlStatic()
+      .createQuery("select pitGroup from PITGroup as pitGroup where pitGroup.sourceId = :id")
+      .setCacheable(false).setCacheRegion(KLASS + ".FindBySourceId")
+      .setString("id", id)
+      .listSet(PITGroup.class);
+    
+    if (pitGroups.size() == 0 && exceptionIfNotFound) {
+      throw new RuntimeException("PITGroup with sourceId=" + id + " not found");
+    }
+    
+    return pitGroups;
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.PITGroupDAO#findById(java.lang.String, boolean)
+   */
+  public PITGroup findById(String id, boolean exceptionIfNotFound) {
+    PITGroup pit = HibernateSession
+      .byHqlStatic()
+      .createQuery("select pit from PITGroup as pit where pit.id = :id")
+      .setCacheable(false).setCacheRegion(KLASS + ".FindById")
+      .setString("id", id)
+      .uniqueResult(PITGroup.class);
+    
+    if (pit == null && exceptionIfNotFound) {
+      throw new RuntimeException("PITGroup with id=" + id + " not found");
+    }
+    
+    return pit;
   }
   
   /**
@@ -156,7 +215,7 @@ public class Hib3PITGroupDAO extends Hib3DAO implements PITGroupDAO {
     
     //see if we are adding more to the query
     boolean changedQuery = grouperSession.getAccessResolver().hqlFilterGroupsWhereClause(accessSubject, byHqlStatic, 
-        sql, "thePITGroup.id", inPrivSet);
+        sql, "thePITGroup.sourceId", inPrivSet);
   
     if (!changedQuery) {
       sql.append(" where ");
@@ -242,7 +301,7 @@ public class Hib3PITGroupDAO extends Hib3DAO implements PITGroupDAO {
     Set<PITGroup> filteredPITGroups = new LinkedHashSet<PITGroup>();
     for (PITGroup pitGroup : pitGroups) {
       if (pitGroup.isActive()) {
-        Group group = GrouperDAOFactory.getFactory().getGroup().findByUuid(pitGroup.getId(), true);
+        Group group = GrouperDAOFactory.getFactory().getGroup().findByUuid(pitGroup.getSourceId(), true);
         if (PrivilegeHelper.canRead(grouperSession.internal_getRootSession(), group, accessSubject)) {
           filteredPITGroups.add(pitGroup);
         }
@@ -272,7 +331,8 @@ public class Hib3PITGroupDAO extends Hib3DAO implements PITGroupDAO {
     Set<Group> groups = HibernateSession
       .byHqlStatic()
       .createQuery("select g from Group g where " +
-          "not exists (select 1 from PITGroup pit where g.uuid = pit.id and g.nameDb = pit.nameDb and g.parentUuid = pit.stemId) " +
+          "not exists (select 1 from PITGroup pitGroup, PITStem pitStem where pitGroup.stemId = pitStem.id " +
+          "            and g.uuid = pitGroup.sourceId and g.nameDb = pitGroup.nameDb and g.parentUuid = pitStem.sourceId) " +
           "and not exists (select 1 from ChangeLogEntryTemp temp, ChangeLogType type " +
           "    where temp.string01 = g.uuid " +
           "    and type.actionName='addGroup' and type.changeLogCategory='group' and type.id=temp.changeLogTypeId) " +
@@ -293,9 +353,9 @@ public class Hib3PITGroupDAO extends Hib3DAO implements PITGroupDAO {
     Set<PITGroup> groups = HibernateSession
       .byHqlStatic()
       .createQuery("select pit from PITGroup pit where activeDb = 'T' and " +
-          "not exists (select 1 from Group g where g.uuid = pit.id) " +
+          "not exists (select 1 from Group g where g.uuid = pit.sourceId) " +
           "and not exists (select 1 from ChangeLogEntryTemp temp, ChangeLogType type " +
-          "    where temp.string01 = pit.id " +
+          "    where temp.string01 = pit.sourceId " +
           "    and type.actionName='deleteGroup' and type.changeLogCategory='group' and type.id=temp.changeLogTypeId)")
       .setCacheable(false).setCacheRegion(KLASS + ".FindMissingInactivePITGroups")
       .listSet(PITGroup.class);
@@ -396,7 +456,9 @@ public class Hib3PITGroupDAO extends Hib3DAO implements PITGroupDAO {
    */
   public Set<PITGroup> findRolesWithPermissionsContainingObject(PITMembership membership) {
 
-    if (!Group.getDefaultList().getUuid().equals(membership.getFieldId())) {
+    PITField pitDefaultListField = GrouperDAOFactory.getFactory().getPITField().findBySourceIdActive(Group.getDefaultList().getUuid(), false);
+    
+    if (pitDefaultListField == null || !pitDefaultListField.getId().equals(membership.getFieldId())) {
       return new HashSet<PITGroup>();
     }
     
@@ -408,7 +470,7 @@ public class Hib3PITGroupDAO extends Hib3DAO implements PITGroupDAO {
           "and ggs.ownerId = grs.ifHasRoleId and ggs.memberId = :groupId and ggs.fieldId = :fieldId " +
           "and grs.activeDb = 'T' and ggs.activeDb = 'T' and gaa.activeDb = 'T' and gad.attributeDefTypeDb = 'perm'")
       .setString("groupId", membership.getOwnerGroupId())
-      .setString("fieldId", Group.getDefaultList().getUuid())
+      .setString("fieldId", pitDefaultListField.getId())
       .listSet(PITGroup.class);
     
     return roles;

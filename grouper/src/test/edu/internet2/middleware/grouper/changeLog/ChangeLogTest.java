@@ -81,7 +81,7 @@ public class ChangeLogTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new ChangeLogTest("testPermissionsBySubjectRoleAssignment"));
+    TestRunner.run(new ChangeLogTest("testMemberships"));
     //TestRunner.run(ChangeLogTest.class);
   }
   
@@ -92,6 +92,7 @@ public class ChangeLogTest extends GrouperTest {
   @Override
   protected void setUp() {
     super.setUp();
+    grouperSession = SessionHelper.getRootSession();
     ApiConfig.testConfig.put("grouper.env.name", "testEnv");
     grouperSession     = SessionHelper.getRootSession();
     root  = StemHelper.findRootStem(grouperSession);
@@ -3076,14 +3077,17 @@ public class ChangeLogTest extends GrouperTest {
     
     assertEquals("Context id's should match", changeLogEntry.getContextId(), gtt.getContextId());
     
-    PITGroupSet pitGroupSet = GrouperDAOFactory.getFactory().getPITGroupSet().findSelfGroupSet(group.getId(), FieldFinder.find("list1", true).getUuid(), false);
+    PITGroup pitGroup = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdUnique(group.getId(), true);
+    PITField pitField = GrouperDAOFactory.getFactory().getPITField().findBySourceIdUnique(FieldFinder.find("list1", true).getUuid(), true);
+    PITField pitField2 = GrouperDAOFactory.getFactory().getPITField().findBySourceIdUnique(FieldFinder.find("list2", true).getUuid(), true);
+    PITGroupSet pitGroupSet = GrouperDAOFactory.getFactory().getPITGroupSet().findSelfGroupSet(pitGroup.getId(), pitField.getId(), false);
     assertNotNull(pitGroupSet);
     assertEquals(gtt.getContextId(), pitGroupSet.getContextId());
     assertTrue(pitGroupSet.isActive());
     assertEquals(changeLogEntry.getCreatedOnDb(), pitGroupSet.getStartTimeDb());
     assertNull(pitGroupSet.getEndTimeDb());
     
-    pitGroupSet = GrouperDAOFactory.getFactory().getPITGroupSet().findSelfGroupSet(group.getId(), FieldFinder.find("list2", true).getUuid(), false);
+    pitGroupSet = GrouperDAOFactory.getFactory().getPITGroupSet().findSelfGroupSet(pitGroup.getId(), pitField2.getId(), false);
     assertNotNull(pitGroupSet);
     assertEquals(gtt.getContextId(), pitGroupSet.getContextId());
     assertTrue(pitGroupSet.isActive());
@@ -3120,14 +3124,14 @@ public class ChangeLogTest extends GrouperTest {
     assertTrue("contextIds should be different", !StringUtils.equals(changeLogEntry.getContextId(), 
         changeLogEntry2.getContextId()));
     
-    pitGroupSet = GrouperDAOFactory.getFactory().getPITGroupSet().findSelfGroupSet(group.getId(), FieldFinder.find("list1", true).getUuid(), false);
+    pitGroupSet = GrouperDAOFactory.getFactory().getPITGroupSet().findSelfGroupSet(pitGroup.getId(), pitField.getId(), false);
     assertNotNull(pitGroupSet);
     assertEquals(changeLogEntry2.getContextId(), pitGroupSet.getContextId());
     assertFalse(pitGroupSet.isActive());
     assertEquals(changeLogEntry.getCreatedOnDb(), pitGroupSet.getStartTimeDb());
     assertEquals(changeLogEntry2.getCreatedOnDb(), pitGroupSet.getEndTimeDb());
     
-    pitGroupSet = GrouperDAOFactory.getFactory().getPITGroupSet().findSelfGroupSet(group.getId(), FieldFinder.find("list2", true).getUuid(), false);
+    pitGroupSet = GrouperDAOFactory.getFactory().getPITGroupSet().findSelfGroupSet(pitGroup.getId(), pitField2.getId(), false);
     assertNotNull(pitGroupSet);
     assertEquals(changeLogEntry2.getContextId(), pitGroupSet.getContextId());
     assertFalse(pitGroupSet.isActive());
@@ -3225,7 +3229,7 @@ public class ChangeLogTest extends GrouperTest {
     assertEquals("Context id's should match", changeLogEntry.getContextId(), member.getContextId());
     
     // check PIT table
-    PITMember pitMember = GrouperDAOFactory.getFactory().getPITMember().findById(member.getUuid());
+    PITMember pitMember = GrouperDAOFactory.getFactory().getPITMember().findBySourceIdUnique(member.getUuid(), false);
     assertNotNull(pitMember);
     assertEquals(member.getSubjectId(), pitMember.getSubjectId());
     assertEquals(member.getSubjectSourceId(), pitMember.getSubjectSourceId());
@@ -3280,7 +3284,7 @@ public class ChangeLogTest extends GrouperTest {
     assertEquals("test.subject.0a", changeLogEntry2.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.propertyNewValue));
     
     // Check PIT table
-    pitMember = GrouperDAOFactory.getFactory().getPITMember().findById(member.getUuid());
+    pitMember = GrouperDAOFactory.getFactory().getPITMember().findBySourceIdUnique(member.getUuid(), false);
     assertNotNull(pitMember);
     assertEquals(member.getSubjectId(), pitMember.getSubjectId());
     assertEquals(member.getSubjectSourceId(), pitMember.getSubjectSourceId());
@@ -3405,16 +3409,17 @@ public class ChangeLogTest extends GrouperTest {
     assertEquals("Context id's should match", changeLogEntry.getContextId(), resourcesDef.getContextId());
     
     // check PIT table
-    PITAttributeDef pitAttributeDef = GrouperDAOFactory.getFactory().getPITAttributeDef().findById(resourcesDef.getId());
+    PITAttributeDef pitAttributeDef = GrouperDAOFactory.getFactory().getPITAttributeDef().findBySourceIdUnique(resourcesDef.getId(), false);
     assertNotNull(pitAttributeDef);
     assertEquals(resourcesDef.getName(), pitAttributeDef.getName());
-    assertEquals(resourcesDef.getStemId(), pitAttributeDef.getStemId());
+    assertEquals(resourcesDef.getStemId(), pitAttributeDef.getPITStem().getSourceId());
     assertEquals(resourcesDef.getContextId(), pitAttributeDef.getContextId());
     
     Iterator<Field> allFields = FieldFinder.findAll().iterator();
     while (allFields.hasNext()) {
       Field currField = allFields.next();
-      PITGroupSet pitGroupSet = GrouperDAOFactory.getFactory().getPITGroupSet().findSelfGroupSet(resourcesDef.getId(), currField.getUuid(), false);
+      PITField pitCurrField = GrouperDAOFactory.getFactory().getPITField().findBySourceIdUnique(currField.getUuid(), true);
+      PITGroupSet pitGroupSet = GrouperDAOFactory.getFactory().getPITGroupSet().findSelfGroupSet(pitAttributeDef.getId(), pitCurrField.getId(), false);
       if (currField.isAttributeDefListField()) {
         assertNotNull(pitGroupSet);
         assertEquals(changeLogEntry.getContextId(), pitGroupSet.getContextId());
@@ -3513,10 +3518,12 @@ public class ChangeLogTest extends GrouperTest {
     assertEquals("Context id's should match", changeLogEntry3.getContextId(), resourcesDef.getContextId());
     
     // check PIT table
+    pitAttributeDef = GrouperDAOFactory.getFactory().getPITAttributeDef().findBySourceIdUnique(resourcesDef.getId(), false);
     allFields = FieldFinder.findAll().iterator();
     while (allFields.hasNext()) {
       Field currField = allFields.next();
-      PITGroupSet pitGroupSet = GrouperDAOFactory.getFactory().getPITGroupSet().findSelfGroupSet(resourcesDef.getId(), currField.getUuid(), false);
+      PITField pitCurrField = GrouperDAOFactory.getFactory().getPITField().findBySourceIdUnique(currField.getUuid(), true);
+      PITGroupSet pitGroupSet = GrouperDAOFactory.getFactory().getPITGroupSet().findSelfGroupSet(pitAttributeDef.getId(), pitCurrField.getId(), false);
       if (currField.isAttributeDefListField()) {
         assertNotNull(pitGroupSet);
         assertEquals(changeLogEntry3.getContextId(), pitGroupSet.getContextId());
@@ -3533,7 +3540,7 @@ public class ChangeLogTest extends GrouperTest {
     
     AttributeDef resourcesDef2 = edu.addChildAttributeDef("attrdef2", AttributeDefType.perm);
     ChangeLogTempToEntity.convertRecords();
-    PITAttributeDef pitAttributeDef2 = GrouperDAOFactory.getFactory().getPITAttributeDef().findById(resourcesDef2.getId());
+    PITAttributeDef pitAttributeDef2 = GrouperDAOFactory.getFactory().getPITAttributeDef().findBySourceIdUnique(resourcesDef2.getId(), false);
     assertNotNull(pitAttributeDef2);
     assertEquals(resourcesDef2.getName(), pitAttributeDef2.getName());
     assertEquals(resourcesDef2.getContextId(), pitAttributeDef2.getContextId());
@@ -3541,7 +3548,7 @@ public class ChangeLogTest extends GrouperTest {
     resourcesDef2.setExtension("attrdef2a");
     resourcesDef2.store();
     ChangeLogTempToEntity.convertRecords();
-    pitAttributeDef2 = GrouperDAOFactory.getFactory().getPITAttributeDef().findById(resourcesDef2.getId());
+    pitAttributeDef2 = GrouperDAOFactory.getFactory().getPITAttributeDef().findBySourceIdUnique(resourcesDef2.getId(), false);
     assertNotNull(pitAttributeDef2);
     assertEquals(resourcesDef2.getName(), pitAttributeDef2.getName());
     assertEquals(resourcesDef2.getContextId(), pitAttributeDef2.getContextId());
@@ -3554,7 +3561,7 @@ public class ChangeLogTest extends GrouperTest {
     resourcesDef3.store();
     resourcesDef3.delete();
     ChangeLogTempToEntity.convertRecords();
-    PITAttributeDef pitAttributeDef3 = GrouperDAOFactory.getFactory().getPITAttributeDef().findById(resourcesDef3.getId());
+    PITAttributeDef pitAttributeDef3 = GrouperDAOFactory.getFactory().getPITAttributeDef().findBySourceIdUnique(resourcesDef3.getId(), false);
     assertNotNull(pitAttributeDef3);
     assertEquals("edu:attrdef3a", pitAttributeDef3.getName());
   }
@@ -3799,19 +3806,21 @@ public class ChangeLogTest extends GrouperTest {
     assertEquals("Context id's should match", changeLogEntry.getContextId(), field.getContextId());
     
     // check PIT table
-    PITField pitField = GrouperDAOFactory.getFactory().getPITField().findById(field.getUuid());
+    PITField pitField = GrouperDAOFactory.getFactory().getPITField().findBySourceIdUnique(field.getUuid(), false);
     assertNotNull(pitField);
     assertEquals(field.getName(), pitField.getName());
     assertEquals(field.getContextId(), pitField.getContextId());
 
-    PITGroupSet pitGroupSet = GrouperDAOFactory.getFactory().getPITGroupSet().findSelfGroupSet(group1.getId(), fieldId, false);
+    PITGroup pitGroup1 = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdUnique(group1.getId(), true);
+    PITGroupSet pitGroupSet = GrouperDAOFactory.getFactory().getPITGroupSet().findSelfGroupSet(pitGroup1.getId(), pitField.getId(), false);
     assertNotNull(pitGroupSet);
     assertEquals(changeLogEntry.getContextId(), pitGroupSet.getContextId());
     assertTrue(pitGroupSet.isActive());
     assertEquals(changeLogEntry.getCreatedOnDb(), pitGroupSet.getStartTimeDb());
     assertNull(pitGroupSet.getEndTimeDb());
     
-    pitGroupSet = GrouperDAOFactory.getFactory().getPITGroupSet().findSelfGroupSet(group2.getId(), fieldId, false);
+    PITGroup pitGroup2 = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdUnique(group2.getId(), true);
+    pitGroupSet = GrouperDAOFactory.getFactory().getPITGroupSet().findSelfGroupSet(pitGroup2.getId(), pitField.getId(), false);
     assertNotNull(pitGroupSet);
     assertEquals(changeLogEntry.getContextId(), pitGroupSet.getContextId());
     assertTrue(pitGroupSet.isActive());
@@ -3891,14 +3900,14 @@ public class ChangeLogTest extends GrouperTest {
     }
    
     // check PIT table
-    pitGroupSet = GrouperDAOFactory.getFactory().getPITGroupSet().findSelfGroupSet(group1.getId(), fieldId, false);
+    pitGroupSet = GrouperDAOFactory.getFactory().getPITGroupSet().findSelfGroupSet(pitGroup1.getId(), pitField.getId(), false);
     assertNotNull(pitGroupSet);
     assertEquals(changeLogEntry.getContextId(), pitGroupSet.getContextId());
     assertTrue(pitGroupSet.isActive());
     assertEquals(changeLogEntry.getCreatedOnDb(), pitGroupSet.getStartTimeDb());
     assertNull(pitGroupSet.getEndTimeDb());
     
-    pitGroupSet = GrouperDAOFactory.getFactory().getPITGroupSet().findSelfGroupSet(group2.getId(), fieldId, false);
+    pitGroupSet = GrouperDAOFactory.getFactory().getPITGroupSet().findSelfGroupSet(pitGroup2.getId(), pitField.getId(), false);
     assertNotNull(pitGroupSet);
     assertEquals(changeLogEntry.getContextId(), pitGroupSet.getContextId());
     assertTrue(pitGroupSet.isActive());
@@ -3934,14 +3943,14 @@ public class ChangeLogTest extends GrouperTest {
     assertEquals(field.getUuid(), changeLogEntry2.retrieveValueForLabel(ChangeLogLabels.GROUP_FIELD_DELETE.id));
     
     // check PIT table
-    pitGroupSet = GrouperDAOFactory.getFactory().getPITGroupSet().findSelfGroupSet(group1.getId(), fieldId, false);
+    pitGroupSet = GrouperDAOFactory.getFactory().getPITGroupSet().findSelfGroupSet(pitGroup1.getId(), pitField.getId(), false);
     assertNotNull(pitGroupSet);
     assertEquals(changeLogEntry2.getContextId(), pitGroupSet.getContextId());
     assertFalse(pitGroupSet.isActive());
     assertEquals(changeLogEntry.getCreatedOnDb(), pitGroupSet.getStartTimeDb());
     assertEquals(changeLogEntry2.getCreatedOnDb(), pitGroupSet.getEndTimeDb());
     
-    pitGroupSet = GrouperDAOFactory.getFactory().getPITGroupSet().findSelfGroupSet(group2.getId(), fieldId, false);
+    pitGroupSet = GrouperDAOFactory.getFactory().getPITGroupSet().findSelfGroupSet(pitGroup2.getId(), pitField.getId(), false);
     assertNotNull(pitGroupSet);
     assertEquals(changeLogEntry2.getContextId(), pitGroupSet.getContextId());
     assertFalse(pitGroupSet.isActive());
@@ -3953,7 +3962,7 @@ public class ChangeLogTest extends GrouperTest {
     
     Field field2 = groupType.addList(grouperSession, "testList2", AccessPrivilege.READ, AccessPrivilege.ADMIN);
     ChangeLogTempToEntity.convertRecords();
-    PITField pitField2 = GrouperDAOFactory.getFactory().getPITField().findById(field2.getUuid());
+    PITField pitField2 = GrouperDAOFactory.getFactory().getPITField().findBySourceIdUnique(field2.getUuid(), false);
     assertNotNull(pitField2);
     assertEquals(field2.getName(), pitField2.getName());
     assertEquals(field2.getContextId(), pitField2.getContextId());
@@ -3961,7 +3970,7 @@ public class ChangeLogTest extends GrouperTest {
     field2.setName("testList2a");
     field2.store();
     ChangeLogTempToEntity.convertRecords();
-    pitField2 = GrouperDAOFactory.getFactory().getPITField().findById(field2.getUuid());
+    pitField2 = GrouperDAOFactory.getFactory().getPITField().findBySourceIdUnique(field2.getUuid(), false);
     assertNotNull(pitField2);
     assertEquals(field2.getName(), pitField2.getName());
     assertEquals(field2.getContextId(), pitField2.getContextId());
@@ -3972,7 +3981,7 @@ public class ChangeLogTest extends GrouperTest {
     Field field3 = groupType.addList(grouperSession, "testList3", AccessPrivilege.READ, AccessPrivilege.ADMIN);
     groupType.deleteField(grouperSession, field3.getName());
     ChangeLogTempToEntity.convertRecords();
-    PITField pitField3 = GrouperDAOFactory.getFactory().getPITField().findById(field3.getUuid());
+    PITField pitField3 = GrouperDAOFactory.getFactory().getPITField().findBySourceIdUnique(field3.getUuid(), false);
     assertNotNull(pitField3);
     assertEquals("testList3", pitField3.getName());
   }
@@ -4068,16 +4077,17 @@ public class ChangeLogTest extends GrouperTest {
     assertEquals("Context id's should match", changeLogEntry.getContextId(), group.getContextId());
     
     // check PIT table
-    PITGroup pitGroup = GrouperDAOFactory.getFactory().getPITGroup().findById(group.getId());
+    PITGroup pitGroup = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdUnique(group.getId(), false);
     assertNotNull(pitGroup);
     assertEquals(group.getName(), pitGroup.getName());
-    assertEquals(group.getParentUuid(), pitGroup.getStemId());
+    assertEquals(group.getParentUuid(), pitGroup.getPITStem().getSourceId());
     assertEquals(group.getContextId(), pitGroup.getContextId());
     
     Iterator<Field> allFields = FieldFinder.findAll().iterator();
     while (allFields.hasNext()) {
       Field currField = allFields.next();
-      PITGroupSet pitGroupSet = GrouperDAOFactory.getFactory().getPITGroupSet().findSelfGroupSet(group.getId(), currField.getUuid(), false);
+      PITField pitCurrField = GrouperDAOFactory.getFactory().getPITField().findBySourceIdUnique(currField.getUuid(), true);
+      PITGroupSet pitGroupSet = GrouperDAOFactory.getFactory().getPITGroupSet().findSelfGroupSet(pitGroup.getId(), pitCurrField.getId(), false);
       if (currField.isGroupListField()) {
         assertNotNull(pitGroupSet);
         assertEquals(changeLogEntry.getContextId(), pitGroupSet.getContextId());
@@ -4181,7 +4191,8 @@ public class ChangeLogTest extends GrouperTest {
     allFields = FieldFinder.findAll().iterator();
     while (allFields.hasNext()) {
       Field currField = allFields.next();
-      PITGroupSet pitGroupSet = GrouperDAOFactory.getFactory().getPITGroupSet().findSelfGroupSet(group.getId(), currField.getUuid(), false);
+      PITField pitCurrField = GrouperDAOFactory.getFactory().getPITField().findBySourceIdUnique(currField.getUuid(), true);
+      PITGroupSet pitGroupSet = GrouperDAOFactory.getFactory().getPITGroupSet().findSelfGroupSet(pitGroup.getId(), pitCurrField.getId(), false);
       if (currField.isGroupListField()) {
         assertNotNull(pitGroupSet);
         assertEquals(changeLogEntry2.getContextId(), pitGroupSet.getContextId());
@@ -4198,7 +4209,7 @@ public class ChangeLogTest extends GrouperTest {
     
     Group group2 = edu.addChildGroup("group2", "group2");
     ChangeLogTempToEntity.convertRecords();
-    PITGroup pitGroup2 = GrouperDAOFactory.getFactory().getPITGroup().findById(group2.getId());
+    PITGroup pitGroup2 = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdUnique(group2.getId(), false);
     assertNotNull(pitGroup2);
     assertEquals(group2.getName(), pitGroup2.getName());
     assertEquals(group2.getContextId(), pitGroup2.getContextId());
@@ -4206,7 +4217,7 @@ public class ChangeLogTest extends GrouperTest {
     group2.setExtension("group2a");
     group2.store();
     ChangeLogTempToEntity.convertRecords();
-    pitGroup2 = GrouperDAOFactory.getFactory().getPITGroup().findById(group2.getId());
+    pitGroup2 = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdUnique(group2.getId(), false);
     assertNotNull(pitGroup2);
     assertEquals(group2.getName(), pitGroup2.getName());
     assertEquals(group2.getContextId(), pitGroup2.getContextId());
@@ -4223,9 +4234,9 @@ public class ChangeLogTest extends GrouperTest {
     groupToMove.move(stem2);
     ChangeLogTempToEntity.convertRecords();
     
-    PITGroup pitGroupToMove = GrouperDAOFactory.getFactory().getPITGroup().findById(groupToMove.getId());
+    PITGroup pitGroupToMove = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdUnique(groupToMove.getId(), false);
     assertNotNull(pitGroupToMove);
-    assertEquals(groupToMove.getParentUuid(), pitGroupToMove.getStemId());
+    assertEquals(groupToMove.getParentUuid(), pitGroupToMove.getPITStem().getSourceId());
     assertEquals(groupToMove.getContextId(), pitGroupToMove.getContextId());
 
 
@@ -4237,7 +4248,7 @@ public class ChangeLogTest extends GrouperTest {
     group3.store();
     group3.delete();
     ChangeLogTempToEntity.convertRecords();
-    PITGroup pitGroup3 = GrouperDAOFactory.getFactory().getPITGroup().findById(group3.getId());
+    PITGroup pitGroup3 = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdUnique(group3.getId(), false);
     assertNotNull(pitGroup3);
     assertEquals("edu:group3a", pitGroup3.getName());
   }
@@ -4332,16 +4343,17 @@ public class ChangeLogTest extends GrouperTest {
     assertEquals("Context id's should match", changeLogEntry.getContextId(), entity.getContextId());
     
     // check PIT table
-    PITGroup pitGroup = GrouperDAOFactory.getFactory().getPITGroup().findById(entity.getId());
+    PITGroup pitGroup = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdUnique(entity.getId(), false);
     assertNotNull(pitGroup);
     assertEquals(entity.getName(), pitGroup.getName());
-    assertEquals(entity.getStemId(), pitGroup.getStemId());
+    assertEquals(entity.getStemId(), pitGroup.getPITStem().getSourceId());
     assertEquals(entity.getContextId(), pitGroup.getContextId());
     
     Iterator<Field> allFields = FieldFinder.findAll().iterator();
     while (allFields.hasNext()) {
       Field currField = allFields.next();
-      PITGroupSet pitGroupSet = GrouperDAOFactory.getFactory().getPITGroupSet().findSelfGroupSet(entity.getId(), currField.getUuid(), false);
+      PITField pitCurrField = GrouperDAOFactory.getFactory().getPITField().findBySourceIdUnique(currField.getUuid(), true);
+      PITGroupSet pitGroupSet = GrouperDAOFactory.getFactory().getPITGroupSet().findSelfGroupSet(pitGroup.getId(), pitCurrField.getId(), false);
       if (currField.isEntityListField()) {
         assertNotNull(currField.getName(), pitGroupSet);
         assertEquals(changeLogEntry.getContextId(), pitGroupSet.getContextId());
@@ -4445,7 +4457,8 @@ public class ChangeLogTest extends GrouperTest {
     allFields = FieldFinder.findAll().iterator();
     while (allFields.hasNext()) {
       Field currField = allFields.next();
-      PITGroupSet pitGroupSet = GrouperDAOFactory.getFactory().getPITGroupSet().findSelfGroupSet(entity.getId(), currField.getUuid(), false);
+      PITField pitCurrField = GrouperDAOFactory.getFactory().getPITField().findBySourceIdUnique(currField.getUuid(), true);
+      PITGroupSet pitGroupSet = GrouperDAOFactory.getFactory().getPITGroupSet().findSelfGroupSet(pitGroup.getId(), pitCurrField.getId(), false);
       if (currField.isEntityListField() ) {
         assertNotNull(pitGroupSet);
         assertEquals(changeLogEntry2.getContextId(), pitGroupSet.getContextId());
@@ -4462,7 +4475,7 @@ public class ChangeLogTest extends GrouperTest {
     
     Entity entity2 = new EntitySave(grouperSession).assignName("edu:entity2").save();
     ChangeLogTempToEntity.convertRecords();
-    PITGroup pitGroup2 = GrouperDAOFactory.getFactory().getPITGroup().findById(entity2.getId());
+    PITGroup pitGroup2 = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdUnique(entity2.getId(), false);
     assertNotNull(pitGroup2);
     assertEquals(entity2.getName(), pitGroup2.getName());
     assertEquals(entity2.getContextId(), pitGroup2.getContextId());
@@ -4470,7 +4483,7 @@ public class ChangeLogTest extends GrouperTest {
     entity2.setExtension("entity2a");
     entity2.store();
     ChangeLogTempToEntity.convertRecords();
-    pitGroup2 = GrouperDAOFactory.getFactory().getPITGroup().findById(entity2.getId());
+    pitGroup2 = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdUnique(entity2.getId(), false);
     assertNotNull(pitGroup2);
     assertEquals(entity2.getName(), pitGroup2.getName());
     assertEquals(entity2.getContextId(), pitGroup2.getContextId());
@@ -4487,9 +4500,9 @@ public class ChangeLogTest extends GrouperTest {
     entityToMove.move(stem2);
     ChangeLogTempToEntity.convertRecords();
     
-    PITGroup pitGroupToMove = GrouperDAOFactory.getFactory().getPITGroup().findById(entityToMove.getId());
+    PITGroup pitGroupToMove = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdUnique(entityToMove.getId(), false);
     assertNotNull(pitGroupToMove);
-    assertEquals(entityToMove.getStemId(), pitGroupToMove.getStemId());
+    assertEquals(entityToMove.getStemId(), pitGroupToMove.getPITStem().getSourceId());
     assertEquals(entityToMove.getContextId(), pitGroupToMove.getContextId());
 
 
@@ -4501,7 +4514,7 @@ public class ChangeLogTest extends GrouperTest {
     entity3.store();
     entity3.delete();
     ChangeLogTempToEntity.convertRecords();
-    PITGroup pitGroup3 = GrouperDAOFactory.getFactory().getPITGroup().findById(entity3.getId());
+    PITGroup pitGroup3 = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdUnique(entity3.getId(), false);
     assertNotNull(pitGroup3);
     assertEquals("edu:entity3a", pitGroup3.getName());
   }
@@ -4591,16 +4604,17 @@ public class ChangeLogTest extends GrouperTest {
     assertEquals("Context id's should match", changeLogEntry.getContextId(), stem.getContextId());
     
     // check PIT table
-    PITStem pitStem = GrouperDAOFactory.getFactory().getPITStem().findById(stem.getUuid());
+    PITStem pitStem = GrouperDAOFactory.getFactory().getPITStem().findBySourceIdUnique(stem.getUuid(), false);
     assertNotNull(pitStem);
     assertEquals(stem.getName(), pitStem.getName());
-    assertEquals(stem.getParentUuid(), pitStem.getParentStemId());
+    assertEquals(stem.getParentUuid(), pitStem.getParentPITStem().getSourceId());
     assertEquals(stem.getContextId(), pitStem.getContextId());
     
     Iterator<Field> allFields = FieldFinder.findAll().iterator();
     while (allFields.hasNext()) {
       Field currField = allFields.next();
-      PITGroupSet pitGroupSet = GrouperDAOFactory.getFactory().getPITGroupSet().findSelfGroupSet(stem.getUuid(), currField.getUuid(), false);
+      PITField pitCurrField = GrouperDAOFactory.getFactory().getPITField().findBySourceIdUnique(currField.getUuid(), true);
+      PITGroupSet pitGroupSet = GrouperDAOFactory.getFactory().getPITGroupSet().findSelfGroupSet(pitStem.getId(), pitCurrField.getId(), false);
       if (currField.isStemListField()) {
         assertNotNull(pitGroupSet);
         assertEquals(changeLogEntry.getContextId(), pitGroupSet.getContextId());
@@ -4702,7 +4716,8 @@ public class ChangeLogTest extends GrouperTest {
     allFields = FieldFinder.findAll().iterator();
     while (allFields.hasNext()) {
       Field currField = allFields.next();
-      PITGroupSet pitGroupSet = GrouperDAOFactory.getFactory().getPITGroupSet().findSelfGroupSet(stem.getUuid(), currField.getUuid(), false);
+      PITField pitCurrField = GrouperDAOFactory.getFactory().getPITField().findBySourceIdUnique(currField.getUuid(), true);
+      PITGroupSet pitGroupSet = GrouperDAOFactory.getFactory().getPITGroupSet().findSelfGroupSet(pitStem.getId(), pitCurrField.getId(), false);
       if (currField.isStemListField()) {
         assertNotNull(pitGroupSet);
         assertEquals(changeLogEntry2.getContextId(), pitGroupSet.getContextId());
@@ -4719,7 +4734,7 @@ public class ChangeLogTest extends GrouperTest {
     
     Stem stem2 = edu.addChildStem("stem2", "stem2");
     ChangeLogTempToEntity.convertRecords();
-    PITStem pitStem2 = GrouperDAOFactory.getFactory().getPITStem().findById(stem2.getUuid());
+    PITStem pitStem2 = GrouperDAOFactory.getFactory().getPITStem().findBySourceIdUnique(stem2.getUuid(), false);
     assertNotNull(pitStem2);
     assertEquals(stem2.getName(), pitStem2.getName());
     assertEquals(stem2.getContextId(), pitStem2.getContextId());
@@ -4727,7 +4742,7 @@ public class ChangeLogTest extends GrouperTest {
     stem2.setExtension("stem2a");
     stem2.store();
     ChangeLogTempToEntity.convertRecords();
-    pitStem2 = GrouperDAOFactory.getFactory().getPITStem().findById(stem2.getUuid());
+    pitStem2 = GrouperDAOFactory.getFactory().getPITStem().findBySourceIdUnique(stem2.getUuid(), false);
     assertNotNull(pitStem2);
     assertEquals(stem2.getName(), pitStem2.getName());
     assertEquals(stem2.getContextId(), pitStem2.getContextId());
@@ -4740,7 +4755,7 @@ public class ChangeLogTest extends GrouperTest {
     stem3.store();
     stem3.delete();
     ChangeLogTempToEntity.convertRecords();
-    PITStem pitStem3 = GrouperDAOFactory.getFactory().getPITStem().findById(stem3.getUuid());
+    PITStem pitStem3 = GrouperDAOFactory.getFactory().getPITStem().findBySourceIdUnique(stem3.getUuid(), false);
     assertNotNull(pitStem3);
     assertEquals("edu:stem3a", pitStem3.getName());
     
@@ -4755,24 +4770,24 @@ public class ChangeLogTest extends GrouperTest {
     stem4.move(stem5);
     ChangeLogTempToEntity.convertRecords();
     
-    PITGroup pitGroup1 = GrouperDAOFactory.getFactory().getPITGroup().findById(group1.getId());
-    PITStem pitStem4 = GrouperDAOFactory.getFactory().getPITStem().findById(stem4.getUuid());
-    PITStem pitStem5 = GrouperDAOFactory.getFactory().getPITStem().findById(stem5.getUuid());
+    PITGroup pitGroup1 = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdUnique(group1.getId(), false);
+    PITStem pitStem4 = GrouperDAOFactory.getFactory().getPITStem().findBySourceIdUnique(stem4.getUuid(), false);
+    PITStem pitStem5 = GrouperDAOFactory.getFactory().getPITStem().findBySourceIdUnique(stem5.getUuid(), false);
     
     stem4 = StemFinder.findByName(grouperSession, stem4.getName(), true);
     stem5 = StemFinder.findByName(grouperSession, stem5.getName(), true);
     group1 = GroupFinder.findByName(grouperSession, group1.getName(), true);
     
     assertNotNull(pitGroup1);
-    assertEquals(group1.getParentUuid(), pitGroup1.getStemId());
+    assertEquals(group1.getParentUuid(), pitGroup1.getPITStem().getSourceId());
     assertEquals(group1.getContextId(), pitGroup1.getContextId());
     
     assertNotNull(pitStem4);
-    assertEquals(stem4.getParentUuid(), pitStem4.getParentStemId());
+    assertEquals(stem4.getParentUuid(), pitStem4.getParentPITStem().getSourceId());
     assertEquals(stem4.getContextId(), pitStem4.getContextId());
     
     assertNotNull(pitStem5);
-    assertEquals(stem5.getParentUuid(), pitStem5.getParentStemId());
+    assertEquals(stem5.getParentUuid(), pitStem5.getParentPITStem().getSourceId());
     assertEquals(stem5.getContextId(), pitStem5.getContextId());
   }
 
@@ -8511,7 +8526,7 @@ public class ChangeLogTest extends GrouperTest {
   private Stem edu;
 
   /** root session */
-  private GrouperSession grouperSession = SessionHelper.getRootSession();
+  private GrouperSession grouperSession = null;
   
   /** root stem */
   private Stem root;

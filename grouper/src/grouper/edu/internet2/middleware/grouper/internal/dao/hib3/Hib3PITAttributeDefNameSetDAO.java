@@ -51,23 +51,63 @@ public class Hib3PITAttributeDefNameSetDAO extends Hib3DAO implements PITAttribu
    */
   public static void reset(HibernateSession hibernateSession) {
     //do this since mysql cant handle self-referential foreign keys
-    hibernateSession.byHql().createQuery("update PITAttributeDefNameSet set parentAttrDefNameSetId = null where id not in (select attrDefNameSet.id from AttributeDefNameSet as attrDefNameSet)").executeUpdate();
+    hibernateSession.byHql().createQuery("update PITAttributeDefNameSet set parentAttrDefNameSetId = null where sourceId not in (select attrDefNameSet.id from AttributeDefNameSet as attrDefNameSet)").executeUpdate();
     
-    hibernateSession.byHql().createQuery("delete from PITAttributeDefNameSet where id not in (select attrDefNameSet.id from AttributeDefNameSet as attrDefNameSet)").executeUpdate();
+    hibernateSession.byHql().createQuery("delete from PITAttributeDefNameSet where sourceId not in (select attrDefNameSet.id from AttributeDefNameSet as attrDefNameSet)").executeUpdate();
   }
 
   /**
-   * @see edu.internet2.middleware.grouper.internal.dao.PITAttributeDefNameSetDAO#findById(java.lang.String)
+   * @see edu.internet2.middleware.grouper.internal.dao.PITAttributeDefNameSetDAO#findBySourceIdActive(java.lang.String, boolean)
    */
-  public PITAttributeDefNameSet findById(String id) {
+  public PITAttributeDefNameSet findBySourceIdActive(String id, boolean exceptionIfNotFound) {
     PITAttributeDefNameSet pitAttributeDefNameSet = HibernateSession
       .byHqlStatic()
-      .createQuery("select attrDefNameSet from PITAttributeDefNameSet as attrDefNameSet where attrDefNameSet.id = :id")
+      .createQuery("select attrDefNameSet from PITAttributeDefNameSet as attrDefNameSet where attrDefNameSet.sourceId = :id and activeDb = 'T'")
+      .setCacheable(false).setCacheRegion(KLASS + ".FindBySourceIdActive")
+      .setString("id", id)
+      .uniqueResult(PITAttributeDefNameSet.class);
+    
+    if (pitAttributeDefNameSet == null && exceptionIfNotFound) {
+      throw new RuntimeException("Active PITAttributeDefNameSet with sourceId=" + id + " not found");
+    }
+    
+    return pitAttributeDefNameSet;
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.PITAttributeDefNameSetDAO#findBySourceIdUnique(java.lang.String, boolean)
+   */
+  public PITAttributeDefNameSet findBySourceIdUnique(String id, boolean exceptionIfNotFound) {
+    PITAttributeDefNameSet pitAttributeDefNameSet = HibernateSession
+      .byHqlStatic()
+      .createQuery("select attrDefNameSet from PITAttributeDefNameSet as attrDefNameSet where attrDefNameSet.sourceId = :id")
+      .setCacheable(false).setCacheRegion(KLASS + ".FindBySourceIdUnique")
+      .setString("id", id)
+      .uniqueResult(PITAttributeDefNameSet.class);
+    
+    if (pitAttributeDefNameSet == null && exceptionIfNotFound) {
+      throw new RuntimeException("PITAttributeDefNameSet with sourceId=" + id + " not found");
+    }
+    
+    return pitAttributeDefNameSet;
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.PITAttributeDefNameSetDAO#findById(java.lang.String, boolean)
+   */
+  public PITAttributeDefNameSet findById(String id, boolean exceptionIfNotFound) {
+    PITAttributeDefNameSet pit = HibernateSession
+      .byHqlStatic()
+      .createQuery("select pit from PITAttributeDefNameSet as pit where pit.id = :id")
       .setCacheable(false).setCacheRegion(KLASS + ".FindById")
       .setString("id", id)
       .uniqueResult(PITAttributeDefNameSet.class);
     
-    return pitAttributeDefNameSet;
+    if (pit == null && exceptionIfNotFound) {
+      throw new RuntimeException("PITAttributeDefNameSet with id=" + id + " not found");
+    }
+    
+    return pit;
   }
   
   /**
@@ -160,7 +200,7 @@ public class Hib3PITAttributeDefNameSetDAO extends Hib3DAO implements PITAttribu
     Set<AttributeDefNameSet> attrSets = HibernateSession
       .byHqlStatic()
       .createQuery("select attrSet from AttributeDefNameSet attrSet where " +
-          "not exists (select 1 from PITAttributeDefNameSet pit where attrSet.id = pit.id) " +
+          "not exists (select 1 from PITAttributeDefNameSet pit where attrSet.id = pit.sourceId) " +
           "and not exists (select 1 from ChangeLogEntryTemp temp, ChangeLogType type " +
           "    where temp.string01 = attrSet.id " +
           "    and type.actionName='addAttributeDefNameSet' and type.changeLogCategory='attributeDefNameSet' and type.id=temp.changeLogTypeId) " +
@@ -179,9 +219,9 @@ public class Hib3PITAttributeDefNameSetDAO extends Hib3DAO implements PITAttribu
     Set<PITAttributeDefNameSet> attrSets = HibernateSession
       .byHqlStatic()
       .createQuery("select pit from PITAttributeDefNameSet pit where activeDb = 'T' and " +
-          "not exists (select 1 from AttributeDefNameSet attrSet where attrSet.id = pit.id) " +
+          "not exists (select 1 from AttributeDefNameSet attrSet where attrSet.id = pit.sourceId) " +
           "and not exists (select 1 from ChangeLogEntryTemp temp, ChangeLogType type " +
-          "    where temp.string01 = pit.id " +
+          "    where temp.string01 = pit.sourceId " +
           "    and type.actionName='deleteAttributeDefNameSet' and type.changeLogCategory='attributeDefNameSet' and type.id=temp.changeLogTypeId)")
       .setCacheable(false).setCacheRegion(KLASS + ".FindMissingInactivePITAttributeDefNameSets")
       .listSet(PITAttributeDefNameSet.class);

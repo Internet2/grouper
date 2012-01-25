@@ -38,6 +38,12 @@ public class PITAttributeAssignActionSet extends GrouperPIT implements Hib3Group
   /** parentAttrAssignActionSetId */
   public static final String COLUMN_PARENT_ATTR_ASSN_ACTION_ID = "parent_attr_assn_action_id";
   
+  /** column */
+  public static final String COLUMN_SOURCE_ID = "source_id";
+  
+  
+  /** constant for field name for: sourceId */
+  public static final String FIELD_SOURCE_ID = "sourceId";
   
   /** constant for field name for: contextId */
   public static final String FIELD_CONTEXT_ID = "contextId";
@@ -64,7 +70,7 @@ public class PITAttributeAssignActionSet extends GrouperPIT implements Hib3Group
       FIELD_CONTEXT_ID, FIELD_HIBERNATE_VERSION_NUMBER, FIELD_ID,
       FIELD_DEPTH, FIELD_IF_HAS_ATTR_ASSN_ACTION_ID, FIELD_THEN_HAS_ATTR_ASSN_ACTION_ID,
       FIELD_PARENT_ATTR_ASSIGN_ACTION_SET_ID, FIELD_ACTIVE_DB, FIELD_START_TIME_DB,
-      FIELD_END_TIME_DB);
+      FIELD_END_TIME_DB, FIELD_SOURCE_ID);
 
 
 
@@ -74,7 +80,7 @@ public class PITAttributeAssignActionSet extends GrouperPIT implements Hib3Group
   private static final Set<String> DB_VERSION_FIELDS = GrouperUtil.toSet(
       FIELD_ACTIVE_DB, FIELD_CONTEXT_ID, FIELD_DEPTH, FIELD_END_TIME_DB, 
       FIELD_ID, FIELD_IF_HAS_ATTR_ASSN_ACTION_ID, FIELD_PARENT_ATTR_ASSIGN_ACTION_SET_ID, 
-      FIELD_START_TIME_DB, FIELD_THEN_HAS_ATTR_ASSN_ACTION_ID);
+      FIELD_START_TIME_DB, FIELD_THEN_HAS_ATTR_ASSN_ACTION_ID, FIELD_SOURCE_ID);
 
 
   /**
@@ -108,6 +114,24 @@ public class PITAttributeAssignActionSet extends GrouperPIT implements Hib3Group
   
   /** whether there will be notifications for roles with permission changes when this object is saved or updated */ 
   private boolean notificationsForRolesWithPermissionChangesOnSaveOrUpdate = false;
+  
+  /** sourceId */
+  private String sourceId;
+  
+  /**
+   * @return source id
+   */
+  public String getSourceId() {
+    return sourceId;
+  }
+
+  /**
+   * set source id
+   * @param sourceId
+   */
+  public void setSourceId(String sourceId) {
+    this.sourceId = sourceId;
+  }
   
   /**
    * @return boolean
@@ -250,7 +274,7 @@ public class PITAttributeAssignActionSet extends GrouperPIT implements Hib3Group
 
       for (PITGroup role : roles) {
         ChangeLogEntry changeLogEntry = new ChangeLogEntry(false, ChangeLogTypeBuiltin.PERMISSION_CHANGE_ON_ROLE,
-            ChangeLogLabels.PERMISSION_CHANGE_ON_ROLE.roleId.name(), role.getId(),
+            ChangeLogLabels.PERMISSION_CHANGE_ON_ROLE.roleId.name(), role.getSourceId(),
             ChangeLogLabels.PERMISSION_CHANGE_ON_ROLE.roleName.name(), role.getName());
             
         changeLogEntry.setContextId(this.getContextId());
@@ -288,7 +312,7 @@ public class PITAttributeAssignActionSet extends GrouperPIT implements Hib3Group
 
       for (PITGroup role : roles) {
         ChangeLogEntry changeLogEntry = new ChangeLogEntry(false, ChangeLogTypeBuiltin.PERMISSION_CHANGE_ON_ROLE,
-            ChangeLogLabels.PERMISSION_CHANGE_ON_ROLE.roleId.name(), role.getId(),
+            ChangeLogLabels.PERMISSION_CHANGE_ON_ROLE.roleId.name(), role.getSourceId(),
             ChangeLogLabels.PERMISSION_CHANGE_ON_ROLE.roleName.name(), role.getName());
             
         changeLogEntry.setContextId(this.getContextId());
@@ -364,5 +388,46 @@ public class PITAttributeAssignActionSet extends GrouperPIT implements Hib3Group
     for (PITAttributeAssignActionSet child : childResults) {
       GrouperDAOFactory.getFactory().getPITAttributeAssignActionSet().delete(child);
     }
+  }
+  
+  private PITAttributeAssignAction ifHasAttrAssignAction = null;
+  private PITAttributeAssignAction thenHasAttrAssignAction = null;
+  private PITAttributeAssignActionSet parentAttrAssignActionSet = null;
+  
+  /**
+   * @return ifHasAttrAssignAction
+   */
+  public PITAttributeAssignAction getIfHasPITAttributeAssignAction() {
+    if (ifHasAttrAssignAction == null) {
+      ifHasAttrAssignAction = GrouperDAOFactory.getFactory().getPITAttributeAssignAction().findById(ifHasAttrAssignActionId, true);
+    }
+    
+    return ifHasAttrAssignAction;
+  }
+  
+  /**
+   * @return thenHasAttrAssignAction
+   */
+  public PITAttributeAssignAction getThenHasPITAttributeAssignAction() {
+    if (thenHasAttrAssignAction == null) {
+      thenHasAttrAssignAction = GrouperDAOFactory.getFactory().getPITAttributeAssignAction().findById(thenHasAttrAssignActionId, true);
+    }
+    
+    return thenHasAttrAssignAction;
+  }
+  
+  /**
+   * @return parentAttrAssignActionSet
+   */
+  public PITAttributeAssignActionSet getParentPITAttributeAssignActionSet() {
+    if (depth == 0) {
+      return this;
+    }
+    
+    if (parentAttrAssignActionSet == null) {
+      parentAttrAssignActionSet = GrouperDAOFactory.getFactory().getPITAttributeAssignActionSet().findById(parentAttrAssignActionSetId, true);
+    }
+    
+    return parentAttrAssignActionSet;
   }
 }

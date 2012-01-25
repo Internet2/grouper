@@ -35,8 +35,13 @@ public class PITAttributeAssignValue extends GrouperPIT implements Hib3GrouperVe
   /** column */
   public static final String COLUMN_VALUE_MEMBER_ID = "value_member_id";
 
-  //*****  START GENERATED WITH GenerateFieldConstants.java *****//
-
+  /** column */
+  public static final String COLUMN_SOURCE_ID = "source_id";
+  
+  
+  /** constant for field name for: sourceId */
+  public static final String FIELD_SOURCE_ID = "sourceId";
+  
   /** constant for field name for: attributeAssignId */
   public static final String FIELD_ATTRIBUTE_ASSIGN_ID = "attributeAssignId";
 
@@ -65,7 +70,7 @@ public class PITAttributeAssignValue extends GrouperPIT implements Hib3GrouperVe
   private static final Set<String> DB_VERSION_FIELDS = GrouperUtil.toSet(
       FIELD_ACTIVE_DB, FIELD_ATTRIBUTE_ASSIGN_ID, FIELD_CONTEXT_ID, FIELD_END_TIME_DB, 
       FIELD_ID, FIELD_START_TIME_DB, FIELD_VALUE_FLOATING, FIELD_VALUE_INTEGER, 
-      FIELD_VALUE_MEMBER_ID, FIELD_VALUE_STRING);
+      FIELD_VALUE_MEMBER_ID, FIELD_VALUE_STRING, FIELD_SOURCE_ID);
 
   /**
    * fields which are included in clone method
@@ -73,7 +78,7 @@ public class PITAttributeAssignValue extends GrouperPIT implements Hib3GrouperVe
   private static final Set<String> CLONE_FIELDS = GrouperUtil.toSet(
       FIELD_ACTIVE_DB, FIELD_ATTRIBUTE_ASSIGN_ID, FIELD_CONTEXT_ID, FIELD_END_TIME_DB, 
       FIELD_HIBERNATE_VERSION_NUMBER, FIELD_ID, FIELD_START_TIME_DB, FIELD_VALUE_FLOATING, 
-      FIELD_VALUE_INTEGER, FIELD_VALUE_MEMBER_ID, FIELD_VALUE_STRING);
+      FIELD_VALUE_INTEGER, FIELD_VALUE_MEMBER_ID, FIELD_VALUE_STRING, FIELD_SOURCE_ID);
 
   //*****  END GENERATED WITH GenerateFieldConstants.java *****//
 
@@ -107,6 +112,23 @@ public class PITAttributeAssignValue extends GrouperPIT implements Hib3GrouperVe
   /** member id value */
   private String valueMemberId;
 
+  /** sourceId */
+  private String sourceId;
+  
+  /**
+   * @return source id
+   */
+  public String getSourceId() {
+    return sourceId;
+  }
+
+  /**
+   * set source id
+   * @param sourceId
+   */
+  public void setSourceId(String sourceId) {
+    this.sourceId = sourceId;
+  }
   
   /**
    * @return the id
@@ -222,9 +244,9 @@ public class PITAttributeAssignValue extends GrouperPIT implements Hib3GrouperVe
   /**
    * @return the attributeAssign
    */
-  public PITAttributeAssign getAttributeAssign() {
+  public PITAttributeAssign getPITAttributeAssign() {
     if (this.attributeAssign == null) {
-      this.attributeAssign = GrouperDAOFactory.getFactory().getPITAttributeAssign().findById(this.attributeAssignId);
+      this.attributeAssign = GrouperDAOFactory.getFactory().getPITAttributeAssign().findById(this.attributeAssignId, true);
     }
     
     return attributeAssign;

@@ -38,6 +38,12 @@ public class PITAttributeDefNameSet extends GrouperPIT implements Hib3GrouperVer
   /** parentAttrDefNameSetId */
   public static final String COLUMN_PARENT_ATTR_DEF_NAME_SET_ID = "parent_attr_def_name_set_id";
   
+  /** column */
+  public static final String COLUMN_SOURCE_ID = "source_id";
+  
+  
+  /** constant for field name for: sourceId */
+  public static final String FIELD_SOURCE_ID = "sourceId";
   
   /** constant for field name for: contextId */
   public static final String FIELD_CONTEXT_ID = "contextId";
@@ -64,7 +70,7 @@ public class PITAttributeDefNameSet extends GrouperPIT implements Hib3GrouperVer
       FIELD_CONTEXT_ID, FIELD_HIBERNATE_VERSION_NUMBER, FIELD_ID,
       FIELD_DEPTH, FIELD_IF_HAS_ATTRIBUTE_DEF_NAME_ID, FIELD_THEN_HAS_ATTRIBUTE_DEF_NAME_ID,
       FIELD_PARENT_ATTR_DEF_NAME_SET_ID, FIELD_ACTIVE_DB, FIELD_START_TIME_DB,
-      FIELD_END_TIME_DB);
+      FIELD_END_TIME_DB, FIELD_SOURCE_ID);
 
   /**
    * fields which are included in db version
@@ -72,7 +78,7 @@ public class PITAttributeDefNameSet extends GrouperPIT implements Hib3GrouperVer
   private static final Set<String> DB_VERSION_FIELDS = GrouperUtil.toSet(
       FIELD_ACTIVE_DB, FIELD_CONTEXT_ID, FIELD_DEPTH, FIELD_END_TIME_DB, 
       FIELD_ID, FIELD_IF_HAS_ATTRIBUTE_DEF_NAME_ID, FIELD_PARENT_ATTR_DEF_NAME_SET_ID, 
-      FIELD_START_TIME_DB, FIELD_THEN_HAS_ATTRIBUTE_DEF_NAME_ID);
+      FIELD_START_TIME_DB, FIELD_THEN_HAS_ATTRIBUTE_DEF_NAME_ID, FIELD_SOURCE_ID);
 
 
   /**
@@ -98,6 +104,24 @@ public class PITAttributeDefNameSet extends GrouperPIT implements Hib3GrouperVer
   
   /** attribute def name id of the child */
   private String ifHasAttributeDefNameId;
+  
+  /** sourceId */
+  private String sourceId;
+  
+  /**
+   * @return source id
+   */
+  public String getSourceId() {
+    return sourceId;
+  }
+
+  /**
+   * set source id
+   * @param sourceId
+   */
+  public void setSourceId(String sourceId) {
+    this.sourceId = sourceId;
+  }
   
   /**
    * depth - 0 for self records, 1 for immediate memberships, > 1 for effective 
@@ -248,7 +272,7 @@ public class PITAttributeDefNameSet extends GrouperPIT implements Hib3GrouperVer
 
       for (PITGroup role : roles) {
         ChangeLogEntry changeLogEntry = new ChangeLogEntry(false, ChangeLogTypeBuiltin.PERMISSION_CHANGE_ON_ROLE,
-            ChangeLogLabels.PERMISSION_CHANGE_ON_ROLE.roleId.name(), role.getId(),
+            ChangeLogLabels.PERMISSION_CHANGE_ON_ROLE.roleId.name(), role.getSourceId(),
             ChangeLogLabels.PERMISSION_CHANGE_ON_ROLE.roleName.name(), role.getName());
             
         changeLogEntry.setContextId(this.getContextId());
@@ -286,7 +310,7 @@ public class PITAttributeDefNameSet extends GrouperPIT implements Hib3GrouperVer
 
       for (PITGroup role : roles) {
         ChangeLogEntry changeLogEntry = new ChangeLogEntry(false, ChangeLogTypeBuiltin.PERMISSION_CHANGE_ON_ROLE,
-            ChangeLogLabels.PERMISSION_CHANGE_ON_ROLE.roleId.name(), role.getId(),
+            ChangeLogLabels.PERMISSION_CHANGE_ON_ROLE.roleId.name(), role.getSourceId(),
             ChangeLogLabels.PERMISSION_CHANGE_ON_ROLE.roleName.name(), role.getName());
             
         changeLogEntry.setContextId(this.getContextId());
@@ -362,5 +386,46 @@ public class PITAttributeDefNameSet extends GrouperPIT implements Hib3GrouperVer
     for (PITAttributeDefNameSet child : childResults) {
       GrouperDAOFactory.getFactory().getPITAttributeDefNameSet().delete(child);
     }
+  }
+  
+  private PITAttributeDefName ifHasAttrDefName = null;
+  private PITAttributeDefName thenHasAttrDefName = null;
+  private PITAttributeDefNameSet parentAttrDefNameSet = null;
+
+  /**
+   * @return ifHasAttrDefName
+   */
+  public PITAttributeDefName getIfHasPITAttributeDefName() {
+    if (ifHasAttrDefName == null) {
+      ifHasAttrDefName = GrouperDAOFactory.getFactory().getPITAttributeDefName().findById(ifHasAttributeDefNameId, true);
+    }
+
+    return ifHasAttrDefName;
+  }
+
+  /**
+   * @return thenHasAttrDefName
+   */
+  public PITAttributeDefName getThenHasPITAttributeDefName() {
+    if (thenHasAttrDefName == null) {
+      thenHasAttrDefName = GrouperDAOFactory.getFactory().getPITAttributeDefName().findById(thenHasAttributeDefNameId, true);
+    }
+
+    return thenHasAttrDefName;
+  }
+
+  /**
+   * @return parentAttrDefNameSet
+   */
+  public PITAttributeDefNameSet getParentPITAttributeDefNameSet() {
+    if (depth == 0) {
+      return this;
+    }
+
+    if (parentAttrDefNameSet == null) {
+      parentAttrDefNameSet = GrouperDAOFactory.getFactory().getPITAttributeDefNameSet().findById(parentAttrDefNameSetId, true);
+    }
+
+    return parentAttrDefNameSet;
   }
 }

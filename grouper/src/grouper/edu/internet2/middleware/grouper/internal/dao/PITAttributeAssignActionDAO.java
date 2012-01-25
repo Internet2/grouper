@@ -35,9 +35,31 @@ public interface PITAttributeAssignActionDAO extends GrouperDAO {
   
   /**
    * @param id
+   * @param exceptionIfNotFound 
    * @return PITAttributeAssignAction
    */
-  public PITAttributeAssignAction findById(String id);
+  public PITAttributeAssignAction findBySourceIdActive(String id, boolean exceptionIfNotFound);
+  
+  /**
+   * @param id
+   * @param exceptionIfNotFound 
+   * @return PITAttributeAssignAction
+   */
+  public PITAttributeAssignAction findById(String id, boolean exceptionIfNotFound);
+  
+  /**
+   * @param id
+   * @param exceptionIfNotFound 
+   * @return set of PITAttributeAssignAction
+   */
+  public Set<PITAttributeAssignAction> findBySourceId(String id, boolean exceptionIfNotFound);
+  
+  /**
+   * @param id
+   * @param exceptionIfNotFound 
+   * @return PITAttributeAssignAction
+   */
+  public PITAttributeAssignAction findBySourceIdUnique(String id, boolean exceptionIfNotFound);
   
   /**
    * Delete records that ended before the given date.

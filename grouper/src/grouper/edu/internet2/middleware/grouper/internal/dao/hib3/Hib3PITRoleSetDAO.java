@@ -51,23 +51,63 @@ public class Hib3PITRoleSetDAO extends Hib3DAO implements PITRoleSetDAO {
    */
   public static void reset(HibernateSession hibernateSession) {
     //do this since mysql cant handle self-referential foreign keys
-    hibernateSession.byHql().createQuery("update PITRoleSet set parentRoleSetId = null where id not in (select roleSet.id from RoleSet as roleSet)").executeUpdate();
+    hibernateSession.byHql().createQuery("update PITRoleSet set parentRoleSetId = null where sourceId not in (select roleSet.id from RoleSet as roleSet)").executeUpdate();
     
-    hibernateSession.byHql().createQuery("delete from PITRoleSet where id not in (select roleSet.id from RoleSet as roleSet)").executeUpdate();
+    hibernateSession.byHql().createQuery("delete from PITRoleSet where sourceId not in (select roleSet.id from RoleSet as roleSet)").executeUpdate();
   }
 
   /**
-   * @see edu.internet2.middleware.grouper.internal.dao.PITRoleSetDAO#findById(java.lang.String)
+   * @see edu.internet2.middleware.grouper.internal.dao.PITRoleSetDAO#findBySourceIdActive(java.lang.String, boolean)
    */
-  public PITRoleSet findById(String id) {
+  public PITRoleSet findBySourceIdActive(String id, boolean exceptionIfNotFound) {
     PITRoleSet pitRoleSet = HibernateSession
       .byHqlStatic()
-      .createQuery("select roleSet from PITRoleSet as roleSet where roleSet.id = :id")
+      .createQuery("select roleSet from PITRoleSet as roleSet where roleSet.sourceId = :id and activeDb = 'T'")
+      .setCacheable(false).setCacheRegion(KLASS + ".FindBySourceIdActive")
+      .setString("id", id)
+      .uniqueResult(PITRoleSet.class);
+    
+    if (pitRoleSet == null && exceptionIfNotFound) {
+      throw new RuntimeException("Active PITRoleSet with sourceId=" + id + " not found");
+    }
+    
+    return pitRoleSet;
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.PITRoleSetDAO#findBySourceIdUnique(java.lang.String, boolean)
+   */
+  public PITRoleSet findBySourceIdUnique(String id, boolean exceptionIfNotFound) {
+    PITRoleSet pitRoleSet = HibernateSession
+      .byHqlStatic()
+      .createQuery("select roleSet from PITRoleSet as roleSet where roleSet.sourceId = :id")
+      .setCacheable(false).setCacheRegion(KLASS + ".FindBySourceIdUnique")
+      .setString("id", id)
+      .uniqueResult(PITRoleSet.class);
+    
+    if (pitRoleSet == null && exceptionIfNotFound) {
+      throw new RuntimeException("PITRoleSet with sourceId=" + id + " not found");
+    }
+    
+    return pitRoleSet;
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.PITRoleSetDAO#findById(java.lang.String, boolean)
+   */
+  public PITRoleSet findById(String id, boolean exceptionIfNotFound) {
+    PITRoleSet pit = HibernateSession
+      .byHqlStatic()
+      .createQuery("select pit from PITRoleSet as pit where pit.id = :id")
       .setCacheable(false).setCacheRegion(KLASS + ".FindById")
       .setString("id", id)
       .uniqueResult(PITRoleSet.class);
     
-    return pitRoleSet;
+    if (pit == null && exceptionIfNotFound) {
+      throw new RuntimeException("PITRoleSet with id=" + id + " not found");
+    }
+    
+    return pit;
   }
   
   /**
@@ -159,7 +199,7 @@ public class Hib3PITRoleSetDAO extends Hib3DAO implements PITRoleSetDAO {
     Set<RoleSet> roleSets = HibernateSession
       .byHqlStatic()
       .createQuery("select r from RoleSet r where " +
-          "not exists (select 1 from PITRoleSet pit where r.id = pit.id) " +
+          "not exists (select 1 from PITRoleSet pit where r.id = pit.sourceId) " +
           "and not exists (select 1 from ChangeLogEntryTemp temp, ChangeLogType type " +
           "    where temp.string01 = r.id " +
           "    and type.actionName='addRoleSet' and type.changeLogCategory='roleSet' and type.id=temp.changeLogTypeId) " +
@@ -178,9 +218,9 @@ public class Hib3PITRoleSetDAO extends Hib3DAO implements PITRoleSetDAO {
     Set<PITRoleSet> roleSets = HibernateSession
       .byHqlStatic()
       .createQuery("select pit from PITRoleSet pit where activeDb = 'T' and " +
-          "not exists (select 1 from RoleSet r where r.id = pit.id) " +
+          "not exists (select 1 from RoleSet r where r.id = pit.sourceId) " +
           "and not exists (select 1 from ChangeLogEntryTemp temp, ChangeLogType type " +
-          "    where temp.string01 = pit.id " +
+          "    where temp.string01 = pit.sourceId " +
           "    and type.actionName='deleteRoleSet' and type.changeLogCategory='roleSet' and type.id=temp.changeLogTypeId)")
       .setCacheable(false).setCacheRegion(KLASS + ".FindMissingInactivePITRoleSes")
       .listSet(PITRoleSet.class);

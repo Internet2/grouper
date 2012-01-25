@@ -3,6 +3,7 @@ package edu.internet2.middleware.grouper.pit;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.GrouperAPI;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
@@ -12,10 +13,10 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 @SuppressWarnings("serial")
 public class PITAttributeAssignValueView extends GrouperPIT {
   
-  /** constant for field name for: ownerAttributeAssignId */
+  /** constant for field name for: attributeAssignValueId */
   public static final String FIELD_ATTRIBUTE_ASSIGN_VALUE_ID = "attributeAssignValueId";
 
-  /** constant for field name for: ownerAttributeAssignId */
+  /** constant for field name for: attributeAssignId */
   public static final String FIELD_ATTRIBUTE_ASSIGN_ID = "attributeAssignId";
   
   /** constant for field name for: ownerAttributeAssignId */
@@ -114,7 +115,35 @@ public class PITAttributeAssignValueView extends GrouperPIT {
   /** member id value */
   private String valueMemberId;
 
-
+  /** pitAttributeAssign */
+  private PITAttributeAssign pitAttributeAssign = null;
+  
+  /** pitAttributeAssignValue */
+  private PITAttributeAssignValue pitAttributeAssignValue = null;
+  
+  /** pitAttributeDefName */
+  private PITAttributeDefName pitAttributeDefName = null;  
+  
+  /** pitAttributeAssignAction */
+  private PITAttributeAssignAction pitAttributeAssignAction = null;
+  
+  /** pitOwnerAttributeAssign */
+  private PITAttributeAssign pitOwnerAttributeAssign = null;
+  
+  /** pitOwnerAttributeDef */
+  private PITAttributeDef pitOwnerAttributeDef = null;
+  
+  /** pitOwnerGroup */
+  private PITGroup pitOwnerGroup = null;
+  
+  /** pitOwnerMember */
+  private PITMember pitOwnerMember = null;
+  
+  /** pitOwnerMembership */
+  private PITMembership pitOwnerMembership = null;
+  
+  /** pitOwnerStem */
+  private PITStem pitOwnerStem = null;
   
   /**
    * @see edu.internet2.middleware.grouper.GrouperAPI#clone()
@@ -344,5 +373,115 @@ public class PITAttributeAssignValueView extends GrouperPIT {
    */
   public void setAttributeAssignId(String attributeAssignId) {
     this.attributeAssignId = attributeAssignId;
+  }
+  
+  /**
+   * @return pitOwnerStem
+   */
+  public PITStem getOwnerPITStem() {
+    if (pitOwnerStem == null && ownerStemId != null) {
+      pitOwnerStem = GrouperDAOFactory.getFactory().getPITStem().findById(ownerStemId, true);
+    }
+    
+    return pitOwnerStem;
+  }
+  
+  /**
+   * @return pitOwnerGroup
+   */
+  public PITGroup getOwnerPITGroup() {
+    if (pitOwnerGroup == null && ownerGroupId != null) {
+      pitOwnerGroup = GrouperDAOFactory.getFactory().getPITGroup().findById(ownerGroupId, true);
+    }
+    
+    return pitOwnerGroup;
+  }
+  
+  /**
+   * @return pitOwnerAttributeDef
+   */
+  public PITAttributeDef getOwnerPITAttributeDef() {
+    if (pitOwnerAttributeDef == null && ownerAttributeDefId != null) {
+      pitOwnerAttributeDef = GrouperDAOFactory.getFactory().getPITAttributeDef().findById(ownerAttributeDefId, true);
+    }
+    
+    return pitOwnerAttributeDef;
+  }
+  
+  /**
+   * @return pitOwnerMember
+   */
+  public PITMember getOwnerPITMember() {
+    if (pitOwnerMember == null && ownerMemberId != null) {
+      pitOwnerMember = GrouperDAOFactory.getFactory().getPITMember().findById(ownerMemberId, true);
+    }
+    
+    return pitOwnerMember;
+  }
+  
+  /**
+   * @return pitOwnerAttributeAssign
+   */
+  public PITAttributeAssign getOwnerPITAttributeAssign() {
+    if (pitOwnerAttributeAssign == null && ownerAttributeAssignId != null) {
+      pitOwnerAttributeAssign = GrouperDAOFactory.getFactory().getPITAttributeAssign().findById(ownerAttributeAssignId, true);
+    }
+    
+    return pitOwnerAttributeAssign;
+  }
+  
+  /**
+   * @return pitOwnerMembership
+   */
+  public PITMembership getOwnerPITMembership() {
+    if (pitOwnerMembership == null && ownerMembershipId != null) {
+      pitOwnerMembership = GrouperDAOFactory.getFactory().getPITMembership().findById(ownerMembershipId, true);
+    }
+    
+    return pitOwnerMembership;
+  }
+  
+  /**
+   * @return pitAttributeAssign
+   */
+  public PITAttributeAssign getPITAttributeAssign() {
+    if (pitAttributeAssign == null && attributeAssignId != null) {
+      pitAttributeAssign = GrouperDAOFactory.getFactory().getPITAttributeAssign().findById(attributeAssignId, true);
+    }
+    
+    return pitAttributeAssign;
+  }
+  
+  /**
+   * @return pitAttributeAssignValue
+   */
+  public PITAttributeAssignValue getPITAttributeAssignValue() {
+    if (pitAttributeAssignValue == null && attributeAssignValueId != null) {
+      pitAttributeAssignValue = GrouperDAOFactory.getFactory().getPITAttributeAssignValue().findById(attributeAssignValueId, true);
+    }
+    
+    return pitAttributeAssignValue;
+  }
+  
+  /**
+   * @return pitAttributeAssignAction
+   */
+  public PITAttributeAssignAction getPITAttributeAssignAction() {
+    if (pitAttributeAssignAction == null && attributeAssignActionId != null) {
+      pitAttributeAssignAction = GrouperDAOFactory.getFactory().getPITAttributeAssignAction().findById(attributeAssignActionId, true);
+    }
+    
+    return pitAttributeAssignAction;
+  }
+  
+  /**
+   * @return pitAttributeDefName
+   */
+  public PITAttributeDefName getPITAttributeDefName() {
+    if (pitAttributeDefName == null && attributeDefNameId != null) {
+      pitAttributeDefName = GrouperDAOFactory.getFactory().getPITAttributeDefName().findById(attributeDefNameId, true);
+    }
+    
+    return pitAttributeDefName;
   }
 }

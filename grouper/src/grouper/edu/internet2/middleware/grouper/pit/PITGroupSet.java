@@ -17,6 +17,7 @@ import edu.internet2.middleware.grouper.changeLog.ChangeLogTypeBuiltin;
 import edu.internet2.middleware.grouper.group.GroupSet;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
+import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
@@ -72,6 +73,12 @@ public class PITGroupSet extends GrouperPIT implements Hib3GrouperVersioned {
   /** parent_id */
   public static final String COLUMN_PARENT_ID = "parent_id";
   
+  /** column */
+  public static final String COLUMN_SOURCE_ID = "source_id";
+  
+  
+  /** constant for field name for: sourceId */
+  public static final String FIELD_SOURCE_ID = "sourceId";
   
   /** constant for field name for: contextId */
   public static final String FIELD_CONTEXT_ID = "contextId";
@@ -125,7 +132,7 @@ public class PITGroupSet extends GrouperPIT implements Hib3GrouperVersioned {
       FIELD_OWNER_STEM_ID, FIELD_MEMBER_ID, FIELD_FIELD_ID,
       FIELD_ACTIVE_DB, FIELD_START_TIME_DB, FIELD_END_TIME_DB,
       FIELD_MEMBER_ATTR_DEF_ID, FIELD_MEMBER_GROUP_ID, FIELD_MEMBER_STEM_ID,
-      FIELD_MEMBER_FIELD_ID, FIELD_DEPTH, FIELD_PARENT_ID);
+      FIELD_MEMBER_FIELD_ID, FIELD_DEPTH, FIELD_PARENT_ID, FIELD_SOURCE_ID);
 
 
   /**
@@ -136,7 +143,7 @@ public class PITGroupSet extends GrouperPIT implements Hib3GrouperVersioned {
       FIELD_FIELD_ID, 
       FIELD_ID, FIELD_MEMBER_ATTR_DEF_ID, FIELD_MEMBER_FIELD_ID, FIELD_MEMBER_GROUP_ID, 
       FIELD_MEMBER_ID, FIELD_MEMBER_STEM_ID, FIELD_OWNER_ATTR_DEF_ID, FIELD_OWNER_GROUP_ID, 
-      FIELD_OWNER_ID, FIELD_OWNER_STEM_ID, FIELD_PARENT_ID, FIELD_START_TIME_DB);
+      FIELD_OWNER_ID, FIELD_OWNER_STEM_ID, FIELD_PARENT_ID, FIELD_START_TIME_DB, FIELD_SOURCE_ID);
 
 
   /**
@@ -191,6 +198,24 @@ public class PITGroupSet extends GrouperPIT implements Hib3GrouperVersioned {
 
   /** whether there will be flat privilege notifications when this object is saved or updated */ 
   private boolean flatPrivilegeNotificationsOnSaveOrUpdate = false;
+  
+  /** sourceId */
+  private String sourceId;
+  
+  /**
+   * @return source id
+   */
+  public String getSourceId() {
+    return sourceId;
+  }
+
+  /**
+   * set source id
+   * @param sourceId
+   */
+  public void setSourceId(String sourceId) {
+    this.sourceId = sourceId;
+  }
   
   /**
    * @return boolean
@@ -483,10 +508,10 @@ public class PITGroupSet extends GrouperPIT implements Hib3GrouperVersioned {
       Set<PITMembership> pitMemberships = GrouperDAOFactory.getFactory().getPITMembershipView().findPITMembershipsJoinedWithNewPITGroupSet(this);
       
       if (pitMemberships.size() > 0) {
-        pitField = GrouperDAOFactory.getFactory().getPITField().findById(this.getFieldId());
+        pitField = GrouperDAOFactory.getFactory().getPITField().findById(this.getFieldId(), true);
         if (this.getOwnerGroupId() != null) {
-          PITGroup pitGroup = GrouperDAOFactory.getFactory().getPITGroup().findById(this.getOwnerId());
-          ownerId = pitGroup.getId();
+          PITGroup pitGroup = GrouperDAOFactory.getFactory().getPITGroup().findById(this.getOwnerId(), true);
+          ownerId = pitGroup.getSourceId();
           ownerName = pitGroup.getName();
           if (pitField.getType().equals(FieldType.LIST.getType())) {
             isMembership = true;
@@ -496,15 +521,15 @@ public class PITGroupSet extends GrouperPIT implements Hib3GrouperVersioned {
             ownerType = Membership.OWNER_TYPE_GROUP;
           }
         } else if (this.getOwnerStemId() != null) {
-          PITStem pitStem = GrouperDAOFactory.getFactory().getPITStem().findById(this.getOwnerId());
-          ownerId = pitStem.getId();
+          PITStem pitStem = GrouperDAOFactory.getFactory().getPITStem().findById(this.getOwnerId(), true);
+          ownerId = pitStem.getSourceId();
           ownerName = pitStem.getName();
           privilegeType = FieldType.NAMING.getType();
           privilegeName = NamingPrivilege.listToPriv(pitField.getName()).getName();
           ownerType = Membership.OWNER_TYPE_STEM;
         } else if (this.getOwnerAttrDefId() != null) {
-          PITAttributeDef pitAttributeDef = GrouperDAOFactory.getFactory().getPITAttributeDef().findById(this.getOwnerId());
-          ownerId = pitAttributeDef.getId();
+          PITAttributeDef pitAttributeDef = GrouperDAOFactory.getFactory().getPITAttributeDef().findById(this.getOwnerId(), true);
+          ownerId = pitAttributeDef.getSourceId();
           ownerName = pitAttributeDef.getName();
           privilegeType = FieldType.ATTRIBUTE_DEF.getType();
           privilegeName = AttributeDefPrivilege.listToPriv(pitField.getName()).getName();
@@ -522,10 +547,10 @@ public class PITGroupSet extends GrouperPIT implements Hib3GrouperVersioned {
         
         if (isMembership && this.getFlatMembershipNotificationsOnSaveOrUpdate()) {
           changeLogEntry = new ChangeLogEntry(false, ChangeLogTypeBuiltin.MEMBERSHIP_ADD,
-              ChangeLogLabels.MEMBERSHIP_ADD.id.name(), pitMembership.getId(),
+              ChangeLogLabels.MEMBERSHIP_ADD.id.name(), pitMembership.getSourceId(),
               ChangeLogLabels.MEMBERSHIP_ADD.fieldName.name(), pitField.getName(),
-              ChangeLogLabels.MEMBERSHIP_ADD.fieldId.name(), pitField.getId(),
-              ChangeLogLabels.MEMBERSHIP_ADD.memberId.name(), pitMembership.getMemberId(),
+              ChangeLogLabels.MEMBERSHIP_ADD.fieldId.name(), pitField.getSourceId(),
+              ChangeLogLabels.MEMBERSHIP_ADD.memberId.name(), pitMembership.getMember().getSourceId(),
               ChangeLogLabels.MEMBERSHIP_ADD.subjectId.name(), pitMembership.getMember().getSubjectId(),
               ChangeLogLabels.MEMBERSHIP_ADD.sourceId.name(), pitMembership.getMember().getSubjectSourceId(),
               ChangeLogLabels.MEMBERSHIP_ADD.groupId.name(), ownerId,
@@ -533,10 +558,10 @@ public class PITGroupSet extends GrouperPIT implements Hib3GrouperVersioned {
               ChangeLogLabels.MEMBERSHIP_ADD.groupName.name(), ownerName);
         } else if (!isMembership && this.getFlatPrivilegeNotificationsOnSaveOrUpdate()) {
           changeLogEntry = new ChangeLogEntry(false, ChangeLogTypeBuiltin.PRIVILEGE_ADD,
-              ChangeLogLabels.PRIVILEGE_ADD.id.name(), pitMembership.getId(),
+              ChangeLogLabels.PRIVILEGE_ADD.id.name(), pitMembership.getSourceId(),
               ChangeLogLabels.PRIVILEGE_ADD.privilegeName.name(), privilegeName,
-              ChangeLogLabels.PRIVILEGE_ADD.fieldId.name(), pitField.getId(),
-              ChangeLogLabels.PRIVILEGE_ADD.memberId.name(), pitMembership.getMemberId(),
+              ChangeLogLabels.PRIVILEGE_ADD.fieldId.name(), pitField.getSourceId(),
+              ChangeLogLabels.PRIVILEGE_ADD.memberId.name(), pitMembership.getMember().getSourceId(),
               ChangeLogLabels.PRIVILEGE_ADD.subjectId.name(), pitMembership.getMember().getSubjectId(),
               ChangeLogLabels.PRIVILEGE_ADD.sourceId.name(), pitMembership.getMember().getSubjectSourceId(),
               ChangeLogLabels.PRIVILEGE_ADD.privilegeType.name(), privilegeType,
@@ -591,10 +616,10 @@ public class PITGroupSet extends GrouperPIT implements Hib3GrouperVersioned {
       Set<PITMembership> pitMemberships = GrouperDAOFactory.getFactory().getPITMembershipView().findPITMembershipsJoinedWithOldPITGroupSet(this);
       
       if (pitMemberships.size() > 0) {
-        pitField = GrouperDAOFactory.getFactory().getPITField().findById(this.getFieldId());
+        pitField = GrouperDAOFactory.getFactory().getPITField().findById(this.getFieldId(), true);
         if (this.getOwnerGroupId() != null) {
-          PITGroup pitGroup = GrouperDAOFactory.getFactory().getPITGroup().findById(this.getOwnerId());
-          ownerId = pitGroup.getId();
+          PITGroup pitGroup = GrouperDAOFactory.getFactory().getPITGroup().findById(this.getOwnerId(), true);
+          ownerId = pitGroup.getSourceId();
           ownerName = pitGroup.getName();
           if (pitField.getType().equals(FieldType.LIST.getType())) {
             isMembership = true;
@@ -604,15 +629,15 @@ public class PITGroupSet extends GrouperPIT implements Hib3GrouperVersioned {
             ownerType = Membership.OWNER_TYPE_GROUP;
           }
         } else if (this.getOwnerStemId() != null) {
-          PITStem pitStem = GrouperDAOFactory.getFactory().getPITStem().findById(this.getOwnerId());
-          ownerId = pitStem.getId();
+          PITStem pitStem = GrouperDAOFactory.getFactory().getPITStem().findById(this.getOwnerId(), true);
+          ownerId = pitStem.getSourceId();
           ownerName = pitStem.getName();
           privilegeType = FieldType.NAMING.getType();
           privilegeName = NamingPrivilege.listToPriv(pitField.getName()).getName();
           ownerType = Membership.OWNER_TYPE_STEM;
         } else if (this.getOwnerAttrDefId() != null) {
-          PITAttributeDef pitAttributeDef = GrouperDAOFactory.getFactory().getPITAttributeDef().findById(this.getOwnerId());
-          ownerId = pitAttributeDef.getId();
+          PITAttributeDef pitAttributeDef = GrouperDAOFactory.getFactory().getPITAttributeDef().findById(this.getOwnerId(), true);
+          ownerId = pitAttributeDef.getSourceId();
           ownerName = pitAttributeDef.getName();
           privilegeType = FieldType.ATTRIBUTE_DEF.getType();
           privilegeName = AttributeDefPrivilege.listToPriv(pitField.getName()).getName();
@@ -630,10 +655,10 @@ public class PITGroupSet extends GrouperPIT implements Hib3GrouperVersioned {
         
         if (isMembership && this.getFlatMembershipNotificationsOnSaveOrUpdate()) {
           changeLogEntry = new ChangeLogEntry(false, ChangeLogTypeBuiltin.MEMBERSHIP_DELETE,
-              ChangeLogLabels.MEMBERSHIP_DELETE.id.name(), pitMembership.getId(),
+              ChangeLogLabels.MEMBERSHIP_DELETE.id.name(), pitMembership.getSourceId(),
               ChangeLogLabels.MEMBERSHIP_DELETE.fieldName.name(), pitField.getName(),
-              ChangeLogLabels.MEMBERSHIP_DELETE.fieldId.name(), pitField.getId(),
-              ChangeLogLabels.MEMBERSHIP_DELETE.memberId.name(), pitMembership.getMemberId(),
+              ChangeLogLabels.MEMBERSHIP_DELETE.fieldId.name(), pitField.getSourceId(),
+              ChangeLogLabels.MEMBERSHIP_DELETE.memberId.name(), pitMembership.getMember().getSourceId(),
               ChangeLogLabels.MEMBERSHIP_DELETE.subjectId.name(), pitMembership.getMember().getSubjectId(),
               ChangeLogLabels.MEMBERSHIP_DELETE.sourceId.name(), pitMembership.getMember().getSubjectSourceId(),
               ChangeLogLabels.MEMBERSHIP_DELETE.groupId.name(), ownerId,
@@ -641,10 +666,10 @@ public class PITGroupSet extends GrouperPIT implements Hib3GrouperVersioned {
               ChangeLogLabels.MEMBERSHIP_DELETE.groupName.name(), ownerName);
         } else if (!isMembership && this.getFlatPrivilegeNotificationsOnSaveOrUpdate()) {
           changeLogEntry = new ChangeLogEntry(false, ChangeLogTypeBuiltin.PRIVILEGE_DELETE,
-              ChangeLogLabels.PRIVILEGE_DELETE.id.name(), pitMembership.getId(),
+              ChangeLogLabels.PRIVILEGE_DELETE.id.name(), pitMembership.getSourceId(),
               ChangeLogLabels.PRIVILEGE_DELETE.privilegeName.name(), privilegeName,
-              ChangeLogLabels.PRIVILEGE_DELETE.fieldId.name(), pitField.getId(),
-              ChangeLogLabels.PRIVILEGE_DELETE.memberId.name(), pitMembership.getMemberId(),
+              ChangeLogLabels.PRIVILEGE_DELETE.fieldId.name(), pitField.getSourceId(),
+              ChangeLogLabels.PRIVILEGE_DELETE.memberId.name(), pitMembership.getMember().getSourceId(),
               ChangeLogLabels.PRIVILEGE_DELETE.subjectId.name(), pitMembership.getMember().getSubjectId(),
               ChangeLogLabels.PRIVILEGE_DELETE.sourceId.name(), pitMembership.getMember().getSubjectSourceId(),
               ChangeLogLabels.PRIVILEGE_DELETE.privilegeType.name(), privilegeType,
@@ -682,19 +707,20 @@ public class PITGroupSet extends GrouperPIT implements Hib3GrouperVersioned {
     
     // take care of effective PIT group sets
     if (this.getDepth() == 1 && this.getMemberGroupId() != null) {
+      PITField defaultListField = GrouperDAOFactory.getFactory().getPITField().findBySourceIdActive(Group.getDefaultList().getUuid(), true);
       Set<PITGroupSet> results = new LinkedHashSet<PITGroupSet>();
       Set<PITGroupSet> pitGroupSetHasMembers = GrouperDAOFactory.getFactory().getPITGroupSet().findAllActiveByGroupOwnerAndField(
-          this.getMemberGroupId(), Group.getDefaultList());
+          this.getMemberGroupId(), defaultListField);
       
       // Add members of member to owner PIT group set
-      results.addAll(addHasMembersToOwner(this, pitGroupSetHasMembers));
+      results.addAll(addHasMembersToOwner(this, pitGroupSetHasMembers, defaultListField));
   
       // If we are working on a group, where is it a member and field is the default list
-      if (this.getOwnerGroupId() != null && this.getFieldId().equals(Group.getDefaultList().getUuid())) {
+      if (this.getOwnerGroupId() != null && this.getFieldId().equals(defaultListField.getId())) {
         Set<PITGroupSet> pitGroupSetIsMember = GrouperDAOFactory.getFactory().getPITGroupSet().findAllActiveByMemberGroup(this.getOwnerGroupId());
   
         // Add member and members of member to where owner is member
-        results.addAll(addHasMembersToWhereGroupIsMember(this.getMemberGroupId(), pitGroupSetIsMember, pitGroupSetHasMembers));
+        results.addAll(addHasMembersToWhereGroupIsMember(this.getMemberGroupId(), pitGroupSetIsMember, pitGroupSetHasMembers, defaultListField));
       }
       
       Iterator<PITGroupSet> iter = results.iterator();
@@ -702,13 +728,6 @@ public class PITGroupSet extends GrouperPIT implements Hib3GrouperVersioned {
         PITGroupSet pitGroupSet = iter.next();
         pitGroupSet.setFlatMembershipNotificationsOnSaveOrUpdate(this.getFlatMembershipNotificationsOnSaveOrUpdate());
         pitGroupSet.setFlatPrivilegeNotificationsOnSaveOrUpdate(this.getFlatPrivilegeNotificationsOnSaveOrUpdate());
-
-        // see if group set with this id already exists.  if it does, delete it..
-        PITGroupSet existing = GrouperDAOFactory.getFactory().getPITGroupSet().findById(pitGroupSet.getId());
-        if (existing != null && !existing.isActive()) {
-          existing.delete();
-        }
-
         pitGroupSet.saveOrUpdate();
       }
     }
@@ -749,7 +768,7 @@ public class PITGroupSet extends GrouperPIT implements Hib3GrouperVersioned {
    * @param hasMembers
    * @return set
    */
-  private Set<PITGroupSet> addHasMembersToOwner(PITGroupSet pitImmediateGroupSet, Set<PITGroupSet> hasMembers) {
+  private Set<PITGroupSet> addHasMembersToOwner(PITGroupSet pitImmediateGroupSet, Set<PITGroupSet> hasMembers, PITField defaultListField) {
     Set<PITGroupSet> pitGroupSets = new LinkedHashSet<PITGroupSet>();
   
     Map<String, Set<PITGroupSet>> parentToChildrenMap = getParentToChildrenMap(hasMembers);
@@ -758,7 +777,7 @@ public class PITGroupSet extends GrouperPIT implements Hib3GrouperVersioned {
     while (it.hasNext()) {
       PITGroupSet pitGroupSet = it.next();
       if (pitGroupSet.getDepth() == 1) {
-        Set<PITGroupSet> newAdditions = addHasMembersRecursively(pitGroupSet, pitImmediateGroupSet, parentToChildrenMap);
+        Set<PITGroupSet> newAdditions = addHasMembersRecursively(pitGroupSet, pitImmediateGroupSet, parentToChildrenMap, defaultListField);
         pitGroupSets.addAll(newAdditions);
       }
     }
@@ -772,11 +791,12 @@ public class PITGroupSet extends GrouperPIT implements Hib3GrouperVersioned {
    * @param parentToChildrenMap
    * @return set
    */
-  private Set<PITGroupSet> addHasMembersRecursively(PITGroupSet pitGroupSet, PITGroupSet parentPITGroupSet, Map<String, Set<PITGroupSet>> parentToChildrenMap) {
+  private Set<PITGroupSet> addHasMembersRecursively(PITGroupSet pitGroupSet, PITGroupSet parentPITGroupSet, Map<String, Set<PITGroupSet>> parentToChildrenMap, PITField pitMemberField) {
 
     PITGroupSet newPITGroupSet = new PITGroupSet();
+    newPITGroupSet.setId(GrouperUuid.getUuid());
     newPITGroupSet.setFieldId(parentPITGroupSet.getFieldId());
-    newPITGroupSet.setMemberFieldId(Group.getDefaultList().getUuid());
+    newPITGroupSet.setMemberFieldId(pitMemberField.getId());
     newPITGroupSet.setOwnerAttrDefId(parentPITGroupSet.getOwnerAttrDefId());
     newPITGroupSet.setOwnerGroupId(parentPITGroupSet.getOwnerGroupId());
     newPITGroupSet.setOwnerStemId(parentPITGroupSet.getOwnerStemId());
@@ -787,10 +807,23 @@ public class PITGroupSet extends GrouperPIT implements Hib3GrouperVersioned {
     newPITGroupSet.setStartTimeDb(this.getStartTimeDb());
     newPITGroupSet.setContextId(this.getContextId());
 
-    // now get the existing group set so we have the id.
+    String ownerSourceId = null;
+    if (newPITGroupSet.getOwnerGroupId() != null) {
+      ownerSourceId = GrouperDAOFactory.getFactory().getPITGroup().findById(newPITGroupSet.getOwnerGroupId(), true).getSourceId();
+    } else if (newPITGroupSet.getOwnerStemId() != null) {
+      ownerSourceId = GrouperDAOFactory.getFactory().getPITStem().findById(newPITGroupSet.getOwnerStemId(), true).getSourceId();
+    } else if (newPITGroupSet.getOwnerAttrDefId() != null) {
+      ownerSourceId = GrouperDAOFactory.getFactory().getPITAttributeDef().findById(newPITGroupSet.getOwnerAttrDefId(), true).getSourceId();
+    } else {
+      throw new RuntimeException("Unexpected");
+    }
+    
+    // now get the existing group set so we have the source id.
+    PITGroup pitMemberGroup = GrouperDAOFactory.getFactory().getPITGroup().findById(newPITGroupSet.getMemberId(), true);
+    PITField pitField = GrouperDAOFactory.getFactory().getPITField().findById(newPITGroupSet.getFieldId(), true);
     GroupSet gs = GrouperDAOFactory.getFactory().getGroupSet().findByOwnerMemberFieldParentAndType(
-        newPITGroupSet.getOwnerId(), newPITGroupSet.getMemberId(), newPITGroupSet.getFieldId(), 
-        newPITGroupSet.getParentId(), "effective", false);
+        ownerSourceId, pitMemberGroup.getSourceId(), pitField.getSourceId(), 
+        parentPITGroupSet.getSourceId(), "effective", false);
     
     if (gs == null) {
       // either the group was deleted or it was never added (because it formed a circular path for instance)
@@ -803,7 +836,7 @@ public class PITGroupSet extends GrouperPIT implements Hib3GrouperVersioned {
       return new LinkedHashSet<PITGroupSet>();
     }
     
-    newPITGroupSet.setId(gs.getId());
+    newPITGroupSet.setSourceId(gs.getId());
 
     Set<PITGroupSet> newPITGroupSets = new LinkedHashSet<PITGroupSet>();
     newPITGroupSets.add(newPITGroupSet);
@@ -813,7 +846,7 @@ public class PITGroupSet extends GrouperPIT implements Hib3GrouperVersioned {
       Iterator<PITGroupSet> it = children.iterator();
       while (it.hasNext()) {
         PITGroupSet nextPITGroupSet = it.next();
-        Set<PITGroupSet> newAdditions = addHasMembersRecursively(nextPITGroupSet, newPITGroupSet, parentToChildrenMap);
+        Set<PITGroupSet> newAdditions = addHasMembersRecursively(nextPITGroupSet, newPITGroupSet, parentToChildrenMap, pitMemberField);
         newPITGroupSets.addAll(newAdditions);
       }
     }
@@ -828,7 +861,7 @@ public class PITGroupSet extends GrouperPIT implements Hib3GrouperVersioned {
    * @return set
    */
   private Set<PITGroupSet> addHasMembersToWhereGroupIsMember(String memberGroupId,
-      Set<PITGroupSet> pitGroupSetIsMember, Set<PITGroupSet> pitGroupSetHasMembers) {
+      Set<PITGroupSet> pitGroupSetIsMember, Set<PITGroupSet> pitGroupSetHasMembers, PITField pitMemberField) {
     
     Set<PITGroupSet> pitGroupSets = new LinkedHashSet<PITGroupSet>();
 
@@ -856,10 +889,11 @@ public class PITGroupSet extends GrouperPIT implements Hib3GrouperVersioned {
       int depth = isPITGS.getDepth();
 
       PITGroupSet pitGroupSet = new PITGroupSet();
+      pitGroupSet.setId(GrouperUuid.getUuid());
       pitGroupSet.setDepth(depth + 1);
       pitGroupSet.setParentId(id);
       pitGroupSet.setFieldId(fieldId);
-      pitGroupSet.setMemberFieldId(Group.getDefaultList().getUuid());
+      pitGroupSet.setMemberFieldId(pitMemberField.getId());
       pitGroupSet.setMemberGroupId(memberGroupId);
       pitGroupSet.setOwnerGroupId(ownerGroupId);
       pitGroupSet.setOwnerAttrDefId(ownerAttrDefId);
@@ -868,10 +902,23 @@ public class PITGroupSet extends GrouperPIT implements Hib3GrouperVersioned {
       pitGroupSet.setStartTimeDb(this.getStartTimeDb());
       pitGroupSet.setContextId(this.getContextId());
 
-      // now get the existing group set so we have the id.
+      String ownerSourceId = null;
+      if (pitGroupSet.getOwnerGroupId() != null) {
+        ownerSourceId = GrouperDAOFactory.getFactory().getPITGroup().findById(pitGroupSet.getOwnerGroupId(), true).getSourceId();
+      } else if (pitGroupSet.getOwnerStemId() != null) {
+        ownerSourceId = GrouperDAOFactory.getFactory().getPITStem().findById(pitGroupSet.getOwnerStemId(), true).getSourceId();
+      } else if (pitGroupSet.getOwnerAttrDefId() != null) {
+        ownerSourceId = GrouperDAOFactory.getFactory().getPITAttributeDef().findById(pitGroupSet.getOwnerAttrDefId(), true).getSourceId();
+      } else {
+        throw new RuntimeException("Unexpected");
+      }
+      
+      // now get the existing group set so we have the source id.
+      PITGroup pitMemberGroup = GrouperDAOFactory.getFactory().getPITGroup().findById(pitGroupSet.getMemberId(), true);
+      PITField pitField = GrouperDAOFactory.getFactory().getPITField().findById(pitGroupSet.getFieldId(), true);
       GroupSet gs = GrouperDAOFactory.getFactory().getGroupSet().findByOwnerMemberFieldParentAndType(
-          pitGroupSet.getOwnerId(), pitGroupSet.getMemberId(), pitGroupSet.getFieldId(), 
-          pitGroupSet.getParentId(), "effective", false);
+          ownerSourceId, pitMemberGroup.getSourceId(), pitField.getSourceId(),
+          isPITGS.getSourceId(), "effective", false);
       
       if (gs == null) {
         // either the group was deleted or it was never added (because it formed a circular path for instance)
@@ -884,13 +931,13 @@ public class PITGroupSet extends GrouperPIT implements Hib3GrouperVersioned {
         continue;
       }
 
-      pitGroupSet.setId(gs.getId());
+      pitGroupSet.setSourceId(gs.getId());
       pitGroupSets.add(pitGroupSet);
 
       Iterator<PITGroupSet> itHM = hasMembersOneDepth.iterator();
       while (itHM.hasNext()) {
         PITGroupSet hasPITGS = itHM.next();
-        Set<PITGroupSet> newAdditions = addHasMembersRecursively(hasPITGS, pitGroupSet, parentToChildrenMap);
+        Set<PITGroupSet> newAdditions = addHasMembersRecursively(hasPITGS, pitGroupSet, parentToChildrenMap, pitMemberField);
         pitGroupSets.addAll(newAdditions);
       }
     }
@@ -907,14 +954,15 @@ public class PITGroupSet extends GrouperPIT implements Hib3GrouperVersioned {
     // take care of effective group sets
     if (!this.isActive() && this.dbVersion().isActive() && this.getDepth() == 1) {
       Set<PITGroupSet> pitGroupSetsToEnd = new LinkedHashSet<PITGroupSet>();
-      
+      PITField defaultListField = GrouperDAOFactory.getFactory().getPITField().findBySourceIdActive(Group.getDefaultList().getUuid(), true);
+
       // Get all children of this PIT group set
       Set<PITGroupSet> childResults = GrouperDAOFactory.getFactory().getPITGroupSet().findAllActiveChildren(this);
   
       pitGroupSetsToEnd.addAll(childResults);
   
       // Find all effective PIT group sets that need to be ended
-      if (this.getOwnerGroupId() != null && this.getFieldId().equals(Group.getDefaultList().getUuid())) {
+      if (this.getOwnerGroupId() != null && this.getFieldId().equals(defaultListField.getId())) {
         Set<PITGroupSet> pitGroupSetIsMember = GrouperDAOFactory.getFactory().getPITGroupSet().findAllActiveByMemberGroup(this.getOwnerGroupId());
         
         Iterator<PITGroupSet> pitGroupSetIsMemberIter = pitGroupSetIsMember.iterator();
@@ -1002,4 +1050,116 @@ public class PITGroupSet extends GrouperPIT implements Hib3GrouperVersioned {
     }
   }
 
+  private PITGroup pitOwnerGroup = null;
+  private PITAttributeDef pitOwnerAttributeDef = null;
+  private PITStem pitOwnerStem = null;
+  private PITGroup pitMemberGroup = null;
+  private PITAttributeDef pitMemberAttributeDef = null;
+  private PITStem pitMemberStem = null;
+  private PITField pitField = null;
+  private PITField pitMemberField = null;
+  private PITGroupSet pitParentGroupSet = null;
+  
+  /**
+   * @return pitParentGroupSet
+   */
+  public PITGroupSet getParentPITGroupSet() {
+    if (depth == 0) {
+      return this;
+    }
+    
+    if (pitParentGroupSet == null) {
+      pitParentGroupSet = GrouperDAOFactory.getFactory().getPITGroupSet().findById(parentId, true);
+    }
+    
+    return pitParentGroupSet;
+  }
+  
+  /**
+   * @return pitField
+   */
+  public PITField getPITField() {
+    if (pitField == null) {
+      pitField = GrouperDAOFactory.getFactory().getPITField().findById(fieldId, true);
+    }
+    
+    return pitField;
+  }
+  
+  /**
+   * @return pitMemberField
+   */
+  public PITField getMemberPITField() {
+    if (pitMemberField == null) {
+      pitMemberField = GrouperDAOFactory.getFactory().getPITField().findById(memberFieldId, true);
+    }
+    
+    return pitMemberField;
+  }
+
+  /**
+   * @return pitMemberGroup
+   */
+  public PITGroup getMemberPITGroup() {
+    if (pitMemberGroup == null && memberGroupId != null) {
+      pitMemberGroup = GrouperDAOFactory.getFactory().getPITGroup().findById(memberGroupId, true);
+    }
+    
+    return pitMemberGroup;
+  }
+  
+  /**
+   * @return pitMemberAttributeDef
+   */
+  public PITAttributeDef getMemberPITAttributeDef() {
+    if (pitMemberAttributeDef == null && memberAttrDefId != null) {
+      pitMemberAttributeDef = GrouperDAOFactory.getFactory().getPITAttributeDef().findById(memberAttrDefId, true);
+    }
+    
+    return pitMemberAttributeDef;
+  }
+  
+  /**
+   * @return pitMemberStem
+   */
+  public PITStem getMemberPITStem() {
+    if (pitMemberStem == null && memberStemId != null) {
+      pitMemberStem = GrouperDAOFactory.getFactory().getPITStem().findById(memberStemId, true);
+    }
+    
+    return pitMemberStem;
+  }
+  
+  /**
+   * @return pitOwnerGroup
+   */
+  public PITGroup getOwnerPITGroup() {
+    if (pitOwnerGroup == null && ownerGroupId != null) {
+      pitOwnerGroup = GrouperDAOFactory.getFactory().getPITGroup().findById(ownerGroupId, true);
+    }
+    
+    return pitOwnerGroup;
+  }
+  
+  /**
+   * @return pitOwnerAttributeDef
+   */
+  public PITAttributeDef getOwnerPITAttributeDef() {
+    if (pitOwnerAttributeDef == null && ownerAttrDefId != null) {
+      pitOwnerAttributeDef = GrouperDAOFactory.getFactory().getPITAttributeDef().findById(ownerAttrDefId, true);
+    }
+    
+    return pitOwnerAttributeDef;
+  }
+  
+  /**
+   * @return pitOwnerStem
+   */
+  public PITStem getOwnerPITStem() {
+    if (pitOwnerStem == null && ownerStemId != null) {
+      pitOwnerStem = GrouperDAOFactory.getFactory().getPITStem().findById(ownerStemId, true);
+    }
+    
+    return pitOwnerStem;
+  }
 }

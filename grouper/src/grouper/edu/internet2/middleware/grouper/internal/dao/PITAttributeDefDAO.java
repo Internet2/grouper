@@ -34,10 +34,32 @@ public interface PITAttributeDefDAO extends GrouperDAO {
   public void delete(PITAttributeDef pitAttributeDef);
   
   /**
-   * @param pitAttributeDefId
-   * @return pit attribute def
+   * @param id
+   * @param exceptionIfNotFound 
+   * @return PITAttributeDef
    */
-  public PITAttributeDef findById(String pitAttributeDefId);
+  public PITAttributeDef findBySourceIdActive(String id, boolean exceptionIfNotFound);
+
+  /**
+   * @param id
+   * @param exceptionIfNotFound 
+   * @return PITAttributeDef
+   */
+  public PITAttributeDef findById(String id, boolean exceptionIfNotFound);
+  
+  /**
+   * @param id
+   * @param exceptionIfNotFound 
+   * @return PITAttributeDef
+   */
+  public PITAttributeDef findBySourceIdUnique(String id, boolean exceptionIfNotFound);
+  
+  /**
+   * @param id
+   * @param exceptionIfNotFound 
+   * @return set of PITAttributeDef
+   */
+  public Set<PITAttributeDef> findBySourceId(String id, boolean exceptionIfNotFound);
   
   /**
    * @param name

@@ -127,7 +127,7 @@ public class Hib3PITMembershipViewDAO extends Hib3DAO implements PITMembershipVi
     for(Object[] tuple:mships) {
       PITMembershipView currPITMembership = (PITMembershipView)tuple[0];
       PITMember currPITMember = (PITMember)tuple[1];
-      currPITMembership.setMember(currPITMember);
+      currPITMembership.setPITMember(currPITMember);
       pitMemberships.add(currPITMembership);
     }
     return pitMemberships;
@@ -165,10 +165,11 @@ public class Hib3PITMembershipViewDAO extends Hib3DAO implements PITMembershipVi
       Timestamp pointInTimeFrom, Timestamp pointInTimeTo, Set<Source> sources, QueryOptions queryOptions) {
 
     StringBuilder sql = new StringBuilder("select m "
-        + "from Member m, PITMembershipView ms where "
+        + "from Member m, PITMember pitMember, PITMembershipView ms where "
         + "ms.ownerId = :ownerId "
         + "and ms.fieldId = :fieldId "
-        + "and ms.memberId = m.uuid");
+        + "and ms.memberId = pitMember.id "
+        + "and pitMember.sourceId = m.uuid");
     
     if (pointInTimeFrom != null) {
       Long endDateAfter = pointInTimeFrom.getTime() * 1000;

@@ -34,10 +34,32 @@ public interface PITMemberDAO extends GrouperDAO {
   public void delete(PITMember pitMember);
   
   /**
-   * @param pitMemberId
-   * @return pit member
+   * @param id
+   * @param exceptionIfNotFound 
+   * @return PITMember
    */
-  public PITMember findById(String pitMemberId);
+  public PITMember findBySourceIdActive(String id, boolean exceptionIfNotFound);
+  
+  /**
+   * @param id
+   * @param exceptionIfNotFound 
+   * @return PITMember
+   */
+  public PITMember findById(String id, boolean exceptionIfNotFound);
+  
+  /**
+   * @param id
+   * @param exceptionIfNotFound 
+   * @return PITMember
+   */
+  public PITMember findBySourceIdUnique(String id, boolean exceptionIfNotFound);
+  
+  /**
+   * @param id
+   * @param exceptionIfNotFound 
+   * @return set of PITMember
+   */
+  public Set<PITMember> findBySourceId(String id, boolean exceptionIfNotFound);
   
   /**
    * Delete records that ended before the given date.
@@ -49,9 +71,9 @@ public interface PITMemberDAO extends GrouperDAO {
    * @param id
    * @param source
    * @param type
-   * @return pit member
+   * @return pit members
    */
-  public PITMember findMemberBySubjectIdSourceAndType(String id, String source, String type);
+  public Set<PITMember> findPITMembersBySubjectIdSourceAndType(String id, String source, String type);
   
   /**
    * @return active members that are missing in point in time

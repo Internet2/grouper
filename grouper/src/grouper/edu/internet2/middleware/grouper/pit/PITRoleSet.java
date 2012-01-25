@@ -38,6 +38,12 @@ public class PITRoleSet extends GrouperPIT implements Hib3GrouperVersioned {
   /** parentRoleSetId */
   public static final String COLUMN_PARENT_ROLE_SET_ID = "parent_role_set_id";
   
+  /** column */
+  public static final String COLUMN_SOURCE_ID = "source_id";
+  
+  
+  /** constant for field name for: sourceId */
+  public static final String FIELD_SOURCE_ID = "sourceId";
   
   /** constant for field name for: contextId */
   public static final String FIELD_CONTEXT_ID = "contextId";
@@ -64,7 +70,7 @@ public class PITRoleSet extends GrouperPIT implements Hib3GrouperVersioned {
       FIELD_CONTEXT_ID, FIELD_HIBERNATE_VERSION_NUMBER, FIELD_ID,
       FIELD_DEPTH, FIELD_IF_HAS_ROLE_ID, FIELD_THEN_HAS_ROLE_ID,
       FIELD_PARENT_ROLE_SET_ID, FIELD_ACTIVE_DB, FIELD_START_TIME_DB,
-      FIELD_END_TIME_DB);
+      FIELD_END_TIME_DB, FIELD_SOURCE_ID);
 
 
   /**
@@ -73,7 +79,7 @@ public class PITRoleSet extends GrouperPIT implements Hib3GrouperVersioned {
   private static final Set<String> DB_VERSION_FIELDS = GrouperUtil.toSet(
       FIELD_ACTIVE_DB, FIELD_CONTEXT_ID, FIELD_DEPTH, FIELD_END_TIME_DB, 
       FIELD_ID, FIELD_IF_HAS_ROLE_ID, FIELD_PARENT_ROLE_SET_ID, 
-      FIELD_START_TIME_DB, FIELD_THEN_HAS_ROLE_ID);
+      FIELD_START_TIME_DB, FIELD_THEN_HAS_ROLE_ID, FIELD_SOURCE_ID);
 
 
   /**
@@ -99,6 +105,24 @@ public class PITRoleSet extends GrouperPIT implements Hib3GrouperVersioned {
   
   /** role id of the child */
   private String ifHasRoleId;
+  
+  /** sourceId */
+  private String sourceId;
+  
+  /**
+   * @return source id
+   */
+  public String getSourceId() {
+    return sourceId;
+  }
+
+  /**
+   * set source id
+   * @param sourceId
+   */
+  public void setSourceId(String sourceId) {
+    this.sourceId = sourceId;
+  }
   
   /**
    * depth - 0 for self records, 1 for immediate memberships, > 1 for effective 
@@ -249,7 +273,7 @@ public class PITRoleSet extends GrouperPIT implements Hib3GrouperVersioned {
 
       for (PITGroup role : roles) {
         ChangeLogEntry changeLogEntry = new ChangeLogEntry(false, ChangeLogTypeBuiltin.PERMISSION_CHANGE_ON_ROLE,
-            ChangeLogLabels.PERMISSION_CHANGE_ON_ROLE.roleId.name(), role.getId(),
+            ChangeLogLabels.PERMISSION_CHANGE_ON_ROLE.roleId.name(), role.getSourceId(),
             ChangeLogLabels.PERMISSION_CHANGE_ON_ROLE.roleName.name(), role.getName());
             
         changeLogEntry.setContextId(this.getContextId());
@@ -287,7 +311,7 @@ public class PITRoleSet extends GrouperPIT implements Hib3GrouperVersioned {
 
       for (PITGroup role : roles) {
         ChangeLogEntry changeLogEntry = new ChangeLogEntry(false, ChangeLogTypeBuiltin.PERMISSION_CHANGE_ON_ROLE,
-            ChangeLogLabels.PERMISSION_CHANGE_ON_ROLE.roleId.name(), role.getId(),
+            ChangeLogLabels.PERMISSION_CHANGE_ON_ROLE.roleId.name(), role.getSourceId(),
             ChangeLogLabels.PERMISSION_CHANGE_ON_ROLE.roleName.name(), role.getName());
             
         changeLogEntry.setContextId(this.getContextId());
@@ -363,5 +387,46 @@ public class PITRoleSet extends GrouperPIT implements Hib3GrouperVersioned {
     for (PITRoleSet child : childResults) {
       GrouperDAOFactory.getFactory().getPITRoleSet().delete(child);
     }
+  }
+  
+  private PITGroup ifHasRole = null;
+  private PITGroup thenHasRole = null;
+  private PITRoleSet parentRoleSet = null;
+  
+  /**
+   * @return ifHasRole
+   */
+  public PITGroup getIfHasPITRole() {
+    if (ifHasRole == null) {
+      ifHasRole = GrouperDAOFactory.getFactory().getPITGroup().findById(ifHasRoleId, true);
+    }
+    
+    return ifHasRole;
+  }
+  
+  /**
+   * @return thenHasRole
+   */
+  public PITGroup getThenHasPITRole() {
+    if (thenHasRole == null) {
+      thenHasRole = GrouperDAOFactory.getFactory().getPITGroup().findById(thenHasRoleId, true);
+    }
+    
+    return thenHasRole;
+  }
+  
+  /**
+   * @return parentRoleSet
+   */
+  public PITRoleSet getParentPITRoleSet() {
+    if (depth == 0) {
+      return this;
+    }
+    
+    if (parentRoleSet == null) {
+      parentRoleSet = GrouperDAOFactory.getFactory().getPITRoleSet().findById(parentRoleSetId, true);
+    }
+    
+    return parentRoleSet;
   }
 }

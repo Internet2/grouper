@@ -19,6 +19,7 @@ import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
+import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.pit.PITAttributeAssign;
 import edu.internet2.middleware.grouper.pit.PITAttributeAssignAction;
@@ -217,10 +218,13 @@ public class ChangeLogTempToEntity {
     String contextId = GrouperUtil.isEmpty(changeLogEntry.getContextId()) ? null : changeLogEntry.getContextId();
     Long time = changeLogEntry.getCreatedOnDb();
 
+    PITStem pitStem = GrouperDAOFactory.getFactory().getPITStem().findBySourceIdActive(changeLogEntry.retrieveValueForLabel(ChangeLogLabels.GROUP_ADD.parentStemId), true);
+    
     PITGroup pitGroup = new PITGroup();
-    pitGroup.setId(id);
+    pitGroup.setId(GrouperUuid.getUuid());
+    pitGroup.setSourceId(id);
     pitGroup.setNameDb(changeLogEntry.retrieveValueForLabel(ChangeLogLabels.GROUP_ADD.name));  
-    pitGroup.setStemId(changeLogEntry.retrieveValueForLabel(ChangeLogLabels.GROUP_ADD.parentStemId));
+    pitGroup.setStemId(pitStem.getId());
     pitGroup.setContextId(contextId);
     pitGroup.setActiveDb("T");
     pitGroup.setStartTimeDb(time);
@@ -243,8 +247,8 @@ public class ChangeLogTempToEntity {
       assertNotEmpty(changeLogEntry, ChangeLogLabels.GROUP_UPDATE.id.name());
       assertNotEmpty(changeLogEntry, ChangeLogLabels.GROUP_UPDATE.name.name());
 
-      PITGroup pitGroup = GrouperDAOFactory.getFactory().getPITGroup().findById(
-          changeLogEntry.retrieveValueForLabel(ChangeLogLabels.GROUP_UPDATE.id));
+      PITGroup pitGroup = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdActive(
+          changeLogEntry.retrieveValueForLabel(ChangeLogLabels.GROUP_UPDATE.id), true);
       pitGroup.setNameDb(changeLogEntry.retrieveValueForLabel(ChangeLogLabels.GROUP_UPDATE.name));
       pitGroup.setContextId(contextId);
       pitGroup.saveOrUpdate();
@@ -252,9 +256,10 @@ public class ChangeLogTempToEntity {
       assertNotEmpty(changeLogEntry, ChangeLogLabels.GROUP_UPDATE.id.name());
       assertNotEmpty(changeLogEntry, ChangeLogLabels.GROUP_UPDATE.parentStemId.name());
 
-      PITGroup pitGroup = GrouperDAOFactory.getFactory().getPITGroup().findById(
-          changeLogEntry.retrieveValueForLabel(ChangeLogLabels.GROUP_UPDATE.id));
-      pitGroup.setStemId(changeLogEntry.retrieveValueForLabel(ChangeLogLabels.GROUP_UPDATE.parentStemId));
+      PITStem pitParentStem = GrouperDAOFactory.getFactory().getPITStem().findBySourceIdActive(changeLogEntry.retrieveValueForLabel(ChangeLogLabels.GROUP_UPDATE.parentStemId), true);
+      PITGroup pitGroup = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdActive(
+          changeLogEntry.retrieveValueForLabel(ChangeLogLabels.GROUP_UPDATE.id), true);
+      pitGroup.setStemId(pitParentStem.getId());
       pitGroup.setContextId(contextId);
       pitGroup.saveOrUpdate();
     }
@@ -270,10 +275,10 @@ public class ChangeLogTempToEntity {
     String id = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.GROUP_DELETE.id);
     String contextId = GrouperUtil.isEmpty(changeLogEntry.getContextId()) ? null : changeLogEntry.getContextId();
     Long endTime = changeLogEntry.getCreatedOnDb();
+
+    PITGroup pitGroup = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdActive(id, true);
+    GrouperDAOFactory.getFactory().getPITGroupSet().updateEndTimeByOwner(pitGroup.getId(), endTime, contextId);
     
-    GrouperDAOFactory.getFactory().getPITGroupSet().updateEndTimeByOwner(id, endTime, contextId);
-    
-    PITGroup pitGroup = GrouperDAOFactory.getFactory().getPITGroup().findById(id);
     pitGroup.setEndTimeDb(endTime);
     pitGroup.setActiveDb("F");
     pitGroup.setContextId(contextId);
@@ -305,7 +310,12 @@ public class ChangeLogTempToEntity {
       }
     }
     
-    pitStem.setId(id);
+    if (parentStemId != null) {
+      parentStemId = GrouperDAOFactory.getFactory().getPITStem().findBySourceIdActive(parentStemId, true).getId();
+    }
+    
+    pitStem.setId(GrouperUuid.getUuid());
+    pitStem.setSourceId(id);
     pitStem.setNameDb(name);
     pitStem.setParentStemId(parentStemId);
     pitStem.setContextId(contextId);
@@ -330,8 +340,8 @@ public class ChangeLogTempToEntity {
       assertNotEmpty(changeLogEntry, ChangeLogLabels.STEM_UPDATE.id.name());
       assertNotEmpty(changeLogEntry, ChangeLogLabels.STEM_UPDATE.name.name());
 
-      PITStem pitStem = GrouperDAOFactory.getFactory().getPITStem().findById(
-          changeLogEntry.retrieveValueForLabel(ChangeLogLabels.STEM_UPDATE.id));
+      PITStem pitStem = GrouperDAOFactory.getFactory().getPITStem().findBySourceIdActive(
+          changeLogEntry.retrieveValueForLabel(ChangeLogLabels.STEM_UPDATE.id), true);
       pitStem.setNameDb(changeLogEntry.retrieveValueForLabel(ChangeLogLabels.STEM_UPDATE.name));
       pitStem.setContextId(contextId);
       pitStem.saveOrUpdate();
@@ -339,9 +349,10 @@ public class ChangeLogTempToEntity {
       assertNotEmpty(changeLogEntry, ChangeLogLabels.STEM_UPDATE.id.name());
       assertNotEmpty(changeLogEntry, ChangeLogLabels.STEM_UPDATE.parentStemId.name());
       
-      PITStem pitStem = GrouperDAOFactory.getFactory().getPITStem().findById(
-          changeLogEntry.retrieveValueForLabel(ChangeLogLabels.STEM_UPDATE.id));
-      pitStem.setParentStemId(changeLogEntry.retrieveValueForLabel(ChangeLogLabels.STEM_UPDATE.parentStemId));
+      PITStem pitParentStem = GrouperDAOFactory.getFactory().getPITStem().findBySourceIdActive(changeLogEntry.retrieveValueForLabel(ChangeLogLabels.STEM_UPDATE.parentStemId), true);
+      PITStem pitStem = GrouperDAOFactory.getFactory().getPITStem().findBySourceIdActive(
+          changeLogEntry.retrieveValueForLabel(ChangeLogLabels.STEM_UPDATE.id), true);
+      pitStem.setParentStemId(pitParentStem.getId());
       pitStem.setContextId(contextId);
       pitStem.saveOrUpdate();
     }
@@ -358,9 +369,9 @@ public class ChangeLogTempToEntity {
     String contextId = GrouperUtil.isEmpty(changeLogEntry.getContextId()) ? null : changeLogEntry.getContextId();
     Long endTime = changeLogEntry.getCreatedOnDb();
     
-    GrouperDAOFactory.getFactory().getPITGroupSet().updateEndTimeByOwner(id, endTime, contextId);
+    PITStem pitStem = GrouperDAOFactory.getFactory().getPITStem().findBySourceIdActive(id, true);
+    GrouperDAOFactory.getFactory().getPITGroupSet().updateEndTimeByOwner(pitStem.getId(), endTime, contextId);
     
-    PITStem pitStem = GrouperDAOFactory.getFactory().getPITStem().findById(id);
     pitStem.setEndTimeDb(endTime);
     pitStem.setActiveDb("F");
     pitStem.setContextId(contextId);
@@ -381,10 +392,12 @@ public class ChangeLogTempToEntity {
     String contextId = GrouperUtil.isEmpty(changeLogEntry.getContextId()) ? null : changeLogEntry.getContextId();
     Long time = changeLogEntry.getCreatedOnDb();
 
+    PITStem pitStem = GrouperDAOFactory.getFactory().getPITStem().findBySourceIdActive(changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_DEF_ADD.stemId), true);
     PITAttributeDef pitAttributeDef = new PITAttributeDef();
-    pitAttributeDef.setId(id);
+    pitAttributeDef.setId(GrouperUuid.getUuid());
+    pitAttributeDef.setSourceId(id);
     pitAttributeDef.setNameDb(changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_DEF_ADD.name));
-    pitAttributeDef.setStemId(changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_DEF_ADD.stemId));
+    pitAttributeDef.setStemId(pitStem.getId());
     pitAttributeDef.setAttributeDefTypeDb(changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_DEF_ADD.attributeDefType));
     pitAttributeDef.setContextId(contextId);
     pitAttributeDef.setActiveDb("T");
@@ -408,8 +421,8 @@ public class ChangeLogTempToEntity {
       assertNotEmpty(changeLogEntry, ChangeLogLabels.ATTRIBUTE_DEF_UPDATE.id.name());
       assertNotEmpty(changeLogEntry, ChangeLogLabels.ATTRIBUTE_DEF_UPDATE.name.name());
 
-      PITAttributeDef pitAttributeDef = GrouperDAOFactory.getFactory().getPITAttributeDef().findById(
-          changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_DEF_UPDATE.id));
+      PITAttributeDef pitAttributeDef = GrouperDAOFactory.getFactory().getPITAttributeDef().findBySourceIdActive(
+          changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_DEF_UPDATE.id), true);
       pitAttributeDef.setNameDb(changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_DEF_UPDATE.name));
       pitAttributeDef.setContextId(contextId);
       pitAttributeDef.saveOrUpdate();
@@ -417,9 +430,10 @@ public class ChangeLogTempToEntity {
       assertNotEmpty(changeLogEntry, ChangeLogLabels.ATTRIBUTE_DEF_UPDATE.id.name());
       assertNotEmpty(changeLogEntry, ChangeLogLabels.ATTRIBUTE_DEF_UPDATE.stemId.name());
 
-      PITAttributeDef pitAttributeDef = GrouperDAOFactory.getFactory().getPITAttributeDef().findById(
-          changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_DEF_UPDATE.id));
-      pitAttributeDef.setStemId(changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_DEF_UPDATE.stemId));
+      PITStem pitStem = GrouperDAOFactory.getFactory().getPITStem().findBySourceIdActive(changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_DEF_UPDATE.stemId), true);
+      PITAttributeDef pitAttributeDef = GrouperDAOFactory.getFactory().getPITAttributeDef().findBySourceIdActive(
+          changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_DEF_UPDATE.id), true);
+      pitAttributeDef.setStemId(pitStem.getId());
       pitAttributeDef.setContextId(contextId);
       pitAttributeDef.saveOrUpdate();
     }
@@ -435,10 +449,10 @@ public class ChangeLogTempToEntity {
     String id = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_DEF_DELETE.id);
     String contextId = GrouperUtil.isEmpty(changeLogEntry.getContextId()) ? null : changeLogEntry.getContextId();
     Long endTime = changeLogEntry.getCreatedOnDb();
+
+    PITAttributeDef pitAttributeDef = GrouperDAOFactory.getFactory().getPITAttributeDef().findBySourceIdActive(id, true);
+    GrouperDAOFactory.getFactory().getPITGroupSet().updateEndTimeByOwner(pitAttributeDef.getId(), endTime, contextId);
     
-    GrouperDAOFactory.getFactory().getPITGroupSet().updateEndTimeByOwner(id, endTime, contextId);
-    
-    PITAttributeDef pitAttributeDef = GrouperDAOFactory.getFactory().getPITAttributeDef().findById(id);
     pitAttributeDef.setEndTimeDb(endTime);
     pitAttributeDef.setActiveDb("F");
     pitAttributeDef.setContextId(contextId);
@@ -462,7 +476,8 @@ public class ChangeLogTempToEntity {
     String contextId = GrouperUtil.isEmpty(changeLogEntry.getContextId()) ? null : changeLogEntry.getContextId();
     Long time = changeLogEntry.getCreatedOnDb();
 
-    pitField.setId(id);
+    pitField.setId(GrouperUuid.getUuid());
+    pitField.setSourceId(id);
     pitField.setNameDb(name);
     pitField.setTypeDb(type);
     pitField.setContextId(contextId);
@@ -485,9 +500,9 @@ public class ChangeLogTempToEntity {
     String contextId = GrouperUtil.isEmpty(changeLogEntry.getContextId()) ? null : changeLogEntry.getContextId();
     Long endTime = changeLogEntry.getCreatedOnDb();
     
-    GrouperDAOFactory.getFactory().getPITGroupSet().updateEndTimeByField(id, endTime, contextId);
+    PITField pitField = GrouperDAOFactory.getFactory().getPITField().findBySourceIdActive(id, true);
+    GrouperDAOFactory.getFactory().getPITGroupSet().updateEndTimeByField(pitField.getId(), endTime, contextId);
     
-    PITField pitField = GrouperDAOFactory.getFactory().getPITField().findById(id);
     pitField.setEndTimeDb(endTime);
     pitField.setActiveDb("F");
     pitField.setContextId(contextId);
@@ -508,8 +523,8 @@ public class ChangeLogTempToEntity {
       assertNotEmpty(changeLogEntry, ChangeLogLabels.GROUP_FIELD_UPDATE.name.name());
       assertNotEmpty(changeLogEntry, ChangeLogLabels.GROUP_FIELD_UPDATE.type.name());
 
-      PITField pitField = GrouperDAOFactory.getFactory().getPITField().findById(
-          changeLogEntry.retrieveValueForLabel(ChangeLogLabels.GROUP_FIELD_UPDATE.id));
+      PITField pitField = GrouperDAOFactory.getFactory().getPITField().findBySourceIdActive(
+          changeLogEntry.retrieveValueForLabel(ChangeLogLabels.GROUP_FIELD_UPDATE.id), true);
       pitField.setNameDb(changeLogEntry.retrieveValueForLabel(ChangeLogLabels.GROUP_FIELD_UPDATE.name));
       pitField.setTypeDb(changeLogEntry.retrieveValueForLabel(ChangeLogLabels.GROUP_FIELD_UPDATE.type));
       pitField.setContextId(contextId);
@@ -546,10 +561,16 @@ public class ChangeLogTempToEntity {
     Set<Field> fields = FieldFinder.findAllByGroupType(typeId);
     Iterator<Field> iter = fields.iterator();
     
+    PITGroup pitGroup = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdActive(groupId, true);
+    
     while (iter.hasNext()) {
       Field field = iter.next();
       if (field.isGroupListField()) {
-        GrouperDAOFactory.getFactory().getPITGroupSet().updateEndTimeByOwnerAndField(groupId, field.getUuid(), endTime, contextId);
+        
+        PITField pitField = GrouperDAOFactory.getFactory().getPITField().findBySourceIdActive(field.getUuid(), false);
+        if (pitField != null) {
+          GrouperDAOFactory.getFactory().getPITGroupSet().updateEndTimeByOwnerAndField(pitGroup.getId(), pitField.getId(), endTime, contextId);
+        }
       }
     }
   }
@@ -572,7 +593,8 @@ public class ChangeLogTempToEntity {
     String subjectTypeId = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_ADD.subjectTypeId);
     Long time = changeLogEntry.getCreatedOnDb();
 
-    pitMember.setId(id);
+    pitMember.setId(GrouperUuid.getUuid());
+    pitMember.setSourceId(id);
     pitMember.setSubjectId(subjectId);
     pitMember.setSubjectSourceId(subjectSourceId);
     pitMember.setSubjectTypeId(subjectTypeId);
@@ -602,8 +624,8 @@ public class ChangeLogTempToEntity {
       assertNotEmpty(changeLogEntry, ChangeLogLabels.MEMBER_UPDATE.subjectSourceId.name());
       assertNotEmpty(changeLogEntry, ChangeLogLabels.MEMBER_UPDATE.subjectTypeId.name());
       
-      PITMember pitMember = GrouperDAOFactory.getFactory().getPITMember().findById(
-          changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.id));
+      PITMember pitMember = GrouperDAOFactory.getFactory().getPITMember().findBySourceIdActive(
+          changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.id), true);
       pitMember.setSubjectId(changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.subjectId));
       pitMember.setSubjectSourceId(changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.subjectSourceId));
       pitMember.setSubjectTypeId(changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.subjectTypeId));
@@ -619,7 +641,7 @@ public class ChangeLogTempToEntity {
     String contextId = GrouperUtil.isEmpty(changeLogEntry.getContextId()) ? null : changeLogEntry.getContextId();
     Long endTime = changeLogEntry.getCreatedOnDb();
         
-    PITMember pitMember = GrouperDAOFactory.getFactory().getPITMember().findById(id);
+    PITMember pitMember = GrouperDAOFactory.getFactory().getPITMember().findBySourceIdActive(id, true);
     pitMember.setEndTimeDb(endTime);
     pitMember.setActiveDb("F");
     pitMember.setContextId(contextId);
@@ -643,11 +665,16 @@ public class ChangeLogTempToEntity {
     String memberId = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.memberId);
     Long time = changeLogEntry.getCreatedOnDb();
     
+    PITGroup pitGroup = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdActive(groupId, true);
+    PITField pitField = GrouperDAOFactory.getFactory().getPITField().findBySourceIdActive(fieldId, true);
+    PITMember pitMember = GrouperDAOFactory.getFactory().getPITMember().findBySourceIdActive(memberId, true);
+    
     PITMembership pitMembership = new PITMembership();
-    pitMembership.setId(id);
-    pitMembership.setOwnerGroupId(groupId);
-    pitMembership.setMemberId(memberId);
-    pitMembership.setFieldId(fieldId);
+    pitMembership.setId(GrouperUuid.getUuid());
+    pitMembership.setSourceId(id);
+    pitMembership.setOwnerGroupId(pitGroup.getId());
+    pitMembership.setMemberId(pitMember.getId());
+    pitMembership.setFieldId(pitField.getId());
     pitMembership.setActiveDb("T");
     pitMembership.setStartTimeDb(time);
     
@@ -676,7 +703,7 @@ public class ChangeLogTempToEntity {
     String id = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.id);
     Long time = changeLogEntry.getCreatedOnDb();
 
-    PITMembership pitMembership = GrouperDAOFactory.getFactory().getPITMembership().findById(id);
+    PITMembership pitMembership = GrouperDAOFactory.getFactory().getPITMembership().findBySourceIdActive(id, true);
     pitMembership.setEndTimeDb(time);
     pitMembership.setActiveDb("F");
 
@@ -713,19 +740,26 @@ public class ChangeLogTempToEntity {
     String memberId = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_ADD.memberId);    
     Long time = changeLogEntry.getCreatedOnDb();
     
+    PITField pitField = GrouperDAOFactory.getFactory().getPITField().findBySourceIdActive(fieldId, true);
+    PITMember pitMember = GrouperDAOFactory.getFactory().getPITMember().findBySourceIdActive(memberId, true);
+    
     PITMembership pitMembership = new PITMembership();
-    pitMembership.setId(id);
-    pitMembership.setMemberId(memberId);
-    pitMembership.setFieldId(fieldId);
+    pitMembership.setId(GrouperUuid.getUuid());
+    pitMembership.setSourceId(id);
+    pitMembership.setMemberId(pitMember.getId());
+    pitMembership.setFieldId(pitField.getId());
     pitMembership.setActiveDb("T");
     pitMembership.setStartTimeDb(time);
     
     if (ownerType.equals(Membership.OWNER_TYPE_GROUP)) {
-      pitMembership.setOwnerGroupId(ownerId);
+      PITGroup pitOwner = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdActive(ownerId, true);
+      pitMembership.setOwnerGroupId(pitOwner.getId());
     } else if (ownerType.equals(Membership.OWNER_TYPE_STEM)) {
-      pitMembership.setOwnerStemId(ownerId);
+      PITStem pitOwner = GrouperDAOFactory.getFactory().getPITStem().findBySourceIdActive(ownerId, true);
+      pitMembership.setOwnerStemId(pitOwner.getId());
     } else if (ownerType.equals(Membership.OWNER_TYPE_ATTRIBUTE_DEF)) {
-      pitMembership.setOwnerAttrDefId(ownerId);
+      PITAttributeDef pitOwner = GrouperDAOFactory.getFactory().getPITAttributeDef().findBySourceIdActive(ownerId, true);
+      pitMembership.setOwnerAttrDefId(pitOwner.getId());
     } else {
       throw new RuntimeException("unexpected ownerType: " + ownerType);
     }
@@ -756,7 +790,7 @@ public class ChangeLogTempToEntity {
     String id = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_DELETE.id);
     Long time = changeLogEntry.getCreatedOnDb();
 
-    PITMembership pitMembership = GrouperDAOFactory.getFactory().getPITMembership().findById(id);
+    PITMembership pitMembership = GrouperDAOFactory.getFactory().getPITMembership().findBySourceIdActive(id, true);
     pitMembership.setEndTimeDb(time);
     pitMembership.setActiveDb("F");
     
@@ -796,10 +830,14 @@ public class ChangeLogTempToEntity {
     Long time = changeLogEntry.getCreatedOnDb();
     String contextId = GrouperUtil.isEmpty(changeLogEntry.getContextId()) ? null : changeLogEntry.getContextId();
     
+    PITAttributeDefName pitAttributeDefName = GrouperDAOFactory.getFactory().getPITAttributeDefName().findBySourceIdActive(attributeDefNameId, true);
+    PITAttributeAssignAction pitAttributeAssignAction = GrouperDAOFactory.getFactory().getPITAttributeAssignAction().findBySourceIdActive(actionId, true);
+    
     PITAttributeAssign pitAttributeAssign = new PITAttributeAssign();
-    pitAttributeAssign.setId(id);
-    pitAttributeAssign.setAttributeDefNameId(attributeDefNameId);
-    pitAttributeAssign.setAttributeAssignActionId(actionId);
+    pitAttributeAssign.setId(GrouperUuid.getUuid());
+    pitAttributeAssign.setSourceId(id);
+    pitAttributeAssign.setAttributeDefNameId(pitAttributeDefName.getId());
+    pitAttributeAssign.setAttributeAssignActionId(pitAttributeAssignAction.getId());
     pitAttributeAssign.setAttributeAssignTypeDb(assignType);
     pitAttributeAssign.setActiveDb("T");
     pitAttributeAssign.setStartTimeDb(time);
@@ -807,21 +845,37 @@ public class ChangeLogTempToEntity {
     pitAttributeAssign.setDisallowedDb(disallowedDb);
     
     if (AttributeAssignType.group.name().equals(assignType)) {
-      pitAttributeAssign.setOwnerGroupId(ownerId1);
+      PITGroup pitOwner1 = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdActive(ownerId1, true);
+      pitAttributeAssign.setOwnerGroupId(pitOwner1.getId());
     } else if (AttributeAssignType.stem.name().equals(assignType)) {
-      pitAttributeAssign.setOwnerStemId(ownerId1);
+      PITStem pitOwner1 = GrouperDAOFactory.getFactory().getPITStem().findBySourceIdActive(ownerId1, true);
+      pitAttributeAssign.setOwnerStemId(pitOwner1.getId());
     } else if (AttributeAssignType.member.name().equals(assignType)) {
-      pitAttributeAssign.setOwnerMemberId(ownerId1);
+      PITMember pitOwner1 = GrouperDAOFactory.getFactory().getPITMember().findBySourceIdActive(ownerId1, true);
+      pitAttributeAssign.setOwnerMemberId(pitOwner1.getId());
     } else if (AttributeAssignType.attr_def.name().equals(assignType)) {
-      pitAttributeAssign.setOwnerAttributeDefId(ownerId1);
+      PITAttributeDef pitOwner1 = GrouperDAOFactory.getFactory().getPITAttributeDef().findBySourceIdActive(ownerId1, true);
+      pitAttributeAssign.setOwnerAttributeDefId(pitOwner1.getId());
     } else if (AttributeAssignType.any_mem.name().equals(assignType)) {
-      pitAttributeAssign.setOwnerGroupId(ownerId1);
-      pitAttributeAssign.setOwnerMemberId(ownerId2);
+      PITGroup pitOwner1 = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdActive(ownerId1, true);
+      PITMember pitOwner2 = GrouperDAOFactory.getFactory().getPITMember().findBySourceIdActive(ownerId2, true);
+      pitAttributeAssign.setOwnerGroupId(pitOwner1.getId());
+      pitAttributeAssign.setOwnerMemberId(pitOwner2.getId());
     } else if (AttributeAssignType.imm_mem.name().equals(assignType)) {
-      pitAttributeAssign.setOwnerMembershipId(ownerId1);
+      PITMembership pitOwner1 = GrouperDAOFactory.getFactory().getPITMembership().findBySourceIdActive(ownerId1, false);
+      if (pitOwner1 == null) {
+        // it may be disabled..
+        pitOwner1 = GrouperDAOFactory.getFactory().getPITMembership().findBySourceIdMostRecent(ownerId1, true);
+      }
+      pitAttributeAssign.setOwnerMembershipId(pitOwner1.getId());
     } else {
       // this must be an attribute assign of an attribute assign.  foreign keys will make sure we're right.
-      pitAttributeAssign.setOwnerAttributeAssignId(ownerId1);
+      PITAttributeAssign pitOwner1 = GrouperDAOFactory.getFactory().getPITAttributeAssign().findBySourceIdActive(ownerId1, false);
+      if (pitOwner1 == null) {
+        // it may be disabled..
+        pitOwner1 = GrouperDAOFactory.getFactory().getPITAttributeAssign().findBySourceIdMostRecent(ownerId1, true);
+      }
+      pitAttributeAssign.setOwnerAttributeAssignId(pitOwner1.getId());
     }
     
     boolean includeRolesWithPermissionChanges = GrouperLoaderConfig.getPropertyBoolean("changeLog.includeRolesWithPermissionChanges", false);
@@ -841,7 +895,7 @@ public class ChangeLogTempToEntity {
     Long time = changeLogEntry.getCreatedOnDb();
     String contextId = GrouperUtil.isEmpty(changeLogEntry.getContextId()) ? null : changeLogEntry.getContextId();
 
-    PITAttributeAssign pitAttributeAssign = GrouperDAOFactory.getFactory().getPITAttributeAssign().findById(id);
+    PITAttributeAssign pitAttributeAssign = GrouperDAOFactory.getFactory().getPITAttributeAssign().findBySourceIdActive(id, true);
     pitAttributeAssign.setEndTimeDb(time);
     pitAttributeAssign.setActiveDb("F");
     pitAttributeAssign.setContextId(contextId);
@@ -866,12 +920,19 @@ public class ChangeLogTempToEntity {
     String value = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_ASSIGN_VALUE_ADD.value);
     String valueType = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_ASSIGN_VALUE_ADD.valueType);
   
+    PITAttributeAssign pitAttributeAssign = GrouperDAOFactory.getFactory().getPITAttributeAssign().findBySourceIdActive(attributeAssignId, false);
+    if (pitAttributeAssign == null) {
+      // it may be disabled..
+      pitAttributeAssign = GrouperDAOFactory.getFactory().getPITAttributeAssign().findBySourceIdMostRecent(attributeAssignId, true);
+    }
+    
     Long time = changeLogEntry.getCreatedOnDb();
     String contextId = GrouperUtil.isEmpty(changeLogEntry.getContextId()) ? null : changeLogEntry.getContextId();
     
     PITAttributeAssignValue pitAttributeAssignValue = new PITAttributeAssignValue();
-    pitAttributeAssignValue.setId(id);
-    pitAttributeAssignValue.setAttributeAssignId(attributeAssignId);
+    pitAttributeAssignValue.setId(GrouperUuid.getUuid());
+    pitAttributeAssignValue.setSourceId(id);
+    pitAttributeAssignValue.setAttributeAssignId(pitAttributeAssign.getId());
     pitAttributeAssignValue.setActiveDb("T");
     pitAttributeAssignValue.setStartTimeDb(time);
     pitAttributeAssignValue.setContextId(contextId);
@@ -902,7 +963,7 @@ public class ChangeLogTempToEntity {
     Long time = changeLogEntry.getCreatedOnDb();
     String contextId = GrouperUtil.isEmpty(changeLogEntry.getContextId()) ? null : changeLogEntry.getContextId();
 
-    PITAttributeAssignValue pitAttributeAssignValue = GrouperDAOFactory.getFactory().getPITAttributeAssignValue().findById(id);
+    PITAttributeAssignValue pitAttributeAssignValue = GrouperDAOFactory.getFactory().getPITAttributeAssignValue().findBySourceIdActive(id, true);
     pitAttributeAssignValue.setEndTimeDb(time);
     pitAttributeAssignValue.setActiveDb("F");
     pitAttributeAssignValue.setContextId(contextId);
@@ -927,10 +988,14 @@ public class ChangeLogTempToEntity {
     Long time = changeLogEntry.getCreatedOnDb();
     String contextId = GrouperUtil.isEmpty(changeLogEntry.getContextId()) ? null : changeLogEntry.getContextId();
     
+    PITAttributeDef pitAttributeDef = GrouperDAOFactory.getFactory().getPITAttributeDef().findBySourceIdActive(attributeDefId, true);
+    PITStem pitStem = GrouperDAOFactory.getFactory().getPITStem().findBySourceIdActive(stemId, true);
+    
     PITAttributeDefName pitAttributeDefName = new PITAttributeDefName();
-    pitAttributeDefName.setId(id);
-    pitAttributeDefName.setAttributeDefId(attributeDefId);
-    pitAttributeDefName.setStemId(stemId);
+    pitAttributeDefName.setId(GrouperUuid.getUuid());
+    pitAttributeDefName.setSourceId(id);
+    pitAttributeDefName.setAttributeDefId(pitAttributeDef.getId());
+    pitAttributeDefName.setStemId(pitStem.getId());
     pitAttributeDefName.setNameDb(name);
     pitAttributeDefName.setActiveDb("T");
     pitAttributeDefName.setStartTimeDb(time);
@@ -951,8 +1016,8 @@ public class ChangeLogTempToEntity {
       assertNotEmpty(changeLogEntry, ChangeLogLabels.ATTRIBUTE_DEF_NAME_UPDATE.id.name());
       assertNotEmpty(changeLogEntry, ChangeLogLabels.ATTRIBUTE_DEF_NAME_UPDATE.name.name());
 
-      PITAttributeDefName pitAttributeDefName = GrouperDAOFactory.getFactory().getPITAttributeDefName().findById(
-          changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_DEF_NAME_UPDATE.id));
+      PITAttributeDefName pitAttributeDefName = GrouperDAOFactory.getFactory().getPITAttributeDefName().findBySourceIdActive(
+          changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_DEF_NAME_UPDATE.id), true);
       pitAttributeDefName.setNameDb(changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_DEF_NAME_UPDATE.name));
       pitAttributeDefName.setContextId(contextId);
       pitAttributeDefName.saveOrUpdate();
@@ -970,7 +1035,7 @@ public class ChangeLogTempToEntity {
     Long time = changeLogEntry.getCreatedOnDb();
     String contextId = GrouperUtil.isEmpty(changeLogEntry.getContextId()) ? null : changeLogEntry.getContextId();
 
-    PITAttributeDefName pitAttributeDefName = GrouperDAOFactory.getFactory().getPITAttributeDefName().findById(id);
+    PITAttributeDefName pitAttributeDefName = GrouperDAOFactory.getFactory().getPITAttributeDefName().findBySourceIdActive(id, true);
     pitAttributeDefName.setEndTimeDb(time);
     pitAttributeDefName.setActiveDb("F");
     pitAttributeDefName.setContextId(contextId);
@@ -992,9 +1057,12 @@ public class ChangeLogTempToEntity {
     Long time = changeLogEntry.getCreatedOnDb();
     String contextId = GrouperUtil.isEmpty(changeLogEntry.getContextId()) ? null : changeLogEntry.getContextId();
     
+    PITAttributeDef pitAttributeDef = GrouperDAOFactory.getFactory().getPITAttributeDef().findBySourceIdActive(attributeDefId, true);
+
     PITAttributeAssignAction pitAttributeAssignAction = new PITAttributeAssignAction();
-    pitAttributeAssignAction.setId(id);
-    pitAttributeAssignAction.setAttributeDefId(attributeDefId);
+    pitAttributeAssignAction.setId(GrouperUuid.getUuid());
+    pitAttributeAssignAction.setSourceId(id);
+    pitAttributeAssignAction.setAttributeDefId(pitAttributeDef.getId());
     pitAttributeAssignAction.setNameDb(name);
     pitAttributeAssignAction.setActiveDb("T");
     pitAttributeAssignAction.setStartTimeDb(time);
@@ -1014,8 +1082,8 @@ public class ChangeLogTempToEntity {
     if (changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_UPDATE.propertyChanged).equals("name")) {
       assertNotEmpty(changeLogEntry, ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_UPDATE.id.name());
 
-      PITAttributeAssignAction pitAttributeAssignAction = GrouperDAOFactory.getFactory().getPITAttributeAssignAction().findById(
-          changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_UPDATE.id));
+      PITAttributeAssignAction pitAttributeAssignAction = GrouperDAOFactory.getFactory().getPITAttributeAssignAction().findBySourceIdActive(
+          changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_UPDATE.id), true);
       pitAttributeAssignAction.setNameDb(changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_UPDATE.name));
       pitAttributeAssignAction.setContextId(contextId);
       pitAttributeAssignAction.saveOrUpdate();
@@ -1033,7 +1101,7 @@ public class ChangeLogTempToEntity {
     Long time = changeLogEntry.getCreatedOnDb();
     String contextId = GrouperUtil.isEmpty(changeLogEntry.getContextId()) ? null : changeLogEntry.getContextId();
 
-    PITAttributeAssignAction pitAttributeAssignAction = GrouperDAOFactory.getFactory().getPITAttributeAssignAction().findById(id);
+    PITAttributeAssignAction pitAttributeAssignAction = GrouperDAOFactory.getFactory().getPITAttributeAssignAction().findBySourceIdActive(id, true);
     pitAttributeAssignAction.setEndTimeDb(time);
     pitAttributeAssignAction.setActiveDb("F");
     pitAttributeAssignAction.setContextId(contextId);
@@ -1060,12 +1128,17 @@ public class ChangeLogTempToEntity {
     Long time = changeLogEntry.getCreatedOnDb();
     String contextId = GrouperUtil.isEmpty(changeLogEntry.getContextId()) ? null : changeLogEntry.getContextId();
     
+    PITAttributeAssignAction pitIfHas = GrouperDAOFactory.getFactory().getPITAttributeAssignAction().findBySourceIdActive(ifHas, true);
+    PITAttributeAssignAction pitThenHas = GrouperDAOFactory.getFactory().getPITAttributeAssignAction().findBySourceIdActive(thenHas, true);
+    PITAttributeAssignActionSet pitParent = GrouperDAOFactory.getFactory().getPITAttributeAssignActionSet().findBySourceIdActive(parent, false);
+    
     PITAttributeAssignActionSet pitAttributeAssignActionSet = new PITAttributeAssignActionSet();
-    pitAttributeAssignActionSet.setId(id);
+    pitAttributeAssignActionSet.setId(GrouperUuid.getUuid());
+    pitAttributeAssignActionSet.setSourceId(id);
     pitAttributeAssignActionSet.setDepth(Integer.parseInt(depth));
-    pitAttributeAssignActionSet.setIfHasAttrAssignActionId(ifHas);
-    pitAttributeAssignActionSet.setThenHasAttrAssignActionId(thenHas);
-    pitAttributeAssignActionSet.setParentAttrAssignActionSetId(parent);
+    pitAttributeAssignActionSet.setIfHasAttrAssignActionId(pitIfHas.getId());
+    pitAttributeAssignActionSet.setThenHasAttrAssignActionId(pitThenHas.getId());
+    pitAttributeAssignActionSet.setParentAttrAssignActionSetId(Integer.parseInt(depth) == 0 ? pitAttributeAssignActionSet.getId() : pitParent.getId());
     pitAttributeAssignActionSet.setActiveDb("T");
     pitAttributeAssignActionSet.setStartTimeDb(time);
     pitAttributeAssignActionSet.setContextId(contextId);
@@ -1087,7 +1160,7 @@ public class ChangeLogTempToEntity {
     Long time = changeLogEntry.getCreatedOnDb();
     String contextId = GrouperUtil.isEmpty(changeLogEntry.getContextId()) ? null : changeLogEntry.getContextId();
 
-    PITAttributeAssignActionSet pitAttributeAssignActionSet = GrouperDAOFactory.getFactory().getPITAttributeAssignActionSet().findById(id);
+    PITAttributeAssignActionSet pitAttributeAssignActionSet = GrouperDAOFactory.getFactory().getPITAttributeAssignActionSet().findBySourceIdActive(id, true);
     pitAttributeAssignActionSet.setEndTimeDb(time);
     pitAttributeAssignActionSet.setActiveDb("F");
     pitAttributeAssignActionSet.setContextId(contextId);
@@ -1117,12 +1190,17 @@ public class ChangeLogTempToEntity {
     Long time = changeLogEntry.getCreatedOnDb();
     String contextId = GrouperUtil.isEmpty(changeLogEntry.getContextId()) ? null : changeLogEntry.getContextId();
     
+    PITAttributeDefName pitIfHas = GrouperDAOFactory.getFactory().getPITAttributeDefName().findBySourceIdActive(ifHas, true);
+    PITAttributeDefName pitThenHas = GrouperDAOFactory.getFactory().getPITAttributeDefName().findBySourceIdActive(thenHas, true);
+    PITAttributeDefNameSet pitParent = GrouperDAOFactory.getFactory().getPITAttributeDefNameSet().findBySourceIdActive(parent, false);
+
     PITAttributeDefNameSet pitAttributeDefNameSet = new PITAttributeDefNameSet();
-    pitAttributeDefNameSet.setId(id);
+    pitAttributeDefNameSet.setId(GrouperUuid.getUuid());
+    pitAttributeDefNameSet.setSourceId(id);
     pitAttributeDefNameSet.setDepth(Integer.parseInt(depth));
-    pitAttributeDefNameSet.setIfHasAttributeDefNameId(ifHas);
-    pitAttributeDefNameSet.setThenHasAttributeDefNameId(thenHas);
-    pitAttributeDefNameSet.setParentAttrDefNameSetId(parent);
+    pitAttributeDefNameSet.setIfHasAttributeDefNameId(pitIfHas.getId());
+    pitAttributeDefNameSet.setThenHasAttributeDefNameId(pitThenHas.getId());
+    pitAttributeDefNameSet.setParentAttrDefNameSetId(Integer.parseInt(depth) == 0 ? pitAttributeDefNameSet.getId() : pitParent.getId());
     pitAttributeDefNameSet.setActiveDb("T");
     pitAttributeDefNameSet.setStartTimeDb(time);
     pitAttributeDefNameSet.setContextId(contextId);
@@ -1144,7 +1222,7 @@ public class ChangeLogTempToEntity {
     Long time = changeLogEntry.getCreatedOnDb();
     String contextId = GrouperUtil.isEmpty(changeLogEntry.getContextId()) ? null : changeLogEntry.getContextId();
 
-    PITAttributeDefNameSet pitAttributeDefNameSet = GrouperDAOFactory.getFactory().getPITAttributeDefNameSet().findById(id);
+    PITAttributeDefNameSet pitAttributeDefNameSet = GrouperDAOFactory.getFactory().getPITAttributeDefNameSet().findBySourceIdActive(id, true);
     pitAttributeDefNameSet.setEndTimeDb(time);
     pitAttributeDefNameSet.setActiveDb("F");
     pitAttributeDefNameSet.setContextId(contextId);
@@ -1174,12 +1252,17 @@ public class ChangeLogTempToEntity {
     Long time = changeLogEntry.getCreatedOnDb();
     String contextId = GrouperUtil.isEmpty(changeLogEntry.getContextId()) ? null : changeLogEntry.getContextId();
     
+    PITGroup pitIfHas = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdActive(ifHas, true);
+    PITGroup pitThenHas = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdActive(thenHas, true);
+    PITRoleSet pitParent = GrouperDAOFactory.getFactory().getPITRoleSet().findBySourceIdActive(parent, false);
+
     PITRoleSet pitRoleSet = new PITRoleSet();
-    pitRoleSet.setId(id);
+    pitRoleSet.setId(GrouperUuid.getUuid());
+    pitRoleSet.setSourceId(id);
     pitRoleSet.setDepth(Integer.parseInt(depth));
-    pitRoleSet.setIfHasRoleId(ifHas);
-    pitRoleSet.setThenHasRoleId(thenHas);
-    pitRoleSet.setParentRoleSetId(parent);
+    pitRoleSet.setIfHasRoleId(pitIfHas.getId());
+    pitRoleSet.setThenHasRoleId(pitThenHas.getId());
+    pitRoleSet.setParentRoleSetId(Integer.parseInt(depth) == 0 ? pitRoleSet.getId() : pitParent.getId());
     pitRoleSet.setActiveDb("T");
     pitRoleSet.setStartTimeDb(time);
     pitRoleSet.setContextId(contextId);
@@ -1201,7 +1284,7 @@ public class ChangeLogTempToEntity {
     Long time = changeLogEntry.getCreatedOnDb();
     String contextId = GrouperUtil.isEmpty(changeLogEntry.getContextId()) ? null : changeLogEntry.getContextId();
 
-    PITRoleSet pitRoleSet = GrouperDAOFactory.getFactory().getPITRoleSet().findById(id);
+    PITRoleSet pitRoleSet = GrouperDAOFactory.getFactory().getPITRoleSet().findBySourceIdActive(id, true);
     pitRoleSet.setEndTimeDb(time);
     pitRoleSet.setActiveDb("F");
     pitRoleSet.setContextId(contextId);

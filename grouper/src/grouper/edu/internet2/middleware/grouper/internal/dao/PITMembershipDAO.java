@@ -34,10 +34,39 @@ public interface PITMembershipDAO extends GrouperDAO {
   public void delete(PITMembership pitMembership);
   
   /**
-   * @param pitMembershipId
-   * @return pit membership
+   * @param id
+   * @param exceptionIfNotFound 
+   * @return PITMembership
    */
-  public PITMembership findById(String pitMembershipId);
+  public PITMembership findBySourceIdActive(String id, boolean exceptionIfNotFound);
+
+  /**
+   * @param id
+   * @param exceptionIfNotFound 
+   * @return PITMembership
+   */
+  public PITMembership findById(String id, boolean exceptionIfNotFound);
+
+  /**
+   * @param id
+   * @param exceptionIfNotFound 
+   * @return set of PITMembership
+   */
+  public Set<PITMembership> findBySourceId(String id, boolean exceptionIfNotFound);
+  
+  /**
+   * @param id
+   * @param exceptionIfNotFound 
+   * @return PITMembership
+   */
+  public PITMembership findBySourceIdUnique(String id, boolean exceptionIfNotFound);
+  
+  /**
+   * @param id
+   * @param exceptionIfNotFound 
+   * @return PITMembership
+   */
+  public PITMembership findBySourceIdMostRecent(String id, boolean exceptionIfNotFound);
   
   /**
    * @param oldId

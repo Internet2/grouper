@@ -1086,7 +1086,7 @@ public class PrivilegeHelper {
         continue;
       }
       
-      AttributeAssign attributeAssign = GrouperDAOFactory.getFactory().getAttributeAssign().findById(pitAttributeAssign.getId(), true);
+      AttributeAssign attributeAssign = GrouperDAOFactory.getFactory().getAttributeAssign().findById(pitAttributeAssign.getSourceId(), true);
       if (canViewAttributeAssign(grouperSession, attributeAssign, checkUnderlyingIfAssignmentOnAssignment)) {
         pitAttributeAssigns.add(pitAttributeAssign);
       }

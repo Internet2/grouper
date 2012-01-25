@@ -2,6 +2,7 @@ package edu.internet2.middleware.grouper.pit;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -12,6 +13,7 @@ import org.hibernate.criterion.Restrictions;
 import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 
 
 /**
@@ -43,9 +45,19 @@ public class PITMembershipViewQuery {
   private Date endDateBefore = null;
   
   /**
-   * owner id
+   * owner group id
    */
-  private String ownerId = null;
+  private String ownerGroupId = null;
+  
+  /**
+   * owner stem id
+   */
+  private String ownerStemId = null;
+  
+  /**
+   * owner attr def id
+   */
+  private String ownerAttrDefId = null;
 
   /**
    * member id
@@ -148,12 +160,35 @@ public class PITMembershipViewQuery {
   }
   
   /**
-   * query for memberships with this ownerId
-   * @param ownerId
+   * query for memberships with this ownerGroupId.
+   * can only set one of ownerGroupId, ownerStemId, ownerAttrDefId.
+   * @param ownerGroupId
    * @return this for chaining
    */
-  public PITMembershipViewQuery setOwnerId(String ownerId) {
-    this.ownerId = ownerId;
+  public PITMembershipViewQuery setOwnerGroupId(String ownerGroupId) {
+    this.ownerGroupId = ownerGroupId;
+    return this;
+  }
+  
+  /**
+   * query for memberships with this ownerStemId.
+   * can only set one of ownerGroupId, ownerStemId, ownerAttrDefId.
+   * @param ownerStemId
+   * @return this for chaining
+   */
+  public PITMembershipViewQuery setOwnerStemId(String ownerStemId) {
+    this.ownerStemId = ownerStemId;
+    return this;
+  }
+  
+  /**
+   * query for memberships with this ownerAttrDefId.
+   * can only set one of ownerGroupId, ownerStemId, ownerAttrDefId.
+   * @param ownerAttrDefId
+   * @return this for chaining
+   */
+  public PITMembershipViewQuery setOwnerAttrDefId(String ownerAttrDefId) {
+    this.ownerAttrDefId = ownerAttrDefId;
     return this;
   }
 
@@ -185,16 +220,50 @@ public class PITMembershipViewQuery {
     
     List<Criterion> criterionList = new ArrayList<Criterion>();
     
-    if (this.ownerId != null) {
-      criterionList.add(Restrictions.eq(PITMembershipView.FIELD_OWNER_ID, this.ownerId));
+    if (this.ownerGroupId != null) {
+      Set<PITGroup> pitGroups = GrouperDAOFactory.getFactory().getPITGroup().findBySourceId(this.ownerGroupId, true);
+      Set<String> ids = new LinkedHashSet<String>();
+      for (PITGroup pitGroup : pitGroups) {
+        ids.add(pitGroup.getId());
+      }
+      
+      criterionList.add(Restrictions.in(PITMembershipView.FIELD_OWNER_ID, ids));
+    } else if (this.ownerStemId != null) {
+      Set<PITStem> pitStems = GrouperDAOFactory.getFactory().getPITStem().findBySourceId(this.ownerStemId, true);
+      Set<String> ids = new LinkedHashSet<String>();
+      for (PITStem pitStem : pitStems) {
+        ids.add(pitStem.getId());
+      }
+      
+      criterionList.add(Restrictions.in(PITMembershipView.FIELD_OWNER_ID, ids));
+    } else if (this.ownerAttrDefId != null) {
+      Set<PITAttributeDef> pitAttributeDefs = GrouperDAOFactory.getFactory().getPITAttributeDef().findBySourceId(this.ownerAttrDefId, true);
+      Set<String> ids = new LinkedHashSet<String>();
+      for (PITAttributeDef pitAttributeDef : pitAttributeDefs) {
+        ids.add(pitAttributeDef.getId());
+      }
+      
+      criterionList.add(Restrictions.in(PITMembershipView.FIELD_OWNER_ID, ids));
     }
     
     if (this.memberId != null) {
-      criterionList.add(Restrictions.eq(PITMembershipView.FIELD_MEMBER_ID, this.memberId));
+      Set<PITMember> pitMembers = GrouperDAOFactory.getFactory().getPITMember().findBySourceId(this.memberId, true);
+      Set<String> ids = new LinkedHashSet<String>();
+      for (PITMember pitMember : pitMembers) {
+        ids.add(pitMember.getId());
+      }
+      
+      criterionList.add(Restrictions.in(PITMembershipView.FIELD_MEMBER_ID, ids));
     }
     
     if (this.fieldId != null) {
-      criterionList.add(Restrictions.eq(PITMembershipView.FIELD_FIELD_ID, this.fieldId));
+      Set<PITField> pitFields = GrouperDAOFactory.getFactory().getPITField().findBySourceId(this.fieldId, true);
+      Set<String> ids = new LinkedHashSet<String>();
+      for (PITField pitField : pitFields) {
+        ids.add(pitField.getId());
+      }
+      
+      criterionList.add(Restrictions.in(PITMembershipView.FIELD_FIELD_ID, ids));
     }
     
     if (this.startDateAfter != null) {

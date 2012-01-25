@@ -120,41 +120,41 @@ public class PITPermissionTests extends GrouperTest {
     ChangeLogTempToEntity.convertRecords();
     
     Set<PITPermissionAllView> results = new PITPermissionAllViewQuery()
-      .setAttributeDefNameId(attributeDefName1.getId())
-      .setMemberId(newMember1.getUuid())
-      .setActionId(action1.getId())
+      .setAttributeDefNameSourceId(attributeDefName1.getId())
+      .setMemberSourceId(newMember1.getUuid())
+      .setActionSourceId(action1.getId())
       .setStartDateAfter(beforeAddTime)
       .execute();
     assertEquals(1, results.size());
     
     results = new PITPermissionAllViewQuery()
-      .setAttributeDefNameId(attributeDefName1.getId())
-      .setMemberId(newMember1.getUuid())
-      .setActionId(action1.getId())
+      .setAttributeDefNameSourceId(attributeDefName1.getId())
+      .setMemberSourceId(newMember1.getUuid())
+      .setActionSourceId(action1.getId())
       .setStartDateAfter(afterAddTime)
       .execute();
     assertEquals(0, results.size());    
 
     results = new PITPermissionAllViewQuery()
-      .setAttributeDefNameId(attributeDefName1.getId())
-      .setMemberId(newMember1.getUuid())
-      .setActionId(action1.getId())
+      .setAttributeDefNameSourceId(attributeDefName1.getId())
+      .setMemberSourceId(newMember1.getUuid())
+      .setActionSourceId(action1.getId())
       .setStartDateBefore(beforeAddTime)
       .execute();
     assertEquals(0, results.size());
 
     results = new PITPermissionAllViewQuery()
-      .setAttributeDefNameId(attributeDefName1.getId())
-      .setMemberId(newMember1.getUuid())
-      .setActionId(action1.getId())
+      .setAttributeDefNameSourceId(attributeDefName1.getId())
+      .setMemberSourceId(newMember1.getUuid())
+      .setActionSourceId(action1.getId())
       .setStartDateBefore(afterAddTime)
       .execute();
     assertEquals(1, results.size());
 
     results = new PITPermissionAllViewQuery()
-      .setAttributeDefNameId(attributeDefName1.getId())
-      .setMemberId(newMember1.getUuid())
-      .setActionId(action1.getId())
+      .setAttributeDefNameSourceId(attributeDefName1.getId())
+      .setMemberSourceId(newMember1.getUuid())
+      .setActionSourceId(action1.getId())
       .execute();
     assertEquals(1, results.size());
   }
@@ -180,17 +180,17 @@ public class PITPermissionTests extends GrouperTest {
     ChangeLogTempToEntity.convertRecords();
     
     Set<PITPermissionAllView> results = new PITPermissionAllViewQuery()
-      .setAttributeDefNameId(attributeDefName1.getId())
-      .setMemberId(newMember1.getUuid())
-      .setActionId(action1.getId())
+      .setAttributeDefNameSourceId(attributeDefName1.getId())
+      .setMemberSourceId(newMember1.getUuid())
+      .setActionSourceId(action1.getId())
       .setEndDateAfter(afterAddTime)
       .execute();
     assertEquals(1, results.size());
     
     results = new PITPermissionAllViewQuery()
-      .setAttributeDefNameId(attributeDefName1.getId())
-      .setMemberId(newMember1.getUuid())
-      .setActionId(action1.getId())
+      .setAttributeDefNameSourceId(attributeDefName1.getId())
+      .setMemberSourceId(newMember1.getUuid())
+      .setActionSourceId(action1.getId())
       .setEndDateBefore(afterAddTime)
       .execute();
     assertEquals(0, results.size());
@@ -203,33 +203,33 @@ public class PITPermissionTests extends GrouperTest {
     ChangeLogTempToEntity.convertRecords();
     
     results = new PITPermissionAllViewQuery()
-      .setAttributeDefNameId(attributeDefName1.getId())
-      .setMemberId(newMember1.getUuid())
-      .setActionId(action1.getId())
+      .setAttributeDefNameSourceId(attributeDefName1.getId())
+      .setMemberSourceId(newMember1.getUuid())
+      .setActionSourceId(action1.getId())
       .setEndDateAfter(afterDeleteTime)
       .execute();
     assertEquals(0, results.size());
     
     results = new PITPermissionAllViewQuery()
-      .setAttributeDefNameId(attributeDefName1.getId())
-      .setMemberId(newMember1.getUuid())
-      .setActionId(action1.getId())
+      .setAttributeDefNameSourceId(attributeDefName1.getId())
+      .setMemberSourceId(newMember1.getUuid())
+      .setActionSourceId(action1.getId())
       .setEndDateAfter(beforeDeleteTime)
       .execute();
     assertEquals(1, results.size());    
 
     results = new PITPermissionAllViewQuery()
-      .setAttributeDefNameId(attributeDefName1.getId())
-      .setMemberId(newMember1.getUuid())
-      .setActionId(action1.getId())
+      .setAttributeDefNameSourceId(attributeDefName1.getId())
+      .setMemberSourceId(newMember1.getUuid())
+      .setActionSourceId(action1.getId())
       .setEndDateBefore(afterDeleteTime)
       .execute();
     assertEquals(1, results.size());
 
     results = new PITPermissionAllViewQuery()
-      .setAttributeDefNameId(attributeDefName1.getId())
-      .setMemberId(newMember1.getUuid())
-      .setActionId(action1.getId())
+      .setAttributeDefNameSourceId(attributeDefName1.getId())
+      .setMemberSourceId(newMember1.getUuid())
+      .setActionSourceId(action1.getId())
       .setEndDateBefore(beforeDeleteTime)
       .execute();
     assertEquals(0, results.size());
@@ -284,90 +284,90 @@ public class PITPermissionTests extends GrouperTest {
     ChangeLogTempToEntity.convertRecords();
 
     Set<PITPermissionAllView> results = new PITPermissionAllViewQuery()
-      .setAttributeDefNameId(attributeDefName1.getId())
-      .setMemberId(newMember1.getUuid())
-      .setActionId(action1.getId())
+      .setAttributeDefNameSourceId(attributeDefName1.getId())
+      .setMemberSourceId(newMember1.getUuid())
+      .setActionSourceId(action1.getId())
       .setActiveDateRange(new Date(beforeAddTime.getTime() - 1), beforeAddTime)
       .execute();
     assertEquals(0, results.size());
     
     results = new PITPermissionAllViewQuery()
-      .setAttributeDefNameId(attributeDefName1.getId())
-      .setMemberId(newMember1.getUuid())
-      .setActionId(action1.getId())
+      .setAttributeDefNameSourceId(attributeDefName1.getId())
+      .setMemberSourceId(newMember1.getUuid())
+      .setActionSourceId(action1.getId())
       .setActiveDateRange(null, beforeAddTime)
       .execute();
     assertEquals(0, results.size());
     
     results = new PITPermissionAllViewQuery()
-      .setAttributeDefNameId(attributeDefName1.getId())
-      .setMemberId(newMember1.getUuid())
-      .setActionId(action1.getId())
+      .setAttributeDefNameSourceId(attributeDefName1.getId())
+      .setMemberSourceId(newMember1.getUuid())
+      .setActionSourceId(action1.getId())
       .setActiveDateRange(beforeAddTime, afterAddTime)
       .execute();
     assertEquals(1, results.size());
     
     results = new PITPermissionAllViewQuery()
-      .setAttributeDefNameId(attributeDefName1.getId())
-      .setMemberId(newMember1.getUuid())
-      .setActionId(action1.getId())
+      .setAttributeDefNameSourceId(attributeDefName1.getId())
+      .setMemberSourceId(newMember1.getUuid())
+      .setActionSourceId(action1.getId())
       .setActiveDateRange(afterAddTime, beforeDisableTime)
       .execute();
     assertEquals(1, results.size());
     
     results = new PITPermissionAllViewQuery()
-      .setAttributeDefNameId(attributeDefName1.getId())
-      .setMemberId(newMember1.getUuid())
-      .setActionId(action1.getId())
+      .setAttributeDefNameSourceId(attributeDefName1.getId())
+      .setMemberSourceId(newMember1.getUuid())
+      .setActionSourceId(action1.getId())
       .setActiveDateRange(beforeDisableTime, afterDisableTime)
       .execute();
     assertEquals(1, results.size());
     
     results = new PITPermissionAllViewQuery()
-      .setAttributeDefNameId(attributeDefName1.getId())
-      .setMemberId(newMember1.getUuid())
-      .setActionId(action1.getId())
+      .setAttributeDefNameSourceId(attributeDefName1.getId())
+      .setMemberSourceId(newMember1.getUuid())
+      .setActionSourceId(action1.getId())
       .setActiveDateRange(afterDisableTime, beforeEnableTime)
       .execute();
     assertEquals(0, results.size());    
     
     results = new PITPermissionAllViewQuery()
-      .setAttributeDefNameId(attributeDefName1.getId())
-      .setMemberId(newMember1.getUuid())
-      .setActionId(action1.getId())
+      .setAttributeDefNameSourceId(attributeDefName1.getId())
+      .setMemberSourceId(newMember1.getUuid())
+      .setActionSourceId(action1.getId())
       .setActiveDateRange(beforeEnableTime, afterEnableTime)
       .execute();
     assertEquals(1, results.size());
     
     results = new PITPermissionAllViewQuery()
-      .setAttributeDefNameId(attributeDefName1.getId())
-      .setMemberId(newMember1.getUuid())
-      .setActionId(action1.getId())
+      .setAttributeDefNameSourceId(attributeDefName1.getId())
+      .setMemberSourceId(newMember1.getUuid())
+      .setActionSourceId(action1.getId())
       .setActiveDateRange(afterEnableTime, null)
       .execute();
     assertEquals(1, results.size());
     
     // test ids that weren't used at all
     results = new PITPermissionAllViewQuery()
-      .setAttributeDefNameId(attributeDefName2.getId())
-      .setMemberId(newMember1.getUuid())
-      .setActionId(action1.getId())
+      .setAttributeDefNameSourceId(attributeDefName2.getId())
+      .setMemberSourceId(newMember1.getUuid())
+      .setActionSourceId(action1.getId())
       .setActiveDateRange(afterEnableTime, null)
       .execute();
     assertEquals(0, results.size());
     
     results = new PITPermissionAllViewQuery()
-      .setAttributeDefNameId(attributeDefName1.getId())
-      .setMemberId(newMember2.getUuid())
-      .setActionId(action1.getId())
+      .setAttributeDefNameSourceId(attributeDefName1.getId())
+      .setMemberSourceId(newMember2.getUuid())
+      .setActionSourceId(action1.getId())
       .setActiveDateRange(afterEnableTime, null)
       .execute();
     assertEquals(0, results.size());
     
     results = new PITPermissionAllViewQuery()
-      .setAttributeDefNameId(attributeDefName1.getId())
-      .setMemberId(newMember1.getUuid())
-      .setActionId(action2.getId())
+      .setAttributeDefNameSourceId(attributeDefName1.getId())
+      .setMemberSourceId(newMember1.getUuid())
+      .setActionSourceId(action2.getId())
       .setActiveDateRange(afterEnableTime, null)
       .execute();
     assertEquals(0, results.size());
@@ -400,58 +400,58 @@ public class PITPermissionTests extends GrouperTest {
     ChangeLogTempToEntity.convertRecords();
 
     Set<PITPermissionAllView> results = new PITPermissionAllViewQuery()
-      .setAttributeDefNameId(attributeDefName1.getId())
-      .setMemberId(newMember1.getUuid())
-      .setActionId(action1.getId())
+      .setAttributeDefNameSourceId(attributeDefName1.getId())
+      .setMemberSourceId(newMember1.getUuid())
+      .setActionSourceId(action1.getId())
       .setActiveDateRange(new Date(beforeAddTime.getTime() - 1), beforeAddTime)
       .execute();
     assertEquals(0, results.size());
     
     results = new PITPermissionAllViewQuery()
-      .setAttributeDefNameId(attributeDefName1.getId())
-      .setMemberId(newMember1.getUuid())
-      .setActionId(action1.getId())
+      .setAttributeDefNameSourceId(attributeDefName1.getId())
+      .setMemberSourceId(newMember1.getUuid())
+      .setActionSourceId(action1.getId())
       .setActiveDateRange(null, beforeAddTime)
       .execute();
     assertEquals(0, results.size());
     
     results = new PITPermissionAllViewQuery()
-      .setAttributeDefNameId(attributeDefName1.getId())
-      .setMemberId(newMember1.getUuid())
-      .setActionId(action1.getId())
+      .setAttributeDefNameSourceId(attributeDefName1.getId())
+      .setMemberSourceId(newMember1.getUuid())
+      .setActionSourceId(action1.getId())
       .setActiveDateRange(beforeAddTime, afterAddTime)
       .execute();
     assertEquals(1, results.size());
     
     results = new PITPermissionAllViewQuery()
-      .setAttributeDefNameId(attributeDefName1.getId())
-      .setMemberId(newMember1.getUuid())
-      .setActionId(action1.getId())
+      .setAttributeDefNameSourceId(attributeDefName1.getId())
+      .setMemberSourceId(newMember1.getUuid())
+      .setActionSourceId(action1.getId())
       .setActiveDateRange(afterAddTime, null)
       .execute();
     assertEquals(1, results.size());
     
     // test ids that weren't used at all
     results = new PITPermissionAllViewQuery()
-      .setAttributeDefNameId(attributeDefName2.getId())
-      .setMemberId(newMember1.getUuid())
-      .setActionId(action1.getId())
+      .setAttributeDefNameSourceId(attributeDefName2.getId())
+      .setMemberSourceId(newMember1.getUuid())
+      .setActionSourceId(action1.getId())
       .setActiveDateRange(afterAddTime, null)
       .execute();
     assertEquals(0, results.size());
 
     results = new PITPermissionAllViewQuery()
-      .setAttributeDefNameId(attributeDefName1.getId())
-      .setMemberId(newMember2.getUuid())
-      .setActionId(action1.getId())
+      .setAttributeDefNameSourceId(attributeDefName1.getId())
+      .setMemberSourceId(newMember2.getUuid())
+      .setActionSourceId(action1.getId())
       .setActiveDateRange(afterAddTime, null)
       .execute();
     assertEquals(0, results.size());
 
     results = new PITPermissionAllViewQuery()
-      .setAttributeDefNameId(attributeDefName1.getId())
-      .setMemberId(newMember1.getUuid())
-      .setActionId(action2.getId())
+      .setAttributeDefNameSourceId(attributeDefName1.getId())
+      .setMemberSourceId(newMember1.getUuid())
+      .setActionSourceId(action2.getId())
       .setActiveDateRange(afterAddTime, null)
       .execute();
     assertEquals(0, results.size());
@@ -496,82 +496,82 @@ public class PITPermissionTests extends GrouperTest {
     ChangeLogTempToEntity.convertRecords();
 
     Set<PITPermissionAllView> results = new PITPermissionAllViewQuery()
-      .setAttributeDefNameId(attributeDefName1.getId())
-      .setMemberId(newMember1.getUuid())
-      .setActionId(action1.getId())
+      .setAttributeDefNameSourceId(attributeDefName1.getId())
+      .setMemberSourceId(newMember1.getUuid())
+      .setActionSourceId(action1.getId())
       .setActiveDateRange(new Date(beforeAddTime.getTime() - 1), beforeAddTime)
       .execute();
     assertEquals(0, results.size());
     
     results = new PITPermissionAllViewQuery()
-      .setAttributeDefNameId(attributeDefName1.getId())
-      .setMemberId(newMember1.getUuid())
-      .setActionId(action1.getId())
+      .setAttributeDefNameSourceId(attributeDefName1.getId())
+      .setMemberSourceId(newMember1.getUuid())
+      .setActionSourceId(action1.getId())
       .setActiveDateRange(null, beforeAddTime)
       .execute();
     assertEquals(0, results.size());
     
     results = new PITPermissionAllViewQuery()
-      .setAttributeDefNameId(attributeDefName1.getId())
-      .setMemberId(newMember1.getUuid())
-      .setActionId(action1.getId())
+      .setAttributeDefNameSourceId(attributeDefName1.getId())
+      .setMemberSourceId(newMember1.getUuid())
+      .setActionSourceId(action1.getId())
       .setActiveDateRange(beforeAddTime, afterAddTime)
       .execute();
     assertEquals(1, results.size());
     
     results = new PITPermissionAllViewQuery()
-      .setAttributeDefNameId(attributeDefName1.getId())
-      .setMemberId(newMember1.getUuid())
-      .setActionId(action1.getId())
+      .setAttributeDefNameSourceId(attributeDefName1.getId())
+      .setMemberSourceId(newMember1.getUuid())
+      .setActionSourceId(action1.getId())
       .setActiveDateRange(afterAddTime, beforeRemoveTime)
       .execute();
     assertEquals(1, results.size());
     
     results = new PITPermissionAllViewQuery()
-      .setAttributeDefNameId(attributeDefName1.getId())
-      .setMemberId(newMember1.getUuid())
-      .setActionId(action1.getId())
+      .setAttributeDefNameSourceId(attributeDefName1.getId())
+      .setMemberSourceId(newMember1.getUuid())
+      .setActionSourceId(action1.getId())
       .setActiveDateRange(beforeRemoveTime, afterRemoveTime)
       .execute();
     assertEquals(1, results.size());
     
     results = new PITPermissionAllViewQuery()
-      .setAttributeDefNameId(attributeDefName1.getId())
-      .setMemberId(newMember1.getUuid())
-      .setActionId(action1.getId())
+      .setAttributeDefNameSourceId(attributeDefName1.getId())
+      .setMemberSourceId(newMember1.getUuid())
+      .setActionSourceId(action1.getId())
       .setActiveDateRange(afterRemoveTime, null)
       .execute();
     assertEquals(0, results.size());
     
     results = new PITPermissionAllViewQuery()
-      .setAttributeDefNameId(attributeDefName1.getId())
-      .setMemberId(newMember1.getUuid())
-      .setActionId(action1.getId())
+      .setAttributeDefNameSourceId(attributeDefName1.getId())
+      .setMemberSourceId(newMember1.getUuid())
+      .setActionSourceId(action1.getId())
       .setActiveDateRange(beforeRemoveTime, null)
       .execute();
     assertEquals(1, results.size());
     
     // test ids that weren't used at all
     results = new PITPermissionAllViewQuery()
-      .setAttributeDefNameId(attributeDefName2.getId())
-      .setMemberId(newMember1.getUuid())
-      .setActionId(action1.getId())
+      .setAttributeDefNameSourceId(attributeDefName2.getId())
+      .setMemberSourceId(newMember1.getUuid())
+      .setActionSourceId(action1.getId())
       .setActiveDateRange(beforeRemoveTime, null)
       .execute();
     assertEquals(0, results.size());
     
     results = new PITPermissionAllViewQuery()
-      .setAttributeDefNameId(attributeDefName1.getId())
-      .setMemberId(newMember2.getUuid())
-      .setActionId(action1.getId())
+      .setAttributeDefNameSourceId(attributeDefName1.getId())
+      .setMemberSourceId(newMember2.getUuid())
+      .setActionSourceId(action1.getId())
       .setActiveDateRange(beforeRemoveTime, null)
       .execute();
     assertEquals(0, results.size());
     
     results = new PITPermissionAllViewQuery()
-      .setAttributeDefNameId(attributeDefName1.getId())
-      .setMemberId(newMember1.getUuid())
-      .setActionId(action2.getId())
+      .setAttributeDefNameSourceId(attributeDefName1.getId())
+      .setMemberSourceId(newMember1.getUuid())
+      .setActionSourceId(action2.getId())
       .setActiveDateRange(beforeRemoveTime, null)
       .execute();
     assertEquals(0, results.size());
@@ -605,58 +605,58 @@ public class PITPermissionTests extends GrouperTest {
     ChangeLogTempToEntity.convertRecords();
 
     Set<PITPermissionAllView> results = new PITPermissionAllViewQuery()
-      .setAttributeDefNameId(attributeDefName1.getId())
-      .setMemberId(newMember1.getUuid())
-      .setActionId(action1.getId())
+      .setAttributeDefNameSourceId(attributeDefName1.getId())
+      .setMemberSourceId(newMember1.getUuid())
+      .setActionSourceId(action1.getId())
       .setActiveDateRange(new Date(beforeAddTime.getTime() - 1), beforeAddTime)
       .execute();
     assertEquals(0, results.size());
     
     results = new PITPermissionAllViewQuery()
-      .setAttributeDefNameId(attributeDefName1.getId())
-      .setMemberId(newMember1.getUuid())
-      .setActionId(action1.getId())
+      .setAttributeDefNameSourceId(attributeDefName1.getId())
+      .setMemberSourceId(newMember1.getUuid())
+      .setActionSourceId(action1.getId())
       .setActiveDateRange(null, beforeAddTime)
       .execute();
     assertEquals(0, results.size());
     
     results = new PITPermissionAllViewQuery()
-      .setAttributeDefNameId(attributeDefName1.getId())
-      .setMemberId(newMember1.getUuid())
-      .setActionId(action1.getId())
+      .setAttributeDefNameSourceId(attributeDefName1.getId())
+      .setMemberSourceId(newMember1.getUuid())
+      .setActionSourceId(action1.getId())
       .setActiveDateRange(beforeAddTime, afterAddTime)
       .execute();
     assertEquals(1, results.size());
     
     results = new PITPermissionAllViewQuery()
-      .setAttributeDefNameId(attributeDefName1.getId())
-      .setMemberId(newMember1.getUuid())
-      .setActionId(action1.getId())
+      .setAttributeDefNameSourceId(attributeDefName1.getId())
+      .setMemberSourceId(newMember1.getUuid())
+      .setActionSourceId(action1.getId())
       .setActiveDateRange(afterAddTime, null)
       .execute();
     assertEquals(1, results.size());
     
     // test ids that weren't used at all
     results = new PITPermissionAllViewQuery()
-      .setAttributeDefNameId(attributeDefName2.getId())
-      .setMemberId(newMember1.getUuid())
-      .setActionId(action1.getId())
+      .setAttributeDefNameSourceId(attributeDefName2.getId())
+      .setMemberSourceId(newMember1.getUuid())
+      .setActionSourceId(action1.getId())
       .setActiveDateRange(afterAddTime, null)
       .execute();
     assertEquals(0, results.size());
 
     results = new PITPermissionAllViewQuery()
-      .setAttributeDefNameId(attributeDefName1.getId())
-      .setMemberId(newMember2.getUuid())
-      .setActionId(action1.getId())
+      .setAttributeDefNameSourceId(attributeDefName1.getId())
+      .setMemberSourceId(newMember2.getUuid())
+      .setActionSourceId(action1.getId())
       .setActiveDateRange(afterAddTime, null)
       .execute();
     assertEquals(0, results.size());
 
     results = new PITPermissionAllViewQuery()
-      .setAttributeDefNameId(attributeDefName1.getId())
-      .setMemberId(newMember1.getUuid())
-      .setActionId(action2.getId())
+      .setAttributeDefNameSourceId(attributeDefName1.getId())
+      .setMemberSourceId(newMember1.getUuid())
+      .setActionSourceId(action2.getId())
       .setActiveDateRange(afterAddTime, null)
       .execute();
     assertEquals(0, results.size());
@@ -703,82 +703,82 @@ public class PITPermissionTests extends GrouperTest {
     ChangeLogTempToEntity.convertRecords();
 
     Set<PITPermissionAllView> results = new PITPermissionAllViewQuery()
-      .setAttributeDefNameId(attributeDefName1.getId())
-      .setMemberId(newMember1.getUuid())
-      .setActionId(action1.getId())
+      .setAttributeDefNameSourceId(attributeDefName1.getId())
+      .setMemberSourceId(newMember1.getUuid())
+      .setActionSourceId(action1.getId())
       .setActiveDateRange(new Date(beforeAddTime.getTime() - 1), beforeAddTime)
       .execute();
     assertEquals(0, results.size());
     
     results = new PITPermissionAllViewQuery()
-      .setAttributeDefNameId(attributeDefName1.getId())
-      .setMemberId(newMember1.getUuid())
-      .setActionId(action1.getId())
+      .setAttributeDefNameSourceId(attributeDefName1.getId())
+      .setMemberSourceId(newMember1.getUuid())
+      .setActionSourceId(action1.getId())
       .setActiveDateRange(null, beforeAddTime)
       .execute();
     assertEquals(0, results.size());
     
     results = new PITPermissionAllViewQuery()
-      .setAttributeDefNameId(attributeDefName1.getId())
-      .setMemberId(newMember1.getUuid())
-      .setActionId(action1.getId())
+      .setAttributeDefNameSourceId(attributeDefName1.getId())
+      .setMemberSourceId(newMember1.getUuid())
+      .setActionSourceId(action1.getId())
       .setActiveDateRange(beforeAddTime, afterAddTime)
       .execute();
     assertEquals(1, results.size());
     
     results = new PITPermissionAllViewQuery()
-      .setAttributeDefNameId(attributeDefName1.getId())
-      .setMemberId(newMember1.getUuid())
-      .setActionId(action1.getId())
+      .setAttributeDefNameSourceId(attributeDefName1.getId())
+      .setMemberSourceId(newMember1.getUuid())
+      .setActionSourceId(action1.getId())
       .setActiveDateRange(afterAddTime, beforeRemoveTime)
       .execute();
     assertEquals(1, results.size());
     
     results = new PITPermissionAllViewQuery()
-      .setAttributeDefNameId(attributeDefName1.getId())
-      .setMemberId(newMember1.getUuid())
-      .setActionId(action1.getId())
+      .setAttributeDefNameSourceId(attributeDefName1.getId())
+      .setMemberSourceId(newMember1.getUuid())
+      .setActionSourceId(action1.getId())
       .setActiveDateRange(beforeRemoveTime, afterRemoveTime)
       .execute();
     assertEquals(1, results.size());
     
     results = new PITPermissionAllViewQuery()
-      .setAttributeDefNameId(attributeDefName1.getId())
-      .setMemberId(newMember1.getUuid())
-      .setActionId(action1.getId())
+      .setAttributeDefNameSourceId(attributeDefName1.getId())
+      .setMemberSourceId(newMember1.getUuid())
+      .setActionSourceId(action1.getId())
       .setActiveDateRange(afterRemoveTime, null)
       .execute();
     assertEquals(0, results.size());
     
     results = new PITPermissionAllViewQuery()
-      .setAttributeDefNameId(attributeDefName1.getId())
-      .setMemberId(newMember1.getUuid())
-      .setActionId(action1.getId())
+      .setAttributeDefNameSourceId(attributeDefName1.getId())
+      .setMemberSourceId(newMember1.getUuid())
+      .setActionSourceId(action1.getId())
       .setActiveDateRange(beforeRemoveTime, null)
       .execute();
     assertEquals(1, results.size());
     
     // test ids that weren't used at all
     results = new PITPermissionAllViewQuery()
-      .setAttributeDefNameId(attributeDefName2.getId())
-      .setMemberId(newMember1.getUuid())
-      .setActionId(action1.getId())
+      .setAttributeDefNameSourceId(attributeDefName2.getId())
+      .setMemberSourceId(newMember1.getUuid())
+      .setActionSourceId(action1.getId())
       .setActiveDateRange(beforeRemoveTime, null)
       .execute();
     assertEquals(0, results.size());
     
     results = new PITPermissionAllViewQuery()
-      .setAttributeDefNameId(attributeDefName1.getId())
-      .setMemberId(newMember2.getUuid())
-      .setActionId(action1.getId())
+      .setAttributeDefNameSourceId(attributeDefName1.getId())
+      .setMemberSourceId(newMember2.getUuid())
+      .setActionSourceId(action1.getId())
       .setActiveDateRange(beforeRemoveTime, null)
       .execute();
     assertEquals(0, results.size());
     
     results = new PITPermissionAllViewQuery()
-      .setAttributeDefNameId(attributeDefName1.getId())
-      .setMemberId(newMember1.getUuid())
-      .setActionId(action2.getId())
+      .setAttributeDefNameSourceId(attributeDefName1.getId())
+      .setMemberSourceId(newMember1.getUuid())
+      .setActionSourceId(action2.getId())
       .setActiveDateRange(beforeRemoveTime, null)
       .execute();
     assertEquals(0, results.size());
@@ -830,82 +830,82 @@ public class PITPermissionTests extends GrouperTest {
     ChangeLogTempToEntity.convertRecords();
 
     Set<PITPermissionAllView> results = new PITPermissionAllViewQuery()
-      .setAttributeDefNameId(attributeDefName1.getId())
-      .setMemberId(newMember1.getUuid())
-      .setActionId(action1.getId())
+      .setAttributeDefNameSourceId(attributeDefName1.getId())
+      .setMemberSourceId(newMember1.getUuid())
+      .setActionSourceId(action1.getId())
       .setActiveDateRange(new Date(beforeAddTime.getTime() - 1), beforeAddTime)
       .execute();
     assertEquals(0, results.size());
     
     results = new PITPermissionAllViewQuery()
-      .setAttributeDefNameId(attributeDefName1.getId())
-      .setMemberId(newMember1.getUuid())
-      .setActionId(action1.getId())
+      .setAttributeDefNameSourceId(attributeDefName1.getId())
+      .setMemberSourceId(newMember1.getUuid())
+      .setActionSourceId(action1.getId())
       .setActiveDateRange(null, beforeAddTime)
       .execute();
     assertEquals(0, results.size());
     
     results = new PITPermissionAllViewQuery()
-      .setAttributeDefNameId(attributeDefName1.getId())
-      .setMemberId(newMember1.getUuid())
-      .setActionId(action1.getId())
+      .setAttributeDefNameSourceId(attributeDefName1.getId())
+      .setMemberSourceId(newMember1.getUuid())
+      .setActionSourceId(action1.getId())
       .setActiveDateRange(beforeAddTime, afterAddTime)
       .execute();
     assertEquals(1, results.size());
     
     results = new PITPermissionAllViewQuery()
-      .setAttributeDefNameId(attributeDefName1.getId())
-      .setMemberId(newMember1.getUuid())
-      .setActionId(action1.getId())
+      .setAttributeDefNameSourceId(attributeDefName1.getId())
+      .setMemberSourceId(newMember1.getUuid())
+      .setActionSourceId(action1.getId())
       .setActiveDateRange(afterAddTime, beforeRemoveTime)
       .execute();
     assertEquals(1, results.size());
     
     results = new PITPermissionAllViewQuery()
-      .setAttributeDefNameId(attributeDefName1.getId())
-      .setMemberId(newMember1.getUuid())
-      .setActionId(action1.getId())
+      .setAttributeDefNameSourceId(attributeDefName1.getId())
+      .setMemberSourceId(newMember1.getUuid())
+      .setActionSourceId(action1.getId())
       .setActiveDateRange(beforeRemoveTime, afterRemoveTime)
       .execute();
     assertEquals(1, results.size());
     
     results = new PITPermissionAllViewQuery()
-      .setAttributeDefNameId(attributeDefName1.getId())
-      .setMemberId(newMember1.getUuid())
-      .setActionId(action1.getId())
+      .setAttributeDefNameSourceId(attributeDefName1.getId())
+      .setMemberSourceId(newMember1.getUuid())
+      .setActionSourceId(action1.getId())
       .setActiveDateRange(afterRemoveTime, null)
       .execute();
     assertEquals(0, results.size());
     
     results = new PITPermissionAllViewQuery()
-      .setAttributeDefNameId(attributeDefName1.getId())
-      .setMemberId(newMember1.getUuid())
-      .setActionId(action1.getId())
+      .setAttributeDefNameSourceId(attributeDefName1.getId())
+      .setMemberSourceId(newMember1.getUuid())
+      .setActionSourceId(action1.getId())
       .setActiveDateRange(beforeRemoveTime, null)
       .execute();
     assertEquals(1, results.size());
     
     // test ids that weren't used at all
     results = new PITPermissionAllViewQuery()
-      .setAttributeDefNameId(attributeDefName2.getId())
-      .setMemberId(newMember1.getUuid())
-      .setActionId(action1.getId())
+      .setAttributeDefNameSourceId(attributeDefName2.getId())
+      .setMemberSourceId(newMember1.getUuid())
+      .setActionSourceId(action1.getId())
       .setActiveDateRange(beforeRemoveTime, null)
       .execute();
     assertEquals(0, results.size());
     
     results = new PITPermissionAllViewQuery()
-      .setAttributeDefNameId(attributeDefName1.getId())
-      .setMemberId(newMember2.getUuid())
-      .setActionId(action1.getId())
+      .setAttributeDefNameSourceId(attributeDefName1.getId())
+      .setMemberSourceId(newMember2.getUuid())
+      .setActionSourceId(action1.getId())
       .setActiveDateRange(beforeRemoveTime, null)
       .execute();
     assertEquals(0, results.size());
     
     results = new PITPermissionAllViewQuery()
-      .setAttributeDefNameId(attributeDefName1.getId())
-      .setMemberId(newMember1.getUuid())
-      .setActionId(action2.getId())
+      .setAttributeDefNameSourceId(attributeDefName1.getId())
+      .setMemberSourceId(newMember1.getUuid())
+      .setActionSourceId(action2.getId())
       .setActiveDateRange(beforeRemoveTime, null)
       .execute();
     assertEquals(0, results.size());
@@ -959,82 +959,82 @@ public class PITPermissionTests extends GrouperTest {
     ChangeLogTempToEntity.convertRecords();
 
     Set<PITPermissionAllView> results = new PITPermissionAllViewQuery()
-      .setAttributeDefNameId(attributeDefName1.getId())
-      .setMemberId(newMember1.getUuid())
-      .setActionId(action3.getId())
+      .setAttributeDefNameSourceId(attributeDefName1.getId())
+      .setMemberSourceId(newMember1.getUuid())
+      .setActionSourceId(action3.getId())
       .setActiveDateRange(new Date(beforeAddTime.getTime() - 1), beforeAddTime)
       .execute();
     assertEquals(0, results.size());
     
     results = new PITPermissionAllViewQuery()
-      .setAttributeDefNameId(attributeDefName1.getId())
-      .setMemberId(newMember1.getUuid())
-      .setActionId(action3.getId())
+      .setAttributeDefNameSourceId(attributeDefName1.getId())
+      .setMemberSourceId(newMember1.getUuid())
+      .setActionSourceId(action3.getId())
       .setActiveDateRange(null, beforeAddTime)
       .execute();
     assertEquals(0, results.size());
     
     results = new PITPermissionAllViewQuery()
-      .setAttributeDefNameId(attributeDefName1.getId())
-      .setMemberId(newMember1.getUuid())
-      .setActionId(action3.getId())
+      .setAttributeDefNameSourceId(attributeDefName1.getId())
+      .setMemberSourceId(newMember1.getUuid())
+      .setActionSourceId(action3.getId())
       .setActiveDateRange(beforeAddTime, afterAddTime)
       .execute();
     assertEquals(1, results.size());
     
     results = new PITPermissionAllViewQuery()
-      .setAttributeDefNameId(attributeDefName1.getId())
-      .setMemberId(newMember1.getUuid())
-      .setActionId(action3.getId())
+      .setAttributeDefNameSourceId(attributeDefName1.getId())
+      .setMemberSourceId(newMember1.getUuid())
+      .setActionSourceId(action3.getId())
       .setActiveDateRange(afterAddTime, beforeRemoveTime)
       .execute();
     assertEquals(1, results.size());
     
     results = new PITPermissionAllViewQuery()
-      .setAttributeDefNameId(attributeDefName1.getId())
-      .setMemberId(newMember1.getUuid())
-      .setActionId(action3.getId())
+      .setAttributeDefNameSourceId(attributeDefName1.getId())
+      .setMemberSourceId(newMember1.getUuid())
+      .setActionSourceId(action3.getId())
       .setActiveDateRange(beforeRemoveTime, afterRemoveTime)
       .execute();
     assertEquals(1, results.size());
     
     results = new PITPermissionAllViewQuery()
-      .setAttributeDefNameId(attributeDefName1.getId())
-      .setMemberId(newMember1.getUuid())
-      .setActionId(action3.getId())
+      .setAttributeDefNameSourceId(attributeDefName1.getId())
+      .setMemberSourceId(newMember1.getUuid())
+      .setActionSourceId(action3.getId())
       .setActiveDateRange(afterRemoveTime, null)
       .execute();
     assertEquals(0, results.size());
     
     results = new PITPermissionAllViewQuery()
-      .setAttributeDefNameId(attributeDefName1.getId())
-      .setMemberId(newMember1.getUuid())
-      .setActionId(action3.getId())
+      .setAttributeDefNameSourceId(attributeDefName1.getId())
+      .setMemberSourceId(newMember1.getUuid())
+      .setActionSourceId(action3.getId())
       .setActiveDateRange(beforeRemoveTime, null)
       .execute();
     assertEquals(1, results.size());
     
     // test ids that weren't used at all
     results = new PITPermissionAllViewQuery()
-      .setAttributeDefNameId(attributeDefName2.getId())
-      .setMemberId(newMember1.getUuid())
-      .setActionId(action3.getId())
+      .setAttributeDefNameSourceId(attributeDefName2.getId())
+      .setMemberSourceId(newMember1.getUuid())
+      .setActionSourceId(action3.getId())
       .setActiveDateRange(beforeRemoveTime, null)
       .execute();
     assertEquals(0, results.size());
     
     results = new PITPermissionAllViewQuery()
-      .setAttributeDefNameId(attributeDefName1.getId())
-      .setMemberId(newMember2.getUuid())
-      .setActionId(action3.getId())
+      .setAttributeDefNameSourceId(attributeDefName1.getId())
+      .setMemberSourceId(newMember2.getUuid())
+      .setActionSourceId(action3.getId())
       .setActiveDateRange(beforeRemoveTime, null)
       .execute();
     assertEquals(0, results.size());
     
     results = new PITPermissionAllViewQuery()
-      .setAttributeDefNameId(attributeDefName1.getId())
-      .setMemberId(newMember1.getUuid())
-      .setActionId(action4.getId())
+      .setAttributeDefNameSourceId(attributeDefName1.getId())
+      .setMemberSourceId(newMember1.getUuid())
+      .setActionSourceId(action4.getId())
       .setActiveDateRange(beforeRemoveTime, null)
       .execute();
     assertEquals(0, results.size());
@@ -1089,82 +1089,82 @@ public class PITPermissionTests extends GrouperTest {
     ChangeLogTempToEntity.convertRecords();
 
     Set<PITPermissionAllView> results = new PITPermissionAllViewQuery()
-      .setAttributeDefNameId(attributeDefName3.getId())
-      .setMemberId(newMember1.getUuid())
-      .setActionId(action1.getId())
+      .setAttributeDefNameSourceId(attributeDefName3.getId())
+      .setMemberSourceId(newMember1.getUuid())
+      .setActionSourceId(action1.getId())
       .setActiveDateRange(new Date(beforeAddTime.getTime() - 1), beforeAddTime)
       .execute();
     assertEquals(0, results.size());
     
     results = new PITPermissionAllViewQuery()
-      .setAttributeDefNameId(attributeDefName3.getId())
-      .setMemberId(newMember1.getUuid())
-      .setActionId(action1.getId())
+      .setAttributeDefNameSourceId(attributeDefName3.getId())
+      .setMemberSourceId(newMember1.getUuid())
+      .setActionSourceId(action1.getId())
       .setActiveDateRange(null, beforeAddTime)
       .execute();
     assertEquals(0, results.size());
     
     results = new PITPermissionAllViewQuery()
-      .setAttributeDefNameId(attributeDefName3.getId())
-      .setMemberId(newMember1.getUuid())
-      .setActionId(action1.getId())
+      .setAttributeDefNameSourceId(attributeDefName3.getId())
+      .setMemberSourceId(newMember1.getUuid())
+      .setActionSourceId(action1.getId())
       .setActiveDateRange(beforeAddTime, afterAddTime)
       .execute();
     assertEquals(1, results.size());
     
     results = new PITPermissionAllViewQuery()
-      .setAttributeDefNameId(attributeDefName3.getId())
-      .setMemberId(newMember1.getUuid())
-      .setActionId(action1.getId())
+      .setAttributeDefNameSourceId(attributeDefName3.getId())
+      .setMemberSourceId(newMember1.getUuid())
+      .setActionSourceId(action1.getId())
       .setActiveDateRange(afterAddTime, beforeRemoveTime)
       .execute();
     assertEquals(1, results.size());
     
     results = new PITPermissionAllViewQuery()
-      .setAttributeDefNameId(attributeDefName3.getId())
-      .setMemberId(newMember1.getUuid())
-      .setActionId(action1.getId())
+      .setAttributeDefNameSourceId(attributeDefName3.getId())
+      .setMemberSourceId(newMember1.getUuid())
+      .setActionSourceId(action1.getId())
       .setActiveDateRange(beforeRemoveTime, afterRemoveTime)
       .execute();
     assertEquals(1, results.size());
     
     results = new PITPermissionAllViewQuery()
-      .setAttributeDefNameId(attributeDefName3.getId())
-      .setMemberId(newMember1.getUuid())
-      .setActionId(action1.getId())
+      .setAttributeDefNameSourceId(attributeDefName3.getId())
+      .setMemberSourceId(newMember1.getUuid())
+      .setActionSourceId(action1.getId())
       .setActiveDateRange(afterRemoveTime, null)
       .execute();
     assertEquals(0, results.size());
     
     results = new PITPermissionAllViewQuery()
-      .setAttributeDefNameId(attributeDefName3.getId())
-      .setMemberId(newMember1.getUuid())
-      .setActionId(action1.getId())
+      .setAttributeDefNameSourceId(attributeDefName3.getId())
+      .setMemberSourceId(newMember1.getUuid())
+      .setActionSourceId(action1.getId())
       .setActiveDateRange(beforeRemoveTime, null)
       .execute();
     assertEquals(1, results.size());
     
     // test ids that weren't used at all
     results = new PITPermissionAllViewQuery()
-      .setAttributeDefNameId(attributeDefName4.getId())
-      .setMemberId(newMember1.getUuid())
-      .setActionId(action1.getId())
+      .setAttributeDefNameSourceId(attributeDefName4.getId())
+      .setMemberSourceId(newMember1.getUuid())
+      .setActionSourceId(action1.getId())
       .setActiveDateRange(beforeRemoveTime, null)
       .execute();
     assertEquals(0, results.size());
     
     results = new PITPermissionAllViewQuery()
-      .setAttributeDefNameId(attributeDefName3.getId())
-      .setMemberId(newMember2.getUuid())
-      .setActionId(action1.getId())
+      .setAttributeDefNameSourceId(attributeDefName3.getId())
+      .setMemberSourceId(newMember2.getUuid())
+      .setActionSourceId(action1.getId())
       .setActiveDateRange(beforeRemoveTime, null)
       .execute();
     assertEquals(0, results.size());
     
     results = new PITPermissionAllViewQuery()
-      .setAttributeDefNameId(attributeDefName3.getId())
-      .setMemberId(newMember1.getUuid())
-      .setActionId(action2.getId())
+      .setAttributeDefNameSourceId(attributeDefName3.getId())
+      .setMemberSourceId(newMember1.getUuid())
+      .setActionSourceId(action2.getId())
       .setActiveDateRange(beforeRemoveTime, null)
       .execute();
     assertEquals(0, results.size());
@@ -1227,82 +1227,82 @@ public class PITPermissionTests extends GrouperTest {
     ChangeLogTempToEntity.convertRecords();
 
     Set<PITPermissionAllView> results = new PITPermissionAllViewQuery()
-      .setAttributeDefNameId(attributeDefName3.getId())
-      .setMemberId(newMember1.getUuid())
-      .setActionId(action1.getId())
+      .setAttributeDefNameSourceId(attributeDefName3.getId())
+      .setMemberSourceId(newMember1.getUuid())
+      .setActionSourceId(action1.getId())
       .setActiveDateRange(new Date(beforeAddTime.getTime() - 1), beforeAddTime)
       .execute();
     assertEquals(0, results.size());
     
     results = new PITPermissionAllViewQuery()
-      .setAttributeDefNameId(attributeDefName3.getId())
-      .setMemberId(newMember1.getUuid())
-      .setActionId(action1.getId())
+      .setAttributeDefNameSourceId(attributeDefName3.getId())
+      .setMemberSourceId(newMember1.getUuid())
+      .setActionSourceId(action1.getId())
       .setActiveDateRange(null, beforeAddTime)
       .execute();
     assertEquals(0, results.size());
     
     results = new PITPermissionAllViewQuery()
-      .setAttributeDefNameId(attributeDefName3.getId())
-      .setMemberId(newMember1.getUuid())
-      .setActionId(action1.getId())
+      .setAttributeDefNameSourceId(attributeDefName3.getId())
+      .setMemberSourceId(newMember1.getUuid())
+      .setActionSourceId(action1.getId())
       .setActiveDateRange(beforeAddTime, afterAddTime)
       .execute();
     assertEquals(1, results.size());
     
     results = new PITPermissionAllViewQuery()
-      .setAttributeDefNameId(attributeDefName3.getId())
-      .setMemberId(newMember1.getUuid())
-      .setActionId(action1.getId())
+      .setAttributeDefNameSourceId(attributeDefName3.getId())
+      .setMemberSourceId(newMember1.getUuid())
+      .setActionSourceId(action1.getId())
       .setActiveDateRange(afterAddTime, beforeRemoveTime)
       .execute();
     assertEquals(1, results.size());
     
     results = new PITPermissionAllViewQuery()
-      .setAttributeDefNameId(attributeDefName3.getId())
-      .setMemberId(newMember1.getUuid())
-      .setActionId(action1.getId())
+      .setAttributeDefNameSourceId(attributeDefName3.getId())
+      .setMemberSourceId(newMember1.getUuid())
+      .setActionSourceId(action1.getId())
       .setActiveDateRange(beforeRemoveTime, afterRemoveTime)
       .execute();
     assertEquals(1, results.size());
     
     results = new PITPermissionAllViewQuery()
-      .setAttributeDefNameId(attributeDefName3.getId())
-      .setMemberId(newMember1.getUuid())
-      .setActionId(action1.getId())
+      .setAttributeDefNameSourceId(attributeDefName3.getId())
+      .setMemberSourceId(newMember1.getUuid())
+      .setActionSourceId(action1.getId())
       .setActiveDateRange(afterRemoveTime, null)
       .execute();
     assertEquals(0, results.size());
     
     results = new PITPermissionAllViewQuery()
-      .setAttributeDefNameId(attributeDefName3.getId())
-      .setMemberId(newMember1.getUuid())
-      .setActionId(action1.getId())
+      .setAttributeDefNameSourceId(attributeDefName3.getId())
+      .setMemberSourceId(newMember1.getUuid())
+      .setActionSourceId(action1.getId())
       .setActiveDateRange(beforeRemoveTime, null)
       .execute();
     assertEquals(1, results.size());
     
     // test ids that weren't used at all
     results = new PITPermissionAllViewQuery()
-      .setAttributeDefNameId(attributeDefName4.getId())
-      .setMemberId(newMember1.getUuid())
-      .setActionId(action1.getId())
+      .setAttributeDefNameSourceId(attributeDefName4.getId())
+      .setMemberSourceId(newMember1.getUuid())
+      .setActionSourceId(action1.getId())
       .setActiveDateRange(beforeRemoveTime, null)
       .execute();
     assertEquals(0, results.size());
     
     results = new PITPermissionAllViewQuery()
-      .setAttributeDefNameId(attributeDefName3.getId())
-      .setMemberId(newMember2.getUuid())
-      .setActionId(action1.getId())
+      .setAttributeDefNameSourceId(attributeDefName3.getId())
+      .setMemberSourceId(newMember2.getUuid())
+      .setActionSourceId(action1.getId())
       .setActiveDateRange(beforeRemoveTime, null)
       .execute();
     assertEquals(0, results.size());
     
     results = new PITPermissionAllViewQuery()
-      .setAttributeDefNameId(attributeDefName3.getId())
-      .setMemberId(newMember1.getUuid())
-      .setActionId(action2.getId())
+      .setAttributeDefNameSourceId(attributeDefName3.getId())
+      .setMemberSourceId(newMember1.getUuid())
+      .setActionSourceId(action2.getId())
       .setActiveDateRange(beforeRemoveTime, null)
       .execute();
     assertEquals(0, results.size());
@@ -1346,49 +1346,49 @@ public class PITPermissionTests extends GrouperTest {
     ChangeLogTempToEntity.convertRecords();
 
     Set<PITPermissionAllView> results = new PITPermissionAllViewQuery()
-      .setAttributeDefNameId(attributeDefName3.getId())
-      .setMemberId(newMember1.getUuid())
-      .setActionId(action1.getId())
+      .setAttributeDefNameSourceId(attributeDefName3.getId())
+      .setMemberSourceId(newMember1.getUuid())
+      .setActionSourceId(action1.getId())
       .setActiveDateRange(new Date(beforeFirstAddTime.getTime() - 1), beforeFirstAddTime)
       .execute();
     assertEquals(0, results.size());
     
     results = new PITPermissionAllViewQuery()
-      .setAttributeDefNameId(attributeDefName3.getId())
-      .setMemberId(newMember1.getUuid())
-      .setActionId(action1.getId())
+      .setAttributeDefNameSourceId(attributeDefName3.getId())
+      .setMemberSourceId(newMember1.getUuid())
+      .setActionSourceId(action1.getId())
       .setActiveDateRange(null, beforeFirstAddTime)
       .execute();
     assertEquals(0, results.size());
     
     results = new PITPermissionAllViewQuery()
-      .setAttributeDefNameId(attributeDefName3.getId())
-      .setMemberId(newMember1.getUuid())
-      .setActionId(action1.getId())
+      .setAttributeDefNameSourceId(attributeDefName3.getId())
+      .setMemberSourceId(newMember1.getUuid())
+      .setActionSourceId(action1.getId())
       .setActiveDateRange(beforeFirstAddTime, afterFirstAddTime)
       .execute();
     assertEquals(1, results.size());
     
     results = new PITPermissionAllViewQuery()
-      .setAttributeDefNameId(attributeDefName3.getId())
-      .setMemberId(newMember1.getUuid())
-      .setActionId(action1.getId())
+      .setAttributeDefNameSourceId(attributeDefName3.getId())
+      .setMemberSourceId(newMember1.getUuid())
+      .setActionSourceId(action1.getId())
       .setActiveDateRange(afterFirstAddTime, beforeSecondAddTime)
       .execute();
     assertEquals(1, results.size());
     
     results = new PITPermissionAllViewQuery()
-      .setAttributeDefNameId(attributeDefName3.getId())
-      .setMemberId(newMember1.getUuid())
-      .setActionId(action1.getId())
+      .setAttributeDefNameSourceId(attributeDefName3.getId())
+      .setMemberSourceId(newMember1.getUuid())
+      .setActionSourceId(action1.getId())
       .setActiveDateRange(beforeSecondAddTime, afterSecondAddTime)
       .execute();
     assertEquals(2, results.size());
     
     results = new PITPermissionAllViewQuery()
-      .setAttributeDefNameId(attributeDefName3.getId())
-      .setMemberId(newMember1.getUuid())
-      .setActionId(action1.getId())
+      .setAttributeDefNameSourceId(attributeDefName3.getId())
+      .setMemberSourceId(newMember1.getUuid())
+      .setActionSourceId(action1.getId())
       .setActiveDateRange(afterSecondAddTime, null)
       .execute();
     assertEquals(2, results.size());
@@ -1442,7 +1442,8 @@ public class PITPermissionTests extends GrouperTest {
       .findPermissions();
     
     assertEquals(1, perms.size());
-    assertEquals(attributeAssign2.getId(), perms.iterator().next().getAttributeAssignId());
+    PITAttributeAssign pitAttributeAssign2 = GrouperDAOFactory.getFactory().getPITAttributeAssign().findBySourceIdActive(attributeAssign2.getId(), true);
+    assertEquals(pitAttributeAssign2.getId(), perms.iterator().next().getAttributeAssignId());
   }
   
   /**
@@ -1598,7 +1599,8 @@ public class PITPermissionTests extends GrouperTest {
       .assignPointInTimeTo(afterDelete)
       .findPermissions();
     assertEquals(1, perms.size());
-    assertEquals(attributeAssign2.getId(), perms.iterator().next().getAttributeAssignId());
+    PITAttributeAssign pitAttributeAssign2 = GrouperDAOFactory.getFactory().getPITAttributeAssign().findBySourceIdActive(attributeAssign2.getId(), true);
+    assertEquals(pitAttributeAssign2.getId(), perms.iterator().next().getAttributeAssignId());
   }
   
   /**

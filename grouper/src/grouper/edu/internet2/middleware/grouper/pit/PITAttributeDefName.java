@@ -30,6 +30,12 @@ public class PITAttributeDefName extends GrouperPIT implements Hib3GrouperVersio
   /** column */
   public static final String COLUMN_ATTRIBUTE_DEF_ID = "attribute_def_id";
   
+  /** column */
+  public static final String COLUMN_SOURCE_ID = "source_id";
+  
+  
+  /** constant for field name for: sourceId */
+  public static final String FIELD_SOURCE_ID = "sourceId";
   
   /** constant for field name for: contextId */
   public static final String FIELD_CONTEXT_ID = "contextId";
@@ -53,7 +59,7 @@ public class PITAttributeDefName extends GrouperPIT implements Hib3GrouperVersio
   private static final Set<String> CLONE_FIELDS = GrouperUtil.toSet(
       FIELD_CONTEXT_ID, FIELD_HIBERNATE_VERSION_NUMBER, FIELD_ID,
       FIELD_ACTIVE_DB, FIELD_START_TIME_DB, FIELD_END_TIME_DB,
-      FIELD_NAME, FIELD_STEM_ID, FIELD_ATTRIBUTE_DEF_ID);
+      FIELD_NAME, FIELD_STEM_ID, FIELD_ATTRIBUTE_DEF_ID, FIELD_SOURCE_ID);
 
 
 
@@ -76,6 +82,24 @@ public class PITAttributeDefName extends GrouperPIT implements Hib3GrouperVersio
 
   /** name of attribute, e.g. school:community:students:expireDate */
   private String name;
+  
+  /** sourceId */
+  private String sourceId;
+  
+  /**
+   * @return source id
+   */
+  public String getSourceId() {
+    return sourceId;
+  }
+
+  /**
+   * set source id
+   * @param sourceId
+   */
+  public void setSourceId(String sourceId) {
+    this.sourceId = sourceId;
+  }
   
   /**
    * @see edu.internet2.middleware.grouper.GrouperAPI#clone()
@@ -203,5 +227,30 @@ public class PITAttributeDefName extends GrouperPIT implements Hib3GrouperVersio
     for (PITAttributeDefNameSet attributeDefNameSet : attributeDefNameSets) {
       GrouperDAOFactory.getFactory().getPITAttributeDefNameSet().delete(attributeDefNameSet);
     }
+  }
+  
+  private PITStem pitStem;
+  private PITAttributeDef pitAttributeDef = null;
+
+  /**
+   * @return pitAttributeDef
+   */
+  public PITAttributeDef getPITAttributeDef() {
+    if (pitAttributeDef == null) {
+      pitAttributeDef = GrouperDAOFactory.getFactory().getPITAttributeDef().findById(attributeDefId, true);
+    }
+    
+    return pitAttributeDef;
+  }
+  
+  /**
+   * @return pitStem
+   */
+  public PITStem getPITStem() {
+    if (pitStem == null) {
+      pitStem = GrouperDAOFactory.getFactory().getPITStem().findById(stemId, true);
+    }
+    
+    return pitStem;
   }
 }

@@ -103,7 +103,7 @@ public class PITSyncTests extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new PITSyncTests("testNoChanges"));
+    TestRunner.run(new PITSyncTests("testNotifications"));
   }
 
   
@@ -363,17 +363,17 @@ public class PITSyncTests extends GrouperTest {
     
     // check attribute assignment
     {
-      PITAttributeAssign pitAssign = GrouperDAOFactory.getFactory().getPITAttributeAssign().findById(assign1.getId());
+      PITAttributeAssign pitAssign = GrouperDAOFactory.getFactory().getPITAttributeAssign().findBySourceIdActive(assign1.getId(), false);
       assertNotNull(pitAssign);
-      assertEquals(assign1.getAttributeDefNameId(), pitAssign.getAttributeDefNameId());
-      assertEquals(assign1.getAttributeAssignActionId(), pitAssign.getAttributeAssignActionId());
+      assertEquals(assign1.getAttributeDefNameId(), pitAssign.getPITAttributeDefName().getSourceId());
+      assertEquals(assign1.getAttributeAssignActionId(), pitAssign.getPITAttributeAssignAction().getSourceId());
       assertEquals(assign1.getAttributeAssignTypeDb(), pitAssign.getAttributeAssignTypeDb());
       assertNull(pitAssign.getOwnerAttributeAssignId());
       assertNull(pitAssign.getOwnerAttributeDefId());
       assertNull(pitAssign.getOwnerMemberId());
       assertNull(pitAssign.getOwnerMembershipId());
       assertNull(pitAssign.getOwnerStemId());
-      assertEquals(assign1.getOwnerGroupId(), pitAssign.getOwnerGroupId());
+      assertEquals(assign1.getOwnerGroupId(), pitAssign.getOwnerPITGroup().getSourceId());
       assertEquals("T", pitAssign.getActiveDb());
       assertTrue(pitAssign.getStartTimeDb().longValue() > startTime);
       assertTrue(pitAssign.getStartTimeDb().longValue() < endTime);
@@ -383,10 +383,10 @@ public class PITSyncTests extends GrouperTest {
     
     // check attribute def
     {
-      PITAttributeDef pitAttributeDef = GrouperDAOFactory.getFactory().getPITAttributeDef().findById(attributeDef1.getId());
+      PITAttributeDef pitAttributeDef = GrouperDAOFactory.getFactory().getPITAttributeDef().findBySourceIdActive(attributeDef1.getId(), false);
       assertNotNull(pitAttributeDef);
       assertEquals(attributeDef1.getName(), pitAttributeDef.getName());
-      assertEquals(attributeDef1.getStemId(), pitAttributeDef.getStemId());
+      assertEquals(attributeDef1.getStemId(), pitAttributeDef.getPITStem().getSourceId());
       assertEquals(attributeDef1.getAttributeDefTypeDb(), pitAttributeDef.getAttributeDefTypeDb());
       assertEquals("T", pitAttributeDef.getActiveDb());
       assertTrue(pitAttributeDef.getStartTimeDb().longValue() > startTime);
@@ -397,10 +397,10 @@ public class PITSyncTests extends GrouperTest {
     
     // check action
     {
-      PITAttributeAssignAction pitAction = GrouperDAOFactory.getFactory().getPITAttributeAssignAction().findById(action1.getId());
+      PITAttributeAssignAction pitAction = GrouperDAOFactory.getFactory().getPITAttributeAssignAction().findBySourceIdActive(action1.getId(), false);
       assertNotNull(pitAction);
       assertEquals(action1.getName(), pitAction.getName());
-      assertEquals(action1.getAttributeDefId(), pitAction.getAttributeDefId());
+      assertEquals(action1.getAttributeDefId(), pitAction.getPITAttributeDef().getSourceId());
       assertEquals("T", pitAction.getActiveDb());
       assertTrue(pitAction.getStartTimeDb().longValue() > startTime);
       assertTrue(pitAction.getStartTimeDb().longValue() < endTime);
@@ -411,12 +411,12 @@ public class PITSyncTests extends GrouperTest {
     // check action set
     {
       AttributeAssignActionSet action1Set = GrouperDAOFactory.getFactory().getAttributeAssignActionSet().findByIfHasAttributeAssignActionId(action1.getId()).iterator().next();
-      PITAttributeAssignActionSet pitActionSet = GrouperDAOFactory.getFactory().getPITAttributeAssignActionSet().findById(action1Set.getId());
+      PITAttributeAssignActionSet pitActionSet = GrouperDAOFactory.getFactory().getPITAttributeAssignActionSet().findBySourceIdActive(action1Set.getId(), false);
       assertNotNull(pitActionSet);
       assertEquals(action1Set.getDepth(), pitActionSet.getDepth());
-      assertEquals(action1Set.getIfHasAttrAssignActionId(), pitActionSet.getIfHasAttrAssignActionId());
-      assertEquals(action1Set.getThenHasAttrAssignActionId(), pitActionSet.getThenHasAttrAssignActionId());
-      assertEquals(action1Set.getParentAttrAssignActionSetId(), pitActionSet.getParentAttrAssignActionSetId());
+      assertEquals(action1Set.getIfHasAttrAssignActionId(), pitActionSet.getIfHasPITAttributeAssignAction().getSourceId());
+      assertEquals(action1Set.getThenHasAttrAssignActionId(), pitActionSet.getThenHasPITAttributeAssignAction().getSourceId());
+      assertEquals(action1Set.getParentAttrAssignActionSetId(), pitActionSet.getParentPITAttributeAssignActionSet().getSourceId());
       assertEquals("T", pitActionSet.getActiveDb());
       assertTrue(pitActionSet.getStartTimeDb().longValue() > startTime);
       assertTrue(pitActionSet.getStartTimeDb().longValue() < endTime);
@@ -426,9 +426,9 @@ public class PITSyncTests extends GrouperTest {
     
     // check attribute assign value
     {
-      PITAttributeAssignValue pitValue = GrouperDAOFactory.getFactory().getPITAttributeAssignValue().findById(value.getId());
+      PITAttributeAssignValue pitValue = GrouperDAOFactory.getFactory().getPITAttributeAssignValue().findBySourceIdActive(value.getId(), false);
       assertNotNull(pitValue);
-      assertEquals(value.getAttributeAssignId(), pitValue.getAttributeAssignId());
+      assertEquals(value.getAttributeAssignId(), pitValue.getPITAttributeAssign().getSourceId());
       assertNull(pitValue.getValueInteger());
       assertNull(pitValue.getValueFloating());
       assertNull(pitValue.getValueMemberId());
@@ -442,10 +442,10 @@ public class PITSyncTests extends GrouperTest {
     
     // check attribute def name
     {
-      PITAttributeDefName pitAttributeDefName = GrouperDAOFactory.getFactory().getPITAttributeDefName().findById(attributeDefName1.getId());
+      PITAttributeDefName pitAttributeDefName = GrouperDAOFactory.getFactory().getPITAttributeDefName().findBySourceIdActive(attributeDefName1.getId(), false);
       assertNotNull(pitAttributeDefName);
-      assertEquals(attributeDefName1.getStemId(), pitAttributeDefName.getStemId());
-      assertEquals(attributeDefName1.getAttributeDefId(), pitAttributeDefName.getAttributeDefId());
+      assertEquals(attributeDefName1.getStemId(), pitAttributeDefName.getPITStem().getSourceId());
+      assertEquals(attributeDefName1.getAttributeDefId(), pitAttributeDefName.getPITAttributeDef().getSourceId());
       assertEquals(attributeDefName1.getName(), pitAttributeDefName.getName());
       assertEquals("T", pitAttributeDefName.getActiveDb());
       assertTrue(pitAttributeDefName.getStartTimeDb().longValue() > startTime);
@@ -457,12 +457,12 @@ public class PITSyncTests extends GrouperTest {
     // check attribute def name set
     {
       AttributeDefNameSet attributeDefName1Set = GrouperDAOFactory.getFactory().getAttributeDefNameSet().findByIfHasAttributeDefNameId(attributeDefName1.getId()).iterator().next();
-      PITAttributeDefNameSet pitAttributeDefNameSet = GrouperDAOFactory.getFactory().getPITAttributeDefNameSet().findById(attributeDefName1Set.getId());
+      PITAttributeDefNameSet pitAttributeDefNameSet = GrouperDAOFactory.getFactory().getPITAttributeDefNameSet().findBySourceIdActive(attributeDefName1Set.getId(), false);
       assertNotNull(pitAttributeDefNameSet);
       assertEquals(attributeDefName1Set.getDepth(), pitAttributeDefNameSet.getDepth());
-      assertEquals(attributeDefName1Set.getIfHasAttributeDefNameId(), pitAttributeDefNameSet.getIfHasAttributeDefNameId());
-      assertEquals(attributeDefName1Set.getThenHasAttributeDefNameId(), pitAttributeDefNameSet.getThenHasAttributeDefNameId());
-      assertEquals(attributeDefName1Set.getParentAttrDefNameSetId(), pitAttributeDefNameSet.getParentAttrDefNameSetId());
+      assertEquals(attributeDefName1Set.getIfHasAttributeDefNameId(), pitAttributeDefNameSet.getIfHasPITAttributeDefName().getSourceId());
+      assertEquals(attributeDefName1Set.getThenHasAttributeDefNameId(), pitAttributeDefNameSet.getThenHasPITAttributeDefName().getSourceId());
+      assertEquals(attributeDefName1Set.getParentAttrDefNameSetId(), pitAttributeDefNameSet.getParentPITAttributeDefNameSet().getSourceId());
       assertEquals("T", pitAttributeDefNameSet.getActiveDb());
       assertTrue(pitAttributeDefNameSet.getStartTimeDb().longValue() > startTime);
       assertTrue(pitAttributeDefNameSet.getStartTimeDb().longValue() < endTime);
@@ -472,7 +472,7 @@ public class PITSyncTests extends GrouperTest {
     
     // check field
     {
-      PITField pitField = GrouperDAOFactory.getFactory().getPITField().findById(testField.getUuid());
+      PITField pitField = GrouperDAOFactory.getFactory().getPITField().findBySourceIdActive(testField.getUuid(), false);
       assertNotNull(pitField);
       assertEquals(testField.getName(), pitField.getName());
       assertEquals(testField.getTypeString(), pitField.getType());
@@ -485,10 +485,10 @@ public class PITSyncTests extends GrouperTest {
     
     // check group
     {
-      PITGroup pitGroup = GrouperDAOFactory.getFactory().getPITGroup().findById(role.getId());
+      PITGroup pitGroup = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdActive(role.getId(), false);
       assertNotNull(pitGroup);
       assertEquals(role.getName(), pitGroup.getName());
-      assertEquals(role.getStemId(), pitGroup.getStemId());
+      assertEquals(role.getStemId(), pitGroup.getPITStem().getSourceId());
       assertEquals("T", pitGroup.getActiveDb());
       assertTrue(pitGroup.getStartTimeDb().longValue() > startTime);
       assertTrue(pitGroup.getStartTimeDb().longValue() < endTime);
@@ -499,20 +499,20 @@ public class PITSyncTests extends GrouperTest {
     // check group set (depth=0)
     {
       GroupSet groupSet = GrouperDAOFactory.getFactory().getGroupSet().findSelfGroup(role.getId(), Group.getDefaultList().getUuid());
-      PITGroupSet pitGroupSet = GrouperDAOFactory.getFactory().getPITGroupSet().findById(groupSet.getId());
+      PITGroupSet pitGroupSet = GrouperDAOFactory.getFactory().getPITGroupSet().findBySourceIdActive(groupSet.getId(), false);
       assertNotNull(pitGroupSet);
-      assertEquals(groupSet.getOwnerId(), pitGroupSet.getOwnerId());
-      assertEquals(groupSet.getOwnerGroupId(), pitGroupSet.getOwnerGroupId());
+      assertEquals(groupSet.getOwnerId(), pitGroupSet.getOwnerPITGroup().getSourceId());
+      assertEquals(groupSet.getOwnerGroupId(), pitGroupSet.getOwnerPITGroup().getSourceId());
       assertNull(pitGroupSet.getOwnerAttrDefId());
       assertNull(pitGroupSet.getOwnerStemId());
-      assertEquals(groupSet.getMemberId(), pitGroupSet.getMemberId());
-      assertEquals(groupSet.getMemberGroupId(), pitGroupSet.getMemberGroupId());
+      assertEquals(groupSet.getMemberId(), pitGroupSet.getMemberPITGroup().getSourceId());
+      assertEquals(groupSet.getMemberGroupId(), pitGroupSet.getMemberPITGroup().getSourceId());
       assertNull(pitGroupSet.getMemberAttrDefId());
       assertNull(pitGroupSet.getMemberStemId());
-      assertEquals(groupSet.getFieldId(), pitGroupSet.getFieldId());
-      assertEquals(groupSet.getMemberFieldId(), pitGroupSet.getMemberFieldId());
+      assertEquals(groupSet.getFieldId(), pitGroupSet.getPITField().getSourceId());
+      assertEquals(groupSet.getMemberFieldId(), pitGroupSet.getMemberPITField().getSourceId());
       assertEquals(groupSet.getDepth(), pitGroupSet.getDepth());
-      assertEquals(groupSet.getParentId(), pitGroupSet.getParentId());
+      assertEquals(groupSet.getParentId(), pitGroupSet.getParentPITGroupSet().getSourceId());
       assertEquals("T", pitGroupSet.getActiveDb());
       assertTrue(pitGroupSet.getStartTimeDb().longValue() > startTime);
       assertTrue(pitGroupSet.getStartTimeDb().longValue() < endTime);
@@ -523,20 +523,20 @@ public class PITSyncTests extends GrouperTest {
     // check group set (depth=1)
     {
       GroupSet groupSet = GrouperDAOFactory.getFactory().getGroupSet().findImmediateByOwnerStemAndMemberGroupAndField(edu.getUuid(), role.getId(), FieldFinder.find(Field.FIELD_NAME_CREATORS, true));
-      PITGroupSet pitGroupSet = GrouperDAOFactory.getFactory().getPITGroupSet().findById(groupSet.getId());
+      PITGroupSet pitGroupSet = GrouperDAOFactory.getFactory().getPITGroupSet().findBySourceIdActive(groupSet.getId(), false);
       assertNotNull(pitGroupSet);
-      assertEquals(groupSet.getOwnerId(), pitGroupSet.getOwnerId());
-      assertEquals(groupSet.getOwnerStemId(), pitGroupSet.getOwnerStemId());
+      assertEquals(groupSet.getOwnerId(), pitGroupSet.getOwnerPITStem().getSourceId());
+      assertEquals(groupSet.getOwnerStemId(), pitGroupSet.getOwnerPITStem().getSourceId());
       assertNull(pitGroupSet.getOwnerAttrDefId());
       assertNull(pitGroupSet.getOwnerGroupId());
-      assertEquals(groupSet.getMemberId(), pitGroupSet.getMemberId());
-      assertEquals(groupSet.getMemberGroupId(), pitGroupSet.getMemberGroupId());
+      assertEquals(groupSet.getMemberId(), pitGroupSet.getMemberPITGroup().getSourceId());
+      assertEquals(groupSet.getMemberGroupId(), pitGroupSet.getMemberPITGroup().getSourceId());
       assertNull(pitGroupSet.getMemberAttrDefId());
       assertNull(pitGroupSet.getMemberStemId());
-      assertEquals(groupSet.getFieldId(), pitGroupSet.getFieldId());
-      assertEquals(groupSet.getMemberFieldId(), pitGroupSet.getMemberFieldId());
+      assertEquals(groupSet.getFieldId(), pitGroupSet.getPITField().getSourceId());
+      assertEquals(groupSet.getMemberFieldId(), pitGroupSet.getMemberPITField().getSourceId());
       assertEquals(groupSet.getDepth(), pitGroupSet.getDepth());
-      assertEquals(groupSet.getParentId(), pitGroupSet.getParentId());
+      assertEquals(groupSet.getParentId(), pitGroupSet.getParentPITGroupSet().getSourceId());
       assertEquals("T", pitGroupSet.getActiveDb());
       assertTrue(pitGroupSet.getStartTimeDb().longValue() > startTime);
       assertTrue(pitGroupSet.getStartTimeDb().longValue() < endTime);
@@ -546,7 +546,7 @@ public class PITSyncTests extends GrouperTest {
     
     // check member
     {
-      PITMember pitMember = GrouperDAOFactory.getFactory().getPITMember().findById(((Group)role).toMember().getUuid());
+      PITMember pitMember = GrouperDAOFactory.getFactory().getPITMember().findBySourceIdActive(((Group)role).toMember().getUuid(), false);
       assertNotNull(pitMember);
       assertEquals(((Group)role).toMember().getSubjectId(), pitMember.getSubjectId());
       assertEquals(((Group)role).toMember().getSubjectSourceId(), pitMember.getSubjectSourceId());
@@ -561,14 +561,14 @@ public class PITSyncTests extends GrouperTest {
     // check membership
     {
       Membership membership = MembershipFinder.findImmediateMembership(grouperSession, (Group)role, newMember1.getSubject(), Group.getDefaultList(), true);
-      PITMembership pitMembership = GrouperDAOFactory.getFactory().getPITMembership().findById(membership.getImmediateMembershipId());
+      PITMembership pitMembership = GrouperDAOFactory.getFactory().getPITMembership().findBySourceIdActive(membership.getImmediateMembershipId(), false);
       assertNotNull(pitMembership);
-      assertEquals(membership.getOwnerId(), pitMembership.getOwnerId());
-      assertEquals(membership.getOwnerGroupId(), pitMembership.getOwnerGroupId());
+      assertEquals(membership.getOwnerId(), pitMembership.getOwnerPITGroup().getSourceId());
+      assertEquals(membership.getOwnerGroupId(), pitMembership.getOwnerPITGroup().getSourceId());
       assertNull(pitMembership.getOwnerStemId());
       assertNull(pitMembership.getOwnerAttrDefId());
-      assertEquals(membership.getMemberUuid(), pitMembership.getMemberId());
-      assertEquals(membership.getFieldId(), pitMembership.getFieldId());
+      assertEquals(membership.getMemberUuid(), pitMembership.getPITMember().getSourceId());
+      assertEquals(membership.getFieldId(), pitMembership.getPITField().getSourceId());
       assertEquals("T", pitMembership.getActiveDb());
       assertTrue(pitMembership.getStartTimeDb().longValue() > startTime);
       assertTrue(pitMembership.getStartTimeDb().longValue() < endTime);
@@ -579,12 +579,12 @@ public class PITSyncTests extends GrouperTest {
     // check role set
     {
       RoleSet roleSet = GrouperDAOFactory.getFactory().getRoleSet().findByIfHasRoleId(role.getId()).iterator().next();
-      PITRoleSet pitRoleSet = GrouperDAOFactory.getFactory().getPITRoleSet().findById(roleSet.getId());
+      PITRoleSet pitRoleSet = GrouperDAOFactory.getFactory().getPITRoleSet().findBySourceIdActive(roleSet.getId(), false);
       assertNotNull(pitRoleSet);
       assertEquals(roleSet.getDepth(), pitRoleSet.getDepth());
-      assertEquals(roleSet.getIfHasRoleId(), pitRoleSet.getIfHasRoleId());
-      assertEquals(roleSet.getThenHasRoleId(), pitRoleSet.getThenHasRoleId());
-      assertEquals(roleSet.getParentRoleSetId(), pitRoleSet.getParentRoleSetId());
+      assertEquals(roleSet.getIfHasRoleId(), pitRoleSet.getIfHasPITRole().getSourceId());
+      assertEquals(roleSet.getThenHasRoleId(), pitRoleSet.getThenHasPITRole().getSourceId());
+      assertEquals(roleSet.getParentRoleSetId(), pitRoleSet.getParentPITRoleSet().getSourceId());
       assertEquals("T", pitRoleSet.getActiveDb());
       assertTrue(pitRoleSet.getStartTimeDb().longValue() > startTime);
       assertTrue(pitRoleSet.getStartTimeDb().longValue() < endTime);
@@ -594,10 +594,10 @@ public class PITSyncTests extends GrouperTest {
     
     // check stem
     {
-      PITStem pitStem = GrouperDAOFactory.getFactory().getPITStem().findById(edu.getUuid());
+      PITStem pitStem = GrouperDAOFactory.getFactory().getPITStem().findBySourceIdActive(edu.getUuid(), false);
       assertNotNull(pitStem);
       assertEquals(edu.getName(), pitStem.getName());
-      assertEquals(edu.getParentUuid(), pitStem.getParentStemId());
+      assertEquals(edu.getParentUuid(), pitStem.getParentPITStem().getSourceId());
       assertEquals("T", pitStem.getActiveDb());
       assertTrue(pitStem.getStartTimeDb().longValue() > startTime);
       assertTrue(pitStem.getStartTimeDb().longValue() < endTime);
@@ -616,13 +616,30 @@ public class PITSyncTests extends GrouperTest {
 
     addData();
     ChangeLogTempToEntity.convertRecords();
-
+    
     AttributeAssignActionSet action1Set = GrouperDAOFactory.getFactory().getAttributeAssignActionSet().findByIfHasAttributeAssignActionId(action1.getId()).iterator().next();
     AttributeDefNameSet attributeDefName1Set = GrouperDAOFactory.getFactory().getAttributeDefNameSet().findByIfHasAttributeDefNameId(attributeDefName1.getId()).iterator().next();
     GroupSet groupSet1 = GrouperDAOFactory.getFactory().getGroupSet().findSelfGroup(role.getId(), Group.getDefaultList().getUuid());
     GroupSet groupSet2 = GrouperDAOFactory.getFactory().getGroupSet().findImmediateByOwnerStemAndMemberGroupAndField(edu.getUuid(), role.getId(), FieldFinder.find(Field.FIELD_NAME_CREATORS, true));
     Membership membership = MembershipFinder.findImmediateMembership(grouperSession, (Group)role, newMember1.getSubject(), Group.getDefaultList(), true);
     RoleSet roleSet = GrouperDAOFactory.getFactory().getRoleSet().findByIfHasRoleId(role.getId()).iterator().next();
+
+    // need to keep the point in time ids
+    PITAttributeAssign pitAssign = GrouperDAOFactory.getFactory().getPITAttributeAssign().findBySourceIdActive(assign1.getId(), false);
+    PITAttributeDef pitAttributeDef = GrouperDAOFactory.getFactory().getPITAttributeDef().findBySourceIdActive(attributeDef1.getId(), false);
+    PITAttributeAssignAction pitAction = GrouperDAOFactory.getFactory().getPITAttributeAssignAction().findBySourceIdActive(action1.getId(), false);
+    PITAttributeAssignActionSet pitActionSet = GrouperDAOFactory.getFactory().getPITAttributeAssignActionSet().findBySourceIdActive(action1Set.getId(), false);
+    PITAttributeAssignValue pitValue = GrouperDAOFactory.getFactory().getPITAttributeAssignValue().findBySourceIdActive(value.getId(), false);
+    PITAttributeDefName pitAttributeDefName = GrouperDAOFactory.getFactory().getPITAttributeDefName().findBySourceIdActive(attributeDefName1.getId(), false);
+    PITAttributeDefNameSet pitAttributeDefNameSet = GrouperDAOFactory.getFactory().getPITAttributeDefNameSet().findBySourceIdActive(attributeDefName1Set.getId(), false);
+    PITField pitField = GrouperDAOFactory.getFactory().getPITField().findBySourceIdActive(testField.getUuid(), false);
+    PITGroup pitGroup = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdActive(role.getId(), false);
+    PITGroupSet pitGroupSet1 = GrouperDAOFactory.getFactory().getPITGroupSet().findBySourceIdActive(groupSet1.getId(), false);
+    PITGroupSet pitGroupSet2 = GrouperDAOFactory.getFactory().getPITGroupSet().findBySourceIdActive(groupSet2.getId(), false);
+    PITMember pitMember = GrouperDAOFactory.getFactory().getPITMember().findBySourceIdActive(newMember1.getUuid(), false);
+    PITMembership pitMembership = GrouperDAOFactory.getFactory().getPITMembership().findBySourceIdActive(membership.getImmediateMembershipId(), false);
+    PITRoleSet pitRoleSet = GrouperDAOFactory.getFactory().getPITRoleSet().findBySourceIdActive(roleSet.getId(), false);
+    PITStem pitStem = GrouperDAOFactory.getFactory().getPITStem().findBySourceIdActive(edu.getUuid(), false);
 
     deleteData();
     
@@ -647,17 +664,17 @@ public class PITSyncTests extends GrouperTest {
     
     // check attribute assignment
     {
-      PITAttributeAssign pitAssign = GrouperDAOFactory.getFactory().getPITAttributeAssign().findById(assign1.getId());
+      pitAssign = GrouperDAOFactory.getFactory().getPITAttributeAssign().findById(pitAssign.getId(), false);
       assertNotNull(pitAssign);
-      assertEquals(assign1.getAttributeDefNameId(), pitAssign.getAttributeDefNameId());
-      assertEquals(assign1.getAttributeAssignActionId(), pitAssign.getAttributeAssignActionId());
+      assertEquals(assign1.getAttributeDefNameId(), pitAssign.getPITAttributeDefName().getSourceId());
+      assertEquals(assign1.getAttributeAssignActionId(), pitAssign.getPITAttributeAssignAction().getSourceId());
       assertEquals(assign1.getAttributeAssignTypeDb(), pitAssign.getAttributeAssignTypeDb());
       assertNull(pitAssign.getOwnerAttributeAssignId());
       assertNull(pitAssign.getOwnerAttributeDefId());
       assertNull(pitAssign.getOwnerMemberId());
       assertNull(pitAssign.getOwnerMembershipId());
       assertNull(pitAssign.getOwnerStemId());
-      assertEquals(assign1.getOwnerGroupId(), pitAssign.getOwnerGroupId());
+      assertEquals(assign1.getOwnerGroupId(), pitAssign.getOwnerPITGroup().getSourceId());
       assertEquals("F", pitAssign.getActiveDb());
       assertTrue(pitAssign.getStartTimeDb().longValue() < startTime);
       assertTrue(pitAssign.getEndTimeDb().longValue() > startTime);
@@ -667,10 +684,10 @@ public class PITSyncTests extends GrouperTest {
     
     // check attribute def
     {
-      PITAttributeDef pitAttributeDef = GrouperDAOFactory.getFactory().getPITAttributeDef().findById(attributeDef1.getId());
+      pitAttributeDef = GrouperDAOFactory.getFactory().getPITAttributeDef().findById(pitAttributeDef.getId(), false);
       assertNotNull(pitAttributeDef);
       assertEquals(attributeDef1.getName(), pitAttributeDef.getName());
-      assertEquals(attributeDef1.getStemId(), pitAttributeDef.getStemId());
+      assertEquals(attributeDef1.getStemId(), pitAttributeDef.getPITStem().getSourceId());
       assertEquals(attributeDef1.getAttributeDefTypeDb(), pitAttributeDef.getAttributeDefTypeDb());
       assertEquals("F", pitAttributeDef.getActiveDb());
       assertTrue(pitAttributeDef.getStartTimeDb().longValue() < startTime);
@@ -681,10 +698,10 @@ public class PITSyncTests extends GrouperTest {
     
     // check action
     {
-      PITAttributeAssignAction pitAction = GrouperDAOFactory.getFactory().getPITAttributeAssignAction().findById(action1.getId());
+      pitAction = GrouperDAOFactory.getFactory().getPITAttributeAssignAction().findById(pitAction.getId(), false);
       assertNotNull(pitAction);
       assertEquals(action1.getName(), pitAction.getName());
-      assertEquals(action1.getAttributeDefId(), pitAction.getAttributeDefId());
+      assertEquals(action1.getAttributeDefId(), pitAction.getPITAttributeDef().getSourceId());
       assertEquals("F", pitAction.getActiveDb());
       assertTrue(pitAction.getStartTimeDb().longValue() < startTime);
       assertTrue(pitAction.getEndTimeDb().longValue() > startTime);
@@ -694,12 +711,12 @@ public class PITSyncTests extends GrouperTest {
     
     // check action set
     {
-      PITAttributeAssignActionSet pitActionSet = GrouperDAOFactory.getFactory().getPITAttributeAssignActionSet().findById(action1Set.getId());
+      pitActionSet = GrouperDAOFactory.getFactory().getPITAttributeAssignActionSet().findById(pitActionSet.getId(), false);
       assertNotNull(pitActionSet);
       assertEquals(action1Set.getDepth(), pitActionSet.getDepth());
-      assertEquals(action1Set.getIfHasAttrAssignActionId(), pitActionSet.getIfHasAttrAssignActionId());
-      assertEquals(action1Set.getThenHasAttrAssignActionId(), pitActionSet.getThenHasAttrAssignActionId());
-      assertEquals(action1Set.getParentAttrAssignActionSetId(), pitActionSet.getParentAttrAssignActionSetId());
+      assertEquals(action1Set.getIfHasAttrAssignActionId(), pitActionSet.getIfHasPITAttributeAssignAction().getSourceId());
+      assertEquals(action1Set.getThenHasAttrAssignActionId(), pitActionSet.getThenHasPITAttributeAssignAction().getSourceId());
+      assertEquals(action1Set.getParentAttrAssignActionSetId(), pitActionSet.getParentPITAttributeAssignActionSet().getSourceId());
       assertEquals("F", pitActionSet.getActiveDb());
       assertTrue(pitActionSet.getStartTimeDb().longValue() < startTime);
       assertTrue(pitActionSet.getEndTimeDb().longValue() > startTime);
@@ -709,9 +726,9 @@ public class PITSyncTests extends GrouperTest {
     
     // check attribute assign value
     {
-      PITAttributeAssignValue pitValue = GrouperDAOFactory.getFactory().getPITAttributeAssignValue().findById(value.getId());
+      pitValue = GrouperDAOFactory.getFactory().getPITAttributeAssignValue().findById(pitValue.getId(), false);
       assertNotNull(pitValue);
-      assertEquals(value.getAttributeAssignId(), pitValue.getAttributeAssignId());
+      assertEquals(value.getAttributeAssignId(), pitValue.getPITAttributeAssign().getSourceId());
       assertNull(pitValue.getValueInteger());
       assertNull(pitValue.getValueFloating());
       assertNull(pitValue.getValueMemberId());
@@ -725,10 +742,10 @@ public class PITSyncTests extends GrouperTest {
     
     // check attribute def name
     {
-      PITAttributeDefName pitAttributeDefName = GrouperDAOFactory.getFactory().getPITAttributeDefName().findById(attributeDefName1.getId());
+      pitAttributeDefName = GrouperDAOFactory.getFactory().getPITAttributeDefName().findById(pitAttributeDefName.getId(), false);
       assertNotNull(pitAttributeDefName);
-      assertEquals(attributeDefName1.getStemId(), pitAttributeDefName.getStemId());
-      assertEquals(attributeDefName1.getAttributeDefId(), pitAttributeDefName.getAttributeDefId());
+      assertEquals(attributeDefName1.getStemId(), pitAttributeDefName.getPITStem().getSourceId());
+      assertEquals(attributeDefName1.getAttributeDefId(), pitAttributeDefName.getPITAttributeDef().getSourceId());
       assertEquals(attributeDefName1.getName(), pitAttributeDefName.getName());
       assertEquals("F", pitAttributeDefName.getActiveDb());
       assertTrue(pitAttributeDefName.getStartTimeDb().longValue() < startTime);
@@ -739,12 +756,12 @@ public class PITSyncTests extends GrouperTest {
     
     // check attribute def name set
     {
-      PITAttributeDefNameSet pitAttributeDefNameSet = GrouperDAOFactory.getFactory().getPITAttributeDefNameSet().findById(attributeDefName1Set.getId());
+      pitAttributeDefNameSet = GrouperDAOFactory.getFactory().getPITAttributeDefNameSet().findById(pitAttributeDefNameSet.getId(), false);
       assertNotNull(pitAttributeDefNameSet);
       assertEquals(attributeDefName1Set.getDepth(), pitAttributeDefNameSet.getDepth());
-      assertEquals(attributeDefName1Set.getIfHasAttributeDefNameId(), pitAttributeDefNameSet.getIfHasAttributeDefNameId());
-      assertEquals(attributeDefName1Set.getThenHasAttributeDefNameId(), pitAttributeDefNameSet.getThenHasAttributeDefNameId());
-      assertEquals(attributeDefName1Set.getParentAttrDefNameSetId(), pitAttributeDefNameSet.getParentAttrDefNameSetId());
+      assertEquals(attributeDefName1Set.getIfHasAttributeDefNameId(), pitAttributeDefNameSet.getIfHasPITAttributeDefName().getSourceId());
+      assertEquals(attributeDefName1Set.getThenHasAttributeDefNameId(), pitAttributeDefNameSet.getThenHasPITAttributeDefName().getSourceId());
+      assertEquals(attributeDefName1Set.getParentAttrDefNameSetId(), pitAttributeDefNameSet.getParentPITAttributeDefNameSet().getSourceId());
       assertEquals("F", pitAttributeDefNameSet.getActiveDb());
       assertTrue(pitAttributeDefNameSet.getStartTimeDb().longValue() < startTime);
       assertTrue(pitAttributeDefNameSet.getEndTimeDb().longValue() > startTime);
@@ -754,7 +771,7 @@ public class PITSyncTests extends GrouperTest {
     
     // check field
     {
-      PITField pitField = GrouperDAOFactory.getFactory().getPITField().findById(testField.getUuid());
+      pitField = GrouperDAOFactory.getFactory().getPITField().findById(pitField.getId(), false);
       assertNotNull(pitField);
       assertEquals(testField.getName(), pitField.getName());
       assertEquals(testField.getTypeString(), pitField.getType());
@@ -767,10 +784,10 @@ public class PITSyncTests extends GrouperTest {
     
     // check group
     {
-      PITGroup pitGroup = GrouperDAOFactory.getFactory().getPITGroup().findById(role.getId());
+      pitGroup = GrouperDAOFactory.getFactory().getPITGroup().findById(pitGroup.getId(), false);
       assertNotNull(pitGroup);
       assertEquals(role.getName(), pitGroup.getName());
-      assertEquals(role.getStemId(), pitGroup.getStemId());
+      assertEquals(role.getStemId(), pitGroup.getPITStem().getSourceId());
       assertEquals("F", pitGroup.getActiveDb());
       assertTrue(pitGroup.getStartTimeDb().longValue() < startTime);
       assertTrue(pitGroup.getEndTimeDb().longValue() > startTime);
@@ -780,53 +797,53 @@ public class PITSyncTests extends GrouperTest {
     
     // check group set (depth=0)
     {
-      PITGroupSet pitGroupSet = GrouperDAOFactory.getFactory().getPITGroupSet().findById(groupSet1.getId());
-      assertNotNull(pitGroupSet);
-      assertEquals(groupSet1.getOwnerId(), pitGroupSet.getOwnerId());
-      assertEquals(groupSet1.getOwnerGroupId(), pitGroupSet.getOwnerGroupId());
-      assertNull(pitGroupSet.getOwnerAttrDefId());
-      assertNull(pitGroupSet.getOwnerStemId());
-      assertEquals(groupSet1.getMemberId(), pitGroupSet.getMemberId());
-      assertEquals(groupSet1.getMemberGroupId(), pitGroupSet.getMemberGroupId());
-      assertNull(pitGroupSet.getMemberAttrDefId());
-      assertNull(pitGroupSet.getMemberStemId());
-      assertEquals(groupSet1.getFieldId(), pitGroupSet.getFieldId());
-      assertEquals(groupSet1.getMemberFieldId(), pitGroupSet.getMemberFieldId());
-      assertEquals(groupSet1.getDepth(), pitGroupSet.getDepth());
-      assertEquals(groupSet1.getParentId(), pitGroupSet.getParentId());
-      assertEquals("F", pitGroupSet.getActiveDb());
-      assertTrue(pitGroupSet.getStartTimeDb().longValue() < startTime);
-      assertTrue(pitGroupSet.getEndTimeDb().longValue() > startTime);
-      assertTrue(pitGroupSet.getEndTimeDb().longValue() < endTime);
-      assertNull(pitGroupSet.getContextId());
+      pitGroupSet1 = GrouperDAOFactory.getFactory().getPITGroupSet().findById(pitGroupSet1.getId(), false);
+      assertNotNull(pitGroupSet2);
+      assertEquals(groupSet1.getOwnerId(), pitGroupSet1.getOwnerPITGroup().getSourceId());
+      assertEquals(groupSet1.getOwnerGroupId(), pitGroupSet1.getOwnerPITGroup().getSourceId());
+      assertNull(pitGroupSet1.getOwnerAttrDefId());
+      assertNull(pitGroupSet1.getOwnerStemId());
+      assertEquals(groupSet1.getMemberId(), pitGroupSet1.getMemberPITGroup().getSourceId());
+      assertEquals(groupSet1.getMemberGroupId(), pitGroupSet1.getMemberPITGroup().getSourceId());
+      assertNull(pitGroupSet1.getMemberAttrDefId());
+      assertNull(pitGroupSet1.getMemberStemId());
+      assertEquals(groupSet1.getFieldId(), pitGroupSet1.getPITField().getSourceId());
+      assertEquals(groupSet1.getMemberFieldId(), pitGroupSet1.getMemberPITField().getSourceId());
+      assertEquals(groupSet1.getDepth(), pitGroupSet1.getDepth());
+      assertEquals(groupSet1.getParentId(), pitGroupSet1.getParentPITGroupSet().getSourceId());
+      assertEquals("F", pitGroupSet1.getActiveDb());
+      assertTrue(pitGroupSet1.getStartTimeDb().longValue() < startTime);
+      assertTrue(pitGroupSet1.getEndTimeDb().longValue() > startTime);
+      assertTrue(pitGroupSet1.getEndTimeDb().longValue() < endTime);
+      assertNull(pitGroupSet1.getContextId());
     }
     
     // check group set (depth=1)
     {
-      PITGroupSet pitGroupSet = GrouperDAOFactory.getFactory().getPITGroupSet().findById(groupSet2.getId());
-      assertNotNull(pitGroupSet);
-      assertEquals(groupSet2.getOwnerId(), pitGroupSet.getOwnerId());
-      assertEquals(groupSet2.getOwnerStemId(), pitGroupSet.getOwnerStemId());
-      assertNull(pitGroupSet.getOwnerAttrDefId());
-      assertNull(pitGroupSet.getOwnerGroupId());
-      assertEquals(groupSet2.getMemberId(), pitGroupSet.getMemberId());
-      assertEquals(groupSet2.getMemberGroupId(), pitGroupSet.getMemberGroupId());
-      assertNull(pitGroupSet.getMemberAttrDefId());
-      assertNull(pitGroupSet.getMemberStemId());
-      assertEquals(groupSet2.getFieldId(), pitGroupSet.getFieldId());
-      assertEquals(groupSet2.getMemberFieldId(), pitGroupSet.getMemberFieldId());
-      assertEquals(groupSet2.getDepth(), pitGroupSet.getDepth());
-      assertEquals(groupSet2.getParentId(), pitGroupSet.getParentId());
-      assertEquals("F", pitGroupSet.getActiveDb());
-      assertTrue(pitGroupSet.getStartTimeDb().longValue() < startTime);
-      assertTrue(pitGroupSet.getEndTimeDb().longValue() > startTime);
-      assertTrue(pitGroupSet.getEndTimeDb().longValue() < endTime);
-      assertNull(pitGroupSet.getContextId());
+      pitGroupSet2 = GrouperDAOFactory.getFactory().getPITGroupSet().findById(pitGroupSet2.getId(), false);
+      assertNotNull(pitGroupSet2);
+      assertEquals(groupSet2.getOwnerId(), pitGroupSet2.getOwnerPITStem().getSourceId());
+      assertEquals(groupSet2.getOwnerStemId(), pitGroupSet2.getOwnerPITStem().getSourceId());
+      assertNull(pitGroupSet2.getOwnerAttrDefId());
+      assertNull(pitGroupSet2.getOwnerGroupId());
+      assertEquals(groupSet2.getMemberId(), pitGroupSet2.getMemberPITGroup().getSourceId());
+      assertEquals(groupSet2.getMemberGroupId(), pitGroupSet2.getMemberPITGroup().getSourceId());
+      assertNull(pitGroupSet2.getMemberAttrDefId());
+      assertNull(pitGroupSet2.getMemberStemId());
+      assertEquals(groupSet2.getFieldId(), pitGroupSet2.getPITField().getSourceId());
+      assertEquals(groupSet2.getMemberFieldId(), pitGroupSet2.getMemberPITField().getSourceId());
+      assertEquals(groupSet2.getDepth(), pitGroupSet2.getDepth());
+      assertEquals(groupSet2.getParentId(), pitGroupSet2.getParentPITGroupSet().getSourceId());
+      assertEquals("F", pitGroupSet2.getActiveDb());
+      assertTrue(pitGroupSet2.getStartTimeDb().longValue() < startTime);
+      assertTrue(pitGroupSet2.getEndTimeDb().longValue() > startTime);
+      assertTrue(pitGroupSet2.getEndTimeDb().longValue() < endTime);
+      assertNull(pitGroupSet2.getContextId());
     }
     
     // check member
     {
-      PITMember pitMember = GrouperDAOFactory.getFactory().getPITMember().findById(newMember1.getUuid());
+      pitMember = GrouperDAOFactory.getFactory().getPITMember().findById(pitMember.getId(), false);
       assertNotNull(pitMember);
       assertEquals(newMember1.getSubjectId(), pitMember.getSubjectId());
       assertEquals(newMember1.getSubjectSourceId(), pitMember.getSubjectSourceId());
@@ -840,14 +857,14 @@ public class PITSyncTests extends GrouperTest {
     
     // check membership
     {
-      PITMembership pitMembership = GrouperDAOFactory.getFactory().getPITMembership().findById(membership.getImmediateMembershipId());
+      pitMembership = GrouperDAOFactory.getFactory().getPITMembership().findById(pitMembership.getId(), false);
       assertNotNull(pitMembership);
-      assertEquals(membership.getOwnerId(), pitMembership.getOwnerId());
-      assertEquals(membership.getOwnerGroupId(), pitMembership.getOwnerGroupId());
+      assertEquals(membership.getOwnerId(), pitMembership.getOwnerPITGroup().getSourceId());
+      assertEquals(membership.getOwnerGroupId(), pitMembership.getOwnerPITGroup().getSourceId());
       assertNull(pitMembership.getOwnerStemId());
       assertNull(pitMembership.getOwnerAttrDefId());
-      assertEquals(membership.getMemberUuid(), pitMembership.getMemberId());
-      assertEquals(membership.getFieldId(), pitMembership.getFieldId());
+      assertEquals(membership.getMemberUuid(), pitMembership.getPITMember().getSourceId());
+      assertEquals(membership.getFieldId(), pitMembership.getPITField().getSourceId());
       assertEquals("F", pitMembership.getActiveDb());
       assertTrue(pitMembership.getStartTimeDb().longValue() < startTime);
       assertTrue(pitMembership.getEndTimeDb().longValue() > startTime);
@@ -857,12 +874,12 @@ public class PITSyncTests extends GrouperTest {
     
     // check role set
     {
-      PITRoleSet pitRoleSet = GrouperDAOFactory.getFactory().getPITRoleSet().findById(roleSet.getId());
+      pitRoleSet = GrouperDAOFactory.getFactory().getPITRoleSet().findById(pitRoleSet.getId(), false);
       assertNotNull(pitRoleSet);
       assertEquals(roleSet.getDepth(), pitRoleSet.getDepth());
-      assertEquals(roleSet.getIfHasRoleId(), pitRoleSet.getIfHasRoleId());
-      assertEquals(roleSet.getThenHasRoleId(), pitRoleSet.getThenHasRoleId());
-      assertEquals(roleSet.getParentRoleSetId(), pitRoleSet.getParentRoleSetId());
+      assertEquals(roleSet.getIfHasRoleId(), pitRoleSet.getIfHasPITRole().getSourceId());
+      assertEquals(roleSet.getThenHasRoleId(), pitRoleSet.getThenHasPITRole().getSourceId());
+      assertEquals(roleSet.getParentRoleSetId(), pitRoleSet.getParentPITRoleSet().getSourceId());
       assertEquals("F", pitRoleSet.getActiveDb());
       assertTrue(pitRoleSet.getStartTimeDb().longValue() < startTime);
       assertTrue(pitRoleSet.getEndTimeDb().longValue() > startTime);
@@ -872,10 +889,10 @@ public class PITSyncTests extends GrouperTest {
     
     // check stem
     {
-      PITStem pitStem = GrouperDAOFactory.getFactory().getPITStem().findById(edu.getUuid());
+      pitStem = GrouperDAOFactory.getFactory().getPITStem().findById(pitStem.getId(), false);
       assertNotNull(pitStem);
       assertEquals(edu.getName(), pitStem.getName());
-      assertEquals(edu.getParentUuid(), pitStem.getParentStemId());
+      assertEquals(edu.getParentUuid(), pitStem.getParentPITStem().getSourceId());
       assertEquals("F", pitStem.getActiveDb());
       assertTrue(pitStem.getStartTimeDb().longValue() < startTime);
       assertTrue(pitStem.getEndTimeDb().longValue() > startTime);
@@ -922,10 +939,10 @@ public class PITSyncTests extends GrouperTest {
     
     // check attribute def
     {
-      PITAttributeDef pitAttributeDef = GrouperDAOFactory.getFactory().getPITAttributeDef().findById(attributeDef1.getId());
+      PITAttributeDef pitAttributeDef = GrouperDAOFactory.getFactory().getPITAttributeDef().findBySourceIdActive(attributeDef1.getId(), false);
       assertNotNull(pitAttributeDef);
       assertEquals(attributeDef1.getName(), pitAttributeDef.getName());
-      assertEquals(attributeDef1.getStemId(), pitAttributeDef.getStemId());
+      assertEquals(attributeDef1.getStemId(), pitAttributeDef.getPITStem().getSourceId());
       assertEquals(attributeDef1.getAttributeDefTypeDb(), pitAttributeDef.getAttributeDefTypeDb());
       assertEquals("T", pitAttributeDef.getActiveDb());
       assertTrue(pitAttributeDef.getStartTimeDb().longValue() > startTime);
@@ -936,10 +953,10 @@ public class PITSyncTests extends GrouperTest {
     
     // check action
     {
-      PITAttributeAssignAction pitAction = GrouperDAOFactory.getFactory().getPITAttributeAssignAction().findById(action1.getId());
+      PITAttributeAssignAction pitAction = GrouperDAOFactory.getFactory().getPITAttributeAssignAction().findBySourceIdActive(action1.getId(), false);
       assertNotNull(pitAction);
       assertEquals(action1.getName(), pitAction.getName());
-      assertEquals(action1.getAttributeDefId(), pitAction.getAttributeDefId());
+      assertEquals(action1.getAttributeDefId(), pitAction.getPITAttributeDef().getSourceId());
       assertEquals("T", pitAction.getActiveDb());
       assertTrue(pitAction.getStartTimeDb().longValue() > startTime);
       assertTrue(pitAction.getStartTimeDb().longValue() < endTime);
@@ -949,10 +966,10 @@ public class PITSyncTests extends GrouperTest {
     
     // check attribute def name
     {
-      PITAttributeDefName pitAttributeDefName = GrouperDAOFactory.getFactory().getPITAttributeDefName().findById(attributeDefName1.getId());
+      PITAttributeDefName pitAttributeDefName = GrouperDAOFactory.getFactory().getPITAttributeDefName().findBySourceIdActive(attributeDefName1.getId(), false);
       assertNotNull(pitAttributeDefName);
-      assertEquals(attributeDefName1.getStemId(), pitAttributeDefName.getStemId());
-      assertEquals(attributeDefName1.getAttributeDefId(), pitAttributeDefName.getAttributeDefId());
+      assertEquals(attributeDefName1.getStemId(), pitAttributeDefName.getPITStem().getSourceId());
+      assertEquals(attributeDefName1.getAttributeDefId(), pitAttributeDefName.getPITAttributeDef().getSourceId());
       assertEquals(attributeDefName1.getName(), pitAttributeDefName.getName());
       assertEquals("T", pitAttributeDefName.getActiveDb());
       assertTrue(pitAttributeDefName.getStartTimeDb().longValue() > startTime);
@@ -963,7 +980,7 @@ public class PITSyncTests extends GrouperTest {
     
     // check field
     {
-      PITField pitField = GrouperDAOFactory.getFactory().getPITField().findById(testField.getUuid());
+      PITField pitField = GrouperDAOFactory.getFactory().getPITField().findBySourceIdActive(testField.getUuid(), false);
       assertNotNull(pitField);
       assertEquals(testField.getName(), pitField.getName());
       assertEquals(testField.getTypeString(), pitField.getType());
@@ -981,10 +998,10 @@ public class PITSyncTests extends GrouperTest {
     
     // check group
     {
-      PITGroup pitGroup = GrouperDAOFactory.getFactory().getPITGroup().findById(role.getId());
+      PITGroup pitGroup = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdActive(role.getId(), false);
       assertNotNull(pitGroup);
       assertEquals(role.getName(), pitGroup.getName());
-      assertEquals(role.getStemId(), pitGroup.getStemId());
+      assertEquals(role.getStemId(), pitGroup.getPITStem().getSourceId());
       assertEquals("T", pitGroup.getActiveDb());
       assertTrue(pitGroup.getStartTimeDb().longValue() > startTime);
       assertTrue(pitGroup.getStartTimeDb().longValue() < endTime);
@@ -994,7 +1011,7 @@ public class PITSyncTests extends GrouperTest {
     
     // check member
     {
-      PITMember pitMember = GrouperDAOFactory.getFactory().getPITMember().findById(newMember1.getUuid());
+      PITMember pitMember = GrouperDAOFactory.getFactory().getPITMember().findBySourceIdActive(newMember1.getUuid(), false);
       assertNotNull(pitMember);
       assertEquals(newMember1.getSubjectId(), pitMember.getSubjectId());
       assertEquals(newMember1.getSubjectSourceId(), pitMember.getSubjectSourceId());
@@ -1008,10 +1025,10 @@ public class PITSyncTests extends GrouperTest {
     
     // check stem
     {
-      PITStem pitStem = GrouperDAOFactory.getFactory().getPITStem().findById(edu.getUuid());
+      PITStem pitStem = GrouperDAOFactory.getFactory().getPITStem().findBySourceIdActive(edu.getUuid(), false);
       assertNotNull(pitStem);
       assertEquals(edu.getName(), pitStem.getName());
-      assertEquals(edu.getParentUuid(), pitStem.getParentStemId());
+      assertEquals(edu.getParentUuid(), pitStem.getParentPITStem().getSourceId());
       assertEquals("T", pitStem.getActiveDb());
       assertTrue(pitStem.getStartTimeDb().longValue() > startTime);
       assertTrue(pitStem.getStartTimeDb().longValue() < endTime);
@@ -1032,6 +1049,7 @@ public class PITSyncTests extends GrouperTest {
     
     // now disable a membership
     Membership membership = MembershipFinder.findImmediateMembership(grouperSession, (Group)role, newMember1.getSubject(), Group.getDefaultList(), true);
+    String pitMembershipId = GrouperDAOFactory.getFactory().getPITMembership().findBySourceIdActive(membership.getImmediateMembershipId(), true).getId();
     membership.setEnabled(false);
     membership.setDisabledTime(new Timestamp(new Date().getTime() - 10000));
     GrouperDAOFactory.getFactory().getMembership().update(membership);
@@ -1057,14 +1075,14 @@ public class PITSyncTests extends GrouperTest {
     assertEquals(0, new SyncPITTables().showResults(false).syncAllPITTables());
 
     // verify the point in time update
-    PITMembership pitMembership = GrouperDAOFactory.getFactory().getPITMembership().findById(membership.getImmediateMembershipId());
+    PITMembership pitMembership = GrouperDAOFactory.getFactory().getPITMembership().findById(pitMembershipId, false);
     assertNotNull(pitMembership);
-    assertEquals(membership.getOwnerId(), pitMembership.getOwnerId());
-    assertEquals(membership.getOwnerGroupId(), pitMembership.getOwnerGroupId());
+    assertEquals(membership.getOwnerId(), pitMembership.getOwnerPITGroup().getSourceId());
+    assertEquals(membership.getOwnerGroupId(), pitMembership.getOwnerPITGroup().getSourceId());
     assertNull(pitMembership.getOwnerStemId());
     assertNull(pitMembership.getOwnerAttrDefId());
-    assertEquals(membership.getMemberUuid(), pitMembership.getMemberId());
-    assertEquals(membership.getFieldId(), pitMembership.getFieldId());
+    assertEquals(membership.getMemberUuid(), pitMembership.getPITMember().getSourceId());
+    assertEquals(membership.getFieldId(), pitMembership.getPITField().getSourceId());
     assertEquals("F", pitMembership.getActiveDb());
     assertTrue(pitMembership.getStartTimeDb().longValue() < startTime);
     assertTrue(pitMembership.getEndTimeDb().longValue() > startTime);
@@ -1097,14 +1115,14 @@ public class PITSyncTests extends GrouperTest {
     assertEquals(0, new SyncPITTables().showResults(false).syncAllPITTables());
 
     // verify the point in time update
-    pitMembership = GrouperDAOFactory.getFactory().getPITMembership().findById(membership.getImmediateMembershipId());
+    pitMembership = GrouperDAOFactory.getFactory().getPITMembership().findBySourceIdActive(membership.getImmediateMembershipId(), false);
     assertNotNull(pitMembership);
-    assertEquals(membership.getOwnerId(), pitMembership.getOwnerId());
-    assertEquals(membership.getOwnerGroupId(), pitMembership.getOwnerGroupId());
+    assertEquals(membership.getOwnerId(), pitMembership.getOwnerPITGroup().getSourceId());
+    assertEquals(membership.getOwnerGroupId(), pitMembership.getOwnerPITGroup().getSourceId());
     assertNull(pitMembership.getOwnerStemId());
     assertNull(pitMembership.getOwnerAttrDefId());
-    assertEquals(membership.getMemberUuid(), pitMembership.getMemberId());
-    assertEquals(membership.getFieldId(), pitMembership.getFieldId());
+    assertEquals(membership.getMemberUuid(), pitMembership.getPITMember().getSourceId());
+    assertEquals(membership.getFieldId(), pitMembership.getPITField().getSourceId());
     assertEquals("T", pitMembership.getActiveDb());
     assertTrue(pitMembership.getStartTimeDb().longValue() > startTime);
     assertTrue(pitMembership.getStartTimeDb().longValue() < endTime);
@@ -1121,6 +1139,7 @@ public class PITSyncTests extends GrouperTest {
     
     addData();
     ChangeLogTempToEntity.convertRecords();
+    String pitAssignId = GrouperDAOFactory.getFactory().getPITAttributeAssign().findBySourceIdActive(assign1.getId(), true).getId();
     
     // now disable an assignment
     assign1.setEnabled(false);
@@ -1148,17 +1167,17 @@ public class PITSyncTests extends GrouperTest {
     assertEquals(0, new SyncPITTables().showResults(false).syncAllPITTables());
 
     // verify the point in time update
-    PITAttributeAssign pitAssign = GrouperDAOFactory.getFactory().getPITAttributeAssign().findById(assign1.getId());
+    PITAttributeAssign pitAssign = GrouperDAOFactory.getFactory().getPITAttributeAssign().findById(pitAssignId, false);
     assertNotNull(pitAssign);
-    assertEquals(assign1.getAttributeDefNameId(), pitAssign.getAttributeDefNameId());
-    assertEquals(assign1.getAttributeAssignActionId(), pitAssign.getAttributeAssignActionId());
+    assertEquals(assign1.getAttributeDefNameId(), pitAssign.getPITAttributeDefName().getSourceId());
+    assertEquals(assign1.getAttributeAssignActionId(), pitAssign.getPITAttributeAssignAction().getSourceId());
     assertEquals(assign1.getAttributeAssignTypeDb(), pitAssign.getAttributeAssignTypeDb());
     assertNull(pitAssign.getOwnerAttributeAssignId());
     assertNull(pitAssign.getOwnerAttributeDefId());
     assertNull(pitAssign.getOwnerMemberId());
     assertNull(pitAssign.getOwnerMembershipId());
     assertNull(pitAssign.getOwnerStemId());
-    assertEquals(assign1.getOwnerGroupId(), pitAssign.getOwnerGroupId());
+    assertEquals(assign1.getOwnerGroupId(), pitAssign.getOwnerPITGroup().getSourceId());
     assertEquals("F", pitAssign.getActiveDb());
     assertTrue(pitAssign.getStartTimeDb().longValue() < startTime);
     assertTrue(pitAssign.getEndTimeDb().longValue() > startTime);
@@ -1191,17 +1210,17 @@ public class PITSyncTests extends GrouperTest {
     assertEquals(0, new SyncPITTables().showResults(false).syncAllPITTables());
 
     // verify the point in time update
-    pitAssign = GrouperDAOFactory.getFactory().getPITAttributeAssign().findById(assign1.getId());
+    pitAssign = GrouperDAOFactory.getFactory().getPITAttributeAssign().findBySourceIdActive(assign1.getId(), false);
     assertNotNull(pitAssign);
-    assertEquals(assign1.getAttributeDefNameId(), pitAssign.getAttributeDefNameId());
-    assertEquals(assign1.getAttributeAssignActionId(), pitAssign.getAttributeAssignActionId());
+    assertEquals(assign1.getAttributeDefNameId(), pitAssign.getPITAttributeDefName().getSourceId());
+    assertEquals(assign1.getAttributeAssignActionId(), pitAssign.getPITAttributeAssignAction().getSourceId());
     assertEquals(assign1.getAttributeAssignTypeDb(), pitAssign.getAttributeAssignTypeDb());
     assertNull(pitAssign.getOwnerAttributeAssignId());
     assertNull(pitAssign.getOwnerAttributeDefId());
     assertNull(pitAssign.getOwnerMemberId());
     assertNull(pitAssign.getOwnerMembershipId());
     assertNull(pitAssign.getOwnerStemId());
-    assertEquals(assign1.getOwnerGroupId(), pitAssign.getOwnerGroupId());
+    assertEquals(assign1.getOwnerGroupId(), pitAssign.getOwnerPITGroup().getSourceId());
     assertEquals("T", pitAssign.getActiveDb());
     assertTrue(pitAssign.getStartTimeDb().longValue() > startTime);
     assertTrue(pitAssign.getStartTimeDb().longValue() < endTime);

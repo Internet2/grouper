@@ -265,12 +265,12 @@ public class PITAttributeAssignValueTests extends GrouperTest {
     assertEquals(1, results.size());
     
     PITAttributeAssignValueView value = results.iterator().next();
-    assertEquals(attributeAssign.getId(), value.getAttributeAssignId());
-    assertEquals(attributeAssignValue.getId(), value.getAttributeAssignValueId());
-    assertEquals(attributeDefName1.getId(), value.getAttributeDefNameId());
-    assertEquals(action1.getId(), value.getAttributeAssignActionId());
+    assertEquals(attributeAssign.getId(), value.getPITAttributeAssign().getSourceId());
+    assertEquals(attributeAssignValue.getId(), value.getPITAttributeAssignValue().getSourceId());
+    assertEquals(attributeDefName1.getId(), value.getPITAttributeDefName().getSourceId());
+    assertEquals(action1.getId(), value.getPITAttributeAssignAction().getSourceId());
     assertEquals("group", value.getAttributeAssignTypeDb());
-    assertEquals(group.getId(), value.getOwnerGroupId());
+    assertEquals(group.getId(), value.getOwnerPITGroup().getSourceId());
     assertEquals(null, value.getOwnerStemId());
     assertEquals(null, value.getOwnerAttributeDefId());
     assertEquals(null, value.getOwnerMembershipId());
@@ -320,12 +320,12 @@ public class PITAttributeAssignValueTests extends GrouperTest {
     assertEquals(1, results.size());
     
     PITAttributeAssignValueView value = results.iterator().next();
-    assertEquals(attributeAssign.getId(), value.getAttributeAssignId());
-    assertEquals(attributeAssignValue.getId(), value.getAttributeAssignValueId());
-    assertEquals(attributeDefName1.getId(), value.getAttributeDefNameId());
-    assertEquals(action1.getId(), value.getAttributeAssignActionId());
+    assertEquals(attributeAssign.getId(), value.getPITAttributeAssign().getSourceId());
+    assertEquals(attributeAssignValue.getId(), value.getPITAttributeAssignValue().getSourceId());
+    assertEquals(attributeDefName1.getId(), value.getPITAttributeDefName().getSourceId());
+    assertEquals(action1.getId(), value.getPITAttributeAssignAction().getSourceId());
     assertEquals("group", value.getAttributeAssignTypeDb());
-    assertEquals(group.getId(), value.getOwnerGroupId());
+    assertEquals(group.getId(), value.getOwnerPITGroup().getSourceId());
     assertEquals(null, value.getOwnerStemId());
     assertEquals(null, value.getOwnerAttributeDefId());
     assertEquals(null, value.getOwnerMembershipId());
@@ -376,12 +376,12 @@ public class PITAttributeAssignValueTests extends GrouperTest {
     assertEquals(1, results.size());
     
     PITAttributeAssignValueView value = results.iterator().next();
-    assertEquals(attributeAssign.getId(), value.getAttributeAssignId());
-    assertEquals(attributeAssignValue.getId(), value.getAttributeAssignValueId());
-    assertEquals(attributeDefName1.getId(), value.getAttributeDefNameId());
-    assertEquals(action1.getId(), value.getAttributeAssignActionId());
+    assertEquals(attributeAssign.getId(), value.getPITAttributeAssign().getSourceId());
+    assertEquals(attributeAssignValue.getId(), value.getPITAttributeAssignValue().getSourceId());
+    assertEquals(attributeDefName1.getId(), value.getPITAttributeDefName().getSourceId());
+    assertEquals(action1.getId(), value.getPITAttributeAssignAction().getSourceId());
     assertEquals("group", value.getAttributeAssignTypeDb());
-    assertEquals(group.getId(), value.getOwnerGroupId());
+    assertEquals(group.getId(), value.getOwnerPITGroup().getSourceId());
     assertEquals(null, value.getOwnerStemId());
     assertEquals(null, value.getOwnerAttributeDefId());
     assertEquals(null, value.getOwnerMembershipId());
@@ -431,12 +431,12 @@ public class PITAttributeAssignValueTests extends GrouperTest {
     assertEquals(1, results.size());
     
     PITAttributeAssignValueView value = results.iterator().next();
-    assertEquals(attributeAssign.getId(), value.getAttributeAssignId());
-    assertEquals(attributeAssignValue.getId(), value.getAttributeAssignValueId());
-    assertEquals(attributeDefName1.getId(), value.getAttributeDefNameId());
-    assertEquals(action1.getId(), value.getAttributeAssignActionId());
+    assertEquals(attributeAssign.getId(), value.getPITAttributeAssign().getSourceId());
+    assertEquals(attributeAssignValue.getId(), value.getPITAttributeAssignValue().getSourceId());
+    assertEquals(attributeDefName1.getId(), value.getPITAttributeDefName().getSourceId());
+    assertEquals(action1.getId(), value.getPITAttributeAssignAction().getSourceId());
     assertEquals("group", value.getAttributeAssignTypeDb());
-    assertEquals(group.getId(), value.getOwnerGroupId());
+    assertEquals(group.getId(), value.getOwnerPITGroup().getSourceId());
     assertEquals(null, value.getOwnerStemId());
     assertEquals(null, value.getOwnerAttributeDefId());
     assertEquals(null, value.getOwnerMembershipId());
@@ -594,7 +594,7 @@ public class PITAttributeAssignValueTests extends GrouperTest {
     results = new PITAttributeAssignValueQuery()
       .setAttributeDefNameId(attributeDefName1.getId())
       .setActionId(action1.getId())
-      .setOwnerStemId(group.getId())
+      .setOwnerStemId(group.getParentUuid())
       .setValueString("test")
       .execute();
     assertEquals(0, results.size());
@@ -605,7 +605,8 @@ public class PITAttributeAssignValueTests extends GrouperTest {
    */
   public void testByOwnerStem() {
     Stem stem = edu.addChildStem("testStem", "testStem");
-    
+    Group group = edu.addChildGroup("testGroup", "testGroup");
+
     AttributeDef attributeDef = edu.addChildAttributeDef("attributeDef", AttributeDefType.attr);
     attributeDef.setAssignToStem(true);
     attributeDef.setValueType(AttributeDefValueType.string);
@@ -629,7 +630,7 @@ public class PITAttributeAssignValueTests extends GrouperTest {
     results = new PITAttributeAssignValueQuery()
       .setAttributeDefNameId(attributeDefName1.getId())
       .setActionId(action1.getId())
-      .setOwnerGroupId(stem.getUuid())
+      .setOwnerGroupId(group.getUuid())
       .setValueString("test")
       .execute();
     assertEquals(0, results.size());
@@ -640,7 +641,8 @@ public class PITAttributeAssignValueTests extends GrouperTest {
    */
   public void testByOwnerAttributeDef() {
     AttributeDef attributeDef0 = edu.addChildAttributeDef("attributeDef0", AttributeDefType.attr);
-    
+    Group group = edu.addChildGroup("testGroup", "testGroup");
+
     AttributeDef attributeDef = edu.addChildAttributeDef("attributeDef", AttributeDefType.attr);
     attributeDef.setAssignToAttributeDef(true);
     attributeDef.setValueType(AttributeDefValueType.string);
@@ -664,7 +666,7 @@ public class PITAttributeAssignValueTests extends GrouperTest {
     results = new PITAttributeAssignValueQuery()
       .setAttributeDefNameId(attributeDefName1.getId())
       .setActionId(action1.getId())
-      .setOwnerGroupId(attributeDef0.getId())
+      .setOwnerGroupId(group.getId())
       .setValueString("test")
       .execute();
     assertEquals(0, results.size());
@@ -675,7 +677,8 @@ public class PITAttributeAssignValueTests extends GrouperTest {
    */
   public void testByOwnerMember() {
     Member member = MemberFinder.findBySubject(grouperSession, SubjectFinder.findRootSubject(), false);
-    
+    Group group = edu.addChildGroup("testGroup", "testGroup");
+
     AttributeDef attributeDef = edu.addChildAttributeDef("attributeDef", AttributeDefType.attr);
     attributeDef.setAssignToMember(true);
     attributeDef.setValueType(AttributeDefValueType.string);
@@ -699,7 +702,7 @@ public class PITAttributeAssignValueTests extends GrouperTest {
     results = new PITAttributeAssignValueQuery()
       .setAttributeDefNameId(attributeDefName1.getId())
       .setActionId(action1.getId())
-      .setOwnerGroupId(member.getUuid())
+      .setOwnerGroupId(group.getUuid())
       .setValueString("test")
       .execute();
     assertEquals(0, results.size());
@@ -736,7 +739,7 @@ public class PITAttributeAssignValueTests extends GrouperTest {
     results = new PITAttributeAssignValueQuery()
       .setAttributeDefNameId(attributeDefName1.getId())
       .setActionId(action1.getId())
-      .setOwnerGroupId(immediateMembership.getUuid())
+      .setOwnerGroupId(group.getUuid())
       .setValueString("test")
       .execute();
     assertEquals(0, results.size());
@@ -779,7 +782,7 @@ public class PITAttributeAssignValueTests extends GrouperTest {
     results = new PITAttributeAssignValueQuery()
       .setAttributeDefNameId(attributeDefName1.getId())
       .setActionId(action1.getId())
-      .setOwnerGroupId(attributeAssign0.getId())
+      .setOwnerGroupId(group.getId())
       .setValueString("test")
       .execute();
     assertEquals(0, results.size());
@@ -1067,7 +1070,7 @@ public class PITAttributeAssignValueTests extends GrouperTest {
     value2.delete();
 
     AttributeAssign attributeAssign2 = attributeAssign1.getAttributeDelegate().assignAttribute(attributeDefName2).getAttributeAssign();
-
+    
     AttributeAssignValue value3 = attributeAssign2.getValueDelegate().addValue("value3").getAttributeAssignValue();    
     AttributeAssignValue value4 = attributeAssign2.getValueDelegate().addValue("value4").getAttributeAssignValue();
 
@@ -1187,21 +1190,21 @@ public class PITAttributeAssignValueTests extends GrouperTest {
     assertEquals(1, results2.size());
     
     Set<PITMembershipView> results3 = new PITMembershipViewQuery()
-      .setOwnerId(group.getId())
+      .setOwnerGroupId(group.getId())
       .setMemberId(MemberFinder.findBySubject(grouperSession, SubjectFinder.findRootSubject(), true).getUuid())
       .setFieldId(Group.getDefaultList().getUuid())
       .setEndDateBefore(afterEnable)
       .execute();
     assertEquals(1, results3.size());
-    assertFalse(immediateMembership.getImmediateMembershipId().equals(results3.iterator().next().getMembershipId()));
+    assertEquals(immediateMembership.getImmediateMembershipId(), results3.iterator().next().getPITMembership().getSourceId());
 
     results3 = new PITMembershipViewQuery()
-      .setOwnerId(group.getId())
+      .setOwnerGroupId(group.getId())
       .setMemberId(MemberFinder.findBySubject(grouperSession, SubjectFinder.findRootSubject(), true).getUuid())
       .setFieldId(Group.getDefaultList().getUuid())
       .setEndDateAfter(afterEnable)
       .execute();
     assertEquals(1, results3.size());
-    assertEquals(immediateMembership.getImmediateMembershipId(), results3.iterator().next().getMembershipId());
+    assertEquals(immediateMembership.getImmediateMembershipId(), results3.iterator().next().getPITMembership().getSourceId());
   }
 }

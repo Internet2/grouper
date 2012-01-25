@@ -45,21 +45,79 @@ public class Hib3PITAttributeDefDAO extends Hib3DAO implements PITAttributeDefDA
    * @param hibernateSession
    */
   public static void reset(HibernateSession hibernateSession) {
-    hibernateSession.byHql().createQuery("delete from PITAttributeDef where id not in (select a.id from AttributeDef as a)").executeUpdate();
+    hibernateSession.byHql().createQuery("delete from PITAttributeDef where sourceId not in (select a.id from AttributeDef as a)").executeUpdate();
   }
 
   /**
-   * @see edu.internet2.middleware.grouper.internal.dao.PITAttributeDefDAO#findById(java.lang.String)
+   * @see edu.internet2.middleware.grouper.internal.dao.PITAttributeDefDAO#findBySourceIdActive(java.lang.String, boolean)
    */
-  public PITAttributeDef findById(String pitAttributeDefId) {
+  public PITAttributeDef findBySourceIdActive(String id, boolean exceptionIfNotFound) {
     PITAttributeDef pitAttributeDef = HibernateSession
       .byHqlStatic()
-      .createQuery("select pitAttributeDef from PITAttributeDef as pitAttributeDef where pitAttributeDef.id = :id")
-      .setCacheable(false).setCacheRegion(KLASS + ".FindById")
-      .setString("id", pitAttributeDefId)
+      .createQuery("select pitAttributeDef from PITAttributeDef as pitAttributeDef where pitAttributeDef.sourceId = :id and activeDb = 'T'")
+      .setCacheable(false).setCacheRegion(KLASS + ".FindBySourceIdActive")
+      .setString("id", id)
       .uniqueResult(PITAttributeDef.class);
     
+    if (pitAttributeDef == null && exceptionIfNotFound) {
+      throw new RuntimeException("Active PITAttributeDef with sourceId=" + id + " not found");
+    }
+    
     return pitAttributeDef;
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.PITAttributeDefDAO#findBySourceIdUnique(java.lang.String, boolean)
+   */
+  public PITAttributeDef findBySourceIdUnique(String id, boolean exceptionIfNotFound) {
+    PITAttributeDef pitAttributeDef = HibernateSession
+      .byHqlStatic()
+      .createQuery("select pitAttributeDef from PITAttributeDef as pitAttributeDef where pitAttributeDef.sourceId = :id")
+      .setCacheable(false).setCacheRegion(KLASS + ".FindBySourceIdUnique")
+      .setString("id", id)
+      .uniqueResult(PITAttributeDef.class);
+    
+    if (pitAttributeDef == null && exceptionIfNotFound) {
+      throw new RuntimeException("PITAttributeDef with sourceId=" + id + " not found");
+    }
+    
+    return pitAttributeDef;
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.PITAttributeDefDAO#findBySourceId(java.lang.String, boolean)
+   */
+  public Set<PITAttributeDef> findBySourceId(String id, boolean exceptionIfNotFound) {
+    Set<PITAttributeDef> pitAttributeDefs = HibernateSession
+      .byHqlStatic()
+      .createQuery("select pitAttributeDef from PITAttributeDef as pitAttributeDef where pitAttributeDef.sourceId = :id")
+      .setCacheable(false).setCacheRegion(KLASS + ".FindBySourceId")
+      .setString("id", id)
+      .listSet(PITAttributeDef.class);
+    
+    if (pitAttributeDefs.size() == 0 && exceptionIfNotFound) {
+      throw new RuntimeException("PITAttributeDef with sourceId=" + id + " not found");
+    }
+    
+    return pitAttributeDefs;
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.PITAttributeDefDAO#findById(java.lang.String, boolean)
+   */
+  public PITAttributeDef findById(String id, boolean exceptionIfNotFound) {
+    PITAttributeDef pit = HibernateSession
+      .byHqlStatic()
+      .createQuery("select pit from PITAttributeDef as pit where pit.id = :id")
+      .setCacheable(false).setCacheRegion(KLASS + ".FindById")
+      .setString("id", id)
+      .uniqueResult(PITAttributeDef.class);
+    
+    if (pit == null && exceptionIfNotFound) {
+      throw new RuntimeException("PITAttributeDef with id=" + id + " not found");
+    }
+    
+    return pit;
   }
   
   /**
@@ -112,7 +170,8 @@ public class Hib3PITAttributeDefDAO extends Hib3DAO implements PITAttributeDefDA
     Set<AttributeDef> attrs = HibernateSession
       .byHqlStatic()
       .createQuery("select def from AttributeDef def where " +
-          "not exists (select 1 from PITAttributeDef pit where def.id = pit.id and def.nameDb = pit.nameDb and def.stemId = pit.stemId) " +
+          "not exists (select 1 from PITAttributeDef pitAttributeDef, PITStem pitStem where pitAttributeDef.stemId = pitStem.id " +
+          "            and def.id = pitAttributeDef.sourceId and def.nameDb = pitAttributeDef.nameDb and def.stemId = pitStem.sourceId) " +
           "and not exists (select 1 from ChangeLogEntryTemp temp, ChangeLogType type " +
           "    where temp.string01 = def.id " +
           "    and type.actionName='addAttributeDef' and type.changeLogCategory='attributeDef' and type.id=temp.changeLogTypeId) " +
@@ -133,9 +192,9 @@ public class Hib3PITAttributeDefDAO extends Hib3DAO implements PITAttributeDefDA
     Set<PITAttributeDef> attrs = HibernateSession
       .byHqlStatic()
       .createQuery("select pit from PITAttributeDef pit where activeDb = 'T' and " +
-          "not exists (select 1 from AttributeDef def where def.id = pit.id) " +
+          "not exists (select 1 from AttributeDef def where def.id = pit.sourceId) " +
           "and not exists (select 1 from ChangeLogEntryTemp temp, ChangeLogType type " +
-          "    where temp.string01 = pit.id " +
+          "    where temp.string01 = pit.sourceId " +
           "    and type.actionName='deleteAttributeDef' and type.changeLogCategory='attributeDef' and type.id=temp.changeLogTypeId)")
       .setCacheable(false).setCacheRegion(KLASS + ".FindMissingInactivePITAttributeDefs")
       .listSet(PITAttributeDef.class);

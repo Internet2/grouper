@@ -35,9 +35,24 @@ public interface PITRoleSetDAO extends GrouperDAO {
   
   /**
    * @param id
+   * @param exceptionIfNotFound 
    * @return PITRoleSet
    */
-  public PITRoleSet findById(String id);
+  public PITRoleSet findBySourceIdActive(String id, boolean exceptionIfNotFound);
+  
+  /**
+   * @param id
+   * @param exceptionIfNotFound 
+   * @return PITRoleSet
+   */
+  public PITRoleSet findById(String id, boolean exceptionIfNotFound);
+  
+  /**
+   * @param id
+   * @param exceptionIfNotFound 
+   * @return PITRoleSet
+   */
+  public PITRoleSet findBySourceIdUnique(String id, boolean exceptionIfNotFound);
   
   /**
    * Delete records that ended before the given date.

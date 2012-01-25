@@ -45,17 +45,17 @@ public class PITPermissionAllViewQuery {
   /**
    * attribute def name id
    */
-  private String attributeDefNameId = null;
+  private String attributeDefNameSourceId = null;
 
   /**
    * member id
    */
-  private String memberId = null;
+  private String memberSourceId = null;
   
   /**
    * action id
    */
-  private String actionId = null;
+  private String actionSourceId = null;
   
   /**
    * query options
@@ -148,32 +148,32 @@ public class PITPermissionAllViewQuery {
   }
   
   /**
-   * query for permissions with this attributeDefNameId
-   * @param attributeDefNameId
+   * query for permissions with this attributeDefNameSourceId
+   * @param attributeDefNameSourceId
    * @return this for chaining
    */
-  public PITPermissionAllViewQuery setAttributeDefNameId(String attributeDefNameId) {
-    this.attributeDefNameId = attributeDefNameId;
+  public PITPermissionAllViewQuery setAttributeDefNameSourceId(String attributeDefNameSourceId) {
+    this.attributeDefNameSourceId = attributeDefNameSourceId;
     return this;
   }
 
   /**
-   * query for permissions with this memberId
-   * @param memberId
+   * query for permissions with this memberSourceId
+   * @param memberSourceId
    * @return this for chaining
    */
-  public PITPermissionAllViewQuery setMemberId(String memberId) {
-    this.memberId = memberId;
+  public PITPermissionAllViewQuery setMemberSourceId(String memberSourceId) {
+    this.memberSourceId = memberSourceId;
     return this;
   }
   
   /**
-   * query for permissions with this actionId
-   * @param actionId
+   * query for permissions with this actionSourceId
+   * @param actionSourceId
    * @return this for chaining
    */
-  public PITPermissionAllViewQuery setActionId(String actionId) {
-    this.actionId = actionId;
+  public PITPermissionAllViewQuery setActionSourceId(String actionSourceId) {
+    this.actionSourceId = actionSourceId;
     return this;
   }
 
@@ -185,16 +185,16 @@ public class PITPermissionAllViewQuery {
     
     List<Criterion> criterionList = new ArrayList<Criterion>();
     
-    if (this.attributeDefNameId != null) {
-      criterionList.add(Restrictions.eq(PITPermissionAllView.FIELD_ATTRIBUTE_DEF_NAME_ID, this.attributeDefNameId));
+    if (this.attributeDefNameSourceId != null) {
+      criterionList.add(Restrictions.eq(PITPermissionAllView.FIELD_ATTRIBUTE_DEF_NAME_SOURCE_ID, this.attributeDefNameSourceId));
     }
     
-    if (this.memberId != null) {
-      criterionList.add(Restrictions.eq(PITPermissionAllView.FIELD_MEMBER_ID, this.memberId));
+    if (this.memberSourceId != null) {
+      criterionList.add(Restrictions.eq(PITPermissionAllView.FIELD_MEMBER_SOURCE_ID, this.memberSourceId));
     }
     
-    if (this.actionId != null) {
-      criterionList.add(Restrictions.eq(PITPermissionAllView.FIELD_ACTION_ID, this.actionId));
+    if (this.actionSourceId != null) {
+      criterionList.add(Restrictions.eq(PITPermissionAllView.FIELD_ACTION_SOURCE_ID, this.actionSourceId));
     }
     
     if (this.startDateAfter != null) {

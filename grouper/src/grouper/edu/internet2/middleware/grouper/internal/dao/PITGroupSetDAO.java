@@ -7,8 +7,8 @@ package edu.internet2.middleware.grouper.internal.dao;
 import java.sql.Timestamp;
 import java.util.Set;
 
-import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.group.GroupSet;
+import edu.internet2.middleware.grouper.pit.PITField;
 import edu.internet2.middleware.grouper.pit.PITGroupSet;
 
 /**
@@ -35,10 +35,25 @@ public interface PITGroupSetDAO extends GrouperDAO {
   public void delete(PITGroupSet pitGroupSet);
   
   /**
-   * @param pitGroupSetId
-   * @return pit group set
+   * @param id
+   * @param exceptionIfNotFound 
+   * @return PITGroupSet
    */
-  public PITGroupSet findById(String pitGroupSetId);
+  public PITGroupSet findBySourceIdActive(String id, boolean exceptionIfNotFound);
+  
+  /**
+   * @param id
+   * @param exceptionIfNotFound 
+   * @return PITGroupSet
+   */
+  public PITGroupSet findById(String id, boolean exceptionIfNotFound);
+  
+  /**
+   * @param id
+   * @param exceptionIfNotFound 
+   * @return PITGroupSet
+   */
+  public PITGroupSet findBySourceIdUnique(String id, boolean exceptionIfNotFound);
   
   /**
    * @param ownerId
@@ -98,7 +113,7 @@ public interface PITGroupSetDAO extends GrouperDAO {
    * @param field
    * @return pit group sets
    */
-  public Set<PITGroupSet> findAllActiveByGroupOwnerAndField(String groupId, Field field);
+  public Set<PITGroupSet> findAllActiveByGroupOwnerAndField(String groupId, PITField field);
   
   /**
    * @param groupId

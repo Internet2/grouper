@@ -34,10 +34,32 @@ public interface PITFieldDAO extends GrouperDAO {
   public void delete(PITField pitField);
   
   /**
-   * @param pitFieldId
-   * @return pit field
+   * @param id
+   * @param exceptionIfNotFound 
+   * @return PITField
    */
-  public PITField findById(String pitFieldId);
+  public PITField findBySourceIdActive(String id, boolean exceptionIfNotFound);
+  
+  /**
+   * @param id
+   * @param exceptionIfNotFound 
+   * @return PITField
+   */
+  public PITField findById(String id, boolean exceptionIfNotFound);
+  
+  /**
+   * @param id
+   * @param exceptionIfNotFound 
+   * @return PITField
+   */
+  public PITField findBySourceIdUnique(String id, boolean exceptionIfNotFound);
+  
+  /**
+   * @param id
+   * @param exceptionIfNotFound 
+   * @return set of PITField
+   */
+  public Set<PITField> findBySourceId(String id, boolean exceptionIfNotFound);
   
   /**
    * Delete records that ended before the given date.

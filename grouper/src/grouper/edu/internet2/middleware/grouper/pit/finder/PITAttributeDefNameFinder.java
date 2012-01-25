@@ -9,6 +9,7 @@ import edu.internet2.middleware.grouper.exception.AttributeDefNameNotFoundExcept
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.pit.PITAttributeDefName;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * Find point in time attribute def names.
@@ -26,39 +27,69 @@ public class PITAttributeDefNameFinder {
    * @return pit attribute def name
    */
   public static PITAttributeDefName findById(String id, boolean exceptionIfNotFound) {
-
-    GrouperSession session = GrouperSession.staticGrouperSession();
-    PITAttributeDefName pitAttributeDefName = GrouperDAOFactory.getFactory().getPITAttributeDefName().findById(id);
     
-    if (pitAttributeDefName == null) {
+    PITAttributeDefName pitAttributeDefName = GrouperDAOFactory.getFactory().getPITAttributeDefName().findById(id, false);
+    
+    Set<PITAttributeDefName> pitAttributeDefNamesSecure = new LinkedHashSet<PITAttributeDefName>();
+    if (pitAttributeDefName != null) {
+      pitAttributeDefNamesSecure = securityFilter(GrouperUtil.toSet(pitAttributeDefName));
+    }
+    
+    if (pitAttributeDefNamesSecure.size() == 0) {
       if (exceptionIfNotFound) {
         throw new AttributeDefNameNotFoundException("Point in time attribute def name with id " + id + " does not exist.");
       }
       
       return null;
     }
-    
-    if (!pitAttributeDefName.isActive() && !PrivilegeHelper.isWheelOrRoot(session.getSubject())) {
-      if (exceptionIfNotFound) {
-        throw new AttributeDefNameNotFoundException("Point in time attribute def name with id " + id + " does not exist.");
-      }
-
-      return null;
-    }
-    
-    if (pitAttributeDefName.isActive()) {
-      
-      if (GrouperDAOFactory.getFactory().getAttributeDefName().findByIdSecure(id, false) == null) {
-        if (exceptionIfNotFound) {
-          throw new AttributeDefNameNotFoundException("Point in time attribute def name with id " + id + " does not exist.");
-        }
-
-        return null;
-      }
-    }
-    
-    return pitAttributeDefName;
+        
+    return pitAttributeDefNamesSecure.iterator().next();
   }
+  
+  /**
+   * Find point in time attribute def names by id.
+   * If the attribute def name currently exists, you must have view access to it.  If it has been deleted, you must be wheel or root.
+   * @param id
+   * @param exceptionIfNotFound
+   * @return set of pit attribute def name
+   */
+  public static Set<PITAttributeDefName> findBySourceId(String id, boolean exceptionIfNotFound) {
+    
+    Set<PITAttributeDefName> pitAttributeDefNames = GrouperDAOFactory.getFactory().getPITAttributeDefName().findBySourceId(id, false);
+    
+    Set<PITAttributeDefName> pitAttributeDefNamesSecure = securityFilter(pitAttributeDefNames);
+    
+    if (pitAttributeDefNamesSecure.size() == 0) {
+      if (exceptionIfNotFound) {
+        throw new AttributeDefNameNotFoundException("Point in time attribute def name with id " + id + " does not exist.");
+      }
+    }
+        
+    return pitAttributeDefNamesSecure;
+  }
+  
+  private static Set<PITAttributeDefName> securityFilter(Set<PITAttributeDefName> pitAttributeDefNames) {
+    Set<PITAttributeDefName> pitAttributeDefNamesSecure = new LinkedHashSet<PITAttributeDefName>();
+    
+    GrouperSession session = GrouperSession.staticGrouperSession();
+    
+    for (PITAttributeDefName pitAttributeDefName : pitAttributeDefNames) {
+      if (!pitAttributeDefName.isActive() && !PrivilegeHelper.isWheelOrRoot(session.getSubject())) {
+        continue;
+      }
+      
+      if (pitAttributeDefName.isActive()) {
+        if (GrouperDAOFactory.getFactory().getAttributeDefName().findByIdSecure(pitAttributeDefName.getSourceId(), false) == null) {
+          continue;
+        }
+      }
+      
+      pitAttributeDefNamesSecure.add(pitAttributeDefName);
+    }
+    
+    return pitAttributeDefNamesSecure;
+  }
+  
   
   /**
    * Find point in time attribute def names by name.
@@ -69,25 +100,10 @@ public class PITAttributeDefNameFinder {
    * @return set of pit attribute def name
    */
   public static Set<PITAttributeDefName> findByName(String name, boolean exceptionIfNotFound, boolean orderByStartTime) {
-
-    Set<PITAttributeDefName> pitAttributeDefNamesSecure = new LinkedHashSet<PITAttributeDefName>();
     
-    GrouperSession session = GrouperSession.staticGrouperSession();
     Set<PITAttributeDefName> pitAttributeDefNames = GrouperDAOFactory.getFactory().getPITAttributeDefName().findByName(name, true);
     
-    for (PITAttributeDefName pitAttributeDefName : pitAttributeDefNames) {
-      if (!pitAttributeDefName.isActive() && !PrivilegeHelper.isWheelOrRoot(session.getSubject())) {
-        continue;
-      }
-      
-      if (pitAttributeDefName.isActive()) {
-        if (GrouperDAOFactory.getFactory().getAttributeDefName().findByIdSecure(pitAttributeDefName.getId(), false) == null) {
-          continue;
-        }
-      }
-      
-      pitAttributeDefNamesSecure.add(pitAttributeDefName);
-    }
+    Set<PITAttributeDefName> pitAttributeDefNamesSecure = securityFilter(pitAttributeDefNames);
     
     if (pitAttributeDefNamesSecure.size() == 0) {
       if (exceptionIfNotFound) {
@@ -133,6 +149,46 @@ public class PITAttributeDefNameFinder {
     if (pitAttributeDefNamesInRange.size() == 0) {
       if (exceptionIfNotFound) {
         throw new AttributeDefNameNotFoundException("Point in time attribute def name with name " + name + " does not exist in the given date range.");
+      }
+    }
+    
+    return pitAttributeDefNamesInRange;
+  }
+  
+  /**
+   * Find point in time attribute def names by id and date ranges
+   * If the attribute def name currently exists, you must have view access to it.  If it has been deleted, you must be wheel or root.
+   * @param id
+   * @param pointInTimeFrom
+   * @param pointInTimeTo
+   * @param exceptionIfNotFound
+   * @return set of pit attribute def name
+   */
+  public static Set<PITAttributeDefName> findBySourceId(String id, Timestamp pointInTimeFrom, Timestamp pointInTimeTo, 
+      boolean exceptionIfNotFound) {
+    
+    Set<PITAttributeDefName> pitAttributeDefNames = findBySourceId(id, exceptionIfNotFound);
+    Set<PITAttributeDefName> pitAttributeDefNamesInRange = new LinkedHashSet<PITAttributeDefName>();
+
+    for (PITAttributeDefName pitAttributeDefName : pitAttributeDefNames) {
+      if (pointInTimeFrom != null) {
+        if (!pitAttributeDefName.isActive() && pitAttributeDefName.getEndTime().before(pointInTimeFrom)) {
+          continue;
+        }
+      }
+      
+      if (pointInTimeTo != null) {
+        if (pitAttributeDefName.getStartTime().after(pointInTimeTo)) {
+          continue;
+        }
+      }
+      
+      pitAttributeDefNamesInRange.add(pitAttributeDefName);
+    }
+    
+    if (pitAttributeDefNamesInRange.size() == 0) {
+      if (exceptionIfNotFound) {
+        throw new AttributeDefNameNotFoundException("Point in time attribute def name with id " + id + " does not exist in the given date range.");
       }
     }
     

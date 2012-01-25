@@ -1,6 +1,5 @@
 package edu.internet2.middleware.grouper.pit;
 
-import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -60,6 +59,12 @@ public class PITAttributeAssign extends GrouperPIT implements Hib3GrouperVersion
   /** column */
   public static final String COLUMN_ATTRIBUTE_ASSIGN_TYPE = "attribute_assign_type";
   
+  /** column */
+  public static final String COLUMN_SOURCE_ID = "source_id";
+  
+  
+  /** constant for field name for: sourceId */
+  public static final String FIELD_SOURCE_ID = "sourceId";
   
   /** constant for field name for: contextId */
   public static final String FIELD_CONTEXT_ID = "contextId";
@@ -105,7 +110,7 @@ public class PITAttributeAssign extends GrouperPIT implements Hib3GrouperVersion
       FIELD_ACTIVE_DB, FIELD_START_TIME_DB, FIELD_END_TIME_DB,
       FIELD_ATTRIBUTE_ASSIGN_ACTION_ID, FIELD_ATTRIBUTE_ASSIGN_TYPE, FIELD_ATTRIBUTE_DEF_NAME_ID,
       FIELD_OWNER_ATTRIBUTE_ASSIGN_ID, FIELD_OWNER_ATTRIBUTE_DEF_ID, FIELD_OWNER_GROUP_ID,
-      FIELD_OWNER_MEMBER_ID, FIELD_OWNER_MEMBERSHIP_ID, FIELD_OWNER_STEM_ID);
+      FIELD_OWNER_MEMBER_ID, FIELD_OWNER_MEMBERSHIP_ID, FIELD_OWNER_STEM_ID, FIELD_SOURCE_ID);
 
 
   /**
@@ -115,7 +120,7 @@ public class PITAttributeAssign extends GrouperPIT implements Hib3GrouperVersion
       FIELD_ACTIVE_DB, FIELD_ATTRIBUTE_ASSIGN_ACTION_ID, FIELD_ATTRIBUTE_ASSIGN_TYPE, FIELD_ATTRIBUTE_DEF_NAME_ID, 
       FIELD_CONTEXT_ID, FIELD_DISALLOWED, FIELD_END_TIME_DB, FIELD_ID, 
       FIELD_OWNER_ATTRIBUTE_ASSIGN_ID, FIELD_OWNER_ATTRIBUTE_DEF_ID, FIELD_OWNER_GROUP_ID, FIELD_OWNER_MEMBER_ID, 
-      FIELD_OWNER_MEMBERSHIP_ID, FIELD_OWNER_STEM_ID, FIELD_START_TIME_DB);
+      FIELD_OWNER_MEMBERSHIP_ID, FIELD_OWNER_STEM_ID, FIELD_START_TIME_DB, FIELD_SOURCE_ID);
 
 
   /**
@@ -158,6 +163,24 @@ public class PITAttributeAssign extends GrouperPIT implements Hib3GrouperVersion
 
   /** attributeDefNameId */
   private String attributeDefNameId;
+  
+  /** sourceId */
+  private String sourceId;
+  
+  /**
+   * @return source id
+   */
+  public String getSourceId() {
+    return sourceId;
+  }
+
+  /**
+   * set source id
+   * @param sourceId
+   */
+  public void setSourceId(String sourceId) {
+    this.sourceId = sourceId;
+  }
 
   /** whether there will be notifications for roles with permission changes when this object is saved or updated */ 
   private boolean notificationsForRolesWithPermissionChangesOnSaveOrUpdate = false;
@@ -380,94 +403,53 @@ public class PITAttributeAssign extends GrouperPIT implements Hib3GrouperVersion
    * save this object
    */
   public void save() {
-    // if the id already exists for an inactive attribute assign, let's rename the id to avoid a conflict.
-    PITAttributeAssign existing = GrouperDAOFactory.getFactory().getPITAttributeAssign().findById(this.getId());
-    if (existing != null && !existing.isActive() && this.isActive()) {
-      
-      // first make a copy of the attribute assignment with a new id
-      PITAttributeAssign existingCopy = existing.clone();
-      existingCopy.setId(GrouperUuid.getUuid());
-      existingCopy.setHibernateVersionNumber(-1L);
-      existingCopy.save();
-      
-      // next update the assignment id for attribute values and other attribute assignments where this is the owner
-      GrouperDAOFactory.getFactory().getPITAttributeAssignValue().updateAttributeAssignId(existing.getId(), existingCopy.getId());
-      GrouperDAOFactory.getFactory().getPITAttributeAssign().updateOwnerAttributeAssignId(existing.getId(), existingCopy.getId());
-      
-      // delete the old assignment and add the new one now...
-      existing.delete();
-      GrouperDAOFactory.getFactory().getPITAttributeAssign().saveOrUpdate(this);
-
-      {
-        // next add values for the assignment being saved and add end dates to existing values.
-        Set<PITAttributeAssignValue> values = GrouperDAOFactory.getFactory().getPITAttributeAssignValue().findActiveByAttributeAssignId(existingCopy.getId());
-        Iterator<PITAttributeAssignValue> valueIter = values.iterator();
-        while (valueIter.hasNext()) {
-          PITAttributeAssignValue value = valueIter.next();
-          PITAttributeAssignValue valueCopy = value.clone();
-          
-          valueCopy.setId(GrouperUuid.getUuid());
-          valueCopy.setEndTimeDb(this.getStartTimeDb());
-          valueCopy.setActiveDb("F");
-          valueCopy.setContextId(this.getContextId());
-          valueCopy.setHibernateVersionNumber(-1L);
-          valueCopy.save();
-          
-          value.setAttributeAssignId(this.getId());
-          value.setStartTimeDb(this.getStartTimeDb());
-          value.setContextId(this.getContextId());
-          value.update();
-        }
-      }
-      
-      {
-        // do the same for other attribute assignments where this is the owner
-        Set<PITAttributeAssign> assignments = GrouperDAOFactory.getFactory().getPITAttributeAssign().findActiveByOwnerAttributeAssignId(existingCopy.getId());
-        Iterator<PITAttributeAssign> assignmentIter = assignments.iterator();
-        while (assignmentIter.hasNext()) {
-          PITAttributeAssign assignment = assignmentIter.next();
-          PITAttributeAssign assignmentCopy = assignment.clone();
-          
-          assignmentCopy.setId(GrouperUuid.getUuid());
-          assignmentCopy.setEndTimeDb(this.getStartTimeDb());
-          assignmentCopy.setActiveDb("F");
-          assignmentCopy.setContextId(this.getContextId());
-          assignmentCopy.setHibernateVersionNumber(-1L);
-          assignmentCopy.save();
-          
-          assignment.setOwnerAttributeAssignId(this.getId());
-          assignment.setStartTimeDb(this.getStartTimeDb());
-          assignment.setContextId(this.getContextId());
-          assignment.update();
-          
-          // well this assignment might have values too...
-          GrouperDAOFactory.getFactory().getPITAttributeAssignValue().updateAttributeAssignId(assignment.getId(), assignmentCopy.getId());
-          Set<PITAttributeAssignValue> values = GrouperDAOFactory.getFactory().getPITAttributeAssignValue().findActiveByAttributeAssignId(assignmentCopy.getId());
-          Iterator<PITAttributeAssignValue> valueIter = values.iterator();
-          while (valueIter.hasNext()) {
-            PITAttributeAssignValue value = valueIter.next();
-            PITAttributeAssignValue valueCopy = value.clone();
-            
-            valueCopy.setId(GrouperUuid.getUuid());
-            valueCopy.setEndTimeDb(this.getStartTimeDb());
-            valueCopy.setActiveDb("F");
-            valueCopy.setContextId(this.getContextId());
-            valueCopy.setHibernateVersionNumber(-1L);
-            valueCopy.save();
-            
-            value.setAttributeAssignId(assignment.getId());
-            value.setStartTimeDb(this.getStartTimeDb());
-            value.setContextId(this.getContextId());
-            value.update();
-          }
-        }
-      }
-      
+    // may need to create new child objects if this object is being re-enabled..
+    Set<PITAttributeAssign> existingAll = GrouperDAOFactory.getFactory().getPITAttributeAssign().findBySourceId(this.getSourceId(), false);
+    GrouperDAOFactory.getFactory().getPITAttributeAssign().saveOrUpdate(this);
+    if (!this.isActive()) {
       return;
     }
     
-    GrouperDAOFactory.getFactory().getPITAttributeAssign().saveOrUpdate(this);
+    for (PITAttributeAssign existing : existingAll) {
+
+      // add new values and end dates to existing ones.
+      Set<PITAttributeAssignValue> values = GrouperDAOFactory.getFactory().getPITAttributeAssignValue().findActiveByAttributeAssignId(existing.getId());
+      for (PITAttributeAssignValue value : values) {
+        PITAttributeAssignValue valueCopy = value.clone();
+
+        value.setEndTimeDb(this.getStartTimeDb());
+        value.setActiveDb("F");
+        value.setContextId(this.getContextId());
+        value.update();
+        
+        valueCopy.setId(GrouperUuid.getUuid());
+        valueCopy.setAttributeAssignId(this.getId());
+        valueCopy.setStartTimeDb(this.getStartTimeDb());
+        valueCopy.setContextId(this.getContextId());
+        valueCopy.setHibernateVersionNumber(-1L);
+        valueCopy.save();
+      }
+      
+      // add new assignments and end dates to existing ones.
+      Set<PITAttributeAssign> assignments = GrouperDAOFactory.getFactory().getPITAttributeAssign().findActiveByOwnerAttributeAssignId(existing.getId());
+      for (PITAttributeAssign assignment : assignments) {
+        PITAttributeAssign assignmentCopy = assignment.clone();
+
+        assignment.setEndTimeDb(this.getStartTimeDb());
+        assignment.setActiveDb("F");
+        assignment.setContextId(this.getContextId());
+        assignment.update();
+        
+        assignmentCopy.setId(GrouperUuid.getUuid());
+        assignmentCopy.setOwnerAttributeAssignId(this.getId());
+        assignmentCopy.setStartTimeDb(this.getStartTimeDb());
+        assignmentCopy.setContextId(this.getContextId());
+        assignmentCopy.setHibernateVersionNumber(-1L);
+        assignmentCopy.save();
+      }
+    } 
   }
+
   
   /**
    * update this object
@@ -502,7 +484,7 @@ public class PITAttributeAssign extends GrouperPIT implements Hib3GrouperVersion
 
       for (PITGroup role : roles) {
         ChangeLogEntry changeLogEntry = new ChangeLogEntry(false, ChangeLogTypeBuiltin.PERMISSION_CHANGE_ON_ROLE,
-            ChangeLogLabels.PERMISSION_CHANGE_ON_ROLE.roleId.name(), role.getId(),
+            ChangeLogLabels.PERMISSION_CHANGE_ON_ROLE.roleId.name(), role.getSourceId(),
             ChangeLogLabels.PERMISSION_CHANGE_ON_ROLE.roleName.name(), role.getName());
             
         changeLogEntry.setContextId(this.getContextId());
@@ -541,7 +523,7 @@ public class PITAttributeAssign extends GrouperPIT implements Hib3GrouperVersion
 
       for (PITGroup role : roles) {
         ChangeLogEntry changeLogEntry = new ChangeLogEntry(false, ChangeLogTypeBuiltin.PERMISSION_CHANGE_ON_ROLE,
-            ChangeLogLabels.PERMISSION_CHANGE_ON_ROLE.roleId.name(), role.getId(),
+            ChangeLogLabels.PERMISSION_CHANGE_ON_ROLE.roleId.name(), role.getSourceId(),
             ChangeLogLabels.PERMISSION_CHANGE_ON_ROLE.roleName.name(), role.getName());
             
         changeLogEntry.setContextId(this.getContextId());
@@ -647,5 +629,102 @@ public class PITAttributeAssign extends GrouperPIT implements Hib3GrouperVersion
     for (PITAttributeAssign assignment : assignments) {
       GrouperDAOFactory.getFactory().getPITAttributeAssign().delete(assignment);
     }
+  }
+  
+  private PITAttributeAssignAction pitAttributeAssignAction = null;
+  private PITAttributeDefName pitAttributeDefName = null;
+  private PITGroup pitOwnerGroup = null;
+  private PITAttributeAssign pitOwnerAttributeAssign = null;
+  private PITAttributeDef pitOwnerAttributeDef = null;
+  private PITMember pitOwnerMember = null;
+  private PITMembership pitOwnerMembership = null;
+  private PITStem pitOwnerStem = null;
+  
+  /**
+   * @return pitAttributeAssignAction
+   */
+  public PITAttributeAssignAction getPITAttributeAssignAction() {
+    if (pitAttributeAssignAction == null) {
+      pitAttributeAssignAction = GrouperDAOFactory.getFactory().getPITAttributeAssignAction().findById(attributeAssignActionId, true);
+    }
+    
+    return pitAttributeAssignAction;
+  }
+  
+  /**
+   * @return pitAttributeDefName
+   */
+  public PITAttributeDefName getPITAttributeDefName() {
+    if (pitAttributeDefName == null) {
+      pitAttributeDefName = GrouperDAOFactory.getFactory().getPITAttributeDefName().findById(attributeDefNameId, true);
+    }
+    
+    return pitAttributeDefName;
+  }
+  
+  /**
+   * @return pitOwnerGroup
+   */
+  public PITGroup getOwnerPITGroup() {
+    if (pitOwnerGroup == null && ownerGroupId != null) {
+      pitOwnerGroup = GrouperDAOFactory.getFactory().getPITGroup().findById(ownerGroupId, true);
+    }
+    
+    return pitOwnerGroup;
+  }
+  
+  /**
+   * @return pitOwnerAttributeAssign
+   */
+  public PITAttributeAssign getOwnerPITAttributeAssign() {
+    if (pitOwnerAttributeAssign == null && ownerAttributeAssignId != null) {
+      pitOwnerAttributeAssign = GrouperDAOFactory.getFactory().getPITAttributeAssign().findById(ownerAttributeAssignId, true);
+    }
+    
+    return pitOwnerAttributeAssign;
+  }
+  
+  /**
+   * @return pitOwnerAttributeDef
+   */
+  public PITAttributeDef getOwnerPITAttributeDef() {
+    if (pitOwnerAttributeDef == null && ownerAttributeDefId != null) {
+      pitOwnerAttributeDef = GrouperDAOFactory.getFactory().getPITAttributeDef().findById(ownerAttributeDefId, true);
+    }
+    
+    return pitOwnerAttributeDef;
+  }
+  
+  /**
+   * @return pitOwnerMember
+   */
+  public PITMember getOwnerPITMember() {
+    if (pitOwnerMember == null && ownerMemberId != null) {
+      pitOwnerMember = GrouperDAOFactory.getFactory().getPITMember().findById(ownerMemberId, true);
+    }
+    
+    return pitOwnerMember;
+  }
+  
+  /**
+   * @return pitOwnerMembership
+   */
+  public PITMembership getOwnerPITMembership() {
+    if (pitOwnerMembership == null && ownerMembershipId != null) {
+      pitOwnerMembership = GrouperDAOFactory.getFactory().getPITMembership().findById(ownerMembershipId, true);
+    }
+    
+    return pitOwnerMembership;
+  }
+  
+  /**
+   * @return pitOwnerStem
+   */
+  public PITStem getOwnerPITStem() {
+    if (pitOwnerStem == null && ownerStemId != null) {
+      pitOwnerStem = GrouperDAOFactory.getFactory().getPITStem().findById(ownerStemId, true);
+    }
+    
+    return pitOwnerStem;
   }
 }

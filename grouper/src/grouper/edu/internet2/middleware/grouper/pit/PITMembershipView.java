@@ -123,9 +123,11 @@ public class PITMembershipView {
   /** membershipEndTimeDb */
   private Long membershipEndTimeDb;
   
-  /** member */
-  private PITMember member;
+  /** pitMember */
+  private PITMember pitMember;
   
+  /** pitMembership */
+  private PITMembership pitMembership;
 
   /**
    * @return id
@@ -222,22 +224,34 @@ public class PITMembershipView {
   }
   
   /**
-   * @param member
+   * @param pitMember
    */
-  public void setMember(PITMember member) {
-    this.member = member;
+  public void setPITMember(PITMember pitMember) {
+    this.pitMember = pitMember;
   }
   
   /**
-   * @return member
+   * @return pitMember
    */
-  public PITMember getMember() {
-    if (this.member != null) {
-      return this.member;
+  public PITMember getPITMember() {
+    if (this.pitMember != null) {
+      return this.pitMember;
     }
     
-    this.member = GrouperDAOFactory.getFactory().getPITMember().findById(this.memberId);
-    return this.member;
+    this.pitMember = GrouperDAOFactory.getFactory().getPITMember().findById(this.memberId, true);
+    return this.pitMember;
+  }
+  
+  /**
+   * @return pitMembership
+   */
+  public PITMembership getPITMembership() {
+    if (this.pitMembership != null) {
+      return this.pitMembership;
+    }
+    
+    this.pitMembership = GrouperDAOFactory.getFactory().getPITMembership().findById(this.membershipId, true);
+    return this.pitMembership;
   }
 
   /**

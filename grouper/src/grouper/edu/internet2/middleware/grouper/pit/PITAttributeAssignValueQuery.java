@@ -2,6 +2,7 @@ package edu.internet2.middleware.grouper.pit;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -12,6 +13,7 @@ import org.hibernate.criterion.Restrictions;
 import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 
 
 /**
@@ -336,39 +338,93 @@ public class PITAttributeAssignValueQuery {
     List<Criterion> criterionList = new ArrayList<Criterion>();
 
     if (this.attributeAssignId != null) {
-      criterionList.add(Restrictions.eq(PITAttributeAssignValueView.FIELD_ATTRIBUTE_ASSIGN_ID, this.attributeAssignId));
+      Set<PITAttributeAssign> pitRows = GrouperDAOFactory.getFactory().getPITAttributeAssign().findBySourceId(this.attributeAssignId, true);
+      Set<String> ids = new LinkedHashSet<String>();
+      for (PITAttributeAssign pit : pitRows) {
+        ids.add(pit.getId());
+      }
+      
+      criterionList.add(Restrictions.in(PITAttributeAssignValueView.FIELD_ATTRIBUTE_ASSIGN_ID, ids));
     }
     
     if (this.ownerAttributeAssignId != null) {
-      criterionList.add(Restrictions.eq(PITAttributeAssignValueView.FIELD_OWNER_ATTRIBUTE_ASSIGN_ID, this.ownerAttributeAssignId));
+      Set<PITAttributeAssign> pitRows = GrouperDAOFactory.getFactory().getPITAttributeAssign().findBySourceId(this.ownerAttributeAssignId, true);
+      Set<String> ids = new LinkedHashSet<String>();
+      for (PITAttributeAssign pit : pitRows) {
+        ids.add(pit.getId());
+      }
+      
+      criterionList.add(Restrictions.in(PITAttributeAssignValueView.FIELD_OWNER_ATTRIBUTE_ASSIGN_ID, ids));      
     }
     
     if (this.ownerAttributeDefId != null) {
-      criterionList.add(Restrictions.eq(PITAttributeAssignValueView.FIELD_OWNER_ATTRIBUTE_DEF_ID, this.ownerAttributeDefId));
+      Set<PITAttributeDef> pitRows = GrouperDAOFactory.getFactory().getPITAttributeDef().findBySourceId(this.ownerAttributeDefId, true);
+      Set<String> ids = new LinkedHashSet<String>();
+      for (PITAttributeDef pit : pitRows) {
+        ids.add(pit.getId());
+      }
+      
+      criterionList.add(Restrictions.in(PITAttributeAssignValueView.FIELD_OWNER_ATTRIBUTE_DEF_ID, ids));
     }
     
     if (this.ownerGroupId != null) {
-      criterionList.add(Restrictions.eq(PITAttributeAssignValueView.FIELD_OWNER_GROUP_ID, this.ownerGroupId));
+      Set<PITGroup> pitRows = GrouperDAOFactory.getFactory().getPITGroup().findBySourceId(this.ownerGroupId, true);
+      Set<String> ids = new LinkedHashSet<String>();
+      for (PITGroup pit : pitRows) {
+        ids.add(pit.getId());
+      }
+      
+      criterionList.add(Restrictions.in(PITAttributeAssignValueView.FIELD_OWNER_GROUP_ID, ids));
     }
     
     if (this.ownerMemberId != null) {
-      criterionList.add(Restrictions.eq(PITAttributeAssignValueView.FIELD_OWNER_MEMBER_ID, this.ownerMemberId));
+      Set<PITMember> pitRows = GrouperDAOFactory.getFactory().getPITMember().findBySourceId(this.ownerMemberId, true);
+      Set<String> ids = new LinkedHashSet<String>();
+      for (PITMember pit : pitRows) {
+        ids.add(pit.getId());
+      }
+      
+      criterionList.add(Restrictions.in(PITAttributeAssignValueView.FIELD_OWNER_MEMBER_ID, ids));
     }
     
     if (this.ownerMembershipId != null) {
-      criterionList.add(Restrictions.eq(PITAttributeAssignValueView.FIELD_OWNER_MEMBERSHIP_ID, this.ownerMembershipId));
+      Set<PITMembership> pitRows = GrouperDAOFactory.getFactory().getPITMembership().findBySourceId(this.ownerMembershipId, true);
+      Set<String> ids = new LinkedHashSet<String>();
+      for (PITMembership pit : pitRows) {
+        ids.add(pit.getId());
+      }
+      
+      criterionList.add(Restrictions.in(PITAttributeAssignValueView.FIELD_OWNER_MEMBERSHIP_ID, ids));
     }
     
     if (this.ownerStemId != null) {
-      criterionList.add(Restrictions.eq(PITAttributeAssignValueView.FIELD_OWNER_STEM_ID, this.ownerStemId));
+      Set<PITStem> pitRows = GrouperDAOFactory.getFactory().getPITStem().findBySourceId(this.ownerStemId, true);
+      Set<String> ids = new LinkedHashSet<String>();
+      for (PITStem pit : pitRows) {
+        ids.add(pit.getId());
+      }
+      
+      criterionList.add(Restrictions.in(PITAttributeAssignValueView.FIELD_OWNER_STEM_ID, ids));
     }
     
     if (this.attributeDefNameId != null) {
-      criterionList.add(Restrictions.eq(PITAttributeAssignValueView.FIELD_ATTRIBUTE_DEF_NAME_ID, this.attributeDefNameId));
+      Set<PITAttributeDefName> pitRows = GrouperDAOFactory.getFactory().getPITAttributeDefName().findBySourceId(this.attributeDefNameId, true);
+      Set<String> ids = new LinkedHashSet<String>();
+      for (PITAttributeDefName pit : pitRows) {
+        ids.add(pit.getId());
+      }
+      
+      criterionList.add(Restrictions.in(PITAttributeAssignValueView.FIELD_ATTRIBUTE_DEF_NAME_ID, ids));
     }
     
     if (this.actionId != null) {
-      criterionList.add(Restrictions.eq(PITAttributeAssignValueView.FIELD_ATTRIBUTE_ASSIGN_ACTION_ID, this.actionId));
+      Set<PITAttributeAssignAction> pitRows = GrouperDAOFactory.getFactory().getPITAttributeAssignAction().findBySourceId(this.actionId, true);
+      Set<String> ids = new LinkedHashSet<String>();
+      for (PITAttributeAssignAction pit : pitRows) {
+        ids.add(pit.getId());
+      }
+      
+      criterionList.add(Restrictions.in(PITAttributeAssignValueView.FIELD_ATTRIBUTE_ASSIGN_ACTION_ID, ids));
     }
     
     if (this.valueString != null) {
