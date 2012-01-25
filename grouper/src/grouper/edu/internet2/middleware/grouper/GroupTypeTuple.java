@@ -344,7 +344,10 @@ public class GroupTypeTuple extends GrouperAPI implements GrouperHasContext, Hib
   @Override
   public void onPreSave(HibernateSession hibernateSession) {
     super.onPreSave(hibernateSession);
-      
+    
+    // get the group object if we don't already have it..
+    this.retrieveGroup(true);
+    
     // add group sets
     Set<Field> fields = FieldFinder.findAllByGroupType(this.getTypeUuid());
     Iterator<Field> iter = fields.iterator();
