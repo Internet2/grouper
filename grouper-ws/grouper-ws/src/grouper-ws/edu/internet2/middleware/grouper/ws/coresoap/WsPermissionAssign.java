@@ -84,6 +84,7 @@ public class WsPermissionAssign implements Comparable<WsPermissionAssign> {
   /** name of attribute def in this assignment */
   private String attributeDefName;
 
+
   /**
    * id of attribute def in this assignment
    * @return id of attribute def in this assignment
@@ -467,12 +468,13 @@ public class WsPermissionAssign implements Comparable<WsPermissionAssign> {
   public WsPermissionAssign(PermissionEntry permissionEntry, 
       Set<PermissionLimitBean> permissionLimitBeans, boolean includePermissionAssignDetail) {
     
+    boolean pit = false;
     this.action =  permissionEntry.getAction();
-    this.attributeAssignId = permissionEntry.getAttributeAssignId();
     
     if (permissionEntry instanceof PITPermissionAllView) {
+      pit = true;
       PITAttributeDef theAttributeDef = GrouperDAOFactory.getFactory().getPITAttributeDef()
-        .findById(permissionEntry.getAttributeDefId());
+        .findById(permissionEntry.getAttributeDefId(), true);
       this.attributeDefName = theAttributeDef == null ? null : theAttributeDef.getName();
     } else {
       AttributeDef theAttributeDef = GrouperDAOFactory.getFactory().getAttributeDef()
@@ -481,25 +483,25 @@ public class WsPermissionAssign implements Comparable<WsPermissionAssign> {
       this.enabled = permissionEntry.isEnabled() ? "T" : "F";
     }
 
-    this.attributeDefId = permissionEntry.getAttributeDefId();
-    this.attributeDefNameId = permissionEntry.getAttributeDefNameId();
+    this.attributeDefId = pit ? ((PITPermissionAllView)permissionEntry).getAttributeDefSourceId() : permissionEntry.getAttributeDefId();
+    this.attributeDefNameId = pit ? ((PITPermissionAllView)permissionEntry).getAttributeDefNameSourceId() : permissionEntry.getAttributeDefNameId();
     this.attributeDefNameName = permissionEntry.getAttributeDefNameName();
     
     if (includePermissionAssignDetail) {
       this.detail = new WsPermissionAssignDetail(permissionEntry);
     }
     
-    this.attributeAssignId = permissionEntry.getAttributeAssignId();
+    this.attributeAssignId = pit ? ((PITPermissionAllView)permissionEntry).getAttributeAssignSourceId() : permissionEntry.getAttributeAssignId();
     
-    this.membershipId = permissionEntry.getMembershipId();
+    this.membershipId = pit ? ((PITPermissionAllView)permissionEntry).getMembershipSourceId() : permissionEntry.getMembershipId();
     this.permissionType = permissionEntry.getPermissionTypeDb();
-    this.roleId = permissionEntry.getRoleId();
+    this.roleId = pit ? ((PITPermissionAllView)permissionEntry).getRoleSourceId() : permissionEntry.getRoleId();
     this.roleName = permissionEntry.getRoleName();
     this.sourceId = permissionEntry.getSubjectSourceId();
     this.subjectId = permissionEntry.getSubjectId();
     
     this.disallowed = permissionEntry.isDisallowed() ? "T" : "F";
-    this.allowedOverall = permissionEntry.isAllowedOverall() ? "T" : "F";
+    this.allowedOverall = pit || permissionEntry.isAllowedOverall() ? "T" : "F";
     if (GrouperUtil.length(permissionLimitBeans) > 0) {
       this.limits = new WsPermissionLimit[GrouperUtil.length(permissionLimitBeans)];
       

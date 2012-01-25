@@ -173,7 +173,7 @@ public class WsGroup implements Comparable<WsGroup> {
    */
   public WsGroup(PITGroup pitGroup) {
     this.setName(pitGroup.getName());
-    this.setUuid(pitGroup.getId());
+    this.setUuid(pitGroup.getSourceId());
     this.setExtension(GrouperUtil.extensionFromName(pitGroup.getName()));
   }
 

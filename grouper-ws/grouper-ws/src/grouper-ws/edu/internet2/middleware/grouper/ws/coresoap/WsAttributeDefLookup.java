@@ -248,10 +248,10 @@ public class WsAttributeDefLookup {
       }
 
       if (hasUuid) {        
-        PITAttributeDef theAttributeDef = PITAttributeDefFinder.findById(this.uuid, true);
+        Set<PITAttributeDef> theAttributeDefs = PITAttributeDefFinder.findBySourceId(this.uuid, pointInTimeFrom, pointInTimeTo, true);
 
         //make sure name matches 
-        if (hasName && !StringUtils.equals(this.name, theAttributeDef.getName())) {
+        if (hasName && !StringUtils.equals(this.name, theAttributeDefs.iterator().next().getName())) {
           this.attributeDefFindResult = AttributeDefFindResult.ATTRIBUTE_DEF_UUID_DOESNT_MATCH_NAME;
           String error = "AttributeDef name '" + this.name + "' and uuid '" + this.uuid
               + "' do not match";
@@ -264,8 +264,7 @@ public class WsAttributeDefLookup {
         }
 
         //success
-        this.pitAttributeDefs = new LinkedHashSet<PITAttributeDef>();
-        this.pitAttributeDefs.add(theAttributeDef);
+        this.pitAttributeDefs = new LinkedHashSet<PITAttributeDef>(theAttributeDefs);
 
       } else if (hasName) {
         this.pitAttributeDefs = PITAttributeDefFinder.findByName(this.name, pointInTimeFrom, pointInTimeTo, true, true);
@@ -415,10 +414,10 @@ public class WsAttributeDefLookup {
         } else if (usePIT && pitAttributeDefs != null && pitAttributeDefs.size() > 0) {
           for (PITAttributeDef pitAttributeDef : pitAttributeDefs) {
             if (attributeDefType == null) {
-              attributeDefIds.add(pitAttributeDef.getId());
+              attributeDefIds.add(pitAttributeDef.getSourceId());
             } else {
               if (attributeDefType.name().equals(pitAttributeDef.getAttributeDefTypeDb())) {
-                attributeDefIds.add(pitAttributeDef.getId());
+                attributeDefIds.add(pitAttributeDef.getSourceId());
               } else {
                 if (errorMessage.length() > 0) {
                   errorMessage.append(", ");

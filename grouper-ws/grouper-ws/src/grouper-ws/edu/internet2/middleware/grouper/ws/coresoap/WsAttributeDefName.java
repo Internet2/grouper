@@ -158,13 +158,13 @@ public class WsAttributeDefName implements Comparable<WsAttributeDefName> {
   public WsAttributeDefName(PITAttributeDefName theAttributeDefName, WsAttributeDefNameLookup wsAttributeDefNameLookup) {
     if (theAttributeDefName != null) {
       this.setName(theAttributeDefName.getName());
-      this.setUuid(theAttributeDefName.getId());
+      this.setUuid(theAttributeDefName.getSourceId());
       this.setExtension(GrouperUtil.extensionFromName(theAttributeDefName.getName()));
-      this.setAttributeDefId(theAttributeDefName.getAttributeDefId());
       
       PITAttributeDef theAttributeDef = PITAttributeDefFinder.findById(theAttributeDefName.getAttributeDefId(), false);
       
       if (theAttributeDef != null) {
+        this.setAttributeDefId(theAttributeDef.getSourceId());
         this.setAttributeDefName(theAttributeDef.getName());
       }
       

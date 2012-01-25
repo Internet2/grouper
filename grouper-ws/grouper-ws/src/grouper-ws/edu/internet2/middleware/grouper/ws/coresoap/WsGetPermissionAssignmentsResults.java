@@ -29,7 +29,9 @@ import edu.internet2.middleware.grouper.pit.PITAttributeAssign;
 import edu.internet2.middleware.grouper.pit.PITAttributeDef;
 import edu.internet2.middleware.grouper.pit.PITAttributeDefName;
 import edu.internet2.middleware.grouper.pit.PITGroup;
-import edu.internet2.middleware.grouper.pit.PITPermissionAllView;
+import edu.internet2.middleware.grouper.pit.finder.PITAttributeDefFinder;
+import edu.internet2.middleware.grouper.pit.finder.PITAttributeDefNameFinder;
+import edu.internet2.middleware.grouper.pit.finder.PITGroupFinder;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.ResultMetadataHolder;
@@ -416,19 +418,30 @@ public class WsGetPermissionAssignmentsResults implements WsResponseBean, Result
       }
     }
 
-    //security is already checked, lets pass these through...
-    this.wsAttributeDefs = new WsAttributeDef[allAttributeDefIds.size()];
-    
-    int i = 0;
-    for (String wsAttributeDefId : allAttributeDefIds) {
-      if (!usePIT) {
+    if (!usePIT) {
+      //security is already checked, lets pass these through...
+      this.wsAttributeDefs = new WsAttributeDef[allAttributeDefIds.size()];
+      
+      int i = 0;
+      for (String wsAttributeDefId : allAttributeDefIds) {
         AttributeDef attributeDef = GrouperDAOFactory.getFactory().getAttributeDef().findById(wsAttributeDefId, true);
         this.wsAttributeDefs[i] = new WsAttributeDef(attributeDef, null);
-      } else {
-        PITAttributeDef attributeDef = GrouperDAOFactory.getFactory().getPITAttributeDef().findById(wsAttributeDefId);
-        this.wsAttributeDefs[i] = new WsAttributeDef(attributeDef, null);
+        i++;
       }
-      i++;
+    } else {
+      List<PITAttributeDef> entries = new ArrayList<PITAttributeDef>();
+      
+      for (String wsAttributeDefId : allAttributeDefIds) {
+        entries.addAll(PITAttributeDefFinder.findBySourceId(wsAttributeDefId, true));
+      }
+      
+      this.wsAttributeDefs = new WsAttributeDef[entries.size()];
+      
+      int i = 0;
+      for (PITAttributeDef pitAttributeDef : entries) {
+        this.wsAttributeDefs[i] = new WsAttributeDef(pitAttributeDef, null);      
+        i++;
+      }
     }
   }
 
@@ -455,19 +468,30 @@ public class WsGetPermissionAssignmentsResults implements WsResponseBean, Result
       }
     }
 
-    //security is already checked, lets pass these through...
-    this.wsGroups = new WsGroup[allGroupIds.size()];
-    
-    int i = 0;
-    for (String wsGroupId : allGroupIds) {
-      if (!usePIT) {
+    if (!usePIT) {
+      //security is already checked, lets pass these through...
+      this.wsGroups = new WsGroup[allGroupIds.size()];
+      
+      int i = 0;
+      for (String wsGroupId : allGroupIds) {
         Group group = GrouperDAOFactory.getFactory().getGroup().findByUuid(wsGroupId, true);
         this.wsGroups[i] = new WsGroup(group, null, includeGroupDetail);
-      } else {
-        PITGroup group = GrouperDAOFactory.getFactory().getPITGroup().findById(wsGroupId);
-        this.wsGroups[i] = new WsGroup(group);
+        i++;
       }
-      i++;
+    } else {
+      List<PITGroup> entries = new ArrayList<PITGroup>();
+      
+      for (String wsGroupId : allGroupIds) {
+        entries.addAll(PITGroupFinder.findBySourceId(wsGroupId, true));
+      }
+      
+      this.wsGroups = new WsGroup[entries.size()];
+      
+      int i = 0;
+      for (PITGroup pitGroup : entries) {
+        this.wsGroups[i] = new WsGroup(pitGroup);      
+        i++;
+      }
     }
   }
 
@@ -550,19 +574,30 @@ public class WsGetPermissionAssignmentsResults implements WsResponseBean, Result
       }
     }
     
-    //security is already checked, lets pass these through...
-    this.wsAttributeDefNames = new WsAttributeDefName[allAttributeDefNameIds.size()];
-    
-    int i = 0;
-    for (String wsAttributeDefNameId : allAttributeDefNameIds) {
-      if (!usePIT) {
+    if (!usePIT) {
+      //security is already checked, lets pass these through...
+      this.wsAttributeDefNames = new WsAttributeDefName[allAttributeDefNameIds.size()];
+      
+      int i = 0;
+      for (String wsAttributeDefNameId : allAttributeDefNameIds) {
         AttributeDefName attributeDefName = GrouperDAOFactory.getFactory().getAttributeDefName().findByUuidOrName(wsAttributeDefNameId, null, true);
-        this.wsAttributeDefNames[i] = new WsAttributeDefName(attributeDefName, null);
-      } else {
-        PITAttributeDefName attributeDefName = GrouperDAOFactory.getFactory().getPITAttributeDefName().findById(wsAttributeDefNameId);
-        this.wsAttributeDefNames[i] = new WsAttributeDefName(attributeDefName, null);
+        this.wsAttributeDefNames[i] = new WsAttributeDefName(attributeDefName, null);      
+        i++;
       }
-      i++;
+    } else {
+      List<PITAttributeDefName> entries = new ArrayList<PITAttributeDefName>();
+            
+      for (String wsAttributeDefNameId : allAttributeDefNameIds) {
+        entries.addAll(PITAttributeDefNameFinder.findBySourceId(wsAttributeDefNameId, true));
+      }
+      
+      this.wsAttributeDefNames = new WsAttributeDefName[entries.size()];
+      
+      int i = 0;
+      for (PITAttributeDefName pitAttributeDefName : entries) {
+        this.wsAttributeDefNames[i] = new WsAttributeDefName(pitAttributeDefName, null);      
+        i++;
+      }
     }
   }
 
@@ -614,8 +649,7 @@ public class WsGetPermissionAssignmentsResults implements WsResponseBean, Result
       List<PITAttributeAssign> attributeAssignList = new ArrayList<PITAttributeAssign>();
       
       for (String wsAttributeAssignId : allAttributeAssignIds) {
-        PITAttributeAssign attributeAssign = GrouperDAOFactory.getFactory().getPITAttributeAssign().findById(wsAttributeAssignId);
-        attributeAssignList.add(attributeAssign);
+        attributeAssignList.addAll(GrouperDAOFactory.getFactory().getPITAttributeAssign().findBySourceId(wsAttributeAssignId, true));
       }
   
       if (includeAssignmentsOnAssignments) {

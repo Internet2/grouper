@@ -218,7 +218,7 @@ public class WsAttributeDef implements Comparable<WsAttributeDef> {
   public WsAttributeDef(PITAttributeDef attributeDef, WsAttributeDefLookup wsAttributeDefLookup) {
     if (attributeDef != null) {
       this.setName(attributeDef.getName());
-      this.setUuid(attributeDef.getId());
+      this.setUuid(attributeDef.getSourceId());
       this.setExtension(GrouperUtil.extensionFromName(attributeDef.getName()));
       
       this.attributeDefType = attributeDef.getAttributeDefTypeDb();      

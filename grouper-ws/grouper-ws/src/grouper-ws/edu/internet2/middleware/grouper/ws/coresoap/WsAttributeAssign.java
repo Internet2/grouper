@@ -813,9 +813,9 @@ public class WsAttributeAssign implements Comparable<WsAttributeAssign> {
    */
   public WsAttributeAssign(PITAttributeAssign pitAttributeAssign, Timestamp pointInTimeFrom, Timestamp pointInTimeTo) {
     
-    this.attributeAssignActionId = pitAttributeAssign.getAttributeAssignActionId();
+    this.attributeAssignActionId = pitAttributeAssign.getPITAttributeAssignAction().getSourceId();
     
-    PITAttributeAssignAction action = GrouperDAOFactory.getFactory().getPITAttributeAssignAction().findById(this.attributeAssignActionId);
+    PITAttributeAssignAction action = GrouperDAOFactory.getFactory().getPITAttributeAssignAction().findById(pitAttributeAssign.getAttributeAssignActionId(), true);
     
     this.attributeAssignActionName = action.getName();
     
@@ -824,42 +824,43 @@ public class WsAttributeAssign implements Comparable<WsAttributeAssign> {
     PITAttributeDefName theAttributeDefName = PITAttributeDefNameFinder.findById(pitAttributeAssign.getAttributeDefNameId(), false);
     PITAttributeDef theAttributeDef = PITAttributeDefFinder.findById(theAttributeDefName.getAttributeDefId(), false);
     
-    this.attributeDefId = theAttributeDef == null ? null : theAttributeDef.getId();
+    this.attributeDefId = theAttributeDef == null ? null : theAttributeDef.getSourceId();
     this.attributeDefName = theAttributeDef == null ? null : theAttributeDef.getName();
-    this.attributeDefNameId = pitAttributeAssign.getAttributeDefNameId();
+    this.attributeDefNameId = theAttributeDefName == null ? null : theAttributeDefName.getSourceId();
     this.attributeDefNameName = theAttributeDefName == null ? null : theAttributeDefName.getName();
 
     this.enabled = "T";
     
-    this.id = pitAttributeAssign.getId();
-    this.ownerAttributeAssignId = pitAttributeAssign.getOwnerAttributeAssignId();
-    this.ownerAttributeDefId = pitAttributeAssign.getOwnerAttributeDefId();
+    this.id = pitAttributeAssign.getSourceId();
+    this.ownerAttributeAssignId = pitAttributeAssign.getOwnerAttributeAssignId() == null ? null : pitAttributeAssign.getOwnerPITAttributeAssign().getSourceId();
+    this.ownerAttributeDefId = pitAttributeAssign.getOwnerAttributeDefId() == null ? null : pitAttributeAssign.getOwnerPITAttributeDef().getSourceId();
+    this.ownerAttributeDefName = pitAttributeAssign.getOwnerAttributeDefId() == null ? null : pitAttributeAssign.getOwnerPITAttributeDef().getName();
     
     if (this.ownerAttributeDefId != null) {
-      PITAttributeDef ownerAttributeDef = PITAttributeDefFinder.findById(this.ownerAttributeDefId, false);
+      PITAttributeDef ownerAttributeDef = PITAttributeDefFinder.findById(pitAttributeAssign.getOwnerAttributeDefId(), false);
       this.ownerAttributeDefName = ownerAttributeDef == null ? null : ownerAttributeDef.getName();
     }
     
-    this.ownerGroupId = pitAttributeAssign.getOwnerGroupId();
+    this.ownerGroupId = pitAttributeAssign.getOwnerGroupId() == null ? null : pitAttributeAssign.getOwnerPITGroup().getSourceId();
     
     if (this.ownerGroupId != null) {
-      PITGroup ownerGroup = PITGroupFinder.findById(this.ownerGroupId, false);
+      PITGroup ownerGroup = PITGroupFinder.findById(pitAttributeAssign.getOwnerGroupId(), false);
       this.ownerGroupName = ownerGroup == null ? null : ownerGroup.getName();
     }
     
-    this.ownerMemberId = pitAttributeAssign.getOwnerMemberId();
+    this.ownerMemberId = pitAttributeAssign.getOwnerMemberId() == null ? null : pitAttributeAssign.getOwnerPITMember().getSourceId();
     
     if (this.ownerMemberId != null) {
-      PITMember ownerMember = GrouperDAOFactory.getFactory().getPITMember().findById(this.ownerMemberId);
+      PITMember ownerMember = GrouperDAOFactory.getFactory().getPITMember().findById(pitAttributeAssign.getOwnerMemberId(), false);
       this.ownerMemberSourceId = ownerMember == null ? null : ownerMember.getSubjectSourceId();
       this.ownerMemberSubjectId = ownerMember == null ? null : ownerMember.getSubjectId();
     }
     
-    this.ownerMembershipId = pitAttributeAssign.getOwnerMembershipId();
-    this.ownerStemId = pitAttributeAssign.getOwnerStemId();
+    this.ownerMembershipId = pitAttributeAssign.getOwnerMembershipId() == null ? null : pitAttributeAssign.getOwnerPITMembership().getSourceId();
+    this.ownerStemId = pitAttributeAssign.getOwnerStemId() == null ? null : pitAttributeAssign.getOwnerPITStem().getSourceId();
     
     if (this.ownerStemId != null) {
-      PITStem ownerStem = GrouperDAOFactory.getFactory().getPITStem().findById(this.ownerStemId);
+      PITStem ownerStem = GrouperDAOFactory.getFactory().getPITStem().findById(pitAttributeAssign.getOwnerStemId(), false);
       this.ownerStemName = ownerStem == null ? null : ownerStem.getName();
     }
         
