@@ -252,11 +252,14 @@ public class XmlImporter {
     
   //make sure right db
     if(!"true".equals(rc.getProperty(XmlArgs.RC_NOPROMPT))) {
-    GrouperUtil.promptUserAboutDbChanges("import data from xml", true);
+      GrouperUtil.promptUserAboutDbChanges("import data from xml", true);
     }
     GrouperStartup.runFromMain = true;
     GrouperStartup.startup();
     final XmlImporter[] importer = new XmlImporter[1];
+    
+    GrouperSession.startRootSession();
+    
     HibernateSession.callbackHibernateSession(
         GrouperTransactionType.NONE, AuditControl.WILL_AUDIT,
         new HibernateHandler() {
