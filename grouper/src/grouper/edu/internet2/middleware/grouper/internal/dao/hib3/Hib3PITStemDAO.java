@@ -46,23 +46,81 @@ public class Hib3PITStemDAO extends Hib3DAO implements PITStemDAO {
    */
   public static void reset(HibernateSession hibernateSession) {
     //do this since mysql cant handle self-referential foreign keys    
-    hibernateSession.byHql().createQuery("update PITStem set parentStemId = null where id not in (select s.uuid from Stem as s)").executeUpdate();
+    hibernateSession.byHql().createQuery("update PITStem set parentStemId = null where sourceId not in (select s.uuid from Stem as s)").executeUpdate();
 
-    hibernateSession.byHql().createQuery("delete from PITStem where id not in (select s.uuid from Stem as s)").executeUpdate();
+    hibernateSession.byHql().createQuery("delete from PITStem where sourceId not in (select s.uuid from Stem as s)").executeUpdate();
   }
 
   /**
-   * @see edu.internet2.middleware.grouper.internal.dao.PITStemDAO#findById(java.lang.String)
+   * @see edu.internet2.middleware.grouper.internal.dao.PITStemDAO#findBySourceIdActive(java.lang.String, boolean)
    */
-  public PITStem findById(String pitStemId) {
+  public PITStem findBySourceIdActive(String id, boolean exceptionIfNotFound) {
     PITStem pitStem = HibernateSession
       .byHqlStatic()
-      .createQuery("select pitStem from PITStem as pitStem where pitStem.id = :id")
-      .setCacheable(false).setCacheRegion(KLASS + ".FindById")
-      .setString("id", pitStemId)
+      .createQuery("select pitStem from PITStem as pitStem where pitStem.sourceId = :id and activeDb = 'T'")
+      .setCacheable(false).setCacheRegion(KLASS + ".FindBySourceIdActive")
+      .setString("id", id)
       .uniqueResult(PITStem.class);
     
+    if (pitStem == null && exceptionIfNotFound) {
+      throw new RuntimeException("Active PITStem with sourceId=" + id + " not found");
+    }
+    
     return pitStem;
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.PITStemDAO#findBySourceIdUnique(java.lang.String, boolean)
+   */
+  public PITStem findBySourceIdUnique(String id, boolean exceptionIfNotFound) {
+    PITStem pitStem = HibernateSession
+      .byHqlStatic()
+      .createQuery("select pitStem from PITStem as pitStem where pitStem.sourceId = :id")
+      .setCacheable(false).setCacheRegion(KLASS + ".FindBySourceIdUnique")
+      .setString("id", id)
+      .uniqueResult(PITStem.class);
+    
+    if (pitStem == null && exceptionIfNotFound) {
+      throw new RuntimeException("PITStem with sourceId=" + id + " not found");
+    }
+    
+    return pitStem;
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.PITStemDAO#findBySourceId(java.lang.String, boolean)
+   */
+  public Set<PITStem> findBySourceId(String id, boolean exceptionIfNotFound) {
+    Set<PITStem> pitStems = HibernateSession
+      .byHqlStatic()
+      .createQuery("select pitStem from PITStem as pitStem where pitStem.sourceId = :id")
+      .setCacheable(false).setCacheRegion(KLASS + ".FindBySourceId")
+      .setString("id", id)
+      .listSet(PITStem.class);
+    
+    if (pitStems.size() == 0 && exceptionIfNotFound) {
+      throw new RuntimeException("PITStem with sourceId=" + id + " not found");
+    }
+    
+    return pitStems;
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.PITStemDAO#findById(java.lang.String, boolean)
+   */
+  public PITStem findById(String id, boolean exceptionIfNotFound) {
+    PITStem pit = HibernateSession
+      .byHqlStatic()
+      .createQuery("select pit from PITStem as pit where pit.id = :id")
+      .setCacheable(false).setCacheRegion(KLASS + ".FindById")
+      .setString("id", id)
+      .uniqueResult(PITStem.class);
+    
+    if (pit == null && exceptionIfNotFound) {
+      throw new RuntimeException("PITStem with id=" + id + " not found");
+    }
+    
+    return pit;
   }
   
   /**
@@ -119,7 +177,8 @@ public class Hib3PITStemDAO extends Hib3DAO implements PITStemDAO {
     Set<Stem> stems = HibernateSession
       .byHqlStatic()
       .createQuery("select s from Stem s where " +
-          "not exists (select 1 from PITStem pit where s.uuid = pit.id and s.nameDb = pit.nameDb and s.parentUuid = pit.parentStemId) " +
+          "not exists (select 1 from PITStem pitStem, PITStem pitParentStem where pitStem.parentStemId = pitParentStem.id" +
+          "            and s.uuid = pitStem.sourceId and s.nameDb = pitStem.nameDb and s.parentUuid = pitParentStem.sourceId) " +
           "and not exists (select 1 from ChangeLogEntryTemp temp, ChangeLogType type " +
           "    where temp.string01 = s.uuid " +
           "    and type.actionName='addStem' and type.changeLogCategory='stem' and type.id=temp.changeLogTypeId) " +
@@ -141,9 +200,9 @@ public class Hib3PITStemDAO extends Hib3DAO implements PITStemDAO {
     Set<PITStem> stems = HibernateSession
       .byHqlStatic()
       .createQuery("select pit from PITStem pit where activeDb = 'T' and " +
-          "not exists (select 1 from Stem s where s.uuid = pit.id) " +
+          "not exists (select 1 from Stem s where s.uuid = pit.sourceId) " +
           "and not exists (select 1 from ChangeLogEntryTemp temp, ChangeLogType type " +
-          "    where temp.string01 = pit.id " +
+          "    where temp.string01 = pit.sourceId " +
           "    and type.actionName='deleteStem' and type.changeLogCategory='stem' and type.id=temp.changeLogTypeId)")
       .setCacheable(false).setCacheRegion(KLASS + ".FindMissingInactivePITStems")
       .listSet(PITStem.class);

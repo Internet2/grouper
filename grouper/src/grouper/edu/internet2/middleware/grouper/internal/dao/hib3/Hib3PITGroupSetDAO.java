@@ -5,7 +5,6 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.group.GroupSet;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
@@ -14,8 +13,13 @@ import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.PITGroupSetDAO;
+import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.pit.PITAttributeDef;
+import edu.internet2.middleware.grouper.pit.PITField;
+import edu.internet2.middleware.grouper.pit.PITGroup;
 import edu.internet2.middleware.grouper.pit.PITGroupSet;
+import edu.internet2.middleware.grouper.pit.PITStem;
 
 /**
  * @author shilen
@@ -55,58 +59,119 @@ public class Hib3PITGroupSetDAO extends Hib3DAO implements PITGroupSetDAO {
    */
   public static void reset(HibernateSession hibernateSession) {
     //do this since mysql cant handle self-referential foreign keys
-    hibernateSession.byHql().createQuery("update PITGroupSet set parentId = null where id not in (select gs.id from GroupSet as gs)").executeUpdate();
+    hibernateSession.byHql().createQuery("update PITGroupSet set parentId = null where sourceId not in (select gs.id from GroupSet as gs)").executeUpdate();
     
-    hibernateSession.byHql().createQuery("delete from PITGroupSet where id not in (select gs.id from GroupSet as gs)").executeUpdate();
+    hibernateSession.byHql().createQuery("delete from PITGroupSet where sourceId not in (select gs.id from GroupSet as gs)").executeUpdate();
   }
 
   /**
-   * @see edu.internet2.middleware.grouper.internal.dao.PITGroupSetDAO#findById(java.lang.String)
+   * @see edu.internet2.middleware.grouper.internal.dao.PITGroupSetDAO#findBySourceIdActive(java.lang.String, boolean)
    */
-  public PITGroupSet findById(String pitGroupSetId) {
+  public PITGroupSet findBySourceIdActive(String id, boolean exceptionIfNotFound) {
     PITGroupSet pitGroupSet = HibernateSession
       .byHqlStatic()
-      .createQuery("select pitGroupSet from PITGroupSet as pitGroupSet where pitGroupSet.id = :id")
-      .setCacheable(false).setCacheRegion(KLASS + ".FindById")
-      .setString("id", pitGroupSetId)
+      .createQuery("select pitGroupSet from PITGroupSet as pitGroupSet where pitGroupSet.sourceId = :id and activeDb = 'T'")
+      .setCacheable(false).setCacheRegion(KLASS + ".FindBySourceIdActive")
+      .setString("id", id)
       .uniqueResult(PITGroupSet.class);
+    
+    if (pitGroupSet == null && exceptionIfNotFound) {
+      throw new RuntimeException("Active PITGroupSet with sourceId=" + id + " not found");
+    }
     
     return pitGroupSet;
   }
   
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.PITGroupSetDAO#findBySourceIdUnique(java.lang.String, boolean)
+   */
+  public PITGroupSet findBySourceIdUnique(String id, boolean exceptionIfNotFound) {
+    PITGroupSet pitGroupSet = HibernateSession
+      .byHqlStatic()
+      .createQuery("select pitGroupSet from PITGroupSet as pitGroupSet where pitGroupSet.sourceId = :id")
+      .setCacheable(false).setCacheRegion(KLASS + ".FindBySourceIdUnique")
+      .setString("id", id)
+      .uniqueResult(PITGroupSet.class);
+    
+    if (pitGroupSet == null && exceptionIfNotFound) {
+      throw new RuntimeException("PITGroupSet with sourceId=" + id + " not found");
+    }
+    
+    return pitGroupSet;
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.PITGroupSetDAO#findById(java.lang.String, boolean)
+   */
+  public PITGroupSet findById(String id, boolean exceptionIfNotFound) {
+    PITGroupSet pit = HibernateSession
+      .byHqlStatic()
+      .createQuery("select pit from PITGroupSet as pit where pit.id = :id")
+      .setCacheable(false).setCacheRegion(KLASS + ".FindById")
+      .setString("id", id)
+      .uniqueResult(PITGroupSet.class);
+    
+    if (pit == null && exceptionIfNotFound) {
+      throw new RuntimeException("PITGroupSet with id=" + id + " not found");
+    }
+    
+    return pit;
+  }
 
   /**
    * @see edu.internet2.middleware.grouper.internal.dao.PITGroupSetDAO#insertSelfGroupSetsByOwner(java.lang.String, java.lang.Long, java.lang.String, boolean)
    */
   public void insertSelfGroupSetsByOwner(String ownerId, Long startTime, String contextId, boolean checkIfAlreadyExists) {
     Set<GroupSet> groupSets = GrouperDAOFactory.getFactory().getGroupSet().findAllSelfGroupSetsByOwnerWherePITFieldExists(ownerId);
+    String pitGroupId = null;
+    String pitStemId = null;
+    String pitAttrDefId = null;
+    
+    if (groupSets.size() > 0) {
+      GroupSet groupSet = groupSets.iterator().next();
+      if (groupSet.getOwnerGroupId() != null) {
+        PITGroup pitOwner = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdActive(groupSet.getOwnerId(), true);
+        pitGroupId = pitOwner.getId();
+      } else if (groupSet.getOwnerStemId() != null) {
+        PITStem pitOwner = GrouperDAOFactory.getFactory().getPITStem().findBySourceIdActive(groupSet.getOwnerId(), true);
+        pitStemId = pitOwner.getId();
+      } else if (groupSet.getOwnerAttrDefId() != null) {
+        PITAttributeDef pitOwner = GrouperDAOFactory.getFactory().getPITAttributeDef().findBySourceIdActive(groupSet.getOwnerId(), true);
+        pitAttrDefId = pitOwner.getId();
+      } else {
+        throw new RuntimeException("Unexpected -- GroupSet with id " + groupSet.getId() + " does not have an ownerGroupId, ownerStemId, or ownerAttrDefId.");
+      }
+    }
     
     Iterator<GroupSet> iter = groupSets.iterator();
     while (iter.hasNext()) {
       GroupSet groupSet = iter.next();
       
       if (checkIfAlreadyExists) {
-        PITGroupSet existing = findById(groupSet.getId());
+        PITGroupSet existing = findBySourceIdActive(groupSet.getId(), false);
         if (existing != null) {
           continue;
         }
       }
       
+      PITField pitField = GrouperDAOFactory.getFactory().getPITField().findBySourceIdActive(groupSet.getFieldId(), true);
+      
       PITGroupSet pitGroupSet = new PITGroupSet();
-      pitGroupSet.setId(groupSet.getId());
-      pitGroupSet.setOwnerAttrDefId(groupSet.getOwnerAttrDefId());
-      pitGroupSet.setOwnerGroupId(groupSet.getOwnerGroupId());
-      pitGroupSet.setOwnerStemId(groupSet.getOwnerStemId());
-      pitGroupSet.setMemberAttrDefId(groupSet.getMemberAttrDefId());
-      pitGroupSet.setMemberGroupId(groupSet.getMemberGroupId());
-      pitGroupSet.setMemberStemId(groupSet.getMemberStemId());
-      pitGroupSet.setFieldId(groupSet.getFieldId());
-      pitGroupSet.setMemberFieldId(groupSet.getMemberFieldId());
+      pitGroupSet.setId(GrouperUuid.getUuid());
+      pitGroupSet.setSourceId(groupSet.getId());
+      pitGroupSet.setFieldId(pitField.getId());
+      pitGroupSet.setMemberFieldId(pitField.getId());
       pitGroupSet.setDepth(0);
-      pitGroupSet.setParentId(groupSet.getParentId());
+      pitGroupSet.setParentId(pitGroupSet.getId());
       pitGroupSet.setActiveDb("T");
       pitGroupSet.setStartTimeDb(startTime);
       pitGroupSet.setContextId(contextId);
+      pitGroupSet.setOwnerGroupId(pitGroupId);
+      pitGroupSet.setOwnerStemId(pitStemId);
+      pitGroupSet.setOwnerAttrDefId(pitAttrDefId);
+      pitGroupSet.setMemberGroupId(pitGroupId);
+      pitGroupSet.setMemberStemId(pitStemId);
+      pitGroupSet.setMemberAttrDefId(pitAttrDefId);
       pitGroupSet.saveOrUpdate();
     }
   }
@@ -116,18 +181,27 @@ public class Hib3PITGroupSetDAO extends Hib3DAO implements PITGroupSetDAO {
    */
   public void insertSelfGroupSetsByField(String fieldId, Long startTime, String contextId) {
     Set<GroupSet> groupSets = GrouperDAOFactory.getFactory().getGroupSet().findAllSelfGroupSetsByFieldWherePITGroupExists(fieldId);
+    String pitFieldId = null;
+    
+    if (groupSets.size() > 0) {
+      PITField pitField = GrouperDAOFactory.getFactory().getPITField().findBySourceIdActive(fieldId, true);
+      pitFieldId = pitField.getId();
+    }
     
     Iterator<GroupSet> iter = groupSets.iterator();
     while (iter.hasNext()) {
       GroupSet groupSet = iter.next();
+      PITGroup pitOwner = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdActive(groupSet.getOwnerId(), true);
+      
       PITGroupSet pitGroupSet = new PITGroupSet();
-      pitGroupSet.setId(groupSet.getId());
-      pitGroupSet.setOwnerGroupId(groupSet.getOwnerId());
-      pitGroupSet.setMemberGroupId(groupSet.getMemberId());
-      pitGroupSet.setFieldId(groupSet.getFieldId());
-      pitGroupSet.setMemberFieldId(groupSet.getMemberFieldId());
+      pitGroupSet.setId(GrouperUuid.getUuid());
+      pitGroupSet.setSourceId(groupSet.getId());
+      pitGroupSet.setOwnerGroupId(pitOwner.getId());
+      pitGroupSet.setMemberGroupId(pitOwner.getId());
+      pitGroupSet.setFieldId(pitFieldId);
+      pitGroupSet.setMemberFieldId(pitFieldId);
       pitGroupSet.setDepth(0);
-      pitGroupSet.setParentId(groupSet.getParentId());
+      pitGroupSet.setParentId(pitGroupSet.getId());
       pitGroupSet.setActiveDb("T");
       pitGroupSet.setStartTimeDb(startTime);
       pitGroupSet.setContextId(contextId);
@@ -223,15 +297,15 @@ public class Hib3PITGroupSetDAO extends Hib3DAO implements PITGroupSetDAO {
   }
   
   /**
-   * @see edu.internet2.middleware.grouper.internal.dao.PITGroupSetDAO#findAllActiveByGroupOwnerAndField(java.lang.String, edu.internet2.middleware.grouper.Field)
+   * @see edu.internet2.middleware.grouper.internal.dao.PITGroupSetDAO#findAllActiveByGroupOwnerAndField(java.lang.String, edu.internet2.middleware.grouper.pit.PITField)
    */
-  public Set<PITGroupSet> findAllActiveByGroupOwnerAndField(String groupId, Field field) {
+  public Set<PITGroupSet> findAllActiveByGroupOwnerAndField(String groupId, PITField field) {
     Set<PITGroupSet> pitGroupSets = HibernateSession
         .byHqlStatic()
         .createQuery("select pitGroupSet from PITGroupSet as pitGroupSet where ownerGroupId = :groupId and fieldId = :fieldId and activeDb = 'T'")
         .setCacheable(false).setCacheRegion(KLASS + ".FindAllActiveByGroupOwnerAndField")
         .setString("groupId", groupId)
-        .setString("fieldId", field.getUuid())
+        .setString("fieldId", field.getId())
         .listSet(PITGroupSet.class);
 
     return pitGroupSets;
@@ -384,7 +458,7 @@ public class Hib3PITGroupSetDAO extends Hib3DAO implements PITGroupSetDAO {
     Set<GroupSet> groupSets = HibernateSession
       .byHqlStatic()
       .createQuery("select g from GroupSet g where g.depth = '0' and " +
-          "not exists (select 1 from PITGroupSet pit where g.id = pit.id) " +
+          "not exists (select 1 from PITGroupSet pit where g.id = pit.sourceId) " +
           "and not exists (select 1 from ChangeLogEntryTemp temp " +
           "    where temp.string01 = g.ownerId or temp.string01 = g.fieldId or temp.string02 = g.ownerId)")
       .setCacheable(false).setCacheRegion(KLASS + ".FindMissingActivePITGroupSets")
@@ -398,12 +472,15 @@ public class Hib3PITGroupSetDAO extends Hib3DAO implements PITGroupSetDAO {
    */
   public Set<PITGroupSet> findMissingInactivePITGroupSets() {
 
+    // This only works if there are no group, stem, attr def, field, or group type deletes in the change log
+    // .. definitely needs to be improved..
     Set<PITGroupSet> groupSets = HibernateSession
       .byHqlStatic()
       .createQuery("select pit from PITGroupSet pit where depth = '0' and activeDb = 'T' and " +
-          "not exists (select 1 from GroupSet g where g.id = pit.id) " +
-          "and not exists (select 1 from ChangeLogEntryTemp temp " +
-          "    where temp.string01 = pit.ownerId or temp.string01 = pit.fieldId or temp.string02 = pit.ownerId)")
+          "not exists (select 1 from GroupSet g where g.id = pit.sourceId) " +
+          "and not exists (select 1 from ChangeLogEntryTemp temp, ChangeLogType type " +
+          "    where type.id=temp.changeLogTypeId " +
+          "    and (type.actionName='deleteGroup' or type.actionName='deleteStem' or type.actionName='deleteAttributeDef' or type.actionName='deleteGroupField' or type.actionName='unassignGroupType'))")
       .setCacheable(false).setCacheRegion(KLASS + ".FindMissingInactivePITGroupSets")
       .listSet(PITGroupSet.class);
     

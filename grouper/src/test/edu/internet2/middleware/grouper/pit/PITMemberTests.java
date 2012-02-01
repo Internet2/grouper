@@ -103,10 +103,10 @@ public class PITMemberTests extends GrouperTest {
     Timestamp afterGroup2Delete = getTimestampWithSleep();
     ChangeLogTempToEntity.convertRecords();
     
-    PITMember pitMember0 = GrouperDAOFactory.getFactory().getPITMember().findById(member0.getUuid());
-    PITGroup pitGroup1 = GrouperDAOFactory.getFactory().getPITGroup().findById(group1.getId());
-    PITGroup pitGroup2 = GrouperDAOFactory.getFactory().getPITGroup().findById(group2.getId());
-    PITGroup pitGroup3 = GrouperDAOFactory.getFactory().getPITGroup().findById(group3.getId());
+    PITMember pitMember0 = GrouperDAOFactory.getFactory().getPITMember().findBySourceIdUnique(member0.getUuid(), false);
+    PITGroup pitGroup1 = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdUnique(group1.getId(), false);
+    PITGroup pitGroup2 = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdUnique(group2.getId(), false);
+    PITGroup pitGroup3 = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdUnique(group3.getId(), false);
     
     Set<PITGroup> results = pitMember0.getGroups(Group.getDefaultList().getUuid(), null, null, null, beforeAll, beforeAll, null);
     assertEquals(0, results.size());
@@ -156,10 +156,10 @@ public class PITMemberTests extends GrouperTest {
     Timestamp afterGroup2Delete = getTimestampWithSleep();
     ChangeLogTempToEntity.convertRecords();
     
-    PITMember pitMember0 = GrouperDAOFactory.getFactory().getPITMember().findById(member0.getUuid());
-    PITGroup pitGroup1 = GrouperDAOFactory.getFactory().getPITGroup().findById(group1.getId());
-    PITGroup pitGroup2 = GrouperDAOFactory.getFactory().getPITGroup().findById(group2.getId());
-    PITGroup pitGroup3 = GrouperDAOFactory.getFactory().getPITGroup().findById(group3.getId());
+    PITMember pitMember0 = GrouperDAOFactory.getFactory().getPITMember().findBySourceIdUnique(member0.getUuid(), false);
+    PITGroup pitGroup1 = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdUnique(group1.getId(), false);
+    PITGroup pitGroup2 = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdUnique(group2.getId(), false);
+    PITGroup pitGroup3 = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdUnique(group3.getId(), false);
     
     Set<PITGroup> results = pitMember0.getGroups(Group.getDefaultList().getUuid(), null, null, null, beforeAll, null, null);
     assertEquals(3, results.size());
@@ -213,10 +213,10 @@ public class PITMemberTests extends GrouperTest {
     Timestamp afterGroup2Delete = getTimestampWithSleep();
     ChangeLogTempToEntity.convertRecords();
     
-    PITMember pitMember0 = GrouperDAOFactory.getFactory().getPITMember().findById(member0.getUuid());
-    PITGroup pitGroup1 = GrouperDAOFactory.getFactory().getPITGroup().findById(group1.getId());
-    PITGroup pitGroup2 = GrouperDAOFactory.getFactory().getPITGroup().findById(group2.getId());
-    PITGroup pitGroup3 = GrouperDAOFactory.getFactory().getPITGroup().findById(group3.getId());
+    PITMember pitMember0 = GrouperDAOFactory.getFactory().getPITMember().findBySourceIdUnique(member0.getUuid(), false);
+    PITGroup pitGroup1 = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdUnique(group1.getId(), false);
+    PITGroup pitGroup2 = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdUnique(group2.getId(), false);
+    PITGroup pitGroup3 = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdUnique(group3.getId(), false);
     
     Set<PITGroup> results = pitMember0.getGroups(Group.getDefaultList().getUuid(), null, null, null, null, beforeAll, null);
     assertEquals(0, results.size());
@@ -256,8 +256,8 @@ public class PITMemberTests extends GrouperTest {
     group2.addMember(member0.getSubject());
     ChangeLogTempToEntity.convertRecords();
     
-    PITMember pitMember0 = GrouperDAOFactory.getFactory().getPITMember().findById(member0.getUuid());
-    PITGroup pitGroup2 = GrouperDAOFactory.getFactory().getPITGroup().findById(group2.getId());
+    PITMember pitMember0 = GrouperDAOFactory.getFactory().getPITMember().findBySourceIdUnique(member0.getUuid(), false);
+    PITGroup pitGroup2 = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdUnique(group2.getId(), false);
     
     Set<PITGroup> results = pitMember0.getGroups(Group.getDefaultList().getUuid(), "edu:child:", null, null, null, null, null);
     assertEquals(1, results.size());
@@ -281,9 +281,9 @@ public class PITMemberTests extends GrouperTest {
     group2.addMember(member0.getSubject());
     ChangeLogTempToEntity.convertRecords();
     
-    PITMember pitMember0 = GrouperDAOFactory.getFactory().getPITMember().findById(member0.getUuid());
-    PITGroup pitGroup2 = GrouperDAOFactory.getFactory().getPITGroup().findById(group2.getId());
-    PITStem pitStem = GrouperDAOFactory.getFactory().getPITStem().findById(child.getUuid());
+    PITMember pitMember0 = GrouperDAOFactory.getFactory().getPITMember().findBySourceIdUnique(member0.getUuid(), false);
+    PITGroup pitGroup2 = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdUnique(group2.getId(), false);
+    PITStem pitStem = GrouperDAOFactory.getFactory().getPITStem().findBySourceIdUnique(child.getUuid(), false);
     
     Set<PITGroup> results = pitMember0.getGroups(Group.getDefaultList().getUuid(), null, pitStem, Scope.SUB, null, null, null);
     assertEquals(1, results.size());
@@ -297,8 +297,8 @@ public class PITMemberTests extends GrouperTest {
     ChangeLogTempToEntity.convertRecords();
     
     // refresh
-    pitGroup2 = GrouperDAOFactory.getFactory().getPITGroup().findById(group2.getId());
-    pitStem = GrouperDAOFactory.getFactory().getPITStem().findById(child.getUuid());
+    pitGroup2 = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdUnique(group2.getId(), false);
+    pitStem = GrouperDAOFactory.getFactory().getPITStem().findBySourceIdUnique(child.getUuid(), false);
 
     results = pitMember0.getGroups(Group.getDefaultList().getUuid(), null, pitStem, Scope.SUB, null, null, null);
     assertEquals(1, results.size());
@@ -315,8 +315,8 @@ public class PITMemberTests extends GrouperTest {
     group2New.addMember(member0.getSubject());
     ChangeLogTempToEntity.convertRecords();
     
-    PITGroup pitGroup2New = GrouperDAOFactory.getFactory().getPITGroup().findById(group2New.getId());
-    PITStem pitStemNew = GrouperDAOFactory.getFactory().getPITStem().findById(childNew.getUuid());
+    PITGroup pitGroup2New = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdUnique(group2New.getId(), false);
+    PITStem pitStemNew = GrouperDAOFactory.getFactory().getPITStem().findBySourceIdUnique(childNew.getUuid(), false);
    
     results = pitMember0.getGroups(Group.getDefaultList().getUuid(), null, pitStem, Scope.SUB, null, null, null);
     assertEquals(1, results.size());
@@ -344,9 +344,9 @@ public class PITMemberTests extends GrouperTest {
     group2.addMember(member0.getSubject());
     ChangeLogTempToEntity.convertRecords();
     
-    PITMember pitMember0 = GrouperDAOFactory.getFactory().getPITMember().findById(member0.getUuid());
-    PITGroup pitGroup1 = GrouperDAOFactory.getFactory().getPITGroup().findById(group1.getId());
-    PITStem pitStem = GrouperDAOFactory.getFactory().getPITStem().findById(edu.getUuid());
+    PITMember pitMember0 = GrouperDAOFactory.getFactory().getPITMember().findBySourceIdUnique(member0.getUuid(), false);
+    PITGroup pitGroup1 = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdUnique(group1.getId(), false);
+    PITStem pitStem = GrouperDAOFactory.getFactory().getPITStem().findBySourceIdUnique(edu.getUuid(), false);
     
     Set<PITGroup> results = pitMember0.getGroups(Group.getDefaultList().getUuid(), null, pitStem, Scope.ONE, null, null, null);
     assertEquals(1, results.size());
@@ -360,8 +360,8 @@ public class PITMemberTests extends GrouperTest {
     ChangeLogTempToEntity.convertRecords();
 
     // refresh
-    pitGroup1 = GrouperDAOFactory.getFactory().getPITGroup().findById(group1.getId());
-    pitStem = GrouperDAOFactory.getFactory().getPITStem().findById(edu.getUuid());
+    pitGroup1 = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdUnique(group1.getId(), false);
+    pitStem = GrouperDAOFactory.getFactory().getPITStem().findBySourceIdUnique(edu.getUuid(), false);
     
     results = pitMember0.getGroups(Group.getDefaultList().getUuid(), null, pitStem, Scope.ONE, null, null, null);
     assertEquals(1, results.size());
@@ -378,8 +378,8 @@ public class PITMemberTests extends GrouperTest {
     group2New.addMember(member0.getSubject());
     ChangeLogTempToEntity.convertRecords();
     
-    PITGroup pitGroup1New = GrouperDAOFactory.getFactory().getPITGroup().findById(group1New.getId());
-    PITStem pitStemNew = GrouperDAOFactory.getFactory().getPITStem().findById(eduNew.getUuid());
+    PITGroup pitGroup1New = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdUnique(group1New.getId(), false);
+    PITStem pitStemNew = GrouperDAOFactory.getFactory().getPITStem().findBySourceIdUnique(eduNew.getUuid(), false);
    
     results = pitMember0.getGroups(Group.getDefaultList().getUuid(), null, pitStem, Scope.ONE, null, null, null);
     assertEquals(1, results.size());
@@ -407,10 +407,10 @@ public class PITMemberTests extends GrouperTest {
     group2.addMember(member0.getSubject());
     ChangeLogTempToEntity.convertRecords();
     
-    PITMember pitMember0 = GrouperDAOFactory.getFactory().getPITMember().findById(member0.getUuid());
-    PITGroup pitGroup1 = GrouperDAOFactory.getFactory().getPITGroup().findById(group1.getId());
-    PITGroup pitGroup2 = GrouperDAOFactory.getFactory().getPITGroup().findById(group2.getId());
-    PITGroup pitGroup3 = GrouperDAOFactory.getFactory().getPITGroup().findById(group3.getId());
+    PITMember pitMember0 = GrouperDAOFactory.getFactory().getPITMember().findBySourceIdUnique(member0.getUuid(), false);
+    PITGroup pitGroup1 = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdUnique(group1.getId(), false);
+    PITGroup pitGroup2 = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdUnique(group2.getId(), false);
+    PITGroup pitGroup3 = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdUnique(group3.getId(), false);
     
     Set<PITGroup> results = pitMember0.getGroups(Group.getDefaultList().getUuid(), null, null, null, null, null, null);
     assertEquals(3, results.size());
@@ -463,10 +463,10 @@ public class PITMemberTests extends GrouperTest {
     group2.addMember(member0.getSubject());
     ChangeLogTempToEntity.convertRecords();
     
-    PITMember pitMember0 = GrouperDAOFactory.getFactory().getPITMember().findById(member0.getUuid());
-    PITGroup pitGroup1 = GrouperDAOFactory.getFactory().getPITGroup().findById(group1.getId());
-    PITGroup pitGroup2 = GrouperDAOFactory.getFactory().getPITGroup().findById(group2.getId());
-    PITGroup pitGroup3 = GrouperDAOFactory.getFactory().getPITGroup().findById(group3.getId());
+    PITMember pitMember0 = GrouperDAOFactory.getFactory().getPITMember().findBySourceIdUnique(member0.getUuid(), false);
+    PITGroup pitGroup1 = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdUnique(group1.getId(), false);
+    PITGroup pitGroup2 = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdUnique(group2.getId(), false);
+    PITGroup pitGroup3 = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdUnique(group3.getId(), false);
     
     QueryOptions queryOptions = new QueryOptions();
     queryOptions.paging(2, 1, false);
@@ -503,8 +503,8 @@ public class PITMemberTests extends GrouperTest {
     group2.grantPriv(member0.getSubject(), AccessPrivilege.READ);
     ChangeLogTempToEntity.convertRecords();
     
-    PITMember pitMember0 = GrouperDAOFactory.getFactory().getPITMember().findById(member0.getUuid());
-    PITGroup pitGroup2 = GrouperDAOFactory.getFactory().getPITGroup().findById(group2.getId());
+    PITMember pitMember0 = GrouperDAOFactory.getFactory().getPITMember().findBySourceIdUnique(member0.getUuid(), false);
+    PITGroup pitGroup2 = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdUnique(group2.getId(), false);
     
     Set<PITGroup> results = pitMember0.getGroups(FieldFinder.find("readers", true).getUuid(), null, null, null, null, null, null);
     assertEquals(1, results.size());
@@ -541,12 +541,12 @@ public class PITMemberTests extends GrouperTest {
     
     Timestamp first = getTimestampWithSleep();
     
-    PITMember pitMember1 = GrouperDAOFactory.getFactory().getPITMember().findById(member1.getUuid());
-    PITMember pitMember2 = GrouperDAOFactory.getFactory().getPITMember().findById(member2.getUuid());
-    PITGroup pitGroup1 = GrouperDAOFactory.getFactory().getPITGroup().findById(group1.getId());
-    PITGroup pitGroup2 = GrouperDAOFactory.getFactory().getPITGroup().findById(group2.getId());
-    PITGroup pitGroup3 = GrouperDAOFactory.getFactory().getPITGroup().findById(group3.getId());
-    PITGroup pitGroup4 = GrouperDAOFactory.getFactory().getPITGroup().findById(group4.getId());
+    PITMember pitMember1 = GrouperDAOFactory.getFactory().getPITMember().findBySourceIdUnique(member1.getUuid(), false);
+    PITMember pitMember2 = GrouperDAOFactory.getFactory().getPITMember().findBySourceIdUnique(member2.getUuid(), false);
+    PITGroup pitGroup1 = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdUnique(group1.getId(), false);
+    PITGroup pitGroup2 = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdUnique(group2.getId(), false);
+    PITGroup pitGroup3 = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdUnique(group3.getId(), false);
+    PITGroup pitGroup4 = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdUnique(group4.getId(), false);
         
     // root should be able to get all groups
     Set<PITGroup> results = pitMember1.getGroups(Group.getDefaultList().getUuid(), null, null, null, null, null, null);

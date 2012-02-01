@@ -88,30 +88,30 @@ public class PITGroupFinderTests extends GrouperTest {
     group3.delete();
     ChangeLogTempToEntity.convertRecords();
 
-    PITGroup pitGroup1 = PITGroupFinder.findById(group1.getId(), true);
+    PITGroup pitGroup1 = PITGroupFinder.findBySourceId(group1.getId(), true).iterator().next();
     assertNotNull(pitGroup1);
     
-    PITGroup pitGroup2 = PITGroupFinder.findById(group2.getId(), true);
+    PITGroup pitGroup2 = PITGroupFinder.findBySourceId(group2.getId(), true).iterator().next();
     assertNotNull(pitGroup2);
     
-    PITGroup pitGroup3 = PITGroupFinder.findById(group3.getId(), true);
+    PITGroup pitGroup3 = PITGroupFinder.findBySourceId(group3.getId(), true).iterator().next();
     assertNotNull(pitGroup3);
     
     // now verify what subj1 can see
     GrouperSession s = GrouperSession.start(member1.getSubject());
     
     try {
-      pitGroup1 = PITGroupFinder.findById(group1.getId(), true);
+      pitGroup1 = PITGroupFinder.findBySourceId(group1.getId(), true).iterator().next();
       fail("Expected GroupNotFoundException.");
     } catch (GroupNotFoundException e) {
       // good
     }
     
-    pitGroup2 = PITGroupFinder.findById(group2.getId(), true);
+    pitGroup2 = PITGroupFinder.findBySourceId(group2.getId(), true).iterator().next();
     assertNotNull(pitGroup2);
     
     try {
-      pitGroup3 = PITGroupFinder.findById(group3.getId(), true);
+      pitGroup3 = PITGroupFinder.findBySourceId(group3.getId(), true).iterator().next();
       fail("Expected GroupNotFoundException.");
     } catch (GroupNotFoundException e) {
       // good
@@ -150,17 +150,17 @@ public class PITGroupFinderTests extends GrouperTest {
     
     PITGroup pitGroup = PITGroupFinder.findMostRecentByName("edu:test", true);
     assertNotNull(pitGroup);
-    assertEquals(group3.getId(), pitGroup.getId());
+    assertEquals(group3.getId(), pitGroup.getSourceId());
     
     // subj1 can only see the current active group
     GrouperSession s = GrouperSession.start(member1.getSubject());
     pitGroups = PITGroupFinder.findByName("edu:test", true, true);
     assertEquals(1, pitGroups.size());
-    assertEquals(group3.getId(), pitGroups.iterator().next().getId());
+    assertEquals(group3.getId(), pitGroups.iterator().next().getSourceId());
     
     pitGroup = PITGroupFinder.findMostRecentByName("edu:test", true);
     assertNotNull(pitGroup);
-    assertEquals(group3.getId(), pitGroup.getId());
+    assertEquals(group3.getId(), pitGroup.getSourceId());
     s.stop();
     
     // revoke subj1 priv on group3
@@ -174,7 +174,7 @@ public class PITGroupFinderTests extends GrouperTest {
     
     pitGroup = PITGroupFinder.findMostRecentByName("edu:test", true);
     assertNotNull(pitGroup);
-    assertEquals(group3.getId(), pitGroup.getId());
+    assertEquals(group3.getId(), pitGroup.getSourceId());
     
     // subj1 can't see anything now
     s = GrouperSession.start(member1.getSubject());
@@ -205,7 +205,7 @@ public class PITGroupFinderTests extends GrouperTest {
     
     pitGroup = PITGroupFinder.findMostRecentByName("edu:test", true);
     assertNotNull(pitGroup);
-    assertEquals(group3.getId(), pitGroup.getId());
+    assertEquals(group3.getId(), pitGroup.getSourceId());
     
     // subj1 can't see anything still
     s = GrouperSession.start(member1.getSubject());
@@ -262,23 +262,23 @@ public class PITGroupFinderTests extends GrouperTest {
     Set<PITGroup> pitGroups = PITGroupFinder.findByName("edu:test", null, afterSecond, true, true);
     assertEquals(2, pitGroups.size());
     Iterator<PITGroup> iterator = pitGroups.iterator();
-    assertEquals(group1.getId(), iterator.next().getId());
-    assertEquals(group2.getId(), iterator.next().getId());
+    assertEquals(group1.getId(), iterator.next().getSourceId());
+    assertEquals(group2.getId(), iterator.next().getSourceId());
     
     pitGroups = PITGroupFinder.findByName("edu:test", beforeSecond, null, true, true);
     assertEquals(2, pitGroups.size());
     iterator = pitGroups.iterator();
-    assertEquals(group2.getId(), iterator.next().getId());
-    assertEquals(group3.getId(), iterator.next().getId());
+    assertEquals(group2.getId(), iterator.next().getSourceId());
+    assertEquals(group3.getId(), iterator.next().getSourceId());
     
     pitGroups = PITGroupFinder.findByName("edu:test", afterThird, null, true, true);
     assertEquals(1, pitGroups.size());
     iterator = pitGroups.iterator();
-    assertEquals(group3.getId(), iterator.next().getId());
+    assertEquals(group3.getId(), iterator.next().getSourceId());
     
     pitGroups = PITGroupFinder.findByName("edu:test", beforeSecond, beforeThird, true, true);
     assertEquals(1, pitGroups.size());
     iterator = pitGroups.iterator();
-    assertEquals(group2.getId(), iterator.next().getId());
+    assertEquals(group2.getId(), iterator.next().getSourceId());
   }
 }

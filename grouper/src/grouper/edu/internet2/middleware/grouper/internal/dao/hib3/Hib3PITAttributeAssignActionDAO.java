@@ -45,21 +45,79 @@ public class Hib3PITAttributeAssignActionDAO extends Hib3DAO implements PITAttri
    * @param hibernateSession
    */
   public static void reset(HibernateSession hibernateSession) {
-    hibernateSession.byHql().createQuery("delete from PITAttributeAssignAction where id not in (select action.id from AttributeAssignAction as action)").executeUpdate();
+    hibernateSession.byHql().createQuery("delete from PITAttributeAssignAction where sourceId not in (select action.id from AttributeAssignAction as action)").executeUpdate();
   }
 
   /**
-   * @see edu.internet2.middleware.grouper.internal.dao.PITAttributeAssignActionDAO#findById(java.lang.String)
+   * @see edu.internet2.middleware.grouper.internal.dao.PITAttributeAssignActionDAO#findBySourceIdActive(java.lang.String, boolean)
    */
-  public PITAttributeAssignAction findById(String id) {
+  public PITAttributeAssignAction findBySourceIdActive(String id, boolean exceptionIfNotFound) {
     PITAttributeAssignAction pitAttributeAssignAction = HibernateSession
       .byHqlStatic()
-      .createQuery("select action from PITAttributeAssignAction as action where action.id = :id")
+      .createQuery("select action from PITAttributeAssignAction as action where action.sourceId = :id and activeDb = 'T'")
+      .setCacheable(false).setCacheRegion(KLASS + ".FindBySourceIdActive")
+      .setString("id", id)
+      .uniqueResult(PITAttributeAssignAction.class);
+    
+    if (pitAttributeAssignAction == null && exceptionIfNotFound) {
+      throw new RuntimeException("Active PITAttributeAssignAction with sourceId=" + id + " not found");
+    }
+    
+    return pitAttributeAssignAction;
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.PITAttributeAssignActionDAO#findBySourceIdUnique(java.lang.String, boolean)
+   */
+  public PITAttributeAssignAction findBySourceIdUnique(String id, boolean exceptionIfNotFound) {
+    PITAttributeAssignAction pitAttributeAssignAction = HibernateSession
+      .byHqlStatic()
+      .createQuery("select action from PITAttributeAssignAction as action where action.sourceId = :id")
+      .setCacheable(false).setCacheRegion(KLASS + ".FindBySourceIdUnique")
+      .setString("id", id)
+      .uniqueResult(PITAttributeAssignAction.class);
+    
+    if (pitAttributeAssignAction == null && exceptionIfNotFound) {
+      throw new RuntimeException("PITAttributeAssignAction with sourceId=" + id + " not found");
+    }
+    
+    return pitAttributeAssignAction;
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.PITAttributeAssignActionDAO#findBySourceId(java.lang.String, boolean)
+   */
+  public Set<PITAttributeAssignAction> findBySourceId(String id, boolean exceptionIfNotFound) {
+    Set<PITAttributeAssignAction> pitAttributeAssignAction = HibernateSession
+      .byHqlStatic()
+      .createQuery("select action from PITAttributeAssignAction as action where action.sourceId = :id")
+      .setCacheable(false).setCacheRegion(KLASS + ".FindBySourceId")
+      .setString("id", id)
+      .listSet(PITAttributeAssignAction.class);
+    
+    if (pitAttributeAssignAction.size() == 0 && exceptionIfNotFound) {
+      throw new RuntimeException("PITAttributeAssignAction with sourceId=" + id + " not found");
+    }
+    
+    return pitAttributeAssignAction;
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.PITAttributeAssignActionDAO#findById(java.lang.String, boolean)
+   */
+  public PITAttributeAssignAction findById(String id, boolean exceptionIfNotFound) {
+    PITAttributeAssignAction pit = HibernateSession
+      .byHqlStatic()
+      .createQuery("select pit from PITAttributeAssignAction as pit where pit.id = :id")
       .setCacheable(false).setCacheRegion(KLASS + ".FindById")
       .setString("id", id)
       .uniqueResult(PITAttributeAssignAction.class);
     
-    return pitAttributeAssignAction;
+    if (pit == null && exceptionIfNotFound) {
+      throw new RuntimeException("PITAttributeAssignAction with id=" + id + " not found");
+    }
+    
+    return pit;
   }
   
   /**
@@ -92,7 +150,7 @@ public class Hib3PITAttributeAssignActionDAO extends Hib3DAO implements PITAttri
     Set<AttributeAssignAction> actions = HibernateSession
       .byHqlStatic()
       .createQuery("select a from AttributeAssignAction a where " +
-          "not exists (select 1 from PITAttributeAssignAction pit where a.id = pit.id and (a.nameDb = pit.nameDb or (a.nameDb is null and pit.nameDb is null))) " +
+          "not exists (select 1 from PITAttributeAssignAction pit where a.id = pit.sourceId and (a.nameDb = pit.nameDb or (a.nameDb is null and pit.nameDb is null))) " +
           "and not exists (select 1 from ChangeLogEntryTemp temp, ChangeLogType type " +
           "    where temp.string01 = a.id " +
           "    and type.actionName='addAttributeAssignAction' and type.changeLogCategory='attributeAssignAction' and type.id=temp.changeLogTypeId) " +
@@ -113,9 +171,9 @@ public class Hib3PITAttributeAssignActionDAO extends Hib3DAO implements PITAttri
     Set<PITAttributeAssignAction> actions = HibernateSession
       .byHqlStatic()
       .createQuery("select pit from PITAttributeAssignAction pit where activeDb = 'T' and " +
-          "not exists (select 1 from AttributeAssignAction a where a.id = pit.id) " +
+          "not exists (select 1 from AttributeAssignAction a where a.id = pit.sourceId) " +
           "and not exists (select 1 from ChangeLogEntryTemp temp, ChangeLogType type " +
-          "    where temp.string01 = pit.id " +
+          "    where temp.string01 = pit.sourceId " +
           "    and type.actionName='deleteAttributeAssignAction' and type.changeLogCategory='attributeAssignAction' and type.id=temp.changeLogTypeId)")
       .setCacheable(false).setCacheRegion(KLASS + ".FindMissingInactivePITAttributeAssignActions")
       .listSet(PITAttributeAssignAction.class);

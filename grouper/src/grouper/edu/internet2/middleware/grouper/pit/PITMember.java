@@ -1,6 +1,7 @@
 package edu.internet2.middleware.grouper.pit;
 
 import java.sql.Timestamp;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.GrouperAPI;
@@ -36,6 +37,12 @@ public class PITMember extends GrouperPIT implements Hib3GrouperVersioned {
   /** hibernate version */
   public static final String COLUMN_HIBERNATE_VERSION_NUMBER = "hibernate_version_number";
 
+  /** column */
+  public static final String COLUMN_SOURCE_ID = "source_id";
+  
+  
+  /** constant for field name for: sourceId */
+  public static final String FIELD_SOURCE_ID = "sourceId";
   
   /** constant for field name for: contextId */
   public static final String FIELD_CONTEXT_ID = "contextId";
@@ -57,7 +64,7 @@ public class PITMember extends GrouperPIT implements Hib3GrouperVersioned {
    */
   private static final Set<String> CLONE_FIELDS = GrouperUtil.toSet(
       FIELD_CONTEXT_ID, FIELD_HIBERNATE_VERSION_NUMBER, FIELD_ID,
-      FIELD_SUBJECT_ID, FIELD_SUBJECT_SOURCE, FIELD_SUBJECT_TYPE);
+      FIELD_SUBJECT_ID, FIELD_SUBJECT_SOURCE, FIELD_SUBJECT_TYPE, FIELD_SOURCE_ID);
 
 
 
@@ -81,6 +88,24 @@ public class PITMember extends GrouperPIT implements Hib3GrouperVersioned {
   /** subjectType */
   private String subjectTypeId;
 
+  /** sourceId */
+  private String sourceId;
+  
+  /**
+   * @return source id
+   */
+  public String getSourceId() {
+    return sourceId;
+  }
+
+  /**
+   * set source id
+   * @param sourceId
+   */
+  public void setSourceId(String sourceId) {
+    this.sourceId = sourceId;
+  }
+  
   /**
    * @see edu.internet2.middleware.grouper.GrouperAPI#clone()
    */
@@ -179,7 +204,7 @@ public class PITMember extends GrouperPIT implements Hib3GrouperVersioned {
   }
   
   /**
-   * @param pitFieldId specifies the field id.  This is required.
+   * @param fieldSourceId specifies the field id.  This is required.
    * @param scope is a DB pattern that will have % appended to it, or null for all.  e.g. school:whatever:parent:
    * @param pitStem is the stem to check in, or null if all
    * @param stemScope is if in this stem, or in any stem underneath.  You must pass stemScope if you pass a stem
@@ -188,14 +213,14 @@ public class PITMember extends GrouperPIT implements Hib3GrouperVersioned {
    * @param queryOptions optional query options.
    * @return Set of PITGroup
    */
-  public Set<PITGroup> getGroups(String pitFieldId, String scope, PITStem pitStem, Scope stemScope, Timestamp pointInTimeFrom, 
+  public Set<PITGroup> getGroups(String fieldSourceId, String scope, PITStem pitStem, Scope stemScope, Timestamp pointInTimeFrom, 
       Timestamp pointInTimeTo, QueryOptions queryOptions) {
-    return PITMember.getGroups(this.getId(), pitFieldId, scope, pitStem, stemScope, pointInTimeFrom, pointInTimeTo, queryOptions);
+    return PITMember.getGroups(this.getSourceId(), fieldSourceId, scope, pitStem, stemScope, pointInTimeFrom, pointInTimeTo, queryOptions);
   }
   
   /**
-   * @param pitMemberId specifies the member id.  This is required.
-   * @param pitFieldId specifies the field id.  This is required.
+   * @param memberSourceId specifies the member id.  This is required.
+   * @param fieldSourceId specifies the field id.  This is required.
    * @param scope is a DB pattern that will have % appended to it, or null for all.  e.g. school:whatever:parent:
    * @param pitStem is the stem to check in, or null if all
    * @param stemScope is if in this stem, or in any stem underneath.  You must pass stemScope if you pass a stem
@@ -204,24 +229,30 @@ public class PITMember extends GrouperPIT implements Hib3GrouperVersioned {
    * @param queryOptions optional query options.
    * @return Set of PITGroup
    */
-  public static Set<PITGroup> getGroups(String pitMemberId, String pitFieldId, String scope, PITStem pitStem, Scope stemScope, Timestamp pointInTimeFrom, 
+  public static Set<PITGroup> getGroups(String memberSourceId, String fieldSourceId, String scope, PITStem pitStem, Scope stemScope, Timestamp pointInTimeFrom, 
       Timestamp pointInTimeTo, QueryOptions queryOptions) {
     
-    if (pitMemberId == null) {
-      throw new IllegalArgumentException("pitMemberId required.");
+    if (memberSourceId == null) {
+      throw new IllegalArgumentException("memberSourceId required.");
     }
     
-    if (pitFieldId == null) {
-      throw new IllegalArgumentException("pitFieldId required.");
+    if (fieldSourceId == null) {
+      throw new IllegalArgumentException("fieldSourceId required.");
     }
         
+    PITMember pitMember = GrouperDAOFactory.getFactory().getPITMember().findBySourceIdActive(memberSourceId, false);
+    if (pitMember == null) {
+      return new LinkedHashSet<PITGroup>();
+    }
+    
+    PITField pitField = GrouperDAOFactory.getFactory().getPITField().findBySourceIdActive(fieldSourceId, true);
     return GrouperDAOFactory.getFactory().getPITGroup().getAllGroupsMembershipSecure(
-        pitMemberId, pitFieldId, scope, pitStem, stemScope, pointInTimeFrom, pointInTimeTo, queryOptions);
+        pitMember.getId(), pitField.getId(), scope, pitStem, stemScope, pointInTimeFrom, pointInTimeTo, queryOptions);
   }
   
   /**
-   * @param pitMemberId specifies the member id.  This is required.
-   * @param pitFieldId specifies the field id.  This is required.
+   * @param memberSourceId specifies the member id.  This is required.
+   * @param fieldSourceId specifies the field id.  This is required.
    * @param scope is a DB pattern that will have % appended to it, or null for all.  e.g. school:whatever:parent:
    * @param stem is the stem to check in, or null if all
    * @param stemScope is if in this stem, or in any stem underneath.  You must pass stemScope if you pass a stem
@@ -230,16 +261,15 @@ public class PITMember extends GrouperPIT implements Hib3GrouperVersioned {
    * @param queryOptions optional query options.
    * @return Set of PITGroup
    */
-  public static Set<PITGroup> getGroups(String pitMemberId, String pitFieldId, String scope, Stem stem, Scope stemScope, Timestamp pointInTimeFrom, 
+  public static Set<PITGroup> getGroups(String memberSourceId, String fieldSourceId, String scope, Stem stem, Scope stemScope, Timestamp pointInTimeFrom, 
       Timestamp pointInTimeTo, QueryOptions queryOptions) {
     
     PITStem pitStem = null;
     
     if (stem != null) {
-      pitStem = GrouperDAOFactory.getFactory().getPITStem().findById(stem.getUuid());
+      pitStem = GrouperDAOFactory.getFactory().getPITStem().findBySourceIdActive(stem.getUuid(), true);
     }
         
-    return GrouperDAOFactory.getFactory().getPITGroup().getAllGroupsMembershipSecure(
-        pitMemberId, pitFieldId, scope, pitStem, stemScope, pointInTimeFrom, pointInTimeTo, queryOptions);
+    return getGroups(memberSourceId, fieldSourceId, scope, pitStem, stemScope, pointInTimeFrom, pointInTimeTo, queryOptions);
   }
 }

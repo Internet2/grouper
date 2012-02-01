@@ -723,7 +723,7 @@ public enum GrouperDdl implements DdlVersionable {
   
   /**
    * <pre>
-   * Grouper 2.1: add alternate name for stems
+   * Grouper 2.1: add alternate name for stems, add source_id columns to point in time tables
    * </pre>
    */
   V26 {
@@ -740,6 +740,7 @@ public enum GrouperDdl implements DdlVersionable {
           Stem.TABLE_GROUPER_STEMS, true);
 
       addStemAlternateNameCol(database, ddlVersionBean, stemsTable);
+      addPITSourceIdColumns(database, ddlVersionBean);  
     }
 
   },
@@ -2223,6 +2224,111 @@ public enum GrouperDdl implements DdlVersionable {
     
     GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, stemsTable.getName(), 
         "stem_alternate_name_idx", false, Stem.COLUMN_ALTERNATE_NAME);
+  }
+  
+  /**
+   * @param database
+   * @param ddlVersionBean
+   */
+  private static void addPITSourceIdColumns(Database database, DdlVersionBean ddlVersionBean) {
+    Table pitMembersTable = GrouperDdlUtils.ddlutilsFindTable(database, PITMember.TABLE_GROUPER_PIT_MEMBERS, true);
+    if (GrouperDdlUtils.ddlutilsFindColumn(database, pitMembersTable.getName(), PITMember.COLUMN_SOURCE_ID, false) == null) {
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitMembersTable, PITMember.COLUMN_SOURCE_ID, Types.VARCHAR, "40", false, false);
+      ddlVersionBean.appendAdditionalScriptUnique("\nupdate " + pitMembersTable.getName() + " set source_id = id;\ncommit;\n");
+    }
+
+    Table pitFieldsTable = GrouperDdlUtils.ddlutilsFindTable(database, PITField.TABLE_GROUPER_PIT_FIELDS, true);
+    if (GrouperDdlUtils.ddlutilsFindColumn(database, pitFieldsTable.getName(), PITField.COLUMN_SOURCE_ID, false) == null) {
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitFieldsTable, PITField.COLUMN_SOURCE_ID, Types.VARCHAR, "40", false, false);
+      ddlVersionBean.appendAdditionalScriptUnique("\nupdate " + pitFieldsTable.getName() + " set source_id = id;\ncommit;\n");
+    }
+    
+    Table pitGroupsTable = GrouperDdlUtils.ddlutilsFindTable(database, PITGroup.TABLE_GROUPER_PIT_GROUPS, true);    
+    if (GrouperDdlUtils.ddlutilsFindColumn(database, pitGroupsTable.getName(), PITGroup.COLUMN_SOURCE_ID, false) == null) {
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitGroupsTable, PITGroup.COLUMN_SOURCE_ID, Types.VARCHAR, "40", false, false);
+      ddlVersionBean.appendAdditionalScriptUnique("\nupdate " + pitGroupsTable.getName() + " set source_id = id;\ncommit;\n");
+    }
+    
+    Table pitStemsTable = GrouperDdlUtils.ddlutilsFindTable(database, PITStem.TABLE_GROUPER_PIT_STEMS, true);    
+    if (GrouperDdlUtils.ddlutilsFindColumn(database, pitStemsTable.getName(), PITStem.COLUMN_SOURCE_ID, false) == null) {
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitStemsTable, PITStem.COLUMN_SOURCE_ID, Types.VARCHAR, "40", false, false);
+      ddlVersionBean.appendAdditionalScriptUnique("\nupdate " + pitStemsTable.getName() + " set source_id = id;\ncommit;\n");
+    }
+    
+    Table pitAttributeDefTable = GrouperDdlUtils.ddlutilsFindTable(database, PITAttributeDef.TABLE_GROUPER_PIT_ATTRIBUTE_DEF, true);    
+    if (GrouperDdlUtils.ddlutilsFindColumn(database, pitAttributeDefTable.getName(), PITAttributeDef.COLUMN_SOURCE_ID, false) == null) {
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeDefTable, PITAttributeDef.COLUMN_SOURCE_ID, Types.VARCHAR, "40", false, false);
+      ddlVersionBean.appendAdditionalScriptUnique("\nupdate " + pitAttributeDefTable.getName() + " set source_id = id;\ncommit;\n");
+    }
+    
+    Table pitMembershipTable = GrouperDdlUtils.ddlutilsFindTable(database, PITMembership.TABLE_GROUPER_PIT_MEMBERSHIPS, true);    
+    if (GrouperDdlUtils.ddlutilsFindColumn(database, pitMembershipTable.getName(), PITMembership.COLUMN_SOURCE_ID, false) == null) {
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitMembershipTable, PITMembership.COLUMN_SOURCE_ID, Types.VARCHAR, "40", false, false);
+      ddlVersionBean.appendAdditionalScriptUnique("\nupdate " + pitMembershipTable.getName() + " set source_id = id;\ncommit;\n");
+    }
+    
+    Table pitGroupSetTable = GrouperDdlUtils.ddlutilsFindTable(database, PITGroupSet.TABLE_GROUPER_PIT_GROUP_SET, true);
+    if (GrouperDdlUtils.ddlutilsFindColumn(database, pitGroupSetTable.getName(), PITGroupSet.COLUMN_SOURCE_ID, false) == null) {
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitGroupSetTable, PITGroupSet.COLUMN_SOURCE_ID, Types.VARCHAR, "40", false, false);
+      ddlVersionBean.appendAdditionalScriptUnique("\nupdate " + pitGroupSetTable.getName() + " set source_id = id;\ncommit;\n");
+    }
+    
+    Table pitAttributeAssignTable = GrouperDdlUtils.ddlutilsFindTable(database, PITAttributeAssign.TABLE_GROUPER_PIT_ATTRIBUTE_ASSIGN, true);   
+    if (GrouperDdlUtils.ddlutilsFindColumn(database, pitAttributeAssignTable.getName(), PITAttributeAssign.COLUMN_SOURCE_ID, false) == null) {
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeAssignTable, PITAttributeAssign.COLUMN_SOURCE_ID, Types.VARCHAR, "40", false, false);
+      ddlVersionBean.appendAdditionalScriptUnique("\nupdate " + pitAttributeAssignTable.getName() + " set source_id = id;\ncommit;\n");
+    }
+    
+    Table pitAttributeAssignValueTable = GrouperDdlUtils.ddlutilsFindTable(database, PITAttributeAssignValue.TABLE_GROUPER_PIT_ATTRIBUTE_ASSIGN_VALUE, true);  
+    if (GrouperDdlUtils.ddlutilsFindColumn(database, pitAttributeAssignValueTable.getName(), PITAttributeAssignValue.COLUMN_SOURCE_ID, false) == null) {
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeAssignValueTable, PITAttributeAssignValue.COLUMN_SOURCE_ID, Types.VARCHAR, "40", false, false);
+      ddlVersionBean.appendAdditionalScriptUnique("\nupdate " + pitAttributeAssignValueTable.getName() + " set source_id = id;\ncommit;\n");
+    }
+    
+    Table pitAttributeAssignActionTable = GrouperDdlUtils.ddlutilsFindTable(database, PITAttributeAssignAction.TABLE_GROUPER_PIT_ATTR_ASSIGN_ACTION, true);
+    if (GrouperDdlUtils.ddlutilsFindColumn(database, pitAttributeAssignActionTable.getName(), PITAttributeAssignAction.COLUMN_SOURCE_ID, false) == null) {
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeAssignActionTable, PITAttributeAssignAction.COLUMN_SOURCE_ID, Types.VARCHAR, "40", false, false);
+      ddlVersionBean.appendAdditionalScriptUnique("\nupdate " + pitAttributeAssignActionTable.getName() + " set source_id = id;\ncommit;\n");
+    }
+    
+    Table pitAttributeDefNameTable = GrouperDdlUtils.ddlutilsFindTable(database, PITAttributeDefName.TABLE_GROUPER_PIT_ATTRIBUTE_DEF_NAME, true);
+    if (GrouperDdlUtils.ddlutilsFindColumn(database, pitAttributeDefNameTable.getName(), PITAttributeDefName.COLUMN_SOURCE_ID, false) == null) {
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeDefNameTable, PITAttributeDefName.COLUMN_SOURCE_ID, Types.VARCHAR, "40", false, false);
+      ddlVersionBean.appendAdditionalScriptUnique("\nupdate " + pitAttributeDefNameTable.getName() + " set source_id = id;\ncommit;\n");
+    }
+    
+    Table pitAttributeDefNameSet = GrouperDdlUtils.ddlutilsFindTable(database, PITAttributeDefNameSet.TABLE_GROUPER_PIT_ATTRIBUTE_DEF_NAME_SET, true);
+    if (GrouperDdlUtils.ddlutilsFindColumn(database, pitAttributeDefNameSet.getName(), PITAttributeDefNameSet.COLUMN_SOURCE_ID, false) == null) {
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeDefNameSet, PITAttributeDefNameSet.COLUMN_SOURCE_ID, Types.VARCHAR, "40", false, false);
+      ddlVersionBean.appendAdditionalScriptUnique("\nupdate " + pitAttributeDefNameSet.getName() + " set source_id = id;\ncommit;\n");
+    }
+    
+    Table pitAttributeAssignActionSet = GrouperDdlUtils.ddlutilsFindTable(database, PITAttributeAssignActionSet.TABLE_GROUPER_PIT_ATTR_ASSIGN_ACTION_SET, true);
+    if (GrouperDdlUtils.ddlutilsFindColumn(database, pitAttributeAssignActionSet.getName(), PITAttributeAssignActionSet.COLUMN_SOURCE_ID, false) == null) {
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeAssignActionSet, PITAttributeAssignActionSet.COLUMN_SOURCE_ID, Types.VARCHAR, "40", false, false);
+      ddlVersionBean.appendAdditionalScriptUnique("\nupdate " + pitAttributeAssignActionSet.getName() + " set source_id = id;\ncommit;\n");
+    }
+    
+    Table pitRoleSet = GrouperDdlUtils.ddlutilsFindTable(database, PITRoleSet.TABLE_GROUPER_PIT_ROLE_SET, true);
+    if (GrouperDdlUtils.ddlutilsFindColumn(database, pitRoleSet.getName(), PITRoleSet.COLUMN_SOURCE_ID, false) == null) {
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitRoleSet, PITRoleSet.COLUMN_SOURCE_ID, Types.VARCHAR, "40", false, false);
+      ddlVersionBean.appendAdditionalScriptUnique("\nupdate " + pitRoleSet.getName() + " set source_id = id;\ncommit;\n");
+    }
+    
+    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitMembersTable.getName(), "pit_member_source_id_idx", false, PITMember.COLUMN_SOURCE_ID);
+    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitFieldsTable.getName(), "pit_field_source_id_idx", false, PITField.COLUMN_SOURCE_ID);
+    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitGroupsTable.getName(), "pit_group_source_id_idx", false, PITGroup.COLUMN_SOURCE_ID);
+    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitStemsTable.getName(), "pit_stem_source_id_idx", false, PITStem.COLUMN_SOURCE_ID);
+    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitAttributeDefTable.getName(), "pit_attr_def_source_id_idx", false, PITAttributeDef.COLUMN_SOURCE_ID);
+    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitMembershipTable.getName(), "pit_ms_source_id_idx", false, PITMembership.COLUMN_SOURCE_ID);
+    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitGroupSetTable.getName(), "pit_gs_source_id_idx", false, PITGroupSet.COLUMN_SOURCE_ID);
+    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitAttributeAssignTable.getName(), "pit_attr_assn_source_id_idx", false, PITAttributeAssign.COLUMN_SOURCE_ID);
+    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitAttributeAssignValueTable.getName(), "pit_attr_val_source_id_idx", false, PITAttributeAssignValue.COLUMN_SOURCE_ID);
+    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitAttributeAssignActionTable.getName(), "pit_attr_asn_act_source_id_idx", false, PITAttributeAssignAction.COLUMN_SOURCE_ID);
+    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitAttributeDefNameTable.getName(), "pit_attrdef_name_srcid_idx", false, PITAttributeDefName.COLUMN_SOURCE_ID);
+    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitAttributeDefNameSet.getName(), "pit_attrdef_name_set_srcid_idx", false, PITAttributeDefNameSet.COLUMN_SOURCE_ID);
+    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitAttributeAssignActionSet.getName(), "pit_action_set_source_id_idx", false, PITAttributeAssignActionSet.COLUMN_SOURCE_ID);
+    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitRoleSet.getName(), "pit_rs_source_id_idx", false, PITRoleSet.COLUMN_SOURCE_ID);
   }
 
   
@@ -5900,6 +6006,7 @@ public enum GrouperDdl implements DdlVersionable {
         "Grouper_pit_memberships_all_v holds one record for each immediate, composite and effective membership or privilege in the system that currently exists or has existed in the past for members to groups or stems (for privileges).",
         GrouperUtil.toSet("ID", 
             "MEMBERSHIP_ID", 
+            "MEMBERSHIP_SOURCE_ID", 
             "GROUP_SET_ID", 
             "MEMBER_ID", 
             "FIELD_ID", 
@@ -5918,6 +6025,7 @@ public enum GrouperDdl implements DdlVersionable {
             "GROUP_SET_PARENT_ID"),
         GrouperUtil.toSet("ID: id of this membership", 
             "MEMBERSHIP_ID: id of the immediate (or composite) membership that causes this membership", 
+            "MEMBERSHIP_SOURCE_ID: id of the actual (non-pit) immediate (or composite) membership that causes this membership", 
             "GROUP_SET_ID: id of the group set that causes this membership", 
             "MEMBER_ID: member id", 
             "FIELD_ID: field id", 
@@ -5937,6 +6045,7 @@ public enum GrouperDdl implements DdlVersionable {
             "select "
             + GrouperDdlUtils.sqlConcatenation("ms.id", "gs.id", Membership.membershipIdSeparator) + " as membership_id, "
             + "ms.id as immediate_membership_id, "
+            + "ms.source_id as membership_source_id, "
             + "gs.id as group_set_id, "
             + "ms.member_id, "
             + "gs.field_id, "
@@ -9014,7 +9123,14 @@ public enum GrouperDdl implements DdlVersionable {
             "attribute_assign_active",
             "attribute_assign_start_time",
             "attribute_assign_end_time",
-            "disallowed"
+            "disallowed",
+            "action_source_id",
+            "role_source_id",
+            "attribute_def_name_source_id",
+            "attribute_def_source_id",
+            "member_source_id",
+            "membership_source_id",
+            "attribute_assign_source_id"
             ),
         GrouperUtil.toSet("role_name: name of the role that the user is in and that has the permission",
             "subject_source_id: source id of the subject which is in the role and thus has the permission",
@@ -9055,7 +9171,14 @@ public enum GrouperDdl implements DdlVersionable {
             "attribute_assign_active: whether the attribute assign is currently active",
             "attribute_assign_start_time: start time of attribute assign",
             "attribute_assign_end_time: end time of attribute assign",
-            "disallowed: if permission is disallowed from a wider allow, null means false"
+            "disallowed: if permission is disallowed from a wider allow, null means false",
+            "action_source_id: id of the actual (non-pit) attribute assign action",
+            "role_source_id: id of the actual (non-pit) role the subject is in, and that the permissions are assigned to",
+            "attribute_def_name_source_id: id of the actual (non-pit) attribute definition name",
+            "attribute_def_source_id: id of the actual (non-pit) attribute definition",
+            "member_source_id: id of the actual (non-pit) subject in the members table",
+            "membership_source_id: id of the actual (non-pit) immediate or composite membership",
+            "attribute_assign_source_id: id of the actual (non-pit) attribute assign"
         ),
         "select distinct gr.name as role_name,  "
         + "gm.subject_source as subject_source_id,  "
@@ -9096,7 +9219,14 @@ public enum GrouperDdl implements DdlVersionable {
         + "gaa.active as attribute_assign_active, "
         + "gaa.start_time as attribute_assign_start_time, "
         + "gaa.end_time as attribute_assign_end_time, "
-        + "gaa.disallowed "
+        + "gaa.disallowed," 
+        + "gaaa.source_id as action_source_id, "
+        + "gr.source_id as role_source_id, "
+        + "gadn.source_id as attribute_def_name_source_id, "
+        + "gad.source_id as attribute_def_source_id, "
+        + "gm.source_id as member_source_id, "
+        + "gmav.membership_source_id as membership_source_id, " 
+        + "gaa.source_id as attribute_assign_source_id " 
         + "from grouper_pit_groups gr,  "
         + "grouper_pit_memberships_all_v gmav,  "
         + "grouper_pit_members gm,  "
@@ -9168,7 +9298,14 @@ public enum GrouperDdl implements DdlVersionable {
             "attribute_assign_active",
             "attribute_assign_start_time",
             "attribute_assign_end_time",
-            "disallowed"
+            "disallowed",
+            "action_source_id",
+            "role_source_id",
+            "attribute_def_name_source_id",
+            "attribute_def_source_id",
+            "member_source_id",
+            "membership_source_id",
+            "attribute_assign_source_id"
             ),
         GrouperUtil.toSet("role_name: name of the role that the user is in and that has the permission",
             "subject_source_id: source id of the subject which is in the role and thus has the permission",
@@ -9209,7 +9346,14 @@ public enum GrouperDdl implements DdlVersionable {
             "attribute_assign_active: whether the attribute assign is currently active",
             "attribute_assign_start_time: start time of attribute assign",
             "attribute_assign_end_time: end time of attribute assign",
-            "disallowed: if permission is disallowed from a wider allow, null means false"
+            "disallowed: if permission is disallowed from a wider allow, null means false",
+            "action_source_id: id of the actual (non-pit) attribute assign action",
+            "role_source_id: id of the actual (non-pit) role the subject is in, and that the permissions are assigned to",
+            "attribute_def_name_source_id: id of the actual (non-pit) attribute definition name",
+            "attribute_def_source_id: id of the actual (non-pit) attribute definition",
+            "member_source_id: id of the actual (non-pit) subject in the members table",
+            "membership_source_id: id of the actual (non-pit) immediate or composite membership",
+            "attribute_assign_source_id: id of the actual (non-pit) attribute assign"
         ),
         "SELECT DISTINCT gr.name AS role_name,   " +
         "gm.subject_source AS subject_source_id,   " +
@@ -9250,7 +9394,14 @@ public enum GrouperDdl implements DdlVersionable {
         "gaa.active as attribute_assign_active, " +
         "gaa.start_time as attribute_assign_start_time, " +
         "gaa.end_time as attribute_assign_end_time, " +
-        "gaa.disallowed " +
+        "gaa.disallowed, " +
+        "gaaa.source_id as action_source_id, " +
+        "gr.source_id as role_source_id, " +
+        "gadn.source_id as attribute_def_name_source_id, " +
+        "gad.source_id as attribute_def_source_id, " +
+        "gm.source_id as member_source_id, " +
+        "gmav.membership_source_id as membership_source_id, " +
+        "gaa.source_id as attribute_assign_source_id " +
         "FROM grouper_pit_groups gr,   " +
         "grouper_pit_memberships_all_v gmav,   " +
         "grouper_pit_members gm,   " +
@@ -9320,7 +9471,14 @@ public enum GrouperDdl implements DdlVersionable {
             "attribute_assign_active",
             "attribute_assign_start_time",
             "attribute_assign_end_time",
-            "disallowed"
+            "disallowed",
+            "action_source_id",
+            "role_source_id",
+            "attribute_def_name_source_id",
+            "attribute_def_source_id",
+            "member_source_id",
+            "membership_source_id",
+            "attribute_assign_source_id"
             ),
         GrouperUtil.toSet("role_name: name of the role that the user is in and that has the permission",
             "subject_source_id: source id of the subject which is in the role and thus has the permission",
@@ -9361,7 +9519,14 @@ public enum GrouperDdl implements DdlVersionable {
             "attribute_assign_active: whether the attribute assign is currently active",
             "attribute_assign_start_time: start time of attribute assign",
             "attribute_assign_end_time: end time of attribute assign",
-            "disallowed: if permission is disallowed from a wider allow, null means false"
+            "disallowed: if permission is disallowed from a wider allow, null means false",
+            "action_source_id: id of the actual (non-pit) attribute assign action",
+            "role_source_id: id of the actual (non-pit) role the subject is in, and that the permissions are assigned to",
+            "attribute_def_name_source_id: id of the actual (non-pit) attribute definition name",
+            "attribute_def_source_id: id of the actual (non-pit) attribute definition",
+            "member_source_id: id of the actual (non-pit) subject in the members table",
+            "membership_source_id: id of the actual (non-pit) immediate or composite membership",
+            "attribute_assign_source_id: id of the actual (non-pit) attribute assign"
         ),
         "select role_name,  "
         + "subject_source_id,  "
@@ -9402,7 +9567,14 @@ public enum GrouperDdl implements DdlVersionable {
         + "attribute_assign_active, "
         + "attribute_assign_start_time, "
         + "attribute_assign_end_time, "
-        + "disallowed "
+        + "disallowed, "
+        + "action_source_id, "
+        + "role_source_id, "
+        + "attribute_def_name_source_id, "
+        + "attribute_def_source_id, "
+        + "member_source_id, "
+        + "membership_source_id, " 
+        + "attribute_assign_source_id " 
         + "from grouper_pit_perms_role_v  "
         + "union  "
         + "select role_name,  "
@@ -9444,7 +9616,14 @@ public enum GrouperDdl implements DdlVersionable {
         + "attribute_assign_active, "
         + "attribute_assign_start_time, "
         + "attribute_assign_end_time, "
-        + "disallowed "
+        + "disallowed, "
+        + "action_source_id, "
+        + "role_source_id, "
+        + "attribute_def_name_source_id, "
+        + "attribute_def_source_id, "
+        + "member_source_id, "
+        + "membership_source_id, " 
+        + "attribute_assign_source_id " 
         + "from grouper_pit_perms_role_subj_v  ");
       
     GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_pit_attr_asn_value_v", 
@@ -10109,6 +10288,9 @@ public enum GrouperDdl implements DdlVersionable {
       
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitMembersTable, PITMember.COLUMN_ID, 
           Types.VARCHAR, "40", true, true);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitMembersTable, PITMember.COLUMN_SOURCE_ID, 
+          Types.VARCHAR, "40", false, true);
   
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitMembersTable, PITMember.COLUMN_SUBJECT_ID, 
           Types.VARCHAR, "255", false, true);
@@ -10141,6 +10323,9 @@ public enum GrouperDdl implements DdlVersionable {
       
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitFieldsTable, PITField.COLUMN_ID, 
           Types.VARCHAR, "40", true, true);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitFieldsTable, PITField.COLUMN_SOURCE_ID, 
+          Types.VARCHAR, "40", false, true);
   
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitFieldsTable, PITField.COLUMN_NAME, 
           Types.VARCHAR, "32", false, true);
@@ -10170,6 +10355,9 @@ public enum GrouperDdl implements DdlVersionable {
       
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitGroupsTable, PITGroup.COLUMN_ID, 
           Types.VARCHAR, "40", true, true);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitGroupsTable, PITGroup.COLUMN_SOURCE_ID, 
+          Types.VARCHAR, "40", false, true);
   
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitGroupsTable, PITGroup.COLUMN_NAME, 
           Types.VARCHAR, ddlVersionBean.isSqlServer() ? "900" : "1024", false, true);
@@ -10199,6 +10387,9 @@ public enum GrouperDdl implements DdlVersionable {
       
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitStemsTable, PITStem.COLUMN_ID, 
           Types.VARCHAR, "40", true, true);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitStemsTable, PITStem.COLUMN_SOURCE_ID, 
+          Types.VARCHAR, "40", false, true);
   
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitStemsTable, PITStem.COLUMN_NAME, 
           Types.VARCHAR, ddlVersionBean.isSqlServer() ? "900" : "1024", false, true);
@@ -10228,6 +10419,9 @@ public enum GrouperDdl implements DdlVersionable {
       
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeDefTable, PITAttributeDef.COLUMN_ID, 
           Types.VARCHAR, "40", true, true);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeDefTable, PITAttributeDef.COLUMN_SOURCE_ID, 
+          Types.VARCHAR, "40", false, true);
   
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeDefTable, PITAttributeDef.COLUMN_NAME, 
           Types.VARCHAR, ddlVersionBean.isSqlServer() ? "900" : "1024", false, true);
@@ -10261,6 +10455,9 @@ public enum GrouperDdl implements DdlVersionable {
       
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitMembershipTable, PITMembership.COLUMN_ID, 
           Types.VARCHAR, "40", true, true);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitMembershipTable, PITMembership.COLUMN_SOURCE_ID, 
+          Types.VARCHAR, "40", false, true);
   
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitMembershipTable, PITMembership.COLUMN_OWNER_ID,
           Types.VARCHAR, "40", false, true);
@@ -10303,6 +10500,9 @@ public enum GrouperDdl implements DdlVersionable {
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitGroupSetTable, PITGroupSet.COLUMN_ID, 
           Types.VARCHAR, "40", true, true);
   
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitGroupSetTable, PITGroupSet.COLUMN_SOURCE_ID, 
+          Types.VARCHAR, "40", false, true);
+      
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitGroupSetTable, PITGroupSet.COLUMN_OWNER_ID,
           Types.VARCHAR, "40", false, true);
       
@@ -10370,6 +10570,9 @@ public enum GrouperDdl implements DdlVersionable {
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeAssignTable, PITAttributeAssign.COLUMN_ID, 
           Types.VARCHAR, "40", true, true);
   
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeAssignTable, PITAttributeAssign.COLUMN_SOURCE_ID, 
+          Types.VARCHAR, "40", false, true);
+      
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeAssignTable, PITAttributeAssign.COLUMN_ATTRIBUTE_DEF_NAME_ID, 
           Types.VARCHAR, "40", false, true);
       
@@ -10427,6 +10630,9 @@ public enum GrouperDdl implements DdlVersionable {
       
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeAssignValueTable, PITAttributeAssignValue.COLUMN_ID, 
           Types.VARCHAR, "40", true, true);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeAssignValueTable, PITAttributeAssignValue.COLUMN_SOURCE_ID, 
+          Types.VARCHAR, "40", false, true);
   
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeAssignValueTable, PITAttributeAssignValue.COLUMN_ATTRIBUTE_ASSIGN_ID, 
           Types.VARCHAR, "40", false, true);
@@ -10466,6 +10672,9 @@ public enum GrouperDdl implements DdlVersionable {
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeAssignActionTable, PITAttributeAssignAction.COLUMN_ID, 
           Types.VARCHAR, "40", true, true);
   
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeAssignActionTable, PITAttributeAssignAction.COLUMN_SOURCE_ID, 
+          Types.VARCHAR, "40", false, true);
+      
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeAssignActionTable, PITAttributeAssignAction.COLUMN_ATTRIBUTE_DEF_ID, 
           Types.VARCHAR, "40", false, true);
       
@@ -10494,6 +10703,9 @@ public enum GrouperDdl implements DdlVersionable {
       
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeDefNameTable, PITAttributeDefName.COLUMN_ID, 
           Types.VARCHAR, "40", true, true);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeDefNameTable, PITAttributeDefName.COLUMN_SOURCE_ID, 
+          Types.VARCHAR, "40", false, true);
   
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeDefNameTable, PITAttributeDefName.COLUMN_STEM_ID, 
           Types.VARCHAR, "40", false, true);
@@ -10527,6 +10739,9 @@ public enum GrouperDdl implements DdlVersionable {
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeDefNameSet, PITAttributeDefNameSet.COLUMN_ID, 
           Types.VARCHAR, "40", true, true);
   
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeDefNameSet, PITAttributeDefNameSet.COLUMN_SOURCE_ID, 
+          Types.VARCHAR, "40", false, true);
+      
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeDefNameSet, PITAttributeDefNameSet.COLUMN_DEPTH, 
           Types.BIGINT, "10", false, true);
       
@@ -10562,6 +10777,9 @@ public enum GrouperDdl implements DdlVersionable {
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeAssignActionSet, PITAttributeAssignActionSet.COLUMN_ID, 
           Types.VARCHAR, "40", true, true);
       
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeAssignActionSet, PITAttributeAssignActionSet.COLUMN_SOURCE_ID, 
+          Types.VARCHAR, "40", false, true);
+      
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeAssignActionSet, PITAttributeAssignActionSet.COLUMN_DEPTH, 
           Types.BIGINT, "10", false, true);
   
@@ -10596,6 +10814,9 @@ public enum GrouperDdl implements DdlVersionable {
       
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitRoleSet, PITRoleSet.COLUMN_ID, 
           Types.VARCHAR, "40", true, true);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitRoleSet, PITRoleSet.COLUMN_SOURCE_ID, 
+          Types.VARCHAR, "40", false, true);
       
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitRoleSet, PITRoleSet.COLUMN_DEPTH, 
           Types.BIGINT, "10", false, true);
@@ -10638,6 +10859,9 @@ public enum GrouperDdl implements DdlVersionable {
           PITMember.TABLE_GROUPER_PIT_MEMBERS);
       
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitMembersTable.getName(), 
+          "pit_member_source_id_idx", false, PITMember.COLUMN_SOURCE_ID);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitMembersTable.getName(), 
           "pit_member_subject_id_idx", false, PITMember.COLUMN_SUBJECT_ID);
       
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitMembersTable.getName(), 
@@ -10655,6 +10879,9 @@ public enum GrouperDdl implements DdlVersionable {
           PITField.TABLE_GROUPER_PIT_FIELDS);
       
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitFieldsTable.getName(), 
+          "pit_field_source_id_idx", false, PITField.COLUMN_SOURCE_ID);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitFieldsTable.getName(), 
           "pit_field_name_idx", false, PITField.COLUMN_NAME);
       
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitFieldsTable.getName(), 
@@ -10670,6 +10897,9 @@ public enum GrouperDdl implements DdlVersionable {
     {
       Table pitGroupsTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database,
           PITGroup.TABLE_GROUPER_PIT_GROUPS);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitGroupsTable.getName(), 
+          "pit_group_source_id_idx", false, PITGroup.COLUMN_SOURCE_ID);
       
       String scriptOverride = ddlVersionBean.isSmallIndexes() ? "\nCREATE INDEX pit_group_name_idx " +
           "ON grouper_pit_groups (name(255));\n" : null;
@@ -10694,6 +10924,9 @@ public enum GrouperDdl implements DdlVersionable {
       Table pitStemsTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database,
           PITStem.TABLE_GROUPER_PIT_STEMS);
       
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitStemsTable.getName(), 
+          "pit_stem_source_id_idx", false, PITStem.COLUMN_SOURCE_ID);
+      
       String scriptOverride = ddlVersionBean.isSmallIndexes() ? "\nCREATE INDEX pit_stem_name_idx " +
           "ON grouper_pit_stems (name(255));\n" : null;
       
@@ -10716,6 +10949,9 @@ public enum GrouperDdl implements DdlVersionable {
     {
       Table pitAttributeDefTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database,
           PITAttributeDef.TABLE_GROUPER_PIT_ATTRIBUTE_DEF);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitAttributeDefTable.getName(), 
+          "pit_attr_def_source_id_idx", false, PITAttributeDef.COLUMN_SOURCE_ID);
       
       String scriptOverride = ddlVersionBean.isSmallIndexes() ? "\nCREATE INDEX pit_attribute_def_name_idx " +
           "ON grouper_pit_attribute_def (name(255));\n" : null;
@@ -10742,6 +10978,9 @@ public enum GrouperDdl implements DdlVersionable {
     {
       Table pitMembershipTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database,
           PITMembership.TABLE_GROUPER_PIT_MEMBERSHIPS);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitMembershipTable.getName(), 
+          "pit_ms_source_id_idx", false, PITMembership.COLUMN_SOURCE_ID);
       
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitMembershipTable.getName(), 
           "pit_ms_context_idx", false, PITMembership.COLUMN_CONTEXT_ID);
@@ -10777,6 +11016,9 @@ public enum GrouperDdl implements DdlVersionable {
     {
       Table pitGroupSetTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database,
           PITGroupSet.TABLE_GROUPER_PIT_GROUP_SET);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitGroupSetTable.getName(), 
+          "pit_gs_source_id_idx", false, PITGroupSet.COLUMN_SOURCE_ID);
       
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitGroupSetTable.getName(), 
           "pit_gs_context_idx", false, PITGroupSet.COLUMN_CONTEXT_ID);
@@ -10835,6 +11077,9 @@ public enum GrouperDdl implements DdlVersionable {
           PITAttributeAssign.TABLE_GROUPER_PIT_ATTRIBUTE_ASSIGN);
       
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitAttributeAssignTable.getName(), 
+          "pit_attr_assn_source_id_idx", false, PITAttributeAssign.COLUMN_SOURCE_ID);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitAttributeAssignTable.getName(), 
           "pit_attr_assn_action_idx", false, PITAttributeAssign.COLUMN_ATTRIBUTE_ASSIGN_ACTION_ID);
       
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitAttributeAssignTable.getName(), 
@@ -10872,6 +11117,9 @@ public enum GrouperDdl implements DdlVersionable {
       Table pitAttributeAssignValueTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database,
           PITAttributeAssignValue.TABLE_GROUPER_PIT_ATTRIBUTE_ASSIGN_VALUE);
       
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitAttributeAssignValueTable.getName(), 
+          "pit_attr_val_source_id_idx", false, PITAttributeAssignValue.COLUMN_SOURCE_ID);
+      
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitAttributeAssignValueTable.getName(),
           "pit_attr_val_assign_idx", false, PITAttributeAssignValue.COLUMN_ATTRIBUTE_ASSIGN_ID);
 
@@ -10904,6 +11152,9 @@ public enum GrouperDdl implements DdlVersionable {
           PITAttributeAssignAction.TABLE_GROUPER_PIT_ATTR_ASSIGN_ACTION);
       
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitAttributeAssignActionTable.getName(), 
+          "pit_attr_asn_act_source_id_idx", false, PITAttributeAssignAction.COLUMN_SOURCE_ID);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitAttributeAssignActionTable.getName(), 
           "pit_attr_assn_act_def_id_idx", false, PITAttributeAssignAction.COLUMN_ATTRIBUTE_DEF_ID);
       
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitAttributeAssignActionTable.getName(), 
@@ -10916,6 +11167,9 @@ public enum GrouperDdl implements DdlVersionable {
     {
       Table pitAttributeDefNameTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database,
           PITAttributeDefName.TABLE_GROUPER_PIT_ATTRIBUTE_DEF_NAME);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitAttributeDefNameTable.getName(), 
+          "pit_attrdef_name_srcid_idx", false, PITAttributeDefName.COLUMN_SOURCE_ID);
       
       String scriptOverride = ddlVersionBean.isSmallIndexes() ? "\nCREATE INDEX pit_attr_def_name_name_idx " +
           "ON grouper_pit_attr_def_name (name(255));\n" : null;
@@ -10941,6 +11195,9 @@ public enum GrouperDdl implements DdlVersionable {
           PITAttributeDefNameSet.TABLE_GROUPER_PIT_ATTRIBUTE_DEF_NAME_SET);
       
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitAttributeDefNameSet.getName(), 
+          "pit_attrdef_name_set_srcid_idx", false, PITAttributeDefNameSet.COLUMN_SOURCE_ID);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitAttributeDefNameSet.getName(), 
           "pit_attr_def_name_set_if_idx", false, PITAttributeDefNameSet.COLUMN_IF_HAS_ATTRIBUTE_DEF_NAME_ID);
       
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitAttributeDefNameSet.getName(), 
@@ -10961,6 +11218,9 @@ public enum GrouperDdl implements DdlVersionable {
           PITAttributeAssignActionSet.TABLE_GROUPER_PIT_ATTR_ASSIGN_ACTION_SET);
       
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitAttributeAssignActionSet.getName(), 
+          "pit_action_set_source_id_idx", false, PITAttributeAssignActionSet.COLUMN_SOURCE_ID);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitAttributeAssignActionSet.getName(), 
           "pit_action_set_if_idx", false, PITAttributeAssignActionSet.COLUMN_IF_HAS_ATTR_ASSN_ACTION_ID);
       
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitAttributeAssignActionSet.getName(), 
@@ -10979,6 +11239,9 @@ public enum GrouperDdl implements DdlVersionable {
     {
       Table pitRoleSet = GrouperDdlUtils.ddlutilsFindOrCreateTable(database,
           PITRoleSet.TABLE_GROUPER_PIT_ROLE_SET);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitRoleSet.getName(), 
+          "pit_rs_source_id_idx", false, PITRoleSet.COLUMN_SOURCE_ID);
       
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitRoleSet.getName(), 
           "pit_rs_if_idx", false, PITRoleSet.COLUMN_IF_HAS_ROLE_ID);
@@ -11009,17 +11272,19 @@ public enum GrouperDdl implements DdlVersionable {
     if (count == 0) {
       count = GrouperDdlUtils.getTableCount(database, "grouper_fields", false);
       if (count != 0) {
-        ddlVersionBean.appendAdditionalScriptUnique("\ninsert into grouper_pit_fields (id, name, type, active, start_time, context_id, hibernate_version_number) " +
-            "select id, name, type, 'T', '" + startTime + "', context_id, '0' from grouper_fields;\ncommit;\n\n");
+        ddlVersionBean.appendAdditionalScriptUnique("\ninsert into grouper_pit_fields (id, source_id, name, type, active, start_time, context_id, hibernate_version_number) " +
+            "select id, id, name, type, 'T', '" + startTime + "', context_id, '0' from grouper_fields;\ncommit;\n\n");
       }
+    } else {
+      return;
     }
     
     count = GrouperDdlUtils.getTableCount(database, "grouper_pit_stems", false);
     if (count == 0) {
       count = GrouperDdlUtils.getTableCount(database, "grouper_stems", false);
       if (count != 0) {
-        ddlVersionBean.appendAdditionalScriptUnique("\ninsert into grouper_pit_stems (id, name, parent_stem_id, active, start_time, context_id, hibernate_version_number) " +
-            "select id, name, parent_stem, 'T', '" + startTime + "', context_id, '0' from grouper_stems;\ncommit;\n\n");
+        ddlVersionBean.appendAdditionalScriptUnique("\ninsert into grouper_pit_stems (id, source_id, name, parent_stem_id, active, start_time, context_id, hibernate_version_number) " +
+            "select id, id, name, parent_stem, 'T', '" + startTime + "', context_id, '0' from grouper_stems;\ncommit;\n\n");
       }
     }
     
@@ -11027,8 +11292,8 @@ public enum GrouperDdl implements DdlVersionable {
     if (count == 0) {
       count = GrouperDdlUtils.getTableCount(database, "grouper_attribute_def", false);
       if (count != 0) {
-        ddlVersionBean.appendAdditionalScriptUnique("\ninsert into grouper_pit_attribute_def (id, name, stem_id, attribute_def_type, active, start_time, context_id, hibernate_version_number) " +
-            "select id, name, stem_id, attribute_def_type, 'T', '" + startTime + "', context_id, '0' from grouper_attribute_def;\ncommit;\n\n");
+        ddlVersionBean.appendAdditionalScriptUnique("\ninsert into grouper_pit_attribute_def (id, source_id, name, stem_id, attribute_def_type, active, start_time, context_id, hibernate_version_number) " +
+            "select id, id, name, stem_id, attribute_def_type, 'T', '" + startTime + "', context_id, '0' from grouper_attribute_def;\ncommit;\n\n");
       }
     }
     
@@ -11036,8 +11301,8 @@ public enum GrouperDdl implements DdlVersionable {
     if (count == 0) {
       count = GrouperDdlUtils.getTableCount(database, "grouper_groups", false);
       if (count != 0) {
-        ddlVersionBean.appendAdditionalScriptUnique("\ninsert into grouper_pit_groups (id, name, stem_id, active, start_time, context_id, hibernate_version_number) " +
-            "select id, name, parent_stem, 'T', '" + startTime + "', context_id, '0' from grouper_groups;\ncommit;\n\n");
+        ddlVersionBean.appendAdditionalScriptUnique("\ninsert into grouper_pit_groups (id, source_id, name, stem_id, active, start_time, context_id, hibernate_version_number) " +
+            "select id, id, name, parent_stem, 'T', '" + startTime + "', context_id, '0' from grouper_groups;\ncommit;\n\n");
       }
     }
     
@@ -11045,8 +11310,8 @@ public enum GrouperDdl implements DdlVersionable {
     if (count == 0) {
       count = GrouperDdlUtils.getTableCount(database, "grouper_members", false);
       if (count != 0) {
-        ddlVersionBean.appendAdditionalScriptUnique("\ninsert into grouper_pit_members (id, subject_id, subject_source, subject_type, active, start_time, context_id, hibernate_version_number) " +
-            "select id, subject_id, subject_source, subject_type, 'T', '" + startTime + "', context_id, '0' from grouper_members;\ncommit;\n\n");
+        ddlVersionBean.appendAdditionalScriptUnique("\ninsert into grouper_pit_members (id, source_id, subject_id, subject_source, subject_type, active, start_time, context_id, hibernate_version_number) " +
+            "select id, id, subject_id, subject_source, subject_type, 'T', '" + startTime + "', context_id, '0' from grouper_members;\ncommit;\n\n");
       }
     }
     
@@ -11054,8 +11319,8 @@ public enum GrouperDdl implements DdlVersionable {
     if (count == 0) {
       count = GrouperDdlUtils.getTableCount(database, "grouper_attribute_def_name", false);
       if (count != 0) {
-        ddlVersionBean.appendAdditionalScriptUnique("\ninsert into grouper_pit_attr_def_name (id, stem_id, attribute_def_id, name, active, start_time, context_id, hibernate_version_number) " +
-            "select id, stem_id, attribute_def_id, name, 'T', '" + startTime + "', context_id, '0' from grouper_attribute_def_name;\ncommit;\n\n");
+        ddlVersionBean.appendAdditionalScriptUnique("\ninsert into grouper_pit_attr_def_name (id, source_id, stem_id, attribute_def_id, name, active, start_time, context_id, hibernate_version_number) " +
+            "select id, id, stem_id, attribute_def_id, name, 'T', '" + startTime + "', context_id, '0' from grouper_attribute_def_name;\ncommit;\n\n");
       }
     }
     
@@ -11063,8 +11328,8 @@ public enum GrouperDdl implements DdlVersionable {
     if (count == 0) {
       count = GrouperDdlUtils.getTableCount(database, "grouper_attribute_def_name_set", false);
       if (count != 0) {
-        ddlVersionBean.appendAdditionalScriptUnique("\ninsert into grouper_pit_attr_def_name_set (id, depth, if_has_attribute_def_name_id, then_has_attribute_def_name_id, parent_attr_def_name_set_id, active, start_time, context_id, hibernate_version_number) " +
-            "select id, depth, if_has_attribute_def_name_id, then_has_attribute_def_name_id, parent_attr_def_name_set_id, 'T', '" + startTime + "', context_id, '0' from grouper_attribute_def_name_set;\ncommit;\n\n");
+        ddlVersionBean.appendAdditionalScriptUnique("\ninsert into grouper_pit_attr_def_name_set (id, source_id, depth, if_has_attribute_def_name_id, then_has_attribute_def_name_id, parent_attr_def_name_set_id, active, start_time, context_id, hibernate_version_number) " +
+            "select id, id, depth, if_has_attribute_def_name_id, then_has_attribute_def_name_id, parent_attr_def_name_set_id, 'T', '" + startTime + "', context_id, '0' from grouper_attribute_def_name_set;\ncommit;\n\n");
       }
     }
         
@@ -11072,8 +11337,8 @@ public enum GrouperDdl implements DdlVersionable {
     if (count == 0) {
       count = GrouperDdlUtils.getTableCount(database, "grouper_attr_assign_action", false);
       if (count != 0) {
-        ddlVersionBean.appendAdditionalScriptUnique("\ninsert into grouper_pit_attr_assn_actn (id, attribute_def_id, name, active, start_time, context_id, hibernate_version_number) " +
-            "select id, attribute_def_id, name, 'T', '" + startTime + "', context_id, '0' from grouper_attr_assign_action;\ncommit;\n\n");
+        ddlVersionBean.appendAdditionalScriptUnique("\ninsert into grouper_pit_attr_assn_actn (id, source_id, attribute_def_id, name, active, start_time, context_id, hibernate_version_number) " +
+            "select id, id, attribute_def_id, name, 'T', '" + startTime + "', context_id, '0' from grouper_attr_assign_action;\ncommit;\n\n");
       }
     }
     
@@ -11081,8 +11346,8 @@ public enum GrouperDdl implements DdlVersionable {
     if (count == 0) {
       count = GrouperDdlUtils.getTableCount(database, "grouper_attr_assign_action_set", false);
       if (count != 0) {
-        ddlVersionBean.appendAdditionalScriptUnique("\ninsert into grouper_pit_attr_assn_actn_set (id, depth, if_has_attr_assn_action_id, then_has_attr_assn_action_id, parent_attr_assn_action_id, active, start_time, context_id, hibernate_version_number) " +
-            "select id, depth, if_has_attr_assn_action_id, then_has_attr_assn_action_id, parent_attr_assn_action_id, 'T', '" + startTime + "', context_id, '0' from grouper_attr_assign_action_set;\ncommit;\n\n");
+        ddlVersionBean.appendAdditionalScriptUnique("\ninsert into grouper_pit_attr_assn_actn_set (id, source_id, depth, if_has_attr_assn_action_id, then_has_attr_assn_action_id, parent_attr_assn_action_id, active, start_time, context_id, hibernate_version_number) " +
+            "select id, id, depth, if_has_attr_assn_action_id, then_has_attr_assn_action_id, parent_attr_assn_action_id, 'T', '" + startTime + "', context_id, '0' from grouper_attr_assign_action_set;\ncommit;\n\n");
       }
     }    
     
@@ -11090,8 +11355,8 @@ public enum GrouperDdl implements DdlVersionable {
     if (count == 0) {
       count = GrouperDdlUtils.getTableCount(database, "grouper_group_set", false);
       if (count != 0) {
-        ddlVersionBean.appendAdditionalScriptUnique("\ninsert into grouper_pit_group_set (id, owner_id, owner_attr_def_id, owner_group_id, owner_stem_id, member_id, member_attr_def_id, member_group_id, member_stem_id, field_id, member_field_id, depth, parent_id, active, start_time, context_id, hibernate_version_number) " +
-        		"select id, owner_id, owner_attr_def_id, owner_group_id, owner_stem_id, member_id, member_attr_def_id, member_group_id, member_stem_id, field_id, member_field_id, depth, parent_id, 'T', '" + startTime + "', context_id, '0' from grouper_group_set;\ncommit;\n\n");
+        ddlVersionBean.appendAdditionalScriptUnique("\ninsert into grouper_pit_group_set (id, source_id, owner_id, owner_attr_def_id, owner_group_id, owner_stem_id, member_id, member_attr_def_id, member_group_id, member_stem_id, field_id, member_field_id, depth, parent_id, active, start_time, context_id, hibernate_version_number) " +
+        		"select id, id, owner_id, owner_attr_def_id, owner_group_id, owner_stem_id, member_id, member_attr_def_id, member_group_id, member_stem_id, field_id, member_field_id, depth, parent_id, 'T', '" + startTime + "', context_id, '0' from grouper_group_set;\ncommit;\n\n");
       }
     }
     
@@ -11099,8 +11364,8 @@ public enum GrouperDdl implements DdlVersionable {
     if (count == 0) {
       count = GrouperDdlUtils.getTableCount(database, "grouper_memberships", false);
       if (count != 0) {
-        ddlVersionBean.appendAdditionalScriptUnique("\ninsert into grouper_pit_memberships (id, owner_id, owner_attr_def_id, owner_group_id, owner_stem_id, member_id, field_id, active, start_time, context_id, hibernate_version_number) " +
-            "select id, owner_id, owner_attr_def_id, owner_group_id, owner_stem_id, member_id, field_id, 'T', '" + startTime + "', context_id, '0' from grouper_memberships where enabled='T';\ncommit;\n\n");
+        ddlVersionBean.appendAdditionalScriptUnique("\ninsert into grouper_pit_memberships (id, source_id, owner_id, owner_attr_def_id, owner_group_id, owner_stem_id, member_id, field_id, active, start_time, context_id, hibernate_version_number) " +
+            "select id, id, owner_id, owner_attr_def_id, owner_group_id, owner_stem_id, member_id, field_id, 'T', '" + startTime + "', context_id, '0' from grouper_memberships where enabled='T';\ncommit;\n\n");
       }
     }
     
@@ -11108,8 +11373,8 @@ public enum GrouperDdl implements DdlVersionable {
     if (count == 0) {
       count = GrouperDdlUtils.getTableCount(database, "grouper_role_set", false);
       if (count != 0) {
-        ddlVersionBean.appendAdditionalScriptUnique("\ninsert into grouper_pit_role_set (id, depth, if_has_role_id, then_has_role_id, parent_role_set_id, active, start_time, context_id, hibernate_version_number) " +
-            "select id, depth, if_has_role_id, then_has_role_id, parent_role_set_id, 'T', '" + startTime + "', context_id, '0' from grouper_role_set;\ncommit;\n\n");
+        ddlVersionBean.appendAdditionalScriptUnique("\ninsert into grouper_pit_role_set (id, source_id, depth, if_has_role_id, then_has_role_id, parent_role_set_id, active, start_time, context_id, hibernate_version_number) " +
+            "select id, id, depth, if_has_role_id, then_has_role_id, parent_role_set_id, 'T', '" + startTime + "', context_id, '0' from grouper_role_set;\ncommit;\n\n");
       }
     }
     
@@ -11117,11 +11382,11 @@ public enum GrouperDdl implements DdlVersionable {
     if (count == 0) {
       count = GrouperDdlUtils.getTableCount(database, "grouper_attribute_assign", false);
       if (count != 0) {
-        ddlVersionBean.appendAdditionalScriptUnique("\ninsert into grouper_pit_attribute_assign (id, attribute_def_name_id, attribute_assign_action_id, attribute_assign_type, owner_attribute_assign_id, owner_attribute_def_id, owner_group_id, owner_member_id, owner_membership_id, owner_stem_id, active, start_time, context_id, hibernate_version_number) " +
-            "select id, attribute_def_name_id, attribute_assign_action_id, attribute_assign_type, owner_attribute_assign_id, owner_attribute_def_id, owner_group_id, owner_member_id, owner_membership_id, owner_stem_id, 'T', '" + startTime + "', context_id, '0' from grouper_attribute_assign where enabled='T' and owner_attribute_assign_id is null;\n");
+        ddlVersionBean.appendAdditionalScriptUnique("\ninsert into grouper_pit_attribute_assign (id, source_id, attribute_def_name_id, attribute_assign_action_id, attribute_assign_type, owner_attribute_assign_id, owner_attribute_def_id, owner_group_id, owner_member_id, owner_membership_id, owner_stem_id, active, start_time, context_id, hibernate_version_number) " +
+            "select id, id, attribute_def_name_id, attribute_assign_action_id, attribute_assign_type, owner_attribute_assign_id, owner_attribute_def_id, owner_group_id, owner_member_id, owner_membership_id, owner_stem_id, 'T', '" + startTime + "', context_id, '0' from grouper_attribute_assign where enabled='T' and owner_attribute_assign_id is null;\n");
         
-        ddlVersionBean.appendAdditionalScriptUnique("\ninsert into grouper_pit_attribute_assign (id, attribute_def_name_id, attribute_assign_action_id, attribute_assign_type, owner_attribute_assign_id, owner_attribute_def_id, owner_group_id, owner_member_id, owner_membership_id, owner_stem_id, active, start_time, context_id, hibernate_version_number) " +
-            "select id, attribute_def_name_id, attribute_assign_action_id, attribute_assign_type, owner_attribute_assign_id, owner_attribute_def_id, owner_group_id, owner_member_id, owner_membership_id, owner_stem_id, 'T', '" + startTime + "', context_id, '0' from grouper_attribute_assign where enabled='T' and owner_attribute_assign_id is not null;\ncommit;\n\n");
+        ddlVersionBean.appendAdditionalScriptUnique("\ninsert into grouper_pit_attribute_assign (id, source_id, attribute_def_name_id, attribute_assign_action_id, attribute_assign_type, owner_attribute_assign_id, owner_attribute_def_id, owner_group_id, owner_member_id, owner_membership_id, owner_stem_id, active, start_time, context_id, hibernate_version_number) " +
+            "select id, id, attribute_def_name_id, attribute_assign_action_id, attribute_assign_type, owner_attribute_assign_id, owner_attribute_def_id, owner_group_id, owner_member_id, owner_membership_id, owner_stem_id, 'T', '" + startTime + "', context_id, '0' from grouper_attribute_assign where enabled='T' and owner_attribute_assign_id is not null;\ncommit;\n\n");
       }
     }
     
@@ -11129,8 +11394,8 @@ public enum GrouperDdl implements DdlVersionable {
     if (count == 0) {
       count = GrouperDdlUtils.getTableCount(database, "grouper_attribute_assign_value", false);
       if (count != 0) {
-        ddlVersionBean.appendAdditionalScriptUnique("\ninsert into grouper_pit_attr_assn_value (id, attribute_assign_id, value_integer, value_floating, value_string, value_member_id, active, start_time, context_id, hibernate_version_number) " +
-            "select id, attribute_assign_id, value_integer, value_floating, value_string, value_member_id, 'T', '" + startTime + "', context_id, '0' from grouper_attribute_assign_value;\ncommit;\n\n");
+        ddlVersionBean.appendAdditionalScriptUnique("\ninsert into grouper_pit_attr_assn_value (id, source_id, attribute_assign_id, value_integer, value_floating, value_string, value_member_id, active, start_time, context_id, hibernate_version_number) " +
+            "select id, id, attribute_assign_id, value_integer, value_floating, value_string, value_member_id, 'T', '" + startTime + "', context_id, '0' from grouper_attribute_assign_value;\ncommit;\n\n");
       }
     }
   }

@@ -33,8 +33,10 @@ import edu.internet2.middleware.grouper.attr.AttributeDefNameSet;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignAction;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignActionSet;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssignType;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
 import edu.internet2.middleware.grouper.group.GroupSet;
+import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.permissions.role.RoleSet;
 import edu.internet2.middleware.grouper.pit.PITAttributeAssign;
 import edu.internet2.middleware.grouper.pit.PITAttributeAssignAction;
@@ -235,16 +237,27 @@ public class SyncPITTables {
           ", memberId: " + mship.getMemberUuid() + ", fieldId: " + mship.getFieldId());
             
       if (saveUpdates) {
+        PITField pitField = GrouperDAOFactory.getFactory().getPITField().findBySourceIdActive(mship.getFieldId(), true);
+        PITMember pitMember = GrouperDAOFactory.getFactory().getPITMember().findBySourceIdActive(mship.getMemberUuid(), true);
+        
         PITMembership pitMembership = new PITMembership();
-        pitMembership.setId(mship.getImmediateMembershipId());
-        pitMembership.setOwnerGroupId(mship.getOwnerGroupId());
-        pitMembership.setOwnerStemId(mship.getOwnerStemId());
-        pitMembership.setOwnerAttrDefId(mship.getOwnerAttrDefId());
-        pitMembership.setMemberId(mship.getMemberUuid());
-        pitMembership.setFieldId(mship.getFieldId());
+        pitMembership.setId(GrouperUuid.getUuid());
+        pitMembership.setSourceId(mship.getImmediateMembershipId());
+        pitMembership.setMemberId(pitMember.getId());
+        pitMembership.setFieldId(pitField.getId());
         pitMembership.setActiveDb("T");
         pitMembership.setStartTimeDb(System.currentTimeMillis() * 1000);
 
+        if (mship.getOwnerGroupId() != null) {
+          pitMembership.setOwnerGroupId(GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdActive(mship.getOwnerGroupId(), true).getId());
+        } else if (mship.getOwnerStemId() != null) {
+          pitMembership.setOwnerStemId(GrouperDAOFactory.getFactory().getPITStem().findBySourceIdActive(mship.getOwnerStemId(), true).getId());
+        } else if (mship.getOwnerAttrDefId() != null) {
+          pitMembership.setOwnerAttrDefId(GrouperDAOFactory.getFactory().getPITAttributeDef().findBySourceIdActive(mship.getOwnerAttrDefId(), true).getId());
+        } else {
+          throw new RuntimeException("Unexpected -- Membership with id " + mship.getUuid() + " does not have an ownerGroupId, ownerStemId, or ownerAttrDefId.");
+        }
+        
         if (!GrouperUtil.isEmpty(mship.getContextId())) {
           pitMembership.setContextId(mship.getContextId());
         }
@@ -302,21 +315,54 @@ public class SyncPITTables {
       logDetail("Found missing point in time attribute assign with id: " + assign.getId());
             
       if (saveUpdates) {
+        PITAttributeDefName pitAttributeDefName = GrouperDAOFactory.getFactory().getPITAttributeDefName().findBySourceIdActive(assign.getAttributeDefNameId(), true);
+        PITAttributeAssignAction pitAttributeAssignAction = GrouperDAOFactory.getFactory().getPITAttributeAssignAction().findBySourceIdActive(assign.getAttributeAssignActionId(), true);
+        
         PITAttributeAssign pitAttributeAssign = new PITAttributeAssign();
-        pitAttributeAssign.setId(assign.getId());
-        pitAttributeAssign.setAttributeDefNameId(assign.getAttributeDefNameId());
-        pitAttributeAssign.setAttributeAssignActionId(assign.getAttributeAssignActionId());
+        pitAttributeAssign.setId(GrouperUuid.getUuid());
+        pitAttributeAssign.setSourceId(assign.getId());
+        pitAttributeAssign.setAttributeDefNameId(pitAttributeDefName.getId());
+        pitAttributeAssign.setAttributeAssignActionId(pitAttributeAssignAction.getId());
         pitAttributeAssign.setAttributeAssignTypeDb(assign.getAttributeAssignTypeDb());
         pitAttributeAssign.setDisallowedDb(assign.getDisallowedDb());
         pitAttributeAssign.setActiveDb("T");
         pitAttributeAssign.setStartTimeDb(System.currentTimeMillis() * 1000);
         
-        pitAttributeAssign.setOwnerGroupId(assign.getOwnerGroupId());
-        pitAttributeAssign.setOwnerStemId(assign.getOwnerStemId());
-        pitAttributeAssign.setOwnerMemberId(assign.getOwnerMemberId());
-        pitAttributeAssign.setOwnerAttributeDefId(assign.getOwnerAttributeDefId());
-        pitAttributeAssign.setOwnerMembershipId(assign.getOwnerMembershipId());
-        pitAttributeAssign.setOwnerAttributeAssignId(assign.getOwnerAttributeAssignId());
+        if (AttributeAssignType.group.name().equals(pitAttributeAssign.getAttributeAssignTypeDb())) {
+          PITGroup pitOwner1 = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdActive(assign.getOwnerGroupId(), true);
+          pitAttributeAssign.setOwnerGroupId(pitOwner1.getId());
+        } else if (AttributeAssignType.stem.name().equals(pitAttributeAssign.getAttributeAssignTypeDb())) {
+          PITStem pitOwner1 = GrouperDAOFactory.getFactory().getPITStem().findBySourceIdActive(assign.getOwnerStemId(), true);
+          pitAttributeAssign.setOwnerStemId(pitOwner1.getId());
+        } else if (AttributeAssignType.member.name().equals(pitAttributeAssign.getAttributeAssignTypeDb())) {
+          PITMember pitOwner1 = GrouperDAOFactory.getFactory().getPITMember().findBySourceIdActive(assign.getOwnerMemberId(), true);
+          pitAttributeAssign.setOwnerMemberId(pitOwner1.getId());
+        } else if (AttributeAssignType.attr_def.name().equals(pitAttributeAssign.getAttributeAssignTypeDb())) {
+          PITAttributeDef pitOwner1 = GrouperDAOFactory.getFactory().getPITAttributeDef().findBySourceIdActive(assign.getOwnerAttributeDefId(), true);
+          pitAttributeAssign.setOwnerAttributeDefId(pitOwner1.getId());
+        } else if (AttributeAssignType.any_mem.name().equals(pitAttributeAssign.getAttributeAssignTypeDb())) {
+          PITGroup pitOwner1 = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdActive(assign.getOwnerGroupId(), true);
+          PITMember pitOwner2 = GrouperDAOFactory.getFactory().getPITMember().findBySourceIdActive(assign.getOwnerMemberId(), true);
+          pitAttributeAssign.setOwnerGroupId(pitOwner1.getId());
+          pitAttributeAssign.setOwnerMemberId(pitOwner2.getId());
+        } else if (AttributeAssignType.imm_mem.name().equals(pitAttributeAssign.getAttributeAssignTypeDb())) {
+          PITMembership pitOwner1 = GrouperDAOFactory.getFactory().getPITMembership().findBySourceIdActive(assign.getOwnerMembershipId(), false);
+          if (pitOwner1 == null) {
+            // assignment must be disabled..
+            logDetail("Skipping " + assign.getId() + " since active owner was not found in point in time.");
+            continue;
+          }
+          pitAttributeAssign.setOwnerMembershipId(pitOwner1.getId());
+        } else {
+          // this must be an attribute assign of an attribute assign.  foreign keys will make sure we're right.
+          PITAttributeAssign pitOwner1 = GrouperDAOFactory.getFactory().getPITAttributeAssign().findBySourceIdActive(assign.getOwnerAttributeAssignId(), false);
+          if (pitOwner1 == null) {
+            // assignment must be disabled..
+            logDetail("Skipping " + assign.getId() + " since active owner was not found in point in time.");
+            continue;
+          }
+          pitAttributeAssign.setOwnerAttributeAssignId(pitOwner1.getId());
+        }
         
         if (!GrouperUtil.isEmpty(assign.getContextId())) {
           pitAttributeAssign.setContextId(assign.getContextId());
@@ -356,9 +402,17 @@ public class SyncPITTables {
       logDetail("Found missing point in time attribute assign value with id: " + value.getId() + ", value: " + value.getValueFriendly());
             
       if (saveUpdates) {
+        PITAttributeAssign pitAttributeAssign = GrouperDAOFactory.getFactory().getPITAttributeAssign().findBySourceIdActive(value.getAttributeAssignId(), false);
+        if (pitAttributeAssign == null) {
+          // assignment must be disabled..
+          logDetail("Skipping " + value.getId() + " since active assignment was not found in point in time.");
+          continue;
+        }
+        
         PITAttributeAssignValue pitAttributeAssignValue = new PITAttributeAssignValue();
-        pitAttributeAssignValue.setId(value.getId());
-        pitAttributeAssignValue.setAttributeAssignId(value.getAttributeAssignId());
+        pitAttributeAssignValue.setId(GrouperUuid.getUuid());
+        pitAttributeAssignValue.setSourceId(value.getId());
+        pitAttributeAssignValue.setAttributeAssignId(pitAttributeAssign.getId());
         pitAttributeAssignValue.setActiveDb("T");
         pitAttributeAssignValue.setStartTimeDb(System.currentTimeMillis() * 1000);
         
@@ -401,18 +455,21 @@ public class SyncPITTables {
       logDetail("Found missing point in time attribute def with id: " + attr.getId() + ", name: " + attr.getName());
             
       if (saveUpdates) {
+        PITStem pitStem = GrouperDAOFactory.getFactory().getPITStem().findBySourceIdActive(attr.getStemId(), true);
+
         // note that we may just need to update the name and/or stemId
-        PITAttributeDef pitAttributeDef = GrouperDAOFactory.getFactory().getPITAttributeDef().findById(attr.getId());
+        PITAttributeDef pitAttributeDef = GrouperDAOFactory.getFactory().getPITAttributeDef().findBySourceIdActive(attr.getId(), false);
         if (pitAttributeDef == null) {
           pitAttributeDef = new PITAttributeDef();
-          pitAttributeDef.setId(attr.getUuid());
+          pitAttributeDef.setId(GrouperUuid.getUuid());
+          pitAttributeDef.setSourceId(attr.getUuid());
           pitAttributeDef.setAttributeDefTypeDb(attr.getAttributeDefTypeDb());
           pitAttributeDef.setActiveDb("T");
           pitAttributeDef.setStartTimeDb(System.currentTimeMillis() * 1000);
         }
 
         pitAttributeDef.setNameDb(attr.getName());
-        pitAttributeDef.setStemId(attr.getStemId());
+        pitAttributeDef.setStemId(pitStem.getId());
         
         if (!GrouperUtil.isEmpty(attr.getContextId())) {
           pitAttributeDef.setContextId(attr.getContextId());
@@ -450,13 +507,17 @@ public class SyncPITTables {
       logDetail("Found missing point in time attribute def name with id: " + attr.getId() + ", name: " + attr.getName());
             
       if (saveUpdates) {
+        PITAttributeDef pitAttributeDef = GrouperDAOFactory.getFactory().getPITAttributeDef().findBySourceIdActive(attr.getAttributeDefId(), true);
+        PITStem pitStem = GrouperDAOFactory.getFactory().getPITStem().findBySourceIdActive(attr.getStemId(), true);
+        
         // note that we may just need to update the name
-        PITAttributeDefName pitAttributeDefName = GrouperDAOFactory.getFactory().getPITAttributeDefName().findById(attr.getId());
+        PITAttributeDefName pitAttributeDefName = GrouperDAOFactory.getFactory().getPITAttributeDefName().findBySourceIdActive(attr.getId(), false);
         if (pitAttributeDefName == null) {
           pitAttributeDefName = new PITAttributeDefName();
-          pitAttributeDefName.setId(attr.getId());
-          pitAttributeDefName.setAttributeDefId(attr.getAttributeDefId());
-          pitAttributeDefName.setStemId(attr.getStemId());
+          pitAttributeDefName.setId(GrouperUuid.getUuid());
+          pitAttributeDefName.setSourceId(attr.getId());
+          pitAttributeDefName.setAttributeDefId(pitAttributeDef.getId());
+          pitAttributeDefName.setStemId(pitStem.getId());
           pitAttributeDefName.setActiveDb("T");
           pitAttributeDefName.setStartTimeDb(System.currentTimeMillis() * 1000);
         }
@@ -499,12 +560,17 @@ public class SyncPITTables {
       logDetail("Found missing point in time attribute def name set with id: " + attrSet.getId());
             
       if (saveUpdates) {
+        PITAttributeDefName pitIfHas = GrouperDAOFactory.getFactory().getPITAttributeDefName().findBySourceIdActive(attrSet.getIfHasAttributeDefNameId(), true);
+        PITAttributeDefName pitThenHas = GrouperDAOFactory.getFactory().getPITAttributeDefName().findBySourceIdActive(attrSet.getThenHasAttributeDefNameId(), true);
+        PITAttributeDefNameSet pitParent = GrouperDAOFactory.getFactory().getPITAttributeDefNameSet().findBySourceIdActive(attrSet.getParentAttrDefNameSetId(), false);
+
         PITAttributeDefNameSet pitAttributeDefNameSet = new PITAttributeDefNameSet();
-        pitAttributeDefNameSet.setId(attrSet.getId());
+        pitAttributeDefNameSet.setId(GrouperUuid.getUuid());
+        pitAttributeDefNameSet.setSourceId(attrSet.getId());
         pitAttributeDefNameSet.setDepth(attrSet.getDepth());
-        pitAttributeDefNameSet.setIfHasAttributeDefNameId(attrSet.getIfHasAttributeDefNameId());
-        pitAttributeDefNameSet.setThenHasAttributeDefNameId(attrSet.getThenHasAttributeDefNameId());
-        pitAttributeDefNameSet.setParentAttrDefNameSetId(attrSet.getParentAttrDefNameSetId());
+        pitAttributeDefNameSet.setIfHasAttributeDefNameId(pitIfHas.getId());
+        pitAttributeDefNameSet.setThenHasAttributeDefNameId(pitThenHas.getId());
+        pitAttributeDefNameSet.setParentAttrDefNameSetId(attrSet.getDepth() == 0 ? pitAttributeDefNameSet.getId() : pitParent.getId());
         pitAttributeDefNameSet.setActiveDb("T");
         pitAttributeDefNameSet.setStartTimeDb(System.currentTimeMillis() * 1000);
 
@@ -546,17 +612,20 @@ public class SyncPITTables {
       logDetail("Found missing point in time group with id: " + group.getId() + ", name: " + group.getName());
             
       if (saveUpdates) {
+        PITStem pitStem = GrouperDAOFactory.getFactory().getPITStem().findBySourceIdActive(group.getParentUuid(), true);
+
         // note that we may just need to update the name and/or stemId
-        PITGroup pitGroup = GrouperDAOFactory.getFactory().getPITGroup().findById(group.getId());
+        PITGroup pitGroup = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdActive(group.getId(), false);
         if (pitGroup == null) {
           pitGroup = new PITGroup();
-          pitGroup.setId(group.getUuid());
+          pitGroup.setId(GrouperUuid.getUuid());
+          pitGroup.setSourceId(group.getUuid());
           pitGroup.setActiveDb("T");
           pitGroup.setStartTimeDb(System.currentTimeMillis() * 1000);
         }
         
         pitGroup.setNameDb(group.getName());  
-        pitGroup.setStemId(group.getParentUuid());
+        pitGroup.setStemId(pitStem.getId());
 
         if (!GrouperUtil.isEmpty(group.getContextId())) {
           pitGroup.setContextId(group.getContextId());
@@ -594,21 +663,46 @@ public class SyncPITTables {
       logDetail("Found missing point in time group set with id: " + groupSet.getId());
             
       if (saveUpdates) {
+        PITField pitField = GrouperDAOFactory.getFactory().getPITField().findBySourceIdActive(groupSet.getFieldId(), true);
+        PITField pitMemberField = GrouperDAOFactory.getFactory().getPITField().findBySourceIdActive(groupSet.getMemberFieldId(), true);
+        PITGroupSet pitParent = GrouperDAOFactory.getFactory().getPITGroupSet().findBySourceIdActive(groupSet.getParentId(), false);
+
         PITGroupSet pitGroupSet = new PITGroupSet();
-        pitGroupSet.setId(groupSet.getId());
+        pitGroupSet.setId(GrouperUuid.getUuid());
+        pitGroupSet.setSourceId(groupSet.getId());
         pitGroupSet.setDepth(groupSet.getDepth());
-        pitGroupSet.setParentId(groupSet.getParentId());
-        pitGroupSet.setFieldId(groupSet.getFieldId());
-        pitGroupSet.setMemberFieldId(groupSet.getMemberFieldId());
-        pitGroupSet.setMemberGroupId(groupSet.getMemberGroupId());
-        pitGroupSet.setMemberStemId(groupSet.getMemberStemId());
-        pitGroupSet.setMemberAttrDefId(groupSet.getMemberAttrDefId());
-        pitGroupSet.setOwnerGroupId(groupSet.getOwnerGroupId());
-        pitGroupSet.setOwnerAttrDefId(groupSet.getOwnerAttrDefId());
-        pitGroupSet.setOwnerStemId(groupSet.getOwnerStemId());
+        pitGroupSet.setParentId(groupSet.getDepth() == 0 ? pitGroupSet.getId() : pitParent.getId());
+        pitGroupSet.setFieldId(pitField.getId());
+        pitGroupSet.setMemberFieldId(pitMemberField.getId());
         pitGroupSet.setActiveDb("T");
         pitGroupSet.setStartTimeDb(System.currentTimeMillis() * 1000);
 
+        if (groupSet.getOwnerGroupId() != null) {
+          PITGroup pitOwner = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdActive(groupSet.getOwnerId(), true);
+          pitGroupSet.setOwnerGroupId(pitOwner.getId());
+        } else if (groupSet.getOwnerStemId() != null) {
+          PITStem pitOwner = GrouperDAOFactory.getFactory().getPITStem().findBySourceIdActive(groupSet.getOwnerId(), true);
+          pitGroupSet.setOwnerStemId(pitOwner.getId());
+        } else if (groupSet.getOwnerAttrDefId() != null) {
+          PITAttributeDef pitOwner = GrouperDAOFactory.getFactory().getPITAttributeDef().findBySourceIdActive(groupSet.getOwnerId(), true);
+          pitGroupSet.setOwnerAttrDefId(pitOwner.getId());
+        } else {
+          throw new RuntimeException("Unexpected -- GroupSet with id " + groupSet.getId() + " does not have an ownerGroupId, ownerStemId, or ownerAttrDefId.");
+        }
+        
+        if (groupSet.getMemberGroupId() != null) {
+          PITGroup pitMember = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdActive(groupSet.getMemberId(), true);
+          pitGroupSet.setMemberGroupId(pitMember.getId());
+        } else if (groupSet.getMemberStemId() != null) {
+          PITStem pitMember = GrouperDAOFactory.getFactory().getPITStem().findBySourceIdActive(groupSet.getMemberId(), true);
+          pitGroupSet.setMemberStemId(pitMember.getId());
+        } else if (groupSet.getMemberAttrDefId() != null) {
+          PITAttributeDef pitMember = GrouperDAOFactory.getFactory().getPITAttributeDef().findBySourceIdActive(groupSet.getMemberId(), true);
+          pitGroupSet.setMemberAttrDefId(pitMember.getId());
+        } else {
+          throw new RuntimeException("Unexpected -- GroupSet with id " + groupSet.getId() + " does not have an memberGroupId, memberStemId, or memberAttrDefId.");
+        }
+        
         if (!GrouperUtil.isEmpty(groupSet.getContextId())) {
           pitGroupSet.setContextId(groupSet.getContextId());
         }
@@ -647,13 +741,18 @@ public class SyncPITTables {
       
       logDetail("Found missing point in time role set with id: " + roleSet.getId());
             
-      if (saveUpdates) {
+      if (saveUpdates) {        
+        PITGroup pitIfHas = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdActive(roleSet.getIfHasRoleId(), true);
+        PITGroup pitThenHas = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdActive(roleSet.getThenHasRoleId(), true);
+        PITRoleSet pitParent = GrouperDAOFactory.getFactory().getPITRoleSet().findBySourceIdActive(roleSet.getParentRoleSetId(), false);
+
         PITRoleSet pitRoleSet = new PITRoleSet();
-        pitRoleSet.setId(roleSet.getId());
+        pitRoleSet.setId(GrouperUuid.getUuid());
+        pitRoleSet.setSourceId(roleSet.getId());
         pitRoleSet.setDepth(roleSet.getDepth());
-        pitRoleSet.setIfHasRoleId(roleSet.getIfHasRoleId());
-        pitRoleSet.setThenHasRoleId(roleSet.getThenHasRoleId());
-        pitRoleSet.setParentRoleSetId(roleSet.getParentRoleSetId());
+        pitRoleSet.setIfHasRoleId(pitIfHas.getId());
+        pitRoleSet.setThenHasRoleId(pitThenHas.getId());
+        pitRoleSet.setParentRoleSetId(roleSet.getDepth() == 0 ? pitRoleSet.getId() : pitParent.getId());
         pitRoleSet.setActiveDb("T");
         pitRoleSet.setStartTimeDb(System.currentTimeMillis() * 1000);
 
@@ -696,10 +795,11 @@ public class SyncPITTables {
             
       if (saveUpdates) {
         // note that we may just need to update the name and/or type
-        PITField pitField = GrouperDAOFactory.getFactory().getPITField().findById(field.getUuid());
+        PITField pitField = GrouperDAOFactory.getFactory().getPITField().findBySourceIdActive(field.getUuid(), false);
         if (pitField == null) {
           pitField = new PITField();
-          pitField.setId(field.getUuid());
+          pitField.setId(GrouperUuid.getUuid());
+          pitField.setSourceId(field.getUuid());
           pitField.setActiveDb("T");
           pitField.setStartTimeDb(System.currentTimeMillis() * 1000);
         }
@@ -744,10 +844,11 @@ public class SyncPITTables {
             
       if (saveUpdates) {
         // note that we may just need to update the subjectId, subjectSourceId, and/or subjectTypeId
-        PITMember pitMember = GrouperDAOFactory.getFactory().getPITMember().findById(member.getUuid());
+        PITMember pitMember = GrouperDAOFactory.getFactory().getPITMember().findBySourceIdActive(member.getUuid(), false);
         if (pitMember == null) {
           pitMember = new PITMember();
-          pitMember.setId(member.getUuid());
+          pitMember.setId(GrouperUuid.getUuid());
+          pitMember.setSourceId(member.getUuid());
           pitMember.setActiveDb("T");
           pitMember.setStartTimeDb(System.currentTimeMillis() * 1000);
         }
@@ -788,7 +889,7 @@ public class SyncPITTables {
     
     // the root stem may be returned because its parent stem id is null.  if it is returned and exists in point in time, remove it from the set...
     Stem rootStem = StemFinder.findRootStem(GrouperSession.staticGrouperSession());
-    if (stems.contains(rootStem) && GrouperDAOFactory.getFactory().getPITStem().findById(rootStem.getUuid()) != null) {
+    if (stems.contains(rootStem) && GrouperDAOFactory.getFactory().getPITStem().findBySourceIdActive(rootStem.getUuid(), false) != null) {
       stems.remove(rootStem);
     }
     
@@ -807,16 +908,20 @@ public class SyncPITTables {
             
       if (saveUpdates) {
         // note that we may just need to update the name and/or parentStemId
-        PITStem pitStem = GrouperDAOFactory.getFactory().getPITStem().findById(stem.getUuid());
+        PITStem pitStem = GrouperDAOFactory.getFactory().getPITStem().findBySourceIdActive(stem.getUuid(), false);
         if (pitStem == null) {
           pitStem = new PITStem();
-          pitStem.setId(stem.getUuid());
+          pitStem.setId(GrouperUuid.getUuid());
+          pitStem.setSourceId(stem.getUuid());
           pitStem.setActiveDb("T");
           pitStem.setStartTimeDb(System.currentTimeMillis() * 1000);
         }
 
         pitStem.setNameDb(stem.getNameDb());
-        pitStem.setParentStemId(stem.getParentUuid());
+        
+        if (stem.getParentUuid() != null) {
+          pitStem.setParentStemId(GrouperDAOFactory.getFactory().getPITStem().findBySourceIdActive(stem.getParentUuid(), true).getId());
+        }
         
         if (!GrouperUtil.isEmpty(stem.getContextId())) {
           pitStem.setContextId(stem.getContextId());
@@ -854,12 +959,15 @@ public class SyncPITTables {
       logDetail("Found missing point in time action with id: " + action.getId() + ", name: " + action.getName());
             
       if (saveUpdates) {
+        PITAttributeDef pitAttributeDef = GrouperDAOFactory.getFactory().getPITAttributeDef().findBySourceIdActive(action.getAttributeDefId(), true);
+
         // note that we may just need to update the name
-        PITAttributeAssignAction pitAttributeAssignAction = GrouperDAOFactory.getFactory().getPITAttributeAssignAction().findById(action.getId());
+        PITAttributeAssignAction pitAttributeAssignAction = GrouperDAOFactory.getFactory().getPITAttributeAssignAction().findBySourceIdActive(action.getId(), false);
         if (pitAttributeAssignAction == null) {
           pitAttributeAssignAction = new PITAttributeAssignAction();
-          pitAttributeAssignAction.setId(action.getId());
-          pitAttributeAssignAction.setAttributeDefId(action.getAttributeDefId());
+          pitAttributeAssignAction.setId(GrouperUuid.getUuid());
+          pitAttributeAssignAction.setSourceId(action.getId());
+          pitAttributeAssignAction.setAttributeDefId(pitAttributeDef.getId());
           pitAttributeAssignAction.setActiveDb("T");
           pitAttributeAssignAction.setStartTimeDb(System.currentTimeMillis() * 1000); 
         }
@@ -902,12 +1010,17 @@ public class SyncPITTables {
       logDetail("Found missing point in time action set with id: " + actionSet.getId());
             
       if (saveUpdates) {
+        PITAttributeAssignAction pitIfHas = GrouperDAOFactory.getFactory().getPITAttributeAssignAction().findBySourceIdActive(actionSet.getIfHasAttrAssignActionId(), true);
+        PITAttributeAssignAction pitThenHas = GrouperDAOFactory.getFactory().getPITAttributeAssignAction().findBySourceIdActive(actionSet.getThenHasAttrAssignActionId(), true);
+        PITAttributeAssignActionSet pitParent = GrouperDAOFactory.getFactory().getPITAttributeAssignActionSet().findBySourceIdActive(actionSet.getParentAttrAssignActionSetId(), false);
+        
         PITAttributeAssignActionSet pitAttributeAssignActionSet = new PITAttributeAssignActionSet();
-        pitAttributeAssignActionSet.setId(actionSet.getId());
+        pitAttributeAssignActionSet.setId(GrouperUuid.getUuid());
+        pitAttributeAssignActionSet.setSourceId(actionSet.getId());
         pitAttributeAssignActionSet.setDepth(actionSet.getDepth());
-        pitAttributeAssignActionSet.setIfHasAttrAssignActionId(actionSet.getIfHasAttrAssignActionId());
-        pitAttributeAssignActionSet.setThenHasAttrAssignActionId(actionSet.getThenHasAttrAssignActionId());
-        pitAttributeAssignActionSet.setParentAttrAssignActionSetId(actionSet.getParentAttrAssignActionSetId());
+        pitAttributeAssignActionSet.setIfHasAttrAssignActionId(pitIfHas.getId());
+        pitAttributeAssignActionSet.setThenHasAttrAssignActionId(pitThenHas.getId());
+        pitAttributeAssignActionSet.setParentAttrAssignActionSetId(actionSet.getDepth() == 0 ? pitAttributeAssignActionSet.getId() : pitParent.getId());
         pitAttributeAssignActionSet.setActiveDb("T");
         pitAttributeAssignActionSet.setStartTimeDb(System.currentTimeMillis() * 1000);
         

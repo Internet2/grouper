@@ -41,10 +41,32 @@ public interface PITGroupDAO extends GrouperDAO {
   public void delete(PITGroup pitGroup);
   
   /**
-   * @param pitGroupId
-   * @return pit group
+   * @param id
+   * @param exceptionIfNotFound 
+   * @return PITGroup
    */
-  public PITGroup findById(String pitGroupId);
+  public PITGroup findBySourceIdActive(String id, boolean exceptionIfNotFound);
+  
+  /**
+   * @param id
+   * @param exceptionIfNotFound 
+   * @return PITGroup
+   */
+  public PITGroup findById(String id, boolean exceptionIfNotFound);
+  
+  /**
+   * @param id
+   * @param exceptionIfNotFound 
+   * @return PITGroup
+   */
+  public PITGroup findBySourceIdUnique(String id, boolean exceptionIfNotFound);
+  
+  /**
+   * @param id
+   * @param exceptionIfNotFound 
+   * @return set of pit groups
+   */
+  public Set<PITGroup> findBySourceId(String id, boolean exceptionIfNotFound);
   
   /**
    * @param groupName

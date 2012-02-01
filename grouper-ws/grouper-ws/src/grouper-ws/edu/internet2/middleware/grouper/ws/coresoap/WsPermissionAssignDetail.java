@@ -302,9 +302,7 @@ public class WsPermissionAssignDetail {
   public WsPermissionAssignDetail(PermissionEntry permissionEntry) {
     
     this.actionDepth = Integer.toString(permissionEntry.getAttributeAssignActionSetDepth());
-    this.actionId = permissionEntry.getActionId();
     this.attributeDefNameSetDepth = Integer.toString(permissionEntry.getAttributeDefNameSetDepth());
-    this.memberId = permissionEntry.getMemberId();
     this.membershipDepth = Integer.toString(permissionEntry.getMembershipDepth());
     this.roleSetDepth = Integer.toString(permissionEntry.getRoleSetDepth());
     
@@ -314,7 +312,12 @@ public class WsPermissionAssignDetail {
       this.enabledTime = GrouperServiceUtils.dateToString(permissionEntry.getEnabledTime());
       this.immediateMembership = permissionEntry.isImmediateMembership() ? "T" : "F";
       this.immediatePermission = permissionEntry.isImmediatePermission() ? "T" : "F";
-      this.permissionDelegatable = permissionEntry.getAttributeAssignDelegatableDb();    
+      this.permissionDelegatable = permissionEntry.getAttributeAssignDelegatableDb(); 
+      this.actionId = permissionEntry.getActionId();
+      this.memberId = permissionEntry.getMemberId();
+    } else {
+      this.actionId = ((PITPermissionAllView)permissionEntry).getActionSourceId();
+      this.memberId = ((PITPermissionAllView)permissionEntry).getMemberSourceId();
     }
   }
 }

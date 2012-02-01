@@ -167,7 +167,7 @@ public class WsAttributeAssignValue implements Comparable<WsAttributeAssignValue
    * @param attributeAssignValue
    */
   public WsAttributeAssignValue(PITAttributeAssignValue attributeAssignValue) {
-    this.id = attributeAssignValue.getId();
+    this.id = attributeAssignValue.getSourceId();
     this.valueSystem = attributeAssignValue.valueString();
   }
 }

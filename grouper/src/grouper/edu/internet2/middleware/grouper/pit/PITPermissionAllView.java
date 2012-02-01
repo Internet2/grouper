@@ -18,6 +18,27 @@ public class PITPermissionAllView extends PermissionEntryBase implements Seriali
 
   //*****  START GENERATED WITH GenerateFieldConstants.java *****//
 
+  /** constant for field name for: actionSourceId */
+  public static final String FIELD_ACTION_SOURCE_ID = "actionSourceId";
+  
+  /** constant for field name for: roleSourceId */
+  public static final String FIELD_ROLE_SOURCE_ID = "roleSourceId";
+  
+  /** constant for field name for: attributeDefNameSourceId */
+  public static final String FIELD_ATTRIBUTE_DEF_NAME_SOURCE_ID = "attributeDefNameSourceId";
+  
+  /** constant for field name for: attributeDefSourceId */
+  public static final String FIELD_ATTRIBUTE_DEF_SOURCE_ID = "attributeDefSourceId";
+  
+  /** constant for field name for: memberSourceId */
+  public static final String FIELD_MEMBER_SOURCE_ID = "memberSourceId";
+  
+  /** constant for field name for: membershipSourceId */
+  public static final String FIELD_MEMBERSHIP_SOURCE_ID = "membershipSourceId";
+  
+  /** constant for field name for: attributeAssignSourceId */
+  public static final String FIELD_ATTRIBUTE_ASSIGN_SOURCE_ID = "attributeAssignSourceId";
+  
   /** constant for field name for: action */
   public static final String FIELD_ACTION = "action";
 
@@ -135,6 +156,27 @@ public class PITPermissionAllView extends PermissionEntryBase implements Seriali
   
   //*****  END GENERATED WITH GenerateFieldConstants.java *****//
 
+  /** */
+  private String membershipSourceId;
+  
+  /** */
+  private String attributeAssignSourceId;
+
+  /** */
+  private String actionSourceId;
+  
+  /** */
+  private String roleSourceId;
+  
+  /** */
+  private String attributeDefNameSourceId;
+  
+  /** */
+  private String attributeDefSourceId;
+  
+  /** */
+  private String memberSourceId;
+  
   /** */
   private String actionSetId;
   
@@ -648,5 +690,114 @@ public class PITPermissionAllView extends PermissionEntryBase implements Seriali
       .append(this.getPermissionType())
       .append(this.getAttributeAssignId())
       .toHashCode();
+  }
+
+  /**
+   * @return the membershipSourceId
+   */
+  public String getMembershipSourceId() {
+    return membershipSourceId;
+  }
+
+  
+  /**
+   * @param membershipSourceId the membershipSourceId to set
+   */
+  public void setMembershipSourceId(String membershipSourceId) {
+    this.membershipSourceId = membershipSourceId;
+  }
+  
+  /**
+   * @return the attributeAssignSourceId
+   */
+  public String getAttributeAssignSourceId() {
+    return attributeAssignSourceId;
+  }
+
+  
+  /**
+   * @param attributeAssignSourceId the attributeAssignSourceId to set
+   */
+  public void setAttributeAssignSourceId(String attributeAssignSourceId) {
+    this.attributeAssignSourceId = attributeAssignSourceId;
+  }
+  
+  /**
+   * @return the actionSourceId
+   */
+  public String getActionSourceId() {
+    return actionSourceId;
+  }
+
+  
+  /**
+   * @param actionSourceId the actionSourceId to set
+   */
+  public void setActionSourceId(String actionSourceId) {
+    this.actionSourceId = actionSourceId;
+  }
+
+  
+  /**
+   * @return the roleSourceId
+   */
+  public String getRoleSourceId() {
+    return roleSourceId;
+  }
+
+  
+  /**
+   * @param roleSourceId the roleSourceId to set
+   */
+  public void setRoleSourceId(String roleSourceId) {
+    this.roleSourceId = roleSourceId;
+  }
+
+  
+  /**
+   * @return the attributeDefNameSourceId
+   */
+  public String getAttributeDefNameSourceId() {
+    return attributeDefNameSourceId;
+  }
+
+  
+  /**
+   * @param attributeDefNameSourceId the attributeDefNameSourceId to set
+   */
+  public void setAttributeDefNameSourceId(String attributeDefNameSourceId) {
+    this.attributeDefNameSourceId = attributeDefNameSourceId;
+  }
+
+  
+  /**
+   * @return the attributeDefSourceId
+   */
+  public String getAttributeDefSourceId() {
+    return attributeDefSourceId;
+  }
+
+  
+  /**
+   * @param attributeDefSourceId the attributeDefSourceId to set
+   */
+  public void setAttributeDefSourceId(String attributeDefSourceId) {
+    this.attributeDefSourceId = attributeDefSourceId;
+  }
+
+  
+  /**
+   * @return the memberSourceId
+   */
+  public String getMemberSourceId() {
+    return memberSourceId;
+  }
+
+  
+  /**
+   * @param memberSourceId the memberSourceId to set
+   */
+  public void setMemberSourceId(String memberSourceId) {
+    this.memberSourceId = memberSourceId;
   }
 }

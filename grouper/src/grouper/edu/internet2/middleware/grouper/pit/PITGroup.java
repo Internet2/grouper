@@ -46,6 +46,12 @@ public class PITGroup extends GrouperPIT implements Hib3GrouperVersioned {
   /** hibernate version */
   public static final String COLUMN_HIBERNATE_VERSION_NUMBER = "hibernate_version_number";
 
+  /** column */
+  public static final String COLUMN_SOURCE_ID = "source_id";
+  
+  
+  /** constant for field name for: sourceId */
+  public static final String FIELD_SOURCE_ID = "sourceId";
   
   /** constant for field name for: contextId */
   public static final String FIELD_CONTEXT_ID = "contextId";
@@ -64,7 +70,7 @@ public class PITGroup extends GrouperPIT implements Hib3GrouperVersioned {
    */
   private static final Set<String> CLONE_FIELDS = GrouperUtil.toSet(
       FIELD_CONTEXT_ID, FIELD_HIBERNATE_VERSION_NUMBER, FIELD_ID,
-      FIELD_NAME, FIELD_STEM_ID);
+      FIELD_NAME, FIELD_STEM_ID, FIELD_SOURCE_ID);
 
 
 
@@ -85,6 +91,24 @@ public class PITGroup extends GrouperPIT implements Hib3GrouperVersioned {
   /** stem */
   private String stemId;
 
+  /** sourceId */
+  private String sourceId;
+  
+  /**
+   * @return source id
+   */
+  public String getSourceId() {
+    return sourceId;
+  }
+
+  /**
+   * set source id
+   * @param sourceId
+   */
+  public void setSourceId(String sourceId) {
+    this.sourceId = sourceId;
+  }
+  
   /**
    * @see edu.internet2.middleware.grouper.GrouperAPI#clone()
    */
@@ -178,17 +202,17 @@ public class PITGroup extends GrouperPIT implements Hib3GrouperVersioned {
    * If the group currently exists, you must have read access to it.  If it has been deleted, you must be wheel or root.
    * You must also be wheel or root if the field has been deleted.
    * An empty set is returned if you do not have appropriate privileges.
-   * @param pitFieldId specifies the field id.  This is required.
+   * @param fieldSourceId specifies the field id.  This is required.
    * @param pointInTimeFrom the start of the range of the point in time query.  This is optional.
    * @param pointInTimeTo the end of the range of the point in time query.  This is optional.  If this is the same as pointInTimeFrom, then the query will be done at a single point in time rather than a range.
    * @param sources optionally filter on subject source ids.
    * @param queryOptions optional query options.
    * @return set of pit members
    */
-  public Set<Member> getMembers(String pitFieldId, Timestamp pointInTimeFrom, Timestamp pointInTimeTo, Set<Source> sources, QueryOptions queryOptions) {
+  public Set<Member> getMembers(String fieldSourceId, Timestamp pointInTimeFrom, Timestamp pointInTimeTo, Set<Source> sources, QueryOptions queryOptions) {
     
-    if (pitFieldId == null) {
-      throw new IllegalArgumentException("pitFieldId required.");
+    if (fieldSourceId == null) {
+      throw new IllegalArgumentException("fieldSourceId required.");
     }
     
     Set<Member> members = new LinkedHashSet<Member>();
@@ -198,18 +222,19 @@ public class PITGroup extends GrouperPIT implements Hib3GrouperVersioned {
         return members;
       }
       
-      Field field = FieldFinder.findById(pitFieldId, false);
+      Field field = FieldFinder.findById(fieldSourceId, false);
       if (field == null && !PrivilegeHelper.isWheelOrRoot(session.getSubject())) {
         return members;
       }
 
       if (this.isActive() && field != null) {
-        Group group = GrouperDAOFactory.getFactory().getGroup().findByUuid(this.getId(), true);
+        Group group = GrouperDAOFactory.getFactory().getGroup().findByUuid(this.getSourceId(), true);
         PrivilegeHelper.dispatch(session, group, session.getSubject(), field.getReadPriv());
       }
       
+      PITField pitField = GrouperDAOFactory.getFactory().getPITField().findBySourceIdActive(fieldSourceId, true);
       members = GrouperDAOFactory.getFactory().getPITMembershipView().findAllMembersByOwnerAndField( 
-          this.getId(), pitFieldId, pointInTimeFrom, pointInTimeTo, sources, queryOptions);
+          this.getId(), pitField.getId(), pointInTimeFrom, pointInTimeTo, sources, queryOptions);
     }
     catch (InsufficientPrivilegeException e) {
       // ignore -- this is what Group.getMembers() does too...  
@@ -221,36 +246,40 @@ public class PITGroup extends GrouperPIT implements Hib3GrouperVersioned {
   /**
    * Check if the group has a member using point in time and the specified field.
    * @param subject specifies the subject.  This is required.
-   * @param pitFieldId specifies the field id.  This is required.
+   * @param fieldSourceId specifies the field id.  This is required.
    * @param pointInTimeFrom the start of the range of the point in time query.  This is optional.
    * @param pointInTimeTo the end of the range of the point in time query.  This is optional.  If this is the same as pointInTimeFrom, then the query will be done at a single point in time rather than a range.
    * @param queryOptions optional query options.
    * @return boolean
    */
-  public boolean hasMember(Subject subject, String pitFieldId, Timestamp pointInTimeFrom, Timestamp pointInTimeTo, QueryOptions queryOptions) {
+  public boolean hasMember(Subject subject, String fieldSourceId, Timestamp pointInTimeFrom, Timestamp pointInTimeTo, QueryOptions queryOptions) {
     
     if (subject == null) {
       throw new IllegalArgumentException("subject required.");
     }
     
-    if (pitFieldId == null) {
-      throw new IllegalArgumentException("pitFieldId required.");
+    if (fieldSourceId == null) {
+      throw new IllegalArgumentException("fieldSourceId required.");
     }
     
     Member m = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), subject, true);
-    
-    int size = GrouperDAOFactory.getFactory().getPITMembershipView().findAllByOwnerAndMemberAndField(
-        this.getId(), m.getUuid(), pitFieldId, pointInTimeFrom, pointInTimeTo, queryOptions).size();
-    
-    if (size > 0) {
-      return true;
+    PITField pitField = GrouperDAOFactory.getFactory().getPITField().findBySourceIdActive(fieldSourceId, true);
+    PITMember pitMember = GrouperDAOFactory.getFactory().getPITMember().findBySourceIdActive(m.getUuid(), false);
+    if (pitMember != null) {
+      int size = GrouperDAOFactory.getFactory().getPITMembershipView().findAllByOwnerAndMemberAndField(
+          this.getId(), pitMember.getId(), pitField.getId(), pointInTimeFrom, pointInTimeTo, queryOptions).size();
+      
+      if (size > 0) {
+        return true;
+      }    
     }
     
     // need to check GrouperAll as well...
     Member all = MemberFinder.internal_findAllMember();
     if (!all.getUuid().equals(m.getUuid())) {
-      size = GrouperDAOFactory.getFactory().getPITMembershipView().findAllByOwnerAndMemberAndField(
-          this.getId(), all.getUuid(), pitFieldId, pointInTimeFrom, pointInTimeTo, queryOptions).size();
+      PITMember pitMemberAll = GrouperDAOFactory.getFactory().getPITMember().findBySourceIdActive(all.getUuid(), true);
+      int size = GrouperDAOFactory.getFactory().getPITMembershipView().findAllByOwnerAndMemberAndField(
+          this.getId(), pitMemberAll.getId(), pitField.getId(), pointInTimeFrom, pointInTimeTo, queryOptions).size();
       
       if (size > 0) {
         return true;
@@ -321,10 +350,12 @@ public class PITGroup extends GrouperPIT implements Hib3GrouperVersioned {
     }
     
     // delete memberships where this group is a member
-    PITMember member = GrouperDAOFactory.getFactory().getPITMember().findMemberBySubjectIdSourceAndType(this.getId(), "g:gsa", "group");
-    memberships = GrouperDAOFactory.getFactory().getPITMembership().findAllByMember(member.getId());
-    for (PITMembership membership : memberships) {
-      GrouperDAOFactory.getFactory().getPITMembership().delete(membership);
+    Set<PITMember> members = GrouperDAOFactory.getFactory().getPITMember().findPITMembersBySubjectIdSourceAndType(this.getSourceId(), "g:gsa", "group");
+    for (PITMember member : members) {
+      memberships = GrouperDAOFactory.getFactory().getPITMembership().findAllByMember(member.getId());
+      for (PITMembership membership : memberships) {
+        GrouperDAOFactory.getFactory().getPITMembership().delete(membership);
+      }
     }
     
     // delete self role sets and their children
@@ -335,5 +366,18 @@ public class PITGroup extends GrouperPIT implements Hib3GrouperVersioned {
     for (PITRoleSet roleSet : roleSets) {
       GrouperDAOFactory.getFactory().getPITRoleSet().delete(roleSet);
     }
+  }
+  
+  private PITStem pitStem;
+  
+  /**
+   * @return pitStem
+   */
+  public PITStem getPITStem() {
+    if (pitStem == null) {
+      pitStem = GrouperDAOFactory.getFactory().getPITStem().findById(stemId, true);
+    }
+    
+    return pitStem;
   }
 }

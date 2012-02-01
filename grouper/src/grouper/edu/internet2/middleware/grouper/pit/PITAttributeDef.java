@@ -33,6 +33,13 @@ public class PITAttributeDef extends GrouperPIT implements Hib3GrouperVersioned 
   /** hibernate version */
   public static final String COLUMN_HIBERNATE_VERSION_NUMBER = "hibernate_version_number";
 
+  /** column */
+  public static final String COLUMN_SOURCE_ID = "source_id";
+  
+  
+  /** constant for field name for: sourceId */
+  public static final String FIELD_SOURCE_ID = "sourceId";
+  
   
   /** constant for field name for: contextId */
   public static final String FIELD_CONTEXT_ID = "contextId";
@@ -54,7 +61,7 @@ public class PITAttributeDef extends GrouperPIT implements Hib3GrouperVersioned 
    */
   private static final Set<String> CLONE_FIELDS = GrouperUtil.toSet(
       FIELD_CONTEXT_ID, FIELD_HIBERNATE_VERSION_NUMBER, FIELD_ID,
-      FIELD_NAME, FIELD_ATTRIBUTE_DEF_TYPE, FIELD_STEM_ID);
+      FIELD_NAME, FIELD_ATTRIBUTE_DEF_TYPE, FIELD_STEM_ID, FIELD_SOURCE_ID);
 
 
 
@@ -78,6 +85,24 @@ public class PITAttributeDef extends GrouperPIT implements Hib3GrouperVersioned 
   /** attributeDefType */
   private String attributeDefType;
 
+  /** sourceId */
+  private String sourceId;
+  
+  /**
+   * @return source id
+   */
+  public String getSourceId() {
+    return sourceId;
+  }
+
+  /**
+   * set source id
+   * @param sourceId
+   */
+  public void setSourceId(String sourceId) {
+    this.sourceId = sourceId;
+  }
+  
   /**
    * @see edu.internet2.middleware.grouper.GrouperAPI#clone()
    */
@@ -217,5 +242,18 @@ public class PITAttributeDef extends GrouperPIT implements Hib3GrouperVersioned 
     for (PITAttributeAssignAction action : actions) {
       GrouperDAOFactory.getFactory().getPITAttributeAssignAction().delete(action);
     }
+  }
+  
+  private PITStem pitStem;
+  
+  /**
+   * @return pitStem
+   */
+  public PITStem getPITStem() {
+    if (pitStem == null) {
+      pitStem = GrouperDAOFactory.getFactory().getPITStem().findById(stemId, true);
+    }
+    
+    return pitStem;
   }
 }

@@ -55,6 +55,7 @@
     <property name="startTimeDb" column="start_time" />
     <property name="endTimeDb" column="end_time" />
     <property name="disallowedDb" column="disallowed" />
+    <property name="sourceId" column="source_id" />
   </class>
 </hibernate-mapping>
 

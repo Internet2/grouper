@@ -88,7 +88,8 @@ public class GrouperLoader {
     //this will schedule ESB listener jobs if enabled
     scheduleEsbListenerJobs();
     
-    scheduleLdappcFullSyncJob();
+    schedulePspFullSyncJob();
+    schedulePspFullSyncRunAtStartupJob();
   }
 
   /**
@@ -1137,9 +1138,9 @@ public class GrouperLoader {
   }
 
   /**
-   * schedule ldappcng full sync job
+   * schedule psp full sync job
    */
-  public static void scheduleLdappcFullSyncJob() {
+  public static void schedulePspFullSyncJob() {
   
     String cronString = null;
     
@@ -1149,36 +1150,42 @@ public class GrouperLoader {
     //schedule the job
     try {
       
-      cronString = GrouperLoaderConfig.getPropertyString("changeLog.ldappcng.fullSync.quartzCron");
-      
+      cronString = GrouperLoaderConfig.getPropertyString("changeLog.psp.fullSync.quartzCron");
+     
       if (StringUtils.isEmpty(cronString)) {
-        LOG.warn("grouper-loader.properties key: changeLog.ldappcng.fullSync.quartzCron is not " +
-            "filled in or false so the ldappcng full sync job will not run");
+        LOG.warn("Full synchronization provisioning jobs are not scheduled. To schedule full synchronization jobs, " +
+                 "set grouper-loader.properties key 'changeLog.psp.fullSync.quartzCron' to a cron expression.");
           return;
       }
       
-      LOG.info("Scheduling " + GrouperLoaderType.LDAPPCNG_FULL_SYNC.name());
+      if (StringUtils.isEmpty(GrouperLoaderConfig.getPropertyString("changeLog.psp.fullSync.class"))) {
+        LOG.warn("Unable to run a full synchronization provisioning job. " +
+            "Set grouper-loader.properties key 'changeLog.psp.fullSync.class' to the name of the class providing a fullSync() method.");
+          return;
+      }
+      
+      LOG.info("Scheduling " + GrouperLoaderType.PSP_FULL_SYNC.name());
         
       //at this point we have all the attributes and we know the required ones are there, and logged when 
       //forbidden ones are there
       Scheduler scheduler = GrouperLoader.schedulerFactory().getScheduler();
-  
+
       //the name of the job must be unique
-      JobDetail jobDetail = new JobDetail(GrouperLoaderType.LDAPPCNG_FULL_SYNC.name(), null, GrouperLoaderJob.class);
+      JobDetail jobDetail = new JobDetail(GrouperLoaderType.PSP_FULL_SYNC.name(), null, GrouperLoaderJob.class);
   
       //schedule this job
       GrouperLoaderScheduleType grouperLoaderScheduleType = GrouperLoaderScheduleType.CRON;
   
       Trigger trigger = grouperLoaderScheduleType.createTrigger(cronString, null);
   
-      trigger.setName("trigger_" + GrouperLoaderType.LDAPPCNG_FULL_SYNC.name());
+      trigger.setName("trigger_" + GrouperLoaderType.PSP_FULL_SYNC.name());
   
       trigger.setPriority(priority);
   
       scheduler.scheduleJob(jobDetail, trigger);
   
     } catch (Exception e) {
-      String errorMessage = "Could not schedule job: '" + GrouperLoaderType.LDAPPCNG_FULL_SYNC.name() + "'";
+      String errorMessage = "Could not schedule job: '" + GrouperLoaderType.PSP_FULL_SYNC.name() + "'";
       LOG.error(errorMessage, e);
       errorMessage += "\n" + ExceptionUtils.getFullStackTrace(e);
       try {
@@ -1186,11 +1193,86 @@ public class GrouperLoader {
         Hib3GrouperLoaderLog hib3GrouploaderLog = new Hib3GrouperLoaderLog();
         hib3GrouploaderLog.setHost(GrouperUtil.hostname());
         hib3GrouploaderLog.setJobMessage(errorMessage);
-        hib3GrouploaderLog.setJobName(GrouperLoaderType.LDAPPCNG_FULL_SYNC.name());
+        hib3GrouploaderLog.setJobName(GrouperLoaderType.PSP_FULL_SYNC.name());
         hib3GrouploaderLog.setJobSchedulePriority(priority);
         hib3GrouploaderLog.setJobScheduleQuartzCron(cronString);
         hib3GrouploaderLog.setJobScheduleType(GrouperLoaderScheduleType.CRON.name());
-        hib3GrouploaderLog.setJobType(GrouperLoaderType.LDAPPCNG_FULL_SYNC.name());
+        hib3GrouploaderLog.setJobType(GrouperLoaderType.PSP_FULL_SYNC.name());
+        hib3GrouploaderLog.setStatus(GrouperLoaderStatus.CONFIG_ERROR.name());
+        hib3GrouploaderLog.store();
+        
+      } catch (Exception e2) {
+        LOG.error("Problem logging to loader db log", e2);
+      }
+    }
+  
+  }
+  
+  /**
+   * schedule psp full sync job once at startup
+   */
+  public static void schedulePspFullSyncRunAtStartupJob() {
+
+    //this is a medium priority job
+    int priority = 5;        
+  
+    //schedule the job
+    try {                  
+      if (StringUtils.isEmpty(GrouperLoaderConfig.getPropertyString("changeLog.psp.fullSync.runAtStartup"))) {
+        LOG.warn("A full synchronization provisioning job will not run once at startup. To run one full synchronization job at startup, " +
+            "set grouper-loader.properties key 'changeLog.psp.fullSync.runAtStartup' to 'true'.");
+          return;
+      }
+    
+      boolean onceOnStartup = GrouperLoaderConfig.getPropertyBoolean("changeLog.psp.fullSync.runAtStartup", false);
+      
+      if (!onceOnStartup) {
+        return;
+      }
+      
+      if (StringUtils.isEmpty(GrouperLoaderConfig.getPropertyString("changeLog.psp.fullSync.class"))) {
+        LOG.warn("Unable to run a full synchronization provisioning job. " +
+            "Set grouper-loader.properties key 'changeLog.psp.fullSync.class' to the name of the class providing a fullSync() method.");
+          return;
+      }
+      
+      LOG.info("Scheduling to run at startup " + GrouperLoaderType.PSP_FULL_SYNC.name());
+        
+      //at this point we have all the attributes and we know the required ones are there, and logged when 
+      //forbidden ones are there
+      Scheduler scheduler = GrouperLoader.schedulerFactory().getScheduler();
+              
+      //the name of the job must be unique
+      JobDetail jobDetail = new JobDetail(GrouperLoaderType.PSP_FULL_SYNC.name() + ".runAtStartup", null, GrouperLoaderJob.class);
+  
+      //schedule this job
+      SimpleTrigger trigger = new SimpleTrigger();
+        
+      // do not repeat
+      trigger.setRepeatCount(0);
+      
+      // run immediately
+      trigger.setStartTime(new Date());
+      
+      trigger.setName("trigger_" + GrouperLoaderType.PSP_FULL_SYNC.name() + ".runAtStartup");
+  
+      trigger.setPriority(priority);
+  
+      scheduler.scheduleJob(jobDetail, trigger);
+  
+    } catch (Exception e) {
+      String errorMessage = "Could not schedule job: '" + GrouperLoaderType.PSP_FULL_SYNC.name() + "'";
+      LOG.error(errorMessage, e);
+      errorMessage += "\n" + ExceptionUtils.getFullStackTrace(e);
+      try {
+        //lets enter a log entry so it shows up as error in the db
+        Hib3GrouperLoaderLog hib3GrouploaderLog = new Hib3GrouperLoaderLog();
+        hib3GrouploaderLog.setHost(GrouperUtil.hostname());
+        hib3GrouploaderLog.setJobMessage(errorMessage);
+        hib3GrouploaderLog.setJobName(GrouperLoaderType.PSP_FULL_SYNC.name());
+        hib3GrouploaderLog.setJobSchedulePriority(priority);
+        hib3GrouploaderLog.setJobScheduleType("simple");
+        hib3GrouploaderLog.setJobType(GrouperLoaderType.PSP_FULL_SYNC.name());
         hib3GrouploaderLog.setStatus(GrouperLoaderStatus.CONFIG_ERROR.name());
         hib3GrouploaderLog.store();
         

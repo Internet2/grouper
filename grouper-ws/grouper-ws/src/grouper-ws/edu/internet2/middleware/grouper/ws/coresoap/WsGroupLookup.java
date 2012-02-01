@@ -119,7 +119,7 @@ public class WsGroupLookup {
               throw new RuntimeException("typeOfGroup expected to be null for point in time queries.");
             }
             
-            groupIds.add(pitGroup.getId());
+            groupIds.add(pitGroup.getSourceId());
           }
         } else {
           
@@ -487,10 +487,10 @@ public class WsGroupLookup {
       }
 
       if (hasUuid) {        
-        PITGroup theGroup = PITGroupFinder.findById(this.uuid, true);
+        Set<PITGroup> theGroups = PITGroupFinder.findBySourceId(this.uuid, pointInTimeFrom, pointInTimeTo, true);
 
         //make sure name matches 
-        if (hasName && !StringUtils.equals(this.groupName, theGroup.getName())) {
+        if (hasName && !StringUtils.equals(this.groupName, theGroups.iterator().next().getName())) {
           this.groupFindResult = GroupFindResult.GROUP_UUID_DOESNT_MATCH_NAME;
           String error = "Group name '" + this.groupName + "' and uuid '" + this.uuid
               + "' do not match";
@@ -503,8 +503,7 @@ public class WsGroupLookup {
         }
 
         //success
-        this.pitGroups = new LinkedHashSet<PITGroup>();
-        this.pitGroups.add(theGroup);
+        this.pitGroups = new LinkedHashSet<PITGroup>(theGroups);
 
       } else if (hasName) {
         this.pitGroups = PITGroupFinder.findByName(this.groupName, pointInTimeFrom, pointInTimeTo, true, true);

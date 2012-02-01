@@ -251,10 +251,10 @@ public class WsAttributeDefNameLookup {
       }
 
       if (hasUuid) {        
-        PITAttributeDefName theAttributeDefName = PITAttributeDefNameFinder.findById(this.uuid, true);
+        Set<PITAttributeDefName> theAttributeDefNames = PITAttributeDefNameFinder.findBySourceId(this.uuid, pointInTimeFrom, pointInTimeTo, true);
 
         //make sure name matches 
-        if (hasName && !StringUtils.equals(this.name, theAttributeDefName.getName())) {
+        if (hasName && !StringUtils.equals(this.name, theAttributeDefNames.iterator().next().getName())) {
           this.attributeDefNameFindResult = AttributeDefNameFindResult.ATTRIBUTE_DEF_NAME_UUID_DOESNT_MATCH_NAME;
           String error = "AttributeDefName name '" + this.name + "' and uuid '" + this.uuid
               + "' do not match";
@@ -267,8 +267,7 @@ public class WsAttributeDefNameLookup {
         }
 
         //success
-        this.pitAttributeDefNames = new LinkedHashSet<PITAttributeDefName>();
-        this.pitAttributeDefNames.add(theAttributeDefName);
+        this.pitAttributeDefNames = new LinkedHashSet<PITAttributeDefName>(theAttributeDefNames);
 
       } else if (hasName) {
         this.pitAttributeDefNames = PITAttributeDefNameFinder.findByName(this.name, pointInTimeFrom, pointInTimeTo, true, true);
@@ -420,11 +419,11 @@ public class WsAttributeDefNameLookup {
         } else if (usePIT && pitAttributeDefNames != null && pitAttributeDefNames.size() > 0) {
           for (PITAttributeDefName pitAttributeDefName : pitAttributeDefNames) {
             if (attributeDefType == null) {
-              attributeDefNameIds.add(pitAttributeDefName.getId());
+              attributeDefNameIds.add(pitAttributeDefName.getSourceId());
             } else {
               PITAttributeDef pitAttributeDef = PITAttributeDefFinder.findById(pitAttributeDefName.getAttributeDefId(), true);
               if (attributeDefType.name().equals(pitAttributeDef.getAttributeDefTypeDb())) {
-                attributeDefNameIds.add(pitAttributeDefName.getId());
+                attributeDefNameIds.add(pitAttributeDefName.getSourceId());
               } else {
                 if (errorMessage.length() > 0) {
                   errorMessage.append(", ");

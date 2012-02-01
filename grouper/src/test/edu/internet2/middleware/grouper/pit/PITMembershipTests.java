@@ -117,11 +117,11 @@ public class PITMembershipTests extends GrouperTest {
     ChangeLogTempToEntity.convertRecords();
     
     // verify
-    PITGroup pitGroup1 = PITGroupFinder.findById(group1.getId(), true);
+    PITGroup pitGroup1 = PITGroupFinder.findBySourceId(group1.getId(), true).iterator().next();
     assertEquals(3, pitGroup1.getMembers(Group.getDefaultList().getUuid(), null, null, null, null).size());
     
     GroupSet immediateGroupSet = GrouperDAOFactory.getFactory().getGroupSet().findImmediateByOwnerGroupAndMemberGroupAndField(group1.getUuid(), group2.getUuid(), Group.getDefaultList());
-    PITGroupSet pitImmediateGroupSet = GrouperDAOFactory.getFactory().getPITGroupSet().findById(immediateGroupSet.getId());
+    PITGroupSet pitImmediateGroupSet = GrouperDAOFactory.getFactory().getPITGroupSet().findBySourceIdActive(immediateGroupSet.getId(), false);
     assertTrue(pitImmediateGroupSet.isActive());
   }
   
@@ -156,7 +156,7 @@ public class PITMembershipTests extends GrouperTest {
     ChangeLogTempToEntity.convertRecords();
 
     Set<PITMembershipView> results = new PITMembershipViewQuery()
-      .setOwnerId(group1.getId())
+      .setOwnerGroupId(group1.getId())
       .setMemberId(member0.getUuid())
       .setFieldId(Group.getDefaultList().getUuid())
       .setActiveDateRange(new Date(beforeAddTime.getTime() - 1), beforeAddTime)
@@ -165,7 +165,7 @@ public class PITMembershipTests extends GrouperTest {
     assertEquals(0, results.size());
     
     results = new PITMembershipViewQuery()
-      .setOwnerId(group1.getId())
+      .setOwnerGroupId(group1.getId())
       .setMemberId(member0.getUuid())
       .setFieldId(Group.getDefaultList().getUuid())
       .setActiveDateRange(beforeAddTime, afterAddTime)
@@ -174,7 +174,7 @@ public class PITMembershipTests extends GrouperTest {
     assertEquals(1, results.size());
 
     results = new PITMembershipViewQuery()
-      .setOwnerId(group1.getId())
+      .setOwnerGroupId(group1.getId())
       .setMemberId(member0.getUuid())
       .setFieldId(Group.getDefaultList().getUuid())
       .setActiveDateRange(afterAddTime, beforeDeleteTime)
@@ -183,7 +183,7 @@ public class PITMembershipTests extends GrouperTest {
     assertEquals(1, results.size());
     
     results = new PITMembershipViewQuery()
-      .setOwnerId(group1.getId())
+      .setOwnerGroupId(group1.getId())
       .setMemberId(member0.getUuid())
       .setFieldId(Group.getDefaultList().getUuid())
       .setActiveDateRange(beforeDeleteTime, afterDeleteTime)
@@ -192,7 +192,7 @@ public class PITMembershipTests extends GrouperTest {
     assertEquals(1, results.size());
     
     results = new PITMembershipViewQuery()
-      .setOwnerId(group1.getId())
+      .setOwnerGroupId(group1.getId())
       .setMemberId(member0.getUuid())
       .setFieldId(Group.getDefaultList().getUuid())
       .setActiveDateRange(afterDeleteTime, new Date(afterDeleteTime.getTime() + 1))
@@ -201,7 +201,7 @@ public class PITMembershipTests extends GrouperTest {
     assertEquals(0, results.size());
     
     results = new PITMembershipViewQuery()
-      .setOwnerId(group1.getId())
+      .setOwnerGroupId(group1.getId())
       .setMemberId(member0.getUuid())
       .setFieldId(Group.getDefaultList().getUuid())
       .setActiveDateRange(beforeAddTime, afterDeleteTime)
@@ -210,7 +210,7 @@ public class PITMembershipTests extends GrouperTest {
     assertEquals(1, results.size());
     
     results = new PITMembershipViewQuery()
-      .setOwnerId(group1.getId())
+      .setOwnerGroupId(group1.getId())
       .setMemberId(member0.getUuid())
       .setFieldId(Group.getDefaultList().getUuid())
       .setActiveDateRange(null, beforeAddTime)
@@ -219,7 +219,7 @@ public class PITMembershipTests extends GrouperTest {
     assertEquals(0, results.size());
     
     results = new PITMembershipViewQuery()
-      .setOwnerId(group1.getId())
+      .setOwnerGroupId(group1.getId())
       .setMemberId(member0.getUuid())
       .setFieldId(Group.getDefaultList().getUuid())
       .setActiveDateRange(null, afterDeleteTime)
@@ -228,7 +228,7 @@ public class PITMembershipTests extends GrouperTest {
     assertEquals(1, results.size());
     
     results = new PITMembershipViewQuery()
-      .setOwnerId(group1.getId())
+      .setOwnerGroupId(group1.getId())
       .setMemberId(member0.getUuid())
       .setFieldId(Group.getDefaultList().getUuid())
       .setActiveDateRange(beforeAddTime, null)
@@ -237,7 +237,7 @@ public class PITMembershipTests extends GrouperTest {
     assertEquals(1, results.size());
     
     results = new PITMembershipViewQuery()
-      .setOwnerId(group1.getId())
+      .setOwnerGroupId(group1.getId())
       .setMemberId(member0.getUuid())
       .setFieldId(Group.getDefaultList().getUuid())
       .setActiveDateRange(afterDeleteTime, null)
@@ -276,7 +276,7 @@ public class PITMembershipTests extends GrouperTest {
     ChangeLogTempToEntity.convertRecords();
 
     Set<PITMembershipView> results = new PITMembershipViewQuery()
-      .setOwnerId(group1.getId())
+      .setOwnerGroupId(group1.getId())
       .setMemberId(member0.getUuid())
       .setFieldId(fieldId)
       .setActiveDateRange(new Date(beforeAddTime.getTime() - 1), beforeAddTime)
@@ -285,7 +285,7 @@ public class PITMembershipTests extends GrouperTest {
     assertEquals(0, results.size());
     
     results = new PITMembershipViewQuery()
-      .setOwnerId(group1.getId())
+      .setOwnerGroupId(group1.getId())
       .setMemberId(member0.getUuid())
       .setFieldId(Group.getDefaultList().getUuid())
       .setActiveDateRange(beforeAddTime, afterAddTime)
@@ -294,7 +294,7 @@ public class PITMembershipTests extends GrouperTest {
     assertEquals(0, results.size());
     
     results = new PITMembershipViewQuery()
-      .setOwnerId(group1.getId())
+      .setOwnerGroupId(group1.getId())
       .setMemberId(member0.getUuid())
       .setFieldId(fieldId)
       .setActiveDateRange(beforeAddTime, afterAddTime)
@@ -303,7 +303,7 @@ public class PITMembershipTests extends GrouperTest {
     assertEquals(1, results.size());
 
     results = new PITMembershipViewQuery()
-      .setOwnerId(group1.getId())
+      .setOwnerGroupId(group1.getId())
       .setMemberId(member0.getUuid())
       .setFieldId(fieldId)
       .setActiveDateRange(afterAddTime, beforeDeleteTime)
@@ -312,7 +312,7 @@ public class PITMembershipTests extends GrouperTest {
     assertEquals(1, results.size());
     
     results = new PITMembershipViewQuery()
-      .setOwnerId(group1.getId())
+      .setOwnerGroupId(group1.getId())
       .setMemberId(member0.getUuid())
       .setFieldId(fieldId)
       .setActiveDateRange(beforeDeleteTime, afterDeleteTime)
@@ -321,7 +321,7 @@ public class PITMembershipTests extends GrouperTest {
     assertEquals(1, results.size());
     
     results = new PITMembershipViewQuery()
-      .setOwnerId(group1.getId())
+      .setOwnerGroupId(group1.getId())
       .setMemberId(member0.getUuid())
       .setFieldId(fieldId)
       .setActiveDateRange(afterDeleteTime, new Date(afterDeleteTime.getTime() + 1))
@@ -330,7 +330,7 @@ public class PITMembershipTests extends GrouperTest {
     assertEquals(0, results.size());
     
     results = new PITMembershipViewQuery()
-      .setOwnerId(group1.getId())
+      .setOwnerGroupId(group1.getId())
       .setMemberId(member0.getUuid())
       .setFieldId(fieldId)
       .setActiveDateRange(beforeAddTime, afterDeleteTime)
@@ -339,7 +339,7 @@ public class PITMembershipTests extends GrouperTest {
     assertEquals(1, results.size());
     
     results = new PITMembershipViewQuery()
-      .setOwnerId(group1.getId())
+      .setOwnerGroupId(group1.getId())
       .setMemberId(member0.getUuid())
       .setFieldId(fieldId)
       .setActiveDateRange(null, beforeAddTime)
@@ -348,7 +348,7 @@ public class PITMembershipTests extends GrouperTest {
     assertEquals(0, results.size());
     
     results = new PITMembershipViewQuery()
-      .setOwnerId(group1.getId())
+      .setOwnerGroupId(group1.getId())
       .setMemberId(member0.getUuid())
       .setFieldId(fieldId)
       .setActiveDateRange(null, afterDeleteTime)
@@ -357,7 +357,7 @@ public class PITMembershipTests extends GrouperTest {
     assertEquals(1, results.size());
     
     results = new PITMembershipViewQuery()
-      .setOwnerId(group1.getId())
+      .setOwnerGroupId(group1.getId())
       .setMemberId(member0.getUuid())
       .setFieldId(fieldId)
       .setActiveDateRange(beforeAddTime, null)
@@ -366,7 +366,7 @@ public class PITMembershipTests extends GrouperTest {
     assertEquals(1, results.size());
     
     results = new PITMembershipViewQuery()
-      .setOwnerId(group1.getId())
+      .setOwnerGroupId(group1.getId())
       .setMemberId(member0.getUuid())
       .setFieldId(fieldId)
       .setActiveDateRange(afterDeleteTime, null)
@@ -405,7 +405,7 @@ public class PITMembershipTests extends GrouperTest {
     ChangeLogTempToEntity.convertRecords();
 
     Set<PITMembershipView> results = new PITMembershipViewQuery()
-      .setOwnerId(stem1.getUuid())
+      .setOwnerStemId(stem1.getUuid())
       .setMemberId(member0.getUuid())
       .setFieldId(fieldId)
       .setActiveDateRange(new Date(beforeAddTime.getTime() - 1), beforeAddTime)
@@ -414,7 +414,7 @@ public class PITMembershipTests extends GrouperTest {
     assertEquals(0, results.size());
     
     results = new PITMembershipViewQuery()
-      .setOwnerId(stem1.getUuid())
+      .setOwnerStemId(stem1.getUuid())
       .setMemberId(member0.getUuid())
       .setFieldId(Group.getDefaultList().getUuid())
       .setActiveDateRange(beforeAddTime, afterAddTime)
@@ -423,7 +423,7 @@ public class PITMembershipTests extends GrouperTest {
     assertEquals(0, results.size());
     
     results = new PITMembershipViewQuery()
-      .setOwnerId(stem1.getUuid())
+      .setOwnerStemId(stem1.getUuid())
       .setMemberId(member0.getUuid())
       .setFieldId(fieldId)
       .setActiveDateRange(beforeAddTime, afterAddTime)
@@ -432,7 +432,7 @@ public class PITMembershipTests extends GrouperTest {
     assertEquals(1, results.size());
 
     results = new PITMembershipViewQuery()
-      .setOwnerId(stem1.getUuid())
+      .setOwnerStemId(stem1.getUuid())
       .setMemberId(member0.getUuid())
       .setFieldId(fieldId)
       .setActiveDateRange(afterAddTime, beforeDeleteTime)
@@ -441,7 +441,7 @@ public class PITMembershipTests extends GrouperTest {
     assertEquals(1, results.size());
     
     results = new PITMembershipViewQuery()
-      .setOwnerId(stem1.getUuid())
+      .setOwnerStemId(stem1.getUuid())
       .setMemberId(member0.getUuid())
       .setFieldId(fieldId)
       .setActiveDateRange(beforeDeleteTime, afterDeleteTime)
@@ -450,7 +450,7 @@ public class PITMembershipTests extends GrouperTest {
     assertEquals(1, results.size());
     
     results = new PITMembershipViewQuery()
-      .setOwnerId(stem1.getUuid())
+      .setOwnerStemId(stem1.getUuid())
       .setMemberId(member0.getUuid())
       .setFieldId(fieldId)
       .setActiveDateRange(afterDeleteTime, new Date(afterDeleteTime.getTime() + 1))
@@ -459,7 +459,7 @@ public class PITMembershipTests extends GrouperTest {
     assertEquals(0, results.size());
     
     results = new PITMembershipViewQuery()
-      .setOwnerId(stem1.getUuid())
+      .setOwnerStemId(stem1.getUuid())
       .setMemberId(member0.getUuid())
       .setFieldId(fieldId)
       .setActiveDateRange(beforeAddTime, afterDeleteTime)
@@ -468,7 +468,7 @@ public class PITMembershipTests extends GrouperTest {
     assertEquals(1, results.size());
     
     results = new PITMembershipViewQuery()
-      .setOwnerId(stem1.getUuid())
+      .setOwnerStemId(stem1.getUuid())
       .setMemberId(member0.getUuid())
       .setFieldId(fieldId)
       .setActiveDateRange(null, beforeAddTime)
@@ -477,7 +477,7 @@ public class PITMembershipTests extends GrouperTest {
     assertEquals(0, results.size());
     
     results = new PITMembershipViewQuery()
-      .setOwnerId(stem1.getUuid())
+      .setOwnerStemId(stem1.getUuid())
       .setMemberId(member0.getUuid())
       .setFieldId(fieldId)
       .setActiveDateRange(null, afterDeleteTime)
@@ -486,7 +486,7 @@ public class PITMembershipTests extends GrouperTest {
     assertEquals(1, results.size());
     
     results = new PITMembershipViewQuery()
-      .setOwnerId(stem1.getUuid())
+      .setOwnerStemId(stem1.getUuid())
       .setMemberId(member0.getUuid())
       .setFieldId(fieldId)
       .setActiveDateRange(beforeAddTime, null)
@@ -495,7 +495,7 @@ public class PITMembershipTests extends GrouperTest {
     assertEquals(1, results.size());
     
     results = new PITMembershipViewQuery()
-      .setOwnerId(stem1.getUuid())
+      .setOwnerStemId(stem1.getUuid())
       .setMemberId(member0.getUuid())
       .setFieldId(fieldId)
       .setActiveDateRange(afterDeleteTime, null)
@@ -534,7 +534,7 @@ public class PITMembershipTests extends GrouperTest {
     ChangeLogTempToEntity.convertRecords();
 
     Set<PITMembershipView> results = new PITMembershipViewQuery()
-      .setOwnerId(attrDef1.getUuid())
+      .setOwnerAttrDefId(attrDef1.getUuid())
       .setMemberId(member0.getUuid())
       .setFieldId(fieldId)
       .setActiveDateRange(new Date(beforeAddTime.getTime() - 1), beforeAddTime)
@@ -543,7 +543,7 @@ public class PITMembershipTests extends GrouperTest {
     assertEquals(0, results.size());
     
     results = new PITMembershipViewQuery()
-      .setOwnerId(attrDef1.getUuid())
+      .setOwnerAttrDefId(attrDef1.getUuid())
       .setMemberId(member0.getUuid())
       .setFieldId(Group.getDefaultList().getUuid())
       .setActiveDateRange(beforeAddTime, afterAddTime)
@@ -552,7 +552,7 @@ public class PITMembershipTests extends GrouperTest {
     assertEquals(0, results.size());
     
     results = new PITMembershipViewQuery()
-      .setOwnerId(attrDef1.getUuid())
+      .setOwnerAttrDefId(attrDef1.getUuid())
       .setMemberId(member0.getUuid())
       .setFieldId(fieldId)
       .setActiveDateRange(beforeAddTime, afterAddTime)
@@ -561,7 +561,7 @@ public class PITMembershipTests extends GrouperTest {
     assertEquals(1, results.size());
 
     results = new PITMembershipViewQuery()
-      .setOwnerId(attrDef1.getUuid())
+      .setOwnerAttrDefId(attrDef1.getUuid())
       .setMemberId(member0.getUuid())
       .setFieldId(fieldId)
       .setActiveDateRange(afterAddTime, beforeDeleteTime)
@@ -570,7 +570,7 @@ public class PITMembershipTests extends GrouperTest {
     assertEquals(1, results.size());
     
     results = new PITMembershipViewQuery()
-      .setOwnerId(attrDef1.getUuid())
+      .setOwnerAttrDefId(attrDef1.getUuid())
       .setMemberId(member0.getUuid())
       .setFieldId(fieldId)
       .setActiveDateRange(beforeDeleteTime, afterDeleteTime)
@@ -579,7 +579,7 @@ public class PITMembershipTests extends GrouperTest {
     assertEquals(1, results.size());
     
     results = new PITMembershipViewQuery()
-      .setOwnerId(attrDef1.getUuid())
+      .setOwnerAttrDefId(attrDef1.getUuid())
       .setMemberId(member0.getUuid())
       .setFieldId(fieldId)
       .setActiveDateRange(afterDeleteTime, new Date(afterDeleteTime.getTime() + 1))
@@ -588,7 +588,7 @@ public class PITMembershipTests extends GrouperTest {
     assertEquals(0, results.size());
     
     results = new PITMembershipViewQuery()
-      .setOwnerId(attrDef1.getUuid())
+      .setOwnerAttrDefId(attrDef1.getUuid())
       .setMemberId(member0.getUuid())
       .setFieldId(fieldId)
       .setActiveDateRange(beforeAddTime, afterDeleteTime)
@@ -597,7 +597,7 @@ public class PITMembershipTests extends GrouperTest {
     assertEquals(1, results.size());
     
     results = new PITMembershipViewQuery()
-      .setOwnerId(attrDef1.getUuid())
+      .setOwnerAttrDefId(attrDef1.getUuid())
       .setMemberId(member0.getUuid())
       .setFieldId(fieldId)
       .setActiveDateRange(null, beforeAddTime)
@@ -606,7 +606,7 @@ public class PITMembershipTests extends GrouperTest {
     assertEquals(0, results.size());
     
     results = new PITMembershipViewQuery()
-      .setOwnerId(attrDef1.getUuid())
+      .setOwnerAttrDefId(attrDef1.getUuid())
       .setMemberId(member0.getUuid())
       .setFieldId(fieldId)
       .setActiveDateRange(null, afterDeleteTime)
@@ -615,7 +615,7 @@ public class PITMembershipTests extends GrouperTest {
     assertEquals(1, results.size());
     
     results = new PITMembershipViewQuery()
-      .setOwnerId(attrDef1.getUuid())
+      .setOwnerAttrDefId(attrDef1.getUuid())
       .setMemberId(member0.getUuid())
       .setFieldId(fieldId)
       .setActiveDateRange(beforeAddTime, null)
@@ -624,7 +624,7 @@ public class PITMembershipTests extends GrouperTest {
     assertEquals(1, results.size());
     
     results = new PITMembershipViewQuery()
-      .setOwnerId(attrDef1.getUuid())
+      .setOwnerAttrDefId(attrDef1.getUuid())
       .setMemberId(member0.getUuid())
       .setFieldId(fieldId)
       .setActiveDateRange(afterDeleteTime, null)
@@ -676,7 +676,7 @@ public class PITMembershipTests extends GrouperTest {
     ChangeLogTempToEntity.convertRecords();
 
     Set<PITMembershipView> results = new PITMembershipViewQuery()
-      .setOwnerId(group1.getId())
+      .setOwnerGroupId(group1.getId())
       .setMemberId(member0.getUuid())
       .setFieldId(Group.getDefaultList().getUuid())
       .setActiveDateRange(new Date(beforeAddTime.getTime() - 1), beforeAddTime)
@@ -685,7 +685,7 @@ public class PITMembershipTests extends GrouperTest {
     assertEquals(0, results.size());
     
     results = new PITMembershipViewQuery()
-      .setOwnerId(group1.getId())
+      .setOwnerGroupId(group1.getId())
       .setMemberId(member0.getUuid())
       .setFieldId(Group.getDefaultList().getUuid())
       .setActiveDateRange(beforeAddTime, afterAddTime)
@@ -694,7 +694,7 @@ public class PITMembershipTests extends GrouperTest {
     assertEquals(1, results.size());
 
     results = new PITMembershipViewQuery()
-      .setOwnerId(group1.getId())
+      .setOwnerGroupId(group1.getId())
       .setMemberId(member0.getUuid())
       .setFieldId(Group.getDefaultList().getUuid())
       .setActiveDateRange(afterAddTime, beforeDeleteTime)
@@ -703,7 +703,7 @@ public class PITMembershipTests extends GrouperTest {
     assertEquals(1, results.size());
     
     results = new PITMembershipViewQuery()
-      .setOwnerId(group1.getId())
+      .setOwnerGroupId(group1.getId())
       .setMemberId(member0.getUuid())
       .setFieldId(Group.getDefaultList().getUuid())
       .setActiveDateRange(beforeDeleteTime, afterDeleteTime)
@@ -712,7 +712,7 @@ public class PITMembershipTests extends GrouperTest {
     assertEquals(1, results.size());
     
     results = new PITMembershipViewQuery()
-      .setOwnerId(group1.getId())
+      .setOwnerGroupId(group1.getId())
       .setMemberId(member0.getUuid())
       .setFieldId(Group.getDefaultList().getUuid())
       .setActiveDateRange(afterDeleteTime, new Date(afterDeleteTime.getTime() + 1))
@@ -721,7 +721,7 @@ public class PITMembershipTests extends GrouperTest {
     assertEquals(0, results.size());
     
     results = new PITMembershipViewQuery()
-      .setOwnerId(group1.getId())
+      .setOwnerGroupId(group1.getId())
       .setMemberId(member0.getUuid())
       .setFieldId(Group.getDefaultList().getUuid())
       .setActiveDateRange(beforeAddTime, afterDeleteTime)
@@ -730,7 +730,7 @@ public class PITMembershipTests extends GrouperTest {
     assertEquals(1, results.size());
     
     results = new PITMembershipViewQuery()
-      .setOwnerId(group1.getId())
+      .setOwnerGroupId(group1.getId())
       .setMemberId(member0.getUuid())
       .setFieldId(Group.getDefaultList().getUuid())
       .setActiveDateRange(null, beforeAddTime)
@@ -739,7 +739,7 @@ public class PITMembershipTests extends GrouperTest {
     assertEquals(0, results.size());
     
     results = new PITMembershipViewQuery()
-      .setOwnerId(group1.getId())
+      .setOwnerGroupId(group1.getId())
       .setMemberId(member0.getUuid())
       .setFieldId(Group.getDefaultList().getUuid())
       .setActiveDateRange(null, afterDeleteTime)
@@ -748,7 +748,7 @@ public class PITMembershipTests extends GrouperTest {
     assertEquals(1, results.size());
     
     results = new PITMembershipViewQuery()
-      .setOwnerId(group1.getId())
+      .setOwnerGroupId(group1.getId())
       .setMemberId(member0.getUuid())
       .setFieldId(Group.getDefaultList().getUuid())
       .setActiveDateRange(beforeAddTime, null)
@@ -757,7 +757,7 @@ public class PITMembershipTests extends GrouperTest {
     assertEquals(1, results.size());
     
     results = new PITMembershipViewQuery()
-      .setOwnerId(group1.getId())
+      .setOwnerGroupId(group1.getId())
       .setMemberId(member0.getUuid())
       .setFieldId(Group.getDefaultList().getUuid())
       .setActiveDateRange(afterDeleteTime, null)
@@ -805,7 +805,7 @@ public class PITMembershipTests extends GrouperTest {
     ChangeLogTempToEntity.convertRecords();
 
     Set<PITMembershipView> results = new PITMembershipViewQuery()
-      .setOwnerId(group1.getUuid())
+      .setOwnerGroupId(group1.getUuid())
       .setMemberId(member0.getUuid())
       .setFieldId(fieldId)
       .setActiveDateRange(new Date(beforeAddTime.getTime() - 1), beforeAddTime)
@@ -814,7 +814,7 @@ public class PITMembershipTests extends GrouperTest {
     assertEquals(0, results.size());
     
     results = new PITMembershipViewQuery()
-      .setOwnerId(group1.getUuid())
+      .setOwnerGroupId(group1.getUuid())
       .setMemberId(member0.getUuid())
       .setFieldId(fieldId)
       .setActiveDateRange(beforeAddTime, afterAddTime)
@@ -823,7 +823,7 @@ public class PITMembershipTests extends GrouperTest {
     assertEquals(1, results.size());
 
     results = new PITMembershipViewQuery()
-      .setOwnerId(group1.getUuid())
+      .setOwnerGroupId(group1.getUuid())
       .setMemberId(member0.getUuid())
       .setFieldId(fieldId)
       .setActiveDateRange(afterAddTime, beforeDeleteTime)
@@ -832,7 +832,7 @@ public class PITMembershipTests extends GrouperTest {
     assertEquals(1, results.size());
     
     results = new PITMembershipViewQuery()
-      .setOwnerId(group1.getUuid())
+      .setOwnerGroupId(group1.getUuid())
       .setMemberId(member0.getUuid())
       .setFieldId(fieldId)
       .setActiveDateRange(beforeDeleteTime, afterDeleteTime)
@@ -841,7 +841,7 @@ public class PITMembershipTests extends GrouperTest {
     assertEquals(1, results.size());
     
     results = new PITMembershipViewQuery()
-      .setOwnerId(group1.getUuid())
+      .setOwnerGroupId(group1.getUuid())
       .setMemberId(member0.getUuid())
       .setFieldId(fieldId)
       .setActiveDateRange(afterDeleteTime, new Date(afterDeleteTime.getTime() + 1))
@@ -850,7 +850,7 @@ public class PITMembershipTests extends GrouperTest {
     assertEquals(0, results.size());
     
     results = new PITMembershipViewQuery()
-      .setOwnerId(group1.getUuid())
+      .setOwnerGroupId(group1.getUuid())
       .setMemberId(member0.getUuid())
       .setFieldId(fieldId)
       .setActiveDateRange(beforeAddTime, afterDeleteTime)
@@ -859,7 +859,7 @@ public class PITMembershipTests extends GrouperTest {
     assertEquals(1, results.size());
     
     results = new PITMembershipViewQuery()
-      .setOwnerId(group1.getUuid())
+      .setOwnerGroupId(group1.getUuid())
       .setMemberId(member0.getUuid())
       .setFieldId(fieldId)
       .setActiveDateRange(null, beforeAddTime)
@@ -868,7 +868,7 @@ public class PITMembershipTests extends GrouperTest {
     assertEquals(0, results.size());
     
     results = new PITMembershipViewQuery()
-      .setOwnerId(group1.getUuid())
+      .setOwnerGroupId(group1.getUuid())
       .setMemberId(member0.getUuid())
       .setFieldId(fieldId)
       .setActiveDateRange(null, afterDeleteTime)
@@ -877,7 +877,7 @@ public class PITMembershipTests extends GrouperTest {
     assertEquals(1, results.size());
     
     results = new PITMembershipViewQuery()
-      .setOwnerId(group1.getUuid())
+      .setOwnerGroupId(group1.getUuid())
       .setMemberId(member0.getUuid())
       .setFieldId(fieldId)
       .setActiveDateRange(beforeAddTime, null)
@@ -886,7 +886,7 @@ public class PITMembershipTests extends GrouperTest {
     assertEquals(1, results.size());
     
     results = new PITMembershipViewQuery()
-      .setOwnerId(group1.getUuid())
+      .setOwnerGroupId(group1.getUuid())
       .setMemberId(member0.getUuid())
       .setFieldId(fieldId)
       .setActiveDateRange(afterDeleteTime, null)
@@ -895,7 +895,7 @@ public class PITMembershipTests extends GrouperTest {
     assertEquals(0, results.size());
 
     results = new PITMembershipViewQuery()
-      .setOwnerId(group0.getUuid())
+      .setOwnerGroupId(group0.getUuid())
       .setMemberId(member0.getUuid())
       .setFieldId(fieldId)
       .setActiveDateRange(beforeAddTime, afterDeleteTime)
@@ -904,7 +904,7 @@ public class PITMembershipTests extends GrouperTest {
     assertEquals(0, results.size());
     
     results = new PITMembershipViewQuery()
-      .setOwnerId(group1.getUuid())
+      .setOwnerGroupId(group1.getUuid())
       .setMemberId(member1.getUuid())
       .setFieldId(fieldId)
       .setActiveDateRange(beforeAddTime, afterDeleteTime)
@@ -913,7 +913,7 @@ public class PITMembershipTests extends GrouperTest {
     assertEquals(0, results.size());
     
     results = new PITMembershipViewQuery()
-      .setOwnerId(group1.getUuid())
+      .setOwnerGroupId(group1.getUuid())
       .setMemberId(group2.toMember().getUuid())
       .setFieldId(fieldId)
       .setActiveDateRange(beforeAddTime, afterDeleteTime)
@@ -961,7 +961,7 @@ public class PITMembershipTests extends GrouperTest {
     ChangeLogTempToEntity.convertRecords();
 
     Set<PITMembershipView> results = new PITMembershipViewQuery()
-      .setOwnerId(stem1.getUuid())
+      .setOwnerStemId(stem1.getUuid())
       .setMemberId(member0.getUuid())
       .setFieldId(fieldId)
       .setActiveDateRange(new Date(beforeAddTime.getTime() - 1), beforeAddTime)
@@ -970,7 +970,7 @@ public class PITMembershipTests extends GrouperTest {
     assertEquals(0, results.size());
     
     results = new PITMembershipViewQuery()
-      .setOwnerId(stem1.getUuid())
+      .setOwnerStemId(stem1.getUuid())
       .setMemberId(member0.getUuid())
       .setFieldId(fieldId)
       .setActiveDateRange(beforeAddTime, afterAddTime)
@@ -979,7 +979,7 @@ public class PITMembershipTests extends GrouperTest {
     assertEquals(1, results.size());
 
     results = new PITMembershipViewQuery()
-      .setOwnerId(stem1.getUuid())
+      .setOwnerStemId(stem1.getUuid())
       .setMemberId(member0.getUuid())
       .setFieldId(fieldId)
       .setActiveDateRange(afterAddTime, beforeDeleteTime)
@@ -988,7 +988,7 @@ public class PITMembershipTests extends GrouperTest {
     assertEquals(1, results.size());
     
     results = new PITMembershipViewQuery()
-      .setOwnerId(stem1.getUuid())
+      .setOwnerStemId(stem1.getUuid())
       .setMemberId(member0.getUuid())
       .setFieldId(fieldId)
       .setActiveDateRange(beforeDeleteTime, afterDeleteTime)
@@ -997,7 +997,7 @@ public class PITMembershipTests extends GrouperTest {
     assertEquals(1, results.size());
     
     results = new PITMembershipViewQuery()
-      .setOwnerId(stem1.getUuid())
+      .setOwnerStemId(stem1.getUuid())
       .setMemberId(member0.getUuid())
       .setFieldId(fieldId)
       .setActiveDateRange(afterDeleteTime, new Date(afterDeleteTime.getTime() + 1))
@@ -1006,7 +1006,7 @@ public class PITMembershipTests extends GrouperTest {
     assertEquals(0, results.size());
     
     results = new PITMembershipViewQuery()
-      .setOwnerId(stem1.getUuid())
+      .setOwnerStemId(stem1.getUuid())
       .setMemberId(member0.getUuid())
       .setFieldId(fieldId)
       .setActiveDateRange(beforeAddTime, afterDeleteTime)
@@ -1015,7 +1015,7 @@ public class PITMembershipTests extends GrouperTest {
     assertEquals(1, results.size());
     
     results = new PITMembershipViewQuery()
-      .setOwnerId(stem1.getUuid())
+      .setOwnerStemId(stem1.getUuid())
       .setMemberId(member0.getUuid())
       .setFieldId(fieldId)
       .setActiveDateRange(null, beforeAddTime)
@@ -1024,7 +1024,7 @@ public class PITMembershipTests extends GrouperTest {
     assertEquals(0, results.size());
     
     results = new PITMembershipViewQuery()
-      .setOwnerId(stem1.getUuid())
+      .setOwnerStemId(stem1.getUuid())
       .setMemberId(member0.getUuid())
       .setFieldId(fieldId)
       .setActiveDateRange(null, afterDeleteTime)
@@ -1033,7 +1033,7 @@ public class PITMembershipTests extends GrouperTest {
     assertEquals(1, results.size());
     
     results = new PITMembershipViewQuery()
-      .setOwnerId(stem1.getUuid())
+      .setOwnerStemId(stem1.getUuid())
       .setMemberId(member0.getUuid())
       .setFieldId(fieldId)
       .setActiveDateRange(beforeAddTime, null)
@@ -1042,7 +1042,7 @@ public class PITMembershipTests extends GrouperTest {
     assertEquals(1, results.size());
     
     results = new PITMembershipViewQuery()
-      .setOwnerId(stem1.getUuid())
+      .setOwnerStemId(stem1.getUuid())
       .setMemberId(member0.getUuid())
       .setFieldId(fieldId)
       .setActiveDateRange(afterDeleteTime, null)
@@ -1051,7 +1051,7 @@ public class PITMembershipTests extends GrouperTest {
     assertEquals(0, results.size());
 
     results = new PITMembershipViewQuery()
-      .setOwnerId(stem2.getUuid())
+      .setOwnerStemId(stem2.getUuid())
       .setMemberId(member0.getUuid())
       .setFieldId(fieldId)
       .setActiveDateRange(beforeAddTime, afterDeleteTime)
@@ -1060,7 +1060,7 @@ public class PITMembershipTests extends GrouperTest {
     assertEquals(0, results.size());
     
     results = new PITMembershipViewQuery()
-      .setOwnerId(stem1.getUuid())
+      .setOwnerStemId(stem1.getUuid())
       .setMemberId(member1.getUuid())
       .setFieldId(fieldId)
       .setActiveDateRange(beforeAddTime, afterDeleteTime)
@@ -1069,7 +1069,7 @@ public class PITMembershipTests extends GrouperTest {
     assertEquals(0, results.size());
     
     results = new PITMembershipViewQuery()
-      .setOwnerId(stem1.getUuid())
+      .setOwnerStemId(stem1.getUuid())
       .setMemberId(group2.toMember().getUuid())
       .setFieldId(fieldId)
       .setActiveDateRange(beforeAddTime, afterDeleteTime)
@@ -1117,7 +1117,7 @@ public class PITMembershipTests extends GrouperTest {
     ChangeLogTempToEntity.convertRecords();
 
     Set<PITMembershipView> results = new PITMembershipViewQuery()
-      .setOwnerId(attrDef1.getUuid())
+      .setOwnerAttrDefId(attrDef1.getUuid())
       .setMemberId(member0.getUuid())
       .setFieldId(fieldId)
       .setActiveDateRange(new Date(beforeAddTime.getTime() - 1), beforeAddTime)
@@ -1126,7 +1126,7 @@ public class PITMembershipTests extends GrouperTest {
     assertEquals(0, results.size());
     
     results = new PITMembershipViewQuery()
-      .setOwnerId(attrDef1.getUuid())
+      .setOwnerAttrDefId(attrDef1.getUuid())
       .setMemberId(member0.getUuid())
       .setFieldId(fieldId)
       .setActiveDateRange(beforeAddTime, afterAddTime)
@@ -1135,7 +1135,7 @@ public class PITMembershipTests extends GrouperTest {
     assertEquals(1, results.size());
 
     results = new PITMembershipViewQuery()
-      .setOwnerId(attrDef1.getUuid())
+      .setOwnerAttrDefId(attrDef1.getUuid())
       .setMemberId(member0.getUuid())
       .setFieldId(fieldId)
       .setActiveDateRange(afterAddTime, beforeDeleteTime)
@@ -1144,7 +1144,7 @@ public class PITMembershipTests extends GrouperTest {
     assertEquals(1, results.size());
     
     results = new PITMembershipViewQuery()
-      .setOwnerId(attrDef1.getUuid())
+      .setOwnerAttrDefId(attrDef1.getUuid())
       .setMemberId(member0.getUuid())
       .setFieldId(fieldId)
       .setActiveDateRange(beforeDeleteTime, afterDeleteTime)
@@ -1153,7 +1153,7 @@ public class PITMembershipTests extends GrouperTest {
     assertEquals(1, results.size());
     
     results = new PITMembershipViewQuery()
-      .setOwnerId(attrDef1.getUuid())
+      .setOwnerAttrDefId(attrDef1.getUuid())
       .setMemberId(member0.getUuid())
       .setFieldId(fieldId)
       .setActiveDateRange(afterDeleteTime, new Date(afterDeleteTime.getTime() + 1))
@@ -1162,7 +1162,7 @@ public class PITMembershipTests extends GrouperTest {
     assertEquals(0, results.size());
     
     results = new PITMembershipViewQuery()
-      .setOwnerId(attrDef1.getUuid())
+      .setOwnerAttrDefId(attrDef1.getUuid())
       .setMemberId(member0.getUuid())
       .setFieldId(fieldId)
       .setActiveDateRange(beforeAddTime, afterDeleteTime)
@@ -1171,7 +1171,7 @@ public class PITMembershipTests extends GrouperTest {
     assertEquals(1, results.size());
     
     results = new PITMembershipViewQuery()
-      .setOwnerId(attrDef1.getUuid())
+      .setOwnerAttrDefId(attrDef1.getUuid())
       .setMemberId(member0.getUuid())
       .setFieldId(fieldId)
       .setActiveDateRange(null, beforeAddTime)
@@ -1180,7 +1180,7 @@ public class PITMembershipTests extends GrouperTest {
     assertEquals(0, results.size());
     
     results = new PITMembershipViewQuery()
-      .setOwnerId(attrDef1.getUuid())
+      .setOwnerAttrDefId(attrDef1.getUuid())
       .setMemberId(member0.getUuid())
       .setFieldId(fieldId)
       .setActiveDateRange(null, afterDeleteTime)
@@ -1189,7 +1189,7 @@ public class PITMembershipTests extends GrouperTest {
     assertEquals(1, results.size());
     
     results = new PITMembershipViewQuery()
-      .setOwnerId(attrDef1.getUuid())
+      .setOwnerAttrDefId(attrDef1.getUuid())
       .setMemberId(member0.getUuid())
       .setFieldId(fieldId)
       .setActiveDateRange(beforeAddTime, null)
@@ -1198,7 +1198,7 @@ public class PITMembershipTests extends GrouperTest {
     assertEquals(1, results.size());
     
     results = new PITMembershipViewQuery()
-      .setOwnerId(attrDef1.getUuid())
+      .setOwnerAttrDefId(attrDef1.getUuid())
       .setMemberId(member0.getUuid())
       .setFieldId(fieldId)
       .setActiveDateRange(afterDeleteTime, null)
@@ -1207,7 +1207,7 @@ public class PITMembershipTests extends GrouperTest {
     assertEquals(0, results.size());
 
     results = new PITMembershipViewQuery()
-      .setOwnerId(attrDef2.getUuid())
+      .setOwnerAttrDefId(attrDef2.getUuid())
       .setMemberId(member0.getUuid())
       .setFieldId(fieldId)
       .setActiveDateRange(beforeAddTime, afterDeleteTime)
@@ -1216,7 +1216,7 @@ public class PITMembershipTests extends GrouperTest {
     assertEquals(0, results.size());
 
     results = new PITMembershipViewQuery()
-      .setOwnerId(attrDef1.getUuid())
+      .setOwnerAttrDefId(attrDef1.getUuid())
       .setMemberId(member1.getUuid())
       .setFieldId(fieldId)
       .setActiveDateRange(beforeAddTime, afterDeleteTime)
@@ -1225,7 +1225,7 @@ public class PITMembershipTests extends GrouperTest {
     assertEquals(0, results.size());
     
     results = new PITMembershipViewQuery()
-      .setOwnerId(attrDef1.getUuid())
+      .setOwnerAttrDefId(attrDef1.getUuid())
       .setMemberId(group2.toMember().getUuid())
       .setFieldId(fieldId)
       .setActiveDateRange(beforeAddTime, afterDeleteTime)
@@ -1270,7 +1270,7 @@ public class PITMembershipTests extends GrouperTest {
     ChangeLogTempToEntity.convertRecords();
 
     Set<PITMembershipView> results = new PITMembershipViewQuery()
-      .setOwnerId(group1.getId())
+      .setOwnerGroupId(group1.getId())
       .setMemberId(member0.getUuid())
       .setFieldId(Group.getDefaultList().getUuid())
       .setActiveDateRange(new Date(beforeAddTime.getTime() - 1), beforeAddTime)
@@ -1279,7 +1279,7 @@ public class PITMembershipTests extends GrouperTest {
     assertEquals(0, results.size());
     
     results = new PITMembershipViewQuery()
-      .setOwnerId(group1.getId())
+      .setOwnerGroupId(group1.getId())
       .setMemberId(member0.getUuid())
       .setFieldId(Group.getDefaultList().getUuid())
       .setActiveDateRange(beforeAddTime, afterAddTime)
@@ -1288,7 +1288,7 @@ public class PITMembershipTests extends GrouperTest {
     assertEquals(1, results.size());
 
     results = new PITMembershipViewQuery()
-      .setOwnerId(group1.getId())
+      .setOwnerGroupId(group1.getId())
       .setMemberId(member0.getUuid())
       .setFieldId(Group.getDefaultList().getUuid())
       .setActiveDateRange(afterAddTime, beforeDeleteTime)
@@ -1297,7 +1297,7 @@ public class PITMembershipTests extends GrouperTest {
     assertEquals(1, results.size());
     
     results = new PITMembershipViewQuery()
-      .setOwnerId(group1.getId())
+      .setOwnerGroupId(group1.getId())
       .setMemberId(member0.getUuid())
       .setFieldId(Group.getDefaultList().getUuid())
       .setActiveDateRange(beforeDeleteTime, afterDeleteTime)
@@ -1306,7 +1306,7 @@ public class PITMembershipTests extends GrouperTest {
     assertEquals(1, results.size());
     
     results = new PITMembershipViewQuery()
-      .setOwnerId(group1.getId())
+      .setOwnerGroupId(group1.getId())
       .setMemberId(member0.getUuid())
       .setFieldId(Group.getDefaultList().getUuid())
       .setActiveDateRange(afterDeleteTime, new Date(afterDeleteTime.getTime() + 1))
@@ -1315,7 +1315,7 @@ public class PITMembershipTests extends GrouperTest {
     assertEquals(0, results.size());
     
     results = new PITMembershipViewQuery()
-      .setOwnerId(group1.getId())
+      .setOwnerGroupId(group1.getId())
       .setMemberId(member0.getUuid())
       .setFieldId(Group.getDefaultList().getUuid())
       .setActiveDateRange(beforeAddTime, afterDeleteTime)
@@ -1324,7 +1324,7 @@ public class PITMembershipTests extends GrouperTest {
     assertEquals(1, results.size());
     
     results = new PITMembershipViewQuery()
-      .setOwnerId(group1.getId())
+      .setOwnerGroupId(group1.getId())
       .setMemberId(member0.getUuid())
       .setFieldId(Group.getDefaultList().getUuid())
       .setActiveDateRange(null, beforeAddTime)
@@ -1333,7 +1333,7 @@ public class PITMembershipTests extends GrouperTest {
     assertEquals(0, results.size());
     
     results = new PITMembershipViewQuery()
-      .setOwnerId(group1.getId())
+      .setOwnerGroupId(group1.getId())
       .setMemberId(member0.getUuid())
       .setFieldId(Group.getDefaultList().getUuid())
       .setActiveDateRange(null, afterDeleteTime)
@@ -1342,7 +1342,7 @@ public class PITMembershipTests extends GrouperTest {
     assertEquals(1, results.size());
     
     results = new PITMembershipViewQuery()
-      .setOwnerId(group1.getId())
+      .setOwnerGroupId(group1.getId())
       .setMemberId(member0.getUuid())
       .setFieldId(Group.getDefaultList().getUuid())
       .setActiveDateRange(beforeAddTime, null)
@@ -1351,7 +1351,7 @@ public class PITMembershipTests extends GrouperTest {
     assertEquals(1, results.size());
     
     results = new PITMembershipViewQuery()
-      .setOwnerId(group1.getId())
+      .setOwnerGroupId(group1.getId())
       .setMemberId(member0.getUuid())
       .setFieldId(Group.getDefaultList().getUuid())
       .setActiveDateRange(afterDeleteTime, null)
@@ -1391,7 +1391,7 @@ public class PITMembershipTests extends GrouperTest {
     ChangeLogTempToEntity.convertRecords();
 
     Set<PITMembershipView> results = new PITMembershipViewQuery()
-      .setOwnerId(group1.getId())
+      .setOwnerGroupId(group1.getId())
       .setFieldId(Group.getDefaultList().getUuid())
       .setStartDateAfter(beforeAddTime)
       .execute();
@@ -1399,7 +1399,7 @@ public class PITMembershipTests extends GrouperTest {
     assertEquals(3, results.size());
     
     results = new PITMembershipViewQuery()
-      .setOwnerId(group1.getId())
+      .setOwnerGroupId(group1.getId())
       .setFieldId(Group.getDefaultList().getUuid())
       .setStartDateAfter(afterAddTime)
       .execute();
@@ -1407,7 +1407,7 @@ public class PITMembershipTests extends GrouperTest {
     assertEquals(0, results.size());
     
     results = new PITMembershipViewQuery()
-      .setOwnerId(group1.getId())
+      .setOwnerGroupId(group1.getId())
       .setFieldId(Group.getDefaultList().getUuid())
       .setStartDateBefore(beforeAddTime)
       .execute();
@@ -1415,7 +1415,7 @@ public class PITMembershipTests extends GrouperTest {
     assertEquals(0, results.size());
     
     results = new PITMembershipViewQuery()
-      .setOwnerId(group1.getId())
+      .setOwnerGroupId(group1.getId())
       .setFieldId(Group.getDefaultList().getUuid())
       .setStartDateBefore(afterAddTime)
       .execute();
@@ -1423,7 +1423,7 @@ public class PITMembershipTests extends GrouperTest {
     assertEquals(3, results.size());
     
     results = new PITMembershipViewQuery()
-      .setOwnerId(group1.getId())
+      .setOwnerGroupId(group1.getId())
       .setFieldId(Group.getDefaultList().getUuid())
       .setEndDateAfter(beforeDeleteTime)
       .execute();
@@ -1431,7 +1431,7 @@ public class PITMembershipTests extends GrouperTest {
     assertEquals(3, results.size());
     
     results = new PITMembershipViewQuery()
-      .setOwnerId(group1.getId())
+      .setOwnerGroupId(group1.getId())
       .setFieldId(Group.getDefaultList().getUuid())
       .setEndDateAfter(afterDeleteTime)
       .execute();
@@ -1439,7 +1439,7 @@ public class PITMembershipTests extends GrouperTest {
     assertEquals(2, results.size());
     
     results = new PITMembershipViewQuery()
-      .setOwnerId(group1.getId())
+      .setOwnerGroupId(group1.getId())
       .setFieldId(Group.getDefaultList().getUuid())
       .setEndDateBefore(beforeDeleteTime)
       .execute();
@@ -1447,7 +1447,7 @@ public class PITMembershipTests extends GrouperTest {
     assertEquals(0, results.size());
     
     results = new PITMembershipViewQuery()
-      .setOwnerId(group1.getId())
+      .setOwnerGroupId(group1.getId())
       .setFieldId(Group.getDefaultList().getUuid())
       .setEndDateBefore(afterDeleteTime)
       .execute();
@@ -1488,7 +1488,7 @@ public class PITMembershipTests extends GrouperTest {
     ChangeLogTempToEntity.convertRecords();
 
     Set<PITMembershipView> results = new PITMembershipViewQuery()
-      .setOwnerId(group1.getId())
+      .setOwnerGroupId(group1.getId())
       .setMemberId(member0.getUuid())
       .setFieldId(field.getUuid())
       .setActiveDateRange(new Date(beforeAddTime.getTime() - 1), beforeAddTime)
@@ -1497,7 +1497,7 @@ public class PITMembershipTests extends GrouperTest {
     assertEquals(0, results.size());
     
     results = new PITMembershipViewQuery()
-      .setOwnerId(group1.getId())
+      .setOwnerGroupId(group1.getId())
       .setMemberId(member0.getUuid())
       .setFieldId(field.getUuid())
       .setActiveDateRange(beforeAddTime, afterAddTime)
@@ -1506,7 +1506,7 @@ public class PITMembershipTests extends GrouperTest {
     assertEquals(1, results.size());
 
     results = new PITMembershipViewQuery()
-      .setOwnerId(group1.getId())
+      .setOwnerGroupId(group1.getId())
       .setMemberId(member0.getUuid())
       .setFieldId(field.getUuid())
       .setActiveDateRange(afterAddTime, beforeDeleteTime)
@@ -1515,7 +1515,7 @@ public class PITMembershipTests extends GrouperTest {
     assertEquals(1, results.size());
     
     results = new PITMembershipViewQuery()
-      .setOwnerId(group1.getId())
+      .setOwnerGroupId(group1.getId())
       .setMemberId(member0.getUuid())
       .setFieldId(field.getUuid())
       .setActiveDateRange(beforeDeleteTime, afterDeleteTime)
@@ -1524,7 +1524,7 @@ public class PITMembershipTests extends GrouperTest {
     assertEquals(1, results.size());
     
     results = new PITMembershipViewQuery()
-      .setOwnerId(group1.getId())
+      .setOwnerGroupId(group1.getId())
       .setMemberId(member0.getUuid())
       .setFieldId(field.getUuid())
       .setActiveDateRange(afterDeleteTime, new Date(afterDeleteTime.getTime() + 1))
@@ -1533,7 +1533,7 @@ public class PITMembershipTests extends GrouperTest {
     assertEquals(0, results.size());
     
     results = new PITMembershipViewQuery()
-      .setOwnerId(group1.getId())
+      .setOwnerGroupId(group1.getId())
       .setMemberId(member0.getUuid())
       .setFieldId(field.getUuid())
       .setActiveDateRange(beforeAddTime, afterDeleteTime)
@@ -1542,7 +1542,7 @@ public class PITMembershipTests extends GrouperTest {
     assertEquals(1, results.size());
     
     results = new PITMembershipViewQuery()
-      .setOwnerId(group1.getId())
+      .setOwnerGroupId(group1.getId())
       .setMemberId(member0.getUuid())
       .setFieldId(field.getUuid())
       .setActiveDateRange(null, beforeAddTime)
@@ -1551,7 +1551,7 @@ public class PITMembershipTests extends GrouperTest {
     assertEquals(0, results.size());
     
     results = new PITMembershipViewQuery()
-      .setOwnerId(group1.getId())
+      .setOwnerGroupId(group1.getId())
       .setMemberId(member0.getUuid())
       .setFieldId(field.getUuid())
       .setActiveDateRange(null, afterDeleteTime)
@@ -1560,7 +1560,7 @@ public class PITMembershipTests extends GrouperTest {
     assertEquals(1, results.size());
     
     results = new PITMembershipViewQuery()
-      .setOwnerId(group1.getId())
+      .setOwnerGroupId(group1.getId())
       .setMemberId(member0.getUuid())
       .setFieldId(field.getUuid())
       .setActiveDateRange(beforeAddTime, null)
@@ -1569,7 +1569,7 @@ public class PITMembershipTests extends GrouperTest {
     assertEquals(1, results.size());
     
     results = new PITMembershipViewQuery()
-      .setOwnerId(group1.getId())
+      .setOwnerGroupId(group1.getId())
       .setMemberId(member0.getUuid())
       .setFieldId(field.getUuid())
       .setActiveDateRange(afterDeleteTime, null)
@@ -1613,7 +1613,7 @@ public class PITMembershipTests extends GrouperTest {
     ChangeLogTempToEntity.convertRecords();
 
     Set<PITMembershipView> results = new PITMembershipViewQuery()
-      .setOwnerId(group1.getId())
+      .setOwnerGroupId(group1.getId())
       .setMemberId(member0.getUuid())
       .setFieldId(field.getUuid())
       .setActiveDateRange(new Date(beforeAddTime.getTime() - 1), beforeAddTime)
@@ -1622,7 +1622,7 @@ public class PITMembershipTests extends GrouperTest {
     assertEquals(0, results.size());
     
     results = new PITMembershipViewQuery()
-      .setOwnerId(group1.getId())
+      .setOwnerGroupId(group1.getId())
       .setMemberId(member0.getUuid())
       .setFieldId(field.getUuid())
       .setActiveDateRange(beforeAddTime, afterAddTime)
@@ -1631,7 +1631,7 @@ public class PITMembershipTests extends GrouperTest {
     assertEquals(1, results.size());
 
     results = new PITMembershipViewQuery()
-      .setOwnerId(group1.getId())
+      .setOwnerGroupId(group1.getId())
       .setMemberId(member0.getUuid())
       .setFieldId(field.getUuid())
       .setActiveDateRange(afterAddTime, beforeDeleteTime)
@@ -1640,7 +1640,7 @@ public class PITMembershipTests extends GrouperTest {
     assertEquals(1, results.size());
     
     results = new PITMembershipViewQuery()
-      .setOwnerId(group1.getId())
+      .setOwnerGroupId(group1.getId())
       .setMemberId(member0.getUuid())
       .setFieldId(field.getUuid())
       .setActiveDateRange(beforeDeleteTime, afterDeleteTime)
@@ -1649,7 +1649,7 @@ public class PITMembershipTests extends GrouperTest {
     assertEquals(1, results.size());
     
     results = new PITMembershipViewQuery()
-      .setOwnerId(group1.getId())
+      .setOwnerGroupId(group1.getId())
       .setMemberId(member0.getUuid())
       .setFieldId(field.getUuid())
       .setActiveDateRange(afterDeleteTime, new Date(afterDeleteTime.getTime() + 1))
@@ -1658,7 +1658,7 @@ public class PITMembershipTests extends GrouperTest {
     assertEquals(0, results.size());
     
     results = new PITMembershipViewQuery()
-      .setOwnerId(group1.getId())
+      .setOwnerGroupId(group1.getId())
       .setMemberId(member0.getUuid())
       .setFieldId(field.getUuid())
       .setActiveDateRange(beforeAddTime, afterDeleteTime)
@@ -1667,7 +1667,7 @@ public class PITMembershipTests extends GrouperTest {
     assertEquals(1, results.size());
     
     results = new PITMembershipViewQuery()
-      .setOwnerId(group1.getId())
+      .setOwnerGroupId(group1.getId())
       .setMemberId(member0.getUuid())
       .setFieldId(field.getUuid())
       .setActiveDateRange(null, beforeAddTime)
@@ -1676,7 +1676,7 @@ public class PITMembershipTests extends GrouperTest {
     assertEquals(0, results.size());
     
     results = new PITMembershipViewQuery()
-      .setOwnerId(group1.getId())
+      .setOwnerGroupId(group1.getId())
       .setMemberId(member0.getUuid())
       .setFieldId(field.getUuid())
       .setActiveDateRange(null, afterDeleteTime)
@@ -1685,7 +1685,7 @@ public class PITMembershipTests extends GrouperTest {
     assertEquals(1, results.size());
     
     results = new PITMembershipViewQuery()
-      .setOwnerId(group1.getId())
+      .setOwnerGroupId(group1.getId())
       .setMemberId(member0.getUuid())
       .setFieldId(field.getUuid())
       .setActiveDateRange(beforeAddTime, null)
@@ -1694,7 +1694,7 @@ public class PITMembershipTests extends GrouperTest {
     assertEquals(1, results.size());
     
     results = new PITMembershipViewQuery()
-      .setOwnerId(group1.getId())
+      .setOwnerGroupId(group1.getId())
       .setMemberId(member0.getUuid())
       .setFieldId(field.getUuid())
       .setActiveDateRange(afterDeleteTime, null)

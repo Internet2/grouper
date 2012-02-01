@@ -79,5 +79,13 @@
     <property name="attributeAssignEndTimeDb" column="attribute_assign_end_time" />     
 
     <property name="disallowedDb" column="disallowed"/>
+    
+    <property name="actionSourceId" column="action_source_id" />
+    <property name="roleSourceId" column="role_source_id" />
+    <property name="attributeDefNameSourceId" column="attribute_def_name_source_id" />
+    <property name="attributeDefSourceId" column="attribute_def_source_id" />
+    <property name="memberSourceId" column="member_source_id" />
+    <property name="membershipSourceId" column="membership_source_id" />
+    <property name="attributeAssignSourceId" column="attribute_assign_source_id" />
   </class>
 </hibernate-mapping>

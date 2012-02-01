@@ -35,9 +35,24 @@ public interface PITAttributeAssignValueDAO extends GrouperDAO {
   
   /**
    * @param id
+   * @param exceptionIfNotFound 
    * @return PITAttributeAssignValue
    */
-  public PITAttributeAssignValue findById(String id);
+  public PITAttributeAssignValue findBySourceIdActive(String id, boolean exceptionIfNotFound);
+
+  /**  
+   * @param id
+   * @param exceptionIfNotFound 
+   * @return PITAttributeAssignValue
+   */
+  public PITAttributeAssignValue findById(String id, boolean exceptionIfNotFound);
+
+  /**  
+   * @param id
+   * @param exceptionIfNotFound 
+   * @return PITAttributeAssignValue
+   */
+  public PITAttributeAssignValue findBySourceIdUnique(String id, boolean exceptionIfNotFound);
   
   /**
    * @param oldId

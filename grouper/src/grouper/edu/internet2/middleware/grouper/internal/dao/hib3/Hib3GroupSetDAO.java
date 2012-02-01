@@ -367,7 +367,7 @@ return groupSets;
   public Set<GroupSet> findAllSelfGroupSetsByOwnerWherePITFieldExists(String ownerId) {
     Set<GroupSet> groupSets = HibernateSession
       .byHqlStatic()
-      .createQuery("select gs from GroupSet as gs where gs.ownerId = :ownerId and gs.depth='0' and gs.fieldId in (select id from PITField)")
+      .createQuery("select gs from GroupSet as gs where gs.ownerId = :ownerId and gs.depth='0' and gs.fieldId in (select sourceId from PITField)")
       .setCacheable(false).setCacheRegion(KLASS + ".FindAllSelfGroupSetsByOwnerWherePITFieldExists")
       .setString("ownerId", ownerId)
       .listSet(GroupSet.class);
@@ -378,7 +378,7 @@ return groupSets;
   public Set<GroupSet> findAllSelfGroupSetsByFieldWherePITGroupExists(String fieldId) {
     Set<GroupSet> groupSets = HibernateSession
       .byHqlStatic()
-      .createQuery("select gs from GroupSet as gs where gs.fieldId = :fieldId and gs.depth='0' and gs.ownerId in (select id from PITGroup)")
+      .createQuery("select gs from GroupSet as gs where gs.fieldId = :fieldId and gs.depth='0' and gs.ownerId in (select sourceId from PITGroup)")
       .setCacheable(false).setCacheRegion(KLASS + ".FindAllSelfGroupSetsByFieldWherePITGroupExists")
       .setString("fieldId", fieldId)
       .listSet(GroupSet.class);

@@ -1,7 +1,6 @@
 package edu.internet2.middleware.grouper.pit;
 
 import java.sql.Timestamp;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.Set;
 
@@ -20,11 +19,7 @@ import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SessionHelper;
 import edu.internet2.middleware.grouper.helper.StemHelper;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
-import edu.internet2.middleware.grouper.permissions.PermissionEntry;
-import edu.internet2.middleware.grouper.permissions.PermissionFinder;
-import edu.internet2.middleware.grouper.permissions.PermissionProcessor;
 import edu.internet2.middleware.grouper.permissions.limits.PermissionLimitUtils;
-import edu.internet2.middleware.grouper.permissions.limits.impl.PermissionLimitElLogic;
 import edu.internet2.middleware.grouper.pit.finder.PITAttributeAssignValueFinder;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
@@ -125,7 +120,7 @@ public class PITAttributeAssignValueFinderTests extends GrouperTest {
     
     Timestamp afterDelete = getTimestampWithSleep();
     
-    PITAttributeAssign pitAttributeAssign = GrouperDAOFactory.getFactory().getPITAttributeAssign().findById(assign.getId());
+    PITAttributeAssign pitAttributeAssign = GrouperDAOFactory.getFactory().getPITAttributeAssign().findBySourceIdActive(assign.getId(), false);
     
     Set<PITAttributeAssignValue> values = PITAttributeAssignValueFinder.findByPITAttributeAssign(pitAttributeAssign, null, null);
     assertEquals(2, values.size());

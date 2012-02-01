@@ -45,21 +45,97 @@ public class Hib3PITMembershipDAO extends Hib3DAO implements PITMembershipDAO {
    * @param hibernateSession
    */
   public static void reset(HibernateSession hibernateSession) {
-    hibernateSession.byHql().createQuery("delete from PITMembership where id not in (select ms.immediateMembershipId from ImmediateMembershipEntry as ms)").executeUpdate();
+    hibernateSession.byHql().createQuery("delete from PITMembership where sourceId not in (select ms.immediateMembershipId from ImmediateMembershipEntry as ms)").executeUpdate();
   }
 
   /**
-   * @see edu.internet2.middleware.grouper.internal.dao.PITMembershipDAO#findById(java.lang.String)
+   * @see edu.internet2.middleware.grouper.internal.dao.PITMembershipDAO#findBySourceIdActive(java.lang.String, boolean)
    */
-  public PITMembership findById(String pitMembershipId) {
+  public PITMembership findBySourceIdActive(String id, boolean exceptionIfNotFound) {
     PITMembership pitMembership = HibernateSession
       .byHqlStatic()
-      .createQuery("select pitMembership from PITMembership as pitMembership where pitMembership.id = :id")
-      .setCacheable(false).setCacheRegion(KLASS + ".FindById")
-      .setString("id", pitMembershipId)
+      .createQuery("select pitMembership from PITMembership as pitMembership where pitMembership.sourceId = :id and activeDb = 'T'")
+      .setCacheable(false).setCacheRegion(KLASS + ".FindBySourceIdActive")
+      .setString("id", id)
       .uniqueResult(PITMembership.class);
     
+    if (pitMembership == null && exceptionIfNotFound) {
+      throw new RuntimeException("Active PITMembership with sourceId=" + id + " not found");
+    }
+    
     return pitMembership;
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.PITMembershipDAO#findBySourceIdUnique(java.lang.String, boolean)
+   */
+  public PITMembership findBySourceIdUnique(String id, boolean exceptionIfNotFound) {
+    PITMembership pitMembership = HibernateSession
+      .byHqlStatic()
+      .createQuery("select pitMembership from PITMembership as pitMembership where pitMembership.sourceId = :id")
+      .setCacheable(false).setCacheRegion(KLASS + ".FindBySourceIdUnique")
+      .setString("id", id)
+      .uniqueResult(PITMembership.class);
+    
+    if (pitMembership == null && exceptionIfNotFound) {
+      throw new RuntimeException("PITMembership with sourceId=" + id + " not found");
+    }
+    
+    return pitMembership;
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.PITMembershipDAO#findBySourceId(java.lang.String, boolean)
+   */
+  public Set<PITMembership> findBySourceId(String id, boolean exceptionIfNotFound) {
+    Set<PITMembership> pitMembership = HibernateSession
+      .byHqlStatic()
+      .createQuery("select pitMembership from PITMembership as pitMembership where pitMembership.sourceId = :id")
+      .setCacheable(false).setCacheRegion(KLASS + ".FindBySourceId")
+      .setString("id", id)
+      .listSet(PITMembership.class);
+    
+    if (pitMembership.size() == 0 && exceptionIfNotFound) {
+      throw new RuntimeException("PITMembership with sourceId=" + id + " not found");
+    }
+    
+    return pitMembership;
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.PITMembershipDAO#findBySourceIdMostRecent(java.lang.String, boolean)
+   */
+  public PITMembership findBySourceIdMostRecent(String id, boolean exceptionIfNotFound) {
+    Set<PITMembership> pitMembership = HibernateSession
+      .byHqlStatic()
+      .createQuery("select pitMembership from PITMembership as pitMembership where pitMembership.sourceId = :id order by startTimeDb desc")
+      .setCacheable(false).setCacheRegion(KLASS + ".FindBySourceIdMostRecent")
+      .setString("id", id)
+      .listSet(PITMembership.class);
+    
+    if (pitMembership.size() == 0 && exceptionIfNotFound) {
+      throw new RuntimeException("PITMembership with sourceId=" + id + " not found");
+    }
+    
+    return pitMembership.iterator().next();
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.PITMembershipDAO#findById(java.lang.String, boolean)
+   */
+  public PITMembership findById(String id, boolean exceptionIfNotFound) {
+    PITMembership pit = HibernateSession
+      .byHqlStatic()
+      .createQuery("select pit from PITMembership as pit where pit.id = :id")
+      .setCacheable(false).setCacheRegion(KLASS + ".FindById")
+      .setString("id", id)
+      .uniqueResult(PITMembership.class);
+    
+    if (pit == null && exceptionIfNotFound) {
+      throw new RuntimeException("PITMembership with id=" + id + " not found");
+    }
+    
+    return pit;
   }
   
   /**
@@ -128,7 +204,7 @@ public class Hib3PITMembershipDAO extends Hib3DAO implements PITMembershipDAO {
     Set<Membership> mships = HibernateSession
       .byHqlStatic()
       .createQuery("select ms from ImmediateMembershipEntry ms where ms.enabledDb='T' and " +
-          "not exists (select 1 from PITMembership pit where ms.immediateMembershipId = pit.id and pit.activeDb = 'T') " +
+          "not exists (select 1 from PITMembership pit where ms.immediateMembershipId = pit.sourceId and pit.activeDb = 'T') " +
           "and not exists (select 1 from ChangeLogEntryTemp temp " +
           "    where temp.string01 = ms.immediateMembershipId)")
       .setCacheable(false).setCacheRegion(KLASS + ".FindMissingActivePITMemberships")
@@ -145,12 +221,12 @@ public class Hib3PITMembershipDAO extends Hib3DAO implements PITMembershipDAO {
     Set<PITMembership> mships = HibernateSession
       .byHqlStatic()
       .createQuery("select pit from PITMembership pit where activeDb = 'T' and " +
-          "not exists (select 1 from ImmediateMembershipEntry ms where ms.immediateMembershipId = pit.id and ms.enabledDb='T') " +
+          "not exists (select 1 from ImmediateMembershipEntry ms where ms.immediateMembershipId = pit.sourceId and ms.enabledDb='T') " +
           "and not exists (select 1 from ChangeLogEntryTemp temp, ChangeLogType type " +
-          "    where temp.string01 = pit.id " +
+          "    where temp.string01 = pit.sourceId " +
           "    and type.actionName='deleteMembership' and type.changeLogCategory='membership' and type.id=temp.changeLogTypeId) " +
           "and not exists (select 1 from ChangeLogEntryTemp temp, ChangeLogType type " +
-          "    where temp.string01 = pit.id " +
+          "    where temp.string01 = pit.sourceId " +
           "    and type.actionName='deletePrivilege' and type.changeLogCategory='privilege' and type.id=temp.changeLogTypeId)")
       .setCacheable(false).setCacheRegion(KLASS + ".FindMissingInactivePITMemberships")
       .listSet(PITMembership.class);

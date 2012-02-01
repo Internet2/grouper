@@ -56,23 +56,99 @@ public class Hib3PITAttributeAssignDAO extends Hib3DAO implements PITAttributeAs
    */
   public static void reset(HibernateSession hibernateSession) {
     //do this since mysql cant handle self-referential foreign keys
-    hibernateSession.byHql().createQuery("update PITAttributeAssign set ownerAttributeAssignId = null where ownerAttributeAssignId is not null and id not in (select attrAssign.id from AttributeAssign as attrAssign)").executeUpdate();
+    hibernateSession.byHql().createQuery("update PITAttributeAssign set ownerAttributeAssignId = null where ownerAttributeAssignId is not null and sourceId not in (select attrAssign.id from AttributeAssign as attrAssign)").executeUpdate();
     
-    hibernateSession.byHql().createQuery("delete from PITAttributeAssign where id not in (select attrAssign.id from AttributeAssign as attrAssign)").executeUpdate();
+    hibernateSession.byHql().createQuery("delete from PITAttributeAssign where sourceId not in (select attrAssign.id from AttributeAssign as attrAssign)").executeUpdate();
   }
 
   /**
-   * @see edu.internet2.middleware.grouper.internal.dao.PITAttributeAssignDAO#findById(java.lang.String)
+   * @see edu.internet2.middleware.grouper.internal.dao.PITAttributeAssignDAO#findBySourceIdActive(java.lang.String, boolean)
    */
-  public PITAttributeAssign findById(String id) {
+  public PITAttributeAssign findBySourceIdActive(String id, boolean exceptionIfNotFound) {
     PITAttributeAssign pitAttributeAssign = HibernateSession
       .byHqlStatic()
-      .createQuery("select attrAssign from PITAttributeAssign as attrAssign where attrAssign.id = :id")
+      .createQuery("select attrAssign from PITAttributeAssign as attrAssign where attrAssign.sourceId = :id and activeDb = 'T'")
+      .setCacheable(false).setCacheRegion(KLASS + ".FindBySourceIdActive")
+      .setString("id", id)
+      .uniqueResult(PITAttributeAssign.class);
+    
+    if (pitAttributeAssign == null && exceptionIfNotFound) {
+      throw new RuntimeException("Active PITAttributeAssign with sourceId=" + id + " not found");
+    }
+    
+    return pitAttributeAssign;
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.PITAttributeAssignDAO#findBySourceIdUnique(java.lang.String, boolean)
+   */
+  public PITAttributeAssign findBySourceIdUnique(String id, boolean exceptionIfNotFound) {
+    PITAttributeAssign pitAttributeAssign = HibernateSession
+      .byHqlStatic()
+      .createQuery("select attrAssign from PITAttributeAssign as attrAssign where attrAssign.sourceId = :id")
+      .setCacheable(false).setCacheRegion(KLASS + ".FindBySourceIdUnique")
+      .setString("id", id)
+      .uniqueResult(PITAttributeAssign.class);
+    
+    if (pitAttributeAssign == null && exceptionIfNotFound) {
+      throw new RuntimeException("PITAttributeAssign with sourceId=" + id + " not found");
+    }
+    
+    return pitAttributeAssign;
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.PITAttributeAssignDAO#findBySourceId(java.lang.String, boolean)
+   */
+  public Set<PITAttributeAssign> findBySourceId(String id, boolean exceptionIfNotFound) {
+    Set<PITAttributeAssign> pitAttributeAssign = HibernateSession
+      .byHqlStatic()
+      .createQuery("select attrAssign from PITAttributeAssign as attrAssign where attrAssign.sourceId = :id")
+      .setCacheable(false).setCacheRegion(KLASS + ".FindBySourceId")
+      .setString("id", id)
+      .listSet(PITAttributeAssign.class);
+    
+    if (pitAttributeAssign.size() == 0 && exceptionIfNotFound) {
+      throw new RuntimeException("PITAttributeAssign with sourceId=" + id + " not found");
+    }
+    
+    return pitAttributeAssign;
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.PITAttributeAssignDAO#findBySourceIdMostRecent(java.lang.String, boolean)
+   */
+  public PITAttributeAssign findBySourceIdMostRecent(String id, boolean exceptionIfNotFound) {
+    Set<PITAttributeAssign> pitAttributeAssign = HibernateSession
+      .byHqlStatic()
+      .createQuery("select attrAssign from PITAttributeAssign as attrAssign where attrAssign.sourceId = :id order by startTimeDb desc")
+      .setCacheable(false).setCacheRegion(KLASS + ".FindBySourceIdMostRecent")
+      .setString("id", id)
+      .listSet(PITAttributeAssign.class);
+    
+    if (pitAttributeAssign.size() == 0 && exceptionIfNotFound) {
+      throw new RuntimeException("PITAttributeAssign with sourceId=" + id + " not found");
+    }
+    
+    return pitAttributeAssign.iterator().next();
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.PITAttributeAssignDAO#findById(java.lang.String, boolean)
+   */
+  public PITAttributeAssign findById(String id, boolean exceptionIfNotFound) {
+    PITAttributeAssign pit = HibernateSession
+      .byHqlStatic()
+      .createQuery("select pit from PITAttributeAssign as pit where pit.id = :id")
       .setCacheable(false).setCacheRegion(KLASS + ".FindById")
       .setString("id", id)
       .uniqueResult(PITAttributeAssign.class);
     
-    return pitAttributeAssign;
+    if (pit == null && exceptionIfNotFound) {
+      throw new RuntimeException("PITAttributeAssign with id=" + id + " not found");
+    }
+    
+    return pit;
   }
   
   /**
@@ -247,16 +323,16 @@ public class Hib3PITAttributeAssignDAO extends Hib3DAO implements PITAttributeAs
       ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
 
       String selectPrefix = "select distinct aa ";
-      StringBuilder sqlTables = new StringBuilder(" from PITAttributeAssign aa, PITAttributeDefName adn ");
+      StringBuilder sqlTables = new StringBuilder(" from PITAttributeAssign aa, PITAttributeDefName adn, PITAttributeDef ad ");
       
-      StringBuilder sqlWhereClause = new StringBuilder(" aa.attributeDefNameId = adn.id ");
+      StringBuilder sqlWhereClause = new StringBuilder(" aa.attributeDefNameId = adn.id and ad.id = adn.attributeDefId ");
       
       GrouperSession grouperSession = GrouperSession.staticGrouperSession();
       Subject grouperSessionSubject = grouperSession.getSubject();
       
       grouperSession.getAttributeDefResolver().hqlFilterAttrDefsWhereClause(
         grouperSessionSubject, byHqlStatic, 
-        sqlTables, sqlWhereClause, "adn.attributeDefId", AttributeDefPrivilege.READ_PRIVILEGES);
+        sqlTables, sqlWhereClause, "ad.sourceId", AttributeDefPrivilege.READ_PRIVILEGES);
       
       StringBuilder sql;
       sql = sqlTables.append(" where ").append(sqlWhereClause);
@@ -345,7 +421,7 @@ public class Hib3PITAttributeAssignDAO extends Hib3DAO implements PITAttributeAs
     Set<AttributeAssign> assigns = HibernateSession
       .byHqlStatic()
       .createQuery("select assign from AttributeAssign assign where assign.enabledDb='T' and " +
-          "not exists (select 1 from PITAttributeAssign pit where assign.id = pit.id and pit.activeDb = 'T') " +
+          "not exists (select 1 from PITAttributeAssign pit where assign.id = pit.sourceId and pit.activeDb = 'T') " +
           "and not exists (select 1 from ChangeLogEntryTemp temp, ChangeLogType type " +
           "    where temp.string01 = assign.id " +
           "    and type.actionName='addAttributeAssign' and type.changeLogCategory='attributeAssign' and type.id=temp.changeLogTypeId)")
@@ -363,9 +439,9 @@ public class Hib3PITAttributeAssignDAO extends Hib3DAO implements PITAttributeAs
     Set<PITAttributeAssign> assigns = HibernateSession
       .byHqlStatic()
       .createQuery("select pit from PITAttributeAssign pit where activeDb = 'T' and " +
-          "not exists (select 1 from AttributeAssign assign where assign.id = pit.id and assign.enabledDb='T') " +
+          "not exists (select 1 from AttributeAssign assign where assign.id = pit.sourceId and assign.enabledDb='T') " +
           "and not exists (select 1 from ChangeLogEntryTemp temp, ChangeLogType type " +
-          "    where temp.string01 = pit.id " +
+          "    where temp.string01 = pit.sourceId " +
           "    and type.actionName='deleteAttributeAssign' and type.changeLogCategory='attributeAssign' and type.id=temp.changeLogTypeId)")
       .setCacheable(false).setCacheRegion(KLASS + ".FindMissingInactivePITAttributeAssigns")
       .listSet(PITAttributeAssign.class);

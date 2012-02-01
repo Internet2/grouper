@@ -74,7 +74,7 @@ public abstract class BaseGrouperDataConnector<T> extends BaseDataConnector {
 
   /** The possibly empty set of attribute definition names defined in the resolver configuration. */
   private Set<String> attributeDefNames = new LinkedHashSet<String>();
-  
+
   /** The principal name prefix required for processing of a change log entry. A terrible hack. */
   public static final String CHANGELOG_PRINCIPAL_NAME_PREFIX = "change_log_sequence_number:";
 
@@ -180,13 +180,17 @@ public abstract class BaseGrouperDataConnector<T> extends BaseDataConnector {
   public GrouperSession getGrouperSession() throws SubjectNotFoundException {
     if (grouperSession == null) {
       if (subjectIdentifier == null) {
-        grouperSession = GrouperSession.startRootSession(false);
+        grouperSession = GrouperSession.staticGrouperSession(false);
+        if (grouperSession == null) {
+          grouperSession = GrouperSession.startRootSession(true);
+          LOG.debug("Grouper data connector '{}' - Started grouper session '{}'", getId(), grouperSession);
+        }
       } else {
         Subject subject = SubjectFinder.findByIdAndSource(subjectIdentifier.getId(), subjectIdentifier.getSource(),
             true);
         grouperSession = GrouperSession.start(subject, false);
+        LOG.debug("Grouper data connector '{}' - Started grouper session '{}'", getId(), grouperSession);
       }
-      LOG.debug("Grouper data connector '{}' - Started grouper session '{}'", getId(), grouperSession);
     }
 
     return grouperSession;

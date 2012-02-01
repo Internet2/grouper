@@ -311,7 +311,7 @@ public class PITAttributeAssignTests extends GrouperTest {
     results = new PITAttributeAssignQuery()
       .setAttributeDefNameId(attributeDefName1.getId())
       .setActionId(action1.getId())
-      .setOwnerStemId(group.getId())
+      .setOwnerStemId(edu.getUuid())
       .execute();
     assertEquals(0, results.size());
   }
@@ -321,7 +321,8 @@ public class PITAttributeAssignTests extends GrouperTest {
    */
   public void testByOwnerStem() {
     Stem stem = edu.addChildStem("testStem", "testStem");
-    
+    Group group = edu.addChildGroup("testGroup", "testGroup");
+
     AttributeDef attributeDef = edu.addChildAttributeDef("attributeDef", AttributeDefType.attr);
     attributeDef.setAssignToStem(true);
     attributeDef.store();
@@ -342,7 +343,7 @@ public class PITAttributeAssignTests extends GrouperTest {
     results = new PITAttributeAssignQuery()
       .setAttributeDefNameId(attributeDefName1.getId())
       .setActionId(action1.getId())
-      .setOwnerGroupId(stem.getUuid())
+      .setOwnerGroupId(group.getUuid())
       .execute();
     assertEquals(0, results.size());
   }
@@ -352,7 +353,8 @@ public class PITAttributeAssignTests extends GrouperTest {
    */
   public void testByOwnerAttributeDef() {
     AttributeDef attributeDef0 = edu.addChildAttributeDef("attributeDef0", AttributeDefType.attr);
-    
+    Group group = edu.addChildGroup("testGroup", "testGroup");
+
     AttributeDef attributeDef = edu.addChildAttributeDef("attributeDef", AttributeDefType.attr);
     attributeDef.setAssignToAttributeDef(true);
     attributeDef.store();
@@ -373,7 +375,7 @@ public class PITAttributeAssignTests extends GrouperTest {
     results = new PITAttributeAssignQuery()
       .setAttributeDefNameId(attributeDefName1.getId())
       .setActionId(action1.getId())
-      .setOwnerGroupId(attributeDef0.getId())
+      .setOwnerGroupId(group.getId())
       .execute();
     assertEquals(0, results.size());
   }
@@ -383,7 +385,8 @@ public class PITAttributeAssignTests extends GrouperTest {
    */
   public void testByOwnerMember() {
     Member member = MemberFinder.findBySubject(grouperSession, SubjectFinder.findRootSubject(), false);
-    
+    Group group = edu.addChildGroup("testGroup", "testGroup");
+
     AttributeDef attributeDef = edu.addChildAttributeDef("attributeDef", AttributeDefType.attr);
     attributeDef.setAssignToMember(true);
     attributeDef.store();
@@ -404,7 +407,7 @@ public class PITAttributeAssignTests extends GrouperTest {
     results = new PITAttributeAssignQuery()
       .setAttributeDefNameId(attributeDefName1.getId())
       .setActionId(action1.getId())
-      .setOwnerGroupId(member.getUuid())
+      .setOwnerGroupId(group.getUuid())
       .execute();
     assertEquals(0, results.size());
   }
@@ -437,7 +440,7 @@ public class PITAttributeAssignTests extends GrouperTest {
     results = new PITAttributeAssignQuery()
       .setAttributeDefNameId(attributeDefName1.getId())
       .setActionId(action1.getId())
-      .setOwnerGroupId(immediateMembership.getUuid())
+      .setOwnerGroupId(group.getUuid())
       .execute();
     assertEquals(0, results.size());
   }
@@ -475,7 +478,7 @@ public class PITAttributeAssignTests extends GrouperTest {
     results = new PITAttributeAssignQuery()
       .setAttributeDefNameId(attributeDefName1.getId())
       .setActionId(action1.getId())
-      .setOwnerGroupId(attributeAssign0.getId())
+      .setOwnerGroupId(group.getId())
       .execute();
     assertEquals(0, results.size());
   }
@@ -566,12 +569,12 @@ public class PITAttributeAssignTests extends GrouperTest {
     // populate PIT tables
     ChangeLogTempToEntity.convertRecords();
     
-    PITAttributeAssign pitAttributeAssign1 = GrouperDAOFactory.getFactory().getPITAttributeAssign().findById(attributeAssign1.getId());
-    PITAttributeAssign pitAttributeAssign2 = GrouperDAOFactory.getFactory().getPITAttributeAssign().findById(attributeAssign2.getId());
-    PITAttributeAssign pitAttributeAssign3 = GrouperDAOFactory.getFactory().getPITAttributeAssign().findById(attributeAssign3.getId());
-    PITAttributeAssign pitAttributeAssign4 = GrouperDAOFactory.getFactory().getPITAttributeAssign().findById(attributeAssign4.getId());
-    PITAttributeAssign pitAttributeAssign5 = GrouperDAOFactory.getFactory().getPITAttributeAssign().findById(attributeAssign5.getId());
-    PITAttributeAssign pitAttributeAssign6 = GrouperDAOFactory.getFactory().getPITAttributeAssign().findById(attributeAssign6.getId());
+    PITAttributeAssign pitAttributeAssign1 = GrouperDAOFactory.getFactory().getPITAttributeAssign().findBySourceIdActive(attributeAssign1.getId(), false);
+    PITAttributeAssign pitAttributeAssign2 = GrouperDAOFactory.getFactory().getPITAttributeAssign().findBySourceIdActive(attributeAssign2.getId(), false);
+    PITAttributeAssign pitAttributeAssign3 = GrouperDAOFactory.getFactory().getPITAttributeAssign().findBySourceIdActive(attributeAssign3.getId(), false);
+    PITAttributeAssign pitAttributeAssign4 = GrouperDAOFactory.getFactory().getPITAttributeAssign().findBySourceIdActive(attributeAssign4.getId(), false);
+    PITAttributeAssign pitAttributeAssign5 = GrouperDAOFactory.getFactory().getPITAttributeAssign().findBySourceIdActive(attributeAssign5.getId(), false);
+    PITAttributeAssign pitAttributeAssign6 = GrouperDAOFactory.getFactory().getPITAttributeAssign().findBySourceIdActive(attributeAssign6.getId(), false);
     
     Timestamp before = getTimestampWithSleep();
     attributeAssign1.delete();
@@ -643,12 +646,12 @@ public class PITAttributeAssignTests extends GrouperTest {
     ChangeLogTempToEntity.convertRecords();
     Timestamp after = getTimestampWithSleep();
     
-    PITAttributeAssign pitAttributeAssign1 = GrouperDAOFactory.getFactory().getPITAttributeAssign().findById(attributeAssign1.getId());
-    PITAttributeAssign pitAttributeAssign2 = GrouperDAOFactory.getFactory().getPITAttributeAssign().findById(attributeAssign2.getId());
-    PITAttributeAssign pitAttributeAssign3 = GrouperDAOFactory.getFactory().getPITAttributeAssign().findById(attributeAssign3.getId());
-    PITAttributeAssign pitAttributeAssign4 = GrouperDAOFactory.getFactory().getPITAttributeAssign().findById(attributeAssign4.getId());
-    PITAttributeAssign pitAttributeAssign5 = GrouperDAOFactory.getFactory().getPITAttributeAssign().findById(attributeAssign5.getId());
-    PITAttributeAssign pitAttributeAssign6 = GrouperDAOFactory.getFactory().getPITAttributeAssign().findById(attributeAssign6.getId());
+    PITAttributeAssign pitAttributeAssign1 = GrouperDAOFactory.getFactory().getPITAttributeAssign().findBySourceIdActive(attributeAssign1.getId(), false);
+    PITAttributeAssign pitAttributeAssign2 = GrouperDAOFactory.getFactory().getPITAttributeAssign().findBySourceIdActive(attributeAssign2.getId(), false);
+    PITAttributeAssign pitAttributeAssign3 = GrouperDAOFactory.getFactory().getPITAttributeAssign().findBySourceIdActive(attributeAssign3.getId(), false);
+    PITAttributeAssign pitAttributeAssign4 = GrouperDAOFactory.getFactory().getPITAttributeAssign().findBySourceIdActive(attributeAssign4.getId(), false);
+    PITAttributeAssign pitAttributeAssign5 = GrouperDAOFactory.getFactory().getPITAttributeAssign().findBySourceIdActive(attributeAssign5.getId(), false);
+    PITAttributeAssign pitAttributeAssign6 = GrouperDAOFactory.getFactory().getPITAttributeAssign().findBySourceIdActive(attributeAssign6.getId(), false);
    
     
     Set<PITAttributeAssign> assignments = GrouperDAOFactory.getFactory().getPITAttributeAssign().findAssignmentsOnAssignments(
@@ -733,12 +736,12 @@ public class PITAttributeAssignTests extends GrouperTest {
     ChangeLogTempToEntity.convertRecords();
     Timestamp after = getTimestampWithSleep();
     
-    PITAttributeAssign pitAttributeAssign1 = GrouperDAOFactory.getFactory().getPITAttributeAssign().findById(attributeAssign1.getId());
-    PITAttributeAssign pitAttributeAssign2 = GrouperDAOFactory.getFactory().getPITAttributeAssign().findById(attributeAssign2.getId());
-    PITAttributeAssign pitAttributeAssign3 = GrouperDAOFactory.getFactory().getPITAttributeAssign().findById(attributeAssign3.getId());
-    PITAttributeAssign pitAttributeAssign4 = GrouperDAOFactory.getFactory().getPITAttributeAssign().findById(attributeAssign4.getId());
-    PITAttributeAssign pitAttributeAssign5 = GrouperDAOFactory.getFactory().getPITAttributeAssign().findById(attributeAssign5.getId());
-    PITAttributeAssign pitAttributeAssign6 = GrouperDAOFactory.getFactory().getPITAttributeAssign().findById(attributeAssign6.getId());
+    PITAttributeAssign pitAttributeAssign1 = GrouperDAOFactory.getFactory().getPITAttributeAssign().findBySourceIdActive(attributeAssign1.getId(), false);
+    PITAttributeAssign pitAttributeAssign2 = GrouperDAOFactory.getFactory().getPITAttributeAssign().findBySourceIdActive(attributeAssign2.getId(), false);
+    PITAttributeAssign pitAttributeAssign3 = GrouperDAOFactory.getFactory().getPITAttributeAssign().findBySourceIdActive(attributeAssign3.getId(), false);
+    PITAttributeAssign pitAttributeAssign4 = GrouperDAOFactory.getFactory().getPITAttributeAssign().findBySourceIdActive(attributeAssign4.getId(), false);
+    PITAttributeAssign pitAttributeAssign5 = GrouperDAOFactory.getFactory().getPITAttributeAssign().findBySourceIdActive(attributeAssign5.getId(), false);
+    PITAttributeAssign pitAttributeAssign6 = GrouperDAOFactory.getFactory().getPITAttributeAssign().findBySourceIdActive(attributeAssign6.getId(), false);
    
     
     Set<PITAttributeAssign> assignments = GrouperDAOFactory.getFactory().getPITAttributeAssign().findAssignmentsOnAssignments(
@@ -804,14 +807,14 @@ public class PITAttributeAssignTests extends GrouperTest {
     // populate PIT tables
     ChangeLogTempToEntity.convertRecords();
     
-    PITAttributeAssign pitAttributeAssign1 = GrouperDAOFactory.getFactory().getPITAttributeAssign().findById(attributeAssign1.getId());
+    PITAttributeAssign pitAttributeAssign1 = GrouperDAOFactory.getFactory().getPITAttributeAssign().findBySourceIdActive(attributeAssign1.getId(), false);
     
     Timestamp after = getTimestampWithSleep();
 
     Set<PITAttributeAssign> assignments = GrouperDAOFactory.getFactory().getPITAttributeAssign().findAssignmentsOnAssignments(
         GrouperUtil.toSet(pitAttributeAssign1), before, after);
     assertEquals(1, assignments.size());  
-    assertEquals(attributeAssign2.getId(), assignments.iterator().next().getId());
+    assertEquals(attributeAssign2.getId(), assignments.iterator().next().getSourceId());
     
     GrouperSession s = GrouperSession.start(member0.getSubject());
     assignments = GrouperDAOFactory.getFactory().getPITAttributeAssign().findAssignmentsOnAssignments(
@@ -825,7 +828,7 @@ public class PITAttributeAssignTests extends GrouperTest {
     assignments = GrouperDAOFactory.getFactory().getPITAttributeAssign().findAssignmentsOnAssignments(
         GrouperUtil.toSet(pitAttributeAssign1), before, after);
     assertEquals(1, assignments.size());
-    assertEquals(attributeAssign2.getId(), assignments.iterator().next().getId());
+    assertEquals(attributeAssign2.getId(), assignments.iterator().next().getSourceId());
     s.stop();
     
     s = GrouperSession.startRootSession();
@@ -841,13 +844,13 @@ public class PITAttributeAssignTests extends GrouperTest {
     assignments = GrouperDAOFactory.getFactory().getPITAttributeAssign().findAssignmentsOnAssignments(
         GrouperUtil.toSet(pitAttributeAssign1), before, after);
     assertEquals(1, assignments.size());
-    assertEquals(attributeAssign2.getId(), assignments.iterator().next().getId());
+    assertEquals(attributeAssign2.getId(), assignments.iterator().next().getSourceId());
   }
   
   /**
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new PITAttributeAssignTests("testFindAssignmentsOnAssignmentsAtPointInTime"));
+    TestRunner.run(new PITAttributeAssignTests("testFindAssignmentsOnAssignmentsPrivs"));
   }
 }

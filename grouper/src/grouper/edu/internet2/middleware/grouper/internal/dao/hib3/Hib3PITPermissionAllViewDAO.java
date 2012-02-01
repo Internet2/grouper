@@ -29,15 +29,15 @@ public class Hib3PITPermissionAllViewDAO extends Hib3DAO implements PITPermissio
   /**
    * @see edu.internet2.middleware.grouper.internal.dao.PITPermissionAllViewDAO#findPermissions(java.util.Collection, java.util.Collection, java.util.Collection, java.util.Collection, java.util.Collection, java.sql.Timestamp, java.sql.Timestamp)
    */
-  public Set<PermissionEntry> findPermissions(Collection<String> attributeDefIds, Collection<String> attributeDefNameIds, 
-      Collection<String> roleIds, Collection<String> actions, Collection<String> memberIds, Timestamp pointInTimeFrom, 
+  public Set<PermissionEntry> findPermissions(Collection<String> attributeDefSourceIds, Collection<String> attributeDefNameSourceIds, 
+      Collection<String> roleSourceIds, Collection<String> actions, Collection<String> memberSourceIds, Timestamp pointInTimeFrom, 
       Timestamp pointInTimeTo) {
     
-    int memberIdsSize = GrouperUtil.length(memberIds);
-    int roleIdsSize = GrouperUtil.length(roleIds);
+    int memberIdsSize = GrouperUtil.length(memberSourceIds);
+    int roleIdsSize = GrouperUtil.length(roleSourceIds);
     int actionsSize = GrouperUtil.length(actions);
-    int attributeDefIdsSize = GrouperUtil.length(attributeDefIds);
-    int attributeDefNameIdsSize = GrouperUtil.length(attributeDefNameIds);
+    int attributeDefIdsSize = GrouperUtil.length(attributeDefSourceIds);
+    int attributeDefNameIdsSize = GrouperUtil.length(attributeDefNameSourceIds);
     
     if (memberIdsSize == 0 && roleIdsSize == 0 && attributeDefIdsSize == 0 && attributeDefNameIdsSize == 0) {
       throw new RuntimeException("Illegal query, you need to pass in members and/or attributeDefId(s) and/or roleId(s) and/or attributeDefNameIds");
@@ -64,11 +64,11 @@ public class Hib3PITPermissionAllViewDAO extends Hib3DAO implements PITPermissio
     
     grouperSession.getAttributeDefResolver().hqlFilterAttrDefsWhereClause(
       grouperSessionSubject, byHqlStatic, 
-      sqlTables, sqlWhereClause, "pea.attributeDefId", AttributeDefPrivilege.READ_PRIVILEGES);
+      sqlTables, sqlWhereClause, "pea.attributeDefSourceId", AttributeDefPrivilege.READ_PRIVILEGES);
     
     boolean changedQuery = grouperSession.getAccessResolver().hqlFilterGroupsWhereClause(
         grouperSessionSubject, byHqlStatic, 
-        sqlTables, "pea.roleId", AccessPrivilege.READ_PRIVILEGES);
+        sqlTables, "pea.roleSourceId", AccessPrivilege.READ_PRIVILEGES);
 
     StringBuilder sql;
     if (sqlWhereClause.length() > 0) {
@@ -90,23 +90,23 @@ public class Hib3PITPermissionAllViewDAO extends Hib3DAO implements PITPermissio
       sql.append(") ");
     }
     if (roleIdsSize > 0) {
-      sql.append(" and pea.roleId in (");
-      sql.append(HibUtils.convertToInClause(roleIds, byHqlStatic));
+      sql.append(" and pea.roleSourceId in (");
+      sql.append(HibUtils.convertToInClause(roleSourceIds, byHqlStatic));
       sql.append(") ");
     }
     if (attributeDefIdsSize > 0) {
-      sql.append(" and pea.attributeDefId in (");
-      sql.append(HibUtils.convertToInClause(attributeDefIds, byHqlStatic));
+      sql.append(" and pea.attributeDefSourceId in (");
+      sql.append(HibUtils.convertToInClause(attributeDefSourceIds, byHqlStatic));
       sql.append(") ");
     }
     if (attributeDefNameIdsSize > 0) {
-      sql.append(" and pea.attributeDefNameId in (");
-      sql.append(HibUtils.convertToInClause(attributeDefNameIds, byHqlStatic));
+      sql.append(" and pea.attributeDefNameSourceId in (");
+      sql.append(HibUtils.convertToInClause(attributeDefNameSourceIds, byHqlStatic));
       sql.append(") ");
     }
     if (memberIdsSize > 0) {
-      sql.append(" and pea.memberId in (");
-      sql.append(HibUtils.convertToInClause(memberIds, byHqlStatic));
+      sql.append(" and pea.memberSourceId in (");
+      sql.append(HibUtils.convertToInClause(memberSourceIds, byHqlStatic));
       sql.append(") ");
     }
     

@@ -86,30 +86,30 @@ public class PITAttributeDefFinderTests extends GrouperTest {
     attributeDef3.delete();
     ChangeLogTempToEntity.convertRecords();
 
-    PITAttributeDef pitAttributeDef1 = PITAttributeDefFinder.findById(attributeDef1.getId(), true);
+    PITAttributeDef pitAttributeDef1 = PITAttributeDefFinder.findBySourceId(attributeDef1.getId(), true).iterator().next();
     assertNotNull(pitAttributeDef1);
     
-    PITAttributeDef pitAttributeDef2 = PITAttributeDefFinder.findById(attributeDef2.getId(), true);
+    PITAttributeDef pitAttributeDef2 = PITAttributeDefFinder.findBySourceId(attributeDef2.getId(), true).iterator().next();
     assertNotNull(pitAttributeDef2);
     
-    PITAttributeDef pitAttributeDef3 = PITAttributeDefFinder.findById(attributeDef3.getId(), true);
+    PITAttributeDef pitAttributeDef3 = PITAttributeDefFinder.findBySourceId(attributeDef3.getId(), true).iterator().next();
     assertNotNull(pitAttributeDef3);
     
     // now verify what subj1 can see
     GrouperSession s = GrouperSession.start(member1.getSubject());
     
     try {
-      pitAttributeDef1 = PITAttributeDefFinder.findById(attributeDef1.getId(), true);
+      pitAttributeDef1 = PITAttributeDefFinder.findBySourceId(attributeDef1.getId(), true).iterator().next();
       fail("Expected AttributeDefNotFoundException.");
     } catch (AttributeDefNotFoundException e) {
       // good
     }
     
-    pitAttributeDef2 = PITAttributeDefFinder.findById(attributeDef2.getId(), true);
+    pitAttributeDef2 = PITAttributeDefFinder.findBySourceId(attributeDef2.getId(), true).iterator().next();
     assertNotNull(pitAttributeDef2);
     
     try {
-      pitAttributeDef3 = PITAttributeDefFinder.findById(attributeDef3.getId(), true);
+      pitAttributeDef3 = PITAttributeDefFinder.findBySourceId(attributeDef3.getId(), true).iterator().next();
       fail("Expected AttributeDefNotFoundException.");
     } catch (AttributeDefNotFoundException e) {
       // good
@@ -148,7 +148,7 @@ public class PITAttributeDefFinderTests extends GrouperTest {
     GrouperSession s = GrouperSession.start(member1.getSubject());
     pitAttributeDefs = PITAttributeDefFinder.findByName("edu:test", true, true);
     assertEquals(1, pitAttributeDefs.size());
-    assertEquals(attributeDef3.getId(), pitAttributeDefs.iterator().next().getId());
+    assertEquals(attributeDef3.getId(), pitAttributeDefs.iterator().next().getSourceId());
     
     // revoke subj1 priv on attribute def 3
     s = GrouperSession.startRootSession();
@@ -227,23 +227,23 @@ public class PITAttributeDefFinderTests extends GrouperTest {
     Set<PITAttributeDef> pitAttributeDefs = PITAttributeDefFinder.findByName("edu:test", null, afterSecond, true, true);
     assertEquals(2, pitAttributeDefs.size());
     Iterator<PITAttributeDef> iterator = pitAttributeDefs.iterator();
-    assertEquals(attributeDef1.getId(), iterator.next().getId());
-    assertEquals(attributeDef2.getId(), iterator.next().getId());
+    assertEquals(attributeDef1.getId(), iterator.next().getSourceId());
+    assertEquals(attributeDef2.getId(), iterator.next().getSourceId());
     
     pitAttributeDefs = PITAttributeDefFinder.findByName("edu:test", beforeSecond, null, true, true);
     assertEquals(2, pitAttributeDefs.size());
     iterator = pitAttributeDefs.iterator();
-    assertEquals(attributeDef2.getId(), iterator.next().getId());
-    assertEquals(attributeDef3.getId(), iterator.next().getId());
+    assertEquals(attributeDef2.getId(), iterator.next().getSourceId());
+    assertEquals(attributeDef3.getId(), iterator.next().getSourceId());
     
     pitAttributeDefs = PITAttributeDefFinder.findByName("edu:test", afterThird, null, true, true);
     assertEquals(1, pitAttributeDefs.size());
     iterator = pitAttributeDefs.iterator();
-    assertEquals(attributeDef3.getId(), iterator.next().getId());
+    assertEquals(attributeDef3.getId(), iterator.next().getSourceId());
     
     pitAttributeDefs = PITAttributeDefFinder.findByName("edu:test", beforeSecond, beforeThird, true, true);
     assertEquals(1, pitAttributeDefs.size());
     iterator = pitAttributeDefs.iterator();
-    assertEquals(attributeDef2.getId(), iterator.next().getId());
+    assertEquals(attributeDef2.getId(), iterator.next().getSourceId());
   }
 }
