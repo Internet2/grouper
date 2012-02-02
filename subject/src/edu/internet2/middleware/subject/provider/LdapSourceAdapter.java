@@ -62,13 +62,14 @@ import edu.vt.middleware.ldap.pool.LdapPool;
 import edu.vt.middleware.ldap.pool.SoftLimitLdapPool;
 
 /**
- * Ldap source adapter.  Configuration is from a properties file
+ * Ldap source adapter.  
  */
 
 public class LdapSourceAdapter extends BaseSourceAdapter {
     
     private static Log log = LogFactory.getLog(LdapSourceAdapter.class);
     
+    private Properties props;
     private String nameAttributeName = null;
     private String subjectIDAttributeName = null;
     private String descriptionAttributeName = null;
@@ -100,14 +101,13 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
      */
     public void init() {
         log.debug("ldap source init");
-        Properties props = getInitParams();
+        props = getInitParams();
 
-	nameAttributeName = getStringProperty(props,"Name_AttributeType");
-	subjectIDAttributeName = getStringProperty(props,"SubjectID_AttributeType");
-	descriptionAttributeName = getStringProperty(props,"Description_AttributeType");
+	nameAttributeName = getNeededProperty(props,"Name_AttributeType");
+	subjectIDAttributeName = getNeededProperty(props,"SubjectID_AttributeType");
+	descriptionAttributeName = getNeededProperty(props,"Description_AttributeType");
 
-        propertiesFile = getStringProperty(props,"ldapProperties_file");
-        String mr = getStringProperty(props,"Multiple_Results");
+        String mr = props.getProperty("Multiple_Results");
         if (mr!=null && (mr.equalsIgnoreCase("yes")||mr.equalsIgnoreCase("true"))) multipleResults = true;
 
         Set<?> attributeNameSet = this.getAttributes();
@@ -140,46 +140,85 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
    private void initializeLdap() {
    
       log.debug("ldap initializeLdap");
+      LdapConfig ldapConfig = null;
+      String cafile = (String)props.get("pemCaFile");
+      String certfile = (String)props.get("pemCertFile");
+      String keyfile = (String)props.get("pemKeyFile");
         
-      try {
-         // all ldap config from the ldap properties file
-         if (log.isDebugEnabled()) {
-           log.debug("reading properties file " + propertiesFile);
-         }
+      // ldap properties can be in a separate properties file or specified in sources.xml
+
+      propertiesFile = props.getProperty("ldapProperties_file");
+      if (propertiesFile!=null) {
+          
+         try {
+            // load ldap config from the ldap properties file
+            if (log.isDebugEnabled()) {
+              log.debug("reading properties file " + propertiesFile);
+            }
          
-         // Try opening the properties file from the file system
-         File theFile = new File(propertiesFile);
+            // Try opening the properties file from the file system
+            File theFile = new File(propertiesFile);
          
-         // If the file does not exist on the file system
-         if (!theFile.exists()) {
+            // If the file does not exist on the file system
+            if (!theFile.exists()) {
         	 // Try opening the file from the classpath
         	 theFile = SubjectUtils.fileFromResourceName(propertiesFile);
-         }
+            }
          
-         // If not successfull, throw runtime exception.
-         if (theFile == null) {
+            // If not successfull, throw runtime exception.
+            if (theFile == null) {
         	 log.error("Unable to open properties file '" + propertiesFile + "'");
         	 throw new IllegalArgumentException("Unable to open properties file '" + propertiesFile + "'");
-         }         
+            }         
 	     
-		 LdapConfig ldapConfig = LdapConfig.createFromProperties(new FileInputStream(theFile));
-         if (log.isDebugEnabled()) {
-           log.debug("from properties file " + propertiesFile + " got " + ldapConfig);
+            ldapConfig = LdapConfig.createFromProperties(new FileInputStream(theFile));
+            if (log.isDebugEnabled()) {
+               log.debug("from properties file " + propertiesFile + " got " + ldapConfig);
+            }
+
+            // get our cert config from the properties file as well
+            Map<String, Object> props = ldapConfig.getEnvironmentProperties();
+       
+            Set<String> ps = props.keySet();
+            if (log.isDebugEnabled()) {
+              for (Iterator<String> it = ps.iterator(); it.hasNext(); log.debug(".. key = " + it.next()));
+            }
+         
+            cafile = (String)props.get("pemCaFile");
+            certfile = (String)props.get("pemCertFile");
+            keyfile = (String)props.get("pemKeyFile");
+         } catch (FileNotFoundException e) {
+            log.error("ldap properties not found: " + e, e);
+            throw new IllegalArgumentException("Unable to open properties file '" + propertiesFile + "' not found!");
          }
 
-         // including config for the pem cert mode
-         Map<String, Object> props = ldapConfig.getEnvironmentProperties();
-       
-         Set<String> ps = props.keySet();
-                  
-         if (log.isDebugEnabled()) {
-         
-           for (Iterator<String> it = ps.iterator(); it.hasNext(); log.debug(".. key = " + it.next()));
-         }
-         
-         String cafile = (String)props.get("pemCaFile");
-         String certfile = (String)props.get("pemCertFile");
-         String keyfile = (String)props.get("pemKeyFile");
+      } else {
+
+            // load ldap properties from sources.xml
+
+            String url = getNeededProperty(props, "PROVIDER_URL");
+            ldapConfig = new LdapConfig(url);
+            
+            String authtype = props.getProperty("SECURITY_AUTHENTICATION");
+            if (authtype==null) authtype = "simple";
+            ldapConfig.setAuthtype(authtype);
+ 
+            String principal = props.getProperty("SECURITY_PRINCIPAL");
+            if (principal==null) principal = "-missing-";
+            ldapConfig.setBindDn(principal);
+ 
+            String creds = props.getProperty("SECURITY_CREDENTIALS");
+            if (creds==null) creds = "-missing-";
+            ldapConfig.setBindCredential(creds);
+ 
+            String proto = props.getProperty("SECURITY_PROTOCOL");
+            if (proto!=null && proto.equals("ssl")) ldapConfig.setSsl(true);
+            if (proto!=null && proto.equals("tls")) ldapConfig.setTls(true);
+ 
+            
+      }
+
+
          if (cafile!=null && certfile!=null && keyfile!=null) {
             if (log.isDebugEnabled()) {
             log.debug("using the PEM socketfactory: ca=" + cafile + ", cert=" + certfile + ", key=" + keyfile);
@@ -202,9 +241,9 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
             //why swallow???
             log.debug("ldappool error = " + e, e);
          }
-      } catch (FileNotFoundException e) {
-         log.error("ldap properties not found: " + e, e);
-      }
+    //   } catch (FileNotFoundException e) {
+         // log.error("ldap properties not found: " + e, e);
+      // }
       log.debug("ldap initialize done");
    }
     
@@ -435,7 +474,7 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
         return subject;
     }
     
-    protected String getStringProperty(Properties props, String prop) {
+    protected String getNeededProperty(Properties props, String prop) {
         String value = props.getProperty(prop);
         if (value==null) {
             log.error("Property '" + prop + "' is not defined!");
@@ -504,6 +543,7 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
 
         if (!initialized) initializeLdap();
 
+        // build a filter
         if ((cp=searchValue.indexOf(',')) >0 ) {
             int lb, rb;
             if ( (lb=searchValue.indexOf('['))>cp && (rb=searchValue.indexOf(']'))>lb ) {
@@ -515,6 +555,7 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
                // log.debug("first, last search: " + searchValue);
                filter = search.getParam("firstlastfilter");
             }
+            if (filter==null) filter = search.getParam("filter");  // fall back
             if (filter==null) {
                 log.error("Search filter not found for search type:  " + search.getSearchType());
                 return null;
@@ -534,17 +575,22 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
             filter = filter.replaceAll("%TERM%", escapeSearchFilter(searchValue));
         }
         if (log.isDebugEnabled()) {
-        log.debug("searchType: " + search.getSearchType() + " filter: " + filter);
+            log.debug("searchType: " + search.getSearchType() + " filter: " + filter);
         }
 
         try  {
             ldap =  (Ldap) ldapPool.checkOut();
-            SearchControls searchControls = new SearchControls();
-            searchControls.setReturningAttributes(attributeNames);
-            //if we are at the end of the page
-            if (firstPageOnly && this.maxPage != null) {
-              searchControls.setCountLimit(this.maxPage+1);
+
+            // set params
+            String base = search.getParam("base");
+            if (base!=null) ldap.getLdapConfig().setBase(base);
+            String scope = search.getParam("scope");
+            if (scope!=null) {
+               if (scope.equals("OBJECT_SCOPE")) ldap.getLdapConfig().setSearchScope(LdapConfig.SearchScope.OBJECT);
+               if (scope.equals("ONELEVEL_SCOPE")) ldap.getLdapConfig().setSearchScope(LdapConfig.SearchScope.ONELEVEL);
+               if (scope.equals("SUBTREE_SCOPE")) ldap.getLdapConfig().setSearchScope(LdapConfig.SearchScope.SUBTREE);
             }
+
             results = ldap.search(new SearchFilter(filter), attributeNames );
         } catch (NamingException ex) {
             log.error("Ldap NamingException: " + ex.getMessage(), ex);
