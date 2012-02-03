@@ -15,18 +15,11 @@ See doc/license.txt in this distribution.
 package edu.internet2.middleware.subject.provider;
 
 /**
- *
- * @author esluss
- */
-
-
-
-/**
  * JNDI Source 
  *
  */
 public class HelperGrouperJndiSourceAdapter
-        extends JNDISourceAdapter {
+        extends LdapSourceAdapter {
 
   /**
    * 

@@ -56,9 +56,9 @@ public class JNDISubject extends SubjectImpl {
    * 
    */
   private void initAttributesIfNeeded() {
-    if (!this.attributesInitted) {
+    if (!this.attributesInitted && this.getSource() instanceof JNDISourceAdapterLegacy) {
       try {
-        ((JNDISourceAdapter)this.getSource()).loadAttributes(this);
+        ((JNDISourceAdapterLegacy)this.getSource()).loadAttributes(this);
       } finally {
         this.attributesInitted = true;
       }
