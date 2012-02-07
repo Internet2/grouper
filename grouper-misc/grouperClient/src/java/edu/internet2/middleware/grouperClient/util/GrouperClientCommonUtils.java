@@ -7395,6 +7395,60 @@ public class GrouperClientCommonUtils  {
   }
   
   /**
+   * Copy bytes from an <code>InputStream</code> to an
+   * <code>OutputStream</code>.
+   * <p>
+   * This method buffers the input internally, so there is no need to use a
+   * <code>BufferedInputStream</code>.
+   * <p>
+   * Large streams (over 2GB) will return a bytes copied value of
+   * <code>-1</code> after the copy has completed since the correct
+   * number of bytes cannot be returned as an int. For large streams
+   * use the <code>copyLarge(InputStream, OutputStream)</code> method.
+   * 
+   * @param input  the <code>InputStream</code> to read from
+   * @param output  the <code>OutputStream</code> to write to
+   * @return the number of bytes copied
+   * @throws NullPointerException if the input or output is null
+   * @throws IOException if an I/O error occurs
+   * @throws ArithmeticException if the byte count is too large
+   * @since Commons IO 1.1
+   */
+  public static int copy(InputStream input, OutputStream output) throws IOException {
+      long count = copyLarge(input, output);
+      if (count > Integer.MAX_VALUE) {
+          return -1;
+      }
+      return (int) count;
+  }
+
+  /**
+   * Copy bytes from a large (over 2GB) <code>InputStream</code> to an
+   * <code>OutputStream</code>.
+   * <p>
+   * This method buffers the input internally, so there is no need to use a
+   * <code>BufferedInputStream</code>.
+   * 
+   * @param input  the <code>InputStream</code> to read from
+   * @param output  the <code>OutputStream</code> to write to
+   * @return the number of bytes copied
+   * @throws NullPointerException if the input or output is null
+   * @throws IOException if an I/O error occurs
+   * @since Commons IO 1.3
+   */
+  public static long copyLarge(InputStream input, OutputStream output)
+          throws IOException {
+      byte[] buffer = new byte[DEFAULT_BUFFER_SIZE];
+      long count = 0;
+      int n = 0;
+      while (-1 != (n = input.read(buffer))) {
+          output.write(buffer, 0, n);
+          count += n;
+      }
+      return count;
+  }
+
+  /**
    * get a jar file from a sample class
    * @param sampleClass
    * @return the jar file
@@ -9091,6 +9145,42 @@ public class GrouperClientCommonUtils  {
         throw new RuntimeException("Couldnt delete file: " + file.toString());
       }
     }
+  }
+
+  /**
+   * copy a file to a new file
+   * @param fromFile
+   * @param toFile
+   */
+  public static void copy(File fromFile, File toFile) {
+    if (toFile.exists()) {
+      deleteFile(toFile);
+    }
+    FileInputStream fromFileStream = null;
+    FileOutputStream toFileStream = null;
+    try {
+      fromFileStream = new FileInputStream(fromFile);
+      toFileStream = new FileOutputStream(toFile);
+      copy(fromFileStream, toFileStream);
+    } catch (Exception e) {
+      throw new RuntimeException("Problem copying file: " + fromFile.getAbsolutePath() 
+          + " to file: " + toFile.getAbsolutePath());
+    }
+    
+  }
+
+  /**
+   * rename a file to another file and throw runtime exception if not ok
+   * @param fromFile
+   * @param toFile
+   */
+  public static void renameTo(File fromFile, File toFile) {
+
+    if (!fromFile.renameTo(toFile)) {
+      throw new RuntimeException("Cannot rename file: '" + fromFile.getAbsolutePath() 
+          + "', to file: '" + toFile.getAbsolutePath() + "'");
+    }
+
   }
 
   /**

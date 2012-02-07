@@ -2,6 +2,8 @@ package edu.internet2.middleware.grouperClient.failover;
 
 import java.util.List;
 
+import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
+
 /**
  * configuration of a failover connection type
  * @author mchyzer
@@ -10,10 +12,28 @@ import java.util.List;
 public class FailoverConfig {
 
   /**
+   * 
+   */
+  public FailoverConfig() {
+    
+    {
+      int minutesToKeepErrors = GrouperClientUtils.propertiesValueInt("grouperClient.minutesToKeepErrors", 5, false);
+      this.setMinutesToKeepErrors(minutesToKeepErrors);
+    }
+
+    {
+      int secondsForClassesToLoad = GrouperClientUtils.propertiesValueInt("grouperClient.secondsForClassesToLoad", 20, false);
+      this.setSecondsForClassesToLoad(secondsForClassesToLoad);
+    }
+
+    
+  }
+  
+  /**
    * if your app has a slow startup time, and the initial connections are timing out
    * esp if you arent just using the command line client (e.g. if using it as a jar), then add more time here
    */
-  private int secondsForClassesToLoad = 20;
+  private int secondsForClassesToLoad = -1;
   
   /**
    * if your app has a slow startup time, and the initial connections are timing out
@@ -107,7 +127,7 @@ public class FailoverConfig {
   /**
    * minutes to remember that there was an error for a connection name of a connection type
    */
-  private int minutesToKeepErrors = 5;
+  private int minutesToKeepErrors = -1;
 
   /**
    * minutes to remember that there was an error for a connection name of a connection type
@@ -152,7 +172,7 @@ public class FailoverConfig {
    * be used for a certain number of seconds.  If this is -1, then 
    * always keep the same server (unless errors)   
    */
-  private int affinitySeconds = 300;
+  private int affinitySeconds = 28800;
 
   
   /**

@@ -366,7 +366,7 @@ public class GrouperClientWs {
     //NOTE: aStem:aGroup urlencoded substitutes %3A for a colon
     PostMethod postMethod = new PostMethod(url);
 
-    //no keep alive so response if easier to indent for tests
+    //no keep alive so response is easier to indent for tests
     postMethod.setRequestHeader("Connection", "close");
     
     return postMethod;
