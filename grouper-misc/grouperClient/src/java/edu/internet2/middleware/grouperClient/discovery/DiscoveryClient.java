@@ -21,6 +21,7 @@ import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import edu.internet2.middleware.grouperClient.GrouperClient;
 import edu.internet2.middleware.grouperClient.failover.FailoverClient;
 import edu.internet2.middleware.grouperClient.failover.FailoverConfig;
 import edu.internet2.middleware.grouperClient.failover.FailoverLogic;
@@ -28,6 +29,7 @@ import edu.internet2.middleware.grouperClient.failover.FailoverLogicBean;
 import edu.internet2.middleware.grouperClient.failover.FailoverConfig.FailoverStrategy;
 import edu.internet2.middleware.grouperClient.util.ExpirableCache;
 import edu.internet2.middleware.grouperClient.util.GrouperClientCommonUtils;
+import edu.internet2.middleware.grouperClient.util.GrouperClientLog;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.grouperClientExt.edu.internet2.middleware.morphString.Crypto;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.httpclient.Credentials;
@@ -51,6 +53,119 @@ import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
  */
 public class DiscoveryClient {
 
+  /**
+   * usage on command line
+   */
+  private static void usage() {
+    
+    System.out.println("Grouper Discovery Client USAGE:\n");
+    System.out.println("This program downloads a file from a discovery server and failsafe caches the result.");
+    System.out.println("The system exit code will be 0 for success, and not 0 for failure.");
+    System.out.println("Output data is printed to stdout, error messages are printed to stderr or logs (configured in grouper.client.properties).\n");
+    System.out.println("Grouper discovery client webpage: https://spaces.internet2.edu/display/Grouper/Grouper+discovery+client\n");
+    System.out.println("Grouper discovery client USAGE:\n");
+    System.out.println("Arguments are in the format: --argName=argValue");
+    System.out.println("Example argument: --operation=getFile");
+    System.out.println("Optional arguments below are in [brackets]\n");
+    System.out.println("###############################################");
+    System.out.println("## Misc operations\n");
+    System.out.println("Get a file from a discovery server or cache, will output the location of the file on the local machine.");
+    System.out.println("Note, that file is cached, do not move, edit, delete it.");
+    System.out.println("  java -cp grouperClient.jar edu.internet2.middleware.grouperClient.discovery.DiscoveryClient --operation=getFile --fileName=someFile.txt");
+    System.out.println("  output: /home/whoever/grouperClient/someFile_20120102_132414_123_sd43sdf.txt");
+    
+  }
+  
+  /**
+   * @param args
+   */
+  public static void main(String[] args) {
+    
+    long startTime = System.currentTimeMillis();
+
+    String operation = null;
+    try {
+      if (GrouperClientUtils.length(args) == 0) {
+        usage();
+        return;
+      }
+      
+      //map of all command line args
+      Map<String, String> argMap = GrouperClientUtils.argMap(args);
+      
+      Map<String, String> argMapNotUsed = new LinkedHashMap<String, String>(argMap);
+
+      boolean debugMode = GrouperClientUtils.argMapBoolean(argMap, argMapNotUsed, "debug", false, false);
+      
+      GrouperClientLog.assignDebugToConsole(debugMode);
+      
+      //init if not already
+      GrouperClientUtils.grouperClientProperties();
+      
+      //see where log file came from
+      StringBuilder callingLog = new StringBuilder();
+      GrouperClientUtils.propertiesFromResourceName("grouper.client.properties", 
+          false, true, GrouperClientCommonUtils.class, callingLog);
+      
+      //see if the message about where it came from is
+      //log.debug(callingLog.toString());
+      
+      operation = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "operation", true);
+      
+      //where results should go if file
+      String saveResultsToFile = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "saveResultsToFile", false);
+      boolean shouldSaveResultsToFile = !GrouperClientUtils.isBlank(saveResultsToFile);
+      
+      if (shouldSaveResultsToFile) {
+        log.debug("Will save results to file: " + GrouperClientUtils.fileCanonicalPath(new File(saveResultsToFile)));
+      }
+      
+      String result = null;
+      
+      if (GrouperClientUtils.equals(operation, "getFile")) {
+        
+        String fileName = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "fileName", true);
+        
+        File file = retrieveFile(fileName, true);
+        result = file.getAbsolutePath();
+        
+      } else {
+        System.err.println("Error: invalid operation: '" + operation + "', for usage help, run: java -cp grouperClient.jar edu.internet2.middleware.grouperClient.discovery.DiscoveryClient" );
+        if (GrouperClient.exitOnError) {
+          System.exit(1);
+        }
+        throw new RuntimeException("Invalid usage");
+      }
+      
+      //this already has a newline on it
+      if (shouldSaveResultsToFile) {
+        GrouperClientUtils.saveStringIntoFile(new File(saveResultsToFile), result);
+      } else {
+        System.out.print(result);
+      }
+
+      GrouperClient.failOnArgsNotUsed(argMapNotUsed);
+      
+    } catch (Exception e) {
+      System.err.println("Error with grouper client, check the logs: " + e.getMessage());
+      log.fatal(e.getMessage(), e);
+      if (GrouperClient.exitOnError) {
+        System.exit(1);
+      }
+      if (e instanceof RuntimeException) {
+        throw (RuntimeException)e;
+      }
+      throw new RuntimeException(e.getMessage(), e);
+    } finally {
+      try {
+        log.debug("Elapsed time: " + (System.currentTimeMillis() - startTime) + "ms");
+      } catch (Exception e) {}
+      GrouperClientLog.assignDebugToConsole(false);
+    }
+    
+  }
+
+  
   /** format for file names of temp files */
   static final String TEMP_FILE_DATE_FORMAT = "yyyyMMdd_HHmmss_SSS";
 
@@ -78,18 +193,40 @@ public class DiscoveryClient {
   }
 
   /**
-   * cache the discovery stuff
+   * cache the discovery stuff by local file name to the file
    */
-  private static ExpirableCache<String, File> discoveryFileCache = new ExpirableCache<String, File>();
+  private static ExpirableCache<String, File> discoveryFileCache = null;
   
   /**
-   * cache the discovery stuff failsafe in case discovery goes out
+   * cache the discovery file by local file name to the file
+   * @return
    */
-  private static Map<String, File> discoveryFileFailsafeCache = new HashMap<String, File>();
+  private static ExpirableCache<String, File> discoveryFileCache() {
+    
+    if (discoveryFileCache == null) {
+      int cacheDiscoveryFileCacheForSeconds = GrouperClientUtils.propertiesValueInt("grouperClient.cacheDiscoveryPropertiesForSeconds", 120, false);
+      discoveryFileCache = new ExpirableCache<String, File>(cacheDiscoveryFileCacheForSeconds);
+    }
+    return discoveryFileCache;
+  }
+  
+  /**
+   * the remote file name might have slashes in it, convert to underscores
+   * @param fileName
+   * @return the local file name (no subdirs)
+   */
+  private static String convertFileNameToLocalFileName(String fileName) {
+    
+    String localFileName = GrouperClientUtils.replace(fileName, "/", "_");
+    localFileName = GrouperClientUtils.replace(localFileName, "\\", "_");
+    
+    return localFileName;
+  }
   
   /**
    * retrieve a file from the discovery server
    * @param fileName file name on the server
+   * @param throwExceptionIfNotFound true if should throw an exception if not found
    * @return the file or throw an exception if not found if supposed to
    */
   public static File retrieveFile(String fileName, boolean throwExceptionIfNotFound) {
@@ -102,31 +239,92 @@ public class DiscoveryClient {
 
     File file = null;
     try {
-      //check discovery cache
-      file = discoveryFileCache.get(fileName);
 
+      String localFileName = convertFileNameToLocalFileName(fileName);
+      
+      
+      //check discovery cache
+      file = discoveryFileCache().get(localFileName);
+
+      //if we got it from cache, dont put it back into cache
+      boolean retrievedFromCache = file != null;
+      
       if (logMap != null) {
         logMap.put("existsInDiscoveryFilecache", file != null);
       }
 
       if (file == null) {
         //lets see what the most recent file is on the file system
-        File discoveryLocalFile = discoveryLocalFile(fileName);
+        File discoveryLocalFile = mostRecentFileFromFileSystem(localFileName);
         if (discoveryLocalFile != null && discoveryLocalFile.exists()) {
           
+          //file.ext would become
+          //file_20120102_132414_123_sd43sdf.ext
+          Matcher matcher = localCacheDatePattern.matcher(discoveryLocalFile.getName());
+
+          if (!matcher.matches()) {
+            throw new RuntimeException("Why does matcher not match???? " + discoveryLocalFile.getAbsolutePath());
+          }
+
+          String datePart = matcher.group(2);
+
+          DateFormat dateFormat = new SimpleDateFormat(TEMP_FILE_DATE_FORMAT);
+          Date date = null;
+
+          try {
+            date = dateFormat.parse(datePart);
+          } catch (ParseException pe) {
+            
+            throw new RuntimeException("Why date format exception???? " + file.getAbsolutePath());
+            
+          }
+
+          //see if date in range
+          if (System.currentTimeMillis() - date.getTime() / 1000 < GrouperClientUtils.propertiesValueInt("grouperClient.cacheDiscoveryPropertiesForSeconds", 120, false)) {
+            file = discoveryLocalFile;
+          }
+          
+          
         }
+        //if this is less than however old, then use it
+        if (logMap != null) {
+          logMap.put("existsInFilecache", discoveryLocalFile != null);
+        }
+        if (logMap != null) {
+          logMap.put("fileIsYoungEnough", file != null);
+        }
+
       }
       
       if (file == null) {
         
         //lets get it from discovery again, this will return null if problem
         try {
-          file = retrieveFileFromDiscoveryServer(fileName, "grouper.client.discovery.properties");
+          file = retrieveFileFromDiscoveryServer(fileName, localFileName);
         } catch (Exception e) {
           log.error("Problem retrieving file from discovery server: " + fileName, e);
         }
+        if (logMap != null) {
+          logMap.put("fileFromServer", file != null);
+        }
       }
 
+      if (file == null) {
+        //just get whatever we have in the filesystem
+        file = mostRecentFileFromFileSystem(localFileName);
+        if (logMap != null) {
+          logMap.put("fileFromFailsafeLocalSystem", file != null);
+        }
+      }
+
+      //add back to cache if didnt retrieve from cache
+      if (!retrievedFromCache && file != null) {
+        synchronized (DiscoveryClient.class) {
+          discoveryFileCache().put(localFileName, file);
+        }
+      }
+
+      
       //end
       if (logMap != null) {
         logMap.put("fileFound", file!=null);
@@ -137,6 +335,11 @@ public class DiscoveryClient {
       }
 
       if (file == null && throwExceptionIfNotFound) {
+        
+        if (!hasDiscovery()) {
+          throw new RuntimeException("There is no discovery configured!!!! + '" + fileName + "'");
+        }
+        
         throw new RuntimeException("Cant find file from discovery: '" + fileName + "'");
       }
 
@@ -218,27 +421,6 @@ public class DiscoveryClient {
       }
     }
     return synchronizedObject;
-  }
-  
-  /**
-   * get the discovery local file
-   * @param localFileName
-   * @return the local file
-   */
-  private static File discoveryLocalFile(String localFileName) {
-
-    String directoryName = cacheDirectoryName();
-
-    if (localFileName.contains("/")) {
-      throw new RuntimeException("Local file cannot contain / : " + localFileName);
-    }
-
-    if (localFileName.contains("\\")) {
-      throw new RuntimeException("Local file cannot contain \\ : " + localFileName);
-    }
-
-    return new File(directoryName + File.separator + localFileName);
-
   }
   
   /**
