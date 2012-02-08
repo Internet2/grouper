@@ -232,10 +232,12 @@ public class GrouperClientWs {
       throws UnsupportedEncodingException, HttpException, IOException {
     
     //configure the failover client (every 30 seconds)
-    configureFailoverClient();
+    //configureFailoverClient();
+    
+    String url = GrouperClientUtils.propertiesValue("grouperClient.webService.url", true);
     
     //copy the grouper client ws instance to this
-    return null;
+    return executeServiceHelper(url, urlSuffix, toSend, labelForLog, clientVersion);
     
   }
 
