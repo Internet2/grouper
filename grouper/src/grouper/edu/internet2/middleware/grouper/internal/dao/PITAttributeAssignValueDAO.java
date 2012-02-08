@@ -58,13 +58,13 @@ public interface PITAttributeAssignValueDAO extends GrouperDAO {
    * @param oldId
    * @param newId
    */
-  public void updateAttributeAssignId(String oldId, String newId);
+  public void updatePITAttributeAssignId(String oldId, String newId);
   
   /**
    * @param id
    * @return set of PITAttributeAssignValue
    */
-  public Set<PITAttributeAssignValue> findActiveByAttributeAssignId(String id);
+  public Set<PITAttributeAssignValue> findActiveByPITAttributeAssignId(String id);
   
   /**
    * Delete records that ended before the given date.
@@ -73,12 +73,12 @@ public interface PITAttributeAssignValueDAO extends GrouperDAO {
   public void deleteInactiveRecords(Timestamp time);
   
   /**
-   * Find values by attribute assign id
+   * Find values by point in time attribute assign id
    * @param attributeAssignId
    * @param queryOptions
    * @return set of values
    */
-  public Set<PITAttributeAssignValue> findByAttributeAssignId(String attributeAssignId, QueryOptions queryOptions);
+  public Set<PITAttributeAssignValue> findByPITAttributeAssignId(String attributeAssignId, QueryOptions queryOptions);
   
   /**
    * @return active attribute assign values that are missing in point in time

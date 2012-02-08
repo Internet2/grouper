@@ -142,9 +142,9 @@ public class Hib3PITRoleSetDAO extends Hib3DAO implements PITRoleSetDAO {
   }
 
   /**
-   * @see edu.internet2.middleware.grouper.internal.dao.PITRoleSetDAO#deleteSelfByRoleId(java.lang.String)
+   * @see edu.internet2.middleware.grouper.internal.dao.PITRoleSetDAO#findAllByPITOwnerAndPITMemberAndPITField(java.lang.String)
    */
-  public void deleteSelfByRoleId(final String id) {
+  public void deleteSelfByPITRoleId(final String id) {
     HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING,
         AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
 
@@ -157,7 +157,7 @@ public class Hib3PITRoleSetDAO extends Hib3DAO implements PITRoleSetDAO {
               .setString("id", id)
               .executeUpdate();
 
-            Set<PITRoleSet> pitRoleSetsToDelete = findAllSelfRoleSetsByRoleId(id);
+            Set<PITRoleSet> pitRoleSetsToDelete = findAllSelfPITRoleSetsByPITRoleId(id);
             for (PITRoleSet rs : pitRoleSetsToDelete) {
               delete(rs);
             }
@@ -168,25 +168,25 @@ public class Hib3PITRoleSetDAO extends Hib3DAO implements PITRoleSetDAO {
   }
 
   /**
-   * @see edu.internet2.middleware.grouper.internal.dao.PITRoleSetDAO#findAllSelfRoleSetsByRoleId(java.lang.String)
+   * @see edu.internet2.middleware.grouper.internal.dao.PITRoleSetDAO#findAllSelfPITRoleSetsByPITRoleId(java.lang.String)
    */
-  public Set<PITRoleSet> findAllSelfRoleSetsByRoleId(String id) {
+  public Set<PITRoleSet> findAllSelfPITRoleSetsByPITRoleId(String id) {
     return HibernateSession
         .byHqlStatic()
         .createQuery("select rs from PITRoleSet as rs where rs.ifHasRoleId = :id and rs.thenHasRoleId = :id and rs.depth = '0'")
-        .setCacheable(false).setCacheRegion(KLASS + ".FindAllSelfRoleSetsByRoleId")
+        .setCacheable(false).setCacheRegion(KLASS + ".FindAllSelfPITRoleSetsByPITRoleId")
         .setString("id", id)
         .listSet(PITRoleSet.class);    
   }
 
   /**
-   * @see edu.internet2.middleware.grouper.internal.dao.PITRoleSetDAO#findByThenHasRoleId(java.lang.String)
+   * @see edu.internet2.middleware.grouper.internal.dao.PITRoleSetDAO#findByThenHasPITRoleId(java.lang.String)
    */
-  public Set<PITRoleSet> findByThenHasRoleId(String id) {
+  public Set<PITRoleSet> findByThenHasPITRoleId(String id) {
     return HibernateSession
         .byHqlStatic()
         .createQuery("select rs from PITRoleSet as rs where thenHasRoleId = :id")
-        .setCacheable(false).setCacheRegion(KLASS + ".FindByThenHasRoleId")
+        .setCacheable(false).setCacheRegion(KLASS + ".FindByThenHasPITRoleId")
         .setString("id", id)
         .listSet(PITRoleSet.class);
   }

@@ -151,13 +151,13 @@ public class Hib3PITAttributeDefDAO extends Hib3DAO implements PITAttributeDefDA
   }
 
   /**
-   * @see edu.internet2.middleware.grouper.internal.dao.PITAttributeDefDAO#findByStemId(java.lang.String)
+   * @see edu.internet2.middleware.grouper.internal.dao.PITAttributeDefDAO#findByPITStemId(java.lang.String)
    */
-  public Set<PITAttributeDef> findByStemId(String id) {
+  public Set<PITAttributeDef> findByPITStemId(String id) {
     return HibernateSession
         .byHqlStatic()
         .createQuery("select pitAttributeDef from PITAttributeDef as pitAttributeDef where pitAttributeDef.stemId = :id")
-        .setCacheable(false).setCacheRegion(KLASS + ".FindByStemId")
+        .setCacheable(false).setCacheRegion(KLASS + ".FindByPITStemId")
         .setString("id", id)
         .listSet(PITAttributeDef.class);
   }

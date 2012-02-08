@@ -255,7 +255,7 @@ public class PITUtils {
             hibernateHandlerBean.getHibernateSession().setCachingEnabled(false);
             
             // delete groups
-            Set<PITGroup> groups = GrouperDAOFactory.getFactory().getPITGroup().findByStemId(pitStem.getId());
+            Set<PITGroup> groups = GrouperDAOFactory.getFactory().getPITGroup().findByPITStemId(pitStem.getId());
             for (PITGroup group : groups) {
               if (!group.isActive()) {
                 GrouperDAOFactory.getFactory().getPITGroup().delete(group);
@@ -266,7 +266,7 @@ public class PITUtils {
             }
             
             // delete attribute def names
-            Set<PITAttributeDefName> attrs = GrouperDAOFactory.getFactory().getPITAttributeDefName().findByStemId(pitStem.getId());
+            Set<PITAttributeDefName> attrs = GrouperDAOFactory.getFactory().getPITAttributeDefName().findByPITStemId(pitStem.getId());
             for (PITAttributeDefName attr : attrs) {
               if (!attr.isActive()) {
                 GrouperDAOFactory.getFactory().getPITAttributeDefName().delete(attr);
@@ -277,7 +277,7 @@ public class PITUtils {
             }
             
             // delete attribute defs
-            Set<PITAttributeDef> defs = GrouperDAOFactory.getFactory().getPITAttributeDef().findByStemId(pitStem.getId());
+            Set<PITAttributeDef> defs = GrouperDAOFactory.getFactory().getPITAttributeDef().findByPITStemId(pitStem.getId());
             for (PITAttributeDef def : defs) {
               if (!def.isActive()) {
                 GrouperDAOFactory.getFactory().getPITAttributeDef().delete(def);
@@ -288,7 +288,7 @@ public class PITUtils {
             }
             
             // delete child stems
-            Set<PITStem> childStems = GrouperDAOFactory.getFactory().getPITStem().findByParentStemId(pitStem.getId());
+            Set<PITStem> childStems = GrouperDAOFactory.getFactory().getPITStem().findByParentPITStemId(pitStem.getId());
             for (PITStem childStem : childStems) {
               if (!childStem.isActive()) {
                 childStem.delete(printOutput);

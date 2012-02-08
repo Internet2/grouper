@@ -78,7 +78,7 @@ public interface PITAttributeDefDAO extends GrouperDAO {
    * @param id
    * @return set of PITAttributeDef
    */
-  public Set<PITAttributeDef> findByStemId(String id);
+  public Set<PITAttributeDef> findByPITStemId(String id);
   
   /**
    * @return active attribute defs that are missing in point in time

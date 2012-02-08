@@ -223,22 +223,22 @@ public class PITStem extends GrouperPIT implements Hib3GrouperVersioned {
     }
     
     // delete memberships
-    Set<PITMembership> memberships = GrouperDAOFactory.getFactory().getPITMembership().findAllByOwner(this.getId());
+    Set<PITMembership> memberships = GrouperDAOFactory.getFactory().getPITMembership().findAllByPITOwner(this.getId());
     for (PITMembership membership : memberships) {
       GrouperDAOFactory.getFactory().getPITMembership().delete(membership);
     }
     
     // delete attribute assignments
-    Set<PITAttributeAssign> assignments = GrouperDAOFactory.getFactory().getPITAttributeAssign().findByOwnerStemId(this.getId());
+    Set<PITAttributeAssign> assignments = GrouperDAOFactory.getFactory().getPITAttributeAssign().findByOwnerPITStemId(this.getId());
     for (PITAttributeAssign assignment : assignments) {
       GrouperDAOFactory.getFactory().getPITAttributeAssign().delete(assignment);
     }
     
     // delete self group sets and their children
-    GrouperDAOFactory.getFactory().getPITGroupSet().deleteSelfByOwnerId(this.getId());
+    GrouperDAOFactory.getFactory().getPITGroupSet().deleteSelfByPITOwnerId(this.getId());
     
     // delete groups
-    Set<PITGroup> groups = GrouperDAOFactory.getFactory().getPITGroup().findByStemId(this.getId());
+    Set<PITGroup> groups = GrouperDAOFactory.getFactory().getPITGroup().findByPITStemId(this.getId());
     for (PITGroup group : groups) {
       GrouperDAOFactory.getFactory().getPITGroup().delete(group);
       if (printOutput) {
@@ -247,7 +247,7 @@ public class PITStem extends GrouperPIT implements Hib3GrouperVersioned {
     }
     
     // delete attribute def names
-    Set<PITAttributeDefName> attrs = GrouperDAOFactory.getFactory().getPITAttributeDefName().findByStemId(this.getId());
+    Set<PITAttributeDefName> attrs = GrouperDAOFactory.getFactory().getPITAttributeDefName().findByPITStemId(this.getId());
     for (PITAttributeDefName attr : attrs) {
       GrouperDAOFactory.getFactory().getPITAttributeDefName().delete(attr);
       if (printOutput) {
@@ -256,7 +256,7 @@ public class PITStem extends GrouperPIT implements Hib3GrouperVersioned {
     }
     
     // delete attribute defs
-    Set<PITAttributeDef> defs = GrouperDAOFactory.getFactory().getPITAttributeDef().findByStemId(this.getId());
+    Set<PITAttributeDef> defs = GrouperDAOFactory.getFactory().getPITAttributeDef().findByPITStemId(this.getId());
     for (PITAttributeDef def : defs) {
       GrouperDAOFactory.getFactory().getPITAttributeDef().delete(def);
       if (printOutput) {
@@ -265,7 +265,7 @@ public class PITStem extends GrouperPIT implements Hib3GrouperVersioned {
     }
     
     // delete child stems
-    Set<PITStem> stems = GrouperDAOFactory.getFactory().getPITStem().findByParentStemId(this.getId());
+    Set<PITStem> stems = GrouperDAOFactory.getFactory().getPITStem().findByParentPITStemId(this.getId());
     for (PITStem stem : stems) {
       GrouperDAOFactory.getFactory().getPITStem().delete(stem);
     }

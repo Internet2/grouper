@@ -20,6 +20,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
 import edu.internet2.middleware.grouperClient.failover.FailoverConfig.FailoverStrategy;
@@ -138,8 +139,13 @@ public class FailoverClient implements Serializable {
       
       if (saveStateEverySeconds >= 0) {
         
-        instanceMapFromType = (HashMap)GrouperClientUtils.unserializeObjectFromFile(saveStateFile, false, true);
-        
+        try {
+          instanceMapFromType = (HashMap)GrouperClientUtils.unserializeObjectFromFile(saveStateFile, false, true);
+        } catch (RuntimeException e) {
+          //delete the file, log the exception
+          LOG.error("Cant unserialize failover state file: " + (saveStateFile == null ? null : saveStateFile.getAbsolutePath()), e);
+          GrouperClientCommonUtils.deleteFile(saveStateFile);
+        }
       }
       if (instanceMapFromType == null) {
 
@@ -465,9 +471,26 @@ public class FailoverClient implements Serializable {
   }
 
   /**
+   * thread factory with daemon threads so the JVM exits
+   * @author mchyzer
+   *
+   */
+  private static class DaemonThreadFactory implements ThreadFactory {
+    private ThreadFactory threadFactory = Executors.defaultThreadFactory();
+
+    @Override
+    public Thread newThread(Runnable r) {
+      Thread thread = threadFactory.newThread(r);
+      thread.setDaemon(true);
+      return thread;
+    }
+    
+  }
+  
+  /**
    * threadpool
    */
-  private static ExecutorService executorService = Executors.newCachedThreadPool();
+  private static ExecutorService executorService = Executors.newCachedThreadPool(new DaemonThreadFactory());
 
   /**
    * run failover logic, return the result from the logic

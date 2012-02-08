@@ -349,6 +349,7 @@ public class FailoverClientTest extends TestCase {
   public void testFailoverActiveStandbyLogicAffinity() {
 
     this.failoverConfig.setFailoverStrategy(FailoverStrategy.activeStandby);
+    FailoverClient.initFailoverClient(this.failoverConfig);
 
     Set<String> connectionNames = new HashSet<String>();
     
@@ -359,7 +360,6 @@ public class FailoverClientTest extends TestCase {
       String previousConnectionName = null;
       String currentConnectionName = null;
       
-      FailoverClient.initFailoverClient(this.failoverConfig);
       
       for (int i=0;i<20;i++) {
       

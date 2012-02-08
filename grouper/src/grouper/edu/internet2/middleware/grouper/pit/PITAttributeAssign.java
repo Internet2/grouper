@@ -413,7 +413,7 @@ public class PITAttributeAssign extends GrouperPIT implements Hib3GrouperVersion
     for (PITAttributeAssign existing : existingAll) {
 
       // add new values and end dates to existing ones.
-      Set<PITAttributeAssignValue> values = GrouperDAOFactory.getFactory().getPITAttributeAssignValue().findActiveByAttributeAssignId(existing.getId());
+      Set<PITAttributeAssignValue> values = GrouperDAOFactory.getFactory().getPITAttributeAssignValue().findActiveByPITAttributeAssignId(existing.getId());
       for (PITAttributeAssignValue value : values) {
         PITAttributeAssignValue valueCopy = value.clone();
 
@@ -431,7 +431,7 @@ public class PITAttributeAssign extends GrouperPIT implements Hib3GrouperVersion
       }
       
       // add new assignments and end dates to existing ones.
-      Set<PITAttributeAssign> assignments = GrouperDAOFactory.getFactory().getPITAttributeAssign().findActiveByOwnerAttributeAssignId(existing.getId());
+      Set<PITAttributeAssign> assignments = GrouperDAOFactory.getFactory().getPITAttributeAssign().findActiveByOwnerPITAttributeAssignId(existing.getId());
       for (PITAttributeAssign assignment : assignments) {
         PITAttributeAssign assignmentCopy = assignment.clone();
 
@@ -616,7 +616,7 @@ public class PITAttributeAssign extends GrouperPIT implements Hib3GrouperVersion
     }
     
     // delete attribute values
-    Set<PITAttributeAssignValue> values = GrouperDAOFactory.getFactory().getPITAttributeAssignValue().findByAttributeAssignId(this.getId(), null);
+    Set<PITAttributeAssignValue> values = GrouperDAOFactory.getFactory().getPITAttributeAssignValue().findByPITAttributeAssignId(this.getId(), null);
     
     for (PITAttributeAssignValue value : values) {
       GrouperDAOFactory.getFactory().getPITAttributeAssignValue().delete(value);
@@ -624,7 +624,7 @@ public class PITAttributeAssign extends GrouperPIT implements Hib3GrouperVersion
     
     
     // delete attribute assignments
-    Set<PITAttributeAssign> assignments = GrouperDAOFactory.getFactory().getPITAttributeAssign().findByOwnerAttributeAssignId(this.getId());
+    Set<PITAttributeAssign> assignments = GrouperDAOFactory.getFactory().getPITAttributeAssign().findByOwnerPITAttributeAssignId(this.getId());
     
     for (PITAttributeAssign assignment : assignments) {
       GrouperDAOFactory.getFactory().getPITAttributeAssign().delete(assignment);

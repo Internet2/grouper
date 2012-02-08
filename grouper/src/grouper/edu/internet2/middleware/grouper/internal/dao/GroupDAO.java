@@ -725,11 +725,32 @@ public interface GroupDAO extends GrouperDAO {
   Set<Group> findByUuidsSecure(Collection<String> uuids, QueryOptions queryOptions);
 
   /**
+   * find by uuid secure
+   * @param uuids
+   * @param exceptionIfNotFound
+   * @param queryOptions
+   * @param typeOfGroups
+   * @return the group or null or exception
+   * @throws GrouperDAOException
+   * @throws GroupNotFoundException
+   */
+  Set<Group> findByUuidsSecure(Collection<String> uuids, QueryOptions queryOptions, Set<TypeOfGroup> typeOfGroups);
+
+  /**
    * @since   2.0.2
    * @param names
    * @param queryOptions
    */
   Set<Group> findByNamesSecure(Collection<String> names, QueryOptions queryOptions);
+  
+  /**
+   * @since   2.1.0
+   * @param names
+   * @param queryOptions
+   * @param typeOfGroups
+   */
+  Set<Group> findByNamesSecure(Collection<String> names, QueryOptions queryOptions, Set<TypeOfGroup> typeOfGroups);
+  
   
 
   /**

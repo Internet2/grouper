@@ -127,6 +127,9 @@ public class Hib3PITAttributeAssignActionSetDAO extends Hib3DAO implements PITAt
       .executeUpdate();
   }
 
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.PITAttributeAssignActionSetDAO#findImmediateChildren(edu.internet2.middleware.grouper.pit.PITAttributeAssignActionSet)
+   */
   public Set<PITAttributeAssignActionSet> findImmediateChildren(PITAttributeAssignActionSet pitAttributeAssignActionSet) {
 
     Set<PITAttributeAssignActionSet> children = HibernateSession
@@ -140,9 +143,9 @@ public class Hib3PITAttributeAssignActionSetDAO extends Hib3DAO implements PITAt
   }
 
   /**
-   * @see edu.internet2.middleware.grouper.internal.dao.PITAttributeAssignActionSetDAO#deleteSelfByAttributeAssignActionId(java.lang.String)
+   * @see edu.internet2.middleware.grouper.internal.dao.PITAttributeAssignActionSetDAO#deleteSelfByPITAttributeAssignActionId(java.lang.String)
    */
-  public void deleteSelfByAttributeAssignActionId(final String id) {
+  public void deleteSelfByPITAttributeAssignActionId(final String id) {
     HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING,
         AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
 
@@ -155,7 +158,7 @@ public class Hib3PITAttributeAssignActionSetDAO extends Hib3DAO implements PITAt
               .setString("id", id)
               .executeUpdate();
 
-            Set<PITAttributeAssignActionSet> pitActionSetsToDelete = findAllSelfAttributeAssignActionSetsByAttributeAssignActionId(id);
+            Set<PITAttributeAssignActionSet> pitActionSetsToDelete = findAllSelfPITAttributeAssignActionSetsByPITAttributeAssignActionId(id);
             for (PITAttributeAssignActionSet actionSet : pitActionSetsToDelete) {
               delete(actionSet);
             }
@@ -166,25 +169,25 @@ public class Hib3PITAttributeAssignActionSetDAO extends Hib3DAO implements PITAt
   }
 
   /**
-   * @see edu.internet2.middleware.grouper.internal.dao.PITAttributeAssignActionSetDAO#findAllSelfAttributeAssignActionSetsByAttributeAssignActionId(java.lang.String)
+   * @see edu.internet2.middleware.grouper.internal.dao.PITAttributeAssignActionSetDAO#findAllSelfPITAttributeAssignActionSetsByPITAttributeAssignActionId(java.lang.String)
    */
-  public Set<PITAttributeAssignActionSet> findAllSelfAttributeAssignActionSetsByAttributeAssignActionId(String id) {
+  public Set<PITAttributeAssignActionSet> findAllSelfPITAttributeAssignActionSetsByPITAttributeAssignActionId(String id) {
     return HibernateSession
         .byHqlStatic()
         .createQuery("select actionSet from PITAttributeAssignActionSet as actionSet where actionSet.ifHasAttrAssignActionId = :id and actionSet.thenHasAttrAssignActionId = :id and actionSet.depth = '0'")
-        .setCacheable(false).setCacheRegion(KLASS + ".FindAllSelfAttributeAssignActionSetsByAttributeAssignActionId")
+        .setCacheable(false).setCacheRegion(KLASS + ".FindAllSelfPITAttributeAssignActionSetsByPITAttributeAssignActionId")
         .setString("id", id)
         .listSet(PITAttributeAssignActionSet.class);   
   }
 
   /**
-   * @see edu.internet2.middleware.grouper.internal.dao.PITAttributeAssignActionSetDAO#findByThenHasAttributeAssignActionId(java.lang.String)
+   * @see edu.internet2.middleware.grouper.internal.dao.PITAttributeAssignActionSetDAO#findByThenHasPITAttributeAssignActionId(java.lang.String)
    */
-  public Set<PITAttributeAssignActionSet> findByThenHasAttributeAssignActionId(String id) {
+  public Set<PITAttributeAssignActionSet> findByThenHasPITAttributeAssignActionId(String id) {
     return HibernateSession
         .byHqlStatic()
         .createQuery("select actionSet from PITAttributeAssignActionSet as actionSet where thenHasAttrAssignActionId = :id")
-        .setCacheable(false).setCacheRegion(KLASS + ".FindByThenHasAttributeAssignActionId")
+        .setCacheable(false).setCacheRegion(KLASS + ".FindByThenHasPITAttributeAssignActionId")
         .setString("id", id)
         .listSet(PITAttributeAssignActionSet.class);
   }

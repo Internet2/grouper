@@ -71,7 +71,7 @@ public interface PITStemDAO extends GrouperDAO {
    * @param id
    * @return set of PITStem
    */
-  public Set<PITStem> findByParentStemId(String id);
+  public Set<PITStem> findByParentPITStemId(String id);
   
   /**
    * @param stemName

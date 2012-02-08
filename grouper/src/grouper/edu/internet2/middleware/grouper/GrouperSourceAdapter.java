@@ -226,7 +226,7 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
 
       public Object callback(GrouperSession grouperSession)
           throws GrouperSessionException {
-        return GrouperDAOFactory.getFactory().getGroup().findByNamesSecure(identifiers, null);
+        return GrouperDAOFactory.getFactory().getGroup().findByNamesSecure(identifiers, null, GrouperSourceAdapter.this.typeOfGroups());
       }
     });
 
@@ -252,7 +252,7 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
 
       public Object callback(GrouperSession grouperSession)
           throws GrouperSessionException {
-        return GrouperDAOFactory.getFactory().getGroup().findByUuidsSecure(ids, null);
+        return GrouperDAOFactory.getFactory().getGroup().findByUuidsSecure(ids, null, GrouperSourceAdapter.this.typeOfGroups());
       }
     });
 
@@ -438,7 +438,7 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
           }
           
           Set<Group> groups = GrouperDAOFactory.getFactory().getGroup()
-            .findAllByApproximateNameSecure(searchValue, null, queryOptions ,TypeOfGroup.GROUP_OR_ROLE_SET);
+            .findAllByApproximateNameSecure(searchValue, null, queryOptions ,GrouperSourceAdapter.this.typeOfGroups());
           
           for (Group group : GrouperUtil.nonNull(groups)) {
             //if we are at the end of the page

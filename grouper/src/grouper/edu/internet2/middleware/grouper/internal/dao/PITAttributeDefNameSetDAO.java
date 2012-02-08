@@ -70,18 +70,18 @@ public interface PITAttributeDefNameSetDAO extends GrouperDAO {
    * @param id
    * @return pit attribute def name sets
    */
-  public Set<PITAttributeDefNameSet> findAllSelfAttributeDefNameSetsByAttributeDefNameId(String id);
+  public Set<PITAttributeDefNameSet> findAllSelfPITAttributeDefNameSetsByPITAttributeDefNameId(String id);
   
   /**
    * @param id
    */
-  public void deleteSelfByAttributeDefNameId(String id);
+  public void deleteSelfByPITAttributeDefNameId(String id);
   
   /**
    * @param id
    * @return pit attribute def name sets
    */
-  public Set<PITAttributeDefNameSet> findByThenHasAttributeDefNameId(String id);
+  public Set<PITAttributeDefNameSet> findByThenHasPITAttributeDefNameId(String id);
   
   
   /**

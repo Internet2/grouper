@@ -709,7 +709,7 @@ public class PITGroupSet extends GrouperPIT implements Hib3GrouperVersioned {
     if (this.getDepth() == 1 && this.getMemberGroupId() != null) {
       PITField defaultListField = GrouperDAOFactory.getFactory().getPITField().findBySourceIdActive(Group.getDefaultList().getUuid(), true);
       Set<PITGroupSet> results = new LinkedHashSet<PITGroupSet>();
-      Set<PITGroupSet> pitGroupSetHasMembers = GrouperDAOFactory.getFactory().getPITGroupSet().findAllActiveByGroupOwnerAndField(
+      Set<PITGroupSet> pitGroupSetHasMembers = GrouperDAOFactory.getFactory().getPITGroupSet().findAllActiveByPITGroupOwnerAndPITField(
           this.getMemberGroupId(), defaultListField);
       
       // Add members of member to owner PIT group set
@@ -717,7 +717,7 @@ public class PITGroupSet extends GrouperPIT implements Hib3GrouperVersioned {
   
       // If we are working on a group, where is it a member and field is the default list
       if (this.getOwnerGroupId() != null && this.getFieldId().equals(defaultListField.getId())) {
-        Set<PITGroupSet> pitGroupSetIsMember = GrouperDAOFactory.getFactory().getPITGroupSet().findAllActiveByMemberGroup(this.getOwnerGroupId());
+        Set<PITGroupSet> pitGroupSetIsMember = GrouperDAOFactory.getFactory().getPITGroupSet().findAllActiveByMemberPITGroup(this.getOwnerGroupId());
   
         // Add member and members of member to where owner is member
         results.addAll(addHasMembersToWhereGroupIsMember(this.getMemberGroupId(), pitGroupSetIsMember, pitGroupSetHasMembers, defaultListField));
@@ -963,12 +963,12 @@ public class PITGroupSet extends GrouperPIT implements Hib3GrouperVersioned {
   
       // Find all effective PIT group sets that need to be ended
       if (this.getOwnerGroupId() != null && this.getFieldId().equals(defaultListField.getId())) {
-        Set<PITGroupSet> pitGroupSetIsMember = GrouperDAOFactory.getFactory().getPITGroupSet().findAllActiveByMemberGroup(this.getOwnerGroupId());
+        Set<PITGroupSet> pitGroupSetIsMember = GrouperDAOFactory.getFactory().getPITGroupSet().findAllActiveByMemberPITGroup(this.getOwnerGroupId());
         
         Iterator<PITGroupSet> pitGroupSetIsMemberIter = pitGroupSetIsMember.iterator();
         while (pitGroupSetIsMemberIter.hasNext()) {
           PITGroupSet currPITGroupSet = pitGroupSetIsMemberIter.next();
-          PITGroupSet childToUpdate = GrouperDAOFactory.getFactory().getPITGroupSet().findActiveImmediateChildByParentAndMemberGroup(currPITGroupSet, this.getMemberGroupId());
+          PITGroupSet childToUpdate = GrouperDAOFactory.getFactory().getPITGroupSet().findActiveImmediateChildByParentAndMemberPITGroup(currPITGroupSet, this.getMemberGroupId());
   
           if (childToUpdate != null) {
             Set<PITGroupSet> childrenOfChildResults = GrouperDAOFactory.getFactory().getPITGroupSet().findAllActiveChildren(childToUpdate);
