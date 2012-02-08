@@ -85,7 +85,7 @@ public interface PITGroupDAO extends GrouperDAO {
    * @param id
    * @return set of PITGroup
    */
-  public Set<PITGroup> findByStemId(String id);
+  public Set<PITGroup> findByPITStemId(String id);
   
   /**
    * Get all the groups that a member is a member of.

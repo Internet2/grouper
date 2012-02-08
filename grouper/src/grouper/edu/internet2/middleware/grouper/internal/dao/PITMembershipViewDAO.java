@@ -50,7 +50,7 @@ public interface PITMembershipViewDAO extends GrouperDAO {
    * @param activeOnly
    * @return set
    */
-  public Set<PITMembershipView> findByOwnerAndMemberAndField(String ownerId, String memberId, String fieldId, boolean activeOnly);
+  public Set<PITMembershipView> findByPITOwnerAndPITMemberAndPITField(String ownerId, String memberId, String fieldId, boolean activeOnly);
   
   /**
    * Get members by owner and field.
@@ -62,7 +62,7 @@ public interface PITMembershipViewDAO extends GrouperDAO {
    * @param queryOptions
    * @return set of members
    */
-  public Set<Member> findAllMembersByOwnerAndField(String ownerId, String fieldId, 
+  public Set<Member> findAllMembersByPITOwnerAndPITField(String ownerId, String fieldId, 
       Timestamp pointInTimeFrom, Timestamp pointInTimeTo, Set<Source> sources, QueryOptions queryOptions);
   
   /**
@@ -75,6 +75,6 @@ public interface PITMembershipViewDAO extends GrouperDAO {
    * @param queryOptions
    * @return set of pit memberships
    */
-  public Set<PITMembershipView> findAllByOwnerAndMemberAndField(String ownerId, String memberId, String fieldId, 
+  public Set<PITMembershipView> findAllByPITOwnerAndPITMemberAndPITField(String ownerId, String memberId, String fieldId, 
       Timestamp pointInTimeFrom, Timestamp pointInTimeTo, QueryOptions queryOptions);
 }

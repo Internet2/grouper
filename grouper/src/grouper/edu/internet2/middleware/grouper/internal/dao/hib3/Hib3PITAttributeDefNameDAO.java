@@ -151,25 +151,25 @@ public class Hib3PITAttributeDefNameDAO extends Hib3DAO implements PITAttributeD
   }
 
   /**
-   * @see edu.internet2.middleware.grouper.internal.dao.PITAttributeDefNameDAO#findByAttributeDefId(java.lang.String)
+   * @see edu.internet2.middleware.grouper.internal.dao.PITAttributeDefNameDAO#findByPITAttributeDefId(java.lang.String)
    */
-  public Set<PITAttributeDefName> findByAttributeDefId(String id) {
+  public Set<PITAttributeDefName> findByPITAttributeDefId(String id) {
     return HibernateSession
         .byHqlStatic()
         .createQuery("select pitAttributeDefName from PITAttributeDefName as pitAttributeDefName where pitAttributeDefName.attributeDefId = :id")
-        .setCacheable(false).setCacheRegion(KLASS + ".FindByAttributeDefId")
+        .setCacheable(false).setCacheRegion(KLASS + ".FindByPITAttributeDefId")
         .setString("id", id)
         .listSet(PITAttributeDefName.class);
   }
 
   /**
-   * @see edu.internet2.middleware.grouper.internal.dao.PITAttributeDefNameDAO#findByStemId(java.lang.String)
+   * @see edu.internet2.middleware.grouper.internal.dao.PITAttributeDefNameDAO#findByPITStemId(java.lang.String)
    */
-  public Set<PITAttributeDefName> findByStemId(String id) {
+  public Set<PITAttributeDefName> findByPITStemId(String id) {
     return HibernateSession
         .byHqlStatic()
         .createQuery("select pitAttributeDefName from PITAttributeDefName as pitAttributeDefName where pitAttributeDefName.stemId = :id")
-        .setCacheable(false).setCacheRegion(KLASS + ".FindByStemId")
+        .setCacheable(false).setCacheRegion(KLASS + ".FindByPITStemId")
         .setString("id", id)
         .listSet(PITAttributeDefName.class);
   }

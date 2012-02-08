@@ -27,7 +27,7 @@ public class PITAttributeAssignValueFinder {
    */
   public static Set<PITAttributeAssignValue> findByPITAttributeAssign(PITAttributeAssign attributeAssign, Timestamp pointInTimeFrom, Timestamp pointInTimeTo) {
     
-    Set<PITAttributeAssignValue> values = GrouperDAOFactory.getFactory().getPITAttributeAssignValue().findByAttributeAssignId(attributeAssign.getId(), null);
+    Set<PITAttributeAssignValue> values = GrouperDAOFactory.getFactory().getPITAttributeAssignValue().findByPITAttributeAssignId(attributeAssign.getId(), null);
     Set<PITAttributeAssignValue> valuesInRange = new LinkedHashSet<PITAttributeAssignValue>();
 
     for (PITAttributeAssignValue value : values) {

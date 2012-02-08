@@ -104,9 +104,9 @@ public class Hib3PITAttributeAssignValueDAO extends Hib3DAO implements PITAttrib
   }
   
   /**
-   * @see edu.internet2.middleware.grouper.internal.dao.PITAttributeAssignValueDAO#updateAttributeAssignId(java.lang.String, java.lang.String)
+   * @see edu.internet2.middleware.grouper.internal.dao.PITAttributeAssignValueDAO#updatePITAttributeAssignId(java.lang.String, java.lang.String)
    */
-  public void updateAttributeAssignId(String oldId, String newId) {
+  public void updatePITAttributeAssignId(String oldId, String newId) {
     HibernateSession
       .byHqlStatic()
       .createQuery("update PITAttributeAssignValue set attributeAssignId = :newId where attributeAssignId = :oldId")
@@ -116,13 +116,13 @@ public class Hib3PITAttributeAssignValueDAO extends Hib3DAO implements PITAttrib
   }
   
   /**
-   * @see edu.internet2.middleware.grouper.internal.dao.PITAttributeAssignValueDAO#findActiveByAttributeAssignId(java.lang.String)
+   * @see edu.internet2.middleware.grouper.internal.dao.PITAttributeAssignValueDAO#findActiveByPITAttributeAssignId(java.lang.String)
    */
-  public Set<PITAttributeAssignValue> findActiveByAttributeAssignId(String id) {
+  public Set<PITAttributeAssignValue> findActiveByPITAttributeAssignId(String id) {
     Set<PITAttributeAssignValue> values = HibernateSession
       .byHqlStatic()
       .createQuery("select attrAssignValue from PITAttributeAssignValue as attrAssignValue where attrAssignValue.attributeAssignId = :id and attrAssignValue.activeDb = 'T'")
-      .setCacheable(false).setCacheRegion(KLASS + ".FindActiveByAttributeAssignId")
+      .setCacheable(false).setCacheRegion(KLASS + ".FindActiveByPITAttributeAssignId")
       .setString("id", id)
       .listSet(PITAttributeAssignValue.class);
     
@@ -140,15 +140,15 @@ public class Hib3PITAttributeAssignValueDAO extends Hib3DAO implements PITAttrib
   }
 
   /**
-   * @see edu.internet2.middleware.grouper.internal.dao.PITAttributeAssignValueDAO#findByAttributeAssignId(java.lang.String, edu.internet2.middleware.grouper.internal.dao.QueryOptions)
+   * @see edu.internet2.middleware.grouper.internal.dao.PITAttributeAssignValueDAO#findByPITAttributeAssignId(java.lang.String, edu.internet2.middleware.grouper.internal.dao.QueryOptions)
    */
-  public Set<PITAttributeAssignValue> findByAttributeAssignId(String attributeAssignId, QueryOptions queryOptions) {
+  public Set<PITAttributeAssignValue> findByPITAttributeAssignId(String attributeAssignId, QueryOptions queryOptions) {
     Set<PITAttributeAssignValue> attributeAssignValues = HibernateSession.byHqlStatic()
       .createQuery("from PITAttributeAssignValue as theAttributeAssignValue where " +
           "theAttributeAssignValue.attributeAssignId = :theAttributeAssignId")
       .options(queryOptions)
       .setCacheable(false)
-      .setCacheRegion(KLASS + ".FindByAttributeAssignId")
+      .setCacheRegion(KLASS + ".FindByPITAttributeAssignId")
       .setString("theAttributeAssignId", attributeAssignId)
       .listSet(PITAttributeAssignValue.class);
 

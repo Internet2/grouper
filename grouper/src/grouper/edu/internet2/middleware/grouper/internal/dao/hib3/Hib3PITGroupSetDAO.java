@@ -119,9 +119,9 @@ public class Hib3PITGroupSetDAO extends Hib3DAO implements PITGroupSetDAO {
   }
 
   /**
-   * @see edu.internet2.middleware.grouper.internal.dao.PITGroupSetDAO#insertSelfGroupSetsByOwner(java.lang.String, java.lang.Long, java.lang.String, boolean)
+   * @see edu.internet2.middleware.grouper.internal.dao.PITGroupSetDAO#insertSelfPITGroupSetsByOwner(java.lang.String, java.lang.Long, java.lang.String, boolean)
    */
-  public void insertSelfGroupSetsByOwner(String ownerId, Long startTime, String contextId, boolean checkIfAlreadyExists) {
+  public void insertSelfPITGroupSetsByOwner(String ownerId, Long startTime, String contextId, boolean checkIfAlreadyExists) {
     Set<GroupSet> groupSets = GrouperDAOFactory.getFactory().getGroupSet().findAllSelfGroupSetsByOwnerWherePITFieldExists(ownerId);
     String pitGroupId = null;
     String pitStemId = null;
@@ -177,9 +177,9 @@ public class Hib3PITGroupSetDAO extends Hib3DAO implements PITGroupSetDAO {
   }
   
   /**
-   * @see edu.internet2.middleware.grouper.internal.dao.PITGroupSetDAO#insertSelfGroupSetsByField(java.lang.String, java.lang.Long, java.lang.String)
+   * @see edu.internet2.middleware.grouper.internal.dao.PITGroupSetDAO#insertSelfPITGroupSetsByField(java.lang.String, java.lang.Long, java.lang.String)
    */
-  public void insertSelfGroupSetsByField(String fieldId, Long startTime, String contextId) {
+  public void insertSelfPITGroupSetsByField(String fieldId, Long startTime, String contextId) {
     Set<GroupSet> groupSets = GrouperDAOFactory.getFactory().getGroupSet().findAllSelfGroupSetsByFieldWherePITGroupExists(fieldId);
     String pitFieldId = null;
     
@@ -210,9 +210,9 @@ public class Hib3PITGroupSetDAO extends Hib3DAO implements PITGroupSetDAO {
   }
   
   /**
-   * @see edu.internet2.middleware.grouper.internal.dao.PITGroupSetDAO#updateEndTimeByOwner(java.lang.String, java.lang.Long, java.lang.String)
+   * @see edu.internet2.middleware.grouper.internal.dao.PITGroupSetDAO#updateEndTimeByPITOwner(java.lang.String, java.lang.Long, java.lang.String)
    */
-  public void updateEndTimeByOwner(String ownerId, Long endTime, String contextId) {
+  public void updateEndTimeByPITOwner(String ownerId, Long endTime, String contextId) {
     HibernateSession.byHqlStatic()
         .createQuery("update PITGroupSet set endTimeDb = :endTime, contextId = :contextId, activeDb = :active where ownerId = :ownerId and endTimeDb is null")
         .setLong("endTime", endTime)
@@ -223,9 +223,9 @@ public class Hib3PITGroupSetDAO extends Hib3DAO implements PITGroupSetDAO {
   }
   
   /**
-   * @see edu.internet2.middleware.grouper.internal.dao.PITGroupSetDAO#updateEndTimeByField(java.lang.String, java.lang.Long, java.lang.String)
+   * @see edu.internet2.middleware.grouper.internal.dao.PITGroupSetDAO#updateEndTimeByPITField(java.lang.String, java.lang.Long, java.lang.String)
    */
-  public void updateEndTimeByField(String fieldId, Long endTime, String contextId) {
+  public void updateEndTimeByPITField(String fieldId, Long endTime, String contextId) {
     HibernateSession.byHqlStatic()
         .createQuery("update PITGroupSet set endTimeDb = :endTime, contextId = :contextId, activeDb = :active where fieldId = :fieldId and endTimeDb is null")
         .setLong("endTime", endTime)
@@ -236,9 +236,9 @@ public class Hib3PITGroupSetDAO extends Hib3DAO implements PITGroupSetDAO {
   }
   
   /**
-   * @see edu.internet2.middleware.grouper.internal.dao.PITGroupSetDAO#updateEndTimeByOwnerAndField(java.lang.String, java.lang.String, java.lang.Long, java.lang.String)
+   * @see edu.internet2.middleware.grouper.internal.dao.PITGroupSetDAO#updateEndTimeByPITOwnerAndPITField(java.lang.String, java.lang.String, java.lang.Long, java.lang.String)
    */
-  public void updateEndTimeByOwnerAndField(String ownerId, String fieldId, Long endTime, String contextId) {
+  public void updateEndTimeByPITOwnerAndPITField(String ownerId, String fieldId, Long endTime, String contextId) {
     HibernateSession.byHqlStatic()
         .createQuery("update PITGroupSet set endTimeDb = :endTime, contextId = :contextId, activeDb = :active where ownerId = :ownerId and fieldId = :fieldId and endTimeDb is null")
         .setLong("endTime", endTime)
@@ -250,9 +250,9 @@ public class Hib3PITGroupSetDAO extends Hib3DAO implements PITGroupSetDAO {
   }
 
   /**
-   * @see edu.internet2.middleware.grouper.internal.dao.PITGroupSetDAO#findSelfGroupSet(java.lang.String, java.lang.String, boolean)
+   * @see edu.internet2.middleware.grouper.internal.dao.PITGroupSetDAO#findSelfPITGroupSet(java.lang.String, java.lang.String, boolean)
    */
-  public PITGroupSet findSelfGroupSet(String ownerId, String fieldId, boolean activeOnly) {
+  public PITGroupSet findSelfPITGroupSet(String ownerId, String fieldId, boolean activeOnly) {
     StringBuilder sql = new StringBuilder();
     sql.append("select pitGroupSet from PITGroupSet as pitGroupSet " +
           "where ownerId = :ownerId " +
@@ -267,7 +267,7 @@ public class Hib3PITGroupSetDAO extends Hib3DAO implements PITGroupSetDAO {
     PITGroupSet pitGroupSet = HibernateSession
       .byHqlStatic()
       .createQuery(sql.toString())
-      .setCacheable(false).setCacheRegion(KLASS + ".FindSelfGroupSet")
+      .setCacheable(false).setCacheRegion(KLASS + ".FindSelfPITGroupSet")
       .setString("ownerId", ownerId)
       .setString("fieldId", fieldId)
       .uniqueResult(PITGroupSet.class);
@@ -276,9 +276,9 @@ public class Hib3PITGroupSetDAO extends Hib3DAO implements PITGroupSetDAO {
   }
   
   /**
-   * @see edu.internet2.middleware.grouper.internal.dao.PITGroupSetDAO#findActiveImmediateByOwnerAndMemberAndField(java.lang.String, java.lang.String, java.lang.String)
+   * @see edu.internet2.middleware.grouper.internal.dao.PITGroupSetDAO#findActiveImmediateByPITOwnerAndPITMemberAndPITField(java.lang.String, java.lang.String, java.lang.String)
    */
-  public PITGroupSet findActiveImmediateByOwnerAndMemberAndField(String ownerId, String memberId, String fieldId) {
+  public PITGroupSet findActiveImmediateByPITOwnerAndPITMemberAndPITField(String ownerId, String memberId, String fieldId) {
     PITGroupSet pitGroupSet = HibernateSession
       .byHqlStatic()
       .createQuery("select pitGroupSet from PITGroupSet as pitGroupSet " +
@@ -287,7 +287,7 @@ public class Hib3PITGroupSetDAO extends Hib3DAO implements PITGroupSetDAO {
           "and fieldId = :fieldId " +
           "and depth = '1' " +
           "and activeDb='T'")
-      .setCacheable(false).setCacheRegion(KLASS + ".FindActiveImmediateByOwnerAndMemberAndField")
+      .setCacheable(false).setCacheRegion(KLASS + ".FindActiveImmediateByPITOwnerAndPITMemberAndPITField")
       .setString("ownerId", ownerId)
       .setString("memberId", memberId)
       .setString("fieldId", fieldId)
@@ -297,13 +297,13 @@ public class Hib3PITGroupSetDAO extends Hib3DAO implements PITGroupSetDAO {
   }
   
   /**
-   * @see edu.internet2.middleware.grouper.internal.dao.PITGroupSetDAO#findAllActiveByGroupOwnerAndField(java.lang.String, edu.internet2.middleware.grouper.pit.PITField)
+   * @see edu.internet2.middleware.grouper.internal.dao.PITGroupSetDAO#findAllActiveByPITGroupOwnerAndPITField(java.lang.String, edu.internet2.middleware.grouper.pit.PITField)
    */
-  public Set<PITGroupSet> findAllActiveByGroupOwnerAndField(String groupId, PITField field) {
+  public Set<PITGroupSet> findAllActiveByPITGroupOwnerAndPITField(String groupId, PITField field) {
     Set<PITGroupSet> pitGroupSets = HibernateSession
         .byHqlStatic()
         .createQuery("select pitGroupSet from PITGroupSet as pitGroupSet where ownerGroupId = :groupId and fieldId = :fieldId and activeDb = 'T'")
-        .setCacheable(false).setCacheRegion(KLASS + ".FindAllActiveByGroupOwnerAndField")
+        .setCacheable(false).setCacheRegion(KLASS + ".FindAllActiveByPITGroupOwnerAndPITField")
         .setString("groupId", groupId)
         .setString("fieldId", field.getId())
         .listSet(PITGroupSet.class);
@@ -312,13 +312,13 @@ public class Hib3PITGroupSetDAO extends Hib3DAO implements PITGroupSetDAO {
   }
   
   /**
-   * @see edu.internet2.middleware.grouper.internal.dao.PITGroupSetDAO#findAllActiveByMemberGroup(java.lang.String)
+   * @see edu.internet2.middleware.grouper.internal.dao.PITGroupSetDAO#findAllActiveByMemberPITGroup(java.lang.String)
    */
-  public Set<PITGroupSet> findAllActiveByMemberGroup(String groupId) {
+  public Set<PITGroupSet> findAllActiveByMemberPITGroup(String groupId) {
     Set<PITGroupSet> pitGroupSets = HibernateSession
         .byHqlStatic()
         .createQuery("select pitGroupSet from PITGroupSet as pitGroupSet where memberGroupId = :memberId and activeDb = 'T' and depth > '0'")
-        .setCacheable(false).setCacheRegion(KLASS + ".FindAllActiveByMemberGroup")
+        .setCacheable(false).setCacheRegion(KLASS + ".FindAllActiveByMemberPITGroup")
         .setString("memberId", groupId)
         .listSet(PITGroupSet.class);
 
@@ -326,13 +326,13 @@ public class Hib3PITGroupSetDAO extends Hib3DAO implements PITGroupSetDAO {
   }
   
   /**
-   * @see edu.internet2.middleware.grouper.internal.dao.PITGroupSetDAO#findAllByMemberGroup(java.lang.String)
+   * @see edu.internet2.middleware.grouper.internal.dao.PITGroupSetDAO#findAllByMemberPITGroup(java.lang.String)
    */
-  public Set<PITGroupSet> findAllByMemberGroup(String groupId) {
+  public Set<PITGroupSet> findAllByMemberPITGroup(String groupId) {
     Set<PITGroupSet> pitGroupSets = HibernateSession
         .byHqlStatic()
         .createQuery("select pitGroupSet from PITGroupSet as pitGroupSet where memberGroupId = :memberId")
-        .setCacheable(false).setCacheRegion(KLASS + ".FindAllByMemberGroup")
+        .setCacheable(false).setCacheRegion(KLASS + ".FindAllByMemberPITGroup")
         .setString("memberId", groupId)
         .listSet(PITGroupSet.class);
 
@@ -363,16 +363,16 @@ public class Hib3PITGroupSetDAO extends Hib3DAO implements PITGroupSetDAO {
   }
   
   /**
-   * @see edu.internet2.middleware.grouper.internal.dao.PITGroupSetDAO#findActiveImmediateChildByParentAndMemberGroup(edu.internet2.middleware.grouper.pit.PITGroupSet, java.lang.String)
+   * @see edu.internet2.middleware.grouper.internal.dao.PITGroupSetDAO#findActiveImmediateChildByParentAndMemberPITGroup(edu.internet2.middleware.grouper.pit.PITGroupSet, java.lang.String)
    */
-  public PITGroupSet findActiveImmediateChildByParentAndMemberGroup(PITGroupSet parentPITGroupSet, String memberGroupId) {
+  public PITGroupSet findActiveImmediateChildByParentAndMemberPITGroup(PITGroupSet parentPITGroupSet, String memberGroupId) {
     
     int depth = parentPITGroupSet.getDepth() + 1;
     
     return HibernateSession
       .byHqlStatic()
       .createQuery("select pitGroupSet from PITGroupSet as pitGroupSet where parentId = :parentId and memberId = :memberId and depth = :depth and activeDb = 'T'")
-      .setCacheable(false).setCacheRegion(KLASS + ".FindImmediateChildByParentAndMemberGroup")
+      .setCacheable(false).setCacheRegion(KLASS + ".FindImmediateChildByParentAndMemberPITGroup")
       .setString("parentId", parentPITGroupSet.getId())
       .setString("memberId", memberGroupId)
       .setInteger("depth", depth)
@@ -411,13 +411,13 @@ public class Hib3PITGroupSetDAO extends Hib3DAO implements PITGroupSetDAO {
   }
   
   /**
-   * @see edu.internet2.middleware.grouper.internal.dao.PITGroupSetDAO#findAllSelfGroupSetsByOwnerId(java.lang.String)
+   * @see edu.internet2.middleware.grouper.internal.dao.PITGroupSetDAO#findAllSelfPITGroupSetsByPITOwnerId(java.lang.String)
    */
-  public Set<PITGroupSet> findAllSelfGroupSetsByOwnerId(String id) {
+  public Set<PITGroupSet> findAllSelfPITGroupSetsByPITOwnerId(String id) {
     Set<PITGroupSet> groupSets = HibernateSession
         .byHqlStatic()
         .createQuery("select gs from PITGroupSet as gs where gs.ownerId = :id and gs.depth = '0'")
-        .setCacheable(false).setCacheRegion(KLASS + ".FindAllSelfGroupSetsByOwnerId")
+        .setCacheable(false).setCacheRegion(KLASS + ".FindAllSelfPITGroupSetsByPITOwnerId")
         .setString("id", id)
         .listSet(PITGroupSet.class);
     
@@ -425,9 +425,9 @@ public class Hib3PITGroupSetDAO extends Hib3DAO implements PITGroupSetDAO {
   }
   
   /**
-   * @see edu.internet2.middleware.grouper.internal.dao.PITGroupSetDAO#deleteSelfByOwnerId(java.lang.String)
+   * @see edu.internet2.middleware.grouper.internal.dao.PITGroupSetDAO#deleteSelfByPITOwnerId(java.lang.String)
    */
-  public void deleteSelfByOwnerId(final String id) {
+  public void deleteSelfByPITOwnerId(final String id) {
     HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING,
         AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
 
@@ -440,7 +440,7 @@ public class Hib3PITGroupSetDAO extends Hib3DAO implements PITGroupSetDAO {
               .setString("id", id)
               .executeUpdate();
 
-            Set<PITGroupSet> pitGroupSetsToDelete = findAllSelfGroupSetsByOwnerId(id);
+            Set<PITGroupSet> pitGroupSetsToDelete = findAllSelfPITGroupSetsByPITOwnerId(id);
             for (PITGroupSet gs : pitGroupSetsToDelete) {
               delete(gs);
             }

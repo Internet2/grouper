@@ -214,16 +214,16 @@ public class PITAttributeDefName extends GrouperPIT implements Hib3GrouperVersio
     }
     
     // delete attribute assignments
-    Set<PITAttributeAssign> assignments = GrouperDAOFactory.getFactory().getPITAttributeAssign().findByAttributeDefNameId(this.getId());
+    Set<PITAttributeAssign> assignments = GrouperDAOFactory.getFactory().getPITAttributeAssign().findByPITAttributeDefNameId(this.getId());
     for (PITAttributeAssign assignment : assignments) {
       GrouperDAOFactory.getFactory().getPITAttributeAssign().delete(assignment);
     }
     
     // delete self attribute def name sets and their children
-    GrouperDAOFactory.getFactory().getPITAttributeDefNameSet().deleteSelfByAttributeDefNameId(this.getId());
+    GrouperDAOFactory.getFactory().getPITAttributeDefNameSet().deleteSelfByPITAttributeDefNameId(this.getId());
     
     // delete attribute def name sets by thenHasAttributeDefNameId ... and their children.
-    Set<PITAttributeDefNameSet> attributeDefNameSets = GrouperDAOFactory.getFactory().getPITAttributeDefNameSet().findByThenHasAttributeDefNameId(this.getId());
+    Set<PITAttributeDefNameSet> attributeDefNameSets = GrouperDAOFactory.getFactory().getPITAttributeDefNameSet().findByThenHasPITAttributeDefNameId(this.getId());
     for (PITAttributeDefNameSet attributeDefNameSet : attributeDefNameSets) {
       GrouperDAOFactory.getFactory().getPITAttributeDefNameSet().delete(attributeDefNameSet);
     }

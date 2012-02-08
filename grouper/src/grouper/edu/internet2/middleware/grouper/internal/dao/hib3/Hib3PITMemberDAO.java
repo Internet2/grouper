@@ -137,7 +137,7 @@ public class Hib3PITMemberDAO extends Hib3DAO implements PITMemberDAO {
     Set<PITMember> pitMembers = HibernateSession
       .byHqlStatic()
       .createQuery("select pitMember from PITMember as pitMember where pitMember.subjectId = :id and pitMember.subjectSourceId = :source and pitMember.subjectTypeId = :type")
-      .setCacheable(false).setCacheRegion(KLASS + ".FindMemberBySubjectIdSourceAndType")
+      .setCacheable(false).setCacheRegion(KLASS + ".FindPITMembersBySubjectIdSourceAndType")
       .setString("id", id)
       .setString("source", source)
       .setString("type", type)

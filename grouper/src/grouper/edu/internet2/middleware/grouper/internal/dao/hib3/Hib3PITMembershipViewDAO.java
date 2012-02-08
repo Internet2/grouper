@@ -134,9 +134,9 @@ public class Hib3PITMembershipViewDAO extends Hib3DAO implements PITMembershipVi
   }
 
   /**
-   * @see edu.internet2.middleware.grouper.internal.dao.PITMembershipViewDAO#findByOwnerAndMemberAndField(java.lang.String, java.lang.String, java.lang.String, boolean)
+   * @see edu.internet2.middleware.grouper.internal.dao.PITMembershipViewDAO#findByPITOwnerAndPITMemberAndPITField(java.lang.String, java.lang.String, java.lang.String, boolean)
    */
-  public Set<PITMembershipView> findByOwnerAndMemberAndField(String ownerId, String memberId, String fieldId, boolean activeOnly) {
+  public Set<PITMembershipView> findByPITOwnerAndPITMemberAndPITField(String ownerId, String memberId, String fieldId, boolean activeOnly) {
     StringBuilder sql = new StringBuilder();
     sql.append("select ms, m from PITMembershipView as ms, PITMember as m where ms.ownerId = :ownerId and ms.memberId = :memberId and ms.fieldId = :fieldId");
     
@@ -149,7 +149,7 @@ public class Hib3PITMembershipViewDAO extends Hib3DAO implements PITMembershipVi
     Set<Object[]> mships = HibernateSession
       .byHqlStatic()
       .createQuery(sql.toString())
-      .setCacheable(false).setCacheRegion(KLASS + ".FindByOwnerAndMemberAndField")
+      .setCacheable(false).setCacheRegion(KLASS + ".FindByPITOwnerAndPITMemberAndPITField")
       .setString("ownerId", ownerId)
       .setString("memberId", memberId)
       .setString("fieldId", fieldId)
@@ -159,9 +159,9 @@ public class Hib3PITMembershipViewDAO extends Hib3DAO implements PITMembershipVi
   }
   
   /**
-   * @see edu.internet2.middleware.grouper.internal.dao.PITMembershipViewDAO#findAllMembersByOwnerAndField(java.lang.String, java.lang.String, java.sql.Timestamp, java.sql.Timestamp, java.util.Set, edu.internet2.middleware.grouper.internal.dao.QueryOptions)
+   * @see edu.internet2.middleware.grouper.internal.dao.PITMembershipViewDAO#findAllMembersByPITOwnerAndPITField(java.lang.String, java.lang.String, java.sql.Timestamp, java.sql.Timestamp, java.util.Set, edu.internet2.middleware.grouper.internal.dao.QueryOptions)
    */
-  public Set<Member> findAllMembersByOwnerAndField(String ownerId, String fieldId, 
+  public Set<Member> findAllMembersByPITOwnerAndPITField(String ownerId, String fieldId, 
       Timestamp pointInTimeFrom, Timestamp pointInTimeTo, Set<Source> sources, QueryOptions queryOptions) {
 
     StringBuilder sql = new StringBuilder("select m "
@@ -190,16 +190,16 @@ public class Hib3PITMembershipViewDAO extends Hib3DAO implements PITMembershipVi
     return HibernateSession.byHqlStatic().options(queryOptions)
       .createQuery(sql.toString())
       .setCacheable(false)
-      .setCacheRegion(KLASS + ".FindAllMembersByOwnerAndField")
+      .setCacheRegion(KLASS + ".FindAllMembersByPITOwnerAndPITField")
       .setString("ownerId", ownerId) 
       .setString("fieldId", fieldId)
       .listSet(Member.class);
   }
   
   /**
-   * @see edu.internet2.middleware.grouper.internal.dao.PITMembershipViewDAO#findAllByOwnerAndMemberAndField(java.lang.String, java.lang.String, java.lang.String, java.sql.Timestamp, java.sql.Timestamp, edu.internet2.middleware.grouper.internal.dao.QueryOptions)
+   * @see edu.internet2.middleware.grouper.internal.dao.PITMembershipViewDAO#findAllByPITOwnerAndPITMemberAndPITField(java.lang.String, java.lang.String, java.lang.String, java.sql.Timestamp, java.sql.Timestamp, edu.internet2.middleware.grouper.internal.dao.QueryOptions)
    */
-  public Set<PITMembershipView> findAllByOwnerAndMemberAndField(String ownerId, String memberId, String fieldId, 
+  public Set<PITMembershipView> findAllByPITOwnerAndPITMemberAndPITField(String ownerId, String memberId, String fieldId, 
       Timestamp pointInTimeFrom, Timestamp pointInTimeTo, QueryOptions queryOptions) {
 
     StringBuilder sql = new StringBuilder("select ms "
@@ -223,7 +223,7 @@ public class Hib3PITMembershipViewDAO extends Hib3DAO implements PITMembershipVi
     return HibernateSession.byHqlStatic().options(queryOptions)
       .createQuery(sql.toString())
       .setCacheable(false)
-      .setCacheRegion(KLASS + ".FindAllByOwnerAndMemberAndField")
+      .setCacheRegion(KLASS + ".FindAllByPITOwnerAndPITMemberAndPITField")
       .setString("ownerId", ownerId) 
       .setString("memberId", memberId) 
       .setString("fieldId", fieldId)

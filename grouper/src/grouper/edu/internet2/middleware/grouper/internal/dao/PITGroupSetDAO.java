@@ -61,28 +61,28 @@ public interface PITGroupSetDAO extends GrouperDAO {
    * @param contextId 
    * @param checkIfAlreadyExists 
    */
-  public void insertSelfGroupSetsByOwner(String ownerId, Long startTime, String contextId, boolean checkIfAlreadyExists);
+  public void insertSelfPITGroupSetsByOwner(String ownerId, Long startTime, String contextId, boolean checkIfAlreadyExists);
 
   /**
    * @param fieldId
    * @param startTime 
    * @param contextId 
    */
-  public void insertSelfGroupSetsByField(String fieldId, Long startTime, String contextId);
+  public void insertSelfPITGroupSetsByField(String fieldId, Long startTime, String contextId);
   
   /**
    * @param ownerId
    * @param endTime
    * @param contextId
    */
-  public void updateEndTimeByOwner(String ownerId, Long endTime, String contextId);
+  public void updateEndTimeByPITOwner(String ownerId, Long endTime, String contextId);
   
   /**
    * @param fieldId
    * @param endTime
    * @param contextId
    */
-  public void updateEndTimeByField(String fieldId, Long endTime, String contextId);
+  public void updateEndTimeByPITField(String fieldId, Long endTime, String contextId);
   
   /**
    * @param ownerId
@@ -90,7 +90,7 @@ public interface PITGroupSetDAO extends GrouperDAO {
    * @param endTime
    * @param contextId
    */
-  public void updateEndTimeByOwnerAndField(String ownerId, String fieldId, Long endTime, String contextId);
+  public void updateEndTimeByPITOwnerAndPITField(String ownerId, String fieldId, Long endTime, String contextId);
   
   /**
    * @param ownerId
@@ -98,7 +98,7 @@ public interface PITGroupSetDAO extends GrouperDAO {
    * @param activeOnly 
    * @return pit group set
    */
-  public PITGroupSet findSelfGroupSet(String ownerId, String fieldId, boolean activeOnly);
+  public PITGroupSet findSelfPITGroupSet(String ownerId, String fieldId, boolean activeOnly);
   
   /**
    * @param ownerId
@@ -106,26 +106,26 @@ public interface PITGroupSetDAO extends GrouperDAO {
    * @param fieldId
    * @return pit group set
    */
-  public PITGroupSet findActiveImmediateByOwnerAndMemberAndField(String ownerId, String memberId, String fieldId);
+  public PITGroupSet findActiveImmediateByPITOwnerAndPITMemberAndPITField(String ownerId, String memberId, String fieldId);
   
   /**
    * @param groupId
    * @param field
    * @return pit group sets
    */
-  public Set<PITGroupSet> findAllActiveByGroupOwnerAndField(String groupId, PITField field);
+  public Set<PITGroupSet> findAllActiveByPITGroupOwnerAndPITField(String groupId, PITField field);
   
   /**
    * @param groupId
    * @return pit group sets
    */
-  public Set<PITGroupSet> findAllActiveByMemberGroup(String groupId);
+  public Set<PITGroupSet> findAllActiveByMemberPITGroup(String groupId);
   
   /**
    * @param groupId
    * @return pit group sets
    */
-  public Set<PITGroupSet> findAllByMemberGroup(String groupId);
+  public Set<PITGroupSet> findAllByMemberPITGroup(String groupId);
   
   /**
    * @param pitGroupSet
@@ -138,7 +138,7 @@ public interface PITGroupSetDAO extends GrouperDAO {
    * @param memberGroupId
    * @return pit group set
    */
-  public PITGroupSet findActiveImmediateChildByParentAndMemberGroup(PITGroupSet parentPITGroupSet, String memberGroupId);
+  public PITGroupSet findActiveImmediateChildByParentAndMemberPITGroup(PITGroupSet parentPITGroupSet, String memberGroupId);
   
   /**
    * @param pitGroupSet
@@ -156,12 +156,12 @@ public interface PITGroupSetDAO extends GrouperDAO {
    * @param id
    * @return pit group sets
    */
-  public Set<PITGroupSet> findAllSelfGroupSetsByOwnerId(String id);
+  public Set<PITGroupSet> findAllSelfPITGroupSetsByPITOwnerId(String id);
   
   /**
    * @param id
    */
-  public void deleteSelfByOwnerId(String id);
+  public void deleteSelfByPITOwnerId(String id);
   
   /**
    * @return active group sets that are missing in point in time

@@ -71,7 +71,7 @@ public interface PITAttributeAssignActionDAO extends GrouperDAO {
    * @param id
    * @return set of PITAttributeAssignAction
    */
-  public Set<PITAttributeAssignAction> findByAttributeDefId(String id);
+  public Set<PITAttributeAssignAction> findByPITAttributeDefId(String id);
   
   /**
    * @return active actions that are missing in point in time

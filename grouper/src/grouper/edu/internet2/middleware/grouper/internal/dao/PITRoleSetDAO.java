@@ -70,18 +70,18 @@ public interface PITRoleSetDAO extends GrouperDAO {
    * @param id
    * @return pit role sets
    */
-  public Set<PITRoleSet> findAllSelfRoleSetsByRoleId(String id);
+  public Set<PITRoleSet> findAllSelfPITRoleSetsByPITRoleId(String id);
   
   /**
    * @param id
    */
-  public void deleteSelfByRoleId(String id);
+  public void deleteSelfByPITRoleId(String id);
   
   /**
    * @param id
    * @return pit role sets
    */
-  public Set<PITRoleSet> findByThenHasRoleId(String id);
+  public Set<PITRoleSet> findByThenHasPITRoleId(String id);
   
   /**
    * @return active role sets that are missing in point in time

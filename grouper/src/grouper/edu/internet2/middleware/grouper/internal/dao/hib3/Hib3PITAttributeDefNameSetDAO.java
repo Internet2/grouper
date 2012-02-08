@@ -143,9 +143,9 @@ public class Hib3PITAttributeDefNameSetDAO extends Hib3DAO implements PITAttribu
   }
 
   /**
-   * @see edu.internet2.middleware.grouper.internal.dao.PITAttributeDefNameSetDAO#deleteSelfByAttributeDefNameId(java.lang.String)
+   * @see edu.internet2.middleware.grouper.internal.dao.PITAttributeDefNameSetDAO#deleteSelfByPITAttributeDefNameId(java.lang.String)
    */
-  public void deleteSelfByAttributeDefNameId(final String id) {
+  public void deleteSelfByPITAttributeDefNameId(final String id) {
     HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING,
         AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
 
@@ -158,7 +158,7 @@ public class Hib3PITAttributeDefNameSetDAO extends Hib3DAO implements PITAttribu
               .setString("id", id)
               .executeUpdate();
 
-            Set<PITAttributeDefNameSet> pitAttributeDefNameSetsToDelete = findAllSelfAttributeDefNameSetsByAttributeDefNameId(id);
+            Set<PITAttributeDefNameSet> pitAttributeDefNameSetsToDelete = findAllSelfPITAttributeDefNameSetsByPITAttributeDefNameId(id);
             for (PITAttributeDefNameSet rs : pitAttributeDefNameSetsToDelete) {
               delete(rs);
             }
@@ -169,25 +169,25 @@ public class Hib3PITAttributeDefNameSetDAO extends Hib3DAO implements PITAttribu
   }
 
   /**
-   * @see edu.internet2.middleware.grouper.internal.dao.PITAttributeDefNameSetDAO#findAllSelfAttributeDefNameSetsByAttributeDefNameId(java.lang.String)
+   * @see edu.internet2.middleware.grouper.internal.dao.PITAttributeDefNameSetDAO#findAllSelfPITAttributeDefNameSetsByPITAttributeDefNameId(java.lang.String)
    */
-  public Set<PITAttributeDefNameSet> findAllSelfAttributeDefNameSetsByAttributeDefNameId(String id) {
+  public Set<PITAttributeDefNameSet> findAllSelfPITAttributeDefNameSetsByPITAttributeDefNameId(String id) {
     return HibernateSession
         .byHqlStatic()
         .createQuery("select adns from PITAttributeDefNameSet as adns where adns.ifHasAttributeDefNameId = :id and adns.thenHasAttributeDefNameId = :id and adns.depth = '0'")
-        .setCacheable(false).setCacheRegion(KLASS + ".FindAllSelfAttributeDefNameSetsByAttributeDefNameId")
+        .setCacheable(false).setCacheRegion(KLASS + ".FindAllSelfPITAttributeDefNameSetsByPITAttributeDefNameId")
         .setString("id", id)
         .listSet(PITAttributeDefNameSet.class);    
   }
 
   /**
-   * @see edu.internet2.middleware.grouper.internal.dao.PITAttributeDefNameSetDAO#findByThenHasAttributeDefNameId(java.lang.String)
+   * @see edu.internet2.middleware.grouper.internal.dao.PITAttributeDefNameSetDAO#findByThenHasPITAttributeDefNameId(java.lang.String)
    */
-  public Set<PITAttributeDefNameSet> findByThenHasAttributeDefNameId(String id) {
+  public Set<PITAttributeDefNameSet> findByThenHasPITAttributeDefNameId(String id) {
     return HibernateSession
         .byHqlStatic()
         .createQuery("select adns from PITAttributeDefNameSet as adns where thenHasAttributeDefNameId = :id")
-        .setCacheable(false).setCacheRegion(KLASS + ".FindByThenHasAttributeDefNameId")
+        .setCacheable(false).setCacheRegion(KLASS + ".FindByThenHasPITAttributeDefNameId")
         .setString("id", id)
         .listSet(PITAttributeDefNameSet.class);
   }

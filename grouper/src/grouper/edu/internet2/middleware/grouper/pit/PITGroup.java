@@ -233,7 +233,7 @@ public class PITGroup extends GrouperPIT implements Hib3GrouperVersioned {
       }
       
       PITField pitField = GrouperDAOFactory.getFactory().getPITField().findBySourceIdActive(fieldSourceId, true);
-      members = GrouperDAOFactory.getFactory().getPITMembershipView().findAllMembersByOwnerAndField( 
+      members = GrouperDAOFactory.getFactory().getPITMembershipView().findAllMembersByPITOwnerAndPITField( 
           this.getId(), pitField.getId(), pointInTimeFrom, pointInTimeTo, sources, queryOptions);
     }
     catch (InsufficientPrivilegeException e) {
@@ -266,7 +266,7 @@ public class PITGroup extends GrouperPIT implements Hib3GrouperVersioned {
     PITField pitField = GrouperDAOFactory.getFactory().getPITField().findBySourceIdActive(fieldSourceId, true);
     PITMember pitMember = GrouperDAOFactory.getFactory().getPITMember().findBySourceIdActive(m.getUuid(), false);
     if (pitMember != null) {
-      int size = GrouperDAOFactory.getFactory().getPITMembershipView().findAllByOwnerAndMemberAndField(
+      int size = GrouperDAOFactory.getFactory().getPITMembershipView().findAllByPITOwnerAndPITMemberAndPITField(
           this.getId(), pitMember.getId(), pitField.getId(), pointInTimeFrom, pointInTimeTo, queryOptions).size();
       
       if (size > 0) {
@@ -278,7 +278,7 @@ public class PITGroup extends GrouperPIT implements Hib3GrouperVersioned {
     Member all = MemberFinder.internal_findAllMember();
     if (!all.getUuid().equals(m.getUuid())) {
       PITMember pitMemberAll = GrouperDAOFactory.getFactory().getPITMember().findBySourceIdActive(all.getUuid(), true);
-      int size = GrouperDAOFactory.getFactory().getPITMembershipView().findAllByOwnerAndMemberAndField(
+      int size = GrouperDAOFactory.getFactory().getPITMembershipView().findAllByPITOwnerAndPITMemberAndPITField(
           this.getId(), pitMemberAll.getId(), pitField.getId(), pointInTimeFrom, pointInTimeTo, queryOptions).size();
       
       if (size > 0) {
@@ -329,22 +329,22 @@ public class PITGroup extends GrouperPIT implements Hib3GrouperVersioned {
     }
     
     // delete memberships
-    Set<PITMembership> memberships = GrouperDAOFactory.getFactory().getPITMembership().findAllByOwner(this.getId());
+    Set<PITMembership> memberships = GrouperDAOFactory.getFactory().getPITMembership().findAllByPITOwner(this.getId());
     for (PITMembership membership : memberships) {
       GrouperDAOFactory.getFactory().getPITMembership().delete(membership);
     }
     
     // delete attribute assignments
-    Set<PITAttributeAssign> assignments = GrouperDAOFactory.getFactory().getPITAttributeAssign().findByOwnerGroupId(this.getId());
+    Set<PITAttributeAssign> assignments = GrouperDAOFactory.getFactory().getPITAttributeAssign().findByOwnerPITGroupId(this.getId());
     for (PITAttributeAssign assignment : assignments) {
       GrouperDAOFactory.getFactory().getPITAttributeAssign().delete(assignment);
     }
     
     // delete self group sets and their children
-    GrouperDAOFactory.getFactory().getPITGroupSet().deleteSelfByOwnerId(this.getId());
+    GrouperDAOFactory.getFactory().getPITGroupSet().deleteSelfByPITOwnerId(this.getId());
     
     // delete group sets where this group is a member ... and their children.
-    Set<PITGroupSet> groupSets = GrouperDAOFactory.getFactory().getPITGroupSet().findAllByMemberGroup(this.getId());
+    Set<PITGroupSet> groupSets = GrouperDAOFactory.getFactory().getPITGroupSet().findAllByMemberPITGroup(this.getId());
     for (PITGroupSet groupSet : groupSets) {
       GrouperDAOFactory.getFactory().getPITGroupSet().delete(groupSet);
     }
@@ -352,17 +352,17 @@ public class PITGroup extends GrouperPIT implements Hib3GrouperVersioned {
     // delete memberships where this group is a member
     Set<PITMember> members = GrouperDAOFactory.getFactory().getPITMember().findPITMembersBySubjectIdSourceAndType(this.getSourceId(), "g:gsa", "group");
     for (PITMember member : members) {
-      memberships = GrouperDAOFactory.getFactory().getPITMembership().findAllByMember(member.getId());
+      memberships = GrouperDAOFactory.getFactory().getPITMembership().findAllByPITMember(member.getId());
       for (PITMembership membership : memberships) {
         GrouperDAOFactory.getFactory().getPITMembership().delete(membership);
       }
     }
     
     // delete self role sets and their children
-    GrouperDAOFactory.getFactory().getPITRoleSet().deleteSelfByRoleId(this.getId());
+    GrouperDAOFactory.getFactory().getPITRoleSet().deleteSelfByPITRoleId(this.getId());
     
     // delete role sets by thenHasRoleId ... and their children.
-    Set<PITRoleSet> roleSets = GrouperDAOFactory.getFactory().getPITRoleSet().findByThenHasRoleId(this.getId());
+    Set<PITRoleSet> roleSets = GrouperDAOFactory.getFactory().getPITRoleSet().findByThenHasPITRoleId(this.getId());
     for (PITRoleSet roleSet : roleSets) {
       GrouperDAOFactory.getFactory().getPITRoleSet().delete(roleSet);
     }

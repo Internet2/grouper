@@ -131,13 +131,13 @@ public class Hib3PITAttributeAssignActionDAO extends Hib3DAO implements PITAttri
   }
 
   /**
-   * @see edu.internet2.middleware.grouper.internal.dao.PITAttributeAssignActionDAO#findByAttributeDefId(java.lang.String)
+   * @see edu.internet2.middleware.grouper.internal.dao.PITAttributeAssignActionDAO#findByPITAttributeDefId(java.lang.String)
    */
-  public Set<PITAttributeAssignAction> findByAttributeDefId(String id) {
+  public Set<PITAttributeAssignAction> findByPITAttributeDefId(String id) {
     return HibernateSession
         .byHqlStatic()
         .createQuery("select action from PITAttributeAssignAction as action where action.attributeDefId = :id")
-        .setCacheable(false).setCacheRegion(KLASS + ".FindByAttributeDefId")
+        .setCacheable(false).setCacheRegion(KLASS + ".FindByPITAttributeDefId")
         .setString("id", id)
         .listSet(PITAttributeAssignAction.class);
   }

@@ -69,12 +69,6 @@ public interface PITMembershipDAO extends GrouperDAO {
   public PITMembership findBySourceIdMostRecent(String id, boolean exceptionIfNotFound);
   
   /**
-   * @param oldId
-   * @param newId
-   */
-  public void updateId(String oldId, String newId);
-  
-  /**
    * Delete records that ended before the given date.
    * @param time
    */
@@ -85,14 +79,14 @@ public interface PITMembershipDAO extends GrouperDAO {
    * @param ownerId
    * @return set of pit memberships
    */
-  public Set<PITMembership> findAllByOwner(String ownerId);
+  public Set<PITMembership> findAllByPITOwner(String ownerId);
   
   /**
    * Get memberships by member.
    * @param memberId
    * @return set of pit memberships
    */
-  public Set<PITMembership> findAllByMember(String memberId);
+  public Set<PITMembership> findAllByPITMember(String memberId);
   
   /**
    * @return active memberships that are missing in point in time

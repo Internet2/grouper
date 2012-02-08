@@ -257,7 +257,7 @@ public class PITMembership extends GrouperPIT implements Hib3GrouperVersioned {
     for (PITMembership existing : existingAll) {
 
       // add new assignments and end dates to existing ones.
-      Set<PITAttributeAssign> assignments = GrouperDAOFactory.getFactory().getPITAttributeAssign().findActiveByOwnerMembershipId(existing.getId());
+      Set<PITAttributeAssign> assignments = GrouperDAOFactory.getFactory().getPITAttributeAssign().findActiveByOwnerPITMembershipId(existing.getId());
       for (PITAttributeAssign assignment : assignments) {
         PITAttributeAssign assignmentCopy = assignment.clone();
 
@@ -753,7 +753,7 @@ public class PITMembership extends GrouperPIT implements Hib3GrouperVersioned {
       PITGroup memberGroup = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdActive(this.getMember().getSubjectId(), true);
       
       // get the PIT immediate group set
-      PITGroupSet pitImmediateGroupSet = GrouperDAOFactory.getFactory().getPITGroupSet().findActiveImmediateByOwnerAndMemberAndField(
+      PITGroupSet pitImmediateGroupSet = GrouperDAOFactory.getFactory().getPITGroupSet().findActiveImmediateByPITOwnerAndPITMemberAndPITField(
           this.getOwnerId(), memberGroup.getId(), this.getFieldId());
       
       if (pitImmediateGroupSet == null) {
@@ -822,7 +822,7 @@ public class PITMembership extends GrouperPIT implements Hib3GrouperVersioned {
     // are getting deleted.  So the group sets get deleted separately.
     
     // delete attribute assignments
-    Set<PITAttributeAssign> assignments = GrouperDAOFactory.getFactory().getPITAttributeAssign().findByOwnerMembershipId(this.getId());
+    Set<PITAttributeAssign> assignments = GrouperDAOFactory.getFactory().getPITAttributeAssign().findByOwnerPITMembershipId(this.getId());
     
     for (PITAttributeAssign assignment : assignments) {
       GrouperDAOFactory.getFactory().getPITAttributeAssign().delete(assignment);

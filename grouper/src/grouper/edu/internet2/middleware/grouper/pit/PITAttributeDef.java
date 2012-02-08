@@ -217,28 +217,28 @@ public class PITAttributeDef extends GrouperPIT implements Hib3GrouperVersioned 
     }
     
     // delete memberships
-    Set<PITMembership> memberships = GrouperDAOFactory.getFactory().getPITMembership().findAllByOwner(this.getId());
+    Set<PITMembership> memberships = GrouperDAOFactory.getFactory().getPITMembership().findAllByPITOwner(this.getId());
     for (PITMembership membership : memberships) {
       GrouperDAOFactory.getFactory().getPITMembership().delete(membership);
     }
     
     // delete attribute assignments
-    Set<PITAttributeAssign> assignments = GrouperDAOFactory.getFactory().getPITAttributeAssign().findByOwnerAttributeDefId(this.getId());
+    Set<PITAttributeAssign> assignments = GrouperDAOFactory.getFactory().getPITAttributeAssign().findByOwnerPITAttributeDefId(this.getId());
     for (PITAttributeAssign assignment : assignments) {
       GrouperDAOFactory.getFactory().getPITAttributeAssign().delete(assignment);
     }
     
     // delete self group sets and their children
-    GrouperDAOFactory.getFactory().getPITGroupSet().deleteSelfByOwnerId(this.getId());
+    GrouperDAOFactory.getFactory().getPITGroupSet().deleteSelfByPITOwnerId(this.getId());
     
     // delete attribute def names
-    Set<PITAttributeDefName> attrs = GrouperDAOFactory.getFactory().getPITAttributeDefName().findByAttributeDefId(this.getId());
+    Set<PITAttributeDefName> attrs = GrouperDAOFactory.getFactory().getPITAttributeDefName().findByPITAttributeDefId(this.getId());
     for (PITAttributeDefName attr : attrs) {
       GrouperDAOFactory.getFactory().getPITAttributeDefName().delete(attr);
     }
     
     // delete actions
-    Set<PITAttributeAssignAction> actions = GrouperDAOFactory.getFactory().getPITAttributeAssignAction().findByAttributeDefId(this.getId());
+    Set<PITAttributeAssignAction> actions = GrouperDAOFactory.getFactory().getPITAttributeAssignAction().findByPITAttributeDefId(this.getId());
     for (PITAttributeAssignAction action : actions) {
       GrouperDAOFactory.getFactory().getPITAttributeAssignAction().delete(action);
     }

@@ -141,13 +141,13 @@ public class Hib3PITStemDAO extends Hib3DAO implements PITStemDAO {
   }
 
   /**
-   * @see edu.internet2.middleware.grouper.internal.dao.PITStemDAO#findByParentStemId(java.lang.String)
+   * @see edu.internet2.middleware.grouper.internal.dao.PITStemDAO#findByParentPITStemId(java.lang.String)
    */
-  public Set<PITStem> findByParentStemId(String id) {
+  public Set<PITStem> findByParentPITStemId(String id) {
     return HibernateSession
         .byHqlStatic()
         .createQuery("select pitStem from PITStem as pitStem where pitStem.parentStemId = :id")
-        .setCacheable(false).setCacheRegion(KLASS + ".FindByParentStemId")
+        .setCacheable(false).setCacheRegion(KLASS + ".FindByParentPITStemId")
         .setString("id", id)
         .listSet(PITStem.class);
   }

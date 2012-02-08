@@ -73,55 +73,55 @@ public interface PITAttributeAssignDAO extends GrouperDAO {
    * @param oldId
    * @param newId
    */
-  public void updateOwnerAttributeAssignId(String oldId, String newId);
+  public void updateOwnerPITAttributeAssignId(String oldId, String newId);
   
   /**
    * @param id
    * @return set of PITAttributeAssign
    */
-  public Set<PITAttributeAssign> findActiveByOwnerAttributeAssignId(String id);
+  public Set<PITAttributeAssign> findActiveByOwnerPITAttributeAssignId(String id);
   
   /**
    * @param oldId
    * @param newId
    */
-  public void updateOwnerMembershipId(String oldId, String newId);
+  public void updateOwnerPITMembershipId(String oldId, String newId);
   
   /**
    * @param id
    * @return set of PITAttributeAssign
    */
-  public Set<PITAttributeAssign> findActiveByOwnerMembershipId(String id);
+  public Set<PITAttributeAssign> findActiveByOwnerPITMembershipId(String id);
   
   /**
    * @param id
    * @return set of PITAttributeAssign
    */
-  public Set<PITAttributeAssign> findByOwnerMembershipId(String id);
+  public Set<PITAttributeAssign> findByOwnerPITMembershipId(String id);
   
   /**
    * @param id
    * @return set of PITAttributeAssign
    */
-  public Set<PITAttributeAssign> findByOwnerGroupId(String id);
+  public Set<PITAttributeAssign> findByOwnerPITGroupId(String id);
   
   /**
    * @param id
    * @return set of PITAttributeAssign
    */
-  public Set<PITAttributeAssign> findByOwnerStemId(String id);
+  public Set<PITAttributeAssign> findByOwnerPITStemId(String id);
   
   /**
    * @param id
    * @return set of PITAttributeAssign
    */
-  public Set<PITAttributeAssign> findByOwnerAttributeDefId(String id);
+  public Set<PITAttributeAssign> findByOwnerPITAttributeDefId(String id);
   
   /**
    * @param id
    * @return set of PITAttributeAssign
    */
-  public Set<PITAttributeAssign> findByOwnerAttributeAssignId(String id);
+  public Set<PITAttributeAssign> findByOwnerPITAttributeAssignId(String id);
   
   /**
    * Delete records that ended before the given date.
@@ -142,13 +142,13 @@ public interface PITAttributeAssignDAO extends GrouperDAO {
    * @param id
    * @return set of PITAttributeAssign
    */
-  public Set<PITAttributeAssign> findByAttributeDefNameId(String id);
+  public Set<PITAttributeAssign> findByPITAttributeDefNameId(String id);
   
   /**
    * @param id
    * @return set of PITAttributeAssign
    */
-  public Set<PITAttributeAssign> findByAttributeAssignActionId(String id);
+  public Set<PITAttributeAssign> findByPITAttributeAssignActionId(String id);
   
   /**
    * @return active attribute assigns that are missing in point in time

@@ -139,18 +139,6 @@ public class Hib3PITMembershipDAO extends Hib3DAO implements PITMembershipDAO {
   }
   
   /**
-   * @see edu.internet2.middleware.grouper.internal.dao.PITMembershipDAO#updateId(java.lang.String, java.lang.String)
-   */
-  public void updateId(String oldId, String newId) {
-    HibernateSession
-      .byHqlStatic()
-      .createQuery("update PITMembership set id = :newId where id = :oldId")
-      .setString("oldId", oldId)
-      .setString("newId", newId)
-      .executeUpdate();
-  }
-  
-  /**
    * @see edu.internet2.middleware.grouper.internal.dao.PITMembershipDAO#deleteInactiveRecords(java.sql.Timestamp)
    */
   public void deleteInactiveRecords(Timestamp time) {
@@ -162,9 +150,9 @@ public class Hib3PITMembershipDAO extends Hib3DAO implements PITMembershipDAO {
   }
   
   /**
-   * @see edu.internet2.middleware.grouper.internal.dao.PITMembershipDAO#findAllByOwner(java.lang.String)
+   * @see edu.internet2.middleware.grouper.internal.dao.PITMembershipDAO#findAllByPITOwner(java.lang.String)
    */
-  public Set<PITMembership> findAllByOwner(String ownerId) {
+  public Set<PITMembership> findAllByPITOwner(String ownerId) {
 
     StringBuilder sql = new StringBuilder("select ms "
         + "from PITMembership ms where "
@@ -173,15 +161,15 @@ public class Hib3PITMembershipDAO extends Hib3DAO implements PITMembershipDAO {
     return HibernateSession.byHqlStatic()
       .createQuery(sql.toString())
       .setCacheable(false)
-      .setCacheRegion(KLASS + ".FindAllByOwner")
+      .setCacheRegion(KLASS + ".FindAllByPITOwner")
       .setString("ownerId", ownerId)
       .listSet(PITMembership.class);
   }
   
   /**
-   * @see edu.internet2.middleware.grouper.internal.dao.PITMembershipDAO#findAllByMember(java.lang.String)
+   * @see edu.internet2.middleware.grouper.internal.dao.PITMembershipDAO#findAllByPITMember(java.lang.String)
    */
-  public Set<PITMembership> findAllByMember(String memberId) {
+  public Set<PITMembership> findAllByPITMember(String memberId) {
 
     StringBuilder sql = new StringBuilder("select ms "
         + "from PITMembership ms where "
@@ -190,7 +178,7 @@ public class Hib3PITMembershipDAO extends Hib3DAO implements PITMembershipDAO {
     return HibernateSession.byHqlStatic()
       .createQuery(sql.toString())
       .setCacheable(false)
-      .setCacheRegion(KLASS + ".FindAllByMember")
+      .setCacheRegion(KLASS + ".FindAllByPITMember")
       .setString("memberId", memberId)
       .listSet(PITMembership.class);
   }

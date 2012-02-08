@@ -191,16 +191,16 @@ public class PITAttributeAssignAction extends GrouperPIT implements Hib3GrouperV
     }
     
     // delete attribute assignments
-    Set<PITAttributeAssign> assignments = GrouperDAOFactory.getFactory().getPITAttributeAssign().findByAttributeAssignActionId(this.getId());
+    Set<PITAttributeAssign> assignments = GrouperDAOFactory.getFactory().getPITAttributeAssign().findByPITAttributeAssignActionId(this.getId());
     for (PITAttributeAssign assignment : assignments) {
       GrouperDAOFactory.getFactory().getPITAttributeAssign().delete(assignment);
     }
     
     // delete self action sets and their children
-    GrouperDAOFactory.getFactory().getPITAttributeAssignActionSet().deleteSelfByAttributeAssignActionId(this.getId());
+    GrouperDAOFactory.getFactory().getPITAttributeAssignActionSet().deleteSelfByPITAttributeAssignActionId(this.getId());
     
     // delete action sets by thenHasAttributeAssignActionId ... and their children.
-    Set<PITAttributeAssignActionSet> actionSets = GrouperDAOFactory.getFactory().getPITAttributeAssignActionSet().findByThenHasAttributeAssignActionId(this.getId());
+    Set<PITAttributeAssignActionSet> actionSets = GrouperDAOFactory.getFactory().getPITAttributeAssignActionSet().findByThenHasPITAttributeAssignActionId(this.getId());
     for (PITAttributeAssignActionSet actionSet : actionSets) {
       GrouperDAOFactory.getFactory().getPITAttributeAssignActionSet().delete(actionSet);
     }

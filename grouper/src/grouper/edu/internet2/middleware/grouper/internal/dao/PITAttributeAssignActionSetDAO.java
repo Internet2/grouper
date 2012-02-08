@@ -70,18 +70,18 @@ public interface PITAttributeAssignActionSetDAO extends GrouperDAO {
    * @param id
    * @return pit action sets
    */
-  public Set<PITAttributeAssignActionSet> findAllSelfAttributeAssignActionSetsByAttributeAssignActionId(String id);
+  public Set<PITAttributeAssignActionSet> findAllSelfPITAttributeAssignActionSetsByPITAttributeAssignActionId(String id);
   
   /**
    * @param id
    */
-  public void deleteSelfByAttributeAssignActionId(String id);
+  public void deleteSelfByPITAttributeAssignActionId(String id);
   
   /**
    * @param id
    * @return pit action sets
    */
-  public Set<PITAttributeAssignActionSet> findByThenHasAttributeAssignActionId(String id);
+  public Set<PITAttributeAssignActionSet> findByThenHasPITAttributeAssignActionId(String id);
   
   /**
    * @return active action sets that are missing in point in time
