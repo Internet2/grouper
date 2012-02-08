@@ -2469,6 +2469,13 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
    * @see GroupDAO#findByNamesSecure(Collection, QueryOptions)
    */
   public Set<Group> findByNamesSecure(Collection<String> names, QueryOptions queryOptions) {
+    return findByNamesSecure(names, queryOptions, null);
+  }
+
+  /**
+   * @see GroupDAO#findByNamesSecure(Collection, QueryOptions)
+   */
+  public Set<Group> findByNamesSecure(Collection<String> names, QueryOptions queryOptions, Set<TypeOfGroup> typeOfGroups) {
     
     GrouperSession grouperSession = GrouperSession.staticGrouperSession();
     
@@ -2503,6 +2510,8 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
       
       sql.append(HibUtils.convertToInClause(namesBatch, byHqlStatic)).append(" ) )");
 
+      TypeOfGroup.appendHqlQuery("theGroup", typeOfGroups, sql, byHqlStatic);
+      
       byHqlStatic
         .createQuery(sql.toString())
         .setCacheable(true)
@@ -2518,11 +2527,19 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
     return groups;
 
   }
+  
 
   /**
    * @see GroupDAO#findByUuidsSecure(Collection, QueryOptions)
    */
   public Set<Group> findByUuidsSecure(Collection<String> uuids, QueryOptions queryOptions) {
+    return findByUuidsSecure(uuids, queryOptions, null);
+  }
+
+  /**
+   * @see GroupDAO#findByUuidsSecure(Collection, QueryOptions, Set)
+   */
+  public Set<Group> findByUuidsSecure(Collection<String> uuids, QueryOptions queryOptions, Set<TypeOfGroup> typeOfGroups) {
     GrouperSession grouperSession = GrouperSession.staticGrouperSession();
     
     int numberOfBatches = GrouperUtil.batchNumberOfBatches(uuids, 180);
@@ -2552,6 +2569,8 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
       
       sql.append(HibUtils.convertToInClause(uuidsBatch, byHqlStatic)).append(" ) ");
       
+      TypeOfGroup.appendHqlQuery("theGroup", typeOfGroups, sql, byHqlStatic);
+
       byHqlStatic
         .createQuery(sql.toString())
         .setCacheable(true)

@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Set;
 
 import junit.textui.TestRunner;
+import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
@@ -387,6 +389,22 @@ public class EntityFinderTest extends GrouperTest {
 //    assertEquals("test:testEntity", entities.get(0).getName());
 //    assertEquals("test:testEntity2", entities.get(1).getName());
 
+  }
+
+  /**
+   * test the finder
+   */
+  public void testFinderNotGroup() {
+    
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    
+    new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true)
+      .assignName("test:testGroup").save();
+    
+    Subject subject = SubjectFinder.findByIdOrIdentifier("test:testGroup", true);
+    
+    assertEquals(SubjectFinder.internal_getGSA().getId(), subject.getSourceId());
+    
   }
 
   
