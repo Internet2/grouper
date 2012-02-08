@@ -55,6 +55,7 @@ import edu.internet2.middleware.subject.SubjectTooManyResults;
 import edu.internet2.middleware.subject.provider.JDBCSourceAdapter;
 import edu.internet2.middleware.subject.provider.JDBCSourceAdapter2;
 import edu.internet2.middleware.subject.provider.JNDISourceAdapter;
+import edu.internet2.middleware.subject.provider.JNDISourceAdapterLegacy;
 import edu.internet2.middleware.subject.provider.SourceManager;
 
 /**
@@ -1120,7 +1121,7 @@ public class TestSubjectFinder extends GrouperTest {
       
       GrouperSourceAdapter.failOnSearchForTesting = false;
       JDBCSourceAdapter.failOnSearchForTesting = false;
-      JNDISourceAdapter.failOnSearchForTesting = false;
+      JNDISourceAdapterLegacy.failOnSearchForTesting = false;
       JDBCSourceAdapter2.failOnSearchForTesting = false;
       
     }
