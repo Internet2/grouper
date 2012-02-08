@@ -68,8 +68,9 @@ public class DiscoveryClient {
     System.out.println("Example argument: --operation=getFile");
     System.out.println("Optional arguments below are in [brackets]\n");
     System.out.println("###############################################");
-    System.out.println("## Misc operations\n");
-    System.out.println("Get a file from a discovery server or cache, will output the location of the file on the local machine.");
+    System.out.println("## Operations\n");
+    System.out.println("getFile usage:");
+    System.out.println("Get a file from a discovery server or cache, will output the location of the file on the local machine to stdout.");
     System.out.println("Note, that file is cached, do not move, edit, delete it.");
     System.out.println("  java -cp grouperClient.jar edu.internet2.middleware.grouperClient.discovery.DiscoveryClient --operation=getFile --fileName=someFile.txt");
     System.out.println("  output: /home/whoever/grouperClient/someFile_20120102_132414_123_sd43sdf.txt");
@@ -127,6 +128,10 @@ public class DiscoveryClient {
         String fileName = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "fileName", true);
         
         File file = retrieveFile(fileName, true);
+        if (file == null) {
+          
+          throw new RuntimeException("Discovery service did not retrieve a success for file: " + fileName);
+        }
         result = file.getAbsolutePath();
         
       } else {
@@ -188,7 +193,7 @@ public class DiscoveryClient {
     
     String firstUrl = GrouperClientUtils.propertiesValue("grouperClient.urlOfDiscovery.0", false);
     
-    return GrouperClientUtils.isBlank(firstUrl);
+    return !GrouperClientUtils.isBlank(firstUrl);
     
   }
 
@@ -280,7 +285,7 @@ public class DiscoveryClient {
           }
 
           //see if date in range
-          if (System.currentTimeMillis() - date.getTime() / 1000 < GrouperClientUtils.propertiesValueInt("grouperClient.cacheDiscoveryPropertiesForSeconds", 120, false)) {
+          if ((System.currentTimeMillis() - date.getTime()) / 1000 < GrouperClientUtils.propertiesValueInt("grouperClient.cacheDiscoveryPropertiesForSeconds", 120, false)) {
             file = discoveryLocalFile;
           }
           
@@ -350,7 +355,7 @@ public class DiscoveryClient {
       }
 
     }
-    return null;
+    return file;
   }
   
   /**
@@ -392,7 +397,9 @@ public class DiscoveryClient {
           //remember that we just configured it
           failoverClientConfigured = true;
 
-        }        
+        } else {
+          log.error("There are no discovery URLs in grouper.client.properties");
+        }
       }
     }
   }
@@ -558,19 +565,35 @@ public class DiscoveryClient {
 
   }
 
+  /** cache directory name */
+  private static String cacheDirectoryName = null;
+  
   /**
    * name of the cache directory
    * @return the name of the cache directory
    */
   static String cacheDirectoryName() {
-    String directoryName = GrouperClientUtils.propertiesValue("grouperClient.cacheDirectory", true);
-    if (GrouperClientCommonUtils.isBlank(directoryName)) {
-      throw new RuntimeException("grouperClient.cacheDirectory is required in grouper.client.propreties");
-    }
-
-    directoryName = GrouperClientCommonUtils.stripEnd(directoryName, "/");
-    directoryName = GrouperClientCommonUtils.stripEnd(directoryName, "\\");
-    return directoryName;
+    
+    if (cacheDirectoryName == null) {
+      String directoryName = GrouperClientUtils.propertiesValue("grouperClient.cacheDirectory", true);
+      if (GrouperClientCommonUtils.isBlank(directoryName)) {
+        throw new RuntimeException("grouperClient.cacheDirectory is required in grouper.client.propreties");
+      }
+  
+      directoryName = GrouperClientCommonUtils.stripEnd(directoryName, "/");
+      directoryName = GrouperClientCommonUtils.stripEnd(directoryName, "\\");
+      
+      File discoveryDir = new File(directoryName);
+      directoryName = discoveryDir.getAbsolutePath();
+      if (directoryName.endsWith("/.")) {
+        directoryName = directoryName.substring(0, directoryName.length()-2);
+      }
+      if (directoryName.endsWith("\\.")) {
+        directoryName = directoryName.substring(0, directoryName.length()-2);
+      }
+      cacheDirectoryName = directoryName;
+    }    
+    return cacheDirectoryName;
   }
   
   /**
@@ -634,13 +657,13 @@ public class DiscoveryClient {
             HttpMethodParams.RETRY_HANDLER, new DefaultHttpMethodRetryHandler(0, false));
 
         int soTimeoutMillis = GrouperClientUtils.propertiesValueInt(
-            "grouperClient.discovery.httpSocketTimeoutMillis", 90000, true);
+            "grouperClient.discovery.httpSocketTimeoutMillis", 90000, false);
 
         httpClient.getParams().setSoTimeout(soTimeoutMillis);
         httpClient.getParams().setParameter(HttpMethodParams.HEAD_BODY_CHECK_TIMEOUT, soTimeoutMillis);
 
         int connectionManagerMillis = GrouperClientUtils.propertiesValueInt(
-            "grouperClient.discovery.httpConnectionManagerTimeoutMillis", 90000, true);
+            "grouperClient.discovery.httpConnectionManagerTimeoutMillis", 90000, false);
 
         httpClient.getParams().setConnectionManagerTimeout(connectionManagerMillis);
 
