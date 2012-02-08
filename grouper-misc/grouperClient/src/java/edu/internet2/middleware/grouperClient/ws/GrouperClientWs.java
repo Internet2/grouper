@@ -10,7 +10,10 @@ import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
+import edu.internet2.middleware.grouperClient.discovery.DiscoveryClient;
 import edu.internet2.middleware.grouperClient.util.GrouperClientLog;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.grouperClient.util.GrouperClientXstreamUtils;
@@ -38,29 +41,9 @@ import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
 
 
 /**
- * 
+ * this is the client that all requests go through.  if you add an instance field, make sure to add to copyFrom()
  */
 public class GrouperClientWs {
-  
-  /**
-   * logger
-   */
-  private static Log LOG = GrouperClientUtils.retrieveLog(GrouperClientWs.class);
-
-  /**
-   * content type
-   */
-  private String contentType = null;
-  
-  /**
-   * assign the content type, defaults to xml
-   * @param theContentType
-   * @return this for chaining
-   */
-  public GrouperClientWs assignContentType(String theContentType) {
-    this.contentType = theContentType;
-    return this;
-  }
   
   /**
    * 
@@ -71,13 +54,6 @@ public class GrouperClientWs {
    * 
    */
   private PostMethod method;
-  
-  /**
-   * 
-   */
-  public GrouperClientWs() {
-    this.xStream = GrouperClientXstreamUtils.retrieveXstream();
-  }
   
   /** */
   private String response;
@@ -92,12 +68,156 @@ public class GrouperClientWs {
    */
   private String resultCode = null;
   
+  /**
+   * content type
+   */
+  private String contentType = null;
+  
+  /**
+   * copy from the argument to this object
+   * @param grouperClientWs
+   */
+  public void copyFrom(GrouperClientWs grouperClientWs) {
+    this.contentType = grouperClientWs.contentType;
+    this.method = grouperClientWs.method;
+    this.response = grouperClientWs.response;
+    this.resultCode = grouperClientWs.resultCode;
+    this.success = grouperClientWs.success;
+    this.xStream = grouperClientWs.xStream;
+  }
+
+  /**
+   * logger
+   */
+  private static Log LOG = GrouperClientUtils.retrieveLog(GrouperClientWs.class);
+
+  /**
+   * assign the content type, defaults to xml
+   * @param theContentType
+   * @return this for chaining
+   */
+  public GrouperClientWs assignContentType(String theContentType) {
+    this.contentType = theContentType;
+    return this;
+  }
+
+  /**
+   * 
+   */
+  public GrouperClientWs() {
+    this.xStream = GrouperClientXstreamUtils.retrieveXstream();
+  }
+  
   /** keep a reference to the most recent for testing */
   public static String mostRecentRequest = null;
   
   /** keep a reference to the most recent for testing */
   public static String mostRecentResponse = null;
+
+  /** when was the failover client last configured */
+  private static Long lastFailoverConfigure = null;
   
+  /** how often should we reconfigure the failover client */
+  private static Integer configureEverySeconds = null;
+  
+  /** cache this so we know if we need to reconfigure */
+  private static File lastDiscoveryConfigFile = null;
+
+  /**
+   * configure the failover client every so often
+   */
+  private static void configureFailoverClient() {
+    
+    Map<String, Object> debugLog = LOG.isDebugEnabled() ? new LinkedHashMap<String, Object>() : null;
+    if (debugLog != null) {
+      debugLog.put("method", "GrouperClientWs.configureFailoverClient");
+    }
+    
+    //see if we know how often to check for new config
+    if (configureEverySeconds == null) {
+      
+      //configure every x/5 (at least 20 seconds)
+      int cacheForSeconds = GrouperClientUtils.propertiesValueInt("grouperClient.cacheDiscoveryPropertiesForSeconds", 120, false);
+      configureEverySeconds = cacheForSeconds / 5;
+      if (configureEverySeconds < 20) {
+        configureEverySeconds = 20;
+      }
+    }
+    
+    //if the amount of time since the last configure is greater than the max, then reconfigure
+    boolean needsReconfigure = needsReconfigure();
+    
+    if (debugLog != null) {
+      debugLog.put("needsReconfigure", needsReconfigure);
+    }
+    
+    if (needsReconfigure) {
+
+      synchronized (GrouperClientWs.class) {
+        
+        if (needsReconfigure()) {
+          
+          //see if the discovery file has changed...
+          String fileName = "grouper.client.discovery.properties";
+          String directoryName = GrouperClientUtils.propertiesValue("grouperClient.discoveryGrouperClientPropertiesDirectory", false);
+          if (!GrouperClientUtils.isBlank(directoryName)) {
+            directoryName = GrouperClientUtils.stripLastSlashIfExists(directoryName);
+            fileName = directoryName + "/" + fileName;
+          }
+          File discoveryFile = DiscoveryClient.retrieveFile(fileName, false);
+          
+          if (discoveryFile == null) {
+            
+            if (debugLog != null) {
+              debugLog.put("discoveryFile", "not found");
+            }
+
+            //if we have reconfigured before, we dont need to do this again
+            if (lastFailoverConfigure != null) {
+              needsReconfigure = false;
+            }
+            
+            LOG.error("Cant find discovery file: '" + fileName + "'!!!!!!!");
+          } else {
+
+            if (debugLog != null) {
+              debugLog.put("discoveryFile", discoveryFile.getAbsolutePath());
+            }
+          
+            //see if the same as before
+            if (lastDiscoveryConfigFile != null && lastDiscoveryConfigFile.equals(discoveryFile)) {
+              needsReconfigure = false;
+            }
+          }
+          
+          if (debugLog != null) {
+            debugLog.put("needsReconfigureFile", needsReconfigure);
+          }
+          
+          if (needsReconfigure) {
+            //register the failover client
+            
+            
+            
+          }
+        }
+      }
+    }
+    
+  }
+
+  /**
+   * see if needs reconfigure
+   * @return true or false
+   */
+  private static boolean needsReconfigure() {
+    boolean needsReconfigure = lastFailoverConfigure == null || (System.currentTimeMillis() - lastFailoverConfigure) / 1000 > configureEverySeconds;
+    if (!DiscoveryClient.hasDiscovery() && lastFailoverConfigure != null) {
+      needsReconfigure = false;
+    }
+    return needsReconfigure;
+  }
+
   /**
    * @param urlSuffix e.g. groups/aStem:aGroup/members
    * @param toSend is the bean which will transform into XML, or just a string of XML to send...
@@ -109,6 +229,28 @@ public class GrouperClientWs {
    * @throws IOException
    */
   public Object executeService(String urlSuffix, Object toSend, String labelForLog, String clientVersion) 
+      throws UnsupportedEncodingException, HttpException, IOException {
+    
+    //configure the failover client (every 30 seconds)
+    configureFailoverClient();
+    
+    //copy the grouper client ws instance to this
+    return null;
+    
+  }
+
+  /**
+   * @param url to hit, could be multiple
+   * @param urlSuffix e.g. groups/aStem:aGroup/members
+   * @param toSend is the bean which will transform into XML, or just a string of XML to send...
+   * @param labelForLog label if the request is logged to file
+   * @param clientVersion 
+   * @return the response object
+   * @throws UnsupportedEncodingException
+   * @throws HttpException
+   * @throws IOException
+   */
+  private Object executeServiceHelper(String url, String urlSuffix, Object toSend, String labelForLog, String clientVersion) 
       throws UnsupportedEncodingException, HttpException, IOException {
     
     String logDir = GrouperClientUtils.propertiesValue("grouperClient.logging.webService.documentDir", false);
@@ -137,7 +279,7 @@ public class GrouperClientWs {
     int[] responseCode = new int[1];
     
     //make sure right content type is in request (e.g. application/xhtml+xml
-    this.method = postMethod(this.xStream, urlSuffix, toSend, requestFile, responseCode, clientVersion);
+    this.method = postMethod(url, this.xStream, urlSuffix, toSend, requestFile, responseCode, clientVersion);
 
     //make sure a request came back
     Header successHeader = this.method.getResponseHeader("X-Grouper-success");
@@ -152,7 +294,7 @@ public class GrouperClientWs {
         }
         LOG.debug("Response: " + theResponse);
       }
-      throw new RuntimeException("Web service did not even respond! " + webServiceUrl(urlSuffix));
+      throw new RuntimeException("Web service did not even respond! " + webServiceUrl(url, urlSuffix));
     }
     this.success = "T".equals(successString);
     this.resultCode = this.method.getResponseHeader("X-Grouper-resultCode").getValue();
@@ -325,29 +467,32 @@ public class GrouperClientWs {
   }
 
   /**
-   * 
+   * @param url
    * @param suffix of the url
    * @return the url
    */
-  private String webServiceUrl(String suffix) {
+  private String webServiceUrl(String url, String suffix) {
+    
+    //CH 20120208: I guess this isnt used since the base URL and object is used
     suffix = GrouperClientUtils.trimToEmpty(suffix);
     
     suffix = GrouperClientUtils.stripStart(suffix, "/");
     
-    String url = GrouperClientUtils.propertiesValue("grouperClient.webService.url", true);
+    //String url = GrouperClientUtils.propertiesValue("grouperClient.webService.url", true);
     
     url = GrouperClientUtils.stripEnd(url, "/");
     return url;
   }
-    
+
   /**
+   * @param url is the url to use
    * @param suffix e.g. groups/aStem:aGroup/members
    * @param clientVersion
    * @return the method
    */
-  private PostMethod postMethod(String suffix, String clientVersion) {
+  private PostMethod postMethod(String url, String suffix, String clientVersion) {
     
-    String url = webServiceUrl(suffix);
+    url = webServiceUrl(url, suffix);
     
     String webServiceVersion = GrouperClientUtils.propertiesValue("grouperClient.webService.client.version", true);
 
@@ -373,7 +518,7 @@ public class GrouperClientWs {
   }
 
   /**
-   * 
+   * @param url to use
    * @param theXstream
    * @param urlSuffix to put on end of base url, e.g. groups/aStem:aGroup/members
    * @param objectToMarshall is the bean to convert to XML, or it could be a string of xml
@@ -385,7 +530,7 @@ public class GrouperClientWs {
    * @throws HttpException 
    * @throws IOException 
    */
-  private PostMethod postMethod(XStream theXstream, 
+  private PostMethod postMethod(String url, XStream theXstream, 
       String urlSuffix, Object objectToMarshall, File logFile, int[] responseCode, String clientVersion) 
       throws UnsupportedEncodingException, HttpException, IOException {
     
@@ -393,7 +538,7 @@ public class GrouperClientWs {
     
     HttpClient httpClient = httpClient();
 
-    PostMethod postMethod = postMethod(urlSuffix, clientVersion);
+    PostMethod postMethod = postMethod(url, urlSuffix, clientVersion);
 
     String requestDocument = objectToMarshall instanceof String ? (String)objectToMarshall : marshalObject(theXstream, objectToMarshall);
     
