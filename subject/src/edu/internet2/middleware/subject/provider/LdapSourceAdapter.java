@@ -57,7 +57,6 @@ import edu.vt.middleware.ldap.Ldap;
 import edu.vt.middleware.ldap.LdapConfig;
 import edu.vt.middleware.ldap.SearchFilter;
 import edu.vt.middleware.ldap.pool.DefaultLdapFactory;
-import edu.vt.middleware.ldap.pool.LdapPoolConfig;
 import edu.vt.middleware.ldap.pool.LdapPool;
 import edu.vt.middleware.ldap.pool.SoftLimitLdapPool;
 
@@ -581,17 +580,38 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
         try  {
             ldap =  (Ldap) ldapPool.checkOut();
 
-            // set params
-            String base = search.getParam("base");
-            if (base!=null) ldap.getLdapConfig().setBase(base);
-            String scope = search.getParam("scope");
-            if (scope!=null) {
-               if (scope.equals("OBJECT_SCOPE")) ldap.getLdapConfig().setSearchScope(LdapConfig.SearchScope.OBJECT);
-               if (scope.equals("ONELEVEL_SCOPE")) ldap.getLdapConfig().setSearchScope(LdapConfig.SearchScope.ONELEVEL);
-               if (scope.equals("SUBTREE_SCOPE")) ldap.getLdapConfig().setSearchScope(LdapConfig.SearchScope.SUBTREE);
+            SearchControls searchControls = new SearchControls();
+            searchControls.setReturningAttributes(attributeNames);
+            
+            //if we are at the end of the page
+            if (firstPageOnly && this.maxPage != null) {
+              searchControls.setCountLimit(this.maxPage+1);
             }
-
-            results = ldap.search(new SearchFilter(filter), attributeNames );
+            
+            // get params
+            String base = search.getParam("base");
+            // nope, immutable
+            // if (base!=null) ldap.getLdapConfig().setBase(base);            
+            // if the base is not configured in sources.xml, use the default
+            if (base == null) {
+            	base = ldap.getLdapConfig().getBaseDn();
+            }
+                                    
+            String scope = search.getParam("scope");                                    
+            if (scope!=null) {
+               // nope, immutable
+               // if (scope.equals("OBJECT_SCOPE")) ldap.getLdapConfig().setSearchScope(LdapConfig.SearchScope.OBJECT);
+               // if (scope.equals("ONELEVEL_SCOPE")) ldap.getLdapConfig().setSearchScope(LdapConfig.SearchScope.ONELEVEL);
+               // if (scope.equals("SUBTREE_SCOPE")) ldap.getLdapConfig().setSearchScope(LdapConfig.SearchScope.SUBTREE);
+               
+               if (scope.equals("OBJECT_SCOPE")) searchControls.setSearchScope(LdapConfig.SearchScope.OBJECT.scope());
+               if (scope.equals("ONELEVEL_SCOPE")) searchControls.setSearchScope(LdapConfig.SearchScope.ONELEVEL.scope());
+               if (scope.equals("SUBTREE_SCOPE")) searchControls.setSearchScope(LdapConfig.SearchScope.SUBTREE.scope());
+            } else {
+            	searchControls.setSearchScope(ldap.getLdapConfig().getSearchScope().scope());
+            }
+                                               
+            results = ldap.search(base, new SearchFilter(filter), searchControls);
         } catch (NamingException ex) {
             log.error("Ldap NamingException: " + ex.getMessage(), ex);
             throw new SourceUnavailableException("Ldap NamingException: " + ex.getMessage(), ex);
