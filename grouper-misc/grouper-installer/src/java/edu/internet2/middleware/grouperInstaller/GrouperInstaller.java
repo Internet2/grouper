@@ -6,6 +6,7 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
@@ -998,7 +999,22 @@ public class GrouperInstaller {
     this.runClientCommand();
     
     //####################################
-    //run a client command
+    //install psp
+    System.out.print("Do you want to install the provisioning service provider (t|f)? [t]: ");
+    if (readFromStdInBoolean(true)) {
+    	File pspDir = downloadPsp();
+    	File unzippedPspFile = unzip(pspDir.getAbsolutePath());
+        File untarredPspDir = untar(unzippedPspFile.getAbsolutePath());              
+        try {
+			GrouperInstallerUtils.copyDirectory(untarredPspDir, untarredApiDir);
+		} catch (IOException e) {
+			System.err.println("An error occurred : " + e.getMessage());
+			e.printStackTrace();
+		}                
+    }    
+    
+    //####################################
+    //success
     System.out.println("\nInstallation success!");
     System.out.println("\nGo here for the Grouper UI (change hostname if on different host): http://localhost:" + this.tomcatHttpPort + "/" + this.tomcatUiPath + "/");
     System.out.println("\nThis is the Grouper WS URL (change hostname if on different host): http://localhost:" + this.tomcatHttpPort + "/" + this.tomcatWsPath + "/");
@@ -2579,5 +2595,26 @@ public class GrouperInstaller {
     }
     return unzippedFile;
   }
-  
+
+  /**
+   * 
+   * @return the file of the directory of the psp
+   */
+  private File downloadPsp() {
+    String urlToDownload = GrouperInstallerUtils.propertiesValue("download.server.url", true);
+    
+    if (!urlToDownload.endsWith("/")) {
+      urlToDownload += "/";
+    }
+    urlToDownload += "release/";
+
+    String pspFileName = "grouper.psp-" + this.version + ".tar.gz";
+    urlToDownload += this.version + "/" + pspFileName;
+
+    File pspFile = new File(this.grouperInstallDirectoryString + pspFileName);
+    
+    downloadFile(urlToDownload, pspFile.getAbsolutePath());
+
+    return pspFile;
+  }
 }
