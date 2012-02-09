@@ -616,7 +616,7 @@ public class DiscoveryClient {
       /**
        * logic to get the discovery file
        */
-      @Override
+      // @Override
       public File logic(FailoverLogicBean failoverLogicBean) {
         
         Map<String, Object> logMap = log.isDebugEnabled() ? new LinkedHashMap<String, Object>() : null;
