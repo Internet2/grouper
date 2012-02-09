@@ -25,24 +25,26 @@ import edu.internet2.middleware.grouper.filter.QueryFilter;
  */
 public abstract class AbstractFilter<T> implements Filter<T> {
 
-  /** The grouper session. */
-  private GrouperSession grouperSession;
-
   /** The underlying query filter. */
   private QueryFilter<T> queryFilter;
+
+  /**
+   * Start a new root session if necessary, otherwise reuse existing threadlocal session.
+   * 
+   * @return the root grouper session
+   */
+  public GrouperSession getGrouperSession() {
+    GrouperSession grouperSession = GrouperSession.staticGrouperSession(false);
+    if (grouperSession == null) {
+      grouperSession = GrouperSession.startRootSession(true);
+    }
+
+    return grouperSession;
+  }
 
   /** {@inheritDoc} */
   public Set<T> getResults(GrouperSession s) throws QueryException {
     return getQueryFilter().getResults(s);
-  }
-
-  /**
-   * Get the grouper session. Re-uses the same session. A grouper session must have been started already in the jvm.
-   * 
-   * @return the grouper session
-   */
-  public GrouperSession getGrouperSession() {
-    return grouperSession;
   }
 
   /**
@@ -61,15 +63,6 @@ public abstract class AbstractFilter<T> implements Filter<T> {
    */
   public void setQueryFilter(QueryFilter<T> queryFilter) {
     this.queryFilter = queryFilter;
-  }
-
-  /**
-   * Set the grouper session.
-   * 
-   * @param grouperSession
-   */
-  public void setGrouperSession(GrouperSession grouperSession) {
-    this.grouperSession = grouperSession;
   }
 
 }

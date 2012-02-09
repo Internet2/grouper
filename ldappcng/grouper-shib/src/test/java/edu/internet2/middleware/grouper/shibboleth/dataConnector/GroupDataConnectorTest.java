@@ -480,18 +480,6 @@ public class GroupDataConnectorTest extends BaseDataConnectorTest {
     }
   }
 
-  public void testCustomSubjectId() {
-    try {
-      GenericApplicationContext gContext = BaseDataConnectorTest.createSpringContext(TEST_PATH
-          + "GroupDataConnectorTest-resolver-subjectId.xml");
-      GroupDataConnector gdc = (GroupDataConnector) gContext.getBean("customSubjectId");
-      Map<String, BaseAttribute> map = gdc.resolve(getShibContext("notfound"));
-      assertTrue(map.isEmpty());
-    } catch (Exception e) {
-      throw new RuntimeException(e);
-    }
-  }
-
   public void testAttributeDef() {
     groupA.getAttributeValueDelegate().assignValuesString("parentStem:mailAlternateAddress",
         GrouperUtil.toSet("foo@memphis.edu", "bar@memphis.edu"), true);
