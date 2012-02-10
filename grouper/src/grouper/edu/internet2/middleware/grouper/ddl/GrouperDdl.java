@@ -740,7 +740,12 @@ public enum GrouperDdl implements DdlVersionable {
           Stem.TABLE_GROUPER_STEMS, true);
 
       addStemAlternateNameCol(database, ddlVersionBean, stemsTable);
-      addPITSourceIdColumns(database, ddlVersionBean);  
+      addPITSourceIdColumns(database, ddlVersionBean);
+      
+      Table compositeTable = GrouperDdlUtils.ddlutilsFindTable(database, 
+          Composite.TABLE_GROUPER_COMPOSITES, true);
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, compositeTable.getName(), 
+          "composite_composite_idx", true, "owner");
     }
 
   },
@@ -1480,7 +1485,7 @@ public enum GrouperDdl implements DdlVersionable {
             Types.BIGINT, "20", false, true);
   
         GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, compositeTable.getName(), 
-            "composite_composite_idx", false, "owner");
+            "composite_composite_idx", true, "owner");
   
         GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, compositeTable.getName(), 
             "composite_createtime_idx", false, "create_time");
