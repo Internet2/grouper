@@ -478,7 +478,7 @@ public class FailoverClient implements Serializable {
   private static class DaemonThreadFactory implements ThreadFactory {
     private ThreadFactory threadFactory = Executors.defaultThreadFactory();
 
-    // @Override
+    @Override
     public Thread newThread(Runnable r) {
       Thread thread = threadFactory.newThread(r);
       thread.setDaemon(true);
