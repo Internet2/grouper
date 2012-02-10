@@ -371,7 +371,8 @@ public class GcAssignPermissions {
 
       //kick off the web service
       wsAssignPermissionsResults = (WsAssignPermissionsResults)
-        grouperClientWs.executeService("permissionAssignments", assignPermissions, "getPermissionAssignments", this.clientVersion);
+        grouperClientWs.executeService("permissionAssignments", 
+            assignPermissions, "getPermissionAssignments", this.clientVersion, false);
 
       String resultMessage = wsAssignPermissionsResults.getResultMetadata().getResultMessage();
       grouperClientWs.handleFailure(wsAssignPermissionsResults, null, resultMessage);

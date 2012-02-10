@@ -335,7 +335,7 @@ public class GcAddMember {
       //    + GrouperClientUtils.escapeUrlEncode(this.groupName) + "/members";
       String urlSuffix = "groups";
       wsAddMemberResults = (WsAddMemberResults)
-        grouperClientWs.executeService(urlSuffix, addMember, "addMember", this.clientVersion);
+        grouperClientWs.executeService(urlSuffix, addMember, "addMember", this.clientVersion, false);
       
       String resultMessage = wsAddMemberResults.getResultMetadata().getResultMessage();
       grouperClientWs.handleFailure(wsAddMemberResults, wsAddMemberResults.getResults(), resultMessage);

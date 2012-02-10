@@ -146,7 +146,7 @@ public class GcGroupSave {
       
       //kick off the web service
       wsGroupSaveResults = (WsGroupSaveResults)
-        grouperClientWs.executeService("groups", groupSave, "groupSave", this.clientVersion);
+        grouperClientWs.executeService("groups", groupSave, "groupSave", this.clientVersion, false);
       
       String groupSaveResultMessage = "";
       

@@ -578,17 +578,23 @@ public class FailoverClient implements Serializable {
       throw new RuntimeException("Why are there no connections for type: " + this.failoverConfig.getConnectionType());
     }
     
+    //dont use threads if only one connection...
     if (GrouperClientUtils.length(orderedConnections) == 1) {
       String theFailoverConnectionName = orderedConnections.get(0);
       if (LOG.isDebugEnabled()) {
-        LOG.debug("Not load balancing connection type: " + this.failoverConfig.getConnectionType() + ", name: " + theFailoverConnectionName);
+        LOG.debug("Not load balancing connection type: " + this.failoverConfig.getConnectionType() 
+            + ", name: " + theFailoverConnectionName + " since number of connections is 1");
       }
-      return failoverLogic.logic(new FailoverLogicBean(false, theFailoverConnectionName));
+      return failoverLogic.logic(new FailoverLogicBean(false, theFailoverConnectionName, true));
     }
  
     final Object[] results = new Object[orderedConnections.size()];
     final Boolean[] successes = new Boolean[orderedConnections.size()];
  
+    if (!GrouperClientUtils.propertiesValueBoolean("grouperClient.failoverClientUseThreads", true, false)) {
+      useThreads = false;
+    }
+    
     //lets run the logic with a timeout for each connection
     for (int i = 0; i < orderedConnections.size(); i++) {
      
@@ -601,7 +607,7 @@ public class FailoverClient implements Serializable {
           if (LOG.isDebugEnabled()) {
             LOG.debug("Trying connection (init): " + connectionName);
           }
-          results[I] = failoverLogic.logic(new FailoverLogicBean(false, connectionName));
+          results[I] = failoverLogic.logic(new FailoverLogicBean(false, connectionName, i == orderedConnections.size()-1));
           if (LOG.isDebugEnabled()) {
             LOG.debug("Finished failover connection (init): " + connectionName);
           }
@@ -621,14 +627,14 @@ public class FailoverClient implements Serializable {
        
         Callable<T> callable = new Callable<T>() {
  
-          // @Override
+          @Override
           public T call() throws Exception {
             try {
 
               if (LOG.isDebugEnabled()) {
                 LOG.debug("Trying failover connection: " + connectionName + ", id: " + id);
               }
-              results[I] = failoverLogic.logic(new FailoverLogicBean(true, connectionName));
+              results[I] = failoverLogic.logic(new FailoverLogicBean(true, connectionName, I == orderedConnections.size()-1));
               if (LOG.isDebugEnabled()) {
                 LOG.debug("Finished failover connection: " + connectionName + ", " + id);
               }

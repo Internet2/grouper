@@ -20,8 +20,8 @@ Encrypt passwords for storing passwords in external encrypted files:
 Usage (this message):
   java -jar grouperClient.jar
 
-Send file to web service:
-  java -jar grouperClient.jar --operation=sendFile --urlSuffix=groups/aStem:aGroup/members [fileName=theFileName] [fileContents=theFileContents] [--contentType=text/xml] [--labelForLog=addMember] [--indentOutput=false] [--saveResultsToFile=fileName] [--debug=true] [--clientVersion=someVersion]
+Send file to web service (readOnly is a designation for the always available client):
+  java -jar grouperClient.jar --operation=sendFile --urlSuffix=groups/aStem:aGroup/members [fileName=theFileName] [fileContents=theFileContents] [--contentType=text/xml] [--labelForLog=addMember] [--indentOutput=false] [--saveResultsToFile=fileName] [--readOnly=true] [--debug=true] [--clientVersion=someVersion]
   e.g. java -jar grouperClient.jar --operation=sendFile --fileName="C:/addMember.xml" --urlSuffix=groups/aStem:aGroup/members
 
 ###############################################

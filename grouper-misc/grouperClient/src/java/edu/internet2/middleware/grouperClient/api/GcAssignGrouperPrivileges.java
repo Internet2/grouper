@@ -295,7 +295,8 @@ public class GcAssignGrouperPrivileges {
       
       //kick off the web service
       wsAssignGrouperPrivilegesResults = (WsAssignGrouperPrivilegesResults)
-        grouperClientWs.executeService("grouperPrivileges", wsAssignGrouperPrivileges, "assignGrouperPrivileges", this.clientVersion);
+        grouperClientWs.executeService("grouperPrivileges", wsAssignGrouperPrivileges, 
+            "assignGrouperPrivileges", this.clientVersion, false);
       
       String resultMessage = wsAssignGrouperPrivilegesResults.getResultMetadata().getResultMessage();
       grouperClientWs.handleFailure(wsAssignGrouperPrivilegesResults, null, resultMessage);

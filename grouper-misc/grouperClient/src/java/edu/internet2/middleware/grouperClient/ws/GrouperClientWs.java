@@ -9,11 +9,20 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
+import edu.internet2.middleware.grouperClient.GrouperClientWsException;
 import edu.internet2.middleware.grouperClient.discovery.DiscoveryClient;
+import edu.internet2.middleware.grouperClient.failover.FailoverClient;
+import edu.internet2.middleware.grouperClient.failover.FailoverConfig;
+import edu.internet2.middleware.grouperClient.failover.FailoverLogic;
+import edu.internet2.middleware.grouperClient.failover.FailoverLogicBean;
+import edu.internet2.middleware.grouperClient.failover.FailoverConfig.FailoverStrategy;
 import edu.internet2.middleware.grouperClient.util.GrouperClientLog;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.grouperClient.util.GrouperClientXstreamUtils;
@@ -195,9 +204,257 @@ public class GrouperClientWs {
           }
           
           if (needsReconfigure) {
+            
             //register the failover client
+            FailoverConfig failoverConfig = new FailoverConfig();
+            
+            //lets get the defaults
+            
+            {
+              boolean foundOne = false;
+              //grouperClient.discoveryDefault.webService.readWrite.0.url = 
+              List<String> readWriteUrls = new ArrayList<String>();
+              for (int i=0;i<100;i++) {
+                String readWriteUrl = GrouperClientUtils.propertiesValue("grouperClient.discoveryDefault.webService.readWrite." + i + ".url", false);
+                if (GrouperClientUtils.isBlank(readWriteUrl)) {
+                  break;
+                }
+                foundOne = true;
+                if (!GrouperClientUtils.isBlank(readWriteUrl)) {
+                  readWriteUrls.add(readWriteUrl);
+                }
+              }
+              if (foundOne) {
+                failoverConfig.setConnectionNames(readWriteUrls);
+              }
+            }
             
             
+            {
+              boolean foundOne = false;
+              //grouperClient.discoveryDefault.webService.readOnly.0.url = 
+              List<String> readOnlyUrls = new ArrayList<String>();
+              for (int i=0;i<100;i++) {
+                String readOnlyUrl = GrouperClientUtils.propertiesValue("grouperClient.discoveryDefault.webService.readOnly." + i + ".url", false);
+                if (GrouperClientUtils.isBlank(readOnlyUrl)) {
+                  break;
+                }
+                foundOne = true;
+                if (!GrouperClientUtils.isBlank(readOnlyUrl)) {
+                  readOnlyUrls.add(readOnlyUrl);
+                }
+              }
+              if (foundOne) {
+                failoverConfig.setConnectionNamesSecondTier(readOnlyUrls);
+              }
+            }            
+            
+            //grouperClient.discoveryDefault.webService.loadBalancing = active/active
+            FailoverStrategy failoverStrategy = FailoverStrategy.valueOfIgnoreCase(
+                GrouperClientUtils.propertiesValue("grouperClient.discoveryDefault.webService.loadBalancing", false), false);
+            if (failoverStrategy != null) {
+              failoverConfig.setFailoverStrategy(failoverStrategy);
+            }
+            
+            //grouperClient.discoveryDefault.webService.preferReadWrite = true
+            boolean preferReadWrite = true;
+            preferReadWrite = GrouperClientUtils.propertiesValueBoolean("grouperClient.discoveryDefault.webService.preferReadWrite", preferReadWrite, false);
+            //TODO deal with this
+            
+            //grouperClient.discoveryDefault.webService.affinitySeconds = 28800
+            int affinitySeconds = failoverConfig.getAffinitySeconds();
+            affinitySeconds = GrouperClientUtils.propertiesValueInt("grouperClient.discoveryDefault.webService.affinitySeconds", affinitySeconds, false);
+            failoverConfig.setAffinitySeconds(affinitySeconds);
+            
+            //grouperClient.discoveryDefault.webService.lowerConnectionPriorityOnErrorForMinutes = 180
+            int lowerConnectionPriorityOnErrorForMinutes = failoverConfig.getMinutesToKeepErrors();
+            lowerConnectionPriorityOnErrorForMinutes = GrouperClientUtils.propertiesValueInt("grouperClient.discoveryDefault.webService.lowerConnectionPriorityOnErrorForMinutes", lowerConnectionPriorityOnErrorForMinutes, false);
+            failoverConfig.setMinutesToKeepErrors(lowerConnectionPriorityOnErrorForMinutes);
+            
+            //grouperClient.discoveryDefault.webService.timeoutSeconds = 60
+            int timeoutSeconds = failoverConfig.getTimeoutSeconds();
+            timeoutSeconds = GrouperClientUtils.propertiesValueInt("grouperClient.discoveryDefault.webService.timeoutSeconds", timeoutSeconds, false);
+            failoverConfig.setTimeoutSeconds(timeoutSeconds);
+            
+            //grouperClient.discoveryDefault.webService.extraTimeoutSeconds = 30
+            int extraTimeoutSeconds = failoverConfig.getExtraTimeoutSeconds();
+            extraTimeoutSeconds = GrouperClientUtils.propertiesValueInt("grouperClient.discoveryDefault.webService.extraTimeoutSeconds", extraTimeoutSeconds, false);
+            failoverConfig.setExtraTimeoutSeconds(extraTimeoutSeconds);
+            
+            //if there is a discovery file, then use it
+            if (discoveryFile != null) {
+              Properties properties = GrouperClientUtils.propertiesFromFile(discoveryFile);
+              
+              {
+                boolean foundOne = false;
+                //grouperClient.discovery.webService.readWrite.0.url = 
+                List<String> readWriteUrls = new ArrayList<String>();
+                for (int i=0;i<100;i++) {
+                  String readWriteUrl = GrouperClientUtils.propertiesValue(properties, "grouperClient.discovery.webService.readWrite." + i + ".url");
+                  if (GrouperClientUtils.isBlank(readWriteUrl)) {
+                    break;
+                  }
+                  foundOne = true;
+                  if (!GrouperClientUtils.isBlank(readWriteUrl)) {
+                    readWriteUrls.add(readWriteUrl);
+                  }
+                }
+                if (foundOne) {
+                  failoverConfig.setConnectionNames(readWriteUrls);
+                }
+              }
+              
+              {
+                boolean foundOne = false;
+                //grouperClient.discovery.webService.readOnly.0.url = 
+                List<String> readOnlyUrls = new ArrayList<String>();
+                for (int i=0;i<100;i++) {
+                  String readOnlyUrl = GrouperClientUtils.propertiesValue(properties, "grouperClient.discovery.webService.readOnly." + i + ".url");
+                  if (GrouperClientUtils.isBlank(readOnlyUrl)) {
+                    break;
+                  }
+                  foundOne = true;
+                  if (!GrouperClientUtils.isBlank(readOnlyUrl)) {
+                    readOnlyUrls.add(readOnlyUrl);
+                  }
+                }
+                if (foundOne) {
+                  failoverConfig.setConnectionNamesSecondTier(readOnlyUrls);
+                }
+              }            
+              
+              //grouperClient.discovery.webService.loadBalancing = active/active
+              failoverStrategy = FailoverStrategy.valueOfIgnoreCase(
+                  GrouperClientUtils.propertiesValue(properties, "grouperClient.discovery.webService.loadBalancing"), false);
+              if (failoverStrategy != null) {
+                failoverConfig.setFailoverStrategy(failoverStrategy);
+              }
+              
+              //grouperClient.discovery.webService.preferReadWrite = true
+              preferReadWrite = GrouperClientUtils.propertiesValueBoolean(properties, "grouperClient.discovery.webService.preferReadWrite", preferReadWrite);
+              
+              //grouperClient.discovery.webService.affinitySeconds = 28800
+              affinitySeconds = GrouperClientUtils.propertiesValueInt(properties, null, "grouperClient.discovery.webService.affinitySeconds", affinitySeconds);
+              failoverConfig.setAffinitySeconds(affinitySeconds);
+              
+              //grouperClient.discovery.webService.lowerConnectionPriorityOnErrorForMinutes = 3
+              lowerConnectionPriorityOnErrorForMinutes = GrouperClientUtils.propertiesValueInt(properties, 
+                  null, "grouperClient.discovery.webService.lowerConnectionPriorityOnErrorForMinutes", lowerConnectionPriorityOnErrorForMinutes);
+              failoverConfig.setMinutesToKeepErrors(lowerConnectionPriorityOnErrorForMinutes);
+              
+              //grouperClient.discovery.webService.timeoutSeconds = 60
+              timeoutSeconds = GrouperClientUtils.propertiesValueInt(properties, null, "grouperClient.discovery.webService.timeoutSeconds", timeoutSeconds);
+              failoverConfig.setTimeoutSeconds(timeoutSeconds);
+              
+              //grouperClient.discovery.webService.extraTimeoutSeconds = 30
+              extraTimeoutSeconds = GrouperClientUtils.propertiesValueInt(properties, null, "grouperClient.discovery.webService.extraTimeoutSeconds", extraTimeoutSeconds);
+              failoverConfig.setExtraTimeoutSeconds(extraTimeoutSeconds);
+              
+            }
+            
+            {
+              boolean foundOne = false;
+              //#grouperClient.discoveryOverride.webService.readWrite.0.url = 
+              List<String> readWriteUrls = new ArrayList<String>();
+              for (int i=0;i<100;i++) {
+                String readWriteUrl = GrouperClientUtils.propertiesValue("grouperClient.discoveryOverride.webService.readWrite." + i + ".url", false);
+                if (GrouperClientUtils.isBlank(readWriteUrl)) {
+                  break;
+                }
+                foundOne = true;
+                if (!GrouperClientUtils.isBlank(readWriteUrl)) {
+                  readWriteUrls.add(readWriteUrl);
+                }
+              }
+              if (foundOne) {
+                failoverConfig.setConnectionNames(readWriteUrls);
+              }
+            }
+            
+            
+            {
+              boolean foundOne = false;
+              //#grouperClient.discoveryOverride.webService.readOnly.0.url = 
+              List<String> readOnlyUrls = new ArrayList<String>();
+              for (int i=0;i<100;i++) {
+                String readOnlyUrl = GrouperClientUtils.propertiesValue("grouperClient.discoveryOverride.webService.readOnly." + i + ".url", false);
+                if (GrouperClientUtils.isBlank(readOnlyUrl)) {
+                  break;
+                }
+                foundOne = true;
+                if (!GrouperClientUtils.isBlank(readOnlyUrl)) {
+                  readOnlyUrls.add(readOnlyUrl);
+                }
+              }
+              if (foundOne) {
+                failoverConfig.setConnectionNamesSecondTier(readOnlyUrls);
+              }
+            }            
+            
+            //#grouperClient.discoveryOverride.webService.loadBalancing = active/active
+            failoverStrategy = FailoverStrategy.valueOfIgnoreCase(
+                GrouperClientUtils.propertiesValue("grouperClient.discoveryOverride.webService.loadBalancing", false), false);
+            if (failoverStrategy != null) {
+              failoverConfig.setFailoverStrategy(failoverStrategy);
+            }
+            
+            //#grouperClient.discoveryOverride.webService.preferReadWrite = true
+            preferReadWrite = GrouperClientUtils.propertiesValueBoolean("grouperClient.discoveryOverride.webService.preferReadWrite", preferReadWrite, false);
+            
+            //#grouperClient.discoveryOverride.webService.affinitySeconds = 28800
+            affinitySeconds = GrouperClientUtils.propertiesValueInt("grouperClient.discoveryOverride.webService.affinitySeconds", affinitySeconds, false);
+            failoverConfig.setAffinitySeconds(affinitySeconds);
+            
+            //#grouperClient.discoveryOverride.webService.lowerConnectionPriorityOnErrorForMinutes = 180
+            lowerConnectionPriorityOnErrorForMinutes = GrouperClientUtils.propertiesValueInt("grouperClient.discoveryOverride.webService.lowerConnectionPriorityOnErrorForMinutes", lowerConnectionPriorityOnErrorForMinutes, false);
+            failoverConfig.setMinutesToKeepErrors(lowerConnectionPriorityOnErrorForMinutes);
+            
+            //#grouperClient.discoveryOverride.webService.timeoutSeconds = 60
+            timeoutSeconds = GrouperClientUtils.propertiesValueInt(
+                "grouperClient.discoveryOverride.webService.timeoutSeconds", timeoutSeconds, false);
+            failoverConfig.setTimeoutSeconds(timeoutSeconds);
+            
+            //#grouperClient.discoveryOverride.webService.extraTimeoutSeconds = 30
+            extraTimeoutSeconds = GrouperClientUtils.propertiesValueInt(
+                "grouperClient.discoveryOverride.webService.extraTimeoutSeconds", extraTimeoutSeconds, false);
+            failoverConfig.setExtraTimeoutSeconds(extraTimeoutSeconds);
+            
+            {
+              FailoverConfig failoverConfigReadWrite = new FailoverConfig();
+              failoverConfigReadWrite.copyFromArgument(failoverConfig);
+              //we dont want the second tier since no readonly urls
+              failoverConfigReadWrite.setConnectionNamesSecondTier(null);
+              //if there are no urls, then add the default one
+              if (GrouperClientUtils.length(failoverConfigReadWrite.getConnectionNames()) == 0) {
+                failoverConfigReadWrite.setConnectionNames(GrouperClientUtils.toList(
+                    GrouperClientUtils.propertiesValue("grouperClient.webService.url", true)));
+              }
+              failoverConfigReadWrite.setConnectionType(READ_WRITE_FAILOVER_CONFIG_NAME);
+              FailoverClient.initFailoverClient(failoverConfigReadWrite);
+            }            
+            
+            {
+              FailoverConfig failoverConfigReadOnly = new FailoverConfig();
+              failoverConfigReadOnly.copyFromArgument(failoverConfig);
+              if (!preferReadWrite && GrouperClientUtils.length(failoverConfig.getConnectionNamesSecondTier()) > 0) {
+
+                //if not prefer readwrite, then add those to the first tier, and remove from second tier
+                if (failoverConfigReadOnly.getConnectionNames() == null) {
+                  failoverConfigReadOnly.setConnectionNames(new ArrayList<String>());
+                }
+                failoverConfigReadOnly.getConnectionNames().addAll(failoverConfigReadOnly.getConnectionNamesSecondTier());
+                failoverConfigReadOnly.setConnectionNamesSecondTier(null);
+              }
+
+              if (GrouperClientUtils.length(failoverConfigReadOnly.getConnectionNames()) == 0
+                  && GrouperClientUtils.length(failoverConfigReadOnly.getConnectionNamesSecondTier()) == 0) {
+                failoverConfigReadOnly.setConnectionNames(GrouperClientUtils.toList(
+                    GrouperClientUtils.propertiesValue("grouperClient.webService.url", true)));
+              }
+
+              failoverConfigReadOnly.setConnectionType(READ_ONLY_FAILOVER_CONFIG_NAME);
+              FailoverClient.initFailoverClient(failoverConfigReadOnly);
+            }            
             
           }
         }
@@ -206,6 +463,12 @@ public class GrouperClientWs {
     
   }
 
+  /** readonly failover config name */
+  public static final String READ_ONLY_FAILOVER_CONFIG_NAME = "grouperWsReadOnly";
+  
+  /** readwrite failover config name */
+  public static final String READ_WRITE_FAILOVER_CONFIG_NAME = "grouperWsReadWrite";
+  
   /**
    * see if needs reconfigure
    * @return true or false
@@ -223,21 +486,34 @@ public class GrouperClientWs {
    * @param toSend is the bean which will transform into XML, or just a string of XML to send...
    * @param labelForLog label if the request is logged to file
    * @param clientVersion 
+   * @param readOnly true if readonly, false if readwrite
    * @return the response object
    * @throws UnsupportedEncodingException
    * @throws HttpException
    * @throws IOException
    */
-  public Object executeService(String urlSuffix, Object toSend, String labelForLog, String clientVersion) 
-      throws UnsupportedEncodingException, HttpException, IOException {
+  public Object executeService(final String urlSuffix, final Object toSend, 
+      final String labelForLog, final String clientVersion, final boolean readOnly)  {
     
     //configure the failover client (every 30 seconds)
-    //configureFailoverClient();
+    configureFailoverClient();
     
     String url = GrouperClientUtils.propertiesValue("grouperClient.webService.url", true);
     
     //copy the grouper client ws instance to this
-    return executeServiceHelper(url, urlSuffix, toSend, labelForLog, clientVersion);
+    
+    String connectionType = readOnly ? READ_ONLY_FAILOVER_CONFIG_NAME : READ_WRITE_FAILOVER_CONFIG_NAME;
+    
+    return FailoverClient.failoverLogic(connectionType, new FailoverLogic<Object>() {
+
+      @Override
+      public Object logic(FailoverLogicBean failoverLogicBean) {
+        
+        //if not last connection then throw exception if not success.  If last connection then return the object
+        return executeServiceHelper(failoverLogicBean.getConnectionName(), 
+            urlSuffix, toSend, labelForLog, clientVersion, !failoverLogicBean.isLastConnection());
+      }
+    });
     
   }
 
@@ -247,13 +523,13 @@ public class GrouperClientWs {
    * @param toSend is the bean which will transform into XML, or just a string of XML to send...
    * @param labelForLog label if the request is logged to file
    * @param clientVersion 
+   * @param exceptionOnNonSuccess if non success should exception be thrown
    * @return the response object
    * @throws UnsupportedEncodingException
    * @throws HttpException
    * @throws IOException
    */
-  private Object executeServiceHelper(String url, String urlSuffix, Object toSend, String labelForLog, String clientVersion) 
-      throws UnsupportedEncodingException, HttpException, IOException {
+  private Object executeServiceHelper(String url, String urlSuffix, Object toSend, String labelForLog, String clientVersion, boolean exceptionOnNonSuccess)  {
     
     String logDir = GrouperClientUtils.propertiesValue("grouperClient.logging.webService.documentDir", false);
     File requestFile = null;
@@ -356,9 +632,13 @@ public class GrouperClientWs {
     
     //see if problem
     if (resultObject instanceof WsRestResultProblem) {
-      throw new RuntimeException(((WsRestResultProblem)resultObject).getResultMetadata().getResultMessage());
+      throw new GrouperClientWsException(resultObject, ((WsRestResultProblem)resultObject).getResultMetadata().getResultMessage());
     }
 
+    if (exceptionOnNonSuccess && !this.success) {
+      throw new GrouperClientWsException(resultObject, "Result code: " + this.resultCode + ", on url: " + url );
+    }
+    
     return resultObject;
   }
 
@@ -533,79 +813,86 @@ public class GrouperClientWs {
    * @throws IOException 
    */
   private PostMethod postMethod(String url, XStream theXstream, 
-      String urlSuffix, Object objectToMarshall, File logFile, int[] responseCode, String clientVersion) 
-      throws UnsupportedEncodingException, HttpException, IOException {
+      String urlSuffix, Object objectToMarshall, File logFile, int[] responseCode, String clientVersion)  {
     
-    String theContentType = GrouperClientUtils.defaultIfBlank(this.contentType, "text/xml");
-    
-    HttpClient httpClient = httpClient();
-
-    PostMethod postMethod = postMethod(url, urlSuffix, clientVersion);
-
-    String requestDocument = objectToMarshall instanceof String ? (String)objectToMarshall : marshalObject(theXstream, objectToMarshall);
-    
-    postMethod.setRequestEntity(new StringRequestEntity(requestDocument, theContentType, "UTF-8"));
-    
-    if (logFile != null || GrouperClientLog.debugToConsole()) {
-      if (logFile != null) {
-        LOG.debug("WebService: logging request to: " + GrouperClientUtils.fileCanonicalPath(logFile));
-      }
-      String theRequestDocument = requestDocument;
-      Exception indentException = null;
-      boolean isIndent = GrouperClientUtils.propertiesValueBoolean("grouperClient.logging.webService.indent", true, true);
-      if (isIndent) {
-        try {
-          theRequestDocument = GrouperClientUtils.indent(theRequestDocument, true);
-        } catch (Exception e) {
-          indentException = e;
+    try {
+      String theContentType = GrouperClientUtils.defaultIfBlank(this.contentType, "text/xml");
+      
+      HttpClient httpClient = httpClient();
+  
+      PostMethod postMethod = postMethod(url, urlSuffix, clientVersion);
+  
+      String requestDocument = objectToMarshall instanceof String ? (String)objectToMarshall : marshalObject(theXstream, objectToMarshall);
+      
+      postMethod.setRequestEntity(new StringRequestEntity(requestDocument, theContentType, "UTF-8"));
+      
+      if (logFile != null || GrouperClientLog.debugToConsole()) {
+        if (logFile != null) {
+          LOG.debug("WebService: logging request to: " + GrouperClientUtils.fileCanonicalPath(logFile));
+        }
+        String theRequestDocument = requestDocument;
+        Exception indentException = null;
+        boolean isIndent = GrouperClientUtils.propertiesValueBoolean("grouperClient.logging.webService.indent", true, true);
+        if (isIndent) {
+          try {
+            theRequestDocument = GrouperClientUtils.indent(theRequestDocument, true);
+          } catch (Exception e) {
+            indentException = e;
+          }
+        }
+  
+        StringBuilder headers = new StringBuilder();
+  //      POST /grouper-ws/servicesRest/v1_4_000/subjects HTTP/1.1
+  //      Connection: close
+  //      Authorization: Basic bWNoeXplcjpEaxxxxxxxxxx==
+  //      User-Agent: Jakarta Commons-HttpClient/3.1
+  //      Host: localhost:8090
+  //      Content-Length: 226
+  //      Content-Type: text/xml; charset=UTF-8
+        headers.append("POST ").append(postMethod.getURI().getPathQuery()).append(" HTTP/1.1\n");
+        headers.append("Connection: close\n");
+        headers.append("Authorization: Basic xxxxxxxxxxxxxxxx\n");
+        headers.append("User-Agent: Jakarta Commons-HttpClient/3.1\n");
+        headers.append("Host: ").append(postMethod.getURI().getHost()).append(":")
+          .append(postMethod.getURI().getPort()).append("\n");
+        headers.append("Content-Length: ").append(
+            postMethod.getRequestEntity().getContentLength()).append("\n");
+        headers.append("Content-Type: ").append(
+            postMethod.getRequestEntity().getContentType()).append("\n");
+        headers.append("\n");
+        
+        String theRequest = headers + theRequestDocument;
+        if (logFile != null) {
+          GrouperClientUtils.saveStringIntoFile(logFile, theRequest);
+        }
+        if (GrouperClientLog.debugToConsole()) {
+          System.err.println("\n################ REQUEST START " + (isIndent ? "(indented) " : "") + "###############\n");
+          System.err.println(theRequest);
+          System.err.println("\n################ REQUEST END ###############\n\n");
+        }
+        if (indentException != null) {
+          throw new RuntimeException("Problems indenting xml (is it valid?), turn off the indenting in the " +
+          		"grouper.client.properties: grouperClient.logging.webService.indent", indentException);
         }
       }
-
-      StringBuilder headers = new StringBuilder();
-//      POST /grouper-ws/servicesRest/v1_4_000/subjects HTTP/1.1
-//      Connection: close
-//      Authorization: Basic bWNoeXplcjpEaxxxxxxxxxx==
-//      User-Agent: Jakarta Commons-HttpClient/3.1
-//      Host: localhost:8090
-//      Content-Length: 226
-//      Content-Type: text/xml; charset=UTF-8
-      headers.append("POST ").append(postMethod.getURI().getPathQuery()).append(" HTTP/1.1\n");
-      headers.append("Connection: close\n");
-      headers.append("Authorization: Basic xxxxxxxxxxxxxxxx\n");
-      headers.append("User-Agent: Jakarta Commons-HttpClient/3.1\n");
-      headers.append("Host: ").append(postMethod.getURI().getHost()).append(":")
-        .append(postMethod.getURI().getPort()).append("\n");
-      headers.append("Content-Length: ").append(
-          postMethod.getRequestEntity().getContentLength()).append("\n");
-      headers.append("Content-Type: ").append(
-          postMethod.getRequestEntity().getContentType()).append("\n");
-      headers.append("\n");
       
-      String theRequest = headers + theRequestDocument;
-      if (logFile != null) {
-        GrouperClientUtils.saveStringIntoFile(logFile, theRequest);
+      mostRecentRequest = requestDocument;
+      
+      int responseCodeInt = httpClient.executeMethod(postMethod);
+  
+      if (responseCode != null && responseCode.length > 0) {
+        responseCode[0] = responseCodeInt;
       }
-      if (GrouperClientLog.debugToConsole()) {
-        System.err.println("\n################ REQUEST START " + (isIndent ? "(indented) " : "") + "###############\n");
-        System.err.println(theRequest);
-        System.err.println("\n################ REQUEST END ###############\n\n");
+      
+      return postMethod;
+    } catch (Exception e) {
+      
+      if (e instanceof RuntimeException) {
+        throw (RuntimeException)e;
       }
-      if (indentException != null) {
-        throw new RuntimeException("Problems indenting xml (is it valid?), turn off the indenting in the " +
-        		"grouper.client.properties: grouperClient.logging.webService.indent", indentException);
-      }
+      
+      throw new RuntimeException("Problem in url: " + url, e);
     }
-    
-    mostRecentRequest = requestDocument;
-    
-    int responseCodeInt = httpClient.executeMethod(postMethod);
-
-    if (responseCode != null && responseCode.length > 0) {
-      responseCode[0] = responseCodeInt;
-    }
-    
-    return postMethod;
-
   }
   
   /**

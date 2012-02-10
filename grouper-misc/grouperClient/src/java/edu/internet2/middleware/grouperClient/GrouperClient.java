@@ -737,7 +737,9 @@ public class GrouperClient {
       boolean indentOutput = GrouperClientUtils.argMapBoolean(argMap, argMapNotUsed, "indentOutput", false, true);
       
       String contentType = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "contentType", false);
-      
+
+      boolean readOnly = GrouperClientUtils.argMapBoolean(argMap, argMapNotUsed, "readOnly", false, false);
+
       failOnArgsNotUsed(argMapNotUsed);
       
       GrouperClientWs grouperClientWs = new GrouperClientWs();
@@ -748,7 +750,7 @@ public class GrouperClient {
       
       try {
         //assume the url suffix is already escaped...
-        String results = (String)grouperClientWs.executeService(urlSuffix, fileContents, labelForLog, clientVersion);
+        String results = (String)grouperClientWs.executeService(urlSuffix, fileContents, labelForLog, clientVersion, readOnly);
 
         if (indentOutput) {
           results = GrouperClientUtils.indent(results, false);
