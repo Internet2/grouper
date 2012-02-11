@@ -73,7 +73,7 @@ public class FailoverConfig {
     
     this.affinitySeconds = failoverConfig.affinitySeconds;
     this.connectionNames = failoverConfig.connectionNames == null ? null : new ArrayList<String>(failoverConfig.connectionNames);
-    this.connectionNamesSecondTier = failoverConfig.connectionNamesSecondTier == null ? null : new ArrayList<String>(failoverConfig.connectionNames);
+    this.connectionNamesSecondTier = failoverConfig.connectionNamesSecondTier == null ? null : new ArrayList<String>(failoverConfig.connectionNamesSecondTier);
     
     this.connectionType = failoverConfig.connectionType;
     this.extraTimeoutSeconds = failoverConfig.extraTimeoutSeconds;

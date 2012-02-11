@@ -476,8 +476,6 @@ public class GrouperClient {
     
     SearchAttributeResultType searchAttributeResultType = gcLdapSearchAttributeConfig.getSearchAttributeResultTypeEnum();
     
-    log.debug("LDAP search attribute result type: " + searchAttributeResultType);
-    
     String outputTemplate = null;
     if (argMap.containsKey("outputTemplate")) {
       outputTemplate = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "outputTemplate", false);
@@ -486,7 +484,8 @@ public class GrouperClient {
       outputTemplate = gcLdapSearchAttributeConfig.getOutputTemplate();
     }
     
-    log.debug("Output template: " + outputTemplate);
+    log.debug("method: GrouperClient.ldapSearchAttribute, LDAP search attribute result type: " 
+        + searchAttributeResultType + ", Output template: " + outputTemplate);
 
     
     String results = searchAttributeResultType.processOutput(gcLdapSearchAttributeConfig, gcLdapSearchAttribute, outputTemplate);
@@ -589,7 +588,7 @@ public class GrouperClient {
       } else {
         outputTemplate = GrouperClientUtils.propertiesValue("webService.addMember.output", true);
       }
-      log.debug("Output template: " + outputTemplate + ", available variables: wsAddMemberResults, " +
+      log.debug("Output template: " + GrouperClientUtils.trim(outputTemplate) + ", available variables: wsAddMemberResults, " +
         "grouperClientUtils, wsGroupAssigned, index, wsAddMemberResult, wsSubject, resultMetadata");
 
       for (WsAddMemberResult wsAddMemberResult : wsAddMemberResults.getResults()) {

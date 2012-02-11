@@ -1,5 +1,6 @@
 package edu.internet2.middleware.grouperClient.util;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -13,6 +14,7 @@ import java.util.logging.SimpleFormatter;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import edu.internet2.middleware.grouperClient.discovery.DiscoveryClient;
 import edu.internet2.middleware.grouperClient.ws.beans.WsSubject;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.jexl.Expression;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.jexl.ExpressionFactory;
@@ -287,5 +289,37 @@ public class GrouperClientUtils extends GrouperClientCommonUtils {
     
     return encryptKey;
   }
+
+  /**
+   * name of the cache directory without trailing slash
+   * @return the name of the cache directory
+   */
+  public static String cacheDirectoryName() {
+    
+    if (cacheDirectoryName == null) {
+      String directoryName = propertiesValue("grouperClient.cacheDirectory", true);
+      if (GrouperClientCommonUtils.isBlank(directoryName)) {
+        throw new RuntimeException("grouperClient.cacheDirectory is required in grouper.client.properties");
+      }
+  
+      directoryName = GrouperClientCommonUtils.stripEnd(directoryName, "/");
+      directoryName = GrouperClientCommonUtils.stripEnd(directoryName, "\\");
+      
+      File discoveryDir = new File(directoryName);
+      directoryName = discoveryDir.getAbsolutePath();
+      if (directoryName.endsWith("/.")) {
+        directoryName = directoryName.substring(0, directoryName.length()-2);
+      }
+      if (directoryName.endsWith("\\.")) {
+        directoryName = directoryName.substring(0, directoryName.length()-2);
+      }
+      cacheDirectoryName = directoryName;
+    }    
+    return cacheDirectoryName;
+  }
+
+  /** cache directory name */
+  private static String cacheDirectoryName = null;
+  
 
 }
