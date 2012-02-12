@@ -574,8 +574,8 @@ public class Composite extends GrouperAPI implements GrouperHasContext, Hib3Grou
     super.onPreDelete(hibernateSession);
     
     // delete the composite memberships
-    Set<Membership> mships = GrouperDAOFactory.getFactory().getMembership().findAllByGroupOwnerAndField( 
-        this.getFactorOwnerUuid(), Group.getDefaultList(), false);
+    Set<Membership> mships = GrouperDAOFactory.getFactory().getMembership().findAllByGroupOwnerAndFieldAndType( 
+        this.getFactorOwnerUuid(), Group.getDefaultList(), "composite", false);
 
     membersDeletedOnPreDelete = new LinkedHashSet<String>();
     Iterator<Membership> iter = mships.iterator();

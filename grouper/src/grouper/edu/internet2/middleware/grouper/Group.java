@@ -1146,6 +1146,13 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
                   auditEntry.saveOrUpdate(true);
                 }
 
+                // just make sure again that the owner group isn't a composite,
+                // it could have been made into one while adding this membership..
+                // note that since the commit isn't done yet, this issue can still happen,
+                // but it would hopefully be much less likely..
+                if ((Group.getDefaultList().equals(f)) && (Group.this.hasComposite())) {
+                  throw new IllegalStateException("Group (name=" + Group.this.getName() + ") turned into a composite while adding an immediate membership.");
+                }
               }
               sw.stop();
               return doesntExist;
@@ -4848,6 +4855,14 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
               auditEntry.saveOrUpdate(true);
             }
 
+            // since the composite add could have taken a while if there were many memberships to add,
+            // make sure there weren't any immediate memberships added in the meantime..
+            // note that since the commit isn't done yet, this issue can still happen,
+            // but it would hopefully be much less likely..
+            Set<Membership> immediateMemberships = GrouperDAOFactory.getFactory().getMembership().findAllMembershipEntriesByGroupOwnerAndFieldAndType(Group.this.getUuid(), Group.getDefaultList(), "immediate", false);
+            if (immediateMemberships.size() > 0) {
+              throw new IllegalStateException("Immediate memberships were added to this group (name=" + Group.this.getName() + ") while making it a composite group");
+            }
             
             sw.stop();
             return c;
