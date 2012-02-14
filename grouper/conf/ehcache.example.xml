@@ -501,5 +501,348 @@
           overflowToDisk="false"
   />
 
+  <cache  name="edu.internet2.middleware.grouper.pit.PITAttributeAssign"
+          maxElementsInMemory="1000"
+          eternal="false"
+          timeToIdleSeconds="30"
+          timeToLiveSeconds="120"
+          overflowToDisk="false"
+  />
+
+  <cache  name="edu.internet2.middleware.grouper.pit.PITAttributeAssignAction"
+          maxElementsInMemory="1000"
+          eternal="false"
+          timeToIdleSeconds="30"
+          timeToLiveSeconds="120"
+          overflowToDisk="false"
+  />
+
+  <cache  name="edu.internet2.middleware.grouper.pit.PITAttributeAssignActionSet"
+          maxElementsInMemory="1000"
+          eternal="false"
+          timeToIdleSeconds="30"
+          timeToLiveSeconds="120"
+          overflowToDisk="false"
+  />
+
+  <cache  name="edu.internet2.middleware.grouper.pit.PITAttributeAssignValue"
+          maxElementsInMemory="1000"
+          eternal="false"
+          timeToIdleSeconds="30"
+          timeToLiveSeconds="120"
+          overflowToDisk="false"
+  />
+
+  <cache  name="edu.internet2.middleware.grouper.pit.PITAttributeAssignValueView"
+          maxElementsInMemory="1000"
+          eternal="false"
+          timeToIdleSeconds="30"
+          timeToLiveSeconds="120"
+          overflowToDisk="false"
+  />
+
+  <cache  name="edu.internet2.middleware.grouper.pit.PITAttributeDef"
+          maxElementsInMemory="1000"
+          eternal="false"
+          timeToIdleSeconds="30"
+          timeToLiveSeconds="120"
+          overflowToDisk="false"
+  />
+
+  <cache  name="edu.internet2.middleware.grouper.pit.PITAttributeDefName"
+          maxElementsInMemory="1000"
+          eternal="false"
+          timeToIdleSeconds="30"
+          timeToLiveSeconds="120"
+          overflowToDisk="false"
+  />
+
+  <cache  name="edu.internet2.middleware.grouper.pit.PITAttributeDefNameSet"
+          maxElementsInMemory="1000"
+          eternal="false"
+          timeToIdleSeconds="30"
+          timeToLiveSeconds="120"
+          overflowToDisk="false"
+  />
+
+  <cache  name="edu.internet2.middleware.grouper.pit.PITGroup"
+          maxElementsInMemory="1000"
+          eternal="false"
+          timeToIdleSeconds="30"
+          timeToLiveSeconds="120"
+          overflowToDisk="false"
+  />
+
+  <cache  name="edu.internet2.middleware.grouper.pit.PITGroupSet"
+          maxElementsInMemory="1000"
+          eternal="false"
+          timeToIdleSeconds="30"
+          timeToLiveSeconds="120"
+          overflowToDisk="false"
+  />
+
+  <cache  name="edu.internet2.middleware.grouper.pit.PITMember"
+          maxElementsInMemory="1000"
+          eternal="false"
+          timeToIdleSeconds="30"
+          timeToLiveSeconds="120"
+          overflowToDisk="false"
+  />
+
+  <cache  name="edu.internet2.middleware.grouper.pit.PITMembership"
+          maxElementsInMemory="1000"
+          eternal="false"
+          timeToIdleSeconds="30"
+          timeToLiveSeconds="120"
+          overflowToDisk="false"
+  />
+
+  <cache  name="edu.internet2.middleware.grouper.pit.PITMembershipView"
+          maxElementsInMemory="1000"
+          eternal="false"
+          timeToIdleSeconds="30"
+          timeToLiveSeconds="120"
+          overflowToDisk="false"
+  />
+
+  <cache  name="edu.internet2.middleware.grouper.pit.PITPermissionAllView"
+          maxElementsInMemory="1000"
+          eternal="false"
+          timeToIdleSeconds="30"
+          timeToLiveSeconds="120"
+          overflowToDisk="false"
+  />
+
+  <cache  name="edu.internet2.middleware.grouper.pit.PITRoleSet"
+          maxElementsInMemory="1000"
+          eternal="false"
+          timeToIdleSeconds="30"
+          timeToLiveSeconds="120"
+          overflowToDisk="false"
+  />
+
+  <cache  name="edu.internet2.middleware.grouper.pit.PITStem"
+          maxElementsInMemory="1000"
+          eternal="false"
+          timeToIdleSeconds="30"
+          timeToLiveSeconds="120"
+          overflowToDisk="false"
+  />
+
+  <cache  name="edu.internet2.middleware.grouper.internal.dao.hib3.Hib3PITAttributeAssignActionDAO.FindById"
+          maxElementsInMemory="1000"
+          eternal="false"
+          timeToIdleSeconds="30"
+          timeToLiveSeconds="120"
+          overflowToDisk="false"
+  />
+
+  <cache  name="edu.internet2.middleware.grouper.internal.dao.hib3.Hib3PITAttributeAssignActionSetDAO.FindById"
+          maxElementsInMemory="1000"
+          eternal="false"
+          timeToIdleSeconds="30"
+          timeToLiveSeconds="120"
+          overflowToDisk="false"
+  />
+
+  <cache  name="edu.internet2.middleware.grouper.internal.dao.hib3.Hib3PITAttributeAssignDAO.FindById"
+          maxElementsInMemory="1000"
+          eternal="false"
+          timeToIdleSeconds="30"
+          timeToLiveSeconds="120"
+          overflowToDisk="false"
+  />
+
+  <cache  name="edu.internet2.middleware.grouper.internal.dao.hib3.Hib3PITAttributeAssignValueDAO.FindById"
+          maxElementsInMemory="1000"
+          eternal="false"
+          timeToIdleSeconds="30"
+          timeToLiveSeconds="120"
+          overflowToDisk="false"
+  />
+
+  <cache  name="edu.internet2.middleware.grouper.internal.dao.hib3.Hib3PITAttributeDefDAO.FindById"
+          maxElementsInMemory="1000"
+          eternal="false"
+          timeToIdleSeconds="30"
+          timeToLiveSeconds="120"
+          overflowToDisk="false"
+  />
+
+  <cache  name="edu.internet2.middleware.grouper.internal.dao.hib3.Hib3PITAttributeDefNameDAO.FindById"
+          maxElementsInMemory="1000"
+          eternal="false"
+          timeToIdleSeconds="30"
+          timeToLiveSeconds="120"
+          overflowToDisk="false"
+  />
+
+  <cache  name="edu.internet2.middleware.grouper.internal.dao.hib3.Hib3PITAttributeDefNameSetDAO.FindById"
+          maxElementsInMemory="1000"
+          eternal="false"
+          timeToIdleSeconds="30"
+          timeToLiveSeconds="120"
+          overflowToDisk="false"
+  />
+
+  <cache  name="edu.internet2.middleware.grouper.internal.dao.hib3.Hib3PITGroupDAO.FindById"
+          maxElementsInMemory="1000"
+          eternal="false"
+          timeToIdleSeconds="30"
+          timeToLiveSeconds="120"
+          overflowToDisk="false"
+  />
+
+  <cache  name="edu.internet2.middleware.grouper.internal.dao.hib3.Hib3PITGroupSetDAO.FindById"
+          maxElementsInMemory="1000"
+          eternal="false"
+          timeToIdleSeconds="30"
+          timeToLiveSeconds="120"
+          overflowToDisk="false"
+  />
+
+  <cache  name="edu.internet2.middleware.grouper.internal.dao.hib3.Hib3PITMemberDAO.FindById"
+          maxElementsInMemory="1000"
+          eternal="false"
+          timeToIdleSeconds="30"
+          timeToLiveSeconds="120"
+          overflowToDisk="false"
+  />
+
+  <cache  name="edu.internet2.middleware.grouper.internal.dao.hib3.Hib3PITMembershipDAO.FindById"
+          maxElementsInMemory="1000"
+          eternal="false"
+          timeToIdleSeconds="30"
+          timeToLiveSeconds="120"
+          overflowToDisk="false"
+  />
+
+  <cache  name="edu.internet2.middleware.grouper.internal.dao.hib3.Hib3PITRoleSetDAO.FindById"
+          maxElementsInMemory="1000"
+          eternal="false"
+          timeToIdleSeconds="30"
+          timeToLiveSeconds="120"
+          overflowToDisk="false"
+  />
+
+  <cache  name="edu.internet2.middleware.grouper.internal.dao.hib3.Hib3PITStemDAO.FindById"
+          maxElementsInMemory="1000"
+          eternal="false"
+          timeToIdleSeconds="30"
+          timeToLiveSeconds="120"
+          overflowToDisk="false"
+  />
+
+  <cache  name="edu.internet2.middleware.grouper.internal.dao.hib3.Hib3PITAttributeAssignActionDAO.FindBySourceIdActive"
+          maxElementsInMemory="1000"
+          eternal="false"
+          timeToIdleSeconds="30"
+          timeToLiveSeconds="120"
+          overflowToDisk="false"
+  />
+
+  <cache  name="edu.internet2.middleware.grouper.internal.dao.hib3.Hib3PITAttributeAssignActionSetDAO.FindBySourceIdActive"
+          maxElementsInMemory="1000"
+          eternal="false"
+          timeToIdleSeconds="30"
+          timeToLiveSeconds="120"
+          overflowToDisk="false"
+  />
+
+  <cache  name="edu.internet2.middleware.grouper.internal.dao.hib3.Hib3PITAttributeAssignDAO.FindBySourceIdActive"
+          maxElementsInMemory="1000"
+          eternal="false"
+          timeToIdleSeconds="30"
+          timeToLiveSeconds="120"
+          overflowToDisk="false"
+  />
+
+  <cache  name="edu.internet2.middleware.grouper.internal.dao.hib3.Hib3PITAttributeAssignValueDAO.FindBySourceIdActive"
+          maxElementsInMemory="1000"
+          eternal="false"
+          timeToIdleSeconds="30"
+          timeToLiveSeconds="120"
+          overflowToDisk="false"
+  />
+
+  <cache  name="edu.internet2.middleware.grouper.internal.dao.hib3.Hib3PITAttributeDefDAO.FindBySourceIdActive"
+          maxElementsInMemory="1000"
+          eternal="false"
+          timeToIdleSeconds="30"
+          timeToLiveSeconds="120"
+          overflowToDisk="false"
+  />
+
+  <cache  name="edu.internet2.middleware.grouper.internal.dao.hib3.Hib3PITAttributeDefNameDAO.FindBySourceIdActive"
+          maxElementsInMemory="1000"
+          eternal="false"
+          timeToIdleSeconds="30"
+          timeToLiveSeconds="120"
+          overflowToDisk="false"
+  />
+
+  <cache  name="edu.internet2.middleware.grouper.internal.dao.hib3.Hib3PITAttributeDefNameSetDAO.FindBySourceIdActive"
+          maxElementsInMemory="1000"
+          eternal="false"
+          timeToIdleSeconds="30"
+          timeToLiveSeconds="120"
+          overflowToDisk="false"
+  />
+
+  <cache  name="edu.internet2.middleware.grouper.internal.dao.hib3.Hib3PITGroupDAO.FindBySourceIdActive"
+          maxElementsInMemory="1000"
+          eternal="false"
+          timeToIdleSeconds="30"
+          timeToLiveSeconds="120"
+          overflowToDisk="false"
+  />
+
+  <cache  name="edu.internet2.middleware.grouper.internal.dao.hib3.Hib3PITGroupSetDAO.FindBySourceIdActive"
+          maxElementsInMemory="1000"
+          eternal="false"
+          timeToIdleSeconds="30"
+          timeToLiveSeconds="120"
+          overflowToDisk="false"
+  />
+
+  <cache  name="edu.internet2.middleware.grouper.internal.dao.hib3.Hib3PITMemberDAO.FindBySourceIdActive"
+          maxElementsInMemory="1000"
+          eternal="false"
+          timeToIdleSeconds="30"
+          timeToLiveSeconds="120"
+          overflowToDisk="false"
+  />
+
+  <cache  name="edu.internet2.middleware.grouper.internal.dao.hib3.Hib3PITMembershipDAO.FindBySourceIdActive"
+          maxElementsInMemory="1000"
+          eternal="false"
+          timeToIdleSeconds="30"
+          timeToLiveSeconds="120"
+          overflowToDisk="false"
+  />
+
+  <cache  name="edu.internet2.middleware.grouper.internal.dao.hib3.Hib3PITRoleSetDAO.FindBySourceIdActive"
+          maxElementsInMemory="1000"
+          eternal="false"
+          timeToIdleSeconds="30"
+          timeToLiveSeconds="120"
+          overflowToDisk="false"
+  />
+
+  <cache  name="edu.internet2.middleware.grouper.internal.dao.hib3.Hib3PITStemDAO.FindBySourceIdActive"
+          maxElementsInMemory="1000"
+          eternal="false"
+          timeToIdleSeconds="30"
+          timeToLiveSeconds="120"
+          overflowToDisk="false"
+  />
+
+  <cache  name="edu.internet2.middleware.grouper.internal.dao.hib3.Hib3PITFieldDAO.FindBySourceIdActive"
+          maxElementsInMemory="1000"
+          eternal="false"
+          timeToIdleSeconds="30"
+          timeToLiveSeconds="120"
+          overflowToDisk="false"
+  />
 
 </ehcache>
