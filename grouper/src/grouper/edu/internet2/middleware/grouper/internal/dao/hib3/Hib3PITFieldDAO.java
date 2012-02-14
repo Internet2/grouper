@@ -73,7 +73,7 @@ public class Hib3PITFieldDAO extends Hib3DAO implements PITFieldDAO {
     PITField pitField = HibernateSession
       .byHqlStatic()
       .createQuery("select pitField from PITField as pitField where pitField.sourceId = :id")
-      .setCacheable(true).setCacheRegion(KLASS + ".FindBySourceIdUnique")
+      .setCacheable(false).setCacheRegion(KLASS + ".FindBySourceIdUnique")
       .setString("id", id)
       .uniqueResult(PITField.class);
     
@@ -91,7 +91,7 @@ public class Hib3PITFieldDAO extends Hib3DAO implements PITFieldDAO {
     Set<PITField> pitFields = HibernateSession
       .byHqlStatic()
       .createQuery("select pitField from PITField as pitField where pitField.sourceId = :id")
-      .setCacheable(true).setCacheRegion(KLASS + ".FindBySourceId")
+      .setCacheable(false).setCacheRegion(KLASS + ".FindBySourceId")
       .setString("id", id)
       .listSet(PITField.class);
     
@@ -109,7 +109,7 @@ public class Hib3PITFieldDAO extends Hib3DAO implements PITFieldDAO {
     PITField pit = HibernateSession
       .byHqlStatic()
       .createQuery("select pit from PITField as pit where pit.id = :id")
-      .setCacheable(false).setCacheRegion(KLASS + ".FindById")
+      .setCacheable(true).setCacheRegion(KLASS + ".FindById")
       .setString("id", id)
       .uniqueResult(PITField.class);
     

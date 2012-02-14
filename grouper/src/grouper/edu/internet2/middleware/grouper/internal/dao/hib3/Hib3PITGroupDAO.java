@@ -77,7 +77,7 @@ public class Hib3PITGroupDAO extends Hib3DAO implements PITGroupDAO {
     PITGroup pitGroup = HibernateSession
       .byHqlStatic()
       .createQuery("select pitGroup from PITGroup as pitGroup where pitGroup.sourceId = :id and activeDb = 'T'")
-      .setCacheable(false).setCacheRegion(KLASS + ".FindBySourceIdActive")
+      .setCacheable(true).setCacheRegion(KLASS + ".FindBySourceIdActive")
       .setString("id", id)
       .uniqueResult(PITGroup.class);
     
@@ -131,7 +131,7 @@ public class Hib3PITGroupDAO extends Hib3DAO implements PITGroupDAO {
     PITGroup pit = HibernateSession
       .byHqlStatic()
       .createQuery("select pit from PITGroup as pit where pit.id = :id")
-      .setCacheable(false).setCacheRegion(KLASS + ".FindById")
+      .setCacheable(true).setCacheRegion(KLASS + ".FindById")
       .setString("id", id)
       .uniqueResult(PITGroup.class);
     

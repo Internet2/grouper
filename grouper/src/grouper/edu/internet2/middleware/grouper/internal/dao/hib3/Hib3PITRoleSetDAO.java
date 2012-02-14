@@ -63,7 +63,7 @@ public class Hib3PITRoleSetDAO extends Hib3DAO implements PITRoleSetDAO {
     PITRoleSet pitRoleSet = HibernateSession
       .byHqlStatic()
       .createQuery("select roleSet from PITRoleSet as roleSet where roleSet.sourceId = :id and activeDb = 'T'")
-      .setCacheable(false).setCacheRegion(KLASS + ".FindBySourceIdActive")
+      .setCacheable(true).setCacheRegion(KLASS + ".FindBySourceIdActive")
       .setString("id", id)
       .uniqueResult(PITRoleSet.class);
     
@@ -99,7 +99,7 @@ public class Hib3PITRoleSetDAO extends Hib3DAO implements PITRoleSetDAO {
     PITRoleSet pit = HibernateSession
       .byHqlStatic()
       .createQuery("select pit from PITRoleSet as pit where pit.id = :id")
-      .setCacheable(false).setCacheRegion(KLASS + ".FindById")
+      .setCacheable(true).setCacheRegion(KLASS + ".FindById")
       .setString("id", id)
       .uniqueResult(PITRoleSet.class);
     
