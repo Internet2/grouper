@@ -17,6 +17,7 @@ import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.util.GrouperClientCommonUtils;
+import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 
 /**
  * <pre>
@@ -56,7 +57,7 @@ public class DiscoveryClientTest extends TestCase {
 
     List<File> testingFiles = new ArrayList<File>();
     
-    String cacheDirectoryName = DiscoveryClient.cacheDirectoryName();
+    String cacheDirectoryName = GrouperClientUtils.cacheDirectoryName();
     
     try {
       

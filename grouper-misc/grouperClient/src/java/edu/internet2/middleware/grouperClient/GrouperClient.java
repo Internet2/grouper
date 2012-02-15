@@ -678,7 +678,7 @@ public class GrouperClient {
     } else {
       outputTemplate = GrouperClientUtils.propertiesValue("webService.memberChangeSubject.output", true);
     }
-    log.debug("Output template: " + outputTemplate + ", available variables: wsMemberChangeSubjectResults, " +
+    log.debug("Output template: " + GrouperClientUtils.trim(outputTemplate) + ", available variables: wsMemberChangeSubjectResults, " +
       "grouperClientUtils, index, resultMetadata, wsMemberChangeSubjectResult, wsSubjectOld, wsSubjectNew");
   
     //there will only be one result, but loop anyways
@@ -839,7 +839,7 @@ public class GrouperClient {
     } else {
       outputTemplate = GrouperClientUtils.propertiesValue("webService.getGrouperPrivilegesLite.output", true);
     }
-    log.debug("Output template: " + outputTemplate + ", available variables: wsGetGrouperPrivilegesLiteResult, " +
+    log.debug("Output template: " + GrouperClientUtils.trim(outputTemplate) + ", available variables: wsGetGrouperPrivilegesLiteResult, " +
       "grouperClientUtils, resultMetadata, index, wsGrouperPrivilegeResult, wsSubject, wsGroup, wsStem, objectType, objectName");
   
     for (WsGrouperPrivilegeResult wsGrouperPrivilegeResult : GrouperClientUtils.nonNull( 
@@ -941,7 +941,7 @@ public class GrouperClient {
       } else {
         outputTemplate = GrouperClientUtils.propertiesValue("webService.assignGrouperPrivilegesLite.output", true);
       }
-      log.debug("Output template: " + outputTemplate + ", available variables: wsAssignGrouperPrivilegesLiteResult, " +
+      log.debug("Output template: " + GrouperClientUtils.trim(outputTemplate) + ", available variables: wsAssignGrouperPrivilegesLiteResult, " +
         "grouperClientUtils, wsSubject, resultMetadata, wsGroup, wsStem, objectType, objectName");
 
       substituteMap.put("wsSubject", wsAssignGrouperPrivilegesLiteResult.getWsSubject());
@@ -1017,7 +1017,7 @@ public class GrouperClient {
     } else {
       outputTemplate = GrouperClientUtils.propertiesValue("webService.groupDelete.output", true);
     }
-    log.debug("Output template: " + outputTemplate + ", available variables: wsGroupDeleteResults, " +
+    log.debug("Output template: " + GrouperClientUtils.trim(outputTemplate) + ", available variables: wsGroupDeleteResults, " +
       "grouperClientUtils, index, wsGroupDeleteResult, resultMetadata, wsGroup");
 
     for (WsGroupDeleteResult wsGroupDeleteResult : wsGroupDeleteResults.getResults()) {
@@ -1092,7 +1092,7 @@ public class GrouperClient {
         outputTemplate = GrouperClientUtils.propertiesValue("webService.stemDelete.output", true);
       }
       
-      log.debug("Output template: " + outputTemplate + ", available variables: wsStemDeleteResults, " +
+      log.debug("Output template: " + GrouperClientUtils.trim(outputTemplate) + ", available variables: wsStemDeleteResults, " +
         "grouperClientUtils, resultMetadata, index, wsStemDeleteResult, wsStem");
       
       for (WsStemDeleteResult wsStemDeleteResult : wsStemDeleteResults.getResults()) {
@@ -1313,7 +1313,7 @@ public class GrouperClient {
     } else {
       outputTemplate = GrouperClientUtils.propertiesValue("webService.groupSave.output", true);
     }
-    log.debug("Output template: " + outputTemplate + ", available variables: wsGroupSaveResults, " +
+    log.debug("Output template: " + GrouperClientUtils.trim(outputTemplate) + ", available variables: wsGroupSaveResults, " +
       "grouperClientUtils, index, wsGroupSaveResult, resultMetadata");
 
     //there is one result...  but loop anyways
@@ -1438,7 +1438,7 @@ public class GrouperClient {
       } else {
         outputTemplate = GrouperClientUtils.propertiesValue("webService.stemSave.output", true);
       }
-      log.debug("Output template: " + outputTemplate + ", available variables: wsStemSaveResults, " +
+      log.debug("Output template: " + GrouperClientUtils.trim(outputTemplate) + ", available variables: wsStemSaveResults, " +
         "grouperClientUtils, index, wsStemSaveResult, wsStem, resultMetadata");
 
       //there is one result...  but loop anyways
@@ -1544,7 +1544,7 @@ public class GrouperClient {
       } else {
         outputTemplate = GrouperClientUtils.propertiesValue("webService.hasMember.output", true);
       }
-      log.debug("Output template: " + outputTemplate + ", available variables: wsHasMemberResults, " +
+      log.debug("Output template: " + GrouperClientUtils.trim(outputTemplate) + ", available variables: wsHasMemberResults, " +
         "grouperClientUtils, index, wsGroup, wsHasMemberResult, wsSubject, resultMetadata, hasMember");
 
       for (WsHasMemberResult wsHasMemberResult : wsHasMemberResults.getResults()) {
@@ -1645,7 +1645,7 @@ public class GrouperClient {
       } else {
         outputTemplate = GrouperClientUtils.propertiesValue("webService.deleteMember.output", true);
       }
-      log.debug("Output template: " + outputTemplate + ", available variables: wsDeleteMemberResults, " +
+      log.debug("Output template: " + GrouperClientUtils.trim(outputTemplate) + ", available variables: wsDeleteMemberResults, " +
       		"grouperClientUtils, wsGroup, index, wsDeleteMemberResult, wsSubject, resultMetadata");
   
       for (WsDeleteMemberResult wsDeleteMemberResult : wsDeleteMemberResults.getResults()) {
@@ -1904,7 +1904,7 @@ public class GrouperClient {
       } else {
         outputTemplate = GrouperClientUtils.propertiesValue("webService.findGroups.output", true);
       }
-      log.debug("Output template: " + outputTemplate + ", available variables: wsFindGroupsResults, " +
+      log.debug("Output template: " + GrouperClientUtils.trim(outputTemplate) + ", available variables: wsFindGroupsResults, " +
         "resultMetadata, grouperClientUtils, index, wsGroup");
 
       for (WsGroup wsGroup : GrouperClientUtils.nonNull(wsFindGroupsResults.getGroupResults(), WsGroup.class)) {
@@ -1989,7 +1989,7 @@ public class GrouperClient {
       } else {
         outputTemplate = GrouperClientUtils.propertiesValue("webService.findStems.output", true);
       }
-      log.debug("Output template: " + outputTemplate + ", available variables: wsFindStemsResults, " +
+      log.debug("Output template: " + GrouperClientUtils.trim(outputTemplate) + ", available variables: wsFindStemsResults, " +
         "resultMetadata, grouperClientUtils, index, wsStem");
 
       for (WsStem wsStem : GrouperClientUtils.nonNull(wsFindStemsResults.getStemResults(), WsStem.class)) {
@@ -2102,7 +2102,7 @@ public class GrouperClient {
     } else {
       outputTemplate = GrouperClientUtils.propertiesValue("webService.getMembers.output", true);
     }
-    log.debug("Output template: " + outputTemplate + ", available variables: wsGetMembersResults, " +
+    log.debug("Output template: " + GrouperClientUtils.trim(outputTemplate) + ", available variables: wsGetMembersResults, " +
       "grouperClientUtils, groupIndex, wsGetMembersResult, wsGroup, resultMetadata, subjectIndex, wsSubject");
 
     for (WsGetMembersResult wsGetMembersResult : GrouperClientUtils.nonNull(wsGetMembersResults.getResults(), WsGetMembersResult.class)) {
@@ -2251,7 +2251,7 @@ public class GrouperClient {
     } else {
       outputTemplate = GrouperClientUtils.propertiesValue("webService.getGroups.output", true);
     }
-    log.debug("Output template: " + outputTemplate + ", available variables: wsGetGroupsResults, " +
+    log.debug("Output template: " + GrouperClientUtils.trim(outputTemplate) + ", available variables: wsGetGroupsResults, " +
       "grouperClientUtils, subjectIndex, wsGetGroupsResult, resultMetadata, wsSubject, groupIndex, wsGroup");
 
     for (WsGetGroupsResult wsGetGroupsResult : GrouperClientUtils.nonNull(wsGetGroupsResults.getResults(), WsGetGroupsResult.class)) {
@@ -2782,7 +2782,7 @@ public class GrouperClient {
     } else {
       outputTemplate = GrouperClientUtils.propertiesValue("webService.getMemberships.output", true);
     }
-    log.debug("Output template: " + outputTemplate + ", available variables: wsGetMembershipsResults, " +
+    log.debug("Output template: " + GrouperClientUtils.trim(outputTemplate) + ", available variables: wsGetMembershipsResults, " +
       "grouperClientUtils, index, wsMembership");
   
     //lets index the groups by groupId 
@@ -2923,7 +2923,7 @@ public class GrouperClient {
     }
     substituteMap.put("wsGroup", wsGetSubjectsResults.getWsGroup());
 
-    log.debug("Output template: " + outputTemplate + ", available variables: wsGetSubjectsResults, " +
+    log.debug("Output template: " + GrouperClientUtils.trim(outputTemplate) + ", available variables: wsGetSubjectsResults, " +
       "grouperClientUtils, index, wsSubject, wsGroup, success");
 
     for (WsSubject wsSubject : GrouperClientUtils.nonNull(wsGetSubjectsResults.getWsSubjects(), WsSubject.class)) {
@@ -3044,7 +3044,7 @@ public class GrouperClient {
     } else {
       outputTemplate = GrouperClientUtils.propertiesValue("webService.assignGrouperPrivileges.output", true);
     }
-    log.debug("Output template: " + outputTemplate + ", available variables: wsAssignGrouperPrivilegesResults, wsAssignGrouperPrivilegesResult, " +
+    log.debug("Output template: " + GrouperClientUtils.trim(outputTemplate) + ", available variables: wsAssignGrouperPrivilegesResults, wsAssignGrouperPrivilegesResult, " +
       "grouperClientUtils, wsSubject, resultMetadata, wsGroup, wsStem, objectType, objectName, index");
   
     substituteMap.put("wsGroup", wsAssignGrouperPrivilegesResults.getWsGroup());
@@ -3291,7 +3291,7 @@ public class GrouperClient {
     } else {
       outputTemplate = GrouperClientUtils.propertiesValue("webService.getAttributeAssignments.output", true);
     }
-    log.debug("Output template: " + outputTemplate + ", available variables: wsGetAttributeAssignmentsResults, " +
+    log.debug("Output template: " + GrouperClientUtils.trim(outputTemplate) + ", available variables: wsGetAttributeAssignmentsResults, " +
       "grouperClientUtils, index, wsAttributeAssignment");
   
     //########## GROUPS
@@ -3699,7 +3699,7 @@ public class GrouperClient {
     } else {
       outputTemplate = GrouperClientUtils.propertiesValue("webService.assignAttributes.output", true);
     }
-    log.debug("Output template: " + outputTemplate + ", available variables: wsAssignAttributesResults, " +
+    log.debug("Output template: " + GrouperClientUtils.trim(outputTemplate) + ", available variables: wsAssignAttributesResults, " +
       "grouperClientUtils, index, wsAttributeAssignment");
   
     //########## GROUPS
@@ -4022,7 +4022,7 @@ public class GrouperClient {
     } else {
       outputTemplate = GrouperClientUtils.propertiesValue("webService.getPermissionAssignments.output", true);
     }
-    log.debug("Output template: " + outputTemplate + ", available variables: wsPermissionAssignmentsResults, " +
+    log.debug("Output template: " + GrouperClientUtils.trim(outputTemplate) + ", available variables: wsPermissionAssignmentsResults, " +
       "grouperClientUtils, index, wsAttributeAssignment, wsPermissionAssign, wsAttributeDef, wsAttributeDefName, wsSubject, role");
   
     //########## GROUPS
@@ -4293,7 +4293,7 @@ public class GrouperClient {
     } else {
       outputTemplate = GrouperClientUtils.propertiesValue("webService.assignPermissions.output", true);
     }
-    log.debug("Output template: " + outputTemplate + ", available variables: wsAssignPermissionsResults, " +
+    log.debug("Output template: " + GrouperClientUtils.trim(outputTemplate) + ", available variables: wsAssignPermissionsResults, " +
       "grouperClientUtils, index, wsAssignPermissionResult, ownerName, wsAttributeAssign, " +
       "wsAttributeDef, wsAttributeDefName, wsOwnerGroup, permissionType");
   
