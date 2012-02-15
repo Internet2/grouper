@@ -213,36 +213,29 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
             String proto = props.getProperty("SECURITY_PROTOCOL");
             if (proto!=null && proto.equals("ssl")) ldapConfig.setSsl(true);
             if (proto!=null && proto.equals("tls")) ldapConfig.setTls(true);
- 
             
       }
 
-
-         if (cafile!=null && certfile!=null && keyfile!=null) {
-            if (log.isDebugEnabled()) {
-            log.debug("using the PEM socketfactory: ca=" + cafile + ", cert=" + certfile + ", key=" + keyfile);
-            }
-            LdapPEMSocketFactory sf = new LdapPEMSocketFactory(cafile, certfile, keyfile);
-            SSLSocketFactory ldapSocketFactory = sf.getSocketFactory();
-            ldapConfig.setSslSocketFactory(ldapSocketFactory);
-         } else {
-            log.debug("using the default socketfactory");
+      if (cafile!=null && certfile!=null && keyfile!=null) {
+         if (log.isDebugEnabled()) {
+         log.debug("using the PEM socketfactory: ca=" + cafile + ", cert=" + certfile + ", key=" + keyfile);
          }
+         LdapPEMSocketFactory sf = new LdapPEMSocketFactory(cafile, certfile, keyfile);
+         SSLSocketFactory ldapSocketFactory = sf.getSocketFactory();
+         ldapConfig.setSslSocketFactory(ldapSocketFactory);
+      } else {
+         log.debug("using the default socketfactory");
+      }
 
-	 DefaultLdapFactory factory = new DefaultLdapFactory(ldapConfig);
-	 // LdapPoolConfig poolConfig = new LdapPoolConfig();
+      DefaultLdapFactory factory = new DefaultLdapFactory(ldapConfig);
      
-         try {
-	    ldapPool = new SoftLimitLdapPool(factory);
-            ldapPool.initialize();
-            initialized = true;
-         } catch (Exception e) {
-            //why swallow???
-            log.debug("ldappool error = " + e, e);
-         }
-    //   } catch (FileNotFoundException e) {
-         // log.error("ldap properties not found: " + e, e);
-      // }
+      try {
+         ldapPool = new SoftLimitLdapPool(factory);
+         ldapPool.initialize();
+         initialized = true;
+      } catch (Exception e) {
+         log.error("Error creating ldappool = " + e);
+      }
       log.debug("ldap initialize done");
    }
     
@@ -314,7 +307,6 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
                throw new SubjectNotFoundException("Subject " + id + " not found.");
            }
         } catch (SubjectNotFoundException e) {
-            // if (exceptionIfNull) throw e;
         	if (exceptionIfNull) {
         		throw e;
         	} else {
@@ -389,8 +381,8 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
            }
 
            if (log.isDebugEnabled()) {
-           log.debug("set has " + result.size() + " subjects");
-           if (result.size()>0) log.debug("first is " + ((Subject)result.first()).getName());
+              log.debug("set has " + result.size() + " subjects");
+              if (result.size()>0) log.debug("first is " + ((Subject)result.first()).getName());
            }
 
         } catch (Exception ex) {
@@ -414,9 +406,7 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
         String description = "";
 
         if (attributes==null) {
-           if (log.isDebugEnabled()) {
-           log.debug("ldap create subject with null attrs");
-           }
+           log.error("Ldap createSubject called with null attributes.");
            return (null);
         }
         try {
@@ -590,20 +580,12 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
             
             // get params
             String base = search.getParam("base");
-            // nope, immutable
-            // if (base!=null) ldap.getLdapConfig().setBase(base);            
-            // if the base is not configured in sources.xml, use the default
             if (base == null) {
             	base = ldap.getLdapConfig().getBaseDn();
             }
                                     
             String scope = search.getParam("scope");                                    
             if (scope!=null) {
-               // nope, immutable
-               // if (scope.equals("OBJECT_SCOPE")) ldap.getLdapConfig().setSearchScope(LdapConfig.SearchScope.OBJECT);
-               // if (scope.equals("ONELEVEL_SCOPE")) ldap.getLdapConfig().setSearchScope(LdapConfig.SearchScope.ONELEVEL);
-               // if (scope.equals("SUBTREE_SCOPE")) ldap.getLdapConfig().setSearchScope(LdapConfig.SearchScope.SUBTREE);
-               
                if (scope.equals("OBJECT_SCOPE")) searchControls.setSearchScope(LdapConfig.SearchScope.OBJECT.scope());
                if (scope.equals("ONELEVEL_SCOPE")) searchControls.setSearchScope(LdapConfig.SearchScope.ONELEVEL.scope());
                if (scope.equals("SUBTREE_SCOPE")) searchControls.setSearchScope(LdapConfig.SearchScope.SUBTREE.scope());
