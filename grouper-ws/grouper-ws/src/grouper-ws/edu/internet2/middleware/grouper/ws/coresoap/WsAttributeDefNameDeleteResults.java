@@ -9,51 +9,68 @@ import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.WsResultCode;
-import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameSaveResult.WsAttributeDefNameSaveResultCode;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameDeleteResult.WsAttributeDefNameDeleteResultCode;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameDeleteResults.WsAttributeDefNameDeleteResultsCode;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 
 
 
 /**
  * <pre>
- * results for the attribute def names save call.
+ * results for the attribute def names delete call.
  * 
  * result code:
  * code of the result for this attribute def name overall
  * SUCCESS: means everything ok
- * EXCEPTION: cant find the attribute def name
- * EXCEPTION: cant find the attribute def name
- * PROBLEM_SAVING_ATTRIBUTE_DEF_NAMES: cant find the attribute def name
- * INVALID_QUERY: e.g. if everything blank
+ * ATTRIBUTE_DEF_NAME_NOT_FOUND: cant find the attribute def name
  * </pre>
  * @author mchyzer
  */
-public class WsAttributeDefNameSaveResults {
+public class WsAttributeDefNameDeleteResults {
 
   /**
-   * result code of a request
+   * result code of a request.  The possible result codes 
+   * of WsAttributeDefNameDeleteResultsCode (with http status codes) are:
+   * SUCCESS(200), EXCEPTION(500), INVALID_QUERY(400), INSUFFICIENT_PRIVILEGES(403)
    */
-  public static enum WsAttributeDefNameSaveResultsCode implements WsResultCode {
+  public static enum WsAttributeDefNameDeleteResultsCode implements WsResultCode {
   
-    /** found the attribute def names, saved them (lite http status code 201) (success: T) */
-    SUCCESS(201),
+    /** deleted attribute def names (lite status code 200) (success: T) */
+    SUCCESS(200),
   
-    /** either overall exception, or one or more attribute def names had exceptions (lite http status code 500) (success: F) */
+    /** something bad happened (lite status code 500) (success: F) */
     EXCEPTION(500),
   
-    /** problem saving existing attribute def names (lite http status code 500) (success: F) */
-    PROBLEM_SAVING_ATTRIBUTE_DEF_NAMES(500),
-  
-    /** invalid query (e.g. if everything blank) (lite http status code 400) (success: F) */
-    INVALID_QUERY(400);
-  
+    /** invalid query (e.g. if everything blank) (lite status code 400) (success: F) */
+    INVALID_QUERY(400),
+    
+    /** if one or more attribute def names could not be deleted (e.g. if everything blank) (lite status code 500) (success: F) */
+    PROBLEM_DELETING_ATTRIBUTE_DEF_NAMES(500),
+    
+    /** 
+     * not allowed to assign or remove attribute def name inheritance based on privileges on the attribute definition
+     */
+    INSUFFICIENT_PRIVILEGES(403);
+    
+    
     /** get the name label for a certain version of client 
      * @param clientVersion 
-     * @return name for version
+     * @return name
      */
     public String nameForVersion(GrouperVersion clientVersion) {
       return this.name();
     }
+  
+    /**
+     * construct with http code
+     * @param theHttpStatusCode the code
+     */
+    private WsAttributeDefNameDeleteResultsCode(int theHttpStatusCode) {
+      this.httpStatusCode = theHttpStatusCode;
+    }
+  
+    /** http status code for result code */
+    private int httpStatusCode;
   
     /**
      * if this is a successful result
@@ -63,31 +80,19 @@ public class WsAttributeDefNameSaveResults {
       return this == SUCCESS;
     }
   
-    /** http status code for rest/lite e.g. 200 */
-    private int httpStatusCode;
-  
-    /**
-     * status code for rest/lite e.g. 200
-     * @param statusCode
-     */
-    private WsAttributeDefNameSaveResultsCode(int statusCode) {
-      this.httpStatusCode = statusCode;
-    }
-  
-    /**
-     * @see edu.internet2.middleware.grouper.ws.WsResultCode#getHttpStatusCode()
+    /** get the http result code for this status code
+     * @return the status code
      */
     public int getHttpStatusCode() {
       return this.httpStatusCode;
     }
-  
   }
 
 
   /**
-   * results for each attribute def name sent in
+   * results for each deletion sent in
    */
-  private WsAttributeDefNameSaveResult[] results;
+  private WsAttributeDefNameDeleteResult[] results;
 
   /**
    * metadata about the result
@@ -99,24 +104,22 @@ public class WsAttributeDefNameSaveResults {
    */
   private WsResponseMeta responseMetadata = new WsResponseMeta();
 
-  /**
-   * logger 
-   */
-  private static final Log LOG = LogFactory.getLog(WsAttributeDefNameSaveResults.class);
+  /** logger */
+  private static final Log LOG = LogFactory.getLog(WsAttributeDefNameDeleteResults.class);
 
   /**
-   * results for each attribute def name sent in
+   * results for each deletion sent in
    * @return the results
    */
-  public WsAttributeDefNameSaveResult[] getResults() {
+  public WsAttributeDefNameDeleteResult[] getResults() {
     return this.results;
   }
 
   /**
-   * results for each attribute def name sent in
+   * results for each deletion sent in
    * @param results1 the results to set
    */
-  public void setResults(WsAttributeDefNameSaveResult[] results1) {
+  public void setResults(WsAttributeDefNameDeleteResult[] results1) {
     this.results = results1;
   }
 
@@ -152,44 +155,40 @@ public class WsAttributeDefNameSaveResults {
 
   /**
    * assign the code from the enum
-   * @param groupSaveResultsCode
-   * @param clientVersion 
+   * @param attributeDefNamesDeleteResultsCode should not be null
    */
-  public void assignResultCode(WsAttributeDefNameSaveResultsCode groupSaveResultsCode, GrouperVersion clientVersion) {
-    this.getResultMetadata().assignResultCode(groupSaveResultsCode, clientVersion);
+  public void assignResultCode(WsAttributeDefNameDeleteResultsCode attributeDefNamesDeleteResultsCode) {
+    this.getResultMetadata().assignResultCode(attributeDefNamesDeleteResultsCode);
   }
 
   /**
    * prcess an exception, log, etc
-   * @param wsGroupSaveResultsCodeOverride
+   * @param wsAttributeDefNameDeleteResultsCodeOverride
    * @param theError
    * @param e
-   * @param clientVersion 
    */
   public void assignResultCodeException(
-      WsAttributeDefNameSaveResultsCode wsGroupSaveResultsCodeOverride, String theError, Exception e, GrouperVersion clientVersion) {
+      WsAttributeDefNameDeleteResultsCode wsAttributeDefNameDeleteResultsCodeOverride, String theError,
+      Exception e) {
   
     if (e instanceof WsInvalidQueryException) {
-      wsGroupSaveResultsCodeOverride = GrouperUtil.defaultIfNull(
-          wsGroupSaveResultsCodeOverride, WsAttributeDefNameSaveResultsCode.INVALID_QUERY);
-      //      if (e.getCause() instanceof GroupNotFoundException) {
-      //        wsGroupSaveResultsCodeOverride = WsAttributeDefNameSaveResultsCode.GROUP_NOT_FOUND;
-      //      }
+      wsAttributeDefNameDeleteResultsCodeOverride = GrouperUtil.defaultIfNull(
+          wsAttributeDefNameDeleteResultsCodeOverride, WsAttributeDefNameDeleteResultsCode.INVALID_QUERY);
       //a helpful exception will probably be in the getMessage()
-      this.assignResultCode(wsGroupSaveResultsCodeOverride, clientVersion);
+      this.assignResultCode(wsAttributeDefNameDeleteResultsCodeOverride);
       this.getResultMetadata().appendResultMessage(e.getMessage());
       this.getResultMetadata().appendResultMessage(theError);
       LOG.warn(e);
   
     } else {
-      wsGroupSaveResultsCodeOverride = GrouperUtil.defaultIfNull(
-          wsGroupSaveResultsCodeOverride, WsAttributeDefNameSaveResultsCode.EXCEPTION);
+      wsAttributeDefNameDeleteResultsCodeOverride = GrouperUtil.defaultIfNull(
+          wsAttributeDefNameDeleteResultsCodeOverride, WsAttributeDefNameDeleteResultsCode.EXCEPTION);
       LOG.error(theError, e);
   
       theError = StringUtils.isBlank(theError) ? "" : (theError + ", ");
       this.getResultMetadata().appendResultMessage(
           theError + ExceptionUtils.getFullStackTrace(e));
-      this.assignResultCode(wsGroupSaveResultsCodeOverride, clientVersion);
+      this.assignResultCode(wsAttributeDefNameDeleteResultsCodeOverride);
   
     }
   }
@@ -198,22 +197,21 @@ public class WsAttributeDefNameSaveResults {
    * convert the result code back to enum
    * @return the enum code
    */
-  public WsAttributeDefNameSaveResultsCode retrieveResultCode() {
+  public WsAttributeDefNameDeleteResultsCode retrieveResultCode() {
     if (StringUtils.isBlank(this.getResultMetadata().getResultCode())) {
       return null;
     }
-    return WsAttributeDefNameSaveResultsCode.valueOf(this.getResultMetadata().getResultCode());
+    return WsAttributeDefNameDeleteResultsCode.valueOf(this.getResultMetadata().getResultCode());
   }
 
   /**
    * make sure if there is an error, to record that as an error
    * @param grouperTransactionType for request
-   * @param theSummary
-   * @param clientVersion 
-   * @return true if success, false if not
+   * @param theSummary of entire request
+   * @return true if not need to rollback, and false if so
    */
   public boolean tallyResults(GrouperTransactionType grouperTransactionType,
-      String theSummary, GrouperVersion clientVersion) {
+      String theSummary) {
     //maybe already a failure
     boolean successOverall = GrouperUtil.booleanValue(this.getResultMetadata()
         .getSuccess(), true);
@@ -221,8 +219,8 @@ public class WsAttributeDefNameSaveResults {
       // check all entries
       int successes = 0;
       int failures = 0;
-      for (WsAttributeDefNameSaveResult wsAttributeDefNameSaveResult : this.getResults()) {
-        boolean theSuccess = "T".equalsIgnoreCase(wsAttributeDefNameSaveResult.getResultMetadata()
+      for (WsAttributeDefNameDeleteResult wsAttributeDefNameDeleteResult : this.getResults()) {
+        boolean theSuccess = "T".equalsIgnoreCase(wsAttributeDefNameDeleteResult.getResultMetadata()
             .getSuccess());
         if (theSuccess) {
           successes++;
@@ -234,11 +232,12 @@ public class WsAttributeDefNameSaveResults {
       //if transaction rolled back all line items, 
       if ((!successOverall || failures > 0) && grouperTransactionType.isTransactional()
           && !grouperTransactionType.isReadonly()) {
-        for (WsAttributeDefNameSaveResult wsAttributeDefNameSaveResult : this.getResults()) {
-          if (GrouperUtil.booleanValue(wsAttributeDefNameSaveResult.getResultMetadata().getSuccess(),
-              true)) {
-            wsAttributeDefNameSaveResult
-                .assignResultCode(WsAttributeDefNameSaveResultCode.TRANSACTION_ROLLED_BACK, clientVersion);
+        successes = 0;
+        for (WsAttributeDefNameDeleteResult wsAttributeDefNameDeleteResult : this.getResults()) {
+          if (GrouperUtil.booleanValue(wsAttributeDefNameDeleteResult.getResultMetadata()
+              .getSuccess(), true)) {
+            wsAttributeDefNameDeleteResult
+                .assignResultCode(WsAttributeDefNameDeleteResultCode.TRANSACTION_ROLLED_BACK);
             failures++;
           }
         }
@@ -247,18 +246,18 @@ public class WsAttributeDefNameSaveResults {
       if (failures > 0) {
         this.getResultMetadata().appendResultMessage(
             "There were " + successes + " successes and " + failures
-                + " failures of saving groups.   ");
-        this.assignResultCode(WsAttributeDefNameSaveResultsCode.PROBLEM_SAVING_ATTRIBUTE_DEF_NAMES, clientVersion);
+                + " failures of deleting attribute def names.   ");
+        this.assignResultCode(WsAttributeDefNameDeleteResultsCode.PROBLEM_DELETING_ATTRIBUTE_DEF_NAMES);
         //this might not be a problem
         LOG.warn(this.getResultMetadata().getResultMessage());
   
       } else {
-        this.assignResultCode(WsAttributeDefNameSaveResultsCode.SUCCESS, clientVersion);
+        this.assignResultCode(WsAttributeDefNameDeleteResultsCode.SUCCESS);
       }
     } else {
       //none is not ok
-      this.assignResultCode(WsAttributeDefNameSaveResultsCode.INVALID_QUERY, clientVersion);
-      this.getResultMetadata().setResultMessage("Must pass in at least one attribute def name to save");
+      this.assignResultCode(WsAttributeDefNameDeleteResultsCode.INVALID_QUERY);
+      this.getResultMetadata().setResultMessage("Must pass in at least one attribute def name to delete");
     }
     //make response descriptive
     if (GrouperUtil.booleanValue(this.getResultMetadata().getSuccess(), false)) {
@@ -267,6 +266,6 @@ public class WsAttributeDefNameSaveResults {
     }
     //false if need rollback
     return !grouperTransactionType.isTransactional();
+  
   }
-
 }

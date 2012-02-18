@@ -31,7 +31,7 @@ public class WsFindGroupsResults implements WsResponseBean, ResultMetadataHolder
    */
   public static enum WsFindGroupsResultsCode implements WsResultCode {
 
-    /** found the subject (lite http status code 200) (success: F) */
+    /** found the subject (lite http status code 200) (success: T) */
     SUCCESS(200),
 
     /** found the subject (lite http status code 500) (success: F) */

@@ -11,6 +11,8 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.attr.AttributeDefNameSave;
+import edu.internet2.middleware.grouper.attr.AttributeDefType;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignDelegatable;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignOperation;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignType;
@@ -30,6 +32,7 @@ import edu.internet2.middleware.grouper.ws.member.WsMemberFilter;
 import edu.internet2.middleware.grouper.ws.query.StemScope;
 import edu.internet2.middleware.grouper.ws.query.WsQueryFilterType;
 import edu.internet2.middleware.grouper.ws.query.WsStemQueryFilterType;
+import edu.internet2.middleware.grouper.ws.rest.attribute.WsInheritanceSetRelation;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
 
 /**
@@ -3624,6 +3627,482 @@ public class GrouperService {
     //this should be the first and only return, or else it is exiting too early
     return wsAssignPermissionsLiteResults; 
   
+  }
+
+  /**
+   * assign or unassign attribute def name permission inheritance
+   * @param clientVersion is the version of the client.  Must be in GrouperWsVersion, e.g. v1_3_000
+   * @param wsAttributeDefNameLookup attributeDefName which is the container for the inherited attribute def names
+   * @param relatedWsAttributeDefNameLookups one or many attribute def names to add or remove from inheritance from the container
+   * @param assign T to assign, or F to remove assignment
+   * @param replaceAllExisting T if assigning, if this list should replace all existing immediately inherited attribute def names
+   * @param actAsSubjectLookup if searching as someone else, pass in that subject here, note the caller must
+   * be allowed to act as that other subject
+   * @param params optional: reserved for future use
+   * @return the result
+   */
+  public WsAssignAttributeDefNameInheritanceResults assignAttributeDefNameInheritance(final String clientVersion,
+      WsAttributeDefNameLookup wsAttributeDefNameLookup, WsAttributeDefNameLookup[] relatedWsAttributeDefNameLookups,
+      String assign,
+      String replaceAllExisting, final WsSubjectLookup actAsSubjectLookup,
+      final WsParam[] params) {
+    
+    WsAssignAttributeDefNameInheritanceResults wsAssignAttributeDefNameInheritanceResults = new WsAssignAttributeDefNameInheritanceResults();
+    
+    try {
+  
+      boolean assignBoolean = GrouperServiceUtils.booleanValue(
+          assign, false, "assign");
+
+      Boolean replaceAllExistingBoolean = GrouperServiceUtils.booleanObjectValue(
+          replaceAllExisting, "replaceAllExisting");
+
+      GrouperVersion grouperWsVersion = GrouperVersion.valueOfIgnoreCase(
+          clientVersion, true);
+  
+      wsAssignAttributeDefNameInheritanceResults = GrouperServiceLogic.assignAttributeDefNameInheritance(
+          grouperWsVersion, wsAttributeDefNameLookup, relatedWsAttributeDefNameLookups, assignBoolean, replaceAllExistingBoolean, 
+          actAsSubjectLookup, params);
+  
+    } catch (Exception e) {
+      wsAssignAttributeDefNameInheritanceResults.assignResultCodeException(null, null, e);
+    }
+  
+    //set response headers
+    GrouperServiceUtils.addResponseHeaders(wsAssignAttributeDefNameInheritanceResults.getResultMetadata(), this.soap);
+  
+    //this should be the first and only return, or else it is exiting too early
+    return wsAssignAttributeDefNameInheritanceResults; 
+  }
+
+  /**
+   * assign or unassign attribute def name permission inheritance
+   * @param clientVersion is the version of the client.  Must be in GrouperWsVersion, e.g. v1_3_000
+   * @param attributeDefNameUuid id of attributeDefName which is the container for the inherited attribute def names, mutually exclusive with attributeDefNameName
+   * @param attributeDefNameName name of attributeDefName which is the container for the inherited attribute def names, mutually exclusive with attributeDefNameId
+   * @param relatedAttributeDefNameUuid id of attribute def name to add or remove from inheritance from the container
+   * @param relatedAttributeDefNameName name of attribute def name to add or remove from inheritance from the container
+   * @param assign T to assign, or F to remove assignment
+   * @param replaceAllExisting T if assigning, if this list should replace all existing immediately inherited attribute def names
+   * @param actAsSubjectId
+   *            optional: is the subject id of subject to act as (if
+   *            proxying). Only pass one of actAsSubjectId or
+   *            actAsSubjectIdentifer
+   * @param actAsSubjectIdentifier
+   *            optional: is the subject identifier of subject to act as (if
+   *            proxying). Only pass one of actAsSubjectId or
+   *            actAsSubjectIdentifer
+   * @param actAsSubjectSourceId
+   *            optional to narrow the act as subject search to a particular source 
+   * @param paramName0
+   *            reserved for future use
+   * @param paramValue0
+   *            reserved for future use
+   * @param paramName1
+   *            reserved for future use
+   * @param paramValue1
+   *            reserved for future use
+   * @return the result
+   */
+  public WsAssignAttributeDefNameInheritanceResults assignAttributeDefNameInheritanceLite(final String clientVersion,
+      String attributeDefNameUuid, String attributeDefNameName, String relatedAttributeDefNameUuid, String relatedAttributeDefNameName,
+      String assign,
+      String actAsSubjectId, String actAsSubjectSourceId,
+      String actAsSubjectIdentifier, String paramName0,
+      String paramValue0, String paramName1, String paramValue1) {
+
+    WsAssignAttributeDefNameInheritanceResults wsAssignAttributeDefNameInheritanceResults = new WsAssignAttributeDefNameInheritanceResults();
+    
+    try {
+  
+      boolean assignBoolean = GrouperServiceUtils.booleanValue(
+          assign, false, "assign");
+
+      GrouperVersion grouperWsVersion = GrouperVersion.valueOfIgnoreCase(
+          clientVersion, true);
+  
+      wsAssignAttributeDefNameInheritanceResults = GrouperServiceLogic.assignAttributeDefNameInheritanceLite(grouperWsVersion,
+          attributeDefNameUuid, attributeDefNameName, relatedAttributeDefNameUuid, relatedAttributeDefNameName,
+          assignBoolean, actAsSubjectId, actAsSubjectSourceId, actAsSubjectIdentifier, paramName0,
+          paramValue0, paramName1, paramValue1);
+  
+    } catch (Exception e) {
+      wsAssignAttributeDefNameInheritanceResults.assignResultCodeException(null, null, e);
+    }
+  
+    //set response headers
+    GrouperServiceUtils.addResponseHeaders(wsAssignAttributeDefNameInheritanceResults.getResultMetadata(), this.soap);
+  
+    //this should be the first and only return, or else it is exiting too early
+    return wsAssignAttributeDefNameInheritanceResults; 
+
+  }
+
+  /**
+   * delete an AttributeDefName or many.  Note, you cannot rename an existing AttributeDefName.
+   * 
+   * @param clientVersion is the version of the client.  Must be in GrouperWsVersion, e.g. v1_3_000
+   * @param wsAttributeDefNameLookups
+   *            AttributeDefNames to delete
+   * @param actAsSubjectLookup
+   * @param txType is the GrouperTransactionType for the request.  If blank, defaults to
+   * NONE (will finish as much as possible).  Generally the only values for this param that make sense
+   * are NONE (or blank), and READ_WRITE_NEW.
+   * @param params optional: reserved for future use
+   * @return the results
+   */
+  public WsAttributeDefNameDeleteResults attributeDefNameDelete(final String clientVersion,
+      final WsAttributeDefNameLookup[] wsAttributeDefNameLookups, final WsSubjectLookup actAsSubjectLookup,
+      final String txType, final WsParam[] params) {
+  
+    WsAttributeDefNameDeleteResults wsAttributeDefNameDeleteResults = new WsAttributeDefNameDeleteResults();
+    
+    try {
+  
+      GrouperVersion grouperWsVersion = GrouperVersion.valueOfIgnoreCase(
+          clientVersion, true);
+  
+      final GrouperTransactionType grouperTransactionType = GrouperServiceUtils
+        .convertTransactionType(txType);
+
+      wsAttributeDefNameDeleteResults = GrouperServiceLogic.attributeDefNameDelete(grouperWsVersion,
+          wsAttributeDefNameLookups, actAsSubjectLookup,
+          grouperTransactionType, params);
+  
+    } catch (Exception e) {
+      wsAttributeDefNameDeleteResults.assignResultCodeException(null, null, e);
+    }
+  
+    //set response headers
+    GrouperServiceUtils.addResponseHeaders(wsAttributeDefNameDeleteResults.getResultMetadata(), this.soap);
+  
+    //this should be the first and only return, or else it is exiting too early
+    return wsAttributeDefNameDeleteResults; 
+    
+  }
+
+  /**
+   * delete an AttributeDefName
+   * 
+   * @param clientVersion is the version of the client.  Must be in GrouperWsVersion, e.g. v1_3_000
+   * @param attributeDefNameUuid the uuid of the attributeDefName to delete (mutually exclusive with attributeDefNameName)
+   * @param attributeDefNameName the name of the attributeDefName to delete (mutually exclusive with attributeDefNameUuid)
+   * @param actAsSubjectId
+   *            optional: is the subject id of subject to act as (if
+   *            proxying). Only pass one of actAsSubjectId or
+   *            actAsSubjectIdentifer
+   * @param actAsSubjectSourceId is source of act as subject to narrow the result and prevent
+   * duplicates
+   * @param actAsSubjectIdentifier
+   *            optional: is the subject identifier of subject to act as (if
+   *            proxying). Only pass one of actAsSubjectId or
+   *            actAsSubjectIdentifer
+   * @param paramName0
+   *            reserved for future use
+   * @param paramValue0
+   *            reserved for future use
+   * @param paramName1
+   *            reserved for future use
+   * @param paramValue1
+   *            reserved for future use
+   * @param typeOfGroup type of group can be an enum of TypeOfGroup, e.g. group, role, entity
+   * @return the result of one member add
+   */
+  public WsAttributeDefNameDeleteLiteResult attributeDefNameDeleteLite(final String clientVersion,
+      String attributeDefNameUuid, String attributeDefNameName,
+      String actAsSubjectId, String actAsSubjectSourceId,
+      String actAsSubjectIdentifier, String paramName0, String paramValue0,
+      String paramName1, String paramValue1) {
+    WsAttributeDefNameDeleteLiteResult wsAttributeDefNameDeleteLiteResult = new WsAttributeDefNameDeleteLiteResult();
+    
+    try {
+  
+      GrouperVersion grouperWsVersion = GrouperVersion.valueOfIgnoreCase(
+          clientVersion, true);
+  
+      wsAttributeDefNameDeleteLiteResult = GrouperServiceLogic.attributeDefNameDeleteLite(grouperWsVersion,
+          attributeDefNameUuid, attributeDefNameName, actAsSubjectId, actAsSubjectSourceId,
+          actAsSubjectIdentifier, paramName0, paramValue0, paramName1, paramValue1);
+  
+    } catch (Exception e) {
+      wsAttributeDefNameDeleteLiteResult.assignResultCodeException(null, null, e);
+    }
+  
+    //set response headers
+    GrouperServiceUtils.addResponseHeaders(wsAttributeDefNameDeleteLiteResult.getResultMetadata(), this.soap);
+  
+    //this should be the first and only return, or else it is exiting too early
+    return wsAttributeDefNameDeleteLiteResult; 
+
+  }
+
+  /**
+   * save an AttributeDefName or many (insert or update).  Note, you cannot rename an existing AttributeDefName.
+   * 
+   * @param clientVersion is the version of the client.  Must be in GrouperWsVersion, e.g. v1_3_000
+   * @see {@link AttributeDefNameSave#save()}
+   * @param wsAttributeDefNameToSaves
+   *            AttributeDefNames to save
+   * @param actAsSubjectLookup
+   * @param txType is the GrouperTransactionType for the request.  If blank, defaults to
+   * NONE (will finish as much as possible).  Generally the only values for this param that make sense
+   * are NONE (or blank), and READ_WRITE_NEW.
+   * @param params optional: reserved for future use
+   * @return the results
+   */
+  public WsAttributeDefNameSaveResults attributeDefNameSave(final String clientVersion,
+      final WsAttributeDefNameToSave[] wsAttributeDefNameToSaves, final WsSubjectLookup actAsSubjectLookup,
+      final String txType, final WsParam[] params) {
+  
+    WsAttributeDefNameSaveResults wsAttributeDefNameSaveResults = new WsAttributeDefNameSaveResults();
+    
+    GrouperVersion grouperWsVersion = null;
+    
+    try {
+  
+      grouperWsVersion = GrouperVersion.valueOfIgnoreCase(
+          clientVersion, true);
+  
+      final GrouperTransactionType grouperTransactionType = GrouperServiceUtils
+        .convertTransactionType(txType);
+
+      wsAttributeDefNameSaveResults = GrouperServiceLogic.attributeDefNameSave(grouperWsVersion,
+          wsAttributeDefNameToSaves, actAsSubjectLookup, grouperTransactionType, params);
+  
+    } catch (Exception e) {
+      wsAttributeDefNameSaveResults.assignResultCodeException(null, null, e, grouperWsVersion);
+    }
+  
+    //set response headers
+    GrouperServiceUtils.addResponseHeaders(wsAttributeDefNameSaveResults.getResultMetadata(), this.soap);
+  
+    //this should be the first and only return, or else it is exiting too early
+    return wsAttributeDefNameSaveResults; 
+    
+  }
+
+  /**
+   * save an AttributeDefName (insert or update).  Note you cannot currently move an existing AttributeDefName.
+   * 
+   * @see {@link AttributeDefNameSave#save()}
+   * @param clientVersion is the version of the client.  Must be in GrouperWsVersion, e.g. v1_3_000
+   * @param attributeDefNameLookupUuid the uuid of the attributeDefName to edit (mutually exclusive with attributeDefNameLookupName)
+   * @param attributeDefNameLookupName the name of the attributeDefName to edit (mutually exclusive with attributeDefNameLookupUuid)
+   * @param attributeDefLookupName
+   *            to lookup the attributeDef (mutually exclusive with attributeDefUuid)
+   * @param attributeDefLookupUuid
+   *            to lookup the attributeDef (mutually exclusive with attributeDefName)
+   * @param attributeDefNameName
+   *            to lookup the attributeDefName (mutually exclusive with attributeDefNameUuid)
+   * @param attributeDefNameUuid
+   *            to lookup the attributeDefName (mutually exclusive with attributeDefNameName)
+   * @param description
+   *            of the attributeDefName, empty will be ignored
+   * @param displayExtension
+   *            display name of the attributeDefName, empty will be ignored
+   * @param saveMode if the save should be constrained to INSERT, UPDATE, or INSERT_OR_UPDATE (default)
+   * @param createParentStemsIfNotExist T or F (default F) if parent stems should be created if not exist
+   * @param actAsSubjectId
+   *            optional: is the subject id of subject to act as (if
+   *            proxying). Only pass one of actAsSubjectId or
+   *            actAsSubjectIdentifer
+   * @param actAsSubjectSourceId is source of act as subject to narrow the result and prevent
+   * duplicates
+   * @param actAsSubjectIdentifier
+   *            optional: is the subject identifier of subject to act as (if
+   *            proxying). Only pass one of actAsSubjectId or
+   *            actAsSubjectIdentifer
+   * @param paramName0
+   *            reserved for future use
+   * @param paramValue0
+   *            reserved for future use
+   * @param paramName1
+   *            reserved for future use
+   * @param paramValue1
+   *            reserved for future use
+   * @return the result of one member add
+   */
+  public WsAttributeDefNameSaveLiteResult attributeDefNameSaveLite(final String clientVersion,
+      String attributeDefNameLookupUuid, String attributeDefNameLookupName, String attributeDefLookupUuid, 
+      String attributeDefLookupName, String attributeDefNameUuid,String attributeDefNameName, 
+      String displayExtension,String description,  String saveMode, String createParentStemsIfNotExist,
+      String actAsSubjectId, String actAsSubjectSourceId,
+      String actAsSubjectIdentifier, String paramName0, String paramValue0,
+      String paramName1, String paramValue1) {
+    
+    WsAttributeDefNameSaveLiteResult wsAttributeDefNameSaveLiteResult = new WsAttributeDefNameSaveLiteResult();
+    
+    GrouperVersion grouperWsVersion = null;
+    
+    try {
+  
+      grouperWsVersion = GrouperVersion.valueOfIgnoreCase(
+          clientVersion, true);
+  
+      Boolean createParentStemsIfNotExistBoolean = GrouperServiceUtils.booleanObjectValue(
+          createParentStemsIfNotExist, "createParentStemsIfNotExist");
+
+      SaveMode saveModeEnum = GrouperServiceUtils.enumValueOfIgnoreCase(SaveMode.class, saveMode, false);
+
+      wsAttributeDefNameSaveLiteResult = GrouperServiceLogic.attributeDefNameSaveLite(grouperWsVersion,
+          attributeDefNameLookupUuid, attributeDefNameLookupName, attributeDefLookupUuid, 
+          attributeDefLookupName, attributeDefNameUuid, attributeDefNameName, 
+          displayExtension, description, saveModeEnum, createParentStemsIfNotExistBoolean,
+          actAsSubjectId, actAsSubjectSourceId,
+          actAsSubjectIdentifier, paramName0, paramValue0,
+          paramName1, paramValue1);
+  
+    } catch (Exception e) {
+      wsAttributeDefNameSaveLiteResult.assignResultCodeException(null, null, e, grouperWsVersion);
+    }
+  
+    //set response headers
+    GrouperServiceUtils.addResponseHeaders(wsAttributeDefNameSaveLiteResult.getResultMetadata(), this.soap);
+  
+    //this should be the first and only return, or else it is exiting too early
+    return wsAttributeDefNameSaveLiteResult; 
+
+  }
+
+  /**
+   * find an attribute def name or attribute def names.  Each additional parameter sent will narow the search,
+   * except the lookups will just lookup whatever is sent.
+   * @param clientVersion is the version of the client.  Must be in GrouperWsVersion, e.g. v1_3_000
+   * @param scope search string with % as wildcards will search name, display name, description
+   * @param splitScope T or F, if T will split the scope by whitespace, and find attribute def names with each token.
+   * e.g. if you have a scope of "pto permissions", and split scope T, it will return 
+   * school:apps:pto_app:internal:the_permissions:whatever
+   * @param wsAttributeDefLookup find names associated with this attribute definition
+   * @param attributeAssignType where can the attribute definition be assigned, e.g. any_mem, any_mem_asgn, attr_def, 
+   * attr_def_asgn, group, group_asgn, imm_mem, imm_mem_asgn, mem_asgn, member, stem, stem_asgn
+   * @param attributeDefType type of attribute definition, e.g. attr, domain, limit, perm, type
+   * @param actAsSubjectLookup if searching as someone else, pass in that subject here, note the caller must
+   * be allowed to act as that other subject
+   * @param params optional: reserved for future use
+   * @param wsAttributeDefNameLookups if you want to just pass in a list of uuids and/or names.
+   * @param wsInheritanceSetRelation if there is one wsAttributeDefNameLookup, and this is specified, then find 
+   * the attribute def names which are related to the lookup by this relation, e.g. IMPLIED_BY_THIS, 
+   * IMPLIED_BY_THIS_IMMEDIATE, THAT_IMPLY_THIS, THAT_IMPLY_THIS_IMMEDIATE
+   * @return the attribute def names, or no attribute def names if none found
+   */
+  public WsFindAttributeDefNamesResults findAttributeDefNames(final String clientVersion,
+      String scope, String splitScope, WsAttributeDefLookup wsAttributeDefLookup,
+      String attributeAssignType, String attributeDefType,
+      WsAttributeDefNameLookup[] wsAttributeDefNameLookups, String wsInheritanceSetRelation, WsSubjectLookup actAsSubjectLookup, WsParam[] params) {
+  
+    WsFindAttributeDefNamesResults wsFindAttributeDefNamesResults = new WsFindAttributeDefNamesResults();
+    
+    GrouperVersion grouperWsVersion = null;
+    
+    try {
+  
+      grouperWsVersion = GrouperVersion.valueOfIgnoreCase(
+          clientVersion, true);
+  
+      Boolean splitScopeBoolean = GrouperServiceUtils.booleanObjectValue(
+          splitScope, "splitScope");
+
+      AttributeDefType attributeDefTypeEnum = GrouperServiceUtils.enumValueOfIgnoreCase(AttributeDefType.class,attributeDefType, false);
+      AttributeAssignType attributeAssignTypeEnum = GrouperServiceUtils.enumValueOfIgnoreCase(AttributeAssignType.class, attributeAssignType, false);
+      WsInheritanceSetRelation wsInheritanceSetRelationEnum = WsInheritanceSetRelation.valueOfIgnoreCase(wsInheritanceSetRelation);
+
+      wsFindAttributeDefNamesResults = GrouperServiceLogic.findAttributeDefNames(grouperWsVersion,
+          scope, splitScopeBoolean, wsAttributeDefLookup,
+          attributeAssignTypeEnum, attributeDefTypeEnum,
+          wsAttributeDefNameLookups, wsInheritanceSetRelationEnum, actAsSubjectLookup, params);
+  
+    } catch (Exception e) {
+      wsFindAttributeDefNamesResults.assignResultCodeException(null, null, e);
+    }
+  
+    //set response headers
+    GrouperServiceUtils.addResponseHeaders(wsFindAttributeDefNamesResults.getResultMetadata(), this.soap);
+  
+    //this should be the first and only return, or else it is exiting too early
+    return wsFindAttributeDefNamesResults; 
+
+  }
+
+  /**
+   * find an attribute def name or attribute def names.  Each additional parameter sent will narow the search,
+   * except the lookups will just lookup whatever is sent.
+   * @param clientVersion is the version of the client.  Must be in GrouperWsVersion, e.g. v1_3_000
+   * @param scope search string with % as wildcards will search name, display name, description
+   * @param splitScope T or F, if T will split the scope by whitespace, and find attribute def names with each token.
+   * e.g. if you have a scope of "pto permissions", and split scope T, it will return 
+   * school:apps:pto_app:internal:the_permissions:whatever
+   * @param uuidOfAttributeDef find names associated with this attribute definition, mutually exclusive with nameOfAttributeDef
+   * @param nameOfAttributeDef find names associated with this attribute definition, mutually exclusive with idOfAttributeDef
+   * @param wsAttributeDefLookup find names associated with this attribute definition
+   * @param attributeAssignType where can the attribute definition be assigned, e.g. any_mem, any_mem_asgn, attr_def, 
+   * attr_def_asgn, group, group_asgn, imm_mem, imm_mem_asgn, mem_asgn, member, stem, stem_asgn
+   * @param attributeDefType type of attribute definition, e.g. attr, domain, limit, perm, type
+   * @param attributeDefNameUuid to lookup an attribute def name by id, mutually exclusive with attributeDefNameName
+   * @param attributeDefNameName to lookup an attribute def name by name, mutually exclusive with attributeDefNameId
+   * @param wsInheritanceSetRelation if there is one wsAttributeDefNameLookup, and this is specified, then find 
+   * the attribute def names which are related to the lookup by this relation, e.g. IMPLIED_BY_THIS, 
+   * IMPLIED_BY_THIS_IMMEDIATE, THAT_IMPLY_THIS, THAT_IMPLY_THIS_IMMEDIATE
+   * @param actAsSubjectId
+   *            optional: is the subject id of subject to act as (if
+   *            proxying). Only pass one of actAsSubjectId or
+   *            actAsSubjectIdentifer
+   * @param actAsSubjectIdentifier
+   *            optional: is the subject identifier of subject to act as (if
+   *            proxying). Only pass one of actAsSubjectId or
+   *            actAsSubjectIdentifer
+   * @param actAsSubjectSourceId
+   *            optional to narrow the act as subject search to a particular source 
+   * @param paramName0
+   *            reserved for future use
+   * @param paramValue0
+   *            reserved for future use
+   * @param paramName1
+   *            reserved for future use
+   * @param paramValue1
+   *            reserved for future use
+   * @return the attribute def names, or no attribute def names if none found
+   */
+  public WsFindAttributeDefNamesResults findAttributeDefNamesLite(final String clientVersion,
+      String scope, String splitScope, String uuidOfAttributeDef, String nameOfAttributeDef,
+      String attributeAssignType, String attributeDefType, String attributeDefNameUuid, String attributeDefNameName,
+      String wsInheritanceSetRelation,
+      String actAsSubjectId, String actAsSubjectSourceId,
+      String actAsSubjectIdentifier, String paramName0,
+      String paramValue0, String paramName1, String paramValue1) {
+        
+    WsFindAttributeDefNamesResults wsFindAttributeDefNamesResults = new WsFindAttributeDefNamesResults();
+    
+    GrouperVersion grouperWsVersion = null;
+    
+    try {
+  
+      grouperWsVersion = GrouperVersion.valueOfIgnoreCase(
+          clientVersion, true);
+  
+      Boolean splitScopeBoolean = GrouperServiceUtils.booleanObjectValue(
+          splitScope, "splitScope");
+
+      AttributeDefType attributeDefTypeEnum = GrouperServiceUtils.enumValueOfIgnoreCase(AttributeDefType.class,attributeDefType, false);
+      AttributeAssignType attributeAssignTypeEnum = GrouperServiceUtils.enumValueOfIgnoreCase(AttributeAssignType.class, attributeAssignType, false);
+      WsInheritanceSetRelation wsInheritanceSetRelationEnum = WsInheritanceSetRelation.valueOfIgnoreCase(wsInheritanceSetRelation);
+
+      wsFindAttributeDefNamesResults = GrouperServiceLogic.findAttributeDefNamesLite(grouperWsVersion,
+          scope, splitScopeBoolean, uuidOfAttributeDef, nameOfAttributeDef,
+          attributeAssignTypeEnum, attributeDefTypeEnum, attributeDefNameUuid, attributeDefNameName,
+          wsInheritanceSetRelationEnum, actAsSubjectId, actAsSubjectSourceId,
+          actAsSubjectIdentifier, paramName0,
+          paramValue0, paramName1, paramValue1);
+  
+    } catch (Exception e) {
+      wsFindAttributeDefNamesResults.assignResultCodeException(null, null, e);
+    }
+  
+    //set response headers
+    GrouperServiceUtils.addResponseHeaders(wsFindAttributeDefNamesResults.getResultMetadata(), this.soap);
+  
+    //this should be the first and only return, or else it is exiting too early
+    return wsFindAttributeDefNamesResults; 
+
   }
 
 }

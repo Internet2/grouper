@@ -92,9 +92,6 @@ public class WsGroupSaveLiteResult implements WsResponseBean {
     /** problem, group already exists (lite http status code 500) (success: F) */
     GROUP_ALREADY_EXISTS(500),
     
-    /** problem deleting existing groups (lite http status code 500) (success: F) */
-    PROBLEM_DELETING_GROUPS(500),
-
     /** invalid query (e.g. if everything blank) (lite http status code 400) (success: F) */
     INVALID_QUERY(400), 
     
