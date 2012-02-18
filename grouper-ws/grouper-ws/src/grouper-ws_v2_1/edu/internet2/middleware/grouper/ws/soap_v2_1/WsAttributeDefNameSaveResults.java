@@ -4,22 +4,22 @@ package edu.internet2.middleware.grouper.ws.soap_v2_1;
 
 /**
  * <pre>
- * results for the groups save call.
+ * results for the attribute def names save call.
  * 
  * result code:
- * code of the result for this group overall
+ * code of the result for this attribute def name overall
  * SUCCESS: means everything ok
- * GROUP_NOT_FOUND: cant find the group
- * GROUP_DUPLICATE: found multiple groups
+ * ATTRIBUTE_DEF_NAME_NOT_FOUND: cant find the attribute def name
+ * ATTRIBUTE_DEF_NAME_DUPLICATE: found multiple attribute def names
  * </pre>
  * @author mchyzer
  */
-public class WsGroupSaveResults {
+public class WsAttributeDefNameSaveResults {
 
   /**
-   * results for each group sent in
+   * results for each attribute def name sent in
    */
-  private WsGroupSaveResult[] results;
+  private WsAttributeDefNameSaveResult[] results;
 
   /**
    * metadata about the result
@@ -32,18 +32,18 @@ public class WsGroupSaveResults {
   private WsResponseMeta responseMetadata = new WsResponseMeta();
 
   /**
-   * results for each group sent in
+   * results for each attribute def name sent in
    * @return the results
    */
-  public WsGroupSaveResult[] getResults() {
+  public WsAttributeDefNameSaveResult[] getResults() {
     return this.results;
   }
 
   /**
-   * results for each group sent in
+   * results for each attribute def name sent in
    * @param results1 the results to set
    */
-  public void setResults(WsGroupSaveResult[] results1) {
+  public void setResults(WsAttributeDefNameSaveResult[] results1) {
     this.results = results1;
   }
 

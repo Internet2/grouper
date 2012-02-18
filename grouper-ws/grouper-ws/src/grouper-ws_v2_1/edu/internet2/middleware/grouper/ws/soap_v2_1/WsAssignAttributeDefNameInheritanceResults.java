@@ -3,23 +3,12 @@ package edu.internet2.middleware.grouper.ws.soap_v2_1;
 
 
 /**
- * <pre>
- * results for the groups save call.
+ * returned from the attribute def name inheritance
  * 
- * result code:
- * code of the result for this group overall
- * SUCCESS: means everything ok
- * GROUP_NOT_FOUND: cant find the group
- * GROUP_DUPLICATE: found multiple groups
- * </pre>
  * @author mchyzer
+ * 
  */
-public class WsGroupSaveResults {
-
-  /**
-   * results for each group sent in
-   */
-  private WsGroupSaveResult[] results;
+public class WsAssignAttributeDefNameInheritanceResults {
 
   /**
    * metadata about the result
@@ -30,22 +19,6 @@ public class WsGroupSaveResults {
    * metadata about the result
    */
   private WsResponseMeta responseMetadata = new WsResponseMeta();
-
-  /**
-   * results for each group sent in
-   * @return the results
-   */
-  public WsGroupSaveResult[] getResults() {
-    return this.results;
-  }
-
-  /**
-   * results for each group sent in
-   * @param results1 the results to set
-   */
-  public void setResults(WsGroupSaveResult[] results1) {
-    this.results = results1;
-  }
 
   /**
    * @return the resultMetadata
@@ -76,5 +49,4 @@ public class WsGroupSaveResults {
   public void setResultMetadata(WsResultMeta resultMetadata1) {
     this.resultMetadata = resultMetadata1;
   }
-
 }

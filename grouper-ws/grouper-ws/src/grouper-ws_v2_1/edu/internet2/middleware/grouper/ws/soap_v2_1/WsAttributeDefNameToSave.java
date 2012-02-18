@@ -7,19 +7,19 @@ package edu.internet2.middleware.grouper.ws.soap_v2_1;
 
 /**
  * <pre>
- * Class to save a group via web service
+ * Class to save an attribute def name via web service
  * 
  * </pre>
  * 
  * @author mchyzer
  */
-public class WsGroupToSave {
+public class WsAttributeDefNameToSave {
 
-  /** stem lookup (blank if insert) */
-  private WsGroupLookup wsGroupLookup;
+  /** attribute def name lookup (blank if insert) */
+  private WsAttributeDefNameLookup wsAttributeDefNameLookup;
 
-  /** group to save */
-  private WsGroup wsGroup;
+  /** attribute def name to save */
+  private WsAttributeDefName wsAttributeDefName;
 
   /** T or F (null if F) */
   private String createParentStemsIfNotExist;
@@ -46,7 +46,7 @@ public class WsGroupToSave {
   /**
    * 
    */
-  public WsGroupToSave() {
+  public WsAttributeDefNameToSave() {
     // empty constructor
   }
 
@@ -67,30 +67,34 @@ public class WsGroupToSave {
   }
 
   /**
-   * @return the wsGroupLookup
+   * attribute def name lookup (blank if insert)
+   * @return the wsAttributeDefNameLookup
    */
-  public WsGroupLookup getWsGroupLookup() {
-    return this.wsGroupLookup;
+  public WsAttributeDefNameLookup getWsAttributeDefNameLookup() {
+    return this.wsAttributeDefNameLookup;
   }
 
   /**
-   * @param wsGroupLookup1 the wsGroupLookup to set
+   * attribute def name lookup (blank if insert)
+   * @param wsAttributeDefNameLookup1 the wsAttributeDefNameLookup to set
    */
-  public void setWsGroupLookup(WsGroupLookup wsGroupLookup1) {
-    this.wsGroupLookup = wsGroupLookup1;
+  public void setWsAttributeDefNameLookup(WsAttributeDefNameLookup wsAttributeDefNameLookup1) {
+    this.wsAttributeDefNameLookup = wsAttributeDefNameLookup1;
   }
 
   /**
-   * @return the wsGroup
+   * attribute def name to save
+   * @return the wsAttributeDefName
    */
-  public WsGroup getWsGroup() {
-    return this.wsGroup;
+  public WsAttributeDefName getWsAttributeDefName() {
+    return this.wsAttributeDefName;
   }
 
   /**
-   * @param wsGroup1 the wsGroup to set
+   * attribute def name to save
+   * @param wsAttributeDefName1 the wsAttributeDefName to set
    */
-  public void setWsGroup(WsGroup wsGroup1) {
-    this.wsGroup = wsGroup1;
+  public void setWsAttributeDefName(WsAttributeDefName wsAttributeDefName1) {
+    this.wsAttributeDefName = wsAttributeDefName1;
   }
 }

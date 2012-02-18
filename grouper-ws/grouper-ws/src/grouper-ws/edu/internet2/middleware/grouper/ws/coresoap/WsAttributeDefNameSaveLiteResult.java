@@ -1,25 +1,20 @@
-package edu.internet2.middleware.grouper.ws.soap_v2_1;
+package edu.internet2.middleware.grouper.ws.coresoap;
 
 
 
 /**
  * <pre>
- * results for the groups save call.
+ * results for the AttributeDefNames save call.
  * 
  * result code:
- * code of the result for this group overall
+ * code of the result for this AttributeDefName overall
  * SUCCESS: means everything ok
- * GROUP_NOT_FOUND: cant find the group
- * GROUP_DUPLICATE: found multiple groups
+ * ATTRIBUTE_DEF_NAME_NOT_FOUND: cant find the AttributeDefName
+ * ATTRIBUTE_DEF_NAME_DUPLICATE: found multiple AttributeDefNames
  * </pre>
  * @author mchyzer
  */
-public class WsGroupSaveResults {
-
-  /**
-   * results for each group sent in
-   */
-  private WsGroupSaveResult[] results;
+public class WsAttributeDefNameSaveLiteResult {
 
   /**
    * metadata about the result
@@ -32,20 +27,9 @@ public class WsGroupSaveResults {
   private WsResponseMeta responseMetadata = new WsResponseMeta();
 
   /**
-   * results for each group sent in
-   * @return the results
+   * AttributeDefName saved 
    */
-  public WsGroupSaveResult[] getResults() {
-    return this.results;
-  }
-
-  /**
-   * results for each group sent in
-   * @param results1 the results to set
-   */
-  public void setResults(WsGroupSaveResult[] results1) {
-    this.results = results1;
-  }
+  private WsAttributeDefName wsAttributeDefName;
 
   /**
    * @return the resultMetadata
@@ -75,6 +59,27 @@ public class WsGroupSaveResults {
    */
   public void setResultMetadata(WsResultMeta resultMetadata1) {
     this.resultMetadata = resultMetadata1;
+  }
+
+  /**
+   * @return the wsAttributeDefName
+   */
+  public WsAttributeDefName getWsAttributeDefName() {
+    return this.wsAttributeDefName;
+  }
+
+  /**
+   * @param wsAttributeDefName1 the wsAttributeDefName to set
+   */
+  public void setWsAttributeDefName(WsAttributeDefName wsAttributeDefName1) {
+    this.wsAttributeDefName = wsAttributeDefName1;
+  }
+
+  /**
+   * empty
+   */
+  public WsAttributeDefNameSaveLiteResult() {
+    //empty
   }
 
 }
