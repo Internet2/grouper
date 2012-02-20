@@ -217,7 +217,7 @@ public class WsAttributeDefNameDeleteResult  {
    * @param wsAttributeDefNameLookup
    * @param includeDetail
    */
-  public void assignAttributeDefName(AttributeDefName attributeDefName, WsAttributeDefNameLookup wsAttributeDefNameLookup, boolean includeDetail) {
+  public void assignAttributeDefName(AttributeDefName attributeDefName, WsAttributeDefNameLookup wsAttributeDefNameLookup) {
     this.setWsAttributeDefName(new WsAttributeDefName(attributeDefName, wsAttributeDefNameLookup));
   }
 

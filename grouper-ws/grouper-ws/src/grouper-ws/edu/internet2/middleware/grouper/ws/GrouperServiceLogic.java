@@ -34,6 +34,7 @@ import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
+import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.AttributeDefNameSave;
 import edu.internet2.middleware.grouper.attr.AttributeDefType;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
@@ -73,6 +74,7 @@ import edu.internet2.middleware.grouper.pit.PITGroup;
 import edu.internet2.middleware.grouper.pit.PITMember;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.AccessResolver;
+import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.privs.GrouperPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingResolver;
@@ -97,9 +99,11 @@ import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeAssignValue;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefLookup;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefName;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameDeleteLiteResult;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameDeleteResult;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameDeleteResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameLookup;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameSaveLiteResult;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameSaveResult;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameSaveResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameToSave;
 import edu.internet2.middleware.grouper.ws.coresoap.WsDeleteMemberLiteResult;
@@ -155,9 +159,14 @@ import edu.internet2.middleware.grouper.ws.coresoap.WsSubject;
 import edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAddMemberResult.WsAddMemberResultCode;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAddMemberResults.WsAddMemberResultsCode;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributeDefNameInheritanceResults.WsAssignAttributeDefNameInheritanceResultsCode;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAssignGrouperPrivilegesResult.WsAssignGrouperPrivilegesResultCode;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAssignGrouperPrivilegesResults.WsAssignGrouperPrivilegesResultsCode;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameDeleteResult.WsAttributeDefNameDeleteResultCode;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameLookup.AttributeDefNameFindResult;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameSaveResult.WsAttributeDefNameSaveResultCode;
 import edu.internet2.middleware.grouper.ws.coresoap.WsDeleteMemberResult.WsDeleteMemberResultCode;
+import edu.internet2.middleware.grouper.ws.coresoap.WsFindAttributeDefNamesResults.WsFindAttributeDefNamesResultsCode;
 import edu.internet2.middleware.grouper.ws.coresoap.WsFindGroupsResults.WsFindGroupsResultsCode;
 import edu.internet2.middleware.grouper.ws.coresoap.WsFindStemsResults.WsFindStemsResultsCode;
 import edu.internet2.middleware.grouper.ws.coresoap.WsGetAttributeAssignmentsResults.WsGetAttributeAssignmentsResultsCode;
@@ -2095,7 +2104,7 @@ public class GrouperServiceLogic {
                   params);
   
               int wsGroupsLength = GrouperServiceUtils.arrayLengthAtLeastOne(
-                  wsGroupToSaves, GrouperWsConfig.WS_STEM_SAVE_MAX, 1000000, "groupsToSave");
+                  wsGroupToSaves, GrouperWsConfig.WS_GROUP_SAVE_MAX, 1000000, "groupsToSave");
   
               wsGroupSaveResults.setResults(new WsGroupSaveResult[wsGroupsLength]);
   
@@ -6053,16 +6062,201 @@ public class GrouperServiceLogic {
    * @param replaceAllExisting T if assigning, if this list should replace all existing immediately inherited attribute def names
    * @param actAsSubjectLookup if searching as someone else, pass in that subject here, note the caller must
    * be allowed to act as that other subject
+   * @param txType is the GrouperTransactionType for the request.  If blank, defaults to
+   * NONE (will finish as much as possible).  Generally the only values for this param that make sense
+   * are NONE (or blank), and READ_WRITE_NEW.
    * @param params optional: reserved for future use
    * @return the result
    */
   public static WsAssignAttributeDefNameInheritanceResults assignAttributeDefNameInheritance(final GrouperVersion clientVersion,
       final WsAttributeDefNameLookup wsAttributeDefNameLookup, final WsAttributeDefNameLookup[] relatedWsAttributeDefNameLookups,
       final boolean assign,
-      Boolean replaceAllExisting, final WsSubjectLookup actAsSubjectLookup,
+      final Boolean replaceAllExisting, final WsSubjectLookup actAsSubjectLookup, GrouperTransactionType txType, 
       final WsParam[] params) {
     
-    return null;
+    final WsAssignAttributeDefNameInheritanceResults wsAssignAttributeDefNameInheritanceResults = new WsAssignAttributeDefNameInheritanceResults();
+    
+    GrouperSession session = null;
+    String theSummary = null;
+    try {
+      GrouperWsVersionUtils.assignCurrentClientVersion(clientVersion, wsAssignAttributeDefNameInheritanceResults.getResponseMetadata().warnings());
+
+      txType = GrouperUtil.defaultIfNull(txType, GrouperTransactionType.NONE);
+      final GrouperTransactionType TX_TYPE = txType;
+      theSummary = "clientVersion: " + clientVersion + ", wsAttributeDefNameLookup: "
+          + wsAttributeDefNameLookup + ", relatedWsAttributeDefNameLookups: " 
+          + GrouperUtil.toStringForLog(relatedWsAttributeDefNameLookups, 200) 
+          + "\n, assign: " + assign + ", replaceAllExisting: " + replaceAllExisting + ", actAsSubject: "
+          + actAsSubjectLookup + ", txType: " + txType + ", paramNames: "
+          + "\n, params: " + GrouperUtil.toStringForLog(params, 100);
+
+      if ((wsAttributeDefNameLookup == null || wsAttributeDefNameLookup.blank())) {
+        throw new WsInvalidQueryException(
+            "You need to pass in wsAttributeDefNameLookup");
+      }
+
+      if (GrouperUtil.length(relatedWsAttributeDefNameLookups) == 0) {
+        throw new WsInvalidQueryException(
+            "You need to pass in at last one relatedWsAttributeDefNameLookup");
+      }
+      
+      if (!assign && replaceAllExisting != null) {
+        throw new WsInvalidQueryException(
+            "If you are unassigning, you cannot pass in replaceAllExisting");
+      }
+      
+      //start session based on logged in user or the actAs passed in
+      session = GrouperServiceUtils.retrieveGrouperSession(actAsSubjectLookup);
+
+      //convert the options to a map for easy access, and validate them
+      @SuppressWarnings("unused")
+      Map<String, String> paramMap = GrouperServiceUtils.convertParamsToMap(
+          params);
+
+      wsAttributeDefNameLookup.retrieveAttributeDefNameIfNeeded(session);
+      if (!wsAttributeDefNameLookup.retrieveAttributeDefNameFindResult().isSuccess()) {
+        throw new WsInvalidQueryException(
+          "Cannot find wsAttributeDefNameLookup: " + wsAttributeDefNameLookup);
+        
+      }
+      final AttributeDefName attributeDefName = wsAttributeDefNameLookup.retrieveAttributeDefName();
+      
+      int relatedWsAttributeDefNameLookupsLength = GrouperServiceUtils.arrayLengthAtLeastOne(
+          relatedWsAttributeDefNameLookups, GrouperWsConfig.WS_ATTRIBUTE_DEF_NAME_DELETE_MAX, 1000000, "assignAttributeDefNameInheritance");
+      
+      if (relatedWsAttributeDefNameLookupsLength < GrouperUtil.length(relatedWsAttributeDefNameLookups)) {
+        throw new WsInvalidQueryException(
+          "Too many relatedWsAttributeDefNameLookups: " 
+            + GrouperUtil.length(relatedWsAttributeDefNameLookups) + " > " + relatedWsAttributeDefNameLookupsLength);
+      }
+      
+      Set<AttributeDefName> relatedAttributeDefNames = new LinkedHashSet<AttributeDefName>();
+      
+      final boolean[] success = new boolean[]{true};
+      StringBuilder resultErrors = new StringBuilder();
+      
+      //loop through all stems and do the save
+      for (WsAttributeDefNameLookup relatedAttributeDefNameLookup : relatedWsAttributeDefNameLookups) {
+        relatedAttributeDefNameLookup.retrieveAttributeDefNameIfNeeded(session);
+        AttributeDefNameFindResult attributeDefNameFindResult = relatedAttributeDefNameLookup.retrieveAttributeDefNameFindResult();
+        AttributeDefName relatedAttributeDefName = relatedAttributeDefNameLookup.retrieveAttributeDefName();
+        if (attributeDefNameFindResult.isSuccess() && relatedAttributeDefName != null) {
+          relatedAttributeDefNames.add(relatedAttributeDefName);
+        } else {
+          success[0] = false;
+          resultErrors.append("Problem with relatedAttributeDefNameLookup: " 
+              + relatedAttributeDefNameLookup + ": result: " + attributeDefNameFindResult + ", ");
+          if (txType == GrouperTransactionType.READ_WRITE_NEW || txType == GrouperTransactionType.READ_WRITE_OR_USE_EXISTING) {
+            throw new WsInvalidQueryException(
+                "Transactional query and " + resultErrors);
+            
+          }
+        }
+      }
+      
+      //lets get the adds and removes ready to go
+      final Set<AttributeDefName> adds = new LinkedHashSet<AttributeDefName>();
+      final Set<AttributeDefName> removes = new LinkedHashSet<AttributeDefName>();
+      
+      final int[] addSuccesses = new int[]{0};
+      final int[] removeSuccesses = new int[]{0};
+      
+      if (!assign) {
+        removes.addAll(relatedAttributeDefNames);
+      } else if (assign && (replaceAllExisting == null || !replaceAllExisting)) {
+        adds.addAll(relatedAttributeDefNames);
+      } else {
+        adds.addAll(relatedAttributeDefNames);
+        //assigning and replacing all existing
+        //get current list
+        Set<AttributeDefName> currentList = attributeDefName.getAttributeDefNameSetDelegate().getAttributeDefNamesImpliedByThis();
+        adds.removeAll(currentList);
+        removes.addAll(new LinkedHashSet<AttributeDefName>(currentList));
+        removes.removeAll(relatedAttributeDefNames);
+      }
+      
+      //start a transaction (or not if none)
+      GrouperTransaction.callbackGrouperTransaction(txType,
+          new GrouperTransactionHandler() {
+  
+            public Object callback(GrouperTransaction grouperTransaction)
+                throws GrouperDAOException {
+
+              for (AttributeDefName add : adds) {
+                final AttributeDefName ADD = add;
+                //this should be autonomous, so that within one operational, it is transactional
+                HibernateSession.callbackHibernateSession(
+                    GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
+  
+                  public Object callback(HibernateHandlerBean hibernateHandlerBean)
+                      throws GrouperDAOException {
+                    
+                      try {
+                        attributeDefName.getAttributeDefNameSetDelegate().addToAttributeDefNameSet(ADD);
+                        addSuccesses[0]++;
+                      } catch (Exception e) {
+                        wsAssignAttributeDefNameInheritanceResults.assignResultCodeException(null, "Problem with add: " + ADD, e);
+                        success[0] = false;
+                      }
+                      return null;
+                    }
+                  });
+              }
+              for (AttributeDefName remove : removes) {
+                final AttributeDefName REMOVE = remove;
+                //this should be autonomous, so that within one operational, it is transactional
+                HibernateSession.callbackHibernateSession(
+                    GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
+  
+                  public Object callback(HibernateHandlerBean hibernateHandlerBean)
+                      throws GrouperDAOException {
+                    
+                      try {
+                        attributeDefName.getAttributeDefNameSetDelegate().removeFromAttributeDefNameSet(REMOVE);
+                        removeSuccesses[0]++;
+                      } catch (Exception e) {
+                        wsAssignAttributeDefNameInheritanceResults.assignResultCodeException(null, "Problem with remove: " + REMOVE, e);
+                        success[0] = false;
+                      }
+                      return null;
+                    }
+                  });
+              }
+
+              //see if any inner failures cause the whole tx to fail, and/or change the outer status
+              if (!success[0]) {
+                grouperTransaction.rollback(GrouperRollbackType.ROLLBACK_NOW);
+                if (TX_TYPE == GrouperTransactionType.READ_WRITE_NEW || TX_TYPE == GrouperTransactionType.READ_WRITE_OR_USE_EXISTING) {
+                  addSuccesses[0] = 0;
+                  removeSuccesses[0] = 0;
+                }
+              }
+  
+              return null;
+            }
+          });
+      
+      wsAssignAttributeDefNameInheritanceResults.getResultMetadata().appendResultMessage(
+          ", Had " + addSuccesses[0] + " successful adds, and " + removeSuccesses[0] + " successful removes.  ");
+
+      if (success[0]) {
+        wsAssignAttributeDefNameInheritanceResults.assignResultCode(WsAssignAttributeDefNameInheritanceResultsCode.SUCCESS);
+      
+      } else {
+        wsAssignAttributeDefNameInheritanceResults.getResultMetadata().appendResultMessage(resultErrors.toString());
+
+        wsAssignAttributeDefNameInheritanceResults.assignResultCode(WsAssignAttributeDefNameInheritanceResultsCode.EXCEPTION);
+        
+      }
+    } catch (Exception e) {
+      wsAssignAttributeDefNameInheritanceResults.assignResultCodeException(null, theSummary, e);
+    } finally {
+      GrouperWsVersionUtils.removeCurrentClientVersion(true);
+      GrouperSession.stopQuietly(session);
+    }
+  
+    //this should be the first and only return, or else it is exiting too early
+    return wsAssignAttributeDefNameInheritanceResults;
   }
   
   /**
@@ -6110,7 +6304,7 @@ public class GrouperServiceLogic {
     WsParam[] params = GrouperServiceUtils.params(paramName0, paramValue0, paramValue1, paramValue1);
   
     WsAssignAttributeDefNameInheritanceResults wsAssignAttributeDefNameInheritanceResults = assignAttributeDefNameInheritance(clientVersion,
-        wsAttributeDefNameLookup, relatedWsAttributeDefNameLookups, assign, false, actAsSubjectLookup, params);
+        wsAttributeDefNameLookup, relatedWsAttributeDefNameLookups, assign, false, actAsSubjectLookup, null, params);
   
     return wsAssignAttributeDefNameInheritanceResults;
   }
@@ -6130,8 +6324,110 @@ public class GrouperServiceLogic {
    */
   public static WsAttributeDefNameDeleteResults attributeDefNameDelete(final GrouperVersion clientVersion,
       final WsAttributeDefNameLookup[] wsAttributeDefNameLookups, final WsSubjectLookup actAsSubjectLookup,
-      final GrouperTransactionType txType, final WsParam[] params) {
-    return null;
+      GrouperTransactionType txType, final WsParam[] params) {
+    final WsAttributeDefNameDeleteResults wsAttributeDefNameDeleteResults = new WsAttributeDefNameDeleteResults();
+    
+    GrouperSession session = null;
+    String theSummary = null;
+    try {
+      GrouperWsVersionUtils.assignCurrentClientVersion(clientVersion, wsAttributeDefNameDeleteResults.getResponseMetadata().warnings());
+
+      txType = GrouperUtil.defaultIfNull(txType, GrouperTransactionType.NONE);
+      final GrouperTransactionType TX_TYPE = txType;
+      theSummary = "clientVersion: " + clientVersion + ", wsGroupLookups: "
+          + GrouperUtil.toStringForLog(wsAttributeDefNameLookups, 200) + "\n, actAsSubject: "
+          + actAsSubjectLookup + ", txType: " + txType + ", paramNames: "
+          + "\n, params: " + GrouperUtil.toStringForLog(params, 100);
+
+      final String THE_SUMMARY = theSummary;
+  
+      //start session based on logged in user or the actAs passed in
+      session = GrouperServiceUtils.retrieveGrouperSession(actAsSubjectLookup);
+  
+      final GrouperSession SESSION = session;
+  
+      //start a transaction (or not if none)
+      GrouperTransaction.callbackGrouperTransaction(txType,
+          new GrouperTransactionHandler() {
+  
+            public Object callback(GrouperTransaction grouperTransaction)
+                throws GrouperDAOException {
+  
+              //convert the options to a map for easy access, and validate them
+              @SuppressWarnings("unused")
+              Map<String, String> paramMap = GrouperServiceUtils.convertParamsToMap(
+                  params);
+  
+              int attributeDefNamesSize = GrouperServiceUtils.arrayLengthAtLeastOne(wsAttributeDefNameLookups,
+                  GrouperWsConfig.WS_ATTRIBUTE_DEF_NAME_DELETE_MAX, 1000000, "attributeDefNameLookups");
+  
+              wsAttributeDefNameDeleteResults.setResults(new WsAttributeDefNameDeleteResult[attributeDefNamesSize]);
+  
+              int resultIndex = 0;
+  
+              //loop through all groups and do the delete
+              for (WsAttributeDefNameLookup wsAttributeDefNameLookup : wsAttributeDefNameLookups) {
+  
+                WsAttributeDefNameDeleteResult wsAttributeDefNameDeleteResult = new WsAttributeDefNameDeleteResult(
+                    wsAttributeDefNameLookup);
+                wsAttributeDefNameDeleteResults.getResults()[resultIndex++] = wsAttributeDefNameDeleteResult;
+  
+                wsAttributeDefNameLookup.retrieveAttributeDefNameIfNeeded(SESSION);
+                AttributeDefName attributeDefName = wsAttributeDefNameLookup.retrieveAttributeDefName();
+  
+                if (attributeDefName == null) {
+  
+                  wsAttributeDefNameDeleteResult
+                      .assignResultCode(AttributeDefNameFindResult
+                          .convertToAttributeDefNameDeleteCodeStatic(wsAttributeDefNameLookup
+                              .retrieveAttributeDefNameFindResult()));
+                  wsAttributeDefNameDeleteResult.getResultMetadata().setResultMessage(
+                      "Cant find attributeDefName: '" + wsAttributeDefNameLookup + "'.  ");
+                  //should we short circuit if transactional?
+                  continue;
+                }
+  
+                //make each attribute def name failsafe
+                try {
+                  wsAttributeDefNameDeleteResult.assignAttributeDefName(attributeDefName, wsAttributeDefNameLookup);
+  
+                  //if there was already a problem, then dont continue
+                  if (!GrouperUtil.booleanValue(wsAttributeDefNameDeleteResult.getResultMetadata()
+                      .getSuccess(), true)) {
+                    continue;
+                  }
+  
+                  attributeDefName.delete();
+  
+                  wsAttributeDefNameDeleteResult.assignResultCode(WsAttributeDefNameDeleteResultCode.SUCCESS);
+                  wsAttributeDefNameDeleteResult.getResultMetadata().setResultMessage(
+                      "AttributeDefName '" + attributeDefName.getName() + "' was deleted.");
+  
+                } catch (InsufficientPrivilegeException ipe) {
+                  wsAttributeDefNameDeleteResult
+                      .assignResultCode(WsAttributeDefNameDeleteResultCode.INSUFFICIENT_PRIVILEGES);
+                } catch (Exception e) {
+                  wsAttributeDefNameDeleteResult.assignResultCodeException(e, wsAttributeDefNameLookup);
+                }
+              }
+  
+              //see if any inner failures cause the whole tx to fail, and/or change the outer status
+              if (!wsAttributeDefNameDeleteResults.tallyResults(TX_TYPE, THE_SUMMARY)) {
+                grouperTransaction.rollback(GrouperRollbackType.ROLLBACK_NOW);
+              }
+  
+              return null;
+            }
+          });
+    } catch (Exception e) {
+      wsAttributeDefNameDeleteResults.assignResultCodeException(null, theSummary, e);
+    } finally {
+      GrouperWsVersionUtils.removeCurrentClientVersion(true);
+      GrouperSession.stopQuietly(session);
+    }
+  
+    //this should be the first and only return, or else it is exiting too early
+    return wsAttributeDefNameDeleteResults;
   }
   
   /**
@@ -6193,8 +6489,106 @@ public class GrouperServiceLogic {
    */
   public static WsAttributeDefNameSaveResults attributeDefNameSave(final GrouperVersion clientVersion,
       final WsAttributeDefNameToSave[] wsAttributeDefNameToSaves, final WsSubjectLookup actAsSubjectLookup,
-      final GrouperTransactionType txType, final WsParam[] params) {
-    return null;
+      GrouperTransactionType txType, final WsParam[] params) {
+    
+    final WsAttributeDefNameSaveResults wsAttributeDefNameSaveResults = new WsAttributeDefNameSaveResults();
+    
+    GrouperSession session = null;
+    String theSummary = null;
+    try {
+      GrouperWsVersionUtils.assignCurrentClientVersion(clientVersion, wsAttributeDefNameSaveResults.getResponseMetadata().warnings());
+
+      txType = GrouperUtil.defaultIfNull(txType, GrouperTransactionType.NONE);
+      final GrouperTransactionType TX_TYPE = txType;
+      
+      theSummary = "clientVersion: " + clientVersion + ", wsAttributeDefNameToSaves: "
+          + GrouperUtil.toStringForLog(wsAttributeDefNameToSaves, 200) + "\n, actAsSubject: "
+          + actAsSubjectLookup + ", txType: " + txType + ", paramNames: "
+          + "\n, params: " + GrouperUtil.toStringForLog(params, 100);
+  
+      final String THE_SUMMARY = theSummary;
+  
+      //start session based on logged in user or the actAs passed in
+      session = GrouperServiceUtils.retrieveGrouperSession(actAsSubjectLookup);
+  
+      final GrouperSession SESSION = session;
+  
+      //start a transaction (or not if none)
+      GrouperTransaction.callbackGrouperTransaction(txType,
+          new GrouperTransactionHandler() {
+  
+            public Object callback(GrouperTransaction grouperTransaction)
+                throws GrouperDAOException {
+  
+              //convert the options to a map for easy access, and validate them
+              @SuppressWarnings("unused")
+              Map<String, String> paramMap = GrouperServiceUtils.convertParamsToMap(
+                  params);
+  
+              int wsAttributeDefNamesLength = GrouperServiceUtils.arrayLengthAtLeastOne(
+                  wsAttributeDefNameToSaves, GrouperWsConfig.WS_ATTRIBUTE_DEF_NAME_SAVE_MAX, 1000000, "attributeDefNamesToSave");
+  
+              wsAttributeDefNameSaveResults.setResults(new WsAttributeDefNameSaveResult[wsAttributeDefNamesLength]);
+  
+              int resultIndex = 0;
+  
+              //loop through all stems and do the save
+              for (WsAttributeDefNameToSave wsAttributeDefNameToSave : wsAttributeDefNameToSaves) {
+                final WsAttributeDefNameSaveResult wsAttributeDefNameSaveResult = 
+                  new WsAttributeDefNameSaveResult(wsAttributeDefNameToSave.getWsAttributeDefNameLookup());
+                wsAttributeDefNameSaveResults.getResults()[resultIndex++] = wsAttributeDefNameSaveResult;
+                final WsAttributeDefNameToSave WS_ATTRIBUTE_DEF_NAME_TO_SAVE = wsAttributeDefNameToSave;
+                try {
+                  //this should be autonomous, so that within one attribute def name, it is transactional
+                  HibernateSession.callbackHibernateSession(
+                      GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
+
+                    public Object callback(HibernateHandlerBean hibernateHandlerBean)
+                        throws GrouperDAOException {
+                      //make sure everything is in order
+                      WS_ATTRIBUTE_DEF_NAME_TO_SAVE.validate();
+                      AttributeDefName attributeDefName = WS_ATTRIBUTE_DEF_NAME_TO_SAVE.save(SESSION);
+                      SaveResultType saveResultType = WS_ATTRIBUTE_DEF_NAME_TO_SAVE.saveResultType();
+                      wsAttributeDefNameSaveResult.setWsAttributeDefName(new WsAttributeDefName(attributeDefName, 
+                          WS_ATTRIBUTE_DEF_NAME_TO_SAVE.getWsAttributeDefNameLookup()));
+                      
+                      if (saveResultType == SaveResultType.INSERT) {
+                        wsAttributeDefNameSaveResult.assignResultCode(WsAttributeDefNameSaveResultCode.SUCCESS_INSERTED, clientVersion);
+                      } else if (saveResultType == SaveResultType.UPDATE) {
+                        wsAttributeDefNameSaveResult.assignResultCode(WsAttributeDefNameSaveResultCode.SUCCESS_UPDATED, clientVersion);
+                      } else if (saveResultType == SaveResultType.NO_CHANGE) {
+                        wsAttributeDefNameSaveResult.assignResultCode(WsAttributeDefNameSaveResultCode.SUCCESS_NO_CHANGES_NEEDED, clientVersion);
+                      } else {
+                        throw new RuntimeException("Invalid saveType: " + saveResultType);
+                      }
+
+                      return null;
+                    }
+
+                  });
+  
+                } catch (Exception e) {
+                  wsAttributeDefNameSaveResult.assignResultCodeException(e, wsAttributeDefNameToSave, clientVersion);
+                }
+              }
+              //see if any inner failures cause the whole tx to fail, and/or change the outer status
+              if (!wsAttributeDefNameSaveResults.tallyResults(TX_TYPE, THE_SUMMARY, clientVersion)) {
+                grouperTransaction.rollback(GrouperRollbackType.ROLLBACK_NOW);
+              }
+  
+              return null;
+            }
+          });
+    } catch (Exception e) {
+      wsAttributeDefNameSaveResults.assignResultCodeException(null, theSummary, e, clientVersion);
+    } finally {
+      GrouperWsVersionUtils.removeCurrentClientVersion(true);
+      GrouperSession.stopQuietly(session);
+    }
+  
+    //this should be the first and only return, or else it is exiting too early
+    return wsAttributeDefNameSaveResults;
+
   }
   
   /**
@@ -6292,6 +6686,11 @@ public class GrouperServiceLogic {
    * be allowed to act as that other subject
    * @param params optional: reserved for future use
    * @param wsAttributeDefNameLookups if you want to just pass in a list of uuids and/or names.
+   * @param pageSize page size if paging on a sort filter or parent
+   * @param pageNumber page number 1 indexed if paging on a sort filter or parent
+   * @param sortString must be an hql query field, e.g. 
+   * can sort on name, displayName, extension, displayExtension
+   * @param ascending or null for ascending, F for descending.  
    * @param wsInheritanceSetRelation if there is one wsAttributeDefNameLookup, and this is specified, then find 
    * the attribute def names which are related to the lookup by this relation, e.g. IMPLIED_BY_THIS, 
    * IMPLIED_BY_THIS_IMMEDIATE, THAT_IMPLY_THIS, THAT_IMPLY_THIS_IMMEDIATE
@@ -6300,9 +6699,161 @@ public class GrouperServiceLogic {
   public static WsFindAttributeDefNamesResults findAttributeDefNames(final GrouperVersion clientVersion,
       String scope, Boolean splitScope, WsAttributeDefLookup wsAttributeDefLookup,
       AttributeAssignType attributeAssignType, AttributeDefType attributeDefType,
-      WsAttributeDefNameLookup[] wsAttributeDefNameLookups, 
+      WsAttributeDefNameLookup[] wsAttributeDefNameLookups, Integer pageSize, Integer pageNumber,
+      String sortString, Boolean ascending, 
       WsInheritanceSetRelation wsInheritanceSetRelation, WsSubjectLookup actAsSubjectLookup, WsParam[] params) {
-    return null;
+    final WsFindAttributeDefNamesResults wsFindAttributeDefNamesResults = new WsFindAttributeDefNamesResults();
+    
+    GrouperSession session = null;
+    String theSummary = null;
+    try {
+      GrouperWsVersionUtils.assignCurrentClientVersion(clientVersion, wsFindAttributeDefNamesResults.getResponseMetadata().warnings());
+
+      theSummary = "clientVersion: " + clientVersion + ", scope: "
+          + scope + ", splitScope: " + splitScope
+          + ", wsAttributeDefLookup: " + wsAttributeDefLookup
+          + ", attributeAssignType: " + attributeAssignType
+          + ", attributeDefType: " + attributeAssignType
+          + "\nwsAttributeDefNameLookups: " + GrouperUtil.toStringForLog(wsAttributeDefNameLookups)
+          + "\nwsInheritanceSetRelation: " + wsInheritanceSetRelation
+          + ", pageSize: " + pageSize + ", pageNumber: " + pageNumber 
+          + ", sortString: " + sortString + ", ascending: " + ascending 
+          + ", actAsSubject: " + actAsSubjectLookup + ", paramNames: "
+          + "\n, params: " + GrouperUtil.toStringForLog(params, 100);
+  
+      //start session based on logged in user or the actAs passed in
+      session = GrouperServiceUtils.retrieveGrouperSession(actAsSubjectLookup);
+
+      //convert the options to a map for easy access, and validate them
+      @SuppressWarnings("unused")
+      Map<String, String> paramMap = GrouperServiceUtils.convertParamsToMap(
+          params);
+  
+      Set<AttributeDefName> attributeDefNames = new TreeSet<AttributeDefName>();
+      
+      boolean hasScopeQuery = false;
+      
+      if (!StringUtils.isBlank(scope) || (wsAttributeDefLookup != null && !wsAttributeDefLookup.blank())) {
+        hasScopeQuery = true;
+      }
+      
+      boolean hasLookupQuery = false;
+      
+      if (GrouperUtil.length(wsAttributeDefNameLookups) > 0) {
+        hasLookupQuery = true;
+      }
+      
+      if (!hasLookupQuery && !hasScopeQuery) {
+
+        throw new WsInvalidQueryException(
+            "You need to pass in either a scope query or attribute def lookup, or attribute def name lookups.");
+
+      }
+      
+      if (hasLookupQuery && hasScopeQuery) {
+
+        throw new WsInvalidQueryException(
+            "You need to pass in either a scope query or attribute def lookup, or attribute def name lookups.");
+
+      }
+      
+      if (splitScope != null && StringUtils.isBlank(scope)) {
+
+        throw new WsInvalidQueryException(
+          "If you pass in a splitScope, then you need to pass in a scope");
+        
+      }
+      
+      if (wsInheritanceSetRelation != null && GrouperUtil.length(wsAttributeDefNameLookups) != 1) {
+        
+        throw new WsInvalidQueryException(
+          "If you pass in a wsInheritanceSetRelation, then you need to pass in one and only one wsAttributeDefNameLookup");
+      
+      }
+      
+      if ((pageNumber != null) && (pageSize == null) ) {
+        
+        throw new WsInvalidQueryException(
+          "If you pass in pageNumber you need to pass in pageSize");
+      
+      }
+      
+      if (hasScopeQuery) {
+        
+        String attributeDefId = null;
+        if (wsAttributeDefLookup != null && !wsAttributeDefLookup.blank()) {
+          wsAttributeDefLookup.retrieveAttributeDefIfNeeded(session);
+          attributeDefId = wsAttributeDefLookup.retrieveAttributeDef().getId();
+        }
+        
+        QueryOptions queryOptions = null;
+        if (pageSize != null || pageNumber != null || !StringUtils.isBlank(sortString) || ascending != null) {
+          queryOptions = new QueryOptions();
+          if (pageNumber != null || pageSize != null) {
+            //default page number to 1
+            if (pageNumber == null) {
+              pageNumber = 1;
+            }
+            queryOptions.paging(pageSize, pageNumber, false);
+          }
+          if (ascending != null || !StringUtils.isBlank(sortString)) {
+            //default sort string to displayName
+            if (StringUtils.isBlank(sortString)) {
+              sortString = "displayName";
+            }
+            if (ascending == null || ascending) {
+              queryOptions.sortAsc(sortString);
+            } else {
+              queryOptions.sortDesc(sortString);
+            }
+          }
+        }
+        
+        attributeDefNames.addAll(GrouperDAOFactory.getFactory().getAttributeDefName().findAllAttributeNamesSplitScopeSecure(
+            scope, session, attributeDefId, session.getSubject(), AttributeDefPrivilege.VIEW_PRIVILEGES, queryOptions, attributeAssignType, attributeDefType));
+      }
+      
+      if (hasLookupQuery) {
+        //if we are looking at inheritance sets
+        if (wsInheritanceSetRelation != null) {
+          wsAttributeDefNameLookups[0].retrieveAttributeDefNameIfNeeded(session);
+          AttributeDefName attributeDefName = wsAttributeDefNameLookups[0].retrieveAttributeDefName();
+          //we better be able to find the parent...
+          if (attributeDefName == null) {
+            throw new WsInvalidQueryException(
+              "Cant find attribute def name from lookup: " + wsAttributeDefNameLookups[0]);
+          }
+          
+          //get the related attribute def names
+          attributeDefNames.addAll(wsInheritanceSetRelation.relatedAttributeDefNames(attributeDefName));
+          
+        } else {
+          //we could do this in fewer queries if we like...
+          for (WsAttributeDefNameLookup wsAttributeDefNameLookup : GrouperUtil.nonNull(wsAttributeDefNameLookups, WsAttributeDefNameLookup.class)) {
+            wsAttributeDefNameLookup.retrieveAttributeDefNameIfNeeded(session);
+            AttributeDefName attributeDefName = wsAttributeDefNameLookup.retrieveAttributeDefName();
+            if (attributeDefName != null) {
+              attributeDefNames.add(attributeDefName);
+            }
+          }
+        }        
+      }
+      
+      wsFindAttributeDefNamesResults.assignAttributeDefNameResult(attributeDefNames);
+  
+      wsFindAttributeDefNamesResults.assignResultCode(WsFindAttributeDefNamesResultsCode.SUCCESS);
+      
+      wsFindAttributeDefNamesResults.getResultMetadata().appendResultMessage(
+          "Success for: " + theSummary);
+  
+    } catch (Exception e) {
+      wsFindAttributeDefNamesResults.assignResultCodeException(null, theSummary, e);
+    } finally {
+      GrouperWsVersionUtils.removeCurrentClientVersion(true);
+      GrouperSession.stopQuietly(session);
+    }
+  
+    return wsFindAttributeDefNamesResults;
   }
     
   /**
@@ -6321,6 +6872,11 @@ public class GrouperServiceLogic {
    * @param attributeDefType type of attribute definition, e.g. attr, domain, limit, perm, type
    * @param attributeDefNameUuid to lookup an attribute def name by id, mutually exclusive with attributeDefNameName
    * @param attributeDefNameName to lookup an attribute def name by name, mutually exclusive with attributeDefNameId
+   * @param pageSize page size if paging on a sort filter or parent
+   * @param pageNumber page number 1 indexed if paging on a sort filter or parent
+   * @param sortString must be an hql query field, e.g. 
+   * can sort on name, displayName, extension, displayExtension
+   * @param ascending or null for ascending, F for descending.  
    * @param wsInheritanceSetRelation if there is one wsAttributeDefNameLookup, and this is specified, then find 
    * the attribute def names which are related to the lookup by this relation, e.g. IMPLIED_BY_THIS, 
    * IMPLIED_BY_THIS_IMMEDIATE, THAT_IMPLY_THIS, THAT_IMPLY_THIS_IMMEDIATE
@@ -6347,7 +6903,8 @@ public class GrouperServiceLogic {
   public static WsFindAttributeDefNamesResults findAttributeDefNamesLite(final GrouperVersion clientVersion,
       String scope, Boolean splitScope, String uuidOfAttributeDef, String nameOfAttributeDef,
       AttributeAssignType attributeAssignType, AttributeDefType attributeDefType, String attributeDefNameUuid, String attributeDefNameName,
-      WsInheritanceSetRelation wsInheritanceSetRelation,
+      Integer pageSize, Integer pageNumber,
+      String sortString, Boolean ascending, WsInheritanceSetRelation wsInheritanceSetRelation,
       String actAsSubjectId, String actAsSubjectSourceId,
       String actAsSubjectIdentifier, String paramName0,
       String paramValue0, String paramName1, String paramValue1) {
@@ -6372,7 +6929,8 @@ public class GrouperServiceLogic {
 
     // pass through to the more comprehensive method
     WsFindAttributeDefNamesResults wsFindAttributeDefNamesResults = findAttributeDefNames(clientVersion, 
-        scope, splitScope, wsAttributeDefLookup, attributeAssignType, attributeDefType, wsAttributeDefNameLookups, wsInheritanceSetRelation, 
+        scope, splitScope, wsAttributeDefLookup, attributeAssignType, attributeDefType, wsAttributeDefNameLookups, 
+        pageSize, pageNumber, sortString, ascending, wsInheritanceSetRelation, 
         actAsSubjectLookup, params);
   
     return wsFindAttributeDefNamesResults;

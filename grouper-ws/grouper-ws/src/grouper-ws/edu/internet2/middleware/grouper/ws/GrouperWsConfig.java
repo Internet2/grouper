@@ -174,6 +174,15 @@ public final class GrouperWsConfig {
   public static final String WS_GROUP_DELETE_MAX = "ws.group.delete.max";
 
   /**
+   * name of param for attributedefname delete, max attributedefnames to be able to delete at once,
+   * default is 1000000
+   *  # Max number of attributedefnames to be able to pass to attributedefnameDelete service,
+   * default is 1000000 ws.attributedefname.delete.max = 20000
+   * 
+   */
+  public static final String WS_ATTRIBUTE_DEF_NAME_DELETE_MAX = "ws.attributeDefName.delete.max";
+
+  /**
    * name of param for group save, max groups to be able to save at once,
    * default is 1000000
    *  # Max number of groups to be able to pass to groupSave service,
@@ -183,6 +192,15 @@ public final class GrouperWsConfig {
   public static final String WS_GROUP_SAVE_MAX = "ws.group.save.max";
 
   /**
+   * name of param for attributeDefName save, max attributeDefNames to be able to save at once,
+   * default is 1000000
+   *  # Max number of attributeDefNames to be able to pass to attributeDefNameSave service,
+   * default is 1000000 ws.attributeDefName.save.max = 20000
+   * 
+   */
+  public static final String WS_ATTRIBUTE_DEF_NAME_SAVE_MAX = "ws.attributeDefName.save.max";
+
+  /**
    * name of param for stem delete, max stems to be able to delete at once,
    * default is 1000000
    *  # Max number of stems to be able to pass to stemDelete service,
@@ -190,6 +208,18 @@ public final class GrouperWsConfig {
    * 
    */
   public static final String WS_STEM_DELETE_MAX = "ws.stem.delete.max";
+
+  
+  
+  
+  /**
+   * name of param for assignAttributeDefNameInheritance save, max assignAttributeDefNameInheritance to be able to save at once,
+   * default is 1000000
+   *  # Max number of assignAttributeDefNameInheritance to be able to pass to assignAttributeDefNameInheritance service,
+   * default is 1000000 ws.assign.attributeDefName.inheritance.max = 20000
+   * 
+   */
+  public static final String WS_ASSIGN_ATTRIBUTE_DEF_NAME_INHERITANCE_MAX = "ws.assign.attributeDefName.inheritance.max";
 
   /**
    * name of param for stem save, max stems to be able to save at once,

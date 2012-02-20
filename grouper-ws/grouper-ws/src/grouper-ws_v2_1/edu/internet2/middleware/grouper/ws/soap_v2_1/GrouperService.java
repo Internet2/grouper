@@ -2607,6 +2607,11 @@ public class GrouperService {
    * be allowed to act as that other subject
    * @param params optional: reserved for future use
    * @param wsAttributeDefNameLookups if you want to just pass in a list of uuids and/or names.
+   * @param pageSize page size if paging on a sort filter or parent
+   * @param pageNumber page number 1 indexed if paging on a sort filter or parent
+   * @param sortString must be an hql query field, e.g. 
+   * can sort on name, displayName, extension, displayExtension
+   * @param ascending or null for ascending, F for descending.  
    * @param wsInheritanceSetRelation if there is one wsAttributeDefNameLookup, and this is specified, then find 
    * the attribute def names which are related to the lookup by this relation, e.g. IMPLIED_BY_THIS, 
    * IMPLIED_BY_THIS_IMMEDIATE, THAT_IMPLY_THIS, THAT_IMPLY_THIS_IMMEDIATE
@@ -2615,7 +2620,10 @@ public class GrouperService {
   public WsFindAttributeDefNamesResults findAttributeDefNames(final String clientVersion,
       String scope, String splitScope, WsAttributeDefLookup wsAttributeDefLookup,
       String attributeAssignType, String attributeDefType,
-      WsAttributeDefNameLookup[] wsAttributeDefNameLookups, String wsInheritanceSetRelation, WsSubjectLookup actAsSubjectLookup, WsParam[] params) {
+      WsAttributeDefNameLookup[] wsAttributeDefNameLookups, 
+      String pageSize, String pageNumber,
+      String sortString, String ascending, 
+      String wsInheritanceSetRelation, WsSubjectLookup actAsSubjectLookup, WsParam[] params) {
   
     Object result = GrouperUtil.callMethodWithMoreParams(GrouperUtil.newInstance(GrouperServiceUtils.currentServiceClass()), 
         GrouperServiceUtils.currentServiceClass(), "findAttributeDefNames",
@@ -2624,7 +2632,7 @@ public class GrouperService {
       GrouperUtil.changeToVersion(wsAttributeDefLookup, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
       attributeAssignType, attributeDefType,
       GrouperUtil.changeToVersion(wsAttributeDefNameLookups, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
-      wsInheritanceSetRelation,
+      pageSize, pageNumber, sortString, ascending, wsInheritanceSetRelation,
       GrouperUtil.changeToVersion(actAsSubjectLookup, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
       GrouperUtil.changeToVersion(params, GrouperServiceUtils.currentServiceClass().getPackage().getName())
       });
@@ -2648,6 +2656,11 @@ public class GrouperService {
    * @param attributeDefType type of attribute definition, e.g. attr, domain, limit, perm, type
    * @param attributeDefNameUuid to lookup an attribute def name by id, mutually exclusive with attributeDefNameName
    * @param attributeDefNameName to lookup an attribute def name by name, mutually exclusive with attributeDefNameId
+   * @param pageSize page size if paging on a sort filter or parent
+   * @param pageNumber page number 1 indexed if paging on a sort filter or parent
+   * @param sortString must be an hql query field, e.g. 
+   * can sort on name, displayName, extension, displayExtension
+   * @param ascending or null for ascending, F for descending.  
    * @param wsInheritanceSetRelation if there is one wsAttributeDefNameLookup, and this is specified, then find 
    * the attribute def names which are related to the lookup by this relation, e.g. IMPLIED_BY_THIS, 
    * IMPLIED_BY_THIS_IMMEDIATE, THAT_IMPLY_THIS, THAT_IMPLY_THIS_IMMEDIATE
@@ -2674,7 +2687,8 @@ public class GrouperService {
   public WsFindAttributeDefNamesResults findAttributeDefNamesLite(final String clientVersion,
       String scope, String splitScope, String uuidOfAttributeDef, String nameOfAttributeDef,
       String attributeAssignType, String attributeDefType, String attributeDefNameUuid, String attributeDefNameName,
-      String wsInheritanceSetRelation,
+      String pageSize, String pageNumber,
+      String sortString, String ascending, String wsInheritanceSetRelation,
       String actAsSubjectId, String actAsSubjectSourceId,
       String actAsSubjectIdentifier, String paramName0,
       String paramValue0, String paramName1, String paramValue1) {
@@ -2683,7 +2697,9 @@ public class GrouperService {
         GrouperServiceUtils.currentServiceClass(), "findAttributeDefNamesLite",
         new Object[]{clientVersion,
       scope, splitScope, uuidOfAttributeDef, nameOfAttributeDef,
-      attributeAssignType, attributeDefType, attributeDefNameUuid, attributeDefNameName, wsInheritanceSetRelation,
+      attributeAssignType, attributeDefType, attributeDefNameUuid, attributeDefNameName, 
+      pageSize, pageNumber, sortString, ascending,
+      wsInheritanceSetRelation,
       actAsSubjectId, actAsSubjectSourceId,
       actAsSubjectIdentifier, paramName0,
       paramValue0, paramName1, paramValue1});
@@ -2701,13 +2717,16 @@ public class GrouperService {
    * @param replaceAllExisting T if assigning, if this list should replace all existing immediately inherited attribute def names
    * @param actAsSubjectLookup if searching as someone else, pass in that subject here, note the caller must
    * be allowed to act as that other subject
+   * @param txType is the GrouperTransactionType for the request.  If blank, defaults to
+   * NONE (will finish as much as possible).  Generally the only values for this param that make sense
+   * are NONE (or blank), and READ_WRITE_NEW.
    * @param params optional: reserved for future use
    * @return the result
    */
   public WsAssignAttributeDefNameInheritanceResults assignAttributeDefNameInheritance(final String clientVersion,
       WsAttributeDefNameLookup wsAttributeDefNameLookup, WsAttributeDefNameLookup[] relatedWsAttributeDefNameLookups,
       String assign,
-      String replaceAllExisting, final WsSubjectLookup actAsSubjectLookup,
+      String replaceAllExisting, final WsSubjectLookup actAsSubjectLookup, final String txType, 
       final WsParam[] params) {
     Object result = GrouperUtil.callMethodWithMoreParams(GrouperUtil.newInstance(GrouperServiceUtils.currentServiceClass()), 
         GrouperServiceUtils.currentServiceClass(), "assignAttributeDefNameInheritance",
@@ -2716,6 +2735,7 @@ public class GrouperService {
       GrouperUtil.changeToVersion(relatedWsAttributeDefNameLookups, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
       assign, replaceAllExisting,
       GrouperUtil.changeToVersion(actAsSubjectLookup, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
+      txType,
       GrouperUtil.changeToVersion(params, GrouperServiceUtils.currentServiceClass().getPackage().getName())
     });
     
@@ -2730,7 +2750,6 @@ public class GrouperService {
    * @param relatedAttributeDefNameUuid id of attribute def name to add or remove from inheritance from the container
    * @param relatedAttributeDefNameName name of attribute def name to add or remove from inheritance from the container
    * @param assign T to assign, or F to remove assignment
-   * @param replaceAllExisting T if assigning, if this list should replace all existing immediately inherited attribute def names
    * @param actAsSubjectId
    *            optional: is the subject id of subject to act as (if
    *            proxying). Only pass one of actAsSubjectId or
