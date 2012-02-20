@@ -124,25 +124,26 @@ public class HibernateSession {
       // if not readonly, declare a transaction
       if (!this.immediateGrouperTransactionTypeUsed.isReadonly()) {
         this.immediateTransaction = this.immediateSession.beginTransaction();
+
+        String useSavepointsString = GrouperConfig.getProperty("jdbc.useSavePoints");
+        boolean useSavepoints;
+        if (StringUtils.isBlank(useSavepointsString)) {
+          useSavepoints = !GrouperDdlUtils.isHsql();
+        } else {
+          useSavepoints = GrouperUtil.booleanValue(useSavepointsString);
+        }
+        if (useSavepoints // && this.activeHibernateSession().isTransactionActive()  && !this.activeHibernateSession().isReadonly() 
+            ) {
+          try {
+            this.savepoint = this.activeHibernateSession().getSession().connection().setSavepoint();
+          } catch (SQLException sqle) {
+            throw new RuntimeException("Problem setting save point for transaction type: " 
+                + grouperTransactionType, sqle);
+          }
+        }
       }
     }
     
-    String useSavepointsString = GrouperConfig.getProperty("jdbc.useSavePoints");
-    boolean useSavepoints;
-    if (StringUtils.isBlank(useSavepointsString)) {
-      useSavepoints = !GrouperDdlUtils.isHsql();
-    } else {
-      useSavepoints = GrouperUtil.booleanValue(useSavepointsString);
-    }
-    if (useSavepoints && this.activeHibernateSession().isTransactionActive() 
-        && !this.activeHibernateSession().isReadonly()) {
-      try {
-        this.savepoint = this.activeHibernateSession().getSession().connection().setSavepoint();
-      } catch (SQLException sqle) {
-        throw new RuntimeException("Problem setting save point for transaction type: " 
-            + grouperTransactionType, sqle);
-      }
-    }
     
     addStaticHibernateSession(this);
   }
