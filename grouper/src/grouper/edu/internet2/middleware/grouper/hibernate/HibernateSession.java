@@ -56,6 +56,9 @@ public class HibernateSession {
     return new ByObject(this);
   }
   
+  /** save point count for testing */
+  static int savePointCount = 0;
+  
   /**
    * construct a hibernate session based on existing hibernate session (if
    * applicable), and a transaction type. If these conflict, then throw grouper
@@ -132,10 +135,11 @@ public class HibernateSession {
         } else {
           useSavepoints = GrouperUtil.booleanValue(useSavepointsString);
         }
-        if (useSavepoints // && this.activeHibernateSession().isTransactionActive()  && !this.activeHibernateSession().isReadonly() 
-            ) {
+        if ((useSavepoints && parentHibernateSession != null)   // && this.activeHibernateSession().isTransactionActive()  && !this.activeHibernateSession().isReadonly() 
+            || GrouperConfig.getPropertyBoolean("jdbc.useSavePointsOnAllNewTransactions", false)) {
           try {
             this.savepoint = this.activeHibernateSession().getSession().connection().setSavepoint();
+            savePointCount++;
           } catch (SQLException sqle) {
             throw new RuntimeException("Problem setting save point for transaction type: " 
                 + grouperTransactionType, sqle);

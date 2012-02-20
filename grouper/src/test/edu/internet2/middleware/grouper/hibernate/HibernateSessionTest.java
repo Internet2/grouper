@@ -13,6 +13,7 @@ import java.util.Set;
 import junit.textui.TestRunner;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
+import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
@@ -40,7 +41,7 @@ public class HibernateSessionTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new HibernateSessionTest("testResultSize"));
+    TestRunner.run(new HibernateSessionTest("testNestedTransactionsAndSavepoints"));
     //TestRunner.run(HibernateSessionTest.class);
   }
   
@@ -52,6 +53,229 @@ public class HibernateSessionTest extends GrouperTest {
     super(name);
   }
 
+  /**
+   * make sure only savepoints are used in nested read/write transactions
+   */
+  public void testNestedTransactionsAndSavepoints() {
+
+    final GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    int initialSavepointCount = HibernateSession.savePointCount;
+    
+    //on a readonly shouldnt have one
+    GrouperTransaction.callbackGrouperTransaction(GrouperTransactionType.READONLY_OR_USE_EXISTING, new GrouperTransactionHandler() {
+      
+      public Object callback(GrouperTransaction grouperTransaction)
+          throws GrouperDAOException {
+        GroupFinder.findByName(grouperSession, "a:b:c", false);
+        return null;
+      }
+    });
+
+    assertEquals(initialSavepointCount, HibernateSession.savePointCount);
+    
+    //######################
+    
+    initialSavepointCount = HibernateSession.savePointCount;
+    
+    //on a readwrite with nested readonly, shouldnt have one
+    GrouperTransaction.callbackGrouperTransaction(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, new GrouperTransactionHandler() {
+      
+      public Object callback(GrouperTransaction grouperTransaction)
+          throws GrouperDAOException {
+        new GroupSave(grouperSession).assignName("a:b").assignCreateParentStemsIfNotExist(true).save();
+        
+        GrouperTransaction.callbackGrouperTransaction(GrouperTransactionType.READONLY_NEW, new GrouperTransactionHandler() {
+          
+          public Object callback(GrouperTransaction grouperTransaction)
+              throws GrouperDAOException {
+            
+            GroupFinder.findByName(grouperSession, "a:b:c", false);
+            
+            return null;
+          }
+        });
+        
+        return null;
+      }
+    });
+
+    assertEquals(initialSavepointCount, HibernateSession.savePointCount);
+    
+    //######################
+    
+    initialSavepointCount = HibernateSession.savePointCount;
+    
+    //on a readonly with nested readonly, shouldnt have one
+    GrouperTransaction.callbackGrouperTransaction(GrouperTransactionType.READONLY_OR_USE_EXISTING, new GrouperTransactionHandler() {
+      
+      public Object callback(GrouperTransaction grouperTransaction)
+          throws GrouperDAOException {
+        
+        GroupFinder.findByName(grouperSession, "a:b:c", false);
+        
+        GrouperTransaction.callbackGrouperTransaction(GrouperTransactionType.READONLY_NEW, new GrouperTransactionHandler() {
+          
+          public Object callback(GrouperTransaction grouperTransaction)
+              throws GrouperDAOException {
+            
+            GroupFinder.findByName(grouperSession, "a:b:c", false);
+            
+            return null;
+          }
+        });
+        
+        return null;
+      }
+    });
+
+    assertEquals(initialSavepointCount, HibernateSession.savePointCount);
+    
+    //######################
+    
+    initialSavepointCount = HibernateSession.savePointCount;
+    
+    //on a readwrite with nested readwrite or use existing, should have none
+    GrouperTransaction.callbackGrouperTransaction(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, new GrouperTransactionHandler() {
+      
+      public Object callback(GrouperTransaction grouperTransaction)
+          throws GrouperDAOException {
+        
+        new GroupSave(grouperSession).assignName("a:c").assignCreateParentStemsIfNotExist(true).save();
+        
+        GrouperTransaction.callbackGrouperTransaction(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, new GrouperTransactionHandler() {
+          
+          public Object callback(GrouperTransaction grouperTransaction)
+              throws GrouperDAOException {
+            
+            new GroupSave(grouperSession).assignName("a:d").assignCreateParentStemsIfNotExist(true).save();
+            
+            return null;
+          }
+        });
+        
+        return null;
+      }
+    });
+
+    assertEquals(initialSavepointCount, HibernateSession.savePointCount);
+    
+    //######################
+    
+    initialSavepointCount = HibernateSession.savePointCount;
+    
+    //on a readwrite with nested readwrite, should have one
+    GrouperTransaction.callbackGrouperTransaction(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, new GrouperTransactionHandler() {
+      
+      public Object callback(GrouperTransaction grouperTransaction)
+          throws GrouperDAOException {
+        
+        new GroupSave(grouperSession).assignName("a:c").assignCreateParentStemsIfNotExist(true).save();
+        
+        GrouperTransaction.callbackGrouperTransaction(GrouperTransactionType.READ_WRITE_NEW, new GrouperTransactionHandler() {
+          
+          public Object callback(GrouperTransaction grouperTransaction)
+              throws GrouperDAOException {
+            
+            new GroupSave(grouperSession).assignName("a:d").assignCreateParentStemsIfNotExist(true).save();
+            
+            return null;
+          }
+        });
+        
+        return null;
+      }
+    });
+
+    assertEquals(initialSavepointCount + 1, HibernateSession.savePointCount);
+    
+    //######################
+    
+    initialSavepointCount = HibernateSession.savePointCount;
+    
+    //on a readwrite with nested readwrite and nested readonly, should have one
+    GrouperTransaction.callbackGrouperTransaction(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, new GrouperTransactionHandler() {
+      
+      public Object callback(GrouperTransaction grouperTransaction)
+          throws GrouperDAOException {
+        
+        new GroupSave(grouperSession).assignName("a:c").assignCreateParentStemsIfNotExist(true).save();
+        
+        GrouperTransaction.callbackGrouperTransaction(GrouperTransactionType.READ_WRITE_NEW, new GrouperTransactionHandler() {
+          
+          public Object callback(GrouperTransaction grouperTransaction)
+              throws GrouperDAOException {
+            
+            new GroupSave(grouperSession).assignName("a:d").assignCreateParentStemsIfNotExist(true).save();
+            
+            GrouperTransaction.callbackGrouperTransaction(GrouperTransactionType.READONLY_NEW, new GrouperTransactionHandler() {
+              
+              public Object callback(GrouperTransaction grouperTransaction)
+                  throws GrouperDAOException {
+                
+                GroupFinder.findByName(grouperSession, "a:b:c", false);
+                
+                return null;
+              }
+            });
+            return null;
+          }
+        });
+        
+        return null;
+      }
+    });
+
+    assertEquals(initialSavepointCount + 1, HibernateSession.savePointCount);
+    
+    
+    //######################
+    
+    initialSavepointCount = HibernateSession.savePointCount;
+    
+    //on a readwrite with nested readwrite and nested readwrite, should have two
+    GrouperTransaction.callbackGrouperTransaction(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, new GrouperTransactionHandler() {
+      
+      public Object callback(GrouperTransaction grouperTransaction)
+          throws GrouperDAOException {
+        
+        new GroupSave(grouperSession).assignName("a:c").assignCreateParentStemsIfNotExist(true).save();
+        
+        GrouperTransaction.callbackGrouperTransaction(GrouperTransactionType.READ_WRITE_NEW, new GrouperTransactionHandler() {
+          
+          public Object callback(GrouperTransaction grouperTransaction)
+              throws GrouperDAOException {
+            
+            new GroupSave(grouperSession).assignName("a:d").assignCreateParentStemsIfNotExist(true).save();
+            
+            GrouperTransaction.callbackGrouperTransaction(GrouperTransactionType.READ_WRITE_NEW, new GrouperTransactionHandler() {
+              
+              public Object callback(GrouperTransaction grouperTransaction)
+                  throws GrouperDAOException {
+                
+                new GroupSave(grouperSession).assignName("a:e").assignCreateParentStemsIfNotExist(true).save();
+                
+                return null;
+              }
+            });
+
+            return null;
+          }
+        });
+        
+        return null;
+      }
+    });
+
+    assertEquals(initialSavepointCount + 2, HibernateSession.savePointCount);
+    
+    
+    
+    
+    GrouperSession.stopQuietly(grouperSession);
+    
+  }
+  
   /**
    * make sure the caching flag propagates appropriately
    */
