@@ -16,6 +16,7 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.logging.Log;
 
+import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperAPI;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
@@ -59,7 +60,7 @@ import edu.internet2.middleware.subject.Subject;
  */
 @SuppressWarnings("serial")
 public class AttributeDefName extends GrouperAPI 
-    implements GrouperHasContext, Hib3GrouperVersioned, GrouperSetElement, XmlImportable<AttributeDefName> {
+    implements GrouperHasContext, Hib3GrouperVersioned, GrouperSetElement, XmlImportable<AttributeDefName>, Comparable<AttributeDefName> {
 
   /** name of the groups attribute def name table in the db */
   public static final String TABLE_GROUPER_ATTRIBUTE_DEF_NAME = "grouper_attribute_def_name";
@@ -1037,6 +1038,18 @@ public class AttributeDefName extends GrouperAPI
     Set<String> result = GrouperUtil.compareObjectFields(this, this.dbVersion,
         DB_VERSION_FIELDS, null);
     return result;
+  }
+
+  /**
+   * @see Comparable#compareTo(Object)
+   */
+  public int compareTo(AttributeDefName that) {
+    if (that==null) {
+      return 1;
+    }
+    String thisName = StringUtils.defaultString(this.getName());
+    String thatName = StringUtils.defaultString(that.getName());
+    return thisName.compareTo(thatName);
   }
   
 }

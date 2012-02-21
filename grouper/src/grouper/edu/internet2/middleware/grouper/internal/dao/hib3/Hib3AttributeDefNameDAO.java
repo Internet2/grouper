@@ -25,6 +25,8 @@ import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.AttributeDefNameDAO;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
+import edu.internet2.middleware.grouper.internal.dao.QuerySort;
+import edu.internet2.middleware.grouper.internal.dao.QuerySortField;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.privs.Privilege;
@@ -323,6 +325,36 @@ public class Hib3AttributeDefNameDAO extends Hib3DAO implements AttributeDefName
   }
 
   /**
+   * if there are sort fields, go through them, and replace name with nameDb, etc,
+   * extension for extensionDb, displayName with displayNameDb, and displayExtension with displayExtensionDb
+   * @param querySort
+   */
+  private static void massageSortFields(QuerySort querySort) {
+    if (querySort == null) {
+      return;
+    }
+    for (QuerySortField querySortField : GrouperUtil.nonNull(querySort.getQuerySortFields())) {
+      if (StringUtils.equals("extension", querySortField.getColumn())) {
+        querySortField.setColumn("theAttributeDefName.extensionDb");
+      }
+      if (StringUtils.equals("name", querySortField.getColumn())) {
+        querySortField.setColumn("theAttributeDefName.nameDb");
+      }
+      if (StringUtils.equals("displayExtension", querySortField.getColumn())) {
+        querySortField.setColumn("theAttributeDefName.displayExtensionDb");
+      }
+      if (StringUtils.equals("displayName", querySortField.getColumn())) {
+        querySortField.setColumn("theAttributeDefName.displayNameDb");
+      }
+      if (StringUtils.equals("description", querySortField.getColumn())) {
+        querySortField.setColumn("theAttributeDefName.description");
+      }
+    }
+
+  }
+
+  
+  /**
    * 
    * @param scope 
    * @param grouperSession 
@@ -333,7 +365,7 @@ public class Hib3AttributeDefNameDAO extends Hib3DAO implements AttributeDefName
    * @param splitScope 
    * @param attributeAssignType
    * @param attributeDefType 
-   * @return 
+   * @return  attribute def names
    * 
    */
   private Set<AttributeDefName> findAllAttributeNamesSecureHelper(String scope,
@@ -463,6 +495,10 @@ public class Hib3AttributeDefNameDAO extends Hib3DAO implements AttributeDefName
       sql.append(whereClause);
     }    
     
+    if (queryOptions != null) {
+      massageSortFields(queryOptions.getQuerySort());
+    }
+
     Set<AttributeDefName> attributeDefNames = byHqlStatic.createQuery(sql.toString())
       .setCacheable(false)
       .setCacheRegion(KLASS + ".GetAllAttributeDefNamesSecure")

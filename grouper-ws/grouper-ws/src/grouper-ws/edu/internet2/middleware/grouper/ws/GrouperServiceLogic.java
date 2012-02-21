@@ -6729,7 +6729,7 @@ public class GrouperServiceLogic {
       Map<String, String> paramMap = GrouperServiceUtils.convertParamsToMap(
           params);
   
-      Set<AttributeDefName> attributeDefNames = new TreeSet<AttributeDefName>();
+      Set<AttributeDefName> attributeDefNames = new LinkedHashSet<AttributeDefName>();
       
       boolean hasScopeQuery = false;
       

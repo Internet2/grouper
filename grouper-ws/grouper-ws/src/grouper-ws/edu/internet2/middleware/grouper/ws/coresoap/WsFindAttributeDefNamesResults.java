@@ -176,6 +176,7 @@ public class WsFindAttributeDefNamesResults implements WsResponseBean, ResultMet
    */
   public void assignAttributeDefNameResult(Set<AttributeDefName> attributeDefNameSet) {
     this.setAttributeDefNameResults(WsAttributeDefName.convertAttributeDefNames(attributeDefNameSet));
+    this.setAttributeDefs(WsAttributeDef.convertAttributeDefNames(attributeDefNameSet));
   }
 
   /**
