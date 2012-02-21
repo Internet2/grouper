@@ -28,6 +28,8 @@ import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefType;
 import edu.internet2.middleware.grouper.attr.AttributeDefValueType;
+import edu.internet2.middleware.grouper.changeLog.ChangeLogEntry;
+import edu.internet2.middleware.grouper.changeLog.ChangeLogLabel;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SessionHelper;
 import edu.internet2.middleware.grouper.helper.StemHelper;
@@ -289,6 +291,15 @@ public abstract class BaseDataConnectorTest extends GrouperTest {
       map.put(attr.getId(), attr);
     }
 
+    public void setAttribute(ChangeLogLabel changeLogLabel, ChangeLogEntry changeLogEntry) {
+
+      String value = changeLogEntry.retrieveValueForLabel(changeLogLabel);
+
+      BasicAttribute attr = new BasicAttribute(changeLogLabel.name());
+      attr.getValues().add(value);
+      map.put(attr.getId(), attr);
+    }
+
     public void setAttribute(String name, Member... members) {
       if (members == null) {
         return;
@@ -392,11 +403,19 @@ public abstract class BaseDataConnectorTest extends GrouperTest {
         // "sort" values, even if they are not comparable (?)
         Map<Integer, Object> correctValueMap = new TreeMap<Integer, Object>();
         for (Object correctValue : correctValues) {
-          correctValueMap.put(Integer.valueOf(correctValue.hashCode()), correctValue);
+          if (correctValue == null) {
+            correctValueMap.put(0, correctValue);
+          } else {
+            correctValueMap.put(Integer.valueOf(correctValue.hashCode()), correctValue);
+          }
         }
         Map<Integer, Object> currentValueMap = new TreeMap<Integer, Object>();
         for (Object currentValue : currentValues) {
-          currentValueMap.put(Integer.valueOf(currentValue.hashCode()), currentValue);
+          if (currentValue == null) {
+            currentValueMap.put(0, currentValue);
+          } else {
+            currentValueMap.put(Integer.valueOf(currentValue.hashCode()), currentValue);
+          }
         }
 
         ArrayList<Object> correctValueList = new ArrayList<Object>();
@@ -420,11 +439,16 @@ public abstract class BaseDataConnectorTest extends GrouperTest {
       if (map == null) {
         return null;
       }
-      StringBuffer buffer = new StringBuffer();
+      StringBuffer buffer = new StringBuffer("\n");
       TreeSet<String> sortedKeys = new TreeSet<String>(map.keySet());
       for (String key : sortedKeys) {
-        for (Object value : map.get(key).getValues()) {
-          buffer.append(key + " : '" + value + "'\n");
+        BaseAttribute baseAttribute = map.get(key);
+        if (baseAttribute.getValues().isEmpty()) {
+          buffer.append(key + " : ''\n");
+        } else {
+          for (Object value : map.get(key).getValues()) {
+            buffer.append(key + " : '" + value + "'\n");
+          }
         }
       }
       return buffer.toString();
