@@ -8,9 +8,11 @@ import org.apache.commons.logging.LogFactory;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouper.ws.ResultMetadataHolder;
 import edu.internet2.middleware.grouper.ws.WsResultCode;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameSaveResult.WsAttributeDefNameSaveResultCode;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
+import edu.internet2.middleware.grouper.ws.rest.WsResponseBean;
 
 
 
@@ -28,7 +30,7 @@ import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
  * </pre>
  * @author mchyzer
  */
-public class WsAttributeDefNameSaveResults {
+public class WsAttributeDefNameSaveResults implements WsResponseBean, ResultMetadataHolder {
 
   /**
    * result code of a request

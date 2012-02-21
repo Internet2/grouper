@@ -8,10 +8,11 @@ import org.apache.commons.logging.LogFactory;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouper.ws.ResultMetadataHolder;
 import edu.internet2.middleware.grouper.ws.WsResultCode;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameDeleteResult.WsAttributeDefNameDeleteResultCode;
-import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameDeleteResults.WsAttributeDefNameDeleteResultsCode;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
+import edu.internet2.middleware.grouper.ws.rest.WsResponseBean;
 
 
 
@@ -26,7 +27,7 @@ import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
  * </pre>
  * @author mchyzer
  */
-public class WsAttributeDefNameDeleteResults {
+public class WsAttributeDefNameDeleteResults implements ResultMetadataHolder, WsResponseBean {
 
   /**
    * result code of a request.  The possible result codes 

@@ -9,10 +9,13 @@ import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 import edu.internet2.middleware.grouper.ws.rest.GrouperRestInvalidRequest;
 import edu.internet2.middleware.grouper.ws.rest.GrouperServiceRest;
 import edu.internet2.middleware.grouper.ws.rest.WsRequestBean;
 import edu.internet2.middleware.grouper.ws.rest.WsResponseBean;
+import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestFindAttributeDefNamesLiteRequest;
+import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestFindAttributeDefNamesRequest;
 import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestGetAttributeAssignmentsLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestGetAttributeAssignmentsRequest;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestFindGroupsLiteRequest;
@@ -99,6 +102,56 @@ public enum GrouperWsRestGet {
 
       return grouperWsRestGetGroup.service(
           clientVersion, groupName, urlStrings, requestObject);
+    }
+
+  },
+  
+  /** attributeDefNames get requests */
+  attributeDefNames {
+
+    /**
+     * handle the incoming request based on GET HTTP method and attributeDefName resource
+     * @param clientVersion version of client, e.g. v1_3_000
+     * @param urlStrings not including the app name or servlet.  
+     * for http://localhost/grouper-ws/servicesRest/xhtml/v3_0_000/attributeDefNames/a:b
+     * the urlStrings would be size two: {"attributeDefNames", "a:b"}
+     * @param requestObject is the request body converted to object
+     * @return the result object
+     */
+    @Override
+    public WsResponseBean service(
+        GrouperVersion clientVersion, List<String> urlStrings,
+        WsRequestBean requestObject) {
+
+      //url should be: /xhtml/v1_3_000/attributeDefNames/aStem:aGroup
+      String attributeDefNameName = GrouperServiceUtils.popUrlString(urlStrings);
+      String operation = GrouperServiceUtils.popUrlString(urlStrings);
+      
+      if (!StringUtils.isBlank(operation)) {
+        throw new WsInvalidQueryException("Why is operation sent in??? " + operation);
+      }
+      
+      //handle the URL: /groups with nothing after...
+      if (StringUtils.isBlank(attributeDefNameName)) {
+        if (requestObject instanceof WsRestFindAttributeDefNamesRequest) {
+          
+          //find attribute def names
+          return GrouperServiceRest.findAttributeDefNames(clientVersion,
+              (WsRestFindAttributeDefNamesRequest)requestObject);
+        }
+      }
+      if (requestObject == null || requestObject instanceof WsRestFindAttributeDefNamesLiteRequest) {
+        
+        //find attribute def names lite
+        return GrouperServiceRest.findAttributeDefNamesLite(clientVersion, attributeDefNameName,
+            (WsRestFindAttributeDefNamesLiteRequest)requestObject);
+        
+      }
+      if (!StringUtils.isBlank(attributeDefNameName)) {
+        throw new WsInvalidQueryException("If you pass in an attributeDefNameName then you must not pass in body or a WsRestFindAttributeDefNamesLiteRequest");
+      }
+        
+      throw new WsInvalidQueryException("Invalid input: " + (requestObject == null ? null : requestObject.getClass()));
     }
 
   },

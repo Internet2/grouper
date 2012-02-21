@@ -8,19 +8,26 @@ import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 
+import edu.internet2.middleware.grouper.attr.AttributeDefNameSave;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.coresoap.GrouperService;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAddMemberLiteResult;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAddMemberResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributeDefNameInheritanceResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributesLiteResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributesResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAssignGrouperPrivilegesLiteResult;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAssignGrouperPrivilegesResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAssignPermissionsLiteResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAssignPermissionsResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameDeleteLiteResult;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameDeleteResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameSaveLiteResult;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameSaveResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsDeleteMemberLiteResult;
 import edu.internet2.middleware.grouper.ws.coresoap.WsDeleteMemberResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsFindAttributeDefNamesResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsFindGroupsResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsFindStemsResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsGetAttributeAssignmentsResults;
@@ -47,8 +54,16 @@ import edu.internet2.middleware.grouper.ws.coresoap.WsStemSaveLiteResult;
 import edu.internet2.middleware.grouper.ws.coresoap.WsStemSaveResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
+import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestAssignAttributeDefNameInheritanceLiteRequest;
+import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestAssignAttributeDefNameInheritanceRequest;
 import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestAssignAttributesLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestAssignAttributesRequest;
+import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestAttributeDefNameDeleteLiteRequest;
+import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestAttributeDefNameDeleteRequest;
+import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestAttributeDefNameSaveLiteRequest;
+import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestAttributeDefNameSaveRequest;
+import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestFindAttributeDefNamesLiteRequest;
+import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestFindAttributeDefNamesRequest;
 import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestGetAttributeAssignmentsLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestGetAttributeAssignmentsRequest;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestAssignGrouperPrivilegesLiteRequest;
@@ -1721,5 +1736,267 @@ public class GrouperServiceRest {
         wsRestAssignPermissionsLiteRequest.getParamValue1(), wsRestAssignPermissionsLiteRequest.getDisallowed());
     
     return wsAssignPermissionsLiteResults;
+  }
+
+  /**
+   * assign or unassign attribute def name permission inheritance
+   * @param clientVersion 
+   * @param wsRestAssignAttributeDefNameInheritanceRequest 
+   * @return the result
+   */
+  public static  WsAssignAttributeDefNameInheritanceResults assignAttributeDefNameInheritance(GrouperVersion clientVersion, 
+      WsRestAssignAttributeDefNameInheritanceRequest wsRestAssignAttributeDefNameInheritanceRequest) {
+    //cant be null
+    wsRestAssignAttributeDefNameInheritanceRequest = wsRestAssignAttributeDefNameInheritanceRequest == null ? 
+        new WsRestAssignAttributeDefNameInheritanceRequest() : wsRestAssignAttributeDefNameInheritanceRequest;
+  
+    String clientVersionString = GrouperServiceUtils.pickOne(clientVersion.toString(),
+        GrouperVersion.stringValueOrNull(wsRestAssignAttributeDefNameInheritanceRequest.getClientVersion()), false, "clientVersion");
+  
+    WsAssignAttributeDefNameInheritanceResults wsAssignAttributeDefNameInheritanceResults = new GrouperService(false).assignAttributeDefNameInheritance(
+        clientVersionString, wsRestAssignAttributeDefNameInheritanceRequest.getWsAttributeDefNameLookup(), 
+        wsRestAssignAttributeDefNameInheritanceRequest.getRelatedWsAttributeDefNameLookups(), wsRestAssignAttributeDefNameInheritanceRequest.getAssign(),
+        wsRestAssignAttributeDefNameInheritanceRequest.getReplaceAllExisting(), wsRestAssignAttributeDefNameInheritanceRequest.getActAsSubjectLookup(),
+        wsRestAssignAttributeDefNameInheritanceRequest.getTxType(), wsRestAssignAttributeDefNameInheritanceRequest.getParams());
+    
+    return wsAssignAttributeDefNameInheritanceResults;
+
+  }
+
+  /**
+   * assign or unassign attribute def name permission inheritance
+   * @param clientVersion is the version of the client.  Must be in GrouperWsVersion, e.g. v1_3_000
+   * @param wsRestAssignAttributeDefNameInheritanceLiteRequest
+   * @return the result
+   */
+  public static WsAssignAttributeDefNameInheritanceResults assignAttributeDefNameInheritanceLite(GrouperVersion clientVersion,
+      WsRestAssignAttributeDefNameInheritanceLiteRequest wsRestAssignAttributeDefNameInheritanceLiteRequest) {
+    //cant be null
+    wsRestAssignAttributeDefNameInheritanceLiteRequest = wsRestAssignAttributeDefNameInheritanceLiteRequest == null ? 
+        new WsRestAssignAttributeDefNameInheritanceLiteRequest() : wsRestAssignAttributeDefNameInheritanceLiteRequest;
+  
+    String clientVersionString = GrouperServiceUtils.pickOne(clientVersion.toString(),
+        GrouperVersion.stringValueOrNull(wsRestAssignAttributeDefNameInheritanceLiteRequest.getClientVersion()), false, "clientVersion");
+  
+    WsAssignAttributeDefNameInheritanceResults wsAssignAttributeDefNameInheritanceResults = new GrouperService(false).assignAttributeDefNameInheritanceLite(
+        clientVersionString, wsRestAssignAttributeDefNameInheritanceLiteRequest.getAttributeDefNameUuid(), 
+        wsRestAssignAttributeDefNameInheritanceLiteRequest.getAttributeDefNameName(), wsRestAssignAttributeDefNameInheritanceLiteRequest.getRelatedAttributeDefNameUuid(),
+        wsRestAssignAttributeDefNameInheritanceLiteRequest.getRelatedAttributeDefNameName(), wsRestAssignAttributeDefNameInheritanceLiteRequest.getAssign(),
+        wsRestAssignAttributeDefNameInheritanceLiteRequest.getActAsSubjectId(), wsRestAssignAttributeDefNameInheritanceLiteRequest.getActAsSubjectSourceId(),
+        wsRestAssignAttributeDefNameInheritanceLiteRequest.getActAsSubjectIdentifier(), wsRestAssignAttributeDefNameInheritanceLiteRequest.getParamName0(),
+        wsRestAssignAttributeDefNameInheritanceLiteRequest.getParamValue0(), wsRestAssignAttributeDefNameInheritanceLiteRequest.getParamName1(),
+        wsRestAssignAttributeDefNameInheritanceLiteRequest.getParamValue1());
+    
+    return wsAssignAttributeDefNameInheritanceResults;
+  }
+
+  /**
+   * delete an AttributeDefName or many.  Note, you cannot rename an existing AttributeDefName.
+   * 
+   * @param clientVersion is the version of the client.  Must be in GrouperWsVersion, e.g. v1_3_000
+   * @param wsRestAttributeDefNameDeleteRequest 
+   * @return the results
+   */
+  public static WsAttributeDefNameDeleteResults attributeDefNameDelete(GrouperVersion clientVersion,
+      WsRestAttributeDefNameDeleteRequest wsRestAttributeDefNameDeleteRequest) {
+  
+    //cant be null
+    wsRestAttributeDefNameDeleteRequest = wsRestAttributeDefNameDeleteRequest == null ? 
+        new WsRestAttributeDefNameDeleteRequest() : wsRestAttributeDefNameDeleteRequest;
+  
+    String clientVersionString = GrouperServiceUtils.pickOne(clientVersion.toString(),
+        GrouperVersion.stringValueOrNull(wsRestAttributeDefNameDeleteRequest.getClientVersion()), false, "clientVersion");
+  
+    WsAttributeDefNameDeleteResults wsAttributeDefNameDeleteResults = new GrouperService(false).attributeDefNameDelete(
+        clientVersionString, wsRestAttributeDefNameDeleteRequest.getWsAttributeDefNameLookups(), wsRestAttributeDefNameDeleteRequest.getActAsSubjectLookup(),
+        wsRestAttributeDefNameDeleteRequest.getTxType(), wsRestAttributeDefNameDeleteRequest.getParams());
+    
+    return wsAttributeDefNameDeleteResults;
+    
+  }
+
+  /**
+   * delete an AttributeDefName
+   * 
+   * @param clientVersion is the version of the client.  Must be in GrouperWsVersion, e.g. v1_3_000
+   * @param attributeDefName 
+   * @param wsRestAttributeDefNameDeleteLiteRequest 
+   * @return the result of one member add
+   */
+  public static WsAttributeDefNameDeleteLiteResult attributeDefNameDeleteLite(GrouperVersion clientVersion, String attributeDefName,
+    WsRestAttributeDefNameDeleteLiteRequest wsRestAttributeDefNameDeleteLiteRequest) {
+  
+    //cant be null
+    wsRestAttributeDefNameDeleteLiteRequest = wsRestAttributeDefNameDeleteLiteRequest == null ? 
+        new WsRestAttributeDefNameDeleteLiteRequest() : wsRestAttributeDefNameDeleteLiteRequest;
+  
+    String clientVersionString = GrouperServiceUtils.pickOne(clientVersion.toString(),
+        GrouperVersion.stringValueOrNull(wsRestAttributeDefNameDeleteLiteRequest.getClientVersion()), false, "clientVersion");
+  
+    attributeDefName = GrouperServiceUtils.pickOne(attributeDefName, wsRestAttributeDefNameDeleteLiteRequest
+        .getAttributeDefNameName(), false, "attributeDefName");
+
+    WsAttributeDefNameDeleteLiteResult wsAttributeDefNameDeleteLiteResult = new GrouperService(false).attributeDefNameDeleteLite(
+        clientVersionString, wsRestAttributeDefNameDeleteLiteRequest.getAttributeDefNameUuid(), 
+        attributeDefName, wsRestAttributeDefNameDeleteLiteRequest.getActAsSubjectId(), 
+        wsRestAttributeDefNameDeleteLiteRequest.getActAsSubjectSourceId(), wsRestAttributeDefNameDeleteLiteRequest.getActAsSubjectIdentifier(),
+        wsRestAttributeDefNameDeleteLiteRequest.getParamName0(),
+        wsRestAttributeDefNameDeleteLiteRequest.getParamValue0(), wsRestAttributeDefNameDeleteLiteRequest.getParamName1(),
+        wsRestAttributeDefNameDeleteLiteRequest.getParamValue1() );
+    
+    return wsAttributeDefNameDeleteLiteResult;
+  }
+
+  /**
+   * save an AttributeDefName or many (insert or update).  Note, you cannot rename an existing AttributeDefName.
+   * 
+   * @param clientVersion is the version of the client.  Must be in GrouperWsVersion, e.g. v1_3_000
+   * @param wsRestAttributeDefNameSaveRequest 
+   * @return the results
+   */
+  
+  public static WsAttributeDefNameSaveResults attributeDefNameSave(GrouperVersion clientVersion,
+      WsRestAttributeDefNameSaveRequest wsRestAttributeDefNameSaveRequest) {
+  
+    //cant be null
+    wsRestAttributeDefNameSaveRequest = wsRestAttributeDefNameSaveRequest == null ? new WsRestAttributeDefNameSaveRequest() : wsRestAttributeDefNameSaveRequest;
+  
+    String clientVersionString = GrouperServiceUtils.pickOne(clientVersion.toString(),
+        GrouperVersion.stringValueOrNull(wsRestAttributeDefNameSaveRequest.getClientVersion()), false, "clientVersion");
+  
+    WsAttributeDefNameSaveResults wsAttributeDefNameSaveResults = new GrouperService(false).attributeDefNameSave(
+        clientVersionString, wsRestAttributeDefNameSaveRequest.getWsAttributeDefNameToSaves(), 
+        wsRestAttributeDefNameSaveRequest.getActAsSubjectLookup(), 
+        wsRestAttributeDefNameSaveRequest.getTxType(), 
+        wsRestAttributeDefNameSaveRequest.getParams());
+    
+    return wsAttributeDefNameSaveResults;
+    
+  }
+
+  /**
+   * save an AttributeDefName (insert or update).  Note you cannot currently move an existing AttributeDefName.
+   * 
+   * @see {@link AttributeDefNameSave#save()}
+   * @param clientVersion is the version of the client.  Must be in GrouperWsVersion, e.g. v1_3_000
+   * @param wsRestAttributeDefNameSaveLiteRequest 
+   * @param attributeDefNameLookupName
+   * @return the result of one member add
+   */
+  public static WsAttributeDefNameSaveLiteResult attributeDefNameSaveLite(GrouperVersion clientVersion, String attributeDefNameLookupName,
+      WsRestAttributeDefNameSaveLiteRequest wsRestAttributeDefNameSaveLiteRequest) {
+
+    //cant be null
+    wsRestAttributeDefNameSaveLiteRequest = wsRestAttributeDefNameSaveLiteRequest == null ? new WsRestAttributeDefNameSaveLiteRequest() : wsRestAttributeDefNameSaveLiteRequest;
+  
+    String clientVersionString = GrouperServiceUtils.pickOne(clientVersion.toString(),
+        GrouperVersion.stringValueOrNull(wsRestAttributeDefNameSaveLiteRequest.getClientVersion()), false, "clientVersion");
+  
+    attributeDefNameLookupName = GrouperServiceUtils.pickOne(attributeDefNameLookupName,
+        wsRestAttributeDefNameSaveLiteRequest.getAttributeDefNameLookupName(), false, "attributeDefNameLookupName");
+
+    
+    WsAttributeDefNameSaveLiteResult wsAttributeDefNameSaveLiteResult = new GrouperService(false).attributeDefNameSaveLite(
+        clientVersionString, wsRestAttributeDefNameSaveLiteRequest.getAttributeDefNameLookupUuid(), 
+        attributeDefNameLookupName, 
+        wsRestAttributeDefNameSaveLiteRequest.getAttributeDefLookupUuid(), 
+        wsRestAttributeDefNameSaveLiteRequest.getAttributeDefLookupName(), 
+        wsRestAttributeDefNameSaveLiteRequest.getAttributeDefNameUuid(), 
+        wsRestAttributeDefNameSaveLiteRequest.getAttributeDefNameName(), 
+        wsRestAttributeDefNameSaveLiteRequest.getDisplayExtension(), 
+        wsRestAttributeDefNameSaveLiteRequest.getDescription(), 
+        wsRestAttributeDefNameSaveLiteRequest.getSaveMode(), 
+        wsRestAttributeDefNameSaveLiteRequest.getCreateParentStemsIfNotExist(), 
+        wsRestAttributeDefNameSaveLiteRequest.getActAsSubjectId(), 
+        wsRestAttributeDefNameSaveLiteRequest.getActAsSubjectSourceId(), 
+        wsRestAttributeDefNameSaveLiteRequest.getActAsSubjectIdentifier(), 
+        wsRestAttributeDefNameSaveLiteRequest.getParamName0(), 
+        wsRestAttributeDefNameSaveLiteRequest.getParamValue0(), 
+        wsRestAttributeDefNameSaveLiteRequest.getParamName1(), 
+        wsRestAttributeDefNameSaveLiteRequest.getParamValue1());
+    
+    return wsAttributeDefNameSaveLiteResult;
+  
+  }
+
+  /**
+   * find an attribute def name or attribute def names.  Each additional parameter sent will narow the search,
+   * except the lookups will just lookup whatever is sent.
+   * @param clientVersion is the version of the client.  Must be in GrouperWsVersion, e.g. v1_3_000
+   * @param wsRestFindAttributeDefNamesRequest 
+   * @return the attribute def names, or no attribute def names if none found
+   */
+  public static WsFindAttributeDefNamesResults findAttributeDefNames(GrouperVersion clientVersion, 
+      WsRestFindAttributeDefNamesRequest wsRestFindAttributeDefNamesRequest) {
+  
+    //cant be null
+    wsRestFindAttributeDefNamesRequest = wsRestFindAttributeDefNamesRequest == null ? new WsRestFindAttributeDefNamesRequest() : wsRestFindAttributeDefNamesRequest;
+  
+    String clientVersionString = GrouperServiceUtils.pickOne(clientVersion.toString(),
+        GrouperVersion.stringValueOrNull(wsRestFindAttributeDefNamesRequest.getClientVersion()), false, "clientVersion");
+  
+    WsFindAttributeDefNamesResults wsFindAttributeDefNamesResults = new GrouperService(false).findAttributeDefNames(
+        clientVersionString, wsRestFindAttributeDefNamesRequest.getScope(), 
+        wsRestFindAttributeDefNamesRequest.getSplitScope(), 
+        wsRestFindAttributeDefNamesRequest.getWsAttributeDefLookup(), 
+        wsRestFindAttributeDefNamesRequest.getAttributeAssignType(), 
+        wsRestFindAttributeDefNamesRequest.getAttributeDefType(), 
+        wsRestFindAttributeDefNamesRequest.getWsAttributeDefNameLookups(), 
+        wsRestFindAttributeDefNamesRequest.getPageSize(), 
+        wsRestFindAttributeDefNamesRequest.getPageNumber(), 
+        wsRestFindAttributeDefNamesRequest.getSortString(), 
+        wsRestFindAttributeDefNamesRequest.getAscending(), 
+        wsRestFindAttributeDefNamesRequest.getWsInheritanceSetRelation(), 
+        wsRestFindAttributeDefNamesRequest.getActAsSubjectLookup(), 
+        wsRestFindAttributeDefNamesRequest.getParams());
+    
+    return wsFindAttributeDefNamesResults;
+  }
+
+  /**
+   * find an attribute def name or attribute def names.  Each additional parameter sent will narow the search,
+   * except the lookups will just lookup whatever is sent.
+   * @param clientVersion 
+   * @param attributeDefNameName if in url
+   * @param wsRestFindAttributeDefNamesLiteRequest 
+   * @return the attribute def names, or no attribute def names if none found
+   */
+  public static WsFindAttributeDefNamesResults findAttributeDefNamesLite(GrouperVersion clientVersion, String attributeDefNameName, 
+      WsRestFindAttributeDefNamesLiteRequest wsRestFindAttributeDefNamesLiteRequest) {
+        
+    
+    //cant be null
+    wsRestFindAttributeDefNamesLiteRequest = wsRestFindAttributeDefNamesLiteRequest == null ? 
+        new WsRestFindAttributeDefNamesLiteRequest() : wsRestFindAttributeDefNamesLiteRequest;
+  
+    String clientVersionString = GrouperServiceUtils.pickOne(clientVersion.toString(),
+        GrouperVersion.stringValueOrNull(wsRestFindAttributeDefNamesLiteRequest.getClientVersion()), false, "clientVersion");
+  
+    attributeDefNameName = GrouperServiceUtils.pickOne(attributeDefNameName, wsRestFindAttributeDefNamesLiteRequest.getAttributeDefNameName(), false, "attributeDefNameName");
+
+    WsFindAttributeDefNamesResults wsFindAttributeDefNamesResults = new GrouperService(false).findAttributeDefNamesLite(
+        clientVersionString, wsRestFindAttributeDefNamesLiteRequest.getScope(), 
+        wsRestFindAttributeDefNamesLiteRequest.getSplitScope(), 
+        wsRestFindAttributeDefNamesLiteRequest.getUuidOfAttributeDef(), 
+        wsRestFindAttributeDefNamesLiteRequest.getNameOfAttributeDef(), 
+        wsRestFindAttributeDefNamesLiteRequest.getAttributeAssignType(), 
+        wsRestFindAttributeDefNamesLiteRequest.getAttributeDefType(), 
+        wsRestFindAttributeDefNamesLiteRequest.getAttributeDefNameUuid(), 
+        attributeDefNameName,
+        wsRestFindAttributeDefNamesLiteRequest.getPageSize(), 
+        wsRestFindAttributeDefNamesLiteRequest.getPageNumber(), 
+        wsRestFindAttributeDefNamesLiteRequest.getSortString(), 
+        wsRestFindAttributeDefNamesLiteRequest.getAscending(), 
+        wsRestFindAttributeDefNamesLiteRequest.getWsInheritanceSetRelation(), 
+        wsRestFindAttributeDefNamesLiteRequest.getActAsSubjectId(), 
+        wsRestFindAttributeDefNamesLiteRequest.getActAsSubjectSourceId(), 
+        wsRestFindAttributeDefNamesLiteRequest.getActAsSubjectIdentifier(), 
+        wsRestFindAttributeDefNamesLiteRequest.getParamName0(), 
+        wsRestFindAttributeDefNamesLiteRequest.getParamValue0(), 
+        wsRestFindAttributeDefNamesLiteRequest.getParamName1(), 
+        wsRestFindAttributeDefNamesLiteRequest.getParamValue1());
+    
+    return wsFindAttributeDefNamesResults;
+    
   }
 }
