@@ -714,7 +714,9 @@ public class HibernateSession {
         }
         break;
       case ROLLBACK_NOW:
-        this.activeHibernateSession().immediateTransaction.rollback();
+        if (this.activeHibernateSession() != null && this.activeHibernateSession().immediateTransaction != null) { 
+          this.activeHibernateSession().immediateTransaction.rollback();
+        }
         return true;
     }
     return false;

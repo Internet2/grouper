@@ -13,7 +13,6 @@ import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.AttributeDefNameNotFoundException;
 import edu.internet2.middleware.grouper.exception.AttributeDefNameTooManyResults;
-import edu.internet2.middleware.grouper.exception.AttributeDefNotFoundException;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.ByHqlStatic;
@@ -65,7 +64,7 @@ public class Hib3AttributeDefNameDAO extends Hib3DAO implements AttributeDefName
     attributeDefName = filterSecurity(attributeDefName);
     
     if (attributeDefName == null && exceptionIfNotFound) {
-      throw new AttributeDefNotFoundException("Cant find (or not allowed to find) attribute def name by id: " + id);
+      throw new AttributeDefNameNotFoundException("Cant find (or not allowed to find) attribute def name by id: " + id);
     }
     return attributeDefName;
   }
@@ -127,7 +126,7 @@ public class Hib3AttributeDefNameDAO extends Hib3DAO implements AttributeDefName
   
     //handle exceptions out of data access method...
     if (attributeDefName == null && exceptionIfNotFound) {
-      throw new AttributeDefNotFoundException("Cannot find (or not allowed to find) attribute def name with name: '" + name + "'");
+      throw new AttributeDefNameNotFoundException("Cannot find (or not allowed to find) attribute def name with name: '" + name + "'");
     }
     return attributeDefName;
   }

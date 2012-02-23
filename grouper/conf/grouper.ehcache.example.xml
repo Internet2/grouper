@@ -115,6 +115,14 @@
           overflowToDisk="false"
   />
   
+  <cache  name="edu.internet2.middleware.grouper.attr.AttributeDefName.CanAdminAttributeDef"
+          maxElementsInMemory="5000"
+          eternal="false"
+          timeToIdleSeconds="5"
+          timeToLiveSeconds="5"
+          overflowToDisk="false"
+  />
+  
     <!-- @see   WheelAccessResolver#isWheelMember(...) -->
   <cache  name="edu.internet2.middleware.grouper.privs.WheelAccessResolver.isWheelMember"
           maxElementsInMemory="1000"
