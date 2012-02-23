@@ -6244,9 +6244,9 @@ public class GrouperServiceLogic {
       
       } else {
         wsAssignAttributeDefNameInheritanceResults.getResultMetadata().appendResultMessage(resultErrors.toString());
-
-        wsAssignAttributeDefNameInheritanceResults.assignResultCode(WsAssignAttributeDefNameInheritanceResultsCode.EXCEPTION);
-        
+        if (StringUtils.isBlank(wsAssignAttributeDefNameInheritanceResults.getResultMetadata().getResultCode())) {
+          wsAssignAttributeDefNameInheritanceResults.assignResultCode(WsAssignAttributeDefNameInheritanceResultsCode.EXCEPTION);
+        }
       }
     } catch (Exception e) {
       wsAssignAttributeDefNameInheritanceResults.assignResultCodeException(null, theSummary, e);
@@ -6702,6 +6702,7 @@ public class GrouperServiceLogic {
       WsAttributeDefNameLookup[] wsAttributeDefNameLookups, Integer pageSize, Integer pageNumber,
       String sortString, Boolean ascending, 
       WsInheritanceSetRelation wsInheritanceSetRelation, WsSubjectLookup actAsSubjectLookup, WsParam[] params) {
+
     final WsFindAttributeDefNamesResults wsFindAttributeDefNamesResults = new WsFindAttributeDefNamesResults();
     
     GrouperSession session = null;

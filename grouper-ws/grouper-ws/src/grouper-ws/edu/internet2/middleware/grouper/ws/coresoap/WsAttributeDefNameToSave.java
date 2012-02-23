@@ -10,7 +10,6 @@ import org.apache.commons.logging.LogFactory;
 
 import com.thoughtworks.xstream.annotations.XStreamOmitField;
 
-import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
@@ -21,7 +20,6 @@ import edu.internet2.middleware.grouper.exception.AttributeDefNameAddException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.StemAddException;
 import edu.internet2.middleware.grouper.exception.StemNotFoundException;
-import edu.internet2.middleware.grouper.group.TypeOfGroup;
 import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.misc.SaveResultType;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -150,69 +148,80 @@ public class WsAttributeDefNameToSave {
   
     AttributeDefName attributeDefName = null;
       
-    try {
-      SaveMode theSaveMode = SaveMode.valueOfIgnoreCase(this.saveMode);
-  
-      if (SaveMode.INSERT != theSaveMode && this.getWsAttributeDefNameLookup() == null) {
-        throw new WsInvalidQueryException(
-            "wsAttributeDefNameLookup is required to save an attributeDefName (probably just put the name in it)");
-      }
-       
-      if (this.getWsAttributeDefNameLookup() == null) {
-        this.setWsAttributeDefNameLookup(new WsAttributeDefNameLookup());
-      }
-       
-      this.getWsAttributeDefNameLookup().retrieveAttributeDefNameIfNeeded(grouperSession);
-  
-      AttributeDefName attributeDefNameLookedup = this.getWsAttributeDefNameLookup().retrieveAttributeDefName();
-  
-      String attributeDefNameLookup = attributeDefNameLookedup == null ? null : attributeDefNameLookedup.getName();
-  
-      AttributeDef attributeDef = null;
-      
-      //we need the attribute definition, find it by id if was passed in
-      if (!StringUtils.isBlank(this.getWsAttributeDefName().getAttributeDefId())) {
-        attributeDef = AttributeDefFinder.findById(this.getWsAttributeDefName().getAttributeDefId(), false);
-        
-        if (attributeDef == null) {
-          throw new WsInvalidQueryException("Cant find attributeDef by id: " + this.getWsAttributeDefName().getAttributeDefId());
-        }
-        
-        //make sure the name matches
-        if (!StringUtils.isBlank(this.getWsAttributeDefName().getAttributeDefName()) && !StringUtils.equals(this.getWsAttributeDefName().getAttributeDefName(), attributeDef.getName())) {
-          throw new WsInvalidQueryException("AttributeDef for id: " + attributeDef.getUuid() + " has name: " + attributeDef.getName() 
-              + ", but you passed in a different name: " + this.getWsAttributeDefName().getAttributeDefName());
-        }
-        
-      } else if (!StringUtils.isBlank(this.getWsAttributeDefName().getAttributeDefName())) {
+    SaveMode theSaveMode = SaveMode.valueOfIgnoreCase(this.saveMode);
 
-        attributeDef = AttributeDefFinder.findByName(this.getWsAttributeDefName().getAttributeDefName(), false);
-        
-        if (attributeDef == null) {
-          throw new WsInvalidQueryException("Cant find attributeDef by name: " + this.getWsAttributeDefName().getAttributeDefName());
-        }
-        
-      } else {
-        throw new WsInvalidQueryException(
-          "You need to pass in an attributeDefId or attributeDefName!");
+    if (this.getWsAttributeDefName() == null) {
+      throw new WsInvalidQueryException(
+          "getWsAttributeDefName is required to save an attributeDefName");
+    }
+
+    if (this.getWsAttributeDefNameLookup() == null || this.getWsAttributeDefNameLookup().blank()) {
+      WsAttributeDefNameLookup theWsAttributeDefNameLookup = this.getWsAttributeDefNameLookup() == null ? new WsAttributeDefNameLookup() : this.getWsAttributeDefNameLookup();
+      
+      if (!StringUtils.isBlank(this.getWsAttributeDefName().getUuid())) {
+        theWsAttributeDefNameLookup.setUuid(this.getWsAttributeDefName().getUuid());
+      } else if (!StringUtils.isBlank(this.getWsAttributeDefName().getName())) {
+        theWsAttributeDefNameLookup.setName(this.getWsAttributeDefName().getName());
       }
       
-      AttributeDefNameSave attributeDefNameSave = new AttributeDefNameSave(grouperSession, attributeDef);
-      attributeDefNameSave.assignAttributeDefNameNameToEdit(attributeDefNameLookup);
-      attributeDefNameSave.assignUuid(this.getWsAttributeDefName().getUuid()).assignName(this.getWsAttributeDefName().getName());
-      attributeDefNameSave.assignDisplayExtension(this.getWsAttributeDefName().getDisplayExtension());
-      attributeDefNameSave.assignDescription(this.getWsAttributeDefName().getDescription());
-      attributeDefNameSave.assignSaveMode(theSaveMode);
-      attributeDefNameSave.assignCreateParentStemsIfNotExist(GrouperUtil.booleanValue(this.getCreateParentStemsIfNotExist(), false));
+      if (SaveMode.INSERT != theSaveMode || !theWsAttributeDefNameLookup.blank()) {
+        this.setWsAttributeDefNameLookup(theWsAttributeDefNameLookup);
+      }
       
-      attributeDefName = attributeDefNameSave.save();
+    }
+
+    if (SaveMode.INSERT != theSaveMode && this.getWsAttributeDefNameLookup() == null) {
+      throw new WsInvalidQueryException(
+          "wsAttributeDefNameLookup is required to save an attributeDefName (probably just put the name in it)");
+    }
+     
+    this.getWsAttributeDefNameLookup().retrieveAttributeDefNameIfNeeded(grouperSession);
+
+    AttributeDefName attributeDefNameLookedup = this.getWsAttributeDefNameLookup().retrieveAttributeDefName();
+
+    String attributeDefNameLookup = attributeDefNameLookedup == null ? null : attributeDefNameLookedup.getName();
+
+    AttributeDef attributeDef = null;
+    
+    //we need the attribute definition, find it by id if was passed in
+    if (!StringUtils.isBlank(this.getWsAttributeDefName().getAttributeDefId())) {
+      attributeDef = AttributeDefFinder.findById(this.getWsAttributeDefName().getAttributeDefId(), false);
       
-      this.saveResultType = attributeDefNameSave.getSaveResultType();
-  
-    } catch (Exception e) {
-      throw new RuntimeException(e);
+      if (attributeDef == null) {
+        throw new WsInvalidQueryException("Cant find attributeDef by id: " + this.getWsAttributeDefName().getAttributeDefId());
+      }
+      
+      //make sure the name matches
+      if (!StringUtils.isBlank(this.getWsAttributeDefName().getAttributeDefName()) && !StringUtils.equals(this.getWsAttributeDefName().getAttributeDefName(), attributeDef.getName())) {
+        throw new WsInvalidQueryException("AttributeDef for id: " + attributeDef.getUuid() + " has name: " + attributeDef.getName() 
+            + ", but you passed in a different name: " + this.getWsAttributeDefName().getAttributeDefName());
+      }
+      
+    } else if (!StringUtils.isBlank(this.getWsAttributeDefName().getAttributeDefName())) {
+
+      attributeDef = AttributeDefFinder.findByName(this.getWsAttributeDefName().getAttributeDefName(), false);
+      
+      if (attributeDef == null) {
+        throw new WsInvalidQueryException("Cant find attributeDef by name: " + this.getWsAttributeDefName().getAttributeDefName());
+      }
+      
+    } else {
+      throw new WsInvalidQueryException(
+        "You need to pass in an attributeDefId or attributeDefName!");
     }
     
+    AttributeDefNameSave attributeDefNameSave = new AttributeDefNameSave(grouperSession, attributeDef);
+    attributeDefNameSave.assignAttributeDefNameNameToEdit(attributeDefNameLookup);
+    attributeDefNameSave.assignUuid(this.getWsAttributeDefName().getUuid()).assignName(this.getWsAttributeDefName().getName());
+    attributeDefNameSave.assignDisplayExtension(this.getWsAttributeDefName().getDisplayExtension());
+    attributeDefNameSave.assignDescription(this.getWsAttributeDefName().getDescription());
+    attributeDefNameSave.assignSaveMode(theSaveMode);
+    attributeDefNameSave.assignCreateParentStemsIfNotExist(GrouperUtil.booleanValue(this.getCreateParentStemsIfNotExist(), false));
+    
+    attributeDefName = attributeDefNameSave.save();
+    
+    this.saveResultType = attributeDefNameSave.getSaveResultType();
+  
     return attributeDefName;
   }
 

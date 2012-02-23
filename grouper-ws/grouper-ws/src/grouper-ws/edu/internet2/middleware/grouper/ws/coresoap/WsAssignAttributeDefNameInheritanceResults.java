@@ -5,6 +5,7 @@ import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.ResultMetadataHolder;
@@ -144,7 +145,17 @@ public class WsAssignAttributeDefNameInheritanceResults implements WsResponseBea
       this.getResultMetadata().appendResultMessage(e.getMessage());
       this.getResultMetadata().appendResultMessage(theError);
       LOG.warn(e);
+
+    } else if (e instanceof InsufficientPrivilegeException ) {
+      wsAssignAttributeDefNameInheritanceResultsOverrideCode = GrouperUtil.defaultIfNull(
+          wsAssignAttributeDefNameInheritanceResultsOverrideCode, WsAssignAttributeDefNameInheritanceResultsCode.INSUFFICIENT_PRIVILEGES);
+      //a helpful exception will probably be in the getMessage()
+      this.assignResultCode(wsAssignAttributeDefNameInheritanceResultsOverrideCode);
+      this.getResultMetadata().appendResultMessage(e.getMessage());
+      this.getResultMetadata().appendResultMessage(theError);
+      LOG.warn(e);
   
+
     } else {
       wsAssignAttributeDefNameInheritanceResultsOverrideCode = GrouperUtil.defaultIfNull(
           wsAssignAttributeDefNameInheritanceResultsOverrideCode, WsAssignAttributeDefNameInheritanceResultsCode.EXCEPTION);
