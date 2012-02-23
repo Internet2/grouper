@@ -162,6 +162,65 @@
                     <xs:element minOccurs="0" name="wsSubject" nillable="true" type="ns:WsSubject"/>
                 </xs:sequence>
             </xs:complexType>
+            <xs:element name="assignAttributeDefNameInheritance">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="clientVersion" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="wsAttributeDefNameLookup" nillable="true" type="ns:WsAttributeDefNameLookup"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="relatedWsAttributeDefNameLookups" nillable="true" type="ns:WsAttributeDefNameLookup"/>
+                        <xs:element minOccurs="0" name="assign" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="replaceAllExisting" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="actAsSubjectLookup" nillable="true" type="ns:WsSubjectLookup"/>
+                        <xs:element minOccurs="0" name="txType" nillable="true" type="xs:string"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="params" nillable="true" type="ns:WsParam"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:complexType name="WsAttributeDefNameLookup">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="name" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="uuid" nillable="true" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:element name="assignAttributeDefNameInheritanceResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="ns:WsAssignAttributeDefNameInheritanceResults"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:complexType name="WsAssignAttributeDefNameInheritanceResults">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="responseMetadata" nillable="true" type="ns:WsResponseMeta"/>
+                    <xs:element minOccurs="0" name="resultMetadata" nillable="true" type="ns:WsResultMeta"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:element name="assignAttributeDefNameInheritanceLite">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="clientVersion" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="attributeDefNameUuid" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="attributeDefNameName" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="relatedAttributeDefNameUuid" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="relatedAttributeDefNameName" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="assign" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="actAsSubjectId" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="actAsSubjectSourceId" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="actAsSubjectIdentifier" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="paramName0" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="paramValue0" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="paramName1" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="paramValue1" nillable="true" type="xs:string"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="assignAttributeDefNameInheritanceLiteResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="ns:WsAssignAttributeDefNameInheritanceResults"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
             <xs:element name="assignAttributesLite">
                 <xs:complexType>
                     <xs:sequence>
@@ -372,12 +431,6 @@
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
-            <xs:complexType name="WsAttributeDefNameLookup">
-                <xs:sequence>
-                    <xs:element minOccurs="0" name="name" nillable="true" type="xs:string"/>
-                    <xs:element minOccurs="0" name="uuid" nillable="true" type="xs:string"/>
-                </xs:sequence>
-            </xs:complexType>
             <xs:complexType name="WsAttributeAssignLookup">
                 <xs:sequence>
                     <xs:element minOccurs="0" name="uuid" nillable="true" type="xs:string"/>
@@ -628,6 +681,144 @@
                     <xs:element maxOccurs="unbounded" minOccurs="0" name="wsSubjects" nillable="true" type="ns:WsSubject"/>
                 </xs:sequence>
             </xs:complexType>
+            <xs:element name="attributeDefNameDeleteLite">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="clientVersion" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="attributeDefNameUuid" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="attributeDefNameName" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="actAsSubjectId" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="actAsSubjectSourceId" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="actAsSubjectIdentifier" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="paramName0" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="paramValue0" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="paramName1" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="paramValue1" nillable="true" type="xs:string"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="attributeDefNameDeleteLiteResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="ns:WsAttributeDefNameDeleteLiteResult"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:complexType name="WsAttributeDefNameDeleteLiteResult">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="responseMetadata" nillable="true" type="ns:WsResponseMeta"/>
+                    <xs:element minOccurs="0" name="resultMetadata" nillable="true" type="ns:WsResultMeta"/>
+                    <xs:element minOccurs="0" name="wsAttributeDefName" nillable="true" type="ns:WsAttributeDefName"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:element name="attributeDefNameDelete">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="clientVersion" nillable="true" type="xs:string"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="wsAttributeDefNameLookups" nillable="true" type="ns:WsAttributeDefNameLookup"/>
+                        <xs:element minOccurs="0" name="actAsSubjectLookup" nillable="true" type="ns:WsSubjectLookup"/>
+                        <xs:element minOccurs="0" name="txType" nillable="true" type="xs:string"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="params" nillable="true" type="ns:WsParam"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="attributeDefNameDeleteResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="ns:WsAttributeDefNameDeleteResults"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:complexType name="WsAttributeDefNameDeleteResults">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="responseMetadata" nillable="true" type="ns:WsResponseMeta"/>
+                    <xs:element minOccurs="0" name="resultMetadata" nillable="true" type="ns:WsResultMeta"/>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="results" nillable="true" type="ns:WsAttributeDefNameDeleteResult"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="WsAttributeDefNameDeleteResult">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="resultMetadata" nillable="true" type="ns:WsResultMeta"/>
+                    <xs:element minOccurs="0" name="wsAttributeDefName" nillable="true" type="ns:WsAttributeDefName"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:element name="attributeDefNameSaveLite">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="clientVersion" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="attributeDefNameLookupUuid" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="attributeDefNameLookupName" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="attributeDefLookupUuid" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="attributeDefLookupName" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="attributeDefNameUuid" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="attributeDefNameName" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="displayExtension" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="description" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="saveMode" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="createParentStemsIfNotExist" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="actAsSubjectId" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="actAsSubjectSourceId" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="actAsSubjectIdentifier" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="paramName0" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="paramValue0" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="paramName1" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="paramValue1" nillable="true" type="xs:string"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="attributeDefNameSaveLiteResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="ns:WsAttributeDefNameSaveLiteResult"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:complexType name="WsAttributeDefNameSaveLiteResult">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="responseMetadata" nillable="true" type="ns:WsResponseMeta"/>
+                    <xs:element minOccurs="0" name="resultMetadata" nillable="true" type="ns:WsResultMeta"/>
+                    <xs:element minOccurs="0" name="wsAttributeDefName" nillable="true" type="ns:WsAttributeDefName"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:element name="attributeDefNameSave">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="clientVersion" nillable="true" type="xs:string"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="wsAttributeDefNameToSaves" nillable="true" type="ns:WsAttributeDefNameToSave"/>
+                        <xs:element minOccurs="0" name="actAsSubjectLookup" nillable="true" type="ns:WsSubjectLookup"/>
+                        <xs:element minOccurs="0" name="txType" nillable="true" type="xs:string"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="params" nillable="true" type="ns:WsParam"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:complexType name="WsAttributeDefNameToSave">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="createParentStemsIfNotExist" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="saveMode" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="wsAttributeDefName" nillable="true" type="ns:WsAttributeDefName"/>
+                    <xs:element minOccurs="0" name="wsAttributeDefNameLookup" nillable="true" type="ns:WsAttributeDefNameLookup"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:element name="attributeDefNameSaveResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="ns:WsAttributeDefNameSaveResults"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:complexType name="WsAttributeDefNameSaveResults">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="responseMetadata" nillable="true" type="ns:WsResponseMeta"/>
+                    <xs:element minOccurs="0" name="resultMetadata" nillable="true" type="ns:WsResultMeta"/>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="results" nillable="true" type="ns:WsAttributeDefNameSaveResult"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="WsAttributeDefNameSaveResult">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="resultMetadata" nillable="true" type="ns:WsResultMeta"/>
+                    <xs:element minOccurs="0" name="wsAttributeDefName" nillable="true" type="ns:WsAttributeDefName"/>
+                </xs:sequence>
+            </xs:complexType>
             <xs:element name="deleteMemberLite">
                 <xs:complexType>
                     <xs:sequence>
@@ -705,6 +896,75 @@
                     <xs:element minOccurs="0" name="wsSubject" nillable="true" type="ns:WsSubject"/>
                 </xs:sequence>
             </xs:complexType>
+            <xs:element name="findAttributeDefNames">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="clientVersion" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="scope" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="splitScope" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="wsAttributeDefLookup" nillable="true" type="ns:WsAttributeDefLookup"/>
+                        <xs:element minOccurs="0" name="attributeAssignType" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="attributeDefType" nillable="true" type="xs:string"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="wsAttributeDefNameLookups" nillable="true" type="ns:WsAttributeDefNameLookup"/>
+                        <xs:element minOccurs="0" name="pageSize" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="pageNumber" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="sortString" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="ascending" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="wsInheritanceSetRelation" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="actAsSubjectLookup" nillable="true" type="ns:WsSubjectLookup"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="params" nillable="true" type="ns:WsParam"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="findAttributeDefNamesResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="ns:WsFindAttributeDefNamesResults"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:complexType name="WsFindAttributeDefNamesResults">
+                <xs:sequence>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="attributeDefNameResults" nillable="true" type="ns:WsAttributeDefName"/>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="attributeDefs" nillable="true" type="ns:WsAttributeDef"/>
+                    <xs:element minOccurs="0" name="responseMetadata" nillable="true" type="ns:WsResponseMeta"/>
+                    <xs:element minOccurs="0" name="resultMetadata" nillable="true" type="ns:WsResultMeta"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:element name="findAttributeDefNamesLite">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="clientVersion" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="scope" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="splitScope" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="uuidOfAttributeDef" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="nameOfAttributeDef" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="attributeAssignType" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="attributeDefType" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="attributeDefNameUuid" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="attributeDefNameName" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="pageSize" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="pageNumber" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="sortString" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="ascending" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="wsInheritanceSetRelation" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="actAsSubjectId" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="actAsSubjectSourceId" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="actAsSubjectIdentifier" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="paramName0" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="paramValue0" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="paramName1" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="paramValue1" nillable="true" type="xs:string"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="findAttributeDefNamesLiteResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="ns:WsFindAttributeDefNamesResults"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
             <xs:element name="findGroups">
                 <xs:complexType>
                     <xs:sequence>
@@ -1997,17 +2257,17 @@
     <wsdl:message name="addMemberLiteResponse">
         <wsdl:part name="parameters" element="ns:addMemberLiteResponse"/>
     </wsdl:message>
-    <wsdl:message name="groupSaveRequest">
-        <wsdl:part name="parameters" element="ns:groupSave"/>
+    <wsdl:message name="attributeDefNameDeleteLiteRequest">
+        <wsdl:part name="parameters" element="ns:attributeDefNameDeleteLite"/>
     </wsdl:message>
-    <wsdl:message name="groupSaveResponse">
-        <wsdl:part name="parameters" element="ns:groupSaveResponse"/>
+    <wsdl:message name="attributeDefNameDeleteLiteResponse">
+        <wsdl:part name="parameters" element="ns:attributeDefNameDeleteLiteResponse"/>
     </wsdl:message>
-    <wsdl:message name="getAttributeAssignmentsRequest">
-        <wsdl:part name="parameters" element="ns:getAttributeAssignments"/>
+    <wsdl:message name="attributeDefNameSaveRequest">
+        <wsdl:part name="parameters" element="ns:attributeDefNameSave"/>
     </wsdl:message>
-    <wsdl:message name="getAttributeAssignmentsResponse">
-        <wsdl:part name="parameters" element="ns:getAttributeAssignmentsResponse"/>
+    <wsdl:message name="attributeDefNameSaveResponse">
+        <wsdl:part name="parameters" element="ns:attributeDefNameSaveResponse"/>
     </wsdl:message>
     <wsdl:message name="groupDeleteLiteRequest">
         <wsdl:part name="parameters" element="ns:groupDeleteLite"/>
@@ -2015,11 +2275,17 @@
     <wsdl:message name="groupDeleteLiteResponse">
         <wsdl:part name="parameters" element="ns:groupDeleteLiteResponse"/>
     </wsdl:message>
-    <wsdl:message name="getMembershipsLiteRequest">
-        <wsdl:part name="parameters" element="ns:getMembershipsLite"/>
+    <wsdl:message name="getAttributeAssignmentsRequest">
+        <wsdl:part name="parameters" element="ns:getAttributeAssignments"/>
     </wsdl:message>
-    <wsdl:message name="getMembershipsLiteResponse">
-        <wsdl:part name="parameters" element="ns:getMembershipsLiteResponse"/>
+    <wsdl:message name="getAttributeAssignmentsResponse">
+        <wsdl:part name="parameters" element="ns:getAttributeAssignmentsResponse"/>
+    </wsdl:message>
+    <wsdl:message name="groupSaveRequest">
+        <wsdl:part name="parameters" element="ns:groupSave"/>
+    </wsdl:message>
+    <wsdl:message name="groupSaveResponse">
+        <wsdl:part name="parameters" element="ns:groupSaveResponse"/>
     </wsdl:message>
     <wsdl:message name="assignPermissionsLiteRequest">
         <wsdl:part name="parameters" element="ns:assignPermissionsLite"/>
@@ -2032,6 +2298,24 @@
     </wsdl:message>
     <wsdl:message name="getPermissionAssignmentsLiteResponse">
         <wsdl:part name="parameters" element="ns:getPermissionAssignmentsLiteResponse"/>
+    </wsdl:message>
+    <wsdl:message name="attributeDefNameSaveLiteRequest">
+        <wsdl:part name="parameters" element="ns:attributeDefNameSaveLite"/>
+    </wsdl:message>
+    <wsdl:message name="attributeDefNameSaveLiteResponse">
+        <wsdl:part name="parameters" element="ns:attributeDefNameSaveLiteResponse"/>
+    </wsdl:message>
+    <wsdl:message name="getMembershipsLiteRequest">
+        <wsdl:part name="parameters" element="ns:getMembershipsLite"/>
+    </wsdl:message>
+    <wsdl:message name="getMembershipsLiteResponse">
+        <wsdl:part name="parameters" element="ns:getMembershipsLiteResponse"/>
+    </wsdl:message>
+    <wsdl:message name="attributeDefNameDeleteRequest">
+        <wsdl:part name="parameters" element="ns:attributeDefNameDelete"/>
+    </wsdl:message>
+    <wsdl:message name="attributeDefNameDeleteResponse">
+        <wsdl:part name="parameters" element="ns:attributeDefNameDeleteResponse"/>
     </wsdl:message>
     <wsdl:message name="getMembersRequest">
         <wsdl:part name="parameters" element="ns:getMembers"/>
@@ -2057,6 +2341,12 @@
     <wsdl:message name="deleteMemberLiteResponse">
         <wsdl:part name="parameters" element="ns:deleteMemberLiteResponse"/>
     </wsdl:message>
+    <wsdl:message name="findAttributeDefNamesRequest">
+        <wsdl:part name="parameters" element="ns:findAttributeDefNames"/>
+    </wsdl:message>
+    <wsdl:message name="findAttributeDefNamesResponse">
+        <wsdl:part name="parameters" element="ns:findAttributeDefNamesResponse"/>
+    </wsdl:message>
     <wsdl:message name="memberChangeSubjectRequest">
         <wsdl:part name="parameters" element="ns:memberChangeSubject"/>
     </wsdl:message>
@@ -2068,6 +2358,18 @@
     </wsdl:message>
     <wsdl:message name="stemSaveResponse">
         <wsdl:part name="parameters" element="ns:stemSaveResponse"/>
+    </wsdl:message>
+    <wsdl:message name="assignAttributeDefNameInheritanceLiteRequest">
+        <wsdl:part name="parameters" element="ns:assignAttributeDefNameInheritanceLite"/>
+    </wsdl:message>
+    <wsdl:message name="assignAttributeDefNameInheritanceLiteResponse">
+        <wsdl:part name="parameters" element="ns:assignAttributeDefNameInheritanceLiteResponse"/>
+    </wsdl:message>
+    <wsdl:message name="assignAttributeDefNameInheritanceRequest">
+        <wsdl:part name="parameters" element="ns:assignAttributeDefNameInheritance"/>
+    </wsdl:message>
+    <wsdl:message name="assignAttributeDefNameInheritanceResponse">
+        <wsdl:part name="parameters" element="ns:assignAttributeDefNameInheritanceResponse"/>
     </wsdl:message>
     <wsdl:message name="assignGrouperPrivilegesLiteRequest">
         <wsdl:part name="parameters" element="ns:assignGrouperPrivilegesLite"/>
@@ -2098,6 +2400,12 @@
     </wsdl:message>
     <wsdl:message name="getPermissionAssignmentsResponse">
         <wsdl:part name="parameters" element="ns:getPermissionAssignmentsResponse"/>
+    </wsdl:message>
+    <wsdl:message name="findAttributeDefNamesLiteRequest">
+        <wsdl:part name="parameters" element="ns:findAttributeDefNamesLite"/>
+    </wsdl:message>
+    <wsdl:message name="findAttributeDefNamesLiteResponse">
+        <wsdl:part name="parameters" element="ns:findAttributeDefNamesLiteResponse"/>
     </wsdl:message>
     <wsdl:message name="getMembersLiteRequest">
         <wsdl:part name="parameters" element="ns:getMembersLite"/>
@@ -2206,21 +2514,25 @@
             <wsdl:input message="axis2:addMemberLiteRequest" wsaw:Action="urn:addMemberLite"/>
             <wsdl:output message="axis2:addMemberLiteResponse" wsaw:Action="urn:addMemberLiteResponse"/>
         </wsdl:operation>
-        <wsdl:operation name="groupSave">
-            <wsdl:input message="axis2:groupSaveRequest" wsaw:Action="urn:groupSave"/>
-            <wsdl:output message="axis2:groupSaveResponse" wsaw:Action="urn:groupSaveResponse"/>
+        <wsdl:operation name="attributeDefNameDeleteLite">
+            <wsdl:input message="axis2:attributeDefNameDeleteLiteRequest" wsaw:Action="urn:attributeDefNameDeleteLite"/>
+            <wsdl:output message="axis2:attributeDefNameDeleteLiteResponse" wsaw:Action="urn:attributeDefNameDeleteLiteResponse"/>
         </wsdl:operation>
-        <wsdl:operation name="getAttributeAssignments">
-            <wsdl:input message="axis2:getAttributeAssignmentsRequest" wsaw:Action="urn:getAttributeAssignments"/>
-            <wsdl:output message="axis2:getAttributeAssignmentsResponse" wsaw:Action="urn:getAttributeAssignmentsResponse"/>
+        <wsdl:operation name="attributeDefNameSave">
+            <wsdl:input message="axis2:attributeDefNameSaveRequest" wsaw:Action="urn:attributeDefNameSave"/>
+            <wsdl:output message="axis2:attributeDefNameSaveResponse" wsaw:Action="urn:attributeDefNameSaveResponse"/>
         </wsdl:operation>
         <wsdl:operation name="groupDeleteLite">
             <wsdl:input message="axis2:groupDeleteLiteRequest" wsaw:Action="urn:groupDeleteLite"/>
             <wsdl:output message="axis2:groupDeleteLiteResponse" wsaw:Action="urn:groupDeleteLiteResponse"/>
         </wsdl:operation>
-        <wsdl:operation name="getMembershipsLite">
-            <wsdl:input message="axis2:getMembershipsLiteRequest" wsaw:Action="urn:getMembershipsLite"/>
-            <wsdl:output message="axis2:getMembershipsLiteResponse" wsaw:Action="urn:getMembershipsLiteResponse"/>
+        <wsdl:operation name="getAttributeAssignments">
+            <wsdl:input message="axis2:getAttributeAssignmentsRequest" wsaw:Action="urn:getAttributeAssignments"/>
+            <wsdl:output message="axis2:getAttributeAssignmentsResponse" wsaw:Action="urn:getAttributeAssignmentsResponse"/>
+        </wsdl:operation>
+        <wsdl:operation name="groupSave">
+            <wsdl:input message="axis2:groupSaveRequest" wsaw:Action="urn:groupSave"/>
+            <wsdl:output message="axis2:groupSaveResponse" wsaw:Action="urn:groupSaveResponse"/>
         </wsdl:operation>
         <wsdl:operation name="assignPermissionsLite">
             <wsdl:input message="axis2:assignPermissionsLiteRequest" wsaw:Action="urn:assignPermissionsLite"/>
@@ -2229,6 +2541,18 @@
         <wsdl:operation name="getPermissionAssignmentsLite">
             <wsdl:input message="axis2:getPermissionAssignmentsLiteRequest" wsaw:Action="urn:getPermissionAssignmentsLite"/>
             <wsdl:output message="axis2:getPermissionAssignmentsLiteResponse" wsaw:Action="urn:getPermissionAssignmentsLiteResponse"/>
+        </wsdl:operation>
+        <wsdl:operation name="attributeDefNameSaveLite">
+            <wsdl:input message="axis2:attributeDefNameSaveLiteRequest" wsaw:Action="urn:attributeDefNameSaveLite"/>
+            <wsdl:output message="axis2:attributeDefNameSaveLiteResponse" wsaw:Action="urn:attributeDefNameSaveLiteResponse"/>
+        </wsdl:operation>
+        <wsdl:operation name="getMembershipsLite">
+            <wsdl:input message="axis2:getMembershipsLiteRequest" wsaw:Action="urn:getMembershipsLite"/>
+            <wsdl:output message="axis2:getMembershipsLiteResponse" wsaw:Action="urn:getMembershipsLiteResponse"/>
+        </wsdl:operation>
+        <wsdl:operation name="attributeDefNameDelete">
+            <wsdl:input message="axis2:attributeDefNameDeleteRequest" wsaw:Action="urn:attributeDefNameDelete"/>
+            <wsdl:output message="axis2:attributeDefNameDeleteResponse" wsaw:Action="urn:attributeDefNameDeleteResponse"/>
         </wsdl:operation>
         <wsdl:operation name="getMembers">
             <wsdl:input message="axis2:getMembersRequest" wsaw:Action="urn:getMembers"/>
@@ -2246,6 +2570,10 @@
             <wsdl:input message="axis2:deleteMemberLiteRequest" wsaw:Action="urn:deleteMemberLite"/>
             <wsdl:output message="axis2:deleteMemberLiteResponse" wsaw:Action="urn:deleteMemberLiteResponse"/>
         </wsdl:operation>
+        <wsdl:operation name="findAttributeDefNames">
+            <wsdl:input message="axis2:findAttributeDefNamesRequest" wsaw:Action="urn:findAttributeDefNames"/>
+            <wsdl:output message="axis2:findAttributeDefNamesResponse" wsaw:Action="urn:findAttributeDefNamesResponse"/>
+        </wsdl:operation>
         <wsdl:operation name="memberChangeSubject">
             <wsdl:input message="axis2:memberChangeSubjectRequest" wsaw:Action="urn:memberChangeSubject"/>
             <wsdl:output message="axis2:memberChangeSubjectResponse" wsaw:Action="urn:memberChangeSubjectResponse"/>
@@ -2253,6 +2581,14 @@
         <wsdl:operation name="stemSave">
             <wsdl:input message="axis2:stemSaveRequest" wsaw:Action="urn:stemSave"/>
             <wsdl:output message="axis2:stemSaveResponse" wsaw:Action="urn:stemSaveResponse"/>
+        </wsdl:operation>
+        <wsdl:operation name="assignAttributeDefNameInheritanceLite">
+            <wsdl:input message="axis2:assignAttributeDefNameInheritanceLiteRequest" wsaw:Action="urn:assignAttributeDefNameInheritanceLite"/>
+            <wsdl:output message="axis2:assignAttributeDefNameInheritanceLiteResponse" wsaw:Action="urn:assignAttributeDefNameInheritanceLiteResponse"/>
+        </wsdl:operation>
+        <wsdl:operation name="assignAttributeDefNameInheritance">
+            <wsdl:input message="axis2:assignAttributeDefNameInheritanceRequest" wsaw:Action="urn:assignAttributeDefNameInheritance"/>
+            <wsdl:output message="axis2:assignAttributeDefNameInheritanceResponse" wsaw:Action="urn:assignAttributeDefNameInheritanceResponse"/>
         </wsdl:operation>
         <wsdl:operation name="assignGrouperPrivilegesLite">
             <wsdl:input message="axis2:assignGrouperPrivilegesLiteRequest" wsaw:Action="urn:assignGrouperPrivilegesLite"/>
@@ -2273,6 +2609,10 @@
         <wsdl:operation name="getPermissionAssignments">
             <wsdl:input message="axis2:getPermissionAssignmentsRequest" wsaw:Action="urn:getPermissionAssignments"/>
             <wsdl:output message="axis2:getPermissionAssignmentsResponse" wsaw:Action="urn:getPermissionAssignmentsResponse"/>
+        </wsdl:operation>
+        <wsdl:operation name="findAttributeDefNamesLite">
+            <wsdl:input message="axis2:findAttributeDefNamesLiteRequest" wsaw:Action="urn:findAttributeDefNamesLite"/>
+            <wsdl:output message="axis2:findAttributeDefNamesLiteResponse" wsaw:Action="urn:findAttributeDefNamesLiteResponse"/>
         </wsdl:operation>
         <wsdl:operation name="getMembersLite">
             <wsdl:input message="axis2:getMembersLiteRequest" wsaw:Action="urn:getMembersLite"/>
@@ -2430,8 +2770,8 @@
                 <soap:body use="literal"/>
             </wsdl:output>
         </wsdl:operation>
-        <wsdl:operation name="getAttributeAssignments">
-            <soap:operation soapAction="urn:getAttributeAssignments" style="document"/>
+        <wsdl:operation name="attributeDefNameDeleteLite">
+            <soap:operation soapAction="urn:attributeDefNameDeleteLite" style="document"/>
             <wsdl:input>
                 <soap:body use="literal"/>
             </wsdl:input>
@@ -2448,8 +2788,8 @@
                 <soap:body use="literal"/>
             </wsdl:output>
         </wsdl:operation>
-        <wsdl:operation name="groupDeleteLite">
-            <soap:operation soapAction="urn:groupDeleteLite" style="document"/>
+        <wsdl:operation name="getAttributeAssignments">
+            <soap:operation soapAction="urn:getAttributeAssignments" style="document"/>
             <wsdl:input>
                 <soap:body use="literal"/>
             </wsdl:input>
@@ -2457,8 +2797,17 @@
                 <soap:body use="literal"/>
             </wsdl:output>
         </wsdl:operation>
-        <wsdl:operation name="assignPermissionsLite">
-            <soap:operation soapAction="urn:assignPermissionsLite" style="document"/>
+        <wsdl:operation name="attributeDefNameSave">
+            <soap:operation soapAction="urn:attributeDefNameSave" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="groupDeleteLite">
+            <soap:operation soapAction="urn:groupDeleteLite" style="document"/>
             <wsdl:input>
                 <soap:body use="literal"/>
             </wsdl:input>
@@ -2475,8 +2824,35 @@
                 <soap:body use="literal"/>
             </wsdl:output>
         </wsdl:operation>
+        <wsdl:operation name="assignPermissionsLite">
+            <soap:operation soapAction="urn:assignPermissionsLite" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
         <wsdl:operation name="getPermissionAssignmentsLite">
             <soap:operation soapAction="urn:getPermissionAssignmentsLite" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="attributeDefNameSaveLite">
+            <soap:operation soapAction="urn:attributeDefNameSaveLite" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="attributeDefNameDelete">
+            <soap:operation soapAction="urn:attributeDefNameDelete" style="document"/>
             <wsdl:input>
                 <soap:body use="literal"/>
             </wsdl:input>
@@ -2502,8 +2878,8 @@
                 <soap:body use="literal"/>
             </wsdl:output>
         </wsdl:operation>
-        <wsdl:operation name="memberChangeSubject">
-            <soap:operation soapAction="urn:memberChangeSubject" style="document"/>
+        <wsdl:operation name="findStemsLite">
+            <soap:operation soapAction="urn:findStemsLite" style="document"/>
             <wsdl:input>
                 <soap:body use="literal"/>
             </wsdl:input>
@@ -2511,8 +2887,26 @@
                 <soap:body use="literal"/>
             </wsdl:output>
         </wsdl:operation>
-        <wsdl:operation name="findStemsLite">
-            <soap:operation soapAction="urn:findStemsLite" style="document"/>
+        <wsdl:operation name="deleteMemberLite">
+            <soap:operation soapAction="urn:deleteMemberLite" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="findAttributeDefNames">
+            <soap:operation soapAction="urn:findAttributeDefNames" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="memberChangeSubject">
+            <soap:operation soapAction="urn:memberChangeSubject" style="document"/>
             <wsdl:input>
                 <soap:body use="literal"/>
             </wsdl:input>
@@ -2529,8 +2923,17 @@
                 <soap:body use="literal"/>
             </wsdl:output>
         </wsdl:operation>
-        <wsdl:operation name="deleteMemberLite">
-            <soap:operation soapAction="urn:deleteMemberLite" style="document"/>
+        <wsdl:operation name="assignAttributeDefNameInheritanceLite">
+            <soap:operation soapAction="urn:assignAttributeDefNameInheritanceLite" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="assignAttributeDefNameInheritance">
+            <soap:operation soapAction="urn:assignAttributeDefNameInheritance" style="document"/>
             <wsdl:input>
                 <soap:body use="literal"/>
             </wsdl:input>
@@ -2576,6 +2979,15 @@
         </wsdl:operation>
         <wsdl:operation name="getPermissionAssignments">
             <soap:operation soapAction="urn:getPermissionAssignments" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="findAttributeDefNamesLite">
+            <soap:operation soapAction="urn:findAttributeDefNamesLite" style="document"/>
             <wsdl:input>
                 <soap:body use="literal"/>
             </wsdl:input>
@@ -2784,8 +3196,8 @@
                 <soap12:body use="literal"/>
             </wsdl:output>
         </wsdl:operation>
-        <wsdl:operation name="getAttributeAssignments">
-            <soap12:operation soapAction="urn:getAttributeAssignments" style="document"/>
+        <wsdl:operation name="attributeDefNameDeleteLite">
+            <soap12:operation soapAction="urn:attributeDefNameDeleteLite" style="document"/>
             <wsdl:input>
                 <soap12:body use="literal"/>
             </wsdl:input>
@@ -2802,8 +3214,8 @@
                 <soap12:body use="literal"/>
             </wsdl:output>
         </wsdl:operation>
-        <wsdl:operation name="groupDeleteLite">
-            <soap12:operation soapAction="urn:groupDeleteLite" style="document"/>
+        <wsdl:operation name="getAttributeAssignments">
+            <soap12:operation soapAction="urn:getAttributeAssignments" style="document"/>
             <wsdl:input>
                 <soap12:body use="literal"/>
             </wsdl:input>
@@ -2811,8 +3223,17 @@
                 <soap12:body use="literal"/>
             </wsdl:output>
         </wsdl:operation>
-        <wsdl:operation name="assignPermissionsLite">
-            <soap12:operation soapAction="urn:assignPermissionsLite" style="document"/>
+        <wsdl:operation name="attributeDefNameSave">
+            <soap12:operation soapAction="urn:attributeDefNameSave" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="groupDeleteLite">
+            <soap12:operation soapAction="urn:groupDeleteLite" style="document"/>
             <wsdl:input>
                 <soap12:body use="literal"/>
             </wsdl:input>
@@ -2829,8 +3250,35 @@
                 <soap12:body use="literal"/>
             </wsdl:output>
         </wsdl:operation>
+        <wsdl:operation name="assignPermissionsLite">
+            <soap12:operation soapAction="urn:assignPermissionsLite" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
         <wsdl:operation name="getPermissionAssignmentsLite">
             <soap12:operation soapAction="urn:getPermissionAssignmentsLite" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="attributeDefNameSaveLite">
+            <soap12:operation soapAction="urn:attributeDefNameSaveLite" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="attributeDefNameDelete">
+            <soap12:operation soapAction="urn:attributeDefNameDelete" style="document"/>
             <wsdl:input>
                 <soap12:body use="literal"/>
             </wsdl:input>
@@ -2856,8 +3304,8 @@
                 <soap12:body use="literal"/>
             </wsdl:output>
         </wsdl:operation>
-        <wsdl:operation name="memberChangeSubject">
-            <soap12:operation soapAction="urn:memberChangeSubject" style="document"/>
+        <wsdl:operation name="findStemsLite">
+            <soap12:operation soapAction="urn:findStemsLite" style="document"/>
             <wsdl:input>
                 <soap12:body use="literal"/>
             </wsdl:input>
@@ -2865,8 +3313,26 @@
                 <soap12:body use="literal"/>
             </wsdl:output>
         </wsdl:operation>
-        <wsdl:operation name="findStemsLite">
-            <soap12:operation soapAction="urn:findStemsLite" style="document"/>
+        <wsdl:operation name="deleteMemberLite">
+            <soap12:operation soapAction="urn:deleteMemberLite" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="findAttributeDefNames">
+            <soap12:operation soapAction="urn:findAttributeDefNames" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="memberChangeSubject">
+            <soap12:operation soapAction="urn:memberChangeSubject" style="document"/>
             <wsdl:input>
                 <soap12:body use="literal"/>
             </wsdl:input>
@@ -2883,8 +3349,17 @@
                 <soap12:body use="literal"/>
             </wsdl:output>
         </wsdl:operation>
-        <wsdl:operation name="deleteMemberLite">
-            <soap12:operation soapAction="urn:deleteMemberLite" style="document"/>
+        <wsdl:operation name="assignAttributeDefNameInheritanceLite">
+            <soap12:operation soapAction="urn:assignAttributeDefNameInheritanceLite" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="assignAttributeDefNameInheritance">
+            <soap12:operation soapAction="urn:assignAttributeDefNameInheritance" style="document"/>
             <wsdl:input>
                 <soap12:body use="literal"/>
             </wsdl:input>
@@ -2930,6 +3405,15 @@
         </wsdl:operation>
         <wsdl:operation name="getPermissionAssignments">
             <soap12:operation soapAction="urn:getPermissionAssignments" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="findAttributeDefNamesLite">
+            <soap12:operation soapAction="urn:findAttributeDefNamesLite" style="document"/>
             <wsdl:input>
                 <soap12:body use="literal"/>
             </wsdl:input>
@@ -3138,13 +3622,13 @@
                 <mime:content type="text/xml" part="addMemberLite"/>
             </wsdl:output>
         </wsdl:operation>
-        <wsdl:operation name="getAttributeAssignments">
-            <http:operation location="GrouperService/getAttributeAssignments"/>
+        <wsdl:operation name="attributeDefNameDeleteLite">
+            <http:operation location="GrouperService/attributeDefNameDeleteLite"/>
             <wsdl:input>
-                <mime:content type="text/xml" part="getAttributeAssignments"/>
+                <mime:content type="text/xml" part="attributeDefNameDeleteLite"/>
             </wsdl:input>
             <wsdl:output>
-                <mime:content type="text/xml" part="getAttributeAssignments"/>
+                <mime:content type="text/xml" part="attributeDefNameDeleteLite"/>
             </wsdl:output>
         </wsdl:operation>
         <wsdl:operation name="groupSave">
@@ -3156,6 +3640,24 @@
                 <mime:content type="text/xml" part="groupSave"/>
             </wsdl:output>
         </wsdl:operation>
+        <wsdl:operation name="getAttributeAssignments">
+            <http:operation location="GrouperService/getAttributeAssignments"/>
+            <wsdl:input>
+                <mime:content type="text/xml" part="getAttributeAssignments"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content type="text/xml" part="getAttributeAssignments"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="attributeDefNameSave">
+            <http:operation location="GrouperService/attributeDefNameSave"/>
+            <wsdl:input>
+                <mime:content type="text/xml" part="attributeDefNameSave"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content type="text/xml" part="attributeDefNameSave"/>
+            </wsdl:output>
+        </wsdl:operation>
         <wsdl:operation name="groupDeleteLite">
             <http:operation location="GrouperService/groupDeleteLite"/>
             <wsdl:input>
@@ -3163,15 +3665,6 @@
             </wsdl:input>
             <wsdl:output>
                 <mime:content type="text/xml" part="groupDeleteLite"/>
-            </wsdl:output>
-        </wsdl:operation>
-        <wsdl:operation name="assignPermissionsLite">
-            <http:operation location="GrouperService/assignPermissionsLite"/>
-            <wsdl:input>
-                <mime:content type="text/xml" part="assignPermissionsLite"/>
-            </wsdl:input>
-            <wsdl:output>
-                <mime:content type="text/xml" part="assignPermissionsLite"/>
             </wsdl:output>
         </wsdl:operation>
         <wsdl:operation name="getMembershipsLite">
@@ -3183,6 +3676,15 @@
                 <mime:content type="text/xml" part="getMembershipsLite"/>
             </wsdl:output>
         </wsdl:operation>
+        <wsdl:operation name="assignPermissionsLite">
+            <http:operation location="GrouperService/assignPermissionsLite"/>
+            <wsdl:input>
+                <mime:content type="text/xml" part="assignPermissionsLite"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content type="text/xml" part="assignPermissionsLite"/>
+            </wsdl:output>
+        </wsdl:operation>
         <wsdl:operation name="getPermissionAssignmentsLite">
             <http:operation location="GrouperService/getPermissionAssignmentsLite"/>
             <wsdl:input>
@@ -3190,6 +3692,24 @@
             </wsdl:input>
             <wsdl:output>
                 <mime:content type="text/xml" part="getPermissionAssignmentsLite"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="attributeDefNameSaveLite">
+            <http:operation location="GrouperService/attributeDefNameSaveLite"/>
+            <wsdl:input>
+                <mime:content type="text/xml" part="attributeDefNameSaveLite"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content type="text/xml" part="attributeDefNameSaveLite"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="attributeDefNameDelete">
+            <http:operation location="GrouperService/attributeDefNameDelete"/>
+            <wsdl:input>
+                <mime:content type="text/xml" part="attributeDefNameDelete"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content type="text/xml" part="attributeDefNameDelete"/>
             </wsdl:output>
         </wsdl:operation>
         <wsdl:operation name="memberChangeSubjectLite">
@@ -3210,15 +3730,6 @@
                 <mime:content type="text/xml" part="getMembers"/>
             </wsdl:output>
         </wsdl:operation>
-        <wsdl:operation name="memberChangeSubject">
-            <http:operation location="GrouperService/memberChangeSubject"/>
-            <wsdl:input>
-                <mime:content type="text/xml" part="memberChangeSubject"/>
-            </wsdl:input>
-            <wsdl:output>
-                <mime:content type="text/xml" part="memberChangeSubject"/>
-            </wsdl:output>
-        </wsdl:operation>
         <wsdl:operation name="findStemsLite">
             <http:operation location="GrouperService/findStemsLite"/>
             <wsdl:input>
@@ -3226,6 +3737,33 @@
             </wsdl:input>
             <wsdl:output>
                 <mime:content type="text/xml" part="findStemsLite"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="deleteMemberLite">
+            <http:operation location="GrouperService/deleteMemberLite"/>
+            <wsdl:input>
+                <mime:content type="text/xml" part="deleteMemberLite"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content type="text/xml" part="deleteMemberLite"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="findAttributeDefNames">
+            <http:operation location="GrouperService/findAttributeDefNames"/>
+            <wsdl:input>
+                <mime:content type="text/xml" part="findAttributeDefNames"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content type="text/xml" part="findAttributeDefNames"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="memberChangeSubject">
+            <http:operation location="GrouperService/memberChangeSubject"/>
+            <wsdl:input>
+                <mime:content type="text/xml" part="memberChangeSubject"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content type="text/xml" part="memberChangeSubject"/>
             </wsdl:output>
         </wsdl:operation>
         <wsdl:operation name="stemSave">
@@ -3237,13 +3775,22 @@
                 <mime:content type="text/xml" part="stemSave"/>
             </wsdl:output>
         </wsdl:operation>
-        <wsdl:operation name="deleteMemberLite">
-            <http:operation location="GrouperService/deleteMemberLite"/>
+        <wsdl:operation name="assignAttributeDefNameInheritanceLite">
+            <http:operation location="GrouperService/assignAttributeDefNameInheritanceLite"/>
             <wsdl:input>
-                <mime:content type="text/xml" part="deleteMemberLite"/>
+                <mime:content type="text/xml" part="assignAttributeDefNameInheritanceLite"/>
             </wsdl:input>
             <wsdl:output>
-                <mime:content type="text/xml" part="deleteMemberLite"/>
+                <mime:content type="text/xml" part="assignAttributeDefNameInheritanceLite"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="assignAttributeDefNameInheritance">
+            <http:operation location="GrouperService/assignAttributeDefNameInheritance"/>
+            <wsdl:input>
+                <mime:content type="text/xml" part="assignAttributeDefNameInheritance"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content type="text/xml" part="assignAttributeDefNameInheritance"/>
             </wsdl:output>
         </wsdl:operation>
         <wsdl:operation name="getGroupsLite">
@@ -3289,6 +3836,15 @@
             </wsdl:input>
             <wsdl:output>
                 <mime:content type="text/xml" part="getPermissionAssignments"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="findAttributeDefNamesLite">
+            <http:operation location="GrouperService/findAttributeDefNamesLite"/>
+            <wsdl:input>
+                <mime:content type="text/xml" part="findAttributeDefNamesLite"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content type="text/xml" part="findAttributeDefNamesLite"/>
             </wsdl:output>
         </wsdl:operation>
         <wsdl:operation name="getMembersLite">
