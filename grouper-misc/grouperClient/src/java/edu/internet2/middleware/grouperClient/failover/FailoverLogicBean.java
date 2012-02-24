@@ -7,6 +7,9 @@ package edu.internet2.middleware.grouperClient.failover;
  */
 public class FailoverLogicBean {
 
+  /** true if this is the last connection in the list of connections to try */
+  private boolean lastConnection = false;
+  
   /**
    * failover logic bean
    */
@@ -14,16 +17,34 @@ public class FailoverLogicBean {
     
   }
   
-  
+  /**
+   * true if this is the last connection in the list of connections to try
+   * @return true if this is the last connection
+   */
+  public boolean isLastConnection() {
+    return this.lastConnection;
+  }
+
+  /**
+   * true if this is the last connection in the list of connections to try
+   * @param lastConnection1
+   */
+  public void setLastConnection(boolean lastConnection1) {
+    this.lastConnection = lastConnection1;
+  }
+
+
   /**
    * 
    * @param runningInNewThread1
    * @param connectionName1
+   * @param isLastConnection 
    */
-  public FailoverLogicBean(boolean runningInNewThread1, String connectionName1) {
+  public FailoverLogicBean(boolean runningInNewThread1, String connectionName1, boolean isLastConnection) {
     super();
     this.runningInNewThread = runningInNewThread1;
     this.connectionName = connectionName1;
+    this.lastConnection = isLastConnection;
   }
 
 

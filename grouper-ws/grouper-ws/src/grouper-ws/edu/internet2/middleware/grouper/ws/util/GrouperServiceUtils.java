@@ -164,14 +164,14 @@ public final class GrouperServiceUtils {
    * @param <E> generic type
    * 
    * @param string
-   * @param exceptionOnNotFound true if exception should be thrown on not found
+   * @param exceptionOnNull true if exception should be thrown on null or blank
    * @return the enum or null or exception if not found
    * @throws GrouperRestInvalidRequest if there is a problem
    */
   public static <E extends Enum<?>> E enumValueOfIgnoreCase(Class<E> theEnumClass, String string, 
-      boolean exceptionOnNotFound) throws GrouperRestInvalidRequest {
+      boolean exceptionOnNull) throws GrouperRestInvalidRequest {
     
-    if (!exceptionOnNotFound && StringUtils.isBlank(string)) {
+    if (!exceptionOnNull && StringUtils.isBlank(string)) {
       return null;
     }
     for (E e : theEnumClass.getEnumConstants()) {

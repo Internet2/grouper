@@ -68,7 +68,7 @@ import edu.internet2.middleware.subject.Subject;
  */
 @SuppressWarnings("serial")
 public class AttributeDef extends GrouperAPI implements GrouperHasContext, 
-    Hib3GrouperVersioned, Owner, XmlImportable<AttributeDef>, AttributeAssignable {
+    Hib3GrouperVersioned, Owner, XmlImportable<AttributeDef>, AttributeAssignable, Comparable<AttributeDef> {
 
   /** default action */
   public static final String ACTION_DEFAULT = "assign";
@@ -1891,6 +1891,19 @@ public class AttributeDef extends GrouperAPI implements GrouperHasContext,
         AttributeDefHooks.METHOD_ATTRIBUTE_DEF_PRE_UPDATE, HooksAttributeDefBean.class, 
         this, AttributeDef.class, VetoTypeGrouper.ATTRIBUTE_DEF_PRE_UPDATE, false, false);
   
+  }
+
+
+  /**
+   * @see Comparable#compareTo(Object)
+   */
+  public int compareTo(AttributeDef that) {
+    if (that==null) {
+      return 1;
+    }
+    String thisName = StringUtils.defaultString(this.getName());
+    String thatName = StringUtils.defaultString(that.getName());
+    return thisName.compareTo(thatName);
   }
 
   

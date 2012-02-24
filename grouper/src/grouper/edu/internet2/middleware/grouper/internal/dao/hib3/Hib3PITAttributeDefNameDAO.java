@@ -55,7 +55,7 @@ public class Hib3PITAttributeDefNameDAO extends Hib3DAO implements PITAttributeD
     PITAttributeDefName pitAttributeDefName = HibernateSession
       .byHqlStatic()
       .createQuery("select attrDefName from PITAttributeDefName as attrDefName where attrDefName.sourceId = :id and activeDb = 'T'")
-      .setCacheable(false).setCacheRegion(KLASS + ".FindBySourceIdActive")
+      .setCacheable(true).setCacheRegion(KLASS + ".FindBySourceIdActive")
       .setString("id", id)
       .uniqueResult(PITAttributeDefName.class);
     
@@ -109,7 +109,7 @@ public class Hib3PITAttributeDefNameDAO extends Hib3DAO implements PITAttributeD
     PITAttributeDefName pit = HibernateSession
       .byHqlStatic()
       .createQuery("select pit from PITAttributeDefName as pit where pit.id = :id")
-      .setCacheable(false).setCacheRegion(KLASS + ".FindById")
+      .setCacheable(true).setCacheRegion(KLASS + ".FindById")
       .setString("id", id)
       .uniqueResult(PITAttributeDefName.class);
     

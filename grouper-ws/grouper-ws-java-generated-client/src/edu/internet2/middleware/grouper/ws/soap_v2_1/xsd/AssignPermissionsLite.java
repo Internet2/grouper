@@ -3,8 +3,9 @@
  * AssignPermissionsLite.java
  *
  * This file was auto-generated from WSDL
- * by the Apache Axis2 version: 1.4.1  Built on : Aug 13, 2008 (05:03:41 LKT)
+ * by the Apache Axis2 version: 1.6.1  Built on : Aug 31, 2011 (12:23:23 CEST)
  */
+
             
                 package edu.internet2.middleware.grouper.ws.soap_v2_1.xsd;
             
@@ -12,6 +13,7 @@
             /**
             *  AssignPermissionsLite bean class
             */
+            @SuppressWarnings({"unchecked","unused"})
         
         public  class AssignPermissionsLite
         implements org.apache.axis2.databinding.ADBBean{
@@ -22,15 +24,6 @@
                 "ns1");
 
             
-
-        private static java.lang.String generatePrefix(java.lang.String namespace) {
-            if(namespace.equals("http://soap_v2_1.ws.grouper.middleware.internet2.edu/xsd")){
-                return "ns1";
-            }
-            return org.apache.axis2.databinding.utils.BeanUtil.getUniquePrefix();
-        }
-
-        
 
                         /**
                         * field for ClientVersion
@@ -44,6 +37,11 @@
                            *   in the serialized XML
                            */
                            protected boolean localClientVersionTracker = false ;
+
+                           public boolean isClientVersionSpecified(){
+                               return localClientVersionTracker;
+                           }
+
                            
 
                            /**
@@ -61,14 +59,7 @@
                                * @param param ClientVersion
                                */
                                public void setClientVersion(java.lang.String param){
-                            
-                                       if (param != null){
-                                          //update the setting tracker
-                                          localClientVersionTracker = true;
-                                       } else {
-                                          localClientVersionTracker = true;
-                                              
-                                       }
+                            localClientVersionTracker = true;
                                    
                                             this.localClientVersion=param;
                                     
@@ -88,6 +79,11 @@
                            *   in the serialized XML
                            */
                            protected boolean localPermissionTypeTracker = false ;
+
+                           public boolean isPermissionTypeSpecified(){
+                               return localPermissionTypeTracker;
+                           }
+
                            
 
                            /**
@@ -105,14 +101,7 @@
                                * @param param PermissionType
                                */
                                public void setPermissionType(java.lang.String param){
-                            
-                                       if (param != null){
-                                          //update the setting tracker
-                                          localPermissionTypeTracker = true;
-                                       } else {
-                                          localPermissionTypeTracker = true;
-                                              
-                                       }
+                            localPermissionTypeTracker = true;
                                    
                                             this.localPermissionType=param;
                                     
@@ -132,6 +121,11 @@
                            *   in the serialized XML
                            */
                            protected boolean localPermissionDefNameNameTracker = false ;
+
+                           public boolean isPermissionDefNameNameSpecified(){
+                               return localPermissionDefNameNameTracker;
+                           }
+
                            
 
                            /**
@@ -149,14 +143,7 @@
                                * @param param PermissionDefNameName
                                */
                                public void setPermissionDefNameName(java.lang.String param){
-                            
-                                       if (param != null){
-                                          //update the setting tracker
-                                          localPermissionDefNameNameTracker = true;
-                                       } else {
-                                          localPermissionDefNameNameTracker = true;
-                                              
-                                       }
+                            localPermissionDefNameNameTracker = true;
                                    
                                             this.localPermissionDefNameName=param;
                                     
@@ -176,6 +163,11 @@
                            *   in the serialized XML
                            */
                            protected boolean localPermissionDefNameIdTracker = false ;
+
+                           public boolean isPermissionDefNameIdSpecified(){
+                               return localPermissionDefNameIdTracker;
+                           }
+
                            
 
                            /**
@@ -193,14 +185,7 @@
                                * @param param PermissionDefNameId
                                */
                                public void setPermissionDefNameId(java.lang.String param){
-                            
-                                       if (param != null){
-                                          //update the setting tracker
-                                          localPermissionDefNameIdTracker = true;
-                                       } else {
-                                          localPermissionDefNameIdTracker = true;
-                                              
-                                       }
+                            localPermissionDefNameIdTracker = true;
                                    
                                             this.localPermissionDefNameId=param;
                                     
@@ -220,6 +205,11 @@
                            *   in the serialized XML
                            */
                            protected boolean localPermissionAssignOperationTracker = false ;
+
+                           public boolean isPermissionAssignOperationSpecified(){
+                               return localPermissionAssignOperationTracker;
+                           }
+
                            
 
                            /**
@@ -237,14 +227,7 @@
                                * @param param PermissionAssignOperation
                                */
                                public void setPermissionAssignOperation(java.lang.String param){
-                            
-                                       if (param != null){
-                                          //update the setting tracker
-                                          localPermissionAssignOperationTracker = true;
-                                       } else {
-                                          localPermissionAssignOperationTracker = true;
-                                              
-                                       }
+                            localPermissionAssignOperationTracker = true;
                                    
                                             this.localPermissionAssignOperation=param;
                                     
@@ -264,6 +247,11 @@
                            *   in the serialized XML
                            */
                            protected boolean localAssignmentNotesTracker = false ;
+
+                           public boolean isAssignmentNotesSpecified(){
+                               return localAssignmentNotesTracker;
+                           }
+
                            
 
                            /**
@@ -281,14 +269,7 @@
                                * @param param AssignmentNotes
                                */
                                public void setAssignmentNotes(java.lang.String param){
-                            
-                                       if (param != null){
-                                          //update the setting tracker
-                                          localAssignmentNotesTracker = true;
-                                       } else {
-                                          localAssignmentNotesTracker = true;
-                                              
-                                       }
+                            localAssignmentNotesTracker = true;
                                    
                                             this.localAssignmentNotes=param;
                                     
@@ -308,6 +289,11 @@
                            *   in the serialized XML
                            */
                            protected boolean localAssignmentEnabledTimeTracker = false ;
+
+                           public boolean isAssignmentEnabledTimeSpecified(){
+                               return localAssignmentEnabledTimeTracker;
+                           }
+
                            
 
                            /**
@@ -325,14 +311,7 @@
                                * @param param AssignmentEnabledTime
                                */
                                public void setAssignmentEnabledTime(java.lang.String param){
-                            
-                                       if (param != null){
-                                          //update the setting tracker
-                                          localAssignmentEnabledTimeTracker = true;
-                                       } else {
-                                          localAssignmentEnabledTimeTracker = true;
-                                              
-                                       }
+                            localAssignmentEnabledTimeTracker = true;
                                    
                                             this.localAssignmentEnabledTime=param;
                                     
@@ -352,6 +331,11 @@
                            *   in the serialized XML
                            */
                            protected boolean localAssignmentDisabledTimeTracker = false ;
+
+                           public boolean isAssignmentDisabledTimeSpecified(){
+                               return localAssignmentDisabledTimeTracker;
+                           }
+
                            
 
                            /**
@@ -369,14 +353,7 @@
                                * @param param AssignmentDisabledTime
                                */
                                public void setAssignmentDisabledTime(java.lang.String param){
-                            
-                                       if (param != null){
-                                          //update the setting tracker
-                                          localAssignmentDisabledTimeTracker = true;
-                                       } else {
-                                          localAssignmentDisabledTimeTracker = true;
-                                              
-                                       }
+                            localAssignmentDisabledTimeTracker = true;
                                    
                                             this.localAssignmentDisabledTime=param;
                                     
@@ -396,6 +373,11 @@
                            *   in the serialized XML
                            */
                            protected boolean localDelegatableTracker = false ;
+
+                           public boolean isDelegatableSpecified(){
+                               return localDelegatableTracker;
+                           }
+
                            
 
                            /**
@@ -413,14 +395,7 @@
                                * @param param Delegatable
                                */
                                public void setDelegatable(java.lang.String param){
-                            
-                                       if (param != null){
-                                          //update the setting tracker
-                                          localDelegatableTracker = true;
-                                       } else {
-                                          localDelegatableTracker = true;
-                                              
-                                       }
+                            localDelegatableTracker = true;
                                    
                                             this.localDelegatable=param;
                                     
@@ -440,6 +415,11 @@
                            *   in the serialized XML
                            */
                            protected boolean localWsAttributeAssignIdTracker = false ;
+
+                           public boolean isWsAttributeAssignIdSpecified(){
+                               return localWsAttributeAssignIdTracker;
+                           }
+
                            
 
                            /**
@@ -457,14 +437,7 @@
                                * @param param WsAttributeAssignId
                                */
                                public void setWsAttributeAssignId(java.lang.String param){
-                            
-                                       if (param != null){
-                                          //update the setting tracker
-                                          localWsAttributeAssignIdTracker = true;
-                                       } else {
-                                          localWsAttributeAssignIdTracker = true;
-                                              
-                                       }
+                            localWsAttributeAssignIdTracker = true;
                                    
                                             this.localWsAttributeAssignId=param;
                                     
@@ -484,6 +457,11 @@
                            *   in the serialized XML
                            */
                            protected boolean localRoleNameTracker = false ;
+
+                           public boolean isRoleNameSpecified(){
+                               return localRoleNameTracker;
+                           }
+
                            
 
                            /**
@@ -501,14 +479,7 @@
                                * @param param RoleName
                                */
                                public void setRoleName(java.lang.String param){
-                            
-                                       if (param != null){
-                                          //update the setting tracker
-                                          localRoleNameTracker = true;
-                                       } else {
-                                          localRoleNameTracker = true;
-                                              
-                                       }
+                            localRoleNameTracker = true;
                                    
                                             this.localRoleName=param;
                                     
@@ -528,6 +499,11 @@
                            *   in the serialized XML
                            */
                            protected boolean localRoleIdTracker = false ;
+
+                           public boolean isRoleIdSpecified(){
+                               return localRoleIdTracker;
+                           }
+
                            
 
                            /**
@@ -545,14 +521,7 @@
                                * @param param RoleId
                                */
                                public void setRoleId(java.lang.String param){
-                            
-                                       if (param != null){
-                                          //update the setting tracker
-                                          localRoleIdTracker = true;
-                                       } else {
-                                          localRoleIdTracker = true;
-                                              
-                                       }
+                            localRoleIdTracker = true;
                                    
                                             this.localRoleId=param;
                                     
@@ -572,6 +541,11 @@
                            *   in the serialized XML
                            */
                            protected boolean localSubjectRoleNameTracker = false ;
+
+                           public boolean isSubjectRoleNameSpecified(){
+                               return localSubjectRoleNameTracker;
+                           }
+
                            
 
                            /**
@@ -589,14 +563,7 @@
                                * @param param SubjectRoleName
                                */
                                public void setSubjectRoleName(java.lang.String param){
-                            
-                                       if (param != null){
-                                          //update the setting tracker
-                                          localSubjectRoleNameTracker = true;
-                                       } else {
-                                          localSubjectRoleNameTracker = true;
-                                              
-                                       }
+                            localSubjectRoleNameTracker = true;
                                    
                                             this.localSubjectRoleName=param;
                                     
@@ -616,6 +583,11 @@
                            *   in the serialized XML
                            */
                            protected boolean localSubjectRoleIdTracker = false ;
+
+                           public boolean isSubjectRoleIdSpecified(){
+                               return localSubjectRoleIdTracker;
+                           }
+
                            
 
                            /**
@@ -633,14 +605,7 @@
                                * @param param SubjectRoleId
                                */
                                public void setSubjectRoleId(java.lang.String param){
-                            
-                                       if (param != null){
-                                          //update the setting tracker
-                                          localSubjectRoleIdTracker = true;
-                                       } else {
-                                          localSubjectRoleIdTracker = true;
-                                              
-                                       }
+                            localSubjectRoleIdTracker = true;
                                    
                                             this.localSubjectRoleId=param;
                                     
@@ -660,6 +625,11 @@
                            *   in the serialized XML
                            */
                            protected boolean localSubjectRoleSubjectIdTracker = false ;
+
+                           public boolean isSubjectRoleSubjectIdSpecified(){
+                               return localSubjectRoleSubjectIdTracker;
+                           }
+
                            
 
                            /**
@@ -677,14 +647,7 @@
                                * @param param SubjectRoleSubjectId
                                */
                                public void setSubjectRoleSubjectId(java.lang.String param){
-                            
-                                       if (param != null){
-                                          //update the setting tracker
-                                          localSubjectRoleSubjectIdTracker = true;
-                                       } else {
-                                          localSubjectRoleSubjectIdTracker = true;
-                                              
-                                       }
+                            localSubjectRoleSubjectIdTracker = true;
                                    
                                             this.localSubjectRoleSubjectId=param;
                                     
@@ -704,6 +667,11 @@
                            *   in the serialized XML
                            */
                            protected boolean localSubjectRoleSubjectSourceIdTracker = false ;
+
+                           public boolean isSubjectRoleSubjectSourceIdSpecified(){
+                               return localSubjectRoleSubjectSourceIdTracker;
+                           }
+
                            
 
                            /**
@@ -721,14 +689,7 @@
                                * @param param SubjectRoleSubjectSourceId
                                */
                                public void setSubjectRoleSubjectSourceId(java.lang.String param){
-                            
-                                       if (param != null){
-                                          //update the setting tracker
-                                          localSubjectRoleSubjectSourceIdTracker = true;
-                                       } else {
-                                          localSubjectRoleSubjectSourceIdTracker = true;
-                                              
-                                       }
+                            localSubjectRoleSubjectSourceIdTracker = true;
                                    
                                             this.localSubjectRoleSubjectSourceId=param;
                                     
@@ -748,6 +709,11 @@
                            *   in the serialized XML
                            */
                            protected boolean localSubjectRoleSubjectIdentifierTracker = false ;
+
+                           public boolean isSubjectRoleSubjectIdentifierSpecified(){
+                               return localSubjectRoleSubjectIdentifierTracker;
+                           }
+
                            
 
                            /**
@@ -765,14 +731,7 @@
                                * @param param SubjectRoleSubjectIdentifier
                                */
                                public void setSubjectRoleSubjectIdentifier(java.lang.String param){
-                            
-                                       if (param != null){
-                                          //update the setting tracker
-                                          localSubjectRoleSubjectIdentifierTracker = true;
-                                       } else {
-                                          localSubjectRoleSubjectIdentifierTracker = true;
-                                              
-                                       }
+                            localSubjectRoleSubjectIdentifierTracker = true;
                                    
                                             this.localSubjectRoleSubjectIdentifier=param;
                                     
@@ -792,6 +751,11 @@
                            *   in the serialized XML
                            */
                            protected boolean localActionTracker = false ;
+
+                           public boolean isActionSpecified(){
+                               return localActionTracker;
+                           }
+
                            
 
                            /**
@@ -809,14 +773,7 @@
                                * @param param Action
                                */
                                public void setAction(java.lang.String param){
-                            
-                                       if (param != null){
-                                          //update the setting tracker
-                                          localActionTracker = true;
-                                       } else {
-                                          localActionTracker = true;
-                                              
-                                       }
+                            localActionTracker = true;
                                    
                                             this.localAction=param;
                                     
@@ -836,6 +793,11 @@
                            *   in the serialized XML
                            */
                            protected boolean localActAsSubjectIdTracker = false ;
+
+                           public boolean isActAsSubjectIdSpecified(){
+                               return localActAsSubjectIdTracker;
+                           }
+
                            
 
                            /**
@@ -853,14 +815,7 @@
                                * @param param ActAsSubjectId
                                */
                                public void setActAsSubjectId(java.lang.String param){
-                            
-                                       if (param != null){
-                                          //update the setting tracker
-                                          localActAsSubjectIdTracker = true;
-                                       } else {
-                                          localActAsSubjectIdTracker = true;
-                                              
-                                       }
+                            localActAsSubjectIdTracker = true;
                                    
                                             this.localActAsSubjectId=param;
                                     
@@ -880,6 +835,11 @@
                            *   in the serialized XML
                            */
                            protected boolean localActAsSubjectSourceIdTracker = false ;
+
+                           public boolean isActAsSubjectSourceIdSpecified(){
+                               return localActAsSubjectSourceIdTracker;
+                           }
+
                            
 
                            /**
@@ -897,14 +857,7 @@
                                * @param param ActAsSubjectSourceId
                                */
                                public void setActAsSubjectSourceId(java.lang.String param){
-                            
-                                       if (param != null){
-                                          //update the setting tracker
-                                          localActAsSubjectSourceIdTracker = true;
-                                       } else {
-                                          localActAsSubjectSourceIdTracker = true;
-                                              
-                                       }
+                            localActAsSubjectSourceIdTracker = true;
                                    
                                             this.localActAsSubjectSourceId=param;
                                     
@@ -924,6 +877,11 @@
                            *   in the serialized XML
                            */
                            protected boolean localActAsSubjectIdentifierTracker = false ;
+
+                           public boolean isActAsSubjectIdentifierSpecified(){
+                               return localActAsSubjectIdentifierTracker;
+                           }
+
                            
 
                            /**
@@ -941,14 +899,7 @@
                                * @param param ActAsSubjectIdentifier
                                */
                                public void setActAsSubjectIdentifier(java.lang.String param){
-                            
-                                       if (param != null){
-                                          //update the setting tracker
-                                          localActAsSubjectIdentifierTracker = true;
-                                       } else {
-                                          localActAsSubjectIdentifierTracker = true;
-                                              
-                                       }
+                            localActAsSubjectIdentifierTracker = true;
                                    
                                             this.localActAsSubjectIdentifier=param;
                                     
@@ -968,6 +919,11 @@
                            *   in the serialized XML
                            */
                            protected boolean localIncludeSubjectDetailTracker = false ;
+
+                           public boolean isIncludeSubjectDetailSpecified(){
+                               return localIncludeSubjectDetailTracker;
+                           }
+
                            
 
                            /**
@@ -985,14 +941,7 @@
                                * @param param IncludeSubjectDetail
                                */
                                public void setIncludeSubjectDetail(java.lang.String param){
-                            
-                                       if (param != null){
-                                          //update the setting tracker
-                                          localIncludeSubjectDetailTracker = true;
-                                       } else {
-                                          localIncludeSubjectDetailTracker = true;
-                                              
-                                       }
+                            localIncludeSubjectDetailTracker = true;
                                    
                                             this.localIncludeSubjectDetail=param;
                                     
@@ -1012,6 +961,11 @@
                            *   in the serialized XML
                            */
                            protected boolean localSubjectAttributeNamesTracker = false ;
+
+                           public boolean isSubjectAttributeNamesSpecified(){
+                               return localSubjectAttributeNamesTracker;
+                           }
+
                            
 
                            /**
@@ -1029,14 +983,7 @@
                                * @param param SubjectAttributeNames
                                */
                                public void setSubjectAttributeNames(java.lang.String param){
-                            
-                                       if (param != null){
-                                          //update the setting tracker
-                                          localSubjectAttributeNamesTracker = true;
-                                       } else {
-                                          localSubjectAttributeNamesTracker = true;
-                                              
-                                       }
+                            localSubjectAttributeNamesTracker = true;
                                    
                                             this.localSubjectAttributeNames=param;
                                     
@@ -1056,6 +1003,11 @@
                            *   in the serialized XML
                            */
                            protected boolean localIncludeGroupDetailTracker = false ;
+
+                           public boolean isIncludeGroupDetailSpecified(){
+                               return localIncludeGroupDetailTracker;
+                           }
+
                            
 
                            /**
@@ -1073,14 +1025,7 @@
                                * @param param IncludeGroupDetail
                                */
                                public void setIncludeGroupDetail(java.lang.String param){
-                            
-                                       if (param != null){
-                                          //update the setting tracker
-                                          localIncludeGroupDetailTracker = true;
-                                       } else {
-                                          localIncludeGroupDetailTracker = true;
-                                              
-                                       }
+                            localIncludeGroupDetailTracker = true;
                                    
                                             this.localIncludeGroupDetail=param;
                                     
@@ -1100,6 +1045,11 @@
                            *   in the serialized XML
                            */
                            protected boolean localParamName0Tracker = false ;
+
+                           public boolean isParamName0Specified(){
+                               return localParamName0Tracker;
+                           }
+
                            
 
                            /**
@@ -1117,14 +1067,7 @@
                                * @param param ParamName0
                                */
                                public void setParamName0(java.lang.String param){
-                            
-                                       if (param != null){
-                                          //update the setting tracker
-                                          localParamName0Tracker = true;
-                                       } else {
-                                          localParamName0Tracker = true;
-                                              
-                                       }
+                            localParamName0Tracker = true;
                                    
                                             this.localParamName0=param;
                                     
@@ -1144,6 +1087,11 @@
                            *   in the serialized XML
                            */
                            protected boolean localParamValue0Tracker = false ;
+
+                           public boolean isParamValue0Specified(){
+                               return localParamValue0Tracker;
+                           }
+
                            
 
                            /**
@@ -1161,14 +1109,7 @@
                                * @param param ParamValue0
                                */
                                public void setParamValue0(java.lang.String param){
-                            
-                                       if (param != null){
-                                          //update the setting tracker
-                                          localParamValue0Tracker = true;
-                                       } else {
-                                          localParamValue0Tracker = true;
-                                              
-                                       }
+                            localParamValue0Tracker = true;
                                    
                                             this.localParamValue0=param;
                                     
@@ -1188,6 +1129,11 @@
                            *   in the serialized XML
                            */
                            protected boolean localParamName1Tracker = false ;
+
+                           public boolean isParamName1Specified(){
+                               return localParamName1Tracker;
+                           }
+
                            
 
                            /**
@@ -1205,14 +1151,7 @@
                                * @param param ParamName1
                                */
                                public void setParamName1(java.lang.String param){
-                            
-                                       if (param != null){
-                                          //update the setting tracker
-                                          localParamName1Tracker = true;
-                                       } else {
-                                          localParamName1Tracker = true;
-                                              
-                                       }
+                            localParamName1Tracker = true;
                                    
                                             this.localParamName1=param;
                                     
@@ -1232,6 +1171,11 @@
                            *   in the serialized XML
                            */
                            protected boolean localParamValue1Tracker = false ;
+
+                           public boolean isParamValue1Specified(){
+                               return localParamValue1Tracker;
+                           }
+
                            
 
                            /**
@@ -1249,14 +1193,7 @@
                                * @param param ParamValue1
                                */
                                public void setParamValue1(java.lang.String param){
-                            
-                                       if (param != null){
-                                          //update the setting tracker
-                                          localParamValue1Tracker = true;
-                                       } else {
-                                          localParamValue1Tracker = true;
-                                              
-                                       }
+                            localParamValue1Tracker = true;
                                    
                                             this.localParamValue1=param;
                                     
@@ -1276,6 +1213,11 @@
                            *   in the serialized XML
                            */
                            protected boolean localDisallowedTracker = false ;
+
+                           public boolean isDisallowedSpecified(){
+                               return localDisallowedTracker;
+                           }
+
                            
 
                            /**
@@ -1293,14 +1235,7 @@
                                * @param param Disallowed
                                */
                                public void setDisallowed(java.lang.String param){
-                            
-                                       if (param != null){
-                                          //update the setting tracker
-                                          localDisallowedTracker = true;
-                                       } else {
-                                          localDisallowedTracker = true;
-                                              
-                                       }
+                            localDisallowedTracker = true;
                                    
                                             this.localDisallowed=param;
                                     
@@ -1308,20 +1243,6 @@
                                }
                             
 
-     /**
-     * isReaderMTOMAware
-     * @return true if the reader supports MTOM
-     */
-   public static boolean isReaderMTOMAware(javax.xml.stream.XMLStreamReader reader) {
-        boolean isReaderMTOMAware = false;
-        
-        try{
-          isReaderMTOMAware = java.lang.Boolean.TRUE.equals(reader.getProperty(org.apache.axiom.om.OMConstants.IS_DATA_HANDLERS_AWARE));
-        }catch(java.lang.IllegalArgumentException e){
-          isReaderMTOMAware = false;
-        }
-        return isReaderMTOMAware;
-   }
      
      
         /**
@@ -1336,28 +1257,20 @@
 
 
         
-                org.apache.axiom.om.OMDataSource dataSource =
-                       new org.apache.axis2.databinding.ADBDataSource(this,MY_QNAME){
-
-                 public void serialize(org.apache.axis2.databinding.utils.writer.MTOMAwareXMLStreamWriter xmlWriter) throws javax.xml.stream.XMLStreamException {
-                       AssignPermissionsLite.this.serialize(MY_QNAME,factory,xmlWriter);
-                 }
-               };
-               return new org.apache.axiom.om.impl.llom.OMSourcedElementImpl(
-               MY_QNAME,factory,dataSource);
+               org.apache.axiom.om.OMDataSource dataSource =
+                       new org.apache.axis2.databinding.ADBDataSource(this,MY_QNAME);
+               return factory.createOMElement(dataSource,MY_QNAME);
             
-       }
+        }
 
          public void serialize(final javax.xml.namespace.QName parentQName,
-                                       final org.apache.axiom.om.OMFactory factory,
-                                       org.apache.axis2.databinding.utils.writer.MTOMAwareXMLStreamWriter xmlWriter)
+                                       javax.xml.stream.XMLStreamWriter xmlWriter)
                                 throws javax.xml.stream.XMLStreamException, org.apache.axis2.databinding.ADBException{
-                           serialize(parentQName,factory,xmlWriter,false);
+                           serialize(parentQName,xmlWriter,false);
          }
 
          public void serialize(final javax.xml.namespace.QName parentQName,
-                               final org.apache.axiom.om.OMFactory factory,
-                               org.apache.axis2.databinding.utils.writer.MTOMAwareXMLStreamWriter xmlWriter,
+                               javax.xml.stream.XMLStreamWriter xmlWriter,
                                boolean serializeType)
             throws javax.xml.stream.XMLStreamException, org.apache.axis2.databinding.ADBException{
             
@@ -1370,23 +1283,7 @@
 
                     prefix = parentQName.getPrefix();
                     namespace = parentQName.getNamespaceURI();
-
-                    if ((namespace != null) && (namespace.trim().length() > 0)) {
-                        java.lang.String writerPrefix = xmlWriter.getPrefix(namespace);
-                        if (writerPrefix != null) {
-                            xmlWriter.writeStartElement(namespace, parentQName.getLocalPart());
-                        } else {
-                            if (prefix == null) {
-                                prefix = generatePrefix(namespace);
-                            }
-
-                            xmlWriter.writeStartElement(prefix, parentQName.getLocalPart(), namespace);
-                            xmlWriter.writeNamespace(prefix, namespace);
-                            xmlWriter.setPrefix(prefix, namespace);
-                        }
-                    } else {
-                        xmlWriter.writeStartElement(parentQName.getLocalPart());
-                    }
+                    writeStartElement(prefix, namespace, parentQName.getLocalPart(), xmlWriter);
                 
                   if (serializeType){
                
@@ -1406,24 +1303,8 @@
                    }
                 if (localClientVersionTracker){
                                     namespace = "http://soap_v2_1.ws.grouper.middleware.internet2.edu/xsd";
-                                    if (! namespace.equals("")) {
-                                        prefix = xmlWriter.getPrefix(namespace);
-
-                                        if (prefix == null) {
-                                            prefix = generatePrefix(namespace);
-
-                                            xmlWriter.writeStartElement(prefix,"clientVersion", namespace);
-                                            xmlWriter.writeNamespace(prefix, namespace);
-                                            xmlWriter.setPrefix(prefix, namespace);
-
-                                        } else {
-                                            xmlWriter.writeStartElement(namespace,"clientVersion");
-                                        }
-
-                                    } else {
-                                        xmlWriter.writeStartElement("clientVersion");
-                                    }
-                                
+                                    writeStartElement(null, namespace, "clientVersion", xmlWriter);
+                             
 
                                           if (localClientVersion==null){
                                               // write the nil attribute
@@ -1440,24 +1321,8 @@
                                    xmlWriter.writeEndElement();
                              } if (localPermissionTypeTracker){
                                     namespace = "http://soap_v2_1.ws.grouper.middleware.internet2.edu/xsd";
-                                    if (! namespace.equals("")) {
-                                        prefix = xmlWriter.getPrefix(namespace);
-
-                                        if (prefix == null) {
-                                            prefix = generatePrefix(namespace);
-
-                                            xmlWriter.writeStartElement(prefix,"permissionType", namespace);
-                                            xmlWriter.writeNamespace(prefix, namespace);
-                                            xmlWriter.setPrefix(prefix, namespace);
-
-                                        } else {
-                                            xmlWriter.writeStartElement(namespace,"permissionType");
-                                        }
-
-                                    } else {
-                                        xmlWriter.writeStartElement("permissionType");
-                                    }
-                                
+                                    writeStartElement(null, namespace, "permissionType", xmlWriter);
+                             
 
                                           if (localPermissionType==null){
                                               // write the nil attribute
@@ -1474,24 +1339,8 @@
                                    xmlWriter.writeEndElement();
                              } if (localPermissionDefNameNameTracker){
                                     namespace = "http://soap_v2_1.ws.grouper.middleware.internet2.edu/xsd";
-                                    if (! namespace.equals("")) {
-                                        prefix = xmlWriter.getPrefix(namespace);
-
-                                        if (prefix == null) {
-                                            prefix = generatePrefix(namespace);
-
-                                            xmlWriter.writeStartElement(prefix,"permissionDefNameName", namespace);
-                                            xmlWriter.writeNamespace(prefix, namespace);
-                                            xmlWriter.setPrefix(prefix, namespace);
-
-                                        } else {
-                                            xmlWriter.writeStartElement(namespace,"permissionDefNameName");
-                                        }
-
-                                    } else {
-                                        xmlWriter.writeStartElement("permissionDefNameName");
-                                    }
-                                
+                                    writeStartElement(null, namespace, "permissionDefNameName", xmlWriter);
+                             
 
                                           if (localPermissionDefNameName==null){
                                               // write the nil attribute
@@ -1508,24 +1357,8 @@
                                    xmlWriter.writeEndElement();
                              } if (localPermissionDefNameIdTracker){
                                     namespace = "http://soap_v2_1.ws.grouper.middleware.internet2.edu/xsd";
-                                    if (! namespace.equals("")) {
-                                        prefix = xmlWriter.getPrefix(namespace);
-
-                                        if (prefix == null) {
-                                            prefix = generatePrefix(namespace);
-
-                                            xmlWriter.writeStartElement(prefix,"permissionDefNameId", namespace);
-                                            xmlWriter.writeNamespace(prefix, namespace);
-                                            xmlWriter.setPrefix(prefix, namespace);
-
-                                        } else {
-                                            xmlWriter.writeStartElement(namespace,"permissionDefNameId");
-                                        }
-
-                                    } else {
-                                        xmlWriter.writeStartElement("permissionDefNameId");
-                                    }
-                                
+                                    writeStartElement(null, namespace, "permissionDefNameId", xmlWriter);
+                             
 
                                           if (localPermissionDefNameId==null){
                                               // write the nil attribute
@@ -1542,24 +1375,8 @@
                                    xmlWriter.writeEndElement();
                              } if (localPermissionAssignOperationTracker){
                                     namespace = "http://soap_v2_1.ws.grouper.middleware.internet2.edu/xsd";
-                                    if (! namespace.equals("")) {
-                                        prefix = xmlWriter.getPrefix(namespace);
-
-                                        if (prefix == null) {
-                                            prefix = generatePrefix(namespace);
-
-                                            xmlWriter.writeStartElement(prefix,"permissionAssignOperation", namespace);
-                                            xmlWriter.writeNamespace(prefix, namespace);
-                                            xmlWriter.setPrefix(prefix, namespace);
-
-                                        } else {
-                                            xmlWriter.writeStartElement(namespace,"permissionAssignOperation");
-                                        }
-
-                                    } else {
-                                        xmlWriter.writeStartElement("permissionAssignOperation");
-                                    }
-                                
+                                    writeStartElement(null, namespace, "permissionAssignOperation", xmlWriter);
+                             
 
                                           if (localPermissionAssignOperation==null){
                                               // write the nil attribute
@@ -1576,24 +1393,8 @@
                                    xmlWriter.writeEndElement();
                              } if (localAssignmentNotesTracker){
                                     namespace = "http://soap_v2_1.ws.grouper.middleware.internet2.edu/xsd";
-                                    if (! namespace.equals("")) {
-                                        prefix = xmlWriter.getPrefix(namespace);
-
-                                        if (prefix == null) {
-                                            prefix = generatePrefix(namespace);
-
-                                            xmlWriter.writeStartElement(prefix,"assignmentNotes", namespace);
-                                            xmlWriter.writeNamespace(prefix, namespace);
-                                            xmlWriter.setPrefix(prefix, namespace);
-
-                                        } else {
-                                            xmlWriter.writeStartElement(namespace,"assignmentNotes");
-                                        }
-
-                                    } else {
-                                        xmlWriter.writeStartElement("assignmentNotes");
-                                    }
-                                
+                                    writeStartElement(null, namespace, "assignmentNotes", xmlWriter);
+                             
 
                                           if (localAssignmentNotes==null){
                                               // write the nil attribute
@@ -1610,24 +1411,8 @@
                                    xmlWriter.writeEndElement();
                              } if (localAssignmentEnabledTimeTracker){
                                     namespace = "http://soap_v2_1.ws.grouper.middleware.internet2.edu/xsd";
-                                    if (! namespace.equals("")) {
-                                        prefix = xmlWriter.getPrefix(namespace);
-
-                                        if (prefix == null) {
-                                            prefix = generatePrefix(namespace);
-
-                                            xmlWriter.writeStartElement(prefix,"assignmentEnabledTime", namespace);
-                                            xmlWriter.writeNamespace(prefix, namespace);
-                                            xmlWriter.setPrefix(prefix, namespace);
-
-                                        } else {
-                                            xmlWriter.writeStartElement(namespace,"assignmentEnabledTime");
-                                        }
-
-                                    } else {
-                                        xmlWriter.writeStartElement("assignmentEnabledTime");
-                                    }
-                                
+                                    writeStartElement(null, namespace, "assignmentEnabledTime", xmlWriter);
+                             
 
                                           if (localAssignmentEnabledTime==null){
                                               // write the nil attribute
@@ -1644,24 +1429,8 @@
                                    xmlWriter.writeEndElement();
                              } if (localAssignmentDisabledTimeTracker){
                                     namespace = "http://soap_v2_1.ws.grouper.middleware.internet2.edu/xsd";
-                                    if (! namespace.equals("")) {
-                                        prefix = xmlWriter.getPrefix(namespace);
-
-                                        if (prefix == null) {
-                                            prefix = generatePrefix(namespace);
-
-                                            xmlWriter.writeStartElement(prefix,"assignmentDisabledTime", namespace);
-                                            xmlWriter.writeNamespace(prefix, namespace);
-                                            xmlWriter.setPrefix(prefix, namespace);
-
-                                        } else {
-                                            xmlWriter.writeStartElement(namespace,"assignmentDisabledTime");
-                                        }
-
-                                    } else {
-                                        xmlWriter.writeStartElement("assignmentDisabledTime");
-                                    }
-                                
+                                    writeStartElement(null, namespace, "assignmentDisabledTime", xmlWriter);
+                             
 
                                           if (localAssignmentDisabledTime==null){
                                               // write the nil attribute
@@ -1678,24 +1447,8 @@
                                    xmlWriter.writeEndElement();
                              } if (localDelegatableTracker){
                                     namespace = "http://soap_v2_1.ws.grouper.middleware.internet2.edu/xsd";
-                                    if (! namespace.equals("")) {
-                                        prefix = xmlWriter.getPrefix(namespace);
-
-                                        if (prefix == null) {
-                                            prefix = generatePrefix(namespace);
-
-                                            xmlWriter.writeStartElement(prefix,"delegatable", namespace);
-                                            xmlWriter.writeNamespace(prefix, namespace);
-                                            xmlWriter.setPrefix(prefix, namespace);
-
-                                        } else {
-                                            xmlWriter.writeStartElement(namespace,"delegatable");
-                                        }
-
-                                    } else {
-                                        xmlWriter.writeStartElement("delegatable");
-                                    }
-                                
+                                    writeStartElement(null, namespace, "delegatable", xmlWriter);
+                             
 
                                           if (localDelegatable==null){
                                               // write the nil attribute
@@ -1712,24 +1465,8 @@
                                    xmlWriter.writeEndElement();
                              } if (localWsAttributeAssignIdTracker){
                                     namespace = "http://soap_v2_1.ws.grouper.middleware.internet2.edu/xsd";
-                                    if (! namespace.equals("")) {
-                                        prefix = xmlWriter.getPrefix(namespace);
-
-                                        if (prefix == null) {
-                                            prefix = generatePrefix(namespace);
-
-                                            xmlWriter.writeStartElement(prefix,"wsAttributeAssignId", namespace);
-                                            xmlWriter.writeNamespace(prefix, namespace);
-                                            xmlWriter.setPrefix(prefix, namespace);
-
-                                        } else {
-                                            xmlWriter.writeStartElement(namespace,"wsAttributeAssignId");
-                                        }
-
-                                    } else {
-                                        xmlWriter.writeStartElement("wsAttributeAssignId");
-                                    }
-                                
+                                    writeStartElement(null, namespace, "wsAttributeAssignId", xmlWriter);
+                             
 
                                           if (localWsAttributeAssignId==null){
                                               // write the nil attribute
@@ -1746,24 +1483,8 @@
                                    xmlWriter.writeEndElement();
                              } if (localRoleNameTracker){
                                     namespace = "http://soap_v2_1.ws.grouper.middleware.internet2.edu/xsd";
-                                    if (! namespace.equals("")) {
-                                        prefix = xmlWriter.getPrefix(namespace);
-
-                                        if (prefix == null) {
-                                            prefix = generatePrefix(namespace);
-
-                                            xmlWriter.writeStartElement(prefix,"roleName", namespace);
-                                            xmlWriter.writeNamespace(prefix, namespace);
-                                            xmlWriter.setPrefix(prefix, namespace);
-
-                                        } else {
-                                            xmlWriter.writeStartElement(namespace,"roleName");
-                                        }
-
-                                    } else {
-                                        xmlWriter.writeStartElement("roleName");
-                                    }
-                                
+                                    writeStartElement(null, namespace, "roleName", xmlWriter);
+                             
 
                                           if (localRoleName==null){
                                               // write the nil attribute
@@ -1780,24 +1501,8 @@
                                    xmlWriter.writeEndElement();
                              } if (localRoleIdTracker){
                                     namespace = "http://soap_v2_1.ws.grouper.middleware.internet2.edu/xsd";
-                                    if (! namespace.equals("")) {
-                                        prefix = xmlWriter.getPrefix(namespace);
-
-                                        if (prefix == null) {
-                                            prefix = generatePrefix(namespace);
-
-                                            xmlWriter.writeStartElement(prefix,"roleId", namespace);
-                                            xmlWriter.writeNamespace(prefix, namespace);
-                                            xmlWriter.setPrefix(prefix, namespace);
-
-                                        } else {
-                                            xmlWriter.writeStartElement(namespace,"roleId");
-                                        }
-
-                                    } else {
-                                        xmlWriter.writeStartElement("roleId");
-                                    }
-                                
+                                    writeStartElement(null, namespace, "roleId", xmlWriter);
+                             
 
                                           if (localRoleId==null){
                                               // write the nil attribute
@@ -1814,24 +1519,8 @@
                                    xmlWriter.writeEndElement();
                              } if (localSubjectRoleNameTracker){
                                     namespace = "http://soap_v2_1.ws.grouper.middleware.internet2.edu/xsd";
-                                    if (! namespace.equals("")) {
-                                        prefix = xmlWriter.getPrefix(namespace);
-
-                                        if (prefix == null) {
-                                            prefix = generatePrefix(namespace);
-
-                                            xmlWriter.writeStartElement(prefix,"subjectRoleName", namespace);
-                                            xmlWriter.writeNamespace(prefix, namespace);
-                                            xmlWriter.setPrefix(prefix, namespace);
-
-                                        } else {
-                                            xmlWriter.writeStartElement(namespace,"subjectRoleName");
-                                        }
-
-                                    } else {
-                                        xmlWriter.writeStartElement("subjectRoleName");
-                                    }
-                                
+                                    writeStartElement(null, namespace, "subjectRoleName", xmlWriter);
+                             
 
                                           if (localSubjectRoleName==null){
                                               // write the nil attribute
@@ -1848,24 +1537,8 @@
                                    xmlWriter.writeEndElement();
                              } if (localSubjectRoleIdTracker){
                                     namespace = "http://soap_v2_1.ws.grouper.middleware.internet2.edu/xsd";
-                                    if (! namespace.equals("")) {
-                                        prefix = xmlWriter.getPrefix(namespace);
-
-                                        if (prefix == null) {
-                                            prefix = generatePrefix(namespace);
-
-                                            xmlWriter.writeStartElement(prefix,"subjectRoleId", namespace);
-                                            xmlWriter.writeNamespace(prefix, namespace);
-                                            xmlWriter.setPrefix(prefix, namespace);
-
-                                        } else {
-                                            xmlWriter.writeStartElement(namespace,"subjectRoleId");
-                                        }
-
-                                    } else {
-                                        xmlWriter.writeStartElement("subjectRoleId");
-                                    }
-                                
+                                    writeStartElement(null, namespace, "subjectRoleId", xmlWriter);
+                             
 
                                           if (localSubjectRoleId==null){
                                               // write the nil attribute
@@ -1882,24 +1555,8 @@
                                    xmlWriter.writeEndElement();
                              } if (localSubjectRoleSubjectIdTracker){
                                     namespace = "http://soap_v2_1.ws.grouper.middleware.internet2.edu/xsd";
-                                    if (! namespace.equals("")) {
-                                        prefix = xmlWriter.getPrefix(namespace);
-
-                                        if (prefix == null) {
-                                            prefix = generatePrefix(namespace);
-
-                                            xmlWriter.writeStartElement(prefix,"subjectRoleSubjectId", namespace);
-                                            xmlWriter.writeNamespace(prefix, namespace);
-                                            xmlWriter.setPrefix(prefix, namespace);
-
-                                        } else {
-                                            xmlWriter.writeStartElement(namespace,"subjectRoleSubjectId");
-                                        }
-
-                                    } else {
-                                        xmlWriter.writeStartElement("subjectRoleSubjectId");
-                                    }
-                                
+                                    writeStartElement(null, namespace, "subjectRoleSubjectId", xmlWriter);
+                             
 
                                           if (localSubjectRoleSubjectId==null){
                                               // write the nil attribute
@@ -1916,24 +1573,8 @@
                                    xmlWriter.writeEndElement();
                              } if (localSubjectRoleSubjectSourceIdTracker){
                                     namespace = "http://soap_v2_1.ws.grouper.middleware.internet2.edu/xsd";
-                                    if (! namespace.equals("")) {
-                                        prefix = xmlWriter.getPrefix(namespace);
-
-                                        if (prefix == null) {
-                                            prefix = generatePrefix(namespace);
-
-                                            xmlWriter.writeStartElement(prefix,"subjectRoleSubjectSourceId", namespace);
-                                            xmlWriter.writeNamespace(prefix, namespace);
-                                            xmlWriter.setPrefix(prefix, namespace);
-
-                                        } else {
-                                            xmlWriter.writeStartElement(namespace,"subjectRoleSubjectSourceId");
-                                        }
-
-                                    } else {
-                                        xmlWriter.writeStartElement("subjectRoleSubjectSourceId");
-                                    }
-                                
+                                    writeStartElement(null, namespace, "subjectRoleSubjectSourceId", xmlWriter);
+                             
 
                                           if (localSubjectRoleSubjectSourceId==null){
                                               // write the nil attribute
@@ -1950,24 +1591,8 @@
                                    xmlWriter.writeEndElement();
                              } if (localSubjectRoleSubjectIdentifierTracker){
                                     namespace = "http://soap_v2_1.ws.grouper.middleware.internet2.edu/xsd";
-                                    if (! namespace.equals("")) {
-                                        prefix = xmlWriter.getPrefix(namespace);
-
-                                        if (prefix == null) {
-                                            prefix = generatePrefix(namespace);
-
-                                            xmlWriter.writeStartElement(prefix,"subjectRoleSubjectIdentifier", namespace);
-                                            xmlWriter.writeNamespace(prefix, namespace);
-                                            xmlWriter.setPrefix(prefix, namespace);
-
-                                        } else {
-                                            xmlWriter.writeStartElement(namespace,"subjectRoleSubjectIdentifier");
-                                        }
-
-                                    } else {
-                                        xmlWriter.writeStartElement("subjectRoleSubjectIdentifier");
-                                    }
-                                
+                                    writeStartElement(null, namespace, "subjectRoleSubjectIdentifier", xmlWriter);
+                             
 
                                           if (localSubjectRoleSubjectIdentifier==null){
                                               // write the nil attribute
@@ -1984,24 +1609,8 @@
                                    xmlWriter.writeEndElement();
                              } if (localActionTracker){
                                     namespace = "http://soap_v2_1.ws.grouper.middleware.internet2.edu/xsd";
-                                    if (! namespace.equals("")) {
-                                        prefix = xmlWriter.getPrefix(namespace);
-
-                                        if (prefix == null) {
-                                            prefix = generatePrefix(namespace);
-
-                                            xmlWriter.writeStartElement(prefix,"action", namespace);
-                                            xmlWriter.writeNamespace(prefix, namespace);
-                                            xmlWriter.setPrefix(prefix, namespace);
-
-                                        } else {
-                                            xmlWriter.writeStartElement(namespace,"action");
-                                        }
-
-                                    } else {
-                                        xmlWriter.writeStartElement("action");
-                                    }
-                                
+                                    writeStartElement(null, namespace, "action", xmlWriter);
+                             
 
                                           if (localAction==null){
                                               // write the nil attribute
@@ -2018,24 +1627,8 @@
                                    xmlWriter.writeEndElement();
                              } if (localActAsSubjectIdTracker){
                                     namespace = "http://soap_v2_1.ws.grouper.middleware.internet2.edu/xsd";
-                                    if (! namespace.equals("")) {
-                                        prefix = xmlWriter.getPrefix(namespace);
-
-                                        if (prefix == null) {
-                                            prefix = generatePrefix(namespace);
-
-                                            xmlWriter.writeStartElement(prefix,"actAsSubjectId", namespace);
-                                            xmlWriter.writeNamespace(prefix, namespace);
-                                            xmlWriter.setPrefix(prefix, namespace);
-
-                                        } else {
-                                            xmlWriter.writeStartElement(namespace,"actAsSubjectId");
-                                        }
-
-                                    } else {
-                                        xmlWriter.writeStartElement("actAsSubjectId");
-                                    }
-                                
+                                    writeStartElement(null, namespace, "actAsSubjectId", xmlWriter);
+                             
 
                                           if (localActAsSubjectId==null){
                                               // write the nil attribute
@@ -2052,24 +1645,8 @@
                                    xmlWriter.writeEndElement();
                              } if (localActAsSubjectSourceIdTracker){
                                     namespace = "http://soap_v2_1.ws.grouper.middleware.internet2.edu/xsd";
-                                    if (! namespace.equals("")) {
-                                        prefix = xmlWriter.getPrefix(namespace);
-
-                                        if (prefix == null) {
-                                            prefix = generatePrefix(namespace);
-
-                                            xmlWriter.writeStartElement(prefix,"actAsSubjectSourceId", namespace);
-                                            xmlWriter.writeNamespace(prefix, namespace);
-                                            xmlWriter.setPrefix(prefix, namespace);
-
-                                        } else {
-                                            xmlWriter.writeStartElement(namespace,"actAsSubjectSourceId");
-                                        }
-
-                                    } else {
-                                        xmlWriter.writeStartElement("actAsSubjectSourceId");
-                                    }
-                                
+                                    writeStartElement(null, namespace, "actAsSubjectSourceId", xmlWriter);
+                             
 
                                           if (localActAsSubjectSourceId==null){
                                               // write the nil attribute
@@ -2086,24 +1663,8 @@
                                    xmlWriter.writeEndElement();
                              } if (localActAsSubjectIdentifierTracker){
                                     namespace = "http://soap_v2_1.ws.grouper.middleware.internet2.edu/xsd";
-                                    if (! namespace.equals("")) {
-                                        prefix = xmlWriter.getPrefix(namespace);
-
-                                        if (prefix == null) {
-                                            prefix = generatePrefix(namespace);
-
-                                            xmlWriter.writeStartElement(prefix,"actAsSubjectIdentifier", namespace);
-                                            xmlWriter.writeNamespace(prefix, namespace);
-                                            xmlWriter.setPrefix(prefix, namespace);
-
-                                        } else {
-                                            xmlWriter.writeStartElement(namespace,"actAsSubjectIdentifier");
-                                        }
-
-                                    } else {
-                                        xmlWriter.writeStartElement("actAsSubjectIdentifier");
-                                    }
-                                
+                                    writeStartElement(null, namespace, "actAsSubjectIdentifier", xmlWriter);
+                             
 
                                           if (localActAsSubjectIdentifier==null){
                                               // write the nil attribute
@@ -2120,24 +1681,8 @@
                                    xmlWriter.writeEndElement();
                              } if (localIncludeSubjectDetailTracker){
                                     namespace = "http://soap_v2_1.ws.grouper.middleware.internet2.edu/xsd";
-                                    if (! namespace.equals("")) {
-                                        prefix = xmlWriter.getPrefix(namespace);
-
-                                        if (prefix == null) {
-                                            prefix = generatePrefix(namespace);
-
-                                            xmlWriter.writeStartElement(prefix,"includeSubjectDetail", namespace);
-                                            xmlWriter.writeNamespace(prefix, namespace);
-                                            xmlWriter.setPrefix(prefix, namespace);
-
-                                        } else {
-                                            xmlWriter.writeStartElement(namespace,"includeSubjectDetail");
-                                        }
-
-                                    } else {
-                                        xmlWriter.writeStartElement("includeSubjectDetail");
-                                    }
-                                
+                                    writeStartElement(null, namespace, "includeSubjectDetail", xmlWriter);
+                             
 
                                           if (localIncludeSubjectDetail==null){
                                               // write the nil attribute
@@ -2154,24 +1699,8 @@
                                    xmlWriter.writeEndElement();
                              } if (localSubjectAttributeNamesTracker){
                                     namespace = "http://soap_v2_1.ws.grouper.middleware.internet2.edu/xsd";
-                                    if (! namespace.equals("")) {
-                                        prefix = xmlWriter.getPrefix(namespace);
-
-                                        if (prefix == null) {
-                                            prefix = generatePrefix(namespace);
-
-                                            xmlWriter.writeStartElement(prefix,"subjectAttributeNames", namespace);
-                                            xmlWriter.writeNamespace(prefix, namespace);
-                                            xmlWriter.setPrefix(prefix, namespace);
-
-                                        } else {
-                                            xmlWriter.writeStartElement(namespace,"subjectAttributeNames");
-                                        }
-
-                                    } else {
-                                        xmlWriter.writeStartElement("subjectAttributeNames");
-                                    }
-                                
+                                    writeStartElement(null, namespace, "subjectAttributeNames", xmlWriter);
+                             
 
                                           if (localSubjectAttributeNames==null){
                                               // write the nil attribute
@@ -2188,24 +1717,8 @@
                                    xmlWriter.writeEndElement();
                              } if (localIncludeGroupDetailTracker){
                                     namespace = "http://soap_v2_1.ws.grouper.middleware.internet2.edu/xsd";
-                                    if (! namespace.equals("")) {
-                                        prefix = xmlWriter.getPrefix(namespace);
-
-                                        if (prefix == null) {
-                                            prefix = generatePrefix(namespace);
-
-                                            xmlWriter.writeStartElement(prefix,"includeGroupDetail", namespace);
-                                            xmlWriter.writeNamespace(prefix, namespace);
-                                            xmlWriter.setPrefix(prefix, namespace);
-
-                                        } else {
-                                            xmlWriter.writeStartElement(namespace,"includeGroupDetail");
-                                        }
-
-                                    } else {
-                                        xmlWriter.writeStartElement("includeGroupDetail");
-                                    }
-                                
+                                    writeStartElement(null, namespace, "includeGroupDetail", xmlWriter);
+                             
 
                                           if (localIncludeGroupDetail==null){
                                               // write the nil attribute
@@ -2222,24 +1735,8 @@
                                    xmlWriter.writeEndElement();
                              } if (localParamName0Tracker){
                                     namespace = "http://soap_v2_1.ws.grouper.middleware.internet2.edu/xsd";
-                                    if (! namespace.equals("")) {
-                                        prefix = xmlWriter.getPrefix(namespace);
-
-                                        if (prefix == null) {
-                                            prefix = generatePrefix(namespace);
-
-                                            xmlWriter.writeStartElement(prefix,"paramName0", namespace);
-                                            xmlWriter.writeNamespace(prefix, namespace);
-                                            xmlWriter.setPrefix(prefix, namespace);
-
-                                        } else {
-                                            xmlWriter.writeStartElement(namespace,"paramName0");
-                                        }
-
-                                    } else {
-                                        xmlWriter.writeStartElement("paramName0");
-                                    }
-                                
+                                    writeStartElement(null, namespace, "paramName0", xmlWriter);
+                             
 
                                           if (localParamName0==null){
                                               // write the nil attribute
@@ -2256,24 +1753,8 @@
                                    xmlWriter.writeEndElement();
                              } if (localParamValue0Tracker){
                                     namespace = "http://soap_v2_1.ws.grouper.middleware.internet2.edu/xsd";
-                                    if (! namespace.equals("")) {
-                                        prefix = xmlWriter.getPrefix(namespace);
-
-                                        if (prefix == null) {
-                                            prefix = generatePrefix(namespace);
-
-                                            xmlWriter.writeStartElement(prefix,"paramValue0", namespace);
-                                            xmlWriter.writeNamespace(prefix, namespace);
-                                            xmlWriter.setPrefix(prefix, namespace);
-
-                                        } else {
-                                            xmlWriter.writeStartElement(namespace,"paramValue0");
-                                        }
-
-                                    } else {
-                                        xmlWriter.writeStartElement("paramValue0");
-                                    }
-                                
+                                    writeStartElement(null, namespace, "paramValue0", xmlWriter);
+                             
 
                                           if (localParamValue0==null){
                                               // write the nil attribute
@@ -2290,24 +1771,8 @@
                                    xmlWriter.writeEndElement();
                              } if (localParamName1Tracker){
                                     namespace = "http://soap_v2_1.ws.grouper.middleware.internet2.edu/xsd";
-                                    if (! namespace.equals("")) {
-                                        prefix = xmlWriter.getPrefix(namespace);
-
-                                        if (prefix == null) {
-                                            prefix = generatePrefix(namespace);
-
-                                            xmlWriter.writeStartElement(prefix,"paramName1", namespace);
-                                            xmlWriter.writeNamespace(prefix, namespace);
-                                            xmlWriter.setPrefix(prefix, namespace);
-
-                                        } else {
-                                            xmlWriter.writeStartElement(namespace,"paramName1");
-                                        }
-
-                                    } else {
-                                        xmlWriter.writeStartElement("paramName1");
-                                    }
-                                
+                                    writeStartElement(null, namespace, "paramName1", xmlWriter);
+                             
 
                                           if (localParamName1==null){
                                               // write the nil attribute
@@ -2324,24 +1789,8 @@
                                    xmlWriter.writeEndElement();
                              } if (localParamValue1Tracker){
                                     namespace = "http://soap_v2_1.ws.grouper.middleware.internet2.edu/xsd";
-                                    if (! namespace.equals("")) {
-                                        prefix = xmlWriter.getPrefix(namespace);
-
-                                        if (prefix == null) {
-                                            prefix = generatePrefix(namespace);
-
-                                            xmlWriter.writeStartElement(prefix,"paramValue1", namespace);
-                                            xmlWriter.writeNamespace(prefix, namespace);
-                                            xmlWriter.setPrefix(prefix, namespace);
-
-                                        } else {
-                                            xmlWriter.writeStartElement(namespace,"paramValue1");
-                                        }
-
-                                    } else {
-                                        xmlWriter.writeStartElement("paramValue1");
-                                    }
-                                
+                                    writeStartElement(null, namespace, "paramValue1", xmlWriter);
+                             
 
                                           if (localParamValue1==null){
                                               // write the nil attribute
@@ -2358,24 +1807,8 @@
                                    xmlWriter.writeEndElement();
                              } if (localDisallowedTracker){
                                     namespace = "http://soap_v2_1.ws.grouper.middleware.internet2.edu/xsd";
-                                    if (! namespace.equals("")) {
-                                        prefix = xmlWriter.getPrefix(namespace);
-
-                                        if (prefix == null) {
-                                            prefix = generatePrefix(namespace);
-
-                                            xmlWriter.writeStartElement(prefix,"disallowed", namespace);
-                                            xmlWriter.writeNamespace(prefix, namespace);
-                                            xmlWriter.setPrefix(prefix, namespace);
-
-                                        } else {
-                                            xmlWriter.writeStartElement(namespace,"disallowed");
-                                        }
-
-                                    } else {
-                                        xmlWriter.writeStartElement("disallowed");
-                                    }
-                                
+                                    writeStartElement(null, namespace, "disallowed", xmlWriter);
+                             
 
                                           if (localDisallowed==null){
                                               // write the nil attribute
@@ -2396,36 +1829,58 @@
 
         }
 
-         /**
-          * Util method to write an attribute with the ns prefix
-          */
-          private void writeAttribute(java.lang.String prefix,java.lang.String namespace,java.lang.String attName,
-                                      java.lang.String attValue,javax.xml.stream.XMLStreamWriter xmlWriter) throws javax.xml.stream.XMLStreamException{
-              if (xmlWriter.getPrefix(namespace) == null) {
-                       xmlWriter.writeNamespace(prefix, namespace);
-                       xmlWriter.setPrefix(prefix, namespace);
-
-              }
-
-              xmlWriter.writeAttribute(namespace,attName,attValue);
-
-         }
+        private static java.lang.String generatePrefix(java.lang.String namespace) {
+            if(namespace.equals("http://soap_v2_1.ws.grouper.middleware.internet2.edu/xsd")){
+                return "ns1";
+            }
+            return org.apache.axis2.databinding.utils.BeanUtil.getUniquePrefix();
+        }
 
         /**
-          * Util method to write an attribute without the ns prefix
-          */
-          private void writeAttribute(java.lang.String namespace,java.lang.String attName,
-                                      java.lang.String attValue,javax.xml.stream.XMLStreamWriter xmlWriter) throws javax.xml.stream.XMLStreamException{
-                if (namespace.equals(""))
-              {
-                  xmlWriter.writeAttribute(attName,attValue);
-              }
-              else
-              {
-                  registerPrefix(xmlWriter, namespace);
-                  xmlWriter.writeAttribute(namespace,attName,attValue);
-              }
-          }
+         * Utility method to write an element start tag.
+         */
+        private void writeStartElement(java.lang.String prefix, java.lang.String namespace, java.lang.String localPart,
+                                       javax.xml.stream.XMLStreamWriter xmlWriter) throws javax.xml.stream.XMLStreamException {
+            java.lang.String writerPrefix = xmlWriter.getPrefix(namespace);
+            if (writerPrefix != null) {
+                xmlWriter.writeStartElement(namespace, localPart);
+            } else {
+                if (namespace.length() == 0) {
+                    prefix = "";
+                } else if (prefix == null) {
+                    prefix = generatePrefix(namespace);
+                }
+
+                xmlWriter.writeStartElement(prefix, localPart, namespace);
+                xmlWriter.writeNamespace(prefix, namespace);
+                xmlWriter.setPrefix(prefix, namespace);
+            }
+        }
+        
+        /**
+         * Util method to write an attribute with the ns prefix
+         */
+        private void writeAttribute(java.lang.String prefix,java.lang.String namespace,java.lang.String attName,
+                                    java.lang.String attValue,javax.xml.stream.XMLStreamWriter xmlWriter) throws javax.xml.stream.XMLStreamException{
+            if (xmlWriter.getPrefix(namespace) == null) {
+                xmlWriter.writeNamespace(prefix, namespace);
+                xmlWriter.setPrefix(prefix, namespace);
+            }
+            xmlWriter.writeAttribute(namespace,attName,attValue);
+        }
+
+        /**
+         * Util method to write an attribute without the ns prefix
+         */
+        private void writeAttribute(java.lang.String namespace,java.lang.String attName,
+                                    java.lang.String attValue,javax.xml.stream.XMLStreamWriter xmlWriter) throws javax.xml.stream.XMLStreamException{
+            if (namespace.equals("")) {
+                xmlWriter.writeAttribute(attName,attValue);
+            } else {
+                registerPrefix(xmlWriter, namespace);
+                xmlWriter.writeAttribute(namespace,attName,attValue);
+            }
+        }
 
 
            /**
@@ -2518,25 +1973,26 @@
         }
 
 
-         /**
+        /**
          * Register a namespace prefix
          */
-         private java.lang.String registerPrefix(javax.xml.stream.XMLStreamWriter xmlWriter, java.lang.String namespace) throws javax.xml.stream.XMLStreamException {
-                java.lang.String prefix = xmlWriter.getPrefix(namespace);
-
-                if (prefix == null) {
-                    prefix = generatePrefix(namespace);
-
-                    while (xmlWriter.getNamespaceContext().getNamespaceURI(prefix) != null) {
-                        prefix = org.apache.axis2.databinding.utils.BeanUtil.getUniquePrefix();
+        private java.lang.String registerPrefix(javax.xml.stream.XMLStreamWriter xmlWriter, java.lang.String namespace) throws javax.xml.stream.XMLStreamException {
+            java.lang.String prefix = xmlWriter.getPrefix(namespace);
+            if (prefix == null) {
+                prefix = generatePrefix(namespace);
+                javax.xml.namespace.NamespaceContext nsContext = xmlWriter.getNamespaceContext();
+                while (true) {
+                    java.lang.String uri = nsContext.getNamespaceURI(prefix);
+                    if (uri == null || uri.length() == 0) {
+                        break;
                     }
-
-                    xmlWriter.writeNamespace(prefix, namespace);
-                    xmlWriter.setPrefix(prefix, namespace);
+                    prefix = org.apache.axis2.databinding.utils.BeanUtil.getUniquePrefix();
                 }
-
-                return prefix;
+                xmlWriter.writeNamespace(prefix, namespace);
+                xmlWriter.setPrefix(prefix, namespace);
             }
+            return prefix;
+        }
 
 
   
@@ -2798,7 +2254,7 @@
                 java.util.Vector handledAttributes = new java.util.Vector();
                 
 
-                 
+                
                     
                     reader.next();
                 
@@ -3590,7 +3046,7 @@
                             
                                 if (reader.isStartElement())
                                 // A start element we are not expecting indicates a trailing invalid property
-                                throw new org.apache.axis2.databinding.ADBException("Unexpected subelement " + reader.getLocalName());
+                                throw new org.apache.axis2.databinding.ADBException("Unexpected subelement " + reader.getName());
                             
 
 
@@ -3608,4 +3064,4 @@
 
         }
            
-          
+    

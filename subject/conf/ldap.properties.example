@@ -6,8 +6,8 @@ edu.vt.middleware.ldap.base=dc=example,dc=edu
 edu.vt.middleware.ldap.searchScope=SUBTREE
 
 # authn if simple
-edu.vt.middleware.ldap.serviceUser=cn=admin,dc=example,dc=edu
-edu.vt.middleware.ldap.serviceCredential=admin_password
+edu.vt.middleware.ldap.bindDn=cn=admin,dc=example,dc=edu
+edu.vt.middleware.ldap.bindCredential=admin_password
 
 # authn for sasl external (certificates)
 #edu.vt.middleware.ldap.authtype=EXTERNAL
@@ -21,8 +21,3 @@ edu.vt.middleware.ldap.serviceCredential=admin_password
 # pooling options
 edu.vt.middleware.ldap.pool.minPoolSize = 2
 edu.vt.middleware.ldap.pool.maxPoolSize = 5
-
-
-
-
-

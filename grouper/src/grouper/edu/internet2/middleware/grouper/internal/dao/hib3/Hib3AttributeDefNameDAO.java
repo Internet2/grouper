@@ -13,7 +13,6 @@ import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.AttributeDefNameNotFoundException;
 import edu.internet2.middleware.grouper.exception.AttributeDefNameTooManyResults;
-import edu.internet2.middleware.grouper.exception.AttributeDefNotFoundException;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.ByHqlStatic;
@@ -25,6 +24,8 @@ import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.AttributeDefNameDAO;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
+import edu.internet2.middleware.grouper.internal.dao.QuerySort;
+import edu.internet2.middleware.grouper.internal.dao.QuerySortField;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.privs.Privilege;
@@ -63,7 +64,7 @@ public class Hib3AttributeDefNameDAO extends Hib3DAO implements AttributeDefName
     attributeDefName = filterSecurity(attributeDefName);
     
     if (attributeDefName == null && exceptionIfNotFound) {
-      throw new AttributeDefNotFoundException("Cant find (or not allowed to find) attribute def name by id: " + id);
+      throw new AttributeDefNameNotFoundException("Cant find (or not allowed to find) attribute def name by id: " + id);
     }
     return attributeDefName;
   }
@@ -125,7 +126,7 @@ public class Hib3AttributeDefNameDAO extends Hib3DAO implements AttributeDefName
   
     //handle exceptions out of data access method...
     if (attributeDefName == null && exceptionIfNotFound) {
-      throw new AttributeDefNotFoundException("Cannot find (or not allowed to find) attribute def name with name: '" + name + "'");
+      throw new AttributeDefNameNotFoundException("Cannot find (or not allowed to find) attribute def name with name: '" + name + "'");
     }
     return attributeDefName;
   }
@@ -323,6 +324,36 @@ public class Hib3AttributeDefNameDAO extends Hib3DAO implements AttributeDefName
   }
 
   /**
+   * if there are sort fields, go through them, and replace name with nameDb, etc,
+   * extension for extensionDb, displayName with displayNameDb, and displayExtension with displayExtensionDb
+   * @param querySort
+   */
+  private static void massageSortFields(QuerySort querySort) {
+    if (querySort == null) {
+      return;
+    }
+    for (QuerySortField querySortField : GrouperUtil.nonNull(querySort.getQuerySortFields())) {
+      if (StringUtils.equals("extension", querySortField.getColumn())) {
+        querySortField.setColumn("theAttributeDefName.extensionDb");
+      }
+      if (StringUtils.equals("name", querySortField.getColumn())) {
+        querySortField.setColumn("theAttributeDefName.nameDb");
+      }
+      if (StringUtils.equals("displayExtension", querySortField.getColumn())) {
+        querySortField.setColumn("theAttributeDefName.displayExtensionDb");
+      }
+      if (StringUtils.equals("displayName", querySortField.getColumn())) {
+        querySortField.setColumn("theAttributeDefName.displayNameDb");
+      }
+      if (StringUtils.equals("description", querySortField.getColumn())) {
+        querySortField.setColumn("theAttributeDefName.description");
+      }
+    }
+
+  }
+
+  
+  /**
    * 
    * @param scope 
    * @param grouperSession 
@@ -333,7 +364,7 @@ public class Hib3AttributeDefNameDAO extends Hib3DAO implements AttributeDefName
    * @param splitScope 
    * @param attributeAssignType
    * @param attributeDefType 
-   * @return 
+   * @return  attribute def names
    * 
    */
   private Set<AttributeDefName> findAllAttributeNamesSecureHelper(String scope,
@@ -443,10 +474,13 @@ public class Hib3AttributeDefNameDAO extends Hib3DAO implements AttributeDefName
         whereClause.append(" ( lower(theAttributeDefName.nameDb) like :scope" + index 
             + " or lower(theAttributeDefName.displayNameDb) like :scope" + index 
             + " or lower(theAttributeDefName.description) like :scope" + index + " ) ");
-        if (splitScope) {
-          theScope = "%" + theScope + "%";
-        } else if (!theScope.endsWith("%")) {
+        if (!theScope.endsWith("%")) {
           theScope += "%";
+        }
+        if (splitScope) {
+          if (!theScope.startsWith("%")) {
+            theScope = "%" + theScope;
+          }
         }
         byHqlStatic.setString("scope" + index, theScope);
         index++;
@@ -463,6 +497,10 @@ public class Hib3AttributeDefNameDAO extends Hib3DAO implements AttributeDefName
       sql.append(whereClause);
     }    
     
+    if (queryOptions != null) {
+      massageSortFields(queryOptions.getQuerySort());
+    }
+
     Set<AttributeDefName> attributeDefNames = byHqlStatic.createQuery(sql.toString())
       .setCacheable(false)
       .setCacheRegion(KLASS + ".GetAllAttributeDefNamesSecure")
@@ -482,6 +520,18 @@ public class Hib3AttributeDefNameDAO extends Hib3DAO implements AttributeDefName
       Set<Privilege> privileges, QueryOptions queryOptions, AttributeAssignType attributeAssignType,
       AttributeDefType attributeDefType) {
     return findAllAttributeNamesSecureHelper(scope, grouperSession, attributeDefId, subject, privileges, queryOptions, true, attributeAssignType, attributeDefType);
+  }
+
+  /**
+   * @see AttributeDefNameDAO#findAllAttributeNamesSecure(String, boolean, GrouperSession, String, Subject, Set, QueryOptions, AttributeAssignType, AttributeDefType)
+   */
+  @Override
+  public Set<AttributeDefName> findAllAttributeNamesSecure(String scope,
+      boolean splitScope, GrouperSession grouperSession, String attributeDefId,
+      Subject subject, Set<Privilege> privileges, QueryOptions queryOptions,
+      AttributeAssignType attributeAssignType, AttributeDefType attributeDefType) {
+    return findAllAttributeNamesSecureHelper(scope, grouperSession, attributeDefId, 
+        subject, privileges, queryOptions, splitScope, attributeAssignType, attributeDefType);
   }
 
 } 

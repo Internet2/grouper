@@ -127,7 +127,7 @@ public class GrouperClientLog implements Log {
    * @see edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log#isDebugEnabled()
    */
   public boolean isDebugEnabled() {
-    return this.enclosedLog.isDebugEnabled();
+    return this.enclosedLog.isDebugEnabled() || debugToConsole();
   }
 
   /**

@@ -5270,6 +5270,27 @@ public class GrouperClientCommonUtils  {
   }
   
   /**
+   * read properties from file
+   * @param file
+   * @return properties
+   */
+  public static Properties propertiesFromFile(File file) {
+    Properties properties = new Properties();
+    FileInputStream fileInputStream = null;
+    try {
+      
+      fileInputStream = new FileInputStream(file);
+      properties.load(fileInputStream);
+      
+    } catch (IOException ioe) {
+      throw new RuntimeException("Problem reading file into properties: " + file.getAbsolutePath());
+    } finally {
+      closeQuietly(fileInputStream);
+    }
+    return properties;
+  }
+  
+  /**
    * read properties from a resource, dont modify the properties returned since they are cached
    * @param resourceName
    * @param useCache 

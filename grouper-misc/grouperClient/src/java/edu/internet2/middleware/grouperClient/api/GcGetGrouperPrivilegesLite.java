@@ -244,7 +244,8 @@ public class GcGetGrouperPrivilegesLite {
       
       //kick off the web service
       wsGetGrouperPrivilegesLiteResult = (WsGetGrouperPrivilegesLiteResult)
-        grouperClientWs.executeService("grouperPrivileges", wsGetGrouperPrivilegesLite, "getGrouperPrivilegesLite", this.clientVersion);
+        grouperClientWs.executeService("grouperPrivileges", 
+            wsGetGrouperPrivilegesLite, "getGrouperPrivilegesLite", this.clientVersion, true);
       
       String resultMessage = wsGetGrouperPrivilegesLiteResult.getResultMetadata().getResultMessage();
       grouperClientWs.handleFailure(wsGetGrouperPrivilegesLiteResult, null, resultMessage);

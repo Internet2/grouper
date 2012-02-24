@@ -56,7 +56,7 @@ public class WsGroupDeleteLiteResult implements WsResponseBean, ResultMetadataHo
     /** if parent stem cant be found (lite status code 404) (success: F) */
     PARENT_STEM_NOT_FOUND(404), 
     
-    /** the group was not found (lite status code 200) (success: F) */
+    /** the group was not found (lite status code 200) (success: T) */
     SUCCESS_GROUP_NOT_FOUND(200);
 
     /** get the name label for a certain version of client 

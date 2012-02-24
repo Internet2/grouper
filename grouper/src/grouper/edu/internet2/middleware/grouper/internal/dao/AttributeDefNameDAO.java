@@ -124,5 +124,23 @@ public interface AttributeDefNameDAO extends GrouperDAO {
       GrouperSession grouperSession, String attributeDefId, 
       Subject subject, Set<Privilege> privileges, QueryOptions queryOptions, AttributeAssignType attributeAssignType,
       AttributeDefType attributeDefType);
+
+  /**
+   * get all attribute names secure, split the scope by whitespace
+   * @param scope
+   * @param splitScope 
+   * @param attributeDefId optional if filtering by names in a certain attribute definition
+   * @param grouperSession
+   * @param subject
+   * @param privileges
+   * @param queryOptions
+   * @param attributeAssignType
+   * @param attributeDefType
+   * @return set of attribute defs
+   */
+  public Set<AttributeDefName> findAllAttributeNamesSecure(String scope, boolean splitScope,
+      GrouperSession grouperSession, String attributeDefId, 
+      Subject subject, Set<Privilege> privileges, QueryOptions queryOptions, AttributeAssignType attributeAssignType,
+      AttributeDefType attributeDefType);
   
 }

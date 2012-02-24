@@ -68,7 +68,7 @@ public class Hib3PITAttributeAssignDAO extends Hib3DAO implements PITAttributeAs
     PITAttributeAssign pitAttributeAssign = HibernateSession
       .byHqlStatic()
       .createQuery("select attrAssign from PITAttributeAssign as attrAssign where attrAssign.sourceId = :id and activeDb = 'T'")
-      .setCacheable(false).setCacheRegion(KLASS + ".FindBySourceIdActive")
+      .setCacheable(true).setCacheRegion(KLASS + ".FindBySourceIdActive")
       .setString("id", id)
       .uniqueResult(PITAttributeAssign.class);
     
@@ -140,7 +140,7 @@ public class Hib3PITAttributeAssignDAO extends Hib3DAO implements PITAttributeAs
     PITAttributeAssign pit = HibernateSession
       .byHqlStatic()
       .createQuery("select pit from PITAttributeAssign as pit where pit.id = :id")
-      .setCacheable(false).setCacheRegion(KLASS + ".FindById")
+      .setCacheable(true).setCacheRegion(KLASS + ".FindById")
       .setString("id", id)
       .uniqueResult(PITAttributeAssign.class);
     

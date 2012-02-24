@@ -9,10 +9,13 @@ import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 import edu.internet2.middleware.grouper.ws.rest.GrouperRestInvalidRequest;
 import edu.internet2.middleware.grouper.ws.rest.GrouperServiceRest;
 import edu.internet2.middleware.grouper.ws.rest.WsRequestBean;
 import edu.internet2.middleware.grouper.ws.rest.WsResponseBean;
+import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestAttributeDefNameDeleteLiteRequest;
+import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestAttributeDefNameDeleteRequest;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestGroupDeleteLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestGroupDeleteRequest;
 import edu.internet2.middleware.grouper.ws.rest.member.WsRestDeleteMemberLiteRequest;
@@ -80,6 +83,52 @@ public enum GrouperWsRestDelete {
           .valueOfIgnoreCase(operation, true);
 
       return grouperWsRestDeleteGroup.service(clientVersion, groupName, urlStrings, requestObject);
+    }
+
+  }, 
+  
+  /** attributeDefName delete requests */
+  attributeDefNames {
+
+    /**
+     * handle the incoming request based on DELETE HTTP method and attributeDefName resource
+     * @param clientVersion version of client, e.g. v1_3_000
+     * @param urlStrings not including the app name or servlet.  
+     * for http://localhost/grouper-ws/servicesRest/xhtml/v3_0_000/attributeDefNames/a:b
+     * the urlStrings would be size two: {"attributeDefNames", "a:b"}
+     * @param requestObject is the request body converted to object
+     * @return the result object
+     */
+    @Override
+    public WsResponseBean service(
+        GrouperVersion clientVersion, List<String> urlStrings,
+        WsRequestBean requestObject) {
+
+      //url should be: /v1_3_000/attributeDefNames/aStem:aGroup
+      String attributeDefNameName = GrouperServiceUtils.popUrlString(urlStrings);
+
+      //operation, e.g. members
+      String operation = GrouperServiceUtils.popUrlString(urlStrings);
+
+      if (!StringUtils.isBlank(operation)) {
+        throw new WsInvalidQueryException("Why are you passing something after the attributeDefName name??? " + operation);
+      }
+      
+      if (StringUtils.isBlank(attributeDefNameName) && requestObject instanceof WsRestAttributeDefNameDeleteRequest) {
+        return GrouperServiceRest.attributeDefNameDelete(clientVersion, 
+            (WsRestAttributeDefNameDeleteRequest)requestObject);
+      }
+      
+      if (requestObject == null || requestObject instanceof WsRestAttributeDefNameDeleteLiteRequest) {
+        return GrouperServiceRest.attributeDefNameDeleteLite(clientVersion, attributeDefNameName, 
+            (WsRestAttributeDefNameDeleteLiteRequest)requestObject);
+      }
+
+      if (!StringUtils.isBlank(attributeDefNameName)) {
+        throw new WsInvalidQueryException("Dont send in attrbuteDefNameName " + requestObject.getClass());
+      }
+      
+      throw new WsInvalidQueryException("Not expecting type: " + requestObject.getClass());
     }
 
   }, 

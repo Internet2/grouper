@@ -16,11 +16,9 @@ package edu.internet2.middleware.grouper.shibboleth.dataConnector.config;
 
 import java.util.List;
 
-import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.shibboleth.dataConnector.BaseGrouperDataConnector;
 import edu.internet2.middleware.grouper.shibboleth.filter.Filter;
 import edu.internet2.middleware.grouper.shibboleth.util.AttributeIdentifier;
-import edu.internet2.middleware.grouper.shibboleth.util.SubjectIdentifier;
 import edu.internet2.middleware.shibboleth.common.config.attribute.resolver.dataConnector.BaseDataConnectorFactoryBean;
 
 /** Spring factory bean for {@link BaseGrouperDataConnector}s. */
@@ -31,9 +29,6 @@ public abstract class BaseGrouperDataConnectorFactoryBean extends BaseDataConnec
 
   /** The matcher. */
   private Filter matcher;
-
-  /** The subject and source identifier used to start a {@link GrouperSession}. */
-  private SubjectIdentifier subjectIdentifier;
 
   /**
    * Gets the {@link AttributeIdentifer}s.
@@ -72,27 +67,12 @@ public abstract class BaseGrouperDataConnectorFactoryBean extends BaseDataConnec
   }
 
   /**
-   * @return Returns the subjectIdentifier.
-   */
-  public SubjectIdentifier getSubjectIdentifier() {
-    return subjectIdentifier;
-  }
-
-  /**
-   * @param subjectIdentifier The subjectIdentifier to set.
-   */
-  public void setSubjectIdentifier(SubjectIdentifier subjectIdentifier) {
-    this.subjectIdentifier = subjectIdentifier;
-  }
-
-  /**
    * {@inheritDoc}
    */
   protected void populateDataConnector(BaseGrouperDataConnector connector) {
     super.populateDataConnector(connector);
     connector.setFilter(getFilter());
     connector.setAttributeIdentifiers(getAttributeIdentifiers());
-    connector.setSubjectIdentifier(getSubjectIdentifier());
     connector.initialize();
   }
 

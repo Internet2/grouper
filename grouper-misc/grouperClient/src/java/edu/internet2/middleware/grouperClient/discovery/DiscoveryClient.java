@@ -437,7 +437,7 @@ public class DiscoveryClient {
    */
   static File mostRecentFileFromFileSystem(String localFileName) {
 
-    File cacheDirectory = new File(cacheDirectoryName());
+    File cacheDirectory = new File(GrouperClientUtils.cacheDirectoryName());
     
     File[] files = cacheDirectory.listFiles();
 
@@ -529,7 +529,7 @@ public class DiscoveryClient {
    */
   private static File discoveryLocalFileUniqueHelper(String localFileName, boolean isTmpFile) {
 
-    String directoryName = cacheDirectoryName();
+    String directoryName = GrouperClientUtils.cacheDirectoryName();
 
     if (localFileName.contains("/")) {
       throw new RuntimeException("Local file cannot contain / : " + localFileName);
@@ -565,37 +565,6 @@ public class DiscoveryClient {
 
   }
 
-  /** cache directory name */
-  private static String cacheDirectoryName = null;
-  
-  /**
-   * name of the cache directory
-   * @return the name of the cache directory
-   */
-  static String cacheDirectoryName() {
-    
-    if (cacheDirectoryName == null) {
-      String directoryName = GrouperClientUtils.propertiesValue("grouperClient.cacheDirectory", true);
-      if (GrouperClientCommonUtils.isBlank(directoryName)) {
-        throw new RuntimeException("grouperClient.cacheDirectory is required in grouper.client.propreties");
-      }
-  
-      directoryName = GrouperClientCommonUtils.stripEnd(directoryName, "/");
-      directoryName = GrouperClientCommonUtils.stripEnd(directoryName, "\\");
-      
-      File discoveryDir = new File(directoryName);
-      directoryName = discoveryDir.getAbsolutePath();
-      if (directoryName.endsWith("/.")) {
-        directoryName = directoryName.substring(0, directoryName.length()-2);
-      }
-      if (directoryName.endsWith("\\.")) {
-        directoryName = directoryName.substring(0, directoryName.length()-2);
-      }
-      cacheDirectoryName = directoryName;
-    }    
-    return cacheDirectoryName;
-  }
-  
   /**
    * contact the discovery server(s) to get the file
    * @param fileNameOnServer
@@ -616,7 +585,7 @@ public class DiscoveryClient {
       /**
        * logic to get the discovery file
        */
-      @Override
+      // @Override
       public File logic(FailoverLogicBean failoverLogicBean) {
         
         Map<String, Object> logMap = log.isDebugEnabled() ? new LinkedHashMap<String, Object>() : null;
@@ -790,7 +759,7 @@ public class DiscoveryClient {
   static void cleanoutOldFiles() {
     
     try {
-      File cacheDirectory = new File(cacheDirectoryName());
+      File cacheDirectory = new File(GrouperClientUtils.cacheDirectoryName());
       
       File[] files = cacheDirectory.listFiles();
 

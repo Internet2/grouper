@@ -17,7 +17,7 @@ package edu.internet2.middleware.grouper.ws.soap_v2_1;
 public class WsGroupSaveResults {
 
   /**
-   * results for each deletion sent in
+   * results for each group sent in
    */
   private WsGroupSaveResult[] results;
 
@@ -32,7 +32,7 @@ public class WsGroupSaveResults {
   private WsResponseMeta responseMetadata = new WsResponseMeta();
 
   /**
-   * results for each deletion sent in
+   * results for each group sent in
    * @return the results
    */
   public WsGroupSaveResult[] getResults() {
@@ -40,7 +40,7 @@ public class WsGroupSaveResults {
   }
 
   /**
-   * results for each deletion sent in
+   * results for each group sent in
    * @param results1 the results to set
    */
   public void setResults(WsGroupSaveResult[] results1) {

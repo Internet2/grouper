@@ -2735,4 +2735,27 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
     return mships;
   }
 
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.MembershipDAO#findAllMembershipEntriesByGroupOwnerAndFieldAndType(java.lang.String, edu.internet2.middleware.grouper.Field, java.lang.String, boolean)
+   */
+  public Set<Membership> findAllMembershipEntriesByGroupOwnerAndFieldAndType(String ownerGroupId, Field f, String type, boolean enabledOnly) {
+    MembershipType membershipType = MembershipType.valueOfIgnoreCase(type, true);
+    StringBuilder sql = new StringBuilder("select ms from ImmediateMembershipEntry as ms where "
+        + "     ms.ownerGroupId   = :owner            "
+        + "and  ms.fieldId = :fuuid "
+        + "and  ms.type  " + membershipType.queryClause());
+    if (enabledOnly) {
+      sql.append(" and ms.enabledDb = 'T'");
+    }
+
+    Set<Membership> mships = HibernateSession.byHqlStatic()
+      .createQuery(sql.toString())
+      .setCacheable(false)
+      .setCacheRegion(KLASS + ".FindAllMembershipEntriesByGroupOwnerAndFieldAndType")
+      .setString("owner" , ownerGroupId)
+      .setString("fuuid",  f.getUuid())
+      .listSet(Membership.class);
+
+    return mships;
+  }
 }

@@ -924,5 +924,14 @@ TODO update for 1.5
       Collection<Field> fields,  
       Set<Source> sources, Boolean enabled, QueryOptions queryOptions);
 
+  /**
+   * In this case, membership objects are not joined with groupSets like most queries.  This queries the memberships table only.
+   * @param ownerGroupId
+   * @param f
+   * @param type
+   * @param enabledOnly
+   * @return set of memberships
+   */
+  public Set<Membership> findAllMembershipEntriesByGroupOwnerAndFieldAndType(String ownerGroupId, Field f, String type, boolean enabledOnly);
 } 
 

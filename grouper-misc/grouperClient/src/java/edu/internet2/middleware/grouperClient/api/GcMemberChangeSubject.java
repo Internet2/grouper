@@ -208,7 +208,7 @@ public class GcMemberChangeSubject {
       
       //kick off the web service
       wsMemberChangeSubjectResults = (WsMemberChangeSubjectResults)
-        grouperClientWs.executeService("members", memberChangeSubject, "memberChangeSubject", this.clientVersion);
+        grouperClientWs.executeService("members", memberChangeSubject, "memberChangeSubject", this.clientVersion, false);
       
       String resultMessage = wsMemberChangeSubjectResults.getResultMetadata().getResultMessage();
       grouperClientWs.handleFailure(wsMemberChangeSubjectResults, wsMemberChangeSubjectResults.getResults(),resultMessage);

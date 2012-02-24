@@ -15,7 +15,6 @@
 package edu.internet2.middleware.grouper.shibboleth.filter;
 
 import edu.internet2.middleware.grouper.Group;
-import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.filter.QueryFilter;
 
 /**
@@ -33,12 +32,4 @@ public interface Filter<T> extends QueryFilter<T> {
    * @return if the Grouper object matches or not
    */
   public boolean matches(T t);
-
-  /**
-   * Set the grouper session
-   * 
-   * @param grouperSession the {@link GrouperSession}
-   */
-  public void setGrouperSession(GrouperSession grouperSession);
-
 }

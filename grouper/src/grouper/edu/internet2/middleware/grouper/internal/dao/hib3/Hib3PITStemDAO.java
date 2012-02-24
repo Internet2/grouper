@@ -58,7 +58,7 @@ public class Hib3PITStemDAO extends Hib3DAO implements PITStemDAO {
     PITStem pitStem = HibernateSession
       .byHqlStatic()
       .createQuery("select pitStem from PITStem as pitStem where pitStem.sourceId = :id and activeDb = 'T'")
-      .setCacheable(false).setCacheRegion(KLASS + ".FindBySourceIdActive")
+      .setCacheable(true).setCacheRegion(KLASS + ".FindBySourceIdActive")
       .setString("id", id)
       .uniqueResult(PITStem.class);
     
@@ -112,7 +112,7 @@ public class Hib3PITStemDAO extends Hib3DAO implements PITStemDAO {
     PITStem pit = HibernateSession
       .byHqlStatic()
       .createQuery("select pit from PITStem as pit where pit.id = :id")
-      .setCacheable(false).setCacheRegion(KLASS + ".FindById")
+      .setCacheable(true).setCacheRegion(KLASS + ".FindById")
       .setString("id", id)
       .uniqueResult(PITStem.class);
     

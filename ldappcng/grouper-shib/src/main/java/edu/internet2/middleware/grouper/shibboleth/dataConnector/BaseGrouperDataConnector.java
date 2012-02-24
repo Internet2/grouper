@@ -33,23 +33,17 @@ import edu.internet2.middleware.grouper.shibboleth.dataConnector.field.BaseField
 import edu.internet2.middleware.grouper.shibboleth.dataConnector.field.GroupsField;
 import edu.internet2.middleware.grouper.shibboleth.dataConnector.field.MembersField;
 import edu.internet2.middleware.grouper.shibboleth.dataConnector.field.PrivilegeField;
-import edu.internet2.middleware.grouper.shibboleth.filter.AbstractSetOperationFilter;
 import edu.internet2.middleware.grouper.shibboleth.filter.Filter;
 import edu.internet2.middleware.grouper.shibboleth.util.AttributeIdentifier;
 import edu.internet2.middleware.grouper.shibboleth.util.SubjectIdentifier;
 import edu.internet2.middleware.shibboleth.common.attribute.resolver.provider.dataConnector.BaseDataConnector;
 import edu.internet2.middleware.shibboleth.common.attribute.resolver.provider.dataConnector.DataConnector;
-import edu.internet2.middleware.subject.Subject;
-import edu.internet2.middleware.subject.SubjectNotFoundException;
 
 /** A {@link DataConnector} which returns Grouper objects. */
 public abstract class BaseGrouperDataConnector<T> extends BaseDataConnector {
 
   /** logger */
   private static final Logger LOG = LoggerFactory.getLogger(BaseGrouperDataConnector.class);
-
-  /** the grouper session, initialized for each grouper data connector */
-  private GrouperSession grouperSession;
 
   /** the attributes which should be returned by this data connector */
   private List<AttributeIdentifier> attributeIdentifiers;
@@ -149,48 +143,19 @@ public abstract class BaseGrouperDataConnector<T> extends BaseDataConnector {
     privilegeFields.trimToSize();
     membersFields.trimToSize();
     groupsFields.trimToSize();
-
-    // FUTURE improve session handling
-    initGrouperSessionRecursively(filter);
   }
 
   /**
-   * Set the {@link GrouperSession} for any configured {@link Filter} recursively.
+   * Start a new root session if necessary, otherwise reuse existing threadlocal session.
    * 
-   * @param filter the filter
+   * @return the root grouper session
    */
-  protected void initGrouperSessionRecursively(Filter filter) {
-    if (filter == null) {
-      return;
-    }
-    filter.setGrouperSession(grouperSession);
-    if (filter instanceof AbstractSetOperationFilter) {
-      initGrouperSessionRecursively(((AbstractSetOperationFilter) filter).getFilter0());
-      initGrouperSessionRecursively(((AbstractSetOperationFilter) filter).getFilter1());
-    }
-  }
+  public GrouperSession getGrouperSession() {
 
-  /**
-   * Start a new session if necessary, otherwise reuse existing session. The session is started using the
-   * {@link Subject} identified by the configured subject identifier. This session is not added to the threadlocal.
-   * 
-   * @return the <code>GrouperSession</code>
-   * @throws SubjectNotFoundException if the {@link Subject} identified by the subjectId cannot be found
-   */
-  public GrouperSession getGrouperSession() throws SubjectNotFoundException {
+    GrouperSession grouperSession = GrouperSession.staticGrouperSession(false);
     if (grouperSession == null) {
-      if (subjectIdentifier == null) {
-        grouperSession = GrouperSession.staticGrouperSession(false);
-        if (grouperSession == null) {
-          grouperSession = GrouperSession.startRootSession(true);
-          LOG.debug("Grouper data connector '{}' - Started grouper session '{}'", getId(), grouperSession);
-        }
-      } else {
-        Subject subject = SubjectFinder.findByIdAndSource(subjectIdentifier.getId(), subjectIdentifier.getSource(),
-            true);
-        grouperSession = GrouperSession.start(subject, false);
-        LOG.debug("Grouper data connector '{}' - Started grouper session '{}'", getId(), grouperSession);
-      }
+      grouperSession = GrouperSession.startRootSession(true);
+      LOG.debug("Grouper data connector '{}' - Started grouper session '{}'", getId(), grouperSession);
     }
 
     return grouperSession;

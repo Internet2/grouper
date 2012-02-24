@@ -8,9 +8,15 @@ import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.apache.commons.collections.keyvalue.MultiKey;
+
+import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.cache.GrouperCache;
+import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.grouperSet.GrouperSetEnum;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.subject.Subject;
 
 
 /**
@@ -141,6 +147,7 @@ public class AttributeDefNameSetDelegate implements Serializable {
    * @return true if added, false if already there
    */
   public boolean internal_addToAttributeDefNameSet(AttributeDefName newAttributeDefName, String uuid) {
+    assertCanAdminAttributeDefs(newAttributeDefName);
     return GrouperSetEnum.ATTRIBUTE_SET.addToGrouperSet(this.attributeDefName, newAttributeDefName, uuid);
   }
 
@@ -150,7 +157,17 @@ public class AttributeDefNameSetDelegate implements Serializable {
    * @return true if removed, false if already removed
    */
   public boolean removeFromAttributeDefNameSet(AttributeDefName attributeDefNameToRemove) {
+    assertCanAdminAttributeDefs(attributeDefNameToRemove);
     return GrouperSetEnum.ATTRIBUTE_SET.removeFromGrouperSet(this.attributeDefName, attributeDefNameToRemove);
+  }
+
+  /**
+   * 
+   * @param other
+   */
+  private void assertCanAdminAttributeDefs(AttributeDefName other) {
+    this.attributeDefName.assertCanAdminAttributeDefStatic();
+    other.assertCanAdminAttributeDefStatic();
   }
 
 }

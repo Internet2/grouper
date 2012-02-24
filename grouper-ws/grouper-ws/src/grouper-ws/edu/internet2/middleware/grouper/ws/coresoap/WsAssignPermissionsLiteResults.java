@@ -163,7 +163,6 @@ public class WsAssignPermissionsLiteResults implements WsResponseBean, ResultMet
   /**
    * logger 
    */
-  @SuppressWarnings("unused")
   private static final Log LOG = LogFactory.getLog(WsAssignPermissionsLiteResults.class);
 
   /**

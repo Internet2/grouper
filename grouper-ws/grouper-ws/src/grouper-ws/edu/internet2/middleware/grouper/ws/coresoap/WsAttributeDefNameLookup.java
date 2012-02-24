@@ -24,6 +24,8 @@ import edu.internet2.middleware.grouper.pit.PITAttributeDef;
 import edu.internet2.middleware.grouper.pit.PITAttributeDefName;
 import edu.internet2.middleware.grouper.pit.finder.PITAttributeDefFinder;
 import edu.internet2.middleware.grouper.pit.finder.PITAttributeDefNameFinder;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameDeleteResult.WsAttributeDefNameDeleteResultCode;
+import edu.internet2.middleware.grouper.ws.coresoap.WsGroupDeleteResult.WsGroupDeleteResultCode;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
 
@@ -72,16 +74,40 @@ public class WsAttributeDefNameLookup {
   public static enum AttributeDefNameFindResult {
 
     /** found the attributeDefName */
-    SUCCESS,
+    SUCCESS {
+
+      @Override
+      public WsAttributeDefNameDeleteResultCode convertToAttributeDefNameDeleteResultCode() {
+        return WsAttributeDefNameDeleteResultCode.SUCCESS;
+      }
+    },
 
     /** uuid doesnt match name */
-    ATTRIBUTE_DEF_NAME_UUID_DOESNT_MATCH_NAME,
+    ATTRIBUTE_DEF_NAME_UUID_DOESNT_MATCH_NAME {
+
+      @Override
+      public WsAttributeDefNameDeleteResultCode convertToAttributeDefNameDeleteResultCode() {
+        return WsAttributeDefNameDeleteResultCode.ATTRIBUTE_DEF_NAME_UUID_DOESNT_MATCH_NAME;
+      }
+    },
 
     /** cant find the attributeDefName */
-    ATTRIBUTE_DEF_NAME_NOT_FOUND,
+    ATTRIBUTE_DEF_NAME_NOT_FOUND {
+
+      @Override
+      public WsAttributeDefNameDeleteResultCode convertToAttributeDefNameDeleteResultCode() {
+        return WsAttributeDefNameDeleteResultCode.SUCCESS_ATTRIBUTE_DEF_NAME_NOT_FOUND;
+      }
+    },
 
     /** incvalid query (e.g. if everything blank) */
-    INVALID_QUERY;
+    INVALID_QUERY {
+
+      @Override
+      public WsAttributeDefNameDeleteResultCode convertToAttributeDefNameDeleteResultCode() {
+        return WsAttributeDefNameDeleteResultCode.INVALID_QUERY;
+      }
+    };
 
     /**
      * if this is a successful result
@@ -89,6 +115,23 @@ public class WsAttributeDefNameLookup {
      */
     public boolean isSuccess() {
       return this == SUCCESS;
+    }
+
+    /**
+     * convert this code to a delete code
+     * @return the code
+     */
+    public abstract WsAttributeDefNameDeleteResultCode convertToAttributeDefNameDeleteResultCode();
+
+    /**
+     * null safe equivalent to convertToDeleteCode
+     * @param attributeDefNameFindResult to convert
+     * @return the code
+     */
+    public static WsAttributeDefNameDeleteResultCode convertToAttributeDefNameDeleteCodeStatic(
+        AttributeDefNameFindResult attributeDefNameFindResult) {
+      return attributeDefNameFindResult == null ? WsAttributeDefNameDeleteResultCode.EXCEPTION
+          : attributeDefNameFindResult.convertToAttributeDefNameDeleteResultCode();
     }
 
   }

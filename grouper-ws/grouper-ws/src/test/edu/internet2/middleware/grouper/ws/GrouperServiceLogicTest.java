@@ -29,7 +29,9 @@ import edu.internet2.middleware.grouper.StemSave;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
+import edu.internet2.middleware.grouper.attr.AttributeDefNameSave;
 import edu.internet2.middleware.grouper.attr.AttributeDefNameTest;
+import edu.internet2.middleware.grouper.attr.AttributeDefSave;
 import edu.internet2.middleware.grouper.attr.AttributeDefTest;
 import edu.internet2.middleware.grouper.attr.AttributeDefType;
 import edu.internet2.middleware.grouper.attr.AttributeDefValueType;
@@ -38,6 +40,7 @@ import edu.internet2.middleware.grouper.attr.assign.AttributeAssignDelegatable;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignOperation;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignResult;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignType;
+import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValueOperation;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValueResult;
 import edu.internet2.middleware.grouper.attr.value.AttributeValueResult;
@@ -59,8 +62,10 @@ import edu.internet2.middleware.grouper.permissions.limits.impl.PermissionLimitE
 import edu.internet2.middleware.grouper.permissions.role.Role;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
+import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAddMemberResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributeDefNameInheritanceResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributeResult;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributesResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAssignPermissionsResults;
@@ -68,7 +73,12 @@ import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeAssign;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeAssignLookup;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeAssignValue;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefLookup;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefName;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameDeleteResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameLookup;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameSaveResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameToSave;
+import edu.internet2.middleware.grouper.ws.coresoap.WsFindAttributeDefNamesResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsFindGroupsResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsGetAttributeAssignmentsResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsGetGroupsResults;
@@ -90,6 +100,8 @@ import edu.internet2.middleware.grouper.ws.coresoap.WsSubject;
 import edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAddMemberResult.WsAddMemberResultCode;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAddMemberResults.WsAddMemberResultsCode;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributeDefNameInheritanceResults.WsAssignAttributeDefNameInheritanceResultsCode;
+import edu.internet2.middleware.grouper.ws.coresoap.WsFindAttributeDefNamesResults.WsFindAttributeDefNamesResultsCode;
 import edu.internet2.middleware.grouper.ws.coresoap.WsGetAttributeAssignmentsResults.WsGetAttributeAssignmentsResultsCode;
 import edu.internet2.middleware.grouper.ws.coresoap.WsGetGroupsResults.WsGetGroupsResultsCode;
 import edu.internet2.middleware.grouper.ws.coresoap.WsGetMembersResults.WsGetMembersResultsCode;
@@ -98,6 +110,7 @@ import edu.internet2.middleware.grouper.ws.coresoap.WsHasMemberResults.WsHasMemb
 import edu.internet2.middleware.grouper.ws.member.WsMemberFilter;
 import edu.internet2.middleware.grouper.ws.query.StemScope;
 import edu.internet2.middleware.grouper.ws.query.WsQueryFilterType;
+import edu.internet2.middleware.grouper.ws.rest.attribute.WsInheritanceSetRelation;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
 import edu.internet2.middleware.grouper.ws.util.GrouperWsVersionUtils;
 import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
@@ -128,7 +141,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
    */
   public static void main(String[] args) {
     //TestRunner.run(GrouperServiceLogicTest.class);
-    TestRunner.run(new GrouperServiceLogicTest("testGetPermissionAssignmentsPIT"));
+    TestRunner.run(new GrouperServiceLogicTest("testAssignAttributeDefNameInheritance"));
   }
 
   /**
@@ -4843,6 +4856,592 @@ public class GrouperServiceLogicTest extends GrouperTest {
 
   
     
+  }
+
+  /**
+   * test find groups with TypeOfGroup
+   */
+  public void testAssignAttributeDefNameInheritance() {
+  
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+  
+    ApiConfig.testConfig.put("attributeDefs.create.grant.all.attrView", "false");
+    ApiConfig.testConfig.put("attributeDefs.create.grant.all.attrRead", "false");
+  
+    Stem testStem = new StemSave(GrouperServiceUtils.testSession).assignName("test1").save();
+    Stem testSubStem = new StemSave(GrouperServiceUtils.testSession).assignName("test1:sub").save();
+    Stem rootStem = StemFinder.findRootStem(GrouperServiceUtils.testSession);
+    
+    AttributeDef testAttributeDef = new AttributeDefSave(GrouperServiceUtils.testSession).assignName("test1:attributeDef1")
+      .assignAttributeDefType(AttributeDefType.perm).assignToGroup(true)
+      .assignToEffMembership(true).save();
+    AttributeDefName testAttributeDefName1 = new AttributeDefNameSave(GrouperServiceUtils.testSession, testAttributeDef)
+      .assignName("test1:attributeDefName1").save();
+    AttributeDefName testAttributeDefName2 = new AttributeDefNameSave(GrouperServiceUtils.testSession, testAttributeDef)
+      .assignName("test2:attributeDefName2").assignCreateParentStemsIfNotExist(true).save();
+    AttributeDefName testAttributeDefName3 = new AttributeDefNameSave(GrouperServiceUtils.testSession, testAttributeDef)
+      .assignName("test2:attributeDefName3").assignCreateParentStemsIfNotExist(true).save();
+    AttributeDefName testAttributeDefName4 = new AttributeDefNameSave(GrouperServiceUtils.testSession, testAttributeDef)
+      .assignName("test2:attributeDefName4").assignCreateParentStemsIfNotExist(true).save();
+    
+    testAttributeDefName1.getAttributeDefNameSetDelegate().addToAttributeDefNameSet(testAttributeDefName2);
+    
+    testAttributeDef.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ0, AttributeDefPrivilege.ATTR_ADMIN, true);
+    testAttributeDef.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ1, AttributeDefPrivilege.ATTR_READ, true);
+
+    GrouperSession.stopQuietly(GrouperServiceUtils.testSession);
+    GrouperServiceUtils.testSession = GrouperSession.start(SubjectTestHelper.SUBJ0);
+
+    //assign something
+    WsAssignAttributeDefNameInheritanceResults wsAssignAttributeDefNameInheritanceResults = GrouperServiceLogic.assignAttributeDefNameInheritance(
+        GROUPER_VERSION, new WsAttributeDefNameLookup(testAttributeDefName1.getName(), null), 
+        new WsAttributeDefNameLookup[]{new WsAttributeDefNameLookup(null, testAttributeDefName2.getId()),
+          new WsAttributeDefNameLookup(testAttributeDefName3.getName(), null)}, 
+          true, null, null, null, null);
+  
+    assertEquals(wsAssignAttributeDefNameInheritanceResults.getResultMetadata().getResultMessage(),
+        WsAssignAttributeDefNameInheritanceResultsCode.SUCCESS.name(), 
+        wsAssignAttributeDefNameInheritanceResults.getResultMetadata().getResultCode());
+    
+    GrouperSession.stopQuietly(GrouperServiceUtils.testSession);
+    GrouperServiceUtils.testSession = GrouperSession.start(SubjectTestHelper.SUBJ0);
+
+    testAttributeDefName1 = AttributeDefNameFinder.findById(testAttributeDefName1.getId(), true);
+    Set<AttributeDefName> attributeDefNames = testAttributeDefName1.getAttributeDefNameSetDelegate().getAttributeDefNamesImpliedByThis();
+    
+    assertEquals(2, GrouperUtil.length(attributeDefNames));
+    assertTrue(attributeDefNames.contains(testAttributeDefName2));
+    assertTrue(attributeDefNames.contains(testAttributeDefName3));
+
+    //#########################
+    // try to remove, not allowed
+
+    GrouperSession.stopQuietly(GrouperServiceUtils.testSession);
+    GrouperServiceUtils.testSession = GrouperSession.start(SubjectTestHelper.SUBJ1);
+
+    wsAssignAttributeDefNameInheritanceResults = GrouperServiceLogic.assignAttributeDefNameInheritance(
+        GROUPER_VERSION, new WsAttributeDefNameLookup(testAttributeDefName1.getName(), null), 
+        new WsAttributeDefNameLookup[]{
+          new WsAttributeDefNameLookup(testAttributeDefName3.getName(), null)}, 
+          false, null, null, null, null);
+    
+    assertEquals("F", wsAssignAttributeDefNameInheritanceResults.getResultMetadata().getSuccess());
+    assertEquals("INSUFFICIENT_PRIVILEGES", wsAssignAttributeDefNameInheritanceResults.getResultMetadata().getResultCode());
+
+    GrouperSession.stopQuietly(GrouperServiceUtils.testSession);
+    GrouperServiceUtils.testSession = GrouperSession.start(SubjectTestHelper.SUBJ1);
+
+    testAttributeDefName1 = AttributeDefNameFinder.findById(testAttributeDefName1.getId(), true);
+    attributeDefNames = testAttributeDefName1.getAttributeDefNameSetDelegate().getAttributeDefNamesImpliedByThis();
+    
+    assertEquals(2, GrouperUtil.length(attributeDefNames));
+    assertTrue(attributeDefNames.contains(testAttributeDefName2));
+    assertTrue(attributeDefNames.contains(testAttributeDefName3));
+
+    //#########################
+    // replace, allowed
+
+    GrouperSession.stopQuietly(GrouperServiceUtils.testSession);
+    GrouperServiceUtils.testSession = GrouperSession.start(SubjectTestHelper.SUBJ0);
+
+    wsAssignAttributeDefNameInheritanceResults = GrouperServiceLogic.assignAttributeDefNameInheritance(
+        GROUPER_VERSION, new WsAttributeDefNameLookup(testAttributeDefName1.getName(), null), 
+        new WsAttributeDefNameLookup[]{
+          new WsAttributeDefNameLookup(testAttributeDefName3.getName(), null),
+          new WsAttributeDefNameLookup(testAttributeDefName4.getName(), null)}, 
+          true, true, null, null, null);
+    
+    assertEquals("T", wsAssignAttributeDefNameInheritanceResults.getResultMetadata().getSuccess());
+    assertEquals("SUCCESS", wsAssignAttributeDefNameInheritanceResults.getResultMetadata().getResultCode());
+
+    GrouperSession.stopQuietly(GrouperServiceUtils.testSession);
+    GrouperServiceUtils.testSession = GrouperSession.start(SubjectTestHelper.SUBJ0);
+
+    testAttributeDefName1 = AttributeDefNameFinder.findById(testAttributeDefName1.getId(), true);
+    attributeDefNames = testAttributeDefName1.getAttributeDefNameSetDelegate().getAttributeDefNamesImpliedByThis();
+    
+    assertEquals(2, GrouperUtil.length(attributeDefNames));
+    assertTrue(attributeDefNames.contains(testAttributeDefName3));
+    assertTrue(attributeDefNames.contains(testAttributeDefName4));
+
+
+    //#########################
+    // try to remove, allowed
+
+    GrouperSession.stopQuietly(GrouperServiceUtils.testSession);
+    GrouperServiceUtils.testSession = GrouperSession.start(SubjectTestHelper.SUBJ0);
+
+    wsAssignAttributeDefNameInheritanceResults = GrouperServiceLogic.assignAttributeDefNameInheritance(
+        GROUPER_VERSION, new WsAttributeDefNameLookup(testAttributeDefName1.getName(), null), 
+        new WsAttributeDefNameLookup[]{
+          new WsAttributeDefNameLookup(testAttributeDefName3.getName(), null)}, 
+          false, null, null, null, null);
+    
+    assertEquals("T", wsAssignAttributeDefNameInheritanceResults.getResultMetadata().getSuccess());
+    assertEquals("SUCCESS", wsAssignAttributeDefNameInheritanceResults.getResultMetadata().getResultCode());
+
+    GrouperSession.stopQuietly(GrouperServiceUtils.testSession);
+    GrouperServiceUtils.testSession = GrouperSession.start(SubjectTestHelper.SUBJ0);
+
+    testAttributeDefName1 = AttributeDefNameFinder.findById(testAttributeDefName1.getId(), true);
+    attributeDefNames = testAttributeDefName1.getAttributeDefNameSetDelegate().getAttributeDefNamesImpliedByThis();
+    
+    assertEquals(1, GrouperUtil.length(attributeDefNames));
+    assertTrue(attributeDefNames.contains(testAttributeDefName4));
+    
+  }
+
+  /**
+   * test save groups
+   */
+  public void testAttributeDefNameSave() {
+  
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+  
+    ApiConfig.testConfig.put("attributeDefs.create.grant.all.attrView", "false");
+    ApiConfig.testConfig.put("attributeDefs.create.grant.all.attrRead", "false");
+  
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    
+    Stem testStem = new StemSave(grouperSession).assignName("test1").save();
+    Stem testSubStem = new StemSave(grouperSession).assignName("test1:sub").save();
+    Stem rootStem = StemFinder.findRootStem(grouperSession);
+    
+    AttributeDef testAttributeDef = new AttributeDefSave(grouperSession).assignName("test1:attributeDef1")
+      .assignAttributeDefType(AttributeDefType.perm).assignToGroup(true)
+      .assignToEffMembership(true).save();
+    
+    testStem.grantPriv(SubjectTestHelper.SUBJ0, NamingPrivilege.CREATE, true);
+    testAttributeDef.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ0, AttributeDefPrivilege.ATTR_ADMIN, true);
+    testAttributeDef.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ1, AttributeDefPrivilege.ATTR_ADMIN, true);
+    
+    WsAttributeDefNameToSave wsAttributeDefNameToSave1 = new WsAttributeDefNameToSave();
+    WsAttributeDefName wsAttributeDefName1 = new WsAttributeDefName();
+    wsAttributeDefName1.setAttributeDefName(testAttributeDef.getName());
+    wsAttributeDefName1.setName("test1:testAttributeDefName1");
+    wsAttributeDefName1.setDisplayExtension("Test Attribute Def Name 1");
+    wsAttributeDefName1.setDescription("My Description");
+    wsAttributeDefNameToSave1.setWsAttributeDefName(wsAttributeDefName1);
+    
+    WsAttributeDefNameToSave wsAttributeDefNameToSave2 = new WsAttributeDefNameToSave();
+    WsAttributeDefName wsAttributeDefName2 = new WsAttributeDefName();
+    wsAttributeDefName2.setAttributeDefName(testAttributeDef.getName());
+    wsAttributeDefName2.setName("test1:testAttributeDefName2");
+    wsAttributeDefName2.setDisplayExtension("Test Attribute Def Name 2");
+    wsAttributeDefName2.setDescription("My Description2");
+    wsAttributeDefNameToSave2.setWsAttributeDefName(wsAttributeDefName2);
+    
+    
+    //save two attribute def names
+    WsAttributeDefNameSaveResults wsAttributeDefNameSaveResults = GrouperServiceLogic.attributeDefNameSave(
+        GROUPER_VERSION, new WsAttributeDefNameToSave[]{wsAttributeDefNameToSave1, wsAttributeDefNameToSave2}, null, null, null);
+  
+    assertEquals(wsAttributeDefNameSaveResults.getResultMetadata().getResultMessage(),
+        WsFindAttributeDefNamesResultsCode.SUCCESS.name(), 
+        wsAttributeDefNameSaveResults.getResultMetadata().getResultCode());
+  
+    assertEquals(2, GrouperUtil.length(wsAttributeDefNameSaveResults.getResults()));
+    assertEquals(testAttributeDef.getId(), wsAttributeDefNameSaveResults.getResults()[0].getWsAttributeDefName().getAttributeDefId());
+    assertEquals(wsAttributeDefName1.getName(), wsAttributeDefNameSaveResults.getResults()[0].getWsAttributeDefName().getName());
+    assertEquals(wsAttributeDefName1.getDisplayExtension(), wsAttributeDefNameSaveResults.getResults()[0].getWsAttributeDefName().getDisplayExtension());
+    assertEquals(wsAttributeDefName1.getDescription(), wsAttributeDefNameSaveResults.getResults()[0].getWsAttributeDefName().getDescription());
+
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+
+    AttributeDefName testAttributeDefName2 = AttributeDefNameFinder.findByName(wsAttributeDefName2.getName(), true);
+    assertEquals(testAttributeDefName2.getDisplayExtension(), wsAttributeDefNameSaveResults.getResults()[1].getWsAttributeDefName().getDisplayExtension());
+    assertEquals(testAttributeDefName2.getDescription(), wsAttributeDefNameSaveResults.getResults()[1].getWsAttributeDefName().getDescription());
+    
+    //#########################
+    //try as subject0
+    grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ0);
+  
+    wsAttributeDefNameToSave1 = new WsAttributeDefNameToSave();
+    wsAttributeDefName1 = new WsAttributeDefName();
+    wsAttributeDefName1.setAttributeDefName(testAttributeDef.getName());
+    wsAttributeDefName1.setName("test1:testAttributeDefName1a");
+    wsAttributeDefName1.setDisplayExtension("Test Attribute Def Name 1a");
+    wsAttributeDefName1.setDescription("My Descriptiona");
+    wsAttributeDefNameToSave1.setWsAttributeDefName(wsAttributeDefName1);
+    
+    wsAttributeDefNameToSave2 = new WsAttributeDefNameToSave();
+    wsAttributeDefName2 = new WsAttributeDefName();
+    wsAttributeDefName2.setAttributeDefName(testAttributeDef.getName());
+    wsAttributeDefName2.setName("test1:testAttributeDefName2a");
+    wsAttributeDefName2.setDisplayExtension("Test Attribute Def Name 2a");
+    wsAttributeDefName2.setDescription("My Description2a");
+    wsAttributeDefNameToSave2.setWsAttributeDefName(wsAttributeDefName2);
+    
+    
+    //save two attribute def names
+    wsAttributeDefNameSaveResults = GrouperServiceLogic.attributeDefNameSave(
+        GROUPER_VERSION, new WsAttributeDefNameToSave[]{wsAttributeDefNameToSave1, wsAttributeDefNameToSave2}, null, null, null);
+  
+    assertEquals(wsAttributeDefNameSaveResults.getResultMetadata().getResultMessage(),
+        WsFindAttributeDefNamesResultsCode.SUCCESS.name(), 
+        wsAttributeDefNameSaveResults.getResultMetadata().getResultCode());
+  
+    assertEquals(2, GrouperUtil.length(wsAttributeDefNameSaveResults.getResults()));
+    assertEquals(testAttributeDef.getId(), wsAttributeDefNameSaveResults.getResults()[0].getWsAttributeDefName().getAttributeDefId());
+    assertEquals(wsAttributeDefName1.getName(), wsAttributeDefNameSaveResults.getResults()[0].getWsAttributeDefName().getName());
+    assertEquals(wsAttributeDefName1.getDisplayExtension(), wsAttributeDefNameSaveResults.getResults()[0].getWsAttributeDefName().getDisplayExtension());
+    assertEquals(wsAttributeDefName1.getDescription(), wsAttributeDefNameSaveResults.getResults()[0].getWsAttributeDefName().getDescription());
+
+    GrouperServiceUtils.testSession = GrouperSession.start(SubjectTestHelper.SUBJ0);
+
+    testAttributeDefName2 = AttributeDefNameFinder.findByName(wsAttributeDefName2.getName(), true);
+    assertEquals(testAttributeDefName2.getDisplayExtension(), wsAttributeDefNameSaveResults.getResults()[1].getWsAttributeDefName().getDisplayExtension());
+    assertEquals(testAttributeDefName2.getDescription(), wsAttributeDefNameSaveResults.getResults()[1].getWsAttributeDefName().getDescription());
+
+    //#########################
+    //try as subject1, not allowed
+    GrouperServiceUtils.testSession = GrouperSession.start(SubjectTestHelper.SUBJ1);
+
+    wsAttributeDefNameToSave1 = new WsAttributeDefNameToSave();
+    wsAttributeDefName1 = new WsAttributeDefName();
+    wsAttributeDefName1.setAttributeDefName(testAttributeDef.getName());
+    wsAttributeDefName1.setName("test1:testAttributeDefName1b");
+    wsAttributeDefName1.setDisplayExtension("Test Attribute Def Name 1b");
+    wsAttributeDefName1.setDescription("My Descriptionb");
+    wsAttributeDefNameToSave1.setWsAttributeDefName(wsAttributeDefName1);
+    
+    wsAttributeDefNameToSave2 = new WsAttributeDefNameToSave();
+    wsAttributeDefName2 = new WsAttributeDefName();
+    wsAttributeDefName2.setAttributeDefName(testAttributeDef.getName());
+    wsAttributeDefName2.setName("test1:testAttributeDefName2b");
+    wsAttributeDefName2.setDisplayExtension("Test Attribute Def Name 2b");
+    wsAttributeDefName2.setDescription("My Description2b");
+    wsAttributeDefNameToSave2.setWsAttributeDefName(wsAttributeDefName2);
+
+    wsAttributeDefNameSaveResults = GrouperServiceLogic.attributeDefNameSave(
+        GROUPER_VERSION, new WsAttributeDefNameToSave[]{wsAttributeDefNameToSave1, wsAttributeDefNameToSave2}, null, null, null);
+    assertEquals("F", wsAttributeDefNameSaveResults.getResultMetadata().getSuccess());
+    assertEquals("PROBLEM_SAVING_ATTRIBUTE_DEF_NAMES", wsAttributeDefNameSaveResults.getResultMetadata().getResultCode());
+    assertEquals("F", wsAttributeDefNameSaveResults.getResults()[0].getResultMetadata().getSuccess());
+    assertEquals("INSUFFICIENT_PRIVILEGES", wsAttributeDefNameSaveResults.getResults()[0].getResultMetadata().getResultCode());
+    assertEquals("F", wsAttributeDefNameSaveResults.getResults()[1].getResultMetadata().getSuccess());
+    assertEquals("INSUFFICIENT_PRIVILEGES", wsAttributeDefNameSaveResults.getResults()[1].getResultMetadata().getResultCode());
+    
+    
+    
+  }
+
+  /**
+   * test delete groups
+   */
+  public void testAttributeDefNameDelete() {
+  
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+  
+    ApiConfig.testConfig.put("attributeDefs.create.grant.all.attrView", "false");
+    ApiConfig.testConfig.put("attributeDefs.create.grant.all.attrRead", "false");
+  
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    
+    Stem testStem = new StemSave(grouperSession).assignName("test1").save();
+    Stem testSubStem = new StemSave(grouperSession).assignName("test1:sub").save();
+    Stem rootStem = StemFinder.findRootStem(grouperSession);
+    
+    AttributeDef testAttributeDef = new AttributeDefSave(grouperSession).assignName("test1:attributeDef1")
+      .assignAttributeDefType(AttributeDefType.perm).assignToGroup(true)
+      .assignToEffMembership(true).save();
+    AttributeDefName testAttributeDefName1 = new AttributeDefNameSave(grouperSession, 
+        testAttributeDef).assignName("test1:attributeDefName1").save();
+    AttributeDefName testAttributeDefName2 = new AttributeDefNameSave(grouperSession, 
+        testAttributeDef).assignName("test1:attributeDefName2").save();
+    
+    testAttributeDef.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ0, AttributeDefPrivilege.ATTR_ADMIN, true);
+    //if you cant view you cant delete
+    testAttributeDef.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ1, AttributeDefPrivilege.ATTR_VIEW, true);
+    
+    GrouperServiceUtils.testSession = GrouperSession.start(SubjectTestHelper.SUBJ0);
+    
+    //save two attribute def names
+    WsAttributeDefNameDeleteResults wsAttributeDefNameDeleteResults = GrouperServiceLogic.attributeDefNameDelete(
+        GROUPER_VERSION, new WsAttributeDefNameLookup[]{new WsAttributeDefNameLookup(testAttributeDefName1.getName(), null),
+            new WsAttributeDefNameLookup(null, testAttributeDefName2.getId())}, 
+        null, null, null);
+  
+    assertEquals(wsAttributeDefNameDeleteResults.getResultMetadata().getResultMessage(),
+        WsFindAttributeDefNamesResultsCode.SUCCESS.name(), 
+        wsAttributeDefNameDeleteResults.getResultMetadata().getResultCode());
+    
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+  
+    testAttributeDefName1 = AttributeDefNameFinder.findByName(testAttributeDefName1.getName(), false);
+    testAttributeDefName2 = AttributeDefNameFinder.findByName(testAttributeDefName2.getName(), false);
+    assertNull(testAttributeDefName1);
+    assertNull(testAttributeDefName2);
+    
+    //#########################
+    //try as subject1
+    
+    grouperSession = GrouperSession.startRootSession();
+    
+    testAttributeDefName1 = new AttributeDefNameSave(grouperSession, 
+        testAttributeDef).assignName("test1:attributeDefName1a").save();
+    testAttributeDefName2 = new AttributeDefNameSave(grouperSession, 
+        testAttributeDef).assignName("test1:attributeDefName2a").save();
+    
+    GrouperServiceUtils.testSession = GrouperSession.start(SubjectTestHelper.SUBJ1);
+  
+    wsAttributeDefNameDeleteResults = GrouperServiceLogic.attributeDefNameDelete(
+        GROUPER_VERSION, new WsAttributeDefNameLookup[]{new WsAttributeDefNameLookup(testAttributeDefName1.getName(), null),
+            new WsAttributeDefNameLookup(null, testAttributeDefName2.getId())}, 
+        null, null, null);
+
+    grouperSession = GrouperSession.startRootSession();
+    testAttributeDefName1 = AttributeDefNameFinder.findByName(testAttributeDefName1.getName(), true);
+    testAttributeDefName2 = AttributeDefNameFinder.findByName(testAttributeDefName2.getName(), true);
+    assertNotNull(testAttributeDefName1);
+    assertNotNull(testAttributeDefName2);
+
+    assertEquals("F", wsAttributeDefNameDeleteResults.getResultMetadata().getSuccess());
+    assertEquals("PROBLEM_DELETING_ATTRIBUTE_DEF_NAMES", wsAttributeDefNameDeleteResults.getResultMetadata().getResultCode());
+    assertEquals("F", wsAttributeDefNameDeleteResults.getResults()[0].getResultMetadata().getSuccess());
+    assertEquals("INSUFFICIENT_PRIVILEGES", wsAttributeDefNameDeleteResults.getResults()[0].getResultMetadata().getResultCode());
+    assertEquals("F", wsAttributeDefNameDeleteResults.getResults()[1].getResultMetadata().getSuccess());
+    assertEquals("INSUFFICIENT_PRIVILEGES", wsAttributeDefNameDeleteResults.getResults()[1].getResultMetadata().getResultCode());
+    
+    
+    
+  }
+
+  /**
+   * test find groups with TypeOfGroup
+   */
+  public void testFindAttributeDefNames() {
+  
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+  
+    ApiConfig.testConfig.put("attributeDefs.create.grant.all.attrView", "false");
+    ApiConfig.testConfig.put("attributeDefs.create.grant.all.attrRead", "false");
+  
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    
+    Stem testStem = new StemSave(grouperSession).assignName("test1").save();
+    Stem testSubStem = new StemSave(grouperSession).assignName("test1:sub").save();
+    Stem rootStem = StemFinder.findRootStem(grouperSession);
+    
+    AttributeDef testAttributeDef = new AttributeDefSave(grouperSession).assignName("test1:attributeDef1")
+      .assignAttributeDefType(AttributeDefType.perm).assignToGroup(true)
+      .assignToEffMembership(true).save();
+    AttributeDefName testAttributeDefName1 = new AttributeDefNameSave(grouperSession, testAttributeDef).assignName("test1:attributeDefName1").save();
+    AttributeDefName testAttributeDefName2 = new AttributeDefNameSave(grouperSession, testAttributeDef)
+      .assignName("test2:attributeDefName2").assignCreateParentStemsIfNotExist(true).save();
+    
+    testAttributeDefName1.getAttributeDefNameSetDelegate().addToAttributeDefNameSet(testAttributeDefName2);
+    
+    testAttributeDef.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ0, AttributeDefPrivilege.ATTR_READ, true);
+    testAttributeDef.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ1, AttributeDefPrivilege.ATTR_ADMIN, true);
+  
+    //find no results
+    WsFindAttributeDefNamesResults wsFindAttributeDefNamesResults = GrouperServiceLogic.findAttributeDefNames(
+        GROUPER_VERSION, "test3%", null, null, null, null, null, null, null, null, null, null, null, null);
+  
+    assertEquals(wsFindAttributeDefNamesResults.getResultMetadata().getResultMessage(),
+        WsFindAttributeDefNamesResultsCode.SUCCESS.name(), 
+        wsFindAttributeDefNamesResults.getResultMetadata().getResultCode());
+  
+    assertEquals(0, GrouperUtil.length(wsFindAttributeDefNamesResults.getAttributeDefNameResults()));
+    assertEquals(0, GrouperUtil.length(wsFindAttributeDefNamesResults.getAttributeDefs()));
+  
+    //#############################################
+    //find all results
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+    wsFindAttributeDefNamesResults = GrouperServiceLogic.findAttributeDefNames(
+        GROUPER_VERSION, "test%", null, null, null, null, null, null, null, null, null, null, null, null);
+  
+    assertEquals(wsFindAttributeDefNamesResults.getResultMetadata().getResultMessage(),
+        WsFindAttributeDefNamesResultsCode.SUCCESS.name(), 
+        wsFindAttributeDefNamesResults.getResultMetadata().getResultCode());
+  
+    assertEquals(2, GrouperUtil.length(wsFindAttributeDefNamesResults.getAttributeDefNameResults()));
+    assertEquals(testAttributeDefName1.getName(), wsFindAttributeDefNamesResults.getAttributeDefNameResults()[0].getName());
+    assertEquals(testAttributeDefName2.getName(), wsFindAttributeDefNamesResults.getAttributeDefNameResults()[1].getName());
+    
+    assertEquals(1, GrouperUtil.length(wsFindAttributeDefNamesResults.getAttributeDefs()));
+    assertEquals(testAttributeDef.getName(), wsFindAttributeDefNamesResults.getAttributeDefs()[0].getName());
+    
+    //#############################################
+    //no scope and no lookups is an exception
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+    wsFindAttributeDefNamesResults = GrouperServiceLogic.findAttributeDefNames(
+        GROUPER_VERSION, null, null, null, null, null, null, null, null, null, null, null, null, null);
+    assertEquals("F", wsFindAttributeDefNamesResults.getResultMetadata().getSuccess());
+    assertEquals("INVALID_QUERY", wsFindAttributeDefNamesResults.getResultMetadata().getResultCode());
+    
+    //#############################################
+    //find all results by attribute def
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+    wsFindAttributeDefNamesResults = GrouperServiceLogic.findAttributeDefNames(
+        GROUPER_VERSION, null, null, new WsAttributeDefLookup(testAttributeDef.getName(), null), null, null, null, null, null, null, null, null, null, null);
+  
+    assertEquals(wsFindAttributeDefNamesResults.getResultMetadata().getResultMessage(),
+        WsFindAttributeDefNamesResultsCode.SUCCESS.name(), 
+        wsFindAttributeDefNamesResults.getResultMetadata().getResultCode());
+  
+    assertEquals(2, GrouperUtil.length(wsFindAttributeDefNamesResults.getAttributeDefNameResults()));
+    assertEquals(testAttributeDefName1.getName(), wsFindAttributeDefNamesResults.getAttributeDefNameResults()[0].getName());
+    assertEquals(testAttributeDefName2.getName(), wsFindAttributeDefNamesResults.getAttributeDefNameResults()[1].getName());
+    
+    assertEquals(1, GrouperUtil.length(wsFindAttributeDefNamesResults.getAttributeDefs()));
+    assertEquals(testAttributeDef.getName(), wsFindAttributeDefNamesResults.getAttributeDefs()[0].getName());
+    
+    //#############################################
+    //find all results by attribute def
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+    wsFindAttributeDefNamesResults = GrouperServiceLogic.findAttributeDefNames(
+        GROUPER_VERSION, null, null, new WsAttributeDefLookup(testAttributeDef.getName(), null), null, null, null, null, null, null, null, null, null, null);
+  
+    assertEquals(wsFindAttributeDefNamesResults.getResultMetadata().getResultMessage(),
+        WsFindAttributeDefNamesResultsCode.SUCCESS.name(), 
+        wsFindAttributeDefNamesResults.getResultMetadata().getResultCode());
+  
+    assertEquals(2, GrouperUtil.length(wsFindAttributeDefNamesResults.getAttributeDefNameResults()));
+    assertEquals(testAttributeDefName1.getName(), wsFindAttributeDefNamesResults.getAttributeDefNameResults()[0].getName());
+    assertEquals(testAttributeDefName2.getName(), wsFindAttributeDefNamesResults.getAttributeDefNameResults()[1].getName());
+    
+    assertEquals(1, GrouperUtil.length(wsFindAttributeDefNamesResults.getAttributeDefs()));
+    assertEquals(testAttributeDef.getName(), wsFindAttributeDefNamesResults.getAttributeDefs()[0].getName());
+    
+    //#############################################
+    //find all results by attribute def name lookup
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+    wsFindAttributeDefNamesResults = GrouperServiceLogic.findAttributeDefNames(
+        GROUPER_VERSION, null, null, null, null, null, 
+        new WsAttributeDefNameLookup[]{new WsAttributeDefNameLookup(testAttributeDefName1.getName(), null), 
+            new WsAttributeDefNameLookup(null, testAttributeDefName2.getId())}, null, null, null, null, null, null, null);
+  
+    assertEquals(wsFindAttributeDefNamesResults.getResultMetadata().getResultMessage(),
+        WsFindAttributeDefNamesResultsCode.SUCCESS.name(), 
+        wsFindAttributeDefNamesResults.getResultMetadata().getResultCode());
+  
+    assertEquals(2, GrouperUtil.length(wsFindAttributeDefNamesResults.getAttributeDefNameResults()));
+    assertEquals(testAttributeDefName1.getName(), wsFindAttributeDefNamesResults.getAttributeDefNameResults()[0].getName());
+    assertEquals(testAttributeDefName2.getName(), wsFindAttributeDefNamesResults.getAttributeDefNameResults()[1].getName());
+    
+    assertEquals(1, GrouperUtil.length(wsFindAttributeDefNamesResults.getAttributeDefs()));
+    assertEquals(testAttributeDef.getName(), wsFindAttributeDefNamesResults.getAttributeDefs()[0].getName());
+  
+    
+    //#############################################
+    //cant have two lookups and relationship
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+    wsFindAttributeDefNamesResults = GrouperServiceLogic.findAttributeDefNames(
+        GROUPER_VERSION, null, null, null, null, null, 
+        new WsAttributeDefNameLookup[]{new WsAttributeDefNameLookup(testAttributeDefName1.getName(), null), 
+            new WsAttributeDefNameLookup(null, testAttributeDefName2.getId())}, 
+        null, null, null, null, WsInheritanceSetRelation.IMPLIED_BY_THIS, null, null);
+    assertEquals("F", wsFindAttributeDefNamesResults.getResultMetadata().getSuccess());
+    assertEquals("INVALID_QUERY", wsFindAttributeDefNamesResults.getResultMetadata().getResultCode());
+    
+    //#############################################
+    //cant have no lookups and relationship
+    wsFindAttributeDefNamesResults = GrouperServiceLogic.findAttributeDefNames(
+        GROUPER_VERSION, null, null, null, null, null, 
+        null, 
+        null, null, null, null, WsInheritanceSetRelation.IMPLIED_BY_THIS, null, null);
+    assertEquals("F", wsFindAttributeDefNamesResults.getResultMetadata().getSuccess());
+    assertEquals("INVALID_QUERY", wsFindAttributeDefNamesResults.getResultMetadata().getResultCode());
+    
+    //#############################################
+    //find relationship of attribute def name
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+    wsFindAttributeDefNamesResults = GrouperServiceLogic.findAttributeDefNames(
+        GROUPER_VERSION, null, null, null, null, null, 
+        new WsAttributeDefNameLookup[]{new WsAttributeDefNameLookup(testAttributeDefName1.getName(), null)}, 
+        null, null, null, null, WsInheritanceSetRelation.IMPLIED_BY_THIS, null, null);
+  
+    assertEquals(wsFindAttributeDefNamesResults.getResultMetadata().getResultMessage(),
+        WsFindAttributeDefNamesResultsCode.SUCCESS.name(), 
+        wsFindAttributeDefNamesResults.getResultMetadata().getResultCode());
+  
+    assertEquals(1, GrouperUtil.length(wsFindAttributeDefNamesResults.getAttributeDefNameResults()));
+    assertEquals(testAttributeDefName2.getName(), wsFindAttributeDefNamesResults.getAttributeDefNameResults()[0].getName());
+    
+    assertEquals(1, GrouperUtil.length(wsFindAttributeDefNamesResults.getAttributeDefs()));
+    assertEquals(testAttributeDef.getName(), wsFindAttributeDefNamesResults.getAttributeDefs()[0].getName());
+  
+    //#############################################
+    //if you pass a page number, you need a page size
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+    
+    wsFindAttributeDefNamesResults = GrouperServiceLogic.findAttributeDefNames(
+        GROUPER_VERSION, "test%", null, null, null, null, null, null, 1, null, null, null, null, null);
+    assertEquals("F", wsFindAttributeDefNamesResults.getResultMetadata().getSuccess());
+    assertEquals("INVALID_QUERY", wsFindAttributeDefNamesResults.getResultMetadata().getResultCode());
+  
+    //#############################################
+    //if you pass a split scope, you need a scope
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+    
+    wsFindAttributeDefNamesResults = GrouperServiceLogic.findAttributeDefNames(
+        GROUPER_VERSION, null, true, null, null, null, null, null, null, null, null, null, null, null);
+    assertEquals("F", wsFindAttributeDefNamesResults.getResultMetadata().getSuccess());
+    assertEquals("INVALID_QUERY", wsFindAttributeDefNamesResults.getResultMetadata().getResultCode());
+  
+    //#############################################
+    //page by size 1, page number 2
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+    wsFindAttributeDefNamesResults = GrouperServiceLogic.findAttributeDefNames(
+        GROUPER_VERSION, "test%", null, null, null, null, null, 
+        1, 2, "name", false, null, null, null);
+  
+    assertEquals(wsFindAttributeDefNamesResults.getResultMetadata().getResultMessage(),
+        WsFindAttributeDefNamesResultsCode.SUCCESS.name(), 
+        wsFindAttributeDefNamesResults.getResultMetadata().getResultCode());
+  
+    assertEquals(1, GrouperUtil.length(wsFindAttributeDefNamesResults.getAttributeDefNameResults()));
+    assertEquals(testAttributeDefName1.getName(), wsFindAttributeDefNamesResults.getAttributeDefNameResults()[0].getName());
+  
+    assertEquals(1, GrouperUtil.length(wsFindAttributeDefNamesResults.getAttributeDefs()));
+    assertEquals(testAttributeDef.getName(), wsFindAttributeDefNamesResults.getAttributeDefs()[0].getName());
+  
+    //#############################################
+    //page by size 1, page number 2, secure
+    GrouperServiceUtils.testSession = GrouperSession.start(SubjectTestHelper.SUBJ0);
+    wsFindAttributeDefNamesResults = GrouperServiceLogic.findAttributeDefNames(
+        GROUPER_VERSION, "test%", null, null, null, null, null, 
+        1, 2, "name", false, null, null, null);
+  
+    assertEquals(wsFindAttributeDefNamesResults.getResultMetadata().getResultMessage(),
+        WsFindAttributeDefNamesResultsCode.SUCCESS.name(), 
+        wsFindAttributeDefNamesResults.getResultMetadata().getResultCode());
+  
+    assertEquals(1, GrouperUtil.length(wsFindAttributeDefNamesResults.getAttributeDefNameResults()));
+    assertEquals(testAttributeDefName1.getName(), wsFindAttributeDefNamesResults.getAttributeDefNameResults()[0].getName());
+  
+    assertEquals(1, GrouperUtil.length(wsFindAttributeDefNamesResults.getAttributeDefs()));
+    assertEquals(testAttributeDef.getName(), wsFindAttributeDefNamesResults.getAttributeDefs()[0].getName());
+  
+    //#############################################
+    //page by size 1, page number 2, secure
+    GrouperServiceUtils.testSession = GrouperSession.start(SubjectTestHelper.SUBJ1);
+    wsFindAttributeDefNamesResults = GrouperServiceLogic.findAttributeDefNames(
+        GROUPER_VERSION, "test%", null, null, null, null, null, 
+        1, 2, "name", false, null, null, null);
+  
+    assertEquals(wsFindAttributeDefNamesResults.getResultMetadata().getResultMessage(),
+        WsFindAttributeDefNamesResultsCode.SUCCESS.name(), 
+        wsFindAttributeDefNamesResults.getResultMetadata().getResultCode());
+  
+    assertEquals(1, GrouperUtil.length(wsFindAttributeDefNamesResults.getAttributeDefNameResults()));
+    assertEquals(testAttributeDefName1.getName(), wsFindAttributeDefNamesResults.getAttributeDefNameResults()[0].getName());
+  
+    assertEquals(1, GrouperUtil.length(wsFindAttributeDefNamesResults.getAttributeDefs()));
+    assertEquals(testAttributeDef.getName(), wsFindAttributeDefNamesResults.getAttributeDefs()[0].getName());
+  
+    //#############################################
+    //page by size 1, page number 2, secure
+    GrouperServiceUtils.testSession = GrouperSession.start(SubjectTestHelper.SUBJ2);
+    wsFindAttributeDefNamesResults = GrouperServiceLogic.findAttributeDefNames(
+        GROUPER_VERSION, "test%", null, null, null, null, null, 
+        1, 2, "name", false, null, null, null);
+  
+    assertEquals(0, GrouperUtil.length(wsFindAttributeDefNamesResults.getAttributeDefNameResults()));
+    assertEquals(0, GrouperUtil.length(wsFindAttributeDefNamesResults.getAttributeDefs()));
+  
   }
 
   

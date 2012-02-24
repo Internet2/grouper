@@ -3,12 +3,15 @@
  */
 package edu.internet2.middleware.grouper.ws.coresoap;
 
+import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.TreeSet;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 import edu.internet2.middleware.grouper.attr.AttributeDef;
+import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.pit.PITAttributeDef;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
@@ -32,6 +35,31 @@ public class WsAttributeDef implements Comparable<WsAttributeDef> {
   /** extension of attributeDef, the part to the right of last colon in name */
   private String extension;
 
+  /**
+   * convert a set of attribute def names to results
+   * @param attributeDefNameSet
+   * @return the attributeDefs (null if none or null)
+   */
+  public static WsAttributeDef[] convertAttributeDefNames(Set<AttributeDefName> attributeDefNameSet) {
+    if (attributeDefNameSet == null || attributeDefNameSet.size() == 0) {
+      return null;
+    }
+
+    Set<AttributeDef> attributeDefSet = new TreeSet<AttributeDef>();
+    Set<String> idsOfAttributeDefs = new LinkedHashSet<String>();
+    for (AttributeDefName attributeDefName : attributeDefNameSet) {
+      if (!idsOfAttributeDefs.contains(attributeDefName.getAttributeDefId())) {
+        idsOfAttributeDefs.add(attributeDefName.getAttributeDefId());
+        attributeDefSet.add(attributeDefName.getAttributeDef());
+      }
+    }
+    
+    return convertAttributeDefs(attributeDefSet);
+
+  }
+
+
+  
   /**
    * convert a set of attribute def names to results
    * @param attributeDefSet

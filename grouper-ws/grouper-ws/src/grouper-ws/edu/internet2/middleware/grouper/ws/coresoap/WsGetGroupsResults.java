@@ -32,7 +32,9 @@ public class WsGetGroupsResults implements WsResponseBean, ResultMetadataHolder 
    */
   public static enum WsGetGroupsResultsCode implements WsResultCode {
 
-    /** found the subject (rest http status code 201) (success: T) */
+    /** found the subject (rest http status code 201) (success: T)
+     * CH 20120210: Why is this a 201????  shouldnt it be 200????
+     */
     SUCCESS(201),
 
     /** found the subject (rest http status code 500) (success: F) */

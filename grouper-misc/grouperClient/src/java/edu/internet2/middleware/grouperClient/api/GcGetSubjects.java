@@ -258,7 +258,7 @@ public class GcGetSubjects {
       
       //kick off the web service
       wsGetSubjectsResults = (WsGetSubjectsResults)
-        grouperClientWs.executeService("subjects", getSubjects, "getSubjects", this.clientVersion);
+        grouperClientWs.executeService("subjects", getSubjects, "getSubjects", this.clientVersion, true);
       
       String resultMessage = wsGetSubjectsResults.getResultMetadata().getResultMessage();
       grouperClientWs.handleFailure(wsGetSubjectsResults, null, resultMessage);

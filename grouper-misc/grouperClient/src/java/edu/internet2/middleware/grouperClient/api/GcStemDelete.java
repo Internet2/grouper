@@ -148,7 +148,7 @@ public class GcStemDelete {
       
       //kick off the web service
       wsStemDeleteResults = (WsStemDeleteResults)
-        grouperClientWs.executeService("stems", stemDelete, "stemDelete", this.clientVersion);
+        grouperClientWs.executeService("stems", stemDelete, "stemDelete", this.clientVersion, false);
       
       String resultMessage = wsStemDeleteResults.getResultMetadata().getResultMessage();
       grouperClientWs.handleFailure(wsStemDeleteResults, wsStemDeleteResults.getResults(), resultMessage);

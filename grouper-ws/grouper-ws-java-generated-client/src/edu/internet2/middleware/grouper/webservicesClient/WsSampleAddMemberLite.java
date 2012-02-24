@@ -49,25 +49,25 @@ public class WsSampleAddMemberLite implements WsSampleGenerated {
 
             addMemberLite.setGroupName("aStem:aGroup");
 
-            addMemberLite.setGroupUuid("");
-
-            addMemberLite.setSubjectId("");
+//            addMemberLite.setGroupUuid("");
+//
+//            addMemberLite.setSubjectId("");
             addMemberLite.setSubjectSourceId("jdbc");
             addMemberLite.setSubjectIdentifier("id.test.subject.0");
 
             // set the act as id
             addMemberLite.setActAsSubjectId("GrouperSystem");
 
-            addMemberLite.setActAsSubjectSourceId("");
-            addMemberLite.setActAsSubjectIdentifier("");
-            addMemberLite.setFieldName("");
-            addMemberLite.setIncludeGroupDetail("");
-            addMemberLite.setIncludeSubjectDetail("");
-            addMemberLite.setSubjectAttributeNames("");
-            addMemberLite.setParamName0("");
-            addMemberLite.setParamValue0("");
-            addMemberLite.setParamName1("");
-            addMemberLite.setParamValue1("");
+//            addMemberLite.setActAsSubjectSourceId("");
+//            addMemberLite.setActAsSubjectIdentifier("");
+//            addMemberLite.setFieldName("");
+//            addMemberLite.setIncludeGroupDetail("");
+//            addMemberLite.setIncludeSubjectDetail("");
+//            addMemberLite.setSubjectAttributeNames("");
+//            addMemberLite.setParamName0("");
+//            addMemberLite.setParamValue0("");
+//            addMemberLite.setParamName1("");
+//            addMemberLite.setParamValue1("");
 
             WsAddMemberLiteResult wsAddMemberLiteResult = stub.addMemberLite(addMemberLite)
                                                               .get_return();

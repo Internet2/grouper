@@ -26,7 +26,6 @@ import org.w3c.dom.Element;
 
 import edu.internet2.middleware.grouper.shibboleth.config.GrouperNamespaceHandler;
 import edu.internet2.middleware.grouper.shibboleth.util.AttributeIdentifierBeanDefinitionParser;
-import edu.internet2.middleware.grouper.shibboleth.util.SubjectIdentifierBeanDefinitionParser;
 import edu.internet2.middleware.shibboleth.common.attribute.resolver.provider.dataConnector.DataConnector;
 import edu.internet2.middleware.shibboleth.common.config.SpringConfigurationUtils;
 import edu.internet2.middleware.shibboleth.common.config.attribute.resolver.dataConnector.BaseDataConnectorBeanDefinitionParser;
@@ -49,13 +48,6 @@ public abstract class BaseGrouperDataConnectorBeanDefinitionParser extends BaseD
     if (!groupQueryFilters.isEmpty()) {
       pluginBuilder.addPropertyValue("filter",
           SpringConfigurationUtils.parseInnerCustomElement(groupQueryFilters.get(0), parserContext));
-    }
-
-    List<Element> subjectIdentifiers = XMLHelper.getChildElementsByTagNameNS(pluginConfig,
-        GrouperNamespaceHandler.NAMESPACE, SubjectIdentifierBeanDefinitionParser.TYPE_NAME.getLocalPart());
-    if (!subjectIdentifiers.isEmpty()) {
-      pluginBuilder.addPropertyValue("subjectIdentifier",
-          SpringConfigurationUtils.parseInnerCustomElement(subjectIdentifiers.get(0), parserContext));
     }
   }
 }

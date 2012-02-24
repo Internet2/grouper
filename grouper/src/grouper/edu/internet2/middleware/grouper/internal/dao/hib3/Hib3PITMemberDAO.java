@@ -55,7 +55,7 @@ public class Hib3PITMemberDAO extends Hib3DAO implements PITMemberDAO {
     PITMember pitMember = HibernateSession
       .byHqlStatic()
       .createQuery("select pitMember from PITMember as pitMember where pitMember.sourceId = :id and activeDb = 'T'")
-      .setCacheable(false).setCacheRegion(KLASS + ".FindBySourceIdActive")
+      .setCacheable(true).setCacheRegion(KLASS + ".FindBySourceIdActive")
       .setString("id", id)
       .uniqueResult(PITMember.class);
     
@@ -109,7 +109,7 @@ public class Hib3PITMemberDAO extends Hib3DAO implements PITMemberDAO {
     PITMember pit = HibernateSession
       .byHqlStatic()
       .createQuery("select pit from PITMember as pit where pit.id = :id")
-      .setCacheable(false).setCacheRegion(KLASS + ".FindById")
+      .setCacheable(true).setCacheRegion(KLASS + ".FindById")
       .setString("id", id)
       .uniqueResult(PITMember.class);
     

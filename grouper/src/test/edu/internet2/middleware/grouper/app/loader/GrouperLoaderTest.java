@@ -70,7 +70,7 @@ public class GrouperLoaderTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new GrouperLoaderTest("testLoaderAttributeDefActions"));
+    TestRunner.run(new GrouperLoaderTest("testLoaderSubjectIdentifier"));
   }
 
   /**
@@ -1209,6 +1209,39 @@ public class GrouperLoaderTest extends GrouperTest {
   
     
     }
+
+  /**
+   * test the loader
+   * @throws Exception 
+   */
+  public void testLoaderSubjectIdentifier() throws Exception {
+    
+    List<TestgrouperLoader> testDataList = new ArrayList<TestgrouperLoader>();
+    
+    TestgrouperLoader subj0 = new TestgrouperLoader("id.test.subject.0", null, null);
+    testDataList.add(subj0);
+    TestgrouperLoader subj1 = new TestgrouperLoader("id.test.subject.1", null, null);
+    testDataList.add(subj1);
+    TestgrouperLoader subj2 = new TestgrouperLoader("id.test.subject.2", null, null);
+    testDataList.add(subj2);
+  
+    HibernateSession.byObjectStatic().saveOrUpdate(testDataList);
+  
+    //lets add a group which will load these
+    Group loaderGroup = Group.saveGroup(this.grouperSession, null, null, 
+        "loader:owner",null, null, null, true);
+    loaderGroup.addType(GroupTypeFinder.find("grouperLoader", true));
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_QUERY, 
+        "select col1 as SUBJECT_IDENTIFIER from testgrouper_loader");
+    
+    System.out.println(GrouperLoader.runJobOnceForGroup(this.grouperSession, loaderGroup));
+    System.out.println(GrouperLoader.runJobOnceForGroup(this.grouperSession, loaderGroup));
+    
+    assertTrue(loaderGroup.hasMember(SubjectTestHelper.SUBJ0));
+    assertTrue(loaderGroup.hasMember(SubjectTestHelper.SUBJ1));
+    assertTrue(loaderGroup.hasMember(SubjectTestHelper.SUBJ1));
+  
+  }
   
   
 //  /**

@@ -52,6 +52,7 @@ import edu.internet2.middleware.grouper.webservicesClient.WsSampleAssignPermissi
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleAssignPermissionsLite;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleDeleteMember;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleDeleteMemberLite;
+import edu.internet2.middleware.grouper.webservicesClient.WsSampleFindAttributeDefNames;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleFindGroups;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleFindGroupsLite;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleFindStems;
@@ -164,8 +165,16 @@ public class SampleCapture {
    * @param args
    */
   public static void main(String[] args) {
-    
+
     setupData();
+
+//    captureSample(WsSampleClientType.GENERATED_SOAP,  
+//        WsSampleFindAttributeDefNames.class, "findAttributeDefNames", (String)null);
+
+    captureSample(WsSampleClientType.GENERATED_SOAP,  
+        WsSampleAddMember.class, "addMember", (String)null);
+    captureSample(WsSampleClientType.GENERATED_SOAP,  
+        WsSampleAddMemberLite.class, "addMember", null);
     
     //
     //captureAddMember();
@@ -179,7 +188,7 @@ public class SampleCapture {
 //    captureAssignPermissions();
 //    captureGetAttributeAssignments();
 //    captureGetGrouperPrivileges();
-    captureGetPermissionAssignments();
+//    captureGetPermissionAssignments();
 //    captureAssignGrouperPrivileges();
 //    captureAddMember();
 //    captureDeleteMember();
@@ -208,6 +217,8 @@ public class SampleCapture {
       GrouperCheckConfig.checkAttributes();
 
       GrouperCheckConfig.checkGroups();
+
+      grouperSession = GrouperSession.startRootSession();
 
       Subject grouperSystemSubject = SubjectFinder.findById("GrouperSystem", true);
       
@@ -248,7 +259,6 @@ public class SampleCapture {
           GrouperDAOFactory.getFactory().getRegistrySubject().create(registrySubject);
         }
       }
-      grouperSession = GrouperSession.start(grouperSystemSubject);
       
       Stem aStem = Stem.saveStem(grouperSession, "aStem", null,"aStem", "a stem",  "a stem description", null, false);
       
@@ -901,6 +911,21 @@ public class SampleCapture {
         WsSampleAssignAttributesWithValueRest.class, "assignAttributesWithValue", null);
     captureSample(WsSampleClientType.REST_BEANS,  
         WsSampleAssignAttributesWithValueRestLite.class, "assignAttributesWithValue", null);
+    
+  }
+
+  /**
+   * all find attributeDefNames captures
+   */
+  public static void captureFindAttributeDefNames() {
+    captureSample(WsSampleClientType.GENERATED_SOAP,  
+        WsSampleFindGroups.class, "findAttributeDefNames", (String)null);
+    captureSample(WsSampleClientType.GENERATED_SOAP,  
+        WsSampleFindGroupsLite.class, "findAttributeDefNames", null);
+    captureSample(WsSampleClientType.REST_BEANS,  
+        WsSampleFindGroupsRest.class, "findAttributeDefNames", null);
+    captureSample(WsSampleClientType.REST_BEANS,  
+        WsSampleFindGroupsRestLite.class, "findAttributeDefNames", "_withInput");
     
   }
   

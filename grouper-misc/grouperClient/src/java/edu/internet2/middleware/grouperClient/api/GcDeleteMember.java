@@ -257,7 +257,7 @@ public class GcDeleteMember {
       //kick off the web service
       String urlSuffix = "groups";
       wsDeleteMemberResults = (WsDeleteMemberResults)
-        grouperClientWs.executeService(urlSuffix, deleteMember, "deleteMember", this.clientVersion);
+        grouperClientWs.executeService(urlSuffix, deleteMember, "deleteMember", this.clientVersion, false);
       
       String resultMessage = wsDeleteMemberResults.getResultMetadata().getResultMessage();
       grouperClientWs.handleFailure(wsDeleteMemberResults, wsDeleteMemberResults.getResults(), resultMessage);

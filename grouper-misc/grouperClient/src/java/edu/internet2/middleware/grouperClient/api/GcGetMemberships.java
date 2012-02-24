@@ -331,7 +331,7 @@ public class GcGetMemberships {
       
       //kick off the web service
       wsGetMembershipsResults = (WsGetMembershipsResults)
-        grouperClientWs.executeService("memberships", getMemberships, "getMemberships", this.clientVersion);
+        grouperClientWs.executeService("memberships", getMemberships, "getMemberships", this.clientVersion, true);
       
       String resultMessage = wsGetMembershipsResults.getResultMetadata().getResultMessage();
       grouperClientWs.handleFailure(wsGetMembershipsResults, null, resultMessage);

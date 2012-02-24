@@ -56,6 +56,9 @@ public class HibernateSession {
     return new ByObject(this);
   }
   
+  /** save point count for testing */
+  static int savePointCount = 0;
+  
   /**
    * construct a hibernate session based on existing hibernate session (if
    * applicable), and a transaction type. If these conflict, then throw grouper
@@ -124,25 +127,27 @@ public class HibernateSession {
       // if not readonly, declare a transaction
       if (!this.immediateGrouperTransactionTypeUsed.isReadonly()) {
         this.immediateTransaction = this.immediateSession.beginTransaction();
+
+        String useSavepointsString = GrouperConfig.getProperty("jdbc.useSavePoints");
+        boolean useSavepoints;
+        if (StringUtils.isBlank(useSavepointsString)) {
+          useSavepoints = !GrouperDdlUtils.isHsql();
+        } else {
+          useSavepoints = GrouperUtil.booleanValue(useSavepointsString);
+        }
+        if ((useSavepoints && parentHibernateSession != null)   // && this.activeHibernateSession().isTransactionActive()  && !this.activeHibernateSession().isReadonly() 
+            || GrouperConfig.getPropertyBoolean("jdbc.useSavePointsOnAllNewTransactions", false)) {
+          try {
+            this.savepoint = this.activeHibernateSession().getSession().connection().setSavepoint();
+            savePointCount++;
+          } catch (SQLException sqle) {
+            throw new RuntimeException("Problem setting save point for transaction type: " 
+                + grouperTransactionType, sqle);
+          }
+        }
       }
     }
     
-    String useSavepointsString = GrouperConfig.getProperty("jdbc.useSavePoints");
-    boolean useSavepoints;
-    if (StringUtils.isBlank(useSavepointsString)) {
-      useSavepoints = !GrouperDdlUtils.isHsql();
-    } else {
-      useSavepoints = GrouperUtil.booleanValue(useSavepointsString);
-    }
-    if (useSavepoints && this.activeHibernateSession().isTransactionActive() 
-        && !this.activeHibernateSession().isReadonly()) {
-      try {
-        this.savepoint = this.activeHibernateSession().getSession().connection().setSavepoint();
-      } catch (SQLException sqle) {
-        throw new RuntimeException("Problem setting save point for transaction type: " 
-            + grouperTransactionType, sqle);
-      }
-    }
     
     addStaticHibernateSession(this);
   }
@@ -709,7 +714,9 @@ public class HibernateSession {
         }
         break;
       case ROLLBACK_NOW:
-        this.activeHibernateSession().immediateTransaction.rollback();
+        if (this.activeHibernateSession() != null && this.activeHibernateSession().immediateTransaction != null) { 
+          this.activeHibernateSession().immediateTransaction.rollback();
+        }
         return true;
     }
     return false;

@@ -146,6 +146,14 @@ public class ExpirableCache<K,V> implements Serializable {
   }
 
   /**
+   * expose the length of cache
+   * @return length of cache
+   */
+  public long getDefaultTimeToLiveInMillis() {
+    return this.defaultTimeToLiveInMillis;
+  }
+
+  /**
    * put a value into the cache, accept the default time to live for this cache
    * @param key
    * @param value

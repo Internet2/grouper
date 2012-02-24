@@ -18,7 +18,7 @@ public class WsGroupToSave {
   /** stem lookup (blank if insert) */
   private WsGroupLookup wsGroupLookup;
 
-  /** stem to save */
+  /** group to save */
   private WsGroup wsGroup;
 
   /** T or F (null if F) */

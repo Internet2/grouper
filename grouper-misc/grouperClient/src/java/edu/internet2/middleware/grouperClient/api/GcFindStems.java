@@ -140,7 +140,7 @@ public class GcFindStems {
       
       //kick off the web service
       wsFindStemsResults = (WsFindStemsResults)
-        grouperClientWs.executeService("stems", findStems, "findStems", this.clientVersion);
+        grouperClientWs.executeService("stems", findStems, "findStems", this.clientVersion, true);
       
       String resultMessage = wsFindStemsResults.getResultMetadata().getResultMessage();
       grouperClientWs.handleFailure(wsFindStemsResults, null, resultMessage);

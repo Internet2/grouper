@@ -11,6 +11,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.collections.keyvalue.MultiKey;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
@@ -27,6 +28,7 @@ import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.audit.AuditTypeBuiltin;
+import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogEntry;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogLabels;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogTypeBuiltin;
@@ -59,7 +61,7 @@ import edu.internet2.middleware.subject.Subject;
  */
 @SuppressWarnings("serial")
 public class AttributeDefName extends GrouperAPI 
-    implements GrouperHasContext, Hib3GrouperVersioned, GrouperSetElement, XmlImportable<AttributeDefName> {
+    implements GrouperHasContext, Hib3GrouperVersioned, GrouperSetElement, XmlImportable<AttributeDefName>, Comparable<AttributeDefName> {
 
   /** name of the groups attribute def name table in the db */
   public static final String TABLE_GROUPER_ATTRIBUTE_DEF_NAME = "grouper_attribute_def_name";
@@ -151,6 +153,45 @@ public class AttributeDefName extends GrouperAPI
       FIELD_STEM_ID);
 
   //*****  END GENERATED WITH GenerateFieldConstants.java *****//
+
+  /**
+   * cache of multikey (attributeDefId, sourceId, subjectId) to true or false if allowed to admin attributeDefId
+   */
+  static GrouperCache<MultiKey, Boolean> canAdminAttributeDef = new GrouperCache<MultiKey, Boolean>(
+      AttributeDefName.class.getName() + ".CanAdminAttributeDef", 5000, false, 5, 5, false);
+
+  /**
+   * make sure this attribute def can admin from grouper session
+   */
+  public void assertCanAdminAttributeDefStatic() {
+    Subject subject = GrouperSession.staticGrouperSession().getSubject();
+    MultiKey cacheKey = new MultiKey(this.attributeDefId, subject.getSourceId(), subject.getId());
+    Boolean result = canAdminAttributeDef.get(cacheKey);
+    AttributeDef attributeDef = null;
+    
+    //if not in cache, calculate
+    if (result == null) {
+      attributeDef = this.getAttributeDef();
+      result = attributeDef.getPrivilegeDelegate().canAttrAdmin(subject);
+      
+      //add back to cache since wasnt cached
+      canAdminAttributeDef.put(cacheKey, result);
+    }
+    
+    //false means cant admin
+    if (!result) {
+      
+      attributeDef = attributeDef == null ? this.getAttributeDef() : attributeDef;
+      
+      throw new InsufficientPrivilegeException(GrouperUtil
+          .subjectToString(subject)
+          + " is not attrAdmin on attributeDef: " + attributeDef.getName() 
+          + ", concerning attributeDefName: " + this.getName());
+    }
+    
+  }
+
+
 
   /**
    * deep clone the fields in this object
@@ -1037,6 +1078,18 @@ public class AttributeDefName extends GrouperAPI
     Set<String> result = GrouperUtil.compareObjectFields(this, this.dbVersion,
         DB_VERSION_FIELDS, null);
     return result;
+  }
+
+  /**
+   * @see Comparable#compareTo(Object)
+   */
+  public int compareTo(AttributeDefName that) {
+    if (that==null) {
+      return 1;
+    }
+    String thisName = StringUtils.defaultString(this.getName());
+    String thatName = StringUtils.defaultString(that.getName());
+    return thisName.compareTo(thatName);
   }
   
 }
