@@ -1972,7 +1972,7 @@ public class GrouperServiceRest {
     String clientVersionString = GrouperServiceUtils.pickOne(clientVersion.toString(),
         GrouperVersion.stringValueOrNull(wsRestFindAttributeDefNamesLiteRequest.getClientVersion()), false, "clientVersion");
   
-    attributeDefNameName = GrouperServiceUtils.pickOne(attributeDefNameName, wsRestFindAttributeDefNamesLiteRequest.getAttributeDefNameName(), false, "attributeDefNameName");
+    attributeDefNameName = GrouperServiceUtils.pickOne(attributeDefNameName, wsRestFindAttributeDefNamesLiteRequest.getAttributeDefNameName(), true, "attributeDefNameName");
 
     WsFindAttributeDefNamesResults wsFindAttributeDefNamesResults = new GrouperService(false).findAttributeDefNamesLite(
         clientVersionString, wsRestFindAttributeDefNamesLiteRequest.getScope(), 

@@ -53,6 +53,7 @@ import edu.internet2.middleware.grouper.webservicesClient.WsSampleAssignPermissi
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleDeleteMember;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleDeleteMemberLite;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleFindAttributeDefNames;
+import edu.internet2.middleware.grouper.webservicesClient.WsSampleFindAttributeDefNamesLite;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleFindGroups;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleFindGroupsLite;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleFindStems;
@@ -92,6 +93,8 @@ import edu.internet2.middleware.grouper.ws.samples.rest.attribute.WsSampleAssign
 import edu.internet2.middleware.grouper.ws.samples.rest.attribute.WsSampleAssignAttributesWithValueRestLite;
 import edu.internet2.middleware.grouper.ws.samples.rest.attribute.WsSampleGetAttributeAssignmentsRest;
 import edu.internet2.middleware.grouper.ws.samples.rest.attribute.WsSampleGetAttributeAssignmentsRestLite;
+import edu.internet2.middleware.grouper.ws.samples.rest.group.WsSampleFindAttributeDefNamesRest;
+import edu.internet2.middleware.grouper.ws.samples.rest.group.WsSampleFindAttributeDefNamesRestLite;
 import edu.internet2.middleware.grouper.ws.samples.rest.group.WsSampleFindGroupsRest;
 import edu.internet2.middleware.grouper.ws.samples.rest.group.WsSampleFindGroupsRestLite;
 import edu.internet2.middleware.grouper.ws.samples.rest.group.WsSampleGetGroupsAdminsRest;
@@ -167,15 +170,8 @@ public class SampleCapture {
   public static void main(String[] args) {
 
     setupData();
-
-//    captureSample(WsSampleClientType.GENERATED_SOAP,  
-//        WsSampleFindAttributeDefNames.class, "findAttributeDefNames", (String)null);
-
-    captureSample(WsSampleClientType.GENERATED_SOAP,  
-        WsSampleAddMember.class, "addMember", (String)null);
-    captureSample(WsSampleClientType.GENERATED_SOAP,  
-        WsSampleAddMemberLite.class, "addMember", null);
     
+    captureFindAttributeDefNames();
     //
     //captureAddMember();
     
@@ -566,21 +562,6 @@ public class SampleCapture {
   }
 
   /**
-   * all find groups captures
-   */
-  public static void captureFindGroups() {
-    captureSample(WsSampleClientType.GENERATED_SOAP,  
-        WsSampleFindGroups.class, "findGroups", (String)null);
-    captureSample(WsSampleClientType.GENERATED_SOAP,  
-        WsSampleFindGroupsLite.class, "findGroups", null);
-    captureSample(WsSampleClientType.REST_BEANS,  
-        WsSampleFindGroupsRest.class, "findGroups", null);
-    captureSample(WsSampleClientType.REST_BEANS,  
-        WsSampleFindGroupsRestLite.class, "findGroups", "_withInput");
-    
-  }
-
-  /**
    * all find stems captures
    */
   public static void captureFindStems() {
@@ -918,14 +899,30 @@ public class SampleCapture {
    * all find attributeDefNames captures
    */
   public static void captureFindAttributeDefNames() {
+    
     captureSample(WsSampleClientType.GENERATED_SOAP,  
-        WsSampleFindGroups.class, "findAttributeDefNames", (String)null);
+        WsSampleFindAttributeDefNames.class, "findAttributeDefNames", (String)null);
     captureSample(WsSampleClientType.GENERATED_SOAP,  
-        WsSampleFindGroupsLite.class, "findAttributeDefNames", null);
+        WsSampleFindAttributeDefNamesLite.class, "findAttributeDefNames", null);
     captureSample(WsSampleClientType.REST_BEANS,  
-        WsSampleFindGroupsRest.class, "findAttributeDefNames", null);
+        WsSampleFindAttributeDefNamesRest.class, "findAttributeDefNames", null);
     captureSample(WsSampleClientType.REST_BEANS,  
-        WsSampleFindGroupsRestLite.class, "findAttributeDefNames", "_withInput");
+        WsSampleFindAttributeDefNamesRestLite.class, "findAttributeDefNames", null);
+    
+  }
+
+  /**
+   * all find groups captures
+   */
+  public static void captureFindGroups() {
+    captureSample(WsSampleClientType.GENERATED_SOAP,  
+        WsSampleFindGroups.class, "findGroups", (String)null);
+    captureSample(WsSampleClientType.GENERATED_SOAP,  
+        WsSampleFindGroupsLite.class, "findGroups", null);
+    captureSample(WsSampleClientType.REST_BEANS,  
+        WsSampleFindGroupsRest.class, "findGroups", null);
+    captureSample(WsSampleClientType.REST_BEANS,  
+        WsSampleFindGroupsRestLite.class, "findGroups", "_withInput");
     
   }
   
