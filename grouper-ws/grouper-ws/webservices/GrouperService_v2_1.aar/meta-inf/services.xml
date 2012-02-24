@@ -18,7 +18,7 @@
   -->
 <service name="GrouperService_v2_1" scope="application" targetNamespace="http://soap_v2_1.ws.grouper.middleware.internet2.edu/">
     <description>
-        Grouper Service v2_1 with ws security
+        Grouper Service v2_1
     </description>
     <messageReceivers>
         <messageReceiver mep="http://www.w3.org/2004/08/wsdl/in-only"
@@ -28,44 +28,4 @@
     </messageReceivers>
     <schema schemaNamespace="http://soap_v2_1.ws.grouper.middleware.internet2.edu/xsd"/>
     <parameter name="ServiceClass">edu.internet2.middleware.grouper.ws.soap_v2_1.GrouperService</parameter>
-  
-  <module ref="rampart" />
-  <module ref="addressing" />
-
-  <wsp:Policy wsu:Id="UTOverTransport" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy">
-    <wsp:ExactlyOne>
-      <wsp:All>
-      <sp:TransportBinding xmlns:sp="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy">
-        <wsp:Policy>
-        <sp:TransportToken>
-          <wsp:Policy>
-          <sp:HttpsToken RequireClientCertificate="false"/>
-          </wsp:Policy>
-        </sp:TransportToken>
-        <sp:AlgorithmSuite>
-          <wsp:Policy>
-          <sp:Basic256/>
-          </wsp:Policy>
-        </sp:AlgorithmSuite>
-        <sp:Layout>
-          <wsp:Policy>
-          <sp:Lax/>
-          </wsp:Policy>
-        </sp:Layout>
-        </wsp:Policy>
-      </sp:TransportBinding>
-      <sp:SignedSupportingTokens xmlns:sp="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy">
-        <wsp:Policy>
-          <sp:UsernameToken sp:IncludeToken="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy/IncludeToken/AlwaysToRecipient" />
-        </wsp:Policy>
-      </sp:SignedSupportingTokens>
-      
-      <ramp:RampartConfig xmlns:ramp="http://ws.apache.org/rampart/policy"> 
-        <ramp:passwordCallbackClass>edu.internet2.middleware.grouper.ws.security.RampartHandlerServer</ramp:passwordCallbackClass>
-      </ramp:RampartConfig>
-      
-      </wsp:All>
-    </wsp:ExactlyOne>
-  </wsp:Policy>
 </service>
-
