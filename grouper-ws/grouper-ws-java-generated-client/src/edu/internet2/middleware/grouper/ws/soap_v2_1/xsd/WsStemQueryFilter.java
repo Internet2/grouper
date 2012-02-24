@@ -3,8 +3,9 @@
  * WsStemQueryFilter.java
  *
  * This file was auto-generated from WSDL
- * by the Apache Axis2 version: 1.4.1  Built on : Aug 13, 2008 (05:03:41 LKT)
+ * by the Apache Axis2 version: 1.6.1  Built on : Aug 31, 2011 (12:23:23 CEST)
  */
+
             
                 package edu.internet2.middleware.grouper.ws.soap_v2_1.xsd;
             
@@ -12,6 +13,7 @@
             /**
             *  WsStemQueryFilter bean class
             */
+            @SuppressWarnings({"unchecked","unused"})
         
         public  class WsStemQueryFilter
         implements org.apache.axis2.databinding.ADBBean{
@@ -21,15 +23,6 @@
                 Namespace Prefix = ns1
                 */
             
-
-        private static java.lang.String generatePrefix(java.lang.String namespace) {
-            if(namespace.equals("http://soap_v2_1.ws.grouper.middleware.internet2.edu/xsd")){
-                return "ns1";
-            }
-            return org.apache.axis2.databinding.utils.BeanUtil.getUniquePrefix();
-        }
-
-        
 
                         /**
                         * field for Ascending
@@ -43,6 +36,11 @@
                            *   in the serialized XML
                            */
                            protected boolean localAscendingTracker = false ;
+
+                           public boolean isAscendingSpecified(){
+                               return localAscendingTracker;
+                           }
+
                            
 
                            /**
@@ -60,14 +58,7 @@
                                * @param param Ascending
                                */
                                public void setAscending(java.lang.String param){
-                            
-                                       if (param != null){
-                                          //update the setting tracker
-                                          localAscendingTracker = true;
-                                       } else {
-                                          localAscendingTracker = true;
-                                              
-                                       }
+                            localAscendingTracker = true;
                                    
                                             this.localAscending=param;
                                     
@@ -87,6 +78,11 @@
                            *   in the serialized XML
                            */
                            protected boolean localPageNumberTracker = false ;
+
+                           public boolean isPageNumberSpecified(){
+                               return localPageNumberTracker;
+                           }
+
                            
 
                            /**
@@ -104,14 +100,7 @@
                                * @param param PageNumber
                                */
                                public void setPageNumber(java.lang.String param){
-                            
-                                       if (param != null){
-                                          //update the setting tracker
-                                          localPageNumberTracker = true;
-                                       } else {
-                                          localPageNumberTracker = true;
-                                              
-                                       }
+                            localPageNumberTracker = true;
                                    
                                             this.localPageNumber=param;
                                     
@@ -131,6 +120,11 @@
                            *   in the serialized XML
                            */
                            protected boolean localPageSizeTracker = false ;
+
+                           public boolean isPageSizeSpecified(){
+                               return localPageSizeTracker;
+                           }
+
                            
 
                            /**
@@ -148,14 +142,7 @@
                                * @param param PageSize
                                */
                                public void setPageSize(java.lang.String param){
-                            
-                                       if (param != null){
-                                          //update the setting tracker
-                                          localPageSizeTracker = true;
-                                       } else {
-                                          localPageSizeTracker = true;
-                                              
-                                       }
+                            localPageSizeTracker = true;
                                    
                                             this.localPageSize=param;
                                     
@@ -175,6 +162,11 @@
                            *   in the serialized XML
                            */
                            protected boolean localParentStemNameTracker = false ;
+
+                           public boolean isParentStemNameSpecified(){
+                               return localParentStemNameTracker;
+                           }
+
                            
 
                            /**
@@ -192,14 +184,7 @@
                                * @param param ParentStemName
                                */
                                public void setParentStemName(java.lang.String param){
-                            
-                                       if (param != null){
-                                          //update the setting tracker
-                                          localParentStemNameTracker = true;
-                                       } else {
-                                          localParentStemNameTracker = true;
-                                              
-                                       }
+                            localParentStemNameTracker = true;
                                    
                                             this.localParentStemName=param;
                                     
@@ -219,6 +204,11 @@
                            *   in the serialized XML
                            */
                            protected boolean localParentStemNameScopeTracker = false ;
+
+                           public boolean isParentStemNameScopeSpecified(){
+                               return localParentStemNameScopeTracker;
+                           }
+
                            
 
                            /**
@@ -236,14 +226,7 @@
                                * @param param ParentStemNameScope
                                */
                                public void setParentStemNameScope(java.lang.String param){
-                            
-                                       if (param != null){
-                                          //update the setting tracker
-                                          localParentStemNameScopeTracker = true;
-                                       } else {
-                                          localParentStemNameScopeTracker = true;
-                                              
-                                       }
+                            localParentStemNameScopeTracker = true;
                                    
                                             this.localParentStemNameScope=param;
                                     
@@ -263,6 +246,11 @@
                            *   in the serialized XML
                            */
                            protected boolean localQueryTermTracker = false ;
+
+                           public boolean isQueryTermSpecified(){
+                               return localQueryTermTracker;
+                           }
+
                            
 
                            /**
@@ -280,14 +268,7 @@
                                * @param param QueryTerm
                                */
                                public void setQueryTerm(java.lang.String param){
-                            
-                                       if (param != null){
-                                          //update the setting tracker
-                                          localQueryTermTracker = true;
-                                       } else {
-                                          localQueryTermTracker = true;
-                                              
-                                       }
+                            localQueryTermTracker = true;
                                    
                                             this.localQueryTerm=param;
                                     
@@ -307,6 +288,11 @@
                            *   in the serialized XML
                            */
                            protected boolean localSortStringTracker = false ;
+
+                           public boolean isSortStringSpecified(){
+                               return localSortStringTracker;
+                           }
+
                            
 
                            /**
@@ -324,14 +310,7 @@
                                * @param param SortString
                                */
                                public void setSortString(java.lang.String param){
-                            
-                                       if (param != null){
-                                          //update the setting tracker
-                                          localSortStringTracker = true;
-                                       } else {
-                                          localSortStringTracker = true;
-                                              
-                                       }
+                            localSortStringTracker = true;
                                    
                                             this.localSortString=param;
                                     
@@ -351,6 +330,11 @@
                            *   in the serialized XML
                            */
                            protected boolean localStemAttributeNameTracker = false ;
+
+                           public boolean isStemAttributeNameSpecified(){
+                               return localStemAttributeNameTracker;
+                           }
+
                            
 
                            /**
@@ -368,14 +352,7 @@
                                * @param param StemAttributeName
                                */
                                public void setStemAttributeName(java.lang.String param){
-                            
-                                       if (param != null){
-                                          //update the setting tracker
-                                          localStemAttributeNameTracker = true;
-                                       } else {
-                                          localStemAttributeNameTracker = true;
-                                              
-                                       }
+                            localStemAttributeNameTracker = true;
                                    
                                             this.localStemAttributeName=param;
                                     
@@ -395,6 +372,11 @@
                            *   in the serialized XML
                            */
                            protected boolean localStemAttributeValueTracker = false ;
+
+                           public boolean isStemAttributeValueSpecified(){
+                               return localStemAttributeValueTracker;
+                           }
+
                            
 
                            /**
@@ -412,14 +394,7 @@
                                * @param param StemAttributeValue
                                */
                                public void setStemAttributeValue(java.lang.String param){
-                            
-                                       if (param != null){
-                                          //update the setting tracker
-                                          localStemAttributeValueTracker = true;
-                                       } else {
-                                          localStemAttributeValueTracker = true;
-                                              
-                                       }
+                            localStemAttributeValueTracker = true;
                                    
                                             this.localStemAttributeValue=param;
                                     
@@ -439,6 +414,11 @@
                            *   in the serialized XML
                            */
                            protected boolean localStemNameTracker = false ;
+
+                           public boolean isStemNameSpecified(){
+                               return localStemNameTracker;
+                           }
+
                            
 
                            /**
@@ -456,14 +436,7 @@
                                * @param param StemName
                                */
                                public void setStemName(java.lang.String param){
-                            
-                                       if (param != null){
-                                          //update the setting tracker
-                                          localStemNameTracker = true;
-                                       } else {
-                                          localStemNameTracker = true;
-                                              
-                                       }
+                            localStemNameTracker = true;
                                    
                                             this.localStemName=param;
                                     
@@ -483,6 +456,11 @@
                            *   in the serialized XML
                            */
                            protected boolean localStemQueryFilter0Tracker = false ;
+
+                           public boolean isStemQueryFilter0Specified(){
+                               return localStemQueryFilter0Tracker;
+                           }
+
                            
 
                            /**
@@ -500,14 +478,7 @@
                                * @param param StemQueryFilter0
                                */
                                public void setStemQueryFilter0(edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsStemQueryFilter param){
-                            
-                                       if (param != null){
-                                          //update the setting tracker
-                                          localStemQueryFilter0Tracker = true;
-                                       } else {
-                                          localStemQueryFilter0Tracker = true;
-                                              
-                                       }
+                            localStemQueryFilter0Tracker = true;
                                    
                                             this.localStemQueryFilter0=param;
                                     
@@ -527,6 +498,11 @@
                            *   in the serialized XML
                            */
                            protected boolean localStemQueryFilter1Tracker = false ;
+
+                           public boolean isStemQueryFilter1Specified(){
+                               return localStemQueryFilter1Tracker;
+                           }
+
                            
 
                            /**
@@ -544,14 +520,7 @@
                                * @param param StemQueryFilter1
                                */
                                public void setStemQueryFilter1(edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsStemQueryFilter param){
-                            
-                                       if (param != null){
-                                          //update the setting tracker
-                                          localStemQueryFilter1Tracker = true;
-                                       } else {
-                                          localStemQueryFilter1Tracker = true;
-                                              
-                                       }
+                            localStemQueryFilter1Tracker = true;
                                    
                                             this.localStemQueryFilter1=param;
                                     
@@ -571,6 +540,11 @@
                            *   in the serialized XML
                            */
                            protected boolean localStemQueryFilterTypeTracker = false ;
+
+                           public boolean isStemQueryFilterTypeSpecified(){
+                               return localStemQueryFilterTypeTracker;
+                           }
+
                            
 
                            /**
@@ -588,14 +562,7 @@
                                * @param param StemQueryFilterType
                                */
                                public void setStemQueryFilterType(java.lang.String param){
-                            
-                                       if (param != null){
-                                          //update the setting tracker
-                                          localStemQueryFilterTypeTracker = true;
-                                       } else {
-                                          localStemQueryFilterTypeTracker = true;
-                                              
-                                       }
+                            localStemQueryFilterTypeTracker = true;
                                    
                                             this.localStemQueryFilterType=param;
                                     
@@ -615,6 +582,11 @@
                            *   in the serialized XML
                            */
                            protected boolean localStemUuidTracker = false ;
+
+                           public boolean isStemUuidSpecified(){
+                               return localStemUuidTracker;
+                           }
+
                            
 
                            /**
@@ -632,14 +604,7 @@
                                * @param param StemUuid
                                */
                                public void setStemUuid(java.lang.String param){
-                            
-                                       if (param != null){
-                                          //update the setting tracker
-                                          localStemUuidTracker = true;
-                                       } else {
-                                          localStemUuidTracker = true;
-                                              
-                                       }
+                            localStemUuidTracker = true;
                                    
                                             this.localStemUuid=param;
                                     
@@ -647,20 +612,6 @@
                                }
                             
 
-     /**
-     * isReaderMTOMAware
-     * @return true if the reader supports MTOM
-     */
-   public static boolean isReaderMTOMAware(javax.xml.stream.XMLStreamReader reader) {
-        boolean isReaderMTOMAware = false;
-        
-        try{
-          isReaderMTOMAware = java.lang.Boolean.TRUE.equals(reader.getProperty(org.apache.axiom.om.OMConstants.IS_DATA_HANDLERS_AWARE));
-        }catch(java.lang.IllegalArgumentException e){
-          isReaderMTOMAware = false;
-        }
-        return isReaderMTOMAware;
-   }
      
      
         /**
@@ -676,27 +627,19 @@
 
         
                org.apache.axiom.om.OMDataSource dataSource =
-                       new org.apache.axis2.databinding.ADBDataSource(this,parentQName){
-
-                 public void serialize(org.apache.axis2.databinding.utils.writer.MTOMAwareXMLStreamWriter xmlWriter) throws javax.xml.stream.XMLStreamException {
-                       WsStemQueryFilter.this.serialize(parentQName,factory,xmlWriter);
-                 }
-               };
-               return new org.apache.axiom.om.impl.llom.OMSourcedElementImpl(
-               parentQName,factory,dataSource);
+                       new org.apache.axis2.databinding.ADBDataSource(this,parentQName);
+               return factory.createOMElement(dataSource,parentQName);
             
-       }
+        }
 
          public void serialize(final javax.xml.namespace.QName parentQName,
-                                       final org.apache.axiom.om.OMFactory factory,
-                                       org.apache.axis2.databinding.utils.writer.MTOMAwareXMLStreamWriter xmlWriter)
+                                       javax.xml.stream.XMLStreamWriter xmlWriter)
                                 throws javax.xml.stream.XMLStreamException, org.apache.axis2.databinding.ADBException{
-                           serialize(parentQName,factory,xmlWriter,false);
+                           serialize(parentQName,xmlWriter,false);
          }
 
          public void serialize(final javax.xml.namespace.QName parentQName,
-                               final org.apache.axiom.om.OMFactory factory,
-                               org.apache.axis2.databinding.utils.writer.MTOMAwareXMLStreamWriter xmlWriter,
+                               javax.xml.stream.XMLStreamWriter xmlWriter,
                                boolean serializeType)
             throws javax.xml.stream.XMLStreamException, org.apache.axis2.databinding.ADBException{
             
@@ -709,23 +652,7 @@
 
                     prefix = parentQName.getPrefix();
                     namespace = parentQName.getNamespaceURI();
-
-                    if ((namespace != null) && (namespace.trim().length() > 0)) {
-                        java.lang.String writerPrefix = xmlWriter.getPrefix(namespace);
-                        if (writerPrefix != null) {
-                            xmlWriter.writeStartElement(namespace, parentQName.getLocalPart());
-                        } else {
-                            if (prefix == null) {
-                                prefix = generatePrefix(namespace);
-                            }
-
-                            xmlWriter.writeStartElement(prefix, parentQName.getLocalPart(), namespace);
-                            xmlWriter.writeNamespace(prefix, namespace);
-                            xmlWriter.setPrefix(prefix, namespace);
-                        }
-                    } else {
-                        xmlWriter.writeStartElement(parentQName.getLocalPart());
-                    }
+                    writeStartElement(prefix, namespace, parentQName.getLocalPart(), xmlWriter);
                 
                   if (serializeType){
                
@@ -745,24 +672,8 @@
                    }
                 if (localAscendingTracker){
                                     namespace = "http://soap_v2_1.ws.grouper.middleware.internet2.edu/xsd";
-                                    if (! namespace.equals("")) {
-                                        prefix = xmlWriter.getPrefix(namespace);
-
-                                        if (prefix == null) {
-                                            prefix = generatePrefix(namespace);
-
-                                            xmlWriter.writeStartElement(prefix,"ascending", namespace);
-                                            xmlWriter.writeNamespace(prefix, namespace);
-                                            xmlWriter.setPrefix(prefix, namespace);
-
-                                        } else {
-                                            xmlWriter.writeStartElement(namespace,"ascending");
-                                        }
-
-                                    } else {
-                                        xmlWriter.writeStartElement("ascending");
-                                    }
-                                
+                                    writeStartElement(null, namespace, "ascending", xmlWriter);
+                             
 
                                           if (localAscending==null){
                                               // write the nil attribute
@@ -779,24 +690,8 @@
                                    xmlWriter.writeEndElement();
                              } if (localPageNumberTracker){
                                     namespace = "http://soap_v2_1.ws.grouper.middleware.internet2.edu/xsd";
-                                    if (! namespace.equals("")) {
-                                        prefix = xmlWriter.getPrefix(namespace);
-
-                                        if (prefix == null) {
-                                            prefix = generatePrefix(namespace);
-
-                                            xmlWriter.writeStartElement(prefix,"pageNumber", namespace);
-                                            xmlWriter.writeNamespace(prefix, namespace);
-                                            xmlWriter.setPrefix(prefix, namespace);
-
-                                        } else {
-                                            xmlWriter.writeStartElement(namespace,"pageNumber");
-                                        }
-
-                                    } else {
-                                        xmlWriter.writeStartElement("pageNumber");
-                                    }
-                                
+                                    writeStartElement(null, namespace, "pageNumber", xmlWriter);
+                             
 
                                           if (localPageNumber==null){
                                               // write the nil attribute
@@ -813,24 +708,8 @@
                                    xmlWriter.writeEndElement();
                              } if (localPageSizeTracker){
                                     namespace = "http://soap_v2_1.ws.grouper.middleware.internet2.edu/xsd";
-                                    if (! namespace.equals("")) {
-                                        prefix = xmlWriter.getPrefix(namespace);
-
-                                        if (prefix == null) {
-                                            prefix = generatePrefix(namespace);
-
-                                            xmlWriter.writeStartElement(prefix,"pageSize", namespace);
-                                            xmlWriter.writeNamespace(prefix, namespace);
-                                            xmlWriter.setPrefix(prefix, namespace);
-
-                                        } else {
-                                            xmlWriter.writeStartElement(namespace,"pageSize");
-                                        }
-
-                                    } else {
-                                        xmlWriter.writeStartElement("pageSize");
-                                    }
-                                
+                                    writeStartElement(null, namespace, "pageSize", xmlWriter);
+                             
 
                                           if (localPageSize==null){
                                               // write the nil attribute
@@ -847,24 +726,8 @@
                                    xmlWriter.writeEndElement();
                              } if (localParentStemNameTracker){
                                     namespace = "http://soap_v2_1.ws.grouper.middleware.internet2.edu/xsd";
-                                    if (! namespace.equals("")) {
-                                        prefix = xmlWriter.getPrefix(namespace);
-
-                                        if (prefix == null) {
-                                            prefix = generatePrefix(namespace);
-
-                                            xmlWriter.writeStartElement(prefix,"parentStemName", namespace);
-                                            xmlWriter.writeNamespace(prefix, namespace);
-                                            xmlWriter.setPrefix(prefix, namespace);
-
-                                        } else {
-                                            xmlWriter.writeStartElement(namespace,"parentStemName");
-                                        }
-
-                                    } else {
-                                        xmlWriter.writeStartElement("parentStemName");
-                                    }
-                                
+                                    writeStartElement(null, namespace, "parentStemName", xmlWriter);
+                             
 
                                           if (localParentStemName==null){
                                               // write the nil attribute
@@ -881,24 +744,8 @@
                                    xmlWriter.writeEndElement();
                              } if (localParentStemNameScopeTracker){
                                     namespace = "http://soap_v2_1.ws.grouper.middleware.internet2.edu/xsd";
-                                    if (! namespace.equals("")) {
-                                        prefix = xmlWriter.getPrefix(namespace);
-
-                                        if (prefix == null) {
-                                            prefix = generatePrefix(namespace);
-
-                                            xmlWriter.writeStartElement(prefix,"parentStemNameScope", namespace);
-                                            xmlWriter.writeNamespace(prefix, namespace);
-                                            xmlWriter.setPrefix(prefix, namespace);
-
-                                        } else {
-                                            xmlWriter.writeStartElement(namespace,"parentStemNameScope");
-                                        }
-
-                                    } else {
-                                        xmlWriter.writeStartElement("parentStemNameScope");
-                                    }
-                                
+                                    writeStartElement(null, namespace, "parentStemNameScope", xmlWriter);
+                             
 
                                           if (localParentStemNameScope==null){
                                               // write the nil attribute
@@ -915,24 +762,8 @@
                                    xmlWriter.writeEndElement();
                              } if (localQueryTermTracker){
                                     namespace = "http://soap_v2_1.ws.grouper.middleware.internet2.edu/xsd";
-                                    if (! namespace.equals("")) {
-                                        prefix = xmlWriter.getPrefix(namespace);
-
-                                        if (prefix == null) {
-                                            prefix = generatePrefix(namespace);
-
-                                            xmlWriter.writeStartElement(prefix,"queryTerm", namespace);
-                                            xmlWriter.writeNamespace(prefix, namespace);
-                                            xmlWriter.setPrefix(prefix, namespace);
-
-                                        } else {
-                                            xmlWriter.writeStartElement(namespace,"queryTerm");
-                                        }
-
-                                    } else {
-                                        xmlWriter.writeStartElement("queryTerm");
-                                    }
-                                
+                                    writeStartElement(null, namespace, "queryTerm", xmlWriter);
+                             
 
                                           if (localQueryTerm==null){
                                               // write the nil attribute
@@ -949,24 +780,8 @@
                                    xmlWriter.writeEndElement();
                              } if (localSortStringTracker){
                                     namespace = "http://soap_v2_1.ws.grouper.middleware.internet2.edu/xsd";
-                                    if (! namespace.equals("")) {
-                                        prefix = xmlWriter.getPrefix(namespace);
-
-                                        if (prefix == null) {
-                                            prefix = generatePrefix(namespace);
-
-                                            xmlWriter.writeStartElement(prefix,"sortString", namespace);
-                                            xmlWriter.writeNamespace(prefix, namespace);
-                                            xmlWriter.setPrefix(prefix, namespace);
-
-                                        } else {
-                                            xmlWriter.writeStartElement(namespace,"sortString");
-                                        }
-
-                                    } else {
-                                        xmlWriter.writeStartElement("sortString");
-                                    }
-                                
+                                    writeStartElement(null, namespace, "sortString", xmlWriter);
+                             
 
                                           if (localSortString==null){
                                               // write the nil attribute
@@ -983,24 +798,8 @@
                                    xmlWriter.writeEndElement();
                              } if (localStemAttributeNameTracker){
                                     namespace = "http://soap_v2_1.ws.grouper.middleware.internet2.edu/xsd";
-                                    if (! namespace.equals("")) {
-                                        prefix = xmlWriter.getPrefix(namespace);
-
-                                        if (prefix == null) {
-                                            prefix = generatePrefix(namespace);
-
-                                            xmlWriter.writeStartElement(prefix,"stemAttributeName", namespace);
-                                            xmlWriter.writeNamespace(prefix, namespace);
-                                            xmlWriter.setPrefix(prefix, namespace);
-
-                                        } else {
-                                            xmlWriter.writeStartElement(namespace,"stemAttributeName");
-                                        }
-
-                                    } else {
-                                        xmlWriter.writeStartElement("stemAttributeName");
-                                    }
-                                
+                                    writeStartElement(null, namespace, "stemAttributeName", xmlWriter);
+                             
 
                                           if (localStemAttributeName==null){
                                               // write the nil attribute
@@ -1017,24 +816,8 @@
                                    xmlWriter.writeEndElement();
                              } if (localStemAttributeValueTracker){
                                     namespace = "http://soap_v2_1.ws.grouper.middleware.internet2.edu/xsd";
-                                    if (! namespace.equals("")) {
-                                        prefix = xmlWriter.getPrefix(namespace);
-
-                                        if (prefix == null) {
-                                            prefix = generatePrefix(namespace);
-
-                                            xmlWriter.writeStartElement(prefix,"stemAttributeValue", namespace);
-                                            xmlWriter.writeNamespace(prefix, namespace);
-                                            xmlWriter.setPrefix(prefix, namespace);
-
-                                        } else {
-                                            xmlWriter.writeStartElement(namespace,"stemAttributeValue");
-                                        }
-
-                                    } else {
-                                        xmlWriter.writeStartElement("stemAttributeValue");
-                                    }
-                                
+                                    writeStartElement(null, namespace, "stemAttributeValue", xmlWriter);
+                             
 
                                           if (localStemAttributeValue==null){
                                               // write the nil attribute
@@ -1051,24 +834,8 @@
                                    xmlWriter.writeEndElement();
                              } if (localStemNameTracker){
                                     namespace = "http://soap_v2_1.ws.grouper.middleware.internet2.edu/xsd";
-                                    if (! namespace.equals("")) {
-                                        prefix = xmlWriter.getPrefix(namespace);
-
-                                        if (prefix == null) {
-                                            prefix = generatePrefix(namespace);
-
-                                            xmlWriter.writeStartElement(prefix,"stemName", namespace);
-                                            xmlWriter.writeNamespace(prefix, namespace);
-                                            xmlWriter.setPrefix(prefix, namespace);
-
-                                        } else {
-                                            xmlWriter.writeStartElement(namespace,"stemName");
-                                        }
-
-                                    } else {
-                                        xmlWriter.writeStartElement("stemName");
-                                    }
-                                
+                                    writeStartElement(null, namespace, "stemName", xmlWriter);
+                             
 
                                           if (localStemName==null){
                                               // write the nil attribute
@@ -1086,85 +853,31 @@
                              } if (localStemQueryFilter0Tracker){
                                     if (localStemQueryFilter0==null){
 
-                                            java.lang.String namespace2 = "http://soap_v2_1.ws.grouper.middleware.internet2.edu/xsd";
-
-                                        if (! namespace2.equals("")) {
-                                            java.lang.String prefix2 = xmlWriter.getPrefix(namespace2);
-
-                                            if (prefix2 == null) {
-                                                prefix2 = generatePrefix(namespace2);
-
-                                                xmlWriter.writeStartElement(prefix2,"stemQueryFilter0", namespace2);
-                                                xmlWriter.writeNamespace(prefix2, namespace2);
-                                                xmlWriter.setPrefix(prefix2, namespace2);
-
-                                            } else {
-                                                xmlWriter.writeStartElement(namespace2,"stemQueryFilter0");
-                                            }
-
-                                        } else {
-                                            xmlWriter.writeStartElement("stemQueryFilter0");
-                                        }
-
+                                        writeStartElement(null, "http://soap_v2_1.ws.grouper.middleware.internet2.edu/xsd", "stemQueryFilter0", xmlWriter);
 
                                        // write the nil attribute
                                       writeAttribute("xsi","http://www.w3.org/2001/XMLSchema-instance","nil","1",xmlWriter);
                                       xmlWriter.writeEndElement();
                                     }else{
                                      localStemQueryFilter0.serialize(new javax.xml.namespace.QName("http://soap_v2_1.ws.grouper.middleware.internet2.edu/xsd","stemQueryFilter0"),
-                                        factory,xmlWriter);
+                                        xmlWriter);
                                     }
                                 } if (localStemQueryFilter1Tracker){
                                     if (localStemQueryFilter1==null){
 
-                                            java.lang.String namespace2 = "http://soap_v2_1.ws.grouper.middleware.internet2.edu/xsd";
-
-                                        if (! namespace2.equals("")) {
-                                            java.lang.String prefix2 = xmlWriter.getPrefix(namespace2);
-
-                                            if (prefix2 == null) {
-                                                prefix2 = generatePrefix(namespace2);
-
-                                                xmlWriter.writeStartElement(prefix2,"stemQueryFilter1", namespace2);
-                                                xmlWriter.writeNamespace(prefix2, namespace2);
-                                                xmlWriter.setPrefix(prefix2, namespace2);
-
-                                            } else {
-                                                xmlWriter.writeStartElement(namespace2,"stemQueryFilter1");
-                                            }
-
-                                        } else {
-                                            xmlWriter.writeStartElement("stemQueryFilter1");
-                                        }
-
+                                        writeStartElement(null, "http://soap_v2_1.ws.grouper.middleware.internet2.edu/xsd", "stemQueryFilter1", xmlWriter);
 
                                        // write the nil attribute
                                       writeAttribute("xsi","http://www.w3.org/2001/XMLSchema-instance","nil","1",xmlWriter);
                                       xmlWriter.writeEndElement();
                                     }else{
                                      localStemQueryFilter1.serialize(new javax.xml.namespace.QName("http://soap_v2_1.ws.grouper.middleware.internet2.edu/xsd","stemQueryFilter1"),
-                                        factory,xmlWriter);
+                                        xmlWriter);
                                     }
                                 } if (localStemQueryFilterTypeTracker){
                                     namespace = "http://soap_v2_1.ws.grouper.middleware.internet2.edu/xsd";
-                                    if (! namespace.equals("")) {
-                                        prefix = xmlWriter.getPrefix(namespace);
-
-                                        if (prefix == null) {
-                                            prefix = generatePrefix(namespace);
-
-                                            xmlWriter.writeStartElement(prefix,"stemQueryFilterType", namespace);
-                                            xmlWriter.writeNamespace(prefix, namespace);
-                                            xmlWriter.setPrefix(prefix, namespace);
-
-                                        } else {
-                                            xmlWriter.writeStartElement(namespace,"stemQueryFilterType");
-                                        }
-
-                                    } else {
-                                        xmlWriter.writeStartElement("stemQueryFilterType");
-                                    }
-                                
+                                    writeStartElement(null, namespace, "stemQueryFilterType", xmlWriter);
+                             
 
                                           if (localStemQueryFilterType==null){
                                               // write the nil attribute
@@ -1181,24 +894,8 @@
                                    xmlWriter.writeEndElement();
                              } if (localStemUuidTracker){
                                     namespace = "http://soap_v2_1.ws.grouper.middleware.internet2.edu/xsd";
-                                    if (! namespace.equals("")) {
-                                        prefix = xmlWriter.getPrefix(namespace);
-
-                                        if (prefix == null) {
-                                            prefix = generatePrefix(namespace);
-
-                                            xmlWriter.writeStartElement(prefix,"stemUuid", namespace);
-                                            xmlWriter.writeNamespace(prefix, namespace);
-                                            xmlWriter.setPrefix(prefix, namespace);
-
-                                        } else {
-                                            xmlWriter.writeStartElement(namespace,"stemUuid");
-                                        }
-
-                                    } else {
-                                        xmlWriter.writeStartElement("stemUuid");
-                                    }
-                                
+                                    writeStartElement(null, namespace, "stemUuid", xmlWriter);
+                             
 
                                           if (localStemUuid==null){
                                               // write the nil attribute
@@ -1219,36 +916,58 @@
 
         }
 
-         /**
-          * Util method to write an attribute with the ns prefix
-          */
-          private void writeAttribute(java.lang.String prefix,java.lang.String namespace,java.lang.String attName,
-                                      java.lang.String attValue,javax.xml.stream.XMLStreamWriter xmlWriter) throws javax.xml.stream.XMLStreamException{
-              if (xmlWriter.getPrefix(namespace) == null) {
-                       xmlWriter.writeNamespace(prefix, namespace);
-                       xmlWriter.setPrefix(prefix, namespace);
-
-              }
-
-              xmlWriter.writeAttribute(namespace,attName,attValue);
-
-         }
+        private static java.lang.String generatePrefix(java.lang.String namespace) {
+            if(namespace.equals("http://soap_v2_1.ws.grouper.middleware.internet2.edu/xsd")){
+                return "ns1";
+            }
+            return org.apache.axis2.databinding.utils.BeanUtil.getUniquePrefix();
+        }
 
         /**
-          * Util method to write an attribute without the ns prefix
-          */
-          private void writeAttribute(java.lang.String namespace,java.lang.String attName,
-                                      java.lang.String attValue,javax.xml.stream.XMLStreamWriter xmlWriter) throws javax.xml.stream.XMLStreamException{
-                if (namespace.equals(""))
-              {
-                  xmlWriter.writeAttribute(attName,attValue);
-              }
-              else
-              {
-                  registerPrefix(xmlWriter, namespace);
-                  xmlWriter.writeAttribute(namespace,attName,attValue);
-              }
-          }
+         * Utility method to write an element start tag.
+         */
+        private void writeStartElement(java.lang.String prefix, java.lang.String namespace, java.lang.String localPart,
+                                       javax.xml.stream.XMLStreamWriter xmlWriter) throws javax.xml.stream.XMLStreamException {
+            java.lang.String writerPrefix = xmlWriter.getPrefix(namespace);
+            if (writerPrefix != null) {
+                xmlWriter.writeStartElement(namespace, localPart);
+            } else {
+                if (namespace.length() == 0) {
+                    prefix = "";
+                } else if (prefix == null) {
+                    prefix = generatePrefix(namespace);
+                }
+
+                xmlWriter.writeStartElement(prefix, localPart, namespace);
+                xmlWriter.writeNamespace(prefix, namespace);
+                xmlWriter.setPrefix(prefix, namespace);
+            }
+        }
+        
+        /**
+         * Util method to write an attribute with the ns prefix
+         */
+        private void writeAttribute(java.lang.String prefix,java.lang.String namespace,java.lang.String attName,
+                                    java.lang.String attValue,javax.xml.stream.XMLStreamWriter xmlWriter) throws javax.xml.stream.XMLStreamException{
+            if (xmlWriter.getPrefix(namespace) == null) {
+                xmlWriter.writeNamespace(prefix, namespace);
+                xmlWriter.setPrefix(prefix, namespace);
+            }
+            xmlWriter.writeAttribute(namespace,attName,attValue);
+        }
+
+        /**
+         * Util method to write an attribute without the ns prefix
+         */
+        private void writeAttribute(java.lang.String namespace,java.lang.String attName,
+                                    java.lang.String attValue,javax.xml.stream.XMLStreamWriter xmlWriter) throws javax.xml.stream.XMLStreamException{
+            if (namespace.equals("")) {
+                xmlWriter.writeAttribute(attName,attValue);
+            } else {
+                registerPrefix(xmlWriter, namespace);
+                xmlWriter.writeAttribute(namespace,attName,attValue);
+            }
+        }
 
 
            /**
@@ -1341,25 +1060,26 @@
         }
 
 
-         /**
+        /**
          * Register a namespace prefix
          */
-         private java.lang.String registerPrefix(javax.xml.stream.XMLStreamWriter xmlWriter, java.lang.String namespace) throws javax.xml.stream.XMLStreamException {
-                java.lang.String prefix = xmlWriter.getPrefix(namespace);
-
-                if (prefix == null) {
-                    prefix = generatePrefix(namespace);
-
-                    while (xmlWriter.getNamespaceContext().getNamespaceURI(prefix) != null) {
-                        prefix = org.apache.axis2.databinding.utils.BeanUtil.getUniquePrefix();
+        private java.lang.String registerPrefix(javax.xml.stream.XMLStreamWriter xmlWriter, java.lang.String namespace) throws javax.xml.stream.XMLStreamException {
+            java.lang.String prefix = xmlWriter.getPrefix(namespace);
+            if (prefix == null) {
+                prefix = generatePrefix(namespace);
+                javax.xml.namespace.NamespaceContext nsContext = xmlWriter.getNamespaceContext();
+                while (true) {
+                    java.lang.String uri = nsContext.getNamespaceURI(prefix);
+                    if (uri == null || uri.length() == 0) {
+                        break;
                     }
-
-                    xmlWriter.writeNamespace(prefix, namespace);
-                    xmlWriter.setPrefix(prefix, namespace);
+                    prefix = org.apache.axis2.databinding.utils.BeanUtil.getUniquePrefix();
                 }
-
-                return prefix;
+                xmlWriter.writeNamespace(prefix, namespace);
+                xmlWriter.setPrefix(prefix, namespace);
             }
+            return prefix;
+        }
 
 
   
@@ -1533,7 +1253,7 @@
                 java.util.Vector handledAttributes = new java.util.Vector();
                 
 
-                 
+                
                     
                     reader.next();
                 
@@ -1914,7 +1634,7 @@
                             
                                 if (reader.isStartElement())
                                 // A start element we are not expecting indicates a trailing invalid property
-                                throw new org.apache.axis2.databinding.ADBException("Unexpected subelement " + reader.getLocalName());
+                                throw new org.apache.axis2.databinding.ADBException("Unexpected subelement " + reader.getName());
                             
 
 
@@ -1932,4 +1652,4 @@
 
         }
            
-          
+    
