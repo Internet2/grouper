@@ -64,7 +64,9 @@ public class WsSampleFindAttributeDefNames implements WsSampleGenerated {
 
             //version, e.g. v1_3_000
             findAttributeDefNames.setClientVersion(GeneratedClientSettings.VERSION);
-            findAttributeDefNames.setScope("test:%");
+            
+            //this will find everything in the test stem and substems
+            findAttributeDefNames.setScope("test:");
 
             findAttributeDefNamesResponse = stub.findAttributeDefNames(findAttributeDefNames);
             wsFindAttributeDefNamesResults = findAttributeDefNamesResponse.get_return();

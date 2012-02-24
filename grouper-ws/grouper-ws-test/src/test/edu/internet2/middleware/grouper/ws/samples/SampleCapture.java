@@ -165,12 +165,16 @@ public class SampleCapture {
    * @param args
    */
   public static void main(String[] args) {
-    
+
     setupData();
-  
+
+//    captureSample(WsSampleClientType.GENERATED_SOAP,  
+//        WsSampleFindAttributeDefNames.class, "findAttributeDefNames", (String)null);
+
     captureSample(WsSampleClientType.GENERATED_SOAP,  
-        WsSampleFindAttributeDefNames.class, "findAttributeDefNames", (String)null);
- 
+        WsSampleAddMember.class, "addMember", (String)null);
+    captureSample(WsSampleClientType.GENERATED_SOAP,  
+        WsSampleAddMemberLite.class, "addMember", null);
     
     //
     //captureAddMember();

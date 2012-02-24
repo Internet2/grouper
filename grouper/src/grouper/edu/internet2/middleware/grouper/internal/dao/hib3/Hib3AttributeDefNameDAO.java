@@ -474,10 +474,13 @@ public class Hib3AttributeDefNameDAO extends Hib3DAO implements AttributeDefName
         whereClause.append(" ( lower(theAttributeDefName.nameDb) like :scope" + index 
             + " or lower(theAttributeDefName.displayNameDb) like :scope" + index 
             + " or lower(theAttributeDefName.description) like :scope" + index + " ) ");
-        if (splitScope) {
-          theScope = "%" + theScope + "%";
-        } else if (!theScope.endsWith("%")) {
+        if (!theScope.endsWith("%")) {
           theScope += "%";
+        }
+        if (splitScope) {
+          if (!theScope.startsWith("%")) {
+            theScope = "%" + theScope;
+          }
         }
         byHqlStatic.setString("scope" + index, theScope);
         index++;
@@ -517,6 +520,18 @@ public class Hib3AttributeDefNameDAO extends Hib3DAO implements AttributeDefName
       Set<Privilege> privileges, QueryOptions queryOptions, AttributeAssignType attributeAssignType,
       AttributeDefType attributeDefType) {
     return findAllAttributeNamesSecureHelper(scope, grouperSession, attributeDefId, subject, privileges, queryOptions, true, attributeAssignType, attributeDefType);
+  }
+
+  /**
+   * @see AttributeDefNameDAO#findAllAttributeNamesSecure(String, boolean, GrouperSession, String, Subject, Set, QueryOptions, AttributeAssignType, AttributeDefType)
+   */
+  @Override
+  public Set<AttributeDefName> findAllAttributeNamesSecure(String scope,
+      boolean splitScope, GrouperSession grouperSession, String attributeDefId,
+      Subject subject, Set<Privilege> privileges, QueryOptions queryOptions,
+      AttributeAssignType attributeAssignType, AttributeDefType attributeDefType) {
+    return findAllAttributeNamesSecureHelper(scope, grouperSession, attributeDefId, 
+        subject, privileges, queryOptions, splitScope, attributeAssignType, attributeDefType);
   }
 
 } 

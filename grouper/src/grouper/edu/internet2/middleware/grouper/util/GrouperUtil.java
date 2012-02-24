@@ -59,6 +59,7 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -118,19 +119,6 @@ import edu.internet2.middleware.subject.util.ExpirableCache;
  */
 public class GrouperUtil {
 
-  /**
-   * threadpool
-   */
-  private static ExecutorService executorService = Executors.newCachedThreadPool();
-
-  /**
-   * 
-   * @return executor service
-   */
-  public static ExecutorService retrieveExecutorService() {
-    return executorService;
-  }
-  
   /** override map for properties in thread local to be used in a web server or the like */
   private static ThreadLocal<Map<String, Map<String, String>>> propertiesThreadLocalOverrideMap = new ThreadLocal<Map<String, Map<String, String>>>();
 
@@ -9503,6 +9491,30 @@ public class GrouperUtil {
   }
 
   /**
+   * thread factory with daemon threads so the JVM exits
+   * @author mchyzer
+   *
+   */
+  private static class DaemonThreadFactory implements ThreadFactory {
+
+    /**
+     * 
+     */
+    private ThreadFactory threadFactory = Executors.defaultThreadFactory();
+
+    /**
+     * 
+     */
+    @Override
+    public Thread newThread(Runnable r) {
+      Thread thread = threadFactory.newThread(r);
+      thread.setDaemon(true);
+      return thread;
+    }
+
+  }
+
+  /**
    * make sure a value exists in properties
    * @param resourceName
    * @param key
@@ -11345,6 +11357,19 @@ public class GrouperUtil {
    */
   public static <T> List<T> listFromCollection(Collection<T> collection) {
     return collection == null ? null : new ArrayList<T>(collection);
+  }
+
+  /**
+   * threadpool
+   */
+  private static ExecutorService executorService = Executors.newCachedThreadPool(new DaemonThreadFactory());
+
+  /**
+   * 
+   * @return executor service
+   */
+  public static ExecutorService retrieveExecutorService() {
+    return executorService;
   }
   
 }

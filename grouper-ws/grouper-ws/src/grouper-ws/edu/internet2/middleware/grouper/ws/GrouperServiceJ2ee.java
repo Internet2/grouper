@@ -383,9 +383,15 @@ public class GrouperServiceJ2ee implements Filter {
     if (actAsLookup == null || actAsLookup.blank()) {
       return loggedInSubject;
     }
-
-    Subject actAsSubject = actAsLookup.retrieveSubject("actAsSubject");
-
+    
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    Subject actAsSubject = null;
+    try {
+      actAsSubject = actAsLookup.retrieveSubject("actAsSubject");
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+    
     //see if same:
     if (StringUtils.equals(loggedInSubjectId, actAsSubject.getId())
         && StringUtils.equals(loggedInSubject.getSource().getId(), actAsSubject.getSource().getId())) {
