@@ -25,6 +25,7 @@ package edu.internet2.middleware.subject.provider;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -46,6 +47,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import edu.internet2.middleware.morphString.Morph;
 import edu.internet2.middleware.subject.SearchPageResult;
 import edu.internet2.middleware.subject.SourceUnavailableException;
 import edu.internet2.middleware.subject.Subject;
@@ -168,13 +170,33 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
             if (theFile == null) {
         	 log.error("Unable to open properties file '" + propertiesFile + "'");
         	 throw new IllegalArgumentException("Unable to open properties file '" + propertiesFile + "'");
-            }         
-	     
+            }
+
+            // Create the ldap configuration from the properties file
             ldapConfig = LdapConfig.createFromProperties(new FileInputStream(theFile));
             if (log.isDebugEnabled()) {
                log.debug("from properties file " + propertiesFile + " got " + ldapConfig);
             }
-
+            
+            // Create a properties object from the properties file
+            Properties properties = new Properties();
+            properties.load(new FileInputStream(theFile));            
+            
+            // Get the bindCredential property
+            String bindCredential = properties.getProperty("edu.vt.middleware.ldap.bindCredential");                            
+            // If bindCredential is blank, try the older serviceCredential property
+            if (StringUtils.isBlank(bindCredential)) {
+            	bindCredential = properties.getProperty("edu.vt.middleware.ldap.serviceCredential");
+            }
+            
+            // The password might be encrypted
+            if (!StringUtils.isBlank(bindCredential)) {
+              bindCredential = Morph.decryptIfFile(bindCredential);
+            }
+            
+            // Override the credential in case it was encrypted
+            ldapConfig.setBindCredential(bindCredential);
+            
             // get our cert config from the properties file as well
             Map<String, Object> props = ldapConfig.getEnvironmentProperties();
        
@@ -189,6 +211,9 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
          } catch (FileNotFoundException e) {
             log.error("ldap properties not found: " + e, e);
             throw new IllegalArgumentException("Unable to open properties file '" + propertiesFile + "' not found!");
+         } catch (IOException e) {
+        	 log.error("Unable to load properties from file: " + e, e);
+             throw new IllegalArgumentException("Unable to load properties from file: " + e, e);
          }
 
       } else {
