@@ -730,7 +730,7 @@ public class Composite extends GrouperAPI implements GrouperHasContext, Hib3Grou
     Set<Membership> mships = new LinkedHashSet<Membership>();
     Iterator<String> it = memberUUIDs.iterator();
     while (it.hasNext()) {
-      Membership ms = createNewCompositeMembershipObject(this.getFactorOwnerUuid(), it.next(), this.getUuid());
+      Membership ms = internal_createNewCompositeMembershipObject(this.getFactorOwnerUuid(), it.next(), this.getUuid());
       mships.add(ms);
     }
     return mships;
@@ -744,7 +744,7 @@ public class Composite extends GrouperAPI implements GrouperHasContext, Hib3Grou
    * @param viaCompositeId
    * @return membership
    */
-  protected static Membership createNewCompositeMembershipObject(String ownerGroupId, String memberUuid, String viaCompositeId) {
+  public static Membership internal_createNewCompositeMembershipObject(String ownerGroupId, String memberUuid, String viaCompositeId) {
     Membership ms = new Membership();
     ms.setCreatorUuid(GrouperSession.staticGrouperSession().getMember().getUuid());
     ms.setDepth(0);

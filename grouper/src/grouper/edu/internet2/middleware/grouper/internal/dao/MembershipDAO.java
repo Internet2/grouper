@@ -873,6 +873,13 @@ TODO update for 1.5
       String ownerAttrDefId, String ownerGroupId, String ownerStemId, boolean exceptionIfNull) throws GrouperDAOException;
 
   /**
+   * @param uuid 
+   * @param exceptionIfNull 
+   * @return membership
+   */
+  public Membership findByImmediateUuid(String uuid, boolean exceptionIfNull);
+  
+  /**
    * save the update properties which are auto saved when business method is called
    * @param membership
    */
@@ -933,5 +940,40 @@ TODO update for 1.5
    * @return set of memberships
    */
   public Set<Membership> findAllMembershipEntriesByGroupOwnerAndFieldAndType(String ownerGroupId, Field f, String type, boolean enabledOnly);
+  
+  /**
+   * @return set of arrays containing owner ids, composite ids, and member ids that should be added as composite memberships 
+   */
+  public Set<Object[]> findMissingComplementMemberships();
+  
+  /**
+   * @return set of arrays containing owner ids, composite ids, and member ids that should be added as composite memberships 
+   */
+  public Set<Object[]> findMissingUnionMemberships();
+  
+  /**
+   * @return set of arrays containing owner ids, composite ids, and member ids that should be added as composite memberships 
+   */
+  public Set<Object[]> findMissingIntersectionMemberships();
+  
+  /**
+   * @return set of immediate memberships that are bad
+   */
+  public Set<Membership> findBadComplementMemberships();
+  
+  /**
+   * @return set of immediate memberships that are bad
+   */
+  public Set<Membership> findBadUnionMemberships();
+  
+  /**
+   * @return set of immediate memberships that are bad
+   */
+  public Set<Membership> findBadIntersectionMemberships();
+  
+  /**
+   * @return set of immediate memberships that are bad
+   */
+  public Set<Membership> findBadImmediateMembershipsOnCompositeGroup();
 } 
 
