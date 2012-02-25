@@ -263,6 +263,7 @@
 			</fileset>
 		</copy>
 	  <!-- normal axis -->
+    <mkdir dir="${basedir}/webapp/WEB-INF/services"/>
 		<jar destfile="${basedir}/webapp/WEB-INF/services/GrouperService.aar">
 			<fileset excludes="edu/internet2/middleware/grouper/ws/**/*Test.class" dir="${webservice.folder}/classes" />
 			<fileset dir="webservices/GrouperService.aar" />

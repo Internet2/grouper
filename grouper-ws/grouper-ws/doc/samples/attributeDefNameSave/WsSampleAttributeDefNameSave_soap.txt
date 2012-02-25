@@ -1,0 +1,269 @@
+Grouper web service sample of service: attributeDefNameSave, WsSampleAttributeDefNameSave, code generated classes, format: soap, for version: 2.1.0
+
+
+#########################################
+##
+## HTTP request sample (could be formatted for view by
+## indenting or changing dates or other data)
+##
+#########################################
+
+
+POST /grouper-ws/services/GrouperService_v2_1 HTTP/1.1
+Content-Type: application/soap+xml; charset=UTF-8; action="urn:attributeDefNameSave"
+User-Agent: Axis2
+Authorization: Basic xxxxxxxxxxxxxxxxx==
+Host: localhost:8092
+Transfer-Encoding: chunked
+
+46f
+<?xml version='1.0' encoding='UTF-8'?>
+<soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
+  <soapenv:Body>
+    <ns1:attributeDefNameSave xmlns:ns1="http://soap_v2_1.ws.grouper.middleware.internet2.edu/xsd">
+      <ns1:clientVersion>v2_1_000</ns1:clientVersion>
+      <ns1:wsAttributeDefNameToSaves>
+        <ns1:wsAttributeDefName>
+          <ns1:attributeDefName>test:testAttributeAssignDefNameDef</ns1:attributeDefName>
+          <ns1:description>This is a description 1 soap</ns1:description>
+          <ns1:displayExtension>My new attribute def name to save 1 soap</ns1:displayExtension>
+          <ns1:name>test:testAttributeAssignDefNameToSave1_soap</ns1:name>
+        </ns1:wsAttributeDefName>
+      </ns1:wsAttributeDefNameToSaves>
+      <ns1:wsAttributeDefNameToSaves>
+        <ns1:wsAttributeDefName>
+          <ns1:attributeDefName>test:testAttributeAssignDefNameDef</ns1:attributeDefName>
+          <ns1:description>This is a description 2 soap</ns1:description>
+          <ns1:displayExtension>My new attribute def name to save 2 soap</ns1:displayExtension>
+          <ns1:name>test:testAttributeAssignDefNameToSave2_soap</ns1:name>
+        </ns1:wsAttributeDefName>
+      </ns1:wsAttributeDefNameToSaves>
+    </ns1:attributeDefNameSave>
+  </soapenv:Body>
+</soapenv:Envelope>
+0
+
+
+#########################################
+##
+## HTTP response sample (could be formatted for view by
+## indenting or changing dates or other data)
+##
+#########################################
+
+
+HTTP/1.1 200 OK
+Server: Apache-Coyote/1.1
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
+X-Grouper-resultCode: SUCCESS
+X-Grouper-success: T
+X-Grouper-resultCode2: NONE
+Content-Type: application/soap+xml; action="urn:attributeDefNameSaveResponse";charset=UTF-8
+Transfer-Encoding: chunked
+Date: Sat, 25 Feb 2012 17:26:20 GMT
+
+bcd
+<?xml version='1.0' encoding='UTF-8'?>
+<soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
+  <soapenv:Body>
+    <ns:attributeDefNameSaveResponse xmlns:ns="http://soap_v2_1.ws.grouper.middleware.internet2.edu/xsd">
+      <ns:return xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ns:WsAttributeDefNameSaveResults">
+        <ns:responseMetadata xsi:type="ns:WsResponseMeta">
+          <ns:millis xsi:nil="true" />
+          <ns:resultWarnings xsi:nil="true" />
+          <ns:serverVersion>2.1.0</ns:serverVersion>
+        </ns:responseMetadata>
+        <ns:resultMetadata xsi:type="ns:WsResultMeta">
+          <ns:params xsi:nil="true" />
+          <ns:resultCode>SUCCESS</ns:resultCode>
+          <ns:resultCode2 xsi:nil="true" />
+          <ns:resultMessage>Success for: clientVersion: 2.1.0, wsAttributeDefNameToSaves: Array size: 2: [0]: WsAttributeDefNameToSave[
+wsAttributeDefName=WsAttributeDefName[displayExtension=My new attribute def name to save 1 soap,description=This is a description 1 soap,name=test:te...
+, actAsSubject: null, txType: NONE, paramNames:
+, params: Empty array</ns:resultMessage>
+          <ns:success>T</ns:success>
+        </ns:resultMetadata>
+        <ns:results xsi:type="ns:WsAttributeDefNameSaveResult">
+          <ns:resultMetadata xsi:type="ns:WsResultMeta">
+            <ns:params xsi:nil="true" />
+            <ns:resultCode>SUCCESS_INSERTED</ns:resultCode>
+            <ns:resultCode2 xsi:nil="true" />
+            <ns:resultMessage xsi:nil="true" />
+            <ns:success>T</ns:success>
+          </ns:resultMetadata>
+          <ns:wsAttributeDefName xsi:type="ns:WsAttributeDefName">
+            <ns:attributeDefId>de1c295620bf4d9498bb7749415b970a</ns:attributeDefId>
+            <ns:attributeDefName>test:testAttributeAssignDefNameDef</ns:attributeDefName>
+            <ns:description>This is a description 1 soap</ns:description>
+            <ns:displayExtension>My new attribute def name to save 1 soap</ns:displayExtension>
+            <ns:displayName>test:My new attribute def name to save 1 soap</ns:displayName>
+            <ns:extension>testAttributeAssignDefNameToSave1_soap</ns:extension>
+            <ns:name>test:testAttributeAssignDefNameToSave1_soap</ns:name>
+            <ns:uuid>9f1f32bba11648fc929beea03a2ab120</ns:uuid>
+          </ns:wsAttributeDefName>
+        </ns:results>
+        <ns:results xsi:type="ns:WsAttributeDefNameSaveResult">
+          <ns:resultMetadata xsi:type="ns:WsResultMeta">
+            <ns:params xsi:nil="true" />
+            <ns:resultCode>SUCCESS_INSERTED</ns:resultCode>
+            <ns:resultCode2 xsi:nil="true" />
+            <ns:resultMessage xsi:nil="true" />
+            <ns:success>T</ns:success>
+          </ns:resultMetadata>
+          <ns:wsAttributeDefName xsi:type="ns:WsAttributeDefName">
+            <ns:attributeDefId>de1c295620bf4d9498bb7749415b970a</ns:attributeDefId>
+            <ns:attributeDefName>test:testAttributeAssignDefNameDef</ns:attributeDefName>
+            <ns:description>This is a description 2 soap</ns:description>
+            <ns:displayExtension>My new attribute def name to save 2 soap</ns:displayExtension>
+            <ns:displayName>test:My new attribute def name to save 2 soap</ns:displayName>
+            <ns:extension>testAttributeAssignDefNameToSave2_soap</ns:extension>
+            <ns:name>test:testAttributeAssignDefNameToSave2_soap</ns:name>
+            <ns:uuid>cad46c41fe3a4f0c954ff94178487979</ns:uuid>
+          </ns:wsAttributeDefName>
+        </ns:results>
+      </ns:return>
+    </ns:attributeDefNameSaveResponse>
+  </soapenv:Body>
+</soapenv:Envelope>
+0
+
+
+#########################################
+##
+## Java source code (note, any programming language / objects
+## can use used to generate the above request/response.  Nothing
+## is Java specific.  Also, if you are using Java, the client libraries
+## are available
+##
+#########################################
+
+
+/**
+ *
+ */
+package edu.internet2.middleware.grouper.webservicesClient;
+
+import org.apache.axis2.client.Options;
+import org.apache.axis2.transport.http.HTTPConstants;
+import org.apache.axis2.transport.http.HttpTransportProperties;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.builder.ToStringBuilder;
+
+import edu.internet2.middleware.grouper.webservicesClient.util.GeneratedClientSettings;
+import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGenerated;
+import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGeneratedType;
+import edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.AttributeDefNameSave;
+import edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.AttributeDefNameSaveResponse;
+import edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsAttributeDefName;
+import edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsAttributeDefNameSaveResults;
+import edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsAttributeDefNameToSave;
+
+
+/**
+ * @author mchyzer
+ *
+ */
+public class WsSampleAttributeDefNameSave implements WsSampleGenerated {
+    /**
+     * @param args
+     * @throws Exception
+     */
+    public static void main(String[] args) throws Exception {
+        attributeDefNameSave(WsSampleGeneratedType.soap);
+    }
+
+    /**
+     * @see edu.internet2.middleware.grouper.ws.samples.types.WsSampleGenerated#executeSample(edu.internet2.middleware.grouper.ws.samples.types.WsSampleGeneratedType)
+     */
+    public void executeSample(WsSampleGeneratedType wsSampleGeneratedType) {
+      attributeDefNameSave(wsSampleGeneratedType);
+    }
+
+    /**
+     *
+     * @param wsSampleGeneratedType can run as soap or xml/http
+     */
+    public static void attributeDefNameSave(WsSampleGeneratedType wsSampleGeneratedType) {
+        try {
+            //URL, e.g. http://localhost:8091/grouper-ws/services/GrouperService
+            GrouperServiceStub stub = new GrouperServiceStub(GeneratedClientSettings.URL);
+            Options options = stub._getServiceClient().getOptions();
+            HttpTransportProperties.Authenticator auth = new HttpTransportProperties.Authenticator();
+            auth.setUsername(GeneratedClientSettings.USER);
+            auth.setPassword(GeneratedClientSettings.PASS);
+            auth.setPreemptiveAuthentication(true);
+
+            options.setProperty(HTTPConstants.AUTHENTICATE, auth);
+            options.setProperty(HTTPConstants.SO_TIMEOUT, new Integer(3600000));
+            options.setProperty(HTTPConstants.CONNECTION_TIMEOUT,
+                new Integer(3600000));
+
+            AttributeDefNameSave attributeDefNameSave = null;
+            AttributeDefNameSaveResponse attributeDefNameSaveResponse = null;
+            WsAttributeDefNameSaveResults wsAttributeDefNameSaveResults = null;
+
+            attributeDefNameSave = AttributeDefNameSave.class.newInstance();
+
+            //version, e.g. v1_3_000
+            attributeDefNameSave.setClientVersion(GeneratedClientSettings.VERSION);
+            
+            {
+              WsAttributeDefNameToSave wsAttributeDefNameToSave = new WsAttributeDefNameToSave();
+
+              //The attribute def name to save
+              WsAttributeDefName wsAttributeDefName = new WsAttributeDefName();
+              
+              wsAttributeDefName.setAttributeDefName("test:testAttributeAssignDefNameDef");
+              wsAttributeDefName.setName("test:testAttributeAssignDefNameToSave1_" + wsSampleGeneratedType);
+              wsAttributeDefName.setDisplayExtension("My new attribute def name to save 1 " + wsSampleGeneratedType);
+              wsAttributeDefName.setDescription("This is a description 1 " + wsSampleGeneratedType);
+              
+              wsAttributeDefNameToSave.setWsAttributeDefName(wsAttributeDefName);
+              
+              attributeDefNameSave.addWsAttributeDefNameToSaves(wsAttributeDefNameToSave);
+            }
+            
+            {
+              WsAttributeDefNameToSave wsAttributeDefNameToSave = new WsAttributeDefNameToSave();
+
+              //The attribute def name to save
+              WsAttributeDefName wsAttributeDefName = new WsAttributeDefName();
+              
+              wsAttributeDefName.setAttributeDefName("test:testAttributeAssignDefNameDef");
+              wsAttributeDefName.setName("test:testAttributeAssignDefNameToSave2_" + wsSampleGeneratedType);
+              wsAttributeDefName.setDisplayExtension("My new attribute def name to save 2 " + wsSampleGeneratedType);
+              wsAttributeDefName.setDescription("This is a description 2 " + wsSampleGeneratedType);
+              
+              wsAttributeDefNameToSave.setWsAttributeDefName(wsAttributeDefName);
+              
+              attributeDefNameSave.addWsAttributeDefNameToSaves(wsAttributeDefNameToSave);
+            }
+            
+            attributeDefNameSaveResponse = stub.attributeDefNameSave(attributeDefNameSave);
+            wsAttributeDefNameSaveResults = attributeDefNameSaveResponse.get_return();
+            System.out.println(ToStringBuilder.reflectionToString(
+                    wsAttributeDefNameSaveResults));
+            
+            if (!StringUtils.equals("T", 
+                wsAttributeDefNameSaveResults.getResultMetadata().getSuccess())) {
+              throw new RuntimeException("didnt get success! ");
+            }
+            
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+}
+
+
+#########################################
+##
+## Stdout
+##
+#########################################
+
+
+WsAttributeDefNameSaveResults[
+  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsResponseMeta@1f3ed7f,localResponseMetadataTracker=true,
+  localResultMetadata=edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsResultMeta@16d51c0,localResultMetadataTracker=true,
+  localResults={edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsAttributeDefNameSaveResult@17cd6ad,edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsAttributeDefNameSaveResult@f23838},localResultsTracker=true]

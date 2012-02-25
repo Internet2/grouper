@@ -1834,7 +1834,7 @@ public class GrouperServiceRest {
         GrouperVersion.stringValueOrNull(wsRestAttributeDefNameDeleteLiteRequest.getClientVersion()), false, "clientVersion");
   
     attributeDefName = GrouperServiceUtils.pickOne(attributeDefName, wsRestAttributeDefNameDeleteLiteRequest
-        .getAttributeDefNameName(), false, "attributeDefName");
+        .getAttributeDefNameName(), true, "attributeDefName");
 
     WsAttributeDefNameDeleteLiteResult wsAttributeDefNameDeleteLiteResult = new GrouperService(false).attributeDefNameDeleteLite(
         clientVersionString, wsRestAttributeDefNameDeleteLiteRequest.getAttributeDefNameUuid(), 
@@ -1893,7 +1893,7 @@ public class GrouperServiceRest {
         GrouperVersion.stringValueOrNull(wsRestAttributeDefNameSaveLiteRequest.getClientVersion()), false, "clientVersion");
   
     attributeDefNameLookupName = GrouperServiceUtils.pickOne(attributeDefNameLookupName,
-        wsRestAttributeDefNameSaveLiteRequest.getAttributeDefNameLookupName(), false, "attributeDefNameLookupName");
+        wsRestAttributeDefNameSaveLiteRequest.getAttributeDefNameLookupName(), true, "attributeDefNameLookupName");
 
     
     WsAttributeDefNameSaveLiteResult wsAttributeDefNameSaveLiteResult = new GrouperService(false).attributeDefNameSaveLite(

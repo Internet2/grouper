@@ -1,4 +1,4 @@
-package edu.internet2.middleware.grouper.ws.samples.rest.group;
+package edu.internet2.middleware.grouper.ws.samples.rest.attribute;
 
 import org.apache.commons.httpclient.Credentials;
 import org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;
@@ -12,12 +12,9 @@ import org.apache.commons.httpclient.params.DefaultHttpParams;
 import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.commons.lang.StringUtils;
 
-import edu.internet2.middleware.grouper.ws.coresoap.WsFindGroupsResults;
-import edu.internet2.middleware.grouper.ws.coresoap.WsQueryFilter;
-import edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup;
-import edu.internet2.middleware.grouper.ws.query.WsQueryFilterType;
+import edu.internet2.middleware.grouper.ws.coresoap.WsFindAttributeDefNamesResults;
 import edu.internet2.middleware.grouper.ws.rest.WsRestResultProblem;
-import edu.internet2.middleware.grouper.ws.rest.group.WsRestFindGroupsRequest;
+import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestFindAttributeDefNamesLiteRequest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType;
 import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
@@ -25,13 +22,13 @@ import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
 /**
  * @author mchyzer
  */
-public class WsSampleFindGroupsRest implements WsSampleRest {
+public class WsSampleFindAttributeDefNamesRestLite implements WsSampleRest {
 
   /**
-   * find group web service with REST
+   * find groups lite web service with REST
    * @param wsSampleRestType is the type of rest (xml, xhtml, etc)
    */
-  public static void findGroups(WsSampleRestType wsSampleRestType) {
+  public static void findAttributeDefNamesLite(WsSampleRestType wsSampleRestType) {
 
     try {
       HttpClient httpClient = new HttpClient();
@@ -40,15 +37,15 @@ public class WsSampleFindGroupsRest implements WsSampleRest {
           HttpMethodParams.RETRY_HANDLER, new DefaultHttpMethodRetryHandler(0, false));
 
       //URL e.g. http://localhost:8093/grouper-ws/servicesRest/v1_3_000/...
-      //NOTE: aStem:aGroup urlencoded substitutes %3A for a colon
+      //NOTE: aStem:aAttributeDefName urlencoded substitutes %3A for a colon
       PostMethod method = new PostMethod(
           RestClientSettings.URL + "/" + RestClientSettings.VERSION  
-            + "/groups");
-
+            + "/attributeDefNames");
+      
       httpClient.getParams().setAuthenticationPreemptive(true);
       Credentials defaultcreds = new UsernamePasswordCredentials(RestClientSettings.USER, 
           RestClientSettings.PASS);
-
+      
       //no keep alive so response if easier to indent for tests
       method.setRequestHeader("Connection", "close");
       
@@ -58,21 +55,12 @@ public class WsSampleFindGroupsRest implements WsSampleRest {
 
       //Make the body of the request, in this case with beans and marshaling, but you can make
       //your request document in whatever language or way you want
-      WsRestFindGroupsRequest findGroups = new WsRestFindGroupsRequest();
+      WsRestFindAttributeDefNamesLiteRequest findAttributeDefNamesLite = new WsRestFindAttributeDefNamesLiteRequest();
 
-      // set the act as id
-      WsSubjectLookup actAsSubject = new WsSubjectLookup("GrouperSystem", null, null);
-      findGroups.setActAsSubjectLookup(actAsSubject);
-
-      WsQueryFilter wsQueryFilter = new WsQueryFilter();
-      wsQueryFilter.setGroupName("aGr");
-      wsQueryFilter.setQueryFilterType(WsQueryFilterType.FIND_BY_GROUP_NAME_APPROXIMATE.name());
-      wsQueryFilter.setStemName("aStem");
-      
-      findGroups.setWsQueryFilter(wsQueryFilter);
-
+      findAttributeDefNamesLite.setScope("test:");
+            
       //get the xml / json / xhtml / paramString
-      String requestDocument = wsSampleRestType.getWsLiteRequestContentType().writeString(findGroups);
+      String requestDocument = wsSampleRestType.getWsLiteRequestContentType().writeString(findAttributeDefNamesLite);
       
       //make sure right content type is in request (e.g. application/xhtml+xml
       String contentType = wsSampleRestType.getWsLiteRequestContentType().getContentType();
@@ -92,26 +80,25 @@ public class WsSampleFindGroupsRest implements WsSampleRest {
       
       String response = RestClientSettings.responseBodyAsString(method);
 
-      Object result = wsSampleRestType
-        .getWsLiteResponseContentType().parseString(response);
-      
+      Object resultObject = wsSampleRestType.getWsLiteResponseContentType().parseString(response);
+    
       //see if problem
-      if (result instanceof WsRestResultProblem) {
-        throw new RuntimeException(((WsRestResultProblem)result).getResultMetadata().getResultMessage());
+      if (resultObject instanceof WsRestResultProblem) {
+        throw new RuntimeException(((WsRestResultProblem)resultObject).getResultMetadata().getResultMessage());
       }
-      
+
       //convert to object (from xhtml, xml, json, etc)
-      WsFindGroupsResults wsFindGroupsResults = (WsFindGroupsResults)result;
+      WsFindAttributeDefNamesResults wsFindAttributeDefNamesResults = (WsFindAttributeDefNamesResults)resultObject;
       
-      String resultMessage = wsFindGroupsResults.getResultMetadata().getResultMessage();
+      String resultMessage = wsFindAttributeDefNamesResults.getResultMetadata().getResultMessage();
 
       // see if request worked or not
       if (!success) {
-        throw new RuntimeException("Bad response from web service: successString: " + successString + ", resultCode: " + resultCode
+        throw new RuntimeException("Bad response from web service: resultCode: " + resultCode
             + ", " + resultMessage);
       }
       
-      System.out.println("Server version: " + wsFindGroupsResults.getResponseMetadata().getServerVersion()
+      System.out.println("Server version: " + wsFindAttributeDefNamesResults.getResponseMetadata().getServerVersion()
           + ", result code: " + resultCode
           + ", result message: " + resultMessage );
 
@@ -124,23 +111,22 @@ public class WsSampleFindGroupsRest implements WsSampleRest {
   /**
    * @param args
    */
-  @SuppressWarnings("unchecked")
   public static void main(String[] args) {
-    findGroups(WsSampleRestType.xhtml);
+    findAttributeDefNamesLite(WsSampleRestType.xhtml);
   }
 
   /**
    * @see edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest#executeSample(edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType)
    */
   public void executeSample(WsSampleRestType wsSampleRestType) {
-    findGroups(wsSampleRestType);
+    findAttributeDefNamesLite(wsSampleRestType);
   }
 
   /**
    * @see edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest#validType(edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType)
    */
   public boolean validType(WsSampleRestType wsSampleRestType) {
-    //dont allow http params
-    return !WsSampleRestType.http_xhtml.equals(wsSampleRestType);
+    //allow all
+    return true;
   }
 }

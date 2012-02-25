@@ -1,4 +1,4 @@
-package edu.internet2.middleware.grouper.ws.samples.rest.group;
+package edu.internet2.middleware.grouper.ws.samples.rest.attribute;
 
 import org.apache.commons.httpclient.Credentials;
 import org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;
@@ -12,12 +12,12 @@ import org.apache.commons.httpclient.params.DefaultHttpParams;
 import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.commons.lang.StringUtils;
 
-import edu.internet2.middleware.grouper.ws.coresoap.WsFindGroupsResults;
-import edu.internet2.middleware.grouper.ws.coresoap.WsQueryFilter;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefName;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameSaveResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameToSave;
 import edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup;
-import edu.internet2.middleware.grouper.ws.query.WsQueryFilterType;
 import edu.internet2.middleware.grouper.ws.rest.WsRestResultProblem;
-import edu.internet2.middleware.grouper.ws.rest.group.WsRestFindGroupsRequest;
+import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestAttributeDefNameSaveRequest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType;
 import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
@@ -25,13 +25,13 @@ import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
 /**
  * @author mchyzer
  */
-public class WsSampleFindGroupsRest implements WsSampleRest {
+public class WsSampleAttributeDefNameSaveRest implements WsSampleRest {
 
   /**
-   * find group web service with REST
+   * AttributeDefNameSave web service with REST
    * @param wsSampleRestType is the type of rest (xml, xhtml, etc)
    */
-  public static void findGroups(WsSampleRestType wsSampleRestType) {
+  public static void attributeDefNameSave(WsSampleRestType wsSampleRestType) {
 
     try {
       HttpClient httpClient = new HttpClient();
@@ -40,10 +40,10 @@ public class WsSampleFindGroupsRest implements WsSampleRest {
           HttpMethodParams.RETRY_HANDLER, new DefaultHttpMethodRetryHandler(0, false));
 
       //URL e.g. http://localhost:8093/grouper-ws/servicesRest/v1_3_000/...
-      //NOTE: aStem:aGroup urlencoded substitutes %3A for a colon
+      //NOTE: aStem:aAttributeDefName urlencoded substitutes %3A for a colon
       PostMethod method = new PostMethod(
           RestClientSettings.URL + "/" + RestClientSettings.VERSION  
-            + "/groups");
+            + "/attributeDefNames");
 
       httpClient.getParams().setAuthenticationPreemptive(true);
       Credentials defaultcreds = new UsernamePasswordCredentials(RestClientSettings.USER, 
@@ -58,27 +58,48 @@ public class WsSampleFindGroupsRest implements WsSampleRest {
 
       //Make the body of the request, in this case with beans and marshaling, but you can make
       //your request document in whatever language or way you want
-      WsRestFindGroupsRequest findGroups = new WsRestFindGroupsRequest();
+      WsRestAttributeDefNameSaveRequest attributeDefNameSave = new WsRestAttributeDefNameSaveRequest();
 
       // set the act as id
       WsSubjectLookup actAsSubject = new WsSubjectLookup("GrouperSystem", null, null);
-      findGroups.setActAsSubjectLookup(actAsSubject);
+      attributeDefNameSave.setActAsSubjectLookup(actAsSubject);
 
-      WsQueryFilter wsQueryFilter = new WsQueryFilter();
-      wsQueryFilter.setGroupName("aGr");
-      wsQueryFilter.setQueryFilterType(WsQueryFilterType.FIND_BY_GROUP_NAME_APPROXIMATE.name());
-      wsQueryFilter.setStemName("aStem");
+      WsAttributeDefNameToSave wsAttributeDefNameToSave1 = new WsAttributeDefNameToSave();
+
+      //The attribute def name to save
+      WsAttributeDefName wsAttributeDefName1 = new WsAttributeDefName();
       
-      findGroups.setWsQueryFilter(wsQueryFilter);
+      wsAttributeDefName1.setAttributeDefName("test:testAttributeAssignDefNameDef");
+      wsAttributeDefName1.setName("test:testAttributeAssignDefNameToSave1Rest_" + wsSampleRestType);
+      wsAttributeDefName1.setDisplayExtension("My new attribute def name to save 1 rest " + wsSampleRestType);
+      wsAttributeDefName1.setDescription("This is a description 1 rest " + wsSampleRestType);
+      
+      wsAttributeDefNameToSave1.setWsAttributeDefName(wsAttributeDefName1);
+      
+      WsAttributeDefNameToSave wsAttributeDefNameToSave2 = new WsAttributeDefNameToSave();
+
+      //The attribute def name to save
+      WsAttributeDefName wsAttributeDefName2 = new WsAttributeDefName();
+      
+      wsAttributeDefName2.setAttributeDefName("test:testAttributeAssignDefNameDef");
+      wsAttributeDefName2.setName("test:testAttributeAssignDefNameToSave2Rest_" + wsSampleRestType);
+      wsAttributeDefName2.setDisplayExtension("My new attribute def name to save 2 rest " + wsSampleRestType);
+      wsAttributeDefName2.setDescription("This is a description 2 rest " + wsSampleRestType);
+      
+      wsAttributeDefNameToSave2.setWsAttributeDefName(wsAttributeDefName2);
+      
+      attributeDefNameSave.setWsAttributeDefNameToSaves(new WsAttributeDefNameToSave[]{
+          wsAttributeDefNameToSave1, wsAttributeDefNameToSave2});
+      
 
       //get the xml / json / xhtml / paramString
-      String requestDocument = wsSampleRestType.getWsLiteRequestContentType().writeString(findGroups);
+      String requestDocument = wsSampleRestType.getWsLiteRequestContentType().writeString(attributeDefNameSave);
       
       //make sure right content type is in request (e.g. application/xhtml+xml
       String contentType = wsSampleRestType.getWsLiteRequestContentType().getContentType();
       
       method.setRequestEntity(new StringRequestEntity(requestDocument, contentType, "UTF-8"));
-      
+
       httpClient.executeMethod(method);
 
       //make sure a request came back
@@ -101,9 +122,9 @@ public class WsSampleFindGroupsRest implements WsSampleRest {
       }
       
       //convert to object (from xhtml, xml, json, etc)
-      WsFindGroupsResults wsFindGroupsResults = (WsFindGroupsResults)result;
+      WsAttributeDefNameSaveResults wsAttributeDefNameSaveResults = (WsAttributeDefNameSaveResults)result;
       
-      String resultMessage = wsFindGroupsResults.getResultMetadata().getResultMessage();
+      String resultMessage = wsAttributeDefNameSaveResults.getResultMetadata().getResultMessage();
 
       // see if request worked or not
       if (!success) {
@@ -111,7 +132,7 @@ public class WsSampleFindGroupsRest implements WsSampleRest {
             + ", " + resultMessage);
       }
       
-      System.out.println("Server version: " + wsFindGroupsResults.getResponseMetadata().getServerVersion()
+      System.out.println("Server version: " + wsAttributeDefNameSaveResults.getResponseMetadata().getServerVersion()
           + ", result code: " + resultCode
           + ", result message: " + resultMessage );
 
@@ -124,16 +145,15 @@ public class WsSampleFindGroupsRest implements WsSampleRest {
   /**
    * @param args
    */
-  @SuppressWarnings("unchecked")
   public static void main(String[] args) {
-    findGroups(WsSampleRestType.xhtml);
+    attributeDefNameSave(WsSampleRestType.xhtml);
   }
 
   /**
    * @see edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest#executeSample(edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType)
    */
   public void executeSample(WsSampleRestType wsSampleRestType) {
-    findGroups(wsSampleRestType);
+    attributeDefNameSave(wsSampleRestType);
   }
 
   /**

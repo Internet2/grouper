@@ -6160,6 +6160,8 @@ public class GrouperServiceLogic {
       
       final int[] addSuccesses = new int[]{0};
       final int[] removeSuccesses = new int[]{0};
+      final int[] addNoops = new int[]{0};
+      final int[] removeNoops = new int[]{0};
       
       if (!assign) {
         removes.addAll(relatedAttributeDefNames);
@@ -6192,8 +6194,12 @@ public class GrouperServiceLogic {
                       throws GrouperDAOException {
                     
                       try {
-                        attributeDefName.getAttributeDefNameSetDelegate().addToAttributeDefNameSet(ADD);
-                        addSuccesses[0]++;
+                        boolean wasAdded = attributeDefName.getAttributeDefNameSetDelegate().addToAttributeDefNameSet(ADD);
+                        if (wasAdded) {
+                          addSuccesses[0]++;
+                        } else {
+                          addNoops[0]++;
+                        }
                       } catch (Exception e) {
                         wsAssignAttributeDefNameInheritanceResults.assignResultCodeException(null, "Problem with add: " + ADD, e);
                         success[0] = false;
@@ -6212,8 +6218,12 @@ public class GrouperServiceLogic {
                       throws GrouperDAOException {
                     
                       try {
-                        attributeDefName.getAttributeDefNameSetDelegate().removeFromAttributeDefNameSet(REMOVE);
-                        removeSuccesses[0]++;
+                        boolean wasRemoved = attributeDefName.getAttributeDefNameSetDelegate().removeFromAttributeDefNameSet(REMOVE);
+                        if (wasRemoved) {
+                          removeSuccesses[0]++;
+                        } else {
+                          removeNoops[0]++;
+                        }
                       } catch (Exception e) {
                         wsAssignAttributeDefNameInheritanceResults.assignResultCodeException(null, "Problem with remove: " + REMOVE, e);
                         success[0] = false;
@@ -6237,7 +6247,9 @@ public class GrouperServiceLogic {
           });
       
       wsAssignAttributeDefNameInheritanceResults.getResultMetadata().appendResultMessage(
-          ", Had " + addSuccesses[0] + " successful adds, and " + removeSuccesses[0] + " successful removes.  ");
+          ", Had " + addSuccesses[0] + " successful adds, " + addNoops[0] 
+          + " adds which already existed, " + removeSuccesses[0] + " successful removes, and " 
+          + removeNoops[0] + " removes which didnt exist.  ");
 
       if (success[0]) {
         wsAssignAttributeDefNameInheritanceResults.assignResultCode(WsAssignAttributeDefNameInheritanceResultsCode.SUCCESS);
@@ -6247,6 +6259,14 @@ public class GrouperServiceLogic {
         if (StringUtils.isBlank(wsAssignAttributeDefNameInheritanceResults.getResultMetadata().getResultCode())) {
           wsAssignAttributeDefNameInheritanceResults.assignResultCode(WsAssignAttributeDefNameInheritanceResultsCode.EXCEPTION);
         }
+        if (resultErrors.length() > 0) {
+          
+          wsAssignAttributeDefNameInheritanceResults.getResultMetadata().appendResultMessage(",  ");
+          wsAssignAttributeDefNameInheritanceResults.getResultMetadata().appendResultMessage(resultErrors.toString());
+
+        }
+        wsAssignAttributeDefNameInheritanceResults.getResultMetadata().appendResultMessage(",  ");
+        wsAssignAttributeDefNameInheritanceResults.getResultMetadata().appendResultMessage(theSummary);
       }
     } catch (Exception e) {
       wsAssignAttributeDefNameInheritanceResults.assignResultCodeException(null, theSummary, e);

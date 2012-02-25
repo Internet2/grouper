@@ -1,4 +1,4 @@
-package edu.internet2.middleware.grouper.ws.samples.rest.group;
+package edu.internet2.middleware.grouper.ws.samples.rest.attribute;
 
 import org.apache.commons.httpclient.Credentials;
 import org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;
@@ -12,10 +12,13 @@ import org.apache.commons.httpclient.params.DefaultHttpParams;
 import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.commons.lang.StringUtils;
 
-import edu.internet2.middleware.grouper.ws.coresoap.WsFindAttributeDefNamesResults;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameDeleteResult;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameDeleteResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameLookup;
 import edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup;
 import edu.internet2.middleware.grouper.ws.rest.WsRestResultProblem;
-import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestFindAttributeDefNamesRequest;
+import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestAttributeDefNameDeleteRequest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType;
 import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
@@ -23,13 +26,13 @@ import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
 /**
  * @author mchyzer
  */
-public class WsSampleFindAttributeDefNamesRest implements WsSampleRest {
+public class WsSampleAttributeDefNameDeleteRest implements WsSampleRest {
 
   /**
-   * find group lite web service with REST
+   * AttributeDefNameDelete web service with REST
    * @param wsSampleRestType is the type of rest (xml, xhtml, etc)
    */
-  public static void findAttributeDefNamesLite(WsSampleRestType wsSampleRestType) {
+  public static void attributeDefNameDelete(WsSampleRestType wsSampleRestType) {
 
     try {
       HttpClient httpClient = new HttpClient();
@@ -56,22 +59,30 @@ public class WsSampleFindAttributeDefNamesRest implements WsSampleRest {
 
       //Make the body of the request, in this case with beans and marshaling, but you can make
       //your request document in whatever language or way you want
-      WsRestFindAttributeDefNamesRequest findAttributeDefNames = new WsRestFindAttributeDefNamesRequest();
+      WsRestAttributeDefNameDeleteRequest attributeDefNameDelete = new WsRestAttributeDefNameDeleteRequest();
 
       // set the act as id
       WsSubjectLookup actAsSubject = new WsSubjectLookup("GrouperSystem", null, null);
-      findAttributeDefNames.setActAsSubjectLookup(actAsSubject);
+      attributeDefNameDelete.setActAsSubjectLookup(actAsSubject);
 
-      findAttributeDefNames.setScope("test:");
+      WsAttributeDefNameLookup wsAttributeDefNameLookup1 = new WsAttributeDefNameLookup();
+      wsAttributeDefNameLookup1.setName("test:testAttributeAssignDefNameToDeleteRest1_" + wsSampleRestType);
+      
+      WsAttributeDefNameLookup wsAttributeDefNameLookup2 = new WsAttributeDefNameLookup();
+      wsAttributeDefNameLookup2.setName("test:testAttributeAssignDefNameToDeleteRest2_" + wsSampleRestType);
+      
+      attributeDefNameDelete.setWsAttributeDefNameLookups(new WsAttributeDefNameLookup[]{
+          wsAttributeDefNameLookup1, wsAttributeDefNameLookup2
+      });
 
       //get the xml / json / xhtml / paramString
-      String requestDocument = wsSampleRestType.getWsLiteRequestContentType().writeString(findAttributeDefNames);
+      String requestDocument = wsSampleRestType.getWsLiteRequestContentType().writeString(attributeDefNameDelete);
       
       //make sure right content type is in request (e.g. application/xhtml+xml
       String contentType = wsSampleRestType.getWsLiteRequestContentType().getContentType();
       
       method.setRequestEntity(new StringRequestEntity(requestDocument, contentType, "UTF-8"));
-      
+
       httpClient.executeMethod(method);
 
       //make sure a request came back
@@ -94,9 +105,9 @@ public class WsSampleFindAttributeDefNamesRest implements WsSampleRest {
       }
       
       //convert to object (from xhtml, xml, json, etc)
-      WsFindAttributeDefNamesResults wsFindAttributeDefNamesResults = (WsFindAttributeDefNamesResults)result;
+      WsAttributeDefNameDeleteResults wsAttributeDefNameDeleteResults = (WsAttributeDefNameDeleteResults)result;
       
-      String resultMessage = wsFindAttributeDefNamesResults.getResultMetadata().getResultMessage();
+      String resultMessage = wsAttributeDefNameDeleteResults.getResultMetadata().getResultMessage();
 
       // see if request worked or not
       if (!success) {
@@ -104,10 +115,16 @@ public class WsSampleFindAttributeDefNamesRest implements WsSampleRest {
             + ", " + resultMessage);
       }
       
-      System.out.println("Server version: " + wsFindAttributeDefNamesResults.getResponseMetadata().getServerVersion()
+      System.out.println("Server version: " + wsAttributeDefNameDeleteResults.getResponseMetadata().getServerVersion()
           + ", result code: " + resultCode
           + ", result message: " + resultMessage );
 
+      for (WsAttributeDefNameDeleteResult wsAttributeDefNameDeleteResult : 
+          GrouperUtil.nonNull(wsAttributeDefNameDeleteResults.getResults(), WsAttributeDefNameDeleteResult.class)) {
+        System.out.println("Result: " + wsAttributeDefNameDeleteResult.getResultMetadata().getResultCode()
+            + " for " + wsAttributeDefNameDeleteResult.getWsAttributeDefName().getName());
+      }
+      
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
@@ -118,14 +135,14 @@ public class WsSampleFindAttributeDefNamesRest implements WsSampleRest {
    * @param args
    */
   public static void main(String[] args) {
-    findAttributeDefNamesLite(WsSampleRestType.xhtml);
+    attributeDefNameDelete(WsSampleRestType.xhtml);
   }
 
   /**
    * @see edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest#executeSample(edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType)
    */
   public void executeSample(WsSampleRestType wsSampleRestType) {
-    findAttributeDefNamesLite(wsSampleRestType);
+    attributeDefNameDelete(wsSampleRestType);
   }
 
   /**

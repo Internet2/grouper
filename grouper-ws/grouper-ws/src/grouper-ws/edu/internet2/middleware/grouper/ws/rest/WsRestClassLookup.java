@@ -38,6 +38,7 @@ import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameLookup;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameSaveLiteResult;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameSaveResult;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameSaveResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameToSave;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeEdit;
 import edu.internet2.middleware.grouper.ws.coresoap.WsDeleteMemberLiteResult;
 import edu.internet2.middleware.grouper.ws.coresoap.WsDeleteMemberResult;
@@ -167,6 +168,7 @@ public class WsRestClassLookup {
     addAliasClass(WsAttributeDefLookup.class);
     addAliasClass(WsAttributeDefName.class);
     addAliasClass(WsAttributeDefNameLookup.class);
+    addAliasClass(WsAttributeDefNameToSave.class);
     addAliasClass(WsAttributeEdit.class);
     addAliasClass(WsDeleteMemberResult.class);
     addAliasClass(WsDeleteMemberResults.class);

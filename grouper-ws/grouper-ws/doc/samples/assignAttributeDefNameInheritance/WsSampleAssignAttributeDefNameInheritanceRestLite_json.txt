@@ -1,3 +1,75 @@
+Grouper web service sample of service: assignAttributeDefNameInheritance, WsSampleAssignAttributeDefNameInheritanceRestLite, manually written lite/rest, format: json, for version: 2.1.0
+
+
+#########################################
+##
+## HTTP request sample (could be formatted for view by
+## indenting or changing dates or other data)
+##
+#########################################
+
+
+POST /grouper-ws/servicesRest/v2_1_000/attributeDefNames HTTP/1.1
+Connection: close
+Authorization: Basic xxxxxxxxxxxxxxxxx==
+User-Agent: Jakarta Commons-HttpClient/3.0
+Host: localhost:8092
+Content-Length: 175
+Content-Type: text/x-json; charset=UTF-8
+
+{
+  "WsRestAssignAttributeDefNameInheritanceLiteRequest":{
+    "assign":"T",
+    "attributeDefNameName":"aStem:permissionDefName",
+    "relatedAttributeDefNameName":"aStem:permissionDefName3"
+  }
+}
+
+
+#########################################
+##
+## HTTP response sample (could be formatted for view by
+## indenting or changing dates or other data)
+##
+#########################################
+
+
+HTTP/1.1 201 Created
+Server: Apache-Coyote/1.1
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
+X-Grouper-resultCode: SUCCESS
+X-Grouper-success: T
+X-Grouper-resultCode2: NONE
+Content-Type: text/x-json;charset=UTF-8
+Content-Length: 291
+Date: Sat, 25 Feb 2012 15:49:52 GMT
+Connection: close
+
+{
+  "WsAssignAttributeDefNameInheritanceResults":{
+    "responseMetadata":{
+      "millis":"78",
+      "serverVersion":"2.1.0"
+    },
+    "resultMetadata":{
+      "resultCode":"SUCCESS",
+      "resultMessage":", Had 1 successful adds, 0 adds which already existed, 0 successful removes, and 0 removes which didnt exist.",
+      "success":"T"
+    }
+  }
+}
+
+
+#########################################
+##
+## Java source code (note, any programming language / objects
+## can use used to generate the above request/response.  Nothing
+## is Java specific.  Also, if you are using Java, the client libraries
+## are available
+##
+#########################################
+
+
 package edu.internet2.middleware.grouper.ws.samples.rest.group;
 
 import org.apache.commons.httpclient.Credentials;
@@ -12,9 +84,10 @@ import org.apache.commons.httpclient.params.DefaultHttpParams;
 import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.commons.lang.StringUtils;
 
+import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributeDefNameInheritanceResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsFindAttributeDefNamesResults;
 import edu.internet2.middleware.grouper.ws.rest.WsRestResultProblem;
-import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestFindAttributeDefNamesLiteRequest;
+import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestAssignAttributeDefNameInheritanceLiteRequest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType;
 import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
@@ -22,13 +95,13 @@ import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
 /**
  * @author mchyzer
  */
-public class WsSampleFindAttributeDefNamesRestLite implements WsSampleRest {
+public class WsSampleAssignAttributeDefNameInheritanceRestLite implements WsSampleRest {
 
   /**
-   * find groups lite web service with REST
+   * assign attribute def name inheritance lite web service with REST
    * @param wsSampleRestType is the type of rest (xml, xhtml, etc)
    */
-  public static void findAttributeDefNamesLite(WsSampleRestType wsSampleRestType) {
+  public static void assignAttributeDefNameInheritanceLite(WsSampleRestType wsSampleRestType) {
 
     try {
       HttpClient httpClient = new HttpClient();
@@ -55,12 +128,19 @@ public class WsSampleFindAttributeDefNamesRestLite implements WsSampleRest {
 
       //Make the body of the request, in this case with beans and marshaling, but you can make
       //your request document in whatever language or way you want
-      WsRestFindAttributeDefNamesLiteRequest findAttributeDefNamesLite = new WsRestFindAttributeDefNamesLiteRequest();
+      WsRestAssignAttributeDefNameInheritanceLiteRequest assignAttributeDefNameInheritanceLite = new WsRestAssignAttributeDefNameInheritanceLiteRequest();
 
-      findAttributeDefNamesLite.setScope("test:");
+      //parent of the inheritance
+      assignAttributeDefNameInheritanceLite.setAttributeDefNameName("aStem:permissionDefName");
+      
+      //we are doing an assignment
+      assignAttributeDefNameInheritanceLite.setAssign("T");
+      
+      //this is the child of the relation
+      assignAttributeDefNameInheritanceLite.setRelatedAttributeDefNameName("aStem:permissionDefName3");
             
       //get the xml / json / xhtml / paramString
-      String requestDocument = wsSampleRestType.getWsLiteRequestContentType().writeString(findAttributeDefNamesLite);
+      String requestDocument = wsSampleRestType.getWsLiteRequestContentType().writeString(assignAttributeDefNameInheritanceLite);
       
       //make sure right content type is in request (e.g. application/xhtml+xml
       String contentType = wsSampleRestType.getWsLiteRequestContentType().getContentType();
@@ -88,9 +168,9 @@ public class WsSampleFindAttributeDefNamesRestLite implements WsSampleRest {
       }
 
       //convert to object (from xhtml, xml, json, etc)
-      WsFindAttributeDefNamesResults wsFindAttributeDefNamesResults = (WsFindAttributeDefNamesResults)resultObject;
+      WsAssignAttributeDefNameInheritanceResults wsAssignAttributeDefNameInheritanceResults = (WsAssignAttributeDefNameInheritanceResults)resultObject;
       
-      String resultMessage = wsFindAttributeDefNamesResults.getResultMetadata().getResultMessage();
+      String resultMessage = wsAssignAttributeDefNameInheritanceResults.getResultMetadata().getResultMessage();
 
       // see if request worked or not
       if (!success) {
@@ -98,7 +178,7 @@ public class WsSampleFindAttributeDefNamesRestLite implements WsSampleRest {
             + ", " + resultMessage);
       }
       
-      System.out.println("Server version: " + wsFindAttributeDefNamesResults.getResponseMetadata().getServerVersion()
+      System.out.println("Server version: " + wsAssignAttributeDefNameInheritanceResults.getResponseMetadata().getServerVersion()
           + ", result code: " + resultCode
           + ", result message: " + resultMessage );
 
@@ -112,14 +192,14 @@ public class WsSampleFindAttributeDefNamesRestLite implements WsSampleRest {
    * @param args
    */
   public static void main(String[] args) {
-    findAttributeDefNamesLite(WsSampleRestType.xhtml);
+    assignAttributeDefNameInheritanceLite(WsSampleRestType.xhtml);
   }
 
   /**
    * @see edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest#executeSample(edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType)
    */
   public void executeSample(WsSampleRestType wsSampleRestType) {
-    findAttributeDefNamesLite(wsSampleRestType);
+    assignAttributeDefNameInheritanceLite(wsSampleRestType);
   }
 
   /**
@@ -130,3 +210,13 @@ public class WsSampleFindAttributeDefNamesRestLite implements WsSampleRest {
     return true;
   }
 }
+
+
+#########################################
+##
+## Stdout
+##
+#########################################
+
+
+Server version: 2.1.0, result code: SUCCESS, result message: , Had 1 successful adds, 0 adds which already existed, 0 successful removes, and 0 removes which didnt exist.

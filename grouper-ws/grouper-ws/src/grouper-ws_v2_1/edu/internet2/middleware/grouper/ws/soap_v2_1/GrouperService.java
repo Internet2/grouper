@@ -2776,8 +2776,9 @@ public class GrouperService {
       String actAsSubjectId, String actAsSubjectSourceId,
       String actAsSubjectIdentifier, String paramName0,
       String paramValue0, String paramName1, String paramValue1) {
+    
     Object result = GrouperUtil.callMethodWithMoreParams(GrouperUtil.newInstance(GrouperServiceUtils.currentServiceClass()), 
-        GrouperServiceUtils.currentServiceClass(), "assignAttributeDefNameInheritance",
+        GrouperServiceUtils.currentServiceClass(), "assignAttributeDefNameInheritanceLite",
         new Object[]{clientVersion, attributeDefNameUuid, attributeDefNameName, relatedAttributeDefNameUuid, relatedAttributeDefNameName,
       assign, actAsSubjectId, actAsSubjectSourceId, actAsSubjectIdentifier, paramName0,
       paramValue0, paramName1, paramValue1
