@@ -345,7 +345,7 @@ public class GrouperClientLdapUtils {
     Map<String, Object> debugLog = LOG.isDebugEnabled() ? new LinkedHashMap<String, Object>() : null;
   
     if (debugLog != null) {
-      debugLog.put("method", "GrouperClientLdap.configureFailoverClient");
+      debugLog.put("method", "GrouperClientLdapUtils.configureFailoverClient");
     }
   
     //see if we know how often to check for new config

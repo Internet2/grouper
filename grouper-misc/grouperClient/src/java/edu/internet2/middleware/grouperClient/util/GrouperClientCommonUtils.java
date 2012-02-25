@@ -61,6 +61,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.ThreadFactory;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -8910,7 +8911,8 @@ public class GrouperClientCommonUtils  {
   /**
    * threadpool
    */
-  private static ExecutorService executorService = Executors.newCachedThreadPool();
+  private static ExecutorService executorService = Executors.newCachedThreadPool(new DaemonThreadFactory());
+
 
   /**
    * 
@@ -9058,6 +9060,23 @@ public class GrouperClientCommonUtils  {
     
     
     
+  }
+
+  /**
+   * thread factory with daemon threads so the JVM exits
+   * @author mchyzer
+   *
+   */
+  private static class DaemonThreadFactory implements ThreadFactory {
+    private ThreadFactory threadFactory = Executors.defaultThreadFactory();
+  
+    @Override
+    public Thread newThread(Runnable r) {
+      Thread thread = threadFactory.newThread(r);
+      thread.setDaemon(true);
+      return thread;
+    }
+  
   }
 
   /**
