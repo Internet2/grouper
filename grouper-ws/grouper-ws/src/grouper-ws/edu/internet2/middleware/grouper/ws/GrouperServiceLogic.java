@@ -6246,8 +6246,11 @@ public class GrouperServiceLogic {
             }
           });
       
+      if (StringUtils.defaultString(wsAssignAttributeDefNameInheritanceResults.getResultMetadata().getResultMessage()).length() > 0) {
+        wsAssignAttributeDefNameInheritanceResults.getResultMetadata().appendResultMessage(", ");
+      }
       wsAssignAttributeDefNameInheritanceResults.getResultMetadata().appendResultMessage(
-          ", Had " + addSuccesses[0] + " successful adds, " + addNoops[0] 
+          "Had " + addSuccesses[0] + " successful adds, " + addNoops[0] 
           + " adds which already existed, " + removeSuccesses[0] + " successful removes, and " 
           + removeNoops[0] + " removes which didnt exist.  ");
 

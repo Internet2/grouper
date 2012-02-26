@@ -14,7 +14,6 @@ import edu.internet2.middleware.grouperClient.ws.GrouperClientWs;
 import edu.internet2.middleware.grouperClient.ws.beans.WsAttributeDefName;
 import edu.internet2.middleware.grouperClient.ws.beans.WsAttributeDefNameSaveResults;
 import edu.internet2.middleware.grouperClient.ws.beans.WsAttributeDefNameToSave;
-import edu.internet2.middleware.grouperClient.ws.beans.WsGroupSaveResults;
 import edu.internet2.middleware.grouperClient.ws.beans.WsParam;
 import edu.internet2.middleware.grouperClient.ws.beans.WsRestAttributeDefNameSaveRequest;
 import edu.internet2.middleware.grouperClient.ws.beans.WsSubjectLookup;
