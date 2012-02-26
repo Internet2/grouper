@@ -63,7 +63,16 @@ public class CGLIBEnhancedConverter extends SerializableConverter {
     }
 
     public boolean canConvert(Class type) {
-        return (Enhancer.isEnhanced(type) && type.getName().indexOf(DEFAULT_NAMING_MARKER) > 0)
+      
+      //see if enhancer exists
+      boolean enhancerExists = false;
+      try {
+        Class.forName("net.sf.cglib.proxy.Enhancer");
+        enhancerExists = true;
+      } catch (Throwable e) {
+        //this is ok
+      }
+        return (enhancerExists && Enhancer.isEnhanced(type) && type.getName().indexOf(DEFAULT_NAMING_MARKER) > 0)
                 || type == CGLIBMapper.Marker.class;
     }
 
