@@ -50,6 +50,7 @@ import edu.internet2.middleware.grouperClient.ws.StemScope;
 import edu.internet2.middleware.grouperClient.ws.WsMemberFilter;
 import edu.internet2.middleware.grouperClient.ws.beans.WsAddMemberResult;
 import edu.internet2.middleware.grouperClient.ws.beans.WsAddMemberResults;
+import edu.internet2.middleware.grouperClient.ws.beans.WsAssignAttributeDefNameInheritanceResults;
 import edu.internet2.middleware.grouperClient.ws.beans.WsAssignAttributeResult;
 import edu.internet2.middleware.grouperClient.ws.beans.WsAssignAttributesResults;
 import edu.internet2.middleware.grouperClient.ws.beans.WsAssignGrouperPrivilegesLiteResult;
@@ -4617,12 +4618,23 @@ public class GrouperClient {
     String attributeDefNameName = GrouperClientUtils.argMapString(argMap, 
         argMapNotUsed, "attributeDefNameName", true);
 
+    gcAssignAttributeDefNameInheritance.assignAttributeDefNameLookup(new WsAttributeDefNameLookup(attributeDefNameName, null));
+    
     List<String> relatedAttributeDefNameNames = GrouperClientUtils.argMapList(argMap, argMapNotUsed, "relatedAttributeDefNameNames", true);
 
+    for (String relatedAttributeDefNameName : relatedAttributeDefNameNames) {
+      gcAssignAttributeDefNameInheritance.addRelatedAttributeDefNameLookup(new WsAttributeDefNameLookup(relatedAttributeDefNameName, null));
+    }
+    
     boolean assign = GrouperClientUtils.argMapBoolean(argMap, argMapNotUsed, "assign", true, false);
+
+    gcAssignAttributeDefNameInheritance.assign(assign);
     
     Boolean replaceAllExisting = GrouperClientUtils.argMapBoolean(argMap, argMapNotUsed, "replaceAllExisting");
     
+    if (replaceAllExisting != null) {
+      gcAssignAttributeDefNameInheritance.assignReplaceAllExisting(replaceAllExisting);
+    }
     
     String clientVersion = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "clientVersion", false);
     gcAssignAttributeDefNameInheritance.assignClientVersion(clientVersion);
@@ -4635,44 +4647,29 @@ public class GrouperClient {
     GrouperClientUtils.argMapString(argMap, argMapNotUsed, "outputTemplate", false);
     failOnArgsNotUsed(argMapNotUsed);
   
-//    WsAttributeDefNameSaveResults wsAttributeDefNameSaveResults = gcAssignAttributeDefNameInheritance.execute();
-//    
-//    StringBuilder result = new StringBuilder();
-//    int index = 0;
-//    
-//    Map<String, Object> substituteMap = new LinkedHashMap<String, Object>();
-//  
-//    substituteMap.put("wsAttributeDefNameSaveResults", wsAttributeDefNameSaveResults);
-//    substituteMap.put("grouperClientUtils", new GrouperClientUtils());
-//  
-//    String outputTemplate = null;
-//  
-//    if (argMap.containsKey("outputTemplate")) {
-//      outputTemplate = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "outputTemplate", true);
-//      outputTemplate = GrouperClientUtils.substituteCommonVars(outputTemplate);
-//    } else {
-//      outputTemplate = GrouperClientUtils.propertiesValue("webService.attributeDefNameSave.output", true);
-//    }
-//    log.debug("Output template: " + GrouperClientUtils.trim(outputTemplate) + ", available variables: wsAttributeDefNameSaveResults, " +
-//      "grouperClientUtils, index, wsAttributeDefNameSaveResult, resultMetadata");
-//  
-//    //there is one result...  but loop anyways
-//    for (WsAttributeDefNameSaveResult wsAttributeDefNameSaveResult : wsAttributeDefNameSaveResults.getResults()) {
-//      
-//      substituteMap.put("index", index);
-//      substituteMap.put("wsAttributeDefNameSaveResult", wsAttributeDefNameSaveResult);
-//      substituteMap.put("resultMetadata", wsAttributeDefNameSaveResult.getResultMetadata());
-//      wsAttributeDefNameSaveResult.getWsAttributeDefName();
-//      substituteMap.put("wsAttributeDefName", wsAttributeDefName);
-//      
-//      String output = GrouperClientUtils.substituteExpressionLanguage(outputTemplate, substituteMap);
-//      result.append(output);
-//      
-//      index++;
-//    }
-//    
-//    return result.toString();
-    return null;
+    WsAssignAttributeDefNameInheritanceResults wsAssignAttributeDefNameInheritanceResults = gcAssignAttributeDefNameInheritance.execute();
+    
+    StringBuilder result = new StringBuilder();
+    
+    Map<String, Object> substituteMap = new LinkedHashMap<String, Object>();
+  
+    substituteMap.put("wsAssignAttributeDefNameInheritanceResults", wsAssignAttributeDefNameInheritanceResults);
+    substituteMap.put("grouperClientUtils", new GrouperClientUtils());
+  
+    String outputTemplate = null;
+  
+    if (argMap.containsKey("outputTemplate")) {
+      outputTemplate = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "outputTemplate", true);
+      outputTemplate = GrouperClientUtils.substituteCommonVars(outputTemplate);
+    } else {
+      outputTemplate = GrouperClientUtils.propertiesValue("webService.attributeDefNameSave.output", true);
+    }
+    log.debug("Output template: " + GrouperClientUtils.trim(outputTemplate) + ", available variables: wsAssignAttributeDefNameInheritanceResults, " +
+      "grouperClientUtils, resultMetadata");
+  
+    substituteMap.put("resultMetadata", wsAssignAttributeDefNameInheritanceResults.getResultMetadata());
+
+    return result.toString();
   }
 
 }
