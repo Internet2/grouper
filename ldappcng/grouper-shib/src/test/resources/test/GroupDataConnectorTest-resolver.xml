@@ -122,4 +122,19 @@
     <grouper:Attribute id="id" source="jdbc" />
   </resolver:AttributeDefinition>
   
+  <resolver:AttributeDefinition id="testFilterNameInStemSub" xsi:type="grouper:FilteredName" sourceAttributeID="name">
+    <resolver:Dependency ref="testAttributesOnly" />
+    <grouper:Filter xsi:type="grouper:NameInStem" name="parentStem" scope="SUB" />
+  </resolver:AttributeDefinition>
+  
+  <resolver:AttributeDefinition id="testFilterNameInStemOne" xsi:type="grouper:FilteredName" sourceAttributeID="name">
+    <resolver:Dependency ref="testAttributesOnly" />
+    <grouper:Filter xsi:type="grouper:NameInStem" name="parentStem" scope="ONE" />
+  </resolver:AttributeDefinition>
+  
+  <resolver:AttributeDefinition id="testFilterNameInStemRootOne" xsi:type="grouper:FilteredName" sourceAttributeID="name">
+    <resolver:Dependency ref="testAttributesOnly" />
+    <grouper:Filter xsi:type="grouper:NameInStem" name="" scope="ONE" />
+  </resolver:AttributeDefinition>
+  
 </AttributeResolver>

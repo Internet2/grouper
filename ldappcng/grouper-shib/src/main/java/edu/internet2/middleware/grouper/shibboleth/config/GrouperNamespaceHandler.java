@@ -14,6 +14,7 @@
 
 package edu.internet2.middleware.grouper.shibboleth.config;
 
+import edu.internet2.middleware.grouper.shibboleth.attributeDefinition.config.FilteredNameAttributeDefinitionBeanDefinitionParser;
 import edu.internet2.middleware.grouper.shibboleth.attributeDefinition.config.GroupAttributeDefinitionBeanDefinitionParser;
 import edu.internet2.middleware.grouper.shibboleth.attributeDefinition.config.MemberAttributeDefinitionBeanDefinitionParser;
 import edu.internet2.middleware.grouper.shibboleth.attributeDefinition.config.SubjectAttributeDefinitionBeanDefinitionParser;
@@ -25,6 +26,8 @@ import edu.internet2.middleware.grouper.shibboleth.filter.provider.GroupExactAtt
 import edu.internet2.middleware.grouper.shibboleth.filter.provider.GroupInStemFilterBeanDefinitionParser;
 import edu.internet2.middleware.grouper.shibboleth.filter.provider.MemberSourceFilterBeanDefinitionParser;
 import edu.internet2.middleware.grouper.shibboleth.filter.provider.MinusFilterBeanDefinitionParser;
+import edu.internet2.middleware.grouper.shibboleth.filter.provider.NameExactFilterBeanDefinitionParser;
+import edu.internet2.middleware.grouper.shibboleth.filter.provider.NameInStemFilterBeanDefinitionParser;
 import edu.internet2.middleware.grouper.shibboleth.filter.provider.OrFilterBeanDefinitionParser;
 import edu.internet2.middleware.grouper.shibboleth.filter.provider.StemInStemFilterBeanDefinitionParser;
 import edu.internet2.middleware.grouper.shibboleth.filter.provider.StemNameExactFilterBeanDefinitionParser;
@@ -89,6 +92,15 @@ public class GrouperNamespaceHandler extends BaseSpringNamespaceHandler {
 
     registerBeanDefinitionParser(MemberSourceFilterBeanDefinitionParser.TYPE_NAME,
         new MemberSourceFilterBeanDefinitionParser());
+
+    registerBeanDefinitionParser(NameInStemFilterBeanDefinitionParser.TYPE_NAME,
+        new NameInStemFilterBeanDefinitionParser());
+
+    registerBeanDefinitionParser(NameExactFilterBeanDefinitionParser.TYPE_NAME,
+        new NameExactFilterBeanDefinitionParser());
+
+    registerBeanDefinitionParser(FilteredNameAttributeDefinitionBeanDefinitionParser.TYPE_NAME,
+        new FilteredNameAttributeDefinitionBeanDefinitionParser());
 
   }
 }

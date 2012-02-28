@@ -272,6 +272,11 @@ public abstract class BaseDataConnectorTest extends GrouperTest {
       }
       attr.getValues().addAll(list);
     }
+    
+    public void setAttribute(String name) {
+      BasicAttribute attr = new BasicAttribute(name);      
+      map.put(attr.getId(), attr);
+    }
 
     public void setAttribute(String name, String... values) {
       if (values == null) {

@@ -152,6 +152,30 @@
     </complexContent>
   </complexType>
 
+  <complexType name="FilteredName">
+    <annotation>
+      <documentation>
+        A Grouper name. Supports filters.
+      </documentation>
+    </annotation>
+    <complexContent>
+      <extension base="resolver:BaseAttributeDefinitionType">
+        <sequence>
+          <element
+            ref="grouper:Filter"
+            minOccurs="0"
+            maxOccurs="1">
+            <annotation>
+              <documentation>
+                Filters the returned objects.
+              </documentation>
+            </annotation>
+          </element>
+        </sequence>
+      </extension>
+    </complexContent>
+  </complexType>
+
   <element name="Attribute" type="grouper:AbstractIdentifierType">
     <annotation>
       <documentation>
@@ -211,6 +235,28 @@
     </complexContent>
   </complexType>
 
+  <complexType name="NameExact">
+    <annotation>
+      <documentation>
+        Filter by exact name.
+      </documentation>
+    </annotation>
+    <complexContent>
+      <extension base="grouper:BaseFilterType">
+        <attribute
+          name="name"
+          type="string"
+          use="required">
+          <annotation>
+            <documentation>
+              The name of the stem.
+            </documentation>
+          </annotation>
+        </attribute>
+      </extension>
+    </complexContent>
+  </complexType>
+
   <complexType name="StemNameExact">
     <annotation>
       <documentation>
@@ -234,6 +280,17 @@
     <annotation>
       <documentation>
         Filter Groups by stem name.
+      </documentation>
+    </annotation>
+    <complexContent>
+      <extension base="grouper:BaseInStemType" />
+    </complexContent>
+  </complexType>
+
+  <complexType name="NameInStem">
+    <annotation>
+      <documentation>
+        Filter objects by stem name.
       </documentation>
     </annotation>
     <complexContent>
