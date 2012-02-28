@@ -683,7 +683,7 @@ public class AttributeDefName extends GrouperAPI
    */
   @Override
   public String toString() {
-    // Bypass privilege checks.  If the group is loaded it is viewable.
+    // Bypass privilege checks.  If the attributedef name is loaded it is viewable.
     return new ToStringBuilder(this)
       .append( "name", this.name)
       .append( "uuid", this.getId() )

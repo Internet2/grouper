@@ -232,7 +232,8 @@ public class DiscoveryClient {
    * retrieve a file from the discovery server
    * @param fileName file name on the server
    * @param throwExceptionIfNotFound true if should throw an exception if not found
-   * @return the file or throw an exception if not found if supposed to
+   * @return the file or throw an exception if not found if supposed to.  If not configured to use
+   * discovery, return null
    */
   public static File retrieveFile(String fileName, boolean throwExceptionIfNotFound) {
 
@@ -245,6 +246,13 @@ public class DiscoveryClient {
     File file = null;
     try {
 
+      //see if not doing discovery
+      if (!hasDiscovery()) {
+        if (logMap != null) {
+          logMap.put("configuredToUseDiscovery", false);
+        }
+        return null;
+      }
       String localFileName = convertFileNameToLocalFileName(fileName);
       
       
@@ -340,10 +348,6 @@ public class DiscoveryClient {
       }
 
       if (file == null && throwExceptionIfNotFound) {
-        
-        if (!hasDiscovery()) {
-          throw new RuntimeException("There is no discovery configured!!!! + '" + fileName + "'");
-        }
         
         throw new RuntimeException("Cant find file from discovery: '" + fileName + "'");
       }

@@ -6709,8 +6709,8 @@ public class GrouperServiceLogic {
    * be allowed to act as that other subject
    * @param params optional: reserved for future use
    * @param wsAttributeDefNameLookups if you want to just pass in a list of uuids and/or names.
-   * @param pageSize page size if paging on a sort filter or parent
-   * @param pageNumber page number 1 indexed if paging on a sort filter or parent
+   * @param pageSize page size if paging
+   * @param pageNumber page number 1 indexed if paging
    * @param sortString must be an hql query field, e.g. 
    * can sort on name, displayName, extension, displayExtension
    * @param ascending or null for ascending, F for descending.  
@@ -6896,8 +6896,8 @@ public class GrouperServiceLogic {
    * @param attributeDefType type of attribute definition, e.g. attr, domain, limit, perm, type
    * @param attributeDefNameUuid to lookup an attribute def name by id, mutually exclusive with attributeDefNameName
    * @param attributeDefNameName to lookup an attribute def name by name, mutually exclusive with attributeDefNameId
-   * @param pageSize page size if paging on a sort filter or parent
-   * @param pageNumber page number 1 indexed if paging on a sort filter or parent
+   * @param pageSize page size if paging
+   * @param pageNumber page number 1 indexed if paging
    * @param sortString must be an hql query field, e.g. 
    * can sort on name, displayName, extension, displayExtension
    * @param ascending or null for ascending, F for descending.  

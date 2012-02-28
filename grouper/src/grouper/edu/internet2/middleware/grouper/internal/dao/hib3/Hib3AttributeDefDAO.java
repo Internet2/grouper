@@ -57,7 +57,15 @@ public class Hib3AttributeDefDAO extends Hib3DAO implements AttributeDefDAO {
    * @see edu.internet2.middleware.grouper.internal.dao.AttributeDefDAO#findByIdSecure(java.lang.String, boolean)
    */
   public AttributeDef findByIdSecure(String id, boolean exceptionIfNotFound) {
-    AttributeDef attributeDef = findById(id, exceptionIfNotFound);
+    return findByIdSecure(id, exceptionIfNotFound, null);
+  }
+
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.internal.dao.AttributeDefDAO#findByIdSecure(String, boolean, QueryOptions)
+   */
+  public AttributeDef findByIdSecure(String id, boolean exceptionIfNotFound, QueryOptions queryOptions) {
+    AttributeDef attributeDef = findById(id, exceptionIfNotFound, queryOptions);
 
     //make sure grouper session can view the attribute def
     attributeDef = filterSecurity(attributeDef);
@@ -74,12 +82,20 @@ public class Hib3AttributeDefDAO extends Hib3DAO implements AttributeDefDAO {
    * @see edu.internet2.middleware.grouper.internal.dao.AttributeDefDAO#findById(java.lang.String, boolean)
    */
   public AttributeDef findById(String id, boolean exceptionIfNotFound) {
+    return findById(id, exceptionIfNotFound, null);
+  }
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.internal.dao.AttributeDefDAO#findById(java.lang.String, boolean, QueryOptions)
+   */
+  public AttributeDef findById(String id, boolean exceptionIfNotFound, QueryOptions queryOptions) {
     AttributeDef attributeDef = HibernateSession.byHqlStatic()
       .setCacheable(true)
       .setCacheRegion(KLASS + ".FindById")
       .createQuery(
         "from AttributeDef where id = :theId")
-      .setString("theId", id).uniqueResult(AttributeDef.class);
+      .setString("theId", id)
+      .options(queryOptions).uniqueResult(AttributeDef.class);
 
     if (attributeDef == null && exceptionIfNotFound) {
       throw new AttributeDefNotFoundException("Cant find AttributeDef by id: " + id);
