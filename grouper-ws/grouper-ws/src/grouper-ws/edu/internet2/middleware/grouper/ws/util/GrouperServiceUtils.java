@@ -989,6 +989,26 @@ public final class GrouperServiceUtils {
 
   /**
    * parse a boolean as "T" or "F" or "TRUE" or "FALSE" case insensitive. If
+   * not specified, then exception. If malformed, then exception
+   * 
+   * @param input
+   * @param paramName to put in the invalid query exception
+   * @return the boolean
+   * @throws WsInvalidQueryException if there is a problem
+   */
+  public static boolean booleanValue(String input, String paramName)
+      throws WsInvalidQueryException {
+    if (StringUtils.isBlank(input)) {
+      
+      //all info is in the message
+      throw new WsInvalidQueryException("Problem with boolean '" + paramName 
+          + "', it is a required field and you must pass in T or F");
+    }
+    return booleanValue(input, false, paramName);
+  }
+
+  /**
+   * parse a boolean as "T" or "F" or "TRUE" or "FALSE" case insensitive. If
    * not specified, then use default. If malformed, then exception
    * 
    * @param input

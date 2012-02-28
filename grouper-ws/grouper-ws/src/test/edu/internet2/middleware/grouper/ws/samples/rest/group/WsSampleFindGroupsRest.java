@@ -28,11 +28,10 @@ import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
 public class WsSampleFindGroupsRest implements WsSampleRest {
 
   /**
-   * find group lite web service with REST
+   * find group web service with REST
    * @param wsSampleRestType is the type of rest (xml, xhtml, etc)
    */
-  @SuppressWarnings("deprecation")
-  public static void findGroupsLite(WsSampleRestType wsSampleRestType) {
+  public static void findGroups(WsSampleRestType wsSampleRestType) {
 
     try {
       HttpClient httpClient = new HttpClient();
@@ -127,14 +126,14 @@ public class WsSampleFindGroupsRest implements WsSampleRest {
    */
   @SuppressWarnings("unchecked")
   public static void main(String[] args) {
-    findGroupsLite(WsSampleRestType.xhtml);
+    findGroups(WsSampleRestType.xhtml);
   }
 
   /**
    * @see edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest#executeSample(edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType)
    */
   public void executeSample(WsSampleRestType wsSampleRestType) {
-    findGroupsLite(wsSampleRestType);
+    findGroups(wsSampleRestType);
   }
 
   /**

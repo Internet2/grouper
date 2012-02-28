@@ -35,12 +35,30 @@ public interface AttributeDefDAO extends GrouperDAO {
   public AttributeDef findByIdSecure(String id, boolean exceptionIfNotFound);
   
   /**
+   * find by id.  This is a secure method, a grouperSession needs to be open
+   * @param id
+   * @param exceptionIfNotFound
+   * @param queryOptions 
+   * @return the attribute def or null if not there
+   */
+  public AttributeDef findByIdSecure(String id, boolean exceptionIfNotFound, QueryOptions queryOptions);
+  
+  /**
    * find by id.  This is NOT a secure method, a grouperSession does not need to be open
    * @param id
    * @param exceptionIfNotFound
    * @return the attribute def or null if not there
    */
   public AttributeDef findById(String id, boolean exceptionIfNotFound);
+  
+  /**
+   * find by id.  This is NOT a secure method, a grouperSession does not need to be open
+   * @param id
+   * @param exceptionIfNotFound
+   * @param queryOptions
+   * @return the attribute def or null if not there
+   */
+  public AttributeDef findById(String id, boolean exceptionIfNotFound, QueryOptions queryOptions);
   
   /**
    * find by attributeDefNameId.  This is a secure method, a grouperSession needs to be open

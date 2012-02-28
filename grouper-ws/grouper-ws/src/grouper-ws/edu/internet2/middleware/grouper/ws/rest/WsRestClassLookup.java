@@ -13,6 +13,7 @@ import org.apache.commons.lang.StringUtils;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAddMemberLiteResult;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAddMemberResult;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAddMemberResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributeDefNameInheritanceResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributeResult;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributesLiteResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributesResults;
@@ -30,11 +31,19 @@ import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeAssignValueResult
 import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDef;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefLookup;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefName;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameDeleteLiteResult;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameDeleteResult;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameDeleteResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameLookup;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameSaveLiteResult;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameSaveResult;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameSaveResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameToSave;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeEdit;
 import edu.internet2.middleware.grouper.ws.coresoap.WsDeleteMemberLiteResult;
 import edu.internet2.middleware.grouper.ws.coresoap.WsDeleteMemberResult;
 import edu.internet2.middleware.grouper.ws.coresoap.WsDeleteMemberResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsFindAttributeDefNamesResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsFindGroupsResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsFindStemsResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsGetAttributeAssignmentsResults;
@@ -88,8 +97,16 @@ import edu.internet2.middleware.grouper.ws.coresoap.WsStemToSave;
 import edu.internet2.middleware.grouper.ws.coresoap.WsSubject;
 import edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
+import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestAssignAttributeDefNameInheritanceLiteRequest;
+import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestAssignAttributeDefNameInheritanceRequest;
 import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestAssignAttributesLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestAssignAttributesRequest;
+import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestAttributeDefNameDeleteLiteRequest;
+import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestAttributeDefNameDeleteRequest;
+import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestAttributeDefNameSaveLiteRequest;
+import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestAttributeDefNameSaveRequest;
+import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestFindAttributeDefNamesLiteRequest;
+import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestFindAttributeDefNamesRequest;
 import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestGetAttributeAssignmentsLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestGetAttributeAssignmentsRequest;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestAssignGrouperPrivilegesLiteRequest;
@@ -151,6 +168,7 @@ public class WsRestClassLookup {
     addAliasClass(WsAttributeDefLookup.class);
     addAliasClass(WsAttributeDefName.class);
     addAliasClass(WsAttributeDefNameLookup.class);
+    addAliasClass(WsAttributeDefNameToSave.class);
     addAliasClass(WsAttributeEdit.class);
     addAliasClass(WsDeleteMemberResult.class);
     addAliasClass(WsDeleteMemberResults.class);
@@ -188,6 +206,27 @@ public class WsRestClassLookup {
     addAliasClass(WsRestMemberChangeSubjectRequest.class);
     addAliasClass(WsRestMemberChangeSubjectLiteRequest.class);
 
+    addAliasClass(WsRestFindAttributeDefNamesRequest.class);
+    addAliasClass(WsRestFindAttributeDefNamesLiteRequest.class);
+    addAliasClass(WsFindAttributeDefNamesResults.class);
+
+    addAliasClass(WsRestAssignAttributeDefNameInheritanceLiteRequest.class);
+    addAliasClass(WsRestAssignAttributeDefNameInheritanceRequest.class);
+    addAliasClass(WsRestAssignAttributeDefNameInheritanceRequest.class);
+    addAliasClass(WsAssignAttributeDefNameInheritanceResults.class);
+
+    addAliasClass(WsRestAttributeDefNameSaveRequest.class);
+    addAliasClass(WsRestAttributeDefNameSaveLiteRequest.class);
+    addAliasClass(WsAttributeDefNameSaveResults.class);
+    addAliasClass(WsAttributeDefNameSaveResult.class);
+    addAliasClass(WsAttributeDefNameSaveLiteResult.class);
+    
+    addAliasClass(WsRestAttributeDefNameDeleteRequest.class);
+    addAliasClass(WsRestAttributeDefNameDeleteLiteRequest.class);
+    addAliasClass(WsAttributeDefNameDeleteResults.class);
+    addAliasClass(WsAttributeDefNameDeleteResult.class);
+    addAliasClass(WsAttributeDefNameDeleteLiteResult.class);
+    
     addAliasClass(WsRestGetPermissionAssignmentsLiteRequest.class);
     addAliasClass(WsRestGetPermissionAssignmentsRequest.class);
     addAliasClass(WsGetPermissionAssignmentsResults.class);

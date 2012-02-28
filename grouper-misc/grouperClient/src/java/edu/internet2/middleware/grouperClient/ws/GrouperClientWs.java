@@ -186,7 +186,12 @@ public class GrouperClientWs {
             if (discoveryFile == null) {
               
               if (debugLog != null) {
-                debugLog.put("discoveryFile", "not found");
+                if (DiscoveryClient.hasDiscovery()) {
+                  debugLog.put("discoveryFile", "not found");
+                } else {
+                  debugLog.put("discoveryFile", "not configured to use");
+                }
+                
               }
   
               //if we have reconfigured before, we dont need to do this again
@@ -194,7 +199,9 @@ public class GrouperClientWs {
                 needsReconfigure = false;
               }
               
-              LOG.error("Cant find discovery file: '" + fileName + "'!!!!!!!");
+              if (DiscoveryClient.hasDiscovery()) {
+                LOG.error("Cant find discovery file: '" + fileName + "'!!!!!!!");
+              }
             } else {
   
               if (debugLog != null) {

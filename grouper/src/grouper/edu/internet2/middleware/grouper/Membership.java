@@ -2199,7 +2199,7 @@ public class Membership extends GrouperAPI implements
         
         // fix the composite membership if necessary
         if (compositeShouldHaveMember && !ownerHasMember) {
-          Membership ms = Composite.createNewCompositeMembershipObject(owner.getUuid(), memberId, composite.getUuid());
+          Membership ms = Composite.internal_createNewCompositeMembershipObject(owner.getUuid(), memberId, composite.getUuid());
           GrouperDAOFactory.getFactory().getMembership().save(ms);
           modifiedMembersList.add(memberId);
           groupIds.add(owner.getUuid());

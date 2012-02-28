@@ -2141,7 +2141,7 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
               
               attributeDefName.setId(theId);
                               
-              //CH 20080220: this will start saving the attributeDef
+              //CH 20080220: this will start saving the attributeDefName
               GrouperDAOFactory.getFactory().getStem().createChildAttributeDefName( Stem.this, attributeDefName );
                 
               if (!hibernateHandlerBean.isCallerWillCreateAudit()) {

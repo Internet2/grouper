@@ -18,7 +18,13 @@
 package edu.internet2.middleware.grouper.membership;
 
 
+import java.io.StringReader;
+
+import junit.textui.TestRunner;
+
 import org.apache.commons.logging.Log;
+
+import bsh.Interpreter;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
@@ -28,6 +34,7 @@ import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.MembershipFinder;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
+import edu.internet2.middleware.grouper.changeLog.ChangeLogTempToEntity;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.R;
 import edu.internet2.middleware.grouper.helper.SessionHelper;
@@ -35,7 +42,6 @@ import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.misc.CompositeType;
 import edu.internet2.middleware.grouper.misc.FindBadMemberships;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
-import edu.internet2.middleware.grouper.registry.RegistryReset;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
@@ -44,6 +50,7 @@ import edu.internet2.middleware.subject.Subject;
  */
 public class TestFindBadMemberships extends GrouperTest {
 
+  @SuppressWarnings("unused")
   private static final Log LOG = GrouperUtil.getLog(TestFindBadMemberships.class);
 
   private GrouperSession grouperSession;
@@ -68,6 +75,13 @@ public class TestFindBadMemberships extends GrouperTest {
     super(name);
   }
 
+  /**
+   * @param args
+   */
+  public static void main(String[] args) {
+    TestRunner.run(new TestFindBadMemberships("testWithWrongComposite"));
+  }
+  
   protected void setUp () {
     super.setUp();
     FindBadMemberships.clearResults();
@@ -78,7 +92,7 @@ public class TestFindBadMemberships extends GrouperTest {
    * Test bad composites without composites
    */
   public void testWithoutComposites() {
-    assertTrue(FindBadMemberships.checkComposites());
+    assertEquals(0, FindBadMemberships.checkComposites());
   }
   
   /**
@@ -160,15 +174,7 @@ public class TestFindBadMemberships extends GrouperTest {
    */
   public void testWithGoodComposites() throws Exception {
     setUpComposites();
-    
-    assertTrue(FindBadMemberships.checkComposite(owner1.getComposite(false)));
-    assertTrue(FindBadMemberships.checkComposite(owner2.getComposite(false)));
-    assertTrue(FindBadMemberships.checkComposite(owner3.getComposite(false)));
-    assertTrue(FindBadMemberships.checkComposite(owner4.getComposite(false)));
-    assertTrue(FindBadMemberships.checkComposite(owner5.getComposite(false)));
-    assertTrue(FindBadMemberships.checkComposite(owner6.getComposite(false)));
-    assertTrue(FindBadMemberships.checkComposite(owner7.getComposite(false)));
-    assertTrue(FindBadMemberships.checkComposites());
+    assertEquals(0, FindBadMemberships.checkComposites());
   }
   
   /**
@@ -189,14 +195,16 @@ public class TestFindBadMemberships extends GrouperTest {
     ms2.delete();
     ms3.delete();
     
-    assertFalse(FindBadMemberships.checkComposite(owner1.getComposite(false)));
-    assertFalse(FindBadMemberships.checkComposite(owner2.getComposite(false)));
-    assertFalse(FindBadMemberships.checkComposite(owner3.getComposite(false)));
-    assertTrue(FindBadMemberships.checkComposite(owner4.getComposite(false)));
-    assertTrue(FindBadMemberships.checkComposite(owner5.getComposite(false)));
-    assertTrue(FindBadMemberships.checkComposite(owner6.getComposite(false)));
-    assertTrue(FindBadMemberships.checkComposite(owner7.getComposite(false)));
-    assertFalse(FindBadMemberships.checkComposites());
+    ChangeLogTempToEntity.convertRecords();
+    
+    assertEquals(3, FindBadMemberships.checkComposites());
+    String gsh = "import edu.internet2.middleware.grouper.*;\nimport edu.internet2.middleware.grouper.misc.*;\n" + FindBadMemberships.gshScript.toString();
+    new Interpreter(new StringReader(gsh), System.out, System.err, false).run();
+    assertEquals(0, FindBadMemberships.checkComposites());
+    
+    // verify we don't mess up point in time
+    ChangeLogTempToEntity.convertRecords();
+    assertEquals(0, new edu.internet2.middleware.grouper.misc.SyncPITTables().showResults(false).syncAllPITTables());
   }
   
   /**
@@ -227,14 +235,16 @@ public class TestFindBadMemberships extends GrouperTest {
     GrouperDAOFactory.getFactory().getMembership().save(ms2);
     GrouperDAOFactory.getFactory().getMembership().save(ms3);
     
-    assertFalse(FindBadMemberships.checkComposite(owner1.getComposite(false)));
-    assertFalse(FindBadMemberships.checkComposite(owner2.getComposite(false)));
-    assertFalse(FindBadMemberships.checkComposite(owner3.getComposite(false)));
-    assertTrue(FindBadMemberships.checkComposite(owner4.getComposite(false)));
-    assertTrue(FindBadMemberships.checkComposite(owner5.getComposite(false)));
-    assertTrue(FindBadMemberships.checkComposite(owner6.getComposite(false)));
-    assertTrue(FindBadMemberships.checkComposite(owner7.getComposite(false)));
-    assertFalse(FindBadMemberships.checkComposites());
+    ChangeLogTempToEntity.convertRecords();
+
+    assertEquals(3, FindBadMemberships.checkComposites());
+    String gsh = "import edu.internet2.middleware.grouper.*;\nimport edu.internet2.middleware.grouper.misc.*;\n" + FindBadMemberships.gshScript.toString();
+    new Interpreter(new StringReader(gsh), System.out, System.err, false).run();
+    assertEquals(0, FindBadMemberships.checkComposites());
+    
+    // verify we don't mess up point in time
+    ChangeLogTempToEntity.convertRecords();
+    assertEquals(0, new edu.internet2.middleware.grouper.misc.SyncPITTables().showResults(false).syncAllPITTables());
   }
   
   /**
@@ -258,14 +268,16 @@ public class TestFindBadMemberships extends GrouperTest {
     GrouperDAOFactory.getFactory().getMembership().update(ms2);
     GrouperDAOFactory.getFactory().getMembership().update(ms3);
     
-    assertFalse(FindBadMemberships.checkComposite(owner1.getComposite(false)));
-    assertFalse(FindBadMemberships.checkComposite(owner2.getComposite(false)));
-    assertFalse(FindBadMemberships.checkComposite(owner3.getComposite(false)));
-    assertTrue(FindBadMemberships.checkComposite(owner4.getComposite(false)));
-    assertTrue(FindBadMemberships.checkComposite(owner5.getComposite(false)));
-    assertTrue(FindBadMemberships.checkComposite(owner6.getComposite(false)));
-    assertTrue(FindBadMemberships.checkComposite(owner7.getComposite(false)));
-    assertFalse(FindBadMemberships.checkComposites());
+    ChangeLogTempToEntity.convertRecords();
+    
+    assertEquals(6, FindBadMemberships.checkComposites());
+    String gsh = "import edu.internet2.middleware.grouper.*;\nimport edu.internet2.middleware.grouper.misc.*;\n" + FindBadMemberships.gshScript.toString();
+    new Interpreter(new StringReader(gsh), System.out, System.err, false).run();
+    assertEquals(0, FindBadMemberships.checkComposites());
+    
+    // verify we don't mess up point in time
+    ChangeLogTempToEntity.convertRecords();
+    assertEquals(0, new edu.internet2.middleware.grouper.misc.SyncPITTables().showResults(false).syncAllPITTables());
   }
   
   /**
@@ -291,14 +303,16 @@ public class TestFindBadMemberships extends GrouperTest {
     GrouperDAOFactory.getFactory().getMembership().update(ms2);
     GrouperDAOFactory.getFactory().getMembership().update(ms3);
     
-    assertFalse(FindBadMemberships.checkComposite(owner1.getComposite(false)));
-    assertFalse(FindBadMemberships.checkComposite(owner2.getComposite(false)));
-    assertFalse(FindBadMemberships.checkComposite(owner3.getComposite(false)));
-    assertTrue(FindBadMemberships.checkComposite(owner4.getComposite(false)));
-    assertTrue(FindBadMemberships.checkComposite(owner5.getComposite(false)));
-    assertTrue(FindBadMemberships.checkComposite(owner6.getComposite(false)));
-    assertTrue(FindBadMemberships.checkComposite(owner7.getComposite(false)));
-    assertFalse(FindBadMemberships.checkComposites());
+    ChangeLogTempToEntity.convertRecords();
+
+    assertEquals(6, FindBadMemberships.checkComposites());
+    String gsh = "import edu.internet2.middleware.grouper.*;\nimport edu.internet2.middleware.grouper.misc.*;\n" + FindBadMemberships.gshScript.toString();
+    new Interpreter(new StringReader(gsh), System.out, System.err, false).run();
+    assertEquals(0, FindBadMemberships.checkComposites());
+    
+    // verify we don't mess up point in time
+    ChangeLogTempToEntity.convertRecords();
+    assertEquals(0, new edu.internet2.middleware.grouper.misc.SyncPITTables().showResults(false).syncAllPITTables());
   }
 }
 

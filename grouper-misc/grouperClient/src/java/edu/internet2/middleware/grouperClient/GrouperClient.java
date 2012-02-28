@@ -14,10 +14,13 @@ import java.util.Map;
 import java.util.Set;
 
 import edu.internet2.middleware.grouperClient.api.GcAddMember;
+import edu.internet2.middleware.grouperClient.api.GcAssignAttributeDefNameInheritance;
 import edu.internet2.middleware.grouperClient.api.GcAssignAttributes;
 import edu.internet2.middleware.grouperClient.api.GcAssignGrouperPrivileges;
 import edu.internet2.middleware.grouperClient.api.GcAssignGrouperPrivilegesLite;
 import edu.internet2.middleware.grouperClient.api.GcAssignPermissions;
+import edu.internet2.middleware.grouperClient.api.GcAttributeDefNameDelete;
+import edu.internet2.middleware.grouperClient.api.GcAttributeDefNameSave;
 import edu.internet2.middleware.grouperClient.api.GcDeleteMember;
 import edu.internet2.middleware.grouperClient.api.GcFindGroups;
 import edu.internet2.middleware.grouperClient.api.GcFindStems;
@@ -47,6 +50,7 @@ import edu.internet2.middleware.grouperClient.ws.StemScope;
 import edu.internet2.middleware.grouperClient.ws.WsMemberFilter;
 import edu.internet2.middleware.grouperClient.ws.beans.WsAddMemberResult;
 import edu.internet2.middleware.grouperClient.ws.beans.WsAddMemberResults;
+import edu.internet2.middleware.grouperClient.ws.beans.WsAssignAttributeDefNameInheritanceResults;
 import edu.internet2.middleware.grouperClient.ws.beans.WsAssignAttributeResult;
 import edu.internet2.middleware.grouperClient.ws.beans.WsAssignAttributesResults;
 import edu.internet2.middleware.grouperClient.ws.beans.WsAssignGrouperPrivilegesLiteResult;
@@ -59,6 +63,12 @@ import edu.internet2.middleware.grouperClient.ws.beans.WsAttributeAssignLookup;
 import edu.internet2.middleware.grouperClient.ws.beans.WsAttributeAssignValue;
 import edu.internet2.middleware.grouperClient.ws.beans.WsAttributeDef;
 import edu.internet2.middleware.grouperClient.ws.beans.WsAttributeDefName;
+import edu.internet2.middleware.grouperClient.ws.beans.WsAttributeDefNameDeleteResult;
+import edu.internet2.middleware.grouperClient.ws.beans.WsAttributeDefNameDeleteResults;
+import edu.internet2.middleware.grouperClient.ws.beans.WsAttributeDefNameLookup;
+import edu.internet2.middleware.grouperClient.ws.beans.WsAttributeDefNameSaveResult;
+import edu.internet2.middleware.grouperClient.ws.beans.WsAttributeDefNameSaveResults;
+import edu.internet2.middleware.grouperClient.ws.beans.WsAttributeDefNameToSave;
 import edu.internet2.middleware.grouperClient.ws.beans.WsDeleteMemberResult;
 import edu.internet2.middleware.grouperClient.ws.beans.WsDeleteMemberResults;
 import edu.internet2.middleware.grouperClient.ws.beans.WsFindGroupsResults;
@@ -336,11 +346,20 @@ public class GrouperClient {
       } else if (GrouperClientUtils.equals(operation, "groupSaveWs")) {
         result = groupSave(argMap, argMapNotUsed);
 
+      } else if (GrouperClientUtils.equals(operation, "attributeDefNameSaveWs")) {
+        result = attributeDefNameSave(argMap, argMapNotUsed);
+
+      } else if (GrouperClientUtils.equals(operation, "assignAttributeDefNameInheritanceWs")) {
+        result = assignAttributeDefNameInheritance(argMap, argMapNotUsed);
+
       } else if (GrouperClientUtils.equals(operation, "stemSaveWs")) {
         result = stemSave(argMap, argMapNotUsed);
 
       } else if (GrouperClientUtils.equals(operation, "groupDeleteWs")) {
         result = groupDelete(argMap, argMapNotUsed);
+
+      } else if (GrouperClientUtils.equals(operation, "attributeDefNameDeleteWs")) {
+        result = attributeDefNameDelete(argMap, argMapNotUsed);
 
       } else if (GrouperClientUtils.equals(operation, "stemDeleteWs")) {
         result = stemDelete(argMap, argMapNotUsed);
@@ -4368,6 +4387,288 @@ public class GrouperClient {
         index++;
       }
     }    
+    return result.toString();
+  }
+
+  /**
+   * @param argMap
+   * @param argMapNotUsed
+   * @return result
+   */
+  private static String attributeDefNameSave(Map<String, String> argMap,
+      Map<String, String> argMapNotUsed) {
+    
+    List<WsParam> params = retrieveParamsFromArgs(argMap, argMapNotUsed);
+    
+    GcAttributeDefNameSave gcAttributeDefNameSave = new GcAttributeDefNameSave();        
+  
+    for (WsParam param : params) {
+      gcAttributeDefNameSave.addParam(param);
+    }
+    
+    WsAttributeDefNameToSave wsAttributeDefNameToSave = new WsAttributeDefNameToSave();
+    gcAttributeDefNameSave.addAttributeDefNameToSave(wsAttributeDefNameToSave);
+    WsAttributeDefName wsAttributeDefName = new WsAttributeDefName();
+    wsAttributeDefNameToSave.setWsAttributeDefName(wsAttributeDefName);
+
+    String attributeDefNameLookupName = GrouperClientUtils.argMapString(argMap, 
+        argMapNotUsed, "attributeDefNameLookupName", false);
+    String attributeDefNameLookupUuid = GrouperClientUtils.argMapString(argMap, 
+        argMapNotUsed, "attributeDefNameLookupUuid", false);
+
+    
+    String nameOfAttributeDef = GrouperClientUtils.argMapString(argMap, 
+        argMapNotUsed, "nameOfAttributeDef", false);
+    String uuidOfAttributeDef = GrouperClientUtils.argMapString(argMap, 
+        argMapNotUsed, "uuidOfAttributeDef", false);
+    
+    if (!GrouperClientCommonUtils.isBlank(nameOfAttributeDef)) {
+      wsAttributeDefName.setAttributeDefName(nameOfAttributeDef);
+    }
+    if (!GrouperClientCommonUtils.isBlank(uuidOfAttributeDef)) {
+      wsAttributeDefName.setAttributeDefId(uuidOfAttributeDef);
+    }
+    
+    String clientVersion = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "clientVersion", false);
+    gcAttributeDefNameSave.assignClientVersion(clientVersion);
+    
+    String name = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "name", true);
+    wsAttributeDefName.setName(name);
+    
+    WsAttributeDefNameLookup wsAttributeDefNameLookup = new WsAttributeDefNameLookup();
+    wsAttributeDefNameToSave.setWsAttributeDefNameLookup(wsAttributeDefNameLookup);
+    //do the lookup if an edit
+    if (!GrouperClientUtils.isBlank(attributeDefNameLookupName) || !GrouperClientUtils.isBlank(attributeDefNameLookupUuid)) {
+      if (!GrouperClientUtils.isBlank(attributeDefNameLookupName)) {
+        wsAttributeDefNameLookup.setName(attributeDefNameLookupName);
+      }
+      if (!GrouperClientUtils.isBlank(attributeDefNameLookupUuid)) {
+        wsAttributeDefNameLookup.setUuid(attributeDefNameLookupUuid);
+      }
+    }
+    
+    //createParentStemsIfNotExist
+    String createParentStemsIfNotExist = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "createParentStemsIfNotExist", false);
+    wsAttributeDefNameToSave.setCreateParentStemsIfNotExist(createParentStemsIfNotExist);
+    
+    //save mode
+    String saveMode = GrouperClientUtils.argMapString(argMap, 
+        argMapNotUsed, "saveMode", false);
+    if (saveMode != null) {
+      wsAttributeDefNameToSave.setSaveMode(saveMode);
+    }
+    
+    String description = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "description", false);
+    if (!GrouperClientUtils.isBlank(description)) {
+      wsAttributeDefName.setDescription(description);
+    }
+    
+    String displayExtension = GrouperClientUtils.argMapString(argMap, argMapNotUsed, 
+        "displayExtension", false);
+  
+    //just default to the id
+    if (GrouperClientUtils.isBlank(displayExtension)) {
+      displayExtension = GrouperClientUtils.substringAfterLast(name, ":");
+    }
+    
+    wsAttributeDefName.setDisplayExtension(displayExtension);
+  
+    WsSubjectLookup actAsSubject = retrieveActAsSubjectFromArgs(argMap, argMapNotUsed);
+    
+    gcAttributeDefNameSave.assignActAsSubject(actAsSubject);
+    
+    //register that we will use this
+    GrouperClientUtils.argMapString(argMap, argMapNotUsed, "outputTemplate", false);
+    failOnArgsNotUsed(argMapNotUsed);
+  
+    WsAttributeDefNameSaveResults wsAttributeDefNameSaveResults = gcAttributeDefNameSave.execute();
+    
+    StringBuilder result = new StringBuilder();
+    int index = 0;
+    
+    Map<String, Object> substituteMap = new LinkedHashMap<String, Object>();
+  
+    substituteMap.put("wsAttributeDefNameSaveResults", wsAttributeDefNameSaveResults);
+    substituteMap.put("grouperClientUtils", new GrouperClientUtils());
+  
+    String outputTemplate = null;
+  
+    if (argMap.containsKey("outputTemplate")) {
+      outputTemplate = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "outputTemplate", true);
+      outputTemplate = GrouperClientUtils.substituteCommonVars(outputTemplate);
+    } else {
+      outputTemplate = GrouperClientUtils.propertiesValue("webService.attributeDefNameSave.output", true);
+    }
+    log.debug("Output template: " + GrouperClientUtils.trim(outputTemplate) + ", available variables: wsAttributeDefNameSaveResults, " +
+      "grouperClientUtils, index, wsAttributeDefNameSaveResult, resultMetadata");
+  
+    //there is one result...  but loop anyways
+    for (WsAttributeDefNameSaveResult wsAttributeDefNameSaveResult : wsAttributeDefNameSaveResults.getResults()) {
+      
+      substituteMap.put("index", index);
+      substituteMap.put("wsAttributeDefNameSaveResult", wsAttributeDefNameSaveResult);
+      substituteMap.put("resultMetadata", wsAttributeDefNameSaveResult.getResultMetadata());
+      wsAttributeDefNameSaveResult.getWsAttributeDefName();
+      substituteMap.put("wsAttributeDefName", wsAttributeDefName);
+      
+      String output = GrouperClientUtils.substituteExpressionLanguage(outputTemplate, substituteMap);
+      result.append(output);
+      
+      index++;
+    }
+    
+    return result.toString();
+  }
+
+  /**
+   * @param argMap
+   * @param argMapNotUsed
+   * @return result
+   */
+  private static String attributeDefNameDelete(Map<String, String> argMap,
+      Map<String, String> argMapNotUsed) {
+    
+    List<String> attributeDefNameNames = GrouperClientUtils.argMapList(argMap, argMapNotUsed, "attributeDefNameNames", true);
+    String txType = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "txType", false);
+  
+    List<WsParam> params = retrieveParamsFromArgs(argMap, argMapNotUsed);
+    
+    GcAttributeDefNameDelete gcAttributeDefNameDelete = new GcAttributeDefNameDelete();        
+  
+    String clientVersion = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "clientVersion", false);
+    gcAttributeDefNameDelete.assignClientVersion(clientVersion);
+  
+    for (WsParam param : params) {
+      gcAttributeDefNameDelete.addParam(param);
+    }
+  
+    for (String attributeDefNameName : attributeDefNameNames) {
+      WsAttributeDefNameLookup wsGroupLookup = new WsAttributeDefNameLookup(attributeDefNameName, null);
+      gcAttributeDefNameDelete.addAttributeDefNameLookup(wsGroupLookup);
+    }
+    
+    WsSubjectLookup actAsSubject = retrieveActAsSubjectFromArgs(argMap, argMapNotUsed);
+    
+    gcAttributeDefNameDelete.assignActAsSubject(actAsSubject);
+    
+    gcAttributeDefNameDelete.assignTxType(GcTransactionType.valueOfIgnoreCase(txType));
+  
+    //register that we will use this
+    GrouperClientUtils.argMapString(argMap, argMapNotUsed, "outputTemplate", false);
+    failOnArgsNotUsed(argMapNotUsed);
+  
+    WsAttributeDefNameDeleteResults wsAttributeDefNameDeleteResults = gcAttributeDefNameDelete.execute();
+    
+    StringBuilder result = new StringBuilder();
+    int index = 0;
+    
+    Map<String, Object> substituteMap = new LinkedHashMap<String, Object>();
+  
+    substituteMap.put("wsAttributeDefNameDeleteResults", wsAttributeDefNameDeleteResults);
+    substituteMap.put("grouperClientUtils", new GrouperClientUtils());
+  
+    String outputTemplate = null;
+  
+    if (argMap.containsKey("outputTemplate")) {
+      outputTemplate = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "outputTemplate", true);
+      outputTemplate = GrouperClientUtils.substituteCommonVars(outputTemplate);
+    } else {
+      outputTemplate = GrouperClientUtils.propertiesValue("webService.attributeDefNameDelete.output", true);
+    }
+    log.debug("Output template: " + GrouperClientUtils.trim(outputTemplate) + ", available variables: wsAttributeDefNameDeleteResults, " +
+      "grouperClientUtils, index, wsattributeDefNameDeleteResult, resultMetadata, wsAttributeDefName");
+  
+    for (WsAttributeDefNameDeleteResult wsAttributeDefNameDeleteResult : wsAttributeDefNameDeleteResults.getResults()) {
+      
+      substituteMap.put("index", index);
+      substituteMap.put("wsAttributeDefNameDeleteResult", wsAttributeDefNameDeleteResult);
+      substituteMap.put("resultMetadata", wsAttributeDefNameDeleteResult.getResultMetadata());
+      substituteMap.put("wsAttributeDefName", wsAttributeDefNameDeleteResult.getWsAttributeDefName());
+      
+      String output = GrouperClientUtils.substituteExpressionLanguage(outputTemplate, substituteMap);
+      result.append(output);
+      
+      index++;
+    }
+    
+    return result.toString();
+  }
+
+  /**
+   * @param argMap
+   * @param argMapNotUsed
+   * @return result
+   */
+  private static String assignAttributeDefNameInheritance(Map<String, String> argMap,
+      Map<String, String> argMapNotUsed) {
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              
+    List<WsParam> params = retrieveParamsFromArgs(argMap, argMapNotUsed);
+    
+    GcAssignAttributeDefNameInheritance gcAssignAttributeDefNameInheritance = new GcAssignAttributeDefNameInheritance();        
+  
+    for (WsParam param : params) {
+      gcAssignAttributeDefNameInheritance.addParam(param);
+    }
+    
+    String txType = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "txType", false);
+    if (!GrouperClientUtils.isBlank(txType)) {
+      gcAssignAttributeDefNameInheritance.assignTxType(GcTransactionType.valueOfIgnoreCase(txType));
+    }
+
+    String attributeDefNameName = GrouperClientUtils.argMapString(argMap, 
+        argMapNotUsed, "attributeDefNameName", true);
+
+    gcAssignAttributeDefNameInheritance.assignAttributeDefNameLookup(new WsAttributeDefNameLookup(attributeDefNameName, null));
+    
+    List<String> relatedAttributeDefNameNames = GrouperClientUtils.argMapList(argMap, argMapNotUsed, "relatedAttributeDefNameNames", true);
+
+    for (String relatedAttributeDefNameName : relatedAttributeDefNameNames) {
+      gcAssignAttributeDefNameInheritance.addRelatedAttributeDefNameLookup(new WsAttributeDefNameLookup(relatedAttributeDefNameName, null));
+    }
+    
+    boolean assign = GrouperClientUtils.argMapBoolean(argMap, argMapNotUsed, "assign", true, false);
+
+    gcAssignAttributeDefNameInheritance.assign(assign);
+    
+    Boolean replaceAllExisting = GrouperClientUtils.argMapBoolean(argMap, argMapNotUsed, "replaceAllExisting");
+    
+    if (replaceAllExisting != null) {
+      gcAssignAttributeDefNameInheritance.assignReplaceAllExisting(replaceAllExisting);
+    }
+    
+    String clientVersion = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "clientVersion", false);
+    gcAssignAttributeDefNameInheritance.assignClientVersion(clientVersion);
+    
+    WsSubjectLookup actAsSubject = retrieveActAsSubjectFromArgs(argMap, argMapNotUsed);
+    
+    gcAssignAttributeDefNameInheritance.assignActAsSubject(actAsSubject);
+    
+    //register that we will use this
+    GrouperClientUtils.argMapString(argMap, argMapNotUsed, "outputTemplate", false);
+    failOnArgsNotUsed(argMapNotUsed);
+  
+    WsAssignAttributeDefNameInheritanceResults wsAssignAttributeDefNameInheritanceResults = gcAssignAttributeDefNameInheritance.execute();
+    
+    StringBuilder result = new StringBuilder();
+    
+    Map<String, Object> substituteMap = new LinkedHashMap<String, Object>();
+  
+    substituteMap.put("wsAssignAttributeDefNameInheritanceResults", wsAssignAttributeDefNameInheritanceResults);
+    substituteMap.put("grouperClientUtils", new GrouperClientUtils());
+  
+    String outputTemplate = null;
+  
+    if (argMap.containsKey("outputTemplate")) {
+      outputTemplate = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "outputTemplate", true);
+      outputTemplate = GrouperClientUtils.substituteCommonVars(outputTemplate);
+    } else {
+      outputTemplate = GrouperClientUtils.propertiesValue("webService.attributeDefNameSave.output", true);
+    }
+    log.debug("Output template: " + GrouperClientUtils.trim(outputTemplate) + ", available variables: wsAssignAttributeDefNameInheritanceResults, " +
+      "grouperClientUtils, resultMetadata");
+  
+    substituteMap.put("resultMetadata", wsAssignAttributeDefNameInheritanceResults.getResultMetadata());
+
     return result.toString();
   }
 

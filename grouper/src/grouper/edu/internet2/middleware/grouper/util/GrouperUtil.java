@@ -11116,7 +11116,8 @@ public class GrouperUtil {
     
     int methodParamsSize = length(methodParamTypes);
     if (methodParamsSize < paramsSize) {
-      throw new RuntimeException("Why is method params " + methodParamsSize + "less than args? " + paramsSize);
+      throw new RuntimeException("Problem marshaling between Grouper versions... why is method params " 
+          + methodParamsSize + " less than args? " + paramsSize + " for method: " + method);
     }
     
     //lets see if the params match up, as many as there are
@@ -11176,8 +11177,12 @@ public class GrouperUtil {
       return null;
     }
   
-    //if we are a string, just return it
-    if (input instanceof String) {
+    //if we are a string, or stringbuilder or whatever, just return it
+    if (!input.getClass().isArray() && StringUtils.equals("java.lang", input.getClass().getPackage().getName())) {
+      //lets clone, not sure why...
+      if (input instanceof StringBuilder) {
+        return new StringBuilder((StringBuilder)input);
+      }
       return input;
     }
     
@@ -11193,6 +11198,11 @@ public class GrouperUtil {
       String[] result = new String[inputArrayLength];
       System.arraycopy(input, 0, result, 0, result.length);
       return result;
+    }
+    
+    //why would be have a java lang array at this point?
+    if (input.getClass().getName().startsWith("java.lang") && input.getClass().isArray()) {
+      throw new RuntimeException("Not expecting class: " + input.getClass());
     }
     
     StringBuilder logMessage = LOG.isDebugEnabled() ? new StringBuilder() : null;

@@ -220,7 +220,7 @@ public class GrouperClientLdapUtils {
           debugLog.put("LDAP SearchResult attributes has attribute", "'" + attributeName + "'? " + (attribute!=null));
         }
         return retrieveAttributeStringValue(attribute, attributeName);
-      } else if (object instanceof NamingEnumeration) {
+      } else if (object instanceof NamingEnumeration<?>) {
         NamingEnumeration<?> namingEnumeration = (NamingEnumeration<?>)object;
         if (!namingEnumeration.hasMore()) {
           if (debugLog != null) {
@@ -273,7 +273,7 @@ public class GrouperClientLdapUtils {
       Attribute attribute = attributes.get(attributeName);
       LOG.debug("LDAP found SearchResult for attribute: '" + attributeName + "', found attribute? " + (attribute!= null));
       return retrieveAttributeStringListValue(attribute, attributeName);
-    } else if (object instanceof NamingEnumeration) {
+    } else if (object instanceof NamingEnumeration<?>) {
       LOG.debug("LDAP found NamingEnumeration for attribute: '" + attributeName + "'");
       int size = 0;
       NamingEnumeration<?> namingEnumeration = (NamingEnumeration<?>)object;
@@ -345,7 +345,7 @@ public class GrouperClientLdapUtils {
     Map<String, Object> debugLog = LOG.isDebugEnabled() ? new LinkedHashMap<String, Object>() : null;
   
     if (debugLog != null) {
-      debugLog.put("method", "GrouperClientLdap.configureFailoverClient");
+      debugLog.put("method", "GrouperClientLdapUtils.configureFailoverClient");
     }
   
     //see if we know how often to check for new config
@@ -381,19 +381,25 @@ public class GrouperClientLdapUtils {
               fileName = directoryName + "/" + fileName;
             }
             File discoveryFile = DiscoveryClient.retrieveFile(fileName, false);
-            
+
             if (discoveryFile == null) {
-              
+
               if (debugLog != null) {
-                debugLog.put("discoveryFile", "not found");
+                if (DiscoveryClient.hasDiscovery()) {
+                  debugLog.put("discoveryFile", "not found");
+                } else {
+                  debugLog.put("discoveryFile", "not configured to use");
+                }
               }
-  
+
               //if we have reconfigured before, we dont need to do this again
               if (lastFailoverConfigure != null) {
                 needsReconfigure = false;
               }
               
-              LOG.error("Cant find discovery file: '" + fileName + "'!!!!!!!");
+              if (DiscoveryClient.hasDiscovery()) {
+                LOG.error("Cant find discovery file: '" + fileName + "'!!!!!!!");
+              }
             } else {
   
               if (debugLog != null) {

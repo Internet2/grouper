@@ -3655,7 +3655,7 @@ public class GrouperService {
     try {
   
       boolean assignBoolean = GrouperServiceUtils.booleanValue(
-          assign, false, "assign");
+          assign, "assign");
 
       Boolean replaceAllExistingBoolean = GrouperServiceUtils.booleanObjectValue(
           replaceAllExisting, "replaceAllExisting");
@@ -3722,7 +3722,7 @@ public class GrouperService {
     try {
   
       boolean assignBoolean = GrouperServiceUtils.booleanValue(
-          assign, false, "assign");
+          assign, "assign");
 
       GrouperVersion grouperWsVersion = GrouperVersion.valueOfIgnoreCase(
           clientVersion, true);

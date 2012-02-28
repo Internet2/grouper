@@ -6160,6 +6160,8 @@ public class GrouperServiceLogic {
       
       final int[] addSuccesses = new int[]{0};
       final int[] removeSuccesses = new int[]{0};
+      final int[] addNoops = new int[]{0};
+      final int[] removeNoops = new int[]{0};
       
       if (!assign) {
         removes.addAll(relatedAttributeDefNames);
@@ -6192,8 +6194,12 @@ public class GrouperServiceLogic {
                       throws GrouperDAOException {
                     
                       try {
-                        attributeDefName.getAttributeDefNameSetDelegate().addToAttributeDefNameSet(ADD);
-                        addSuccesses[0]++;
+                        boolean wasAdded = attributeDefName.getAttributeDefNameSetDelegate().addToAttributeDefNameSet(ADD);
+                        if (wasAdded) {
+                          addSuccesses[0]++;
+                        } else {
+                          addNoops[0]++;
+                        }
                       } catch (Exception e) {
                         wsAssignAttributeDefNameInheritanceResults.assignResultCodeException(null, "Problem with add: " + ADD, e);
                         success[0] = false;
@@ -6212,8 +6218,12 @@ public class GrouperServiceLogic {
                       throws GrouperDAOException {
                     
                       try {
-                        attributeDefName.getAttributeDefNameSetDelegate().removeFromAttributeDefNameSet(REMOVE);
-                        removeSuccesses[0]++;
+                        boolean wasRemoved = attributeDefName.getAttributeDefNameSetDelegate().removeFromAttributeDefNameSet(REMOVE);
+                        if (wasRemoved) {
+                          removeSuccesses[0]++;
+                        } else {
+                          removeNoops[0]++;
+                        }
                       } catch (Exception e) {
                         wsAssignAttributeDefNameInheritanceResults.assignResultCodeException(null, "Problem with remove: " + REMOVE, e);
                         success[0] = false;
@@ -6236,8 +6246,13 @@ public class GrouperServiceLogic {
             }
           });
       
+      if (StringUtils.defaultString(wsAssignAttributeDefNameInheritanceResults.getResultMetadata().getResultMessage()).length() > 0) {
+        wsAssignAttributeDefNameInheritanceResults.getResultMetadata().appendResultMessage(", ");
+      }
       wsAssignAttributeDefNameInheritanceResults.getResultMetadata().appendResultMessage(
-          ", Had " + addSuccesses[0] + " successful adds, and " + removeSuccesses[0] + " successful removes.  ");
+          "Had " + addSuccesses[0] + " successful adds, " + addNoops[0] 
+          + " adds which already existed, " + removeSuccesses[0] + " successful removes, and " 
+          + removeNoops[0] + " removes which didnt exist.  ");
 
       if (success[0]) {
         wsAssignAttributeDefNameInheritanceResults.assignResultCode(WsAssignAttributeDefNameInheritanceResultsCode.SUCCESS);
@@ -6247,6 +6262,14 @@ public class GrouperServiceLogic {
         if (StringUtils.isBlank(wsAssignAttributeDefNameInheritanceResults.getResultMetadata().getResultCode())) {
           wsAssignAttributeDefNameInheritanceResults.assignResultCode(WsAssignAttributeDefNameInheritanceResultsCode.EXCEPTION);
         }
+        if (resultErrors.length() > 0) {
+          
+          wsAssignAttributeDefNameInheritanceResults.getResultMetadata().appendResultMessage(",  ");
+          wsAssignAttributeDefNameInheritanceResults.getResultMetadata().appendResultMessage(resultErrors.toString());
+
+        }
+        wsAssignAttributeDefNameInheritanceResults.getResultMetadata().appendResultMessage(",  ");
+        wsAssignAttributeDefNameInheritanceResults.getResultMetadata().appendResultMessage(theSummary);
       }
     } catch (Exception e) {
       wsAssignAttributeDefNameInheritanceResults.assignResultCodeException(null, theSummary, e);
@@ -6686,8 +6709,8 @@ public class GrouperServiceLogic {
    * be allowed to act as that other subject
    * @param params optional: reserved for future use
    * @param wsAttributeDefNameLookups if you want to just pass in a list of uuids and/or names.
-   * @param pageSize page size if paging on a sort filter or parent
-   * @param pageNumber page number 1 indexed if paging on a sort filter or parent
+   * @param pageSize page size if paging
+   * @param pageNumber page number 1 indexed if paging
    * @param sortString must be an hql query field, e.g. 
    * can sort on name, displayName, extension, displayExtension
    * @param ascending or null for ascending, F for descending.  
@@ -6873,8 +6896,8 @@ public class GrouperServiceLogic {
    * @param attributeDefType type of attribute definition, e.g. attr, domain, limit, perm, type
    * @param attributeDefNameUuid to lookup an attribute def name by id, mutually exclusive with attributeDefNameName
    * @param attributeDefNameName to lookup an attribute def name by name, mutually exclusive with attributeDefNameId
-   * @param pageSize page size if paging on a sort filter or parent
-   * @param pageNumber page number 1 indexed if paging on a sort filter or parent
+   * @param pageSize page size if paging
+   * @param pageNumber page number 1 indexed if paging
    * @param sortString must be an hql query field, e.g. 
    * can sort on name, displayName, extension, displayExtension
    * @param ascending or null for ascending, F for descending.  
