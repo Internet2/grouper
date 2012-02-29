@@ -80,7 +80,7 @@ public class TestGroup extends GrouperTest {
   public static void main(String[] args) {
     //TestRunner.run(new TestGroup("testNoLocking"));
     //TestRunner.run(TestGroup.class);
-    TestRunner.run(new TestGroup("testEntity"));
+    TestRunner.run(new TestGroup("testAttributeDef"));
     //TestRunner.run(TestGroup.class);
   }
   
@@ -112,6 +112,13 @@ public class TestGroup extends GrouperTest {
     LOG.debug("tearDown");
   }
 
+  /**
+   * 
+   */
+  public void testAttributeDef() {
+    i2.getAttributeDelegate().retrieveAttributes();
+  }
+  
   /**
    * make sure there are no group sets for group members, or read, update, optin, optout.
    * should only be admin, and view.
