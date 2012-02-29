@@ -16,7 +16,6 @@ package edu.internet2.middleware.grouper.shibboleth.dataConnector;
 
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -35,7 +34,6 @@ import edu.internet2.middleware.grouper.shibboleth.dataConnector.field.MembersFi
 import edu.internet2.middleware.grouper.shibboleth.dataConnector.field.PrivilegeField;
 import edu.internet2.middleware.grouper.shibboleth.filter.Filter;
 import edu.internet2.middleware.grouper.shibboleth.util.AttributeIdentifier;
-import edu.internet2.middleware.grouper.shibboleth.util.SubjectIdentifier;
 import edu.internet2.middleware.shibboleth.common.attribute.resolver.provider.dataConnector.BaseDataConnector;
 import edu.internet2.middleware.shibboleth.common.attribute.resolver.provider.dataConnector.DataConnector;
 
@@ -47,9 +45,6 @@ public abstract class BaseGrouperDataConnector<T> extends BaseDataConnector {
 
   /** the attributes which should be returned by this data connector */
   private List<AttributeIdentifier> attributeIdentifiers;
-
-  /** The subject identifier used to start a <code>GrouperSession</code>. */
-  private SubjectIdentifier subjectIdentifier;
 
   /** The query which filters the objects returned by this data connector. */
   private Filter<T> filter;
@@ -65,9 +60,6 @@ public abstract class BaseGrouperDataConnector<T> extends BaseDataConnector {
 
   /** a set of valid names for the first element of an attribute identifier */
   private Set<String> validFirstIdElements = new HashSet<String>();
-
-  /** The possibly empty set of attribute definition names defined in the resolver configuration. */
-  private Set<String> attributeDefNames = new LinkedHashSet<String>();
 
   /** The principal name prefix required for processing of a change log entry. A terrible hack. */
   public static final String CHANGELOG_PRINCIPAL_NAME_PREFIX = "change_log_sequence_number:";
@@ -126,13 +118,9 @@ public abstract class BaseGrouperDataConnector<T> extends BaseDataConnector {
 
           privilegeFields.add(new PrivilegeField(fieldIdentifier.getId(), getGrouperSession().getAccessResolver()));
 
-        } else if (getAllAttributeDefNames().contains(fieldIdentifier.getId())) {
+        } else if (!getAllAttributeDefNames().contains(fieldIdentifier.getId())) {
 
-          attributeDefNames.add(fieldIdentifier.getId());
-
-        } else {
           LOG.error("Grouper data connector '{}' - Unknown field identifier '{}'", getId(), fieldIdentifier.getId());
-          throw new GrouperException("Unknown field identifier " + fieldIdentifier.getId());
         }
       } else {
         // make sure the source is defined and available
@@ -198,24 +186,6 @@ public abstract class BaseGrouperDataConnector<T> extends BaseDataConnector {
   }
 
   /**
-   * Get the subject and source identifier used to start {@link GrouperSession}s.
-   * 
-   * @return Returns the source and subject identifier.
-   */
-  public SubjectIdentifier getSubjectIdentifier() {
-    return subjectIdentifier;
-  }
-
-  /**
-   * Set the subject and source identifier used to start {@link GrouperSession}s.
-   * 
-   * @param subjectIdentifier The source and subject identifier to set.
-   */
-  public void setSubjectIdentifier(SubjectIdentifier subjectIdentifier) {
-    this.subjectIdentifier = subjectIdentifier;
-  }
-
-  /**
    * The representation of the attributes which return groups.
    * 
    * @return the groups fields
@@ -240,15 +210,6 @@ public abstract class BaseGrouperDataConnector<T> extends BaseDataConnector {
    */
   public List<PrivilegeField> getPrivilegeFields() {
     return privilegeFields;
-  }
-
-  /**
-   * Returns the possibly empty set of attribute definition names defined in the attribute resolver configuration.
-   * 
-   * @return the possibly empty set of attribute definition names
-   */
-  protected Set<String> getAttributeDefNames() {
-    return attributeDefNames;
   }
 
   /**
