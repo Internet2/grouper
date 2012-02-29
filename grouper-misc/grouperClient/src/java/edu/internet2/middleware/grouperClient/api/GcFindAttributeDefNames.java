@@ -29,7 +29,7 @@ public class GcFindAttributeDefNames {
    * the attribute def names which are related to the lookup by this relation, e.g. IMPLIED_BY_THIS, 
    * IMPLIED_BY_THIS_IMMEDIATE, THAT_IMPLY_THIS, THAT_IMPLY_THIS_IMMEDIATE
    */
-  private String inheritanceRelation;
+  private String inheritanceSetRelation;
 
   /**
    * if there is one wsAttributeDefNameLookup, and this is specified, then find 
@@ -38,8 +38,8 @@ public class GcFindAttributeDefNames {
    * @param theInheritanceRelation
    * @return inheritance relation
    */
-  public GcFindAttributeDefNames assignInheritanceRelation(String theInheritanceRelation) {
-    this.inheritanceRelation = theInheritanceRelation;
+  public GcFindAttributeDefNames assignInheritanceSetRelation(String theInheritanceRelation) {
+    this.inheritanceSetRelation = theInheritanceRelation;
     return this;
   }
 
@@ -280,8 +280,8 @@ public class GcFindAttributeDefNames {
         findAttributeDefNames.setAttributeDefType(this.attributeDefType);
       }
       
-      if (!GrouperClientUtils.isBlank(this.inheritanceRelation)) {
-        findAttributeDefNames.setWsInheritanceSetRelation(this.inheritanceRelation);
+      if (!GrouperClientUtils.isBlank(this.inheritanceSetRelation)) {
+        findAttributeDefNames.setWsInheritanceSetRelation(this.inheritanceSetRelation);
       }
       
       if (!GrouperClientUtils.isBlank(this.sortString)) {
@@ -299,12 +299,6 @@ public class GcFindAttributeDefNames {
       if (this.pageSize != null) {
         findAttributeDefNames.setPageSize(Integer.toString(this.pageSize));
       }
-      
-      //[--scope=some:scopeOrTerms] [--splitScope=T|F] [--attributeDefNameName=a:b:c] [--attributeDefNameUuid=12as-1234gjth] 
-      //[--attributeDefNameNames=a:b,b:c] [--attributeDefNameUuids=12ab,23cd] [--nameOfAttributeDef=a:b:c] [--uuidOfAttributeDef=12fg-34fg] 
-      //[--attributeAssignType=any_mem|any_mem_asgn|attr_def|attr_def_asgn|group|group_asgn|imm_mem|imm_mem_asgn|mem_asgn|member|stem|stem_asgn] 
-      //[--attributeDefType=attr|domain|limit|perm|type] [--wsInheritanceSetRelation=IMPLIED_BY_THIS|IMPLIED_BY_THIS_IMMEDIATE|THAT_IMPLY_THIS|THAT_IMPLY_THIS_IMMEDIATE] 
-      //[--sortString=T|F] [--ascending=T|F] [--pageNumber=2] [--pageSize=50] 
 
       if (!GrouperClientUtils.isBlank(this.scope)) {
         findAttributeDefNames.setScope(this.scope);
@@ -364,7 +358,7 @@ public class GcFindAttributeDefNames {
    * @param theUuidOfAttributeDef
    * @return this for chaining
    */
-  public GcFindAttributeDefNames addUuidOfAttributeDef(String theUuidOfAttributeDef) {
+  public GcFindAttributeDefNames assignUuidOfAttributeDef(String theUuidOfAttributeDef) {
     this.uuidOfAttributeDef = theUuidOfAttributeDef;
     return this;
   }

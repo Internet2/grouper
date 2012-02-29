@@ -1723,9 +1723,9 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
   
     StringBuilder sql;
     if (changedQuery) {
-      sqlTables.append(" where ");
-    } else {
       sqlTables.append(" and ");
+    } else {
+      sqlTables.append(" where ");
     }
     sql = sqlTables.append(sqlWhereClause);
     
@@ -2004,9 +2004,9 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
   
     StringBuilder sql;
     if (changedQuery) {
-      sqlTables.append(" where ");
-    } else {
       sqlTables.append(" and ");
+    } else {
+      sqlTables.append(" where ");
     }
     sql = sqlTables.append(sqlWhereClause);
   

@@ -18,9 +18,9 @@
 	<classpathentry kind="lib" path="lib/commons-collections-3.2.jar"/>
 	<classpathentry kind="lib" path="lib/p6spy.jar"/>
 	<classpathentry kind="lib" path="lib/commons-jexl.jar"/>
-	<classpathentry kind="lib" path="lib/vt-ldap-3.3.4.jar"/>
 	<classpathentry kind="lib" path="lib/bcprov-ext-jdk15-1.40.jar"/>
 	<classpathentry kind="lib" path="lib/bcprov-ext-jdk16-141.jar"/>
 	<classpathentry kind="lib" path="lib/bcprov-jdk16-141.jar"/>
+	<classpathentry kind="lib" path="lib/vt-ldap.jar"/>
 	<classpathentry kind="output" path="build"/>
 </classpath>

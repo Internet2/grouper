@@ -78,14 +78,14 @@ public class GroupDataConnectorTest extends BaseDataConnectorTest {
    * Assert that the attributes returned from the data connector match the provided attributes.
    * 
    * @param dataConnectorName the data connector name
-   * @param group the group
+   * @param principalName the principalName
    * @param correctMap the correct attributes
    */
-  private void runAttributeDefinitionTest(String dataConnectorName, Group group, AttributeMap correctMap,
+  private void runAttributeDefinitionTest(String dataConnectorName, String principalName, AttributeMap correctMap,
       String attributeDefinitionName) {
     try {
       GenericApplicationContext gContext = BaseDataConnectorTest.createSpringContext(RESOLVER_CONFIG);
-      ShibbolethResolutionContext ctx = getShibContext(group.getName());
+      ShibbolethResolutionContext ctx = getShibContext(principalName);
 
       // resolve data connector dependency
       GroupDataConnector gdc = (GroupDataConnector) gContext.getBean(dataConnectorName);
@@ -504,7 +504,7 @@ public class GroupDataConnectorTest extends BaseDataConnectorTest {
     AttributeMap correctMap = new AttributeMap();
     correctMap.setAttribute("testGroupAttributeDefinition", groupB.getName());
 
-    runAttributeDefinitionTest("testAll", groupA, correctMap, "testGroupAttributeDefinition");
+    runAttributeDefinitionTest("testAll", groupA.getName(), correctMap, "testGroupAttributeDefinition");
   }
 
   public void testMemberAttributeDefinition() {
@@ -513,7 +513,7 @@ public class GroupDataConnectorTest extends BaseDataConnectorTest {
     correctMap.setAttribute("testMemberAttributeDefinition", SubjectTestHelper.SUBJ1.getId(),
         SubjectTestHelper.SUBJ0.getId(), groupA.getName());
 
-    runAttributeDefinitionTest("testAll", groupB, correctMap, "testMemberAttributeDefinition");
+    runAttributeDefinitionTest("testAll", groupB.getName(), correctMap, "testMemberAttributeDefinition");
   }
 
   public void testMemberAttributeDefinitionJDBC() {
@@ -521,7 +521,7 @@ public class GroupDataConnectorTest extends BaseDataConnectorTest {
     AttributeMap correctMap = new AttributeMap();
     correctMap.setAttribute("testMemberAttributeDefinitionJDBC", SubjectTestHelper.SUBJ0.getId());
 
-    runAttributeDefinitionTest("testAll", groupA, correctMap, "testMemberAttributeDefinitionJDBC");
+    runAttributeDefinitionTest("testAll", groupA.getName(), correctMap, "testMemberAttributeDefinitionJDBC");
   }
 
   public void testSubjectAttributeDefinitionHasViewer() {
@@ -531,6 +531,39 @@ public class GroupDataConnectorTest extends BaseDataConnectorTest {
     AttributeMap correctMap = new AttributeMap();
     correctMap.setAttribute("testSubjectAttributeDefinitionHasViewer", SubjectTestHelper.SUBJ0.getName());
 
-    runAttributeDefinitionTest("testAll", groupA, correctMap, "testSubjectAttributeDefinitionHasViewer");
+    runAttributeDefinitionTest("testAll", groupA.getName(), correctMap, "testSubjectAttributeDefinitionHasViewer");
+  }
+
+  public void testFilterNameInStemSub() {
+
+    AttributeMap groupAcorrectMap = new AttributeMap();
+    groupAcorrectMap.setAttribute("testFilterNameInStemSub", groupA.getName());
+    runAttributeDefinitionTest("testAttributesOnly", groupA.getName(), groupAcorrectMap, "testFilterNameInStemSub");
+
+    AttributeMap groupCcorrectMap = new AttributeMap();
+    groupCcorrectMap.setAttribute("testFilterNameInStemSub", groupC.getName());
+    runAttributeDefinitionTest("testAttributesOnly", groupC.getName(), groupCcorrectMap, "testFilterNameInStemSub");
+  }
+
+  public void testFilterNameInStemOne() {
+
+    AttributeMap groupAcorrectMap = new AttributeMap();
+    groupAcorrectMap.setAttribute("testFilterNameInStemOne", groupA.getName());
+    runAttributeDefinitionTest("testAttributesOnly", groupA.getName(), groupAcorrectMap, "testFilterNameInStemOne");
+
+    AttributeMap groupCcorrectMap = new AttributeMap();
+    groupCcorrectMap.setAttribute("testFilterNameInStemOne");
+    runAttributeDefinitionTest("testAttributesOnly", groupC.getName(), groupCcorrectMap, "testFilterNameInStemOne");
+  }
+
+  public void testFilterNameInStemRootOne() {
+
+    AttributeMap groupAcorrectMap = new AttributeMap();
+    groupAcorrectMap.setAttribute("testFilterNameInStemRootOne");
+    runAttributeDefinitionTest("testAttributesOnly", groupA.getName(), groupAcorrectMap, "testFilterNameInStemRootOne");
+
+    AttributeMap groupCcorrectMap = new AttributeMap();
+    groupCcorrectMap.setAttribute("testFilterNameInStemRootOne");
+    runAttributeDefinitionTest("testAttributesOnly", groupC.getName(), groupCcorrectMap, "testFilterNameInStemRootOne");
   }
 }
