@@ -638,5 +638,44 @@ return groupSets;
     
     return groupSet;
   }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.GroupSetDAO#findTypeMismatch()
+   */
+  public Set<GroupSet> findTypeMismatch() {
+    String sql = "select distinct gs from GroupSet gs " +
+        "where gs.fieldId = :fieldId " +
+        "and gs.depth = '0' " +
+        "and ((gs.type <> 'composite' " +
+        "     and exists (select 1 from Composite c where c.factorOwnerUuid = gs.ownerId)) " +
+        "or (gs.type = 'composite' " + 
+        "    and not exists (select 1 from Composite c where c.factorOwnerUuid = gs.ownerId))) ";
+
+    Set<GroupSet> results = HibernateSession.byHqlStatic()
+      .createQuery(sql)
+      .setCacheable(false)
+      .setString("fieldId", Group.getDefaultList().getUuid())
+      .listSet(GroupSet.class);
+    
+    return results;  
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.GroupSetDAO#findBadGroupSetsForCompositeGroups()
+   */
+  public Set<GroupSet> findBadGroupSetsForCompositeGroups() {
+    String sql = "select distinct gs from GroupSet gs, Composite c " +
+        "where gs.ownerGroupId = c.factorOwnerUuid " +
+        "and gs.fieldId = :fieldId " +
+        "and gs.depth = '1' ";
+    
+    Set<GroupSet> results = HibernateSession.byHqlStatic()
+      .createQuery(sql)
+      .setCacheable(false)
+      .setString("fieldId", Group.getDefaultList().getUuid())
+      .listSet(GroupSet.class);
+    
+    return results;  
+  }
 }
 

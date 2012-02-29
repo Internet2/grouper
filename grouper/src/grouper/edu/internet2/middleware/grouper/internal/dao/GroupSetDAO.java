@@ -246,4 +246,16 @@ public interface GroupSetDAO extends GrouperDAO {
    */
   public GroupSet findByOwnerMemberFieldParentAndType(String ownerId, String memberId, 
       String fieldId, String parentId, String mshipType, boolean exceptionIfNotFound);
+  
+  /**
+   * This currently checks depth=0 groupSets for the default member field only.
+   * @return groupSets that have the wrong membership type
+   */
+  public Set<GroupSet> findTypeMismatch();
+  
+  /**
+   * This will find group sets on composite groups with depth = 1, which shouldn't happen..
+   * @return bad group sets
+   */
+  public Set<GroupSet> findBadGroupSetsForCompositeGroups();
 }
