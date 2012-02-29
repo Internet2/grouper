@@ -376,6 +376,9 @@ public class GrouperUiUtils {
   /** map from source to subject screen EL */
   private static Map<String, String> subjectToScreenEl = null;
 
+  /** map from source to subject screen EL the long version */
+  private static Map<String, String> subjectToScreenElLong = null;
+
   /** class file dir cached */
   public static File classFileDir = null;
 
@@ -949,26 +952,7 @@ public class GrouperUiUtils {
    * @return the string
    */
   public static String convertSubjectToLabel(Subject subject) {
-    String label = null;
-    
-    Source entitySource = SubjectFinder.internal_getEntitySourceAdapter(false);
-    boolean isEntitySource = entitySource != null && StringUtils.equals(subject.getSourceId(), entitySource.getId());
-    
-    if (isEntitySource || SubjectFinder.internal_getGSA().getId().equals(subject.getSourceId())) {
-      
-      label = subject.getAttributeValue(GrouperConfig.ATTRIBUTE_DISPLAY_EXTENSION);
-      if (!StringUtils.isBlank(label)) {
-        return label;
-      }
-      
-    }
-  
-    label = subject.getDescription();
-    if (StringUtils.isBlank(label)) {
-      
-      label = subject.getSourceId() + " - " + subject.getId() + " - " + subject.getName();
-    }
-    return label;
+    return convertSubjectToLabelConfigured(subject, false);
   }
 
   /**
@@ -977,18 +961,7 @@ public class GrouperUiUtils {
    * @return the string
    */
   public static String convertSubjectToLabelLong(Subject subject) {
-    String label = null;
-    //TODO also add external entities from the SubjectFinder method
-    if (SubjectFinder.internal_getGSA().getId().equals(subject.getSourceId()) || StringUtils.equals("grouperEntities", subject.getSourceId())) {
-      
-      label = subject.getAttributeValue(GrouperConfig.ATTRIBUTE_DISPLAY_NAME);
-      if (!StringUtils.isBlank(label)) {
-        return label;
-      }
-
-    }
-    
-    return convertSubjectToLabel(subject);
+    return convertSubjectToLabelConfigured(subject, true);
   }
 
 
@@ -1200,13 +1173,38 @@ public class GrouperUiUtils {
     return imageName;
   }
 
-
   /**
    * get a label from a subject based on media.properties
    * @param subject
    * @return the relative path to image path
    */
   public static String convertSubjectToLabelConfigured(Subject subject) {
+    return convertSubjectToLabelConfigured(subject, true);
+  }
+
+  /**
+   * 
+   * @param args
+   */
+  public static void main(String[] args) {
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    Subject subject = SubjectFinder.findByIdentifierAndSource("edu:someGroup", "g:gsa", true);
+
+    Map<String, Object> variableMap = new HashMap<String, Object>();
+    variableMap.put("subject", subject);
+    variableMap.put("grouperUiUtils", new GrouperUiUtils());
+    String result = GrouperUtil.substituteExpressionLanguage("${subject.getAttributeValue('displayName')}", variableMap);
+    System.out.println(result);
+    GrouperSession.stopQuietly(grouperSession);
+  }
+  
+  /**
+   * get a label from a subject based on media.properties
+   * @param subject
+   * @param tryLong if should see if there is a long version first
+   * @return the relative path to image path
+   */
+  public static String convertSubjectToLabelConfigured(Subject subject, boolean tryLong) {
     
     //see if it is already computed
     if (subject instanceof SubjectSortWrapper) {
@@ -1214,37 +1212,80 @@ public class GrouperUiUtils {
     }
   
     if (subjectToScreenEl == null) {
-      Map<String, String> theSubjectToScreenEl = new HashMap<String, String>();
-      Properties propertiesSettings = GrouperUtil
-        .propertiesFromResourceName("resources/grouper/media.properties");
-      
-      int index = 0;
-      while (true) {
-      
-        String sourceName = GrouperUtil.propertiesValue(propertiesSettings, 
-            "grouperUi.subjectImg.sourceId." + index);
-        String screenEl = GrouperUtil.propertiesValue(propertiesSettings, 
-            "grouperUi.subjectImg.screenEl." + index);
+      {
+        Map<String, String> theSubjectToScreenEl = new HashMap<String, String>();
+        Properties propertiesSettings = GrouperUtil
+          .propertiesFromResourceName("resources/grouper/media.properties");
         
-        if (StringUtils.isBlank(screenEl)) {
-          break;
+        int index = 0;
+        while (true) {
+        
+          String sourceName = GrouperUtil.propertiesValue(propertiesSettings, 
+              "grouperUi.subjectImg.sourceId." + index);
+          String screenEl = GrouperUtil.propertiesValue(propertiesSettings, 
+              "grouperUi.subjectImg.screenEl." + index);
+          
+          if (StringUtils.isBlank(sourceName)) {
+            break;
+          }
+          if (!StringUtils.isBlank(screenEl)) {
+            theSubjectToScreenEl.put(sourceName, screenEl);
+          }
+          
+          index++;
         }
-        
-        theSubjectToScreenEl.put(sourceName, screenEl);
-        
-        index++;
+        subjectToScreenEl = theSubjectToScreenEl;
       }
-      subjectToScreenEl = theSubjectToScreenEl;
+      {
+        Map<String, String> theSubjectToScreenElLong = new HashMap<String, String>();
+        Properties propertiesSettings = GrouperUtil
+          .propertiesFromResourceName("resources/grouper/media.properties");
+        
+        int index = 0;
+        while (true) {
+        
+          String sourceName = GrouperUtil.propertiesValue(propertiesSettings, 
+              "grouperUi.subjectImgLong.sourceId." + index);
+          String screenElLong = GrouperUtil.propertiesValue(propertiesSettings, 
+              "grouperUi.subjectImgLong.screenEl." + index);
+          
+          if (StringUtils.isBlank(sourceName)) {
+            break;
+          }
+          
+          if (!StringUtils.isBlank(screenElLong)) {
+            theSubjectToScreenElLong.put(sourceName, screenElLong);
+          }
+          
+          index++;
+        }
+        subjectToScreenElLong = theSubjectToScreenElLong;
+      }
     }
-    String screenEl = subjectToScreenEl.get(subject.getSource().getId());
+    String screenEl = null;
+    if (tryLong) {
+      screenEl = subjectToScreenElLong.get(subject.getSource().getId());
+    }
     if (StringUtils.isBlank(screenEl)) {
-      return convertSubjectToLabelLong(subject);
+      screenEl = subjectToScreenEl.get(subject.getSource().getId());
+    }
+    if (StringUtils.isBlank(screenEl)) {
+
+      String label = subject.getDescription();
+      if (StringUtils.isBlank(label)) {
+
+        label = subject.getSourceId() + " - " + subject.getId() + " - " + subject.getName();
+      }
+
+      return label;
+
     }
     //run the screen EL
     Map<String, Object> variableMap = new HashMap<String, Object>();
     variableMap.put("subject", subject);
     variableMap.put("grouperUiUtils", new GrouperUiUtils());
-    return GrouperUtil.substituteExpressionLanguage(screenEl, variableMap);
+    String result = GrouperUtil.substituteExpressionLanguage(screenEl, variableMap);
+    return result;
   }
 
 
