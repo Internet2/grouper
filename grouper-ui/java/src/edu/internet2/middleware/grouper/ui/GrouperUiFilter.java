@@ -245,13 +245,16 @@ public class GrouperUiFilter implements Filter {
     if (StringUtils.isBlank(userIdLoggedIn)) {
       throw new RuntimeException("Cant find logged in user");
     }
-
+    
+    GrouperSession rootSession = GrouperSession.startRootSession();
     try {
       subjectLoggedIn = SubjectFinder.findByIdOrIdentifier(userIdLoggedIn, true);
     } catch (RuntimeException re) {
       //this is probably a system error...  not a user error
       GrouperUtil.injectInException(re, "Cant find subject from login id: " + userIdLoggedIn);
       throw re;
+    } finally {
+      GrouperSession.stopQuietly(rootSession);
     }
     
     ensureUserAllowedInSection(uiSectionForRequest, subjectLoggedIn);
