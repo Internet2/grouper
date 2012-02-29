@@ -35,11 +35,13 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.logging.Log;
 
+import edu.internet2.middleware.grouper.Composite;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.exception.SessionException;
+import edu.internet2.middleware.grouper.group.GroupSet;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /** 
@@ -149,13 +151,38 @@ public class FindBadMemberships {
     PrintStream oldPrintStream = out;
     out = printStream;
     try {  
-      out.println();
-      out.println("Checking Composite Memberships");
-
-      checkComposites();
+      checkAll();
     } finally {
       out = oldPrintStream;
     }
+  }
+  
+  /**
+   * @return count of bad and missing memberships
+   */
+  public static long checkAll() {
+    long errors = 0;
+    
+    if (printErrorsToSTOUT) {
+      out.println();
+      out.println("Checking Composite Memberships");
+    }
+    
+    errors += checkComposites();
+    
+    if (errors == 0) {
+      // only check group sets if composites are okay
+      if (printErrorsToSTOUT) {
+        out.println("Checking Group Sets");
+      }
+      errors += checkGroupSets();
+    } else {
+      if (printErrorsToSTOUT) {
+        out.println("*** Skipping group set check since there were composite issues. Re-run after fixing composites. ***\n");
+      }
+    }
+    
+    return errors;
   }
   
   /**
@@ -189,6 +216,44 @@ public class FindBadMemberships {
     out.println("3.  Re-run the bad membership finder utility to verify that bad memberships have been fixed.");
     out.println();
   }
+  
+  /**
+   * Note that this isn't a complete check of the group set table..
+   * @return count of bad and missing group sets
+   */
+  public static long checkGroupSets() {
+    Set<GroupSet> badType = GrouperDAOFactory.getFactory().getGroupSet().findTypeMismatch();
+
+    for (GroupSet gs : badType) {
+      if (gs.getDepth() != 0) {
+        throw new RuntimeException("Unexpected depth of " + gs.getDepth());
+      }
+      
+      Group g = GrouperDAOFactory.getFactory().getGroup().findByUuid(gs.getOwnerGroupId(), true);
+      Composite c = GrouperDAOFactory.getFactory().getComposite().findAsOwner(g, false);
+      String currentType = gs.getType();
+      String newType = c == null ? "immediate" : "composite";
+      if (printErrorsToSTOUT) {
+        out.println("Bad group set type: owner groupId=" + g.getUuid() + ", owner group name=" + g.getName() + ", currentType=" + currentType + ", newType=" + newType + ".");
+      }
+      
+      logGshScript("sqlRun(\"update grouper_group_set set mship_type='" + newType + "' where id='" + gs.getId() + "'\");\n");
+    }
+    
+    Set<GroupSet> badCompositeGroupSets = GrouperDAOFactory.getFactory().getGroupSet().findBadGroupSetsForCompositeGroups();
+    for (GroupSet gs : badCompositeGroupSets) {
+      Group ownerGroup = GrouperDAOFactory.getFactory().getGroup().findByUuid(gs.getOwnerGroupId(), true);
+      Group memberGroup = GrouperDAOFactory.getFactory().getGroup().findByUuid(gs.getMemberGroupId(), true);
+
+      if (printErrorsToSTOUT) {
+        out.println("Bad group set for composite: owner groupId=" + ownerGroup.getUuid() + ", owner group name=" + ownerGroup.getName() + ", member groupId=" + memberGroup.getUuid() + ", member group name=" + memberGroup.getName() + ".");
+      }
+      
+      logGshScript("GrouperDAOFactory.getFactory().getGroupSet().findById(\"" + gs.getId() + "\").delete(true);\n");
+    }
+    
+    return badType.size() + badCompositeGroupSets.size();
+  }
 
   /**
    * @return count of bad and missing memberships
@@ -196,7 +261,8 @@ public class FindBadMemberships {
   public static long checkComposites() {
     
     Set<Membership> badMemberships = new LinkedHashSet<Membership>();
-    badMemberships.addAll(GrouperDAOFactory.getFactory().getMembership().findBadImmediateMembershipsOnCompositeGroup());
+    badMemberships.addAll(GrouperDAOFactory.getFactory().getMembership().findBadMembershipsOnCompositeGroup());
+    badMemberships.addAll(GrouperDAOFactory.getFactory().getMembership().findBadCompositeMembershipsOnNonCompositeGroup());
     badMemberships.addAll(GrouperDAOFactory.getFactory().getMembership().findBadComplementMemberships());
     badMemberships.addAll(GrouperDAOFactory.getFactory().getMembership().findBadUnionMemberships());
     badMemberships.addAll(GrouperDAOFactory.getFactory().getMembership().findBadIntersectionMemberships());

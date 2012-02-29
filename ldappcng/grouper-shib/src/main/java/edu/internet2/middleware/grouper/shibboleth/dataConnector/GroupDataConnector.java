@@ -30,6 +30,7 @@ import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.shibboleth.dataConnector.field.GroupsField;
@@ -137,12 +138,12 @@ public class GroupDataConnector extends BaseGrouperDataConnector<Group> implemen
     }
 
     // attribute defs
-    for (String attributeDefName : getAttributeDefNames()) {
-      List<String> values = group.getAttributeValueDelegate().retrieveValuesString(attributeDefName);
+    for (AttributeDefName attributeDefName : group.getAttributeDelegate().retrieveAttributes()) {
+      List<String> values = group.getAttributeValueDelegate().retrieveValuesString(attributeDefName.getName());
       if (values != null && !values.isEmpty()) {
-        BasicAttribute<String> basicAttribute = new BasicAttribute<String>(attributeDefName);
+        BasicAttribute<String> basicAttribute = new BasicAttribute<String>(attributeDefName.getName());
         basicAttribute.setValues(values);
-        attributes.put(attributeDefName, basicAttribute);
+        attributes.put(attributeDefName.getName(), basicAttribute);
       }
     }
 

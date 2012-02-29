@@ -2957,17 +2957,34 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
   /**
    * @see edu.internet2.middleware.grouper.internal.dao.MembershipDAO#findBadImmediateMembershipsOnCompositeGroup()
    */
-  public Set<Membership> findBadImmediateMembershipsOnCompositeGroup() {
+  public Set<Membership> findBadMembershipsOnCompositeGroup() {
     String sql = "select distinct ms from ImmediateMembershipEntry ms, Composite c " +
         "where c.factorOwnerUuid = ms.ownerGroupId " +
         "and ms.fieldId = :fieldId " +
         "and ms.enabledDb = 'T' " +
-        "and ms.type = 'immediate' ";
+        "and (ms.type = 'immediate' or ms.viaCompositeId is null or c.uuid <> ms.viaCompositeId) ";
     
     Set<Membership> results = HibernateSession.byHqlStatic()
       .createQuery(sql)
       .setCacheable(false)
       .setString("fieldId", Group.getDefaultList().getUuid())
+      .listSet(Membership.class);
+    
+    return results;
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.MembershipDAO#findBadImmediateMembershipsOnCompositeGroup()
+   */
+  public Set<Membership> findBadCompositeMembershipsOnNonCompositeGroup() {
+    String sql = "select distinct ms from ImmediateMembershipEntry ms " +
+        "where ms.type = 'composite' " +
+        "and ms.enabledDb = 'T' " +
+        "and ms.ownerGroupId not in (select c.factorOwnerUuid from Composite c) ";
+    
+    Set<Membership> results = HibernateSession.byHqlStatic()
+      .createQuery(sql)
+      .setCacheable(false)
       .listSet(Membership.class);
     
     return results;

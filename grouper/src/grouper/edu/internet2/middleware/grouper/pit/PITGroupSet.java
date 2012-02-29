@@ -1162,4 +1162,18 @@ public class PITGroupSet extends GrouperPIT implements Hib3GrouperVersioned {
     
     return pitOwnerStem;
   }
+  
+  /**
+   * Disable this group set by adding an end date of the current time
+   */
+  public void internal_disable() {
+    if (this.isActive()) {
+      this.setActiveDb("F");
+      this.setEndTimeDb(System.currentTimeMillis() * 1000);
+      this.setContextId(null);
+      this.saveOrUpdate();
+    } else {
+      throw new RuntimeException("Group set is not active.");
+    }
+  }
 }

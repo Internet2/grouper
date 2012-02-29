@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
+import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
@@ -153,12 +154,12 @@ public class StemDataConnector extends BaseGrouperDataConnector<Stem> {
     }
 
     // attribute defs
-    for (String attributeDefName : getAttributeDefNames()) {
-      List<String> values = stem.getAttributeValueDelegate().retrieveValuesString(attributeDefName);
+    for (AttributeDefName attributeDefName : stem.getAttributeDelegate().retrieveAttributes()) {
+      List<String> values = stem.getAttributeValueDelegate().retrieveValuesString(attributeDefName.getName());
       if (values != null && !values.isEmpty()) {
-        BasicAttribute<String> basicAttribute = new BasicAttribute<String>(attributeDefName);
+        BasicAttribute<String> basicAttribute = new BasicAttribute<String>(attributeDefName.getName());
         basicAttribute.setValues(values);
-        attributes.put(attributeDefName, basicAttribute);
+        attributes.put(attributeDefName.getName(), basicAttribute);
       }
     }
 

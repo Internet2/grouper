@@ -972,8 +972,15 @@ TODO update for 1.5
   public Set<Membership> findBadIntersectionMemberships();
   
   /**
+   * This will find "immediate" memberships on composite groups 
+   * along with memberships that don't have the right viaCompositeId.
    * @return set of immediate memberships that are bad
    */
-  public Set<Membership> findBadImmediateMembershipsOnCompositeGroup();
+  public Set<Membership> findBadMembershipsOnCompositeGroup();
+  
+  /**
+   * @return set of immediate memberships that are bad
+   */
+  public Set<Membership> findBadCompositeMembershipsOnNonCompositeGroup();
 } 
 

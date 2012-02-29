@@ -2405,7 +2405,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
               if (currentNames) {
                 hql.append(" or ");
               }
-              hql.append(" theGroup.alternateNameDb like :theAlternateName ");
+              hql.append(" lower(theGroup.alternateNameDb) like :theAlternateName ");
               byHqlStatic.setString("theAlternateName", "%" + lowerName + "%");
             }
             

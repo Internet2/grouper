@@ -16,14 +16,20 @@ import edu.internet2.middleware.grouper.GrouperAPI;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GroupSetNotFoundException;
+import edu.internet2.middleware.grouper.hibernate.AuditControl;
+import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
+import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
+import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GroupDAO;
+import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.StemDAO;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperHasContext;
+import edu.internet2.middleware.grouper.pit.PITGroupSet;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
@@ -1100,5 +1106,33 @@ public class GroupSet extends GrouperAPI implements GrouperHasContext, Hib3Group
     } else {
       this.memberFieldId = Group.getDefaultList().getUuid();
     }
+  }
+  
+  /**
+   * @param forceDisablePITEntry should only be used if we're removing a corrupt group set
+   */
+  public void delete(final boolean forceDisablePITEntry) {
+    
+    HibernateSession.callbackHibernateSession(
+        GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT,
+        new HibernateHandler() {
+
+          public Object callback(HibernateHandlerBean hibernateHandlerBean)
+              throws GrouperDAOException {
+
+            hibernateHandlerBean.getHibernateSession().setCachingEnabled(false);
+
+            GrouperDAOFactory.getFactory().getGroupSet().delete(GroupSet.this);
+            
+            if (forceDisablePITEntry) {
+              PITGroupSet pit = GrouperDAOFactory.getFactory().getPITGroupSet().findBySourceIdActive(GroupSet.this.getId(), false);
+              if (pit != null) {
+                pit.internal_disable();
+              }
+            }
+            
+            return null;
+          }
+        });
   }
 }
