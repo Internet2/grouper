@@ -258,4 +258,21 @@ public interface GroupSetDAO extends GrouperDAO {
    * @return bad group sets
    */
   public Set<GroupSet> findBadGroupSetsForCompositeGroups();
+  
+  /**
+   * Find missing effective group sets.  Note that this will return some false positives
+   * (due to circular group sets) that need to be filtered out.
+   * @return set of array objects where the first element is the 
+   * parent groupSet of the missing groupSet and the second element
+   * is the immediate groupSet.
+   */
+  public Set<Object[]> findMissingEffectiveGroupSets();
+  
+  /**
+   * @param ownerId 
+   * @param memberId 
+   * @param fieldId 
+   * @return set
+   */
+  public Set<GroupSet> findAllByOwnerAndMemberAndField(String ownerId, String memberId, String fieldId);
 }

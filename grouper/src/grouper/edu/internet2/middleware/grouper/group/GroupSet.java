@@ -507,7 +507,7 @@ public class GroupSet extends GrouperAPI implements GrouperHasContext, Hib3Group
       groupSet.setType(MembershipType.EFFECTIVE.getTypeString());
 
       // if we're forming a circular path, skip this isMember
-      if (isCircular(groupSet, isGS)) {
+      if (internal_isCircular(groupSet, isGS)) {
         continue;
       }
 
@@ -617,7 +617,7 @@ public class GroupSet extends GrouperAPI implements GrouperHasContext, Hib3Group
       newGroupSet.setType(MembershipType.EFFECTIVE.getTypeString());
 
       // if we're forming a circular path, return an empty Set.
-      if (isCircular(newGroupSet, startGroupSet)) {
+      if (internal_isCircular(newGroupSet, startGroupSet)) {
         return new LinkedHashSet<GroupSet>();
       }
 
@@ -646,7 +646,7 @@ public class GroupSet extends GrouperAPI implements GrouperHasContext, Hib3Group
    *                        as a starting point to check if we're forming a circular group set
    * @return true if the new group set will cause a circular group set.
    */
-  private boolean isCircular(GroupSet newGroupSet, GroupSet startGroupSet) {
+  public boolean internal_isCircular(GroupSet newGroupSet, GroupSet startGroupSet) {
 
     // for the default list, a group should not be an indirect member of itself ....
     if (newGroupSet.getFieldId().equals(Group.getDefaultList().getUuid()) && 
