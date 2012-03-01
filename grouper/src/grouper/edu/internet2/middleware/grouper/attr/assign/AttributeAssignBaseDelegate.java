@@ -15,6 +15,7 @@ import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.AttributeDefScope;
 import edu.internet2.middleware.grouper.attr.AttributeDefScopeType;
 import edu.internet2.middleware.grouper.attr.AttributeDefType;
+import edu.internet2.middleware.grouper.attr.finder.AttributeAssignFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.exception.AttributeOwnerNotInScopeException;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
@@ -626,6 +627,50 @@ public abstract class AttributeAssignBaseDelegate {
     return removeAttribute(action, attributeDefName);
   }
 
+  /**
+   * remove an attribute assign by id
+   * @param assignId
+   * @return if removed or already gone
+   */
+  public AttributeAssignResult removeAttributeByAssignId(String assignId) {
+    return removeAttributeByAssignId(assignId, true);
+  }
+  
+  /**
+   * @param checkSecurity
+   * @param assignId
+   * @return if removed or already gone
+   */
+  public AttributeAssignResult removeAttributeByAssignId(String assignId, boolean checkSecurity) {
+    
+    AttributeAssign attributeAssign = AttributeAssignFinder.findById(assignId, false);
+    
+    AttributeAssignResult attributeAssignResult = new AttributeAssignResult();
+    
+    attributeAssignResult.setChanged(false);
+
+    if (attributeAssign == null) {
+      return attributeAssignResult;
+    }
+    
+    AttributeDefName attributeDefName = GrouperDAOFactory.getFactory()
+      .getAttributeDefName().findByIdSecure(attributeAssign.getAttributeDefNameId(), true);
+    
+    if (checkSecurity) {
+      this.assertCanUpdateAttributeDefName(attributeDefName);
+    }
+    
+    attributeAssignResult.setChanged(true);
+    attributeAssignResult.setAttributeAssign(attributeAssign);
+    attributeAssign.delete();
+
+    return attributeAssignResult;
+
+    
+  }
+
+  
+  
   /**
    * 
    * @param action is the action on the assignment (null means default action)
