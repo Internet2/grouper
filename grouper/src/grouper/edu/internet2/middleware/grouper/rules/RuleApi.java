@@ -1130,58 +1130,6 @@ public class RuleApi {
 
   /**
    * 
-   * @param subjectActAs
-   * @param permissionDef
-   * @param emailToOrTemplate
-   * @param subjectOrTemplate
-   * @param bodyOrTemplate
-   * @return attribute assign to customize
-   */
-  public static AttributeAssign emailOnFlattenedPermissionAssign(Subject subjectActAs, AttributeDef permissionDef, String emailToOrTemplate, String subjectOrTemplate, String bodyOrTemplate) {
-    //add a rule on stem:permission saying that if a permission is flat added, then send an email out
-    AttributeAssign attributeAssign = permissionDef
-      .getAttributeDelegate().addAttribute(RuleUtils.ruleAttributeDefName()).getAttributeAssign();
-    
-    AttributeValueDelegate attributeValueDelegate = attributeAssign.getAttributeValueDelegate();
-
-    
-    attributeValueDelegate.assignValue(
-        RuleUtils.ruleActAsSubjectSourceIdName(), subjectActAs.getSourceId());
-    attributeValueDelegate.assignValue(
-        RuleUtils.ruleActAsSubjectIdName(), subjectActAs.getId());
-    attributeValueDelegate.assignValue(
-        RuleUtils.ruleCheckTypeName(), 
-        RuleCheckType.flattenedPermissionAssignToSubject.name());
-
-    attributeValueDelegate.assignValue(
-        RuleUtils.ruleThenEnumName(), RuleThenEnum.sendEmail.name());
-    
-    //send an email to a hardcoded address, and to the user being assigned
-    attributeValueDelegate.assignValue(
-        RuleUtils.ruleThenEnumArg0Name(), emailToOrTemplate);
-    attributeValueDelegate.assignValue(
-        RuleUtils.ruleThenEnumArg1Name(), subjectOrTemplate);
-    
-    //the to, subject, or body could be text with EL variables, or could be a template.  If template, it is
-    //read from the classpath from package: grouperRulesEmailTemplates/theTemplateName.txt
-    //or you could configure grouper.properties to keep them in an external folder, not in the classpath
-    attributeAssign.getAttributeValueDelegate().assignValue(
-        RuleUtils.ruleThenEnumArg2Name(), bodyOrTemplate);
-
-    
-    //should be valid
-    String isValidString = attributeValueDelegate.retrieveValueString(
-        RuleUtils.ruleValidName());
-  
-    if (!StringUtils.equals("T", isValidString)) {
-      throw new RuntimeException(isValidString);
-    }
-
-    return attributeAssign;
-  }
-  
-  /**
-   * 
    * @param actAsSubject
    * @param permissionDef
    * @param daysInFutureDisabledDateMin
