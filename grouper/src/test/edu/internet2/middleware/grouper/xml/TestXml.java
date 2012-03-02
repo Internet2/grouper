@@ -56,7 +56,7 @@ public class TestXml extends GrouperTest {
 
   public static void main(String[] args) {
     //TestRunner.run(new TestXml("testFullExportFullImportCustomTypes"));
-    TestRunner.run(new TestXml("testUpdateOkDoNotUpdateStemAttrs"));
+    TestRunner.run(new TestXml("testFullExportFullImportCustomTypes"));
   }
   
   private static final Log LOG = GrouperUtil.getLog(TestXml.class);

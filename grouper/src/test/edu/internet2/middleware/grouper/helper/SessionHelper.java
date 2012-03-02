@@ -48,7 +48,7 @@ public class SessionHelper {
   public static GrouperSession getSession(String id) {
     try {
       
-      GrouperSession s = StringUtils.equals(id, "GrouperSession") ?
+      GrouperSession s = StringUtils.equals(id, GrouperConfig.ROOT) ?
           GrouperSession.startRootSession() : GrouperSession.start(
         SubjectFinder.findById(id, true)
       );

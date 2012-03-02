@@ -16,6 +16,7 @@
 */
 
 package edu.internet2.middleware.grouper.privs;
+import junit.textui.TestRunner;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.StemFinder;
@@ -34,6 +35,28 @@ import edu.internet2.middleware.grouper.internal.util.Realize;
  */
 public class Test_privs_CachingAccessResolver extends GrouperTest {
 
+  /**
+   * 
+   * @param args
+   */
+  public static void main(String[] args) {
+    TestRunner.run(new Test_privs_CachingAccessResolver("test_hasPrivilege_cacheMiss"));
+  }
+
+  /**
+   * 
+   */
+  public Test_privs_CachingAccessResolver() {
+    super();
+  }
+
+  /**
+   * 
+   * @param name
+   */
+  public Test_privs_CachingAccessResolver(String name) {
+    super(name);
+  }
 
   private CachingAccessResolver resolver;
   private Group                 g;
