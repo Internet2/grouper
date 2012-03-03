@@ -16,6 +16,7 @@
 */
 
 package edu.internet2.middleware.grouper.privs;
+import junit.textui.TestRunner;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
@@ -34,6 +35,27 @@ import edu.internet2.middleware.grouper.internal.util.Realize;
  */
 public class Test_privs_CachingNamingResolver extends GrouperTest {
 
+  /**
+   * 
+   */
+  public Test_privs_CachingNamingResolver() {
+    
+  }
+  
+  /**
+   * 
+   * @param name
+   */
+  public Test_privs_CachingNamingResolver(String name) {
+    super(name);
+  }
+  /**
+   * 
+   * @param args
+   */
+  public static void main(String[] args) {
+    TestRunner.run(new Test_privs_CachingNamingResolver("test_hasPrivilege_cacheMiss"));
+  }
 
   private CachingNamingResolver resolver;
   private Stem                  ns;
@@ -82,14 +104,20 @@ public class Test_privs_CachingNamingResolver extends GrouperTest {
    * @since   1.2.1
    */
   public void test_hasPrivilege_cacheMiss() {
+
+    resolver.internal_getCc().getCache(CachingNamingResolver.CACHE_HASPRIV).setStatisticsEnabled(true);
+
     long before = resolver.getStats(CachingNamingResolver.CACHE_HASPRIV).getMisses();
     resolver.hasPrivilege( this.ns, SubjectFinder.findAllSubject(), NamingPrivilege.STEM );
     assertEquals( before + 1, resolver.getStats(CachingNamingResolver.CACHE_HASPRIV).getMisses() );
   }
+  
   /**
    * @since   1.2.1
    */
   public void test_hasPrivilege_cacheHit() {
+    resolver.internal_getCc().getCache(CachingNamingResolver.CACHE_HASPRIV).setStatisticsEnabled(true);
+
     long before = resolver.getStats(CachingNamingResolver.CACHE_HASPRIV).getHits();
     resolver.hasPrivilege( this.ns, SubjectFinder.findAllSubject(), NamingPrivilege.STEM );
     assertEquals( before, resolver.getStats(CachingNamingResolver.CACHE_HASPRIV).getHits() );

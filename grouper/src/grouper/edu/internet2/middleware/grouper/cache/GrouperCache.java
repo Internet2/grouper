@@ -51,6 +51,15 @@ public class GrouperCache<K,V> {
   /** cache that this wraps */
   private Cache cache = null;
   
+
+  /**
+   * 
+   * @return cache controller
+   */
+  public Cache internal_getCache() {
+    return this.cache;
+  }
+
   /**
    * 
    * @param theCache

@@ -51,6 +51,14 @@ public class CachingAccessResolver extends AccessResolverDecorator {
   private EhcacheController cc;
 
   /**
+   * 
+   * @return cache controller
+   */
+  public EhcacheController internal_getCc() {
+    return this.cc;
+  }
+  
+  /**
    * @param resolver 
    * @since   1.2.1
    */

@@ -39,6 +39,14 @@ import edu.internet2.middleware.subject.Subject;
 public class CachingNamingResolver extends NamingResolverDecorator {
 
   /**
+   * 
+   * @return cache controller
+   */
+  public EhcacheController internal_getCc() {
+    return this.cc;
+  }
+
+  /**
    * @see edu.internet2.middleware.grouper.privs.NamingResolver#flushCache()
    */
   public void flushCache() {
