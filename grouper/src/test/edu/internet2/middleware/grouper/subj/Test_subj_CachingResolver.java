@@ -16,9 +16,13 @@
 */
 
 package edu.internet2.middleware.grouper.subj;
+import junit.textui.TestRunner;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
+import edu.internet2.middleware.grouper.privs.CachingAccessResolver;
+import edu.internet2.middleware.grouper.privs.CachingNamingResolver;
+import edu.internet2.middleware.grouper.privs.Test_privs_CachingAccessResolver;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
 import edu.internet2.middleware.subject.SubjectNotUniqueException;
 
@@ -30,6 +34,31 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * @since   1.2.1
  */
 public class Test_subj_CachingResolver extends GrouperTest {
+
+  /**
+   * 
+   */
+  public Test_subj_CachingResolver() {
+    super();
+  }
+
+  /**
+   * 
+   * @param name
+   */
+  public Test_subj_CachingResolver(String name) {
+    super(name);
+  }
+  
+
+  /**
+   * 
+   * @param args
+   */
+  public static void main(String[] args) {
+    TestRunner.run(new Test_subj_CachingResolver("test_find_IdOrIdentifier_cacheMiss"));
+  }
+
 
   /** */
   private static final  String          BAD_ID    = "subject does not exist";
@@ -55,8 +84,11 @@ public class Test_subj_CachingResolver extends GrouperTest {
    */
   public void test_find_Id_cacheMiss() 
     throws  SubjectNotFoundException,
-            SubjectNotUniqueException
-  {
+            SubjectNotUniqueException {
+    
+    CachingResolver.findCache.internal_getCache().setStatisticsEnabled(true);
+
+    
     long before = CachingResolver.findCache.getStats().getCacheMisses();
     assertNull(SubjectFinder.findById(BAD_ID, false));
     assertEquals( before + 1, CachingResolver.findCache.getStats().getCacheMisses() );
@@ -71,6 +103,8 @@ public class Test_subj_CachingResolver extends GrouperTest {
     throws  SubjectNotFoundException,
             SubjectNotUniqueException
   {
+    CachingResolver.findCache.internal_getCache().setStatisticsEnabled(true);
+
     long before = CachingResolver.findCache.getStats().getCacheHits();
     SubjectFinder.findById(GOOD_ID, true);
     assertEquals( before, CachingResolver.findCache.getStats().getCacheHits() );
@@ -87,6 +121,8 @@ public class Test_subj_CachingResolver extends GrouperTest {
     throws  SubjectNotFoundException,
             SubjectNotUniqueException
   {
+    CachingResolver.findByIdOrIdentifierCache.getCache().setStatisticsEnabled(true);
+
     long before = CachingResolver.findByIdOrIdentifierCache.getStats().getCacheHits();
     SubjectFinder.findByIdOrIdentifier(GOOD_ID, true);
     assertEquals( before, CachingResolver.findByIdOrIdentifierCache.getStats().getCacheHits() );
@@ -118,6 +154,9 @@ public class Test_subj_CachingResolver extends GrouperTest {
    * 
    */
   public void test_findAll_Query_cacheMiss() {
+    
+    CachingResolver.findAllCache.internal_getCache().setStatisticsEnabled(true);
+
     long before = CachingResolver.findAllCache.getStats().getCacheMisses();
     SubjectFinder.findAll(BAD_ID);
     assertEquals( before + 1, CachingResolver.findAllCache.getStats().getCacheMisses() );
@@ -127,6 +166,9 @@ public class Test_subj_CachingResolver extends GrouperTest {
    * 
    */
   public void test_findAll_Query_cacheHit() {
+
+    CachingResolver.findAllCache.internal_getCache().setStatisticsEnabled(true);
+
     long before = CachingResolver.findAllCache.getStats().getCacheHits();
     SubjectFinder.findAll(GOOD_ID);
     assertEquals( before, CachingResolver.findAllCache.getStats().getCacheHits());
@@ -158,6 +200,8 @@ public class Test_subj_CachingResolver extends GrouperTest {
     throws  SubjectNotFoundException,
             SubjectNotUniqueException
   {
+    CachingResolver.findByIdentifierCache.internal_getCache().setStatisticsEnabled(true);
+
     long before = CachingResolver.findByIdentifierCache.getStats().getCacheMisses();
     assertNull(SubjectFinder.findByIdentifier(BAD_ID, false));
     assertEquals( before + 1, CachingResolver.findByIdentifierCache.getStats().getCacheMisses() );
@@ -172,6 +216,8 @@ public class Test_subj_CachingResolver extends GrouperTest {
     throws  SubjectNotFoundException,
             SubjectNotUniqueException
   {
+    CachingResolver.findByIdentifierCache.internal_getCache().setStatisticsEnabled(true);
+
     long before = CachingResolver.findByIdentifierCache.getStats().getCacheHits();
     assertNotNull(SubjectFinder.findByIdentifier(GOOD_ID, true));
     assertEquals( before, CachingResolver.findByIdentifierCache.getStats().getCacheHits() );
@@ -209,6 +255,8 @@ public class Test_subj_CachingResolver extends GrouperTest {
             SubjectNotUniqueException
   {
     
+    CachingResolver.findByIdOrIdentifierCache.getCache().setStatisticsEnabled(true);
+
     long before = CachingResolver.findByIdOrIdentifierCache.getStats().getCacheMisses();
     assertNull(SubjectFinder.findByIdOrIdentifier(BAD_ID, false));
     assertEquals( before+1, CachingResolver.findByIdOrIdentifierCache.getStats().getCacheMisses() );

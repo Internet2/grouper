@@ -645,7 +645,7 @@ public class TestSubjectDecorator extends GrouperTest {
           GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "testgrouper_subj_attr", "id", 
               "uuid");
       
-          GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "testgrouper_subj_attr", "hibernate version number", 
+          GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "testgrouper_subj_attr", "hibernate_version_number", 
             "number so hibernate does not update a row that another process has recently updated");
   
           GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "testgrouper_subj_attr", "title", 

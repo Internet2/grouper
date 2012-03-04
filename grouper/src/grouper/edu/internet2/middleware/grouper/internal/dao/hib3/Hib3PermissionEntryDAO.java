@@ -141,7 +141,7 @@ public class Hib3PermissionEntryDAO extends Hib3DAO implements PermissionEntryDA
     numberOfMemberBatches = numberOfMemberBatches == 0 ? 1 : numberOfMemberBatches;
     
     List<String> membersIdsTotalList = memberIdsTotal instanceof List ? (List)memberIdsTotal 
-        : new ArrayList<String>(memberIdsTotal);
+        : new ArrayList<String>(GrouperUtil.nonNull(memberIdsTotal));
     
     for (int memberBatchIndex=0;memberBatchIndex<numberOfMemberBatches;memberBatchIndex++) {
       

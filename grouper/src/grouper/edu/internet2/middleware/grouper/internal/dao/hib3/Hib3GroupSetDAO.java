@@ -640,6 +640,22 @@ return groupSets;
   }
   
   /**
+   * @see edu.internet2.middleware.grouper.internal.dao.GroupSetDAO#findAllByOwnerAndMemberAndField(java.lang.String, java.lang.String, java.lang.String)
+   */
+  public Set<GroupSet> findAllByOwnerAndMemberAndField(String ownerId, String memberId, String fieldId) {
+    Set<GroupSet> gs = HibernateSession
+      .byHqlStatic()
+      .createQuery("select gs from GroupSet gs where ownerId = :ownerId and memberId = :memberId and fieldId = :fieldId")
+      .setCacheable(false)
+      .setString("ownerId", ownerId)
+      .setString("memberId", memberId)
+      .setString("fieldId", fieldId)
+      .listSet(GroupSet.class);
+    
+    return gs;
+  }
+  
+  /**
    * @see edu.internet2.middleware.grouper.internal.dao.GroupSetDAO#findTypeMismatch()
    */
   public Set<GroupSet> findTypeMismatch() {
@@ -674,6 +690,32 @@ return groupSets;
       .setCacheable(false)
       .setString("fieldId", Group.getDefaultList().getUuid())
       .listSet(GroupSet.class);
+    
+    return results;  
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.GroupSetDAO#findMissingEffectiveGroupSets()
+   */
+  public Set<Object[]> findMissingEffectiveGroupSets() {
+    String sql = "select gs1, gs2 from GroupSet gs1, GroupSet gs2 " +
+        "where gs1.memberId = gs2.ownerId " +
+        "and gs1.id <> gs2.id " +
+        "and gs1.depth > '0' and gs2.depth = '1' " +
+        "and gs2.fieldId = :fieldId " +
+        "and (gs1.ownerId <> gs2.memberId or gs1.fieldId <> :fieldId) " +
+        "and not exists (select 1 from GroupSet gs3 " +
+            "where gs3.ownerId = gs1.ownerId " +
+            "and gs3.memberId = gs2.memberId " +
+            "and gs3.fieldId = gs1.fieldId " +
+            "and gs3.type = 'effective' " +
+            "and gs3.parentId = gs1.id)";
+    
+    Set<Object[]> results = HibernateSession.byHqlStatic()
+      .createQuery(sql)
+      .setCacheable(false)
+      .setString("fieldId", Group.getDefaultList().getUuid())
+      .listSet(Object[].class);
     
     return results;  
   }

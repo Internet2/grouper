@@ -42,6 +42,8 @@ import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.exception.SessionException;
 import edu.internet2.middleware.grouper.group.GroupSet;
+import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
+import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /** 
@@ -252,7 +254,26 @@ public class FindBadMemberships {
       logGshScript("GrouperDAOFactory.getFactory().getGroupSet().findById(\"" + gs.getId() + "\").delete(true);\n");
     }
     
-    return badType.size() + badCompositeGroupSets.size();
+    Set<GroupSet> immediateGroupSetsWithMissingEffective = getImmediateGroupSetsWithMissingEffective(GrouperDAOFactory.getFactory().getGroupSet().findMissingEffectiveGroupSets());
+    for (GroupSet gs : immediateGroupSetsWithMissingEffective) {
+      if (gs.getOwnerGroupId() == null || gs.getMemberGroupId() == null || gs.getDepth() != 1 || !gs.getFieldId().equals(Group.getDefaultList().getUuid())) {
+        throw new RuntimeException("Excepted an immediate group set with an ownerGroup, memberGroup, and member field.  id=" + gs.getId());
+      }
+      
+      Group ownerGroup = GrouperDAOFactory.getFactory().getGroup().findByUuid(gs.getOwnerGroupId(), true);
+      Group memberGroup = GrouperDAOFactory.getFactory().getGroup().findByUuid(gs.getMemberGroupId(), true);
+      
+      if (printErrorsToSTOUT) {
+        out.println("Incomplete group set hierarchy (GSH script will attempt to delete and recreate it): owner groupId=" + ownerGroup.getUuid() + ", owner group name=" + ownerGroup.getName() + ", member groupId=" + memberGroup.getUuid() + ", member group name=" + memberGroup.getName() + ".");
+      }
+      
+      // TODO: this should be improved to fix group sets directly without having to delete and recreate the membership
+      // simplifying this right now to avoid timing issues with point in time.
+      logGshScript("delMember(\"" + ownerGroup.getName() + "\", \"" + memberGroup.getId() + "\");\n");      
+      logGshScript("addMember(\"" + ownerGroup.getName() + "\", \"" + memberGroup.getId() + "\");\n");      
+    }
+    
+    return badType.size() + badCompositeGroupSets.size() + immediateGroupSetsWithMissingEffective.size();
   }
 
   /**
@@ -295,6 +316,37 @@ public class FindBadMemberships {
     }
     
     return badMemberships.size() + missingMemberships.size();
+  }
+  
+  /**
+   * @param parentAndImmediateSet
+   * @return immediates that need to be recreated
+   */
+  private static Set<GroupSet> getImmediateGroupSetsWithMissingEffective(Set<Object[]> parentAndImmediateSet) {
+    Set<GroupSet> missing = new LinkedHashSet<GroupSet>();
+    
+    for (Object[] parentAndImmediate : parentAndImmediateSet) {
+      GroupSet parent = (GroupSet)parentAndImmediate[0];
+      GroupSet immediate = (GroupSet)parentAndImmediate[1];
+      
+      // note that these objects aren't actually saved, we're just creating them for convenience..
+      GroupSet groupSet = new GroupSet();
+      groupSet.setId(GrouperUuid.getUuid());
+      groupSet.setDepth(parent.getDepth() + 1);
+      groupSet.setParentId(parent.getId());
+      groupSet.setFieldId(parent.getFieldId());
+      groupSet.setMemberGroupId(immediate.getMemberId());
+      groupSet.setOwnerGroupId(parent.getOwnerGroupId());
+      groupSet.setOwnerAttrDefId(parent.getOwnerAttrDefId());
+      groupSet.setOwnerStemId(parent.getOwnerStemId());
+      groupSet.setType(MembershipType.EFFECTIVE.getTypeString());
+      
+      if (!immediate.internal_isCircular(groupSet, parent)) {
+        missing.add(immediate);
+      }
+    }
+    
+    return missing;
   }
   
   /**

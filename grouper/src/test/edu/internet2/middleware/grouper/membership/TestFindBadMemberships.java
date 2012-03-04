@@ -19,6 +19,7 @@ package edu.internet2.middleware.grouper.membership;
 
 
 import java.io.StringReader;
+import java.util.Set;
 
 import junit.textui.TestRunner;
 
@@ -26,6 +27,7 @@ import org.apache.commons.logging.Log;
 
 import bsh.Interpreter;
 
+import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
@@ -34,11 +36,14 @@ import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.MembershipFinder;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
+import edu.internet2.middleware.grouper.attr.AttributeDef;
+import edu.internet2.middleware.grouper.attr.AttributeDefType;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogTempToEntity;
 import edu.internet2.middleware.grouper.group.GroupSet;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.R;
 import edu.internet2.middleware.grouper.helper.SessionHelper;
+import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.misc.CompositeType;
@@ -48,6 +53,8 @@ import edu.internet2.middleware.grouper.pit.PITField;
 import edu.internet2.middleware.grouper.pit.PITGroup;
 import edu.internet2.middleware.grouper.pit.PITGroupSet;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
+import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
+import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
@@ -87,7 +94,7 @@ public class TestFindBadMemberships extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new TestFindBadMemberships("testWithBadGroupSetsForComposites"));
+    TestRunner.run(new TestFindBadMemberships("testCircular"));
   }
   
   protected void setUp () {
@@ -183,6 +190,111 @@ public class TestFindBadMemberships extends GrouperTest {
   public void testWithGoodComposites() throws Exception {
     setUpComposites();
     assertEquals(0, FindBadMemberships.checkAll());
+  }
+  
+  /**
+   * Don't want false positives with circular group sets
+   * @throws Exception 
+   */
+  public void testCircular() throws Exception {
+    setUpComposites();
+    Group gA1 = top.addChildGroup("gA1", "gA1");
+    Group gA2 = top.addChildGroup("gA2", "gA2");
+    gA1.addMember(gA2.toSubject());
+    gA2.addMember(gA1.toSubject());
+    
+    Group gB1 = top.addChildGroup("gB1", "gB1");
+    Group gB2 = top.addChildGroup("gB2", "gB2");
+    Group gB3 = top.addChildGroup("gB3", "gB3");
+    gB1.addMember(gB2.toSubject());
+    gB2.addMember(gB3.toSubject());
+    gB3.addMember(gB1.toSubject());
+    
+    Group gC1 = top.addChildGroup("gC1", "gC1");
+    Group gC2 = top.addChildGroup("gC2", "gC2");
+    Group gC3 = top.addChildGroup("gC3", "gC3");
+    Group gC4 = top.addChildGroup("gC4", "gC4");
+    gC1.addMember(gC2.toSubject());
+    gC2.addMember(gC3.toSubject());
+    gC3.addMember(gC4.toSubject());
+    gC4.addMember(gC1.toSubject());
+    
+    Group gD1 = top.addChildGroup("gD1", "gD1");
+    Group gD2 = top.addChildGroup("gD2", "gD2");
+    Group gD3 = top.addChildGroup("gD3", "gD3");
+    gD1.addMember(gD2.toSubject());
+    gD2.addMember(gD3.toSubject());
+    gD3.addMember(gD2.toSubject());
+    
+    Stem sE1 = top.addChildStem("sE1", "sE1");
+    Group gE2 = top.addChildGroup("gE2", "gE2");
+    Group gE3 = top.addChildGroup("gE3", "gE3");
+    sE1.grantPriv(gE2.toSubject(), NamingPrivilege.STEM);
+    gE2.addMember(gE3.toSubject());
+    gE3.addMember(gE2.toSubject());
+    
+    Stem sF1 = top.addChildStem("sF1", "sF1");
+    Group gF2 = top.addChildGroup("gF2", "gF2");
+    Group gF3 = top.addChildGroup("gF3", "gF3");
+    Group gF4 = top.addChildGroup("gF4", "gF4");
+    sF1.grantPriv(gF2.toSubject(), NamingPrivilege.STEM);
+    gF2.addMember(gF3.toSubject());
+    gF3.addMember(gF4.toSubject());
+    gF4.addMember(gF2.toSubject());
+    
+    Group gG1 = top.addChildGroup("gG1", "gG1");
+    gG1.grantPriv(gG1.toSubject(), AccessPrivilege.ADMIN);
+    
+    Group gH1 = top.addChildGroup("gH1", "gH1");
+    Group gH2 = top.addChildGroup("gH2", "gH2");
+    Group gH3 = top.addChildGroup("gH3", "gH3");
+    gH1.grantPriv(gH2.toSubject(), AccessPrivilege.ADMIN);
+    gH2.addMember(gH3.toSubject());
+    gH3.addMember(gH1.toSubject());
+    
+    Group gI1 = top.addChildGroup("gI1", "gI1");
+    Group gI2 = top.addChildGroup("gI2", "gI2");
+    gI1.grantPriv(gI2.toSubject(), AccessPrivilege.ADMIN);
+    gI2.addMember(gI1.toSubject());
+    
+    assertEquals(0, FindBadMemberships.checkAll());
+    
+    // now lets remove some group sets
+    
+    int groupSetCount = HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_group_set");
+    
+    // let's delete group sets
+    Set<GroupSet> groupSets = GrouperDAOFactory.getFactory().getGroupSet().findAllByOwnerAndMemberAndField(gH1.getUuid(), gH1.getUuid(), FieldFinder.find("admins", true).getUuid());
+    for (GroupSet gs : groupSets) {
+      if (gs.getDepth() != 0) {
+        gs.delete(false);
+      }
+    }
+    
+    groupSets = GrouperDAOFactory.getFactory().getGroupSet().findAllByOwnerAndMemberAndField(gI1.getUuid(), gI1.getUuid(), FieldFinder.find("admins", true).getUuid());
+    for (GroupSet gs : groupSets) {
+      if (gs.getDepth() != 0) {
+        gs.delete(false);
+      }
+    }
+    
+    // add to point in time
+    ChangeLogTempToEntity.convertRecords();
+
+    assertEquals(2, FindBadMemberships.checkAll());
+    String gsh = "importCommands(\"edu.internet2.middleware.grouper.app.gsh\");\nimport edu.internet2.middleware.grouper.*;\nimport edu.internet2.middleware.grouper.misc.*;\n" + FindBadMemberships.gshScript.toString();
+    new Interpreter(new StringReader(gsh), System.out, System.err, false).run();
+    assertEquals(0, FindBadMemberships.checkAll());
+    
+    // verify we don't mess up point in time
+    ChangeLogTempToEntity.convertRecords();
+    assertEquals(0, new edu.internet2.middleware.grouper.misc.SyncPITTables().showResults(false).syncAllPITTables());
+    
+    // verify counts
+    int newGroupSetCount = HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_group_set");
+    int newPitGroupSetCountActive = HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_pit_group_set where active='T'");
+    assertEquals(groupSetCount, newGroupSetCount);
+    assertEquals(groupSetCount, newPitGroupSetCountActive);
   }
   
   /**
@@ -498,6 +610,319 @@ public class TestFindBadMemberships extends GrouperTest {
     assertEquals(groupSetCount, newGroupSetCount);
     assertEquals(pitGroupSetCountTotal + 6, newPitGroupSetCountTotal);
     assertEquals(pitGroupSetCountActive, newPitGroupSetCountActive);
+  }
+  
+  /**
+   * @throws Exception 
+   */
+  public void testWithIncompleteGroupSetHierarchyAttrDefPrivs() throws Exception { 
+    setUpComposites();
+    
+    Group g1 = top.addChildGroup("g1", "g1");
+    Group g2 = top.addChildGroup("g2", "g2");
+    Group g3 = top.addChildGroup("g3", "g3");
+    Group g4 = top.addChildGroup("g4", "g4");
+    Group g5 = top.addChildGroup("g5", "g5");
+    Group g6 = top.addChildGroup("g6", "g6");
+    
+    Group g2b = top.addChildGroup("g2b", "g2b");
+    Stem s2 = top.addChildStem("s2", "s2");
+    AttributeDef a2 = top.addChildAttributeDef("a2", AttributeDefType.attr);
+    
+    // add some members...
+    g1.addMember(SubjectTestHelper.SUBJ0);
+    g2.addMember(SubjectTestHelper.SUBJ1);
+    g3.addMember(SubjectTestHelper.SUBJ2);
+    g4.addMember(SubjectTestHelper.SUBJ3);
+    g5.addMember(SubjectTestHelper.SUBJ4);
+    g6.addMember(SubjectTestHelper.SUBJ5);
+    
+    // add group sets now
+    g1.addMember(g2.toSubject());
+    g2.addMember(g3.toSubject());
+    g3.addMember(g4.toSubject());
+    g4.addMember(g5.toSubject());
+    g5.addMember(g6.toSubject());
+    g2b.grantPriv(g3.toSubject(), AccessPrivilege.ADMIN);
+    s2.grantPriv(g3.toSubject(), NamingPrivilege.STEM);
+    a2.getPrivilegeDelegate().grantPriv(g3.toSubject(), AttributeDefPrivilege.ATTR_READ, true);
+    
+    int groupSetCount = HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_group_set");
+    
+    // let's delete group sets (assume race condition between g2 -> g3 (attr def priv) and g3 -> g4)
+    GrouperDAOFactory.getFactory().getGroupSet().findAllByOwnerAndMemberAndField(a2.getUuid(), g6.getUuid(), FieldFinder.find("attrReaders", true).getUuid()).iterator().next().delete(false);
+    GrouperDAOFactory.getFactory().getGroupSet().findAllByOwnerAndMemberAndField(a2.getUuid(), g5.getUuid(), FieldFinder.find("attrReaders", true).getUuid()).iterator().next().delete(false);
+    GrouperDAOFactory.getFactory().getGroupSet().findAllByOwnerAndMemberAndField(a2.getUuid(), g4.getUuid(), FieldFinder.find("attrReaders", true).getUuid()).iterator().next().delete(false);
+
+    // add to point in time
+    ChangeLogTempToEntity.convertRecords();
+
+    assertEquals(1, FindBadMemberships.checkAll());
+    String gsh = "importCommands(\"edu.internet2.middleware.grouper.app.gsh\");\nimport edu.internet2.middleware.grouper.*;\nimport edu.internet2.middleware.grouper.misc.*;\n" + FindBadMemberships.gshScript.toString();
+    new Interpreter(new StringReader(gsh), System.out, System.err, false).run();
+    assertEquals(0, FindBadMemberships.checkAll());
+    
+    // verify we don't mess up point in time
+    ChangeLogTempToEntity.convertRecords();
+    assertEquals(0, new edu.internet2.middleware.grouper.misc.SyncPITTables().showResults(false).syncAllPITTables());
+    
+    // verify counts
+    int newGroupSetCount = HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_group_set");
+    int newPitGroupSetCountActive = HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_pit_group_set where active='T'");
+    assertEquals(groupSetCount, newGroupSetCount);
+    assertEquals(groupSetCount, newPitGroupSetCountActive);
+  }
+  
+  /**
+   * @throws Exception 
+   */
+  public void testWithIncompleteGroupSetHierarchyStemPrivs() throws Exception { 
+    setUpComposites();
+    
+    Group g1 = top.addChildGroup("g1", "g1");
+    Group g2 = top.addChildGroup("g2", "g2");
+    Group g3 = top.addChildGroup("g3", "g3");
+    Group g4 = top.addChildGroup("g4", "g4");
+    Group g5 = top.addChildGroup("g5", "g5");
+    Group g6 = top.addChildGroup("g6", "g6");
+    
+    Group g2b = top.addChildGroup("g2b", "g2b");
+    Stem s2 = top.addChildStem("s2", "s2");
+    AttributeDef a2 = top.addChildAttributeDef("a2", AttributeDefType.attr);
+    
+    // add some members...
+    g1.addMember(SubjectTestHelper.SUBJ0);
+    g2.addMember(SubjectTestHelper.SUBJ1);
+    g3.addMember(SubjectTestHelper.SUBJ2);
+    g4.addMember(SubjectTestHelper.SUBJ3);
+    g5.addMember(SubjectTestHelper.SUBJ4);
+    g6.addMember(SubjectTestHelper.SUBJ5);
+    
+    // add group sets now
+    g1.addMember(g2.toSubject());
+    g2.addMember(g3.toSubject());
+    g3.addMember(g4.toSubject());
+    g4.addMember(g5.toSubject());
+    g5.addMember(g6.toSubject());
+    g2b.grantPriv(g3.toSubject(), AccessPrivilege.ADMIN);
+    s2.grantPriv(g3.toSubject(), NamingPrivilege.STEM);
+    a2.getPrivilegeDelegate().grantPriv(g3.toSubject(), AttributeDefPrivilege.ATTR_READ, true);
+    
+    int groupSetCount = HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_group_set");
+    
+    // let's delete group sets (assume race condition between g2 -> g3 (stem priv) and g4 -> g5)
+    GrouperDAOFactory.getFactory().getGroupSet().findAllByOwnerAndMemberAndField(s2.getUuid(), g6.getUuid(), FieldFinder.find("stemmers", true).getUuid()).iterator().next().delete(false);
+    GrouperDAOFactory.getFactory().getGroupSet().findAllByOwnerAndMemberAndField(s2.getUuid(), g5.getUuid(), FieldFinder.find("stemmers", true).getUuid()).iterator().next().delete(false);
+    
+    // add to point in time
+    ChangeLogTempToEntity.convertRecords();
+
+    assertEquals(1, FindBadMemberships.checkAll());
+    String gsh = "importCommands(\"edu.internet2.middleware.grouper.app.gsh\");\nimport edu.internet2.middleware.grouper.*;\nimport edu.internet2.middleware.grouper.misc.*;\n" + FindBadMemberships.gshScript.toString();
+    new Interpreter(new StringReader(gsh), System.out, System.err, false).run();
+    assertEquals(0, FindBadMemberships.checkAll());
+    
+    // verify we don't mess up point in time
+    ChangeLogTempToEntity.convertRecords();
+    assertEquals(0, new edu.internet2.middleware.grouper.misc.SyncPITTables().showResults(false).syncAllPITTables());
+    
+    // verify counts
+    int newGroupSetCount = HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_group_set");
+    int newPitGroupSetCountActive = HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_pit_group_set where active='T'");
+    assertEquals(groupSetCount, newGroupSetCount);
+    assertEquals(groupSetCount, newPitGroupSetCountActive);
+  }
+  
+  /**
+   * @throws Exception 
+   */
+  public void testWithIncompleteGroupSetHierarchyGroupMembers() throws Exception { 
+    setUpComposites();
+    
+    Group g1 = top.addChildGroup("g1", "g1");
+    Group g2 = top.addChildGroup("g2", "g2");
+    Group g3 = top.addChildGroup("g3", "g3");
+    Group g4 = top.addChildGroup("g4", "g4");
+    Group g5 = top.addChildGroup("g5", "g5");
+    Group g6 = top.addChildGroup("g6", "g6");
+    
+    Group g2b = top.addChildGroup("g2b", "g2b");
+    Stem s2 = top.addChildStem("s2", "s2");
+    AttributeDef a2 = top.addChildAttributeDef("a2", AttributeDefType.attr);
+    
+    // add some members...
+    g1.addMember(SubjectTestHelper.SUBJ0);
+    g2.addMember(SubjectTestHelper.SUBJ1);
+    g3.addMember(SubjectTestHelper.SUBJ2);
+    g4.addMember(SubjectTestHelper.SUBJ3);
+    g5.addMember(SubjectTestHelper.SUBJ4);
+    g6.addMember(SubjectTestHelper.SUBJ5);
+    
+    // add group sets now
+    g1.addMember(g2.toSubject());
+    g2.addMember(g3.toSubject());
+    g3.addMember(g4.toSubject());
+    g4.addMember(g5.toSubject());
+    g5.addMember(g6.toSubject());
+    g2b.grantPriv(g3.toSubject(), AccessPrivilege.ADMIN);
+    s2.grantPriv(g3.toSubject(), NamingPrivilege.STEM);
+    a2.getPrivilegeDelegate().grantPriv(g3.toSubject(), AttributeDefPrivilege.ATTR_READ, true);
+    
+    int groupSetCount = HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_group_set");
+    
+    // let's delete group sets (assume race condition between g2 -> g3 and g4 -> g5)
+    GrouperDAOFactory.getFactory().getGroupSet().findAllByOwnerAndMemberAndField(g2.getUuid(), g6.getUuid(), FieldFinder.find("members", true).getUuid()).iterator().next().delete(false);
+    GrouperDAOFactory.getFactory().getGroupSet().findAllByOwnerAndMemberAndField(g2.getUuid(), g5.getUuid(), FieldFinder.find("members", true).getUuid()).iterator().next().delete(false);
+    GrouperDAOFactory.getFactory().getGroupSet().findAllByOwnerAndMemberAndField(g1.getUuid(), g6.getUuid(), FieldFinder.find("members", true).getUuid()).iterator().next().delete(false);
+    GrouperDAOFactory.getFactory().getGroupSet().findAllByOwnerAndMemberAndField(g1.getUuid(), g5.getUuid(), FieldFinder.find("members", true).getUuid()).iterator().next().delete(false);
+    
+    // add to point in time
+    ChangeLogTempToEntity.convertRecords();
+
+    assertEquals(1, FindBadMemberships.checkAll());
+    String gsh = "importCommands(\"edu.internet2.middleware.grouper.app.gsh\");\nimport edu.internet2.middleware.grouper.*;\nimport edu.internet2.middleware.grouper.misc.*;\n" + FindBadMemberships.gshScript.toString();
+    new Interpreter(new StringReader(gsh), System.out, System.err, false).run();
+    assertEquals(0, FindBadMemberships.checkAll());
+    
+    // verify we don't mess up point in time
+    ChangeLogTempToEntity.convertRecords();
+    assertEquals(0, new edu.internet2.middleware.grouper.misc.SyncPITTables().showResults(false).syncAllPITTables());
+    
+    // verify counts
+    int newGroupSetCount = HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_group_set");
+    int newPitGroupSetCountActive = HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_pit_group_set where active='T'");
+    assertEquals(groupSetCount, newGroupSetCount);
+    assertEquals(groupSetCount, newPitGroupSetCountActive);
+  }
+  
+  /**
+   * @throws Exception 
+   */
+  public void testWithIncompleteGroupSetHierarchyGroupPrivs() throws Exception { 
+    setUpComposites();
+    
+    Group g1 = top.addChildGroup("g1", "g1");
+    Group g2 = top.addChildGroup("g2", "g2");
+    Group g3 = top.addChildGroup("g3", "g3");
+    Group g4 = top.addChildGroup("g4", "g4");
+    Group g5 = top.addChildGroup("g5", "g5");
+    Group g6 = top.addChildGroup("g6", "g6");
+    
+    Group g2b = top.addChildGroup("g2b", "g2b");
+    Stem s2 = top.addChildStem("s2", "s2");
+    AttributeDef a2 = top.addChildAttributeDef("a2", AttributeDefType.attr);
+    
+    // add some members...
+    g1.addMember(SubjectTestHelper.SUBJ0);
+    g2.addMember(SubjectTestHelper.SUBJ1);
+    g3.addMember(SubjectTestHelper.SUBJ2);
+    g4.addMember(SubjectTestHelper.SUBJ3);
+    g5.addMember(SubjectTestHelper.SUBJ4);
+    g6.addMember(SubjectTestHelper.SUBJ5);
+    
+    // add group sets now
+    g1.addMember(g2.toSubject());
+    g2.addMember(g3.toSubject());
+    g3.addMember(g4.toSubject());
+    g4.addMember(g5.toSubject());
+    g5.addMember(g6.toSubject());
+    g2b.grantPriv(g3.toSubject(), AccessPrivilege.ADMIN);
+    s2.grantPriv(g3.toSubject(), NamingPrivilege.STEM);
+    a2.getPrivilegeDelegate().grantPriv(g3.toSubject(), AttributeDefPrivilege.ATTR_READ, true);
+    
+    int groupSetCount = HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_group_set");
+    
+    // let's delete group sets (assume race condition between g2 -> g3 (group priv) and g4 -> g5)
+    GrouperDAOFactory.getFactory().getGroupSet().findAllByOwnerAndMemberAndField(g2b.getUuid(), g6.getUuid(), FieldFinder.find("admins", true).getUuid()).iterator().next().delete(false);
+    GrouperDAOFactory.getFactory().getGroupSet().findAllByOwnerAndMemberAndField(g2b.getUuid(), g5.getUuid(), FieldFinder.find("admins", true).getUuid()).iterator().next().delete(false);
+    
+    // add to point in time
+    ChangeLogTempToEntity.convertRecords();
+
+    assertEquals(1, FindBadMemberships.checkAll());
+    String gsh = "importCommands(\"edu.internet2.middleware.grouper.app.gsh\");\nimport edu.internet2.middleware.grouper.*;\nimport edu.internet2.middleware.grouper.misc.*;\n" + FindBadMemberships.gshScript.toString();
+    new Interpreter(new StringReader(gsh), System.out, System.err, false).run();
+    assertEquals(0, FindBadMemberships.checkAll());
+    
+    // verify we don't mess up point in time
+    ChangeLogTempToEntity.convertRecords();
+    assertEquals(0, new edu.internet2.middleware.grouper.misc.SyncPITTables().showResults(false).syncAllPITTables());
+    
+    // verify counts
+    int newGroupSetCount = HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_group_set");
+    int newPitGroupSetCountActive = HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_pit_group_set where active='T'");
+    assertEquals(groupSetCount, newGroupSetCount);
+    assertEquals(groupSetCount, newPitGroupSetCountActive);
+  }
+  
+  /**
+   * @throws Exception 
+   */
+  public void testWithIncompleteGroupSetHierarchyAllTypes() throws Exception { 
+    setUpComposites();
+    
+    Group g1 = top.addChildGroup("g1", "g1");
+    Group g2 = top.addChildGroup("g2", "g2");
+    Group g3 = top.addChildGroup("g3", "g3");
+    Group g4 = top.addChildGroup("g4", "g4");
+    Group g5 = top.addChildGroup("g5", "g5");
+    Group g6 = top.addChildGroup("g6", "g6");
+    
+    Group g2b = top.addChildGroup("g2b", "g2b");
+    Stem s2 = top.addChildStem("s2", "s2");
+    AttributeDef a2 = top.addChildAttributeDef("a2", AttributeDefType.attr);
+    
+    // add some members...
+    g1.addMember(SubjectTestHelper.SUBJ0);
+    g2.addMember(SubjectTestHelper.SUBJ1);
+    g3.addMember(SubjectTestHelper.SUBJ2);
+    g4.addMember(SubjectTestHelper.SUBJ3);
+    g5.addMember(SubjectTestHelper.SUBJ4);
+    g6.addMember(SubjectTestHelper.SUBJ5);
+    
+    // add group sets now
+    g1.addMember(g2.toSubject());
+    g2.addMember(g3.toSubject());
+    g3.addMember(g4.toSubject());
+    g4.addMember(g5.toSubject());
+    g5.addMember(g6.toSubject());
+    g2b.grantPriv(g3.toSubject(), AccessPrivilege.ADMIN);
+    s2.grantPriv(g3.toSubject(), NamingPrivilege.STEM);
+    a2.getPrivilegeDelegate().grantPriv(g3.toSubject(), AttributeDefPrivilege.ATTR_READ, true);
+    
+    int groupSetCount = HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_group_set");
+    
+    // let's delete group sets
+    GrouperDAOFactory.getFactory().getGroupSet().findAllByOwnerAndMemberAndField(s2.getUuid(), g6.getUuid(), FieldFinder.find("stemmers", true).getUuid()).iterator().next().delete(false);
+    GrouperDAOFactory.getFactory().getGroupSet().findAllByOwnerAndMemberAndField(s2.getUuid(), g5.getUuid(), FieldFinder.find("stemmers", true).getUuid()).iterator().next().delete(false);
+    GrouperDAOFactory.getFactory().getGroupSet().findAllByOwnerAndMemberAndField(a2.getUuid(), g6.getUuid(), FieldFinder.find("attrReaders", true).getUuid()).iterator().next().delete(false);
+    GrouperDAOFactory.getFactory().getGroupSet().findAllByOwnerAndMemberAndField(a2.getUuid(), g5.getUuid(), FieldFinder.find("attrReaders", true).getUuid()).iterator().next().delete(false);
+    GrouperDAOFactory.getFactory().getGroupSet().findAllByOwnerAndMemberAndField(a2.getUuid(), g4.getUuid(), FieldFinder.find("attrReaders", true).getUuid()).iterator().next().delete(false);
+    GrouperDAOFactory.getFactory().getGroupSet().findAllByOwnerAndMemberAndField(g2b.getUuid(), g6.getUuid(), FieldFinder.find("admins", true).getUuid()).iterator().next().delete(false);
+    GrouperDAOFactory.getFactory().getGroupSet().findAllByOwnerAndMemberAndField(g2b.getUuid(), g5.getUuid(), FieldFinder.find("admins", true).getUuid()).iterator().next().delete(false);
+    GrouperDAOFactory.getFactory().getGroupSet().findAllByOwnerAndMemberAndField(g2.getUuid(), g6.getUuid(), FieldFinder.find("members", true).getUuid()).iterator().next().delete(false);
+    GrouperDAOFactory.getFactory().getGroupSet().findAllByOwnerAndMemberAndField(g2.getUuid(), g5.getUuid(), FieldFinder.find("members", true).getUuid()).iterator().next().delete(false);
+    GrouperDAOFactory.getFactory().getGroupSet().findAllByOwnerAndMemberAndField(g1.getUuid(), g6.getUuid(), FieldFinder.find("members", true).getUuid()).iterator().next().delete(false);
+    GrouperDAOFactory.getFactory().getGroupSet().findAllByOwnerAndMemberAndField(g1.getUuid(), g5.getUuid(), FieldFinder.find("members", true).getUuid()).iterator().next().delete(false);
+    
+    // add to point in time
+    ChangeLogTempToEntity.convertRecords();
+
+    // should have issues for g3 -> g4 and g4 -> g5
+    assertEquals(2, FindBadMemberships.checkAll());
+    String gsh = "importCommands(\"edu.internet2.middleware.grouper.app.gsh\");\nimport edu.internet2.middleware.grouper.*;\nimport edu.internet2.middleware.grouper.misc.*;\n" + FindBadMemberships.gshScript.toString();
+    new Interpreter(new StringReader(gsh), System.out, System.err, false).run();
+    assertEquals(0, FindBadMemberships.checkAll());
+    
+    // verify we don't mess up point in time
+    ChangeLogTempToEntity.convertRecords();
+    assertEquals(0, new edu.internet2.middleware.grouper.misc.SyncPITTables().showResults(false).syncAllPITTables());
+    
+    // verify counts
+    int newGroupSetCount = HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_group_set");
+    int newPitGroupSetCountActive = HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_pit_group_set where active='T'");
+    assertEquals(groupSetCount, newGroupSetCount);
+    assertEquals(groupSetCount, newPitGroupSetCountActive);
   }
 }
 

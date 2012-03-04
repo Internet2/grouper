@@ -47,7 +47,7 @@ public class PermissionEntryTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new PermissionEntryTest("testDisabledDateRange"));
+    TestRunner.run(new PermissionEntryTest("testHierarchies"));
   }
 
   /**

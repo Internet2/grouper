@@ -7,6 +7,9 @@ package edu.internet2.middleware.grouper.cache;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+
+import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 import net.sf.ehcache.CacheManager;
@@ -18,6 +21,9 @@ import net.sf.ehcache.Status;
  *
  */
 public class GrouperCacheUtils {
+
+  /** logger */
+  private static final Log LOG = GrouperUtil.getLog(GrouperCacheUtils.class);
 
   /**
    * 
@@ -34,12 +40,16 @@ public class GrouperCacheUtils {
         for (int i = 0; i < cacheNames.length; i++) {
             String cacheName = cacheNames[i];
             Ehcache cache = cacheManager.getEhcache(cacheName);
-            if (cache.getStatus().equals(Status.STATUS_ALIVE) ) {
-              //CH 20110808: Uh, sometimes there is an underlying null pointer here, not sure why?  on Cache.memoryStore
-              cache.removeAll();
-            } else {
-              //i dont know, maybe remove it?
-              cacheManager.removeCache(cacheName);
+            try {
+              if (cache.getStatus().equals(Status.STATUS_ALIVE) ) {
+                //CH 20110808: Uh, sometimes there is an underlying null pointer here, not sure why?  on Cache.memoryStore
+                cache.removeAll();
+              } else {
+                //i dont know, maybe remove it?
+                cacheManager.removeCache(cacheName);
+              }
+            } catch (Throwable t) {
+              LOG.warn("Problem removing cache (non fatal?)", t);
             }
         }
 
