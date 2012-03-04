@@ -67,6 +67,15 @@ import edu.internet2.middleware.subject.Subject;
 public class GrouperSession implements Serializable {
 
   /**
+   * @see java.lang.Object#finalize()
+   */
+  @Override
+  protected void finalize() throws Throwable {
+    super.finalize();
+    stopQuietly(this);
+  }
+
+  /**
    * if we should take into consideration that we are a wheel member (or act as self if false)
    */
   private boolean considerIfWheelMember = true;
