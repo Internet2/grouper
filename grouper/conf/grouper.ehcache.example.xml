@@ -1,4 +1,4 @@
-<ehcache>
+<ehcache updateCheck="false">
 
   <!-- 
     This configuration file controls Grouper API caching.  Hibernate framework caching 

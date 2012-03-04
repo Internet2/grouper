@@ -762,6 +762,10 @@ public class JDBCSourceAdapter2 extends JDBCSourceAdapter {
       rs = stmt.executeQuery();
 
       while (rs.next()) {
+
+        Subject subject = createSubject(rs, query, identifiersForIdentifierToMap, resultIdentifierToSubject);
+        results.add(subject);
+
         //if we are at the end of the page
         if (firstPageOnly && this.getMaxPage() != null && results.size() >= this.getMaxPage()) {
           tooManyResults[0] = true;
@@ -773,9 +777,6 @@ public class JDBCSourceAdapter2 extends JDBCSourceAdapter {
               "More results than allowed: " + this.maxResults 
               + " for search '" + query + "'");
         }
-
-        Subject subject = createSubject(rs, query, identifiersForIdentifierToMap, resultIdentifierToSubject);
-        results.add(subject);
         
 
       }

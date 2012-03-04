@@ -217,6 +217,10 @@ public class JNDISourceAdapterLegacy extends BaseSourceAdapter {
       }
       
       while (ldapResults.hasMore()) {
+        SearchResult si = (SearchResult) ldapResults.next();
+        Attributes attributes1 = si.getAttributes();
+        Subject subject = createSubject(attributes1);
+        result.add(subject);
         //if we are at the end of the page
         if (firstPageOnly && this.maxPage != null && result.size() >= this.maxPage) {
           tooManyResults = true;
@@ -227,10 +231,6 @@ public class JNDISourceAdapterLegacy extends BaseSourceAdapter {
               "More results than allowed: " + this.maxResults 
               + " for search '" + search + "'");
         }
-        SearchResult si = (SearchResult) ldapResults.next();
-        Attributes attributes1 = si.getAttributes();
-        Subject subject = createSubject(attributes1);
-        result.add(subject);
       }
     } catch (Exception ex) {
       if (ex instanceof SubjectTooManyResults) {
