@@ -16,9 +16,12 @@ https://spaces.internet2.edu/display/Grouper/Grouper+Hosted+on+a+Cloud+Server
 
 1. configure the non-example files in the conf dir
 2a. If you are using hsqldb, start your database: 
-  java -cp lib\jdbcSamples\hsqldb.jar org.hsqldb.Server -database.0 file:grouper -dbname.0 grouper -port 9001
-2b. init your registry: bin/gsh -registry -check -runscript
-3. start gsh: bin/gsh
+  [windows]: java -cp lib\jdbcSamples\hsqldb.jar org.hsqldb.Server -database.0 file:grouper -dbname.0 grouper -port 9001
+     [unix]: java -cp lib/jdbcSamples/hsqldb.jar org.hsqldb.Server -database.0 file:grouper -dbname.0 grouper -port 9001
+2b. init your registry: [windows]: bin\gsh -registry -check -runscript
+                           [unix]: bin/gsh.sh -registry -check -runscript
+3. start gsh: [windows]: bin\gsh
+                 [unix]: bin/gsh.sh
 
 https://wiki.internet2.edu/confluence/display/GrouperWG/GrouperShell+(gsh)
 

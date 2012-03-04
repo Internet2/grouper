@@ -1703,7 +1703,7 @@ public class GrouperInstaller {
     try {
       tomcatBounce("stop");
     } catch (Exception e) {
-    	System.out.println("Couldnt stop tomcat, ignoring...");
+      System.out.println("Couldnt stop tomcat, ignoring...");
     }
     
     List<String> commands = new ArrayList<String>();
