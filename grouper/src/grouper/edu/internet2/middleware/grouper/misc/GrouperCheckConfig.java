@@ -1187,7 +1187,7 @@ public class GrouperCheckConfig {
     checkJar("commons-math.jar", 174535, "org.apache.commons.math.distribution.ExponentialDistributionImpl", "1.1");
     checkJar("ddlUtils.jar", 713153, "org.apache.ddlutils.alteration.AddColumnChange", "1.0");
     checkJar("dom4j.jar", 730604, "org.dom4j.Attribute", "1.6.1");
-    checkJar("ehcache.jar", 1006149, "net.sf.ehcache.TransactionController", "null");
+    checkJar("ehcache.jar", 1838291, "net.sf.ehcache.bootstrap.BootstrapCacheLoader", "2.4.5");
     checkJar("ezmorph.jar", 86542, "net.sf.ezmorph.array.AbstractArrayMorpher", "1.0.6");
     checkJar("grouperClient.jar", 2683092, "edu.internet2.middleware.grouperClientExt.com.thoughtworks.xstream.InitializationException", "2.1.0");
     checkJar("hibernate-jpa-2.0-api.jar", 102661, "javax.persistence.Access", "1.0.1.Final");

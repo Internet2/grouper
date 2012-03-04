@@ -81,7 +81,7 @@ public class TestSubjectFinder extends GrouperTest {
    */
   public static void main(String[] args) {
     //TestRunner.run(TestSubjectFinder.class);
-    TestRunner.run(new TestSubjectFinder("testSearchPageMax"));
+    TestRunner.run(new TestSubjectFinder("testFindByIds"));
   }
   
   /**
