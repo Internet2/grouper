@@ -36,7 +36,7 @@ public class AttributeDefTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new AttributeDefTest("testHibernateGroup"));
+    TestRunner.run(new AttributeDefTest("testHibernateSecurityWheel"));
   }
   
   /**

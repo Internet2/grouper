@@ -30,6 +30,18 @@ import org.hibernate.Transaction;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Junction;
 import org.hibernate.criterion.Restrictions;
+import org.hibernate.type.ByteType;
+import org.hibernate.type.CharacterType;
+import org.hibernate.type.DateType;
+import org.hibernate.type.DoubleType;
+import org.hibernate.type.FloatType;
+import org.hibernate.type.IntegerType;
+import org.hibernate.type.LongType;
+import org.hibernate.type.ObjectType;
+import org.hibernate.type.ShortType;
+import org.hibernate.type.StringType;
+import org.hibernate.type.TimestampType;
+import org.hibernate.type.TrueFalseType;
 import org.hibernate.type.Type;
 
 import edu.internet2.middleware.grouper.Field;
@@ -553,33 +565,33 @@ public class HibUtils {
   public static Type hibernateType(Object o) {
     if (o == null) {
       //its possible to bind null (e.g. for an update), so just use object to do this
-      return Hibernate.OBJECT;
+      return ObjectType.INSTANCE;
     }
     Class clazz = o.getClass();
   
     if (clazz == int.class || o instanceof Integer) {
-      return Hibernate.INTEGER;
+      return IntegerType.INSTANCE;
     } else if (clazz == double.class || clazz == Double.class) {
-      return Hibernate.DOUBLE;
+      return DoubleType.INSTANCE;
     } else if (clazz == long.class || clazz == Long.class) {
-      return Hibernate.LONG;
+      return LongType.INSTANCE;
     } else if (clazz == float.class || clazz == Float.class) {
-      return Hibernate.FLOAT;
+      return FloatType.INSTANCE;
     } else if (clazz == byte.class || clazz == Byte.class) {
-      return Hibernate.BYTE;
+      return ByteType.INSTANCE;
     } else if (clazz == boolean.class || clazz == Boolean.class) {
-      return Hibernate.TRUE_FALSE;
+      return TrueFalseType.INSTANCE;
     } else if (clazz == char.class || clazz == Character.class) {
-      return Hibernate.CHARACTER;
+      return CharacterType.INSTANCE;
     } else if (clazz == short.class || clazz == Short.class) {
-      return Hibernate.SHORT;
+      return ShortType.INSTANCE;
     } else if (clazz == java.util.Date.class || clazz == java.sql.Date.class) {
       //return Hibernate.TIMESTAMP;
-      return Hibernate.DATE;
+      return DateType.INSTANCE;
     } else if (clazz == Timestamp.class) {
-      return Hibernate.TIMESTAMP;
+      return TimestampType.INSTANCE;
     } else if (clazz == String.class) {
-      return Hibernate.STRING;
+      return StringType.INSTANCE;
     }
     throw new RuntimeException(
         "Cannot find a hibernate type to associate with java type " + clazz);

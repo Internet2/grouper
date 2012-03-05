@@ -47,16 +47,12 @@ public class CachingAttrDefResolver extends AttributeDefResolverDecorator {
   public static final String CACHE_HASPRIV = CachingAttrDefResolver.class.getName()
       + ".HasPrivilege";
 
-  /** */
-  private EhcacheController cc;
-
   /**
    * @param resolver 
    * @since   1.2.1
    */
   public CachingAttrDefResolver(AttributeDefResolver resolver) {
     super(resolver);
-    this.cc = new EhcacheController();
   }
 
   /**
@@ -69,8 +65,8 @@ public class CachingAttrDefResolver extends AttributeDefResolverDecorator {
   private Boolean getFromHasPrivilegeCache(AttributeDef attributeDef, Subject subj,
       Privilege priv) {
     // TODO 20070823 are these the right element keys to use?
-    Element el = this.cc.getCache(CACHE_HASPRIV).get(
-        new MultiKey(attributeDef.getId(), subj, priv));
+    Element el = EhcacheController.ehcacheController().getCache(CACHE_HASPRIV).get(
+        new MultiKey(attributeDef.getId(), subj.getSourceId(), subj.getId(), priv));
     if (el != null) {
       return (Boolean) el.getObjectValue();
     }
@@ -88,8 +84,8 @@ public class CachingAttrDefResolver extends AttributeDefResolverDecorator {
   private Boolean getFromHasPrivilegeCache(PermissionEntry permissionEntry, Subject subj,
       Privilege priv) {
     // TODO 20070823 are these the right element keys to use?
-    Element el = this.cc.getCache(CACHE_HASPRIV).get(
-        new MultiKey(permissionEntry.getAttributeDefId(), permissionEntry.getRoleId(), subj, priv));
+    Element el = EhcacheController.ehcacheController().getCache(CACHE_HASPRIV).get(
+        new MultiKey(permissionEntry.getAttributeDefId(), permissionEntry.getRoleId(), subj.getSourceId(), subj.getId(), priv));
     if (el != null) {
       return (Boolean) el.getObjectValue();
     }
@@ -144,7 +140,7 @@ public class CachingAttrDefResolver extends AttributeDefResolverDecorator {
    * @since   1.2.1
    */
   public CacheStats getStats(String cache) {
-    return this.cc.getStats(cache);
+    return EhcacheController.ehcacheController().getStats(CACHE_HASPRIV);
   }
 
   /**
@@ -166,7 +162,7 @@ public class CachingAttrDefResolver extends AttributeDefResolverDecorator {
       UnableToPerformException {
     // TODO 20070816 add caching
     super.getDecoratedResolver().grantPrivilege(attributeDef, subject, privilege, uuid);
-    this.cc.flushCache();
+    this.flushCache();
     //there is a problem where if this action happens in root session, the
     //normal session doesnt get flushed
     GrouperSession grouperSession = GrouperSession.staticGrouperSession();
@@ -219,8 +215,8 @@ public class CachingAttrDefResolver extends AttributeDefResolverDecorator {
    */
   private void putInHasPrivilegeCache(String attributeDefId, Subject subj, Privilege priv,
       Boolean rv) {
-    this.cc.getCache(CACHE_HASPRIV).put(
-        new Element(new MultiKey(attributeDefId, subj, priv), rv));
+    EhcacheController.ehcacheController().getCache(CACHE_HASPRIV).put(
+        new Element(new MultiKey(attributeDefId, subj.getSourceId(), subj.getId(), priv), rv));
   }
 
   /**
@@ -231,7 +227,7 @@ public class CachingAttrDefResolver extends AttributeDefResolverDecorator {
       throws IllegalArgumentException,
       UnableToPerformException {
     super.getDecoratedResolver().revokePrivilege(attributeDef, privilege);
-    this.cc.flushCache();
+    this.flushCache();
     //there is a problem where if this action happens in root session, the
     //normal session doesnt get flushed
     GrouperSession grouperSession = GrouperSession.staticGrouperSession();
@@ -247,7 +243,7 @@ public class CachingAttrDefResolver extends AttributeDefResolverDecorator {
       UnableToPerformException {
     // TODO 20070816 add caching
     super.getDecoratedResolver().revokePrivilege(attributeDef, subject, privilege);
-    this.cc.flushCache();
+    this.flushCache();
     //there is a problem where if this action happens in root session, the
     //normal session doesnt get flushed
     GrouperSession grouperSession = GrouperSession.staticGrouperSession();
@@ -261,7 +257,7 @@ public class CachingAttrDefResolver extends AttributeDefResolverDecorator {
   public void privilegeCopy(AttributeDef attributeDef1, AttributeDef attributeDef2, Privilege priv)
       throws IllegalArgumentException, UnableToPerformException {
     super.getDecoratedResolver().privilegeCopy(attributeDef1, attributeDef2, priv);
-    this.cc.flushCache();
+    this.flushCache();
     GrouperSession grouperSession = GrouperSession.staticGrouperSession();
     grouperSession.getAttributeDefResolver().flushCache();
   }
@@ -273,7 +269,7 @@ public class CachingAttrDefResolver extends AttributeDefResolverDecorator {
   public void privilegeCopy(Subject subj1, Subject subj2, Privilege priv)
       throws IllegalArgumentException, UnableToPerformException {
     super.getDecoratedResolver().privilegeCopy(subj1, subj2, priv);
-    this.cc.flushCache();
+    this.flushCache();
     GrouperSession grouperSession = GrouperSession.staticGrouperSession();
     grouperSession.getAttributeDefResolver().flushCache();
   }
@@ -283,7 +279,7 @@ public class CachingAttrDefResolver extends AttributeDefResolverDecorator {
    * @see edu.internet2.middleware.grouper.privs.AttributeDefResolverDecorator#flushCache()
    */
   public void flushCache() {
-    this.cc.flushCache();
+    EhcacheController.ehcacheController().getCache(CACHE_HASPRIV).flush();
   }
 
   /**
@@ -366,9 +362,6 @@ public class CachingAttrDefResolver extends AttributeDefResolverDecorator {
    * @see edu.internet2.middleware.grouper.privs.AttributeDefResolver#stop()
    */
   public void stop() {
-    if (this.cc != null) {
-      this.cc.stop();
-    }
   }
 
   /**
@@ -377,7 +370,7 @@ public class CachingAttrDefResolver extends AttributeDefResolverDecorator {
    */
   public void revokeAllPrivilegesForSubject(Subject subject) {
     super.getDecoratedResolver().revokeAllPrivilegesForSubject(subject);
-    this.cc.flushCache();
+    this.flushCache();
     GrouperSession grouperSession = GrouperSession.staticGrouperSession();
     grouperSession.getAttributeDefResolver().flushCache();
   }
@@ -415,9 +408,9 @@ public class CachingAttrDefResolver extends AttributeDefResolverDecorator {
   private void putInHasPrivilegeCache(PermissionEntry permissionEntry, Subject subj, Privilege priv, Boolean rv) {
 
     //we care about the def id, and the roleId
-    this.cc.getCache(CACHE_HASPRIV).put(
+    EhcacheController.ehcacheController().getCache(CACHE_HASPRIV).put(
         new Element(new MultiKey(
-            permissionEntry.getAttributeDefId(), permissionEntry.getRoleId(), subj, priv), rv));
+            permissionEntry.getAttributeDefId(), permissionEntry.getRoleId(), subj.getSourceId(), subj.getId(), priv), rv));
     
   }
 

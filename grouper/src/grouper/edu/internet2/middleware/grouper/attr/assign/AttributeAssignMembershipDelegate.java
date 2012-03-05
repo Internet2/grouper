@@ -71,7 +71,7 @@ public class AttributeAssignMembershipDelegate extends AttributeAssignBaseDelega
       public Object callback(GrouperSession rootSession) throws GrouperSessionException {
         canReadAttribute[0] = attributeDef.getPrivilegeDelegate().canAttrRead(subject);
         canReadGroup[0] = PrivilegeHelper.canRead(rootSession, 
-            AttributeAssignMembershipDelegate.this.membership.getGroup(), subject);
+            AttributeAssignMembershipDelegate.this.membership.getOwnerGroup(), subject);
         return null;
       }
     });
@@ -83,7 +83,7 @@ public class AttributeAssignMembershipDelegate extends AttributeAssignBaseDelega
   
     if (!canReadGroup[0]) {
       throw new InsufficientPrivilegeException("Subject " + GrouperUtil.subjectToString(subject) 
-          + " cannot view group " + this.membership.getGroup());
+          + " cannot view group " + this.membership.getOwnerGroup());
     }
   }
 
@@ -109,7 +109,7 @@ public class AttributeAssignMembershipDelegate extends AttributeAssignBaseDelega
        */
       public Object callback(GrouperSession rootSession) throws GrouperSessionException {
         canUpdateAttribute[0] = attributeDef.getPrivilegeDelegate().canAttrUpdate(subject);
-        canUpdateGroup[0] = PrivilegeHelper.canUpdate(rootSession, AttributeAssignMembershipDelegate.this.membership.getGroup(), subject);
+        canUpdateGroup[0] = PrivilegeHelper.canUpdate(rootSession, AttributeAssignMembershipDelegate.this.membership.getOwnerGroup(), subject);
         return null;
       }
     });
@@ -121,7 +121,7 @@ public class AttributeAssignMembershipDelegate extends AttributeAssignBaseDelega
 
     if (!canUpdateGroup[0]) {
       throw new InsufficientPrivilegeException("Subject " + GrouperUtil.subjectToString(subject) 
-          + " cannot update group " + this.membership.getGroup());
+          + " cannot update group " + this.membership.getOwnerGroup());
     }
 
   }

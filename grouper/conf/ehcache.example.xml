@@ -30,8 +30,8 @@
   <defaultCache
     maxElementsInMemory="1000"
     eternal="false"
-    timeToIdleSeconds="1"
-    timeToLiveSeconds="1"
+    timeToIdleSeconds="10"
+    timeToLiveSeconds="10"
     overflowToDisk="false"
   />
 
@@ -842,6 +842,167 @@
           eternal="false"
           timeToIdleSeconds="30"
           timeToLiveSeconds="120"
+          overflowToDisk="false"
+  />
+
+
+  <!-- ########### Below this are the non-hibernate caches in Grouper ############# -->
+
+  <!-- Access privilege resolving caching -->
+
+  <!-- @see   CachingAccessResolver#hasPrivilege(...) -->
+  <cache  name="edu.internet2.middleware.grouper.privs.CachingAccessResolver.HasPrivilege"
+          maxElementsInMemory="500"
+          eternal="false"
+          timeToIdleSeconds="30"
+          timeToLiveSeconds="120"
+          overflowToDisk="false"
+  />
+
+
+
+  <!-- Naming privilege resolving caching -->
+
+  <!-- @see   CachingNamingResolver#hasPrivilege(...) -->
+  <cache  name="edu.internet2.middleware.grouper.privs.CachingNamingResolver.HasPrivilege"
+          maxElementsInMemory="1000"
+          eternal="false"
+          timeToIdleSeconds="30"
+          timeToLiveSeconds="120"
+          overflowToDisk="false"
+  />
+
+  <!--  attribute def resolving caching -->
+
+  <cache  name="edu.internet2.middleware.grouper.privs.CachingAttrDefResolver.HasPrivilege"
+          maxElementsInMemory="1000"
+          eternal="false"
+          timeToIdleSeconds="30"
+          timeToLiveSeconds="120"
+          overflowToDisk="false"
+  />
+
+
+  <!-- Subject resolving caching -->
+
+  <!-- @see   CachingResolver#find(...) -->
+  <cache  name="edu.internet2.middleware.grouper.subj.CachingResolver.Find"
+          maxElementsInMemory="5000"
+          eternal="false"
+          timeToIdleSeconds="30"
+          timeToLiveSeconds="120"
+          overflowToDisk="false"
+  />
+
+  <!-- @see   CachingResolver#findAll(...) -->
+  <cache  name="edu.internet2.middleware.grouper.subj.CachingResolver.FindAll"
+          maxElementsInMemory="5000"
+          eternal="false"
+          timeToIdleSeconds="30"
+          timeToLiveSeconds="120"
+          overflowToDisk="false"
+  />
+
+  <!-- @see   CachingResolver#findPage(...) -->
+  <cache  name="edu.internet2.middleware.grouper.subj.CachingResolver.FindPage"
+          maxElementsInMemory="5000"
+          eternal="false"
+          timeToIdleSeconds="30"
+          timeToLiveSeconds="120"
+          overflowToDisk="false"
+  />
+
+  <!-- @see   CachingResolver#findByIdentifier(...) -->
+  <cache  name="edu.internet2.middleware.grouper.subj.CachingResolver.FindByIdentifier"
+          maxElementsInMemory="5000"
+          eternal="false"
+          timeToIdleSeconds="30"
+          timeToLiveSeconds="120"
+          overflowToDisk="false"
+  />
+
+  <!-- @see   CachingResolver#findByIdOrIdentifier(...) -->
+  <cache  name="edu.internet2.middleware.grouper.subj.CachingResolver.FindByIdOrIdentifier"
+          maxElementsInMemory="5000"
+          eternal="false"
+          timeToIdleSeconds="30"
+          timeToLiveSeconds="120"
+          overflowToDisk="false"
+  />
+  
+  <cache  name="edu.internet2.middleware.grouper.attr.AttributeDefName.CanAdminAttributeDef"
+          maxElementsInMemory="5000"
+          eternal="false"
+          timeToIdleSeconds="5"
+          timeToLiveSeconds="5"
+          overflowToDisk="false"
+  />
+  
+    <!-- @see   WheelCache#isWheelMember(...) -->
+  <cache  name="edu.internet2.middleware.grouper.privs.WheelCache.isWheelMember"
+          maxElementsInMemory="1000"
+          eternal="false"
+          timeToIdleSeconds="30"
+          timeToLiveSeconds="120"
+          overflowToDisk="false"
+  />
+
+    <!-- @see   Membership#getGroup(...) -->
+  <cache  name="edu.internet2.middleware.grouper.Membership.getGroup"
+          maxElementsInMemory="1000"
+          eternal="false"
+          timeToIdleSeconds="30"
+          timeToLiveSeconds="120"
+          overflowToDisk="false"
+  />
+  
+  <!-- @see   Membership#getStem(...) -->
+  <cache  name="edu.internet2.middleware.grouper.Membership.getStem"
+          maxElementsInMemory="1000"
+          eternal="false"
+          timeToIdleSeconds="30"
+          timeToLiveSeconds="120"
+          overflowToDisk="false"
+  />
+
+  <!-- @see   Membership#getAttributeDef(...) -->
+  <cache  name="edu.internet2.middleware.grouper.Membership.getAttributeDef"
+          maxElementsInMemory="1000"
+          eternal="false"
+          timeToIdleSeconds="30"
+          timeToLiveSeconds="120"
+          overflowToDisk="false"
+  />
+
+  <!-- @see   Hib3MemberDAO#exists(...) -->
+  <cache  name="edu.internet2.middleware.grouper.internal.dao.hib3.Hib3MemberDAO.exists"
+          maxElementsInMemory="1000"
+          eternal="false"
+          timeToIdleSeconds="30"
+          timeToLiveSeconds="120"
+          overflowToDisk="false"
+  />
+  
+  <!-- @see   Hib3MemberDAO#findBySubject/Uuid(...) -->
+  <cache  name="edu.internet2.middleware.grouper.internal.dao.hib3.Hib3MemberDAO.find"
+          maxElementsInMemory="1000"
+          eternal="false"
+          timeToIdleSeconds="30"
+          timeToLiveSeconds="120"
+          overflowToDisk="false"
+  />
+  <cache  name="AttributeAssignBaseDelegate.allAttributeAssignsCache"
+          maxElementsInMemory="1000"
+          eternal="false"
+          timeToIdleSeconds="1200"
+          timeToLiveSeconds="1200"
+          overflowToDisk="false"
+  />
+  <cache  name="edu.internet2.middleware.grouper.entity.EntitySubject.EntityAttributeIdCache"
+          maxElementsInMemory="5000"
+          eternal="false"
+          timeToIdleSeconds="30"
+          timeToLiveSeconds="30"
           overflowToDisk="false"
   />
 

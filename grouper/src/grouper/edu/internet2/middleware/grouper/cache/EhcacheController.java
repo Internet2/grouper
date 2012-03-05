@@ -53,7 +53,7 @@ public class EhcacheController implements CacheController {
     }
     return ehcacheController;
   }
- 
+
   /**
    * manager
    */
@@ -81,10 +81,11 @@ public class EhcacheController implements CacheController {
 
  
   /**
+   * not public since we only want one of these...
    * Initialize caching.
-   * @since   1.2.1
+   * @since   2.1.0
    */
-  public EhcacheController() {
+  private EhcacheController() {
   }
 
 
@@ -174,7 +175,7 @@ public class EhcacheController implements CacheController {
     if (useDefaultIfNotInConfigFile) {
       if (LOG != null) {
         LOG.info("cache not configured explicitly: " + name + ", to override default values, " +
-        		"configure in the resource /grouper.ehcache.xml.  Default values are:" +
+        		"configure in the resource /ehcache.xml.  Default values are:" +
         		"maxElementsInMemory: " + defaultMaxElementsInMemory + ", eternal: " + defaultEternal
         		+ ", timeToIdleSeconds: " + defaultTimeToIdleSeconds + ", timeToLiveSeconds: " 
         		+ defaultTimeToLiveSeconds + ", overFlowToDisk: " + defaultOverflowToDisk);
@@ -187,7 +188,7 @@ public class EhcacheController implements CacheController {
     }
     
     throw new IllegalStateException("cache not found: " + name + " make sure the cache" +
-        " config is correct, the resource: /grouper.ehcache.xml");
+        " config is correct, the resource: /ehcache.xml");
   }
 
   /** logger */
@@ -214,9 +215,9 @@ public class EhcacheController implements CacheController {
     if (this.mgr == null) {
       synchronized(EhcacheController.class) {
         if (this.mgr == null) {
-          URL url = this.getClass().getResource("/grouper.ehcache.xml");
+          URL url = this.getClass().getResource("/ehcache.xml");
           if (url == null) {
-            throw new RuntimeException("Cant find resource /grouper.ehcache.xml, " +
+            throw new RuntimeException("Cant find resource /ehcache.xml, " +
                 "make sure it is on the classpath");
           }
           

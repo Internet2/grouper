@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Set;
 
 import org.hibernate.criterion.Criterion;
-import org.hibernate.criterion.Expression;
 import org.hibernate.criterion.Restrictions;
 
 import edu.internet2.middleware.grouper.hibernate.HibUtils;
@@ -268,29 +267,29 @@ public class PITMembershipViewQuery {
     
     if (this.startDateAfter != null) {
       criterionList.add(Restrictions.or(
-          Expression.ge(PITMembershipView.FIELD_MEMBERSHIP_START_TIME_DB, this.startDateAfter.getTime() * 1000), 
-          Expression.ge(PITMembershipView.FIELD_GROUP_SET_START_TIME_DB, this.startDateAfter.getTime() * 1000)));
+          Restrictions.ge(PITMembershipView.FIELD_MEMBERSHIP_START_TIME_DB, this.startDateAfter.getTime() * 1000), 
+          Restrictions.ge(PITMembershipView.FIELD_GROUP_SET_START_TIME_DB, this.startDateAfter.getTime() * 1000)));
     }
     
     if (this.startDateBefore != null) {
-      criterionList.add(Expression.le(PITMembershipView.FIELD_MEMBERSHIP_START_TIME_DB, this.startDateBefore.getTime() * 1000));
-      criterionList.add(Expression.le(PITMembershipView.FIELD_GROUP_SET_START_TIME_DB, this.startDateBefore.getTime() * 1000));
+      criterionList.add(Restrictions.le(PITMembershipView.FIELD_MEMBERSHIP_START_TIME_DB, this.startDateBefore.getTime() * 1000));
+      criterionList.add(Restrictions.le(PITMembershipView.FIELD_GROUP_SET_START_TIME_DB, this.startDateBefore.getTime() * 1000));
     }
     
     if (this.endDateAfter != null) {
       criterionList.add(Restrictions.or(
-          Expression.isNull(PITMembershipView.FIELD_MEMBERSHIP_END_TIME_DB),
-          Expression.ge(PITMembershipView.FIELD_MEMBERSHIP_END_TIME_DB, this.endDateAfter.getTime() * 1000)));
+          Restrictions.isNull(PITMembershipView.FIELD_MEMBERSHIP_END_TIME_DB),
+          Restrictions.ge(PITMembershipView.FIELD_MEMBERSHIP_END_TIME_DB, this.endDateAfter.getTime() * 1000)));
       
       criterionList.add(Restrictions.or(
-          Expression.isNull(PITMembershipView.FIELD_GROUP_SET_END_TIME_DB),
-          Expression.ge(PITMembershipView.FIELD_GROUP_SET_END_TIME_DB, this.endDateAfter.getTime() * 1000)));
+          Restrictions.isNull(PITMembershipView.FIELD_GROUP_SET_END_TIME_DB),
+          Restrictions.ge(PITMembershipView.FIELD_GROUP_SET_END_TIME_DB, this.endDateAfter.getTime() * 1000)));
     }
     
     if (this.endDateBefore != null) {
       criterionList.add(Restrictions.or(
-          Expression.le(PITMembershipView.FIELD_MEMBERSHIP_END_TIME_DB, this.endDateBefore.getTime() * 1000), 
-          Expression.le(PITMembershipView.FIELD_GROUP_SET_END_TIME_DB, this.endDateBefore.getTime() * 1000)));
+          Restrictions.le(PITMembershipView.FIELD_MEMBERSHIP_END_TIME_DB, this.endDateBefore.getTime() * 1000), 
+          Restrictions.le(PITMembershipView.FIELD_GROUP_SET_END_TIME_DB, this.endDateBefore.getTime() * 1000)));
     }
     
     if (this.extraCriterion != null) {

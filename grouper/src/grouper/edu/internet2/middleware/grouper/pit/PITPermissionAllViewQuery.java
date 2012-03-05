@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Set;
 
 import org.hibernate.criterion.Criterion;
-import org.hibernate.criterion.Expression;
 import org.hibernate.criterion.Restrictions;
 
 import edu.internet2.middleware.grouper.hibernate.HibUtils;
@@ -199,57 +198,57 @@ public class PITPermissionAllViewQuery {
     
     if (this.startDateAfter != null) {
       criterionList.add(Restrictions.disjunction()
-          .add(Expression.ge(PITPermissionAllView.FIELD_MEMBERSHIP_START_TIME_DB, this.startDateAfter.getTime() * 1000))
-          .add(Expression.ge(PITPermissionAllView.FIELD_GROUP_SET_START_TIME_DB, this.startDateAfter.getTime() * 1000)) 
-          .add(Expression.ge(PITPermissionAllView.FIELD_ACTION_SET_START_TIME_DB, this.startDateAfter.getTime() * 1000)) 
-          .add(Expression.ge(PITPermissionAllView.FIELD_ATTRIBUTE_DEF_NAME_SET_START_TIME_DB, this.startDateAfter.getTime() * 1000)) 
-          .add(Expression.ge(PITPermissionAllView.FIELD_ROLE_SET_START_TIME_DB, this.startDateAfter.getTime() * 1000))
-          .add(Expression.ge(PITPermissionAllView.FIELD_ATTRIBUTE_ASSIGN_START_TIME_DB, this.startDateAfter.getTime() * 1000)));
+          .add(Restrictions.ge(PITPermissionAllView.FIELD_MEMBERSHIP_START_TIME_DB, this.startDateAfter.getTime() * 1000))
+          .add(Restrictions.ge(PITPermissionAllView.FIELD_GROUP_SET_START_TIME_DB, this.startDateAfter.getTime() * 1000)) 
+          .add(Restrictions.ge(PITPermissionAllView.FIELD_ACTION_SET_START_TIME_DB, this.startDateAfter.getTime() * 1000)) 
+          .add(Restrictions.ge(PITPermissionAllView.FIELD_ATTRIBUTE_DEF_NAME_SET_START_TIME_DB, this.startDateAfter.getTime() * 1000)) 
+          .add(Restrictions.ge(PITPermissionAllView.FIELD_ROLE_SET_START_TIME_DB, this.startDateAfter.getTime() * 1000))
+          .add(Restrictions.ge(PITPermissionAllView.FIELD_ATTRIBUTE_ASSIGN_START_TIME_DB, this.startDateAfter.getTime() * 1000)));
     }
     
     if (this.startDateBefore != null) {
-      criterionList.add(Expression.le(PITPermissionAllView.FIELD_MEMBERSHIP_START_TIME_DB, this.startDateBefore.getTime() * 1000));
-      criterionList.add(Expression.le(PITPermissionAllView.FIELD_GROUP_SET_START_TIME_DB, this.startDateBefore.getTime() * 1000));
-      criterionList.add(Expression.le(PITPermissionAllView.FIELD_ACTION_SET_START_TIME_DB, this.startDateBefore.getTime() * 1000));
-      criterionList.add(Expression.le(PITPermissionAllView.FIELD_ATTRIBUTE_DEF_NAME_SET_START_TIME_DB, this.startDateBefore.getTime() * 1000));
-      criterionList.add(Expression.le(PITPermissionAllView.FIELD_ROLE_SET_START_TIME_DB, this.startDateBefore.getTime() * 1000));
-      criterionList.add(Expression.le(PITPermissionAllView.FIELD_ATTRIBUTE_ASSIGN_START_TIME_DB, this.startDateBefore.getTime() * 1000));
+      criterionList.add(Restrictions.le(PITPermissionAllView.FIELD_MEMBERSHIP_START_TIME_DB, this.startDateBefore.getTime() * 1000));
+      criterionList.add(Restrictions.le(PITPermissionAllView.FIELD_GROUP_SET_START_TIME_DB, this.startDateBefore.getTime() * 1000));
+      criterionList.add(Restrictions.le(PITPermissionAllView.FIELD_ACTION_SET_START_TIME_DB, this.startDateBefore.getTime() * 1000));
+      criterionList.add(Restrictions.le(PITPermissionAllView.FIELD_ATTRIBUTE_DEF_NAME_SET_START_TIME_DB, this.startDateBefore.getTime() * 1000));
+      criterionList.add(Restrictions.le(PITPermissionAllView.FIELD_ROLE_SET_START_TIME_DB, this.startDateBefore.getTime() * 1000));
+      criterionList.add(Restrictions.le(PITPermissionAllView.FIELD_ATTRIBUTE_ASSIGN_START_TIME_DB, this.startDateBefore.getTime() * 1000));
     }
     
     if (this.endDateAfter != null) {
       criterionList.add(Restrictions.or(
-          Expression.isNull(PITPermissionAllView.FIELD_MEMBERSHIP_END_TIME_DB),
-          Expression.ge(PITPermissionAllView.FIELD_MEMBERSHIP_END_TIME_DB, this.endDateAfter.getTime() * 1000)));
+          Restrictions.isNull(PITPermissionAllView.FIELD_MEMBERSHIP_END_TIME_DB),
+          Restrictions.ge(PITPermissionAllView.FIELD_MEMBERSHIP_END_TIME_DB, this.endDateAfter.getTime() * 1000)));
       
       criterionList.add(Restrictions.or(
-          Expression.isNull(PITPermissionAllView.FIELD_GROUP_SET_END_TIME_DB),
-          Expression.ge(PITPermissionAllView.FIELD_GROUP_SET_END_TIME_DB, this.endDateAfter.getTime() * 1000)));
+          Restrictions.isNull(PITPermissionAllView.FIELD_GROUP_SET_END_TIME_DB),
+          Restrictions.ge(PITPermissionAllView.FIELD_GROUP_SET_END_TIME_DB, this.endDateAfter.getTime() * 1000)));
       
       criterionList.add(Restrictions.or(
-          Expression.isNull(PITPermissionAllView.FIELD_ACTION_SET_END_TIME_DB),
-          Expression.ge(PITPermissionAllView.FIELD_ACTION_SET_END_TIME_DB, this.endDateAfter.getTime() * 1000)));
+          Restrictions.isNull(PITPermissionAllView.FIELD_ACTION_SET_END_TIME_DB),
+          Restrictions.ge(PITPermissionAllView.FIELD_ACTION_SET_END_TIME_DB, this.endDateAfter.getTime() * 1000)));
       
       criterionList.add(Restrictions.or(
-          Expression.isNull(PITPermissionAllView.FIELD_ATTRIBUTE_DEF_NAME_SET_END_TIME_DB),
-          Expression.ge(PITPermissionAllView.FIELD_ATTRIBUTE_DEF_NAME_SET_END_TIME_DB, this.endDateAfter.getTime() * 1000)));
+          Restrictions.isNull(PITPermissionAllView.FIELD_ATTRIBUTE_DEF_NAME_SET_END_TIME_DB),
+          Restrictions.ge(PITPermissionAllView.FIELD_ATTRIBUTE_DEF_NAME_SET_END_TIME_DB, this.endDateAfter.getTime() * 1000)));
       
       criterionList.add(Restrictions.or(
-          Expression.isNull(PITPermissionAllView.FIELD_ROLE_SET_END_TIME_DB),
-          Expression.ge(PITPermissionAllView.FIELD_ROLE_SET_END_TIME_DB, this.endDateAfter.getTime() * 1000)));
+          Restrictions.isNull(PITPermissionAllView.FIELD_ROLE_SET_END_TIME_DB),
+          Restrictions.ge(PITPermissionAllView.FIELD_ROLE_SET_END_TIME_DB, this.endDateAfter.getTime() * 1000)));
       
       criterionList.add(Restrictions.or(
-          Expression.isNull(PITPermissionAllView.FIELD_ATTRIBUTE_ASSIGN_END_TIME_DB),
-          Expression.ge(PITPermissionAllView.FIELD_ATTRIBUTE_ASSIGN_END_TIME_DB, this.endDateAfter.getTime() * 1000)));
+          Restrictions.isNull(PITPermissionAllView.FIELD_ATTRIBUTE_ASSIGN_END_TIME_DB),
+          Restrictions.ge(PITPermissionAllView.FIELD_ATTRIBUTE_ASSIGN_END_TIME_DB, this.endDateAfter.getTime() * 1000)));
     }
     
     if (this.endDateBefore != null) {
       criterionList.add(Restrictions.disjunction()
-          .add(Expression.le(PITPermissionAllView.FIELD_MEMBERSHIP_END_TIME_DB, this.endDateBefore.getTime() * 1000))
-          .add(Expression.le(PITPermissionAllView.FIELD_GROUP_SET_END_TIME_DB, this.endDateBefore.getTime() * 1000))
-          .add(Expression.le(PITPermissionAllView.FIELD_ACTION_SET_END_TIME_DB, this.endDateBefore.getTime() * 1000))
-          .add(Expression.le(PITPermissionAllView.FIELD_ATTRIBUTE_DEF_NAME_SET_END_TIME_DB, this.endDateBefore.getTime() * 1000))
-          .add(Expression.le(PITPermissionAllView.FIELD_ROLE_SET_END_TIME_DB, this.endDateBefore.getTime() * 1000))
-          .add(Expression.le(PITPermissionAllView.FIELD_ATTRIBUTE_ASSIGN_END_TIME_DB, this.endDateBefore.getTime() * 1000)));
+          .add(Restrictions.le(PITPermissionAllView.FIELD_MEMBERSHIP_END_TIME_DB, this.endDateBefore.getTime() * 1000))
+          .add(Restrictions.le(PITPermissionAllView.FIELD_GROUP_SET_END_TIME_DB, this.endDateBefore.getTime() * 1000))
+          .add(Restrictions.le(PITPermissionAllView.FIELD_ACTION_SET_END_TIME_DB, this.endDateBefore.getTime() * 1000))
+          .add(Restrictions.le(PITPermissionAllView.FIELD_ATTRIBUTE_DEF_NAME_SET_END_TIME_DB, this.endDateBefore.getTime() * 1000))
+          .add(Restrictions.le(PITPermissionAllView.FIELD_ROLE_SET_END_TIME_DB, this.endDateBefore.getTime() * 1000))
+          .add(Restrictions.le(PITPermissionAllView.FIELD_ATTRIBUTE_ASSIGN_END_TIME_DB, this.endDateBefore.getTime() * 1000)));
     }
     
     if (this.extraCriterion != null) {

@@ -40,6 +40,7 @@ import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignType;
+import edu.internet2.middleware.grouper.cache.EhcacheController;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.GrouperException;
@@ -65,6 +66,16 @@ import edu.internet2.middleware.subject.Subject;
  */
 public class PrivilegeHelper {
 
+  /**
+   * flush all privilege caches
+   */
+  public static void flushCache() {
+    WheelCache.flush();
+    EhcacheController.ehcacheController().getCache(CachingAccessResolver.CACHE_HASPRIV).flush();
+    EhcacheController.ehcacheController().getCache(CachingNamingResolver.CACHE_HASPRIV).flush();
+    EhcacheController.ehcacheController().getCache(CachingAttrDefResolver.CACHE_HASPRIV).flush();
+  }
+  
   /**
    * resolve subjects in one batch
    * @param grouperPrivileges
@@ -433,7 +444,7 @@ public class PrivilegeHelper {
         dispatch( grouperSession, membership.getStem(), grouperSession.getSubject(), membership.getList().getReadPriv() );
         return true;
       } else if ( FieldType.ACCESS.equals( membership.getList().getType() ) ) {
-        dispatch( grouperSession, membership.getGroup(), grouperSession.getSubject(), membership.getList().getReadPriv() );
+        dispatch( grouperSession, membership.getOwnerGroup(), grouperSession.getSubject(), membership.getList().getReadPriv() );
         return true;
       } else if (FieldType.NAMING.equals( membership.getList().getType() ) ) {
         
@@ -443,7 +454,7 @@ public class PrivilegeHelper {
       } else if (FieldType.LIST.equals( membership.getList().getType() ) ) {
         
         //am I supposed to see what the read privilege is for the field, or just look at read???
-        if (canRead(grouperSession, membership.getGroup(), grouperSession.getSubject())) {
+        if (canRead(grouperSession, membership.getOwnerGroup(), grouperSession.getSubject())) {
           return true;
         }
         return false;
@@ -962,7 +973,7 @@ public class PrivilegeHelper {
           break;
           
         case imm_mem:
-          dispatch(grouperSession, attributeAssign.getOwnerImmediateMembership().getGroup(), grouperSession.getSubject(), AccessPrivilege.READ);
+          dispatch(grouperSession, attributeAssign.getOwnerImmediateMembership().getOwnerGroup(), grouperSession.getSubject(), AccessPrivilege.READ);
           break;
 
         case any_mem:

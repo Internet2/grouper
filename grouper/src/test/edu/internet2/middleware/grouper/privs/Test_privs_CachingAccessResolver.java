@@ -18,12 +18,15 @@
 package edu.internet2.middleware.grouper.privs;
 import junit.textui.TestRunner;
 
+import net.sf.ehcache.Element;
+
 import org.apache.commons.collections.keyvalue.MultiKey;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.cache.EhcacheController;
 import edu.internet2.middleware.grouper.cfg.ApiConfig;
 import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
@@ -43,7 +46,7 @@ public class Test_privs_CachingAccessResolver extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new Test_privs_CachingAccessResolver("test_hasPrivilege_cacheHit"));
+    TestRunner.run(new Test_privs_CachingAccessResolver("test_hasPrivilege_cacheMiss"));
   }
 
   /**
@@ -126,7 +129,7 @@ public class Test_privs_CachingAccessResolver extends GrouperTest {
 //    assertEquals(1L, cc.getStats("someCache").getMisses());
 //    assertEquals(0L, cc.getStats("someCache").getHits());
     
-    resolver.internal_getCc().getCache(CachingAccessResolver.CACHE_HASPRIV).setStatisticsEnabled(true);
+    EhcacheController.ehcacheController().getCache(CachingAccessResolver.CACHE_HASPRIV).setStatisticsEnabled(true);
 
     long before = resolver.getStats(CachingAccessResolver.CACHE_HASPRIV).getMisses();
     resolver.hasPrivilege( this.g, SubjectFinder.findAllSubject(), AccessPrivilege.ADMIN );
@@ -137,10 +140,40 @@ public class Test_privs_CachingAccessResolver extends GrouperTest {
    * @since   1.2.1
    */
   public void test_hasPrivilege_cacheHit() {
+
+    EhcacheController.ehcacheController().getCache(CachingAccessResolver.CACHE_HASPRIV).setStatisticsEnabled(true);
+
+//    EhcacheController.ehcacheController().getCache(CachingAccessResolver.CACHE_HASPRIV).put(
+//        new Element(new MultiKey(this.g.getUuid(), 
+//            SubjectFinder.findAllSubject().getSourceId(), 
+//            SubjectFinder.findAllSubject().getId(), AccessPrivilege.ADMIN), true));
+//
+//    
+//    Element resultElement = EhcacheController.ehcacheController().getCache(CachingAccessResolver.CACHE_HASPRIV).get(
+//        new MultiKey(this.g.getUuid(), 
+//            SubjectFinder.findAllSubject().getSourceId(), 
+//            SubjectFinder.findAllSubject().getId(), AccessPrivilege.ADMIN));
+//
+//    Boolean result = (Boolean)(resultElement == null ? null : resultElement.getValue());
+//            
+//    assertTrue(result != null && result);
+//            
+//    long before = resolver.getStats(CachingAccessResolver.CACHE_HASPRIV).getHits();
+//
+//    
+//    resultElement = EhcacheController.ehcacheController().getCache(CachingAccessResolver.CACHE_HASPRIV).get(
+//        new MultiKey(this.g.getUuid(), 
+//            SubjectFinder.findAllSubject().getSourceId(), 
+//            SubjectFinder.findAllSubject().getId(), AccessPrivilege.ADMIN));
+//
+//    result = (Boolean)(resultElement == null ? null : resultElement.getValue());
+//            
+//    assertTrue(result != null && result);
+//            
+//    assertEquals( before + 1, resolver.getStats(CachingAccessResolver.CACHE_HASPRIV).getHits() );
    //2007/12/03: Gary Brown
    //hasPrivilege now first calls getPrivileges. If cacheMiss is called first it sets the cache for all privs
    //so only check after 2nd explicit check
-    resolver.internal_getCc().getCache(CachingAccessResolver.CACHE_HASPRIV).setStatisticsEnabled(true);
 
     resolver.hasPrivilege( this.g, SubjectFinder.findAllSubject(), AccessPrivilege.ADMIN );
     long before = resolver.getStats(CachingAccessResolver.CACHE_HASPRIV).getHits();

@@ -47,24 +47,12 @@ public class CachingAccessResolver extends AccessResolverDecorator {
   public static final String CACHE_HASPRIV = CachingAccessResolver.class.getName()
       + ".HasPrivilege";
 
-  /** */
-  private EhcacheController cc;
-
-  /**
-   * 
-   * @return cache controller
-   */
-  public EhcacheController internal_getCc() {
-    return this.cc;
-  }
-  
   /**
    * @param resolver 
    * @since   1.2.1
    */
   public CachingAccessResolver(AccessResolver resolver) {
     super(resolver);
-    this.cc = new EhcacheController();
   }
 
   /**
@@ -76,9 +64,9 @@ public class CachingAccessResolver extends AccessResolverDecorator {
    * @since   1.2.1
    */
   private Boolean getFromHasPrivilegeCache(Group g, Subject subj, Privilege priv) {
-    // TODO 20070823 are these the right element keys to use?
-    Element el = this.cc.getCache(CACHE_HASPRIV).get(
-        new MultiKey(g.getUuid(), subj, priv));
+
+    Element el = EhcacheController.ehcacheController().getCache(CACHE_HASPRIV).get(
+        new MultiKey(g.getUuid(), subj.getSourceId(), subj.getId(), priv));
     if (el != null) {
       return (Boolean) el.getObjectValue();
     }
@@ -121,7 +109,7 @@ public class CachingAccessResolver extends AccessResolverDecorator {
    * @since   1.2.1
    */
   public CacheStats getStats(String cache) {
-    return this.cc.getStats(cache);
+    return EhcacheController.ehcacheController().getStats(cache);
   }
 
   /**
@@ -133,7 +121,7 @@ public class CachingAccessResolver extends AccessResolverDecorator {
       UnableToPerformException {
     // TODO 20070816 add caching
     super.getDecoratedResolver().grantPrivilege(group, subject, privilege, uuid);
-    this.cc.flushCache();
+    EhcacheController.ehcacheController().getCache(CACHE_HASPRIV).flush();
     //there is a problem where if this action happens in root session, the
     //normal session doesnt get flushed
     GrouperSession grouperSession = GrouperSession.staticGrouperSession();
@@ -190,8 +178,8 @@ public class CachingAccessResolver extends AccessResolverDecorator {
    */
   private void putInHasPrivilegeCache(String groupUuid, Subject subj, Privilege priv,
       Boolean rv) {
-    this.cc.getCache(CACHE_HASPRIV).put(
-        new Element(new MultiKey(groupUuid, subj, priv), rv));
+    EhcacheController.ehcacheController().getCache(CACHE_HASPRIV).put(
+        new Element(new MultiKey(groupUuid, subj.getSourceId(), subj.getId(), priv), rv));
   }
 
   /**
@@ -203,7 +191,7 @@ public class CachingAccessResolver extends AccessResolverDecorator {
       UnableToPerformException {
     // TODO 20070816 add caching
     super.getDecoratedResolver().revokePrivilege(group, privilege);
-    this.cc.flushCache();
+    EhcacheController.ehcacheController().getCache(CACHE_HASPRIV).flush();
     //there is a problem where if this action happens in root session, the
     //normal session doesnt get flushed
     GrouperSession grouperSession = GrouperSession.staticGrouperSession();
@@ -219,7 +207,7 @@ public class CachingAccessResolver extends AccessResolverDecorator {
       UnableToPerformException {
     // TODO 20070816 add caching
     super.getDecoratedResolver().revokePrivilege(group, subject, privilege);
-    this.cc.flushCache();
+    EhcacheController.ehcacheController().getCache(CACHE_HASPRIV).flush();
     //there is a problem where if this action happens in root session, the
     //normal session doesnt get flushed
     GrouperSession grouperSession = GrouperSession.staticGrouperSession();
@@ -232,7 +220,7 @@ public class CachingAccessResolver extends AccessResolverDecorator {
   public void privilegeCopy(Group g1, Group g2, Privilege priv)
       throws IllegalArgumentException, UnableToPerformException {
     super.getDecoratedResolver().privilegeCopy(g1, g2, priv);
-    this.cc.flushCache();
+    EhcacheController.ehcacheController().getCache(CACHE_HASPRIV).flush();
     GrouperSession grouperSession = GrouperSession.staticGrouperSession();
     grouperSession.getAccessResolver().flushCache();
   }
@@ -243,7 +231,7 @@ public class CachingAccessResolver extends AccessResolverDecorator {
   public void privilegeCopy(Subject subj1, Subject subj2, Privilege priv)
       throws IllegalArgumentException, UnableToPerformException {
     super.getDecoratedResolver().privilegeCopy(subj1, subj2, priv);
-    this.cc.flushCache();
+    EhcacheController.ehcacheController().getCache(CACHE_HASPRIV).flush();
     GrouperSession grouperSession = GrouperSession.staticGrouperSession();
     grouperSession.getAccessResolver().flushCache();
   }
@@ -252,7 +240,7 @@ public class CachingAccessResolver extends AccessResolverDecorator {
    * @see edu.internet2.middleware.grouper.privs.AccessResolver#flushCache()
    */
   public void flushCache() {
-    this.cc.flushCache();
+    EhcacheController.ehcacheController().getCache(CACHE_HASPRIV).flush();
   }
 
   /**
@@ -325,9 +313,6 @@ public class CachingAccessResolver extends AccessResolverDecorator {
    * @see edu.internet2.middleware.grouper.privs.AccessResolver#stop()
    */
   public void stop() {
-    if (this.cc != null) {
-      this.cc.stop();
-    }
   }
 
   /**
@@ -335,7 +320,7 @@ public class CachingAccessResolver extends AccessResolverDecorator {
    */
   public void revokeAllPrivilegesForSubject(Subject subject) {
     super.getDecoratedResolver().revokeAllPrivilegesForSubject(subject);
-    this.cc.flushCache();
+    EhcacheController.ehcacheController().getCache(CACHE_HASPRIV).flush();
     GrouperSession grouperSession = GrouperSession.staticGrouperSession();
     grouperSession.getAccessResolver().flushCache();
   }

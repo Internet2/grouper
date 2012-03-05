@@ -297,7 +297,7 @@ public class USDU {
           System.out.print("member_uuid='" + member.getUuid() + "' subject=" + member);
           if (membership.getList().getType().equals(FieldType.LIST)
               || membership.getList().getType().equals(FieldType.ACCESS)) {
-            System.out.print(" group='" + membership.getGroup().getName());
+            System.out.print(" group='" + membership.getOwnerGroup().getName());
           }
           if (membership.getList().getType().equals(FieldType.NAMING)) {
             System.out.print(" stem='" + membership.getStem().getName());
@@ -307,10 +307,10 @@ public class USDU {
           if (delete) {
             System.out.print(" delete");
             if (membership.getList().getType().equals(FieldType.LIST)) {
-              USDU.deleteUnresolvableMember(membership.getMember(), membership.getGroup(), membership.getList());
+              USDU.deleteUnresolvableMember(membership.getMember(), membership.getOwnerGroup(), membership.getList());
             }
             if (membership.getList().getType().equals(FieldType.ACCESS)) {
-              USDU.deleteUnresolvableMember(membership.getMember(), membership.getGroup(), getPrivilege(membership
+              USDU.deleteUnresolvableMember(membership.getMember(), membership.getOwnerGroup(), getPrivilege(membership
                   .getList()));
             }
             if (membership.getList().getType().equals(FieldType.NAMING)) {

@@ -76,7 +76,7 @@ public class HooksMembershipChangeBean extends HooksBean {
    * @return the group
    */
   public Group getGroup() {
-    return this.ms.getGroup();
+    return this.ms.getOwnerGroup();
   }
 
   /**

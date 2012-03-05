@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Set;
 
 import org.hibernate.criterion.Criterion;
-import org.hibernate.criterion.Expression;
 import org.hibernate.criterion.Restrictions;
 
 import edu.internet2.middleware.grouper.hibernate.HibUtils;
@@ -444,21 +443,21 @@ public class PITAttributeAssignValueQuery {
     }
     
     if (this.startDateAfter != null) {
-      criterionList.add(Expression.ge(PITAttributeAssignValueView.FIELD_START_TIME_DB, this.startDateAfter.getTime() * 1000));
+      criterionList.add(Restrictions.ge(PITAttributeAssignValueView.FIELD_START_TIME_DB, this.startDateAfter.getTime() * 1000));
     }
     
     if (this.startDateBefore != null) {
-      criterionList.add(Expression.le(PITAttributeAssignValueView.FIELD_START_TIME_DB, this.startDateBefore.getTime() * 1000));
+      criterionList.add(Restrictions.le(PITAttributeAssignValueView.FIELD_START_TIME_DB, this.startDateBefore.getTime() * 1000));
     }
     
     if (this.endDateAfter != null) {
       criterionList.add(Restrictions.or(
-          Expression.isNull(PITAttributeAssignValueView.FIELD_END_TIME_DB),
-          Expression.ge(PITAttributeAssignValueView.FIELD_END_TIME_DB, this.endDateAfter.getTime() * 1000)));
+          Restrictions.isNull(PITAttributeAssignValueView.FIELD_END_TIME_DB),
+          Restrictions.ge(PITAttributeAssignValueView.FIELD_END_TIME_DB, this.endDateAfter.getTime() * 1000)));
     }
     
     if (this.endDateBefore != null) {
-      criterionList.add(Expression.le(PITAttributeAssignValueView.FIELD_END_TIME_DB, this.endDateBefore.getTime() * 1000));
+      criterionList.add(Restrictions.le(PITAttributeAssignValueView.FIELD_END_TIME_DB, this.endDateBefore.getTime() * 1000));
     }
     
     if (this.extraCriterion != null) {
