@@ -70,6 +70,10 @@ public class MorphPropertyFileUtils {
   public static String retrievePropertyString(String key) {
     Properties localProperties = retrieveProperties();
     String value = localProperties.getProperty(key);
+    //dont let whitespace affect
+    if (value != null) {
+      value = value.trim();
+    }
     return value;
   }
   

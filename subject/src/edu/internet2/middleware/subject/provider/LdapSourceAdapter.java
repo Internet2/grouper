@@ -232,7 +232,14 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
             ldapConfig.setBindDn(principal);
  
             String creds = props.getProperty("SECURITY_CREDENTIALS");
-            if (creds==null) creds = "-missing-";
+            if (creds==null) {
+              creds = "-missing-";
+            } else {
+              //maybe its encrypted
+              if (!StringUtils.isBlank(creds)) {
+                creds = Morph.decryptIfFile(creds);
+              }
+            }
             ldapConfig.setBindCredential(creds);
  
             String proto = props.getProperty("SECURITY_PROTOCOL");

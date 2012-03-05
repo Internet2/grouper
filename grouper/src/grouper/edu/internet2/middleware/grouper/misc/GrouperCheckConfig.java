@@ -1201,7 +1201,7 @@ public class GrouperCheckConfig {
     checkJar("jug.jar", 19091, "com.ccg.net.ethernet.BadAddressException", "1.1.1");
     checkJar("log4j.jar", 391834, "org.apache.log4j.xml.XMLLayout", "1.2.15");
     checkJar("mailapi.jar", 178533, "javax.mail.Address", "1.3.2");
-    checkJar("morphString.jar", 153260, "edu.internet2.middleware.morphString.Crypto", "1.1");
+    checkJar("morphString.jar", 78679, "edu.internet2.middleware.morphString.Crypto", "1.2");
     checkJar("odmg.jar", 42111, "org.odmg.ClassNotPersistenceCapableException", "0.1.0");
     checkJar("p6spy.jar", 389539, "com.p6spy.engine.common.FastExternalUtils", "1.1");
     checkJar("quartz.jar", 792769, "org.quartz.Calendar", "1.6.0");
@@ -1209,7 +1209,7 @@ public class GrouperCheckConfig {
     checkJar("slf4j-log4j12.jar", 9752, "org.slf4j.impl.Log4jLoggerAdapter", "1.6.2");
     checkJar("smack.jar", 1381464, "com.jcraft.jzlib.Deflate", "3.1.0");
     checkJar("smtp.jar", 23567, "com.sun.mail.smtp.DigestMD5", "1.3.2");
-    checkJar("subject.jar", 183160, "edu.internet2.middleware.subject.InvalidQueryException", "2.1.0");
+    checkJar("subject.jar", 183602, "edu.internet2.middleware.subject.InvalidQueryException", "2.1.0");
     checkJar("vt-ldap.jar", 472910, "edu.vt.middleware.ldap.AbstractCli", "3.3.5");
     //checkJar("xpp3_min.jar", 24979, "org.xmlpull.mxp1.MXParser", "1.1.4c");
     checkJar("xstream.jar", 692061, "com.thoughtworks.xstream.alias.CannotResolveClassException", "1.3");
