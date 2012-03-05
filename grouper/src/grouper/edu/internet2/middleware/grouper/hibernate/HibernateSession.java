@@ -135,8 +135,9 @@ public class HibernateSession {
         } else {
           useSavepoints = GrouperUtil.booleanValue(useSavepointsString);
         }
-        if ((useSavepoints && parentHibernateSession != null)   // && this.activeHibernateSession().isTransactionActive()  && !this.activeHibernateSession().isReadonly() 
-            || GrouperConfig.getPropertyBoolean("jdbc.useSavePointsOnAllNewTransactions", false)) {
+        
+        if (useSavepoints && (parentHibernateSession != null   // && this.activeHibernateSession().isTransactionActive()  && !this.activeHibernateSession().isReadonly() 
+            || GrouperConfig.getPropertyBoolean("jdbc.useSavePointsOnAllNewTransactions", false))) {
           try {
             this.savepoint = this.activeHibernateSession().getSession().connection().setSavepoint();
             savePointCount++;
@@ -144,6 +145,9 @@ public class HibernateSession {
             throw new RuntimeException("Problem setting save point for transaction type: " 
                 + grouperTransactionType, sqle);
           }
+        } else if (GrouperDdlUtils.isHsql() && parentHibernateSession != null) {
+          //do this for tests...
+          savePointCount++;
         }
       }
     }

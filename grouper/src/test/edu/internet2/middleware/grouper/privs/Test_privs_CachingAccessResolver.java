@@ -46,7 +46,7 @@ public class Test_privs_CachingAccessResolver extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new Test_privs_CachingAccessResolver("test_hasPrivilege_cacheMiss"));
+    TestRunner.run(new Test_privs_CachingAccessResolver("test_hasPrivilege_emptyCache"));
   }
 
   /**
@@ -180,12 +180,7 @@ public class Test_privs_CachingAccessResolver extends GrouperTest {
     resolver.hasPrivilege( this.g, SubjectFinder.findAllSubject(), AccessPrivilege.ADMIN );
     assertEquals( before + 1, resolver.getStats(CachingAccessResolver.CACHE_HASPRIV).getHits() );
   }
-  /**
-   * @since   1.2.1
-   */
-  public void test_hasPrivilege_emptyCache() {
-    assertEquals( 0, resolver.getStats(CachingAccessResolver.CACHE_HASPRIV).getSize() );
-  }
+
   /**
    * @since   1.2.1
    */
