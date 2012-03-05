@@ -786,23 +786,37 @@ public class GrouperInstaller {
           System.out.println("stdout: " + commandResult.getOutputText());
         }
 
-          
-        commands = GrouperInstallerUtils.toList("dos2unix", 
-            this.untarredApiDir.getAbsolutePath() + File.separator + "bin" + File.separator + "gsh.sh");
-  
-        System.out.println("Making sure gsh.sh is in unix format: " + convertCommandsIntoCommand(commands) + "\n");
-  
-        commandResult = GrouperInstallerUtils.execCommand(
-            GrouperInstallerUtils.toArray(commands, String.class), true, true, null, 
-            new File(this.untarredApiDir.getAbsolutePath() + File.separator + "bin"), null);
+        System.out.print("Do you want to run dos2unix on ghs.sh (t|f)? [t]: ");
+        setGshFile = readFromStdInBoolean(true);
         
-        if (!GrouperInstallerUtils.isBlank(commandResult.getErrorText())) {
-          System.out.println("stderr: " + commandResult.getErrorText());
+        if (setGshFile) {
+        
+          
+          commands = GrouperInstallerUtils.toList("dos2unix", 
+              this.untarredApiDir.getAbsolutePath() + File.separator + "bin" + File.separator + "gsh.sh");
+    
+          System.out.println("Making sure gsh.sh is in unix format: " + convertCommandsIntoCommand(commands) + "\n");
+          String error = null;
+          try {
+            commandResult = GrouperInstallerUtils.execCommand(
+                GrouperInstallerUtils.toArray(commands, String.class), true, true, null, 
+                new File(this.untarredApiDir.getAbsolutePath() + File.separator + "bin"), null);
+          } catch (Throwable t) {
+            error = t.getMessage();
+          }
+          if (!GrouperInstallerUtils.isBlank(commandResult.getErrorText())) {
+            System.out.println("stderr: " + commandResult.getErrorText());
+          }
+          if (!GrouperInstallerUtils.isBlank(commandResult.getOutputText())) {
+            System.out.println("stdout: " + commandResult.getOutputText());
+          }
+          if (!GrouperInstallerUtils.isBlank(error)) {
+            System.out.println("Error: " + error);
+            System.out.println("NOTE: you might need to run this to convert newline characters to mac/unix:\n\n" +
+            		"cat " + this.untarredApiDir.getAbsolutePath() + File.separator + "bin" + File.separator + "gsh.sh" 
+            		+ " | col -b > " + this.untarredApiDir.getAbsolutePath() + File.separator + "bin" + File.separator + "gsh.sh\n");
+          }
         }
-        if (!GrouperInstallerUtils.isBlank(commandResult.getOutputText())) {
-          System.out.println("stdout: " + commandResult.getOutputText());
-        }
-
       }
       
     }
@@ -1006,7 +1020,7 @@ public class GrouperInstaller {
     	File unzippedPspFile = unzip(pspDir.getAbsolutePath());
         File untarredPspDir = untar(unzippedPspFile.getAbsolutePath());              
         try {
-			GrouperInstallerUtils.copyDirectory(untarredPspDir, untarredApiDir);
+			GrouperInstallerUtils.copyDirectory(untarredPspDir, this.untarredApiDir);
 		} catch (IOException e) {
 			System.err.println("An error occurred : " + e.getMessage());
 			e.printStackTrace();
