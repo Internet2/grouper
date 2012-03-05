@@ -323,7 +323,7 @@ public enum RuleCheckType {
         for (Membership membership : GrouperUtil.nonNull(memberships)) {
           
           RulesMembershipBean rulesMembershipBean = new RulesMembershipBean(membership, 
-              membership.getGroup(), membership.getMember().getSubject());
+              membership.getOwnerGroup(), membership.getMember().getSubject());
           
           ruleDefinition.getThen().fireRule(ruleDefinition, ruleEngine, 
               rulesMembershipBean, logDataForThisDefinition);

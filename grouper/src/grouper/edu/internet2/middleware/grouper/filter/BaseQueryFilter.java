@@ -66,7 +66,7 @@ public class BaseQueryFilter<ValueType> implements QueryFilter<ValueType> {
       else if ( o instanceof Membership ) {
         Membership ms = (Membership) o;
         try {
-          if ( ns.isChildGroup( ms.getGroup() ) ) {
+          if ( ns.isChildGroup( ms.getOwnerGroup() ) ) {
             filtered.add(ms);
           }
         }

@@ -124,6 +124,7 @@ import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.AccessResolver;
 import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
+import edu.internet2.middleware.grouper.privs.WheelCache;
 import edu.internet2.middleware.grouper.rules.RuleCheckType;
 import edu.internet2.middleware.grouper.rules.RuleDefinition;
 import edu.internet2.middleware.grouper.rules.RuleEngine;
@@ -1115,6 +1116,9 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
               }
               if (doesntExist) {
                 
+                //this might be a wheel or a member of wheel...  maybe there is a more efficient way to do this...
+                PrivilegeHelper.flushCache();
+                
                 EVENT_LOG.groupAddMember(GrouperSession.staticGrouperSession(), Group.this.getName(), subj, f, sw);
                 
                 RulesMembershipBean rulesMembershipBean = new RulesMembershipBean(membership, Group.this, subj);
@@ -2012,6 +2016,10 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
 
             sw.stop();
             if (notAlreadyDeleted) {
+              
+              //this might be a wheel or a member of wheel...  maybe there is a more efficient way to do this...
+              PrivilegeHelper.flushCache();
+
               EVENT_LOG.groupDelMember(GrouperSession.staticGrouperSession(), 
                   Group.this.getName(), subj, f, sw);
 
@@ -6131,7 +6139,7 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
     while (membershipsIter.hasNext()) {
       Membership existingMembership = membershipsIter.next();
       Field f = FieldFinder.findById(existingMembership.getFieldId(), true);
-      Group g = existingMembership.getGroup();
+      Group g = existingMembership.getOwnerGroup();
       PrivilegeHelper.dispatch(session, g, session.getSubject(), f.getWritePriv());
       Membership copiedMembership = existingMembership.clone();
       copiedMembership.setMemberUuid(member.getUuid());

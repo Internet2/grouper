@@ -361,8 +361,7 @@ public class Membership extends GrouperAPI implements
   /** */
   public  static final  String            CACHE_GET_ATTR_DEF = 
     Membership.class.getName() + ".getAttributeDef";
-  /** */
-  private static        EhcacheController cc= new EhcacheController();
+
   /** */
   public  static final  String            CACHE_GET_STEM = Membership.class.getName() + ".getStem";
  
@@ -1497,7 +1496,7 @@ public class Membership extends GrouperAPI implements
    * @return group
    */
   private Group getGroupFromCache(String uuid) {
-	  Element el = cc.getCache(CACHE_GET_GROUP).get(uuid);
+	  Element el = EhcacheController.ehcacheController().getCache(CACHE_GET_GROUP).get(uuid);
 	    if (el != null) {
 	      return (Group) el.getObjectValue();
 	    }
@@ -1510,7 +1509,7 @@ public class Membership extends GrouperAPI implements
    * @return attribute def
    */
   private AttributeDef getAttributeDefFromCache(String uuid) {
-    Element el = cc.getCache(CACHE_GET_GROUP).get(uuid);
+    Element el = EhcacheController.ehcacheController().getCache(CACHE_GET_ATTR_DEF).get(uuid);
       if (el != null) {
         return (AttributeDef) el.getObjectValue();
       }
@@ -1523,7 +1522,7 @@ public class Membership extends GrouperAPI implements
    * @return stem
    */
   private Stem getStemFromCache(String uuid) {
-	  Element el = cc.getCache(CACHE_GET_STEM).get(uuid);
+	  Element el = EhcacheController.ehcacheController().getCache(CACHE_GET_STEM).get(uuid);
 	    if (el != null) {
 	      return (Stem) el.getObjectValue();
 	    }
@@ -1535,7 +1534,7 @@ public class Membership extends GrouperAPI implements
    * @param g
    */
   private void putGroupInCache(Group g) {
-	  cc.getCache(CACHE_GET_GROUP).put( new Element( g.getUuid(),g) );
+    EhcacheController.ehcacheController().getCache(CACHE_GET_GROUP).put( new Element( g.getUuid(),g) );
   }
 
   /**
@@ -1543,7 +1542,7 @@ public class Membership extends GrouperAPI implements
    * @param stem
    */
   private void putStemInCache(Stem stem) {
-	  cc.getCache(CACHE_GET_STEM).put( new Element( stem.getUuid(),stem) );
+    EhcacheController.ehcacheController().getCache(CACHE_GET_STEM).put( new Element( stem.getUuid(),stem) );
   }
 
 
@@ -2474,7 +2473,7 @@ public class Membership extends GrouperAPI implements
    * This is for internal use only.
    * @param owner
    */
-  public void setOwnerId(@SuppressWarnings("unused") String owner) {
+  public void setOwnerId(String owner) {
     // not used
   }
 
@@ -2607,7 +2606,7 @@ public class Membership extends GrouperAPI implements
    * @param attributeDef
    */
   private void putAttributeDefInCache(AttributeDef attributeDef) {
-    cc.getCache(CACHE_GET_ATTR_DEF).put( new Element( attributeDef.getId(),attributeDef) );
+    EhcacheController.ehcacheController().getCache(CACHE_GET_ATTR_DEF).put( new Element( attributeDef.getId(),attributeDef) );
   }
 
   /**

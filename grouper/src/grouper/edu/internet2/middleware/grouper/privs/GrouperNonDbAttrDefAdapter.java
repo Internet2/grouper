@@ -328,7 +328,7 @@ public class GrouperNonDbAttrDefAdapter extends BaseAttrDefAdapter implements
       Membership existingMembership = membershipsIter.next();
       Group g;
       try {
-        g = existingMembership.getGroup();
+        g = existingMembership.getOwnerGroup();
       } catch (GroupNotFoundException e1) {
         throw new GrouperException(e1.getMessage(), e1);
       }

@@ -14,10 +14,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.collections.keyvalue.MultiKey;
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.criterion.Criterion;
-import org.hibernate.criterion.Expression;
 import org.hibernate.criterion.Restrictions;
 
 import edu.internet2.middleware.grouper.Member;
@@ -182,10 +180,10 @@ public class UserAuditQuery {
     }
     
     if (this.fromDate != null) {
-      criterionList.add(Expression.ge(AuditEntry.FIELD_LAST_UPDATED_DB, this.fromDate.getTime()));
+      criterionList.add(Restrictions.ge(AuditEntry.FIELD_LAST_UPDATED_DB, this.fromDate.getTime()));
     }
     if (this.toDate != null) {
-      criterionList.add(Expression.le(AuditEntry.FIELD_LAST_UPDATED_DB, this.toDate.getTime()));
+      criterionList.add(Restrictions.le(AuditEntry.FIELD_LAST_UPDATED_DB, this.toDate.getTime()));
     }
     
     if (this.onDate != null) {
@@ -199,8 +197,8 @@ public class UserAuditQuery {
       long from = calendar.getTimeInMillis();
       calendar.add(Calendar.DAY_OF_YEAR, 1);
       long to = calendar.getTimeInMillis();
-      criterionList.add(Expression.ge(AuditEntry.FIELD_LAST_UPDATED_DB, from));
-      criterionList.add(Expression.le(AuditEntry.FIELD_LAST_UPDATED_DB, to));
+      criterionList.add(Restrictions.ge(AuditEntry.FIELD_LAST_UPDATED_DB, from));
+      criterionList.add(Restrictions.le(AuditEntry.FIELD_LAST_UPDATED_DB, to));
     }
     
     Criterion loggedInCriterion = null;

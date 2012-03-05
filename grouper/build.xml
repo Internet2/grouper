@@ -42,10 +42,6 @@
     <then><copy file="${conf.dir}/ehcache.example.xml" 
       tofile="${conf.dir}/ehcache.xml" /></then>
   </if> 
-  <if><not><available file="${conf.dir}/grouper.ehcache.xml" /></not>
-    <then><copy file="${conf.dir}/grouper.ehcache.example.xml" 
-      tofile="${conf.dir}/grouper.ehcache.xml" /></then>
-  </if> 
   <if><not><available file="${conf.dir}/grouper.properties" /></not>
     <then><copy file="${conf.dir}/grouper.example.properties" 
       tofile="${conf.dir}/grouper.properties" /></then>
@@ -389,7 +385,6 @@
     </copy>
 
     <copy file="${dist.binary.zip}/conf/ehcache.example.xml" tofile="${dist.binary.zip}/conf/ehcache.xml" />
-    <copy file="${dist.binary.zip}/conf/grouper.ehcache.example.xml" tofile="${dist.binary.zip}/conf/grouper.ehcache.xml" />
     <copy file="${dist.binary.zip}/conf/grouper.example.properties" tofile="${dist.binary.zip}/conf/grouper.properties" />
     <copy file="${dist.binary.zip}/conf/grouper.client.example.properties" tofile="${dist.binary.zip}/conf/grouper.client.properties" />
     <copy file="${dist.binary.zip}/conf/grouper.hibernate.example.properties" tofile="${dist.binary.zip}/conf/grouper.hibernate.properties" />

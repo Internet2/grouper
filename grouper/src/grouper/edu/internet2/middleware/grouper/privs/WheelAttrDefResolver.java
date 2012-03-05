@@ -17,8 +17,6 @@ package edu.internet2.middleware.grouper.privs;
 
 import java.util.Set;
 
-import net.sf.ehcache.Element;
-
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 
@@ -28,7 +26,6 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
-import edu.internet2.middleware.grouper.cache.EhcacheController;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.hibernate.HqlQuery;
@@ -52,7 +49,6 @@ public class WheelAttrDefResolver extends AttributeDefResolverDecorator {
    * @see edu.internet2.middleware.grouper.privs.AccessResolver#stop()
    */
   public void stop() {
-    this.cc.stop();
     super.getDecoratedResolver().stop();
   }
 
@@ -61,15 +57,6 @@ public class WheelAttrDefResolver extends AttributeDefResolverDecorator {
 
   /** wheel group */
   private Group wheelGroup;
-
-  /** 2007-11-02 Gary Brown
-   * Provide cache for wheel group members
-   * Profiling showed lots of time rechecking memberships */
-  public static final String CACHE_IS_WHEEL_MEMBER = WheelAttrDefResolver.class.getName()
-      + ".isWheelMember";
-
-  /** cache controller */
-  private EhcacheController cc;
 
   /** wheel session */
   private GrouperSession wheelSession = null;
@@ -86,7 +73,7 @@ public class WheelAttrDefResolver extends AttributeDefResolverDecorator {
    */
   public WheelAttrDefResolver(AttributeDefResolver resolver) {
     super(resolver);
-    this.cc = new EhcacheController();
+
     // TODO 20070816 this is ugly
     String useWheelString = GrouperConfig.getProperty(GrouperConfig.PROP_USE_WHEEL_GROUP);
     this.useWheel = Boolean.valueOf(useWheelString).booleanValue();
@@ -187,11 +174,7 @@ public class WheelAttrDefResolver extends AttributeDefResolverDecorator {
    * @since   1.2.1
    */
   private Boolean getFromIsWheelMemberCache(Subject subj) {
-    Element el = this.cc.getCache(CACHE_IS_WHEEL_MEMBER).get(subj);
-    if (el != null) {
-      return (Boolean) el.getObjectValue();
-    }
-    return null;
+    return WheelCache.getFromIsWheelMemberCache(subj);
   }
 
   /**
@@ -201,7 +184,7 @@ public class WheelAttrDefResolver extends AttributeDefResolverDecorator {
    * @since   1.2.1
    */
   private void putInHasPrivilegeCache(Subject subj, Boolean rv) {
-    this.cc.getCache(CACHE_IS_WHEEL_MEMBER).put(new Element(subj, rv));
+    WheelCache.putInHasPrivilegeCache(subj, rv);
   }
 
   /**
@@ -232,7 +215,7 @@ public class WheelAttrDefResolver extends AttributeDefResolverDecorator {
    * @see edu.internet2.middleware.grouper.privs.AccessResolver#flushCache()
    */
   public void flushCache() {
-    this.cc.flushCache();
+    WheelCache.flush();
     super.getDecoratedResolver().flushCache();
   }
 

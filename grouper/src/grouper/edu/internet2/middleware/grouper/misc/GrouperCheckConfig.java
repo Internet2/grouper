@@ -299,7 +299,6 @@ public class GrouperCheckConfig {
     //make sure config files are there
     checkGrouperConfig();
     checkResource("ehcache.xml");
-    checkResource("grouper.ehcache.xml");
     checkResource("grouper.hibernate.properties");
     checkResource("log4j.properties");
     checkResource("morphString.properties");

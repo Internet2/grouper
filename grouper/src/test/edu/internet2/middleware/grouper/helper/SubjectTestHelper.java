@@ -17,8 +17,11 @@
 
 package edu.internet2.middleware.grouper.helper;
 import junit.framework.Assert;
+import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.exception.GrouperException;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
 import edu.internet2.middleware.subject.SubjectNotUniqueException;
@@ -32,18 +35,18 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  public class SubjectTestHelper {
 
   // public Class Constants
-  public static final Subject  SUBJA;
-  public static final Subject  SUBJR;
-  public static final Subject  SUBJ0;
-  public static final Subject  SUBJ1;
-  public static final Subject  SUBJ2;
-  public static final Subject  SUBJ3;
-  public static final Subject  SUBJ4;
-  public static final Subject  SUBJ5;
-  public static final Subject  SUBJ6;
-  public static final Subject  SUBJ7;
-  public static final Subject  SUBJ8;
-  public static final Subject  SUBJ9;
+  public static Subject  SUBJA;
+  public static Subject  SUBJR;
+  public static Subject  SUBJ0;
+  public static Subject  SUBJ1;
+  public static Subject  SUBJ2;
+  public static Subject  SUBJ3;
+  public static Subject  SUBJ4;
+  public static Subject  SUBJ5;
+  public static Subject  SUBJ6;
+  public static Subject  SUBJ7;
+  public static Subject  SUBJ8;
+  public static Subject  SUBJ9;
   public static final String   SUBJ0_ID    = "test.subject.0";
   public static final String   SUBJ0_IDENTIFIER    = "id.test.subject.0";
   public static final String   SUBJ0_NAME  = "my name is test.subject.0";
@@ -89,18 +92,36 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
 
   static {
     try {
-      SUBJ0 = SubjectFinder.findByIdAndSource(SUBJ0_ID, "jdbc", true);
-      SUBJ1 = SubjectFinder.findByIdAndSource(SUBJ1_ID, "jdbc", true);
-      SUBJ2 = SubjectFinder.findByIdAndSource(SUBJ2_ID, "jdbc", true);
-      SUBJ3 = SubjectFinder.findByIdAndSource(SUBJ3_ID, "jdbc", true);
-      SUBJ4 = SubjectFinder.findByIdAndSource(SUBJ4_ID, "jdbc", true);
-      SUBJ5 = SubjectFinder.findByIdAndSource(SUBJ5_ID, "jdbc", true);
-      SUBJ6 = SubjectFinder.findByIdAndSource(SUBJ6_ID, "jdbc", true);
-      SUBJ7 = SubjectFinder.findByIdAndSource(SUBJ7_ID, "jdbc", true);
-      SUBJ8 = SubjectFinder.findByIdAndSource(SUBJ8_ID, "jdbc", true);
-      SUBJ9 = SubjectFinder.findByIdAndSource(SUBJ9_ID, "jdbc", true);
-      SUBJA = SubjectFinder.findAllSubject();
-      SUBJR = SubjectFinder.findRootSubject();
+      GrouperSession grouperSession = GrouperSession.staticGrouperSession(false);
+      boolean started = false;
+      if (grouperSession == null) {
+        grouperSession = GrouperSession.startRootSession();
+        started = true;
+      } else {
+        grouperSession = grouperSession.internal_getRootSession();
+      }
+      GrouperSession.callbackGrouperSession(grouperSession, new GrouperSessionHandler() {
+        
+        @Override
+        public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+          SUBJ0 = SubjectFinder.findByIdAndSource(SUBJ0_ID, "jdbc", true);
+          SUBJ1 = SubjectFinder.findByIdAndSource(SUBJ1_ID, "jdbc", true);
+          SUBJ2 = SubjectFinder.findByIdAndSource(SUBJ2_ID, "jdbc", true);
+          SUBJ3 = SubjectFinder.findByIdAndSource(SUBJ3_ID, "jdbc", true);
+          SUBJ4 = SubjectFinder.findByIdAndSource(SUBJ4_ID, "jdbc", true);
+          SUBJ5 = SubjectFinder.findByIdAndSource(SUBJ5_ID, "jdbc", true);
+          SUBJ6 = SubjectFinder.findByIdAndSource(SUBJ6_ID, "jdbc", true);
+          SUBJ7 = SubjectFinder.findByIdAndSource(SUBJ7_ID, "jdbc", true);
+          SUBJ8 = SubjectFinder.findByIdAndSource(SUBJ8_ID, "jdbc", true);
+          SUBJ9 = SubjectFinder.findByIdAndSource(SUBJ9_ID, "jdbc", true);
+          SUBJA = SubjectFinder.findAllSubject();
+          SUBJR = SubjectFinder.findRootSubject();
+          return null;
+        }
+      });
+      if (started) {
+        GrouperSession.stopQuietly(grouperSession);
+      }
     }
     catch (Exception e) {
       throw new RuntimeException(

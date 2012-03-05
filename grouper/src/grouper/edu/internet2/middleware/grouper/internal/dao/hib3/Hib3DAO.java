@@ -309,7 +309,7 @@ public abstract class Hib3DAO {
 	 * @param persistentClass
 	 */
 	public static void evict(Class persistentClass) {
-	  FACTORY.evict(persistentClass);
+	  FACTORY.getCache().evictEntityRegion(persistentClass);
 	}
 	
   /**
@@ -317,7 +317,7 @@ public abstract class Hib3DAO {
    * @param entityName
    */
   public static void evictEntity(String entityName) {
-    FACTORY.evictEntity(entityName);
+    FACTORY.getCache().evictEntityRegion(entityName);
   }
   
   /**
@@ -325,7 +325,7 @@ public abstract class Hib3DAO {
    * @param cacheRegion
    */
   public static void evictQueries(String cacheRegion) {
-    FACTORY.evictQueries(cacheRegion);
+    FACTORY.getCache().evictQueryRegion(cacheRegion);
   }
   
 } 

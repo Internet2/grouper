@@ -21,6 +21,7 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.cache.EhcacheController;
 import edu.internet2.middleware.grouper.cfg.ApiConfig;
 import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
@@ -105,7 +106,7 @@ public class Test_privs_CachingNamingResolver extends GrouperTest {
    */
   public void test_hasPrivilege_cacheMiss() {
 
-    resolver.internal_getCc().getCache(CachingNamingResolver.CACHE_HASPRIV).setStatisticsEnabled(true);
+    EhcacheController.ehcacheController().getCache(CachingNamingResolver.CACHE_HASPRIV).setStatisticsEnabled(true);
 
     long before = resolver.getStats(CachingNamingResolver.CACHE_HASPRIV).getMisses();
     resolver.hasPrivilege( this.ns, SubjectFinder.findAllSubject(), NamingPrivilege.STEM );
@@ -116,7 +117,7 @@ public class Test_privs_CachingNamingResolver extends GrouperTest {
    * @since   1.2.1
    */
   public void test_hasPrivilege_cacheHit() {
-    resolver.internal_getCc().getCache(CachingNamingResolver.CACHE_HASPRIV).setStatisticsEnabled(true);
+    EhcacheController.ehcacheController().getCache(CachingNamingResolver.CACHE_HASPRIV).setStatisticsEnabled(true);
 
     long before = resolver.getStats(CachingNamingResolver.CACHE_HASPRIV).getHits();
     resolver.hasPrivilege( this.ns, SubjectFinder.findAllSubject(), NamingPrivilege.STEM );
@@ -127,15 +128,10 @@ public class Test_privs_CachingNamingResolver extends GrouperTest {
   /**
    * @since   1.2.1
    */
-  public void test_hasPrivilege_emptyCache() {
-    assertEquals( 0, resolver.getStats(CachingNamingResolver.CACHE_HASPRIV).getSize() );
-  }
-  /**
-   * @since   1.2.1
-   */
   public void test_hasPrivilege_cacheSize() {
+    long size = resolver.getStats(CachingNamingResolver.CACHE_HASPRIV).getSize();
     resolver.hasPrivilege( this.ns, SubjectFinder.findAllSubject(), NamingPrivilege.STEM );
-    assertEquals( 1, resolver.getStats(CachingNamingResolver.CACHE_HASPRIV).getSize() );
+    assertEquals(size+ 1, resolver.getStats(CachingNamingResolver.CACHE_HASPRIV).getSize() );
   }
 
 }

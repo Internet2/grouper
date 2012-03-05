@@ -488,7 +488,7 @@ public class XmlExporter {
     }
     sb.append( "</immediate>" );
     sb.append( GrouperConfig.NL );
-    sb.append( this.internal_groupToXML( ms.getGroup(), true ) );
+    sb.append( this.internal_groupToXML( ms.getOwnerGroup(), true ) );
     sb.append( this.internal_subjectToXML( ms.getMember().getSubject(), GrouperConfig.EMPTY_STRING ) );
     sb.append( "</membership>" );
     sb.append( GrouperConfig.NL );

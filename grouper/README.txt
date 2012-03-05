@@ -45,8 +45,6 @@ Please send email to the [grouper-dev][1] list or report them in the [issue trac
 	  and are copied to the file names below by the build process.
       * "ehcache.xml"
         Hibernate ehcache configuration.
-	  * "grouper.ehcache.xml"
-        Hibernate ehcache configuration.
       * "grouper.hibernate.properties"
         Grouper's Hibernate configuration file.  
       * "grouper.properties"
