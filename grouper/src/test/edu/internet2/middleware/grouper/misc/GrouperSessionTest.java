@@ -63,7 +63,7 @@ public class GrouperSessionTest extends GrouperTest {
     
     //##########################################
     //NOT SURE WHY THIS FAILS SOMETIMES, JUST RUN BY ITSELF AND IT SHOULD PASS!!!!
-    assertTrue(CacheManager.ALL_CACHE_MANAGERS.size() + ", " + cacheSize, CacheManager.ALL_CACHE_MANAGERS.size() > cacheSize);
+    assertEquals( CacheManager.ALL_CACHE_MANAGERS.size(), cacheSize);
     //##########################################
     
     grouperSession.stop();
