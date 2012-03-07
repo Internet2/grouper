@@ -259,7 +259,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
     }
     
     Object id = HibernateSession.byHqlStatic()
-      .createQuery("select g.uuid from Group as g where g.uuid = :uuid")
+      .createQuery("select theGroup.uuid from Group as theGroup where theGroup.uuid = :uuid")
       .setCacheable(false)
       .setCacheRegion(KLASS + ".Exists")
       .setString("uuid", uuid).uniqueResult(Object.class);
@@ -293,15 +293,15 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
             
             String valLowerForQuery = "%" + val.toLowerCase() + "%";
             Set<Group> groups = hibernateSession.byHql().createQuery(
-                "select g from Group as g where "
-                  + "lower(g.nameDb) like :value "
-                  + "or lower(g.extensionDb) like :value "
-                  + "or lower(g.displayNameDb) like :value "
-                  + "or lower(g.extensionDb) like :value "
-                  + "or lower(g.displayExtensionDb) like :value "
-                  + "or lower(g.descriptionDb) like :value "
+                "select theGroup from Group as theGroup where "
+                  + "lower(theGroup.nameDb) like :value "
+                  + "or lower(theGroup.extensionDb) like :value "
+                  + "or lower(theGroup.displayNameDb) like :value "
+                  + "or lower(theGroup.extensionDb) like :value "
+                  + "or lower(theGroup.displayExtensionDb) like :value "
+                  + "or lower(theGroup.descriptionDb) like :value "
                   + "or exists " +
-                "(select a from Attribute as a where lower(a.value) like :value and a.groupUuid = g.uuid) "
+                "(select a from Attribute as a where lower(a.value) like :value and a.groupUuid = theGroup.uuid) "
               ).setCacheable(false).setCacheRegion(KLASS + ".FindAllByAnyApproximateAttr")
               .setString( "value", valLowerForQuery ).listSet(Group.class);
 
@@ -333,16 +333,16 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
             HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
             
             Set<Group> groups = hibernateSession.byHql().createQuery(
-                "select g from Group as g where "
-                + "(lower(g.nameDb) like :value "
-                + "or lower(g.extensionDb) like :value "
-                + "or lower(g.displayNameDb) like :value "
-                + "or lower(g.extensionDb) like :value "
-                + "or lower(g.displayExtensionDb) like :value "
-                + "or lower(g.descriptionDb) like :value "
+                "select theGroup from Group as theGroup where "
+                + "(lower(theGroup.nameDb) like :value "
+                + "or lower(theGroup.extensionDb) like :value "
+                + "or lower(theGroup.displayNameDb) like :value "
+                + "or lower(theGroup.extensionDb) like :value "
+                + "or lower(theGroup.displayExtensionDb) like :value "
+                + "or lower(theGroup.descriptionDb) like :value "
                 + "or exists " 
-                + "(select a from Attribute as a where lower(a.value) like :value and a.groupUuid = g.uuid) ) " 
-                + "and g.nameDb like :scope"
+                + "(select a from Attribute as a where lower(a.value) like :value and a.groupUuid = theGroup.uuid) ) " 
+                + "and theGroup.nameDb like :scope"
               ).setCacheable(false).setCacheRegion(KLASS + ".FindAllByAnyApproximateAttr")
               .setString("value", "%" + val.toLowerCase() + "%").setString("scope", scope + "%").listSet(Group.class);
 
@@ -410,7 +410,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
             ByHqlStatic byHql = HibernateSession.byHqlStatic();
             
             
-            StringBuilder hql = new StringBuilder("select distinct g from Group as g ");
+            StringBuilder hql = new StringBuilder("select distinct theGroup from Group as theGroup ");
             if (!Group._internal_fieldAttribute(attr)) {
               hql.append(", Field field, Attribute as a ");
             }
@@ -423,7 +423,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
             if (secureQuery) {
               changedQuery = grouperSession.getAccessResolver().hqlFilterGroupsWhereClause(
                   grouperSession.getSubject(), byHql, 
-                  hql, "g.uuid", AccessPrivilege.VIEW_PRIVILEGES);
+                  hql, "theGroup.uuid", AccessPrivilege.VIEW_PRIVILEGES);
             }
             
             if (!changedQuery) {
@@ -433,15 +433,15 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
             }
             
             if (Group._internal_fieldAttribute(attr)) {
-              hql.append(" lower(g." + attr + "Db) like :value ");
+              hql.append(" lower(theGroup." + attr + "Db) like :value ");
             } else {
-              hql.append(" a.groupUuid = g.uuid " +
+              hql.append(" a.groupUuid = theGroup.uuid " +
                 "and field.name = :field and lower(a.value) like :value " +
                 "and field.uuid = a.fieldId and field.typeString = 'attribute' ");
               byHql.setString("field", attr);
             }
             if (!StringUtils.isBlank(scope)) {
-              hql.append(" and g.nameDb like :scope");
+              hql.append(" and theGroup.nameDb like :scope");
               byHql.setString("scope", scope + "%");
             }
 
@@ -629,9 +629,10 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
               byCriteriaStatic.options(queryOptions);
             }
             byCriteriaStatic.setCacheable(false);
+            byCriteriaStatic.setAlias("theGroup");
             byCriteriaStatic.setCacheRegion(KLASS + ".FindAllByApproximateName");
             
-            Set<Group> groups = byCriteriaStatic.listSet(Group.class, 
+            Set<Group> groups = byCriteriaStatic.listSet(Group.class,
                 HibUtils.listCrit(criterionList));
             
             return groups;
@@ -651,16 +652,18 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
     }
     for (QuerySortField querySortField : GrouperUtil.nonNull(querySort.getQuerySortFields())) {
       if (StringUtils.equals("extension", querySortField.getColumn())) {
-//        querySortField.setColumn("extensionDb");
+        querySortField.setColumn("theGroup.extensionDb");
       }
       if (StringUtils.equals("name", querySortField.getColumn())) {
-//        querySortField.setColumn("nameDb");
+        querySortField.setColumn("theGroup.nameDb");
       }
-      if (StringUtils.equals("displayExtension", querySortField.getColumn())) {
-        querySortField.setColumn("display_extension");
+      if (StringUtils.equals("displayExtension", querySortField.getColumn())
+          || StringUtils.equals("display_extension", querySortField.getColumn())) {
+        querySortField.setColumn("theGroup.displayExtensionDb");
       }
-      if (StringUtils.equals("displayName", querySortField.getColumn())) {
-        querySortField.setColumn("display_name");
+      if (StringUtils.equals("displayName", querySortField.getColumn())
+          || StringUtils.equals("display_name", querySortField.getColumn())) {
+        querySortField.setColumn("theGroup.displayNameDb");
       }
     }
 
@@ -887,10 +890,10 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
             HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
 
             Set<Group> groups = hibernateSession.byHql().createQuery(
-                "select g from Group as g, GroupTypeTuple as gtt " +
+                "select theGroup from Group as theGroup, GroupTypeTuple as gtt " +
                 "where gtt.typeUuid = :type " +
-                "and gtt.groupUuid = g.uuid " +
-                "and g.nameDb like :scope"
+                "and gtt.groupUuid = theGroup.uuid " +
+                "and theGroup.nameDb like :scope"
               ).setCacheable(false).setCacheRegion(KLASS + ".FindAllByType")
               .setString("type", _gt.getUuid()).setString("scope", scope + "%").listSet(Group.class);
 
@@ -915,11 +918,11 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
     String attributeHql = null;
     
     if (Group._internal_fieldAttribute(attr)) {
-      attributeHql = "select g from Group as g where g." + attr + "Db = :value";
+      attributeHql = "select theGroup from Group as theGroup where theGroup." + attr + "Db = :value";
       byHqlStatic.createQuery(attributeHql);
     } else {
-      attributeHql = "select g from Group as g, Field field, " +
-        "Attribute as a where a.groupUuid = g.uuid " +
+      attributeHql = "select theGroup from Group as theGroup, Field field, " +
+        "Attribute as a where a.groupUuid = theGroup.uuid " +
         "and field.name = :field and a.value like :value " +
         "and field.uuid = a.fieldId and field.typeString = 'attribute'";
       byHqlStatic.createQuery(attributeHql).setString("field", attr);
@@ -995,6 +998,9 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
             GroupNotFoundException {
     
     StringBuilder hql = new StringBuilder("select theGroup from Group as theGroup where (theGroup.nameDb = :value or theGroup.alternateNameDb = :value)");
+    if (queryOptions != null) {
+      massageSortFields(queryOptions.getQuerySort());
+    }
     ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic()
       .setCacheable(true).setCacheRegion(KLASS + ".FindByName").options(queryOptions);
     
@@ -1044,6 +1050,10 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
 
     TypeOfGroup.appendHqlQuery("theGroup", typeOfGroups, hql, byHqlStatic);
 
+    if (queryOptions != null) {
+      massageSortFields(queryOptions.getQuerySort());
+    }
+
     byHqlStatic.createQuery(hql.toString())
       .setCacheable(true).setCacheRegion(KLASS + ".FindByNameSecure").options(queryOptions);
 
@@ -1071,7 +1081,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
   public Group findByCurrentName(String name, boolean exceptionIfNotFound)
       throws GrouperDAOException, GroupNotFoundException {
     Group group = HibernateSession.byHqlStatic()
-      .createQuery("select g from Group as g where g.nameDb = :value")
+      .createQuery("select theGroup from Group as theGroup where theGroup.nameDb = :value")
       .setCacheable(false)
       .setCacheRegion(KLASS + ".FindByCurrentName")
       .setString("value", name).uniqueResult(Group.class);
@@ -1094,7 +1104,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
   public Group findByAlternateName(String name, boolean exceptionIfNotFound)
       throws GrouperDAOException, GroupNotFoundException {
     Group group = HibernateSession.byHqlStatic()
-      .createQuery("select g from Group as g where g.alternateNameDb = :value")
+      .createQuery("select theGroup from Group as theGroup where theGroup.alternateNameDb = :value")
       .setCacheable(false)
       .setCacheRegion(KLASS + ".FindByAlternateName")
       .setString("value", name).uniqueResult(Group.class);
@@ -1165,6 +1175,10 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
 
     TypeOfGroup.appendHqlQuery("theGroup", typeOfGroups, hql, byHqlStatic);
 
+    if (queryOptions != null) {
+      massageSortFields(queryOptions.getQuerySort());
+    }
+
     Group group = byHqlStatic
       .createQuery(hql.toString())
       .setCacheable(true)
@@ -1203,6 +1217,10 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
 
     TypeOfGroup.appendHqlQuery("theGroup", typeOfGroups, sql, byHqlStatic);
 
+    if (queryOptions != null) {
+      massageSortFields(queryOptions.getQuerySort());
+    }
+
     byHqlStatic
       .createQuery(sql.toString())
       .setCacheable(true)
@@ -1232,7 +1250,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
             HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
 
             Set<Group> groups = hibernateSession.byHql().createQuery(
-                "select g from Group as g")
+                "select theGroup from Group as theGroup")
               .setCacheable(false)
               .setCacheRegion(KLASS + ".GetAllGroups")
               .listSet(Group.class);
@@ -1261,7 +1279,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
             HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
 
             Set<Group> groups = hibernateSession.byHql().createQuery(
-                "select g from Group as g where g.nameDb like :scope")
+                "select theGroup from Group as theGroup where theGroup.nameDb like :scope")
               .setCacheable(false)
               .setCacheRegion(KLASS + ".GetAllGroups")
               .setString("scope", scope + "%")
@@ -1291,7 +1309,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
             HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
 
             Set<Group> groups = hibernateSession.byHql().createQuery(
-                "select g from Group as g where g.parentUuid = :parent")
+                "select theGroup from Group as theGroup where theGroup.parentUuid = :parent")
               .setCacheable(false)
               .setCacheRegion(KLASS + ".GetImmediateChildren")
               .setString("parent", stem.getUuid())
@@ -1414,11 +1432,11 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
             String attributeHql = null;
             ByHql byHql = hibernateSession.byHql();
             if (Group._internal_fieldAttribute(attr)) {
-              attributeHql = "select g from Group as g where g." + attr + "Db = :value";
+              attributeHql = "select theGroup from Group as theGroup where theGroup." + attr + "Db = :value";
               byHql.createQuery(attributeHql);
             } else {
-              attributeHql = "select g from Group as g, Field field, " +
-                "Attribute as a where a.groupUuid = g.uuid " +
+              attributeHql = "select theGroup from Group as theGroup, Field field, " +
+                "Attribute as a where a.groupUuid = theGroup.uuid " +
                 "and field.name = :field and a.value = :value " +
                 "and field.uuid = a.fieldId and field.typeString = 'attribute'";
               byHql.createQuery(attributeHql).setString("field", attr);
@@ -1456,15 +1474,15 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
             String attributeHql = null;
             ByHql byHql = hibernateSession.byHql();
             if (Group._internal_fieldAttribute(attr)) {
-              attributeHql = "select g from Group as g where g." + attr + "Db = :value " +
-                "and g.nameDb like :scope";
+              attributeHql = "select theGroup from Group as theGroup where theGroup." + attr + "Db = :value " +
+                "and theGroup.nameDb like :scope";
               byHql.createQuery(attributeHql);
             } else {
-              attributeHql = "select g from Group as g, Field field, " +
-                "Attribute as a where a.groupUuid = g.uuid " +
+              attributeHql = "select theGroup from Group as theGroup, Field field, " +
+                "Attribute as a where a.groupUuid = theGroup.uuid " +
                 "and field.name = :field and a.value = :value " +
                 "and field.uuid = a.fieldId and field.typeString = 'attribute' " +
-                "and g.nameDb like :scope";
+                "and theGroup.nameDb like :scope";
               byHql.createQuery(attributeHql).setString("field", attr);
             }
             
@@ -1489,7 +1507,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
       throw new RuntimeException("Need to pass in a member");
     }
     Set<Group> groups = HibernateSession.byHqlStatic()
-      .createQuery("from Group as g where g.creatorUuid = :uuid1 or g.modifierUuid = :uuid2")
+      .createQuery("from Group as theGroup where theGroup.creatorUuid = :uuid1 or theGroup.modifierUuid = :uuid2")
       .setCacheable(false)
       .setCacheRegion(KLASS + ".FindByCreatorOrModifier")
       .setString( "uuid1", member.getUuid() ).setString("uuid2", member.getUuid())
@@ -1542,6 +1560,9 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
     
     try {
 
+      if (queryOptions != null) {
+        massageSortFields(queryOptions.getQuerySort());
+      }
       Set<Group> groups = byHqlStatic.createQuery(sql.toString())
         .setCacheable(false)
         .setCacheRegion(KLASS + ".GetAllGroupsSecure")
@@ -1670,6 +1691,10 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
     
     try {
 
+      if (queryOptions != null) {
+        massageSortFields(queryOptions.getQuerySort());
+      }
+
       Set<Group> groups = byHqlStatic.createQuery(sql.toString())
         .setString("parent", stem.getUuid())
         .setCacheable(false)
@@ -1713,8 +1738,8 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
       List<String> uuidPageList = GrouperUtil.batchList(uuidsList, batchSize, i);
 
       ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
-      StringBuilder query = new StringBuilder("select g from Group as g "
-          + " where g.uuid in (");
+      StringBuilder query = new StringBuilder("select theGroup from Group as theGroup "
+          + " where theGroup.uuid in (");
 
       //add all the uuids
       byHqlStatic.setCollectionInClause(query, uuidPageList);
@@ -1833,6 +1858,10 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
         byHqlStatic.setString("scope", scope + "%");
       }
   
+      if (queryOptions != null) {
+        massageSortFields(queryOptions.getQuerySort());
+      }
+
       Set<Group> groups = byHqlStatic
         .setCacheable(false)
         .setCacheRegion(KLASS + ".GetAllGroupsSecureScope")
@@ -1894,6 +1923,10 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
     
     try {
   
+      if (queryOptions != null) {
+        massageSortFields(queryOptions.getQuerySort());
+      }
+
       Set<Group> groups = byHqlStatic.createQuery(sql.toString())
         .setString("parent", stem.getUuid())
         .setString("listId", listId)
@@ -2065,6 +2098,10 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
         .setString("listId", listId)
         .setString("memberId", member.getUuid());
   
+      if (queryOptions != null) {
+        massageSortFields(queryOptions.getQuerySort());
+      }
+
       Set<Group> groups = byHqlStatic
         .setCacheable(false)
         .setCacheRegion(KLASS + ".GetAllGroupsSecureStemScope")
@@ -2143,9 +2180,9 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
             HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
 
             ByHql byHql = hibernateSession.byHql().createQuery(
-                "select g from Group as g, GroupTypeTuple as gtt " +
+                "select theGroup from Group as theGroup, GroupTypeTuple as gtt " +
                 "where gtt.typeUuid = :type " +
-                "and gtt.groupUuid  = g.uuid"
+                "and gtt.groupUuid  = theGroup.uuid"
               );
             
             if (queryOptions != null && queryOptions.getSecondLevelCache() != null && !queryOptions.getSecondLevelCache()) {
@@ -2217,6 +2254,10 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
         throw new RuntimeException("Need to pass in a scope, or its not implemented: " + scope);
     }
     
+    if (queryOptions != null) {
+      massageSortFields(queryOptions.getQuerySort());
+    }
+
     Set<Group> groups = byHqlStatic.createQuery(sql.toString())
       .setCacheable(false)
       .setCacheRegion(KLASS + ".FindGroupsInStemWithoutPrivilege")
@@ -2344,6 +2385,9 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
 
     TypeOfGroup.appendHqlQuery("theGroup", typeOfGroups, sql, byHqlStatic);
     
+    if (queryOptions != null) {
+      massageSortFields(queryOptions.getQuerySort());
+    }
 
     Set<Group> groups = byHqlStatic.createQuery(sql.toString())
       .setCacheable(false)
@@ -2512,6 +2556,10 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
 
       TypeOfGroup.appendHqlQuery("theGroup", typeOfGroups, sql, byHqlStatic);
       
+      if (queryOptions != null) {
+        massageSortFields(queryOptions.getQuerySort());
+      }
+
       byHqlStatic
         .createQuery(sql.toString())
         .setCacheable(true)
@@ -2570,6 +2618,10 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
       sql.append(HibUtils.convertToInClause(uuidsBatch, byHqlStatic)).append(" ) ");
       
       TypeOfGroup.appendHqlQuery("theGroup", typeOfGroups, sql, byHqlStatic);
+
+      if (queryOptions != null) {
+        massageSortFields(queryOptions.getQuerySort());
+      }
 
       byHqlStatic
         .createQuery(sql.toString())

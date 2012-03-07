@@ -514,20 +514,24 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
     }
     for (QuerySortField querySortField : GrouperUtil.nonNull(querySort.getQuerySortFields())) {
       if (StringUtils.equals("extension", querySortField.getColumn())) {
-//        querySortField.setColumn("extensionDb");
+        querySortField.setColumn("ns.extensionDb");
       }
       if (StringUtils.equals("name", querySortField.getColumn())) {
-//        querySortField.setColumn("nameDb");
+        querySortField.setColumn("ns.nameDb");
       }
-      if (StringUtils.equals("displayExtension", querySortField.getColumn())) {
-        querySortField.setColumn("display_extension");
+      if (StringUtils.equals("displayExtension", querySortField.getColumn())
+          || StringUtils.equals("display_extension", querySortField.getColumn())) {
+        querySortField.setColumn("ns.displayExtensionDb");
       }
-      if (StringUtils.equals("displayName", querySortField.getColumn())) {
-        querySortField.setColumn("display_name");
+      if (StringUtils.equals("displayName", querySortField.getColumn())
+          || StringUtils.equals("display_name", querySortField.getColumn())) {
+        querySortField.setColumn("ns.displayNameDb");
       }
     }
 
   }
+
+
 
   /**
    * @param name 
@@ -1088,16 +1092,16 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
       queryOptions = new QueryOptions();
     }
     if (queryOptions.getQuerySort() == null) {
-      queryOptions.sortAsc("theStem.displayNameDb");
+      queryOptions.sortAsc("ns.displayNameDb");
     }
   
-    StringBuilder sql = new StringBuilder("select distinct theStem from Stem as theStem ");
+    StringBuilder sql = new StringBuilder("select distinct ns from Stem as ns ");
   
     ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
   
     //see if we are adding more to the query
     boolean changedQuery = grouperSession.getNamingResolver().hqlFilterStemsWhereClause(subject, byHqlStatic, 
-        sql, "theStem.uuid", inPrivSet);
+        sql, "ns.uuid", inPrivSet);
   
     if (!changedQuery) {
       sql.append(" where ");
@@ -1105,8 +1109,12 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
       sql.append(" and ");
     }
     
-    sql.append(" theStem.parentUuid = :parent ");
+    sql.append(" ns.parentUuid = :parent ");
     
+    if (queryOptions != null) {
+      massageSortFields(queryOptions.getQuerySort());
+    }
+
     Set<Stem> stems = byHqlStatic.createQuery(sql.toString())
       .setString("parent", stem.getUuid())
       .setCacheable(false)
@@ -1158,17 +1166,17 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
       queryOptions = new QueryOptions();
     }
     if (queryOptions.getQuerySort() == null) {
-      queryOptions.sortAsc("theStem.displayNameDb");
+      queryOptions.sortAsc("ns.displayNameDb");
     }
     //TODO update for 1.5
 
-    StringBuilder sql = new StringBuilder("select distinct theStem from Stem theStem ");
+    StringBuilder sql = new StringBuilder("select distinct ns from Stem ns ");
 
     ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
 
     //see if we are adding more to the query
     boolean changedQuery = grouperSession.getNamingResolver().hqlFilterStemsWhereClause(subject, byHqlStatic, 
-        sql, "theStem.uuid", inPrivSet);
+        sql, "ns.uuid", inPrivSet);
     
     //see if there is a scope
     if (!StringUtils.isBlank(scope)) {
@@ -1188,7 +1196,7 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
           }
           whereClause.append(" (( ");
         }
-        whereClause.append(" lower(theStem.nameDb) like :scope" + index + " ");
+        whereClause.append(" lower(ns.nameDb) like :scope" + index + " ");
         if (splitScope) {
           theScope = "%" + theScope + "%";
         } else if (!theScope.endsWith("%")) {
@@ -1198,13 +1206,16 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
         index++;
       }
 
-      whereClause.append(" ) or ( theStem.uuid = :stemId  )) ");
+      whereClause.append(" ) or ( ns.uuid = :stemId  )) ");
       byHqlStatic.setString("stemId", scope);
 
       sql.append(whereClause);
     }
 
-    
+    if (queryOptions != null) {
+      massageSortFields(queryOptions.getQuerySort());
+    }
+
     Set<Stem> stems = byHqlStatic.createQuery(sql.toString())
       .setCacheable(false)
       .setCacheRegion(KLASS + ".GetAllStemsSecure")
@@ -1310,6 +1321,10 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
     throws  GrouperDAOException,
             StemNotFoundException {
     try {
+      if (queryOptions != null) {
+        massageSortFields(queryOptions.getQuerySort());
+      }
+
       Stem stemDto = HibernateSession.byHqlStatic()
         .createQuery("from Stem as ns where ns.nameDb = :name or ns.alternateNameDb = :name")
         .setCacheable(true)
@@ -1341,6 +1356,9 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
     throws  GrouperDAOException,
             StemNotFoundException {
     try {
+      if (queryOptions != null) {
+        massageSortFields(queryOptions.getQuerySort());
+      }
       Stem stemDto = HibernateSession.byHqlStatic()
         .createQuery("from Stem as ns where ns.nameDb = :name")
         .setCacheable(true)
@@ -1372,6 +1390,9 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
     throws  GrouperDAOException,
             StemNotFoundException {
     try {
+      if (queryOptions != null) {
+        massageSortFields(queryOptions.getQuerySort());
+      }
       Stem stemDto = HibernateSession.byHqlStatic()
         .createQuery("from Stem as ns where ns.alternateNameDb = :name")
         .setCacheable(true)
@@ -1403,6 +1424,9 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
     throws  GrouperDAOException,
             StemNotFoundException {
     try {
+      if (queryOptions != null) {
+        massageSortFields(queryOptions.getQuerySort());
+      }
       Stem stemDto = HibernateSession.byHqlStatic()
         .createQuery("from Stem as ns where ns.uuid = :uuid")
         .setCacheable(true)
@@ -1513,8 +1537,8 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
       List<String> namePageList = GrouperUtil.batchList(namesList, batchSize, i);
 
       ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
-      StringBuilder query = new StringBuilder("select theStem from Stem as theStem "
-          + " where theStem.nameDb in (");
+      StringBuilder query = new StringBuilder("select ns from Stem as ns "
+          + " where ns.nameDb in (");
 
       //add all the uuids
       byHqlStatic.setCollectionInClause(query, namePageList);
@@ -1548,10 +1572,10 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
       queryOptions = new QueryOptions();
     }
     if (queryOptions.getQuerySort() == null) {
-      queryOptions.sortAsc("theStem.displayNameDb");
+      queryOptions.sortAsc("ns.displayNameDb");
     }
 
-    StringBuilder sql = new StringBuilder("select distinct theStem from Stem theStem, Group theGroup ");
+    StringBuilder sql = new StringBuilder("select distinct ns from Stem ns, Group theGroup ");
 
     ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
 
@@ -1565,10 +1589,13 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
       sql.append(" where ");
     }
     
-    sql.append(" theGroup.parentUuid = theStem.uuid ");
+    sql.append(" theGroup.parentUuid = ns.uuid ");
     
     try {
 
+      if (queryOptions != null) {
+        massageSortFields(queryOptions.getQuerySort());
+      }
       Set<Stem> stems = byHqlStatic.createQuery(sql.toString())
         .setCacheable(false)
         .setCacheRegion(KLASS + ".GetAllStemsWithGroupsSecure")
@@ -1597,23 +1624,23 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
       queryOptions = new QueryOptions();
     }
     if (queryOptions.getQuerySort() == null) {
-      queryOptions.sortAsc("theStem.displayNameDb");
+      queryOptions.sortAsc("ns.displayNameDb");
     }
 
-    StringBuilder sql = new StringBuilder("select distinct theStem from Stem theStem ");
+    StringBuilder sql = new StringBuilder("select distinct ns from Stem ns ");
 
     ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
 
     //see if we are adding more to the query, note, this is for the ADMIN list since the user should be able to read privs
     Set<Privilege> adminSet = GrouperUtil.toSet(NamingPrivilege.CREATE);
     grouperSession.getNamingResolver().hqlFilterStemsWhereClause(grouperSession.getSubject(), byHqlStatic, 
-        sql, "theStem.uuid", adminSet);
+        sql, "ns.uuid", adminSet);
 
     boolean changedQueryNotWithPriv = grouperSession.getNamingResolver().hqlFilterStemsNotWithPrivWhereClause(subject, byHqlStatic, 
-        sql, "theStem.uuid", privilege, considerAllSubject);
+        sql, "ns.uuid", privilege, considerAllSubject);
 
     if (!StringUtils.isBlank(sqlLikeString)) {
-      sql.append(" and theStem.nameDb like :sqlLikeString ");
+      sql.append(" and ns.nameDb like :sqlLikeString ");
       byHqlStatic.setString("sqlLikeString", sqlLikeString);
     }
     
@@ -1621,7 +1648,7 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
     switch (scope) {
       case ONE:
         
-        sql.append(" and theStem.parentUuid = :stemId ");
+        sql.append(" and ns.parentUuid = :stemId ");
         byHqlStatic.setString("stemId", stemId);
         
         break;
@@ -1629,7 +1656,7 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
       case SUB:
         
         Stem stem = StemFinder.findByUuid(grouperSession, stemId, true);
-        sql.append(" and theStem.nameDb like :stemPattern ");
+        sql.append(" and ns.nameDb like :stemPattern ");
         byHqlStatic.setString("stemPattern", stem.getName() + ":%");
 
         break;
@@ -1638,6 +1665,10 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
         throw new RuntimeException("Need to pass in a scope, or its not implemented: " + scope);
     }
     
+    if (queryOptions != null) {
+      massageSortFields(queryOptions.getQuerySort());
+    }
+
     Set<Stem> stems = byHqlStatic.createQuery(sql.toString())
       .setCacheable(false)
       .setCacheRegion(KLASS + ".FindStemsInStemWithoutPrivilege")
@@ -1700,6 +1731,10 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
     sql.append(HibUtils.convertToInClause(uuids, byHqlStatic));
     sql.append(") ");
    
+    if (queryOptions != null) {
+      massageSortFields(queryOptions.getQuerySort());
+    }
+
     Set<Stem> stems = byHqlStatic
       .createQuery(sql.toString())
       .setCacheable(true)
