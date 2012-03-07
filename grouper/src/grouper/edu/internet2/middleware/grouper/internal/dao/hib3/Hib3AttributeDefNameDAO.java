@@ -339,10 +339,12 @@ public class Hib3AttributeDefNameDAO extends Hib3DAO implements AttributeDefName
       if (StringUtils.equals("name", querySortField.getColumn())) {
         querySortField.setColumn("theAttributeDefName.nameDb");
       }
-      if (StringUtils.equals("displayExtension", querySortField.getColumn())) {
+      if (StringUtils.equals("displayExtension", querySortField.getColumn())
+          || StringUtils.equals("display_extension", querySortField.getColumn())) {
         querySortField.setColumn("theAttributeDefName.displayExtensionDb");
       }
-      if (StringUtils.equals("displayName", querySortField.getColumn())) {
+      if (StringUtils.equals("displayName", querySortField.getColumn())
+          || StringUtils.equals("display_name", querySortField.getColumn())) {
         querySortField.setColumn("theAttributeDefName.displayNameDb");
       }
       if (StringUtils.equals("description", querySortField.getColumn())) {
@@ -351,7 +353,6 @@ public class Hib3AttributeDefNameDAO extends Hib3DAO implements AttributeDefName
     }
 
   }
-
   
   /**
    * 

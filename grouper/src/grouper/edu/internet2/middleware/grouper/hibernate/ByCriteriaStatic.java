@@ -141,6 +141,11 @@ public class ByCriteriaStatic {
   private String cacheRegion = null;
 
   /**
+   * alias for class
+   */
+  private String alias = null;
+
+  /**
    * criterions to query
    */
   private Criterion criterions = null;
@@ -175,6 +180,16 @@ public class ByCriteriaStatic {
    */
   public ByCriteriaStatic setCacheRegion(String cacheRegion) {
     this.cacheRegion = cacheRegion;
+    return this;
+  }
+
+  /**
+   * alias for queried class
+   * @param theAlias the cacheRegion to set
+   * @return this object for chaining
+   */
+  public ByCriteriaStatic setAlias(String theAlias) {
+    this.alias = theAlias;
     return this;
   }
 
@@ -316,7 +331,9 @@ public class ByCriteriaStatic {
                   if (resultSize == -1) {
                     queryCountQueries++;
 
-                    Criteria countQuery = session.createCriteria(ByCriteriaStatic.this.persistentClass);
+                    Criteria countQuery = StringUtils.isBlank(ByCriteriaStatic.this.alias) ? 
+                        session.createCriteria(ByCriteriaStatic.this.persistentClass) 
+                        : session.createCriteria(ByCriteriaStatic.this.alias);
 
                     //turn it into a row count
                     countQuery.setProjection( Projections.projectionList()
@@ -368,7 +385,11 @@ public class ByCriteriaStatic {
     Criteria query = null;
     
     if (StringUtils.isBlank(this.entityName)) {
-      query = session.createCriteria(this.persistentClass);
+      if (StringUtils.isBlank(this.alias)) {
+        query = session.createCriteria(this.persistentClass);
+      } else {
+        query = session.createCriteria(this.persistentClass, alias);
+      }
     } else {
       query = session.createCriteria(this.entityName);
     }

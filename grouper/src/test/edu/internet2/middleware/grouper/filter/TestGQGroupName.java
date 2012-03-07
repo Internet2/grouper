@@ -34,6 +34,9 @@ import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SessionHelper;
 import edu.internet2.middleware.grouper.helper.StemHelper;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
+import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
+import edu.internet2.middleware.grouper.internal.dao.QuerySort;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.registry.RegistryReset;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -51,7 +54,7 @@ public class TestGQGroupName extends TestCase {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new TestGQGroupName("testGroupsInStemFilterSomethingNamePaged"));
+    TestRunner.run(new TestGQGroupName("testGroupNameFilterSomethingNamePaged"));
   }
   
   public TestGQGroupName(String name) {
@@ -469,6 +472,16 @@ public class TestGQGroupName extends TestCase {
     Group           uofc5  = StemHelper.addChildGroup(edu, "uofc3", "uchicago5");
     Group           uofc6  = StemHelper.addChildGroup(edu, "uofc2", "uchicago6");
     Stem            com   = StemHelper.addChildStem(root, "com", "commercial");
+    
+    for (Group group : GrouperDAOFactory.getFactory().getGroup().getAllGroupsSecure("edu", s, s.getSubject(), AccessPrivilege.VIEW_PRIVILEGES, new QueryOptions().sort(QuerySort.asc("displayName")), null)) {
+      //System.out.println(group.getName());
+      group.getName();
+    }
+    
+    for (Group group : GrouperDAOFactory.getFactory().getGroup().findAllByApproximateName("edu")) {
+      //System.out.println(group.getName());
+      group.getName();
+    }
     
     uofc.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.VIEW, false);
     uofc.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ, false);
