@@ -909,6 +909,111 @@
     overflowToDisk="false"
   />
 
+  <cache  name="edu.internet2.middleware.grouper.internal.dao.hib3.Hib3StemDAO.FindByCurrentName"
+    maxElementsInMemory="1000"
+    eternal="false"
+    timeToIdleSeconds="10"
+    timeToLiveSeconds="10"
+    overflowToDisk="false"
+  />
+
+  <cache  name="edu.internet2.middleware.grouper.internal.dao.hib3.Hib3StemDAO.FindByAlternateName"
+    maxElementsInMemory="1000"
+    eternal="false"
+    timeToIdleSeconds="10"
+    timeToLiveSeconds="10"
+    overflowToDisk="false"
+  />
+
+  <cache  name="edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GroupTypeTupleDAO.FindByUuidOrKey"
+    maxElementsInMemory="1000"
+    eternal="false"
+    timeToIdleSeconds="10"
+    timeToLiveSeconds="10"
+    overflowToDisk="false"
+  />
+
+  <cache  name="edu.internet2.middleware.grouper.internal.dao.hib3.Hib3CompositeDAO.FindByUuidOrName"
+    maxElementsInMemory="1000"
+    eternal="false"
+    timeToIdleSeconds="10"
+    timeToLiveSeconds="10"
+    overflowToDisk="false"
+  />
+
+  <cache  name="edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GroupSetDAO.FindSelfStem"
+    maxElementsInMemory="1000"
+    eternal="false"
+    timeToIdleSeconds="10"
+    timeToLiveSeconds="10"
+    overflowToDisk="false"
+  />
+
+  <cache  name="edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GroupSetDAO.FindSelfGroup"
+    maxElementsInMemory="1000"
+    eternal="false"
+    timeToIdleSeconds="10"
+    timeToLiveSeconds="10"
+    overflowToDisk="false"
+  />
+
+  <cache  name="edu.internet2.middleware.grouper.internal.dao.hib3.Hib3FieldDAO.FindByUuidOrName"
+    maxElementsInMemory="1000"
+    eternal="false"
+    timeToIdleSeconds="10"
+    timeToLiveSeconds="10"
+    overflowToDisk="false"
+  />
+
+  <cache  name="edu.internet2.middleware.grouper.internal.dao.hib3.Hib3AttributeAssignActionDAO.FindByUuidOrName"
+    maxElementsInMemory="1000"
+    eternal="false"
+    timeToIdleSeconds="10"
+    timeToLiveSeconds="10"
+    overflowToDisk="false"
+  />
+
+  <cache  name="edu.internet2.middleware.grouper.internal.dao.hib3.Hib3AttributeDefNameDAO.FindAll"
+    maxElementsInMemory="1000"
+    eternal="false"
+    timeToIdleSeconds="10"
+    timeToLiveSeconds="10"
+    overflowToDisk="false"
+  />
+
+  <cache  name="edu.internet2.middleware.grouper.internal.dao.hib3.Hib3AttributeAssignDAO.FindByUuidOrKey"
+    maxElementsInMemory="1000"
+    eternal="false"
+    timeToIdleSeconds="10"
+    timeToLiveSeconds="10"
+    overflowToDisk="false"
+  />
+
+  <cache  name="edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GroupSetDAO.FindByOwnerMemberFieldParentAndType"
+    maxElementsInMemory="1000"
+    eternal="false"
+    timeToIdleSeconds="10"
+    timeToLiveSeconds="10"
+    overflowToDisk="false"
+  />
+
+  <cache  name="edu.internet2.middleware.grouper.internal.dao.hib3.Hib3AuditTypeDAO.FindByCategory"
+    maxElementsInMemory="1000"
+    eternal="false"
+    timeToIdleSeconds="10"
+    timeToLiveSeconds="10"
+    overflowToDisk="false"
+  />
+
+  <cache  name="edu.internet2.middleware.grouper.internal.dao.hib3.Hib3AuditTypeDAO.FindByUuidOrName"
+    maxElementsInMemory="1000"
+    eternal="false"
+    timeToIdleSeconds="10"
+    timeToLiveSeconds="10"
+    overflowToDisk="false"
+  />
+
+
 
   <!-- @see   CachingAccessResolver#hasPrivilege(...) -->
   <cache  name="edu.internet2.middleware.grouper.privs.CachingAccessResolver.HasPrivilege"
