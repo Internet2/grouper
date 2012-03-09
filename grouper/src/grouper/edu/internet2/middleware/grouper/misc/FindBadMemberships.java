@@ -49,8 +49,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 /** 
  * Find bad memberships in the Grouper memberships table.
  *
- * This script is used to find bad memberships in Grouper.  It currently only looks for bad
- * composite memberships.  If a bad membership is found, a GSH script will be created to 
+ * This script is used to find bad memberships in Grouper.  If a bad membership is found, a GSH script will be created to 
  * resolve the issue.
  *
  * @since   1.3.1
@@ -90,7 +89,7 @@ public class FindBadMemberships {
     Options options = new Options();
     OptionGroup optionGroup = new OptionGroup();
     optionGroup.addOption(new Option("all", false, 
-      "Find bad composite memberships."));
+      "Find bad memberships."));
     optionGroup.setRequired(true);
     options.addOptionGroup(optionGroup);
 
@@ -207,7 +206,7 @@ public class FindBadMemberships {
     formatter.printHelp(FindBadMemberships.class.getSimpleName(), options, true);
  
     out.println();
-    out.print("This script will find bad composite memberships in your Grouper database.  ");
+    out.print("This script will find bad memberships in your Grouper database.  ");
     out.print("It will not make any modifications to the Grouper database.  ");
     out.println("If bad memberships are found, this script will create a GSH script that will correct memberships.");
     out.println();
