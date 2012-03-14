@@ -790,26 +790,25 @@ public class GrouperInstaller {
         setGshFile = readFromStdInBoolean(true);
         
         if (setGshFile) {
-        
           
-          commands = GrouperInstallerUtils.toList("dos2unix", 
-              this.untarredApiDir.getAbsolutePath() + File.separator + "bin" + File.separator + "gsh.sh");
-    
-          System.out.println("Making sure gsh.sh is in unix format: " + convertCommandsIntoCommand(commands) + "\n");
+        commands = GrouperInstallerUtils.toList("dos2unix", 
+            this.untarredApiDir.getAbsolutePath() + File.separator + "bin" + File.separator + "gsh.sh");
+  
+        System.out.println("Making sure gsh.sh is in unix format: " + convertCommandsIntoCommand(commands) + "\n");
           String error = null;
           try {
-            commandResult = GrouperInstallerUtils.execCommand(
-                GrouperInstallerUtils.toArray(commands, String.class), true, true, null, 
-                new File(this.untarredApiDir.getAbsolutePath() + File.separator + "bin"), null);
+        commandResult = GrouperInstallerUtils.execCommand(
+            GrouperInstallerUtils.toArray(commands, String.class), true, true, null, 
+            new File(this.untarredApiDir.getAbsolutePath() + File.separator + "bin"), null);
           } catch (Throwable t) {
             error = t.getMessage();
           }
-          if (!GrouperInstallerUtils.isBlank(commandResult.getErrorText())) {
-            System.out.println("stderr: " + commandResult.getErrorText());
-          }
-          if (!GrouperInstallerUtils.isBlank(commandResult.getOutputText())) {
-            System.out.println("stdout: " + commandResult.getOutputText());
-          }
+        if (!GrouperInstallerUtils.isBlank(commandResult.getErrorText())) {
+          System.out.println("stderr: " + commandResult.getErrorText());
+        }
+        if (!GrouperInstallerUtils.isBlank(commandResult.getOutputText())) {
+          System.out.println("stdout: " + commandResult.getOutputText());
+        }
           if (!GrouperInstallerUtils.isBlank(error)) {
             System.out.println("Error: " + error);
             System.out.println("NOTE: you might need to run this to convert newline characters to mac/unix:\n\n" +
@@ -847,7 +846,7 @@ public class GrouperInstaller {
       System.out.println("Example oracle URL: jdbc:oracle:thin:@server.school.edu:1521:sid");
       System.out.println("Example hsqldb URL: jdbc:hsqldb:hsql://localhost:9001/grouper");
       System.out.println("Example postgres URL: jdbc:postgresql://localhost:5432/database");
-      System.out.println("Example mssql URL: jdbc:sqlserver://localhost:3280");
+      System.out.println("Example mssql URL: jdbc:sqlserver://localhost:3280;databaseName=grouper");
       System.out.print("\nEnter the database URL [" + this.dbUrl + "]: ");
       String newDbUrl = readFromStdIn();
       if (!GrouperInstallerUtils.isBlank(newDbUrl)) {
