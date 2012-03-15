@@ -36,6 +36,45 @@ import edu.internet2.middleware.grouperInstallerExt.org.apache.commons.httpclien
 public class GrouperInstaller {
 
   /**
+   * default ip address to listen for stuff
+   */
+  private String defaultIpAddress = null;
+  
+
+  /**
+   * if we should continue or not
+   * @return if should continue
+   */
+  private static boolean shouldContinue() {
+    return shouldContinue(null, null);
+  }
+  /**
+   * if we should continue or not
+   * @param hint 
+   * @param exitHint 
+   * @return if should continue
+   */
+  private static boolean shouldContinue(String hint, String exitHint) {
+    if (hint == null) {
+      hint = "Do you want to continue ";
+    }
+    if (!hint.endsWith(" ")) {
+      hint += " ";
+    }
+    System.out.print(hint + "(t|f)? [f] ");
+    boolean shouldContinue = readFromStdInBoolean(false);
+    if (!shouldContinue) {
+      if (exitHint == null) {
+        exitHint = "OK, will not continue, exiting...";
+      }
+      if (!GrouperInstallerUtils.isBlank(exitHint)) {
+        System.out.println(exitHint);
+      }
+    }
+    return shouldContinue;
+  }
+  
+  /**
    * read a string from stdin
    * @param defaultBoolean null for none, or true of false for if the input is blank
    * @return the string
@@ -482,16 +521,20 @@ public class GrouperInstaller {
     
     if (GrouperInstallerUtils.equals("stop", arg)) {
       
-      if (GrouperInstallerUtils.portAvailable(this.tomcatHttpPort)) {
+      if (GrouperInstallerUtils.portAvailable(this.tomcatHttpPort, this.defaultIpAddress)) {
         System.out.println("Tomcat is supposed to be listening on port: " + this.tomcatHttpPort + ", port not listening, assuming tomcat is not running...");
-        return;
+        if (!shouldContinue("Should we " + arg + " tomcat anyway?", "")) {
+          return;
+        }
       }
 
       
     } else {
-      if (!GrouperInstallerUtils.portAvailable(this.tomcatHttpPort)) {
+      if (!GrouperInstallerUtils.portAvailable(this.tomcatHttpPort, this.defaultIpAddress)) {
         System.out.println("Tomcat is supposed to be listening on port: " + this.tomcatHttpPort + ", port is already listening!!!!  Why is this????");
-        return;
+        if (!shouldContinue("Should we " + arg + " tomcat anyway?", "")) {
+          return;
+        }
       }
       
     }
@@ -535,15 +578,22 @@ public class GrouperInstaller {
     boolean waitFor = GrouperInstallerUtils.equals("stop", arg) ? true : false;
     
     if (waitFor) {
-      CommandResult commandResult = GrouperInstallerUtils.execCommand(GrouperInstallerUtils.toArray(commands, String.class),
-          true, true, null, 
-          new File(this.untarredTomcatDir.getAbsolutePath() + File.separator + "bin"), null);
-      
-      if (!GrouperInstallerUtils.isBlank(commandResult.getErrorText())) {
-        System.out.println("stderr: " + commandResult.getErrorText());
-      }
-      if (!GrouperInstallerUtils.isBlank(commandResult.getOutputText())) {
-        System.out.println("stdout: " + commandResult.getOutputText());
+      try {
+        CommandResult commandResult = GrouperInstallerUtils.execCommand(GrouperInstallerUtils.toArray(commands, String.class),
+            true, true, null, 
+            new File(this.untarredTomcatDir.getAbsolutePath() + File.separator + "bin"), null);
+        
+        if (!GrouperInstallerUtils.isBlank(commandResult.getErrorText())) {
+          System.out.println("stderr: " + commandResult.getErrorText());
+        }
+        if (!GrouperInstallerUtils.isBlank(commandResult.getOutputText())) {
+          System.out.println("stdout: " + commandResult.getOutputText());
+        }
+      } catch (Exception e) {
+        e.printStackTrace();
+        if (!shouldContinue()) {
+          return;
+        }
       }
     } else {
       //start in new thread
@@ -565,29 +615,38 @@ public class GrouperInstaller {
     System.out.println("\nEnd tomcat " + arg + " (note: logs are in " + this.untarredTomcatDir.getAbsolutePath() + File.separator + "logs)");
     System.out.println("##################################\n");
 
-    System.out.print("Waiting for tomcat to " + arg +  "...");
-    boolean success = false;
-    for (int i=0;i<60;i++) {
-      GrouperInstallerUtils.sleep(1000);
-      //check port
-      boolean portAvailable = GrouperInstallerUtils.portAvailable(this.tomcatHttpPort);
-      if (GrouperInstallerUtils.equals("start", arg)) {
-        if (!portAvailable) {
-          success = true;
-          System.out.println("\nTomcat listening on port: " + this.tomcatHttpPort);
-          break;
+    System.out.print("Should we check ports to see if tomcat was able to " + arg + " (t|f)? [t]: ");
+    
+    boolean shouldCheckTomcat = readFromStdInBoolean(true);
+    
+    if (shouldCheckTomcat) {
+      System.out.print("Waiting for tomcat to " + arg +  "...");
+      boolean success = false;
+      for (int i=0;i<60;i++) {
+        GrouperInstallerUtils.sleep(1000);
+        //check port
+        boolean portAvailable = GrouperInstallerUtils.portAvailable(this.tomcatHttpPort, this.defaultIpAddress);
+        if (GrouperInstallerUtils.equals("start", arg)) {
+          if (!portAvailable) {
+            success = true;
+            System.out.println("\nTomcat listening on port: " + this.tomcatHttpPort);
+            break;
+          }
+        } else {
+          if (portAvailable) {
+            success = true;
+            System.out.println("\nTomcat not listening on port: " + this.tomcatHttpPort);
+            break;
+          }
         }
-      } else {
-        if (portAvailable) {
-          success = true;
-          System.out.println("\nTomcat not listening on port: " + this.tomcatHttpPort);
-          break;
-        }
+        System.out.print(".");
       }
-      System.out.print(".");
-    }
-    if (!success) {
-      throw new RuntimeException("Trying to " + arg + " tomcat but couldnt properly detect " + arg + " on port " + this.tomcatHttpPort);
+      if (!success) {
+        throw new RuntimeException("Trying to " + arg + " tomcat but couldnt properly detect " + arg + " on port " + this.tomcatHttpPort);
+      }
+    } else {
+      System.out.println("Waiting 10 seconds for tomcat to " + arg + "...");
+      GrouperInstallerUtils.sleep(10000);
     }
   }
   
@@ -744,6 +803,19 @@ public class GrouperInstaller {
     //####################################
     //Find out what directory to install to.  This ends in a file separator
     this.grouperInstallDirectoryString = grouperInstallDirectory();
+
+    //####################################
+    //get default ip address
+    System.out.print("Enter the default IP address for checking ports (just hit enter to accept the default unless on a machine with no network, might want to change to 127.0.0.1): [0.0.0.0]: ");
+    this.defaultIpAddress = readFromStdIn();
+    
+    if (GrouperInstallerUtils.isBlank(this.defaultIpAddress)) {
+      this.defaultIpAddress = "0.0.0.0";
+    }
+
+    if (!GrouperInstallerUtils.equals("0.0.0.0", this.defaultIpAddress)) {
+      System.out.println("Note, you will probably need to change the hsql IP address, and tomcat server.xml IP addresses...");
+    }
     
     //####################################
     //System.out.println("Grouper install directory is: " + grouperInstallDirectoryFile.getAbsolutePath());
@@ -790,25 +862,26 @@ public class GrouperInstaller {
         setGshFile = readFromStdInBoolean(true);
         
         if (setGshFile) {
+        
           
-        commands = GrouperInstallerUtils.toList("dos2unix", 
-            this.untarredApiDir.getAbsolutePath() + File.separator + "bin" + File.separator + "gsh.sh");
-  
-        System.out.println("Making sure gsh.sh is in unix format: " + convertCommandsIntoCommand(commands) + "\n");
+          commands = GrouperInstallerUtils.toList("dos2unix", 
+              this.untarredApiDir.getAbsolutePath() + File.separator + "bin" + File.separator + "gsh.sh");
+    
+          System.out.println("Making sure gsh.sh is in unix format: " + convertCommandsIntoCommand(commands) + "\n");
           String error = null;
           try {
-        commandResult = GrouperInstallerUtils.execCommand(
-            GrouperInstallerUtils.toArray(commands, String.class), true, true, null, 
-            new File(this.untarredApiDir.getAbsolutePath() + File.separator + "bin"), null);
+            commandResult = GrouperInstallerUtils.execCommand(
+                GrouperInstallerUtils.toArray(commands, String.class), true, true, null, 
+                new File(this.untarredApiDir.getAbsolutePath() + File.separator + "bin"), null);
           } catch (Throwable t) {
             error = t.getMessage();
           }
-        if (!GrouperInstallerUtils.isBlank(commandResult.getErrorText())) {
-          System.out.println("stderr: " + commandResult.getErrorText());
-        }
-        if (!GrouperInstallerUtils.isBlank(commandResult.getOutputText())) {
-          System.out.println("stdout: " + commandResult.getOutputText());
-        }
+          if (!GrouperInstallerUtils.isBlank(commandResult.getErrorText())) {
+            System.out.println("stderr: " + commandResult.getErrorText());
+          }
+          if (!GrouperInstallerUtils.isBlank(commandResult.getOutputText())) {
+            System.out.println("stdout: " + commandResult.getOutputText());
+          }
           if (!GrouperInstallerUtils.isBlank(error)) {
             System.out.println("Error: " + error);
             System.out.println("NOTE: you might need to run this to convert newline characters to mac/unix:\n\n" +
@@ -1184,14 +1257,14 @@ public class GrouperInstaller {
       jkPort = GrouperInstallerUtils.intValue(portsArray[1]);
       shutdownPort = GrouperInstallerUtils.intValue(portsArray[2]);
       
-      if (!GrouperInstallerUtils.portAvailable(this.tomcatHttpPort)) {
+      if (!GrouperInstallerUtils.portAvailable(this.tomcatHttpPort, this.defaultIpAddress)) {
         System.out.print("The tomcat HTTP port is in use or unavailable: " + this.tomcatHttpPort + ", do you want to pick different ports? (t|f): ");
         boolean pickDifferentPorts = readFromStdInBoolean(null);
         if (pickDifferentPorts) {
           continue;
         }
       }
-      if (!GrouperInstallerUtils.portAvailable(jkPort)) {
+      if (!GrouperInstallerUtils.portAvailable(jkPort, this.defaultIpAddress)) {
         System.out.print("The tomcat JK port is in use or unavailable: " + this.tomcatHttpPort + ", do you want to pick different ports? (t|f): ");
         boolean pickDifferentPorts = readFromStdInBoolean(null);
         if (pickDifferentPorts) {
@@ -1555,8 +1628,11 @@ public class GrouperInstaller {
       //get right port
       int port = hsqlPort();
       
-      if (!GrouperInstallerUtils.portAvailable(port)) {
-        throw new RuntimeException("This port is not available, even after trying to stop the DB! " + port);
+      if (!GrouperInstallerUtils.portAvailable(port, this.defaultIpAddress)) {
+        System.out.println("This port does not seem available, even after trying to stop the DB! " + port + "...");
+        if (!shouldContinue()) {
+          throw new RuntimeException("This port is not available, even after trying to stop the DB! " + port);
+        }
       }
       
       final List<String> command = new ArrayList<String>();
