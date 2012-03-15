@@ -9,6 +9,7 @@ import java.util.Set;
 import junit.textui.TestRunner;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
 import org.apache.ddlutils.model.Database;
 import org.apache.ddlutils.model.Table;
 
@@ -50,7 +51,47 @@ public class TestSubjectDecorator extends GrouperTest {
    */
   public static void main(String[] args) {
     TestRunner.run(new TestSubjectDecorator("testDecoratorExtraAttributes"));
+    
+//    Connection con = null;
+//    try {
+//
+//      Class.forName(
+//        "com.microsoft.sqlserver.jdbc.SQLServerDriver");
+//      con = DriverManager.getConnection(
+//          "jdbc:sqlserver://localhost:50090;databaseName=groupertest;"
+//        + "user=groupertest;password=<pass>;"
+//        + "database=groupertest");
+//
+//      DatabaseMetaData meta = con.getMetaData();
+//      ResultSet res = meta.getTables(null, null, null, 
+//         new String[] {"TABLE"});
+//      System.out.println("List of tables: "); 
+//      while (res.next()) {
+//         System.out.println(
+//            "   "+res.getString("TABLE_CAT") 
+//           + ", "+res.getString("TABLE_SCHEM")
+//           + ", "+res.getString("TABLE_NAME")
+//           + ", "+res.getString("TABLE_TYPE")
+//           + ", "+res.getString("REMARKS")); 
+//      }
+//      res.close();
+//
+//      con.close();
+//    } catch (java.lang.ClassNotFoundException e) {
+//      System.err.println("ClassNotFoundException: "
+//        +e.getMessage());
+//    } catch (SQLException e) {
+//      System.err.println("SQLException: "
+//        +e.getMessage());
+//    }
+
+    
   }
+
+  /**
+   * logger 
+   */
+  private static final Log LOG = GrouperUtil.getLog(TestSubjectDecorator.class);
 
   /**
    * 
@@ -65,16 +106,6 @@ public class TestSubjectDecorator extends GrouperTest {
    */
   public TestSubjectDecorator(String name) {
     super(name);
-  }
-
-  /**
-   * 
-   */
-  @Override
-  protected void tearDown() {
-//    super.tearDown();
-//    ApiConfig.testConfig.remove("subjects.customizer.className");
-//    dropExtraAttributeTables();
   }
 
   /**
@@ -310,280 +341,289 @@ public class TestSubjectDecorator extends GrouperTest {
     
     GrouperSession grouperSession = GrouperSession.startRootSession();
 
-    //create a table which has the extra attributes
-    ensureExtraAttributeTables();
-    
-    //add some attributes
-    HibernateSession.byHqlStatic().createQuery("delete from TestgrouperSubjAttr").executeUpdate();
-
-    TestgrouperSubjAttr test1attr = new TestgrouperSubjAttr(SubjectTestHelper.SUBJ1_ID, "major1", "title1");
-    TestgrouperSubjAttr test2attr = new TestgrouperSubjAttr(SubjectTestHelper.SUBJ2_ID, "major2", "title2");
-    
-    HibernateSession.byObjectStatic().save(GrouperUtil.toSet(test1attr, test2attr));
-    
-    //define the permissions
-    
-    Group privilegedGroup = new GroupSave(grouperSession)
-      .assignName(SubjectCustomizerForDecoratorExtraAttributes.PRIVILEGED_ADMIN_GROUP_NAME)
-      .assignCreateParentStemsIfNotExist(true).save();
-    Role role = new GroupSave(grouperSession)
-      .assignName("subjectAttributes:roles:subjectAttributeRole").assignTypeOfGroup(TypeOfGroup.role)
-      .assignCreateParentStemsIfNotExist(true).save();
-
-    AttributeDef permissionDef = new AttributeDefSave(grouperSession).assignName(SubjectCustomizerForDecoratorExtraAttributes.SUBJECT_ATTRIBUTES_PERMISSIONS_ATTRIBUTE_DEF).assignAttributeDefType(AttributeDefType.perm)
-      .assignToEffMembership(true).assignToGroup(true).assignCreateParentStemsIfNotExist(true).save();
-
-    permissionDef.getAttributeDefActionDelegate().configureActionList("read");
-    
-    AttributeDefName permissionNameTitle = new AttributeDefNameSave(grouperSession, permissionDef)
-      .assignCreateParentStemsIfNotExist(true).assignName("subjectAttributes:permissions:columnNames:title").save();
-    AttributeDefName permissionNameMajor = new AttributeDefNameSave(grouperSession, permissionDef)
-      .assignCreateParentStemsIfNotExist(true).assignName("subjectAttributes:permissions:columnNames:major").save();
-    
-    //lets assign a permission
-    role.addMember(SubjectTestHelper.SUBJ1, true);
-    role.addMember(SubjectTestHelper.SUBJ2, true);
-    role.addMember(SubjectTestHelper.SUBJ3, true);
-    privilegedGroup.addMember(SubjectTestHelper.SUBJ4, true);
-    
-    //subj 1 can see title
-    role.getPermissionRoleDelegate().assignSubjectRolePermission("read", permissionNameTitle, SubjectTestHelper.SUBJ1, PermissionAllowed.ALLOWED);
-    
-    //subj 2 can see major
-    role.getPermissionRoleDelegate().assignSubjectRolePermission("read", permissionNameMajor, SubjectTestHelper.SUBJ2, PermissionAllowed.ALLOWED);
-
-    //subj 3 can see title and major
-    role.getPermissionRoleDelegate().assignSubjectRolePermission("read", permissionNameMajor, SubjectTestHelper.SUBJ3, PermissionAllowed.ALLOWED);
-    role.getPermissionRoleDelegate().assignSubjectRolePermission("read", permissionNameTitle, SubjectTestHelper.SUBJ3, PermissionAllowed.ALLOWED);
-    
-    //subject 4 is an admin
-    
-    //assign the customizer
-    ApiConfig.testConfig.put("subjects.customizer.className", SubjectCustomizerForDecoratorExtraAttributes.class.getName());
-    SubjectFinder.internalClearSubjectCustomizerCache();
-
-    {
-      //##################################################################
-      //search for subjects and decorate them as someone who cant see them
-      GrouperSession.stopQuietly(grouperSession);
+    try {
+      //create a table which has the extra attributes
+      ensureExtraAttributeTables();
+      
+      //add some attributes
+      HibernateSession.byHqlStatic().createQuery("delete from TestgrouperSubjAttr").executeUpdate();
   
-      grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ0);
+      TestgrouperSubjAttr test1attr = new TestgrouperSubjAttr(SubjectTestHelper.SUBJ1_ID, "major1", "title1");
+      TestgrouperSubjAttr test2attr = new TestgrouperSubjAttr(SubjectTestHelper.SUBJ2_ID, "major2", "title2");
       
-      Set<Subject> subjects = SubjectFinder.findAll("test.subject");
-      SubjectFinder.decorateSubjects(grouperSession, subjects, GrouperUtil.toSet("title", "major"));
+      HibernateSession.byObjectStatic().save(GrouperUtil.toSet(test1attr, test2attr));
       
+      //define the permissions
+      
+      Group privilegedGroup = new GroupSave(grouperSession)
+        .assignName(SubjectCustomizerForDecoratorExtraAttributes.PRIVILEGED_ADMIN_GROUP_NAME)
+        .assignCreateParentStemsIfNotExist(true).save();
+      Role role = new GroupSave(grouperSession)
+        .assignName("subjectAttributes:roles:subjectAttributeRole").assignTypeOfGroup(TypeOfGroup.role)
+        .assignCreateParentStemsIfNotExist(true).save();
+  
+      AttributeDef permissionDef = new AttributeDefSave(grouperSession).assignName(SubjectCustomizerForDecoratorExtraAttributes.SUBJECT_ATTRIBUTES_PERMISSIONS_ATTRIBUTE_DEF).assignAttributeDefType(AttributeDefType.perm)
+        .assignToEffMembership(true).assignToGroup(true).assignCreateParentStemsIfNotExist(true).save();
+  
+      permissionDef.getAttributeDefActionDelegate().configureActionList("read");
+      
+      AttributeDefName permissionNameTitle = new AttributeDefNameSave(grouperSession, permissionDef)
+        .assignCreateParentStemsIfNotExist(true).assignName("subjectAttributes:permissions:columnNames:title").save();
+      AttributeDefName permissionNameMajor = new AttributeDefNameSave(grouperSession, permissionDef)
+        .assignCreateParentStemsIfNotExist(true).assignName("subjectAttributes:permissions:columnNames:major").save();
+      
+      //lets assign a permission
+      role.addMember(SubjectTestHelper.SUBJ1, true);
+      role.addMember(SubjectTestHelper.SUBJ2, true);
+      role.addMember(SubjectTestHelper.SUBJ3, true);
+      privilegedGroup.addMember(SubjectTestHelper.SUBJ4, true);
+      
+      //subj 1 can see title
+      role.getPermissionRoleDelegate().assignSubjectRolePermission("read", permissionNameTitle, SubjectTestHelper.SUBJ1, PermissionAllowed.ALLOWED);
+      
+      //subj 2 can see major
+      role.getPermissionRoleDelegate().assignSubjectRolePermission("read", permissionNameMajor, SubjectTestHelper.SUBJ2, PermissionAllowed.ALLOWED);
+  
+      //subj 3 can see title and major
+      role.getPermissionRoleDelegate().assignSubjectRolePermission("read", permissionNameMajor, SubjectTestHelper.SUBJ3, PermissionAllowed.ALLOWED);
+      role.getPermissionRoleDelegate().assignSubjectRolePermission("read", permissionNameTitle, SubjectTestHelper.SUBJ3, PermissionAllowed.ALLOWED);
+      
+      //subject 4 is an admin
+      
+      //assign the customizer
+      ApiConfig.testConfig.put("subjects.customizer.className", SubjectCustomizerForDecoratorExtraAttributes.class.getName());
+      SubjectFinder.internalClearSubjectCustomizerCache();
+  
       {
-        Subject subject0 = SubjectHelper.findInList(subjects, "jdbc", SubjectTestHelper.SUBJ0_ID, true);
-        
-        //shouldnt have a title or major
-        String title = subject0.getAttributeValueSingleValued("title", false);
-        assertTrue(title, StringUtils.isBlank(title));
+        //##################################################################
+        //search for subjects and decorate them as someone who cant see them
+        GrouperSession.stopQuietly(grouperSession);
     
-        String major = subject0.getAttributeValueSingleValued("major", false);
-        assertTrue(major, StringUtils.isBlank(major));
+        grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ0);
+        
+        Set<Subject> subjects = SubjectFinder.findAll("test.subject");
+        SubjectFinder.decorateSubjects(grouperSession, subjects, GrouperUtil.toSet("title", "major"));
+        
+        {
+          Subject subject0 = SubjectHelper.findInList(subjects, "jdbc", SubjectTestHelper.SUBJ0_ID, true);
+          
+          //shouldnt have a title or major
+          String title = subject0.getAttributeValueSingleValued("title", false);
+          assertTrue(title, StringUtils.isBlank(title));
+      
+          String major = subject0.getAttributeValueSingleValued("major", false);
+          assertTrue(major, StringUtils.isBlank(major));
+        }
+        
+        {
+          Subject subject1 = SubjectHelper.findInList(subjects, "jdbc", SubjectTestHelper.SUBJ1_ID, true);
+          
+          //shouldnt have a title or major
+          String title = subject1.getAttributeValueSingleValued("title", false);
+          assertTrue(title, StringUtils.isBlank(title));
+      
+          String major = subject1.getAttributeValueSingleValued("major", false);
+          assertTrue(major, StringUtils.isBlank(major));
+        }
+    
+        {
+          Subject subject2 = SubjectHelper.findInList(subjects, "jdbc", SubjectTestHelper.SUBJ2_ID, true);
+          
+          //shouldnt have a title or major
+          String title = subject2.getAttributeValueSingleValued("title", false);
+          assertTrue(title, StringUtils.isBlank(title));
+      
+          String major = subject2.getAttributeValueSingleValued("major", false);
+          assertTrue(major, StringUtils.isBlank(major));
+        }
       }
       
       {
-        Subject subject1 = SubjectHelper.findInList(subjects, "jdbc", SubjectTestHelper.SUBJ1_ID, true);
-        
-        //shouldnt have a title or major
-        String title = subject1.getAttributeValueSingleValued("title", false);
-        assertTrue(title, StringUtils.isBlank(title));
+        //###################################################################
+        //search for subjects and decorate them as someone who can see title
+        GrouperSession.stopQuietly(grouperSession);
     
-        String major = subject1.getAttributeValueSingleValued("major", false);
-        assertTrue(major, StringUtils.isBlank(major));
+        grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ1);
+        
+        Set<Subject> subjects = SubjectFinder.findAll("test.subject");
+        SubjectFinder.decorateSubjects(grouperSession, subjects, GrouperUtil.toSet("title", "major"));
+        
+        {
+          Subject subject0 = SubjectHelper.findInList(subjects, "jdbc", SubjectTestHelper.SUBJ0_ID, true);
+          
+          //shouldnt have a title or major
+          String title = subject0.getAttributeValueSingleValued("title", false);
+          assertTrue(title, StringUtils.isBlank(title));
+      
+          String major = subject0.getAttributeValueSingleValued("major", false);
+          assertTrue(major, StringUtils.isBlank(major));
+        }
+        
+        {
+          Subject subject1 = SubjectHelper.findInList(subjects, "jdbc", SubjectTestHelper.SUBJ1_ID, true);
+          
+          //should have a title, not major
+          String title = subject1.getAttributeValueSingleValued("title", false);
+          assertEquals("title1", title);
+      
+          String major = subject1.getAttributeValueSingleValued("major", false);
+          assertTrue(major, StringUtils.isBlank(major));
+        }
+    
+        {
+          Subject subject2 = SubjectHelper.findInList(subjects, "jdbc", SubjectTestHelper.SUBJ2_ID, true);
+          
+          //shouldnt have a title or major
+          String title = subject2.getAttributeValueSingleValued("title", false);
+          assertEquals("title2", title);
+      
+          String major = subject2.getAttributeValueSingleValued("major", false);
+          assertTrue(major, StringUtils.isBlank(major));
+        }
+      }
+      {
+        //###################################################################
+        //search for subjects and decorate them as someone who can see major
+        GrouperSession.stopQuietly(grouperSession);
+    
+        grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ2);
+        
+        Set<Subject> subjects = SubjectFinder.findAll("test.subject");
+        SubjectFinder.decorateSubjects(grouperSession, subjects, GrouperUtil.toSet("title", "major"));
+        
+        {
+          Subject subject0 = SubjectHelper.findInList(subjects, "jdbc", SubjectTestHelper.SUBJ0_ID, true);
+          
+          //shouldnt have a title or major
+          String title = subject0.getAttributeValueSingleValued("title", false);
+          assertTrue(title, StringUtils.isBlank(title));
+      
+          String major = subject0.getAttributeValueSingleValued("major", false);
+          assertTrue(major, StringUtils.isBlank(major));
+        }
+  
+        {
+          Subject subject1 = SubjectHelper.findInList(subjects, "jdbc", SubjectTestHelper.SUBJ1_ID, true);
+          
+          //should have a title, not major
+          String title = subject1.getAttributeValueSingleValued("title", false);
+          assertTrue(title, StringUtils.isBlank(title));
+      
+          String major = subject1.getAttributeValueSingleValued("major", false);
+          assertEquals("major1", major);
+        }
+  
+        {
+          Subject subject2 = SubjectHelper.findInList(subjects, "jdbc", SubjectTestHelper.SUBJ2_ID, true);
+          
+          //shouldnt have a title or major
+          String title = subject2.getAttributeValueSingleValued("title", false);
+          assertTrue(title, StringUtils.isBlank(title));
+      
+          String major = subject2.getAttributeValueSingleValued("major", false);
+          assertEquals("major2", major);
+        }
       }
   
       {
-        Subject subject2 = SubjectHelper.findInList(subjects, "jdbc", SubjectTestHelper.SUBJ2_ID, true);
-        
-        //shouldnt have a title or major
-        String title = subject2.getAttributeValueSingleValued("title", false);
-        assertTrue(title, StringUtils.isBlank(title));
+        //###################################################################
+        //search for subjects and decorate them as someone who can see both
+        GrouperSession.stopQuietly(grouperSession);
     
-        String major = subject2.getAttributeValueSingleValued("major", false);
-        assertTrue(major, StringUtils.isBlank(major));
+        grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ3);
+        
+        Set<Subject> subjects = SubjectFinder.findAll("test.subject");
+        SubjectFinder.decorateSubjects(grouperSession, subjects, GrouperUtil.toSet("title", "major"));
+        
+        {
+          Subject subject0 = SubjectHelper.findInList(subjects, "jdbc", SubjectTestHelper.SUBJ0_ID, true);
+          
+          //shouldnt have a title or major
+          String title = subject0.getAttributeValueSingleValued("title", false);
+          assertTrue(title, StringUtils.isBlank(title));
+      
+          String major = subject0.getAttributeValueSingleValued("major", false);
+          assertTrue(major, StringUtils.isBlank(major));
+        }
+  
+        {
+          Subject subject1 = SubjectHelper.findInList(subjects, "jdbc", SubjectTestHelper.SUBJ1_ID, true);
+          
+          //should have a title, not major
+          String title = subject1.getAttributeValueSingleValued("title", false);
+          assertEquals("title1", title);
+      
+          String major = subject1.getAttributeValueSingleValued("major", false);
+          assertEquals("major1", major);
+        }
+  
+        {
+          Subject subject2 = SubjectHelper.findInList(subjects, "jdbc", SubjectTestHelper.SUBJ2_ID, true);
+          
+          //shouldnt have a title or major
+          String title = subject2.getAttributeValueSingleValued("title", false);
+          assertEquals("title2", title);
+      
+          String major = subject2.getAttributeValueSingleValued("major", false);
+          assertEquals("major2", major);
+        }
+      }
+  
+      {
+        //###################################################################
+        //search for subjects and decorate them as someone who is an admin (can see all)
+        GrouperSession.stopQuietly(grouperSession);
+    
+        grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ4);
+        
+        Set<Subject> subjects = SubjectFinder.findAll("test.subject");
+        SubjectFinder.decorateSubjects(grouperSession, subjects, GrouperUtil.toSet("title", "major"));
+        
+        {
+          Subject subject0 = SubjectHelper.findInList(subjects, "jdbc", SubjectTestHelper.SUBJ0_ID, true);
+          
+          //shouldnt have a title or major
+          String title = subject0.getAttributeValueSingleValued("title", false);
+          assertTrue(title, StringUtils.isBlank(title));
+      
+          String major = subject0.getAttributeValueSingleValued("major", false);
+          assertTrue(major, StringUtils.isBlank(major));
+        }
+  
+        {
+          Subject subject1 = SubjectHelper.findInList(subjects, "jdbc", SubjectTestHelper.SUBJ1_ID, true);
+          
+          //should have a title, not major
+          String title = subject1.getAttributeValueSingleValued("title", false);
+          assertEquals("title1", title);
+      
+          String major = subject1.getAttributeValueSingleValued("major", false);
+          assertEquals("major1", major);
+        }
+  
+        {
+          Subject subject2 = SubjectHelper.findInList(subjects, "jdbc", SubjectTestHelper.SUBJ2_ID, true);
+          
+          //shouldnt have a title or major
+          String title = subject2.getAttributeValueSingleValued("title", false);
+          assertEquals("title2", title);
+      
+          String major = subject2.getAttributeValueSingleValued("major", false);
+          assertEquals("major2", major);
+        }
+      }
+    } finally {
+      try {
+        dropExtraAttributeTables();
+      } catch (Throwable t) {
+        LOG.error(t);
       }
     }
-    
-    {
-      //###################################################################
-      //search for subjects and decorate them as someone who can see title
-      GrouperSession.stopQuietly(grouperSession);
-  
-      grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ1);
-      
-      Set<Subject> subjects = SubjectFinder.findAll("test.subject");
-      SubjectFinder.decorateSubjects(grouperSession, subjects, GrouperUtil.toSet("title", "major"));
-      
-      {
-        Subject subject0 = SubjectHelper.findInList(subjects, "jdbc", SubjectTestHelper.SUBJ0_ID, true);
-        
-        //shouldnt have a title or major
-        String title = subject0.getAttributeValueSingleValued("title", false);
-        assertTrue(title, StringUtils.isBlank(title));
-    
-        String major = subject0.getAttributeValueSingleValued("major", false);
-        assertTrue(major, StringUtils.isBlank(major));
-      }
-      
-      {
-        Subject subject1 = SubjectHelper.findInList(subjects, "jdbc", SubjectTestHelper.SUBJ1_ID, true);
-        
-        //should have a title, not major
-        String title = subject1.getAttributeValueSingleValued("title", false);
-        assertEquals("title1", title);
-    
-        String major = subject1.getAttributeValueSingleValued("major", false);
-        assertTrue(major, StringUtils.isBlank(major));
-      }
-  
-      {
-        Subject subject2 = SubjectHelper.findInList(subjects, "jdbc", SubjectTestHelper.SUBJ2_ID, true);
-        
-        //shouldnt have a title or major
-        String title = subject2.getAttributeValueSingleValued("title", false);
-        assertEquals("title2", title);
-    
-        String major = subject2.getAttributeValueSingleValued("major", false);
-        assertTrue(major, StringUtils.isBlank(major));
-      }
-    }
-    {
-      //###################################################################
-      //search for subjects and decorate them as someone who can see major
-      GrouperSession.stopQuietly(grouperSession);
-  
-      grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ2);
-      
-      Set<Subject> subjects = SubjectFinder.findAll("test.subject");
-      SubjectFinder.decorateSubjects(grouperSession, subjects, GrouperUtil.toSet("title", "major"));
-      
-      {
-        Subject subject0 = SubjectHelper.findInList(subjects, "jdbc", SubjectTestHelper.SUBJ0_ID, true);
-        
-        //shouldnt have a title or major
-        String title = subject0.getAttributeValueSingleValued("title", false);
-        assertTrue(title, StringUtils.isBlank(title));
-    
-        String major = subject0.getAttributeValueSingleValued("major", false);
-        assertTrue(major, StringUtils.isBlank(major));
-      }
-
-      {
-        Subject subject1 = SubjectHelper.findInList(subjects, "jdbc", SubjectTestHelper.SUBJ1_ID, true);
-        
-        //should have a title, not major
-        String title = subject1.getAttributeValueSingleValued("title", false);
-        assertTrue(title, StringUtils.isBlank(title));
-    
-        String major = subject1.getAttributeValueSingleValued("major", false);
-        assertEquals("major1", major);
-      }
-
-      {
-        Subject subject2 = SubjectHelper.findInList(subjects, "jdbc", SubjectTestHelper.SUBJ2_ID, true);
-        
-        //shouldnt have a title or major
-        String title = subject2.getAttributeValueSingleValued("title", false);
-        assertTrue(title, StringUtils.isBlank(title));
-    
-        String major = subject2.getAttributeValueSingleValued("major", false);
-        assertEquals("major2", major);
-      }
-    }
-
-    {
-      //###################################################################
-      //search for subjects and decorate them as someone who can see both
-      GrouperSession.stopQuietly(grouperSession);
-  
-      grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ3);
-      
-      Set<Subject> subjects = SubjectFinder.findAll("test.subject");
-      SubjectFinder.decorateSubjects(grouperSession, subjects, GrouperUtil.toSet("title", "major"));
-      
-      {
-        Subject subject0 = SubjectHelper.findInList(subjects, "jdbc", SubjectTestHelper.SUBJ0_ID, true);
-        
-        //shouldnt have a title or major
-        String title = subject0.getAttributeValueSingleValued("title", false);
-        assertTrue(title, StringUtils.isBlank(title));
-    
-        String major = subject0.getAttributeValueSingleValued("major", false);
-        assertTrue(major, StringUtils.isBlank(major));
-      }
-
-      {
-        Subject subject1 = SubjectHelper.findInList(subjects, "jdbc", SubjectTestHelper.SUBJ1_ID, true);
-        
-        //should have a title, not major
-        String title = subject1.getAttributeValueSingleValued("title", false);
-        assertEquals("title1", title);
-    
-        String major = subject1.getAttributeValueSingleValued("major", false);
-        assertEquals("major1", major);
-      }
-
-      {
-        Subject subject2 = SubjectHelper.findInList(subjects, "jdbc", SubjectTestHelper.SUBJ2_ID, true);
-        
-        //shouldnt have a title or major
-        String title = subject2.getAttributeValueSingleValued("title", false);
-        assertEquals("title2", title);
-    
-        String major = subject2.getAttributeValueSingleValued("major", false);
-        assertEquals("major2", major);
-      }
-    }
-
-    {
-      //###################################################################
-      //search for subjects and decorate them as someone who is an admin (can see all)
-      GrouperSession.stopQuietly(grouperSession);
-  
-      grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ4);
-      
-      Set<Subject> subjects = SubjectFinder.findAll("test.subject");
-      SubjectFinder.decorateSubjects(grouperSession, subjects, GrouperUtil.toSet("title", "major"));
-      
-      {
-        Subject subject0 = SubjectHelper.findInList(subjects, "jdbc", SubjectTestHelper.SUBJ0_ID, true);
-        
-        //shouldnt have a title or major
-        String title = subject0.getAttributeValueSingleValued("title", false);
-        assertTrue(title, StringUtils.isBlank(title));
-    
-        String major = subject0.getAttributeValueSingleValued("major", false);
-        assertTrue(major, StringUtils.isBlank(major));
-      }
-
-      {
-        Subject subject1 = SubjectHelper.findInList(subjects, "jdbc", SubjectTestHelper.SUBJ1_ID, true);
-        
-        //should have a title, not major
-        String title = subject1.getAttributeValueSingleValued("title", false);
-        assertEquals("title1", title);
-    
-        String major = subject1.getAttributeValueSingleValued("major", false);
-        assertEquals("major1", major);
-      }
-
-      {
-        Subject subject2 = SubjectHelper.findInList(subjects, "jdbc", SubjectTestHelper.SUBJ2_ID, true);
-        
-        //shouldnt have a title or major
-        String title = subject2.getAttributeValueSingleValued("title", false);
-        assertEquals("title2", title);
-    
-        String major = subject2.getAttributeValueSingleValued("major", false);
-        assertEquals("major2", major);
-      }
-    }
-
 
   }
 
+  
+  
   /**
    * 
    */
@@ -620,7 +660,7 @@ public class TestSubjectDecorator extends GrouperTest {
       public void changeDatabase(DdlVersionBean ddlVersionBean) {
         
         Database database = ddlVersionBean.getDatabase();
-  
+ 
         {
           Table loaderTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database,"testgrouper_subj_attr");
           

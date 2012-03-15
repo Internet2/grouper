@@ -89,6 +89,20 @@ public class HibernateSession {
       }
     }
     
+    //if we arent using nested transactions, then just use parent if there is one...
+    if (!GrouperConfig.getPropertyBoolean("ddlutils.use.nestedTransactions", true) && parentHibernateSession != null) {
+      grouperTransactionType = parentHibernateSession.getGrouperTransactionType();
+      //we dont want new transactions... not sure what happens if none... hmm
+      if (grouperTransactionType.isNewAutonomous()) {
+        if (grouperTransactionType == GrouperTransactionType.READ_WRITE_NEW) {
+          grouperTransactionType = GrouperTransactionType.READ_WRITE_OR_USE_EXISTING;
+        } else if (grouperTransactionType == GrouperTransactionType.READONLY_NEW) {
+          grouperTransactionType = GrouperTransactionType.READONLY_OR_USE_EXISTING;
+        }
+      }
+      LOG.debug("Not using nested transactions, converting transaction type to: " + parentHibernateSession.getGrouperTransactionType());
+    }
+    
     this.immediateGrouperTransactionTypeDeclared = grouperTransactionType;
     
     //if parent is none, then make sure this is a new transaction (not dependent on none)

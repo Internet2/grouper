@@ -9701,7 +9701,7 @@ public class GrouperInstallerUtils  {
     ServerSocket ss = null;
     try {
 
-      if (isBlank(ipAddress)) {
+      if (isBlank(ipAddress) || "0.0.0.0".equals(ipAddress)) {
         ss = new ServerSocket(port);
       } else {
         

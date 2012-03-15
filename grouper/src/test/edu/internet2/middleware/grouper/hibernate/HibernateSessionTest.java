@@ -26,6 +26,7 @@ import edu.internet2.middleware.grouper.helper.StemHelper;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.cfg.ApiConfig;
+import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.internal.dao.QueryPaging;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
@@ -41,7 +42,7 @@ public class HibernateSessionTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new HibernateSessionTest("testNestedTransactionsAndSavepoints"));
+    TestRunner.run(new HibernateSessionTest("testNoNestedTransactionsAndSavepoints"));
     //TestRunner.run(HibernateSessionTest.class);
   }
   
@@ -58,6 +59,10 @@ public class HibernateSessionTest extends GrouperTest {
    */
   public void testNestedTransactionsAndSavepoints() {
 
+    boolean useNestedTransactions = GrouperDdlUtils.isSQLServer() ? false : true;
+    if (!useNestedTransactions) {
+      ApiConfig.testConfig.put("ddlutils.use.nestedTransactions", "false");
+    }
     final GrouperSession grouperSession = GrouperSession.startRootSession();
 
     int initialSavepointCount = HibernateSession.savePointCount;
@@ -187,7 +192,9 @@ public class HibernateSessionTest extends GrouperTest {
       }
     });
 
-    assertEquals(initialSavepointCount + 1, HibernateSession.savePointCount);
+    if (useNestedTransactions) {
+      assertEquals(initialSavepointCount + 1, HibernateSession.savePointCount);
+    }
     
     //######################
     
@@ -226,8 +233,9 @@ public class HibernateSessionTest extends GrouperTest {
       }
     });
 
-    assertEquals(initialSavepointCount + 1, HibernateSession.savePointCount);
-    
+    if (useNestedTransactions) {
+      assertEquals(initialSavepointCount + 1, HibernateSession.savePointCount);
+    }
     
     //######################
     
@@ -266,11 +274,10 @@ public class HibernateSessionTest extends GrouperTest {
         return null;
       }
     });
-
-    assertEquals(initialSavepointCount + 2, HibernateSession.savePointCount);
     
-    
-    
+    if (useNestedTransactions) {
+      assertEquals(initialSavepointCount + 2, HibernateSession.savePointCount);
+    }
     
     GrouperSession.stopQuietly(grouperSession);
     
@@ -989,6 +996,49 @@ public class HibernateSessionTest extends GrouperTest {
     assertEquals(uuids.get(2), groups.get(2).getUuid());
     
     
+    
+  }
+
+
+  /**
+   * make sure only savepoints are used in nested read/write transactions
+   */
+  public void testNoNestedTransactionsAndSavepoints() {
+  
+    ApiConfig.testConfig.put("ddlutils.use.nestedTransactions", "false");
+
+    final GrouperSession grouperSession = GrouperSession.startRootSession();
+  
+    //######################
+    
+    //on a readwrite with nested readonly, shouldnt have one
+    GrouperTransaction.callbackGrouperTransaction(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, new GrouperTransactionHandler() {
+      
+      public Object callback(GrouperTransaction grouperTransaction)
+          throws GrouperDAOException {
+        new GroupSave(grouperSession).assignName("a:b").assignCreateParentStemsIfNotExist(true).save();
+        
+        GrouperTransaction.callbackGrouperTransaction(GrouperTransactionType.READONLY_NEW, new GrouperTransactionHandler() {
+          
+          public Object callback(GrouperTransaction grouperTransaction)
+              throws GrouperDAOException {
+            
+            new GroupSave(grouperSession).assignName("a:b:d").assignCreateParentStemsIfNotExist(true).save();
+            
+            return null;
+          }
+        });
+        
+        return null;
+      }
+    });
+    
+    //the other group should be saved...
+    Group group = GroupFinder.findByName(grouperSession, "a:b:d", true);
+    
+    assertNotNull(group);
+    
+    GrouperSession.stopQuietly(grouperSession);
     
   }
 
