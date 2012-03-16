@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -637,7 +638,13 @@ public class SimpleMembershipUpdate {
       return;
 
     } catch (Exception se) {
-      throw new RuntimeException("Error adding member to group: " + groupName + ", " + subjectLabel + ", " + se.getMessage(), se);
+      if (ExceptionUtils.getFullStackTrace(se).contains("membership cannot be circular")) {
+        LOG.warn("Error adding member to group: " + groupName + ", " + subjectLabel + ", " + se.getMessage(), se);
+        guiResponseJs.addAction(GuiScreenAction.newAlert(TagUtils.navResourceString("simpleMembershipUpdate.errorCircularReference")));
+        return;
+      } else {
+        throw new RuntimeException("Error adding member to group: " + groupName + ", " + subjectLabel + ", " + se.getMessage(), se);
+      }
     } finally {
       GrouperSession.stopQuietly(grouperSession); 
     }
