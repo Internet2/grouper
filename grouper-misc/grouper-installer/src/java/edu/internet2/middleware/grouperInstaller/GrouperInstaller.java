@@ -858,7 +858,7 @@ public class GrouperInstaller {
           System.out.println("stdout: " + commandResult.getOutputText());
         }
 
-        System.out.print("Do you want to run dos2unix on ghs.sh (t|f)? [t]: ");
+        System.out.print("Do you want to run dos2unix on gsh.sh (t|f)? [t]: ");
         setGshFile = readFromStdInBoolean(true);
         
         if (setGshFile) {
