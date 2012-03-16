@@ -65,37 +65,48 @@ public class SimpleMembershipUpdate {
    */
   public void enabledDisabledSubmit(HttpServletRequest request, HttpServletResponse response) {
     
-    String enabledDate = request.getParameter("enabledDate");
-    String disabledDate = request.getParameter("disabledDate");
-    SimpleMembershipUpdateContainer simpleMembershipUpdateContainer = SimpleMembershipUpdateContainer.retrieveFromSession();
-    
-    Membership membership = simpleMembershipUpdateContainer.getEnabledDisabledMember().getMembership();
-    
-    if (StringUtils.isBlank(enabledDate) ) {
-      membership.setEnabledTime(null);
-    } else {
-      //must be yyyy/mm/dd
-      Timestamp enabledTimestamp = GrouperUtil.toTimestamp(enabledDate);
-      membership.setEnabledTime(enabledTimestamp);
-    }
-    
-    if (StringUtils.isBlank(disabledDate) ) {
-      membership.setDisabledTime(null);
-    } else {
-      //must be yyyy/mm/dd
-      Timestamp disabledTimestamp = GrouperUtil.toTimestamp(disabledDate);
-      membership.setDisabledTime(disabledTimestamp);
-    }
-    
-    membership.update();
-    
-    
-    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
-    guiResponseJs.addAction(GuiScreenAction.newCloseModal());
-    guiResponseJs.addAction(GuiScreenAction.newAlert(simpleMembershipUpdateContainer.getText().getEnabledDisabledSuccess()));
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
 
-    //refresh this list
-    retrieveMembers(request, response);
+    GrouperSession grouperSession = null;
+    try {
+
+      grouperSession = GrouperSession.start(loggedInSubject);
+
+      String enabledDate = request.getParameter("enabledDate");
+      String disabledDate = request.getParameter("disabledDate");
+      SimpleMembershipUpdateContainer simpleMembershipUpdateContainer = SimpleMembershipUpdateContainer.retrieveFromSession();
+      
+      Membership membership = simpleMembershipUpdateContainer.getEnabledDisabledMember().getMembership();
+      
+      if (StringUtils.isBlank(enabledDate) ) {
+        membership.setEnabledTime(null);
+      } else {
+        //must be yyyy/mm/dd
+        Timestamp enabledTimestamp = GrouperUtil.toTimestamp(enabledDate);
+        membership.setEnabledTime(enabledTimestamp);
+      }
+      
+      if (StringUtils.isBlank(disabledDate) ) {
+        membership.setDisabledTime(null);
+      } else {
+        //must be yyyy/mm/dd
+        Timestamp disabledTimestamp = GrouperUtil.toTimestamp(disabledDate);
+        membership.setDisabledTime(disabledTimestamp);
+      }
+      
+      membership.update();
+      
+      
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+      guiResponseJs.addAction(GuiScreenAction.newCloseModal());
+      guiResponseJs.addAction(GuiScreenAction.newAlert(simpleMembershipUpdateContainer.getText().getEnabledDisabledSuccess()));
+  
+      //refresh this list
+      retrieveMembers(request, response);
+
+    } finally {
+      GrouperSession.stopQuietly(grouperSession); 
+    }
 
   }
   
