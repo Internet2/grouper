@@ -5,11 +5,13 @@ package edu.internet2.middleware.grouper.permissions;
 
 import java.sql.Timestamp;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
@@ -483,7 +485,20 @@ public class PermissionEntryImpl extends PermissionEntryBase {
     if (this.getMembershipDepth() < 0) {
       throw new RuntimeException("Why is membership depth not initialized??? " + this.getMembershipDepth() );
     }
+    
     return this.getMembershipDepth() == 0;
+  }
+  
+  /**
+   * see if the membership is unassignable directly
+   * @return true if immediate
+   */
+  public boolean isAssignedToSubject() {
+    String memberId = this.getMemberId();
+    String membershipId = this.getMembershipId();
+    //get this cached
+    Membership membership = GrouperDAOFactory.getFactory().getMembership().findByUuid(membershipId, true, false);
+    return StringUtils.equals(memberId, membership.getMemberUuid());
   }
   
   /**
@@ -576,7 +591,7 @@ public class PermissionEntryImpl extends PermissionEntryBase {
       throw new RuntimeException("Not expecting permissionType: " + thePermissionType);
     }
     
-    return this.isImmediateMembership() && this.isImmediatePermission();
+    return this.isAssignedToSubject() && this.isImmediatePermission();
     
   }
 

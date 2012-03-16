@@ -1466,6 +1466,21 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
    */
   public Membership findByUuid(String uuid, boolean exceptionIfNull, boolean enabledOnly)
       throws GrouperDAOException, MembershipNotFoundException {
+    //TODO CH 20120316 do not disable cache for this
+    return findByUuid(uuid, exceptionIfNull, enabledOnly, new QueryOptions().secondLevelCache(false));
+  }
+    
+  /**
+   * @param uuid
+   * @param exceptionIfNull
+   * @param enabledOnly
+   * @param queryOptions 
+   * @return membership
+   * @throws GrouperDAOException 
+   * @throws MembershipNotFoundException 
+   */
+  public Membership findByUuid(String uuid, boolean exceptionIfNull, boolean enabledOnly, QueryOptions queryOptions)
+      throws GrouperDAOException, MembershipNotFoundException {
     
     int index = uuid.indexOf(Membership.membershipIdSeparator);
     
@@ -1490,7 +1505,8 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
     if (enabledOnly) {
       sql.append(" and ms.enabledDb = 'T'");
     }
-    byHqlStatic.createQuery(sql.toString());
+    byHqlStatic.createQuery(sql.toString()).options(queryOptions).setCacheable(true).setCacheRegion(KLASS);
+    
     Object[] result = byHqlStatic.uniqueResult(Object[].class);
     if (result==null || result[0] == null) {
       if (exceptionIfNull) {
@@ -2995,11 +3011,21 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
    * @see edu.internet2.middleware.grouper.internal.dao.MembershipDAO#findByImmediateUuid(java.lang.String, boolean)
    */
   public Membership findByImmediateUuid(String uuid, boolean exceptionIfNull) {
+    //TODO CH 20120316 change this so it isnt not cached...
+    return findByImmediateUuid(uuid, exceptionIfNull, new QueryOptions().secondLevelCache(false));
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.MembershipDAO#findByImmediateUuid(java.lang.String, boolean, QueryOptions)
+   */
+  public Membership findByImmediateUuid(String uuid, boolean exceptionIfNull, QueryOptions queryOptions) {
     String theHqlQuery = "from ImmediateMembershipEntry as theMembership where theMembership.immediateMembershipId = :uuid";
         
     ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic()
       .createQuery(theHqlQuery)
-      .setCacheable(false)
+      .options(queryOptions)
+      .setCacheable(true)
+      .setCacheRegion(KLASS)
       .setString("uuid", uuid);
 
     Membership membership = byHqlStatic.uniqueResult(Membership.class);
