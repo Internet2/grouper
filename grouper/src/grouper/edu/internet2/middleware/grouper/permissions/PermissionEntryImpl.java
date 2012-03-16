@@ -494,11 +494,14 @@ public class PermissionEntryImpl extends PermissionEntryBase {
    * @return true if immediate
    */
   public boolean isAssignedToSubject() {
-    String memberId = this.getMemberId();
-    String membershipId = this.getMembershipId();
-    //get this cached
-    Membership membership = GrouperDAOFactory.getFactory().getMembership().findByUuid(membershipId, true, false);
-    return StringUtils.equals(memberId, membership.getMemberUuid());
+    return true;
+//Note: the membership returned is the same member id as permission one,
+//we need to change the view to do a better check...
+//    String memberId = this.getMemberId();
+//    String membershipId = this.getMembershipId();
+//    //get this cached
+//    Membership membership = GrouperDAOFactory.getFactory().getMembership().findByUuid(membershipId, true, false);
+//    return StringUtils.equals(memberId, membership.getMemberUuid());
   }
   
   /**
