@@ -21,6 +21,7 @@ import java.util.Iterator;
 import java.util.Set;
 
 import junit.framework.Assert;
+import junit.framework.TestCase;
 import junit.textui.TestRunner;
 
 import org.apache.commons.lang.StringUtils;
@@ -81,7 +82,7 @@ public class TestStem extends GrouperTest {
    * @param args String[]
    */
   public static void main(String[] args) {
-    TestRunner.run(new TestStem("testGetChildGroups2"));
+    TestRunner.run(new TestStem("testGetAllStemsSplitScopeSecure"));
     //TestRunner.run(TestStem.class);
   }
 
@@ -89,6 +90,17 @@ public class TestStem extends GrouperTest {
     super(name);
   }
 
+  public void testGetAllStemsSplitScopeSecure() {
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    try {
+      QueryOptions queryOptions = new QueryOptions().paging(100, 1, true).sortAsc("name");
+      GrouperDAOFactory.getFactory().getStem().getAllStemsSplitScopeSecure("ed", grouperSession, grouperSession.getSubject(), 
+          GrouperUtil.toSet(NamingPrivilege.CREATE), queryOptions);
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+  
   /**
    * make sure obliterate works
    */

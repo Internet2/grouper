@@ -662,7 +662,7 @@ public class SimpleAttributeUpdateFilter {
         GrouperUiUtils.dhtmlxOptionAppend(xmlBuilder, "", 
             GrouperUiUtils.message("simpleAttributeUpdate.errorNotEnoughChars", false), "bullet_error.png");
       } else {
-        queryOptions = new QueryOptions().paging(TagUtils.mediaResourceInt("simpleAttributeUpdate.attributeDefComboboxResultSize", 200), 1, true).sortAsc("theStem.nameDb");
+        queryOptions = new QueryOptions().paging(TagUtils.mediaResourceInt("simpleAttributeUpdate.attributeDefComboboxResultSize", 200), 1, true).sortAsc("name");
         stems = GrouperDAOFactory.getFactory().getStem().getAllStemsSplitScopeSecure(searchTerm, grouperSession, loggedInSubject, 
             GrouperUtil.toSet(NamingPrivilege.CREATE), queryOptions);
         
