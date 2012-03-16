@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -64,37 +65,48 @@ public class SimpleMembershipUpdate {
    */
   public void enabledDisabledSubmit(HttpServletRequest request, HttpServletResponse response) {
     
-    String enabledDate = request.getParameter("enabledDate");
-    String disabledDate = request.getParameter("disabledDate");
-    SimpleMembershipUpdateContainer simpleMembershipUpdateContainer = SimpleMembershipUpdateContainer.retrieveFromSession();
-    
-    Membership membership = simpleMembershipUpdateContainer.getEnabledDisabledMember().getMembership();
-    
-    if (StringUtils.isBlank(enabledDate) ) {
-      membership.setEnabledTime(null);
-    } else {
-      //must be yyyy/mm/dd
-      Timestamp enabledTimestamp = GrouperUtil.toTimestamp(enabledDate);
-      membership.setEnabledTime(enabledTimestamp);
-    }
-    
-    if (StringUtils.isBlank(disabledDate) ) {
-      membership.setDisabledTime(null);
-    } else {
-      //must be yyyy/mm/dd
-      Timestamp disabledTimestamp = GrouperUtil.toTimestamp(disabledDate);
-      membership.setDisabledTime(disabledTimestamp);
-    }
-    
-    membership.update();
-    
-    
-    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
-    guiResponseJs.addAction(GuiScreenAction.newCloseModal());
-    guiResponseJs.addAction(GuiScreenAction.newAlert(simpleMembershipUpdateContainer.getText().getEnabledDisabledSuccess()));
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
 
-    //refresh this list
-    retrieveMembers(request, response);
+    GrouperSession grouperSession = null;
+    try {
+
+      grouperSession = GrouperSession.start(loggedInSubject);
+
+      String enabledDate = request.getParameter("enabledDate");
+      String disabledDate = request.getParameter("disabledDate");
+      SimpleMembershipUpdateContainer simpleMembershipUpdateContainer = SimpleMembershipUpdateContainer.retrieveFromSession();
+      
+      Membership membership = simpleMembershipUpdateContainer.getEnabledDisabledMember().getMembership();
+      
+      if (StringUtils.isBlank(enabledDate) ) {
+        membership.setEnabledTime(null);
+      } else {
+        //must be yyyy/mm/dd
+        Timestamp enabledTimestamp = GrouperUtil.toTimestamp(enabledDate);
+        membership.setEnabledTime(enabledTimestamp);
+      }
+      
+      if (StringUtils.isBlank(disabledDate) ) {
+        membership.setDisabledTime(null);
+      } else {
+        //must be yyyy/mm/dd
+        Timestamp disabledTimestamp = GrouperUtil.toTimestamp(disabledDate);
+        membership.setDisabledTime(disabledTimestamp);
+      }
+      
+      membership.update();
+      
+      
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+      guiResponseJs.addAction(GuiScreenAction.newCloseModal());
+      guiResponseJs.addAction(GuiScreenAction.newAlert(simpleMembershipUpdateContainer.getText().getEnabledDisabledSuccess()));
+  
+      //refresh this list
+      retrieveMembers(request, response);
+
+    } finally {
+      GrouperSession.stopQuietly(grouperSession); 
+    }
 
   }
   
@@ -637,7 +649,13 @@ public class SimpleMembershipUpdate {
       return;
 
     } catch (Exception se) {
-      throw new RuntimeException("Error adding member to group: " + groupName + ", " + subjectLabel + ", " + se.getMessage(), se);
+      if (ExceptionUtils.getFullStackTrace(se).contains("membership cannot be circular")) {
+        LOG.warn("Error adding member to group: " + groupName + ", " + subjectLabel + ", " + se.getMessage(), se);
+        guiResponseJs.addAction(GuiScreenAction.newAlert(TagUtils.navResourceString("simpleMembershipUpdate.errorCircularReference")));
+        return;
+      } else {
+        throw new RuntimeException("Error adding member to group: " + groupName + ", " + subjectLabel + ", " + se.getMessage(), se);
+      }
     } finally {
       GrouperSession.stopQuietly(grouperSession); 
     }

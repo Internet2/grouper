@@ -665,6 +665,20 @@ TODO update for 1.5
             ;
 
   /**
+   * @param uuid 
+   * @param exceptionIfNull 
+   * @param enabledOnly 
+   * @param queryOptions 
+   * @return membership
+   * @throws GrouperDAOException 
+   * @throws MembershipNotFoundException 
+   */
+  Membership findByUuid(String uuid, boolean exceptionIfNull, boolean enabledOnly, QueryOptions queryOptions) 
+    throws  GrouperDAOException,
+            MembershipNotFoundException 
+            ;
+
+  /**
    * find memberships that the user is allowed to see
    * @param grouperSession
    * @param memberUUID
@@ -878,6 +892,14 @@ TODO update for 1.5
    * @return membership
    */
   public Membership findByImmediateUuid(String uuid, boolean exceptionIfNull);
+  
+  /**
+   * @param uuid 
+   * @param exceptionIfNull 
+   * @param queryOptions 
+   * @return membership
+   */
+  public Membership findByImmediateUuid(String uuid, boolean exceptionIfNull, QueryOptions queryOptions);
   
   /**
    * save the update properties which are auto saved when business method is called

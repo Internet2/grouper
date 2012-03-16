@@ -924,6 +924,16 @@ public class GrouperInstaller {
       String newDbUrl = readFromStdIn();
       if (!GrouperInstallerUtils.isBlank(newDbUrl)) {
         this.dbUrl = newDbUrl;
+        if (newDbUrl.contains("postgresql") || newDbUrl.contains("sqlserver")) {
+          System.out.println("Note: you need to change the search sql in the jdbc source in the grouperApi/conf/sources.xml... the change is in the comments in that file");
+          for (int i=0;i<3;i++) {
+            System.out.print("Ready to continue? (t|f)? [t] ");
+            boolean shouldContinue = readFromStdInBoolean(true);
+            if (shouldContinue) {
+              break;
+            }
+          }
+        }
       }
       System.out.print("Database user [" + this.dbUser + "]: ");
       String newDbUser = readFromStdIn();
