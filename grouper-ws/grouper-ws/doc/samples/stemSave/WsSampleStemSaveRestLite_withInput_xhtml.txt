@@ -1,4 +1,4 @@
-Grouper web service sample of service: stemSave, WsSampleStemSaveRestLite, manually written lite/rest, type: _withInput, format: xhtml, for version: 2.0.0
+Grouper web service sample of service: stemSave, WsSampleStemSaveRestLite, manually written lite/rest, type: _withInput, format: xhtml, for version: 2.1.0
 
 
 #########################################
@@ -9,7 +9,7 @@ Grouper web service sample of service: stemSave, WsSampleStemSaveRestLite, manua
 #########################################
 
 
-POST /grouperWs/servicesRest/v2_0_000/stems/aStem%3AaStemToSave HTTP/1.1
+POST /grouper-ws/servicesRest/v2_1_000/stems/aStem%3AaStemToSave HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.0
@@ -28,10 +28,7 @@ Content-Type: application/xhtml+xml; charset=UTF-8
       <p class="displayExtension">disp1</p>
       <p class="clientVersion" />
       <p class="stemName">aStem:aStemToSave</p>
-      <p class="stemLookupUuid" />
-      <p class="stemLookupName" />
       <p class="stemUuid" />
-      <p class="saveMode" />
       <p class="actAsSubjectId">GrouperSystem</p>
       <p class="actAsSubjectSourceId" />
       <p class="actAsSubjectIdentifier" />
@@ -39,6 +36,9 @@ Content-Type: application/xhtml+xml; charset=UTF-8
       <p class="paramValue0" />
       <p class="paramName1" />
       <p class="paramValue1" />
+      <p class="saveMode" />
+      <p class="stemLookupUuid" />
+      <p class="stemLookupName" />
       <p class="description">desc1</p>
     </div>
   </body>
@@ -55,12 +55,12 @@ Content-Type: application/xhtml+xml; charset=UTF-8
 
 HTTP/1.1 201 Created
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
 X-Grouper-resultCode: SUCCESS_INSERTED
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml;charset=UTF-8
-Date: Fri, 12 Aug 2011 22:18:19 GMT
+Date: Sat, 17 Mar 2012 15:52:57 GMT
 Connection: close
 
 <?xml version='1.0' encoding='iso-8859-1'?>
@@ -73,24 +73,25 @@ Connection: close
     <div title="WsStemSaveLiteResult">
       <div class="resultMetadata" title="WsResultMeta">
         <p class="resultCode">SUCCESS_INSERTED</p>
-        <p class="success">T</p>
         <p class="resultCode2" />
-        <p class="resultMessage">Success for: clientVersion: 2.0.0, wsStemToSaves: Array size: 1: [0]: WsStemToSave[
+        <p class="resultMessage">Success for: clientVersion: 2.1.0, wsStemToSaves: Array size: 1: [0]: WsStemToSave[
 wsStemLookup=WsStemLookup[stemName=aStem:aStemToSave],
 wsStem=WsStem[displayExtension=disp1,description=desc1,name=aStem:aStemToSave]]
+
 , actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], txType: NONE, paramNames:
 , params: null</p>
+        <p class="success">T</p>
       </div>
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">153</p>
+        <p class="millis">140</p>
         <p class="resultWarnings" />
-        <p class="serverVersion">2.0.0</p>
+        <p class="serverVersion">2.1.0</p>
       </div>
       <div class="wsStem" title="WsStem">
         <p class="name">aStem:aStemToSave</p>
         <p class="displayName">a stem:disp1</p>
         <p class="description">desc1</p>
-        <p class="uuid">5845c4aabfac4c2ea46f46c959f524fb</p>
+        <p class="uuid">769e0b6ed7d3448387025a8676beb8c8</p>
         <p class="extension">aStemToSave</p>
         <p class="displayExtension">disp1</p>
       </div>
@@ -256,7 +257,7 @@ public class WsSampleStemSaveRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: 2.0.0, result code: SUCCESS_INSERTED, result message: Success for: clientVersion: 2.0.0, wsStemToSaves: Array size: 1: [0]: WsStemToSave[
+Server version: 2.1.0, result code: SUCCESS_INSERTED, result message: Success for: clientVersion: 2.1.0, wsStemToSaves: Array size: 1: [0]: WsStemToSave[
   wsStemLookup=WsStemLookup[stemName=aStem:aStemToSave],
   wsStem=WsStem[displayExtension=disp1,description=desc1,name=aStem:aStemToSave]]
 

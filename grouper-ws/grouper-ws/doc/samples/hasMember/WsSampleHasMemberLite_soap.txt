@@ -1,4 +1,4 @@
-Grouper web service sample of service: hasMember, WsSampleHasMemberLite, code generated classes, format: soap, for version: 2.0.0
+Grouper web service sample of service: hasMember, WsSampleHasMemberLite, code generated classes, format: soap, for version: 2.1.0
 
 
 #########################################
@@ -9,7 +9,7 @@ Grouper web service sample of service: hasMember, WsSampleHasMemberLite, code ge
 #########################################
 
 
-POST /grouperWs/services/GrouperService_v2_0 HTTP/1.1
+POST /grouper-ws/services/GrouperService_v2_1 HTTP/1.1
 Content-Type: application/soap+xml; charset=UTF-8; action="urn:hasMemberLite"
 User-Agent: Axis2
 Authorization: Basic xxxxxxxxxxxxxxxxx==
@@ -20,8 +20,8 @@ Transfer-Encoding: chunked
 <?xml version='1.0' encoding='UTF-8'?>
 <soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
   <soapenv:Body>
-    <ns1:hasMemberLite xmlns:ns1="http://soap_v2_0.ws.grouper.middleware.internet2.edu/xsd">
-      <ns1:clientVersion>v2_0_000</ns1:clientVersion>
+    <ns1:hasMemberLite xmlns:ns1="http://soap_v2_1.ws.grouper.middleware.internet2.edu/xsd">
+      <ns1:clientVersion>v2_1_000</ns1:clientVersion>
       <ns1:groupName>aStem:aGroup</ns1:groupName>
       <ns1:groupUuid></ns1:groupUuid>
       <ns1:subjectId>GrouperSystem</ns1:subjectId>
@@ -47,47 +47,52 @@ Transfer-Encoding: chunked
 
 HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
 X-Grouper-resultCode: IS_MEMBER
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/soap+xml; action="urn:hasMemberLiteResponse";charset=UTF-8
 Transfer-Encoding: chunked
-Date: Fri, 12 Aug 2011 22:09:45 GMT
+Date: Sat, 17 Mar 2012 15:49:15 GMT
 
-884
+7ef
 <?xml version='1.0' encoding='UTF-8'?>
 <soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
   <soapenv:Body>
-    <ns:hasMemberLiteResponse xmlns:ns="http://soap_v2_0.ws.grouper.middleware.internet2.edu/xsd">
-      <ns:return type="edu.internet2.middleware.grouper.ws.soap_v2_0.WsHasMemberLiteResult">
-        <ns:responseMetadata type="edu.internet2.middleware.grouper.ws.soap_v2_0.WsResponseMeta">
-          <ns:millis xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
-          <ns:resultWarnings xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
-          <ns:serverVersion>2.0.0</ns:serverVersion>
+    <ns:hasMemberLiteResponse xmlns:ns="http://soap_v2_1.ws.grouper.middleware.internet2.edu/xsd">
+      <ns:return xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ns:WsHasMemberLiteResult">
+        <ns:responseMetadata xsi:type="ns:WsResponseMeta">
+          <ns:millis xsi:nil="true" />
+          <ns:resultWarnings xsi:nil="true" />
+          <ns:serverVersion>2.1.0</ns:serverVersion>
         </ns:responseMetadata>
-        <ns:resultMetadata type="edu.internet2.middleware.grouper.ws.soap_v2_0.WsResultMeta">
-          <ns:params xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
+        <ns:resultMetadata xsi:type="ns:WsResultMeta">
+          <ns:params xsi:nil="true" />
           <ns:resultCode>IS_MEMBER</ns:resultCode>
-          <ns:resultCode2 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
-          <ns:resultMessage xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
+          <ns:resultCode2 xsi:nil="true" />
+          <ns:resultMessage>Success for: clientVersion: 2.1.0, wsGroupLookup: WsGroupLookup[pitGroups=[],uuid=,groupName=aStem:aGroup], subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=GrouperSystem,subjectIdentifier=,subjectSourceId=]
+
+memberFilter: All, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem,subjectIdentifier=,subjectSourceId=], fieldName: null, includeGroupDetail: false, includeSubjectDetail: false, subjectAttributeNames: null
+,params: null
+,pointInTimeFrom: null, pointInTimeTo: null</ns:resultMessage>
           <ns:success>T</ns:success>
         </ns:resultMetadata>
-        <ns:results xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
-        <ns:subjectAttributeNames xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
-        <ns:wsGroup type="edu.internet2.middleware.grouper.ws.soap_v2_0.WsGroup">
+        <ns:results xsi:nil="true" />
+        <ns:subjectAttributeNames xsi:nil="true" />
+        <ns:wsGroup xsi:type="ns:WsGroup">
           <ns:description>a group description</ns:description>
-          <ns:detail xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
+          <ns:detail xsi:nil="true" />
           <ns:displayExtension>a group</ns:displayExtension>
           <ns:displayName>a stem:a group</ns:displayName>
           <ns:extension>aGroup</ns:extension>
           <ns:name>aStem:aGroup</ns:name>
-          <ns:uuid>ffe38320562e4b9abdfd7b2a6528c329</ns:uuid>
+          <ns:typeOfGroup>group</ns:typeOfGroup>
+          <ns:uuid>bf0a569d8b76416da015b12b29f2d3ec</ns:uuid>
         </ns:wsGroup>
-        <ns:wsSubject type="edu.internet2.middleware.grouper.ws.soap_v2_0.WsSubject">
-          <ns:attributeValues xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
+        <ns:wsSubject xsi:type="ns:WsSubject">
+          <ns:attributeValues xsi:nil="true" />
           <ns:id>GrouperSystem</ns:id>
-          <ns:identifierLookup xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
+          <ns:identifierLookup xsi:nil="true" />
           <ns:name>GrouperSysAdmin</ns:name>
           <ns:resultCode>SUCCESS</ns:resultCode>
           <ns:sourceId>g:isa</ns:sourceId>
@@ -124,8 +129,8 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import edu.internet2.middleware.grouper.webservicesClient.util.GeneratedClientSettings;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGenerated;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGeneratedType;
-import edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.HasMemberLite;
-import edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.WsHasMemberLiteResult;
+import edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.HasMemberLite;
+import edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsHasMemberLiteResult;
 
 
 /**
@@ -210,9 +215,9 @@ public class WsSampleHasMemberLite implements WsSampleGenerated {
 
 
 WsHasMemberLiteResult[
-  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.WsResponseMeta@c5c6bc,localResponseMetadataTracker=true,
-  localResultMetadata=edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.WsResultMeta@7a81dc,localResultMetadataTracker=true,
+  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsResponseMeta@1daac90,localResponseMetadataTracker=true,
+  localResultMetadata=edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsResultMeta@1774ae5,localResultMetadataTracker=true,
   localResults={<null>},localResultsTracker=true,
   localSubjectAttributeNames={<null>},localSubjectAttributeNamesTracker=true,
-  localWsGroup=edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.WsGroup@64a6b8,localWsGroupTracker=true,
-  localWsSubject=edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.WsSubject@1fd899e,localWsSubjectTracker=true]
+  localWsGroup=edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsGroup@6718a0,localWsGroupTracker=true,
+  localWsSubject=edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsSubject@81c0fe,localWsSubjectTracker=true]

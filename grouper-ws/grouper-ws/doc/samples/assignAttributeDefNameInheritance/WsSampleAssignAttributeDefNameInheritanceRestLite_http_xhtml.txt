@@ -34,7 +34,7 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml;charset=UTF-8
-Date: Sat, 25 Feb 2012 15:49:56 GMT
+Date: Sat, 17 Mar 2012 15:31:00 GMT
 Connection: close
 
 <?xml version='1.0' encoding='iso-8859-1'?>
@@ -48,11 +48,11 @@ Connection: close
       <div class="resultMetadata" title="WsResultMeta">
         <p class="resultCode">SUCCESS</p>
         <p class="resultCode2" />
-        <p class="resultMessage">, Had 1 successful adds, 0 adds which already existed, 0 successful removes, and 0 removes which didnt exist.</p>
+        <p class="resultMessage">Had 1 successful adds, 0 adds which already existed, 0 successful removes, and 0 removes which didnt exist.</p>
         <p class="success">T</p>
       </div>
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">47</p>
+        <p class="millis">29</p>
         <p class="resultWarnings" />
         <p class="serverVersion">2.1.0</p>
       </div>
@@ -71,7 +71,7 @@ Connection: close
 #########################################
 
 
-package edu.internet2.middleware.grouper.ws.samples.rest.group;
+package edu.internet2.middleware.grouper.ws.samples.rest.attribute;
 
 import org.apache.commons.httpclient.Credentials;
 import org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;
@@ -220,4 +220,4 @@ public class WsSampleAssignAttributeDefNameInheritanceRestLite implements WsSamp
 #########################################
 
 
-Server version: 2.1.0, result code: SUCCESS, result message: , Had 1 successful adds, 0 adds which already existed, 0 successful removes, and 0 removes which didnt exist.
+Server version: 2.1.0, result code: SUCCESS, result message: Had 1 successful adds, 0 adds which already existed, 0 successful removes, and 0 removes which didnt exist.

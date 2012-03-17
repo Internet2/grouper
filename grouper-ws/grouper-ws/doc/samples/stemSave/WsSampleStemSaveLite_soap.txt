@@ -1,4 +1,4 @@
-Grouper web service sample of service: stemSave, WsSampleStemSaveLite, code generated classes, format: soap, for version: 2.0.0
+Grouper web service sample of service: stemSave, WsSampleStemSaveLite, code generated classes, format: soap, for version: 2.1.0
 
 
 #########################################
@@ -9,7 +9,7 @@ Grouper web service sample of service: stemSave, WsSampleStemSaveLite, code gene
 #########################################
 
 
-POST /grouperWs/services/GrouperService_v2_0 HTTP/1.1
+POST /grouper-ws/services/GrouperService_v2_1 HTTP/1.1
 Content-Type: application/soap+xml; charset=UTF-8; action="urn:stemSaveLite"
 User-Agent: Axis2
 Authorization: Basic xxxxxxxxxxxxxxxxx==
@@ -20,8 +20,8 @@ Transfer-Encoding: chunked
 <?xml version='1.0' encoding='UTF-8'?>
 <soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
   <soapenv:Body>
-    <ns1:stemSaveLite xmlns:ns1="http://soap_v2_0.ws.grouper.middleware.internet2.edu/xsd">
-      <ns1:clientVersion>v2_0_000</ns1:clientVersion>
+    <ns1:stemSaveLite xmlns:ns1="http://soap_v2_1.ws.grouper.middleware.internet2.edu/xsd">
+      <ns1:clientVersion>v2_1_000</ns1:clientVersion>
       <ns1:stemLookupUuid></ns1:stemLookupUuid>
       <ns1:stemLookupName>aStem:test</ns1:stemLookupName>
       <ns1:stemUuid></ns1:stemUuid>
@@ -48,39 +48,44 @@ Transfer-Encoding: chunked
 
 HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
 X-Grouper-resultCode: SUCCESS_INSERTED
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/soap+xml; action="urn:stemSaveLiteResponse";charset=UTF-8
 Transfer-Encoding: chunked
-Date: Fri, 12 Aug 2011 22:17:31 GMT
+Date: Sat, 17 Mar 2012 15:52:17 GMT
 
-5cc
+5cb
 <?xml version='1.0' encoding='UTF-8'?>
 <soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
   <soapenv:Body>
-    <ns:stemSaveLiteResponse xmlns:ns="http://soap_v2_0.ws.grouper.middleware.internet2.edu/xsd">
-      <ns:return type="edu.internet2.middleware.grouper.ws.soap_v2_0.WsStemSaveLiteResult">
-        <ns:responseMetadata type="edu.internet2.middleware.grouper.ws.soap_v2_0.WsResponseMeta">
-          <ns:millis xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
-          <ns:resultWarnings xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
-          <ns:serverVersion>2.0.0</ns:serverVersion>
+    <ns:stemSaveLiteResponse xmlns:ns="http://soap_v2_1.ws.grouper.middleware.internet2.edu/xsd">
+      <ns:return xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ns:WsStemSaveLiteResult">
+        <ns:responseMetadata xsi:type="ns:WsResponseMeta">
+          <ns:millis xsi:nil="true" />
+          <ns:resultWarnings xsi:nil="true" />
+          <ns:serverVersion>2.1.0</ns:serverVersion>
         </ns:responseMetadata>
-        <ns:resultMetadata type="edu.internet2.middleware.grouper.ws.soap_v2_0.WsResultMeta">
-          <ns:params xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
+        <ns:resultMetadata xsi:type="ns:WsResultMeta">
+          <ns:params xsi:nil="true" />
           <ns:resultCode>SUCCESS_INSERTED</ns:resultCode>
-          <ns:resultCode2 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
-          <ns:resultMessage xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
+          <ns:resultCode2 xsi:nil="true" />
+          <ns:resultMessage>Success for: clientVersion: 2.1.0, wsStemToSaves: Array size: 1: [0]: WsStemToSave[
+wsStemLookup=WsStemLookup[uuid=,stemName=aStem:test],
+wsStem=WsStem[displayExtension=the test stem,description=test stem,name=aStem:test,uuid=]]
+
+, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem,subjectIdentifier=,subjectSourceId=], txType: NONE, paramNames:
+, params: null</ns:resultMessage>
           <ns:success>T</ns:success>
         </ns:resultMetadata>
-        <ns:wsStem type="edu.internet2.middleware.grouper.ws.soap_v2_0.WsStem">
+        <ns:wsStem xsi:type="ns:WsStem">
           <ns:description>test stem</ns:description>
           <ns:displayExtension>the test stem</ns:displayExtension>
           <ns:displayName>a stem:the test stem</ns:displayName>
           <ns:extension>test</ns:extension>
           <ns:name>aStem:test</ns:name>
-          <ns:uuid>de71c659688f4921a0cde42f27b113d8</ns:uuid>
+          <ns:uuid>7b07ccea051740ffae997e867db67b5c</ns:uuid>
         </ns:wsStem>
       </ns:return>
     </ns:stemSaveLiteResponse>
@@ -113,8 +118,8 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import edu.internet2.middleware.grouper.webservicesClient.util.GeneratedClientSettings;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGenerated;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGeneratedType;
-import edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.StemSaveLite;
-import edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.WsStemSaveLiteResult;
+import edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.StemSaveLite;
+import edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsStemSaveLiteResult;
 
 
 /**
@@ -196,6 +201,6 @@ public class WsSampleStemSaveLite implements WsSampleGenerated {
 
 
 WsStemSaveLiteResult[
-  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.WsResponseMeta@139f843,localResponseMetadataTracker=true,
-  localResultMetadata=edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.WsResultMeta@da1a36,localResultMetadataTracker=true,
-  localWsStem=edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.WsStem@ef00e7,localWsStemTracker=true]
+  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsResponseMeta@12714e3,localResponseMetadataTracker=true,
+  localResultMetadata=edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsResultMeta@cc5c4a,localResultMetadataTracker=true,
+  localWsStem=edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsStem@bf3e48,localWsStemTracker=true]

@@ -57,7 +57,7 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/xml;charset=UTF-8
-Date: Sat, 25 Feb 2012 17:26:36 GMT
+Date: Sat, 17 Mar 2012 15:35:16 GMT
 Connection: close
 
 <WsAttributeDefNameSaveResults>
@@ -69,8 +69,8 @@ Connection: close
         <description>This is a description 1 rest xml</description>
         <displayName>test:My new attribute def name to save 1 rest xml</displayName>
         <name>test:testAttributeAssignDefNameToSave1Rest_xml</name>
-        <uuid>192c3dc3d381498c9f3976277666f94c</uuid>
-        <attributeDefId>5d2e23d99d464bfdbacca66eb364f483</attributeDefId>
+        <uuid>cb17b39a876d401f897693970a691801</uuid>
+        <attributeDefId>427d10ab0fec4511a65d5396978f77ae</attributeDefId>
         <attributeDefName>test:testAttributeAssignDefNameDef</attributeDefName>
       </wsAttributeDefName>
       <resultMetadata>
@@ -85,8 +85,8 @@ Connection: close
         <description>This is a description 2 rest xml</description>
         <displayName>test:My new attribute def name to save 2 rest xml</displayName>
         <name>test:testAttributeAssignDefNameToSave2Rest_xml</name>
-        <uuid>99f17846dbee47468fc77b58b96d9d69</uuid>
-        <attributeDefId>5d2e23d99d464bfdbacca66eb364f483</attributeDefId>
+        <uuid>19c6a9556a7f4ad8b15316c075bcbf01</uuid>
+        <attributeDefId>427d10ab0fec4511a65d5396978f77ae</attributeDefId>
         <attributeDefName>test:testAttributeAssignDefNameDef</attributeDefName>
       </wsAttributeDefName>
       <resultMetadata>
@@ -105,7 +105,7 @@ wsAttributeDefName=WsAttributeDefName[displayExtension=My new attribute def name
   </resultMetadata>
   <responseMetadata>
     <resultWarnings></resultWarnings>
-    <millis>483</millis>
+    <millis>82</millis>
     <serverVersion>2.1.0</serverVersion>
   </responseMetadata>
 </WsAttributeDefNameSaveResults>

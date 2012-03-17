@@ -1,4 +1,4 @@
-Grouper web service sample of service: groupSave, WsSampleGroupSaveRestLite, manually written lite/rest, type: _withInput, format: xml, for version: 2.0.0
+Grouper web service sample of service: groupSave, WsSampleGroupSaveRestLite, manually written lite/rest, type: _withInput, format: xml, for version: 2.1.0
 
 
 #########################################
@@ -9,7 +9,7 @@ Grouper web service sample of service: groupSave, WsSampleGroupSaveRestLite, man
 #########################################
 
 
-POST /grouperWs/servicesRest/v2_0_000/groups/aStem%3AaGroup HTTP/1.1
+POST /grouper-ws/servicesRest/v2_1_000/groups/aStem%3AaGroup HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.0
@@ -35,36 +35,38 @@ Content-Type: text/xml; charset=UTF-8
 
 HTTP/1.1 201 Created
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
 X-Grouper-resultCode: SUCCESS_UPDATED
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/xml;charset=UTF-8
-Date: Fri, 12 Aug 2011 22:21:39 GMT
+Date: Sat, 17 Mar 2012 15:49:04 GMT
 Connection: close
 
 <WsGroupSaveLiteResult>
   <resultMetadata>
     <resultCode>SUCCESS_UPDATED</resultCode>
-    <resultMessage>Success for: clientVersion: 2.0.0, wsGroupToSaves: Array size: 1: [0]: WsGroupToSave[
+    <resultMessage>Success for: clientVersion: 2.1.0, wsGroupToSaves: Array size: 1: [0]: WsGroupToSave[
 wsGroupLookup=WsGroupLookup[pitGroups=[],groupName=aStem:aGroup],
 wsGroup=WsGroup[displayExtension=disp1,description=desc1,name=aStem:aGroup]]
+
 , actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], txType: NONE, paramNames:
 , params: null</resultMessage>
     <success>T</success>
   </resultMetadata>
   <responseMetadata>
     <resultWarnings></resultWarnings>
-    <millis>78</millis>
-    <serverVersion>2.0.0</serverVersion>
+    <millis>120</millis>
+    <serverVersion>2.1.0</serverVersion>
   </responseMetadata>
   <wsGroup>
     <extension>aGroup</extension>
+    <typeOfGroup>group</typeOfGroup>
     <displayExtension>disp1</displayExtension>
     <description>desc1</description>
     <displayName>a stem:disp1</displayName>
     <name>aStem:aGroup</name>
-    <uuid>cbccaf44c28e4d3b90f9375be4a40525</uuid>
+    <uuid>3306637a5cb141ce88310e674d122dfc</uuid>
   </wsGroup>
 </WsGroupSaveLiteResult>
 
@@ -226,7 +228,7 @@ public class WsSampleGroupSaveRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: 2.0.0, result code: SUCCESS_UPDATED, result message: Success for: clientVersion: 2.0.0, wsGroupToSaves: Array size: 1: [0]: WsGroupToSave[
+Server version: 2.1.0, result code: SUCCESS_UPDATED, result message: Success for: clientVersion: 2.1.0, wsGroupToSaves: Array size: 1: [0]: WsGroupToSave[
   wsGroupLookup=WsGroupLookup[pitGroups=[],groupName=aStem:aGroup],
   wsGroup=WsGroup[displayExtension=disp1,description=desc1,name=aStem:aGroup]]
 

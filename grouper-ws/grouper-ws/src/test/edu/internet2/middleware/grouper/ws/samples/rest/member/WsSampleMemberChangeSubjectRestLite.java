@@ -12,9 +12,12 @@ import org.apache.commons.httpclient.params.DefaultHttpParams;
 import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.commons.lang.StringUtils;
 
+import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.exception.MemberNotFoundException;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
+import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.grouper.ws.coresoap.WsMemberChangeSubjectLiteResult;
 import edu.internet2.middleware.grouper.ws.rest.member.WsRestMemberChangeSubjectLiteRequest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest;
@@ -106,11 +109,21 @@ public class WsSampleMemberChangeSubjectRestLite implements WsSampleRest {
           + ", result message: " + resultMessage );
       
       //lets make sure the old member was deleted
+      GrouperSession grouperSession = GrouperSession.staticGrouperSession(false);
+      boolean startedSession = false;
+      if (grouperSession == null) {
+        grouperSession = GrouperSession.startRootSession();
+        startedSession = true;
+      }
       try {
-        GrouperDAOFactory.getFactory().getMember().findBySubject(SubjectFinder.findById("test.subject.0"));
+        GrouperDAOFactory.getFactory().getMember().findBySubject(SubjectFinder.findById("test.subject.0", true), true);
         throw new RuntimeException("Should find renamed member: test.subject.0!");
       } catch (MemberNotFoundException mnfe) {
         //good
+      } finally {
+        if (startedSession) {
+          GrouperSession.stopQuietly(grouperSession);
+        }
       }
 
     } catch (Exception e) {

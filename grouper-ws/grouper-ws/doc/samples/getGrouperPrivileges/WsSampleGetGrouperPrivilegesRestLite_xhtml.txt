@@ -1,4 +1,4 @@
-Grouper web service sample of service: getGrouperPrivileges, WsSampleGetGrouperPrivilegesRestLite, manually written lite/rest, format: xhtml, for version: 2.0.0
+Grouper web service sample of service: getGrouperPrivileges, WsSampleGetGrouperPrivilegesRestLite, manually written lite/rest, format: xhtml, for version: 2.1.0
 
 
 #########################################
@@ -9,7 +9,7 @@ Grouper web service sample of service: getGrouperPrivileges, WsSampleGetGrouperP
 #########################################
 
 
-POST /grouperWs/servicesRest/v2_0_000/grouperPrivileges HTTP/1.1
+POST /grouper-ws/servicesRest/v2_1_000/grouperPrivileges HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.0
@@ -27,15 +27,17 @@ Content-Type: application/xhtml+xml; charset=UTF-8
     <div title="WsRestGetGrouperPrivilegesLiteRequest">
       <p class="subjectSourceId" />
       <p class="subjectId">test.subject.0</p>
-      <p class="groupName">aStem:aGroup</p>
       <p class="groupUuid" />
+      <p class="groupName">aStem:aGroup</p>
       <p class="subjectIdentifier" />
       <p class="clientVersion" />
+      <p class="includeGroupDetail" />
       <p class="includeSubjectDetail" />
       <p class="subjectAttributeNames" />
-      <p class="includeGroupDetail" />
       <p class="stemName" />
       <p class="stemUuid" />
+      <p class="privilegeType">access</p>
+      <p class="privilegeName">admin</p>
       <p class="actAsSubjectId">GrouperSystem</p>
       <p class="actAsSubjectSourceId" />
       <p class="actAsSubjectIdentifier" />
@@ -43,8 +45,6 @@ Content-Type: application/xhtml+xml; charset=UTF-8
       <p class="paramValue0" />
       <p class="paramName1" />
       <p class="paramValue1" />
-      <p class="privilegeType">access</p>
-      <p class="privilegeName">admin</p>
     </div>
   </body>
 </html>
@@ -60,12 +60,12 @@ Content-Type: application/xhtml+xml; charset=UTF-8
 
 HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
 X-Grouper-resultCode: SUCCESS_NOT_ALLOWED
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml;charset=UTF-8
-Date: Fri, 12 Aug 2011 22:04:29 GMT
+Date: Sat, 17 Mar 2012 15:39:47 GMT
 Connection: close
 
 <?xml version='1.0' encoding='iso-8859-1'?>
@@ -78,14 +78,14 @@ Connection: close
     <div title="WsGetGrouperPrivilegesLiteResult">
       <div class="resultMetadata" title="WsResultMeta">
         <p class="resultCode">SUCCESS_NOT_ALLOWED</p>
-        <p class="success">T</p>
         <p class="resultCode2" />
         <p class="resultMessage" />
+        <p class="success">T</p>
       </div>
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">64</p>
+        <p class="millis">66</p>
         <p class="resultWarnings" />
-        <p class="serverVersion">2.0.0</p>
+        <p class="serverVersion">2.1.0</p>
       </div>
     </div>
   </body>
@@ -249,4 +249,4 @@ public class WsSampleGetGrouperPrivilegesRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: 2.0.0, result code: SUCCESS_NOT_ALLOWED, result message: null
+Server version: 2.1.0, result code: SUCCESS_NOT_ALLOWED, result message: null

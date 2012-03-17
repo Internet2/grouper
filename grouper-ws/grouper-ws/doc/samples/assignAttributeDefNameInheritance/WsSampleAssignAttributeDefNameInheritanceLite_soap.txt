@@ -21,7 +21,7 @@ Transfer-Encoding: chunked
 <soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
   <soapenv:Body>
     <ns1:assignAttributeDefNameInheritanceLite xmlns:ns1="http://soap_v2_1.ws.grouper.middleware.internet2.edu/xsd">
-      <ns1:clientVersion>v2_0_000</ns1:clientVersion>
+      <ns1:clientVersion>v2_1_000</ns1:clientVersion>
       <ns1:attributeDefNameName>aStem:permissionDefName</ns1:attributeDefNameName>
       <ns1:relatedAttributeDefNameName>aStem:permissionDefName3</ns1:relatedAttributeDefNameName>
       <ns1:assign>T</ns1:assign>
@@ -47,9 +47,9 @@ X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/soap+xml; action="urn:assignAttributeDefNameInheritanceLiteResponse";charset=UTF-8
 Transfer-Encoding: chunked
-Date: Sat, 25 Feb 2012 15:49:30 GMT
+Date: Sat, 17 Mar 2012 15:30:31 GMT
 
-3d2
+3d0
 <?xml version='1.0' encoding='UTF-8'?>
 <soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
   <soapenv:Body>
@@ -64,7 +64,7 @@ Date: Sat, 25 Feb 2012 15:49:30 GMT
           <ns:params xsi:nil="true" />
           <ns:resultCode>SUCCESS</ns:resultCode>
           <ns:resultCode2 xsi:nil="true" />
-          <ns:resultMessage>, Had 1 successful adds, 0 adds which already existed, 0 successful removes, and 0 removes which didnt exist.</ns:resultMessage>
+          <ns:resultMessage>Had 1 successful adds, 0 adds which already existed, 0 successful removes, and 0 removes which didnt exist.</ns:resultMessage>
           <ns:success>T</ns:success>
         </ns:resultMetadata>
       </ns:return>
@@ -183,5 +183,5 @@ public class WsSampleAssignAttributeDefNameInheritanceLite implements WsSampleGe
 
 
 WsAssignAttributeDefNameInheritanceResults[
-  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsResponseMeta@dc2753,localResponseMetadataTracker=true,
-  localResultMetadata=edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsResultMeta@199bca3,localResultMetadataTracker=true]
+  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsResponseMeta@1ecb197,localResponseMetadataTracker=true,
+  localResultMetadata=edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsResultMeta@7f4d30,localResultMetadataTracker=true]

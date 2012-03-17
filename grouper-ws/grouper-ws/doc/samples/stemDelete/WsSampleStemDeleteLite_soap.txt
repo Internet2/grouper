@@ -1,4 +1,4 @@
-Grouper web service sample of service: stemDelete, WsSampleStemDeleteLite, code generated classes, format: soap, for version: 2.0.0
+Grouper web service sample of service: stemDelete, WsSampleStemDeleteLite, code generated classes, format: soap, for version: 2.1.0
 
 
 #########################################
@@ -9,7 +9,7 @@ Grouper web service sample of service: stemDelete, WsSampleStemDeleteLite, code 
 #########################################
 
 
-POST /grouperWs/services/GrouperService_v2_0 HTTP/1.1
+POST /grouper-ws/services/GrouperService_v2_1 HTTP/1.1
 Content-Type: application/soap+xml; charset=UTF-8; action="urn:stemDeleteLite"
 User-Agent: Axis2
 Authorization: Basic xxxxxxxxxxxxxxxxx==
@@ -20,8 +20,8 @@ Transfer-Encoding: chunked
 <?xml version='1.0' encoding='UTF-8'?>
 <soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
   <soapenv:Body>
-    <ns1:stemDeleteLite xmlns:ns1="http://soap_v2_0.ws.grouper.middleware.internet2.edu/xsd">
-      <ns1:clientVersion>v2_0_000</ns1:clientVersion>
+    <ns1:stemDeleteLite xmlns:ns1="http://soap_v2_1.ws.grouper.middleware.internet2.edu/xsd">
+      <ns1:clientVersion>v2_1_000</ns1:clientVersion>
       <ns1:stemName>aStem:stemNotExist</ns1:stemName>
       <ns1:stemUuid></ns1:stemUuid>
       <ns1:actAsSubjectId>GrouperSystem</ns1:actAsSubjectId>
@@ -42,36 +42,40 @@ Transfer-Encoding: chunked
 
 HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
 X-Grouper-resultCode: SUCCESS_STEM_NOT_FOUND
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/soap+xml; action="urn:stemDeleteLiteResponse";charset=UTF-8
 Transfer-Encoding: chunked
-Date: Fri, 12 Aug 2011 22:16:16 GMT
+Date: Sat, 17 Mar 2012 15:51:12 GMT
 
-63b
+577
 <?xml version='1.0' encoding='UTF-8'?>
 <soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
   <soapenv:Body>
-    <ns:stemDeleteLiteResponse xmlns:ns="http://soap_v2_0.ws.grouper.middleware.internet2.edu/xsd">
-      <ns:return type="edu.internet2.middleware.grouper.ws.soap_v2_0.WsStemDeleteLiteResult">
-        <ns:responseMetadata type="edu.internet2.middleware.grouper.ws.soap_v2_0.WsResponseMeta">
-          <ns:millis xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
-          <ns:resultWarnings xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
-          <ns:serverVersion>2.0.0</ns:serverVersion>
+    <ns:stemDeleteLiteResponse xmlns:ns="http://soap_v2_1.ws.grouper.middleware.internet2.edu/xsd">
+      <ns:return xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ns:WsStemDeleteLiteResult">
+        <ns:responseMetadata xsi:type="ns:WsResponseMeta">
+          <ns:millis xsi:nil="true" />
+          <ns:resultWarnings xsi:nil="true" />
+          <ns:serverVersion>2.1.0</ns:serverVersion>
         </ns:responseMetadata>
-        <ns:resultMetadata type="edu.internet2.middleware.grouper.ws.soap_v2_0.WsResultMeta">
-          <ns:params xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
+        <ns:resultMetadata xsi:type="ns:WsResultMeta">
+          <ns:params xsi:nil="true" />
           <ns:resultCode>SUCCESS_STEM_NOT_FOUND</ns:resultCode>
-          <ns:resultCode2 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
-          <ns:resultMessage xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
+          <ns:resultCode2 xsi:nil="true" />
+          <ns:resultMessage>Success for: clientVersion: 2.1.0, wsStemLookups: Array size: 1: [0]: WsStemLookup[uuid=,stemName=aStem:stemNotExist]
+
+, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem,subjectIdentifier=], txType: NONE, paramNames:
+, params: nullCant find stem: 'WsStemLookup[uuid=,stemName=aStem:stemNotExist,
+stemFindResult=STEM_NOT_FOUND]'.</ns:resultMessage>
           <ns:success>T</ns:success>
         </ns:resultMetadata>
-        <ns:wsStem type="edu.internet2.middleware.grouper.ws.soap_v2_0.WsStem">
-          <ns:description xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
-          <ns:displayExtension xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
-          <ns:displayName xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
+        <ns:wsStem xsi:type="ns:WsStem">
+          <ns:description xsi:nil="true" />
+          <ns:displayExtension xsi:nil="true" />
+          <ns:displayName xsi:nil="true" />
           <ns:extension>stemNotExist</ns:extension>
           <ns:name>aStem:stemNotExist</ns:name>
           <ns:uuid></ns:uuid>
@@ -107,8 +111,8 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import edu.internet2.middleware.grouper.webservicesClient.util.GeneratedClientSettings;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGenerated;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGeneratedType;
-import edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.StemDeleteLite;
-import edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.WsStemDeleteLiteResult;
+import edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.StemDeleteLite;
+import edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsStemDeleteLiteResult;
 
 
 /**
@@ -185,6 +189,6 @@ public class WsSampleStemDeleteLite implements WsSampleGenerated {
 
 
 WsStemDeleteLiteResult[
-  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.WsResponseMeta@14cfa0f,localResponseMetadataTracker=true,
-  localResultMetadata=edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.WsResultMeta@b51a89,localResultMetadataTracker=true,
-  localWsStem=edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.WsStem@1e1315a,localWsStemTracker=true]
+  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsResponseMeta@1367ee2,localResponseMetadataTracker=true,
+  localResultMetadata=edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsResultMeta@c4573d,localResultMetadataTracker=true,
+  localWsStem=edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsStem@3b78a6,localWsStemTracker=true]

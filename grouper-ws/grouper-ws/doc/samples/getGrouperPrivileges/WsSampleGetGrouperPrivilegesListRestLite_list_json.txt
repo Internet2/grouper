@@ -1,4 +1,4 @@
-Grouper web service sample of service: getGrouperPrivileges, WsSampleGetGrouperPrivilegesListRestLite, manually written lite/rest, type: _list, format: json, for version: 2.0.0
+Grouper web service sample of service: getGrouperPrivileges, WsSampleGetGrouperPrivilegesListRestLite, manually written lite/rest, type: _list, format: json, for version: 2.1.0
 
 
 #########################################
@@ -9,7 +9,7 @@ Grouper web service sample of service: getGrouperPrivileges, WsSampleGetGrouperP
 #########################################
 
 
-POST /grouperWs/servicesRest/v2_0_000/grouperPrivileges HTTP/1.1
+POST /grouper-ws/servicesRest/v2_1_000/grouperPrivileges HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.0
@@ -37,13 +37,13 @@ Content-Type: text/x-json; charset=UTF-8
 
 HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/x-json;charset=UTF-8
-Content-Length: 1196
-Date: Fri, 12 Aug 2011 22:04:58 GMT
+Content-Length: 1240
+Date: Sat, 17 Mar 2012 15:40:14 GMT
 Connection: close
 
 {
@@ -67,7 +67,8 @@ Connection: close
           "displayName":"a stem:a group",
           "extension":"aGroup",
           "name":"aStem:aGroup",
-          "uuid":"795433fd43c4453bab0104d7756c7cf3"
+          "typeOfGroup":"group",
+          "uuid":"1cccf977495946c19ea03720f6c0c641"
         },
         "wsSubject":{
           "id":"test.subject.0",
@@ -96,7 +97,8 @@ Connection: close
           "displayName":"a stem:a group",
           "extension":"aGroup",
           "name":"aStem:aGroup",
-          "uuid":"795433fd43c4453bab0104d7756c7cf3"
+          "typeOfGroup":"group",
+          "uuid":"1cccf977495946c19ea03720f6c0c641"
         },
         "wsSubject":{
           "id":"test.subject.0",
@@ -109,8 +111,8 @@ Connection: close
     ]
     ,
     "responseMetadata":{
-      "millis":"82",
-      "serverVersion":"2.0.0"
+      "millis":"28",
+      "serverVersion":"2.1.0"
     },
     "resultMetadata":{
       "resultCode":"SUCCESS",
@@ -305,14 +307,14 @@ public class WsSampleGetGrouperPrivilegesListRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: 2.0.0, result code: SUCCESS, result message: null
+Server version: 2.1.0, result code: SUCCESS, result message: null
 WsGetGrouperPrivilegesLiteResult[
   resultMetadata=WsResultMeta[resultCode=SUCCESS,success=T,httpStatusCode=500],
   privilegeResults={WsGrouperPrivilegeResult[allowed=T,
   ownerSubject=WsSubject[resultCode=SUCCESS,success=T,id=GrouperAll,name=EveryEntity,sourceId=g:isa],privilegeName=read,privilegeType=access,revokable=F,
-  wsGroup=WsGroup[extension=aGroup,displayExtension=a group,description=a group description,displayName=a stem:a group,name=aStem:aGroup,uuid=795433fd43c4453bab0104d7756c7cf3],
+  wsGroup=WsGroup[extension=aGroup,typeOfGroup=group,displayExtension=a group,description=a group description,displayName=a stem:a group,name=aStem:aGroup,uuid=1cccf977495946c19ea03720f6c0c641],
   wsSubject=WsSubject[resultCode=SUCCESS,success=T,id=test.subject.0,name=my name is test.subject.0,sourceId=jdbc]],WsGrouperPrivilegeResult[allowed=T,
   ownerSubject=WsSubject[resultCode=SUCCESS,success=T,id=GrouperAll,name=EveryEntity,sourceId=g:isa],privilegeName=view,privilegeType=access,revokable=F,
-  wsGroup=WsGroup[extension=aGroup,displayExtension=a group,description=a group description,displayName=a stem:a group,name=aStem:aGroup,uuid=795433fd43c4453bab0104d7756c7cf3],
+  wsGroup=WsGroup[extension=aGroup,typeOfGroup=group,displayExtension=a group,description=a group description,displayName=a stem:a group,name=aStem:aGroup,uuid=1cccf977495946c19ea03720f6c0c641],
   wsSubject=WsSubject[resultCode=SUCCESS,success=T,id=test.subject.0,name=my name is test.subject.0,sourceId=jdbc]]},
-  responseMetadata=WsResponseMeta[resultWarnings=,millis=82,millisStart=0,serverVersion=2.0.0]]
+  responseMetadata=WsResponseMeta[resultWarnings=,millis=28,millisStart=0,serverVersion=2.1.0]]

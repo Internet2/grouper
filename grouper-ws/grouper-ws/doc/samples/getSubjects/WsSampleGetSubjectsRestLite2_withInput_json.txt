@@ -1,4 +1,4 @@
-Grouper web service sample of service: getSubjects, WsSampleGetSubjectsRestLite2, manually written lite/rest, type: _withInput, format: json, for version: 2.0.0
+Grouper web service sample of service: getSubjects, WsSampleGetSubjectsRestLite2, manually written lite/rest, type: _withInput, format: json, for version: 2.1.0
 
 
 #########################################
@@ -9,7 +9,7 @@ Grouper web service sample of service: getSubjects, WsSampleGetSubjectsRestLite2
 #########################################
 
 
-POST /grouperWs/servicesRest/v2_0_000/subjects HTTP/1.1
+POST /grouper-ws/servicesRest/v2_1_000/subjects HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.0
@@ -34,20 +34,20 @@ Content-Type: text/x-json; charset=UTF-8
 
 HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/x-json;charset=UTF-8
 Content-Length: 1599
-Date: Fri, 12 Aug 2011 22:24:59 GMT
+Date: Sat, 17 Mar 2012 15:46:14 GMT
 Connection: close
 
 {
   "WsGetSubjectsResults":{
     "responseMetadata":{
-      "millis":"25",
-      "serverVersion":"2.0.0"
+      "millis":"30",
+      "serverVersion":"2.1.0"
     },
     "resultMetadata":{
       "resultCode":"SUCCESS",
@@ -56,14 +56,14 @@ Connection: close
     },
     "wsSubjects":[
       {
-        "id":"5830c8e7c31f42f591e2012d5c2a0185",
+        "id":"177c4cd3898c4528bfe3d07d10cabcb4",
         "name":"test:groupTestAttrAssign",
         "resultCode":"SUCCESS",
         "sourceId":"g:gsa",
         "success":"T"
       },
       {
-        "id":"d45941295f11497fb39719ab383d5516",
+        "id":"97cb4e3bd44b44a88a08974bd6357856",
         "name":"test:groupTestAttrAssign2",
         "resultCode":"SUCCESS",
         "sourceId":"g:gsa",
@@ -292,4 +292,4 @@ public class WsSampleGetSubjectsRestLite2 implements WsSampleRest {
 #########################################
 
 
-Server version: 2.0.0, result code: SUCCESS, result message: Queried 12 subjects
+Server version: 2.1.0, result code: SUCCESS, result message: Queried 12 subjects

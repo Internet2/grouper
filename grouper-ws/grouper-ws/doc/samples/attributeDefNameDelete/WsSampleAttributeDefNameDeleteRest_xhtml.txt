@@ -26,6 +26,12 @@ Content-Type: application/xhtml+xml; charset=UTF-8
   <body>
     <div title="WsRestAttributeDefNameDeleteRequest">
       <p class="clientVersion" />
+      <div class="actAsSubjectLookup" title="WsSubjectLookup">
+        <p class="subjectSourceId" />
+        <p class="subjectId">GrouperSystem</p>
+        <p class="subjectIdentifier" />
+      </div>
+      <p class="txType" />
       <ul class="wsAttributeDefNameLookups">
         <li title="WsAttributeDefNameLookup">
           <p class="uuid" />
@@ -36,12 +42,6 @@ Content-Type: application/xhtml+xml; charset=UTF-8
           <p class="name">test:testAttributeAssignDefNameToDeleteRest2_xhtml</p>
         </li>
       </ul>
-      <div class="actAsSubjectLookup" title="WsSubjectLookup">
-        <p class="subjectSourceId" />
-        <p class="subjectId">GrouperSystem</p>
-        <p class="subjectIdentifier" />
-      </div>
-      <p class="txType" />
     </div>
   </body>
 </html>
@@ -62,7 +62,7 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml;charset=UTF-8
-Date: Sat, 25 Feb 2012 20:42:03 GMT
+Date: Sat, 17 Mar 2012 15:34:19 GMT
 Connection: close
 
 <?xml version='1.0' encoding='iso-8859-1'?>
@@ -123,7 +123,7 @@ attributeDefNameFindResult=ATTRIBUTE_DEF_NAME_NOT_FOUND]'.</p>
         <p class="success">T</p>
       </div>
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">10</p>
+        <p class="millis">28</p>
         <p class="resultWarnings" />
         <p class="serverVersion">2.1.0</p>
       </div>

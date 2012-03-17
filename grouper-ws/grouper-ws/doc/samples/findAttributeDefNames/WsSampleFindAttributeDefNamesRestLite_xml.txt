@@ -37,7 +37,7 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/xml;charset=UTF-8
-Date: Fri, 24 Feb 2012 16:10:19 GMT
+Date: Sat, 17 Mar 2012 15:37:23 GMT
 Connection: close
 
 <WsFindAttributeDefNamesResults>
@@ -47,8 +47,8 @@ Connection: close
       <displayExtension>testAttributeAssignAssignName</displayExtension>
       <displayName>test:testAttributeAssignAssignName</displayName>
       <name>test:testAttributeAssignAssignName</name>
-      <uuid>7cf3c2a7d4dc4c4bacfd16d9466375c6</uuid>
-      <attributeDefId>9a2dc9f494a34f6e8b10027bb4ce7f76</attributeDefId>
+      <uuid>219559ec2761458c9205dc72061c75fe</uuid>
+      <attributeDefId>e93b78b0691a45939427858180beaae6</attributeDefId>
       <attributeDefName>test:testAttributeAssignAssignNameDef</attributeDefName>
     </WsAttributeDefName>
     <WsAttributeDefName>
@@ -56,8 +56,8 @@ Connection: close
       <displayExtension>testAttributeAssignDefName</displayExtension>
       <displayName>test:testAttributeAssignDefName</displayName>
       <name>test:testAttributeAssignDefName</name>
-      <uuid>620476a97fb6447cae4c83ab0d19331b</uuid>
-      <attributeDefId>cab1c4801b7b4e16a4b77e8bfc3e5134</attributeDefId>
+      <uuid>6326ecdb3e8c44ae800287e6a5b72a22</uuid>
+      <attributeDefId>b5f96105458e49b5ae0414a252e5fdde</attributeDefId>
       <attributeDefName>test:testAttributeAssignDefNameDef</attributeDefName>
     </WsAttributeDefName>
   </attributeDefNameResults>
@@ -65,7 +65,7 @@ Connection: close
     <WsAttributeDef>
       <extension>testAttributeAssignAssignNameDef</extension>
       <name>test:testAttributeAssignAssignNameDef</name>
-      <uuid>9a2dc9f494a34f6e8b10027bb4ce7f76</uuid>
+      <uuid>e93b78b0691a45939427858180beaae6</uuid>
       <attributeDefType>attr</attributeDefType>
       <multiAssignable>F</multiAssignable>
       <multiValued>F</multiValued>
@@ -74,7 +74,7 @@ Connection: close
     <WsAttributeDef>
       <extension>testAttributeAssignDefNameDef</extension>
       <name>test:testAttributeAssignDefNameDef</name>
-      <uuid>cab1c4801b7b4e16a4b77e8bfc3e5134</uuid>
+      <uuid>b5f96105458e49b5ae0414a252e5fdde</uuid>
       <attributeDefType>attr</attributeDefType>
       <multiAssignable>F</multiAssignable>
       <multiValued>T</multiValued>
@@ -107,7 +107,7 @@ wsInheritanceSetRelation: null, pageSize: null, pageNumber: null, sortString: nu
 #########################################
 
 
-package edu.internet2.middleware.grouper.ws.samples.rest.group;
+package edu.internet2.middleware.grouper.ws.samples.rest.attribute;
 
 import org.apache.commons.httpclient.Credentials;
 import org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;

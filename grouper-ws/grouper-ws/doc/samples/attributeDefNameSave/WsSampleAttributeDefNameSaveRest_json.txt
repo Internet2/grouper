@@ -61,13 +61,13 @@ X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/x-json;charset=UTF-8
 Content-Length: 1623
-Date: Sat, 25 Feb 2012 17:26:32 GMT
+Date: Sat, 17 Mar 2012 15:35:11 GMT
 Connection: close
 
 {
   "WsAttributeDefNameSaveResults":{
     "responseMetadata":{
-      "millis":"374",
+      "millis":"109",
       "serverVersion":"2.1.0"
     },
     "resultMetadata":{
@@ -82,14 +82,14 @@ Connection: close
           "success":"T"
         },
         "wsAttributeDefName":{
-          "attributeDefId":"3d6144734f38411fa58c3541402336db",
+          "attributeDefId":"5440ca9d3e52443a9fb62bd9105d7160",
           "attributeDefName":"test:testAttributeAssignDefNameDef",
           "description":"This is a description 1 rest json",
           "displayExtension":"My new attribute def name to save 1 rest json",
           "displayName":"test:My new attribute def name to save 1 rest json",
           "extension":"testAttributeAssignDefNameToSave1Rest_json",
           "name":"test:testAttributeAssignDefNameToSave1Rest_json",
-          "uuid":"8d6e4a3a67dd4b7db3402ce8c96f7e3b"
+          "uuid":"e19acc86e4da474596a20f79b7710153"
         }
         
       },
@@ -99,14 +99,14 @@ Connection: close
           "success":"T"
         },
         "wsAttributeDefName":{
-          "attributeDefId":"3d6144734f38411fa58c3541402336db",
+          "attributeDefId":"5440ca9d3e52443a9fb62bd9105d7160",
           "attributeDefName":"test:testAttributeAssignDefNameDef",
           "description":"This is a description 2 rest json",
           "displayExtension":"My new attribute def name to save 2 rest json",
           "displayName":"test:My new attribute def name to save 2 rest json",
           "extension":"testAttributeAssignDefNameToSave2Rest_json",
           "name":"test:testAttributeAssignDefNameToSave2Rest_json",
-          "uuid":"f06b0a5b243d47a59f8e0f4438f187a0"
+          "uuid":"caa67ef4ac424930b66ca79e2b3894bb"
         }
       }
     ]

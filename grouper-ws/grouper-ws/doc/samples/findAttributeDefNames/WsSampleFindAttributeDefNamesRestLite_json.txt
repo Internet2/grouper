@@ -40,29 +40,29 @@ X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/x-json;charset=UTF-8
 Content-Length: 1664
-Date: Fri, 24 Feb 2012 16:10:12 GMT
+Date: Sat, 17 Mar 2012 15:37:13 GMT
 Connection: close
 
 {
   "WsFindAttributeDefNamesResults":{
     "attributeDefNameResults":[
       {
-        "attributeDefId":"ee0665cdb0bc4e9084bbc2f1bd04452f",
+        "attributeDefId":"3d967a779c154883bfbb2a92b3915486",
         "attributeDefName":"test:testAttributeAssignAssignNameDef",
         "displayExtension":"testAttributeAssignAssignName",
         "displayName":"test:testAttributeAssignAssignName",
         "extension":"testAttributeAssignAssignName",
         "name":"test:testAttributeAssignAssignName",
-        "uuid":"ce33d2e78e3742c89fcc5023b0cea99f"
+        "uuid":"f1d0317e0ece4feaaf50ee8264e2fe36"
       },
       {
-        "attributeDefId":"3497b4c2bccb4fd093fbd67db6916c0f",
+        "attributeDefId":"7c78b68fa4d44517a8e9ebe176d18237",
         "attributeDefName":"test:testAttributeAssignDefNameDef",
         "displayExtension":"testAttributeAssignDefName",
         "displayName":"test:testAttributeAssignDefName",
         "extension":"testAttributeAssignDefName",
         "name":"test:testAttributeAssignDefName",
-        "uuid":"ebb2e5b305c04432aa0b269b154ab35f"
+        "uuid":"6b8b900030dc42d484ea1a5dd51c02a4"
       }
     ]
     ,
@@ -73,7 +73,7 @@ Connection: close
         "multiAssignable":"F",
         "multiValued":"F",
         "name":"test:testAttributeAssignAssignNameDef",
-        "uuid":"ee0665cdb0bc4e9084bbc2f1bd04452f",
+        "uuid":"3d967a779c154883bfbb2a92b3915486",
         "valueType":"marker"
       },
       {
@@ -82,13 +82,13 @@ Connection: close
         "multiAssignable":"F",
         "multiValued":"T",
         "name":"test:testAttributeAssignDefNameDef",
-        "uuid":"3497b4c2bccb4fd093fbd67db6916c0f",
+        "uuid":"7c78b68fa4d44517a8e9ebe176d18237",
         "valueType":"integer"
       }
     ]
     ,
     "responseMetadata":{
-      "millis":"36",
+      "millis":"42",
       "serverVersion":"2.1.0"
     },
     "resultMetadata":{
@@ -110,7 +110,7 @@ Connection: close
 #########################################
 
 
-package edu.internet2.middleware.grouper.ws.samples.rest.group;
+package edu.internet2.middleware.grouper.ws.samples.rest.attribute;
 
 import org.apache.commons.httpclient.Credentials;
 import org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;

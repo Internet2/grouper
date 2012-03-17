@@ -1,4 +1,4 @@
-Grouper web service sample of service: getGrouperPrivileges, WsSampleGetGrouperPrivilegesLite, code generated classes, format: soap, for version: 2.0.0
+Grouper web service sample of service: getGrouperPrivileges, WsSampleGetGrouperPrivilegesLite, code generated classes, format: soap, for version: 2.1.0
 
 
 #########################################
@@ -9,7 +9,7 @@ Grouper web service sample of service: getGrouperPrivileges, WsSampleGetGrouperP
 #########################################
 
 
-POST /grouperWs/services/GrouperService_v2_0 HTTP/1.1
+POST /grouper-ws/services/GrouperService_v2_1 HTTP/1.1
 Content-Type: application/soap+xml; charset=UTF-8; action="urn:getGrouperPrivilegesLite"
 User-Agent: Axis2
 Authorization: Basic xxxxxxxxxxxxxxxxx==
@@ -20,8 +20,8 @@ Transfer-Encoding: chunked
 <?xml version='1.0' encoding='UTF-8'?>
 <soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
   <soapenv:Body>
-    <ns1:getGrouperPrivilegesLite xmlns:ns1="http://soap_v2_0.ws.grouper.middleware.internet2.edu/xsd">
-      <ns1:clientVersion>v2_0_000</ns1:clientVersion>
+    <ns1:getGrouperPrivilegesLite xmlns:ns1="http://soap_v2_1.ws.grouper.middleware.internet2.edu/xsd">
+      <ns1:clientVersion>v2_1_000</ns1:clientVersion>
       <ns1:subjectId>test.subject.0</ns1:subjectId>
       <ns1:subjectSourceId></ns1:subjectSourceId>
       <ns1:subjectIdentifier></ns1:subjectIdentifier>
@@ -53,37 +53,36 @@ Transfer-Encoding: chunked
 
 HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
 X-Grouper-resultCode: SUCCESS_NOT_ALLOWED
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/soap+xml; action="urn:getGrouperPrivilegesLiteResponse";charset=UTF-8
 Transfer-Encoding: chunked
-Date: Fri, 12 Aug 2011 22:04:23 GMT
+Date: Sat, 17 Mar 2012 15:39:42 GMT
 
-5fd
+409
 <?xml version='1.0' encoding='UTF-8'?>
 <soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
   <soapenv:Body>
-    <ns:getGrouperPrivilegesLiteResponse xmlns:ns="http://soap_v2_0.ws.grouper.middleware.internet2.edu/xsd">
-      <ns:return type="edu.internet2.middleware.grouper.ws.soap_v2_0.WsGetGrouperPrivilegesLiteResult">
-        <ns:params xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
-        <ns:privilegeResults xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
-        <ns:responseMetadata type="edu.internet2.middleware.grouper.ws.soap_v2_0.WsResponseMeta">
-          <ns:millis xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
-          <ns:resultWarnings xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
-          <ns:serverVersion>2.0.0</ns:serverVersion>
+    <ns:getGrouperPrivilegesLiteResponse xmlns:ns="http://soap_v2_1.ws.grouper.middleware.internet2.edu/xsd">
+      <ns:return xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ns:WsGetGrouperPrivilegesLiteResult">
+        <ns:params xsi:nil="true" />
+        <ns:privilegeResults xsi:nil="true" />
+        <ns:responseMetadata xsi:type="ns:WsResponseMeta">
+          <ns:millis xsi:nil="true" />
+          <ns:resultWarnings xsi:nil="true" />
+          <ns:serverVersion>2.1.0</ns:serverVersion>
         </ns:responseMetadata>
-        <ns:resultMetadata type="edu.internet2.middleware.grouper.ws.soap_v2_0.WsResultMeta">
-          <ns:params xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
+        <ns:resultMetadata xsi:type="ns:WsResultMeta">
+          <ns:params xsi:nil="true" />
           <ns:resultCode>SUCCESS_NOT_ALLOWED</ns:resultCode>
-          <ns:resultCode2 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
-          <ns:resultMessage xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
+          <ns:resultCode2 xsi:nil="true" />
+          <ns:resultMessage xsi:nil="true" />
           <ns:success>T</ns:success>
         </ns:resultMetadata>
         <ns:subjectAttributeNames>loginid</ns:subjectAttributeNames>
         <ns:subjectAttributeNames>description</ns:subjectAttributeNames>
-        <ns:subjectAttributeNames>lfname</ns:subjectAttributeNames>
       </ns:return>
     </ns:getGrouperPrivilegesLiteResponse>
   </soapenv:Body>
@@ -117,8 +116,8 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import edu.internet2.middleware.grouper.webservicesClient.util.GeneratedClientSettings;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGenerated;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGeneratedType;
-import edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.GetGrouperPrivilegesLite;
-import edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.WsGetGrouperPrivilegesLiteResult;
+import edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.GetGrouperPrivilegesLite;
+import edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsGetGrouperPrivilegesLiteResult;
 
 
 /**
@@ -219,6 +218,6 @@ public class WsSampleGetGrouperPrivilegesLite implements WsSampleGenerated {
 WsGetGrouperPrivilegesLiteResult[
   localParams={<null>},localParamsTracker=true,
   localPrivilegeResults={<null>},localPrivilegeResultsTracker=true,
-  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.WsResponseMeta@137aba0,localResponseMetadataTracker=true,
-  localResultMetadata=edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.WsResultMeta@1e49d2e,localResultMetadataTracker=true,
-  localSubjectAttributeNames={loginid,description,lfname},localSubjectAttributeNamesTracker=true]
+  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsResponseMeta@3ae5d6,localResponseMetadataTracker=true,
+  localResultMetadata=edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsResultMeta@c744b8,localResultMetadataTracker=true,
+  localSubjectAttributeNames={loginid,description},localSubjectAttributeNamesTracker=true]

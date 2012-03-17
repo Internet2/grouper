@@ -1,4 +1,4 @@
-Grouper web service sample of service: assignGrouperPrivileges, WsSampleAssignGrouperPrivilegesRestLite, manually written lite/rest, format: xml, for version: 2.0.0
+Grouper web service sample of service: assignGrouperPrivileges, WsSampleAssignGrouperPrivilegesRestLite, manually written lite/rest, format: xml, for version: 2.1.0
 
 
 #########################################
@@ -9,7 +9,7 @@ Grouper web service sample of service: assignGrouperPrivileges, WsSampleAssignGr
 #########################################
 
 
-POST /grouperWs/servicesRest/v2_0_000/grouperPrivileges HTTP/1.1
+POST /grouper-ws/servicesRest/v2_1_000/grouperPrivileges HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.0
@@ -37,18 +37,18 @@ Content-Type: text/xml; charset=UTF-8
 
 HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
 X-Grouper-resultCode: SUCCESS_ALLOWED
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/xml;charset=UTF-8
-Date: Fri, 12 Aug 2011 22:06:58 GMT
+Date: Sat, 17 Mar 2012 15:33:19 GMT
 Connection: close
 
 <WsAssignGrouperPrivilegesLiteResult>
   <resultMetadata>
     <resultCode>SUCCESS_ALLOWED</resultCode>
-    <resultMessage>Success for: clientVersion: 2.0.0, wsSubjects: Array size: 1: [0]: WsSubjectLookup[subjectId=test.subject.0]
+    <resultMessage>Success for: clientVersion: 2.1.0, wsSubjects: Array size: 1: [0]: WsSubjectLookup[subjectId=test.subject.0]
 , group: WsGroupLookup[pitGroups=[],groupName=aStem:aGroup], stem: null, privilege: ACCESS-Array size: 1: [0]: optin
 , allowed? true, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], replaceAllExisting: false
 , params: null</resultMessage>
@@ -56,18 +56,19 @@ Connection: close
   </resultMetadata>
   <responseMetadata>
     <resultWarnings></resultWarnings>
-    <millis>114</millis>
-    <serverVersion>2.0.0</serverVersion>
+    <millis>80</millis>
+    <serverVersion>2.1.0</serverVersion>
   </responseMetadata>
   <privilegeName>optin</privilegeName>
   <privilegeType>access</privilegeType>
   <wsGroup>
     <extension>aGroup</extension>
+    <typeOfGroup>group</typeOfGroup>
     <displayExtension>a group</displayExtension>
     <description>a group description</description>
     <displayName>a stem:a group</displayName>
     <name>aStem:aGroup</name>
-    <uuid>c5c162ba3bd14add96c7222f731c9461</uuid>
+    <uuid>2ea1dc5227874d48a206e755fedc3a12</uuid>
   </wsGroup>
   <wsSubject>
     <resultCode>SUCCESS</resultCode>
@@ -238,7 +239,7 @@ public class WsSampleAssignGrouperPrivilegesRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: 2.0.0, result code: SUCCESS_ALLOWED, result message: Success for: clientVersion: 2.0.0, wsSubjects: Array size: 1: [0]: WsSubjectLookup[subjectId=test.subject.0]
+Server version: 2.1.0, result code: SUCCESS_ALLOWED, result message: Success for: clientVersion: 2.1.0, wsSubjects: Array size: 1: [0]: WsSubjectLookup[subjectId=test.subject.0]
 , group: WsGroupLookup[pitGroups=[],groupName=aStem:aGroup], stem: null, privilege: ACCESS-Array size: 1: [0]: optin
 , allowed? true, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], replaceAllExisting: false
 , params: null

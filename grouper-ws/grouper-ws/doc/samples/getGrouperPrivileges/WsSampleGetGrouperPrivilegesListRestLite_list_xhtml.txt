@@ -1,4 +1,4 @@
-Grouper web service sample of service: getGrouperPrivileges, WsSampleGetGrouperPrivilegesListRestLite, manually written lite/rest, type: _list, format: xhtml, for version: 2.0.0
+Grouper web service sample of service: getGrouperPrivileges, WsSampleGetGrouperPrivilegesListRestLite, manually written lite/rest, type: _list, format: xhtml, for version: 2.1.0
 
 
 #########################################
@@ -9,7 +9,7 @@ Grouper web service sample of service: getGrouperPrivileges, WsSampleGetGrouperP
 #########################################
 
 
-POST /grouperWs/servicesRest/v2_0_000/grouperPrivileges HTTP/1.1
+POST /grouper-ws/servicesRest/v2_1_000/grouperPrivileges HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.0
@@ -27,15 +27,17 @@ Content-Type: application/xhtml+xml; charset=UTF-8
     <div title="WsRestGetGrouperPrivilegesLiteRequest">
       <p class="subjectSourceId" />
       <p class="subjectId">test.subject.0</p>
-      <p class="groupName">aStem:aGroup</p>
       <p class="groupUuid" />
+      <p class="groupName">aStem:aGroup</p>
       <p class="subjectIdentifier" />
       <p class="clientVersion" />
+      <p class="includeGroupDetail" />
       <p class="includeSubjectDetail" />
       <p class="subjectAttributeNames" />
-      <p class="includeGroupDetail" />
       <p class="stemName" />
       <p class="stemUuid" />
+      <p class="privilegeType">access</p>
+      <p class="privilegeName" />
       <p class="actAsSubjectId">GrouperSystem</p>
       <p class="actAsSubjectSourceId" />
       <p class="actAsSubjectIdentifier" />
@@ -43,8 +45,6 @@ Content-Type: application/xhtml+xml; charset=UTF-8
       <p class="paramValue0" />
       <p class="paramName1" />
       <p class="paramValue1" />
-      <p class="privilegeType">access</p>
-      <p class="privilegeName" />
     </div>
   </body>
 </html>
@@ -60,12 +60,12 @@ Content-Type: application/xhtml+xml; charset=UTF-8
 
 HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml;charset=UTF-8
-Date: Fri, 12 Aug 2011 22:04:52 GMT
+Date: Sat, 17 Mar 2012 15:40:08 GMT
 Connection: close
 
 <?xml version='1.0' encoding='iso-8859-1'?>
@@ -78,18 +78,28 @@ Connection: close
     <div title="WsGetGrouperPrivilegesLiteResult">
       <div class="resultMetadata" title="WsResultMeta">
         <p class="resultCode">SUCCESS</p>
-        <p class="success">T</p>
         <p class="resultCode2" />
         <p class="resultMessage" />
+        <p class="success">T</p>
       </div>
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">75</p>
+        <p class="millis">29</p>
         <p class="resultWarnings" />
-        <p class="serverVersion">2.0.0</p>
+        <p class="serverVersion">2.1.0</p>
       </div>
       <ul class="privilegeResults">
         <li title="WsGrouperPrivilegeResult">
-          <p class="privilegeName">read</p>
+          <div class="wsGroup" title="WsGroup">
+            <p class="name">aStem:aGroup</p>
+            <p class="displayName">a stem:a group</p>
+            <p class="description">a group description</p>
+            <p class="uuid">e832a7d5f4d54d57bbf3ef1676f587b4</p>
+            <div class="detail" title="WsGroupDetail" />
+            <p class="extension">aGroup</p>
+            <p class="displayExtension">a group</p>
+            <p class="typeOfGroup">group</p>
+          </div>
+          <div class="wsStem" title="WsStem" />
           <div class="wsSubject" title="WsSubject">
             <p class="name">my name is test.subject.0</p>
             <p class="id">test.subject.0</p>
@@ -98,17 +108,8 @@ Connection: close
             <p class="success">T</p>
             <p class="identifierLookup" />
           </div>
-          <div class="wsStem" title="WsStem" />
-          <div class="wsGroup" title="WsGroup">
-            <p class="name">aStem:aGroup</p>
-            <p class="displayName">a stem:a group</p>
-            <p class="description">a group description</p>
-            <p class="uuid">c8b5a0481aec48faa02c9eafec1c0514</p>
-            <div class="detail" title="WsGroupDetail" />
-            <p class="extension">aGroup</p>
-            <p class="displayExtension">a group</p>
-          </div>
           <p class="allowed">T</p>
+          <p class="privilegeName">read</p>
           <p class="privilegeType">access</p>
           <div class="ownerSubject" title="WsSubject">
             <p class="name">EveryEntity</p>
@@ -121,7 +122,17 @@ Connection: close
           <p class="revokable">F</p>
         </li>
         <li title="WsGrouperPrivilegeResult">
-          <p class="privilegeName">view</p>
+          <div class="wsGroup" title="WsGroup">
+            <p class="name">aStem:aGroup</p>
+            <p class="displayName">a stem:a group</p>
+            <p class="description">a group description</p>
+            <p class="uuid">e832a7d5f4d54d57bbf3ef1676f587b4</p>
+            <div class="detail" title="WsGroupDetail" />
+            <p class="extension">aGroup</p>
+            <p class="displayExtension">a group</p>
+            <p class="typeOfGroup">group</p>
+          </div>
+          <div class="wsStem" title="WsStem" />
           <div class="wsSubject" title="WsSubject">
             <p class="name">my name is test.subject.0</p>
             <p class="id">test.subject.0</p>
@@ -130,17 +141,8 @@ Connection: close
             <p class="success">T</p>
             <p class="identifierLookup" />
           </div>
-          <div class="wsStem" title="WsStem" />
-          <div class="wsGroup" title="WsGroup">
-            <p class="name">aStem:aGroup</p>
-            <p class="displayName">a stem:a group</p>
-            <p class="description">a group description</p>
-            <p class="uuid">c8b5a0481aec48faa02c9eafec1c0514</p>
-            <div class="detail" title="WsGroupDetail" />
-            <p class="extension">aGroup</p>
-            <p class="displayExtension">a group</p>
-          </div>
           <p class="allowed">T</p>
+          <p class="privilegeName">view</p>
           <p class="privilegeType">access</p>
           <div class="ownerSubject" title="WsSubject">
             <p class="name">EveryEntity</p>
@@ -343,14 +345,14 @@ public class WsSampleGetGrouperPrivilegesListRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: 2.0.0, result code: SUCCESS, result message: null
+Server version: 2.1.0, result code: SUCCESS, result message: null
 WsGetGrouperPrivilegesLiteResult[
   resultMetadata=WsResultMeta[resultCode=SUCCESS,success=T,httpStatusCode=500],
   privilegeResults={WsGrouperPrivilegeResult[allowed=T,
   ownerSubject=WsSubject[resultCode=SUCCESS,success=T,id=GrouperAll,name=EveryEntity,sourceId=g:isa],privilegeName=read,privilegeType=access,revokable=F,
-  wsGroup=WsGroup[extension=aGroup,displayExtension=a group,description=a group description,displayName=a stem:a group,name=aStem:aGroup,uuid=c8b5a0481aec48faa02c9eafec1c0514],
+  wsGroup=WsGroup[extension=aGroup,typeOfGroup=group,displayExtension=a group,description=a group description,displayName=a stem:a group,name=aStem:aGroup,uuid=e832a7d5f4d54d57bbf3ef1676f587b4],
   wsSubject=WsSubject[resultCode=SUCCESS,success=T,id=test.subject.0,name=my name is test.subject.0,sourceId=jdbc]],WsGrouperPrivilegeResult[allowed=T,
   ownerSubject=WsSubject[resultCode=SUCCESS,success=T,id=GrouperAll,name=EveryEntity,sourceId=g:isa],privilegeName=view,privilegeType=access,revokable=F,
-  wsGroup=WsGroup[extension=aGroup,displayExtension=a group,description=a group description,displayName=a stem:a group,name=aStem:aGroup,uuid=c8b5a0481aec48faa02c9eafec1c0514],
+  wsGroup=WsGroup[extension=aGroup,typeOfGroup=group,displayExtension=a group,description=a group description,displayName=a stem:a group,name=aStem:aGroup,uuid=e832a7d5f4d54d57bbf3ef1676f587b4],
   wsSubject=WsSubject[resultCode=SUCCESS,success=T,id=test.subject.0,name=my name is test.subject.0,sourceId=jdbc]]},
-  responseMetadata=WsResponseMeta[millis=75,millisStart=0,serverVersion=2.0.0]]
+  responseMetadata=WsResponseMeta[millis=29,millisStart=0,serverVersion=2.1.0]]

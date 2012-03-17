@@ -183,6 +183,27 @@ public class GrouperClientWsTest extends GrouperTest {
         "webService.getSubjects.output",
         "Index: ${index}: success: ${success}, code: ${wsSubject.resultCode}, subject: ${wsSubject.id}$newline$");
     
+    GrouperClientUtils
+    .grouperClientOverrideMap()
+    .put(
+        "webService.assignAttributeDefNameInheritance.output",
+        "Success: ${resultMetadata.success}: code: ${resultMetadata.resultCode}, message: ${resultMetadata.resultMessage}$newline$");
+    GrouperClientUtils
+    .grouperClientOverrideMap()
+    .put(
+        "webService.attributeDefNameSave.output",
+        "Success: ${resultMetadata.success}: code: ${resultMetadata.resultCode}: ${wsAttributeDefName.name}$newline$");
+    GrouperClientUtils
+    .grouperClientOverrideMap()
+    .put(
+        "webService.attributeDefNameDelete.output",
+        "Index ${index}: success: ${resultMetadata.success}: code: ${resultMetadata.resultCode}: ${wsAttributeDefName.name}$newline$");
+    GrouperClientUtils
+    .grouperClientOverrideMap()
+    .put(
+        "webService.findAttributeDefNames.output",
+        "Index ${index}: name: ${wsAttributeDefName.name}, displayName: ${wsAttributeDefName.displayName}$newline$");
+    
     GrouperClientUtils.grouperClientOverrideMap().put(
         "grouperClient.alias.subjectIds", "pennIds");
     GrouperClientUtils.grouperClientOverrideMap().put(

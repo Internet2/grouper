@@ -31,16 +31,16 @@ Content-Type: application/xhtml+xml; charset=UTF-8
       <p class="attributeDefType" />
       <p class="attributeAssignType" />
       <p class="clientVersion" />
-      <p class="splitScope" />
-      <div class="wsAttributeDefLookup" title="WsAttributeDefLookup" />
-      <p class="sortString" />
-      <p class="ascending" />
-      <p class="wsInheritanceSetRelation" />
       <div class="actAsSubjectLookup" title="WsSubjectLookup">
         <p class="subjectSourceId" />
         <p class="subjectId">GrouperSystem</p>
         <p class="subjectIdentifier" />
       </div>
+      <p class="sortString" />
+      <p class="ascending" />
+      <p class="splitScope" />
+      <p class="wsInheritanceSetRelation" />
+      <div class="wsAttributeDefLookup" title="WsAttributeDefLookup" />
     </div>
   </body>
 </html>
@@ -61,7 +61,7 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml;charset=UTF-8
-Date: Fri, 24 Feb 2012 16:09:54 GMT
+Date: Sat, 17 Mar 2012 15:36:53 GMT
 Connection: close
 
 <?xml version='1.0' encoding='iso-8859-1'?>
@@ -82,7 +82,7 @@ wsInheritanceSetRelation: null, pageSize: null, pageNumber: null, sortString: nu
         <p class="success">T</p>
       </div>
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">345</p>
+        <p class="millis">28</p>
         <p class="resultWarnings" />
         <p class="serverVersion">2.1.0</p>
       </div>
@@ -90,7 +90,7 @@ wsInheritanceSetRelation: null, pageSize: null, pageNumber: null, sortString: nu
         <li title="WsAttributeDef">
           <p class="name">test:testAttributeAssignAssignNameDef</p>
           <p class="description" />
-          <p class="uuid">0364baaa591a4e9d9c4e93f1b8008e80</p>
+          <p class="uuid">2d114c5e02244e50bf0a2edeadd3def4</p>
           <p class="extension">testAttributeAssignAssignNameDef</p>
           <p class="attributeDefType">attr</p>
           <p class="multiAssignable">F</p>
@@ -100,7 +100,7 @@ wsInheritanceSetRelation: null, pageSize: null, pageNumber: null, sortString: nu
         <li title="WsAttributeDef">
           <p class="name">test:testAttributeAssignDefNameDef</p>
           <p class="description" />
-          <p class="uuid">3a9669cdf0494043983b8dc5800b2afe</p>
+          <p class="uuid">d82d0a5b3f5c43899dabb0b6493b23a8</p>
           <p class="extension">testAttributeAssignDefNameDef</p>
           <p class="attributeDefType">attr</p>
           <p class="multiAssignable">F</p>
@@ -113,21 +113,21 @@ wsInheritanceSetRelation: null, pageSize: null, pageNumber: null, sortString: nu
           <p class="name">test:testAttributeAssignAssignName</p>
           <p class="displayName">test:testAttributeAssignAssignName</p>
           <p class="description" />
-          <p class="uuid">5a68fc77caae4e9d8de9f576f01cc052</p>
+          <p class="uuid">c0e53038f7f44e7cbde745c7ce66cc52</p>
           <p class="extension">testAttributeAssignAssignName</p>
           <p class="displayExtension">testAttributeAssignAssignName</p>
           <p class="attributeDefName">test:testAttributeAssignAssignNameDef</p>
-          <p class="attributeDefId">0364baaa591a4e9d9c4e93f1b8008e80</p>
+          <p class="attributeDefId">2d114c5e02244e50bf0a2edeadd3def4</p>
         </li>
         <li title="WsAttributeDefName">
           <p class="name">test:testAttributeAssignDefName</p>
           <p class="displayName">test:testAttributeAssignDefName</p>
           <p class="description" />
-          <p class="uuid">6760b2dfd9444808a216287c88719bf1</p>
+          <p class="uuid">8c9eb010310a4b1eb274657b2d6342b7</p>
           <p class="extension">testAttributeAssignDefName</p>
           <p class="displayExtension">testAttributeAssignDefName</p>
           <p class="attributeDefName">test:testAttributeAssignDefNameDef</p>
-          <p class="attributeDefId">3a9669cdf0494043983b8dc5800b2afe</p>
+          <p class="attributeDefId">d82d0a5b3f5c43899dabb0b6493b23a8</p>
         </li>
       </ul>
     </div>
@@ -145,7 +145,7 @@ wsInheritanceSetRelation: null, pageSize: null, pageNumber: null, sortString: nu
 #########################################
 
 
-package edu.internet2.middleware.grouper.ws.samples.rest.group;
+package edu.internet2.middleware.grouper.ws.samples.rest.attribute;
 
 import org.apache.commons.httpclient.Credentials;
 import org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;
@@ -173,10 +173,10 @@ import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
 public class WsSampleFindAttributeDefNamesRest implements WsSampleRest {
 
   /**
-   * find group lite web service with REST
+   * find group web service with REST
    * @param wsSampleRestType is the type of rest (xml, xhtml, etc)
    */
-  public static void findAttributeDefNamesLite(WsSampleRestType wsSampleRestType) {
+  public static void findAttributeDefNames(WsSampleRestType wsSampleRestType) {
 
     try {
       HttpClient httpClient = new HttpClient();
@@ -265,14 +265,14 @@ public class WsSampleFindAttributeDefNamesRest implements WsSampleRest {
    * @param args
    */
   public static void main(String[] args) {
-    findAttributeDefNamesLite(WsSampleRestType.xhtml);
+    findAttributeDefNames(WsSampleRestType.xhtml);
   }
 
   /**
    * @see edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest#executeSample(edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType)
    */
   public void executeSample(WsSampleRestType wsSampleRestType) {
-    findAttributeDefNamesLite(wsSampleRestType);
+    findAttributeDefNames(wsSampleRestType);
   }
 
   /**

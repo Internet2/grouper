@@ -47,6 +47,8 @@ import edu.internet2.middleware.grouper.attr.value.AttributeValueResult;
 import edu.internet2.middleware.grouper.cfg.ApiConfig;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogTempToEntity;
 import edu.internet2.middleware.grouper.exception.SessionException;
+import edu.internet2.middleware.grouper.externalSubjects.ExternalSubject;
+import edu.internet2.middleware.grouper.externalSubjects.ExternalSubjectAutoSourceAdapter;
 import edu.internet2.middleware.grouper.group.GroupMember;
 import edu.internet2.middleware.grouper.group.TypeOfGroup;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
@@ -114,7 +116,9 @@ import edu.internet2.middleware.grouper.ws.rest.attribute.WsInheritanceSetRelati
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
 import edu.internet2.middleware.grouper.ws.util.GrouperWsVersionUtils;
 import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
+import edu.internet2.middleware.subject.SourceUnavailableException;
 import edu.internet2.middleware.subject.Subject;
+import edu.internet2.middleware.subject.provider.SourceManager;
 
 
 /**
@@ -141,7 +145,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
    */
   public static void main(String[] args) {
     //TestRunner.run(GrouperServiceLogicTest.class);
-    TestRunner.run(new GrouperServiceLogicTest("testAssignAttributeDefNameInheritance"));
+    TestRunner.run(new GrouperServiceLogicTest("testAddExternalMember"));
   }
 
   /**
@@ -1524,7 +1528,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
         false, null, null, null, false);
 
     assertEquals("bad attr def", 
-        WsGetAttributeAssignmentsResultsCode.EXCEPTION.name(), 
+        WsGetAttributeAssignmentsResultsCode.INVALID_QUERY.name(), 
         wsGetPermissionAssignmentsResults.getResultMetadata().getResultCode());
 
     assertEquals(0, GrouperUtil.length(wsGetPermissionAssignmentsResults.getWsPermissionAssigns()));
@@ -4698,6 +4702,16 @@ public class GrouperServiceLogicTest extends GrouperTest {
    * test add external member
    */
   public void testAddExternalMember() {
+    
+    //if no externals, add it
+    try {
+      
+      SourceManager.getInstance().getSource(ExternalSubject.sourceId());
+      
+    } catch (SourceUnavailableException sue) {
+      SourceManager.getInstance().loadSource(ExternalSubjectAutoSourceAdapter.instance());
+    }
+    
     GrouperServiceUtils.testSession = GrouperSession.startRootSession();
     
     Subject subject = SubjectFinder.findByIdentifier("a@b.c", false);
@@ -4721,10 +4735,10 @@ public class GrouperServiceLogicTest extends GrouperTest {
         WsAddMemberResultsCode.PROBLEM_WITH_ASSIGNMENT.name(), 
         wsAddMemberResults.getResultMetadata().getResultCode());
 
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
     subject = SubjectFinder.findByIdentifier("a@b.c", false);
     assertNull(subject);
     
-    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
     wsGroupLookup = new WsGroupLookup(group.getName(), null);
     subjectLookups = new WsSubjectLookup[]{new WsSubjectLookup(null, null, "a@b.c")};
     

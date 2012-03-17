@@ -1,4 +1,4 @@
-Grouper web service sample of service: addMember, WsSampleAddMemberRest, manually written lite/rest, format: json, for version: 2.0.0
+Grouper web service sample of service: addMember, WsSampleAddMemberRest, manually written lite/rest, format: json, for version: 2.1.0
 
 
 #########################################
@@ -9,7 +9,7 @@ Grouper web service sample of service: addMember, WsSampleAddMemberRest, manuall
 #########################################
 
 
-PUT /grouperWs/servicesRest/v2_0_000/groups/aStem%3AaGroup/members HTTP/1.1
+PUT /grouper-ws/servicesRest/v2_1_000/groups/aStem%3AaGroup/members HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.0
@@ -48,24 +48,24 @@ Server: Apache-Coyote/1.1
 Pragma: No-cache
 Cache-Control: no-cache
 Expires: Wed, 31 Dec 1969 19:00:00 EST
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/x-json;charset=UTF-8
-Content-Length: 1200
-Date: Fri, 12 Aug 2011 22:07:22 GMT
+Content-Length: 1223
+Date: Sat, 17 Mar 2012 15:29:37 GMT
 Connection: close
 
 {
   "WsAddMemberResults":{
     "responseMetadata":{
-      "millis":"88",
-      "serverVersion":"2.0.0"
+      "millis":"335",
+      "serverVersion":"2.1.0"
     },
     "resultMetadata":{
       "resultCode":"SUCCESS",
-      "resultMessage":"Success for: clientVersion: 2.0.0, wsGroupLookup: WsGroupLookup[pitGroups=[],groupName=aStem:aGroup], subjectLookups: Array size: 2: [0]: WsSubjectLookup[subjectId=10021368]\n[1]: WsSubjectLookup[subjectId=10039438]\n\n, replaceAllExisting: false, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], fieldName: null, txType: NONE, includeGroupDetail: false, includeSubjectDetail: false, subjectAttributeNames: null\n, params: null\n, disabledDate: null, enabledDate: null",
+      "resultMessage":"Success for: clientVersion: 2.1.0, wsGroupLookup: WsGroupLookup[pitGroups=[],groupName=aStem:aGroup], subjectLookups: Array size: 2: [0]: WsSubjectLookup[subjectId=10021368]\n[1]: WsSubjectLookup[subjectId=10039438]\n\n, replaceAllExisting: false, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], fieldName: null, txType: NONE, includeGroupDetail: false, includeSubjectDetail: false, subjectAttributeNames: null\n, params: null\n, disabledDate: null, enabledDate: null",
       "success":"T"
     },
     "results":[
@@ -104,7 +104,8 @@ Connection: close
       "displayName":"a stem:a group",
       "extension":"aGroup",
       "name":"aStem:aGroup",
-      "uuid":"bae17ad160bd4014a07537b02ac4195e"
+      "typeOfGroup":"group",
+      "uuid":"be263f9cfb994350838029b191308934"
     }
   }
 }
@@ -282,7 +283,7 @@ public class WsSampleAddMemberRest implements WsSampleRest {
 #########################################
 
 
-Server version: 2.0.0, result code: SUCCESS, result message: Success for: clientVersion: 2.0.0, wsGroupLookup: WsGroupLookup[pitGroups=[],groupName=aStem:aGroup], subjectLookups: Array size: 2: [0]: WsSubjectLookup[subjectId=10021368]
+Server version: 2.1.0, result code: SUCCESS, result message: Success for: clientVersion: 2.1.0, wsGroupLookup: WsGroupLookup[pitGroups=[],groupName=aStem:aGroup], subjectLookups: Array size: 2: [0]: WsSubjectLookup[subjectId=10021368]
 [1]: WsSubjectLookup[subjectId=10039438]
 
 , replaceAllExisting: false, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], fieldName: null, txType: NONE, includeGroupDetail: false, includeSubjectDetail: false, subjectAttributeNames: null

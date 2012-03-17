@@ -37,7 +37,7 @@ X-Grouper-resultCode: SUCCESS_ATTRIBUTE_DEF_NAME_NOT_FOUND
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/xml;charset=UTF-8
-Date: Sat, 25 Feb 2012 20:42:26 GMT
+Date: Sat, 17 Mar 2012 15:34:52 GMT
 Connection: close
 
 <WsAttributeDefNameDeleteLiteResult>
@@ -52,7 +52,7 @@ attributeDefNameFindResult=ATTRIBUTE_DEF_NAME_NOT_FOUND]&apos;.</resultMessage>
   </resultMetadata>
   <responseMetadata>
     <resultWarnings></resultWarnings>
-    <millis>20</millis>
+    <millis>34</millis>
     <serverVersion>2.1.0</serverVersion>
   </responseMetadata>
   <wsAttributeDefName>

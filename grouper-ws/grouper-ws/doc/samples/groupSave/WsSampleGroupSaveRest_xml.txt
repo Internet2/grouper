@@ -1,4 +1,4 @@
-Grouper web service sample of service: groupSave, WsSampleGroupSaveRest, manually written lite/rest, format: xml, for version: 2.0.0
+Grouper web service sample of service: groupSave, WsSampleGroupSaveRest, manually written lite/rest, format: xml, for version: 2.1.0
 
 
 #########################################
@@ -9,7 +9,7 @@ Grouper web service sample of service: groupSave, WsSampleGroupSaveRest, manuall
 #########################################
 
 
-POST /grouperWs/servicesRest/v2_0_000/groups HTTP/1.1
+POST /grouper-ws/servicesRest/v2_1_000/groups HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.0
@@ -55,12 +55,12 @@ Content-Type: text/xml; charset=UTF-8
 
 HTTP/1.1 201 Created
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/xml;charset=UTF-8
-Date: Fri, 12 Aug 2011 22:20:32 GMT
+Date: Sat, 17 Mar 2012 15:48:02 GMT
 Connection: close
 
 <WsGroupSaveResults>
@@ -68,11 +68,12 @@ Connection: close
     <WsGroupSaveResult>
       <wsGroup>
         <extension>whateverGroup</extension>
+        <typeOfGroup>group</typeOfGroup>
         <displayExtension>disp1</displayExtension>
         <description>desc1</description>
         <displayName>a stem:disp1</displayName>
         <name>aStem:whateverGroup</name>
-        <uuid>3eda5688077346fb81675781574e080a</uuid>
+        <uuid>4b59caf90c6f40f4a5f34be0bb08c9f5</uuid>
       </wsGroup>
       <resultMetadata>
         <resultCode>SUCCESS_INSERTED</resultCode>
@@ -82,11 +83,12 @@ Connection: close
     <WsGroupSaveResult>
       <wsGroup>
         <extension>whateverGroup2</extension>
+        <typeOfGroup>group</typeOfGroup>
         <displayExtension>disp2</displayExtension>
         <description>descs</description>
         <displayName>a stem:disp2</displayName>
         <name>aStem:whateverGroup2</name>
-        <uuid>8c7055eb489a49dc9dab03c5af230c34</uuid>
+        <uuid>248f3d55876e4fdb98024aec9843256b</uuid>
       </wsGroup>
       <resultMetadata>
         <resultCode>SUCCESS_INSERTED</resultCode>
@@ -96,7 +98,7 @@ Connection: close
   </results>
   <resultMetadata>
     <resultCode>SUCCESS</resultCode>
-    <resultMessage>Success for: clientVersion: 2.0.0, wsGroupToSaves: Array size: 2: [0]: WsGroupToSave[
+    <resultMessage>Success for: clientVersion: 2.1.0, wsGroupToSaves: Array size: 2: [0]: WsGroupToSave[
 wsGroupLookup=WsGroupLookup[groupName=aStem:whateverGroup],
 wsGroup=WsGroup[extension=whateverGroup,displayExtension=disp1,description=desc1,name=aStem:whatev...
 , actAsSubject: null, txType: NONE, paramNames:
@@ -106,7 +108,7 @@ wsGroup=WsGroup[extension=whateverGroup,displayExtension=disp1,description=desc1
   <responseMetadata>
     <resultWarnings></resultWarnings>
     <millis>531</millis>
-    <serverVersion>2.0.0</serverVersion>
+    <serverVersion>2.1.0</serverVersion>
   </responseMetadata>
 </WsGroupSaveResults>
 
@@ -288,7 +290,7 @@ public class WsSampleGroupSaveRest implements WsSampleRest {
 #########################################
 
 
-Server version: 2.0.0, result code: SUCCESS, result message: Success for: clientVersion: 2.0.0, wsGroupToSaves: Array size: 2: [0]: WsGroupToSave[
+Server version: 2.1.0, result code: SUCCESS, result message: Success for: clientVersion: 2.1.0, wsGroupToSaves: Array size: 2: [0]: WsGroupToSave[
   wsGroupLookup=WsGroupLookup[groupName=aStem:whateverGroup],
   wsGroup=WsGroup[extension=whateverGroup,displayExtension=disp1,description=desc1,name=aStem:whatev...
 , actAsSubject: null, txType: NONE, paramNames: 

@@ -1,4 +1,4 @@
-Grouper web service sample of service: assignAttributesWithValue, WsSampleAssignAttributesWithValueRestLite, manually written lite/rest, format: xml, for version: 2.0.0
+Grouper web service sample of service: assignAttributesWithValue, WsSampleAssignAttributesWithValueRestLite, manually written lite/rest, format: xml, for version: 2.1.0
 
 
 #########################################
@@ -9,7 +9,7 @@ Grouper web service sample of service: assignAttributesWithValue, WsSampleAssign
 #########################################
 
 
-POST /grouperWs/servicesRest/xml/v2_0_000/attributeAssignments HTTP/1.1
+POST /grouper-ws/servicesRest/xml/v2_1_000/attributeAssignments HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.0
@@ -38,12 +38,12 @@ Content-Type: text/xml; charset=UTF-8
 
 HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/xml;charset=UTF-8
-Date: Fri, 12 Aug 2011 22:02:56 GMT
+Date: Sat, 17 Mar 2012 16:20:26 GMT
 Connection: close
 
 <WsAssignAttributesLiteResults>
@@ -51,7 +51,7 @@ Connection: close
     <WsAttributeDef>
       <extension>testAttributeAssignDefNameDef</extension>
       <name>test:testAttributeAssignDefNameDef</name>
-      <uuid>839908f0d838480dbe0a6af2eda45be3</uuid>
+      <uuid>e97081bb1cc34cd4964accb7bdaa4565</uuid>
       <attributeDefType>attr</attributeDefType>
       <multiAssignable>F</multiAssignable>
       <multiValued>T</multiValued>
@@ -63,8 +63,8 @@ Connection: close
     <displayExtension>testAttributeAssignDefName</displayExtension>
     <displayName>test:testAttributeAssignDefName</displayName>
     <name>test:testAttributeAssignDefName</name>
-    <uuid>8c358d707eed42c5adcc62edd0bf93e5</uuid>
-    <attributeDefId>839908f0d838480dbe0a6af2eda45be3</attributeDefId>
+    <uuid>67f440b7dd8d48deb21fd7da992ae953</uuid>
+    <attributeDefId>e97081bb1cc34cd4964accb7bdaa4565</attributeDefId>
     <attributeDefName>test:testAttributeAssignDefNameDef</attributeDefName>
   </wsAttributeDefName>
   <wsAttributeAssignResult>
@@ -73,7 +73,7 @@ Connection: close
         <changed>T</changed>
         <deleted>F</deleted>
         <wsAttributeAssignValue>
-          <id>96ee939aff644c1fb062c14e2c6be37b</id>
+          <id>e771405b804949c69461ea6f5c9fd1d6</id>
           <valueSystem>54</valueSystem>
         </wsAttributeAssignValue>
       </WsAttributeAssignValueResult>
@@ -83,36 +83,36 @@ Connection: close
         <disallowed>F</disallowed>
         <attributeAssignActionType>immediate</attributeAssignActionType>
         <attributeAssignDelegatable>FALSE</attributeAssignDelegatable>
-        <attributeAssignActionId>1da1cc99e2624d2c85429418eb5add4f</attributeAssignActionId>
+        <attributeAssignActionId>3312a19f574641af9435490bc48ca6b3</attributeAssignActionId>
         <attributeAssignActionName>assign</attributeAssignActionName>
         <attributeAssignType>group</attributeAssignType>
-        <attributeDefNameId>8c358d707eed42c5adcc62edd0bf93e5</attributeDefNameId>
+        <attributeDefNameId>67f440b7dd8d48deb21fd7da992ae953</attributeDefNameId>
         <attributeDefNameName>test:testAttributeAssignDefName</attributeDefNameName>
-        <attributeDefId>839908f0d838480dbe0a6af2eda45be3</attributeDefId>
+        <attributeDefId>e97081bb1cc34cd4964accb7bdaa4565</attributeDefId>
         <attributeDefName>test:testAttributeAssignDefNameDef</attributeDefName>
         <wsAttributeAssignValues>
           <WsAttributeAssignValue>
-            <id>2582327891234025860f5fd2cfb8f31d</id>
+            <id>9f095b2115414522a104aae882dae0cc</id>
             <valueSystem>15</valueSystem>
           </WsAttributeAssignValue>
           <WsAttributeAssignValue>
-            <id>13522c245dbd4af385ac7b0fc723806f</id>
+            <id>5088aca3cb1142e2bebca4f70d284539</id>
             <valueSystem>5</valueSystem>
           </WsAttributeAssignValue>
           <WsAttributeAssignValue>
-            <id>ea0f74092c234cc89b8dd6c5c4870cf5</id>
+            <id>b751aba38118470eac67ce8f8f26720c</id>
             <valueSystem>5</valueSystem>
           </WsAttributeAssignValue>
           <WsAttributeAssignValue>
-            <id>96ee939aff644c1fb062c14e2c6be37b</id>
+            <id>e771405b804949c69461ea6f5c9fd1d6</id>
             <valueSystem>54</valueSystem>
           </WsAttributeAssignValue>
         </wsAttributeAssignValues>
-        <createdOn>2011/08/12 18:02:54.862</createdOn>
+        <createdOn>2012/03/17 12:20:25.147</createdOn>
         <enabled>T</enabled>
-        <id>0d25470af581417ebeaa2447a674f912</id>
-        <lastUpdated>2011/08/12 18:02:54.862</lastUpdated>
-        <ownerGroupId>eb18f98714214253be95d1a55410e09a</ownerGroupId>
+        <id>8d6ad1525c034065940f2afe4429d2f3</id>
+        <lastUpdated>2012/03/17 12:20:25.147</lastUpdated>
+        <ownerGroupId>e7ba2dd57e694ebbb2af53d481163cb0</ownerGroupId>
         <ownerGroupName>test:groupTestAttrAssign</ownerGroupName>
       </WsAttributeAssign>
     </wsAttributeAssigns>
@@ -127,16 +127,17 @@ Connection: close
   </resultMetadata>
   <responseMetadata>
     <resultWarnings></resultWarnings>
-    <millis>205</millis>
-    <serverVersion>2.0.0</serverVersion>
+    <millis>212</millis>
+    <serverVersion>2.1.0</serverVersion>
   </responseMetadata>
   <wsGroup>
     <extension>groupTestAttrAssign</extension>
+    <typeOfGroup>group</typeOfGroup>
     <displayExtension>groupTestAttrAssign</displayExtension>
     <description>description</description>
     <displayName>test:groupTestAttrAssign</displayName>
     <name>test:groupTestAttrAssign</name>
-    <uuid>eb18f98714214253be95d1a55410e09a</uuid>
+    <uuid>e7ba2dd57e694ebbb2af53d481163cb0</uuid>
   </wsGroup>
 </WsAssignAttributesLiteResults>
 
@@ -297,4 +298,4 @@ public class WsSampleAssignAttributesWithValueRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: 2.0.0, result code: SUCCESS, result message: , Found 1 results.
+Server version: 2.1.0, result code: SUCCESS, result message: , Found 1 results.

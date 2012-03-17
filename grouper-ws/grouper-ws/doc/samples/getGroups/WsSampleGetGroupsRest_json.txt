@@ -1,4 +1,4 @@
-Grouper web service sample of service: getGroups, WsSampleGetGroupsRest, manually written lite/rest, format: json, for version: 2.0.0
+Grouper web service sample of service: getGroups, WsSampleGetGroupsRest, manually written lite/rest, format: json, for version: 2.1.0
 
 
 #########################################
@@ -9,7 +9,7 @@ Grouper web service sample of service: getGroups, WsSampleGetGroupsRest, manuall
 #########################################
 
 
-POST /grouperWs/servicesRest/v2_0_000/subjects HTTP/1.1
+POST /grouper-ws/servicesRest/v2_1_000/subjects HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.0
@@ -45,24 +45,24 @@ Content-Type: text/x-json; charset=UTF-8
 
 HTTP/1.1 201 Created
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/x-json;charset=UTF-8
-Content-Length: 2145
-Date: Fri, 12 Aug 2011 22:11:26 GMT
+Content-Length: 2277
+Date: Sat, 17 Mar 2012 15:41:02 GMT
 Connection: close
 
 {
   "WsGetGroupsResults":{
     "responseMetadata":{
-      "millis":"61",
-      "serverVersion":"2.0.0"
+      "millis":"29",
+      "serverVersion":"2.1.0"
     },
     "resultMetadata":{
       "resultCode":"SUCCESS",
-      "resultMessage":"Success for: clientVersion: 2.0.0, subjectLookups: Array size: 2: [0]: WsSubjectLookup[subjectId=10021368]\n[1]: WsSubjectLookup[subjectId=10039438]\n\nmemberFilter: All, includeGroupDetail: false, actAsSubject: null\n, params: null\n fieldName1: null\n, scope: null, wsStemLookup: null\n, stemScope: null, enabled: null, pageSize: null, pageNumber: null, sortString: null, ascending: null\n, pointInTimeFrom: null, pointInTimeTo: null",
+      "resultMessage":"Success for: clientVersion: 2.1.0, subjectLookups: Array size: 2: [0]: WsSubjectLookup[subjectId=10021368]\n[1]: WsSubjectLookup[subjectId=10039438]\n\nmemberFilter: All, includeGroupDetail: false, actAsSubject: null\n, params: null\n fieldName1: null\n, scope: null, wsStemLookup: null\n, stemScope: null, enabled: null, pageSize: null, pageNumber: null, sortString: null, ascending: null\n, pointInTimeFrom: null, pointInTimeTo: null",
       "success":"T"
     },
     "results":[
@@ -78,7 +78,8 @@ Connection: close
             "displayName":"a stem:a group",
             "extension":"aGroup",
             "name":"aStem:aGroup",
-            "uuid":"2595a864ec9145ec85d634ee7e5a3649"
+            "typeOfGroup":"group",
+            "uuid":"3d7e24ee369748aa82f246a5d7454b02"
           },
           {
             "description":"a group description2",
@@ -86,21 +87,24 @@ Connection: close
             "displayName":"a stem:a group2",
             "extension":"aGroup2",
             "name":"aStem:aGroup2",
-            "uuid":"be481e73e1394c3480e80aef6c0d27ba"
+            "typeOfGroup":"group",
+            "uuid":"be44c49be7564634b1f2c1bad93bbe2e"
           },
           {
             "displayExtension":"sysadmingroup",
             "displayName":"etc:sysadmingroup",
             "extension":"sysadmingroup",
             "name":"etc:sysadmingroup",
-            "uuid":"acdf23730d48450db6a12561b6254d97"
+            "typeOfGroup":"group",
+            "uuid":"6f4f2a30a0964e28a6d9cae68e82a04f"
           },
           {
             "displayExtension":"webServiceActAsGroup",
             "displayName":"etc:webServiceActAsGroup",
             "extension":"webServiceActAsGroup",
             "name":"etc:webServiceActAsGroup",
-            "uuid":"115638ebbcb04b5a80aecd640a5db1d0"
+            "typeOfGroup":"group",
+            "uuid":"7cc33a41aab04a75ad3891f7218a172a"
           }
         ]
         ,
@@ -129,7 +133,8 @@ Connection: close
             "displayName":"a stem:a group",
             "extension":"aGroup",
             "name":"aStem:aGroup",
-            "uuid":"2595a864ec9145ec85d634ee7e5a3649"
+            "typeOfGroup":"group",
+            "uuid":"3d7e24ee369748aa82f246a5d7454b02"
           },
           {
             "description":"a group description2",
@@ -137,7 +142,8 @@ Connection: close
             "displayName":"a stem:a group2",
             "extension":"aGroup2",
             "name":"aStem:aGroup2",
-            "uuid":"be481e73e1394c3480e80aef6c0d27ba"
+            "typeOfGroup":"group",
+            "uuid":"be44c49be7564634b1f2c1bad93bbe2e"
           }
         ]
         ,
@@ -325,7 +331,7 @@ public class WsSampleGetGroupsRest implements WsSampleRest {
 #########################################
 
 
-Server version: 2.0.0, result code: SUCCESS, result message: Success for: clientVersion: 2.0.0, subjectLookups: Array size: 2: [0]: WsSubjectLookup[subjectId=10021368]
+Server version: 2.1.0, result code: SUCCESS, result message: Success for: clientVersion: 2.1.0, subjectLookups: Array size: 2: [0]: WsSubjectLookup[subjectId=10021368]
 [1]: WsSubjectLookup[subjectId=10039438]
 
 memberFilter: All, includeGroupDetail: false, actAsSubject: null

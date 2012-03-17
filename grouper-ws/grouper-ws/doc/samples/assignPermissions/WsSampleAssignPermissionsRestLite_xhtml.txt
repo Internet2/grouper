@@ -1,4 +1,4 @@
-Grouper web service sample of service: assignPermissions, WsSampleAssignPermissionsRestLite, manually written lite/rest, format: xhtml, for version: 2.0.0
+Grouper web service sample of service: assignPermissions, WsSampleAssignPermissionsRestLite, manually written lite/rest, format: xhtml, for version: 2.1.0
 
 
 #########################################
@@ -9,7 +9,7 @@ Grouper web service sample of service: assignPermissions, WsSampleAssignPermissi
 #########################################
 
 
-POST /grouperWs/servicesRest/xhtml/v2_0_000/permissionAssignments HTTP/1.1
+POST /grouper-ws/servicesRest/xhtml/v2_1_000/permissionAssignments HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.0
@@ -25,9 +25,9 @@ Content-Type: application/xhtml+xml; charset=UTF-8
   </head>
   <body>
     <div title="WsRestAssignPermissionsLiteRequest">
+      <p class="attributeAssignId" />
       <p class="roleName" />
       <p class="disallowed" />
-      <p class="attributeAssignId" />
       <p class="assignmentNotes" />
       <p class="roleId" />
       <p class="permissionType">role_subject</p>
@@ -69,12 +69,12 @@ Content-Type: application/xhtml+xml; charset=UTF-8
 
 HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml;charset=UTF-8
-Date: Sat, 13 Aug 2011 00:36:03 GMT
+Date: Sat, 17 Mar 2012 16:14:00 GMT
 Connection: close
 
 <?xml version='1.0' encoding='iso-8859-1'?>
@@ -87,15 +87,16 @@ Connection: close
     <div title="WsAssignPermissionsLiteResults">
       <div class="resultMetadata" title="WsResultMeta">
         <p class="resultCode">SUCCESS</p>
-        <p class="success">T</p>
         <p class="resultCode2" />
         <p class="resultMessage">, Found 1 results.</p>
+        <p class="success">T</p>
       </div>
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">100</p>
+        <p class="millis">115</p>
         <p class="resultWarnings" />
-        <p class="serverVersion">2.0.0</p>
+        <p class="serverVersion">2.1.0</p>
       </div>
+      <div class="wsGroup" title="WsGroup" />
       <div class="wsSubject" title="WsSubject">
         <p class="name">my name is test.subject.4</p>
         <p class="id">test.subject.4</p>
@@ -108,25 +109,24 @@ Connection: close
         <li title="WsAttributeDef">
           <p class="name">aStem:permissionDef</p>
           <p class="description" />
-          <p class="uuid">cf0444e84131437cbf6d2d7ba65d224d</p>
+          <p class="uuid">4e2dc59a192d4fe79e3c853fe8589750</p>
           <p class="extension">permissionDef</p>
           <p class="attributeDefType">perm</p>
-          <p class="valueType">marker</p>
           <p class="multiAssignable">F</p>
           <p class="multiValued">F</p>
+          <p class="valueType">marker</p>
         </li>
       </ul>
       <div class="wsAttributeDefName" title="WsAttributeDefName">
         <p class="name">aStem:permissionDefName</p>
         <p class="displayName">a stem:permissionDefName</p>
         <p class="description" />
-        <p class="uuid">0d1e3cdc42294eb785a03b0abbb10a5f</p>
+        <p class="uuid">d4bb767dc35b436abae038dc0393bb08</p>
         <p class="extension">permissionDefName</p>
         <p class="displayExtension">permissionDefName</p>
         <p class="attributeDefName">aStem:permissionDef</p>
-        <p class="attributeDefId">cf0444e84131437cbf6d2d7ba65d224d</p>
+        <p class="attributeDefId">4e2dc59a192d4fe79e3c853fe8589750</p>
       </div>
-      <div class="wsGroup" title="WsGroup" />
       <div class="wsPermissionAssignResult" title="WsAssignPermissionResult">
         <p class="changed">F</p>
         <p class="deleted">T</p>
@@ -290,4 +290,4 @@ public class WsSampleAssignPermissionsRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: 2.0.0, result code: SUCCESS, result message: , Found 1 results.
+Server version: 2.1.0, result code: SUCCESS, result message: , Found 1 results.

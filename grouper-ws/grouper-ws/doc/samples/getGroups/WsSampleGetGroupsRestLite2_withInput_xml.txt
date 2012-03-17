@@ -1,4 +1,4 @@
-Grouper web service sample of service: getGroups, WsSampleGetGroupsRestLite2, manually written lite/rest, type: _withInput, format: xml, for version: 2.0.0
+Grouper web service sample of service: getGroups, WsSampleGetGroupsRestLite2, manually written lite/rest, type: _withInput, format: xml, for version: 2.1.0
 
 
 #########################################
@@ -9,7 +9,7 @@ Grouper web service sample of service: getGroups, WsSampleGetGroupsRestLite2, ma
 #########################################
 
 
-POST /grouperWs/servicesRest/v2_0_000/subjects/sources/jdbc/subjectId/test.subject.0/groups HTTP/1.1
+POST /grouper-ws/servicesRest/v2_1_000/subjects/sources/jdbc/subjectId/test.subject.0/groups HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.0
@@ -34,18 +34,19 @@ Content-Type: text/xml; charset=UTF-8
 
 HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/xml;charset=UTF-8
-Date: Fri, 12 Aug 2011 22:13:02 GMT
+Date: Sat, 17 Mar 2012 15:42:23 GMT
 Connection: close
 
 <WsGetGroupsLiteResult>
   <resultMetadata>
     <resultCode>SUCCESS</resultCode>
-    <resultMessage>Success for: clientVersion: 2.0.0, subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=test.subject.0,subjectSourceId=jdbc]
+    <resultMessage>Success for: clientVersion: 2.1.0, subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=test.subject.0,subjectSourceId=jdbc]
+
 memberFilter: All, includeGroupDetail: true, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem]
 , params: null
 fieldName1: null
@@ -54,30 +55,27 @@ fieldName1: null
 , pointInTimeFrom: null, pointInTimeTo: null</resultMessage>
     <success>T</success>
   </resultMetadata>
-  <subjectAttributeNames>
-    <string>lfname</string>
-    <string>loginid</string>
-  </subjectAttributeNames>
   <responseMetadata>
     <resultWarnings></resultWarnings>
-    <millis>77</millis>
-    <serverVersion>2.0.0</serverVersion>
+    <millis>63</millis>
+    <serverVersion>2.1.0</serverVersion>
   </responseMetadata>
   <wsGroups>
     <WsGroup>
       <extension>role</extension>
+      <typeOfGroup>role</typeOfGroup>
       <displayExtension>role</displayExtension>
       <displayName>a stem:role</displayName>
       <name>aStem:role</name>
-      <uuid>4a426333ab364d0ea4c76b61f5fdd690</uuid>
+      <uuid>81169cd2465e4cd482f8686a4c5f2972</uuid>
       <detail>
         <hasComposite>F</hasComposite>
         <typeNames/>
         <createSubjectId>GrouperSystem</createSubjectId>
-        <createTime>2011/08/12 18:13:01.114</createTime>
+        <createTime>2012/03/17 11:42:22.009</createTime>
         <isCompositeFactor>F</isCompositeFactor>
         <modifySubjectId>GrouperSystem</modifySubjectId>
-        <modifyTime>2011/08/12 18:13:01.116</modifyTime>
+        <modifyTime>2012/03/17 11:42:22.010</modifyTime>
       </detail>
     </WsGroup>
   </wsGroups>
@@ -87,10 +85,6 @@ fieldName1: null
     <id>test.subject.0</id>
     <name>my name is test.subject.0</name>
     <sourceId>jdbc</sourceId>
-    <attributeValues>
-      <string>name.test.subject.0</string>
-      <string>id.test.subject.0</string>
-    </attributeValues>
   </wsSubject>
 </WsGetGroupsLiteResult>
 
@@ -252,7 +246,7 @@ public class WsSampleGetGroupsRestLite2 implements WsSampleRest {
 #########################################
 
 
-Server version: 2.0.0, result code: SUCCESS, result message: Success for: clientVersion: 2.0.0, subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=test.subject.0,subjectSourceId=jdbc]
+Server version: 2.1.0, result code: SUCCESS, result message: Success for: clientVersion: 2.1.0, subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=test.subject.0,subjectSourceId=jdbc]
 
 memberFilter: All, includeGroupDetail: true, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem]
 , params: null

@@ -1,4 +1,4 @@
-Grouper web service sample of service: addMember, WsSampleAddMemberRestLite, manually written lite/rest, format: xhtml, for version: 2.0.0
+Grouper web service sample of service: addMember, WsSampleAddMemberRestLite, manually written lite/rest, format: xhtml, for version: 2.1.0
 
 
 #########################################
@@ -9,7 +9,7 @@ Grouper web service sample of service: addMember, WsSampleAddMemberRestLite, man
 #########################################
 
 
-PUT /grouperWs/servicesRest/xhtml/v2_0_000/groups/aStem%3AaGroup/members/10021368 HTTP/1.1
+PUT /grouper-ws/servicesRest/xhtml/v2_1_000/groups/aStem%3AaGroup/members/10021368 HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.0
@@ -30,12 +30,12 @@ Server: Apache-Coyote/1.1
 Pragma: No-cache
 Cache-Control: no-cache
 Expires: Wed, 31 Dec 1969 19:00:00 EST
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
 X-Grouper-resultCode: SUCCESS_ALREADY_EXISTED
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml;charset=UTF-8
-Date: Fri, 12 Aug 2011 22:07:34 GMT
+Date: Sat, 17 Mar 2012 15:29:47 GMT
 Connection: close
 
 <?xml version='1.0' encoding='iso-8859-1'?>
@@ -48,26 +48,28 @@ Connection: close
     <div title="WsAddMemberLiteResult">
       <div class="resultMetadata" title="WsResultMeta">
         <p class="resultCode">SUCCESS_ALREADY_EXISTED</p>
-        <p class="success">T</p>
         <p class="resultCode2" />
-        <p class="resultMessage">Success for: clientVersion: 2.0.0, wsGroupLookup: WsGroupLookup[pitGroups=[],groupName=aStem:aGroup], subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=10021368]
+        <p class="resultMessage">Success for: clientVersion: 2.1.0, wsGroupLookup: WsGroupLookup[pitGroups=[],groupName=aStem:aGroup], subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=10021368]
+
 , replaceAllExisting: false, actAsSubject: null, fieldName: null, txType: NONE, includeGroupDetail: false, includeSubjectDetail: false, subjectAttributeNames: null
 , params: null
 , disabledDate: null, enabledDate: null</p>
+        <p class="success">T</p>
       </div>
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">75</p>
+        <p class="millis">55</p>
         <p class="resultWarnings" />
-        <p class="serverVersion">2.0.0</p>
+        <p class="serverVersion">2.1.0</p>
       </div>
       <div class="wsGroupAssigned" title="WsGroup">
         <p class="name">aStem:aGroup</p>
         <p class="displayName">a stem:a group</p>
         <p class="description">a group description</p>
-        <p class="uuid">3ff9fd5a15a04ff788c9ce52b0e81b21</p>
+        <p class="uuid">2f83fc677b34460180939d4b0411df66</p>
         <div class="detail" title="WsGroupDetail" />
         <p class="extension">aGroup</p>
         <p class="displayExtension">a group</p>
+        <p class="typeOfGroup">group</p>
       </div>
       <div class="wsSubject" title="WsSubject">
         <p class="name">10021368</p>
@@ -213,7 +215,7 @@ public class WsSampleAddMemberRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: 2.0.0, result code: SUCCESS_ALREADY_EXISTED, result message: Success for: clientVersion: 2.0.0, wsGroupLookup: WsGroupLookup[pitGroups=[],groupName=aStem:aGroup], subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=10021368]
+Server version: 2.1.0, result code: SUCCESS_ALREADY_EXISTED, result message: Success for: clientVersion: 2.1.0, wsGroupLookup: WsGroupLookup[pitGroups=[],groupName=aStem:aGroup], subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=10021368]
 
 , replaceAllExisting: false, actAsSubject: null, fieldName: null, txType: NONE, includeGroupDetail: false, includeSubjectDetail: false, subjectAttributeNames: null
 , params: null

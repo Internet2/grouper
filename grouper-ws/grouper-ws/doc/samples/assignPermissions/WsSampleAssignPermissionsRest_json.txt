@@ -1,4 +1,4 @@
-Grouper web service sample of service: assignPermissions, WsSampleAssignPermissionsRest, manually written lite/rest, format: json, for version: 2.0.0
+Grouper web service sample of service: assignPermissions, WsSampleAssignPermissionsRest, manually written lite/rest, format: json, for version: 2.1.0
 
 
 #########################################
@@ -9,7 +9,7 @@ Grouper web service sample of service: assignPermissions, WsSampleAssignPermissi
 #########################################
 
 
-POST /grouperWs/servicesRest/v2_0_000/permissionAssignments HTTP/1.1
+POST /grouper-ws/servicesRest/v2_1_000/permissionAssignments HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.0
@@ -51,20 +51,20 @@ Content-Type: text/x-json; charset=UTF-8
 
 HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/x-json;charset=UTF-8
-Content-Length: 1581
-Date: Sat, 13 Aug 2011 00:35:49 GMT
+Content-Length: 1601
+Date: Sat, 17 Mar 2012 16:13:30 GMT
 Connection: close
 
 {
   "WsAssignPermissionsResults":{
     "responseMetadata":{
-      "millis":"565",
-      "serverVersion":"2.0.0"
+      "millis":"73",
+      "serverVersion":"2.1.0"
     },
     "resultMetadata":{
       "resultCode":"SUCCESS",
@@ -77,21 +77,21 @@ Connection: close
         "deleted":"F",
         "wsAttributeAssigns":[
           {
-            "attributeAssignActionId":"dc6bb909db4b4ffd90d073566df7c12e",
+            "attributeAssignActionId":"85cf55f094dc4b87a4a0c6106f2b44e7",
             "attributeAssignActionName":"write",
             "attributeAssignActionType":"immediate",
             "attributeAssignDelegatable":"FALSE",
             "attributeAssignType":"group",
-            "attributeDefId":"429d4f5f699045a4b5bb7205a1de54c1",
+            "attributeDefId":"8679ac4b7cbd4c3f9171957556649c13",
             "attributeDefName":"aStem:permissionDef",
-            "attributeDefNameId":"a5608d80b98549dfa1f4038e6ae54ee6",
+            "attributeDefNameId":"c237668792bb439298c93de4281efdb8",
             "attributeDefNameName":"aStem:permissionDefName",
-            "createdOn":"2011/08/12 20:35:49.676",
+            "createdOn":"2012/03/17 12:13:30.708",
             "disallowed":"F",
             "enabled":"T",
-            "id":"00f7fbff0f88420a811ea1b0acdc8089",
-            "lastUpdated":"2011/08/12 20:35:49.676",
-            "ownerGroupId":"9900e3645afa4c27a0a32084b66b9269",
+            "id":"1c27957d1c864b479b75ccf1dd4fc511",
+            "lastUpdated":"2012/03/17 12:13:30.708",
+            "ownerGroupId":"10cf8b4186b2407cb76eb9b2fe210ec5",
             "ownerGroupName":"aStem:role"
           }
         ]
@@ -100,13 +100,13 @@ Connection: close
     ,
     "wsAttributeDefNames":[
       {
-        "attributeDefId":"429d4f5f699045a4b5bb7205a1de54c1",
+        "attributeDefId":"8679ac4b7cbd4c3f9171957556649c13",
         "attributeDefName":"aStem:permissionDef",
         "displayExtension":"permissionDefName",
         "displayName":"a stem:permissionDefName",
         "extension":"permissionDefName",
         "name":"aStem:permissionDefName",
-        "uuid":"a5608d80b98549dfa1f4038e6ae54ee6"
+        "uuid":"c237668792bb439298c93de4281efdb8"
       }
     ]
     ,
@@ -117,7 +117,7 @@ Connection: close
         "multiAssignable":"F",
         "multiValued":"F",
         "name":"aStem:permissionDef",
-        "uuid":"429d4f5f699045a4b5bb7205a1de54c1",
+        "uuid":"8679ac4b7cbd4c3f9171957556649c13",
         "valueType":"marker"
       }
     ]
@@ -128,7 +128,8 @@ Connection: close
         "displayName":"a stem:role",
         "extension":"role",
         "name":"aStem:role",
-        "uuid":"9900e3645afa4c27a0a32084b66b9269"
+        "typeOfGroup":"role",
+        "uuid":"10cf8b4186b2407cb76eb9b2fe210ec5"
       }
     ]
     ,
@@ -302,4 +303,4 @@ public class WsSampleAssignPermissionsRest implements WsSampleRest {
 #########################################
 
 
-Server version: 2.0.0, result code: SUCCESS, result message: , Found 1 results.
+Server version: 2.1.0, result code: SUCCESS, result message: , Found 1 results.

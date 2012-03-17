@@ -29,8 +29,6 @@ Content-Type: application/xhtml+xml; charset=UTF-8
       <p class="attributeDefNameName">test:testAttributeAssignDefNameToSave1RestLite_xhtml</p>
       <p class="clientVersion" />
       <p class="txType" />
-      <p class="createParentStemsIfNotExist" />
-      <p class="saveMode" />
       <p class="actAsSubjectId" />
       <p class="actAsSubjectSourceId" />
       <p class="actAsSubjectIdentifier" />
@@ -43,6 +41,8 @@ Content-Type: application/xhtml+xml; charset=UTF-8
       <p class="attributeDefNameLookupName" />
       <p class="attributeDefLookupUuid" />
       <p class="attributeDefLookupName">test:testAttributeAssignDefNameDef</p>
+      <p class="saveMode" />
+      <p class="createParentStemsIfNotExist" />
       <p class="description">This is a description 1 rest lite xhtml</p>
     </div>
   </body>
@@ -64,7 +64,7 @@ X-Grouper-resultCode: SUCCESS_INSERTED
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml;charset=UTF-8
-Date: Sat, 25 Feb 2012 17:26:40 GMT
+Date: Sat, 17 Mar 2012 15:35:21 GMT
 Connection: close
 
 <?xml version='1.0' encoding='iso-8859-1'?>
@@ -86,7 +86,7 @@ wsAttributeDefName=WsAttributeDefName[displayExtension=My new attribute...
         <p class="success">T</p>
       </div>
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">125</p>
+        <p class="millis">87</p>
         <p class="resultWarnings" />
         <p class="serverVersion">2.1.0</p>
       </div>
@@ -94,11 +94,11 @@ wsAttributeDefName=WsAttributeDefName[displayExtension=My new attribute...
         <p class="name">test:testAttributeAssignDefNameToSave1RestLite_xhtml</p>
         <p class="displayName">test:My new attribute def name to save 1 rest lite xhtml</p>
         <p class="description">This is a description 1 rest lite xhtml</p>
-        <p class="uuid">e2fcf19ae547470bbe333964c3ccba74</p>
+        <p class="uuid">999fb6749d1142b494ea17d9aef7df67</p>
         <p class="extension">testAttributeAssignDefNameToSave1RestLite_xhtml</p>
         <p class="displayExtension">My new attribute def name to save 1 rest lite xhtml</p>
         <p class="attributeDefName">test:testAttributeAssignDefNameDef</p>
-        <p class="attributeDefId">fafc31a817ce4aa080e8533276679cb2</p>
+        <p class="attributeDefId">544abf1bd0f04bc1bad03c6111961d2e</p>
       </div>
     </div>
   </body>

@@ -1,4 +1,4 @@
-Grouper web service sample of service: groupDelete, WsSampleGroupDeleteRest, manually written lite/rest, format: xhtml, for version: 2.0.0
+Grouper web service sample of service: groupDelete, WsSampleGroupDeleteRest, manually written lite/rest, format: xhtml, for version: 2.1.0
 
 
 #########################################
@@ -9,7 +9,7 @@ Grouper web service sample of service: groupDelete, WsSampleGroupDeleteRest, man
 #########################################
 
 
-POST /grouperWs/servicesRest/v2_0_000/groups HTTP/1.1
+POST /grouper-ws/servicesRest/v2_1_000/groups HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.0
@@ -27,8 +27,8 @@ Content-Type: application/xhtml+xml; charset=UTF-8
     <div title="WsRestGroupDeleteRequest">
       <p class="clientVersion" />
       <div class="actAsSubjectLookup" title="WsSubjectLookup" />
-      <p class="includeGroupDetail" />
       <p class="txType" />
+      <p class="includeGroupDetail" />
       <ul class="wsGroupLookups">
         <li title="WsGroupLookup">
           <p class="uuid" />
@@ -54,12 +54,12 @@ Content-Type: application/xhtml+xml; charset=UTF-8
 
 HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml;charset=UTF-8
-Date: Fri, 12 Aug 2011 22:18:55 GMT
+Date: Sat, 17 Mar 2012 15:46:39 GMT
 Connection: close
 
 <?xml version='1.0' encoding='iso-8859-1'?>
@@ -74,10 +74,10 @@ Connection: close
         <li title="WsGroupDeleteResult">
           <div class="resultMetadata" title="WsResultMeta">
             <p class="resultCode">SUCCESS_GROUP_NOT_FOUND</p>
-            <p class="success">T</p>
             <p class="resultCode2" />
             <p class="resultMessage">Cant find group: 'WsGroupLookup[pitGroups=[],groupName=aStem:whatever,
 groupFindResult=GROUP_NOT_FOUND]'.</p>
+            <p class="success">T</p>
           </div>
           <div class="wsGroup" title="WsGroup">
             <p class="name">aStem:whatever</p>
@@ -87,15 +87,16 @@ groupFindResult=GROUP_NOT_FOUND]'.</p>
             <div class="detail" title="WsGroupDetail" />
             <p class="extension">whatever</p>
             <p class="displayExtension" />
+            <p class="typeOfGroup" />
           </div>
         </li>
         <li title="WsGroupDeleteResult">
           <div class="resultMetadata" title="WsResultMeta">
             <p class="resultCode">SUCCESS_GROUP_NOT_FOUND</p>
-            <p class="success">T</p>
             <p class="resultCode2" />
             <p class="resultMessage">Cant find group: 'WsGroupLookup[pitGroups=[],groupName=aStem:whatever2,
 groupFindResult=GROUP_NOT_FOUND]'.</p>
+            <p class="success">T</p>
           </div>
           <div class="wsGroup" title="WsGroup">
             <p class="name">aStem:whatever2</p>
@@ -105,22 +106,24 @@ groupFindResult=GROUP_NOT_FOUND]'.</p>
             <div class="detail" title="WsGroupDetail" />
             <p class="extension">whatever2</p>
             <p class="displayExtension" />
+            <p class="typeOfGroup" />
           </div>
         </li>
       </ul>
       <div class="resultMetadata" title="WsResultMeta">
         <p class="resultCode">SUCCESS</p>
-        <p class="success">T</p>
         <p class="resultCode2" />
-        <p class="resultMessage">Success for: clientVersion: 2.0.0, wsGroupLookups: Array size: 2: [0]: WsGroupLookup[pitGroups=[],groupName=aStem:whatever]
+        <p class="resultMessage">Success for: clientVersion: 2.1.0, wsGroupLookups: Array size: 2: [0]: WsGroupLookup[pitGroups=[],groupName=aStem:whatever]
 [1]: WsGroupLookup[pitGroups=[],groupName=aStem:whatever2]
+
 , actAsSubject: null, txType: NONE, includeGroupDetail: false, paramNames:
 , params: null</p>
+        <p class="success">T</p>
       </div>
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">22</p>
+        <p class="millis">33</p>
         <p class="resultWarnings" />
-        <p class="serverVersion">2.0.0</p>
+        <p class="serverVersion">2.1.0</p>
       </div>
     </div>
   </body>
@@ -284,7 +287,7 @@ public class WsSampleGroupDeleteRest implements WsSampleRest {
 #########################################
 
 
-Server version: 2.0.0, result code: SUCCESS, result message: Success for: clientVersion: 2.0.0, wsGroupLookups: Array size: 2: [0]: WsGroupLookup[pitGroups=[],groupName=aStem:whatever]
+Server version: 2.1.0, result code: SUCCESS, result message: Success for: clientVersion: 2.1.0, wsGroupLookups: Array size: 2: [0]: WsGroupLookup[pitGroups=[],groupName=aStem:whatever]
 [1]: WsGroupLookup[pitGroups=[],groupName=aStem:whatever2]
 
 , actAsSubject: null, txType: NONE, includeGroupDetail: false, paramNames: 

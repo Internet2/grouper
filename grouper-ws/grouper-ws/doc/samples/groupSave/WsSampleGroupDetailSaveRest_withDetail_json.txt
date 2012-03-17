@@ -1,4 +1,4 @@
-Grouper web service sample of service: groupSave, WsSampleGroupDetailSaveRest, manually written lite/rest, type: _withDetail, format: json, for version: 2.0.0
+Grouper web service sample of service: groupSave, WsSampleGroupDetailSaveRest, manually written lite/rest, type: _withDetail, format: json, for version: 2.1.0
 
 
 #########################################
@@ -9,7 +9,7 @@ Grouper web service sample of service: groupSave, WsSampleGroupDetailSaveRest, m
 #########################################
 
 
-POST /grouperWs/servicesRest/v2_0_000/groups HTTP/1.1
+POST /grouper-ws/servicesRest/v2_1_000/groups HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.0
@@ -101,24 +101,24 @@ Content-Type: text/x-json; charset=UTF-8
 
 HTTP/1.1 201 Created
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/x-json;charset=UTF-8
-Content-Length: 1387
-Date: Fri, 12 Aug 2011 22:20:46 GMT
+Content-Length: 1453
+Date: Sat, 17 Mar 2012 15:48:14 GMT
 Connection: close
 
 {
   "WsGroupSaveResults":{
     "responseMetadata":{
-      "millis":"790",
-      "serverVersion":"2.0.0"
+      "millis":"861",
+      "serverVersion":"2.1.0"
     },
     "resultMetadata":{
       "resultCode":"SUCCESS",
-      "resultMessage":"Success for: clientVersion: 2.0.0, wsGroupToSaves: Array size: 3: [0]: WsGroupToSave[\n  wsGroupLookup=WsGroupLookup[pitGroups=[],groupName=aStem:whateverGroupLeft],\n  wsGroup=WsGroup[extension=whateverGroupLeft,displayExtension=whateverGroupLeftDis...\n, actAsSubject: null, txType: NONE, paramNames: \n, params: null",
+      "resultMessage":"Success for: clientVersion: 2.1.0, wsGroupToSaves: Array size: 3: [0]: WsGroupToSave[\n  wsGroupLookup=WsGroupLookup[pitGroups=[],groupName=aStem:whateverGroupLeft],\n  wsGroup=WsGroup[extension=whateverGroupLeft,displayExtension=whateverGroupLeftDis...\n, actAsSubject: null, txType: NONE, paramNames: \n, params: null",
       "success":"T"
     },
     "results":[
@@ -133,7 +133,8 @@ Connection: close
           "displayName":"a stem:whateverGroupLeftDispExt",
           "extension":"whateverGroupLeft",
           "name":"aStem:whateverGroupLeft",
-          "uuid":"3aebacb15fb743b4899567624a307505"
+          "typeOfGroup":"group",
+          "uuid":"ff67579e2f2f446cb09f6103a45e4c06"
         }
         
       },
@@ -148,7 +149,8 @@ Connection: close
           "displayName":"a stem:whateverGroupRightDispExt",
           "extension":"whateverGroupRight",
           "name":"aStem:whateverGroupRight",
-          "uuid":"73b3865dc2df41ae85ab462c49cd7c5e"
+          "typeOfGroup":"group",
+          "uuid":"f6d1b819d71e47d887a063be931c66ae"
         }
         
       },
@@ -163,7 +165,8 @@ Connection: close
           "displayName":"a stem:disp1",
           "extension":"whateverGroup",
           "name":"aStem:whateverGroup",
-          "uuid":"17539cb45d254202af82dbe1ca37cc3e"
+          "typeOfGroup":"group",
+          "uuid":"fe7e550e592a4e968378ae37742d1da5"
         }
       }
     ]
@@ -368,7 +371,7 @@ public class WsSampleGroupDetailSaveRest implements WsSampleRest {
 #########################################
 
 
-Server version: 2.0.0, result code: SUCCESS, result message: Success for: clientVersion: 2.0.0, wsGroupToSaves: Array size: 3: [0]: WsGroupToSave[
+Server version: 2.1.0, result code: SUCCESS, result message: Success for: clientVersion: 2.1.0, wsGroupToSaves: Array size: 3: [0]: WsGroupToSave[
   wsGroupLookup=WsGroupLookup[pitGroups=[],groupName=aStem:whateverGroupLeft],
   wsGroup=WsGroup[extension=whateverGroupLeft,displayExtension=whateverGroupLeftDis...
 , actAsSubject: null, txType: NONE, paramNames: 
